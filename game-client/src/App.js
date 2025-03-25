@@ -135,6 +135,13 @@ const TILE_SIZES = { close: 30, far: 16 }; // Rename for clarity
 const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
 
 
+useEffect(() => {
+  if (!currentPlayer) {
+    console.log("🧭 useEffect fallback: no currentPlayer, opening LoginPanel...");
+    openPanel("LoginPanel");
+  }
+}, [currentPlayer]);
+
 
 /////// TIMERS //////////////////////////////////////////////////////
 
@@ -1050,7 +1057,6 @@ const zoomOut = () => {
   if (!currentPlayer) {
 
     console.log("🧭 Showing fallback modal because no player is stored.");
-    openPanel("LoginPanel");  // Force open it here just to test
   
     return (
       <div className="app-container">
