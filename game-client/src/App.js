@@ -1,5 +1,6 @@
 import './App.css';
 import './VFX/VFX.css';
+import API_BASE from './config.js'; 
 import axios from 'axios';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
 import { initializeGrid, postLoginInitialization } from './AppInit';
@@ -170,8 +171,10 @@ const fetchTimersData = async () => {
 
   try {
     const [settlementResponse, frontierResponse] = await Promise.all([
-      axios.get(`http://localhost:3001/api/get-settlement/${currentPlayer.settlementId}`),
-      axios.get(`http://localhost:3001/api/get-frontier/${currentPlayer.frontierId}`)
+
+      
+      axios.get(`${API_BASE}/api/get-settlement/${currentPlayer.settlementId}`),
+      axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`)
     ]);
 
     console.log('frontierResponse = ',frontierResponse);
@@ -275,7 +278,7 @@ const handleResetTimers = async () => {
     localStorage.removeItem("timers");
 
     // ✅ Step 2: Request server to reset timers
-    const response = await axios.post("http://localhost:3001/api/reset-all-timers");
+    const response = await axios.post(`${API_BASE}/api/reset-all-timers`);
     if (response.data.success) {
       console.log("✅ Timers reset successfully from the client.");
       updateStatus("🔄 All timers reset successfully.");
@@ -338,7 +341,7 @@ useEffect(() => {
       const parsedPlayer = JSON.parse(storedPlayer);
 
       // 2. Fetch the full player data from the server
-      const response = await axios.get(`http://localhost:3001/api/player/${parsedPlayer.playerId}`);
+      const response = await axios.get(`${API_BASE}/api/player/${parsedPlayer.playerId}`);
       const fullPlayerData = response.data;
       if (!fullPlayerData || !fullPlayerData.playerId) {
         console.error('Invalid full player data from server:', fullPlayerData);
@@ -390,7 +393,7 @@ useEffect(() => {
         console.log('✅ Player found in local gridState.');
       
         // Fetch the gridState from the DB
-        const { data: gridStateResponse } = await axios.get(`http://localhost:3001/api/load-grid-state/${fullPlayerData.location.g}`);
+        const { data: gridStateResponse } = await axios.get(`${API_BASE}/api/load-grid-state/${fullPlayerData.location.g}`);
         const dbGridState = gridStateResponse?.gridState || { npcs: {}, pcs: {} };
       
         // ✅ If the player is missing from DB gridState, re-save gridState
@@ -432,7 +435,7 @@ useEffect(() => {
       }
 
       // ✅ Backfill gridState stats into player document on DB
-      await axios.post('http://localhost:3001/api/update-profile', {
+      await axios.post(`${API_BASE}/api/update-profile`, {
         playerId: fullPlayerData.playerId,
         updates: {
           hp: fullPlayerData.hp,
@@ -481,7 +484,7 @@ useEffect(() => {
         });
         setIsModalOpen(true);
         // ✅ **Reset hasDied = false in the database**
-        await axios.post('http://localhost:3001/api/update-profile', {
+        await axios.post(`${API_BASE}/api/update-profile`, {
           playerId: updatedPlayerData.playerId,
           updates: { settings: { ...updatedPlayerData.settings, hasDied: false } },  // ✅ Reset inside settings
         });
@@ -617,7 +620,7 @@ const handlePlayerDeath = async (player) => {
     console.log(`Updating profile and clearing backpack for player ${player.username}`);
     
     // 1. **Update Player Data in the Database**
-    await axios.post('http://localhost:3001/api/update-profile', {
+    await axios.post(`${API_BASE}/api/update-profile`, {
       playerId: player._id,
       updates: {
         backpack: [],  // Empty the backpack
@@ -1039,6 +1042,21 @@ const zoomOut = () => {
   const combatStats = gridState?.pcs?.[String(currentPlayer?._id)] || {};
   const [showTimers, setShowTimers] = useState(false);
 
+  if (!currentPlayer) {
+    return (
+      <div className="app-container">
+        <Modal
+          isOpen={true}
+          onClose={() => {}}
+          title={strings["5030"]}
+          message={strings["5031"]}
+          message2={strings["5032"]}
+          size="small"
+        />
+      </div>
+    );
+  }
+  
   return (
 
     <div className="app-container">
