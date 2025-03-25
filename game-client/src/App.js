@@ -108,6 +108,9 @@ const [isModalOpen, setIsModalOpen] = useState(false);
 const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
 
 const { activePanel, openPanel, closePanel } = usePanelContext();
+
+openPanel("LoginPanel");
+
 const [activeQuestGiver, setActiveQuestGiver] = useState(null);
 const [activeSocialPC, setActiveSocialPC] = useState(null);
 const [isProfilePanelOpen] = useState(false);
