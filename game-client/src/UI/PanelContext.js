@@ -6,7 +6,12 @@ export const PanelProvider = ({ children }) => {
   const [activePanel, setActivePanel] = useState(null);
 
   const openPanel = (panelName) => {
+    console.log('Made it to openPanel; panelName = ',panelName);
+
     setActivePanel(panelName);
+
+    console.log('Made it to openPanel; activePanel = ',activePanel);
+
   };
   const closePanel = () => {
     setActivePanel(null);

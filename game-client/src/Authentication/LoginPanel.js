@@ -51,6 +51,18 @@ const LoginPanel = ({ onClose, setCurrentPlayer, onLoginSuccess }) => {
           <form onSubmit={handleLogin} className="panel-form">
             <div className="form-group">
 
+            <div className="panel-buttons">
+            <h3>Don't have an account yet? Create a free account to start playing:</h3>
+              <button
+                type="button"
+                className="btn-success"
+                onClick={() => setShowCreateAccount(true)}
+              >
+                Create Account
+              </button>
+            </div>  
+            <h4>With a new account, you'll be granted your own homestead to cultivate in a Settlement with other players, in a Frontier full of Settlements. Adventure awits you in the Valley.</h4>
+
             <h3>Have an existing account?</h3>
 
               <label htmlFor="username">Username</label>
@@ -78,15 +90,6 @@ const LoginPanel = ({ onClose, setCurrentPlayer, onLoginSuccess }) => {
               <button type="submit" className="btn-success">
                 Login
               </button>
-              <h3>Don't have an account yet? Create a free account to start playing:</h3>
-              <button
-                type="button"
-                className="btn-success"
-                onClick={() => setShowCreateAccount(true)}
-              >
-                Create Account
-              </button>
-            <h4>With a new account, you'll be granted your own homestead to cultivate in a Settlement with other players, in a Frontier full of Settlements. Adventure awits you in the Valley.</h4>
             </div>
           </form>
         </div>

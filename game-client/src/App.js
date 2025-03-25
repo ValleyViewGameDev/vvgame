@@ -108,9 +108,6 @@ const [isModalOpen, setIsModalOpen] = useState(false);
 const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
 
 const { activePanel, openPanel, closePanel } = usePanelContext();
-
-openPanel("LoginPanel");
-
 const [activeQuestGiver, setActiveQuestGiver] = useState(null);
 const [activeSocialPC, setActiveSocialPC] = useState(null);
 const [isProfilePanelOpen] = useState(false);
@@ -136,14 +133,6 @@ const [isTooltipVisible, setIsTooltipVisible] = useState(false);
 const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
 const TILE_SIZES = { close: 30, far: 16 }; // Rename for clarity
 const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
-
-
-useEffect(() => {
-  if (!currentPlayer) {
-    console.log("🧭 useEffect fallback: no currentPlayer, opening LoginPanel...");
-    openPanel("LoginPanel");
-  }
-}, [currentPlayer]);
 
 
 /////// TIMERS //////////////////////////////////////////////////////
@@ -343,6 +332,8 @@ useEffect(() => {
         setisLoginPanelOpen(true);    
         openPanel("LoginPanel");  
 
+        console.log('Got past openPanel.');
+
         setModalContent({
           title: strings["5005"],  // "Welcome"
           message: strings["5006"], 
@@ -350,6 +341,8 @@ useEffect(() => {
           size: "small"
         });
         setIsModalOpen(true);
+
+        console.log('Got past welcome modal logic.');
 
         return;
       }
@@ -1057,26 +1050,25 @@ const zoomOut = () => {
   const combatStats = gridState?.pcs?.[String(currentPlayer?._id)] || {};
   const [showTimers, setShowTimers] = useState(false);
 
-  if (!currentPlayer) {
-
-    console.log("🧭 Showing fallback modal because no player is stored.");
+  // if (!currentPlayer) {
+  //   // Note: this works
+  //   return (
+  //     <div className="app-container">
+  //       <Modal
+  //         isOpen={true}
+  //         onClose={() => {}}
+  //         title={strings["5030"]}
+  //         message={strings["5031"]}
+  //         message2={strings["5032"]}
+  //         size="small"
+  //       />
+  //     </div>
+  //   );
+  // }
   
-    return (
-      <div className="app-container">
-        <Modal
-          isOpen={true}
-          onClose={() => {}}
-          title={strings["5030"]}
-          message={strings["5031"]}
-          message2={strings["5032"]}
-          size="small"
-        />
-      </div>
-    );
-  }
   
   return (
-
+  
     <div className="app-container">
     <FloatingTextManager />
 
