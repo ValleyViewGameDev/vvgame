@@ -31,7 +31,12 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+  origin: ['https://vvgame.onrender.com'], // ⬅️ your frontend domain
+  credentials: true, // optional: if you're using cookies or auth headers
+};
+app.use(cors(corsOptions));
+
 app.use(express.json({ limit: '10mb' }));
 
 // Logging middleware for debugging
