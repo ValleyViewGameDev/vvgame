@@ -143,7 +143,7 @@ const [timers, setTimers] = useState(() => {
   // Load from local storage (if available)
   const storedTimers = JSON.parse(localStorage.getItem("timers"));
   return storedTimers || {
-    season: { phase: "", endTime: null, type: "" },
+    seasons: { phase: "", endTime: null, type: "" },
     election: { phase: "", endTime: null },
     train: { phase: "", endTime: null },
     taxes: { phase: "", endTime: null },  
