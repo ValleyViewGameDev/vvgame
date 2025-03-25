@@ -1,3 +1,4 @@
+import API_BASE from '../../config';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
@@ -20,7 +21,7 @@ function GovPanel({ onClose, currentPlayer }) {
       try {
         console.log("🏛️ Fetching full settlement data for ID:", currentPlayer.settlementId);
         
-        const settlementResponse = await axios.get(`http://localhost:3001/api/get-settlement/${currentPlayer.settlementId}`);
+        const settlementResponse = await axios.get(`${API_BASE}/api/get-settlement/${currentPlayer.settlementId}`);
         const settlement = settlementResponse.data;
         setSettlementData(settlement);
         setSettlementRoles(settlement.roles || []);
@@ -46,7 +47,7 @@ function GovPanel({ onClose, currentPlayer }) {
           }
   
           try {
-            const playerResponse = await axios.get(`http://localhost:3001/api/player/${playerId}`);
+            const playerResponse = await axios.get(`${API_BASE}/api/player/${playerId}`);
             return { roleName, username: playerResponse.data.username };
           } catch (error) {
             console.error(`❌ Error fetching player for ${roleName}:`, error);

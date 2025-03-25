@@ -1,3 +1,4 @@
+import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
@@ -44,9 +45,9 @@ const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stat
         console.log("Fetching skills and inventory for:", entryPoint);
         
         const [inventoryResponse, skillsResponse, resourcesResponse] = await Promise.all([
-          axios.get(`http://localhost:3001/api/inventory/${currentPlayer.playerId}`),
-          axios.get(`http://localhost:3001/api/skills/${currentPlayer.playerId}`),
-          axios.get('http://localhost:3001/api/resources'),
+          axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`),
+          axios.get(`${API_BASE}/api/skills/${currentPlayer.playerId}`),
+          axios.get(`${API_BASE}/api/resources`),
         ]);
 
         const serverInventory = inventoryResponse.data.inventory || [];
@@ -144,12 +145,12 @@ const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stat
     FloatingTextManager.addFloatingText(`+1 ${resource.type}`, window.innerWidth / 12, window.innerHeight / 4);
 
     try {
-      await axios.post(`http://localhost:3001/api/update-inventory`, {
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         inventory: updatedInventory,
       });
 
-      await axios.post(`http://localhost:3001/api/update-skills`, {
+      await axios.post(`${API_BASE}/api/update-skills`, {
         playerId: currentPlayer.playerId,
         skills: [...updatedSkills, ...updatedUpgrades], // ✅ Ensure all are sent to the server
       });

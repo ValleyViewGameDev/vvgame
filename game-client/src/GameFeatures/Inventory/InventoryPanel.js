@@ -1,3 +1,4 @@
+import API_BASE from '../../config';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
@@ -16,7 +17,7 @@ function InventoryPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus
     if (currentPlayer?.playerId) {
       const fetchData = async () => {
         try {
-          const inventoryResponse = await axios.get(`http://localhost:3001/api/inventory/${currentPlayer.playerId}`);
+          const inventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
           const updatedPlayer = {
             ...currentPlayer,
             inventory: inventoryResponse.data.inventory || [],
@@ -25,7 +26,7 @@ function InventoryPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus
 
           setCurrentPlayer(updatedPlayer);
 
-          const resourcesResponse = await axios.get('http://localhost:3001/api/resources');
+          const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
           setAllResources(resourcesResponse.data || []);
           updateStatus('Inventory loaded successfully');
         } catch (error) {
@@ -54,7 +55,7 @@ function InventoryPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus
         updatedWarehouseInventory.push(item);
       }
 
-      await axios.post('http://localhost:3001/api/update-inventory', {
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         inventory: updatedWarehouseInventory,
         backpack: backpackInventory.filter((i) => i.type !== item.type), // Remove from backpack
@@ -68,7 +69,7 @@ function InventoryPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus
 
       updateStatus(`✅ Moved ${item.quantity}x ${item.type} to warehouse`);
     } else {
-      await axios.post('http://localhost:3001/api/update-inventory', {
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         backpack: backpackInventory.filter((i) => i.type !== item.type),
       });
@@ -102,7 +103,7 @@ function InventoryPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus
       // ✅ Keep only Tents in the backpack
       const updatedBackpack = backpackInventory.filter((item) => item.type === "Tent");
 
-      await axios.post('http://localhost:3001/api/update-inventory', {
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         inventory: updatedWarehouseInventory,
         backpack: updatedBackpack,
@@ -115,7 +116,7 @@ function InventoryPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus
       }));
       updateStatus(33);
     } else {
-      await axios.post('http://localhost:3001/api/update-inventory', {
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         backpack: [],
       });

@@ -1,3 +1,4 @@
+import API_BASE from "../config";
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import "./FrontierView.css";
@@ -28,7 +29,7 @@ const FrontierView = ({
     const fetchFrontierGrid = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/api/get-frontier-grid/${currentPlayer.location.f}`
+          `${API_BASE}/api/get-frontier-grid/${currentPlayer.location.f}`
         );
         const gridData = response.data.frontierGrid || [];
         console.log("Fetched Frontier Grid:", gridData);
@@ -62,7 +63,7 @@ const FrontierView = ({
   const fetchSettlementIcon = async (settlementId) => {
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/get-settlement-grid/${settlementId}`
+        `${API_BASE}/api/get-settlement-grid/${settlementId}`
       );
       const grids = response.data.grid || [];
 
@@ -126,7 +127,7 @@ const FrontierView = ({
     if (tile.settlementType === "homesteadSet") {
       try {
         // Fetch the settlement grid
-        const response = await axios.get(`http://localhost:3001/api/get-settlement-grid/${tile.settlementId}`);
+        const response = await axios.get(`${API_BASE}/api/get-settlement-grid/${tile.settlementId}`);
         const grids = response.data.grid || [];
   
         console.log("currentPlayer.gridId:", currentPlayer.gridId);

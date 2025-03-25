@@ -1,3 +1,4 @@
+import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
@@ -58,7 +59,7 @@ function SeasonPanel({ onClose, currentPlayer }) {
         console.log("💰 Fetching wealthiest citizens for settlement:", currentPlayer.settlementId);
         
         // ✅ Fetch all players in this settlement
-        const response = await axios.get(`http://localhost:3001/api/get-players-by-settlement/${currentPlayer.settlementId}`);
+        const response = await axios.get(`${API_BASE}/api/get-players-by-settlement/${currentPlayer.settlementId}`);
         const players = response.data;
 
         // ✅ Sort players by Net Worth
@@ -84,7 +85,7 @@ function SeasonPanel({ onClose, currentPlayer }) {
   const handleResetSeason = async () => {
     try {
       console.log("🔄 Resetting season...");
-      const response = await axios.post("http://localhost:3001/api/reset-season");
+      const response = await axios.post(`${API_BASE}/api/reset-season`);
 
       if (response.data?.message) {
         console.log(`✅ ${response.data.message}`);

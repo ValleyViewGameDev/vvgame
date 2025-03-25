@@ -1,3 +1,4 @@
+import API_BASE from '../../config';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
@@ -61,7 +62,7 @@ function TrainPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) 
 
   const fetchTrainOffers = async () => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/get-settlement/${currentPlayer.settlementId}`);
+      const response = await axios.get(`${API_BASE}/api/get-settlement/${currentPlayer.settlementId}`);
       setTrainOffers(response.data?.currnetoffers || []);
       setNextOffers(response.data?.nextoffers || []);
       setTrainRewards(response.data?.trainrewards || []);
@@ -72,7 +73,7 @@ function TrainPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) 
 
   const fetchResources = async () => {
     try {
-      const res = await axios.get("http://localhost:3001/api/resources");
+      const res = await axios.get(`${API_BASE}/api/resources`);
       setAllResources(res.data || []);
     } catch (err) {
       console.error("❌ Error fetching resources:", err);
@@ -87,7 +88,7 @@ function TrainPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) 
     if (!offer || offer.claimedBy) return;
 
     try {
-      await axios.post(`http://localhost:3001/api/update-train-offer/${currentPlayer.settlementId}`, {
+      await axios.post(`${API_BASE}/api/update-train-offer/${currentPlayer.settlementId}`, {
         updateOffer: {
           ...offer,
           claimedBy: currentPlayer.playerId,
@@ -125,12 +126,12 @@ function TrainPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) 
     }
 
     try {
-      await axios.post(`http://localhost:3001/api/update-inventory`, {
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         inventory: updatedInventory,
       });
 
-      await axios.post(`http://localhost:3001/api/update-train-offer/${currentPlayer.settlementId}`, {
+      await axios.post(`${API_BASE}/api/update-train-offer/${currentPlayer.settlementId}`, {
         updateOffer: {
           ...offer,
           filled: true,

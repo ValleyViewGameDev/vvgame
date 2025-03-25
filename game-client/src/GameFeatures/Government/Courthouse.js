@@ -1,3 +1,4 @@
+import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
@@ -25,7 +26,7 @@ const fetchElectionData = async () => {
         console.log(`🏛️ Fetching election & settlement data for Frontier: ${currentPlayer.frontierId}, Settlement: ${currentPlayer.settlementId}`);
 
         // ✅ Fetch Settlement Data
-        const settlementResponse = await axios.get(`http://localhost:3001/api/get-settlement/${currentPlayer.settlementId}`);
+        const settlementResponse = await axios.get(`${API_BASE}/api/get-settlement/${currentPlayer.settlementId}`);
         const settlementData = settlementResponse.data;
         setSettlement(settlementData);
         setTaxRate(settlementData.taxrate || 0);
@@ -43,7 +44,7 @@ const fetchElectionData = async () => {
         if (electionPhase === "Counting") {
             console.log("🗳️ Election ended. Clearing campaign promises and votes...");
 
-            await axios.post(`http://localhost:3001/api/reset-election-votes`, {
+            await axios.post(`${API_BASE}/api/reset-election-votes`, {
                 settlementId: currentPlayer.settlementId,
             });
 
@@ -120,7 +121,7 @@ const handleAddCampaignPromise = async () => {
         return;
     }
     try {
-        const response = await axios.post(`http://localhost:3001/api/save-campaign-promise`, {
+        const response = await axios.post(`${API_BASE}/api/save-campaign-promise`, {
             settlementId: currentPlayer.settlementId,
             playerId: currentPlayer._id,
             username: currentPlayer.username,
@@ -144,7 +145,7 @@ const handleVote = async () => {
     if (!selectedCandidate) return;
 
     try {
-        const response = await axios.post(`http://localhost:3001/api/cast-vote`, {
+        const response = await axios.post(`${API_BASE}/api/cast-vote`, {
             settlementId: currentPlayer.settlementId,
             voterId: currentPlayer._id,
             candidateId: selectedCandidate,
@@ -172,7 +173,7 @@ const handleSaveTaxRate = async () => {
     try {
       console.log(`💾 Saving new tax rate: ${tempTaxRate}%`);
   
-      const response = await axios.post(`http://localhost:3001/api/update-settlement`, {
+      const response = await axios.post(`${API_BASE}/api/update-settlement`, {
         settlementId: currentPlayer.settlementId,
         updates: { taxrate: tempTaxRate }, // ✅ Save the new tax rate
     });

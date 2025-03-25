@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import axios from 'axios';
 import NPC from '../GameFeatures/NPCs/NPCs';
 import { loadMasterResources } from '../Utils/TuningManager';
@@ -21,7 +22,7 @@ class GridStateManager {
     }
   
     try {
-      const response = await axios.get(`http://localhost:3001/api/load-grid-state/${gridId}`);
+      const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
       const { gridState = {} } = response.data;
   
       console.log('Fetched gridState:', gridState);
@@ -134,7 +135,7 @@ async spawnNPC(gridId, npcType, position) {
   }
   if (typeof npcType !== 'string') { console.error('Invalid npcType. Expected a string but got:', npcType); return;
   }
-  const masterResources = await axios.get('http://localhost:3001/api/resources');
+  const masterResources = await axios.get(`${API_BASE}/api/resources`);
   const npcTemplate = masterResources.data.find((res) => res.type === npcType && res.category === 'npc');
   if (!npcTemplate) { console.error(`NPC template not found for type: ${npcType}`); return; }
 
@@ -311,7 +312,7 @@ async saveGridState(gridId) {
   //console.log(`Saving gridState to DB for gridId: ${gridId}`, gridState);
 
   try {
-    await axios.post(`http://localhost:3001/api/save-grid-state`, {
+    await axios.post(`${API_BASE}/api/save-grid-state`, {
       gridId,
       gridState: {
         npcs: Object.keys(gridState.npcs || {}).reduce((acc, id) => {

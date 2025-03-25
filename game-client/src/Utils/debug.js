@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import Panel from '../UI/Panel';
@@ -110,7 +111,7 @@ useEffect(() => {
       }
   
       // Fetch settlement data to retrieve frontierId
-      const settlementResponse = await axios.get(`http://localhost:3001/api/get-settlement/${settlementId}`);
+      const settlementResponse = await axios.get(`${API_BASE}/api/get-settlement/${settlementId}`);
       const settlement = settlementResponse.data;
   
       if (!settlement || !settlement.frontierId) {
@@ -123,7 +124,7 @@ useEffect(() => {
       console.log('Settlement and frontierId resolved:', { settlementId, frontierId });
   
       // Fetch grid data to determine the gridType dynamically
-      const gridResponse = await axios.get(`http://localhost:3001/api/load-grid/${currentGridId}`);
+      const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${currentGridId}`);
       const gridData = gridResponse.data;
   
       if (!gridData || !gridData.gridType) {
@@ -137,7 +138,7 @@ useEffect(() => {
       console.log('Grid type resolved:', gridType);
   
       // Send request to reset the grid
-      const resetResponse = await axios.post('http://localhost:3001/api/reset-grid', {
+      const resetResponse = await axios.post(`${API_BASE}/api/reset-grid`, {
         gridCoord,
         gridId: currentGridId, // Use the Mongo `_id` of the grid
         gridType,
@@ -165,7 +166,7 @@ useEffect(() => {
   
       // Fetch the settlement data
       const response = await axios.get(
-        `http://localhost:3001/api/get-settlement/${settlementId}`
+        `${API_BASE}/api/get-settlement/${settlementId}`
       );
   
       const settlement = response.data;
@@ -199,7 +200,7 @@ useEffect(() => {
         try {
           console.log(`Creating Town grid with gridCoord: ${gridCoord}`);
   
-          const result = await axios.post('http://localhost:3001/api/create-grid', {
+          const result = await axios.post(`${API_BASE}/api/create-grid`, {
             gridCoord,             // instead of placeholderName
             gridType: 'town',
             settlementId,
@@ -322,7 +323,7 @@ useEffect(() => {
       }
   
       // Fetch master resources
-      const response = await axios.get('http://localhost:3001/api/resources');
+      const response = await axios.get(`${API_BASE}/api/resources`);
       const masterResources = response.data;
   
       if (!Array.isArray(masterResources)) {
@@ -339,7 +340,7 @@ useEffect(() => {
       }
   
       // Fetch the latest skills
-      const skillsResponse = await axios.get(`http://localhost:3001/api/skills/${playerId}`);
+      const skillsResponse = await axios.get(`${API_BASE}/api/skills/${playerId}`);
       const currentSkills = skillsResponse.data.skills || [];
   
       // Create a new skills list by adding one of each skill
@@ -354,7 +355,7 @@ useEffect(() => {
       });
   
       // Send the full updated skills list to the server
-      await axios.post('http://localhost:3001/api/update-skills', {
+      await axios.post(`${API_BASE}/api/update-skills`, {
         playerId,
         skills: updatedSkills,
       });
@@ -390,7 +391,7 @@ useEffect(() => {
       console.log('Clearing all skills and upgrades.');
   
       // Update inventory on the server
-      await axios.post('http://localhost:3001/api/update-inventory', {
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId,
         inventory: filteredInventory,
         backpack: currentPlayer.backpack || [], // Ensure backpack is included
@@ -398,7 +399,7 @@ useEffect(() => {
       console.log('Inventory updated successfully on the server.');
   
       // Update skills on the server
-      await axios.post('http://localhost:3001/api/update-skills', {
+      await axios.post(`${API_BASE}/api/update-skills`, {
         playerId,
         skills: clearedSkills,
       });
@@ -435,7 +436,7 @@ useEffect(() => {
         }
 
         // Make the API request to clear both activeQuests and completedQuests
-        await axios.post('http://localhost:3001/api/clear-quest-history', { playerId });
+        await axios.post(`${API_BASE}/api/clear-quest-history`, { playerId });
 
         // Update the `currentPlayer` state to reflect changes
         const updatedPlayer = { 
@@ -461,7 +462,7 @@ useEffect(() => {
         return;
       }
 
-      await axios.post('http://localhost:3001/api/update-player-trade-stall', {
+      await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
         username,
         tradeStall: [], // Clear the trade stall
       });
@@ -474,7 +475,7 @@ useEffect(() => {
 
   const handleCreateNewFrontier = async () => {
     try {
-      const response = await axios.post('http://localhost:3001/api/create-frontier');
+      const response = await axios.post(`${API_BASE}/api/create-frontier`);
       console.log('Create New Frontier response:', response.data);
       alert('New Frontier created successfully!');
     } catch (error) {
@@ -493,7 +494,7 @@ useEffect(() => {
       }
   
       console.log(`Fetching frontier data for ID: ${frontierId}`);
-      const frontierResponse = await axios.get(`http://localhost:3001/api/get-frontier/${frontierId}`);
+      const frontierResponse = await axios.get(`${API_BASE}/api/get-frontier/${frontierId}`);
       const frontierData = frontierResponse.data;
   
       if (!frontierData || !frontierData.settlements) {
@@ -516,7 +517,7 @@ useEffect(() => {
           try {
             console.log("Fetching settlement data for settlement ID:", settlement.settlementId);
             const settlementResponse = await axios.get(
-              `http://localhost:3001/api/get-settlement/${settlement.settlementId}`
+              `${API_BASE}/api/get-settlement/${settlement.settlementId}`
             );
             const settlementData = settlementResponse.data;
   
@@ -555,7 +556,7 @@ useEffect(() => {
             `Creating valley${valleyType} grid with gridCoord: ${valleyGrid.gridCoord}, Settlement ID: ${valleyGrid.settlementId}`
           );
   
-          await axios.post("http://localhost:3001/api/create-grid", {
+          await axios.post(`${API_BASE}/api/create-grid`, {
             gridCoord: valleyGrid.gridCoord,
             gridType: valleyGrid.gridType, // 'valley1', 'valley2', or 'valley3'
             settlementId: valleyGrid.settlementId,
@@ -600,7 +601,7 @@ useEffect(() => {
     const playerId = currentPlayer?.playerId;
     if (!playerId) { console.error("❌ No player ID available."); return; }
     try {
-      await axios.post(`http://localhost:3001/api/send-mailbox-message`, {
+      await axios.post(`${API_BASE}/api/send-mailbox-message`, {
         playerId,
         messageId: 1, // Assuming 1 is the Welcome message ID
       });
@@ -618,7 +619,7 @@ useEffect(() => {
     const playerId = currentPlayer?.playerId;
     if (!playerId) { console.error("❌ No player ID available."); return; }
     try {
-      await axios.post(`http://localhost:3001/api/send-mailbox-message`, {
+      await axios.post(`${API_BASE}/api/send-mailbox-message`, {
         playerId,
         messageId: 101, 
       });

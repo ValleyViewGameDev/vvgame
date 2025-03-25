@@ -1,3 +1,4 @@
+import API_BASE from "../config";
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import "./SettlementView.css";
@@ -27,7 +28,7 @@ const SettlementView = ({
     const fetchSettlementGrid = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3001/api/get-settlement-grid/${currentPlayer.location.s}`
+          `${API_BASE}/api/get-settlement-grid/${currentPlayer.location.s}`
         );
         const gridData = response.data.grid || [];
         console.log("Fetched Settlement Grid:", gridData);

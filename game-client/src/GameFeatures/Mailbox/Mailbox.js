@@ -1,3 +1,4 @@
+import API_BASE from '../../config';
 import axios from 'axios';
 import React, { useState, useEffect, useContext } from 'react';
 import { StatusBarContext } from '../../UI/StatusBar';
@@ -15,12 +16,12 @@ function Mailbox({ onClose, currentPlayer, setCurrentPlayer, resources }) {
   useEffect(() => {
   const fetchTemplatesAndMessages = async () => {
     try {
-      const response = await fetch("http://localhost:3001/api/messages");
+      const response = await fetch(`${API_BASE}/api/messages`);
       const templates = await response.json();
       setTemplates(templates);
       setLoading(false);
 
-      const res = await axios.get(`http://localhost:3001/api/player/${currentPlayer.playerId}`);
+      const res = await axios.get(`${API_BASE}/api/player/${currentPlayer.playerId}`);
       const freshMessages = res.data.messages || [];
 
       const unreadMessages = freshMessages.filter(msg => !msg.read);
@@ -31,7 +32,7 @@ function Mailbox({ onClose, currentPlayer, setCurrentPlayer, resources }) {
         );
 
         // Save only to the DB — don't update local state yet
-        await axios.post("http://localhost:3001/api/update-player-messages", {
+        await axios.post(`${API_BASE}/api/update-player-messages`, {
           playerId: currentPlayer.playerId,
           messages: updatedMessages,
         });
@@ -69,14 +70,14 @@ function Mailbox({ onClose, currentPlayer, setCurrentPlayer, resources }) {
       });
 
       // Update server-side inventory
-      await axios.post("http://localhost:3001/api/update-inventory", {
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         inventory: updatedInventory,
       });
 
       // Remove the message from the player's messages array
       const updatedMessages = currentPlayer.messages.filter((m) => m !== message);
-      await axios.post("http://localhost:3001/api/update-player-messages", {
+      await axios.post(`${API_BASE}/api/update-player-messages`, {
         playerId: currentPlayer.playerId,
         messages: updatedMessages,
       });
@@ -125,7 +126,7 @@ const renderRewards = (rewards) => {
       const updatedMessages = [...currentPlayer.messages];
       updatedMessages.splice(messageIndex, 1); // Remove the one at this index only
     
-      await axios.post('http://localhost:3001/api/update-player-messages', {
+      await axios.post(`${API_BASE}/api/update-player-messages`, {
         playerId,
         messages: updatedMessages,
       });

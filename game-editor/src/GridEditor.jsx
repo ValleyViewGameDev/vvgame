@@ -1,4 +1,5 @@
 // game-editor/src/GridEditor.jsx
+import API_BASE from '../../game-client/src/config';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Tile from './Tile';
@@ -29,7 +30,7 @@ const GridEditor = () => {
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const response = await axios.get('http://localhost:3001/api/resources');
+        const response = await axios.get(`${API_BASE}/api/resources`);
         console.log("🔍 Loaded resources:", response.data);
         if (!Array.isArray(response.data)) {
           throw new Error("Invalid resources.json format: Expected an array");
@@ -258,7 +259,7 @@ const handleResourceDistributionChange = (resourceType, value) => {
 
   const loadLayout = async (fileName, directory) => {
     try {
-      const response = await axios.get(`http://localhost:3001/api/load-layout?fileName=${fileName}&directory=${directory}`);
+      const response = await axios.get(`${API_BASE}/api/load-layout?fileName=${fileName}&directory=${directory}`);
       
       if (!response.data.success || !response.data.grid) {
         console.error("❌ Error: Invalid response format.");
@@ -341,7 +342,7 @@ const handleResourceDistributionChange = (resourceType, value) => {
     console.log("📊 Resource Distribution before saving:", JSON.stringify(formattedGrid.resourceDistribution, null, 2));
 
     try {
-        await axios.post('http://localhost:3001/api/save-layout', {
+        await axios.post('${API_BASE}/api/save-layout', {
             fileName,
             directory,
             grid: JSON.stringify(formattedGrid), // ✅ Ensures correct formatting

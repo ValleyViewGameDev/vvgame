@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import React, { useState } from 'react';
 import axios from 'axios';
 import gridStateManager from '../GridState/GridState';
@@ -17,7 +18,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
       const language = 'English';
 
       // 1) Fetch the Frontier by Name
-      const frontierResponse = await axios.get('http://localhost:3001/api/frontiers-by-name', {
+      const frontierResponse = await axios.get(`${API_BASE}/api/frontiers-by-name`, {
         params: { name: 'Valley View 1' },
       });
       if (!frontierResponse.data || frontierResponse.data.length === 0) {
@@ -51,7 +52,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
 
           // Get the settlement doc
           const settlementResponse = await axios.get(
-            `http://localhost:3001/api/get-settlement/${settlement.settlementId}`
+            `${API_BASE}/api/get-settlement/${settlement.settlementId}`
           );
           const settlementData = settlementResponse.data;
 
@@ -75,7 +76,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
             };
 
             console.log('gridPayload = ', gridPayload);
-            const gridCreationResponse = await axios.post('http://localhost:3001/api/create-grid', gridPayload);
+            const gridCreationResponse = await axios.post(`${API_BASE}/api/create-grid`, gridPayload);
 
             if (!gridCreationResponse.data.success) {
               throw new Error('Failed to create grid');
@@ -114,7 +115,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
         },
       };
       console.log('Registering player with payload:', registerPayload);
-      const response = await axios.post('http://localhost:3001/api/register', registerPayload);
+      const response = await axios.post(`${API_BASE}/api/register`, registerPayload);
       if (!response.data.success) {
         throw new Error('Player registration failed');
       }
@@ -128,7 +129,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
 
       // 6) Increment the settlement population
       try {
-        await axios.post('http://localhost:3001/api/increment-settlement-population', {
+        await axios.post(`${API_BASE}/api/increment-settlement-population`, {
             settlementId: assignedSettlementId,
         });
         console.log("✅ Settlement population incremented successfully.");
@@ -140,7 +141,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
       if (gridType === 'homestead') {
         try {
           console.log(`Claiming homestead for gridId: ${assignedGridId}, playerId: ${player._id}`);
-          await axios.post(`http://localhost:3001/api/claim-homestead/${assignedGridId}`, {
+          await axios.post(`${API_BASE}/api/claim-homestead/${assignedGridId}`, {
             playerId: player._id,
           });
           console.log('Homestead claimed successfully!');
@@ -149,7 +150,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
           // Decide if this is critical enough to throw or ignore
         }
       }
-      const gridStateResponse = await axios.get(`http://localhost:3001/api/load-grid-state/${assignedGridId}`);
+      const gridStateResponse = await axios.get(`${API_BASE}/api/load-grid-state/${assignedGridId}`);
       let gridState = gridStateResponse.data.gridState || { npcs: {}, pcs: {} };
   
       // Add the PC to the newly created grid's gridState immediately
@@ -171,14 +172,14 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
       };
 
       // Save the updated gridState back to the DB
-      await axios.post(`http://localhost:3001/api/save-grid-state`, {
+      await axios.post(`${API_BASE}/api/save-grid-state`, {
         gridId: assignedGridId,
         gridState: gridState,
       });
 
       // 8) Send welcome message via mailbox
       try {
-        await axios.post(`http://localhost:3001/api/send-mailbox-message`, {
+        await axios.post(`${API_BASE}/api/send-mailbox-message`, {
           playerId: player._id,
           messageId: 1,
         });

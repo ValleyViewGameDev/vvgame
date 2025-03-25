@@ -52,7 +52,7 @@ async function electionScheduler(frontierId) {
                 } else {
                     console.log(`   🔍 Triggering resolve-election API call...`);
                     try {
-                        const response = await axios.post(`http://localhost:3001/api/resolve-election`, {
+                        const response = await axios.post(`${API_BASE}/api/resolve-election`, {
                             settlementId: settlement._id,
                             role: "Mayor",
                         });

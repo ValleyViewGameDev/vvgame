@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import axios from 'axios';
 import gridStateManager from '../GridState/GridState';
 
@@ -7,7 +8,7 @@ export async function fetchInventoryAndBackpack(playerId) {
     return { inventory: [], backpack: [] };
   }
   try {
-    const response = await axios.get(`http://localhost:3001/api/inventory/${playerId}`);
+    const response = await axios.get(`${API_BASE}/api/inventory/${playerId}`);
     return {
       inventory: response.data?.inventory || [],
       backpack: response.data?.backpack || [],
@@ -26,7 +27,7 @@ export async function fetchInventory(playerId) {
     return [];
   }
   try {
-    const response = await axios.get(`http://localhost:3001/api/inventory/${playerId}`);
+    const response = await axios.get(`${API_BASE}/api/inventory/${playerId}`);
     return response.data?.inventory || [];
   } catch (error) {
     console.error('Error fetching inventory:', error);
@@ -53,7 +54,7 @@ export async function updateInventory(currentPlayer, resourceType, quantityChang
       updatedInventory.push({ type: resourceType, quantity: quantityChange });
     }
 
-    await axios.post('http://localhost:3001/api/update-inventory', {
+    await axios.post(`${API_BASE}/api/update-inventory`, {
       playerId: currentPlayer.playerId,
       inventory: updatedInventory,
       backpack: currentPlayer.backpack, // Ensure backpack remains unchanged
@@ -81,7 +82,7 @@ export async function updateInventory(currentPlayer, resourceType, quantityChang
  */
 export async function refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer) {
   try {
-    const response = await axios.get(`http://localhost:3001/api/player/${playerId}`);
+    const response = await axios.get(`${API_BASE}/api/player/${playerId}`);
     const updatedPlayerData = response.data;
 
     // Pull latest location from gridState if available

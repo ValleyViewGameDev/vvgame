@@ -1,3 +1,4 @@
+import API_BASE from '../../config'; 
 import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
@@ -27,10 +28,10 @@ const BuyPanel = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const inventoryResponse = await axios.get(`http://localhost:3001/api/inventory/${currentPlayer.playerId}`);
+        const inventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
         setInventory(inventoryResponse.data.inventory || []);
 
-        const resourcesResponse = await axios.get('http://localhost:3001/api/resources');
+        const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
         const allResourcesData = resourcesResponse.data;
         setAllResources(allResourcesData);
 

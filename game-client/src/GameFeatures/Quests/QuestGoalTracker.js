@@ -1,3 +1,4 @@
+import API_BASE from '../../config';
 import axios from 'axios';
 
 /**
@@ -49,7 +50,7 @@ export async function trackQuestProgress(player, action, item, quantity, setCurr
 
   if (questUpdated) {
     try {
-      const response = await axios.post('http://localhost:3001/api/update-player-quests', {
+      const response = await axios.post(`${API_BASE}/api/update-player-quests`, {
         playerId: player.playerId,
         activeQuests: updatedQuests,
       });

@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import Modal from '../UI/Modal';
@@ -14,7 +15,7 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
 
   const fetchOffers = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/store-offers');
+      const response = await axios.get(`${API_BASE}/api/store-offers`);
       setOffers(response.data || []);
     } catch (error) {
       console.error("❌ Failed to load store offers:", error);
@@ -23,7 +24,7 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
 
   const handlePurchase = async (offerId) => {
     try {
-      const response = await axios.post('http://localhost:3001/api/purchase-store-offer', {
+      const response = await axios.post(`${API_BASE}/api/purchase-store-offer`, {
         playerId: currentPlayer.playerId,
         offerId
       });

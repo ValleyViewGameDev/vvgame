@@ -1,6 +1,6 @@
 import './App.css';
 import './VFX/VFX.css';
-import API_BASE from './config.js'; 
+import API_BASE from './config.js';  
 import axios from 'axios';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
 import { initializeGrid, postLoginInitialization } from './AppInit';

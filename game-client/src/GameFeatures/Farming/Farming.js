@@ -1,3 +1,4 @@
+import API_BASE from '../../config';
 import axios from 'axios';
 import { addResourceToGrid } from '../../Utils/worldHelpers';
 import { convertTileType, updateGridResource, validateTileType } from '../../Utils/GridManagement';
@@ -71,7 +72,7 @@ export const handleFarmPlotPlacement = async ({
         return;
         }
 
-        await axios.post('http://localhost:3001/api/update-inventory', {
+        await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         inventory: updatedInventory,
         });

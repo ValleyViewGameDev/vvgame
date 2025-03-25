@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import axios from 'axios';
 import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients } from '../Utils/InventoryManagement';
 import { updateGridResource } from '../Utils/GridManagement';
@@ -68,7 +69,7 @@ export const handleConstruction = async ({
 
   // Save inventory updates to the server
   try {
-    await axios.post('http://localhost:3001/api/update-inventory', {
+    await axios.post(`${API_BASE}/api/update-inventory`, {
       playerId: currentPlayer.playerId,
       inventory: updatedInventory,
     });

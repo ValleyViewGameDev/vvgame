@@ -1,3 +1,4 @@
+import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
@@ -53,7 +54,7 @@ const QuestGiverPanel = ({
   
   const fetchQuests = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/api/quests');
+      const response = await axios.get(`${API_BASE}/api/quests`);
       const activeQuestIds = currentPlayer.activeQuests
         .filter((quest) => !quest.completed || quest.rewardCollected)
         .map((quest) => quest.questId);
@@ -118,7 +119,7 @@ const QuestGiverPanel = ({
 
 
     try {
-      const response = await axios.post('http://localhost:3001/api/add-player-quest', {
+      const response = await axios.post(`${API_BASE}/api/add-player-quest`, {
         playerId: currentPlayer.playerId,
         questId: questTitle,
         startTime: Date.now(),
@@ -163,7 +164,7 @@ const QuestGiverPanel = ({
       }
   
       // Proceed to collect the reward
-      const response = await axios.post('http://localhost:3001/api/complete-quest', {
+      const response = await axios.post(`${API_BASE}/api/complete-quest`, {
         playerId: currentPlayer.playerId,
         questId: quest.title,
         reward: {
@@ -192,7 +193,7 @@ const QuestGiverPanel = ({
         }
   
         // Save to server
-        await axios.post('http://localhost:3001/api/update-profile', {
+        await axios.post(`${API_BASE}/api/update-profile`, {
           playerId: currentPlayer.playerId,
           updates: {
             completedQuests: updatedPlayer.completedQuests,
@@ -295,7 +296,7 @@ const handleHeal = async (recipe) => {
     localStorage.setItem('inventory', JSON.stringify(updatedInventory));
 
     try {
-      await axios.post('http://localhost:3001/api/update-inventory', {
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         inventory: updatedInventory,
       });

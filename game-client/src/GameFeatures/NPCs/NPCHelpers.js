@@ -1,3 +1,4 @@
+import API_BASE from "../../config";
 import axios from "axios";    
 import { checkInventoryCapacity } from "../../Utils/InventoryManagement";
 import FloatingTextManager from "../../UI/FloatingText";
@@ -126,7 +127,7 @@ export async function handleNPCClick(
       FloatingTextManager.addFloatingText(`+${quantityToCollect} ${npc.output}`, col * TILE_SIZE, row * TILE_SIZE);
 
       try {
-        await axios.post('http://localhost:3001/api/update-inventory', {
+        await axios.post(`${API_BASE}/api/update-inventory`, {
           playerId: currentPlayer.playerId,
           inventory: updatedInventory,
         });

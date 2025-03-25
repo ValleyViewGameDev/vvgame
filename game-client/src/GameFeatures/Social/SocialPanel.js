@@ -1,3 +1,4 @@
+import API_BASE from '../../config.js';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
@@ -79,14 +80,14 @@ const SocialPanel = ({
       setBackpack(updatedBackpack); // ✅ Update the backpack state
 
       // ✅ Save updated inventory/backpack to DB
-      await axios.post("http://localhost:3001/api/update-inventory", {
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         backpack: updatedBackpack,
       });
       console.log('⛺️ iscamping: updated inventory; updatedBackpack = ',updatedBackpack);
 
       // ✅ Update camping status in the database
-      const response = await axios.post('http://localhost:3001/api/update-profile', {
+      const response = await axios.post(`${API_BASE}/api/update-profile`, {
         playerId: currentPlayer.playerId,
         updates: { iscamping: true },
       });
@@ -137,7 +138,7 @@ const SocialPanel = ({
   const handlePutAwayTent = async () => {
     try {
       // ✅ Update camping status in the database
-      const response = await axios.post('http://localhost:3001/api/update-profile', {
+      const response = await axios.post(`${API_BASE}/api/update-profile`, {
         playerId: currentPlayer.playerId,
         updates: { iscamping: false },
       });

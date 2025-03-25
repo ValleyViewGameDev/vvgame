@@ -1,3 +1,4 @@
+import API_BASE from './config.js'; 
 import axios from 'axios';
 import { updateInventory, fetchInventoryAndBackpack } from './Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate } from './Utils/InventoryManagement';
@@ -295,7 +296,7 @@ async function handleDooberClick(
       console.log('Doober collected successfully.');
 
       // Update the server inventory or backpack
-      await axios.post('http://localhost:3001/api/update-inventory', {
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         [isBackpack ? "backpack" : "inventory"]: updatedInventory,
       });

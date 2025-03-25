@@ -1,3 +1,4 @@
+import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel'; // Use Panel instead of Modal
 import axios from 'axios';
@@ -34,15 +35,15 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     const fetchDataForViewedPlayer = async () => {
       try {
         // Fetch resource data (e.g., for prices)
-        const resourcesResponse = await axios.get('http://localhost:3001/api/resources');
+        const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
         setResourceData(resourcesResponse.data);
   
         // Fetch inventory for the current player
-        const currentInventoryResponse = await axios.get(`http://localhost:3001/api/inventory/${currentPlayer.playerId}`);
+        const currentInventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
         setInventory(currentInventoryResponse.data.inventory || []);
   
         // Fetch trade stall data for the viewed player
-        const tradeStallResponse = await axios.get('http://localhost:3001/api/player-trade-stall', {
+        const tradeStallResponse = await axios.get(`${API_BASE}/api/player-trade-stall`, {
           params: { playerId: viewedPlayer.playerId },
         });
   
@@ -75,7 +76,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   
     const fetchSettlementPlayers = async () => {
       try {
-        const settlementPlayersResponse = await axios.get('http://localhost:3001/api/players-in-settlement', {
+        const settlementPlayersResponse = await axios.get(`${API_BASE}/api/players-in-settlement`, {
           params: { settlementId: currentPlayer.location.s },
         });
         setSettlementPlayers(settlementPlayersResponse.data.players || []);
@@ -136,12 +137,12 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       updatedSlots[slotIndex] = null;
   
       // Server API calls
-      await axios.post('http://localhost:3001/api/update-inventory', {
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         inventory: updatedInventory,
       });
   
-      await axios.post('http://localhost:3001/api/update-player-trade-stall', {
+      await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
         playerId: viewedPlayer.playerId,
         tradeStall: updatedSlots,
       });
@@ -201,12 +202,12 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     updatedSlots[selectedSlotIndex] = { resource, amount, price };
   
     try {
-      await axios.post('http://localhost:3001/api/update-player-trade-stall', {
+      await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
         playerId: currentPlayer.playerId,
         tradeStall: updatedSlots,
       });
   
-      await axios.post('http://localhost:3001/api/update-inventory', {
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         inventory: inventory.map((item) =>
           item.type === resource
@@ -217,7 +218,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
   
-      const refreshedInventory = await axios.get(`http://localhost:3001/api/inventory/${currentPlayer.playerId}`);
+      const refreshedInventory = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
       setInventory(refreshedInventory.data.inventory);
   
       setTradeSlots(updatedSlots);
@@ -251,21 +252,21 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       );
   
       // Update inventory on the server
-      await axios.post('http://localhost:3001/api/update-inventory', {
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         inventory: updatedInventory,
       });
   
       // Clear the TradeStall on the server
       const clearedSlots = tradeSlots.map(() => null);
-      await axios.post('http://localhost:3001/api/update-player-trade-stall', {
+      await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
         playerId: currentPlayer.playerId,
         tradeStall: clearedSlots,
       });
   
       // Re-fetch inventory from server to ensure consistency
       const refreshedInventoryResponse = await axios.get(
-        `http://localhost:3001/api/inventory/${currentPlayer.playerId}`
+        `${API_BASE}/api/inventory/${currentPlayer.playerId}`
       );
       const refreshedInventory = refreshedInventoryResponse.data.inventory || [];
   

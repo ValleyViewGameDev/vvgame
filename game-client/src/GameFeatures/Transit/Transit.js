@@ -1,6 +1,6 @@
+import API_BASE from "../../config";
 import axios from "axios";
 import { changePlayerLocation } from "../../Utils/GridManagement";
-import gridStateManager from "../../GridState/GridState";
 
 export async function handleTransitSignpost(
   currentPlayer,
@@ -23,7 +23,7 @@ export async function handleTransitSignpost(
     console.log("📜 currentPlayer.skills:", currentPlayer.skills);
 
     // 1) Ensure the player has the Horse skill
-    skills = currentPlayer.skills.length ? currentPlayer.skills : await axios.get(`http://localhost:3001/api/inventory/${currentPlayer.playerId}`).then(res => res.data.skills || []);
+    skills = currentPlayer.skills.length ? currentPlayer.skills : await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`).then(res => res.data.skills || []);
 
     console.log('skillResponse.data: ', skills);
     console.log('currentPlayer = ',currentPlayer.username);
@@ -69,7 +69,7 @@ export async function handleTransitSignpost(
     if (resourceType === "Signpost Town") {
       console.log("Signpost Town clicked. Finding the first town grid in the settlement.");
 
-      const settlementResponse = await axios.get(`http://localhost:3001/api/get-settlement/${settlementId}`);
+      const settlementResponse = await axios.get(`${API_BASE}/api/get-settlement/${settlementId}`);
       const settlement = settlementResponse.data;
       if (!settlement || !settlement.grids) { updateStatus(104); return; }
 
@@ -119,7 +119,7 @@ export async function handleTransitSignpost(
     };
 
     // 4) Fetch the current Settlement
-    const settlementResponse = await axios.get(`http://localhost:3001/api/get-settlement/${settlementId}`);
+    const settlementResponse = await axios.get(`${API_BASE}/api/get-settlement/${settlementId}`);
     const settlement = settlementResponse.data;
     if (!settlement || !settlement.grids) {
       console.error("Settlement data is invalid or missing grids."); updateStatus(105); return; }
@@ -174,7 +174,7 @@ export async function handleTransitSignpost(
     // 9) Fetch the new settlement if setRow/setCol changed
     //    If your server has an endpoint like get-settlement-by-coords/:row/:col, do that:
     const targetSettlementResponse = await axios.get(
-      `http://localhost:3001/api/get-settlement-by-coords/${newSetRow}/${newSetCol}`
+      `${API_BASE}/api/get-settlement-by-coords/${newSetRow}/${newSetCol}`
     );
     const targetSettlement = targetSettlementResponse.data;
     if (!targetSettlement || !targetSettlement.grids) {
@@ -192,7 +192,7 @@ export async function handleTransitSignpost(
 
     // 11) Fetch the destination grid type via load-grid
     // const destinationGridResponse = await axios.get(
-    //   `http://localhost:3001/api/load-grid/${targetGrid.gridId}`
+    //   `${API_BASE}/api/load-grid/${targetGrid.gridId}`
     // );
     // const destinationGridData = destinationGridResponse.data;
 

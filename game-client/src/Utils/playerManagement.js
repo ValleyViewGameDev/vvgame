@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import axios from 'axios';
 import gridStateManager from '../GridState/GridState';
 
@@ -43,7 +44,7 @@ export const modifyPlayerStatsInPlayer = async (statToMod, amountToMod, playerId
     }
 
     // Step 1: Fetch the current player data from the server
-    const response = await axios.get(`http://localhost:3001/api/player/${playerId}`);
+    const response = await axios.get(`${API_BASE}/api/player/${playerId}`);
     const currentPlayerData = response.data;
 
     if (!currentPlayerData || !currentPlayerData.playerId) {
@@ -57,7 +58,7 @@ export const modifyPlayerStatsInPlayer = async (statToMod, amountToMod, playerId
     console.log(`✅ Updating ${statToMod}: ${currentStatValue} + ${amountToMod} = ${newStatValue}`);
 
     // Step 3: Send the updated stat back to the database
-    await axios.post('http://localhost:3001/api/update-profile', {
+    await axios.post(`${API_BASE}/api/update-profile`, {
       playerId,
       updates: {
         [statToMod]: newStatValue,  // ✅ Now ADDING instead of replacing

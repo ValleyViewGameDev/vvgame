@@ -1,3 +1,4 @@
+import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
@@ -38,7 +39,7 @@ const TradingStation = ({
         const storedInventory = JSON.parse(localStorage.getItem('inventory')) || [];
         setInventory(storedInventory);
 
-        const serverResponse = await axios.get(`http://localhost:3001/api/inventory/${currentPlayer.playerId}`);
+        const serverResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
         const serverInventory = serverResponse.data.inventory || [];
         if (JSON.stringify(storedInventory) !== JSON.stringify(serverInventory)) {
           setInventory(serverInventory);
@@ -104,7 +105,7 @@ const TradingStation = ({
         updatedTargetInventory.push({ type: recipe.type, quantity: tradedQty });
     }
     // ✅ Save updated inventory to DB
-    await axios.post("http://localhost:3001/api/update-inventory", {
+    await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         [inventoryType]: updatedTargetInventory,
     });

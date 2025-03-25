@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import React, { useState, useEffect, useContext, memo } from 'react';
 import axios from 'axios';
 import '../UI/Panel.css'; // Use the standardized styles
@@ -97,7 +98,7 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
       console.log('Saving updates:', updates);
   
       // Call API to update the player profile
-      const response = await axios.post('http://localhost:3001/api/update-profile', {
+      const response = await axios.post(`${API_BASE}/api/update-profile`, {
         playerId: currentPlayer.playerId,
         updates,
       });
@@ -123,7 +124,7 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
         if (formData.role) {
           console.log(`🏛️ Assigning player to role "${formData.role}" in the settlement...`);
           
-          await axios.post(`http://localhost:3001/api/update-settlement-role`, {
+          await axios.post(`${API_BASE}/api/update-settlement-role`, {
             settlementId: currentPlayer.location.s, // ✅ Settlement ID
             playerId: currentPlayer._id,           // ✅ Player's ID
             roleName: formData.role                // ✅ Role they are assigned to

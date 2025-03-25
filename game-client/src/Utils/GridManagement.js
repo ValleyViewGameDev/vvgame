@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import axios from 'axios';
 import { initializeGrid } from '../AppInit';
 import gridStateManager from '../GridState/GridState';
@@ -6,7 +7,7 @@ export async function updateGridResource(gridId, payload, setResources) {
   try {
     console.log('payload in updateGridRes:', payload);
     const startTime = Date.now();
-    const response = await axios.patch(`http://localhost:3001/api/update-grid/${gridId}`, payload);
+    const response = await axios.patch(`${API_BASE}/api/update-grid/${gridId}`, payload);
     console.log('✅ update-grid API response:', response.data);
 
     console.log(`update-grid completed in ${Date.now() - startTime}ms`);
@@ -69,8 +70,8 @@ export const changePlayerLocation = async (
     console.log("🔍 Local gridState BEFORE fetch:", JSON.stringify(gridStateManager.getGridState(fromLocation.g), null, 2));
 
     console.log("🔍 Fetching grid states from DB...");
-    const fromGridStateResponse = await axios.get(`http://localhost:3001/api/load-grid-state/${fromLocation.g}`);
-    const toGridStateResponse = await axios.get(`http://localhost:3001/api/load-grid-state/${toLocation.g}`);
+    const fromGridStateResponse = await axios.get(`${API_BASE}/api/load-grid-state/${fromLocation.g}`);
+    const toGridStateResponse = await axios.get(`${API_BASE}/api/load-grid-state/${toLocation.g}`);
 
     console.log('🚨 AFTER FETCH: Raw fromGridStateResponse:', JSON.stringify(fromGridStateResponse.data, null, 2));
     console.log('🚨 AFTER FETCH: Raw toGridStateResponse:', JSON.stringify(toGridStateResponse.data, null, 2));
@@ -109,7 +110,7 @@ export const changePlayerLocation = async (
       };
 
     //   // ✅ Backfill combat stats into player document in DB before transit
-      await axios.post("http://localhost:3001/api/update-profile", {
+      await axios.post(`${API_BASE}/api/update-profile`, {
         playerId: currentPlayer.playerId,
         updates: combatStats,
       });
@@ -139,7 +140,7 @@ if (playerInGridState) {
   console.log(`✅ Added player ${currentPlayer.username} to target gridState with correct stats and position.`);
 
   // ✅ Save targetGridState FIRST
-  await axios.post(`http://localhost:3001/api/save-grid-state`, {
+  await axios.post(`${API_BASE}/api/save-grid-state`, {
     gridId: toLocation.g,
     gridState: targetGridState,
   });
@@ -163,7 +164,7 @@ if (fromGridState.pcs[currentPlayer.playerId]) {
     pcs: updatedPcs, // Use the updated pcs object
   };
 
-  await axios.post(`http://localhost:3001/api/save-grid-state`, {
+  await axios.post(`${API_BASE}/api/save-grid-state`, {
     gridId: fromLocation.g,
     gridState: updatedFromGridState,
   });
@@ -179,7 +180,7 @@ if (fromGridState.pcs[currentPlayer.playerId]) {
     };
     console.log("Sending payload to /update-player-location:", payload);
     // Update player location on the backend
-    const response = await axios.post("http://localhost:3001/api/update-player-location", payload);
+    const response = await axios.post(`${API_BASE}/api/update-player-location`, payload);
 
     if (!response.data.success) { throw new Error(response.data.error); }
     console.log("Player location updated successfully on the server:", response.data);
@@ -220,7 +221,7 @@ export async function fetchGridData(gridId, updateStatus) {
     console.log(`Fetching grid data for gridId: ${gridId}`);
 
     // 1) Fetch the grid data (which now has ownerId populated)
-    const gridResponse = await axios.get(`http://localhost:3001/api/load-grid/${gridId}`);
+    const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${gridId}`);
     const gridData = gridResponse.data || {};
     const { gridType, _id: fetchedGridId, ownerId } = gridData;
 
@@ -274,7 +275,7 @@ export function updateGridStatus(gridType, ownerUsername, updateStatus) {
 export async function validateResourceAtLocation(gridId, col, row, expectedType) {
     try {
         console.log(`Validating resource at (${col}, ${row}) in grid ${gridId}`);
-        const response = await axios.get(`http://localhost:3001/api/get-resource/${gridId}/${col}/${row}`);
+        const response = await axios.get(`${API_BASE}/api/get-resource/${gridId}/${col}/${row}`);
         const { type } = response.data; // Extract the type from the response
         if (type === expectedType) {
             console.log(`Resource validation successful: ${type}`);
@@ -292,7 +293,7 @@ export async function validateResourceAtLocation(gridId, col, row, expectedType)
 export async function validateTileType(gridId, x, y) {
   try {
     console.log(`Validating tile type at (${x}, ${y}) in grid ${gridId}`);
-    const response = await axios.get(`http://localhost:3001/api/get-tile/${gridId}/${x}/${y}`);
+    const response = await axios.get(`${API_BASE}/api/get-tile/${gridId}/${x}/${y}`);
     console.log(`Tile type at (${x}, ${y}):`, response.data.tileType);
     return response.data.tileType;
   } catch (error) {
@@ -304,7 +305,7 @@ export async function validateTileType(gridId, x, y) {
 export async function getTileResource(gridId, x, y) {
   try {
     console.log(`Fetching resource at (${x}, ${y}) in grid ${gridId}`);
-    const response = await axios.get(`http://localhost:3001/api/get-resource/${gridId}/${x}/${y}`);
+    const response = await axios.get(`${API_BASE}/api/get-resource/${gridId}/${x}/${y}`);
     console.log(`Resource at (${x}, ${y}):`, response.data);
     return response.data;
   } catch (error) {
@@ -324,7 +325,7 @@ export async function convertTileType(gridId, x, y, tileType, setTileTypes, getC
 
   try {
     console.log(`Converting tile at (${x}, ${y}) to ${tileType} on the server.`);
-    const response = await axios.patch(`http://localhost:3001/api/update-tile/${gridId}`, { x, y, tileType });
+    const response = await axios.patch(`${API_BASE}/api/update-tile/${gridId}`, { x, y, tileType });
     console.log('Tile converted successfully on the server:', response.data);
     return response.data;
   } catch (error) {

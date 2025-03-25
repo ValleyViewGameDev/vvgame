@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import React, { useState } from 'react';
 import axios from 'axios';
 import Panel from '../UI/Panel';
@@ -15,7 +16,7 @@ const LoginPanel = ({ onClose, setCurrentPlayer, onLoginSuccess }) => {
     try {
       console.log('Login attempt:', { username, password });
 
-      const response = await axios.post('http://localhost:3001/api/login', { username, password });
+      const response = await axios.post(`${API_BASE}/api/login`, { username, password });
       if (response.data.success) {
         const player = response.data.player;
         console.log('Login successful:', player);

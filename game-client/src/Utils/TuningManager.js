@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import axios from 'axios';
 
 let masterSkills = null;
@@ -9,7 +10,7 @@ let masterResources = null;
 export async function loadMasterSkills() {
   if (!masterSkills) {
     try {
-      const response = await axios.get('http://localhost:3001/api/skills-tuning');
+      const response = await axios.get(`${API_BASE}/api/skills-tuning`);
       masterSkills = response.data;
 //      console.log('Skills tuning loaded:', masterSkills);
     } catch (error) {
@@ -26,7 +27,7 @@ export async function loadMasterSkills() {
 export async function loadMasterResources() {
   if (!masterResources) {
     try {
-      const response = await axios.get('http://localhost:3001/api/resources');
+      const response = await axios.get(`${API_BASE}/api/resources`);
       masterResources = response.data;
 console.log('Master resources loaded:', masterResources);
     } catch (error) {

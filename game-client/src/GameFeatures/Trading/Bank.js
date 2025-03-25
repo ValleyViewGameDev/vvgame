@@ -1,3 +1,4 @@
+import API_BASE from '../../config.js';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
@@ -17,7 +18,7 @@ function BankPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) {
             if (!currentPlayer?.frontierId) return;
 
             try {
-                const response = await axios.get(`http://localhost:3001/api/get-frontier/${currentPlayer.frontierId}`);
+                const response = await axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`);
                 
                 // ✅ Update Offers
                 setBankOffers(response.data.bank?.offers || []);
@@ -40,7 +41,7 @@ function BankPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) {
 
         const fetchResources = async () => {
             try {
-                const resourcesResponse = await axios.get('http://localhost:3001/api/resources');
+                const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
                 setAllResources(resourcesResponse.data || []);
             } catch (error) {
                 console.error("❌ Error fetching master resources:", error);
@@ -91,7 +92,7 @@ function BankPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) {
         }
 
         // ✅ Save updated inventory to DB
-        await axios.post("http://localhost:3001/api/update-inventory", {
+        await axios.post(`${API_BASE}/api/update-inventory`, {
             playerId: currentPlayer.playerId,
             inventory: updatedInventory,
         });

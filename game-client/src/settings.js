@@ -1,3 +1,4 @@
+import API_BASE from './config';
 import axios from 'axios';
 
 /**
@@ -18,7 +19,7 @@ export async function updatePlayerSettings(newSettings, currentPlayer, setCurren
     console.log('Updating settings on server:', newSettings);
 
     // Send update to server
-    const response = await axios.post('http://localhost:3001/api/update-settings', {
+    const response = await axios.post(`${API_BASE}/api/update-settings`, {
       playerId: currentPlayer.playerId,
       settings: newSettings,
     });

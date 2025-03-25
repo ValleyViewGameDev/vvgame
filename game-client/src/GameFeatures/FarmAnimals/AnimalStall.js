@@ -1,3 +1,4 @@
+import API_BASE from '../../config';
 import axios from 'axios';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
@@ -53,7 +54,7 @@ const AnimalStall = ({
         const storedInventory = JSON.parse(localStorage.getItem('inventory')) || [];
         setInventory(storedInventory);
   
-        const serverResponse = await axios.get(`http://localhost:3001/api/inventory/${currentPlayer.playerId}`);
+        const serverResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
         const serverInventory = serverResponse.data.inventory || [];
         if (JSON.stringify(storedInventory) !== JSON.stringify(serverInventory)) {
           setInventory(serverInventory);
@@ -101,7 +102,7 @@ const AnimalStall = ({
         }
       });
   
-      await axios.post('http://localhost:3001/api/update-inventory', {
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         inventory: updatedInventory,
       });

@@ -1,3 +1,4 @@
+import API_BASE from '../config';
 import axios from 'axios';
 import { loadMasterResources } from './TuningManager';
 
@@ -6,7 +7,7 @@ export const fetchHomesteadOwner = async (gridId) => {
     console.log(`Fetching homestead owner for gridId: ${gridId}`);
 
     // 🔹 Step 1: Fetch grid details (to get `ownerId`)
-    const gridResponse = await axios.get(`http://localhost:3001/api/load-grid/${gridId}`);
+    const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${gridId}`);
     const { ownerId = null, gridType = null } = gridResponse.data;
 
     console.log("ownerId =",ownerId);
@@ -17,7 +18,7 @@ export const fetchHomesteadOwner = async (gridId) => {
     }
 
     // 🔹 Step 2: Fetch player document using `ownerId`
-    const playerResponse = await axios.get(`http://localhost:3001/api/player/${ownerId._id}`);
+    const playerResponse = await axios.get(`${API_BASE}/api/player/${ownerId._id}`);
     const { username = null } = playerResponse.data;
  
     if (username) {
