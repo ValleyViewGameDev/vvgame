@@ -1048,6 +1048,10 @@ const zoomOut = () => {
   const [showTimers, setShowTimers] = useState(false);
 
   if (!currentPlayer) {
+
+    console.log("🧭 Showing fallback modal because no player is stored.");
+    openPanel("LoginPanel");  // Force open it here just to test
+  
     return (
       <div className="app-container">
         <Modal
