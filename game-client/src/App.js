@@ -167,12 +167,17 @@ useEffect(() => {
 // TIMERS Step 3: Fetch initial timers from the server
 const fetchTimersData = async () => {
   console.log("🔄 Fetching initial timers from the server...");
+  
+  if (!currentPlayer) {
+    console.warn("⛔ No player loaded — skipping fetchTimersData.");
+    return;
+  }
   if (!currentPlayer?.settlementId || !currentPlayer?.frontierId) return;
 
+  console.log("currentPlayer.frontierId = ",currentPlayer.frontierId);
   try {
     const [settlementResponse, frontierResponse] = await Promise.all([
 
-      
       axios.get(`${API_BASE}/api/get-settlement/${currentPlayer.settlementId}`),
       axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`)
     ]);
