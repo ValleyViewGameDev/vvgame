@@ -1,0 +1,27 @@
+{
+    "defaultAttributes": {
+      "icon": "😀",
+      "hp": 100,
+      "maxhp": 100,
+      "range": 10,
+      "attackrange": 10,
+      "armorclass": 10,
+      "attackbonus": 10,
+      "damage": 15,
+      "speed": 5,
+      "inventory": [{ "type": "Money", "quantity": 4000 }],
+      "backpack": [],
+      "skills": [{ "type": "Walking" }],
+      "warehouseCapacity": 1000000,
+      "backpackCapacity": 0,
+      "accountStatus": "Free",
+      "role": "Peasant",
+      "iscanmping": false
+    },
+    "tradeStallSlots": {
+      "Free": 6,
+      "Bronze": 8,
+      "Silver": 10,
+      "Gold": 14
+    }
+  } 

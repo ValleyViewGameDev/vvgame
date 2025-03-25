@@ -1,0 +1,101 @@
+/* Ensure full-height layout */
+.editor-container {
+  display: flex;
+  height: 100vh;
+  overflow: hidden; /* Prevent unnecessary scrollbars */
+}
+
+
+h1 {
+  margin: 8px 0;
+  padding: 4px 0;
+}
+
+h2 {
+  margin: 6px 0;
+  padding: 3px 0;
+  color: white;
+}
+
+h3 {
+  margin: 5px 0;
+  padding: 2px 0;
+  color: white;
+
+}
+
+h4, h5, h6 {
+  margin: 4px 0;
+  padding: 2px 0;
+}
+
+
+
+/* Fixed Left Panel (Independent Scrolling) */
+.editor-panel {
+  width: 180px;
+  background-color: #67c257;
+  padding: 10px;
+  font-size: 14px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  height: 100vh;  /* Ensures it always fills the screen */
+  overflow-y: auto; /* Enables scrolling */
+  scrollbar-width: thin; /* Optional: Customizes scrollbar width */
+  scrollbar-color: #4a9e39 #c5e1a5; /* Optional: Customizes scrollbar colors */
+}
+
+/* Ensure Panel Content Can Exceed Panel Height */
+.editor-panel > * {
+  flex-shrink: 0; /* Prevents content from squishing */
+}
+
+/* Grid Container: Now Fixed to Top and Left */
+.editor-grid-container {
+  margin-left: 25px; /* Ensure it starts right next to the panel */
+  margin-top: 10px; /* Ensure it starts right next to the panel */
+  width: calc(100% - 180px); /* Take remaining space */
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  left: 180px; /* Matches panel width */
+  overflow: auto; /* Allow independent scrolling */
+}
+
+/* Fix Grid Positioning */
+.grid {
+  display: grid;
+  position: absolute; /* Prevents shifting */
+  top: 0; /* Always aligned at the top */
+  left: 0; /* Always aligned at the left */
+  gap: 1px;
+  background: #ccc;
+}
+
+
+.small-button {
+  background-color: #ffffff;  /* White background */
+  border: 2px solid #4a9e39;  /* Green border */
+  color: #4a9e39;             /* Green text */
+  font-size: 12px;            /* Smaller text */
+  font-weight: bold;
+  padding: 3px 8px;           /* Reduce padding */
+  cursor: pointer;
+  border-radius: 4px;         /* Slight rounding */
+  transition: all 0.2s ease-in-out;
+}
+
+.small-button:hover {
+  background-color: #4a9e39;  /* Invert colors on hover */
+  color: #ffffff;
+}
+
+.small-button:active {
+  transform: scale(0.95);     /* Slight press effect */
+}
+

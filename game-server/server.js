@@ -1,0 +1,192 @@
+console.log('Server.js loaded and running...');
+
+require('./schedulers/mainScheduler');
+require('./schedulers/electionScheduler');
+require('./schedulers/seasonScheduler');
+require('./schedulers/trainScheduler');
+require('./schedulers/taxScheduler');
+require('./schedulers/bankScheduler');
+
+const fs = require('fs');
+const path = require('path');  
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+
+const Player = require('./models/player');  // Ensure this is correct
+
+const worldRoutes = require('./routes/worldRoutes');
+const playerRoutes = require('./routes/playerRoutes'); 
+const authRoutes = require('./routes/auth');  // <-- Import auth routes
+const tradingRoutes = require('./routes/tradingRoutes'); // Import trading routes
+const frontierRoutes = require('./routes/frontierRoutes'); // Import frontier routes
+const settlementRoutes = require('./routes/settlementRoutes'); // Import frontier routes
+const scheduleRoutes = require('./routes/scheduleRoutes'); // Import frontier routes
+
+// Load environment variables
+dotenv.config();
+
+const app = express();
+const PORT = 3001;
+
+// Middleware
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
+
+// Logging middleware for debugging
+app.use((req, res, next) => {
+  next();
+});
+
+
+// Connect to MongoDB and start the server
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log("Connected to MongoDB");
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("Error connecting to MongoDB:", err);
+  });
+
+// Log every incoming request before any route handling
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
+
+
+console.log('Setting up authentication routes...');
+app.use('/api', authRoutes); // <-- Use auth routes for player registration/login
+console.log('Setting up player routes...');
+app.use('/api', playerRoutes);
+console.log('Setting up world routes...');
+app.use('/api', worldRoutes);
+console.log('Setting up trading routes...');
+app.use('/api', tradingRoutes);
+console.log('Setting up frontier routes...');
+app.use('/api', frontierRoutes);
+console.log('Setting up settlement routes...');
+app.use('/api', settlementRoutes);
+console.log('Setting up schedule routes...');
+app.use('/api', scheduleRoutes);
+
+
+// Root endpoint
+app.get('/', (req, res) => {
+  res.send('Server is running!!!');
+});
+
+// List all registered routes
+app._router.stack.forEach(function(r) {
+  if (r.route && r.route.path) {
+    console.log(`Registered route: ${r.route.path}`);
+  }
+});
+
+//
+// EDITOR ROUTES 
+//
+app.post('/api/save-layout', (req, res) => {
+  let { fileName, directory, grid } = req.body;
+  console.log(`📂 Save request received - File: ${fileName}, Directory: ${directory}`);
+
+  // 🔹 Log the request body to ensure correct structure
+  console.log(`🔍 Full request body:`, req.body);
+
+  // If grid is a string, parse it to ensure it's an object
+  try {
+    if (typeof grid === "string") {
+      grid = JSON.parse(grid);
+      console.log("✅ Parsed grid from string to object.");
+    }
+  } catch (error) {
+    console.error('❌ Error parsing grid JSON:', error);
+    return res.status(400).json({ success: false, error: 'Invalid grid format (not valid JSON)' });
+  }
+
+  if (!fileName || !directory || !grid || !grid.tiles || !grid.resources) {
+    console.error('❌ Missing or invalid grid data:', { fileName, directory, grid });
+    return res.status(400).json({ success: false, error: 'Missing or invalid grid data' });
+  }
+
+  // Set the save path
+  const savePath = path.join(__dirname, `layouts/gridLayouts/${directory}/${fileName}.json`);
+
+  // Ensure the directory exists
+  fs.mkdirSync(path.dirname(savePath), { recursive: true });
+
+  // ✅ Format the JSON manually so each row appears on a single line
+  const formattedTiles = grid.tiles.map(row => `  [${row.map(cell => `"${cell}"`).join(", ")}]`).join(",\n");
+  const formattedResources = grid.resources.map(row => `  [${row.map(cell => `"${cell}"`).join(", ")}]`).join(",\n");
+  const formattedTileDistribution = Object.entries(grid.tileDistribution)
+    .map(([key, value]) => `    "${key}": ${value}`)
+    .join(",\n");
+  const filteredResourceDistribution = Object.entries(grid.resourceDistribution || {})
+    .filter(([_, value]) => value > 0)
+    .map(([key, value]) => `    "${key}": ${value}`)
+    .join(",\n");
+
+    const jsonString = `{
+      "tiles": [
+    ${formattedTiles}
+    ],
+      "resources": [
+    ${formattedResources}
+    ],
+      "tileDistribution": {
+    ${formattedTileDistribution}
+      }${filteredResourceDistribution ? `,
+      "resourceDistribution": {
+    ${filteredResourceDistribution}
+      }` : ""}
+    }`;
+
+  console.log("📂 Final formatted JSON before saving:\n", jsonString);
+
+  fs.writeFile(savePath, jsonString, (err) => {
+    if (err) {
+      console.error('❌ Error saving file:', err);
+      return res.status(500).json({ success: false, error: 'Failed to save file' });
+    }
+    console.log(`✅ File saved successfully: ${savePath}`);
+    res.json({ success: true, message: `Saved to ${savePath}` });
+  });
+});
+
+
+app.get('/api/load-layout', (req, res) => {
+  const { fileName, directory } = req.query;
+
+  if (!fileName || !directory) {
+    return res.status(400).json({ success: false, error: 'Missing fileName or directory' });
+  }
+
+  const filePath = path.join(__dirname, `layouts/gridLayouts/${directory}/${fileName}.json`);
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ success: false, error: 'File not found' });
+  }
+
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error('❌ Error reading file:', err);
+      return res.status(500).json({ success: false, error: 'Failed to read file' });
+    }
+
+    try {
+      const parsedData = JSON.parse(data);
+      console.log("📂 Loaded layout successfully:", parsedData);
+      res.json({ success: true, grid: parsedData });
+    } catch (error) {
+      console.error('❌ Error parsing JSON:', error);
+      res.status(500).json({ success: false, error: 'Invalid JSON format' });
+    }
+  });
+});
+
+
+console.log(`Server running on port ${PORT}`);

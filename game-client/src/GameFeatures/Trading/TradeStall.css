@@ -1,0 +1,196 @@
+/* TRADE STALL SLOTS */
+
+.username-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* Add spacing between the username and arrows */
+  margin: 10px 0; /* Optional: Add vertical spacing */
+}
+
+.arrow-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem; /* Adjust size for better visibility */
+  cursor: pointer;
+  color: #333; /* Optional: Customize color */
+}
+
+.arrow-button:disabled {
+  color: #ccc; /* Optional: Indicate disabled state visually */
+  cursor: not-allowed;
+}
+
+.username {
+  font-weight: bold;
+  font-size: 1.2rem; /* Customize the font size */
+}
+
+
+.trade-stall-slots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.trade-slot {
+  width: 150px;
+  height: 50px;
+  background: #f4f4f4;
+  border: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.trade-slot.filled {
+  background: #d9ffd9;
+}
+
+.sell-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.sell-button {
+  background-color: #4caf50; /* Green background */
+  color: white; /* White text */
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.sell-button:disabled {
+  background-color: #ccc; /* Grey background when disabled */
+  cursor: not-allowed;
+}
+
+
+/* INVENTORY MODAL */
+.inventory-modal {
+  position: fixed; /* Floating modal behavior */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000; /* Ensures it floats above other content */
+  width: 900px; /* Configurable width */
+  max-width: 90%; /* Prevents overflow on small screens */
+  max-height: 70vh; /* Prevents it from being too tall */
+  overflow-y: auto; /* Scrollable if content exceeds height */
+}
+
+.inventory-modal .close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #333;
+}
+
+.inventory-modal .close-button:hover {
+  color: #f00;
+}
+
+/* TABLE STYLING */
+.inventory-modal table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+.inventory-modal th,
+.inventory-modal td {
+  text-align: center;
+  padding: 10px;
+  border: 1px solid #ddd;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; /* Prevents wrapping of content */
+}
+
+.inventory-modal th {
+  background: #f9f9f9;
+  font-weight: bold;
+}
+
+.inventory-modal table th,
+.inventory-modal table td {
+  font-size: 14px;
+}
+
+/* AMOUNT INPUT */
+.inventory-modal .amount-input {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Keeps elements centered */
+  gap: 5px;
+}
+
+.inventory-modal .amount-input input {
+  width: 50px; /* Configurable input width */
+  text-align: center;
+}
+
+.inventory-modal .amount-input button {
+  width: 30px;
+  height: 30px;
+  background: #ccc;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.inventory-modal .amount-input button:hover {
+  background: #bbb;
+}
+
+.inventory-modal .amount-input button:disabled {
+  background: #eee;
+  cursor: not-allowed;
+}
+
+/* ADD BUTTON */
+.inventory-modal .add-button {
+  padding: 5px 10px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.inventory-modal .add-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  color: #777;
+}
+
+/* SCROLLABLE CONTENT */
+.inventory-modal-scroll {
+  max-height: 300px; /* Adjustable height */
+  overflow-y: auto;
+}
+
+/* CONFIGURABLE WIDTH */
+.inventory-modal.wider {
+  width: 900px; /* Adjust this value for overall modal width */
+  max-width: 90%; /* Prevents overflowing viewport */
+}

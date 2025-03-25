@@ -1,0 +1,16 @@
+.butterfly {
+  position: absolute;
+  font-size: 7px; /* Small butterfly emoji */
+  z-index: 1000; /* Ensure visibility */
+  opacity: 0; /* Start fully transparent */
+  will-change: transform, opacity; /* Hint browser to optimize these */
+}
+
+@keyframes flutter {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}

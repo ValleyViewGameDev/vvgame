@@ -1,0 +1,38 @@
+[
+    { 
+        "seasonType": "Spring",
+        "seasonResources": [ "Wheat", "Milk", "Corn", "Lemon Cookie" ],
+        "seasonMultiplier": 1,
+        "SeasonMoneyNerf": 0.25,
+        "pricePoints": 25,
+        "trainOffersQtyMultiplier": 1,
+        "trainRewards": [ "Gem", "Potion 3", "Book" ]
+    },
+    { 
+        "seasonType": "Summer",
+        "seasonResources": [ "Sugarcane", "Olive", "Corn" ],
+        "seasonMultiplier": 1,
+        "seasonMoneyNerf": 0.25,
+        "pricePoints": 25,
+        "trainOffersQtyMultiplier": 1,
+        "trainRewards": [ "Gem", "Potion 3", "Book" ]
+    },
+    { 
+        "seasonType": "Fall",
+        "seasonResources": [ "Apple Pie", "Milk", "Corn" ],
+        "seasonMultiplier": 1,
+        "seasonMoneyNerf": 0.25,
+        "pricePoints": 25,
+        "trainOffersQtyMultiplier": 1,
+        "trainRewards": [ "Gem", "Potion 3", "Book" ]
+    },
+    { 
+        "seasonType": "Winter",
+        "seasonResources": [ "Strawberry", "Sweater", "Cheese" ],
+        "seasonMultiplier": 1,
+        "seasonMoneyNerf": 0.25,
+        "pricePoints": 25,
+        "trainOffersQtyMultiplier": 1,
+        "trainRewards": [ "Gem", "Potion 3", "Book" ]
+    }
+]

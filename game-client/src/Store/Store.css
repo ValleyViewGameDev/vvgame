@@ -1,0 +1,80 @@
+.store-offers {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 6px 0;
+  }
+  
+  /* Each store offer card */
+  .store-offer-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 12px 16px;
+    background: #f9f9f9;
+    font-size: 14px;
+  }
+  
+  /* LEFT SIDE: Title, body, rewards */
+  .store-offer-left {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    margin-right: 20px;
+    text-align: left;
+
+  }
+  
+  .store-offer-left h3 {
+    margin: 0 0 4px;
+    font-size: 1.1em;
+    text-align: left;
+
+  }
+  
+  .store-offer-left p {
+    margin: 4px 0;
+    font-size: 13px;
+    color: #444;
+    text-align: left;
+
+  }
+  
+  /* Rewards summary line */
+  .store-reward-line {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #222;
+    text-align: left;
+
+  }
+  
+  /* RIGHT SIDE: Price + Button */
+  .store-offer-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    min-width: 120px;
+  }
+  
+  .store-price {
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  
+  .store-offer-right button {
+    padding: 6px 10px;
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  
+  .store-offer-right button:hover {
+    background-color: #145a86;
+  }

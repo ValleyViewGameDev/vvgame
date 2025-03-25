@@ -1,0 +1,36 @@
+/* Reduce vertical spacing for headings and paragraphs inside the Courthouse panel */
+.courthouse-panel h1 {
+    margin-top: 0px; /* Reduce space above */
+    margin-bottom: 2px; /* Reduce space below */
+}
+.courthouse-panel h2,
+.courthouse-panel h3 {
+    margin-top: 4px; /* Reduce space above */
+    margin-bottom: 4px; /* Reduce space below */
+}
+
+.courthouse-panel p {
+    margin-top: 4px;
+    margin-bottom: 4px;
+    line-height: 1.2; /* Adjust line height for better readability */
+}
+
+/* Reduce spacing around panel buttons */
+.courthouse-panel .panel-buttons {
+    margin-top: 8px; 
+    margin-bottom: 8px;
+}
+
+.campaign-promises {
+    max-height: 150px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 8px;
+    background-color: #f8f8f8;
+  }
+  
+  .campaign-entry {
+    padding: 6px;
+    border-bottom: 1px solid #ddd;
+  }
+

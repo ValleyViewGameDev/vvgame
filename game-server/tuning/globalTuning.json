@@ -1,0 +1,47 @@
+{
+    "closeZoom": 30,
+    "farZoom": 16, 
+    "mayorcut": 50,
+    "bankOffers": 3,
+
+    "baseHoursForTrain": 2.5, 
+
+    "taxes": {
+        "phases": {
+            "waiting": 1440,
+            "taxing": 0.1   
+        },
+        "startPhase": "waiting"
+    },
+    "seasons": {
+        "phases": {
+            "onSeason": 1440,     
+            "offSeason": 0.5  
+        },
+        "startPhase": "offSeason"
+    },
+    "elections": {
+        "phases": {
+            "Administration": 1440,
+            "Campaigning": 1440,   
+            "Voting": 1440,
+            "Counting": 0.5
+        },
+        "startPhase": "Administration"
+    },
+    "train": {
+        "phases": {
+            "arriving": 0.3,  
+            "loading": 2880,  
+            "departing": 0.3 
+        },
+        "startPhase": "arriving"
+    },
+    "bank": {
+        "phases": {
+            "active": 1440,
+            "refreshing": 0.1 
+        },
+        "startPhase": "active"
+    }
+}

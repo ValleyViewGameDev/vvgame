@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: vvgame-client
+    env: static
+    rootDir: game-client
+    buildCommand: npm run build
+    staticPublishPath: build

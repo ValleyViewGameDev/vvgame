@@ -1,0 +1,23 @@
+[
+    {
+      "id": 1,
+      "title": "Welcome to Valley View!",
+      "body": "Thanks for joining the world of Valley View. Here's a little something to get you started.",
+      "rewards": [{ "item": "Money", "qty": 500 }],
+      "everyoneRewards": true
+    },
+    {
+      "id": 101,
+      "title": "🚂 Train Shipment Complete!",
+      "body": "Your settlement filled all Train orders. Great teamwork! Here's your reward.",
+      "rewards": [],
+      "everyoneRewards": false
+    },
+    {
+      "id": 201,
+      "title": "🛒 Thank You for Your Purchase!",
+      "body": "Here are the items you purchased from the Store.",
+      "rewards": [],
+      "everyoneRewards": false
+    }
+]

@@ -1,0 +1,45 @@
+.inventory-divider {
+  margin: 15px 0;
+  border: none;
+  height: 2px;
+  background-color: #ccc;
+}
+
+.capacity-display {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.inventory-table {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Space between rows */
+  font-size: 12px;
+}
+
+.inventory-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inventory-cell {
+  padding: 2px 5px;
+  text-align: left;
+}
+
+.symbol-cell {
+  width: 10%; /* Adjust width for symbol */
+  text-align: center;
+}
+
+.name-cell {
+  width: 50%; /* Adjust width for name */
+  text-align: left;
+}
+
+.quantity-cell {
+  width: 40%; /* Adjust width for quantity */
+  text-align: right;
+}

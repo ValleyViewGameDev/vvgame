@@ -1,0 +1,114 @@
+{
+    "0,0": {
+        "valleySettlement": "1,1",
+        "valleyGrid": "0,0"
+    },
+    "0,1": {
+        "valleySettlement": "1,1",
+        "valleyGrid": "0,3"
+    },
+    "0,2": {
+        "valleySettlement": "1,2",
+        "valleyGrid": "0,3"
+    },
+    "0,3": {
+        "valleySettlement": "1,3",
+        "valleyGrid": "0,3"
+    },
+    "0,4": {
+        "valleySettlement": "1,4",
+        "valleyGrid": "0,3"
+    },
+    "0,5": {
+        "valleySettlement": "1,5",
+        "valleyGrid": "0,3"
+    },
+    "0,6": {
+        "valleySettlement": "1,6",
+        "valleyGrid": "0,3"
+    },
+    "0,7": {
+        "valleySettlement": "1,6",
+        "valleyGrid": "0,7"
+    },
+    "1,0": {
+        "valleySettlement": "1,2",
+        "valleyGrid": "3,0"
+    },
+    "1,7": {
+        "valleySettlement": "1,6",
+        "valleyGrid": "3,7"
+    },
+    "2,0": {
+        "valleySettlement": "2,1",
+        "valleyGrid": "3,0"
+    },
+    "2,7": {
+        "valleySettlement": "2,6",
+        "valleyGrid": "3,7"
+    },
+    "3,0": {
+        "valleySettlement": "3,1",
+        "valleyGrid": "3,0"
+    },
+    "3,7": {
+        "valleySettlement": "3,6",
+        "valleyGrid": "3,7"
+    },
+    "4,0": {
+        "valleySettlement": "4,1",
+        "valleyGrid": "3,0"
+    },
+    "4,7": {
+        "valleySettlement": "4,6",
+        "valleyGrid": "3,7"
+    },
+    "5,0": {
+        "valleySettlement": "5,1",
+        "valleyGrid": "3,0"
+    },
+    "5,7": {
+        "valleySettlement": "5,7",
+        "valleyGrid": "3,7"
+    },
+    "6,0": {
+        "valleySettlement": "6,1",
+        "valleyGrid": "3,0"
+    },
+    "6,7": {
+        "valleySettlement": "6,7",
+        "valleyGrid": "3,7"
+    },
+    "7,0": {
+        "valleySettlement": "6,1",
+        "valleyGrid": "7,0"
+    },
+    "7,1": {
+        "valleySettlement": "6,1",
+        "valleyGrid": "7,1"
+    },
+    "7,2": {
+        "valleySettlement": "6,3",
+        "valleyGrid": "7,2"
+    },
+    "7,3": {
+        "valleySettlement": "6,3",
+        "valleyGrid": "7,3"
+    },
+    "7,4": {
+        "valleySettlement": "6,4",
+        "valleyGrid": "7,0"
+    },
+    "7,5": {
+        "valleySettlement": "6,5",
+        "valleyGrid": "7,1"
+    },
+    "7,6": {
+        "valleySettlement": "6,6",
+        "valleyGrid": "7,2"
+    },
+    "7,7": {
+        "valleySettlement": "6,6",
+        "valleyGrid": "7,3"
+    }
+}

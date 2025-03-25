@@ -1,0 +1,40 @@
+/* Frontier Grid */
+.frontier-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr); /* 8 columns */
+  grid-template-rows: repeat(8, 1fr); /* 8 rows */
+  width: 800px; 
+  height: 800px;
+  gap: 1px; /* Optional: Add spacing between tiles */
+  background-color: #222; /* Optional: Dark background to distinguish grid */
+  margin: 0 auto; /* Center the grid */
+}
+
+.frontier-tile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px; /* Adjust for better readability */
+  border: 1px solid #444; /* Optional: Border for better visibility */
+}
+
+/* Background colors based on settlementType */
+.frontier-tile.homestead {
+  background-color: #8fbc8f; /* Light green for homestead */
+}
+
+.frontier-tile.valley1 {
+  background-color: #a3d9a5; /* Light mint green for valley1 */
+}
+
+.frontier-tile.valley2 {
+  background-color: #98fb98; /* Pale green for valley2 */
+}
+
+.frontier-tile.valley3 {
+  background-color: #90ee90; /* Light lime green for valley3 */
+}
+
+.frontier-tile.unknown {
+  background-color: #d3d3d3; /* Light gray for unknown tiles */
+}

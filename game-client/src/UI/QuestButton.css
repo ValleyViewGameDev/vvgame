@@ -1,0 +1,106 @@
+/* General button wrapper */
+/* ✅ Ensure the wrapper doesn't clip the tooltip */
+.quest-button-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+/* Base button styling */
+.quest-item,
+.quest-giver-item {
+  width: 100%; /* ✅ Match resource buttons */
+  padding: 6px 8px; /* ✅ Reduce excessive padding */
+  margin: 4px 0; /* ✅ Reduce excessive spacing */
+  font-size: 14px;
+  text-align: left;
+  white-space: normal;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #67c257; /* Default green */
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  transition: background-color 0.2s ease-in-out;
+  box-sizing: border-box; /* ✅ Prevent overflow */
+  max-width: 100%; /* ✅ Ensure buttons do not overflow */
+}
+
+
+/* Hover state for all buttons */
+.quest-button:hover {
+  background-color: #95da89;
+}
+
+/* Disabled button state */
+.quest-button.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* ✅ In-progress (Yellow) */
+.quest-button.in-progress {
+  background-color: #ffd700; /* Yellow */
+  cursor: not-allowed;
+}
+
+/* ✅ Ready-to-Collect State (Brighter Green) */
+.quest-button.ready {
+  background-color: #00e639; /* Brighter Green */
+  border: 1px solid #249b40;
+}
+
+/* ✅ Reward State (Green) */
+.quest-button.reward {
+  background-color: #4caf50; /* ✅ Green */
+  border: 1px solid #2e7d32;
+  color: white;
+}
+
+
+/* Title styling for all buttons */
+.quest-item h3,
+.quest-giver-item h3 {
+  font-weight: bold;
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Details or subtitle styling */
+.quest-item h4,
+.quest-giver-item p {
+  margin: 2px 0;
+  font-size: 0.8rem;
+  color: #555;
+  white-space: pre-line;
+}
+
+/* Paragraph styling for lists or descriptions */
+.quest-item p,
+.quest-giver-item p {
+  display: block;
+  margin: 2px 0;
+  font-size: 0.7rem;
+}
+
+
+/* MINI BUTTONS ON QUEST GIVER PANEL
+
+/* ✅ Make sure the action buttons (e.g., "Get Reward", "Accept Quest") fit properly */
+.quest-giver-button {
+  width: 100%;
+  padding: 6px 8px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+
+/* Hover state for QuestGiver button */
+.quest-giver-button:hover {
+  background-color: #0056b3;
+}

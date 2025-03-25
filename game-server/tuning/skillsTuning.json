@@ -1,0 +1,40 @@
+{
+    "Grower": {
+      "Wheat": 3,
+      "Corn": 3,
+      "Carrot": 3,
+      "Strawberry": 2,
+      "Sugarcane": 2,
+      "Olive": 2,
+      "Apple": 2,
+      "Lemon": 2
+    },
+    "Winemaker": {
+      "Grapes": 2,
+      "Wine": 4,
+      "Port": 3
+    },
+    "Baker": {
+      "Bread": 3,
+      "Cornbread": 3,
+      "Apple Pie": 4,
+      "Strawberry Pie": 4
+    },
+    "Axe Upgrade 1": {
+      "Wood": 2
+    },
+    "Pickaxe Upgrade 1": {
+      "Stone": 3
+    },
+    "Husbandry": {
+      "Grazing Time": 1,
+      "Milk": 1,
+      "Wool": 1
+    },
+    "Dairy Farmer": {
+      "Grazing Time": 0.5,
+      "Milk": 3
+    }
+     
+  }
+  

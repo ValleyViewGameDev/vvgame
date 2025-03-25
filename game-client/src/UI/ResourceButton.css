@@ -1,0 +1,120 @@
+/* General button wrapper */
+/* ✅ Ensure the wrapper doesn't clip the tooltip */
+.resource-button-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+/* Base button styling */
+.resource-button
+{
+  width: 100%; /* ✅ Match resource buttons */
+  padding: 6px 8px; /* ✅ Reduce excessive padding */
+  margin: 4px 0; /* ✅ Reduce excessive spacing */
+  font-size: 14px;
+  text-align: left;
+  white-space: normal;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #67c257; /* Default green */
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  transition: background-color 0.2s ease-in-out;
+  box-sizing: border-box; /* ✅ Prevent overflow */
+  max-width: 100%; /* ✅ Ensure buttons do not overflow */
+}
+
+
+/* Hover state for all buttons */
+.resource-button:hover {
+  background-color: #95da89;
+}
+
+/* Disabled button state */
+.resource-button.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* ✅ In-progress (Yellow) */
+.resource-button.in-progress {
+  background-color: #ffd700; /* Yellow */
+  cursor: not-allowed;
+}
+
+/* ✅ Ready-to-Collect State (Brighter Green) */
+.resource-button.ready {
+  background-color: #00e639; /* Brighter Green */
+  border: 1px solid #249b40;
+}
+
+/* ✅ Reward State (Green) */
+.resource-button.reward {
+  background-color: #4caf50; /* ✅ Green */
+  border: 1px solid #2e7d32;
+  color: white;
+}
+
+
+/* Title styling for all buttons */
+.resource-title {
+  font-weight: bold;
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Details or subtitle styling */
+.resource-details {
+  margin: 2px 0;
+  font-size: 0.8rem;
+  color: #555;
+  white-space: pre-line;
+}
+
+/* Paragraph styling for lists or descriptions */
+.resource-details span {
+  display: block;
+  margin: 2px 0;
+  font-size: 0.7rem;
+}
+
+
+
+/* INFO TOOLTIP
+
+
+/* Tooltip or info button */
+.info-button {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  cursor: help;
+  font-size: 12px;
+  color: #555;
+}
+
+/* ✅ Floating Info Toaster - Renders on top of everything */
+.info-toaster {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px;
+  font-size: 12px;
+  color: #333;
+  z-index: 99999; /* ✅ Highest priority */
+  box-shadow: 4px 6px 10px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
+}
+
+/* ✅ Adjust position dynamically */
+.info-toaster {
+  transform: translateY(-50%);
+  max-width: 200px;
+}

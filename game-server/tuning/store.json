@@ -1,0 +1,82 @@
+[
+    {
+      "id": 1,
+      "title": "Starter Pack",
+      "body": "Includes core skills and starter crops. Expires 7 days after new account creation.",
+      "rewards": [
+        { "item": "Money", "qty": 10000 },
+        { "item": "Skill:Horse", "qty": 1 },
+        { "item": "Skill:Backpack", "qty": 1 },
+        { "item": "Skill:Grower", "qty": 1 },
+        { "item": "Skill:Axe", "qty": 1 },
+        { "item": "Skill:Pickaxe", "qty": 1 },
+        { "item": "Skill:Builder", "qty": 1 },
+        { "item": "Gem", "qty": 1 },
+        { "item": "Potion 3", "qty": 1 },
+        { "item": "Book", "qty": 1 },
+        { "item": "Wheat", "qty": 100 },
+        { "item": "Carrot", "qty": 100 },
+        { "item": "Corn", "qty": 100 }
+      ],
+      "price": 6,
+      "shelflifeDays": 7
+    },
+    {
+      "id": 2,
+      "title": "Adventurer's Pack",
+      "body": "Books, tents, and expanded carrying power.",
+      "rewards": [
+        { "item": "Book", "qty": 100 },
+        { "item": "Tent", "qty": 10 },
+        { "item": "BackpackCapacity", "qty": 25 }
+      ],
+      "price": 3.5
+    },
+    {
+      "id": 3,
+      "title": "Politician's Pack",
+      "body": "Bribery never looked so sparkly.",
+      "rewards": [
+        { "item": "Gem", "qty": 100 },
+        { "item": "Lumber", "qty": 20 }
+      ],
+      "price": 3.5
+    },
+    {
+      "id": 4,
+      "title": "Farmer's Pack",
+      "body": "Boost your harvest potential with potions and lumber.",
+      "rewards": [
+        { "item": "Potion 3", "qty": 100 },
+        { "item": "Lumber", "qty": 30 }
+      ],
+      "price": 3.5
+    },
+    {
+      "id": 5,
+      "title": "Money Pack 1",
+      "body": "Instantly adds 100,000 Money.",
+      "rewards": [
+        { "item": "Money", "qty": 100000 }
+      ],
+      "price": 9.5
+    },
+    {
+      "id": 6,
+      "title": "Money Pack 2",
+      "body": "Mega Money. Go wild.",
+      "rewards": [
+        { "item": "Money", "qty": 1000000 }
+      ],
+      "price": 70
+    },
+    {
+      "id": 7,
+      "title": "Elf’s Armor",
+      "body": "Boost your defense with enchanted armor.",
+      "rewards": [
+        { "item": "ArmorClass", "qty": 30 }
+      ],
+      "price": 15
+    }
+  ]
