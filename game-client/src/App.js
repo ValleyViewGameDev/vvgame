@@ -144,13 +144,13 @@ const [timers, setTimers] = useState(() => {
   const storedTimers = JSON.parse(localStorage.getItem("timers"));
   return storedTimers || {
     seasons: { phase: "", endTime: null, type: "" },
-    election: { phase: "", endTime: null },
+    elections: { phase: "", endTime: null },
     train: { phase: "", endTime: null },
     taxes: { phase: "", endTime: null },  
     bank: { phase: "", endTime: null },  
-  };
+  }; 
 });
-const [countdowns, setCountdowns] = useState({ season: "", election: "", train: "", taxes: "", bank: "" });
+const [countdowns, setCountdowns] = useState({ seasons: "", elections: "", train: "", taxes: "", bank: "" });
 
 // TIMERS Step 2: Initialize Timers on app start/refresh; run once
 useEffect(() => {
