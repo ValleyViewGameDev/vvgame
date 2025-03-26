@@ -8,15 +8,15 @@ import GlobalGridState from '../GridState/GlobalGridState';
 export async function updateGridResource(gridId, payload, setResources) {
   try {
     console.log('🌱 updateGridResource: payload =', payload);
-
     const response = await axios.patch(`${API_BASE}/api/update-grid/${gridId}`, payload);
+
+    let updatedResource = null;
 
     if (response?.data?.success && setResources) {
       const { newResource, x, y, growEnd, craftEnd, craftedItem } = payload;
 
-      const updatedResources = [];
       setResources((prev) => {
-        const next = prev.map((res) => {
+        return prev.map((res) => {
           if (res.x === x && res.y === y) {
             const updated = {
               ...res,
@@ -25,20 +25,29 @@ export async function updateGridResource(gridId, payload, setResources) {
               ...(craftEnd !== undefined && { craftEnd }),
               ...(craftedItem !== undefined && { craftedItem }),
             };
-            updatedResources.push(updated);
+            updatedResource = updated;
             return updated;
           }
           return res;
         });
-        return next;
       });
 
+      // 🧠 Fallback if updatedResource wasn’t captured synchronously
+      if (!updatedResource) {
+        updatedResource = GlobalGridState.getResources().find(
+          (res) => res.x === x && res.y === y
+        );
+      }
+
       // 🔁 Broadcast to others
-      socket.emit('update-tile-resource', {
-        gridId,
-        updatedTiles: GlobalGridState.getTiles(),
-        updatedResources: updatedResources.length > 0 ? updatedResources : GlobalGridState.getResources(),
-      });
+      if (updatedResource) {
+        socket.emit('update-tile-resource', {
+          gridId,
+          updatedTiles: GlobalGridState.getTiles(),
+          updatedResources: [updatedResource], // send minimal payload
+        });
+        console.log("📡 Emitting update-tile-resource via socket:", gridId, updatedResource);
+      }
     }
 
     return response.data;
@@ -53,7 +62,6 @@ export async function updateGridResource(gridId, payload, setResources) {
     return null;
   }
 }
-
 
 export async function convertTileType(gridId, x, y, tileType, setTileTypes, getCurrentTileTypes) {
   const currentTiles = getCurrentTileTypes();
