@@ -314,8 +314,18 @@ useEffect(() => {
   if (!gridId) return;
 
   socket.on('gridState-sync', (updatedGridState) => {
-    console.log('📡 Real-time update received!');
-    setGridState(updatedGridState); // Update context
+    if (!currentPlayer) return;
+  
+    // Only apply updates from other players
+    const incomingPCs = Object.keys(updatedGridState.pcs || {});
+    const currentPlayerId = currentPlayer._id || currentPlayer.playerId;
+  
+    if (!incomingPCs.includes(currentPlayerId)) {
+      console.log("📡 Real-time update received from another player.");
+      setGridState(updatedGridState);
+    } else {
+      console.log("🔄 Skipping self-emitted update.");
+    }
   });
 
   return () => {
