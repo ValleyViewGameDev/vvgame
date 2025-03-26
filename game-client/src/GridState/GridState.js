@@ -7,6 +7,14 @@ import { setGridStateExternally } from './GridStateContext'; // Add this at top
 
 let gridTimer = null; // For periodic grid updates
 
+let lastGridStateTimestamp = 0;
+export const updateLastGridStateTimestamp = (timestamp) => {
+  if (timestamp > lastGridStateTimestamp) {
+    lastGridStateTimestamp = timestamp;
+  }
+};
+export const getLastGridStateTimestamp = () => lastGridStateTimestamp;
+
 class GridStateManager {
   constructor() {
     this.gridStates = {}; // Store grid states in memory
@@ -311,6 +319,7 @@ async saveGridState(gridId) {
   }
   // ✅ Add or update the lastUpdated timestamp
   this.gridStates[gridId].lastUpdated = Date.now();
+  updateLastGridStateTimestamp(this.gridStates[gridId].lastUpdated); 
 
   //console.log(`Saving gridState to DB for gridId: ${gridId}`, gridState);
   try {

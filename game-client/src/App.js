@@ -57,8 +57,8 @@ import { StatusBarContext } from './UI/StatusBar';
 import { handleKeyMovement } from './PlayerMovement';
 import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
 import { updateGridStatus } from './Utils/GridManagement';
-import { checkAndLevyTax } from './GameFeatures/Government/Taxes';
 import { formatCountdown } from './UI/Timers';
+import { getLastGridStateTimestamp, updateLastGridStateTimestamp } from './GridState/GridState'; // near the top of App.js
 
 function App() {
 
@@ -321,12 +321,12 @@ useEffect(() => {
     if (senderId === currentPlayerId) { console.log("🔄 Skipping self-emitted update."); return; }
   
     // ✅ Skip stale updates
-    if (updatedGridState.lastUpdated < (gridState?.lastUpdated || 0)) {
-      console.log("⏳ Received older gridState — ignoring");
+    if (updatedGridState.lastUpdated <= getLastGridStateTimestamp()) {
+      console.log("⏳ Skipping socket update — older or same timestamp");
       return;
     }
-
-      console.log("📡 Real-time update received from another player:", updatedGridState);
+    console.log("📡 Applying newer socket gridState:", updatedGridState);
+    updateLastGridStateTimestamp(updatedGridState.lastUpdated);    console.log("📡 Applying newer socket gridState:", updatedGridState);
   
     // 🧠 Rehydrate NPCs safely
     const hydratedNPCs = {};
