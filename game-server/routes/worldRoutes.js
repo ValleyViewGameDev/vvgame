@@ -72,6 +72,7 @@ router.get('/load-grid-state/:gridId', async (req, res) => {
             ])
           )
         : {},
+      lastUpdated: grid.gridState.lastUpdated || Date.now(), // ✅ Add this line
     };
 
     //console.log('Normalized gridState:', gridState);

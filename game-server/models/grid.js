@@ -59,6 +59,7 @@ const GridSchema = new mongoose.Schema({
         speed: { type: Number, required: true },
         iscamping: { type: Boolean, default: false },
       }),
+      lastUpdated: { type: Date, default: Date.now },
       default: {}, // Initialize as empty object
     }
   },

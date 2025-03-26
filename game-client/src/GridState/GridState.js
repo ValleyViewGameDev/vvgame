@@ -305,16 +305,19 @@ updatePC(gridId, playerId, newProperties) {
  */
 async saveGridState(gridId) {
   const gridState = this.getGridState(gridId);
-
   if (!gridState) {
     console.error(`Cannot save gridState. No gridState found for gridId: ${gridId}`);
     return;
   }
+  // ✅ Add or update the lastUpdated timestamp
+  this.gridStates[gridId].lastUpdated = Date.now();
+
   //console.log(`Saving gridState to DB for gridId: ${gridId}`, gridState);
   try {
     await axios.post(`${API_BASE}/api/save-grid-state`, {
       gridId,
       gridState: {
+        ...gridState,
         npcs: Object.keys(gridState.npcs || {}).reduce((acc, id) => {
           const npc = gridState.npcs[id];
           acc[id] = {
@@ -329,7 +332,6 @@ async saveGridState(gridId) {
           };
           return acc;
         }, {}),
-        
         // ✔️ Include PCs (lightweight structure)
         pcs: gridState.pcs && Object.keys(gridState.pcs).length > 0 ? 
         Object.keys(gridState.pcs).reduce((acc, playerId) => {
@@ -343,7 +345,7 @@ async saveGridState(gridId) {
         : gridState.pcs  // ✅ Preserve existing pcs if it's already an object
       },
     });
-    
+
     //console.log(`GridState saved successfully for gridId ${gridId}.`);
     const currentPlayer = JSON.parse(localStorage.getItem('player'));
 

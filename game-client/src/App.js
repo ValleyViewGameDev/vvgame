@@ -314,17 +314,19 @@ const memoizedResources = useMemo(() => resources, [resources]);
 useEffect(() => {
   if (!gridId || !currentPlayer) return;
 
-  const currentPlayerId = currentPlayer._id || currentPlayer.playerId;
-
   const handleGridStateSync = ({ updatedGridState, senderId }) => {
     const currentPlayerId = currentPlayer._id || currentPlayer.playerId;
   
-    if (senderId === currentPlayerId) {
-      console.log("🔄 Skipping self-emitted update.");
+    // ✅ Skip own emitted updates
+    if (senderId === currentPlayerId) { console.log("🔄 Skipping self-emitted update."); return; }
+  
+    // ✅ Skip stale updates
+    if (updatedGridState.lastUpdated < (gridState?.lastUpdated || 0)) {
+      console.log("⏳ Received older gridState — ignoring");
       return;
     }
-  
-    console.log("📡 Real-time update received from another player:", updatedGridState);
+
+      console.log("📡 Real-time update received from another player:", updatedGridState);
   
     // 🧠 Rehydrate NPCs safely
     const hydratedNPCs = {};
