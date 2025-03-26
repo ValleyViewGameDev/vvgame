@@ -3,6 +3,7 @@ import socket from '../socketManager';
 import axios from 'axios';
 import NPC from '../GameFeatures/NPCs/NPCs';
 import { loadMasterResources } from '../Utils/TuningManager';
+import { setGridStateExternally } from './GridStateContext'; // Add this at top
 
 let gridTimer = null; // For periodic grid updates
 
@@ -342,7 +343,10 @@ async saveGridState(gridId) {
         : gridState.pcs  // ✅ Preserve existing pcs if it's already an object
       },
     });
+    
     //console.log(`GridState saved successfully for gridId ${gridId}.`);
+    const currentPlayer = JSON.parse(localStorage.getItem('player'));
+
     socket.emit('update-gridState', {
       gridId,
       updatedGridState: this.gridStates[gridId],
@@ -350,9 +354,12 @@ async saveGridState(gridId) {
     });
     console.log("📡 Emitting update-gridState to server");
 
-    const currentPlayer = JSON.parse(localStorage.getItem('player'));
 
-    
+    // Final step inside saveGridState:
+    if (typeof setGridStateExternally === 'function') {
+      setGridStateExternally(this.gridStates[gridId]);
+    }
+
   } catch (error) {
     console.error('Error saving gridState:', error);
   }
