@@ -151,10 +151,10 @@ async handleIdleState(tiles, resources, npcs, idleDuration, onTransition) {
       const moved = await this.moveOneTile(randomDirection, tiles, resources, npcs);
       
       if (!moved) {
-        console.warn(`NPC ${this.id} failed to move. Transitioning anyway.`);
+        // console.warn(`NPC ${this.id} failed to move. Transitioning anyway.`);
       }
     } else {
-      console.warn(`NPC ${this.id} has no valid tiles to move. Staying in current position.`);
+      // console.warn(`NPC ${this.id} has no valid tiles to move. Staying in current position.`);
     }
 
     // Ensure transition only happens **after move attempt completes**
@@ -200,7 +200,7 @@ async handleRoamState(tiles, resources, npcs, onTransition) {
   });
 
   if (validDirections.length === 0) {
-    console.warn(`NPC ${this.id} cannot find a valid tile to move in the current direction.`);
+    //console.warn(`NPC ${this.id} cannot find a valid tile to move in the current direction.`);
     this.currentDirection = null; // Reset direction to choose a new one
     return; // Wait for the next cycle to pick a new direction
   }
@@ -248,7 +248,7 @@ async handlePursueState(playerPosition, tiles, resources, npcs, onAttackTransiti
   }
 
   if (!direction) {
-    console.warn(`NPC ${this.id} could not determine a valid direction to pursue.`);
+    // console.warn(`NPC ${this.id} could not determine a valid direction to pursue.`);
     return;
   }
 
@@ -290,7 +290,7 @@ async moveOneTile(direction, tiles, resources, npcs) {
 
   const delta = directions[direction];
   if (!delta) {
-      console.error(`Invalid direction: ${direction}`);
+      //console.error(`Invalid direction: ${direction}`);
       return false;
   }
 
@@ -299,7 +299,7 @@ async moveOneTile(direction, tiles, resources, npcs) {
 
   // Validate the tile before moving
   if (!this.isValidTile(targetX, targetY, tiles, resources, npcs)) {
-      console.warn(`NPC ${this.id} cannot move to invalid tile (${targetX}, ${targetY}).`);
+      //console.warn(`NPC ${this.id} cannot move to invalid tile (${targetX}, ${targetY}).`);
       return false;
   }
 
@@ -369,11 +369,11 @@ isValidTile(x, y, tiles, resources, npcs) {
 
   // Check if tiles data is valid
   if (!tiles || !Array.isArray(tiles)) {
-    console.error('isValidTile; Tiles data is invalid.');
+    //console.error('isValidTile; Tiles data is invalid.');
     return false;
   }
   if (!resources || !Array.isArray(resources)) {
-    console.error('isValidTile; Resources data is invalid or missing.');
+    //console.error('isValidTile; Resources data is invalid or missing.');
     return false;
 }
   // Check if tile is out of bounds
@@ -420,7 +420,7 @@ isValidTile(x, y, tiles, resources, npcs) {
   // Check if another NPC is occupying the tile
   const npcInTile = npcs.some(npc => Math.floor(npc.position.x) === x && Math.floor(npc.position.y) === y);
   if (npcInTile) {
-    console.warn(`Tile (${x}, ${y}) is already occupied by another NPC.`);
+    //console.warn(`Tile (${x}, ${y}) is already occupied by another NPC.`);
     return false;
   }
 
@@ -428,56 +428,6 @@ isValidTile(x, y, tiles, resources, npcs) {
   return true;
 }
 
- 
-// async moveTowardTarget(target, gridId, tiles, resources, npcs) {
-//   gridId = gridId || this.gridId;
-//   //console.log(`NPC ${this.id} moving toward target at (${target.x}, ${target.y}).`);
-
-//   while (Math.floor(this.position.x) !== target.x || Math.floor(this.position.y) !== target.y) {
-//     const dx = target.x - Math.floor(this.position.x);
-//     const dy = target.y - Math.floor(this.position.y);
-
-//     // Determine the primary direction to move
-//     let direction = null;
-//     if (Math.abs(dx) > Math.abs(dy)) {
-//       direction = dx > 0 ? 'E' : 'W';
-//     } else if (dy !== 0) {
-//       direction = dy > 0 ? 'S' : 'N';
-//     }
-
-//     // Add diagonal movement if needed
-//     if (Math.abs(dx) === Math.abs(dy)) {
-//       if (dx > 0 && dy > 0) direction = 'SE';
-//       else if (dx > 0 && dy < 0) direction = 'NE';
-//       else if (dx < 0 && dy > 0) direction = 'SW';
-//       else if (dx < 0 && dy < 0) direction = 'NW';
-//     }
-
-//     if (!direction) {
-//       console.warn(`NPC ${this.id} has no valid direction toward target.`);
-//       return false; // No direction to move
-//     }
-
-//     // Validate the next tile
-//     const nextTile = this.getAdjacentTile(direction);
-//     if (!this.isValidTile(nextTile.x, nextTile.y, tiles, resources, npcs)) {
-//       console.warn(`NPC ${this.id} encountered an invalid tile at (${nextTile.x}, ${nextTile.y}). Transitioning to idle.`);
-//       this.state = 'idle';
-//       return false;
-//     }
-
-//     // Wait for moveOneTile to complete before continuing
-//     await this.moveOneTile(direction, tiles, resources, npcs);
-
-//     // Snap position to integers after each move
-//     this.position.x = Math.round(this.position.x);
-//     this.position.y = Math.round(this.position.y);
-//     //console.log(`NPC ${this.id} snapped to (${this.position.x}, ${this.position.y}).`);
-//   }
-
-//  // console.log(`NPC ${this.id} reached target (${target.x}, ${target.y}).`);
-//   return true;
-// }
 
 
 async findTileInRange(tileType, tiles, resources) {
@@ -486,7 +436,7 @@ async findTileInRange(tileType, tiles, resources) {
   const startY = Math.floor(this.position.y);
 
   if (!tiles || tiles.length === 0 || !Array.isArray(tiles)) {
-    console.error('Tiles array is invalid or empty.');
+    // console.error('Tiles array is invalid or empty.');
     return [];
   }
 
@@ -513,7 +463,7 @@ findNearestResource(targetResource, tiles, resources) {
   //console.log(`Finding nearest ${targetResource} for NPC ${this.id}.`);
 
   if (!resources || !Array.isArray(resources) || resources.length === 0) {
-    console.error(`Resources are invalid or empty for NPC ${this.id}.`);
+    //console.error(`Resources are invalid or empty for NPC ${this.id}.`);
     return null;
   }
   const npcPosition = {
@@ -524,7 +474,7 @@ findNearestResource(targetResource, tiles, resources) {
     return res.category === targetResource && typeof res.x === 'number' && typeof res.y === 'number';
   });
   if (availableResources.length === 0) {
-    console.warn(`No available ${targetResource} found for NPC ${this.id}.`);
+    //console.warn(`No available ${targetResource} found for NPC ${this.id}.`);
     return null;
   }
   availableResources.sort((a, b) => {
