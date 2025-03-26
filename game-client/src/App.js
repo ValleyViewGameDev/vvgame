@@ -311,24 +311,19 @@ const memoizedResources = useMemo(() => resources, [resources]);
 
 /////////// SOCKET LISTENER /////////////////////////
 
+// 🔄 Real-time updates for GridState: PCS AND NPCS
 useEffect(() => {
   if (!gridId || !currentPlayer) return;
 
   const handleGridStateSync = ({ updatedGridState, senderId }) => {
     const currentPlayerId = currentPlayer._id || currentPlayer.playerId;
-  
     // ✅ Skip own emitted updates
-    if (senderId === currentPlayerId) {
-      console.log("🔄 Skipping self-emitted update.");
-      return;
-    }
-  
+    if (senderId === currentPlayerId) { console.log("🔄 Skipping self-emitted update."); return; }
     // ✅ Skip stale updates
     if (updatedGridState.lastUpdated <= getLastGridStateTimestamp()) {
       console.log("⏳ Skipping socket update — older or same timestamp");
       return;
     }
-  
     console.log("📡 Applying newer socket gridState:", updatedGridState);
     updateLastGridStateTimestamp(updatedGridState.lastUpdated);
   
@@ -344,7 +339,6 @@ useEffect(() => {
         gridId
       );
     }
-  
     const safeGridState = {
       ...updatedGridState,
       npcs: hydratedNPCs,
@@ -352,14 +346,11 @@ useEffect(() => {
   
     // ✅ Add this line to update in-memory state used by 1s loop
     gridStateManager.gridStates[gridId] = safeGridState;
-  
     // ✅ Update React gridState
     setGridState(safeGridState);
   };
-
   console.log("🧲 Subscribing to real-time updates for grid:", gridId);
   socket.on('gridState-sync', handleGridStateSync);
-
   return () => {
     console.log("🧹 Unsubscribing from gridState-sync for grid:", gridId);
     socket.off('gridState-sync', handleGridStateSync);
@@ -367,6 +358,25 @@ useEffect(() => {
 }, [gridId, currentPlayer]);
 
 
+
+// 🔄 Real-time updates for tiles and resources
+useEffect(() => {
+  if (!gridId) return;
+  const handleTileResourceSync = ({ updatedTiles, updatedResources }) => {
+  console.log("🌐 Real-time tile/resource update received!");
+
+    if (updatedTiles) { setTileTypes(updatedTiles); }
+    if (updatedResources) { setResources(updatedResources); }
+  };
+  socket.on('tile-resource-sync', handleTileResourceSync);
+  return () => {
+    socket.off('tile-resource-sync', handleTileResourceSync);
+  };
+}, [gridId]);
+
+
+
+/////////// APP INITIALIZATION /////////////////////////
 
 // Flags to track initialization
 let isInitializing = false; // Declare inside useEffect to avoid global persistence

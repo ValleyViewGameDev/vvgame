@@ -77,6 +77,17 @@ mongoose.connect(process.env.MONGODB_URI)
         socket.to(gridId).emit('gridState-sync', { updatedGridState, senderId });
       });
 
+      // Broadcast updated tiles and resources to others in the same grid
+      socket.on('update-tile-resource', ({ gridId, updatedTiles, updatedResources }) => {
+        console.log(`🌍 update-tile-resource received for grid ${gridId}`);
+        socket.to(gridId).emit('tile-resource-sync', {
+          gridId,
+          updatedTiles,
+          updatedResources,
+        });
+      });
+
+
       // Optional: log disconnects
       socket.on('disconnect', () => {
         console.log(`🔴 Client disconnected: ${socket.id}`);

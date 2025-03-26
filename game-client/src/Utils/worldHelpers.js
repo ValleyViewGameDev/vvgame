@@ -1,7 +1,7 @@
 import API_BASE from '../config';
 import axios from 'axios';
 import { loadMasterResources } from './TuningManager';
-
+ 
 export const fetchHomesteadOwner = async (gridId) => {
   try {
     console.log(`Fetching homestead owner for gridId: ${gridId}`);

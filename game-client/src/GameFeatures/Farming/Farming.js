@@ -87,7 +87,7 @@ export const handleFarmPlotPlacement = async ({
         growEnd: growEndTime,
         };
 
-        try {
+        try { 
         const gridUpdateResponse = await updateGridResource(gridId, newResourcePayload, setResources);
 
         if (gridUpdateResponse?.success) {

@@ -2,44 +2,85 @@ import API_BASE from '../config';
 import axios from 'axios';
 import { initializeGrid } from '../AppInit';
 import gridStateManager from '../GridState/GridState';
+import socket from '../socketManager'; // ⚠️ At top of file if not already present
+import GlobalGridState from '../GridState/GlobalGridState';
 
 export async function updateGridResource(gridId, payload, setResources) {
   try {
-    console.log('payload in updateGridRes:', payload);
-    const startTime = Date.now();
-    const response = await axios.patch(`${API_BASE}/api/update-grid/${gridId}`, payload);
-    console.log('✅ update-grid API response:', response.data);
+    console.log('🌱 updateGridResource: payload =', payload);
 
-    console.log(`update-grid completed in ${Date.now() - startTime}ms`);
+    const response = await axios.patch(`${API_BASE}/api/update-grid/${gridId}`, payload);
 
     if (response?.data?.success && setResources) {
       const { newResource, x, y, growEnd, craftEnd, craftedItem } = payload;
 
-      setResources((prevResources) => {
-        return prevResources.map((res) => {
+      const updatedResources = [];
+      setResources((prev) => {
+        const next = prev.map((res) => {
           if (res.x === x && res.y === y) {
-            // ✅ Keep all attributes but explicitly remove `null` values
-            return {
+            const updated = {
               ...res,
-              type: newResource || res.type,
-              growEnd: growEnd ?? res.growEnd, // Preserve or remove if null
-              craftEnd: craftEnd !== undefined ? craftEnd : res.craftEnd, // Remove if null
-              craftedItem: craftedItem !== undefined ? craftedItem : res.craftedItem, // Remove if null
+              ...(newResource && { type: newResource }),
+              ...(growEnd !== undefined && { growEnd }),
+              ...(craftEnd !== undefined && { craftEnd }),
+              ...(craftedItem !== undefined && { craftedItem }),
             };
+            updatedResources.push(updated);
+            return updated;
           }
           return res;
         });
+        return next;
+      });
+
+      // 🔁 Broadcast to others
+      socket.emit('update-tile-resource', {
+        gridId,
+        updatedTiles: GlobalGridState.getTiles(),
+        updatedResources: updatedResources.length > 0 ? updatedResources : GlobalGridState.getResources(),
       });
     }
+
     return response.data;
   } catch (error) {
-    console.error('Error updating grid resource:', error);
+    console.error('❌ updateGridResource error:', error);
 
     if (error.response?.status === 500 && error.response.data?.message?.includes('VersionError')) {
-      console.warn('Retrying update due to version conflict...');
-      return await updateGridResource(gridId, payload, setResources); // Retry
+      console.warn('🔁 Retrying update due to version conflict...');
+      return await updateGridResource(gridId, payload, setResources);
     }
-    return null; // Signal failure
+
+    return null;
+  }
+}
+
+
+export async function convertTileType(gridId, x, y, tileType, setTileTypes, getCurrentTileTypes) {
+  const currentTiles = getCurrentTileTypes();
+
+  // Optimistic update
+  setTileTypes((prev) => {
+    const updated = [...prev];
+    updated[y] = [...prev[y]];
+    updated[y][x] = tileType;
+    return updated;
+  });
+
+  try {
+    const response = await axios.patch(`${API_BASE}/api/update-tile/${gridId}`, { x, y, tileType });
+
+    // 🔁 Broadcast tile + resource update to others
+    socket.emit('update-tile-resource', {
+      gridId,
+      updatedTiles: GlobalGridState.getTiles(),
+      updatedResources: GlobalGridState.getResources(),
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('❌ convertTileType failed, reverting:', error);
+    setTileTypes(currentTiles); // Revert optimistic change
+    throw error;
   }
 }
 
@@ -213,9 +254,6 @@ if (fromGridState.pcs[currentPlayer.playerId]) {
   }
 }; 
 
-
-
-
 export async function fetchGridData(gridId, updateStatus) {
   try {
     console.log(`Fetching grid data for gridId: ${gridId}`);
@@ -314,26 +352,3 @@ export async function getTileResource(gridId, x, y) {
   }
 }
 
-export async function convertTileType(gridId, x, y, tileType, setTileTypes, getCurrentTileTypes) {
-  // Optimistically update the client
-  const currentTileTypes = getCurrentTileTypes();
-  setTileTypes((prevTiles) => {
-    const updatedTiles = [...prevTiles];
-    updatedTiles[y][x] = tileType;
-    return updatedTiles;
-  });
-
-  try {
-    console.log(`Converting tile at (${x}, ${y}) to ${tileType} on the server.`);
-    const response = await axios.patch(`${API_BASE}/api/update-tile/${gridId}`, { x, y, tileType });
-    console.log('Tile converted successfully on the server:', response.data);
-    return response.data;
-  } catch (error) {
-    console.error('Error converting tile type on the server:', error);
-
-    // Revert the optimistic update if the server request fails
-    setTileTypes(() => currentTileTypes);
-
-    throw error;
-  }
-}
