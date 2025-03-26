@@ -345,13 +345,15 @@ async saveGridState(gridId) {
       },
     });
     //console.log(`GridState saved successfully for gridId ${gridId}.`);
-    
+    const currentPlayer = JSON.parse(localStorage.getItem('player'));
     socket.emit('update-gridState', {
       gridId,
-      updatedGridState: this.gridStates[gridId],  // In-memory current state
+      updatedGridState: this.gridStates[gridId],
+      senderId: currentPlayer?.playerId,
     });
+
     console.log("📡 Emitting update-gridState to server");
-    
+
   } catch (error) {
     console.error('Error saving gridState:', error);
   }

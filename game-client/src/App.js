@@ -308,17 +308,15 @@ const memoizedTileTypes = useMemo(() => tileTypes, [tileTypes]);
 const memoizedResources = useMemo(() => resources, [resources]);
 
 
-/////////// TURN ON SOCKET /////////////////////////
+/////////// SOCKET LISTENER /////////////////////////
 
 useEffect(() => {
   if (!gridId || !currentPlayer) return;
 
   const currentPlayerId = currentPlayer._id || currentPlayer.playerId;
 
-  const handleGridStateSync = (updatedGridState) => {
-    const incomingPCs = Object.keys(updatedGridState.pcs || {});
-    
-    if (incomingPCs.includes(currentPlayerId)) {
+  const handleGridStateSync = ({ updatedGridState, senderId }) => {
+    if (senderId === currentPlayerId) {
       console.log("🔄 Skipping self-emitted update.");
       return;
     }
