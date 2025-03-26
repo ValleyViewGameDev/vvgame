@@ -362,15 +362,23 @@ useEffect(() => {
 // 🔄 Real-time updates for tiles and resources
 useEffect(() => {
   if (!gridId) return;
-  const handleTileResourceSync = ({ updatedTiles, updatedResources }) => {
-  console.log("🌐 Real-time tile/resource update received!");
 
-    if (updatedTiles) { setTileTypes(updatedTiles); }
-    if (updatedResources) { setResources(updatedResources); }
+  const handleTileResourceSync = ({ updatedTiles, updatedResources }) => {
+    console.log("🌐 Real-time tile/resource update received!");
+
+    if (updatedTiles) {
+      setTileTypes(updatedTiles);
+      GlobalGridState.setTiles(updatedTiles);  // Keep NPCs in sync
+    }
+
+    if (updatedResources) {
+      setResources(updatedResources);
+      GlobalGridState.setResources(updatedResources);  // Keep NPCs in sync
+    }
   };
-  socket.on('tile-resource-sync', handleTileResourceSync);
+  socket.on('update-tile-resource', handleTileResourceSync);  // ✅ Corrected event name
   return () => {
-    socket.off('tile-resource-sync', handleTileResourceSync);
+    socket.off('update-tile-resource', handleTileResourceSync);
   };
 }, [gridId]);
 
