@@ -350,7 +350,8 @@ async saveGridState(gridId) {
       gridId,
       updatedGridState: this.gridStates[gridId],  // In-memory current state
     });
-
+    console.log("📡 Emitting update-gridState to server");
+    
   } catch (error) {
     console.error('Error saving gridState:', error);
   }
