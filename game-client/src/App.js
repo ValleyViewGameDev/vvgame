@@ -363,21 +363,28 @@ useEffect(() => {
 useEffect(() => {
   if (!gridId) return;
 
+  console.log("🧲 Subscribing to tile-resource-sync for grid:", gridId);
+
   const handleTileResourceSync = ({ updatedTiles, updatedResources }) => {
-    console.log("🌐 Real-time tile/resource update received!");
+    console.log("🌐 Real-time tile/resource update received!", {
+      updatedTiles,
+      updatedResources,
+    });
 
     if (updatedTiles) {
       setTileTypes(updatedTiles);
-      GlobalGridState.setTiles(updatedTiles);  // Keep NPCs in sync
+      GlobalGridState.setTiles(updatedTiles);  
     }
 
     if (updatedResources) {
       setResources(updatedResources);
-      GlobalGridState.setResources(updatedResources);  // Keep NPCs in sync
+      GlobalGridState.setResources(updatedResources);  
     }
   };
   socket.on('update-tile-resource', handleTileResourceSync);  // ✅ Corrected event name
+  
   return () => {
+    console.log("🧹 Unsubscribing from tile-resource-sync for grid:", gridId);
     socket.off('update-tile-resource', handleTileResourceSync);
   };
 }, [gridId]);
@@ -1275,6 +1282,7 @@ const zoomOut = () => {
     {/* Header */}
     <header className="app-header">
       <div className="header-controls">
+        <button className="shared-button" onClick={() => openPanel('DebugPanel')}> 🐞 </button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Store')}>🛒 Store</button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
         <button className="shared-button" >AWSD to Move</button>
@@ -1282,16 +1290,15 @@ const zoomOut = () => {
         <button className="shared-button" disabled={!currentPlayer} onClick={zoomIn}>+</button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> Inventory </button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}> ❓ Quests </button>
+        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('FarmingPanel')}> 🚜 Farm </button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('BuildPanel')}> ⚒️ Build </button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('BuyPanel')}> 🐮 Animals </button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('FarmingPanel')}> 🚜 Farm </button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => {
             setActiveStation(null); // ✅ Reset activeStation
             openPanel("SkillsAndUpgradesPanel"); // ✅ Open the panel normally
           }} > ⚙️ Skills </button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('GovPanel')}> 🏛️ Gov </button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('SeasonPanel')}> 🌎 Season </button>
-        <button className="shared-button" onClick={() => openPanel('DebugPanel')}> 🐞 </button>
 
       </div>
     </header>
