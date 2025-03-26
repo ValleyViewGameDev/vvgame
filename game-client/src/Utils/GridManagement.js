@@ -10,41 +10,34 @@ export async function updateGridResource(gridId, payload, setResources) {
     console.log('🌱 updateGridResource: payload =', payload);
     const response = await axios.patch(`${API_BASE}/api/update-grid/${gridId}`, payload);
 
-    let updatedResource = null;
-
     if (response?.data?.success && setResources) {
       const { newResource, x, y, growEnd, craftEnd, craftedItem } = payload;
 
-      setResources((prev) => {
-        return prev.map((res) => {
-          if (res.x === x && res.y === y) {
-            const updated = {
-              ...res,
-              ...(newResource && { type: newResource }),
-              ...(growEnd !== undefined && { growEnd }),
-              ...(craftEnd !== undefined && { craftEnd }),
-              ...(craftedItem !== undefined && { craftedItem }),
-            };
-            updatedResource = updated;
-            return updated;
-          }
-          return res;
-        });
+      // 🧠 Pre-calculate updated resource before state update
+      let updatedResource = null;
+
+      const updatedResources = GlobalGridState.getResources().map((res) => {
+        if (res.x === x && res.y === y) {
+          updatedResource = {
+            ...res,
+            ...(newResource && { type: newResource }),
+            ...(growEnd !== undefined && { growEnd }),
+            ...(craftEnd !== undefined && { craftEnd }),
+            ...(craftedItem !== undefined && { craftedItem }),
+          };
+          return updatedResource;
+        }
+        return res;
       });
 
-      // 🧠 Fallback if updatedResource wasn’t captured synchronously
-      if (!updatedResource) {
-        updatedResource = GlobalGridState.getResources().find(
-          (res) => res.x === x && res.y === y
-        );
-      }
+      setResources(updatedResources); // ✅ Set all at once
+      GlobalGridState.setResources(updatedResources); // 🧠 Also sync with global if needed
 
-      // 🔁 Broadcast to others
       if (updatedResource) {
         socket.emit('update-tile-resource', {
           gridId,
           updatedTiles: GlobalGridState.getTiles(),
-          updatedResources: [updatedResource], // send minimal payload
+          updatedResources: [updatedResource],
         });
         console.log("📡 Emitting update-tile-resource via socket:", gridId, updatedResource);
       }
