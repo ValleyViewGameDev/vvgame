@@ -381,11 +381,11 @@ useEffect(() => {
       GlobalGridState.setResources(updatedResources);  
     }
   };
-  socket.on('update-tile-resource', handleTileResourceSync);  // ✅ Corrected event name
+  socket.on('tile-resource-sync', handleTileResourceSync);
   
   return () => {
     console.log("🧹 Unsubscribing from tile-resource-sync for grid:", gridId);
-    socket.off('update-tile-resource', handleTileResourceSync);
+    socket.off('tile-resource-sync', handleTileResourceSync);
   };
 }, [gridId]);
 

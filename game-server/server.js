@@ -87,7 +87,6 @@ mongoose.connect(process.env.MONGODB_URI)
         });
       });
 
-
       // Optional: log disconnects
       socket.on('disconnect', () => {
         console.log(`🔴 Client disconnected: ${socket.id}`);
