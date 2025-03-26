@@ -318,15 +318,19 @@ useEffect(() => {
     const currentPlayerId = currentPlayer._id || currentPlayer.playerId;
   
     // ✅ Skip own emitted updates
-    if (senderId === currentPlayerId) { console.log("🔄 Skipping self-emitted update."); return; }
+    if (senderId === currentPlayerId) {
+      console.log("🔄 Skipping self-emitted update.");
+      return;
+    }
   
     // ✅ Skip stale updates
     if (updatedGridState.lastUpdated <= getLastGridStateTimestamp()) {
       console.log("⏳ Skipping socket update — older or same timestamp");
       return;
     }
+  
     console.log("📡 Applying newer socket gridState:", updatedGridState);
-    updateLastGridStateTimestamp(updatedGridState.lastUpdated);    console.log("📡 Applying newer socket gridState:", updatedGridState);
+    updateLastGridStateTimestamp(updatedGridState.lastUpdated);
   
     // 🧠 Rehydrate NPCs safely
     const hydratedNPCs = {};
@@ -346,6 +350,10 @@ useEffect(() => {
       npcs: hydratedNPCs,
     };
   
+    // ✅ Add this line to update in-memory state used by 1s loop
+    gridStateManager.gridStates[gridId] = safeGridState;
+  
+    // ✅ Update React gridState
     setGridState(safeGridState);
   };
 

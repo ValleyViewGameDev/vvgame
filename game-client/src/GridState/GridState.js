@@ -254,8 +254,6 @@ updateNPC(gridId, npcId, newProperties) {
     return;
   }
   Object.assign(gridState.npcs[npcId], newProperties);
-  gridState.lastUpdated = Date.now();
-  updateLastGridStateTimestamp(gridState.lastUpdated);
   console.log(`NPC ${npcId} updated in gridState for gridId ${gridId}:`, gridState.npcs[npcId]);
   // Save the updated gridState to the database
   this.saveGridState(gridId);
@@ -279,17 +277,13 @@ removeNPC(gridId, npcId) {
 addPC(gridId, pc) {
   const gridState = this.getGridState(gridId);
   console.log(`Top of AddPC; gridState = `, gridState); // Debugging check
-
   if (!gridState) {
     console.error(`Cannot add PC. No gridState found for gridId: ${gridId}`);
     return;
   }
-
   if (!gridState.pcs) gridState.pcs = {}; // Ensure pcs is initialized
   if (!gridState.npcs) gridState.npcs = {}; // ✅ Ensure npcs is initialized
-
   gridState.pcs[pc.playerId] = pc;  // Add PC to the grid state
-
   console.log(`PC added to gridState for gridId ${gridId}. Current PCs:`, gridState.pcs);
   console.log(`Ensuring NPCs are preserved:`, gridState.npcs); // Debugging check
 
@@ -302,13 +296,9 @@ updatePC(gridId, playerId, newProperties) {
     console.error(`Cannot update PC ${playerId}. No gridState or PC found for gridId: ${gridId}`);
     return;
   }
-
   // Merge the new properties into the existing PC data
   Object.assign(gridState.pcs[playerId], newProperties);
-  gridState.lastUpdated = Date.now();
-  updateLastGridStateTimestamp(gridState.lastUpdated);
   console.log(`PC ${playerId} updated in gridState for gridId ${gridId}:`, gridState.pcs[playerId]);
-
   // Save the updated gridState to the database
   this.saveGridState(gridId);
 }
