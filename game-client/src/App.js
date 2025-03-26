@@ -648,8 +648,6 @@ useEffect(() => {
     Object.values(pcs).forEach(async (pc) => {
       if (pc.hp <= 0 && currentPlayer && String(currentPlayer._id) === pc.playerId) {
         console.warn(`PC ${pc.username} has died.`);
-        
-        // Call handlePlayerDeath with the full currentPlayer object
         await handlePlayerDeath(currentPlayer);
       }
     });

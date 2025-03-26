@@ -113,6 +113,7 @@ class GridStateManager {
     }
 
       this.gridStates[gridId] = gridState;
+      console.log(`🔄 Loaded gridState with timestamp:`, gridState.lastUpdated || 'No timestamp');
       console.log(`Initialized and enriched gridState for gridId ${gridId}:`, gridState);
     } catch (error) {
       console.error('Error fetching gridState:', error);
@@ -253,6 +254,8 @@ updateNPC(gridId, npcId, newProperties) {
     return;
   }
   Object.assign(gridState.npcs[npcId], newProperties);
+  gridState.lastUpdated = Date.now();
+  updateLastGridStateTimestamp(gridState.lastUpdated);
   console.log(`NPC ${npcId} updated in gridState for gridId ${gridId}:`, gridState.npcs[npcId]);
   // Save the updated gridState to the database
   this.saveGridState(gridId);
@@ -302,6 +305,8 @@ updatePC(gridId, playerId, newProperties) {
 
   // Merge the new properties into the existing PC data
   Object.assign(gridState.pcs[playerId], newProperties);
+  gridState.lastUpdated = Date.now();
+  updateLastGridStateTimestamp(gridState.lastUpdated);
   console.log(`PC ${playerId} updated in gridState for gridId ${gridId}:`, gridState.pcs[playerId]);
 
   // Save the updated gridState to the database
