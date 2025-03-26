@@ -309,9 +309,7 @@ async saveGridState(gridId) {
     console.error(`Cannot save gridState. No gridState found for gridId: ${gridId}`);
     return;
   }
-
   //console.log(`Saving gridState to DB for gridId: ${gridId}`, gridState);
-
   try {
     await axios.post(`${API_BASE}/api/save-grid-state`, {
       gridId,
@@ -345,15 +343,16 @@ async saveGridState(gridId) {
       },
     });
     //console.log(`GridState saved successfully for gridId ${gridId}.`);
-    const currentPlayer = JSON.parse(localStorage.getItem('player'));
     socket.emit('update-gridState', {
       gridId,
       updatedGridState: this.gridStates[gridId],
       senderId: currentPlayer?.playerId,
     });
-
     console.log("📡 Emitting update-gridState to server");
 
+    const currentPlayer = JSON.parse(localStorage.getItem('player'));
+
+    
   } catch (error) {
     console.error('Error saving gridState:', error);
   }
