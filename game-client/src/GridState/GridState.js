@@ -1,4 +1,5 @@
 import API_BASE from '../config';
+import socket from '../socketManager'; 
 import axios from 'axios';
 import NPC from '../GameFeatures/NPCs/NPCs';
 import { loadMasterResources } from '../Utils/TuningManager';
@@ -344,6 +345,12 @@ async saveGridState(gridId) {
       },
     });
     //console.log(`GridState saved successfully for gridId ${gridId}.`);
+    
+    socket.emit('update-gridState', {
+      gridId,
+      updatedGridState: this.gridStates[gridId],  // In-memory current state
+    });
+
   } catch (error) {
     console.error('Error saving gridState:', error);
   }

@@ -308,6 +308,22 @@ const memoizedTileTypes = useMemo(() => tileTypes, [tileTypes]);
 const memoizedResources = useMemo(() => resources, [resources]);
 
 
+/////////// TURN ON SOCKET /////////////////////////
+
+useEffect(() => {
+  if (!gridId) return;
+
+  socket.on('gridState-sync', (updatedGridState) => {
+    console.log('📡 Real-time update received!');
+    setGridState(updatedGridState); // Update context
+  });
+
+  return () => {
+    socket.off('gridState-sync'); // Clean up on unmount/grid change
+  };
+}, [gridId]);
+
+
 
 // Flags to track initialization
 let isInitializing = false; // Declare inside useEffect to avoid global persistence
