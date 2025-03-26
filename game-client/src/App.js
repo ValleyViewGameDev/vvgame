@@ -311,27 +311,30 @@ const memoizedResources = useMemo(() => resources, [resources]);
 /////////// TURN ON SOCKET /////////////////////////
 
 useEffect(() => {
-  if (!gridId) return;
+  if (!gridId || !currentPlayer) return;
 
-  socket.on('gridState-sync', (updatedGridState) => {
-    if (!currentPlayer) return;
-  
-    // Only apply updates from other players
+  const currentPlayerId = currentPlayer._id || currentPlayer.playerId;
+
+  const handleGridStateSync = (updatedGridState) => {
     const incomingPCs = Object.keys(updatedGridState.pcs || {});
-    const currentPlayerId = currentPlayer._id || currentPlayer.playerId;
-  
-    if (!incomingPCs.includes(currentPlayerId)) {
-      console.log("📡 Real-time update received from another player.");
-      setGridState(updatedGridState);
-    } else {
+    
+    if (incomingPCs.includes(currentPlayerId)) {
       console.log("🔄 Skipping self-emitted update.");
+      return;
     }
-  });
+
+    console.log("📡 Real-time update received from another player:", updatedGridState);
+    setGridState(updatedGridState);
+  };
+
+  console.log("🧲 Subscribing to real-time updates for grid:", gridId);
+  socket.on('gridState-sync', handleGridStateSync);
 
   return () => {
-    socket.off('gridState-sync'); // Clean up on unmount/grid change
+    console.log("🧹 Unsubscribing from gridState-sync for grid:", gridId);
+    socket.off('gridState-sync', handleGridStateSync);
   };
-}, [gridId]);
+}, [gridId, currentPlayer]);
 
 
 
