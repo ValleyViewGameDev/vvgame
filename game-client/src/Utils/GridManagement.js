@@ -10,13 +10,14 @@ export async function updateGridResource(gridId, payload, setResources) {
     console.log('🌱 updateGridResource: payload =', payload);
     const response = await axios.patch(`${API_BASE}/api/update-grid/${gridId}`, payload);
 
-    if (response?.data?.success && setResources) {
+    if (response?.data?.success) {
       const { newResource, x, y, growEnd, craftEnd, craftedItem } = payload;
 
-      // 🧠 Pre-calculate updated resource before state update
+      // 🧠 Precompute the updatedResources array
+      const currentResources = GlobalGridState.getResources();
       let updatedResource = null;
 
-      const updatedResources = GlobalGridState.getResources().map((res) => {
+      const updatedResources = currentResources.map((res) => {
         if (res.x === x && res.y === y) {
           updatedResource = {
             ...res,
@@ -30,8 +31,9 @@ export async function updateGridResource(gridId, payload, setResources) {
         return res;
       });
 
-      setResources(updatedResources); // ✅ Set all at once
-      GlobalGridState.setResources(updatedResources); // 🧠 Also sync with global if needed
+      // 🧠 Update both global and local state
+      GlobalGridState.setResources(updatedResources);
+      if (setResources) setResources(updatedResources);
 
       if (updatedResource) {
         socket.emit('update-tile-resource', {
@@ -40,6 +42,8 @@ export async function updateGridResource(gridId, payload, setResources) {
           updatedResources: [updatedResource],
         });
         console.log("📡 Emitting update-tile-resource via socket:", gridId, updatedResource);
+      } else {
+        console.warn("⚠️ No updated resource found to emit.");
       }
     }
 
