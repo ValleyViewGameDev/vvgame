@@ -115,16 +115,16 @@ export const RenderGrid = memo(
 
 
 export const RenderVFX = ({ toggleVFX }) => {
-  useEffect(() => {
-    if (toggleVFX) {
-      startAmbientVFX();
-    } else {
-      stopAmbientVFX();
-    }
-    return () => {
-      stopAmbientVFX(); // Clean up on unmount
-    };
-  }, [toggleVFX]);
+  // useEffect(() => {
+  //   if (toggleVFX) {
+  //     startAmbientVFX();
+  //   } else {
+  //     stopAmbientVFX();
+  //   }
+  //   return () => {
+  //     stopAmbientVFX(); // Clean up on unmount
+  //   };
+  // }, [toggleVFX]);
 
   return null;
 };

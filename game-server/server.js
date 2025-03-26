@@ -13,7 +13,8 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-
+const http = require('http');
+const { Server } = require('socket.io');
 const Player = require('./models/player');  // Ensure this is correct
 
 const worldRoutes = require('./routes/worldRoutes');
@@ -32,7 +33,7 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 const corsOptions = {
-  origin: ['https://vvgame.onrender.com'], // ⬅️ your frontend domain
+  origin: ['http://localhost:3000', 'https://vvgame.onrender.com'], // ⬅️ your frontend domain
   credentials: true, // optional: if you're using cookies or auth headers
 };
 app.use(cors(corsOptions));
@@ -45,17 +46,48 @@ app.use((req, res, next) => {
 });
 
 
-// Connect to MongoDB and start the server
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
-    console.log("Connected to MongoDB");
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
+    console.log("✅ Connected to MongoDB");
+
+    // Create HTTP server and bind it to Express app
+    const httpServer = http.createServer(app);
+
+    // Create socket.io server
+    const io = new Server(httpServer, {
+      cors: {
+        origin: 'https://vvgame.onrender.com', // Your frontend
+        methods: ['GET', 'POST'],
+      }
+    });
+
+    // Set up socket events
+    io.on('connection', (socket) => {
+      console.log(`🟢 New client connected: ${socket.id}`);
+
+      // Join a grid-specific room
+      socket.on('join-grid', (gridId) => {
+        console.log(`📡 Socket ${socket.id} joined grid room: ${gridId}`);
+        socket.join(gridId);
+      });
+
+      // Broadcast updated gridState to others in the same grid
+      socket.on('update-gridState', ({ gridId, updatedGridState }) => {
+        console.log(`🔁 update-gridState received for grid ${gridId}`);
+        socket.to(gridId).emit('gridState-sync', updatedGridState);
+      });
+
+      // Optional: log disconnects
+      socket.on('disconnect', () => {
+        console.log(`🔴 Client disconnected: ${socket.id}`);
+      });
+    });
+
+    httpServer.listen(PORT, () => {
+      console.log(`🚀 Server + WebSocket running on port ${PORT}`);
     });
   })
-  .catch((err) => {
-    console.error("Error connecting to MongoDB:", err);
-  });
+
 
 // Log every incoming request before any route handling
 app.use((req, res, next) => {

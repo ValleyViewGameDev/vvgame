@@ -2,6 +2,7 @@ import './App.css';
 import './VFX/VFX.css';
 import API_BASE from './config.js';  
 import axios from 'axios';
+import socket from './socketManager';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
 import { initializeGrid, postLoginInitialization } from './AppInit';
 import { loadMasterSkills, loadMasterResources } from './Utils/TuningManager';
@@ -373,6 +374,10 @@ useEffect(() => {
       }
       setGridId(initialGridId);
       localStorage.setItem('gridId', initialGridId); // Save to local storage
+
+      socket.connect();
+      socket.emit('join-grid', initialGridId);
+      console.log("📡 Connected to socket and joined grid:", initialGridId);
 
       // 5. Initialize grid tiles, resources, and state
       console.log('Initializing grid tiles and resources...');
@@ -1245,11 +1250,11 @@ const zoomOut = () => {
             handleTileLeave={handleTileLeave}
             TILE_SIZE={activeTileSize}
           />
-          <RenderVFX 
-            toggleVFX={currentPlayer?.settings?.toggleVFX}
-            // Placeholder for VFX
-            TILE_SIZE={activeTileSize}
-          />
+  {/* <RenderVFX 
+    toggleVFX={currentPlayer?.settings?.toggleVFX}
+    // Placeholder for VFX
+    TILE_SIZE={activeTileSize}
+  /> */}
           <RenderTooltip
             resource={hoveredResource}
             //npc={hoveredNPC} // New prop for NPCs
