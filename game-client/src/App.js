@@ -3,6 +3,7 @@ import './VFX/VFX.css';
 import API_BASE from './config.js';  
 import axios from 'axios';
 import socket from './socketManager';
+import NPC from './GameFeatures/NPCs/NPCs';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
 import { initializeGrid, postLoginInitialization } from './AppInit';
 import { loadMasterSkills, loadMasterResources } from './Utils/TuningManager';
@@ -316,13 +317,34 @@ useEffect(() => {
   const currentPlayerId = currentPlayer._id || currentPlayer.playerId;
 
   const handleGridStateSync = ({ updatedGridState, senderId }) => {
+    const currentPlayerId = currentPlayer._id || currentPlayer.playerId;
+  
     if (senderId === currentPlayerId) {
       console.log("🔄 Skipping self-emitted update.");
       return;
     }
-
+  
     console.log("📡 Real-time update received from another player:", updatedGridState);
-    setGridState(updatedGridState);
+  
+    // 🧠 Rehydrate NPCs safely
+    const hydratedNPCs = {};
+    const rawNPCs = updatedGridState.npcs || {};
+    for (const [npcId, npcData] of Object.entries(rawNPCs)) {
+      hydratedNPCs[npcId] = new NPC(
+        npcData.id,
+        npcData.type,
+        npcData.position,
+        npcData,
+        gridId
+      );
+    }
+  
+    const safeGridState = {
+      ...updatedGridState,
+      npcs: hydratedNPCs,
+    };
+  
+    setGridState(safeGridState);
   };
 
   console.log("🧲 Subscribing to real-time updates for grid:", gridId);
