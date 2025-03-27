@@ -254,6 +254,8 @@ updateNPC(gridId, npcId, newProperties) {
     return;
   }
   Object.assign(gridState.npcs[npcId], newProperties);
+  gridState.lastUpdated = Date.now();
+  updateLastGridStateTimestamp(gridState.lastUpdated);
   console.log(`NPC ${npcId} updated in gridState for gridId ${gridId}:`, gridState.npcs[npcId]);
   // Save the updated gridState to the database
   this.saveGridState(gridId);
