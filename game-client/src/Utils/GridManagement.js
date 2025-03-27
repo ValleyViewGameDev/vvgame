@@ -4,6 +4,7 @@ import { initializeGrid } from '../AppInit';
 import gridStateManager from '../GridState/GridState';
 import socket from '../socketManager'; // ⚠️ At top of file if not already present
 import GlobalGridState from '../GridState/GlobalGridState';
+import { mergeResources } from './ResourceHelpers';
 
 export async function updateGridResource(gridId, payload, setResources) {
   try {
@@ -13,38 +14,36 @@ export async function updateGridResource(gridId, payload, setResources) {
     if (response?.data?.success) {
       const { newResource, x, y, growEnd, craftEnd, craftedItem } = payload;
 
-      // 🧠 Precompute the updatedResources array
       const currentResources = GlobalGridState.getResources();
       let updatedResource = null;
 
-      const updatedResources = currentResources.map((res) => {
-        if (res.x === x && res.y === y) {
-          updatedResource = {
-            ...res,
-            ...(newResource && { type: newResource }),
-            ...(growEnd !== undefined && { growEnd }),
-            ...(craftEnd !== undefined && { craftEnd }),
-            ...(craftedItem !== undefined && { craftedItem }),
-          };
-          return updatedResource;
-        }
-        return res;
-      });
+      // 👇 Construct the update (could be a deletion)
+      if (newResource === null) {
+        updatedResource = { x, y, type: null };
+      } else {
+        const existing = currentResources.find(r => r.x === x && r.y === y);
+        updatedResource = {
+          ...(existing || { x, y }),
+          ...(newResource && { type: newResource }),
+          ...(growEnd !== undefined && { growEnd }),
+          ...(craftEnd !== undefined && { craftEnd }),
+          ...(craftedItem !== undefined && { craftedItem }),
+        };
+      }
 
-      // 🧠 Update both global and local state
+      // ✅ Merge with existing state
+      const updatedResources = mergeResources(currentResources, [updatedResource]);
+
       GlobalGridState.setResources(updatedResources);
       if (setResources) setResources(updatedResources);
 
-      if (updatedResource) {
-        socket.emit('update-tile-resource', {
-          gridId,
-          updatedTiles: GlobalGridState.getTiles(),
-          updatedResources: [updatedResource],
-        });
-        console.log("📡 Emitting update-tile-resource via socket:", gridId, updatedResource);
-      } else {
-        console.warn("⚠️ No updated resource found to emit.");
-      }
+      // ✅ Emit to all clients
+      socket.emit('update-tile-resource', {
+        gridId,
+        updatedTiles: GlobalGridState.getTiles(),
+        updatedResources: [updatedResource],
+      });
+      console.log("📡 Emitting update-tile-resource via socket:", gridId, updatedResource);
     }
 
     return response.data;

@@ -378,10 +378,16 @@ useEffect(() => {
     }
 
     if (updatedResources) {
-      setResources((prev) => {
-        const merged = mergeResources(prev, updatedResources);
-        GlobalGridState.setResources(merged);
-        return merged;
+      const cleanedResources = updatedResources.filter(r => r && typeof r.x === 'number' && typeof r.y === 'number');
+    
+      setResources(prev => {
+        const merged = mergeResources(prev, cleanedResources);
+        return merged.filter(r => r.type !== null); // ✅ Remove nulls
+      });
+    
+      GlobalGridState.setResources(prev => {
+        const merged = mergeResources(prev, cleanedResources);
+        return merged.filter(r => r.type !== null); // ✅ Remove nulls
       });
     }
 
