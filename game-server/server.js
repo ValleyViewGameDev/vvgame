@@ -73,7 +73,11 @@ mongoose.connect(process.env.MONGODB_URI)
 
       // Broadcast updated gridState to others in the same grid
       socket.on('update-gridState', ({ gridId, gridState }) => {
-        console.log(`🔁 update-gridState received for grid ${gridId} from ${socket.id}`);
+        console.log('📥 Received gridState-sync:', updatedGridState);
+        if (!updatedGridState?.lastUpdated) {
+          console.warn('⚠️ Received invalid or missing updatedGridState:', updatedGridState);
+          return;
+        }
         io.to(gridId).emit('gridState-sync', { updatedGridState: gridState });
       });
 
