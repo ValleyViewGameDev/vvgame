@@ -369,27 +369,34 @@ useEffect(() => {
       updatedTiles,
       updatedResources,
     });
-
+  
+    // ✅ TILE SYNC — merge into existing tileTypes
     if (updatedTiles) {
-      setTileTypes(updatedTiles);
-      GlobalGridState.setTiles(updatedTiles);  
+      setTileTypes(prev => {
+        const merged = mergeTiles(prev, updatedTiles);
+        GlobalGridState.setTiles(merged);  // update global reference
+        return merged;
+      });
     }
-
+  
+    // ✅ RESOURCE SYNC — merge into existing resources
     if (updatedResources) {
-      const cleanedResources = updatedResources.filter(r => r && typeof r.x === 'number' && typeof r.y === 'number');
-    
+      const cleanedResources = updatedResources.filter(
+        r => r && typeof r.x === 'number' && typeof r.y === 'number'
+      );
+  
       setResources(prev => {
         const merged = mergeResources(prev, cleanedResources);
         return merged.filter(r => r.type !== null); // ✅ Remove nulls
       });
-    
+  
       GlobalGridState.setResources(prev => {
         const merged = mergeResources(prev, cleanedResources);
         return merged.filter(r => r.type !== null); // ✅ Remove nulls
       });
     }
-
   };
+  
   socket.on('tile-resource-sync', handleTileResourceSync);
   
   return () => {

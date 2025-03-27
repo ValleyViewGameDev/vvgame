@@ -44,3 +44,14 @@ export function mergeResources(existingResources, updatedResources) {
   }
   return Array.from(map.values());
 }
+
+
+export function mergeTiles(existingTiles, updatedTiles) {
+  const newTiles = existingTiles.map(row => [...row]); // safer deep copy
+  updatedTiles.forEach(({ x, y, tileType }) => {
+    if (newTiles[y] && typeof newTiles[y][x] !== 'undefined') {
+      newTiles[y][x] = tileType;
+    }
+  });
+  return newTiles;
+}

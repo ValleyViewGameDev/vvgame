@@ -4,7 +4,7 @@ import { initializeGrid } from '../AppInit';
 import gridStateManager from '../GridState/GridState';
 import socket from '../socketManager'; // ⚠️ At top of file if not already present
 import GlobalGridState from '../GridState/GlobalGridState';
-import { mergeResources } from './ResourceHelpers';
+import { mergeResources, mergeTiles } from './ResourceHelpers';
 
 export async function updateGridResource(gridId, payload, setResources) {
   try {
