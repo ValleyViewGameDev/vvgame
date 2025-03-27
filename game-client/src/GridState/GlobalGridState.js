@@ -6,13 +6,13 @@ const GlobalGridState = {
     // Setter for tiles
     setTiles(newTiles) {
       this.tiles = newTiles;
-      console.log('Global tiles updated:', this.tiles);
+      //console.log('Global tiles updated:', this.tiles);
     },
   
     // Setter for resources
     setResources(newResources) {
       this.resources = newResources;
-      console.log('Global resources updated:', this.resources);
+      //console.log('Global resources updated:', this.resources);
     },
   
     // Getter for tiles

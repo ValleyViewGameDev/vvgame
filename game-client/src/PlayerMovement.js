@@ -12,6 +12,12 @@ function isValidMove(targetX, targetY, masterResources) {
   const tiles = GlobalGridState.getTiles();
   const resources = GlobalGridState.getResources();
 
+  // ✅ Prevent crash if resources is malformed
+  if (!Array.isArray(resources)) {
+    console.warn('⛔ Movement blocked: resources is not an array yet.', resources);
+    return false;
+  }
+  
   // 1️⃣ **Check if the target is out of bounds**
   if (targetX < 0 || targetY < 0 || targetX > 63 || targetY > 63) {
     console.warn(`⛔ Movement blocked: (${targetX}, ${targetY}) is out of bounds.`);

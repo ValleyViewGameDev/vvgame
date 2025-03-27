@@ -29,6 +29,8 @@ const FarmingPanel = ({
   const [allResources, setAllResources] = useState([]);
   const [inventory, setInventory] = useState([]);
   const { updateStatus } = useContext(StatusBarContext);
+  const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
+  const COOLDOWN_DURATION = 1200;
 
   const getCurrentTileTypes = () => {
     return [...tiles.map((row) => [...row])]; // Deep copy to avoid mutability issues
@@ -59,6 +61,44 @@ const FarmingPanel = ({
   };
 
 
+// Wrap for Terraform Actions
+const handleTerraformWithCooldown = async (actionType) => {
+  if (isActionCoolingDown) return;
+  setIsActionCoolingDown(true);
+  setTimeout(() => setIsActionCoolingDown(false), COOLDOWN_DURATION);
+
+  await handleTerraform({
+    actionType,
+    TILE_SIZE,
+    setTileTypes,
+    getCurrentTileTypes,
+    gridId,
+    currentPlayer,
+  });
+};
+
+// Wrap for Farm Plot Placement
+const handleFarmPlacementWithCooldown = async (item) => {
+  if (isActionCoolingDown) return;
+  setIsActionCoolingDown(true);
+  setTimeout(() => setIsActionCoolingDown(false), COOLDOWN_DURATION);
+
+  await handleFarmPlotPlacement({
+    selectedItem: item,
+    TILE_SIZE,
+    resources,
+    setResources,
+    tiles,
+    tileTypes,
+    setTileTypes,
+    currentPlayer,
+    setCurrentPlayer,
+    inventory,
+    setInventory,
+    gridId,
+  });
+};
+
 
   return (
     <Panel onClose={closePanel} descriptionKey="1004" titleKey="1104" panelName="FarmingPanel">
@@ -69,16 +109,9 @@ const FarmingPanel = ({
             symbol="⛏️"
             name="Till Land"
             details="Costs: None<br>Requires: Pickaxe"
-            disabled={!hasRequiredSkill('Pickaxe')}
+            disabled={isActionCoolingDown || !hasRequiredSkill('Pickaxe')}
             info="Makes: Dirt"
-            onClick={() => handleTerraform({
-              actionType: "till",
-              TILE_SIZE,
-              setTileTypes,
-              getCurrentTileTypes,
-              gridId,
-              currentPlayer
-            })}
+            onClick={() => handleTerraformWithCooldown("till")}
           />
 
           {/* Plant Grass Button */}
@@ -86,16 +119,9 @@ const FarmingPanel = ({
             symbol="🟩"
             name="Plant Grass"
             details="Costs: None<br>Requires: Grower"
-            disabled={!hasRequiredSkill('Grower')}
+            disabled={isActionCoolingDown || !hasRequiredSkill('Grower')}
             info="Makes: Grass"
-            onClick={() => handleTerraform({
-              actionType: "plantGrass",
-              TILE_SIZE,
-              setTileTypes,
-              getCurrentTileTypes,
-              gridId,
-              currentPlayer
-            })}
+            onClick={() => handleTerraformWithCooldown("plantGrass")}
           />
 
 
@@ -126,24 +152,11 @@ const FarmingPanel = ({
                 name={item.type}
                 details={details}
                 info={info}
-                disabled={!affordable || !requirementsMet}
-                onClick={() => 
+                disabled={isActionCoolingDown || !affordable || !requirementsMet}
+                onClick={() =>
                   affordable &&
                   requirementsMet &&
-                  handleFarmPlotPlacement({  
-                    selectedItem: item,
-                    TILE_SIZE,
-                    resources,
-                    setResources,
-                    tiles,
-                    tileTypes,
-                    setTileTypes,
-                    currentPlayer,
-                    setCurrentPlayer,
-                    inventory,
-                    setInventory,
-                    gridId,
-                  })
+                  handleFarmPlacementWithCooldown(item)
                 }
               />
             );
@@ -151,6 +164,6 @@ const FarmingPanel = ({
         </div>
     </Panel>
   );
-};
+}; 
 
 export default React.memo(FarmingPanel);

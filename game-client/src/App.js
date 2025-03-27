@@ -661,7 +661,7 @@ useEffect(() => {
   return () => {
     farmState.stopSeedTimer();
   };
-}, [gridId, resources]);  
+}, [gridId]);  
 
 
 // GRID STATE:  Create new references for pcs and npcs to trigger re-renders  /////////////////////////
