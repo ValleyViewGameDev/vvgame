@@ -59,7 +59,7 @@ import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
 import { updateGridStatus } from './Utils/GridManagement';
 import { formatCountdown } from './UI/Timers';
 import { getLastGridStateTimestamp, updateLastGridStateTimestamp } from './GridState/GridState'; // near the top of App.js
-import { mergeResources } from './Utils/ResourceHelpers.js';
+import { mergeResources, mergeTiles } from './Utils/ResourceHelpers.js';
 
 function App() {
 
@@ -396,7 +396,7 @@ useEffect(() => {
       });
     }
   };
-  
+
   socket.on('tile-resource-sync', handleTileResourceSync);
   
   return () => {
