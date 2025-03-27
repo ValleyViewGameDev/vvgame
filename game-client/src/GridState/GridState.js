@@ -355,7 +355,7 @@ async saveGridState(gridId) {
     //console.log(`GridState saved successfully for gridId ${gridId}.`);
     socket.emit('update-gridState', {
       gridId,
-      updatedGridState: this.gridStates[gridId],
+      gridState: this.gridStates[gridId],
     });
     console.log("📡 Emitting update-gridState to server");
 
