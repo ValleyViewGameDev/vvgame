@@ -100,7 +100,7 @@ export const handleConstruction = async ({
     };
 
     console.log('Placing resource on the grid:', resourceToAdd);
-
+ 
     try {
       // Update the grid on the server
       const gridUpdateResponse = await updateGridResource(gridId, resourceToAdd, setResources);
