@@ -59,6 +59,7 @@ import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
 import { updateGridStatus } from './Utils/GridManagement';
 import { formatCountdown } from './UI/Timers';
 import { getLastGridStateTimestamp, updateLastGridStateTimestamp } from './GridState/GridState'; // near the top of App.js
+import { mergeResources } from './Utils/ResourceHelpers.js';
 
 function App() {
 
@@ -377,9 +378,13 @@ useEffect(() => {
     }
 
     if (updatedResources) {
-      setResources(updatedResources);
-      GlobalGridState.setResources(updatedResources);  
+      setResources((prev) => {
+        const merged = mergeResources(prev, updatedResources);
+        GlobalGridState.setResources(merged);
+        return merged;
+      });
     }
+
   };
   socket.on('tile-resource-sync', handleTileResourceSync);
   
@@ -388,6 +393,7 @@ useEffect(() => {
     socket.off('tile-resource-sync', handleTileResourceSync);
   };
 }, [gridId]);
+
 
 
 
