@@ -316,10 +316,8 @@ const memoizedResources = useMemo(() => resources, [resources]);
 useEffect(() => {
   if (!gridId || !currentPlayer) return;
 
-  const handleGridStateSync = ({ updatedGridState, senderId }) => {
-    const currentPlayerId = currentPlayer._id || currentPlayer.playerId;
-    // ✅ Skip own emitted updates
-    if (senderId === currentPlayerId) { console.log("🔄 Skipping self-emitted update."); return; }
+  const handleGridStateSync = ({ updatedGridState }) => {
+    // 👋 No longer skipping sender — all clients update!    
     // ✅ Skip stale updates
     if (updatedGridState.lastUpdated <= getLastGridStateTimestamp()) {
       console.log("⏳ Skipping socket update — older or same timestamp");
