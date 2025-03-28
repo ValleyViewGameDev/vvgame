@@ -62,7 +62,8 @@ export const updateGridResource = async (
       console.log("📡 Emitting update-tile-resource from updateGridResource:");
       console.log("GridId:", gridId);
       console.log("Resource:", resource);
-      socket.emit('tile-resource-sync', {
+      
+      socket.emit('update-tile-resource', {
         gridId,
         updatedResources: [updatedResource?.type === null ? { x, y, type: null } : updatedResource],
         updatedTiles: [], // Optional
