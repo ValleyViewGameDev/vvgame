@@ -46,13 +46,15 @@ export const updateGridResource = async (
       }
     : null;
 
-    const merged = mergeResources(prevResources, [updatedResource]);
-
-    GlobalGridState.setResources(merged);
-
-    // ✅ 3. Update local React state
-    if (setResources) {
-      setResources(merged);
+    // Skip if type is null -- this means we are just removing the resource
+    if (updatedResource?.type === null) {
+      const cleaned = prevResources.filter(r => !(r.x === x && r.y === y));
+      GlobalGridState.setResources(cleaned);
+      if (setResources) setResources(cleaned);      // ✅ 3. Update local React state
+    } else {
+      const merged = mergeResources(prevResources, [updatedResource]);
+      GlobalGridState.setResources(merged);
+      if (setResources) setResources(merged);      // ✅ 3. Update local React state
     }
 
     // ✅ 4. Emit to other clients
@@ -87,7 +89,7 @@ export async function convertTileType(gridId, x, y, tileType, setTileTypes, getC
     const response = await axios.patch(`${API_BASE}/api/update-tile/${gridId}`, { x, y, tileType });
 
     console.log('converted Tile Type: tileType = ',tileType);
-    
+
     // 🔁 Broadcast tile + resource update to others
     socket.emit('tile-resource-sync', {
       gridId,
