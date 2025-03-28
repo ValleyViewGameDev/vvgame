@@ -369,24 +369,34 @@ useEffect(() => {
     });
 
     if (updatedResources?.length) {
-      console.log('🌿 Applying real-time resource update manually.');
       setResources((prevResources) => {
-        const newRes = updatedResources[0]; // TEMP — handle just 1
-        if (!newRes) return prevResources;
-        
-        const enrichedNewResource = {
-          ...newRes,
-          x: newRes.x,
-          y: newRes.y,
-          symbol: newRes.symbol,
-          qtycollected: newRes.qtycollected || 1,
-          category: newRes.category || 'doober',
-          growEnd: newRes.growEnd || null,
-        };
-        
-        return prevResources.map((res) =>
-          res.x === newRes.x && res.y === newRes.y ? enrichedNewResource : res
-        );
+        const updated = [...prevResources];
+    
+        updatedResources.forEach((newRes) => {
+          if (!newRes || typeof newRes.x !== 'number' || typeof newRes.y !== 'number') {
+            console.warn("⚠️ Skipping invalid socket resource:", newRes);
+            return;
+          }
+    
+          // Remove any existing resource at that location
+          const filtered = updated.filter(r => !(r.x === newRes.x && r.y === newRes.y));
+    
+          // Only add back the newRes if it's not null/empty
+          if (newRes.type) {
+            filtered.push({
+              ...newRes,
+              symbol: newRes.symbol || '🪵', // Default fallback (customize!)
+              category: newRes.category || 'resource',
+              qtycollected: newRes.qtycollected || 1,
+              growEnd: newRes.growEnd || null,
+            });
+          }
+    
+          // Replace the list
+          updated.splice(0, updated.length, ...filtered);
+        });
+    
+        return updated;
       });
     }
   
