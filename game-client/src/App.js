@@ -347,8 +347,9 @@ useEffect(() => {
     // ✅ Update React gridState
     setGridState(safeGridState);
   };
-  console.log("🧲 Subscribing to real-time updates for grid:", gridId);
+  console.log("🧲 [gridState] Subscribing to real-time updates for grid:", gridId);
   socket.on('gridState-sync', handleGridStateSync);
+
   return () => {
     console.log("🧹 Unsubscribing from gridState-sync for grid:", gridId);
     socket.off('gridState-sync', handleGridStateSync);
@@ -375,13 +376,13 @@ useEffect(() => {
     }
   };
 
+  console.log("🧲 [resources] Subscribing to real-time updates for grid:", gridId);
   socket.on("tile-resource-sync", handleTileResourceSync);
 
   return () => {
     socket.off("tile-resource-sync", handleTileResourceSync);
   };
-}, []);
-
+}, [socket, gridId]); // ← restore the dependencies here!
 
 
 
