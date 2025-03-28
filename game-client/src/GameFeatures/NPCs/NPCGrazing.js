@@ -2,7 +2,6 @@ import axios from 'axios';
 import GlobalGridState from '../../GridState/GlobalGridState';
 import gridStateManager from '../../GridState/GridState';
 import { calculateDistance } from './NPCHelpers';
-import { updateGridResource } from '../../Utils/GridManagement';
 
 // Behavior handler for farm animals (e.g., cows)
 async function handleFarmAnimalBehavior(gridId) {

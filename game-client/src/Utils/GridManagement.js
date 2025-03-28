@@ -6,58 +6,71 @@ import socket from '../socketManager'; // ⚠️ At top of file if not already p
 import GlobalGridState from '../GridState/GlobalGridState';
 import { mergeResources, mergeTiles } from './ResourceHelpers';
 
-export async function updateGridResource(gridId, payload, setResources) {
+export const updateGridResource = async (
+  gridId,
+  resource,
+  setResources = null,
+  broadcast = true
+) => {
+  console.log('UPDATE GRID RESOURCE; resource = ',resource);
   try {
-    console.log('🌱 updateGridResource: payload =', payload);
+    const { x, y, growEnd, craftEnd, craftedItem, type } = resource;
+    // ✅ Flat payload — no "newResource" key
+    const payload = {
+      resource: {
+        type,
+        x,
+        y,
+        ...(growEnd !== undefined && { growEnd }),
+        ...(craftEnd !== undefined && { craftEnd }),
+        ...(craftedItem !== undefined && { craftedItem }),
+      },
+      broadcast, // optional - depending on your server usage
+    };
+    console.log('UPDATE GRID RESOURCE; payload = ',payload);
+
+    // ✅ 1. Update the database
     const response = await axios.patch(`${API_BASE}/api/update-grid/${gridId}`, payload);
+    if (!response.data.success) throw new Error('Failed DB update');
 
-    if (response?.data?.success) {
-      const { newResource, x, y, growEnd, craftEnd, craftedItem } = payload;
-
-      const currentResources = GlobalGridState.getResources();
-      let updatedResource = null;
-
-      // 👇 Construct the update (could be a deletion)
-      if (newResource === null) {
-        updatedResource = { x, y, type: null };
-      } else {
-        const existing = currentResources.find(r => r.x === x && r.y === y);
-        updatedResource = {
-          ...(existing || { x, y }),
-          ...(newResource && { type: newResource }),
-          ...(growEnd !== undefined && { growEnd }),
-          ...(craftEnd !== undefined && { craftEnd }),
-          ...(craftedItem !== undefined && { craftedItem }),
-        };
+    // ✅ 2. Update GlobalGridState
+    const prevResources = GlobalGridState.getResources();
+    const updatedResource = resource
+    ? {
+        type: typeof resource === 'string' ? resource : resource.type,
+        x,
+        y,
+        ...(resource.growEnd && { growEnd: resource.growEnd }),
+        ...(resource.craftEnd && { craftEnd: resource.craftEnd }),
+        ...(resource.craftedItem && { craftedItem: resource.craftedItem }),
       }
+    : null;
 
-      // ✅ Merge with existing state
-      const updatedResources = mergeResources(currentResources, [updatedResource]);
+    const merged = mergeResources(prevResources, [updatedResource]);
 
-      GlobalGridState.setResources(updatedResources);
-      if (setResources) setResources(updatedResources);
+    GlobalGridState.setResources(merged);
 
-      // ✅ Emit to all clients
-      socket.emit('update-tile-resource', {
+    // ✅ 3. Update local React state
+    if (setResources) {
+      setResources(merged);
+    }
+
+    // ✅ 4. Emit to other clients
+    if (broadcast && socket && socket.emit) {
+      socket.emit('tile-resource-sync', {
         gridId,
-        updatedTiles: GlobalGridState.getTiles(),
         updatedResources: [updatedResource],
+        updatedTiles: [], // Optional
       });
-      console.log("📡 Emitting update-tile-resource via socket:", gridId, updatedResource);
     }
 
-    return response.data;
+    return { success: true };
   } catch (error) {
-    console.error('❌ updateGridResource error:', error);
-
-    if (error.response?.status === 500 && error.response.data?.message?.includes('VersionError')) {
-      console.warn('🔁 Retrying update due to version conflict...');
-      return await updateGridResource(gridId, payload, setResources);
-    }
-
-    return null;
+    console.error('❌ Error in updateGridResource:', error);
+    return { success: false };
   }
-}
+};
+
 
 export async function convertTileType(gridId, x, y, tileType, setTileTypes, getCurrentTileTypes) {
   const currentTiles = getCurrentTileTypes();
@@ -73,11 +86,13 @@ export async function convertTileType(gridId, x, y, tileType, setTileTypes, getC
   try {
     const response = await axios.patch(`${API_BASE}/api/update-tile/${gridId}`, { x, y, tileType });
 
+    console.log('converted Tile Type: tileType = ',tileType);
+    
     // 🔁 Broadcast tile + resource update to others
-    socket.emit('update-tile-resource', {
+    socket.emit('tile-resource-sync', {
       gridId,
-      updatedTiles: GlobalGridState.getTiles(),
-      updatedResources: GlobalGridState.getResources(),
+      updatedTiles: [{ x, y, tileType }],
+      updatedResources: [], // none
     });
 
     return response.data;

@@ -304,6 +304,7 @@ body {
 .tile-l,  /* lava */
 .tile.p,  /* pavement */
 .tile-n   /* sand */
+.tile-o   /* snow */
 {
   width: 100%;
   height: 100%;
@@ -318,6 +319,7 @@ body {
 .tile-l { background-color: #c4583d; }
 .tile-p { background-color: #c5a85d; }
 .tile-n { background-color: #fbde00; }
+.tile-o { background-color: #ffffff; }
 .tile-unknown {
   background-color: #ff0000; /* A visible color for debugging */
 }

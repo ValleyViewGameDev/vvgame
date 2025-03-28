@@ -81,25 +81,27 @@ export const handleFarmPlotPlacement = async ({
         const growEndTime = Date.now() + selectedItem.growtime * 1000;
 
         const newResourcePayload = {
-        newResource: selectedItem.type,
-        x: tileX,
-        y: tileY,
-        growEnd: growEndTime,
+          type: selectedItem.type,
+          x: tileX,
+          y: tileY,
+          growEnd: growEndTime,
         };
 
         try { 
-        const gridUpdateResponse = await updateGridResource(gridId, newResourcePayload, setResources);
-
+          const gridUpdateResponse = await updateGridResource(
+            gridId,
+            newResourcePayload,
+            setResources,
+            true
+        );
+            
         if (gridUpdateResponse?.success) {
             farmState.addSeed({
             type: selectedItem.type,
             x: tileX,
             y: tileY,
             growEnd: growEndTime,
-            });
-
-            const updatedResources = await addResourceToGrid(resources, newResourcePayload);
-            setResources(updatedResources);
+        });
 
             FloatingTextManager.addFloatingText(302, playerPosition.x+20, playerPosition.y+10);
         } else {

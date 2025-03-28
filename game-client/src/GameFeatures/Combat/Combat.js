@@ -102,6 +102,7 @@ export async function handleAttackOnNPC(npc, currentPlayer, TILE_SIZE, setResour
             await gridStateManager.saveGridState(gridId);
             console.log(`NPC ${npc.id} successfully removed from grid.`);
 
+            // Add the Dead NPC "output" to the grid:
             if (npc.output) {
                 console.log(`Spawning resource: ${npc.output} at NPC's death position.`);
                 const resourceDetails = masterResources.find((res) => res.type === npc.output);
@@ -123,18 +124,22 @@ export async function handleAttackOnNPC(npc, currentPlayer, TILE_SIZE, setResour
                 GlobalGridState.setResources(updatedResources);
                 setResources((prevResources) => [...prevResources, enrichedResource]);
 
-                await updateGridResource(gridId, {
-                    newResource: npc.output,
-                    x: Math.floor(npc.position.x),
-                    y: Math.floor(npc.position.y),
-                });
+                await updateGridResource(
+                    gridId, 
+                    { 
+                      type: npc.output,
+                      x: Math.floor(npc.position.x),
+                      y: Math.floor(npc.position.y),
+                    },
+                    setResources,
+                    true
+                  );
             } else {
                 console.warn(`NPC ${npc.id} has no output resource defined.`);
             }
         } catch (error) {
             console.error('Error removing NPC or spawning resource:', error);
         }
-
         await trackQuestProgress(currentPlayer, 'Kill', npc.type, 1, currentPlayer);    }
 }
 

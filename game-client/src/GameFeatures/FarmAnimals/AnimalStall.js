@@ -107,11 +107,15 @@ const AnimalStall = ({
         inventory: updatedInventory,
       });
   
-      await updateGridResource(gridId, {
-        newResource: null,
+      // Remove the resource from the grid on the DB:
+      await updateGridResource(
+        gridId, 
+        { type: null,
         x: currentStationPosition.x,
-        y: currentStationPosition.y,
-      }, setResources);
+        y: currentStationPosition.y, }, 
+        setResources,
+        true
+      );
   
       setInventory(updatedInventory);
       localStorage.setItem('inventory', JSON.stringify(updatedInventory));

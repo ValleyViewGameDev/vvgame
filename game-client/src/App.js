@@ -317,7 +317,6 @@ useEffect(() => {
   if (!gridId || !currentPlayer) return;
 
   const handleGridStateSync = ({ updatedGridState }) => {
-    // ✅ Skip own emitted updates
     // ✅ Skip stale updates
     if (updatedGridState.lastUpdated <= getLastGridStateTimestamp()) {
       console.log("⏳ Skipping socket update — older or same timestamp");

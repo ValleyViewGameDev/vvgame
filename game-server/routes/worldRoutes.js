@@ -311,17 +311,25 @@ router.post('/claim-homestead/:gridId', async (req, res) => {
 router.patch('/update-grid/:gridId', (req, res) => {
   const startTime = Date.now();
   const { gridId } = req.params;
-  const { newResource, x, y, growEnd, craftEnd, craftedItem } = req.body;
+  const { resource } = req.body; // ✅ this is the new schema you're using
+
+  if (!resource) {
+    return res.status(400).json({ error: 'Missing resource in request body.' });
+  }
+
+  const { type, x, y, growEnd, craftEnd, craftedItem } = resource;
 
   console.log('🔄 update-grid request received.');
-  console.log('🔹 newResource =', newResource);
+  console.log('🔹 newResourceType =', type);
   console.log(`🔹 Coordinates: (${x}, ${y})`);
+  console.log('🔹 growEnd:', growEnd);
   console.log('🔹 craftEnd:', craftEnd);
   console.log('🔹 craftedItem:', craftedItem);
 
   if (!mongoose.Types.ObjectId.isValid(gridId)) {
     return res.status(400).json({ error: 'Invalid gridId.' });
   }
+
   if (typeof x !== 'number' || typeof y !== 'number') {
     return res.status(400).json({ error: 'Invalid x or y coordinates.' });
   }
@@ -330,78 +338,71 @@ router.patch('/update-grid/:gridId', (req, res) => {
   queue.enqueue(async () => {
     try {
       const grid = await Grid.findById(gridId);
-
       if (!grid) {
         console.error(`Grid not found for _id: ${gridId}`);
         return; // Avoid sending a response here since it's already enqueued
       }
-
-
       console.log(`⏳ update-grid: ${Date.now() - startTime}ms`);
 
       // **Find the resource at the specified location**
       const resourceIndex = grid.resources.findIndex((res) => res.x === x && res.y === y);
-      
-      if (newResource) {
-
+      if (type) {
         if (resourceIndex !== -1) {
 
+          // ✅ CASE 1: Resource Exists - Determine if we're appending or replacing
+          if (growEnd !== undefined || craftEnd !== undefined || craftedItem !== undefined) {
+            console.log(`🛠 Updating existing resource at (${x}, ${y})`);
+            console.log('🔹 craftEnd:', craftEnd, '| craftedItem:', craftedItem);
 
-// ✅ CASE 1: Resource Exists - Determine if we're appending or replacing
-if (growEnd !== undefined || craftEnd !== undefined || craftedItem !== undefined) {
-  console.log(`🛠 Updating existing resource at (${x}, ${y})`);
-  console.log('🔹 craftEnd:', craftEnd, '| craftedItem:', craftedItem);
+            if (growEnd !== undefined) {
+                if (growEnd === null) {
+                    delete grid.resources[resourceIndex].growEnd; // ✅ Remove attribute
+                } else {
+                    grid.resources[resourceIndex].growEnd = growEnd; // ✅ Append value
+                }
+            }
+            if (craftEnd !== undefined) {
+                if (craftEnd === null) {
+                    delete grid.resources[resourceIndex].craftEnd; // ✅ Remove attribute
+                } else {
+                    grid.resources[resourceIndex].craftEnd = craftEnd; // ✅ Append value
+                }
+            }
+            if (craftedItem !== undefined) {
+                if (craftedItem === null) {
+                    delete grid.resources[resourceIndex].craftedItem; // ✅ Remove attribute
+                } else {
+                    grid.resources[resourceIndex].craftedItem = craftedItem; // ✅ Append value
+                }
+            }
+            // ✅ Force Mongoose to track modifications in this nested array
+            grid.markModified(`resources.${resourceIndex}`);
 
-  if (growEnd !== undefined) {
-      if (growEnd === null) {
-          delete grid.resources[resourceIndex].growEnd; // ✅ Remove attribute
-      } else {
-          grid.resources[resourceIndex].growEnd = growEnd; // ✅ Append value
-      }
-  }
-
-  if (craftEnd !== undefined) {
-      if (craftEnd === null) {
-          delete grid.resources[resourceIndex].craftEnd; // ✅ Remove attribute
-      } else {
-          grid.resources[resourceIndex].craftEnd = craftEnd; // ✅ Append value
-      }
-  }
-
-  if (craftedItem !== undefined) {
-      if (craftedItem === null) {
-          delete grid.resources[resourceIndex].craftedItem; // ✅ Remove attribute
-      } else {
-          grid.resources[resourceIndex].craftedItem = craftedItem; // ✅ Append value
-      }
-  }
-
-  // ✅ Force Mongoose to track modifications in this nested array
-  grid.markModified(`resources.${resourceIndex}`);
-} else {
-  // ✅ Preserve existing resource & append attributes if needed
-  console.log(`🔄 Replacing resource at (${x}, ${y}) with: ${newResource}`);
-  grid.resources[resourceIndex] = { 
-      type: newResource, 
-      x, 
-      y,
-      growEnd: grid.resources[resourceIndex].growEnd || null, // ✅ Preserve growEnd if it exists
-      craftEnd: grid.resources[resourceIndex].craftEnd || null, // ✅ Preserve craftEnd if it exists
-      craftedItem: grid.resources[resourceIndex].craftedItem || null, // ✅ Preserve craftedItem if it exists
-  };
-}
-
-
+          } else {
+            // ✅ Preserve existing resource & append attributes if needed
+            console.log(`🔄 Updating resource at (${x}, ${y}) with: ${type}`);
+            grid.resources[resourceIndex] = {
+              ...grid.resources[resourceIndex], // Preserve everything
+              type,
+              x,
+              y,
+              ...(growEnd !== undefined && { growEnd }),
+              ...(craftEnd !== undefined && { craftEnd }),
+              ...(craftedItem !== undefined && { craftedItem }),
+            };
+            grid.markModified(`resources.${resourceIndex}`);
+          }
 
         } else {
           // ✅ CASE 2: No Existing Resource - Add New One
-          console.log(`➕ Adding new resource at (${x}, ${y}): ${newResource}`);
+          console.log(`➕ Adding new resource at (${x}, ${y}): ${type}`);
           grid.resources.push({
-            type: newResource,
+            type: type,
             x,
             y,
-            ...(growEnd && { growEnd }),
-            ...(craftEnd && { craftEnd }),
+            ...(growEnd !== undefined && { growEnd }),
+            ...(craftEnd !== undefined && { craftEnd }),
+            ...(craftedItem !== undefined && { craftedItem }),
           });
         }
       } else {
@@ -425,9 +426,6 @@ if (growEnd !== undefined || craftEnd !== undefined || craftedItem !== undefined
       const updatedResource = updatedGrid.resources.find((res) => res.x === x && res.y === y);
       
       console.log(`✅ After saving - Resource at (${x}, ${y}):`, JSON.stringify(updatedResource, null, 2));
-      
-      console.log(`⏳ update-grid: ${Date.now() - startTime}ms`);
-      
       console.log(`Grid updated successfully for _id: ${gridId}`);
     } catch (error) {
       console.error('Error updating grid:', error);
@@ -630,38 +628,7 @@ router.get('/get-tile/:gridId/:x/:y', async (req, res) => {
   }
 });
 
-router.patch('/update-tile/:gridId', async (req, res) => {
-  const startTime = Date.now();
-  const { gridId } = req.params;
-  const { x, y, tileType } = req.body;
-  console.log(`update-tile: ${Date.now() - startTime}ms`);
 
-  // Validate the request data
-  if (!gridId || typeof x !== 'number' || typeof y !== 'number' || !tileType) {
-    return res.status(400).json({ error: 'Invalid data for updating tile type.' });
-  }
-
-  try {
-    const indexPath = `tiles.${y}.${x}`; // Path to the specific tile in the grid
-    const updateResult = await Grid.updateOne(
-      { _id: gridId }, // Match the grid by MongoDB _id
-      { $set: { [indexPath]: tileType } } // Update the specific tile type
-    );
-    console.log(`update-tile: ${Date.now() - startTime}ms`);
-
-    // Check if the document was modified
-    if (updateResult.modifiedCount === 1) {
-      console.log(`Tile updated at (${x}, ${y}) to type ${tileType}`);
-      res.status(200).json({ success: true, tile: { x, y, tileType } });
-    } else {
-      console.warn('Tile update failed. Document may not exist.');
-      res.status(404).json({ error: 'Grid not found or update failed.' });
-    }
-  } catch (error) {
-    console.error('Error updating tile type:', error);
-    res.status(500).json({ error: 'Error updating tile type.' });
-  }
-});
 
 //
 // ID ROUTES 

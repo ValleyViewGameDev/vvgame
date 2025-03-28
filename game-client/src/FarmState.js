@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { loadMasterResources } from './Utils/TuningManager';
 import { updateGridResource } from './Utils/GridManagement';
-import { handleSourceConversion } from './ResourceClicking'; // Reuse the existing conversion logic
 
 let farmTimer = null;
 
@@ -36,35 +35,45 @@ class FarmState {
       //console.log('Completed seeds:', completedSeeds);
   
       if (completedSeeds.length > 0) {
+
+        // Update the Seeds to become Crops
+
         const masterResources = await loadMasterResources();
         console.log('Loaded masterResources:', masterResources);
   
         for (const seed of completedSeeds) {
           console.log('Processing seed:', seed);
-  
-          const targetResource = masterResources.find((res) => res.type === seed.output);
-          console.log('Target resource found for seed:', targetResource);
-  
-          if (targetResource) {
+          const newCrop = masterResources.find((res) => res.type === seed.output);
+          console.log('Target output (crop) found for seed:', newCrop);
+          if (newCrop) {
+
             try {
               console.log(`Updating grid resource for seed at (${seed.x}, ${seed.y}).`);
-              const response = await updateGridResource(gridId, {
-                newResource: targetResource.type,
-                x: seed.x,
-                y: seed.y,
-              });
+              const response = await updateGridResource(
+                gridId, 
+                { 
+                  type: newCrop.type,
+                  x: seed.x,
+                  y: seed.y,
+                },
+                setResources,
+                true
+              );
+
               console.log('updateGridResource response:', response);
   
               if (response?.success) {
                 console.log(`Seed at (${seed.x}, ${seed.y}) converted to doober.`);
   
                 // Update local resources
+
+  //!!! Do this in updateGridResource ???
                 setResources((prevResources) => {
                   const updatedResources = prevResources.map((res) =>
                     res.x === seed.x && res.y === seed.y
                       ? {
-                          type: targetResource.type,
-                          symbol: targetResource.symbol,
+                          type: newCrop.type,
+                          symbol: newCrop.symbol,
                           category: 'doober',
                           x: seed.x,
                           y: seed.y,

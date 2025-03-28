@@ -38,12 +38,13 @@ export const handleConstruction = async ({
     setErrorMessage('Player not found in gridState.');
     return;
   }
-
   const playerPosition = player.position;  // Use grid-relative coordinates directly (no scaling)
   console.log('handleConstruction: Player position (grid-relative):', playerPosition);
+  const x = playerPosition.x;
+  const y = playerPosition.y;
 
   // Ensure valid player position
-  if (!playerPosition || playerPosition.x == null || playerPosition.y == null) {
+  if (!playerPosition || x == null || y == null) {
     setErrorMessage('Player position is invalid.');
     return;
   }
@@ -51,10 +52,10 @@ export const handleConstruction = async ({
   const selectedResource = buildOptions.find((item) => item.type === selectedItem);
 
   // Check if the tile is already occupied
-  const isTileOccupied = resources.some((res) => res.x === playerPosition.x && res.y === playerPosition.y);
+  const isTileOccupied = resources.some((res) => res.x === x && res.y === y);
   if (isTileOccupied) {
     console.warn('Cannot build on an occupied tile.');
-    FloatingTextManager.addFloatingText(306, playerPosition.x, playerPosition.y);
+    FloatingTextManager.addFloatingText(306, x, y);
     return; // Exit before deducting inventory
   }
 
@@ -93,17 +94,16 @@ export const handleConstruction = async ({
     // Track quest progress for "Buy" actions
     await trackQuestProgress(currentPlayer, 'Buy', selectedResource.type, 1, setCurrentPlayer);
   } else {
-    const resourceToAdd = {
-      newResource: selectedItem,
-      x: playerPosition.x,
-      y: playerPosition.y,
-    };
 
-    console.log('Placing resource on the grid:', resourceToAdd);
- 
+    console.log('Placing resource on the grid:', selectedItem); 
     try {
       // Update the grid on the server
-      const gridUpdateResponse = await updateGridResource(gridId, resourceToAdd, setResources);
+      const gridUpdateResponse = await updateGridResource(
+        gridId, 
+        { type: selectedItem, x: x, y: y}, 
+        setResources,
+        true
+      );
       FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y);
 
       // Track quest progress for "Build or Buy" actions
@@ -112,8 +112,8 @@ export const handleConstruction = async ({
 
       if (gridUpdateResponse?.success) {
         // Enrich resource locally
-        const enrichedResources = await addResourceToGrid(resources, resourceToAdd);
-        setResources(enrichedResources);
+        const enrichedResources = await addResourceToGrid(resources, selectedItem);
+        // setResources(enrichedResources);
         console.log('Resource successfully added to grid and enriched.');
       } else {
         throw new Error('Failed to update grid resource.');

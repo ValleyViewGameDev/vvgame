@@ -49,6 +49,13 @@
         "passable": true
     },
     {
+        "type": "o",
+        "layoutkey": "OW",
+        "category": "tile",
+        "action": "snow",
+        "passable": true
+    },
+    {
         "type": "Money",
         "symbol": "💰",
         "layoutkey": "$$",
@@ -64,6 +71,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 1,
         "maxprice": 1,
         "ingredient4qty": 1,
@@ -76,14 +84,7 @@
         "layoutkey": "SN",
         "category": "travel",
         "action": "travel",
-        "passable": true,
-        "validong": true,
-        "validond": true,
-        "validons": true,
-        "validonp": true,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true
+        "passable": true
     },
     {
         "type": "Signpost E",
@@ -91,14 +92,7 @@
         "layoutkey": "SE",
         "category": "travel",
         "action": "travel",
-        "passable": true,
-        "validong": true,
-        "validond": true,
-        "validons": true,
-        "validonp": true,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true
+        "passable": true
     },
     {
         "type": "Signpost S",
@@ -106,14 +100,7 @@
         "layoutkey": "SS",
         "category": "travel",
         "action": "travel",
-        "passable": true,
-        "validong": true,
-        "validond": true,
-        "validons": true,
-        "validonp": true,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true
+        "passable": true
     },
     {
         "type": "Signpost W",
@@ -121,14 +108,7 @@
         "layoutkey": "SW",
         "category": "travel",
         "action": "travel",
-        "passable": true,
-        "validong": true,
-        "validond": true,
-        "validons": true,
-        "validonp": true,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true
+        "passable": true
     },
     {
         "type": "Signpost NW",
@@ -136,14 +116,7 @@
         "layoutkey": "nw",
         "category": "travel",
         "action": "travel",
-        "passable": true,
-        "validong": true,
-        "validond": true,
-        "validons": true,
-        "validonp": true,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true
+        "passable": true
     },
     {
         "type": "Signpost NE",
@@ -151,14 +124,7 @@
         "layoutkey": "ne",
         "category": "travel",
         "action": "travel",
-        "passable": true,
-        "validong": true,
-        "validond": true,
-        "validons": true,
-        "validonp": true,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true
+        "passable": true
     },
     {
         "type": "Signpost SE",
@@ -166,14 +132,7 @@
         "layoutkey": "se",
         "category": "travel",
         "action": "travel",
-        "passable": true,
-        "validong": true,
-        "validond": true,
-        "validons": true,
-        "validonp": true,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true
+        "passable": true
     },
     {
         "type": "Signpost SW",
@@ -181,14 +140,7 @@
         "layoutkey": "sw",
         "category": "travel",
         "action": "travel",
-        "passable": true,
-        "validong": true,
-        "validond": true,
-        "validons": true,
-        "validonp": true,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true
+        "passable": true
     },
     {
         "type": "Signpost Town",
@@ -196,14 +148,7 @@
         "layoutkey": "TW",
         "category": "travel",
         "action": "travel",
-        "passable": true,
-        "validong": true,
-        "validond": true,
-        "validons": true,
-        "validonp": true,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true
+        "passable": true
     },
     {
         "type": "Signpost Home",
@@ -211,14 +156,7 @@
         "layoutkey": "SH",
         "category": "travel",
         "action": "travel",
-        "passable": true,
-        "validong": true,
-        "validond": true,
-        "validons": true,
-        "validonp": true,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true
+        "passable": true
     },
     {
         "type": "Trade Stall",
@@ -226,14 +164,31 @@
         "layoutkey": "TS",
         "category": "station",
         "action": "openUI",
-        "passable": false,
-        "validong": true,
-        "validond": true,
-        "validons": true,
-        "validonp": true,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true
+        "passable": false
+    },
+    {
+        "type": "Farm Hand 1",
+        "symbol": "🧑🏼‍🌾",
+        "layoutkey": "F1",
+        "category": "station",
+        "action": "openUI",
+        "passable": false
+    },
+    {
+        "type": "Farm Hand 2",
+        "symbol": "👩‍🌾",
+        "layoutkey": "F2",
+        "category": "station",
+        "action": "openUI",
+        "passable": false
+    },
+    {
+        "type": "Farm Hand 3",
+        "symbol": "🧑🏿‍🌾",
+        "layoutkey": "F3",
+        "category": "station",
+        "action": "openUI",
+        "passable": false
     },
     {
         "type": "Bank",
@@ -241,14 +196,7 @@
         "layoutkey": "BK",
         "category": "station",
         "action": "openUI",
-        "passable": false,
-        "validong": true,
-        "validond": true,
-        "validons": true,
-        "validonp": true,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true
+        "passable": false
     },
     {
         "type": "Courthouse",
@@ -256,14 +204,7 @@
         "layoutkey": "CO",
         "category": "station",
         "action": "openUI",
-        "passable": false,
-        "validong": true,
-        "validond": true,
-        "validons": true,
-        "validonp": true,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true
+        "passable": false
     },
     {
         "type": "Train",
@@ -271,14 +212,7 @@
         "layoutkey": "TR",
         "category": "station",
         "action": "openUI",
-        "passable": false,
-        "validong": true,
-        "validond": true,
-        "validons": true,
-        "validonp": true,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true
+        "passable": false
     },
     {
         "type": "Mailbox",
@@ -286,14 +220,7 @@
         "layoutkey": "MB",
         "category": "station",
         "action": "openUI",
-        "passable": false,
-        "validong": true,
-        "validond": true,
-        "validons": true,
-        "validonp": true,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true
+        "passable": false
     },
     {
         "type": "Oak Tree",
@@ -310,7 +237,8 @@
         "validonp": false,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Pine Tree",
@@ -327,7 +255,8 @@
         "validonp": false,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Palm Tree",
@@ -344,7 +273,43 @@
         "validonp": false,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": false
+    },
+    {
+        "type": "Holiday Tree",
+        "symbol": "🎄",
+        "layoutkey": "CT",
+        "category": "source",
+        "action": "convertTo",
+        "output": "Wood",
+        "passable": false,
+        "requires": "Axe",
+        "validong": true,
+        "validond": true,
+        "validons": false,
+        "validonp": false,
+        "validonw": false,
+        "validonl": false,
+        "validonn": false,
+        "validono": true
+    },
+    {
+        "type": "Snowman",
+        "symbol": "☃️",
+        "layoutkey": "sm",
+        "category": "source",
+        "action": "convertTo",
+        "output": "Carrot",
+        "passable": false,
+        "validong": true,
+        "validond": true,
+        "validons": false,
+        "validonp": false,
+        "validonw": false,
+        "validonl": false,
+        "validonn": false,
+        "validono": true
     },
     {
         "type": "Rocks",
@@ -361,7 +326,8 @@
         "validonp": false,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Clay Pit",
@@ -378,7 +344,8 @@
         "validonp": false,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Wood",
@@ -396,6 +363,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 9,
         "maxprice": 15.05149978319906,
         "crafttime": 2,
@@ -417,6 +385,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 28,
         "maxprice": 47.712125471966246,
         "crafttime": 3,
@@ -438,6 +407,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 72,
         "maxprice": 120.41199826559247,
         "crafttime": 4,
@@ -458,6 +428,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "growtime": 10,
         "crafttime": 10,
         "totalnestedtime": 10
@@ -477,6 +448,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "growtime": 30,
         "crafttime": 30,
         "totalnestedtime": 30
@@ -496,6 +468,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "growtime": 300,
         "crafttime": 300,
         "totalnestedtime": 300
@@ -515,6 +488,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "growtime": 900,
         "crafttime": 900,
         "totalnestedtime": 900
@@ -534,6 +508,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "growtime": 86400,
         "crafttime": 86400,
         "totalnestedtime": 86400
@@ -555,6 +530,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "growtime": 300,
         "crafttime": 300,
         "totalnestedtime": 300
@@ -576,6 +552,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "growtime": 900,
         "crafttime": 900,
         "totalnestedtime": 900
@@ -597,6 +574,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "growtime": 43200,
         "crafttime": 43200,
         "totalnestedtime": 43200
@@ -618,6 +596,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "growtime": 172800,
         "crafttime": 172800,
         "totalnestedtime": 172800
@@ -639,6 +618,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 60,
         "maxprice": 100,
         "crafttime": 10,
@@ -661,6 +641,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 88,
         "maxprice": 147.71212547196623,
         "crafttime": 30,
@@ -683,6 +664,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 148,
         "maxprice": 247.71212547196626,
         "crafttime": 300,
@@ -705,6 +687,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 177,
         "maxprice": 295.42425094393246,
         "crafttime": 900,
@@ -727,6 +710,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 592,
         "maxprice": 987.3027484957786,
         "crafttime": 86400,
@@ -749,6 +733,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 148,
         "maxprice": 247.71212547196626,
         "crafttime": 300,
@@ -771,6 +756,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 177,
         "maxprice": 295.42425094393246,
         "crafttime": 900,
@@ -793,6 +779,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 556,
         "maxprice": 927.0967493629823,
         "crafttime": 43200,
@@ -815,6 +802,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 942,
         "maxprice": 1571.2631214428623,
         "crafttime": 172800,
@@ -837,6 +825,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 153,
         "maxprice": 255.63025007672871,
         "crafttime": 360,
@@ -859,6 +848,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 0,
         "maxprice": 0,
         "crafttime": 0,
@@ -881,6 +871,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 153,
         "maxprice": 255.63025007672871,
         "ingredient1": "Wheat",
@@ -905,6 +896,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 161,
         "maxprice": 269.8970004336019,
         "ingredient1": "Wheat",
@@ -933,6 +925,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 472,
         "maxprice": 787.9038505237237,
         "ingredient1": "Chicken Feed",
@@ -957,6 +950,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 217,
         "maxprice": 362.32492903979005,
         "ingredient1": "Sugarcane",
@@ -981,6 +975,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 268,
         "maxprice": 446.83473304121577,
         "ingredient1": "Corn",
@@ -1005,6 +1000,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 374,
         "maxprice": 624.11478624117,
         "ingredient1": "Milk",
@@ -1029,14 +1025,15 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 480,
-        "maxprice": 800.1735443062454,
+        "validono": true,
+        "minprice": 414,
+        "maxprice": 690.0498216638722,
         "ingredient1": "Milk",
         "ingredient1qty": 2,
         "ingredient2": "Sugar",
         "ingredient2qty": 2,
         "crafttime": 900,
-        "totalnestedtime": 10020
+        "totalnestedtime": 2820
     },
     {
         "type": "Cheese",
@@ -1055,6 +1052,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 397,
         "maxprice": 661.9260334851798,
         "ingredient1": "Milk",
@@ -1079,14 +1077,15 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 713,
-        "maxprice": 1189.701591366032,
+        "validono": true,
+        "minprice": 707,
+        "maxprice": 1179.1318784300101,
         "ingredient1": "Flour",
         "ingredient1qty": 2,
         "ingredient2": "Butter",
         "ingredient2qty": 1,
         "crafttime": 7200,
-        "totalnestedtime": 9240
+        "totalnestedtime": 8520
     },
     {
         "type": "Cornbread",
@@ -1105,8 +1104,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 893,
-        "maxprice": 1489.532275754717,
+        "validono": true,
+        "minprice": 889,
+        "maxprice": 1482.3937876081986,
         "ingredient1": "Flour",
         "ingredient1qty": 1,
         "ingredient2": "Cornmeal",
@@ -1116,7 +1116,7 @@
         "ingredient4": "Butter",
         "ingredient4qty": 1,
         "crafttime": 14400,
-        "totalnestedtime": 92280
+        "totalnestedtime": 87360
     },
     {
         "type": "Apple Pie",
@@ -1135,8 +1135,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 743,
-        "maxprice": 1239.100130548502,
+        "validono": true,
+        "minprice": 723,
+        "maxprice": 1206.3567897209814,
         "ingredient1": "Apple",
         "ingredient1qty": 2,
         "ingredient2": "Flour",
@@ -1146,7 +1147,7 @@
         "ingredient4": "Butter",
         "ingredient4qty": 2,
         "crafttime": 1200,
-        "totalnestedtime": 13500
+        "totalnestedtime": 10500
     },
     {
         "type": "Strawberry Pie",
@@ -1165,8 +1166,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 985,
-        "maxprice": 1642.3522917350926,
+        "validono": true,
+        "minprice": 979,
+        "maxprice": 1632.6968867236722,
         "ingredient1": "Strawberry",
         "ingredient1qty": 3,
         "ingredient2": "Flour",
@@ -1176,7 +1178,7 @@
         "ingredient4": "Cream",
         "ingredient4qty": 2,
         "crafttime": 1200,
-        "totalnestedtime": 298200
+        "totalnestedtime": 276900
     },
     {
         "type": "Thread",
@@ -1194,6 +1196,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 148,
         "maxprice": 247.71212547196626,
         "ingredient1": "Wool",
@@ -1218,6 +1221,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 500,
         "maxprice": 833.4453751150929,
         "ingredient1": "Wool",
@@ -1242,6 +1246,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 610,
         "maxprice": 1017.2805321310137,
         "ingredient1": "Cloth",
@@ -1270,6 +1275,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 890,
         "maxprice": 1484.0829812093475,
         "ingredient1": "Cloth",
@@ -1300,6 +1306,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 1629,
         "maxprice": 2715.1987956934836,
         "ingredient1": "Jacket",
@@ -1327,6 +1334,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 195,
         "maxprice": 326.4817823009536,
         "ingredient1": "Wood",
@@ -1349,6 +1357,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 411,
         "maxprice": 686.6579370390052,
         "ingredient1": "Clay",
@@ -1372,8 +1381,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 822,
-        "maxprice": 1370.3195887644208,
+        "validono": true,
+        "minprice": 772,
+        "maxprice": 1287.0103834087554,
         "ingredient1": "Lemon",
         "ingredient1qty": 2,
         "ingredient2": "Flour",
@@ -1383,7 +1393,7 @@
         "ingredient4": "Sugar",
         "ingredient4qty": 4,
         "crafttime": 600,
-        "totalnestedtime": 36960
+        "totalnestedtime": 19500
     },
     {
         "type": "Honey",
@@ -1402,6 +1412,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 888,
         "maxprice": 1480.954122743668,
         "crafttime": 86400,
@@ -1424,6 +1435,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 1691,
         "maxprice": 2819.5449325425225,
         "ingredient1": "Grapes",
@@ -1450,6 +1462,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 1715,
         "maxprice": 2858.8360834813034,
         "ingredient1": "Grapes",
@@ -1477,6 +1490,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 1069,
         "maxprice": 1782.0353600243157,
         "ingredient1": "Olive",
@@ -1500,6 +1514,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 1123,
         "maxprice": 1872.7857835978732,
         "ingredient1": "Lumber",
@@ -1527,6 +1542,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 1186,
         "maxprice": 1978.2661997728535,
         "ingredient1": "Lumber",
@@ -1551,6 +1567,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 1937,
         "maxprice": 3229.153754278852,
         "ingredient1": "Wine",
@@ -1577,8 +1594,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 1009,
-        "maxprice": 1682.7373943118882,
+        "maxprice": 1681.772434008678,
         "ingredient1": "Flour",
         "ingredient1qty": 1,
         "ingredient2": "Egg",
@@ -1588,7 +1606,7 @@
         "ingredient4": "Rosemary",
         "ingredient4qty": 1,
         "crafttime": 14400,
-        "totalnestedtime": 406560
+        "totalnestedtime": 403560
     },
     {
         "type": "Queen's Cake",
@@ -1606,8 +1624,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 1726,
-        "maxprice": 2877.5256006832906,
+        "validono": true,
+        "minprice": 1725,
+        "maxprice": 2876.377521235338,
         "ingredient1": "Flour",
         "ingredient1qty": 2,
         "ingredient2": "Egg",
@@ -1617,7 +1636,7 @@
         "ingredient4": "Lemon",
         "ingredient4qty": 4,
         "crafttime": 28800,
-        "totalnestedtime": 568920
+        "totalnestedtime": 565920
     },
     {
         "type": "Ink",
@@ -1635,8 +1654,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 668,
-        "maxprice": 1113.3353342628263,
+        "validono": true,
+        "minprice": 667,
+        "maxprice": 1112.9812441344486,
         "ingredient1": "Strawberry",
         "ingredient1qty": 3,
         "ingredient2": "Egg",
@@ -1646,7 +1666,7 @@
         "ingredient4": "Stone",
         "ingredient4qty": 1,
         "crafttime": 14400,
-        "totalnestedtime": 368703
+        "totalnestedtime": 367203
     },
     {
         "type": "Clothes with ink",
@@ -1664,14 +1684,15 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 709,
-        "maxprice": 1183.2914214087525,
+        "validono": true,
+        "minprice": 607,
+        "maxprice": 1013.1905960627739,
         "ingredient1": "Cloth",
         "ingredient1qty": 2,
         "ingredient2": "Ink",
         "ingredient2qty": 2,
         "crafttime": 86400,
-        "totalnestedtime": 825006
+        "totalnestedtime": 116400
     },
     {
         "type": "Pottery with ink",
@@ -1689,14 +1710,15 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 1481,
-        "maxprice": 2468.3416258111774,
+        "validono": true,
+        "minprice": 1154,
+        "maxprice": 1924.6514476655611,
         "ingredient1": "Clay",
         "ingredient1qty": 2,
         "ingredient2": "Ink",
         "ingredient2qty": 4,
         "crafttime": 7200,
-        "totalnestedtime": 1482020
+        "totalnestedtime": 64808
     },
     {
         "type": "Rosemary",
@@ -1714,6 +1736,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 267,
         "maxprice": 445.93924877592303,
         "crafttime": 28800,
@@ -1735,6 +1758,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 535,
         "maxprice": 891.8784975518461,
         "crafttime": 28800,
@@ -1756,6 +1780,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 571,
         "maxprice": 952.0844966846423,
         "crafttime": 57600,
@@ -1777,6 +1802,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 888,
         "maxprice": 1480.954122743668,
         "crafttime": 86400,
@@ -1798,6 +1824,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 888,
         "maxprice": 1480.954122743668,
         "crafttime": 86400,
@@ -1819,6 +1846,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 1704,
         "maxprice": 2840.347300330683,
         "ingredient1": "Port",
@@ -1842,8 +1870,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 18,
-        "maxprice": 30.968961151398993,
+        "validono": true,
+        "minprice": 17,
+        "maxprice": 29.220521153487567,
         "ingredient1": "Rosemary",
         "ingredient1qty": 6,
         "ingredient2": "Daisy",
@@ -1853,7 +1882,7 @@
         "ingredient4": "Olive Oil",
         "ingredient4qty": 1,
         "crafttime": 28800,
-        "totalnestedtime": 1562400
+        "totalnestedtime": 698400
     },
     {
         "type": "Potion B",
@@ -1872,8 +1901,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 18,
-        "maxprice": 31.59127692141759,
+        "maxprice": 30.426310143818593,
         "ingredient1": "Potion A",
         "ingredient1qty": 1,
         "ingredient2": "Mushroom",
@@ -1883,7 +1913,7 @@
         "ingredient4": "Carrot",
         "ingredient4qty": 4,
         "crafttime": 57600,
-        "totalnestedtime": 2080920
+        "totalnestedtime": 1216920
     },
     {
         "type": "Potion C",
@@ -1902,8 +1932,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 21,
-        "maxprice": 36.100432387137836,
+        "validono": true,
+        "minprice": 19,
+        "maxprice": 31.98841415103206,
         "ingredient1": "Potion B",
         "ingredient1qty": 1,
         "ingredient2": "Sunflower",
@@ -1913,7 +1944,7 @@
         "ingredient4": "Feverfew",
         "ingredient4qty": 1,
         "crafttime": 129600,
-        "totalnestedtime": 16599174
+        "totalnestedtime": 2498520
     },
     {
         "type": "Gem",
@@ -1931,6 +1962,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 22,
         "maxprice": 37.291537618375465,
         "ingredient1": "Aged Wine",
@@ -1953,6 +1985,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 13,
         "maxprice": 23.251537615659686,
         "ingredient1": "Money",
@@ -1976,6 +2009,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 267,
         "maxprice": 445.93924877592303,
         "crafttime": 28800,
@@ -1997,6 +2031,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 314,
         "maxprice": 523.7543738142874,
         "crafttime": 172800,
@@ -2018,6 +2053,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 1068,
         "maxprice": 1780.954122743668,
         "crafttime": 864000,
@@ -2039,6 +2075,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 4628,
         "maxprice": 7714.664992862537,
         "ingredient1": "Bones",
@@ -2062,6 +2099,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 4761,
         "maxprice": 7936.513742478893,
         "ingredient1": "King's Crown",
@@ -2085,12 +2123,13 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 4613,
-        "maxprice": 7689.212930730227,
+        "maxprice": 7688.946351740367,
         "ingredient1": "Queen's Cake",
         "ingredient1qty": 10,
         "crafttime": 43200000,
-        "totalnestedtime": 48889200
+        "totalnestedtime": 48859200
     },
     {
         "type": "King's Crown",
@@ -2108,6 +2147,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 4581,
         "maxprice": 7635.483746814912,
         "crafttime": 43200000,
@@ -2129,6 +2169,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 22,
         "maxprice": 38.17741873407456,
         "crafttime": 43200000,
@@ -2149,6 +2190,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 281,
         "maxprice": 469.89786901387987,
         "ingredient1": "Money",
@@ -2171,6 +2213,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 0,
         "maxprice": 0
     },
@@ -2190,6 +2233,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "minprice": 38481,
         "maxprice": 64136.34997198555,
         "crafttime": 2592000,
@@ -2208,7 +2252,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Adventure Camp",
@@ -2223,7 +2268,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Warrior's Den",
@@ -2238,7 +2284,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "School",
@@ -2257,7 +2304,8 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 5975,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 5000,
         "ingredient2": "Lumber",
@@ -2280,7 +2328,8 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 10375,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 8000,
         "ingredient2": "Lumber",
@@ -2305,7 +2354,8 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 3800,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 2000,
         "ingredient2": "Wood",
@@ -2330,7 +2380,8 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 295,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 250,
         "ingredient2": "Wood",
@@ -2355,7 +2406,8 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 7220,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 5000,
         "ingredient2": "Wood",
@@ -2382,7 +2434,8 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 5180,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 5000,
         "ingredient2": "Wood",
@@ -2407,7 +2460,8 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 6760,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 3500,
         "ingredient2": "Wood",
@@ -2434,7 +2488,8 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 12700,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 10000,
         "ingredient2": "Wood",
@@ -2459,7 +2514,8 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 20200,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 10000,
         "ingredient2": "Wood",
@@ -2488,7 +2544,8 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 8180,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 8000,
         "ingredient2": "Wood",
@@ -2513,13 +2570,16 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 22800,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 15000,
         "ingredient2": "Lumber",
         "ingredient2qty": 40,
+        "ingredient3": "Clay",
+        "ingredient3qty": 100,
         "crafttime": 0,
-        "totalnestedtime": 148600
+        "totalnestedtime": 147400
     },
     {
         "type": "Winery",
@@ -2538,7 +2598,8 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 37560,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 20000,
         "ingredient2": "Lumber",
@@ -2548,7 +2609,7 @@
         "ingredient4": "Clay",
         "ingredient4qty": 120,
         "crafttime": 0,
-        "totalnestedtime": 174200
+        "totalnestedtime": 172600
     },
     {
         "type": "Animal Yard",
@@ -2568,13 +2629,14 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 27800,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 20000,
         "ingredient2": "Lumber",
         "ingredient2qty": 40,
         "crafttime": 0,
-        "totalnestedtime": 173600
+        "totalnestedtime": 172000
     },
     {
         "type": "Hospital",
@@ -2594,7 +2656,8 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "minprice": 19200,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 10000,
         "ingredient2": "Lumber",
@@ -2602,7 +2665,7 @@
         "ingredient3": "Stone",
         "ingredient3qty": 50,
         "crafttime": 0,
-        "totalnestedtime": 123750
+        "totalnestedtime": 122150
     },
     {
         "type": "Kirk",
@@ -2619,7 +2682,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Apothecary",
@@ -2636,7 +2700,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Thief",
@@ -2653,7 +2718,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Queen Llewella",
@@ -2670,7 +2736,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Lord Oberon",
@@ -2687,7 +2754,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Troll",
@@ -2704,7 +2772,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Cow",
@@ -2727,8 +2796,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "growtime": 360,
-        "minprice": 500,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 500,
         "crafttime": 360,
@@ -2755,8 +2825,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "growtime": 7200,
-        "minprice": 2000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 2000,
         "crafttime": 7200,
@@ -2783,8 +2854,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "growtime": 1800,
-        "minprice": 5000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 5000,
         "crafttime": 1800,
@@ -2811,6 +2883,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "ingredient1": "Rosemary",
         "ingredient1qty": 1,
         "crafttime": 10,
@@ -2837,6 +2910,7 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
+        "validono": true,
         "ingredient1": "Mushroom",
         "ingredient1qty": 1,
         "crafttime": 7200,
@@ -2862,8 +2936,11 @@
         "validonw": true,
         "validonl": true,
         "validonn": true,
+        "validono": true,
         "ingredient1": "Feverfew",
-        "ingredient1qty": 1
+        "ingredient1qty": 1,
+        "crafttime": 7200,
+        "totalnestedtime": 12621648
     },
     {
         "type": "Coyote",
@@ -2887,7 +2964,8 @@
         "validonp": false,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Bear",
@@ -2911,7 +2989,8 @@
         "validonp": false,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Spider",
@@ -2935,7 +3014,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Zombie",
@@ -2959,7 +3039,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Ghost",
@@ -2983,7 +3064,8 @@
         "validonp": true,
         "validonw": true,
         "validonl": true,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Demon",
@@ -3006,7 +3088,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": true,
-        "validonn": false
+        "validonn": false,
+        "validono": true
     },
     {
         "type": "Dragon",
@@ -3030,7 +3113,8 @@
         "validonp": true,
         "validonw": true,
         "validonl": true,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Coyote Spawner",
@@ -3052,7 +3136,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Bear Spawner",
@@ -3074,7 +3159,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Spider Spawner",
@@ -3096,7 +3182,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Zombie Spawner",
@@ -3118,7 +3205,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Ghost Spawner",
@@ -3140,7 +3228,8 @@
         "validonp": true,
         "validonw": true,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Demon Spawner",
@@ -3162,7 +3251,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": true,
-        "validonn": false
+        "validonn": false,
+        "validono": false
     },
     {
         "type": "Dragon Spawner",
@@ -3184,7 +3274,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": true,
-        "validonn": false
+        "validonn": false,
+        "validono": false
     },
     {
         "type": "Dennis",
@@ -3202,7 +3293,27 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": false
+        "validonn": false,
+        "validono": false
+    },
+    {
+        "type": "Santa Claus",
+        "symbol": "🎅",
+        "layoutkey": "n8",
+        "category": "npc",
+        "action": "quest",
+        "source": "Buy",
+        "passable": false,
+        "range": 6,
+        "speed": 1000,
+        "validong": false,
+        "validond": false,
+        "validons": false,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": false,
+        "validono": true
     },
     {
         "type": "Judge Dyuti",
@@ -3220,7 +3331,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": false
+        "validonn": false,
+        "validono": false
     },
     {
         "type": "Samwise",
@@ -3238,7 +3350,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Ragnar",
@@ -3256,7 +3369,8 @@
         "validonp": false,
         "validonw": false,
         "validonl": false,
-        "validonn": false
+        "validonn": false,
+        "validono": false
     },
     {
         "type": "Chef Sara",
@@ -3274,7 +3388,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": false
+        "validonn": false,
+        "validono": false
     },
     {
         "type": "Jean-Rouge",
@@ -3292,7 +3407,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Vampire",
@@ -3310,7 +3426,8 @@
         "validonp": false,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Elf",
@@ -3328,7 +3445,8 @@
         "validonp": false,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Wizard",
@@ -3346,7 +3464,8 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": true
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Walking",
@@ -3354,7 +3473,7 @@
         "category": "skill",
         "source": "Basic Skills",
         "qtycollected": 1,
-        "minprice": 1,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 1
     },
@@ -3365,7 +3484,7 @@
         "output": "Oak Tree",
         "source": "Basic Skills",
         "qtycollected": 1,
-        "minprice": 50,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 50
     },
@@ -3376,7 +3495,7 @@
         "output": "Rocks",
         "source": "Basic Skills",
         "qtycollected": 1,
-        "minprice": 50,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 50
     },
@@ -3387,7 +3506,7 @@
         "source": "Basic Skills",
         "requires": "Walking",
         "qtycollected": 1,
-        "minprice": 6500,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 6500
     },
@@ -3399,7 +3518,7 @@
         "source": "Basic Skills",
         "requires": "Walking",
         "qtycollected": 20,
-        "minprice": 550,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 50,
         "ingredient2": "Cloth",
@@ -3413,7 +3532,7 @@
         "source": "Adventure Camp",
         "requires": "Masonry",
         "qtycollected": 1000,
-        "minprice": 1830,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 1000,
         "ingredient2": "Wood",
@@ -3429,7 +3548,7 @@
         "source": "Adventure Camp",
         "requires": "Backpack",
         "qtycollected": 20,
-        "minprice": 25148,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 20000,
         "ingredient2": "Cloth",
@@ -3445,7 +3564,7 @@
         "source": "Adventure Camp",
         "requires": "Backpack",
         "qtycollected": 50,
-        "minprice": 26480,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 20000,
         "ingredient2": "Cloth",
@@ -3459,7 +3578,7 @@
         "category": "skill",
         "source": "Basic Skills",
         "qtycollected": 1,
-        "minprice": 1000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 1000
     },
@@ -3470,7 +3589,7 @@
         "source": "Basic Skills",
         "requires": "Grower",
         "qtycollected": 1,
-        "minprice": 2000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 2000
     },
@@ -3480,7 +3599,7 @@
         "category": "skill",
         "source": "Basic Skills",
         "qtycollected": 1,
-        "minprice": 3000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 3000
     },
@@ -3490,7 +3609,7 @@
         "category": "skill",
         "source": "Basic Skills",
         "qtycollected": 1,
-        "minprice": 5000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 5000
     },
@@ -3500,7 +3619,7 @@
         "category": "skill",
         "source": "Basic Skills",
         "qtycollected": 1,
-        "minprice": 2000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 2000
     },
@@ -3511,7 +3630,7 @@
         "source": "Basic Skills",
         "requires": "Builder",
         "qtycollected": 1,
-        "minprice": 8000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 8000
     },
@@ -3522,7 +3641,7 @@
         "source": "Basic Skills",
         "requires": "Mechanics",
         "qtycollected": 1,
-        "minprice": 12018,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 12000,
         "ingredient2": "Potion A",
@@ -3535,7 +3654,7 @@
         "source": "Basic Skills",
         "requires": "Chemistry",
         "qtycollected": 1,
-        "minprice": 12090,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 12000,
         "ingredient2": "Potion A",
@@ -3548,7 +3667,7 @@
         "source": "Basic Skills",
         "requires": "Mechanics",
         "qtycollected": 1,
-        "minprice": 25090,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 25000,
         "ingredient2": "Potion A",
@@ -3561,7 +3680,7 @@
         "source": "Basic Skills",
         "requires": "Textiles",
         "qtycollected": 1,
-        "minprice": 40090,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 40000,
         "ingredient2": "Potion B",
@@ -3574,7 +3693,7 @@
         "source": "Basic Skills",
         "requires": "Chemistry",
         "qtycollected": 1,
-        "minprice": 50021,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 50000,
         "ingredient2": "Potion C",
@@ -3587,7 +3706,7 @@
         "source": "Basic Skills",
         "requires": "Chemistry",
         "qtycollected": 1,
-        "minprice": 50105,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 50000,
         "ingredient2": "Potion C",
@@ -3600,7 +3719,7 @@
         "source": "Basic Skills",
         "requires": "Textiles",
         "qtycollected": 1,
-        "minprice": 50210,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 50000,
         "ingredient2": "Potion C",
@@ -3613,7 +3732,7 @@
         "source": "Basic Skills",
         "requires": "Husbandry",
         "qtycollected": 1,
-        "minprice": 9000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 9000
     },
@@ -3624,7 +3743,7 @@
         "source": "School",
         "requires": "Politics",
         "qtycollected": 1,
-        "minprice": 5110,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 5000,
         "ingredient2": "Gem",
@@ -3637,7 +3756,7 @@
         "source": "School",
         "requires": "Husbandry",
         "qtycollected": 1,
-        "minprice": 7066,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 7000,
         "ingredient2": "Gem",
@@ -3650,7 +3769,7 @@
         "source": "School",
         "requires": "Education",
         "qtycollected": 1,
-        "minprice": 25220,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 25000,
         "ingredient2": "Gem",
@@ -3663,7 +3782,7 @@
         "source": "School",
         "requires": "Chemistry",
         "qtycollected": 1,
-        "minprice": 12330,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 12000,
         "ingredient2": "Gem",
@@ -3676,7 +3795,7 @@
         "source": "School",
         "requires": "Medicine",
         "qtycollected": 1,
-        "minprice": 18440,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 18000,
         "ingredient2": "Gem",
@@ -3690,7 +3809,7 @@
         "source": "Basic Skills",
         "requires": "Axe",
         "qtycollected": 1,
-        "minprice": 5000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 5000
     },
@@ -3702,7 +3821,7 @@
         "source": "Basic Skills",
         "requires": "Pickaxe",
         "qtycollected": 1,
-        "minprice": 6000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 6000
     },
@@ -3713,7 +3832,7 @@
         "source": "Warrior's Den",
         "requires": "Mechanics",
         "qtycollected": 1,
-        "minprice": 5000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 5000
     },
@@ -3725,7 +3844,7 @@
         "source": "Warrior's Den",
         "requires": "Combat",
         "qtycollected": 7,
-        "minprice": 8000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 8000
     },
@@ -3737,7 +3856,7 @@
         "source": "Basic Skills",
         "requires": "Horse",
         "qtycollected": 5,
-        "minprice": 15013,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 15000,
         "ingredient2": "Book",
@@ -3751,7 +3870,7 @@
         "source": "Basic Skills",
         "requires": "Tracking",
         "qtycollected": 5,
-        "minprice": 12065,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 12000,
         "ingredient2": "Book",
@@ -3765,7 +3884,7 @@
         "source": "Warrior's Den",
         "requires": "Strength",
         "qtycollected": 15,
-        "minprice": 25013,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 25000,
         "ingredient2": "Book",
@@ -3779,7 +3898,7 @@
         "source": "Warrior's Den",
         "requires": "Power",
         "qtycollected": 10,
-        "minprice": 25065,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 25000,
         "ingredient2": "Book",
@@ -3793,7 +3912,7 @@
         "source": "Warrior's Den",
         "requires": "Combat",
         "qtycollected": -2,
-        "minprice": 9000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 9000
     },
@@ -3805,7 +3924,7 @@
         "source": "Warrior's Den",
         "requires": "Quick Hit",
         "qtycollected": -2,
-        "minprice": 18104,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 18000,
         "ingredient2": "Book",
@@ -3819,7 +3938,7 @@
         "source": "Warrior's Den",
         "requires": "Combat",
         "qtycollected": 8,
-        "minprice": 8000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 8000
     },
@@ -3831,7 +3950,7 @@
         "source": "Warrior's Den",
         "requires": "Rifle",
         "qtycollected": 2,
-        "minprice": 15026,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 15000,
         "ingredient2": "Book",
@@ -3845,7 +3964,7 @@
         "source": "Warrior's Den",
         "requires": "Scope",
         "qtycollected": 3,
-        "minprice": 25065,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 25000,
         "ingredient2": "Book",
@@ -3859,7 +3978,7 @@
         "source": "Warrior's Den",
         "requires": "Combat",
         "qtycollected": 5,
-        "minprice": 12000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 7000,
         "ingredient2": "Cloth",
@@ -3873,7 +3992,7 @@
         "source": "Warrior's Den",
         "requires": "Basic Armor",
         "qtycollected": 5,
-        "minprice": 62345,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 11000,
         "ingredient2": "Cloth",
@@ -3891,7 +4010,7 @@
         "source": "Warrior's Den",
         "requires": "Metal Armor",
         "qtycollected": 5,
-        "minprice": 5671,
+        "minprice": 0,
         "ingredient1": "Cloth",
         "ingredient1qty": 10,
         "ingredient2": "Potion C",
@@ -3907,7 +4026,7 @@
         "source": "Warrior's Den",
         "requires": "Combat",
         "qtycollected": 4,
-        "minprice": 7000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 7000
     },
@@ -3919,7 +4038,7 @@
         "source": "Warrior's Den",
         "requires": "Accuracy",
         "qtycollected": 4,
-        "minprice": 19156,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 19000,
         "ingredient2": "Book",
@@ -3933,7 +4052,7 @@
         "source": "Warrior's Den",
         "requires": "Combat",
         "qtycollected": 100,
-        "minprice": 9000,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 9000
     },
@@ -3945,7 +4064,7 @@
         "source": "Warrior's Den",
         "requires": "Thick Skin",
         "qtycollected": 250,
-        "minprice": 15195,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 15000,
         "ingredient2": "Book",
@@ -3959,7 +4078,7 @@
         "source": "Warrior's Den",
         "requires": "Thicker Skin",
         "qtycollected": 500,
-        "minprice": 30325,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 30000,
         "ingredient2": "Book",
@@ -3980,8 +4099,9 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": false,
-        "minprice": 100,
+        "validonn": true,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 100
     },
@@ -3998,8 +4118,9 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": false,
-        "minprice": 5000,
+        "validonn": true,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 5000
     },
@@ -4017,8 +4138,9 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": false,
-        "minprice": 1000,
+        "validonn": true,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 1000
     },
@@ -4036,8 +4158,9 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": false,
-        "minprice": 1000,
+        "validonn": true,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 1000
     },
@@ -4054,8 +4177,9 @@
         "validonp": true,
         "validonw": false,
         "validonl": false,
-        "validonn": false,
-        "minprice": 100000000,
+        "validonn": true,
+        "validono": true,
+        "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 100000000
     }

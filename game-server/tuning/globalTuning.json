@@ -3,6 +3,8 @@
     "farZoom": 16, 
     "mayorcut": 50,
     "bankOffers": 3,
+    "seasonMoneyNerf": 0.10,
+    "seasonMoneyNerfGold": 0.25,
 
     "baseHoursForTrain": 2.5, 
 

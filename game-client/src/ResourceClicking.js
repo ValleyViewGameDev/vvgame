@@ -286,11 +286,12 @@ async function handleDooberClick(
 
   // Perform server validation
   try {
-    const gridUpdateResponse = await updateGridResource(gridId, {
-      newResource: null, // Collecting doober removes it
-      x: col,
-      y: row,
-    }, setResources);
+    const gridUpdateResponse = await updateGridResource(
+      gridId,
+      { type: null, x: col, y: row }, // Collecting doober removes it
+      setResources,
+      true
+    );
 
     if (gridUpdateResponse?.success) {
       console.log('Doober collected successfully.');
@@ -376,67 +377,61 @@ export async function handleSourceConversion(
 
   // Define isValley as any gtype that is NOT "town" or "homestead"
   const isValley = !['town', 'homestead'].includes(currentPlayer?.location?.gtype);
-  console.log('isValley = ', isValley);
-  
+  const x = col;
+  const y = row;
   const targetResource = masterResources.find((res) => res.type === resource.output);
   
   console.log('targetResource: ',targetResource);
+  if (!targetResource) { console.warn(`⚠️ No matching resource found for output: ${resource.output}`); return; }
+  
+  // Build the new resource object to replace the one we just clicked
+  const enrichedNewResource = {
+    ...targetResource,
+    x,
+    y,
+    symbol: targetResource.symbol,
+    qtycollected: targetResource.qtycollected || 1,
+    category: targetResource.category || 'doober',
+    growEnd: targetResource.growEnd || null,
+  };
+  console.log('Enriched newResource for local state: ', enrichedNewResource);
 
-// Build the full new resource object for local state
-const newResource = {
-  ...targetResource,    // Merge everything from targetResource
-  x: col,               // Set the correct tile position
-  y: row,
-  symbol: targetResource.symbol,
-  qtycollected: targetResource.qtycollected || 1,  // Default if missing
-  category: targetResource.category || 'doober',   // Default to 'doober'
-  growEnd: targetResource.growEnd || null,         // Retain growEnd if it exists
-};
-console.log('Enriched newResource for local state: ', newResource);
-
-// Conditionally update the client resources only if isValley is false
-if (!isValley) {
-  setResources((prevResources) =>
+  // Optimistically update local client state
+  if (isValley) {
+    // Remove resource
+    setResources((prevResources) =>
+      prevResources.filter(res => !(res.x === x && res.y === y))
+    );
+    console.log(`🌿 Resource removed at (${x}, ${y}) due to valley rules.`);
+  } else {
+    // Replace resource
+    setResources((prevResources) =>
       prevResources.map((res) =>
-          res.x === col && res.y === row ? newResource : res
+        res.x === x && res.y === y ? enrichedNewResource : res
       )
-  );
-  console.log('resources: ', resources);
-
-  // Display the floating text feedback immediately if isValley is false
-  addFloatingText(`Converted to ${targetResource.type}`, col * TILE_SIZE, row * TILE_SIZE);
-} else {
-  // If isValley is true, remove the resource instead of replacing it
-  setResources((prevResources) =>
-      prevResources.filter(res => !(res.x === col && res.y === row))
-  );
-  console.log(`🌿 Resource removed at (${col}, ${row}) due to valley rules.`);
-}
-
+    );
+    addFloatingText(`Converted to ${targetResource.type}`, x * TILE_SIZE, y * TILE_SIZE);
+  }
 
   // Perform server update
-  try {
-    const gridUpdateResponse = await updateGridResource(gridId, {
-      newResource: isValley ? null : targetResource.type,  // ✅ Set to null if isValley is true
-      x: col,
-      y: row,
-    });
+    try {
+    const gridUpdateResponse = await updateGridResource(
+      gridId, 
+      { type: targetResource.type, x: col, y: row }, 
+      setResources, 
+      true
+    );
 
     if (gridUpdateResponse?.success) {
-      console.log('Source conversion completed successfully on the server.');
+      console.log('✅ Source conversion completed successfully on the server.');
     } else {
       throw new Error('Server failed to confirm the source conversion.');
     }
   } catch (error) {
-    console.error('Error during source conversion:', error);
-
-    // Log failure but avoid immediate rollback
-    console.warn('Server update failed. The client may become out of sync. Consider adding a recovery mechanism.');
+    console.error('❌ Error during source conversion:', error);
+    console.warn('Server update failed. The client may become out of sync.');
   } finally {
-    // Optionally refresh the player state (if inventory is affected)
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-    // Unlock the resource for interaction
-    unlockResource(col, row);
+    unlockResource(x, y);
   }
 }

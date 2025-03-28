@@ -147,14 +147,14 @@ const CraftingStation = ({
     try {
       // ✅ Ensure we update only the clicked Crafting Station
       const updatedStation = {
-        newResource: stationType,
+        type: stationType,
         x: currentStationPosition.x, 
         y: currentStationPosition.y, 
         craftEnd: craftEnd,
         craftedItem: recipe.type,  // ✅ Store crafted item
       };
       console.log('handleCraft: updatedStation:  ',updatedStation);
-      await updateGridResource(gridId, updatedStation);
+      await updateGridResource(gridId, updatedStation, setResources, true);
       console.log('📡 Fetched station from GlobalGridState:', GlobalGridState.getResources);
 
 
@@ -255,9 +255,6 @@ const CraftingStation = ({
 
           console.log("Final Skill Multiplier:", skillMultiplier);
           const craftedQty = 1 * skillMultiplier;
-
-
-
           const updatedInventory = [...targetInventory];
           const itemIndex = updatedInventory.findIndex((item) => item.type === recipe.type);
   
@@ -283,35 +280,46 @@ const CraftingStation = ({
 
       console.log("🛠️ About to call updateGridResource:", stationType, currentStationPosition.x, currentStationPosition.y);
         // ✅ Remove craftEnd & craftedItem from the grid resource
-        const updateResponse = await updateGridResource(gridId, {
+
+        const updateResponse = await updateGridResource(
+            gridId, 
+            {
+            type: stationType, // ✅ Keep station type
             x: currentStationPosition.x,
             y: currentStationPosition.y,
-            newResource: stationType, // ✅ Keep station type
             craftEnd: null, // ✅ Remove timer
-            craftedItem: null // ✅ Remove craftedItem
-        });
+            craftedItem: null, // ✅ Remove craftedItem
+            },
+            setResources,
+            true
+        );
         if (!updateResponse?.success) {
             console.warn("⚠️ Warning: Grid resource update failed or returned unexpected response.");
         }
         console.log("🛠️ Grid resource updated:", updateResponse);
 
-        // ✅ **Update local state immediately** so UI refreshes
-        setResources(prevResources =>
-          prevResources.map(res =>
-              res.x === currentStationPosition.x && res.y === currentStationPosition.y
-                  ? { ...res, craftEnd: null, craftedItem: null }
-                  : res
-           )
-        );
+        // // ✅ **Update local state immediately** so UI refreshes
+        // setResources(prevResources =>
+        //   prevResources.map(res =>
+        //       res.x === currentStationPosition.x && res.y === currentStationPosition.y
+        //           ? { ...res, craftEnd: null, craftedItem: null }
+        //           : res
+        //    )
+        // );
 
-        console.log("🛠️ Local state updated!");
+        // console.log("🛠️ Local state updated!");
 
         // ✅ **Manually update GlobalGridState**
+
         const updatedGlobalResources = GlobalGridState.getResources().map(res =>
-            res.x === currentStationPosition.x && res.y === currentStationPosition.y
-                ? { ...res, craftEnd: null, craftedItem: null }
-                : res
+          res.x === currentStationPosition.x && res.y === currentStationPosition.y
+            ? (() => {
+                const { craftEnd, craftedItem, ...rest } = res;
+                return rest;
+              })()
+            : res
         );
+
         GlobalGridState.setResources(updatedGlobalResources);
         console.log("🌎 GlobalGridState updated successfully!");
 
@@ -362,11 +370,19 @@ const CraftingStation = ({
         inventory: updatedInventory,
       });
   
-      await updateGridResource(gridId, {
-        newResource: null,
-        x: currentStationPosition.x,
-        y: currentStationPosition.y,
-      }, setResources);
+      // REMOVING THE CRAFTING STATION FROM THE GRID
+
+      // HERE WE NEED TO CONSTRUCT THE PAYLOAD FIRST, THEN JUST SEND THE NEW RESOURCE OBJECT
+      await updateGridResource(
+        gridId, 
+        {
+          type: null,
+          x: currentStationPosition.x,
+          y: currentStationPosition.y,
+        }, 
+        setResources,
+        true
+      );
   
       setInventory(updatedInventory);
       localStorage.setItem('inventory', JSON.stringify(updatedInventory));
