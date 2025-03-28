@@ -371,7 +371,7 @@ useEffect(() => {
     if (updatedResources?.length) {
       setResources(prev => {
         const merged = mergeResources(prev, updatedResources);
-        GlobalGridState.setResources(merged);  // ✅ keep NPCs in sync
+        setResources(merged);  // ✅ keep NPCs in sync
         return merged;
       });
     }
@@ -379,7 +379,7 @@ useEffect(() => {
     if (updatedTiles?.length) {
       setTileTypes(prev => {
         const merged = mergeTiles(prev, updatedTiles);
-        GlobalGridState.setTiles(merged);  // ✅ optional, if NPCs use this
+        setTileTypes(merged);  // ✅ optional, if NPCs use this
         return merged;
       });
     }

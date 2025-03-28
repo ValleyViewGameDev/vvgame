@@ -113,7 +113,7 @@ export const handleConstruction = async ({
       if (gridUpdateResponse?.success) {
         // Enrich resource locally
         const enrichedResources = await addResourceToGrid(resources, selectedItem);
-        // setResources(enrichedResources);
+        setResources(enrichedResources);
         console.log('Resource successfully added to grid and enriched.');
       } else {
         throw new Error('Failed to update grid resource.');

@@ -49,9 +49,9 @@ export const addResourceToGrid = async (resources, newResource) => {
     }
 
     // Extract `type` from `newResource` payload
-    const resourceType = newResource.newResource || newResource.type;
+    const resourceType = newResource?.type || newResource?.newResource;
     if (!resourceType) {
-      console.error('Invalid resource payload:', newResource);
+      console.error('[addResourceToGrid] Invalid resource payload:', newResource);
       return resources;
     }
 
