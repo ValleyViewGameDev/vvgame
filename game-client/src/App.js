@@ -356,53 +356,71 @@ useEffect(() => {
 }, [gridId, currentPlayer]);
 
 
-
 // 🔄 Real-time updates for tiles and resources
 useEffect(() => {
-  if (!gridId) return;
-
-  console.log("🧲 Subscribing to tile-resource-sync for grid:", gridId);
+  if (!gridId || !socket) return;
 
   const handleTileResourceSync = ({ updatedTiles, updatedResources }) => {
     console.log("🌐 Real-time tile/resource update received!", {
       updatedTiles,
       updatedResources,
     });
-  
-    // ✅ TILE SYNC — merge into existing tileTypes
-    if (updatedTiles) {
-      setTileTypes(prev => {
-        const merged = mergeTiles(prev, updatedTiles);
-        GlobalGridState.setTiles(merged);  // update global reference
-        return merged;
-      });
+
+    if (updatedResources?.length) {
+      setResources(prev => mergeResources(prev, updatedResources));
     }
-  
-    // ✅ RESOURCE SYNC — merge into existing resources
-    if (updatedResources) {
-      const cleanedResources = updatedResources.filter(
-        r => r && typeof r.x === 'number' && typeof r.y === 'number'
-      );
-  
-      setResources(prev => {
-        const merged = mergeResources(prev, cleanedResources);
-        return merged.filter(r => r.type !== null); // ✅ Remove nulls
-      });
-  
-      GlobalGridState.setResources(prev => {
-        const merged = mergeResources(prev, cleanedResources);
-        return merged.filter(r => r.type !== null); // ✅ Remove nulls
-      });
+    if (updatedTiles?.length) {
+      setTileTypes(prev => mergeTiles(prev, updatedTiles));
     }
   };
 
-  socket.on('tile-resource-sync', handleTileResourceSync);
-  
+  socket.on("tile-resource-sync", handleTileResourceSync);
+
   return () => {
-    console.log("🧹 Unsubscribing from tile-resource-sync for grid:", gridId);
-    socket.off('tile-resource-sync', handleTileResourceSync);
+    socket.off("tile-resource-sync", handleTileResourceSync);
   };
-}, [gridId]);
+}, [gridId, socket]);
+
+
+// // 🔄 Real-time updates for tiles and resources
+// useEffect(() => {
+//   if (!gridId) return;
+
+//   console.log("🧲 Subscribing to tile-resource-sync for grid:", gridId);
+
+//   const handleTileResourceSync = ({ updatedTiles, updatedResources }) => {
+//     console.log("🌐 Real-time tile/resource update received!", {
+//       updatedTiles,
+//       updatedResources,
+//     });
+  
+//     // ✅ TILE SYNC — merge into existing tileTypes
+//     if (updatedTiles) {
+//       setTileTypes(prev => {
+//         const merged = mergeTiles(prev, updatedTiles);
+//         GlobalGridState.setTiles(merged);  // update global reference
+//         return merged;
+//       });
+//     }
+  
+//     // ✅ RESOURCE SYNC — merge into existing resources
+//     if (updatedResources) {
+//       const cleanedResources = updatedResources.filter(
+//         r => r && typeof r.x === 'number' && typeof r.y === 'number'
+//       );
+  
+//       setResources(prev => {
+//         const merged = mergeResources(prev, cleanedResources);
+//         return merged.filter(r => r.type !== null); // ✅ Remove nulls
+//       });
+  
+//       GlobalGridState.setResources(prev => {
+//         const merged = mergeResources(prev, cleanedResources);
+//         return merged.filter(r => r.type !== null); // ✅ Remove nulls
+//       });
+//     }
+//   };
+
 
 
 
