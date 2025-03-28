@@ -61,7 +61,7 @@ export const updateGridResource = async (
     if (broadcast && socket && socket.emit) {
       socket.emit('tile-resource-sync', {
         gridId,
-        updatedResources: [updatedResource],
+        updatedResources: [updatedResource?.type === null ? { x, y, type: null } : updatedResource],
         updatedTiles: [], // Optional
       });
     }
