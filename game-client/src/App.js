@@ -369,10 +369,19 @@ useEffect(() => {
     });
 
     if (updatedResources?.length) {
-      setResources(prev => mergeResources(prev, updatedResources));
+      setResources(prev => {
+        const merged = mergeResources(prev, updatedResources);
+        GlobalGridState.setResources(merged);  // ✅ keep NPCs in sync
+        return merged;
+      });
     }
+  
     if (updatedTiles?.length) {
-      setTileTypes(prev => mergeTiles(prev, updatedTiles));
+      setTileTypes(prev => {
+        const merged = mergeTiles(prev, updatedTiles);
+        GlobalGridState.setTiles(merged);  // ✅ optional, if NPCs use this
+        return merged;
+      });
     }
   };
 

@@ -77,11 +77,29 @@ export function mergeResources(existingResources, updatedResources) {
 
 
 export function mergeTiles(existingTiles, updatedTiles) {
-  const newTiles = existingTiles.map(row => [...row]); // safer deep copy
+  console.log("🧪 mergeTiles called");
+  console.log("📥 Existing Tiles:", existingTiles.length, "rows");
+  console.log("📥 Updated Tiles:", updatedTiles);
+
+  const newTiles = existingTiles.map(row => [...row]); // Create deep copy
+  let changed = false;
+
   updatedTiles.forEach(({ x, y, tileType }) => {
     if (newTiles[y] && typeof newTiles[y][x] !== 'undefined') {
-      newTiles[y][x] = tileType;
+      const oldTile = newTiles[y][x];
+      if (oldTile !== tileType) {
+        console.log(`🔄 Tile at (${x},${y}) changed from "${oldTile}" to "${tileType}"`);
+        newTiles[y][x] = tileType;
+        changed = true;
+      } else {
+        console.log(`✅ Tile at (${x},${y}) is already "${tileType}" — no change`);
+      }
+    } else {
+      console.warn(`⚠️ Attempted to update invalid tile at (${x},${y})`);
     }
   });
+
+  console.log("✅ mergeTiles returning new tile array");
+  console.log("🔁 Any tiles changed?", changed);
   return newTiles;
 }
