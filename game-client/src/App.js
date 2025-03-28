@@ -358,6 +358,7 @@ useEffect(() => {
 
 // 🔄 Real-time updates for tiles and resources
 useEffect(() => {
+  console.log("🧪 useEffect for tile-resource-sync running. gridId:", gridId, "socket:", !!socket);
   if (!gridId || !socket) return;
 
   const handleTileResourceSync = ({ updatedTiles, updatedResources }) => {
@@ -379,48 +380,7 @@ useEffect(() => {
   return () => {
     socket.off("tile-resource-sync", handleTileResourceSync);
   };
-}, [gridId, socket]);
-
-
-// // 🔄 Real-time updates for tiles and resources
-// useEffect(() => {
-//   if (!gridId) return;
-
-//   console.log("🧲 Subscribing to tile-resource-sync for grid:", gridId);
-
-//   const handleTileResourceSync = ({ updatedTiles, updatedResources }) => {
-//     console.log("🌐 Real-time tile/resource update received!", {
-//       updatedTiles,
-//       updatedResources,
-//     });
-  
-//     // ✅ TILE SYNC — merge into existing tileTypes
-//     if (updatedTiles) {
-//       setTileTypes(prev => {
-//         const merged = mergeTiles(prev, updatedTiles);
-//         GlobalGridState.setTiles(merged);  // update global reference
-//         return merged;
-//       });
-//     }
-  
-//     // ✅ RESOURCE SYNC — merge into existing resources
-//     if (updatedResources) {
-//       const cleanedResources = updatedResources.filter(
-//         r => r && typeof r.x === 'number' && typeof r.y === 'number'
-//       );
-  
-//       setResources(prev => {
-//         const merged = mergeResources(prev, cleanedResources);
-//         return merged.filter(r => r.type !== null); // ✅ Remove nulls
-//       });
-  
-//       GlobalGridState.setResources(prev => {
-//         const merged = mergeResources(prev, cleanedResources);
-//         return merged.filter(r => r.type !== null); // ✅ Remove nulls
-//       });
-//     }
-//   };
-
+}, []);
 
 
 

@@ -59,6 +59,9 @@ export const updateGridResource = async (
 
     // ✅ 4. Emit to other clients
     if (broadcast && socket && socket.emit) {
+      console.log("📡 Emitting update-tile-resource from updateGridResource:");
+      console.log("GridId:", gridId);
+      console.log("Resource:", resource);
       socket.emit('tile-resource-sync', {
         gridId,
         updatedResources: [updatedResource?.type === null ? { x, y, type: null } : updatedResource],

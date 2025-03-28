@@ -86,6 +86,12 @@ mongoose.connect(process.env.MONGODB_URI)
     // Broadcast updated tiles and resources to others in the same grid
     socket.on('update-tile-resource', ({ gridId, updatedTiles, updatedResources }) => {
       console.log(`🌍 update-tile-resource received for grid ${gridId}`);
+      console.log("📦 Incoming updatedResources:", updatedResources);
+      console.log("📦 Incoming updatedTiles:", updatedTiles);
+
+      io.in(gridId).fetchSockets().then(sockets => {
+        console.log(`📡 Broadcasting to ${sockets.length} clients in grid ${gridId}`);
+      });
       
       io.to(gridId).emit('tile-resource-sync', {
         gridId,
