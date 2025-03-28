@@ -369,10 +369,24 @@ useEffect(() => {
     });
 
     if (updatedResources?.length) {
-      setResources(prev => {
-        const merged = mergeResources(prev, updatedResources);
-        setResources(merged);  // ✅ keep NPCs in sync
-        return merged;
+      console.log('🌿 Applying real-time resource update manually.');
+      setResources((prevResources) => {
+        const newRes = updatedResources[0]; // TEMP — handle just 1
+        if (!newRes) return prevResources;
+        
+        const enrichedNewResource = {
+          ...newRes,
+          x: newRes.x,
+          y: newRes.y,
+          symbol: newRes.symbol,
+          qtycollected: newRes.qtycollected || 1,
+          category: newRes.category || 'doober',
+          growEnd: newRes.growEnd || null,
+        };
+        
+        return prevResources.map((res) =>
+          res.x === newRes.x && res.y === newRes.y ? enrichedNewResource : res
+        );
       });
     }
   
