@@ -378,27 +378,29 @@ useEffect(() => {
             return;
           }
     
-          // Remove any existing resource at that location
-          const filtered = updated.filter(r => !(r.x === newRes.x && r.y === newRes.y));
-    
-          // Only add back the newRes if it's not null/empty
-          if (newRes.type) {
-            filtered.push({
-              ...newRes,
-              symbol: newRes.symbol || '🪵', // Default fallback (customize!)
-              category: newRes.category || 'resource',
-              qtycollected: newRes.qtycollected || 1,
-              growEnd: newRes.growEnd || null,
-            });
+          // Look up enrichment info from masterResources
+          const resourceTemplate = masterResources.find(r => r.type === newRes.type);
+          if (!resourceTemplate) {
+            console.warn(`⚠️ No matching resource template found for ${newRes.type}`);
           }
     
-          // Replace the list
+          const enriched = {
+            ...newRes,
+            symbol: newRes.symbol || resourceTemplate?.symbol || '🪵',
+            category: newRes.category || resourceTemplate?.category || 'resource',
+            qtycollected: newRes.qtycollected || 1,
+            growEnd: newRes.growEnd || null,
+          };
+    
+          const filtered = updated.filter(r => !(r.x === newRes.x && r.y === newRes.y));
+          filtered.push(enriched);
           updated.splice(0, updated.length, ...filtered);
         });
     
         return updated;
       });
     }
+    
   
     if (updatedTiles?.length) {
       setTileTypes(prev => {
