@@ -33,16 +33,46 @@ export const getIngredientDetails = (recipe, allResources) => {
 
 // Utility Function for Socket Listener
 export function mergeResources(existingResources, updatedResources) {
+  console.log("🧪 mergeResources called");
+  console.log("📥 Existing Resources:", existingResources.length);
+  console.log("📥 Updated Resources:", updatedResources);
+
   const map = new Map();
+
   // Add all existing resources to map
   for (const res of existingResources) {
-    map.set(`${res.x},${res.y}`, res);
+    const key = `${res.x},${res.y}`;
+    map.set(key, res);
   }
+
+  // Track whether any actual changes were made
+  let changed = false;
+
   // Overwrite with updated ones
   for (const updated of updatedResources) {
-    map.set(`${updated.x},${updated.y}`, { ...map.get(`${updated.x},${updated.y}`), ...updated });
+    const key = `${updated.x},${updated.y}`;
+    const existing = map.get(key);
+    const merged = { ...existing, ...updated };
+
+    // Deep compare for debugging
+    const changedFields = Object.entries(updated).filter(
+      ([k, v]) => existing?.[k] !== v
+    );
+    if (changedFields.length > 0) {
+      console.log(`🔄 Resource at (${key}) changed fields:`, changedFields);
+      changed = true;
+    } else {
+      console.log(`✅ Resource at (${key}) unchanged`);
+    }
+
+    map.set(key, merged);
   }
-  return Array.from(map.values());
+
+  const result = Array.from(map.values());
+
+  console.log("✅ mergeResources returning new array of length:", result.length);
+  console.log("🔁 Resources actually changed?", changed);
+  return result;
 }
 
 
