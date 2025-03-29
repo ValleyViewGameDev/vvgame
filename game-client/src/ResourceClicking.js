@@ -411,6 +411,7 @@ export async function handleSourceConversion(
       )
     );
     addFloatingText(`Converted to ${targetResource.type}`, x * TILE_SIZE, y * TILE_SIZE);
+    console.log('🌿🌿🌿 enriched resource: ',enrichedNewResource);
   }
 
   // Perform server update

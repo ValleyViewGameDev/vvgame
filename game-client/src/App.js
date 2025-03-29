@@ -310,116 +310,6 @@ const memoizedTileTypes = useMemo(() => tileTypes, [tileTypes]);
 const memoizedResources = useMemo(() => resources, [resources]);
 
 
-/////////// SOCKET LISTENER /////////////////////////
-
-// 🔄 Real-time updates for GridState: PCS AND NPCS
-useEffect(() => {
-  if (!gridId || !currentPlayer) return;
-
-  const handleGridStateSync = ({ updatedGridState }) => {
-    // ✅ Skip stale updates
-    if (updatedGridState.lastUpdated <= getLastGridStateTimestamp()) {
-      console.log("⏳ Skipping socket update — older or same timestamp");
-      return;
-    }
-    console.log("📡 Applying newer socket gridState:", updatedGridState);
-    updateLastGridStateTimestamp(updatedGridState.lastUpdated);
-  
-    // 🧠 Rehydrate NPCs safely
-    const hydratedNPCs = {};
-    const rawNPCs = updatedGridState.npcs || {};
-    for (const [npcId, npcData] of Object.entries(rawNPCs)) {
-      hydratedNPCs[npcId] = new NPC(
-        npcData.id,
-        npcData.type,
-        npcData.position,
-        npcData,
-        gridId
-      );
-    }
-    const safeGridState = {
-      ...updatedGridState,
-      npcs: hydratedNPCs,
-    };
-  
-    // ✅ Add this line to update in-memory state used by 1s loop
-    gridStateManager.gridStates[gridId] = safeGridState;
-    // ✅ Update React gridState
-    setGridState(safeGridState);
-  };
-  console.log("🧲 [gridState] Subscribing to real-time updates for grid:", gridId);
-  socket.on('gridState-sync', handleGridStateSync);
-
-  return () => {
-    console.log("🧹 Unsubscribing from gridState-sync for grid:", gridId);
-    socket.off('gridState-sync', handleGridStateSync);
-  };
-}, [gridId, currentPlayer]);
-
-
-// 🔄 Real-time updates for tiles and resources
-useEffect(() => {
-  console.log("🧪 useEffect for tile-resource-sync running. gridId:", gridId, "socket:", !!socket);
-  if (!gridId || !socket) return;
-
-  const handleTileResourceSync = ({ updatedTiles, updatedResources }) => {
-    console.log("🌐 Real-time tile/resource update received!", {
-      updatedTiles,
-      updatedResources,
-    });
-
-    if (updatedResources?.length) {
-      setResources((prevResources) => {
-        const updated = [...prevResources];
-    
-        updatedResources.forEach((newRes) => {
-          if (!newRes || typeof newRes.x !== 'number' || typeof newRes.y !== 'number') {
-            console.warn("⚠️ Skipping invalid socket resource:", newRes);
-            return;
-          }
-    
-          // Look up enrichment info from masterResources
-          const resourceTemplate = masterResources.find(r => r.type === newRes.type);
-          if (!resourceTemplate) {
-            console.warn(`⚠️ No matching resource template found for ${newRes.type}`);
-          }
-    
-          const enriched = {
-            ...newRes,
-            symbol: newRes.symbol || resourceTemplate?.symbol || '🪵',
-            category: newRes.category || resourceTemplate?.category || 'resource',
-            qtycollected: newRes.qtycollected || 1,
-            growEnd: newRes.growEnd || null,
-          };
-    
-          const filtered = updated.filter(r => !(r.x === newRes.x && r.y === newRes.y));
-          filtered.push(enriched);
-          updated.splice(0, updated.length, ...filtered);
-        });
-    
-        return updated;
-      });
-    }
-    
-  
-    if (updatedTiles?.length) {
-      setTileTypes(prev => {
-        const merged = mergeTiles(prev, updatedTiles);
-        setTileTypes(merged);  // ✅ optional, if NPCs use this
-        return merged;
-      });
-    }
-  };
-
-  console.log("🧲 [resources] Subscribing to real-time updates for grid:", gridId);
-  socket.on("tile-resource-sync", handleTileResourceSync);
-
-  return () => {
-    socket.off("tile-resource-sync", handleTileResourceSync);
-  };
-}, [socket, gridId]); // ← restore the dependencies here!
-
-
 
 /////////// APP INITIALIZATION /////////////////////////
 
@@ -439,7 +329,13 @@ useEffect(() => {
     isInitializing = true;
 
     try {
-      // 1. Fetch stored player from localStorage
+          // 8. Load tuning data
+          console.log('Loading tuning data...');
+          const [skills, resources] = await Promise.all([loadMasterSkills(), loadMasterResources()]);
+          setMasterResources(resources);
+          setMasterSkills(skills);
+    
+     // 1. Fetch stored player from localStorage
       console.log('Initializing player...');
       const storedPlayer = localStorage.getItem('player');
       if (!storedPlayer) {
@@ -592,13 +488,7 @@ useEffect(() => {
       localStorage.setItem('player', JSON.stringify(updatedPlayerData)); // ✅ Ensure Local Storage Matches DB
       console.log(`✅ LocalStorage updated with combat stats:`, updatedPlayerData);
 
-      // 8. Load tuning data
-      console.log('Loading tuning data...');
-      const [skills, resources] = await Promise.all([loadMasterSkills(), loadMasterResources()]);
-      setMasterResources(resources);
-      setMasterSkills(skills);
-
-      // 9. ✅ **Check if the player has died and show the death modal**
+       // 9. ✅ **Check if the player has died and show the death modal**
       if (updatedPlayerData.settings?.hasDied) {
         console.log("Player died last session. Showing death modal.");
 
@@ -796,6 +686,129 @@ const handlePlayerDeath = async (player) => {
     console.error('Error during player death handling and teleportation:', error);
   }
 };
+
+
+/////////// SOCKET LISTENER /////////////////////////
+
+// 🔄 Real-time updates for GridState: PCS AND NPCS
+useEffect(() => {
+  if (!gridId || !currentPlayer) return;
+
+  const handleGridStateSync = ({ updatedGridState }) => {
+    // ✅ Skip stale updates
+    if (updatedGridState.lastUpdated <= getLastGridStateTimestamp()) {
+      console.log("⏳ Skipping socket update — older or same timestamp");
+      return;
+    }
+    console.log("📡 Applying newer socket gridState:", updatedGridState);
+    updateLastGridStateTimestamp(updatedGridState.lastUpdated);
+  
+    // 🧠 Rehydrate NPCs safely
+    const hydratedNPCs = {};
+    const rawNPCs = updatedGridState.npcs || {};
+    for (const [npcId, npcData] of Object.entries(rawNPCs)) {
+      hydratedNPCs[npcId] = new NPC(
+        npcData.id,
+        npcData.type,
+        npcData.position,
+        npcData,
+        gridId
+      );
+    }
+    const safeGridState = {
+      ...updatedGridState,
+      npcs: hydratedNPCs,
+    };
+  
+    // ✅ Add this line to update in-memory state used by 1s loop
+    gridStateManager.gridStates[gridId] = safeGridState;
+    // ✅ Update React gridState
+    setGridState(safeGridState);
+  };
+  console.log("🧲 [gridState] Subscribing to real-time updates for grid:", gridId);
+  socket.on('gridState-sync', handleGridStateSync);
+
+  return () => {
+    console.log("🧹 Unsubscribing from gridState-sync for grid:", gridId);
+    socket.off('gridState-sync', handleGridStateSync);
+  };
+}, [gridId, currentPlayer]);
+
+
+// 🔄 Real-time updates for tiles and resources
+useEffect(() => {
+  console.log("🌐 useEffect for tile-resource-sync running. gridId:", gridId, "socket:", !!socket);
+  if (!gridId || !socket) return;
+
+  const handleTileResourceSync = ({ updatedTiles, updatedResources }) => {
+    console.log("🌐 Real-time tile/resource update received!", {
+      updatedTiles,
+      updatedResources,
+    });
+
+    if (updatedResources?.length) {
+      setResources((prevResources) => {
+        const updated = [...prevResources];
+    
+        console.log('🌐🌐 LISTENER: updated resource = ',updated);
+
+        updatedResources.forEach((newRes) => {
+          if (!newRes || typeof newRes.x !== 'number' || typeof newRes.y !== 'number') {
+            console.warn("⚠️ Skipping invalid socket resource:", newRes);
+            return;
+          }
+    
+          // Look up enrichment info from masterResources
+          if (!masterResources.length) {
+            console.warn("⚠️ masterResources not yet loaded — skipping enrichment.");
+            return prevResources;
+          }
+          
+          console.log('🌐🌐 LISTENER: newRes = ',newRes);
+
+          const resourceTemplate = masterResources.find(r => r.type === newRes.type);
+          if (!resourceTemplate) {
+            console.warn(`⚠️ No matching resource template found for ${newRes.type}`);
+          }
+    
+          const enriched = {
+            ...newRes,
+            symbol: newRes.symbol || resourceTemplate?.symbol || '🪵',
+            category: newRes.category || resourceTemplate?.category || 'resource',
+            qtycollected: newRes.qtycollected || 1,
+            growEnd: newRes.growEnd || null,
+          };
+    
+          console.log('🌐🌐 LISTENER: enriched resource = ',enriched);
+
+          const filtered = updated.filter(r => !(r.x === newRes.x && r.y === newRes.y));
+          filtered.push(enriched);
+          updated.splice(0, updated.length, ...filtered);
+        });
+    
+        return updated;
+      });
+    }
+    
+  
+    if (updatedTiles?.length) {
+      setTileTypes(prev => {
+        const merged = mergeTiles(prev, updatedTiles);
+        setTileTypes(merged);  // ✅ optional, if NPCs use this
+        return merged;
+      });
+    }
+  };
+
+  console.log("🧲 [resources] Subscribing to real-time updates for grid:", gridId);
+  socket.on("tile-resource-sync", handleTileResourceSync);
+
+  return () => {
+    socket.off("tile-resource-sync", handleTileResourceSync);
+  };
+}, [socket, gridId]); // ← restore the dependencies here!
+
+
 
 
 /////////// HANDLE KEY MOVEMENT /////////////////////////
