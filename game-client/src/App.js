@@ -74,6 +74,7 @@ function App() {
   const [tileTypes, setTileTypes] = useState([]);
   const [grid, setGrid] = useState([]);
   const [masterResources, setMasterResources] = useState([]);
+  const [isMasterResourcesReady, setIsMasterResourcesReady] = useState(false);
   const [masterSkills, setMasterSkills] = useState([]);
     
 // Synchronize tiles with GlobalGridState -- i did this so NPCs have knowledge of tiles and resources as they change
@@ -334,7 +335,8 @@ useEffect(() => {
           const [skills, resources] = await Promise.all([loadMasterSkills(), loadMasterResources()]);
           setMasterResources(resources);
           setMasterSkills(skills);
-    
+          setIsMasterResourcesReady(true); // ✅ Mark ready
+
      // 1. Fetch stored player from localStorage
       console.log('Initializing player...');
       const storedPlayer = localStorage.getItem('player');
@@ -739,6 +741,10 @@ useEffect(() => {
 useEffect(() => {
   console.log("🌐 useEffect for tile-resource-sync running. gridId:", gridId, "socket:", !!socket);
   if (!gridId || !socket) return;
+  if (!isMasterResourcesReady) {
+    console.warn('Master Resources not ready');
+    return; // 🛑 Don't process until ready
+  }
 
   const handleTileResourceSync = ({ updatedTiles, updatedResources }) => {
     console.log("🌐 Real-time tile/resource update received!", {
@@ -758,14 +764,19 @@ useEffect(() => {
             return;
           }
     
-          // Look up enrichment info from masterResources
-          if (!masterResources.length) {
-            console.warn("⚠️ masterResources not yet loaded — skipping enrichment.");
-            return prevResources;
+          // ✅ HANDLE RESOURCE REMOVAL
+          if (newRes.type === null) {
+            console.log(`🧹 Removing resource at (${newRes.x}, ${newRes.y})`);
+            const indexToRemove = updated.findIndex(
+              (res) => res.x === newRes.x && res.y === newRes.y
+            );
+            if (indexToRemove !== -1) {
+              updated.splice(indexToRemove, 1);
+            }
+            return; // Skip enrichment
           }
-          
-          console.log('🌐🌐 LISTENER: newRes = ',newRes);
 
+          // ✅ NORMAL ENRICHMENT PATH
           const resourceTemplate = masterResources.find(r => r.type === newRes.type);
           if (!resourceTemplate) {
             console.warn(`⚠️ No matching resource template found for ${newRes.type}`);
