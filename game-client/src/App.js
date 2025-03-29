@@ -330,12 +330,12 @@ useEffect(() => {
     isInitializing = true;
 
     try {
-          // 8. Load tuning data
-          console.log('Loading tuning data...');
-          const [skills, resources] = await Promise.all([loadMasterSkills(), loadMasterResources()]);
-          setMasterResources(resources);
-          setMasterSkills(skills);
-          setIsMasterResourcesReady(true); // ✅ Mark ready
+        // 8. Load tuning data
+        console.log('Loading tuning data...');
+        const [skills, resources] = await Promise.all([loadMasterSkills(), loadMasterResources()]);
+        setMasterResources(resources);
+        setMasterSkills(skills);
+        setIsMasterResourcesReady(true); // ✅ Mark ready
 
      // 1. Fetch stored player from localStorage
       console.log('Initializing player...');
@@ -741,6 +741,7 @@ useEffect(() => {
 useEffect(() => {
   console.log("🌐 useEffect for tile-resource-sync running. gridId:", gridId, "socket:", !!socket);
   if (!gridId || !socket) return;
+  
   if (!isMasterResourcesReady) {
     console.warn('Master Resources not ready');
     return; // 🛑 Don't process until ready
