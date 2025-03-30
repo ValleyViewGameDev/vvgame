@@ -6,8 +6,10 @@ import { addResourceToGrid } from '../Utils/worldHelpers';
 import FloatingTextManager from '../UI/FloatingText';
 import { trackQuestProgress } from './Quests/QuestGoalTracker';
 import gridStateManager from '../GridState/GridState';
+import { getCurrentTileCoordinates } from '../Utils/GridManagement';
 
 export const handleConstruction = async ({
+  TILE_SIZE,
   selectedItem,
   buildOptions,
   inventory,
@@ -20,6 +22,8 @@ export const handleConstruction = async ({
   gridId,
   setCurrentPlayer,
   updateStatus,
+  masterResources, 
+  masterSkills,
 }) => {
   if (!currentPlayer) {
     console.warn('Current Player not provided; inventory changes will not be saved.');
@@ -34,17 +38,19 @@ export const handleConstruction = async ({
   const playerId = currentPlayer._id.toString();  // Convert ObjectId to string
   const gridState = gridStateManager.getGridState(gridId);
   const player = gridState?.pcs[playerId];
-  if (!player) {
-    setErrorMessage('Player not found in gridState.');
-    return;
-  }
   const playerPosition = player.position;  // Use grid-relative coordinates directly (no scaling)
-  console.log('handleConstruction: Player position (grid-relative):', playerPosition);
-  const x = playerPosition.x;
-  const y = playerPosition.y;
+
+  const coords = getCurrentTileCoordinates(gridId, currentPlayer);
+  if (!coords) return;
+  const { tileX, tileY } = coords;
+  const x = tileX;
+  const y = tileY;
+
+  console.log('playerPosition = ', playerPosition);
+  console.log('x = ',tileX," y = ",tileY);
 
   // Ensure valid player position
-  if (!playerPosition || x == null || y == null) {
+  if (!playerPosition || tileX == null || tileY == null) {
     setErrorMessage('Player position is invalid.');
     return;
   }
@@ -55,7 +61,7 @@ export const handleConstruction = async ({
   const isTileOccupied = resources.some((res) => res.x === x && res.y === y);
   if (isTileOccupied) {
     console.warn('Cannot build on an occupied tile.');
-    FloatingTextManager.addFloatingText(306, x, y);
+    FloatingTextManager.addFloatingText(306, x*TILE_SIZE, y*TILE_SIZE);
     return; // Exit before deducting inventory
   }
 
@@ -64,7 +70,7 @@ export const handleConstruction = async ({
   // Check and deduct ingredients
   const canBuild = checkAndDeductIngredients(selectedItem, updatedInventory);
   if (!canBuild) {
-    FloatingTextManager.addFloatingText(305, playerPosition.x, playerPosition.y);
+    FloatingTextManager.addFloatingText(305, playerPosition.x*TILE_SIZE, playerPosition.y*TILE_SIZE);
     return;
   }
 
@@ -104,7 +110,7 @@ export const handleConstruction = async ({
         setResources,
         true
       );
-      FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y);
+      FloatingTextManager.addFloatingText(300, playerPosition.x*TILE_SIZE, playerPosition.y*TILE_SIZE);
 
       // Track quest progress for "Build or Buy" actions
       await trackQuestProgress(currentPlayer, 'Build', selectedItem, 1, setCurrentPlayer);

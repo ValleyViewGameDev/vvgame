@@ -27,6 +27,8 @@ const CraftingStation = ({
   stationType,
   currentStationPosition,
   gridId,
+  masterResources,
+  masterSkills,
 }) => {
   const [recipes, setRecipes] = useState([]);
   const [allResources, setAllResources] = useState([]);
@@ -108,15 +110,15 @@ const CraftingStation = ({
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        const allResourcesData = await loadMasterResources();
-        const filteredRecipes = allResourcesData.filter((resource) => resource.source === stationType);
+        //const allResourcesData = await loadMasterResources();
+        const filteredRecipes = masterResources.filter((resource) => resource.source === stationType);
         setRecipes(filteredRecipes);
 
-        const stationResource = allResourcesData.find((resource) => resource.type === stationType);
+        const stationResource = masterResources.find((resource) => resource.type === stationType);
         setStationEmoji(stationResource?.symbol || '🛖');
         setStationDetails(stationResource);
 
-        setAllResources(allResourcesData || []);
+        setAllResources(masterResources || []);
       } catch (error) {
         console.error('Error loading resources:', error);
       }
@@ -232,8 +234,8 @@ const CraftingStation = ({
         else {
 
           // ✅ Apply Player Buffs for Crafting Bonus
-          const masterSkills = await loadMasterSkills();
-          const masterResources = await loadMasterResources();
+          //const masterSkills = await loadMasterSkills();
+          //const masterResources = await loadMasterResources();
 
           const playerBuffs = inventory
               .filter((item) => {
@@ -273,8 +275,6 @@ const CraftingStation = ({
           console.log(`📡 ${inventoryType} updated successfully!`);
           setTargetInventory(updatedInventory);
       }
-
-
 
 /////// NO CHANGE AFTER THIS
 

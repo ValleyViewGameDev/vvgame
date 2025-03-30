@@ -382,3 +382,23 @@ export async function getTileResource(gridId, x, y) {
   }
 }
 
+export function getCurrentTileCoordinates(gridId, currentPlayer) {
+  const gridState = gridStateManager.getGridState(gridId);
+  if (!gridState || !currentPlayer?.playerId) {
+    console.warn('⚠️ GridState or playerId missing.');
+    return null;
+  }
+  const playerData = gridState.pcs?.[currentPlayer.playerId];
+  if (!playerData) {
+    console.warn('⚠️ Player not found in gridState.');
+    return null;
+  }
+  const { x, y } = playerData.position;
+  if (x == null || y == null) {
+    console.warn('⚠️ Invalid player position.');
+    return null;
+  }
+  const tileX = Math.floor(x);
+  const tileY = Math.floor(y);
+  return { tileX, tileY };
+}

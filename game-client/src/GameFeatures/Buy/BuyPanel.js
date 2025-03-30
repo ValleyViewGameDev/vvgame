@@ -19,6 +19,8 @@ const BuyPanel = ({
   gridId,
   setIsMoving,
   updateStatus,
+  masterResources, 
+  masterSkills, 
 }) => {
   const { closePanel } = usePanelContext();
   const [buyOptions, setBuyOptions] = useState([]);
@@ -91,6 +93,8 @@ const BuyPanel = ({
                     setCurrentPlayer,
                     source: 'buy',
                     setIsMoving,
+                    masterResources,
+                    masterSkills,
                   })
                 }
               />

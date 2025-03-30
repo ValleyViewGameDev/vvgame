@@ -825,7 +825,7 @@ useEffect(() => {
     updatedTiles.forEach(tile => {
       console.log("📦 Tile type in update:", tile.type); // Add this
     });
-    
+
     if (updatedTiles?.length) {
       setTileTypes((prev) => {
         const merged = mergeTiles(prev, updatedTiles); // Merge updated tiles into the current state
@@ -1193,20 +1193,6 @@ const zoomOut = () => {
     localStorage.setItem('player', JSON.stringify(player));
     // ✅ Reload the app (triggers full initialization)
     window.location.reload();
-  
-    // // Call post-login initialization
-    // await postLoginInitialization(
-    //   player,
-    //   activeTileSize,
-    //   setCurrentPlayer,
-    //   setGrid,
-    //   setResources,
-    //   setTileTypes,
-    //   setGridId,
-    //   setGridState,
-    //   updateStatus
-    // );
-    // window.location.reload();
   };
 
   const [showStats, setShowStats] = useState(false); // Toggle for combat stats UI
@@ -1585,6 +1571,8 @@ const zoomOut = () => {
           stationType={activeStation?.type} // Ensure stationType is passed
           currentStationPosition={activeStation?.position} // Pass currentStationPosition
           gridId={activeStation?.gridId} // Pass gridId
+          masterResources={masterResources} // Pass masterResources for crafting recipes
+          masterSkills={masterSkills} // Pass masterSkills for skill checks
         />
       )}
       {activePanel === 'TradingStation' && (
@@ -1618,6 +1606,8 @@ const zoomOut = () => {
           setCurrentPlayer={setCurrentPlayer}
           setIsMoving={setIsMoving}
           gridId={gridId}
+          masterResources={masterResources} // Pass masterResources for farming recipes
+          masterSkills={masterSkills} // Pass masterSkills for skill checks
         />
       )}
       {activePanel === 'BuildPanel' && (
@@ -1634,6 +1624,8 @@ const zoomOut = () => {
           setIsMoving={setIsMoving}
           gridId={gridId}
           updateStatus={updateStatus}
+          masterResources={masterResources} // Pass masterResources for building recipes,
+          masterSkills={masterSkills} // Pass masterSkills for skill checks
         />
       )}
       {activePanel === 'BuyPanel' && (
@@ -1651,6 +1643,8 @@ const zoomOut = () => {
           setIsMoving={setIsMoving}
           gridId={gridId}
           updateStatus={updateStatus}
+          masterResources={masterResources} // Pass masterResources for buying animals
+          masterSkills={masterSkills} // Pass masterSkills for skill checks
         />
       )}
       {activePanel === 'QuestGiverPanel' && (

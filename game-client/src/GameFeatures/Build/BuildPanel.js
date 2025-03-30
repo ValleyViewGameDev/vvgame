@@ -19,6 +19,8 @@ const BuildPanel = ({
   gridId,
   setIsMoving,
   updateStatus,
+  masterResources, // Added for quest tracking
+  masterSkills, // Uncomment if needed for skill checks
 }) => {
   const { closePanel } = usePanelContext(); // Use closePanel from context
   const [buildOptions, setBuildOptions] = useState([]);
@@ -95,6 +97,7 @@ const BuildPanel = ({
                 affordable &&
                 requirementsMet &&
                 handleConstruction({
+                  TILE_SIZE,
                   selectedItem: item.type,
                   buildOptions,
                   inventory,
@@ -105,11 +108,12 @@ const BuildPanel = ({
                   setErrorMessage: console.error, // Replace with real error handling if needed
                   currentPlayer,
                   gridId,
-                  TILE_SIZE,
                   updateStatus,
                   setCurrentPlayer,
                   source: 'build',
                   setIsMoving,
+                  masterResources,
+                  masterSkills,
                 })
               }
             />

@@ -20,6 +20,8 @@ const FarmingPanel = ({
   currentPlayer,
   setCurrentPlayer,
   gridId,
+  masterResources,
+  masterSkills,
 }) => {
 
   const { closePanel } = usePanelContext();
@@ -92,6 +94,8 @@ const handleFarmPlacementWithCooldown = async (item) => {
     inventory,
     setInventory,
     gridId,
+    masterResources,
+    masterSkills,
   });
 };
 
