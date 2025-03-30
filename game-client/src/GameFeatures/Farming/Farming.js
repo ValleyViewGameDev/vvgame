@@ -25,42 +25,19 @@ export const handleFarmPlotPlacement = async ({
 
 }) => {
 
-    // **Get player position dynamically from the gridState**
-    const gridState = gridStateManager.getGridState(gridId);
-
-    console.log('Farming: selectedItem: ',selectedItem);
-    console.log('Farming: gridState: ',gridState);
-    console.log('Farming: currentPlayer: ',currentPlayer);
-
-    const playerData = gridState?.pcs[currentPlayer.playerId];
-
-    
-    if (!playerData) {
-        console.warn('Player not found in gridState.');
-        return;
-    }
-    const playerPosition = {
-        x: playerData.position.x * TILE_SIZE,
-        y: playerData.position.y * TILE_SIZE,
-    };
-    // Ensure valid player position
-    if (!playerPosition || playerPosition.x == null || playerPosition.y == null) {
-        console.warn('Player position is invalid.');
-        return;
-    }
-    const tileX = Math.floor(playerPosition.x / TILE_SIZE);
-    const tileY = Math.floor(playerPosition.y / TILE_SIZE);
+    const coords = getCurrentTileCoordinates(gridId, currentPlayer);
+    if (!coords) return;
+    const { tileX, tileY } = coords;
 
     try {
         const tileType = await validateTileType(gridId, tileX, tileY);
         if (tileType !== 'd') {
-            FloatingTextManager.addFloatingText(303, playerPosition.x+25, playerPosition.y+10);
+            FloatingTextManager.addFloatingText(303, tileX*TILE_SIZE, tileY*TILE_SIZE);
         return;
         }
-
         const tileResource = resources.find((res) => res.x === tileX && res.y === tileY);
         if (tileResource) {
-            FloatingTextManager.addFloatingText(304, playerPosition.x+25, playerPosition.y+10);
+            FloatingTextManager.addFloatingText(304, tileX*TILE_SIZE, tileY*TILE_SIZE);
         return;
         }
 
@@ -68,7 +45,7 @@ export const handleFarmPlotPlacement = async ({
         const canPlace = checkAndDeductIngredients(selectedItem.type, updatedInventory);
 
         if (!canPlace) {
-            FloatingTextManager.addFloatingText(305, playerPosition.x+25, playerPosition.y+10);
+            FloatingTextManager.addFloatingText(305, tileX*TILE_SIZE, tileY*TILE_SIZE);
         return;
         }
 
@@ -103,7 +80,7 @@ export const handleFarmPlotPlacement = async ({
             growEnd: growEndTime,
         });
 
-            FloatingTextManager.addFloatingText(302, playerPosition.x+20, playerPosition.y+10);
+            FloatingTextManager.addFloatingText(302, tileX*TILE_SIZE, tileY*TILE_SIZE);
         } else {
             throw new Error('Failed to update grid resource.');
         }
@@ -116,47 +93,55 @@ export const handleFarmPlotPlacement = async ({
     };
 
 
-export const handleTerraform = async ({
-    actionType, // "till" or "plantGrass"
-    TILE_SIZE,
-    setTileTypes,
-    getCurrentTileTypes,
-    gridId,
-    currentPlayer
-    }) => {
-    // ✅ Get player position dynamically from gridState
-    const gridState = gridStateManager.getGridState(gridId);
-    const playerData = gridState?.pcs[currentPlayer.playerId];
-    
-    if (!playerData) {
-        console.warn('Player not found in gridState.');
+    export const handleTerraform = async ({ actionType, gridId, currentPlayer, setTileTypes }) => {
+      if (!currentPlayer?.location) {
+        console.error("❌ handleTerraform: Missing currentPlayer location.");
         return;
-    }
+      }
     
-    const tileX = playerData.position.x;
-    const tileY = playerData.position.y;
+      const coords = getCurrentTileCoordinates(gridId, currentPlayer);
+      if (!coords) return;
+      const { tileX, tileY } = coords;
+      
+      let newType;
     
-    try {
-        // ✅ Determine target tile type
-        const targetTileType = actionType === "till" ? 'd' : actionType === "plantGrass" ? 'g' : null;
+      // Determine the new tile type based on the action
+      switch (actionType) {
+        case "till":
+          newType = "d";
+          break;
+        case "plantGrass":
+          newType = "g";
+          break;
+        default:
+          console.error(`❌ handleTerraform: Unknown actionType "${actionType}"`);
+          return;
+      }
     
-        if (!targetTileType) {
-        console.error("Invalid actionType provided to handleTerraform.");
-        return;
-        }
+      console.log(`🌱 handleTerraform: Changing tile at (${tileX}, ${tileY}) to "${newType}"`);
     
-        // ✅ Convert the tile type
-        await convertTileType(gridId, tileX, tileY, targetTileType, setTileTypes, getCurrentTileTypes);
-    
-        // ✅ Update local tile state
-        setTileTypes((prev) => {
-        const updated = [...prev];
-        updated[tileY][tileX] = targetTileType;
-        return updated;
-        });
-    
-        console.log(`Successfully changed tile at (${tileX}, ${tileY}) to ${targetTileType}`);
-    } catch (error) {
-        console.error(`Error performing ${actionType} action:`, error);
-    }
+      // Call convertTileType to update the tile in the database and emit the change
+      await convertTileType(gridId, tileX, tileY, newType, setTileTypes);
     };
+
+
+ function getCurrentTileCoordinates(gridId, currentPlayer) {
+  const gridState = gridStateManager.getGridState(gridId);
+  if (!gridState || !currentPlayer?.playerId) {
+    console.warn('⚠️ GridState or playerId missing.');
+    return null;
+  }
+  const playerData = gridState.pcs?.[currentPlayer.playerId];
+  if (!playerData) {
+    console.warn('⚠️ Player not found in gridState.');
+    return null;
+  }
+  const { x, y } = playerData.position;
+  if (x == null || y == null) {
+    console.warn('⚠️ Invalid player position.');
+    return null;
+  }
+  const tileX = Math.floor(x);
+  const tileY = Math.floor(y);
+  return { tileX, tileY };
+}

@@ -65,46 +65,60 @@ mongoose.connect(process.env.MONGODB_URI)
     io.on('connection', (socket) => {
       console.log(`🟢 New client connected: ${socket.id}`);
 
-    // Join a grid-specific room
-    socket.on('join-grid', (gridId) => {
-      console.log(`📡 Socket ${socket.id} joined grid room: ${gridId}`);
-      socket.join(gridId);
-    });
+      // Join a grid-specific room
+      socket.on('join-grid', (gridId) => {
+        console.log(`📡 Socket ${socket.id} joined grid room: ${gridId}`);
+        socket.join(gridId);
+      });
 
-    // Broadcast updated gridState to others in the same grid
-    socket.on('update-gridState', ({ gridId, gridState }) => {
-      console.log('📥 Received gridState-sync:', gridState);
+      // Broadcast updated gridState to others in the same grid
+      socket.on('update-gridState', ({ gridId, gridState }) => {
+        console.log('📥 Received gridState-sync:', gridState);
 
-      if (!gridState?.lastUpdated) {
-        console.warn('⚠️ Received invalid or missing gridState:', gridState);
-        return;
-      }
+        if (!gridState?.lastUpdated) {
+          console.warn('⚠️ Received invalid or missing gridState:', gridState);
+          return;
+        }
 
-      io.to(gridId).emit('gridState-sync', { updatedGridState: gridState });
-    });
+        io.to(gridId).emit('gridState-sync', { updatedGridState: gridState });
+      });
 
-    // Broadcast updated tiles and resources to others in the same grid
-    socket.on('update-tile-resource', ({ gridId, updatedTiles, updatedResources }) => {
-      console.log(`🌍 update-tile-resource received for grid ${gridId}`);
-      console.log("📦 Incoming updatedResources:", updatedResources);
-      console.log("📦 Incoming updatedTiles:", updatedTiles);
+      // Handle tile updates
+      socket.on('update-tile', ({ gridId, updatedTiles }) => {
+        console.log(`🌍 update-tile received for grid ${gridId}`);
+        console.log("📦 Incoming updatedTiles:", updatedTiles);
 
-      io.in(gridId).fetchSockets().then(sockets => {
-        console.log(`📡 Broadcasting to ${sockets.length} clients in grid ${gridId}`);
+        io.in(gridId).fetchSockets().then(sockets => {
+          console.log(`📡 Broadcasting to ${sockets.length} clients in grid ${gridId}`);
+        });
+
+        // Broadcast tile updates to all clients in the grid
+        io.to(gridId).emit('tile-sync', {
+          gridId,
+          updatedTiles,
+        });
       });
       
-      io.to(gridId).emit('tile-resource-sync', {
-        gridId,
-        updatedTiles,
-        updatedResources,
+      // Broadcast updated tiles and resources to others in the same grid
+      socket.on('update-resource', ({ gridId, updatedTiles, updatedResources }) => {
+        console.log(`🌍 update-tile-resource received for grid ${gridId}`);
+        console.log("📦 Incoming updatedResources:", updatedResources);
+
+        io.in(gridId).fetchSockets().then(sockets => {
+          console.log(`📡 Broadcasting to ${sockets.length} clients in grid ${gridId}`);
+        });
+        
+        io.to(gridId).emit('resource-sync', {
+          gridId,
+          updatedResources,
+        });
+      });
+
+      // Optional: log disconnects
+      socket.on('disconnect', () => {
+        console.log(`🔴 Client disconnected: ${socket.id}`);
       });
     });
-
-    // Optional: log disconnects
-    socket.on('disconnect', () => {
-      console.log(`🔴 Client disconnected: ${socket.id}`);
-    });
-  });
 
   httpServer.listen(PORT, () => {
     console.log(`🚀 Server + WebSocket running on port ${PORT}`);

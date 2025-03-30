@@ -436,6 +436,57 @@ router.patch('/update-grid/:gridId', (req, res) => {
   res.status(202).json({ success: true, message: 'Update queued.' });
 });
 
+
+router.patch('/update-tile/:gridId', async (req, res) => {
+  const { gridId } = req.params;
+  const { x, y, newType } = req.body;
+  
+  console.log(`📬 Incoming request: POST /api/update-tile`);
+  console.log(`🧱 Requested tile update: (${x}, ${y}) on grid ${gridId} to type: ${newType}`);
+
+  if (!gridId || typeof x !== 'number' || typeof y !== 'number') {
+    console.error('❌ Missing or invalid parameters');
+    return res.status(400).json({ success: false, message: 'Missing or invalid parameters.' });
+  }
+
+  try {
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      console.error(`❌ Grid not found for ID: ${gridId}`);
+      return res.status(404).json({ success: false, message: 'Grid not found.' });
+    }
+
+    // Defensive initialization of tiles array
+    if (!Array.isArray(grid.tiles)) {
+      console.warn('⚠️ Grid.tiles is not an array — initializing as empty 64x64 grid.');
+      grid.tiles = Array.from({ length: 64 }, () => Array(64).fill('grass'));
+    }
+
+    if (!Array.isArray(grid.tiles[y])) {
+      console.warn(`⚠️ grid.tiles[${y}] was missing. Reinitializing row.`);
+      grid.tiles[y] = Array(64).fill('grass');
+    }
+
+    const before = grid.tiles[y][x];
+    console.log(`🧩 Tile before: ${before}`);
+
+    grid.tiles[y][x] = newType;
+    grid.markModified('tiles');
+
+    await grid.save();
+
+    const updatedGrid = await Grid.findById(gridId);
+    const after = updatedGrid.tiles?.[y]?.[x];
+    console.log(`✅ Confirmed saved tile: (${x}, ${y}) = ${after}`);
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('❌ Server error during tile update:', error);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+});
+
+
 // Abstract endpoint to load a grid by its ID
 router.get('/load-grid/:gridId', async (req, res) => {
   const { gridId } = req.params;
@@ -627,6 +678,7 @@ router.get('/get-tile/:gridId/:x/:y', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch tile.' });
   }
 });
+
 
 
 

@@ -63,10 +63,9 @@ export const updateGridResource = async (
       console.log("GridId:", gridId);
       console.log("Resource:", resource);
       
-      socket.emit('update-tile-resource', {
+      socket.emit('update-resource', {
         gridId,
         updatedResources: [updatedResource?.type === null ? { x, y, type: null } : updatedResource],
-        updatedTiles: [], // Optional
       });
     }
 
@@ -78,36 +77,42 @@ export const updateGridResource = async (
 };
 
 
-export async function convertTileType(gridId, x, y, tileType, setTileTypes, getCurrentTileTypes) {
-  const currentTiles = getCurrentTileTypes();
-
-  // Optimistic update
-  setTileTypes((prev) => {
-    const updated = [...prev];
-    updated[y] = [...prev[y]];
-    updated[y][x] = tileType;
-    return updated;
-  });
-
+export const convertTileType = async (gridId, x, y, newType, setTileTypes = null) => {
   try {
-    const response = await axios.patch(`${API_BASE}/api/update-tile/${gridId}`, { x, y, tileType });
+    console.log(`Converting tile at (${x}, ${y}) to type: ${newType}`);
 
-    console.log('converted Tile Type: tileType = ',tileType);
-
-    // 🔁 Broadcast tile + resource update to others
-    socket.emit('tile-resource-sync', {
-      gridId,
-      updatedTiles: [{ x, y, tileType }],
-      updatedResources: [], // none
+    // Update the tile in the database
+    const response = await axios.patch(`${API_BASE}/api/update-tile/${gridId}`, {
+      x,
+      y,
+      newType,
     });
 
-    return response.data;
+    if (response.data.success) {
+      console.log(`✅ Tile at (${x}, ${y}) successfully updated to ${newType} in the database.`);
+
+      // ✅ Immediately update local state optimistically
+      if (setTileTypes) {
+        setTileTypes((prevTiles) => {
+          const updated = mergeTiles(prevTiles, [{ x, y, type: newType }]);
+          console.log("🌱 Optimistically updated tileTypes (emitter):", updated);
+          return updated;
+        });
+      }
+
+      console.log('newType before emitter:', newType);
+      // Emit the change to all connected clients via the socket
+      socket.emit('update-tile', {
+        gridId,
+        updatedTiles: [{ x, y, type: newType }],
+      });
+    } else {
+      console.error(`❌ Failed to update tile at (${x}, ${y}):`, response.data.message);
+    }
   } catch (error) {
-    console.error('❌ convertTileType failed, reverting:', error);
-    setTileTypes(currentTiles); // Revert optimistic change
-    throw error;
+    console.error(`❌ Error converting tile at (${x}, ${y}):`, error);
   }
-}
+};
 
 
 export const changePlayerLocation = async (

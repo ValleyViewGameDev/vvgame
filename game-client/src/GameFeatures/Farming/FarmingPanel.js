@@ -22,8 +22,6 @@ const FarmingPanel = ({
   gridId,
 }) => {
 
-  console.log('Farming Panel: currentPlayer: ',currentPlayer);
-
   const { closePanel } = usePanelContext();
   const [farmPlots, setFarmPlots] = useState([]);
   const [allResources, setAllResources] = useState([]);
@@ -69,11 +67,9 @@ const handleTerraformWithCooldown = async (actionType) => {
 
   await handleTerraform({
     actionType,
-    TILE_SIZE,
-    setTileTypes,
-    getCurrentTileTypes,
     gridId,
     currentPlayer,
+    setTileTypes,
   });
 };
 

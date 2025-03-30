@@ -84,7 +84,15 @@
         "layoutkey": "SN",
         "category": "travel",
         "action": "travel",
-        "passable": true
+        "passable": true,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Signpost E",
@@ -92,7 +100,15 @@
         "layoutkey": "SE",
         "category": "travel",
         "action": "travel",
-        "passable": true
+        "passable": true,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Signpost S",
@@ -100,7 +116,15 @@
         "layoutkey": "SS",
         "category": "travel",
         "action": "travel",
-        "passable": true
+        "passable": true,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Signpost W",
@@ -108,7 +132,15 @@
         "layoutkey": "SW",
         "category": "travel",
         "action": "travel",
-        "passable": true
+        "passable": true,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Signpost NW",
@@ -116,7 +148,15 @@
         "layoutkey": "nw",
         "category": "travel",
         "action": "travel",
-        "passable": true
+        "passable": true,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Signpost NE",
@@ -124,7 +164,15 @@
         "layoutkey": "ne",
         "category": "travel",
         "action": "travel",
-        "passable": true
+        "passable": true,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Signpost SE",
@@ -132,7 +180,15 @@
         "layoutkey": "se",
         "category": "travel",
         "action": "travel",
-        "passable": true
+        "passable": true,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Signpost SW",
@@ -140,7 +196,15 @@
         "layoutkey": "sw",
         "category": "travel",
         "action": "travel",
-        "passable": true
+        "passable": true,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Signpost Town",
@@ -148,7 +212,15 @@
         "layoutkey": "TW",
         "category": "travel",
         "action": "travel",
-        "passable": true
+        "passable": true,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Signpost Home",
@@ -156,7 +228,15 @@
         "layoutkey": "SH",
         "category": "travel",
         "action": "travel",
-        "passable": true
+        "passable": true,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Trade Stall",
@@ -164,7 +244,15 @@
         "layoutkey": "TS",
         "category": "station",
         "action": "openUI",
-        "passable": false
+        "passable": false,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Farm Hand 1",
@@ -172,7 +260,15 @@
         "layoutkey": "F1",
         "category": "station",
         "action": "openUI",
-        "passable": false
+        "passable": false,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Farm Hand 2",
@@ -180,7 +276,15 @@
         "layoutkey": "F2",
         "category": "station",
         "action": "openUI",
-        "passable": false
+        "passable": false,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Farm Hand 3",
@@ -188,7 +292,15 @@
         "layoutkey": "F3",
         "category": "station",
         "action": "openUI",
-        "passable": false
+        "passable": false,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Bank",
@@ -196,7 +308,15 @@
         "layoutkey": "BK",
         "category": "station",
         "action": "openUI",
-        "passable": false
+        "passable": false,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Courthouse",
@@ -204,7 +324,15 @@
         "layoutkey": "CO",
         "category": "station",
         "action": "openUI",
-        "passable": false
+        "passable": false,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Train",
@@ -212,7 +340,15 @@
         "layoutkey": "TR",
         "category": "station",
         "action": "openUI",
-        "passable": false
+        "passable": false,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Mailbox",
@@ -220,7 +356,15 @@
         "layoutkey": "MB",
         "category": "station",
         "action": "openUI",
-        "passable": false
+        "passable": false,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
     },
     {
         "type": "Oak Tree",

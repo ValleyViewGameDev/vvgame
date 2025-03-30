@@ -84,7 +84,7 @@ export function mergeTiles(existingTiles, updatedTiles) {
   const newTiles = existingTiles.map(row => [...row]); // Create deep copy
   let changed = false;
 
-  updatedTiles.forEach(({ x, y, tileType }) => {
+  updatedTiles.forEach(({ x, y, type: tileType }) => {
     if (newTiles[y] && typeof newTiles[y][x] !== 'undefined') {
       const oldTile = newTiles[y][x];
       if (oldTile !== tileType) {

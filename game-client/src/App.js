@@ -799,14 +799,6 @@ useEffect(() => {
         return updated;
       });
     }
-
-    if (updatedTiles?.length) {
-      setTileTypes(prev => {
-        const merged = mergeTiles(prev, updatedTiles);
-        setTileTypes(merged); // ✅ optional, if NPCs use this
-        return merged;
-      });
-    }
   };
 
   console.log("🧲 [resources] Subscribing to real-time updates for grid:", gridId);
@@ -816,6 +808,40 @@ useEffect(() => {
     socket.off("tile-resource-sync", handleTileResourceSync);
   };
 }, [socket, gridId, isMasterResourcesReady]); // ← Add isMasterResourcesReady as a dependency
+
+
+// 🔄 Real-time updates for tiles
+useEffect(() => {
+  console.log("🌐 useEffect for tile-sync running. gridId:", gridId, "socket:", !!socket);
+
+  if (!gridId || !socket) {
+    console.warn('Missing gridId or socket.');
+    return;
+  }
+
+  const handleTileSync = ({ updatedTiles }) => {
+    console.log("🌐 Real-time tile update received!", { updatedTiles });
+
+    updatedTiles.forEach(tile => {
+      console.log("📦 Tile type in update:", tile.type); // Add this
+    });
+    
+    if (updatedTiles?.length) {
+      setTileTypes((prev) => {
+        const merged = mergeTiles(prev, updatedTiles); // Merge updated tiles into the current state
+        return merged;
+      });
+    }
+  };
+
+  console.log("🧲 [tiles] Subscribing to real-time tile updates for grid:", gridId);
+  socket.on("tile-sync", handleTileSync);
+
+  return () => {
+    console.log("🧹 Unsubscribing from tile-sync for grid:", gridId);
+    socket.off("tile-sync", handleTileSync);
+  };
+}, [socket, gridId]);
 
 
 /////////// HANDLE KEY MOVEMENT /////////////////////////
