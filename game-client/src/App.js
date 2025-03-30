@@ -802,10 +802,10 @@ useEffect(() => {
   };
 
   console.log("🧲 [resources] Subscribing to real-time updates for grid:", gridId);
-  socket.on("tile-resource-sync", handleTileResourceSync);
+  socket.on("resource-sync", handleTileResourceSync);
 
   return () => {
-    socket.off("tile-resource-sync", handleTileResourceSync);
+    socket.off("resource-sync", handleTileResourceSync);
   };
 }, [socket, gridId, isMasterResourcesReady]); // ← Add isMasterResourcesReady as a dependency
 
