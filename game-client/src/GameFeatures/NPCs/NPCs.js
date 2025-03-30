@@ -158,9 +158,6 @@ async handleIdleState(tiles, resources, npcs, idleDuration, onTransition = () =>
       // console.warn(`NPC ${this.id} has no valid tiles to move. Staying in current position.`);
     }
 
-    // Ensure transition only happens **after move attempt completes**
-    //console.log(`NPC ${this.id} transitioning from IDLE to next state.`);
-    onTransition();
   } else {
     //console.log(`NPC ${this.id} is idling. Timer: ${this.idleTimer}/${idleDuration}`);
   }
@@ -220,7 +217,6 @@ async handleRoamState(tiles, resources, npcs = () => {}) {  //console.log(`NPC $
     //console.log(`NPC ${this.id} completed ${range} roam steps. Transitioning to the next state.`);
     this.roamSteps = 0; // Reset roam steps
     this.currentDirection = null; // Reset direction for the next roam
-    onTransition(); // Trigger the next state transition
   }
 }
 
@@ -334,7 +330,6 @@ async moveOneTile(direction, tiles, resources, npcs) {
       requestAnimationFrame(step);
   });
 }
-
 
 getAdjacentTile(direction) {
   const directions = {
