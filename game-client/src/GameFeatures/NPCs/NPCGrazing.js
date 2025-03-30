@@ -11,7 +11,7 @@ async function handleFarmAnimalBehavior(gridId) {
 
     gridId = gridId || this.gridId; // Fallback to npc.gridId if not provided
 
-    console.log(`handleFarmAnimalBehavior: gridId: ${gridId}; NPC ${this.id} is in state: ${this.state}`);
+    //console.log(`handleFarmAnimalBehavior: gridId: ${gridId}; NPC ${this.id} is in state: ${this.state}`);
 
     if (!tiles || !resources) {
         console.error(`Tiles or resources are missing for NPC ${this.id}.`);
@@ -20,7 +20,7 @@ async function handleFarmAnimalBehavior(gridId) {
 
     switch (this.state) {
         case 'idle': {
-            console.log('entering IDLE: grazeEnd = ', this.grazeEnd);
+            //console.log('entering IDLE: grazeEnd = ', this.grazeEnd);
             const fullGridState = gridStateManager.getGridState(gridId);
             
             await this.handleIdleState(tiles, resources, npcs, 5, async () => {
@@ -282,7 +282,13 @@ async function handleFarmAnimalBehavior(gridId) {
          
         case 'roam': {
             await this.handleRoamState(tiles, resources, npcs, () => {
-                const currentTime = Date.now();
+                if (!this.grazeEnd) {
+                    console.log(`🌱 NPC ${this.id} has no grazeEnd, transitioning to hungry.`);
+                    this.state = 'hungry';
+                    gridStateManager.saveGridState(gridId);
+                    return;
+                  }
+                  const currentTime = Date.now();
                 if (this.grazeEnd && currentTime >= this.grazeEnd) {
                   console.log(`⏰ Grazing is done — NPC ${this.id} going to stall.`);
                   this.state = 'stall';

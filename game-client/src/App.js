@@ -596,13 +596,10 @@ useEffect(() => {
     const { npcs = {}, pcs = {} } = gridState;
     
     // Ensure all NPCs have the latest state
-    console.log("about to run npc.update");
 
     Object.values(npcs).forEach((npc) => {
       const currentTime = Date.now();
-      console.log("Current gridState:", gridState);
       npc.update(currentTime, gridState, gridId, activeTileSize);
-      console.log("Ran npc.update for an npc.");
 
     });
     // Check each PC's HP directly from gridState
@@ -707,7 +704,6 @@ useEffect(() => {
       console.log("⏳ Skipping socket update — older or same timestamp");
       return;
     }
-  
     console.log("📡 Applying newer socket gridState:", updatedGridState);
     updateLastGridStateTimestamp(updatedGridState.lastUpdated);
   
@@ -715,9 +711,21 @@ useEffect(() => {
     const hydratedNPCs = {};
     for (const [npcId, npcData] of Object.entries(updatedGridState.npcs || {})) {
       const template = masterResources.find((r) => r.type === npcData.type);
-      const enrichedProperties = { ...template, ...npcData }; // npcData overwrites template
-      console.log(`🔁 Hydrating NPC ${npcData.id} with grazeEnd:`, enrichedProperties.grazeEnd);
-      
+      const enrichedProperties = { ...template, ...npcData };
+    
+      // Check if we already have a more recent version of this NPC
+      const localNPC = gridStateManager.gridStates[gridId]?.npcs?.[npcId];
+      const localTime = localNPC?.lastUpdated || 0;
+      const incomingTime = npcData.lastUpdated || 0;
+    
+      if (incomingTime < localTime) {
+        console.log(`⏳ Skipping hydration for NPC ${npcId} — incoming time (${incomingTime}) is older than local time (${localTime})`);
+        hydratedNPCs[npcId] = localNPC; // Keep the more recent local NPC
+        continue;
+      }
+    
+      console.log(`🔁 Hydrating NPC ${npcId} with grazeEnd:`, enrichedProperties.grazeEnd);
+    
       hydratedNPCs[npcId] = new NPC(
         npcData.id,
         npcData.type,
@@ -725,8 +733,6 @@ useEffect(() => {
         enrichedProperties,
         gridId
       );
-      console.log(`Hydrated NPC ${npcId}:`, hydratedNPCs[npcId]);
-
     }
 
     const newState = {
@@ -751,7 +757,7 @@ useEffect(() => {
 }, [gridId, currentPlayer]);
 
 
-// 🔄 SOCKET LISTENER: Real-time updates for tiles and resources
+// 🔄 SOCKET LISTENER: Real-time updates for resources
 useEffect(() => {
   console.log("🌐 useEffect for tile-resource-sync running. gridId:", gridId, "socket:", !!socket);
 
