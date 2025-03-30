@@ -10,7 +10,7 @@ class NPC {
   constructor(id, type, position, properties, gridId) {
     console.log('NPC constructor: properties:', properties);
     console.log(`NPC constructor: ID=${id}, type=${type}, grazeEnd=`, properties.grazeEnd);
-    
+
     if (!properties || typeof properties !== 'object') {
       console.error(`Invalid properties passed to NPC constructor for type ${type}:`, properties);
       throw new Error('NPC constructor requires valid properties.');
@@ -36,7 +36,7 @@ class NPC {
     this.lastMoveTime = 0; // Initialize lastMoveTime
     this.processingStartTime = undefined;
     this.nextspawn = properties.nextspawn ?? (this.action === 'spawn' ? Date.now() + 5000 : null);
-    this.grazeEnd = properties.grazeEnd; // this is preserved from gridState
+    this.grazeEnd = properties.grazeEnd || null; // this is preserved from gridState
 
     // Assign additional properties
     Object.assign(this, properties);
@@ -118,8 +118,7 @@ async processState(gridState, gridId, TILE_SIZE) {
 /////////////////////////////
 
 
-async handleIdleState(tiles, resources, npcs, idleDuration, onTransition) {
-  // Initialize the idle timer if it doesn't exist
+async handleIdleState(tiles, resources, npcs, idleDuration, onTransition = () => {}) {  // Initialize the idle timer if it doesn't exist
   if (!this.idleTimer) {
     this.idleTimer = 0;
     //console.log(`NPC ${this.id} starting idle timer.`);
@@ -168,8 +167,7 @@ async handleIdleState(tiles, resources, npcs, idleDuration, onTransition) {
 }
 
 
-async handleRoamState(tiles, resources, npcs, onTransition) {
-  //console.log(`NPC ${this.id} is in ROAM state.`);
+async handleRoamState(tiles, resources, npcs = () => {}) {  //console.log(`NPC ${this.id} is in ROAM state.`);
   // Initialize roam step counter and range
   this.roamSteps = this.roamSteps || 0;
   const range = this.range || 4; // Default roam range

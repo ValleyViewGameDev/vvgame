@@ -22,17 +22,17 @@ async function handleFarmAnimalBehavior(gridId) {
         case 'idle': {
             console.log('entering IDLE: grazeEnd = ', this.grazeEnd);
             const fullGridState = gridStateManager.getGridState(gridId);
-            console.log('🐮 Full gridState.npcs:', fullGridState?.npcs);
             
             await this.handleIdleState(tiles, resources, npcs, 5, async () => {
                 const currentTime = Date.now();
-                if (this.grazeEnd && currentTime >= this.grazeEnd) {
-                  console.log(`⏰ Grazing is done — NPC ${this.id} going to stall.`);
-                  this.state = 'stall';
-                } else {
-                  console.log(`😐 NPC ${this.id} completed idle but grazing NOT done → stay idle`);
-                  this.state = 'idle'; // explicitly remain idle
-                }
+                if (this.triedStall) {
+                    console.log(`🔁 Retrying stall for NPC ${this.id}`);
+                    this.state = 'stall';
+                    this.triedStall = false; // reset it to allow retry
+                  } else {
+                    console.log(`😐 NPC ${this.id} completed idle without retry. Remaining idle.`);
+                    this.state = 'idle'; // remain idle
+                  }
                 await gridStateManager.saveGridState(gridId); // Save updated position/state
               });
           }
@@ -41,7 +41,14 @@ async function handleFarmAnimalBehavior(gridId) {
             //console.log(`NPC ${this.id} is in HUNGRY state.`);
             console.log('entering HUNGRY: grazeEnd = ', this.grazeEnd);
             const fullGridState = gridStateManager.getGridState(gridId);
-            console.log('🐮 Full gridState.npcs:', fullGridState?.npcs);
+
+            const currentTime = Date.now();
+            if (this.grazeEnd && currentTime >= this.grazeEnd) {
+                console.log(`⏳ Grazing already done — NPC ${this.id} skipping hungry.`);
+                this.state = 'stall';
+                await gridStateManager.saveGridState(gridId);
+                break;
+            }
 
             // Find the target grass tile if not already set
             if (!this.targetGrassTile) {
@@ -143,7 +150,6 @@ async function handleFarmAnimalBehavior(gridId) {
         case 'grazing': {
             console.log('entering GRAZING: grazeEnd = ', this.grazeEnd);
             const fullGridState = gridStateManager.getGridState(gridId);
-            console.log('🐮 Full gridState.npcs:', fullGridState?.npcs);
 
             const currentTime = Date.now();
         
@@ -171,7 +177,6 @@ async function handleFarmAnimalBehavior(gridId) {
             case 'stall': {
                 console.log('entering STALL: grazeEnd = ', this.grazeEnd);
                 const fullGridState = gridStateManager.getGridState(gridId);
-                console.log('🐮 Full gridState.npcs:', fullGridState?.npcs);
         
                 // Step 1: If no stall is currently assigned, find the nearest available stall
                 if (!this.targetStall) {
@@ -236,10 +241,11 @@ async function handleFarmAnimalBehavior(gridId) {
                     this.isMoving = false;            
                     if (!moved) {
                         console.warn(`NPC ${this.id} is stuck and cannot move toward the stall. Switching to idle.`);
-                        this.targetStall = null; // Clear stall target
+                        this.targetStall = null;
                         this.state = 'idle';
-                        break; 
-                    }
+                        this.triedStall = true; // ✅ added
+                        break;
+                      }
                 }
             
                 // Step 9: If NPC reaches the stall, transition to processing state
@@ -275,7 +281,7 @@ async function handleFarmAnimalBehavior(gridId) {
         }
          
         case 'roam': {
-            await this.handleRoamState(tiles, resources, npcs, 5, async () => {
+            await this.handleRoamState(tiles, resources, npcs, () => {
                 const currentTime = Date.now();
                 if (this.grazeEnd && currentTime >= this.grazeEnd) {
                   console.log(`⏰ Grazing is done — NPC ${this.id} going to stall.`);
@@ -284,7 +290,7 @@ async function handleFarmAnimalBehavior(gridId) {
                   console.log(`😐 NPC ${this.id} completed roam but grazing NOT done `);
                   this.state = 'idle'; // explicitly go idle
                 }
-                await gridStateManager.saveGridState(gridId); // Save updated position/state
+                gridStateManager.saveGridState(gridId); // Save updated position/state
               });
             break;
           }

@@ -353,9 +353,32 @@ async saveGridState(gridId) {
     });
 
     //console.log(`GridState saved successfully for gridId ${gridId}.`);
+    const plainNPCs = Object.keys(gridState.npcs || {}).reduce((acc, id) => {
+      const npc = gridState.npcs[id];
+      acc[id] = {
+        id: npc.id,
+        type: npc.type,
+        position: npc.position,
+        state: npc.state,
+        hp: npc.hp,
+        maxhp: npc.maxhp,
+        grazeEnd: npc.grazeEnd,
+        nextspawn: npc.nextspawn,
+        action: npc.action,
+        symbol: npc.symbol,
+        layoutkey: npc.layoutkey,
+        category: npc.category,
+      };
+      return acc;
+    }, {});
+    
     socket.emit('update-gridState', {
       gridId,
-      gridState: this.gridStates[gridId],
+      gridState: {
+        lastUpdated: this.gridStates[gridId].lastUpdated,
+        npcs: plainNPCs,
+        pcs: gridState.pcs,
+      },
     });
     console.log("📡 Emitting update-gridState to server");
 
