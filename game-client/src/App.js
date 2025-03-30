@@ -698,49 +698,37 @@ useEffect(() => {
   if (!gridId || !currentPlayer) return;
 
   const handleGridStateSync = ({ updatedGridState }) => {
-    // ✅ Skip stale updates
     if (updatedGridState.lastUpdated <= getLastGridStateTimestamp()) {
       console.log("⏳ Skipping socket update — older or same timestamp");
       return;
     }
+  
     console.log("📡 Applying newer socket gridState:", updatedGridState);
     updateLastGridStateTimestamp(updatedGridState.lastUpdated);
   
-    // const hydratedNPCs = {};
-    // const rawNPCs = updatedGridState.npcs || {};
-    // const existingNPCs = gridStateManager.getGridState(gridId)?.npcs || {};
+    // ✅ Rehydrate all NPCs into class instances
+    const hydratedNPCs = {};
+    for (const [npcId, npcData] of Object.entries(updatedGridState.npcs || {})) {
+      hydratedNPCs[npcId] = new NPC(
+        npcData.id,
+        npcData.type,
+        npcData.position,
+        npcData,
+        gridId
+      );
+    }
   
-    // for (const [npcId, npcData] of Object.entries(rawNPCs)) {
-    //   const existing = existingNPCs[npcId];
+    const newState = {
+      ...updatedGridState,
+      npcs: hydratedNPCs,
+    };
   
-    //   if (existing && existing instanceof NPC) {
-    //     // ✅ Preserve local instance and enrich with socket update
-    //     Object.assign(existing, npcData);
-    //     hydratedNPCs[npcId] = existing;
-    //     console.log(`🔄 Merged NPC ${npcId}:`, hydratedNPCs[npcId]);
-    //   } else {
-    //     // ✅ First-time NPC — hydrate fully
-    //     hydratedNPCs[npcId] = new NPC(
-    //       npcData.id,
-    //       npcData.type,
-    //       npcData.position,
-    //       npcData,
-    //       gridId
-    //     );
-    //     console.log(`✨ New NPC instance for ${npcId}:`, hydratedNPCs[npcId]);
-    //   }
-    // }
-
-    // const safeGridState = {
-    //   ...updatedGridState,
-    //   npcs: hydratedNPCs,
-    // };
-  
-    // ✅ Add this line to update in-memory state used by 1s loop
-    gridStateManager.gridStates[gridId] = updatedGridState;
-    // ✅ Update React gridState
-    setGridState(updatedGridState);
+    // ✅ Update memory and React state
+    gridStateManager.gridStates[gridId] = newState;
+    setGridState(newState);
   };
+
+  
   console.log("🧲 [gridState] Subscribing to real-time updates for grid:", gridId);
   socket.on('gridState-sync', handleGridStateSync);
 
