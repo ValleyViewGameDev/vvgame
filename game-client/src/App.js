@@ -723,7 +723,6 @@ useEffect(() => {
         hydratedNPCs[npcId] = localNPC; // Keep the more recent local NPC
         continue;
       }
-    
       console.log(`🔁 Hydrating NPC ${npcId} with grazeEnd:`, enrichedProperties.grazeEnd);
     
       hydratedNPCs[npcId] = new NPC(
@@ -734,13 +733,11 @@ useEffect(() => {
         gridId
       );
     }
-
     const newState = {
       ...updatedGridState,
       npcs: hydratedNPCs,
     };
   
-    
     // ✅ Update memory and React state
     gridStateManager.gridStates[gridId] = newState;
     setGridState(newState);

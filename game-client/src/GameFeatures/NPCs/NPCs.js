@@ -118,32 +118,31 @@ async processState(gridState, gridId, TILE_SIZE) {
 /////////////////////////////
 
 
-async handleIdleState(tiles, resources, npcs, idleDuration = 4, onTransition = () => {}) {
-  this.idleTimer = (this.idleTimer || 0) + 1;
+async handleIdleState(tiles, resources, npcs, idleDuration, onTransition = () => {}) {
+  if (!this.idleTimer) this.idleTimer = 0;
+  this.idleTimer++;
+
+  if (this.idleTimer >= idleDuration) {
+    this.idleTimer = 0;
+
+    const directions = ['N', 'S', 'E', 'W', 'NE', 'SE', 'SW', 'NW'];
+    const validDirections = directions.filter((dir) => {
+      const { x, y } = this.getAdjacentTile(dir);
+      return this.isValidTile(x, y, tiles, resources, npcs);
+    });
+
+    if (validDirections.length > 0) {
+      const randomDirection = validDirections[Math.floor(Math.random() * validDirections.length)];
+      const moved = await this.moveOneTile(randomDirection, tiles, resources, npcs);
+      if (moved) console.log(`🚶 NPC ${this.id} moved in idle to (${this.position.x}, ${this.position.y})`);
+    }
+
+    onTransition(); // callback to re-evaluate state
+    return true; // idle completed
+  }
+
   console.log(`🐮 NPC ${this.id} is idling. Timer: ${this.idleTimer}/${idleDuration}`);
-
-  if (this.idleTimer < idleDuration) {
-    // Still idling, do nothing
-    return;
-  }
-  // Reset timer and attempt movement
-  this.idleTimer = 0;
-
-  const directions = ['N', 'S', 'E', 'W', 'NE', 'SE', 'SW', 'NW'];
-  const validDirections = directions.filter((direction) => {
-    const { x, y } = this.getAdjacentTile(direction);
-    return this.isValidTile(x, y, tiles, resources, npcs);
-  });
-
-  if (validDirections.length > 0) {
-    const randomDirection = validDirections[Math.floor(Math.random() * validDirections.length)];
-    const moved = await this.moveOneTile(randomDirection, tiles, resources, npcs);
-    console.log(`🚶 NPC ${this.id} moved in idle to (${this.position.x}, ${this.position.y})`);
-  } else {
-    console.warn(`⚠️ NPC ${this.id} has no valid idle moves.`);
-  }
-  // Now try transitioning again (back to stall or hungry or whatever)
-  onTransition();
+  return false; // still idling
 }
 
 

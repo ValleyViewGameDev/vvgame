@@ -20,21 +20,19 @@ async function handleFarmAnimalBehavior(gridId) {
 
     switch (this.state) {
         case 'idle': {
-            //console.log('entering IDLE: grazeEnd = ', this.grazeEnd);
-            const fullGridState = gridStateManager.getGridState(gridId);
-            
-            await this.handleIdleState(tiles, resources, npcs, 5, async () => {
-                const currentTime = Date.now();
-                if (this.triedStall) {
-                    console.log(`🔁 Retrying stall for NPC ${this.id}`);
-                    this.state = 'stall';
-                    this.triedStall = false; // reset it to allow retry
-                  } else {
-                    console.log(`😐 NPC ${this.id} completed idle without retry. Remaining idle.`);
-                    this.state = 'idle'; // remain idle
-                  }
-                await gridStateManager.saveGridState(gridId); // Save updated position/state
-              });
+            const idleCompleted = await this.handleIdleState(tiles, resources, npcs, 4, () => {
+              console.log(`🔁 Retrying stall for NPC ${this.id}`);
+              this.state = 'stall';
+              gridStateManager.saveGridState(gridId);
+            });
+          
+            if (!idleCompleted) {
+              // Don't continue state processing if we're still idling
+              return;
+            }
+          
+            // If idle completed and `onTransition` fired, the state is now "stall"
+            break;
           }
 
         case 'hungry': {
@@ -51,7 +49,7 @@ async function handleFarmAnimalBehavior(gridId) {
             }
 
             console.log("this.targetGrassTile = ", this.targetGrassTile);
-            
+
             // Find the target grass tile if not already set
             if (!this.targetGrassTile) {
                 console.log(`NPC ${this.id} finding nearest grass tile.`);
@@ -207,17 +205,17 @@ async function handleFarmAnimalBehavior(gridId) {
                 const dy = this.targetStall.y - Math.floor(this.position.y);
                 let direction = null;
             
-                if (Math.abs(dx) > Math.abs(dy)) {
-                    direction = dx > 0 ? 'E' : 'W';
-                } else if (dy !== 0) {
-                    direction = dy > 0 ? 'S' : 'N';
-                }
-            
-                if (Math.abs(dx) === Math.abs(dy)) {
+
+                // Diagonal preference if both dx and dy are nonzero
+                if (dx !== 0 && dy !== 0) {
                     if (dx > 0 && dy > 0) direction = 'SE';
                     else if (dx > 0 && dy < 0) direction = 'NE';
                     else if (dx < 0 && dy > 0) direction = 'SW';
                     else if (dx < 0 && dy < 0) direction = 'NW';
+                } else if (dx !== 0) {
+                    direction = dx > 0 ? 'E' : 'W';
+                } else if (dy !== 0) {
+                    direction = dy > 0 ? 'S' : 'N';
                 }
             
                 // Step 7: If a valid movement direction isn't determined, revert to idle state
