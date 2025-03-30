@@ -98,6 +98,7 @@ export const handleFarmPlotPlacement = async ({
         x: tileX,
         y: tileY,
         growEnd: growEndTime,
+        output: selectedItem.output, // ✅ required for crop conversion
       });
 
       FloatingTextManager.addFloatingText(302, tileX * TILE_SIZE, tileY * TILE_SIZE); // "Planted!"

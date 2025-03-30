@@ -16,6 +16,9 @@ class FarmState {
     }
   
     addSeed(seed) {
+      if (!seed.output) {
+        console.warn('⚠️ Trying to add a seed without an output! This will break later.', seed);
+      }
       this.farmState.push(seed);
       console.log('addSeed called. Updated farmState:', this.farmState);
     }
