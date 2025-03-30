@@ -103,3 +103,23 @@ export function mergeTiles(existingTiles, updatedTiles) {
   console.log("🔁 Any tiles changed?", changed);
   return newTiles;
 }
+
+
+export function enrichResourceFromMaster(raw, masterResources) {
+  console.log("enrichResourceFromMaster; raw = ", raw);
+  console.log("masterResources = ", masterResources);
+
+  const template = masterResources.find(r => r.type === raw.type);
+
+  console.log("template - ", template);
+  
+  if (!template) {
+    console.warn(`⚠️ No matching resource template found for ${raw.type}`);
+    return raw;
+  }
+
+  return {
+    ...template,
+    ...raw, // Allow raw to override specific fields like growEnd, x, y
+  };
+}

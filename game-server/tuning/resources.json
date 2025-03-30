@@ -2941,11 +2941,11 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "growtime": 360,
+        "growtime": 12,
         "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 500,
-        "crafttime": 360,
+        "crafttime": 12,
         "totalnestedtime": 2860
     },
     {

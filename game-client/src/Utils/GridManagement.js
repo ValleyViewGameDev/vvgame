@@ -5,6 +5,7 @@ import gridStateManager from '../GridState/GridState';
 import socket from '../socketManager'; // ⚠️ At top of file if not already present
 import GlobalGridState from '../GridState/GlobalGridState';
 import { mergeResources, mergeTiles } from './ResourceHelpers';
+import { enrichResourceFromMaster } from './ResourceHelpers';
 
 export const updateGridResource = async (
   gridId,

@@ -60,6 +60,7 @@ import { updateGridStatus } from './Utils/GridManagement';
 import { formatCountdown } from './UI/Timers';
 import { getLastGridStateTimestamp, updateLastGridStateTimestamp } from './GridState/GridState'; // near the top of App.js
 import { mergeResources, mergeTiles } from './Utils/ResourceHelpers.js';
+import { enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
 
 function App() {
 
@@ -781,13 +782,7 @@ useEffect(() => {
             console.warn(`⚠️ No matching resource template found for ${newRes.type}`);
           }
 
-          const enriched = {
-            ...newRes,
-            symbol: newRes.symbol || resourceTemplate?.symbol || '🪵',
-            category: newRes.category || resourceTemplate?.category || 'resource',
-            qtycollected: newRes.qtycollected || 1,
-            growEnd: newRes.growEnd || null,
-          };
+          const enriched = enrichResourceFromMaster(newRes, masterResources);
 
           console.log('🌐🌐 LISTENER: enriched resource = ', enriched);
 

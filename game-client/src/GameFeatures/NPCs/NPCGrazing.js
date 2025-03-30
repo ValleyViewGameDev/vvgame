@@ -261,7 +261,7 @@ async function handleFarmAnimalBehavior(gridId) {
             await gridStateManager.saveGridState(gridId); // Save after transition
             break;
         }
-        
+         
         case 'roam': {
             //console.log(`NPC ${this.id} is roaming.`);
             await this.handleRoamState(tiles, resources, npcs, () => {
