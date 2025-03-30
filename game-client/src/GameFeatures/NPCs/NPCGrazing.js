@@ -11,7 +11,7 @@ async function handleFarmAnimalBehavior(gridId) {
 
     gridId = gridId || this.gridId; // Fallback to npc.gridId if not provided
 
-    //console.log(`handleFarmAnimalBehavior: gridId: ${gridId}; NPC ${this.id} is in state: ${this.state}`);
+    console.log(`handleFarmAnimalBehavior: gridId: ${gridId}; NPC ${this.id} is in state: ${this.state}`);
 
     if (!tiles || !resources) {
         console.error(`Tiles or resources are missing for NPC ${this.id}.`);

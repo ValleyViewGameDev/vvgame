@@ -63,7 +63,7 @@ async processState(gridState, gridId, TILE_SIZE) {
   const npcs = Object.values(gridStateManager.getGridState(gridId)?.npcs || {}); 
 
   try {
-    // console.log(`NPCprocessState for NPC ${this.id}. action: ${this.action}, Current state: ${this.state}, gridId: ${gridId}`);
+    console.log(`NPCprocessState for NPC ${this.id}. action: ${this.action}, Current state: ${this.state}, gridId: ${gridId}`);
     // Call the behavior handler
 
     switch (this.action) {
