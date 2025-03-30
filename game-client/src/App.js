@@ -706,18 +706,31 @@ useEffect(() => {
     console.log("📡 Applying newer socket gridState:", updatedGridState);
     updateLastGridStateTimestamp(updatedGridState.lastUpdated);
   
-    // 🧠 Rehydrate NPCs safely
     const hydratedNPCs = {};
     const rawNPCs = updatedGridState.npcs || {};
+    const existingNPCs = gridStateManager.getGridState(gridId)?.npcs || {};
+  
     for (const [npcId, npcData] of Object.entries(rawNPCs)) {
-      hydratedNPCs[npcId] = new NPC(
-        npcData.id,
-        npcData.type,
-        npcData.position,
-        npcData,
-        gridId
-      );
+      const existing = existingNPCs[npcId];
+  
+      if (existing && existing instanceof NPC) {
+        // ✅ Preserve local instance and enrich with socket update
+        Object.assign(existing, npcData);
+        hydratedNPCs[npcId] = existing;
+        console.log(`🔄 Merged NPC ${npcId}:`, hydratedNPCs[npcId]);
+      } else {
+        // ✅ First-time NPC — hydrate fully
+        hydratedNPCs[npcId] = new NPC(
+          npcData.id,
+          npcData.type,
+          npcData.position,
+          npcData,
+          gridId
+        );
+        console.log(`✨ New NPC instance for ${npcId}:`, hydratedNPCs[npcId]);
+      }
     }
+    
     const safeGridState = {
       ...updatedGridState,
       npcs: hydratedNPCs,

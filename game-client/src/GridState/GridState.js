@@ -135,7 +135,7 @@ getGridState(gridId) {
   }
   return this.gridStates[gridId];
 }
-
+ 
   /**
  * Spawn a new NPC and immediately save the updated gridState to the DB.
  */

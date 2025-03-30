@@ -133,19 +133,19 @@ async function handleFarmAnimalBehavior(gridId) {
             }
             break;
         }
-
+ 
           
         case 'grazing': {
             const currentTime = Date.now();
         
-            console.log('in state = grazing; checking grazeEnd: ',this.grazeEnd);
+            console.log(`grazeEnd: ${this.grazeEnd}, growTime: ${this.growTime}, type: ${this.type}`);
 
             if (!this.grazeEnd) {
                 this.grazeEnd = currentTime + (this.growTime * 1000); // Calculate grazing end time
                 console.log('in state = grazing; setting grazeEnd: ',this.grazeEnd);
                 await gridStateManager.saveGridState(gridId);
             }
-        
+            
             // ✅ Check if grazing is complete
             if (currentTime >= this.grazeEnd) {
                 console.log(`🐄 NPC ${this.id} finished grazing. Moving to stall.`);

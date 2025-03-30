@@ -47,16 +47,19 @@ export const updateGridResource = async (
       }
     : null;
 
-    // Skip if type is null -- this means we are just removing the resource
-    if (updatedResource?.type === null) {
-      const cleaned = prevResources.filter(r => !(r.x === x && r.y === y));
-      GlobalGridState.setResources(cleaned);
-      if (setResources) setResources(cleaned);      // ✅ 3. Update local React state
-    } else {
-      const merged = mergeResources(prevResources, [updatedResource]);
-      GlobalGridState.setResources(merged);
-      if (setResources) setResources(merged);      // ✅ 3. Update local React state
-    }
+// // WE DON'T NEED TO ENRICH THE RESOURCE OR UPDATE LOCAL STATE
+// // BECAUSE THE SOCKET LISTENER IN APP.JS IS DOING THIS
+
+    // // Skip if type is null -- this means we are just removing the resource
+    // if (updatedResource?.type === null) {
+    //   const cleaned = prevResources.filter(r => !(r.x === x && r.y === y));
+    //   GlobalGridState.setResources(cleaned);
+    //   if (setResources) setResources(cleaned);      // ✅ 3. Update local React state
+    // } else {
+    //   const merged = mergeResources(prevResources, [updatedResource]);
+    //   GlobalGridState.setResources(merged);
+    //   if (setResources) setResources(merged);      // ✅ 3. Update local React state
+    // }
 
     // ✅ 4. Emit to other clients
     if (broadcast && socket && socket.emit) {

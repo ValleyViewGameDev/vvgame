@@ -32,7 +32,7 @@ const GridSchema = new mongoose.Schema({
         lastMoveTime: { type: Number, required: false },
       }),
       default: {}, // Initialize as empty object
-    }, 
+    },  
     pcs: {
       type: Map,
       of: new mongoose.Schema({

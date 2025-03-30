@@ -35,6 +35,7 @@ class NPC {
     this.lastMoveTime = 0; // Initialize lastMoveTime
     this.processingStartTime = undefined;
     this.nextspawn = properties.nextspawn ?? (this.action === 'spawn' ? Date.now() + 5000 : null);
+    this.grazeEnd = properties.grazeEnd; // this is preserved from gridState
 
     // Assign additional properties
     Object.assign(this, properties);
