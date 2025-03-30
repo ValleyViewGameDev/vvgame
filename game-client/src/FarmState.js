@@ -50,42 +50,22 @@ class FarmState {
           console.log('Target output (crop) found for seed:', newCrop);
           if (newCrop) {
 
-            try {
-              console.log(`Updating grid resource for seed at (${seed.x}, ${seed.y}).`);
-              const response = await updateGridResource(
-                gridId, 
-                { 
-                  type: newCrop.type,
-                  x: seed.x,
-                  y: seed.y,
-                },
-                setResources,
-                true
-              );
+          try {
+            console.log(`Updating grid resource for seed at (${seed.x}, ${seed.y}).`);
+            const response = await updateGridResource(
+              gridId, 
+              { 
+                type: newCrop.type,
+                x: seed.x,
+                y: seed.y,
+              },
+              setResources,
+              true
+            );
+            console.log('updateGridResource response:', response);
 
-              console.log('updateGridResource response:', response);
-  
-              if (response?.success) {
-                console.log(`Seed at (${seed.x}, ${seed.y}) converted to doober.`);
-  
-                // Update local resources
-
-  //!!! Do this in updateGridResource ???
-                setResources((prevResources) => {
-                  const updatedResources = prevResources.map((res) =>
-                    res.x === seed.x && res.y === seed.y
-                      ? {
-                          type: newCrop.type,
-                          symbol: newCrop.symbol,
-                          category: 'doober',
-                          x: seed.x,
-                          y: seed.y,
-                        }
-                      : res
-                  );
-                  console.log('Updated resources:', updatedResources);
-                  return updatedResources;
-                });
+            if (response?.success) {
+              console.log(`Seed at (${seed.x}, ${seed.y}) converted to doober.`);
               } else {
                 console.warn(`Failed to update grid resource for seed at (${seed.x}, ${seed.y}).`);
               }
