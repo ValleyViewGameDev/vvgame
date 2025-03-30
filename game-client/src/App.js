@@ -600,6 +600,7 @@ useEffect(() => {
 
     Object.values(npcs).forEach((npc) => {
       const currentTime = Date.now();
+      console.log("Current gridState:", gridState);
       npc.update(currentTime, gridState, gridId, activeTileSize);
       console.log("Ran npc.update for an npc.");
 
@@ -724,6 +725,8 @@ useEffect(() => {
         enrichedProperties,
         gridId
       );
+      console.log(`Hydrated NPC ${npcId}:`, hydratedNPCs[npcId]);
+
     }
 
     const newState = {
@@ -731,6 +734,7 @@ useEffect(() => {
       npcs: hydratedNPCs,
     };
   
+    
     // ✅ Update memory and React state
     gridStateManager.gridStates[gridId] = newState;
     setGridState(newState);
