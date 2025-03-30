@@ -709,15 +709,19 @@ useEffect(() => {
     // ✅ Rehydrate all NPCs into class instances
     const hydratedNPCs = {};
     for (const [npcId, npcData] of Object.entries(updatedGridState.npcs || {})) {
+      const template = masterResources.find((r) => r.type === npcData.type);
+      const enrichedProperties = { ...template, ...npcData }; // npcData overwrites template
+      console.log(`🔁 Hydrating NPC ${npcData.id} with grazeEnd:`, enrichedProperties.grazeEnd);
+      
       hydratedNPCs[npcId] = new NPC(
         npcData.id,
         npcData.type,
         npcData.position,
-        npcData,
+        enrichedProperties,
         gridId
       );
     }
-  
+
     const newState = {
       ...updatedGridState,
       npcs: hydratedNPCs,
@@ -728,7 +732,7 @@ useEffect(() => {
     setGridState(newState);
   };
 
-  
+
   console.log("🧲 [gridState] Subscribing to real-time updates for grid:", gridId);
   socket.on('gridState-sync', handleGridStateSync);
 
@@ -739,7 +743,7 @@ useEffect(() => {
 }, [gridId, currentPlayer]);
 
 
-// 🔄 Real-time updates for tiles and resources
+// 🔄 SOCKET LISTENER: Real-time updates for tiles and resources
 useEffect(() => {
   console.log("🌐 useEffect for tile-resource-sync running. gridId:", gridId, "socket:", !!socket);
 
@@ -806,7 +810,7 @@ useEffect(() => {
 }, [socket, gridId, isMasterResourcesReady]); // ← Add isMasterResourcesReady as a dependency
 
 
-// 🔄 Real-time updates for tiles
+// 🔄 OCKET LISTENER: Real-time updates for tiles
 useEffect(() => {
   console.log("🌐 useEffect for tile-sync running. gridId:", gridId, "socket:", !!socket);
 

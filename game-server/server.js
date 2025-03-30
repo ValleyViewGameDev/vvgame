@@ -79,7 +79,7 @@ mongoose.connect(process.env.MONGODB_URI)
           console.warn('⚠️ Received invalid or missing gridState:', gridState);
           return;
         }
-
+        console.log("📤 Emitting gridState with grazeEnd:", gridState.npcs["1743322170020"]?.grazeEnd);
         io.to(gridId).emit('gridState-sync', { updatedGridState: gridState });
       });
 

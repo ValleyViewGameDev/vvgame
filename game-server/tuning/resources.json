@@ -970,10 +970,10 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 153,
-        "maxprice": 255.63025007672871,
-        "crafttime": 360,
-        "totalnestedtime": 360
+        "minprice": 0,
+        "maxprice": 0,
+        "crafttime": 0,
+        "totalnestedtime": 0
     },
     {
         "type": "Wool",
@@ -1145,12 +1145,12 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 374,
-        "maxprice": 624.11478624117,
+        "minprice": 333,
+        "maxprice": 555.6302500767287,
         "ingredient1": "Milk",
         "ingredient1qty": 2,
         "crafttime": 600,
-        "totalnestedtime": 1320
+        "totalnestedtime": 600
     },
     {
         "type": "Cream",
@@ -1170,14 +1170,14 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 414,
-        "maxprice": 690.0498216638722,
+        "minprice": 398,
+        "maxprice": 664.4438589467838,
         "ingredient1": "Milk",
         "ingredient1qty": 2,
         "ingredient2": "Sugar",
         "ingredient2qty": 2,
         "crafttime": 900,
-        "totalnestedtime": 2820
+        "totalnestedtime": 2100
     },
     {
         "type": "Cheese",
@@ -1197,12 +1197,12 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 397,
-        "maxprice": 661.9260334851798,
+        "minprice": 333,
+        "maxprice": 555.6302500767287,
         "ingredient1": "Milk",
         "ingredient1qty": 4,
         "crafttime": 600,
-        "totalnestedtime": 2040
+        "totalnestedtime": 600
     },
     {
         "type": "Bread",
@@ -2936,7 +2936,7 @@
         "validong": true,
         "validond": true,
         "validons": true,
-        "validonp": false,
+        "validonp": true,
         "validonw": false,
         "validonl": false,
         "validonn": true,
@@ -2946,7 +2946,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 500,
         "crafttime": 12,
-        "totalnestedtime": 2860
+        "totalnestedtime": 2512
     },
     {
         "type": "Sheep",
@@ -2965,7 +2965,7 @@
         "validong": true,
         "validond": true,
         "validons": true,
-        "validonp": false,
+        "validonp": true,
         "validonw": false,
         "validonl": false,
         "validonn": true,
@@ -2994,7 +2994,7 @@
         "validong": true,
         "validond": true,
         "validons": true,
-        "validonp": false,
+        "validonp": true,
         "validonw": false,
         "validonl": false,
         "validonn": true,

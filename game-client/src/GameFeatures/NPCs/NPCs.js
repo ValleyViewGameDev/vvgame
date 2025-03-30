@@ -9,7 +9,8 @@ import { attachSpawnBehavior } from './NPCSpawner';
 class NPC {
   constructor(id, type, position, properties, gridId) {
     console.log('NPC constructor: properties:', properties);
-
+    console.log(`NPC constructor: ID=${id}, type=${type}, grazeEnd=`, properties.grazeEnd);
+    
     if (!properties || typeof properties !== 'object') {
       console.error(`Invalid properties passed to NPC constructor for type ${type}:`, properties);
       throw new Error('NPC constructor requires valid properties.');
