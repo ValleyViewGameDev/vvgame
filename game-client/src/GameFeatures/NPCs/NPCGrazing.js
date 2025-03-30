@@ -50,10 +50,12 @@ async function handleFarmAnimalBehavior(gridId) {
                 break;
             }
 
+            console.log("this.targetGrassTile = ", this.targetGrassTile);
+            
             // Find the target grass tile if not already set
             if (!this.targetGrassTile) {
-                //console.log(`NPC ${this.id} finding nearest grass tile.`);
-        
+                console.log(`NPC ${this.id} finding nearest grass tile.`);
+                
                 // Find all grass tiles within range
                 const grassTiles = await this.findTileInRange('g', tiles, resources);
         
