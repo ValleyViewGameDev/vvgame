@@ -170,7 +170,7 @@ async spawnNPC(gridId, npcType, position) {
       id: npcId,
       type: npcType,
       action: npcTemplate.action,
-      state: 'idle',
+      state: 'hungry',
       position,
       hp: npcTemplate.maxhp,
       maxhp: npcTemplate.maxhp,
