@@ -706,40 +706,40 @@ useEffect(() => {
     console.log("📡 Applying newer socket gridState:", updatedGridState);
     updateLastGridStateTimestamp(updatedGridState.lastUpdated);
   
-    const hydratedNPCs = {};
-    const rawNPCs = updatedGridState.npcs || {};
-    const existingNPCs = gridStateManager.getGridState(gridId)?.npcs || {};
+    // const hydratedNPCs = {};
+    // const rawNPCs = updatedGridState.npcs || {};
+    // const existingNPCs = gridStateManager.getGridState(gridId)?.npcs || {};
   
-    for (const [npcId, npcData] of Object.entries(rawNPCs)) {
-      const existing = existingNPCs[npcId];
+    // for (const [npcId, npcData] of Object.entries(rawNPCs)) {
+    //   const existing = existingNPCs[npcId];
   
-      if (existing && existing instanceof NPC) {
-        // ✅ Preserve local instance and enrich with socket update
-        Object.assign(existing, npcData);
-        hydratedNPCs[npcId] = existing;
-        console.log(`🔄 Merged NPC ${npcId}:`, hydratedNPCs[npcId]);
-      } else {
-        // ✅ First-time NPC — hydrate fully
-        hydratedNPCs[npcId] = new NPC(
-          npcData.id,
-          npcData.type,
-          npcData.position,
-          npcData,
-          gridId
-        );
-        console.log(`✨ New NPC instance for ${npcId}:`, hydratedNPCs[npcId]);
-      }
-    }
-    
-    const safeGridState = {
-      ...updatedGridState,
-      npcs: hydratedNPCs,
-    };
+    //   if (existing && existing instanceof NPC) {
+    //     // ✅ Preserve local instance and enrich with socket update
+    //     Object.assign(existing, npcData);
+    //     hydratedNPCs[npcId] = existing;
+    //     console.log(`🔄 Merged NPC ${npcId}:`, hydratedNPCs[npcId]);
+    //   } else {
+    //     // ✅ First-time NPC — hydrate fully
+    //     hydratedNPCs[npcId] = new NPC(
+    //       npcData.id,
+    //       npcData.type,
+    //       npcData.position,
+    //       npcData,
+    //       gridId
+    //     );
+    //     console.log(`✨ New NPC instance for ${npcId}:`, hydratedNPCs[npcId]);
+    //   }
+    // }
+
+    // const safeGridState = {
+    //   ...updatedGridState,
+    //   npcs: hydratedNPCs,
+    // };
   
     // ✅ Add this line to update in-memory state used by 1s loop
-    gridStateManager.gridStates[gridId] = safeGridState;
+    gridStateManager.gridStates[gridId] = updatedGridState;
     // ✅ Update React gridState
-    setGridState(safeGridState);
+    setGridState(updatedGridState);
   };
   console.log("🧲 [gridState] Subscribing to real-time updates for grid:", gridId);
   socket.on('gridState-sync', handleGridStateSync);
