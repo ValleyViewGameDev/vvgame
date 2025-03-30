@@ -740,10 +740,10 @@ useEffect(() => {
 // 🔄 Real-time updates for tiles and resources
 useEffect(() => {
   console.log("🌐 useEffect for tile-resource-sync running. gridId:", gridId, "socket:", !!socket);
-  if (!gridId || !socket) return;
-  
-  if (!isMasterResourcesReady) {
-    console.warn('Master Resources not ready');
+
+  // Wait until masterResources is ready
+  if (!gridId || !socket || !isMasterResourcesReady) {
+    console.warn('Master Resources not ready or missing gridId/socket.');
     return; // 🛑 Don't process until ready
   }
 
@@ -756,15 +756,13 @@ useEffect(() => {
     if (updatedResources?.length) {
       setResources((prevResources) => {
         const updated = [...prevResources];
-    
-        console.log('🌐🌐 LISTENER: updated resource = ',updated);
 
         updatedResources.forEach((newRes) => {
           if (!newRes || typeof newRes.x !== 'number' || typeof newRes.y !== 'number') {
             console.warn("⚠️ Skipping invalid socket resource:", newRes);
             return;
           }
-    
+
           // ✅ HANDLE RESOURCE REMOVAL
           if (newRes.type === null) {
             console.log(`🧹 Removing resource at (${newRes.x}, ${newRes.y})`);
@@ -782,7 +780,7 @@ useEffect(() => {
           if (!resourceTemplate) {
             console.warn(`⚠️ No matching resource template found for ${newRes.type}`);
           }
-    
+
           const enriched = {
             ...newRes,
             symbol: newRes.symbol || resourceTemplate?.symbol || '🪵',
@@ -790,23 +788,22 @@ useEffect(() => {
             qtycollected: newRes.qtycollected || 1,
             growEnd: newRes.growEnd || null,
           };
-    
-          console.log('🌐🌐 LISTENER: enriched resource = ',enriched);
+
+          console.log('🌐🌐 LISTENER: enriched resource = ', enriched);
 
           const filtered = updated.filter(r => !(r.x === newRes.x && r.y === newRes.y));
           filtered.push(enriched);
           updated.splice(0, updated.length, ...filtered);
         });
-    
+
         return updated;
       });
     }
-    
-  
+
     if (updatedTiles?.length) {
       setTileTypes(prev => {
         const merged = mergeTiles(prev, updatedTiles);
-        setTileTypes(merged);  // ✅ optional, if NPCs use this
+        setTileTypes(merged); // ✅ optional, if NPCs use this
         return merged;
       });
     }
@@ -818,9 +815,7 @@ useEffect(() => {
   return () => {
     socket.off("tile-resource-sync", handleTileResourceSync);
   };
-}, [socket, gridId]); // ← restore the dependencies here!
-
-
+}, [socket, gridId, isMasterResourcesReady]); // ← Add isMasterResourcesReady as a dependency
 
 
 /////////// HANDLE KEY MOVEMENT /////////////////////////
@@ -1192,21 +1187,6 @@ const zoomOut = () => {
   const combatStats = gridState?.pcs?.[String(currentPlayer?._id)] || {};
   const [showTimers, setShowTimers] = useState(false);
 
-  // if (!currentPlayer) {
-  //   // Note: this works
-  //   return (
-  //     <div className="app-container">
-  //       <Modal
-  //         isOpen={true}
-  //         onClose={() => {}}
-  //         title={strings["5030"]}
-  //         message={strings["5031"]}
-  //         message2={strings["5032"]}
-  //         size="small"
-  //       />
-  //     </div>
-  //   );
-  // }
   
   
   return (
