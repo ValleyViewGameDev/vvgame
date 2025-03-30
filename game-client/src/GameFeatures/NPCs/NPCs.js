@@ -118,54 +118,28 @@ async processState(gridState, gridId, TILE_SIZE) {
 /////////////////////////////
 
 
-async handleIdleState(tiles, resources, npcs, idleDuration, onTransition = () => {}) {  // Initialize the idle timer if it doesn't exist
-  if (!this.idleTimer) {
-    this.idleTimer = 0;
-    //console.log(`NPC ${this.id} starting idle timer.`);
-  }
-
-  // Increment the idle timer
+async handleIdleState(tiles, resources, npcs, idleDuration, onTransition = () => {}) {
+  if (!this.idleTimer) { this.idleTimer = 0; }
   this.idleTimer++;
+  if (this.idleTimer >= idleDuration) { this.idleTimer = 0;
 
-  // Check if the idle timer has reached the threshold
-  if (this.idleTimer >= idleDuration) {
-    //console.log(`NPC ${this.id} completed IDLE state. Timer reached ${this.idleTimer}.`);
-
-    // Reset the timer
-    this.idleTimer = 0;
-
-    // Define all possible directions
+    // Movement attempt
     const directions = ['N', 'S', 'E', 'W', 'NE', 'SE', 'SW', 'NW'];
-
-    // Filter valid directions for movement
     const validDirections = directions.filter((direction) => {
       const { x, y } = this.getAdjacentTile(direction);
       return this.isValidTile(x, y, tiles, resources, npcs);
     });
 
     if (validDirections.length > 0) {
-      // Choose a random valid direction
       const randomDirection = validDirections[Math.floor(Math.random() * validDirections.length)];
-      //console.log(`NPC ${this.id} attempting to move one tile in direction: ${randomDirection}`);
-
-      // Wait for movement to complete **before transitioning**
-      const moved = await this.moveOneTile(randomDirection, tiles, resources, npcs);
-      
-      if (!moved) {
-        // console.warn(`NPC ${this.id} failed to move. Transitioning anyway.`);
-      }
-    } else {
-      // console.warn(`NPC ${this.id} has no valid tiles to move. Staying in current position.`);
+      await this.moveOneTile(randomDirection, tiles, resources, npcs);
     }
-
-  } else {
-    //console.log(`NPC ${this.id} is idling. Timer: ${this.idleTimer}/${idleDuration}`);
+    onTransition(); // ✅ Call transition logic
   }
 }
 
 
-async handleRoamState(tiles, resources, npcs = () => {}) {  //console.log(`NPC ${this.id} is in ROAM state.`);
-  // Initialize roam step counter and range
+async handleRoamState(tiles, resources, npcs, onTransition = () => {}) {  // Initialize roam step counter and range
   this.roamSteps = this.roamSteps || 0;
   const range = this.range || 4; // Default roam range
 
@@ -190,33 +164,26 @@ async handleRoamState(tiles, resources, npcs = () => {}) {  //console.log(`NPC $
 
   const preferredDirections = preferredDirectionsMap[this.currentDirection] || [this.currentDirection];
 
-  // Filter valid directions
   const validDirections = preferredDirections.filter((direction) => {
     const { x, y } = this.getAdjacentTile(direction);
     return this.isValidTile(x, y, tiles, resources, npcs);
   });
 
-  if (validDirections.length === 0) {
-    //console.warn(`NPC ${this.id} cannot find a valid tile to move in the current direction.`);
-    this.currentDirection = null; // Reset direction to choose a new one
-    return; // Wait for the next cycle to pick a new direction
+  if (validDirections.length > 0) {
+    const direction = validDirections[Math.floor(Math.random() * validDirections.length)];
+    await this.moveOneTile(direction, tiles, resources, npcs);
+    this.roamSteps++;
+  } else {
+    this.currentDirection = null;
+    console.warn(`🐄 NPC ${this.id} found no valid roam directions this step.`);
   }
 
-  // Pick a valid direction at random from the preferred directions
-  const direction = validDirections[Math.floor(Math.random() * validDirections.length)];
-  //console.log(`NPC ${this.id} moving one tile in direction: ${direction}`);
-
-  // Move one tile in the chosen direction
-  await this.moveOneTile(direction, tiles, resources, npcs);
-
-  //console.log(`NPC ${this.id} successfully moved to (${this.position.x}, ${this.position.y}).`);
-  this.roamSteps++;
-
   // Check if the NPC has completed the roam range
-  if (this.roamSteps >= range) {
+  if (this.roamSteps >= range || validDirections.length === 0) {
     //console.log(`NPC ${this.id} completed ${range} roam steps. Transitioning to the next state.`);
     this.roamSteps = 0; // Reset roam steps
     this.currentDirection = null; // Reset direction for the next roam
+    onTransition();
   }
 }
 

@@ -281,24 +281,22 @@ async function handleFarmAnimalBehavior(gridId) {
         }
          
         case 'roam': {
-            await this.handleRoamState(tiles, resources, npcs, () => {
-                console.log('NPC is ROAMING; grazeEnd = ', this.grazeEnd);
+
+            await this.handleRoamState(tiles, resources, npcs, async () => {
+                // ✅ This is your onTransition logic
                 if (!this.grazeEnd) {
-                    console.log(`🌱 NPC ${this.id} has no grazeEnd, transitioning to hungry.`);
-                    this.state = 'hungry';
-                    gridStateManager.saveGridState(gridId);
-                    return;
-                  }
-                  const currentTime = Date.now();
-                if (this.grazeEnd && currentTime >= this.grazeEnd) {
+                  console.log(`🌱 NPC ${this.id} has no grazeEnd, transitioning to hungry.`);
+                  this.state = 'hungry';
+                } else if (Date.now() >= this.grazeEnd) {
                   console.log(`⏰ Grazing is done — NPC ${this.id} going to stall.`);
                   this.state = 'stall';
                 } else {
-                  console.log(`😐 NPC ${this.id} completed roam but grazing NOT done `);
-                  this.state = 'idle'; // explicitly go idle
+                  console.log(`😐 NPC ${this.id} completed roam but grazing NOT done. Going idle.`);
+                  this.state = 'idle';
                 }
-                gridStateManager.saveGridState(gridId); // Save updated position/state
+                await gridStateManager.saveGridState(gridId);
               });
+
             break;
           }
 
