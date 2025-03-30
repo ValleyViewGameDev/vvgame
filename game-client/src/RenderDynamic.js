@@ -70,13 +70,13 @@ const DynamicRenderer = ({
           npcElement.style.zIndex = 15;
           container.appendChild(npcElement);
           npcElements.current.set(npc.id, npcElement);
-        }
+        } 
 
         // ✅ Update cursor dynamically
         if (npc.action === 'attack' || npc.action === 'spawn') {
           npcElement.style.cursor = currentTime < reloadRef.current ? 'wait' : 'crosshair';
         } else if (npc.action === 'quest' || npc.action === 'heal') {
-          npcElement.style.cursor = 'help';
+          npcElement.style.cursor = 'pointer';
         } else {
           npcElement.style.cursor = 'pointer';
         }

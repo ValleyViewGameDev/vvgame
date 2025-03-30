@@ -279,6 +279,7 @@ useEffect(() => {
         { type: 'Sugarcane', quantity: 5000 },
         { type: 'Strawberry', quantity: 5000 },
         { type: 'Diamond', quantity: 500 },
+        { type: 'Feverfew', quantity: 100 },
       ];
   
       // Fetch the latest inventory and work on a copy
