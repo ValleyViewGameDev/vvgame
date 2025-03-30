@@ -596,9 +596,13 @@ useEffect(() => {
     const { npcs = {}, pcs = {} } = gridState;
     
     // Ensure all NPCs have the latest state
+    console.log("about to run npc.update");
+
     Object.values(npcs).forEach((npc) => {
       const currentTime = Date.now();
       npc.update(currentTime, gridState, gridId, activeTileSize);
+      console.log("Ran npc.update for an npc.");
+
     });
     // Check each PC's HP directly from gridState
     Object.values(pcs).forEach(async (pc) => {
