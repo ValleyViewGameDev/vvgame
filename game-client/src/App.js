@@ -754,7 +754,7 @@ useEffect(() => {
     console.log("🧹 Unsubscribing from gridState-sync for grid:", gridId);
     socket.off('gridState-sync', handleGridStateSync);
   };
-}, [gridId, currentPlayer]);
+}, [socket, gridId, currentPlayer]);
 
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
@@ -776,13 +776,11 @@ useEffect(() => {
     if (updatedResources?.length) {
       setResources((prevResources) => {
         const updated = [...prevResources];
-
         updatedResources.forEach((newRes) => {
           if (!newRes || typeof newRes.x !== 'number' || typeof newRes.y !== 'number') {
             console.warn("⚠️ Skipping invalid socket resource:", newRes);
             return;
           }
-
           // ✅ HANDLE RESOURCE REMOVAL
           if (newRes.type === null) {
             console.log(`🧹 Removing resource at (${newRes.x}, ${newRes.y})`);
@@ -794,17 +792,13 @@ useEffect(() => {
             }
             return; // Skip enrichment
           }
-
           // ✅ NORMAL ENRICHMENT PATH
           const resourceTemplate = masterResources.find(r => r.type === newRes.type);
           if (!resourceTemplate) {
             console.warn(`⚠️ No matching resource template found for ${newRes.type}`);
           }
-
           const enriched = enrichResourceFromMaster(newRes, masterResources);
-
           console.log('🌐🌐 LISTENER: enriched resource = ', enriched);
-
           const filtered = updated.filter(r => !(r.x === newRes.x && r.y === newRes.y));
           filtered.push(enriched);
           updated.splice(0, updated.length, ...filtered);
