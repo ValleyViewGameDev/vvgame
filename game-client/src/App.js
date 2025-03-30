@@ -747,7 +747,7 @@ useEffect(() => {
     return; // 🛑 Don't process until ready
   }
 
-  const handleTileResourceSync = ({ updatedTiles, updatedResources }) => {
+  const handleResourceSync = ({ updatedTiles, updatedResources }) => {
     console.log("🌐 Real-time tile/resource update received!", {
       updatedTiles,
       updatedResources,
@@ -802,10 +802,10 @@ useEffect(() => {
   };
 
   console.log("🧲 [resources] Subscribing to real-time updates for grid:", gridId);
-  socket.on("resource-sync", handleTileResourceSync);
+  socket.on("resource-sync", handleResourceSync);
 
   return () => {
-    socket.off("resource-sync", handleTileResourceSync);
+    socket.off("resource-sync", handleResourceSync);
   };
 }, [socket, gridId, isMasterResourcesReady]); // ← Add isMasterResourcesReady as a dependency
 
