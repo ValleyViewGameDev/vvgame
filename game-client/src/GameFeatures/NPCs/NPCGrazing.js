@@ -282,6 +282,7 @@ async function handleFarmAnimalBehavior(gridId) {
          
         case 'roam': {
             await this.handleRoamState(tiles, resources, npcs, () => {
+                console.log('NPC is ROAMING; grazeEnd = ', this.grazeEnd);
                 if (!this.grazeEnd) {
                     console.log(`🌱 NPC ${this.id} has no grazeEnd, transitioning to hungry.`);
                     this.state = 'hungry';
