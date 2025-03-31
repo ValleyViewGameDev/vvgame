@@ -1292,10 +1292,17 @@ const zoomOut = () => {
 
         <br />
 
-        <h4>📅 ({timers.seasons.phase})</h4>
-        <h4>📅 {timers.seasons.type} Season Ends in:</h4>
-          <h2>{countdowns.seasons}</h2>
-        <br />
+        {timers.seasons.phase === "onSeason" ? (
+          <>
+            <h4>📅 Season Ends in:</h4>
+            <h2>{countdowns.seasons}</h2>
+          </>
+        ) : (
+          <>
+            <h4>📅 Season Begins in:</h4>
+            <h2>{countdowns.seasons}</h2>
+          </>
+        )}
 
         <h3>⏳ Events:
           <span 

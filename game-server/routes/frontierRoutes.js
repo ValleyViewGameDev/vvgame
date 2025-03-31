@@ -406,6 +406,16 @@ router.get('/get-tuning', async (req, res) => {
     }
 });
 
+// GET /api/tuning/seasons
+router.get('/tuning/seasons', async (req, res) => {
+  try {
+    res.status(200).json(seasonConfig); // Already imported as `seasonConfig`
+  } catch (error) {
+    console.error('❌ Error fetching seasons.json:', error);
+    res.status(500).json({ error: 'Failed to fetch season tuning data.' });
+  }
+});
+
 
 ///////////
 /////////// TAXES
