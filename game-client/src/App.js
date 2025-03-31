@@ -1205,9 +1205,24 @@ const zoomOut = () => {
   const [showTimers, setShowTimers] = useState(false);
 
   
-  
   return (
-  
+    <>
+      {/* New Navigation Column */}
+      <div className="nav-column">
+        <button className="nav-button" title="Home" onClick={() => closePanel()}>🏡</button>
+        <button className="nav-button" title="Farming" onClick={() => openPanel('FarmingPanel')}>🚜</button>
+        <button className="nav-button" title="Build" onClick={() => openPanel('BuildPanel')}>⚒️</button>
+        <button className="nav-button" title="Buy Animals" onClick={() => openPanel('BuyPanel')}>🐮</button>
+        <button className="nav-button" title="Active Quests" onClick={() => openPanel('QuestPanel')}>❓</button>
+        <button className="nav-button" title="Skills & Upgrades" disabled={!currentPlayer} onClick={() => {
+            setActiveStation(null); // ✅ Reset activeStation
+            openPanel("SkillsAndUpgradesPanel"); // ✅ Open the panel normally
+          }}>⚙️</button>
+        <button className="nav-button" title="Government" onClick={() => openPanel('GovPanel')}>🏛️</button>
+        <button className="nav-button" title="Seasons" onClick={() => openPanel('SeasonPanel')}>🗓️</button>
+        <button className="nav-button" onClick={() => openPanel('DebugPanel')}>🐞</button>
+      </div>
+
     <div className="app-container">
     <FloatingTextManager />
 
@@ -1215,7 +1230,7 @@ const zoomOut = () => {
       <div className="base-panel">
         <h1>Valley View</h1>  
         <br />
-        <p>Logged in as:</p>
+        <h3>Logged in as:</h3>
 
         <button className="shared-button"
           onClick={() => {
@@ -1230,22 +1245,18 @@ const zoomOut = () => {
           {currentPlayer?.username || 'Sign In'}
         </button>
         <br/>
-        <h3>💰 Money:{" "}
-          {Array.isArray(currentPlayer?.inventory) ? (
-            <>
-              <span className="money-value">
-                {currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0}
-              </span>
-            </>
-          ) : (
-            "..."
-          )}
-        </h3>
-            <br/>
-            <h4>Next Tax Collection:</h4> 
-            <h2>{countdowns.taxes}</h2>  
-            <br/>
-            <br/>
+
+        <button className="shared-button" >AWSD to Move</button>
+        <div className="zoom-controls">
+          <button className="zoom-button" disabled={!currentPlayer} onClick={zoomOut}>−</button>
+          <button className="zoom-button" disabled={!currentPlayer} onClick={zoomIn}>+</button>
+          <span><h3>to Zoom</h3></span>
+        </div>
+        <button className="shared-button" onClick={() => openPanel('HowToPanel')}>
+          🕹️ How to Play
+        </button>
+        <br/>
+
 
         <div>
           {/* Button to toggle stats visibility */}
@@ -1273,6 +1284,12 @@ const zoomOut = () => {
           )}
         </div>
         
+        <br/>
+            <h4>Next Tax Collection:</h4> 
+            <h2>{countdowns.taxes}</h2>  
+            <br/>
+            <br/>
+
         <br />
 
         <h4>📅 ({timers.seasons.phase})</h4>
@@ -1319,10 +1336,7 @@ const zoomOut = () => {
               </h4>
             )}
           </div>
-          <br />
-          <button className="shared-button" onClick={() => openPanel('HowToPanel')}>
-            🕹️ How to Play
-          </button>
+
           <br />
 
           <button className="panel-button reset-button" onClick={handleResetTimers}>
@@ -1334,23 +1348,23 @@ const zoomOut = () => {
     {/* Header */}
     <header className="app-header">
       <div className="header-controls">
-        <button className="shared-button" onClick={() => openPanel('DebugPanel')}> 🐞 </button>
+
+      <h3>💰 Money:{" "}
+          {Array.isArray(currentPlayer?.inventory) ? (
+            <>
+              <span className="money-value">
+                {currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0}
+              </span>
+            </>
+          ) : (
+            "..."
+          )}
+        </h3>
+
+        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> 🎒 Inventory </button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Store')}>🛒 Store</button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
-        <button className="shared-button" >AWSD to Move</button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={zoomOut}>-</button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={zoomIn}>+</button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> Inventory </button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}> ❓ Quests </button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('FarmingPanel')}> 🚜 Farm </button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('BuildPanel')}> ⚒️ Build </button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('BuyPanel')}> 🐮 Animals </button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => {
-            setActiveStation(null); // ✅ Reset activeStation
-            openPanel("SkillsAndUpgradesPanel"); // ✅ Open the panel normally
-          }} > ⚙️ Skills </button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('GovPanel')}> 🏛️ Gov </button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('SeasonPanel')}> 🌎 Season </button>
+        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Language')}>🌎 EN</button>
 
       </div>
     </header>
@@ -1705,7 +1719,8 @@ const zoomOut = () => {
       )}
 
       </div>
-    );
+    </>
+  );
 }
 
 export default App;

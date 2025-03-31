@@ -13,13 +13,53 @@ body {
   background-color: #f5f5f5;
 }
 
-/* Base Layout */
+/* Shift base panel and others to the right */
 .app-container {
-  display: flex;
-  height: 100vh;
+  margin-left: 60px; /* Width of the nav column */
 }
 
+
+/* ZOOM CONTROLS */
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  margin: 8px 0;
+  width: 100%;
+  padding-left: 10px; /* ✅ Match base panel padding */
+}
+
+.zoom-button {
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+  font-weight: bold;
+  background-color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.zoom-button:hover:enabled {
+  background-color: #eee;
+}
+
+.zoom-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.zoom-label {
+  font-weight: bold;
+  color: #305e25;
+}
+
+
 /* Base Panel */
+
 .base-panel {
   width: 180px;
   background-color: #67c257;
@@ -104,7 +144,15 @@ body {
 }
 
 .app-header .shared-button {
-  width: auto; /* Keep header buttons compact */
+  width: auto;
+  padding: 5px 10px;
+  font-size: 14px;
+  height: 30px; /* ✅ Match base panel button height */
+  line-height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .reset-button {
@@ -122,7 +170,37 @@ body {
   background-color: #ff0000;
 }
 
+
+/* New Nav Column */
+
+.nav-column {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 100%;
+  background-color: #3b7d4a;
+  padding-top: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1000;
+}
+
+.nav-button {
+  background: none;
+  border: none;
+  font-size: 28px;
+  margin: 10px 0;
+  cursor: pointer;
+  color: white;
+}
+
+
+
+
 /* Header */
+
 .app-header {
   background-color: #67c257;
   color: white;
@@ -131,17 +209,32 @@ body {
   padding: 10px;
   position: fixed;
   top: 0;
-  left: 200px; /* Adjust for base panel width */
-  width: calc(100% - 180px); /* Exclude base panel width */
+  left: 250px;
+  width: calc(100% - 240px);
   z-index: 150;
   white-space: nowrap; /* ✅ Prevent text from wrapping */
 
+}
+
+.app-header h3 {
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  font-weight: normal;
+  display: flex;
+  align-items: center;
 }
 
 .header-controls {
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+.header-controls > * {
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
 .header-controls p {

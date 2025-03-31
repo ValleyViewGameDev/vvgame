@@ -119,6 +119,7 @@ function SeasonPanel({ onClose, currentPlayer }) {
       {/* ✅ Richest Wealthiest Section */}
       <h3>💰 This Settlement's Wealthiest Citizens</h3>
       <p>Calculated net worth is a sum of inventory, buildings, skills, and money.</p>
+      <p>Net worth is re-calculated only at tax time, and on season completion.</p>
       {richestCitizens.length > 0 ? (
         <div>
           {richestCitizens.map((citizen, index) => (

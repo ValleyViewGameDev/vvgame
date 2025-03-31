@@ -2,7 +2,7 @@
 .status-bar-wrapper {
     position: fixed;
     top: 55px; /* Adjust below header */
-    left: 200px; /* Align after base panel */
+    left: 260px; /* Align after base panel */
     width: calc(100% - 200px); /* Full width minus base panel */
     height: 30px;
     background-color: #86512b;
@@ -12,7 +12,7 @@
   .status-bar {
     position: fixed;
     top: 60px; /* Positioned under header */
-    left: 200px; /* Start after the base panel */
+    left: 260px; /* Start after the base panel */
     height: 16px;
     width: 100%; /* Stretch across the full width of the container */
     line-height: 0.1; /* Adjust line-height for compactness */
@@ -22,18 +22,7 @@
     text-align: left; /* Center the text */
     z-index: 150; /* High enough to prevent conflicts */ 
   }
-  
-  /* .status-bar {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    padding: 10px 0;
-    font-size: 1.2rem;
-    overflow: hidden; }
-   */
+
   
   .status-bar p {
     display: inline-block;
