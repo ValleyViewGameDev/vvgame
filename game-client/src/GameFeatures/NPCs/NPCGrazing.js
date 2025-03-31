@@ -205,8 +205,7 @@ async function handleFarmAnimalBehavior(gridId) {
                 const dy = this.targetStall.y - Math.floor(this.position.y);
                 let direction = null;
             
-
-                // Diagonal preference if both dx and dy are nonzero
+                // ✅ Prefer diagonals if both dx and dy are non-zero
                 if (dx !== 0 && dy !== 0) {
                     if (dx > 0 && dy > 0) direction = 'SE';
                     else if (dx > 0 && dy < 0) direction = 'NE';
@@ -232,21 +231,23 @@ async function handleFarmAnimalBehavior(gridId) {
             
                 // Step 8: Move the NPC one tile towards the stall
                 if (!this.isMoving) {
-                    //console.log(`NPC ${this.id} moving one tile toward (${this.targetStall.x}, ${this.targetStall.y}).`);
                     this.isMoving = true;
                     const moved = await this.moveOneTile(direction, tiles, resources, npcs);
-                    // Snap to integer positions to prevent floating point drift
                     this.position.x = Math.floor(this.position.x);
                     this.position.y = Math.floor(this.position.y);
-                    this.isMoving = false;            
+                    this.isMoving = false;
+                  
                     if (!moved) {
-                        console.warn(`NPC ${this.id} is stuck and cannot move toward the stall. Switching to idle.`);
-                        this.targetStall = null;
-                        this.state = 'idle';
-                        this.triedStall = true; // ✅ added
-                        break;
-                      }
-                }
+                      console.warn(`NPC ${this.id} is stuck and cannot move toward the stall. Switching to idle.`);
+                      this.targetStall = null;
+                      this.state = 'idle';
+                      this.triedStall = true;
+                      await gridStateManager.saveGridState(gridId); // ✅ Save failure state
+                      break;
+                    }
+                  
+                    await gridStateManager.saveGridState(gridId); // ✅ Save successful movement
+                  }
             
                 // Step 9: If NPC reaches the stall, transition to processing state
                 if (Math.floor(this.position.x) === this.targetStall.x &&
