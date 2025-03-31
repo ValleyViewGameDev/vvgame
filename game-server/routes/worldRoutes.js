@@ -207,52 +207,59 @@ router.post('/reset-grid', async (req, res) => {
 
   if (!gridId || !gridType) {
     console.error('Missing required fields in request body:', req.body);
-    return res.status(400).json({
-      error: 'gridId and gridType are required.',
-    });
+    return res.status(400).json({ error: 'gridId and gridType are required.' });
   }
 
   try {
     console.log(`Resetting grid with ID: ${gridId}, Type: ${gridType}`);
 
-    const frontier = await Frontier.findById(frontierId);
-    if (!frontier) return res.status(404).json({ error: 'Frontier not found.' });
-    
-    let layoutInfo;
-    if (gridType === 'homestead') {
-      const seasonType = frontier?.seasons?.seasonType || 'default';
-      const layoutFile = getHomesteadLayoutFile(seasonType);
-      layoutInfo = getTemplate('gridLayouts/homestead', layoutFile, gridCoord);
-    } else {
-      layoutInfo = getTemplate('gridLayouts', gridType, gridCoord);
-    }
-    
-    // Load the layout for this gridType
-    const { template: layout, fileName: layoutFileName } = getTemplate('gridLayouts', gridType, gridCoord);
-    if (!layout || !layout.tiles || !layout.resources) {
-      console.error(`Invalid layout for gridType: ${gridType}`);
-      return res.status(400).json({ error: `Invalid layout for gridType: ${gridType}` });
-    }
-
-    // Generate new tiles/resources
-    const newTiles = generateGrid(layout, layout.tileDistribution).map(row =>
-      row.map(layoutKey => {
-        const tileResource = masterResources.find(res => res.layoutkey === layoutKey && res.category === "tile");
-        return tileResource ? tileResource.type : "g"; // Default to "g" if missing
-      })
-    );
-    const newResources = generateResources(layout, newTiles, layoutFileName);
-    const newGridState = { npcs: {} };
-
-    // Find the existing Grid document
+    // Step 1: Load the Grid first so we can use frontierId for seasonal layouts
     const grid = await Grid.findById(gridId);
     if (!grid) {
       console.error(`Grid not found for ID: ${gridId}`);
       return res.status(404).json({ error: 'Grid not found.' });
     }
 
-    // Preserve PCs exactly as they were
+    // Step 2: Fetch layout based on gridType — with seasonal override for homesteads
+    let layout, layoutFileName;
+    if (gridType === 'homestead') {
+      const frontier = await Frontier.findById(grid.frontierId);
+      if (!frontier) {
+        return res.status(404).json({ error: 'Frontier not found.' });
+      }
+
+      const seasonType = frontier?.seasons?.seasonType || 'default';
+      const layoutFile = getHomesteadLayoutFile(seasonType);
+      const seasonalPath = path.join(__dirname, '../layouts/gridLayouts/homestead', layoutFile);
+      layout = readJSON(seasonalPath);
+      layoutFileName = layoutFile;
+      console.log(`🌱 Using seasonal homestead layout for reset: ${layoutFile}`);
+    } else {
+      const layoutInfo = getTemplate('gridLayouts', gridType, gridCoord);
+      layout = layoutInfo.template;
+      layoutFileName = layoutInfo.fileName;
+    }
+
+    // Step 3: Validate layout content
+    if (!layout || !layout.tiles || !layout.resources) {
+      console.error(`Invalid layout for gridType: ${gridType}`);
+      return res.status(400).json({ error: `Invalid layout for gridType: ${gridType}` });
+    }
+
+    // Generate new tiles
+    const newTiles = generateGrid(layout, layout.tileDistribution).map(row =>
+      row.map(layoutKey => {
+        const tileResource = masterResources.find(res => res.layoutkey === layoutKey && res.category === "tile");
+        return tileResource ? tileResource.type : "g"; // Default to "g" if missing
+      })
+    );
+
+    // Step 5: Generate resources
+    const newResources = generateResources(layout, newTiles, layoutFileName);
+
+    // Step 6: Extract fresh NPCs, preserve PCs
     const existingPCs = grid.gridState?.pcs || {};
+    const newGridState = { npcs: {}, pcs: existingPCs };
 
     // 5Process layout resources, separating NPCs into gridState
     layout.resources.forEach((row, y) => {
