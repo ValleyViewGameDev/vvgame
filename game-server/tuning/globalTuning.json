@@ -7,7 +7,7 @@
     "seasonMoneyNerfGold": 0.25,
 
     "baseHoursForTrain": 2.5, 
-
+ 
     "taxes": {
         "phases": {
             "waiting": 1440,
