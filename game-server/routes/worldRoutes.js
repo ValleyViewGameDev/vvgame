@@ -18,6 +18,12 @@ const masterResources = require('../tuning/resources.json'); // Import resources
 const { getTemplate } = require('../utils/templateUtils');
 const queue = require('../queue'); // Import the in-memory queue
 
+function getHomesteadLayoutFile(seasonType) {
+  const layoutFileName = `homestead${seasonType}.json`;
+  const layoutPath = path.join(__dirname, '../layouts/gridLayouts/homestead', layoutFileName);
+  return fs.existsSync(layoutPath) ? layoutFileName : 'homestead_default.json';
+}
+
 ///////////////////////////////////////////////////////////////
 // GRID ROUTES 
 ///////////////////////////////////////////////////////////////
@@ -109,9 +115,22 @@ router.post('/create-grid', async (req, res) => {
     const targetGrid = settlement.grids.flat().find( (g) => g.gridCoord === Number(gridCoord) );
     if (!targetGrid) { return res.status(400).json({error: `No sub-grid found in settlement for gridCoord: ${gridCoord}`,}); }
 
-    // 3) Load the correct grid template
-    console.log(`Generating grid with layout "${gridType}"...`);
-    const { template: layout, fileName: layoutFileName } = getTemplate('gridLayouts', gridType, gridCoord);
+    // 3) Load the correct grid template — seasonal override if gridType is 'homestead'
+    let layoutFileName, layout;
+    if (gridType === 'homestead') {
+      const seasonType = frontier.seasons?.seasonType || 'default'; // e.g., Spring, Summer
+      const seasonalLayoutFile = getHomesteadLayoutFile(seasonType); // fallback-safe helper
+      const seasonalPath = path.join(__dirname, '../layouts/gridLayouts/homestead', seasonalLayoutFile);
+      layout = readJSON(seasonalPath);
+      layoutFileName = seasonalLayoutFile;
+      console.log(`🌱 Using seasonal homestead layout: ${seasonalLayoutFile}`);
+    } else {
+      // Use standard grid loading logic
+      const templateData = getTemplate('gridLayouts', gridType, gridCoord);
+      layout = templateData.template;
+      layoutFileName = templateData.fileName;
+      console.log(`📦 Using standard grid layout: ${layoutFileName}`);
+    }
     if (!layout || !layout.tiles || !layout.resources || !layout.tileDistribution || !layout.resourceDistribution) {
       return res.status(400).json({ error: `Invalid layout for gridType: ${gridType}` });
     }
@@ -128,10 +147,9 @@ router.post('/create-grid', async (req, res) => {
     console.log(`📌 Generating resources using in-template resource distribution...`);
     const newResources = generateResources(layout, newTiles, layout.resourceDistribution); // ✅ Uses `layout.resourceDistribution`
 
-    const newGridState = { npcs: {} };
-
 
      // 6) Separate NPCs into `gridState`
+     const newGridState = { npcs: {} };
      layout.resources.forEach((row, y) => {
       row.forEach((cell, x) => {
         const resourceEntry = masterResources.find(res => res.layoutkey === cell);
@@ -153,7 +171,7 @@ router.post('/create-grid', async (req, res) => {
       });
     });
 
-    // 5) Create the actual Grid document
+    // 7) Create the actual Grid document
     const newGrid = new Grid({
       gridType,
       frontierId,
@@ -164,13 +182,13 @@ router.post('/create-grid', async (req, res) => {
     });
     await newGrid.save();
 
-    // 6) Update the settlement sub-grid to reference this new Grid
+    // 8) Update the settlement sub-grid to reference this new Grid
     targetGrid.available = false;
     targetGrid.gridId = newGrid._id;
     await settlement.save();
     console.log(`New Grid created successfully with ID: ${newGrid._id} for gridCoord: ${gridCoord}`);
 
-    // 7) Respond to client
+    // 9) Respond to client
     res.status(201).json({
       success: true,
       gridId: newGrid._id,
@@ -197,6 +215,18 @@ router.post('/reset-grid', async (req, res) => {
   try {
     console.log(`Resetting grid with ID: ${gridId}, Type: ${gridType}`);
 
+    const frontier = await Frontier.findById(frontierId);
+    if (!frontier) return res.status(404).json({ error: 'Frontier not found.' });
+    
+    let layoutInfo;
+    if (gridType === 'homestead') {
+      const seasonType = frontier?.seasons?.seasonType || 'default';
+      const layoutFile = getHomesteadLayoutFile(seasonType);
+      layoutInfo = getTemplate('gridLayouts/homestead', layoutFile, gridCoord);
+    } else {
+      layoutInfo = getTemplate('gridLayouts', gridType, gridCoord);
+    }
+    
     // Load the layout for this gridType
     const { template: layout, fileName: layoutFileName } = getTemplate('gridLayouts', gridType, gridCoord);
     if (!layout || !layout.tiles || !layout.resources) {
