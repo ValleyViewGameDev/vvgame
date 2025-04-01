@@ -35,7 +35,7 @@ async function seasonScheduler(frontierId) {
     console.log("⏱️ Raw now:", now.getTime(), "| Raw endTime:", endTime.getTime());
     console.log("⏱️ Delta ms:", endTime.getTime() - now.getTime());
 
-    
+
     // Only proceed if phase has expired
     if (now >= endTime) {
       console.group(`\n🌱 SEASON PHASE UPDATE for Frontier ${frontierId}`);
@@ -83,6 +83,8 @@ async function seasonScheduler(frontierId) {
       console.log(`⏳ Next Phase Ends At: ${nextEndTime.toLocaleString()} (Duration: ${nextDurationMin} min)`);
       console.groupEnd();
 
+      scheduleEvent("seasons", nextPhase, nextDurationMs, frontierId);
+      
       // Optional hooks
       // if (nextPhase === "offSeason") {
       //   console.log("🎯 Running seasonFinalizer...");
