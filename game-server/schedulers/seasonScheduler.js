@@ -3,6 +3,7 @@ const globalTuning = require("../tuning/globalTuning.json");
 const seasons = require("../tuning/seasons.json");
 const seasonFinalizer = require('../utils/seasonFinalizer');
 const seasonReset = require('../utils/seasonReset');
+const scheduleEvent = require('../utils/scheduleEvent');
 
 async function seasonScheduler(frontierId) {
   console.log("🔥 seasonScheduler START - frontierId:", frontierId);
@@ -84,7 +85,7 @@ async function seasonScheduler(frontierId) {
       console.groupEnd();
 
       scheduleEvent("seasons", nextPhase, nextDurationMs, frontierId);
-      
+
       // Optional hooks
       // if (nextPhase === "offSeason") {
       //   console.log("🎯 Running seasonFinalizer...");
