@@ -78,7 +78,7 @@ const scheduleEvent = (event, phase, duration, frontierId) => {
         switch (event) {
             case "taxes":
                   console.log("💰 Triggering taxScheduler...");
-//                await taxScheduler(frontierId);
+                await taxScheduler(frontierId);
                 break;
             case "seasons":
                   console.log("🗓️ Triggering seasonScheduler...");
