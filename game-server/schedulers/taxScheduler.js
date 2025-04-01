@@ -5,6 +5,8 @@ const Resource = require("../models/resource");
 const globalTuning = require("../tuning/globalTuning.json");
 const { levyTax } = require("../controllers/taxController"); 
 const masterResources = require("../tuning/resources.json"); 
+const { scheduleEvent } = require("../utils/scheduleHelpers"); // Adjust path if needed
+
 
 const taxScheduler = async (frontierId) => {
     console.log("📊 Tax scheduler triggered for Frontier:", frontierId);
@@ -91,6 +93,8 @@ const taxScheduler = async (frontierId) => {
         } else {
             console.log(`⏳ Taxes phase '${phase}' is still active. End time: ${new Date(endTime).toLocaleString()}`);
         }
+
+        scheduleEvent("taxes", nextPhase, nextDurationMs, frontierId);
 
         console.groupEnd();
     } catch (error) {

@@ -3,11 +3,7 @@ const path = require("path");
 const globalTuning = require("../tuning/globalTuning.json");
 
 // Import event-specific schedulers
-const { taxScheduler } = require('./taxScheduler'); // ✅ Destructure correctly
-const seasonScheduler = require("./seasonScheduler");
-const electionScheduler = require("./electionScheduler");
-const trainScheduler = require('./trainScheduler');
-const bankScheduler = require("./bankScheduler");
+const { scheduleEvent } = require("../utils/scheduleHelpers"); // Adjust path if needed
 const Frontier = require("../models/frontier");
 
 // Stores active timers
@@ -64,45 +60,7 @@ const initializeTimers = async () => {
     }
   };
 
-/**
- * Schedules an event for a specific frontier.
- */
-const scheduleEvent = (event, phase, duration, frontierId) => {
-    console.log(`⏳ Scheduling ${event} - Phase: ${phase} (Frontier ${frontierId}) for ${duration / 60000} min...`);
 
-    if (activeTimers[`${event}-${frontierId}`]) { clearTimeout(activeTimers[`${event}-${frontierId}`]); }
-
-    activeTimers[`${event}-${frontierId}`] = setTimeout(async () => {
-        console.log(`🚀 Triggering ${event} - Phase: ${phase} (Frontier ${frontierId})`);
-
-        switch (event) {
-            case "taxes":
-                  console.log("💰 Triggering taxScheduler...");
-                await taxScheduler(frontierId);
-                break;
-            case "seasons":
-                  console.log("🗓️ Triggering seasonScheduler...");
-                await seasonScheduler(frontierId);
-                break;
-            case "elections":
-                  console.log("🏛️ Triggering electionsScheduler...");
-//                await electionScheduler(frontierId);
-                break;
-            case "train":
-                  console.log("🚂 Triggering trainScheduler...");
-//                await trainScheduler(frontierId);
-                break;
-            case "bank":
-                  console.log("🏦 Triggering bankScheduler...");
-//                await bankScheduler(frontierId);
-                break;
-            default:
-                console.warn(`⚠️ No scheduler found for ${event}. Skipping...`);
-                return;
-        }
-        
-    }, duration);
-};
 
 
 /**
