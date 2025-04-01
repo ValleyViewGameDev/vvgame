@@ -1,12 +1,14 @@
 import API_BASE from '../../config';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
-
+import { formatCountdown } from '../../UI/Timers';
 function SeasonPanel({ onClose, currentPlayer }) {
   const [countdown, setCountdown] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [richestCitizens, setRichestCitizens] = useState([]);
+  const [seasonCycle, setSeasonCycle] = useState([]);
+
 
   // ✅ Fetch season data from local storage
   const getSeasonData = () => {
@@ -14,38 +16,42 @@ function SeasonPanel({ onClose, currentPlayer }) {
     return storedTimers?.seasons || { type: "Unknown", phase: "Unknown", endTime: null };
   };
 
+  const getNextSeason = (currentSeason) => {
+    if (!seasonCycle.length || !currentSeason) return "Unknown";
+    const currentIndex = seasonCycle.findIndex(s => s.seasonType === currentSeason);
+    const nextIndex = (currentIndex + 1) % seasonCycle.length;
+    return seasonCycle[nextIndex]?.seasonType || "Unknown";
+  };
+  
+  useEffect(() => {
+    const fetchSeasonCycle = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/api/tuning/seasons`);
+        setSeasonCycle(response.data);
+      } catch (error) {
+        console.error("❌ Failed to fetch season cycle", error);
+      }
+    };
+  
+    fetchSeasonCycle();
+  }, []);
+
   // ✅ Compute real-time countdown from local timer state
   useEffect(() => {
     const updateCountdown = () => {
       const seasonData = getSeasonData();
-      if (!seasonData?.endTime) {
-        setCountdown("N/A");
-        return;
-      }
       const now = new Date();
-      const endTime = new Date(seasonData.endTime);
-      const timeDiff = endTime - now;
-
-      if (timeDiff <= 0) {
-        console.warn("⚠️ Season ended! Waiting for phase change...");
-        setCountdown("0d 0h 0m 0s");
-        return;
-      }
-
-      const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
-
-      setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      const end = new Date(seasonData?.endTime);
+      setCountdown(formatCountdown(end, now));
     };
-
+  
     updateCountdown();
     const interval = setInterval(updateCountdown, 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // ✅ Fetch wealthiest citizens
+
+  // ✅ Fetch wealthiest citizens based on net worth
   useEffect(() => {
     const fetchRichestCitizens = async () => {
       if (!currentPlayer || !currentPlayer.settlementId) {
@@ -53,16 +59,20 @@ function SeasonPanel({ onClose, currentPlayer }) {
         return;
       }
       try {
+        console.log("💰 Fetching wealthiest citizens for settlement:", currentPlayer.settlementId);
+        
+        // ✅ Fetch all players in this settlement
         const response = await axios.get(`${API_BASE}/api/get-players-by-settlement/${currentPlayer.settlementId}`);
         const players = response.data;
 
+        // ✅ Sort players by Net Worth
         const sortedPlayers = players
           .map(player => ({
             username: player.username,
-            netWorth: player.netWorth || 0
+            netWorth: player.netWorth || 0 // ✅ Use netWorth instead of Money
           }))
-          .sort((a, b) => b.netWorth - a.netWorth)
-          .slice(0, 10);
+          .sort((a, b) => b.netWorth - a.netWorth) // ✅ Sort in descending order
+          .slice(0, 10); // ✅ Take the top 10
 
         setRichestCitizens(sortedPlayers);
       } catch (error) {
@@ -71,10 +81,13 @@ function SeasonPanel({ onClose, currentPlayer }) {
     };
 
     fetchRichestCitizens();
-  }, [currentPlayer]);
+  }, [currentPlayer]); // ✅ Runs when `currentPlayer` updates
 
-  // ✅ Read current season info
+
+    // ✅ Get current season data from local storage
   const seasonData = getSeasonData();
+  const nextSeasonType = getNextSeason(seasonData?.type);
+
 
   return (
     <Panel onClose={onClose} descriptionKey="1015" titleKey="1115" panelName="SeasonPanel">
@@ -86,13 +99,13 @@ function SeasonPanel({ onClose, currentPlayer }) {
       ) : (
         <>
           <h2>We are in between seasons.</h2>
-          <p>{seasonData?.type || "Loading..."} begins in: {countdown}</p>
         </>
       )}
 
-      <br />
-      <br />
+      <br></br>
+      <br></br>
 
+      {/* ✅ Richest Wealthiest Section */}
       <h3>💰 This Settlement's Wealthiest Citizens</h3>
       <p>Calculated net worth is a sum of inventory, buildings, skills, and money.</p>
       <p>Net worth is re-calculated only at tax time, and on season completion.</p>
@@ -107,6 +120,8 @@ function SeasonPanel({ onClose, currentPlayer }) {
       ) : (
         <p>No data available for wealthiest citizens.</p>
       )}
+
+
     </Panel>
   );
 }

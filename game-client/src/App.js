@@ -43,6 +43,7 @@ import AnimalStall from './GameFeatures/FarmAnimals/AnimalStall';
 import TradeStall from './GameFeatures/Trading/TradeStall';
 import Mailbox from './GameFeatures/Mailbox/Mailbox';
 import Store from './Store/Store';
+import OffSeasonModal from './GameFeatures/Seasons/OffSeasonModal.js';
 
 import SeasonPanel from './GameFeatures/Seasons/SeasonPanel';
 import SocialPanel from './GameFeatures/Social/SocialPanel';
@@ -111,6 +112,7 @@ const [isLoginPanelOpen, setisLoginPanelOpen] = useState(false);
 const { activeModal, setActiveModal, openModal, closeModal } = useModalContext();
 const [isModalOpen, setIsModalOpen] = useState(false);
 const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
+const [isOffSeason, setIsOffSeason] = useState(false); // Track if it's off-season
 
 const { activePanel, openPanel, closePanel } = usePanelContext();
 const [activeQuestGiver, setActiveQuestGiver] = useState(null);
@@ -140,7 +142,7 @@ const TILE_SIZES = { close: 30, far: 16 }; // Rename for clarity
 const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
 
 
-/////// TIMERS //////////////////////////////////////////////////////
+/////// TIMERS & SEASONS //////////////////////////////////////////////////////
 
 // TIMERS Step 1: Global State for Timers
 const [timers, setTimers] = useState(() => {
@@ -284,7 +286,9 @@ useEffect(() => {
 const handleResetTimers = async () => {
   try {
     // ✅ Step 1: Clear local storage timers
+    console.log("🧹 Local storage timer value before clearing:", localStorage.getItem("timers"));
     localStorage.removeItem("timers");
+    console.log("🧼 Local storage timers cleared.");
 
     // ✅ Step 2: Request server to reset timers
     const response = await axios.post(`${API_BASE}/api/reset-all-timers`);
@@ -302,6 +306,42 @@ const handleResetTimers = async () => {
     updateStatus("❌ Timer reset request failed.");
   }
 };
+
+// ✅ When season enters OffSeason phase, open the modal
+useEffect(() => {
+  const validateOffSeason = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`);
+      const serverSeasonPhase = response.data?.timers?.seasons?.phase;
+      const serverEndTime = response.data?.timers?.seasons?.endTime;
+
+      const currentTime = Date.now();
+
+      if (
+        serverSeasonPhase === "offSeason" &&
+        serverEndTime > currentTime
+      ) {
+        console.log("🛑 Confirmed OffSeason from server — showing OffSeasonModal.");
+        setIsOffSeason(true);
+      } else {
+        console.log("✅ Season phase check: Not OffSeason (or already expired).");
+        setIsOffSeason(false);
+      }
+    } catch (error) {
+      console.error("❌ Error validating OffSeason phase from server:", error);
+      // Optional fallback: assume not offSeason if we can't validate
+      setIsOffSeason(false);
+    }
+  };
+
+  if (timers?.seasons?.phase === "offSeason") {
+    console.log("⚠️ OffSeason detected in local timers — validating with server...");
+    validateOffSeason();
+  } else {
+    setIsOffSeason(false);
+  }
+}, [timers?.seasons?.phase, currentPlayer?.frontierId]);
+
 
 
 /////// //// //////////////////////////////////////////////////////
@@ -855,7 +895,7 @@ useEffect(() => {
     const handleKeyDown = (event) => {
 
       // ✅ Prevent movement if a modal is open
-      if (activeModal) { console.log("🛑 Keyboard input disabled while modal is open."); return; }
+      if (activeModal || isOffSeason ) { console.log("🛑 Keyboard input disabled while modal is open."); return; }
       // ✅ Prevent movement if a text input is focused
       const activeElement = document.activeElement;
       if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; }
@@ -1346,6 +1386,20 @@ const zoomOut = () => {
 
           <br />
 
+          <button
+            className="reset-button"
+            onClick={async () => {
+              try {
+                await axios.post(`${API_BASE}/api/debug/end-season`);
+                alert("✅ Triggered artificial end-of-season for debug.");
+              } catch (error) {
+                console.error("❌ Failed to trigger season end:", error);
+              }
+            }}
+          >
+            End Season (Debug)
+          </button>
+
           <button className="panel-button reset-button" onClick={handleResetTimers}>
             Reset All Timers
           </button>
@@ -1560,13 +1614,6 @@ const zoomOut = () => {
           setCurrentPlayer={setCurrentPlayer}
         />
       )}
-      {activePanel === 'SeasonPanel' && (
-        <SeasonPanel
-          onClose={closePanel}
-          currentPlayer={currentPlayer}
-          setCurrentPlayer={setCurrentPlayer}
-        />
-      )}
       {activePanel === 'QuestPanel' && (
         <QuestPanel
           onClose={closePanel}
@@ -1722,6 +1769,21 @@ const zoomOut = () => {
             onClose={closePanel}
             currentPlayer={currentPlayer}
             setCurrentPlayer={setCurrentPlayer}
+        />
+      )}
+      {activePanel === 'SeasonPanel' && (
+        <SeasonPanel
+          onClose={closePanel}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+        />
+      )}
+ 
+
+      {isOffSeason && (
+        <OffSeasonModal
+          currentPlayer={currentPlayer}
+          timers={timers}
         />
       )}
 

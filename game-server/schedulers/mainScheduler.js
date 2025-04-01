@@ -3,10 +3,10 @@ const path = require("path");
 const globalTuning = require("../tuning/globalTuning.json");
 
 // Import event-specific schedulers
-const taxScheduler = require("./taxScheduler");
+const { taxScheduler } = require('./taxScheduler'); // ✅ Destructure correctly
 const seasonScheduler = require("./seasonScheduler");
 const electionScheduler = require("./electionScheduler");
-const trainScheduler = require("./trainScheduler");
+const trainScheduler = require('./trainScheduler');
 const bankScheduler = require("./bankScheduler");
 const Frontier = require("../models/frontier");
 
@@ -25,6 +25,7 @@ const initializeTimers = async () => {
         return;
       }
   
+
       for (const [event, config] of Object.entries(globalTuning)) {
         if (!config.phases) continue;
   
@@ -46,6 +47,9 @@ const initializeTimers = async () => {
             nextDuration = globalTuning[event].phases[nextPhase] * 60 * 1000;
           }
   
+          console.log(`🕒 Now: ${new Date(now).toLocaleString()}, Current EndTime: ${currentEndTime}`);
+          console.log(`📆 Scheduling nextPhase: ${nextPhase}, for ${nextDuration / 1000}s`);
+    
           // ✅ Only update the `event` section of the frontier document
           await Frontier.updateOne(
             { _id: frontier._id },
@@ -73,36 +77,30 @@ const scheduleEvent = (event, phase, duration, frontierId) => {
 
         switch (event) {
             case "taxes":
-                await taxScheduler(frontierId);
+                  console.log("💰 Triggering taxScheduler...");
+//                await taxScheduler(frontierId);
                 break;
             case "seasons":
+                  console.log("🗓️ Triggering seasonScheduler...");
                 await seasonScheduler(frontierId);
                 break;
             case "elections":
-                await electionScheduler(frontierId);
+                  console.log("🏛️ Triggering electionsScheduler...");
+//                await electionScheduler(frontierId);
                 break;
             case "train":
-                await trainScheduler(frontierId);
+                  console.log("🚂 Triggering trainScheduler...");
+//                await trainScheduler(frontierId);
                 break;
             case "bank":
-                await bankScheduler(frontierId);
+                  console.log("🏦 Triggering bankScheduler...");
+//                await bankScheduler(frontierId);
                 break;
             default:
                 console.warn(`⚠️ No scheduler found for ${event}. Skipping...`);
                 return;
         }
-
-        const nextPhase = getNextPhase(event, phase);
-        const nextDuration = globalTuning[event].phases[nextPhase] * 60 * 1000;
-
-        await Frontier.updateOne(
-            { _id: frontierId },
-            event === "bank"
-                ? { $set: { [`bank.phase`]: nextPhase, [`bank.endTime`]: Date.now() + nextDuration } }
-                : { $set: { [`${event}.phase`]: nextPhase, [`${event}.endTime`]: Date.now() + nextDuration } }
-        );
-
-        scheduleEvent(event, nextPhase, nextDuration, frontierId);
+        
     }, duration);
 };
 
@@ -141,31 +139,47 @@ const resetAllTimers = async () => {
       // ✅ Step 3: Reset each event timer for every frontier
       for (const [event, config] of Object.entries(globalTuning)) {
         if (!config.phases) continue;
-  
-        console.log(`\n🔄 Resetting timers for '${event}'...`);
-  
-        const startPhase = config.startPhase;
-        const durationMinutes = config.phases[startPhase] * 60 * 1000;
-  
+      
+        let startPhase = config.startPhase;
+        let durationMinutes = config.phases[startPhase] * 60 * 1000;
+      
+        // // Special case override for seasons only
+        // if (event === "seasons") {
+        //   startPhase = "onSeason";
+        //   durationMinutes = config.phases["onSeason"] * 60 * 1000;
+      
+        //   // Optional: reset to Spring for extra safety
+        //   for (const frontier of frontiers) {
+        //     await Frontier.updateOne(
+        //       { _id: frontier._id },
+        //       {
+        //         $set: {
+        //           "seasons.phase": startPhase,
+        //           "seasons.seasonType": "Spring",
+        //           "seasons.endTime": new Date(Date.now() + durationMinutes),
+        //           "seasons.startTime": Date.now(),
+        //           "seasons.seasonNumber": 1,
+        //         },
+        //       }
+        //     );
+        //   }
+        //   console.log(`🌱 Season timer reset to ${startPhase} with duration ${durationMinutes / 60000} min`);
+        //   continue; // Skip general timer scheduler for 'seasons'
+        // }
+      
+        // General case for other events
         for (const frontier of frontiers) {
-          console.log(`📌 Resetting '${event}' in Frontier ${frontier._id} to phase '${startPhase}'...`);
-          const bufferTime = 2000; // ✅ Add a 2-second buffer to avoid instant expiration
-          // ✅ Update the frontier document to set the event to its initial phase
+          const bufferTime = 2000;
           await Frontier.updateOne(
             { _id: frontier._id },
-            { 
-              $set: { 
-                [`${event}.phase`]: startPhase, 
-                [`${event}.endTime`]: new Date(Date.now() + durationMinutes + bufferTime) 
-              }
+            {
+              $set: {
+                [`${event}.phase`]: startPhase,
+                [`${event}.endTime`]: new Date(Date.now() + durationMinutes + bufferTime),
+              },
             }
-          ); 
-  
-          console.log(`✅ '${event}' reset in Frontier ${frontier._id}. New end time: ${new Date(Date.now() + durationMinutes).toLocaleString()}`);
-  
-          // ✅ Schedule the event
-          scheduleEvent(event, startPhase, durationMinutes, frontier._id);
-        }
+          );
+          scheduleEvent(event, startPhase, durationMinutes + bufferTime, frontier._id);        }
       }
   
       console.log("\n✅ All timers reset successfully!");

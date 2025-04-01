@@ -417,6 +417,24 @@ router.get('/tuning/seasons', async (req, res) => {
 });
 
 
+// routes/debugRoutes.js
+router.post('/debug/end-season', async (req, res) => {
+  try {
+    const frontier = await Frontier.findOne();
+    if (!frontier) return res.status(404).json({ error: "Frontier not found" });
+
+    // Move the endTime to 10 seconds from now
+    frontier.seasons.endTime = new Date(Date.now() + 10000);
+    await frontier.save();
+
+    res.status(200).json({ success: true, message: "Season end triggered in 5 seconds." });
+  } catch (err) {
+    console.error("❌ Error in debug/end-season:", err);
+    res.status(500).json({ error: "Internal error" });
+  }
+});
+
+
 ///////////
 /////////// TAXES
 ///////////

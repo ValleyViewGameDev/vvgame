@@ -6,8 +6,9 @@ const globalTuning = require("../tuning/globalTuning.json");
 const { levyTax } = require("../controllers/taxController"); 
 const masterResources = require("../tuning/resources.json"); 
 
-async function taxScheduler(frontierId) {
-    try {
+const taxScheduler = async (frontierId) => {
+    console.log("📊 Tax scheduler triggered for Frontier:", frontierId);
+      try {
         if (!frontierId) {
             console.warn("⚠️ No frontierId provided to taxScheduler.");
             return;
@@ -102,7 +103,7 @@ async function taxScheduler(frontierId) {
 // ✅ Simple delay function
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// ✅ Function to calculate and update net worth for all players in a frontier
+
 // ✅ Function to calculate and update net worth for all players in a frontier
 async function updateNetWorthForFrontier(frontierId) {
     try {
@@ -245,4 +246,7 @@ async function getGridStructures(gridId) {
     }
 }
 
-module.exports = taxScheduler;
+module.exports = {
+    taxScheduler,
+    updateNetWorthForFrontier
+  };
