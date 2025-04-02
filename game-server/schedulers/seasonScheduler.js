@@ -42,7 +42,6 @@ async function seasonScheduler(frontierId) {
         return {
             "seasons.seasonType": nextSeasonType,
             "seasons.seasonNumber": nextSeasonNumber,
-            "seasons.startTime": now
         };
 
         } catch (error) {
