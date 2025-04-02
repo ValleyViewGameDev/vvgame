@@ -5,55 +5,25 @@ const masterResources = require("../tuning/resources.json"); // ✅ Load masterR
 // **Bank Scheduler**
 async function bankScheduler(frontierId) {
     try {
-        if (!frontierId) { console.warn("⚠️ No frontierId provided to bankScheduler."); return; }
-        const frontier = await Frontier.findById(frontierId);
-        if (!frontier) { console.warn(`⚠️ Frontier ${frontierId} not found.`); return; }
-
-        const now = Date.now();
-        console.group(`\n💰 BANK SCHEDULER for Frontier ${frontierId}`);
-
-        // ✅ Step 1: Transition Bank Phase to "refreshing"
-        await Frontier.updateOne(
-            { _id: frontierId },
-            { $set: { "bank.phase": "refreshing" } }
-        );
-        console.log("💰 Bank phase transitioned to 'refreshing'.");
-
-        // ✅ Step 2: Wait 3 seconds before refreshing offers
-        await delay(3000);
-
-        // ✅ Step 3: Generate new bank offers
-        const newOffers = generateBankOffers();
-        await Frontier.updateOne(
-            { _id: frontierId },
-            { $set: { "bank.offers": newOffers, "bank.phase": "active" } }
-        );
-
-        console.log(`💰✅ ${newOffers.length} new bank offers generated.`);
-
-        const activeDuration = globalTuning.bank.phases.active * 60 * 1000;
-        const refreshingDuration = globalTuning.bank.phases.refreshing * 60 * 1000;
-        
-        // ✅ Determine next phase
-        const nextPhase = frontier.bank.phase === "active" ? "refreshing" : "active";
-        const nextDuration = nextPhase === "active" ? activeDuration : refreshingDuration;
-        
-        // ✅ Update the bank state in the database
-        await Frontier.updateOne(
-            { _id: frontierId },
-            { 
-                $set: { 
-                    "bank.phase": nextPhase, 
-                    "bank.endTime": new Date(Date.now() + nextDuration)
-                } 
-            }
-        );
-        console.groupEnd();
-
+      if (!frontierId) { console.warn("⚠️ No frontierId provided to bankScheduler."); return {}; }
+      
+      console.log(`💰 BANK LOGIC for Frontier ${frontierId}`);
+  
+      // ✅ Generate new offers
+      const newOffers = generateBankOffers();
+      console.log(`💰✅ ${newOffers.length} new bank offers generated.`);
+  
+      // ✅ Return update payload (to be merged in mainScheduler)
+      return {
+        "bank.offers": newOffers
+      };
+  
     } catch (error) {
-        console.error("❌ Error running bank scheduler:", error);
+      console.error("❌ Error running bank scheduler:", error);
+      return {}; // return empty object to prevent crashing mainScheduler
     }
-}
+  }
+
 
 // ✅ Function to generate offers based on `masterResources`
 function generateBankOffers() {
@@ -126,7 +96,5 @@ function generateBankOffers() {
     return offers;
 }
 
-// ✅ Simple delay function for cleaner scheduling
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 module.exports = bankScheduler;

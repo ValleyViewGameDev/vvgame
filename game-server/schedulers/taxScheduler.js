@@ -2,9 +2,6 @@ const Frontier = require("../models/frontier");
 const { levyTax } = require("../controllers/taxController");
 const { updateNetWorthForFrontier } = require("../utils/networthCalc");
 
-// ✅ Delay helper
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
 const taxScheduler = async (frontierId) => {
 
     try {
@@ -29,9 +26,6 @@ const taxScheduler = async (frontierId) => {
         } catch (error) {
             console.error("❌ Error during levyTax():", error);
         }
-
-        // ✅ Optional pause before net worth update
-        await delay(5000);
 
         console.group(`📊📊📊 ===== UPDATING NET WORTH for Frontier ${frontierId} =====`);
         await updateNetWorthForFrontier(frontierId);

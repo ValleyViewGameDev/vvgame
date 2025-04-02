@@ -5,6 +5,7 @@ const globalTuning = require("../tuning/globalTuning.json");
 const masterResources = require("../tuning/resources.json");
 const sendMailboxMessage = require("../utils/messageUtils.js");
 const { scheduleEvent } = require("../utils/scheduleHelpers");
+const seasonsConfig = require("../tuning/seasons.json");
 
 async function trainScheduler(frontierId) {
 
@@ -15,7 +16,7 @@ async function trainScheduler(frontierId) {
       return;
     }
 
-    console.log(`💰 TAX LOGIC for Frontier ${frontierId}`);
+    console.log(`🚂 TRAIN LOGIC for Frontier ${frontierId}`);
 
     const currentPhase = frontier.train.phase;
     console.log(`Frontier Phase: ${currentPhase}`);
@@ -56,7 +57,6 @@ async function trainScheduler(frontierId) {
 
         // ✅ 2. Generate new nextoffers and rewards
         const currentSeasonType = frontier.seasons?.seasonType;
-        const seasonsConfig = require("../tuning/seasons.json");
         const seasonConfig = seasonsConfig.find(s => s.seasonType === currentSeasonType);
 
         if (!seasonConfig) {
