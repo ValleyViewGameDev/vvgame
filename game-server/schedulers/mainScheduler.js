@@ -26,17 +26,17 @@ async function initializeTimers() {
     const { _id: frontierId } = frontier;
 
     // Schedule each system: tax, seasons, etc.
-    scheduleTimedFeature(frontier, "taxes", globalTuning.taxes, taxScheduler);
-    scheduleTimedFeature(frontier, "seasons", globalTuning.seasons, seasonScheduler);
-    scheduleTimedFeature(frontier, "train", globalTuning.train, trainScheduler);
-    scheduleTimedFeature(frontier, "bank", globalTuning.bank, bankScheduler);
-    scheduleTimedFeature(frontier, "elections", globalTuning.elections, electionScheduler);
+    scheduleTimedFeature(frontier, "taxes", globalTuning.taxes);
+    scheduleTimedFeature(frontier, "seasons", globalTuning.seasons);
+    scheduleTimedFeature(frontier, "train", globalTuning.train);
+    scheduleTimedFeature(frontier, "bank", globalTuning.bank);
+    scheduleTimedFeature(frontier, "elections", globalTuning.elections);
     // Add others like trainScheduler, elections, etc.
   }
 }
 
 // 🔁 For each timed feature
-async function scheduleTimedFeature(frontier, featureKey, tuningData, logicFunction) {
+async function scheduleTimedFeature(frontier, featureKey, tuningData) {
   const frontierId = frontier._id;
   const state = frontier[featureKey] || {};
   const phase = state.phase || tuningData.startPhase;
@@ -94,17 +94,26 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData, logicFunct
 
     console.log(`✅ ${featureKey} advanced to '${nextPhase}' for Frontier ${frontierId}. Next end: ${nextEndTime.toLocaleString()}`);
 
+      // ✅ Patch in-memory object with new values before scheduling next check
+    frontier[featureKey] = {
+      ...(frontier[featureKey] || {}),
+      phase: nextPhase,
+      startTime,
+      endTime: nextEndTime,
+      ...extraPayload,
+    };
+
     // ✅ Schedule the next check
     setTimeout(() => {
-      scheduleTimedFeature(frontier, featureKey, tuningData, logicFunction);
+      scheduleTimedFeature(frontier, featureKey, tuningData);
     }, durationMs);
-    
+
   } else {
     // 🔁 Recheck at correct time
     const delayMs = endTime - now;
     console.log(`⏳ ${featureKey} still in '${phase}' for Frontier ${frontierId}. Will check again at ${new Date(endTime).toLocaleString()}`);
     setTimeout(() => {
-      scheduleTimedFeature(frontier, featureKey, tuningData, logicFunction);
+      scheduleTimedFeature(frontier, featureKey, tuningData);
     }, delayMs);
   }
 }

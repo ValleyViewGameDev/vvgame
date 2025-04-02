@@ -21,7 +21,7 @@ async function trainScheduler(frontierId, phase) {
     const settlements = await Settlement.find({ population: { $gt: 0 }, frontierId });
 
     for (const settlement of settlements) {
-      console.log(`  🚉 Settlement ${settlement.name} - Using Frontier Phase: ${currentPhase}`);
+      console.log(`  🚉 Settlement ${settlement.name} - Using Frontier Phase: ${phase}`);
 
       if (phase === "loading") {
         // ✅ 1. Check if all current offers were filled
