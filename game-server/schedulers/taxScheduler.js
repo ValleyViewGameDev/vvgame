@@ -6,18 +6,16 @@ const { updateNetWorthForFrontier } = require("../utils/networthCalc");
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const taxScheduler = async (frontierId) => {
-    console.log("📊 Tax scheduler triggered for Frontier:", frontierId);
 
     try {
-        if (!frontierId) { console.warn("⚠️ No frontierId provided to taxScheduler."); return; }
+        if (!frontierId) { console.warn("⚠️ No frontierId provided to taxScheduler."); return {}; }
         const frontier = await Frontier.findById(frontierId);
-        if (!frontier) { console.warn(`⚠️ Frontier ${frontierId} not found.`); return; }
-        const phase = frontier.taxes?.phase || "waiting";
-        if (phase !== "taxing") { console.log(`⏳ Taxes in '${phase}' phase. No taxing actions performed.`); return; }
+        if (!frontier) { console.warn(`⚠️ Frontier ${frontierId} not found.`); return {}; }
 
-        // ✅ Taxing phase logic
-        console.log(`\n💰💰💰 ===== TAX CYCLE STARTED for Frontier ${frontierId} =====`);
-        console.log(`💰 Checking if taxes should be levied for Frontier ${frontierId}...`);
+        console.log(`💰 TAX LOGIC for Frontier ${frontierId}`);
+
+        const phase = frontier.taxes?.phase || "waiting";
+        if (phase !== "taxing") { console.log(`⏳ Taxes in '${phase}' phase. No taxing actions performed.`); return {}; }
 
         try {
             const taxResult = await levyTax(frontierId);
@@ -38,9 +36,11 @@ const taxScheduler = async (frontierId) => {
         console.group(`📊📊📊 ===== UPDATING NET WORTH for Frontier ${frontierId} =====`);
         await updateNetWorthForFrontier(frontierId);
         console.groupEnd();
+        return {}; 
 
     } catch (error) {
         console.error("❌ Error running taxScheduler:", error);
+        return {}; 
     }
 };
 

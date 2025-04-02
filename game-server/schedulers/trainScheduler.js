@@ -7,7 +7,6 @@ const sendMailboxMessage = require("../utils/messageUtils.js");
 const { scheduleEvent } = require("../utils/scheduleHelpers");
 
 async function trainScheduler(frontierId) {
-  console.group(`\n🚂 TRAIN SCHEDULER initiated for Frontier ${frontierId}`);
 
   try {
     const frontier = await Frontier.findById(frontierId);
@@ -15,6 +14,8 @@ async function trainScheduler(frontierId) {
       console.warn(`⚠️ Frontier ${frontierId} not found or missing train data.`);
       return;
     }
+
+    console.log(`💰 TAX LOGIC for Frontier ${frontierId}`);
 
     const currentPhase = frontier.train.phase;
     console.log(`Frontier Phase: ${currentPhase}`);
@@ -75,15 +76,15 @@ async function trainScheduler(frontierId) {
         console.log(`  📦 ${newNextOffers.length} nextoffers generated.`);
         console.log(`  🎁 ${newRewards.length} train rewards generated.`);
       }
-
+      return {};
       // Future: handle other train phases if needed
     }
 
   } catch (error) {
     console.error("❌ Error in trainScheduler:", error);
+    return {};
   }
 
-  console.groupEnd();
 }
 
 
