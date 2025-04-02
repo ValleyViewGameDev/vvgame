@@ -10,15 +10,15 @@
  
     "taxes": {
         "phases": {
-            "waiting": 0.9,
-            "taxing": 0.3   
+            "waiting": 0.8,
+            "taxing": 0.4
         },
         "startPhase": "waiting"
     },
     "seasons": {
         "phases": {
-            "onSeason": 2,     
-            "offSeason": 1.1
+            "onSeason": 1,     
+            "offSeason": 0.8
         },
         "startPhase": "onSeason"
     },
@@ -33,16 +33,16 @@
     },
     "train": {
         "phases": {
-            "arriving": 0.3,  
-            "loading": 1.5,  
-            "departing": 0.3 
+            "arriving": 1,  
+            "loading": 5,  
+            "departing": 0.5 
         },
         "startPhase": "arriving"
     },
     "bank": {
         "phases": {
             "active": 2,
-            "refreshing": 0.2
+            "refreshing": 0.3
         },
         "startPhase": "active"
     }
