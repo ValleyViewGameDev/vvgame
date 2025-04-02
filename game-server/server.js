@@ -73,23 +73,23 @@ mongoose.connect(process.env.MONGODB_URI)
 
       // Broadcast updated gridState to others in the same grid
       socket.on('update-gridState', ({ gridId, gridState }) => {
-        console.log('📥 Received gridState-sync:', gridState);
+        //console.log('📥 Received gridState-sync:', gridState);
 
         if (!gridState?.lastUpdated) {
           console.warn('⚠️ Received invalid or missing gridState:', gridState);
           return;
         }
-        console.log("📤 Emitting gridState with grazeEnd:", gridState.npcs["1743322170020"]?.grazeEnd);
+        //console.log("📤 Emitting gridState with grazeEnd:", gridState.npcs["1743322170020"]?.grazeEnd);
         io.to(gridId).emit('gridState-sync', { updatedGridState: gridState });
       });
 
       // Handle tile updates
       socket.on('update-tile', ({ gridId, updatedTiles }) => {
-        console.log(`🌍 update-tile received for grid ${gridId}`);
-        console.log("📦 Incoming updatedTiles:", updatedTiles);
+        //console.log(`🌍 update-tile received for grid ${gridId}`);
+        //console.log("📦 Incoming updatedTiles:", updatedTiles);
 
         io.in(gridId).fetchSockets().then(sockets => {
-          console.log(`📡 Broadcasting to ${sockets.length} clients in grid ${gridId}`);
+          //console.log(`📡 Broadcasting to ${sockets.length} clients in grid ${gridId}`);
         });
 
         // Broadcast tile updates to all clients in the grid
@@ -101,11 +101,11 @@ mongoose.connect(process.env.MONGODB_URI)
       
       // Broadcast updated tiles and resources to others in the same grid
       socket.on('update-resource', ({ gridId, updatedTiles, updatedResources }) => {
-        console.log(`🌍 update-tile-resource received for grid ${gridId}`);
-        console.log("📦 Incoming updatedResources:", updatedResources);
+        //console.log(`🌍 update-tile-resource received for grid ${gridId}`);
+        //console.log("📦 Incoming updatedResources:", updatedResources);
 
         io.in(gridId).fetchSockets().then(sockets => {
-          console.log(`📡 Broadcasting to ${sockets.length} clients in grid ${gridId}`);
+          //console.log(`📡 Broadcasting to ${sockets.length} clients in grid ${gridId}`);
         });
         
         io.to(gridId).emit('resource-sync', {
