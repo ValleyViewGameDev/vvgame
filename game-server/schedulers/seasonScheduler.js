@@ -4,17 +4,16 @@ const seasons = require("../tuning/seasons.json");
 const seasonFinalizer = require('../utils/seasonFinalizer');
 const seasonReset = require('../utils/seasonReset');
 
-async function seasonScheduler(frontierId) {
+async function seasonScheduler(frontierId, phase) {
   
     try {
         if (!frontierId) { console.warn("⚠️ No frontierId provided to seasonScheduler."); return {}; }
         const frontier = await Frontier.findById(frontierId);
         if (!frontier) { console.warn(`⚠️ Frontier ${frontierId} not found.`); return {}; }
     
-        console.log(`🌱 SEASON LOGIC for Frontier ${frontierId}`);
+        console.log(`🌱 SEASON LOGIC for Frontier ${frontierId}; phase = `,phase);
 
         const { seasons: seasonData } = frontier;  
-        const currentPhase = seasonData?.phase;
         const currentSeasonType = seasonData?.seasonType || "Spring";
         const currentSeasonNumber = seasonData?.seasonNumber || 1;
 
@@ -22,7 +21,7 @@ async function seasonScheduler(frontierId) {
         let nextSeasonNumber = currentSeasonNumber;
 
         // ✅ If we're just finishing onSeason, figure out next seasonType
-        if (currentPhase === "onSeason") {
+        if (phase === "offSeason") {
             const currentIndex = seasons.findIndex(s => s.seasonType === currentSeasonType);
             nextSeasonType = currentIndex !== -1
             ? seasons[(currentIndex + 1) % seasons.length].seasonType
@@ -33,7 +32,7 @@ async function seasonScheduler(frontierId) {
         }
 
         // ✅ If we're entering onSeason, bump the season number
-        if (currentPhase === "offSeason") {
+        if (phase === "onSeason") {
             nextSeasonNumber += 1;
         }
   

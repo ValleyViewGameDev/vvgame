@@ -46,36 +46,36 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData, logicFunct
   if (now >= endTime) {
     console.log(`⏰ ${featureKey.toUpperCase()} expired for Frontier ${frontierId}. Running logic...`);
 
+    const { nextPhase, durationMs } = getNextPhaseData(phase, tuningData.phases);
+
     let extraPayload = {};
 
     // ✅ Run feature-specific logic
     switch (featureKey) {
       case "taxes":
         console.log("💰 Triggering taxScheduler...");
-        extraPayload = await taxScheduler(frontierId);
+        extraPayload = await taxScheduler(frontierId, nextPhase);
         break;
       case "seasons":
         console.log("🗓️ Triggering seasonScheduler...");
-        extraPayload = await seasonScheduler(frontierId);
+        extraPayload = await seasonScheduler(frontierId, nextPhase);
         break;
       case "elections":
         console.log("🏛️ Triggering electionsScheduler...");
-        extraPayload = await electionScheduler(frontierId);
+        extraPayload = await electionScheduler(frontierId, nextPhase);
         break;
       case "train":
         console.log("🚂 Triggering trainScheduler...");
-        extraPayload = await trainScheduler(frontierId);
+        extraPayload = await trainScheduler(frontierId, nextPhase);
         break;
       case "bank":
         console.log("🏦 Triggering bankScheduler...");
-        extraPayload = await bankScheduler(frontierId);
+        extraPayload = await bankScheduler(frontierId, nextPhase);
         break;
       default:
         console.warn(`⚠️ No scheduler found for ${event}. Skipping...`);
     }
 
-    // ✅ Advance to next phase
-    const { nextPhase, durationMs } = getNextPhaseData(phase, tuningData.phases);
     const nextEndTime = new Date(Date.now() + durationMs);
     const startTime = new Date(now);
 
@@ -98,6 +98,7 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData, logicFunct
     setTimeout(() => {
       scheduleTimedFeature(frontier, featureKey, tuningData, logicFunction);
     }, durationMs);
+    
   } else {
     // 🔁 Recheck at correct time
     const delayMs = endTime - now;

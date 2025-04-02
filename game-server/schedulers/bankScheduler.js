@@ -3,27 +3,40 @@ const globalTuning = require("../tuning/globalTuning.json");
 const masterResources = require("../tuning/resources.json"); // ✅ Load masterResources
 
 // **Bank Scheduler**
-async function bankScheduler(frontierId) {
+async function bankScheduler(frontierId, phase) {
     try {
-      if (!frontierId) { console.warn("⚠️ No frontierId provided to bankScheduler."); return {}; }
-      
-      console.log(`💰 BANK LOGIC for Frontier ${frontierId}`);
-  
-      // ✅ Generate new offers
-      const newOffers = generateBankOffers();
-      console.log(`💰✅ ${newOffers.length} new bank offers generated.`);
-  
-      // ✅ Return update payload (to be merged in mainScheduler)
-      return {
-        "bank.offers": newOffers
-      };
-  
-    } catch (error) {
-      console.error("❌ Error running bank scheduler:", error);
-      return {}; // return empty object to prevent crashing mainScheduler
-    }
-  }
+        if (!frontierId) { console.warn("⚠️ No frontierId provided to bankScheduler."); return {}; }
+        if (!phase) { console.warn("⚠️ No phase provided to bankScheduler."); return {}; }
 
+        console.group(`\n💰 BANK LOGIC for Frontier ${frontierId} — Phase: ${phase}`);
+
+        switch (phase) {
+            case "refreshing":
+                console.log("💤 Refreshing phase — no actions required.");
+                break;
+
+            case "active":
+                // ✅ Generate new offers during "active" phase
+                const newOffers = generateBankOffers();
+                console.log(`💰✅ ${newOffers.length} new bank offers generated.`);
+
+                return {
+                    "bank.offers": newOffers
+                };
+
+            default:
+                console.warn(`⚠️ Unknown bank phase: ${phase}`);
+            }
+
+        return {}; // Default return if no update is needed
+
+    } catch (error) {
+        console.error("❌ Error in bankScheduler:", error);
+        return {};
+    } finally {
+        console.groupEnd();
+    }
+}
 
 // ✅ Function to generate offers based on `masterResources`
 function generateBankOffers() {

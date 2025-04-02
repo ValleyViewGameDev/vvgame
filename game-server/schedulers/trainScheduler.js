@@ -7,7 +7,7 @@ const sendMailboxMessage = require("../utils/messageUtils.js");
 const { scheduleEvent } = require("../utils/scheduleHelpers");
 const seasonsConfig = require("../tuning/seasons.json");
 
-async function trainScheduler(frontierId) {
+async function trainScheduler(frontierId, phase) {
 
   try {
     const frontier = await Frontier.findById(frontierId);
@@ -16,17 +16,14 @@ async function trainScheduler(frontierId) {
       return;
     }
 
-    console.log(`🚂 TRAIN LOGIC for Frontier ${frontierId}`);
-
-    const currentPhase = frontier.train.phase;
-    console.log(`Frontier Phase: ${currentPhase}`);
+    console.log(`🚂 TRAIN LOGIC for Frontier ${frontierId}; phase =`,phase);
 
     const settlements = await Settlement.find({ population: { $gt: 0 }, frontierId });
 
     for (const settlement of settlements) {
       console.log(`  🚉 Settlement ${settlement.name} - Using Frontier Phase: ${currentPhase}`);
 
-      if (currentPhase === "loading") {
+      if (phase === "loading") {
         // ✅ 1. Check if all current offers were filled
         if (settlement.currnetoffers.every(o => o.filled)) {
           console.log(`🎉 All Train orders filled for ${settlement.name}. Sending rewards...`);
@@ -50,7 +47,7 @@ async function trainScheduler(frontierId) {
         }
       }
       
-      if (currentPhase === "arriving") {
+      if (phase === "arriving") {
 
         // ✅ 1. Promote nextoffers → currnetoffers
         settlement.currnetoffers = [...(settlement.nextoffers || [])];
