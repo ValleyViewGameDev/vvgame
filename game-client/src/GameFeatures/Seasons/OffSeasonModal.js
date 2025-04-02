@@ -92,9 +92,9 @@ function OffSeasonModal({ onClose, currentPlayer }) {
       message2={message2}
       size="standard"
     >
+      <h2><strong>{seasonData.type} begins in:</strong> {countdown}</h2>
 
-        <h3>📊 Results from {previousSeason.seasonType}</h3>
-        <p>Top 5 wealthiest citizens before the reset:</p>
+        <h3>💰 Results from {previousSeason.seasonType}</h3>
         {richestCitizens.length > 0 ? (
         richestCitizens.map((c, i) => (
             <p key={i}>{i + 1}. <strong>{c.username}</strong> – Net Worth: {c.netWorth}</p>
@@ -116,8 +116,6 @@ function OffSeasonModal({ onClose, currentPlayer }) {
       <p>🧪 This is a <strong>debug preview</strong>. No data has been changed yet.</p>
 
       <br />
-      <p>🌱 <strong>New season:</strong> {seasonData.type}</p>
-      <p>🕒 <strong>Begins in:</strong> {countdown}</p>
     </Modal>
   );
 }

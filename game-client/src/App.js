@@ -65,7 +65,36 @@ import { enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
 
 function App() {
 
-// Initialize gridId with localStorage (do not depend on currentPlayer here)
+  useEffect(() => {
+    const checkInitialSeasonPhase = async () => {
+      console.log("Checking for on or off Season on app start");
+      const storedTimers = JSON.parse(localStorage.getItem("timers"));
+      console.log("Season phase = ",storedTimers.seasons.phase);
+      if (storedTimers?.seasons?.phase === "offSeason") {
+        console.log("🕵️ Initial local phase is offSeason, confirming with server...");
+    
+        try {
+          const res = await axios.get(`${API_BASE}/api/get-global-season-phase`);
+          const serverPhase = res.data?.phase;
+          if (serverPhase === "offSeason") {
+            console.log("✅ Server confirms offSeason");
+            setIsOffSeason(true);
+          } else {
+            console.log("❌ Server says it's not offSeason");
+            setIsOffSeason(false);
+          }
+        } catch (error) {
+          console.error("❌ Error confirming season with server:", error);
+        }
+      }
+
+    };
+    checkInitialSeasonPhase();
+  }, []);
+
+  const [currentPlayer, setCurrentPlayer] = useState(null); // Ensure this is defined
+
+  // Initialize gridId with localStorage (do not depend on currentPlayer here)
 
   const [gridId, setGridId] = useState(() => {
     const storedGridId = localStorage.getItem('gridId');
@@ -94,7 +123,6 @@ useEffect(() => {
   }
 }, [resources]);
 
-const [currentPlayer, setCurrentPlayer] = useState(null); // Ensure this is defined
 
 const [inventory, setInventory] = useState({});
 const [backpack, setBackpack] = useState([]); 
@@ -182,8 +210,6 @@ useEffect(() => {
      // 1. Fetch stored player from localStorage
       console.log('Initializing player...');
       const storedPlayer = localStorage.getItem('player');
-
-      console.log("currentPlayer = ",currentPlayer);
 
       if (!storedPlayer) {
         console.log('No stored player found, opening login modal.');
@@ -332,8 +358,6 @@ useEffect(() => {
       };
 
       setCurrentPlayer(updatedPlayerData);
-      console.log("Following updatedPlayer Data in initialize;  currentPlayer = ",currentPlayer);
-
       localStorage.setItem('player', JSON.stringify(updatedPlayerData)); // ✅ Ensure Local Storage Matches DB
       console.log(`✅ LocalStorage updated with combat stats:`, updatedPlayerData);
 
@@ -360,7 +384,6 @@ useEffect(() => {
       }
 
       console.log('App initialization complete.');
-      console.log('currentPlayer = ',currentPlayer);
 
       setIsAppInitialized(true);  // ✅ Mark initialization complete
     } catch (error) {
@@ -373,16 +396,6 @@ useEffect(() => {
   initializeAppWrapper();
 }, []);  // ✅ Only run once when the component mounts
 
-
-useEffect(() => {
-  console.log("🔁 currentPlayer changed:", currentPlayer);
-
-  if (currentPlayer === null) {
-    console.warn("⚠️ currentPlayer was set to null");
-  }
-  console.trace(); // Prints the stack trace
-
-}, [currentPlayer]);
 
 
 // FETCH GRID  //////////////////////////////////////////////////////
@@ -585,7 +598,6 @@ useEffect(() => {
 // TIMERS Step 3: Fetch initial timers from the server
 const fetchTimersData = async () => {
   console.log("🔄 Fetching initial timers from the server...");
-  console.log("🔄 currentPlayer = ",currentPlayer);
   
   if (!currentPlayer) {
     console.warn("⛔ No player loaded — skipping fetchTimersData.");
@@ -596,8 +608,6 @@ const fetchTimersData = async () => {
   try {
     const res = await axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`);
     const frontierData = res.data;
-
-    console.log('frontierData = ', frontierData); // Log the frontier data for debugging
     const updatedTimers = {
       seasons: {
         type: frontierData.seasons?.seasonType || "Unknown",
@@ -652,17 +662,23 @@ useEffect(() => {
   return () => clearInterval(interval); // Cleanup on unmount
 }, [timers]); // Runs when timers update
 
+
 // TIMERS Step 5: Check Phase Transitions (LOCAL)
 useEffect(() => {
   const checkPhaseTransitions = async () => {
 
-    console.log("🔍 checkPhaseTransitions — currentPlayer:", currentPlayer);
+    console.log("🔍checkPhaseTransitions");
 
     const now = Date.now();
     let shouldFetchNewTimers = false;
 
     if (timers.seasons.endTime && now >= timers.seasons.endTime) {
-      console.log("🌱 Season phase ended. Fetching new season data...");
+      console.log("🌱 Season phase ended.");
+      if (timers.seasons.phase === "offSeason") {
+        setIsOffSeason(true); // ✅ Local authoritative
+      } else {
+        setIsOffSeason(false); // ✅ Local authoritative
+      }
       shouldFetchNewTimers = true;
     }
     if (timers.elections.endTime && now >= timers.elections.endTime) {
@@ -715,41 +731,6 @@ const handleResetTimers = async () => {
   }
 };
 
-// ✅ When season enters OffSeason phase, open the modal
-useEffect(() => {
-  const validateOffSeason = async () => {
-    try {
-      const response = await axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`);
-      const serverSeasonPhase = response.data?.timers?.seasons?.phase;
-      const serverEndTime = response.data?.timers?.seasons?.endTime;
-
-      const currentTime = Date.now();
-
-      if (
-        serverSeasonPhase === "offSeason" &&
-        serverEndTime > currentTime
-      ) {
-        console.log("🛑 Confirmed OffSeason from server — showing OffSeasonModal.");
-        setIsOffSeason(true);
-      } else {
-        console.log("✅ Season phase check: Not OffSeason (or already expired).");
-        setIsOffSeason(false);
-      }
-    } catch (error) {
-      console.error("❌ Error validating OffSeason phase from server:", error);
-      // Optional fallback: assume not offSeason if we can't validate
-      setIsOffSeason(false);
-    }
-  };
-
-  if (timers?.seasons?.phase === "offSeason") {
-    console.log("⚠️ OffSeason detected in local timers — validating with server...");
-    validateOffSeason();
-  } else {
-    setIsOffSeason(false);
-  }
-}, [timers?.seasons?.phase, currentPlayer?.frontierId]);
-
 
 
 
@@ -758,8 +739,6 @@ useEffect(() => {
 // 🔄 Real-time updates for GridState: PCS AND NPCS
 useEffect(() => {
   if (!gridId || !currentPlayer) return;
-
-  console.log("SOCKET LISTENER currentPlayer = ",currentPlayer);
 
   const handleGridStateSync = ({ updatedGridState }) => {
     if (updatedGridState.lastUpdated <= getLastGridStateTimestamp()) {
@@ -803,8 +782,6 @@ useEffect(() => {
     // ✅ Update memory and React state
     gridStateManager.gridStates[gridId] = newState;
     setGridState(newState);
-
-    console.log("END SOCKET LISTENER currentPlayer = ",currentPlayer);
   
   };
 

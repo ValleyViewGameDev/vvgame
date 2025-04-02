@@ -416,6 +416,22 @@ router.get('/tuning/seasons', async (req, res) => {
   }
 });
 
+router.get('/get-global-season-phase', async (req, res) => {
+  try {
+    const frontier = await Frontier.findOne({});
+    if (!frontier || !frontier.seasons) {
+      return res.status(404).json({ error: "No frontier with season data found" });
+    }
+    res.json({
+      phase: frontier.seasons.phase,
+      seasonType: frontier.seasons.seasonType,
+      endTime: frontier.seasons.endTime,
+    });
+  } catch (error) {
+    console.error("❌ Error in get-global-season-phase:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 // routes/debugRoutes.js
 router.post('/debug/end-season', async (req, res) => {
