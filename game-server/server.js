@@ -45,12 +45,7 @@ app.use((req, res, next) => {
   next();
 });
 
-mongoose.set('debug', function (collectionName, method, ...args) {
-  if (collectionName === 'frontiers' && method === 'updateOne') {
-    console.log('⚠️ [MongoDB DEBUG] updateOne called on frontiers collection:');
-    console.log(JSON.stringify(args, null, 2));
-  }
-});
+
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log("✅ Connected to MongoDB");

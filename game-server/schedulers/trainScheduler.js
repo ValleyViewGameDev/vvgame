@@ -4,6 +4,7 @@ const Player = require("../models/player");
 const globalTuning = require("../tuning/globalTuning.json");
 const masterResources = require("../tuning/resources.json");
 const sendMailboxMessage = require("../utils/messageUtils.js");
+const { scheduleEvent } = require("../utils/scheduleHelpers");
 
 async function trainScheduler(frontierId) {
   console.group(`\n🚂 TRAIN SCHEDULER initiated for Frontier ${frontierId}`);

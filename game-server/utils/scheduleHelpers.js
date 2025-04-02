@@ -1,48 +1,94 @@
 // /utils/scheduleHelpers.js
-const { taxScheduler } = require('../schedulers/taxScheduler'); // Adjust path as needed
-const seasonScheduler = require('../schedulers/seasonScheduler');
-const trainScheduler = require('../schedulers/trainScheduler');
-const electionScheduler = require('../schedulers/electionScheduler');
-const bankScheduler = require('../schedulers/bankScheduler');
+const Frontier = require("../models/frontier");
+const globalTuning = require("../tuning/globalTuning.json");
 
-// Optional: shared activeTimers object if needed (not required unless you want cancel/clear support)
-const activeTimers = {};
+let activeTimers = {};
 
-const scheduleEvent = (event, phase, duration, frontierId) => {
-    console.log(`⏳ Scheduling ${event} - Phase: ${phase} (Frontier ${frontierId}) for ${duration / 60000} min...`);
-
-    if (activeTimers[`${event}-${frontierId}`]) {
-        clearTimeout(activeTimers[`${event}-${frontierId}`]);
-    }
-
-    activeTimers[`${event}-${frontierId}`] = setTimeout(async () => {
-        console.log(`🚀 Triggering ${event} - Phase: ${phase} (Frontier ${frontierId})`);
-
-        switch (event) {
-            case "taxes":
-                console.log("💰 Triggering taxScheduler...");
-                await taxScheduler(frontierId);
-                break;
-            case "seasons":
-                console.log("🗓️ Triggering seasonScheduler...");
-                await seasonScheduler(frontierId);
-                break;
-            case "elections":
-                console.log("🏛️ Triggering electionsScheduler...");
-                await electionScheduler(frontierId);
-                break;
-            case "train":
-                console.log("🚂 Triggering trainScheduler...");
-                await trainScheduler(frontierId);
-                break;
-            case "bank":
-                console.log("🏦 Triggering bankScheduler...");
-                await bankScheduler(frontierId);
-                break;
-            default:
-                console.warn(`⚠️ No scheduler found for ${event}. Skipping...`);
+/**
+ * Resets all timers and forces a restart of event cycles.
+ */
+const resetAllTimers = async () => {
+    console.log("🔄🔄🔄🔄🔄 Resetting ALL event timers... 🔄🔄🔄🔄🔄");
+  
+    try {
+      // ✅ Step 1: Clear all active timers
+      console.log("🛑 Clearing active timers...");
+      Object.values(activeTimers).forEach(clearTimeout);
+      clearAllTimers();
+      console.log("✅ Active timers cleared.");
+  
+      // ✅ Step 2: Fetch all frontiers
+      console.log("📡 Fetching all frontiers from database...");
+      const frontiers = await Frontier.find();
+      if (!frontiers.length) {
+        console.warn("⚠️ No frontiers found! Skipping timer reset.");
+        return;
+      }
+      console.log(`✅ Found ${frontiers.length} frontiers. Proceeding with reset.`);
+  
+      // ✅ Step 3: Reset each event timer for every frontier
+      for (const [event, config] of Object.entries(globalTuning)) {
+        if (!config.phases) continue;
+      
+        let startPhase = config.startPhase;
+        let durationMinutes = config.phases[startPhase] * 60 * 1000;
+      
+        // // Special case override for seasons only
+        // if (event === "seasons") {
+        //   startPhase = "onSeason";
+        //   durationMinutes = config.phases["onSeason"] * 60 * 1000;
+      
+        //   // Optional: reset to Spring for extra safety
+        //   for (const frontier of frontiers) {
+        //     await Frontier.updateOne(
+        //       { _id: frontier._id },
+        //       {
+        //         $set: {
+        //           "seasons.phase": startPhase,
+        //           "seasons.seasonType": "Spring",
+        //           "seasons.endTime": new Date(Date.now() + durationMinutes),
+        //           "seasons.startTime": Date.now(),
+        //           "seasons.seasonNumber": 1,
+        //         },
+        //       }
+        //     );
+        //   }
+        //   console.log(`🌱 Season timer reset to ${startPhase} with duration ${durationMinutes / 60000} min`);
+        //   continue; // Skip general timer scheduler for 'seasons'
+        // }
+      
+        // General case for other events
+        for (const frontier of frontiers) {
+          const bufferTime = 2000;
+          await Frontier.updateOne(
+            { _id: frontier._id },
+            {
+              $set: {
+                [`${event}.phase`]: startPhase,
+                [`${event}.endTime`]: new Date(Date.now() + durationMinutes + bufferTime),
+              },
+            }
+          );
         }
-    }, duration);
-};
+      }
+  
+      console.log("\n✅ All timers reset successfully!");
+  
+    } catch (error) {
+      console.error("❌ Error resetting timers:", error);
+    }
+  };
 
-module.exports = { scheduleEvent };
+
+function clearAllTimers() {
+Object.values(activeTimers).forEach(clearTimeout);
+for (const key in activeTimers) {
+    delete activeTimers[key];
+}
+console.log("✅ Active timers cleared.");
+}
+
+
+module.exports = {
+  resetAllTimers,
+}

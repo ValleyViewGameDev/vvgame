@@ -1,5 +1,5 @@
 const express = require("express");
-const { resetAllTimers } = require("../schedulers/mainScheduler"); // ✅ Import the reset function
+const { resetAllTimers } = require("../utils/scheduleHelpers");
 
 const router = express.Router();
 
