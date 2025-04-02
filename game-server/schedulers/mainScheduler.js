@@ -42,7 +42,7 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData, logicFunct
   const phase = state.phase || tuningData.startPhase;
   const endTime = new Date(state.endTime).getTime();
   const now = Date.now();
-
+  
   if (now >= endTime) {
     console.log(`⏰ ${featureKey.toUpperCase()} expired for Frontier ${frontierId}. Running logic...`);
 
@@ -77,9 +77,11 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData, logicFunct
     // ✅ Advance to next phase
     const { nextPhase, durationMs } = getNextPhaseData(phase, tuningData.phases);
     const nextEndTime = new Date(Date.now() + durationMs);
+    const startTime = new Date(now);
 
     const updatePayload = {
       [`${featureKey}.phase`]: nextPhase,
+      [`${featureKey}.startTime`]: startTime,
       [`${featureKey}.endTime`]: nextEndTime,
       ...extraPayload
     };
