@@ -119,8 +119,8 @@ body {
 
 /* Shared Button Styles */
 .shared-button {
-  background-color: #fff;
-  color: #4caf50;
+  background-color: #94f175;
+  color: #3a923d;
   border: none;
   border-radius: 4px;
   padding: 5px 10px;
@@ -179,7 +179,7 @@ body {
   left: 0;
   width: 60px;
   height: 100%;
-  background-color: #3b7d4a;
+  background-color: #94f175;
   padding-top: 60px;
   display: flex;
   flex-direction: column;
