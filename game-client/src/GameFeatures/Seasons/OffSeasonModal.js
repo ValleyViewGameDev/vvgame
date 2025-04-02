@@ -105,7 +105,6 @@ function OffSeasonModal({ onClose, currentPlayer }) {
         <br />
 
 
-
       <ul style={{ paddingLeft: "1.5rem", marginBottom: "1rem" }}>
         <li>📦 Wiping homestead ownership</li>
         <li>🧑‍🌾 Reassigning players</li>

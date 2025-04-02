@@ -180,17 +180,10 @@ const fetchTimersData = async () => {
   }
   if (!currentPlayer?.settlementId || !currentPlayer?.frontierId) return;
 
-  console.log("currentPlayer.frontierId = ",currentPlayer.frontierId);
   try {
-    const [settlementResponse, frontierResponse] = await Promise.all([
-
-      axios.get(`${API_BASE}/api/get-settlement/${currentPlayer.settlementId}`),
+    const frontierResponse = await Promise.all([
       axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`)
     ]);
-
-    console.log('frontierResponse = ',frontierResponse);
-
-    const settlementData = settlementResponse.data;
     const frontierData = frontierResponse.data;
 
     const updatedTimers = {

@@ -11,7 +11,10 @@ const taxScheduler = async (frontierId, phase) => {
 
         console.log(`💰 TAX LOGIC for Frontier ${frontierId}; phase =`,phase);
 
-        if (phase !== "taxing") { console.log(`⏳ Taxes in '${phase}' phase. No taxing actions performed.`); return {}; }
+        if (phase === "waiting") { 
+            console.log(`⏳ Taxes in '${phase}' phase. No actions performed.`); 
+            return {}; 
+        }
 
         try {
             const taxResult = await levyTax(frontierId);
@@ -28,7 +31,7 @@ const taxScheduler = async (frontierId, phase) => {
 
         console.group(`📊📊📊 ===== UPDATING NET WORTH for Frontier ${frontierId} =====`);
         await updateNetWorthForFrontier(frontierId);
-        console.groupEnd();
+
         return {}; 
 
     } catch (error) {
