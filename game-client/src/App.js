@@ -95,6 +95,7 @@ useEffect(() => {
 }, [resources]);
 
 const [currentPlayer, setCurrentPlayer] = useState(null); // Ensure this is defined
+
 const [inventory, setInventory] = useState({});
 const [backpack, setBackpack] = useState([]); 
 const [skills, setSkills] = useState([]); 
@@ -142,199 +143,6 @@ const TILE_SIZES = { close: 30, far: 16 }; // Rename for clarity
 const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
 
 
-/////// TIMERS & SEASONS //////////////////////////////////////////////////////
-
-// TIMERS Step 1: Global State for Timers
-const [timers, setTimers] = useState(() => {
-  // Load from local storage (if available)
-  const storedTimers = JSON.parse(localStorage.getItem("timers"));
-  return storedTimers || {
-    seasons: { phase: "", endTime: null, type: "" },
-    elections: { phase: "", endTime: null },
-    train: { phase: "", endTime: null },
-    taxes: { phase: "", endTime: null },  
-    bank: { phase: "", endTime: null },  
-  }; 
-});
-const [countdowns, setCountdowns] = useState({ seasons: "", elections: "", train: "", taxes: "", bank: "" });
-
-// TIMERS Step 2: Initialize Timers on app start/refresh; run once
-useEffect(() => {
-  if (!currentPlayer?.settlementId) return;
-  const initializeTimers = async () => {
-      await fetchTimersData();
-      console.log("✅ Timers initialized:", timers);
-  };
-  initializeTimers();
-  const interval = setInterval(fetchTimersData, 60 * 1000); // ✅ Refresh every 60s; DO WE NEED THIS??
-  return () => clearInterval(interval);
-}, [currentPlayer]); // ✅ Runs when currentPlayer is updated
-
-// TIMERS Step 3: Fetch initial timers from the server
-const fetchTimersData = async () => {
-  console.log("🔄 Fetching initial timers from the server...");
-  
-  if (!currentPlayer) {
-    console.warn("⛔ No player loaded — skipping fetchTimersData.");
-    return;
-  }
-  if (!currentPlayer?.settlementId || !currentPlayer?.frontierId) return;
-
-  try {
-    const frontierResponse = await Promise.all([
-      axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`)
-    ]);
-    const frontierData = frontierResponse.data;
-
-    const updatedTimers = {
-      seasons: {
-        type: frontierData.seasons?.seasonType || "Unknown",
-        phase: frontierData.seasons?.phase || "Unknown",
-        endTime: frontierData.seasons?.endTime ? new Date(frontierData.seasons.endTime).getTime() : null,
-      },
-      elections: {
-        phase: frontierData.elections?.phase || "Unknown",
-        endTime: frontierData.elections?.endTime ? new Date(frontierData.elections.endTime).getTime() : null,
-      },
-      train: {
-        phase: frontierData.train?.phase || "Unknown",
-        endTime: frontierData.train?.endTime ? new Date(frontierData.train.endTime).getTime() : null,
-      },
-      taxes: {
-        phase: frontierData.taxes?.phase || "Unknown",
-        endTime: frontierData.taxes?.endTime ? new Date(frontierData.taxes.endTime).getTime() : null,
-      },
-      bank: {
-        phase: frontierData.bank?.phase || "Unknown",
-        endTime: frontierData.bank?.endTime ? new Date(frontierData.bank.endTime).getTime() : null,
-      }
-    };
-
-    setTimers(updatedTimers);
-    localStorage.setItem("timers", JSON.stringify(updatedTimers)); // Save to local storage
-
-    console.log("✅ Timers updated and stored locally:", updatedTimers);
-    console.log("✅ Current Time:", Date.now());
-  } catch (error) {
-    console.error("❌ Error fetching timers data:", error);
-  }
-};
-
-// TIMERS Step 4: Update countdown timers
-useEffect(() => {
-  const updateCountdowns = () => {
-    const now = Date.now(); // Get current timestamp
-
-    setCountdowns({
-      seasons: formatCountdown(timers.seasons.endTime, now),
-      elections: formatCountdown(timers.elections.endTime, now),
-      train: formatCountdown(timers.train.endTime, now),
-      taxes: formatCountdown(timers.taxes.endTime, now),
-      bank: formatCountdown(timers.bank.endTime, now),
-    });
-  };
-
-  updateCountdowns(); // Run immediately
-  const interval = setInterval(updateCountdowns, 1000); // Update UI every second
-
-  return () => clearInterval(interval); // Cleanup on unmount
-}, [timers]); // Runs when timers update
-
-// TIMERS Step 5: Check Phase Transitions (LOCAL)
-useEffect(() => {
-  const checkPhaseTransitions = async () => {
-    const now = Date.now();
-    let shouldFetchNewTimers = false;
-
-    if (timers.seasons.endTime && now >= timers.seasons.endTime) {
-      console.log("🌱 Season phase ended. Fetching new season data...");
-      shouldFetchNewTimers = true;
-    }
-    if (timers.elections.endTime && now >= timers.elections.endTime) {
-      console.log("🏛️ Election phase ended. Fetching new election data...");
-      shouldFetchNewTimers = true;
-    }
-    if (timers.train.endTime && now >= timers.train.endTime) {
-      console.log("🚂 Train cycle ended. Fetching new train data...");
-      shouldFetchNewTimers = true;
-    }
-    if (timers.taxes.endTime && now >= timers.taxes.endTime) {
-      console.log("💰 Tax cycle ended. Fetching new tax data...");
-      shouldFetchNewTimers = true;
-    }
-    if (timers.bank.endTime && now >= timers.bank.endTime) {
-      console.log("💰 Bank cycle ended. Fetching new bank timer...");
-      shouldFetchNewTimers = true;
-    }
-    if (shouldFetchNewTimers) {
-      console.log("⏳ A phase has ended! Fetching updated timers...");
-      await fetchTimersData();
-    }
-  };
-
-  const interval = setInterval(checkPhaseTransitions, 5000); // ✅ Check every 5s
-  return () => clearInterval(interval);
-}, [timers]); // Runs when timers update
-
-const handleResetTimers = async () => {
-  try {
-    // ✅ Step 1: Clear local storage timers
-    console.log("🧹 Local storage timer value before clearing:", localStorage.getItem("timers"));
-    localStorage.removeItem("timers");
-    console.log("🧼 Local storage timers cleared.");
-
-    // ✅ Step 2: Request server to reset timers
-    const response = await axios.post(`${API_BASE}/api/reset-all-timers`);
-    if (response.data.success) {
-      console.log("✅ Timers reset successfully from the client.");
-      updateStatus("🔄 All timers reset successfully.");
-      await fetchTimersData();
-
-    } else {
-      console.warn("⚠️ Timer reset failed.");
-      updateStatus("❌ Failed to reset timers.");
-    }
-  } catch (error) {
-    console.error("❌ Error resetting timers:", error);
-    updateStatus("❌ Timer reset request failed.");
-  }
-};
-
-// ✅ When season enters OffSeason phase, open the modal
-useEffect(() => {
-  const validateOffSeason = async () => {
-    try {
-      const response = await axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`);
-      const serverSeasonPhase = response.data?.timers?.seasons?.phase;
-      const serverEndTime = response.data?.timers?.seasons?.endTime;
-
-      const currentTime = Date.now();
-
-      if (
-        serverSeasonPhase === "offSeason" &&
-        serverEndTime > currentTime
-      ) {
-        console.log("🛑 Confirmed OffSeason from server — showing OffSeasonModal.");
-        setIsOffSeason(true);
-      } else {
-        console.log("✅ Season phase check: Not OffSeason (or already expired).");
-        setIsOffSeason(false);
-      }
-    } catch (error) {
-      console.error("❌ Error validating OffSeason phase from server:", error);
-      // Optional fallback: assume not offSeason if we can't validate
-      setIsOffSeason(false);
-    }
-  };
-
-  if (timers?.seasons?.phase === "offSeason") {
-    console.log("⚠️ OffSeason detected in local timers — validating with server...");
-    validateOffSeason();
-  } else {
-    setIsOffSeason(false);
-  }
-}, [timers?.seasons?.phase, currentPlayer?.frontierId]);
-
 
 
 /////// //// //////////////////////////////////////////////////////
@@ -374,6 +182,9 @@ useEffect(() => {
      // 1. Fetch stored player from localStorage
       console.log('Initializing player...');
       const storedPlayer = localStorage.getItem('player');
+
+      console.log("currentPlayer = ",currentPlayer);
+
       if (!storedPlayer) {
         console.log('No stored player found, opening login modal.');
         setisLoginPanelOpen(true);    
@@ -521,6 +332,8 @@ useEffect(() => {
       };
 
       setCurrentPlayer(updatedPlayerData);
+      console.log("Following updatedPlayer Data in initialize;  currentPlayer = ",currentPlayer);
+
       localStorage.setItem('player', JSON.stringify(updatedPlayerData)); // ✅ Ensure Local Storage Matches DB
       console.log(`✅ LocalStorage updated with combat stats:`, updatedPlayerData);
 
@@ -546,17 +359,30 @@ useEffect(() => {
         localStorage.setItem('player', JSON.stringify(updatedPlayerData));
       }
 
-
       console.log('App initialization complete.');
+      console.log('currentPlayer = ',currentPlayer);
+
       setIsAppInitialized(true);  // ✅ Mark initialization complete
     } catch (error) {
       console.error('Error during app initialization:', error);
       updateStatus(error.code === 'ERR_NETWORK' ? 1 : 0);  // Handle errors
     }
-  };
+  }; 
+  
 
   initializeAppWrapper();
 }, []);  // ✅ Only run once when the component mounts
+
+
+useEffect(() => {
+  console.log("🔁 currentPlayer changed:", currentPlayer);
+
+  if (currentPlayer === null) {
+    console.warn("⚠️ currentPlayer was set to null");
+  }
+  console.trace(); // Prints the stack trace
+
+}, [currentPlayer]);
 
 
 // FETCH GRID  //////////////////////////////////////////////////////
@@ -725,12 +551,215 @@ const handlePlayerDeath = async (player) => {
   }
 };
 
- 
+
+/////// TIMERS & SEASONS //////////////////////////////////////////////////////
+
+// TIMERS Step 1: Global State for Timers
+const [timers, setTimers] = useState(() => {
+  // Load from local storage (if available)
+  const storedTimers = JSON.parse(localStorage.getItem("timers"));
+  return storedTimers || {
+    seasons: { phase: "", endTime: null, type: "" },
+    elections: { phase: "", endTime: null },
+    train: { phase: "", endTime: null },
+    taxes: { phase: "", endTime: null },  
+    bank: { phase: "", endTime: null },  
+  }; 
+});
+const [countdowns, setCountdowns] = useState({ seasons: "", elections: "", train: "", taxes: "", bank: "" });
+
+// TIMERS Step 2: Initialize Timers on app start/refresh; run once
+useEffect(() => {
+  console.log("🔄 currentPlayer = ",currentPlayer);
+
+  if (!currentPlayer?.settlementId) return;
+  const initializeTimers = async () => {
+      await fetchTimersData();
+      console.log("✅ Timers initialized:", timers);
+  };
+  initializeTimers();
+  const interval = setInterval(fetchTimersData, 60 * 1000); // ✅ Refresh every 60s; DO WE NEED THIS??
+  return () => clearInterval(interval);
+}, [currentPlayer]); // ✅ Runs when currentPlayer is updated
+
+// TIMERS Step 3: Fetch initial timers from the server
+const fetchTimersData = async () => {
+  console.log("🔄 Fetching initial timers from the server...");
+  console.log("🔄 currentPlayer = ",currentPlayer);
+  
+  if (!currentPlayer) {
+    console.warn("⛔ No player loaded — skipping fetchTimersData.");
+    return;
+  }
+  if (!currentPlayer?.settlementId || !currentPlayer?.frontierId) return;
+
+  try {
+    const res = await axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`);
+    const frontierData = res.data;
+
+    console.log('frontierData = ', frontierData); // Log the frontier data for debugging
+    const updatedTimers = {
+      seasons: {
+        type: frontierData.seasons?.seasonType || "Unknown",
+        phase: frontierData.seasons?.phase || "Unknown",
+        endTime: frontierData.seasons?.endTime ? new Date(frontierData.seasons.endTime).getTime() : null,
+      },
+      elections: {
+        phase: frontierData.elections?.phase || "Unknown",
+        endTime: frontierData.elections?.endTime ? new Date(frontierData.elections.endTime).getTime() : null,
+      },
+      train: {
+        phase: frontierData.train?.phase || "Unknown",
+        endTime: frontierData.train?.endTime ? new Date(frontierData.train.endTime).getTime() : null,
+      },
+      taxes: {
+        phase: frontierData.taxes?.phase || "Unknown",
+        endTime: frontierData.taxes?.endTime ? new Date(frontierData.taxes.endTime).getTime() : null,
+      },
+      bank: {
+        phase: frontierData.bank?.phase || "Unknown",
+        endTime: frontierData.bank?.endTime ? new Date(frontierData.bank.endTime).getTime() : null,
+      }
+    };
+
+    setTimers(updatedTimers);
+    localStorage.setItem("timers", JSON.stringify(updatedTimers)); // Save to local storage
+
+    console.log("✅ Timers updated and stored locally:", updatedTimers);
+    console.log("✅ Current Time:", Date.now());
+  } catch (error) {
+    console.error("❌ Error fetching timers data:", error);
+  }
+};
+
+// TIMERS Step 4: Update countdown timers
+useEffect(() => {
+  const updateCountdowns = () => {
+    const now = Date.now(); // Get current timestamp
+
+    setCountdowns({
+      seasons: formatCountdown(timers.seasons.endTime, now),
+      elections: formatCountdown(timers.elections.endTime, now),
+      train: formatCountdown(timers.train.endTime, now),
+      taxes: formatCountdown(timers.taxes.endTime, now),
+      bank: formatCountdown(timers.bank.endTime, now),
+    });
+  };
+
+  updateCountdowns(); // Run immediately
+  const interval = setInterval(updateCountdowns, 1000); // Update UI every second
+
+  return () => clearInterval(interval); // Cleanup on unmount
+}, [timers]); // Runs when timers update
+
+// TIMERS Step 5: Check Phase Transitions (LOCAL)
+useEffect(() => {
+  const checkPhaseTransitions = async () => {
+
+    console.log("🔍 checkPhaseTransitions — currentPlayer:", currentPlayer);
+
+    const now = Date.now();
+    let shouldFetchNewTimers = false;
+
+    if (timers.seasons.endTime && now >= timers.seasons.endTime) {
+      console.log("🌱 Season phase ended. Fetching new season data...");
+      shouldFetchNewTimers = true;
+    }
+    if (timers.elections.endTime && now >= timers.elections.endTime) {
+      console.log("🏛️ Election phase ended. Fetching new election data...");
+      shouldFetchNewTimers = true;
+    }
+    if (timers.train.endTime && now >= timers.train.endTime) {
+      console.log("🚂 Train cycle ended. Fetching new train data...");
+      shouldFetchNewTimers = true;
+    }
+    if (timers.taxes.endTime && now >= timers.taxes.endTime) {
+      console.log("💰 Tax cycle ended. Fetching new tax data...");
+      shouldFetchNewTimers = true;
+    }
+    if (timers.bank.endTime && now >= timers.bank.endTime) {
+      console.log("💰 Bank cycle ended. Fetching new bank timer...");
+      shouldFetchNewTimers = true;
+    }
+    if (shouldFetchNewTimers) {
+      console.log("⏳ A phase has ended! Fetching updated timers...");
+      await fetchTimersData();
+    }
+  };
+
+  const interval = setInterval(checkPhaseTransitions, 5000); // ✅ Check every 5s
+  return () => clearInterval(interval);
+}, [timers]); // Runs when timers update
+
+const handleResetTimers = async () => {
+  try {
+    // ✅ Step 1: Clear local storage timers
+    console.log("🧹 Local storage timer value before clearing:", localStorage.getItem("timers"));
+    localStorage.removeItem("timers");
+    console.log("🧼 Local storage timers cleared.");
+
+    // ✅ Step 2: Request server to reset timers
+    const response = await axios.post(`${API_BASE}/api/reset-all-timers`);
+    if (response.data.success) {
+      console.log("✅ Timers reset successfully from the client.");
+      updateStatus("🔄 All timers reset successfully.");
+      await fetchTimersData();
+
+    } else {
+      console.warn("⚠️ Timer reset failed.");
+      updateStatus("❌ Failed to reset timers.");
+    }
+  } catch (error) {
+    console.error("❌ Error resetting timers:", error);
+    updateStatus("❌ Timer reset request failed.");
+  }
+};
+
+// ✅ When season enters OffSeason phase, open the modal
+useEffect(() => {
+  const validateOffSeason = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`);
+      const serverSeasonPhase = response.data?.timers?.seasons?.phase;
+      const serverEndTime = response.data?.timers?.seasons?.endTime;
+
+      const currentTime = Date.now();
+
+      if (
+        serverSeasonPhase === "offSeason" &&
+        serverEndTime > currentTime
+      ) {
+        console.log("🛑 Confirmed OffSeason from server — showing OffSeasonModal.");
+        setIsOffSeason(true);
+      } else {
+        console.log("✅ Season phase check: Not OffSeason (or already expired).");
+        setIsOffSeason(false);
+      }
+    } catch (error) {
+      console.error("❌ Error validating OffSeason phase from server:", error);
+      // Optional fallback: assume not offSeason if we can't validate
+      setIsOffSeason(false);
+    }
+  };
+
+  if (timers?.seasons?.phase === "offSeason") {
+    console.log("⚠️ OffSeason detected in local timers — validating with server...");
+    validateOffSeason();
+  } else {
+    setIsOffSeason(false);
+  }
+}, [timers?.seasons?.phase, currentPlayer?.frontierId]);
+
+
+
+
 /////////// SOCKET LISTENER /////////////////////////
 
 // 🔄 Real-time updates for GridState: PCS AND NPCS
 useEffect(() => {
   if (!gridId || !currentPlayer) return;
+
+  console.log("SOCKET LISTENER currentPlayer = ",currentPlayer);
 
   const handleGridStateSync = ({ updatedGridState }) => {
     if (updatedGridState.lastUpdated <= getLastGridStateTimestamp()) {
@@ -774,6 +803,9 @@ useEffect(() => {
     // ✅ Update memory and React state
     gridStateManager.gridStates[gridId] = newState;
     setGridState(newState);
+
+    console.log("END SOCKET LISTENER currentPlayer = ",currentPlayer);
+  
   };
 
 
@@ -886,6 +918,7 @@ useEffect(() => {
 
 useEffect(() => {
     const handleKeyDown = (event) => {
+  console.log("currentPlayer = ",currentPlayer);
 
       // ✅ Prevent movement if a modal is open
       if (activeModal || isOffSeason ) { console.log("🛑 Keyboard input disabled while modal is open."); return; }

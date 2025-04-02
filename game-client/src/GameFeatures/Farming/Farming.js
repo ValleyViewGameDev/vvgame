@@ -113,6 +113,9 @@ export const handleFarmPlotPlacement = async ({
 
 
 export const handleTerraform = async ({ actionType, gridId, currentPlayer, setTileTypes }) => {
+
+  console.log("handleTerraform;  currentPlayer = ",currentPlayer);
+  
   if (!currentPlayer?.location) {
     console.error("❌ handleTerraform: Missing currentPlayer location.");
     return;
