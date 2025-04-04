@@ -551,7 +551,7 @@ router.post('/update-train-offer/:settlementId', async (req, res) => {
     const settlement = await Settlement.findById(settlementId);
     if (!settlement) return res.status(404).json({ error: 'Settlement not found' });
 
-    const offerIndex = settlement.currnetoffers.findIndex(o =>
+    const offerIndex = settlement.currentoffers.findIndex(o =>
       o.itemBought === updateOffer.itemBought &&
       o.qtyBought === updateOffer.qtyBought &&
       o.itemGiven === updateOffer.itemGiven &&
@@ -564,10 +564,10 @@ router.post('/update-train-offer/:settlementId', async (req, res) => {
 
     // ✅ Apply updates dynamically if fields are present
     if ('claimedBy' in updateOffer) {
-      settlement.currnetoffers[offerIndex].claimedBy = updateOffer.claimedBy;
+      settlement.currentoffers[offerIndex].claimedBy = updateOffer.claimedBy;
     }
     if ('filled' in updateOffer) {
-      settlement.currnetoffers[offerIndex].filled = updateOffer.filled;
+      settlement.currentoffers[offerIndex].filled = updateOffer.filled;
     }
 
     await settlement.save();

@@ -40,8 +40,6 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
     console.warn('Movement in progress, input ignored.');
     return;
   }
-  console.log("handleKeyMovement: currentPlayer: ", currentPlayer);
-
   const directions = {
     ArrowUp: { dx: 0, dy: -1 },
     w: { dx: 0, dy: -1 },

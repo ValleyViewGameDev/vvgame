@@ -1,6 +1,6 @@
 // game-server/utils/seasonFinalizer.js
-const updateNetWorthForFrontier = require('../schedulers/taxScheduler').updateNetWorthForFrontier;
-const seasonReset = require('./seasonReset');
+
+const { updateNetWorthForFrontier } = require('./networthCalc'); // ⬅️ Now using the new source
 
 async function seasonFinalizer(frontierId) {
   console.group("🗓️🗓️🗓️🗓️🗓️ Starting SEASON FINALIZER for Frontier", frontierId);
@@ -8,9 +8,6 @@ async function seasonFinalizer(frontierId) {
   try {
     console.log("📊 Recalculating final net worth...");
     await updateNetWorthForFrontier(frontierId);
-
-    console.log("🧹 Triggering world reset...");
-    await seasonReset(frontierId);
 
     console.log("✅ Season finalization complete!");
   } catch (error) {

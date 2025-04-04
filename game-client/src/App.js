@@ -200,16 +200,16 @@ useEffect(() => {
     isInitializing = true;
 
     try {
-        // 8. Load tuning data
-        console.log('Loading tuning data...');
+        // 1. Load tuning data
+        console.log('1 InitAppWrapper; Merging player data and initializing inventory...');
         const [skills, resources] = await Promise.all([loadMasterSkills(), loadMasterResources()]);
         setMasterResources(resources);
         setMasterSkills(skills);
         setIsMasterResourcesReady(true); // ✅ Mark ready
 
-     // 1. Fetch stored player from localStorage
-      console.log('Initializing player...');
-      const storedPlayer = localStorage.getItem('player');
+        // 2. Fetch stored player from localStorage
+        console.log('2 InitAppWrapper; getting local player...');
+        const storedPlayer = localStorage.getItem('player');
 
       if (!storedPlayer) {
         console.log('No stored player found, opening login modal.');
@@ -241,8 +241,8 @@ useEffect(() => {
         return;
       }
 
-      // 3. Merge player data and update inventory
-      console.log('Merging player data and initializing inventory...');
+      // 3. Combine local and server data, prioritizing newer info from the server
+      console.log('3 InitAppWrapper; Merging player data and initializing inventory...');
       let updatedPlayerData = { ...parsedPlayer, ...fullPlayerData };
       setCurrentPlayer(updatedPlayerData);
       setInventory(fullPlayerData.inventory || []);  // Initialize inventory properly
@@ -263,7 +263,7 @@ useEffect(() => {
       console.log("📡 Connected to socket and joined grid:", initialGridId);
 
       // 5. Initialize grid tiles, resources, and state
-      console.log('Initializing grid tiles and resources...');
+      console.log('5 InitAppWrapper; Initializing grid tiles and resources...');
       await initializeGrid(
         activeTileSize,
         initialGridId,
@@ -274,63 +274,96 @@ useEffect(() => {
       );
 
       // 6. Check and initialize gridState
-      console.log('Initializing gridState...');
+      console.log('6 InitAppWrapper; Initializing gridState...');
       await gridStateManager.initializeGridState(initialGridId);
       const initializedState = gridStateManager.getGridState(initialGridId);
       setGridState(initializedState);
       console.log('initializedState',initializedState);
 
       // 7. Resolve player location and confirm in gridState
-      console.log('Resolving player location...');
-      const gridPlayer = initializedState?.pcs[fullPlayerData._id.toString()];
-      console.log('gridPlayer = ',gridPlayer);
-      console.log('fullPlayerData = ',fullPlayerData);
-      if (gridPlayer) {
-        console.log('✅ Player found in local gridState.');
-      
-        // Fetch the gridState from the DB
-        const { data: gridStateResponse } = await axios.get(`${API_BASE}/api/load-grid-state/${fullPlayerData.location.g}`);
-        const dbGridState = gridStateResponse?.gridState || { npcs: {}, pcs: {} };
-      
-        // ✅ If the player is missing from DB gridState, re-save gridState
-        if (!dbGridState.pcs || !dbGridState.pcs[fullPlayerData._id]) {
-          console.warn(`⚠️ Player ${fullPlayerData.username} is missing from DB gridState! Saving state to DB.`);
-          await gridStateManager.saveGridState(fullPlayerData.location.g);
-        } else {
-          console.log('✅ Player exists in both local and DB gridState.');
-        }
-      } else {
-        console.warn('Player not found in gridState. Adding player at (1,1).');
-        gridStateManager.addPC(initialGridId, {
+      console.log('7 InitAppWrapper; Resolving player location...');
+      const playerIdStr = fullPlayerData._id.toString();
+      let gridPlayer = initializedState?.pcs?.[playerIdStr];
+
+      // ✅ Step A: Detect location mismatch or missing from gridState
+      const isLocationMismatch = fullPlayerData.location?.g !== initialGridId;
+      const isMissingFromGrid = !gridPlayer;
+
+      console.log('isLocationMismatch = ', isLocationMismatch);
+      console.log('isMissingFromGrid = ', isMissingFromGrid);
+
+      if (isLocationMismatch || isMissingFromGrid) {
+        console.warn("🧭 Player not in correct gridState or missing entirely. Repositioning...");
+
+        const targetGridId = fullPlayerData.location.g;
+        const targetPosition = { x: 1, y: 1 };
+
+        console.warn('InitAppWrapper: adding PC to gridState');
+        gridStateManager.addPC(targetGridId, {
           playerId: fullPlayerData.playerId,
           username: fullPlayerData.username,
-          position: { x: 1, y: 1 },
+          position: targetPosition,
           icon: fullPlayerData.icon,
           hp: fullPlayerData.hp,
           maxhp: fullPlayerData.maxhp,
           armorclass: fullPlayerData.armorclass,
           attackbonus: fullPlayerData.attackbonus,
           damage: fullPlayerData.damage,
-          attackrange: fullPlayerData.arrackrange,
+          attackrange: fullPlayerData.attackrange,
           speed: fullPlayerData.speed,
           iscamping: fullPlayerData.iscamping,
         });
-        await gridStateManager.saveGridState(initialGridId);
+        await gridStateManager.saveGridState(targetGridId);
+
+        // ✅ Refresh the gridState and React state
+        console.warn('InitAppWrapper: refreshing gridState');
+        const refreshedState = gridStateManager.getGridState(targetGridId);
+        setGridState(refreshedState);
+        gridPlayer = refreshedState.pcs[playerIdStr];
+
+        // ✅ Update gridId and storage to match actual grid
+        console.warn('InitAppWrapper: adding PC to gridState');
+        setGridId(targetGridId);
+        localStorage.setItem('gridId', targetGridId);
+
+        // ✅ Update player's in-memory and stored location
+        fullPlayerData.location = {
+          ...fullPlayerData.location,
+          x: targetPosition.x,
+          y: targetPosition.y,
+          g: targetGridId,
+        };
+
+        console.log("✅ Player repositioned into gridState:", gridPlayer);
+      } else {
+        console.log('✅ Player found in local gridState.');
+
+        // Optional: double-check database copy of gridState
+        const { data: gridStateResponse } = await axios.get(`${API_BASE}/api/load-grid-state/${fullPlayerData.location.g}`);
+        const dbGridState = gridStateResponse?.gridState || { npcs: {}, pcs: {} };
+
+        if (!dbGridState.pcs || !dbGridState.pcs[fullPlayerData._id]) {
+          console.warn(`⚠️ Player ${fullPlayerData.username} missing from DB gridState. Saving state to DB.`);
+          await gridStateManager.saveGridState(fullPlayerData.location.g);
+        } else {
+          console.log('✅ Player exists in both local and DB gridState.');
+        }
       }
 
-      // ✅ Sync combat stats from gridState (if they exist)
-      if (gridPlayer) {
-        fullPlayerData.hp = gridPlayer.hp;
-        fullPlayerData.maxhp = gridPlayer.maxhp;
-        fullPlayerData.armorclass = gridPlayer.armorclass;
-        fullPlayerData.attackbonus = gridPlayer.attackbonus;
-        fullPlayerData.damage = gridPlayer.damage;
-        fullPlayerData.speed = gridPlayer.speed;
-        fullPlayerData.attackrange = gridPlayer.attackrange;
-        fullPlayerData.iscamping = gridPlayer.iscamping;
-      }
+      // ✅ Step 8: Sync combat stats from gridState
+      console.log('8 InitAppWrapper: syncing combat stats from gridState');
 
-      // ✅ Backfill gridState stats into player document on DB
+      fullPlayerData.hp = gridPlayer.hp;
+      fullPlayerData.maxhp = gridPlayer.maxhp;
+      fullPlayerData.armorclass = gridPlayer.armorclass;
+      fullPlayerData.attackbonus = gridPlayer.attackbonus;
+      fullPlayerData.damage = gridPlayer.damage;
+      fullPlayerData.speed = gridPlayer.speed;
+      fullPlayerData.attackrange = gridPlayer.attackrange;
+      fullPlayerData.iscamping = gridPlayer.iscamping;
+
+      // ✅ Step 9: Backfill combat stats to DB player profile
+      console.log('9 InitAppWrapper: updating player profile on DB');
       await axios.post(`${API_BASE}/api/update-profile`, {
         playerId: fullPlayerData.playerId,
         updates: {
@@ -346,46 +379,46 @@ useEffect(() => {
       });
       console.log(`✅ Backfilled combat stats to player document:`, fullPlayerData);
 
-      // ✅ Now ensure local storage also gets these updated combat stats
+      // ✅ Step 10: Update local storage with final player state
       updatedPlayerData = {
-        ...fullPlayerData, // ✅ Override with the latest player data from DB
+        ...fullPlayerData,
         location: {
-          ...updatedPlayerData.location,
-          x: gridPlayer?.position.x || 1,
-          y: gridPlayer?.position.y || 1,
-          g: initialGridId,
+          ...fullPlayerData.location,
+          x: gridPlayer?.position?.x || 1,
+          y: gridPlayer?.position?.y || 1,
+          g: fullPlayerData.location.g,
         },
       };
 
       setCurrentPlayer(updatedPlayerData);
-      localStorage.setItem('player', JSON.stringify(updatedPlayerData)); // ✅ Ensure Local Storage Matches DB
+      localStorage.setItem('player', JSON.stringify(updatedPlayerData));
       console.log(`✅ LocalStorage updated with combat stats:`, updatedPlayerData);
 
-       // 9. ✅ **Check if the player has died and show the death modal**
+      // ✅ Step 11: Check for death flag and show modal if needed
       if (updatedPlayerData.settings?.hasDied) {
-        console.log("Player died last session. Showing death modal.");
-
-        // Show the modal
+        console.log("☠️ Player died last session. Showing death modal.");
         setModalContent({
-          title: strings["5001"],  // "You have died."
-          message: strings["5002"], 
-          message2: strings["5003"], 
-          size: "small"
+          title: strings["5001"],
+          message: strings["5002"],
+          message2: strings["5003"],
+          size: "small",
         });
         setIsModalOpen(true);
-        // ✅ **Reset hasDied = false in the database**
+
+        // Clear the flag in DB
         await axios.post(`${API_BASE}/api/update-profile`, {
           playerId: updatedPlayerData.playerId,
-          updates: { settings: { ...updatedPlayerData.settings, hasDied: false } },  // ✅ Reset inside settings
+          updates: { settings: { ...updatedPlayerData.settings, hasDied: false } },
         });
-        // ✅ **Also update local storage**
+
+        // Clear the flag in localStorage
         updatedPlayerData.settings.hasDied = false;
         localStorage.setItem('player', JSON.stringify(updatedPlayerData));
       }
 
-      console.log('App initialization complete.');
+      console.log('✅ App initialization complete.');
+      setIsAppInitialized(true);
 
-      setIsAppInitialized(true);  // ✅ Mark initialization complete
     } catch (error) {
       console.error('Error during app initialization:', error);
       updateStatus(error.code === 'ERR_NETWORK' ? 1 : 0);  // Handle errors
@@ -667,18 +700,13 @@ useEffect(() => {
 useEffect(() => {
   const checkPhaseTransitions = async () => {
 
-    console.log("🔍checkPhaseTransitions");
+    console.log("🔍checkPhaseTransitions;  season = ",timers.seasons.phase);
 
     const now = Date.now();
     let shouldFetchNewTimers = false;
 
     if (timers.seasons.endTime && now >= timers.seasons.endTime) {
       console.log("🌱 Season phase ended.");
-      if (timers.seasons.phase === "offSeason") {
-        setIsOffSeason(true); // ✅ Local authoritative
-      } else {
-        setIsOffSeason(false); // ✅ Local authoritative
-      }
       shouldFetchNewTimers = true;
     }
     if (timers.elections.endTime && now >= timers.elections.endTime) {
@@ -702,6 +730,12 @@ useEffect(() => {
       await fetchTimersData();
     }
   };
+
+  if (timers.seasons.phase === "offSeason") { 
+    setIsOffSeason(true);
+  } else {
+    setIsOffSeason(false); 
+  }
 
   const interval = setInterval(checkPhaseTransitions, 5000); // ✅ Check every 5s
   return () => clearInterval(interval);
@@ -895,10 +929,12 @@ useEffect(() => {
 
 useEffect(() => {
     const handleKeyDown = (event) => {
-  console.log("currentPlayer = ",currentPlayer);
 
       // ✅ Prevent movement if a modal is open
-      if (activeModal || isOffSeason ) { console.log("🛑 Keyboard input disabled while modal is open."); return; }
+      if (activeModal || isOffSeason ) { 
+        console.log("🛑 Keyboard input disabled while modal is open."); 
+        return; 
+      }
       // ✅ Prevent movement if a text input is focused
       const activeElement = document.activeElement;
       if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; }
@@ -1327,11 +1363,18 @@ const zoomOut = () => {
           )}
         </div>
         
-        <br/>
+        <br />
+
+        {timers.taxes.phase === "waiting" ? (
+          <>
             <h4>Next Tax Collection:</h4> 
-            <h2>{countdowns.taxes}</h2>  
-            <br/>
-            <br/>
+            <h2>{countdowns.taxes}</h2>
+          </>
+        ) : (
+          <>
+            <h4>Now collecting taxes...</h4>
+          </>
+        )}
 
         <br />
 
@@ -1347,7 +1390,9 @@ const zoomOut = () => {
           </>
         )}
 
-        <h3>⏳ Events:
+        <br />
+
+        <h3>⏳ More Events:
           <span 
             onClick={() => setShowTimers(!showTimers)} 
             style={{ cursor: "pointer", fontSize: "16px", marginLeft: "5px" }}
@@ -1388,20 +1433,6 @@ const zoomOut = () => {
           </div>
 
           <br />
-
-          <button
-            className="reset-button"
-            onClick={async () => {
-              try {
-                await axios.post(`${API_BASE}/api/debug/end-season`);
-                alert("✅ Triggered artificial end-of-season for debug.");
-              } catch (error) {
-                console.error("❌ Failed to trigger season end:", error);
-              }
-            }}
-          >
-            End Season (Debug)
-          </button>
 
           <button className="panel-button reset-button" onClick={handleResetTimers}>
             Reset All Timers

@@ -26,9 +26,10 @@ async function seasonScheduler(frontierId, phase) {
             nextSeasonType = currentIndex !== -1
             ? seasons[(currentIndex + 1) % seasons.length].seasonType
             : "Spring";
-        // Future hooks:
-        // await seasonFinalizer(frontierId);
-        // await seasonReset(frontierId);
+
+            await seasonFinalizer(frontierId);
+            await seasonReset(frontierId);  
+            
         }
 
         // ✅ If we're entering onSeason, bump the season number

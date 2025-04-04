@@ -7,36 +7,50 @@ const masterResources = require("../tuning/resources.json");
 const globalTuning = require("../tuning/globalTuning.json");
 const ObjectId = require("mongoose").Types.ObjectId;
 const fs = require("fs");
+const { truncate } = require("fs/promises");
 const shuffle = (array) => array.sort(() => Math.random() - 0.5);
+const relocatePlayersHome = require("./relocatePlayersHome");
 
 const STEPS = {
   wipeHomesteads: true,
   resetPlayerAssignments: true,
   reassignPlayers: true,
+  relocatePlayersHome: true,
+  resetTownsAndValley: true,
   applyMoneyNerf: true,
 };
-
+const POP_THRESHOLD = 5;
+const SAVE_FLAG = false;
 
 async function seasonReset(frontierId) {
     try {
-      console.group("🌿 STARTING seasonReset");
+      console.group("↩️↩️↩️↩️↩️ STARTING seasonReset for frontier: ",frontierId);
   
       const frontier = await Frontier.findById(frontierId);
       if (!frontier) return console.error("❌ Frontier not found");
   
-      const allPlayers = await Player.find({ frontierId });
-      const totalPop = allPlayers.length;
-      console.log(`📊 Total Players in Frontier: ${totalPop}`);
-  
-      if (totalPop < 60) {
-        console.log("📦 Population under 60, skipping reassignment.");
+      const settlements = await Settlement.find({ frontierId });
+
+      // ✅ Calculate population from settlements
+      const totalPop = settlements.reduce((sum, s) => sum + (s.population || 0), 0);
+      console.log(`📊 Total Population across all settlements: ${totalPop}`);
+      
+      if (totalPop < POP_THRESHOLD) {
+        console.log("📦 Population under threshold — skipping reassignment.");
+        console.groupEnd();
         return;
       }
-  
-      const settlements = await Settlement.find({ frontierId });
+
+      console.log("fetching players and grids...");
+      // ✅ Also fetch players and grids AFTER this check
+      const allPlayers = await Player.find({ frontierId });
       const grids = await Grid.find({ frontierId });
   
-      // ✅ STEP 3: Wipe homestead ownership + availability
+//////////////////////////////////////////////////////
+//////////////////////////////////////////////////////
+
+
+      // ✅ STEP 1: Wipe homestead ownership + availability
       if (STEPS.wipeHomesteads) {
         console.log("🔁 STEP 3: Wiping homestead ownership and resetting grid references...");
         for (const settlement of settlements) {
@@ -48,38 +62,51 @@ async function seasonReset(frontierId) {
               }
             }
           }
-  
           settlement.population = 0;
           settlement.roles = {};
           settlement.votes = [];
           settlement.campaignPromises = [];
-          settlement.currentOffers = [];
-          settlement.nextOffers = [];
-          settlement.trainRewards = [];
+          settlement.currentoffers = [];
+          settlement.nextoffers = [];
+          settlement.trainrewards = [];
   
-          await settlement.save();
+          if (SAVE_FLAG) {
+            await settlement.save();
+          } else {
+            console.log("🚩 SAVE_FLAG off; Skipped saving settlement");
+          }
         }
   
         for (const grid of grids) {
           grid.ownerId = null;
-          await grid.save();
-        }
+          if (SAVE_FLAG) {
+            await grid.save();
+          } else {
+            console.log("🚩 SAVE_FLAG off; Skipped saving grid");
+          }
+                }
       } else {
-        console.log("⏭️ STEP 3: Skipped wiping homesteads.");
+        console.log("⏭️ STEP 1: Skipped wiping homesteads.");
       }
   
-      // ✅ STEP 4: Reset player grid assignments
+      // ✅ STEP 2: Reset player grid assignments
       if (STEPS.resetPlayerAssignments) {
         console.log("🔁 STEP 4: Resetting player gridIds...");
         for (const player of allPlayers) {
           player.gridId = null;
         }
-        await Promise.all(allPlayers.map((p) => p.save()));
+        if (SAVE_FLAG) {
+          await Promise.all(allPlayers.map((p) => p.save()));
+        } else {
+          console.log("🚩 SAVE_FLAG off; Skipped saving player grid assignments.");
+        }
       } else {
-        console.log("⏭️ STEP 4: Skipped resetting player gridIds.");
+        console.log("⏭️ STEP 2: Skipped resetting player gridIds.");
       }
+
+
   
-      // ✅ STEP 5: Reassign players to homesteads
+      // ✅ STEP 3: Reassign players to homesteads
       if (STEPS.reassignPlayers) {
         console.log("🔁 STEP 5: Reassigning players to homesteads...");
         const unassignedPlayers = shuffle([...allPlayers]);
@@ -103,7 +130,7 @@ async function seasonReset(frontierId) {
           }
   
           grid.available = false;
-          grid.gridId = await createAndLinkGrid(player, settlement._id, frontierId, grid.gridCoord);
+//          grid.gridId = await createAndLinkGrid(player, settlement._id, frontierId, grid.gridCoord);
   
           player.settlementId = settlement._id;
           player.gridId = grid.gridId;
@@ -112,16 +139,41 @@ async function seasonReset(frontierId) {
           currentGroup.push(player);
         }
   
-        await Promise.all(settlements.map((s) => s.save()));
+        if (SAVE_FLAG) {
+          await Promise.all(settlements.map((s) => s.save()));
+        } else {
+          console.log("🚩 SAVE_FLAG off; Skipped saving settlements after reassignment.");
+        }
       } else {
-        console.log("⏭️ STEP 5: Skipped player reassignment.");
+        console.log("⏭️ STEP 3: Skipped player reassignment.");
       }
   
-      // ✅ STEP 6: Apply money nerfs + wipe inventory
+      // ✅ STEP 4: Relocate players back home
+      if (STEPS.relocatePlayersHome) {
+        await relocatePlayersHome(frontierId);
+      
+      } else {
+        console.log("⏭️ STEP 4: Skipped relocating players.");
+      }
+
+     // ✅ STEP 5: Relocate players back home
+     if (STEPS.resetTownsAndValley) {
+
+      // for each settlement,
+      // delete all grids with gtype = "town", "valley1", "valley2", or "valley3"
+      // run these existing debug functions:
+      // 
+
+     } else {
+       console.log("⏭️ STEP 5: Skipped resetting towns and valley.");
+     }
+
+
+     // ✅ STEP 6: Apply money nerfs + wipe inventory
       if (STEPS.applyMoneyNerf) {
         console.log("🔁 STEP 6: Applying money nerfs and wiping inventories...");
         for (const player of allPlayers) {
-          const isGold = player.userState?.includes("Gold");
+          const isGold = player.accountStatus?.includes("Gold");
           const nerf = isGold ? globalTuning.seasonMoneyNerfGold : globalTuning.seasonMoneyNerf;
   
           const moneyItem = player.inventory.find((i) => i.type === "Money");
@@ -134,7 +186,11 @@ async function seasonReset(frontierId) {
           );
   
           player.netWorth = null;
-          await player.save();
+          if (SAVE_FLAG) {
+            await player.save();
+          } else {
+            console.log("🚩 SAVE_FLAG off; Skipped saving player after money nerf.");
+          }
         }
       } else {
         console.log("⏭️ STEP 6: Skipped money nerf/inventory wipe.");
@@ -142,6 +198,7 @@ async function seasonReset(frontierId) {
   
       console.log("✅ Season Reset Complete!");
       console.groupEnd();
+
     } catch (error) {
       console.error("❌ Error in seasonReset.js:", error);
     }

@@ -25,10 +25,10 @@ async function trainScheduler(frontierId, phase) {
 
       if (phase === "loading") {
         // ✅ 1. Check if all current offers were filled
-        if (settlement.currnetoffers.every(o => o.filled)) {
+        if (settlement.currentoffers.every(o => o.filled)) {
           console.log(`🎉 All Train orders filled for ${settlement.name}. Sending rewards...`);
       
-          const fulfilledPlayerIds = settlement.currnetoffers
+          const fulfilledPlayerIds = settlement.currentoffers
             .filter(offer => offer.claimedBy)
             .map(offer => offer.claimedBy.toString());
       
@@ -49,8 +49,8 @@ async function trainScheduler(frontierId, phase) {
       
       if (phase === "arriving") {
 
-        // ✅ 1. Promote nextoffers → currnetoffers
-        settlement.currnetoffers = [...(settlement.nextoffers || [])];
+        // ✅ 1. Promote nextoffers → currentoffers
+        settlement.currentoffers = [...(settlement.nextoffers || [])];
 
         // ✅ 2. Generate new nextoffers and rewards
         const currentSeasonType = frontier.seasons?.seasonType;
@@ -69,7 +69,7 @@ async function trainScheduler(frontierId, phase) {
 
         await settlement.save();
 
-        console.log(`  ✅ ${settlement.currnetoffers.length} currnetoffers promoted.`);
+        console.log(`  ✅ ${settlement.currentoffers.length} currentoffers promoted.`);
         console.log(`  📦 ${newNextOffers.length} nextoffers generated.`);
         console.log(`  🎁 ${newRewards.length} train rewards generated.`);
       }

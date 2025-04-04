@@ -63,7 +63,7 @@ function TrainPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) 
   const fetchTrainOffers = async () => {
     try {
       const response = await axios.get(`${API_BASE}/api/get-settlement/${currentPlayer.settlementId}`);
-      setTrainOffers(response.data?.currnetoffers || []);
+      setTrainOffers(response.data?.currentoffers || []);
       setNextOffers(response.data?.nextoffers || []);
       setTrainRewards(response.data?.trainrewards || []);
     } catch (error) {

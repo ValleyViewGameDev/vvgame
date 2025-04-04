@@ -46,7 +46,7 @@ const SettlementSchema = new mongoose.Schema({
     }
   ],
 
-  currnetoffers: [
+  currentoffers: [
     {
       itemBought: { type: String, required: true },
       qtyBought: { type: Number, required: true },

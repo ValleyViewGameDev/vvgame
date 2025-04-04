@@ -92,7 +92,7 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
       { $set: updatePayload }
     );
 
-    console.log(`✅ ${featureKey} advanced to '${nextPhase}' for Frontier ${frontierId}. Next end: ${nextEndTime.toLocaleString()}`);
+    console.log(`✅ ${featureKey} advanced to '${phase}' for Frontier ${frontierId}. Next end: ${nextEndTime.toLocaleString()}`);
 
       // ✅ Patch in-memory object with new values before scheduling next check
     frontier[featureKey] = {
