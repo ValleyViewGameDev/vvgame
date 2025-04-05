@@ -264,3 +264,6 @@ app.get('/api/load-layout', (req, res) => {
 
 
 console.log(`Server running on port ${PORT}`);
+
+// server.js
+module.exports = { io };
