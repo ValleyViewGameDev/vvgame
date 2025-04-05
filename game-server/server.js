@@ -60,7 +60,8 @@ mongoose.connect(process.env.MONGODB_URI)
         methods: ['GET', 'POST'],
       }
     });
-
+    module.exports = { io };
+    
     // Set up socket events
     io.on('connection', (socket) => {
       console.log(`🟢 New client connected: ${socket.id}`);
@@ -264,6 +265,3 @@ app.get('/api/load-layout', (req, res) => {
 
 
 console.log(`Server running on port ${PORT}`);
-
-// server.js
-module.exports = { io };
