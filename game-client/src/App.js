@@ -65,6 +65,7 @@ import { enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
 
 function App() {
 
+  // Check whether we are in off-season mode
   useEffect(() => {
     const checkInitialSeasonPhase = async () => {
       console.log("Checking for on or off Season on app start");
@@ -96,11 +97,8 @@ function App() {
 
   // Initialize gridId with localStorage (do not depend on currentPlayer here)
 
-  const [gridId, setGridId] = useState(() => {
-    const storedGridId = localStorage.getItem('gridId');
-    return storedGridId || null;
-  });
-  
+	const [gridId, setGridId] = useState(null);
+
   const [resources, setResources] = useState([]);
   const [tileTypes, setTileTypes] = useState([]);
   const [grid, setGrid] = useState([]);
@@ -200,24 +198,26 @@ useEffect(() => {
     isInitializing = true;
 
     try {
-        // 1. Load tuning data
-        console.log('1 InitAppWrapper; Merging player data and initializing inventory...');
-        const [skills, resources] = await Promise.all([loadMasterSkills(), loadMasterResources()]);
-        setMasterResources(resources);
-        setMasterSkills(skills);
-        setIsMasterResourcesReady(true); // ✅ Mark ready
 
-        // 2. Fetch stored player from localStorage
-        console.log('2 InitAppWrapper; getting local player...');
-        const storedPlayer = localStorage.getItem('player');
+      // 0. Wipe any gridId from the localStorage to avoid stale references during initialization
+      //    We will use the player data to determine the correct gridId 
+      localStorage.removeItem('gridId');
+
+      // 1. Load tuning data
+      console.log('1 InitAppWrapper; Merging player data and initializing inventory...');
+      const [skills, resources] = await Promise.all([loadMasterSkills(), loadMasterResources()]);
+      setMasterResources(resources);
+      setMasterSkills(skills);
+      setIsMasterResourcesReady(true); // ✅ Mark ready
+
+      // 2. Fetch stored player from localStorage
+      console.log('2 InitAppWrapper; getting local player...');
+      const storedPlayer = localStorage.getItem('player');
 
       if (!storedPlayer) {
         console.log('No stored player found, opening login modal.');
         setisLoginPanelOpen(true);    
         openPanel("LoginPanel");  
-
-        console.log('Got past openPanel.');
-
         setModalContent({
           title: strings["5005"],  // "Welcome"
           message: strings["5006"], 
@@ -225,20 +225,28 @@ useEffect(() => {
           size: "small"
         });
         setIsModalOpen(true);
-
-        console.log('Got past welcome modal logic.');
-
         return;
       }
       const parsedPlayer = JSON.parse(storedPlayer);
 
-      // 2. Fetch the full player data from the server
+      // 2.1 Fetch the full player data from the server
+      console.log('2.1 InitAppWrapper; fetching player from server...');
       const response = await axios.get(`${API_BASE}/api/player/${parsedPlayer.playerId}`);
       const fullPlayerData = response.data;
       if (!fullPlayerData || !fullPlayerData.playerId) {
         console.error('Invalid full player data from server:', fullPlayerData);
         setisLoginPanelOpen(true);
         return;
+      }
+
+      // 🧼 Step 2.5: Check for stale gridId (e.g. after offSeason relocation)
+      console.log('2.5 InitAppWrapper; checking for stale gridId after relocation...');
+      const storedGridId = localStorage.getItem("gridId");
+      const resolvedGridId = fullPlayerData.location?.g;
+      if (storedGridId && resolvedGridId && storedGridId !== resolvedGridId) {
+        console.warn("🌪️ Detected stale gridId from localStorage. Updating to new home grid.");
+        localStorage.setItem("gridId", resolvedGridId);
+        setGridId(resolvedGridId); // ✅ Use setter to update React state
       }
 
       // 3. Combine local and server data, prioritizing newer info from the server
@@ -258,6 +266,7 @@ useEffect(() => {
       setGridId(initialGridId);
       localStorage.setItem('gridId', initialGridId); // Save to local storage
 
+      // 4.5. Open the socket
       socket.connect();
       socket.emit('join-grid', initialGridId);
       console.log("📡 Connected to socket and joined grid:", initialGridId);
@@ -292,7 +301,8 @@ useEffect(() => {
       console.log('isLocationMismatch = ', isLocationMismatch);
       console.log('isMissingFromGrid = ', isMissingFromGrid);
 
-      if (isLocationMismatch || isMissingFromGrid) {
+      if (isMissingFromGrid && gridId === fullPlayerData.location.g) {
+        
         console.warn("🧭 Player not in correct gridState or missing entirely. Repositioning...");
 
         const targetGridId = fullPlayerData.location.g;
@@ -313,6 +323,7 @@ useEffect(() => {
           speed: fullPlayerData.speed,
           iscamping: fullPlayerData.iscamping,
         });
+        console.log ("About to save call saveGridState in InitAppWrapper step 7");
         await gridStateManager.saveGridState(targetGridId);
 
         // ✅ Refresh the gridState and React state
@@ -733,6 +744,15 @@ useEffect(() => {
 
   if (timers.seasons.phase === "offSeason") { 
     setIsOffSeason(true);
+    // 🌱 New logic to force-refresh when OffSeason ends
+    if (
+      currentPlayer &&
+      localStorage.getItem('gridId') !== currentPlayer.location?.g
+    ) {
+      console.warn("🌍 Grid mismatch after OffSeason reset. Forcing refresh.");
+      localStorage.setItem('gridId', currentPlayer.location.g);
+      window.location.reload();
+    }
   } else {
     setIsOffSeason(false); 
   }
@@ -931,10 +951,14 @@ useEffect(() => {
     const handleKeyDown = (event) => {
 
       // ✅ Prevent movement if a modal is open
-      if (activeModal || isOffSeason ) { 
+      if (activeModal) { 
         console.log("🛑 Keyboard input disabled while modal is open."); 
         return; 
       }
+      if (isOffSeason) { 
+        console.log("🛑 Keyboard input disabled while offseason."); 
+        return; 
+      }      
       // ✅ Prevent movement if a text input is focused
       const activeElement = document.activeElement;
       if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; }

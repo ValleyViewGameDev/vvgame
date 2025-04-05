@@ -318,6 +318,21 @@ async saveGridState(gridId) {
   this.gridStates[gridId].lastUpdated = Date.now();
   updateLastGridStateTimestamp(this.gridStates[gridId].lastUpdated); 
 
+  // 🔍 Logging before saving gridState
+const pcs = gridState.pcs || {};
+const pcIds = Object.keys(pcs);
+console.warn(`💾 Attempting to save gridState for gridId: ${gridId}`);
+console.warn(`👥 PCs in memory for this grid:`, pcIds);
+
+if (pcIds.length === 0) {
+  console.warn(`⚠️ No PCs present in memory for this grid — possible wipe condition.`);
+} else {
+  pcIds.forEach(pid => {
+    const pc = pcs[pid];
+    console.log(`🧍‍♂️ PC ${pid}: ${pc.username || 'unknown'} at (${pc.position?.x}, ${pc.position?.y})`);
+  });
+}
+
   //console.log(`Saving gridState to DB for gridId: ${gridId}`, gridState);
   try {
     await axios.post(`${API_BASE}/api/save-grid-state`, {
