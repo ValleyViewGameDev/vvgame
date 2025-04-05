@@ -195,6 +195,9 @@ async function seasonReset(frontierId) {
       } else {
         console.log("⏭️ STEP 6: Skipped money nerf/inventory wipe.");
       }
+
+     // ✅ STEP 7: Force refresh of clients
+      io.emit("force-refresh", { reason: "seasonReset" });
   
       console.log("✅ Season Reset Complete!");
       console.groupEnd();

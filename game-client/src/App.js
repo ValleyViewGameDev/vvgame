@@ -909,7 +909,7 @@ useEffect(() => {
 }, [socket, gridId, isMasterResourcesReady]); // ← Add isMasterResourcesReady as a dependency
 
 
-// 🔄 OCKET LISTENER: Real-time updates for tiles
+// 🔄 SOCKET LISTENER: Real-time updates for tiles
 useEffect(() => {
   console.log("🌐 useEffect for tile-sync running. gridId:", gridId, "socket:", !!socket);
 
@@ -942,6 +942,12 @@ useEffect(() => {
   };
 }, [socket, gridId]);
 
+// 🔄 SOCKET LISTENER: Force refresh on season reset
+useEffect(() => {
+    socket.on("force-refresh", (data) => {
+    console.warn("🔁 Received force-refresh signal from server!", data);
+  });
+}, [socket]);
 
 /////////// HANDLE KEY MOVEMENT /////////////////////////
 
