@@ -65,7 +65,6 @@ import { enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
 
 function App() {
 
-  // Check whether we are in off-season mode
   useEffect(() => {
     const checkInitialSeasonPhase = async () => {
       console.log("Checking for on or off Season on app start");
@@ -97,8 +96,11 @@ function App() {
 
   // Initialize gridId with localStorage (do not depend on currentPlayer here)
 
-	const [gridId, setGridId] = useState(null);
-
+  const [gridId, setGridId] = useState(() => {
+    const storedGridId = localStorage.getItem('gridId');
+    return storedGridId || null;
+  });
+  
   const [resources, setResources] = useState([]);
   const [tileTypes, setTileTypes] = useState([]);
   const [grid, setGrid] = useState([]);
@@ -198,11 +200,7 @@ useEffect(() => {
     isInitializing = true;
 
     try {
-
-      // 0. Wipe any gridId from the localStorage to avoid stale references during initialization
-      //    We will use the player data to determine the correct gridId 
-      localStorage.removeItem('gridId');
-
+      
       // 1. Load tuning data
       console.log('1 InitAppWrapper; Merging player data and initializing inventory...');
       const [skills, resources] = await Promise.all([loadMasterSkills(), loadMasterResources()]);
