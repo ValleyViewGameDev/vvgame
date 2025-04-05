@@ -22,7 +22,7 @@ const STEPS = {
 const POP_THRESHOLD = 5;
 const SAVE_FLAG = false;
 
-async function seasonReset(frontierId) {
+async function seasonReset(io, frontierId) {
     try {
       console.group("↩️↩️↩️↩️↩️ STARTING seasonReset for frontier: ",frontierId);
   
