@@ -41,7 +41,7 @@ async function bankScheduler(frontierId, phase) {
 // ✅ Function to generate offers based on `masterResources`
 function generateBankOffers() {
     const offers = [];
-    const numOffers = globalTuning.bankOffers || 5;
+    const numOffers = globalTuning.bankOffers || 3;
     
     // ✅ Filter only resources of category "doober"
     const validResources = masterResources.filter(res => res.category === "doober");

@@ -3,7 +3,6 @@ const globalTuning = require("../tuning/globalTuning.json");
 const seasons = require("../tuning/seasons.json");
 const seasonFinalizer = require('../utils/seasonFinalizer');
 const seasonReset = require('../utils/seasonReset');
-const { io } = require("../server");
 
 async function seasonScheduler(frontierId, phase) {
   
@@ -29,7 +28,7 @@ async function seasonScheduler(frontierId, phase) {
             : "Spring";
 
             await seasonFinalizer(frontierId);
-            await seasonReset(io, frontierId);  
+            await seasonReset(frontierId);  
             
         }
 

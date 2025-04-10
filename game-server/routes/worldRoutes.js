@@ -15,14 +15,9 @@ const { generateGrid, generateResources } = require('../utils/worldUtils');
 //const tileTypesPath = path.resolve(__dirname, '../layouts/tileTypes.json');
 //const tileTypes = JSON.parse(fs.readFileSync(tileTypesPath, 'utf-8'));
 const masterResources = require('../tuning/resources.json'); // Import resources.json directly
-const { getTemplate } = require('../utils/templateUtils');
+const { getTemplate, getHomesteadLayoutFile } = require('../utils/templateUtils');
 const queue = require('../queue'); // Import the in-memory queue
 
-function getHomesteadLayoutFile(seasonType) {
-  const layoutFileName = `homestead${seasonType}.json`;
-  const layoutPath = path.join(__dirname, '../layouts/gridLayouts/homestead', layoutFileName);
-  return fs.existsSync(layoutPath) ? layoutFileName : 'homestead_default.json';
-}
 
 ///////////////////////////////////////////////////////////////
 // GRID ROUTES 
@@ -258,7 +253,10 @@ router.post('/reset-grid', async (req, res) => {
     const newResources = generateResources(layout, newTiles, layoutFileName);
 
     // Step 6: Extract fresh NPCs, preserve PCs
-    const existingPCs = grid.gridState?.pcs || {};
+    if (gridType != "homestead") {
+      existingPCs = grid.gridState?.pcs || {};
+    }
+    
     const newGridState = { npcs: {}, pcs: existingPCs };
 
     // 5Process layout resources, separating NPCs into gridState

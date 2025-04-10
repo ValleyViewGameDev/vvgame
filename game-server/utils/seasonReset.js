@@ -1,4 +1,5 @@
 // game-server/utils/seasonReset.js
+const axios = require('axios');
 const Frontier = require("../models/frontier");
 const Settlement = require("../models/settlement");
 const Grid = require("../models/grid");
@@ -10,6 +11,7 @@ const fs = require("fs");
 const { truncate } = require("fs/promises");
 const shuffle = (array) => array.sort(() => Math.random() - 0.5);
 const relocatePlayersHome = require("./relocatePlayersHome");
+const { resetGridDirect } = require('./resetGridLogic');
 
 const STEPS = {
   wipeHomesteads: true,
@@ -22,7 +24,8 @@ const STEPS = {
 const POP_THRESHOLD = 5;
 const SAVE_FLAG = false;
 
-async function seasonReset(io, frontierId) {
+
+async function seasonReset(frontierId) {
     try {
       console.group("↩️↩️↩️↩️↩️ STARTING seasonReset for frontier: ",frontierId);
   
@@ -104,8 +107,6 @@ async function seasonReset(io, frontierId) {
         console.log("⏭️ STEP 2: Skipped resetting player gridIds.");
       }
 
-
-  
       // ✅ STEP 3: Reassign players to homesteads
       if (STEPS.reassignPlayers) {
         console.log("🔁 STEP 5: Reassigning players to homesteads...");
@@ -130,7 +131,7 @@ async function seasonReset(io, frontierId) {
           }
   
           grid.available = false;
-//          grid.gridId = await createAndLinkGrid(player, settlement._id, frontierId, grid.gridCoord);
+//        grid.gridId = await createAndLinkGrid(player, settlement._id, frontierId, grid.gridCoord);
   
           player.settlementId = settlement._id;
           player.gridId = grid.gridId;
@@ -156,13 +157,30 @@ async function seasonReset(io, frontierId) {
         console.log("⏭️ STEP 4: Skipped relocating players.");
       }
 
-     // ✅ STEP 5: Relocate players back home
+     // ✅ STEP 5: Reset Towns AND VALLEY
      if (STEPS.resetTownsAndValley) {
 
-      // for each settlement,
-      // delete all grids with gtype = "town", "valley1", "valley2", or "valley3"
-      // run these existing debug functions:
-      // 
+      const publicGrids = await Grid.find({
+        frontierId,
+        gridType: { $ne: 'homestead' }  // ✅ Match anything that's NOT a homestead
+      });
+
+      console.log(`🔁 Found ${publicGrids.length} public grids to reset...`);
+
+      for (const grid of publicGrids) {
+        try {
+          const payload = {
+            gridId: grid._id,
+            gridType: grid.gridType,
+            gridCoord: grid.gridCoord, // optional
+          };
+          console.log(`🔁 Resetting ${grid.gridType} grid (${grid._id})`);
+          await resetGridDirect(payload);
+          console.log(`✅ Grid reset successful: ${response.data.message}`);
+        } catch (err) {
+          console.error(`❌ Error resetting grid ${grid._id}:`, err.response?.data || err.message);
+        }
+      }
 
      } else {
        console.log("⏭️ STEP 5: Skipped resetting towns and valley.");
@@ -195,9 +213,6 @@ async function seasonReset(io, frontierId) {
       } else {
         console.log("⏭️ STEP 6: Skipped money nerf/inventory wipe.");
       }
-
-     // ✅ STEP 7: Force refresh of clients
-      io.emit("force-refresh", { reason: "seasonReset" });
   
       console.log("✅ Season Reset Complete!");
       console.groupEnd();

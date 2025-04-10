@@ -783,7 +783,22 @@ const handleResetTimers = async () => {
   }
 };
 
+const previousPhaseRef = useRef(timers.seasons?.phase);
 
+// 🔄 Refresh client when offSeason ends
+useEffect(() => {
+  const currentPhase = timers.seasons?.phase;
+
+  if (
+    previousPhaseRef.current === "offSeason" &&
+    currentPhase === "onSeason"
+  ) {
+    console.warn("🔁 offSeason ended — forcing full app reload.");
+    window.location.reload();
+  }
+
+  previousPhaseRef.current = currentPhase;
+}, [timers.seasons?.phase]);
 
 
 /////////// SOCKET LISTENER /////////////////////////
@@ -944,9 +959,16 @@ useEffect(() => {
 
 // 🔄 SOCKET LISTENER: Force refresh on season reset
 useEffect(() => {
-    socket.on("force-refresh", (data) => {
-    console.warn("🔁 Received force-refresh signal from server!", data);
+  if (!socket) return;
+
+  socket.on("force-refresh", ({ reason }) => {
+    console.warn(`🔁 Server requested refresh: ${reason}`);
+    window.location.reload();
   });
+
+  return () => {
+    socket.off("force-refresh");
+  };
 }, [socket]);
 
 /////////// HANDLE KEY MOVEMENT /////////////////////////
@@ -1307,9 +1329,10 @@ const zoomOut = () => {
     window.location.reload();
   };
 
+
+  const [showTimers, setShowTimers] = useState(false);
   const [showStats, setShowStats] = useState(false); // Toggle for combat stats UI
   const combatStats = gridState?.pcs?.[String(currentPlayer?._id)] || {};
-  const [showTimers, setShowTimers] = useState(false);
 
   
   return (
@@ -1413,14 +1436,14 @@ const zoomOut = () => {
           </>
         ) : (
           <>
-            <h4>📅 Season Begins in:</h4>
+            <h4>📅 Next Season in:</h4>
             <h2>{countdowns.seasons}</h2>
           </>
         )}
 
         <br />
 
-        <h3>⏳ More Events:
+        <h3>Happening Now in Town:
           <span 
             onClick={() => setShowTimers(!showTimers)} 
             style={{ cursor: "pointer", fontSize: "16px", marginLeft: "5px" }}

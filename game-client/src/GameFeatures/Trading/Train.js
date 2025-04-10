@@ -6,6 +6,7 @@ import ResourceButton from '../../UI/ResourceButton';
 import { checkAndDeductIngredients } from '../../Utils/InventoryManagement';
 import './Train.css';
 import FloatingTextManager from '../../UI/FloatingText';
+import { formatCountdown } from '../../UI/Timers';
 
 function TrainPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) {
   const [trainOffers, setTrainOffers] = useState([]);
@@ -35,24 +36,26 @@ function TrainPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) 
   useEffect(() => {
     const updateCountdown = () => {
       const now = Date.now();
+
       const storedTimers = JSON.parse(localStorage.getItem("timers")) || {};
       const trainTimerData = storedTimers.train || {};
-      const endTime = trainTimerData.endTime;
-      const phase = trainTimerData.phase;
 
+      const phase = trainTimerData.phase;
+      setTrainPhase(phase || "unknown");
+
+      const endTime = trainTimerData.endTime;
       if (!endTime || isNaN(endTime)) {
         setTrainTimer("N/A");
-        setTrainPhase("unknown");
         return;
+      } else {
+        setTrainTimer(formatCountdown(endTime, now));
       }
 
-      const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
-      const h = Math.floor(remaining / 3600);
-      const m = Math.floor((remaining % 3600) / 60);
-      const s = remaining % 60;
-
-      setTrainPhase(phase || "unknown");
-      setTrainTimer(`${h}h ${m}m ${s}s`);
+      // const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
+      // const h = Math.floor(remaining / 3600);
+      // const m = Math.floor((remaining % 3600) / 60);
+      // const s = remaining % 60;
+      // setTrainTimer(`${h}h ${m}m ${s}s`);
     };
 
     updateCountdown();

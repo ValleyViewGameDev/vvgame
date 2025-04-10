@@ -11,6 +11,7 @@ function OffSeasonModal({ onClose, currentPlayer }) {
   const [seasons, setSeasons] = useState([]);
   const [seasonData, setSeasonData] = useState({ type: "Unknown", phase: "Unknown", endTime: null });
   const [richestCitizens, setRichestCitizens] = useState([]);
+  const [secondsLeft, setSecondsLeft] = useState(null);
 
   // Load timers from localStorage
   useEffect(() => {
@@ -45,6 +46,25 @@ function OffSeasonModal({ onClose, currentPlayer }) {
     const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
   }, [seasonData]);
+
+    // Calculate raw seconds remaining (for refresh trigger)
+    useEffect(() => {
+      const interval = setInterval(() => {
+        const now = Date.now();
+        const end = new Date(seasonData.endTime).getTime();
+        const diff = Math.floor((end - now) / 1000);
+        setSecondsLeft(diff);
+      }, 1000);
+      return () => clearInterval(interval);
+    }, [seasonData]);
+
+  // 🔁 Force refresh when 20 seconds remain
+  useEffect(() => {
+    if (secondsLeft === 20) {
+      console.warn("🔁 Forcing refresh — countdown reached 10s");
+      window.location.reload();
+    }
+  }, [secondsLeft]);
 
 
   useEffect(() => {

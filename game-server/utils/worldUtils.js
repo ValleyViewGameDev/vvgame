@@ -143,12 +143,12 @@ function generateResources(layout, tiles) {
       } else {
         availableCells.unshift({ x, y }); // Put it back for another try
         retries++;
-        console.warn(`❌ Skipping "${resourceType}" at (${x},${y}) - Not valid on "${tileType}". Retrying...`);
+        //console.warn(`❌ Skipping "${resourceType}" at (${x},${y}) - Not valid on "${tileType}". Retrying...`);
       }
     }
 
     if (remaining > 0) {
-      console.warn(`⚠️ Unable to place ${remaining} instances of "${resourceType}".`);
+      //console.warn(`⚠️ Unable to place ${remaining} instances of "${resourceType}".`);
     }
   });
 

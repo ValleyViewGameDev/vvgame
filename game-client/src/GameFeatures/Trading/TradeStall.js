@@ -19,6 +19,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const [viewedPlayerIndex, setViewedPlayerIndex] = useState(0); // Index of the currently viewed player
   const { updateStatus } = useContext(StatusBarContext);
 
+  const tradeStallHaircut = 0.25;
 
   const calculateTotalSlots = () => {
     const baseSlots = 6; // Free account base slots
@@ -244,7 +245,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   
     try {
       // Calculate new inventory with updated Money (50% of item value)
-      const halfSellValue = Math.floor(totalSellValue * 0.5);
+      const halfSellValue = Math.floor(totalSellValue * tradeStallHaircut);
       const updatedInventory = inventory.map((item) =>
         item.type === 'Money'
           ? { ...item, quantity: (item.quantity || 0) + halfSellValue }

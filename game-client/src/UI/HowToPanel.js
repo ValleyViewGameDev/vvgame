@@ -28,7 +28,7 @@ const HowToPanel = memo(({ onClose }) => {
         </p>
         <p>
           Generate <strong>Money</strong> at the <strong>Trade Stall</strong>. Post resources for sale to other players,
-          or sell them to the game for 50% of their value.
+          or sell them to the game for partial value.
         </p>
         <h3>More:</h3>
         <p>

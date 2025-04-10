@@ -53,4 +53,12 @@ const getTemplate = (baseDir, type, gridCoord) => {
   }
 };
 
-module.exports = { getTemplate };
+
+function getHomesteadLayoutFile(seasonType) {
+  const layoutFileName = `homestead${seasonType}.json`;
+  const layoutPath = path.join(__dirname, '../layouts/gridLayouts/homestead', layoutFileName);
+  return fs.existsSync(layoutPath) ? layoutFileName : 'homestead_default.json';
+}
+
+
+module.exports = { getTemplate, getHomesteadLayoutFile };

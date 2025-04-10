@@ -5,6 +5,7 @@
     "bankOffers": 3,
     "seasonMoneyNerf": 0.10,
     "seasonMoneyNerfGold": 0.25,
+    "tradeStallHaircut": 0.25,
 
     "baseHoursForTrain": 2.5, 
  
@@ -17,7 +18,7 @@
     },
     "seasons": {
         "phases": {
-            "onSeason": 2.5,     
+            "onSeason": 1440,     
             "offSeason": 0.5
         },
         "startPhase": "onSeason"
