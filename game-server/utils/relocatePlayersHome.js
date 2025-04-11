@@ -80,6 +80,17 @@ async function relocatePlayersHome(frontierId) {
       };
     }
 
+    // 🔄 Remove player from all other gridState.pcs
+    for (const grid of grids) {
+      if (!grid.gridState?.pcs) continue;
+
+      if (grid._id.toString() !== homeGridIdStr && grid.gridState.pcs[playerIdStr]) {
+        delete grid.gridState.pcs[playerIdStr];
+        console.log(`🚮 Removed ${player.username} from gridState.pcs of grid ${grid._id}`);
+        await grid.save();
+      }
+    }
+    
     // 💾 Reset homeGrid.pcs to only this player
     homeGrid.gridState = homeGrid.gridState || {};
     homeGrid.gridState.pcs = new Map(); // Clear

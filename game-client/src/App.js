@@ -788,7 +788,6 @@ const previousPhaseRef = useRef(timers.seasons?.phase);
 // 🔄 Refresh client when offSeason ends
 useEffect(() => {
   const currentPhase = timers.seasons?.phase;
-
   if (
     previousPhaseRef.current === "offSeason" &&
     currentPhase === "onSeason"
@@ -796,7 +795,6 @@ useEffect(() => {
     console.warn("🔁 offSeason ended — forcing full app reload.");
     window.location.reload();
   }
-
   previousPhaseRef.current = currentPhase;
 }, [timers.seasons?.phase]);
 
