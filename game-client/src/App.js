@@ -676,9 +676,20 @@ const fetchTimersData = async () => {
     };
 
     setTimers(updatedTimers);
+    console.log("📦 LocalStorage timers:", {
+      seasonPhase: updatedTimers.seasons.phase,
+      seasonType: updatedTimers.seasons.type,
+      endTime: new Date(updatedTimers.seasons.endTime).toLocaleTimeString(),
+      now: new Date().toLocaleTimeString()
+    });
     localStorage.setItem("timers", JSON.stringify(updatedTimers)); // Save to local storage
 
-    console.log("✅ Timers updated and stored locally:", updatedTimers);
+    console.log("📦 Frontier server timers:", {
+      seasonPhase: frontierData.seasons?.phase,
+      seasonType: frontierData.seasons?.seasonType,
+      endTime: new Date(frontierData.seasons?.endTime).toLocaleTimeString(),
+      now: new Date().toLocaleTimeString()
+    });
     console.log("✅ Current Time:", Date.now());
   } catch (error) {
     console.error("❌ Error fetching timers data:", error);
@@ -714,6 +725,10 @@ useEffect(() => {
 
     const now = Date.now();
     let shouldFetchNewTimers = false;
+
+    console.log("🕰️ Checking season timer... now =", new Date(now).toLocaleTimeString(), 
+      "| endTime =", new Date(timers.seasons.endTime).toLocaleTimeString()
+    );
 
     if (timers.seasons.endTime && now >= timers.seasons.endTime) {
       console.log("🌱 Season phase ended.");
