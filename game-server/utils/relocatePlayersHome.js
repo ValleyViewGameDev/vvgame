@@ -80,17 +80,17 @@ async function relocatePlayersHome(frontierId) {
       };
     }
 
+    // Assign only this player to their home grid
     homeGrid.gridState = homeGrid.gridState || {};
-    const homeGridIdStr = homeGrid._id.toString();
-    homeGrid.gridState.pcs = new Map();
-    homeGrid.gridState.pcs.set(player._id.toString(), previousPCS);
+    homeGrid.gridState.pcs = {};  // ✅ Use plain object
+    homeGrid.gridState.pcs[player._id.toString()] = previousPCS;
     await homeGrid.save();
-    
-    // 🧹 Remove this player from all other grids (except home grid)
+
+    // Remove player from all other grids
     for (const otherGrid of grids) {
       const otherId = otherGrid._id.toString();
-      if (otherId !== homeGridIdStr && otherGrid.gridState?.pcs?.has(player._id.toString())) {
-        otherGrid.gridState.pcs.delete(player._id.toString());
+      if (otherId !== homeGridIdStr && otherGrid.gridState?.pcs?.[player._id.toString()]) {
+        delete otherGrid.gridState.pcs[player._id.toString()];
         await otherGrid.save();
         console.log(`🧹 Removed ${player.username} from grid ${otherId}`);
       }
