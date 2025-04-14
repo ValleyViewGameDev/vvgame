@@ -188,33 +188,39 @@
     "5002": "You have been returned home.",
     "5003": "Any backpack 🎒 items you had were lost.",
 
-    "5005": "Welcome to Valley View",
+    "5005": "😀 Welcome to Valley View",
     "5006": "Please login, or create a free account.",
     "5007": "(c) Four Knights Software",
 
-    "5010": "Inbox",
+    "5010": "📨 Inbox",
     "5011": "You have no messages",
 
-    "5015": "Store",
-    "5016": "We are unable to offer returns. All purchases are final.",
+    "5015": "🛒 Store",
+    "5016": "Purchases will be delivered to the Inbox. We are unable to offer returns. All purchases are final.",
     "5017": "Be aware that many inventory items are wiped between seasons, so please check the season clock before purchasing, and see the seasons panel for more information.",
 
-    "5020": "You are currently logged out.",
+    "5020": "🚫 You are currently logged out.",
     "5021": "Click the Login or Create Account button to begin.",
     
-    "5025": "Thank you for your support!",
+    "5025": "🙏 Thank you for your support!",
     "5026": "Your purchase has been delivered to your Inbox.",
     "5027": "Enjoy Valley View!",
     
-    "5030": "Welcome to Valley View!",
+    "5030": "😀 Welcome to Valley View!",
     "5031": "No player is logged in or the server is offline.",
     "5032": "Please refresh the page, check your internet connetion, or return later.",
 
     "5035": "We are between seasons!",
     "5036": "Valley View is temporarily unavailable while we resset the season.",
     
-    "5040": "",
-    "5041": "",
+    "5040": "📰 Town News",
+    "5041": "Here's what's happening in Town right now:",
+
+    "5045": "TKTK",
+    "5046": "TKTK",
+
+    "5050": "TKTK",
+    "5051": "TKTK",
 
     "7000": "GOLD ACCOUNT STRINGS:",
 

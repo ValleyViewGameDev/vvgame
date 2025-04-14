@@ -45,8 +45,8 @@ async function relocatePlayersHome(frontierId) {
       f: player.frontierId,
       gridCoord,
       gtype: gridType,
-      x: 2,
-      y: 2
+      x: 1,
+      y: 1
     };
     await player.save();
 
@@ -80,22 +80,21 @@ async function relocatePlayersHome(frontierId) {
       };
     }
 
-    // 🔄 Remove player from all other gridState.pcs
-    for (const grid of grids) {
-      if (!grid.gridState?.pcs) continue;
-
-      if (grid._id.toString() !== homeGridIdStr && grid.gridState.pcs[playerIdStr]) {
-        delete grid.gridState.pcs[playerIdStr];
-        console.log(`🚮 Removed ${player.username} from gridState.pcs of grid ${grid._id}`);
-        await grid.save();
-      }
-    }
-    
-    // 💾 Reset homeGrid.pcs to only this player
     homeGrid.gridState = homeGrid.gridState || {};
-    homeGrid.gridState.pcs = new Map(); // Clear
+    const homeGridIdStr = homeGrid._id.toString();
+    homeGrid.gridState.pcs = new Map();
     homeGrid.gridState.pcs.set(player._id.toString(), previousPCS);
     await homeGrid.save();
+    
+    // 🧹 Remove this player from all other grids (except home grid)
+    for (const otherGrid of grids) {
+      const otherId = otherGrid._id.toString();
+      if (otherId !== homeGridIdStr && otherGrid.gridState?.pcs?.has(player._id.toString())) {
+        otherGrid.gridState.pcs.delete(player._id.toString());
+        await otherGrid.save();
+        console.log(`🧹 Removed ${player.username} from grid ${otherId}`);
+      }
+    }
 
     console.log(`✅ Relocated ${player.username} to home grid ${gridCoord}`);
   }

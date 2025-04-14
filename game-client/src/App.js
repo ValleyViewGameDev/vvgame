@@ -44,6 +44,7 @@ import TradeStall from './GameFeatures/Trading/TradeStall';
 import Mailbox from './GameFeatures/Mailbox/Mailbox';
 import Store from './Store/Store';
 import OffSeasonModal from './GameFeatures/Seasons/OffSeasonModal.js';
+import TownNews from './UI/TownNews.js';
 
 import SeasonPanel from './GameFeatures/Seasons/SeasonPanel';
 import SocialPanel from './GameFeatures/Social/SocialPanel';
@@ -1462,6 +1463,8 @@ const zoomOut = () => {
             <h4>🏦 Bank: {timers.bank.phase}</h4>
             <p>Ends: {countdowns.bank}</p>
 
+            <button className="shared-button" onClick={() => openModal('TownNews')}> More </button>
+
           </div>
         )}
 
@@ -1504,23 +1507,21 @@ const zoomOut = () => {
             "..."
           )}
         </h3>
-
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> 🎒 Inventory </button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Store')}>🛒 Store</button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Language')}>🌎 EN</button>
+        </div>
+        </header>
+        <div className="status-bar-wrapper"> <StatusBar /> </div>
 
-      </div>
-    </header>
 
-      <div className="status-bar-wrapper"> <StatusBar /> </div>
+{/* //////////////////// Game Board //////////////////// */}
 
     <div className="homestead">
 
       {zoomLevel === 'far' || zoomLevel === 'close' ? (
         <>
-
-    {/* Game Board */}
 
           <DynamicRenderer
             TILE_SIZE={activeTileSize}
@@ -1542,11 +1543,12 @@ const zoomOut = () => {
             handleTileLeave={handleTileLeave}
             TILE_SIZE={activeTileSize}
           />
-  {/* <RenderVFX 
-    toggleVFX={currentPlayer?.settings?.toggleVFX}
-    // Placeholder for VFX
-    TILE_SIZE={activeTileSize}
-  /> */}
+          {/* <RenderVFX 
+            toggleVFX={currentPlayer?.settings?.toggleVFX}
+            // Placeholder for VFX
+            TILE_SIZE={activeTileSize}
+          /> */}
+
           <RenderTooltip
             resource={hoveredResource}
             //npc={hoveredNPC} // New prop for NPCs
@@ -1591,7 +1593,7 @@ const zoomOut = () => {
         )}
       </div>
 
-    {/* Modals & Panels */}
+{/* ///////////////////// MODALS ////////////////////// */}
 
       <Modal 
         isOpen={isModalOpen} 
@@ -1602,14 +1604,6 @@ const zoomOut = () => {
         size={modalContent.size || "standard"} // default to standard
       />
 
-      {activeModal === 'Store' && <Store 
-        onClose={closeModal} 
-        currentPlayer={currentPlayer}
-        setCurrentPlayer={setCurrentPlayer}
-        resources={masterResources}
-        openMailbox={() => setActiveModal('Mailbox')}  // ✅ Pass this
-      />}
-
       {activeModal === 'Mailbox' && (
         <Mailbox
           onClose={closeModal}  // ✅ This sets activeModal = null
@@ -1618,6 +1612,35 @@ const zoomOut = () => {
           resources={masterResources}
         />
       )}
+      
+      {activeModal === 'TownNews' && (
+        <TownNews
+          onClose={closeModal}  // ✅ This sets activeModal = null
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          resources={masterResources}
+        />
+      )}
+
+      {activeModal === 'Store' && (
+        <Store 
+          onClose={closeModal} 
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          resources={masterResources}
+          openMailbox={() => setActiveModal('Mailbox')}  
+        />
+      )}
+
+      {isOffSeason && (
+        <OffSeasonModal
+          currentPlayer={currentPlayer}
+          timers={timers}
+        />
+      )}
+
+
+{/* ///////////////////// PANELS ////////////////////// */}
 
       {activePanel === 'ProfilePanel' && (
         <ProfilePanel
@@ -1862,14 +1885,6 @@ const zoomOut = () => {
         />
       )}
  
-
-      {isOffSeason && (
-        <OffSeasonModal
-          currentPlayer={currentPlayer}
-          timers={timers}
-        />
-      )}
-
       </div>
     </>
   );

@@ -27,6 +27,7 @@ async function seasonScheduler(frontierId, phase) {
             ? seasons[(currentIndex + 1) % seasons.length].seasonType
             : "Spring";
 
+
             await seasonFinalizer(frontierId);
             await seasonReset(frontierId);  
             

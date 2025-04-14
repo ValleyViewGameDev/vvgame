@@ -21,6 +21,7 @@ const getNextPhaseData = (currentPhase, phases) => {
 };
 
 async function initializeTimers() {
+  console.log("⏰ INITIALIZING TIMERS...");
   const frontiers = await Frontier.find();
   for (const frontier of frontiers) {
     const { _id: frontierId } = frontier;
