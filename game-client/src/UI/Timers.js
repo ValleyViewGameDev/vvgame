@@ -10,4 +10,4 @@ export const formatCountdown = (endTime, now) => {
     const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
   
     return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-  };
+  }; 
