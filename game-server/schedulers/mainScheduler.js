@@ -7,9 +7,6 @@ const bankScheduler = require("./bankScheduler");
 const electionScheduler = require("./electionScheduler");
 // Add more logic-only schedulers as needed...
 
-// Helper: Wait X ms
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
 // Helper: Advance to the next phase for a given system
 const getNextPhaseData = (currentPhase, phases) => {
   const keys = Object.keys(phases);
@@ -43,7 +40,18 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
   const phase = state.phase || tuningData.startPhase;
   const endTime = new Date(state.endTime).getTime();
   const now = Date.now();
-  
+
+  // Debug logging for endTime and phase
+  console.log(`🔍 Debug: Frontier ${frontierId}, Feature ${featureKey}`);
+  console.log(`   Current Phase: ${phase}`);
+  console.log(`   End Time: ${state.endTime} (${endTime})`);
+  console.log(`   Now: ${new Date(now).toISOString()} (${now})`);
+
+  if (isNaN(endTime)) {
+    console.error(`❌ Invalid endTime for ${featureKey} in Frontier ${frontierId}. Skipping...`);
+    return;
+  }
+
   if (now >= endTime) {
     console.log(`⏰ ${featureKey.toUpperCase()} expired for Frontier ${frontierId}. Running logic...`);
 
@@ -97,6 +105,10 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
       );
     }
 
+    // Schedule the next check
+    setTimeout(() => {
+      scheduleTimedFeature(frontier, featureKey, tuningData);
+    }, durationMs);
 
   } else {
     // 🔁 Recheck at correct time
