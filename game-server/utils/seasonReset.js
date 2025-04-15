@@ -167,16 +167,16 @@ async function seasonReset(frontierId) {
 
       console.log(`🔁 Found ${publicGrids.length} public grids to reset...`);
 
-      for (const grid of publicGrids) {
+      for (const { _id, gridType, gridCoord } of publicGrids) {
         try {
           const payload = {
-            gridId: grid._id,
-            gridType: grid.gridType,
-            gridCoord: grid.gridCoord, // optional
+            gridId: _id,
+            gridType,
+            gridCoord,
           };
           console.log(`🔁 Resetting ${grid.gridType} grid (${grid._id})`);
           await resetGridDirect(payload);
-          console.log(`✅ Grid reset successful: ${response.data.message}`);
+          console.log(`✅ Grid ${grid._id} reset successfully (${grid.gridType})`);
         } catch (err) {
           console.error(`❌ Error resetting grid ${grid._id}:`, err.response?.data || err.message);
         }
