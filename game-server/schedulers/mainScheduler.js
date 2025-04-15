@@ -48,10 +48,22 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
     console.log(`⏰ ${featureKey.toUpperCase()} expired for Frontier ${frontierId}. Running logic...`);
 
     const { nextPhase, durationMs } = getNextPhaseData(phase, tuningData.phases);
+    const nextEndTime = new Date(Date.now() + durationMs);
+    const startTime = new Date();
 
+    const updatePayload = {
+      [`${featureKey}.phase`]: nextPhase,
+      [`${featureKey}.startTime`]: startTime,
+      [`${featureKey}.endTime`]: nextEndTime,
+    };
+
+    // ✅ Save phase update to DB immediately
+    await Frontier.updateOne({ _id: frontierId }, { $set: updatePayload });
+
+    console.log(`📦 Updated phase → ${nextPhase} immediately for Frontier ${frontierId}`);
+
+    // ⏳ Then run feature-specific logic
     let extraPayload = {};
-
-    // ✅ Run feature-specific logic
     switch (featureKey) {
       case "taxes":
         console.log("💰 Triggering taxScheduler...");
@@ -74,37 +86,16 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
         extraPayload = await bankScheduler(frontierId, nextPhase);
         break;
       default:
-        console.warn(`⚠️ No scheduler found for ${event}. Skipping...`);
+        console.warn(`⚠️ No scheduler found for ${featureKey}. Skipping...`);
     }
 
-    const nextEndTime = new Date(Date.now() + durationMs);
-    const startTime = new Date(now);
-
-    const updatePayload = {
-      [`${featureKey}.phase`]: nextPhase,
-      [`${featureKey}.startTime`]: startTime,
-      [`${featureKey}.endTime`]: nextEndTime,
-      ...extraPayload
-    };
-
-    // ✅ Save to DB
-    console.log(`📦 Updating Frontier ${frontierId} – setting phase to '${nextPhase}' with endTime: ${nextEndTime.toISOString()}`);
-    
-    await Frontier.updateOne(
-      { _id: frontierId },
-      { $set: updatePayload }
-    );
-
-    console.log(`✅ ${featureKey} advanced to '${phase}' for Frontier ${frontierId}. Next end: ${nextEndTime.toLocaleString()}`);
-
-      // ✅ Patch in-memory object with new values before scheduling next check
-    frontier[featureKey] = {
-      ...(frontier[featureKey] || {}),
-      phase: nextPhase,
-      startTime,
-      endTime: nextEndTime,
-      ...extraPayload,
-    };
+    // Save additional fields if needed
+    if (Object.keys(extraPayload).length > 0) {
+      await Frontier.updateOne(
+        { _id: frontierId },
+        { $set: extraPayload }
+      );
+    }
 
     // ✅ Schedule the next check
     setTimeout(() => {
@@ -121,8 +112,5 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
   }
 }
 
-
-
 // Initialize timers when the server starts
 initializeTimers();
-
