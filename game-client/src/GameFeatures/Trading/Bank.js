@@ -54,15 +54,6 @@ function BankPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) {
 
     }, [currentPlayer]);
 
-    // // ✅ Format countdown
-    // const formatCountdown = (endTime, now) => {
-    //     if (!endTime || now >= endTime) return "Updating...";
-    //     const seconds = Math.floor((endTime - now) / 1000);
-    //     const minutes = Math.floor(seconds / 60) % 60;
-    //     const hours = Math.floor(seconds / 3600) % 24;
-    //     const days = Math.floor(seconds / 86400);
-    //     return `${days}d ${hours}h ${minutes}m ${seconds % 60}s`;
-    // };
 
     // ✅ Handle trade transaction
     const handleTrade = async (offer) => {

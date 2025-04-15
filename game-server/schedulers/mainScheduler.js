@@ -97,10 +97,6 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
       );
     }
 
-    // ✅ Schedule the next check
-    setTimeout(() => {
-      scheduleTimedFeature(frontier, featureKey, tuningData);
-    }, durationMs);
 
   } else {
     // 🔁 Recheck at correct time
