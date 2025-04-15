@@ -638,6 +638,8 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, [currentPlayer]); // ✅ Runs when currentPlayer is updated
 
+
+
 // TIMERS Step 3: Fetch initial timers from the server
 const fetchTimersData = async () => {
   console.log("🔄 Fetching initial timers from the server...");
@@ -691,6 +693,7 @@ const fetchTimersData = async () => {
       now: new Date().toLocaleTimeString()
     });
     console.log("✅ Current Time:", Date.now());
+    
   } catch (error) {
     console.error("❌ Error fetching timers data:", error);
   }

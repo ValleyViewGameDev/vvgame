@@ -88,6 +88,8 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
     };
 
     // ✅ Save to DB
+    console.log(`📦 Updating Frontier ${frontierId} – setting phase to '${nextPhase}' with endTime: ${nextEndTime.toISOString()}`);
+    
     await Frontier.updateOne(
       { _id: frontierId },
       { $set: updatePayload }
@@ -111,7 +113,7 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
 
   } else {
     // 🔁 Recheck at correct time
-    const delayMs = endTime - now;
+    const delayMs = Math.max(endTime - now, 100); // ✅ Ensure it's never < 0
     console.log(`⏳ ${featureKey} still in '${phase}' for Frontier ${frontierId}. Will check again at ${new Date(endTime).toLocaleString()}`);
     setTimeout(() => {
       scheduleTimedFeature(frontier, featureKey, tuningData);
