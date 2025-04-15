@@ -18,8 +18,8 @@
     },
     "seasons": {
         "phases": {
-            "onSeason": 1.5,     
-            "offSeason": 1
+            "onSeason": 0.6,     
+            "offSeason": 1.5
         },
         "startPhase": "onSeason"
     },
