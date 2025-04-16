@@ -89,17 +89,6 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
         const startTime = new Date();
         const nextEndTime = new Date(Date.now() + durationMs);
 
-        // Add immediate debug confirmation of DB update
-        const updateResult = await Frontier.updateOne(
-          { _id: frontierId }, 
-          { 
-            $set: {
-              [`${featureKey}.phase`]: nextPhase,
-              [`${featureKey}.startTime`]: startTime,
-              [`${featureKey}.endTime`]: nextEndTime,
-            }
-          }
-        );
         
         // Run feature-specific logic
         let extraPayload = {};
@@ -128,9 +117,19 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
             console.warn(`⚠️ No scheduler found for ${featureKey}. Skipping...`);
         }
 
-        if (Object.keys(extraPayload).length > 0) {
-          await Frontier.updateOne({ _id: frontierId }, { $set: extraPayload });
-        }
+        // Merge scheduler result with timer update
+        const updatePayload = {
+          [`${featureKey}.phase`]: nextPhase,
+          [`${featureKey}.startTime`]: startTime,
+          [`${featureKey}.endTime`]: nextEndTime,
+          ...extraPayload, // may be empty
+        };
+
+        const updateResult = await Frontier.updateOne(
+          { _id: frontierId },
+          { $set: updatePayload }
+        );
+        console.log(`   💾 DB Update result: ${JSON.stringify(updateResult)}`);
 
         // Schedule next check with fresh duration
         setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), durationMs);
