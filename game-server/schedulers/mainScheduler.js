@@ -83,18 +83,9 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
       const currentFrontier = await Frontier.findById(frontierId);
       const currentEndTime = new Date(currentFrontier[featureKey].endTime).getTime();
       
-      console.log(`🔍 Double-checking end time...`);
-      console.log(`   Original end time: ${new Date(endTime).toLocaleTimeString()}`);
-      console.log(`   Current end time: ${new Date(currentEndTime).toLocaleTimeString()}`);
-      
       if (now >= currentEndTime) {
-        console.log(`⏰ Phase change confirmed for ${featureKey}`);
-        console.log(`   Current phase: ${phase}`);
-        console.log(`   End time was: ${new Date(endTime).toLocaleTimeString()}`);
         
         const { nextPhase, durationMs } = getNextPhaseData(phase, tuningData.phases);
-        console.log(`   Next phase will be: ${nextPhase} for ${durationMs}ms`);
-
         const startTime = new Date();
         const nextEndTime = new Date(Date.now() + durationMs);
 
@@ -110,30 +101,28 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
           }
         );
         
-        console.log(`   💾 DB Update result: ${JSON.stringify(updateResult)}`);
-
         // Run feature-specific logic
         let extraPayload = {};
         switch (featureKey) {
           case "taxes":
             console.log("💰 Triggering taxScheduler...");
-            extraPayload = await taxScheduler(frontierId, nextPhase);
+            extraPayload = await taxScheduler(frontierId, nextPhase, frontier);
             break;
           case "seasons":
             console.log("🗓️ Triggering seasonScheduler...");
-            extraPayload = await seasonScheduler(frontierId, nextPhase);
+            extraPayload = await seasonScheduler(frontierId, nextPhase, frontier);
             break;
           case "elections":
             console.log("🏛️ Triggering electionsScheduler...");
-            extraPayload = await electionScheduler(frontierId, nextPhase);
+            extraPayload = await electionScheduler(frontierId, nextPhase, frontier);
             break;
           case "train":
             console.log("🚂 Triggering trainScheduler...");
-            extraPayload = await trainScheduler(frontierId, nextPhase);
+            extraPayload = await trainScheduler(frontierId, nextPhase, frontier);
             break;
           case "bank":
             console.log("🏦 Triggering bankScheduler...");
-            extraPayload = await bankScheduler(frontierId, nextPhase);
+            extraPayload = await bankScheduler(frontierId, nextPhase, frontier);
             break;
           default:
             console.warn(`⚠️ No scheduler found for ${featureKey}. Skipping...`);

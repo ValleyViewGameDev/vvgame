@@ -7,10 +7,10 @@ const sendMailboxMessage = require("../utils/messageUtils.js");
 const { scheduleEvent } = require("../utils/scheduleHelpers");
 const seasonsConfig = require("../tuning/seasons.json");
 
-async function trainScheduler(frontierId, phase) {
+async function trainScheduler(frontierId, phase, frontier = null) {
 
   try {
-    const frontier = await Frontier.findById(frontierId);
+    frontier = frontier || await Frontier.findById(frontierId);
     if (!frontier || !frontier.train) {
       console.warn(`⚠️ Frontier ${frontierId} not found or missing train data.`);
       return;

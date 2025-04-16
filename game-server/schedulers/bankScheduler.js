@@ -3,7 +3,7 @@ const globalTuning = require("../tuning/globalTuning.json");
 const masterResources = require("../tuning/resources.json"); // ✅ Load masterResources
 
 // **Bank Scheduler**
-async function bankScheduler(frontierId, phase) {
+async function bankScheduler(frontierId, phase, frontier = null) {
     try {
         if (!frontierId) { console.warn("⚠️ No frontierId provided to bankScheduler."); return {}; }
         if (!phase) { console.warn("⚠️ No phase provided to bankScheduler."); return {}; }

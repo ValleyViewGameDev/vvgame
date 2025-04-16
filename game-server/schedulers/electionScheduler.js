@@ -3,7 +3,7 @@ const Settlement = require("../models/settlement");
 const Frontier = require("../models/frontier");
 const tuningConfig = require("../tuning/globalTuning.json");
 
-async function electionScheduler(frontierId, phase) {
+async function electionScheduler(frontierId, phase, frontier = null) {
 
     if (!frontierId) { console.warn("⚠️ No frontierId provided to electionScheduler."); return {}; }
 

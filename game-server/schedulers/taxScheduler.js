@@ -2,11 +2,11 @@ const Frontier = require("../models/frontier");
 const { levyTax } = require("../controllers/taxController");
 const { updateNetWorthForFrontier } = require("../utils/networthCalc");
 
-const taxScheduler = async (frontierId, phase) => {
+const taxScheduler = async (frontierId, phase, frontier = null) => {
 
     try {
         if (!frontierId) { console.warn("⚠️ No frontierId provided to taxScheduler."); return {}; }
-        const frontier = await Frontier.findById(frontierId);
+        frontier = frontier || await Frontier.findById(frontierId);
         if (!frontier) { console.warn(`⚠️ Frontier ${frontierId} not found.`); return {}; }
 
         console.log(`💰 TAX LOGIC for Frontier ${frontierId}; phase =`,phase);

@@ -4,11 +4,11 @@ const seasons = require("../tuning/seasons.json");
 const seasonFinalizer = require('../utils/seasonFinalizer');
 const seasonReset = require('../utils/seasonReset');
 
-async function seasonScheduler(frontierId, phase) {
+async function seasonScheduler(frontierId, phase, frontier = null) {
   
     try {
         if (!frontierId) { console.warn("⚠️ No frontierId provided to seasonScheduler."); return {}; }
-        const frontier = await Frontier.findById(frontierId);
+        frontier = frontier || await Frontier.findById(frontierId);
         if (!frontier) { console.warn(`⚠️ Frontier ${frontierId} not found.`); return {}; }
     
         console.log(`🌱 SEASON LOGIC for Frontier ${frontierId}; phase = `,phase);
