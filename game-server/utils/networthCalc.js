@@ -103,7 +103,7 @@ async function getGridStructures(gridId) {
         console.log(`🔍 Fetching resources for gridId: ${gridId}...`);
 
         // ✅ Fetch the grid document
-        const grid = await Grid.findById(gridId);
+        const grid = await Grid.findById(gridId).lean();
         if (!grid) { console.warn(`⚠️ Grid ${gridId} not found.`); return []; }
         // ✅ Extract resources array from the grid document
         const gridResources = grid.resources || [];

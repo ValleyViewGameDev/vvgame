@@ -8,7 +8,7 @@ const { ObjectId } = require('mongodb');
 const { getTemplate, getHomesteadLayoutFile } = require('./templateUtils');
 
 async function resetGridDirect({ gridId, gridType, gridCoord }) {
-  const grid = await Grid.findById(gridId);
+  const grid = await Grid.findById(gridId).lean();
   if (!grid) throw new Error(`Grid not found: ${gridId}`);
 
   let layout, layoutFileName;
