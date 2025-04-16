@@ -79,69 +79,78 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
     console.log(`   Time Remaining: ${Math.floor((endTime - now) / 1000)}s`);
 
     if (now >= endTime) {
-      console.log(`⏰ Phase change triggered for ${featureKey}`);
-      const { nextPhase, durationMs } = getNextPhaseData(phase, tuningData.phases);
+      // Double check we still have current data
+      const currentFrontier = await Frontier.findById(frontierId);
+      const currentEndTime = new Date(currentFrontier[featureKey].endTime).getTime();
+      
+      console.log(`🔍 Double-checking end time...`);
+      console.log(`   Original end time: ${new Date(endTime).toLocaleTimeString()}`);
+      console.log(`   Current end time: ${new Date(currentEndTime).toLocaleTimeString()}`);
+      
+      if (now >= currentEndTime) {
+        console.log(`⏰ Phase change confirmed for ${featureKey}`);
+        console.log(`   Current phase: ${phase}`);
+        console.log(`   End time was: ${new Date(endTime).toLocaleTimeString()}`);
+        
+        const { nextPhase, durationMs } = getNextPhaseData(phase, tuningData.phases);
+        console.log(`   Next phase will be: ${nextPhase} for ${durationMs}ms`);
 
-      // First update the phase
-      const phaseUpdate = await Frontier.findOneAndUpdate(
-        { _id: frontierId },
-        { $set: { [`${featureKey}.phase`]: nextPhase } },
-        { new: true }
-      );
+        const startTime = new Date();
+        const nextEndTime = new Date(Date.now() + durationMs);
 
-      if (!phaseUpdate) {
-        console.error("Failed to update phase");
+        // Add immediate debug confirmation of DB update
+        const updateResult = await Frontier.updateOne(
+          { _id: frontierId }, 
+          { 
+            $set: {
+              [`${featureKey}.phase`]: nextPhase,
+              [`${featureKey}.startTime`]: startTime,
+              [`${featureKey}.endTime`]: nextEndTime,
+            }
+          }
+        );
+        
+        console.log(`   💾 DB Update result: ${JSON.stringify(updateResult)}`);
+
+        // Run feature-specific logic
+        let extraPayload = {};
+        switch (featureKey) {
+          case "taxes":
+            console.log("💰 Triggering taxScheduler...");
+            extraPayload = await taxScheduler(frontierId, nextPhase);
+            break;
+          case "seasons":
+            console.log("🗓️ Triggering seasonScheduler...");
+            console.log(`   🌱 Running seasonScheduler for phase ${nextPhase}...`);
+            extraPayload = await seasonScheduler(frontierId, nextPhase);
+            break;
+          case "elections":
+            console.log("🏛️ Triggering electionsScheduler...");
+            extraPayload = await electionScheduler(frontierId, nextPhase);
+            break;
+          case "train":
+            console.log("🚂 Triggering trainScheduler...");
+            extraPayload = await trainScheduler(frontierId, nextPhase);
+            break;
+          case "bank":
+            console.log("🏦 Triggering bankScheduler...");
+            extraPayload = await bankScheduler(frontierId, nextPhase);
+            break;
+          default:
+            console.warn(`⚠️ No scheduler found for ${featureKey}. Skipping...`);
+        }
+
+        if (Object.keys(extraPayload).length > 0) {
+          await Frontier.updateOne({ _id: frontierId }, { $set: extraPayload });
+        }
+
+        // Schedule next check with fresh duration
+        setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), durationMs);
+      } else {
+        console.log(`⚠️ End time changed, rescheduling check`);
+        setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), 5000);
         return;
       }
-
-      // Then set the timing
-      const startTime = new Date();
-      const nextEndTime = new Date(Date.now() + durationMs);
-
-      await Frontier.updateOne(
-        { _id: frontierId },
-        {
-          $set: {
-            [`${featureKey}.startTime`]: startTime,
-            [`${featureKey}.endTime`]: nextEndTime,
-          }
-        }
-      );
-
-      // Run feature-specific logic only after phase is confirmed changed
-      let extraPayload = {};
-      switch (featureKey) {
-        case "taxes":
-          console.log("💰 Triggering taxScheduler...");
-          extraPayload = await taxScheduler(frontierId, nextPhase);
-          break;
-        case "seasons":
-          console.log("🗓️ Triggering seasonScheduler...");
-          console.log(`  🌱 Running seasonScheduler for phase ${nextPhase}...`);
-          extraPayload = await seasonScheduler(frontierId, nextPhase);
-          break;
-        case "elections":
-          console.log("🏛️ Triggering electionsScheduler...");
-          extraPayload = await electionScheduler(frontierId, nextPhase);
-          break;
-        case "train":
-          console.log("🚂 Triggering trainScheduler...");
-          extraPayload = await trainScheduler(frontierId, nextPhase);
-          break;
-        case "bank":
-          console.log("🏦 Triggering bankScheduler...");
-          extraPayload = await bankScheduler(frontierId, nextPhase);
-          break;
-        default:
-          console.warn(`⚠️ No scheduler found for ${featureKey}. Skipping...`);
-      }
-
-      if (Object.keys(extraPayload).length > 0) {
-        await Frontier.updateOne({ _id: frontierId }, { $set: extraPayload });
-      }
-
-      // Schedule next check with fresh duration
-      setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), durationMs);
     } else {
       // When continuing an existing phase, use remaining time until end
       const delayMs = Math.max(endTime - now, 1000); // Minimum 1 second delay
