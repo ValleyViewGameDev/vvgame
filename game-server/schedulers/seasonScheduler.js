@@ -27,11 +27,11 @@ async function seasonScheduler(frontierId, phase) {
             ? seasons[(currentIndex + 1) % seasons.length].seasonType
             : "Spring";
 
-
-            await seasonFinalizer(frontierId);
-            await seasonReset(frontierId);  
+            // DEBUG: Temporarily disable these to test if they're causing the delay
+            // await seasonFinalizer(frontierId);
+            // await seasonReset(frontierId);  
             
-            console.log('🏁🏁🏁 FINISHED SEASON LOGIC (seasonFinalzer & seasonReset)');
+            console.log('🏁🏁🏁 FINISHED SEASON LOGIC (phase transition only)');
         }
 
         // ✅ If we're entering onSeason, bump the season number
