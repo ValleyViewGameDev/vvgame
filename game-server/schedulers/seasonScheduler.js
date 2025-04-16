@@ -31,6 +31,7 @@ async function seasonScheduler(frontierId, phase) {
             await seasonFinalizer(frontierId);
             await seasonReset(frontierId);  
             
+            console.log('🏁🏁🏁 FINISHED SEASON LOGIC (seasonFinalzer & seasonReset)');
         }
 
         // ✅ If we're entering onSeason, bump the season number
