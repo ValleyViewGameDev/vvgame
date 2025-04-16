@@ -46,8 +46,15 @@ app.use((req, res, next) => {
 });
 
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  maxPoolSize: 50,
+  serverSelectionTimeoutMS: 10000,
+  socketTimeoutMS: 30000,
+})
+
+.then(() => {
     console.log("✅ Connected to MongoDB");
 
     // Create HTTP server and bind it to Express app
