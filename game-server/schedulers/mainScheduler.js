@@ -121,7 +121,6 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
             break;
           case "seasons":
             console.log("🗓️ Triggering seasonScheduler...");
-            console.log(`   🌱 Running seasonScheduler for phase ${nextPhase}...`);
             extraPayload = await seasonScheduler(frontierId, nextPhase);
             break;
           case "elections":

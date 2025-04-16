@@ -63,4 +63,11 @@ const FrontierSchema = new mongoose.Schema({
 
 });
 
+// Add indexes for timer queries
+FrontierSchema.index({ 'seasons.endTime': 1 });
+FrontierSchema.index({ 'taxes.endTime': 1 });
+FrontierSchema.index({ 'elections.endTime': 1 });
+FrontierSchema.index({ 'train.endTime': 1 });
+FrontierSchema.index({ 'bank.endTime': 1 });
+
 module.exports = mongoose.model('Frontier', FrontierSchema);

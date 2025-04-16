@@ -80,5 +80,9 @@ const GridSchema = new mongoose.Schema({
   },
 });
 
+// Add compound index for common queries
+GridSchema.index({ frontierId: 1, gridType: 1 });
+GridSchema.index({ frontierId: 1, gridId: 1 });
+
 const Grid = mongoose.model('Grid', GridSchema, 'grids'); // Ensure 'grids' is the correct collection name
 module.exports = Grid;
