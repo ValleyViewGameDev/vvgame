@@ -79,20 +79,29 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
     console.log(`   Time Remaining: ${Math.floor((endTime - now) / 1000)}s`);
 
     if (now >= endTime) {
-      console.log(`⏰ Phase change triggered for ${featureKey}`);
-      const { nextPhase, durationMs } = getNextPhaseData(phase, tuningData.phases);
+      console.log(`⏰ Phase change triggered for ${featureKey} at ${new Date(now).toLocaleTimeString()}`);
+      console.log(`   Current phase: ${phase}`);
+      console.log(`   End time was: ${new Date(endTime).toLocaleTimeString()}`);
       
-      // Use the previous endTime as our reference point instead of 'now'
-      const startTime = new Date(endTime);
-      const nextEndTime = new Date(endTime + durationMs);
+      const { nextPhase, durationMs } = getNextPhaseData(phase, tuningData.phases);
+      console.log(`   Next phase will be: ${nextPhase} for ${durationMs}ms`);
 
-      const updatePayload = {
-        [`${featureKey}.phase`]: nextPhase,
-        [`${featureKey}.startTime`]: startTime,
-        [`${featureKey}.endTime`]: nextEndTime,
-      };
+      const startTime = new Date();
+      const nextEndTime = new Date(Date.now() + durationMs);
 
-      await Frontier.updateOne({ _id: frontierId }, { $set: updatePayload });
+      // Add immediate debug confirmation of DB update
+      const updateResult = await Frontier.updateOne(
+        { _id: frontierId }, 
+        { 
+          $set: {
+            [`${featureKey}.phase`]: nextPhase,
+            [`${featureKey}.startTime`]: startTime,
+            [`${featureKey}.endTime`]: nextEndTime,
+          }
+        }
+      );
+      
+      console.log(`   💾 DB Update result: ${JSON.stringify(updateResult)}`);
 
       // Run feature-specific logic
       let extraPayload = {};
@@ -103,6 +112,7 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
           break;
         case "seasons":
           console.log("🗓️ Triggering seasonScheduler...");
+          console.log(`  🌱 Running seasonScheduler for phase ${nextPhase}...`);
           extraPayload = await seasonScheduler(frontierId, nextPhase);
           break;
         case "elections":
