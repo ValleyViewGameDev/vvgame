@@ -38,7 +38,8 @@ async function initializeTimers() {
 async function scheduleTimedFeature(frontier, featureKey, tuningData) {
   try {
     // Refresh frontier document to get latest state
-    frontier = await Frontier.findById(frontier._id);
+        // Already passed in; no need to re-fetch yet
+        // frontier = await Frontier.findById(frontier._id);
     if (!frontier) {
       console.error(`❌ Frontier ${frontier._id} not found. Stopping scheduler for ${featureKey}`);
       return;
