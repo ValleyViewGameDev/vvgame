@@ -79,31 +79,36 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
     console.log(`   Time Remaining: ${Math.floor((endTime - now) / 1000)}s`);
 
     if (now >= endTime) {
-      console.log(`⏰ Phase change triggered for ${featureKey} at ${new Date(now).toLocaleTimeString()}`);
-      console.log(`   Current phase: ${phase}`);
-      console.log(`   End time was: ${new Date(endTime).toLocaleTimeString()}`);
-      
+      console.log(`⏰ Phase change triggered for ${featureKey}`);
       const { nextPhase, durationMs } = getNextPhaseData(phase, tuningData.phases);
-      console.log(`   Next phase will be: ${nextPhase} for ${durationMs}ms`);
 
+      // First update the phase
+      const phaseUpdate = await Frontier.findOneAndUpdate(
+        { _id: frontierId },
+        { $set: { [`${featureKey}.phase`]: nextPhase } },
+        { new: true }
+      );
+
+      if (!phaseUpdate) {
+        console.error("Failed to update phase");
+        return;
+      }
+
+      // Then set the timing
       const startTime = new Date();
       const nextEndTime = new Date(Date.now() + durationMs);
 
-      // Add immediate debug confirmation of DB update
-      const updateResult = await Frontier.updateOne(
-        { _id: frontierId }, 
-        { 
+      await Frontier.updateOne(
+        { _id: frontierId },
+        {
           $set: {
-            [`${featureKey}.phase`]: nextPhase,
             [`${featureKey}.startTime`]: startTime,
             [`${featureKey}.endTime`]: nextEndTime,
           }
         }
       );
-      
-      console.log(`   💾 DB Update result: ${JSON.stringify(updateResult)}`);
 
-      // Run feature-specific logic
+      // Run feature-specific logic only after phase is confirmed changed
       let extraPayload = {};
       switch (featureKey) {
         case "taxes":

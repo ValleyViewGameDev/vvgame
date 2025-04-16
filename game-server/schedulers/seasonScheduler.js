@@ -28,7 +28,7 @@ async function seasonScheduler(frontierId, phase) {
             : "Spring";
 
             // DEBUG: Temporarily disable these to test if they're causing the delay
-            // await seasonFinalizer(frontierId);
+             await seasonFinalizer(frontierId);
             // await seasonReset(frontierId);  
             
             console.log('🏁🏁🏁 FINISHED SEASON LOGIC (phase transition only)');
