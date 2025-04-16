@@ -127,19 +127,9 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
       // Schedule next check with fresh duration
       setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), durationMs);
     } else {
-      // Calculate next check time with more frequent checks near the end
-      const timeRemaining = endTime - now;
-      let delayMs;
-      
-      if (timeRemaining <= 5000) { // Last 5 seconds
-          delayMs = Math.max(100, Math.min(1000, timeRemaining)); // Check every 0.1-1 seconds
-      } else if (timeRemaining <= 30000) { // Last 30 seconds
-          delayMs = Math.max(1000, Math.min(5000, timeRemaining)); // Check every 1-5 seconds
-      } else {
-          delayMs = Math.max(5000, Math.min(30000, timeRemaining)); // Check every 5-30 seconds
-      }
-
-      console.log(`⏳ Next ${featureKey} check in ${Math.floor(delayMs / 1000)}s (${timeRemaining/1000}s remaining)`);
+      // When continuing an existing phase, use remaining time until end
+      const delayMs = Math.max(endTime - now, 1000); // Minimum 1 second delay
+      console.log(`⏳ Next ${featureKey} check in ${Math.floor(delayMs / 1000)}s`);
       setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), delayMs);
     }
   } catch (error) {

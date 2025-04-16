@@ -167,12 +167,12 @@ async function seasonReset(frontierId) {
 
       console.log(`🔁 Found ${publicGrids.length} public grids to reset...`);
 
-      for (const { _id, gridType, gridCoord } of publicGrids) {
+      for (const grid of publicGrids) {
         try {
           const payload = {
-            gridId: _id,
-            gridType,
-            gridCoord,
+            gridId: grid._id,
+            gridType: grid.gridType,
+            gridCoord: grid.gridCoord,
           };
           console.log(`🔁 Resetting ${grid.gridType} grid (${grid._id})`);
           await resetGridDirect(payload);
