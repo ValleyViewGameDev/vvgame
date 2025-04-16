@@ -65,19 +65,13 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
           }
         }
       );
-
       // Reschedule with initialized state
       setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), durationMs);
       return;
     }
-
     const endTime = new Date(state.endTime).getTime();
     const now = Date.now();
 
-    console.log(`🔍 Debug: ${featureKey} check for Frontier ${frontierId}`);
-    console.log(`   Phase: ${phase}, Current Time: ${new Date(now).toISOString()}`);
-    console.log(`   End Time: ${new Date(endTime).toISOString()}`);
-    console.log(`   Time Remaining: ${Math.floor((endTime - now) / 1000)}s`);
 
     if (now >= endTime) {
       // Double check we still have current data

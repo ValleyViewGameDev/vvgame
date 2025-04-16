@@ -12,37 +12,37 @@
     "taxes": {
         "phases": {
             "waiting": 1440,
-            "taxing": 0.4
+            "taxing": 0.75
         },
         "startPhase": "waiting"
     },
     "seasons": {
         "phases": {
-            "onSeason": 1,     
-            "offSeason": 1
+            "onSeason": 1440,     
+            "offSeason": 2
         },
         "startPhase": "onSeason"
     },
     "elections": {
         "phases": {
-            "Administration": 7200,
-            "Campaigning": 1440,   
-            "Voting": 1440,
+            "Administration": 3,
+            "Campaigning": 3,   
+            "Voting": 3,
             "Counting": 0.5
         },
         "startPhase": "Administration"
     },
     "train": {
         "phases": {
-            "arriving": 1,  
-            "loading": 720,  
+            "arriving": 0.3,  
+            "loading": 1,  
             "departing": 0.5 
         },
         "startPhase": "arriving"
     },
     "bank": {
         "phases": {
-            "active": 1.5,
+            "active": 5,
             "refreshing": 0.5
         },
         "startPhase": "active"
