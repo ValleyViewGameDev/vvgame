@@ -14,6 +14,8 @@ async function seasonFinalizer(frontierId) {
     console.error("❌ Error during season finalization:", error);
   }
 
+  console.log("🏁🏁🏁 Finished SEASON FINALIZER");
+  
   console.groupEnd();
 }
 

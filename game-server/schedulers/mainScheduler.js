@@ -80,10 +80,11 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
 
     if (now >= endTime) {
       console.log(`⏰ Phase change triggered for ${featureKey}`);
-      // When starting a new phase, use the full duration from tuning
       const { nextPhase, durationMs } = getNextPhaseData(phase, tuningData.phases);
-      const nextEndTime = new Date(Date.now() + durationMs);
-      const startTime = new Date();
+      
+      // Use the previous endTime as our reference point instead of 'now'
+      const startTime = new Date(endTime);
+      const nextEndTime = new Date(endTime + durationMs);
 
       const updatePayload = {
         [`${featureKey}.phase`]: nextPhase,

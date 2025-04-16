@@ -24,9 +24,9 @@ const STEPS = {
 const POP_THRESHOLD = 5;
 const SAVE_FLAG = false;
 
-
 async function seasonReset(frontierId) {
     try {
+      const startTime = Date.now();
       console.group("↩️↩️↩️↩️↩️ STARTING seasonReset for frontier: ",frontierId);
   
       const frontier = await Frontier.findById(frontierId);
@@ -55,7 +55,8 @@ async function seasonReset(frontierId) {
 
       // ✅ STEP 1: Wipe homestead ownership + availability
       if (STEPS.wipeHomesteads) {
-        console.log("🔁 STEP 3: Wiping homestead ownership and resetting grid references...");
+        const stepStart = Date.now();
+        console.log("🔁 STEP 1: Wiping homestead ownership...");
         for (const settlement of settlements) {
           for (const row of settlement.grids) {
             for (const grid of row) {
@@ -87,14 +88,16 @@ async function seasonReset(frontierId) {
           } else {
             console.log("🚩 SAVE_FLAG off; Skipped saving grid");
           }
-                }
+        }
+        console.log(`⏱️ Step 1 took ${Date.now() - stepStart}ms`);
       } else {
         console.log("⏭️ STEP 1: Skipped wiping homesteads.");
       }
   
       // ✅ STEP 2: Reset player grid assignments
       if (STEPS.resetPlayerAssignments) {
-        console.log("🔁 STEP 4: Resetting player gridIds...");
+        const stepStart = Date.now();
+        console.log("🔁 STEP 2: Resetting player gridIds...");
         for (const player of allPlayers) {
           player.gridId = null;
         }
@@ -103,13 +106,15 @@ async function seasonReset(frontierId) {
         } else {
           console.log("🚩 SAVE_FLAG off; Skipped saving player grid assignments.");
         }
+        console.log(`⏱️ Step 2 took ${Date.now() - stepStart}ms`);
       } else {
         console.log("⏭️ STEP 2: Skipped resetting player gridIds.");
       }
 
       // ✅ STEP 3: Reassign players to homesteads
       if (STEPS.reassignPlayers) {
-        console.log("🔁 STEP 5: Reassigning players to homesteads...");
+        const stepStart = Date.now();
+        console.log("🔁 STEP 3: Reassigning players to homesteads...");
         const unassignedPlayers = shuffle([...allPlayers]);
         const homesteadGrids = grids.filter((g) => g.gridType === "homestead");
   
@@ -145,43 +150,45 @@ async function seasonReset(frontierId) {
         } else {
           console.log("🚩 SAVE_FLAG off; Skipped saving settlements after reassignment.");
         }
+        console.log(`⏱️ Step 3 took ${Date.now() - stepStart}ms`);
       } else {
         console.log("⏭️ STEP 3: Skipped player reassignment.");
       }
   
       // ✅ STEP 4: Relocate players back home
       if (STEPS.relocatePlayersHome) {
+        const stepStart = Date.now();
         await relocatePlayersHome(frontierId);
-      
+        console.log(`⏱️ Step 4 took ${Date.now() - stepStart}ms`);
       } else {
         console.log("⏭️ STEP 4: Skipped relocating players.");
       }
 
      // ✅ STEP 5: Reset Towns AND VALLEY
      if (STEPS.resetTownsAndValley) {
+        const stepStart = Date.now();
+        const publicGrids = await Grid.find({
+          frontierId,
+          gridType: { $ne: 'homestead' }  // ✅ Match anything that's NOT a homestead
+        });
 
-      const publicGrids = await Grid.find({
-        frontierId,
-        gridType: { $ne: 'homestead' }  // ✅ Match anything that's NOT a homestead
-      });
+        console.log(`🔁 Found ${publicGrids.length} public grids to reset...`);
 
-      console.log(`🔁 Found ${publicGrids.length} public grids to reset...`);
-
-      for (const grid of publicGrids) {
-        try {
-          const payload = {
-            gridId: grid._id,
-            gridType: grid.gridType,
-            gridCoord: grid.gridCoord,
-          };
-          console.log(`🔁 Resetting ${grid.gridType} grid (${grid._id})`);
-          await resetGridDirect(payload);
-          console.log(`✅ Grid ${grid._id} reset successfully (${grid.gridType})`);
-        } catch (err) {
-          console.error(`❌ Error resetting grid ${grid._id}:`, err.response?.data || err.message);
+        for (const grid of publicGrids) {
+          try {
+            const payload = {
+              gridId: grid._id,
+              gridType: grid.gridType,
+              gridCoord: grid.gridCoord,
+            };
+            console.log(`🔁 Resetting ${grid.gridType} grid (${grid._id})`);
+            await resetGridDirect(payload);
+            console.log(`✅ Grid ${grid._id} reset successfully (${grid.gridType})`);
+          } catch (err) {
+            console.error(`❌ Error resetting grid ${grid._id}:`, err.response?.data || err.message);
+          }
         }
-      }
-
+        console.log(`⏱️ Step 5 took ${Date.now() - stepStart}ms`);
      } else {
        console.log("⏭️ STEP 5: Skipped resetting towns and valley.");
      }
@@ -189,6 +196,7 @@ async function seasonReset(frontierId) {
 
      // ✅ STEP 6: Apply money nerfs + wipe inventory
       if (STEPS.applyMoneyNerf) {
+        const stepStart = Date.now();
         console.log("🔁 STEP 6: Applying money nerfs and wiping inventories...");
         for (const player of allPlayers) {
           const isGold = player.accountStatus?.includes("Gold");
@@ -210,11 +218,12 @@ async function seasonReset(frontierId) {
             console.log("🚩 SAVE_FLAG off; Skipped saving player after money nerf.");
           }
         }
+        console.log(`⏱️ Step 6 took ${Date.now() - stepStart}ms`);
       } else {
         console.log("⏭️ STEP 6: Skipped money nerf/inventory wipe.");
       }
   
-      console.log("✅ Season Reset Complete!");
+      console.log(`⏱️ Total seasonReset took ${Date.now() - startTime}ms`);
       console.groupEnd();
 
     } catch (error) {
