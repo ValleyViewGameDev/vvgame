@@ -1407,12 +1407,12 @@ const zoomOut = () => {
         )}
 
         {/* Add Role display if player has one */}
-        {currentPlayer?.role && (
+        {currentPlayer?.role === "Mayor" && (
           <>
             <h3 className="player-role">
-              You are the {currentPlayer.role}
+              You are the Mayor
             </h3>
-            <br/>
+            <br />
           </>
         )}
 
