@@ -25,9 +25,9 @@
     },
     "elections": {
         "phases": {
-            "Administration": 7200,
-            "Campaigning": 1440,   
-            "Voting": 1440,
+            "Administration": 1,
+            "Campaigning": 2,   
+            "Voting": 2,
             "Counting": 0.6
         },
         "startPhase": "Administration"

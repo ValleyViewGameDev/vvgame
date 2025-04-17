@@ -5,8 +5,8 @@
 }
 .courthouse-panel h2,
 .courthouse-panel h3 {
-    margin-top: 4px; /* Reduce space above */
-    margin-bottom: 4px; /* Reduce space below */
+    margin-top: 2px; /* Reduce space above */
+    margin-bottom: 1px; /* Reduce space below */
 }
 
 .courthouse-panel p {
@@ -15,10 +15,24 @@
     line-height: 1.2; /* Adjust line height for better readability */
 }
 
+/* Ensure everything in panel is left-aligned by default */
+.courthouse-panel {
+    text-align: left;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
+}
+
 /* Reduce spacing around panel buttons */
 .courthouse-panel .panel-buttons {
     margin-top: 8px; 
     margin-bottom: 8px;
+}
+
+.courthouse-panel .debug-buttons {
+    padding: 0;  /* Remove all padding */
+    margin: 0;   /* Remove all margin */
+    width: 100%;
 }
 
 .campaign-promises {
@@ -27,10 +41,94 @@
     border: 1px solid #ccc;
     padding: 8px;
     background-color: #f8f8f8;
-  }
-  
-  .campaign-entry {
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+}
+
+.campaign-entry {
     padding: 6px;
     border-bottom: 1px solid #ddd;
-  }
+}
+
+.candidate-row {
+    padding: 8px;
+    margin: 4px 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.candidate-tooltip {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    max-width: 300px;
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.voting-section {
+    margin: 15px 0;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 0;
+    margin-right: 0;
+    width: 100%;
+}
+
+.voting-section p {
+    color: #fff;
+    text-align: left; /* Changed from center to left */
+    font-size: 1.1em;
+}
+
+.voting-section button {
+    width: 100%;
+}
+
+.settlement-name-editor {
+    margin: 4px 0;  /* Reduced from 15px to 4px */
+    padding: 0;
+    background: none;  /* Remove background */
+    border-radius: 0;  /* Remove border radius */
+    width: 100%;
+}
+
+.settlement-name-editor input {
+    margin: 0 0 8px 0;  /* Adjusted margins */
+    padding: 4px 8px;
+    width: calc(100% - 16px); /* Account for padding */
+    max-width: none;
+}
+
+.settlement-name-editor button {
+    margin-top: 4px;
+    margin-left: 0;  /* Ensure left alignment */
+    width: 100%; /* Make button full width */
+}
+
+.tax-rate-editor {
+    margin: 8px 0;
+    width: 100%;
+}
+
+.tax-rate-editor input[type="range"] {
+    width: 100%;
+    margin: 8px 0;
+}
+
+.tax-rate-editor button {
+    width: 100%;
+    margin-top: 4px;
+}
 

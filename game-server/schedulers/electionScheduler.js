@@ -55,6 +55,15 @@ async function electionScheduler(frontierId, phase, frontier = null) {
                 try {
                     console.log(`🏆 Winner found for ${settlement.name}: ${winnerId}`);
 
+                    // First, find and remove Mayor role from any player who has it
+                    await Player.updateMany(
+                        { role: "Mayor" },
+                        { $unset: { role: "" } }
+                    );
+
+                    // Then assign Mayor role to the winner
+                    await Player.findByIdAndUpdate(winnerId, { role: "Mayor" });
+
                     // Update settlement roles
                     const updatedRoles = settlement.roles.filter(r => r.roleName !== "Mayor");
                     updatedRoles.push({
@@ -70,9 +79,6 @@ async function electionScheduler(frontierId, phase, frontier = null) {
                             campaignPromises: []
                         }
                     });
-
-                    // Update player role
-                    await Player.findByIdAndUpdate(winnerId, { role: "Mayor" });
 
                     console.log(`✅ Mayor role assigned in ${settlement.name}`);
                 } catch (error) {

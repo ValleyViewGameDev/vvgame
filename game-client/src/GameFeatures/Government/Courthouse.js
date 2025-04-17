@@ -18,8 +18,12 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
     const [newPromise, setNewPromise] = useState('');
     const [selectedCandidate, setSelectedCandidate] = useState(null);
     const [hasVoted, setHasVoted] = useState(false);
+    const [votedFor, setVotedFor] = useState('');
     const [candidateList, setCandidateList] = useState([]);
     const [tempTaxRate, setTempTaxRate] = useState(0); // Temporary UI state for the slider
+    const [hoveredCandidate, setHoveredCandidate] = useState(null);
+    const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+    const [tempSettlementName, setTempSettlementName] = useState('');
 
     // Effect for initial data load only
     useEffect(() => {
@@ -80,13 +84,26 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
             setTaxRate(settlementData.taxrate || 0);
             setTempTaxRate(settlementData.taxrate || 0);
             setCampaignPromises(settlementData.campaignPromises || []);
+            setTempSettlementName(settlementData.name || '');
             
             // Update mayor status
             const mayorRole = settlementData.roles.find(role => role.roleName === 'Mayor');
             setIsMayor(mayorRole && mayorRole.playerId.toString() === currentPlayer._id.toString());
 
-            // Only update candidates list if in voting phase
-            if (electionPhase === "Voting") {
+            // Check if player has already voted and update voting status
+            if (settlementData.votes) {
+                const playerVote = settlementData.votes.find(v => v.voterId === currentPlayer._id);
+                if (playerVote) {
+                    setHasVoted(true);
+                    const votedCandidate = settlementData.campaignPromises?.find(p => 
+                        p.playerId === playerVote.candidateId
+                    );
+                    setVotedFor(votedCandidate?.username || 'Unknown');
+                }
+            }
+
+            // Only update candidates list if in voting phase and haven't voted
+            if (electionPhase === "Voting" && !hasVoted) {
                 const uniqueCandidates = settlementData.campaignPromises?.reduce((acc, promise) => {
                     if (!acc.find((c) => c.playerId === promise.playerId)) {
                         acc.push({ playerId: promise.playerId, username: promise.username });
@@ -140,6 +157,9 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
                 console.log(`🗳️ ${response.data.message}`);
                 updateStatus('✅ Vote successfully cast.');
                 setHasVoted(true);
+                // Store the username of the voted candidate
+                const votedCandidate = candidateList.find(c => c.playerId === selectedCandidate);
+                setVotedFor(votedCandidate?.username || 'Unknown');
                 fetchElectionData();
             }
         } catch (error) {
@@ -178,25 +198,78 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
         }
     };
 
+    const handleSaveSettlementName = async () => {
+        if (!isMayor || !tempSettlementName.trim()) return;
+    
+        try {
+            const response = await axios.post(`${API_BASE}/api/update-settlement`, {
+                settlementId: currentPlayer.settlementId,
+                updates: { name: tempSettlementName }
+            });
+    
+            if (response.data.success) {
+                updateStatus(`✅ Settlement renamed to ${tempSettlementName}`);
+                setSettlement(prev => ({ ...prev, name: tempSettlementName }));
+            } else {
+                updateStatus("❌ Error updating settlement name.");
+            }
+        } catch (error) {
+            console.error('❌ Error saving settlement name:', error);
+            updateStatus("❌ Failed to save settlement name.");
+        }
+    };
+
+    const getCandidatePromise = (candidateId) => {
+        return campaignPromises.find(promise => 
+            promise.playerId === candidateId
+        )?.text || "No campaign promise made.";
+    };
+
     return (
         <Panel onClose={onClose} descriptionKey="1012" titleKey="1112" panelName="Courthouse">
             <div className="panel-content courthouse-panel">       
                 <div className="debug-buttons">
                     <h1> {isMayor && ( <p>Welcome, Mayor.</p> )} </h1>
-                    <h2>💰 Tax Rate: {taxRate}%</h2>
 
+{/* Settlement name section */}
+
+                    <h2>Your Settlement:</h2>
                     {isMayor ? (
-                        <>
+                        <div className="settlement-name-editor">
+                            <input
+                                type="text"
+                                value={tempSettlementName}
+                                onChange={(e) => setTempSettlementName(e.target.value)}
+                                placeholder="Enter settlement name..."
+                            />
+                            <button 
+                                className="btn-success" 
+                                onClick={handleSaveSettlementName}
+                                disabled={!tempSettlementName.trim()}
+                            >
+                                Update Name
+                            </button>
+                        </div>
+                    ) : (
+                        <h2>{settlement?.name || 'Unnamed'}</h2>
+                    )}
+
+{/* Tax rate section */}
+
+                    <h2>💰 Tax Rate: {taxRate}%</h2>
+                    {isMayor && (
+                        <div className="tax-rate-editor">
                             <input
                                 type="range" min="0" max="20" value={tempTaxRate}
-                                onChange={(e) => setTempTaxRate(Number(e.target.value))} // ✅ Allow free movement
+                                onChange={(e) => setTempTaxRate(Number(e.target.value))}
                             />
                             <p>Proposed Tax Rate: {tempTaxRate}%</p>
-                            <button className="btn-success" onClick={handleSaveTaxRate}>Update Tax Rate</button>        
-                        </>
-                    ) : (
-                        <p>⚠️ Only the Mayor can set the tax rate.</p>
+                            <button className="btn-success" onClick={handleSaveTaxRate}>
+                                Update Tax Rate
+                            </button>
+                        </div>
                     )}
+
                     <br></br>
                     <h2>{strings["2045"]}</h2>
                     <p><strong>
@@ -207,11 +280,13 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
                     </strong></p>
                     <p>{countdown}</p>
 
-                    {/* ✅ Campaigning Phase */}
+{/* ✅ Campaigning Phase */}
+
                     {electionPhase === "Campaigning" && (
                         <>
-                            <h3>{strings["2070"]}</h3>
+                            <h3>📢 Campaign Promises</h3>
                             
+                            {/* ✅ Scrollable List of Promises */}
                             <div className="campaign-promises">
                                 {campaignPromises.length > 0 ? (
                                     campaignPromises.map((promise, index) => (
@@ -220,54 +295,83 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
                                         </div>
                                     ))
                                 ) : (
-                                    <p>{strings["2071"]}</p>
+                                    <p>No one has made a campaign promise yet.</p>
                                 )}
                             </div>
 
+                            {/* ✅ Player Can Submit a Promise */}
                             {!campaignPromises.some(p => p.playerId === currentPlayer._id) && (
                                 <>
                                     <textarea
                                         value={newPromise}
                                         onChange={(e) => setNewPromise(e.target.value)}
-                                        placeholder={strings["2072"]}
+                                        placeholder="Enter your campaign promise (max 200 characters)..."
                                     />
-                                    <button className="btn-success" onClick={handleAddCampaignPromise}>
-                                        {strings["2073"]}
-                                    </button>
+                                    <button className="btn-success" onClick={handleAddCampaignPromise}>Submit Campaign Promise</button>
                                 </>
                             )}
                         </>
                     )}
 
-                    {/* ✅ Voting Phase UI */}
-                    {electionPhase === 'Voting' && !hasVoted && (
-                        <>
-                            <h3>{strings["2074"]}</h3>
-                            {candidateList.length > 0 ? (
-                                candidateList.map((candidate, index) => (
-                                    <div key={candidate.playerId || index}>
-                                        <input 
-                                            type="radio" 
-                                            name="vote" 
-                                            value={candidate.playerId} 
-                                            onChange={() => {
-                                                console.log(`🔍 Selected Candidate: ${candidate.username} (${candidate.playerId})`);
-                                                setSelectedCandidate(candidate.playerId);
-                                            }} 
-                                        />
-                                        {candidate.username}
-                                    </div>
-                                ))
+{/* Voting Phase UI */}
+
+                    {electionPhase === 'Voting' && (
+                        <div className="voting-section">
+                            {hasVoted ? (
+                                <p>You have already voted.</p>
+                            ) : candidateList.length > 0 ? (
+                                <>
+                                    <h3>Cast Your Vote</h3>
+                                    {candidateList.map((candidate, index) => (
+                                        <div 
+                                            key={candidate.playerId || index}
+                                            className="candidate-row"
+                                            onMouseEnter={(e) => {
+                                                setHoveredCandidate(candidate.playerId);
+                                                setTooltipPosition({
+                                                    x: e.clientX + 10,
+                                                    y: e.clientY - 40
+                                                });
+                                            }}
+                                            onMouseLeave={() => setHoveredCandidate(null)}
+                                        >
+                                            <input 
+                                                type="radio" 
+                                                name="vote" 
+                                                value={candidate.playerId}
+                                                onChange={() => {
+                                                    setSelectedCandidate(candidate.playerId);
+                                                }}
+                                            />
+                                            {candidate.username}
+                                        </div>
+                                    ))}
+                                    <button 
+                                        className="btn-success"
+                                        onClick={handleVote} 
+                                        disabled={!selectedCandidate}
+                                    >
+                                        Cast Your Vote
+                                    </button>
+
+                                    {/* Tooltip */}
+                                    {hoveredCandidate && (
+                                        <div 
+                                            className="candidate-tooltip"
+                                            style={{
+                                                left: tooltipPosition.x,
+                                                top: tooltipPosition.y,
+                                            }}
+                                        >
+                                            <strong>Campaign promise:</strong><br />
+                                            "{getCandidatePromise(hoveredCandidate)}"
+                                        </div>
+                                    )}
+                                </>
                             ) : (
-                                <p>{strings["2075"]}</p>
+                                <p>There were no candidates.</p>
                             )}
-                            <button 
-                                className="btn-success"
-                                onClick={handleVote} 
-                                disabled={!selectedCandidate}>
-                                {strings["2076"]}
-                            </button>
-                        </>
+                        </div>
                     )}
                 </div>
             </div>

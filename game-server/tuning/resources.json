@@ -4178,7 +4178,7 @@
         "ingredient2qty": 5
     },
     {
-        "type": "Power",
+        "type": "Power", 
         "symbol": "🔪",
         "category": "upgrade",
         "output": "damage",
