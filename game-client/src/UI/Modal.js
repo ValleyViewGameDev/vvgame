@@ -2,12 +2,16 @@
 import React from 'react';
 import './Modal.css';
 
-function Modal({ isOpen = true, onClose, title, children, message, message2, size = "standard" }) {
+function Modal({ isOpen = true, onClose, title, children, message, message2, size = "standard", className }) {
   if (!isOpen) return null;
 
   return (
     <div className="modal-overlay">
-      <div className={`modal-container ${size === "small" ? "modal-small" : ""}`}>
+      <div className={`modal-container ${size === "small" ? "modal-small" : ""} ${className || ""}`}>
+        {/* Close Button (X style) */}
+        <button className="modal-close-btn" onClick={onClose}>
+          &times;
+        </button>
 
         {title && <h2 className="modal-title">{title}</h2>}
 
@@ -16,11 +20,6 @@ function Modal({ isOpen = true, onClose, title, children, message, message2, siz
           {message2 && <p className="modal-message">{message2}</p>}
           {children}
         </div>
-
-        {/* Close Button (X style) */}
-        <button className="modal-close-btn" onClick={onClose}>
-          &times;
-        </button>
       </div>
     </div>
   );

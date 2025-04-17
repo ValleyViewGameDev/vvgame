@@ -18,17 +18,17 @@
     },
     "seasons": {
         "phases": {
-            "onSeason": 1440,     
+            "onSeason": 720,     
             "offSeason": 2
         },
         "startPhase": "onSeason"
     },
     "elections": {
         "phases": {
-            "Administration": 3,
-            "Campaigning": 3,   
-            "Voting": 3,
-            "Counting": 0.5
+            "Administration": 7200,
+            "Campaigning": 1440,   
+            "Voting": 1440,
+            "Counting": 0.6
         },
         "startPhase": "Administration"
     },
@@ -42,7 +42,7 @@
     },
     "bank": {
         "phases": {
-            "active": 5,
+            "active": 240,
             "refreshing": 0.5
         },
         "startPhase": "active"

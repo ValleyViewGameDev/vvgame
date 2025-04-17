@@ -5,65 +5,131 @@ import Modal from './Modal';
 import './TownNews.css';
 import { StatusBarContext } from './StatusBar';
 import strings from './strings.json';
+import { formatCountdown } from './Timers';
 
-function TownNews({ onClose, currentPlayer, setCurrentPlayer, resources }) {
+function TownNews({ onClose, currentPlayer, setCurrentPlayer }) {
+    // Settlement data
+    const [settlementName, setSettlementName] = useState("");
+    const [mayor, setMayor] = useState("");
+    const [taxRate, setTaxRate] = useState(0);
 
-  const [modalContent, setModalContent] = useState();
+    // Timer states
+    const [electionPhase, setElectionPhase] = useState("");
+    const [trainPhase, setTrainPhase] = useState("");
+    const [bankPhase, setBankPhase] = useState("");
     
-  setModalContent({
-    title: strings["5001"],
-    message: strings["5002"],
-    message2: strings["5003"],
-    size: "small",
-    });
+    // Offer states
+    const [currentTrainOffers, setCurrentTrainOffers] = useState([]);
+    const [nextTrainOffers, setNextTrainOffers] = useState([]);
+    const [bankOffers, setBankOffers] = useState([]);
+    
+    // Countdown timers
+    const [trainTimer, setTrainTimer] = useState("");
+    const [electionTimer, setElectionTimer] = useState("");
+    const [bankTimer, setBankTimer] = useState("");
 
-  const { updateStatus } = useContext(StatusBarContext);
-  const [taxRate, setTaxRate] = useState(0);
-  const [isMayor, setIsMayor] = useState(false);
+    // Simplify to just show unique items
+    const formatOffers = (offers) => {
+        if (!offers?.length) return "no items";
+        const uniqueItems = [...new Set(offers.map(offer => offer.itemBought))];
+        return uniqueItems.join(", ");
+    };
 
-  // ✅ Fetch settlement + election data
-  const fetchElectionData = async () => {
-      try {
-          console.log(`🏛️ Fetching election & settlement data for Frontier: ${currentPlayer.frontierId}, Settlement: ${currentPlayer.settlementId}`);
-  
-          // ✅ Fetch Settlement Data
-          const settlementResponse = await axios.get(`${API_BASE}/api/get-settlement/${currentPlayer.settlementId}`);
-          const settlementData = settlementResponse.data;
-          setTaxRate(settlementData.taxrate || 0);
-          // ✅ Read Election Phase from Local Storage (instead of API call)
-          const storedTimers = JSON.parse(localStorage.getItem("timers")) || {};
-          const electionPhase = storedTimers.elections?.phase || "Waiting..."; // ✅ Default to "Administration" if undefined
-          // ✅ Determine if the current player is the Mayor
-          const mayorRole = settlementData.roles.find(role => role.roleName === 'Mayor');
-          setIsMayor(mayorRole && mayorRole.playerId.toString() === currentPlayer._id.toString());
-  
-  
-      } catch (error) {
-          console.error('❌ Error fetching election or settlement data:', error);
-      }
-  };
+    const fetchTownData = async () => {
+        try {
+            // Fetch settlement data
+            const settlementResponse = await axios.get(
+                `${API_BASE}/api/get-settlement/${currentPlayer.settlementId}`);
+            const settlement = settlementResponse.data;
+            
+            setSettlementName(settlement.name);
+            setTaxRate(settlement.taxrate);
+            const mayorRole = settlement.roles.find(role => role.roleName === 'Mayor');
+            setMayor(mayorRole?.username || null);
 
-  // ✅ Auto-refresh election status
-  useEffect(() => {
-      fetchElectionData();
-  }, [currentPlayer]);
+            // Get current train offers
+            setCurrentTrainOffers(settlement.currentoffers);
+            setNextTrainOffers(settlement.nextoffers);
 
-          
-  return (
-    <Modal onClose={onClose} >
+            // Get Bank offers from frontier
+            const frontierResponse = await axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`);
+            setBankOffers(frontierResponse.data.bank?.offers || []);
 
-        <h4>Here's what's happening in Town right now:</h4>
-            <p>The current Mayor is X, and the tax rate is Y.</p>
-            <p>It's election season, and campaigning is in full swing. Stop by the Courtnouse in Town to run for Mayor.</p>
-            <p>Voting for the next Mayor has begun. Cast your vote at the Courthouse in Town.</p>
-            <p>The Train is arriving in XX and will be offering to buy X X and X. Collaborate with your neighbors for extra rewards. The next train will be buying YYY.</p>
-            <p>The Train is departing, and will return in XXX, offering to buy YYYY.</p>
-            <p>The Train is arriving, and will offer to buy YYYY. The next train after this one will buy YYYY.</p>
-            <p>Visit the Bank to sell gold, silver, and diamonds. The Bank is also currently offering to buy X X and X. </p>
-            <p>The Royal Court</p>
+            // Get phases and timers from localStorage
+            const storedTimers = JSON.parse(localStorage.getItem("timers")) || {};
+            setBankPhase(storedTimers.bank?.phase || "");
+            setTrainPhase(storedTimers.train?.phase || "");
+            setElectionPhase(storedTimers.elections?.phase || "");
 
-    </Modal>
-  );
+            // Update timers
+            const now = Date.now();
+            setTrainTimer(formatCountdown(storedTimers.train?.endTime, now));
+            setElectionTimer(formatCountdown(storedTimers.elections?.endTime, now));
+            setBankTimer(formatCountdown(storedTimers.bank?.endTime, now));
+
+        } catch (error) {
+            console.error('Error fetching town data:', error);
+        }
+    };
+ 
+    // Initial fetch and timer updates
+    useEffect(() => {
+        fetchTownData();
+        const interval = setInterval(fetchTownData, 1000);
+        return () => clearInterval(interval);
+    }, [currentPlayer]);
+
+    return (
+        <Modal 
+            onClose={onClose} 
+            className="modal-TownNews"
+            size="standard"
+        >
+            <h3>{strings["1501"]} "{settlementName || "..."}"</h3>
+            
+            {mayor ? (
+                /* The current mayor is */
+                <p>{strings["1502"]} {mayor}, {strings["1503"]} {taxRate}%.</p>  
+            ) : (
+                /* No mayor */
+                <> <p>{strings["1512"]} {strings["1515"]} {taxRate}%.</p>  </>
+            )}
+            
+            <h4>{strings["1504"]}</h4>
+
+            {/* Election Updates */}
+            {electionPhase === "Campaigning" && (
+                <p>{strings["1505"]}</p>
+            )}
+            {electionPhase === "Voting" && (
+                <p>{strings["1506"]}</p>
+            )}
+            {electionPhase === "Counting" && (
+                <p>{strings["1518"]} {electionTimer}.</p>
+            )}
+
+            {/* Modified Train Updates */}
+            {trainPhase === "arriving" && (
+                <p>{strings["1507"]} {formatOffers(currentTrainOffers)}.</p>
+            )}
+            {trainPhase === "departing" && (
+                <p>{strings["1513"]} {trainTimer}. {strings["1514"]} {formatOffers(nextTrainOffers)}.</p>
+            )}
+            {trainPhase === "loading" && (
+                <>
+                    <p>{strings["1509"]} {formatOffers(currentTrainOffers)}. {strings["1517"]} {trainTimer}.</p>
+                </>
+            )}
+
+            {/* Bank Updates */}
+            {bankPhase === "active" && (
+                <p>{strings["1516"]} {formatOffers(bankOffers)}.</p>
+            )}
+            {bankPhase === "refreshing" && (
+                <p>{strings["1511"]}</p>
+            )}
+        </Modal>
+    );
 }
 
 export default TownNews;

@@ -471,63 +471,6 @@ router.post('/cast-vote', async (req, res) => {
   }
 });
 
-router.post('/resolve-election', async (req, res) => {
-  const { settlementId, role = "Mayor" } = req.body;
-
-  console.log(`🏛️ Resolving election for settlement ${settlementId} for role: ${role}`);
-
-  const settlement = await Settlement.findById(settlementId);
-
-  if (!settlement) {
-    return res.status(404).json({ error: "Settlement not found." });
-  }
-
-  const votes = settlement.votes || []; // ✅ Ensure votes are retrieved
-  console.log("🔍 Counting votes for", settlement.name);
-  console.log("📊 Raw Vote Data:", votes); // ✅ Debugging output
-
-  const voteCounts = {};
-
-  // ✅ Count votes for each candidate
-  votes.forEach(vote => {
-      const candidateId = vote.candidateId.toString(); // ✅ Extract only the ID as a string
-      voteCounts[candidateId] = (voteCounts[candidateId] || 0) + 1;
-  });
-
-  console.log("📊 Processed Vote Counts:", voteCounts);
-
-  // ✅ Determine winner
-  let winner = null;
-  let maxVotes = 0;
-  Object.entries(voteCounts).forEach(([candidateId, count]) => {
-      if (count > maxVotes) {
-          winner = candidateId; // ✅ Ensure it's just the ID
-          maxVotes = count;
-      }
-  });
-
-  if (winner) {
-      console.log(`🏆 Election winner: ${winner}`);
-
-      // ✅ Assign winner to the settlement
-      await Settlement.findByIdAndUpdate(settlementId, {
-          $set: { "roles.$[elem].playerId": new mongoose.Types.ObjectId(winner) }, // ✅ Convert to ObjectId
-          votes: [], // ✅ Clear votes
-          campaignPromises: [] // ✅ Clear campaign data
-      }, { arrayFilters: [{ "elem.roleName": role }] });
-
-      // ✅ Update the new Mayor in their player document
-      await Player.findByIdAndUpdate(winner, { role: role });
-
-      res.status(200).json({ message: `🏆 ${winner} is the new ${role}` });
-  } else {
-      console.log("❌ No valid election winner.");
-      res.status(200).json({ message: "No votes were cast. Mayor remains unchanged." });
-  }
-});
-
-
-
 
 ///////////
 ////// TRAIN ROUTES

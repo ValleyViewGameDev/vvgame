@@ -1,71 +1,90 @@
-const axios = require("axios");
 const Settlement = require("../models/settlement");
 const Frontier = require("../models/frontier");
+const Player = require("../models/player");
 const tuningConfig = require("../tuning/globalTuning.json");
+const API_BASE = process.env.API_BASE || 'http://localhost:3001'; // Add API base URL
 
 async function electionScheduler(frontierId, phase, frontier = null) {
-
     if (!frontierId) { console.warn("⚠️ No frontierId provided to electionScheduler."); return {}; }
 
-    console.log(`🏛️ ELECTION LOGIC for Frontier ${frontierId}`);
+    console.log(`🏛️ ELECTION LOGIC for Frontier ${frontierId}, Phase: ${phase}`);
 
     // ✅ Fetch only settlements in this frontier
     const settlements = await Settlement.find({ frontierId, population: { $gt: 0 } });
 
     for (const settlement of settlements) {
-        if (!settlement.electionState) {
-            console.warn(`⚠️ Settlement ${settlement._id} is missing electionState.`);
-            continue;
-        }
-
-        const { votes, campaignPromises } = settlement.electionState;
+        const { votes, campaignPromises } = settlement;
 
         console.log(`🏛️ Processing Settlement: ${settlement.name} (ID: ${settlement._id})`);
-        console.log(`   📌 Election Phase: ${phase}`);
+        console.log(`📊 Current votes:`, votes);
+        console.log(`📢 Campaign promises:`, campaignPromises);
 
         if (phase === "Counting") {
-            console.log(`   🏛️ Processing election results for ${settlement.name}...`);
+            console.log(`🔍 Checking election resolution for ${settlement.name}...`);
 
-            if (!campaignPromises || campaignPromises.length === 0) {
-                console.warn(`   ⚠️ No candidates. Skipping election.`);
-            } else if (!votes || votes.length === 0) {
-                console.warn(`   ⚠️ No votes cast. Skipping election.`);
-            } else {
-                console.log(`   🔍 Triggering resolve-election API call...`);
-                try {
-                    const response = await axios.post(`${API_BASE}/api/resolve-election`, {
-                        settlementId: settlement._id,
-                        role: "Mayor",
-                    });
-                    console.log(`   ✅ resolve-election API Response:`, response.data);
-                } catch (error) {
-                    console.error(`   ❌ Error calling resolve-election:`, error?.response?.data || error);
+            if (!campaignPromises?.length) {
+                console.warn(`⚠️ No candidates for ${settlement.name}. Skipping election.`);
+                continue;
+            }
+
+            if (!votes?.length) {
+                console.warn(`⚠️ No votes cast for ${settlement.name}. Skipping election.`);
+                continue;
+            }
+
+            // Count votes
+            const voteCounts = votes.reduce((acc, vote) => {
+                const candidateId = vote.candidateId.toString();
+                acc[candidateId] = (acc[candidateId] || 0) + 1;
+                return acc;
+            }, {});
+
+            console.log(`📊 Vote counts for ${settlement.name}:`, voteCounts);
+
+            // Find winner
+            let winnerId = null;
+            let maxVotes = 0;
+            Object.entries(voteCounts).forEach(([candidateId, count]) => {
+                if (count > maxVotes) {
+                    winnerId = candidateId;
+                    maxVotes = count;
                 }
+            });
+
+            if (winnerId) {
+                try {
+                    console.log(`🏆 Winner found for ${settlement.name}: ${winnerId}`);
+
+                    // Update settlement roles
+                    const updatedRoles = settlement.roles.filter(r => r.roleName !== "Mayor");
+                    updatedRoles.push({
+                        roleName: "Mayor",
+                        playerId: winnerId
+                    });
+
+                    // Save changes and clear election data
+                    await Settlement.findByIdAndUpdate(settlement._id, {
+                        $set: {
+                            roles: updatedRoles,
+                            votes: [],
+                            campaignPromises: []
+                        }
+                    });
+
+                    // Update player role
+                    await Player.findByIdAndUpdate(winnerId, { role: "Mayor" });
+
+                    console.log(`✅ Mayor role assigned in ${settlement.name}`);
+                } catch (error) {
+                    console.error(`❌ Error updating mayor for ${settlement.name}:`, error);
+                }
+            } else {
+                console.log(`⚠️ No winner determined for ${settlement.name}`);
             }
         }
+    }
 
-        if (phase === "Campaigning") {
-            // Handled on client
-            return{};
-        }
-
-        if (phase === "Voting") {
-            // Handled on client
-            return{};
-        }
-
-        if (phase === "Administration") {
-            console.log(`   🧹 Clearing votes and campaignPromises for ${settlement.name}`);
-            await Settlement.findByIdAndUpdate(settlement._id, {
-              $set: {
-                "electionState.votes": [],
-                "electionState.campaignPromises": []
-              }
-            });
-            console.log(`   ✅ Election state cleaned.`);
-          }
-        }
-    return {}; // Election scheduler never modifies Frontier fields
+    return {};
 }
 
 module.exports = electionScheduler;

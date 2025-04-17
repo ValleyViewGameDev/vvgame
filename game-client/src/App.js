@@ -1354,7 +1354,9 @@ const zoomOut = () => {
   
   return (
     <>
-      {/* New Navigation Column */}
+
+{/* New Navigation Column */}
+
       <div className="nav-column">
         <button className="nav-button" title="Home" onClick={() => closePanel()}>🏡</button>
         <button className="nav-button" title="Farming" onClick={() => openPanel('FarmingPanel')}>🚜</button>
@@ -1373,7 +1375,8 @@ const zoomOut = () => {
     <div className="app-container">
     <FloatingTextManager />
 
-      {/* Base Panel */}
+{/* Base Panel */}
+
       <div className="base-panel">
         <h1>Valley View</h1>  
         <br />
@@ -1383,8 +1386,13 @@ const zoomOut = () => {
           onClick={() => {
             if (currentPlayer?.username) { 
               openPanel('ProfilePanel'); // Open Profile Panel if player is logged in
+
+/////  Here, add another button that says "[accountStatus] Account"; clicking the button will bring up the Store modal.
+/////  Here, if "role" is defined in the player object, show it; example: "You are the [role]." (where something like "Mayor" is the role string.)
+ 
+
+
             } else { 
-              <p>Logged in as:</p>
               openPanel('LoginPanel'); // Open Login Panel if player is not logged in
             }
           }}
@@ -1510,11 +1518,12 @@ const zoomOut = () => {
 
       </div>
 
-    {/* Header */}
+{/* Header */}
+
     <header className="app-header">
       <div className="header-controls">
 
-      <h3>💰 Money:{" "}
+      <h3>💰 Money: {" "}
           {Array.isArray(currentPlayer?.inventory) ? (
             <>
               <span className="money-value">

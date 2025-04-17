@@ -13,7 +13,7 @@
       "backpack": [],
       "skills": [{ "type": "Walking" }],
       "warehouseCapacity": 1000000,
-      "backpackCapacity": 0,
+      "backpackCapacity": 10,
       "accountStatus": "Free",
       "role": "Peasant",
       "iscanmping": false

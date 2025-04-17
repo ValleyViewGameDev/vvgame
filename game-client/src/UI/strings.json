@@ -134,6 +134,38 @@
     "1122": "🚂 Train",
     "1123": "🧑🏼‍🌾 Farm Hands",
 
+    "1400": "MODAL STRINGS",
+
+    "1401": "BANK MODAL",
+    "1402": "These offers good for",
+    "1403": "Will buy",
+    "1404": "for",
+    "1405": "No offers available.",
+    "1406": "New offers in",
+    "1407": "Generating new orders. Thank you for your patience.",
+    "1408": "⚠️ You don't have enough items.",
+    "1409": "⚠️ You don't have enough skills.",
+    "1410": "⚠️ You don't have enough upgrades.",
+
+    "1500": "TOWN NEWS STRINGS:",
+    "1501": "News for settlement",
+    "1502": "The current Mayor is",
+    "1503": ", and the tax rate is",
+    "1504": "Here's what's happening in Town right now:",
+    "1505": "It's election season, and campaigning is in full swing. Stop by the Courthouse in Town to run for Mayor.",
+    "1506": "Voting for the next Mayor has begun. Cast your vote at the Courthouse in Town.",
+    "1507": "The Train is arriving, offering to buy:",
+    "1508": "The Train is departing. When it returns, it will be buying:", 
+    "1509": "The Train is here, offering to buy:",
+    "1510": " ",
+    "1511": "Visit the Bank to sell gold, silver, and diamonds. The Bank is currently updating its offers.",
+    "1512": "There is currently no mayor. ",
+    "1513": "The Train is departing in",
+    "1514": "When it returns, it will be buying:",
+    "1515": "The tax rate is",
+    "1516": "The Bank is currently buying:",
+    "1517": "The Train will be departing in",
+    "1518": "The votes in the latest election for Mayor are being counted. Results expected in ",
 
     "2000": "TRAIN, BANK, COURTHOUSE, etc. STRINGS:",
 
@@ -160,13 +192,19 @@
     "2044": "⚠️ Only the Mayor can set the tax rate.",
     "2045": "🗳️ Elections",
     "2046": "Current Phase:",
-    "2047": "Next Phase Begins In:",
+    "2047": "Phase Timer:",
     "2048": "📢 Campaign Promises",
-    "2049": "No one has made a campaign promise yet.",
-    "2050": "Submit Campaign Promise",
-    "2051": "Cast Your Vote",
-    "2052": "No candidates available for voting.",
-    "2053": "",
+    "2060": "Voting begins in:",
+    "2061": "Voting ends in:",
+    "2062": "Results announced in:",
+    "2063": "Next campaign begins in:",
+    "2070": "📢 Campaign Promises",
+    "2071": "No one has made a campaign promise yet.",
+    "2072": "Enter your campaign promise (max 200 characters)...",
+    "2073": "Submit Campaign Promise",
+    "2074": "Cast Your Vote",
+    "2075": "No candidates available for voting.",
+    "2076": "Cast Your Vote",
 
     "2100": "GOV PANEL STRINGS:",
 
@@ -182,7 +220,7 @@
     "2110": "🐾 Animal Yards supply unique livestock, which can be transported back to Homesteads by any player.",
     "2111": "🚂 The Mayor can influence demand for goods at the Train.",
 
-    "5000": "MODAL STRINGS:",
+    "5000": "MORE MODAL STRINGS:",
 
     "5001": "💀 You have died.",
     "5002": "You have been returned home.",
@@ -249,4 +287,3 @@
     "warehouseCapacity": "Warehouse Capacity"
 
   }
-  

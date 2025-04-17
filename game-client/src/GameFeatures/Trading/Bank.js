@@ -5,8 +5,8 @@ import Panel from '../../UI/Panel';
 import ResourceButton from '../../UI/ResourceButton';
 import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients } from '../../Utils/InventoryManagement';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
-import FloatingTextManager from '../../UI/FloatingText';
 import { formatCountdown } from '../../UI/Timers.js';
+import strings from '../../UI/strings.json';
 
 function BankPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) {
     const [bankOffers, setBankOffers] = useState([]);
@@ -109,9 +109,10 @@ function BankPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) {
 
     return (
         <Panel onClose={onClose} descriptionKey="1017" titleKey="1117" panelName="BankPanel">
+        {/* Active phase showing current offers */}
             {bankPhase === "active" ? (
                 <>
-                    <h3>These offers good for</h3>
+                    <h3>{strings["1402"]}</h3> {/* "These offers good for" */}
                     <h2>{bankTimer}</h2>
                     {bankOffers.length > 0 ? (
                         bankOffers.map((offer, index) => (
@@ -119,26 +120,29 @@ function BankPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) {
                                 key={index}
                                 className="resource-button"
                                 onClick={() => handleTrade(offer)}
-                                disabled={!currentPlayer.inventory.some((item) => item.type === offer.itemBought && item.quantity >= offer.qtyBought)}
+                                disabled={!currentPlayer.inventory.some((item) => 
+                                    item.type === offer.itemBought && 
+                                    item.quantity >= offer.qtyBought
+                                )}
                                 hideInfo={true}
                             >
                                 <div className="resource-details">
-                                    <span><strong>Will buy</strong> </span>
+                                    <span><strong>{strings["1403"]}</strong></span> {/* "Will buy" */}
                                     {getSymbol(offer.itemBought)} {offer.itemBought} x{offer.qtyBought}
                                     <br />
-                                    for {getSymbol(offer.itemGiven)} {offer.qtyGiven}
+                                    {strings["1404"]} {getSymbol(offer.itemGiven)} {offer.qtyGiven} {/* "for" */}
                                 </div>
                             </ResourceButton>
                         ))
                     ) : (
-                        <p>No offers available at the moment.</p>
+                        <p>{strings["1405"]}</p>  
                     )}
                 </>
             ) : (
                 <>
-                    <h3>New offers in</h3>
+                    <h3>{strings["1406"]}</h3> {/* "New offers in" */}
                     <h2>{bankTimer}</h2>
-                    <p>Generating new orders. Thank you for your patience.</p>
+                    <p>{strings["1407"]}</p> {/* "Generating new orders. Thank you for your patience." */}
                 </>
             )}
         </Panel>
