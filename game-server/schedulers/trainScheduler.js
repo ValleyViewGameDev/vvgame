@@ -8,7 +8,6 @@ const { scheduleEvent } = require("../utils/scheduleHelpers");
 const seasonsConfig = require("../tuning/seasons.json");
 
 async function trainScheduler(frontierId, phase, frontier = null) {
-
   try {
     frontier = frontier || await Frontier.findById(frontierId);
     if (!frontier || !frontier.train) {
@@ -16,83 +15,138 @@ async function trainScheduler(frontierId, phase, frontier = null) {
       return;
     }
 
-    console.log(`🚂 TRAIN LOGIC for Frontier ${frontierId}; phase =`,phase);
+    console.log(`🚂 TRAIN LOGIC for Frontier ${frontierId}; phase =`, phase);
 
     const settlements = await Settlement.find({ population: { $gt: 0 }, frontierId });
 
     for (const settlement of settlements) {
       console.log(`  🚉 Settlement ${settlement.name} - Using Frontier Phase: ${phase}`);
-
-      if (phase === "loading") {
-        // ✅ 1. Check if all current offers were filled
-        if (settlement.currentoffers.every(o => o.filled)) {
+      
+      if (phase === "departing") {
+        // ✅ Check and distribute rewards during departing phase
+        const currentOffers = settlement.currentoffers || [];
+        console.log('DEBUG: Departing phase - checking offers:', JSON.stringify(currentOffers, null, 2));
+        
+        if (currentOffers.length > 0 && currentOffers.every(o => o.filled)) {
           console.log(`🎉 All Train orders filled for ${settlement.name}. Sending rewards...`);
       
-          const fulfilledPlayerIds = settlement.currentoffers
-            .filter(offer => offer.claimedBy)
-            .map(offer => offer.claimedBy.toString());
+          const fulfilledPlayerIds = [...new Set(
+            currentOffers
+              .filter(offer => offer.claimedBy)
+              .map(offer => offer.claimedBy.toString())
+          )];
       
-          const uniquePlayerIds = [...new Set(fulfilledPlayerIds)];
-      
-          console.log('settlement.trainrewards = ',settlement.trainrewards);
+          console.log('DEBUG: Reward distribution - Players:', fulfilledPlayerIds);
+          console.log('DEBUG: Rewards to distribute:', settlement.trainrewards);
           
-          for (const playerId of uniquePlayerIds) {
+          for (const playerId of fulfilledPlayerIds) {
             const consolidated = consolidateRewards(settlement.trainrewards);
-            await sendMailboxMessage(playerId, 101, consolidated);
+            console.log(`DEBUG: Sending consolidated rewards to ${playerId}:`, consolidated);
+            try {
+              await sendMailboxMessage(playerId, 101, consolidated);
+              console.log(`✅ Rewards sent to player ${playerId}`);
+            } catch (error) {
+              console.error(`❌ Error sending rewards to player ${playerId}:`, error);
+            }
           }
-      
-          console.log(`📬 Rewards sent to ${uniquePlayerIds.length} player(s).`);
-        } else {
-          console.log(`🚫 Not all train orders were filled for ${settlement.name}. No rewards sent.`);
         }
       }
       
       if (phase === "arriving") {
+        try {
+          // Generate new offers before updating settlement
+          const seasonConfig = seasonsConfig.find(s => s.seasonType === frontier.seasons?.seasonType);
+          const newTrainOffers = generateTrainOffers(settlement, seasonConfig, frontier);
+          const newTrainRewards = generateTrainRewards(settlement, seasonConfig);
 
-        // ✅ 1. Promote nextoffers → currentoffers
-        settlement.currentoffers = [...(settlement.nextoffers || [])];
+          // Verify we have offers before updating
+          if (!newTrainOffers || newTrainOffers.length === 0) {
+            console.error(`❌ No train offers generated for ${settlement.name}. Using fallback offer.`);
+            newTrainOffers.push({
+              itemBought: "Wood",
+              qtyBought: 5,
+              itemGiven: "Money",
+              qtyGiven: 250,
+              claimedBy: null,
+              filled: false
+            });
+          }
 
-        // ✅ 2. Generate new nextoffers and rewards
-        const currentSeasonType = frontier.seasons?.seasonType;
-        const seasonConfig = seasonsConfig.find(s => s.seasonType === currentSeasonType);
+          // Use findOneAndUpdate with validation
+          const result = await Settlement.findOneAndUpdate(
+            { _id: settlement._id },
+            {
+              $set: {
+                currentoffers: settlement.nextoffers?.length > 0 ? settlement.nextoffers : newTrainOffers,
+                nextoffers: newTrainOffers,
+                trainrewards: newTrainRewards
+              }
+            },
+            { new: true }
+          );
 
-        if (!seasonConfig) {
-          console.warn(`⚠️ No season config found for ${currentSeasonType}`);
-          continue;
+          console.log(`  ✅ Updated settlement ${settlement.name}:`, {
+            currentOffersCount: result.currentoffers?.length || 0,
+            nextOffersCount: result.nextoffers?.length || 0,
+            rewardsCount: result.trainrewards?.length || 0
+          });
+
+          // Double-check the update was successful
+          if (!result.currentoffers?.length) {
+            console.error(`❌ Settlement ${settlement.name} has no current offers after update. Raw result:`, result);
+          }
+        } catch (error) {
+          console.error(`❌ Error updating settlement ${settlement.name}:`, error);
         }
-
-        const newNextOffers = generateTrainOffers(settlement, seasonConfig, frontier);
-        const newRewards = generateTrainRewards(settlement, seasonConfig);
-
-        settlement.nextoffers = newNextOffers;
-        settlement.trainrewards = newRewards;
-
-        await settlement.save();
-
-        console.log(`  ✅ ${settlement.currentoffers.length} currentoffers promoted.`);
-        console.log(`  📦 ${newNextOffers.length} nextoffers generated.`);
-        console.log(`  🎁 ${newRewards.length} train rewards generated.`);
       }
-      return {};
-      // Future: handle other train phases if needed
     }
 
+    return {};
   } catch (error) {
     console.error("❌ Error in trainScheduler:", error);
     return {};
   }
-
 }
-
 
 // 🛠️ Generates train offers using season-tuned logic and totalnestedtime
 function generateTrainOffers(settlement, seasonConfig, frontier) {
   const offers = [];
+  
+  // First, ensure we have valid season resources
+  const seasonResources = masterResources.filter(res =>
+    (seasonConfig.seasonResources || []).includes(res.type)
+  );
 
+  if (seasonResources.length === 0) {
+    console.warn(`⚠️ No season resources found for ${settlement.name}. Using fallback resource.`);
+    return [{
+      itemBought: "Wood",
+      qtyBought: 5,
+      itemGiven: "Money",
+      qtyGiven: 250,
+      claimedBy: null,
+      filled: false
+    }];
+  }
+
+  // Always generate first offer
+  const firstItem = weightedRandomByCraftEffort(seasonResources);
+  const firstQty = Math.max(1, Math.ceil(Math.random() * 5));
+  const firstOffer = {
+    itemBought: firstItem.type,
+    qtyBought: firstQty,
+    itemGiven: "Money",
+    qtyGiven: Math.floor((firstItem.maxprice || 100) * firstQty * (seasonConfig.seasonMultiplier || 1)),
+    claimedBy: null,
+    filled: false
+  };
+  offers.push(firstOffer);
+  console.log(`  📦 First Train Offer (${settlement.name}): ${firstOffer.qtyBought} ${firstOffer.itemBought} → ${firstOffer.qtyGiven} Money`);
+
+  // Then generate additional offers based on effort calculation
   const baseHours = globalTuning.baseHoursForTrain || 2.5;
-  const basePlayerEffortPerWeek = baseHours * 60 * 60; // convert hours to seconds
-
-  const population = settlement.population || 1;
+  const basePlayerEffortPerWeek = baseHours * 60 * 60;
+  const population = Math.max(1, settlement.population || 1);
   const now = Date.now();
   const seasonEnd = new Date(frontier.seasons?.endTime || now);
   const msPerWeek = 1000 * 60 * 60 * 24 * 7;
@@ -106,33 +160,32 @@ function generateTrainOffers(settlement, seasonConfig, frontier) {
     (seasonConfig.trainOffersQtyMultiplier || 1)
   );
 
-  const seasonResources = masterResources.filter(res =>
-    (seasonConfig.seasonResources || []).includes(res.type)
-  );
-
   let remainingEffort = totalEffort;
+  const maxAdditionalOffers = 4; // Cap at 5 total offers (1 guaranteed + 4 additional)
 
-  while (remainingEffort > 0 && seasonResources.length > 0) {
+  while (remainingEffort > 0 && offers.length < maxAdditionalOffers) {
     const item = weightedRandomByCraftEffort(seasonResources);
     const timePerUnit = item.totalnestedtime || item.crafttime || 60;
     const maxQty = Math.floor(remainingEffort / timePerUnit);
+    
     if (maxQty < 1) break;
 
     const qtyBought = Math.ceil(Math.random() * maxQty);
     const qtyGiven = Math.floor((item.maxprice || 100) * qtyBought * (seasonConfig.seasonMultiplier || 1));
 
-    offers.push({
+    const offer = {
       itemBought: item.type,
       qtyBought,
       itemGiven: "Money",
       qtyGiven,
       claimedBy: null,
-      filled: false,
-    });
-
+      filled: false
+    };
+    
+    offers.push(offer);
     remainingEffort -= qtyBought * timePerUnit;
 
-    console.log(`  📦 Train Offer (${settlement.name}): ${qtyBought} ${item.type} → ${qtyGiven} Money`);
+    console.log(`  📦 Additional Train Offer (${settlement.name}): ${qtyBought} ${item.type} → ${qtyGiven} Money`);
   }
 
   return offers;
@@ -152,7 +205,6 @@ function weightedRandomByCraftEffort(items) {
   return items[items.length - 1]; // fallback
 }
 
-
 function consolidateRewards(rewardsArray) {
   const rewardMap = new Map();
   for (const reward of rewardsArray) {
@@ -165,7 +217,6 @@ function consolidateRewards(rewardsArray) {
   }
   return Array.from(rewardMap.entries()).map(([item, qty]) => ({ item, qty }));
 }
-
 
 // 🎁 Generates train rewards using rewards defined in seasons.json
 function generateTrainRewards(settlement, seasonConfig) {

@@ -50,12 +50,6 @@ function TrainPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) 
       } else {
         setTrainTimer(formatCountdown(endTime, now));
       }
-
-      // const remaining = Math.max(0, Math.floor((endTime - now) / 1000));
-      // const h = Math.floor(remaining / 3600);
-      // const m = Math.floor((remaining % 3600) / 60);
-      // const s = remaining % 60;
-      // setTrainTimer(`${h}h ${m}m ${s}s`);
     };
 
     updateCountdown();
@@ -113,27 +107,8 @@ function TrainPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) 
       return;
     }
 
-    const updatedInventory = [...currentPlayer.inventory]
-      .map((item) =>
-        item.type === offer.itemBought
-          ? { ...item, quantity: item.quantity - offer.qtyBought }
-          : item
-      )
-      .filter((item) => item.quantity > 0);
-
-    const moneyIndex = updatedInventory.findIndex(i => i.type === "Money");
-    if (moneyIndex >= 0) {
-      updatedInventory[moneyIndex].quantity += offer.qtyGiven;
-    } else {
-      updatedInventory.push({ type: "Money", quantity: offer.qtyGiven });
-    }
-
     try {
-      await axios.post(`${API_BASE}/api/update-inventory`, {
-        playerId: currentPlayer.playerId,
-        inventory: updatedInventory,
-      });
-
+      // First update the train offer
       await axios.post(`${API_BASE}/api/update-train-offer/${currentPlayer.settlementId}`, {
         updateOffer: {
           ...offer,
@@ -141,13 +116,44 @@ function TrainPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) 
         },
       });
 
+      // Then update inventory only if train offer update was successful
+      const updatedInventory = [...currentPlayer.inventory]
+        .map((item) =>
+          item.type === offer.itemBought
+            ? { ...item, quantity: item.quantity - offer.qtyBought }
+            : item
+        )
+        .filter((item) => item.quantity > 0);
+
+      const moneyIndex = updatedInventory.findIndex(i => i.type === "Money");
+      if (moneyIndex >= 0) {
+        updatedInventory[moneyIndex].quantity += offer.qtyGiven;
+      } else {
+        updatedInventory.push({ type: "Money", quantity: offer.qtyGiven });
+      }
+
+      await axios.post(`${API_BASE}/api/update-inventory`, {
+        playerId: currentPlayer.playerId,
+        inventory: updatedInventory,
+      });
+
+      // Update local state in correct order
+      setTrainOffers(prev => prev.map(o => 
+        o.itemBought === offer.itemBought && 
+        o.qtyBought === offer.qtyBought && 
+        o.claimedBy === currentPlayer.playerId
+          ? { ...o, filled: true }
+          : o
+      ));
+      
       setCurrentPlayer(prev => ({ ...prev, inventory: updatedInventory }));
+      
       updateStatus(`✅ Delivered ${offer.qtyBought} ${offer.itemBought}, received ${offer.qtyGiven} Money`);
       FloatingTextManager.addFloatingText(`+${offer.qtyGiven} 💰`, window.innerWidth / 10, window.innerHeight / 4);
 
-      setTrainOffers(prev => prev.map(o => o === offer ? { ...o, filled: true } : o));
     } catch (error) {
       console.error("❌ Error fulfilling offer:", error);
+      fetchTrainOffers(); // Refresh offers on error to ensure sync
     }
   };
 
@@ -216,7 +222,10 @@ function TrainPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) 
           return (
             <ResourceButton
               key={index}
-              className="train-offer-card"
+              className={`train-offer-card ${
+                !offer.claimedBy ? 'unclaimed' : 
+                'resource-button'
+              }`}
               onClick={() =>
                 isCompleted ? null :
                 isYours ? handleFulfill(offer) :

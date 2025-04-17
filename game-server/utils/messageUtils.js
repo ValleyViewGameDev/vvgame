@@ -16,6 +16,12 @@ const messageTemplates = JSON.parse(
  * @param {Array} [customRewards=[]] - Optional rewards if everyoneRewards is false
  */
 async function sendMailboxMessage(playerId, messageId, customRewards = []) {
+  console.log('DEBUG sendMailboxMessage:', {
+    playerId,
+    messageId,
+    customRewards
+  });
+
   const template = messageTemplates.find(m => m.id === messageId);
   if (!template) {
     console.warn(`❌ Mailbox template '${messageId}' not found.`);
@@ -37,9 +43,10 @@ async function sendMailboxMessage(playerId, messageId, customRewards = []) {
       { _id: playerId },
       { $push: { messages: message } }
     );
-    console.log(`📬 Message '${messageId}' sent to player ${playerId}`);
+    console.log(`📬 Message '${messageId}' sent to player ${playerId} with rewards:`, customRewards);
   } catch (error) {
     console.error(`❌ Failed to send mailbox message to player ${playerId}:`, error);
+    throw error; // Re-throw to catch in caller
   }
 }
 

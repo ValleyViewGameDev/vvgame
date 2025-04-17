@@ -1386,12 +1386,6 @@ const zoomOut = () => {
           onClick={() => {
             if (currentPlayer?.username) { 
               openPanel('ProfilePanel'); // Open Profile Panel if player is logged in
-
-/////  Here, add another button that says "[accountStatus] Account"; clicking the button will bring up the Store modal.
-/////  Here, if "role" is defined in the player object, show it; example: "You are the [role]." (where something like "Mayor" is the role string.)
- 
-
-
             } else { 
               openPanel('LoginPanel'); // Open Login Panel if player is not logged in
             }
@@ -1399,7 +1393,28 @@ const zoomOut = () => {
         >
           {currentPlayer?.username || 'Sign In'}
         </button>
-        <br/>
+
+        {/* Add Account Status button if player is logged in */}
+        {currentPlayer?.accountStatus && (
+          <>
+            <button 
+              className="shared-button account-status-button" 
+              onClick={() => openModal('Store')}
+            >
+              {currentPlayer.accountStatus} Account
+            </button>
+          </>
+        )}
+
+        {/* Add Role display if player has one */}
+        {currentPlayer?.role && (
+          <>
+            <h3 className="player-role">
+              You are the {currentPlayer.role}
+            </h3>
+            <br/>
+          </>
+        )}
 
         <button className="shared-button" >AWSD to Move</button>
         <div className="zoom-controls">
