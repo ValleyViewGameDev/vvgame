@@ -1,27 +1,76 @@
 /* Settlement Grid */
 .settlement-grid {
   display: grid;
-  grid-template-columns: repeat(8, 1fr); /* 8 tiles wide */
-  gap: 1px;
-  width: 960px; /* 8 tiles * 160px each */
-  height: 960px;
-  margin: 0 auto; /* Center the grid */
+  grid-template-columns: repeat(8, 144px); /* Was 120px */
+  gap: 3px; /* Was 2px */
+  padding: 12px; /* Was 10px */
 }
 
 /* Settlement Tile */
 .settlement-tile {
+  width: 144px; /* Was 120px */
+  height: 144px; /* Was 120px */
   display: flex;
-  align-items: center;
   justify-content: center;
-  width: 120px; /* Tile size */
-  height: 120px;
-  font-size: 16px;
-  border: 1px solid #000; /* Optional border */
+  align-items: center;
   cursor: pointer;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+/* Mini Grid */
+.mini-grid {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  width: 100%;
+  height: 100%;
+  gap: 0;
+  background-color: inherit;
+  position: relative; /* For positioning context */
+}
+
+/* Mini Cell */
+.mini-cell {
+  position: relative; /* Establish stacking context */
+  width: 100%;
+  height: 100%;
+  background-color: inherit;
   box-sizing: border-box;
 }
 
+.mini-cell:hover .tooltip {
+  display: block;
+}
 
+.tooltip {
+  display: none;
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  font-size: 9px;
+  padding: 5px;
+  border-radius: 4px;
+  z-index: 1000;
+  white-space: pre-line;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 100px;
+}
+
+/* Text Content Container */
+.mini-cell span {
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-size: 10px;
+  line-height: 1;
+  z-index: 2;
+  pointer-events: none; /* Let clicks pass through */
+  background-color: inherit;
+}
 
 /* Mini Tiles */
 .mini-tile {

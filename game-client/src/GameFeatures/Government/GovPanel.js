@@ -2,6 +2,7 @@ import API_BASE from '../../config';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
+import strings from '../../UI/strings.json';
 
 function GovPanel({ onClose, currentPlayer }) {
   const [settlementData, setSettlementData] = useState(null);
@@ -76,23 +77,22 @@ function GovPanel({ onClose, currentPlayer }) {
       <div className="panel-content">
         {errorMessage && <p className="error-message">{errorMessage}</p>}
   
-        {/* ✅ Settlement Information */}
+        {/* Settlement Information */}
         {settlementData && (
           <>
-            <p><strong>Your Settlement: </strong></p>
-            <h3>{settlementData.name}</h3>
-            <h3>😊 Pop. <strong>{population}</strong></h3>
-            </>
+            <h3><strong>{strings["3001"]}</strong></h3>  
+            <h3><strong>{settlementData.displayName || settlementData.name || 'Unnamed Settlement'}</strong></h3>
+            <h3>{strings["3002"]} <strong>{population}</strong></h3>
+          </>
         )}
 
-        {/* ✅ Taxes Section (Placeholder) */}
-        <h3>💰 Tax Rate: {taxRate}%</h3>
-        <p>The tax rate is set by the Mayor, for this Settlement, and a percentage of all taxes collected are added to the Mayor's account.</p>
-        <p>Mayors are elected at the Courthouse in Town.</p>
+        {/* Taxes Section */}
+        <h3>{strings["3003"]} {taxRate}%</h3>
+        <p>{strings["3004"]}</p>
+        <p>{strings["3005"]}</p>
 
-
-        {/* ✅ Government Officials Section */}
-        <h3>🏛️ Government Officials</h3>
+        {/* Government Officials Section */}
+        <h3>{strings["3006"]}</h3>
         <div>
           {settlementRoles.length > 0 ? (
             settlementRoles.map((role, index) => (
@@ -101,18 +101,16 @@ function GovPanel({ onClose, currentPlayer }) {
               </p>
             ))
           ) : (
-            <p>No government officials elected yet.</p>
+            <p>{strings["3007"]}</p>
           )}
         </div>
 
-      <h3>🏛️ Roles & Responsibilities:</h3>
-      <p>Only the Mayor can build Schools, Hospitals and Animal Yards in the Town. </p>
-      <p>🏫 Schools give citizens access to certain Skills that cannot be gained elsewhere. </p>
-      <p>🏥 Hospitals supply Doctors, who can heal adventurers returning from the Valley. </p>
-      <p>🐾 Animal Yards supply unique livestock, which can be transported back to Homesteads by any player. </p>
-      <p>🚂 The Mayor can influence demand for goods at the Train. </p>
-
-  
+        <h3>{strings["3008"]}</h3>
+        <p>{strings["3009"]}</p>
+        <p>{strings["3010"]}</p>
+        <p>{strings["3011"]}</p>
+        <p>{strings["3012"]}</p>
+        <p>{strings["3013"]}</p>
       </div>
     </Panel>
   );

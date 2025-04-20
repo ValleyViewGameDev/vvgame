@@ -283,31 +283,31 @@ router.post('/update-settings', async (req, res) => {
 // ✅ Get all players in a given settlement
 router.get('/get-players-by-settlement/:settlementId', async (req, res) => {
   try {
-      const { settlementId } = req.params;
+    const { settlementId } = req.params;
+    console.log(`📡 Fetching players for settlement: ${settlementId}`);
 
-      console.log(`📡 Fetching players for settlement: ${settlementId}`);
+    const players = await Player.find(
+      { settlementId },
+      '_id username role netWorth tradeStall' // Added tradeStall to selected fields
+    );
 
-      // ✅ Find players who belong to the settlement
-      const players = await Player.find({ settlementId });
+    if (!players || players.length === 0) {
+      return res.json([]);
+    }
 
-      if (!players || players.length === 0) {
-          return res.json([]);
-      }
-
-      console.log(`✅ Found ${players.length} players in settlement ${settlementId}`);
-
-      // ✅ Return only necessary fields
-      const playerData = players.map(player => ({
-          _id: player._id,
-          username: player.username,
-          inventory: player.inventory, // Needed to calculate Money
-          netWorth: player.netWorth
-      }));
-
-      res.json(playerData);
+    console.log(`✅ Found ${players.length} players with data:`, 
+      players.map(p => ({
+        id: p._id, 
+        username: p.username, 
+        netWorth: p.netWorth,
+        tradeStall: p.tradeStall
+      }))
+    );
+    
+    res.json(players);
   } catch (error) {
-      console.error("❌ Error fetching players by settlement:", error);
-      res.status(500).json({ error: 'Server error while fetching players' });
+    console.error("❌ Error fetching players by settlement:", error);
+    res.status(500).json({ error: 'Server error while fetching players' });
   }
 });
 

@@ -88,7 +88,26 @@ for (const key in activeTimers) {
 console.log("✅ Active timers cleared.");
 }
 
+function getSeasonLevel(onSeasonStart, onSeasonEnd, now = new Date()) {
+    // If we're in offSeason, return 1
+    if (!onSeasonStart || !onSeasonEnd || now < onSeasonStart || now > onSeasonEnd) {
+        return 1;
+    }
+
+    // Calculate total season duration and elapsed time
+    const totalDuration = onSeasonEnd - onSeasonStart;
+    const elapsedTime = now - onSeasonStart;
+    
+    // Calculate which sixth of the season we're in
+    const sixthLength = totalDuration / 6;
+    const currentSixth = Math.floor(elapsedTime / sixthLength) + 1;
+
+    // Map sixths to levels (5th and 6th sixths both return level 5)
+    if (currentSixth >= 5) return 5;
+    return currentSixth;
+}
 
 module.exports = {
   resetAllTimers,
-}
+  getSeasonLevel
+};

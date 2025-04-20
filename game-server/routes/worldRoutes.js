@@ -84,6 +84,30 @@ router.get('/load-grid-state/:gridId', async (req, res) => {
   }
 });
 
+router.post('/get-multiple-grid-states', async (req, res) => {
+  const { gridIds } = req.body;
+  
+  if (!Array.isArray(gridIds)) {
+    return res.status(400).json({ error: 'gridIds must be an array' });
+  }
+
+  try {
+    // Find all grids in one query
+    const grids = await Grid.find({ _id: { $in: gridIds } });
+    
+    // Create a map of gridId to gridState
+    const gridStates = grids.reduce((acc, grid) => {
+      acc[grid._id] = grid.gridState || {};
+      return acc;
+    }, {});
+    
+    res.json(gridStates);
+  } catch (error) {
+    console.error('Error fetching multiple grid states:', error);
+    res.status(500).json({ error: 'Failed to fetch grid states' });
+  }
+});
+
 // create-grid
 router.post('/create-grid', async (req, res) => {
   const { gridCoord, gridType, settlementId, frontierId } = req.body;
@@ -811,6 +835,32 @@ router.post('/api/generate-resources', async (req, res) => {
   }
 });
 
+// Add this near other debug/admin routes
+router.post('/debug/refresh-bank-offers/:frontierId', async (req, res) => {
+  try {
+    // Get frontier document for season data
+    const frontier = await Frontier.findById(req.params.frontierId);
+    if (!frontier) {
+      return res.status(404).json({ error: 'Frontier not found' });
+    }
+
+    // Import bankScheduler and generate new offers
+    const bankScheduler = require('../schedulers/bankScheduler');
+    const newOffers = bankScheduler.generateBankOffers(frontier);
+
+    // Save new offers to frontier document
+    await Frontier.findByIdAndUpdate(
+      req.params.frontierId,
+      { $set: { 'bank.offers': newOffers } },
+      { new: true }
+    );
+
+    res.json({ success: true, offers: newOffers });
+  } catch (error) {
+    console.error('Error refreshing bank offers:', error);
+    res.status(500).json({ error: 'Failed to refresh bank offers' });
+  }
+});
 
 module.exports = router;
 

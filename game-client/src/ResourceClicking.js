@@ -397,14 +397,6 @@ export async function handleSourceConversion(
   console.log('Enriched newResource for local state: ', enrichedNewResource);
 
   // Optimistically update local client state
-  if (isValley) {
-    // Remove resource
-    setResources((prevResources) =>
-      prevResources.filter(res => !(res.x === x && res.y === y))
-    );
-    console.log(`🌿 Resource removed at (${x}, ${y}) due to valley rules.`);
-  } else {
-    // Replace resource
     setResources((prevResources) =>
       prevResources.map((res) =>
         res.x === x && res.y === y ? enrichedNewResource : res
@@ -412,7 +404,6 @@ export async function handleSourceConversion(
     );
     addFloatingText(`Converted to ${targetResource.type}`, x * TILE_SIZE, y * TILE_SIZE);
     console.log('🌿🌿🌿 enriched resource: ',enrichedNewResource);
-  }
 
   // Perform server update
     try {

@@ -74,28 +74,48 @@ router.get('/get-settlement/:settlementId', async (req, res) => {
 });
 
 router.get('/get-settlement-grid/:settlementId', async (req, res) => {
-    console.log('Fetching Settlement Grid for settlementId:', req.params.settlementId);
-  
-    try {
-      const { settlementId } = req.params;
-  
-      // Ensure the settlementId is converted to an ObjectID
-      const objectId = new mongoose.Types.ObjectId(settlementId);
-  
-      // Query the database for the Settlement
-      const settlement = await Settlement.findById(objectId).lean();
-  
-      if (!settlement) {
-        console.error(`No settlement found for settlementId: ${settlementId}`);
-        return res.status(404).json({ error: 'Settlement not found' });
-      }
-  
-      // Return the settlement grid 
-      res.status(200).json({ grid: settlement.grids });
-    } catch (error) {
-      console.error('Error fetching settlement grid:', error);
-      res.status(500).json({ error: 'Internal server error' });
+  console.log('Fetching Settlement Grid for settlementId:', req.params.settlementId);
+
+  try {
+    const { settlementId } = req.params;
+    const objectId = new mongoose.Types.ObjectId(settlementId);
+
+    // First get settlement grids
+    const settlement = await Settlement.findById(objectId).lean();
+    if (!settlement) {
+      return res.status(404).json({ error: 'Settlement not found' });
     }
+
+    // Get all gridIds from the settlement
+    const gridIds = settlement.grids.flat()
+      .filter(g => g.gridId)
+      .map(g => g.gridId);
+
+    // Fetch just the ownerId for these grids
+    const gridOwners = await Grid.find(
+      { _id: { $in: gridIds } },
+      { ownerId: 1 }
+    ).lean();
+
+    // Create a map of gridId to ownerId
+    const ownerMap = gridOwners.reduce((acc, grid) => {
+      acc[grid._id.toString()] = grid.ownerId;
+      return acc;
+    }, {});
+
+    // Add owner information to the settlement grid
+    const enrichedGrid = settlement.grids.map(row =>
+      row.map(cell => ({
+        ...cell,
+        ownerId: cell.gridId ? ownerMap[cell.gridId.toString()] : null
+      }))
+    );
+
+    res.status(200).json({ grid: enrichedGrid });
+  } catch (error) {
+    console.error('Error fetching settlement grid:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 router.get('/get-settlement-by-coords/:row/:col', async (req, res) => {
@@ -151,6 +171,12 @@ router.post('/update-settlement', async (req, res) => {
             return res.status(400).json({ success: false, error: "Missing settlementId or updates." });
         }
 
+        // If trying to update name, redirect to displayName
+        if (updates.name) {
+            updates.displayName = updates.name;
+            delete updates.name;
+        }
+
         console.log(`Updating settlement ${settlementId} with:`, updates);
 
         // ✅ Find the settlement by ID and update fields
@@ -181,6 +207,7 @@ router.post('/increment-settlement-population', async (req, res) => {
   }
 
   try {
+      // Update Settlement document
       const updatedSettlement = await Settlement.findByIdAndUpdate(
           settlementId,
           { $inc: { population: 1 } },
@@ -191,8 +218,59 @@ router.post('/increment-settlement-population', async (req, res) => {
           return res.status(404).json({ error: 'Settlement not found.' });
       }
 
-      console.log(`✅ Population incremented for Settlement ID: ${settlementId}. New Population: ${updatedSettlement.population}`);
-      res.status(200).json({ success: true, population: updatedSettlement.population });
+      console.log('🔍 Settlement updated:', {
+          id: updatedSettlement._id,
+          newPopulation: updatedSettlement.population,
+          frontierId: updatedSettlement.frontierId
+      });
+
+      // Find frontier using frontierId from the settlement
+      const frontier = await Frontier.findById(updatedSettlement.frontierId);
+
+      console.log('🔍 Found Frontier:', {
+          id: frontier?._id,
+          hasSettlements: !!frontier?.settlements
+      });
+
+      if (frontier) {
+          let updated = false;
+          frontier.settlements.forEach((row, i) => {
+              row.forEach((settlement, j) => {
+                  if (settlement.settlementId.toString() === settlementId) {
+                      console.log('🔍 Found settlement in frontier:', {
+                          position: `[${i}][${j}]`,
+                          oldPopulation: settlement.population,
+                          newPopulation: updatedSettlement.population
+                      });
+                      settlement.population = updatedSettlement.population;
+                      updated = true;
+                  }
+              });
+          });
+
+          if (updated) {
+              frontier.markModified('settlements');
+              await frontier.save();
+              
+              // Verify the update
+              const verifyFrontier = await Frontier.findById(frontier._id);
+              const verifySettlement = verifyFrontier.settlements.flat()
+                  .find(s => s.settlementId.toString() === settlementId);
+              
+              console.log('✅ Verification after save:', {
+                  settlementId,
+                  expectedPopulation: updatedSettlement.population,
+                  actualPopulation: verifySettlement?.population
+              });
+          } else {
+              console.warn('⚠️ Settlement found in Frontier but not updated');
+          }
+      }
+
+      res.status(200).json({ 
+          success: true, 
+          population: updatedSettlement.population 
+      });
 
   } catch (error) {
       console.error('❌ Error incrementing settlement population:', error);

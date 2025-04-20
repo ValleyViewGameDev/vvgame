@@ -4,6 +4,8 @@ import axios from "axios";
 import "./FrontierView.css";
 import { StatusBarContext } from "../UI/StatusBar";
 import { changePlayerLocation } from "../Utils/GridManagement";
+import frontierTileData from './FrontierTile.json';
+import { getGridBackgroundColor } from './ZoomedOut';
 
 const FrontierView = ({ 
   currentPlayer, 
@@ -18,99 +20,48 @@ const FrontierView = ({
   TILE_SIZE,
 }) => {
 
-
   const [frontierGrid, setFrontierGrid] = useState([]);
   const [settlementIcons, setSettlementIcons] = useState({});
+  const [settlementGrids, setSettlementGrids] = useState({}); // Store all settlement grids
   const [error, setError] = useState(null);
   const { updateStatus } = useContext(StatusBarContext);
 
-  // Fetch Frontier Grid
+  // Fetch Frontier Grid and Settlement Grids
   useEffect(() => {
-    const fetchFrontierGrid = async () => {
+    const fetchData = async () => {
       try {
+        // Fetch frontier grid first
         const response = await axios.get(
           `${API_BASE}/api/get-frontier-grid/${currentPlayer.location.f}`
         );
         const gridData = response.data.frontierGrid || [];
-        console.log("Fetched Frontier Grid:", gridData);
         setFrontierGrid(gridData);
 
-        // Fetch icons for all settlements
-        await preloadSettlementIcons(gridData);
+        // Then fetch only populated settlement grids
+        const settlementData = {};
+        for (const row of gridData) {
+          for (const tile of row) {
+            if (tile.settlementId && tile.population > 0) {  // Only fetch if populated
+              try {
+                const settlementResponse = await axios.get(
+                  `${API_BASE}/api/get-settlement-grid/${tile.settlementId}`
+                );
+                settlementData[tile.settlementId] = settlementResponse.data;
+              } catch (err) {
+                console.error(`Error fetching settlement ${tile.settlementId}:`, err);
+              }
+            }
+          }
+        }
+        setSettlementGrids(settlementData);
       } catch (err) {
-        console.error("Error fetching Frontier Grid:", err);
-        setError("Failed to fetch Frontier Grid");
+        console.error("Error fetching data:", err);
+        setError("Failed to fetch grid data");
       }
     };
 
-    fetchFrontierGrid();
-  }, [currentPlayer.location]);
-
-  // Preload icons for all settlements
-  const preloadSettlementIcons = async (gridData) => {
-    const icons = {};
-    for (const row of gridData) {
-      for (const tile of row) {
-        if (tile.settlementType === "homesteadSet") {
-          icons[tile.settlementId] = await fetchSettlementIcon(tile.settlementId);
-        }
-      }
-    }
-    setSettlementIcons(icons);
-  };
-
-  // Fetch icon based on settlement player presence
-  const fetchSettlementIcon = async (settlementId) => {
-    try {
-      const response = await axios.get(
-        `${API_BASE}/api/get-settlement-grid/${settlementId}`
-      );
-      const grids = response.data.grid || [];
-
-      const hasOccupiedGrids = grids.some((row) =>
-        row.some((grid) => grid.gridType === "homestead" && grid.available === false)
-      );
-      return hasOccupiedGrids ? "🏡" : "🌳";
-    } catch (err) {
-      console.error(`Error fetching grids for settlement ${settlementId}:`, err);
-    }
-    return "🌳"; // Fallback icon
-  };
-
-  // Determine background color based on settlementType
-  const getBackgroundColor = (settlementType) => {
-    switch (settlementType) {
-      case "homesteadSet":
-        return "#3dc43d"; // Light green
-      case "valley1Set":
-      case "valley2Set":
-      case "valley3Set":
-        return "#00851f"; // Variations of green for valleys
-      default:
-        return "#d3d3d3"; // Light gray for unknown
-    }
-  };
-
-  const getTileIcon = (tile) => {
-    if (tile.settlementId === currentPlayer.location.s) {
-//    return "😀"; // Player's profile icon
-      return currentPlayer.icon; // Player's profile icon
-    }
-
-    switch (tile.settlementType) {
-      case "homesteadSet":
-        return settlementIcons[tile.settlementId] || "🏡"; // Show house if occupied
-      case "valley1Set":
-        return "🌲"; // One tree for valley1
-      case "valley2Set":
-        return "🌲🌲"; // Two trees for valley2
-      case "valley3Set":
-        return "🌲🌲🌲"; // Three trees for valley3
-      default:
-        return "?"; // Default for unknown types
-    }
-  };
-
+    fetchData();
+  }, [currentPlayer.location.f]);
 
   const handleTileClick = async (tile) => {
     console.log("Clicked tile:", tile);
@@ -188,8 +139,45 @@ const FrontierView = ({
     updateStatus(8); // General error
   };
 
-  
+  const renderMiniGrid = (tile) => {
+    const tileData = frontierTileData[tile.settlementType] || Array(8).fill(Array(8).fill(""));
+    const settlementGrid = settlementGrids[tile.settlementId]?.grid || [];
+    
+    return (
+      <div className="mini-grid">
+        {tileData.map((row, rowIndex) =>
+          row.map((cell, colIndex) => {
+            let content = cell;
+            const gridIndex = rowIndex * 8 + colIndex;
+            const gridData = settlementGrid.flat()[gridIndex];
+            
+            // Priority 1: Show player icon if they're here
+            if (gridData?.gridId === currentPlayer.location.g) {
+              content = currentPlayer.icon;
+            }
+            // Priority 2: Show house icon for owned homesteads
+            else if (gridData?.gridType === 'homestead' && !gridData.available) {
+              content = '🏠';
+            }
+            // Priority 3: Show town icon for town grids
+            else if (gridData?.gridType === 'town') {
+              content = '🚂';
+            }
+            // Priority 4: Use template content
+            else {
+              content = cell;
+            }
 
+            return (
+              <div key={`${rowIndex}-${colIndex}`} className="mini-cell">
+                <span>{content}</span>
+              </div>
+            );
+          })
+        )}
+      </div>
+    );
+  };
 
   if (error) return <div>Error: {error}</div>;
   if (!frontierGrid.length) return <div>Loading Frontier Grid...</div>;
@@ -202,14 +190,12 @@ const FrontierView = ({
             key={`${rowIndex}-${colIndex}`}
             className="frontier-tile"
             style={{
-              backgroundColor: getBackgroundColor(tile.settlementType),
-              width: "100px",
-              height: "100px",
+              backgroundColor: getGridBackgroundColor(tile.settlementType),
             }}
             onClick={() => handleTileClick(tile)}
           >
-            {getTileIcon(tile)}
-            </div>
+            {renderMiniGrid(tile)}
+          </div>
         ))
       )}
     </div>

@@ -18,32 +18,32 @@
     },
     "seasons": {
         "phases": {
-            "onSeason": 720,     
+            "onSeason": 10078,     
             "offSeason": 2
         },
         "startPhase": "onSeason"
     },
     "elections": {
         "phases": {
-            "Administration": 1,
-            "Campaigning": 2,   
-            "Voting": 2,
-            "Counting": 0.6
+            "Administration": 4320,
+            "Campaigning": 2880,   
+            "Voting": 1439,
+            "Counting": 1
         },
         "startPhase": "Administration"
     },
     "train": {
         "phases": {
-            "arriving": 0.3,  
-            "loading": 1,  
-            "departing": 0.5 
+            "arriving": 1,  
+            "loading": 2878,  
+            "departing": 1 
         },
         "startPhase": "arriving"
     },
     "bank": {
         "phases": {
-            "active": 240,
-            "refreshing": 0.5
+            "active": 479,
+            "refreshing": 1
         },
         "startPhase": "active"
     }

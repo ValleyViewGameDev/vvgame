@@ -1536,26 +1536,27 @@ const zoomOut = () => {
 {/* Header */}
 
     <header className="app-header">
-      <div className="header-controls">
-
-      <h3>💰 Money: {" "}
-          {Array.isArray(currentPlayer?.inventory) ? (
-            <>
-              <span className="money-value">
-                {currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0}
-              </span>
-            </>
-          ) : (
-            "..."
-          )}
-        </h3>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> 🎒 Inventory </button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Store')}>🛒 Store</button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Language')}>🌎 EN</button>
+        <div className="money-display">
+            <h3>💰  
+                {Array.isArray(currentPlayer?.inventory) ? (
+                    <span className="money-value">
+                        {currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0}
+                    </span>
+                ) : (
+                    "..."
+                )}
+            </h3>
         </div>
-        </header>
-        <div className="status-bar-wrapper"> <StatusBar /> </div>
+        <div className="header-controls">
+            <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> 🎒 Inventory </button>
+            <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Store')}>🛒 Store</button>
+            <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
+        </div>
+        <div className="language-control">
+            <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Language')}>🌎 EN</button>
+        </div>
+    </header>
+    <div className="status-bar-wrapper"> <StatusBar /> </div>
 
 
 {/* //////////////////// Game Board //////////////////// */}
@@ -1616,8 +1617,9 @@ const zoomOut = () => {
           setGridState={setGridState}
           TILE_SIZE={activeTileSize}
           onClose={() => setZoomLevel('far')}
+          masterResources={masterResources}  // Add this line
         />
-        )}
+      )}
       {zoomLevel === 'frontier' && (
         <FrontierView
           currentPlayer={currentPlayer}

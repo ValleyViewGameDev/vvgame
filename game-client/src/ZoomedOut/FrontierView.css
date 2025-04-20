@@ -1,40 +1,42 @@
 /* Frontier Grid */
 .frontier-grid {
   display: grid;
-  grid-template-columns: repeat(8, 1fr); /* 8 columns */
-  grid-template-rows: repeat(8, 1fr); /* 8 rows */
-  width: 800px; 
-  height: 800px;
-  gap: 1px; /* Optional: Add spacing between tiles */
-  background-color: #222; /* Optional: Dark background to distinguish grid */
-  margin: 0 auto; /* Center the grid */
+  grid-template-columns: repeat(8, 100px);
+  gap: 2px;  /* Increased from 1px to 2px */
+  background-color: #999;
+  justify-content: start;
+  padding: 0;  /* Remove padding that was creating the outer border */
+  margin: 0;   /* Remove margin */
+}
+ 
+.frontier-tile {
+  width: 100px;
+  height: 100px;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
 }
 
-.frontier-tile {
+
+.frontier-tile:hover {
+  opacity: 0.8;
+}
+
+.mini-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  width: 100%;
+  height: 100%;
+  gap: 0;
+}
+
+.mini-cell {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px; /* Adjust for better readability */
-  border: 1px solid #444; /* Optional: Border for better visibility */
+  font-size: 10px;
 }
 
-/* Background colors based on settlementType */
-.frontier-tile.homestead {
-  background-color: #8fbc8f; /* Light green for homestead */
-}
-
-.frontier-tile.valley1 {
-  background-color: #a3d9a5; /* Light mint green for valley1 */
-}
-
-.frontier-tile.valley2 {
-  background-color: #98fb98; /* Pale green for valley2 */
-}
-
-.frontier-tile.valley3 {
-  background-color: #90ee90; /* Light lime green for valley3 */
-}
-
-.frontier-tile.unknown {
-  background-color: #d3d3d3; /* Light gray for unknown tiles */
+.mini-cell span {
+  line-height: 1;
 }

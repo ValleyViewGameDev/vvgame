@@ -182,9 +182,7 @@
     "2012": "Completed:",
     "2013": "Claimed by you:",
     "2020": "Train is",
-
     "2030": "Offers Update in",
-
     "2040": "Welcome, Mayor.",
     "2041": "💰 Tax Rate: ",
     "2042": "Proposed Tax Rate: ",
@@ -206,19 +204,21 @@
     "2075": "No candidates available for voting.",
     "2076": "Cast Your Vote",
 
-    "2100": "GOV PANEL STRINGS:",
+    "3000": "GOV PANEL STRINGS:",
 
-    "2101": "Your Settlement: ",
-    "2102": "The tax rate is set by the Mayor, for this Settlement, and a percentage of all taxes collected are added to the Mayor's account.",
-    "2103": "Mayors are elected at the Courthouse in Town.",
-    "2104": "🏛️ Government Officials",
-    "2105": "No government officials elected yet.",
-    "2106": "🏛️ Roles & Responsibilities:",
-    "2107": "Only the Mayor can build Schools, Hospitals and Animal Yards in the Town.",
-    "2108": "🏫 Schools give citizens access to certain Skills that cannot be gained elsewhere.",
-    "2109": "🏥 Hospitals supply Doctors, who can heal adventurers returning from the Valley.",
-    "2110": "🐾 Animal Yards supply unique livestock, which can be transported back to Homesteads by any player.",
-    "2111": "🚂 The Mayor can influence demand for goods at the Train.",
+    "3001": "Settlement:",
+    "3002": "😊 Pop.",
+    "3003": "💰 Tax Rate:",
+    "3004": "The tax rate is set by the Mayor, for this Settlement, and a percentage of all taxes collected are added to the Mayor's account.",
+    "3005": "Mayors are elected at the Courthouse in Town.",
+    "3006": "🏛️ Government Officials",
+    "3007": "No government officials elected yet.",
+    "3008": "🏛️ Roles & Responsibilities:",
+    "3009": "Only the Mayor can build Schools, Hospitals and Animal Yards in the Town.",
+    "3010": "🏫 Schools give citizens access to certain Skills that cannot be gained elsewhere.",
+    "3011": "🏥 Hospitals supply Doctors, who can heal adventurers returning from the Valley.",
+    "3012": "🐾 Animal Yards supply unique livestock, which can be transported back to Homesteads by any player.",
+    "3013": "🚂 The Mayor can influence demand for goods at the Train.",
 
     "5000": "MORE MODAL STRINGS:",
 

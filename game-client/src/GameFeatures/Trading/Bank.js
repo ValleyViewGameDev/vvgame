@@ -107,6 +107,19 @@ function BankPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) {
         return resource?.symbol || "❓"; // Default to question mark if no symbol found
     };
 
+    const handleRefreshOffers = async () => {
+        try {
+            const response = await axios.post(
+                `${API_BASE}/api/debug/refresh-bank-offers/${currentPlayer.location.f}`
+            );
+            if (response.data.success) {
+                fetchBankOffers();
+            }
+        } catch (error) {
+            console.error('Failed to refresh bank offers:', error);
+        }
+    };
+
     return (
         <Panel onClose={onClose} descriptionKey="1017" titleKey="1117" panelName="BankPanel">
         {/* Active phase showing current offers */}
@@ -145,6 +158,22 @@ function BankPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) {
                     <p>{strings["1407"]}</p> {/* "Generating new orders. Thank you for your patience." */}
                 </>
             )}
+            <div className="debug-section" style={{ marginTop: '20px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+                <button 
+                    className="debug-button" 
+                    onClick={handleRefreshOffers}
+                    style={{ 
+                        padding: '5px 10px',
+                        backgroundColor: '#444',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    🔄 Debug: Refresh Bank Offers
+                </button>
+            </div>
         </Panel>
     );
 }

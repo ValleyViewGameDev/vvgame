@@ -84,7 +84,7 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
             setTaxRate(settlementData.taxrate || 0);
             setTempTaxRate(settlementData.taxrate || 0);
             setCampaignPromises(settlementData.campaignPromises || []);
-            setTempSettlementName(settlementData.name || '');
+            setTempSettlementName(settlementData.displayName || '');
             
             // Update mayor status
             const mayorRole = settlementData.roles.find(role => role.roleName === 'Mayor');
@@ -200,16 +200,16 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
 
     const handleSaveSettlementName = async () => {
         if (!isMayor || !tempSettlementName.trim()) return;
-    
+
         try {
             const response = await axios.post(`${API_BASE}/api/update-settlement`, {
                 settlementId: currentPlayer.settlementId,
-                updates: { name: tempSettlementName }
+                updates: { displayName: tempSettlementName } // Changed from name to displayName
             });
-    
+
             if (response.data.success) {
                 updateStatus(`✅ Settlement renamed to ${tempSettlementName}`);
-                setSettlement(prev => ({ ...prev, name: tempSettlementName }));
+                setSettlement(prev => ({ ...prev, displayName: tempSettlementName }));
             } else {
                 updateStatus("❌ Error updating settlement name.");
             }
@@ -251,7 +251,7 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
                             </button>
                         </div>
                     ) : (
-                        <h2>{settlement?.name || 'Unnamed'}</h2>
+                        <h2>{settlement?.displayName || 'Unnamed'}</h2>
                     )}
 
 {/* Tax rate section */}

@@ -10,6 +10,7 @@ const FrontierSchema = new mongoose.Schema({
         settlementId: { type: mongoose.Schema.Types.ObjectId, required: true },
         settlementType: { type: String, required: true },
         available: { type: Boolean, required: true },
+        population: { type: Number, default: 0 },
       },
     ],
   ],

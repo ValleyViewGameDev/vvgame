@@ -2,7 +2,8 @@
 const mongoose = require('mongoose');
 
 const SettlementSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: true }, // Internal coordinate-based name
+  displayName: { type: String }, // User-facing editable name
   frontierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Frontier', required: true },
   grids: [
     [
@@ -75,6 +76,14 @@ const SettlementSchema = new mongoose.Schema({
 
   population: { type: Number, default: 0 }, // ✅ Track settlement population
   creationDate: { type: Date, default: Date.now },
+});
+
+// Set displayName default to name if not provided
+SettlementSchema.pre('save', function(next) {
+  if (!this.displayName) {
+    this.displayName = this.name;
+  }
+  next();
 });
 
 module.exports = mongoose.model('Settlement', SettlementSchema);

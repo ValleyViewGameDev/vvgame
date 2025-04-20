@@ -22,12 +22,12 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const tradeStallHaircut = 0.25;
 
   const calculateTotalSlots = () => {
-    const baseSlots = 6; // Free account base slots
+    const baseSlots = 4; // Free account base slots
     const accountStatusSlots = {
       Free: 0,
-      Bronze: 2,
-      Silver: 4,
-      Gold: 8,
+      Bronze: 0,
+      Silver: 0,
+      Gold: 2,
     };
     return baseSlots + (accountStatusSlots[currentPlayer.accountStatus] || 0);
   };

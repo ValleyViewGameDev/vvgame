@@ -4,6 +4,9 @@ import axios from "axios";
 import "./SettlementView.css";
 import { StatusBarContext } from "../UI/StatusBar";
 import { changePlayerLocation } from "../Utils/GridManagement";
+import settlementTileData from './SettlementTile.json';
+import gridStateManager from "../GridState/GridState";
+import { getGridBackgroundColor } from './ZoomedOut';
 
 const SettlementView = ({ 
   currentPlayer, 
@@ -16,75 +19,73 @@ const SettlementView = ({
   setTileTypes,  
   setGridState,
   TILE_SIZE,
+  masterResources,
 }) => {
   const [settlementGrid, setSettlementGrid] = useState([]);
+  const [players, setPlayers] = useState({});  // Map player IDs to player data
   const [error, setError] = useState(null);
+  const [gridStates, setGridStates] = useState({});  // Add new state for grid states
   const { updateStatus } = useContext(StatusBarContext);
 
   console.log("Entering SettlementView for:", currentPlayer.location.s);
 
-  // Fetch Settlement Grid
+  // Fetch both settlement grid and player data
   useEffect(() => {
-    const fetchSettlementGrid = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(
+        // Fetch settlement grid and settlement data
+        const gridResponse = await axios.get(
           `${API_BASE}/api/get-settlement-grid/${currentPlayer.location.s}`
         );
-        const gridData = response.data.grid || [];
-        console.log("Fetched Settlement Grid:", gridData);
+        const gridData = gridResponse.data.grid || [];
+        
+        // Get all occupied grid IDs
+        const occupiedGridIds = [];
+        gridData.forEach(row => 
+          row.forEach(grid => {
+            if (grid.gridId && !grid.available) {
+              occupiedGridIds.push(grid.gridId);
+            }
+          })
+        );
+
+        // Fetch grid states if there are occupied grids
+        if (occupiedGridIds.length > 0) {
+          const gridStatesResponse = await axios.post(
+            `${API_BASE}/api/get-multiple-grid-states`,
+            { gridIds: occupiedGridIds }
+          );
+          setGridStates(gridStatesResponse.data);
+        }
+        
         setSettlementGrid(gridData);
+
+        // Fetch all players in settlement with tradeStall data
+        const playersResponse = await axios.get(
+          `${API_BASE}/api/get-players-by-settlement/${currentPlayer.location.s}?fields=username,role,netWorth,tradeStall`
+        );
+        
+        console.log('Raw player data from API:', playersResponse.data);
+
+        playersResponse.data.forEach(player => {
+          console.log(`Player ${player.username} tradeStall:`, player.tradeStall);
+        });
+        
+        const playersMap = playersResponse.data.reduce((acc, player) => {
+          acc[player._id] = player;
+          return acc;
+        }, {});
+        setPlayers(playersMap);
+        console.log("Players in settlement:", playersMap);
+
       } catch (err) {
-        console.error("Error fetching Settlement Grid:", err);
-        setError("Failed to fetch Settlement Grid");
+        console.error("Error fetching data:", err);
+        setError("Failed to fetch settlement data");
       }
     };
 
-    fetchSettlementGrid();
-  }, [currentPlayer.location]);
-
-  // Determine background color based on gridType
-  const getBackgroundColor = (gridType) => {
-    switch (gridType) {
-      case "homestead":
-        return "#3dc43d"; // Light green
-      case "reserved":
-        return "#8b0000"; // Dark red
-      case "town":
-        return "#deb887"; // Beige
-      case "valley1":
-      case "valley2":
-      case "valley3":
-        return "#00851f"; // Dark green for valleys
-      default:
-        return "#d3d3d3"; // Light gray for unknown
-    }
-  };
-
-  // Determine icon based on tile type and player location
-  const getTileIcon = (tile) => {
-    if (tile.gridId === currentPlayer.location.g) {
-      return currentPlayer.icon; // Player's icon
-    }
-
-    if (tile.gridType === "homestead") {
-      return tile.available ? "💰" : "📪"; // Money bag for available, mailbox for occupied
-    }
-
-    switch (tile.gridType) {
-      case "reserved":
-        return "🚫";
-      case "town":
-        return "🏠";
-      case "valley1":
-        return "🌲";
-      case "valley2":
-        return "🌲🌲";
-      case "valley3":
-        return "🌲🌲🌲";
-      default:
-        return "?";
-    }
-  };
+    fetchData();
+  }, [currentPlayer.location.s]);
 
   const handleTileClick = async (tile) => {
     console.log("Clicked tile:", tile);
@@ -134,8 +135,6 @@ const SettlementView = ({
         setGridState,
         TILE_SIZE,
       );
-
-
       // Zoom into grid view after movement
       setZoomLevel("far");
   
@@ -144,7 +143,91 @@ const SettlementView = ({
       updateStatus(10); // General error
     }
   };
-  
+
+  // Update the tooltip generation logic
+  const getTooltip = (tile) => {
+    if (!tile.gridId) return '';
+    const gridState = gridStates[tile.gridId];
+    
+    if (!gridState?.pcs || Object.keys(gridState.pcs).length === 0) {
+      return '';
+    }
+    
+    return Object.values(gridState.pcs)
+      .map(pc => `${pc.username || 'Unknown'}: ${pc.hp || 0} HP`)
+      .join('\n');
+  };
+
+  const renderMiniGrid = (tile) => {
+    let gridType = tile.gridType;
+    if (gridType === "homestead") {
+      gridType = tile.available ? "homesteadEmpty" : "homesteadOccupied";
+    }
+
+    const tileData = settlementTileData[gridType] || Array(8).fill(Array(8).fill(""));
+    const isPlayerHere = tile.gridId === currentPlayer.location.g;
+    
+    let owner = null;
+    if (tile.ownerId && players) {
+      owner = players[tile.ownerId];
+    }
+
+    const tooltip = getTooltip(tile);
+    
+    return (
+      <div className="mini-grid">
+        {tileData.map((row, rowIndex) =>
+          row.map((cell, colIndex) => {
+            let content = cell;
+            
+            // Player icon always goes in cell [0,7] if present
+            if (isPlayerHere && rowIndex === 0 && colIndex === 0) {
+              content = currentPlayer.icon;
+            }
+            if (isPlayerHere && rowIndex === 0 && colIndex === 1) {
+              content = "(You are here)";
+            }            
+            // For homesteads, handle special content
+            else if (gridType === "homesteadOccupied") {
+              if (rowIndex === 7 && colIndex < 6) {
+                // Trade stall rendering in first 6 cells of row 7
+                if (owner && Array.isArray(owner.tradeStall)) {
+                  const stall = owner.tradeStall[colIndex];
+                  if (stall && typeof stall === 'object' && stall.resource) {
+                    const resourceTemplate = masterResources.find(r => r.type === stall.resource);
+                    if (resourceTemplate?.symbol) {
+                      content = resourceTemplate.symbol;
+                    }
+                  }
+                }
+              } else if (cell === "username" && owner) {
+                content = owner.username;
+              } else if (cell === "role" && owner) {
+                content = owner.role || "Citizen";
+              } else if (cell === "netWorth" && owner) {
+                content = owner.netWorth?.toLocaleString() || '0';
+              }
+            }
+            
+            return (
+              <div 
+                key={`${rowIndex}-${colIndex}`} 
+                className="mini-cell"
+              >
+                <span>{content}</span>
+                {tooltip && (
+                  <div className="tooltip">
+                    <p>Who's Here:</p>
+                    {tooltip}
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+    );
+  };
 
   if (error) return <div>Error: {error}</div>;
   if (!settlementGrid.length) return <div>Loading Settlement Grid...</div>;
@@ -157,13 +240,11 @@ const SettlementView = ({
             key={`${rowIndex}-${colIndex}`}
             className="settlement-tile"
             style={{
-              backgroundColor: getBackgroundColor(tile.gridType),
-              width: "120px",
-              height: "120px",
+              backgroundColor: getGridBackgroundColor(tile.gridType),
             }}
             onClick={() => handleTileClick(tile)}
           >
-            {getTileIcon(tile)}
+            {renderMiniGrid(tile)}
           </div>
         ))
       )}

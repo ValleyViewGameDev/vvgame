@@ -1,6 +1,7 @@
 const Frontier = require("../models/frontier");
 const globalTuning = require("../tuning/globalTuning.json");
-const masterResources = require("../tuning/resources.json"); // ✅ Load masterResources
+const masterResources = require("../tuning/resources.json");
+const { getSeasonLevel } = require("../utils/scheduleHelpers");
 
 // **Bank Scheduler**
 async function bankScheduler(frontierId, phase, frontier = null) {
@@ -17,7 +18,7 @@ async function bankScheduler(frontierId, phase, frontier = null) {
 
             case "active":
                 // ✅ Generate new offers during "active" phase
-                const newOffers = generateBankOffers();
+                const newOffers = generateBankOffers(frontier);
                 console.log(`💰✅ ${newOffers.length} new bank offers generated.`);
 
                 return {
@@ -39,16 +40,31 @@ async function bankScheduler(frontierId, phase, frontier = null) {
 }
 
 // ✅ Function to generate offers based on `masterResources`
-function generateBankOffers() {
+function generateBankOffers(frontier) {
     const offers = [];
     const numOffers = globalTuning.bankOffers || 3;
     
-    // ✅ Filter only resources of category "doober"
-    const validResources = masterResources.filter(res => res.category === "doober");
+    // Get current season level
+    const seasonLevel = getSeasonLevel(
+        frontier?.seasons?.onSeasonStart,
+        frontier?.seasons?.onSeasonEnd
+    );
+    
+    // Filter resources by both category and level
+    const validResources = masterResources.filter(res => {
+        // Must be a doober
+        if (res.category !== "doober") return false;
+        
+        // Must be within ±1 of current season level
+        const resourceLevel = res.level || 1; // Default to level 1 if not specified
+        return Math.abs(resourceLevel - seasonLevel) <= 1;
+    });
+
+    console.log(`🎯 Generating offers for season level ${seasonLevel}`);
 
     for (let i = 0; i < numOffers; i++) {
         if (validResources.length === 0) {
-            console.warn("⚠️ No valid 'doober' resources found!");
+            console.warn("⚠️ No valid resources found for current season level!");
             break;
         }
 
@@ -109,5 +125,7 @@ function generateBankOffers() {
     return offers;
 }
 
-
-module.exports = bankScheduler;
+module.exports = {
+  default: bankScheduler,
+  generateBankOffers
+};
