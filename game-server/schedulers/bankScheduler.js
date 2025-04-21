@@ -125,7 +125,8 @@ function generateBankOffers(frontier) {
     return offers;
 }
 
-module.exports = {
-  default: bankScheduler,
-  generateBankOffers
-};
+// Export bankScheduler as the default export
+module.exports = bankScheduler;
+
+// Add generateBankOffers as a property of bankScheduler
+bankScheduler.generateBankOffers = generateBankOffers;

@@ -3,7 +3,7 @@ const globalTuning = require("../tuning/globalTuning.json");
 const taxScheduler = require("./taxScheduler");
 const seasonScheduler = require("./seasonScheduler");
 const trainScheduler = require("./trainScheduler");
-const bankScheduler = require("./bankScheduler");
+const bankScheduler = require("./bankScheduler"); // Remove the destructuring
 const electionScheduler = require("./electionScheduler");
 // Add more logic-only schedulers as needed...
 

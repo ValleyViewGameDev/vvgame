@@ -56,7 +56,7 @@ import FloatingTextManager from './UI/FloatingText';
 import StatusBar from './UI/StatusBar';
 import { fetchGridData, changePlayerLocation } from './Utils/GridManagement'; // Adjust path as needed
 import { StatusBarContext } from './UI/StatusBar';
-import { handleKeyMovement } from './PlayerMovement';
+import { handleKeyMovement, centerCameraOnPlayer } from './PlayerMovement';
 import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
 import { updateGridStatus } from './Utils/GridManagement';
 import { formatCountdown } from './UI/Timers';
@@ -286,6 +286,14 @@ useEffect(() => {
       await gridStateManager.initializeGridState(initialGridId);
       const initializedState = gridStateManager.getGridState(initialGridId);
       setGridState(initializedState);
+
+      // Add this after gridState initialization:
+      const playerPosition = initializedState?.pcs?.[parsedPlayer.playerId]?.position;
+      if (playerPosition) {
+        console.log('🎯 Centering camera on player position:', playerPosition);
+        centerCameraOnPlayer(playerPosition, activeTileSize);
+      }
+
       console.log('initializedState',initializedState);
 
       // 7. Resolve player location and confirm in gridState
@@ -1339,14 +1347,11 @@ const zoomOut = () => {
 
   const handleLoginSuccess = async (player) => {
     console.log('Handling login success for player:', player);
-      
     // ✅ Store player data in localStorage
     localStorage.setItem('player', JSON.stringify(player));
     // ✅ Reload the app (triggers full initialization)
     window.location.reload();
   };
-
-
   const [showTimers, setShowTimers] = useState(false);
   const [showStats, setShowStats] = useState(false); // Toggle for combat stats UI
   const combatStats = gridState?.pcs?.[String(currentPlayer?._id)] || {};

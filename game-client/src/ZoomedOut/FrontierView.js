@@ -37,11 +37,15 @@ const FrontierView = ({
         const gridData = response.data.frontierGrid || [];
         setFrontierGrid(gridData);
 
-        // Then fetch only populated settlement grids
+        // Then fetch settlement grids only if populated OR contains player
         const settlementData = {};
         for (const row of gridData) {
           for (const tile of row) {
-            if (tile.settlementId && tile.population > 0) {  // Only fetch if populated
+            // Load if: has population OR is player's current settlement
+            if (tile.settlementId && (
+              tile.population > 0 || 
+              tile.settlementId === currentPlayer.location.s
+            )) {
               try {
                 const settlementResponse = await axios.get(
                   `${API_BASE}/api/get-settlement-grid/${tile.settlementId}`
@@ -54,6 +58,7 @@ const FrontierView = ({
           }
         }
         setSettlementGrids(settlementData);
+
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to fetch grid data");
@@ -61,109 +66,228 @@ const FrontierView = ({
     };
 
     fetchData();
-  }, [currentPlayer.location.f]);
+  }, [currentPlayer.location.f, currentPlayer.location.s]); // Add location.s as dependency
 
-  const handleTileClick = async (tile) => {
-    console.log("Clicked tile:", tile);
-  
-    // Case 1: Clicking on the tile where the player is currently located
-    if (tile.settlementId === currentPlayer.location.s) {
-      console.log("Player clicked their current settlement. Zooming to SettlementView.");
-      setZoomLevel("settlement");
-      updateStatus(12); // Display "Settlement view."
-      return;
-    }
-  
-    // Case 2: Clicking on a tile where the player owns a homestead
-    if (tile.settlementType === "homesteadSet") {
-      try {
-        // Fetch the settlement grid
-        const response = await axios.get(`${API_BASE}/api/get-settlement-grid/${tile.settlementId}`);
-        const grids = response.data.grid || [];
-  
-        console.log("currentPlayer.gridId:", currentPlayer.gridId);
-        console.log("grids:", grids);
-
-        // Find the player's owned homestead
-        const ownedHomestead = grids.flat().find(
-          (grid) => grid.gridType === "homestead" && grid.gridId === currentPlayer.gridId
-        );
-  
-        console.log("ownedHomestead:", ownedHomestead);
-  
-        if (ownedHomestead) {
-          console.log("Traveling to owned homestead:", ownedHomestead);
-          await changePlayerLocation(
-            currentPlayer,
-            currentPlayer.location, // fromLocation
-            { 
-              x: 1, 
-              y: 1, 
-              g: ownedHomestead.gridId, 
-              s: tile.settlementId, 
-              f: currentPlayer.location.f 
-            }, // toLocation
-            setCurrentPlayer,
-            fetchGrid,
-            setGridId,                // ✅ Ensure this is passed
-            setGrid,                  // ✅ Pass setGrid function
-            setResources,             // ✅ Pass setResources function
-            setTileTypes,             // ✅ Pass setTileTypes function
-            setGridState,
-            TILE_SIZE,
-          );
-
-          setZoomLevel("far");
-          return;
-        }
-      } catch (error) {
-        console.error("Error checking for owned homestead:", error);
-        updateStatus(8); // General error
+  const handleHomeSettlementClick = async (settlement) => {
+    try {
+      // First, ensure we have all required IDs
+      if (!currentPlayer?.gridId || !currentPlayer?.settlementId || !currentPlayer?.location?.f) {
+        console.error('Missing required player data', {
+          gridId: currentPlayer?.gridId,
+          settlementId: currentPlayer?.settlementId,
+          frontierId: currentPlayer?.location?.f
+        });
+        updateStatus("Cannot find your homestead data.");
         return;
       }
-  
-      console.log("Player does not own a homestead in this settlement.");
-      updateStatus(17); // Homestead tile clicked but no ownership
-      return;
+
+      // Get settlement data to find the gridCoord
+      const settlementResponse = await axios.get(
+        `${API_BASE}/api/get-settlement-grid/${settlement._id}`
+      );
+      const grids = settlementResponse.data.grid || [];
+      
+      // Find your homestead's grid info
+      const homesteadGrid = grids.flat().find(
+        grid => grid.gridId === currentPlayer.gridId
+      );
+
+      if (!homesteadGrid) {
+        console.error('Homestead grid not found in settlement');
+        updateStatus("Cannot locate your homestead.");
+        return;
+      }
+
+      const toLocation = {
+        x: 31, // Center of homestead
+        y: 31,
+        g: currentPlayer.gridId,
+        s: settlement._id,
+        f: currentPlayer.location.f,
+        gtype: "homestead",
+        gridCoord: homesteadGrid.gridCoord // Include the gridCoord from settlement data
+      };
+
+      console.log("Attempting transit to homestead:", toLocation);
+
+      await changePlayerLocation(
+        currentPlayer,
+        currentPlayer.location,
+        toLocation,
+        setCurrentPlayer,
+        fetchGrid,
+        setGridId,
+        setGrid,
+        setResources,
+        setTileTypes,
+        setGridState,
+        TILE_SIZE
+      );
+
+      setZoomLevel('far'); // Zoom into grid view after transit
+
+    } catch (error) {
+      console.error("Error checking for owned homestead:", error);
+      updateStatus("Failed to travel to homestead.");
     }
-  
-    // Case 3: Clicking on any other valley tile
-    if (["valley1Set", "valley2Set", "valley3Set"].includes(tile.settlementType)) {
-      console.log("Player clicked a valley tile.");
-      updateStatus(9); // Valley tile clicked
-      return;
+  };
+
+  const handleTileClick = async (tile) => {
+    console.log('🎯 Tile clicked:', tile);
+    console.log('👤 Current player state:', {
+      id: currentPlayer?._id,
+      playerId: currentPlayer?.playerId,
+      location: currentPlayer?.location,
+      gridId: currentPlayer?.gridId
+    });
+
+    try {
+      // Add validation before attempting transit
+      if (!tile.settlementId) {
+        console.warn('❌ Missing settlementId in clicked tile');
+        updateStatus("Invalid destination");
+        return;
+      }
+
+      // Case 1: Current settlement
+      if (tile.settlementId === currentPlayer.location.s) {
+        console.log('🏠 Player clicked current settlement - zooming in');
+        setZoomLevel("settlement");
+        updateStatus(12);
+        return;
+      }
+
+      // Case 2: Clicking on a tile where the player owns a homestead
+      if (tile.settlementType === "homesteadSet") {
+        try {
+          // Fetch the settlement grid
+          const response = await axios.get(`${API_BASE}/api/get-settlement-grid/${tile.settlementId}`);
+          const grids = response.data.grid || [];
+    
+          console.log("currentPlayer.gridId:", currentPlayer.gridId);
+          console.log("grids:", grids);
+
+          // Find the player's owned homestead
+          const ownedHomestead = grids.flat().find(
+            (grid) => grid.gridType === "homestead" && grid.gridId === currentPlayer.gridId
+          );
+    
+          console.log("ownedHomestead:", ownedHomestead);
+    
+          if (ownedHomestead) {
+            console.log("Traveling to owned homestead:", ownedHomestead);
+            await changePlayerLocation(
+              currentPlayer,
+              currentPlayer.location, // fromLocation
+              { 
+                x: 1, 
+                y: 1, 
+                g: ownedHomestead.gridId, 
+                s: tile.settlementId, 
+                f: currentPlayer.location.f,
+                gtype: ownedHomestead.gridType,  // Add this
+                gridCoord: ownedHomestead.gridCoord  // Add this
+              }, // toLocation
+              setCurrentPlayer,
+              fetchGrid,
+              setGridId,                // ✅ Ensure this is passed
+              setGrid,                  // ✅ Pass setGrid function
+              setResources,             // ✅ Pass setResources function
+              setTileTypes,             // ✅ Pass setTileTypes function
+              setGridState,
+              TILE_SIZE,
+            );
+
+            setZoomLevel("far");
+            return;
+          }
+        } catch (error) {
+          console.error("Error checking for owned homestead:", error);
+          updateStatus(8); // General error
+          return;
+        }
+    
+        console.log("Player does not own a homestead in this settlement.");
+        updateStatus(17); // Homestead tile clicked but no ownership
+        return;
+      }
+
+      // Case 3: Clicking on any other valley tile
+      if (["valley1Set", "valley2Set", "valley3Set"].includes(tile.settlementType)) {
+        console.log("Player clicked a valley tile.");
+        updateStatus(9); // Valley tile clicked
+        return;
+      }
+
+      const toLocation = {
+        x: 1,
+        y: 1,
+        g: tile.gridId,
+        s: tile.settlementId,
+        f: currentPlayer.location.f,
+        gtype: tile.gridType || "unknown",
+        gridCoord: tile.gridCoord
+      };
+
+      console.log('🚀 Attempting transit with location:', toLocation);
+
+      await changePlayerLocation(
+        currentPlayer,
+        currentPlayer.location,
+        toLocation,
+        setCurrentPlayer,
+        fetchGrid,
+        setGridId,
+        setGrid,
+        setResources,
+        setTileTypes,
+        setGridState,
+        TILE_SIZE
+      );
+
+    } catch (error) {
+      console.error('❌ Transit error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        tile: tile
+      });
+      updateStatus("Failed to travel to destination");
     }
-  
-    // Default case: Unexpected tile type
-    console.warn("Unexpected tile type clicked:", tile.settlementType);
-    updateStatus(8); // General error
   };
 
   const renderMiniGrid = (tile) => {
     const tileData = frontierTileData[tile.settlementType] || Array(8).fill(Array(8).fill(""));
     const settlementGrid = settlementGrids[tile.settlementId]?.grid || [];
+    const flatSettlementGrid = settlementGrid.flat();
     
+    // Debug logging for grid structure
+    console.log('🔍 Grid Data:', {
+      settlementId: tile.settlementId,
+      playerGridId: currentPlayer.location.g,
+      availableGrids: flatSettlementGrid.map(g => g?.gridId).filter(Boolean)
+    });
+
     return (
       <div className="mini-grid">
         {tileData.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
             let content = cell;
             const gridIndex = rowIndex * 8 + colIndex;
-            const gridData = settlementGrid.flat()[gridIndex];
+            const gridData = flatSettlementGrid[gridIndex];
             
-            // Priority 1: Show player icon if they're here
+            // Use gridData.gridId for comparison
             if (gridData?.gridId === currentPlayer.location.g) {
+              console.log('✅ Found player at position:', { rowIndex, colIndex, gridId: gridData.gridId });
               content = currentPlayer.icon;
-            }
-            // Priority 2: Show house icon for owned homesteads
+            } 
+            // Other content checks
             else if (gridData?.gridType === 'homestead' && !gridData.available) {
               content = '🏠';
             }
-            // Priority 3: Show town icon for town grids
             else if (gridData?.gridType === 'town') {
               content = '🚂';
             }
-            // Priority 4: Use template content
             else {
               content = cell;
             }

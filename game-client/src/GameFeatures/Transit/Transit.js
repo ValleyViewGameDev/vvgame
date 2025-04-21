@@ -1,16 +1,17 @@
 import API_BASE from "../../config";
 import axios from "axios";
 import { changePlayerLocation } from "../../Utils/GridManagement";
+import { getEntryPosition } from './transitConfig';
 
 export async function handleTransitSignpost(
   currentPlayer,
   resourceType,
   setCurrentPlayer,
   fetchGrid,
-  setGridId,                // ✅ Ensure this is passed
-  setGrid,                  // ✅ Pass setGrid function
-  setResources,             // ✅ Pass setResources function
-  setTileTypes,             // ✅ Pass setTileTypes function
+  setGridId,
+  setGrid,
+  setResources,
+  setTileTypes,
   setGridState,
   updateStatus,
   TILE_SIZE,
@@ -40,8 +41,8 @@ export async function handleTransitSignpost(
       console.log("Signpost Home clicked. Traveling to player's homestead.");
 
       const newPlayerPosition = {
-        x: 1,
-        y: 1,
+        x: 0,  // Center of the homestead
+        y: 0,
         g: currentPlayer.gridId,      // The player's homestead grid
         s: currentPlayer.settlementId,
         f: currentPlayer.location.f,
@@ -55,10 +56,10 @@ export async function handleTransitSignpost(
         newPlayerPosition,        // toLocation
         setCurrentPlayer,
         fetchGrid,
-        setGridId,                // ✅ Ensure this is passed
-        setGrid,                  // ✅ Pass setGrid function
-        setResources,             // ✅ Pass setResources function
-        setTileTypes,             // ✅ Pass setTileTypes function
+        setGridId,
+        setGrid,
+        setResources,
+        setTileTypes,
         setGridState,
         TILE_SIZE
       );
@@ -79,8 +80,8 @@ export async function handleTransitSignpost(
 
       console.log("Found town grid:", townGrid);
       const newPlayerPosition = {
-        x: 1,
-        y: 1,
+        x: 0,  // upper left of town
+        y: 0,
         g: townGrid.gridId,
         s: settlementId,
         f: frontierId,
@@ -94,10 +95,10 @@ export async function handleTransitSignpost(
         newPlayerPosition,        // toLocation
         setCurrentPlayer,
         fetchGrid,
-        setGridId,                // ✅ Ensure this is passed
-        setGrid,                  // ✅ Pass setGrid function
-        setResources,             // ✅ Pass setResources function
-        setTileTypes,             // ✅ Pass setTileTypes function
+        setGridId,
+        setGrid,
+        setResources,
+        setTileTypes,
         setGridState,
         TILE_SIZE
       );
@@ -190,16 +191,13 @@ export async function handleTransitSignpost(
       return;
     }
 
-    // 11) Fetch the destination grid type via load-grid
-    // const destinationGridResponse = await axios.get(
-    //   `${API_BASE}/api/load-grid/${targetGrid.gridId}`
-    // );
-    // const destinationGridData = destinationGridResponse.data;
+    // 11) Get the entry position based on the direction traveled
+    const entryPosition = getEntryPosition(direction);
 
     // 12) Finally, update the player location
     const newPlayerPosition = {
-      x: 1,
-      y: 1,
+      x: entryPosition.x,
+      y: entryPosition.y,
       g: targetGrid.gridId,
       s: targetSettlement._id,
       f: frontierId,
@@ -213,10 +211,10 @@ export async function handleTransitSignpost(
       newPlayerPosition,        // toLocation
       setCurrentPlayer,
       fetchGrid,
-      setGridId,                // ✅ Ensure this is passed
-      setGrid,                  // ✅ Pass setGrid function
-      setResources,             // ✅ Pass setResources function
-      setTileTypes,             // ✅ Pass setTileTypes function
+      setGridId,
+      setGrid,
+      setResources,
+      setTileTypes,
       setGridState,
       TILE_SIZE
     );

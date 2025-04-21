@@ -144,7 +144,7 @@ function movePlayerSmoothly(playerId, target, gridState, gridId, TILE_SIZE) {
   animate();
 }
 
-function centerCameraOnPlayer(position, TILE_SIZE) {
+export function centerCameraOnPlayer(position, TILE_SIZE) {
   const gameContainer = document.querySelector(".homestead"); // Adjust this if needed
   if (!gameContainer) return;
 

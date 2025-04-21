@@ -131,10 +131,22 @@ export const changePlayerLocation = async (
   setTileTypes,  
   setGridState,
   TILE_SIZE,
-) => {  try {
-    // Validate inputs
-    if (!currentPlayer) { throw new Error("Player data is missing or invalid."); }
-    if (!fromLocation || !toLocation) { throw new Error("Both 'from' and 'to' locations are required."); }
+) => {  
+  try {
+    // Add validation logging
+    console.log('📝 Change Location Request:');
+    console.log('Current Player:', {
+      id: currentPlayer?._id,
+      playerId: currentPlayer?.playerId,
+      location: currentPlayer?.location
+    });
+    console.log('From Location:', fromLocation);
+    console.log('To Location:', toLocation);
+
+    // Validate all required fields
+    if (!toLocation?.g || !toLocation?.s || !toLocation?.f || !toLocation?.gtype) {
+      throw new Error(`Missing required location fields: ${JSON.stringify(toLocation)}`);
+    }
 
     console.log("🚨 ENTERING changePlayerLocation()");
     console.log(`🔍 BEFORE FETCH: Player ${currentPlayer.username} moving from ${fromLocation.g} to ${toLocation.g}`);
@@ -251,11 +263,22 @@ if (fromGridState.pcs[currentPlayer.playerId]) {
     // 4️⃣ Prepare payload and update on the server
     const payload = {
       playerId: currentPlayer.playerId,
-      location: toLocation, // Send the "to" location
+      location: {
+        x: toLocation.x || 1,
+        y: toLocation.y || 1,
+        g: toLocation.g,
+        s: toLocation.s,
+        f: toLocation.f,
+        gtype: toLocation.gtype,
+        gridCoord: toLocation.gridCoord
+      }
     };
-    console.log("Sending payload to /update-player-location:", payload);
-    // Update player location on the backend
+
+    console.log('🚀 Sending location update payload:', payload);
+    
     const response = await axios.post(`${API_BASE}/api/update-player-location`, payload);
+    
+    console.log('📥 Location update response:', response.data);
 
     if (!response.data.success) { throw new Error(response.data.error); }
     console.log("Player location updated successfully on the server:", response.data);
@@ -277,13 +300,30 @@ if (fromGridState.pcs[currentPlayer.playerId]) {
     setGridId(toLocation.g);
     await initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes);
 
-    console.log("✅ Player transit completed successfully.");
+    // After initializing the grid and before reloading
+    const gameContainer = document.querySelector(".homestead");
+    if (gameContainer) {
+      // Calculate center position based on the player's new position
+      const centerX = toLocation.x * TILE_SIZE - window.innerWidth / 2;
+      const centerY = toLocation.y * TILE_SIZE - window.innerHeight / 2;
+
+      // Scroll to player position
+      gameContainer.scrollTo({
+        left: centerX,
+        top: centerY,
+        behavior: "instant" // Use "instant" instead of "smooth" for immediate centering
+      });
+    }
     
     window.location.reload();
     // return updatedPlayer;
   } 
   catch (error) {
-    console.error("Error changing player location:", error.message || error);
+    console.error('❌ Location change error details:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    });
     throw error;
   }
 }; 
