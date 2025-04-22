@@ -55,26 +55,45 @@ router.post('/update-grid-state', async (req, res) => {
   const { playerId, fromGridId, toGridId, playerData } = req.body;
   
   try {
+    console.log('🔄 Processing grid state update');
+    console.log('FROM:', fromGridId);
+    console.log('TO:', toGridId);
+    console.log('Player:', playerId);
+
+    let fromGridState = null;
+    let toGridState = null;
+
     // 1. Remove player from old grid's gridState
     if (fromGridId) {
+      console.log(`1️⃣ Removing player from grid ${fromGridId}`);
       const fromGrid = await Grid.findById(fromGridId);
-      if (fromGrid && fromGrid.gridState?.pcs) {
-        console.log(`Removing player ${playerId} from grid ${fromGridId}`);
+      
+      if (fromGrid?.gridState?.pcs) {
+        console.log('Current PCs in fromGrid:', Object.keys(fromGrid.gridState.pcs));
         
-        // Ensure clean removal from pcs
         if (fromGrid.gridState.pcs[playerId]) {
           delete fromGrid.gridState.pcs[playerId];
           fromGrid.markModified('gridState');
           await fromGrid.save();
-          console.log(`✅ Player ${playerId} removed from fromGrid`);
+          
+          fromGridState = fromGrid.gridState;
+          console.log('✅ Player removed from fromGrid');
+          console.log('Remaining PCs:', Object.keys(fromGrid.gridState.pcs));
+        } else {
+          console.log('⚠️ Player not found in fromGrid PCs');
         }
+      } else {
+        console.log('⚠️ No PCs found in fromGrid');
       }
     }
 
     // 2. Add player to new grid's gridState
     if (toGridId && playerData) {
+      console.log(`2️⃣ Adding player to grid ${toGridId}`);
       const toGrid = await Grid.findById(toGridId);
+      
       if (!toGrid) {
+        console.error('❌ Target grid not found');
         return res.status(404).json({ success: false, error: 'Target grid not found' });
       }
 
@@ -93,16 +112,20 @@ router.post('/update-grid-state', async (req, res) => {
 
       toGrid.markModified('gridState');
       await toGrid.save();
-      console.log(`✅ Player ${playerId} added to toGrid`);
+      
+      toGridState = toGrid.gridState;
+      console.log('✅ Player added to toGrid');
+      console.log('Current PCs in toGrid:', Object.keys(toGrid.gridState.pcs));
     }
 
     res.json({ 
       success: true,
-      fromGridState: fromGridId ? (await Grid.findById(fromGridId))?.gridState : null,
-      toGridState: toGridId ? (await Grid.findById(toGridId))?.gridState : null
+      fromGridState,
+      toGridState
     });
+    
   } catch (error) {
-    console.error('Error updating grid state:', error);
+    console.error('❌ Error updating grid state:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

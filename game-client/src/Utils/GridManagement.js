@@ -117,7 +117,12 @@ export const changePlayerLocation = async (
   TILE_SIZE,
 ) => {  
   try {
+    console.log('🔄 changePlayerLocation called');
+    console.log('FROM:', { grid: fromLocation.g, type: fromLocation.gtype });
+    console.log('TO:', { grid: toLocation.g, type: toLocation.gtype });
+
     // 1. Update gridState in DB
+    console.log('1️⃣ Updating grid states...');
     const gridStateUpdate = {
       playerId: currentPlayer._id,
       fromGridId: fromLocation.g,
@@ -138,30 +143,20 @@ export const changePlayerLocation = async (
       }
     };
 
+    console.log('📤 Sending grid state update:', gridStateUpdate);
     const response = await axios.post(`${API_BASE}/api/update-grid-state`, gridStateUpdate);
     
-    if (response.data.success) {
-      // 2. Emit socket updates for both grids
-      if (fromLocation.g) {
-        socket.emit('player-left-grid', {
-          gridId: fromLocation.g,
-          playerId: currentPlayer._id,
-          gridState: response.data.fromGridState
-        });
-      }
-      
-      if (toLocation.g) {
-        socket.emit('player-joined-grid', {
-          gridId: toLocation.g,
-          playerId: currentPlayer._id,
-          playerData: gridStateUpdate.playerData,
-          gridState: response.data.toGridState
-        });
-      }
+    if (!response.data.success) {
+      throw new Error('Failed to update grid states');
     }
 
-    // 3. Update player location in DB
-    const payload = {
+    console.log('✅ Grid states updated on server');
+    console.log('FROM state:', response.data.fromGridState);
+    console.log('TO state:', response.data.toGridState);
+
+    // 2. Update player location in DB
+    console.log('2️⃣ Updating player location...');
+    const locationUpdate = {
       playerId: currentPlayer.playerId,
       location: {
         x: toLocation.x || 1,
@@ -174,13 +169,14 @@ export const changePlayerLocation = async (
       }
     };
 
-    const locationResponse = await axios.post(`${API_BASE}/api/update-player-location`, payload);
-    
+    const locationResponse = await axios.post(`${API_BASE}/api/update-player-location`, locationUpdate);
     if (!locationResponse.data.success) {
       throw new Error(locationResponse.data.error);
     }
+    console.log('✅ Player location updated in DB');
 
-    // 4. Update local state
+    // 3. Update local state
+    console.log('3️⃣ Updating local state...');
     const updatedPlayer = {
       ...currentPlayer,
       location: toLocation
@@ -189,11 +185,35 @@ export const changePlayerLocation = async (
     setCurrentPlayer(updatedPlayer);
     localStorage.setItem("player", JSON.stringify(updatedPlayer));
 
+    // 4. Socket notifications for real-time updates
+    console.log('4️⃣ Emitting socket events...');
+    if (fromLocation.g) {
+      socket.emit('player-left-grid', {
+        gridId: fromLocation.g,
+        playerId: currentPlayer._id,
+        username: currentPlayer.username
+      });
+      console.log(`📢 Emitted player-left-grid for ${fromLocation.g}`);
+    }
+    
+    if (toLocation.g) {
+      socket.emit('player-joined-grid', {
+        gridId: toLocation.g,
+        playerId: currentPlayer._id,
+        username: currentPlayer.username,
+        playerData: gridStateUpdate.playerData
+      });
+      console.log(`📢 Emitted player-joined-grid for ${toLocation.g}`);
+    }
+
     // 5. Change grid context & fetch new grid data
+    console.log('5️⃣ Initializing new grid...');
     setGridId(toLocation.g);
     await initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes);
+    console.log('✅ New grid initialized');
 
     // 6. Center view on player
+    console.log('6️⃣ Centering view...');
     const gameContainer = document.querySelector(".homestead");
     if (gameContainer) {
       const centerX = toLocation.x * TILE_SIZE - window.innerWidth / 2;
@@ -204,6 +224,7 @@ export const changePlayerLocation = async (
         behavior: "instant"
       });
     }
+    console.log('✅ Location change complete');
 
   } catch (error) {
     console.error('❌ Location change error:', error);
