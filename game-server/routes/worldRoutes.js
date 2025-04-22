@@ -55,21 +55,35 @@ router.post('/update-grid-state', async (req, res) => {
   const { playerId, fromGridId, toGridId, playerData } = req.body;
   
   try {
-    // 1. Remove player from old grid
-    await GridState.findOneAndUpdate(
-      { gridId: fromGridId },
-      { $unset: { [`pcs.${playerId}`]: 1 } }
-    );
+    // 1. Remove player from old grid's gridState
+    const fromGrid = await Grid.findById(fromGridId);
+    if (fromGrid && fromGrid.gridState?.pcs) {
+      delete fromGrid.gridState.pcs[playerId];
+      await fromGrid.save();
+    }
 
-    // 2. Add to new grid
-    await GridState.findOneAndUpdate(
-      { gridId: toGridId },
-      { $set: { [`pcs.${playerId}`]: playerData } },
-      { upsert: true }
-    );
+    // 2. Add player to new grid's gridState
+    const toGrid = await Grid.findById(toGridId);
+    if (!toGrid) {
+      return res.status(404).json({ success: false, error: 'Target grid not found' });
+    }
+
+    // Initialize gridState if needed
+    if (!toGrid.gridState) {
+      toGrid.gridState = { npcs: {}, pcs: {} };
+    }
+    if (!toGrid.gridState.pcs) {
+      toGrid.gridState.pcs = {};
+    }
+
+    // Add the player
+    toGrid.gridState.pcs[playerId] = playerData;
+    toGrid.markModified('gridState'); // Important for nested updates
+    await toGrid.save();
 
     res.json({ success: true });
   } catch (error) {
+    console.error('Error updating grid state:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
