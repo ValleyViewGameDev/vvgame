@@ -35,20 +35,20 @@ export const handleFarmPlotPlacement = async ({
 
     const tileType = await validateTileType(gridId, tileX, tileY);
     if (tileType !== 'd') {
-      FloatingTextManager.addFloatingText(303, tileX * TILE_SIZE, tileY * TILE_SIZE); // "Must be dirt"
+      FloatingTextManager.addFloatingText(303, tileX, tileY, TILE_SIZE); // "Must be dirt"
       return;
     }
 
     const tileOccupied = resources.find((res) => res.x === tileX && res.y === tileY);
     if (tileOccupied) {
-      FloatingTextManager.addFloatingText(304, tileX * TILE_SIZE, tileY * TILE_SIZE); // "Occupied"
+      FloatingTextManager.addFloatingText(304, tileX, tileY, TILE_SIZE); // "Occupied"
       return;
     }
 
     const updatedInventory = [...inventory];
     const canPlace = checkAndDeductIngredients(selectedItem.type, updatedInventory);
     if (!canPlace) {
-      FloatingTextManager.addFloatingText(305, tileX * TILE_SIZE, tileY * TILE_SIZE); // "Missing ingredients"
+      FloatingTextManager.addFloatingText(305, tileX, tileY, TILE_SIZE); // "Missing ingredients"
       return;
     }
 
@@ -101,7 +101,7 @@ export const handleFarmPlotPlacement = async ({
         output: selectedItem.output, // ✅ required for crop conversion
       });
 
-      FloatingTextManager.addFloatingText(302, tileX * TILE_SIZE, tileY * TILE_SIZE); // "Planted!"
+      FloatingTextManager.addFloatingText(302, tileX, tileY, TILE_SIZE); // "Planted!"
     } else {
       throw new Error('Server update failed.');
     }

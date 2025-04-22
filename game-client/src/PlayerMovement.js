@@ -55,7 +55,7 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
   if (!movement) return;
 
   if (currentPlayer.iscamping) { 
-    FloatingTextManager.addFloatingText(32, currentPlayer.location.x * TILE_SIZE, currentPlayer.location.y * TILE_SIZE + 25);
+    FloatingTextManager.addFloatingText(32, currentPlayer.location.x, currentPlayer.location.y, TILE_SIZE);
     return;
   }
 

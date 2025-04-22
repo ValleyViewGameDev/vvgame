@@ -39,7 +39,7 @@ async function resetGridDirect({ gridId, gridType, gridCoord }) {
 
   const newResources = generateResources(layout, newTiles, layoutFileName);
 
-  const isPublic = ['town', 'valley1', 'valley2', 'valley3'].includes(gridType);
+  const isPublic = ['town', 'valley0', 'valley1', 'valley2', 'valley3'].includes(gridType);
   const existingPCs = isPublic ? {} : grid.gridState?.pcs || {};
 
   const newGridState = { npcs: {}, pcs: existingPCs };

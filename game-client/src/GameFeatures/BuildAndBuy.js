@@ -61,7 +61,7 @@ export const handleConstruction = async ({
   const isTileOccupied = resources.some((res) => res.x === x && res.y === y);
   if (isTileOccupied) {
     console.warn('Cannot build on an occupied tile.');
-    FloatingTextManager.addFloatingText(306, x*TILE_SIZE, y*TILE_SIZE);
+    FloatingTextManager.addFloatingText(306, x, y, TILE_SIZE);
     return; // Exit before deducting inventory
   }
 
@@ -70,7 +70,7 @@ export const handleConstruction = async ({
   // Check and deduct ingredients
   const canBuild = checkAndDeductIngredients(selectedItem, updatedInventory);
   if (!canBuild) {
-    FloatingTextManager.addFloatingText(305, playerPosition.x*TILE_SIZE, playerPosition.y*TILE_SIZE);
+    FloatingTextManager.addFloatingText(305, playerPosition.x, playerPosition.y, TILE_SIZE);
     return;
   }
 
@@ -110,7 +110,7 @@ export const handleConstruction = async ({
         setResources,
         true
       );
-      FloatingTextManager.addFloatingText(300, playerPosition.x*TILE_SIZE, playerPosition.y*TILE_SIZE);
+      FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
 
       // Track quest progress for "Build or Buy" actions
       await trackQuestProgress(currentPlayer, 'Build', selectedItem, 1, setCurrentPlayer);

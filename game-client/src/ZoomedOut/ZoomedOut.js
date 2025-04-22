@@ -10,9 +10,11 @@ export const getGridBackgroundColor = (type) => {
       return 'var(--homestead-color)';
     
     // Valley types (both views)
+    case "valley0":
     case "valley1":
     case "valley2":
     case "valley3":
+    case "valley0Set":  
     case "valley1Set":
     case "valley2Set":
     case "valley3Set":

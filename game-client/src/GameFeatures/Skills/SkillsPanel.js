@@ -13,7 +13,7 @@ import { isAGridStateStat } from '../../Utils/playerManagement';
 import strings from '../../UI/strings.json';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 
-const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stationType }) => {
+const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stationType, TILE_SIZE }) => {
   const [entryPoint, setEntryPoint] = useState(stationType || "Skills Panel"); 
   const [allResources, setAllResources] = useState([]);
   const [skillsToAcquire, setSkillsToAcquire] = useState([]);
@@ -142,7 +142,12 @@ const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stat
     setInventory(updatedInventory);
     localStorage.setItem('inventory', JSON.stringify(updatedInventory));
 
-    FloatingTextManager.addFloatingText(`+1 ${resource.type}`, window.innerWidth / 12, window.innerHeight / 4);
+    FloatingTextManager.addFloatingText(
+      `+1 ${resource.type}`, 
+      currentPlayer.location.x, 
+      currentPlayer.location.y, 
+      TILE_SIZE,
+    );
 
     try {
       await axios.post(`${API_BASE}/api/update-inventory`, {

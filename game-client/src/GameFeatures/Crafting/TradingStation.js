@@ -24,6 +24,7 @@ const TradingStation = ({
   stationType,
   currentStationPosition,
   gridId,
+  TILE_SIZE
 }) => {
   const [recipes, setRecipes] = useState([]);
   const [allResources, setAllResources] = useState([]);
@@ -73,10 +74,6 @@ const TradingStation = ({
   }, [stationType]);
 
 
-  const hasRequiredSkill = (requiredSkill) => {
-    return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
-  };
-
 
   const handleTrade = async (recipe) => {
     setErrorMessage('');
@@ -89,7 +86,7 @@ const TradingStation = ({
 
     // ✅ Determine storage location
     const gtype = currentPlayer.location.gtype;
-    const isBackpack = ["town", "valley1", "valley2", "valley3"].includes(gtype);
+    const isBackpack = ["town", "valley0", "valley1", "valley2", "valley3"].includes(gtype);
     let targetInventory = isBackpack ? backpack : inventory;
     const setTargetInventory = isBackpack ? setBackpack : setInventory;
     const inventoryType = isBackpack ? "backpack" : "inventory";
@@ -112,14 +109,13 @@ const TradingStation = ({
     console.log(`📡 ${inventoryType} updated successfully!`);
     setTargetInventory(updatedTargetInventory);
 
-    // ✅ Floating text feedback
-    FloatingTextManager.addFloatingText(`+1 ${recipe.type}`, currentPlayer.location.x * 32 + 16, currentPlayer.location.y * 32 + 16);
     // ✅ Track quest progress
     await trackQuestProgress(currentPlayer, 'Trade', recipe.type, tradedQty, setCurrentPlayer);
     // ✅ Refresh inventory
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-    updateStatus(`✅ Traded for ${recipe.type}.`);
+    console.log('recipe = ', recipe);
+    updateStatus(`✅ Exchanged ${recipe.ingredient1} for ${recipe.type}.`);
   };
 
 

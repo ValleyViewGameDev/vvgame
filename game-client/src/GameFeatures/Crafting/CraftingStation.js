@@ -29,6 +29,7 @@ const CraftingStation = ({
   gridId,
   masterResources,
   masterSkills,
+  TILE_SIZE
 }) => {
   const [recipes, setRecipes] = useState([]);
   const [allResources, setAllResources] = useState([]);
@@ -182,7 +183,7 @@ const CraftingStation = ({
       setResources(updatedResources);
 
     
-      FloatingTextManager.addFloatingText(404, currentStationPosition.x * 32 + 16, currentStationPosition.y * 32 + 16);
+      FloatingTextManager.addFloatingText(404, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
       console.log(`✅ ${recipe.type} will be ready at ${new Date(craftEnd).toLocaleTimeString()}`);
 
       } catch (error) {
@@ -209,12 +210,10 @@ const CraftingStation = ({
       return;
     }
 
-    console.log(`✅✅✅ Collecting crafted ${recipe.type}...`);
-
     try {
         // ✅ Determine storage location
         const gtype = currentPlayer.location.gtype;
-        const isBackpack = ["town", "valley1", "valley2", "valley3"].includes(gtype);
+        const isBackpack = ["town", "valley0", "valley1", "valley2", "valley3"].includes(gtype);
 
         let targetInventory = isBackpack ? backpack : inventory;
         const setTargetInventory = isBackpack ? setBackpack : setInventory;
@@ -273,14 +272,12 @@ const CraftingStation = ({
           });
   
           console.log(`📡 ${inventoryType} updated successfully!`);
+          updateStatus(`Collected ${craftedQty}x ${recipe.type}.`);
+
           setTargetInventory(updatedInventory);
       }
 
-/////// NO CHANGE AFTER THIS
-
-      console.log("🛠️ About to call updateGridResource:", stationType, currentStationPosition.x, currentStationPosition.y);
         // ✅ Remove craftEnd & craftedItem from the grid resource
-
         const updateResponse = await updateGridResource(
             gridId, 
             {
@@ -297,17 +294,6 @@ const CraftingStation = ({
             console.warn("⚠️ Warning: Grid resource update failed or returned unexpected response.");
         }
         console.log("🛠️ Grid resource updated:", updateResponse);
-
-        // // ✅ **Update local state immediately** so UI refreshes
-        // setResources(prevResources =>
-        //   prevResources.map(res =>
-        //       res.x === currentStationPosition.x && res.y === currentStationPosition.y
-        //           ? { ...res, craftEnd: null, craftedItem: null }
-        //           : res
-        //    )
-        // );
-
-        // console.log("🛠️ Local state updated!");
 
         // ✅ **Manually update GlobalGridState**
 
@@ -327,7 +313,6 @@ const CraftingStation = ({
         setActiveTimer(false);
         setCraftedItem(null);
         setCraftingCountdown(null);
-        updateStatus(`Added ${recipe.type}.`);
         console.log(`✅ ${recipe.type} collected successfully.`);
 
     } catch (error) {

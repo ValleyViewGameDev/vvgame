@@ -367,6 +367,7 @@ export function updateGridStatus(gridType, ownerUsername, updateStatus) {
     case 'town':
       updateStatus(14); // Town view
       break;
+    case 'valley0':
     case 'valley1':
     case 'valley2':
     case 'valley3':

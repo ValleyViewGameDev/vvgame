@@ -82,7 +82,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
 
       if (!isAHit) {
         //console.log(`NPC ${this.id} missed the attack on ${this.targetPC.username}.`);
-        FloatingTextManager.addFloatingText("503", this.targetPC.position.x * TILE_SIZE, this.targetPC.position.y * TILE_SIZE);
+        FloatingTextManager.addFloatingText(503, this.targetPC.position.x, this.targetPC.position.y, TILE_SIZE);
         setTimeout(() => {
           this.state = 'attack'; // Retry attack after waiting
         }, this.speed);
@@ -95,7 +95,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         
         try {
           await modifyPlayerStatsInGridState(statToMod, amountToMod, this.targetPC.playerId, gridId);
-          FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, this.targetPC.position.x * TILE_SIZE, this.targetPC.position.y * TILE_SIZE );
+          FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, this.targetPC.position.x, this.targetPC.position.y, TILE_SIZE );
           // ✅ Force update of gridState after modifying HP
           gridStateManager.saveGridState(gridId);  // ✅ Ensures NPC logic reads the updated HP in next cycle
           // ✅ Immediately fetch the latest grid state

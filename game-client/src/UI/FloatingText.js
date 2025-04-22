@@ -1,72 +1,92 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import strings from './strings.json';  // ✅ Import strings.json
 import './FloatingText.css';
+import { calculateTileCenter } from '../VFX/VFX.js';
+import strings from '../UI/strings.json';
 
-const FloatingTextManager = () => {
-  const [floatingTexts, setFloatingTexts] = useState([]);
+let setFloatingTexts = null;
 
-  // Helper to determine if a message should use index lookup or bypass it
-  const getFloatingTextMessage = (message) => {
-    // Check if message is a number or a string that can be parsed as a number
-    if (typeof message === 'number' || (!isNaN(message) && /^\d+$/.test(message))) {
-      const messageIndex = parseInt(message, 10);
-      if (strings[messageIndex]) {
-        return strings[messageIndex]; // ✅ Return message from strings.json
-      }
+const addFloatingText = (message, x, y, TILE_SIZE) => {
+    // Handle string code lookup
+    const displayText = typeof message === 'number' 
+        ? (strings[message] || `Missing string for code: ${message}`)
+        : message;
+
+    console.log('🎈 Adding floating text:', { message, displayText, x, y });
+
+    const container = document.querySelector('.homestead');
+    if (!container) return;
+
+    if (isNaN(x) || isNaN(y)) {
+        console.warn('Invalid coordinates in addFloatingText:', { x, y });
+        return;
     }
 
-    // Otherwise, treat it as a normal string (e.g., "+3 Apples")
-    return message;
-  };
-
-  const addFloatingText = (message, x, y) => {
-    // Ensure uniqueness in case of rapid calls
-    const id = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-    const OFFSET_X = 190;
-    const OFFSET_Y = 60;
-
-    // Get the correct floating text message
-    const floatingTextMessage = getFloatingTextMessage(message);
-
-    // ✅ Adjust position to account for camera scroll
-    const gameContainer = document.querySelector(".homestead"); // Adjust if needed
-    const scrollX = gameContainer ? gameContainer.scrollLeft : 0;
-    const scrollY = gameContainer ? gameContainer.scrollTop : 0;
-
-    console.log(`📢 FloatingText at (${x}, ${y}) → Adjusted for scroll (${scrollX}, ${scrollY})`);
-
-    setFloatingTexts((prev) => [
-        ...prev,
-        { id, text: floatingTextMessage, x: x + OFFSET_X - scrollX, y: y + OFFSET_Y - scrollY }
-    ]);
-
-    setTimeout(() => {
-        setFloatingTexts((prev) => prev.filter((ft) => ft.id !== id));
-    }, 1000);
+    const { centerX, centerY } = calculateTileCenter(x, y, TILE_SIZE);
+    const newId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+    
+    setFloatingTexts(prev => {
+        console.log('🎈 Previous texts:', prev);
+        const updated = [
+            ...prev,
+            {
+                id: newId,
+                text: displayText, // Use resolved text string
+                x: centerX,
+                y: centerY,
+                timestamp: Date.now()
+            }
+        ];
+        console.log('🎈 Updated texts:', updated);
+        return updated;
+    });
 };
 
-  // Expose globally
-  FloatingTextManager.addFloatingText = addFloatingText;
+const FloatingTextManager = () => {
+    const [floatingTexts, setFloatingTextsState] = useState([]);
+    setFloatingTexts = setFloatingTextsState;
 
-  return createPortal(
-    <>
-      {floatingTexts.map(({ id, text, x, y }) => (
-        <div
-          key={id}
-          className="floating-text"
-          style={{
-            position: 'absolute',
-            left: x,
-            top: y,
-          }}
-        >
-          {text}
-        </div>
-      ))}
-    </>,
-    document.body
-  );
+    useEffect(() => {
+        const timer = setInterval(() => {
+            const now = Date.now();
+            
+            setFloatingTexts(texts => {
+                // Only keep texts that are less than 1000ms old (match CSS animation)
+                const remaining = texts.filter(text => (now - text.timestamp) < 1000);
+                return remaining;
+            });
+        }, 100);
+
+        return () => clearInterval(timer);
+    }, []);
+
+    const container = document.querySelector('.homestead');
+    if (!container) return null;
+
+    return createPortal(
+        <div className="floating-text-container">
+            {floatingTexts.map(({ id, text, x, y }) => (
+                <div
+                    key={id}
+                    className="floating-text"
+                    style={{
+                        position: 'absolute',
+                        left: x,
+                        top: y-30,
+                        transform: 'translate(-50%, -50%)' // Center the text
+                    }}
+                    onAnimationEnd={() => {
+                        // Remove this specific text when animation completes
+                        setFloatingTexts(prev => prev.filter(t => t.id !== id));
+                    }}
+                >
+                    {text}
+                </div>
+            ))}
+        </div>,
+        container
+    );
 };
 
+FloatingTextManager.addFloatingText = addFloatingText;
 export default FloatingTextManager;

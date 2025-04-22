@@ -106,7 +106,7 @@ export async function handleNPCClick(
 
       if (!hasCapacity) {
         console.warn('Not enough inventory space to collect resource.');
-        FloatingTextManager.addFloatingText(20, col * TILE_SIZE, row * TILE_SIZE);
+        FloatingTextManager.addFloatingText(20, col, row, TILE_SIZE);
 
         return { type: 'error', message: 'Not enough inventory space.' };
       }
@@ -124,7 +124,7 @@ export async function handleNPCClick(
       localStorage.setItem('inventory', JSON.stringify(updatedInventory));
 
       // Display floating text
-      FloatingTextManager.addFloatingText(`+${quantityToCollect} ${npc.output}`, col * TILE_SIZE, row * TILE_SIZE);
+      FloatingTextManager.addFloatingText(`+${quantityToCollect} ${npc.output}`, col, row, TILE_SIZE);
 
       try {
         await axios.post(`${API_BASE}/api/update-inventory`, {

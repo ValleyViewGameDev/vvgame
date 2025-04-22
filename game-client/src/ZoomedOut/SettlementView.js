@@ -92,7 +92,7 @@ const SettlementView = ({
   
     // Case 1: Clicking on the current valley tile
     if (
-      ["valley1", "valley2", "valley3"].includes(tile.gridType) &&
+      ["valley0", "valley1", "valley2", "valley3"].includes(tile.gridType) &&
       tile.gridId === currentPlayer.location.g
     ) {
       console.log("Clicked on the current valley tile. Zooming into grid view.");
@@ -102,7 +102,7 @@ const SettlementView = ({
     }
   
     // Case 2: Clicking on any other valley tile
-    if (["valley1", "valley2", "valley3"].includes(tile.gridType)) {
+    if (["valley0", "valley1", "valley2", "valley3"].includes(tile.gridType)) {
       updateStatus(9);
       return;
     }

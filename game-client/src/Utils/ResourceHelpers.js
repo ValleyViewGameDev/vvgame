@@ -106,18 +106,12 @@ export function mergeTiles(existingTiles, updatedTiles) {
 
 
 export function enrichResourceFromMaster(raw, masterResources) {
-  console.log("enrichResourceFromMaster; raw = ", raw);
-  console.log("masterResources = ", masterResources);
 
-  const template = masterResources.find(r => r.type === raw.type);
-
-  console.log("template - ", template);
-  
+  const template = masterResources.find(r => r.type === raw.type);  
   if (!template) {
     console.warn(`⚠️ No matching resource template found for ${raw.type}`);
     return raw;
   }
-
   return {
     ...template,
     ...raw, // Allow raw to override specific fields like growEnd, x, y

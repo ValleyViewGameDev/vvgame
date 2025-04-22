@@ -559,7 +559,7 @@ useEffect(() => {
   
           await axios.post(`${API_BASE}/api/create-grid`, {
             gridCoord: valleyGrid.gridCoord,
-            gridType: valleyGrid.gridType, // 'valley1', 'valley2', or 'valley3'
+            gridType: valleyGrid.gridType, // 'valley0', 'valley1', 'valley2', or 'valley3'
             settlementId: valleyGrid.settlementId,
             frontierId: frontierId,
           });
@@ -644,6 +644,7 @@ useEffect(() => {
         <button className="btn-danger" onClick={handleCreateNewFrontier}> Create New Frontier </button>
         <button className="btn-danger" onClick={handleResetGrid}> Reset This Grid </button>
         <button className="btn-danger" onClick={handleGenerateTown}> Generate Town </button>
+        <button className="btn-danger" onClick={() => handleGenerateValley(0)}> Generate Valley 0 </button>
         <button className="btn-danger" onClick={() => handleGenerateValley(1)}> Generate Valley 1 </button>
         <button className="btn-danger" onClick={() => handleGenerateValley(2)}> Generate Valley 2 </button>
         <button className="btn-danger" onClick={() => handleGenerateValley(3)}> Generate Valley 3 </button>

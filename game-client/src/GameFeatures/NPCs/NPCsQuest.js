@@ -23,6 +23,7 @@ const QuestGiverPanel = ({
   currentPlayer,
   setCurrentPlayer,
   setResources,
+  TILE_SIZE
 }) => {
   const { updateStatus } = useContext(StatusBarContext);
   const { closePanel } = usePanelContext();
@@ -144,7 +145,7 @@ const QuestGiverPanel = ({
   const handleGetReward = async (quest) => {
     try {
       const isMoney = quest.reward === "Money";
-      const isBackpackLocation = ["town", "valley1", "valley2", "valley3"].includes(currentPlayer.location.gtype);
+      const isBackpackLocation = ["town", "valley0", "valley1", "valley2", "valley3"].includes(currentPlayer.location.gtype);
 
       let targetInventory = isMoney ? currentPlayer.inventory : isBackpackLocation ? currentPlayer.backpack : currentPlayer.inventory;
       let maxCapacity = isMoney ? Infinity : isBackpackLocation ? currentPlayer.backpackCapacity : currentPlayer.warehouseCapacity;
@@ -217,7 +218,8 @@ const QuestGiverPanel = ({
         FloatingTextManager.addFloatingText(
           `+${quest.rewardqty} ${quest.reward}`,
           window.innerWidth / 12,
-          window.innerHeight / 4
+          window.innerHeight / 4,
+          TILE_SIZE,
         );
       }
     } catch (error) {
@@ -287,7 +289,7 @@ const handleHeal = async (recipe) => {
         hp: Math.min(prev.maxhp, prev.hp + amountToMod),
       }));
     
-      FloatingTextManager.addFloatingText(`+${amountToMod} HP`, -100, 115);
+      FloatingTextManager.addFloatingText(`+${amountToMod} HP`, -100, 115, TILE_SIZE);
     } catch (error) {
       console.error('Error applying healing:', error);
     }

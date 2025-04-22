@@ -1053,7 +1053,7 @@ const zoomIn = async () => {
 
     if (gridType === 'town') {
       updateStatus(14);
-    } else if (['valley1', 'valley2', 'valley3'].includes(gridType)) {
+    } else if (["valley0", 'valley1', 'valley2', 'valley3'].includes(gridType)) {
       updateStatus(16);
     } else if (gridType === 'homestead') {
       if (username) {
@@ -1132,7 +1132,7 @@ const zoomOut = () => {
       console.log(`Checking range: Player at ${playerPos.x},${playerPos.y} | Target at ${targetPos.x},${targetPos.y} | Distance = ${distance} | Range = ${playerRange}`);
 
       if (distance > playerRange) {
-          FloatingTextManager.addFloatingText(24, targetPos.x * activeTileSize, targetPos.y * activeTileSize);
+          FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
           console.log('Target out of range:', targetPos);
           isProcessing = false;
           return; // Stop further execution
@@ -1223,12 +1223,6 @@ const zoomOut = () => {
           setBackpack,
           inventory,
           backpack,
-          skills,
-          setActiveStation,
-          playerPosition,
-          setPlayerPosition,
-          setIsStationOpen,
-          grid,
           FloatingTextManager.addFloatingText,
           gridId,
           activeTileSize,
@@ -1784,6 +1778,7 @@ const zoomOut = () => {
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           stationType={activeStation?.type} // ✅ Ensure stationType is passed
+          TILE_SIZE={activeTileSize}
         />
       )}
       {activePanel === 'CraftingStation' && (
@@ -1801,7 +1796,8 @@ const zoomOut = () => {
           gridId={activeStation?.gridId} // Pass gridId
           masterResources={masterResources} // Pass masterResources for crafting recipes
           masterSkills={masterSkills} // Pass masterSkills for skill checks
-        />
+          TILE_SIZE={activeTileSize}
+          />
       )}
       {activePanel === 'TradingStation' && (
         <TradingStation
@@ -1816,6 +1812,7 @@ const zoomOut = () => {
           stationType={activeStation?.type} // Ensure stationType is passed
           currentStationPosition={activeStation?.position} // Pass currentStationPosition
           gridId={activeStation?.gridId} // Pass gridId
+          TILE_SIZE={activeTileSize}
         />
       )}
       {activePanel === 'FarmingPanel' && (
@@ -1885,6 +1882,7 @@ const zoomOut = () => {
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setResources={setResources}
+          TILE_SIZE={activeTileSize}
         />
       )}
       {activePanel === 'SocialPanel' && (

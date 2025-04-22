@@ -58,6 +58,7 @@ const FileManager = ({ loadLayout, saveLayout, currentFile }) => {
       >
         <option value="homestead">homestead/</option>
         <option value="town">town/</option>
+        <option value="valley0">valley0/</option>
         <option value="valley1">valley1/</option>
         <option value="valley2">valley2/</option>
         <option value="valley3">valley3/</option>

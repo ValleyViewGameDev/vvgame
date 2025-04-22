@@ -1,8 +1,8 @@
 {
     "defaultAttributes": {
       "icon": "😀",
-      "hp": 100,
-      "maxhp": 100,
+      "hp": 1000,
+      "maxhp": 1000,
       "range": 10,
       "attackrange": 10,
       "armorclass": 10,

@@ -4,7 +4,7 @@ const GridSchema = new mongoose.Schema({
 
   gridType: {
     type: String,
-    enum: ['homestead', 'town', 'valley', 'valley1', 'valley2', 'valley3', 'reserved'], // Match settlement schema
+    enum: ['homestead', 'town', 'valley', 'valley0', 'valley1', 'valley2', 'valley3', 'reserved'], // Match settlement schema
     required: true, // Make gridType mandatory
   },
   tiles: {

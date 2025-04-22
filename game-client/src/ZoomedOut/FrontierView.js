@@ -213,7 +213,7 @@ const FrontierView = ({
       }
 
       // Case 3: Clicking on any other valley tile
-      if (["valley1Set", "valley2Set", "valley3Set"].includes(tile.settlementType)) {
+      if (["valley0Set", "valley1Set", "valley2Set", "valley3Set"].includes(tile.settlementType)) {
         console.log("Player clicked a valley tile.");
         updateStatus(9); // Valley tile clicked
         return;

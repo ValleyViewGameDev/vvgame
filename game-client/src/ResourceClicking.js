@@ -10,6 +10,14 @@ import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
 import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
 import { checkInventoryCapacity } from './Utils/InventoryManagement';
 import { handleSpawnerDamage } from './GameFeatures/NPCs/NPCSpawner';
+import { createCollectEffect, createSourceConversionEffect, calculateTileCenter } from './VFX/VFX';
+
+// Create a utility function at the top
+const getTileCenter = (col, row, TILE_SIZE) => {
+    const centerX = (col * TILE_SIZE) + (TILE_SIZE / 2);
+    const centerY = (row * TILE_SIZE) + (TILE_SIZE / 2);
+    return { x: centerX, y: centerY };
+};
 
  // Handles resource click actions based on category. //
  export async function handleResourceClick(
@@ -22,12 +30,6 @@ import { handleSpawnerDamage } from './GameFeatures/NPCs/NPCSpawner';
   setBackpack,
   inventory,
   backpack,
-  skills,
-  setActiveStation,
-  playerPosition,
-  setPlayerPosition,
-  setIsStationOpen,
-  tiles,
   addFloatingText,
   gridId,
   TILE_SIZE,
@@ -212,7 +214,7 @@ async function handleDooberClick(
 
   // Special case: Money always goes to inventory and does not count against capacity
   const isMoney = resource.type === 'Money';
-  const isBackpack = !isMoney && ["town", "valley1", "valley2", "valley3"].includes(gtype);
+  const isBackpack = !isMoney && ["town", "valley0", "valley1", "valley2", "valley3"].includes(gtype);
 
   // Check for Backpack skill if in town or valley
   if (isBackpack) {
@@ -254,6 +256,7 @@ async function handleDooberClick(
       qtyCollected
     );
   
+    //NEED TO FIX THIS! :
     if (!hasCapacity) {
       const statusUpdate = isBackpack ? 21 : 20; // Backpack or warehouse full
       console.warn(`Cannot collect doober: Exceeds capacity in ${isBackpack ? "backpack" : "warehouse"}.`);
@@ -263,14 +266,22 @@ async function handleDooberClick(
     }
   }
 
-  // Floating text feedback
-  FloatingTextManager.addFloatingText(`+${qtyCollected} ${resource.type}`, col * TILE_SIZE, row * TILE_SIZE);
+  // Add VFX right before removing the doober
+  createCollectEffect(col, row, TILE_SIZE);
+
+  // Use exact same position calculation as VFX.js
+  FloatingTextManager.addFloatingText(
+    `+${qtyCollected} ${resource.type}`, 
+    col, 
+    row,
+    TILE_SIZE
+  );
+
 
   // Optimistically remove the doober locally
   setResources((prevResources) =>
     prevResources.filter((res) => !(res.x === col && res.y === row))
   );
-
   // Optimistically update target inventory locally
   const updatedInventory = [...targetInventory];
   const index = updatedInventory.findIndex((item) => item.type === resource.type);
@@ -292,7 +303,7 @@ async function handleDooberClick(
       setResources,
       true
     );
-
+ 
     if (gridUpdateResponse?.success) {
       console.log('Doober collected successfully.');
 
@@ -356,33 +367,45 @@ export async function handleSourceConversion(
 ) {
   if (resource.action !== 'convertTo') return;
 
-  // Determine required skill dynamically from masterResources
+  // Get target resource first
+  const targetResource = masterResources.find((res) => res.type === resource.output);
+  if (!targetResource) { 
+    console.warn(`⚠️ No matching resource found for output: ${resource.output}`); 
+    return; 
+  }
+
+  // Get required skill
   const requiredSkill = masterResources.find((res) =>
     res.output === resource.type
   )?.type;
 
-  if (
-    requiredSkill &&
-    !currentPlayer.skills.some((skill) => skill.type === requiredSkill)
-  ) {
+  // CASE 1: Required Skill Missing
+  if (requiredSkill && !currentPlayer.skills.some((skill) => skill.type === requiredSkill)) {
     addFloatingText(
       `${requiredSkill} Required`,
-      col * TILE_SIZE,
-      row * TILE_SIZE
+      col,  // Pass tile coordinates
+      row,  // Not pixel coordinates
+      TILE_SIZE
     );
     return;
   }
-  console.log('resource = ', resource);
-  console.log('resource.output = ', resource.output);
+
+  // CASE 2: VFX
+  createSourceConversionEffect(col, row, TILE_SIZE, requiredSkill);
+
+  // CASE 3: Success Text
+  FloatingTextManager.addFloatingText(
+    `Converted to ${targetResource.type}`, 
+    col,  // Pass tile coordinates
+    row,  // Not pixel coordinates
+    TILE_SIZE
+  );
 
   // Define isValley as any gtype that is NOT "town" or "homestead"
   const isValley = !['town', 'homestead'].includes(currentPlayer?.location?.gtype);
+  
   const x = col;
   const y = row;
-  const targetResource = masterResources.find((res) => res.type === resource.output);
-  
-  console.log('targetResource: ',targetResource);
-  if (!targetResource) { console.warn(`⚠️ No matching resource found for output: ${resource.output}`); return; }
   
   // Build the new resource object to replace the one we just clicked
   const enrichedNewResource = {
@@ -402,8 +425,7 @@ export async function handleSourceConversion(
         res.x === x && res.y === y ? enrichedNewResource : res
       )
     );
-    addFloatingText(`Converted to ${targetResource.type}`, x * TILE_SIZE, y * TILE_SIZE);
-    console.log('🌿🌿🌿 enriched resource: ',enrichedNewResource);
+
 
   // Perform server update
     try {

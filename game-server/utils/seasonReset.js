@@ -188,7 +188,6 @@ async function seasonReset(frontierId) {
             console.error(`❌ Error resetting grid ${grid._id}:`, err.response?.data || err.message);
           }
         }
-        console.log(`⏱️ Step 5 took ${Date.now() - stepStart}ms`);
      } else {
        console.log("⏭️ STEP 5: Skipped resetting towns and valley.");
      }

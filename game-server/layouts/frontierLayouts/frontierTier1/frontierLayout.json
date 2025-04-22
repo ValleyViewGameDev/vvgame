@@ -1,11 +1,11 @@
 [
     ["homesteadSet", "homesteadSet", "homesteadSet", "homesteadSet", "homesteadSet", "homesteadSet", "homesteadSet", "homesteadSet"],
-    ["homesteadSet", "valley1Set", "valley2Set", "valley2Set", "valley2Set", "valley2Set", "valley2Set", "homesteadSet"],
-    ["homesteadSet", "valley2Set", "valley2Set", "valley2Set", "valley2Set", "valley2Set", "valley2Set", "homesteadSet"],
-    ["homesteadSet", "valley2Set", "valley2Set", "valley3Set", "valley3Set", "valley2Set", "valley2Set", "homesteadSet"],
-    ["homesteadSet", "valley2Set", "valley2Set", "valley3Set", "valley3Set", "valley2Set", "valley2Set", "homesteadSet"],
-    ["homesteadSet", "valley2Set", "valley2Set", "valley2Set", "valley2Set", "valley2Set", "valley2Set", "homesteadSet"],
-    ["homesteadSet", "valley2Set", "valley2Set", "valley2Set", "valley2Set", "valley2Set", "valley2Set", "homesteadSet"],
+    ["homesteadSet", "valley0Set", "valley1Set", "valley1Set", "valley1Set", "valley1Set", "valley1Set", "homesteadSet"],
+    ["homesteadSet", "valley1Set", "valley3Set", "valley2Set", "valley2Set", "valley2Set", "valley1Set", "homesteadSet"],
+    ["homesteadSet", "valley1Set", "valley2Set", "valley3Set", "valley3Set", "valley2Set", "valley1Set", "homesteadSet"],
+    ["homesteadSet", "valley1Set", "valley2Set", "valley3Set", "valley3Set", "valley2Set", "valley1Set", "homesteadSet"],
+    ["homesteadSet", "valley1Set", "valley2Set", "valley2Set", "valley2Set", "valley2Set", "valley1Set", "homesteadSet"],
+    ["homesteadSet", "valley1Set", "valley1Set", "valley1Set", "valley1Set", "valley1Set", "valley1Set", "homesteadSet"],
     ["homesteadSet", "homesteadSet", "homesteadSet", "homesteadSet", "homesteadSet", "homesteadSet", "homesteadSet", "homesteadSet"]
   ]
   

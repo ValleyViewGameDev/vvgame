@@ -149,7 +149,6 @@ function TrainPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) 
       setCurrentPlayer(prev => ({ ...prev, inventory: updatedInventory }));
       
       updateStatus(`✅ Delivered ${offer.qtyBought} ${offer.itemBought}, received ${offer.qtyGiven} Money`);
-      FloatingTextManager.addFloatingText(`+${offer.qtyGiven} 💰`, window.innerWidth / 10, window.innerHeight / 4);
 
     } catch (error) {
       console.error("❌ Error fulfilling offer:", error);

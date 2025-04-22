@@ -15,7 +15,7 @@ function checkRange(player, target, TILE_SIZE) {
     console.log('Fetched positions: playerPos =', playerPos, '; targetPos =', targetPos);
     if (!targetPos) {
         console.error("Invalid target position", { targetPos });
-        FloatingTextManager.addFloatingText(505, 0, 0);
+        FloatingTextManager.addFloatingText(505, 0, 0, TILE_SIZE);
         return false;
     }
 
@@ -25,7 +25,7 @@ function checkRange(player, target, TILE_SIZE) {
     console.log('playerPos = ',playerPos);
 
     if (distance > playerRange) {
-        FloatingTextManager.addFloatingText(501, targetPos.x * TILE_SIZE, targetPos.y * TILE_SIZE);
+        FloatingTextManager.addFloatingText(501, targetPos.x, targetPos.y, TILE_SIZE);
         console.log('target out of range: targetPos.x = ',targetPos.x,' targetPos.y= ',targetPos.y);
         return false;
     }
@@ -42,10 +42,10 @@ function isAHit(player, target, TILE_SIZE) {
     console.log(`Total hit roll: ${hitRoll}, Target armor class: ${target.armorclass}`);
 
     if (hitRoll >= target.armorclass) {
-        FloatingTextManager.addFloatingText(502, target.position.x * TILE_SIZE, target.position.y * TILE_SIZE);
+        FloatingTextManager.addFloatingText(502, target.position.x, target.position.y-1, TILE_SIZE);
         return true;
     } else {
-        FloatingTextManager.addFloatingText(503, target.position.x * TILE_SIZE, target.position.y * TILE_SIZE);
+        FloatingTextManager.addFloatingText(503, target.position.x, target.position.y, TILE_SIZE);
         return false;
     }
 }
@@ -81,21 +81,21 @@ export async function handleAttackOnNPC(npc, currentPlayer, TILE_SIZE, setResour
     }
 
     if (player.iscamping) {
-        FloatingTextManager.addFloatingText(31, npc.position.x * TILE_SIZE, npc.position.y * TILE_SIZE + 25);
+        FloatingTextManager.addFloatingText(31, npc.position.x, npc.position.y, TILE_SIZE);
         return;
     }
     if (!checkRange(player, npc, TILE_SIZE)) return;
     if (!isAHit(player, npc, TILE_SIZE)) return;
  
     const damage = calculateDamage(player);
-    FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, npc.position.x * TILE_SIZE, npc.position.y * TILE_SIZE + 25);
+    FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, npc.position.x, npc.position.y, TILE_SIZE);
 
     npc.hp -= damage;
     await gridStateManager.saveGridState(gridId);
 
     if (npc.hp <= 0) {
         console.log(`NPC ${npc.id} killed.`);
-        FloatingTextManager.addFloatingText(504, npc.position.x * TILE_SIZE, npc.position.y * TILE_SIZE + 50);
+        FloatingTextManager.addFloatingText(504, npc.position.x, npc.position.y-1, TILE_SIZE);
 
         try {
             gridStateManager.removeNPC(gridId, npc.id);
@@ -159,11 +159,11 @@ export async function handleAttackOnPC(pc, currentPlayer, gridId, TILE_SIZE) {
     if (!isAHit(player, pc, TILE_SIZE)) return;
 
     const damage = calculateDamage(player, gridId);
-    FloatingTextManager.addFloatingText(`- ${damage} HP`, pc.position.x * TILE_SIZE, pc.position.y * TILE_SIZE + 25);
+    FloatingTextManager.addFloatingText(`- ${damage} HP`, pc.position.x, pc.position.y, TILE_SIZE);
 
     pc.hp -= damage;
     if (pc.hp <= 0) {
         console.log(`PC ${pc.playerId} defeated.`);
-        FloatingTextManager.addFloatingText(504, pc.position.x * TILE_SIZE, pc.position.y * TILE_SIZE + 50);
+        FloatingTextManager.addFloatingText(504, pc.position.x, pc.position.y+1, TILE_SIZE);
     }
 }
