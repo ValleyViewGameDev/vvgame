@@ -144,23 +144,24 @@ export const changePlayerLocation = async (
       const toGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${toLocation.g}`);
       const toGridState = toGridResponse.data?.gridState || { npcs: {}, pcs: {}, lastUpdated: Date.now() };
 
-      // Add player while preserving existing data
-      toGridState.pcs = {
-        ...toGridState.pcs,
-        [currentPlayer._id]: {
-          playerId: currentPlayer._id,
-          username: currentPlayer.username,
-          position: { x: toLocation.x, y: toLocation.y },
-          icon: currentPlayer.icon,
-          hp: currentPlayer.hp,
-          maxhp: currentPlayer.maxhp,
-          armorclass: currentPlayer.armorclass,
-          attackbonus: currentPlayer.attackbonus,
-          damage: currentPlayer.damage,
-          speed: currentPlayer.speed,
-          attackrange: currentPlayer.attackrange,
-          iscamping: currentPlayer.iscamping,
-        }
+      // Create PC entry matching the schema
+      toGridState.pcs[currentPlayer._id] = {
+        playerId: currentPlayer._id,
+        type: 'pc',  // Required enum field from schema
+        username: currentPlayer.username,
+        position: {
+          x: toLocation.x,
+          y: toLocation.y
+        },
+        icon: currentPlayer.icon || '😀',
+        hp: currentPlayer.hp || 25,
+        maxhp: currentPlayer.maxhp || 25,
+        armorclass: currentPlayer.armorclass || 10,
+        attackbonus: currentPlayer.attackbonus || 0,
+        damage: currentPlayer.damage || 1,
+        speed: currentPlayer.speed || 1,
+        attackrange: currentPlayer.attackrange || 1,
+        iscamping: currentPlayer.iscamping || false
       };
 
       // Save updated state
