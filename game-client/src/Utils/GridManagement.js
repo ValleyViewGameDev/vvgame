@@ -124,23 +124,16 @@ export const changePlayerLocation = async (
     // 1. Update FROM grid's state (remove player)
     if (fromLocation.g) {
       console.log(`1️⃣ Removing player from grid ${fromLocation.g}`);
-      
-      // Get current grid state
       const fromGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${fromLocation.g}`);
       const fromGridState = fromGridResponse.data?.gridState || { npcs: {}, pcs: {}, lastUpdated: Date.now() };
       
-      // Remove player from PCs
-      const updatedFromState = {
-        ...fromGridState,
-        npcs: fromGridState.npcs || {},
-        pcs: { ...fromGridState.pcs }
-      };
-      delete updatedFromState.pcs[currentPlayer._id];
-      
+      // Remove player but preserve other data
+      delete fromGridState.pcs[currentPlayer._id];
+
       // Save updated state
       await axios.post(`${API_BASE}/api/save-grid-state`, {
         gridId: fromLocation.g,
-        gridState: updatedFromState
+        gridState: fromGridState
       });
       console.log('✅ Player removed from fromGrid');
     }
@@ -148,39 +141,32 @@ export const changePlayerLocation = async (
     // 2. Update TO grid's state (add player)
     if (toLocation.g) {
       console.log(`2️⃣ Adding player to grid ${toLocation.g}`);
-      
-      // Get current grid state
       const toGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${toLocation.g}`);
       const toGridState = toGridResponse.data?.gridState || { npcs: {}, pcs: {}, lastUpdated: Date.now() };
 
-      // Add player to PCs
-      const updatedToState = {
-        ...toGridState,
-        npcs: toGridState.npcs || {},
-        pcs: {
-          ...toGridState.pcs || {},
-          [currentPlayer._id]: {
-            playerId: currentPlayer._id,
-            username: currentPlayer.username,
-            position: { x: toLocation.x, y: toLocation.y },
-            icon: currentPlayer.icon,
-            hp: currentPlayer.hp,
-            maxhp: currentPlayer.maxhp,
-            armorclass: currentPlayer.armorclass,
-            attackbonus: currentPlayer.attackbonus,
-            damage: currentPlayer.damage,
-            speed: currentPlayer.speed,
-            attackrange: currentPlayer.attackrange,
-            iscamping: currentPlayer.iscamping,
-          }
-        },
-        lastUpdated: Date.now()
+      // Add player while preserving existing data
+      toGridState.pcs = {
+        ...toGridState.pcs,
+        [currentPlayer._id]: {
+          playerId: currentPlayer._id,
+          username: currentPlayer.username,
+          position: { x: toLocation.x, y: toLocation.y },
+          icon: currentPlayer.icon,
+          hp: currentPlayer.hp,
+          maxhp: currentPlayer.maxhp,
+          armorclass: currentPlayer.armorclass,
+          attackbonus: currentPlayer.attackbonus,
+          damage: currentPlayer.damage,
+          speed: currentPlayer.speed,
+          attackrange: currentPlayer.attackrange,
+          iscamping: currentPlayer.iscamping,
+        }
       };
 
       // Save updated state
       await axios.post(`${API_BASE}/api/save-grid-state`, {
         gridId: toLocation.g,
-        gridState: updatedToState
+        gridState: toGridState
       });
       console.log('✅ Player added to toGrid');
     }
