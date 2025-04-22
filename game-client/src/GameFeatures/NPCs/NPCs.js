@@ -5,7 +5,7 @@ import { attachQuestBehavior } from './NPCQuestGiver';
 import { attachEnemyBehavior } from './NPCEnemy';
 import { attachHealBehavior } from './NPCHeal';
 import { attachSpawnBehavior } from './NPCSpawner';
-
+ 
 class NPC {
   constructor(id, type, position, properties, gridId) {
     console.log('NPC constructor: properties:', properties);

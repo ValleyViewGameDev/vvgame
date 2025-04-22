@@ -259,7 +259,6 @@ if (fromGridState.pcs[currentPlayer.playerId]) {
   console.log("✅ Player removed and 'from' gridState saved to DB.");
 }
 
-
     // 4️⃣ Prepare payload and update on the server
     const payload = {
       playerId: currentPlayer.playerId,
@@ -315,7 +314,8 @@ if (fromGridState.pcs[currentPlayer.playerId]) {
       });
     }
     
-    window.location.reload();
+    //window.location.reload();
+    
     // return updatedPlayer;
   } 
   catch (error) {
