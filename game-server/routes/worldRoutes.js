@@ -66,12 +66,6 @@ router.post('/update-grid-state', async (req, res) => {
           delete fromGrid.gridState.pcs[playerId];
           fromGrid.markModified('gridState');
           await fromGrid.save();
-          
-          // Broadcast the player removal to all clients in the fromGrid
-          req.app.get('io').to(fromGridId).emit('gridState-sync', {
-            updatedGridState: fromGrid.gridState
-          });
-          
           console.log(`✅ Player ${playerId} removed from fromGrid`);
         }
       }
@@ -99,16 +93,14 @@ router.post('/update-grid-state', async (req, res) => {
 
       toGrid.markModified('gridState');
       await toGrid.save();
-
-      // Broadcast the player addition to all clients in the toGrid
-      req.app.get('io').to(toGridId).emit('gridState-sync', {
-        updatedGridState: toGrid.gridState
-      });
-
       console.log(`✅ Player ${playerId} added to toGrid`);
     }
 
-    res.json({ success: true });
+    res.json({ 
+      success: true,
+      fromGridState: fromGridId ? (await Grid.findById(fromGridId))?.gridState : null,
+      toGridState: toGridId ? (await Grid.findById(toGridId))?.gridState : null
+    });
   } catch (error) {
     console.error('Error updating grid state:', error);
     res.status(500).json({ success: false, error: error.message });

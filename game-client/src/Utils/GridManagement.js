@@ -117,7 +117,7 @@ export const changePlayerLocation = async (
   TILE_SIZE,
 ) => {  
   try {
-    // 1. Update gridState in DB - this will handle removing from old grid
+    // 1. Update gridState in DB
     const gridStateUpdate = {
       playerId: currentPlayer._id,
       fromGridId: fromLocation.g,
@@ -138,18 +138,27 @@ export const changePlayerLocation = async (
       }
     };
 
-    await axios.post(`${API_BASE}/api/update-grid-state`, gridStateUpdate);
-
-    // 2. Notify all clients about the grid change
-    socket.emit('player-change-grid', {
-      playerId: currentPlayer._id,
-      fromGridId: fromLocation.g,
-      toGridId: toLocation.g,
-      newPosition: {
-        x: toLocation.x,
-        y: toLocation.y
+    const response = await axios.post(`${API_BASE}/api/update-grid-state`, gridStateUpdate);
+    
+    if (response.data.success) {
+      // 2. Emit socket updates for both grids
+      if (fromLocation.g) {
+        socket.emit('player-left-grid', {
+          gridId: fromLocation.g,
+          playerId: currentPlayer._id,
+          gridState: response.data.fromGridState
+        });
       }
-    });
+      
+      if (toLocation.g) {
+        socket.emit('player-joined-grid', {
+          gridId: toLocation.g,
+          playerId: currentPlayer._id,
+          playerData: gridStateUpdate.playerData,
+          gridState: response.data.toGridState
+        });
+      }
+    }
 
     // 3. Update player location in DB
     const payload = {
@@ -165,10 +174,10 @@ export const changePlayerLocation = async (
       }
     };
 
-    const response = await axios.post(`${API_BASE}/api/update-player-location`, payload);
+    const locationResponse = await axios.post(`${API_BASE}/api/update-player-location`, payload);
     
-    if (!response.data.success) {
-      throw new Error(response.data.error);
+    if (!locationResponse.data.success) {
+      throw new Error(locationResponse.data.error);
     }
 
     // 4. Update local state
