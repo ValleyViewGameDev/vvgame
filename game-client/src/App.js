@@ -172,8 +172,7 @@ const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
 const TILE_SIZES = { close: 30, far: 16 }; // Rename for clarity
 const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
 
-
-
+const [isNPCController, setIsNPCController] = useState(false);
 
 /////// //// //////////////////////////////////////////////////////
 
@@ -873,6 +872,29 @@ useEffect(() => {
   };
 }, [socket, gridId, currentPlayer, gridState]);
 
+// Add socket event listeners for NPC controller status
+useEffect(() => {
+  if (!socket) return;
+
+  socket.on('npc-controller-assigned', ({ gridId: controlledGridId }) => {
+    console.log(`🎮 Assigned as NPC controller for grid ${controlledGridId}`);
+    if (controlledGridId === gridId) {
+      setIsNPCController(true);
+    }
+  });
+
+  socket.on('npc-controller-revoked', ({ gridId: revokedGridId }) => {
+    console.log(`🎮 Revoked as NPC controller for grid ${revokedGridId}`);
+    if (revokedGridId === gridId) {
+      setIsNPCController(false);
+    }
+  });
+
+  return () => {
+    socket.off('npc-controller-assigned');
+    socket.off('npc-controller-revoked');
+  };
+}, [socket, gridId]);
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
 useEffect(() => {
@@ -1508,6 +1530,11 @@ const zoomOut = () => {
                 ))}
               </h4>
             )}
+            <h4 style={{ color: "white" }}>
+              {isNPCController 
+                ? `${currentPlayer?.username} is NPCController` 
+                : "There is no NPCController"}
+            </h4>
           </div>
 
           <br />

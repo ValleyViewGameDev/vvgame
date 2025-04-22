@@ -72,10 +72,54 @@ mongoose.connect(process.env.MONGODB_URI, {
     io.on('connection', (socket) => {
       console.log(`🟢 New client connected: ${socket.id}`);
 
+      // Track controller assignments
+      const gridControllers = new Map(); // Map of gridId -> socketId
+
       // Join a grid-specific room
       socket.on('join-grid', (gridId) => {
         console.log(`📡 Socket ${socket.id} joined grid room: ${gridId}`);
         socket.join(gridId);
+        
+        // If no controller exists for this grid, assign this socket
+        if (!gridControllers.has(gridId)) {
+          gridControllers.set(gridId, socket.id);
+          socket.emit('npc-controller-assigned', { gridId });
+          console.log(`🎮 Socket ${socket.id} assigned as controller for grid ${gridId}`);
+        }
+      });
+
+      socket.on('leave-grid', (gridId) => {
+        socket.leave(gridId);
+        // If this socket was the controller, assign to another socket in the room
+        if (gridControllers.get(gridId) === socket.id) {
+          const room = io.sockets.adapter.rooms.get(gridId);
+          const nextController = room?.values()?.next()?.value;
+          if (nextController) {
+            gridControllers.set(gridId, nextController);
+            io.to(nextController).emit('npc-controller-assigned', { gridId });
+            console.log(`🎮 Controller reassigned to ${nextController} for grid ${gridId}`);
+          } else {
+            gridControllers.delete(gridId);
+            console.log(`🎮 No players left in grid ${gridId}, controller removed`);
+          }
+        }
+      });
+
+      socket.on('disconnect', () => {
+        console.log(`🔴 Client disconnected: ${socket.id}`);
+        // Check all grids this socket was controlling
+        gridControllers.forEach((controllerId, gridId) => {
+          if (controllerId === socket.id) {
+            const room = io.sockets.adapter.rooms.get(gridId);
+            const nextController = room?.values()?.next()?.value;
+            if (nextController) {
+              gridControllers.set(gridId, nextController);
+              io.to(nextController).emit('npc-controller-assigned', { gridId });
+            } else {
+              gridControllers.delete(gridId);
+            }
+          }
+        });
       });
 
       // Broadcast updated gridState to others in the same grid
@@ -119,11 +163,6 @@ mongoose.connect(process.env.MONGODB_URI, {
           gridId,
           updatedResources,
         });
-      });
-
-      // Optional: log disconnects
-      socket.on('disconnect', () => {
-        console.log(`🔴 Client disconnected: ${socket.id}`);
       });
     });
 

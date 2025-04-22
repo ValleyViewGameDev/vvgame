@@ -80,7 +80,7 @@ export const createSourceConversionEffect = (x, y, TILE_SIZE, requiredSkill) => 
     particle.innerText = emoji;
     particle.style.position = 'absolute';
     particle.style.left = `${centerX - TILE_SIZE/2 + 5}px`; // Added OFFSET
-    particle.style.top = `${centerY - TILE_SIZE/2 - 7}px`;
+    particle.style.top = `${centerY - TILE_SIZE/2 - 4}px`;
     particle.style.pointerEvents = 'none';
     particle.style.zIndex = '1000';
     particle.style.fontSize = '28px';
