@@ -57,9 +57,18 @@ router.post('/update-grid-state', async (req, res) => {
   try {
     // 1. Remove player from old grid's gridState
     const fromGrid = await Grid.findById(fromGridId);
-    if (fromGrid && fromGrid.gridState?.pcs) {
-      delete fromGrid.gridState.pcs[playerId];
-      await fromGrid.save();
+    if (fromGrid) {
+      // Initialize gridState if it doesn't exist
+      if (!fromGrid.gridState) {
+        fromGrid.gridState = { npcs: {}, pcs: {} };
+      }
+      // Remove the player
+      if (fromGrid.gridState.pcs && fromGrid.gridState.pcs[playerId]) {
+        delete fromGrid.gridState.pcs[playerId];
+        fromGrid.markModified('gridState');
+        await fromGrid.save();
+        console.log(`Removed player ${playerId} from grid ${fromGridId}`);
+      }
     }
 
     // 2. Add player to new grid's gridState
