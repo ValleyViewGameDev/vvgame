@@ -58,23 +58,21 @@ router.post('/update-grid-state', async (req, res) => {
     // 1. Remove player from old grid's gridState
     const fromGrid = await Grid.findById(fromGridId);
     if (fromGrid) {
-      console.log('Current fromGrid.gridState:', JSON.stringify(fromGrid.gridState, null, 2));
+      console.log(`Removing player ${playerId} from grid ${fromGridId}`);
       
-      // Initialize if needed but keep as plain object
-      if (!fromGrid.gridState) {
-        fromGrid.gridState = {
-          npcs: {},
-          pcs: {},
-          lastUpdated: Date.now()
-        };
-      }
+      // Initialize if needed
+      fromGrid.gridState = fromGrid.gridState || {
+        npcs: {},
+        pcs: {},
+        lastUpdated: Date.now()
+      };
 
-      // Remove player if exists
+      // Remove player and save immediately
       if (fromGrid.gridState.pcs && fromGrid.gridState.pcs[playerId]) {
         delete fromGrid.gridState.pcs[playerId];
         fromGrid.markModified('gridState');
         await fromGrid.save();
-        console.log(`Removed player ${playerId} from fromGrid's gridState`);
+        console.log(`Player ${playerId} removed from fromGrid`);
       }
     }
 
@@ -84,34 +82,22 @@ router.post('/update-grid-state', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Target grid not found' });
     }
 
-    // Initialize if needed but keep as plain object
+    // Initialize if needed
     toGrid.gridState = toGrid.gridState || {
       npcs: {},
       pcs: {},
       lastUpdated: Date.now()
     };
 
-    // Add player with schema validation
+    // Add player with validation
     toGrid.gridState.pcs[playerId] = {
-      playerId,
-      username: playerData.username,
-      type: 'pc',
-      position: playerData.position,
-      icon: playerData.icon,
-      hp: playerData.hp,
-      maxhp: playerData.maxhp,
-      attackbonus: playerData.attackbonus,
-      armorclass: playerData.armorclass,
-      damage: playerData.damage,
-      attackrange: playerData.attackrange,
-      speed: playerData.speed,
-      iscamping: playerData.iscamping || false
+      ...playerData,
+      lastUpdated: Date.now() // Add timestamp to track most recent update
     };
 
-    // Mark entire gridState as modified and update timestamp
     toGrid.markModified('gridState');
-    toGrid.gridState.lastUpdated = Date.now();
     await toGrid.save();
+    console.log(`Player ${playerId} added to toGrid`);
 
     res.json({ success: true });
   } catch (error) {

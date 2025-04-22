@@ -506,36 +506,34 @@ useEffect(() => {
 // GRID STATE:  NPC and PC Management Loop  /////////////////////////
 useEffect(() => {
   if (!isAppInitialized) {
-    console.warn('App is not fully initialized or no gridId/gridState available. Skipping NPC/PC management.');
+    console.warn('App not fully initialized. Skipping NPC/PC management.');
     return;
   }
-  console.log('Starting NPC/PC manager for gridId:', gridId);
 
   const interval = setInterval(async () => {
-    if (!gridState) {
-      console.warn(`Interval loop: No gridState available for gridId: ${gridId}`);
+    if (!gridState?.npcs) {
+      console.warn('No NPCs in gridState');
       return;
     }
-    const { npcs = {}, pcs = {} } = gridState;
-    
-    // Ensure all NPCs have the latest state
 
-    Object.values(npcs).forEach((npc) => {
-      const currentTime = Date.now();
-      npc.update(currentTime, gridState, gridId, activeTileSize);
-
-    });
-    // Check each PC's HP directly from gridState
-    Object.values(pcs).forEach(async (pc) => {
-      if (pc.hp <= 0 && currentPlayer && String(currentPlayer._id) === pc.playerId) {
-        console.warn(`PC ${pc.username} has died.`);
-        await handlePlayerDeath(currentPlayer);
+    // Only process NPCs that have the update method
+    Object.values(gridState.npcs).forEach((npc) => {
+      if (typeof npc.update === 'function') {
+        const currentTime = Date.now();
+        npc.update(currentTime, gridState, gridId, activeTileSize);
       }
     });
 
-  }, 1000); // Run every second
+    // Check PCs separately without update method
+    if (gridState.pcs) {
+      Object.values(gridState.pcs).forEach(async (pc) => {
+        if (pc.hp <= 0 && currentPlayer && String(currentPlayer._id) === pc.playerId) {
+          await handlePlayerDeath(currentPlayer);
+        }
+      });
+    }
+  }, 1000);
 
-  // Cleanup interval on unmount or gridId change
   return () => clearInterval(interval);
 }, [isAppInitialized, gridId, gridState, currentPlayer, activeTileSize]);
 
@@ -832,24 +830,35 @@ useEffect(() => {
 useEffect(() => {
   if (!gridId || !currentPlayer) return;
 
+  let lastUpdateTime = 0;
+
   const handleGridStateSync = ({ updatedGridState }) => {
-    // Don't use timestamp comparison for now - trust the server state
-    console.log("📡 Received gridState update from server:", updatedGridState);
-    
-    // Preserve local player in the new state
-    const localPlayerId = currentPlayer?._id;
-    const localPlayerData = gridState?.pcs?.[localPlayerId];
-    
-    if (localPlayerId && localPlayerData) {
-      updatedGridState.pcs = {
-        ...updatedGridState.pcs,
-        [localPlayerId]: localPlayerData // Keep local player's state
-      };
+    if (!updatedGridState || !updatedGridState.lastUpdated) {
+      console.warn('Invalid gridState update received');
+      return;
     }
 
-    // Update state management
-    gridStateManager.gridStates[gridId] = updatedGridState;
-    setGridState(updatedGridState);
+    // Always preserve the local player's exact state
+    const localPlayerId = currentPlayer._id;
+    const localPlayerData = gridState?.pcs?.[localPlayerId];
+
+    if (updatedGridState.lastUpdated <= lastUpdateTime) {
+      console.log('⏳ Skipping older gridState update');
+      return;
+    }
+
+    // Create new state with local player preserved
+    const newGridState = {
+      ...updatedGridState,
+      pcs: {
+        ...updatedGridState.pcs,
+        [localPlayerId]: localPlayerData || updatedGridState.pcs?.[localPlayerId]
+      }
+    };
+
+    lastUpdateTime = updatedGridState.lastUpdated;
+    gridStateManager.gridStates[gridId] = newGridState;
+    setGridState(newGridState);
   };
 
   console.log("🧲 [gridState] Subscribing to real-time updates for grid:", gridId);
@@ -859,7 +868,7 @@ useEffect(() => {
     console.log("🧹 Unsubscribing from gridState-sync for grid:", gridId);
     socket.off('gridState-sync', handleGridStateSync);
   };
-}, [socket, gridId, currentPlayer]);
+}, [socket, gridId, currentPlayer, gridState]);
 
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
