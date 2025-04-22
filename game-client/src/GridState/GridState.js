@@ -454,6 +454,16 @@ stopGridStateUpdates() {
     this.gridStates = {}; // Clear in-memory grid states
   }
 
+  /**
+   * Clear the gridState for a specific gridId.
+   */
+clearGridState(gridId) {
+    if (this.gridStates[gridId]) {
+      delete this.gridStates[gridId];
+      console.log(`Cleared gridState for grid ${gridId}`);
+    }
+  }
+
 }
 
 
@@ -471,6 +481,7 @@ export const {
   updatePC,
   removeNPC,
   saveGridState,
+  clearGridState,
 } = gridStateManager;
 
 // Default export for the entire manager

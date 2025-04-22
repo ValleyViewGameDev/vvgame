@@ -117,15 +117,28 @@ export const changePlayerLocation = async (
   TILE_SIZE,
 ) => {  
   try {
-    // 1. Remove player from old grid first
-    const removeFromGridPayload = {
+    // 1. Update gridState in DB - this will handle removing from old grid
+    const gridStateUpdate = {
       playerId: currentPlayer._id,
       fromGridId: fromLocation.g,
-      toGridId: toLocation.g
+      toGridId: toLocation.g,
+      playerData: {
+        playerId: currentPlayer._id,
+        username: currentPlayer.username,
+        position: { x: toLocation.x, y: toLocation.y },
+        icon: currentPlayer.icon,
+        hp: currentPlayer.hp,
+        maxhp: currentPlayer.maxhp,
+        armorclass: currentPlayer.armorclass,
+        attackbonus: currentPlayer.attackbonus,
+        damage: currentPlayer.damage,
+        speed: currentPlayer.speed,
+        attackrange: currentPlayer.attackrange,
+        iscamping: currentPlayer.iscamping,
+      }
     };
 
-    // Remove from old grid in DB
-    await axios.post(`${API_BASE}/api/remove-player-from-grid`, removeFromGridPayload);
+    await axios.post(`${API_BASE}/api/update-grid-state`, gridStateUpdate);
 
     // 2. Notify all clients about the grid change
     socket.emit('player-change-grid', {

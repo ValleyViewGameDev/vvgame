@@ -51,7 +51,30 @@ router.post('/save-grid-state', async (req, res) => {
   }
 });
 
-// Server-side route
+router.post('/update-grid-state', async (req, res) => {
+  const { playerId, fromGridId, toGridId, playerData } = req.body;
+  
+  try {
+    // 1. Remove player from old grid
+    await GridState.findOneAndUpdate(
+      { gridId: fromGridId },
+      { $unset: { [`pcs.${playerId}`]: 1 } }
+    );
+
+    // 2. Add to new grid
+    await GridState.findOneAndUpdate(
+      { gridId: toGridId },
+      { $set: { [`pcs.${playerId}`]: playerData } },
+      { upsert: true }
+    );
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+
 router.get('/load-grid-state/:gridId', async (req, res) => {
   const { gridId } = req.params;
   console.log('Loading gridState for gridId:', gridId);

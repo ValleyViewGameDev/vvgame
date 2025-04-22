@@ -634,7 +634,23 @@ useEffect(() => {
     }
   };
 
+  const handleClearGridState = async (command) => {
+    switch (command) {
+      case 'cleargrid':
+        if (gridStateManager.clearGridState(currentGridId)) {
+          updateStatus('Grid state cleared successfully');
+          // Clear from localStorage if you're using it
+          localStorage.removeItem(`gridState_${currentGridId}`);
+        } else {
+          updateStatus('Failed to clear grid state');
+        }
+        break;
 
+      // Add other debug commands here
+      default:
+        console.warn(`Unknown debug command: ${command}`);
+    }
+  };
 
   return (
     <Panel onClose={onClose} titleKey="1120" panelName="DebugPanel">
@@ -650,6 +666,7 @@ useEffect(() => {
         <button className="btn-danger" onClick={() => handleGenerateValley(3)}> Generate Valley 3 </button>
         <button className="btn-danger" onClick={handleClearInventory}> Clear Inventory & Skills </button>
         <button className="btn-danger" onClick={handleClearQuestHistory}> Clear Quest History </button>
+        <button className="btn-danger" onClick={handleClearGridState}> Clear Grid State </button>
         <button className="btn-neutral" onClick={handleClearTradeStall}> Clear Trade Stall </button>
         <button className="btn-success" onClick={handleAddMoney}> Add Money </button>
         <button className="btn-success" onClick={handleGetRich}> Get Rich </button>
