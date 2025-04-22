@@ -112,32 +112,52 @@ export async function handleNPCClick(
       }
 
       // Update the player's inventory
-      const updatedInventory = [...currentPlayer.inventory];
+      const updatedInventory = [...currentPlayer.inventory].filter(item => 
+        item && typeof item === 'object' && item.type && item.quantity
+      );
       const resourceIndex = updatedInventory.findIndex((item) => item.type === npc.output);
 
       if (resourceIndex >= 0) {
         updatedInventory[resourceIndex].quantity += quantityToCollect;
       } else {
-        updatedInventory.push({ type: npc.output, quantity: quantityToCollect });
+        updatedInventory.push({ 
+          type: npc.output, 
+          quantity: quantityToCollect 
+        });
       }
-      setInventory(updatedInventory);
-      localStorage.setItem('inventory', JSON.stringify(updatedInventory));
 
-      // Display floating text
-      FloatingTextManager.addFloatingText(`+${quantityToCollect} ${npc.output}`, col, row, TILE_SIZE);
+      // Validate inventory before sending to server
+      const validInventory = updatedInventory.every(item => 
+        item && 
+        typeof item === 'object' && 
+        typeof item.type === 'string' && 
+        typeof item.quantity === 'number'
+      );
+
+      if (!validInventory) {
+        console.error('Invalid inventory state:', updatedInventory);
+        return { type: 'error', message: 'Invalid inventory state' };
+      }
 
       try {
-        await axios.post(`${API_BASE}/api/update-inventory`, {
+        const response = await axios.post(`${API_BASE}/api/update-inventory`, {
           playerId: currentPlayer.playerId,
           inventory: updatedInventory,
         });
 
-        npc.state = 'emptystall';
-        npc.hp = 0; // Reset hunger
-        console.log(`NPC ${npc.id} collected and transitioned to roam.`);
-        return { type: 'success', message: `Collected ${quantityToCollect} ${npc.output}.` };
-      } 
-        catch (error) {
+        if (response.data.success) {
+          setInventory(updatedInventory);
+          localStorage.setItem('inventory', JSON.stringify(updatedInventory));
+          
+          npc.state = 'emptystall';
+          npc.hp = 0;
+          
+          FloatingTextManager.addFloatingText(`+${quantityToCollect} ${npc.output}`, col, row, TILE_SIZE);
+          return { type: 'success', message: `Collected ${quantityToCollect} ${npc.output}.` };
+        } else {
+          throw new Error(response.data.message || 'Failed to update inventory');
+        }
+      } catch (error) {
         console.error('Error updating inventory or grid state on server:', error);
         return { type: 'error', message: 'Failed to update inventory or stall.' };
       }
@@ -156,4 +176,3 @@ export async function handleNPCClick(
       break;
   }
 }
-  

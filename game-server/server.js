@@ -72,19 +72,28 @@ mongoose.connect(process.env.MONGODB_URI, {
     io.on('connection', (socket) => {
       console.log(`🟢 New client connected: ${socket.id}`);
 
-      // Track controller assignments
-      const gridControllers = new Map(); // Map of gridId -> socketId
+      // Track controller assignments (move this OUTSIDE the connection handler)
+      const gridControllers = io.gridControllers = io.gridControllers || new Map();
 
-      // Join a grid-specific room
       socket.on('join-grid', (gridId) => {
         console.log(`📡 Socket ${socket.id} joined grid room: ${gridId}`);
         socket.join(gridId);
         
-        // If no controller exists for this grid, assign this socket
-        if (!gridControllers.has(gridId)) {
+        // Check if another controller exists
+        const existingController = gridControllers.get(gridId);
+        if (!existingController) {
           gridControllers.set(gridId, socket.id);
           socket.emit('npc-controller-assigned', { gridId });
           console.log(`🎮 Socket ${socket.id} assigned as controller for grid ${gridId}`);
+        } else {
+          // Verify the existing controller is still connected
+          const controllerSocket = io.sockets.sockets.get(existingController);
+          if (!controllerSocket) {
+            // Previous controller disconnected, assign new one
+            gridControllers.set(gridId, socket.id);
+            socket.emit('npc-controller-assigned', { gridId });
+            console.log(`🎮 Reassigning controller to ${socket.id} for grid ${gridId}`);
+          }
         }
       });
 
