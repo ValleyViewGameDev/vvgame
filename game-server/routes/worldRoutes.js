@@ -56,48 +56,57 @@ router.post('/update-grid-state', async (req, res) => {
   
   try {
     // 1. Remove player from old grid's gridState
-    const fromGrid = await Grid.findById(fromGridId);
-    if (fromGrid) {
-      console.log(`Removing player ${playerId} from grid ${fromGridId}`);
-      
+    if (fromGridId) {
+      const fromGrid = await Grid.findById(fromGridId);
+      if (fromGrid && fromGrid.gridState?.pcs) {
+        console.log(`Removing player ${playerId} from grid ${fromGridId}`);
+        
+        // Ensure clean removal from pcs
+        if (fromGrid.gridState.pcs[playerId]) {
+          delete fromGrid.gridState.pcs[playerId];
+          fromGrid.markModified('gridState');
+          await fromGrid.save();
+          
+          // Broadcast the player removal to all clients in the fromGrid
+          req.app.get('io').to(fromGridId).emit('gridState-sync', {
+            updatedGridState: fromGrid.gridState
+          });
+          
+          console.log(`✅ Player ${playerId} removed from fromGrid`);
+        }
+      }
+    }
+
+    // 2. Add player to new grid's gridState
+    if (toGridId && playerData) {
+      const toGrid = await Grid.findById(toGridId);
+      if (!toGrid) {
+        return res.status(404).json({ success: false, error: 'Target grid not found' });
+      }
+
       // Initialize if needed
-      fromGrid.gridState = fromGrid.gridState || {
+      toGrid.gridState = toGrid.gridState || {
         npcs: {},
         pcs: {},
         lastUpdated: Date.now()
       };
 
-      // Remove player and save immediately
-      if (fromGrid.gridState.pcs && fromGrid.gridState.pcs[playerId]) {
-        delete fromGrid.gridState.pcs[playerId];
-        fromGrid.markModified('gridState');
-        await fromGrid.save();
-        console.log(`Player ${playerId} removed from fromGrid`);
-      }
+      // Add player with validation
+      toGrid.gridState.pcs[playerId] = {
+        ...playerData,
+        lastUpdated: Date.now()
+      };
+
+      toGrid.markModified('gridState');
+      await toGrid.save();
+
+      // Broadcast the player addition to all clients in the toGrid
+      req.app.get('io').to(toGridId).emit('gridState-sync', {
+        updatedGridState: toGrid.gridState
+      });
+
+      console.log(`✅ Player ${playerId} added to toGrid`);
     }
-
-    // 2. Add player to new grid's gridState
-    const toGrid = await Grid.findById(toGridId);
-    if (!toGrid) {
-      return res.status(404).json({ success: false, error: 'Target grid not found' });
-    }
-
-    // Initialize if needed
-    toGrid.gridState = toGrid.gridState || {
-      npcs: {},
-      pcs: {},
-      lastUpdated: Date.now()
-    };
-
-    // Add player with validation
-    toGrid.gridState.pcs[playerId] = {
-      ...playerData,
-      lastUpdated: Date.now() // Add timestamp to track most recent update
-    };
-
-    toGrid.markModified('gridState');
-    await toGrid.save();
-    console.log(`Player ${playerId} added to toGrid`);
 
     res.json({ success: true });
   } catch (error) {

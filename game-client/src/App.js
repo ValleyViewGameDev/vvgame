@@ -174,6 +174,9 @@ const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
 
 const [isNPCController, setIsNPCController] = useState(false);
 
+// Add state for controller username
+const [controllerUsername, setControllerUsername] = useState(null);
+
 /////// //// //////////////////////////////////////////////////////
 
 //Forgot why we did this:
@@ -268,6 +271,11 @@ useEffect(() => {
       socket.connect();
       socket.emit('join-grid', initialGridId);
       console.log("📡 Connected to socket and joined grid:", initialGridId);
+
+      // Send username to server when joining grid
+      if (initialGridId) {
+        socket.emit('set-username', { username: fullPlayerData.username });
+      }
 
       // 5. Initialize grid tiles, resources, and state
       console.log('5 InitAppWrapper; Initializing grid tiles and resources...');
@@ -874,7 +882,17 @@ useEffect(() => {
 
 // Add socket event listeners for NPC controller status
 useEffect(() => {
-  if (!socket) return;
+  if (!socket || !currentPlayer) return;
+
+  // Send username to server when joining grid
+  if (gridId) {
+    socket.emit('set-username', { username: currentPlayer.username });
+  }
+
+  socket.on('npc-controller-update', ({ controllerUsername }) => {
+    setControllerUsername(controllerUsername);
+    setIsNPCController(controllerUsername === currentPlayer.username);
+  });
 
   socket.on('npc-controller-assigned', ({ gridId: controlledGridId }) => {
     console.log(`🎮 Assigned as NPC controller for grid ${controlledGridId}`);
@@ -891,10 +909,11 @@ useEffect(() => {
   });
 
   return () => {
+    socket.off('npc-controller-update');
     socket.off('npc-controller-assigned');
     socket.off('npc-controller-revoked');
   };
-}, [socket, gridId]);
+}, [socket, gridId, currentPlayer]);
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
 useEffect(() => {
@@ -1531,8 +1550,8 @@ const zoomOut = () => {
               </h4>
             )}
             <h4 style={{ color: "white" }}>
-              {isNPCController 
-                ? `${currentPlayer?.username} is NPCController` 
+              {controllerUsername 
+                ? `${controllerUsername} is NPCController` 
                 : "There is no NPCController"}
             </h4>
           </div>
