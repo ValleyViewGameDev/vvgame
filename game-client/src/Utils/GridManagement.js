@@ -117,14 +117,17 @@ export const changePlayerLocation = async (
   TILE_SIZE,
 ) => {  
   try {
-    // Validate inputs and log for debugging
-    console.log('📝 Change Location Request:', {
-      playerId: currentPlayer?._id,
-      from: fromLocation?.g,
-      to: toLocation?.g
-    });
+    // 1. Remove player from old grid first
+    const removeFromGridPayload = {
+      playerId: currentPlayer._id,
+      fromGridId: fromLocation.g,
+      toGridId: toLocation.g
+    };
 
-    // 1. Notify server about grid change FIRST
+    // Remove from old grid in DB
+    await axios.post(`${API_BASE}/api/remove-player-from-grid`, removeFromGridPayload);
+
+    // 2. Notify all clients about the grid change
     socket.emit('player-change-grid', {
       playerId: currentPlayer._id,
       fromGridId: fromLocation.g,
@@ -135,7 +138,7 @@ export const changePlayerLocation = async (
       }
     });
 
-    // 2. Update server-side player location
+    // 3. Update player location in DB
     const payload = {
       playerId: currentPlayer.playerId,
       location: {
@@ -154,35 +157,21 @@ export const changePlayerLocation = async (
     if (!response.data.success) {
       throw new Error(response.data.error);
     }
-    
-    // Get player data from gridState to sync combat stats
-    const gridState = gridStateManager.getGridState(toLocation.g);
-    const playerInGridState = gridState?.pcs?.[currentPlayer._id];
 
-    // 3. Update local player state with latest combat stats
+    // 4. Update local state
     const updatedPlayer = {
       ...currentPlayer,
-      location: toLocation,
-      ...(playerInGridState && {
-        hp: playerInGridState.hp,
-        maxhp: playerInGridState.maxhp,
-        armorclass: playerInGridState.armorclass,
-        attackbonus: playerInGridState.attackbonus,
-        damage: playerInGridState.damage,
-        speed: playerInGridState.speed,
-        attackrange: playerInGridState.attackrange,
-        iscamping: playerInGridState.iscamping,
-      })
+      location: toLocation
     };
 
     setCurrentPlayer(updatedPlayer);
     localStorage.setItem("player", JSON.stringify(updatedPlayer));
 
-    // 4. Change grid context
+    // 5. Change grid context & fetch new grid data
     setGridId(toLocation.g);
     await initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes);
 
-    // 5. Center the view on the player's new position
+    // 6. Center view on player
     const gameContainer = document.querySelector(".homestead");
     if (gameContainer) {
       const centerX = toLocation.x * TILE_SIZE - window.innerWidth / 2;
