@@ -121,62 +121,84 @@ export const changePlayerLocation = async (
     console.log('FROM:', { grid: fromLocation.g, type: fromLocation.gtype });
     console.log('TO:', { grid: toLocation.g, type: toLocation.gtype });
 
-    // 1. Update gridState in DB
-    console.log('1️⃣ Updating grid states...');
-    const gridStateUpdate = {
-      playerId: currentPlayer._id,
-      fromGridId: fromLocation.g,
-      toGridId: toLocation.g,
-      playerData: {
-        playerId: currentPlayer._id,
-        username: currentPlayer.username,
-        position: { x: toLocation.x, y: toLocation.y },
-        icon: currentPlayer.icon,
-        hp: currentPlayer.hp,
-        maxhp: currentPlayer.maxhp,
-        armorclass: currentPlayer.armorclass,
-        attackbonus: currentPlayer.attackbonus,
-        damage: currentPlayer.damage,
-        speed: currentPlayer.speed,
-        attackrange: currentPlayer.attackrange,
-        iscamping: currentPlayer.iscamping,
-      }
-    };
-
-    console.log('📤 Sending grid state update:', gridStateUpdate);
-    const response = await axios.post(`${API_BASE}/api/update-grid-state`, gridStateUpdate);
-    
-    if (!response.data.success) {
-      throw new Error('Failed to update grid states');
+    // 1. Update FROM grid's state (remove player)
+    if (fromLocation.g) {
+      console.log(`1️⃣ Removing player from grid ${fromLocation.g}`);
+      
+      // Get current grid state
+      const fromGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${fromLocation.g}`);
+      const fromGridState = fromGridResponse.data?.gridState || { npcs: {}, pcs: {}, lastUpdated: Date.now() };
+      
+      // Remove player from PCs
+      const updatedFromState = {
+        ...fromGridState,
+        npcs: fromGridState.npcs || {},
+        pcs: { ...fromGridState.pcs }
+      };
+      delete updatedFromState.pcs[currentPlayer._id];
+      
+      // Save updated state
+      await axios.post(`${API_BASE}/api/save-grid-state`, {
+        gridId: fromLocation.g,
+        gridState: updatedFromState
+      });
+      console.log('✅ Player removed from fromGrid');
     }
 
-    console.log('✅ Grid states updated on server');
-    console.log('FROM state:', response.data.fromGridState);
-    console.log('TO state:', response.data.toGridState);
+    // 2. Update TO grid's state (add player)
+    if (toLocation.g) {
+      console.log(`2️⃣ Adding player to grid ${toLocation.g}`);
+      
+      // Get current grid state
+      const toGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${toLocation.g}`);
+      const toGridState = toGridResponse.data?.gridState || { npcs: {}, pcs: {}, lastUpdated: Date.now() };
 
-    // 2. Update player location in DB
-    console.log('2️⃣ Updating player location...');
-    const locationUpdate = {
-      playerId: currentPlayer.playerId,
-      location: {
-        x: toLocation.x || 1,
-        y: toLocation.y || 1,
-        g: toLocation.g,
-        s: toLocation.s,
-        f: toLocation.f,
-        gtype: toLocation.gtype,
-        gridCoord: toLocation.gridCoord
-      }
-    };
+      // Add player to PCs
+      const updatedToState = {
+        ...toGridState,
+        npcs: toGridState.npcs || {},
+        pcs: {
+          ...toGridState.pcs || {},
+          [currentPlayer._id]: {
+            playerId: currentPlayer._id,
+            username: currentPlayer.username,
+            position: { x: toLocation.x, y: toLocation.y },
+            icon: currentPlayer.icon,
+            hp: currentPlayer.hp,
+            maxhp: currentPlayer.maxhp,
+            armorclass: currentPlayer.armorclass,
+            attackbonus: currentPlayer.attackbonus,
+            damage: currentPlayer.damage,
+            speed: currentPlayer.speed,
+            attackrange: currentPlayer.attackrange,
+            iscamping: currentPlayer.iscamping,
+          }
+        },
+        lastUpdated: Date.now()
+      };
 
-    const locationResponse = await axios.post(`${API_BASE}/api/update-player-location`, locationUpdate);
+      // Save updated state
+      await axios.post(`${API_BASE}/api/save-grid-state`, {
+        gridId: toLocation.g,
+        gridState: updatedToState
+      });
+      console.log('✅ Player added to toGrid');
+    }
+
+    // 3. Update player location in DB
+    console.log('3️⃣ Updating player location...');
+    const locationResponse = await axios.post(`${API_BASE}/api/update-player-location`, {
+      playerId: currentPlayer._id,
+      location: toLocation
+    });
+
     if (!locationResponse.data.success) {
       throw new Error(locationResponse.data.error);
     }
     console.log('✅ Player location updated in DB');
 
-    // 3. Update local state
-    console.log('3️⃣ Updating local state...');
+    // 4. Update local state
+    console.log('4️⃣ Updating local state...');
     const updatedPlayer = {
       ...currentPlayer,
       location: toLocation
@@ -185,8 +207,8 @@ export const changePlayerLocation = async (
     setCurrentPlayer(updatedPlayer);
     localStorage.setItem("player", JSON.stringify(updatedPlayer));
 
-    // 4. Socket notifications for real-time updates
-    console.log('4️⃣ Emitting socket events...');
+    // 5. Socket notifications for real-time updates
+    console.log('5️⃣ Emitting socket events...');
     if (fromLocation.g) {
       socket.emit('player-left-grid', {
         gridId: fromLocation.g,
@@ -201,19 +223,32 @@ export const changePlayerLocation = async (
         gridId: toLocation.g,
         playerId: currentPlayer._id,
         username: currentPlayer.username,
-        playerData: gridStateUpdate.playerData
+        playerData: {
+          playerId: currentPlayer._id,
+          username: currentPlayer.username,
+          position: { x: toLocation.x, y: toLocation.y },
+          icon: currentPlayer.icon,
+          hp: currentPlayer.hp,
+          maxhp: currentPlayer.maxhp,
+          armorclass: currentPlayer.armorclass,
+          attackbonus: currentPlayer.attackbonus,
+          damage: currentPlayer.damage,
+          speed: currentPlayer.speed,
+          attackrange: currentPlayer.attackrange,
+          iscamping: currentPlayer.iscamping,
+        }
       });
       console.log(`📢 Emitted player-joined-grid for ${toLocation.g}`);
     }
 
-    // 5. Change grid context & fetch new grid data
-    console.log('5️⃣ Initializing new grid...');
+    // 6. Change grid context & fetch new grid data
+    console.log('6️⃣ Initializing new grid...');
     setGridId(toLocation.g);
     await initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes);
     console.log('✅ New grid initialized');
 
-    // 6. Center view on player
-    console.log('6️⃣ Centering view...');
+    // 7. Center view on player
+    console.log('7️⃣ Centering view...');
     const gameContainer = document.querySelector(".homestead");
     if (gameContainer) {
       const centerX = toLocation.x * TILE_SIZE - window.innerWidth / 2;
