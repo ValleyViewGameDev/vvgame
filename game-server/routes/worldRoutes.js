@@ -60,24 +60,19 @@ router.post('/update-grid-state', async (req, res) => {
     if (fromGrid) {
       console.log('Current fromGrid.gridState:', JSON.stringify(fromGrid.gridState, null, 2));
       
-      // Initialize Map structures if they don't exist
+      // Initialize if needed but keep as plain object
       if (!fromGrid.gridState) {
         fromGrid.gridState = {
-          npcs: new Map(),
-          pcs: new Map(),
+          npcs: {},
+          pcs: {},
           lastUpdated: Date.now()
         };
       }
 
-      // Ensure pcs is a Map
-      if (!(fromGrid.gridState.pcs instanceof Map)) {
-        fromGrid.gridState.pcs = new Map(Object.entries(fromGrid.gridState.pcs || {}));
-      }
-
-      // Remove player from Map
-      if (fromGrid.gridState.pcs.has(playerId)) {
-        fromGrid.gridState.pcs.delete(playerId);
-        fromGrid.markModified('gridState.pcs');
+      // Remove player if exists
+      if (fromGrid.gridState.pcs && fromGrid.gridState.pcs[playerId]) {
+        delete fromGrid.gridState.pcs[playerId];
+        fromGrid.markModified('gridState');
         await fromGrid.save();
         console.log(`Removed player ${playerId} from fromGrid's gridState`);
       }
@@ -89,22 +84,15 @@ router.post('/update-grid-state', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Target grid not found' });
     }
 
-    // Initialize Map structures for target grid
-    if (!toGrid.gridState) {
-      toGrid.gridState = {
-        npcs: new Map(),
-        pcs: new Map(),
-        lastUpdated: Date.now()
-      };
-    }
+    // Initialize if needed but keep as plain object
+    toGrid.gridState = toGrid.gridState || {
+      npcs: {},
+      pcs: {},
+      lastUpdated: Date.now()
+    };
 
-    // Ensure pcs is a Map
-    if (!(toGrid.gridState.pcs instanceof Map)) {
-      toGrid.gridState.pcs = new Map(Object.entries(toGrid.gridState.pcs || {}));
-    }
-
-    // Add player to Map with schema validation
-    toGrid.gridState.pcs.set(playerId, {
+    // Add player with schema validation
+    toGrid.gridState.pcs[playerId] = {
       playerId,
       username: playerData.username,
       type: 'pc',
@@ -118,9 +106,10 @@ router.post('/update-grid-state', async (req, res) => {
       attackrange: playerData.attackrange,
       speed: playerData.speed,
       iscamping: playerData.iscamping || false
-    });
+    };
 
-    toGrid.markModified('gridState.pcs');
+    // Mark entire gridState as modified and update timestamp
+    toGrid.markModified('gridState');
     toGrid.gridState.lastUpdated = Date.now();
     await toGrid.save();
 

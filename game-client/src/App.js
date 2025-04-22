@@ -833,50 +833,24 @@ useEffect(() => {
   if (!gridId || !currentPlayer) return;
 
   const handleGridStateSync = ({ updatedGridState }) => {
-    if (updatedGridState.lastUpdated <= getLastGridStateTimestamp()) {
-      console.log("⏳ Skipping socket update — older or same timestamp");
-      return;
+    // Don't use timestamp comparison for now - trust the server state
+    console.log("📡 Received gridState update from server:", updatedGridState);
+    
+    // Preserve local player in the new state
+    const localPlayerId = currentPlayer?._id;
+    const localPlayerData = gridState?.pcs?.[localPlayerId];
+    
+    if (localPlayerId && localPlayerData) {
+      updatedGridState.pcs = {
+        ...updatedGridState.pcs,
+        [localPlayerId]: localPlayerData // Keep local player's state
+      };
     }
-    console.log("📡 Applying newer socket gridState:", updatedGridState);
-    updateLastGridStateTimestamp(updatedGridState.lastUpdated);
-  
-    // ✅ Rehydrate all NPCs into class instances
-    const hydratedNPCs = {};
-    for (const [npcId, npcData] of Object.entries(updatedGridState.npcs || {})) {
-      const template = masterResources.find((r) => r.type === npcData.type);
-      const enrichedProperties = { ...template, ...npcData };
-    
-      // Check if we already have a more recent version of this NPC
-      const localNPC = gridStateManager.gridStates[gridId]?.npcs?.[npcId];
-      const localTime = localNPC?.lastUpdated || 0;
-      const incomingTime = npcData.lastUpdated || 0;
-    
-      if (incomingTime < localTime) {
-        console.log(`⏳ Skipping hydration for NPC ${npcId} — incoming time (${incomingTime}) is older than local time (${localTime})`);
-        hydratedNPCs[npcId] = localNPC; // Keep the more recent local NPC
-        continue;
-      }
-      console.log(`🔁 Hydrating NPC ${npcId} with grazeEnd:`, enrichedProperties.grazeEnd);
-    
-      hydratedNPCs[npcId] = new NPC(
-        npcData.id,
-        npcData.type,
-        npcData.position,
-        enrichedProperties,
-        gridId
-      );
-    }
-    const newState = {
-      ...updatedGridState,
-      npcs: hydratedNPCs,
-    };
-  
-    // ✅ Update memory and React state
-    gridStateManager.gridStates[gridId] = newState;
-    setGridState(newState);
-  
-  };
 
+    // Update state management
+    gridStateManager.gridStates[gridId] = updatedGridState;
+    setGridState(updatedGridState);
+  };
 
   console.log("🧲 [gridState] Subscribing to real-time updates for grid:", gridId);
   socket.on('gridState-sync', handleGridStateSync);
