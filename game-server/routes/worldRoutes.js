@@ -58,16 +58,28 @@ router.post('/update-grid-state', async (req, res) => {
     // 1. Remove player from old grid's gridState
     const fromGrid = await Grid.findById(fromGridId);
     if (fromGrid) {
-      // Initialize gridState if it doesn't exist
+      console.log('Current fromGrid.gridState:', JSON.stringify(fromGrid.gridState, null, 2));
+      
+      // Initialize Map structures if they don't exist
       if (!fromGrid.gridState) {
-        fromGrid.gridState = { npcs: {}, pcs: {} };
+        fromGrid.gridState = {
+          npcs: new Map(),
+          pcs: new Map(),
+          lastUpdated: Date.now()
+        };
       }
-      // Remove the player
-      if (fromGrid.gridState.pcs && fromGrid.gridState.pcs[playerId]) {
-        delete fromGrid.gridState.pcs[playerId];
-        fromGrid.markModified('gridState');
+
+      // Ensure pcs is a Map
+      if (!(fromGrid.gridState.pcs instanceof Map)) {
+        fromGrid.gridState.pcs = new Map(Object.entries(fromGrid.gridState.pcs || {}));
+      }
+
+      // Remove player from Map
+      if (fromGrid.gridState.pcs.has(playerId)) {
+        fromGrid.gridState.pcs.delete(playerId);
+        fromGrid.markModified('gridState.pcs');
         await fromGrid.save();
-        console.log(`Removed player ${playerId} from grid ${fromGridId}`);
+        console.log(`Removed player ${playerId} from fromGrid's gridState`);
       }
     }
 
@@ -77,17 +89,39 @@ router.post('/update-grid-state', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Target grid not found' });
     }
 
-    // Initialize gridState if needed
+    // Initialize Map structures for target grid
     if (!toGrid.gridState) {
-      toGrid.gridState = { npcs: {}, pcs: {} };
-    }
-    if (!toGrid.gridState.pcs) {
-      toGrid.gridState.pcs = {};
+      toGrid.gridState = {
+        npcs: new Map(),
+        pcs: new Map(),
+        lastUpdated: Date.now()
+      };
     }
 
-    // Add the player
-    toGrid.gridState.pcs[playerId] = playerData;
-    toGrid.markModified('gridState'); // Important for nested updates
+    // Ensure pcs is a Map
+    if (!(toGrid.gridState.pcs instanceof Map)) {
+      toGrid.gridState.pcs = new Map(Object.entries(toGrid.gridState.pcs || {}));
+    }
+
+    // Add player to Map with schema validation
+    toGrid.gridState.pcs.set(playerId, {
+      playerId,
+      username: playerData.username,
+      type: 'pc',
+      position: playerData.position,
+      icon: playerData.icon,
+      hp: playerData.hp,
+      maxhp: playerData.maxhp,
+      attackbonus: playerData.attackbonus,
+      armorclass: playerData.armorclass,
+      damage: playerData.damage,
+      attackrange: playerData.attackrange,
+      speed: playerData.speed,
+      iscamping: playerData.iscamping || false
+    });
+
+    toGrid.markModified('gridState.pcs');
+    toGrid.gridState.lastUpdated = Date.now();
     await toGrid.save();
 
     res.json({ success: true });
