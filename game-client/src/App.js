@@ -15,7 +15,8 @@ import { fetchHomesteadOwner } from './Utils/worldHelpers';
 import farmState from './FarmState';
 import gridStateManager from './GridState/GridState';
 import GlobalGridState from './GridState/GlobalGridState'; // Adjust the path if needed
- 
+import npcController from './GridState/NPCController';
+
 import SettlementView from './ZoomedOut/SettlementView';
 import FrontierView from './ZoomedOut/FrontierView';
 
@@ -253,7 +254,6 @@ useEffect(() => {
       let updatedPlayerData = { ...parsedPlayer, ...fullPlayerData };
       setCurrentPlayer(updatedPlayerData);
       setInventory(fullPlayerData.inventory || []);  // Initialize inventory properly
-      localStorage.setItem('player', JSON.stringify(updatedPlayerData));  // Save to local storage
 
       // 4. Determine initial gridId from player or storage
       console.log('Determining local gridId...');
@@ -510,21 +510,24 @@ useEffect(() => {
     return;
   }
 
+  // Only run NPC updates if we're the controller for this grid
   const interval = setInterval(async () => {
     if (!gridState?.npcs) {
       console.warn('No NPCs in gridState');
       return;
     }
 
-    // Only process NPCs that have the update method
-    Object.values(gridState.npcs).forEach((npc) => {
-      if (typeof npc.update === 'function') {
-        const currentTime = Date.now();
-        npc.update(currentTime, gridState, gridId, activeTileSize);
-      }
-    });
+    // Check if we're the controller before processing NPCs
+    if (npcController.isControllingGrid(gridId)) {
+      Object.values(gridState.npcs).forEach((npc) => {
+        if (typeof npc.update === 'function') {
+          const currentTime = Date.now();
+          npc.update(currentTime, gridState, gridId, activeTileSize);
+        }
+      });
+    }
 
-    // Check PCs separately without update method
+    // Always check PCs for death regardless of controller status
     if (gridState.pcs) {
       Object.values(gridState.pcs).forEach(async (pc) => {
         if (pc.hp <= 0 && currentPlayer && String(currentPlayer._id) === pc.playerId) {

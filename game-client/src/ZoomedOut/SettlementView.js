@@ -5,7 +5,6 @@ import "./SettlementView.css";
 import { StatusBarContext } from "../UI/StatusBar";
 import { changePlayerLocation } from "../Utils/GridManagement";
 import settlementTileData from './SettlementTile.json';
-import gridStateManager from "../GridState/GridState";
 import { getGridBackgroundColor } from './ZoomedOut';
 
 const SettlementView = ({ 

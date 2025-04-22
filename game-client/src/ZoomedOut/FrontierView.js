@@ -21,7 +21,6 @@ const FrontierView = ({
 }) => {
 
   const [frontierGrid, setFrontierGrid] = useState([]);
-  const [settlementIcons, setSettlementIcons] = useState({});
   const [settlementGrids, setSettlementGrids] = useState({}); // Store all settlement grids
   const [error, setError] = useState(null);
   const { updateStatus } = useContext(StatusBarContext);
@@ -68,69 +67,6 @@ const FrontierView = ({
     fetchData();
   }, [currentPlayer.location.f, currentPlayer.location.s]); // Add location.s as dependency
 
-  const handleHomeSettlementClick = async (settlement) => {
-    try {
-      // First, ensure we have all required IDs
-      if (!currentPlayer?.gridId || !currentPlayer?.settlementId || !currentPlayer?.location?.f) {
-        console.error('Missing required player data', {
-          gridId: currentPlayer?.gridId,
-          settlementId: currentPlayer?.settlementId,
-          frontierId: currentPlayer?.location?.f
-        });
-        updateStatus("Cannot find your homestead data.");
-        return;
-      }
-
-      // Get settlement data to find the gridCoord
-      const settlementResponse = await axios.get(
-        `${API_BASE}/api/get-settlement-grid/${settlement._id}`
-      );
-      const grids = settlementResponse.data.grid || [];
-      
-      // Find your homestead's grid info
-      const homesteadGrid = grids.flat().find(
-        grid => grid.gridId === currentPlayer.gridId
-      );
-
-      if (!homesteadGrid) {
-        console.error('Homestead grid not found in settlement');
-        updateStatus("Cannot locate your homestead.");
-        return;
-      }
-
-      const toLocation = {
-        x: 31, // Center of homestead
-        y: 31,
-        g: currentPlayer.gridId,
-        s: settlement._id,
-        f: currentPlayer.location.f,
-        gtype: "homestead",
-        gridCoord: homesteadGrid.gridCoord // Include the gridCoord from settlement data
-      };
-
-      console.log("Attempting transit to homestead:", toLocation);
-
-      await changePlayerLocation(
-        currentPlayer,
-        currentPlayer.location,
-        toLocation,
-        setCurrentPlayer,
-        fetchGrid,
-        setGridId,
-        setGrid,
-        setResources,
-        setTileTypes,
-        setGridState,
-        TILE_SIZE
-      );
-
-      setZoomLevel('far'); // Zoom into grid view after transit
-
-    } catch (error) {
-      console.error("Error checking for owned homestead:", error);
-      updateStatus("Failed to travel to homestead.");
-    }
-  };
 
   const handleTileClick = async (tile) => {
     console.log('🎯 Tile clicked:', tile);
