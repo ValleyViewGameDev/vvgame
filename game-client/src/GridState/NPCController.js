@@ -32,18 +32,29 @@ class NPCController {
 
   setAsController(gridId) {
     console.log(`🎮 Setting controller status for grid ${gridId}`);
+    // Add explicit true value and verify it's set
     this.controlledGrids.set(gridId, { isController: true });
-    // Log the current state
-    console.log('🎮 Current controlled grids:', Array.from(this.controlledGrids.entries()));
+    console.log(`🔍 Controller Map after set:`, 
+      Array.from(this.controlledGrids.entries())
+    );
   }
 
   removeController(gridId) {
     this.controlledGrids.delete(gridId);
+    console.log(`🎮 Removed controller for grid ${gridId}`);
+    console.log(`🔍 Controller Map after remove:`, 
+      Array.from(this.controlledGrids.entries())
+    );
   }
 
   isControllingGrid(gridId) {
-    const isController = this.controlledGrids.get(gridId)?.isController === true;
-    console.log(`🎮 Checking controller status for grid ${gridId}: ${isController}`);
+    const controllerData = this.controlledGrids.get(gridId);
+    const isController = controllerData?.isController === true;
+    console.log(`🎮 Controller check for ${gridId}:`, {
+      hasData: !!controllerData,
+      isController: isController,
+      rawValue: controllerData?.isController
+    });
     return isController;
   }
 }
