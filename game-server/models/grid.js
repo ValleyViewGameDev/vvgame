@@ -15,55 +15,54 @@ const GridSchema = new mongoose.Schema({
     type: Array, // Resources in the grid
     required: true,
   },
-  gridState: {
-    npcs: {
-      type: Map,
-      of: new mongoose.Schema({
-        id: { type: String, required: true, index: true },
-        type: { type: String, required: true },
-        position: {
-          x: { type: Number, required: true },
-          y: { type: Number, required: true },
-        },
-        state: { type: String, required: true }, // Example: 'idle', 'roaming'
-        hp: { type: Number, default: 0 },
-        maxhp: { type: Number, default: 0 },
-        grazeEnd: { type: Number, required: false },
-        lastMoveTime: { type: Number, required: false },
-      }),
-      lastUpdated: { type: Date, default: Date.now },
-      default: {}, // Initialize as empty object
-    },  
-    pcs: {
-      type: Map,
-      of: new mongoose.Schema({
-        playerId: { type: String, required: true },  // Ensure playerId is always stored
-        username: { type: String, required: true },
-        type: { type: String, required: true, enum: ['pc'] },
-        position: {
-          x: { type: Number, required: true },
-          y: { type: Number, required: true },
-        },
-        icon: {
-          type: String,
-          validate: {
-            validator: (value) => /^[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}]+$/u.test(value),
-            message: 'Invalid icon format. Expected an emoji.',
-          },
-        },
-        hp: { type: Number, required: true, default: 25 }, 
-        maxhp: { type: Number, required: true, default: 25 },  
-        attackbonus: { type: Number, required: true },
-        armorclass: { type: Number, required: true },
-        damage: { type: Number, required: true },
-        attackrange: { type: Number, required: true },
-        speed: { type: Number, required: true },
-        iscamping: { type: Boolean, default: false },
-      }),
-      lastUpdated: { type: Date, default: Date.now },
-      default: {}, // Initialize as empty object
-    },
-    lastUpdated: { type: Date, default: Date.now }
+  // NPCs state
+  gridStateNPCs: {
+    type: Map,
+    of: new mongoose.Schema({
+      id: { type: String, required: true, index: true },
+      type: { type: String, required: true },
+      position: { 
+        x: { type: Number, required: true }, 
+        y: { type: Number, required: true } 
+      },
+      state: { type: String, required: true },
+      hp: { type: Number, default: 0 },
+      maxhp: { type: Number, default: 0 },
+      grazeEnd: { type: Number },
+      lastMoveTime: { type: Number }
+    }),
+    lastUpdated: { type: Date, default: Date.now },
+    default: {}
+  },
+  // PCs state
+  gridStatePCs: {
+    type: Map,
+    of: new mongoose.Schema({
+      playerId: { type: String, required: true },
+      username: { type: String, required: true },
+      type: { type: String, required: true, enum: ['pc'] },
+      position: { 
+        x: { type: Number, required: true }, 
+        y: { type: Number, required: true } 
+      },
+      icon: {
+        type: String,
+        validate: {
+          validator: (value) => /^[\u{1F300}-\u{1F6FF}\u{1F900}-\u{1F9FF}\u{2600}-\u{26FF}]+$/u.test(value),
+          message: 'Invalid icon format. Expected an emoji.'
+        }
+      },
+      hp: { type: Number, default: 25 },
+      maxhp: { type: Number, default: 25 },
+      attackbonus: { type: Number, required: true },
+      armorclass: { type: Number, required: true },
+      damage: { type: Number, required: true },
+      attackrange: { type: Number, required: true },
+      speed: { type: Number, required: true },
+      iscamping: { type: Boolean, default: false }
+    }),
+    lastUpdated: { type: Date, default: Date.now },
+    default: {}
   },
   frontierId: {
     type: mongoose.Schema.Types.ObjectId, // Links this grid to a frontier

@@ -29,22 +29,16 @@ router.post('/save-grid-state', async (req, res) => {
       return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
     }
 
-    // Sanitize full gridState: extract maps safely
-    const { npcs: npcsObj = {}, pcs: pcsObj = {}, lastUpdated: topTs } = gridState;
-    // Build NPC map
-    const { lastUpdated: npcTs, ...npcEntries } = npcsObj;
-    grid.gridState.npcs = new Map(Object.entries(npcEntries));
-    grid.gridState.npcs.lastUpdated = new Date(npcTs);
-    // Build PC map
-    const { lastUpdated: pcTs, ...pcEntries } = pcsObj;
-    grid.gridState.pcs = new Map(Object.entries(pcEntries));
-    grid.gridState.pcs.lastUpdated = new Date(pcTs);
-    // Top-level timestamp
-    grid.gridState.lastUpdated = new Date(topTs || Date.now());
+    // Split into separate NPC/PC maps
+    const { npcs: rawNPCs = {}, pcs: rawPCs = {}, lastUpdated: topTs } = gridState;
+    const { lastUpdated: npcTs, ...npcEntries } = rawNPCs;
+    const { lastUpdated: pcTs,  ...pcEntries } = rawPCs;
+    grid.set('gridStateNPCs', new Map(Object.entries(npcEntries)));
+    grid.set('gridStateNPCs.lastUpdated', new Date(npcTs || topTs || Date.now()));
+    grid.set('gridStatePCs', new Map(Object.entries(pcEntries)));
+    grid.set('gridStatePCs.lastUpdated', new Date(pcTs || topTs || Date.now()));
 
     await grid.save();
-//    console.log('GridState saved: with pcs: ',gridState.pcs);
-//    console.log(`GridState saved successfully for gridId: ${gridId}`);
     res.status(200).json({ success: true, message: `GridState saved successfully.` });
   } catch (error) {
     console.error('Error saving gridState:', error);
@@ -63,10 +57,9 @@ router.post('/save-grid-state-pcs', async (req, res) => {
     if (!grid) {
       return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
     }
-    // Replace only the PCs map and bump its lastUpdated
     const { lastUpdated: clientTs, ...pcEntries } = pcs;
-    grid.gridState.pcs = new Map(Object.entries(pcEntries));
-    grid.gridState.pcs.lastUpdated = new Date(clientTs);
+    grid.set('gridStatePCs', new Map(Object.entries(pcEntries)));
+    grid.set('gridStatePCs.lastUpdated', new Date(clientTs));
     await grid.save();
     res.status(200).json({ success: true, message: 'GridState PCs saved successfully.' });
   } catch (error) {
@@ -75,54 +68,29 @@ router.post('/save-grid-state-pcs', async (req, res) => {
   }
 });
 
-// Proper handler: update-grid-state-pcs
-router.post('/update-grid-state-pcs', async (req, res) => {
-  const { gridId, pcs } = req.body;
-  if (!gridId || pcs == null) {
-    return res.status(400).json({ error: 'gridId and pcs are required.' });
-  }
-  try {
-    const grid = await Grid.findById(gridId);
-    if (!grid) {
-      return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
-    }
-    const { lastUpdated: clientTs, ...pcEntries } = pcs;
-    grid.gridState.pcs = new Map(Object.entries(pcEntries));
-    grid.gridState.pcs.lastUpdated = new Date(clientTs);
-    await grid.save();
-    res.status(200).json({ success: true, message: 'GridState PCs updated successfully.' });
-  } catch (error) {
-    console.error('Error updating gridState PCs:', error);
-    res.status(500).json({ error: 'Failed to update gridState PCs.' });
-  }
-});
+
 
 router.get('/load-grid-state/:gridId', async (req, res) => {
   const { gridId } = req.params;
   console.log('Loading gridState for gridId:', gridId);
   try {
-    const grid = await Grid.findById(gridId, 'gridState');
-    //console.log('Grid.findById found:', grid);
+    const grid = await Grid.findById(gridId, 'gridStateNPCs gridStatePCs');
     if (!grid) {
       return res.status(404).send({ error: 'Grid not found.' });
     }
 
-    // Normalize the Map fields to plain objects
-    const gridState = {
-      npcs: grid.gridState.npcs ? Object.fromEntries(grid.gridState.npcs) : {},
-      pcs: grid.gridState.pcs
-        ? Object.fromEntries(
-            Array.from(grid.gridState.pcs).map(([key, value]) => [
-              key,
-              value.toObject ? value.toObject() : { ...value }, // Robustly convert to plain object
-            ])
-          )
-        : {},
-      lastUpdated: grid.gridState.lastUpdated || Date.now(), // 
+    // Normalize separate NPC and PC maps
+    const rawNPCs = grid.gridStateNPCs || new Map();
+    const rawPCs  = grid.gridStatePCs  || new Map();
+    const gridStateNPCs = {
+      npcs: Object.fromEntries(rawNPCs),
+      lastUpdated: grid.gridStateNPCs.lastUpdated || Date.now()
     };
-
-    //console.log('Normalized gridState:', gridState);
-    res.send({ gridState });
+    const gridStatePCs = {
+      pcs:  Object.fromEntries(rawPCs),
+      lastUpdated: grid.gridStatePCs.lastUpdated  || Date.now()
+    };
+    res.send({ gridStateNPCs, gridStatePCs });
   } catch (error) {
     console.error('Error fetching gridState:', error);
     res.status(500).send({ error: 'Failed to fetch gridState.' });
@@ -152,7 +120,5 @@ router.post('/get-multiple-grid-states', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch grid states' });
   }
 });
-
-
 
 module.exports = router;
