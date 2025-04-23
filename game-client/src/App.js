@@ -513,7 +513,7 @@ useEffect(() => {
 // GRID STATE:  NPC and PC Management Loop  /////////////////////////
 useEffect(() => {
   if (!isAppInitialized) {
-    console.warn('App not fully initialized. Skipping NPC/PC management.');
+    console.log('App not fully initialized. Skipping NPC/PC management.');
     return;
   }
 

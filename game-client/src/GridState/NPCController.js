@@ -31,7 +31,10 @@ class NPCController {
   }
 
   setAsController(gridId) {
+    console.log(`🎮 Setting controller status for grid ${gridId}`);
     this.controlledGrids.set(gridId, { isController: true });
+    // Log the current state
+    console.log('🎮 Current controlled grids:', Array.from(this.controlledGrids.entries()));
   }
 
   removeController(gridId) {
@@ -39,7 +42,9 @@ class NPCController {
   }
 
   isControllingGrid(gridId) {
-    return this.controlledGrids.get(gridId)?.isController === true;
+    const isController = this.controlledGrids.get(gridId)?.isController === true;
+    console.log(`🎮 Checking controller status for grid ${gridId}: ${isController}`);
+    return isController;
   }
 }
 
