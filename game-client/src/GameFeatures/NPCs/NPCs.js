@@ -48,12 +48,13 @@ class NPC {
 /////////////////
 
 update(currentTime, gridState, gridId, TILE_SIZE) {
+  console.log(`🎲 NPC ${this.id} (${this.type}) updating. Current state: ${this.state}`);
+
   const timeElapsed = currentTime - this.lastUpdateTime;
   if (timeElapsed < this.updateInterval) {
     return;
   }
   
-  console.log(`🎲 NPC ${this.id} (${this.type}) updating. Current state: ${this.state}`);
   console.log(`🎲 Time elapsed: ${timeElapsed}ms, Last update: ${this.lastUpdateTime}`);
   
   this.processState(gridState, gridId, TILE_SIZE);
