@@ -75,6 +75,18 @@ mongoose.connect(process.env.MONGODB_URI, {
       // Track controller assignments (move this OUTSIDE the connection handler)
       const gridControllers = io.gridControllers = io.gridControllers || new Map();
 
+      socket.on('player-left-grid', ({ gridId, playerId, username }) => {
+        console.log(`👋 Player ${username} left grid ${gridId}`);
+        // Broadcast to all clients in the grid EXCEPT the sender
+        socket.to(gridId).emit('player-left-grid', { playerId, username });
+      });
+
+      socket.on('player-joined-grid', ({ gridId, playerId, username, playerData }) => {
+        console.log(`👋 Player ${username} joined grid ${gridId}`);
+        // Broadcast to all clients in the grid EXCEPT the sender
+        socket.to(gridId).emit('player-joined-grid', { playerId, username, playerData });
+      });
+
       socket.on('join-grid', (gridId) => {
         console.log(`📡 Socket ${socket.id} joined grid room: ${gridId}`);
         socket.join(gridId);
