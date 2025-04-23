@@ -135,7 +135,14 @@ export const changePlayerLocation = async (
         gridId: fromLocation.g,
         gridState: fromGridState
       });
-      console.log('✅ Player removed from fromGrid');
+
+      // Emit AFTER saving to DB
+      socket.emit('player-left-grid', {
+        gridId: fromLocation.g,
+        playerId: currentPlayer._id,
+        username: currentPlayer.username
+      });
+      console.log(`📢 Emitted player-left-grid for ${fromLocation.g}`);
     }
 
     // 2. Update TO grid's state (add player)
@@ -147,7 +154,7 @@ export const changePlayerLocation = async (
       // Create PC entry matching the schema
       toGridState.pcs[currentPlayer._id] = {
         playerId: currentPlayer._id,
-        type: 'pc',  // Required enum field from schema
+        type: 'pc',
         username: currentPlayer.username,
         position: {
           x: toLocation.x,
@@ -169,7 +176,15 @@ export const changePlayerLocation = async (
         gridId: toLocation.g,
         gridState: toGridState
       });
-      console.log('✅ Player added to toGrid');
+
+      // Emit AFTER saving to DB
+      socket.emit('player-joined-grid', {
+        gridId: toLocation.g,
+        playerId: currentPlayer._id,
+        username: currentPlayer.username,
+        playerData: toGridState.pcs[currentPlayer._id] // Send the exact data we just saved
+      });
+      console.log(`📢 Emitted player-joined-grid for ${toLocation.g}`);
     }
 
     // 3. Update player location in DB
@@ -194,47 +209,27 @@ export const changePlayerLocation = async (
     setCurrentPlayer(updatedPlayer);
     localStorage.setItem("player", JSON.stringify(updatedPlayer));
 
-    // 5. Socket notifications for real-time updates
-    console.log('5️⃣ Emitting socket events...');
-    if (fromLocation.g) {
-      socket.emit('player-left-grid', {
-        gridId: fromLocation.g,
-        playerId: currentPlayer._id,
-        username: currentPlayer.username
-      });
-      console.log(`📢 Emitted player-left-grid for ${fromLocation.g}`);
-    }
-    
-    if (toLocation.g) {
-      socket.emit('player-joined-grid', {
-        gridId: toLocation.g,
-        playerId: currentPlayer._id,
-        username: currentPlayer.username,
-        playerData: {
-          playerId: currentPlayer._id,
-          username: currentPlayer.username,
-          position: { x: toLocation.x, y: toLocation.y },
-          icon: currentPlayer.icon,
-          hp: currentPlayer.hp,
-          maxhp: currentPlayer.maxhp,
-          armorclass: currentPlayer.armorclass,
-          attackbonus: currentPlayer.attackbonus,
-          damage: currentPlayer.damage,
-          speed: currentPlayer.speed,
-          attackrange: currentPlayer.attackrange,
-          iscamping: currentPlayer.iscamping,
-        }
-      });
-      console.log(`📢 Emitted player-joined-grid for ${toLocation.g}`);
-    }
-
-    // 6. Change grid context & fetch new grid data
-    console.log('6️⃣ Initializing new grid...');
+    // 5. Change grid context & fetch new grid data
+    console.log('6️⃣ Initializing new grid and gridState...');
     setGridId(toLocation.g);
-    await initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes);
-    console.log('✅ New grid initialized');
+    
+    // Run these in parallel
+    await Promise.all([
+      // Initialize grid tiles and resources
+      initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes),
+      
+      // Initialize gridState for PCs and NPCs
+      (async () => {
+        await gridStateManager.initializeGridState(toLocation.g);
+        const freshGridState = gridStateManager.getGridState(toLocation.g);
+        setGridState(freshGridState);
+        console.log('✅ GridState initialized with:', freshGridState);
+      })()
+    ]);
 
-    // 7. Center view on player
+    console.log('✅ New grid fully initialized');
+
+    // 6. Center view on player
     console.log('7️⃣ Centering view...');
     const gameContainer = document.querySelector(".homestead");
     if (gameContainer) {
@@ -247,6 +242,9 @@ export const changePlayerLocation = async (
       });
     }
     console.log('✅ Location change complete');
+
+    //window.location.reload();
+
 
   } catch (error) {
     console.error('❌ Location change error:', error);
