@@ -654,8 +654,6 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, [currentPlayer]); // ✅ Runs when currentPlayer is updated
 
-
-
 // TIMERS Step 3: Fetch initial timers from the server
 const fetchTimersData = async () => {
   console.log("🔄 Fetching initial timers from the server...");
@@ -734,7 +732,6 @@ useEffect(() => {
 
   return () => clearInterval(interval); // Cleanup on unmount
 }, [timers]); // Runs when timers update
-
 
 // TIMERS Step 5: Check Phase Transitions (LOCAL)
 useEffect(() => {
@@ -842,6 +839,32 @@ useEffect(() => {
 
   let lastUpdateTime = 0;
 
+  // Add specific handlers for player join/leave events
+  const handlePlayerJoinedGrid = ({ playerId, username, playerData }) => {
+    console.log(`👋 Player ${username} joined grid with data:`, playerData);
+    
+    setGridState(prevState => ({
+      ...prevState,
+      pcs: {
+        ...prevState.pcs,
+        [playerId]: playerData
+      }
+    }));
+  };
+
+  const handlePlayerLeftGrid = ({ playerId, username }) => {
+    console.log(`👋 Player ${username} left grid`);
+    
+    setGridState(prevState => {
+      const newPcs = { ...prevState.pcs };
+      delete newPcs[playerId];
+      return {
+        ...prevState,
+        pcs: newPcs
+      };
+    });
+  };
+
   const handleGridStateSync = ({ updatedGridState }) => {
     if (!updatedGridState || !updatedGridState.lastUpdated) {
       console.warn('Invalid gridState update received');
@@ -873,10 +896,14 @@ useEffect(() => {
 
   console.log("🧲 [gridState] Subscribing to real-time updates for grid:", gridId);
   socket.on('gridState-sync', handleGridStateSync);
+  socket.on('player-joined-grid', handlePlayerJoinedGrid);
+  socket.on('player-left-grid', handlePlayerLeftGrid);
 
   return () => {
     console.log("🧹 Unsubscribing from gridState-sync for grid:", gridId);
     socket.off('gridState-sync', handleGridStateSync);
+    socket.off('player-joined-grid', handlePlayerJoinedGrid);
+    socket.off('player-left-grid', handlePlayerLeftGrid);
   };
 }, [socket, gridId, currentPlayer, gridState]);
 
