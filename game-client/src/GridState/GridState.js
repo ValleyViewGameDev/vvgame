@@ -315,18 +315,16 @@ async saveGridState(gridId) {
     return;
   }
 
+  // ✅ Get the last known PC states from the database
   try {
     const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
     const dbGridState = response.data?.gridState || {};
     const dbTimestamp = dbGridState.lastUpdated || 0;
     
-    // ✅ Modified logic: Only preserve DB PCs if they exist AND are more recent
-    if (dbTimestamp > (gridState.lastUpdated || 0) && Object.keys(dbGridState.pcs || {}).length > 0) {
-      console.log('💾 DB has more recent PC data with PCs present, preserving it');
-      gridState.pcs = dbGridState.pcs;
-    } else if (Object.keys(dbGridState.pcs || {}).length === 0 && Object.keys(gridState.pcs || {}).length > 0) {
-      console.log('💾 DB has no PCs but we do - keeping our PCs');
-      // Keep our PCs
+    // ✅ If DB state is more recent, preserve its PC data
+    if (dbTimestamp > (gridState.lastUpdated || 0)) {
+      console.log('💾 DB has more recent PC data, preserving it');
+      gridState.pcs = dbGridState.pcs || {};
     }
 
     // ✅ Update timestamp
@@ -379,59 +377,6 @@ async saveGridState(gridId) {
   }
 }
 
-  /**
-   * Save PC-specific states to the database.
-   */
-async saveGridStatePCs(gridId, pcs) {
-  const gridState = this.getGridState(gridId);
-  if (!gridState) {
-    console.error(`Cannot save PCs. No gridState found for gridId: ${gridId}`);
-    return;
-  }
-
-  try {
-    // Check DB for more recent state
-    const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
-    const dbGridState = response.data?.gridState || {};
-    const dbTimestamp = dbGridState.lastUpdated || 0;
-    
-    // If DB state is more recent, preserve its PC data
-    if (dbTimestamp > (gridState.lastUpdated || 0)) {
-      console.log('💾 DB has more recent PC data, preserving it');
-      gridState.pcs = dbGridState.pcs || {};
-    } else {
-      // Update local state with new PCs
-      gridState.pcs = pcs;
-    }
-
-    // Update timestamp
-    const timestamp = Date.now();
-    gridState.lastUpdated = timestamp;
-    updateLastGridStateTimestamp(timestamp);
-
-    // Save to DB
-    await axios.post(`${API_BASE}/api/update-grid-state-pcs`, {
-      gridId,
-      pcs: gridState.pcs,
-      lastUpdated: timestamp
-    });
-
-    // Emit update using same socket event as regular gridState updates
-    socket.emit('update-gridState', {
-      gridId,
-      updatedGridState: {
-        lastUpdated: timestamp,
-        pcs: gridState.pcs,
-        npcs: gridState.npcs // Include current NPCs state
-      }
-    });
-
-    console.log(`✅ PC states saved successfully for grid ${gridId}`);
-  } catch (error) {
-    console.error('Error saving PC states:', error);
-    throw error;
-  }
-}
 
   /**
    * Start periodic updates for NPCs in the gridState.
@@ -495,7 +440,6 @@ export const {
   updatePC,
   removeNPC,
   saveGridState,
-  saveGridStatePCs, // Add this line
 } = gridStateManager;
 
 // Default export for the entire manager
