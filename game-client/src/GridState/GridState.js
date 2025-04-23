@@ -315,16 +315,18 @@ async saveGridState(gridId) {
     return;
   }
 
-  // ✅ Get the last known PC states from the database
   try {
     const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
     const dbGridState = response.data?.gridState || {};
     const dbTimestamp = dbGridState.lastUpdated || 0;
     
-    // ✅ If DB state is more recent, preserve its PC data
-    if (dbTimestamp > (gridState.lastUpdated || 0)) {
-      console.log('💾 DB has more recent PC data, preserving it');
-      gridState.pcs = dbGridState.pcs || {};
+    // ✅ Modified logic: Only preserve DB PCs if they exist AND are more recent
+    if (dbTimestamp > (gridState.lastUpdated || 0) && Object.keys(dbGridState.pcs || {}).length > 0) {
+      console.log('💾 DB has more recent PC data with PCs present, preserving it');
+      gridState.pcs = dbGridState.pcs;
+    } else if (Object.keys(dbGridState.pcs || {}).length === 0 && Object.keys(gridState.pcs || {}).length > 0) {
+      console.log('💾 DB has no PCs but we do - keeping our PCs');
+      // Keep our PCs
     }
 
     // ✅ Update timestamp
