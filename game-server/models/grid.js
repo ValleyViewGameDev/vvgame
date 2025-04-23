@@ -62,7 +62,8 @@ const GridSchema = new mongoose.Schema({
       }),
       lastUpdated: { type: Date, default: Date.now },
       default: {}, // Initialize as empty object
-    }
+    },
+    lastUpdated: { type: Date, default: Date.now }
   },
   frontierId: {
     type: mongoose.Schema.Types.ObjectId, // Links this grid to a frontier

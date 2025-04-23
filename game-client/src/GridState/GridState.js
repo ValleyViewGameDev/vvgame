@@ -76,7 +76,7 @@ class GridStateManager {
       const pcData = gridState.pcs[playerId];
     
       gridState.pcs[playerId] = {
-        ...pcData,  // ✅ Automatically rehydrate all properties
+        ...pcData,  // Automatically rehydrate all properties
         position: pcData.position || { x: 0, y: 0 },  // Provide fallback for critical fields
       };
     
@@ -92,12 +92,12 @@ class GridStateManager {
       // **Ensure clean structure for gridState.pcs**
       gridState.pcs[currentPlayer._id] = {
         playerId: currentPlayer._id,
-        type: 'pc',  // ✅ Default 'pc' for player characters
+        type: 'pc',  // Default 'pc' for player characters
         username: currentPlayer.username,
-        position: { x: currentPlayer.location.x || 2, y: currentPlayer.location.y || 2 },  // ✅ Ensure correct position format
+        position: { x: currentPlayer.location.x || 2, y: currentPlayer.location.y || 2 },  // Ensure correct position format
         icon: currentPlayer.icon || '😀',
         hp: currentPlayer.hp || 1,
-        maxhp: currentPlayer.maxhp || 1,  // ✅ Ensure maxhp is included
+        maxhp: currentPlayer.maxhp || 1,  // Ensure maxhp is included
         attackbonus: currentPlayer.attackbonus || 1,
         armorclass: currentPlayer.armorclass || 1,
         damage: currentPlayer.damage || 1,
@@ -284,7 +284,7 @@ addPC(gridId, pc) {
     return;
   }
   if (!gridState.pcs) gridState.pcs = {}; // Ensure pcs is initialized
-  if (!gridState.npcs) gridState.npcs = {}; // ✅ Ensure npcs is initialized
+  if (!gridState.npcs) gridState.npcs = {}; // Ensure npcs is initialized
   gridState.pcs[pc.playerId] = pc;  // Add PC to the grid state
   console.log(`PC added to gridState for gridId ${gridId}. Current PCs:`, gridState.pcs);
   console.log(`Ensuring NPCs are preserved:`, gridState.npcs); // Debugging check
@@ -305,7 +305,7 @@ updatePC(gridId, playerId, newProperties) {
   this.saveGridState(gridId);
 }
 
-  /**
+/** 
  * Save the gridState to the database.
  */
 async saveGridState(gridId) {
@@ -315,23 +315,24 @@ async saveGridState(gridId) {
     return;
   }
 
-  // ✅ Get the last known PC states from the database
+  // Get the last known PC states from the database
   try {
     const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
     const dbGridState = response.data?.gridState || {};
-    const dbTimestamp = dbGridState.lastUpdated || 0;
-    
-    // ✅ If DB state is more recent, preserve its PC data
-    if (dbTimestamp > (gridState.lastUpdated || 0)) {
+    // Use nested pcs.lastUpdated
+    const dbPcTs    = new Date(dbGridState.pcs?.lastUpdated || 0).getTime();
+    const localPcTs = gridState.pcs?.lastUpdated || 0;
+    if (dbPcTs > localPcTs) {
       console.log('💾 DB has more recent PC data, preserving it');
       gridState.pcs = dbGridState.pcs || {};
+    } else {
+      gridState.pcs = { ...(gridState.pcs || {}), lastUpdated: Date.now() };
     }
-
-    // ✅ Update timestamp
+    // Update top-level timestamp for socket and hooks
     this.gridStates[gridId].lastUpdated = Date.now();
     updateLastGridStateTimestamp(this.gridStates[gridId].lastUpdated);
 
-    // 🔍 Debug logging
+    // Debug logging
     const pcIds = Object.keys(gridState.pcs || {});
     console.warn(`💾 Saving gridState for gridId: ${gridId}`);
     console.warn(`👥 PCs being saved:`, pcIds);
@@ -422,12 +423,8 @@ stopGridStateUpdates() {
     }
     this.gridStates = {}; // Clear in-memory grid states
   }
-
 }
 
-
-
-// Create a single instance of GridStateManager
 const gridStateManager = new GridStateManager();
 
 // Export individual methods for direct use
