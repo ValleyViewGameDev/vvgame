@@ -380,36 +380,56 @@ async saveGridState(gridId) {
   /**
    * Save PC-specific states to the database.
    */
-  async saveGridStatePCs(gridId, pcs) {
-    try {
-      const response = await axios.post(`${API_BASE}/api/update-grid-state-pcs`, {
-        gridId,
-        pcs,
-        lastUpdated: Date.now()
-      });
-
-      if (response.data.success) {
-        // Update local state after successful save
-        if (!this.gridStates[gridId]) {
-          this.gridStates[gridId] = { npcs: {}, pcs: {} };
-        }
-        this.gridStates[gridId].pcs = pcs;
-        this.gridStates[gridId].lastUpdated = response.data.lastUpdated;
-
-        // Emit update for other clients
-        socket.emit('player-state-update', {
-          gridId,
-          pcs,
-          lastUpdated: this.gridStates[gridId].lastUpdated
-        });
-
-        console.log(`✅ PC states saved successfully for grid ${gridId}`);
-      }
-    } catch (error) {
-      console.error('Error saving PC states:', error);
-      throw error;
-    }
+async saveGridStatePCs(gridId, pcs) {
+  const gridState = this.getGridState(gridId);
+  if (!gridState) {
+    console.error(`Cannot save PCs. No gridState found for gridId: ${gridId}`);
+    return;
   }
+
+  try {
+    // Check DB for more recent state
+    const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
+    const dbGridState = response.data?.gridState || {};
+    const dbTimestamp = dbGridState.lastUpdated || 0;
+    
+    // If DB state is more recent, preserve its PC data
+    if (dbTimestamp > (gridState.lastUpdated || 0)) {
+      console.log('💾 DB has more recent PC data, preserving it');
+      gridState.pcs = dbGridState.pcs || {};
+    } else {
+      // Update local state with new PCs
+      gridState.pcs = pcs;
+    }
+
+    // Update timestamp
+    const timestamp = Date.now();
+    gridState.lastUpdated = timestamp;
+    updateLastGridStateTimestamp(timestamp);
+
+    // Save to DB
+    await axios.post(`${API_BASE}/api/update-grid-state-pcs`, {
+      gridId,
+      pcs: gridState.pcs,
+      lastUpdated: timestamp
+    });
+
+    // Emit update using same socket event as regular gridState updates
+    socket.emit('update-gridState', {
+      gridId,
+      updatedGridState: {
+        lastUpdated: timestamp,
+        pcs: gridState.pcs,
+        npcs: gridState.npcs // Include current NPCs state
+      }
+    });
+
+    console.log(`✅ PC states saved successfully for grid ${gridId}`);
+  } catch (error) {
+    console.error('Error saving PC states:', error);
+    throw error;
+  }
+}
 
   /**
    * Start periodic updates for NPCs in the gridState.
