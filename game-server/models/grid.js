@@ -31,6 +31,7 @@ const GridSchema = new mongoose.Schema({
         grazeEnd: { type: Number, required: false },
         lastMoveTime: { type: Number, required: false },
       }),
+      lastUpdated: { type: Date, default: Date.now },
       default: {}, // Initialize as empty object
     },  
     pcs: {
