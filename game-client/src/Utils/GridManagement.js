@@ -130,10 +130,11 @@ export const changePlayerLocation = async (
       // Remove player but preserve other data
       delete fromGridState.pcs[currentPlayer._id];
 
-      // Save updated state
-      await axios.post(`${API_BASE}/api/save-grid-state`, {
+      // bump nested timestamp and save only PCs
+      fromGridState.pcs.lastUpdated = Date.now();
+      await axios.post(`${API_BASE}/api/save-grid-state-pcs`, {
         gridId: fromLocation.g,
-        gridState: fromGridState
+        pcs: fromGridState.pcs,
       });
 
       // Emit AFTER saving to DB
@@ -178,10 +179,11 @@ export const changePlayerLocation = async (
         iscamping: currentPlayer.iscamping || false
       };
 
-      // Save updated state
-      await axios.post(`${API_BASE}/api/save-grid-state`, {
+      // bump nested timestamp and save only PCs
+      toGridState.pcs.lastUpdated = Date.now();
+      await axios.post(`${API_BASE}/api/save-grid-state-pcs`, {
         gridId: toLocation.g,
-        gridState: toGridState
+        pcs: toGridState.pcs,
       });
 
       // Emit AFTER saving to DB

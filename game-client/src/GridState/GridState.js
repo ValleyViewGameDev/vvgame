@@ -378,6 +378,56 @@ async saveGridState(gridId) {
   }
 }
 
+/**
+ * Save only PCs in the gridState to the database.
+ */
+async saveGridStatePCs(gridId) {
+  const gridState = this.getGridState(gridId);
+  if (!gridState) {
+    console.error(`Cannot save PCs. No gridState found for gridId: ${gridId}`);
+    return;
+  }
+  try {
+    const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
+    const dbGridState = response.data?.gridState || {};
+    const dbPcTs    = new Date(dbGridState.pcs?.lastUpdated || 0).getTime();
+    const localPcTs = gridState.pcs?.lastUpdated || 0;
+    if (dbPcTs > localPcTs) {
+      console.log('💾 DB has more recent PC data, preserving it');
+      gridState.pcs = dbGridState.pcs || {};
+    } else {
+      gridState.pcs = { ...(gridState.pcs || {}), lastUpdated: Date.now() };
+    }
+    // Sync manager’s timestamp to nested pcs.lastUpdated
+    const pcsTs = gridState.pcs.lastUpdated;
+    this.gridStates[gridId].lastUpdated = pcsTs;
+    updateLastGridStateTimestamp(pcsTs);
+
+    const pcIds = Object.keys(gridState.pcs || {});
+    console.warn(`💾 Saving PCs for gridId: ${gridId}`);
+    console.warn(`👥 PCs being saved:`, pcIds);
+
+    await axios.post(`${API_BASE}/api/save-grid-state-pcs`, {
+      gridId,
+      pcs: gridState.pcs,
+    });
+
+    socket.emit('update-gridState', {
+      gridId,
+      gridState: {
+        lastUpdated: this.gridStates[gridId].lastUpdated,
+        npcs: gridState.npcs,
+        pcs: gridState.pcs,
+      },
+    });
+
+    if (typeof setGridStateExternally === 'function') {
+      setGridStateExternally(this.gridStates[gridId]);
+    }
+  } catch (error) {
+    console.error('Error saving gridStatePCs:', error);
+  }
+}
 
   /**
    * Start periodic updates for NPCs in the gridState.
@@ -437,6 +487,7 @@ export const {
   updatePC,
   removeNPC,
   saveGridState,
+  saveGridStatePCs,
 } = gridStateManager;
 
 // Default export for the entire manager

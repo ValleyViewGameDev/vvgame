@@ -40,7 +40,27 @@ router.post('/save-grid-state', async (req, res) => {
   }
 });
 
-
+// Dedicated route: save only PCs without altering NPCs
+router.post('/save-grid-state-pcs', async (req, res) => {
+  const { gridId, pcs } = req.body;
+  if (!gridId || pcs == null) {
+    return res.status(400).json({ error: 'gridId and pcs are required.' });
+  }
+  try {
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
+    }
+    // Replace only the PCs map and bump its lastUpdated
+    grid.gridState.pcs = new Map(Object.entries(pcs));
+    grid.gridState.pcs.lastUpdated = new Date();
+    await grid.save();
+    res.status(200).json({ success: true, message: 'GridState PCs saved successfully.' });
+  } catch (error) {
+    console.error('Error saving gridState PCs:', error);
+    res.status(500).json({ error: 'Failed to save gridState PCs.' });
+  }
+});
 
 router.get('/load-grid-state/:gridId', async (req, res) => {
   const { gridId } = req.params;
@@ -63,7 +83,7 @@ router.get('/load-grid-state/:gridId', async (req, res) => {
             ])
           )
         : {},
-      lastUpdated: grid.gridState.lastUpdated || Date.now(), // ✅ Add this line
+      lastUpdated: grid.gridState.lastUpdated || Date.now(), // 
     };
 
     //console.log('Normalized gridState:', gridState);
