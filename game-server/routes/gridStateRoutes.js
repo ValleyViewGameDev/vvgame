@@ -62,6 +62,27 @@ router.post('/save-grid-state-pcs', async (req, res) => {
   }
 });
 
+// Proper handler: update-grid-state-pcs
+router.post('/update-grid-state-pcs', async (req, res) => {
+  const { gridId, pcs } = req.body;
+  if (!gridId || pcs == null) {
+    return res.status(400).json({ error: 'gridId and pcs are required.' });
+  }
+  try {
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
+    }
+    grid.gridState.pcs = new Map(Object.entries(pcs));
+    grid.gridState.pcs.lastUpdated = new Date();
+    await grid.save();
+    res.status(200).json({ success: true, message: 'GridState PCs updated successfully.' });
+  } catch (error) {
+    console.error('Error updating gridState PCs:', error);
+    res.status(500).json({ error: 'Failed to update gridState PCs.' });
+  }
+});
+
 router.get('/load-grid-state/:gridId', async (req, res) => {
   const { gridId } = req.params;
   console.log('Loading gridState for gridId:', gridId);
