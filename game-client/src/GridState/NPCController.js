@@ -5,6 +5,7 @@ class NPCController {
   constructor() {
     this.controlledGrids = new Map();
     this.setupSocketListeners();
+    this.retryTimeout = null;
   }
 
   setupSocketListeners() {
@@ -17,11 +18,35 @@ class NPCController {
       console.log(`🎮 Revoked as NPC controller for grid ${gridId}`);
       this.removeController(gridId);
     });
+
+    // Add connection status listeners
+    socket.on('connect', () => {
+      console.log('🔌 NPCController socket connected');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('🔌 NPCController socket disconnected');
+    });
+
+    // Add response listener
+    socket.on('join-grid-controller-response', ({ success, gridId }) => {
+      console.log(`📡 Received controller join response: success=${success}, gridId=${gridId}`);
+    });
   }
 
   joinGrid(gridId) {
+    if (!socket.connected) {
+      console.log('⏳ Socket not ready, retrying controller join in 1s...');
+      clearTimeout(this.retryTimeout);
+      this.retryTimeout = setTimeout(() => this.joinGrid(gridId), 1000);
+      return;
+    }
+
     console.log(`🎮 Requesting controller status for grid ${gridId}`);
-    socket.emit('join-grid-controller', { gridId });
+    socket.emit('join-grid-controller', { 
+      gridId,
+      timestamp: Date.now() // Add timestamp for debugging
+    });
   }
 
   leaveGrid(gridId) {
