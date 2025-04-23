@@ -1,14 +1,13 @@
 import API_BASE from '../../config';
 import axios from 'axios';
 import { addResourceToGrid } from '../../Utils/worldHelpers';
-import { convertTileType, updateGridResource, validateTileType } from '../../Utils/GridManagement';
+import { convertTileType, updateGridResource } from '../../Utils/GridManagement';
+import { validateTileType } from '../../Utils/ResourceHelpers';
 import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients } from '../../Utils/InventoryManagement';
 import FloatingTextManager from '../../UI/FloatingText';
 import farmState from '../../FarmState';
-import { canAfford, getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import gridStateManager from '../../GridState/GridState';
-import { getCurrentTileCoordinates } from '../../Utils/GridManagement';
+import { getCurrentTileCoordinates } from '../../Utils/ResourceHelpers';
 
 export const handleFarmPlotPlacement = async ({
   selectedItem,

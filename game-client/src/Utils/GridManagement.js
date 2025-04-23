@@ -132,10 +132,9 @@ export const changePlayerLocation = async (
       const updatedPCs = { ...fromGridState.pcs };
       delete updatedPCs[currentPlayer._id];
 
-      // Use new PC-specific save method
-      await saveGridStatePCs(fromLocation.g, updatedPCs);
+      // Save updated PCs state
+      await gridStateManager.saveGridStatePCs(fromLocation.g, updatedPCs);
 
-      // Emit AFTER saving to DB
       socket.emit('player-left-grid', {
         gridId: fromLocation.g,
         playerId: currentPlayer._id,
@@ -143,13 +142,13 @@ export const changePlayerLocation = async (
       });
     }
 
-    // 2. Update TO grid's state (add player)
+    // 2. Update TO grid's state (add player) 
     if (toLocation.g) {
       console.log(`2️⃣ Adding player to grid ${toLocation.g}`);
       const toGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${toLocation.g}`);
       const existingToGridState = toGridResponse.data?.gridState || { npcs: {}, pcs: {}, lastUpdated: Date.now() };
 
-      // Prepare updated PCs state
+      // Update PCs while preserving existing ones
       const updatedPCs = {
         ...existingToGridState.pcs,
         [currentPlayer._id]: {
@@ -172,10 +171,9 @@ export const changePlayerLocation = async (
         }
       };
 
-      // Use new PC-specific save method
-      await saveGridStatePCs(toLocation.g, updatedPCs);
+      // Save updated PCs state
+      await gridStateManager.saveGridStatePCs(toLocation.g, updatedPCs);
 
-      // Emit AFTER saving to DB
       socket.emit('player-joined-grid', {
         gridId: toLocation.g,
         playerId: currentPlayer._id,
@@ -306,65 +304,3 @@ export function updateGridStatus(gridType, ownerUsername, updateStatus) {
   }
 }
 
-export async function validateResourceAtLocation(gridId, col, row, expectedType) {
-    try {
-        console.log(`Validating resource at (${col}, ${row}) in grid ${gridId}`);
-        const response = await axios.get(`${API_BASE}/api/get-resource/${gridId}/${col}/${row}`);
-        const { type } = response.data; // Extract the type from the response
-        if (type === expectedType) {
-            console.log(`Resource validation successful: ${type}`);
-            return true;
-        } else {
-            console.error(`Resource validation failed: Expected ${expectedType}, but found ${type}`);
-            return false;
-        }
-    } catch (error) {
-        console.error('Error validating resource:', error);
-        return false;
-    }
-}
-
-export async function validateTileType(gridId, x, y) {
-  try {
-    console.log(`Validating tile type at (${x}, ${y}) in grid ${gridId}`);
-    const response = await axios.get(`${API_BASE}/api/get-tile/${gridId}/${x}/${y}`);
-    console.log(`Tile type at (${x}, ${y}):`, response.data.tileType);
-    return response.data.tileType;
-  } catch (error) {
-    console.error(`Error fetching tile type at (${x}, ${y}) in grid ${gridId}:`, error);
-    throw error;
-  }
-}
-
-export async function getTileResource(gridId, x, y) {
-  try {
-    console.log(`Fetching resource at (${x}, ${y}) in grid ${gridId}`);
-    const response = await axios.get(`${API_BASE}/api/get-resource/${gridId}/${x}/${y}`);
-    console.log(`Resource at (${x}, ${y}):`, response.data);
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching resource at (${x}, ${y}) in grid ${gridId}:`, error);
-    throw error;
-  }
-}
-
-export function getCurrentTileCoordinates(gridId, currentPlayer) {
-  const gridState = gridStateManager.getGridState(gridId);
-  if (!gridState || !currentPlayer?.playerId) {
-    console.warn('⚠️ GridState or playerId missing.');
-    return null;
-  }
-  const playerData = gridState.pcs?.[currentPlayer.playerId];
-  if (!playerData) {
-    console.warn('⚠️ Player not found in gridState.');
-    return null;
-  }
-  const { x, y } = playerData.position;
-  if (x == null || y == null) {
-    console.warn('⚠️ Invalid player position.');
-    return null;
-  }
-  const tileX = Math.floor(x);
-  const tileY = Math.floor(y);
-  return { tileX, tileY };
-}

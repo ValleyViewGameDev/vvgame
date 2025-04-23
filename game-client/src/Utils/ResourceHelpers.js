@@ -1,3 +1,7 @@
+import gridStateManager from "../GridState/GridState";
+import axios from "axios";
+import API_BASE from "../config";
+
 export const canAfford = (recipe, inventory, amount = 1) => {
     if (!recipe || !Array.isArray(inventory)) return false;
   
@@ -116,4 +120,49 @@ export function enrichResourceFromMaster(raw, masterResources) {
     ...template,
     ...raw, // Allow raw to override specific fields like growEnd, x, y
   };
+}
+
+export function getCurrentTileCoordinates(gridId, currentPlayer) {
+  const gridState = gridStateManager.getGridState(gridId);
+  if (!gridState || !currentPlayer?.playerId) {
+    console.warn('⚠️ GridState or playerId missing.');
+    return null;
+  }
+  const playerData = gridState.pcs?.[currentPlayer.playerId];
+  if (!playerData) {
+    console.warn('⚠️ Player not found in gridState.');
+    return null;
+  }
+  const { x, y } = playerData.position;
+  if (x == null || y == null) {
+    console.warn('⚠️ Invalid player position.');
+    return null;
+  }
+  const tileX = Math.floor(x);
+  const tileY = Math.floor(y);
+  return { tileX, tileY };
+}
+
+export async function getTileResource(gridId, x, y) {
+  try {
+    console.log(`Fetching resource at (${x}, ${y}) in grid ${gridId}`);
+    const response = await axios.get(`${API_BASE}/api/get-resource/${gridId}/${x}/${y}`);
+    console.log(`Resource at (${x}, ${y}):`, response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching resource at (${x}, ${y}) in grid ${gridId}:`, error);
+    throw error;
+  }
+}
+
+export async function validateTileType(gridId, x, y) {
+  try {
+    console.log(`Validating tile type at (${x}, ${y}) in grid ${gridId}`);
+    const response = await axios.get(`${API_BASE}/api/get-tile/${gridId}/${x}/${y}`);
+    console.log(`Tile type at (${x}, ${y}):`, response.data.tileType);
+    return response.data.tileType;
+  } catch (error) {
+    console.error(`Error fetching tile type at (${x}, ${y}) in grid ${gridId}:`, error);
+    throw error;
+  }
 }

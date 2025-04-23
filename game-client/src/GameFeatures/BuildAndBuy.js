@@ -6,7 +6,7 @@ import { addResourceToGrid } from '../Utils/worldHelpers';
 import FloatingTextManager from '../UI/FloatingText';
 import { trackQuestProgress } from './Quests/QuestGoalTracker';
 import gridStateManager from '../GridState/GridState';
-import { getCurrentTileCoordinates } from '../Utils/GridManagement';
+import { getCurrentTileCoordinates } from '../Utils/ResourceHelpers';
 
 export const handleConstruction = async ({
   TILE_SIZE,
