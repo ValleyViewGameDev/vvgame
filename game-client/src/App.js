@@ -529,11 +529,8 @@ useEffect(() => {
       console.log('npcController is active. Processing NPCs...');
 
       Object.values(gridState.npcs).forEach((npc) => {
-        console.log('Processing NPC:', npc);
-        if (typeof npc.update === 'function') {
-          const currentTime = Date.now();
-          npc.update(currentTime, gridState, gridId, activeTileSize);
-        }
+        const currentTime = Date.now();
+        npc.update(currentTime, gridState, gridId, activeTileSize);
       });
     }
 
@@ -838,14 +835,74 @@ useEffect(() => {
 
 // 🔄 Real-time updates for GridState: PCS AND NPCS
 useEffect(() => {
-  if (!gridId || !currentPlayer) return;
+  if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
 
   let lastUpdateTime = 0;
+
+  const handleGridStateSync = ({ updatedGridState }) => {
+    if (!updatedGridState || !updatedGridState.lastUpdated) {
+      console.warn('Invalid gridState update received');
+      return;
+    }
+
+    if (updatedGridState.lastUpdated <= lastUpdateTime) {
+      console.log('⏳ Skipping older gridState update');
+      return;
+    }
+
+    // Preserve local player's exact state
+    const localPlayerId = currentPlayer._id;
+    const localPlayerData = gridState?.pcs?.[localPlayerId];
+
+    // Rehydrate NPCs into class instances
+    const hydratedNPCs = {};
+    for (const [npcId, npcData] of Object.entries(updatedGridState.npcs || {})) {
+      const template = masterResources.find((r) => r.type === npcData.type);
+      if (!template) {
+        console.warn(`No template found for NPC type: ${npcData.type}`);
+        continue;
+      }
+
+      const enrichedProperties = { ...template, ...npcData };
+      
+      // Check for more recent local version
+      const localNPC = gridState?.npcs?.[npcId];
+      const localTime = localNPC?.lastUpdated || 0;
+      const incomingTime = npcData.lastUpdated || 0;
+
+      if (incomingTime < localTime) {
+        console.log(`⏳ Keeping more recent local NPC ${npcId}`);
+        hydratedNPCs[npcId] = localNPC;
+        continue;
+      }
+
+      hydratedNPCs[npcId] = new NPC(
+        npcData.id,
+        npcData.type,
+        npcData.position,
+        enrichedProperties,
+        gridId
+      );
+    }
+
+    // Create new state with hydrated NPCs and preserved local player
+    const newGridState = {
+      ...updatedGridState,
+      npcs: hydratedNPCs,
+      pcs: {
+        ...updatedGridState.pcs,
+        [localPlayerId]: localPlayerData || updatedGridState.pcs?.[localPlayerId]
+      }
+    };
+
+    lastUpdateTime = updatedGridState.lastUpdated;
+    gridStateManager.gridStates[gridId] = newGridState;
+    setGridState(newGridState);
+  };
 
   // Add specific handlers for player join/leave events
   const handlePlayerJoinedGrid = ({ playerId, username, playerData }) => {
     console.log(`👋 Player ${username} joined grid with data:`, playerData);
-    
     setGridState(prevState => ({
       ...prevState,
       pcs: {
@@ -857,7 +914,6 @@ useEffect(() => {
 
   const handlePlayerLeftGrid = ({ playerId, username }) => {
     console.log(`👋 Player ${username} left grid`);
-    
     setGridState(prevState => {
       const newPcs = { ...prevState.pcs };
       delete newPcs[playerId];
@@ -866,35 +922,6 @@ useEffect(() => {
         pcs: newPcs
       };
     });
-  };
-
-  const handleGridStateSync = ({ updatedGridState }) => {
-    if (!updatedGridState || !updatedGridState.lastUpdated) {
-      console.warn('Invalid gridState update received');
-      return;
-    }
-
-    // Always preserve the local player's exact state
-    const localPlayerId = currentPlayer._id;
-    const localPlayerData = gridState?.pcs?.[localPlayerId];
-
-    if (updatedGridState.lastUpdated <= lastUpdateTime) {
-      console.log('⏳ Skipping older gridState update');
-      return;
-    }
-
-    // Create new state with local player preserved
-    const newGridState = {
-      ...updatedGridState,
-      pcs: {
-        ...updatedGridState.pcs,
-        [localPlayerId]: localPlayerData || updatedGridState.pcs?.[localPlayerId]
-      }
-    };
-
-    lastUpdateTime = updatedGridState.lastUpdated;
-    gridStateManager.gridStates[gridId] = newGridState;
-    setGridState(newGridState);
   };
 
   console.log("🧲 [gridState] Subscribing to real-time updates for grid:", gridId);
@@ -908,7 +935,7 @@ useEffect(() => {
     socket.off('player-joined-grid', handlePlayerJoinedGrid);
     socket.off('player-left-grid', handlePlayerLeftGrid);
   };
-}, [socket, gridId, currentPlayer, gridState]);
+}, [socket, gridId, currentPlayer, gridState, masterResources, isMasterResourcesReady]);
 
 // Add socket event listeners for NPC controller status
 useEffect(() => {
