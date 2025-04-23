@@ -125,7 +125,8 @@ export const changePlayerLocation = async (
     if (fromLocation.g) {
       console.log(`1️⃣ Removing player from grid ${fromLocation.g}`);
       const fromGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${fromLocation.g}`);
-      const fromGridState = fromGridResponse.data?.gridState || { npcs: {}, pcs: {}, lastUpdated: Date.now() };
+      const { gridStateNPCs: fromNPCs = { npcs: {} }, gridStatePCs: fromPCs = { pcs: {}, lastUpdated: Date.now() } } = fromGridResponse.data;
+      const fromGridState = { npcs: fromNPCs.npcs, pcs: fromPCs.pcs, lastUpdated: fromPCs.lastUpdated };
       
       // Remove player but preserve other data
       delete fromGridState.pcs[currentPlayer._id];
@@ -135,6 +136,7 @@ export const changePlayerLocation = async (
       await axios.post(`${API_BASE}/api/save-grid-state-pcs`, {
         gridId: fromLocation.g,
         pcs: fromGridState.pcs,
+        gridStatePCsLastUpdated: fromGridState.pcs.lastUpdated, // Include the timestamp
       });
 
       // Emit AFTER saving to DB
@@ -150,7 +152,8 @@ export const changePlayerLocation = async (
     if (toLocation.g) {
       console.log(`2️⃣ Adding player to grid ${toLocation.g}`);
       const toGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${toLocation.g}`);
-      const existingToGridState = toGridResponse.data?.gridState || { npcs: {}, pcs: {}, lastUpdated: Date.now() };
+      const { gridStateNPCs: toNPCs = { npcs: {} }, gridStatePCs: toPCs = { pcs: {}, lastUpdated: Date.now() } } = toGridResponse.data;
+      const existingToGridState = { npcs: toNPCs.npcs, pcs: toPCs.pcs, lastUpdated: toPCs.lastUpdated };
 
       // Create new gridState preserving existing NPCs and PCs
       const toGridState = {
@@ -184,6 +187,7 @@ export const changePlayerLocation = async (
       await axios.post(`${API_BASE}/api/save-grid-state-pcs`, {
         gridId: toLocation.g,
         pcs: toGridState.pcs,
+        gridStatePCsLastUpdated: toGridState.pcs.lastUpdated, // Include the timestamp
       });
 
       // Emit AFTER saving to DB
@@ -265,23 +269,27 @@ export async function fetchGridData(gridId, updateStatus) {
   try {
     console.log(`Fetching grid data for gridId: ${gridId}`);
 
-    // 1) Fetch the grid data (which now has ownerId populated)
+    // 1) Fetch the grid data (which now has separate gridStatePCs and gridStateNPCs)
     const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${gridId}`);
     const gridData = gridResponse.data || {};
-    const { gridType, _id: fetchedGridId, ownerId } = gridData;
+    const { gridType, _id: fetchedGridId, ownerId, gridStatePCs, gridStateNPCs } = gridData;
 
     console.log('Fetched grid data:', gridData);
 
-    // 2) Check if it's a homestead and extract the username if present
+    // 2) Combine gridStatePCs and gridStateNPCs into a single gridState
+    const combinedGridState = {
+      pcs: gridStatePCs?.pcs || {},
+      npcs: gridStateNPCs?.npcs || {},
+    };
+
+    // 3) Update the status bar (e.g., "Welcome to Oberon's homestead")
     let username = null;
     if (gridType === 'homestead' && ownerId) {
       username = ownerId.username || 'Unknown';
     }
-
-    // 3) Update the status bar (e.g., "Welcome to Oberon's homestead")
     updateGridStatus(gridType, username, updateStatus);
 
-    return gridData; // Return the full grid data
+    return { ...gridData, gridState: combinedGridState }; // Return the full grid data with combined gridState
   } catch (error) {
     console.error('Error fetching grid data:', error);
     if (updateStatus) updateStatus('Failed to load grid data');
@@ -317,5 +325,3 @@ export function updateGridStatus(gridType, ownerUsername, updateStatus) {
       break;
   }
 }
-
-

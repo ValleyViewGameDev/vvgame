@@ -33,25 +33,38 @@ class GridStateManager {
   
     try {
       const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
-      const { gridState = {} } = response.data;
-  
+      const {
+        gridStateNPCs = { npcs: {}, lastUpdated: 0 },
+        gridStatePCs  = { pcs:  {}, lastUpdated: 0 }
+      } = response.data;
+
+      // Build a consolidated local state for convenience
+      const gridState = {
+        npcs: gridStateNPCs.npcs || {},
+        pcs:  gridStatePCs.pcs  || {},
+        lastUpdated: Math.max(
+          new Date(gridStateNPCs.lastUpdated || 0).getTime(),
+          new Date(gridStatePCs.lastUpdated  || 0).getTime()
+        ),
+      };
+
       console.log('Fetched gridState:', gridState);
-  
+
       // Load master resources
       const masterResources = await loadMasterResources();
-  
+
       // Rehydrate NPCs
       if (gridState.npcs) {
         Object.keys(gridState.npcs).forEach((npcId) => {
           const lightweightNPC = gridState.npcs[npcId];
-  
+
           console.log('lightweightNPC:', lightweightNPC);
           console.log('masterResources:', masterResources);
-  
+
           const npcTemplate = masterResources.find(
             (res) => res.type === lightweightNPC.type
           );
-  
+
           if (npcTemplate) {
             gridState.npcs[npcId] = new NPC(
               npcId,
@@ -65,7 +78,7 @@ class GridStateManager {
           }
         });
       }
-  
+
     // **Preserve PCs from DB (don’t wipe them)**
     gridState.pcs = gridState.pcs || {};  // Only initialize if undefined
 
@@ -106,8 +119,8 @@ class GridStateManager {
         iscamping: currentPlayer.iscamping || false,
       };
 
-      // Save the updated grid state
-      await this.saveGridState(gridId);
+      // Save the updated PCs only
+      await this.saveGridStatePCs(gridId);
     } else {
       console.log(`Player ${currentPlayer?.username} already exists in gridState.`);
     }
@@ -126,14 +139,17 @@ class GridStateManager {
  * Get the gridState for a specific gridId.
  */
 getGridState(gridId) {
-  //console.log('getGridState: gridID =', gridId);
-  if (!gridId) {
-    return null;
+  const gridState = this.gridStates[gridId];
+  if (!gridState) {
+    console.warn(`⚠️ No gridState found for gridId: ${gridId}`);
+    return { npcs: {}, pcs: {} }; // Return empty structure if not found
   }
-  if (!this.gridStates[gridId]) {
-    this.gridStates[gridId] = { npcs: {}, pcs: {} }; // Default state
-  }
-  return this.gridStates[gridId];
+
+  // Combine gridStatePCs and gridStateNPCs into a single structure
+  return {
+    npcs: gridState.npcs || {},
+    pcs: gridState.pcs || {},
+  };
 }
  
   /**
@@ -241,7 +257,7 @@ async addNPC(gridId, npc) {
       gridState.npcs[npc.id] = npc;
     }
     console.log(`NPC added to gridState for gridId ${gridId}. Current NPCs:`, gridState.npcs);
-    this.saveGridState(gridId);
+    this.saveGridStateNPCs(gridId);
   }
 
 /**
@@ -258,7 +274,7 @@ updateNPC(gridId, npcId, newProperties) {
   updateLastGridStateTimestamp(gridState.lastUpdated);
   console.log(`NPC ${npcId} updated in gridState for gridId ${gridId}:`, gridState.npcs[npcId]);
   // Save the updated gridState to the database
-  this.saveGridState(gridId);
+  this.saveGridStateNPCs(gridId);
 }
 
 /**
@@ -273,7 +289,7 @@ removeNPC(gridId, npcId) {
   delete gridState.npcs[npcId];
   console.log(`NPC ${npcId} removed from gridState for gridId ${gridId}.`);
   // Save the updated gridState to the database
-  this.saveGridState(gridId);
+  this.saveGridStateNPCs(gridId);
 }
 
 addPC(gridId, pc) {
@@ -289,7 +305,7 @@ addPC(gridId, pc) {
   console.log(`PC added to gridState for gridId ${gridId}. Current PCs:`, gridState.pcs);
   console.log(`Ensuring NPCs are preserved:`, gridState.npcs); // Debugging check
 
-  this.saveGridState(gridId);  // Save the updated state
+  this.saveGridStatePCs(gridId);  // Save the updated PCs only
 }
 
 updatePC(gridId, playerId, newProperties) {
@@ -302,80 +318,79 @@ updatePC(gridId, playerId, newProperties) {
   Object.assign(gridState.pcs[playerId], newProperties);
   console.log(`PC ${playerId} updated in gridState for gridId ${gridId}:`, gridState.pcs[playerId]);
   // Save the updated gridState to the database
-  this.saveGridState(gridId);
+  this.saveGridStatePCs(gridId);
 }
 
 /** 
  * Save the gridState to the database.
  */
 async saveGridState(gridId) {
+
+
   const gridState = this.getGridState(gridId);
   if (!gridState) {
     console.error(`Cannot save gridState. No gridState found for gridId: ${gridId}`);
     return;
   }
 
-  // Get the last known PC states from the database
-  try {
-    const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
-    const dbGridState = response.data?.gridState || {};
-    // Use nested pcs.lastUpdated
-    const dbPcTs    = new Date(dbGridState.pcs?.lastUpdated || 0).getTime();
-    const localPcTs = gridState.pcs?.lastUpdated || 0;
-    if (dbPcTs > localPcTs) {
-      console.log('💾 DB has more recent PC data, preserving it');
-      gridState.pcs = dbGridState.pcs || {};
-    } else {
-      gridState.pcs = { ...(gridState.pcs || {}), lastUpdated: Date.now() };
-    }
-    // Update top-level timestamp for socket and hooks
-    this.gridStates[gridId].lastUpdated = Date.now();
-    updateLastGridStateTimestamp(this.gridStates[gridId].lastUpdated);
+  // Fetch existing NPC & PC data from server
+  const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
+  const {
+    gridStateNPCs = { npcs: {}, lastUpdated: 0 },
+    gridStatePCs  = { pcs:  {}, lastUpdated: 0 }
+  } = response.data;
 
-    // Debug logging
-    const pcIds = Object.keys(gridState.pcs || {});
-    console.warn(`💾 Saving gridState for gridId: ${gridId}`);
-    console.warn(`👥 PCs being saved:`, pcIds);
-
-    await axios.post(`${API_BASE}/api/save-grid-state`, {
-      gridId,
-      gridState: {
-        ...gridState,
-        npcs: Object.keys(gridState.npcs || {}).reduce((acc, id) => {
-          const npc = gridState.npcs[id];
-          acc[id] = {
-            id: npc.id,
-            type: npc.type,
-            position: npc.position,
-            state: npc.state,
-            hp: npc.hp,
-            maxhp: npc.maxhp,
-            grazeEnd: npc.grazeEnd,
-            nextspawn: npc.nextspawn,
-            lastUpdated: npc.lastUpdated || Date.now(),
-          };
-          return acc;
-        }, {}),
-      },
-    });
-
-    // Emit update AFTER successful save
-    socket.emit('update-gridState', {
-      gridId,
-      gridState: {
-        lastUpdated: this.gridStates[gridId].lastUpdated,
-        npcs: gridState.npcs,
-        pcs: gridState.pcs,
-      },
-    });
-
-    if (typeof setGridStateExternally === 'function') {
-      setGridStateExternally(this.gridStates[gridId]);
-    }
-
-  } catch (error) {
-    console.error('Error saving gridState:', error);
+  // ---------- Merge NPCs ----------
+  const dbNpcTs    = new Date(gridStateNPCs.lastUpdated || 0).getTime();
+  const localNpcTs = gridState.npcs?.lastUpdated || 0;
+  if (dbNpcTs > localNpcTs) {
+    console.log('💾 DB has more recent NPC data, preserving it');
+    gridState.npcs = gridStateNPCs.npcs || {};
+  } else {
+    gridState.npcs = { ...(gridState.npcs || {}), lastUpdated: Date.now() };
   }
+
+  // ---------- Merge PCs ----------
+  const dbPcTs    = new Date(gridStatePCs.lastUpdated || 0).getTime();
+  const localPcTs = gridState.pcs?.lastUpdated || 0;
+  if (dbPcTs > localPcTs) {
+    console.log('💾 DB has more recent PC data, preserving it');
+    gridState.pcs = gridStatePCs.pcs || {};
+  } else {
+    gridState.pcs = { ...(gridState.pcs || {}), lastUpdated: Date.now() };
+  }
+
+  // Top‑level timestamp for hooks / sockets
+  this.gridStates[gridId].lastUpdated = Date.now();
+  updateLastGridStateTimestamp(this.gridStates[gridId].lastUpdated);
+
+  // Build payloads preserving nested lastUpdated
+  const payloadNPCs = { ...(gridState.npcs || {}) };
+  payloadNPCs.lastUpdated = gridState.npcs.lastUpdated;
+
+  const payloadPCs = { ...(gridState.pcs || {}) };
+  payloadPCs.lastUpdated = gridState.pcs.lastUpdated;
+
+  const topTs = this.gridStates[gridId].lastUpdated;
+  await axios.post(`${API_BASE}/api/save-grid-state`, {
+    gridId,
+    gridState: { npcs: payloadNPCs, pcs: payloadPCs, lastUpdated: topTs }
+  });
+
+  // Emit update AFTER successful save
+  socket.emit('update-gridState', {
+    gridId,
+    gridState: {
+      lastUpdated: this.gridStates[gridId].lastUpdated,
+      npcs: gridState.npcs,
+      pcs: gridState.pcs,
+    },
+  });
+
+  if (typeof setGridStateExternally === 'function') {
+    setGridStateExternally(this.gridStates[gridId]);
+  }
+
 }
 
 /**
@@ -387,45 +402,79 @@ async saveGridStatePCs(gridId) {
     console.error(`Cannot save PCs. No gridState found for gridId: ${gridId}`);
     return;
   }
+
   try {
-    const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
-    const dbGridState = response.data?.gridState || {};
-    const dbPcTs    = new Date(dbGridState.pcs?.lastUpdated || 0).getTime();
-    const localPcTs = gridState.pcs?.lastUpdated || 0;
-    if (dbPcTs > localPcTs) {
-      console.log('💾 DB has more recent PC data, preserving it');
-      gridState.pcs = dbGridState.pcs || {};
-    } else {
-      gridState.pcs = { ...(gridState.pcs || {}), lastUpdated: Date.now() };
-    }
-    // Sync manager’s timestamp to nested pcs.lastUpdated
-    const pcsTs = gridState.pcs.lastUpdated;
-    this.gridStates[gridId].lastUpdated = pcsTs;
-    updateLastGridStateTimestamp(pcsTs);
+    // Ensure gridStatePCsLastUpdated is set to a valid timestamp
+    gridState.gridStatePCsLastUpdated = new Date().toISOString();
 
-    const pcIds = Object.keys(gridState.pcs || {});
-    console.warn(`💾 Saving PCs for gridId: ${gridId}`);
-    console.warn(`👥 PCs being saved:`, pcIds);
-
-    await axios.post(`${API_BASE}/api/save-grid-state-pcs`, {
+    // Prepare the payload
+    const payload = {
       gridId,
       pcs: gridState.pcs,
-    });
+      gridStatePCsLastUpdated: gridState.gridStatePCsLastUpdated,
+    };
 
+    console.log(`💾 Saving PCs for gridId: ${gridId}`);
+    console.log(`👥 PCs being saved:`, Object.keys(gridState.pcs || {}));
+    console.log('Payload: ', payload);
+    // Send the payload to the server
+    const response = await axios.post(`${API_BASE}/api/save-grid-state-pcs`, payload);
+
+    if (response.data.success) {
+      console.log('✅ PCs successfully saved:', Object.keys(gridState.pcs));
+    } else {
+      throw new Error('Failed to save PCs to the database');
+    }
+  } catch (error) {
+    console.error('❌ Error saving gridStatePCs:', error);
+  }
+}
+
+/**
+ * Save only NPCs in the gridState to the database.
+ */
+async saveGridStateNPCs(gridId) {
+  const gridState = this.getGridState(gridId);
+  if (!gridState) {
+    console.error(`Cannot save NPCs. No gridState found for gridId: ${gridId}`);
+    return;
+  }
+  try {
+    // Fetch current NPC state from server
+    const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
+    const { gridStateNPCs = {} } = response.data;
+    const { npcs: dbNpcs = {}, lastUpdated: rawDbNpcLast } = gridStateNPCs;
+    const hasDbNpcs = Object.keys(dbNpcs).length > 0;
+    const dbNpcTs = hasDbNpcs && rawDbNpcLast ? new Date(rawDbNpcLast).getTime() : 0;
+    const localNpcTs = gridState.npcs?.lastUpdated || 0;
+    if (dbNpcTs > localNpcTs) {
+      console.log('💾 DB has more recent NPC data, preserving it');
+      gridState.npcs = gridStateNPCs.npcs || {};
+    } else {
+      gridState.npcs = { ...(gridState.npcs || {}), lastUpdated: Date.now() };
+    }
+    // Sync manager timestamp
+    this.gridStates[gridId].lastUpdated = Date.now();
+    updateLastGridStateTimestamp(this.gridStates[gridId].lastUpdated);
+    // Debug logging
+    const npcIds = Object.keys(gridState.npcs || {});
+    console.warn(`💾 Saving NPCs for gridId: ${gridId}`, npcIds);
+    // Send only NPCs payload
+    await axios.post(`${API_BASE}/api/save-grid-state-npcs`, { gridId, npcs: gridState.npcs });
+    // Emit update
     socket.emit('update-gridState', {
       gridId,
       gridState: {
         lastUpdated: this.gridStates[gridId].lastUpdated,
         npcs: gridState.npcs,
-        pcs: gridState.pcs,
+        pcs:  gridState.pcs,
       },
     });
-
     if (typeof setGridStateExternally === 'function') {
       setGridStateExternally(this.gridStates[gridId]);
     }
   } catch (error) {
-    console.error('Error saving gridStatePCs:', error);
+    console.error('Error saving gridStateNPCs:', error);
   }
 }
 
@@ -485,9 +534,10 @@ export const {
   updateNPC,
   addPC,
   updatePC,
-  removeNPC,
+  removeNPC, 
   saveGridState,
   saveGridStatePCs,
+  saveGridStateNPCs,
 } = gridStateManager;
 
 // Default export for the entire manager

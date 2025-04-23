@@ -150,17 +150,18 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
           // Decide if this is critical enough to throw or ignore
         }
       }
+
+      // Load existing PC state and add new PC
       const gridStateResponse = await axios.get(`${API_BASE}/api/load-grid-state/${assignedGridId}`);
-      let gridState = gridStateResponse.data.gridState || { npcs: {}, pcs: {} };
-  
-      // Add the PC to the newly created grid's gridState immediately
-      console.log(`Adding new player ${player.username} to gridState for gridId ${assignedGridId}`);
-      gridState.pcs[player._id] = {
+      const { gridStatePCs = { pcs: {} } } = gridStateResponse.data;
+      const pcMap = gridStatePCs.pcs;
+      console.log(`Adding new player ${player.username} to PCs for gridId ${assignedGridId}`);
+      pcMap[player._id] = {
         playerId: player._id,
         type: 'pc',
         username: player.username,
         position: { x: 2, y: 2 },  // Starting position
-        icon: player.icon || '😀', 
+        icon: player.icon || '😀',
         hp: player.hp,
         maxhp: player.maxhp,
         armorclass: player.armorclass,
@@ -170,11 +171,10 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
         speed: player.speed,
         iscamping: player.iscamping,
       };
-
-      // Save the updated gridState back to the DB
-      await axios.post(`${API_BASE}/api/save-grid-state`, {
+      // Save only PCs
+      await axios.post(`${API_BASE}/api/save-grid-state-pcs`, {
         gridId: assignedGridId,
-        gridState: gridState,
+        pcs: { ...pcMap, lastUpdated: Date.now() },
       });
 
       // 8) Send welcome message via mailbox

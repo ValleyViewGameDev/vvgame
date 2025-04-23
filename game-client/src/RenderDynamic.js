@@ -17,25 +17,23 @@ const DynamicRenderer = ({
   onPCClick,  // This is needed for the Social Panel
   masterResources,
 }) => {
-  const gridState = useGridState(); 
-  const masterResourcesRef = useRef(masterResources);  // ✅ Create a ref to hold masterResources
+  const gridState = useGridState(); // Use the updated gridState from context
+  const masterResourcesRef = useRef(masterResources); // Keep masterResources in a ref
   useEffect(() => {
-    // ✅ Keep the ref updated whenever masterResources changes
     masterResourcesRef.current = masterResources;
   }, [masterResources]);
 
-  const containerRef = useRef(null); 
-  const tooltipRef = useRef(null); 
-  const animationFrameId = useRef(null); 
-  const reloadRef = useRef(0);  // Stores the next allowed attack time
+  const containerRef = useRef(null);
+  const tooltipRef = useRef(null);
+  const animationFrameId = useRef(null);
+  const reloadRef = useRef(0); // Stores the next allowed attack time
   const rangeIndicatorRef = useRef(null);
 
   const npcElements = useRef(new Map());
   const pcElements = useRef(new Map());
 
-
   useEffect(() => {
-    console.log("🔄 Re-rendering PCs! Latest gridState:", gridState);
+    console.log("🔄 Re-rendering PCs and NPCs! Latest gridState:", gridState);
     const container = containerRef.current;
     if (!container) return;
 
@@ -43,15 +41,14 @@ const DynamicRenderer = ({
     tooltip.className = 'tooltip-container';
     tooltip.style.position = 'absolute';
     tooltip.style.zIndex = '20';
-    tooltip.style.pointerEvents = 'none'; 
-    tooltip.style.display = 'none'; 
+    tooltip.style.pointerEvents = 'none';
+    tooltip.style.display = 'none';
     container.appendChild(tooltip);
     tooltipRef.current = tooltip;
 
-
     ///////////////////////////////////////////////////////
     const renderNPCs = () => {
-      const npcs = Object.values(gridState?.npcs || {});
+      const npcs = Object.values(gridState?.npcs || {}); // Use the updated gridState.npcs
       const currentTime = Date.now();
 
       npcs.forEach((npc) => {
@@ -70,22 +67,12 @@ const DynamicRenderer = ({
           npcElement.style.zIndex = 15;
           container.appendChild(npcElement);
           npcElements.current.set(npc.id, npcElement);
-        } 
-
-        // ✅ Update cursor dynamically
-        if (npc.action === 'attack' || npc.action === 'spawn') {
-          npcElement.style.cursor = currentTime < reloadRef.current ? 'wait' : 'crosshair';
-        } else if (npc.action === 'quest' || npc.action === 'heal') {
-          npcElement.style.cursor = 'pointer';
-        } else {
-          npcElement.style.cursor = 'pointer';
         }
 
         npcElement.textContent = npc.symbol;
         npcElement.style.top = `${npc.position.y * TILE_SIZE}px`;
         npcElement.style.left = `${npc.position.x * TILE_SIZE}px`;
 
-        // ✅ Attach event listener only once per NPC
         if (!npcElement.hasClickListener) {
           npcElement.addEventListener('click', () => {
             tooltip.style.display = 'none';
@@ -105,15 +92,13 @@ const DynamicRenderer = ({
             }
           });
 
-          // ✅ Add hover event listeners for NPC tooltips
           npcElement.addEventListener('mouseenter', (event) => handleNPCHover(event, npc, tooltipRef.current, TILE_SIZE));
           npcElement.addEventListener('mouseleave', () => handleNPCHoverLeave(tooltipRef.current));
 
-          npcElement.hasClickListener = true; // ✅ Prevent duplicate listeners
+          npcElement.hasClickListener = true;
         }
       });
 
-      // Cleanup: Remove NPC elements no longer in gridState
       npcElements.current.forEach((_, id) => {
         if (!npcs.find((npc) => npc.id === id)) {
           const element = npcElements.current.get(id);
@@ -124,16 +109,19 @@ const DynamicRenderer = ({
     };
 
     ///////////////////////////////////////////////////////
-    // Function to render all PCs
     const renderPCs = () => {
       const pcs = Object.values(gridState?.pcs || {});
-      
+
       pcs.forEach((pc) => {
+        // Validate the pc object and its position
+        if (!pc || !pc.position || typeof pc.position.x !== 'number' || typeof pc.position.y !== 'number') {
+          console.warn('Skipping invalid PC:', pc);
+          return; // Skip this PC if it's invalid
+        }
 
         let pcElement = pcElements.current.get(pc.playerId);
 
         if (!pcElement) {
-          // Create a new PC element if it doesn’t exist
           pcElement = document.createElement('div');
           pcElement.className = 'pc';
           Object.assign(pcElement.style, {
@@ -151,7 +139,6 @@ const DynamicRenderer = ({
           container.appendChild(pcElement);
           pcElements.current.set(pc.playerId, pcElement);
 
-          // Attach event listeners for click and hover interactions
           pcElement.addEventListener('click', () => {
             tooltip.style.display = 'none';
             onPCClick(pc); // Open Social Panel
@@ -165,49 +152,11 @@ const DynamicRenderer = ({
           pcElements.current.set(pc.playerId, pcElement);
         }
 
-        if (pc.iscamping) {
-          pcElement.textContent = '⛺️';  // Camping PC icon
-        } else if (pc.hp <= 0) {
-          pcElement.textContent = '💀';  // Dead PC icon
-        } else if (pc.hp < 20) {
-          pcElement.textContent = '🤢';  // Low HP icon
-        } else {
-          pcElement.textContent = '😊';  // Normal icon
-        }
-
-        // Update position of the PC
+        pcElement.textContent = pc.iscamping ? '⛺️' : pc.hp <= 0 ? '💀' : pc.hp < 20 ? '🤢' : '😊';
         pcElement.style.top = `${pc.position.y * TILE_SIZE}px`;
         pcElement.style.left = `${pc.position.x * TILE_SIZE}px`;
-
-
-        // ✅ If this is the current player, update the range indicator
-        if (String(pc.playerId) === String(currentPlayer._id) && currentPlayer.range) {
-          if (!rangeIndicatorRef.current) {
-            const rangeIndicator = document.createElement("div");
-            rangeIndicator.className = "range-indicator";
-            rangeIndicator.style.position = "absolute";
-            rangeIndicator.style.borderRadius = "50%";
-            rangeIndicator.style.backgroundColor = "rgba(0, 100, 255, 0.08)"; // ✅ Light blue translucent effect
-            rangeIndicator.style.zIndex = 10;
-            container.appendChild(rangeIndicator);
-            rangeIndicatorRef.current = rangeIndicator;
-          }
-
-          const playerCenterX = pc.position.x * TILE_SIZE + TILE_SIZE / 2; // ✅ Center X
-          const playerCenterY = pc.position.y * TILE_SIZE + TILE_SIZE / 2; // ✅ Center Y
-          const rangeSize = currentPlayer.range * TILE_SIZE * 1.8; // Diameter, not radius
-
-          rangeIndicatorRef.current.style.width = `${rangeSize}px`;
-          rangeIndicatorRef.current.style.height = `${rangeSize}px`;
-          rangeIndicatorRef.current.style.left = `${playerCenterX - rangeSize / 2}px`; // ✅ Centered Left
-          rangeIndicatorRef.current.style.top = `${playerCenterY - rangeSize / 2}px`;  // ✅ Centered Top
-          rangeIndicatorRef.current.style.display = "block"; // Ensure it's visible
-        }
-
-
       });
 
-      // Cleanup: Remove PC elements that are no longer present in gridState
       pcElements.current.forEach((_, id) => {
         if (!pcs.find((pc) => pc.playerId === id)) {
           const element = pcElements.current.get(id);
@@ -216,12 +165,11 @@ const DynamicRenderer = ({
         }
       });
     };
-    
-    // Start the rendering loop for NPCs and PCs
+
     const startRenderingLoop = () => {
       const loop = () => {
         renderNPCs();
-        renderPCs(); 
+        renderPCs();
         animationFrameId.current = requestAnimationFrame(loop);
       };
       loop();
@@ -229,36 +177,25 @@ const DynamicRenderer = ({
 
     startRenderingLoop();
 
-    // Cleanup function to properly remove elements and event listeners
     return () => {
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
       npcElements.current.forEach((npcElement) => {
-        npcElement.removeEventListener('click', handleNPCClick);
-        npcElement.removeEventListener('mouseenter', handleNPCHover);
-        npcElement.removeEventListener('mouseleave', handleNPCHoverLeave);
         container.removeChild(npcElement);
       });
       npcElements.current.clear();
 
       pcElements.current.forEach((pcElement) => {
-        pcElement.removeEventListener('click', handlePCClick);
-        pcElement.removeEventListener('mouseenter', handlePCHover);
-        pcElement.removeEventListener('mouseleave', handlePCHoverLeave);
         container.removeChild(pcElement);
       });
       pcElements.current.clear();
 
       container.removeChild(tooltip);
     };
-  }, [gridState, TILE_SIZE, handleNPCClick]); // Depend on gridState and TILE_SIZE
+  }, [gridState, TILE_SIZE, handleNPCClick]);
 
-  return (
-    <>
-      <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%' }} />
-    </>
-  );
+  return <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%' }} />;
 };
 
 

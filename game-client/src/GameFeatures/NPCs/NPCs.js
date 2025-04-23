@@ -50,6 +50,8 @@ class NPC {
 update(currentTime, gridState, gridId, TILE_SIZE) {
   console.log(`🎲 NPC ${this.id} (${this.type}) updating. Current state: ${this.state}`);
 
+  const npcs = Object.values(gridStateManager.getGridState(gridId)?.npcs || {}); // Use the new gridState.npcs
+
   const timeElapsed = currentTime - this.lastUpdateTime;
   if (timeElapsed < this.updateInterval) {
     return;

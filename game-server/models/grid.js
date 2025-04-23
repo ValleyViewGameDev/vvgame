@@ -15,7 +15,7 @@ const GridSchema = new mongoose.Schema({
     type: Array, // Resources in the grid
     required: true,
   },
-  // NPCs state
+  // NPCs map (data only)
   gridStateNPCs: {
     type: Map,
     of: new mongoose.Schema({
@@ -31,10 +31,11 @@ const GridSchema = new mongoose.Schema({
       grazeEnd: { type: Number },
       lastMoveTime: { type: Number }
     }),
-    lastUpdated: { type: Date, default: Date.now },
     default: {}
   },
-  // PCs state
+  gridStateNPCsLastUpdated: { type: Date, default: Date.now },
+
+  // PCs map (data only)
   gridStatePCs: {
     type: Map,
     of: new mongoose.Schema({
@@ -61,9 +62,10 @@ const GridSchema = new mongoose.Schema({
       speed: { type: Number, required: true },
       iscamping: { type: Boolean, default: false }
     }),
-    lastUpdated: { type: Date, default: Date.now },
     default: {}
   },
+  gridStatePCsLastUpdated:  { type: Date, default: Date.now },
+
   frontierId: {
     type: mongoose.Schema.Types.ObjectId, // Links this grid to a frontier
     ref: 'Frontier', // Reference to the Frontier model

@@ -338,7 +338,7 @@ useEffect(() => {
           iscamping: fullPlayerData.iscamping,
         });
         console.log ("About to save call saveGridState in InitAppWrapper step 7");
-        await gridStateManager.saveGridState(targetGridId);
+        await gridStateManager.saveGridStatePCs(targetGridId);
 
         // ✅ Refresh the gridState and React state
         console.warn('InitAppWrapper: refreshing gridState');
@@ -369,7 +369,7 @@ useEffect(() => {
 
         if (!dbGridState.pcs || !dbGridState.pcs[fullPlayerData._id]) {
           console.warn(`⚠️ Player ${fullPlayerData.username} missing from DB gridState. Saving state to DB.`);
-          await gridStateManager.saveGridState(fullPlayerData.location.g);
+          await gridStateManager.saveGridStatePCs(fullPlayerData.location.g);
         } else {
           console.log('✅ Player exists in both local and DB gridState.');
         }
@@ -586,7 +586,7 @@ const handlePlayerDeath = async (player) => {
     const currentGridState = gridStateManager.getGridState(currentGridId);
     if (currentGridState?.pcs[playerId]) {
       delete currentGridState.pcs[playerId];
-      await gridStateManager.saveGridState(currentGridId);
+      await gridStateManager.saveGridStatePCs(currentGridId);
     }
 
     // 3. **Update Player's Location and State in React**

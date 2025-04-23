@@ -137,7 +137,7 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
             const gridState = gridStateManager.getGridState(gridId);
             if (gridState?.pcs[currentPlayer.playerId]) {
                 gridState.pcs[currentPlayer.playerId].username = formData.username.trim();
-                gridStateManager.saveGridState(gridId);
+                gridStateManager.saveGridStatePCs(gridId);
                 console.log(`✅ Updated username in gridState: ${currentPlayer.playerId} → ${formData.username.trim()}`);
             }
         } else {
