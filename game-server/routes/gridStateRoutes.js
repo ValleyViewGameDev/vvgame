@@ -40,6 +40,8 @@ router.post('/save-grid-state', async (req, res) => {
   }
 });
 
+
+
 router.get('/load-grid-state/:gridId', async (req, res) => {
   const { gridId } = req.params;
   console.log('Loading gridState for gridId:', gridId);
@@ -96,90 +98,6 @@ router.post('/get-multiple-grid-states', async (req, res) => {
   }
 });
 
-// New route for PC-only updates
-router.post('/update-grid-state-pcs', async (req, res) => {
-  const { gridId, pcs, lastUpdated } = req.body;
 
-  if (!gridId || !pcs) {
-    return res.status(400).json({
-      error: 'gridId and pcs are required.',
-    });
-  }
-
-  try {
-    console.log(`Updating PCs for gridId: ${gridId}`);
-    const grid = await Grid.findById(gridId);
-    if (!grid) {
-      return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
-    }
-
-    // Initialize gridState if it doesn't exist
-    if (!grid.gridState) {
-      grid.gridState = { npcs: {}, pcs: {}, lastUpdated: Date.now() };
-    }
-
-    // Only update PCs, preserve existing NPCs
-    grid.gridState = {
-      ...grid.gridState,
-      pcs,
-      lastUpdated: lastUpdated || Date.now()
-    };
-
-    await grid.save();
-    console.log(`✅ PCs updated successfully for gridId: ${gridId}`);
-    
-    res.status(200).json({ 
-      success: true, 
-      message: 'PCs updated successfully',
-      lastUpdated: grid.gridState.lastUpdated
-    });
-  } catch (error) {
-    console.error('Error updating PCs:', error);
-    res.status(500).json({ error: 'Failed to update PCs.' });
-  }
-});
-
-// New route for NPC-only updates
-router.post('/update-grid-state-npcs', async (req, res) => {
-  const { gridId, npcs, lastUpdated } = req.body;
-
-  if (!gridId || !npcs) {
-    return res.status(400).json({
-      error: 'gridId and npcs are required.',
-    });
-  }
-
-  try {
-    console.log(`Updating NPCs for gridId: ${gridId}`);
-    const grid = await Grid.findById(gridId);
-    if (!grid) {
-      return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
-    }
-
-    // Initialize gridState if it doesn't exist
-    if (!grid.gridState) {
-      grid.gridState = { npcs: {}, pcs: {}, lastUpdated: Date.now() };
-    }
-
-    // Only update NPCs, preserve existing PCs
-    grid.gridState = {
-      ...grid.gridState,
-      npcs,
-      lastUpdated: lastUpdated || Date.now()
-    };
-
-    await grid.save();
-    console.log(`✅ NPCs updated successfully for gridId: ${gridId}`);
-    
-    res.status(200).json({ 
-      success: true, 
-      message: 'NPCs updated successfully',
-      lastUpdated: grid.gridState.lastUpdated
-    });
-  } catch (error) {
-    console.error('Error updating NPCs:', error);
-    res.status(500).json({ error: 'Failed to update NPCs.' });
-  }
-});
 
 module.exports = router;
