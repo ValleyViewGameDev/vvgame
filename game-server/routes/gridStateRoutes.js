@@ -52,8 +52,9 @@ router.post('/save-grid-state-pcs', async (req, res) => {
       return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
     }
     // Replace only the PCs map and bump its lastUpdated
-    grid.gridState.pcs = new Map(Object.entries(pcs));
-    grid.gridState.pcs.lastUpdated = new Date();
+    const { lastUpdated: clientTs, ...pcEntries } = pcs;
+    grid.gridState.pcs = new Map(Object.entries(pcEntries));
+    grid.gridState.pcs.lastUpdated = new Date(clientTs);
     await grid.save();
     res.status(200).json({ success: true, message: 'GridState PCs saved successfully.' });
   } catch (error) {
@@ -73,8 +74,9 @@ router.post('/update-grid-state-pcs', async (req, res) => {
     if (!grid) {
       return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
     }
-    grid.gridState.pcs = new Map(Object.entries(pcs));
-    grid.gridState.pcs.lastUpdated = new Date();
+    const { lastUpdated: clientTs, ...pcEntries } = pcs;
+    grid.gridState.pcs = new Map(Object.entries(pcEntries));
+    grid.gridState.pcs.lastUpdated = new Date(clientTs);
     await grid.save();
     res.status(200).json({ success: true, message: 'GridState PCs updated successfully.' });
   } catch (error) {
