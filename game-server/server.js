@@ -18,6 +18,7 @@ const { Server } = require('socket.io');
 const Player = require('./models/player');  // Ensure this is correct
 
 const worldRoutes = require('./routes/worldRoutes');
+const gridStateRoutes = require('./routes/gridStateRoutes'); // Import gridState routes
 const playerRoutes = require('./routes/playerRoutes'); 
 const authRoutes = require('./routes/auth');  // <-- Import auth routes
 const tradingRoutes = require('./routes/tradingRoutes'); // Import trading routes
@@ -246,6 +247,8 @@ console.log('Setting up player routes...');
 app.use('/api', playerRoutes);
 console.log('Setting up world routes...');
 app.use('/api', worldRoutes);
+console.log('Setting up gridState routes...');
+app.use('/api', gridStateRoutes);
 console.log('Setting up trading routes...');
 app.use('/api', tradingRoutes);
 console.log('Setting up frontier routes...');

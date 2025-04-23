@@ -23,91 +23,6 @@ const queue = require('../queue'); // Import the in-memory queue
 // GRID ROUTES 
 ///////////////////////////////////////////////////////////////
 
-// Save or update gridState
-router.post('/save-grid-state', async (req, res) => {
-  const { gridId, gridState } = req.body;
-
-  if (!gridId || !gridState) {
-    return res.status(400).json({
-      error: 'gridId and gridState are required.',
-    });
-  }
-
-  try {
-    console.log(`Saving gridState for gridId: ${gridId}`);
-    const grid = await Grid.findById(gridId);
-    if (!grid) {
-      return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
-    }
-
-    grid.gridState = gridState;
-    await grid.save();
-//    console.log('GridState saved: with pcs: ',gridState.pcs);
-//    console.log(`GridState saved successfully for gridId: ${gridId}`);
-    res.status(200).json({ success: true, message: `GridState saved successfully.` });
-  } catch (error) {
-    console.error('Error saving gridState:', error);
-    res.status(500).json({ error: 'Failed to save gridState.' });
-  }
-});
-
-
-
-router.get('/load-grid-state/:gridId', async (req, res) => {
-  const { gridId } = req.params;
-  console.log('Loading gridState for gridId:', gridId);
-  try {
-    const grid = await Grid.findById(gridId, 'gridState');
-    //console.log('Grid.findById found:', grid);
-    if (!grid) {
-      return res.status(404).send({ error: 'Grid not found.' });
-    }
-
-    // Normalize the Map fields to plain objects
-    const gridState = {
-      npcs: grid.gridState.npcs ? Object.fromEntries(grid.gridState.npcs) : {},
-      pcs: grid.gridState.pcs
-        ? Object.fromEntries(
-            Array.from(grid.gridState.pcs).map(([key, value]) => [
-              key,
-              value.toObject ? value.toObject() : { ...value }, // Robustly convert to plain object
-            ])
-          )
-        : {},
-      lastUpdated: grid.gridState.lastUpdated || Date.now(), // ✅ Add this line
-    };
-
-    //console.log('Normalized gridState:', gridState);
-    res.send({ gridState });
-  } catch (error) {
-    console.error('Error fetching gridState:', error);
-    res.status(500).send({ error: 'Failed to fetch gridState.' });
-  }
-});
-
-router.post('/get-multiple-grid-states', async (req, res) => {
-  const { gridIds } = req.body;
-  
-  if (!Array.isArray(gridIds)) {
-    return res.status(400).json({ error: 'gridIds must be an array' });
-  }
-
-  try {
-    // Find all grids in one query
-    const grids = await Grid.find({ _id: { $in: gridIds } });
-    
-    // Create a map of gridId to gridState
-    const gridStates = grids.reduce((acc, grid) => {
-      acc[grid._id] = grid.gridState || {};
-      return acc;
-    }, {});
-    
-    res.json(gridStates);
-  } catch (error) {
-    console.error('Error fetching multiple grid states:', error);
-    res.status(500).json({ error: 'Failed to fetch grid states' });
-  }
-});
 
 // create-grid
 router.post('/create-grid', async (req, res) => {
@@ -245,7 +160,7 @@ router.post('/reset-grid', async (req, res) => {
     if (gridType === 'homestead') {
       const frontier = await Frontier.findById(grid.frontierId);
       if (!frontier) {
-        return res.status(404).json({ error: 'Frontier not found.' });
+        return res.status(404).json({ error: 'Associated frontier not found.' });
       }
 
       const seasonType = frontier?.seasons?.seasonType || 'default';
@@ -275,57 +190,46 @@ router.post('/reset-grid', async (req, res) => {
     );
 
     // Step 5: Generate resources
-    const newResources = generateResources(layout, newTiles, layoutFileName);
+    const newResources = generateResources(layout, newTiles, layout.resourceDistribution);
 
-    // Step 6: Extract fresh NPCs, preserve PCs
-    if (gridType != "homestead") {
+    // ✅ Step 6: Preserve existing PCs, only if not a homestead reset
+    let existingPCs = {};
+    if (gridType !== "homestead") {
       existingPCs = grid.gridState?.pcs || {};
     }
     
     const newGridState = { npcs: {}, pcs: existingPCs };
 
-    // 5Process layout resources, separating NPCs into gridState
+    // Process layout resources, separating NPCs into gridState
     layout.resources.forEach((row, y) => {
       row.forEach((cell, x) => {
-        const resourceEntry = masterResources.find(res => res.layoutkey === cell);
-    
-        if (!resourceEntry) {
- //         console.warn(`⚠️ No matching resource for key "${cell}" at (${x}, ${y})`);
-          return;
+        if (cell && cell.type && masterResources.find(r => r.type === cell.type)?.category === 'npc') {
+          const npcTemplate = masterResources.find(r => r.type === cell.type);
+          if (npcTemplate) {
+            const npcId = `${cell.type}_${x}_${y}`;
+            newGridState.npcs[npcId] = {
+              id: npcId,
+              type: cell.type,
+              position: { x, y },
+              state: 'idle',
+              hp: Math.max(npcTemplate.hp || 10, 0),
+              maxhp: npcTemplate.maxhp || 10,
+              lastMoveTime: 0
+            };
+          }
         }
-    
-        if (resourceEntry.category === "npc") {
-    
-          const npcId = new ObjectId(); // Generate unique MongoDB ID
-    
-          newGridState.npcs[npcId.toString()] = {
-            id: npcId.toString(),
-            type: resourceEntry.type,
-            position: { x, y },
-            state: resourceEntry.defaultState || 'idle',
-            hp: Math.max(resourceEntry.hp || 10, 0),
-            maxhp: resourceEntry.maxhp || 10,
-            lastMoveTime: 0,
-          };
-        // } else {
-        //   newResources.push({ x, y, type: resourceEntry.type }); // ✅ Store `type`, not `layoutkey`
-         }
       });
     });
 
-    // Reset tiles, resources, and npcs while retaining pcs
+    // Reset tiles, resources, and gridState
     grid.tiles = newTiles;
     grid.resources = newResources;
     grid.gridState = {
-      npcs: newGridState.npcs, // Fresh NPCs
-      pcs: existingPCs,  // Retain PCs
+      npcs: newGridState.npcs,
+      pcs: existingPCs,
+      lastUpdated: Date.now()
     };
 
-    // console.log("🔍 Reset grid - tiles (should be types, not layoutkeys):", JSON.stringify(newTiles, null, 2));
-    // console.log("🔍 Reset grid - resources:", JSON.stringify(newResources, null, 2));
-    // console.log("🔍 Reset grid - NPCs:", JSON.stringify(newGridState.npcs, null, 2));
-
-    // Ensure changes are saved before responding
     await grid.save();
 
     console.log(`Grid reset successfully for ID: ${gridId}, Type: ${gridType}`);
