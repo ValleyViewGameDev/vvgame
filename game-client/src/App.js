@@ -526,6 +526,8 @@ useEffect(() => {
 
     // Check if we're the controller before processing NPCs
     if (npcController.isControllingGrid(gridId)) {
+      console.log('npcController is active. Processing NPCs...');
+      
       Object.values(gridState.npcs).forEach((npc) => {
         if (typeof npc.update === 'function') {
           const currentTime = Date.now();

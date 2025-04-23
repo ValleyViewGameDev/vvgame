@@ -19,6 +19,16 @@ class NPCController {
       this.removeController(gridId);
     });
 
+    // Add new listener for controller updates
+    socket.on('npc-controller-update', ({ controllerUsername, gridId }) => {
+      console.log(`🎮 Controller update received for ${gridId}: ${controllerUsername}`);
+      if (controllerUsername) {
+        this.setAsController(gridId);
+      } else {
+        this.removeController(gridId);
+      }
+    });
+
     // Add connection status listeners
     socket.on('connect', () => {
       console.log('🔌 NPCController socket connected');
@@ -62,6 +72,16 @@ class NPCController {
     console.log(`🔍 Controller Map after set:`, 
       Array.from(this.controlledGrids.entries())
     );
+
+    // Force an immediate NPC update
+    const gridState = gridStateManager.getGridState(gridId);
+    if (gridState?.npcs) {
+      Object.values(gridState.npcs).forEach(npc => {
+        if (typeof npc.update === 'function') {
+          npc.update(Date.now(), gridState);
+        }
+      });
+    }
   }
 
   removeController(gridId) {
