@@ -149,9 +149,16 @@ export const changePlayerLocation = async (
     if (toLocation.g) {
       console.log(`2️⃣ Adding player to grid ${toLocation.g}`);
       const toGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${toLocation.g}`);
-      const toGridState = toGridResponse.data?.gridState || { npcs: {}, pcs: {}, lastUpdated: Date.now() };
+      const existingToGridState = toGridResponse.data?.gridState || { npcs: {}, pcs: {}, lastUpdated: Date.now() };
 
-      // Create PC entry matching the schema
+      // Create new gridState preserving existing NPCs and PCs
+      const toGridState = {
+        npcs: { ...existingToGridState.npcs },  // Preserve existing NPCs
+        pcs: { ...existingToGridState.pcs },    // Preserve existing PCs
+        lastUpdated: Date.now()
+      };
+
+      // Add the moving player to pcs
       toGridState.pcs[currentPlayer._id] = {
         playerId: currentPlayer._id,
         type: 'pc',
@@ -182,7 +189,7 @@ export const changePlayerLocation = async (
         gridId: toLocation.g,
         playerId: currentPlayer._id,
         username: currentPlayer.username,
-        playerData: toGridState.pcs[currentPlayer._id] // Send the exact data we just saved
+        playerData: toGridState.pcs[currentPlayer._id]
       });
       console.log(`📢 Emitted player-joined-grid for ${toLocation.g}`);
     }

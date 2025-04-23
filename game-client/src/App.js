@@ -1094,6 +1094,11 @@ useEffect(() => {
         console.log("🛑 Keyboard input disabled while offseason."); 
         return; 
       }      
+      // ✅ Prevent movement if zoomed out
+      if (zoomLevel === 'frontier' || zoomLevel === 'settlement') {
+        console.log("🛑 Keyboard input disabled while zoomed out."); 
+        return; 
+      }  
       // ✅ Prevent movement if a text input is focused
       const activeElement = document.activeElement;
       if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; }
