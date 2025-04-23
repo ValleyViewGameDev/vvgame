@@ -6,6 +6,7 @@ import socket from '../socketManager'; // ⚠️ At top of file if not already p
 import GlobalGridState from '../GridState/GlobalGridState';
 import { mergeResources, mergeTiles } from './ResourceHelpers';
 import { enrichResourceFromMaster } from './ResourceHelpers';
+import { saveGridStatePCs } from '../GridState/GridState';
 
 export const updateGridResource = async (
   gridId,
@@ -127,14 +128,12 @@ export const changePlayerLocation = async (
       const fromGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${fromLocation.g}`);
       const fromGridState = fromGridResponse.data?.gridState || { npcs: {}, pcs: {}, lastUpdated: Date.now() };
       
-      // Remove player but preserve other data
-      delete fromGridState.pcs[currentPlayer._id];
+      // Remove player but preserve other PCs
+      const updatedPCs = { ...fromGridState.pcs };
+      delete updatedPCs[currentPlayer._id];
 
-      // Save updated state
-      await axios.post(`${API_BASE}/api/save-grid-state`, {
-        gridId: fromLocation.g,
-        gridState: fromGridState
-      });
+      // Use new PC-specific save method
+      await saveGridStatePCs(fromLocation.g, updatedPCs);
 
       // Emit AFTER saving to DB
       socket.emit('player-left-grid', {
@@ -142,7 +141,6 @@ export const changePlayerLocation = async (
         playerId: currentPlayer._id,
         username: currentPlayer.username
       });
-      console.log(`📢 Emitted player-left-grid for ${fromLocation.g}`);
     }
 
     // 2. Update TO grid's state (add player)
@@ -151,47 +149,39 @@ export const changePlayerLocation = async (
       const toGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${toLocation.g}`);
       const existingToGridState = toGridResponse.data?.gridState || { npcs: {}, pcs: {}, lastUpdated: Date.now() };
 
-      // Create new gridState preserving existing NPCs and PCs
-      const toGridState = {
-        npcs: { ...existingToGridState.npcs },  // Preserve existing NPCs
-        pcs: { ...existingToGridState.pcs },    // Preserve existing PCs
-        lastUpdated: Date.now()
+      // Prepare updated PCs state
+      const updatedPCs = {
+        ...existingToGridState.pcs,
+        [currentPlayer._id]: {
+          playerId: currentPlayer._id,
+          type: 'pc',
+          username: currentPlayer.username,
+          position: {
+            x: toLocation.x,
+            y: toLocation.y
+          },
+          icon: currentPlayer.icon || '😀',
+          hp: currentPlayer.hp || 25,
+          maxhp: currentPlayer.maxhp || 25,
+          armorclass: currentPlayer.armorclass || 10,
+          attackbonus: currentPlayer.attackbonus || 0,
+          damage: currentPlayer.damage || 1,
+          speed: currentPlayer.speed || 1,
+          attackrange: currentPlayer.attackrange || 1,
+          iscamping: currentPlayer.iscamping || false
+        }
       };
 
-      // Add the moving player to pcs
-      toGridState.pcs[currentPlayer._id] = {
-        playerId: currentPlayer._id,
-        type: 'pc',
-        username: currentPlayer.username,
-        position: {
-          x: toLocation.x,
-          y: toLocation.y
-        },
-        icon: currentPlayer.icon || '😀',
-        hp: currentPlayer.hp || 25,
-        maxhp: currentPlayer.maxhp || 25,
-        armorclass: currentPlayer.armorclass || 10,
-        attackbonus: currentPlayer.attackbonus || 0,
-        damage: currentPlayer.damage || 1,
-        speed: currentPlayer.speed || 1,
-        attackrange: currentPlayer.attackrange || 1,
-        iscamping: currentPlayer.iscamping || false
-      };
-
-      // Save updated state
-      await axios.post(`${API_BASE}/api/save-grid-state`, {
-        gridId: toLocation.g,
-        gridState: toGridState
-      });
+      // Use new PC-specific save method
+      await saveGridStatePCs(toLocation.g, updatedPCs);
 
       // Emit AFTER saving to DB
       socket.emit('player-joined-grid', {
         gridId: toLocation.g,
         playerId: currentPlayer._id,
         username: currentPlayer.username,
-        playerData: toGridState.pcs[currentPlayer._id]
+        playerData: updatedPCs[currentPlayer._id]
       });
-      console.log(`📢 Emitted player-joined-grid for ${toLocation.g}`);
     }
 
     // 3. Update player location in DB
