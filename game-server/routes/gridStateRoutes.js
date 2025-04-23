@@ -29,7 +29,19 @@ router.post('/save-grid-state', async (req, res) => {
       return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
     }
 
-    grid.gridState = gridState;
+    // Sanitize full gridState: extract maps safely
+    const { npcs: npcsObj = {}, pcs: pcsObj = {}, lastUpdated: topTs } = gridState;
+    // Build NPC map
+    const { lastUpdated: npcTs, ...npcEntries } = npcsObj;
+    grid.gridState.npcs = new Map(Object.entries(npcEntries));
+    grid.gridState.npcs.lastUpdated = new Date(npcTs);
+    // Build PC map
+    const { lastUpdated: pcTs, ...pcEntries } = pcsObj;
+    grid.gridState.pcs = new Map(Object.entries(pcEntries));
+    grid.gridState.pcs.lastUpdated = new Date(pcTs);
+    // Top-level timestamp
+    grid.gridState.lastUpdated = new Date(topTs || Date.now());
+
     await grid.save();
 //    console.log('GridState saved: with pcs: ',gridState.pcs);
 //    console.log(`GridState saved successfully for gridId: ${gridId}`);
