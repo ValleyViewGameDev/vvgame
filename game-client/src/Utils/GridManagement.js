@@ -6,7 +6,6 @@ import socket from '../socketManager'; // ⚠️ At top of file if not already p
 import GlobalGridState from '../GridState/GlobalGridState';
 import { mergeResources, mergeTiles } from './ResourceHelpers';
 import { enrichResourceFromMaster } from './ResourceHelpers';
-import { saveGridStatePCs } from '../GridState/GridState';
 
 export const updateGridResource = async (
   gridId,
@@ -128,58 +127,71 @@ export const changePlayerLocation = async (
       const fromGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${fromLocation.g}`);
       const fromGridState = fromGridResponse.data?.gridState || { npcs: {}, pcs: {}, lastUpdated: Date.now() };
       
-      // Remove player but preserve other PCs
-      const updatedPCs = { ...fromGridState.pcs };
-      delete updatedPCs[currentPlayer._id];
+      // Remove player but preserve other data
+      delete fromGridState.pcs[currentPlayer._id];
 
-      // Save updated PCs state
-      await gridStateManager.saveGridStatePCs(fromLocation.g, updatedPCs);
+      // Save updated state
+      await axios.post(`${API_BASE}/api/save-grid-state`, {
+        gridId: fromLocation.g,
+        gridState: fromGridState
+      });
 
+      // Emit AFTER saving to DB
       socket.emit('player-left-grid', {
         gridId: fromLocation.g,
         playerId: currentPlayer._id,
         username: currentPlayer.username
       });
+      console.log(`📢 Emitted player-left-grid for ${fromLocation.g}`);
     }
 
-    // 2. Update TO grid's state (add player) 
+    // 2. Update TO grid's state (add player)
     if (toLocation.g) {
       console.log(`2️⃣ Adding player to grid ${toLocation.g}`);
       const toGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${toLocation.g}`);
       const existingToGridState = toGridResponse.data?.gridState || { npcs: {}, pcs: {}, lastUpdated: Date.now() };
 
-      // Update PCs while preserving existing ones
-      const updatedPCs = {
-        ...existingToGridState.pcs,
-        [currentPlayer._id]: {
-          playerId: currentPlayer._id,
-          type: 'pc',
-          username: currentPlayer.username,
-          position: {
-            x: toLocation.x,
-            y: toLocation.y
-          },
-          icon: currentPlayer.icon || '😀',
-          hp: currentPlayer.hp || 25,
-          maxhp: currentPlayer.maxhp || 25,
-          armorclass: currentPlayer.armorclass || 10,
-          attackbonus: currentPlayer.attackbonus || 0,
-          damage: currentPlayer.damage || 1,
-          speed: currentPlayer.speed || 1,
-          attackrange: currentPlayer.attackrange || 1,
-          iscamping: currentPlayer.iscamping || false
-        }
+      // Create new gridState preserving existing NPCs and PCs
+      const toGridState = {
+        npcs: { ...existingToGridState.npcs },  // Preserve existing NPCs
+        pcs: { ...existingToGridState.pcs },    // Preserve existing PCs
+        lastUpdated: Date.now()
       };
 
-      // Save updated PCs state
-      await gridStateManager.saveGridStatePCs(toLocation.g, updatedPCs);
+      // Add the moving player to pcs
+      toGridState.pcs[currentPlayer._id] = {
+        playerId: currentPlayer._id,
+        type: 'pc',
+        username: currentPlayer.username,
+        position: {
+          x: toLocation.x,
+          y: toLocation.y
+        },
+        icon: currentPlayer.icon || '😀',
+        hp: currentPlayer.hp || 25,
+        maxhp: currentPlayer.maxhp || 25,
+        armorclass: currentPlayer.armorclass || 10,
+        attackbonus: currentPlayer.attackbonus || 0,
+        damage: currentPlayer.damage || 1,
+        speed: currentPlayer.speed || 1,
+        attackrange: currentPlayer.attackrange || 1,
+        iscamping: currentPlayer.iscamping || false
+      };
 
+      // Save updated state
+      await axios.post(`${API_BASE}/api/save-grid-state`, {
+        gridId: toLocation.g,
+        gridState: toGridState
+      });
+
+      // Emit AFTER saving to DB
       socket.emit('player-joined-grid', {
         gridId: toLocation.g,
         playerId: currentPlayer._id,
         username: currentPlayer.username,
-        playerData: updatedPCs[currentPlayer._id]
+        playerData: toGridState.pcs[currentPlayer._id]
       });
+      console.log(`📢 Emitted player-joined-grid for ${toLocation.g}`);
     }
 
     // 3. Update player location in DB
@@ -304,3 +316,65 @@ export function updateGridStatus(gridType, ownerUsername, updateStatus) {
   }
 }
 
+export async function validateResourceAtLocation(gridId, col, row, expectedType) {
+    try {
+        console.log(`Validating resource at (${col}, ${row}) in grid ${gridId}`);
+        const response = await axios.get(`${API_BASE}/api/get-resource/${gridId}/${col}/${row}`);
+        const { type } = response.data; // Extract the type from the response
+        if (type === expectedType) {
+            console.log(`Resource validation successful: ${type}`);
+            return true;
+        } else {
+            console.error(`Resource validation failed: Expected ${expectedType}, but found ${type}`);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error validating resource:', error);
+        return false;
+    }
+}
+
+export async function validateTileType(gridId, x, y) {
+  try {
+    console.log(`Validating tile type at (${x}, ${y}) in grid ${gridId}`);
+    const response = await axios.get(`${API_BASE}/api/get-tile/${gridId}/${x}/${y}`);
+    console.log(`Tile type at (${x}, ${y}):`, response.data.tileType);
+    return response.data.tileType;
+  } catch (error) {
+    console.error(`Error fetching tile type at (${x}, ${y}) in grid ${gridId}:`, error);
+    throw error;
+  }
+}
+
+export async function getTileResource(gridId, x, y) {
+  try {
+    console.log(`Fetching resource at (${x}, ${y}) in grid ${gridId}`);
+    const response = await axios.get(`${API_BASE}/api/get-resource/${gridId}/${x}/${y}`);
+    console.log(`Resource at (${x}, ${y}):`, response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching resource at (${x}, ${y}) in grid ${gridId}:`, error);
+    throw error;
+  }
+}
+
+export function getCurrentTileCoordinates(gridId, currentPlayer) {
+  const gridState = gridStateManager.getGridState(gridId);
+  if (!gridState || !currentPlayer?.playerId) {
+    console.warn('⚠️ GridState or playerId missing.');
+    return null;
+  }
+  const playerData = gridState.pcs?.[currentPlayer.playerId];
+  if (!playerData) {
+    console.warn('⚠️ Player not found in gridState.');
+    return null;
+  }
+  const { x, y } = playerData.position;
+  if (x == null || y == null) {
+    console.warn('⚠️ Invalid player position.');
+    return null;
+  }
+  const tileX = Math.floor(x);
+  const tileY = Math.floor(y);
+  return { tileX, tileY };
+}
