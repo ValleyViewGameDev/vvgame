@@ -245,6 +245,10 @@ export const changePlayerLocation = async (
 
     console.log('✅ New grid fully initialized');
 
+    // Ensure the client joins the new grid room
+    console.log(`📡 Emitting join-grid for new grid ${toLocation.g}`);
+    socket.emit('join-grid', toLocation.g);
+
     // 6. Center view on player
     console.log('6️⃣ Centering view...');
     const gameContainer = document.querySelector('.homestead');

@@ -33,12 +33,12 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
   let lastUpdateTimeNPCs = 0;
 
   // PC sync listener
-  const handlePCSync = ({ pcs, gridStatePClastUpdated }) => {
-    console.log('📥 Received gridState-sync-PCs event:', { pcs, gridStatePClastUpdated });
-    if (!pcs || !gridStatePClastUpdated) return;
-    const parsedPCTime = new Date(gridStatePClastUpdated);
+  const handlePCSync = ({ pcs, gridStatePCsLastUpdated }) => {
+    console.log('📥 Received gridState-sync-PCs event:', { pcs, gridStatePCsLastUpdated });
+    if (!pcs || !gridStatePCsLastUpdated) return;
+    const parsedPCTime = new Date(gridStatePCsLastUpdated);
     if (isNaN(parsedPCTime.getTime())) {
-      console.error("Invalid gridStatePClastUpdated timestamp:", gridStatePClastUpdated);
+      console.error("Invalid gridStatePClastUpdated timestamp:", gridStatePCsLastUpdated);
       return;
     }
     if (parsedPCTime.getTime() > lastUpdateTimePCs) {
@@ -60,12 +60,12 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
   };
 
   // NPC sync listener
-  const handleNPCSync = ({ npcs, gridStateNPClastUpdated }) => {
-    console.log('📥 Received gridState-sync-NPCs event:', { npcs, gridStateNPClastUpdated });
-    if (!npcs || !gridStateNPClastUpdated) return;
-    const parsedNPCTime = new Date(gridStateNPClastUpdated);
+  const handleNPCSync = ({ npcs, gridStateNPCsLastUpdated }) => {
+    console.log('📥 Received gridState-sync-NPCs event:', { npcs, gridStateNPCsLastUpdated });
+    if (!npcs || !gridStateNPCsLastUpdated) return;
+    const parsedNPCTime = new Date(gridStateNPCsLastUpdated);
     if (isNaN(parsedNPCTime.getTime())) {
-      console.error("Invalid gridStateNPClastUpdated timestamp:", gridStateNPClastUpdated);
+      console.error("Invalid gridStateNPClastUpdated timestamp:", gridStateNPCsLastUpdated);
       return;
     }
     if (parsedNPCTime.getTime() > lastUpdateTimeNPCs) {
