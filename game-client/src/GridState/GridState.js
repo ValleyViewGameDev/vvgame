@@ -42,8 +42,8 @@ class GridStateManager {
       const gridState = {
         npcs: gridStateNPCs.npcs || {},
         pcs: gridStatePCs.pcs || {},
-        gridStateNPCslastUpdated: new Date(gridStateNPCs.lastUpdated || 0).getTime(),
-        gridStatePCslastUpdated: new Date(gridStatePCs.lastUpdated || 0).getTime(),
+        gridStateNPCsLastUpdated: new Date(gridStateNPCs.lastUpdated || 0).getTime(),
+        gridStatePCsLastUpdated: new Date(gridStatePCs.lastUpdated || 0).getTime(),
       };
 
       console.log('Fetched gridState:', gridState);
@@ -311,13 +311,13 @@ class GridStateManager {
       }
       
       // Update local PC timestamp using consistent naming for server
-      gridState.gridStatePCslastUpdated = Date.now();
+      gridState.gridStatePCsLastUpdated = Date.now();
       
       // Build payload (using field name expected by server)
       const payload = {
         gridId,
         pcs: gridState.pcs,
-        gridStatePCslastUpdated: gridState.gridStatePCslastUpdated,
+        gridStatePCsLastUpdated: gridState.gridStatePCsLastUpdated,
       };
       console.log('💾 Payload for saving PCs:', payload);
       
@@ -331,7 +331,7 @@ class GridStateManager {
         socket.emit('update-gridState-PCs', {
           gridId,
           pcs: gridState.pcs,
-          gridStatePCsLastUpdated: gridState.gridStatePCslastUpdated,
+          gridStatePCsLastUpdated: gridState.gridStatePCsLastUpdated,
         });
       }
     } catch (error) {
@@ -358,7 +358,7 @@ class GridStateManager {
       const payload = {
         gridId,
         npcs: gridState.npcs,
-        gridStateNPCslastUpdated: gridState.NPCslastUpdated,
+        gridStateNPCsLastUpdated: gridState.NPCslastUpdated,
       };
 
       console.log('💾 Payload for saving NPCs:', payload); // Debugging check
@@ -372,7 +372,7 @@ class GridStateManager {
         socket.emit('update-gridState-NPCs', {
           gridId,
           npcs: gridState.npcs,
-          gridStateNPCslastUpdated: gridState.NPCslastUpdated,
+          gridStateNPCsLastUpdated: gridState.NPCslastUpdated,
         });
       }
     } catch (error) {

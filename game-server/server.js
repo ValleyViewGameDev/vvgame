@@ -186,31 +186,31 @@ mongoose.connect(process.env.MONGODB_URI, {
       });
 
       // Broadcast updated PCs to others in the same grid
-      socket.on('update-gridState-PCs', ({ gridId, pcs, gridStatePCslastUpdated }) => {
-        if (!pcs || !gridStatePCslastUpdated) {
-          console.warn('⚠️ Received invalid or missing PCs update:', { pcs, gridStatePCslastUpdated });
+      socket.on('update-gridState-PCs', ({ gridId, pcs, gridStatePCsLastUpdated }) => {
+        if (!pcs || !gridStatePCsLastUpdated) {
+          console.warn('⚠️ Received invalid or missing PCs update:', { pcs, gridStatePCsLastUpdated });
           return;
         }
         console.log(`📤 Broadcasting updated PCs for grid ${gridId}`);
         io.to(gridId).emit('gridState-sync', {
           updatedGridState: {
             pcs,
-            gridStatePCslastUpdated,
+            gridStatePCsLastUpdated,
           },
         });
       });
 
       // Broadcast updated NPCs to others in the same grid
-      socket.on('update-gridState-NPCs', ({ gridId, npcs, gridStateNPCslastUpdated }) => {
-        if (!npcs || !gridStateNPCslastUpdated) {
-          console.warn('⚠️ Received invalid or missing NPCs update:', { npcs, gridStateNPCslastUpdated });
+      socket.on('update-gridState-NPCs', ({ gridId, npcs, gridStateNPCsLastUpdated }) => {
+        if (!npcs || !gridStateNPCsLastUpdated) {
+          console.warn('⚠️ Received invalid or missing NPCs update:', { npcs, gridStateNPCsLastUpdated });
           return;
         }
         console.log(`📤 Broadcasting updated NPCs for grid ${gridId}`);
         io.to(gridId).emit('gridState-sync', {
           updatedGridState: {
             npcs,
-            gridStateNPCslastUpdated,
+            gridStateNPCsLastUpdated,
           },
         });
       });
