@@ -922,7 +922,7 @@ useEffect(() => {
   //   socket.off('player-left-grid', handlePlayerLeftGrid);
   // };
 
-}, [socket, gridId, currentPlayer, gridState, masterResources, isMasterResourcesReady]);
+}, [socket, gridId, isMasterResourcesReady]);
 
 // Add socket event listeners for NPC controller status
 useEffect(() => {
