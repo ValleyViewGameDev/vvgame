@@ -891,6 +891,8 @@ useEffect(() => {
 
   if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
 
+  let lastUpdateTimeNPCs = 0;
+
   // PC sync handler without timestamp logic
   const handlePCSync = ({ pcs, emitterId }) => {
     console.log('📥 Received gridState-sync-PCs event:', { pcs });
