@@ -317,21 +317,20 @@ class GridStateManager {
       const payload = {
         gridId,
         pcs: gridState.pcs,
-        gridStatePCsLastUpdated: gridState.PClastUpdated,
+        PClastUpdated: gridState.PClastUpdated,
       };
-
+      console.log('💾 Payload for saving PCs:', payload); // Debugging check
       // Save to the server
       await axios.post(`${API_BASE}/api/save-grid-state-pcs`, payload);
-      console.log(`✅ Saved PCs for grid ${gridId}`);
+      console.log(`✅ 💾 Saved PCs for grid ${gridId}`);
 
       // Emit updated PCs to other clients
       if (socket && socket.emit) {
-        socket.emit('gridState-sync', {
+        console.log(`📡 Emitting PC grid-state for grid ${gridId}`);
+        socket.emit('update-gridState-PCs', {
           gridId,
-          updatedGridState: {
-            gridStatePCs: gridState.pcs,
-            gridStatePCsLastUpdated: gridState.PClastUpdated,
-          },
+          pcs: gridState.pcs,
+          PClastUpdated: gridState.PClastUpdated,
         });
       }
     } catch (error) {
@@ -358,23 +357,21 @@ class GridStateManager {
       const payload = {
         gridId,
         npcs: gridState.npcs,
-        gridStateNPCsLastUpdated: gridState.NPClastUpdated,
+        NPClastUpdated: gridState.NPClastUpdated,
       };
 
+      console.log('💾 Payload for saving NPCs:', payload); // Debugging check
       // Save to the server
       await axios.post(`${API_BASE}/api/save-grid-state-npcs`, payload);
-      console.log(`✅ Saved NPCs for grid ${gridId}`);
+      console.log(`✅ 💾 Saved NPCs for grid ${gridId}`);
 
       // Emit updated NPCs to other clients
       if (socket && socket.emit) {
-        socket.emit('update-gridState', {
+        console.log(`📡 Emitting NPC grid-state for grid ${gridId}`);
+        socket.emit('update-gridState-NPCs', {
           gridId,
-          gridState: {
-            npcs: gridState.npcs,
-            pcs: gridState.pcs,
-            lastUpdated: this.gridStates[gridId].lastUpdated,
-            gridStateNPCsLastUpdated: gridState.NPClastUpdated,
-          },
+          npcs: gridState.npcs,
+          NPClastUpdated: gridState.NPClastUpdated,
         });
       }
     } catch (error) {

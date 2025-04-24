@@ -184,6 +184,36 @@ mongoose.connect(process.env.MONGODB_URI, {
         });
       });
 
+      // Broadcast updated PCs to others in the same grid
+      socket.on('update-gridState-PCs', ({ gridId, pcs, PClastUpdated }) => {
+        if (!pcs || !PClastUpdated) {
+          console.warn('⚠️ Received invalid or missing PCs update:', { pcs, PClastUpdated });
+          return;
+        }
+        console.log(`📤 Broadcasting updated PCs for grid ${gridId}`);
+        io.to(gridId).emit('gridState-sync', {
+          updatedGridState: {
+            pcs,
+            PClastUpdated,
+          },
+        });
+      });
+
+      // Broadcast updated NPCs to others in the same grid
+      socket.on('update-gridState-NPCs', ({ gridId, npcs, NPClastUpdated }) => {
+        if (!npcs || !NPClastUpdated) {
+          console.warn('⚠️ Received invalid or missing NPCs update:', { npcs, NPClastUpdated });
+          return;
+        }
+        console.log(`📤 Broadcasting updated NPCs for grid ${gridId}`);
+        io.to(gridId).emit('gridState-sync', {
+          updatedGridState: {
+            npcs,
+            NPClastUpdated,
+          },
+        });
+      });
+
       // Broadcast updated gridState to others in the same grid
       socket.on('update-gridState', ({ gridId, gridState }) => {
         //console.log('📥 Received gridState-sync:', gridState);
