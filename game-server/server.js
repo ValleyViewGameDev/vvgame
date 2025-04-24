@@ -188,12 +188,16 @@ mongoose.connect(process.env.MONGODB_URI, {
 
       // Broadcast updated PCs to others in the same grid
       socket.on('update-gridState-PCs', ({ gridId, pcs, gridStatePCsLastUpdated }) => {
+        // DEBUG: Log the full payload and every key
+        console.log('DEBUG: Received update-gridState-PCs event with payload:', {
+          gridId, pcs, gridStatePCsLastUpdated
+        });
         if (!pcs || !gridStatePCsLastUpdated) {
           console.warn('⚠️ Received invalid or missing PCs update:', { pcs, gridStatePCsLastUpdated });
           return;
         }
         console.log(`📤 Broadcasting updated PCs for grid ${gridId}`);
-        console.log('Socket id =', socket.id);
+        console.log('DEBUG: Emitter socket id =', socket.id);
         io.to(gridId).emit('gridState-sync-PCs', {
           pcs,
           gridStatePCsLastUpdated,
