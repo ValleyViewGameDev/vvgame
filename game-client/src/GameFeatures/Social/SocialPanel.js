@@ -123,7 +123,7 @@ const SocialPanel = ({
         // ✅ Update the PC's camping state
         if (gridState.pcs[playerId]) {
             gridState.pcs[playerId].iscamping = campingState;
-            await gridStateManager.saveGridState(gridId);
+            await gridStateManager.saveGridStatePCs(gridId);
             console.log(`✅ Updated camping state in gridState: ${playerId} iscamping=${campingState}`);
         } else {
             console.warn(`⚠️ Player ${playerId} not found in gridState.pcs.`);

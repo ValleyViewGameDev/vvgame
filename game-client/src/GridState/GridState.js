@@ -321,78 +321,6 @@ updatePC(gridId, playerId, newProperties) {
   this.saveGridStatePCs(gridId);
 }
 
-/** 
- * Save the gridState to the database.
- */
-async saveGridState(gridId) {
-
-
-  const gridState = this.getGridState(gridId);
-  if (!gridState) {
-    console.error(`Cannot save gridState. No gridState found for gridId: ${gridId}`);
-    return;
-  }
-
-  // Fetch existing NPC & PC data from server
-  const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
-  const {
-    gridStateNPCs = { npcs: {}, lastUpdated: 0 },
-    gridStatePCs  = { pcs:  {}, lastUpdated: 0 }
-  } = response.data;
-
-  // ---------- Merge NPCs ----------
-  const dbNpcTs    = new Date(gridStateNPCs.lastUpdated || 0).getTime();
-  const localNpcTs = gridState.npcs?.lastUpdated || 0;
-  if (dbNpcTs > localNpcTs) {
-    console.log('💾 DB has more recent NPC data, preserving it');
-    gridState.npcs = gridStateNPCs.npcs || {};
-  } else {
-    gridState.npcs = { ...(gridState.npcs || {}), lastUpdated: Date.now() };
-  }
-
-  // ---------- Merge PCs ----------
-  const dbPcTs    = new Date(gridStatePCs.lastUpdated || 0).getTime();
-  const localPcTs = gridState.pcs?.lastUpdated || 0;
-  if (dbPcTs > localPcTs) {
-    console.log('💾 DB has more recent PC data, preserving it');
-    gridState.pcs = gridStatePCs.pcs || {};
-  } else {
-    gridState.pcs = { ...(gridState.pcs || {}), lastUpdated: Date.now() };
-  }
-
-  // Top‑level timestamp for hooks / sockets
-  this.gridStates[gridId].lastUpdated = Date.now();
-  updateLastGridStateTimestamp(this.gridStates[gridId].lastUpdated);
-
-  // Build payloads preserving nested lastUpdated
-  const payloadNPCs = { ...(gridState.npcs || {}) };
-  payloadNPCs.lastUpdated = gridState.npcs.lastUpdated;
-
-  const payloadPCs = { ...(gridState.pcs || {}) };
-  payloadPCs.lastUpdated = gridState.pcs.lastUpdated;
-
-  const topTs = this.gridStates[gridId].lastUpdated;
-  await axios.post(`${API_BASE}/api/save-grid-state`, {
-    gridId,
-    gridState: { npcs: payloadNPCs, pcs: payloadPCs, lastUpdated: topTs }
-  });
-
-  // Emit update AFTER successful save
-  socket.emit('update-gridState', {
-    gridId,
-    gridState: {
-      lastUpdated: this.gridStates[gridId].lastUpdated,
-      npcs: gridState.npcs,
-      pcs: gridState.pcs,
-    },
-  });
-
-  if (typeof setGridStateExternally === 'function') {
-    setGridStateExternally(this.gridStates[gridId]);
-  }
-
-}
-
 /**
  * Save only PCs in the gridState to the database.
  */
@@ -480,8 +408,8 @@ async saveGridStateNPCs(gridId) {
 
   /**
    * Start periodic updates for NPCs in the gridState.
-   */
-startGridTimer(gridId) {
+  */
+  startGridTimer(gridId) {
     if (gridTimer) clearInterval(gridTimer);
   
     gridTimer = setInterval(() => {
@@ -535,7 +463,6 @@ export const {
   addPC,
   updatePC,
   removeNPC, 
-  saveGridState,
   saveGridStatePCs,
   saveGridStateNPCs,
 } = gridStateManager;
