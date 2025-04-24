@@ -909,7 +909,7 @@ useEffect(() => {
       console.log('😀 Ignoring PC sync event from self.');
       return; // Ignore updates emitted by this client
     }
-    console.log('⏩ Updating local PCs with data:', newPCs);
+    console.log('⏩ Updating local PCs with data:', pcs);
     setGridState(prevState => ({
       ...prevState,
       pcs: pcs,
