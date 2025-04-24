@@ -830,15 +830,23 @@ useEffect(() => {
 
 // SOCKET LISTENER: Real-time updates for GridState (PC and NPC sync)
 useEffect(() => {
+  console.log("🌐🌐 useEffect for PC & NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
+
   if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
   listenForPCandNPCSocketEvents(socket, gridId, currentPlayer, setGridState);
 }, [socket, gridId, isMasterResourcesReady]);
 
 // SOCKET LISTENER: Real-time updates for PC join and leave
 useEffect(() => {
+  console.log("🌐 useEffect for PC join & leave running. gridId:", gridId, "socket:", !!socket);
+
   if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
-  
-  const handlePlayerJoinedGrid = ({ playerId, username, playerData }) => {
+
+  const handlePlayerJoinedGrid = ({ playerId, username, playerData, emitterId }) => {
+    if (emitterId === socket.id) {
+      console.log('😀 Ignoring player-joined event from self.');
+      return; // Ignore updates emitted by this client
+    }
     console.log(`👋 Player ${username} joined grid with data:`, playerData);
     setGridState(prevState => ({
       ...prevState,
@@ -848,7 +856,12 @@ useEffect(() => {
       },
     }));
   };
-  const handlePlayerLeftGrid = ({ playerId, username }) => {
+
+  const handlePlayerLeftGrid = ({ playerId, username, emitterId }) => {
+    if (emitterId === socket.id) {
+      console.log('😀 Ignoring player-left event from self.');
+      return; // Ignore updates emitted by this client
+    }
     console.log(`👋 Player ${username} left grid`);
     setGridState(prevState => {
       const newPCs = { ...prevState.pcs };
@@ -873,6 +886,8 @@ useEffect(() => {
 
 // Add socket event listeners for NPC controller status
 useEffect(() => {
+  console.log("🌐 useEffect for npc-controller running. gridId:", gridId, "socket:", !!socket);
+
   if (!socket || !currentPlayer) return;
 
   // Send username to server when joining grid

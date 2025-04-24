@@ -156,13 +156,14 @@ mongoose.connect(process.env.MONGODB_URI, {
       socket.on('player-joined-grid', ({ gridId, playerId, username, playerData }) => {
         console.log(`👋 Player ${username} joined grid ${gridId}`);
         console.log('playerId = ', playerId, "; username = ", username, "; playerData = ", playerData);
-        // Emit a distinct event name to avoid confusion
-        socket.to(gridId).emit('player-joined-sync', { playerId, username, playerData });
+        // Emit a distinct event name to avoid confusion and include the emitter's socket ID
+        socket.to(gridId).emit('player-joined-sync', { playerId, username, playerData, emitterId: socket.id });
       });
 
       socket.on('player-left-grid', ({ gridId, playerId, username }) => {
         console.log(`👋 Player ${username} left grid ${gridId}`);
-        socket.to(gridId).emit('player-left-sync', { playerId, username });
+        // Include the emitter's socket ID in the payload
+        socket.to(gridId).emit('player-left-sync', { playerId, username, emitterId: socket.id });
       });
 
 
