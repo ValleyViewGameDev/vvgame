@@ -155,6 +155,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 
       socket.on('player-joined-grid', ({ gridId, playerId, username, playerData }) => {
         console.log(`👋 Player ${username} joined grid ${gridId}`);
+        console.logt('playerId = ', playerId, "; username = ", username, "; playerData = ", playerData);
         // Emit a distinct event name to avoid confusion
         socket.to(gridId).emit('player-joined-sync', { playerId, username, playerData });
       });
