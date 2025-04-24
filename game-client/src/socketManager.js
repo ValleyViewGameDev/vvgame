@@ -6,10 +6,6 @@ const socket = io('https://vvgame-server.onrender.com', {
   autoConnect: false, // Don't connect until explicitly told to
 });
 
-// Add global logging for connection status
-socket.on('connect', () => console.log('✅ Global Socket connected:', socket.id));
-socket.on('disconnect', (reason) => console.log('🔌 Global Socket disconnected:', reason));
-socket.on('connect_error', (err) => console.error('❌ Global Socket connect_error:', err));
 
 // Check connection status after 3 seconds
 setTimeout(() => {
@@ -33,14 +29,21 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
   let lastUpdateTimeNPCs = 0;
 
   // PC sync listener
-  const handlePCSync = ({ pcs, gridStatePCsLastUpdated }) => {
+  const handlePCSync = ({ pcs, gridStatePCsLastUpdated, emitterId }) => {
+    if (emitterId === socket.id) {
+      console.log('🔄 Ignoring PC sync event from self.');
+      return; // Ignore updates emitted by this client
+    }
+
     console.log('📥 Received gridState-sync-PCs event:', { pcs, gridStatePCsLastUpdated });
     if (!pcs || !gridStatePCsLastUpdated) return;
+
     const parsedPCTime = new Date(gridStatePCsLastUpdated);
     if (isNaN(parsedPCTime.getTime())) {
-      console.error("Invalid gridStatePClastUpdated timestamp:", gridStatePCsLastUpdated);
+      console.error("Invalid gridStatePCsLastUpdated timestamp:", gridStatePCsLastUpdated);
       return;
     }
+
     if (parsedPCTime.getTime() > lastUpdateTimePCs) {
       const localPlayerId = currentPlayer?._id;
       const newPCs = {
@@ -85,13 +88,6 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
   socketInstance.on('gridState-sync-PCs', handlePCSync);
   socketInstance.on('gridState-sync-NPCs', handleNPCSync);
 
-  // Log outgoing events if needed:
-  const originalEmit = socketInstance.emit;
-  socketInstance.emit = function(event, data) {
-    console.log(`📤 Emitting event "${event}" with payload:`, data);
-    originalEmit.call(socketInstance, event, data);
-  };
-
   return () => {
     console.log("🧹 Unsubscribing from PC and NPC sync events for grid:", gridId);
     socketInstance.off('gridState-sync-PCs', handlePCSync);
@@ -100,11 +96,11 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
 };
 
 export const listenForResourceSocketEvents = async (socket, gridId, setResources, setTileTypes, masterResources) => {
-  console.log('📡 Listening for Resource Socket Events');
+  //console.log('📡 Listening for Resource Socket Events');
 };
 
 export const listenForTileSocketEvents = async (socket, gridId, setTileTypes, masterResources) => {
-  console.log('📡 Listening for Tile Socket Events');
+  //console.log('📡 Listening for Tile Socket Events');
 };
 
 // Attach listenForSocketEvents to the socket instance for backwards compatibility.

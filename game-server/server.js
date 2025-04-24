@@ -105,7 +105,7 @@ mongoose.connect(process.env.MONGODB_URI, {
       });
       
       socket.on('join-grid', (gridId) => {
-        console.log(`📡 Socket ${socket.id} joined grid room: ${gridId}`);
+        console.log(`📡 Socket ${socket.username} joined grid room: ${gridId}`);
         socket.join(gridId);
         
         // If no controller exists for this grid, assign this socket
@@ -194,6 +194,7 @@ mongoose.connect(process.env.MONGODB_URI, {
         io.to(gridId).emit('gridState-sync-PCs', {
           pcs,
           gridStatePCsLastUpdated,
+          emitterId: socket.id, // Include the emitter's socket ID
         });
       });
 

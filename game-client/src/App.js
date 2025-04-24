@@ -834,56 +834,6 @@ useEffect(() => {
 
   listenForPCandNPCSocketEvents(socket, gridId, currentPlayer, setGridState);
 
-  // let lastUpdateTimePCs = 0;
-  // let lastUpdateTimeNPCs = 0;
-
-  // // PC sync listener: update PCs and include join/leave events
-  // const handlePCSync = ({ pcs, gridStatePClastUpdated }) => {
-  //   console.log('🔄 Received gridState-sync-PCs event:', { pcs, gridStatePClastUpdated });
-  //   if (!pcs || !gridStatePClastUpdated) return;
-  //   const parsedPCTime = new Date(gridStatePClastUpdated);
-  //   if (isNaN(parsedPCTime.getTime())) {
-  //     console.error("Invalid gridStatePClastUpdated timestamp:", gridStatePClastUpdated);
-  //     return;
-  //   }
-  //   if (parsedPCTime.getTime() > lastUpdateTimePCs) {
-  //     const localPlayerId = currentPlayer?._id;
-  //     const newPCs = {
-  //       ...pcs,
-  //       [localPlayerId]: gridState?.pcs?.[localPlayerId] || pcs[localPlayerId],
-  //     };
-  //     setGridState(prevState => ({
-  //       ...prevState,
-  //       pcs: newPCs,
-  //       lastUpdateTimePCs: parsedPCTime.toISOString(),
-  //     }));
-  //     lastUpdateTimePCs = parsedPCTime.getTime();
-  //   } else {
-  //     console.log('⏳ Skipping older PC update.');
-  //   }
-  // };
-
-  // // NPC sync listener: parse timestamp similarly
-  // const handleNPCSync = ({ npcs, gridStateNPClastUpdated }) => {
-  //   console.log('🔄 Received gridState-sync-NPCs event:', { npcs, gridStateNPClastUpdated });
-  //   if (!npcs || !gridStateNPClastUpdated) return;
-  //   const parsedNPCTime = new Date(gridStateNPClastUpdated);
-  //   if (isNaN(parsedNPCTime.getTime())) {
-  //     console.error("Invalid gridStateNPClastUpdated timestamp:", gridStateNPClastUpdated);
-  //     return;
-  //   }
-  //   if (parsedNPCTime.getTime() > lastUpdateTimeNPCs) {
-  //     setGridState(prevState => ({
-  //       ...prevState,
-  //       npcs: npcs,
-  //       lastUpdateTimeNPCs: parsedNPCTime.toISOString(),
-  //     }));
-  //     lastUpdateTimeNPCs = parsedNPCTime.getTime();
-  //   } else {
-  //     console.log('⏳ Skipping older NPC update.');
-  //   }
-  // };
-
   // Player join/leave events integrated with PC updates remain unchanged
   const handlePlayerJoinedGrid = ({ playerId, username, playerData }) => {
     console.log(`👋 Player ${username} joined grid with data:`, playerData);
@@ -909,15 +859,10 @@ useEffect(() => {
   };
 
   console.log("🧲 [gridState join/leave] Subscribing to PC and NPC join/leave sync events for grid:", gridId);
-  // socket.on('gridState-sync-PCs', handlePCSync);
-  // socket.on('gridState-sync-NPCs', handleNPCSync);
   socket.on('player-joined-sync', handlePlayerJoinedGrid);
   socket.on('player-left-sync', handlePlayerLeftGrid);
 
   return () => {
-  //   console.log("🧹 Unsubscribing from PC and NPC sync events for grid:", gridId);
-  //   socket.off('gridState-sync-PCs', handlePCSync);
-  //   socket.off('gridState-sync-NPCs', handleNPCSync);
     socket.off('player-joined-sync', handlePlayerJoinedGrid);
     socket.off('player-left-sync', handlePlayerLeftGrid);
   };
