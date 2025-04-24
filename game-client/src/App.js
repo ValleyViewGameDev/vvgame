@@ -61,7 +61,6 @@ import { handleKeyMovement, centerCameraOnPlayer } from './PlayerMovement';
 import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
 import { updateGridStatus } from './Utils/GridManagement';
 import { formatCountdown } from './UI/Timers';
-import { getLastGridStateTimestamp, updateLastGridStateTimestamp } from './GridState/GridState'; // near the top of App.js
 import { mergeResources, mergeTiles } from './Utils/ResourceHelpers.js';
 import { enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
 
@@ -527,7 +526,6 @@ useEffect(() => {
     // Check if we're the controller before processing NPCs
     if (npcController.isControllingGrid(gridId)) {
       //console.log('npcController is active. Processing NPCs...');
-
       Object.values(gridState.npcs).forEach((npc) => {
         const currentTime = Date.now();
         npc.update(currentTime, gridState, gridId, activeTileSize);
@@ -920,62 +918,50 @@ useEffect(() => {
     } else {
       console.log('⏳ Skipping older NPC update.');
     }
-  d = ({ playerId, username }) => {
-    console.log(`👋 Player ${username} left grid`);
-    setGridState(prevState => {
-      const newPcs = { ...prevState.pcs };
-      delete newPcs[playerId];
-      return {
+
+    // Add specific handlers for player join/leave events
+    const handlePlayerJoinedGrid = ({ playerId, username, playerData }) => {
+      console.log(`👋 Player ${username} joined grid with data:`, playerData);
+      setGridState(prevState => ({
         ...prevState,
-        pcs: newPcs
-      };
-    });
-  };
-};
+        pcs: {
+          ...prevState.pcs,
+          [playerId]: playerData
+        }
+      }));
+    };
 
-  // Add specific handlers for player join/leave events
-  const handlePlayerJoinedGrid = ({ playerId, username, playerData }) => {
-    console.log(`👋 Player ${username} joined grid with data:`, playerData);
-    setGridState(prevState => ({
-      ...prevState,
-      pcs: {
-        ...prevState.pcs,
-        [playerId]: playerData
-      }
-    }));
-  };
+    const handlePlayerLeftGrid = ({ playerId, username }) => {
+      console.log(`👋 Player ${username} left grid`);
+      setGridState(prevState => {
+        const newPcs = { ...prevState.pcs };
+        delete newPcs[playerId];
+        return {
+          ...prevState,
+          pcs: newPcs
+        };
+      });
+    };
 
-  const handlePlayerLeftGrid = ({ playerId, username }) => {
-    console.log(`👋 Player ${username} left grid`);
-    setGridState(prevState => {
-      const newPcs = { ...prevState.pcs };
-      delete newPcs[playerId];
-      return {
-        ...prevState,
-        pcs: newPcs
-      };
-    });
-  };
-
-  console.log("🧲 [gridState] Subscribing to real-time updates for grid:", gridId);
-  socket.on('gridState-sync-PCs', handlePCSync);
-  socket.on('gridState-sync-NPCs', handleNPCSync);
-  socket.on('player-joined-grid', handlePlayerJoinedGrid);
-  socket.on('player-left-grid', handlePlayerLeftGrid);
-  
-  return () => {
-    console.log("🧹 Unsubscribing from gridState-sync events for grid:", gridId);
-    socket.off('gridState-sync-PCs', handlePCSync);
-    socket.off('gridState-sync-NPCs', handleNPCSync);
-    socket.off('player-joined-grid', handlePlayerJoinedGrid);
-    socket.off('player-left-grid', handlePlayerLeftGrid);
-  };
-}, [socket, gridId, currentPlayer, gridState, masterResources, isMasterResourcesReady]);
+    console.log("🧲 [gridState] Subscribing to real-time updates for grid:", gridId);
+    socket.on('gridState-sync-PCs', handlePCSync);
+    socket.on('gridState-sync-NPCs', handleNPCSync);
+    socket.on('player-joined-grid', handlePlayerJoinedGrid);
+    socket.on('player-left-grid', handlePlayerLeftGrid);
+    
+    return () => {
+      console.log("🧹 Unsubscribing from gridState-sync events for grid:", gridId);
+      socket.off('gridState-sync-PCs', handlePCSync);
+      socket.off('gridState-sync-NPCs', handleNPCSync);
+      socket.off('player-joined-grid', handlePlayerJoinedGrid);
+      socket.off('player-left-grid', handlePlayerLeftGrid);
+    };
+  }, [socket, gridId, currentPlayer, gridState, masterResources, isMasterResourcesReady]);
 
 // Add specific handlers for player join/leave events
 useEffect(() => {
   if (!socket || !currentPlayer) return;
-
+ 
   // Send username to server when joining grid
   if (gridId) {
     socket.emit('set-username', { username: currentPlayer.username });
