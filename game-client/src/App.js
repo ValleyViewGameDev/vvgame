@@ -960,13 +960,13 @@ useEffect(() => {
   };
 
   console.log("🧲 Subscribing to PC and NPC sync events for grid:", gridId);
-  socketInstance.on("gridState-sync-PCs", handlePCSync);
-  socketInstance.on("gridState-sync-NPCs", handleNPCSync);
+  socket.on("gridState-sync-PCs", handlePCSync);
+  socket.on("gridState-sync-NPCs", handleNPCSync);
 
   return () => {
     console.log("🧹 Unsubscribing from PC and NPC sync events for grid:", gridId);
-    socketInstance.off("gridState-sync-PCs", handlePCSync);
-    socketInstance.off("gridState-sync-NPCs", handleNPCSync);
+    socket.off("gridState-sync-PCs", handlePCSync);
+    socket.off("gridState-sync-NPCs", handleNPCSync);
   };
 
 }, [socket, gridId, isMasterResourcesReady]);
