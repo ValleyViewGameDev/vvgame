@@ -277,7 +277,7 @@ useEffect(() => {
         socket.emit('set-username', { username: fullPlayerData.username });
       }
 
-      // 5. Initialize grid tiles, resources, and state
+      // 5. Initialize grid tiles, resources
       console.log('5 InitAppWrapper; Initializing grid tiles and resources...');
       await initializeGrid(
         activeTileSize,
@@ -831,10 +831,13 @@ useEffect(() => {
 // SOCKET LISTENER: Real-time updates for GridState (PC and NPC sync)
 useEffect(() => {
   if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
-
   listenForPCandNPCSocketEvents(socket, gridId, currentPlayer, setGridState);
+}, [socket, gridId, isMasterResourcesReady]);
 
-  // Player join/leave events integrated with PC updates remain unchanged
+// SOCKET LISTENER: Real-time updates for PC join and leave
+useEffect(() => {
+  if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
+  
   const handlePlayerJoinedGrid = ({ playerId, username, playerData }) => {
     console.log(`👋 Player ${username} joined grid with data:`, playerData);
     setGridState(prevState => ({
@@ -845,7 +848,6 @@ useEffect(() => {
       },
     }));
   };
-
   const handlePlayerLeftGrid = ({ playerId, username }) => {
     console.log(`👋 Player ${username} left grid`);
     setGridState(prevState => {
@@ -915,7 +917,7 @@ useEffect(() => {
     return; // 🛑 Don't process until ready
   }
 
-  listenForResourceSocketEvents(socket, gridId, setResources, setTileTypes, masterResources);
+  // listenForResourceSocketEvents(socket, gridId, setResources, setTileTypes, masterResources);
 
   const handleResourceSync = ({ updatedTiles, updatedResources }) => {
     console.log("🌐 Real-time tile/resource update received!", {
