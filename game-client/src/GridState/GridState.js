@@ -326,6 +326,7 @@ updatePC(gridId, playerId, newProperties) {
  * Save only PCs in the gridState to the database.
  */
 async saveGridStatePCs(gridId) {
+  console.log('💾 saveGridStatePCs called with gridId:', gridId);
   try {
     const gridState = this.gridStates[gridId];
     if (!gridState || !gridState.pcs) {
@@ -346,6 +347,7 @@ async saveGridStatePCs(gridId) {
     }
 
     // Save to the server
+    console.log('Saving PCs to the server:', gridState.pcs);
     await axios.post(`${API_BASE}/api/save-grid-state-pcs`, {
       gridId,
       pcs: gridState.pcs,
@@ -386,9 +388,12 @@ async saveGridStateNPCs(gridId) {
     // Debug logging
     const npcIds = Object.keys(gridState.npcs || {});
     console.warn(`💾 Saving NPCs for gridId: ${gridId}`, npcIds);
+
     // Send only NPCs payload
     await axios.post(`${API_BASE}/api/save-grid-state-npcs`, { gridId, npcs: gridState.npcs });
+
     // Emit update
+    console.log(`📡 Emitting gridStateNPCs update for grid ${gridId}`);
     socket.emit('update-gridState', {
       gridId,
       gridState: {
