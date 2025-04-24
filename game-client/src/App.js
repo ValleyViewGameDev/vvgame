@@ -911,15 +911,15 @@ useEffect(() => {
   console.log("🧲 [gridState join/leave] Subscribing to PC and NPC join/leave sync events for grid:", gridId);
   // socket.on('gridState-sync-PCs', handlePCSync);
   // socket.on('gridState-sync-NPCs', handleNPCSync);
-  socket.on('player-joined-grid', handlePlayerJoinedGrid);
-  socket.on('player-left-grid', handlePlayerLeftGrid);
+  socket.on('player-joined-sync', handlePlayerJoinedGrid);
+  socket.on('player-left-sync', handlePlayerLeftGrid);
 
   return () => {
   //   console.log("🧹 Unsubscribing from PC and NPC sync events for grid:", gridId);
   //   socket.off('gridState-sync-PCs', handlePCSync);
   //   socket.off('gridState-sync-NPCs', handleNPCSync);
-    socket.off('player-joined-grid', handlePlayerJoinedGrid);
-    socket.off('player-left-grid', handlePlayerLeftGrid);
+    socket.off('player-joined-sync', handlePlayerJoinedGrid);
+    socket.off('player-left-sync', handlePlayerLeftGrid);
   };
 
 }, [socket, gridId, isMasterResourcesReady]);

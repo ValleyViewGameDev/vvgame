@@ -157,6 +157,9 @@ export const changePlayerLocation = async (
       console.log(`📢 Emitted player-left-grid for ${fromLocation.g}`);
     }
 
+      socket.emit('leave-grid', fromLocation.g);
+      console.log(`📡 Emitted leave-grid for grid: ${fromLocation.g}`);
+      
     // 2. Update TO grid's state (add player)
     if (toLocation.g) {
       console.log(`2️⃣ Adding player to grid ${toLocation.g}`);
