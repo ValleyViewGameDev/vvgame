@@ -32,7 +32,7 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
   const handlePCSync = ({ pcs, gridStatePCsLastUpdated, emitterId }) => {
     console.log('📥 Received gridState-sync-PCs event:', { pcs, gridStatePCsLastUpdated });
     console.log('📥 Emitter ID:', emitterId);
-    
+
     if (emitterId === socket.id) {
       console.log('😀 Ignoring PC sync event from self.');
       return; // Ignore updates emitted by this client
@@ -48,10 +48,17 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
 
     if (parsedPCTime.getTime() > lastUpdateTimePCs) {
       const localPlayerId = currentPlayer?._id;
+
+      // Filter out invalid PCs
+      const validPCs = Object.fromEntries(
+        Object.entries(pcs).filter(([id, pc]) => pc && pc.position && typeof pc.position.x === 'number' && typeof pc.position.y === 'number')
+      );
+
       const newPCs = {
-        ...pcs,
-        [localPlayerId]: pcs[localPlayerId] || '[Local PC still exists?]',
+        ...validPCs,
+        [localPlayerId]: validPCs[localPlayerId] || pcs[localPlayerId], // Ensure local PC is included
       };
+
       console.log('⏩ Updating local PCs with data:', newPCs);
       setGridState(prevState => ({
         ...prevState,

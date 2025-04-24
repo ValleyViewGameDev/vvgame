@@ -501,9 +501,15 @@ useEffect(() => {
 // GRID STATE:  Create new references for pcs and npcs to trigger re-renders  /////////////////////////
 useEffect(() => {
   if (gridState) {
-      console.log('🔄 Updating local state for PCs and NPCs from GridState:', gridState);
-      setPcs({ ...gridState.pcs });
-      setNpcs({ ...gridState.npcs });
+    console.log('🔄 Updating local state for PCs and NPCs from GridState:', gridState);
+
+    // Filter out invalid PCs before updating state
+    const validPCs = Object.fromEntries(
+      Object.entries(gridState.pcs).filter(([id, pc]) => pc && pc.position && typeof pc.position.x === 'number' && typeof pc.position.y === 'number')
+    );
+
+    setPcs({ ...validPCs });
+    setNpcs({ ...gridState.npcs });
   }
 }, [gridState]);  // ✅ Trigger re-render when `gridState` updates
 
