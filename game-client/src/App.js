@@ -842,7 +842,12 @@ useEffect(() => {
   const handlePCSync = ({ pcs, gridStatePClastUpdated }) => {
     console.log('🔄 Received gridState-sync-PCs event:', { pcs, gridStatePClastUpdated });
     if (!pcs || !gridStatePClastUpdated) return;
-    if (gridStatePClastUpdated > lastUpdateTimePCs) {
+    const parsedPCTime = new Date(gridStatePClastUpdated);
+    if (isNaN(parsedPCTime.getTime())) {
+      console.error("Invalid gridStatePClastUpdated timestamp:", gridStatePClastUpdated);
+      return;
+    }
+    if (parsedPCTime.getTime() > lastUpdateTimePCs) {
       const localPlayerId = currentPlayer?._id;
       const newPCs = {
         ...pcs,
@@ -851,32 +856,36 @@ useEffect(() => {
       setGridState(prevState => ({
         ...prevState,
         pcs: newPCs,
-        lastUpdateTimePCs: gridStatePClastUpdated,
+        lastUpdateTimePCs: parsedPCTime.toISOString(),
       }));
-      lastUpdateTimePCs = gridStatePClastUpdated;
+      lastUpdateTimePCs = parsedPCTime.getTime();
     } else {
       console.log('⏳ Skipping older PC update.');
     }
   };
 
-  // NPC sync listener
+  // NPC sync listener: parse timestamp similarly
   const handleNPCSync = ({ npcs, gridStateNPClastUpdated }) => {
     console.log('🔄 Received gridState-sync-NPCs event:', { npcs, gridStateNPClastUpdated });
     if (!npcs || !gridStateNPClastUpdated) return;
-    if (gridStateNPClastUpdated > lastUpdateTimeNPCs) {
-      // Optionally enrich NPC data as needed before updating state
+    const parsedNPCTime = new Date(gridStateNPClastUpdated);
+    if (isNaN(parsedNPCTime.getTime())) {
+      console.error("Invalid gridStateNPClastUpdated timestamp:", gridStateNPClastUpdated);
+      return;
+    }
+    if (parsedNPCTime.getTime() > lastUpdateTimeNPCs) {
       setGridState(prevState => ({
         ...prevState,
         npcs: npcs,
-        lastUpdateTimeNPCs: gridStateNPClastUpdated,
+        lastUpdateTimeNPCs: parsedNPCTime.toISOString(),
       }));
-      lastUpdateTimeNPCs = gridStateNPClastUpdated;
+      lastUpdateTimeNPCs = parsedNPCTime.getTime();
     } else {
       console.log('⏳ Skipping older NPC update.');
     }
   };
 
-  // Player join/leave events integrated with PC updates
+  // Player join/leave events integrated with PC updates remain unchanged
   const handlePlayerJoinedGrid = ({ playerId, username, playerData }) => {
     console.log(`👋 Player ${username} joined grid with data:`, playerData);
     setGridState(prevState => ({

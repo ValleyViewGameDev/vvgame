@@ -5,4 +5,8 @@ const socket = io('https://vvgame-server.onrender.com', {
   autoConnect: false, // Don't connect until explicitly told to
 });
 
+
+
+
+
 export default socket;
