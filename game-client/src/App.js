@@ -3,7 +3,7 @@ import './VFX/VFX.css';
 import API_BASE from './config.js';  
 import axios from 'axios';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
-import socket, { listenForSocketEvents } from './socketManager';
+import socket, { listenForPCandNPCSocketEvents, listenForResourceSocketEvents, listenForTileSocketEvents } from './socketManager';
 import NPC from './GameFeatures/NPCs/NPCs';
 import { initializeGrid, postLoginInitialization } from './AppInit';
 import { loadMasterSkills, loadMasterResources } from './Utils/TuningManager';
@@ -835,7 +835,7 @@ useEffect(() => {
 useEffect(() => {
   if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
 
-  listenForSocketEvents(socket, gridId, currentPlayer, setGridState);
+  listenForPCandNPCSocketEvents(socket, gridId, currentPlayer, setGridState);
 
   // let lastUpdateTimePCs = 0;
   // let lastUpdateTimeNPCs = 0;
@@ -973,6 +973,8 @@ useEffect(() => {
     return; // 🛑 Don't process until ready
   }
 
+  listenForResourceSocketEvents(socket, gridId, setResources, setTileTypes, masterResources);
+
   const handleResourceSync = ({ updatedTiles, updatedResources }) => {
     console.log("🌐 Real-time tile/resource update received!", {
       updatedTiles,
@@ -1032,6 +1034,8 @@ useEffect(() => {
     console.warn('Missing gridId or socket.');
     return;
   }
+
+  listenForTileSocketEvents(socket, gridId, setTileTypes, masterResources);
 
   const handleTileSync = ({ updatedTiles }) => {
     console.log("🌐 Real-time tile update received!", { updatedTiles });

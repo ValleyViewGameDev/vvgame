@@ -6,9 +6,9 @@ const socket = io('https://vvgame-server.onrender.com', {
   autoConnect: false, // Don't connect until explicitly told to
 });
 
-export const listenForSocketEvents = async (socketInstance, gridId, currentPlayer, setGridState) => {
+export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, currentPlayer, setGridState) => {
   console.log('📡 Listening for Socket Events');
-  
+
   const gridState = gridStateManager.getGridState(gridId);
 
   let lastUpdateTimePCs = 0;
@@ -100,7 +100,17 @@ export const listenForSocketEvents = async (socketInstance, gridId, currentPlaye
   };
 };
 
+export const listenForResourceSocketEvents = async (socket, gridId, setResources, setTileTypes, masterResources) => {
+  console.log('📡 Listening for Resource Socket Events');
+};
+
+export const listenForTileSocketEvents = async (socket, gridId, setTileTypes, masterResources) => {
+  console.log('📡 Listening for Tile Socket Events');
+};
+
 // Attach listenForSocketEvents to the socket instance for backwards compatibility.
-socket.listenForSocketEvents = listenForSocketEvents;
+socket.listenForPCandNPCSocketEvents = listenForPCandNPCSocketEvents;
+socket.listenForResourceSocketEvents = listenForResourceSocketEvents;
+socket.listenForTileSocketEvents = listenForTileSocketEvents;
 
 export default socket;
