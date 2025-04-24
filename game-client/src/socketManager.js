@@ -1,5 +1,4 @@
 import { io } from 'socket.io-client';
-import gridStateManager from './GridState/GridState';
 
 const socket = io('https://vvgame-server.onrender.com', {
   transports: ['websocket'],

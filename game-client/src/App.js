@@ -980,7 +980,7 @@ useEffect(() => {
     socket.off("gridState-sync-NPCs", handleNPCSync);
   };
 
-}, [socket, gridId, isMasterResourcesReady]);
+}, [socket, gridId, isMasterResourcesReady, currentPlayer]);
 
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
