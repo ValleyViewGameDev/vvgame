@@ -884,43 +884,43 @@ useEffect(() => {
   //   }
   // };
 
-  // // Player join/leave events integrated with PC updates remain unchanged
-  // const handlePlayerJoinedGrid = ({ playerId, username, playerData }) => {
-  //   console.log(`👋 Player ${username} joined grid with data:`, playerData);
-  //   setGridState(prevState => ({
-  //     ...prevState,
-  //     pcs: {
-  //       ...prevState.pcs,
-  //       [playerId]: playerData,
-  //     },
-  //   }));
-  // };
+  // Player join/leave events integrated with PC updates remain unchanged
+  const handlePlayerJoinedGrid = ({ playerId, username, playerData }) => {
+    console.log(`👋 Player ${username} joined grid with data:`, playerData);
+    setGridState(prevState => ({
+      ...prevState,
+      pcs: {
+        ...prevState.pcs,
+        [playerId]: playerData,
+      },
+    }));
+  };
 
-  // const handlePlayerLeftGrid = ({ playerId, username }) => {
-  //   console.log(`👋 Player ${username} left grid`);
-  //   setGridState(prevState => {
-  //     const newPCs = { ...prevState.pcs };
-  //     delete newPCs[playerId];
-  //     return {
-  //       ...prevState,
-  //       pcs: newPCs,
-  //     };
-  //   });
-  // };
+  const handlePlayerLeftGrid = ({ playerId, username }) => {
+    console.log(`👋 Player ${username} left grid`);
+    setGridState(prevState => {
+      const newPCs = { ...prevState.pcs };
+      delete newPCs[playerId];
+      return {
+        ...prevState,
+        pcs: newPCs,
+      };
+    });
+  };
 
-  // console.log("🧲 [gridState] Subscribing to PC and NPC sync events for grid:", gridId);
+  console.log("🧲 [gridState join/leave] Subscribing to PC and NPC join/leave sync events for grid:", gridId);
   // socket.on('gridState-sync-PCs', handlePCSync);
   // socket.on('gridState-sync-NPCs', handleNPCSync);
-  // socket.on('player-joined-grid', handlePlayerJoinedGrid);
-  // socket.on('player-left-grid', handlePlayerLeftGrid);
+  socket.on('player-joined-grid', handlePlayerJoinedGrid);
+  socket.on('player-left-grid', handlePlayerLeftGrid);
 
-  // return () => {
+  return () => {
   //   console.log("🧹 Unsubscribing from PC and NPC sync events for grid:", gridId);
   //   socket.off('gridState-sync-PCs', handlePCSync);
   //   socket.off('gridState-sync-NPCs', handleNPCSync);
-  //   socket.off('player-joined-grid', handlePlayerJoinedGrid);
-  //   socket.off('player-left-grid', handlePlayerLeftGrid);
-  // };
+    socket.off('player-joined-grid', handlePlayerJoinedGrid);
+    socket.off('player-left-grid', handlePlayerLeftGrid);
+  };
 
 }, [socket, gridId, isMasterResourcesReady]);
 

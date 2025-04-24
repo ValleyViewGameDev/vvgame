@@ -81,29 +81,6 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
     }
   };
 
-  socketInstance.on('player-joined-sync', ({ playerId, username, playerData }) => {
-    console.log(`📥 Player joined: ${username} (${playerId}) with data:`, playerData);
-    setGridState(prevState => ({
-      ...prevState,
-      pcs: {
-        ...prevState.pcs,
-        [playerId]: playerData,
-      },
-    }));
-  });
-
-  socketInstance.on('player-left-sync', ({ playerId, username }) => {
-    console.log(`📤 Player left: ${username} (${playerId})`);
-    setGridState(prevState => {
-      const newPCs = { ...prevState.pcs };
-      delete newPCs[playerId];
-      return {
-        ...prevState,
-        pcs: newPCs,
-      };
-    });
-  });
-
   console.log("🧲 Subscribing to PC and NPC sync events for grid:", gridId);
   socketInstance.on('gridState-sync-PCs', handlePCSync);
   socketInstance.on('gridState-sync-NPCs', handleNPCSync);
@@ -119,8 +96,6 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
     console.log("🧹 Unsubscribing from PC and NPC sync events for grid:", gridId);
     socketInstance.off('gridState-sync-PCs', handlePCSync);
     socketInstance.off('gridState-sync-NPCs', handleNPCSync);
-    socketInstance.off('player-joined-sync');
-    socketInstance.off('player-left-sync');
   };
 };
 
