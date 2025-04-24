@@ -894,7 +894,7 @@ useEffect(() => {
   console.log("🌐🌐🌐🌐🌐🌐 useEffect for PC & NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
   console.log("  🌐 isMasterResourcesReady = ", isMasterResourcesReady);
 
-  if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
+  if (!gridId || !isMasterResourcesReady) return;
   //listenForPCandNPCSocketEvents(socket, gridId, currentPlayer, setGridState);
 
   let lastUpdateTimePCs = 0;
@@ -905,10 +905,10 @@ useEffect(() => {
     console.log('📥 Received gridState-sync-PCs event:', { pcs, gridStatePCsLastUpdated });
     console.log('📥 Emitter ID:', emitterId);
 
-    if (emitterId === socket.id) {
-      console.log('😀 Ignoring PC sync event from self.');
-      return; // Ignore updates emitted by this client
-    }
+    // if (emitterId === socket.id) {
+    //   console.log('😀 Ignoring PC sync event from self.');
+    //   return; // Ignore updates emitted by this client
+    // }
     console.log('⏩ Updating local PCs with data:', pcs);
     setGridState(prevState => ({
       ...prevState,
@@ -980,7 +980,7 @@ useEffect(() => {
     socket.off("gridState-sync-NPCs", handleNPCSync);
   };
 
-}, [socket, gridId, isMasterResourcesReady, currentPlayer]);
+}, [socket, gridId, isMasterResourcesReady]);
 
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
