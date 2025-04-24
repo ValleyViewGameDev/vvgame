@@ -30,12 +30,14 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
 
   // PC sync listener
   const handlePCSync = ({ pcs, gridStatePCsLastUpdated, emitterId }) => {
+    console.log('📥 Received gridState-sync-PCs event:', { pcs, gridStatePCsLastUpdated });
+    console.log('📥 Emitter ID:', emitterId);
+    
     if (emitterId === socket.id) {
-      console.log('🔄 Ignoring PC sync event from self.');
+      console.log('😀 Ignoring PC sync event from self.');
       return; // Ignore updates emitted by this client
     }
 
-    console.log('📥 Received gridState-sync-PCs event:', { pcs, gridStatePCsLastUpdated });
     if (!pcs || !gridStatePCsLastUpdated) return;
 
     const parsedPCTime = new Date(gridStatePCsLastUpdated);

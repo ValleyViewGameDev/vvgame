@@ -191,6 +191,7 @@ mongoose.connect(process.env.MONGODB_URI, {
           return;
         }
         console.log(`📤 Broadcasting updated PCs for grid ${gridId}`);
+        console.log('Socket id =', socket.id);
         io.to(gridId).emit('gridState-sync-PCs', {
           pcs,
           gridStatePCsLastUpdated,
