@@ -322,6 +322,7 @@ updatePC(gridId, playerId, newProperties) {
 }
 
 /**
+ * Testing
  * Save only PCs in the gridState to the database.
  */
 async saveGridStatePCs(gridId) {
