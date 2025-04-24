@@ -104,6 +104,28 @@ mongoose.connect(process.env.MONGODB_URI, {
         });
       });
       
+      socket.on('join-grid', (gridId) => {
+        console.log(`📡 Socket ${socket.id} joined grid room: ${gridId}`);
+        socket.join(gridId);
+        
+        // If no controller exists for this grid, assign this socket
+        if (!gridControllers.has(gridId)) {
+          gridControllers.set(gridId, { socketId: socket.id, username: socket.username });
+          // Broadcast to ALL clients in the grid
+          io.to(gridId).emit('npc-controller-update', { 
+            gridId,
+            controllerUsername: socket.username 
+          });
+          console.log(`🎮 Socket ${socket.id} (${socket.username}) assigned as controller for grid ${gridId}`);
+        } else {
+          // Inform the new joiner who the current controller is
+          socket.emit('npc-controller-update', {
+            gridId,
+            controllerUsername: gridControllers.get(gridId).username
+          });
+        }
+      });
+
       socket.on('leave-grid', (gridId) => {
         socket.leave(gridId);
         // If this socket was the controller, assign to another socket in the room
@@ -131,38 +153,15 @@ mongoose.connect(process.env.MONGODB_URI, {
         }
       });
 
-      socket.on('player-left-grid', ({ gridId, playerId, username }) => {
-        console.log(`👋 Player ${username} left grid ${gridId}`);
-        // Broadcast to all clients in the grid EXCEPT the sender
-        socket.to(gridId).emit('player-left-grid', { playerId, username });
-      });
-
-      socket.on('join-grid', (gridId) => {
-        console.log(`📡 Socket ${socket.id} joined grid room: ${gridId}`);
-        socket.join(gridId);
-        
-        // If no controller exists for this grid, assign this socket
-        if (!gridControllers.has(gridId)) {
-          gridControllers.set(gridId, { socketId: socket.id, username: socket.username });
-          // Broadcast to ALL clients in the grid
-          io.to(gridId).emit('npc-controller-update', { 
-            gridId,
-            controllerUsername: socket.username 
-          });
-          console.log(`🎮 Socket ${socket.id} (${socket.username}) assigned as controller for grid ${gridId}`);
-        } else {
-          // Inform the new joiner who the current controller is
-          socket.emit('npc-controller-update', {
-            gridId,
-            controllerUsername: gridControllers.get(gridId).username
-          });
-        }
-      });
-
       socket.on('player-joined-grid', ({ gridId, playerId, username, playerData }) => {
         console.log(`👋 Player ${username} joined grid ${gridId}`);
-        // Broadcast to all clients in the grid EXCEPT the sender
-        socket.to(gridId).emit('player-joined-grid', { playerId, username, playerData });
+        // Emit a distinct event name to avoid confusion
+        socket.to(gridId).emit('player-joined-sync', { playerId, username, playerData });
+      });
+
+      socket.on('player-left-grid', ({ gridId, playerId, username }) => {
+        console.log(`👋 Player ${username} left grid ${gridId}`);
+        socket.to(gridId).emit('player-left-sync', { playerId, username });
       });
 
 
@@ -193,10 +192,8 @@ mongoose.connect(process.env.MONGODB_URI, {
         }
         console.log(`📤 Broadcasting updated PCs for grid ${gridId}`);
         io.to(gridId).emit('gridState-sync-PCs', {
-          updatedGridState: {
-            pcs,
-            gridStatePCsLastUpdated,
-          },
+          pcs,
+          gridStatePCsLastUpdated,
         });
       });
 
@@ -208,10 +205,8 @@ mongoose.connect(process.env.MONGODB_URI, {
         }
         console.log(`📤 Broadcasting updated NPCs for grid ${gridId}`);
         io.to(gridId).emit('gridState-sync-NPCs', {
-          updatedGridState: {
             npcs,
             gridStateNPCsLastUpdated,
-          },
         });
       });
 

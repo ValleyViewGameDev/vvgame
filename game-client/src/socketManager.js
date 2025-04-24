@@ -81,8 +81,7 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
     }
   };
 
-  // Player join/leave events
-  const handlePlayerJoinedGrid = ({ playerId, username, playerData }) => {
+  socketInstance.on('player-joined-sync', ({ playerId, username, playerData }) => {
     console.log(`📥 Player joined: ${username} (${playerId}) with data:`, playerData);
     setGridState(prevState => ({
       ...prevState,
@@ -91,10 +90,10 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
         [playerId]: playerData,
       },
     }));
-  };
+  });
 
-  const handlePlayerLeftGrid = ({ playerId, username }) => {
-    console.log(`📥 Player left: ${username} (${playerId})`);
+  socketInstance.on('player-left-sync', ({ playerId, username }) => {
+    console.log(`📤 Player left: ${username} (${playerId})`);
     setGridState(prevState => {
       const newPCs = { ...prevState.pcs };
       delete newPCs[playerId];
@@ -103,13 +102,11 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
         pcs: newPCs,
       };
     });
-  };
+  });
 
   console.log("🧲 Subscribing to PC and NPC sync events for grid:", gridId);
   socketInstance.on('gridState-sync-PCs', handlePCSync);
   socketInstance.on('gridState-sync-NPCs', handleNPCSync);
-  socketInstance.on('player-joined-grid', handlePlayerJoinedGrid);
-  socketInstance.on('player-left-grid', handlePlayerLeftGrid);
 
   // Log outgoing events if needed:
   const originalEmit = socketInstance.emit;
@@ -122,8 +119,8 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
     console.log("🧹 Unsubscribing from PC and NPC sync events for grid:", gridId);
     socketInstance.off('gridState-sync-PCs', handlePCSync);
     socketInstance.off('gridState-sync-NPCs', handleNPCSync);
-    socketInstance.off('player-joined-grid', handlePlayerJoinedGrid);
-    socketInstance.off('player-left-grid', handlePlayerLeftGrid);
+    socketInstance.off('player-joined-sync');
+    socketInstance.off('player-left-sync');
   };
 };
 
