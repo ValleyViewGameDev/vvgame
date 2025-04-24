@@ -76,6 +76,34 @@ mongoose.connect(process.env.MONGODB_URI, {
       // Track controller assignments (move this OUTSIDE the connection handler)
       const gridControllers = io.gridControllers = io.gridControllers || new Map();
 
+      socket.on('disconnect', () => {
+        console.log(`🔴 Client disconnected: ${socket.id}`);
+        // Check all grids this socket was controlling
+        gridControllers.forEach((controller, gridId) => {
+          if (controller.socketId === socket.id) {
+            const room = io.sockets.adapter.rooms.get(gridId);
+            const nextSocket = room?.values()?.next()?.value;
+            if (nextSocket) {
+              const nextSocketObj = io.sockets.sockets.get(nextSocket);
+              gridControllers.set(gridId, {
+                socketId: nextSocket,
+                username: nextSocketObj.username
+              });
+              io.to(gridId).emit('npc-controller-update', {
+                gridId,
+                controllerUsername: nextSocketObj.username
+              });
+            } else {
+              gridControllers.delete(gridId);
+              io.to(gridId).emit('npc-controller-update', {
+                gridId,
+                controllerUsername: null
+              });
+            }
+          }
+        });
+      });
+      
       socket.on('leave-grid', (gridId) => {
         socket.leave(gridId);
         // If this socket was the controller, assign to another socket in the room
@@ -219,33 +247,7 @@ mongoose.connect(process.env.MONGODB_URI, {
       });
     });
 
-    socket.on('disconnect', () => {
-      console.log(`🔴 Client disconnected: ${socket.id}`);
-      // Check all grids this socket was controlling
-      gridControllers.forEach((controller, gridId) => {
-        if (controller.socketId === socket.id) {
-          const room = io.sockets.adapter.rooms.get(gridId);
-          const nextSocket = room?.values()?.next()?.value;
-          if (nextSocket) {
-            const nextSocketObj = io.sockets.sockets.get(nextSocket);
-            gridControllers.set(gridId, {
-              socketId: nextSocket,
-              username: nextSocketObj.username
-            });
-            io.to(gridId).emit('npc-controller-update', {
-              gridId,
-              controllerUsername: nextSocketObj.username
-            });
-          } else {
-            gridControllers.delete(gridId);
-            io.to(gridId).emit('npc-controller-update', {
-              gridId,
-              controllerUsername: null
-            });
-          }
-        }
-      });
-    });
+
 
   httpServer.listen(PORT, () => {
     console.log(`🚀 Server + WebSocket running on port ${PORT}`);
