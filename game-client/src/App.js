@@ -832,6 +832,11 @@ useEffect(() => {
 }, [timers.seasons?.phase]);
 
 
+
+
+
+
+
 /////////// SOCKET LISTENER /////////////////////////
 
 // SOCKET LISTENER: Real-time updates for PC join and leave
@@ -886,7 +891,7 @@ useEffect(() => {
 
 // SOCKET LISTENER: Real-time updates for GridState (PC and NPC sync)
 useEffect(() => {
-  console.log("🌐🌐 useEffect for PC & NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
+  console.log("🌐🌐🌐🌐🌐🌐 useEffect for PC & NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
   console.log("  🌐 isMasterResourcesReady = ", isMasterResourcesReady);
 
   if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
@@ -904,38 +909,44 @@ useEffect(() => {
       console.log('😀 Ignoring PC sync event from self.');
       return; // Ignore updates emitted by this client
     }
+    console.log('⏩ Updating local PCs with data:', newPCs);
+    setGridState(prevState => ({
+      ...prevState,
+      pcs: pcs,
+      //lastUpdateTimePCs: parsedPCTime.toISOString(),
+    }));
 
-    if (!pcs || !gridStatePCsLastUpdated) return;
+    // if (!pcs || !gridStatePCsLastUpdated) return;
 
-    const parsedPCTime = new Date(gridStatePCsLastUpdated);
-    if (isNaN(parsedPCTime.getTime())) {
-      console.error("Invalid gridStatePCsLastUpdated timestamp:", gridStatePCsLastUpdated);
-      return;
-    }
+    // const parsedPCTime = new Date(gridStatePCsLastUpdated);
+    // if (isNaN(parsedPCTime.getTime())) {
+    //   console.error("Invalid gridStatePCsLastUpdated timestamp:", gridStatePCsLastUpdated);
+    //   return;
+    // }
 
-    if (parsedPCTime.getTime() > lastUpdateTimePCs) {
-      const localPlayerId = currentPlayer?._id;
+    // if (parsedPCTime.getTime() > lastUpdateTimePCs) {
+    //   const localPlayerId = currentPlayer?._id;
 
-      // Filter out invalid PCs
-      const validPCs = Object.fromEntries(
-        Object.entries(pcs).filter(([id, pc]) => pc && pc.position && typeof pc.position.x === 'number' && typeof pc.position.y === 'number')
-      );
+    //   // Filter out invalid PCs
+    //   const validPCs = Object.fromEntries(
+    //     Object.entries(pcs).filter(([id, pc]) => pc && pc.position && typeof pc.position.x === 'number' && typeof pc.position.y === 'number')
+    //   );
 
-      const newPCs = {
-        ...validPCs,
-        [localPlayerId]: validPCs[localPlayerId] || pcs[localPlayerId], // Ensure local PC is included
-      };
+    //   const newPCs = {
+    //     ...validPCs,
+    //     [localPlayerId]: validPCs[localPlayerId] || pcs[localPlayerId], // Ensure local PC is included
+    //   };
 
-      console.log('⏩ Updating local PCs with data:', newPCs);
-      setGridState(prevState => ({
-        ...prevState,
-        pcs: newPCs,
-        lastUpdateTimePCs: parsedPCTime.toISOString(),
-      }));
-      lastUpdateTimePCs = parsedPCTime.getTime();
-    } else {
-      console.log('⏳ Skipping older PC update.');
-    }
+    //   console.log('⏩ Updating local PCs with data:', newPCs);
+    //   setGridState(prevState => ({
+    //     ...prevState,
+    //     pcs: newPCs,
+    //     lastUpdateTimePCs: parsedPCTime.toISOString(),
+    //   }));
+    //   lastUpdateTimePCs = parsedPCTime.getTime();
+    // } else {
+    //   console.log('⏳ Skipping older PC update.');
+    // }
   };
   // NPC sync listener
   const handleNPCSync = ({ npcs, gridStateNPCsLastUpdated }) => {
