@@ -42,8 +42,8 @@ class GridStateManager {
       const gridState = {
         npcs: gridStateNPCs.npcs || {},
         pcs: gridStatePCs.pcs || {},
-        NPClastUpdated: new Date(gridStateNPCs.lastUpdated || 0).getTime(),
-        PClastUpdated: new Date(gridStatePCs.lastUpdated || 0).getTime(),
+        gridStateNPClastUpdated: new Date(gridStateNPCs.lastUpdated || 0).getTime(),
+        gridStatePClastUpdated: new Date(gridStatePCs.lastUpdated || 0).getTime(),
       };
 
       console.log('Fetched gridState:', gridState);
@@ -317,7 +317,7 @@ class GridStateManager {
       const payload = {
         gridId,
         pcs: gridState.pcs,
-        PClastUpdated: gridState.PClastUpdated,
+        gridStatePClastUpdated: gridState.PClastUpdated,
       };
       console.log('💾 Payload for saving PCs:', payload); // Debugging check
       // Save to the server
@@ -330,7 +330,7 @@ class GridStateManager {
         socket.emit('update-gridState-PCs', {
           gridId,
           pcs: gridState.pcs,
-          PClastUpdated: gridState.PClastUpdated,
+          gridStatePClastUpdated: gridState.PClastUpdated,
         });
       }
     } catch (error) {
@@ -357,7 +357,7 @@ class GridStateManager {
       const payload = {
         gridId,
         npcs: gridState.npcs,
-        NPClastUpdated: gridState.NPClastUpdated,
+        gridStateNPClastUpdated: gridState.NPClastUpdated,
       };
 
       console.log('💾 Payload for saving NPCs:', payload); // Debugging check
@@ -371,7 +371,7 @@ class GridStateManager {
         socket.emit('update-gridState-NPCs', {
           gridId,
           npcs: gridState.npcs,
-          NPClastUpdated: gridState.NPClastUpdated,
+          gridStateNPClastUpdated: gridState.NPClastUpdated,
         });
       }
     } catch (error) {

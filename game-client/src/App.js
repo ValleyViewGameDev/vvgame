@@ -449,8 +449,6 @@ useEffect(() => {
       updateStatus(error.code === 'ERR_NETWORK' ? 1 : 0);  // Handle errors
     }
   }; 
-  
-
   initializeAppWrapper();
 }, []);  // ✅ Only run once when the component mounts
 
@@ -841,10 +839,10 @@ useEffect(() => {
   let lastUpdateTimeNPCs = 0;
 
   // PC sync listener: update PCs and include join/leave events
-  const handlePCSync = ({ pcs, PClastUpdated }) => {
-    console.log('🔄 Received gridState-sync-PCs event:', { pcs, PClastUpdated });
-    if (!pcs || !PClastUpdated) return;
-    if (PClastUpdated > lastUpdateTimePCs) {
+  const handlePCSync = ({ pcs, gridStatePClastUpdated }) => {
+    console.log('🔄 Received gridState-sync-PCs event:', { pcs, gridStatePClastUpdated });
+    if (!pcs || !gridStatePClastUpdated) return;
+    if (gridStatePClastUpdated > lastUpdateTimePCs) {
       const localPlayerId = currentPlayer?._id;
       const newPCs = {
         ...pcs,
@@ -853,26 +851,26 @@ useEffect(() => {
       setGridState(prevState => ({
         ...prevState,
         pcs: newPCs,
-        lastUpdateTimePCs: PClastUpdated,
+        lastUpdateTimePCs: gridStatePClastUpdated,
       }));
-      lastUpdateTimePCs = PClastUpdated;
+      lastUpdateTimePCs = gridStatePClastUpdated;
     } else {
       console.log('⏳ Skipping older PC update.');
     }
   };
 
   // NPC sync listener
-  const handleNPCSync = ({ npcs, NPClastUpdated }) => {
-    console.log('🔄 Received gridState-sync-NPCs event:', { npcs, NPClastUpdated });
-    if (!npcs || !NPClastUpdated) return;
-    if (NPClastUpdated > lastUpdateTimeNPCs) {
+  const handleNPCSync = ({ npcs, gridStateNPClastUpdated }) => {
+    console.log('🔄 Received gridState-sync-NPCs event:', { npcs, gridStateNPClastUpdated });
+    if (!npcs || !gridStateNPClastUpdated) return;
+    if (gridStateNPClastUpdated > lastUpdateTimeNPCs) {
       // Optionally enrich NPC data as needed before updating state
       setGridState(prevState => ({
         ...prevState,
         npcs: npcs,
-        lastUpdateTimeNPCs: NPClastUpdated,
+        lastUpdateTimeNPCs: gridStateNPClastUpdated,
       }));
-      lastUpdateTimeNPCs = NPClastUpdated;
+      lastUpdateTimeNPCs = gridStateNPClastUpdated;
     } else {
       console.log('⏳ Skipping older NPC update.');
     }
