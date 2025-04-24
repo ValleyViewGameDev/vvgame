@@ -837,6 +837,7 @@ useEffect(() => {
 // SOCKET LISTENER: Real-time updates for GridState (PC and NPC sync)
 useEffect(() => {
   console.log("🌐🌐 useEffect for PC & NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
+  console.log("  🌐 isMasterResourcesReady = ", isMasterResourcesReady);
 
   if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
   listenForPCandNPCSocketEvents(socket, gridId, currentPlayer, setGridState);
@@ -845,6 +846,7 @@ useEffect(() => {
 // SOCKET LISTENER: Real-time updates for PC join and leave
 useEffect(() => {
   console.log("🌐 useEffect for PC join & leave running. gridId:", gridId, "socket:", !!socket);
+  console.log("  🌐 isMasterResourcesReady = ", isMasterResourcesReady);
 
   if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
 

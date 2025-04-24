@@ -124,29 +124,14 @@ export const changePlayerLocation = async (
     // 1. Update FROM grid's state (remove player)
     if (fromLocation.g) {
       console.log(`1️⃣ Removing player from grid ${fromLocation.g}`);
-      const fromGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${fromLocation.g}`);
-      console.log('fromGridResponse.data:', fromGridResponse.data);
+      const fromGridState = await gridStateManager.getGridState(fromLocation.g);
 
-      // Extract gridStatePCs and ensure it is properly structured
-      const fromPCs = fromGridResponse.data?.pcs || {};
-      console.log('Extracted fromPCs:', fromPCs);
-
-      // Remove the player from the `pcs` object
-      if (fromPCs[currentPlayer.playerId]) {
-        delete fromPCs[currentPlayer.playerId];
-      }
-
-      // Construct the payload
-      const fromPayload = {
-        gridId: fromLocation.g,
-        pcs: fromPCs, // Ensure `pcs` is properly structured
-        gridStatePCsLastUpdated: new Date().toISOString(),
-      };
-
-      console.log('📤 Payload for removing player:', fromPayload);
+      // Preserve other PCs in the grid
+      const updatedFromPCs = { ...fromGridState.pcs };
+      delete updatedFromPCs[currentPlayer.playerId];
 
       // Save the updated PCs to the server
-      await axios.post(`${API_BASE}/api/save-grid-state-pcs`, fromPayload);
+      await gridStateManager.saveGridStatePCs(fromLocation.g, updatedFromPCs);
 
       // Emit AFTER saving to DB
       socket.emit('player-left-grid', {
@@ -157,54 +142,43 @@ export const changePlayerLocation = async (
       console.log(`📢 Emitted player-left-grid for ${fromLocation.g}`);
     }
 
-      socket.emit('leave-grid', fromLocation.g);
-      console.log(`📡 Emitted leave-grid for grid: ${fromLocation.g}`);
-      
+    socket.emit('leave-grid', fromLocation.g);
+    console.log(`📡 Emitted leave-grid for grid: ${fromLocation.g}`);
+
     // 2. Update TO grid's state (add player)
     if (toLocation.g) {
       console.log(`2️⃣ Adding player to grid ${toLocation.g}`);
-      const toGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${toLocation.g}`);
-      console.log('toGridResponse.data:', toGridResponse.data);
+      const toGridState = await gridStateManager.getGridState(toLocation.g);
 
-      // Extract gridStatePCs and ensure it is properly structured
-      const toPCs = toGridResponse.data?.pcs || {};
-      console.log('Extracted toPCs:', toPCs);
-
-      // Add the player to the `pcs` object
-      toPCs[currentPlayer.playerId] = {
-        playerId: currentPlayer.playerId,
-        type: 'pc',
-        username: currentPlayer.username,
-        position: { x: toLocation.x, y: toLocation.y },
-        icon: currentPlayer.icon || '😀',
-        hp: currentPlayer.hp || 25,
-        maxhp: currentPlayer.maxhp || 25,
-        armorclass: currentPlayer.armorclass || 10,
-        attackbonus: currentPlayer.attackbonus || 0,
-        damage: currentPlayer.damage || 1,
-        speed: currentPlayer.speed || 1,
-        attackrange: currentPlayer.attackrange || 1,
-        iscamping: currentPlayer.iscamping || false,
+      // Preserve other PCs in the grid
+      const updatedToPCs = {
+        ...toGridState.pcs,
+        [currentPlayer.playerId]: {
+          playerId: currentPlayer.playerId,
+          type: 'pc',
+          username: currentPlayer.username,
+          position: { x: toLocation.x, y: toLocation.y },
+          icon: currentPlayer.icon || '😀',
+          hp: currentPlayer.hp || 25,
+          maxhp: currentPlayer.maxhp || 25,
+          armorclass: currentPlayer.armorclass || 10,
+          attackbonus: currentPlayer.attackbonus || 0,
+          damage: currentPlayer.damage || 1,
+          speed: currentPlayer.speed || 1,
+          attackrange: currentPlayer.attackrange || 1,
+          iscamping: currentPlayer.iscamping || false,
+        },
       };
-
-      // Construct the payload
-      const toPayload = {
-        gridId: toLocation.g,
-        pcs: toPCs, // Ensure `pcs` is properly structured
-        gridStatePCsLastUpdated: new Date().toISOString(),
-      };
-
-      console.log('📤 Payload for adding player:', toPayload);
 
       // Save the updated PCs to the server
-      await axios.post(`${API_BASE}/api/save-grid-state-pcs`, toPayload);
+      await gridStateManager.saveGridStatePCs(toLocation.g, updatedToPCs);
 
       // Emit AFTER saving to DB
       socket.emit('player-joined-grid', {
         gridId: toLocation.g,
         playerId: currentPlayer.playerId,
         username: currentPlayer.username,
-        playerData: toPCs[currentPlayer.playerId],
+        playerData: updatedToPCs[currentPlayer.playerId],
       });
       console.log(`📢 Emitted player-joined-grid for ${toLocation.g}`);
     }
