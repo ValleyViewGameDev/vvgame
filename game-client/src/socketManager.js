@@ -11,6 +11,11 @@ socket.on('connect', () => console.log('✅ Global Socket connected:', socket.id
 socket.on('disconnect', (reason) => console.log('🔌 Global Socket disconnected:', reason));
 socket.on('connect_error', (err) => console.error('❌ Global Socket connect_error:', err));
 
+// Check connection status after 3 seconds
+setTimeout(() => {
+  console.log('⏱️ Delayed check - socket.connected:', socket.connected);
+}, 3000);
+
 export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, currentPlayer, setGridState) => {
   console.log('📡 Listening for Socket Events on grid:', gridId);
   

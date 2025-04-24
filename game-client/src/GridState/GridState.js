@@ -310,14 +310,14 @@ class GridStateManager {
         return;
       }
       
-      // Update local PC timestamp
-      gridState.PClastUpdated = Date.now();
+      // Update local PC timestamp using consistent naming for server
+      gridState.gridStatePCslastUpdated = Date.now();
       
-      // Build payload (rename key to match the server schema)
+      // Build payload (using field name expected by server)
       const payload = {
         gridId,
         pcs: gridState.pcs,
-        gridStatePCsLastUpdated: gridState.PClastUpdated,
+        gridStatePCslastUpdated: gridState.gridStatePCslastUpdated,
       };
       console.log('💾 Payload for saving PCs:', payload);
       
@@ -331,7 +331,7 @@ class GridStateManager {
         socket.emit('update-gridState-PCs', {
           gridId,
           pcs: gridState.pcs,
-          gridStatePCsLastUpdated: gridState.PClastUpdated,
+          gridStatePCsLastUpdated: gridState.gridStatePCslastUpdated,
         });
       }
     } catch (error) {
