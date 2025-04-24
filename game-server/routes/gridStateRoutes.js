@@ -44,7 +44,8 @@ router.post('/save-grid-state-pcs', async (req, res) => {
 
 // Dedicated route: save only NPCs without altering PCs
 router.post('/save-grid-state-npcs', async (req, res) => {
-  const { gridId, npcs } = req.body;
+  const { gridId, npcs, gridStateNPCsLastUpdated } = req.body;
+
   if (!gridId || npcs == null) {
     return res.status(400).json({ error: 'gridId and npcs are required.' });
   }
@@ -63,6 +64,7 @@ router.post('/save-grid-state-npcs', async (req, res) => {
     res.status(500).json({ error: 'Failed to save gridState NPCs.' });
   }
 });
+
 
 router.get('/load-grid-state/:gridId', async (req, res) => {
   const { gridId } = req.params;

@@ -42,8 +42,8 @@ class GridStateManager {
       const gridState = {
         npcs: gridStateNPCs.npcs || {},
         pcs: gridStatePCs.pcs || {},
-        gridStateNPClastUpdated: new Date(gridStateNPCs.lastUpdated || 0).getTime(),
-        gridStatePClastUpdated: new Date(gridStatePCs.lastUpdated || 0).getTime(),
+        gridStateNPCslastUpdated: new Date(gridStateNPCs.lastUpdated || 0).getTime(),
+        gridStatePCslastUpdated: new Date(gridStatePCs.lastUpdated || 0).getTime(),
       };
 
       console.log('Fetched gridState:', gridState);
@@ -309,28 +309,29 @@ class GridStateManager {
         console.warn(`⚠️ No PCs to save for grid ${gridId}`);
         return;
       }
-
+      
       // Update local PC timestamp
       gridState.PClastUpdated = Date.now();
-
-      // Build payload
+      
+      // Build payload (rename key to match the server schema)
       const payload = {
         gridId,
         pcs: gridState.pcs,
-        gridStatePClastUpdated: gridState.PClastUpdated,
+        gridStatePCsLastUpdated: gridState.PClastUpdated,
       };
-      console.log('💾 Payload for saving PCs:', payload); // Debugging check
+      console.log('💾 Payload for saving PCs:', payload);
+      
       // Save to the server
       await axios.post(`${API_BASE}/api/save-grid-state-pcs`, payload);
       console.log(`✅ 💾 Saved PCs for grid ${gridId}`);
-
+      
       // Emit updated PCs to other clients
       if (socket && socket.emit) {
         console.log(`📡 Emitting PC grid-state for grid ${gridId}`);
         socket.emit('update-gridState-PCs', {
           gridId,
           pcs: gridState.pcs,
-          gridStatePClastUpdated: gridState.PClastUpdated,
+          gridStatePCsLastUpdated: gridState.PClastUpdated,
         });
       }
     } catch (error) {
@@ -351,13 +352,13 @@ class GridStateManager {
       }
 
       // Update local NPC timestamp
-      gridState.NPClastUpdated = Date.now();
+      gridState.NPCslastUpdated = Date.now();
 
       // Build payload
       const payload = {
         gridId,
         npcs: gridState.npcs,
-        gridStateNPClastUpdated: gridState.NPClastUpdated,
+        gridStateNPCslastUpdated: gridState.NPCslastUpdated,
       };
 
       console.log('💾 Payload for saving NPCs:', payload); // Debugging check
@@ -371,7 +372,7 @@ class GridStateManager {
         socket.emit('update-gridState-NPCs', {
           gridId,
           npcs: gridState.npcs,
-          gridStateNPClastUpdated: gridState.NPClastUpdated,
+          gridStateNPCslastUpdated: gridState.NPCslastUpdated,
         });
       }
     } catch (error) {
