@@ -902,10 +902,10 @@ useEffect(() => {
     console.log('📥 Received gridState-sync-PCs event:', { pcs, gridStatePCsLastUpdated });
     console.log('📥 Emitter ID:', emitterId);
 
-    // if (emitterId === socket.id) {
-    //   console.log('😀 Ignoring PC sync event from self.');
-    //   return; // Ignore updates emitted by this client
-    // }
+    if (emitterId === socket.id) {
+      console.log('😀 Ignoring PC sync event from self.');
+      return; // Ignore updates emitted by this client
+    }
     console.log('⏩ Updating local PCs with data:', pcs);
     setGridState(prevState => ({
       ...prevState,
