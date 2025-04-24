@@ -313,26 +313,27 @@ class GridStateManager {
       // Update local PC timestamp using consistent naming for server
       gridState.gridStatePCsLastUpdated = Date.now();
       
-      // Build payload (using field name expected by server)
+      // Retrieve current player ID from localStorage
+      const currentPlayer = JSON.parse(localStorage.getItem('player'));
+      const currentPlayerId = currentPlayer?.playerId;
+      const updatedPC = gridState.pcs[currentPlayerId];
+      
+      // Build payload that only includes the updated PC
       const payload = {
         gridId,
-        pcs: gridState.pcs,
+        updatedPC,
         gridStatePCsLastUpdated: gridState.gridStatePCsLastUpdated,
       };
-      console.log('💾 Payload for saving PCs:', payload);
+      console.log('💾 Payload for saving current PC:', payload);
       
       // Save to the server
       await axios.post(`${API_BASE}/api/save-grid-state-pcs`, payload);
-      console.log(`✅ 💾 Saved PCs for grid ${gridId}`);
+      console.log(`✅ 💾 Saved current PC for grid ${gridId}`);
       
-      // Emit updated PCs to other clients
+      // Emit updated PC to other clients
       if (socket && socket.emit) {
-        console.log(`📡 Emitting PC grid-state for grid ${gridId}`);
-        socket.emit('update-gridState-PCs', {
-          gridId,
-          pcs: gridState.pcs,
-          gridStatePCsLastUpdated: gridState.gridStatePCsLastUpdated,
-        });
+        console.log(`📡 Emitting updated PC for grid ${gridId}`);
+        socket.emit('update-gridState-PCs', payload);
       }
     } catch (error) {
       console.error(`❌ Error saving PCs for grid ${gridId}:`, error);

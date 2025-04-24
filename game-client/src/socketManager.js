@@ -18,9 +18,9 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
 
   let lastUpdateTimeNPCs = 0;
 
-  // PC sync listener without timestamp logic
-  const handlePCSync = ({ pcs, emitterId }) => {
-    console.log('📥 Received gridState-sync-PCs event:', { pcs });
+  // PC sync listener with updatedPC logic
+  const handlePCSync = ({ pcs, updatedPC, emitterId }) => {
+    console.log('📥 Received gridState-sync-PCs event:', { pcs, updatedPC });
     console.log('📥 Emitter ID:', emitterId);
 
     // Ignore PC updates sent by self
@@ -29,24 +29,36 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
       return;
     }
 
-    const localPlayerId = currentPlayer?._id;
-    // Filter out invalid PCs
-    const validPCs = Object.fromEntries(
-      Object.entries(pcs).filter(([id, pc]) =>
-        pc && pc.position && typeof pc.position.x === 'number' && typeof pc.position.y === 'number'
-      )
-    );
+    if (updatedPC) {
+      // Merge the updated PC into the local state without overwriting others
+      setGridState(prevState => ({
+        ...prevState,
+        pcs: {
+          ...prevState.pcs,
+          [updatedPC.playerId]: updatedPC,
+        },
+      }));
+      console.log('⏩ Integrated updated PC:', updatedPC);
+    } else if (pcs) {
+      const localPlayerId = currentPlayer?._id;
+      // Filter out invalid PCs
+      const validPCs = Object.fromEntries(
+        Object.entries(pcs).filter(([id, pc]) =>
+          pc && pc.position && typeof pc.position.x === 'number' && typeof pc.position.y === 'number'
+        )
+      );
 
-    const newPCs = {
-      ...validPCs,
-      [localPlayerId]: validPCs[localPlayerId] || pcs[localPlayerId], // Ensure local PC is included
-    };
+      const newPCs = {
+        ...validPCs,
+        [localPlayerId]: validPCs[localPlayerId] || pcs[localPlayerId], // Ensure local PC is included
+      };
 
-    console.log('⏩ Updating local PCs with data:', newPCs);
-    setGridState(prevState => ({
-      ...prevState,
-      pcs: newPCs,
-    }));
+      console.log('⏩ Updating local PCs with data:', newPCs);
+      setGridState(prevState => ({
+        ...prevState,
+        pcs: newPCs,
+      }));
+    }
   };
 
   // NPC sync listener remains unchanged
