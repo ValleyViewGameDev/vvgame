@@ -839,7 +839,7 @@ useEffect(() => {
 
 /////////// SOCKET LISTENER /////////////////////////
 
-// SOCKET LISTENER: Real-time updates for PC join and leave
+// 🔄 SOCKET LISTENER: Real-time updates for PC join and leave
 useEffect(() => {
   console.log("🌐 useEffect for PC join & leave running. gridId:", gridId, "socket:", !!socket);
   console.log("  🌐 isMasterResourcesReady = ", isMasterResourcesReady);
@@ -889,16 +889,13 @@ useEffect(() => {
 }, [socket, gridId, isMasterResourcesReady]);
 
 
-// SOCKET LISTENER: Real-time updates for GridState (PC and NPC sync)
+// 🔄 SOCKET LISTENER: PCs: Real-time updates for GridState (PC sync)
 useEffect(() => {
   console.log("🌐🌐🌐🌐🌐🌐 useEffect for PC & NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
-  console.log("  🌐 isMasterResourcesReady = ", isMasterResourcesReady);
 
-  if (!gridId || !isMasterResourcesReady) return;
-  //listenForPCandNPCSocketEvents(socket, gridId, currentPlayer, setGridState);
+  if (!gridId) return;
 
   let lastUpdateTimePCs = 0;
-  let lastUpdateTimeNPCs = 0;
 
   // PC sync listener
   const handlePCSync = ({ pcs, gridStatePCsLastUpdated, emitterId }) => {
@@ -913,41 +910,26 @@ useEffect(() => {
     setGridState(prevState => ({
       ...prevState,
       pcs: pcs,
-      //lastUpdateTimePCs: parsedPCTime.toISOString(),
     }));
-
-    // if (!pcs || !gridStatePCsLastUpdated) return;
-
-    // const parsedPCTime = new Date(gridStatePCsLastUpdated);
-    // if (isNaN(parsedPCTime.getTime())) {
-    //   console.error("Invalid gridStatePCsLastUpdated timestamp:", gridStatePCsLastUpdated);
-    //   return;
-    // }
-
-    // if (parsedPCTime.getTime() > lastUpdateTimePCs) {
-    //   const localPlayerId = currentPlayer?._id;
-
-    //   // Filter out invalid PCs
-    //   const validPCs = Object.fromEntries(
-    //     Object.entries(pcs).filter(([id, pc]) => pc && pc.position && typeof pc.position.x === 'number' && typeof pc.position.y === 'number')
-    //   );
-
-    //   const newPCs = {
-    //     ...validPCs,
-    //     [localPlayerId]: validPCs[localPlayerId] || pcs[localPlayerId], // Ensure local PC is included
-    //   };
-
-    //   console.log('⏩ Updating local PCs with data:', newPCs);
-    //   setGridState(prevState => ({
-    //     ...prevState,
-    //     pcs: newPCs,
-    //     lastUpdateTimePCs: parsedPCTime.toISOString(),
-    //   }));
-    //   lastUpdateTimePCs = parsedPCTime.getTime();
-    // } else {
-    //   console.log('⏳ Skipping older PC update.');
-    // }
   };
+
+  console.log("🧲 Subscribing to PC sync events for grid:", gridId);
+  socket.on("gridState-sync-PCs", handlePCSync);
+
+  return () => {
+    console.log("🧹 Unsubscribing from PC sync events for grid:", gridId);
+    socket.off("gridState-sync-PCs", handlePCSync);
+  };
+
+}, [socket, gridId]);
+
+
+// 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
+useEffect(() => {
+  console.log("🌐 useEffect for NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
+  if (!gridId) return;
+  let lastUpdateTimeNPCs = 0;
+
   // NPC sync listener
   const handleNPCSync = ({ npcs, gridStateNPCsLastUpdated }) => {
     console.log('📥 Received gridState-sync-NPCs event:', { npcs, gridStateNPCsLastUpdated });
@@ -970,17 +952,15 @@ useEffect(() => {
     }
   };
 
-  console.log("🧲 Subscribing to PC and NPC sync events for grid:", gridId);
-  socket.on("gridState-sync-PCs", handlePCSync);
+  console.log("🧲 Subscribing to NPC sync events for grid:", gridId);
   socket.on("gridState-sync-NPCs", handleNPCSync);
 
   return () => {
-    console.log("🧹 Unsubscribing from PC and NPC sync events for grid:", gridId);
-    socket.off("gridState-sync-PCs", handlePCSync);
+    console.log("🧹 Unsubscribing from NPC sync events for grid:", gridId);
     socket.off("gridState-sync-NPCs", handleNPCSync);
   };
 
-}, [socket, gridId, isMasterResourcesReady]);
+}, [socket, gridId]);
 
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
