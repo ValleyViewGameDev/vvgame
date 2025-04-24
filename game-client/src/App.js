@@ -526,7 +526,7 @@ useEffect(() => {
 
     // Check if we're the controller before processing NPCs
     if (npcController.isControllingGrid(gridId)) {
-      console.log('npcController is active. Processing NPCs...');
+      //console.log('npcController is active. Processing NPCs...');
 
       Object.values(gridState.npcs).forEach((npc) => {
         const currentTime = Date.now();
@@ -840,31 +840,34 @@ useEffect(() => {
   let lastUpdateTime = 0;
 
   const handleGridStateSync = ({ updatedGridState }) => {
+    console.log('🔄 Received gridState-sync event:', updatedGridState);
+
     if (!updatedGridState || !updatedGridState.lastUpdated) {
-      console.warn('Invalid gridState update received');
+      console.warn('⚠️ Invalid gridState update received:', updatedGridState);
       return;
     }
 
     if (updatedGridState.lastUpdated <= lastUpdateTime) {
-      console.log('⏳ Skipping older gridState update');
+      console.log('⏳ Skipping older gridState update. Last update time:', lastUpdateTime);
       return;
     }
 
     // Preserve local player's exact state
-    const localPlayerId = currentPlayer._id;
+    const localPlayerId = currentPlayer?._id;
     const localPlayerData = gridState?.pcs?.[localPlayerId];
+    console.log('🔍 Preserving local player state:', localPlayerData);
 
     // Rehydrate NPCs into class instances
     const hydratedNPCs = {};
     for (const [npcId, npcData] of Object.entries(updatedGridState.npcs || {})) {
       const template = masterResources.find((r) => r.type === npcData.type);
       if (!template) {
-        console.warn(`No template found for NPC type: ${npcData.type}`);
+        console.warn(`⚠️ No template found for NPC type: ${npcData.type}`);
         continue;
       }
 
       const enrichedProperties = { ...template, ...npcData };
-      
+
       // Check for more recent local version
       const localNPC = gridState?.npcs?.[npcId];
       const localTime = localNPC?.lastUpdated || 0;
@@ -891,10 +894,13 @@ useEffect(() => {
       npcs: hydratedNPCs,
       pcs: {
         ...updatedGridState.pcs,
-        [localPlayerId]: localPlayerData || updatedGridState.pcs?.[localPlayerId]
-      }
+        [localPlayerId]: localPlayerData || updatedGridState.pcs?.[localPlayerId],
+      },
     };
 
+    console.log('✅ New gridState constructed:', newGridState);
+
+    // Update the local gridState
     lastUpdateTime = updatedGridState.lastUpdated;
     gridStateManager.gridStates[gridId] = newGridState;
     setGridState(newGridState);

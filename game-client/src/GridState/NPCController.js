@@ -95,11 +95,11 @@ class NPCController {
   isControllingGrid(gridId) {
     const controllerData = this.controlledGrids.get(gridId);
     const isController = controllerData?.isController === true;
-    console.log(`🎮 Controller check for ${gridId}:`, {
-      hasData: !!controllerData,
-      isController: isController,
-      rawValue: controllerData?.isController
-    });
+    // console.log(`🎮 Controller check for ${gridId}:`, {
+    //   hasData: !!controllerData,
+    //   isController: isController,
+    //   rawValue: controllerData?.isController
+    // });
     return isController;
   }
 }
