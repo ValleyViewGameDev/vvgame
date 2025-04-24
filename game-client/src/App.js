@@ -642,7 +642,7 @@ const [countdowns, setCountdowns] = useState({ seasons: "", elections: "", train
 
 // TIMERS Step 2: Initialize Timers on app start/refresh; run once
 useEffect(() => {
-  console.log("🔄 currentPlayer = ",currentPlayer);
+  //console.log("🔄 currentPlayer = ",currentPlayer);
 
   if (!currentPlayer?.settlementId) return;
   const initializeTimers = async () => {
@@ -656,7 +656,7 @@ useEffect(() => {
 
 // TIMERS Step 3: Fetch initial timers from the server
 const fetchTimersData = async () => {
-  console.log("🔄 Fetching initial timers from the server...");
+  //console.log("🔄 Fetching initial timers from the server...");
   
   if (!currentPlayer) {
     console.warn("⛔ No player loaded — skipping fetchTimersData.");
@@ -692,20 +692,20 @@ const fetchTimersData = async () => {
     };
 
     setTimers(updatedTimers);
-    console.log("📦 LocalStorage timers:", {
-      seasonPhase: updatedTimers.seasons.phase,
-      seasonType: updatedTimers.seasons.type,
-      endTime: new Date(updatedTimers.seasons.endTime).toLocaleTimeString(),
-      now: new Date().toLocaleTimeString()
-    });
+    // console.log("📦 LocalStorage timers:", {
+    //   seasonPhase: updatedTimers.seasons.phase,
+    //   seasonType: updatedTimers.seasons.type,
+    //   endTime: new Date(updatedTimers.seasons.endTime).toLocaleTimeString(),
+    //   now: new Date().toLocaleTimeString()
+    // });
     localStorage.setItem("timers", JSON.stringify(updatedTimers)); // Save to local storage
 
-    console.log("📦 Frontier server timers:", {
-      seasonPhase: frontierData.seasons?.phase,
-      seasonType: frontierData.seasons?.seasonType,
-      endTime: new Date(frontierData.seasons?.endTime).toLocaleTimeString(),
-      now: new Date().toLocaleTimeString()
-    });
+    // console.log("📦 Frontier server timers:", {
+    //   seasonPhase: frontierData.seasons?.phase,
+    //   seasonType: frontierData.seasons?.seasonType,
+    //   endTime: new Date(frontierData.seasons?.endTime).toLocaleTimeString(),
+    //   now: new Date().toLocaleTimeString()
+    // });
     console.log("✅ Current Time:", Date.now());
     
   } catch (error) {
@@ -837,73 +837,80 @@ useEffect(() => {
 useEffect(() => {
   if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
 
-  let lastUpdateTime = 0;
+  let lastUpdateTimePCs = 0;
+  let lastUpdateTimeNPCs = 0;
 
   const handleGridStateSync = ({ updatedGridState }) => {
     console.log('🔄 Received gridState-sync event:', updatedGridState);
 
-    if (!updatedGridState || !updatedGridState.lastUpdated) {
+    if (!updatedGridState) {
       console.warn('⚠️ Invalid gridState update received:', updatedGridState);
       return;
     }
 
-    if (updatedGridState.lastUpdated <= lastUpdateTime) {
-      console.log('⏳ Skipping older gridState update. Last update time:', lastUpdateTime);
-      return;
+    // Handle PCs
+    if (updatedGridState.gridStatePCsLastUpdated > lastUpdateTimePCs) {
+      console.log('🔄 Updating PCs in gridState...');
+      const localPlayerId = currentPlayer?._id;
+      const localPlayerData = gridState?.pcs?.[localPlayerId];
+
+      const newPCs = {
+        ...updatedGridState.gridStatePCs,
+        [localPlayerId]: localPlayerData || updatedGridState.gridStatePCs?.[localPlayerId],
+      };
+
+      setGridState((prevState) => ({
+        ...prevState,
+        pcs: newPCs,
+      }));
+
+      lastUpdateTimePCs = updatedGridState.gridStatePCsLastUpdated;
+    } else {
+      console.log('⏳ Skipping older PC update.');
     }
 
-    // Preserve local player's exact state
-    const localPlayerId = currentPlayer?._id;
-    const localPlayerData = gridState?.pcs?.[localPlayerId];
-    console.log('🔍 Preserving local player state:', localPlayerData);
+    // Handle NPCs
+    if (updatedGridState.gridStateNPCsLastUpdated > lastUpdateTimeNPCs) {
+      console.log('🔄 Updating NPCs in gridState...');
+      const hydratedNPCs = {};
+      for (const [npcId, npcData] of Object.entries(updatedGridState.gridStateNPCs || {})) {
+        const template = masterResources.find((r) => r.type === npcData.type);
+        if (!template) {
+          console.warn(`⚠️ No template found for NPC type: ${npcData.type}`);
+          continue;
+        }
 
-    // Rehydrate NPCs into class instances
-    const hydratedNPCs = {};
-    for (const [npcId, npcData] of Object.entries(updatedGridState.npcs || {})) {
-      const template = masterResources.find((r) => r.type === npcData.type);
-      if (!template) {
-        console.warn(`⚠️ No template found for NPC type: ${npcData.type}`);
-        continue;
+        const enrichedProperties = { ...template, ...npcData };
+
+        // Check for more recent local version
+        const localNPC = gridState?.npcs?.[npcId];
+        const localTime = localNPC?.lastUpdated || 0;
+        const incomingTime = npcData.lastUpdated || 0;
+
+        if (incomingTime < localTime) {
+          console.log(`⏳ Keeping more recent local NPC ${npcId}`);
+          hydratedNPCs[npcId] = localNPC;
+          continue;
+        }
+
+        hydratedNPCs[npcId] = new NPC(
+          npcData.id,
+          npcData.type,
+          npcData.position,
+          enrichedProperties,
+          gridId
+        );
       }
 
-      const enrichedProperties = { ...template, ...npcData };
+      setGridState((prevState) => ({
+        ...prevState,
+        npcs: hydratedNPCs,
+      }));
 
-      // Check for more recent local version
-      const localNPC = gridState?.npcs?.[npcId];
-      const localTime = localNPC?.lastUpdated || 0;
-      const incomingTime = npcData.lastUpdated || 0;
-
-      if (incomingTime < localTime) {
-        console.log(`⏳ Keeping more recent local NPC ${npcId}`);
-        hydratedNPCs[npcId] = localNPC;
-        continue;
-      }
-
-      hydratedNPCs[npcId] = new NPC(
-        npcData.id,
-        npcData.type,
-        npcData.position,
-        enrichedProperties,
-        gridId
-      );
+      lastUpdateTimeNPCs = updatedGridState.gridStateNPCsLastUpdated;
+    } else {
+      console.log('⏳ Skipping older NPC update.');
     }
-
-    // Create new state with hydrated NPCs and preserved local player
-    const newGridState = {
-      ...updatedGridState,
-      npcs: hydratedNPCs,
-      pcs: {
-        ...updatedGridState.pcs,
-        [localPlayerId]: localPlayerData || updatedGridState.pcs?.[localPlayerId],
-      },
-    };
-
-    console.log('✅ New gridState constructed:', newGridState);
-
-    // Update the local gridState
-    lastUpdateTime = updatedGridState.lastUpdated;
-    gridStateManager.gridStates[gridId] = newGridState;
-    setGridState(newGridState);
   };
 
   // Add specific handlers for player join/leave events

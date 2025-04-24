@@ -325,36 +325,34 @@ updatePC(gridId, playerId, newProperties) {
  * Save only PCs in the gridState to the database.
  */
 async saveGridStatePCs(gridId) {
-  const gridState = this.getGridState(gridId);
-  if (!gridState) {
-    console.error(`Cannot save PCs. No gridState found for gridId: ${gridId}`);
-    return;
-  }
-
   try {
-    // Ensure gridStatePCsLastUpdated is set to a valid timestamp
-    gridState.gridStatePCsLastUpdated = new Date().toISOString();
+    const gridState = this.gridStates[gridId];
+    if (!gridState || !gridState.pcs) {
+      console.warn(`⚠️ No PCs to save for grid ${gridId}`);
+      return;
+    }
 
-    // Prepare the payload
-    const payload = {
+    // Emit updated PCs to other clients
+    if (socket && socket.emit) {
+      console.log(`📡 Emitting gridStatePCs update for grid ${gridId}`);
+      socket.emit('gridState-sync', {
+        gridId,
+        updatedGridState: {
+          gridStatePCs: gridState.pcs,
+          gridStatePCsLastUpdated: Date.now(),
+        },
+      });
+    }
+
+    // Save to the server
+    await axios.post(`${API_BASE}/api/save-grid-state-pcs`, {
       gridId,
       pcs: gridState.pcs,
-      gridStatePCsLastUpdated: gridState.gridStatePCsLastUpdated,
-    };
+    });
 
-    console.log(`💾 Saving PCs for gridId: ${gridId}`);
-    console.log(`👥 PCs being saved:`, Object.keys(gridState.pcs || {}));
-    console.log('Payload: ', payload);
-    // Send the payload to the server
-    const response = await axios.post(`${API_BASE}/api/save-grid-state-pcs`, payload);
-
-    if (response.data.success) {
-      console.log('✅ PCs successfully saved:', Object.keys(gridState.pcs));
-    } else {
-      throw new Error('Failed to save PCs to the database');
-    }
+    console.log(`✅ Saved PCs for grid ${gridId}`);
   } catch (error) {
-    console.error('❌ Error saving gridStatePCs:', error);
+    console.error(`❌ Error saving PCs for grid ${gridId}:`, error);
   }
 }
 
