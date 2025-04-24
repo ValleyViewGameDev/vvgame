@@ -731,19 +731,16 @@ useEffect(() => {
   return () => clearInterval(interval); // Cleanup on unmount
 }, [timers]); // Runs when timers update
 
+
 // TIMERS Step 5: Check Phase Transitions (LOCAL)
 useEffect(() => {
   const checkPhaseTransitions = async () => {
-
-    console.log("🔍checkPhaseTransitions;  season = ",timers.seasons.phase);
-
+    //console.log("🔍checkPhaseTransitions;  season = ",timers.seasons.phase);
     const now = Date.now();
     let shouldFetchNewTimers = false;
-
-    console.log("🕰️ Checking season timer... now =", new Date(now).toLocaleTimeString(), 
-      "| endTime =", new Date(timers.seasons.endTime).toLocaleTimeString()
-    );
-
+    // console.log("🕰️ Checking season timer... now =", new Date(now).toLocaleTimeString(), 
+    //   "| endTime =", new Date(timers.seasons.endTime).toLocaleTimeString()
+    // );
     if (timers.seasons.endTime && now >= timers.seasons.endTime) {
       console.log("🌱 Season phase ended.");
       shouldFetchNewTimers = true;

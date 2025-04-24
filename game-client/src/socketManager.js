@@ -7,14 +7,17 @@ const socket = io('https://vvgame-server.onrender.com', {
 });
 
 export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, currentPlayer, setGridState) => {
-  console.log('📡 Listening for Socket Events');
-
+  console.log('📡 Listening for Socket Events on grid:', gridId);
+  
+  // Optionally, log socket connection status:
+  socketInstance.on('connect', () => console.log('✅ Socket connected:', socketInstance.id));
+  
   const gridState = gridStateManager.getGridState(gridId);
 
   let lastUpdateTimePCs = 0;
   let lastUpdateTimeNPCs = 0;
 
-  // PC sync listener: update PCs and include join/leave events
+  // PC sync listener
   const handlePCSync = ({ pcs, gridStatePClastUpdated }) => {
     console.log('📡 Received gridState-sync-PCs event:', { pcs, gridStatePClastUpdated });
     if (!pcs || !gridStatePClastUpdated) return;
@@ -40,7 +43,7 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
     }
   };
 
-  // NPC sync listener: parse timestamp similarly
+  // NPC sync listener
   const handleNPCSync = ({ npcs, gridStateNPClastUpdated }) => {
     console.log('🔄 Received gridState-sync-NPCs event:', { npcs, gridStateNPClastUpdated });
     if (!npcs || !gridStateNPClastUpdated) return;
@@ -61,7 +64,7 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
     }
   };
 
-  // Player join/leave events integrated with PC updates
+  // Player join/leave events
   const handlePlayerJoinedGrid = ({ playerId, username, playerData }) => {
     console.log(`👋 Player ${username} joined grid with data:`, playerData);
     setGridState(prevState => ({
@@ -85,18 +88,18 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
     });
   };
 
-  console.log("🧲 [gridState] Subscribing to PC and NPC sync events for grid:", gridId);
-  socket.on('gridState-sync-PCs', handlePCSync);
-  socket.on('gridState-sync-NPCs', handleNPCSync);
-  socket.on('player-joined-grid', handlePlayerJoinedGrid);
-  socket.on('player-left-grid', handlePlayerLeftGrid);
+  console.log("🧲 Subscribing to PC and NPC sync events for grid:", gridId);
+  socketInstance.on('gridState-sync-PCs', handlePCSync);
+  socketInstance.on('gridState-sync-NPCs', handleNPCSync);
+  socketInstance.on('player-joined-grid', handlePlayerJoinedGrid);
+  socketInstance.on('player-left-grid', handlePlayerLeftGrid);
 
   return () => {
     console.log("🧹 Unsubscribing from PC and NPC sync events for grid:", gridId);
-    socket.off('gridState-sync-PCs', handlePCSync);
-    socket.off('gridState-sync-NPCs', handleNPCSync);
-    socket.off('player-joined-grid', handlePlayerJoinedGrid);
-    socket.off('player-left-grid', handlePlayerLeftGrid);
+    socketInstance.off('gridState-sync-PCs', handlePCSync);
+    socketInstance.off('gridState-sync-NPCs', handleNPCSync);
+    socketInstance.off('player-joined-grid', handlePlayerJoinedGrid);
+    socketInstance.off('player-left-grid', handlePlayerLeftGrid);
   };
 };
 
