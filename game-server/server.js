@@ -216,8 +216,6 @@ mongoose.connect(process.env.MONGODB_URI, {
 
       // Handle tile updates
       socket.on('update-tile', ({ gridId, updatedTiles }) => {
-        //console.log(`🌍 update-tile received for grid ${gridId}`);
-        //console.log("📦 Incoming updatedTiles:", updatedTiles);
 
         io.in(gridId).fetchSockets().then(sockets => {
           //console.log(`📡 Broadcasting to ${sockets.length} clients in grid ${gridId}`);

@@ -834,15 +834,6 @@ useEffect(() => {
 
 /////////// SOCKET LISTENER /////////////////////////
 
-// SOCKET LISTENER: Real-time updates for GridState (PC and NPC sync)
-useEffect(() => {
-  console.log("🌐🌐 useEffect for PC & NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
-  console.log("  🌐 isMasterResourcesReady = ", isMasterResourcesReady);
-
-  if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
-  listenForPCandNPCSocketEvents(socket, gridId, currentPlayer, setGridState);
-}, [socket, gridId, isMasterResourcesReady]);
-
 // SOCKET LISTENER: Real-time updates for PC join and leave
 useEffect(() => {
   console.log("🌐 useEffect for PC join & leave running. gridId:", gridId, "socket:", !!socket);
@@ -892,54 +883,103 @@ useEffect(() => {
 
 }, [socket, gridId, isMasterResourcesReady]);
 
-// Add socket event listeners for NPC controller status
+
+// SOCKET LISTENER: Real-time updates for GridState (PC and NPC sync)
 useEffect(() => {
-  console.log("🌐 useEffect for npc-controller running. gridId:", gridId, "socket:", !!socket);
+  console.log("🌐🌐 useEffect for PC & NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
+  console.log("  🌐 isMasterResourcesReady = ", isMasterResourcesReady);
 
-  if (!socket || !currentPlayer) return;
+  if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
+  //listenForPCandNPCSocketEvents(socket, gridId, currentPlayer, setGridState);
 
-  // Send username to server when joining grid
-  if (gridId) {
-    socket.emit('set-username', { username: currentPlayer.username });
-  }
+  let lastUpdateTimePCs = 0;
+  let lastUpdateTimeNPCs = 0;
 
-  socket.on('npc-controller-update', ({ controllerUsername }) => {
-    setControllerUsername(controllerUsername);
-    setIsNPCController(controllerUsername === currentPlayer.username);
-  });
+  // PC sync listener
+  const handlePCSync = ({ pcs, gridStatePCsLastUpdated, emitterId }) => {
+    console.log('📥 Received gridState-sync-PCs event:', { pcs, gridStatePCsLastUpdated });
+    console.log('📥 Emitter ID:', emitterId);
 
-  socket.on('npc-controller-assigned', ({ gridId: controlledGridId }) => {
-    console.log(`🎮 Assigned as NPC controller for grid ${controlledGridId}`);
-    if (controlledGridId === gridId) {
-      setIsNPCController(true);
+    if (emitterId === socket.id) {
+      console.log('😀 Ignoring PC sync event from self.');
+      return; // Ignore updates emitted by this client
     }
-  });
 
-  socket.on('npc-controller-revoked', ({ gridId: revokedGridId }) => {
-    console.log(`🎮 Revoked as NPC controller for grid ${revokedGridId}`);
-    if (revokedGridId === gridId) {
-      setIsNPCController(false);
+    if (!pcs || !gridStatePCsLastUpdated) return;
+
+    const parsedPCTime = new Date(gridStatePCsLastUpdated);
+    if (isNaN(parsedPCTime.getTime())) {
+      console.error("Invalid gridStatePCsLastUpdated timestamp:", gridStatePCsLastUpdated);
+      return;
     }
-  });
+
+    if (parsedPCTime.getTime() > lastUpdateTimePCs) {
+      const localPlayerId = currentPlayer?._id;
+
+      // Filter out invalid PCs
+      const validPCs = Object.fromEntries(
+        Object.entries(pcs).filter(([id, pc]) => pc && pc.position && typeof pc.position.x === 'number' && typeof pc.position.y === 'number')
+      );
+
+      const newPCs = {
+        ...validPCs,
+        [localPlayerId]: validPCs[localPlayerId] || pcs[localPlayerId], // Ensure local PC is included
+      };
+
+      console.log('⏩ Updating local PCs with data:', newPCs);
+      setGridState(prevState => ({
+        ...prevState,
+        pcs: newPCs,
+        lastUpdateTimePCs: parsedPCTime.toISOString(),
+      }));
+      lastUpdateTimePCs = parsedPCTime.getTime();
+    } else {
+      console.log('⏳ Skipping older PC update.');
+    }
+  };
+  // NPC sync listener
+  const handleNPCSync = ({ npcs, gridStateNPCsLastUpdated }) => {
+    console.log('📥 Received gridState-sync-NPCs event:', { npcs, gridStateNPCsLastUpdated });
+    if (!npcs || !gridStateNPCsLastUpdated) return;
+    const parsedNPCTime = new Date(gridStateNPCsLastUpdated);
+    if (isNaN(parsedNPCTime.getTime())) {
+      console.error("Invalid gridStateNPClastUpdated timestamp:", gridStateNPCsLastUpdated);
+      return;
+    }
+    if (parsedNPCTime.getTime() > lastUpdateTimeNPCs) {
+      console.log('⏩ Updating local NPCs:', npcs);
+      setGridState(prevState => ({
+        ...prevState,
+        npcs: npcs,
+        lastUpdateTimeNPCs: parsedNPCTime.toISOString(),
+      }));
+      lastUpdateTimeNPCs = parsedNPCTime.getTime();
+    } else {
+      console.log('⏳ Skipping older NPC update.');
+    }
+  };
+
+  console.log("🧲 Subscribing to PC and NPC sync events for grid:", gridId);
+  socketInstance.on("gridState-sync-PCs", handlePCSync);
+  socketInstance.on("gridState-sync-NPCs", handleNPCSync);
 
   return () => {
-    socket.off('npc-controller-update');
-    socket.off('npc-controller-assigned');
-    socket.off('npc-controller-revoked');
+    console.log("🧹 Unsubscribing from PC and NPC sync events for grid:", gridId);
+    socketInstance.off("gridState-sync-PCs", handlePCSync);
+    socketInstance.off("gridState-sync-NPCs", handleNPCSync);
   };
-}, [socket, gridId, currentPlayer]);
+
+}, [socket, gridId, isMasterResourcesReady]);
 
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
 useEffect(() => {
   console.log("🌐 useEffect for tile-resource-sync running. gridId:", gridId, "socket:", !!socket);
-
   // Wait until masterResources is ready
   if (!gridId || !socket || !isMasterResourcesReady) {
     console.warn('Master Resources not ready or missing gridId/socket.');
     return; // 🛑 Don't process until ready
   }
-
   // listenForResourceSocketEvents(socket, gridId, setResources, setTileTypes, masterResources);
 
   const handleResourceSync = ({ updatedTiles, updatedResources }) => {
@@ -1001,8 +1041,7 @@ useEffect(() => {
     console.warn('Missing gridId or socket.');
     return;
   }
-
-  listenForTileSocketEvents(socket, gridId, setTileTypes, masterResources);
+  // listenForTileSocketEvents(socket, gridId, setTileTypes, masterResources);
 
   const handleTileSync = ({ updatedTiles }) => {
     console.log("🌐 Real-time tile update received!", { updatedTiles });
@@ -1027,6 +1066,45 @@ useEffect(() => {
     socket.off("tile-sync", handleTileSync);
   };
 }, [socket, gridId]);
+
+// Add socket event listeners for NPC controller status
+useEffect(() => {
+  console.log("🌐 useEffect for npc-controller running. gridId:", gridId, "socket:", !!socket);
+
+  if (!socket || !currentPlayer) return;
+
+  // Send username to server when joining grid
+  if (gridId) {
+    socket.emit('set-username', { username: currentPlayer.username });
+  }
+
+  socket.on('npc-controller-update', ({ controllerUsername }) => {
+    setControllerUsername(controllerUsername);
+    setIsNPCController(controllerUsername === currentPlayer.username);
+  });
+
+  socket.on('npc-controller-assigned', ({ gridId: controlledGridId }) => {
+    console.log(`🎮 Assigned as NPC controller for grid ${controlledGridId}`);
+    if (controlledGridId === gridId) {
+      setIsNPCController(true);
+    }
+  });
+
+  socket.on('npc-controller-revoked', ({ gridId: revokedGridId }) => {
+    console.log(`🎮 Revoked as NPC controller for grid ${revokedGridId}`);
+    if (revokedGridId === gridId) {
+      setIsNPCController(false);
+    }
+  });
+
+  return () => {
+    socket.off('npc-controller-update');
+    socket.off('npc-controller-assigned');
+    socket.off('npc-controller-revoked');
+  };
+}, [socket, gridId, currentPlayer]);
+
+
 
 // 🔄 SOCKET LISTENER: Force refresh on season reset
 useEffect(() => {

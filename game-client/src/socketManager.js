@@ -14,14 +14,6 @@ setTimeout(() => {
 
 export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, currentPlayer, setGridState) => {
   console.log('📡 Listening for Socket Events on grid:', gridId);
-  
-  socketInstance.on('connect', () => console.log('✅ SocketInstance connected:', socketInstance.id));
-  socketInstance.on('disconnect', (reason) => console.log('🔌 SocketInstance disconnected:', reason));
-
-  // Optional: listen for a custom "room-joined" event from server confirming join
-  socketInstance.on('room-joined', (data) => {
-    console.log('📥 Received room-joined confirmation:', data);
-  });
 
   const gridState = gridStateManager.getGridState(gridId);
 
