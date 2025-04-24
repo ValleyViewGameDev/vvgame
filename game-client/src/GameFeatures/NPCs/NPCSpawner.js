@@ -22,7 +22,7 @@ async function handleSpawnBehavior(gridId) {
             if (pcsInRange) {
                 console.log(`[Spawner] ${this.type} detected PCs nearby. Transitioning to spawn state.`);
                 this.state = 'spawn';
-                await gridStateManager.saveGridState(gridId);
+                await gridStateManager.saveGridStateNPCs(gridId);
             }
             break;
         }
@@ -32,7 +32,7 @@ async function handleSpawnBehavior(gridId) {
             if (existingNPCs.length >= this.qtycollected) {
                 console.log(`[Spawner] Max ${this.output} reached (${this.qtycollected}). Returning to idle.`);
                 this.state = 'idle';
-                await gridStateManager.saveGridState(gridId);
+                await gridStateManager.saveGridStateNPCs(gridId);
                 return;
             }
 
@@ -44,7 +44,7 @@ async function handleSpawnBehavior(gridId) {
                 await gridStateManager.spawnNPC(gridId, { type: this.output }, npcPosition);
 
                 this.nextspawn = Date.now() + this.speed * 1000;
-                await gridStateManager.saveGridState(gridId);
+                await gridStateManager.saveGridStateNPCs(gridId);
             } else {
                 console.log(`[Spawner] Waiting for next spawn cycle.`);
             }
@@ -53,7 +53,7 @@ async function handleSpawnBehavior(gridId) {
             if (!pcsStillInRange) {
                 console.log(`[Spawner] No PCs nearby. Returning to idle.`);
                 this.state = 'idle';
-                await gridStateManager.saveGridState(gridId);
+                await gridStateManager.saveGridStateNPCs(gridId);
             }
             break;
         }

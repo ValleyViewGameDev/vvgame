@@ -67,7 +67,7 @@ export async function handleNPCClick(
         const currentGrid = gridStateManager.getGridState(currentPlayer.location.g);
         if (currentGrid?.npcs?.[npc.id]) {
           delete currentGrid.npcs[npc.id];
-          gridStateManager.saveGridState(currentPlayer.location.g);
+          gridStateManager.saveGridStateNPCs(currentPlayer.location.g);
           console.log(`✅ NPC ${npc.id} removed from town grid.`);
         }
 
@@ -78,7 +78,7 @@ export async function handleNPCClick(
           position: { x: 1, y: 7 },
           state: 'idle'
         };
-        gridStateManager.saveGridState(currentPlayer.gridId);
+        gridStateManager.saveGridStateNPCs(currentPlayer.gridId);
 
         console.log(`✅ NPC ${npc.id} successfully placed in home grid.`);
         return { type: 'success', message: `NPC moved to your homestead.` };

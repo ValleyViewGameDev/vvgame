@@ -91,7 +91,7 @@ export async function handleAttackOnNPC(npc, currentPlayer, TILE_SIZE, setResour
     FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, npc.position.x, npc.position.y, TILE_SIZE);
 
     npc.hp -= damage;
-    await gridStateManager.saveGridState(gridId);
+    await gridStateManager.saveGridStateNPCs(gridId);
 
     if (npc.hp <= 0) {
         console.log(`NPC ${npc.id} killed.`);
@@ -99,7 +99,7 @@ export async function handleAttackOnNPC(npc, currentPlayer, TILE_SIZE, setResour
 
         try {
             gridStateManager.removeNPC(gridId, npc.id);
-            await gridStateManager.saveGridState(gridId);
+            await gridStateManager.saveGridStateNPCs(gridId);
             console.log(`NPC ${npc.id} successfully removed from grid.`);
 
             // Add the Dead NPC "output" to the grid:

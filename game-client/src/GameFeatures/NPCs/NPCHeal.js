@@ -30,7 +30,7 @@ async function handleHealBehavior(gridId) {
             await this.handleIdleState(tiles, resources, npcs, 5, () => {
                 //console.log(`NPC ${this.id} transitioning to roam state.`);
                 this.state = 'roam'; // Transition to the roam state
-                gridStateManager.saveGridState(gridId); // Save after transition
+                gridStateManager.saveGridStateNPCs(gridId); // Save after transition
             });
 
             break;
