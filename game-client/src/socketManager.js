@@ -6,7 +6,6 @@ const socket = io('https://vvgame-server.onrender.com', {
   autoConnect: false, // Don't connect until explicitly told to
 });
 
-
 // Check connection status after 3 seconds
 setTimeout(() => {
   console.log('⏱️ Delayed check - socket.connected:', socket.connected);
@@ -17,53 +16,40 @@ export const listenForPCandNPCSocketEvents = async (socketInstance, gridId, curr
 
   const gridState = gridStateManager.getGridState(gridId);
 
-  let lastUpdateTimePCs = 0;
   let lastUpdateTimeNPCs = 0;
 
-  // PC sync listener
-  const handlePCSync = ({ pcs, gridStatePCsLastUpdated, emitterId }) => {
-    console.log('📥 Received gridState-sync-PCs event:', { pcs, gridStatePCsLastUpdated });
+  // PC sync listener without timestamp logic
+  const handlePCSync = ({ pcs, emitterId }) => {
+    console.log('📥 Received gridState-sync-PCs event:', { pcs });
     console.log('📥 Emitter ID:', emitterId);
 
-    if (emitterId === socket.id) {
+    // Ignore PC updates sent by self
+    if (emitterId === socketInstance.id) {
       console.log('😀 Ignoring PC sync event from self.');
-      return; // Ignore updates emitted by this client
-    }
-
-    if (!pcs || !gridStatePCsLastUpdated) return;
-
-    const parsedPCTime = new Date(gridStatePCsLastUpdated);
-    if (isNaN(parsedPCTime.getTime())) {
-      console.error("Invalid gridStatePCsLastUpdated timestamp:", gridStatePCsLastUpdated);
       return;
     }
 
-    if (parsedPCTime.getTime() > lastUpdateTimePCs) {
-      const localPlayerId = currentPlayer?._id;
+    const localPlayerId = currentPlayer?._id;
+    // Filter out invalid PCs
+    const validPCs = Object.fromEntries(
+      Object.entries(pcs).filter(([id, pc]) =>
+        pc && pc.position && typeof pc.position.x === 'number' && typeof pc.position.y === 'number'
+      )
+    );
 
-      // Filter out invalid PCs
-      const validPCs = Object.fromEntries(
-        Object.entries(pcs).filter(([id, pc]) => pc && pc.position && typeof pc.position.x === 'number' && typeof pc.position.y === 'number')
-      );
+    const newPCs = {
+      ...validPCs,
+      [localPlayerId]: validPCs[localPlayerId] || pcs[localPlayerId], // Ensure local PC is included
+    };
 
-      const newPCs = {
-        ...validPCs,
-        [localPlayerId]: validPCs[localPlayerId] || pcs[localPlayerId], // Ensure local PC is included
-      };
-
-      console.log('⏩ Updating local PCs with data:', newPCs);
-      setGridState(prevState => ({
-        ...prevState,
-        pcs: newPCs,
-        lastUpdateTimePCs: parsedPCTime.toISOString(),
-      }));
-      lastUpdateTimePCs = parsedPCTime.getTime();
-    } else {
-      console.log('⏳ Skipping older PC update.');
-    }
+    console.log('⏩ Updating local PCs with data:', newPCs);
+    setGridState(prevState => ({
+      ...prevState,
+      pcs: newPCs,
+    }));
   };
 
-  // NPC sync listener
+  // NPC sync listener remains unchanged
   const handleNPCSync = ({ npcs, gridStateNPCsLastUpdated }) => {
     console.log('📥 Received gridState-sync-NPCs event:', { npcs, gridStateNPCsLastUpdated });
     if (!npcs || !gridStateNPCsLastUpdated) return;

@@ -890,54 +890,36 @@ useEffect(() => {
   console.log("  🌐 isMasterResourcesReady = ", isMasterResourcesReady);
 
   if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
-  //listenForPCandNPCSocketEvents(socket, gridId, currentPlayer, setGridState);
 
-  let lastUpdateTimePCs = 0;
-  let lastUpdateTimeNPCs = 0;
-
-  // PC sync listener
-  const handlePCSync = ({ pcs, gridStatePCsLastUpdated, emitterId }) => {
-    console.log('📥 Received gridState-sync-PCs event:', { pcs, gridStatePCsLastUpdated });
+  // PC sync handler without timestamp logic
+  const handlePCSync = ({ pcs, emitterId }) => {
+    console.log('📥 Received gridState-sync-PCs event:', { pcs });
     console.log('📥 Emitter ID:', emitterId);
 
     if (emitterId === socket.id) {
       console.log('😀 Ignoring PC sync event from self.');
-      return; // Ignore updates emitted by this client
+      return; // Ignore updates sent by self
     }
 
-    if (!pcs || !gridStatePCsLastUpdated) return;
-
-    const parsedPCTime = new Date(gridStatePCsLastUpdated);
-    if (isNaN(parsedPCTime.getTime())) {
-      console.error("Invalid gridStatePCsLastUpdated timestamp:", gridStatePCsLastUpdated);
-      return;
-    }
-
-    if (parsedPCTime.getTime() > lastUpdateTimePCs) {
-      const localPlayerId = currentPlayer?._id;
-
-      // Filter out invalid PCs
-      const validPCs = Object.fromEntries(
-        Object.entries(pcs).filter(([id, pc]) => pc && pc.position && typeof pc.position.x === 'number' && typeof pc.position.y === 'number')
-      );
-
-      const newPCs = {
-        ...validPCs,
-        [localPlayerId]: validPCs[localPlayerId] || pcs[localPlayerId], // Ensure local PC is included
-      };
-
-      console.log('⏩ Updating local PCs with data:', newPCs);
-      setGridState(prevState => ({
-        ...prevState,
-        pcs: newPCs,
-        lastUpdateTimePCs: parsedPCTime.toISOString(),
-      }));
-      lastUpdateTimePCs = parsedPCTime.getTime();
-    } else {
-      console.log('⏳ Skipping older PC update.');
-    }
+    const localPlayerId = currentPlayer?._id;
+    // Filter out invalid PC entries
+    const validPCs = Object.fromEntries(
+      Object.entries(pcs).filter(([id, pc]) =>
+        pc && pc.position && typeof pc.position.x === 'number' && typeof pc.position.y === 'number'
+      )
+    );
+    const newPCs = {
+      ...validPCs,
+      [localPlayerId]: validPCs[localPlayerId] || pcs[localPlayerId],
+    };
+    console.log('⏩ Updating local PCs with data:', newPCs);
+    setGridState(prevState => ({
+      ...prevState,
+      pcs: newPCs,
+    }));
   };
-  // NPC sync listener
+
+  // NPC sync handler remains unchanged
   const handleNPCSync = ({ npcs, gridStateNPCsLastUpdated }) => {
     console.log('📥 Received gridState-sync-NPCs event:', { npcs, gridStateNPCsLastUpdated });
     if (!npcs || !gridStateNPCsLastUpdated) return;
