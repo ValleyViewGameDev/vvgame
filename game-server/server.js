@@ -192,7 +192,7 @@ mongoose.connect(process.env.MONGODB_URI, {
           return;
         }
         console.log(`📤 Broadcasting updated PCs for grid ${gridId}`);
-        io.to(gridId).emit('gridState-sync', {
+        io.to(gridId).emit('gridState-sync-PCs', {
           updatedGridState: {
             pcs,
             gridStatePCsLastUpdated,
@@ -207,7 +207,7 @@ mongoose.connect(process.env.MONGODB_URI, {
           return;
         }
         console.log(`📤 Broadcasting updated NPCs for grid ${gridId}`);
-        io.to(gridId).emit('gridState-sync', {
+        io.to(gridId).emit('gridState-sync-NPCs', {
           updatedGridState: {
             npcs,
             gridStateNPCsLastUpdated,
