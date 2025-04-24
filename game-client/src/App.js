@@ -3,7 +3,7 @@ import './VFX/VFX.css';
 import API_BASE from './config.js';  
 import axios from 'axios';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
-import socket, { listenForPCandNPCSocketEvents, listenForResourceSocketEvents, listenForTileSocketEvents } from './socketManager';
+import socket from './socketManager';
 import NPC from './GameFeatures/NPCs/NPCs';
 import { initializeGrid, postLoginInitialization } from './AppInit';
 import { loadMasterSkills, loadMasterResources } from './Utils/TuningManager';

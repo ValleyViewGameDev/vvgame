@@ -116,6 +116,14 @@ export const changePlayerLocation = async (
   setGridState,
   TILE_SIZE,
 ) => {
+  // DEBUG: Log input parameters for changePlayerLocation
+  console.log('changePlayerLocation called with:', {
+    currentPlayer,
+    fromLocation,
+    toLocation,
+    TILE_SIZE,
+    // ...other setters omitted for brevity...
+  });
   try {
     console.log('🔄 changePlayerLocation called');
     console.log('FROM:', { grid: fromLocation.g, type: fromLocation.gtype });

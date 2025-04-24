@@ -130,6 +130,7 @@ class GridStateManager {
    * Spawn a new NPC and immediately save the updated gridState to the DB.
    */
   async spawnNPC(gridId, npcType, position) {
+    // DEBUG: Log input parameters for spawnNPC
     console.log('spawnNPC called with:', { gridId, npcType, position });
     if (typeof npcType === 'object' && npcType?.type) {
       npcType = npcType.type; // Extract the type string
