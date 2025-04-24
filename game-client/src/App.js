@@ -862,6 +862,7 @@ useEffect(() => {
       setGridState((prevState) => ({
         ...prevState,
         pcs: newPCs,
+        PClastUpdated: updatedGridState.gridStatePCsLastUpdated, // Update PC timestamp
       }));
 
       lastUpdateTimePCs = updatedGridState.gridStatePCsLastUpdated;
@@ -905,6 +906,7 @@ useEffect(() => {
       setGridState((prevState) => ({
         ...prevState,
         npcs: hydratedNPCs,
+        NPClastUpdated: updatedGridState.gridStateNPCsLastUpdated, // Update NPC timestamp
       }));
 
       lastUpdateTimeNPCs = updatedGridState.gridStateNPCsLastUpdated;
