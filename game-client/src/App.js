@@ -897,7 +897,6 @@ useEffect(() => {
 
   let lastUpdateTimePCs = 0;
 
-  // PC sync listener
   const handlePCSync = ({ pcs, gridStatePCsLastUpdated, emitterId }) => {
     console.log('📥 Received gridState-sync-PCs event:', { pcs, gridStatePCsLastUpdated });
     console.log('📥 Emitter ID:', emitterId);
@@ -906,11 +905,17 @@ useEffect(() => {
       console.log('😀 Ignoring PC sync event from self.');
       return; // Ignore updates emitted by this client
     }
-    console.log('⏩ Updating local PCs with data:', pcs);
-    setGridState(prevState => ({
-      ...prevState,
-      pcs: pcs,
-    }));
+
+    // Compare incoming timestamp with the locally saved one
+    setGridState(prevState => {
+      const localTimestamp = prevState.gridStatePCsLastUpdated || 0;
+      if (gridStatePCsLastUpdated <= localTimestamp) {
+        console.log('⏳ Skipping PC sync update due to older timestamp.');
+        return prevState;
+      }
+      console.log('⏩ Updating local PCs with newer data:', pcs);
+      return { ...prevState, pcs: pcs, gridStatePCsLastUpdated };
+    });
   };
 
   console.log("🧲 Subscribing to PC sync events for grid:", gridId);
