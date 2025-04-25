@@ -12,6 +12,14 @@ import DynamicRenderer from './RenderDynamic';
 import { handleResourceClick } from './ResourceClicking';
 import { fetchHomesteadOwner } from './Utils/worldHelpers';
 
+import { socketListenForPCJoinAndLeave,
+  socketListenForPCstateChanges,
+  socketListenForNPCStateChanges,
+  socketListenForResourceChanges,
+  socketListenForTileChanges,
+  socketListenForNPCControllerStatus,
+  socketListenForSeasonReset } from './socketManager';
+
 import farmState from './FarmState';
 import gridStateManager from './GridState/GridState';
 import GlobalGridState from './GridState/GlobalGridState'; // Adjust the path if needed
@@ -836,10 +844,12 @@ useEffect(() => {
 
 /////////// SOCKET LISTENER /////////////////////////
 
+
 // 🔄 SOCKET LISTENER: Real-time updates for PC join and leave
 useEffect(() => {
-  console.log("🌐 useEffect for PC join & leave running. gridId:", gridId, "socket:", !!socket);
-  console.log("  🌐 isMasterResourcesReady = ", isMasterResourcesReady);
+
+  //ocketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setGridState);
+
 
   if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
 
@@ -901,6 +911,9 @@ useEffect(() => {
 
 // 🔄 SOCKET LISTENER: PCs: Real-time updates for GridState (PC sync)
 useEffect(() => {
+
+  //socketListenForPCstateChanges(gridId, currentPlayer, setGridState, localPlayerMoveTimestampRef);
+
   console.log("🌐🌐🌐🌐🌐🌐 useEffect for PC & NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
 
   if (!gridId) return;
@@ -961,6 +974,9 @@ useEffect(() => {
 
 // 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
 useEffect(() => {
+
+  //socketListenForNPCStateChanges(gridId, setGridState);
+
   console.log("🌐 useEffect for NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
   if (!gridId) return;
   let lastUpdateTimeNPCs = 0;
@@ -1000,6 +1016,9 @@ useEffect(() => {
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
 useEffect(() => {
+
+  //socketListenForResourceChanges(gridId, isMasterResourcesReady, setResources, masterResources, enrichResourceFromMaster);
+
   console.log("🌐 useEffect for tile-resource-sync running. gridId:", gridId, "socket:", !!socket);
   // Wait until masterResources is ready
   if (!gridId || !socket || !isMasterResourcesReady) {
@@ -1061,6 +1080,9 @@ useEffect(() => {
 
 // 🔄 SOCKET LISTENER: Real-time updates for tiles
 useEffect(() => {
+
+  //socketListenForTileChanges(gridId, setTileTypes, mergeTiles);
+
   console.log("🌐 useEffect for tile-sync running. gridId:", gridId, "socket:", !!socket);
 
   if (!gridId || !socket) {
@@ -1095,6 +1117,9 @@ useEffect(() => {
 
 // Add socket event listeners for NPC controller status
 useEffect(() => {
+
+  //socketListenForNPCControllerStatus(gridId, currentPlayer, setControllerUsername, setIsNPCController);
+
   console.log("🌐 useEffect for npc-controller running. gridId:", gridId, "socket:", !!socket);
 
   if (!socket || !currentPlayer) return;
@@ -1134,6 +1159,9 @@ useEffect(() => {
 
 // 🔄 SOCKET LISTENER: Force refresh on season reset
 useEffect(() => {
+
+  //socketListenForSeasonReset();
+
   if (!socket) return;
 
   socket.on("force-refresh", ({ reason }) => {
