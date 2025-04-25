@@ -170,7 +170,16 @@ router.post('/get-multiple-grid-states', async (req, res) => {
     
     // Create a map of gridId to gridState
     const gridStates = grids.reduce((acc, grid) => {
-      acc[grid._id] = grid.gridState || {};
+      acc[grid._id] = {
+        gridStatePCs: {
+          pcs: Object.fromEntries(grid.gridStatePCs || []),
+          lastUpdated: grid.gridStatePCsLastUpdated || null
+        },
+        gridStateNPCs: {
+          npcs: Object.fromEntries(grid.gridStateNPCs || []),
+          lastUpdated: grid.gridStateNPCsLastUpdated || null
+        }
+      };
       return acc;
     }, {});
     

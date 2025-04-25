@@ -142,16 +142,15 @@ const SettlementView = ({
     }
   };
 
-  // Update the tooltip generation logic
   const getTooltip = (tile) => {
     if (!tile.gridId) return '';
     const gridState = gridStates[tile.gridId];
-    const pcs = gridState?.pcs;
-
+    const pcs = gridState?.gridStatePCs?.pcs;
+  
     if (!pcs || Object.keys(pcs).length === 0) {
       return '';
     }
-
+  
     return Object.values(pcs)
       .map(pc => `${pc.username || 'Unknown'}: ${pc.hp || 0} HP`)
       .join('\n');
