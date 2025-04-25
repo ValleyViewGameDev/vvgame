@@ -892,26 +892,44 @@ useEffect(() => {
 
   if (!gridId) return;
 
-  let lastUpdateTimePCs = 0;
-
   const handlePCSync = ({ pcs, gridStatePCsLastUpdated, emitterId }) => {
     console.log('📥 Received gridState-sync-PCs event:', { pcs, gridStatePCsLastUpdated });
     console.log('📥 Emitter ID:', emitterId);
 
     if (emitterId === socket.id) {
       console.log('😀 Ignoring PC sync event from self.');
-      return; // Ignore updates emitted by this client
+      return;
     }
 
-    // Compare incoming timestamp with the locally saved one
+    // Assume only a single PC is sent per update.
+    const [playerId, incomingPC] = Object.entries(pcs)[0];
+    const incomingTime = incomingPC?.lastUpdated || gridStatePCsLastUpdated;
+
     setGridState(prevState => {
-      const localTimestamp = prevState.gridStatePCsLastUpdated || 0;
-      if (gridStatePCsLastUpdated <= localTimestamp) {
-        console.log('⏳ Skipping PC sync update due to older timestamp.');
-        return prevState;
+      const localPC = prevState.pcs?.[playerId];
+      const localTime = localPC?.lastUpdated || 0;
+
+      if (currentPlayer && playerId === String(currentPlayer._id)) {
+        if (localPlayerMoveTimestampRef.current > incomingTime) {
+          console.log(`⏳ Skipping local PC (${playerId}) update; local movement is newer.`);
+          return prevState;
+        }
       }
-      console.log('⏩ Updating local PCs with newer data:', pcs);
-      return { ...prevState, pcs: pcs, gridStatePCsLastUpdated };
+
+      if (incomingTime > localTime) {
+        console.log(`⏩ Updating PC ${playerId} from socket event.`);
+        return {
+          ...prevState,
+          pcs: {
+            ...prevState.pcs,
+            [playerId]: incomingPC,
+          },
+          gridStatePCsLastUpdated: incomingTime,
+        };
+      }
+
+      console.log(`⏳ Skipping stale update for PC ${playerId}.`);
+      return prevState;
     });
   };
 
@@ -922,8 +940,7 @@ useEffect(() => {
     console.log("🧹 Unsubscribing from PC sync events for grid:", gridId);
     socket.off("gridState-sync-PCs", handlePCSync);
   };
-
-}, [socket, gridId]);
+}, [socket, gridId, currentPlayer]);
 
 
 // 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
@@ -1115,6 +1132,8 @@ useEffect(() => {
 
 /////////// HANDLE KEY MOVEMENT /////////////////////////
 
+const localPlayerMoveTimestampRef = useRef(0);
+
 useEffect(() => {
     const handleKeyDown = (event) => {
 
@@ -1146,13 +1165,15 @@ useEffect(() => {
         isMoving,
         setIsMoving,
       );
+
+      localPlayerMoveTimestampRef.current = Date.now();
     };
   
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [currentPlayer, resources, activeTileSize, gridState, masterResources, activeModal]);
+  }, [currentPlayer, masterResources, activeTileSize, isMoving, activeModal]);
 
 
 /////////// HANDLE ZOOMING & RESIZING /////////////////////////

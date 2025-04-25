@@ -42,6 +42,38 @@ router.post('/save-grid-state-pcs', async (req, res) => {
   }
 });
 
+// Dedicated route: save a single PC to gridStatePCs
+router.post('/save-single-pc', async (req, res) => {
+  const { gridId, playerId, pc, lastUpdated } = req.body;
+
+  try {
+    if (!gridId || !playerId || !pc || !lastUpdated) {
+      return res.status(400).json({ error: 'gridId, playerId, pc, and lastUpdated are required.' });
+    }
+
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found.' });
+    }
+
+    // Ensure gridStatePCs is a Map
+    const pcs = new Map(grid.gridStatePCs || []);
+    pcs.set(playerId, pc);
+    grid.gridStatePCs = pcs;
+
+    // Optionally update global PC timestamp
+    grid.gridStatePCsLastUpdated = new Date(lastUpdated);
+
+    await grid.save();
+
+    console.log(`✅ Single PC ${playerId} saved for gridId: ${gridId}`);
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('❌ Error saving single PC:', error);
+    res.status(500).json({ error: 'Failed to save single PC.' });
+  }
+});
+
 // Dedicated route: save only NPCs without altering PCs
 router.post('/save-grid-state-npcs', async (req, res) => {
   const { gridId, npcs, gridStateNPCsLastUpdated } = req.body;

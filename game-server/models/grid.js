@@ -29,7 +29,8 @@ const GridSchema = new mongoose.Schema({
       hp: { type: Number, default: 0 },
       maxhp: { type: Number, default: 0 },
       grazeEnd: { type: Number },
-      lastMoveTime: { type: Number }
+      lastMoveTime: { type: Number },
+      lastUpdated: { type: Date, default: Date.now }
     }),
     default: {}
   },
@@ -60,7 +61,8 @@ const GridSchema = new mongoose.Schema({
       damage: { type: Number, required: true },
       attackrange: { type: Number, required: true },
       speed: { type: Number, required: true },
-      iscamping: { type: Boolean, default: false }
+      iscamping: { type: Boolean, default: false },
+      lastUpdated: { type: Date, default: Date.now }
     }),
     default: {}
   },

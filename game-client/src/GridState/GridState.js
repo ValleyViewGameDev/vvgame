@@ -292,11 +292,45 @@ class GridStateManager {
       console.error(`Cannot update PC ${playerId}. No gridState or PC found for gridId: ${gridId}`);
       return;
     }
-    // Merge the new properties into the existing PC data
-    Object.assign(gridState.pcs[playerId], newProperties);
-    console.log(`PC ${playerId} updated in gridState for gridId ${gridId}:`, gridState.pcs[playerId]);
-    // Save the updated gridState to the database
-    this.saveGridStatePCs(gridId);
+
+    const now = Date.now();
+    const updatedPC = {
+      ...gridState.pcs[playerId],
+      ...newProperties,
+      lastUpdated: now,
+    };
+
+    gridState.pcs[playerId] = updatedPC;
+
+    // Save only this PC to the server (you'll need to implement this route)
+    axios.post(`${API_BASE}/api/save-single-pc`, {
+      gridId,
+      playerId,
+      pc: updatedPC,
+      lastUpdated: now,
+    }).then(() => {
+      console.log(`✅ Saved single PC ${playerId} to server.`);
+    }).catch((error) => {
+      console.error(`❌ Failed to save single PC ${playerId}:`, error);
+    });
+
+    // Emit only this PC
+    if (socket && socket.emit) {
+      socket.emit('update-gridState-PCs', {
+        gridId,
+        pcs: { [playerId]: updatedPC },
+        gridStatePCsLastUpdated: now,
+      });
+    }
+
+    // Update local state for React reactivity
+    setGridStateExternally({
+      ...gridState,
+      pcs: {
+        ...gridState.pcs,
+        [playerId]: updatedPC,
+      },
+    });
   }
 
   /**

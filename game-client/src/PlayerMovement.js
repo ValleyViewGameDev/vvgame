@@ -119,8 +119,8 @@ function movePlayerSmoothly(playerId, target, gridState, gridId, TILE_SIZE) {
       // Update local grid state with the final position
       gridState.pcs[playerId].position = finalPosition;
       // Save updated grid state to the server
-      console.log('Player Movement: About to save gridState with gridId: ',gridId);
-      gridStateManager.saveGridStatePCs(gridId);
+      console.log('Player Movement: About to call updatePC with gridId: ',gridId,'; playerID: ',playerId,'; finalPosition: ',finalPosition);
+      gridStateManager.updatePC(gridId, playerId, { position: finalPosition });
 
       // ✅ Center camera on player after final position is set
       centerCameraOnPlayer(finalPosition, TILE_SIZE);
