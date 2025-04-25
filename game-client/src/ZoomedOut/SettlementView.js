@@ -146,12 +146,13 @@ const SettlementView = ({
   const getTooltip = (tile) => {
     if (!tile.gridId) return '';
     const gridState = gridStates[tile.gridId];
-  
-    if (!gridState?.pcs || Object.keys(gridState.pcs).length === 0) {
+    const pcs = gridState?.gridStatePCs?.pcs;
+
+    if (!pcs || Object.keys(pcs).length === 0) {
       return '';
     }
-    
-    return Object.values(gridState.pcs)
+
+    return Object.values(pcs)
       .map(pc => `${pc.username || 'Unknown'}: ${pc.hp || 0} HP`)
       .join('\n');
   };
