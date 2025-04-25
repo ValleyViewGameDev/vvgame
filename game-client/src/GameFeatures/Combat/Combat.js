@@ -145,25 +145,27 @@ export async function handleAttackOnNPC(npc, currentPlayer, TILE_SIZE, setResour
 
 
 export async function handleAttackOnPC(pc, currentPlayer, gridId, TILE_SIZE) {
-    
-    // Translate currentPlayer to pc from gridState.pcs
-    const playerId = currentPlayer._id.toString();  // Convert ObjectId to string for matching
-    const gridState = gridStateManager.getGridState(gridId);
-    const player = gridState?.pcs[playerId];
-    if (!player) {
-        console.error('Player not found in gridState.');
-        return;
-    }
+  const playerId = currentPlayer._id.toString();  // Convert ObjectId to string for matching
+  const gridState = gridStateManager.getGridState(gridId);
+  const player = gridState?.pcs[playerId];
+  if (!player) {
+    console.error('Player not found in gridState.');
+    return;
+  }
 
-    if (!checkRange(player, pc, TILE_SIZE)) return;
-    if (!isAHit(player, pc, TILE_SIZE)) return;
+  if (!checkRange(player, pc, TILE_SIZE)) return;
+  if (!isAHit(player, pc, TILE_SIZE)) return;
 
-    const damage = calculateDamage(player, gridId);
-    FloatingTextManager.addFloatingText(`- ${damage} HP`, pc.position.x, pc.position.y, TILE_SIZE);
+  const damage = calculateDamage(player, gridId);
+  FloatingTextManager.addFloatingText(`- ${damage} HP`, pc.position.x, pc.position.y, TILE_SIZE);
 
-    pc.hp -= damage;
-    if (pc.hp <= 0) {
-        console.log(`PC ${pc.playerId} defeated.`);
-        FloatingTextManager.addFloatingText(504, pc.position.x, pc.position.y+1, TILE_SIZE);
-    }
+  pc.hp -= damage;
+
+  // 🆕 Update the PC's HP properly via updatePC
+  gridStateManager.updatePC(gridId, pc.playerId, { hp: pc.hp });
+
+  if (pc.hp <= 0) {
+    console.log(`PC ${pc.playerId} defeated.`);
+    FloatingTextManager.addFloatingText(504, pc.position.x, pc.position.y+1, TILE_SIZE);
+  }
 }
