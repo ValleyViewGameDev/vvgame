@@ -208,11 +208,16 @@ export const changePlayerLocation = async (
       await axios.post(`${API_BASE}/api/save-grid-state-pcs`, toPayload);
 
       // Emit AFTER saving to DB
+      const now = Date.now();
+
       socket.emit('player-joined-grid', {
         gridId: toLocation.g,
         playerId: currentPlayer.playerId,
         username: currentPlayer.username,
-        playerData: toPCs[currentPlayer.playerId],
+        playerData: {
+          ...toPCs[currentPlayer.playerId],
+          lastUpdated: now,
+        },
       });
       console.log(`📢 Emitted player-joined-grid for ${toLocation.g}`);
     }
