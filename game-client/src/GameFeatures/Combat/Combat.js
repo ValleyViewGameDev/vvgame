@@ -162,6 +162,7 @@ export async function handleAttackOnPC(pc, currentPlayer, gridId, TILE_SIZE) {
   pc.hp -= damage;
 
   // 🆕 Update the PC's HP properly via updatePC
+  console.log('📢 Calling updatePC after reducing HP; current HP:', pc.hp);
   gridStateManager.updatePC(gridId, pc.playerId, { hp: pc.hp });
 
   if (pc.hp <= 0) {

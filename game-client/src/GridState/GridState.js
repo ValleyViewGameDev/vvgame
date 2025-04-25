@@ -287,6 +287,7 @@ class GridStateManager {
   }
 
   updatePC(gridId, playerId, newProperties) {
+    console.log('😀 updatePC called; newProperties = ',newProperties);
     const gridState = this.getGridState(gridId);
     if (!gridState || !gridState.pcs?.[playerId]) {
       console.error(`Cannot update PC ${playerId}. No gridState or PC found for gridId: ${gridId}`);
@@ -303,6 +304,7 @@ class GridStateManager {
     gridState.pcs[playerId] = updatedPC;
 
     // Save only this PC to the server (you'll need to implement this route)
+    console.log('😀 updatePC calling api/save-single-pc');
     axios.post(`${API_BASE}/api/save-single-pc`, {
       gridId,
       playerId,
@@ -315,6 +317,7 @@ class GridStateManager {
     });
 
     // Emit only this PC
+    console.log('📢 updatePC emitting updated PC ');
     if (socket && socket.emit) {
       socket.emit('update-gridState-PCs', {
         gridId,
@@ -345,7 +348,7 @@ class GridStateManager {
         console.warn(`⚠️ No PCs to save for grid ${gridId}`);
         return;
       }
-      
+
       // Update local PC timestamp using consistent naming for server
       gridState.gridStatePCsLastUpdated = Date.now();
       

@@ -146,7 +146,7 @@ const SettlementView = ({
   const getTooltip = (tile) => {
     if (!tile.gridId) return '';
     const gridState = gridStates[tile.gridId];
-    const pcs = gridState?.gridStatePCs?.pcs;
+    const pcs = gridState?.pcs;
 
     if (!pcs || Object.keys(pcs).length === 0) {
       return '';
