@@ -324,13 +324,14 @@ class GridStateManager {
     }
 
     // Update local state for React reactivity
-    setGridStateExternally({
-      ...gridState,
+    setGridStateExternally(prevState => ({
+      ...prevState,
       pcs: {
-        ...gridState.pcs,
+        ...prevState.pcs,
         [playerId]: updatedPC,
       },
-    });
+      gridStatePCsLastUpdated: now,
+    }));
   }
 
   /**
