@@ -146,18 +146,11 @@ export const changePlayerLocation = async (
         delete fromPCs[currentPlayer.playerId];
       }
 
-      // Construct the payload
-      const fromPayload = {
+      console.log('📤 Calling /remove-single-pc route to remove player from grid...');
+      await axios.post(`${API_BASE}/api/remove-single-pc`, {
         gridId: fromLocation.g,
-        pcs: fromPCs, // Ensure `pcs` is properly structured
-        gridStatePCsLastUpdated: new Date().toISOString(),
-      };
-
-      console.log('📤 Constructed Payload for removing player: ', fromPayload);
-
-      // Save the updated PCs to the server
-      console.log('SAVE FROM; Saving that payload to the DB using save-grid-state-pcs...');
-      await axios.post(`${API_BASE}/api/save-grid-state-pcs`, fromPayload);
+        playerId: currentPlayer.playerId,
+      });
 
       // Emit AFTER saving to DB
       socket.emit('player-left-grid', {
@@ -183,7 +176,7 @@ export const changePlayerLocation = async (
 
       const stamp = Date.now();
 
-      // Add the player to the `pcs` object
+      // Add the player to the `pcs` object`
       console.log('Adding player to the toPCs object')
       toPCs[currentPlayer.playerId] = {
         playerId: currentPlayer.playerId,

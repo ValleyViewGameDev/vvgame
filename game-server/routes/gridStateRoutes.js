@@ -75,6 +75,37 @@ router.post('/save-single-pc', async (req, res) => {
   }
 });
 
+// Dedicated route: remove a single PC from gridStatePCs
+router.post('/remove-single-pc', async (req, res) => {
+  const { gridId, playerId } = req.body;
+
+  try {
+    if (!gridId || !playerId) {
+      return res.status(400).json({ error: 'gridId and playerId are required.' });
+    }
+
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found.' });
+    }
+
+    const pcs = new Map(grid.gridStatePCs || []);
+    pcs.delete(playerId);
+    grid.gridStatePCs = pcs;
+
+    // Optionally update global PC timestamp
+    grid.gridStatePCsLastUpdated = new Date();
+
+    await grid.save();
+
+    console.log(`🗑️ Removed PC ${playerId} from gridId: ${gridId}`);
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('❌ Error removing single PC:', error);
+    res.status(500).json({ error: 'Failed to remove single PC.' });
+  }
+});
+
 // Dedicated route: save only NPCs without altering PCs
 router.post('/save-grid-state-npcs', async (req, res) => {
   const { gridId, npcs, gridStateNPCsLastUpdated } = req.body;
