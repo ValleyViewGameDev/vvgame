@@ -877,10 +877,21 @@ useEffect(() => {
   console.log("🧲 [gridState join/leave] Subscribing to PC and NPC join/leave sync events for grid:", gridId);
   socket.on('player-joined-sync', handlePlayerJoinedGrid);
   socket.on('player-left-sync', handlePlayerLeftGrid);
+  socket.on('current-grid-players', ({ gridId, pcs }) => {
+    console.log(`📦 Received current PCs for grid ${gridId}:`, pcs);
+    setGridState(prev => ({
+      ...prev,
+      pcs: {
+        ...prev.pcs,
+        ...pcs,
+      },
+    }));
+  });
 
   return () => {
     socket.off('player-joined-sync', handlePlayerJoinedGrid);
     socket.off('player-left-sync', handlePlayerLeftGrid);
+    socket.off('current-grid-players');
   };
 
 }, [socket, gridId, isMasterResourcesReady]);

@@ -104,10 +104,17 @@ mongoose.connect(process.env.MONGODB_URI, {
         });
       });
       
-      socket.on('join-grid', (gridId) => {
+      socket.on('join-grid', async (gridId) => {
         console.log(`📡 Socket ${socket.id} joined grid room: ${gridId}`);
-        socket.join(gridId);
-        
+        socket.join(gridId);        
+        try {
+          const gridDoc = await Grid.findById(gridId);
+          const pcs = gridDoc?.gridStatePCs || {};
+          socket.emit('current-grid-players', { gridId, pcs });
+          console.log(`📦 Sent current PCs in grid ${gridId} to ${socket.id}`);
+        } catch (error) {
+          console.error(`❌ Failed to fetch grid PCs for grid ${gridId}:`, error);
+        }
         // If no controller exists for this grid, assign this socket
         if (!gridControllers.has(gridId)) {
           gridControllers.set(gridId, { socketId: socket.id, username: socket.username });
