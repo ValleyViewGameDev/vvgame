@@ -137,7 +137,7 @@ export const changePlayerLocation = async (
       console.log('fromGridResponse.data: ', fromGridResponse.data);
 
       // Extract gridStatePCs and ensure it is properly structured
-      const fromPCs = fromGridResponse.data?.pcs || {};
+      const fromPCs = fromGridResponse.data?.gridStatePCs?.pcs || {};
       console.log('Extracted fromPCs out of the gridState we just loaded; fromPCs = ', fromPCs);
 
       // Remove the player from the `pcs` object
@@ -171,14 +171,14 @@ export const changePlayerLocation = async (
       console.log('toGridResponse.data: ', toGridResponse.data);
 
       // Extract gridStatePCs and ensure it is properly structured
-      const toPCs = toGridResponse.data?.pcs || {};
+      const toPCs = toGridResponse.data?.gridStatePCs?.pcs || {};
       console.log('Extracted toPCs from what we just loaded; toPCs = ', toPCs);
 
-      const stamp = Date.now();
+      const now = Date.now();
 
       // Add the player to the `pcs` object`
       console.log('Adding player to the toPCs object')
-      toPCs[currentPlayer.playerId] = {
+      const playerData = {
         playerId: currentPlayer.playerId,
         type: 'pc',
         username: currentPlayer.username,
@@ -192,34 +192,27 @@ export const changePlayerLocation = async (
         speed: currentPlayer.speed || 1,
         attackrange: currentPlayer.attackrange || 1,
         iscamping: currentPlayer.iscamping || false,
-
-        // MISSING THE TIMESTAMP HERE !!!!!
-        // lastUpdated: stamp,
+        lastUpdated: now,
       };
 
       // Construct the payload
       const toPayload = {
         gridId: toLocation.g,
-        pcs: toPCs, // Ensure `pcs` is properly structured
-        gridStatePCsLastUpdated: new Date().toISOString(),
+        playerId: currentPlayer.playerId,
+        pc: playerData,
+        lastUpdated: now,
       };
       console.log('📤 Constructed Payload for adding player:', toPayload);
 
-      // Save the updated PCs to the server
-      console.log('SAVE TO;  Saving that payload to the DB using save-grid-state-pcs...');
-      await axios.post(`${API_BASE}/api/save-grid-state-pcs`, toPayload);
-
-      // Emit AFTER saving to DB
-      const now = Date.now();
+      // ✅ Save only this PC to DB
+      console.log('📤 Saving single PC to grid...');
+      await axios.post(`${API_BASE}/api/save-single-pc`, toPayload);
 
       socket.emit('player-joined-grid', {
         gridId: toLocation.g,
         playerId: currentPlayer.playerId,
         username: currentPlayer.username,
-        playerData: {
-          ...toPCs[currentPlayer.playerId],
-          lastUpdated: now,
-        },
+        playerData,
       });
       console.log(`📢 Emitted player-joined-grid for ${toLocation.g}`);
     }
