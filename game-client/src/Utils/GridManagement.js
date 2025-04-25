@@ -129,17 +129,19 @@ export const changePlayerLocation = async (
     console.log('FROM:', { grid: fromLocation.g, type: fromLocation.gtype });
     console.log('TO:', { grid: toLocation.g, type: toLocation.gtype });
 
-    // 1. Update FROM grid's state (remove player)
+// 1. Update FROM grid's state (remove player)
     if (fromLocation.g) {
       console.log(`1️⃣ Removing player from grid ${fromLocation.g}`);
+      console.log('loading gridState from db...');
       const fromGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${fromLocation.g}`);
-      console.log('fromGridResponse.data:', fromGridResponse.data);
+      console.log('fromGridResponse.data: ', fromGridResponse.data);
 
       // Extract gridStatePCs and ensure it is properly structured
       const fromPCs = fromGridResponse.data?.pcs || {};
-      console.log('Extracted fromPCs:', fromPCs);
+      console.log('Extracted fromPCs out of the gridState we just loaded; fromPCs = ', fromPCs);
 
       // Remove the player from the `pcs` object
+      console.log('Removing player from the fromPCs.');
       if (fromPCs[currentPlayer.playerId]) {
         delete fromPCs[currentPlayer.playerId];
       }
@@ -151,9 +153,10 @@ export const changePlayerLocation = async (
         gridStatePCsLastUpdated: new Date().toISOString(),
       };
 
-      console.log('📤 Payload for removing player:', fromPayload);
+      console.log('📤 Constructed Payload for removing player: ', fromPayload);
 
       // Save the updated PCs to the server
+      console.log('SAVE FROM; Saving that payload to the DB using save-grid-state-pcs...');
       await axios.post(`${API_BASE}/api/save-grid-state-pcs`, fromPayload);
 
       // Emit AFTER saving to DB
@@ -162,23 +165,26 @@ export const changePlayerLocation = async (
         playerId: currentPlayer.playerId,
         username: currentPlayer.username,
       });
-      console.log(`📢 Emitted player-left-grid for ${fromLocation.g}`);
+      console.log(`📢 Emitted [player-left-grid] for ${fromLocation.g}`);
     }
-
       socket.emit('leave-grid', fromLocation.g);
-      console.log(`📡 Emitted leave-grid for grid: ${fromLocation.g}`);
+      console.log(`📢 Emitted [leave-grid] for grid: ${fromLocation.g}`);
       
-    // 2. Update TO grid's state (add player)
+// 2. Update TO grid's state (add player)
     if (toLocation.g) {
       console.log(`2️⃣ Adding player to grid ${toLocation.g}`);
+      console.log('loading gridState from db...');
       const toGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${toLocation.g}`);
-      console.log('toGridResponse.data:', toGridResponse.data);
+      console.log('toGridResponse.data: ', toGridResponse.data);
 
       // Extract gridStatePCs and ensure it is properly structured
       const toPCs = toGridResponse.data?.pcs || {};
-      console.log('Extracted toPCs:', toPCs);
+      console.log('Extracted toPCs from what we just loaded; toPCs = ', toPCs);
+
+      const stamp = Date.now();
 
       // Add the player to the `pcs` object
+      console.log('Adding player to the toPCs object')
       toPCs[currentPlayer.playerId] = {
         playerId: currentPlayer.playerId,
         type: 'pc',
@@ -193,6 +199,9 @@ export const changePlayerLocation = async (
         speed: currentPlayer.speed || 1,
         attackrange: currentPlayer.attackrange || 1,
         iscamping: currentPlayer.iscamping || false,
+
+        // MISSING THE TIMESTAMP HERE !!!!!
+        // lastUpdated: stamp,
       };
 
       // Construct the payload
@@ -201,10 +210,10 @@ export const changePlayerLocation = async (
         pcs: toPCs, // Ensure `pcs` is properly structured
         gridStatePCsLastUpdated: new Date().toISOString(),
       };
-
-      console.log('📤 Payload for adding player:', toPayload);
+      console.log('📤 Constructed Payload for adding player:', toPayload);
 
       // Save the updated PCs to the server
+      console.log('SAVE TO;  Saving that payload to the DB using save-grid-state-pcs...');
       await axios.post(`${API_BASE}/api/save-grid-state-pcs`, toPayload);
 
       // Emit AFTER saving to DB
@@ -222,7 +231,7 @@ export const changePlayerLocation = async (
       console.log(`📢 Emitted player-joined-grid for ${toLocation.g}`);
     }
 
-    // 3. Update player location in DB
+// 3. Update player location in player record on the DB
     console.log('3️⃣ Updating player location...');
     const locationResponse = await axios.post(`${API_BASE}/api/update-player-location`, {
       playerId: currentPlayer.playerId,
@@ -235,7 +244,7 @@ export const changePlayerLocation = async (
     console.log('✅ Player location updated in DB');
 
     // 4. Update local state
-    console.log('4️⃣ Updating local state...');
+    console.log('4️⃣ Updating local Player Document...');
     const updatedPlayer = {
       ...currentPlayer,
       location: toLocation,
@@ -245,10 +254,12 @@ export const changePlayerLocation = async (
     localStorage.setItem('player', JSON.stringify(updatedPlayer));
 
     // 5. Change grid context & fetch new grid data
-    console.log('5️⃣ Initializing new grid and gridState...');
+    console.log('5️⃣ Calling setGridId...');
     setGridId(toLocation.g);
+    // WHAT does this ^^ do?
 
     // Run these in parallel
+    console.log('!! Running initializeGrid, initializeGridState, and setGridState');
     await Promise.all([
       initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes),
       (async () => {
@@ -258,10 +269,10 @@ export const changePlayerLocation = async (
         console.log('✅ GridState initialized with:', freshGridState);
       })(),
     ]);
-
     console.log('✅ New grid fully initialized');
 
     // Ensure the client joins the new grid room
+    // Is this placed correctly?
     socket.emit('join-grid', toLocation.g);
     console.log(`📡 Emitted join-grid for grid: ${toLocation.g}`);
 

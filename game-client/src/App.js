@@ -874,10 +874,7 @@ useEffect(() => {
     });
   };
 
-  console.log("🧲 [gridState join/leave] Subscribing to PC and NPC join/leave sync events for grid:", gridId);
-  socket.on('player-joined-sync', handlePlayerJoinedGrid);
-  socket.on('player-left-sync', handlePlayerLeftGrid);
-  socket.on('current-grid-players', ({ gridId, pcs }) => {
+  const handleCurrentGridPlayers = ({ gridId, pcs }) => {
     console.log(`📦 Received current PCs for grid ${gridId}:`, pcs);
     setGridState(prev => ({
       ...prev,
@@ -886,12 +883,17 @@ useEffect(() => {
         ...pcs,
       },
     }));
-  });
+  };
+
+  console.log("🧲 [gridState join/leave] Subscribing to PC and NPC join/leave sync events for grid:", gridId);
+  socket.on('player-joined-sync', handlePlayerJoinedGrid);
+  socket.on('player-left-sync', handlePlayerLeftGrid);
+  socket.on('current-grid-players', handleCurrentGridPlayers);
 
   return () => {
     socket.off('player-joined-sync', handlePlayerJoinedGrid);
     socket.off('player-left-sync', handlePlayerLeftGrid);
-    socket.off('current-grid-players');
+    socket.off('current-grid-players', handleCurrentGridPlayers);
   };
 
 }, [socket, gridId, isMasterResourcesReady, currentPlayer]);

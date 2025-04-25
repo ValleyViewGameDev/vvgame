@@ -106,7 +106,6 @@ const SettlementView = ({
       return;
     }
   
-
     try {
       const toLocation = {
         x: 1,  // Default to (1, 1) or dynamically set if needed
