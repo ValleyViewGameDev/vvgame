@@ -914,12 +914,13 @@ useEffect(() => {
 
     // Assume only a single PC is sent per update.
     const [playerId, incomingPC] = Object.entries(pcs)[0];
-    const incomingTime = incomingPC?.lastUpdated || gridStatePCsLastUpdated;
-    
+    // Normalize incomingTime to timestamp for reliable comparison
+    const incomingTime = new Date(incomingPC?.lastUpdated || gridStatePCsLastUpdated).getTime();
 
     setGridState(prevState => {
       const localPC = prevState.pcs?.[playerId];
-      const localTime = localPC?.lastUpdated || 0;
+      // Normalize localTime to timestamp for reliable comparison
+      const localTime = new Date(localPC?.lastUpdated).getTime() || 0;
       console.log(`[TS DEBUG] Comparing incoming ${incomingTime} vs local ${localTime}`);
 
       if (currentPlayer && playerId === String(currentPlayer._id)) {

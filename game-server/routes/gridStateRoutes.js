@@ -58,6 +58,7 @@ router.post('/save-single-pc', async (req, res) => {
 
     // Ensure gridStatePCs is a Map
     const pcs = new Map(grid.gridStatePCs || []);
+    pc.lastUpdated = new Date(lastUpdated); // ensures consistent format
     pcs.set(playerId, pc);
     grid.gridStatePCs = pcs;
 
