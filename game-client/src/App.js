@@ -894,7 +894,7 @@ useEffect(() => {
     socket.off('current-grid-players');
   };
 
-}, [socket, gridId, isMasterResourcesReady]);
+}, [socket, gridId, isMasterResourcesReady, currentPlayer]);
 
 
 // 🔄 SOCKET LISTENER: PCs: Real-time updates for GridState (PC sync)
