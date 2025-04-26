@@ -121,16 +121,19 @@ async function handleFarmAnimalBehavior(gridId) {
                 if (!this.isMoving) {
                     //console.log(`NPC ${this.id} moving one tile toward grass tile at (${this.targetGrassTile.x}, ${this.targetGrassTile.y}).`);
                     this.isMoving = true;
-        
-                    // Move one tile in the determined direction
-                    await this.moveOneTile(direction, tiles, resources, npcs);
+                    const moved = await this.moveOneTile(direction, tiles, resources, npcs);
         
                     // Ensure position snaps to integers after movement
                     this.position.x = Math.floor(this.position.x);
                     this.position.y = Math.floor(this.position.y);
-                    //console.log(`NPC ${this.id} snapped to position (${this.position.x}, ${this.position.y}).`);
-        
                     this.isMoving = false;
+                    if (!moved) {
+                        console.warn(`NPC ${this.id} is stuck and cannot move toward the grass. Switching to idle.`);
+                        this.targetGrassTile = null;
+                        this.state = 'idle';
+                        await gridStateManager.saveGridStateNPCs(gridId); // ✅ Save failure state
+                        break;
+                      }
                 }
         
                 // Check if NPC has reached the grass tile
