@@ -316,7 +316,6 @@ useEffect(() => {
         console.warn('InitAppWrapper: adding PC to gridState');
 
         // USE updatePC here instead?
-
         gridStateManager.addPC(targetGridId, {
           playerId: fullPlayerData.playerId,
           username: fullPlayerData.username,
@@ -330,6 +329,7 @@ useEffect(() => {
           attackrange: fullPlayerData.attackrange,
           speed: fullPlayerData.speed,
           iscamping: fullPlayerData.iscamping,
+          lastUpdated: Date.now(),
         });
         console.log ("About to save call saveGridState in InitAppWrapper step 7");
         await gridStateManager.saveGridStatePCs(targetGridId);  
@@ -599,6 +599,7 @@ const fetchTimersData = async () => {
         endTime: frontierData.bank?.endTime ? new Date(frontierData.bank.endTime).getTime() : null,
       }
     };
+
     setTimers(updatedTimers);
     localStorage.setItem("timers", JSON.stringify(updatedTimers)); // Save to local storage
     console.log("✅ Current Time:", Date.now());
