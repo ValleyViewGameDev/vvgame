@@ -201,7 +201,7 @@ class GridStateManager {
   }
 
   /**
-   * Add an NPC to the gridState.
+   * Add an NPC to the gridState using per-NPC save model.
    */
   async addNPC(gridId, npc) {
     console.log(`Adding NPC to gridState for gridId: ${gridId}. NPC:`, npc);
@@ -211,63 +211,107 @@ class GridStateManager {
       return;
     }
     if (!gridState.npcs) gridState.npcs = {};
-    // Load masterResources and ensure it's an array
-    const masterResources = await loadMasterResources(); // Assuming ensureMasterResources is an async function
-    if (!Array.isArray(masterResources)) {
-      console.error('masterResources is not an array:', masterResources);
-      return;
-    }
-    // Find the NPC template
-    const npcTemplate = masterResources.find(
-      (res) => res.type === npc.type && res.category === 'npc'
-    );
 
-    if (npcTemplate) {
-      gridState.npcs[npc.id] = new NPC(
-        npc.id,
-        npc.type,
-        npc.position,
-        { ...npc, ...npcTemplate },
-        gridId
-      );
-    } else {
-      console.warn(`No template found for NPC type: ${npc.type}. Adding as plain object.`);
-      gridState.npcs[npc.id] = npc;
+    const now = Date.now();
+    npc.lastUpdated = now;
+
+    gridState.npcs[npc.id] = npc;
+
+    try {
+      await axios.post(`${API_BASE}/api/save-single-npc`, {
+        gridId,
+        npcId: npc.id,
+        npc,
+        lastUpdated: now,
+      });
+      console.log(`✅ Saved single NPC ${npc.id} to server.`);
+    } catch (error) {
+      console.error(`❌ Failed to save single NPC ${npc.id}:`, error);
     }
-    console.log(`NPC added to gridState for gridId ${gridId}. Current NPCs:`, gridState.npcs);
-    this.saveGridStateNPCs(gridId);
+
+    if (socket && socket.emit) {
+      socket.emit('update-gridState-NPCs', {
+        gridId,
+        npcs: { [npc.id]: npc },
+        gridStateNPCsLastUpdated: now,
+      });
+      console.log(`📡 Emitted NPC grid-state update for NPC ${npc.id}`);
+    }
   }
 
   /**
-   * Update an NPC in the gridState and save to the DB.
+   * Update an NPC in the gridState using the per-NPC save model.
    */
-  updateNPC(gridId, npcId, newProperties) {
+  async updateNPC(gridId, npcId, newProperties) {
+    console.log(`Updating NPC ${npcId} for gridId: ${gridId}`);
     const gridState = this.getGridState(gridId);
     if (!gridState || !gridState.npcs?.[npcId]) {
       console.error(`Cannot update NPC ${npcId}. No gridState or NPC found for gridId: ${gridId}`);
       return;
     }
-    Object.assign(gridState.npcs[npcId], newProperties);
-    gridState.lastUpdated = Date.now();
-    updateLastGridStateTimestamp(gridState.lastUpdated);
-    console.log(`NPC ${npcId} updated in gridState for gridId ${gridId}:`, gridState.npcs[npcId]);
-    // Save the updated gridState to the database
-    this.saveGridStateNPCs(gridId);
+
+    const now = Date.now();
+    const updatedNPC = {
+      ...gridState.npcs[npcId],
+      ...newProperties,
+      lastUpdated: now,
+    };
+
+    gridState.npcs[npcId] = updatedNPC;
+
+    try {
+      await axios.post(`${API_BASE}/api/save-single-npc`, {
+        gridId,
+        npcId,
+        npc: updatedNPC,
+        lastUpdated: now,
+      });
+      console.log(`✅ Saved single NPC ${npcId} to server.`);
+    } catch (error) {
+      console.error(`❌ Failed to save single NPC ${npcId}:`, error);
+    }
+
+    if (socket && socket.emit) {
+      socket.emit('update-gridState-NPCs', {
+        gridId,
+        npcs: { [npcId]: updatedNPC },
+        gridStateNPCsLastUpdated: now,
+      });
+      console.log(`📡 Emitted NPC update for ${npcId}`);
+    }
   }
 
   /**
-   * Remove an NPC from the gridState and save to the DB.
+   * Remove an NPC from the gridState using the per-NPC save model.
    */
-  removeNPC(gridId, npcId) {
+  async removeNPC(gridId, npcId) {
+    console.log(`Removing NPC ${npcId} from gridId: ${gridId}`);
     const gridState = this.getGridState(gridId);
     if (!gridState || !gridState.npcs) {
       console.error(`Cannot remove NPC. No gridState or NPCs found for gridId: ${gridId}`);
       return;
     }
+
     delete gridState.npcs[npcId];
-    console.log(`NPC ${npcId} removed from gridState for gridId ${gridId}.`);
-    // Save the updated gridState to the database
-    this.saveGridStateNPCs(gridId);
+
+    try {
+      await axios.post(`${API_BASE}/api/remove-single-npc`, {
+        gridId,
+        npcId,
+      });
+      console.log(`✅ Removed single NPC ${npcId} from server.`);
+    } catch (error) {
+      console.error(`❌ Failed to remove single NPC ${npcId}:`, error);
+    }
+
+    if (socket && socket.emit) {
+      socket.emit('update-gridState-NPCs', {
+        gridId,
+        npcs: { [npcId]: null }, // Broadcast removal
+        gridStateNPCsLastUpdated: Date.now(),
+      });
+      console.log(`📡 Emitted NPC removal for ${npcId}`);
+    }
   }
 
   // DEPRECATE addPC

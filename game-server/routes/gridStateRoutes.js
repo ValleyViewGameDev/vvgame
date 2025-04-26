@@ -190,4 +190,70 @@ router.post('/get-multiple-grid-states', async (req, res) => {
   }
 });
 
+
+// Dedicated route: save a single NPC to gridStateNPCs
+router.post('/save-single-npc', async (req, res) => {
+  const { gridId, npcId, npc, lastUpdated } = req.body;
+
+  try {
+    if (!gridId || !npcId || !npc || !lastUpdated) {
+      return res.status(400).json({ error: 'gridId, npcId, npc, and lastUpdated are required.' });
+    }
+
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found.' });
+    }
+
+    // Ensure gridStateNPCs is a Map
+    const npcs = new Map(grid.gridStateNPCs || []);
+    npc.lastUpdated = new Date(lastUpdated); // Ensure consistent format
+    npcs.set(npcId, npc);
+    grid.gridStateNPCs = npcs;
+
+    // Optionally update the global NPCs lastUpdated timestamp
+    grid.gridStateNPCsLastUpdated = new Date(lastUpdated);
+
+    await grid.save();
+
+    console.log(`✅ Single NPC ${npcId} saved for gridId: ${gridId}`);
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('❌ Error saving single NPC:', error);
+    res.status(500).json({ error: 'Failed to save single NPC.' });
+  }
+});
+
+// Dedicated route: remove a single NPC from gridStateNPCs
+router.post('/remove-single-npc', async (req, res) => {
+  const { gridId, npcId } = req.body;
+
+  try {
+    if (!gridId || !npcId) {
+      return res.status(400).json({ error: 'gridId and npcId are required.' });
+    }
+
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found.' });
+    }
+
+    const npcs = new Map(grid.gridStateNPCs || []);
+    npcs.delete(npcId);
+    grid.gridStateNPCs = npcs;
+
+    // Optionally update the NPCs lastUpdated timestamp
+    grid.gridStateNPCsLastUpdated = new Date();
+
+    await grid.save();
+
+    console.log(`🗑️ Removed NPC ${npcId} from gridId: ${gridId}`);
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('❌ Error removing single NPC:', error);
+    res.status(500).json({ error: 'Failed to remove single NPC.' });
+  }
+});
+
+
 module.exports = router;
