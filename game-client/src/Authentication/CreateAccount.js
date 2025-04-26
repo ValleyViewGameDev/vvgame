@@ -171,7 +171,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
       const payload = {
         gridId: assignedGridId,
         playerId: player._id,
-        pc: pcMap,
+        pc: pcMap[player._id], 
         lastUpdated: now,
       };
       console.log('📤 Constructed Payload for creating player:', payload);
