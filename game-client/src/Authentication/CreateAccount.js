@@ -144,39 +144,39 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
       }
       const now = Date.now();
 
-// 8) Load existing PC grid state and add the new PC
+// // 8) Load existing PC grid state and add the new PC
 
-      const gridStateResponse = await axios.get(`${API_BASE}/api/load-grid-state/${assignedGridId}`);
-      const { gridStatePCs = { pcs: {} } } = gridStateResponse.data;
-      const pcMap = gridStatePCs.pcs;
-      console.log(`Adding new player ${player.username} to PCs for gridId ${assignedGridId}`);
-      pcMap[player._id] = {
-        playerId: player._id,
-        type: 'pc',
-        username: player.username,
-        position: { x: 2, y: 2 },  // Starting position
-        icon: player.icon || '😀',
-        hp: player.hp,
-        maxhp: player.maxhp,
-        armorclass: player.armorclass,
-        attackbonus: player.attackbonus,
-        damage: player.damage,
-        attackrange: player.attackrange,
-        speed: player.speed,
-        iscamping: player.iscamping,
-        lastUpdated: now,
-      };
-      // Save just this PC to the gridState
-      // Construct the payload
-      const payload = {
-        gridId: assignedGridId,
-        playerId: player._id,
-        pc: pcMap[player._id], 
-        lastUpdated: now,
-      };
-      console.log('📤 Constructed Payload for creating player:', payload);
-      console.log('📤 Saving single PC to grid...');
-      await axios.post(`${API_BASE}/api/save-single-pc`, payload);
+//       const gridStateResponse = await axios.get(`${API_BASE}/api/load-grid-state/${assignedGridId}`);
+//       const { gridStatePCs = { pcs: {} } } = gridStateResponse.data;
+//       const pcMap = gridStatePCs.pcs;
+//       console.log(`Adding new player ${player.username} to PCs for gridId ${assignedGridId}`);
+//       pcMap[player._id] = {
+//         playerId: player._id,
+//         type: 'pc',
+//         username: player.username,
+//         position: { x: 2, y: 2 },  // Starting position
+//         icon: player.icon || '😀',
+//         hp: player.hp,
+//         maxhp: player.maxhp,
+//         armorclass: player.armorclass,
+//         attackbonus: player.attackbonus,
+//         damage: player.damage,
+//         attackrange: player.attackrange,
+//         speed: player.speed,
+//         iscamping: player.iscamping,
+//         lastUpdated: now,
+//       };
+//       // Save just this PC to the gridState
+//       // Construct the payload
+//       const payload = {
+//         gridId: assignedGridId,
+//         playerId: player._id,
+//         pc: pcMap[player._id], 
+//         lastUpdated: now,
+//       };
+//       console.log('📤 Constructed Payload for creating player:', payload);
+//       console.log('📤 Saving single PC to grid...');
+//       await axios.post(`${API_BASE}/api/save-single-pc`, payload);
 
 // 9) Send welcome message via mailbox
 
