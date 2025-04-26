@@ -246,7 +246,7 @@ async function handleFarmAnimalBehavior(gridId) {
                       break;
                     }
                   
-                    await gridStateManager.saveGridState(gridId); // ✅ Save successful movement
+                    await gridStateManager.saveGridStateNPCs(gridId); // ✅ Save successful movement
                   }
             
                 // Step 9: If NPC reaches the stall, transition to processing state
