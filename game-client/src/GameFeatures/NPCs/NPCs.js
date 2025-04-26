@@ -1,3 +1,4 @@
+import socket from '../../socketManager'; 
 import gridStateManager from '../../GridState/GridState';
 import { calculateDistance } from './NPCHelpers';
 import { attachGrazingBehavior } from './NPCGrazing';
@@ -295,6 +296,13 @@ async moveOneTile(direction, tiles, resources, npcs) {
               this.position.x = targetX;
               this.position.y = targetY;
               //console.log(`NPC ${this.id} completed move to (${this.position.x}, ${this.position.y}).`);
+              if (socket && socket.connected) {
+                socket.emit('npc-moved', {
+                  gridId: this.gridId,
+                  npcId: this.id,
+                  newPosition: { x: targetX, y: targetY },
+                });
+              }
               resolve(true);
               return;
           }

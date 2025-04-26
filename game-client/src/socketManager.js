@@ -189,12 +189,41 @@ export function socketListenForNPCStateChanges(gridId, setGridState, isNPCContro
     }
   };
 
+  // Add handler for npc-moved-sync
+  const handleNPCMoveSync = ({ npcId, newPosition, emitterId }) => {
+    console.log('📥 Received npc-moved-sync event:', { npcId, newPosition, emitterId });
+    console.log('IsNPCController:', isNPCController);
+
+    if (isNPCController && emitterId === socket.id) {
+      console.log('😀 Ignoring own NPC move because this client is the NPC Controller.');
+      return;
+    }
+
+    if (!npcId || !newPosition) return;
+
+    setGridState(prevState => {
+      const updatedNPCs = { ...prevState.npcs };
+      if (updatedNPCs[npcId]) {
+        updatedNPCs[npcId] = {
+          ...updatedNPCs[npcId],
+          position: newPosition,
+        };
+      }
+      return {
+        ...prevState,
+        npcs: updatedNPCs,
+      };
+    });
+  };
+
   console.log("🧲 Subscribing to NPC sync events for grid:", gridId);
   socket.on("gridState-sync-NPCs", handleNPCSync);
+  socket.on("npc-moved-sync", handleNPCMoveSync);
 
   return () => {
     console.log("🧹 Unsubscribing from NPC sync events for grid:", gridId);
     socket.off("gridState-sync-NPCs", handleNPCSync);
+    socket.off("npc-moved-sync", handleNPCMoveSync);
   };
 }
 
