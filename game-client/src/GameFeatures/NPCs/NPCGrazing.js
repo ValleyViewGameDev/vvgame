@@ -84,7 +84,10 @@ async function handleFarmAnimalBehavior(gridId) {
             }
         
             // Attempt to move toward the target grass tile
-            if (this.targetGrassTile) {
+            if (this.targetGrassTile && 
+                typeof this.targetGrassTile.x === 'number' && 
+                typeof this.targetGrassTile.y === 'number') 
+            {
                 const dx = this.targetGrassTile.x - Math.floor(this.position.x);
                 const dy = this.targetGrassTile.y - Math.floor(this.position.y);
                 //console.log(`NPC ${this.id} movement vector: dx=${dx}, dy=${dy}, current position=(${this.position.x}, ${this.position.y}), target=(${this.targetGrassTile.x}, ${this.targetGrassTile.y})`);
@@ -147,6 +150,13 @@ async function handleFarmAnimalBehavior(gridId) {
                     this.targetGrassTile = null; // Clear the target
                     await gridStateManager.saveGridStateNPCs(gridId); // Save after transition
                 }
+            }
+            else {
+                    console.warn(`🐄 [Hungry] NPC ${this.id} has invalid targetGrassTile. Roaming to unstuck.`);
+                    this.targetGrassTile = null;
+                    this.state = 'roam';
+                    await gridStateManager.saveGridStateNPCs(gridId);
+                    break;
             }
             break;
         }
