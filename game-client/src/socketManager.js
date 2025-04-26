@@ -1,3 +1,4 @@
+import NPC from './GameFeatures/NPCs/NPCs';
 import { io } from 'socket.io-client';
 
 const socket = io('https://vvgame-server.onrender.com', {
@@ -153,11 +154,27 @@ export function socketListenForNPCStateChanges(gridId, setGridState, isNPCContro
     }
     if (parsedNPCTime.getTime() > lastUpdateTimeNPCs) {
       console.log('⏩ Updating local NPCs:', npcs);
-      setGridState(prevState => ({
-        ...prevState,
-        npcs: npcs,
-        lastUpdateTimeNPCs: parsedNPCTime.toISOString(),
-      }));
+      setGridState(prevState => {
+        const rehydratedNPCs = {};
+
+        Object.entries(npcs).forEach(([npcId, incomingNPC]) => {
+          if (incomingNPC && typeof incomingNPC === 'object') {
+            rehydratedNPCs[npcId] = new NPC(
+              incomingNPC.id,
+              incomingNPC.type,
+              incomingNPC.position,
+              incomingNPC,
+              incomingNPC.gridId || gridId
+            );
+          }
+        });
+
+        return {
+          ...prevState,
+          npcs: rehydratedNPCs,
+          lastUpdateTimeNPCs: parsedNPCTime.toISOString(),
+        };
+      });
       lastUpdateTimeNPCs = parsedNPCTime.getTime();
     } else {
       console.log('⏳ Skipping older NPC update.');
