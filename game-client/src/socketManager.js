@@ -139,7 +139,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, isNPCContro
 
   const handleNPCSync = ({ npcs, gridStateNPCsLastUpdated, emitterId }) => {
     console.log('📥 Received gridState-sync-NPCs event:', { npcs, gridStateNPCsLastUpdated, emitterId });
-
+    console.log('IsNPCController:', isNPCController);
     if (isNPCController && emitterId === socket.id) {
       console.log('😀 Ignoring own NPC update because this client is the NPC Controller.');
       return;
