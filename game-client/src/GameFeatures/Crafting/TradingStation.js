@@ -2,7 +2,7 @@ import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
-import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
+import '../../UI/ResourceButton.css';
 import ResourceButton from '../../UI/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
 import { canAfford, getIngredientDetails } from '../../Utils/ResourceHelpers';

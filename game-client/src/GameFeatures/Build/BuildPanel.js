@@ -2,11 +2,10 @@ import API_BASE from '../../config';
 import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
-import { handleConstruction } from '../BuildAndBuy';
 import ResourceButton from '../../UI/ResourceButton';
+import { handleConstruction } from '../BuildAndBuy';
 import { canAfford, getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { usePanelContext } from '../../UI/PanelContext';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 
 const BuildPanel = ({

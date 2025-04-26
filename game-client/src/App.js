@@ -3,15 +3,14 @@ import './VFX/VFX.css';
 import API_BASE from './config.js';  
 import axios from 'axios';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
-import socket from './socketManager';
 import NPC from './GameFeatures/NPCs/NPCs';
 import { initializeGrid, postLoginInitialization } from './AppInit';
 import { loadMasterSkills, loadMasterResources } from './Utils/TuningManager';
 import { RenderGrid, RenderVFX, RenderTooltip } from './Render';
 import DynamicRenderer from './RenderDynamic';
 import { handleResourceClick } from './ResourceClicking';
-import { fetchHomesteadOwner } from './Utils/worldHelpers';
 
+import socket from './socketManager';
 import { socketListenForPCJoinAndLeave,
   socketListenForPCstateChanges,
   socketListenForNPCStateChanges,
@@ -22,7 +21,8 @@ import { socketListenForPCJoinAndLeave,
 
 import farmState from './FarmState';
 import gridStateManager from './GridState/GridState';
-import GlobalGridState from './GridState/GlobalGridState'; // Adjust the path if needed
+import GlobalGridState from './GridState/GlobalGridState';
+import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
 import npcController from './GridState/NPCController';
 
 import SettlementView from './ZoomedOut/SettlementView';
@@ -54,23 +54,21 @@ import Mailbox from './GameFeatures/Mailbox/Mailbox';
 import Store from './Store/Store';
 import OffSeasonModal from './GameFeatures/Seasons/OffSeasonModal.js';
 import TownNews from './UI/TownNews.js';
-
 import SeasonPanel from './GameFeatures/Seasons/SeasonPanel';
 import SocialPanel from './GameFeatures/Social/SocialPanel';
 
 import { usePanelContext } from './UI/PanelContext';
 import { useModalContext } from './UI/ModalContext';
-
 import FloatingTextManager from './UI/FloatingText';
 import StatusBar from './UI/StatusBar';
-import { fetchGridData, changePlayerLocation } from './Utils/GridManagement'; // Adjust path as needed
 import { StatusBarContext } from './UI/StatusBar';
-import { handleKeyMovement, centerCameraOnPlayer } from './PlayerMovement';
-import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
-import { updateGridStatus } from './Utils/GridManagement';
 import { formatCountdown } from './UI/Timers';
-import { mergeResources, mergeTiles } from './Utils/ResourceHelpers.js';
-import { enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
+
+import { fetchGridData, updateGridStatus } from './Utils/GridManagement';
+import { handleKeyMovement, centerCameraOnPlayer } from './PlayerMovement';
+import { mergeResources, mergeTiles, enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
+import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
+import { handlePlayerDeath } from './Utils/playerManagement';
 
 function App() {
 
@@ -104,17 +102,12 @@ function App() {
   const [currentPlayer, setCurrentPlayer] = useState(null); // Ensure this is defined
 
   // Initialize gridId with localStorage (do not depend on currentPlayer here)
-
   const [gridId, setGridId] = useState(() => {
     const storedGridId = localStorage.getItem('gridId');
     return storedGridId || null;
   });
-  
-  const [resources, setResources] = useState([]);
-  const [tileTypes, setTileTypes] = useState([]);
-  const [grid, setGrid] = useState([]);
-  const [masterResources, setMasterResources] = useState([]);
-  const [isMasterResourcesReady, setIsMasterResourcesReady] = useState(false);
+  const [resources, setResources, tileTypes, setTileTypes, grid, setGrid] = useState([]);
+  const [masterResources, setMasterResources, isMasterResourcesReady, setIsMasterResourcesReady] = useState([]);
   const [masterSkills, setMasterSkills] = useState([]);
     
 // Synchronize tiles with GlobalGridState -- i did this so NPCs have knowledge of tiles and resources as they change
@@ -133,11 +126,9 @@ useEffect(() => {
 }, [resources]);
 
 
-const [inventory, setInventory] = useState({});
-const [backpack, setBackpack] = useState([]); 
+const [inventory, setInventory, backpack, setBackpack] = useState({});
 const [skills, setSkills] = useState([]); 
-const [playerPosition, setPlayerPosition] = useState(null);
-const [isMoving, setIsMoving] = useState(false);
+const [playerPosition, setPlayerPosition, isMoving, setIsMoving] = useState(null);
 
 const gridState = useGridState();
 const setGridState = useGridStateUpdate();
@@ -151,14 +142,12 @@ const { activeModal, setActiveModal, openModal, closeModal } = useModalContext()
 const [isModalOpen, setIsModalOpen] = useState(false);
 const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
 const [isOffSeason, setIsOffSeason] = useState(false); // Track if it's off-season
-
 const { activePanel, openPanel, closePanel } = usePanelContext();
 const [activeQuestGiver, setActiveQuestGiver] = useState(null);
 const [activeSocialPC, setActiveSocialPC] = useState(null);
 const [isProfilePanelOpen] = useState(false);
 const [isStationOpen, setIsStationOpen] = useState(false);
 const [activeStation, setActiveStation] = useState(null);
-//const [activeQuestGiver, setActiveQuestGiver] = useState(null);
 
 const handleQuestNPCClick = (npc) => {
   console.log('App.js: Opening QuestGiverPanel for NPC:', npc);
@@ -180,17 +169,12 @@ const TILE_SIZES = { close: 30, far: 16 }; // Rename for clarity
 const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
 
 const [isNPCController, setIsNPCController] = useState(false);
-
-// Add state for controller username
-const [controllerUsername, setControllerUsername] = useState(null);
-
-/////// //// //////////////////////////////////////////////////////
+const [controllerUsername, setControllerUsername] = useState(null); // Add state for controller username
 
 //Forgot why we did this:
 const memoizedGrid = useMemo(() => grid, [grid]);
 const memoizedTileTypes = useMemo(() => tileTypes, [tileTypes]);
 const memoizedResources = useMemo(() => resources, [resources]);
-
 
 
 /////////// APP INITIALIZATION /////////////////////////
@@ -330,6 +314,9 @@ useEffect(() => {
         const targetPosition = { x: 1, y: 1 };
 
         console.warn('InitAppWrapper: adding PC to gridState');
+
+        // USE updatePC here instead?
+
         gridStateManager.addPC(targetGridId, {
           playerId: fullPlayerData.playerId,
           username: fullPlayerData.username,
@@ -345,7 +332,9 @@ useEffect(() => {
           iscamping: fullPlayerData.iscamping,
         });
         console.log ("About to save call saveGridState in InitAppWrapper step 7");
-        await gridStateManager.saveGridStatePCs(targetGridId);
+        await gridStateManager.saveGridStatePCs(targetGridId);  
+          // DEPRECATE saveGridStatePCs; use updatePC or
+          //   use  axios.post(`${API_BASE}/api/save-single-pc`  directly
 
         // ✅ Refresh the gridState and React state
         console.warn('InitAppWrapper: refreshing gridState');
@@ -460,7 +449,6 @@ useEffect(() => {
 }, []);  // ✅ Only run once when the component mounts
 
 
-
 // FETCH GRID  //////////////////////////////////////////////////////
 // We need to come back to this; why fetchGrid and also fetchGridData ????
 const fetchGrid = async (gridId) => {
@@ -523,115 +511,29 @@ useEffect(() => {
 
 // GRID STATE:  NPC and PC Management Loop  /////////////////////////
 useEffect(() => {
-  if (!isAppInitialized) {
-    console.log('App not fully initialized. Skipping NPC/PC management.');
-    return;
-  }
-
-  // Only run NPC updates if we're the controller for this grid
+  if (!isAppInitialized) { console.log('App not initialized. Skipping NPC/PC management.'); return; }
   const interval = setInterval(async () => {
-    if (!gridState?.npcs) {
-      console.warn('No NPCs in gridState');
-      return;
-    }
+    if (!gridState?.npcs) { console.warn('No NPCs in gridState'); return; }
 
-    // Check if we're the controller before processing NPCs
-    if (npcController.isControllingGrid(gridId)) {
-      //console.log('npcController is active. Processing NPCs...');
-
-      Object.values(gridState.npcs).forEach((npc) => {
-        const currentTime = Date.now();
-        npc.update(currentTime, gridState, gridId, activeTileSize);
-      });
-    }
-
-    // Always check PCs for death regardless of controller status
-    if (gridState.pcs) {
-      Object.values(gridState.pcs).forEach(async (pc) => {
-        if (pc.hp <= 0 && currentPlayer && String(currentPlayer._id) === pc.playerId) {
-          await handlePlayerDeath(currentPlayer);
-        }
-      });
-    }
+      // Only run NPC updates if we're the controller for this grid
+      if (npcController.isControllingGrid(gridId)) {
+        Object.values(gridState.npcs).forEach((npc) => {
+          const currentTime = Date.now();
+          npc.update(currentTime, gridState, gridId, activeTileSize);
+        });
+      }
+      // Always check PCs for death regardless of controller status
+      if (gridState.pcs) {
+        Object.values(gridState.pcs).forEach(async (pc) => {
+          if (pc.hp <= 0 && currentPlayer && String(currentPlayer._id) === pc.playerId) {
+            await handlePlayerDeath(currentPlayer, setCurrentPlayer, fetchGrid, setGridId, setGrid, setResources, setTileTypes, setGridState, activeTileSize);
+          }
+        });
+      }
   }, 1000);
-
   return () => clearInterval(interval);
 }, [isAppInitialized, gridId, gridState, currentPlayer, activeTileSize]);
 
-
-const handlePlayerDeath = async (player) => {
-  console.log('Handling player death...');
-  console.log('currentPlayer = ', player);
-
-  try {
-    const playerId = String(player._id);  // Ensure consistency
-    const currentGridId = player.location.g;
-    // Determine respawn grid and coordinates
-    const targetLocation = {
-      x: 1,
-      y: 1,
-      g: player.gridId !== currentGridId ? player.gridId : currentGridId,
-      gtype: "homestead",
-    };
-    // Preserve other location fields (frontier, settlement, gtype)
-    const updatedLocation = {
-      ...player.location,
-      ...targetLocation,
-    };
-
-    console.log(`Updating profile and clearing backpack for player ${player.username}`);
-
-    // 1. **Update Player Data in the Database**
-    await axios.post(`${API_BASE}/api/update-profile`, {
-      playerId: player._id,
-      updates: {
-        backpack: [],  // Empty the backpack
-        hp: 25,  // Reset HP
-        location: updatedLocation,  // Update location
-        settings: { ...player.settings, hasDied: true }  // ✅ Store inside settings
-      },
-    });
-
-    // 2. **Remove Player from Current Grid’s gridState using API**
-    console.log(`Removing player ${player.username} from gridState.pcs in grid ${currentGridId} via API`);
-    await axios.post(`${API_BASE}/api/remove-single-pc`, {
-      gridId: currentGridId,
-      playerId: playerId,
-    });
-
-    // 3. **Update Player's Location and State in React**
-    const updatedPlayer = {
-      ...player,
-      hp: 5,
-      location: updatedLocation,
-      backpack: [],  // Ensure backpack clears in UI
-      settings: { ...player.settings, hasDied: true },  // ✅ Ensure settings updates in local state
-    };
-
-    setCurrentPlayer(updatedPlayer);
-    localStorage.setItem('player', JSON.stringify(updatedPlayer));
-
-    console.log(`Player ${player.username} teleported to home grid with 5 HP.`);
-
-    // 4. **Load New Grid & Add Player to GridState**
-    await changePlayerLocation(
-      updatedPlayer,
-      player.location,   // fromLocation
-      updatedLocation,        // toLocation
-      setCurrentPlayer,
-      fetchGrid,
-      setGridId,                // ✅ Ensure this is passed
-      setGrid,                  // ✅ Pass setGrid function
-      setResources,             // ✅ Pass setResources function
-      setTileTypes,             // ✅ Pass setTileTypes function
-      setGridState,
-      activeTileSize,
-    );
-
-  } catch (error) {
-    console.error('Error during player death handling and teleportation:', error);
-  }
-};
 
 
 /////// TIMERS & SEASONS //////////////////////////////////////////////////////
@@ -668,10 +570,7 @@ useEffect(() => {
 const fetchTimersData = async () => {
   //console.log("🔄 Fetching initial timers from the server...");
   
-  if (!currentPlayer) {
-    console.warn("⛔ No player loaded — skipping fetchTimersData.");
-    return;
-  }
+  if (!currentPlayer) { console.warn("⛔ No player loaded — skipping fetchTimersData."); return; }
   if (!currentPlayer?.settlementId || !currentPlayer?.frontierId) return;
 
   try {
@@ -700,22 +599,8 @@ const fetchTimersData = async () => {
         endTime: frontierData.bank?.endTime ? new Date(frontierData.bank.endTime).getTime() : null,
       }
     };
-
     setTimers(updatedTimers);
-    // console.log("📦 LocalStorage timers:", {
-    //   seasonPhase: updatedTimers.seasons.phase,
-    //   seasonType: updatedTimers.seasons.type,
-    //   endTime: new Date(updatedTimers.seasons.endTime).toLocaleTimeString(),
-    //   now: new Date().toLocaleTimeString()
-    // });
     localStorage.setItem("timers", JSON.stringify(updatedTimers)); // Save to local storage
-
-    // console.log("📦 Frontier server timers:", {
-    //   seasonPhase: frontierData.seasons?.phase,
-    //   seasonType: frontierData.seasons?.seasonType,
-    //   endTime: new Date(frontierData.seasons?.endTime).toLocaleTimeString(),
-    //   now: new Date().toLocaleTimeString()
-    // });
     console.log("✅ Current Time:", Date.now());
     
   } catch (error) {
@@ -882,57 +767,27 @@ useEffect(() => {
 const localPlayerMoveTimestampRef = useRef(0);
 
 useEffect(() => {
-    const handleKeyDown = (event) => {
-
-      // ✅ Prevent movement if a modal is open
-      if (activeModal) { 
-        console.log("🛑 Keyboard input disabled while modal is open."); 
-        return; 
-      }
-      if (isOffSeason) { 
-        console.log("🛑 Keyboard input disabled while offseason."); 
-        return; 
-      }      
-      // ✅ Prevent movement if zoomed out
-      if (zoomLevel === 'frontier' || zoomLevel === 'settlement') {
-        console.log("🛑 Keyboard input disabled while zoomed out."); 
-        return; 
-      }  
-      // ✅ Prevent movement if a text input is focused
-      const activeElement = document.activeElement;
-      if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; }
-      // ✅ Prevent the browser from scrolling when using arrow keys
-      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }
-
-      handleKeyMovement(
-        event,
-        currentPlayer,
-        activeTileSize,
-        masterResources,
-        isMoving,
-        setIsMoving,
-      );
-
-      localPlayerMoveTimestampRef.current = Date.now();
-    };
-  
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [currentPlayer, masterResources, activeTileSize, isMoving, activeModal]);
+  const handleKeyDown = (event) => {
+    if (activeModal) { return; } // Keyboard input disabled while modal is open
+    if (isOffSeason) { return; } // Keyboard input disabled while offseason
+    if (zoomLevel === 'frontier' || zoomLevel === 'settlement') { return; }  // Prevent movement if zoomed out
+    const activeElement = document.activeElement;
+    if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; } // Prevent movement if a text input is focused
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
+    handleKeyMovement( event, currentPlayer, activeTileSize, masterResources );
+    localPlayerMoveTimestampRef.current = Date.now();
+  };
+  window.addEventListener('keydown', handleKeyDown); return () => {
+    window.removeEventListener('keydown', handleKeyDown); };
+}, [currentPlayer, masterResources, activeTileSize, isMoving, activeModal]);
 
 
 /////////// HANDLE ZOOMING & RESIZING /////////////////////////
 
 const zoomIn = async () => {
   const gridId = currentPlayer?.location?.g;
-  if (!gridId) {
-    console.warn("No valid gridId found for currentPlayer."); return;
-  }
-  if (currentPlayer.iscamping) { 
-    updateStatus(32); return;
-  }
+  if (!gridId) { console.warn("No valid gridId found for currentPlayer."); return; }
+  if (currentPlayer.iscamping) { updateStatus(32); return; }
   if (zoomLevel === 'frontier') {
     setZoomLevel('settlement'); // Zoom into the settlement view
     updateStatus(12); // "Settlement view."
@@ -960,9 +815,7 @@ const zoomIn = async () => {
   }
 };
 const zoomOut = () => {
-  if (currentPlayer.iscamping) { 
-    updateStatus(32); return;
-  }
+  if (currentPlayer.iscamping) { updateStatus(32); return; }
   if (zoomLevel === 'close') {
     setZoomLevel('far'); // Zoom out to grid view
   } else if (zoomLevel === 'far') {
@@ -977,478 +830,410 @@ const zoomOut = () => {
 
 //////////// HANDLE CLICKING & HOVERING /////////////////////////
 
-  let isProcessing = false; // Guard against duplicate clicks
-  let tooltipDelayTimer = null;
+let isProcessing = false; // Guard against duplicate clicks
+let tooltipDelayTimer = null;
 
-  const handleTileClick = useCallback((rowIndex, colIndex) => {
-    if (isProcessing) return; // Skip if still processing
-    isProcessing = true;
+const handleTileClick = useCallback((rowIndex, colIndex) => {
+  if (isProcessing) return; // Skip if still processing
+  isProcessing = true;
+
+  const resource = resources.find((res) => res.x === colIndex && res.y === rowIndex);
+  console.log('handleTileClick invoked with:', { rowIndex, colIndex });
+  console.log('Resource:', resource);
+
+  // Validate `gridId` and `username`
+  if (!gridId || typeof gridId !== 'string') { console.error('Invalid gridId:', gridId); return; }
+  if (!currentPlayer?.username || typeof currentPlayer.username !== 'string') { console.error('Invalid username:', currentPlayer?.username); return; }
+
+  // ✅ Get player position from gridState
+  const playerData = gridState?.pcs?.[String(currentPlayer._id)];
+  const playerPos = playerData?.position || { x: 1, y: 1 }; // Default to (1,1) if missing
+
+  if (!playerPos || typeof playerPos.x === 'undefined' || typeof playerPos.y === 'undefined') {
+      console.error("⚠️ Player position is invalid in gridState:", playerData);
+      isProcessing = false;
+      return;
+  }
+  const targetPos = { x: colIndex, y: rowIndex }; 
   
-    const resource = resources.find((res) => res.x === colIndex && res.y === rowIndex);
-    console.log('handleTileClick invoked with:', { rowIndex, colIndex });
-    console.log('Resource:', resource);
-  
-    // Validate `gridId` and `username`
-    if (!gridId || typeof gridId !== 'string') { console.error('Invalid gridId:', gridId); return; }
-    if (!currentPlayer?.username || typeof currentPlayer.username !== 'string') { console.error('Invalid username:', currentPlayer?.username); return; }
+  // If clicking a resource, check range before interacting (except NPCs)
+  if (resource && resource.category !== 'npc') {
+    const distance = calculateDistance(playerPos, targetPos);
+    const playerRange = currentPlayer.range || 1; // Default range if not set
 
+    console.log(`Checking range: Player at ${playerPos.x},${playerPos.y} | Target at ${targetPos.x},${targetPos.y} | Distance = ${distance} | Range = ${playerRange}`);
 
-    // ✅ Get player position from gridState
-    const playerData = gridState?.pcs?.[String(currentPlayer._id)];
-    const playerPos = playerData?.position || { x: 1, y: 1 }; // Default to (1,1) if missing
-
-    if (!playerPos || typeof playerPos.x === 'undefined' || typeof playerPos.y === 'undefined') {
-        console.error("⚠️ Player position is invalid in gridState:", playerData);
+    if (distance > playerRange) {
+        FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
+        console.log('Target out of range:', targetPos);
         isProcessing = false;
-        return;
+        return; // Stop further execution
     }
+  }
 
-    const targetPos = { x: colIndex, y: rowIndex };
+  if (resource) {
 
-    // Inline function to calculate Manhattan distance safely
-    const calculateDistance = (pos1, pos2) => {
-        if (!pos1 || !pos2 || typeof pos1.x === 'undefined' || typeof pos1.y === 'undefined' || typeof pos2.x === 'undefined' || typeof pos2.y === 'undefined') {
-            console.warn("Skipping distance calculation due to invalid position:", { pos1, pos2 });
-            return Infinity; // Return a high value to trigger out-of-range logic
-        }
-        return Math.abs(pos1.x - pos2.x) + Math.abs(pos1.y - pos2.y);
-    };
-    
-    // If clicking a resource, check range before interacting (except NPCs)
-    if (resource && resource.category !== 'npc') {
-      const distance = calculateDistance(playerPos, targetPos);
-      const playerRange = currentPlayer.range || 1; // Default range if not set
-
-      console.log(`Checking range: Player at ${playerPos.x},${playerPos.y} | Target at ${targetPos.x},${targetPos.y} | Distance = ${distance} | Range = ${playerRange}`);
-
-      if (distance > playerRange) {
-          FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
-          console.log('Target out of range:', targetPos);
-          isProcessing = false;
-          return; // Stop further execution
-      }
+    if (resource.category === 'npc') {
+      // handled in RenderDynamic
     }
-
-    if (resource) {
- 
-      if (resource.category === 'npc') {
-        // handled in RenderDynamic
-      }
-      else if (resource.category === 'training') {
-        console.log(`App.js: Training station clicked - ${resource.type}`);
-        setActiveStation({
-          type: resource.type, // ✅ Store station type
-          position: { x: colIndex, y: rowIndex }, // ✅ Store position
-          gridId: gridId, // ✅ Store gridId
-        });
-        openPanel('SkillsAndUpgradesPanel'); // ✅ Open panel without passing entryPoint directly
-      }
-      else if (resource.category === 'crafting') {
-        console.log('App.js: Crafting station clicked');
-        setActiveStation({
-          type: resource.type,
-          position: { x: colIndex, y: rowIndex }, // Position of the resource
-          gridId: gridId, // Current gridId
-        });
-        openPanel('CraftingStation');
-      } 
-      else if (resource.category === 'trading') {
-        console.log('App.js: Trading station clicked');
-        setActiveStation({
-          type: resource.type,
-          position: { x: colIndex, y: rowIndex }, // Position of the resource
-          gridId: gridId, // Current gridId
-        });
-        openPanel('TradingStation');
-      } 
-      else if (resource.category === 'stall') {
-        console.log('App.js: Animal Stall clicked');
-        setActiveStation({
-          type: resource.type, // The station type (e.g., "Cow in Stall")
-          position: { x: colIndex, y: rowIndex }, // Position of the resource
-          gridId: gridId, // Current gridId
-        });
-        openPanel('AnimalStall');
-      } 
-      else if (resource.category === 'station') {
-        console.log('App.js: Station clicked; resource.type = ',resource.type);
-        setActiveStation({
-          type: resource.type, // The station type (e.g., "Trade Stall")
-          position: { x: colIndex, y: rowIndex }, // Position of the resource
-          gridId: gridId, // Current gridId
-        });
-        switch (resource.type) {
-          case 'Courthouse':
-            openPanel('Courthouse');
-            break;
-          case 'Trade Stall':
-            openPanel('TradeStall');
-            break;
-          case 'Mailbox':
-            openModal('Mailbox');
-            break;
-          case 'Train':
-            openPanel('TrainPanel');
-            break;
-          case 'Bank':
-            openPanel('BankPanel');
-            break;
-          case 'Farm Hand 1':
-          case 'Farm Hand 2':
-          case 'Farm Hand 3':
-            openPanel('FarmHandsPanel');
-            break;
-          default:
-            console.warn(`Unhandled station type: ${resource.type}`);
-        }
-      } else {
-        // Pass to handleResourceClick for all other resources
-        handleResourceClick(
-          resource,
-          rowIndex,
-          colIndex,
-          resources,
-          setResources,
-          setInventory,
-          setBackpack,
-          inventory,
-          backpack,
-          FloatingTextManager.addFloatingText,
-          gridId,
-          activeTileSize,
-          tileTypes,
-          currentPlayer,
-          setCurrentPlayer,
-          fetchGrid,
-          setGridId,
-          setGrid,
-          setTileTypes,
-          setGridState,
-          updateStatus,
-          masterResources,
-          masterSkills,
-        ).finally(() => {
-          isProcessing = false; // Reset flag after processing
-        });
+    else if (resource.category === 'training') {
+      console.log(`App.js: Training station clicked - ${resource.type}`);
+      setActiveStation({
+        type: resource.type, // ✅ Store station type
+        position: { x: colIndex, y: rowIndex }, // ✅ Store position
+        gridId: gridId, // ✅ Store gridId
+      });
+      openPanel('SkillsAndUpgradesPanel'); // ✅ Open panel without passing entryPoint directly
+    }
+    else if (resource.category === 'crafting') {
+      console.log('App.js: Crafting station clicked');
+      setActiveStation({
+        type: resource.type,
+        position: { x: colIndex, y: rowIndex }, // Position of the resource
+        gridId: gridId, // Current gridId
+      });
+      openPanel('CraftingStation');
+    } 
+    else if (resource.category === 'trading') {
+      console.log('App.js: Trading station clicked');
+      setActiveStation({
+        type: resource.type,
+        position: { x: colIndex, y: rowIndex }, // Position of the resource
+        gridId: gridId, // Current gridId
+      });
+      openPanel('TradingStation');
+    } 
+    else if (resource.category === 'stall') {
+      console.log('App.js: Animal Stall clicked');
+      setActiveStation({
+        type: resource.type, // The station type (e.g., "Cow in Stall")
+        position: { x: colIndex, y: rowIndex }, // Position of the resource
+        gridId: gridId, // Current gridId
+      });
+      openPanel('AnimalStall');
+    } 
+    else if (resource.category === 'station') {
+      console.log('App.js: Station clicked; resource.type = ',resource.type);
+      setActiveStation({
+        type: resource.type, // The station type (e.g., "Trade Stall")
+        position: { x: colIndex, y: rowIndex }, // Position of the resource
+        gridId: gridId, // Current gridId
+      });
+      switch (resource.type) {
+        case 'Courthouse':
+          openPanel('Courthouse');
+          break;
+        case 'Trade Stall':
+          openPanel('TradeStall');
+          break;
+        case 'Mailbox':
+          openModal('Mailbox');
+          break;
+        case 'Train':
+          openPanel('TrainPanel');
+          break;
+        case 'Bank':
+          openPanel('BankPanel');
+          break;
+        case 'Farm Hand 1':
+        case 'Farm Hand 2':
+        case 'Farm Hand 3':
+          openPanel('FarmHandsPanel');
+          break;
+        default:
+          console.warn(`Unhandled station type: ${resource.type}`);
       }
     } else {
-      console.log('isTeleportEnabled:',currentPlayer?.settings?.isTeleportEnabled);
+      // Pass to handleResourceClick for all other resources
+      handleResourceClick(
+        resource,
+        rowIndex,
+        colIndex,
+        resources,
+        setResources,
+        setInventory,
+        setBackpack,
+        inventory,
+        backpack,
+        FloatingTextManager.addFloatingText,
+        gridId,
+        activeTileSize,
+        tileTypes,
+        currentPlayer,
+        setCurrentPlayer,
+        fetchGrid,
+        setGridId,
+        setGrid,
+        setTileTypes,
+        setGridState,
+        updateStatus,
+        masterResources,
+        masterSkills,
+      ).finally(() => {
+        isProcessing = false; // Reset flag after processing
+      });
+    }
+  } else {
+    console.log('isTeleportEnabled:',currentPlayer?.settings?.isTeleportEnabled);
 
-      if (currentPlayer?.settings?.isTeleportEnabled) {  
-        // Handle player movement if no resource is clicked
-        const targetPosition = { x: colIndex, y: rowIndex }; // Grid coordinates
-        setPlayerPosition({ x: targetPosition.x * activeTileSize, y: targetPosition.y * activeTileSize });
+    if (currentPlayer?.settings?.isTeleportEnabled) {  
+      // Handle player movement if no resource is clicked
+      const targetPosition = { x: colIndex, y: rowIndex }; // Grid coordinates
+      setPlayerPosition({ x: targetPosition.x * activeTileSize, y: targetPosition.y * activeTileSize });
 //        savePlayerPosition(targetPosition, currentPlayer, setCurrentPlayer, activeTileSize);
-        console.log('Player teleported to:', targetPosition);
-      }
+      console.log('Player teleported to:', targetPosition);
     }
-    isProcessing = false; // Reset flag here
+  }
+  isProcessing = false; // Reset flag here
 
-  }, [resources, gridId, inventory, currentPlayer, playerPosition, activeTileSize]);
+}, [resources, gridId, inventory, currentPlayer, playerPosition, activeTileSize]);
   
-  const handleTileHover = useCallback(
-    (rowIndex, colIndex, event) => {
-      // Validate gridState
-      // if (!gridState) {
-      //   console.warn('GridState is not available; skipping tile hover processing.');
-      //   return;
-      // }
+const handleTileHover = useCallback(
+  (rowIndex, colIndex, event) => {
+  const resource = resources.find((res) => res.x === colIndex && res.y === rowIndex);
 
-    const resource = resources.find((res) => res.x === colIndex && res.y === rowIndex);
-    //const { npcs = {}, pcs = {} } = gridState;
-  
-    //console.log('handleTileHover; NPCs:', npcs);
-    //console.log('handleTileHover; PCs:', pcs);
-  
-    // const npc = Object.values(npcs).find((npc) => {
-    //   return npc.position.x === colIndex && npc.position.y === rowIndex;
-    // });
-    // //console.log('handleTileHover; npc:', npc);
-    
-    // const pc = Object.values(pcs).find((pc) => {
-    //   return pc.position.x === colIndex && pc.position.y === rowIndex;
-    // });
-  
-    // const entity = npc || pc || resource; // Prioritize NPC, then PC, then resource
-    //console.log('handleTileHover; entity:', entity);
-  
-    if (!resource) {
-      handleTileLeave(); // Clear tooltip when no entity is present
-      setHoveredResource(null);
-      // setHoveredNPC(null); // Clear NPC tooltip state
-      // setHoveredPC(null); // Clear PC tooltip state
-      setIsTooltipVisible(false);
-      return;
-    }
-  
-    const tileTop = rowIndex * activeTileSize + event.currentTarget.offsetParent.offsetTop;
-    const tileLeft = colIndex * activeTileSize + event.currentTarget.offsetParent.offsetLeft;
-  
-    setTooltipPosition({
-      x: tileLeft - 190, // Adjust tooltip horizontally
-      y: tileTop - 120, // Adjust tooltip vertically above the tile
-    });
-  
-    // Delay tooltip visibility
-    tooltipDelayTimer = setTimeout(() => {
-      // if (npc) setHoveredNPC(npc); // Set tooltip for NPC
-      // if (pc) setHoveredPC(pc); // Set tooltip for PC
-      if (resource) setHoveredResource(resource); // Set tooltip for resource
-      setIsTooltipVisible(true); // Make tooltip visible
-    }, 500); // Delay 
-  }, [resources, activeTileSize, currentPlayer?.location?.g]);
-
-  const handleTileLeave = () => {
-    clearTimeout(tooltipDelayTimer); // Cancel pending tooltip render
+  if (!resource) {
+    handleTileLeave(); // Clear tooltip when no entity is present
     setHoveredResource(null);
     setIsTooltipVisible(false);
-  };
+    return;
+  }
+
+  const tileTop = rowIndex * activeTileSize + event.currentTarget.offsetParent.offsetTop;
+  const tileLeft = colIndex * activeTileSize + event.currentTarget.offsetParent.offsetLeft;
+
+  setTooltipPosition({
+    x: tileLeft - 190, // Adjust tooltip horizontally
+    y: tileTop - 120, // Adjust tooltip vertically above the tile
+  });
+
+  // Delay tooltip visibility
+  tooltipDelayTimer = setTimeout(() => {
+    // if (npc) setHoveredNPC(npc); // Set tooltip for NPC
+    // if (pc) setHoveredPC(pc); // Set tooltip for PC
+    if (resource) setHoveredResource(resource); // Set tooltip for resource
+    setIsTooltipVisible(true); // Make tooltip visible
+  }, 500); // Delay 
+}, [resources, activeTileSize, currentPlayer?.location?.g]);
+
+const handleTileLeave = () => {
+  clearTimeout(tooltipDelayTimer); // Cancel pending tooltip render
+  setHoveredResource(null);
+  setIsTooltipVisible(false);
+};
 
   
-  //////////// HANDLE LOGIN and LOGOUT /////////////////////////
+//////////// HANDLE LOGIN and LOGOUT /////////////////////////
 
-  const handleLogout = () => {
-    console.log('Logging out user...');
-  
-    // Clear all states
-    gridStateManager.stopGridStateUpdates();
+const handleLogout = () => {
+  console.log('Logging out user...');
+  gridStateManager.stopGridStateUpdates();  // Clear all states
+  setCurrentPlayer(null);
+  setInventory({});
+  setPlayerPosition({ x: 0, y: 0 });
+  setGrid([]); // Clear the grid
+  setResources([]); // Clear resources
+  setTileTypes([]); // Clear tile types
+  setGridId(null); // Clear gridId
+  localStorage.removeItem('gridId'); // Remove gridId from local storage
+  localStorage.removeItem('player');  // Remove player data from local storage
+  window.location.reload();  // Force a state reset by triggering the login modal
+  console.log('Player has logged out, and state has been reset.');
+};
 
-    setCurrentPlayer(null);
-    setInventory({});
-    setPlayerPosition({ x: 0, y: 0 });
-    setGrid([]); // Clear the grid
-    setResources([]); // Clear resources
-    setTileTypes([]); // Clear tile types
-    setGridId(null); // Clear gridId
-    localStorage.removeItem('gridId'); // Remove gridId from local storage
-    localStorage.removeItem('player');  // Remove player data from local storage
-  
-    // Force a state reset by triggering the login modal
-    window.location.reload();
+const handleLoginSuccess = async (player) => {
+  console.log('Handling login success for player:', player);  // Store player data in localStorage
+  localStorage.setItem('player', JSON.stringify(player));  // Reload the app (triggers full initialization)
+  window.location.reload();
+};
 
-    console.log('Player has logged out, and state has been reset.');
-  };
 
-  const handleLoginSuccess = async (player) => {
-    console.log('Handling login success for player:', player);
-    // ✅ Store player data in localStorage
-    localStorage.setItem('player', JSON.stringify(player));
-    // ✅ Reload the app (triggers full initialization)
-    window.location.reload();
-  };
-  const [showTimers, setShowTimers] = useState(false);
-  const [showStats, setShowStats] = useState(false); // Toggle for combat stats UI
-  const combatStats = gridState?.pcs?.[String(currentPlayer?._id)] || {};
+const [showTimers, setShowTimers] = useState(false);
+const [showStats, setShowStats] = useState(false); // Toggle for combat stats UI
+const combatStats = gridState?.pcs?.[String(currentPlayer?._id)] || {};
 
-  
-  return (
-    <>
+return ( <>
 
 {/* New Navigation Column */}
 
-      <div className="nav-column">
-        <button className="nav-button" title="Home" onClick={() => closePanel()}>🏡</button>
-        <button className="nav-button" title="Farming" onClick={() => openPanel('FarmingPanel')}>🚜</button>
-        <button className="nav-button" title="Build" onClick={() => openPanel('BuildPanel')}>⚒️</button>
-        <button className="nav-button" title="Buy Animals" onClick={() => openPanel('BuyPanel')}>🐮</button>
-        <button className="nav-button" title="Active Quests" onClick={() => openPanel('QuestPanel')}>❓</button>
-        <button className="nav-button" title="Skills & Upgrades" disabled={!currentPlayer} onClick={() => {
-            setActiveStation(null); // ✅ Reset activeStation
-            openPanel("SkillsAndUpgradesPanel"); // ✅ Open the panel normally
-          }}>⚙️</button>
-        <button className="nav-button" title="Government" onClick={() => openPanel('GovPanel')}>🏛️</button>
-        <button className="nav-button" title="Seasons" onClick={() => openPanel('SeasonPanel')}>🗓️</button>
-        <button className="nav-button" onClick={() => openPanel('DebugPanel')}>🐞</button>
-      </div>
+    <div className="nav-column">
+      <button className="nav-button" title="Home" onClick={() => closePanel()}>🏡</button>
+      <button className="nav-button" title="Farming" onClick={() => openPanel('FarmingPanel')}>🚜</button>
+      <button className="nav-button" title="Build" onClick={() => openPanel('BuildPanel')}>⚒️</button>
+      <button className="nav-button" title="Buy Animals" onClick={() => openPanel('BuyPanel')}>🐮</button>
+      <button className="nav-button" title="Active Quests" onClick={() => openPanel('QuestPanel')}>❓</button>
+      <button className="nav-button" title="Skills & Upgrades" disabled={!currentPlayer} onClick={() => {
+          setActiveStation(null); // ✅ Reset activeStation
+          openPanel("SkillsAndUpgradesPanel"); // ✅ Open the panel normally
+        }}>⚙️</button>
+      <button className="nav-button" title="Government" onClick={() => openPanel('GovPanel')}>🏛️</button>
+      <button className="nav-button" title="Seasons" onClick={() => openPanel('SeasonPanel')}>🗓️</button>
+      <button className="nav-button" onClick={() => openPanel('DebugPanel')}>🐞</button>
+    </div>
 
     <div className="app-container">
     <FloatingTextManager />
 
 {/* Base Panel */}
 
-      <div className="base-panel">
-        <h1>Valley View</h1>  
-        <br />
-        <h3>Logged in as:</h3>
+    <div className="base-panel">
+      <h1>Valley View</h1>  
+      <br />
+      <h3>Logged in as:</h3>
 
-        <button className="shared-button"
-          onClick={() => {
-            if (currentPlayer?.username) { 
-              openPanel('ProfilePanel'); // Open Profile Panel if player is logged in
-            } else { 
-              openPanel('LoginPanel'); // Open Login Panel if player is not logged in
-            }
-          }}
-        >
-          {currentPlayer?.username || 'Sign In'}
-        </button>
+      <button className="shared-button"
+        onClick={() => {
+          if (currentPlayer?.username) { 
+            openPanel('ProfilePanel'); // Open Profile Panel if player is logged in
+          } else { 
+            openPanel('LoginPanel'); // Open Login Panel if player is not logged in
+          }
+        }}
+      >
+        {currentPlayer?.username || 'Sign In'}
+      </button>
 
-        {/* Add Account Status button if player is logged in */}
-        {currentPlayer?.accountStatus && (
-          <>
-            <button 
-              className="shared-button account-status-button" 
-              onClick={() => openModal('Store')}
-            >
-              {currentPlayer.accountStatus} Account
-            </button>
-          </>
-        )}
+      {/* Add Account Status button if player is logged in */}
+      {currentPlayer?.accountStatus && (
+        <>
+          <button className="shared-button account-status-button" onClick={() => openModal('Store')} >
+            {currentPlayer.accountStatus} Account
+          </button>
+        </>
+      )}
 
-        {/* Add Role display if player has one */}
-        {currentPlayer?.role === "Mayor" && (
-          <>
-            <h3 className="player-role">
-              You are the Mayor
-            </h3>
-            <br />
-          </>
-        )}
+      {/* Add Role display if player has one */}
+      {currentPlayer?.role === "Mayor" && (
+        <>
+          <h3 className="player-role"> You are the Mayor </h3>
+          <br />
+        </>
+      )}
 
-        <button className="shared-button" >AWSD to Move</button>
-        <div className="zoom-controls">
-          <button className="zoom-button" disabled={!currentPlayer} onClick={zoomOut}>−</button>
-          <button className="zoom-button" disabled={!currentPlayer} onClick={zoomIn}>+</button>
-          <span><h3>to Zoom</h3></span>
-        </div>
-        <button className="shared-button" onClick={() => openPanel('HowToPanel')}>
-          🕹️ How to Play
-        </button>
-        <br/>
+      <button className="shared-button" >AWSD to Move</button>
+      <div className="zoom-controls">
+        <button className="zoom-button" disabled={!currentPlayer} onClick={zoomOut}>−</button>
+        <button className="zoom-button" disabled={!currentPlayer} onClick={zoomIn}>+</button>
+        <span><h3>to Zoom</h3></span>
+      </div>
+      <button className="shared-button" onClick={() => openPanel('HowToPanel')}>🕹️ How to Play</button>
+      <br/>
 
-
-        <div>
-          {/* Button to toggle stats visibility */}
-          <h3>😀 Player Stats:
-            <span 
-              onClick={() => setShowStats(!showStats)} 
-              style={{ cursor: "pointer", fontSize: "16px", marginLeft: "5px" }}
-            >
-              {showStats ? "▼" : "▶"}
-            </span>
-          </h3>
-
-          {/* Collapsible Combat Stats Panel */}
-          {showStats && (
-            <div className="combat-stats-panel">
-              <h4>❤️‍🩹 HP: {combatStats.hp || 0}</h4>
-              <h4>❤️‍🩹 Max HP: {combatStats.maxhp || 0}</h4>
-              <h4>🛡️ Armor Class: {combatStats.armorclass || 0}</h4>
-              <h4>⚔️ Attack Bonus: {combatStats.attackbonus || 0}</h4>
-              <h4>⚔️ Damage: {combatStats.damage || 0}</h4>
-              <h4>🔭 Attack Range: {combatStats.attackrange || 0}</h4>
-              <h4>🎯 Speed: {combatStats.speed || 0}</h4>
-              <h4>⛺️ Is Camping: {combatStats.iscamping ? "Yes" : "No"}</h4> 
-              </div>
-          )}
-        </div>
-        
-        <br />
-
-        {timers.taxes.phase === "waiting" ? (
-          <>
-            <h4>Next Tax Collection:</h4> 
-            <h2>{countdowns.taxes}</h2>
-          </>
-        ) : (
-          <>
-            <h4>Now collecting taxes...</h4>
-          </>
-        )}
-
-        <br />
-
-        {timers.seasons.phase === "onSeason" ? (
-          <>
-            <h4>📅 Season Ends in:</h4>
-            <h2>{countdowns.seasons}</h2>
-          </>
-        ) : (
-          <>
-            <h4>📅 Next Season in:</h4>
-            <h2>{countdowns.seasons}</h2>
-          </>
-        )}
-
-        <br />
-
-        <h3>Happening Now in Town:
+      <div>
+        {/* Button to toggle stats visibility */}
+        <h3>😀 Player Stats:
           <span 
-            onClick={() => setShowTimers(!showTimers)} 
+            onClick={() => setShowStats(!showStats)} 
             style={{ cursor: "pointer", fontSize: "16px", marginLeft: "5px" }}
           >
-            {showTimers ? "▼" : "▶"}
+            {showStats ? "▼" : "▶"}
           </span>
         </h3>
 
-        {showTimers && (
-          <div className="timers-panel">
-
-            <h4>🏛️ Elections: {timers.elections.phase}</h4>
-            <p>Ends: {countdowns.elections}</p>
-
-            <h4>🚂 Train: {timers.train.phase}</h4>
-            <p>Ends: {countdowns.train}</p>
-
-            <h4>🏦 Bank: {timers.bank.phase}</h4>
-            <p>Ends: {countdowns.bank}</p>
-
-            <button className="shared-button" onClick={() => openModal('TownNews')}> More </button>
-
+        {/* Collapsible Combat Stats Panel */}
+        {showStats && (
+          <div className="combat-stats-panel">
+            <h4>❤️‍🩹 HP: {combatStats.hp || 0}</h4>
+            <h4>❤️‍🩹 Max HP: {combatStats.maxhp || 0}</h4>
+            <h4>🛡️ Armor Class: {combatStats.armorclass || 0}</h4>
+            <h4>⚔️ Attack Bonus: {combatStats.attackbonus || 0}</h4>
+            <h4>⚔️ Damage: {combatStats.damage || 0}</h4>
+            <h4>🔭 Attack Range: {combatStats.attackrange || 0}</h4>
+            <h4>🎯 Speed: {combatStats.speed || 0}</h4>
+            <h4>⛺️ Is Camping: {combatStats.iscamping ? "Yes" : "No"}</h4> 
           </div>
         )}
-
-          <br />
-          <h3>Who's here:</h3>
-          <div>
-            {Object.entries(pcs).length === 0 ? (
-              <h4 style={{ color: "white" }}>No PCs present in the grid.</h4>
-            ) : (
-              <h4 style={{ color: "white" }}>
-                {Object.entries(pcs).map(([playerId, pc]) => (
-                  <p key={playerId} style={{ color: "white" }}>
-                    <strong>{pc.username}</strong> - HP: {pc.hp}, ({pc.position.x}, {pc.position.y})
-                  </p>
-                ))}
-              </h4>
-            )}
-            <h4 style={{ color: "white" }}>
-              {controllerUsername 
-                ? `${controllerUsername} is NPCController` 
-                : "There is no NPCController"}
-            </h4>
-          </div>
-
-          <br />
-
-          <button className="panel-button reset-button" onClick={handleResetTimers}>
-            Reset All Timers
-          </button>
-
       </div>
+      
+      <br />
+      {timers.taxes.phase === "waiting" ? (
+        <>
+          <h4>Next Tax Collection:</h4> 
+          <h2>{countdowns.taxes}</h2>
+        </>
+      ) : (
+        <>
+          <h4>Now collecting taxes...</h4>
+        </>
+      )}
+      <br />
+      {timers.seasons.phase === "onSeason" ? (
+        <>
+          <h4>📅 Season Ends in:</h4>
+          <h2>{countdowns.seasons}</h2>
+        </>
+      ) : (
+        <>
+          <h4>📅 Next Season in:</h4>
+          <h2>{countdowns.seasons}</h2>
+        </>
+      )}
+      <br />
+      <h3>Happening Now in Town:
+        <span 
+          onClick={() => setShowTimers(!showTimers)} 
+          style={{ cursor: "pointer", fontSize: "16px", marginLeft: "5px" }}
+        >
+          {showTimers ? "▼" : "▶"}
+        </span>
+      </h3>
+
+      {showTimers && (
+        <div className="timers-panel">
+          <h4>🏛️ Elections: {timers.elections.phase}</h4>
+          <p>Ends: {countdowns.elections}</p>
+          <h4>🚂 Train: {timers.train.phase}</h4>
+          <p>Ends: {countdowns.train}</p>
+          <h4>🏦 Bank: {timers.bank.phase}</h4>
+          <p>Ends: {countdowns.bank}</p>
+          <button className="shared-button" onClick={() => openModal('TownNews')}> More </button>
+        </div>
+      )}
+
+      <br />
+      <h3>Who's here:</h3>
+      <div>
+        {Object.entries(pcs).length === 0 ? (
+          <h4 style={{ color: "white" }}>No PCs present in the grid.</h4>
+        ) : (
+          <h4 style={{ color: "white" }}>
+            {Object.entries(pcs).map(([playerId, pc]) => (
+              <p key={playerId} style={{ color: "white" }}>
+                <strong>{pc.username}</strong> - HP: {pc.hp}, ({pc.position.x}, {pc.position.y})
+              </p>
+            ))}
+          </h4>
+        )}
+        <h4 style={{ color: "white" }}>
+          {controllerUsername 
+            ? `${controllerUsername} is NPCController` 
+            : "There is no NPCController"}
+        </h4>
+      </div>
+      <br />
+      <button className="panel-button reset-button" onClick={handleResetTimers}>Reset All Timers</button>
+    </div>
 
 {/* Header */}
 
     <header className="app-header">
-        <div className="money-display">
-            <h3>💰  
-                {Array.isArray(currentPlayer?.inventory) ? (
-                    <span className="money-value">
-                        {currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0}
-                    </span>
-                ) : (
-                    "..."
-                )}
-            </h3>
-        </div>
-        <div className="header-controls">
-            <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> 🎒 Inventory </button>
-            <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Store')}>🛒 Store</button>
-            <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
-        </div>
-        <div className="language-control">
-            <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Language')}>🌎 EN</button>
-        </div>
+      <div className="money-display">
+        <h3>💰  
+          {Array.isArray(currentPlayer?.inventory) ? (
+              <span className="money-value">
+                  {currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0}
+              </span>
+          ) : ( "..." )}
+        </h3>
+      </div>
+      <div className="header-controls">
+          <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> 🎒 Inventory </button>
+          <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Store')}>🛒 Store</button>
+          <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
+      </div>
+      <div className="language-control">
+          <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Language')}>🌎 EN</button>
+      </div>
     </header>
     <div className="status-bar-wrapper"> <StatusBar /> </div>
 
@@ -1456,10 +1241,8 @@ const zoomOut = () => {
 {/* //////////////////// Game Board //////////////////// */}
 
     <div className="homestead">
-
       {zoomLevel === 'far' || zoomLevel === 'close' ? (
         <>
-
           <DynamicRenderer
             TILE_SIZE={activeTileSize}
             setInventory={setInventory}
@@ -1496,40 +1279,40 @@ const zoomOut = () => {
         </>
       ) : null}
 
-    {/* ZOOM OUTS */}
+{/* //////////////////  ZOOM OUTS  ///////////////////*/}
 
-      {zoomLevel === 'settlement' && (
-        <SettlementView
-          currentPlayer={currentPlayer}
-          setZoomLevel={setZoomLevel} 
-          setCurrentPlayer={setCurrentPlayer}
-          fetchGrid={fetchGrid}
-          setGridId={setGridId}            
-          setGrid={setGrid}             
-          setResources={setResources}   
-          setTileTypes={setTileTypes}      
-          setGridState={setGridState}
-          TILE_SIZE={activeTileSize}
-          onClose={() => setZoomLevel('far')}
-          masterResources={masterResources}  // Add this line
+    {zoomLevel === 'settlement' && (
+      <SettlementView
+        currentPlayer={currentPlayer}
+        setZoomLevel={setZoomLevel} 
+        setCurrentPlayer={setCurrentPlayer}
+        fetchGrid={fetchGrid}
+        setGridId={setGridId}            
+        setGrid={setGrid}             
+        setResources={setResources}   
+        setTileTypes={setTileTypes}      
+        setGridState={setGridState}
+        TILE_SIZE={activeTileSize}
+        onClose={() => setZoomLevel('far')}
+        masterResources={masterResources}  // Add this line
+      />
+    )}
+    {zoomLevel === 'frontier' && (
+      <FrontierView
+        currentPlayer={currentPlayer}
+        setZoomLevel={setZoomLevel} 
+        setCurrentPlayer={setCurrentPlayer}
+        fetchGrid={fetchGrid}
+        setGridId={setGridId}              
+        setGrid={setGrid}            
+        setResources={setResources}  
+        setTileTypes={setTileTypes}     
+        setGridState={setGridState}
+        TILE_SIZE={activeTileSize}
+        onClose={() => setZoomLevel('settlement')}
         />
       )}
-      {zoomLevel === 'frontier' && (
-        <FrontierView
-          currentPlayer={currentPlayer}
-          setZoomLevel={setZoomLevel} 
-          setCurrentPlayer={setCurrentPlayer}
-          fetchGrid={fetchGrid}
-          setGridId={setGridId}              
-          setGrid={setGrid}            
-          setResources={setResources}  
-          setTileTypes={setTileTypes}     
-          setGridState={setGridState}
-          TILE_SIZE={activeTileSize}
-          onClose={() => setZoomLevel('settlement')}
-          />
-        )}
-      </div>
+    </div>
 
 {/* ///////////////////// MODALS ////////////////////// */}
 
@@ -1541,7 +1324,6 @@ const zoomOut = () => {
         message2={modalContent.message2} 
         size={modalContent.size || "standard"} // default to standard
       />
-
       {activeModal === 'Mailbox' && (
         <Mailbox
           onClose={closeModal}  // ✅ This sets activeModal = null
@@ -1550,7 +1332,6 @@ const zoomOut = () => {
           resources={masterResources}
         />
       )}
-      
       {activeModal === 'TownNews' && (
         <TownNews
           onClose={closeModal}  // ✅ This sets activeModal = null
@@ -1559,7 +1340,6 @@ const zoomOut = () => {
           resources={masterResources}
         />
       )}
-
       {activeModal === 'Store' && (
         <Store 
           onClose={closeModal} 
@@ -1569,14 +1349,12 @@ const zoomOut = () => {
           openMailbox={() => setActiveModal('Mailbox')}  
         />
       )}
-
       {isOffSeason && (
         <OffSeasonModal
           currentPlayer={currentPlayer}
           timers={timers}
         />
       )}
-
 
 {/* ///////////////////// PANELS ////////////////////// */}
 
@@ -1593,7 +1371,7 @@ const zoomOut = () => {
           onClose={closePanel}
           setCurrentPlayer={(player) => {
             setCurrentPlayer(player);
-            closePanel(); // Close the panel after setting the player
+            closePanel(); 
           }}
           onLoginSuccess={async (username, password) => {
             await handleLoginSuccess(username, password);
@@ -1613,7 +1391,7 @@ const zoomOut = () => {
       )}
       {activePanel === 'InventoryPanel' && (
         <InventoryPanel
-          onClose={closePanel} // Close panel via context
+          onClose={closePanel} 
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setInventory={setInventory}
@@ -1622,7 +1400,7 @@ const zoomOut = () => {
       )}
       {activePanel === 'BankPanel' && (
         <BankPanel
-          onClose={closePanel} // Close panel via context
+          onClose={closePanel} 
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setInventory={setInventory}
@@ -1631,7 +1409,7 @@ const zoomOut = () => {
       )}
       {activePanel === 'TrainPanel' && (
         <TrainPanel
-          onClose={closePanel} // Close panel via context
+          onClose={closePanel} 
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setInventory={setInventory}
@@ -1672,7 +1450,7 @@ const zoomOut = () => {
           setInventory={setInventory}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
-          stationType={activeStation?.type} // ✅ Ensure stationType is passed
+          stationType={activeStation?.type} 
           TILE_SIZE={activeTileSize}
         />
       )}
@@ -1686,11 +1464,11 @@ const zoomOut = () => {
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setResources={setResources}
-          stationType={activeStation?.type} // Ensure stationType is passed
-          currentStationPosition={activeStation?.position} // Pass currentStationPosition
-          gridId={activeStation?.gridId} // Pass gridId
-          masterResources={masterResources} // Pass masterResources for crafting recipes
-          masterSkills={masterSkills} // Pass masterSkills for skill checks
+          stationType={activeStation?.type} 
+          currentStationPosition={activeStation?.position} 
+          gridId={activeStation?.gridId} 
+          masterResources={masterResources} 
+          masterSkills={masterSkills} 
           TILE_SIZE={activeTileSize}
           />
       )}
@@ -1704,9 +1482,9 @@ const zoomOut = () => {
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setResources={setResources}
-          stationType={activeStation?.type} // Ensure stationType is passed
-          currentStationPosition={activeStation?.position} // Pass currentStationPosition
-          gridId={activeStation?.gridId} // Pass gridId
+          stationType={activeStation?.type} 
+          currentStationPosition={activeStation?.position} 
+          gridId={activeStation?.gridId}
           TILE_SIZE={activeTileSize}
         />
       )}
@@ -1726,8 +1504,8 @@ const zoomOut = () => {
           setCurrentPlayer={setCurrentPlayer}
           setIsMoving={setIsMoving}
           gridId={gridId}
-          masterResources={masterResources} // Pass masterResources for farming recipes
-          masterSkills={masterSkills} // Pass masterSkills for skill checks
+          masterResources={masterResources} 
+          masterSkills={masterSkills} 
         />
       )}
       {activePanel === 'BuildPanel' && (
@@ -1744,8 +1522,8 @@ const zoomOut = () => {
           setIsMoving={setIsMoving}
           gridId={gridId}
           updateStatus={updateStatus}
-          masterResources={masterResources} // Pass masterResources for building recipes,
-          masterSkills={masterSkills} // Pass masterSkills for skill checks
+          masterResources={masterResources} 
+          masterSkills={masterSkills} 
         />
       )}
       {activePanel === 'BuyPanel' && (
@@ -1763,8 +1541,8 @@ const zoomOut = () => {
           setIsMoving={setIsMoving}
           gridId={gridId}
           updateStatus={updateStatus}
-          masterResources={masterResources} // Pass masterResources for buying animals
-          masterSkills={masterSkills} // Pass masterSkills for skill checks
+          masterResources={masterResources} 
+          masterSkills={masterSkills} 
         />
       )}
       {activePanel === 'QuestGiverPanel' && (
@@ -1786,8 +1564,8 @@ const zoomOut = () => {
           pcData={activeSocialPC}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
-          setInventory={setInventory}  // ✅ Add this line
-          setBackpack={setBackpack}    // ✅ Add this line
+          setInventory={setInventory}  
+          setBackpack={setBackpack}   
         />
       )}
       {activePanel === 'AnimalStall' && (
@@ -1798,9 +1576,9 @@ const zoomOut = () => {
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setResources={setResources}
-          stationType={activeStation?.type} // Ensure stationType is passed
-          currentStationPosition={activeStation?.position} // Pass currentStationPosition
-          gridId={activeStation?.gridId} // Pass gridId
+          stationType={activeStation?.type} 
+          currentStationPosition={activeStation?.position} 
+          gridId={activeStation?.gridId} 
         />
       )}
       {activePanel === 'TradeStall' && (

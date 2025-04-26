@@ -105,7 +105,14 @@ const SettlementView = ({
       updateStatus(9);
       return;
     }
-  
+
+    // Case 3: Clicking on the tile where the player already is
+    if (tile.gridId === currentPlayer.location.g) {
+      console.log("Clicked on current tile. Already here — no need to move.");
+      setZoomLevel("far");
+      return;
+    }
+      
     try {
       const toLocation = {
         x: 1,  // Default to (1, 1) or dynamically set if needed

@@ -227,10 +227,7 @@ router.post('/increment-settlement-population', async (req, res) => {
       // Find frontier using frontierId from the settlement
       const frontier = await Frontier.findById(updatedSettlement.frontierId);
 
-      console.log('🔍 Found Frontier:', {
-          id: frontier?._id,
-          hasSettlements: !!frontier?.settlements
-      });
+      console.log('🔍 Found Frontier:', { id: frontier?._id, hasSettlements: !!frontier?.settlements });
 
       if (frontier) {
           let updated = false;

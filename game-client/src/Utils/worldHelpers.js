@@ -81,3 +81,11 @@ export const addResourceToGrid = async (resources, newResource) => {
 };
 
 
+// Inline function to calculate Manhattan distance safely
+export const calculateDistance = (pos1, pos2) => {
+  if (!pos1 || !pos2 || typeof pos1.x === 'undefined' || typeof pos1.y === 'undefined' || typeof pos2.x === 'undefined' || typeof pos2.y === 'undefined') {
+      console.warn("Skipping distance calculation due to invalid position:", { pos1, pos2 });
+      return Infinity; // Return a high value to trigger out-of-range logic
+  }
+  return Math.abs(pos1.x - pos2.x) + Math.abs(pos1.y - pos2.y);
+};

@@ -16,20 +16,16 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
       const accountStatus = 'Free';
       const role = 'Peasant';
       const language = 'English';
+      const frontierName = 'Valley View 1';
 
-      // 1) Fetch the Frontier by Name
-      const frontierResponse = await axios.get(`${API_BASE}/api/frontiers-by-name`, {
-        params: { name: 'Valley View 1' },
-      });
-      if (!frontierResponse.data || frontierResponse.data.length === 0) {
-        throw new Error('Frontier not found');
-      }
+// 1) Fetch the Frontier by Name
+
+      const frontierResponse = await axios.get(`${API_BASE}/api/frontiers-by-name`, { params: { name: frontierName }, });
+
+      if (!frontierResponse.data || frontierResponse.data.length === 0) { throw new Error('Frontier not found'); }
       const frontier = frontierResponse.data[0];
       console.log('Frontier fetched:', frontier);
-
-      if (!frontier.settlements || frontier.settlements.length === 0) {
-        throw new Error('No settlements available in this Frontier.');
-      }
+      if (!frontier.settlements || frontier.settlements.length === 0) { throw new Error('No settlements available in this Frontier.'); }
 
       let assignedSettlementId = null;
       let assignedGridId = null;      // The real MongoDB _id for the Grid doc
@@ -40,10 +36,11 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
         throw new Error(`Invalid settlements data: ${JSON.stringify(frontier.settlements, null, 2)}`);
       }
 
-      console.log("🛠️ Frontier Data:", JSON.stringify(frontier, null, 2));
-      console.log("🏘️ Settlements:", JSON.stringify(frontier.settlements, null, 2));
+      // console.log("🛠️ Frontier Data:", JSON.stringify(frontier, null, 2));
+      // console.log("🏘️ Settlements:", JSON.stringify(frontier.settlements, null, 2));
 
-      // 2) Locate an available sub-grid in a settlement
+// 2) Locate an available sub-grid in a settlement
+
       for (const settlementRow of frontier.settlements) {
         for (const settlement of settlementRow) {
           // settlement.available might indicate if the *settlement* is available
@@ -51,9 +48,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
           if (settlement.available !== true) continue;
 
           // Get the settlement doc
-          const settlementResponse = await axios.get(
-            `${API_BASE}/api/get-settlement/${settlement.settlementId}`
-          );
+          const settlementResponse = await axios.get(`${API_BASE}/api/get-settlement/${settlement.settlementId}`);
           const settlementData = settlementResponse.data;
 
           // Check sub-grids for an available one
@@ -67,21 +62,17 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
             assignedGridCoord = availableGrid.gridCoord;
             gridType = availableGrid.gridType;
 
-            // 3) Create the new Grid doc on the server
+// 3) Create the new Grid doc on the server
+
             const gridPayload = {
               gridCoord: assignedGridCoord, // no more placeholderName
               gridType,
               settlementId: assignedSettlementId,
               frontierId: frontier._id,
             };
-
             console.log('gridPayload = ', gridPayload);
             const gridCreationResponse = await axios.post(`${API_BASE}/api/create-grid`, gridPayload);
-
-            if (!gridCreationResponse.data.success) {
-              throw new Error('Failed to create grid');
-            }
-
+            if (!gridCreationResponse.data.success) { throw new Error('Failed to create grid'); }
             assignedGridId = gridCreationResponse.data.gridId;
             console.log('Grid document created successfully:', assignedGridId);
 
@@ -95,7 +86,8 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
         throw new Error('No available sub-grids in the Frontier.');
       }
 
-      // 4) Register the Player
+// 4) Register the Player
+
       // We'll pass location data including the new gridId, settlementId, frontierId, and gridCoord
       const registerPayload = {
         username,
@@ -107,10 +99,10 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
         location: {
           x: 2,
           y: 2,
-          g: assignedGridId,        // the actual MongoDB _id for the Grid doc
-          s: assignedSettlementId,  // the settlement's _id
-          f: frontier._id,          // the frontier's _id
-          gtype: gridType,          // optional
+          g: assignedGridId,           // the actual MongoDB _id for the Grid doc
+          s: assignedSettlementId,     // the settlement's _id
+          f: frontier._id,             // the frontier's _id
+          gtype: gridType,             // optional
           gridCoord: assignedGridCoord // store numeric code for adjacency logic
         },
       };
@@ -121,17 +113,17 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
       }
       console.log('Player successfully registered:', response.data.player);
 
-      // 5) Finalize account setup
+// 5) Finalize account setup
+
       const player = response.data.player;
       setCurrentPlayer(player);
       localStorage.removeItem('player');
       localStorage.setItem('player', JSON.stringify(player));
 
-      // 6) Increment the settlement population
+// 6) Increment the settlement & frontier population
+
       try {
-        await axios.post(`${API_BASE}/api/increment-settlement-population`, {
-            settlementId: assignedSettlementId,
-        });
+        await axios.post(`${API_BASE}/api/increment-settlement-population`, {settlementId: assignedSettlementId,});
         console.log("✅ Settlement population incremented successfully.");
        } catch (error) {
          console.error("❌ Error incrementing settlement population:", error);
@@ -150,8 +142,10 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
           // Decide if this is critical enough to throw or ignore
         }
       }
+      const now = Date.now();
 
-      // Load existing PC state and add new PC
+// 8) Load existing PC grid state and add the new PC
+
       const gridStateResponse = await axios.get(`${API_BASE}/api/load-grid-state/${assignedGridId}`);
       const { gridStatePCs = { pcs: {} } } = gridStateResponse.data;
       const pcMap = gridStatePCs.pcs;
@@ -170,15 +164,23 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
         attackrange: player.attackrange,
         speed: player.speed,
         iscamping: player.iscamping,
+        lastUpdated: now,
       };
-      // Save only PCs
-      await axios.post(`${API_BASE}/api/save-grid-state-pcs`, {
+      // Save just this PC to the gridState
+      // Construct the payload
+      const payload = {
         gridId: assignedGridId,
-        pcs: { ...pcMap, lastUpdated: Date.now() },
-      });
+        playerId: player._id,
+        pc: pcMap,
+        lastUpdated: now,
+      };
+      console.log('📤 Constructed Payload for creating player:', payload);
+      console.log('📤 Saving single PC to grid...');
+      await axios.post(`${API_BASE}/api/save-single-pc`, payload);
 
-      // 8) Send welcome message via mailbox
-      try {
+// 9) Send welcome message via mailbox
+
+    try {
         await axios.post(`${API_BASE}/api/send-mailbox-message`, {
           playerId: player._id,
           messageId: 1,
@@ -188,8 +190,8 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
         console.error("❌ Failed to send welcome message:", mailError);
       }
 
+// 10) Close modal if provided, then reload
 
-      // Close modal if provided, then reload
       if (closeModal) closeModal();
       window.location.reload();
 
@@ -199,43 +201,43 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
     }
   };
 
-  return (
-    <div id="create-account-form">
-      <h2>Create Account</h2>
-      <form onSubmit={handleCreateAccount}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <input
-          type="language"
-          placeholder="language"
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-        />
-        <div className="panel-buttons">
-          <button className="btn-success" type="submit">Create Account</button>
-        </div>
-      </form>
-
+return (
+  <div id="create-account-form">
+    <h2>Create Account</h2>
+    <form onSubmit={handleCreateAccount}>
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <input
+        type="language"
+        placeholder="language"
+        value={language}
+        onChange={(e) => setLanguage(e.target.value)}
+      />
       <div className="panel-buttons">
-        <button className="btn-neutral"
-          type="button"
-          onClick={() => setIsLoggedIn(false)}
-        >
-          Back to Login
-        </button>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        </div>
+        <button className="btn-success" type="submit">Create Account</button>
       </div>
+    </form>
+
+    <div className="panel-buttons">
+      <button className="btn-neutral"
+        type="button"
+        onClick={() => setIsLoggedIn(false)}
+      >
+        Back to Login
+      </button>
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      </div>
+    </div>
   );
 };
 

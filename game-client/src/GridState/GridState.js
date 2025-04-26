@@ -270,6 +270,7 @@ class GridStateManager {
     this.saveGridStateNPCs(gridId);
   }
 
+  // DEPRECATE addPC
   addPC(gridId, pc) {
     const gridState = this.getGridState(gridId);
     console.log(`Top of AddPC; gridState = `, gridState); // Debugging check
@@ -338,7 +339,8 @@ class GridStateManager {
   }
 
   /**
-   * Save only PCs in the gridState to the database.
+   * TO BE REMOVED **********
+   *   Save only PCs in the gridState to the database.
    */
   async saveGridStatePCs(gridId) {
     console.log('💾 saveGridStatePCs called with gridId:', gridId);
@@ -472,10 +474,10 @@ export const {
   getGridState,
   addNPC,
   updateNPC,
-  addPC,
+  addPC, // to be removed
   updatePC,
   removeNPC, 
-  saveGridStatePCs,
+  saveGridStatePCs, // to be removed
   saveGridStateNPCs,
 } = gridStateManager;
 

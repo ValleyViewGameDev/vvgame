@@ -3,12 +3,9 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import Panel from '../UI/Panel';
 import '../UI/Panel.css'; // Specific styles for Debug Panel
-
-import { fetchInventory, updateInventory } from './InventoryManagement';
-import { refreshPlayerAfterInventoryUpdate } from './InventoryManagement';
+import { fetchInventory, updateInventory, refreshPlayerAfterInventoryUpdate } from './InventoryManagement';
 import { fetchGridData } from './GridManagement';
 import gridStateManager from '../GridState/GridState'; // Use default export for gridStateManager
-
 
 const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, setResources, currentGridId, updateStatus }) => {
   const [timers, setTimers] = useState([]);
@@ -18,48 +15,47 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
   const [refreshDebug, setRefreshDebug] = useState(false);
   
   // Fetch resources with timers when the panel opens or gridId changes
-// Fetch resources with timers when the panel opens or gridId changes
-useEffect(() => {
-  if (!currentGridId) return;
+  useEffect(() => {
+    if (!currentGridId) return;
 
-  const fetchTimers = async () => {
-      try {
-          console.log('Fetching timers for gridId:', currentGridId);
-          const gridData = await fetchGridData(currentGridId);
+    const fetchTimers = async () => {
+        try {
+            console.log('Fetching timers for gridId:', currentGridId);
+            const gridData = await fetchGridData(currentGridId);
 
-          // ✅ Include both growEnd (Farming) and craftEnd (Crafting)
-          const resourcesWithTimers = (gridData.resources || []).filter(
-              (res) => res.growEnd || res.craftEnd
-          );
+            // ✅ Include both growEnd (Farming) and craftEnd (Crafting)
+            const resourcesWithTimers = (gridData.resources || []).filter(
+                (res) => res.growEnd || res.craftEnd
+            );
 
-          console.log('⏳ Active Timers:', resourcesWithTimers);
-          setTimers(resourcesWithTimers);
-      } catch (error) {
-          console.error('Error fetching timers:', error);
-      }
-  };
+            console.log('⏳ Active Timers:', resourcesWithTimers);
+            setTimers(resourcesWithTimers);
+        } catch (error) {
+            console.error('Error fetching timers:', error);
+        }
+    };
 
-  fetchTimers();
-}, [currentGridId]);
+    fetchTimers();
+  }, [currentGridId]);
 
-// Refresh timers periodically
-useEffect(() => {
-  const timerInterval = setInterval(() => {
-    setTimers((prevTimers) =>
-      prevTimers.map((timer) => {
-        const growTimeRemaining = timer.growEnd ? Math.max(0, Math.floor((timer.growEnd - Date.now()) / 1000)) : null;
-        const craftTimeRemaining = timer.craftEnd ? Math.max(0, Math.floor((timer.craftEnd - Date.now()) / 1000)) : null;
+  // Refresh timers periodically
+  useEffect(() => {
+    const timerInterval = setInterval(() => {
+      setTimers((prevTimers) =>
+        prevTimers.map((timer) => {
+          const growTimeRemaining = timer.growEnd ? Math.max(0, Math.floor((timer.growEnd - Date.now()) / 1000)) : null;
+          const craftTimeRemaining = timer.craftEnd ? Math.max(0, Math.floor((timer.craftEnd - Date.now()) / 1000)) : null;
 
-        return {
-          ...timer,
-          remainingTime: growTimeRemaining !== null ? growTimeRemaining : craftTimeRemaining, // Prioritize active timer
-        };
-      })
-    );
-  }, 1000);
+          return {
+            ...timer,
+            remainingTime: growTimeRemaining !== null ? growTimeRemaining : craftTimeRemaining, // Prioritize active timer
+          };
+        })
+      );
+    }, 1000);
 
-  return () => clearInterval(timerInterval);
-}, []);
+    return () => clearInterval(timerInterval);
+  }, []);
 
 
   // Fetch NPCs and PCs from GridState
@@ -91,14 +87,8 @@ useEffect(() => {
     setUpdatedNPCs(npcs);
   }, [npcs]);
 
-
-
   const handleResetGrid = async () => {
-    if (!currentGridId) {
-      console.error('currentGridId is not defined.');
-      return;
-    }
-  
+    if (!currentGridId) { console.error('currentGridId is not defined.'); return; }
     console.log('handleResetGrid: gridId:', currentGridId);
   
     try {

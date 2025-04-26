@@ -19,14 +19,8 @@ const createParticleElement = (char, x, y) => {
 
 // Add this utility function
 export const calculateTileCenter = (x, y, TILE_SIZE) => {
-    const centerX = (x * TILE_SIZE) + (TILE_SIZE / 2) - 5;
-    const centerY = (y * TILE_SIZE) + (TILE_SIZE / 2) - 5;
-    
-    console.log('🎯 utility: calculateTileCenter:', {
-        input: { x, y, TILE_SIZE },
-        calculated: { centerX, centerY }
-    });
-    
+    const centerX = (x * TILE_SIZE) + (TILE_SIZE / 2);
+    const centerY = (y * TILE_SIZE) + (TILE_SIZE / 2);
     return { centerX, centerY };
 };
 

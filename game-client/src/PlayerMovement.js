@@ -6,24 +6,19 @@ import FloatingTextManager from "./UI/FloatingText";
 let isAnimating = false; 
 let currentAnimationFrame = null; 
 
-
-// ✅ Function to check if movement is valid
-function isValidMove(targetX, targetY, masterResources) {
+function isValidMove(targetX, targetY, masterResources) {  // Function to check if movement is valid
   const tiles = GlobalGridState.getTiles();
   const resources = GlobalGridState.getResources();
 
-  // ✅ Prevent crash if resources is malformed
   if (!Array.isArray(resources)) {
     console.warn('⛔ Movement blocked: resources is not an array yet.', resources);
     return false;
   }
-  
   // 1️⃣ **Check if the target is out of bounds**
   if (targetX < 0 || targetY < 0 || targetX > 63 || targetY > 63) {
     console.warn(`⛔ Movement blocked: (${targetX}, ${targetY}) is out of bounds.`);
     return false;
   }
-
   // 2️⃣ **Check if tile is valid for movement (using existing isValidTile function)**
   const canMove = isTileValidForPlayer(targetX, targetY, tiles, resources, masterResources, []);
   if (!canMove) {
@@ -36,19 +31,21 @@ function isValidMove(targetX, targetY, masterResources) {
  * Handles key inputs for player movement and triggers smooth movement.
  */
 export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResources) {
-  if (isAnimating) {
-    console.warn('Movement in progress, input ignored.');
-    return;
-  }
+  if (isAnimating) { console.warn('Movement in progress, input ignored.'); return; }
+
   const directions = {
     ArrowUp: { dx: 0, dy: -1 },
     w: { dx: 0, dy: -1 },
+    W: { dx: 0, dy: -1 },
     ArrowDown: { dx: 0, dy: 1 },
     s: { dx: 0, dy: 1 },
+    S: { dx: 0, dy: 1 },
     ArrowLeft: { dx: -1, dy: 0 },
     a: { dx: -1, dy: 0 },
+    A: { dx: -1, dy: 0 },
     ArrowRight: { dx: 1, dy: 0 },
     d: { dx: 1, dy: 0 },
+    D: { dx: 1, dy: 0 },
   };
 
   const movement = directions[event.key];
@@ -58,16 +55,12 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
     FloatingTextManager.addFloatingText(32, currentPlayer.location.x, currentPlayer.location.y, TILE_SIZE);
     return;
   }
-
   // Convert currentPlayer._id to string to match gridState.pcs keys
   const playerId = currentPlayer._id.toString();
   const gridId = currentPlayer.location.g;
   const gridState = gridStateManager.getGridState(gridId);
   
-  if (!gridState || !gridState.pcs[playerId]) {
-    console.error('Player not found in gridState.');
-    return;
-  }
+  if (!gridState || !gridState.pcs[playerId]) { console.error('Player not found in gridState.'); return; }
 
   const playerPosition = gridState.pcs[playerId].position;
   console.log('playerPosition from gridState = ',playerPosition);
@@ -79,7 +72,6 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
     console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
     return;
   }
-
   movePlayerSmoothly(playerId, { x: targetX, y: targetY }, gridState, gridId, TILE_SIZE);
 }
 
@@ -89,9 +81,7 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
 function movePlayerSmoothly(playerId, target, gridState, gridId, TILE_SIZE) {
   if (isAnimating) return; 
 
-
-  console.log("movePlayerSmoothly:  target: ",target);
-  console.log("movePlayerSmoothly:  playerId: ",playerId);
+  console.log("movePlayerSmoothly:  target: ", target, "; playerId: ",playerId);
   console.log('gridState before movement:', gridState);
 
   // Update position
@@ -109,11 +99,7 @@ function movePlayerSmoothly(playerId, target, gridState, gridId, TILE_SIZE) {
       currentAnimationFrame = null;
 
       // Round the final position to ensure it's on an integer tile
-      const finalPosition = {
-        x: Math.round(target.x),
-        y: Math.round(target.y),
-      };
-
+      const finalPosition = { x: Math.round(target.x), y: Math.round(target.y), };
       console.log('Final player position (rounded):', finalPosition);
 
       // Update local grid state with the final position
@@ -131,9 +117,7 @@ function movePlayerSmoothly(playerId, target, gridState, gridId, TILE_SIZE) {
     // Interpolate positions smoothly for rendering purposes only
     const interpolatedX = currentX + ((targetX - currentX) / stepCount) * step;
     const interpolatedY = currentY + ((targetY - currentY) / stepCount) * step;
-
-    // Update local grid state for animation (but do not save these intermediate values)
-    gridState.pcs[playerId].position = {
+    gridState.pcs[playerId].position = {  // Update local grid state for animation (but do not save)
       x: interpolatedX / TILE_SIZE,
       y: interpolatedY / TILE_SIZE,
     };
@@ -148,17 +132,14 @@ function movePlayerSmoothly(playerId, target, gridState, gridId, TILE_SIZE) {
 export function centerCameraOnPlayer(position, TILE_SIZE) {
   const gameContainer = document.querySelector(".homestead"); // Adjust this if needed
   if (!gameContainer) return;
-
   // Calculate the center position
   const centerX = position.x * TILE_SIZE - window.innerWidth / 2;
   const centerY = position.y * TILE_SIZE - window.innerHeight / 2;
-
   gameContainer.scrollTo({
     left: centerX,
     top: centerY,
     behavior: "smooth", // Smooth scrolling effect
   });
-
   console.log(`📷 Camera centered on player at (${position.x}, ${position.y})`);
 }
 
@@ -166,22 +147,15 @@ export function centerCameraOnPlayer(position, TILE_SIZE) {
 export function isTileValidForPlayer(x, y, tiles, resources, masterResources) {
   x = Math.floor(x);
   y = Math.floor(y);
-
   // Check if tile is out of bounds
   if (x < 0 || y < 0 || y >= tiles.length || x >= tiles[0].length) {
     console.warn(`⛔ Tile (${x}, ${y}) is out of bounds.`);
     return false;
   }
-
   // Get the tile type
   const tileType = tiles[y][x];
-
   // Ensure the tile type exists
-  if (!tileType) {
-    console.warn(`⛔ Invalid tile at (${x}, ${y}) - No tileType found.`);
-    return false;
-  }
-
+  if (!tileType) { console.warn(`⛔ Invalid tile at (${x}, ${y}) - No tileType found.`); return false; }
 
   // **Step 1: Check if tile itself is passable using masterResources**
   const tileResource = masterResources.find(resource => resource.type === tileType);
@@ -190,7 +164,6 @@ export function isTileValidForPlayer(x, y, tiles, resources, masterResources) {
     console.warn(`⛔ Tile (${x}, ${y}) is not passable according to masterResources.`);
     return false;
   }
-
   // **Step 2: Check for an impassable resource in this tile**
   const resourceInTile = resources.find(res => res.x === x && res.y === y);
   if (resourceInTile) {
@@ -199,7 +172,6 @@ export function isTileValidForPlayer(x, y, tiles, resources, masterResources) {
       return false;
     }
   }
-
   // ✅ If all checks pass, movement is allowed
   return true;
 }

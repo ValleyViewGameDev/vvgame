@@ -91,7 +91,7 @@ router.post('/create-grid', async (req, res) => {
         if (resourceEntry && resourceEntry.category === 'npc') {
           console.log(`📌 Placing NPC "${resourceEntry.type}" at (${x}, ${y})`);
 
-          const npcId = new ObjectId(); // Generate unique MongoDB ID
+          const npcId = new ObjectId(); 
           
           newGridState.npcs[npcId.toString()] = {
             id: npcId.toString(),
@@ -193,12 +193,13 @@ router.post('/reset-grid', async (req, res) => {
     const newResources = generateResources(layout, newTiles, layout.resourceDistribution);
 
     // ✅ Step 6: Preserve existing PCs, only if not a homestead reset
-    let existingPCs = {};
-    if (gridType !== "homestead") {
-      existingPCs = grid.gridState?.pcs || {};
-    }
+    // NOT NEEDED, NOW THAT NPCS ARE IN A SEPERATE GRIDSTATE STRUCTURE FROM PCS; LEAVE PCS ALONE
+    // let existingPCs = {};
+    // if (gridType !== "homestead") {
+    //   existingPCs = grid.gridStatePCs?.pcs || {};
+    // }
     
-    const newGridState = { npcs: {}, pcs: existingPCs };
+    const newNPCGridState = { npcs: {} };
 
     // Process layout resources, separating NPCs into gridState
     layout.resources.forEach((row, y) => {
@@ -207,7 +208,7 @@ router.post('/reset-grid', async (req, res) => {
           const npcTemplate = masterResources.find(r => r.type === cell.type);
           if (npcTemplate) {
             const npcId = `${cell.type}_${x}_${y}`;
-            newGridState.npcs[npcId] = {
+            newNPCGridState.npcs[npcId] = {
               id: npcId,
               type: cell.type,
               position: { x, y },
@@ -224,16 +225,14 @@ router.post('/reset-grid', async (req, res) => {
     // Reset tiles, resources, and gridState
     grid.tiles = newTiles;
     grid.resources = newResources;
-    grid.gridState = {
-      npcs: newGridState.npcs,
-      pcs: existingPCs,
-      lastUpdated: Date.now()
-    };
+    grid.gridStateNPCs = { npcs: newNPCGridState.npcs };
+    grid.gridStateNPCsLastUpdated = Date.now;
 
     await grid.save();
 
     console.log(`Grid reset successfully for ID: ${gridId}, Type: ${gridType}`);
     res.status(200).json({ success: true, message: 'Grid reset successfully.' });
+
   } catch (error) {
     console.error('Error resetting grid:', error);
     res.status(500).json({ error: 'Failed to reset grid.' });

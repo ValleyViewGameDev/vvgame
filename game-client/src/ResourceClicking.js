@@ -1,7 +1,6 @@
 import API_BASE from './config.js'; 
 import axios from 'axios';
-import { updateInventory, fetchInventoryAndBackpack } from './Utils/InventoryManagement';
-import { refreshPlayerAfterInventoryUpdate } from './Utils/InventoryManagement';
+import { fetchInventoryAndBackpack, refreshPlayerAfterInventoryUpdate } from './Utils/InventoryManagement';
 import { updateGridResource } from './Utils/GridManagement';
 import { loadMasterResources, loadMasterSkills } from './Utils/TuningManager'; // Centralized tuning manager
 import FloatingTextManager from './UI/FloatingText';
@@ -9,15 +8,7 @@ import { lockResource, unlockResource } from './Utils/ResourceLockManager';
 import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
 import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
 import { checkInventoryCapacity } from './Utils/InventoryManagement';
-import { handleSpawnerDamage } from './GameFeatures/NPCs/NPCSpawner';
 import { createCollectEffect, createSourceConversionEffect, calculateTileCenter } from './VFX/VFX';
-
-// Create a utility function at the top
-const getTileCenter = (col, row, TILE_SIZE) => {
-    const centerX = (col * TILE_SIZE) + (TILE_SIZE / 2);
-    const centerY = (row * TILE_SIZE) + (TILE_SIZE / 2);
-    return { x: centerX, y: centerY };
-};
 
  // Handles resource click actions based on category. //
  export async function handleResourceClick(
@@ -44,18 +35,12 @@ const getTileCenter = (col, row, TILE_SIZE) => {
   updateStatus,
   masterResources,
   masterSkills,
-
 ) {
-  console.log(`Resource Clicked:  (${row}, ${col}):`, {
-    resource,
-    tileType: tileTypes[row]?.[col],
-  });
+  console.log(`Resource Clicked:  (${row}, ${col}):`, { resource, tileType: tileTypes[row]?.[col] });
   console.log('Inventory when handleResourceClick is called:', inventory);
 
-  if (!resource || !resource.category) {
-    console.error(`Invalid resource at (${col}, ${row}):`, resource);
-    return;
-  }
+  if (!resource || !resource.category) { console.error(`Invalid resource at (${col}, ${row}):`, resource); return; }
+  
   lockResource(col, row); // Optimistically lock the resource
 
   try {
@@ -133,10 +118,10 @@ const getTileCenter = (col, row, TILE_SIZE) => {
             resource.type,
             setCurrentPlayer,
             fetchGrid,
-            setGridId,                // ✅ Ensure this is passed
-            setGrid,                  // ✅ Pass setGrid function
-            setResources,             // ✅ Pass setResources function
-            setTileTypes,             // ✅ Pass setTileTypes function
+            setGridId, 
+            setGrid,
+            setResources, 
+            setTileTypes, 
             setGridState,
             updateStatus,
             TILE_SIZE,
@@ -265,18 +250,11 @@ async function handleDooberClick(
       return;
     }
   }
-
   // Add VFX right before removing the doober
   createCollectEffect(col, row, TILE_SIZE);
 
   // Use exact same position calculation as VFX.js
-  FloatingTextManager.addFloatingText(
-    `+${qtyCollected} ${resource.type}`, 
-    col, 
-    row,
-    TILE_SIZE
-  );
-
+  FloatingTextManager.addFloatingText(`+${qtyCollected} ${resource.type}`, col, row, TILE_SIZE );
 
   // Optimistically remove the doober locally
   setResources((prevResources) =>
@@ -347,7 +325,6 @@ async function handleDooberClick(
 }
 
 
-
 // HANDLE SOURCE CONVERSIONS //
 //
 export async function handleSourceConversion(
@@ -369,44 +346,27 @@ export async function handleSourceConversion(
 
   // Get target resource first
   const targetResource = masterResources.find((res) => res.type === resource.output);
-  if (!targetResource) { 
-    console.warn(`⚠️ No matching resource found for output: ${resource.output}`); 
-    return; 
-  }
+  if (!targetResource) { console.warn(`⚠️ No matching resource found for output: ${resource.output}`); return; }
 
   // Get required skill
-  const requiredSkill = masterResources.find((res) =>
-    res.output === resource.type
-  )?.type;
+  const requiredSkill = masterResources.find((res) => res.output === resource.type ) ?.type;
 
   // CASE 1: Required Skill Missing
   if (requiredSkill && !currentPlayer.skills.some((skill) => skill.type === requiredSkill)) {
-    addFloatingText(
-      `${requiredSkill} Required`,
-      col,  // Pass tile coordinates
-      row,  // Not pixel coordinates
-      TILE_SIZE
-    );
+    addFloatingText(`${requiredSkill} Required`, col, row, TILE_SIZE );
     return;
   }
-
   // CASE 2: VFX
   createSourceConversionEffect(col, row, TILE_SIZE, requiredSkill);
 
   // CASE 3: Success Text
-  FloatingTextManager.addFloatingText(
-    `Converted to ${targetResource.type}`, 
-    col,  // Pass tile coordinates
-    row,  // Not pixel coordinates
-    TILE_SIZE
-  );
+  FloatingTextManager.addFloatingText(`Converted to ${targetResource.type}`, col, row, TILE_SIZE);
 
   // Define isValley as any gtype that is NOT "town" or "homestead"
   const isValley = !['town', 'homestead'].includes(currentPlayer?.location?.gtype);
-  
   const x = col;
   const y = row;
-  
+
   // Build the new resource object to replace the one we just clicked
   const enrichedNewResource = {
     ...targetResource,
@@ -425,7 +385,6 @@ export async function handleSourceConversion(
         res.x === x && res.y === y ? enrichedNewResource : res
       )
     );
-
 
   // Perform server update
     try {
