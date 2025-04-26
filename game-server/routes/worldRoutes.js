@@ -83,16 +83,14 @@ router.post('/create-grid', async (req, res) => {
     const newResources = generateResources(layout, newTiles, layout.resourceDistribution); // ✅ Uses `layout.resourceDistribution`
 
 
-     // 6) Separate NPCs into `gridState`
-     const newGridState = { npcs: {} };
-     layout.resources.forEach((row, y) => {
+    // 6) Separate NPCs into gridStateNPCs Map
+    const newGridState = { npcs: {} };
+    layout.resources.forEach((row, y) => {
       row.forEach((cell, x) => {
         const resourceEntry = masterResources.find(res => res.layoutkey === cell);
         if (resourceEntry && resourceEntry.category === 'npc') {
           console.log(`📌 Placing NPC "${resourceEntry.type}" at (${x}, ${y})`);
-
-          const npcId = new ObjectId(); 
-          
+          const npcId = new ObjectId();
           newGridState.npcs[npcId.toString()] = {
             id: npcId.toString(),
             type: resourceEntry.type,
@@ -113,7 +111,8 @@ router.post('/create-grid', async (req, res) => {
       settlementId,
       tiles: newTiles,
       resources: newResources,
-      gridState: newGridState, 
+      gridStateNPCs: new Map(Object.entries(newGridState.npcs)),
+      gridStateNPCsLastUpdated: Date.now(),
     });
     await newGrid.save();
 

@@ -144,6 +144,7 @@ async function handleFarmAnimalBehavior(gridId) {
                     //console.log(`NPC ${this.id} has reached the grass tile at (${this.targetGrassTile.x}, ${this.targetGrassTile.y}). Transitioning to grazing.`);
                     this.state = 'grazing'; // Transition to grazing
                     this.targetGrassTile = null; // Clear the target
+                    await gridStateManager.saveGridStateNPCs(gridId); // Save after transition
                 }
             }
             break;
@@ -291,9 +292,6 @@ async function handleFarmAnimalBehavior(gridId) {
                 if (!this.grazeEnd) {
                   console.log(`🌱 NPC ${this.id} has no grazeEnd, transitioning to hungry.`);
                   this.state = 'hungry';
-                } else if (Date.now() >= this.grazeEnd) {
-                  console.log(`⏰ Grazing is done — NPC ${this.id} going to stall.`);
-                  this.state = 'stall';
                 } else {
                   console.log(`😐 NPC ${this.id} completed roam but grazing NOT done. Going idle.`);
                   this.state = 'idle';
