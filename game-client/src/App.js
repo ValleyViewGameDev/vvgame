@@ -106,8 +106,11 @@ function App() {
     const storedGridId = localStorage.getItem('gridId');
     return storedGridId || null;
   });
-  const [resources, setResources, tileTypes, setTileTypes, grid, setGrid] = useState([]);
-  const [masterResources, setMasterResources, isMasterResourcesReady, setIsMasterResourcesReady] = useState([]);
+  const [resources, setResources] = useState([]);
+  const [tileTypes, setTileTypes] = useState([]);
+  const [grid, setGrid] = useState([]);
+  const [masterResources, setMasterResources] = useState([]);
+  const [isMasterResourcesReady, setIsMasterResourcesReady] = useState([]);
   const [masterSkills, setMasterSkills] = useState([]);
     
 // Synchronize tiles with GlobalGridState -- i did this so NPCs have knowledge of tiles and resources as they change
