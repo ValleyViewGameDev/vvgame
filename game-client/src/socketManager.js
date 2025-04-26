@@ -140,33 +140,37 @@ export function socketListenForNPCStateChanges(gridId, setGridState, isNPCContro
   const handleNPCSync = ({ npcs, gridStateNPCsLastUpdated, emitterId }) => {
     console.log('📥 Received gridState-sync-NPCs event:', { npcs, gridStateNPCsLastUpdated, emitterId });
 
-    // 🆕 NEW: Ignore NPC updates from self if we are the controller
     if (isNPCController && emitterId === socket.id) {
       console.log('😀 Ignoring own NPC update because this client is the NPC Controller.');
       return;
     }
 
     if (!npcs || !gridStateNPCsLastUpdated) return;
+
     const parsedNPCTime = new Date(gridStateNPCsLastUpdated);
     if (isNaN(parsedNPCTime.getTime())) {
-      console.error("Invalid gridStateNPClastUpdated timestamp:", gridStateNPCsLastUpdated);
+      console.error("Invalid gridStateNPCsLastUpdated timestamp:", gridStateNPCsLastUpdated);
       return;
     }
+
     if (parsedNPCTime.getTime() > lastUpdateTimeNPCs) {
       console.log('⏩ Updating local NPCs:', npcs);
       setGridState(prevState => {
-        const rehydratedNPCs = {};
+        const updatedNPCs = { ...prevState.npcs };
 
+        // Merge the incoming fields into existing local NPCs
         Object.entries(npcs).forEach(([npcId, incomingNPC]) => {
-          if (incomingNPC && typeof incomingNPC === 'object') {
-            rehydratedNPCs[npcId] = new NPC(
+          const localNPC = updatedNPCs[npcId];
+          if (localNPC) {
+            // Update only the changed fields
+            Object.assign(localNPC, incomingNPC);
+          } else {
+            // If the NPC didn't exist locally (very rare), hydrate it as new
+            updatedNPCs[npcId] = new NPC(
               incomingNPC.id,
               incomingNPC.type,
               incomingNPC.position,
-              {
-                ...incomingNPC,
-                lastUpdated: incomingNPC.lastUpdated ? new Date(incomingNPC.lastUpdated).getTime() : Date.now()
-              },
+              incomingNPC,
               incomingNPC.gridId || gridId
             );
           }
@@ -174,10 +178,11 @@ export function socketListenForNPCStateChanges(gridId, setGridState, isNPCContro
 
         return {
           ...prevState,
-          npcs: rehydratedNPCs,
+          npcs: updatedNPCs,
           gridStateNPCsLastUpdated: parsedNPCTime.getTime(),
         };
       });
+
       lastUpdateTimeNPCs = parsedNPCTime.getTime();
     } else {
       console.log('⏳ Skipping older NPC update.');
