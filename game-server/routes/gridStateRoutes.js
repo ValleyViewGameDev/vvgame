@@ -110,7 +110,7 @@ router.post('/remove-single-pc', async (req, res) => {
 router.post('/save-grid-state-npcs', async (req, res) => {
   const { gridId, npcs, gridStateNPCsLastUpdated } = req.body;
 
-  if (!gridId || npcs == null) {
+  if (!gridId || !npcs) {
     return res.status(400).json({ error: 'gridId and npcs are required.' });
   }
   try {
@@ -118,13 +118,17 @@ router.post('/save-grid-state-npcs', async (req, res) => {
     if (!grid) {
       return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
     }
-    const { lastUpdated: clientTs, ...npcEntries } = npcs;
-    grid.set('gridStateNPCs', new Map(Object.entries(npcEntries)));
-    grid.set('gridStateNPCsLastUpdated', new Date(clientTs));
+
+    // ✅ Directly set the npcs object into gridStateNPCs
+    grid.gridStateNPCs = npcs;
+    grid.gridStateNPCsLastUpdated = new Date(gridStateNPCsLastUpdated);
+
     await grid.save();
-    res.status(200).json({ success: true, message: 'GridState NPCs saved successfully.' });
+
+    console.log(`✅ NPCs successfully saved for gridId: ${gridId}`);
+    res.status(200).json({ success: true });
   } catch (error) {
-    console.error('Error saving gridState NPCs:', error);
+    console.error('❌ Error saving gridState NPCs:', error);
     res.status(500).json({ error: 'Failed to save gridState NPCs.' });
   }
 });
