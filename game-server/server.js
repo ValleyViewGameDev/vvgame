@@ -222,6 +222,7 @@ mongoose.connect(process.env.MONGODB_URI, {
         io.to(gridId).emit('gridState-sync-NPCs', {
             npcs,
             gridStateNPCsLastUpdated,
+            emitterId: socket.id, // Include the emitter's socket ID
         });
       });
 
