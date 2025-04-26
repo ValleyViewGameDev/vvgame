@@ -78,12 +78,6 @@ export function socketListenForPCstateChanges(gridId, currentPlayer, setGridStat
 
   const handlePCSync = ({ pcs, gridStatePCsLastUpdated, emitterId }) => {
     console.log('📥 Received gridState-sync-PCs event:', { pcs, gridStatePCsLastUpdated });
-    console.log('📥 Emitter ID:', emitterId);
-
-    if (emitterId === socket.id) {
-      console.log('😀 Ignoring PC sync event from self.');
-      return;
-    }
 
     // Assume only a single PC is sent per update.
     const [playerId, incomingPC] = Object.entries(pcs)[0];
@@ -127,7 +121,6 @@ export function socketListenForPCstateChanges(gridId, currentPlayer, setGridStat
     console.log("🧹 Unsubscribing from PC sync events for grid:", gridId);
     socket.off("gridState-sync-PCs", handlePCSync);
   };
-
 };
 
 
@@ -140,10 +133,6 @@ export function socketListenForNPCStateChanges(gridId, setGridState, isNPCContro
   const handleNPCSync = ({ npcs, gridStateNPCsLastUpdated, emitterId }) => {
     console.log('📥 Received gridState-sync-NPCs event:', { npcs, gridStateNPCsLastUpdated, emitterId });
     console.log('IsNPCController:', isNPCController);
-    if (isNPCController && emitterId === socket.id) {
-      console.log('😀 Ignoring own NPC update because this client is the NPC Controller.');
-      return;
-    }
 
     if (!npcs || !gridStateNPCsLastUpdated) return;
 
@@ -193,11 +182,6 @@ export function socketListenForNPCStateChanges(gridId, setGridState, isNPCContro
   const handleNPCMoveSync = ({ npcId, newPosition, emitterId }) => {
     console.log('📥 Received npc-moved-sync event:', { npcId, newPosition, emitterId });
     console.log('IsNPCController:', isNPCController);
-
-    if (isNPCController && emitterId === socket.id) {
-      console.log('😀 Ignoring own NPC move because this client is the NPC Controller.');
-      return;
-    }
 
     if (!npcId || !newPosition) return;
 
