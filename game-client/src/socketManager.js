@@ -208,8 +208,6 @@ export function socketListenForResourceChanges(gridId, isMasterResourcesReady, s
     console.warn('Master Resources not ready or missing gridId/socket.');
     return; // 🛑 Don't process until ready
   }
-  // listenForResourceSocketEvents(socket, gridId, setResources, setTileTypes, masterResources);
-
   const handleResourceSync = ({ updatedTiles, updatedResources }) => {
     console.log("🌐 Real-time tile/resource update received!", {
       updatedTiles,
@@ -269,7 +267,6 @@ export function socketListenForTileChanges(gridId, setTileTypes, mergeTiles) {
     console.warn('Missing gridId or socket.');
     return;
   }
-  // listenForTileSocketEvents(socket, gridId, setTileTypes, masterResources);
 
   const handleTileSync = ({ updatedTiles }) => {
     console.log("🌐 Real-time tile update received!", { updatedTiles });

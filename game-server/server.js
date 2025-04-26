@@ -205,10 +205,10 @@ mongoose.connect(process.env.MONGODB_URI, {
         }
         console.log(`📤 Broadcasting updated PCs for grid ${gridId}`);
         console.log('DEBUG: Emitter socket id =', socket.id);
-        io.to(gridId).emit('gridState-sync-PCs', {
+        socket.to(gridId).emit('gridState-sync-PCs', {
           pcs,
           gridStatePCsLastUpdated,
-          emitterId: socket.id, // Include the emitter's socket ID
+          emitterId: socket.id, // Keep emitterId for fallback and debugging
         });
       });
 
@@ -219,13 +219,21 @@ mongoose.connect(process.env.MONGODB_URI, {
           return;
         }
         console.log(`📤 Broadcasting updated NPCs for grid ${gridId}`);
-        io.to(gridId).emit('gridState-sync-NPCs', {
+        socket.to(gridId).emit('gridState-sync-NPCs', {
             npcs,
             gridStateNPCsLastUpdated,
-            emitterId: socket.id, // Include the emitter's socket ID
+            emitterId: socket.id, // Keep emitterId for fallback and debugging
         });
       });
 
+      socket.on('npc-moved', ({ gridId, npcId, newPosition }) => {
+        if (!gridId || !npcId || !newPosition) {
+          console.error('Invalid npc-moved payload:', { gridId, npcId, newPosition });
+          return;
+        }
+        socket.to(gridId).emit('npc-moved-sync', { npcId, newPosition, emitterId: socket.id });
+      });
+      
       // Handle tile updates
       socket.on('update-tile', ({ gridId, updatedTiles }) => {
 
