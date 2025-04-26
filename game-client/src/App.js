@@ -744,7 +744,7 @@ useEffect(() => {
 
 // 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
 useEffect(() => {
-  socketListenForNPCStateChanges(gridId, setGridState);
+  socketListenForNPCStateChanges(gridId, setGridState, isNPCController);
 }, [socket, gridId]);
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources

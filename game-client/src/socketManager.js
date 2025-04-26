@@ -129,16 +129,22 @@ export function socketListenForPCstateChanges(gridId, currentPlayer, setGridStat
 
 };
 
-// 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
-export function socketListenForNPCStateChanges(gridId, setGridState) {
 
+// 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
+export function socketListenForNPCStateChanges(gridId, setGridState, isNPCController) {
   console.log("🌐 useEffect for NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
   if (!gridId) return;
   let lastUpdateTimeNPCs = 0;
 
-  // NPC sync listener
-  const handleNPCSync = ({ npcs, gridStateNPCsLastUpdated }) => {
-    console.log('📥 Received gridState-sync-NPCs event:', { npcs, gridStateNPCsLastUpdated });
+  const handleNPCSync = ({ npcs, gridStateNPCsLastUpdated, emitterId }) => {
+    console.log('📥 Received gridState-sync-NPCs event:', { npcs, gridStateNPCsLastUpdated, emitterId });
+
+    // 🆕 NEW: Ignore NPC updates from self if we are the controller
+    if (isNPCController && emitterId === socket.id) {
+      console.log('😀 Ignoring own NPC update because this client is the NPC Controller.');
+      return;
+    }
+
     if (!npcs || !gridStateNPCsLastUpdated) return;
     const parsedNPCTime = new Date(gridStateNPCsLastUpdated);
     if (isNaN(parsedNPCTime.getTime())) {
@@ -165,8 +171,8 @@ export function socketListenForNPCStateChanges(gridId, setGridState) {
     console.log("🧹 Unsubscribing from NPC sync events for grid:", gridId);
     socket.off("gridState-sync-NPCs", handleNPCSync);
   };
+}
 
-};
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
 export function socketListenForResourceChanges(gridId, isMasterResourcesReady, setResources, masterResources, enrichResourceFromMaster) {
