@@ -163,7 +163,10 @@ export function socketListenForNPCStateChanges(gridId, setGridState, isNPCContro
               incomingNPC.id,
               incomingNPC.type,
               incomingNPC.position,
-              incomingNPC,
+              {
+                ...incomingNPC,
+                lastUpdated: incomingNPC.lastUpdated ? new Date(incomingNPC.lastUpdated).getTime() : Date.now()
+              },
               incomingNPC.gridId || gridId
             );
           }
@@ -172,7 +175,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, isNPCContro
         return {
           ...prevState,
           npcs: rehydratedNPCs,
-          lastUpdateTimeNPCs: parsedNPCTime.toISOString(),
+          gridStateNPCsLastUpdated: parsedNPCTime.getTime(),
         };
       });
       lastUpdateTimeNPCs = parsedNPCTime.getTime();
