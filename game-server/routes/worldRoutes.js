@@ -225,8 +225,8 @@ router.post('/reset-grid', async (req, res) => {
     // Reset tiles, resources, and gridState
     grid.tiles = newTiles;
     grid.resources = newResources;
-    grid.gridStateNPCs = { npcs: newNPCGridState.npcs };
-    grid.gridStateNPCsLastUpdated = Date.now;
+    grid.gridStateNPCs = new Map(Object.entries(newNPCGridState.npcs));
+    grid.gridStateNPCsLastUpdated = Date.now();
 
     await grid.save();
 
