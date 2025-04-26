@@ -129,9 +129,11 @@ useEffect(() => {
 }, [resources]);
 
 
-const [inventory, setInventory, backpack, setBackpack] = useState({});
+const [inventory, setInventory]  = useState({});
+const [backpack, setBackpack] = useState({});
 const [skills, setSkills] = useState([]); 
-const [playerPosition, setPlayerPosition, isMoving, setIsMoving] = useState(null);
+const [playerPosition, setPlayerPosition] = useState(null);
+const [isMoving, setIsMoving] = useState(null);
 
 const gridState = useGridState();
 const setGridState = useGridStateUpdate();
