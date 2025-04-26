@@ -382,9 +382,8 @@ class GridStateManager {
     }));
   }
 
-  /**
-   * TO BE REMOVED **********
-   *   Save only PCs in the gridState to the database.
+  /** TO BE REMOVED
+   * Save only PCs in the gridState to the database.
    */
   async saveGridStatePCs(gridId) {
     console.log('💾 saveGridStatePCs called with gridId:', gridId);
@@ -426,6 +425,7 @@ class GridStateManager {
 
   /**
    * Save only NPCs in the gridState to the database.
+   * This version dehydrates live NPC instances into plain objects and matches the PC saving structure.
    */
   async saveGridStateNPCs(gridId) {
     console.log('💾 saveGridStateNPCs called with gridId:', gridId);
@@ -437,17 +437,34 @@ class GridStateManager {
       }
 
       // Update local NPC timestamp
-      gridState.NPCslastUpdated = Date.now();
+      const now = Date.now();
+      gridState.gridStateNPCsLastUpdated = now;
 
-      // Build payload
+      // Dehydrate the NPCs to simple objects
+      const dehydratedNPCs = {};
+      Object.entries(gridState.npcs).forEach(([id, npc]) => {
+        dehydratedNPCs[id] = {
+          id: npc.id,
+          type: npc.type,
+          position: npc.position,
+          state: npc.state,
+          hp: npc.hp,
+          maxhp: npc.maxhp,
+          grazeEnd: npc.grazeEnd,
+          lastMoveTime: npc.lastMoveTime,
+          lastUpdated: npc.lastUpdated,
+        };
+      });
+
       const payload = {
         gridId,
-        npcs: gridState.npcs,
-        gridStateNPCsLastUpdated: gridState.NPCslastUpdated,
+        npcs: dehydratedNPCs,
+        gridStateNPCsLastUpdated: now,
       };
 
-      console.log('💾 Payload for saving NPCs:', payload); // Debugging check
-      // Save to the server
+      console.log('💾 Payload for saving NPCs:', payload);
+
+      // Save to server
       await axios.post(`${API_BASE}/api/save-grid-state-npcs`, payload);
       console.log(`✅ 💾 Saved NPCs for grid ${gridId}`);
 
@@ -456,8 +473,8 @@ class GridStateManager {
         console.log(`📡 Emitting NPC grid-state for grid ${gridId}`);
         socket.emit('update-gridState-NPCs', {
           gridId,
-          npcs: gridState.npcs,
-          gridStateNPCsLastUpdated: gridState.NPCsLastUpdated,
+          npcs: dehydratedNPCs,
+          gridStateNPCsLastUpdated: now,
         });
       }
     } catch (error) {
