@@ -22,7 +22,8 @@ class NPCController {
     // Add new listener for controller updates
     socket.on('npc-controller-update', ({ controllerUsername, gridId }) => {
       console.log(`🎮 Controller update received for ${gridId}: ${controllerUsername}`);
-      if (controllerUsername) {
+      const currentPlayer = JSON.parse(localStorage.getItem('player'));
+      if (controllerUsername && currentPlayer?.username === controllerUsername) {
         this.setAsController(gridId);
       } else {
         this.removeController(gridId);

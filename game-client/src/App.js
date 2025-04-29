@@ -173,7 +173,6 @@ const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
 const TILE_SIZES = { close: 30, far: 16 }; // Rename for clarity
 const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
 
-const [isNPCController, setIsNPCController] = useState(false);
 const [controllerUsername, setControllerUsername] = useState(null); // Add state for controller username
 const [isSocketConnected, setIsSocketConnected] = useState(false);
 const [connectedPlayers, setConnectedPlayers] = useState(new Set());
@@ -516,21 +515,26 @@ useEffect(() => {
 }, [gridState]);  // ✅ Trigger re-render when `gridState` updates
 
 
+// Define isNPCController before the useEffect block that logs it
+const isNPCController = npcController.isControllingGrid(gridId);
+
 // GRID STATE:  NPC and PC Management Loop  /////////////////////////
 useEffect(() => {
   if (!isAppInitialized) { console.log('App not initialized. Skipping NPC/PC management.'); return; }
   const interval = setInterval(async () => {
     if (!gridState?.npcs) { console.warn('No NPCs in gridState'); return; }
 
-      console.log("🧑‍🌾 Is NPC Controller: ", isNPCController);
       console.log("🧑‍🌾 NPC Controller Username: ", controllerUsername);
+      console.log("🧑‍🌾 Is NPC Controller: ", isNPCController);
 
-      // Only run NPC updates if we're the controller for this grid
-      if (npcController.isControllingGrid(gridId)) {
+      // Only run NPC updates if NPCController agrees
+      if (isNPCController) {
         Object.values(gridState.npcs).forEach((npc) => {
           const currentTime = Date.now();
           npc.update(currentTime, gridState, gridId, activeTileSize);
         });
+      } else {
+        console.log('🛑 Not the NPC controller. Skipping NPC updates.');
       }
       // Always check PCs for death regardless of controller status
       if (gridState.pcs) {
@@ -764,7 +768,7 @@ useEffect(() => {
 
 // Add socket event listeners for NPC controller status
 useEffect(() => {
-  socketListenForNPCControllerStatus(gridId, currentPlayer, setControllerUsername, setIsNPCController);
+  socketListenForNPCControllerStatus(gridId, currentPlayer, setControllerUsername);
 }, [socket, gridId, currentPlayer]);
 
 // 🔄 SOCKET LISTENER: Force refresh on season reset

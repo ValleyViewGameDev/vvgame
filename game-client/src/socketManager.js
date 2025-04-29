@@ -124,14 +124,14 @@ export function socketListenForPCstateChanges(gridId, currentPlayer, setGridStat
 
 
 // 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
-export function socketListenForNPCStateChanges(gridId, setGridState, isNPCController) {
+export function socketListenForNPCStateChanges(gridId, setGridState, npcController) {
   console.log("🌐 useEffect for NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
   if (!gridId) return;
   let lastUpdateTimeNPCs = 0;
 
   const handleNPCSync = ({ npcs, gridStateNPCsLastUpdated, emitterId }) => {
     console.log('📥 Received gridState-sync-NPCs event:', { npcs, gridStateNPCsLastUpdated, emitterId });
-    console.log('IsNPCController:', isNPCController);
+    console.log('IsNPCController:', npcController.isControllingGrid(gridId));
 
     if (!npcs || !gridStateNPCsLastUpdated) return;
 
@@ -180,7 +180,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, isNPCContro
   // Add handler for npc-moved-sync
   const handleNPCMoveSync = ({ npcId, newPosition, emitterId }) => {
     console.log('📥 Received npc-moved-sync event:', { npcId, newPosition, emitterId });
-    console.log('IsNPCController:', isNPCController);
+    console.log('IsNPCController:', npcController.isControllingGrid(gridId));
 
     if (!npcId || !newPosition) return;
 
@@ -305,7 +305,7 @@ export function socketListenForTileChanges(gridId, setTileTypes, mergeTiles) {
 };
 
 // Add socket event listeners for NPC controller status
-export function socketListenForNPCControllerStatus(gridId, currentPlayer, setControllerUsername, setIsNPCController) {
+export function socketListenForNPCControllerStatus(gridId, currentPlayer, setControllerUsername) {
 
   console.log("🌐 useEffect for npc-controller running. gridId:", gridId, "socket:", !!socket);
 
@@ -318,21 +318,14 @@ export function socketListenForNPCControllerStatus(gridId, currentPlayer, setCon
 
   socket.on('npc-controller-update', ({ controllerUsername }) => {
     setControllerUsername(controllerUsername);
-    setIsNPCController(controllerUsername === currentPlayer.username);
   });
 
   socket.on('npc-controller-assigned', ({ gridId: controlledGridId }) => {
     console.log(`🎮 Assigned as NPC controller for grid ${controlledGridId}`);
-    if (controlledGridId === gridId) {
-      setIsNPCController(true);
-    }
   });
 
   socket.on('npc-controller-revoked', ({ gridId: revokedGridId }) => {
     console.log(`🎮 Revoked as NPC controller for grid ${revokedGridId}`);
-    if (revokedGridId === gridId) {
-      setIsNPCController(false);
-    }
   });
 
   return () => {
