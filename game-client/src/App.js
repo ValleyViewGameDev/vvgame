@@ -522,6 +522,9 @@ useEffect(() => {
   const interval = setInterval(async () => {
     if (!gridState?.npcs) { console.warn('No NPCs in gridState'); return; }
 
+      console.log("🧑‍🌾 Is NPC Controller: ", isNPCController);
+      console.log("🧑‍🌾 NPC Controller Username: ", controllerUsername);
+
       // Only run NPC updates if we're the controller for this grid
       if (npcController.isControllingGrid(gridId)) {
         Object.values(gridState.npcs).forEach((npc) => {
