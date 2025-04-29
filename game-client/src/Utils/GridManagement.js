@@ -261,7 +261,8 @@ export const changePlayerLocation = async (
     // Is this placed correctly?
     socket.emit('join-grid', { gridId: toLocation.g, playerId: currentPlayer.playerId });
     console.log(`📡 Emitted join-grid for grid: ${toLocation.g}`);
-
+    socket.emit('set-username', { username: currentPlayer.username });
+    
     // 6. Center view on player
     console.log('6️⃣ Centering view...');
     const gameContainer = document.querySelector('.homestead');

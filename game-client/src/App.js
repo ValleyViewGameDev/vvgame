@@ -270,11 +270,13 @@ useEffect(() => {
       socket.connect();
       socket.emit('join-grid', { gridId: initialGridId, playerId: fullPlayerData.playerId });
       console.log("📡 Connected to socket and joined grid:", initialGridId);
-
-      // Send username to server when joining grid
-      if (initialGridId) {
-        socket.emit('set-username', { username: fullPlayerData.username });
-      }
+      socket.emit('player-joined-grid', {
+        gridId: initialGridId,
+        playerId: fullPlayerData.playerId,
+        username: fullPlayerData.username,
+        playerData: fullPlayerData,
+      });
+      socket.emit('set-username', { username: fullPlayerData.username });
 
       // 5. Initialize grid tiles, resources
       console.log('5 InitAppWrapper; Initializing grid tiles and resources...');
@@ -781,52 +783,10 @@ useEffect(() => {
 useEffect(() => {
   if (!socket || !currentPlayer || !gridId) return;
   socketListenForConnectAndDisconnect(gridId, currentPlayer, setIsSocketConnected);
-  // const handleConnect = () => {
-  //   console.log('📡 Socket connected!');
-  //   setIsSocketConnected(true);
-  //   // Emit presence info
-  //   socket.emit('player-connected', { playerId: currentPlayer._id, gridId });
-  // };
-
-  // const handleDisconnect = () => {
-  //   console.warn('📴 Socket disconnected.');
-  //   setIsSocketConnected(false);
-  //   // Notify others of disconnect
-  //   socket.emit('player-disconnected', { playerId: currentPlayer._id, gridId });
-  // };
-
-  // socket.on('connect', handleConnect);
-  // socket.on('disconnect', handleDisconnect);
-
-  // return () => {
-  //   socket.off('connect', handleConnect);
-  //   socket.off('disconnect', handleDisconnect);
-  // };
 }, [socket, currentPlayer, gridId]);
 
 useEffect(() => {
   socketListenForPlayerConnectedAndDisconnected(gridId, setConnectedPlayers);
-  // if (!socket || !gridId) return;
-
-  // const handlePlayerConnected = ({ playerId }) => {
-  //   setConnectedPlayers(prev => new Set(prev).add(playerId));
-  // };
-
-  // const handlePlayerDisconnected = ({ playerId }) => {
-  //   setConnectedPlayers(prev => {
-  //     const newSet = new Set(prev);
-  //     newSet.delete(playerId);
-  //     return newSet;
-  //   });
-  // };
-
-  // socket.on('player-connected', handlePlayerConnected);
-  // socket.on('player-disconnected', handlePlayerDisconnected);
-
-  // return () => {
-  //   socket.off('player-connected', handlePlayerConnected);
-  //   socket.off('player-disconnected', handlePlayerDisconnected);
-  // };
 }, [socket, gridId]);
 
 
