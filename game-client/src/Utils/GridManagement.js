@@ -259,7 +259,7 @@ export const changePlayerLocation = async (
 
     // Ensure the client joins the new grid room
     // Is this placed correctly?
-    socket.emit('join-grid', toLocation.g);
+    socket.emit('join-grid', { gridId: toLocation.g, playerId: currentPlayer.playerId });
     console.log(`📡 Emitted join-grid for grid: ${toLocation.g}`);
 
     // 6. Center view on player

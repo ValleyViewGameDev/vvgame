@@ -175,6 +175,8 @@ const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
 
 const [isNPCController, setIsNPCController] = useState(false);
 const [controllerUsername, setControllerUsername] = useState(null); // Add state for controller username
+const [isSocketConnected, setIsSocketConnected] = useState(false);
+const [connectedPlayers, setConnectedPlayers] = useState(new Set());
 
 //Forgot why we did this:
 const memoizedGrid = useMemo(() => grid, [grid]);
@@ -265,7 +267,7 @@ useEffect(() => {
 
       // 4.5. Open the socket
       socket.connect();
-      socket.emit('join-grid', initialGridId);
+      socket.emit('join-grid', { gridId: initialGridId, playerId: fullPlayerData.playerId });
       console.log("📡 Connected to socket and joined grid:", initialGridId);
 
       // Send username to server when joining grid
@@ -767,6 +769,56 @@ useEffect(() => {
   socketListenForSeasonReset();
 }, [socket]);
 
+useEffect(() => {
+  if (!socket || !currentPlayer || !gridId) return;
+
+  const handleConnect = () => {
+    console.log('📡 Socket connected!');
+    setIsSocketConnected(true);
+    // Emit presence info
+    socket.emit('player-connected', { playerId: currentPlayer._id, gridId });
+  };
+
+  const handleDisconnect = () => {
+    console.warn('📴 Socket disconnected.');
+    setIsSocketConnected(false);
+    // Notify others of disconnect
+    socket.emit('player-disconnected', { playerId: currentPlayer._id, gridId });
+  };
+
+  socket.on('connect', handleConnect);
+  socket.on('disconnect', handleDisconnect);
+
+  return () => {
+    socket.off('connect', handleConnect);
+    socket.off('disconnect', handleDisconnect);
+  };
+}, [socket, currentPlayer, gridId]);
+
+useEffect(() => {
+  if (!socket || !gridId) return;
+
+  const handlePlayerConnected = ({ playerId }) => {
+    setConnectedPlayers(prev => new Set(prev).add(playerId));
+  };
+
+  const handlePlayerDisconnected = ({ playerId }) => {
+    setConnectedPlayers(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(playerId);
+      return newSet;
+    });
+  };
+
+  socket.on('player-connected', handlePlayerConnected);
+  socket.on('player-disconnected', handlePlayerDisconnected);
+
+  return () => {
+    socket.off('player-connected', handlePlayerConnected);
+    socket.off('player-disconnected', handlePlayerDisconnected);
+  };
+}, [socket, gridId]);
+
 
 /////////// HANDLE KEY MOVEMENT /////////////////////////
 
@@ -1205,6 +1257,7 @@ return ( <>
           <h4 style={{ color: "white" }}>
             {Object.entries(pcs).map(([playerId, pc]) => (
               <p key={playerId} style={{ color: "white" }}>
+                {connectedPlayers.has(playerId) && '📡 '}
                 <strong>{pc.username}</strong> - HP: {pc.hp}, ({pc.position.x}, {pc.position.y})
               </p>
             ))}

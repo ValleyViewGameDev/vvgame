@@ -102,11 +102,22 @@ mongoose.connect(process.env.MONGODB_URI, {
             }
           }
         });
+        // Emit player-disconnected if we know player identity
+        if (socket.gridId && socket.playerId) {
+          console.log(`❌ Emitting player-disconnected for ${socket.playerId}`);
+          socket.to(socket.gridId).emit('player-disconnected', {
+            playerId: socket.playerId
+          });
+        }
       });
       
-      socket.on('join-grid', async (gridId) => {
+      socket.on('join-grid', async ({ gridId, playerId }) => {
         console.log(`📡 Socket ${socket.id} joined grid room: ${gridId}`);
-        socket.join(gridId);        
+        socket.join(gridId);      
+        socket.gridId = gridId;
+        socket.playerId = playerId; // Store playerId on the socket
+        console.log(`📡 Player ${playerId} joined grid ${gridId}`);
+        socket.to(gridId).emit('player-connected', { playerId });
         try {
           const gridDoc = await Grid.findById(gridId);
           const pcs = gridDoc?.gridStatePCs || {};

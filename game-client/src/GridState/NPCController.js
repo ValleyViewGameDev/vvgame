@@ -28,7 +28,7 @@ class NPCController {
         this.removeController(gridId);
       }
     });
-
+ 
     // Add connection status listeners
     socket.on('connect', () => {
       console.log('🔌 NPCController socket connected');
