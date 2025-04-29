@@ -117,7 +117,7 @@ mongoose.connect(process.env.MONGODB_URI, {
         socket.gridId = gridId;
         socket.playerId = playerId; // Store playerId on the socket
         console.log(`📡 Player ${playerId} joined grid ${gridId}`);
-        socket.to(gridId).emit('player-connected', { playerId });
+        io.to(gridId).emit('player-connected', { playerId });
         try {
           const gridDoc = await Grid.findById(gridId);
           const pcs = gridDoc?.gridStatePCs || {};
