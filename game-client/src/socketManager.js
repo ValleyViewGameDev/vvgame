@@ -1,24 +1,10 @@
 import NPC from './GameFeatures/NPCs/NPCs';
 import { io } from 'socket.io-client';
 
-
 const socket = io('https://vvgame-server.onrender.com', {
   transports: ['websocket'],
   autoConnect: false, // Don't connect until explicitly told to
 });
-
-export let socketConnectionStatus = 'disconnected';
-
-socket.on('connect', () => {
-  console.log('📡 Socket connected:', socket.id);
-  socketConnectionStatus = 'connected';
-});
-
-socket.on('disconnect', () => {
-  console.log('🔌 Socket disconnected');
-  socketConnectionStatus = 'disconnected';
-});
-
 
 export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setGridState) {
 
