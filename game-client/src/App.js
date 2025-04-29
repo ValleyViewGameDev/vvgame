@@ -17,7 +17,9 @@ import { socketListenForPCJoinAndLeave,
   socketListenForResourceChanges,
   socketListenForTileChanges,
   socketListenForNPCControllerStatus,
-  socketListenForSeasonReset } from './socketManager';
+  socketListenForSeasonReset,
+  socketListenForPlayerConnectedAndDisconnected,
+  socketListenForConnectAndDisconnect } from './socketManager';
 
 import farmState from './FarmState';
 import gridStateManager from './GridState/GridState';
@@ -753,7 +755,7 @@ useEffect(() => {
 
 // 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
 useEffect(() => {
-  socketListenForNPCStateChanges(gridId, setGridState, isNPCController);
+  socketListenForNPCStateChanges(gridId, setGridState, npcController);
 }, [socket, gridId]);
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
@@ -778,52 +780,53 @@ useEffect(() => {
 
 useEffect(() => {
   if (!socket || !currentPlayer || !gridId) return;
+  socketListenForConnectAndDisconnect(gridId, currentPlayer, setIsSocketConnected);
+  // const handleConnect = () => {
+  //   console.log('📡 Socket connected!');
+  //   setIsSocketConnected(true);
+  //   // Emit presence info
+  //   socket.emit('player-connected', { playerId: currentPlayer._id, gridId });
+  // };
 
-  const handleConnect = () => {
-    console.log('📡 Socket connected!');
-    setIsSocketConnected(true);
-    // Emit presence info
-    socket.emit('player-connected', { playerId: currentPlayer._id, gridId });
-  };
+  // const handleDisconnect = () => {
+  //   console.warn('📴 Socket disconnected.');
+  //   setIsSocketConnected(false);
+  //   // Notify others of disconnect
+  //   socket.emit('player-disconnected', { playerId: currentPlayer._id, gridId });
+  // };
 
-  const handleDisconnect = () => {
-    console.warn('📴 Socket disconnected.');
-    setIsSocketConnected(false);
-    // Notify others of disconnect
-    socket.emit('player-disconnected', { playerId: currentPlayer._id, gridId });
-  };
+  // socket.on('connect', handleConnect);
+  // socket.on('disconnect', handleDisconnect);
 
-  socket.on('connect', handleConnect);
-  socket.on('disconnect', handleDisconnect);
-
-  return () => {
-    socket.off('connect', handleConnect);
-    socket.off('disconnect', handleDisconnect);
-  };
+  // return () => {
+  //   socket.off('connect', handleConnect);
+  //   socket.off('disconnect', handleDisconnect);
+  // };
 }, [socket, currentPlayer, gridId]);
 
 useEffect(() => {
-  if (!socket || !gridId) return;
+  socketListenForPlayerConnectedAndDisconnected(gridId, setConnectedPlayers);
+  // if (!socket || !gridId) return;
 
-  const handlePlayerConnected = ({ playerId }) => {
-    setConnectedPlayers(prev => new Set(prev).add(playerId));
-  };
+  // const handlePlayerConnected = ({ playerId }) => {
+  //   setConnectedPlayers(prev => new Set(prev).add(playerId));
+  // };
 
-  const handlePlayerDisconnected = ({ playerId }) => {
-    setConnectedPlayers(prev => {
-      const newSet = new Set(prev);
-      newSet.delete(playerId);
-      return newSet;
-    });
-  };
+  // const handlePlayerDisconnected = ({ playerId }) => {
+  //   setConnectedPlayers(prev => {
+  //     const newSet = new Set(prev);
+  //     newSet.delete(playerId);
+  //     return newSet;
+  //   });
+  // };
 
-  socket.on('player-connected', handlePlayerConnected);
-  socket.on('player-disconnected', handlePlayerDisconnected);
+  // socket.on('player-connected', handlePlayerConnected);
+  // socket.on('player-disconnected', handlePlayerDisconnected);
 
-  return () => {
-    socket.off('player-connected', handlePlayerConnected);
-    socket.off('player-disconnected', handlePlayerDisconnected);
-  };
+  // return () => {
+  //   socket.off('player-connected', handlePlayerConnected);
+  //   socket.off('player-disconnected', handlePlayerDisconnected);
+  // };
 }, [socket, gridId]);
 
 

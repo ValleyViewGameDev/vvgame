@@ -142,7 +142,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
     }
 
     if (parsedNPCTime.getTime() > lastUpdateTimeNPCs) {
-      console.log('⏩ Updating local NPCs:', npcs);
+      console.log('⏩⏩⏩ SOCKET LISTENER (not controller) is Updating local NPCs:', npcs);
       setGridState(prevState => {
         const updatedNPCs = { ...prevState.npcs };
 
@@ -352,5 +352,54 @@ export function socketListenForSeasonReset() {
   };
 };
 
+// 🔄 SOCKET LISTENER: Player Connect and Disconnect
+export function socketListenForConnectAndDisconnect(gridId, currentPlayer, setIsSocketConnected) {
+  const handleConnect = () => {
+    console.log('📡 Socket connected!');
+    setIsSocketConnected(true);
+    // Emit presence info
+    socket.emit('player-connected', { playerId: currentPlayer._id, gridId });
+  };
+
+  const handleDisconnect = () => {
+    console.warn('📴 Socket disconnected.');
+    setIsSocketConnected(false);
+    // Notify others of disconnect
+    socket.emit('player-disconnected', { playerId: currentPlayer._id, gridId });
+  };
+
+  socket.on('connect', handleConnect);
+  socket.on('disconnect', handleDisconnect);
+
+  return () => {
+    socket.off('connect', handleConnect);
+    socket.off('disconnect', handleDisconnect);
+  };
+};
+
+// 🔄 SOCKET LISTENER: Listen for announcement that a player is connected/disconnected (I THINK ??)
+export function socketListenForPlayerConnectedAndDisconnected(gridId, setConnectedPlayers) {
+  if (!socket || !gridId) return;
+
+  const handlePlayerConnected = ({ playerId }) => {
+    setConnectedPlayers(prev => new Set(prev).add(playerId));
+  };
+
+  const handlePlayerDisconnected = ({ playerId }) => {
+    setConnectedPlayers(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(playerId);
+      return newSet;
+    });
+  };
+  
+  socket.on('player-connected', handlePlayerConnected);
+  socket.on('player-disconnected', handlePlayerDisconnected);
+
+  return () => {
+    socket.off('player-connected', handlePlayerConnected);
+    socket.off('player-disconnected', handlePlayerDisconnected);
+  };
+};
 
 export default socket;
