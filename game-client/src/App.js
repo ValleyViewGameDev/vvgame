@@ -1281,6 +1281,7 @@ return ( <>
             onNPCClick={handleQuestNPCClick}  // Pass the callback
             onPCClick={handlePCClick}  // Pass the callback
             masterResources={masterResources}
+            gridId={currentPlayer.location.g}
           /> {/* Parallel rendering layer for PCs and NPCs */}
 
           <RenderGrid

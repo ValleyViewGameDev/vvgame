@@ -16,6 +16,7 @@ const DynamicRenderer = ({
   onNPCClick, // This is needed because of the Quest NPCs and their Panels
   onPCClick,  // This is needed for the Social Panel
   masterResources,
+  gridId
 }) => {
   const gridState = useGridState(); // Use the updated gridState from context
   const masterResourcesRef = useRef(masterResources); // Keep masterResources in a ref
@@ -88,7 +89,7 @@ const DynamicRenderer = ({
             if (npc.action === 'quest' || npc.action === 'heal') {
               onNPCClick(npc); // Open quest/healing panel
             } else {
-              handleNPCClick(npc, Math.round(npc.position.y), Math.round(npc.position.x), setInventory, setResources, currentPlayer, TILE_SIZE, masterResourcesRef.current);
+              handleNPCClick(npc, Math.round(npc.position.y), Math.round(npc.position.x), setInventory, setResources, currentPlayer, TILE_SIZE, masterResourcesRef.current, gridId);
             }
           });
 

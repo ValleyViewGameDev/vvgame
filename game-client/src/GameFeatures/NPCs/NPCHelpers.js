@@ -39,7 +39,8 @@ export async function handleNPCClick(
   setResources,
   currentPlayer,
   TILE_SIZE,
-  masterResources
+  masterResources,
+  gridId
 ) {
   if (!npc) {
     console.warn("handleNPCClick was called with an undefined NPC.");
@@ -149,9 +150,11 @@ export async function handleNPCClick(
           setInventory(updatedInventory);
           localStorage.setItem('inventory', JSON.stringify(updatedInventory));
           
-          npc.state = 'emptystall';
-          npc.hp = 0;
-          
+          await gridStateManager.updateNPC(gridId, npc.id, {
+            state: 'emptystall',
+            hp: 0,
+          });
+
           FloatingTextManager.addFloatingText(`+${quantityToCollect} ${npc.output}`, col, row, TILE_SIZE);
           return { type: 'success', message: `Collected ${quantityToCollect} ${npc.output}.` };
         } else {
