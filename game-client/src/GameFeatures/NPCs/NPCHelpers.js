@@ -146,8 +146,11 @@ export async function handleNPCClick(
           setInventory(updatedInventory);
           localStorage.setItem('inventory', JSON.stringify(updatedInventory));
           
-          npc.state = 'emptystall';
-          npc.hp = 0;
+          const currentGrid = gridStateManager.getGridState(currentPlayer.location.g);
+          if (currentGrid?.npcs?.[npc.id]) {
+            currentGrid.npcs[npc.id].state = 'emptystall';
+            currentGrid.npcs[npc.id].hp = 0;
+          }
           await gridStateManager.updateNPC(currentPlayer.location.g, npc.id, {
             state: 'emptystall',
             hp: 0,
