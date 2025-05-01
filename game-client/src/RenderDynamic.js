@@ -15,8 +15,7 @@ const DynamicRenderer = ({
   setCurrentPlayer,
   onNPCClick, // This is needed because of the Quest NPCs and their Panels
   onPCClick,  // This is needed for the Social Panel
-  masterResources,
-  gridId
+  masterResources
 }) => {
   const gridState = useGridState(); // Use the updated gridState from context
   const masterResourcesRef = useRef(masterResources); // Keep masterResources in a ref
@@ -33,11 +32,17 @@ const DynamicRenderer = ({
   const npcElements = useRef(new Map());
   const pcElements = useRef(new Map());
 
+
+
   useEffect(() => {
     console.log("🔄 Re-rendering PCs and NPCs! Latest gridState:", gridState);
     const container = containerRef.current;
     if (!container) return;
-
+    const gridId = currentPlayer?.location?.g;
+    if (!gridId) {
+      console.warn("RenderDynamic: No gridId available yet.");
+      return null;
+    }
     const tooltip = document.createElement('div');
     tooltip.className = 'tooltip-container';
     tooltip.style.position = 'absolute';
