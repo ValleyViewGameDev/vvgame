@@ -49,7 +49,7 @@ class NPC {
 /////////////////
 
 update(currentTime, gridState, gridId, TILE_SIZE) {
-  console.log(`🎲 NPC ${this.id} (${this.type}) updating. Current state: ${this.state}`);
+  console.log(`[🐮 NPC.update] ${this.id} | time=${currentTime} | type=${this.type} | state=${this.state}`);
 
   const npcs = Object.values(gridStateManager.getGridState(gridId)?.npcs || {}); // Use the new gridState.npcs
 
@@ -57,17 +57,15 @@ update(currentTime, gridState, gridId, TILE_SIZE) {
   if (timeElapsed < this.updateInterval) {
     return;
   }
-  
-  console.log(`🎲 Time elapsed: ${timeElapsed}ms, Last update: ${this.lastUpdateTime}`);
+  console.log(`🐮⌛️ Time elapsed: ${timeElapsed}ms, Last update: ${this.lastUpdateTime}`);
   
   this.processState(gridState, gridId, TILE_SIZE);
   this.lastUpdateTime = currentTime;
 }
 
 async processState(gridState, gridId, TILE_SIZE) {
-  console.log(`🎲 Processing state for NPC ${this.id} (${this.type})`);
-  console.log(`🎲 Action: ${this.action}, Current state: ${this.state}`);
-
+  console.log(`[🐮 NPC.processState] ${this.id} | type=${this.type} | action=${this.action} | state=${this.state}`);
+  
   const npcs = Object.values(gridStateManager.getGridState(gridId)?.npcs || {}); 
 
   try {

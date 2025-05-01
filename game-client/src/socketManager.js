@@ -142,12 +142,13 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
     }
 
     if (parsedNPCTime.getTime() > lastUpdateTimeNPCs) {
-      console.log('⏩⏩⏩ SOCKET LISTENER (not controller) is Updating local NPCs:', npcs);
+      console.log(`🐮📡 SOCKET LISTENER (handleNPCSync) From ${emitterId} (not NPCcontroller) is updating local NPCs:`, npcs);
       setGridState(prevState => {
         const updatedNPCs = { ...prevState.npcs };
 
         // Merge the incoming fields into existing local NPCs
         Object.entries(npcs).forEach(([npcId, incomingNPC]) => {
+          console.log(`  🐮📡 ⤷ NPC ${npcId} new state: ${incomingNPC.state}`);
           const localNPC = updatedNPCs[npcId];
           if (localNPC) {
             // Update only the changed fields

@@ -534,6 +534,8 @@ useEffect(() => {
       // Only run NPC updates if NPCController agrees
       if (isNPCController) {
         Object.values(gridState.npcs).forEach((npc) => {
+          if (typeof npc.update !== 'function') { console.warn(`🛑 Skipping NPC without update() method:`, npc); return; }
+          console.log(`[🐮🐮 NPC LOOP] Controller running update() for NPC ${npc.id}, state=${npc.state}`);
           const currentTime = Date.now();
           npc.update(currentTime, gridState, gridId, activeTileSize);
         });

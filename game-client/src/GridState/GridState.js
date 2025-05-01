@@ -256,8 +256,8 @@ class GridStateManager {
       ...newProperties,
       lastUpdated: now,
     };
-
     gridState.npcs[npcId] = updatedNPC;
+    console.log(`[🐮 gridStateManager.updateNPC] NPC ${npcId} updated with:`, newProperties);
 
     try {
       await axios.post(`${API_BASE}/api/save-single-npc`, {
@@ -266,7 +266,7 @@ class GridStateManager {
         npc: updatedNPC,
         lastUpdated: now,
       });
-      console.log(`✅ Saved single NPC ${npcId} to server.`);
+      console.log(`🐮✅ Saved single NPC ${npcId} to server.`);
     } catch (error) {
       console.error(`❌ Failed to save single NPC ${npcId}:`, error);
     }
@@ -277,7 +277,7 @@ class GridStateManager {
         npcs: { [npcId]: updatedNPC },
         gridStateNPCsLastUpdated: now,
       });
-      console.log(`📡 Emitted NPC update for ${npcId}`);
+      console.log(`🐮📡 Emitted NPC update for ${npcId}`);
     }
   }
 

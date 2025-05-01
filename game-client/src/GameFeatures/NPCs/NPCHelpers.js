@@ -42,8 +42,8 @@ export async function handleNPCClick(
     console.warn("handleNPCClick was called with an undefined NPC.");
     return;
   }
-  console.log('handleNPCClick: npc =', npc);
-  
+  console.log(`[🐮↖️ handleNPCClick] NPC ${npc.id} clicked with state=${npc.state}`);
+
   switch (npc.action) {
 
     case 'quest': 
