@@ -27,7 +27,7 @@ const DynamicRenderer = ({
   const tooltipRef = useRef(null);
   const animationFrameId = useRef(null);
   const reloadRef = useRef(0); // Stores the next allowed attack time
-  const rangeIndicatorRef = useRef(null);
+  // Removed unused rangeIndicatorRef
 
   const npcElements = useRef(new Map());
   const pcElements = useRef(new Map());
@@ -49,10 +49,13 @@ const DynamicRenderer = ({
     container.appendChild(tooltip);
     tooltipRef.current = tooltip;
 
+    // Store references at effect entry to avoid stale refs in cleanup
+    const npcRefs = npcElements.current;
+    const pcRefs = pcElements.current;
+
     ///////////////////////////////////////////////////////
     const renderNPCs = () => {
       const npcs = Object.values(gridState?.npcs || {}); // Use the updated gridState.npcs
-      const currentTime = Date.now();
 
       npcs.forEach((npc) => {
         let npcElement = npcElements.current.get(npc.id);
@@ -184,19 +187,20 @@ const DynamicRenderer = ({
       if (animationFrameId.current) {
         cancelAnimationFrame(animationFrameId.current);
       }
-      npcElements.current.forEach((npcElement) => {
+      npcRefs.forEach((npcElement) => {
         container.removeChild(npcElement);
       });
-      npcElements.current.clear();
+      npcRefs.clear();
 
-      pcElements.current.forEach((pcElement) => {
+      pcRefs.forEach((pcElement) => {
         container.removeChild(pcElement);
       });
-      pcElements.current.clear();
+      pcRefs.clear();
 
       container.removeChild(tooltip);
     };
-  }, [gridState, TILE_SIZE, handleNPCClick]);
+  // Add all required dependencies
+  }, [gridState, TILE_SIZE, currentPlayer, onNPCClick, onPCClick, setInventory, setResources]);
 
   return <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%' }} />;
 };
