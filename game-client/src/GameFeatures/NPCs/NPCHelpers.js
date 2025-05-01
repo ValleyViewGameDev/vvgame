@@ -2,9 +2,6 @@ import API_BASE from "../../config";
 import axios from "axios";    
 import { checkInventoryCapacity } from "../../Utils/InventoryManagement";
 import FloatingTextManager from "../../UI/FloatingText";
-import { usePanelContext } from "../../UI/PanelContext";
-import Panel from "../../UI/Panel";
-import QuestGiverPanel from './NPCsQuest';
 import gridStateManager from "../../GridState/GridState";
 import { handleAttackOnNPC } from "../Combat/Combat";
 
@@ -39,8 +36,7 @@ export async function handleNPCClick(
   setResources,
   currentPlayer,
   TILE_SIZE,
-  masterResources,
-  gridId
+  masterResources
 ) {
   if (!npc) {
     console.warn("handleNPCClick was called with an undefined NPC.");
@@ -150,7 +146,9 @@ export async function handleNPCClick(
           setInventory(updatedInventory);
           localStorage.setItem('inventory', JSON.stringify(updatedInventory));
           
-          await gridStateManager.updateNPC(gridId, npc.id, {
+          npc.state = 'emptystall';
+          npc.hp = 0;
+          await gridStateManager.updateNPC(currentPlayer.location.g, npc.id, {
             state: 'emptystall',
             hp: 0,
           });
@@ -164,7 +162,6 @@ export async function handleNPCClick(
         console.error('Error updating inventory or grid state on server:', error);
         return { type: 'error', message: 'Failed to update inventory or stall.' };
       }
-      break;
     }
 
     case 'attack': 
