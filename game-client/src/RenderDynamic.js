@@ -39,10 +39,7 @@ const DynamicRenderer = ({
     const container = containerRef.current;
     if (!container) return;
     const gridId = currentPlayer?.location?.g;
-    if (!gridId) {
-      console.warn("RenderDynamic: No gridId available yet.");
-      return null;
-    }
+    if (!gridId) return;
     const tooltip = document.createElement('div');
     tooltip.className = 'tooltip-container';
     tooltip.style.position = 'absolute';
