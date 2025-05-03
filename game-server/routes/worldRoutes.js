@@ -98,7 +98,7 @@ router.post('/create-grid', async (req, res) => {
             state: resourceEntry.defaultState || 'idle',
             hp: Math.max(resourceEntry.hp || 10, 0),
             maxhp: resourceEntry.maxhp || 10,
-            lastMoveTime: 0,
+            lastUpdated: 0,
           };
         }
       });
@@ -214,7 +214,7 @@ router.post('/reset-grid', async (req, res) => {
               state: 'idle',
               hp: Math.max(npcTemplate.hp || 10, 0),
               maxhp: npcTemplate.maxhp || 10,
-              lastMoveTime: 0
+              lastUpdated: 0
             };
           }
         }

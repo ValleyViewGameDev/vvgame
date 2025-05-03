@@ -1,4 +1,3 @@
-import socket from '../../socketManager'; 
 import axios from 'axios';
 import GlobalGridState from '../../GridState/GlobalGridState';
 import gridStateManager from '../../GridState/GridState';
@@ -179,8 +178,6 @@ async function handleFarmAnimalBehavior(gridId) {
         case 'grazing': {
             console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
             console.log('grazeEnd = ', this.grazeEnd);
-            const fullGridState = gridStateManager.getGridState(gridId);
-
             const currentTime = Date.now();
         
             console.log(`grazeEnd: ${this.grazeEnd}, growTime: ${this.growTime}, type: ${this.type}`);
@@ -194,10 +191,8 @@ async function handleFarmAnimalBehavior(gridId) {
             // ✅ Check if grazing is complete
             if (currentTime >= this.grazeEnd) {
                 console.log(`🐄 NPC ${this.id} finished grazing. Moving to stall.`);
-                
                 // ✅ Transition to stall
                 this.state = 'stall';
-        
                 await updateThisNPC();
             }
             break;
@@ -250,15 +245,14 @@ async function handleFarmAnimalBehavior(gridId) {
             
                 // Step 7: If a valid movement direction isn't determined, revert to idle state
                 if (!direction &&
-                    (   Math.floor(this.position.x) != this.targetStall.x &&
-                        Math.floor(this.position.y) != this.targetStall.y )
-                ) 
-                {
-                    console.warn(`NPC ${this.id} could not determine direction to stall.`);
-                    this.state = 'idle';
-                    this.targetStall = null;
-                    break;
-                }
+                    (   Math.floor(this.position.x) !== this.targetStall.x &&
+                        Math.floor(this.position.y) !== this.targetStall.y )
+                    ) {
+                        console.warn(`NPC ${this.id} could not determine direction to stall.`);
+                        this.state = 'idle';
+                        this.targetStall = null;
+                        break;
+                    }
             
                 // Step 8: Move the NPC one tile towards the stall
                 if (!this.isMoving) {

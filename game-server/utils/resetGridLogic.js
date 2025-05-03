@@ -56,7 +56,7 @@ async function resetGridDirect({ gridId, gridType, gridCoord }) {
           state: resourceEntry.defaultState || 'idle',
           hp: Math.max(resourceEntry.hp || 10, 0),
           maxhp: resourceEntry.maxhp || 10,
-          lastMoveTime: 0,
+          lastUpdated: 0,
         };
       }
     });

@@ -29,7 +29,6 @@ const GridSchema = new mongoose.Schema({
       hp: { type: Number, default: 0 },
       maxhp: { type: Number, default: 0 },
       grazeEnd: { type: Number },
-      lastMoveTime: { type: Number },
       lastUpdated: { type: Date, default: Date.now }
     }),
     default: {}

@@ -687,7 +687,7 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
         <p>y: {npc.position.y}</p>
         <p>hp/hunger: {npc.hp}</p>
         <p>maxhp: {npc.maxhp}</p>
-        <p>lastMoveTime: {npc.lastMoveTime}</p>
+        <p>lastUpdated: {npc.lastUpdated}</p>
         <p>nextspawn: {npc.nextspawn}</p>
                 
                 </pre>

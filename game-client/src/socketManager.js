@@ -127,55 +127,44 @@ export function socketListenForPCstateChanges(gridId, currentPlayer, setGridStat
 export function socketListenForNPCStateChanges(gridId, setGridState, npcController) {
   console.log("🌐 useEffect for NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
   if (!gridId) return;
-  let lastUpdateTimeNPCs = 0;
 
-  const handleNPCSync = ({ npcs, gridStateNPCsLastUpdated, emitterId }) => {
-    console.log('📥 Received gridState-sync-NPCs event:', { npcs, gridStateNPCsLastUpdated, emitterId });
+  const handleNPCSync = ({ npcs, emitterId }) => {
+    console.log('📥 Received gridState-sync-NPCs event:', { npcs, emitterId });
     console.log('IsNPCController:', npcController.isControllingGrid(gridId));
-
-    if (!npcs || !gridStateNPCsLastUpdated) return;
-
-    const parsedNPCTime = new Date(gridStateNPCsLastUpdated);
-    if (isNaN(parsedNPCTime.getTime())) {
-      console.error("Invalid gridStateNPCsLastUpdated timestamp:", gridStateNPCsLastUpdated);
-      return;
-    }
-
-    if (parsedNPCTime.getTime() > lastUpdateTimeNPCs) {
-      console.log(`🐮📡 SOCKET LISTENER (handleNPCSync) From ${emitterId} (not NPCcontroller) is updating local NPCs:`, npcs);
-      setGridState(prevState => {
-        const updatedNPCs = { ...prevState.npcs };
-
-        // Merge the incoming fields into existing local NPCs
-        Object.entries(npcs).forEach(([npcId, incomingNPC]) => {
-          console.log(`  🐮📡 ⤷ NPC ${npcId} new state: ${incomingNPC.state}`);
-          const localNPC = updatedNPCs[npcId];
-          if (localNPC) {
-            // Update only the changed fields
-            Object.assign(localNPC, incomingNPC);
-          } else {
-            // If the NPC didn't exist locally (very rare), hydrate it as new
-            updatedNPCs[npcId] = new NPC(
-              incomingNPC.id,
-              incomingNPC.type,
-              incomingNPC.position,
-              incomingNPC,
-              incomingNPC.gridId || gridId
-            );
-          }
-        });
-
-        return {
-          ...prevState,
-          npcs: updatedNPCs,
-          gridStateNPCsLastUpdated: parsedNPCTime.getTime(),
-        };
+  
+    if (!npcs) return;
+  
+    setGridState(prevState => {
+      const updatedNPCs = { ...prevState.npcs };
+  
+      Object.entries(npcs).forEach(([npcId, incomingNPC]) => {
+        const localNPC = updatedNPCs[npcId];
+  
+        const incomingTime = new Date(incomingNPC.lastUpdated).getTime();
+        const localTime = localNPC?.lastUpdated ? new Date(localNPC.lastUpdated).getTime() : 0;
+  
+        if (incomingTime > localTime) {
+          console.log(`  🐮📡 Updating NPC ${npcId} from emitter ${emitterId}: ${incomingNPC.state}`);
+  
+          updatedNPCs[npcId] = localNPC
+            ? Object.assign(localNPC, incomingNPC)
+            : new NPC(
+                incomingNPC.id,
+                incomingNPC.type,
+                incomingNPC.position,
+                incomingNPC,
+                incomingNPC.gridId || gridId
+              );
+        } else {
+          console.log(`  ⏳ Skipped NPC ${npcId}, newer or same version already present.`);
+        }
       });
-
-      lastUpdateTimeNPCs = parsedNPCTime.getTime();
-    } else {
-      console.log('⏳ Skipping older NPC update.');
-    }
+  
+      return {
+        ...prevState,
+        npcs: updatedNPCs,
+      };
+    });
   };
 
   // Add handler for npc-moved-sync

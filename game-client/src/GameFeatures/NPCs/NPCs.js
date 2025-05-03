@@ -34,11 +34,10 @@ class NPC {
     this.state = 'idle'; // Default state
     this.speed = properties.speed;
     this.growTime = properties.growtime || 0; // Time to fully graze
-    this.lastMoveTime = 0; // Initialize lastMoveTime
     this.processingStartTime = undefined;
     this.nextspawn = properties.nextspawn ?? (this.action === 'spawn' ? Date.now() + 5000 : null);
     this.grazeEnd = properties.grazeEnd || null; // this is preserved from gridState
-
+    this.lastUpdated = Date.now(); // Initialize lastUpdated
     // Assign additional properties
     Object.assign(this, properties);
   }
@@ -53,14 +52,14 @@ update(currentTime, gridState, gridId, TILE_SIZE) {
 
   const npcs = Object.values(gridStateManager.getGridState(gridId)?.npcs || {}); // Use the new gridState.npcs
 
-  const timeElapsed = currentTime - this.lastUpdateTime;
+  const timeElapsed = currentTime - this.lastUpdated;
   if (timeElapsed < this.updateInterval) {
     return;
   }
-  console.log(`🐮⌛️ Time elapsed: ${timeElapsed}ms, Last update: ${this.lastUpdateTime}`);
+  console.log(`🐮⌛️ Time elapsed: ${timeElapsed}ms, Last update: ${this.lastUpdated}`);
   
   this.processState(gridState, gridId, TILE_SIZE);
-  this.lastUpdateTime = currentTime;
+  this.lastUpdated = currentTime;
 }
 
 async processState(gridState, gridId, TILE_SIZE) {

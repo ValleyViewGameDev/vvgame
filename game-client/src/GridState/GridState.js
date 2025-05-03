@@ -159,7 +159,7 @@ class GridStateManager {
         position,
         hp: 0,
         maxhp: npcTemplate.maxhp,
-        lastMoveTime: 0,
+        lastUpdated: Date.now(),
       };
     } else if (npcTemplate.action === 'spawn') {  // Ensure spawners track nextspawn
       lightweightNPC = {
@@ -170,7 +170,7 @@ class GridStateManager {
         position,
         hp: npcTemplate.maxhp,
         maxhp: npcTemplate.maxhp,
-        lastMoveTime: 0,
+        lastUpdated: Date.now(),
         nextspawn: Date.now() + npcTemplate.speed * 1000, // Ensure nextspawn is explicitly set
       };
     } else {
@@ -182,7 +182,7 @@ class GridStateManager {
         position,
         hp: npcTemplate.maxhp,
         maxhp: npcTemplate.maxhp,
-        lastMoveTime: 0,
+        lastUpdated: Date.now(),
       };
     }
     console.log('Creating lightweightNPC:', lightweightNPC);
@@ -451,7 +451,6 @@ class GridStateManager {
           hp: npc.hp,
           maxhp: npc.maxhp,
           grazeEnd: npc.grazeEnd,
-          lastMoveTime: npc.lastMoveTime,
           lastUpdated: npc.lastUpdated,
         };
       });
