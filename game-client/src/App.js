@@ -163,7 +163,7 @@ const handleQuestNPCClick = (npc) => {
 };
 const handlePCClick = (pc) => {
   console.log('App.js: Opening SocialPanel for PC:', pc);
-  setActiveSocialPC(pc);  // Set the active quest giver globally
+  setActiveSocialPC(pc);  // Set the active clicked PC globally
   openPanel('SocialPanel');  // Open the panel
 };
 
@@ -293,6 +293,22 @@ useEffect(() => {
       console.log('6 InitAppWrapper; Initializing gridState...');
       await gridStateManager.initializeGridState(initialGridId);
       const initializedState = gridStateManager.getGridState(initialGridId);
+      // 🧠 Rehydrate NPCs
+      const rawNpcs = initializedState?.npcs || {};
+      Object.entries(rawNpcs).forEach(([npcId, rawNpc]) => {
+        try {
+          const hydrated = new NPC(
+            rawNpc.id,
+            rawNpc.type,
+            rawNpc.position,
+            rawNpc,
+            initialGridId
+          );
+          initializedState.npcs[npcId] = hydrated;
+        } catch (e) {
+          console.error(`❌ Failed to rehydrate NPC ${npcId}:`, e);
+        }
+      });
       setGridState(initializedState);
 
       // Add this after gridState initialization:
