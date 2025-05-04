@@ -64,7 +64,8 @@ class GridStateManager {
               npcId,
               lightweightNPC.type,
               lightweightNPC.position,
-              { ...npcTemplate, ...lightweightNPC }
+              { ...npcTemplate, ...lightweightNPC },
+              gridId
             );
           } else {
             console.warn(`No template found for NPC type: ${lightweightNPC.type}`);
