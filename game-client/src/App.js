@@ -547,9 +547,20 @@ useEffect(() => {
       console.log("🧑‍🌾 NPC Controller Username: ", controllerUsername);
       console.log("🧑‍🌾 Is NPC Controller: ", isNPCController);
 
+
+
       // Only run NPC updates if NPCController agrees
       if (isNPCController) {
         Object.values(gridState.npcs).forEach((npc) => {
+
+          console.log(`🔍 Type check:`, {
+            id: npc.id,
+            isInstance: npc instanceof NPC,
+            hasUpdate: typeof npc.update === 'function',
+            constructorName: npc.constructor?.name,
+            protoString: Object.prototype.toString.call(npc),
+          });
+
           if (typeof npc.update !== 'function') { console.warn(`🛑 Skipping NPC without update() method:`, npc); return; }
           console.log(`[🐮🐮 NPC LOOP] Controller running update() for NPC ${npc.id}, state=${npc.state}`);
           const currentTime = Date.now();
