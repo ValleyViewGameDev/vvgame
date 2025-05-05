@@ -3,7 +3,7 @@ import gridStateManager from "../../GridState/GridState";
 import { calculateDistance } from "../NPCs/NPCHelpers";
 import { extractXY } from "../NPCs/NPCHelpers";
 import { updateGridResource } from "../../Utils/GridManagement";
-import GlobalGridState from '../../GridState/GlobalGridState';
+import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 
 /** Helper to check if target is in range and validate positions **/
@@ -118,10 +118,10 @@ export async function handleAttackOnNPC(npc, currentPlayer, TILE_SIZE, setResour
                 };
 
                 const updatedResources = [
-                    ...GlobalGridState.getResources(),
+                    ...GlobalGridStateTilesAndResources.getResources(),
                     enrichedResource
                 ];
-                GlobalGridState.setResources(updatedResources);
+                GlobalGridStateTilesAndResources.setResources(updatedResources);
                 setResources((prevResources) => [...prevResources, enrichedResource]);
 
                 await updateGridResource(

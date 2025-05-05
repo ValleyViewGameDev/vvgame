@@ -23,7 +23,7 @@ import { socketListenForPCJoinAndLeave,
 
 import farmState from './FarmState';
 import gridStateManager from './GridState/GridState';
-import GlobalGridState from './GridState/GlobalGridState';
+import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
 import npcController from './GridState/NPCController';
 
@@ -115,18 +115,18 @@ function App() {
   const [isMasterResourcesReady, setIsMasterResourcesReady] = useState([]);
   const [masterSkills, setMasterSkills] = useState([]);
     
-// Synchronize tiles with GlobalGridState -- i did this so NPCs have knowledge of tiles and resources as they change
+// Synchronize tiles with GlobalGridStateTilesAndResources -- i did this so NPCs have knowledge of tiles and resources as they change
 useEffect(() => {
   if (tileTypes?.length) {
-    GlobalGridState.setTiles(tileTypes);
-    console.log('GlobalGridState tiles updated:', tileTypes);
+    GlobalGridStateTilesAndResources.setTiles(tileTypes);
+    console.log('GlobalGridStateTilesAndResources tiles updated:', tileTypes);
   }
 }, [tileTypes]);
-// Synchronize resources with GlobalGridState -- i did this so NPCs have knowledge of tiles and resources as they change
+// Synchronize resources with GlobalGridStateTilesAndResources -- i did this so NPCs have knowledge of tiles and resources as they change
 useEffect(() => {
   if (resources?.length) {
-    GlobalGridState.setResources(resources);
-    console.log('GlobalGridState resources updated:', resources);
+    GlobalGridStateTilesAndResources.setResources(resources);
+    console.log('GlobalGridStateTilesAndResources resources updated:', resources);
   }
 }, [resources]);
 

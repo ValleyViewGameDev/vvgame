@@ -1,14 +1,14 @@
 import axios from 'axios';
 import gridStateManager from './GridState/GridState'; // Correctly use gridStateManager
-import GlobalGridState from './GridState/GlobalGridState';
+import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FloatingTextManager from "./UI/FloatingText";
 
 let isAnimating = false; 
 let currentAnimationFrame = null; 
 
 function isValidMove(targetX, targetY, masterResources) {  // Function to check if movement is valid
-  const tiles = GlobalGridState.getTiles();
-  const resources = GlobalGridState.getResources();
+  const tiles = GlobalGridStateTilesAndResources.getTiles();
+  const resources = GlobalGridStateTilesAndResources.getResources();
 
   if (!Array.isArray(resources)) {
     console.warn('⛔ Movement blocked: resources is not an array yet.', resources);

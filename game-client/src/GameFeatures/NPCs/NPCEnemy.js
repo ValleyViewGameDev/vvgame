@@ -1,12 +1,12 @@
 import socket from '../../socketManager'; 
-import GlobalGridState from '../../GridState/GlobalGridState';
+import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import gridStateManager from '../../GridState/GridState';
 import FloatingTextManager from "../../UI/FloatingText";
 import { modifyPlayerStatsInGridState } from '../../Utils/playerManagement';
 
 async function handleEnemyBehavior(gridId, TILE_SIZE) {
-  const tiles = GlobalGridState.getTiles();
-  const resources = GlobalGridState.getResources();
+  const tiles = GlobalGridStateTilesAndResources.getTiles();
+  const resources = GlobalGridStateTilesAndResources.getResources();
   const npcs = Object.values(gridStateManager.getGridState(gridId)?.npcs || {});
   const pcs = Object.values(gridStateManager.getGridState(gridId)?.pcs || {}); // Get all PCs on the grid
 

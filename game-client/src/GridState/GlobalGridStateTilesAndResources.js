@@ -1,5 +1,5 @@
-// GlobalGridState.js
-const GlobalGridState = {
+// GlobalGridStateTilesAndResources.js
+const GlobalGridStateTilesAndResources = {
     tiles: [],
     resources: [],
   
@@ -26,4 +26,4 @@ const GlobalGridState = {
     },
   };
   
-  export default GlobalGridState;
+  export default GlobalGridStateTilesAndResources;

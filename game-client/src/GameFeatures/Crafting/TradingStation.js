@@ -10,7 +10,7 @@ import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients } from '..
 import { StatusBarContext } from '../../UI/StatusBar';
 import { loadMasterResources, loadMasterSkills } from '../../Utils/TuningManager';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import GlobalGridState from '../../GridState/GlobalGridState';
+import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 
 const TradingStation = ({
   onClose,

@@ -10,7 +10,7 @@ import { updateGridResource } from '../../Utils/GridManagement';
 import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import GlobalGridState from '../../GridState/GlobalGridState';
+import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import gridStateManager from '../../GridState/GridState';
 
 
@@ -46,12 +46,12 @@ const CraftingStation = ({
    useEffect(() => {
     if (!stationType || !currentStationPosition) return;
 
-    console.log('🔄 Checking GlobalGridState for active crafting timers...');
+    console.log('🔄 Checking GlobalGridStateTilesAndResources for active crafting timers...');
     
-    const station = GlobalGridState.getResources()?.find(
+    const station = GlobalGridStateTilesAndResources.getResources()?.find(
       (res) => res.x === currentStationPosition.x && res.y === currentStationPosition.y
     );
-    console.log('📡 Fetched station from GlobalGridState:', station);
+    console.log('📡 Fetched station from GlobalGridStateTilesAndResources:', station);
 
     if (station && station.craftEnd) {
         console.log(`⏳ Active crafting found: ${station.craftedItem} until ${new Date(station.craftEnd).toLocaleTimeString()}`);
@@ -83,7 +83,7 @@ const CraftingStation = ({
         setCraftingCountdown(null);
         setActiveTimer(false);
     }
-  }, [stationType, currentStationPosition, GlobalGridState.getResources(), craftingCountdown]); // ✅ Ensure state triggers re-render
+  }, [stationType, currentStationPosition, GlobalGridStateTilesAndResources.getResources(), craftingCountdown]); // ✅ Ensure state triggers re-render
 
 
   // Sync inventory with local storage and server
@@ -157,7 +157,7 @@ const CraftingStation = ({
       };
       console.log('handleCraft: updatedStation:  ',updatedStation);
       await updateGridResource(gridId, updatedStation, setResources, true);
-      console.log('📡 Fetched station from GlobalGridState:', GlobalGridState.getResources);
+      console.log('📡 Fetched station from GlobalGridStateTilesAndResources:', GlobalGridStateTilesAndResources.getResources);
 
 
       // ✅ Step 1: Ensure UI Updates Immediately
@@ -169,16 +169,16 @@ const CraftingStation = ({
 
       console.log(`🛠️ Started crafting ${recipe.type}. Will be ready at ${craftEnd}`);
 
-      // ✅ Step 2: Update GlobalGridState Immediately
-      const updatedResources = GlobalGridState.getResources().map(res =>
+      // ✅ Step 2: Update GlobalGridStateTilesAndResources Immediately
+      const updatedResources = GlobalGridStateTilesAndResources.getResources().map(res =>
           res.x === currentStationPosition.x && res.y === currentStationPosition.y
               ? { ...res, craftEnd, craftedItem: recipe.type }
               : res
       );
-      GlobalGridState.setResources(updatedResources);
-      console.log("🌎 GlobalGridState updated after crafting start!");
+      GlobalGridStateTilesAndResources.setResources(updatedResources);
+      console.log("🌎 GlobalGridStateTilesAndResources updated after crafting start!");
 
-      // ✅ Step 3: Ensure UI State Reflects GlobalGridState
+      // ✅ Step 3: Ensure UI State Reflects GlobalGridStateTilesAndResources
       setResources(updatedResources);
 
     
@@ -294,9 +294,9 @@ const CraftingStation = ({
         }
         console.log("🛠️ Grid resource updated:", updateResponse);
 
-        // ✅ **Manually update GlobalGridState**
+        // ✅ **Manually update GlobalGridStateTilesAndResources**
 
-        const updatedGlobalResources = GlobalGridState.getResources().map(res =>
+        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
           res.x === currentStationPosition.x && res.y === currentStationPosition.y
             ? (() => {
                 const { craftEnd, craftedItem, ...rest } = res;
@@ -305,8 +305,8 @@ const CraftingStation = ({
             : res
         );
 
-        GlobalGridState.setResources(updatedGlobalResources);
-        console.log("🌎 GlobalGridState updated successfully!");
+        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
+        console.log("🌎 GlobalGridStateTilesAndResources updated successfully!");
 
         // ✅ Reset UI state
         setActiveTimer(false);

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { initializeGrid } from '../AppInit';
 import gridStateManager from '../GridState/GridState';
 import socket from '../socketManager'; // ⚠️ At top of file if not already present
-import GlobalGridState from '../GridState/GlobalGridState';
+import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { mergeResources, mergeTiles } from './ResourceHelpers';
 import { enrichResourceFromMaster } from './ResourceHelpers';
 
@@ -34,8 +34,8 @@ export const updateGridResource = async (
     const response = await axios.patch(`${API_BASE}/api/update-grid/${gridId}`, payload);
     if (!response.data.success) throw new Error('Failed DB update');
 
-    // ✅ 2. Update GlobalGridState
-    const prevResources = GlobalGridState.getResources();
+    // ✅ 2. Update GlobalGridStateTilesAndResources
+    const prevResources = GlobalGridStateTilesAndResources.getResources();
     const updatedResource = resource
       ? {
           type: typeof resource === 'string' ? resource : resource.type,

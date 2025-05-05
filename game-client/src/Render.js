@@ -1,6 +1,6 @@
 import React, { memo, useState, useEffect } from 'react';
 import { startAmbientVFX, stopAmbientVFX } from './VFX/AmbientVFX';
-import GlobalGridState from './GridState/GlobalGridState';
+import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import './App.css';
 
 export const RenderGrid = memo(

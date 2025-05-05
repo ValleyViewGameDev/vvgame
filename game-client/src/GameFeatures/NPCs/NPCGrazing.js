@@ -1,5 +1,5 @@
 import axios from 'axios';
-import GlobalGridState from '../../GridState/GlobalGridState';
+import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import gridStateManager from '../../GridState/GridState';
 import { calculateDistance } from './NPCHelpers';
 
@@ -18,8 +18,8 @@ async function handleFarmAnimalBehavior(gridId) {
             position: this.position,
       });
     };
-    const tiles = GlobalGridState.getTiles();
-    const resources = GlobalGridState.getResources();
+    const tiles = GlobalGridStateTilesAndResources.getTiles();
+    const resources = GlobalGridStateTilesAndResources.getResources();
     const npcs = Object.values(gridStateManager.getGridState(gridId)?.npcs || {}); 
 
     gridId = gridId || this.gridId; // Fallback to npc.gridId if not provided
