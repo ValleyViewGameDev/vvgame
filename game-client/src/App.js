@@ -22,11 +22,12 @@ import { socketListenForPCJoinAndLeave,
   socketListenForConnectAndDisconnect } from './socketManager';
 
 import farmState from './FarmState';
-import gridStateManager from './GridState/GridState';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
-import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
-import { useGridStatePCs, useGridStatePCUpdate } from './GridState/GridStatePCContext';
+
 import gridStatePCManager from './GridState/GridStatePCs';
+import { useGridStatePCs, useGridStatePCUpdate } from './GridState/GridStatePCContext';
+import gridStateManager from './GridState/GridState';
+import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
 import npcController from './GridState/NPCController';
 
 import SettlementView from './ZoomedOut/SettlementView';
@@ -1251,12 +1252,16 @@ return ( <>
           <h4 style={{ color: "white" }}>No PCs present in the grid.</h4>
         ) : (
           <h4 style={{ color: "white" }}>
-            {Object.entries(gridStatePCs).map(([playerId, pc]) => (
+          {gridStatePCs && Object.entries(gridStatePCs).length > 0 ? (
+            Object.entries(gridStatePCs).map(([playerId, pc]) => (
               <p key={playerId} style={{ color: "white" }}>
                 {connectedPlayers.has(playerId) && '📡 '}
                 <strong>{pc.username}</strong> - HP: {pc.hp}, ({pc.position.x}, {pc.position.y})
               </p>
-            ))}
+            ))
+          ) : (
+            <h4 style={{ color: "white" }}>No PCs present in the grid.</h4>
+          )}
           </h4>
         )}
         <h4 style={{ color: "white" }}>
