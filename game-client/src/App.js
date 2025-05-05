@@ -25,6 +25,8 @@ import farmState from './FarmState';
 import gridStateManager from './GridState/GridState';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
+import { useGridStatePCs, useGridStatePCUpdate } from './GridState/GridStatePCContext';
+import gridStatePCManager from './GridState/GridStatePCs';
 import npcController from './GridState/NPCController';
 
 import SettlementView from './ZoomedOut/SettlementView';
@@ -139,6 +141,8 @@ const [isMoving, setIsMoving] = useState(null);
 
 const gridState = useGridState();
 const setGridState = useGridStateUpdate();
+const gridStatePCs = useGridStatePCs();
+const setGridStatePCs = useGridStatePCUpdate();
 const [pcs, setPcs] = useState({});
 const [npcs, setNpcs] = useState({});
 
@@ -312,7 +316,7 @@ useEffect(() => {
       setGridState(initializedState);
 
       // Add this after gridState initialization:
-      const playerPosition = initializedState?.pcs?.[parsedPlayer.playerId]?.position;
+      const playerPosition = gridStatePCs?.[parsedPlayer.playerId]?.position;
       if (playerPosition) {
         console.log('🎯 Centering camera on player position:', playerPosition);
         centerCameraOnPlayer(playerPosition, activeTileSize);
@@ -323,7 +327,7 @@ useEffect(() => {
       // 7. Resolve player location and confirm in gridState
       console.log('7 InitAppWrapper; Resolving player location...');
       const playerIdStr = fullPlayerData._id.toString();
-      let gridPlayer = initializedState?.pcs?.[playerIdStr];
+      let gridPlayer = gridStatePCs?.[playerIdStr];
 
       // ✅ Step A: Detect location mismatch or missing from gridState
       const isLocationMismatch = fullPlayerData.location?.g !== initialGridId;
@@ -341,10 +345,11 @@ useEffect(() => {
 
         console.warn('InitAppWrapper: adding PC to gridState');
 
-        // USE updatePC here instead?
-        gridStateManager.addPC(targetGridId, {
+        // Use gridStatePCManager.addOrUpdatePC instead of gridStateManager.addPC & saveGridStatePCs
+        await gridStatePCManager.addOrUpdatePC(targetGridId, fullPlayerData.playerId, {
           playerId: fullPlayerData.playerId,
           username: fullPlayerData.username,
+          type: "pc",
           position: targetPosition,
           icon: fullPlayerData.icon,
           hp: fullPlayerData.hp,
@@ -355,18 +360,13 @@ useEffect(() => {
           attackrange: fullPlayerData.attackrange,
           speed: fullPlayerData.speed,
           iscamping: fullPlayerData.iscamping,
-          lastUpdated: Date.now(),
         });
-        console.log ("About to save call saveGridState in InitAppWrapper step 7");
-        await gridStateManager.saveGridStatePCs(targetGridId);  
-          // DEPRECATE saveGridStatePCs; use updatePC or
-          //   use  axios.post(`${API_BASE}/api/save-single-pc`  directly
 
         // ✅ Refresh the gridState and React state
         console.warn('InitAppWrapper: refreshing gridState');
         const refreshedState = gridStateManager.getGridState(targetGridId);
         setGridState(refreshedState);
-        gridPlayer = refreshedState.pcs[playerIdStr];
+        gridPlayer = gridStatePCManager.getGridStatePCs(targetGridId)?.[playerIdStr];
 
         // ✅ Update gridId and storage to match actual grid
         console.warn('InitAppWrapper: adding PC to gridState');
@@ -505,17 +505,9 @@ const fetchGrid = async (gridId) => {
 useEffect(() => {
   if (gridId) {
     farmState.initializeFarmState(resources); // ✅ Works for seeds
-    farmState.startSeedTimer({
-      gridId,
-      setResources,
-      activeTileSize,
-      currentPlayer,
-      setCurrentPlayer,
-    });
+    farmState.startSeedTimer({gridId,setResources,activeTileSize,currentPlayer,setCurrentPlayer,});
   }
-  return () => {
-    farmState.stopSeedTimer();
-  };
+  return () => { farmState.stopSeedTimer(); };
 }, [gridId]);  
 
 
@@ -523,63 +515,68 @@ useEffect(() => {
 useEffect(() => {
   if (gridState) {
     console.log('🔄 Updating local state for PCs and NPCs from GridState:', gridState);
-
-    // Filter out invalid PCs before updating state
-    const validPCs = Object.fromEntries(
-      Object.entries(gridState.pcs).filter(([id, pc]) => pc && pc.position && typeof pc.position.x === 'number' && typeof pc.position.y === 'number')
-    );
-
-    setPcs({ ...validPCs });
+    // Now handled by PC context
     setNpcs({ ...gridState.npcs });
   }
 }, [gridState]);  // ✅ Trigger re-render when `gridState` updates
 
-
 // Define isNPCController before the useEffect block that logs it
 const isNPCController = npcController.isControllingGrid(gridId);
 
-// GRID STATE:  NPC and PC Management Loop  /////////////////////////
+// 🔄 NPC Management Loop
 useEffect(() => {
-  if (!isAppInitialized) { console.log('App not initialized. Skipping NPC/PC management.'); return; }
-  const interval = setInterval(async () => {
-    if (!gridState?.npcs) { console.warn('No NPCs in gridState'); return; }
+  if (!isAppInitialized) { console.log('App not initialized. Skipping NPC management.'); return; }
 
-      console.log("🧑‍🌾 NPC Controller Username: ", controllerUsername);
-      console.log("🧑‍🌾 Is NPC Controller: ", isNPCController);
+  const interval = setInterval(() => {
+    if (!gridState?.npcs) {
+      console.warn('No NPCs in gridState');
+      return;
+    }
 
+    console.log("🧑‍🌾 NPC Controller Username: ", controllerUsername);
+    console.log("🧑‍🌾 Is NPC Controller: ", isNPCController);
 
+    if (isNPCController) {
+      Object.values(gridState.npcs).forEach((npc) => {
 
-      // Only run NPC updates if NPCController agrees
-      if (isNPCController) {
-        Object.values(gridState.npcs).forEach((npc) => {
-
-          console.log(`🔍 Type check:`, {
-            id: npc.id,
-            isInstance: npc instanceof NPC,
-            hasUpdate: typeof npc.update === 'function',
-            constructorName: npc.constructor?.name,
-            protoString: Object.prototype.toString.call(npc),
-          });
-
-          if (typeof npc.update !== 'function') { console.warn(`🛑 Skipping NPC without update() method:`, npc); return; }
-          console.log(`[🐮🐮 NPC LOOP] Controller running update() for NPC ${npc.id}, state=${npc.state}`);
-          const currentTime = Date.now();
-          npc.update(currentTime, gridState, gridId, activeTileSize);
+        console.log(`🔍 Type check:`, {
+          id: npc.id,
+          isInstance: npc instanceof NPC,
+          hasUpdate: typeof npc.update === 'function',
+          constructorName: npc.constructor?.name,
+          protoString: Object.prototype.toString.call(npc),
         });
-      } else {
-        console.log('🛑 Not the NPC controller. Skipping NPC updates.');
-      }
-      // Always check PCs for death regardless of controller status
-      if (gridState.pcs) {
-        Object.values(gridState.pcs).forEach(async (pc) => {
-          if (pc.hp <= 0 && currentPlayer && String(currentPlayer._id) === pc.playerId) {
-            await handlePlayerDeath(currentPlayer, setCurrentPlayer, fetchGrid, setGridId, setGrid, setResources, setTileTypes, setGridState, activeTileSize);
-          }
-        });
-      }
+        
+        if (typeof npc.update !== 'function') {
+          console.warn(`🛑 Skipping NPC without update() method:`, npc);
+          return;
+        }
+        console.log(`[🐮🐮 NPC LOOP] Controller running update() for NPC ${npc.id}, state=${npc.state}`);
+        const currentTime = Date.now();
+        npc.update(currentTime, gridState, gridId, activeTileSize);
+      });
+    } else {
+      console.log('🛑 Not the NPC controller. Skipping NPC updates.');
+    }
   }, 1000);
+
   return () => clearInterval(interval);
 }, [isAppInitialized, gridId, gridState, currentPlayer, activeTileSize]);
+
+// 🔄 PC Management Loop: Check for player death
+useEffect(() => {
+  if (!isAppInitialized) { console.log('App not initialized. Skipping PC management.'); return; }
+
+  const interval = setInterval(async () => {
+    if (gridStatePCs) {
+      const playerPC = gridStatePCs[currentPlayer?._id];
+      if (playerPC?.hp <= 0 && currentPlayer) {
+        await handlePlayerDeath(currentPlayer,setCurrentPlayer,fetchGrid,setGridId,setGrid,setResources,setTileTypes,setGridState,activeTileSize);
+      }
+    }
+  }, 1000);
+  return () => clearInterval(interval);
+}, [isAppInitialized, gridId, gridStatePCs, currentPlayer, activeTileSize]);
 
 
 
@@ -1107,7 +1104,7 @@ const handleLoginSuccess = async (player) => {
 
 const [showTimers, setShowTimers] = useState(false);
 const [showStats, setShowStats] = useState(false); // Toggle for combat stats UI
-const combatStats = gridState?.pcs?.[String(currentPlayer?._id)] || {};
+const combatStats = gridStatePCs?.[String(currentPlayer?._id)] || {};
 
 return ( <>
 
@@ -1250,11 +1247,11 @@ return ( <>
       <br />
       <h3>Who's here:</h3>
       <div>
-        {Object.entries(pcs).length === 0 ? (
+        {Object.entries(gridStatePCs).length === 0 ? (
           <h4 style={{ color: "white" }}>No PCs present in the grid.</h4>
         ) : (
           <h4 style={{ color: "white" }}>
-            {Object.entries(pcs).map(([playerId, pc]) => (
+            {Object.entries(gridStatePCs).map(([playerId, pc]) => (
               <p key={playerId} style={{ color: "white" }}>
                 {connectedPlayers.has(playerId) && '📡 '}
                 <strong>{pc.username}</strong> - HP: {pc.hp}, ({pc.position.x}, {pc.position.y})
