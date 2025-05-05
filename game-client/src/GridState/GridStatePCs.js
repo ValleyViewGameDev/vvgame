@@ -53,10 +53,13 @@ class GridStatePCManager {
         }
     
         // Update local React context
-        setGridStatePCsExternally(prevState => ({
-          ...prevState,
-          [playerId]: updatedPC,
-        }));
+        setGridStatePCsExternally((prevState) => {
+            const nextState = {
+              ...prevState,
+              [playerId]: updatedPC,
+            };
+            return nextState;
+          });
       }
     }
     

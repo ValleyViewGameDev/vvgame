@@ -1252,7 +1252,7 @@ return ( <>
           <h4 style={{ color: "white" }}>No PCs present in the grid.</h4>
         ) : (
           <h4 style={{ color: "white" }}>
-          {gridStatePCs && Object.entries(gridStatePCs).length > 0 ? (
+          {gridStatePCs && typeof gridStatePCs === 'object' && !Array.isArray(gridStatePCs) ? (
             Object.entries(gridStatePCs).map(([playerId, pc]) => (
               <p key={playerId} style={{ color: "white" }}>
                 {connectedPlayers.has(playerId) && '📡 '}
