@@ -289,7 +289,7 @@ useEffect(() => {
         updateStatus
       );
 
-      // 6. Check and initialize gridState
+      // 6. Check and initialize NPCs
       console.log('6 InitAppWrapper; Initializing gridState...');
       await gridStateManager.initializeGridState(initialGridId);
       const initializedState = gridStateManager.getGridState(initialGridId);

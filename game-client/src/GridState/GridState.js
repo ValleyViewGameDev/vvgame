@@ -5,6 +5,8 @@ import NPC from '../GameFeatures/NPCs/NPCs';
 import { loadMasterResources } from '../Utils/TuningManager';
 import { setGridStateExternally } from './GridStateContext'; // Add this at top
 
+console.log('🔍 NPC class prototype:', NPC?.prototype);
+
 let gridTimer = null; // For periodic grid updates
 
 let lastGridStateTimestamp = 0;
