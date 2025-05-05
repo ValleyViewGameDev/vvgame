@@ -5,8 +5,6 @@ import NPC from '../GameFeatures/NPCs/NPCs';
 import { loadMasterResources } from '../Utils/TuningManager';
 import { setGridStateExternally } from './GridStateContext'; // Add this at top
 
-console.log('🔍 NPC class prototype:', NPC?.prototype);
-
 let gridTimer = null; // For periodic grid updates
 
 let lastGridStateTimestamp = 0;
@@ -27,6 +25,9 @@ class GridStateManager {
    * Initialize the gridState for a specific gridId.
    */
   async initializeGridState(gridId) {
+    
+    console.log('🔍 NPC class prototype:', NPC?.prototype); // move it here
+
     console.log('Fetching gridState for gridId:', gridId);
     if (!gridId) {
       console.error('initializeGridState: gridId is undefined.');
@@ -53,6 +54,8 @@ class GridStateManager {
       // Load master resources
       const masterResources = await loadMasterResources();
 
+
+
       // Rehydrate NPCs
       if (gridState.npcs) {
         Object.keys(gridState.npcs).forEach((npcId) => {
@@ -61,6 +64,12 @@ class GridStateManager {
             (res) => res.type === lightweightNPC.type
           );
 
+          console.log('🔄 Rehydrating NPC:', npcId, lightweightNPC);
+          if (!npcTemplate) {
+            console.warn(`⚠️ Missing template for NPC type: ${lightweightNPC.type}`);
+            console.log('Master resources:', masterResources.map(res => res.type));
+          }
+          
           if (npcTemplate) {
             gridState.npcs[npcId] = new NPC(
               npcId,
