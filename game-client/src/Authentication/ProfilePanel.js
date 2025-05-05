@@ -223,7 +223,7 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
         </div>
 
         {/* Player Stats */}
-        <h3>Stats</h3>
+        <h3>Stats from Current Player</h3>
 
           <p>Range: {currentPlayer?.range}</p>
           <p>HP: {currentPlayer?.hp}</p>

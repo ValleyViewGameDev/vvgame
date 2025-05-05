@@ -1248,21 +1248,19 @@ return ( <>
       <br />
       <h3>Who's here:</h3>
       <div>
-        {Object.entries(gridStatePCs).length === 0 ? (
-          <h4 style={{ color: "white" }}>No PCs present in the grid.</h4>
-        ) : (
-          <h4 style={{ color: "white" }}>
-          {gridStatePCs && typeof gridStatePCs === 'object' && !Array.isArray(gridStatePCs) ? (
+        {gridStatePCs && typeof gridStatePCs === 'object' && !Array.isArray(gridStatePCs) ? (
+          Object.entries(gridStatePCs).length === 0 ? (
+            <h4 style={{ color: "white" }}>No PCs present in the grid.</h4>
+          ) : (
             Object.entries(gridStatePCs).map(([playerId, pc]) => (
               <p key={playerId} style={{ color: "white" }}>
                 {connectedPlayers.has(playerId) && '📡 '}
                 <strong>{pc.username}</strong> - HP: {pc.hp}, ({pc.position.x}, {pc.position.y})
               </p>
             ))
-          ) : (
-            <h4 style={{ color: "white" }}>No PCs present in the grid.</h4>
-          )}
-          </h4>
+          )
+        ) : (
+          <h4 style={{ color: "white" }}>No PCs present in the grid.</h4>
         )}
         <h4 style={{ color: "white" }}>
           {controllerUsername 
