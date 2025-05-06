@@ -529,7 +529,9 @@ useEffect(() => {
   if (gridState) {
     console.log('🔄 Updating local state for PCs and NPCs from GridState:', gridState);
     // Now handled by PC context
+    setPcs({ ...gridState.pcs });
     setNpcs({ ...gridState.npcs });
+    setGridStatePCs(gridState.pcs);
   }
 }, [gridState]);  // ✅ Trigger re-render when `gridState` updates
 
