@@ -143,6 +143,8 @@ const [isMoving, setIsMoving] = useState(null);
 const gridState = useGridState();
 const setGridState = useGridStateUpdate();
 const gridStatePCs = useGridStatePCs();
+console.log("🔍 useGridStatePCs():", gridStatePCs);
+
 const setGridStatePCs = useGridStatePCUpdate();
 const [pcs, setPcs] = useState({});
 const [npcs, setNpcs] = useState({});
