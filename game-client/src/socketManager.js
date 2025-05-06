@@ -22,21 +22,21 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
     }
     console.log(`👋 Player ${username} joined grid with data:`, playerData);
     setGridStatePCs(prevState => {
-      const existing = prevState.pcs?.[playerId];
+      const existing = prevState[gridId]?.[playerId];
       const incomingTime = new Date(playerData?.lastUpdated).getTime() || 0;
       const localTime = new Date(existing?.lastUpdated).getTime() || 0;
-    
+
       if (incomingTime > localTime) {
         console.log(`⏩ Updating PC ${playerId} from player-joined-sync (newer data).`);
         return {
           ...prevState,
-          pcs: {
-            ...prevState.pcs,
+          [gridId]: {
+            ...prevState[gridId],
             [playerId]: playerData,
           },
         };
       }
-    
+
       console.log(`⏳ Skipping player-joined-sync for ${playerId}; local is newer.`);
       return prevState;
     });
@@ -49,11 +49,12 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
     }
     console.log(`👋 Player ${username} left grid`);
     setGridStatePCs(prevState => {
-      const newPCs = { ...prevState.pcs };
-      delete newPCs[playerId];
+      if (!prevState[gridId]) return prevState;
+      const updatedGrid = { ...prevState[gridId] };
+      delete updatedGrid[playerId];
       return {
         ...prevState,
-        pcs: newPCs,
+        [gridId]: updatedGrid,
       };
     });
   };
