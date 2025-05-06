@@ -531,7 +531,6 @@ useEffect(() => {
     // Now handled by PC context
     setPcs({ ...gridState.pcs });
     setNpcs({ ...gridState.npcs });
-    setGridStatePCs(gridState.pcs);
   }
 }, [gridState]);  // ✅ Trigger re-render when `gridState` updates
 
