@@ -1,7 +1,6 @@
 import API_BASE from '../config';
 import socket from '../socketManager';
 import axios from 'axios';
-import { setGridStatePCsExternally } from './GridStatePCContext';
 
 class GridStatePCManager {
     constructor() {
@@ -12,20 +11,20 @@ class GridStatePCManager {
      * Initialize the gridStatePCs for a specific gridId.
      */
     async initializeGridStatePCs(gridId) {
-      console.log('Fetching gridStatePCs for gridId:', gridId);
+      console.log('🧠 Fetching gridStatePCs for gridId:', gridId);
       if (!gridId) {
         console.error('initializeGridStatePCs: gridId is undefined.');
         return;
       }
-
+    
       try {
         const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
         const {
           gridStatePCs = { pcs: {}, lastUpdated: 0 },
         } = response.data;
-
+    
         const pcs = gridStatePCs.pcs || {};
-
+    
         // Normalize PC format
         Object.keys(pcs).forEach((playerId) => {
           const pcData = pcs[playerId];
@@ -34,17 +33,10 @@ class GridStatePCManager {
             position: pcData.position || { x: 0, y: 0 },
           };
         });
-
+    
         this.gridStatePCs[gridId] = pcs;
-
+    
         console.log(`✅ Initialized gridStatePCs for gridId ${gridId}:`, pcs);
-
-        // Update React context externally
-        setGridStatePCsExternally((prevState) => ({
-          ...prevState,
-          [gridId]: pcs,
-        }));
-
       } catch (error) {
         console.error('❌ Error fetching gridStatePCs:', error);
       }
@@ -96,14 +88,7 @@ class GridStatePCManager {
           });
         }
 
-        // Update local React context
-        setGridStatePCsExternally((prevState) => ({
-          ...prevState,
-          [gridId]: {
-            ...prevState[gridId],
-            [playerId]: newPC,
-          },
-        }));
+        // Note: Caller should update React context using setGridStatePCs if needed
       }
 
       // Update an existing PC in the gridStatePCs for a given gridId and playerId.
@@ -145,14 +130,7 @@ class GridStatePCManager {
           });
         }
 
-        // Update local React context
-        setGridStatePCsExternally((prevState) => ({
-          ...prevState,
-          [gridId]: {
-            ...prevState[gridId],
-            [playerId]: updatedPC,
-          },
-        }));
+        // Note: Caller should update React context using setGridStatePCs if needed
       }
     }
     

@@ -3,7 +3,6 @@ import socket from '../socketManager';
 import axios from 'axios';
 import NPC from '../GameFeatures/NPCs/NPCs';
 import { loadMasterResources } from '../Utils/TuningManager';
-import { setGridStateExternally } from './GridStateContext'; // Add this at top
 
 let gridTimer = null; // For periodic grid updates
 

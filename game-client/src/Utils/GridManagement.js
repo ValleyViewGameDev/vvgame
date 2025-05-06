@@ -262,12 +262,11 @@ export const changePlayerLocation = async (
       
           const freshPCState = gridStatePCManager.getGridStatePCs(toLocation.g);
           console.log('freshPCState: ', freshPCState);
-          try {
-            setGridStatePCs(freshPCState);
-            console.log("✅ GridStatePCs initialized with:", freshPCState);
-          } catch (err) {
-            console.error("🔥 Error setting gridStatePCs:", err);
-          }
+          setGridStatePCs((prev) => ({
+            ...prev,
+            [toLocation.g]: freshPCState,
+          }));
+
         } catch (err) {
           console.error('❌ Error initializing gridStatePCs:', err);
         }

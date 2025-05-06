@@ -143,8 +143,6 @@ const [isMoving, setIsMoving] = useState(null);
 const gridState = useGridState();
 const setGridState = useGridStateUpdate();
 const gridStatePCs = useGridStatePCs();
-console.log("🔍 useGridStatePCs():", gridStatePCs);
-
 const setGridStatePCs = useGridStatePCUpdate();
 const [pcs, setPcs] = useState({});
 const [npcs, setNpcs] = useState({});
@@ -323,9 +321,14 @@ useEffect(() => {
       // Step 7. Initialize PCs
       console.log('🏁✅ 7 InitAppWrapper; Initializing gridStatePCs...');
       await gridStatePCManager.initializeGridStatePCs(initialGridId);
-      const localPCs = gridStatePCManager.getGridStatePCs(initialGridId);
+      const freshPCState = gridStatePCManager.getGridStatePCs(initialGridId);
+      setGridStatePCs((prev) => ({
+        ...prev,
+        [initialGridId]: freshPCState,
+      }));
+      const localPCs = freshPCState;
       const playerId = String(parsedPlayer.playerId);
-      const playerPosition = localPCs?.[playerId]?.position;      
+      const playerPosition = localPCs?.[playerId]?.position;
       console.log('Player position from gridStatePCs:', playerPosition);
       if (playerPosition) {
         console.log('🎯 Centering camera on player position:', playerPosition);
