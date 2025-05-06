@@ -20,6 +20,12 @@ const DynamicRenderer = ({
 }) => {
   const gridState = useGridState(); // Use the updated gridState from context
   const gridStatePCs = useGridStatePCs(); // Access PCs via modern PC-specific context
+
+
+console.log('🧠 useGridState returned:', gridState);
+console.log('🧠 useGridStatePCs returned:', gridStatePCs);
+
+
   const masterResourcesRef = useRef(masterResources); // Keep masterResources in a ref
   useEffect(() => {
     masterResourcesRef.current = masterResources;
@@ -202,7 +208,7 @@ const DynamicRenderer = ({
       container.removeChild(tooltip);
     };
   // Add all required dependencies
-  }, [gridState, TILE_SIZE, currentPlayer, onNPCClick, onPCClick, setInventory, setResources]);
+  }, [gridState, gridStatePCs, TILE_SIZE, currentPlayer, onNPCClick, onPCClick, setInventory, setResources]);
 
   return <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%' }} />;
 };
