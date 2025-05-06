@@ -166,6 +166,7 @@ export const changePlayerLocation = async (
       console.log(`📢 Emitted [leave-grid] for grid: ${fromLocation.g}`);
       
 // 2. Update TO grid's state (add player)
+
     if (toLocation.g) {
       console.log(`2️⃣ Adding player to grid ${toLocation.g}`);
       console.log('loading gridState from db...');
@@ -255,9 +256,11 @@ export const changePlayerLocation = async (
         await gridStatePCManager.initializeGridStatePCs(toLocation.g);      
         const freshGridState = gridStateManager.getGridState(toLocation.g);
         const freshPCState = gridStatePCManager.getGridStatePCs(toLocation.g);
+        console.log('✅ freshPCState:', freshPCState);
         setGridState(freshGridState);
         setGridStatePCs(freshPCState);
         console.log('✅ GridState initialized with:', freshGridState);
+        console.log('✅ GridStatePCs initialized with:', freshPCState);
       })(),
     ]);
     console.log('✅ New grid fully initialized');
