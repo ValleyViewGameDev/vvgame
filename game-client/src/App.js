@@ -1256,7 +1256,7 @@ return ( <>
           <p>Ends: {countdowns.bank}</p>
           <button className="shared-button" onClick={() => openModal('TownNews')}> More </button>
         </div>
-      )}å
+      )}
 
       <br />
       <h3>Who's here:</h3>

@@ -98,10 +98,8 @@ export function socketListenForPCstateChanges(gridId, currentPlayer, setGridStat
     const incomingTime = new Date(incomingPC?.lastUpdated || gridStatePCsLastUpdated).getTime();
 
     setGridStatePCs(prevState => {
-      const localPC = prevState.pcs?.[playerId];
-      // Normalize localTime to timestamp for reliable comparison
+      const localPC = prevState[gridId]?.[playerId];
       const localTime = new Date(localPC?.lastUpdated).getTime() || 0;
-      console.log(`[TS DEBUG] Comparing incoming ${incomingTime} vs local ${localTime}`);
 
       if (currentPlayer && playerId === String(currentPlayer._id)) {
         if (localPlayerMoveTimestampRef.current > incomingTime) {
@@ -114,8 +112,8 @@ export function socketListenForPCstateChanges(gridId, currentPlayer, setGridStat
         console.log(`⏩ Updating PC ${playerId} from socket event.`);
         return {
           ...prevState,
-          pcs: {
-            ...prevState.pcs,
+          [gridId]: {
+            ...prevState[gridId],
             [playerId]: incomingPC,
           },
           gridStatePCsLastUpdated: incomingTime,
