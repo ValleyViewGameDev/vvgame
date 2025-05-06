@@ -1,5 +1,5 @@
 import { calculateDistance } from './NPCHelpers';
-import gridStateManager from '../../GridState/GridState';
+import gridStateManager from '../../GridState/GridStateNPCs';
 
 async function handleSpawnBehavior(gridId) {
     const gridState = gridStateManager.getGridState(gridId);

@@ -1,6 +1,7 @@
 import API_BASE from '../config';
 import axios from 'axios';
-import gridStateManager from '../GridState/GridState';
+import gridStateManager from '../GridState/GridStateNPCs';
+import gridStatePCManager from '../GridState/GridStatePCs';
 import { changePlayerLocation } from './GridManagement';
 
 export const modifyPlayerStatsInGridState = async (statToMod, amountToMod, playerId, gridId) => {
@@ -24,7 +25,7 @@ export const modifyPlayerStatsInGridState = async (statToMod, amountToMod, playe
     }
 
     // Step 3: Save changes to the local gridState
-    gridStateManager.updatePC(gridId, playerId, { [statToMod]: lightweightPlayer[statToMod] });
+    gridStatePCManager.updatePC(gridId, playerId, { [statToMod]: lightweightPlayer[statToMod] });
     console.log(`Updated ${statToMod} for player ${playerId} in gridState.`);
 
   } catch (error) {

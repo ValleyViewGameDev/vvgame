@@ -1,4 +1,4 @@
-import gridStateManager from "../GridState/GridState";
+import gridStateManager from "../GridState/GridStateNPCs";
 import axios from "axios";
 import API_BASE from "../config";
 

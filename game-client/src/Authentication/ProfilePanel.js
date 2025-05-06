@@ -4,7 +4,8 @@ import axios from 'axios';
 import '../UI/Panel.css'; // Use the standardized styles
 import Panel from '../UI/Panel';
 import { updatePlayerSettings } from '../settings';  
-import gridStateManager from '../GridState/GridState';
+import gridStateManager from '../GridState/GridStateNPCs';
+import gridStatePCManager from '../GridState/GridStatePCs';
 import { StatusBarContext } from '../UI/StatusBar';
 
 const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLogout }) => {
@@ -138,7 +139,7 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
             if (gridState?.pcs[currentPlayer.playerId]) {
                 gridState.pcs[currentPlayer.playerId].username = formData.username.trim();
 
-                gridStateManager.updatePC(gridId, currentPlayer.playerId, gridState.pcs[currentPlayer.playerId]);
+                gridStatePCManager.updatePC(gridId, currentPlayer.playerId, gridState.pcs[currentPlayer.playerId]);
 
                 console.log(`✅ Updated username in gridState: ${currentPlayer.playerId} → ${formData.username.trim()}`);
             }

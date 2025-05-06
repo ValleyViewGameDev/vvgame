@@ -11,7 +11,7 @@ import { usePanelContext } from '../../UI/PanelContext';
 import { QuestGiverButton } from '../../UI/QuestButton';
 import { loadMasterResources } from '../../Utils/TuningManager';
 import { modifyPlayerStatsInPlayer, modifyPlayerStatsInGridState } from '../../Utils/playerManagement';
-import gridStateManager from '../../GridState/GridState';
+import gridStateManager from '../../GridState/GridStateNPCs';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 
 const QuestGiverPanel = ({

@@ -26,7 +26,7 @@ import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAn
 
 import gridStatePCManager from './GridState/GridStatePCs';
 import { useGridStatePCs, useGridStatePCUpdate } from './GridState/GridStatePCContext';
-import gridStateManager from './GridState/GridState';
+import gridStateManager from './GridState/GridStateNPCs.js';
 import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
 import npcController from './GridState/NPCController';
 
@@ -200,7 +200,7 @@ const [isAppInitialized, setIsAppInitialized] = useState(false);
 useEffect(() => {
 
   const initializeAppWrapper = async () => {
-    console.log('App initialization begun.');
+    console.log('🏁🏁🏁 App initialization begun.');
     if (isInitializing) {
       console.log('Initialization is already in progress. Skipping.');
       return;
@@ -209,15 +209,15 @@ useEffect(() => {
 
     try {
       
-      // 1. Load tuning data
-      console.log('1 InitAppWrapper; Merging player data and initializing inventory...');
+      // Step 1. Load tuning data
+      console.log('🏁✅ 1 InitAppWrapper; Merging player data and initializing inventory...');
       const [skills, resources] = await Promise.all([loadMasterSkills(), loadMasterResources()]);
       setMasterResources(resources);
       setMasterSkills(skills);
       setIsMasterResourcesReady(true); // ✅ Mark ready
 
-      // 2. Fetch stored player from localStorage
-      console.log('2 InitAppWrapper; getting local player...');
+      // Step 2. Fetch stored player from localStorage
+      console.log('🏁✅ 2 InitAppWrapper; getting local player...');
       const storedPlayer = localStorage.getItem('player');
 
       if (!storedPlayer) {
@@ -236,7 +236,7 @@ useEffect(() => {
       const parsedPlayer = JSON.parse(storedPlayer);
 
       // 2.1 Fetch the full player data from the server
-      console.log('2.1 InitAppWrapper; fetching player from server...');
+      console.log('🏁✅ 2.1 InitAppWrapper; fetching player from server...');
       const response = await axios.get(`${API_BASE}/api/player/${parsedPlayer.playerId}`);
       const fullPlayerData = response.data;
       if (!fullPlayerData || !fullPlayerData.playerId) {
@@ -245,8 +245,8 @@ useEffect(() => {
         return;
       }
 
-      // 🧼 Step 2.5: Check for stale gridId (e.g. after offSeason relocation)
-      console.log('2.5 InitAppWrapper; checking for stale gridId after relocation...');
+      // Step 2.5: Check for stale gridId (e.g. after offSeason relocation)
+      console.log('🏁✅ 2.5 InitAppWrapper; checking for stale gridId after relocation...');
       const storedGridId = localStorage.getItem("gridId");
       const resolvedGridId = fullPlayerData.location?.g;
       if (storedGridId && resolvedGridId && storedGridId !== resolvedGridId) {
@@ -255,14 +255,14 @@ useEffect(() => {
         setGridId(resolvedGridId); // ✅ Use setter to update React state
       }
 
-      // 3. Combine local and server data, prioritizing newer info from the server
-      console.log('3 InitAppWrapper; Merging player data and initializing inventory...');
+      // Step 3. Combine local and server data, prioritizing newer info from the server
+      console.log('🏁✅ 3 InitAppWrapper; Merging player data and initializing inventory...');
       let updatedPlayerData = { ...parsedPlayer, ...fullPlayerData };
       setCurrentPlayer(updatedPlayerData);
       setInventory(fullPlayerData.inventory || []);  // Initialize inventory properly
 
-      // 4. Determine initial gridId from player or storage
-      console.log('Determining local gridId...');
+      // Step 4. Determine initial gridId from player or storage
+      console.log('🏁✅ Determining local gridId...');
       const initialGridId = parsedPlayer?.location?.g || localStorage.getItem('gridId');
       if (!initialGridId) {
         console.error('No gridId found. Unable to initialize grid.');
@@ -283,8 +283,8 @@ useEffect(() => {
       });
       socket.emit('set-username', { username: fullPlayerData.username });
 
-      // 5. Initialize grid tiles, resources
-      console.log('5 InitAppWrapper; Initializing grid tiles and resources...');
+      // Step 5. Initialize grid tiles, resources
+      console.log('🏁✅ 5 InitAppWrapper; Initializing grid tiles and resources...');
       await initializeGrid(
         activeTileSize,
         initialGridId,
@@ -294,10 +294,12 @@ useEffect(() => {
         updateStatus
       );
 
-      // 6. Check and initialize NPCs
-      console.log('6 InitAppWrapper; Initializing gridState...');
+      // Step 6. Initialize NPCs
+      console.log('🏁✅ 6 InitAppWrapper; Initializing NPC gridState...');
       await gridStateManager.initializeGridState(initialGridId);
       const initializedState = gridStateManager.getGridState(initialGridId);
+      console.log('initializedState (NPCs): ',initializedState);
+
       // 🧠 Rehydrate NPCs
       const rawNpcs = initializedState?.npcs || {};
       Object.entries(rawNpcs).forEach(([npcId, rawNpc]) => {
@@ -316,21 +318,24 @@ useEffect(() => {
       });
       setGridState(initializedState);
 
-      // Add this after gridState initialization:
-      const playerPosition = gridStatePCs?.[parsedPlayer.playerId]?.position;
+      // Step 7. Initialize PCs
+      console.log('🏁✅ 7 InitAppWrapper; Initializing gridStatePCs...');
+      await gridStatePCManager.initializeGridStatePCs(initialGridId);
+      const localPCs = gridStatePCManager.getGridStatePCs(initialGridId);
+      const playerId = String(parsedPlayer.playerId);
+      const playerPosition = localPCs?.[playerId]?.position;      
+      console.log('Player position from gridStatePCs:', playerPosition);
       if (playerPosition) {
         console.log('🎯 Centering camera on player position:', playerPosition);
         centerCameraOnPlayer(playerPosition, activeTileSize);
       }
 
-      console.log('initializedState',initializedState);
-
-      // 7. Resolve player location and confirm in gridState
-      console.log('7 InitAppWrapper; Resolving player location...');
+      // Step 8. Resolve player location and confirm in gridState
+      console.log('🏁✅ 8 InitAppWrapper; Resolving player location...');
       const playerIdStr = fullPlayerData._id.toString();
-      let gridPlayer = gridStatePCs?.[playerIdStr];
+      let gridPlayer = localPCs?.[playerIdStr];
 
-      // ✅ Step A: Detect location mismatch or missing from gridState
+      // Step A: Detect location mismatch or missing from gridState
       const isLocationMismatch = fullPlayerData.location?.g !== initialGridId;
       const isMissingFromGrid = !gridPlayer;
 
@@ -342,12 +347,11 @@ useEffect(() => {
         console.warn("🧭 Player not in correct gridState or missing entirely. Repositioning...");
 
         const targetGridId = fullPlayerData.location.g;
-        const targetPosition = { x: 1, y: 1 };
+        const targetPosition = { x: 2, y: 2 };
 
         console.warn('InitAppWrapper: adding PC to gridState');
 
-        // Use gridStatePCManager.addOrUpdatePC instead of gridStateManager.addPC & saveGridStatePCs
-        await gridStatePCManager.addOrUpdatePC(targetGridId, fullPlayerData.playerId, {
+        await gridStatePCManager.addPC(targetGridId, fullPlayerData.playerId, {
           playerId: fullPlayerData.playerId,
           username: fullPlayerData.username,
           type: "pc",
@@ -363,18 +367,19 @@ useEffect(() => {
           iscamping: fullPlayerData.iscamping,
         });
 
-        // ✅ Refresh the gridState and React state
+        // Refresh the gridState and React state
         console.warn('InitAppWrapper: refreshing gridState');
         const refreshedState = gridStateManager.getGridState(targetGridId);
         setGridState(refreshedState);
         gridPlayer = gridStatePCManager.getGridStatePCs(targetGridId)?.[playerIdStr];
+        console.log('Refreshed gridPlayer:', gridPlayer);
 
-        // ✅ Update gridId and storage to match actual grid
+        // Update gridId and storage to match actual grid
         console.warn('InitAppWrapper: adding PC to gridState');
         setGridId(targetGridId);
         localStorage.setItem("gridId", targetGridId);
 
-        // ✅ Update player's in-memory and stored location
+        // Update player's in-memory and stored location
         fullPlayerData.location = {
           ...fullPlayerData.location,
           x: targetPosition.x,
@@ -388,18 +393,20 @@ useEffect(() => {
 
         // Optional: double-check database copy of gridState
         const { data: gridStateResponse } = await axios.get(`${API_BASE}/api/load-grid-state/${fullPlayerData.location.g}`);
-        const dbGridState = gridStateResponse?.gridState || { npcs: {}, pcs: {} };
-
+        const dbGridState = gridStateResponse?.gridStatePCs || { npcs: {}, pcs: {} };
+        console.log('DB gridState:', dbGridState);
         if (!dbGridState.pcs || !dbGridState.pcs[fullPlayerData._id]) {
           console.warn(`⚠️ Player ${fullPlayerData.username} missing from DB gridState. Saving state to DB.`);
-          await gridStateManager.saveGridStatePCs(fullPlayerData.location.g);
+          console.log('optional double check; gridPlayer = ',gridPlayer);
+          console.log('optional double check; fullPlayerData = ',fullPlayerData);
+          await gridStatePCManager.updatePC(fullPlayerData.location.g, fullPlayerData._id, gridPlayer);
         } else {
           console.log('✅ Player exists in both local and DB gridState.');
         }
       }
 
-      // ✅ Step 8: Sync combat stats from gridState
-      console.log('8 InitAppWrapper: syncing combat stats from gridState');
+      // Step 9: Sync combat stats from gridState
+      console.log('🏁✅ 9 InitAppWrapper: syncing combat stats from gridState');
 
       fullPlayerData.hp = gridPlayer.hp;
       fullPlayerData.maxhp = gridPlayer.maxhp;
@@ -410,8 +417,8 @@ useEffect(() => {
       fullPlayerData.attackrange = gridPlayer.attackrange;
       fullPlayerData.iscamping = gridPlayer.iscamping;
 
-      // ✅ Step 9: Backfill combat stats to DB player profile
-      console.log('9 InitAppWrapper: updating player profile on DB');
+      // Step 10: Backfill combat stats to DB player profile
+      console.log('🏁✅ 10 InitAppWrapper: updating player profile on DB');
       await axios.post(`${API_BASE}/api/update-profile`, {
         playerId: fullPlayerData.playerId,
         updates: {
@@ -427,13 +434,14 @@ useEffect(() => {
       });
       console.log(`✅ Backfilled combat stats to player document:`, fullPlayerData);
 
-      // ✅ Step 10: Update local storage with final player state
+      // Step 11: Update local storage with final player state
+      console.log('🏁✅ 11 InitAppWrapper: updating localStorage with player data');
       updatedPlayerData = {
         ...fullPlayerData,
         location: {
           ...fullPlayerData.location,
-          x: gridPlayer?.position?.x || 1,
-          y: gridPlayer?.position?.y || 1,
+          x: gridPlayer?.position?.x || 3,
+          y: gridPlayer?.position?.y || 3,
           g: fullPlayerData.location.g,
         },
       };
@@ -442,7 +450,7 @@ useEffect(() => {
       localStorage.setItem('player', JSON.stringify(updatedPlayerData));
       console.log(`✅ LocalStorage updated with combat stats:`, updatedPlayerData);
 
-      // ✅ Step 11: Check for death flag and show modal if needed
+      // Step 12: Check for death flag and show modal if needed
       if (updatedPlayerData.settings?.hasDied) {
         console.log("☠️ Player died last session. Showing death modal.");
         setModalContent({
@@ -464,7 +472,7 @@ useEffect(() => {
         localStorage.setItem('player', JSON.stringify(updatedPlayerData));
       }
 
-      console.log('✅ App initialization complete.');
+      console.log('✅🏁✅🏁✅🏁✅ App initialization complete.');
       setIsAppInitialized(true);
 
     } catch (error) {
@@ -473,7 +481,7 @@ useEffect(() => {
     }
   }; 
   initializeAppWrapper();
-}, []);  // ✅ Only run once when the component mounts
+}, []);  // Only run once when the component mounts
 
 
 // FETCH GRID  //////////////////////////////////////////////////////
@@ -774,12 +782,12 @@ useEffect(() => {
 
 // 🔄 SOCKET LISTENER: Real-time updates for PC join and leave
 useEffect(() => {
-  socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setGridState);
+  socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setGridStatePCs);
 }, [socket, gridId, isMasterResourcesReady, currentPlayer]);
 
 // 🔄 SOCKET LISTENER: PCs: Real-time updates for GridState (PC sync)
 useEffect(() => {
-  socketListenForPCstateChanges(gridId, currentPlayer, setGridState, localPlayerMoveTimestampRef);
+  socketListenForPCstateChanges(gridId, currentPlayer, setGridStatePCs, localPlayerMoveTimestampRef);
 }, [socket, gridId, currentPlayer]);
 
 // 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
@@ -1243,16 +1251,16 @@ return ( <>
           <p>Ends: {countdowns.bank}</p>
           <button className="shared-button" onClick={() => openModal('TownNews')}> More </button>
         </div>
-      )}
+      )}å
 
       <br />
       <h3>Who's here:</h3>
       <div>
-        {gridStatePCs && typeof gridStatePCs === 'object' && !Array.isArray(gridStatePCs) ? (
-          Object.entries(gridStatePCs).length === 0 ? (
+        {gridStatePCs?.[gridId] && typeof gridStatePCs[gridId] === 'object' ? (
+          Object.entries(gridStatePCs[gridId]).length === 0 ? (
             <h4 style={{ color: "white" }}>No PCs present in the grid.</h4>
           ) : (
-            Object.entries(gridStatePCs).map(([playerId, pc]) => (
+            Object.entries(gridStatePCs[gridId]).map(([playerId, pc]) => (
               <p key={playerId} style={{ color: "white" }}>
                 {connectedPlayers.has(playerId) && '📡 '}
                 <strong>{pc.username}</strong> - HP: {pc.hp}, ({pc.position.x}, {pc.position.y})

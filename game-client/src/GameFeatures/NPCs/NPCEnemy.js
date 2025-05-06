@@ -1,6 +1,6 @@
 import socket from '../../socketManager'; 
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import gridStateManager from '../../GridState/GridState';
+import gridStateManager from '../../GridState/GridStateNPCs';
 import FloatingTextManager from "../../UI/FloatingText";
 import { modifyPlayerStatsInGridState } from '../../Utils/playerManagement';
 

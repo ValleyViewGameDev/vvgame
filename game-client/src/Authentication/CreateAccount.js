@@ -1,7 +1,7 @@
 import API_BASE from '../config';
 import React, { useState } from 'react';
 import axios from 'axios';
-import gridStateManager from '../GridState/GridState';
+import gridStateManager from '../GridState/GridStateNPCs';
 
 const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
   const [username, setUsername] = useState('');

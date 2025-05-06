@@ -2,7 +2,7 @@ import API_BASE from "../../config";
 import axios from "axios";    
 import { checkInventoryCapacity } from "../../Utils/InventoryManagement";
 import FloatingTextManager from "../../UI/FloatingText";
-import gridStateManager from "../../GridState/GridState";
+import gridStateManager from "../../GridState/GridStateNPCs";
 import { handleAttackOnNPC } from "../Combat/Combat";
 
 
@@ -151,10 +151,14 @@ export async function handleNPCClick(
             currentGrid.npcs[npc.id].state = 'emptystall';
             currentGrid.npcs[npc.id].hp = 0;
           }
-          await gridStateManager.updateNPC(currentPlayer.location.g, npc.id, {
-            state: 'emptystall',
-            hp: 0,
-          });
+          const existingNPC = gridStateManager.getGridState(currentPlayer.location.g)?.npcs?.[npc.id];
+          if (existingNPC) {
+            await gridStateManager.updateNPC(currentPlayer.location.g, npc.id, {
+              ...existingNPC,
+              state: 'emptystall',
+              hp: 0,
+            });
+          }
 
           FloatingTextManager.addFloatingText(`+${quantityToCollect} ${npc.output}`, col, row, TILE_SIZE);
           return { type: 'success', message: `Collected ${quantityToCollect} ${npc.output}.` };

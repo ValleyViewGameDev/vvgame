@@ -1,5 +1,6 @@
 import FloatingTextManager from "../../UI/FloatingText";
-import gridStateManager from "../../GridState/GridState";
+import gridStateManager from "../../GridState/GridStateNPCs";
+import gridStatePCManager from "../../GridState/GridStatePCs";
 import { calculateDistance } from "../NPCs/NPCHelpers";
 import { extractXY } from "../NPCs/NPCHelpers";
 import { updateGridResource } from "../../Utils/GridManagement";
@@ -163,7 +164,7 @@ export async function handleAttackOnPC(pc, currentPlayer, gridId, TILE_SIZE) {
 
   // 🆕 Update the PC's HP properly via updatePC
   console.log('📢 Calling updatePC after reducing HP; current HP:', pc.hp);
-  gridStateManager.updatePC(gridId, pc.playerId, { hp: pc.hp });
+  gridStatePCManager.updatePC(gridId, pc.playerId, { hp: pc.hp });
 
   if (pc.hp <= 0) {
     console.log(`PC ${pc.playerId} defeated.`);

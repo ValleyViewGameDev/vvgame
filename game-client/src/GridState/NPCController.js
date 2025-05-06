@@ -1,5 +1,5 @@
 import socket from '../socketManager';
-import gridStateManager from './GridState';
+import gridStateManager from './GridStateNPCs';
 
 class NPCController {
   constructor() {

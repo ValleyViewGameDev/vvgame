@@ -1,4 +1,6 @@
 import NPC from './GameFeatures/NPCs/NPCs';
+import gridStateManager from './GridState/GridStateNPCs';
+import gridStatePCManager from './GridState/GridStatePCs';
 import { io } from 'socket.io-client';
 
 const socket = io('https://vvgame-server.onrender.com', {
@@ -6,7 +8,7 @@ const socket = io('https://vvgame-server.onrender.com', {
   autoConnect: false, // Don't connect until explicitly told to
 });
 
-export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setGridState) {
+export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setGridStatePCs) {
 
   console.log("🌐 useEffect for PC join & leave running. gridId:", gridId, "socket:", !!socket);
   console.log("  🌐 isMasterResourcesReady = ", isMasterResourcesReady);
@@ -19,13 +21,25 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
       return; // Ignore updates emitted by this client
     }
     console.log(`👋 Player ${username} joined grid with data:`, playerData);
-    setGridState(prevState => ({
-      ...prevState,
-      pcs: {
-        ...prevState.pcs,
-        [playerId]: playerData,
-      },
-    }));
+    setGridStatePCs(prevState => {
+      const existing = prevState.pcs?.[playerId];
+      const incomingTime = new Date(playerData?.lastUpdated).getTime() || 0;
+      const localTime = new Date(existing?.lastUpdated).getTime() || 0;
+    
+      if (incomingTime > localTime) {
+        console.log(`⏩ Updating PC ${playerId} from player-joined-sync (newer data).`);
+        return {
+          ...prevState,
+          pcs: {
+            ...prevState.pcs,
+            [playerId]: playerData,
+          },
+        };
+      }
+    
+      console.log(`⏳ Skipping player-joined-sync for ${playerId}; local is newer.`);
+      return prevState;
+    });
   };
 
   const handlePlayerLeftGrid = ({ playerId, username, emitterId }) => {
@@ -34,7 +48,7 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
       return; // Ignore updates emitted by this client
     }
     console.log(`👋 Player ${username} left grid`);
-    setGridState(prevState => {
+    setGridStatePCs(prevState => {
       const newPCs = { ...prevState.pcs };
       delete newPCs[playerId];
       return {
@@ -46,7 +60,7 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
 
   const handleCurrentGridPlayers = ({ gridId, pcs }) => {
     console.log(`📦 Received current PCs for grid ${gridId}:`, pcs);
-    setGridState(prev => ({
+    setGridStatePCs(prev => ({
       ...prev,
       pcs: {
         ...prev.pcs,
@@ -69,7 +83,7 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
 };
 
 // 🔄 SOCKET LISTENER: PCs: Real-time updates for GridState (PC sync)
-export function socketListenForPCstateChanges(gridId, currentPlayer, setGridState, localPlayerMoveTimestampRef) {
+export function socketListenForPCstateChanges(gridId, currentPlayer, setGridStatePCs, localPlayerMoveTimestampRef) {
 
   console.log("🌐🌐🌐🌐🌐🌐 useEffect for PC & NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
 
@@ -83,7 +97,7 @@ export function socketListenForPCstateChanges(gridId, currentPlayer, setGridStat
     // Normalize incomingTime to timestamp for reliable comparison
     const incomingTime = new Date(incomingPC?.lastUpdated || gridStatePCsLastUpdated).getTime();
 
-    setGridState(prevState => {
+    setGridStatePCs(prevState => {
       const localPC = prevState.pcs?.[playerId];
       // Normalize localTime to timestamp for reliable comparison
       const localTime = new Date(localPC?.lastUpdated).getTime() || 0;
@@ -130,31 +144,39 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
 
   const handleNPCSync = ({ npcs, emitterId }) => {
     console.log('📥 Received gridState-sync-NPCs event:', { npcs, emitterId });
-    console.log('IsNPCController:', npcController.isControllingGrid(gridId));
+    const isController = npcController.isControllingGrid(gridId);
+    console.log('IsNPCController:', isController);
   
     if (!npcs) return;
   
     setGridState(prevState => {
       const updatedNPCs = { ...prevState.npcs };
+      const liveGrid = isController ? gridStateManager.gridStates?.[gridId] : null;
   
       Object.entries(npcs).forEach(([npcId, incomingNPC]) => {
         const localNPC = updatedNPCs[npcId];
-  
         const incomingTime = new Date(incomingNPC.lastUpdated).getTime();
         const localTime = localNPC?.lastUpdated ? new Date(localNPC.lastUpdated).getTime() : 0;
   
         if (incomingTime > localTime) {
           console.log(`  🐮📡 Updating NPC ${npcId} from emitter ${emitterId}: ${incomingNPC.state}`);
   
-          updatedNPCs[npcId] = localNPC
-            ? Object.assign(localNPC, incomingNPC)
-            : new NPC(
-                incomingNPC.id,
-                incomingNPC.type,
-                incomingNPC.position,
-                incomingNPC,
-                incomingNPC.gridId || gridId
-              );
+          // Always rehydrate as full NPC instance
+          const rehydrated = new NPC(
+            incomingNPC.id,
+            incomingNPC.type,
+            incomingNPC.position,
+            incomingNPC,
+            incomingNPC.gridId || gridId
+          );
+  
+          updatedNPCs[npcId] = rehydrated;
+  
+          // 🔁 Update the controller’s live in-memory copy too
+          if (isController && liveGrid?.npcs) {
+            liveGrid.npcs[npcId] = rehydrated;
+            console.log(`🧠 Controller rehydrated NPC ${npcId} into live gridState`);
+          }
         } else {
           console.log(`  ⏳ Skipped NPC ${npcId}, newer or same version already present.`);
         }
@@ -170,18 +192,38 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
   // Add handler for npc-moved-sync
   const handleNPCMoveSync = ({ npcId, newPosition, emitterId }) => {
     console.log('📥 Received npc-moved-sync event:', { npcId, newPosition, emitterId });
-    console.log('IsNPCController:', npcController.isControllingGrid(gridId));
-
+    const isController = npcController.isControllingGrid(gridId);
+    console.log('IsNPCController:', isController);
+  
     if (!npcId || !newPosition) return;
-
+  
     setGridState(prevState => {
       const updatedNPCs = { ...prevState.npcs };
-      if (updatedNPCs[npcId]) {
-        updatedNPCs[npcId] = {
-          ...updatedNPCs[npcId],
-          position: newPosition,
-        };
+      const existing = updatedNPCs[npcId];
+  
+      if (existing) {
+        // ✅ Rehydrate if needed
+        const rehydrated = existing instanceof NPC
+          ? existing
+          : new NPC(
+              existing.id,
+              existing.type,
+              existing.position,
+              existing,
+              existing.gridId || gridId
+            );
+  
+        rehydrated.position = newPosition;
+        updatedNPCs[npcId] = rehydrated;
+  
+        // ✅ Also patch live memory state for controller
+        if (rehydrated instanceof NPC) {
+          gridStateManager.gridStates[gridId].npcs[npcId] = rehydrated;
+        } else {
+          console.warn(`🛑 Tried to inject non-NPC instance into live gridState for ${npcId}`);
+        }
       }
+  
       return {
         ...prevState,
         npcs: updatedNPCs,
@@ -205,6 +247,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
 export function socketListenForResourceChanges(gridId, isMasterResourcesReady, setResources, masterResources, enrichResourceFromMaster) {
 
   console.log("🌐 useEffect for tile-resource-sync running. gridId:", gridId, "socket:", !!socket);
+  
   // Wait until masterResources is ready
   if (!gridId || !socket || !isMasterResourcesReady) {
     console.warn('Master Resources not ready or missing gridId/socket.');
@@ -218,12 +261,17 @@ export function socketListenForResourceChanges(gridId, isMasterResourcesReady, s
 
     if (updatedResources?.length) {
       setResources((prevResources) => {
+        if (!masterResources?.length) {
+          console.warn(`⏳ Skipping resource enrichment; masterResources not yet ready`);
+          return prevResources; // Do nothing until master data is populated
+        }
         const updated = [...prevResources];
         updatedResources.forEach((newRes) => {
           if (!newRes || typeof newRes.x !== 'number' || typeof newRes.y !== 'number') {
             console.warn("⚠️ Skipping invalid socket resource:", newRes);
             return;
           }
+
           // ✅ HANDLE RESOURCE REMOVAL
           if (newRes.type === null) {
             console.log(`🧹 Removing resource at (${newRes.x}, ${newRes.y})`);
@@ -235,6 +283,7 @@ export function socketListenForResourceChanges(gridId, isMasterResourcesReady, s
             }
             return; // Skip enrichment
           }
+  
           // ✅ NORMAL ENRICHMENT PATH
           const resourceTemplate = masterResources.find(r => r.type === newRes.type);
           if (!resourceTemplate) {

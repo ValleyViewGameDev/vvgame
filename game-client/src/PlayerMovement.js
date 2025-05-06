@@ -1,5 +1,6 @@
 import axios from 'axios';
-import gridStateManager from './GridState/GridState'; // Correctly use gridStateManager
+import gridStateManager from './GridState/GridStateNPCs'; // Correctly use gridStateManager
+import gridStatePCManager from './GridState/GridStatePCs'; // Correctly use gridStateManager
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FloatingTextManager from "./UI/FloatingText";
 
@@ -106,7 +107,7 @@ function movePlayerSmoothly(playerId, target, gridState, gridId, TILE_SIZE) {
       gridState.pcs[playerId].position = finalPosition;
       // Save updated grid state to the server
       console.log('Player Movement: About to call updatePC with gridId: ',gridId,'; playerID: ',playerId,'; finalPosition: ',finalPosition);
-      gridStateManager.updatePC(gridId, playerId, { position: finalPosition });
+      gridStatePCManager.updatePC(gridId, playerId, { position: finalPosition });
 
       // ✅ Center camera on player after final position is set
       centerCameraOnPlayer(finalPosition, TILE_SIZE);

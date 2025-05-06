@@ -5,7 +5,8 @@ import axios from 'axios';
 import { StatusBarContext } from '../../UI/StatusBar';
 import { usePanelContext } from '../../UI/PanelContext';
 import { checkAndDeductIngredients } from '../../Utils/InventoryManagement';
-import gridStateManager from '../../GridState/GridState';
+import gridStateManager from '../../GridState/GridStateNPCs.js';
+import gridStatePCManager from '../../GridState/GridStatePCs';
 
 const SocialPanel = ({
   onClose,
@@ -123,7 +124,7 @@ const SocialPanel = ({
         // ✅ Update the PC's camping state
         if (gridState.pcs[playerId]) {
             gridState.pcs[playerId].iscamping = campingState;
-            gridStateManager.updatePC(gridId, playerId, { iscamping: campingState });
+            gridStatePCManager.updatePC(gridId, playerId, { iscamping: campingState });
 
             console.log(`✅ Updated camping state in gridState: ${playerId} iscamping=${campingState}`);
         } else {

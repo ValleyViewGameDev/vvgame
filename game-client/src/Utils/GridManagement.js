@@ -1,7 +1,8 @@
 import API_BASE from '../config';
 import axios from 'axios';
 import { initializeGrid } from '../AppInit';
-import gridStateManager from '../GridState/GridState';
+import gridStateManager from '../GridState/GridStateNPCs';
+import gridStatePCManager from '../GridState/GridStatePCs';
 import socket from '../socketManager'; // ⚠️ At top of file if not already present
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { mergeResources, mergeTiles } from './ResourceHelpers';
@@ -250,6 +251,7 @@ export const changePlayerLocation = async (
       initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes),
       (async () => {
         await gridStateManager.initializeGridState(toLocation.g);
+        await gridStatePCManager.initializeGridStatePCs(toLocation.g);
         const freshGridState = gridStateManager.getGridState(toLocation.g);
         setGridState(freshGridState);
         console.log('✅ GridState initialized with:', freshGridState);

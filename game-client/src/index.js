@@ -5,21 +5,24 @@ import reportWebVitals from './reportWebVitals';
 import { StatusBarProvider } from './UI/StatusBar';
 import { PanelProvider } from './UI/PanelContext'; 
 import { GridStateProvider } from './GridState/GridStateContext';
+import { GridStatePCProvider } from './GridState/GridStatePCContext';
 import { ModalProvider } from './UI/ModalContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <GridStateProvider>
-      <StatusBarProvider>
-        <PanelProvider> {/* Wrap App in PanelProvider */}
-          <ModalProvider>
+      <GridStatePCProvider>
+        <StatusBarProvider>
+          <PanelProvider> {/* Wrap App in PanelProvider */}
+            <ModalProvider>
 
-           <App />
+             <App />
 
-         </ModalProvider>
-        </PanelProvider>
-      </StatusBarProvider>
+           </ModalProvider>
+          </PanelProvider>
+        </StatusBarProvider>
+      </GridStatePCProvider>
     </GridStateProvider>
   </React.StrictMode>
 );

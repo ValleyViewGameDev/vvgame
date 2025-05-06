@@ -5,7 +5,7 @@ import Panel from '../UI/Panel';
 import '../UI/Panel.css'; // Specific styles for Debug Panel
 import { fetchInventory, updateInventory, refreshPlayerAfterInventoryUpdate } from './InventoryManagement';
 import { fetchGridData } from './GridManagement';
-import gridStateManager from '../GridState/GridState'; // Use default export for gridStateManager
+import gridStateManager from '../GridState/GridStateNPCs'; // Use default export for gridStateManager
 
 const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, setResources, currentGridId, updateStatus }) => {
   const [timers, setTimers] = useState([]);

@@ -1,6 +1,6 @@
 import API_BASE from '../config';
 import axios from 'axios';
-import gridStateManager from '../GridState/GridState';
+import gridStateManager from '../GridState/GridStateNPCs';
 
 export async function fetchInventoryAndBackpack(playerId) {
   if (!playerId) {

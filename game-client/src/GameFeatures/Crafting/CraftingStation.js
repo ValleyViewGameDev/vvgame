@@ -11,7 +11,7 @@ import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients } from '..
 import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import gridStateManager from '../../GridState/GridState';
+import gridStateManager from '../../GridState/GridStateNPCs';
 
 
 const CraftingStation = ({
