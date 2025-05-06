@@ -252,15 +252,21 @@ export const changePlayerLocation = async (
     await Promise.all([
       initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes),
       (async () => {
-        await gridStateManager.initializeGridState(toLocation.g);
-        await gridStatePCManager.initializeGridStatePCs(toLocation.g);      
-        const freshGridState = gridStateManager.getGridState(toLocation.g);
-        const freshPCState = gridStatePCManager.getGridStatePCs(toLocation.g);
-        console.log('✅ freshPCState:', freshPCState);
-        setGridState(freshGridState);
-        setGridStatePCs(freshPCState);
-        console.log('✅ GridState initialized with:', freshGridState);
-        console.log('✅ GridStatePCs initialized with:', freshPCState);
+        try {
+          await gridStateManager.initializeGridState(toLocation.g);
+          await gridStatePCManager.initializeGridStatePCs(toLocation.g);  
+             
+          const freshGridState = gridStateManager.getGridState(toLocation.g);
+          setGridState(freshGridState);
+          console.log('✅ GridState initialized with:', freshGridState);
+      
+          const freshPCState = gridStatePCManager.getGridStatePCs(toLocation.g);
+          console.log('freshPCState: ', freshPCState);
+          setGridStatePCs(freshPCState);
+          console.log('✅ GridStatePCs initialized with:', freshPCState);
+        } catch (err) {
+          console.error('❌ Error initializing gridStatePCs:', err);
+        }
       })(),
     ]);
     console.log('✅ New grid fully initialized');
