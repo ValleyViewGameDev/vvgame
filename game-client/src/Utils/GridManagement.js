@@ -252,10 +252,11 @@ export const changePlayerLocation = async (
       initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes),
       (async () => {
         await gridStateManager.initializeGridState(toLocation.g);
-        await gridStatePCManager.initializeGridStatePCs(toLocation.g);
+        await gridStatePCManager.initializeGridStatePCs(toLocation.g);      
         const freshGridState = gridStateManager.getGridState(toLocation.g);
+        const freshPCState = gridStatePCManager.getGridStatePCs(toLocation.g);
         setGridState(freshGridState);
-        setGridStatePCs(freshGridState);
+        setGridStatePCs(freshPCState);
         console.log('✅ GridState initialized with:', freshGridState);
       })(),
     ]);
