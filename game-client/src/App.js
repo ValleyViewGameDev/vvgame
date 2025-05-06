@@ -25,7 +25,9 @@ import farmState from './FarmState';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 
 import gridStatePCManager from './GridState/GridStatePCs';
+import { useGridStatePCs, useGridStatePCUpdate } from './GridState/GridStatePCContext';
 import gridStateManager from './GridState/GridStateNPCs.js';
+import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
 import npcController from './GridState/NPCController';
 
 import SettlementView from './ZoomedOut/SettlementView';
@@ -138,8 +140,10 @@ const [skills, setSkills] = useState([]);
 const [playerPosition, setPlayerPosition] = useState(null);
 const [isMoving, setIsMoving] = useState(null);
 
-const [gridState, setGridState] = useState({});
-const [gridStatePCs, setGridStatePCs] = useState({});
+const gridState = useGridState();
+const setGridState = useGridStateUpdate();
+const gridStatePCs = useGridStatePCs();
+const setGridStatePCs = useGridStatePCUpdate();
 const [pcs, setPcs] = useState({});
 const [npcs, setNpcs] = useState({});
 
