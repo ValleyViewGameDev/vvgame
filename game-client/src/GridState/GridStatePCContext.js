@@ -9,6 +9,8 @@ export const useGridStatePCUpdate = () => useContext(GridStatePCUpdateContext);
 let externalSetGridStatePCs = null;
 export const setGridStatePCsExternally = (state) => {
   if (externalSetGridStatePCs) {
+    console.log("🛰️ setGridStatePCsExternally called:", stateOrUpdater);
+
     externalSetGridStatePCs(state);
   }
 };
