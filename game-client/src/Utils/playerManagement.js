@@ -107,6 +107,7 @@ export const handlePlayerDeath = async (
   setResources,
   setTileTypes,
   setGridState,
+  setGridStatePCs,
   TILE_SIZE,
 
 ) => {
@@ -173,8 +174,9 @@ export const handlePlayerDeath = async (
       setGridId,                // ✅ Ensure this is passed
       setGrid,                  // ✅ Pass setGrid function
       setResources,             // ✅ Pass setResources function
-      setTileTypes,             // ✅ Pass setTileTypes function
-      setGridState,
+      setTileTypes, 
+      setGridState,            // ✅ Pass setTileTypes function
+      setGridStatePCs,
       TILE_SIZE,
     );
 

@@ -13,6 +13,7 @@ export async function handleTransitSignpost(
   setResources,
   setTileTypes,
   setGridState,
+  setGridStatePCs,
   updateStatus,
   TILE_SIZE,
   skills
@@ -61,6 +62,7 @@ export async function handleTransitSignpost(
         setResources,
         setTileTypes,
         setGridState,
+        setGridStatePCs,
         TILE_SIZE
       );
       return;
@@ -100,6 +102,7 @@ export async function handleTransitSignpost(
         setResources,
         setTileTypes,
         setGridState,
+        setGridStatePCs,
         TILE_SIZE
       );
       return;
@@ -216,6 +219,7 @@ export async function handleTransitSignpost(
       setResources,
       setTileTypes,
       setGridState,
+      setGridStatePCs,
       TILE_SIZE
     );
 

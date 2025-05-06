@@ -32,6 +32,7 @@ import { createCollectEffect, createSourceConversionEffect, calculateTileCenter 
   setGrid,
   setTileTypes,
   setGridState,
+  setGridStatePCs,
   updateStatus,
   masterResources,
   masterSkills,
@@ -123,6 +124,7 @@ import { createCollectEffect, createSourceConversionEffect, calculateTileCenter 
             setResources, 
             setTileTypes, 
             setGridState,
+            setGridStatePCs,
             updateStatus,
             TILE_SIZE,
             skills

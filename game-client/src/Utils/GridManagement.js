@@ -115,6 +115,7 @@ export const changePlayerLocation = async (
   setResources,
   setTileTypes,
   setGridState,
+  setGridStatePCs,
   TILE_SIZE,
 ) => {
   // DEBUG: Log input parameters for changePlayerLocation
@@ -254,6 +255,7 @@ export const changePlayerLocation = async (
         await gridStatePCManager.initializeGridStatePCs(toLocation.g);
         const freshGridState = gridStateManager.getGridState(toLocation.g);
         setGridState(freshGridState);
+        setGridStatePCs(freshGridState);
         console.log('✅ GridState initialized with:', freshGridState);
       })(),
     ]);

@@ -17,6 +17,7 @@ const SettlementView = ({
   setResources, 
   setTileTypes,  
   setGridState,
+  setGridStatePCs,
   TILE_SIZE,
   masterResources,
 }) => {
@@ -138,6 +139,7 @@ const SettlementView = ({
         setResources,             // ✅ Pass setResources function
         setTileTypes,             // ✅ Pass setTileTypes function
         setGridState,
+        setGridStatePCs,
         TILE_SIZE,
       );
       // Zoom into grid view after movement

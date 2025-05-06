@@ -17,6 +17,7 @@ const FrontierView = ({
   setResources,             // ✅ Pass setResources function
   setTileTypes,             // ✅ Pass setTileTypes function
   setGridState,
+  setGridStatePCs,
   TILE_SIZE,
 }) => {
 
@@ -131,6 +132,7 @@ const FrontierView = ({
               setResources,             // ✅ Pass setResources function
               setTileTypes,             // ✅ Pass setTileTypes function
               setGridState,
+              setGridStatePCs,
               TILE_SIZE,
             );
 
@@ -178,6 +180,7 @@ const FrontierView = ({
         setResources,
         setTileTypes,
         setGridState,
+        setGridStatePCs,
         TILE_SIZE
       );
 

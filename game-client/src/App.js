@@ -371,7 +371,11 @@ useEffect(() => {
         console.warn('InitAppWrapper: refreshing gridState');
         const refreshedState = gridStateManager.getGridState(targetGridId);
         setGridState(refreshedState);
-        gridPlayer = gridStatePCManager.getGridStatePCs(targetGridId)?.[playerIdStr];
+        setGridStatePCs((prev) => ({
+          ...prev,
+          [targetGridId]: gridStatePCManager.getGridStatePCs(targetGridId),
+        }));
+        const gridPlayer = gridStatePCManager.getGridStatePCs(targetGridId)?.[playerIdStr];
         console.log('Refreshed gridPlayer:', gridPlayer);
 
         // Update gridId and storage to match actual grid
@@ -580,7 +584,7 @@ useEffect(() => {
     if (gridStatePCs) {
       const playerPC = gridStatePCs[currentPlayer?._id];
       if (playerPC?.hp <= 0 && currentPlayer) {
-        await handlePlayerDeath(currentPlayer,setCurrentPlayer,fetchGrid,setGridId,setGrid,setResources,setTileTypes,setGridState,activeTileSize);
+        await handlePlayerDeath(currentPlayer,setCurrentPlayer,fetchGrid,setGridId,setGrid,setResources,setTileTypes,setGridState,setGridStatePCs,activeTileSize);
       }
     }
   }, 1000);
@@ -1029,6 +1033,7 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
         setGrid,
         setTileTypes,
         setGridState,
+        setGridStatePCs,
         updateStatus,
         masterResources,
         masterSkills,
@@ -1358,6 +1363,7 @@ return ( <>
         setResources={setResources}   
         setTileTypes={setTileTypes}      
         setGridState={setGridState}
+        setGridStatePCs={setGridStatePCs}
         TILE_SIZE={activeTileSize}
         onClose={() => setZoomLevel('far')}
         masterResources={masterResources}  // Add this line
@@ -1374,6 +1380,7 @@ return ( <>
         setResources={setResources}  
         setTileTypes={setTileTypes}     
         setGridState={setGridState}
+        setGridStatePCs={setGridStatePCs}
         TILE_SIZE={activeTileSize}
         onClose={() => setZoomLevel('settlement')}
         />
