@@ -59,7 +59,9 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
   // Convert currentPlayer._id to string to match gridState.pcs keys
   const playerId = currentPlayer._id.toString();
   const gridId = currentPlayer.location.g;
-  const gridState = gridStateManager.getGridState(gridId);
+  const gridState = {
+    pcs: gridStatePCManager.getGridStatePCs(gridId)
+  };
   
   if (!gridState || !gridState.pcs[playerId]) { console.error('Player not found in gridState.'); return; }
 
