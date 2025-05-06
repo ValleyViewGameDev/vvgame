@@ -3,6 +3,7 @@ import './UI/Panel.css';
 
 import React, { useEffect, useRef } from 'react';
 import { useGridState } from './GridState/GridStateContext'; 
+import { useGridStatePCs } from './GridState/GridStatePCContext';
 import { handleNPCClick } from './GameFeatures/NPCs/NPCHelpers';
 import { handleAttackOnPC } from './GameFeatures/Combat/Combat';
 
@@ -18,6 +19,7 @@ const DynamicRenderer = ({
   masterResources
 }) => {
   const gridState = useGridState(); // Use the updated gridState from context
+  const gridStatePCs = useGridStatePCs(); // Access PCs via modern PC-specific context
   const masterResourcesRef = useRef(masterResources); // Keep masterResources in a ref
   useEffect(() => {
     masterResourcesRef.current = masterResources;
@@ -116,7 +118,7 @@ const DynamicRenderer = ({
 
     ///////////////////////////////////////////////////////
     const renderPCs = () => {
-      const pcs = Object.values(gridState?.pcs || {});
+      const pcs = Object.values(gridStatePCs?.[currentPlayer?.location?.g] || {});
 
       pcs.forEach((pc) => {
         // Validate the pc object and its position
