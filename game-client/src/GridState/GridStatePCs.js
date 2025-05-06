@@ -6,7 +6,7 @@ class GridStatePCManager {
     constructor() {
       this.gridStatePCs = {}; // Store PC states in memory
     }
-
+ 
     /**
      * Initialize the gridStatePCs for a specific gridId.
      */
