@@ -199,13 +199,6 @@ const FrontierView = ({
     const tileData = frontierTileData[tile.settlementType] || Array(8).fill(Array(8).fill(""));
     const settlementGrid = settlementGrids[tile.settlementId]?.grid || [];
     const flatSettlementGrid = settlementGrid.flat();
-    
-    // Debug logging for grid structure
-    console.log('🔍 Grid Data:', {
-      settlementId: tile.settlementId,
-      playerGridId: currentPlayer.location.g,
-      availableGrids: flatSettlementGrid.map(g => g?.gridId).filter(Boolean)
-    });
 
     return (
       <div className="mini-grid">
@@ -217,7 +210,7 @@ const FrontierView = ({
             
             // Use gridData.gridId for comparison
             if (gridData?.gridId === currentPlayer.location.g) {
-              console.log('✅ Found player at position:', { rowIndex, colIndex, gridId: gridData.gridId });
+              //console.log('✅ Found player at position:', { rowIndex, colIndex, gridId: gridData.gridId });
               content = currentPlayer.icon;
             } 
             // Other content checks

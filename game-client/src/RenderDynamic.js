@@ -21,11 +21,6 @@ const DynamicRenderer = ({
   const gridState = useGridState(); // Use the updated gridState from context
   const gridStatePCs = useGridStatePCs(); // Access PCs via modern PC-specific context
 
-
-console.log('🧠 useGridState returned:', gridState);
-console.log('🧠 useGridStatePCs returned:', gridStatePCs);
-
-
   const masterResourcesRef = useRef(masterResources); // Keep masterResources in a ref
   useEffect(() => {
     masterResourcesRef.current = masterResources;

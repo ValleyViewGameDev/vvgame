@@ -406,8 +406,6 @@ useEffect(() => {
         console.log('DB gridState:', dbGridState);
         if (!dbGridState.pcs || !dbGridState.pcs[fullPlayerData._id]) {
           console.warn(`⚠️ Player ${fullPlayerData.username} missing from DB gridState. Saving state to DB.`);
-          console.log('optional double check; gridPlayer = ',gridPlayer);
-          console.log('optional double check; fullPlayerData = ',fullPlayerData);
           await gridStatePCManager.updatePC(fullPlayerData.location.g, fullPlayerData._id, gridPlayer);
         } else {
           console.log('✅ Player exists in both local and DB gridState.');
@@ -588,7 +586,7 @@ useEffect(() => {
 
   const interval = setInterval(async () => {
     if (gridStatePCs) {
-      const playerPC = gridStatePCs[currentPlayer?._id];
+      const playerPC = gridStatePCs?.[gridId]?.[String(currentPlayer?._id)];
       if (playerPC?.hp <= 0 && currentPlayer) {
         await handlePlayerDeath(currentPlayer,setCurrentPlayer,fetchGrid,setGridId,setGrid,setResources,setTileTypes,setGridState,setGridStatePCs,activeTileSize);
       }
