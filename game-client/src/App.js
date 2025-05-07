@@ -549,7 +549,7 @@ useEffect(() => {
     }
 
     const isController = controllerUsername === currentPlayer?.username;
-    console.log("🧑‍🌾 NPC Controller Username =", controllerUsername, "; currentPlayer =", currentPlayer?.username, "; isController =", isController);
+    //console.log("🧑‍🌾 NPC Controller Username =", controllerUsername, "; currentPlayer =", currentPlayer?.username, "; isController =", isController);
 
     if (isController) {
       Object.values(gridState.npcs).forEach((npc) => {
@@ -566,12 +566,12 @@ useEffect(() => {
           console.warn(`🛑 Skipping NPC without update() method:`, npc);
           return;
         }
-        console.log(`[🐮🐮 NPC LOOP] Controller running update() for NPC ${npc.id}, state=${npc.state}`);
+        //console.log(`[🐮🐮 NPC LOOP] Controller running update() for NPC ${npc.id}, state=${npc.state}`);
         const currentTime = Date.now();
         npc.update(currentTime, gridState, gridId, activeTileSize);
       });
     } else {
-      console.log('🛑 Not the NPC controller. Skipping NPC updates.');
+      //console.log('🛑 Not the NPC controller. Skipping NPC updates.');
     }
   }, 1000);
 

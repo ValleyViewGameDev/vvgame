@@ -130,10 +130,21 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
     // Interpolate positions smoothly for rendering purposes only
     const interpolatedX = currentX + ((targetX - currentX) / stepCount) * step;
     const interpolatedY = currentY + ((targetY - currentY) / stepCount) * step;
-    gridStatePCs[playerId].position = {  // Update local grid state for animation (but do not save)
+    const interpolatedPosition = {
       x: interpolatedX / TILE_SIZE,
       y: interpolatedY / TILE_SIZE,
     };
+
+    setGridStatePCs(prev => ({
+      ...prev,
+      [gridId]: {
+        ...prev[gridId],
+        [playerId]: {
+          ...prev[gridId]?.[playerId],
+          position: interpolatedPosition,
+        },
+      },
+    }));
 
     step++;
     currentAnimationFrame = requestAnimationFrame(animate);
