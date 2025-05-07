@@ -1,5 +1,4 @@
 import axios from 'axios';
-import gridStateManager from './GridState/GridStateNPCs'; // Correctly use gridStateManager
 import gridStatePCManager from './GridState/GridStatePCs'; // Correctly use gridStateManager
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FloatingTextManager from "./UI/FloatingText";
@@ -31,7 +30,7 @@ function isValidMove(targetX, targetY, masterResources) {  // Function to check 
 /**
  * Handles key inputs for player movement and triggers smooth movement.
  */
-export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResources) {
+export function handleKeyMovement(event, currentPlayer, setGridStatePCs, TILE_SIZE, masterResources) {
   if (isAnimating) { console.warn('Movement in progress, input ignored.'); return; }
 
   const directions = {
@@ -56,17 +55,16 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
     FloatingTextManager.addFloatingText(32, currentPlayer.location.x, currentPlayer.location.y, TILE_SIZE);
     return;
   }
-  // Convert currentPlayer._id to string to match gridState.pcs keys
+  // Convert currentPlayer._id to string to match gridStatePCs keys
   const playerId = currentPlayer._id.toString();
   const gridId = currentPlayer.location.g;
-  const gridState = {
-    pcs: gridStatePCManager.getGridStatePCs(gridId)
-  };
-  
-  if (!gridState || !gridState.pcs[playerId]) { console.error('Player not found in gridState.'); return; }
-
-  const playerPosition = gridState.pcs[playerId].position;
-  console.log('playerPosition from gridState = ',playerPosition);
+  const gridStatePCs = gridStatePCManager.getGridStatePCs(gridId);
+  if (!gridStatePCs || !gridStatePCs[playerId]) {
+    console.error('Player not found in gridStatePCs.');
+    return;
+  }
+  const playerPosition = gridStatePCs[playerId].position;
+  console.log('playerPosition from gridStatePCs = ', playerPosition);
   const targetX = Math.round(playerPosition.x + movement.dx);  // Ensure integer target
   const targetY = Math.round(playerPosition.y + movement.dy);  // Ensure integer target
 
@@ -75,20 +73,20 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
     console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
     return;
   }
-  movePlayerSmoothly(playerId, { x: targetX, y: targetY }, gridState, gridId, TILE_SIZE);
+  movePlayerSmoothly(playerId, { x: targetX, y: targetY }, gridStatePCs, setGridStatePCs, gridId, TILE_SIZE);
 }
 
 /**
  * Smoothly moves the player to a new position and updates the grid state.
  */
-function movePlayerSmoothly(playerId, target, gridState, gridId, TILE_SIZE) {
+function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gridId, TILE_SIZE) {
   if (isAnimating) return; 
 
   console.log("movePlayerSmoothly:  target: ", target, "; playerId: ",playerId);
-  console.log('gridState before movement:', gridState);
+  console.log('gridStatePCs before movement:', gridStatePCs);
 
   // Update position
-  const currentPosition = gridState.pcs[playerId].position;
+  const currentPosition = gridStatePCs[playerId].position;
   const currentX = currentPosition.x * TILE_SIZE;
   const currentY = currentPosition.y * TILE_SIZE;
   const targetX = target.x * TILE_SIZE;
@@ -106,10 +104,22 @@ function movePlayerSmoothly(playerId, target, gridState, gridId, TILE_SIZE) {
       console.log('Final player position (rounded):', finalPosition);
 
       // Update local grid state with the final position
-      gridState.pcs[playerId].position = finalPosition;
+      gridStatePCs[playerId].position = finalPosition;
       // Save updated grid state to the server
       console.log('Player Movement: About to call updatePC with gridId: ',gridId,'; playerID: ',playerId,'; finalPosition: ',finalPosition);
       gridStatePCManager.updatePC(gridId, playerId, { position: finalPosition });
+
+      setGridStatePCs(prev => ({
+        ...prev,
+        [gridId]: {
+          ...prev[gridId],
+          [playerId]: {
+            ...prev[gridId]?.[playerId],
+            position: finalPosition,
+            lastUpdated: Date.now(),
+          },
+        },
+      }));
 
       // ✅ Center camera on player after final position is set
       centerCameraOnPlayer(finalPosition, TILE_SIZE);
@@ -120,7 +130,7 @@ function movePlayerSmoothly(playerId, target, gridState, gridId, TILE_SIZE) {
     // Interpolate positions smoothly for rendering purposes only
     const interpolatedX = currentX + ((targetX - currentX) / stepCount) * step;
     const interpolatedY = currentY + ((targetY - currentY) / stepCount) * step;
-    gridState.pcs[playerId].position = {  // Update local grid state for animation (but do not save)
+    gridStatePCs[playerId].position = {  // Update local grid state for animation (but do not save)
       x: interpolatedX / TILE_SIZE,
       y: interpolatedY / TILE_SIZE,
     };

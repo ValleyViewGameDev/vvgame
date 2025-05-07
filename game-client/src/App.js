@@ -527,7 +527,7 @@ useEffect(() => {
 }, [gridId]);  
 
 
-// GRID STATE:  Create new references for pcs and npcs to trigger re-renders  /////////////////////////
+// NPC GRID STATE:  Create new references for pcs and npcs to trigger re-renders  /////////////////////////
 useEffect(() => {
   if (gridState) {
     console.log('🔄 Updating local state for PCs and NPCs from GridState:', gridState);
@@ -550,8 +550,7 @@ useEffect(() => {
       return;
     }
 
-    console.log("🧑‍🌾 NPC Controller Username: ", controllerUsername);
-    console.log("🧑‍🌾 Is NPC Controller: ", isNPCController);
+    console.log("🧑‍🌾 NPC Controller =", controllerUsername,"; isNPCController =", isNPCController);
 
     if (isNPCController) {
       Object.values(gridState.npcs).forEach((npc) => {
@@ -845,7 +844,7 @@ useEffect(() => {
     const activeElement = document.activeElement;
     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; } // Prevent movement if a text input is focused
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
-    handleKeyMovement( event, currentPlayer, activeTileSize, masterResources );
+    handleKeyMovement( event, currentPlayer, setGridStatePCs, activeTileSize, masterResources );
     localPlayerMoveTimestampRef.current = Date.now();
   };
   window.addEventListener('keydown', handleKeyDown); return () => {
