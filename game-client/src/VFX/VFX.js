@@ -66,6 +66,7 @@ export const createSourceConversionEffect = (x, y, TILE_SIZE, requiredSkill) => 
     // Determine emoji based on required skill
     const emoji = requiredSkill?.includes('Axe') ? '🪓' : 
                  requiredSkill?.includes('Pickaxe') ? '⛏️' : 
+                 requiredSkill?.includes('Golden Key') ? '🔑' : 
                  '💫';
 
     const { centerX, centerY } = calculateTileCenter(x, y, TILE_SIZE);

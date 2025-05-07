@@ -353,23 +353,35 @@ export async function handleSourceConversion(
   // Get required skill
   const requiredSkill = masterResources.find((res) => res.output === resource.type ) ?.type;
 
-  // CASE 1: Required Skill Missing
+  // Required Skill Missing
   if (requiredSkill && !currentPlayer.skills.some((skill) => skill.type === requiredSkill)) {
     addFloatingText(`${requiredSkill} Required`, col, row, TILE_SIZE );
     return;
   }
-  // CASE 2: VFX
+  // Check the skill check above ^^ I'm surprised it's not using .required
+  // What it's doing now is looking up all the skills to see if a skill's output maps to the resource clicked
+  // But instead it should look at the resource clicked and check it's "required"
+  // This way we can have multiple things require the same Skill; right now, it's one resource per Skill
+
+
+  // KEY & SHRINE example; but Keys more broadly
+  // If resource.require = 'Golden Key' {
+  //    check if they have a key;
+  //      if not, do a FloatingText "You don't have: [resource.require]" and return;
+  //    else
+  //      pop a modal "Do you want to use a [Golden Key]?"
+  //        if NO, return;
+  // }
+
+  // VFX
   createSourceConversionEffect(col, row, TILE_SIZE, requiredSkill);
 
-  // CASE 3: Success Text
+  // Success Text
   FloatingTextManager.addFloatingText(`Converted to ${targetResource.type}`, col, row, TILE_SIZE);
 
-  // Define isValley as any gtype that is NOT "town" or "homestead"
-  const isValley = !['town', 'homestead'].includes(currentPlayer?.location?.gtype);
+  // Build the new resource object to replace the one we just clicked
   const x = col;
   const y = row;
-
-  // Build the new resource object to replace the one we just clicked
   const enrichedNewResource = {
     ...targetResource,
     x,

@@ -48,6 +48,13 @@ const playerSchema = new mongoose.Schema({
       _id: false, // Disable automatic _id for inventory items
     }
   ],
+  powers: [
+    {
+      type: { type: String, required: true },
+      quantity: { type: Number, default: 0 },
+      _id: false, // Disable automatic _id for inventory items
+    }
+  ],
   warehouseCapacity: { type: Number, default: 50 }, // Initial capacity for Warehouse
   backpackCapacity: { type: Number, default: 20 }, // Initial capacity for Backpack
   accountStatus: {

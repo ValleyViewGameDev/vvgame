@@ -417,7 +417,6 @@ export const {
   getGridState,
   addNPC,
   updateNPC,
-  updatePC,
   removeNPC, 
   saveGridStateNPCs,
 } = gridStateManager;

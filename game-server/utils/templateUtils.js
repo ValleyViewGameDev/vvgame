@@ -7,7 +7,7 @@ const path = require('path');
  * @param {string} baseDir - The base directory for templates (e.g., 'gridLayouts', 'settlementLayouts').
  * @returns {Object|null} - Parsed JSON template or null if not found.
  */
-const getTemplate = (baseDir, type, gridCoord) => {
+const getTemplate = (baseDir, type, gridCoord) => { 
   const layoutsPath = path.resolve(__dirname, `../layouts/${baseDir}`);
   const typeDir = `${type}`;
   const dirPath = path.join(layoutsPath, typeDir);
@@ -54,6 +54,10 @@ const getTemplate = (baseDir, type, gridCoord) => {
 };
 
 
+
+/////////////////////////////////////////////////////////////
+// HOMESTEAD LAYOUTS -- always the same 4, based on the season
+//
 function getHomesteadLayoutFile(seasonType) {
   const layoutFileName = `homestead${seasonType}.json`;
   const layoutPath = path.join(__dirname, '../layouts/gridLayouts/homestead', layoutFileName);

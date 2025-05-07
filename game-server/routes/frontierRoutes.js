@@ -207,7 +207,7 @@ router.post('/create-frontier', async (req, res) => {
           console.warn(`No valid template found for ${settlementTileType}. Skipping this cell.`);
           continue;
         }
-
+ 
         // Build the 'grids' subdocument array
         const grids = [];
         for (let i = 0; i < gridLayout.template.length; i++) {

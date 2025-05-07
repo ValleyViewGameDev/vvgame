@@ -919,6 +919,9 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
   if (!currentPlayer?.username || typeof currentPlayer.username !== 'string') { console.error('Invalid username:', currentPlayer?.username); return; }
 
   // ✅ Get player position from gridState
+  //
+  //  !!! THIS NEEDS TO BE UPDATED TO MODERN GRIDSTATEPCS -- OR USE CURRENTPLAYER LOCAL STORAGE
+  //
   const playerData = gridState?.pcs?.[String(currentPlayer._id)];
   const playerPos = playerData?.position || { x: 1, y: 1 }; // Default to (1,1) if missing
 

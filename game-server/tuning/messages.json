@@ -7,6 +7,13 @@
       "everyoneRewards": true
     },
     {
+      "id": 5,
+      "title": "Just another day in Valley View!",
+      "body": "Don't forget to enjoy the day :)",
+      "rewards": [{ "item": "Money", "qty": 10 }, { "item": "Wood", "qty": 5 }],
+      "everyoneRewards": true
+    },
+    {
       "id": 101,
       "title": "🚂 Train Shipment Complete!",
       "body": "Your settlement filled all Train orders. Great teamwork! Here's your reward.",
