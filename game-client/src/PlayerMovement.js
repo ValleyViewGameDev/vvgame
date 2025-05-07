@@ -109,17 +109,17 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
       console.log('Player Movement: About to call updatePC with gridId: ',gridId,'; playerID: ',playerId,'; finalPosition: ',finalPosition);
       gridStatePCManager.updatePC(gridId, playerId, { position: finalPosition });
 
-      // setGridStatePCs(prev => ({
-      //   ...prev,
-      //   [gridId]: {
-      //     ...prev[gridId],
-      //     [playerId]: {
-      //       ...prev[gridId]?.[playerId],
-      //       position: finalPosition,
-      //       lastUpdated: Date.now(),
-      //     },
-      //   },
-      // }));
+      setGridStatePCs(prev => ({
+        ...prev,
+        [gridId]: {
+          ...prev[gridId],
+          [playerId]: {
+            ...prev[gridId]?.[playerId],
+            position: finalPosition,
+            lastUpdated: Date.now(),
+          },
+        },
+      }));
 
       // ✅ Center camera on player after final position is set
       centerCameraOnPlayer(finalPosition, TILE_SIZE);
