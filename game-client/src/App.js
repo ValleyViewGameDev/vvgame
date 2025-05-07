@@ -1124,7 +1124,9 @@ const handleLoginSuccess = async (player) => {
 
 const [showTimers, setShowTimers] = useState(false);
 const [showStats, setShowStats] = useState(false); // Toggle for combat stats UI
-const combatStats = gridStatePCs?.[String(currentPlayer?._id)] || {};
+const combatStats = currentPlayer?.location?.g
+  ? gridStatePCs?.[currentPlayer.location.g]?.[String(currentPlayer?._id)] || {}
+  : {};
 
 return ( <>
 
