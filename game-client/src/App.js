@@ -537,8 +537,6 @@ useEffect(() => {
   }
 }, [gridState]);  // ✅ Trigger re-render when `gridState` updates
 
-// Define isNPCController before the useEffect block that logs it
-const isNPCController = npcController.isControllingGrid(gridId);
 
 // 🔄 NPC Management Loop
 useEffect(() => {
@@ -550,9 +548,10 @@ useEffect(() => {
       return;
     }
 
-    console.log("🧑‍🌾 NPC Controller =", controllerUsername,"; isNPCController =", isNPCController);
+    const isController = controllerUsername === currentPlayer?.username;
+    console.log("🧑‍🌾 NPC Controller Username =", controllerUsername, "; currentPlayer =", currentPlayer?.username, "; isController =", isController);
 
-    if (isNPCController) {
+    if (isController) {
       Object.values(gridState.npcs).forEach((npc) => {
 
         console.log(`🔍 Type check:`, {
@@ -577,7 +576,7 @@ useEffect(() => {
   }, 1000);
 
   return () => clearInterval(interval);
-}, [isAppInitialized, gridId, gridState, currentPlayer, activeTileSize]);
+}, [isAppInitialized, gridId, gridState, currentPlayer, activeTileSize, controllerUsername]);
 
 // 🔄 PC Management Loop: Check for player death
 useEffect(() => {
