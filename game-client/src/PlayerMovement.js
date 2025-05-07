@@ -86,7 +86,11 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
   console.log('gridStatePCs before movement:', gridStatePCs);
 
   // Update position
-  const currentPosition = gridStatePCs[playerId].position;
+  const currentPosition = gridStatePCs?.[playerId]?.position;
+  if (!currentPosition) {
+    console.error(`❌ Could not find position for playerId ${playerId} in gridStatePCs.`);
+    return;
+  }
   const currentX = currentPosition.x * TILE_SIZE;
   const currentY = currentPosition.y * TILE_SIZE;
   const targetX = target.x * TILE_SIZE;
@@ -104,20 +108,19 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
       console.log('Final player position (rounded):', finalPosition);
 
       // Update local grid state with the final position
-      gridStatePCs[playerId].position = finalPosition;
+      if (gridStatePCs?.[playerId]) {
+        gridStatePCs[playerId].position = finalPosition;
+      }
       // Save updated grid state to the server
       console.log('Player Movement: About to call updatePC with gridId: ',gridId,'; playerID: ',playerId,'; finalPosition: ',finalPosition);
       gridStatePCManager.updatePC(gridId, playerId, { position: finalPosition });
 
       setGridStatePCs(prev => ({
         ...prev,
-        [gridId]: {
-          ...prev[gridId],
-          [playerId]: {
-            ...prev[gridId]?.[playerId],
-            position: finalPosition,
-            lastUpdated: Date.now(),
-          },
+        [playerId]: {
+          ...prev?.[playerId],
+          position: finalPosition,
+          lastUpdated: Date.now(),
         },
       }));
 
@@ -130,10 +133,12 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
     // Interpolate positions smoothly for rendering purposes only (reverted to original logic, referencing correct structure)
     const interpolatedX = currentX + ((targetX - currentX) / stepCount) * step;
     const interpolatedY = currentY + ((targetY - currentY) / stepCount) * step;
-    gridStatePCs[gridId][playerId].position = {
-      x: interpolatedX / TILE_SIZE,
-      y: interpolatedY / TILE_SIZE,
-    };
+    if (gridStatePCs?.[playerId]) {
+      gridStatePCs[playerId].position = {
+        x: interpolatedX / TILE_SIZE,
+        y: interpolatedY / TILE_SIZE,
+      };
+    }
 
     step++;
     currentAnimationFrame = requestAnimationFrame(animate);
