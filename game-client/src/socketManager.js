@@ -90,13 +90,11 @@ export function socketListenForPCstateChanges(gridId, currentPlayer, setGridStat
 
   if (!gridId) return;
 
-  const handlePCSync = ({ pcs, gridStatePCsLastUpdated, emitterId }) => {
-    console.log('📥 Received gridState-sync-PCs event:', { pcs, gridStatePCsLastUpdated });
+  const handlePCSync = ({ pcs, emitterId }) => {
+    console.log('📥 Received gridState-sync-PCs event:', { pcs });
 
-    // Assume only a single PC is sent per update.
     const [playerId, incomingPC] = Object.entries(pcs)[0];
-    // Normalize incomingTime to timestamp for reliable comparison
-    const incomingTime = new Date(incomingPC?.lastUpdated || gridStatePCsLastUpdated).getTime();
+    const incomingTime = new Date(incomingPC?.lastUpdated).getTime();
 
     setGridStatePCs(prevState => {
       const localPC = prevState[gridId]?.[playerId];
@@ -117,7 +115,6 @@ export function socketListenForPCstateChanges(gridId, currentPlayer, setGridStat
             ...prevState[gridId],
             [playerId]: incomingPC,
           },
-          gridStatePCsLastUpdated: incomingTime,
         };
       }
 
