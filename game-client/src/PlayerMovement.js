@@ -84,6 +84,7 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
 
   console.log("movePlayerSmoothly:  target: ", target, "; playerId: ",playerId);
   console.log('gridStatePCs before movement:', gridStatePCs);
+  console.log("Known gridStatePCs keys:", Object.keys(gridStatePCs));
 
   // Update position
   const currentPosition = gridStatePCs?.[playerId]?.position;
@@ -95,6 +96,8 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
   const currentY = currentPosition.y * TILE_SIZE;
   const targetX = target.x * TILE_SIZE;
   const targetY = target.y * TILE_SIZE;
+  console.log(`Initial pixel position: (${currentX}, ${currentY})`);
+  console.log(`Target pixel position: (${targetX}, ${targetY})`);
   const stepCount = 10;
   let step = 0;
 
@@ -107,6 +110,7 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
       const finalPosition = { x: Math.round(target.x), y: Math.round(target.y), };
       console.log('Final player position (rounded):', finalPosition);
 
+      console.log('gridStatePCs before update:', gridStatePCs);
       // Update local grid state with the final position
       if (gridStatePCs?.[playerId]) {
         gridStatePCs[playerId].position = finalPosition;
@@ -117,10 +121,13 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
 
       setGridStatePCs(prev => ({
         ...prev,
-        [playerId]: {
-          ...prev?.[playerId],
-          position: finalPosition,
-          lastUpdated: Date.now(),
+        [gridId]: {
+          ...prev[gridId],
+          [playerId]: {
+            ...prev[gridId]?.[playerId],
+            position: finalPosition,
+            lastUpdated: Date.now(),
+          },
         },
       }));
 
@@ -133,7 +140,14 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
     // Interpolate positions smoothly for rendering purposes only (reverted to original logic, referencing correct structure)
     const interpolatedX = currentX + ((targetX - currentX) / stepCount) * step;
     const interpolatedY = currentY + ((targetY - currentY) / stepCount) * step;
+    // Detailed logging before conditional check for gridStatePCs?.[gridId]?.[playerId]
+    console.log("🔍 Checking gridStatePCs access:");
+    console.log("gridStatePCs:", gridStatePCs);
+    console.log("gridId:", gridId);
+    console.log("gridStatePCs[gridId]:", gridStatePCs?.[gridId]);
+    console.log("gridStatePCs[gridId][playerId]:", gridStatePCs?.[gridId]?.[playerId]);
     if (gridStatePCs?.[playerId]) {
+      console.log(`Animating step ${step}/${stepCount}: interpolatedX=${interpolatedX}, interpolatedY=${interpolatedY}`);
       gridStatePCs[playerId].position = {
         x: interpolatedX / TILE_SIZE,
         y: interpolatedY / TILE_SIZE,
@@ -141,6 +155,7 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
     }
 
     step++;
+    console.log(`Requesting animation frame for step ${step}`);
     currentAnimationFrame = requestAnimationFrame(animate);
   }
 
