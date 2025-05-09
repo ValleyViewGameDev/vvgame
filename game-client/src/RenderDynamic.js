@@ -6,6 +6,7 @@ import { useGridState } from './GridState/GridStateContext';
 import { useGridStatePCs } from './GridState/GridStatePCContext';
 import { handleNPCClick } from './GameFeatures/NPCs/NPCHelpers';
 import { handleAttackOnPC } from './GameFeatures/Combat/Combat';
+import { renderPositions } from './PlayerMovement';
 
 
 const DynamicRenderer = ({
@@ -162,8 +163,13 @@ const DynamicRenderer = ({
         }
 
         pcElement.textContent = pc.iscamping ? '⛺️' : pc.hp <= 0 ? '💀' : pc.hp < 20 ? '🤢' : '😊';
-        pcElement.style.top = `${pc.position.y * TILE_SIZE}px`;
-        pcElement.style.left = `${pc.position.x * TILE_SIZE}px`;
+        // Use renderPositions override if available, else fallback to pc.position
+        const overridePos = renderPositions[pc.playerId];
+        const renderX = overridePos ? overridePos.x * TILE_SIZE : pc.position.x * TILE_SIZE;
+        const renderY = overridePos ? overridePos.y * TILE_SIZE : pc.position.y * TILE_SIZE;
+
+        pcElement.style.left = `${renderX}px`;
+        pcElement.style.top = `${renderY}px`;
       });
 
       pcElements.current.forEach((_, id) => {
