@@ -104,6 +104,9 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
   let step = 0;
 
   function animate() {
+    // Logging before interpolation
+    console.log(`🌀 Animating step ${step}/${stepCount}`);
+    console.log('renderPositions before update:', renderPositions);
     if (step >= stepCount) {
       isAnimating = false;
       currentAnimationFrame = null;
@@ -136,8 +139,12 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
       x: interpolatedX / TILE_SIZE,
       y: interpolatedY / TILE_SIZE,
     };
+    // Logging after update
+    console.log('renderPositions after update:', renderPositions[playerId]);
 
     step++;
+    // Logging before queuing next frame
+    console.log(`🔁 Queuing next animation frame: step ${step}`);
     currentAnimationFrame = requestAnimationFrame(animate);
   }
 
