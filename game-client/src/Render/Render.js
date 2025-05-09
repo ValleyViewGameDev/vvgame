@@ -1,7 +1,7 @@
 import React, { memo, useState, useEffect } from 'react';
-import { startAmbientVFX, stopAmbientVFX } from './VFX/AmbientVFX';
-import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
-import './App.css';
+import { startAmbientVFX, stopAmbientVFX } from '../VFX/AmbientVFX';
+import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
+import '../App.css';
 
 export const RenderGrid = memo(
   ({ grid, tileTypes, resources, handleTileClick, handleTileHover, handleTileLeave, TILE_SIZE }) => {

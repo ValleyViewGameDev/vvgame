@@ -1,12 +1,12 @@
-import './App.css';
-import './UI/Panel.css';
+import '../App.css';
+import '../UI/Panel.css';
 
 import React, { useEffect, useRef } from 'react';
-import { useGridState } from './GridState/GridStateContext'; 
-import { useGridStatePCs } from './GridState/GridStatePCContext';
-import { handleNPCClick } from './GameFeatures/NPCs/NPCHelpers';
-import { handleAttackOnPC } from './GameFeatures/Combat/Combat';
-import { renderPositions } from './PlayerMovement';
+import { useGridState } from '../GridState/GridStateContext'; 
+import { useGridStatePCs } from '../GridState/GridStatePCContext';
+import { handleNPCClick } from '../GameFeatures/NPCs/NPCHelpers';
+import { handleAttackOnPC } from '../GameFeatures/Combat/Combat';
+import { renderPositions } from '../PlayerMovement';
 
 
 const DynamicRenderer = ({

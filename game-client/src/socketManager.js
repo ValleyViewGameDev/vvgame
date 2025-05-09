@@ -2,6 +2,7 @@ import NPC from './GameFeatures/NPCs/NPCs';
 import gridStateManager from './GridState/GridStateNPCs';
 import gridStatePCManager from './GridState/GridStatePCs';
 import { io } from 'socket.io-client';
+import { animateRemotePC } from './Render/RenderAnimatePosition';
 
 const socket = io('https://vvgame-server.onrender.com', {
   transports: ['websocket'],
@@ -109,6 +110,18 @@ export function socketListenForPCstateChanges(gridId, currentPlayer, setGridStat
 
       if (incomingTime > localTime) {
         console.log(`⏩ Updating PC ${playerId} from socket event.`);
+
+        // Trigger animation if position changed
+        const prevPosition = localPC?.position;
+        const newPosition = incomingPC?.position;
+        if (
+          prevPosition &&
+          newPosition &&
+          (prevPosition.x !== newPosition.x || prevPosition.y !== newPosition.y)
+        ) {
+          animateRemotePC(playerId, prevPosition, newPosition, 30); // Use your actual TILE_SIZE here
+        }
+
         return {
           ...prevState,
           [gridId]: {

@@ -6,8 +6,8 @@ import React, { useContext, useState, useEffect, memo, useMemo, useCallback, use
 import NPC from './GameFeatures/NPCs/NPCs';
 import { initializeGrid, postLoginInitialization } from './AppInit';
 import { loadMasterSkills, loadMasterResources } from './Utils/TuningManager';
-import { RenderGrid, RenderVFX, RenderTooltip } from './Render';
-import DynamicRenderer from './RenderDynamic';
+import { RenderGrid, RenderVFX, RenderTooltip } from './Render/Render';
+import DynamicRenderer from './Render/RenderDynamic.js';
 import { handleResourceClick } from './ResourceClicking';
 
 import socket from './socketManager';
