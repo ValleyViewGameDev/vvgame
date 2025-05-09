@@ -114,8 +114,6 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
       const finalPosition = { x: Math.round(target.x), y: Math.round(target.y) };
       console.log('Final player position (rounded):', finalPosition);
 
-      delete renderPositions[playerId]; // Clear temp render state
-
       gridStatePCManager.updatePC(gridId, playerId, { position: finalPosition });
       setGridStatePCs(prev => ({
         ...prev,
@@ -130,6 +128,14 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
       }));
 
       centerCameraOnPlayer(finalPosition, TILE_SIZE);
+
+      // Delay clearing renderPositions until after final frame renders, with an extra frame delay
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          delete renderPositions[playerId];
+        });
+      });
+
       return;
     }
 
