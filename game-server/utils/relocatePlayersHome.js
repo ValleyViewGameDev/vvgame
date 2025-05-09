@@ -56,9 +56,9 @@ async function relocatePlayersHome(frontierId) {
     if (
       previousGrid &&
       previousGrid.gridState?.pcs &&
-      previousGrid.gridState.pcs.has(player._id.toString())
+      previousGrid.gridState.pcs?.[player._id.toString()]
     ) {
-      previousPCS = previousGrid.gridState.pcs.get(player._id.toString());
+      previousPCS = previousGrid.gridState.pcs[player._id.toString()];
     }
 
     if (!previousPCS) {
@@ -82,15 +82,15 @@ async function relocatePlayersHome(frontierId) {
 
     homeGrid.gridState = homeGrid.gridState || {};
     const homeGridIdStr = homeGrid._id.toString();
-    homeGrid.gridState.pcs = new Map();
-    homeGrid.gridState.pcs.set(player._id.toString(), previousPCS);
+    homeGrid.gridState.pcs = homeGrid.gridState.pcs || {};
+    homeGrid.gridState.pcs[player._id.toString()] = previousPCS;
     await homeGrid.save();
-    
+
     // 🧹 Remove this player from all other grids (except home grid)
     for (const otherGrid of grids) {
       const otherId = otherGrid._id.toString();
-      if (otherId !== homeGridIdStr && otherGrid.gridState?.pcs?.has(player._id.toString())) {
-        otherGrid.gridState.pcs.delete(player._id.toString());
+      if (otherId !== homeGridIdStr && otherGrid.gridState?.pcs?.[player._id.toString()]) {
+        delete otherGrid.gridState.pcs[player._id.toString()];
         await otherGrid.save();
         console.log(`🧹 Removed ${player.username} from grid ${otherId}`);
       }

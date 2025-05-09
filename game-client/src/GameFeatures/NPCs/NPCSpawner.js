@@ -1,5 +1,6 @@
 import { calculateDistance } from './NPCHelpers';
 import gridStateManager from '../../GridState/GridStateNPCs';
+import gridStatePCManager from '../../GridState/GridStatePCs';
 
 async function handleSpawnBehavior(gridId) {
     const gridState = gridStateManager.getGridState(gridId);
@@ -9,7 +10,8 @@ async function handleSpawnBehavior(gridId) {
     }
 
     const npcs = Object.values(gridState.npcs);
-    const pcs = Object.values(gridState.pcs);
+    const gridStatePCs = gridStatePCManager.getGridStatePCs(gridId);
+    const pcs = Object.values(gridStatePCs || {});
 
     //console.log(`[Spawner] Handling spawn behavior for ${this.type} at (${this.position.x}, ${this.position.y}). State: ${this.state}`);
 

@@ -1,6 +1,7 @@
 import socket from '../../socketManager'; 
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import gridStateManager from '../../GridState/GridStateNPCs';
+import gridStatePCManager from '../../GridState/GridStatePCs';
 import FloatingTextManager from "../../UI/FloatingText";
 import { modifyPlayerStatsInGridState } from '../../Utils/playerManagement';
 
@@ -8,7 +9,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
   const tiles = GlobalGridStateTilesAndResources.getTiles();
   const resources = GlobalGridStateTilesAndResources.getResources();
   const npcs = Object.values(gridStateManager.getGridState(gridId)?.npcs || {});
-  const pcs = Object.values(gridStateManager.getGridState(gridId)?.pcs || {}); // Get all PCs on the grid
+  const pcs = Object.values(gridStatePCManager.getGridStatePCs(gridId) || {}); // Get all PCs on the grid
 
   //console.log(`NPC ${this.id} handling enemy behavior on grid ${gridId}.`);
 
@@ -100,7 +101,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
           // ✅ Force update of gridState after modifying HP
           gridStateManager.saveGridStateNPCs(gridId);  // ✅ Ensures NPC logic reads the updated HP in next cycle
           // ✅ Immediately fetch the latest grid state
-          const updatedPcs = Object.values(gridStateManager.getGridState(gridId)?.pcs || {});
+          const updatedPcs = Object.values(gridStatePCManager.getGridStatePCs(gridId) || {});
           this.targetPC = updatedPcs.find(pc => pc.playerId === this.targetPC.playerId);
         } catch (error) {
           console.error(`Error applying damage to player ${this.targetPC.username}:`, error);

@@ -132,16 +132,19 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
           });
         }
 
-        // ✅ Directly update `gridState`
+        // ✅ Directly update gridStatePCs via gridStatePCManager
         const gridId = currentPlayer?.location?.g;
         if (gridId) {
-            const gridState = gridStateManager.getGridState(gridId);
-            if (gridState?.pcs[currentPlayer.playerId]) {
-                gridState.pcs[currentPlayer.playerId].username = formData.username.trim();
+            const playerData = gridStatePCManager.getGridStatePCs(gridId)?.[currentPlayer.playerId];
+            if (playerData) {
+                const updatedPlayerData = {
+                    ...playerData,
+                    username: formData.username.trim(),
+                };
 
-                gridStatePCManager.updatePC(gridId, currentPlayer.playerId, gridState.pcs[currentPlayer.playerId]);
+                gridStatePCManager.updatePC(gridId, currentPlayer.playerId, updatedPlayerData);
 
-                console.log(`✅ Updated username in gridState: ${currentPlayer.playerId} → ${formData.username.trim()}`);
+                console.log(`✅ Updated username in gridStatePCs: ${currentPlayer.playerId} → ${formData.username.trim()}`);
             }
         } else {
             console.warn("⚠️ No valid gridId found, skipping gridState update.");

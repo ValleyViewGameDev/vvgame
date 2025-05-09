@@ -1,6 +1,7 @@
 import axios from 'axios';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import gridStateManager from '../../GridState/GridStateNPCs';
+import gridStatePCManager from '../../GridState/GridStatePCs';
 import { calculateDistance } from './NPCHelpers';
 
 async function handleHealBehavior(gridId) {
@@ -22,7 +23,7 @@ async function handleHealBehavior(gridId) {
             //console.log(`NPC ${this.id} is in IDLE state.`);
 
             // ✅ **Check for nearby PCs using calculateDistance**
-            const pcsInRange = Object.values(gridStateManager.getGridState(gridId)?.pcs || {}).some(pc => 
+            const pcsInRange = Object.values(gridStatePCManager.getGridStatePCs(gridId) || {}).some(pc => 
                 calculateDistance(pc.position, this.position) <= this.range
             );
             if (pcsInRange) { break; }
@@ -38,7 +39,7 @@ async function handleHealBehavior(gridId) {
 
           case 'roam': {
             //console.log(`NPC ${this.id} is roaming.`);
-            const pcsInRange = Object.values(gridStateManager.getGridState(gridId)?.pcs || {}).some(pc => 
+            const pcsInRange = Object.values(gridStatePCManager.getGridStatePCs(gridId) || {}).some(pc => 
                 calculateDistance(pc.position, this.position) <= this.range
             );
             if (pcsInRange) { this.state = 'idle'; break; }

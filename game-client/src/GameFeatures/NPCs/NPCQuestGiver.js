@@ -1,6 +1,7 @@
 import axios from 'axios';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import gridStateManager from '../../GridState/GridStateNPCs';
+import gridStatePCManager from '../../GridState/GridStatePCs';
 import { calculateDistance } from './NPCHelpers';
  
 async function handleQuestGiverBehavior(gridId) {
@@ -19,7 +20,7 @@ async function handleQuestGiverBehavior(gridId) {
 
     switch (this.state) {
         case 'idle': {
-            const pcsInRange = Object.values(gridStateManager.getGridState(gridId)?.pcs || {}).some(pc => 
+            const pcsInRange = Object.values(gridStatePCManager.getGridStatePCs(gridId) || {}).some(pc => 
                 calculateDistance(pc.position, this.position) <= this.range && pc.hp>0
             );
             if (pcsInRange) { break; }
@@ -34,7 +35,7 @@ async function handleQuestGiverBehavior(gridId) {
           }
 
           case 'roam': {
-            const pcsInRange = Object.values(gridStateManager.getGridState(gridId)?.pcs || {}).some(pc => 
+            const pcsInRange = Object.values(gridStatePCManager.getGridStatePCs(gridId) || {}).some(pc => 
                 calculateDistance(pc.position, this.position) <= this.range
             );
             if (pcsInRange) { this.state = 'idle'; break; }

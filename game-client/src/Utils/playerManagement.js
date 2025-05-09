@@ -144,7 +144,7 @@ export const handlePlayerDeath = async (
     });
 
     // 2. **Remove Player from Current Grid’s gridState using API**
-    console.log(`Removing player ${player.username} from gridState.pcs in grid ${currentGridId} via API`);
+    console.log(`Removing player ${player.username} from gridStatePCs in grid ${currentGridId} via API`);
     await axios.post(`${API_BASE}/api/remove-single-pc`, {
       gridId: currentGridId,
       playerId: playerId,

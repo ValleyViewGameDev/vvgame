@@ -28,15 +28,15 @@ const SocialPanel = ({
   useEffect(() => {
     if (!pcData) return;
     
-    // ✅ Subscribe to gridState updates
+    // ✅ Subscribe to gridStatePCManager updates for camping state
     const interval = setInterval(() => {
         const gridId = currentPlayer?.location?.g;
         if (!gridId) return;
         
-        const gridState = gridStateManager.getGridState(gridId);
-        if (gridState?.pcs[pcData.playerId]?.iscamping !== isCamping) {
-            setIsCamping(gridState.pcs[pcData.playerId]?.iscamping || false);
-        }
+        const gridState = gridStatePCManager.getGridStatePCs(gridId);
+        const latestCamping = gridState[pcData.playerId]?.iscamping || false;
+        setIsCamping(latestCamping);
+        pcData.iscamping = latestCamping;
     }, 2000); // ✅ Refresh every 2 seconds
 
     return () => clearInterval(interval);
@@ -61,6 +61,7 @@ const SocialPanel = ({
 
   // ✅ Handle Pitching a Tent
   const handlePitchTent = async () => {
+    console.log("⛺️ handlePitchTent called; tentCount = ",tentCount);
     if (tentCount <= 0) return;
 
     try {
@@ -74,7 +75,8 @@ const SocialPanel = ({
               updatedBackpack.splice(tentIndex, 1); // Remove item if quantity reaches 0
           }
       } else {
-          updateStatus(27);
+          console.warn("🚫 No tents found in backpack. Cannot pitch tent.");
+          updateStatus(27); // "You don't have a tent."
           return;
       }
       console.log("⛺️ Tent deducted. Updated Backpack:", updatedBackpack);
@@ -114,24 +116,16 @@ const SocialPanel = ({
             return;
         }
 
-        // ✅ Get the current grid state
-        let gridState = gridStateManager.getGridState(gridId);
-        if (!gridState) {
-            console.warn(`⚠️ No gridState found for gridId ${gridId}`);
-            return;
-        }
-
-        // ✅ Update the PC's camping state
-        if (gridState.pcs[playerId]) {
-            gridState.pcs[playerId].iscamping = campingState;
+        // ✅ Only update gridStatePCManager
+        const gridStatePCs = gridStatePCManager.getGridStatePCs(gridId);
+        if (gridStatePCs?.[playerId]) {
             gridStatePCManager.updatePC(gridId, playerId, { iscamping: campingState });
-
-            console.log(`✅ Updated camping state in gridState: ${playerId} iscamping=${campingState}`);
+            console.log(`✅ Updated camping state in gridStatePCs: ${playerId} iscamping=${campingState}`);
         } else {
-            console.warn(`⚠️ Player ${playerId} not found in gridState.pcs.`);
+            console.warn(`⚠️ Player ${playerId} not found in gridStatePCs.`);
         }
     } catch (error) {
-        console.error("❌ Error updating camping state in gridState:", error);
+        console.error("❌ Error updating camping state in gridStatePCs:", error);
     }
 };
 
@@ -181,8 +175,14 @@ const SocialPanel = ({
                 <p>You have <strong>{tentCount}</strong> tents.</p>
                 <button 
                   className="btn-success" 
-                  onClick={handlePitchTent} 
-                  disabled={tentCount <= 0}
+                  onClick={() => {
+                    if (tentCount <= 0) {
+                      console.warn("🚫 No tents found. Button press ignored.");
+                      updateStatus(27); // "You don't have a tent."
+                    } else {
+                      handlePitchTent();
+                    }
+                  }}
                 >
                   🏕️ Pitch Tent
                 </button>

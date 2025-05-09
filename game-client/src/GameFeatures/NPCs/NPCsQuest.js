@@ -12,6 +12,7 @@ import { QuestGiverButton } from '../../UI/QuestButton';
 import { loadMasterResources } from '../../Utils/TuningManager';
 import { modifyPlayerStatsInPlayer, modifyPlayerStatsInGridState } from '../../Utils/playerManagement';
 import gridStateManager from '../../GridState/GridStateNPCs';
+import gridStatePCManager from '../../GridState/GridStatePCs';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 
 const QuestGiverPanel = ({
@@ -253,9 +254,8 @@ const handleHeal = async (recipe) => {
       return;
     }
 
-    // Fetch current HP and Max HP from gridState
-    const gridState = gridStateManager.getGridState(currentPlayer?.location?.g);
-    const playerInGridState = gridState?.pcs?.[currentPlayer._id];
+    // Fetch current HP and Max HP from gridStatePCManager
+    const playerInGridState = gridStatePCManager.getGridStatePCs(currentPlayer?.location?.g)?.[currentPlayer._id];
     if (!playerInGridState) {
       console.error(`Player ${currentPlayer.username} not found in gridState.`);
       return;
@@ -357,10 +357,9 @@ const handleHeal = async (recipe) => {
         <div className="heal-options">
           <h2>❤️‍🩹 Healing</h2>
 
-          {/* Fetch and display player's HP from gridState */}
+          {/* Fetch and display player's HP from gridStatePCManager */}
           {(() => {
-            const gridState = gridStateManager.getGridState(currentPlayer?.location?.g);
-            const playerInGridState = gridState?.pcs?.[currentPlayer._id];
+            const playerInGridState = gridStatePCManager.getGridStatePCs(currentPlayer?.location?.g)?.[currentPlayer._id];
 
             if (playerInGridState) {
               return (
@@ -400,4 +399,3 @@ const handleHeal = async (recipe) => {
 };
 
 export default React.memo(QuestGiverPanel);
-

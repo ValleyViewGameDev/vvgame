@@ -63,21 +63,14 @@ function calculateDamage(player) {
 export async function handleAttackOnNPC(npc, currentPlayer, TILE_SIZE, setResources, masterResources) {
     console.log(`Handling attack on NPC ${npc.id}.`);
 
-    // Translate currentPlayer to pc from gridState.pcs
+    // Translate currentPlayer to pc from gridStatePCManager
     const gridId = currentPlayer.location.g;
     const playerId = currentPlayer._id.toString();  // Convert ObjectId to string for matching
-    console.log('playerId = ',playerId);
-    const gridState = gridStateManager.getGridState(gridId);
-    console.log('gridState = ',gridState);
-    if (!gridState) {
-        console.error(`GridState is not available for gridId: ${gridId}`);
-        return;
-    }
-    const player = gridState?.pcs[playerId];
-    console.log('player = ',player);
+    console.log('playerId = ', playerId);
+    const player = gridStatePCManager.getGridStatePCs(gridId)?.[playerId];
+    console.log('player = ', player);
     if (!player) {
-        console.error(`Player not found in gridState for playerId: ${playerId}.`);
-        console.log('Current gridState.pcs keys:', Object.keys(gridState.pcs));
+        console.error(`Player not found in gridStatePCs for playerId: ${playerId}.`);
         return;
     }
 
@@ -147,10 +140,9 @@ export async function handleAttackOnNPC(npc, currentPlayer, TILE_SIZE, setResour
 
 export async function handleAttackOnPC(pc, currentPlayer, gridId, TILE_SIZE) {
   const playerId = currentPlayer._id.toString();  // Convert ObjectId to string for matching
-  const gridState = gridStateManager.getGridState(gridId);
-  const player = gridState?.pcs[playerId];
+  const player = gridStatePCManager.getGridStatePCs(gridId)?.[playerId];
   if (!player) {
-    console.error('Player not found in gridState.');
+    console.error('Player not found in gridStatePCs.');
     return;
   }
 

@@ -103,13 +103,11 @@ class GridStateManager {
     console.log('⊞ this.gridStates[gridId]:', gridState);
     if (!gridState) {
       console.warn(`⚠️ No gridState found for gridId: ${gridId}`);
-      return { npcs: {}, pcs: {} }; // Return empty structure if not found
+      return { npcs: {} }; // Only return NPCs
     }
 
-    // Combine gridStatePCs and gridStateNPCs into a single structure
     return {
       npcs: gridState.npcs || {},
-      pcs: gridState.pcs || {},
     };
   }
 
