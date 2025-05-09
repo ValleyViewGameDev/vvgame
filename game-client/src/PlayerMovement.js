@@ -2,6 +2,8 @@ import axios from 'axios';
 import gridStatePCManager from './GridState/GridStatePCs'; // Correctly use gridStateManager
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FloatingTextManager from "./UI/FloatingText";
+// Temporary render-only animation state for interpolated player positions
+export const renderPositions = {};
 
 let isAnimating = false; 
 let currentAnimationFrame = null; 
@@ -80,13 +82,13 @@ export function handleKeyMovement(event, currentPlayer, setGridStatePCs, TILE_SI
  * Smoothly moves the player to a new position and updates the grid state.
  */
 function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gridId, TILE_SIZE) {
-  if (isAnimating) return; 
+  if (isAnimating) return;
 
-  console.log("movePlayerSmoothly:  target: ", target, "; playerId: ",playerId);
+  console.log("movePlayerSmoothly:  target: ", target, "; playerId: ", playerId);
   console.log('gridStatePCs before movement:', gridStatePCs);
   console.log("Known gridStatePCs keys:", Object.keys(gridStatePCs));
 
-  // Update position
+  // Get current position
   const currentPosition = gridStatePCs?.[playerId]?.position;
   if (!currentPosition) {
     console.error(`❌ Could not find position for playerId ${playerId} in gridStatePCs.`);
@@ -106,19 +108,12 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
       isAnimating = false;
       currentAnimationFrame = null;
 
-      // Round the final position to ensure it's on an integer tile
-      const finalPosition = { x: Math.round(target.x), y: Math.round(target.y), };
+      const finalPosition = { x: Math.round(target.x), y: Math.round(target.y) };
       console.log('Final player position (rounded):', finalPosition);
 
-      console.log('gridStatePCs before update:', gridStatePCs);
-      // Update local grid state with the final position
-      if (gridStatePCs?.[playerId]) {
-        gridStatePCs[playerId].position = finalPosition;
-      }
-      // Save updated grid state to the server
-      console.log('Player Movement: About to call updatePC with gridId: ',gridId,'; playerID: ',playerId,'; finalPosition: ',finalPosition);
-      gridStatePCManager.updatePC(gridId, playerId, { position: finalPosition });
+      delete renderPositions[playerId]; // Clear temp render state
 
+      gridStatePCManager.updatePC(gridId, playerId, { position: finalPosition });
       setGridStatePCs(prev => ({
         ...prev,
         [gridId]: {
@@ -131,31 +126,18 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
         },
       }));
 
-      // ✅ Center camera on player after final position is set
       centerCameraOnPlayer(finalPosition, TILE_SIZE);
-
       return;
     }
 
-    // Interpolate positions smoothly for rendering purposes only (reverted to original logic, referencing correct structure)
     const interpolatedX = currentX + ((targetX - currentX) / stepCount) * step;
     const interpolatedY = currentY + ((targetY - currentY) / stepCount) * step;
-    // Detailed logging before conditional check for gridStatePCs?.[gridId]?.[playerId]
-    console.log("🔍 Checking gridStatePCs access:");
-    console.log("gridStatePCs:", gridStatePCs);
-    console.log("gridId:", gridId);
-    console.log("gridStatePCs[gridId]:", gridStatePCs?.[gridId]);
-    console.log("gridStatePCs[gridId][playerId]:", gridStatePCs?.[gridId]?.[playerId]);
-    if (gridStatePCs?.[playerId]) {
-      console.log(`Animating step ${step}/${stepCount}: interpolatedX=${interpolatedX}, interpolatedY=${interpolatedY}`);
-      gridStatePCs[playerId].position = {
-        x: interpolatedX / TILE_SIZE,
-        y: interpolatedY / TILE_SIZE,
-      };
-    }
+    renderPositions[playerId] = {
+      x: interpolatedX / TILE_SIZE,
+      y: interpolatedY / TILE_SIZE,
+    };
 
     step++;
-    console.log(`Requesting animation frame for step ${step}`);
     currentAnimationFrame = requestAnimationFrame(animate);
   }
 
