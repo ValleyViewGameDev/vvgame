@@ -255,7 +255,13 @@ const handleHeal = async (recipe) => {
     }
 
     // Fetch current HP and Max HP from gridStatePCManager
-    const playerInGridState = gridStatePCManager.getGridStatePCs(currentPlayer?.location?.g)?.[currentPlayer._id];
+    const gridId = currentPlayer?.location?.g;
+    const playerId = currentPlayer._id?.toString();
+    // Additional console logs for debug
+    console.log('gridId =', gridId);
+    console.log('playerId =', playerId);
+    console.log('gridStatePCManager.getGridStatePCs(gridId) =', gridStatePCManager.getGridStatePCs(gridId));
+    const playerInGridState = gridStatePCManager.getGridStatePCs(gridId)?.[playerId];
     if (!playerInGridState) {
       console.error(`Player ${currentPlayer.username} not found in gridState.`);
       return;
@@ -282,8 +288,8 @@ const handleHeal = async (recipe) => {
     console.log('About to mofidy stats;  amountToMod = ',amountToMod,'; statToMod = ',statToMod);
 
     try {
-    console.log('calling modifyPlayerStats with: statToMod: ',statToMod,'; amountToMod: ',amountToMod,'; currentPlayer._id= ',currentPlayer._id,'; currentPlayer.gridId: ',currentPlayer.gridId);
-      await modifyPlayerStatsInGridState(statToMod, amountToMod, currentPlayer._id, currentPlayer.location.g);
+      console.log('calling modifyPlayerStats with: statToMod: ',statToMod,'; amountToMod: ',amountToMod,'; currentPlayer._id= ',currentPlayer._id,'; gridId: ',gridId);
+      await modifyPlayerStatsInGridState(statToMod, amountToMod, currentPlayer._id, gridId);
       setCurrentPlayer((prev) => ({
         ...prev,
         hp: Math.min(prev.maxhp, prev.hp + amountToMod),
@@ -359,7 +365,9 @@ const handleHeal = async (recipe) => {
 
           {/* Fetch and display player's HP from gridStatePCManager */}
           {(() => {
-            const playerInGridState = gridStatePCManager.getGridStatePCs(currentPlayer?.location?.g)?.[currentPlayer._id];
+            const gridId = currentPlayer?.location?.g;
+            const playerId = currentPlayer._id?.toString();
+            const playerInGridState = gridStatePCManager.getGridStatePCs(gridId)?.[playerId];
 
             if (playerInGridState) {
               return (

@@ -10,23 +10,21 @@ export const modifyPlayerStatsInGridState = async (statToMod, amountToMod, playe
     console.log('statToMod = ', statToMod, '; amountToMod = ', amountToMod);
 
     if (!statToMod || !amountToMod) { console.error('Invalid stat or amount to modify.'); return; }
- 
-    // Step 1: Get the current player data from gridState (lightweight schema)
-    const gridState = gridStateManager.getGridState(gridId);
-    const lightweightPlayer = gridState?.pcs?.[String(playerId)];
-    if (!lightweightPlayer) {
-      console.error(`Player ${playerId} not found in gridState.`);
+
+    // Use gridStatePCManager to get PCs and update
+    const pcs = gridStatePCManager.getGridStatePCs(gridId);
+    const player = pcs?.[playerId];
+
+    if (!player) {
+      console.warn(`🛑 Player ${playerId} not found in gridStatePCs for gridId ${gridId}`);
+      console.warn('🧠 All available PCs:', Object.keys(pcs));
       return;
     }
-    // Step 2: Modify the stat in the gridState locally
-    if (statToMod in lightweightPlayer) {
-      lightweightPlayer[statToMod] += amountToMod;
-      console.log(`Modified ${statToMod} in gridState: new value = ${lightweightPlayer[statToMod]}`);
-    }
 
-    // Step 3: Save changes to the local gridState
-    gridStatePCManager.updatePC(gridId, playerId, { [statToMod]: lightweightPlayer[statToMod] });
-    console.log(`Updated ${statToMod} for player ${playerId} in gridState.`);
+    // Modify stat safely
+    const updatedValue = (player[statToMod] || 0) + amountToMod;
+    gridStatePCManager.updatePC(gridId, playerId, { [statToMod]: updatedValue });
+    console.log(`✅ Modified ${statToMod} for player ${playerId} by +${amountToMod}. New value: ${updatedValue}`);
 
   } catch (error) {
     console.error('Error in modifyPlayerStats:', error);

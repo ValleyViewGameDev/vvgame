@@ -162,6 +162,9 @@ const DynamicRenderer = ({
           pcElements.current.set(pc.playerId, pcElement);
         }
 
+        const username = pc.username || 'Anonymous';
+        let tooltipContent = `<p>${username}</p><p>❤️‍🩹 HP: ${pc.hp}</p>`;
+
         pcElement.textContent = pc.iscamping ? '⛺️' : pc.hp <= 0 ? '💀' : pc.hp < 20 ? '🤢' : '😊';
         // Use renderPositions override if available, else fallback to pc.position
         const overridePos = renderPositions[pc.playerId];
@@ -232,7 +235,8 @@ function handlePCClick(pc, currentPlayer, gridId, TILE_SIZE) {
 // CUSTOM TOOLTIP CODE FOR NPCS AND PCS
 
 function handlePCHover(event, pc, tooltip, TILE_SIZE) {
-  let tooltipContent = `<p>${pc.username}</p><p>❤️‍🩹 HP: ${pc.hp}</p>`;
+  const username = pc.username || 'Anonymous';
+  let tooltipContent = `<p>${username}</p><p>❤️‍🩹 HP: ${pc.hp}</p>`;
   // ✅ Add "Camping" if pc.iscamping is true
   if (pc.iscamping) {
     tooltipContent += `<p>🏕️ Camping</p>`;

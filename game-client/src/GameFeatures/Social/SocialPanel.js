@@ -22,21 +22,29 @@ const SocialPanel = ({
   const [errorMessage, setErrorMessage] = useState('');
   const [tentCount, setTentCount] = useState(0);
   const [isCamping, setIsCamping] = useState(false);
+  const [displayedPCData, setDisplayedPCData] = useState(pcData);
 
   console.log('made it to SocialPanel; pc = ', pcData);
 
   useEffect(() => {
     if (!pcData) return;
     
-    // ✅ Subscribe to gridStatePCManager updates for camping state
+    // ✅ Subscribe to gridStatePCManager updates for camping state and HP and username
     const interval = setInterval(() => {
         const gridId = currentPlayer?.location?.g;
         if (!gridId) return;
         
         const gridState = gridStatePCManager.getGridStatePCs(gridId);
-        const latestCamping = gridState[pcData.playerId]?.iscamping || false;
-        setIsCamping(latestCamping);
-        pcData.iscamping = latestCamping;
+        const latestData = gridState[pcData.playerId];
+        if (latestData) {
+            setIsCamping(latestData.iscamping || false);
+            setDisplayedPCData(prev => ({
+              ...prev,
+              iscamping: latestData.iscamping,
+              hp: latestData.hp,
+              username: latestData.username,
+            }));
+        }
     }, 2000); // ✅ Refresh every 2 seconds
 
     return () => clearInterval(interval);
@@ -46,8 +54,11 @@ const SocialPanel = ({
   useEffect(() => {
     if (!pcData) {
       console.warn("SocialPanel was opened with missing pcData.");
-      pcData = { username: "Unknown", hp: 0, iscamping: false };
+      setDisplayedPCData({ username: "Unknown", hp: 0, iscamping: false });
+      return;
     }
+
+    setDisplayedPCData(pcData);
 
     // ✅ Check if the selected PC is the current player
     if (pcData.username === currentPlayer.username) {
@@ -157,16 +168,16 @@ const SocialPanel = ({
     <Panel onClose={onClose} descriptionKey="1014" titleKey="1114" panelName="SocialPanel">
         <div className="panel-content">
         <div className="debug-buttons">
-        <h2>{pcData.username}{pcData.username === currentPlayer.username && " (You)"}</h2>
-        <p>❤️‍🩹 HP: {pcData.hp}</p>
+        <h2>{displayedPCData.username}{displayedPCData.username === currentPlayer.username && " (You)"}</h2>
+        <p>❤️‍🩹 HP: {displayedPCData.hp}</p>
 
         {/* ✅ Show "You are camping." if iscamping === true */}
-        {pcData.iscamping && (
+        {displayedPCData.iscamping && (
           <h3 style={{ fontWeight: "bold", color: "#4CAF50" }}>🏕️ Camping.</h3>
         )}
 
         {/* ✅ Show camping button only for current player */}
-        {pcData.username === currentPlayer.username && (
+        {displayedPCData.username === currentPlayer.username && (
           <>
             {isCamping ? (
               <button className="btn-success" onClick={handlePutAwayTent}>⛺ Put Away Tent</button>
