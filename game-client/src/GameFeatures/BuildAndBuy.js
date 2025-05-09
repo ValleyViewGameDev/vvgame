@@ -6,6 +6,7 @@ import { addResourceToGrid } from '../Utils/worldHelpers';
 import FloatingTextManager from '../UI/FloatingText';
 import { trackQuestProgress } from './Quests/QuestGoalTracker';
 import gridStateManager from '../GridState/GridStateNPCs';
+import gridStatePCManager from '../GridState/GridStatePCs';
 import { getCurrentTileCoordinates } from '../Utils/ResourceHelpers';
 
 export const handleConstruction = async ({
@@ -37,8 +38,9 @@ export const handleConstruction = async ({
   // **Get player position dynamically from the gridState**
   const playerId = currentPlayer._id.toString();  // Convert ObjectId to string
   const gridState = gridStateManager.getGridState(gridId);
-  const player = gridState?.pcs[playerId];
-  const playerPosition = player.position;  // Use grid-relative coordinates directly (no scaling)
+  const gridStatePCs = gridStatePCManager.getGridStatePCs(gridId);
+  const player = gridStatePCs?.[playerId];
+  const playerPosition = player?.position;  // Use grid-relative coordinates directly (no scaling)
 
   const coords = getCurrentTileCoordinates(gridId, currentPlayer);
   if (!coords) return;

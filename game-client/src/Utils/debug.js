@@ -6,6 +6,7 @@ import '../UI/Panel.css'; // Specific styles for Debug Panel
 import { fetchInventory, updateInventory, refreshPlayerAfterInventoryUpdate } from './InventoryManagement';
 import { fetchGridData } from './GridManagement';
 import gridStateManager from '../GridState/GridStateNPCs'; // Use default export for gridStateManager
+import gridStatePCManager from '../GridState/GridStatePCs';
 
 const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, setResources, currentGridId, updateStatus }) => {
   const [timers, setTimers] = useState([]);
@@ -61,25 +62,28 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
   // Fetch NPCs and PCs from GridState
   useEffect(() => {
     if (!currentGridId) return;
-  
+
     const fetchGridStateEntities = () => {
       const gridState = gridStateManager.getGridState(currentGridId);
+      const gridStatePCs = gridStatePCManager.getGridStatePCs(currentGridId);
+
       if (!gridState) {
         console.warn(`No gridState found for gridId: ${currentGridId}`);
         setNPCs([]);
-        setPCs([]);
-        return;
+      } else {
+        setNPCs(Object.values(gridState.npcs || {}));
       }
-  
-      console.log('Fetched gridState entities:', gridState);
-  
-      // Set NPCs and PCs from the grid state
-      setNPCs(Object.values(gridState.npcs || {}));
-      setPCs(Object.values(gridState.pcs || {}));
+
+      if (!gridStatePCs) {
+        console.warn(`No gridStatePCs found for gridId: ${currentGridId}`);
+        setPCs([]);
+      } else {
+        setPCs(Object.values(gridStatePCs));
+      }
     };
-  
+
     fetchGridStateEntities();
-  }, [currentGridId, refreshDebug]); // Add refreshDebug to dependency array
+  }, [currentGridId, refreshDebug]);
 
   
   // Synchronize updatedNPCs with npcs when npcs changes
