@@ -468,6 +468,58 @@ const handleClearGrid = () => {
 
   //////////////////////////////////////////////////
 
+  // --- Generate Signposts Handler ---
+  const handleGenerateSignposts = () => {
+    console.log("📦 Available resource types:", masterResources.map(r => r.type));
+
+    // Map signpost keys to their actual resource.type strings from your masterResources
+    const signpostTypes = {
+      SignpostNW: "Signpost NW",
+      SignpostN: "Signpost N",
+      SignpostNE: "Signpost NE",
+      SignpostE: "Signpost E",
+      SignpostSE: "Signpost SE",
+      SignpostS: "Signpost S",
+      SignpostSW: "Signpost SW",
+      SignpostW: "Signpost W"
+    };
+
+    // The keys here are the signpost names; the type string will be looked up in masterResources
+    const signpostLocations = [
+      { key: "SignpostNW", x: 0, y: 0 },
+      { key: "SignpostN",  x: 0, y: 31 },
+      { key: "SignpostNE", x: 0, y: 63 },
+      { key: "SignpostE",  x: 31, y: 63 },
+      { key: "SignpostSE", x: 63, y: 63 },
+      { key: "SignpostS",  x: 63, y: 31 },
+      { key: "SignpostSW", x: 63, y: 0 },
+      { key: "SignpostW",  x: 31, y: 0 },
+    ];
+
+    setGrid(prevGrid => {
+      const newGrid = prevGrid.map(row => [...row]);
+
+      signpostLocations.forEach(({ key, x, y }) => {
+        const type = signpostTypes[key];
+        const resource = masterResources.find(res => res.type === type);
+
+        if (resource) {
+          newGrid[x][y] = {
+            ...newGrid[x][y],
+            resource: resource.symbol,
+          };
+          console.log(`✅ Placed ${resource.symbol} at (${x}, ${y})`);
+        } else {
+          console.warn(`❗ Signpost resource "${type}" not found in masterResources.`);
+        }
+      });
+
+      return newGrid;
+    });
+
+    console.log("🪧 Signposts placed at predefined positions.");
+  };
+
   return (
     <div className="editor-container">
       
@@ -549,9 +601,13 @@ const handleClearGrid = () => {
         <h3>Resource Distribution</h3>
         <p>Enter how many of each resource should randomly generate:</p>
         <div className="button-group">
-          <button className="small-button" onClick={handleGenerateResources}>Generate Resources</button>        
+          <button className="small-button" onClick={handleGenerateResources}>Generate Resources</button>
         </div>
-          {availableResources.map(resource => (
+        {/* --- Add Generate Signposts Button --- */}
+        <div className="button-group">
+          <button className="small-button" onClick={handleGenerateSignposts}>Generate Signposts</button>
+        </div>
+        {availableResources.map(resource => (
           <div key={resource.type} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
             <input
               type="number"
@@ -596,7 +652,8 @@ const handleClearGrid = () => {
       </div>
   
     </div>
-);
+  );
+
 }
 
 export default GridEditor;

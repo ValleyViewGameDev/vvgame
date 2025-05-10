@@ -159,7 +159,7 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
   
       console.log(`Grid ${currentGridId} of type ${gridType} reset successfully:`, resetResponse.data);
       updateStatus(903);
-      //window.location.reload();
+      window.location.reload();
     } catch (error) {
       console.error(`Error resetting grid "${currentGridId}":`, error);
       alert(`Failed to reset grid "${currentGridId}". Check the console for details.`);
