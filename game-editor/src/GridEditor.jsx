@@ -1,5 +1,12 @@
 // game-editor/src/GridEditor.jsx
-import API_BASE from '../../game-client/src/config';
+const fs = window.require('fs');
+const path = window.require('path');
+const app = window.require('@electron/remote').app;
+const isDev = !app.isPackaged;
+const projectRoot = isDev
+  ? path.join(__dirname, '..', '..')
+  : path.join(app.getAppPath(), '..', '..', '..', '..', '..', '..', '..');
+  
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Tile from './Tile';
@@ -28,32 +35,32 @@ const GridEditor = () => {
   const [copiedResource, setCopiedResource] = useState(null); // Holds copied resource
 
   useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        const response = await axios.get(`${API_BASE}/api/resources`);
-        console.log("🔍 Loaded resources:", response.data);
-        if (!Array.isArray(response.data)) {
-          throw new Error("Invalid resources.json format: Expected an array");
-        } 
-        setMasterResources(response.data); // ✅ Store all resources
-        console.log("✅ Stored masterResources:", masterResources); // ✅ Log stored resources
+    try {
+      const resourcePath = path.join(projectRoot, 'game-server', 'tuning', 'resources.json');      const fileContents = fs.readFileSync(resourcePath, 'utf-8');
+      const parsedResources = JSON.parse(fileContents);
+      console.log("🔍 Loaded resources:", parsedResources);
+      if (!Array.isArray(parsedResources)) {
+        throw new Error("Invalid resources.json format: Expected an array");
+      }
 
-        const tileTypeList = response.data
-          .filter(res => res.category === "tile")
-          .map(res => res.layoutkey); // ✅ Extract layoutkey for cycling
-        setTileTypes(tileTypeList); // ✅ Store only tile types
-  
-        const filteredResources = response.data.filter(res =>
-          ["source", "doober", "crafting","training","trading", "station", "deco", "travel", "stall"].includes(res.category)
-        );
-        setAvailableResources(filteredResources);
+      setMasterResources(parsedResources);
+      console.log("✅ Stored masterResources:", parsedResources);
 
-        const filteredNpcs = response.data.filter(res => res.category === "npc"); // ✅ NPCs
-        setAvailableNpcs(filteredNpcs); // ✅ Store separately
+      const tileTypeList = parsedResources
+        .filter(res => res.category === "tile")
+        .map(res => res.layoutkey);
+      setTileTypes(tileTypeList);
 
-      } catch (error) { console.error('Failed to load resources:', error); }
-    };
-    fetchResources();
+      const filteredResources = parsedResources.filter(res =>
+        ["source", "doober", "reward", "special", "crafting", "training", "shop","trading", "station", "deco", "travel", "stall"].includes(res.category)
+      );
+      setAvailableResources(filteredResources);
+
+      const filteredNpcs = parsedResources.filter(res => res.category === "npc");
+      setAvailableNpcs(filteredNpcs);
+    } catch (error) {
+      console.error('Failed to load resources:', error);
+    }
   }, []);
 
 
@@ -88,11 +95,18 @@ const GridEditor = () => {
         setSelectedTile({ x: newX, y: newY });
       }
 
-      // ✅ DELETE or BACKSPACE resets tile type to "None (**)"
+      // ✅ DELETE or BACKSPACE now removes resource if present, else resets tile type
       if (key === "backspace" || key === "delete") {
-        console.log(`❌ Resetting tile at (${selectedTile.x}, ${selectedTile.y}) to "None (**)"`);
-        updateTileType(selectedTile.x, selectedTile.y, "**");
-        updateTileResource(selectedTile.x, selectedTile.y, ""); // ✅ Also clears resource
+        const currentTile = grid[selectedTile.x][selectedTile.y];
+        if (currentTile.resource) {
+          console.log(`❌ Removing resource at (${selectedTile.x}, ${selectedTile.y})`);
+          updateTileResource(selectedTile.x, selectedTile.y, "");
+        } else {
+          console.log(`❌ Resetting tile at (${selectedTile.x}, ${selectedTile.y}) to "None (**)"`);
+          updateTileType(selectedTile.x, selectedTile.y, "**");
+        }
+        // Ensure selectedTile state is refreshed so user can DEL again
+        setSelectedTile({ x: selectedTile.x, y: selectedTile.y });
         return;
       }
 
@@ -259,40 +273,33 @@ const handleResourceDistributionChange = (resourceType, value) => {
 
   const loadLayout = async (fileName, directory) => {
     try {
-      const response = await axios.get(`${API_BASE}/api/load-layout?fileName=${fileName}&directory=${directory}`);
-      
-      if (!response.data.success || !response.data.grid) {
-        console.error("❌ Error: Invalid response format.");
-        return;
-      }
-  
-      const loadedGrid = response.data.grid; // ✅ Extract the actual grid data
-      console.log("📂 Loaded grid from file:", loadedGrid);
-  
+      const layoutPath = path.join(projectRoot, 'game-server', 'layouts', 'gridLayouts', directory, `${fileName}.json`);
+      const raw = fs.readFileSync(layoutPath, 'utf-8');
+      const loadedGrid = JSON.parse(raw);
+
       if (!loadedGrid.tiles || !loadedGrid.resources) {
         console.error("❌ Error: Missing tiles or resources in loaded file.");
         return;
       }
-  
+
       setGrid(
         loadedGrid.tiles.map((row, x) =>
           row.map((cell, y) => {
             const tileResource = masterResources.find(res => res.layoutkey === cell && res.category === "tile");
             const resourceItem = masterResources.find(res => res.layoutkey === loadedGrid.resources[x][y]);
-  
+
             return {
-              type: tileResource ? tileResource.layoutkey : '**', // ✅ Ensures tile layoutKey remains
-              resource: resourceItem ? resourceItem.symbol : '', // ✅ Converts layoutKey → symbol
+              type: tileResource ? tileResource.layoutkey : '**',
+              resource: resourceItem ? resourceItem.symbol : '',
             };
           })
         )
       );
-  
+
       setTileDistribution(loadedGrid.tileDistribution || { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0 });
       setResourceDistribution(loadedGrid.resourceDistribution || {});
-  
-      console.log("✅ Grid successfully loaded and updated.");
-  
+
+      console.log("✅ Grid successfully loaded from:", layoutPath);
     } catch (error) {
       console.error('❌ Failed to load layout:', error);
       alert('Error: Unable to load layout. Check the console for details.');
@@ -300,121 +307,122 @@ const handleResourceDistributionChange = (resourceType, value) => {
   };
 
   const saveLayout = async (fileName, directory) => {
-    console.log(`📝 Attempting to save layout: ${fileName} in directory: ${directory}`);
-  
-    // ✅ Generate Tiles Array
-    const formattedTiles = grid.map(row => 
+    try {
+      const layoutPath = path.join(projectRoot, 'game-server', 'layouts', 'gridLayouts', directory, `${fileName}.json`);
+
+      const formattedTiles = grid.map(row => 
         row.map(cell => {
-            const tileResource = masterResources.find(res => res.layoutkey === cell.type && res.category === "tile");
-            return tileResource ? tileResource.layoutkey : '**'; // Default to "**" if no match
+          const tileResource = masterResources.find(res => res.layoutkey === cell.type && res.category === "tile");
+          return tileResource ? tileResource.layoutkey : '**';
         })
-    );
+      );
 
-    // ✅ Generate Resources Array
-    const formattedResources = grid.map(row => 
+      const formattedResources = grid.map(row => 
         row.map(cell => {
-            if (!cell.resource) return '**'; // Default for empty tiles
-
-            const resourceItem = masterResources.find(res => res.symbol === cell.resource);
-            console.log(`🔍 Mapping resource for (${cell.resource}):`, resourceItem?.layoutkey || "**"); 
-
-            return resourceItem ? resourceItem.layoutkey : '**';
+          if (!cell.resource) return '**';
+          const resourceItem = masterResources.find(res => res.symbol === cell.resource);
+          return resourceItem ? resourceItem.layoutkey : '**';
         })
-    );
+      );
 
-    // ✅ Filter out zero values from Resource Distribution
-    const filteredResourceDistribution = Object.fromEntries(
+      const filteredResourceDistribution = Object.fromEntries(
         Object.entries(resourceDistribution).filter(([_, value]) => value > 0)
-    );
+      );
 
-    // ✅ Construct JSON Payload
-    const formattedGrid = {
+      const formattedGrid = {
         tiles: formattedTiles,
         resources: formattedResources,
         tileDistribution: tileDistribution,
-        resourceDistribution: filteredResourceDistribution // ✅ Saves only non-zero values
-    };
+        resourceDistribution: filteredResourceDistribution
+      };
 
-    // ✅ Debug Logging
-    console.log("📂 Final tiles array before saving:", JSON.stringify(formattedGrid.tiles, null, 2));
-    console.log("📂 Final resources array before saving:", JSON.stringify(formattedGrid.resources, null, 2));
-    console.log("📊 Tile Distribution before saving:", JSON.stringify(formattedGrid.tileDistribution, null, 2));
-    console.log("📊 Resource Distribution before saving:", JSON.stringify(formattedGrid.resourceDistribution, null, 2));
-
-    try {
-        await axios.post('${API_BASE}/api/save-layout', {
-            fileName,
-            directory,
-            grid: JSON.stringify(formattedGrid), // ✅ Ensures correct formatting
-        });
-
-        console.log(`✅ Successfully saved layout to /game-server/layouts/${directory}/${fileName}.json`);
-        alert(`Layout saved to /game-server/layouts/${directory}/${fileName}.json`);
+      fs.writeFileSync(layoutPath, JSON.stringify(formattedGrid, null, 2), 'utf-8');
+      console.log(`✅ Successfully saved layout to ${layoutPath}`);
+      alert(`Layout saved to ${layoutPath}`);
     } catch (error) {
-        console.error('❌ Failed to save layout:', error);
-        alert('Error: Unable to save layout. Check the console for details.');
+      console.error('❌ Failed to save layout:', error);
+      alert('Error: Unable to save layout. Check the console for details.');
     }
-};
+  };
 
  // 🔹 Generate Tiles Function (Client)
  const handleGenerateTiles = () => {
-  console.log("🔄 Generating new tile types for all empty spaces...");
+   let choice = null;
+   if (window.confirm("Generate tile types across the entire board? Click Cancel to limit to blank tiles.")) {
+     choice = 'all';
+   } else if (window.confirm("Generate tile types only for blank tiles?")) {
+     choice = 'blanks';
+   }
+   if (!choice) return;
+   console.log("🔄 Generating new tile types...");
 
-  if (!grid || !tileDistribution || !masterResources) {
-    console.warn("⚠️ Missing grid or tile distribution data. Cannot generate tiles.");
-    return;
-  }
+   if (!grid || !tileDistribution || !masterResources) {
+     console.warn("⚠️ Missing grid or tile distribution data. Cannot generate tiles.");
+     return;
+   }
 
-  // ✅ Create a weighted pool of tile types based on `tileDistribution`
-  let tilePool = Object.entries(tileDistribution).flatMap(([tileType, count]) => {
-    const tileResource = masterResources.find(res => res.type === tileType && res.category === "tile");
-    return tileResource ? Array(count).fill(tileResource.layoutkey) : [];
-  });
+   let tilePool = Object.entries(tileDistribution).flatMap(([tileType, count]) => {
+     const tileResource = masterResources.find(res => res.type === tileType && res.category === "tile");
+     return tileResource ? Array(count).fill(tileResource.layoutkey) : [];
+   });
 
-  if (tilePool.length === 0) {
-    console.warn("⚠️ No valid tile distribution found.");
-    return;
-  }
+   if (tilePool.length === 0) {
+     console.warn("⚠️ No valid tile distribution found.");
+     return;
+   }
 
-  tilePool = tilePool.sort(() => Math.random() - 0.5); // ✅ Shuffle tile options
+   tilePool = tilePool.sort(() => Math.random() - 0.5); // Shuffle tile options
 
-  let newGrid = grid.map(row => row.map(cell => ({ ...cell }))); // ✅ Deep copy of grid
+   let newGrid = grid.map(row => row.map(cell => ({ ...cell })));
 
-  let emptyTiles = [];
-  newGrid.forEach((row, x) => {
-    row.forEach((cell, y) => {
-      if (!cell.type || cell.type === "**") { // ✅ Fill ALL empty tiles
-        emptyTiles.push({ x, y });
-      }
-    });
-  });
+   if (choice.toLowerCase() === 'all') {
+     newGrid = newGrid.map(row => row.map(cell => ({ ...cell, type: "" })));
+   }
 
-  console.log(`📊 Found ${emptyTiles.length} empty tiles to fill.`);
+   let targets = [];
+   newGrid.forEach((row, x) => {
+     row.forEach((cell, y) => {
+       if (!cell.type || cell.type === "**") {
+         targets.push({ x, y });
+       }
+     });
+   });
 
-  emptyTiles.forEach(({ x, y }) => {
-    const randomTile = tilePool[Math.floor(Math.random() * tilePool.length)];
-    newGrid[x][y] = { ...newGrid[x][y], type: randomTile };
-    console.log(`🟩 Placing tile "${randomTile}" at (${x}, ${y})`);
-  });
+   targets.forEach(({ x, y }) => {
+     const randomTile = tilePool[Math.floor(Math.random() * tilePool.length)];
+     newGrid[x][y].type = randomTile;
+   });
 
-  setGrid(newGrid);
-  console.log("✅ Tiles successfully generated!");
-};
+   setGrid(newGrid);
+   console.log("✅ Tiles successfully generated!");
+ };
 
 
-// 🔹 Generate Resources Function (Client)
-const handleGenerateResources = () => {
-  console.log("🔄 Generating new resources only on empty spaces...");
+ // 🔹 Generate Resources Function (Client)
+ const handleGenerateResources = () => {
+   let choice = null;
+   if (window.confirm("Regenerate all resources (clear and repopulate)?")) {
+     choice = 'regenerate';
+   } else if (window.confirm("Add additional resources (keep existing)?")) {
+     choice = 'additional';
+   }
+   if (!choice) return;
+   console.log("🔄 Generating new resources...");
 
   if (!grid || !availableResources || !masterResources) {
     console.warn("⚠️ Missing grid or resource data. Cannot generate resources.");
     return;
   }
 
-  // ✅ Create a shuffled resource pool based on resourceDistribution
-  let resourcePool = Object.entries(resourceDistribution).flatMap(([resourceType, count]) => {
-    const resource = masterResources.find(res => res.type === resourceType);
-    return resource ? Array(count).fill(resource) : [];
+  let newGrid = grid.map(row => row.map(cell => ({ ...cell })));
+
+  if (choice.toLowerCase() === "regenerate") {
+    newGrid = newGrid.map(row => row.map(cell => ({ ...cell, resource: "" })));
+  }
+
+  let resourcePool = Object.entries(resourceDistribution).flatMap(([type, count]) => {
+    const res = masterResources.find(r => r.type === type);
+    return res ? Array(count).fill(res) : [];
   });
 
   if (resourcePool.length === 0) {
@@ -422,47 +430,39 @@ const handleGenerateResources = () => {
     return;
   }
 
-  resourcePool = resourcePool.sort(() => Math.random() - 0.5); // ✅ Shuffle resources
-
-  let newGrid = grid.map(row => row.map(cell => ({ ...cell }))); // ✅ Deep copy of grid
+  resourcePool = resourcePool.sort(() => Math.random() - 0.5); // Shuffle
 
   let validCells = [];
-  newGrid.forEach((row, x) => {
+  newGrid.forEach((row, x) =>
     row.forEach((cell, y) => {
-      if (!cell.resource) { // ✅ Only place resources on empty spaces
-        // ✅ Convert layoutKey to tile type (g, s, d, etc.)
-        const tileResource = masterResources.find(res => res.layoutkey === cell.type && res.category === "tile");
-        const tileType = tileResource ? tileResource.type : null;
-        
-        if (tileType) {
-          validCells.push({ x, y, tileType });
-        }
+      if (!cell.resource) {
+        const tileRes = masterResources.find(r => r.layoutkey === cell.type && r.category === "tile");
+        if (tileRes) validCells.push({ x, y, tileType: tileRes.type });
       }
-    });
-  });
+    })
+  );
 
-  console.log(`📊 Found ${validCells.length} valid tiles for resource placement.`);
+  validCells = validCells.sort(() => Math.random() - 0.5); // Shuffle again
 
-  validCells = validCells.sort(() => Math.random() - 0.5); // ✅ Shuffle available tiles
-
-  resourcePool.forEach((resource, index) => {
-    if (validCells[index]) {
-      const { x, y, tileType } = validCells[index];
-
-      // ✅ Check if resource is valid on this tile type (now using correct `tileType`)
-      const isValid = resource[`validon${tileType}`]; 
-      if (!isValid) {
-        console.warn(`🚫 "${resource.type}" cannot be placed on "${tileType}" at (${x}, ${y}). Skipping.`);
-        return;
-      }
-
-      newGrid[x][y] = { ...newGrid[x][y], resource: resource.symbol };
-      console.log(`🌱 Placing "${resource.symbol}" at (${x}, ${y})`);
+  resourcePool.forEach((res, i) => {
+    const cell = validCells[i];
+    if (cell && res[`validon${cell.tileType}`]) {
+      newGrid[cell.x][cell.y].resource = res.symbol;
     }
   });
 
   setGrid(newGrid);
   console.log("✅ Resources successfully generated!");
+};
+
+// 🔹 Clear Grid Function
+const handleClearGrid = () => {
+  const clearedGrid = grid.map(row =>
+    row.map(() => ({ type: "", resource: "", npc: "" }))
+  );
+  setGrid(clearedGrid);
+  setSelectedTile(null);
+  console.log("🧹 Cleared all tiles and resources.");
 };
 
 
@@ -475,6 +475,9 @@ const handleGenerateResources = () => {
       <div className="editor-panel">
         <h2>Grid Editor</h2>
         <FileManager loadLayout={loadLayout} saveLayout={saveLayout} currentFile={''} />
+        <div className="button-group">
+          <button className="small-button" onClick={handleClearGrid}>Clear</button>
+        </div>
 
         <h4>Tile Size:</h4>
         <input 

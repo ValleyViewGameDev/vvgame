@@ -273,7 +273,7 @@ router.post('/create-frontier', async (req, res) => {
         rowEntries.push({
           settlementId: newSettlement._id,
           settlementType: settlementTileType,
-          available: (settlementTileType === 'homesteadSet'), // if you have logic for "homesteadSet"
+          available: settlementTileType.startsWith('homesteadSet'),
         });
       }
 
