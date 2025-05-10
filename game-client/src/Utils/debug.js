@@ -127,9 +127,26 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
         return;
       }
   
-      const gridType = gridData.gridType; // Extract gridType dynamically
-      const gridCoord = gridData.gridCoord; // Extract gridType dynamically
-      console.log('Grid type resolved:', gridType);
+      const gridType = gridData.gridType;
+
+      let gridCoord = null;
+      for (const row of settlement.grids) {
+        for (const cell of row) {
+          if (cell.gridId && String(cell.gridId) === String(currentGridId)) {
+            gridCoord = cell.gridCoord;
+            break;
+          }
+        }
+        if (gridCoord !== null) break;
+      }
+
+      if (gridCoord === null) {
+        console.error('Could not resolve gridCoord from settlement.');
+        alert('Could not resolve gridCoord from settlement.');
+        return;
+      }
+
+      console.log('Extracted gridData: gridType=', gridType, '; gridCoord=', gridCoord);
   
       // Send request to reset the grid
       const resetResponse = await axios.post(`${API_BASE}/api/reset-grid`, {
@@ -142,7 +159,7 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
   
       console.log(`Grid ${currentGridId} of type ${gridType} reset successfully:`, resetResponse.data);
       updateStatus(903);
-      window.location.reload();
+      //window.location.reload();
     } catch (error) {
       console.error(`Error resetting grid "${currentGridId}":`, error);
       alert(`Failed to reset grid "${currentGridId}". Check the console for details.`);

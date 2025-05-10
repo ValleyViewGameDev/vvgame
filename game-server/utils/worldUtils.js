@@ -116,11 +116,19 @@ function generateResources(layout, tiles) {
     });
   });
 
+  // --- Count already-placed statics by type ---
+  const alreadyPlacedCounts = {};
+  resources.forEach(r => {
+    if (!alreadyPlacedCounts[r.type]) alreadyPlacedCounts[r.type] = 0;
+    alreadyPlacedCounts[r.type]++;
+  });
+
   // ✅ Step 2: Randomly Place Distributed Resources
   shuffleArray(availableCells); // Randomize available placement locations
 
   Object.entries(resourceDistribution).forEach(([resourceType, quantity]) => {
-    let remaining = quantity;
+    const alreadyPlaced = alreadyPlacedCounts[resourceType] || 0;
+    let remaining = Math.max(quantity - alreadyPlaced, 0);
     let retries = 0;
     const maxRetries = 10;
 

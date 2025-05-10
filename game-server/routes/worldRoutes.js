@@ -145,7 +145,7 @@ router.post('/create-grid', async (req, res) => {
 // reset-grid
 router.post('/reset-grid', async (req, res) => {
   const { gridCoord, gridId, gridType } = req.body;
-
+  console.log('Reached reset-grid;  gridCoord =', gridCoord, ', gridId =', gridId, ', gridType =', gridType);
   if (!gridId || !gridType) {
     console.error('Missing required fields in request body:', req.body);
     return res.status(400).json({ error: 'gridId and gridType are required.' });
@@ -177,6 +177,7 @@ router.post('/reset-grid', async (req, res) => {
       console.log(`🌱 Using seasonal homestead layout for reset: ${layoutFile}`);
     } else {
       // First, check for a fixed layout in valleyFixedCoord
+      console.log(`Checking for fixed layout at: ${gridCoord}`);
       const fixedCoordPath = path.join(__dirname, `../layouts/gridLayouts/valleyFixedCoord/${gridCoord}.json`);
       if (fs.existsSync(fixedCoordPath)) {
         layout = readJSON(fixedCoordPath);
