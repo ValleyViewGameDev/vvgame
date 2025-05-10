@@ -95,7 +95,7 @@ const FrontierView = ({
       }
 
       // Case 2: Clicking on a tile where the player owns a homestead
-      if (tile.settlementType === "homesteadSet") {
+      if (tile.settlementType.startsWith('homesteadSet')) {
         try {
           // Fetch the settlement grid
           const response = await axios.get(`${API_BASE}/api/get-settlement-grid/${tile.settlementId}`);

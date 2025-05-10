@@ -60,11 +60,18 @@ router.post('/create-grid', async (req, res) => {
       layoutFileName = seasonalLayoutFile;
       console.log(`🌱 Using seasonal homestead layout: ${seasonalLayoutFile}`);
     } else {
-      // Use standard grid loading logic
-      const templateData = getTemplate('gridLayouts', gridType, gridCoord);
-      layout = templateData.template;
-      layoutFileName = templateData.fileName;
-      console.log(`📦 Using standard grid layout: ${layoutFileName}`);
+      // First, check for a fixed layout in valleyFixedCoord
+      const fixedCoordPath = path.join(__dirname, `../layouts/gridLayouts/valleyFixedCoord/${gridCoord}.json`);
+      if (fs.existsSync(fixedCoordPath)) {
+        layout = readJSON(fixedCoordPath);
+        layoutFileName = `${gridCoord}.json`;
+        console.log(`📌 Using fixed-coordinate layout: ${layoutFileName}`);
+      } else {
+        const templateData = getTemplate('gridLayouts', gridType, gridCoord);
+        layout = templateData.template;
+        layoutFileName = templateData.fileName;
+        console.log(`📦 Using standard grid layout: ${layoutFileName}`);
+      }
     }
     if (!layout || !layout.tiles || !layout.resources || !layout.tileDistribution || !layout.resourceDistribution) {
       return res.status(400).json({ error: `Invalid layout for gridType: ${gridType}` });
@@ -169,9 +176,18 @@ router.post('/reset-grid', async (req, res) => {
       layoutFileName = layoutFile;
       console.log(`🌱 Using seasonal homestead layout for reset: ${layoutFile}`);
     } else {
-      const layoutInfo = getTemplate('gridLayouts', gridType, gridCoord);
-      layout = layoutInfo.template;
-      layoutFileName = layoutInfo.fileName;
+      // First, check for a fixed layout in valleyFixedCoord
+      const fixedCoordPath = path.join(__dirname, `../layouts/gridLayouts/valleyFixedCoord/${gridCoord}.json`);
+      if (fs.existsSync(fixedCoordPath)) {
+        layout = readJSON(fixedCoordPath);
+        layoutFileName = `${gridCoord}.json`;
+        console.log(`📌 Using fixed-coordinate layout: ${layoutFileName}`);
+      } else {
+        const layoutInfo = getTemplate('gridLayouts', gridType, gridCoord);
+        layout = layoutInfo.template;
+        layoutFileName = layoutInfo.fileName;
+        console.log(`📦 Using standard grid layout: ${layoutFileName}`);
+      }
     }
 
     // Step 3: Validate layout content

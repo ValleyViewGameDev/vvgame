@@ -573,7 +573,7 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
       alert(`Failed to process valley${valleyType} grids. Check the console for details.`);
     }
   };
-
+ 
   
   const handleAttributeChange = (npcId, attribute, newValue) => {
     setNPCs((prevNPCs) => {

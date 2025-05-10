@@ -62,6 +62,7 @@ const FileManager = ({ loadLayout, saveLayout, currentFile }) => {
         <option value="valley1">valley1/</option>
         <option value="valley2">valley2/</option>
         <option value="valley3">valley3/</option>
+        <option value="valleyFixedCoord">valleyFixedCoord/</option>
       </select>
 
       <div className="button-group">
