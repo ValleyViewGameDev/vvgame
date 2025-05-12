@@ -188,6 +188,9 @@ class GridStateManager {
     this.addNPC(gridId, npc);
 
     console.log(`Successfully added NPC to gridState. NPC ID: ${npcId}`);
+
+    const updatedGridState = this.getGridState(gridId);
+    this.setAllNPCs(gridId, updatedGridState.npcs);
   }
 
   /**
@@ -274,6 +277,9 @@ class GridStateManager {
       });
       console.log(`🐮📡 Emitted NPC update for ${npcId}`);
     }
+
+    const updatedGridState = this.getGridState(gridId);
+    this.setAllNPCs(gridId, updatedGridState.npcs);
   }
 
   /**

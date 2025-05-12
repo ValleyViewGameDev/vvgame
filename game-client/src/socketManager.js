@@ -163,6 +163,17 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
       const liveGrid = isController ? gridStateManager.gridStates?.[gridId] : null;
   
       Object.entries(npcs).forEach(([npcId, incomingNPC]) => {
+ 
+        if (!incomingNPC) {
+          console.log(`  🧹 Received null NPC ${npcId}; removing from local state.`);
+          delete updatedNPCs[npcId];
+          if (isController && liveGrid?.npcs) {
+            delete liveGrid.npcs[npcId];
+            console.log(`🧠 Controller removed NPC ${npcId} from live gridState`);
+          }
+          return;
+        }
+        
         const localNPC = updatedNPCs[npcId];
         const incomingTime = new Date(incomingNPC.lastUpdated).getTime();
         const localTime = localNPC?.lastUpdated ? new Date(localNPC.lastUpdated).getTime() : 0;
