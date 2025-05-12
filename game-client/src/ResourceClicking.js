@@ -31,8 +31,6 @@ import { createCollectEffect, createSourceConversionEffect, calculateTileCenter 
   setGridId,
   setGrid,
   setTileTypes,
-  setGridState,
-  setGridStatePCs,
   updateStatus,
   masterResources,
   masterSkills,
@@ -95,7 +93,6 @@ import { createCollectEffect, createSourceConversionEffect, calculateTileCenter 
           row,
           col,
           resources,
-          setResources,
           setInventory,
           gridId,
           addFloatingText,
@@ -121,10 +118,8 @@ import { createCollectEffect, createSourceConversionEffect, calculateTileCenter 
             fetchGrid,
             setGridId, 
             setGrid,
-            setResources, 
             setTileTypes, 
-            setGridState,
-            setGridStatePCs,
+            setResources,
             updateStatus,
             TILE_SIZE,
             skills
@@ -252,16 +247,14 @@ async function handleDooberClick(
       return;
     }
   }
-  // Add VFX right before removing the doober
-  createCollectEffect(col, row, TILE_SIZE);
 
   // Use exact same position calculation as VFX.js
   FloatingTextManager.addFloatingText(`+${qtyCollected} ${resource.type}`, col, row, TILE_SIZE );
 
-  // Optimistically remove the doober locally
-  setResources((prevResources) =>
-    prevResources.filter((res) => !(res.x === col && res.y === row))
-  );
+  // // Optimistically remove the doober locally
+  // setResources((prevResources) =>
+  //   prevResources.filter((res) => !(res.x === col && res.y === row))
+  // );
   // Optimistically update target inventory locally
   const updatedInventory = [...targetInventory];
   const index = updatedInventory.findIndex((item) => item.type === resource.type);
@@ -275,12 +268,14 @@ async function handleDooberClick(
   setTargetInventory(updatedInventory);
   console.log('TargetInventory set to updatedInventory.');
 
+  // Add VFX right before removing the doober
+  createCollectEffect(col, row, TILE_SIZE);
+
   // Perform server validation
   try {
     const gridUpdateResponse = await updateGridResource(
       gridId,
       { type: null, x: col, y: row }, // Collecting doober removes it
-      setResources,
       true
     );
  
@@ -334,7 +329,6 @@ export async function handleSourceConversion(
   row,
   col,
   resources,
-  setResources,
   setInventory,
   gridId,
   addFloatingText,
@@ -373,11 +367,7 @@ export async function handleSourceConversion(
   //        if NO, return;
   // }
 
-  // VFX
-  createSourceConversionEffect(col, row, TILE_SIZE, requiredSkill);
 
-  // Success Text
-  FloatingTextManager.addFloatingText(`Converted to ${targetResource.type}`, col, row, TILE_SIZE);
 
   // Build the new resource object to replace the one we just clicked
   const x = col;
@@ -393,23 +383,18 @@ export async function handleSourceConversion(
   };
   console.log('Enriched newResource for local state: ', enrichedNewResource);
 
-  // Optimistically update local client state
-    setResources((prevResources) =>
-      prevResources.map((res) =>
-        res.x === x && res.y === y ? enrichedNewResource : res
-      )
-    );
-
   // Perform server update
     try {
     const gridUpdateResponse = await updateGridResource(
       gridId, 
       { type: targetResource.type, x: col, y: row }, 
-      setResources, 
       true
     );
-
     if (gridUpdateResponse?.success) {
+      // VFX
+      createSourceConversionEffect(col, row, TILE_SIZE, requiredSkill);
+      // Success Text
+      FloatingTextManager.addFloatingText(`Converted to ${targetResource.type}`, col, row, TILE_SIZE);
       console.log('✅ Source conversion completed successfully on the server.');
     } else {
       throw new Error('Server failed to confirm the source conversion.');

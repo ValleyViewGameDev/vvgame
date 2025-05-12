@@ -12,7 +12,6 @@ const BuyPanel = ({
   TILE_SIZE,
   playerPosition,
   resources,
-  setResources,
   tiles,
   currentPlayer,
   setCurrentPlayer,
@@ -77,24 +76,18 @@ const BuyPanel = ({
                   affordable &&
                   requirementsMet &&
                   handleConstruction({
+                    TILE_SIZE,
                     selectedItem: item.type,
                     buildOptions: buyOptions,
                     inventory,
                     setInventory,
                     playerPosition,
-                    tiles,
                     resources,
-                    setResources,
                     setErrorMessage: console.error,
                     currentPlayer,
-                    gridId,
-                    TILE_SIZE,
-                    updateStatus,
                     setCurrentPlayer,
-                    source: 'buy',
+                    gridId,
                     setIsMoving,
-                    masterResources,
-                    masterSkills,
                   })
                 }
               />

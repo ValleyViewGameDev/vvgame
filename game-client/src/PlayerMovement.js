@@ -29,12 +29,7 @@ function isValidMove(targetX, targetY, masterResources) {  // Function to check 
   return canMove;
 }
 
-/**
- * Handles key inputs for player movement and triggers smooth movement.
- */
-export function handleKeyMovement(event, currentPlayer, setGridStatePCs, TILE_SIZE, masterResources) {
-  if (isAnimating) { console.warn('Movement in progress, input ignored.'); return; }
-
+export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResources) {
   const directions = {
     ArrowUp: { dx: 0, dy: -1 },
     w: { dx: 0, dy: -1 },
@@ -53,11 +48,11 @@ export function handleKeyMovement(event, currentPlayer, setGridStatePCs, TILE_SI
   const movement = directions[event.key];
   if (!movement) return;
 
-  if (currentPlayer.iscamping) { 
+  if (currentPlayer.iscamping) {
     FloatingTextManager.addFloatingText(32, currentPlayer.location.x, currentPlayer.location.y, TILE_SIZE);
     return;
   }
-  // Convert currentPlayer._id to string to match gridStatePCs keys
+
   const playerId = currentPlayer._id.toString();
   const gridId = currentPlayer.location.g;
   const gridStatePCs = gridStatePCManager.getGridStatePCs(gridId);
@@ -65,23 +60,92 @@ export function handleKeyMovement(event, currentPlayer, setGridStatePCs, TILE_SI
     console.error('Player not found in gridStatePCs.');
     return;
   }
-  const playerPosition = gridStatePCs[playerId].position;
-  console.log('playerPosition from gridStatePCs = ', playerPosition);
-  const targetX = Math.round(playerPosition.x + movement.dx);  // Ensure integer target
-  const targetY = Math.round(playerPosition.y + movement.dy);  // Ensure integer target
 
-  // ✅ **Check if movement is allowed using `isValidMove`**
+  const currentPosition = gridStatePCs[playerId].position;
+  const targetX = Math.round(currentPosition.x + movement.dx);
+  const targetY = Math.round(currentPosition.y + movement.dy);
+
+  if (!Array.isArray(masterResources)) {
+    console.error('masterResources is not an array:', masterResources);
+    return;
+  }
+
   if (!isValidMove(targetX, targetY, masterResources)) {
     console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
     return;
   }
-  movePlayerSmoothly(playerId, { x: targetX, y: targetY }, gridStatePCs, setGridStatePCs, gridId, TILE_SIZE);
+
+  const finalPosition = { x: targetX, y: targetY };
+  console.log('➡️ Simple move to:', finalPosition);
+
+  gridStatePCManager.updatePC(gridId, playerId, { position: finalPosition });
+
+  centerCameraOnPlayer(finalPosition, TILE_SIZE);
 }
+
+
+
+
+/**
+ * THIS IS THE OLD VERSION.
+ */
+// export function handleKeyMovement(event, currentPlayer, setGridStatePCs, TILE_SIZE, masterResources) {
+//   if (isAnimating) { console.warn('Movement in progress, input ignored.'); return; }
+//   const directions = {
+//     ArrowUp: { dx: 0, dy: -1 },
+//     w: { dx: 0, dy: -1 },
+//     W: { dx: 0, dy: -1 },
+//     ArrowDown: { dx: 0, dy: 1 },
+//     s: { dx: 0, dy: 1 },
+//     S: { dx: 0, dy: 1 },
+//     ArrowLeft: { dx: -1, dy: 0 },
+//     a: { dx: -1, dy: 0 },
+//     A: { dx: -1, dy: 0 },
+//     ArrowRight: { dx: 1, dy: 0 },
+//     d: { dx: 1, dy: 0 },
+//     D: { dx: 1, dy: 0 },
+//   };
+
+//   const movement = directions[event.key];
+//   if (!movement) return;
+
+//   if (currentPlayer.iscamping) { 
+//     FloatingTextManager.addFloatingText(32, currentPlayer.location.x, currentPlayer.location.y, TILE_SIZE);
+//     return;
+//   }
+//   // Convert currentPlayer._id to string to match gridStatePCs keys
+//   const playerId = currentPlayer._id.toString();
+//   const gridId = currentPlayer.location.g;
+//   const gridStatePCs = gridStatePCManager.getGridStatePCs(gridId);
+//   if (!gridStatePCs || !gridStatePCs[playerId]) {
+//     console.error('Player not found in gridStatePCs.');
+//     return;
+//   }
+//   const playerPosition = gridStatePCs[playerId].position;
+//   console.log('playerPosition from gridStatePCs = ', playerPosition);
+//   const targetX = Math.round(playerPosition.x + movement.dx);  // Ensure integer target
+//   const targetY = Math.round(playerPosition.y + movement.dy);  // Ensure integer target
+
+//   // ✅ **Check if movement is allowed using `isValidMove`**
+//   if (!Array.isArray(masterResources)) {
+//     console.error('masterResources is not an array:', masterResources);
+//     return;
+//   }
+//   if (!isValidMove(targetX, targetY, masterResources)) {
+//     console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
+//     return;
+//   }
+//   movePlayerSmoothly(playerId, { x: targetX, y: targetY }, gridStatePCs, setGridStatePCs, gridId, TILE_SIZE);
+// }
+
+
+
+
 
 /**
  * Smoothly moves the player to a new position and updates the grid state.
  */
-function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gridId, TILE_SIZE) {
+function movePlayerSmoothly(playerId, target, gridStatePCs, gridId, TILE_SIZE) {
   if (isAnimating) return;
 
   console.log("movePlayerSmoothly:  target: ", target, "; playerId: ", playerId);
@@ -104,9 +168,6 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
   let step = 0;
 
   function animate() {
-    // Logging before interpolation
-    console.log(`🌀 Animating step ${step}/${stepCount}`);
-    console.log('renderPositions before update:', renderPositions);
     if (step >= stepCount) {
       isAnimating = false;
       currentAnimationFrame = null;
@@ -114,28 +175,11 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
       const finalPosition = { x: Math.round(target.x), y: Math.round(target.y) };
       console.log('Final player position (rounded):', finalPosition);
 
+      delete renderPositions[playerId]; // Clear temp render state
+
       gridStatePCManager.updatePC(gridId, playerId, { position: finalPosition });
-      setGridStatePCs(prev => ({
-        ...prev,
-        [gridId]: {
-          ...prev[gridId],
-          [playerId]: {
-            ...prev[gridId]?.[playerId],
-            position: finalPosition,
-            lastUpdated: Date.now(),
-          },
-        },
-      }));
 
       centerCameraOnPlayer(finalPosition, TILE_SIZE);
-
-      // Delay clearing renderPositions until after final frame renders, with an extra frame delay
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          delete renderPositions[playerId];
-        });
-      });
-
       return;
     }
 
@@ -145,12 +189,8 @@ function movePlayerSmoothly(playerId, target, gridStatePCs, setGridStatePCs, gri
       x: interpolatedX / TILE_SIZE,
       y: interpolatedY / TILE_SIZE,
     };
-    // Logging after update
-    console.log('renderPositions after update:', renderPositions[playerId]);
 
     step++;
-    // Logging before queuing next frame
-    console.log(`🔁 Queuing next animation frame: step ${step}`);
     currentAnimationFrame = requestAnimationFrame(animate);
   }
 

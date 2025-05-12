@@ -6,18 +6,28 @@ import gridStatePCManager from '../GridState/GridStatePCs';
 import socket from '../socketManager'; // ⚠️ At top of file if not already present
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { mergeResources, mergeTiles } from './ResourceHelpers';
-import { enrichResourceFromMaster } from './ResourceHelpers';
 
 export const updateGridResource = async (
   gridId,
   resource,
-  setResources = null,
   broadcast = true
 ) => {
   console.log('UPDATE GRID RESOURCE; resource = ', resource);
+
   try {
     const { x, y, growEnd, craftEnd, craftedItem, type } = resource;
-    // ✅ Flat payload — no "newResource" key
+    
+    // ✅ 1. Optimistically update GlobalGridStateTilesAndResources
+    const prevResources = GlobalGridStateTilesAndResources.getResources();
+    let updatedResources;
+    if (resource?.type === null) {
+      updatedResources = prevResources.filter((r) => !(r.x === x && r.y === y));
+    } else {
+      updatedResources = mergeResources(prevResources, [resource]);
+    }
+    GlobalGridStateTilesAndResources.setResources(updatedResources);
+
+    // ✅ 2. Flat payload — no "newResource" key
     const payload = {
       resource: {
         type,
@@ -31,22 +41,9 @@ export const updateGridResource = async (
     };
     console.log('UPDATE GRID RESOURCE; payload = ', payload);
 
-    // ✅ 1. Update the database
+    // ✅ 3. Update the database
     const response = await axios.patch(`${API_BASE}/api/update-grid/${gridId}`, payload);
     if (!response.data.success) throw new Error('Failed DB update');
-
-    // ✅ 2. Update GlobalGridStateTilesAndResources
-    const prevResources = GlobalGridStateTilesAndResources.getResources();
-    const updatedResource = resource
-      ? {
-          type: typeof resource === 'string' ? resource : resource.type,
-          x,
-          y,
-          ...(resource.growEnd && { growEnd: resource.growEnd }),
-          ...(resource.craftEnd && { craftEnd: resource.craftEnd }),
-          ...(resource.craftedItem && { craftedItem: resource.craftedItem }),
-        }
-      : null;
 
     // ✅ 4. Emit to other clients
     if (broadcast && socket && socket.emit) {
@@ -56,7 +53,7 @@ export const updateGridResource = async (
 
       socket.emit('update-resource', {
         gridId,
-        updatedResources: [updatedResource?.type === null ? { x, y, type: null } : updatedResource],
+        updatedResources: [resource?.type === null ? { x, y, type: null } : resource],
       });
     }
 
@@ -66,6 +63,7 @@ export const updateGridResource = async (
     return { success: false };
   }
 };
+
 
 export const convertTileType = async (gridId, x, y, newType, setTileTypes = null) => {
   try {
@@ -112,11 +110,10 @@ export const changePlayerLocation = async (
   fetchGrid,
   setGridId,
   setGrid,
-  setResources,
   setTileTypes,
-  setGridState,
-  setGridStatePCs,
+  setResources,
   TILE_SIZE,
+  updateStatus,
 ) => {
   // DEBUG: Log input parameters for changePlayerLocation
   console.log('changePlayerLocation called with:', {
@@ -250,22 +247,17 @@ export const changePlayerLocation = async (
     // Run these in parallel
     console.log('!! Running initializeGrid, initializeGridState, and setGridState');
     await Promise.all([
-      initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes),
+      initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus),
       (async () => {
         try {
           await gridStateManager.initializeGridState(toLocation.g);
           await gridStatePCManager.initializeGridStatePCs(toLocation.g);  
              
           const freshGridState = gridStateManager.getGridState(toLocation.g);
-          setGridState(freshGridState);
-          console.log('✅ GridState initialized with:', freshGridState);
-      
+          gridStateManager.setAllNPCs(toLocation.g, freshGridState.npcs);
+
           const freshPCState = gridStatePCManager.getGridStatePCs(toLocation.g);
-          console.log('freshPCState: ', freshPCState);
-          setGridStatePCs((prev) => ({
-            ...prev,
-            [toLocation.g]: freshPCState,
-          }));
+          gridStatePCManager.setAllPCs(toLocation.g, freshPCState);        
 
         } catch (err) {
           console.error('❌ Error initializing gridStatePCs:', err);

@@ -7,6 +7,14 @@ export const getGridBackgroundColor = (type) => {
     // Settlement grid types
     case "homestead":
     case "homesteadSet":
+      case "homesteadSetN":
+        case "homesteadSetNE":
+          case "homesteadSetE":
+            case "homesteadSetSE":
+              case "homesteadSetS":
+                case "homesteadSetSW":
+                  case "homesteadSetW":
+                    case "homesteadSetNW":
       return 'var(--homestead-color)';
     
     // Valley types (both views)

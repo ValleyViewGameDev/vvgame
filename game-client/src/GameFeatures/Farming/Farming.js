@@ -8,17 +8,13 @@ import FloatingTextManager from '../../UI/FloatingText';
 import farmState from '../../FarmState';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { getCurrentTileCoordinates } from '../../Utils/ResourceHelpers';
+import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 
 export const handleFarmPlotPlacement = async ({
   selectedItem,
   TILE_SIZE,
   resources,
-  setResources,
-  tiles,
-  tileTypes,
-  setTileTypes,
   currentPlayer,
-  setCurrentPlayer,
   inventory,
   setInventory,
   gridId,
@@ -76,7 +72,8 @@ export const handleFarmPlotPlacement = async ({
     };
 
     // Optimistically update local client state
-    setResources((prevResources) => [...prevResources, enrichedNewResource]);
+    const existing = GlobalGridStateTilesAndResources.getResources() || [];
+    GlobalGridStateTilesAndResources.setResources([...existing, enrichedNewResource]);
 
     // Update server and all clients
     const gridUpdateResponse = await updateGridResource(
@@ -87,7 +84,6 @@ export const handleFarmPlotPlacement = async ({
         y: tileY,
         growEnd: growEndTime,
       },
-      setResources,
       true
     );
 

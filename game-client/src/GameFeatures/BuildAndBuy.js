@@ -15,16 +15,11 @@ export const handleConstruction = async ({
   buildOptions,
   inventory,
   setInventory,
-  tiles,
   resources,
-  setResources,
   setErrorMessage,
   currentPlayer,
-  gridId,
   setCurrentPlayer,
-  updateStatus,
-  masterResources, 
-  masterSkills,
+  gridId,
 }) => {
   if (!currentPlayer) {
     console.warn('Current Player not provided; inventory changes will not be saved.');
@@ -109,7 +104,6 @@ export const handleConstruction = async ({
       const gridUpdateResponse = await updateGridResource(
         gridId, 
         { type: selectedItem, x: x, y: y}, 
-        setResources,
         true
       );
       FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
@@ -118,14 +112,6 @@ export const handleConstruction = async ({
       await trackQuestProgress(currentPlayer, 'Build', selectedItem, 1, setCurrentPlayer);
       await trackQuestProgress(currentPlayer, 'Buy', selectedItem, 1, setCurrentPlayer);
 
-      if (gridUpdateResponse?.success) {
-        // Enrich resource locally
-        const enrichedResources = await addResourceToGrid(resources, selectedItem);
-        setResources(enrichedResources);
-        console.log('Resource successfully added to grid and enriched.');
-      } else {
-        throw new Error('Failed to update grid resource.');
-      }
     } catch (error) {
       console.error('Error placing resource on grid:', error);
       setErrorMessage('Failed to place resource on grid.');

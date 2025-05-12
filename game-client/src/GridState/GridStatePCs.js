@@ -51,89 +51,119 @@ class GridStatePCManager {
         return pcs;
       }
 
+    getPlayerPosition(gridId, playerId) {
+      return this.gridStatePCs?.[gridId]?.[playerId]?.position || null;
+    }
 
-      // Add a new PC to the gridStatePCs for a given gridId and playerId.
-      async addPC(gridId, playerId, pcData) {
-        if (!this.gridStatePCs[gridId]) {
-          this.gridStatePCs[gridId] = {};
-        }
+    registerSetGridStatePCs(setter) {
+      this.setGridStatePCsReact = setter;
+    }
 
-        const now = Date.now();
-        const newPC = {
-          ...pcData,
-          lastUpdated: now,
-        };
-
-        this.gridStatePCs[gridId][playerId] = newPC;
-
-        // Save to server
-        try {
-          await axios.post(`${API_BASE}/api/save-single-pc`, {
-            gridId,
-            playerId,
-            pc: newPC,
-            lastUpdated: now,
-          });
-          console.log(`✅ Added and saved new PC ${playerId} to server.`);
-        } catch (error) {
-          console.error(`❌ Failed to add PC ${playerId}:`, error);
-        }
-
-        // Emit to other clients
-        if (socket && socket.emit) {
-          socket.emit('update-gridState-PCs', {
-            gridId,
-            pcs: { [playerId]: newPC },
-            gridStatePCsLastUpdated: now,
-          });
-        }
-
-        // Note: Caller should update React context using setGridStatePCs if needed
-      }
-
-      // Update an existing PC in the gridStatePCs for a given gridId and playerId.
-      async updatePC(gridId, playerId, newProperties) {
-        const gridPCs = this.gridStatePCs[gridId];
-        if (!gridPCs || !gridPCs[playerId]) {
-          console.error(`Cannot update PC ${playerId}. No gridState or PC found for gridId: ${gridId}`);
-          return;
-        }
-
-        const now = Date.now();
-        const updatedPC = {
-          ...gridPCs[playerId],
-          ...newProperties,
-          lastUpdated: now,
-        };
-
-        this.gridStatePCs[gridId][playerId] = updatedPC;
-
-        // Save to server
-        try {
-          await axios.post(`${API_BASE}/api/save-single-pc`, {
-            gridId,
-            playerId,
-            pc: updatedPC,
-            lastUpdated: now,
-          });
-          console.log(`✅ Updated PC ${playerId} on server.`);
-        } catch (error) {
-          console.error(`❌ Failed to update PC ${playerId}:`, error);
-        }
-
-        // Emit to other clients
-        if (socket && socket.emit) {
-          socket.emit('update-gridState-PCs', {
-            gridId,
-            pcs: { [playerId]: updatedPC },
-            gridStatePCsLastUpdated: now,
-          });
-        }
-
-        // Note: Caller should update React context using setGridStatePCs if needed
+    setAllPCs(gridId, pcsObject) {
+      this.gridStatePCs[gridId] = pcsObject || {};
+    
+      if (this.setGridStatePCsReact) {
+        this.setGridStatePCsReact(prev => ({
+          ...prev,
+          [gridId]: pcsObject,
+        }));
       }
     }
     
+    // Add a new PC to the gridStatePCs for a given gridId and playerId.
+    async addPC(gridId, playerId, pcData) {
+      if (!this.gridStatePCs[gridId]) {
+        this.gridStatePCs[gridId] = {};
+      }
+
+      const now = Date.now();
+      const newPC = {
+        ...pcData,
+        lastUpdated: now,
+      };
+
+      this.gridStatePCs[gridId][playerId] = newPC;
+
+      // Save to server
+      try {
+        await axios.post(`${API_BASE}/api/save-single-pc`, {
+          gridId,
+          playerId,
+          pc: newPC,
+          lastUpdated: now,
+        });
+        console.log(`✅ Added and saved new PC ${playerId} to server.`);
+      } catch (error) {
+        console.error(`❌ Failed to add PC ${playerId}:`, error);
+      }
+
+      // Emit to other clients
+      if (socket && socket.emit) {
+        socket.emit('update-gridState-PCs', {
+          gridId,
+          pcs: { [playerId]: newPC },
+          gridStatePCsLastUpdated: now,
+        });
+      }
+
+      // Note: Caller should update React context using setGridStatePCs if needed
+    }
+
+    // Update an existing PC in the gridStatePCs for a given gridId and playerId.
+    async updatePC(gridId, playerId, newProperties) {
+      const gridPCs = this.gridStatePCs[gridId];
+      if (!gridPCs || !gridPCs[playerId]) {
+        console.error(`Cannot update PC ${playerId}. No gridState or PC found for gridId: ${gridId}`);
+        return;
+      }
+
+      const now = Date.now();
+      const updatedPC = {
+        ...gridPCs[playerId],
+        ...newProperties,
+        lastUpdated: now,
+      };
+
+      this.gridStatePCs[gridId][playerId] = updatedPC;
+
+      // Save to server
+      try {
+        await axios.post(`${API_BASE}/api/save-single-pc`, {
+          gridId,
+          playerId,
+          pc: updatedPC,
+          lastUpdated: now,
+        });
+        console.log(`✅ Updated PC ${playerId} on server.`);
+      } catch (error) {
+        console.error(`❌ Failed to update PC ${playerId}:`, error);
+      }
+
+      // Se the visual state in React
+      if (this.setGridStatePCsReact) {
+        this.setGridStatePCsReact(prev => ({
+          ...prev,
+          [gridId]: {
+            ...prev[gridId],
+            [playerId]: updatedPC,
+          },
+        }));
+      }
+
+      // Emit to other clients
+      if (socket && socket.emit) {
+        socket.emit('update-gridState-PCs', {
+          gridId,
+          pcs: { [playerId]: updatedPC },
+          gridStatePCsLastUpdated: now,
+        });
+      }
+
+      // Note: Caller should update React context using setGridStatePCs if needed
+    }
+  }
+    
+
     const gridStatePCManager = new GridStatePCManager();
     export default gridStatePCManager;
     export const { initializeGridStatePCs } = gridStatePCManager;

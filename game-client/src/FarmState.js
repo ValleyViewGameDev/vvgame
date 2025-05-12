@@ -59,7 +59,6 @@ class FarmState {
                 x: seed.x,
                 y: seed.y,
               },
-              setResources,
               true
             );
             console.log('updateGridResource response:', response);

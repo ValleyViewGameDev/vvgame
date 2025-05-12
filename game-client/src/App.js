@@ -136,7 +136,6 @@ useEffect(() => {
 
 const [inventory, setInventory]  = useState({});
 const [backpack, setBackpack] = useState({});
-const [skills, setSkills] = useState([]); 
 const [playerPosition, setPlayerPosition] = useState(null);
 const [isMoving, setIsMoving] = useState(null);
 
@@ -144,7 +143,10 @@ const gridState = useGridState();
 const setGridState = useGridStateUpdate();
 const gridStatePCs = useGridStatePCs();
 const setGridStatePCs = useGridStatePCUpdate();
-const [pcs, setPcs] = useState({});
+useEffect(() => {
+  gridStatePCManager.registerSetGridStatePCs(setGridStatePCs);
+}, [setGridStatePCs]);
+
 const [npcs, setNpcs] = useState({});
 
 const { updateStatus } = useContext(StatusBarContext); // Access the status bar updater
@@ -157,8 +159,6 @@ const [isOffSeason, setIsOffSeason] = useState(false); // Track if it's off-seas
 const { activePanel, openPanel, closePanel } = usePanelContext();
 const [activeQuestGiver, setActiveQuestGiver] = useState(null);
 const [activeSocialPC, setActiveSocialPC] = useState(null);
-const [isProfilePanelOpen] = useState(false);
-const [isStationOpen, setIsStationOpen] = useState(false);
 const [activeStation, setActiveStation] = useState(null);
 
 const handleQuestNPCClick = (npc) => {
@@ -841,7 +841,10 @@ useEffect(() => {
     const activeElement = document.activeElement;
     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; } // Prevent movement if a text input is focused
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
-    handleKeyMovement( event, currentPlayer, setGridStatePCs, activeTileSize, masterResources );
+
+console.log('About to call handleKeyMovement, with gridStatePCs:', gridStatePCs);
+
+    handleKeyMovement(event, currentPlayer, activeTileSize, masterResources);
     localPlayerMoveTimestampRef.current = Date.now();
   };
   window.addEventListener('keydown', handleKeyDown); return () => {
@@ -905,23 +908,22 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
   isProcessing = true;
 
   const resource = resources.find((res) => res.x === colIndex && res.y === rowIndex);
-  console.log('handleTileClick invoked with:', { rowIndex, colIndex });
+  console.log('⬆️ handleTileClick invoked with:', { rowIndex, colIndex });
   console.log('Resource:', resource);
 
   // Validate `gridId` and `username`
   if (!gridId || typeof gridId !== 'string') { console.error('Invalid gridId:', gridId); return; }
   if (!currentPlayer?.username || typeof currentPlayer.username !== 'string') { console.error('Invalid username:', currentPlayer?.username); return; }
 
-  // ✅ Get player position from gridStatePCs (modern structure)
-  const playerData = gridStatePCs?.[gridId]?.[String(currentPlayer._id)];
-  const playerPos = playerData?.position || { x: 1, y: 1 }; // Default to (1,1) if missing
+  // ✅ Get player position from gridStatePCs
+  const playerPos = gridStatePCManager.getPlayerPosition(gridId, String(currentPlayer._id));
+  const targetPos = { x: colIndex, y: rowIndex };
 
   if (!playerPos || typeof playerPos.x === 'undefined' || typeof playerPos.y === 'undefined') {
-      console.error("⚠️ Player position is invalid in gridState:", playerData);
+      console.error("⚠️ Player position is invalid in gridState; playerPos: ", playerPos);
       isProcessing = false;
       return;
   }
-  const targetPos = { x: colIndex, y: rowIndex }; 
   
   // If clicking a resource, check range before interacting (except NPCs)
   if (resource && resource.category !== 'npc') {
@@ -1032,8 +1034,6 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
         setGridId,
         setGrid,
         setTileTypes,
-        setGridState,
-        setGridStatePCs,
         updateStatus,
         masterResources,
         masterSkills,
@@ -1048,7 +1048,6 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
       // Handle player movement if no resource is clicked
       const targetPosition = { x: colIndex, y: rowIndex }; // Grid coordinates
       setPlayerPosition({ x: targetPosition.x * activeTileSize, y: targetPosition.y * activeTileSize });
-//        savePlayerPosition(targetPosition, currentPlayer, setCurrentPlayer, activeTileSize);
       console.log('Player teleported to:', targetPosition);
     }
   }
@@ -1571,7 +1570,6 @@ return ( <>
           inventory={inventory}
           setInventory={setInventory}
           resources={resources}
-          setResources={setResources}
           tiles={grid}
           tileTypes={tileTypes}
           setTileTypes={setTileTypes}
@@ -1590,7 +1588,6 @@ return ( <>
           inventory={inventory}
           setInventory={setInventory}
           resources={resources}
-          setResources={setResources}
           tiles={grid}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}

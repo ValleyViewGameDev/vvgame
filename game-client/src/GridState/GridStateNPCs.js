@@ -5,6 +5,7 @@ import NPC from '../GameFeatures/NPCs/NPCs';
 import { loadMasterResources } from '../Utils/TuningManager';
 
 let gridTimer = null; // For periodic grid updates
+let externalSetGridState = null;
 
 let lastGridStateTimestamp = 0;
 export const updateLastGridStateTimestamp = (timestamp) => {
@@ -18,6 +19,10 @@ class GridStateManager {
   constructor() {
     this.gridStates = {}; // Store grid states in memory
     console.log('GridStateManager instance created.');
+  }
+
+  registerSetGridState(setterFunction) {
+    externalSetGridState = setterFunction;
   }
 
   /**
@@ -405,6 +410,23 @@ class GridStateManager {
     }
     this.gridStates = {}; // Clear in-memory grid states
   }
+
+  setAllNPCs(gridId, npcs) {
+    if (!this.gridStates[gridId]) {
+      this.gridStates[gridId] = { npcs: {} };
+    }
+    this.gridStates[gridId].npcs = npcs;
+
+    if (typeof externalSetGridState === 'function') {
+      externalSetGridState((prev) => ({
+        ...prev,
+        [gridId]: {
+          ...prev[gridId],
+          npcs,
+        },
+      }));
+    }
+  }
 }
 
 const gridStateManager = new GridStateManager();
@@ -417,6 +439,8 @@ export const {
   updateNPC,
   removeNPC, 
   saveGridStateNPCs,
+  registerSetGridState,
+  setAllNPCs,
 } = gridStateManager;
 
 // Default export for the entire manager
