@@ -844,7 +844,7 @@ useEffect(() => {
 
 console.log('About to call handleKeyMovement, with gridStatePCs:', gridStatePCs);
 
-    handleKeyMovement(event, currentPlayer, activeTileSize, masterResources);
+    handleKeyMovement(event, currentPlayer, activeTileSize, masterResources, localPlayerMoveTimestampRef);
     localPlayerMoveTimestampRef.current = Date.now();
   };
   window.addEventListener('keydown', handleKeyDown); return () => {

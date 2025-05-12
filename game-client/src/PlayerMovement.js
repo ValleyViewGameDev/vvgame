@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { animateRemotePC } from './Render/RenderAnimatePosition';
 import gridStatePCManager from './GridState/GridStatePCs'; // Correctly use gridStateManager
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FloatingTextManager from "./UI/FloatingText";
@@ -29,7 +30,7 @@ function isValidMove(targetX, targetY, masterResources) {  // Function to check 
   return canMove;
 }
 
-export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResources) {
+export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResources, localPlayerMoveTimestampRef) {
   const directions = {
     ArrowUp: { dx: 0, dy: -1 },
     w: { dx: 0, dy: -1 },
@@ -77,10 +78,18 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
 
   const finalPosition = { x: targetX, y: targetY };
   console.log('➡️ Simple move to:', finalPosition);
-
-  gridStatePCManager.updatePC(gridId, playerId, { position: finalPosition });
-
-  centerCameraOnPlayer(finalPosition, TILE_SIZE);
+  const now = Date.now();
+  localPlayerMoveTimestampRef.current = now;
+  
+  animateRemotePC(playerId, currentPosition, finalPosition, TILE_SIZE);
+  
+  setTimeout(() => {
+    gridStatePCManager.updatePC(gridId, playerId, {
+      position: finalPosition,
+      lastUpdated: now,
+    });
+    centerCameraOnPlayer(finalPosition, TILE_SIZE);
+  }, 100); // Delay to allow animation to start
 }
 
 
