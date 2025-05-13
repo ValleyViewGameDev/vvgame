@@ -141,6 +141,10 @@ const [isMoving, setIsMoving] = useState(null);
 
 const gridState = useGridState();
 const setGridState = useGridStateUpdate();
+useEffect(() => {
+  gridStateManager.registerSetGridState(setGridState);
+}, [setGridState]);
+
 const gridStatePCs = useGridStatePCs();
 const setGridStatePCs = useGridStatePCUpdate();
 useEffect(() => {
@@ -491,32 +495,6 @@ useEffect(() => {
 }, []);  // Only run once when the component mounts
 
 
-// FETCH GRID  //////////////////////////////////////////////////////
-// We need to come back to this; why fetchGrid and also fetchGridData ????
-const fetchGrid = async (gridId) => {
-  try {
-    console.log('From App.js: calling fetchGridData for gridId:', gridId);
-    const data = await fetchGridData(gridId, updateStatus);
-
-    if (data.tiles && data.resources) {
-      // Ensure only slimmed-down resources are set
-      const slimmedResources = data.resources.map(({ type, x, y, growEnd }) => ({
-        type,
-        x,
-        y,
-        ...(growEnd && { growEnd }), // Include growEnd if it exists
-      }));
-      setGrid(data.tiles);
-      setResources(slimmedResources);
-      console.log('Slimmed-down resources set:', slimmedResources);
-    } else {
-      console.error('No tiles or resources found in response:', data);
-    }
-  } catch (error) {
-    console.error('Error fetching grid:', error);
-  }
-};
-
 // FARM STATE - Farming Seed Timer & Crafting Timer Management //////////////////////////////////////////////////////
 useEffect(() => {
   if (gridId) {
@@ -551,15 +529,6 @@ useEffect(() => {
 
     if (isController) {
       Object.values(gridState.npcs).forEach((npc) => {
-
-        console.log(`🔍 Type check:`, {
-          id: npc.id,
-          isInstance: npc instanceof NPC,
-          hasUpdate: typeof npc.update === 'function',
-          constructorName: npc.constructor?.name,
-          protoString: Object.prototype.toString.call(npc),
-        });
-        
         if (typeof npc.update !== 'function') {
           console.warn(`🛑 Skipping NPC without update() method:`, npc);
           return;
@@ -584,7 +553,7 @@ useEffect(() => {
     if (gridStatePCs) {
       const playerPC = gridStatePCs?.[gridId]?.[String(currentPlayer?._id)];
       if (playerPC?.hp <= 0 && currentPlayer) {
-        await handlePlayerDeath(currentPlayer,setCurrentPlayer,fetchGrid,setGridId,setGrid,setResources,setTileTypes,setGridState,setGridStatePCs,activeTileSize);
+        await handlePlayerDeath(currentPlayer,setCurrentPlayer,setGridId,setGrid,setResources,setTileTypes,setGridState,setGridStatePCs,activeTileSize);
       }
     }
   }, 1000);
@@ -1030,7 +999,6 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
         tileTypes,
         currentPlayer,
         setCurrentPlayer,
-        fetchGrid,
         setGridId,
         setGrid,
         setTileTypes,
@@ -1358,7 +1326,6 @@ return ( <>
         currentPlayer={currentPlayer}
         setZoomLevel={setZoomLevel} 
         setCurrentPlayer={setCurrentPlayer}
-        fetchGrid={fetchGrid}
         setGridId={setGridId}            
         setGrid={setGrid}             
         setResources={setResources}   
@@ -1375,7 +1342,6 @@ return ( <>
         currentPlayer={currentPlayer}
         setZoomLevel={setZoomLevel} 
         setCurrentPlayer={setCurrentPlayer}
-        fetchGrid={fetchGrid}
         setGridId={setGridId}              
         setGrid={setGrid}            
         setResources={setResources}  

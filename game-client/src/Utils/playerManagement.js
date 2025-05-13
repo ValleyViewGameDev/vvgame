@@ -99,7 +99,6 @@ export const isAGridStateStat = (stat) => {
 export const handlePlayerDeath = async (
   player,
   setCurrentPlayer,
-  fetchGrid,
   setGridId,
   setGrid,
   setResources,
@@ -168,7 +167,6 @@ export const handlePlayerDeath = async (
       player.location,   // fromLocation
       updatedLocation,        // toLocation
       setCurrentPlayer,
-      fetchGrid,
       setGridId,                // ✅ Ensure this is passed
       setGrid,                  // ✅ Pass setGrid function
       setResources,             // ✅ Pass setResources function

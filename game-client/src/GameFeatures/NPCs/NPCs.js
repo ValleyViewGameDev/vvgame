@@ -57,19 +57,19 @@ update(currentTime, gridState, gridId, TILE_SIZE) {
   if (timeElapsed < this.updateInterval) {
     return;
   }
-  console.log(`🐮⌛️ Time elapsed: ${timeElapsed}ms, Last update: ${this.lastUpdated}`);
+  //console.log(`🐮⌛️ Time elapsed: ${timeElapsed}ms, Last update: ${this.lastUpdated}`);
   
   this.processState(gridState, gridId, TILE_SIZE);
   this.lastUpdated = currentTime;
 }
 
 async processState(gridState, gridId, TILE_SIZE) {
-  console.log(`[🐮 NPC.processState] ${this.id} | type=${this.type} | action=${this.action} | state=${this.state}`);
+  //console.log(`[🐮 NPC.processState] ${this.id} | type=${this.type} | action=${this.action} | state=${this.state}`);
   
   const npcs = Object.values(gridStateManager.getGridState(gridId)?.npcs || {}); 
 
   try {
-    console.log(`NPCprocessState for NPC ${this.id}. action: ${this.action}, Current state: ${this.state}, gridId: ${gridId}`);
+    //console.log(`NPCprocessState for NPC ${this.id}. action: ${this.action}, Current state: ${this.state}, gridId: ${gridId}`);
     // Call the behavior handler
 
     switch (this.action) {

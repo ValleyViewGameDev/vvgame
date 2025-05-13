@@ -11,7 +11,6 @@ const SettlementView = ({
   currentPlayer, 
   setZoomLevel, 
   setCurrentPlayer,            
-  fetchGrid,
   setGridId,        
   setGrid,      
   setResources, 
@@ -133,7 +132,6 @@ const SettlementView = ({
         currentPlayer.location,
         toLocation,  // Use the clean location object
         setCurrentPlayer,
-        fetchGrid,
         setGridId,                // ✅ Ensure this is passed
         setGrid,                  // ✅ Pass setGrid function
         setResources,             // ✅ Pass setResources function

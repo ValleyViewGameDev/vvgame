@@ -27,7 +27,6 @@ import { createCollectEffect, createSourceConversionEffect, calculateTileCenter 
   tileTypes,
   currentPlayer,
   setCurrentPlayer,
-  fetchGrid,
   setGridId,
   setGrid,
   setTileTypes,
@@ -73,8 +72,8 @@ import { createCollectEffect, createSourceConversionEffect, calculateTileCenter 
           setResources,
           setInventory,
           setBackpack,
-          inventory,
-          backpack,
+          currentPlayer?.inventory || [],
+          currentPlayer?.backpack || [],
           skills,
           gridId,
           addFloatingText,
@@ -115,14 +114,13 @@ import { createCollectEffect, createSourceConversionEffect, calculateTileCenter 
             currentPlayer,
             resource.type,
             setCurrentPlayer,
-            fetchGrid,
             setGridId, 
             setGrid,
             setTileTypes, 
             setResources,
             updateStatus,
             TILE_SIZE,
-            skills
+            skills,
           );
         } catch (error) {
           console.error("Error handling travel signpost:", error.message || error);
@@ -164,7 +162,7 @@ async function handleDooberClick(
   masterSkills
 ) {
   console.log('handleDooberClick: Current Player:', currentPlayer);
-
+  console.log('handleDooberClick: Current backpack:', backpack);
   const gtype = currentPlayer.location.gtype;
   const baseQtyCollected = resource.qtycollected || 1;
 
@@ -182,25 +180,28 @@ async function handleDooberClick(
     })
     .map((buffItem) => buffItem.type);
 
-  console.log('Player Buffs (Skills and Upgrades):', playerBuffs);
+  //console.log('Player Buffs (Skills and Upgrades):', playerBuffs);
 
   // Calculate skill multiplier
   const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
     const buffValue = masterSkills?.[buff]?.[resource.type] || 1;
-    console.log(`Buff "${buff}" applies to "${resource.type}" with multiplier x${buffValue}`);
+    //console.log(`Buff "${buff}" applies to "${resource.type}" with multiplier x${buffValue}`);
     return multiplier * buffValue;
   }, 1);
 
   const qtyCollected = baseQtyCollected * skillMultiplier;
-  console.log('Final Quantity Collected:', qtyCollected);
+  console.log('[DEBUG] qtyCollected after multiplier:', qtyCollected);
 
   // Special case: Money always goes to inventory and does not count against capacity
   const isMoney = resource.type === 'Money';
   const isBackpack = !isMoney && ["town", "valley0", "valley1", "valley2", "valley3"].includes(gtype);
 
+  console.log('[DEBUG] Resource Type:', resource.type, '| isMoney:', isMoney, '| isBackpack:', isBackpack);
+
   // Check for Backpack skill if in town or valley
   if (isBackpack) {
     const hasBackpackSkill = skills.some((item) => item.type === 'Backpack' && item.quantity > 0);
+    console.log('[DEBUG] Backpack skill present:', hasBackpackSkill);
     if (!hasBackpackSkill) {
       console.warn('Cannot collect resources: Missing Backpack skill.');
       addFloatingText(`Backpack Required!`, col * TILE_SIZE, row * TILE_SIZE);
@@ -216,29 +217,27 @@ async function handleDooberClick(
   if (!Array.isArray(targetInventory) || targetInventory.length === 0) {
     console.warn(`${isBackpack ? "Backpack" : "Inventory"} is empty; fetching from server.`);
     const { inventory: fetchedInventory, backpack: fetchedBackpack } = await fetchInventoryAndBackpack(currentPlayer.playerId);
-    targetInventory = isBackpack ? fetchedBackpack : fetchedInventory;
     setInventory(fetchedInventory);
     setBackpack(fetchedBackpack);
+    targetInventory = isBackpack ? fetchedBackpack : fetchedInventory;
+    console.log('[DEBUG] After re-fetch: inventory:', fetchedInventory, 'backpack:', fetchedBackpack);
   }
 
-  const maxCapacity = isMoney ? Infinity : isBackpack ? currentPlayer.backpackCapacity : currentPlayer.warehouseCapacity;
+  // Recalculate latest local inventory after any potential fetch
+  const latestInventory = isBackpack ? backpack : inventory;
+  const latestBackpack = isBackpack ? backpack : backpack; // redundant but explicit
 
-  // Calculate current capacity (excluding Money)
-  const currentCapacity = targetInventory
-    .filter((item) => item.type !== 'Money')
-    .reduce((sum, item) => sum + item.quantity, 0);
-
-  // Check capacity limits (excluding Money)
+  // Capacity check — only for non-Money
   if (!isMoney) {
+    console.log('[DEBUG] Checking capacity with inventory:', latestInventory, 'backpack:', latestBackpack);
     const hasCapacity = checkInventoryCapacity(
       currentPlayer,
-      inventory,
-      backpack,
+      latestInventory,
+      latestBackpack,
       resource.type,
       qtyCollected
     );
-  
-    //NEED TO FIX THIS! :
+
     if (!hasCapacity) {
       const statusUpdate = isBackpack ? 21 : 20; // Backpack or warehouse full
       console.warn(`Cannot collect doober: Exceeds capacity in ${isBackpack ? "backpack" : "warehouse"}.`);
@@ -246,6 +245,7 @@ async function handleDooberClick(
       updateStatus(statusUpdate);
       return;
     }
+    console.log('[DEBUG] Passed capacity check. Proceeding to update inventory.');
   }
 
   // Use exact same position calculation as VFX.js
@@ -265,8 +265,10 @@ async function handleDooberClick(
     updatedInventory.push({ type: resource.type, quantity: qtyCollected });
   }
 
+  console.log('[DEBUG] Updated inventory before setTargetInventory:', updatedInventory);
+
   setTargetInventory(updatedInventory);
-  console.log('TargetInventory set to updatedInventory.');
+  console.log('[DEBUG] setTargetInventory applied.');
 
   // Add VFX right before removing the doober
   createCollectEffect(col, row, TILE_SIZE);
@@ -287,7 +289,7 @@ async function handleDooberClick(
         playerId: currentPlayer.playerId,
         [isBackpack ? "backpack" : "inventory"]: updatedInventory,
       });
-      console.log(`Server ${isBackpack ? "backpack" : "inventory"} updated successfully.`);
+      console.log('[DEBUG] Server inventory update complete.');
 
       // Track quest progress for "Collect" actions
       // trackQuestProgress expects: (player, action, item, quantity, setCurrentPlayer)
@@ -295,6 +297,7 @@ async function handleDooberClick(
 
       // Update currentPlayer state locally
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+      console.log('[DEBUG] Player state refreshed after inventory update.');
     } else {
       throw new Error('Failed to update grid resource.');
     }

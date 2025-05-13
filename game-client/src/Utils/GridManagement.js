@@ -107,7 +107,6 @@ export const changePlayerLocation = async (
   fromLocation,
   toLocation,
   setCurrentPlayer,
-  fetchGrid,
   setGridId,
   setGrid,
   setTileTypes,
@@ -123,6 +122,7 @@ export const changePlayerLocation = async (
     TILE_SIZE,
     // ...other setters omitted for brevity...
   });
+
   try {
     console.log('🔄 changePlayerLocation called');
     console.log('FROM:', { grid: fromLocation.g, type: fromLocation.gtype });
@@ -245,7 +245,7 @@ export const changePlayerLocation = async (
     // WHAT does this ^^ do?
 
     // Run these in parallel
-    console.log('!! Running initializeGrid, initializeGridState, and setGridState');
+    console.log('!! Running initializeGridState and setGridState');
     await Promise.all([
       initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus),
       (async () => {
@@ -288,7 +288,7 @@ export const changePlayerLocation = async (
   } catch (error) {
     console.error('❌ Location change error:', error);
     throw error;
-  }
+  } 
 };
 
 export async function fetchGridData(gridId, updateStatus) {

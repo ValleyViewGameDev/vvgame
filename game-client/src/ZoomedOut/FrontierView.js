@@ -11,7 +11,6 @@ const FrontierView = ({
   currentPlayer, 
   setZoomLevel, 
   setCurrentPlayer,            
-  fetchGrid,
   setGridId,                // ✅ Ensure this is passed
   setGrid,                  // ✅ Pass setGrid function
   setResources,             // ✅ Pass setResources function
@@ -126,7 +125,6 @@ const FrontierView = ({
                 gridCoord: ownedHomestead.gridCoord  // Add this
               }, // toLocation
               setCurrentPlayer,
-              fetchGrid,
               setGridId,                // ✅ Ensure this is passed
               setGrid,                  // ✅ Pass setGrid function
               setResources,             // ✅ Pass setResources function
@@ -174,14 +172,13 @@ const FrontierView = ({
         currentPlayer.location,
         toLocation,
         setCurrentPlayer,
-        fetchGrid,
         setGridId,
         setGrid,
         setResources,
         setTileTypes,
         setGridState,
         setGridStatePCs,
-        TILE_SIZE
+        TILE_SIZE,
       );
 
     } catch (error) {

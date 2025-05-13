@@ -30,9 +30,7 @@ class GridStateManager {
    */
   async initializeGridState(gridId) {
     
-    console.log('🔍 NPC class prototype:', NPC?.prototype); // move it here
-
-    console.log('Fetching gridState for gridId:', gridId);
+    console.log('👍 Initialize gridState for gridId:', gridId);
     if (!gridId) {
       console.error('initializeGridState: gridId is undefined.');
       return;
@@ -48,9 +46,7 @@ class GridStateManager {
       // Build a consolidated local state with independent timestamps
       const gridState = {
         npcs: gridStateNPCs.npcs || {},
-        pcs: gridStatePCs.pcs || {},
         gridStateNPCsLastUpdated: new Date(gridStateNPCs.lastUpdated || 0).getTime(),
-        gridStatePCsLastUpdated: new Date(gridStatePCs.lastUpdated || 0).getTime(),
       };
 
       console.log('Fetched gridState:', gridState);
@@ -66,11 +62,6 @@ class GridStateManager {
             (res) => res.type === lightweightNPC.type
           );
 
-          console.log('🔄 Rehydrating NPC:', npcId, lightweightNPC);
-          console.log('  🔍 Before rehydration — constructor:', lightweightNPC?.constructor?.name);
-          console.log('  🔍 Before rehydration — has update:', typeof lightweightNPC.update === 'function');
-          console.log('  🔍 npcTemplate:', npcTemplate);
-
           if (!npcTemplate) {
             console.warn(`⚠️ Missing template for NPC type: ${lightweightNPC.type}`);
             console.log('Master resources:', masterResources.map(res => res.type));
@@ -85,15 +76,14 @@ class GridStateManager {
           );
 
           console.log('  ✅ Hydrated NPC instance:', hydrated);
-          console.log('  🔍 After hydration — constructor:', hydrated.constructor?.name);
-          console.log('  🔍 After hydration — has update:', typeof hydrated.update === 'function');
 
           gridState.npcs[npcId] = hydrated;
         });
       }
 
       this.gridStates[gridId] = gridState;
-      console.log(`Initialized and enriched gridState for gridId ${gridId}:`, gridState);
+
+      console.log(`✅ Initialized and enriched gridState for gridId ${gridId}:`, gridState);
     } catch (error) {
       console.error('Error fetching gridState:', error);
     }
@@ -103,9 +93,9 @@ class GridStateManager {
    * Get the gridState for a specific gridId.
    */
   getGridState(gridId) {
-    console.log('⊞ getGridState called with gridId:', gridId);
+    //console.log('⊞ getGridState called with gridId:', gridId);
     const gridState = this.gridStates[gridId];
-    console.log('⊞ this.gridStates[gridId]:', gridState);
+    //console.log('⊞ this.gridStates[gridId]:', gridState);
     if (!gridState) {
       console.warn(`⚠️ No gridState found for gridId: ${gridId}`);
       return { npcs: {} }; // Only return NPCs
@@ -236,7 +226,7 @@ class GridStateManager {
    * Update an NPC in the gridState using the per-NPC save model.
    */
   async updateNPC(gridId, npcId, newProperties) {
-    console.log(`🐮++ Updating NPC ${npcId} for gridId: ${gridId}`);
+    //console.log(`🐮++ Updating NPC ${npcId} for gridId: ${gridId}`);
     const gridState = this.gridStates[gridId];
     const existing = gridState?.npcs?.[npcId];
 
@@ -417,22 +407,27 @@ class GridStateManager {
     this.gridStates = {}; // Clear in-memory grid states
   }
 
-  setAllNPCs(gridId, npcs) {
-    if (!this.gridStates[gridId]) {
-      this.gridStates[gridId] = { npcs: {} };
-    }
-    this.gridStates[gridId].npcs = npcs;
+  registerSetGridState(setter) {
+    this.setGridStateReact = setter;
+  }
 
-    if (typeof externalSetGridState === 'function') {
-      externalSetGridState((prev) => ({
+  setAllNPCs(gridId, npcsObject) {
+    console.log('Setting all NPCs for gridId:', gridId);
+    console.log('NPCs object:', npcsObject);
+    this.gridStates[gridId] = { npcs: npcsObject || {} };
+  
+    if (this.setGridStateReact) {
+      console.log('Updating React state for gridId:', gridId);
+      this.setGridStateReact(prev => ({
         ...prev,
         [gridId]: {
-          ...prev[gridId],
-          npcs,
+          ...(prev[gridId] || {}),
+          npcs: npcsObject,
         },
       }));
     }
   }
+
 }
 
 const gridStateManager = new GridStateManager();

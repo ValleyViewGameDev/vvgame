@@ -7,14 +7,14 @@ export async function handleTransitSignpost(
   currentPlayer,
   resourceType,
   setCurrentPlayer,
-  fetchGrid,
   setGridId,
   setGrid,
   setTileTypes,
   setResources,
   updateStatus,
   TILE_SIZE,
-  skills
+  skills,
+  setSuspendNPCUpdates
 ) {
   try {
     console.log("Handling transit for resource:", resourceType);
@@ -54,12 +54,12 @@ export async function handleTransitSignpost(
         currentPlayer.location,   // fromLocation
         newPlayerPosition,        // toLocation
         setCurrentPlayer,
-        fetchGrid,
         setGridId,
         setGrid,
         setTileTypes,
         setResources,
-        TILE_SIZE
+        TILE_SIZE,
+        setSuspendNPCUpdates
       );
       return;
     }
@@ -92,12 +92,12 @@ export async function handleTransitSignpost(
         currentPlayer.location,   // fromLocation
         newPlayerPosition,        // toLocation
         setCurrentPlayer,
-        fetchGrid,
         setGridId,
         setGrid,
         setTileTypes,
         setResources,
-        TILE_SIZE
+        TILE_SIZE,
+        setSuspendNPCUpdates
       );
       return;
     }
@@ -207,12 +207,11 @@ export async function handleTransitSignpost(
       currentPlayer.location,   // fromLocation
       newPlayerPosition,        // toLocation
       setCurrentPlayer,
-      fetchGrid,
       setGridId,
       setGrid,
       setTileTypes,
       setResources,
-      TILE_SIZE
+      TILE_SIZE,
     );
 
     console.log(`Player moved to grid ID: ${targetGrid.gridId}`);
