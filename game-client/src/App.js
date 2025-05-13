@@ -61,6 +61,7 @@ import OffSeasonModal from './GameFeatures/Seasons/OffSeasonModal.js';
 import TownNews from './UI/TownNews.js';
 import SeasonPanel from './GameFeatures/Seasons/SeasonPanel';
 import SocialPanel from './GameFeatures/Social/SocialPanel';
+import GridStateDebugPanel from './Utils/GridStateDebug.js';
 
 import { usePanelContext } from './UI/PanelContext';
 import { useModalContext } from './UI/ModalContext';
@@ -505,13 +506,13 @@ useEffect(() => {
 }, [gridId]);  
 
 
-// NPC GRID STATE:  Create new references for npcs to trigger re-renders  /////////////////////////
-useEffect(() => {
-  if (gridState) {
-    console.log('🔄 Updating local state for NPCs from GridState:', gridState);
-    setNpcs({ ...gridState.npcs });
-  }
-}, [gridState]);  // ✅ Trigger re-render when `gridState` updates
+// // NPC GRID STATE:  Create new references for npcs to trigger re-renders  /////////////////////////
+// useEffect(() => {
+//   if (gridState) {
+//     console.log('🔄 Updating local state for NPCs from GridState:', gridState);
+//     setNpcs({ ...gridState.npcs });
+//   }
+// }, [gridState]);  // ✅ Trigger re-render when `gridState` updates
 
 
 // 🔄 NPC Management Loop
@@ -1182,6 +1183,18 @@ return ( <>
         )}
       </div>
       
+      <h3>Happening Now in Town:
+        <span 
+          onClick={() => setShowTimers(!showTimers)} 
+          style={{ cursor: "pointer", fontSize: "16px", marginLeft: "5px" }}
+        >
+          {showTimers ? "▼" : "▶"}
+        </span>
+      </h3>
+
+      {showTimers && (
+        <div className="timers-panel">
+
       <br />
       {timers.taxes.phase === "waiting" ? (
         <>
@@ -1206,17 +1219,7 @@ return ( <>
         </>
       )}
       <br />
-      <h3>Happening Now in Town:
-        <span 
-          onClick={() => setShowTimers(!showTimers)} 
-          style={{ cursor: "pointer", fontSize: "16px", marginLeft: "5px" }}
-        >
-          {showTimers ? "▼" : "▶"}
-        </span>
-      </h3>
-
-      {showTimers && (
-        <div className="timers-panel">
+      
           <h4>🏛️ Elections: {timers.elections.phase}</h4>
           <p>Ends: {countdowns.elections}</p>
           <h4>🚂 Train: {timers.train.phase}</h4>
@@ -1250,6 +1253,14 @@ return ( <>
             : "There is no NPCController"}
         </h4>
       </div>
+      <br />
+
+      <GridStateDebugPanel
+        gridId={gridId}
+        gridState={gridState}
+        gridStatePCs={gridStatePCs}
+      />
+
       <br />
       <button className="panel-button reset-button" onClick={handleResetTimers}>Reset All Timers</button>
     </div>

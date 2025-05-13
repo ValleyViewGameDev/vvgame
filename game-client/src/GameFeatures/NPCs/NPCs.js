@@ -38,7 +38,7 @@ class NPC {
     this.nextspawn = properties.nextspawn ?? (this.action === 'spawn' ? Date.now() + 5000 : null);
     this.grazeEnd = properties.grazeEnd || null; // this is preserved from gridState
     this.lastUpdated = Date.now(); // Initialize lastUpdated
-    this.gridId = properties.gridId || gridId; // Use the passed gridId or default to the one in properties
+    // this.gridId = properties.gridId || gridId; // Use the passed gridId or default to the one in properties
     // Assign additional properties
     Object.assign(this, properties);
   }
