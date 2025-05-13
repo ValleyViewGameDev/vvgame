@@ -791,7 +791,7 @@ useEffect(() => {
 
 // 🔄 SOCKET LISTENER: PCs: Real-time updates for GridState (PC sync)
 useEffect(() => {
-  socketListenForPCstateChanges(gridId, currentPlayer, setGridStatePCs, localPlayerMoveTimestampRef);
+  socketListenForPCstateChanges(activeTileSize, gridId, currentPlayer, setGridStatePCs, localPlayerMoveTimestampRef);
 }, [socket, gridId, currentPlayer]);
 
 // 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
@@ -842,14 +842,14 @@ useEffect(() => {
     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; } // Prevent movement if a text input is focused
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
 
-console.log('About to call handleKeyMovement, with gridStatePCs:', gridStatePCs);
-
-    handleKeyMovement(event, currentPlayer, activeTileSize, masterResources, localPlayerMoveTimestampRef);
-    localPlayerMoveTimestampRef.current = Date.now();
+    console.log('About to call handleKeyMovement, with gridStatePCs:', gridStatePCs);
+    handleKeyMovement(event, currentPlayer, activeTileSize, masterResources);
   };
-  window.addEventListener('keydown', handleKeyDown); return () => {
-    window.removeEventListener('keydown', handleKeyDown); };
-}, [currentPlayer, masterResources, activeTileSize, isMoving, activeModal]);
+  window.addEventListener('keydown', handleKeyDown); 
+  return () => {
+    window.removeEventListener('keydown', handleKeyDown); 
+  };
+}, [currentPlayer, masterResources, activeTileSize, activeModal, zoomLevel]);
 
 
 /////////// HANDLE ZOOMING & RESIZING /////////////////////////

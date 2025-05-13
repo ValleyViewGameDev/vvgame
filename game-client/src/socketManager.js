@@ -85,7 +85,7 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
 };
 
 // 🔄 SOCKET LISTENER: PCs: Real-time updates for GridState (PC sync)
-export function socketListenForPCstateChanges(gridId, currentPlayer, setGridStatePCs, localPlayerMoveTimestampRef) {
+export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, setGridStatePCs, localPlayerMoveTimestampRef) {
 
   console.log("🌐🌐🌐🌐🌐🌐 useEffect for PC & NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
 
@@ -119,7 +119,7 @@ export function socketListenForPCstateChanges(gridId, currentPlayer, setGridStat
           newPosition &&
           (prevPosition.x !== newPosition.x || prevPosition.y !== newPosition.y)
         ) {
-          animateRemotePC(playerId, prevPosition, newPosition, 30); // Use your actual TILE_SIZE here
+          animateRemotePC(playerId, prevPosition, newPosition, TILE_SIZE); // Use your actual TILE_SIZE here
         }
 
         return {
@@ -173,7 +173,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
           }
           return;
         }
-        
+
         const localNPC = updatedNPCs[npcId];
         const incomingTime = new Date(incomingNPC.lastUpdated).getTime();
         const localTime = localNPC?.lastUpdated ? new Date(localNPC.lastUpdated).getTime() : 0;

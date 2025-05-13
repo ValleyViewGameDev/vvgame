@@ -139,17 +139,6 @@ class GridStatePCManager {
         console.error(`❌ Failed to update PC ${playerId}:`, error);
       }
 
-      // Se the visual state in React
-      if (this.setGridStatePCsReact) {
-        this.setGridStatePCsReact(prev => ({
-          ...prev,
-          [gridId]: {
-            ...prev[gridId],
-            [playerId]: updatedPC,
-          },
-        }));
-      }
-
       // Emit to other clients
       if (socket && socket.emit) {
         socket.emit('update-gridState-PCs', {

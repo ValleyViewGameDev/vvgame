@@ -251,10 +251,10 @@ async function handleDooberClick(
   // Use exact same position calculation as VFX.js
   FloatingTextManager.addFloatingText(`+${qtyCollected} ${resource.type}`, col, row, TILE_SIZE );
 
-  // // Optimistically remove the doober locally
-  // setResources((prevResources) =>
-  //   prevResources.filter((res) => !(res.x === col && res.y === row))
-  // );
+  // Optimistically remove the doober locally
+  setResources((prevResources) =>
+    prevResources.filter((res) => !(res.x === col && res.y === row))
+  );
   // Optimistically update target inventory locally
   const updatedInventory = [...targetInventory];
   const index = updatedInventory.findIndex((item) => item.type === resource.type);

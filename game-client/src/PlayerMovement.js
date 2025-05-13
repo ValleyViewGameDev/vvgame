@@ -6,7 +6,6 @@ import FloatingTextManager from "./UI/FloatingText";
 // Temporary render-only animation state for interpolated player positions
 export const renderPositions = {};
 
-let isAnimating = false; 
 let currentAnimationFrame = null; 
 
 function isValidMove(targetX, targetY, masterResources) {  // Function to check if movement is valid
@@ -30,7 +29,8 @@ function isValidMove(targetX, targetY, masterResources) {  // Function to check 
   return canMove;
 }
 
-export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResources, localPlayerMoveTimestampRef) {
+export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResources) {
+
   const directions = {
     ArrowUp: { dx: 0, dy: -1 },
     w: { dx: 0, dy: -1 },
@@ -57,10 +57,7 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
   const playerId = currentPlayer._id.toString();
   const gridId = currentPlayer.location.g;
   const gridStatePCs = gridStatePCManager.getGridStatePCs(gridId);
-  if (!gridStatePCs || !gridStatePCs[playerId]) {
-    console.error('Player not found in gridStatePCs.');
-    return;
-  }
+  if (!gridStatePCs || !gridStatePCs[playerId]) return;
 
   const currentPosition = gridStatePCs[playerId].position;
   const targetX = Math.round(currentPosition.x + movement.dx);
@@ -78,133 +75,40 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
 
   const finalPosition = { x: targetX, y: targetY };
   console.log('➡️ Simple move to:', finalPosition);
-  const now = Date.now();
-  localPlayerMoveTimestampRef.current = now;
   
-  animateRemotePC(playerId, currentPosition, finalPosition, TILE_SIZE);
-  
-  setTimeout(() => {
-    gridStatePCManager.updatePC(gridId, playerId, {
-      position: finalPosition,
-      lastUpdated: now,
-    });
-    centerCameraOnPlayer(finalPosition, TILE_SIZE);
-  }, 100); // Delay to allow animation to start
-}
-
-
-
-
-/**
- * THIS IS THE OLD VERSION.
- */
-// export function handleKeyMovement(event, currentPlayer, setGridStatePCs, TILE_SIZE, masterResources) {
-//   if (isAnimating) { console.warn('Movement in progress, input ignored.'); return; }
-//   const directions = {
-//     ArrowUp: { dx: 0, dy: -1 },
-//     w: { dx: 0, dy: -1 },
-//     W: { dx: 0, dy: -1 },
-//     ArrowDown: { dx: 0, dy: 1 },
-//     s: { dx: 0, dy: 1 },
-//     S: { dx: 0, dy: 1 },
-//     ArrowLeft: { dx: -1, dy: 0 },
-//     a: { dx: -1, dy: 0 },
-//     A: { dx: -1, dy: 0 },
-//     ArrowRight: { dx: 1, dy: 0 },
-//     d: { dx: 1, dy: 0 },
-//     D: { dx: 1, dy: 0 },
-//   };
-
-//   const movement = directions[event.key];
-//   if (!movement) return;
-
-//   if (currentPlayer.iscamping) { 
-//     FloatingTextManager.addFloatingText(32, currentPlayer.location.x, currentPlayer.location.y, TILE_SIZE);
-//     return;
-//   }
-//   // Convert currentPlayer._id to string to match gridStatePCs keys
-//   const playerId = currentPlayer._id.toString();
-//   const gridId = currentPlayer.location.g;
-//   const gridStatePCs = gridStatePCManager.getGridStatePCs(gridId);
-//   if (!gridStatePCs || !gridStatePCs[playerId]) {
-//     console.error('Player not found in gridStatePCs.');
-//     return;
-//   }
-//   const playerPosition = gridStatePCs[playerId].position;
-//   console.log('playerPosition from gridStatePCs = ', playerPosition);
-//   const targetX = Math.round(playerPosition.x + movement.dx);  // Ensure integer target
-//   const targetY = Math.round(playerPosition.y + movement.dy);  // Ensure integer target
-
-//   // ✅ **Check if movement is allowed using `isValidMove`**
-//   if (!Array.isArray(masterResources)) {
-//     console.error('masterResources is not an array:', masterResources);
-//     return;
-//   }
-//   if (!isValidMove(targetX, targetY, masterResources)) {
-//     console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
-//     return;
-//   }
-//   movePlayerSmoothly(playerId, { x: targetX, y: targetY }, gridStatePCs, setGridStatePCs, gridId, TILE_SIZE);
-// }
-
-
-
-
-
-/**
- * Smoothly moves the player to a new position and updates the grid state.
- */
-function movePlayerSmoothly(playerId, target, gridStatePCs, gridId, TILE_SIZE) {
-  if (isAnimating) return;
-
-  console.log("movePlayerSmoothly:  target: ", target, "; playerId: ", playerId);
-  console.log('gridStatePCs before movement:', gridStatePCs);
-  console.log("Known gridStatePCs keys:", Object.keys(gridStatePCs));
-
-  // Get current position
-  const currentPosition = gridStatePCs?.[playerId]?.position;
-  if (!currentPosition) {
-    console.error(`❌ Could not find position for playerId ${playerId} in gridStatePCs.`);
-    return;
-  }
-  const currentX = currentPosition.x * TILE_SIZE;
-  const currentY = currentPosition.y * TILE_SIZE;
-  const targetX = target.x * TILE_SIZE;
-  const targetY = target.y * TILE_SIZE;
-  console.log(`Initial pixel position: (${currentX}, ${currentY})`);
-  console.log(`Target pixel position: (${targetX}, ${targetY})`);
   const stepCount = 10;
   let step = 0;
+  const currentX = currentPosition.x * TILE_SIZE;
+  const currentY = currentPosition.y * TILE_SIZE;
+  const targetXpx = finalPosition.x * TILE_SIZE;
+  const targetYpx = finalPosition.y * TILE_SIZE;
 
   function animate() {
     if (step >= stepCount) {
-      isAnimating = false;
-      currentAnimationFrame = null;
-
-      const finalPosition = { x: Math.round(target.x), y: Math.round(target.y) };
-      console.log('Final player position (rounded):', finalPosition);
-
-      delete renderPositions[playerId]; // Clear temp render state
-
-      gridStatePCManager.updatePC(gridId, playerId, { position: finalPosition });
-
+      delete renderPositions[playerId];
+      const now = Date.now();
+      gridStatePCManager.updatePC(gridId, playerId, {
+        position: finalPosition,
+        lastUpdated: now,
+      });
       centerCameraOnPlayer(finalPosition, TILE_SIZE);
       return;
     }
-
-    const interpolatedX = currentX + ((targetX - currentX) / stepCount) * step;
-    const interpolatedY = currentY + ((targetY - currentY) / stepCount) * step;
+    const interpolatedX = currentX + ((targetXpx - currentX) / stepCount) * step;
+    const interpolatedY = currentY + ((targetYpx - currentY) / stepCount) * step;
     renderPositions[playerId] = {
       x: interpolatedX / TILE_SIZE,
       y: interpolatedY / TILE_SIZE,
     };
 
     step++;
-    currentAnimationFrame = requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
   }
-
+ 
   animate();
+
 }
+
 
 export function centerCameraOnPlayer(position, TILE_SIZE) {
   const gameContainer = document.querySelector(".homestead"); // Adjust this if needed
