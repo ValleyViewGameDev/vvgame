@@ -130,15 +130,14 @@ const SettlementView = ({
       await changePlayerLocation(
         currentPlayer,
         currentPlayer.location,
-        toLocation,  // Use the clean location object
+        toLocation,  
         setCurrentPlayer,
         setGridId,                // ✅ Ensure this is passed
         setGrid,                  // ✅ Pass setGrid function
-        setResources,             // ✅ Pass setResources function
         setTileTypes,             // ✅ Pass setTileTypes function
-        setGridState,
-        setGridStatePCs,
+        setResources,             // ✅ Pass setResources function
         TILE_SIZE,
+        updateStatus,
       );
       // Zoom into grid view after movement
       setZoomLevel("far");

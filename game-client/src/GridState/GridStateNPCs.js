@@ -105,9 +105,7 @@ class GridStateManager {
       return { npcs: {} }; // Only return NPCs
     }
 
-    return {
-      npcs: gridState.npcs || {},
-    };
+    return gridState.npcs;
   }
 
   /**

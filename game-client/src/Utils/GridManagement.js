@@ -252,12 +252,17 @@ export const changePlayerLocation = async (
         try {
           await gridStateManager.initializeGridState(toLocation.g);
           await gridStatePCManager.initializeGridStatePCs(toLocation.g);  
-             
           const freshGridState = gridStateManager.getGridState(toLocation.g);
-          gridStateManager.setAllNPCs(toLocation.g, freshGridState.npcs);
-
           const freshPCState = gridStatePCManager.getGridStatePCs(toLocation.g);
-          gridStatePCManager.setAllPCs(toLocation.g, freshPCState);        
+
+          gridStateManager.setGridStateReact({ [toLocation.g]: {
+            npcs: freshGridState,
+            gridStateNPCsLastUpdated: Date.now(),
+          }});
+          gridStatePCManager.setGridStatePCsReact({ [toLocation.g]: {
+            pcs: freshPCState,
+            gridStatePCsLastUpdated: Date.now(),
+          }});     
 
         } catch (err) {
           console.error('❌ Error initializing gridStatePCs:', err);
