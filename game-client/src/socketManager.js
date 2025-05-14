@@ -64,8 +64,8 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
     console.log(`📦 Received current PCs for grid ${gridId}:`, pcs);
     setGridStatePCs(prev => ({
       ...prev,
-      pcs: {
-        ...prev.pcs,
+      [gridId]: {
+        ...prev[gridId],
         ...pcs,
       },
     }));
