@@ -302,43 +302,20 @@ useEffect(() => {
       // Step 6. Initialize NPCs
       console.log('🏁✅ 6 InitAppWrapper; Initializing NPC gridState...');
       await gridStateManager.initializeGridState(initialGridId);
-      const initializedState = gridStateManager.getGridState(initialGridId);
-      console.log('initializedState (NPCs): ',initializedState);
+      const freshNPCState = gridStateManager.getGridState(initialGridId);
+      console.log('initializedState (NPCs): ',freshNPCState);
 
-      // 🧠 Rehydrate NPCs
-      const rawNpcs = initializedState?.npcs || {};
-      Object.entries(rawNpcs).forEach(([npcId, rawNpc]) => {
-        try {
-          const hydrated = new NPC(
-            rawNpc.id,
-            rawNpc.type,
-            rawNpc.position,
-            rawNpc,
-            initialGridId
-          );
-          initializedState.npcs[npcId] = hydrated;
-        } catch (e) {
-          console.error(`❌ Failed to rehydrate NPC ${npcId}:`, e);
-        }
-      });
-//      setGridState(initializedState);
-
-setGridState(prev => ({
-  ...prev,
-  [gridId]: initializedState,
-}));
 
       // Step 7. Initialize PCs
       console.log('🏁✅ 7 InitAppWrapper; Initializing gridStatePCs...');
       await gridStatePCManager.initializeGridStatePCs(initialGridId);
       const freshPCState = gridStatePCManager.getGridStatePCs(initialGridId);
-      setGridStatePCs((prev) => ({
-        ...prev,
-        [initialGridId]: freshPCState,
-      }));
-      const localPCs = freshPCState;
+      // setGridStatePCs((prev) => ({
+      //   ...prev,
+      //   [initialGridId]: freshPCState,
+      // }));
       const playerId = String(parsedPlayer.playerId);
-      const playerPosition = localPCs?.[playerId]?.position;
+      const playerPosition = freshPCState?.[playerId]?.position;
       console.log('Player position from gridStatePCs:', playerPosition);
       if (playerPosition) {
         console.log('🎯 Centering camera on player position:', playerPosition);
@@ -348,7 +325,7 @@ setGridState(prev => ({
       // Step 8. Resolve player location and confirm in gridState
       console.log('🏁✅ 8 InitAppWrapper; Resolving player location...');
       const playerIdStr = fullPlayerData._id.toString();
-      let gridPlayer = localPCs?.[playerIdStr];
+      let gridPlayer = freshPCState?.[playerIdStr];
 
       // Step A: Detect location mismatch or missing from gridState
       const isLocationMismatch = fullPlayerData.location?.g !== initialGridId;
@@ -358,15 +335,10 @@ setGridState(prev => ({
       console.log('isMissingFromGrid = ', isMissingFromGrid);
 
       if (isMissingFromGrid && gridId === fullPlayerData.location.g) {
-        
         console.warn("🧭 Player not in correct gridState or missing entirely. Repositioning...");
-
-        const targetGridId = fullPlayerData.location.g;
-        const targetPosition = { x: 2, y: 2 };
-
+        const targetPosition = { x: 0, y: 0 };
         console.warn('InitAppWrapper: adding PC to gridState');
-
-        await gridStatePCManager.addPC(targetGridId, fullPlayerData.playerId, {
+        await gridStatePCManager.addPC(gridId, fullPlayerData.playerId, {
           playerId: fullPlayerData.playerId,
           username: fullPlayerData.username,
           type: "pc",
@@ -381,29 +353,24 @@ setGridState(prev => ({
           speed: fullPlayerData.speed,
           iscamping: fullPlayerData.iscamping,
         });
-
         // Refresh the gridState and React state
         console.warn('InitAppWrapper: refreshing gridState');
-        const refreshedState = gridStateManager.getGridState(targetGridId);
-        setGridState(refreshedState);
         setGridStatePCs((prev) => ({
           ...prev,
-          [targetGridId]: gridStatePCManager.getGridStatePCs(targetGridId),
+          [gridId]: gridStatePCManager.getGridStatePCs(gridId),
         }));
-        const gridPlayer = gridStatePCManager.getGridStatePCs(targetGridId)?.[playerIdStr];
+        const gridPlayer = gridStatePCManager.getGridStatePCs(gridId)?.[playerIdStr];
         console.log('Refreshed gridPlayer:', gridPlayer);
-
         // Update gridId and storage to match actual grid
         console.warn('InitAppWrapper: adding PC to gridState');
-        setGridId(targetGridId);
-        localStorage.setItem("gridId", targetGridId);
-
+        setGridId(gridId);
+        localStorage.setItem("gridId", gridId);
         // Update player's in-memory and stored location
         fullPlayerData.location = {
           ...fullPlayerData.location,
           x: targetPosition.x,
           y: targetPosition.y,
-          g: targetGridId,
+          g: gridId,
         };
 
         console.log("✅ Player repositioned into gridState:", gridPlayer);
@@ -411,15 +378,15 @@ setGridState(prev => ({
         console.log('✅ Player found in local gridState.');
 
         // Optional: double-check database copy of gridState
-        const { data: gridStateResponse } = await axios.get(`${API_BASE}/api/load-grid-state/${fullPlayerData.location.g}`);
-        const dbGridState = gridStateResponse?.gridStatePCs || { npcs: {}, pcs: {} };
-        console.log('DB gridState:', dbGridState);
-        if (!dbGridState.pcs || !dbGridState.pcs[fullPlayerData._id]) {
-          console.warn(`⚠️ Player ${fullPlayerData.username} missing from DB gridState. Saving state to DB.`);
-          await gridStatePCManager.updatePC(fullPlayerData.location.g, fullPlayerData._id, gridPlayer);
-        } else {
-          console.log('✅ Player exists in both local and DB gridState.');
-        }
+        // const { data: gridStateResponse } = await axios.get(`${API_BASE}/api/load-grid-state/${fullPlayerData.location.g}`);
+        // const dbGridState = gridStateResponse?.gridStatePCs || { npcs: {}, pcs: {} };
+        // console.log('DB gridState:', dbGridState);
+        // if (!dbGridState.pcs || !dbGridState.pcs[fullPlayerData._id]) {
+        //   console.warn(`⚠️ Player ${fullPlayerData.username} missing from DB gridState. Saving state to DB.`);
+        //   await gridStatePCManager.updatePC(fullPlayerData.location.g, fullPlayerData._id, gridPlayer);
+        // } else {
+        //   console.log('✅ Player exists in both local and DB gridState.');
+        // }
       }
 
       // Step 9: Sync combat stats from gridState
@@ -1238,14 +1205,14 @@ return ( <>
       <br />
       <h3>Who's here:</h3>
       <div>
-        {gridStatePCs?.[gridId] && typeof gridStatePCs[gridId] === 'object' ? (
-          Object.entries(gridStatePCs[gridId]).length === 0 ? (
+      {gridStatePCs?.[gridId]?.pcs && typeof gridStatePCs[gridId].pcs === 'object' ? (
+          Object.entries(gridStatePCs[gridId].pcs).length === 0 ? (
             <h4 style={{ color: "white" }}>No PCs present in the grid.</h4>
           ) : (
-            Object.entries(gridStatePCs[gridId]).map(([playerId, pc]) => (
+            Object.entries(gridStatePCs[gridId].pcs).map(([playerId, pc]) => (
               <p key={playerId} style={{ color: "white" }}>
                 {connectedPlayers.has(playerId) && '📡 '}
-                <strong>{pc.username}</strong> - HP: {pc.hp}, ({pc.position.x}, {pc.position.y})
+                <strong>{pc.username}</strong> – HP: {pc.hp}, ({pc.position?.x}, {pc.position?.y})
               </p>
             ))
           )

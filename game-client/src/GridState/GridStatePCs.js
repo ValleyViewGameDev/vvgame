@@ -7,10 +7,15 @@ class GridStatePCManager {
       this.gridStatePCs = {}; // Store PC states in memory
     }
  
+    registerSetGridStatePCs(setter) {
+      this.setGridStatePCsReact = setter;
+    }
+
     /**
      * Initialize the gridStatePCs for a specific gridId.
      */
     async initializeGridStatePCs(gridId) {
+
       console.log('🧠 Fetching gridStatePCs for gridId:', gridId);
       if (!gridId) {
         console.error('initializeGridStatePCs: gridId is undefined.');
@@ -23,7 +28,13 @@ class GridStatePCManager {
           gridStatePCs = { pcs: {}, lastUpdated: 0 },
         } = response.data;
     
-        const pcs = gridStatePCs.pcs || {};
+        // Build a consolidated local state with independent timestamps
+        const state = {
+          pcs: gridStatePCs.pcs || {},
+          gridStatePCsLastUpdated: new Date(gridStatePCs.lastUpdated || 0).getTime(),
+        };
+        const pcs = state.pcs || {};
+        console.log('Fetched PC gridState:', state);
     
         // Normalize PC format
         Object.keys(pcs).forEach((playerId) => {
@@ -34,8 +45,16 @@ class GridStatePCManager {
           };
         });
     
-        this.gridStatePCs[gridId] = pcs;
+        this.gridStatePCs[gridId] = state;
     
+        this.setGridStatePCsReact((prev) => ({
+          ...prev,
+          [gridId]: {
+            pcs: pcs,
+            gridStatePCsLastUpdated: Date.now(),
+          },
+        }));
+
         console.log(`✅ Initialized gridStatePCs for gridId ${gridId}:`, pcs);
       } catch (error) {
         console.error('❌ Error fetching gridStatePCs:', error);
@@ -43,29 +62,31 @@ class GridStatePCManager {
     }
     
     getGridStatePCs(gridId) {
-        const pcs = this.gridStatePCs[gridId];
-        if (!pcs) {
-          console.warn(`⚠️ No PC state found for gridId: ${gridId}`);
-          return {};
-        }
-        return pcs;
+      const gridStatePCs = this.gridStatePCs[gridId];
+      if (!gridStatePCs) {
+        console.warn(`⚠️ No PC state found for gridId: ${gridId}`);
+        return {};
       }
-
-    getPlayerPosition(gridId, playerId) {
-      return this.gridStatePCs?.[gridId]?.[playerId]?.position || null;
+      return gridStatePCs.pcs;
     }
 
-    registerSetGridStatePCs(setter) {
-      this.setGridStatePCsReact = setter;
+    getAllPCs(gridId) {
+      return this.gridStatePCs?.[gridId]?.pcs || {};
+    }
+    getPlayerPosition(gridId, playerId) {
+      return this.gridStatePCs?.[gridId]?.pcs?.[playerId]?.position || null;
     }
 
     setAllPCs(gridId, pcsObject) {
-      this.gridStatePCs[gridId] = pcsObject || {};
+      this.gridStatePCs[gridId] = {
+        pcs: pcsObject || {},
+        gridStatePCsLastUpdated: Date.now(),
+      };
     
       if (this.setGridStatePCsReact) {
         this.setGridStatePCsReact(prev => ({
           ...prev,
-          [gridId]: pcsObject,
+          [gridId]: this.gridStatePCs[gridId],
         }));
       }
     }
@@ -73,7 +94,10 @@ class GridStatePCManager {
     // Add a new PC to the gridStatePCs for a given gridId and playerId.
     async addPC(gridId, playerId, pcData) {
       if (!this.gridStatePCs[gridId]) {
-        this.gridStatePCs[gridId] = {};
+        this.gridStatePCs[gridId] = {
+          pcs: {},
+          gridStatePCsLastUpdated: Date.now(),
+        };
       }
 
       const now = Date.now();
@@ -82,7 +106,7 @@ class GridStatePCManager {
         lastUpdated: now,
       };
 
-      this.gridStatePCs[gridId][playerId] = newPC;
+      this.gridStatePCs[gridId].pcs[playerId] = newPC;
 
       // Save to server
       try {
@@ -111,7 +135,7 @@ class GridStatePCManager {
 
     // Update an existing PC in the gridStatePCs for a given gridId and playerId.
     async updatePC(gridId, playerId, newProperties) {
-      const gridPCs = this.gridStatePCs[gridId];
+      const gridPCs = this.gridStatePCs[gridId]?.pcs;
       if (!gridPCs || !gridPCs[playerId]) {
         console.error(`Cannot update PC ${playerId}. No gridState or PC found for gridId: ${gridId}`);
         return;
@@ -124,7 +148,7 @@ class GridStatePCManager {
         lastUpdated: now,
       };
 
-      this.gridStatePCs[gridId][playerId] = updatedPC;
+      this.gridStatePCs[gridId].pcs[playerId] = updatedPC;
 
       // Save to server
       try {

@@ -7,6 +7,8 @@ import { useGridStatePCs } from '../GridState/GridStatePCContext';
 import { handleNPCClick } from '../GameFeatures/NPCs/NPCHelpers';
 import { handleAttackOnPC } from '../GameFeatures/Combat/Combat';
 import { renderPositions } from '../PlayerMovement';
+import gridStateManager from '../GridState/GridStateNPCs';
+import gridStatePCManager from '../GridState/GridStatePCs';
 
 
 const DynamicRenderer = ({
@@ -21,6 +23,10 @@ const DynamicRenderer = ({
 }) => {
   const gridState = useGridState(); // Use the updated gridState from context
   const gridStatePCs = useGridStatePCs(); // Access PCs via modern PC-specific context
+  //const gridStatePCs = gridStatePCManager.getAllPCs(currentPlayer.location.g) || [];
+
+  console.log("🔄 Re-rendering PCs! Latest gridStatePCs:", gridStatePCs);
+  console.log("🔄 Re-rendering NPCs! Latest gridState:", gridState);
 
   const masterResourcesRef = useRef(masterResources); // Keep masterResources in a ref
   useEffect(() => {
@@ -39,7 +45,6 @@ const DynamicRenderer = ({
 
 
   useEffect(() => {
-    console.log("🔄 Re-rendering PCs and NPCs! Latest gridState:", gridState);
     const container = containerRef.current;
     if (!container) return;
     const gridId = currentPlayer?.location?.g;
@@ -120,7 +125,8 @@ const DynamicRenderer = ({
 
     ///////////////////////////////////////////////////////
     const renderPCs = () => {
-      const pcs = Object.values(gridStatePCs?.[currentPlayer?.location?.g] || {});
+
+      const pcs = Object.values(gridStatePCs?.[currentPlayer?.location?.g]?.pcs || {});
 
       pcs.forEach((pc) => {
         // Validate the pc object and its position
@@ -212,7 +218,7 @@ const DynamicRenderer = ({
       container.removeChild(tooltip);
     };
   // Add all required dependencies
-  }, [gridState, gridStatePCs, TILE_SIZE, currentPlayer, onNPCClick, onPCClick, setInventory, setResources]);
+  }, [gridState, TILE_SIZE, currentPlayer, onNPCClick, onPCClick, setInventory, setResources]);
 
   return <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%' }} />;
 };

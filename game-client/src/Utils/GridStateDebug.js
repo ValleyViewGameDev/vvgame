@@ -10,7 +10,7 @@ const GridStateDebugPanel = ({ gridId, gridState, gridStatePCs }) => {
     }
   };
 
-  const currentNPCs = gridState?.[gridId]?.npcs || 'Not loaded';
+  const currentNPCs = gridState?.[gridId] || 'Not loaded';
   const currentPCs = gridStatePCs?.[gridId] || 'Not loaded';
 
   return (
@@ -19,11 +19,11 @@ const GridStateDebugPanel = ({ gridId, gridState, gridStatePCs }) => {
       <h5>🧠 [gridId]:</h5>
       <pre>{formatJSON(gridId)}</pre>
 
-      <h5>🐮 gridState[gridId]:</h5>
-      <pre>{formatJSON(gridState?.[gridId])}</pre>
+      <h5>🐮 NPCs:  gridState?.[gridId]</h5>
+      <pre>{formatJSON(currentNPCs)}</pre>
 
-      <h5>👥 gridStatePCs[gridId]:</h5>
-      <pre>{formatJSON(gridStatePCs?.[gridId])}</pre>
+      <h5>👥 PCs:  gridStatePCs?[gridId]</h5>
+      <pre>{formatJSON(currentPCs)}</pre>
     </div>
   );
 };

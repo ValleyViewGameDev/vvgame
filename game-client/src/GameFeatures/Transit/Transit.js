@@ -13,8 +13,7 @@ export async function handleTransitSignpost(
   setResources,
   updateStatus,
   TILE_SIZE,
-  skills,
-  setSuspendNPCUpdates
+  skills
 ) {
   try {
     console.log("Handling transit for resource:", resourceType);
@@ -59,7 +58,6 @@ export async function handleTransitSignpost(
         setTileTypes,
         setResources,
         TILE_SIZE,
-        setSuspendNPCUpdates
       );
       return;
     }
@@ -97,7 +95,6 @@ export async function handleTransitSignpost(
         setTileTypes,
         setResources,
         TILE_SIZE,
-        setSuspendNPCUpdates
       );
       return;
     }

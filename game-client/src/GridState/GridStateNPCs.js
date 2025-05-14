@@ -17,7 +17,7 @@ export const getLastGridStateTimestamp = () => lastGridStateTimestamp;
 
 class GridStateManager {
   constructor() {
-    this.gridStates = {}; // Store grid states in memory
+    this.gridState = {}; // Store grid states in memory
     console.log('GridStateManager instance created.');
   }
 
@@ -29,7 +29,7 @@ class GridStateManager {
    * Initialize the gridState for a specific gridId.
    */
   async initializeGridState(gridId) {
-    
+
     console.log('👍 Initialize gridState for gridId:', gridId);
     if (!gridId) {
       console.error('initializeGridState: gridId is undefined.');
@@ -40,7 +40,6 @@ class GridStateManager {
       const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
       const {
         gridStateNPCs = { npcs: {}, lastUpdated: 0 },
-        gridStatePCs = { pcs: {}, lastUpdated: 0 },
       } = response.data;
 
       // Build a consolidated local state with independent timestamps
@@ -48,31 +47,26 @@ class GridStateManager {
         npcs: gridStateNPCs.npcs || {},
         gridStateNPCsLastUpdated: new Date(gridStateNPCs.lastUpdated || 0).getTime(),
       };
-
+      const npcs = gridState.npcs || {};
       console.log('Fetched gridState:', gridState);
 
       // Load master resources
       const masterResources = await loadMasterResources();
 
       // Rehydrate NPCs
-      if (gridState.npcs) {
-        Object.keys(gridState.npcs).forEach((npcId) => {
-          const lightweightNPC = gridState.npcs[npcId];
-          const npcTemplate = masterResources.find(
-            (res) => res.type === lightweightNPC.type
-          );
-
+      if (npcs) {
+        Object.keys(npcs).forEach((npcId) => {
+          const lightweightNPC = npcs[npcId];
+          const npcTemplate = masterResources.find((res) => res.type === lightweightNPC.type);
           if (!npcTemplate) {
             console.warn(`⚠️ Missing template for NPC type: ${lightweightNPC.type}`);
             console.log('Master resources:', masterResources.map(res => res.type));
           }
-
           const hydrated = new NPC(
             npcId,
             lightweightNPC.type,
             lightweightNPC.position,
-            { ...npcTemplate, ...lightweightNPC },
-            gridId
+            { ...npcTemplate, ...lightweightNPC }
           );
 
           console.log('  ✅ Hydrated NPC instance:', hydrated);
@@ -81,7 +75,7 @@ class GridStateManager {
         });
       }
 
-      this.gridStates[gridId] = gridState;
+      this.gridState[gridId] = gridState;
 
       if (this.setGridStateReact) {
         console.log('📡 Syncing initialized NPCs to React state for gridId:', gridId);
@@ -104,8 +98,7 @@ class GridStateManager {
    * Get the gridState for a specific gridId.
    */
   getGridState(gridId) {
-    //console.log('⊞ getGridState called with gridId:', gridId);
-    const gridState = this.gridStates[gridId];
+    const gridState = this.gridState[gridId];
     //console.log('⊞ this.gridStates[gridId]:', gridState);
     if (!gridState) {
       console.warn(`⚠️ No gridState found for gridId: ${gridId}`);
