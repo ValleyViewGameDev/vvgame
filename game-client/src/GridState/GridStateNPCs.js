@@ -83,6 +83,17 @@ class GridStateManager {
 
       this.gridStates[gridId] = gridState;
 
+      if (this.setGridStateReact) {
+        console.log('📡 Syncing initialized NPCs to React state for gridId:', gridId);
+        this.setGridStateReact(prev => ({
+          ...prev,
+          [gridId]: {
+            ...(prev[gridId] || {}),
+            ...gridState,
+          },
+        }));
+      }
+
       console.log(`✅ Initialized and enriched gridState for gridId ${gridId}:`, gridState);
     } catch (error) {
       console.error('Error fetching gridState:', error);

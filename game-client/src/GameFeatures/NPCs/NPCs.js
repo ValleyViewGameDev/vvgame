@@ -49,8 +49,8 @@ class NPC {
 /////////////////
 
 update(currentTime, gridState, gridId, TILE_SIZE) {
-  console.log(`[🐮 NPC.update] ${this.id} | time=${currentTime} | type=${this.type} | state=${this.state}`);
-
+  console.log(`[🐮 NPC.update] | NPCid= ${this.id} | time=${currentTime} | type=${this.type} | state=${this.state}`);
+  console.log('🐮 gridState:', gridState);
   const npcs = Object.values(gridStateManager.getGridState(gridId)?.npcs || {}); // Use the new gridState.npcs
 
   const timeElapsed = currentTime - this.lastUpdated;

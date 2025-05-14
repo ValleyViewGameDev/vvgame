@@ -14,8 +14,7 @@ export const setGridStateExternally = (state) => {
 };
 
 export function GridStateProvider({ children }) {
-  const [gridState, setGridState] = useState(null);
-  externalSetGridState = setGridState;
+  const [gridState, setGridState] = useState({}); // instead of null  externalSetGridState = setGridState;
 
   return (
     <GridStateContext.Provider value={gridState}>

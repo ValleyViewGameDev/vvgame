@@ -321,7 +321,12 @@ useEffect(() => {
           console.error(`❌ Failed to rehydrate NPC ${npcId}:`, e);
         }
       });
-      setGridState(initializedState);
+//      setGridState(initializedState);
+
+setGridState(prev => ({
+  ...prev,
+  [gridId]: initializedState,
+}));
 
       // Step 7. Initialize PCs
       console.log('🏁✅ 7 InitAppWrapper; Initializing gridStatePCs...');
@@ -1219,7 +1224,7 @@ return ( <>
         </>
       )}
       <br />
-      
+
           <h4>🏛️ Elections: {timers.elections.phase}</h4>
           <p>Ends: {countdowns.elections}</p>
           <h4>🚂 Train: {timers.train.phase}</h4>

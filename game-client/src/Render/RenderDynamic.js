@@ -39,7 +39,7 @@ const DynamicRenderer = ({
 
 
   useEffect(() => {
-    //console.log("🔄 Re-rendering PCs and NPCs! Latest gridState:", gridState);
+    console.log("🔄 Re-rendering PCs and NPCs! Latest gridState:", gridState);
     const container = containerRef.current;
     if (!container) return;
     const gridId = currentPlayer?.location?.g;
@@ -59,8 +59,8 @@ const DynamicRenderer = ({
 
     ///////////////////////////////////////////////////////
     const renderNPCs = () => {
-      const npcs = Object.values(gridState?.npcs || {}); // Use the updated gridState.npcs
-
+      const npcs = Object.values(gridState?.[currentPlayer?.location?.g]?.npcs || {});
+      
       npcs.forEach((npc) => {
         let npcElement = npcElements.current.get(npc.id);
 
