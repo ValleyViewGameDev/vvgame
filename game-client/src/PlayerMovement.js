@@ -87,10 +87,15 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
     if (step >= stepCount) {
       delete renderPositions[playerId];
       const now = Date.now();
+      console.log(`🦶🦶 Player ${playerId} moved to (${finalPosition.x}, ${finalPosition.y})`);
+      console.log('🦶🦶 About to call updatePC');
       playersInGridManager.updatePC(gridId, playerId, {
         position: finalPosition,
         lastUpdated: now,
       });
+      const debugData = playersInGridManager.getPlayersInGrid(gridId);
+      console.log('🦶🦶 playersInGrid after updatePC:', debugData);
+
       centerCameraOnPlayer(finalPosition, TILE_SIZE);
       return;
     }
