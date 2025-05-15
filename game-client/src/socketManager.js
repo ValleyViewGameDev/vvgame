@@ -136,6 +136,9 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
           animateRemotePC(playerId, prevPosition, newPosition, TILE_SIZE); // Use your actual TILE_SIZE here
         }
 
+        console.log("🧠 Pre-state before merge:", JSON.stringify(prevState, null, 2));
+        console.log("📥 Incoming update for:", playerId, "with data:", incomingPC);
+
         return {
           ...prevState,
           [gridId]: {
@@ -146,6 +149,7 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
             },
           },
         };
+        
       }
 
       console.log(`⏳ Skipping stale update for PC ${playerId}.`);
