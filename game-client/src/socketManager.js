@@ -100,21 +100,27 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
 
   if (!gridId) return;
 
-  // Updated handlePCSync to accept new payload structure
+  // Updated handlePCSync to fully overwrite local PC with incoming PC if newer
   const handlePCSync = (payload) => {
-
     console.log("📥 Received sync-PCs payload:", JSON.stringify(payload, null, 2));
 
-    const { emitterId, pcs, playersInGridLastUpdated } = payload;
+    const { emitterId } = payload;
     const mySocketId = socket.id;
-    const foundGridId = gridId;
-
-    if (!pcs || typeof pcs !== 'object') {
-      console.warn("📤 Invalid sync-PCs payload (missing pcs):", payload);
-      return;
-    }
     if (emitterId === mySocketId) {
       console.log(`📤 Skipping sync-PCs from self (emitterId = socket.id)`);
+      return;
+    }
+
+    // Extract gridId and gridData (we only expect one in this case)
+    const gridEntries = Object.entries(payload).filter(([key]) => key !== 'emitterId');
+    if (gridEntries.length === 0) {
+      console.warn("❌ No grid data found in sync-PCs payload:", payload);
+      return;
+    }
+    const [gridId, gridData] = gridEntries[0];
+    const { pcs } = gridData || {};
+    if (!pcs || typeof pcs !== 'object') {
+      console.warn("📤 Invalid sync-PCs payload (missing pcs):", payload);
       return;
     }
 
@@ -122,9 +128,10 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
     const incomingTime = new Date(incomingPC?.lastUpdated).getTime();
 
     setPlayersInGrid((prevState) => {
-      const localPC = prevState[foundGridId]?.pcs?.[playerId];
+      const localPC = prevState[gridId]?.pcs?.[playerId];
       const localTime = new Date(localPC?.lastUpdated).getTime() || 0;
 
+      // If this is the local player, only accept if the incoming update is newer than our last move
       if (currentPlayer && playerId === String(currentPlayer._id)) {
         if (localPlayerMoveTimestampRef.current > incomingTime) {
           console.log(`⏳ Skipping local PC (${playerId}) update; local movement is newer.`);
@@ -132,36 +139,37 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
         }
       }
 
-      if (incomingTime > localTime) {
-        console.log(`⏩ Updating PC ${playerId} from socket event.`);
-
-        const prevPosition = localPC?.position;
-        const newPosition = incomingPC?.position;
-        if (
-          prevPosition &&
-          newPosition &&
-          (prevPosition.x !== newPosition.x || prevPosition.y !== newPosition.y)
-        ) {
-          animateRemotePC(playerId, prevPosition, newPosition, TILE_SIZE);
-        }
-
-        console.log("🧠 Pre-state before merge:", JSON.stringify(prevState, null, 2));
-        console.log("📥 Incoming update for:", playerId, "with data:", incomingPC);
-
-        return {
-          ...prevState,
-          [foundGridId]: {
-            ...prevState[foundGridId],
-            pcs: {
-              ...(prevState[foundGridId]?.pcs || {}),
-              [playerId]: incomingPC,
-            },
-          },
-        };
+      if (incomingTime <= localTime) {
+        console.log(`⏳ Skipping stale update for PC ${playerId}.`);
+        return prevState;
       }
 
-      console.log(`⏳ Skipping stale update for PC ${playerId}.`);
-      return prevState;
+      console.log(`⏩ Updating PC ${playerId} from socket event.`);
+
+      const prevPosition = localPC?.position;
+      const newPosition = incomingPC?.position;
+      if (
+        prevPosition &&
+        newPosition &&
+        (prevPosition.x !== newPosition.x || prevPosition.y !== newPosition.y)
+      ) {
+        animateRemotePC(playerId, prevPosition, newPosition, TILE_SIZE);
+      }
+
+      console.log("🧠 Pre-state before merge:", JSON.stringify(prevState, null, 2));
+      console.log("📥 Incoming update for:", playerId, "with data:", incomingPC);
+
+      // Fully overwrite the local PC data with the incomingPC
+      return {
+        ...prevState,
+        [gridId]: {
+          ...prevState[gridId],
+          pcs: {
+            ...(prevState[gridId]?.pcs || {}),
+            [playerId]: incomingPC,
+          },
+        },
+      };
     });
   };
 
