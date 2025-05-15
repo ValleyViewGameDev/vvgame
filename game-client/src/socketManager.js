@@ -122,7 +122,7 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
     const incomingTime = new Date(incomingPC?.lastUpdated).getTime();
 
     setPlayersInGrid((prevState) => {
-      const localPC = prevState[foundGridId]?.pcs?.[playerId];
+      const localPC = prevState[gridId]?.pcs?.[playerId];
       const localTime = new Date(localPC?.lastUpdated).getTime() || 0;
 
       if (currentPlayer && playerId === String(currentPlayer._id)) {
@@ -150,10 +150,10 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
 
         return {
           ...prevState,
-          [foundGridId]: {
-            ...prevState[foundGridId],
+          [gridId]: {
+            ...prevState[gridId],
             pcs: {
-              ...(prevState[foundGridId]?.pcs || {}),
+              ...(prevState[gridId]?.pcs || {}),
               [playerId]: incomingPC,
             },
           },
