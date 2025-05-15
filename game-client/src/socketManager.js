@@ -112,7 +112,10 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
     const incomingTime = new Date(incomingPC?.lastUpdated).getTime();
 
     setPlayersInGrid(prevState => {
-      const localPC = prevState[gridId]?.pcs?.[playerId];
+      const currentGrid = prevState[gridId] || {};
+      const currentPCs = currentGrid.pcs || {};
+
+      const localPC = currentPCs[playerId];
       const localTime = new Date(localPC?.lastUpdated).getTime() || 0;
 
       if (currentPlayer && playerId === String(currentPlayer._id)) {
@@ -125,7 +128,6 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
       if (incomingTime > localTime) {
         console.log(`⏩ Updating PC ${playerId} from socket event.`);
 
-        // Trigger animation if position changed
         const prevPosition = localPC?.position;
         const newPosition = incomingPC?.position;
         if (
@@ -133,7 +135,7 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
           newPosition &&
           (prevPosition.x !== newPosition.x || prevPosition.y !== newPosition.y)
         ) {
-          animateRemotePC(playerId, prevPosition, newPosition, TILE_SIZE); // Use your actual TILE_SIZE here
+          animateRemotePC(playerId, prevPosition, newPosition, TILE_SIZE);
         }
 
         console.log("🧠 Pre-state before merge:", JSON.stringify(prevState, null, 2));
@@ -142,14 +144,13 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
         return {
           ...prevState,
           [gridId]: {
-            ...prevState[gridId],
+            ...currentGrid,
             pcs: {
-              ...(prevState[gridId]?.pcs || {}),
+              ...currentPCs,
               [playerId]: incomingPC,
             },
           },
         };
-        
       }
 
       console.log(`⏳ Skipping stale update for PC ${playerId}.`);
