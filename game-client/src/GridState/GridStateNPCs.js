@@ -17,7 +17,7 @@ export const getLastGridStateTimestamp = () => lastGridStateTimestamp;
 
 class GridStateManager {
   constructor() {
-    this.gridState = {}; // Store grid states in memory
+    this.NPCsInGrid = {}; // Store grid states in memory
     console.log('GridStateManager instance created.');
   }
 
@@ -26,11 +26,11 @@ class GridStateManager {
   }
 
   /**
-   * Initialize the gridState for a specific gridId.
+   * Initialize the NPCsInGrid for a specific gridId.
    */
   async initializeGridState(gridId) {
 
-    console.log('👍 Initialize gridState for gridId:', gridId);
+    console.log('👍 Initialize NPCsInGrid for gridId:', gridId);
     if (!gridId) {
       console.error('initializeGridState: gridId is undefined.');
       return;
@@ -39,16 +39,16 @@ class GridStateManager {
     try {
       const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
       const {
-        gridStateNPCs = { npcs: {}, lastUpdated: 0 },
+        NPCsInGrid = { npcs: {}, lastUpdated: 0 },
       } = response.data;
 
       // Build a consolidated local state with independent timestamps
-      const gridState = {
-        npcs: gridStateNPCs.npcs || {},
-        gridStateNPCsLastUpdated: new Date(gridStateNPCs.lastUpdated || 0).getTime(),
+      const hydratedState = {
+        npcs: NPCsInGrid.npcs || {},
+        NPCsInGridLastUpdated: new Date(NPCsInGrid.lastUpdated || 0).getTime(),
       };
-      const npcs = gridState.npcs || {};
-      console.log('Fetched gridState:', gridState);
+      const npcs = hydratedState.npcs || {};
+      console.log('Fetched NPCsInGrid:', hydratedState);
 
       // Load master resources
       const masterResources = await loadMasterResources();
@@ -71,11 +71,11 @@ class GridStateManager {
 
           console.log('  ✅ Hydrated NPC instance:', hydrated);
 
-          gridState.npcs[npcId] = hydrated;
+          NPCsInGrid.npcs[npcId] = hydrated;
         });
       }
 
-      this.gridState[gridId] = gridState;
+      this.NPCsInGrid[gridId] = NPCsInGrid;
 
       if (this.setGridStateReact) {
         console.log('📡 Syncing initialized NPCs to React state for gridId:', gridId);
@@ -83,33 +83,32 @@ class GridStateManager {
           ...prev,
           [gridId]: {
             ...(prev[gridId] || {}),
-            ...gridState,
+            ...NPCsInGrid,
           },
         }));
       }
 
-      console.log(`✅ Initialized and enriched gridState for gridId ${gridId}:`, gridState);
+      console.log(`✅ Initialized and enriched NPCsInGrid for gridId ${gridId}:`, NPCsInGrid);
     } catch (error) {
-      console.error('Error fetching gridState:', error);
+      console.error('Error fetching NPCsInGrid:', error);
     }
   }
 
   /**
-   * Get the gridState for a specific gridId.
+   * Get the NPCsInGrid for a specific gridId.
    */
-  getGridState(gridId) {
-    const gridState = this.gridState[gridId];
-    //console.log('⊞ this.gridStates[gridId]:', gridState);
-    if (!gridState) {
-      console.warn(`⚠️ No gridState found for gridId: ${gridId}`);
+  getNPCsInGrid(gridId) {
+    const NPCsInGrid = this.NPCsInGrid[gridId];
+    if (!NPCsInGrid) {
+      console.warn(`⚠️ No NPCsInGrid found for gridId: ${gridId}`);
       return { npcs: {} }; // Only return NPCs
     }
 
-    return gridState.npcs;
+    return NPCsInGrid.npcs;
   }
 
   /**
-   * Spawn a new NPC and immediately save the updated gridState to the DB.
+   * Spawn a new NPC and immediately save the updated NPCsInGrid to the DB.
    */
   async spawnNPC(gridId, npcType, position) {
     // DEBUG: Log input parameters for spawnNPC
@@ -179,28 +178,28 @@ class GridStateManager {
     );
     this.addNPC(gridId, npc);
 
-    console.log(`Successfully added NPC to gridState. NPC ID: ${npcId}`);
+    console.log(`Successfully added NPC to NPCsInGrid. NPC ID: ${npcId}`);
 
-    const updatedGridState = this.getGridState(gridId);
-    this.setAllNPCs(gridId, updatedGridState.npcs);
+    const updatedGridState = this.getNPCsInGrid(gridId);
+    this.setAllNPCs(gridId, updatedGridState);
   }
 
   /**
-   * Add an NPC to the gridState using per-NPC save model.
+   * Add an NPC to the NPCsInGrid using per-NPC save model.
    */
   async addNPC(gridId, npc) {
-    console.log(`Adding NPC to gridState for gridId: ${gridId}. NPC:`, npc);
-    const gridState = this.gridStates[gridId];
-    if (!gridState) {
-      console.error(`Cannot add NPC. No gridState found for gridId: ${gridId}`);
+    console.log(`Adding NPC to NPCsInGrid for gridId: ${gridId}. NPC:`, npc);
+    const NPCsInGrid = this.NPCsInGrid[gridId];
+    if (!NPCsInGrid) {
+      console.error(`Cannot add NPC. No NPCsInGrid found for gridId: ${gridId}`);
       return;
     }
-    if (!gridState.npcs) gridState.npcs = {};
+    if (!NPCsInGrid.npcs) NPCsInGrid.npcs = {};
 
     const now = Date.now();
     npc.lastUpdated = now;
 
-    gridState.npcs[npc.id] = npc;
+    NPCsInGrid.npcs[npc.id] = npc;
 
     try {
       await axios.post(`${API_BASE}/api/save-single-npc`, {
@@ -215,25 +214,25 @@ class GridStateManager {
     }
 
     if (socket && socket.emit) {
-      socket.emit('update-gridState-NPCs', {
+      socket.emit('update-NPCsInGrid-NPCs', {
         gridId,
         npcs: { [npc.id]: npc },
-        gridStateNPCsLastUpdated: now,
+        NPCsInGridLastUpdated: now,
       });
       console.log(`📡 Emitted NPC grid-state update for NPC ${npc.id}`);
     }
   }
 
   /**
-   * Update an NPC in the gridState using the per-NPC save model.
+   * Update an NPC in the NPCsInGrid using the per-NPC save model.
    */
   async updateNPC(gridId, npcId, newProperties) {
-    //console.log(`🐮++ Updating NPC ${npcId} for gridId: ${gridId}`);
-    const gridState = this.gridStates[gridId];
-    const existing = gridState?.npcs?.[npcId];
+    console.log(`🐮++ Updating NPC ${npcId} for gridId: ${gridId}`);
+    const NPCsInGrid = this.NPCsInGrid[gridId];
+    const existing = NPCsInGrid?.npcs?.[npcId];
 
-    if (!gridState || !gridState.npcs?.[npcId]) {
-      console.error(`Cannot update NPC ${npcId}. No gridState or NPC found for gridId: ${gridId}`);
+    if (!NPCsInGrid || !NPCsInGrid.npcs?.[npcId]) {
+      console.error(`Cannot update NPC ${npcId}. No NPCsInGrid or NPC found for gridId: ${gridId}`);
       return;
     }
 
@@ -243,11 +242,11 @@ class GridStateManager {
     }
   
     const now = Date.now();
-    const npc = gridState.npcs[npcId]; // already an instance of NPC
+    const npc = NPCsInGrid.npcs[npcId]; // already an instance of NPC
     Object.assign(npc, newProperties);
     npc.lastUpdated = now;
 
-    console.log(`[🐮 gridStateManager.updateNPC] NPC ${npcId} updated with:`, newProperties);
+    console.log(`[🐮 NPCsInGridManager.updateNPC] NPC ${npcId} updated with:`, newProperties);
 
     try {
       await axios.post(`${API_BASE}/api/save-single-npc`, {
@@ -262,30 +261,30 @@ class GridStateManager {
     }
 
     if (socket && socket.emit) {
-      socket.emit('update-gridState-NPCs', {
+      socket.emit('update-NPCsInGrid-NPCs', {
         gridId,
         npcs: { [npcId]: npc },
-        gridStateNPCsLastUpdated: now,
+        NPCsInGridLastUpdated: now,
       });
       console.log(`🐮📡 Emitted NPC update for ${npcId}`);
     }
 
-    const updatedGridState = this.getGridState(gridId);
-    this.setAllNPCs(gridId, updatedGridState.npcs);
+    const updatedGridState = this.getNPCsInGrid(gridId);
+    this.setAllNPCs(gridId, updatedGridState);
   }
 
   /**
-   * Remove an NPC from the gridState using the per-NPC save model.
+   * Remove an NPC from the NPCsInGrid using the per-NPC save model.
    */
   async removeNPC(gridId, npcId) {
     console.log(`Removing NPC ${npcId} from gridId: ${gridId}`);
-    const gridState = this.gridStates[gridId];
-    if (!gridState || !gridState.npcs) {
-      console.error(`Cannot remove NPC. No gridState or NPCs found for gridId: ${gridId}`);
+    const NPCsInGrid = this.NPCsInGrid[gridId];
+    if (!NPCsInGrid || !NPCsInGrid.npcs) {
+      console.error(`Cannot remove NPC. No NPCsInGrid or NPCs found for gridId: ${gridId}`);
       return;
     }
 
-    delete gridState.npcs[npcId];
+    delete NPCsInGrid.npcs[npcId];
 
     try {
       await axios.post(`${API_BASE}/api/remove-single-npc`, {
@@ -298,35 +297,35 @@ class GridStateManager {
     }
 
     if (socket && socket.emit) {
-      socket.emit('update-gridState-NPCs', {
+      socket.emit('update-NPCsInGrid-NPCs', {
         gridId,
         npcs: { [npcId]: null }, // Broadcast removal
-        gridStateNPCsLastUpdated: Date.now(),
+        NPCsInGridLastUpdated: Date.now(),
       });
       console.log(`📡 Emitted NPC removal for ${npcId}`);
     }
   }
 
   /**
-   * Save only NPCs in the gridState to the database.
+   * Save only NPCs in the NPCsInGrid to the database.
    * This version dehydrates live NPC instances into plain objects and matches the PC saving structure.
    */
   async saveGridStateNPCs(gridId) {
     console.log('💾 saveGridStateNPCs called with gridId:', gridId);
     try {
-      const gridState = this.gridStates[gridId];
-      if (!gridState || !gridState.npcs) {
+      const NPCsInGrid = this.NPCsInGrid[gridId];
+      if (!NPCsInGrid || !NPCsInGrid.npcs) {
         console.warn(`⚠️ No NPCs to save for grid ${gridId}`);
         return;
       }
 
       // Update local NPC timestamp
       const now = Date.now();
-      gridState.gridStateNPCsLastUpdated = now;
+      NPCsInGrid.NPCsInGridLastUpdated = now;
 
       // Dehydrate the NPCs to simple objects
       const dehydratedNPCs = {};
-      Object.entries(gridState.npcs).forEach(([id, npc]) => {
+      Object.entries(NPCsInGrid.npcs).forEach(([id, npc]) => {
         dehydratedNPCs[id] = {
           id: npc.id,
           type: npc.type,
@@ -342,7 +341,7 @@ class GridStateManager {
       const payload = {
         gridId,
         npcs: dehydratedNPCs,
-        gridStateNPCsLastUpdated: now,
+        NPCsInGridLastUpdated: now,
       };
 
       console.log('💾 Payload for saving NPCs:', payload);
@@ -354,10 +353,10 @@ class GridStateManager {
       // Emit updated NPCs to other clients
       if (socket && socket.emit) {
         console.log(`📡 Emitting NPC grid-state for grid ${gridId}`);
-        socket.emit('update-gridState-NPCs', {
+        socket.emit('update-NPCsInGrid-NPCs', {
           gridId,
           npcs: dehydratedNPCs,
-          gridStateNPCsLastUpdated: now,
+          NPCsInGridLastUpdated: now,
         });
       }
     } catch (error) {
@@ -366,22 +365,22 @@ class GridStateManager {
   }
 
   /**
-   * Start periodic updates for NPCs in the gridState.
+   * Start periodic updates for NPCs in the NPCsInGrid.
    */
   startGridTimer(gridId) {
     if (gridTimer) clearInterval(gridTimer);
 
     gridTimer = setInterval(() => {
-      const gridState = this.gridStates[gridId];
-      if (!gridState) return;
+      const NPCsInGrid = this.NPCsInGrid[gridId];
+      if (!NPCsInGrid) return;
 
-      const { npcs } = gridState;
+      const { npcs } = NPCsInGrid;
       const now = Date.now();
 
       Object.values(npcs || {}).forEach((npc) => {
         if (npc instanceof NPC && typeof npc.update === 'function') {
           //console.log(`Calling update() for NPC ID: ${npc.id}`);
-          npc.update(now, gridState); // Let each NPC handle its own updates
+          npc.update(now, NPCsInGrid); // Let each NPC handle its own updates
         } else {
           console.error(`NPC ID: ${npc.id} is not a valid NPC instance or missing update method. NPC:`, npc);
         }
@@ -406,7 +405,7 @@ class GridStateManager {
       this.updateInterval = null;
       //console.log('Grid state updates stopped.');
     }
-    this.gridStates = {}; // Clear in-memory grid states
+    this.NPCsInGrid = {}; // Clear in-memory grid states
   }
 
   registerSetGridState(setter) {
@@ -414,17 +413,25 @@ class GridStateManager {
   }
 
   setAllNPCs(gridId, npcsObject) {
-    console.log('Setting all NPCs for gridId:', gridId);
-    console.log('NPCs object:', npcsObject);
-    this.gridStates[gridId] = { npcs: npcsObject || {} };
+    console.log('Setting all NPCs for gridId:', gridId, '; NPCs object:', npcsObject);
+  
+    // Safely get or create the current state
+    const existingState = this.NPCsInGrid[gridId] || {};
+    const lastUpdated = existingState.NPCsInGridLastUpdated || Date.now();
+  
+    this.NPCsInGrid[gridId] = {
+      ...existingState,
+      npcs: npcsObject || {},
+      NPCsInGridLastUpdated: lastUpdated,
+    };
   
     if (this.setGridStateReact) {
-      console.log('Updating React state for gridId:', gridId);
       this.setGridStateReact(prev => ({
         ...prev,
         [gridId]: {
           ...(prev[gridId] || {}),
-          npcs: npcsObject,
+          npcs: npcsObject || {},
+          NPCsInGridLastUpdated: lastUpdated,
         },
       }));
     }
@@ -432,19 +439,19 @@ class GridStateManager {
 
 }
 
-const gridStateManager = new GridStateManager();
+const NPCsInGridManager = new GridStateManager();
 
 // Export individual methods for direct use
 export const {
   initializeGridState,
-  getGridState,
+  getNPCsInGrid,
   addNPC,
   updateNPC,
   removeNPC, 
   saveGridStateNPCs,
   registerSetGridState,
   setAllNPCs,
-} = gridStateManager;
+} = NPCsInGridManager;
 
 // Default export for the entire manager
-export default gridStateManager;
+export default NPCsInGridManager;

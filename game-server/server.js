@@ -18,7 +18,7 @@ const { Server } = require('socket.io');
 const Player = require('./models/player');  // Ensure this is correct
 
 const worldRoutes = require('./routes/worldRoutes');
-const gridStateRoutes = require('./routes/gridStateRoutes'); // Import gridState routes
+const gridRoutes = require('./routes/gridRoutes'); // Import NPCsInGrid routes
 const playerRoutes = require('./routes/playerRoutes'); 
 const authRoutes = require('./routes/auth');  // <-- Import auth routes
 const tradingRoutes = require('./routes/tradingRoutes'); // Import trading routes
@@ -120,7 +120,7 @@ mongoose.connect(process.env.MONGODB_URI, {
         io.to(gridId).emit('player-connected', { playerId });
         try {
           const gridDoc = await Grid.findById(gridId);
-          const pcs = gridDoc?.gridStatePCs || {};
+          const pcs = gridDoc?.playersInGrid || {};
           socket.emit('current-grid-players', { gridId, pcs });
           console.log(`📦 Sent current PCs in grid ${gridId} to ${socket.id}`);
         } catch (error) {
@@ -205,34 +205,34 @@ mongoose.connect(process.env.MONGODB_URI, {
       });
 
       // Broadcast updated PCs to others in the same grid
-      socket.on('update-gridState-PCs', ({ gridId, pcs, gridStatePCsLastUpdated }) => {
+      socket.on('update-NPCsInGrid-PCs', ({ gridId, pcs, playersInGridLastUpdated }) => {
         // DEBUG: Log the full payload and every key
-        console.log('DEBUG: Received update-gridState-PCs event with payload:', {
-          gridId, pcs, gridStatePCsLastUpdated
+        console.log('DEBUG: Received update-NPCsInGrid-PCs event with payload:', {
+          gridId, pcs, playersInGridLastUpdated
         });
-        if (!pcs || !gridStatePCsLastUpdated) {
-          console.warn('⚠️ Received invalid or missing PCs update:', { pcs, gridStatePCsLastUpdated });
+        if (!pcs || !playersInGridLastUpdated) {
+          console.warn('⚠️ Received invalid or missing PCs update:', { pcs, playersInGridLastUpdated });
           return;
         }
         console.log(`📤 Broadcasting updated PCs for grid ${gridId}`);
         console.log('DEBUG: Emitter socket id =', socket.id);
-        socket.to(gridId).emit('gridState-sync-PCs', {
+        socket.to(gridId).emit('sync-PCs', {
           pcs,
-          gridStatePCsLastUpdated,
+          playersInGridLastUpdated,
           emitterId: socket.id, // Keep emitterId for fallback and debugging
         });
       });
 
       // Broadcast updated NPCs to others in the same grid
-      socket.on('update-gridState-NPCs', ({ gridId, npcs, gridStateNPCsLastUpdated }) => {
-        if (!npcs || !gridStateNPCsLastUpdated) {
-          console.warn('⚠️ Received invalid or missing NPCs update:', { npcs, gridStateNPCsLastUpdated });
+      socket.on('update-NPCsInGrid-NPCs', ({ gridId, npcs, NPCsInGridLastUpdated }) => {
+        if (!npcs || !NPCsInGridLastUpdated) {
+          console.warn('⚠️ Received invalid or missing NPCs update:', { npcs, NPCsInGridLastUpdated });
           return;
         }
         console.log(`📤 Broadcasting updated NPCs for grid ${gridId}`);
-        socket.to(gridId).emit('gridState-sync-NPCs', {
+        socket.to(gridId).emit('sync-NPCs', {
             npcs,
-            gridStateNPCsLastUpdated,
+            NPCsInGridLastUpdated,
             emitterId: socket.id, // Keep emitterId for fallback and debugging
         });
       });
@@ -296,8 +296,8 @@ console.log('Setting up player routes...');
 app.use('/api', playerRoutes);
 console.log('Setting up world routes...');
 app.use('/api', worldRoutes);
-console.log('Setting up gridState routes...');
-app.use('/api', gridStateRoutes);
+console.log('Setting up NPCsInGrid routes...');
+app.use('/api', gridRoutes);
 console.log('Setting up trading routes...');
 app.use('/api', tradingRoutes);
 console.log('Setting up frontier routes...');

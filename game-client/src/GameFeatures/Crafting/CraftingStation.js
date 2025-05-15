@@ -11,7 +11,7 @@ import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients } from '..
 import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import gridStateManager from '../../GridState/GridStateNPCs';
+import NPCsInGridManager from '../../GridState/GridStateNPCs';
 
 
 const CraftingStation = ({
@@ -223,7 +223,7 @@ const CraftingStation = ({
         const isNPC = craftedResource?.category === 'npc';
         if (isNPC) {
           console.log(`🤖 Spawning NPC: ${craftedItem} at (${currentStationPosition.x}, ${currentStationPosition.y})`);
-          gridStateManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
+          NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
           await trackQuestProgress(currentPlayer, 'Craft', craftedItem, 1, setCurrentPlayer);
         } 
         

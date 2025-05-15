@@ -24,9 +24,9 @@ import { socketListenForPCJoinAndLeave,
 import farmState from './FarmState';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 
-import gridStatePCManager from './GridState/GridStatePCs';
-import { useGridStatePCs, useGridStatePCUpdate } from './GridState/GridStatePCContext';
-import gridStateManager from './GridState/GridStateNPCs.js';
+import playersInGridManager from './GridState/PlayersInGrid';
+import { usePlayersInGrid, useGridStatePCUpdate } from './GridState/GridStatePCContext';
+import NPCsInGridManager from './GridState/GridStateNPCs.js';
 import { useGridState, useGridStateUpdate } from './GridState/GridStateContext';
 import npcController from './GridState/NPCController';
 
@@ -140,17 +140,17 @@ const [backpack, setBackpack] = useState({});
 const [playerPosition, setPlayerPosition] = useState(null);
 const [isMoving, setIsMoving] = useState(null);
 
-const gridState = useGridState();
+const NPCsInGrid = useGridState();
 const setGridState = useGridStateUpdate();
 useEffect(() => {
-  gridStateManager.registerSetGridState(setGridState);
+  NPCsInGridManager.registerSetGridState(setGridState);
 }, [setGridState]);
 
-const gridStatePCs = useGridStatePCs();
-const setGridStatePCs = useGridStatePCUpdate();
+const playersInGrid = usePlayersInGrid();
+const setPlayersInGrid = useGridStatePCUpdate();
 useEffect(() => {
-  gridStatePCManager.registerSetGridStatePCs(setGridStatePCs);
-}, [setGridStatePCs]);
+  playersInGridManager.registerSetPlayersInGrid(setPlayersInGrid);
+}, [setPlayersInGrid]);
 
 const [npcs, setNpcs] = useState({});
 
@@ -243,9 +243,9 @@ useEffect(() => {
       // 2.1 Fetch the full player data from the server
       console.log('🏁✅ 2.1 InitAppWrapper; fetching player from server...');
       const response = await axios.get(`${API_BASE}/api/player/${parsedPlayer.playerId}`);
-      const fullPlayerData = response.data;
-      if (!fullPlayerData || !fullPlayerData.playerId) {
-        console.error('Invalid full player data from server:', fullPlayerData);
+      const DBPlayerData = response.data;
+      if (!DBPlayerData || !DBPlayerData.playerId) {
+        console.error('Invalid full player data from server:', DBPlayerData);
         setisLoginPanelOpen(true);
         return;
       }
@@ -253,7 +253,7 @@ useEffect(() => {
       // Step 2.5: Check for stale gridId (e.g. after offSeason relocation)
       console.log('🏁✅ 2.5 InitAppWrapper; checking for stale gridId after relocation...');
       const storedGridId = localStorage.getItem("gridId");
-      const resolvedGridId = fullPlayerData.location?.g;
+      const resolvedGridId = DBPlayerData.location?.g;
       if (storedGridId && resolvedGridId && storedGridId !== resolvedGridId) {
         console.warn("🌪️ Detected stale gridId from localStorage. Updating to new home grid.");
         localStorage.setItem("gridId", resolvedGridId);
@@ -262,9 +262,9 @@ useEffect(() => {
 
       // Step 3. Combine local and server data, prioritizing newer info from the server
       console.log('🏁✅ 3 InitAppWrapper; Merging player data and initializing inventory...');
-      let updatedPlayerData = { ...parsedPlayer, ...fullPlayerData };
+      let updatedPlayerData = { ...parsedPlayer, ...DBPlayerData };
       setCurrentPlayer(updatedPlayerData);
-      setInventory(fullPlayerData.inventory || []);  // Initialize inventory properly
+      setInventory(DBPlayerData.inventory || []);  // Initialize inventory properly
 
       // Step 4. Determine initial gridId from player or storage
       console.log('🏁✅ Determining local gridId...');
@@ -278,15 +278,15 @@ useEffect(() => {
 
       // 4.5. Open the socket
       socket.connect();
-      socket.emit('join-grid', { gridId: initialGridId, playerId: fullPlayerData.playerId });
+      socket.emit('join-grid', { gridId: initialGridId, playerId: DBPlayerData.playerId });
       console.log("📡 Connected to socket and joined grid:", initialGridId);
       socket.emit('player-joined-grid', {
         gridId: initialGridId,
-        playerId: fullPlayerData.playerId,
-        username: fullPlayerData.username,
-        playerData: fullPlayerData,
+        playerId: DBPlayerData.playerId,
+        username: DBPlayerData.username,
+        playerData: DBPlayerData,
       });
-      socket.emit('set-username', { username: fullPlayerData.username });
+      socket.emit('set-username', { username: DBPlayerData.username });
 
       // Step 5. Initialize grid tiles, resources
       console.log('🏁✅ 5 InitAppWrapper; Initializing grid tiles and resources...');
@@ -300,133 +300,117 @@ useEffect(() => {
       );
 
       // Step 6. Initialize NPCs
-      console.log('🏁✅ 6 InitAppWrapper; Initializing NPC gridState...');
-      await gridStateManager.initializeGridState(initialGridId);
-      const freshNPCState = gridStateManager.getGridState(initialGridId);
+      console.log('🏁✅ 6 InitAppWrapper; Initializing NPC NPCsInGrid...');
+      await NPCsInGridManager.initializeGridState(initialGridId);
+      const freshNPCState = NPCsInGridManager.getNPCsInGrid(initialGridId);
       console.log('initializedState (NPCs): ',freshNPCState);
 
-
       // Step 7. Initialize PCs
-      console.log('🏁✅ 7 InitAppWrapper; Initializing gridStatePCs...');
-      await gridStatePCManager.initializeGridStatePCs(initialGridId);
-      const freshPCState = gridStatePCManager.getGridStatePCs(initialGridId);
-      // setGridStatePCs((prev) => ({
-      //   ...prev,
-      //   [initialGridId]: freshPCState,
-      // }));
+      console.log('🏁✅ 7 InitAppWrapper; Initializing playersInGrid...');
+      await playersInGridManager.initializePlayersInGrid(initialGridId);
+      const freshPCState = playersInGridManager.getPlayersInGrid(initialGridId);
       const playerId = String(parsedPlayer.playerId);
       const playerPosition = freshPCState?.[playerId]?.position;
-      console.log('Player position from gridStatePCs:', playerPosition);
+      console.log('Player position from playersInGrid:', playerPosition);
       if (playerPosition) {
         console.log('🎯 Centering camera on player position:', playerPosition);
         centerCameraOnPlayer(playerPosition, activeTileSize);
       }
 
-      // Step 8. Resolve player location and confirm in gridState
+      // Step 8. Resolve player location 
       console.log('🏁✅ 8 InitAppWrapper; Resolving player location...');
-      const playerIdStr = fullPlayerData._id.toString();
+      const playerIdStr = DBPlayerData._id.toString();
       let gridPlayer = freshPCState?.[playerIdStr];
 
-      // Step A: Detect location mismatch or missing from gridState
-      const isLocationMismatch = fullPlayerData.location?.g !== initialGridId;
+      // Step A: Detect location mismatch or missing from NPCsInGrid
+      const isLocationMismatch = DBPlayerData.location?.g !== initialGridId;
       const isMissingFromGrid = !gridPlayer;
 
       console.log('isLocationMismatch = ', isLocationMismatch);
       console.log('isMissingFromGrid = ', isMissingFromGrid);
 
-      if (isMissingFromGrid && gridId === fullPlayerData.location.g) {
-        console.warn("🧭 Player not in correct gridState or missing entirely. Repositioning...");
+      if (isMissingFromGrid && gridId === DBPlayerData.location.g) {
+        console.warn("🧭 Player not in correct NPCsInGrid or missing entirely. Repositioning...");
         const targetPosition = { x: 0, y: 0 };
-        console.warn('InitAppWrapper: adding PC to gridState');
-        await gridStatePCManager.addPC(gridId, fullPlayerData.playerId, {
-          playerId: fullPlayerData.playerId,
-          username: fullPlayerData.username,
+        console.warn('InitAppWrapper: adding PC to NPCsInGrid');
+        await playersInGridManager.addPC(gridId, DBPlayerData.playerId, {
+          playerId: DBPlayerData.playerId,
+          username: DBPlayerData.username,
           type: "pc",
           position: targetPosition,
-          icon: fullPlayerData.icon,
-          hp: fullPlayerData.hp,
-          maxhp: fullPlayerData.maxhp,
-          armorclass: fullPlayerData.armorclass,
-          attackbonus: fullPlayerData.attackbonus,
-          damage: fullPlayerData.damage,
-          attackrange: fullPlayerData.attackrange,
-          speed: fullPlayerData.speed,
-          iscamping: fullPlayerData.iscamping,
+          icon: DBPlayerData.icon,
+          hp: DBPlayerData.hp,
+          maxhp: DBPlayerData.maxhp,
+          armorclass: DBPlayerData.armorclass,
+          attackbonus: DBPlayerData.attackbonus,
+          damage: DBPlayerData.damage,
+          attackrange: DBPlayerData.attackrange,
+          speed: DBPlayerData.speed,
+          iscamping: DBPlayerData.iscamping,
         });
-        // Refresh the gridState and React state
-        console.warn('InitAppWrapper: refreshing gridState');
-        setGridStatePCs((prev) => ({
+        // Refresh the NPCsInGrid and React state
+        console.warn('InitAppWrapper: refreshing NPCsInGrid');
+        setPlayersInGrid((prev) => ({
           ...prev,
-          [gridId]: gridStatePCManager.getGridStatePCs(gridId),
+          [gridId]: playersInGridManager.getPlayersInGrid(gridId),
         }));
-        const gridPlayer = gridStatePCManager.getGridStatePCs(gridId)?.[playerIdStr];
+        const gridPlayer = playersInGridManager.getPlayersInGrid(gridId)?.[playerIdStr];
         console.log('Refreshed gridPlayer:', gridPlayer);
         // Update gridId and storage to match actual grid
-        console.warn('InitAppWrapper: adding PC to gridState');
+        console.warn('InitAppWrapper: adding PC to NPCsInGrid');
         setGridId(gridId);
         localStorage.setItem("gridId", gridId);
         // Update player's in-memory and stored location
-        fullPlayerData.location = {
-          ...fullPlayerData.location,
+        DBPlayerData.location = {
+          ...DBPlayerData.location,
           x: targetPosition.x,
           y: targetPosition.y,
           g: gridId,
         };
 
-        console.log("✅ Player repositioned into gridState:", gridPlayer);
+        console.log("✅ Player repositioned into NPCsInGrid:", gridPlayer);
       } else {
-        console.log('✅ Player found in local gridState.');
-
-        // Optional: double-check database copy of gridState
-        // const { data: gridStateResponse } = await axios.get(`${API_BASE}/api/load-grid-state/${fullPlayerData.location.g}`);
-        // const dbGridState = gridStateResponse?.gridStatePCs || { npcs: {}, pcs: {} };
-        // console.log('DB gridState:', dbGridState);
-        // if (!dbGridState.pcs || !dbGridState.pcs[fullPlayerData._id]) {
-        //   console.warn(`⚠️ Player ${fullPlayerData.username} missing from DB gridState. Saving state to DB.`);
-        //   await gridStatePCManager.updatePC(fullPlayerData.location.g, fullPlayerData._id, gridPlayer);
-        // } else {
-        //   console.log('✅ Player exists in both local and DB gridState.');
-        // }
+        console.log('✅ Player found in local NPCsInGrid.');
       }
 
-      // Step 9: Sync combat stats from gridState
-      console.log('🏁✅ 9 InitAppWrapper: syncing combat stats from gridState');
+      // Step 9: Sync combat stats from NPCsInGrid
+      console.log('🏁✅ 9 InitAppWrapper: syncing combat stats from NPCsInGrid');
 
-      fullPlayerData.hp = gridPlayer.hp;
-      fullPlayerData.maxhp = gridPlayer.maxhp;
-      fullPlayerData.armorclass = gridPlayer.armorclass;
-      fullPlayerData.attackbonus = gridPlayer.attackbonus;
-      fullPlayerData.damage = gridPlayer.damage;
-      fullPlayerData.speed = gridPlayer.speed;
-      fullPlayerData.attackrange = gridPlayer.attackrange;
-      fullPlayerData.iscamping = gridPlayer.iscamping;
+      DBPlayerData.hp = gridPlayer.hp;
+      DBPlayerData.maxhp = gridPlayer.maxhp;
+      DBPlayerData.armorclass = gridPlayer.armorclass;
+      DBPlayerData.attackbonus = gridPlayer.attackbonus;
+      DBPlayerData.damage = gridPlayer.damage;
+      DBPlayerData.speed = gridPlayer.speed;
+      DBPlayerData.attackrange = gridPlayer.attackrange;
+      DBPlayerData.iscamping = gridPlayer.iscamping;
 
       // Step 10: Backfill combat stats to DB player profile
       console.log('🏁✅ 10 InitAppWrapper: updating player profile on DB');
       await axios.post(`${API_BASE}/api/update-profile`, {
-        playerId: fullPlayerData.playerId,
+        playerId: DBPlayerData.playerId,
         updates: {
-          hp: fullPlayerData.hp,
-          maxhp: fullPlayerData.maxhp,
-          armorclass: fullPlayerData.armorclass,
-          attackbonus: fullPlayerData.attackbonus,
-          damage: fullPlayerData.damage,
-          attackrange: fullPlayerData.attackrange,
-          speed: fullPlayerData.speed,
-          iscamping: fullPlayerData.iscamping,
+          hp: DBPlayerData.hp,
+          maxhp: DBPlayerData.maxhp,
+          armorclass: DBPlayerData.armorclass,
+          attackbonus: DBPlayerData.attackbonus,
+          damage: DBPlayerData.damage,
+          attackrange: DBPlayerData.attackrange,
+          speed: DBPlayerData.speed,
+          iscamping: DBPlayerData.iscamping,
         },
       });
-      console.log(`✅ Backfilled combat stats to player document:`, fullPlayerData);
+      console.log(`✅ Backfilled combat stats to player document:`, DBPlayerData);
 
       // Step 11: Update local storage with final player state
       console.log('🏁✅ 11 InitAppWrapper: updating localStorage with player data');
       updatedPlayerData = {
-        ...fullPlayerData,
+        ...DBPlayerData,
         location: {
-          ...fullPlayerData.location,
+          ...DBPlayerData.location,
           x: gridPlayer?.position?.x || 3,
           y: gridPlayer?.position?.y || 3,
-          g: fullPlayerData.location.g,
+          g: DBPlayerData.location.g,
         },
       };
 
@@ -480,11 +464,11 @@ useEffect(() => {
 
 // // NPC GRID STATE:  Create new references for npcs to trigger re-renders  /////////////////////////
 // useEffect(() => {
-//   if (gridState) {
-//     console.log('🔄 Updating local state for NPCs from GridState:', gridState);
-//     setNpcs({ ...gridState.npcs });
+//   if (NPCsInGrid) {
+//     console.log('🔄 Updating local state for NPCs from GridState:', NPCsInGrid);
+//     setNpcs({ ...NPCsInGrid.npcs });
 //   }
-// }, [gridState]);  // ✅ Trigger re-render when `gridState` updates
+// }, [NPCsInGrid]);  // ✅ Trigger re-render when `NPCsInGrid` updates
 
 
 // 🔄 NPC Management Loop
@@ -492,8 +476,9 @@ useEffect(() => {
   if (!isAppInitialized) { console.log('App not initialized. Skipping NPC management.'); return; }
 
   const interval = setInterval(() => {
-    if (!gridState?.npcs) {
-      console.warn('No NPCs in gridState');
+    const currentGridNPCs = NPCsInGrid?.[gridId]?.npcs;
+    if (!currentGridNPCs) {
+      console.warn('No NPCs in NPCsInGrid for gridId:', gridId);
       return;
     }
 
@@ -501,14 +486,13 @@ useEffect(() => {
     //console.log("🧑‍🌾 NPC Controller Username =", controllerUsername, "; currentPlayer =", currentPlayer?.username, "; isController =", isController);
 
     if (isController) {
-      Object.values(gridState.npcs).forEach((npc) => {
+      Object.values(currentGridNPCs).forEach((npc) => {
         if (typeof npc.update !== 'function') {
           console.warn(`🛑 Skipping NPC without update() method:`, npc);
           return;
         }
         //console.log(`[🐮🐮 NPC LOOP] Controller running update() for NPC ${npc.id}, state=${npc.state}`);
-        const currentTime = Date.now();
-        npc.update(currentTime, gridState, gridId, activeTileSize);
+        npc.update(Date.now(), NPCsInGrid[gridId], gridId, activeTileSize);
       });
     } else {
       //console.log('🛑 Not the NPC controller. Skipping NPC updates.');
@@ -516,22 +500,24 @@ useEffect(() => {
   }, 1000);
 
   return () => clearInterval(interval);
-}, [isAppInitialized, gridId, gridState, currentPlayer, activeTileSize, controllerUsername]);
+}, [isAppInitialized, gridId, NPCsInGrid, currentPlayer, activeTileSize, controllerUsername]);
+
 
 // 🔄 PC Management Loop: Check for player death
 useEffect(() => {
   if (!isAppInitialized) { console.log('App not initialized. Skipping PC management.'); return; }
 
   const interval = setInterval(async () => {
-    if (gridStatePCs) {
-      const playerPC = gridStatePCs?.[gridId]?.[String(currentPlayer?._id)];
+    if (playersInGrid) {
+      const playerPC = playersInGrid?.[gridId]?.pcs?.[String(currentPlayer?._id)];
       if (playerPC?.hp <= 0 && currentPlayer) {
-        await handlePlayerDeath(currentPlayer,setCurrentPlayer,setGridId,setGrid,setResources,setTileTypes,setGridState,setGridStatePCs,activeTileSize);
+        console.log("💀 Player is dead. Handling death...");
+        await handlePlayerDeath(currentPlayer,setCurrentPlayer,setGridId,setGrid,setResources,setTileTypes,activeTileSize,updateStatus,setModalContent,setIsModalOpen);
       }
     }
   }, 1000);
   return () => clearInterval(interval);
-}, [isAppInitialized, gridId, gridStatePCs, currentPlayer, activeTileSize]);
+}, [isAppInitialized, gridId, playersInGrid, currentPlayer, activeTileSize]);
 
 
 
@@ -728,12 +714,12 @@ useEffect(() => {
 
 // 🔄 SOCKET LISTENER: Real-time updates for PC join and leave
 useEffect(() => {
-  socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setGridStatePCs);
+  socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setPlayersInGrid);
 }, [socket, gridId, isMasterResourcesReady, currentPlayer]);
 
 // 🔄 SOCKET LISTENER: PCs: Real-time updates for GridState (PC sync)
 useEffect(() => {
-  socketListenForPCstateChanges(activeTileSize, gridId, currentPlayer, setGridStatePCs, localPlayerMoveTimestampRef);
+  socketListenForPCstateChanges(activeTileSize, gridId, currentPlayer, setPlayersInGrid, localPlayerMoveTimestampRef);
 }, [socket, gridId, currentPlayer]);
 
 // 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
@@ -784,7 +770,7 @@ useEffect(() => {
     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; } // Prevent movement if a text input is focused
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
 
-    console.log('About to call handleKeyMovement, with gridStatePCs:', gridStatePCs);
+    console.log('About to call handleKeyMovement, with playersInGrid:', playersInGrid);
     handleKeyMovement(event, currentPlayer, activeTileSize, masterResources);
   };
   window.addEventListener('keydown', handleKeyDown); 
@@ -857,12 +843,12 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
   if (!gridId || typeof gridId !== 'string') { console.error('Invalid gridId:', gridId); return; }
   if (!currentPlayer?.username || typeof currentPlayer.username !== 'string') { console.error('Invalid username:', currentPlayer?.username); return; }
 
-  // ✅ Get player position from gridStatePCs
-  const playerPos = gridStatePCManager.getPlayerPosition(gridId, String(currentPlayer._id));
+  // ✅ Get player position from playersInGrid
+  const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id));
   const targetPos = { x: colIndex, y: rowIndex };
 
   if (!playerPos || typeof playerPos.x === 'undefined' || typeof playerPos.y === 'undefined') {
-      console.error("⚠️ Player position is invalid in gridState; playerPos: ", playerPos);
+      console.error("⚠️ Player position is invalid in NPCsInGrid; playerPos: ", playerPos);
       isProcessing = false;
       return;
   }
@@ -1035,7 +1021,7 @@ const handleTileLeave = () => {
 
 const handleLogout = () => {
   console.log('Logging out user...');
-  gridStateManager.stopGridStateUpdates();  // Clear all states
+  NPCsInGridManager.stopGridStateUpdates();  // Clear all states
   setCurrentPlayer(null);
   setInventory({});
   setPlayerPosition({ x: 0, y: 0 });
@@ -1059,7 +1045,7 @@ const handleLoginSuccess = async (player) => {
 const [showTimers, setShowTimers] = useState(false);
 const [showStats, setShowStats] = useState(false); // Toggle for combat stats UI
 const combatStats = currentPlayer?.location?.g
-  ? gridStatePCs?.[currentPlayer.location.g]?.[String(currentPlayer?._id)] || {}
+  ? playersInGrid?.[currentPlayer.location.g]?.pcs?.[String(currentPlayer?._id)] || {}
   : {};
 
 return ( <>
@@ -1205,11 +1191,11 @@ return ( <>
       <br />
       <h3>Who's here:</h3>
       <div>
-      {gridStatePCs?.[gridId]?.pcs && typeof gridStatePCs[gridId].pcs === 'object' ? (
-          Object.entries(gridStatePCs[gridId].pcs).length === 0 ? (
+      {playersInGrid?.[gridId]?.pcs && typeof playersInGrid[gridId].pcs === 'object' ? (
+          Object.entries(playersInGrid[gridId].pcs).length === 0 ? (
             <h4 style={{ color: "white" }}>No PCs present in the grid.</h4>
           ) : (
-            Object.entries(gridStatePCs[gridId].pcs).map(([playerId, pc]) => (
+            Object.entries(playersInGrid[gridId].pcs).map(([playerId, pc]) => (
               <p key={playerId} style={{ color: "white" }}>
                 {connectedPlayers.has(playerId) && '📡 '}
                 <strong>{pc.username}</strong> – HP: {pc.hp}, ({pc.position?.x}, {pc.position?.y})
@@ -1229,8 +1215,8 @@ return ( <>
 
       <GridStateDebugPanel
         gridId={gridId}
-        gridState={gridState}
-        gridStatePCs={gridStatePCs}
+        NPCsInGrid={NPCsInGrid}
+        playersInGrid={playersInGrid}
       />
 
       <br />
@@ -1314,7 +1300,7 @@ return ( <>
         setResources={setResources}   
         setTileTypes={setTileTypes}      
         setGridState={setGridState}
-        setGridStatePCs={setGridStatePCs}
+        setPlayersInGrid={setPlayersInGrid}
         TILE_SIZE={activeTileSize}
         onClose={() => setZoomLevel('far')}
         masterResources={masterResources}  // Add this line
@@ -1330,7 +1316,7 @@ return ( <>
         setResources={setResources}  
         setTileTypes={setTileTypes}     
         setGridState={setGridState}
-        setGridStatePCs={setGridStatePCs}
+        setPlayersInGrid={setPlayersInGrid}
         TILE_SIZE={activeTileSize}
         onClose={() => setZoomLevel('settlement')}
         />

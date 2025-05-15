@@ -1,15 +1,15 @@
 import socket from '../../socketManager'; 
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import gridStateManager from '../../GridState/GridStateNPCs';
-import gridStatePCManager from '../../GridState/GridStatePCs';
+import NPCsInGridManager from '../../GridState/GridStateNPCs';
+import playersInGridManager from '../../GridState/PlayersInGrid';
 import FloatingTextManager from "../../UI/FloatingText";
 import { modifyPlayerStatsInGridState } from '../../Utils/playerManagement';
 
 async function handleEnemyBehavior(gridId, TILE_SIZE) {
   const tiles = GlobalGridStateTilesAndResources.getTiles();
   const resources = GlobalGridStateTilesAndResources.getResources();
-  const npcs = Object.values(gridStateManager.getGridState(gridId)?.npcs || {});
-  const pcs = Object.values(gridStatePCManager.getGridStatePCs(gridId) || {}); // Get all PCs on the grid
+  const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId)?.npcs || {});
+  const pcs = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}); // Get all PCs on the grid
 
   //console.log(`NPC ${this.id} handling enemy behavior on grid ${gridId}.`);
 
@@ -24,12 +24,12 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
           //console.log(`NPC ${this.id} detected PC ${closestPC.username} within range. Entering 'pursue' state.`);
           this.targetPC = closestPC; // Set the target PC
           this.state = 'pursue';
-          gridStateManager.saveGridStateNPCs(gridId); // Save after transition
+          NPCsInGridManager.saveGridStateNPCs(gridId); // Save after transition
 
         } else {
           //console.log(`NPC ${this.id} did not detect any PCs within range. Entering 'roam' state.`);
           this.state = 'roam';
-          gridStateManager.saveGridStateNPCs(gridId); // Save after transition
+          NPCsInGridManager.saveGridStateNPCs(gridId); // Save after transition
         }
       });
       break;
@@ -39,7 +39,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       if (!this.targetPC) {
         //console.warn(`NPC ${this.id} lost its target. Returning to idle state.`);
         this.state = 'idle';
-        gridStateManager.saveGridStateNPCs(gridId); // Save after transition
+        NPCsInGridManager.saveGridStateNPCs(gridId); // Save after transition
         break;
       }
 
@@ -55,7 +55,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       if (!this.targetPC) {
         //console.warn(`NPC ${this.id} lost its target. Returning to idle state.`);
         this.state = 'idle';
-        gridStateManager.saveGridStateNPCs(gridId); // Save after transition
+        NPCsInGridManager.saveGridStateNPCs(gridId); // Save after transition
         break;
       }
       if (this.targetPC.hp <= 0 || this.targetPC.iscamping) {
@@ -66,7 +66,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       if (distanceToTarget > this.attackrange) {
         //console.log(`PC ${this.targetPC.username} moved out of attack range. Returning to 'pursue' state.`);
         this.state = 'pursue';
-        gridStateManager.saveGridStateNPCs(gridId); // Save after transition
+        NPCsInGridManager.saveGridStateNPCs(gridId); // Save after transition
         break;
       }
  
@@ -98,10 +98,10 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         try {
           await modifyPlayerStatsInGridState(statToMod, amountToMod, this.targetPC.playerId, gridId);
           FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, this.targetPC.position.x, this.targetPC.position.y, TILE_SIZE );
-          // ✅ Force update of gridState after modifying HP
-          gridStateManager.saveGridStateNPCs(gridId);  // ✅ Ensures NPC logic reads the updated HP in next cycle
+          // ✅ Force update of NPCsInGrid after modifying HP
+          NPCsInGridManager.saveGridStateNPCs(gridId);  // ✅ Ensures NPC logic reads the updated HP in next cycle
           // ✅ Immediately fetch the latest grid state
-          const updatedPcs = Object.values(gridStatePCManager.getGridStatePCs(gridId) || {});
+          const updatedPcs = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {});
           this.targetPC = updatedPcs.find(pc => pc.playerId === this.targetPC.playerId);
         } catch (error) {
           console.error(`Error applying damage to player ${this.targetPC.username}:`, error);
@@ -114,7 +114,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       await this.handleRoamState(tiles, resources, pcs, () => {
         //console.log(`NPC ${this.id} transitioning to IDLE state after roaming.`);
         this.state = 'idle';
-        gridStateManager.saveGridStateNPCs(gridId); // Save after transition
+        NPCsInGridManager.saveGridStateNPCs(gridId); // Save after transition
       });
       break;
     }

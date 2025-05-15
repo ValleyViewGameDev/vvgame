@@ -1,17 +1,19 @@
 import { calculateDistance } from './NPCHelpers';
-import gridStateManager from '../../GridState/GridStateNPCs';
-import gridStatePCManager from '../../GridState/GridStatePCs';
+import NPCsInGridManager from '../../GridState/GridStateNPCs';
+import playersInGridManager from '../../GridState/PlayersInGrid';
 
 async function handleSpawnBehavior(gridId) {
-    const gridState = gridStateManager.getGridState(gridId);
-    if (!gridState) {
+    const NPCsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
+    if (!NPCsInGrid) {
         console.warn(`GridState unavailable for gridId ${gridId}.`);
         return;
     }
 
-    const npcs = Object.values(gridState.npcs);
-    const gridStatePCs = gridStatePCManager.getGridStatePCs(gridId);
-    const pcs = Object.values(gridStatePCs || {});
+    const npcsObject = NPCsInGridManager.getNPCsInGrid(gridId); // this *is* the npcs object
+    const npcs = Object.values(npcsObject || {});
+    
+    const playersInGrid = playersInGridManager.getPlayersInGrid(gridId);
+    const pcs = Object.values(playersInGrid || {});
 
     //console.log(`[Spawner] Handling spawn behavior for ${this.type} at (${this.position.x}, ${this.position.y}). State: ${this.state}`);
 
@@ -24,7 +26,7 @@ async function handleSpawnBehavior(gridId) {
             if (pcsInRange) {
                 console.log(`[Spawner] ${this.type} detected PCs nearby. Transitioning to spawn state.`);
                 this.state = 'spawn';
-                await gridStateManager.saveGridStateNPCs(gridId);
+                await NPCsInGridManager.saveGridStateNPCs(gridId);
             }
             break;
         }
@@ -34,7 +36,7 @@ async function handleSpawnBehavior(gridId) {
             if (existingNPCs.length >= this.qtycollected) {
                 console.log(`[Spawner] Max ${this.output} reached (${this.qtycollected}). Returning to idle.`);
                 this.state = 'idle';
-                await gridStateManager.saveGridStateNPCs(gridId);
+                await NPCsInGridManager.saveGridStateNPCs(gridId);
                 return;
             }
 
@@ -43,10 +45,10 @@ async function handleSpawnBehavior(gridId) {
                 // 🛑 ENSURE THE SPAWNER AND NPC HAVE SEPARATE POSITION OBJECTS 🛑
                 const npcPosition = { x: this.position.x, y: this.position.y }; // NEW OBJECT, NOT A REFERENCE
 
-                await gridStateManager.spawnNPC(gridId, { type: this.output }, npcPosition);
+                await NPCsInGridManager.spawnNPC(gridId, { type: this.output }, npcPosition);
 
                 this.nextspawn = Date.now() + this.speed * 1000;
-                await gridStateManager.saveGridStateNPCs(gridId);
+                await NPCsInGridManager.saveGridStateNPCs(gridId);
             } else {
                 console.log(`[Spawner] Waiting for next spawn cycle.`);
             }
@@ -55,7 +57,7 @@ async function handleSpawnBehavior(gridId) {
             if (!pcsStillInRange) {
                 console.log(`[Spawner] No PCs nearby. Returning to idle.`);
                 this.state = 'idle';
-                await gridStateManager.saveGridStateNPCs(gridId);
+                await NPCsInGridManager.saveGridStateNPCs(gridId);
             }
             break;
         }

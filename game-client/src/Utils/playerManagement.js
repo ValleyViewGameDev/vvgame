@@ -1,8 +1,9 @@
 import API_BASE from '../config';
 import axios from 'axios';
-import gridStateManager from '../GridState/GridStateNPCs';
-import gridStatePCManager from '../GridState/GridStatePCs';
+import NPCsInGridManager from '../GridState/GridStateNPCs';
+import playersInGridManager from '../GridState/PlayersInGrid';
 import { changePlayerLocation } from './GridManagement';
+import strings from '../UI/strings.json';
 
 export const modifyPlayerStatsInGridState = async (statToMod, amountToMod, playerId, gridId) => {
   try {
@@ -11,19 +12,19 @@ export const modifyPlayerStatsInGridState = async (statToMod, amountToMod, playe
 
     if (!statToMod || !amountToMod) { console.error('Invalid stat or amount to modify.'); return; }
 
-    // Use gridStatePCManager to get PCs and update
-    const pcs = gridStatePCManager.getGridStatePCs(gridId);
+    // Use playersInGridManager to get PCs and update
+    const pcs = playersInGridManager.getPlayersInGrid(gridId);
     const player = pcs?.[playerId];
 
     if (!player) {
-      console.warn(`🛑 Player ${playerId} not found in gridStatePCs for gridId ${gridId}`);
+      console.warn(`🛑 Player ${playerId} not found in playersInGrid for gridId ${gridId}`);
       console.warn('🧠 All available PCs:', Object.keys(pcs));
       return;
     }
 
     // Modify stat safely
     const updatedValue = (player[statToMod] || 0) + amountToMod;
-    gridStatePCManager.updatePC(gridId, playerId, { [statToMod]: updatedValue });
+    playersInGridManager.updatePC(gridId, playerId, { [statToMod]: updatedValue });
     console.log(`✅ Modified ${statToMod} for player ${playerId} by +${amountToMod}. New value: ${updatedValue}`);
 
   } catch (error) {
@@ -77,12 +78,12 @@ export const modifyPlayerStatsInPlayer = async (statToMod, amountToMod, playerId
 };
 
 /**
- * Determines if a given stat should be stored in gridState rather than the player document.
+ * Determines if a given stat should be stored in NPCsInGrid rather than the player document.
  * @param {string} stat - The name of the stat to check.
- * @returns {boolean} - Returns true if the stat belongs in gridState, false otherwise.
+ * @returns {boolean} - Returns true if the stat belongs in NPCsInGrid, false otherwise.
  */
 export const isAGridStateStat = (stat) => {
-  const gridStateStats = new Set([
+  const NPCsInGridStats = new Set([
     "damage",
     "armorclass",
     "hp",
@@ -93,7 +94,7 @@ export const isAGridStateStat = (stat) => {
     "iscamping",
   ]);
 
-  return gridStateStats.has(stat);
+  return NPCsInGridStats.has(stat);
 };
 
 export const handlePlayerDeath = async (
@@ -103,13 +104,13 @@ export const handlePlayerDeath = async (
   setGrid,
   setResources,
   setTileTypes,
-  setGridState,
-  setGridStatePCs,
   TILE_SIZE,
+  updateStatus,
+  setModalContent,
+  setIsModalOpen,
 
 ) => {
-  console.log('Handling player death...');
-  console.log('currentPlayer = ', player);
+  console.log('⚰️ Handling player death for', player.username);
 
   try {
     const playerId = String(player._id);  // Ensure consistency
@@ -127,7 +128,12 @@ export const handlePlayerDeath = async (
       ...targetLocation,
     };
 
-    console.log(`Updating profile and clearing backpack for player ${player.username}`);
+    const updatedPlayer = {
+      ...player,
+      hp: 25,
+      location: updatedLocation,
+      backpack: [],
+    };
 
     // 1. **Update Player Data in the Database**
     await axios.post(`${API_BASE}/api/update-profile`, {
@@ -136,28 +142,23 @@ export const handlePlayerDeath = async (
         backpack: [],  // Empty the backpack
         hp: 25,  // Reset HP
         location: updatedLocation,  // Update location
-        settings: { ...player.settings, hasDied: true }  // ✅ Store inside settings
+        settings: updatedPlayer.settings,
       },
     });
-
-    // 2. **Remove Player from Current Grid’s gridState using API**
-    console.log(`Removing player ${player.username} from gridStatePCs in grid ${currentGridId} via API`);
-    await axios.post(`${API_BASE}/api/remove-single-pc`, {
-      gridId: currentGridId,
-      playerId: playerId,
-    });
-
-    // 3. **Update Player's Location and State in React**
-    const updatedPlayer = {
-      ...player,
-      hp: 5,
-      location: updatedLocation,
-      backpack: [],  // Ensure backpack clears in UI
-      settings: { ...player.settings, hasDied: true },  // ✅ Ensure settings updates in local state
-    };
-
     setCurrentPlayer(updatedPlayer);
     localStorage.setItem('player', JSON.stringify(updatedPlayer));
+
+    // ✅ Show death modal immediately
+    setModalContent({
+      title: strings["5001"],
+      message: strings["5002"],
+      message2: strings["5003"],
+      size: "small",
+    });
+    setIsModalOpen(true);
+
+    // ✅ Immediately update PlayersInGrid with restored HP
+    playersInGridManager.updatePC(currentGridId, player._id, { hp: 25 });
 
     console.log(`Player ${player.username} teleported to home grid with 5 HP.`);
 
@@ -165,15 +166,14 @@ export const handlePlayerDeath = async (
     await changePlayerLocation(
       updatedPlayer,
       player.location,   // fromLocation
-      updatedLocation,        // toLocation
+      updatedLocation,   // toLocation
       setCurrentPlayer,
       setGridId,                // ✅ Ensure this is passed
       setGrid,                  // ✅ Pass setGrid function
-      setResources,             // ✅ Pass setResources function
       setTileTypes, 
-      setGridState,            // ✅ Pass setTileTypes function
-      setGridStatePCs,
+      setResources,             // ✅ Pass setResources function
       TILE_SIZE,
+      updateStatus,
     );
 
   } catch (error) {

@@ -1,6 +1,6 @@
 import NPC from './GameFeatures/NPCs/NPCs';
-import gridStateManager from './GridState/GridStateNPCs';
-import gridStatePCManager from './GridState/GridStatePCs';
+import NPCsInGridManager from './GridState/GridStateNPCs';
+import playersInGridManager from './GridState/PlayersInGrid';
 import { io } from 'socket.io-client';
 import { animateRemotePC } from './Render/RenderAnimatePosition';
 
@@ -9,7 +9,7 @@ const socket = io('https://vvgame-server.onrender.com', {
   autoConnect: false, // Don't connect until explicitly told to
 });
 
-export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setGridStatePCs) {
+export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setPlayersInGrid) {
 
   console.log("🌐 useEffect for PC join & leave running. gridId:", gridId, "socket:", !!socket);
   console.log("  🌐 isMasterResourcesReady = ", isMasterResourcesReady);
@@ -22,7 +22,7 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
       return; // Ignore updates emitted by this client
     }
     console.log(`👋 Player ${username} joined grid with data:`, playerData);
-    setGridStatePCs(prevState => {
+    setPlayersInGrid(prevState => {
       const existing = prevState[gridId]?.[playerId];
       const incomingTime = new Date(playerData?.lastUpdated).getTime() || 0;
       const localTime = new Date(existing?.lastUpdated).getTime() || 0;
@@ -49,7 +49,7 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
       return; // Ignore updates emitted by this client
     }
     console.log(`👋 Player ${username} left grid`);
-    setGridStatePCs(prevState => {
+    setPlayersInGrid(prevState => {
       if (!prevState[gridId]) return prevState;
       const updatedGrid = { ...prevState[gridId] };
       delete updatedGrid[playerId];
@@ -62,7 +62,7 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
 
   const handleCurrentGridPlayers = ({ gridId, pcs }) => {
     console.log(`📦 Received current PCs for grid ${gridId}:`, pcs);
-    setGridStatePCs(prev => ({
+    setPlayersInGrid(prev => ({
       ...prev,
       [gridId]: {
         ...prev[gridId],
@@ -71,7 +71,7 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
     }));
   };
 
-  console.log("🧲 [gridState join/leave] Subscribing to PC and NPC join/leave sync events for grid:", gridId);
+  console.log("🧲 [NPCsInGrid join/leave] Subscribing to PC and NPC join/leave sync events for grid:", gridId);
   socket.on('player-joined-sync', handlePlayerJoinedGrid);
   socket.on('player-left-sync', handlePlayerLeftGrid);
   socket.on('current-grid-players', handleCurrentGridPlayers);
@@ -85,19 +85,19 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
 };
 
 // 🔄 SOCKET LISTENER: PCs: Real-time updates for GridState (PC sync)
-export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, setGridStatePCs, localPlayerMoveTimestampRef) {
+export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, setPlayersInGrid, localPlayerMoveTimestampRef) {
 
   console.log("🌐🌐🌐🌐🌐🌐 useEffect for PC & NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
 
   if (!gridId) return;
 
   const handlePCSync = ({ pcs, emitterId }) => {
-    console.log('📥 Received gridState-sync-PCs event:', { pcs });
+    console.log('📥 Received sync-PCs event:', { pcs });
 
     const [playerId, incomingPC] = Object.entries(pcs)[0];
     const incomingTime = new Date(incomingPC?.lastUpdated).getTime();
 
-    setGridStatePCs(prevState => {
+    setPlayersInGrid(prevState => {
       const localPC = prevState[gridId]?.[playerId];
       const localTime = new Date(localPC?.lastUpdated).getTime() || 0;
 
@@ -137,11 +137,11 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
   };
 
   console.log("🧲 Subscribing to PC sync events for grid:", gridId);
-  socket.on("gridState-sync-PCs", handlePCSync);
+  socket.on("sync-PCs", handlePCSync);
 
   return () => {
     console.log("🧹 Unsubscribing from PC sync events for grid:", gridId);
-    socket.off("gridState-sync-PCs", handlePCSync);
+    socket.off("sync-PCs", handlePCSync);
   };
 };
 
@@ -152,7 +152,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
   if (!gridId) return;
 
   const handleNPCSync = ({ npcs, emitterId }) => {
-    console.log('📥 Received gridState-sync-NPCs event:', { npcs, emitterId });
+    console.log('📥 Received sync-NPCs event:', { npcs, emitterId });
     const isController = npcController.isControllingGrid(gridId);
     console.log('IsNPCController:', isController);
   
@@ -160,7 +160,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
   
     setGridState(prevState => {
       const updatedNPCs = { ...prevState.npcs };
-      const liveGrid = isController ? gridStateManager.gridStates?.[gridId] : null;
+      const liveGrid = isController ? NPCsInGridManager.NPCsInGrids?.[gridId] : null;
   
       Object.entries(npcs).forEach(([npcId, incomingNPC]) => {
  
@@ -169,7 +169,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
           delete updatedNPCs[npcId];
           if (isController && liveGrid?.npcs) {
             delete liveGrid.npcs[npcId];
-            console.log(`🧠 Controller removed NPC ${npcId} from live gridState`);
+            console.log(`🧠 Controller removed NPC ${npcId} from live NPCsInGrid`);
           }
           return;
         }
@@ -195,7 +195,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
           // 🔁 Update the controller’s live in-memory copy too
           if (isController && liveGrid?.npcs) {
             liveGrid.npcs[npcId] = rehydrated;
-            console.log(`🧠 Controller rehydrated NPC ${npcId} into live gridState`);
+            console.log(`🧠 Controller rehydrated NPC ${npcId} into live NPCsInGrid`);
           }
         } else {
           console.log(`  ⏳ Skipped NPC ${npcId}, newer or same version already present.`);
@@ -238,9 +238,9 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
   
         // ✅ Also patch live memory state for controller
         if (rehydrated instanceof NPC) {
-          gridStateManager.gridStates[gridId].npcs[npcId] = rehydrated;
+          NPCsInGridManager.NPCsInGrids[gridId].npcs[npcId] = rehydrated;
         } else {
-          console.warn(`🛑 Tried to inject non-NPC instance into live gridState for ${npcId}`);
+          console.warn(`🛑 Tried to inject non-NPC instance into live NPCsInGrid for ${npcId}`);
         }
       }
   
@@ -252,12 +252,12 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
   };
 
   console.log("🧲 Subscribing to NPC sync events for grid:", gridId);
-  socket.on("gridState-sync-NPCs", handleNPCSync);
+  socket.on("sync-NPCs", handleNPCSync);
   socket.on("npc-moved-sync", handleNPCMoveSync);
 
   return () => {
     console.log("🧹 Unsubscribing from NPC sync events for grid:", gridId);
-    socket.off("gridState-sync-NPCs", handleNPCSync);
+    socket.off("sync-NPCs", handleNPCSync);
     socket.off("npc-moved-sync", handleNPCMoveSync);
   };
 }

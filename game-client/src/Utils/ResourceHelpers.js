@@ -1,4 +1,4 @@
-import gridStatePCManager from "../GridState/GridStatePCs";
+import playersInGridManager from "../GridState/PlayersInGrid";
 import axios from "axios";
 import API_BASE from "../config";
 
@@ -123,14 +123,14 @@ export function enrichResourceFromMaster(raw, masterResources) {
 }
 
 export function getCurrentTileCoordinates(gridId, currentPlayer) {
-  const gridStatePCs = gridStatePCManager.getGridStatePCs(gridId);
-  if (!gridStatePCs || !currentPlayer?.playerId) {
-    console.warn('⚠️ gridStatePCs or playerId missing.');
+  const playersInGrid = playersInGridManager.getPlayersInGrid(gridId);
+  if (!playersInGrid || !currentPlayer?.playerId) {
+    console.warn('⚠️ playersInGrid or playerId missing.');
     return null;
   }
-  const playerData = gridStatePCs[currentPlayer.playerId];
+  const playerData = playersInGrid[currentPlayer.playerId];
   if (!playerData) {
-    console.warn('⚠️ Player not found in gridStatePCs.');
+    console.warn('⚠️ Player not found in playersInGrid.');
     return null;
   }
   const { x, y } = playerData.position;

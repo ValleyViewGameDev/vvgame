@@ -1,6 +1,6 @@
 import FloatingTextManager from "../../UI/FloatingText";
-import gridStateManager from "../../GridState/GridStateNPCs";
-import gridStatePCManager from "../../GridState/GridStatePCs";
+import NPCsInGridManager from "../../GridState/GridStateNPCs";
+import playersInGridManager from "../../GridState/PlayersInGrid";
 import { calculateDistance } from "../NPCs/NPCHelpers";
 import { extractXY } from "../NPCs/NPCHelpers";
 import { updateGridResource } from "../../Utils/GridManagement";
@@ -63,14 +63,14 @@ function calculateDamage(player) {
 export async function handleAttackOnNPC(npc, currentPlayer, TILE_SIZE, setResources, masterResources) {
     console.log(`Handling attack on NPC ${npc.id}.`);
 
-    // Translate currentPlayer to pc from gridStatePCManager
+    // Translate currentPlayer to pc from playersInGridManager
     const gridId = currentPlayer.location.g;
     const playerId = currentPlayer._id.toString();  // Convert ObjectId to string for matching
     console.log('playerId = ', playerId);
-    const player = gridStatePCManager.getGridStatePCs(gridId)?.[playerId];
+    const player = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
     console.log('player = ', player);
     if (!player) {
-        console.error(`Player not found in gridStatePCs for playerId: ${playerId}.`);
+        console.error(`Player not found in playersInGrid for playerId: ${playerId}.`);
         return;
     }
 
@@ -85,15 +85,15 @@ export async function handleAttackOnNPC(npc, currentPlayer, TILE_SIZE, setResour
     FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, npc.position.x, npc.position.y, TILE_SIZE);
 
     npc.hp -= damage;
-    await gridStateManager.saveGridStateNPCs(gridId);
+    await NPCsInGridManager.saveGridStateNPCs(gridId);
 
     if (npc.hp <= 0) {
         console.log(`NPC ${npc.id} killed.`);
         FloatingTextManager.addFloatingText(504, npc.position.x, npc.position.y-1, TILE_SIZE);
 
         try {
-            gridStateManager.removeNPC(gridId, npc.id);
-            await gridStateManager.saveGridStateNPCs(gridId);
+            NPCsInGridManager.removeNPC(gridId, npc.id);
+            await NPCsInGridManager.saveGridStateNPCs(gridId);
             console.log(`NPC ${npc.id} successfully removed from grid.`);
 
             // Add the Dead NPC "output" to the grid:
@@ -140,9 +140,9 @@ export async function handleAttackOnNPC(npc, currentPlayer, TILE_SIZE, setResour
 
 export async function handleAttackOnPC(pc, currentPlayer, gridId, TILE_SIZE) {
   const playerId = currentPlayer._id.toString();  // Convert ObjectId to string for matching
-  const player = gridStatePCManager.getGridStatePCs(gridId)?.[playerId];
+  const player = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
   if (!player) {
-    console.error('Player not found in gridStatePCs.');
+    console.error('Player not found in playersInGrid.');
     return;
   }
 
@@ -156,7 +156,7 @@ export async function handleAttackOnPC(pc, currentPlayer, gridId, TILE_SIZE) {
 
   // 🆕 Update the PC's HP properly via updatePC
   console.log('📢 Calling updatePC after reducing HP; current HP:', pc.hp);
-  gridStatePCManager.updatePC(gridId, pc.playerId, { hp: pc.hp });
+  playersInGridManager.updatePC(gridId, pc.playerId, { hp: pc.hp });
 
   if (pc.hp <= 0) {
     console.log(`PC ${pc.playerId} defeated.`);

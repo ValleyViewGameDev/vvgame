@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { animateRemotePC } from './Render/RenderAnimatePosition';
-import gridStatePCManager from './GridState/GridStatePCs'; // Correctly use gridStateManager
+import playersInGridManager from './GridState/PlayersInGrid'; // Correctly use NPCsInGridManager
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FloatingTextManager from "./UI/FloatingText";
 // Temporary render-only animation state for interpolated player positions
@@ -56,10 +56,10 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
 
   const playerId = currentPlayer._id.toString();
   const gridId = currentPlayer.location.g;
-  const gridStatePCs = gridStatePCManager.getGridStatePCs(gridId);
-  if (!gridStatePCs || !gridStatePCs[playerId]) return;
+  const playersInGrid = playersInGridManager.getPlayersInGrid(gridId);
+  if (!playersInGrid || !playersInGrid[playerId]) return;
 
-  const currentPosition = gridStatePCs[playerId].position;
+  const currentPosition = playersInGrid[playerId].position;
   const targetX = Math.round(currentPosition.x + movement.dx);
   const targetY = Math.round(currentPosition.y + movement.dy);
 
@@ -87,7 +87,7 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
     if (step >= stepCount) {
       delete renderPositions[playerId];
       const now = Date.now();
-      gridStatePCManager.updatePC(gridId, playerId, {
+      playersInGridManager.updatePC(gridId, playerId, {
         position: finalPosition,
         lastUpdated: now,
       });

@@ -1,7 +1,7 @@
 import API_BASE from '../config';
 import axios from 'axios';
-import gridStateManager from '../GridState/GridStateNPCs';
-import gridStatePCManager from '../GridState/GridStatePCs';
+import NPCsInGridManager from '../GridState/GridStateNPCs';
+import playersInGridManager from '../GridState/PlayersInGrid';
 
 export async function fetchInventoryAndBackpack(playerId) {
   if (!playerId) {
@@ -86,8 +86,8 @@ export async function refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlay
     const response = await axios.get(`${API_BASE}/api/player/${playerId}`);
     const updatedPlayerData = response.data;
 
-    // Pull latest location from gridStatePCManager if available
-    const gridPlayer = gridStatePCManager.getGridStatePCs(updatedPlayerData.location?.g)?.[playerId];
+    // Pull latest location from playersInGridManager if available
+    const gridPlayer = playersInGridManager.getPlayersInGrid(updatedPlayerData.location?.g)?.[playerId];
     if (gridPlayer) {
       updatedPlayerData.location = {
         ...updatedPlayerData.location,

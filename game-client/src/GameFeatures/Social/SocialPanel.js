@@ -5,8 +5,8 @@ import axios from 'axios';
 import { StatusBarContext } from '../../UI/StatusBar';
 import { usePanelContext } from '../../UI/PanelContext';
 import { checkAndDeductIngredients } from '../../Utils/InventoryManagement';
-import gridStateManager from '../../GridState/GridStateNPCs.js';
-import gridStatePCManager from '../../GridState/GridStatePCs';
+import NPCsInGridManager from '../../GridState/GridStateNPCs.js';
+import playersInGridManager from '../../GridState/PlayersInGrid';
 
 const SocialPanel = ({
   onClose,
@@ -29,13 +29,13 @@ const SocialPanel = ({
   useEffect(() => {
     if (!pcData) return;
     
-    // ✅ Subscribe to gridStatePCManager updates for camping state and HP and username
+    // ✅ Subscribe to playersInGridManager updates for camping state and HP and username
     const interval = setInterval(() => {
         const gridId = currentPlayer?.location?.g;
         if (!gridId) return;
         
-        const gridState = gridStatePCManager.getGridStatePCs(gridId);
-        const latestData = gridState[pcData.playerId];
+        const NPCsInGrid = playersInGridManager.getPlayersInGrid(gridId);
+        const latestData = NPCsInGrid[pcData.playerId];
         if (latestData) {
             setIsCamping(latestData.iscamping || false);
             setDisplayedPCData(prev => ({
@@ -123,20 +123,20 @@ const SocialPanel = ({
     try {
         const gridId = currentPlayer?.location?.g;
         if (!gridId) {
-            console.error("❌ Cannot update gridState: No gridId found.");
+            console.error("❌ Cannot update NPCsInGrid: No gridId found.");
             return;
         }
 
-        // ✅ Only update gridStatePCManager
-        const gridStatePCs = gridStatePCManager.getGridStatePCs(gridId);
-        if (gridStatePCs?.[playerId]) {
-            gridStatePCManager.updatePC(gridId, playerId, { iscamping: campingState });
-            console.log(`✅ Updated camping state in gridStatePCs: ${playerId} iscamping=${campingState}`);
+        // ✅ Only update playersInGridManager
+        const playersInGrid = playersInGridManager.getPlayersInGrid(gridId);
+        if (playersInGrid?.[playerId]) {
+            playersInGridManager.updatePC(gridId, playerId, { iscamping: campingState });
+            console.log(`✅ Updated camping state in playersInGrid: ${playerId} iscamping=${campingState}`);
         } else {
-            console.warn(`⚠️ Player ${playerId} not found in gridStatePCs.`);
+            console.warn(`⚠️ Player ${playerId} not found in playersInGrid.`);
         }
     } catch (error) {
-        console.error("❌ Error updating camping state in gridStatePCs:", error);
+        console.error("❌ Error updating camping state in playersInGrid:", error);
     }
 };
 

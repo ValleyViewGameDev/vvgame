@@ -1,5 +1,5 @@
 import socket from '../../socketManager'; 
-import gridStateManager from '../../GridState/GridStateNPCs';
+import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { calculateDistance } from './NPCHelpers';
 import { attachGrazingBehavior } from './NPCGrazing';
 import { attachQuestBehavior } from './NPCQuestGiver';
@@ -36,7 +36,7 @@ class NPC {
     this.growTime = properties.growtime || 0; // Time to fully graze
     this.processingStartTime = undefined;
     this.nextspawn = properties.nextspawn ?? (this.action === 'spawn' ? Date.now() + 5000 : null);
-    this.grazeEnd = properties.grazeEnd || null; // this is preserved from gridState
+    this.grazeEnd = properties.grazeEnd || null; // this is preserved from NPCsInGrid
     this.lastUpdated = Date.now(); // Initialize lastUpdated
     // this.gridId = properties.gridId || gridId; // Use the passed gridId or default to the one in properties
     // Assign additional properties
@@ -48,10 +48,10 @@ class NPC {
 // NPC CORE   ///
 /////////////////
 
-update(currentTime, gridState, gridId, TILE_SIZE) {
+update(currentTime, NPCsInGrid, gridId, TILE_SIZE) {
   console.log(`[🐮 NPC.update] | NPCid= ${this.id} | time=${currentTime} | type=${this.type} | state=${this.state}`);
-  console.log('🐮 gridState:', gridState);
-  const npcs = Object.values(gridStateManager.getGridState(gridId)?.npcs || {}); // Use the new gridState.npcs
+  console.log('🐮 NPCsInGrid:', NPCsInGrid);
+  const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId)?.npcs || {}); // Use the new NPCsInGrid.npcs
 
   const timeElapsed = currentTime - this.lastUpdated;
   if (timeElapsed < this.updateInterval) {
@@ -59,14 +59,15 @@ update(currentTime, gridState, gridId, TILE_SIZE) {
   }
   //console.log(`🐮⌛️ Time elapsed: ${timeElapsed}ms, Last update: ${this.lastUpdated}`);
   
-  this.processState(gridState, gridId, TILE_SIZE);
+  this.processState(NPCsInGrid, gridId, TILE_SIZE);
   this.lastUpdated = currentTime;
 }
 
-async processState(gridState, gridId, TILE_SIZE) {
+async processState(NPCsInGrid, gridId, TILE_SIZE) {
   //console.log(`[🐮 NPC.processState] ${this.id} | type=${this.type} | action=${this.action} | state=${this.state}`);
   
-  const npcs = Object.values(gridStateManager.getGridState(gridId)?.npcs || {}); 
+  const npcs = Object.values(NPCsInGrid || {});
+
 
   try {
     //console.log(`NPCprocessState for NPC ${this.id}. action: ${this.action}, Current state: ${this.state}, gridId: ${gridId}`);

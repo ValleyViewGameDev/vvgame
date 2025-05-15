@@ -40,7 +40,7 @@ async function resetGridDirect({ gridId, gridType, gridCoord }) {
   const newResources = generateResources(layout, newTiles, layoutFileName);
 
   const isPublic = ['town', 'valley0', 'valley1', 'valley2', 'valley3'].includes(gridType);
-  const existingPCs = isPublic ? {} : grid.gridState?.pcs || {};
+  const existingPCs = isPublic ? {} : grid.NPCsInGrid?.pcs || {};
 
   const newGridState = { npcs: {}, pcs: existingPCs };
   layout.resources.forEach((row, y) => {
@@ -64,7 +64,7 @@ async function resetGridDirect({ gridId, gridType, gridCoord }) {
 
   grid.tiles = newTiles;
   grid.resources = newResources;
-  grid.gridState = newGridState;
+  grid.NPCsInGrid = newGridState;
 
   await grid.save();
   console.log(`✅ Grid ${gridId} reset successfully (${gridType})`);

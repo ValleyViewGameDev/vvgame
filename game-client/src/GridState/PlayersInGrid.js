@@ -4,37 +4,37 @@ import axios from 'axios';
 
 class GridStatePCManager {
     constructor() {
-      this.gridStatePCs = {}; // Store PC states in memory
+      this.playersInGrid = {}; // Store PC states in memory
     }
  
-    registerSetGridStatePCs(setter) {
-      this.setGridStatePCsReact = setter;
+    registerSetPlayersInGrid(setter) {
+      this.setPlayersInGridReact = setter;
     }
 
     /**
-     * Initialize the gridStatePCs for a specific gridId.
+     * Initialize the playersInGrid for a specific gridId.
      */
-    async initializeGridStatePCs(gridId) {
+    async initializePlayersInGrid(gridId) {
 
-      console.log('🧠 Fetching gridStatePCs for gridId:', gridId);
+      console.log('🧠 Fetching playersInGrid for gridId:', gridId);
       if (!gridId) {
-        console.error('initializeGridStatePCs: gridId is undefined.');
+        console.error('initializePlayersInGrid: gridId is undefined.');
         return;
       }
     
       try {
         const response = await axios.get(`${API_BASE}/api/load-grid-state/${gridId}`);
         const {
-          gridStatePCs = { pcs: {}, lastUpdated: 0 },
+          playersInGrid = { pcs: {}, lastUpdated: 0 },
         } = response.data;
     
         // Build a consolidated local state with independent timestamps
         const state = {
-          pcs: gridStatePCs.pcs || {},
-          gridStatePCsLastUpdated: new Date(gridStatePCs.lastUpdated || 0).getTime(),
+          pcs: playersInGrid.pcs || {},
+          playersInGridLastUpdated: new Date(playersInGrid.lastUpdated || 0).getTime(),
         };
         const pcs = state.pcs || {};
-        console.log('Fetched PC gridState:', state);
+        console.log('Fetched PC NPCsInGrid:', state);
     
         // Normalize PC format
         Object.keys(pcs).forEach((playerId) => {
@@ -45,58 +45,58 @@ class GridStatePCManager {
           };
         });
     
-        this.gridStatePCs[gridId] = state;
+        this.playersInGrid[gridId] = state;
     
-        this.setGridStatePCsReact((prev) => ({
+        this.setPlayersInGridReact((prev) => ({
           ...prev,
           [gridId]: {
             pcs: pcs,
-            gridStatePCsLastUpdated: Date.now(),
+            playersInGridLastUpdated: Date.now(),
           },
         }));
 
-        console.log(`✅ Initialized gridStatePCs for gridId ${gridId}:`, pcs);
+        console.log(`✅ Initialized playersInGrid for gridId ${gridId}:`, pcs);
       } catch (error) {
-        console.error('❌ Error fetching gridStatePCs:', error);
+        console.error('❌ Error fetching playersInGrid:', error);
       }
     }
     
-    getGridStatePCs(gridId) {
-      const gridStatePCs = this.gridStatePCs[gridId];
-      if (!gridStatePCs) {
+    getPlayersInGrid(gridId) {
+      const playersInGrid = this.playersInGrid[gridId];
+      if (!playersInGrid) {
         console.warn(`⚠️ No PC state found for gridId: ${gridId}`);
         return {};
       }
-      return gridStatePCs.pcs;
+      return playersInGrid.pcs;
     }
 
     getAllPCs(gridId) {
-      return this.gridStatePCs?.[gridId]?.pcs || {};
+      return this.playersInGrid?.[gridId]?.pcs || {};
     }
     getPlayerPosition(gridId, playerId) {
-      return this.gridStatePCs?.[gridId]?.pcs?.[playerId]?.position || null;
+      return this.playersInGrid?.[gridId]?.pcs?.[playerId]?.position || null;
     }
 
     setAllPCs(gridId, pcsObject) {
-      this.gridStatePCs[gridId] = {
+      this.playersInGrid[gridId] = {
         pcs: pcsObject || {},
-        gridStatePCsLastUpdated: Date.now(),
+        playersInGridLastUpdated: Date.now(),
       };
     
-      if (this.setGridStatePCsReact) {
-        this.setGridStatePCsReact(prev => ({
+      if (this.setPlayersInGridReact) {
+        this.setPlayersInGridReact(prev => ({
           ...prev,
-          [gridId]: this.gridStatePCs[gridId],
+          [gridId]: this.playersInGrid[gridId],
         }));
       }
     }
     
-    // Add a new PC to the gridStatePCs for a given gridId and playerId.
+    // Add a new PC to the playersInGrid for a given gridId and playerId.
     async addPC(gridId, playerId, pcData) {
-      if (!this.gridStatePCs[gridId]) {
-        this.gridStatePCs[gridId] = {
+      if (!this.playersInGrid[gridId]) {
+        this.playersInGrid[gridId] = {
           pcs: {},
-          gridStatePCsLastUpdated: Date.now(),
+          playersInGridLastUpdated: Date.now(),
         };
       }
 
@@ -106,7 +106,7 @@ class GridStatePCManager {
         lastUpdated: now,
       };
 
-      this.gridStatePCs[gridId].pcs[playerId] = newPC;
+      this.playersInGrid[gridId].pcs[playerId] = newPC;
 
       // Save to server
       try {
@@ -123,21 +123,21 @@ class GridStatePCManager {
 
       // Emit to other clients
       if (socket && socket.emit) {
-        socket.emit('update-gridState-PCs', {
+        socket.emit('update-NPCsInGrid-PCs', {
           gridId,
           pcs: { [playerId]: newPC },
-          gridStatePCsLastUpdated: now,
+          playersInGridLastUpdated: now,
         });
       }
 
-      // Note: Caller should update React context using setGridStatePCs if needed
+      // Note: Caller should update React context using setPlayersInGrid if needed
     }
 
-    // Update an existing PC in the gridStatePCs for a given gridId and playerId.
+    // Update an existing PC in the playersInGrid for a given gridId and playerId.
     async updatePC(gridId, playerId, newProperties) {
-      const gridPCs = this.gridStatePCs[gridId]?.pcs;
+      const gridPCs = this.playersInGrid[gridId]?.pcs;
       if (!gridPCs || !gridPCs[playerId]) {
-        console.error(`Cannot update PC ${playerId}. No gridState or PC found for gridId: ${gridId}`);
+        console.error(`Cannot update PC ${playerId}. No NPCsInGrid or PC found for gridId: ${gridId}`);
         return;
       }
 
@@ -148,7 +148,7 @@ class GridStatePCManager {
         lastUpdated: now,
       };
 
-      this.gridStatePCs[gridId].pcs[playerId] = updatedPC;
+      this.playersInGrid[gridId].pcs[playerId] = updatedPC;
 
       // Save to server
       try {
@@ -165,18 +165,18 @@ class GridStatePCManager {
 
       // Emit to other clients
       if (socket && socket.emit) {
-        socket.emit('update-gridState-PCs', {
+        socket.emit('update-NPCsInGrid-PCs', {
           gridId,
           pcs: { [playerId]: updatedPC },
-          gridStatePCsLastUpdated: now,
+          playersInGridLastUpdated: now,
         });
       }
 
-      // Note: Caller should update React context using setGridStatePCs if needed
+      // Note: Caller should update React context using setPlayersInGrid if needed
     }
   }
     
 
-    const gridStatePCManager = new GridStatePCManager();
-    export default gridStatePCManager;
-    export const { initializeGridStatePCs } = gridStatePCManager;
+    const playersInGridManager = new GridStatePCManager();
+    export default playersInGridManager;
+    export const { initializePlayersInGrid } = playersInGridManager;

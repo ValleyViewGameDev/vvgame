@@ -4,8 +4,8 @@ import axios from 'axios';
 import '../UI/Panel.css'; // Use the standardized styles
 import Panel from '../UI/Panel';
 import { updatePlayerSettings } from '../settings';  
-import gridStateManager from '../GridState/GridStateNPCs';
-import gridStatePCManager from '../GridState/GridStatePCs';
+import NPCsInGridManager from '../GridState/GridStateNPCs';
+import playersInGridManager from '../GridState/PlayersInGrid';
 import { StatusBarContext } from '../UI/StatusBar';
 
 const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLogout }) => {
@@ -132,22 +132,22 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
           });
         }
 
-        // ✅ Directly update gridStatePCs via gridStatePCManager
+        // ✅ Directly update playersInGrid via playersInGridManager
         const gridId = currentPlayer?.location?.g;
         if (gridId) {
-            const playerData = gridStatePCManager.getGridStatePCs(gridId)?.[currentPlayer.playerId];
+            const playerData = playersInGridManager.getPlayersInGrid(gridId)?.[currentPlayer.playerId];
             if (playerData) {
                 const updatedPlayerData = {
                     ...playerData,
                     username: formData.username.trim(),
                 };
 
-                gridStatePCManager.updatePC(gridId, currentPlayer.playerId, updatedPlayerData);
+                playersInGridManager.updatePC(gridId, currentPlayer.playerId, updatedPlayerData);
 
-                console.log(`✅ Updated username in gridStatePCs: ${currentPlayer.playerId} → ${formData.username.trim()}`);
+                console.log(`✅ Updated username in playersInGrid: ${currentPlayer.playerId} → ${formData.username.trim()}`);
             }
         } else {
-            console.warn("⚠️ No valid gridId found, skipping gridState update.");
+            console.warn("⚠️ No valid gridId found, skipping NPCsInGrid update.");
         }
 
         // Notify success and close panel

@@ -3,12 +3,12 @@ import '../UI/Panel.css';
 
 import React, { useEffect, useRef } from 'react';
 import { useGridState } from '../GridState/GridStateContext'; 
-import { useGridStatePCs } from '../GridState/GridStatePCContext';
+import { usePlayersInGrid } from '../GridState/GridStatePCContext';
 import { handleNPCClick } from '../GameFeatures/NPCs/NPCHelpers';
 import { handleAttackOnPC } from '../GameFeatures/Combat/Combat';
 import { renderPositions } from '../PlayerMovement';
-import gridStateManager from '../GridState/GridStateNPCs';
-import gridStatePCManager from '../GridState/GridStatePCs';
+import NPCsInGridManager from '../GridState/GridStateNPCs';
+import playersInGridManager from '../GridState/PlayersInGrid';
 
 
 const DynamicRenderer = ({
@@ -21,12 +21,12 @@ const DynamicRenderer = ({
   onPCClick,  // This is needed for the Social Panel
   masterResources
 }) => {
-  const gridState = useGridState(); // Use the updated gridState from context
-  const gridStatePCs = useGridStatePCs(); // Access PCs via modern PC-specific context
-  //const gridStatePCs = gridStatePCManager.getAllPCs(currentPlayer.location.g) || [];
+  const NPCsInGrid = useGridState(); // Use the updated NPCsInGrid from context
+  const playersInGrid = usePlayersInGrid(); // Access PCs via modern PC-specific context
+  //const playersInGrid = playersInGridManager.getAllPCs(currentPlayer.location.g) || [];
 
-  console.log("🔄 Re-rendering PCs! Latest gridStatePCs:", gridStatePCs);
-  console.log("🔄 Re-rendering NPCs! Latest gridState:", gridState);
+  console.log("🔄 Re-rendering PCs! Latest playersInGrid:", playersInGrid);
+  console.log("🔄 Re-rendering NPCs! Latest NPCsInGrid:", NPCsInGrid);
 
   const masterResourcesRef = useRef(masterResources); // Keep masterResources in a ref
   useEffect(() => {
@@ -64,7 +64,7 @@ const DynamicRenderer = ({
 
     ///////////////////////////////////////////////////////
     const renderNPCs = () => {
-      const npcs = Object.values(gridState?.[currentPlayer?.location?.g]?.npcs || {});
+      const npcs = Object.values(NPCsInGrid?.[currentPlayer?.location?.g]?.npcs || {});
       
       npcs.forEach((npc) => {
         let npcElement = npcElements.current.get(npc.id);
@@ -126,7 +126,7 @@ const DynamicRenderer = ({
     ///////////////////////////////////////////////////////
     const renderPCs = () => {
 
-      const pcs = Object.values(gridStatePCs?.[currentPlayer?.location?.g]?.pcs || {});
+      const pcs = Object.values(playersInGrid?.[currentPlayer?.location?.g]?.pcs || {});
 
       pcs.forEach((pc) => {
         // Validate the pc object and its position
@@ -218,7 +218,7 @@ const DynamicRenderer = ({
       container.removeChild(tooltip);
     };
   // Add all required dependencies
-  }, [gridState, TILE_SIZE, currentPlayer, onNPCClick, onPCClick, setInventory, setResources]);
+  }, [NPCsInGrid, TILE_SIZE, currentPlayer, onNPCClick, onPCClick, setInventory, setResources]);
 
   return <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%' }} />;
 };

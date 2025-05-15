@@ -90,7 +90,7 @@ router.post('/create-grid', async (req, res) => {
     const newResources = generateResources(layout, newTiles, layout.resourceDistribution); // ✅ Uses `layout.resourceDistribution`
 
 
-    // 6) Separate NPCs into gridStateNPCs Map
+    // 6) Separate NPCs into NPCsInGrid Map
     const newGridState = { npcs: {} };
     layout.resources.forEach((row, y) => {
       row.forEach((cell, x) => {
@@ -118,8 +118,8 @@ router.post('/create-grid', async (req, res) => {
       settlementId,
       tiles: newTiles,
       resources: newResources,
-      gridStateNPCs: new Map(Object.entries(newGridState.npcs)),
-      gridStateNPCsLastUpdated: Date.now(),
+      NPCsInGrid: new Map(Object.entries(newGridState.npcs)),
+      NPCsInGridLastUpdated: Date.now(),
     });
     await newGrid.save();
 
@@ -208,41 +208,37 @@ router.post('/reset-grid', async (req, res) => {
     // Step 5: Generate resources
     const newResources = generateResources(layout, newTiles, layout.resourceDistribution);
 
-    // ✅ Step 6: Preserve existing PCs, only if not a homestead reset
-    // NOT NEEDED, NOW THAT NPCS ARE IN A SEPERATE GRIDSTATE STRUCTURE FROM PCS; LEAVE PCS ALONE
-    // let existingPCs = {};
-    // if (gridType !== "homestead") {
-    //   existingPCs = grid.gridStatePCs?.pcs || {};
-    // }
     
     const newNPCGridState = { npcs: {} };
-
-    // Process layout resources, separating NPCs into gridState
     layout.resources.forEach((row, y) => {
       row.forEach((cell, x) => {
-        if (cell && cell.type && masterResources.find(r => r.type === cell.type)?.category === 'npc') {
-          const npcTemplate = masterResources.find(r => r.type === cell.type);
-          if (npcTemplate) {
-            const npcId = `${cell.type}_${x}_${y}`;
-            newNPCGridState.npcs[npcId] = {
-              id: npcId,
-              type: cell.type,
-              position: { x, y },
-              state: 'idle',
-              hp: Math.max(npcTemplate.hp || 10, 0),
-              maxhp: npcTemplate.maxhp || 10,
-              lastUpdated: 0
-            };
-          }
+        const resourceEntry = masterResources.find(res => res.layoutkey === cell);
+        if (resourceEntry && resourceEntry.category === 'npc') {
+          console.log(`📌 Placing NPC "${resourceEntry.type}" at (${x}, ${y})`);
+          const npcId = new ObjectId();
+          newNPCGridState.npcs[npcId.toString()] = {
+            id: npcId.toString(),
+            type: resourceEntry.type,
+            position: { x, y },
+            state: resourceEntry.defaultState || 'idle',
+            hp: Math.max(resourceEntry.hp || 10, 0),
+            maxhp: resourceEntry.maxhp || 10,
+            lastUpdated: 0,
+          };
         }
       });
     });
 
-    // Reset tiles, resources, and gridState
+    console.log('💾 newNPCGridState.npcs:', JSON.stringify(newNPCGridState.npcs, null, 2));
+    console.log('💾 Object.entries(newNPCGridState.npcs):', Object.entries(newNPCGridState.npcs));
+
+    // Reset tiles, resources, and NPCsInGrid
     grid.tiles = newTiles;
     grid.resources = newResources;
-    grid.gridStateNPCs = new Map(Object.entries(newNPCGridState.npcs));
-    grid.gridStateNPCsLastUpdated = Date.now();
+    grid.NPCsInGrid = new Map(Object.entries(newNPCGridState.npcs));
+    grid.NPCsInGridLastUpdated = Date.now();
+
+    console.log('🧠 About to save grid.NPCsInGrid:', JSON.stringify(grid.NPCsInGrid, null, 2));
 
     await grid.save();
 

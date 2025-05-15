@@ -1,7 +1,7 @@
 import API_BASE from '../config';
 import React, { useState } from 'react';
 import axios from 'axios';
-import gridStateManager from '../GridState/GridStateNPCs';
+import NPCsInGridManager from '../GridState/GridStateNPCs';
 
 const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
   const [username, setUsername] = useState('');
@@ -143,9 +143,9 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
         }
       }
       
-// 8) Add the new PC to the gridStatePCs
+// 8) Add the new PC to the playersInGrid
 
-    console.log(`Adding new player ${player.username} to gridStatePCs for gridId ${assignedGridId}`);
+    console.log(`Adding new player ${player.username} to playersInGrid for gridId ${assignedGridId}`);
 
     const now = Date.now();
 

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import gridStateManager from '../../GridState/GridStateNPCs';
+import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { calculateDistance } from './NPCHelpers';
 
 // Behavior handler for farm animals (e.g., cows)
@@ -12,7 +12,7 @@ async function handleFarmAnimalBehavior(gridId) {
             grazeEnd: this.grazeEnd,
             position: this.position,
           });
-        await gridStateManager.updateNPC(gridId, this.id, {
+        await NPCsInGridManager.updateNPC(gridId, this.id, {
             state: this.state,
             grazeEnd: this.grazeEnd,
             position: this.position,
@@ -20,7 +20,7 @@ async function handleFarmAnimalBehavior(gridId) {
     };
     const tiles = GlobalGridStateTilesAndResources.getTiles();
     const resources = GlobalGridStateTilesAndResources.getResources();
-    const npcs = Object.values(gridStateManager.getGridState(gridId)?.npcs || {}); 
+    const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId)?.npcs || {}); 
 
     gridId = gridId || this.gridId; // Fallback to npc.gridId if not provided
 
@@ -202,7 +202,7 @@ async function handleFarmAnimalBehavior(gridId) {
             case 'stall': {
                 console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
                 console.log('grazeEnd = ', this.grazeEnd);
-                const fullGridState = gridStateManager.getGridState(gridId);
+                const fullGridState = NPCsInGridManager.getNPCsInGrid(gridId);
         
                 // Step 1: If no stall is currently assigned, find the nearest available stall
                 if (!this.targetStall) {
@@ -282,9 +282,9 @@ async function handleFarmAnimalBehavior(gridId) {
                     
                     // ✅ Now safe to clear grazeEnd
                     delete this.grazeEnd;
-                    const gridState = gridStateManager.getGridState(gridId);
-                    if (gridState?.npcs?.[this.id]) {
-                        delete gridState.npcs[this.id].grazeEnd;
+                    const NPCsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
+                    if (NPCsInGrid?.npcs?.[this.id]) {
+                        delete NPCsInGrid.npcs[this.id].grazeEnd;
                     }
                     
                     this.state = 'processing';

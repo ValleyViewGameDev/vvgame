@@ -1,7 +1,7 @@
 // A small component to add to App.js Base Panel for visual debugging
 import React from 'react';
 
-const GridStateDebugPanel = ({ gridId, gridState, gridStatePCs }) => {
+const GridStateDebugPanel = ({ gridId, NPCsInGrid, playersInGrid }) => {
   const formatJSON = (obj) => {
     try {
       return JSON.stringify(obj, null, 2);
@@ -10,8 +10,8 @@ const GridStateDebugPanel = ({ gridId, gridState, gridStatePCs }) => {
     }
   };
 
-  const currentNPCs = gridState?.[gridId] || 'Not loaded';
-  const currentPCs = gridStatePCs?.[gridId] || 'Not loaded';
+  const currentNPCs = NPCsInGrid?.[gridId] || 'Not loaded';
+  const currentPCs = playersInGrid?.[gridId] || 'Not loaded';
 
   return (
     <div style={{ backgroundColor: '#111', color: 'lime', padding: '1rem', fontSize: '12px', maxHeight: '900px', overflowY: 'auto', border: '1px solid lime' }}>
@@ -19,10 +19,10 @@ const GridStateDebugPanel = ({ gridId, gridState, gridStatePCs }) => {
       <h5>🧠 [gridId]:</h5>
       <pre>{formatJSON(gridId)}</pre>
 
-      <h5>🐮 NPCs:  gridState?.[gridId]</h5>
+      <h5>🐮 NPCs:  NPCsInGrid?.[gridId]</h5>
       <pre>{formatJSON(currentNPCs)}</pre>
 
-      <h5>👥 PCs:  gridStatePCs?[gridId]</h5>
+      <h5>👥 PCs:  playersInGrid?[gridId]</h5>
       <pre>{formatJSON(currentPCs)}</pre>
     </div>
   );

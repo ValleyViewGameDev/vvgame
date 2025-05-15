@@ -5,8 +5,8 @@ import Panel from '../UI/Panel';
 import '../UI/Panel.css'; // Specific styles for Debug Panel
 import { fetchInventory, updateInventory, refreshPlayerAfterInventoryUpdate } from './InventoryManagement';
 import { fetchGridData } from './GridManagement';
-import gridStateManager from '../GridState/GridStateNPCs'; // Use default export for gridStateManager
-import gridStatePCManager from '../GridState/GridStatePCs';
+import NPCsInGridManager from '../GridState/GridStateNPCs'; // Use default export for NPCsInGridManager
+import playersInGridManager from '../GridState/PlayersInGrid';
 
 const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, setResources, currentGridId, updateStatus }) => {
   const [timers, setTimers] = useState([]);
@@ -64,21 +64,21 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
     if (!currentGridId) return;
 
     const fetchGridStateEntities = () => {
-      const gridState = gridStateManager.getGridState(currentGridId);
-      const gridStatePCs = gridStatePCManager.getGridStatePCs(currentGridId);
+      const NPCsInGrid = NPCsInGridManager.getNPCsInGrid(currentGridId);
+      const playersInGrid = playersInGridManager.getPlayersInGrid(currentGridId);
 
-      if (!gridState) {
-        console.warn(`No gridState found for gridId: ${currentGridId}`);
+      if (!NPCsInGrid) {
+        console.warn(`No NPCsInGrid found for gridId: ${currentGridId}`);
         setNPCs([]);
       } else {
-        setNPCs(Object.values(gridState.npcs || {}));
+        setNPCs(Object.values(NPCsInGrid.npcs || {}));
       }
 
-      if (!gridStatePCs) {
-        console.warn(`No gridStatePCs found for gridId: ${currentGridId}`);
+      if (!playersInGrid) {
+        console.warn(`No playersInGrid found for gridId: ${currentGridId}`);
         setPCs([]);
       } else {
-        setPCs(Object.values(gridStatePCs));
+        setPCs(Object.values(playersInGrid));
       }
     };
 
@@ -599,9 +599,9 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
       );
   
       // Update the actual NPC object in the game state
-      const gridState = gridStateManager.getGridState(currentGridId);
-      if (gridState && gridState.npcs[npcId]) {
-        gridState.npcs[npcId][attribute] = parseFloat(newValue) || 0;
+      const NPCsInGrid = NPCsInGridManager.getNPCsInGrid(currentGridId);
+      if (NPCsInGrid && NPCsInGrid.npcs[npcId]) {
+        NPCsInGrid.npcs[npcId][attribute] = parseFloat(newValue) || 0;
       }
   
       return updatedNPCs;
@@ -648,10 +648,10 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
   const handleClearGridState = async (command) => {
     switch (command) {
       case 'cleargrid':
-        if (gridStateManager.clearGridState(currentGridId)) {
+        if (NPCsInGridManager.clearGridState(currentGridId)) {
           updateStatus('Grid state cleared successfully');
           // Clear from localStorage if you're using it
-          localStorage.removeItem(`gridState_${currentGridId}`);
+          localStorage.removeItem(`NPCsInGrid_${currentGridId}`);
         } else {
           updateStatus('Failed to clear grid state');
         }

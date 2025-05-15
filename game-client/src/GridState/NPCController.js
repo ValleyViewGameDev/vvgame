@@ -1,5 +1,5 @@
 import socket from '../socketManager';
-import gridStateManager from './GridStateNPCs';
+import NPCsInGridManager from './GridStateNPCs';
 
 class NPCController {
   constructor() {
@@ -75,11 +75,11 @@ class NPCController {
     );
 
     // Force an immediate NPC update
-    const gridState = gridStateManager.getGridState(gridId);
-    if (gridState?.npcs) {
-      Object.values(gridState.npcs).forEach(npc => {
+    const NPCsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
+    if (NPCsInGrid?.npcs) {
+      Object.values(NPCsInGrid.npcs).forEach(npc => {
         if (typeof npc.update === 'function') {
-          npc.update(Date.now(), gridState);
+          npc.update(Date.now(), NPCsInGrid);
         }
       });
     }

@@ -2,7 +2,7 @@ import API_BASE from "../../config";
 import axios from "axios";    
 import { checkInventoryCapacity } from "../../Utils/InventoryManagement";
 import FloatingTextManager from "../../UI/FloatingText";
-import gridStateManager from "../../GridState/GridStateNPCs";
+import NPCsInGridManager from "../../GridState/GridStateNPCs";
 import { handleAttackOnNPC } from "../Combat/Combat";
 
 
@@ -61,21 +61,21 @@ export async function handleNPCClick(
         console.log(`🏠 Moving NPC ${npc.id} from town to home grid ${currentPlayer.gridId} at (1,7).`);
 
         // ✅ Remove NPC from current grid
-        const currentGrid = gridStateManager.getGridState(currentPlayer.location.g);
+        const currentGrid = NPCsInGridManager.getNPCsInGrid(currentPlayer.location.g);
         if (currentGrid?.npcs?.[npc.id]) {
           delete currentGrid.npcs[npc.id];
-          gridStateManager.saveGridStateNPCs(currentPlayer.location.g);
+          NPCsInGridManager.saveGridStateNPCs(currentPlayer.location.g);
           console.log(`✅ NPC ${npc.id} removed from town grid.`);
         }
 
         // ✅ Add NPC to home grid at (1,7)
-        const homeGrid = gridStateManager.getGridState(currentPlayer.gridId);
+        const homeGrid = NPCsInGridManager.getNPCsInGrid(currentPlayer.gridId);
         homeGrid.npcs[npc.id] = { 
           ...npc, 
           position: { x: 1, y: 7 },
           state: 'idle'
         };
-        gridStateManager.saveGridStateNPCs(currentPlayer.gridId);
+        NPCsInGridManager.saveGridStateNPCs(currentPlayer.gridId);
 
         console.log(`✅ NPC ${npc.id} successfully placed in home grid.`);
         return { type: 'success', message: `NPC moved to your homestead.` };
@@ -146,14 +146,14 @@ export async function handleNPCClick(
           setInventory(updatedInventory);
           localStorage.setItem('inventory', JSON.stringify(updatedInventory));
           
-          const currentGrid = gridStateManager.getGridState(currentPlayer.location.g);
+          const currentGrid = NPCsInGridManager.getNPCsInGrid(currentPlayer.location.g);
           if (currentGrid?.npcs?.[npc.id]) {
             currentGrid.npcs[npc.id].state = 'emptystall';
             currentGrid.npcs[npc.id].hp = 0;
           }
-          const existingNPC = gridStateManager.getGridState(currentPlayer.location.g)?.npcs?.[npc.id];
+          const existingNPC = NPCsInGridManager.getNPCsInGrid(currentPlayer.location.g)?.npcs?.[npc.id];
           if (existingNPC) {
-            await gridStateManager.updateNPC(currentPlayer.location.g, npc.id, {
+            await NPCsInGridManager.updateNPC(currentPlayer.location.g, npc.id, {
               ...existingNPC,
               state: 'emptystall',
               hp: 0,

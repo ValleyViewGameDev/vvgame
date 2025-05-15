@@ -11,8 +11,8 @@ import { usePanelContext } from '../../UI/PanelContext';
 import { QuestGiverButton } from '../../UI/QuestButton';
 import { loadMasterResources } from '../../Utils/TuningManager';
 import { modifyPlayerStatsInPlayer, modifyPlayerStatsInGridState } from '../../Utils/playerManagement';
-import gridStateManager from '../../GridState/GridStateNPCs';
-import gridStatePCManager from '../../GridState/GridStatePCs';
+import NPCsInGridManager from '../../GridState/GridStateNPCs';
+import playersInGridManager from '../../GridState/PlayersInGrid';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 
 const QuestGiverPanel = ({
@@ -254,22 +254,22 @@ const handleHeal = async (recipe) => {
       return;
     }
 
-    // Fetch current HP and Max HP from gridStatePCManager
+    // Fetch current HP and Max HP from playersInGridManager
     const gridId = currentPlayer?.location?.g;
     const playerId = currentPlayer._id?.toString();
     // Additional console logs for debug
     console.log('gridId =', gridId);
     console.log('playerId =', playerId);
-    console.log('gridStatePCManager.getGridStatePCs(gridId) =', gridStatePCManager.getGridStatePCs(gridId));
-    const playerInGridState = gridStatePCManager.getGridStatePCs(gridId)?.[playerId];
+    console.log('playersInGridManager.getPlayersInGrid(gridId) =', playersInGridManager.getPlayersInGrid(gridId));
+    const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
     if (!playerInGridState) {
-      console.error(`Player ${currentPlayer.username} not found in gridState.`);
+      console.error(`Player ${currentPlayer.username} not found in NPCsInGrid.`);
       return;
     }
     const currentHp = playerInGridState.hp;
     const maxHp = playerInGridState.maxhp;
   
-    // Healing logic with gridState HP
+    // Healing logic with NPCsInGrid HP
     if (npcData.output === 'hp') {
       if (currentHp >= maxHp) {
         updateStatus(401);  // Player is already at full HP
@@ -363,11 +363,11 @@ const handleHeal = async (recipe) => {
         <div className="heal-options">
           <h2>❤️‍🩹 Healing</h2>
 
-          {/* Fetch and display player's HP from gridStatePCManager */}
+          {/* Fetch and display player's HP from playersInGridManager */}
           {(() => {
             const gridId = currentPlayer?.location?.g;
             const playerId = currentPlayer._id?.toString();
-            const playerInGridState = gridStatePCManager.getGridStatePCs(gridId)?.[playerId];
+            const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
 
             if (playerInGridState) {
               return (

@@ -16,14 +16,14 @@ const SettlementView = ({
   setResources, 
   setTileTypes,  
   setGridState,
-  setGridStatePCs,
+  setPlayersInGrid,
   TILE_SIZE,
   masterResources,
 }) => {
   const [settlementGrid, setSettlementGrid] = useState([]);
   const [players, setPlayers] = useState({});  // Map player IDs to player data
   const [error, setError] = useState(null);
-  const [gridStates, setGridStates] = useState({});  // Add new state for grid states
+  const [NPCsInGrids, setGridStates] = useState({});  // Add new state for grid states
   const { updateStatus } = useContext(StatusBarContext);
 
   console.log("Entering SettlementView for:", currentPlayer.location.s);
@@ -50,11 +50,11 @@ const SettlementView = ({
 
         // Fetch grid states if there are occupied grids
         if (occupiedGridIds.length > 0) {
-          const gridStatesResponse = await axios.post(
+          const NPCsInGridsResponse = await axios.post(
             `${API_BASE}/api/get-multiple-grid-states`,
             { gridIds: occupiedGridIds }
           );
-          setGridStates(gridStatesResponse.data);
+          setGridStates(NPCsInGridsResponse.data);
         }
         
         setSettlementGrid(gridData);
@@ -150,8 +150,8 @@ const SettlementView = ({
 
   const getTooltip = (tile) => {
     if (!tile.gridId) return '';
-    const gridState = gridStates[tile.gridId];
-    const pcs = gridState?.gridStatePCs?.pcs;
+    const NPCsInGrid = NPCsInGrids[tile.gridId];
+    const pcs = NPCsInGrid?.playersInGrid?.pcs;
   
     if (!pcs || Object.keys(pcs).length === 0) {
       return '';

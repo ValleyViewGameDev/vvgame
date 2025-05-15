@@ -1,13 +1,13 @@
 import axios from 'axios';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import gridStateManager from '../../GridState/GridStateNPCs';
-import gridStatePCManager from '../../GridState/GridStatePCs';
+import NPCsInGridManager from '../../GridState/GridStateNPCs';
+import playersInGridManager from '../../GridState/PlayersInGrid';
 import { calculateDistance } from './NPCHelpers';
  
 async function handleQuestGiverBehavior(gridId) {
     const tiles = GlobalGridStateTilesAndResources.getTiles();
     const resources = GlobalGridStateTilesAndResources.getResources();
-    const npcs = Object.values(gridStateManager.getGridState(gridId)?.npcs || {}); 
+    const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId)?.npcs || {}); 
 
     gridId = gridId || this.gridId; // Fallback to npc.gridId if not provided
 
@@ -20,7 +20,7 @@ async function handleQuestGiverBehavior(gridId) {
 
     switch (this.state) {
         case 'idle': {
-            const pcsInRange = Object.values(gridStatePCManager.getGridStatePCs(gridId) || {}).some(pc => 
+            const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
                 calculateDistance(pc.position, this.position) <= this.range && pc.hp>0
             );
             if (pcsInRange) { break; }
@@ -28,14 +28,14 @@ async function handleQuestGiverBehavior(gridId) {
             await this.handleIdleState(tiles, resources, npcs, 5, () => {
                 //console.log(`NPC ${this.id} transitioning to roam state.`);
                 this.state = 'roam'; // Transition to the roam state
-                gridStateManager.saveGridStateNPCs(gridId); // Save after transition
+                NPCsInGridManager.saveGridStateNPCs(gridId); // Save after transition
             });
 
             break;
           }
 
           case 'roam': {
-            const pcsInRange = Object.values(gridStatePCManager.getGridStatePCs(gridId) || {}).some(pc => 
+            const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
                 calculateDistance(pc.position, this.position) <= this.range
             );
             if (pcsInRange) { this.state = 'idle'; break; }

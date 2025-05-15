@@ -16,7 +16,7 @@ const GridSchema = new mongoose.Schema({
     required: true,
   },
   // NPCs map (data only)
-  gridStateNPCs: {
+  NPCsInGrid: {
     type: Map,
     of: new mongoose.Schema({
       id: { type: String, required: true, index: true },
@@ -33,10 +33,10 @@ const GridSchema = new mongoose.Schema({
     }),
     default: {}
   },
-  gridStateNPCsLastUpdated: { type: Date, default: Date.now },
+  NPCsInGridLastUpdated: { type: Date, default: Date.now },
 
   // PCs map (data only)
-  gridStatePCs: {
+  playersInGrid: {
     type: Map,
     of: new mongoose.Schema({
       playerId: { type: String, required: true },
@@ -65,7 +65,7 @@ const GridSchema = new mongoose.Schema({
     }),
     default: {}
   },
-  gridStatePCsLastUpdated:  { type: Date, default: Date.now },
+  playersInGridLastUpdated:  { type: Date, default: Date.now },
 
   frontierId: {
     type: mongoose.Schema.Types.ObjectId, // Links this grid to a frontier

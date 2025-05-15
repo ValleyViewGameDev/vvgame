@@ -5,8 +5,8 @@ import { updateGridResource } from '../Utils/GridManagement';
 import { addResourceToGrid } from '../Utils/worldHelpers';
 import FloatingTextManager from '../UI/FloatingText';
 import { trackQuestProgress } from './Quests/QuestGoalTracker';
-import gridStateManager from '../GridState/GridStateNPCs';
-import gridStatePCManager from '../GridState/GridStatePCs';
+import NPCsInGridManager from '../GridState/GridStateNPCs';
+import playersInGridManager from '../GridState/PlayersInGrid';
 import { getCurrentTileCoordinates } from '../Utils/ResourceHelpers';
 
 export const handleConstruction = async ({
@@ -30,11 +30,11 @@ export const handleConstruction = async ({
     return;
   }
 
-  // **Get player position dynamically from the gridState**
+  // **Get player position dynamically from the NPCsInGrid**
   const playerId = currentPlayer._id.toString();  // Convert ObjectId to string
-  const gridState = gridStateManager.getGridState(gridId);
-  const gridStatePCs = gridStatePCManager.getGridStatePCs(gridId);
-  const player = gridStatePCs?.[playerId];
+  const NPCsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
+  const playersInGrid = playersInGridManager.getPlayersInGrid(gridId);
+  const player = playersInGrid?.[playerId];
   const playerPosition = player?.position;  // Use grid-relative coordinates directly (no scaling)
 
   const coords = getCurrentTileCoordinates(gridId, currentPlayer);
@@ -91,7 +91,7 @@ export const handleConstruction = async ({
 
   if (selectedResource.category === 'npc') {
     // Spawning NPC directly at player’s tile coordinates
-    gridStateManager.spawnNPC(gridId, selectedResource, playerPosition);
+    NPCsInGridManager.spawnNPC(gridId, selectedResource, playerPosition);
     console.log('Spawned NPC:', gridId, selectedResource, playerPosition);
 
     // Track quest progress for "Buy" actions

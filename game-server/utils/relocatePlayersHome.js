@@ -50,19 +50,19 @@ async function relocatePlayersHome(frontierId) {
     };
     await player.save();
 
-    // 🧠 Try to recover existing gridState.pcs entry
+    // 🧠 Try to recover existing NPCsInGrid.pcs entry
     let previousPCS = null;
     const previousGrid = gridMap.get(player.location?.g?.toString());
     if (
       previousGrid &&
-      previousGrid.gridState?.pcs &&
-      previousGrid.gridState.pcs?.[player._id.toString()]
+      previousGrid.NPCsInGrid?.pcs &&
+      previousGrid.NPCsInGrid.pcs?.[player._id.toString()]
     ) {
-      previousPCS = previousGrid.gridState.pcs[player._id.toString()];
+      previousPCS = previousGrid.NPCsInGrid.pcs[player._id.toString()];
     }
 
     if (!previousPCS) {
-      console.warn(`⚠️ No existing gridState.pcs found for ${player.username}. Using fallback defaults.`);
+      console.warn(`⚠️ No existing NPCsInGrid.pcs found for ${player.username}. Using fallback defaults.`);
       previousPCS = {
         playerId: player._id.toString(),
         username: player.username,
@@ -80,17 +80,17 @@ async function relocatePlayersHome(frontierId) {
       };
     }
 
-    homeGrid.gridState = homeGrid.gridState || {};
+    homeGrid.NPCsInGrid = homeGrid.NPCsInGrid || {};
     const homeGridIdStr = homeGrid._id.toString();
-    homeGrid.gridState.pcs = homeGrid.gridState.pcs || {};
-    homeGrid.gridState.pcs[player._id.toString()] = previousPCS;
+    homeGrid.NPCsInGrid.pcs = homeGrid.NPCsInGrid.pcs || {};
+    homeGrid.NPCsInGrid.pcs[player._id.toString()] = previousPCS;
     await homeGrid.save();
 
     // 🧹 Remove this player from all other grids (except home grid)
     for (const otherGrid of grids) {
       const otherId = otherGrid._id.toString();
-      if (otherId !== homeGridIdStr && otherGrid.gridState?.pcs?.[player._id.toString()]) {
-        delete otherGrid.gridState.pcs[player._id.toString()];
+      if (otherId !== homeGridIdStr && otherGrid.NPCsInGrid?.pcs?.[player._id.toString()]) {
+        delete otherGrid.NPCsInGrid.pcs[player._id.toString()];
         await otherGrid.save();
         console.log(`🧹 Removed ${player.username} from grid ${otherId}`);
       }
