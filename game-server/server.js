@@ -205,43 +205,46 @@ mongoose.connect(process.env.MONGODB_URI, {
       });
 
   
-      // 📡 Broadcast updated PCs to others in the same grid
-      socket.on('update-NPCsInGrid-PCs', (payload) => {
-        console.log('📩 Received update-NPCsInGrid-PCs with payload:\n', JSON.stringify(payload, null, 2));
+    // 📡 Broadcast updated PCs to others in the same grid
+    socket.on('update-NPCsInGrid-PCs', (payload) => {
+      console.log('📩 Received update-NPCsInGrid-PCs with payload:\n', JSON.stringify(payload, null, 2));
 
-        const gridEntries = Object.entries(payload).filter(([key]) => key !== 'emitterId');
-        const emitterId = payload.emitterId || socket.id;
+      const gridEntries = Object.entries(payload).filter(([key]) => key !== 'emitterId');
+      const emitterId = payload.emitterId || socket.id;
 
-        if (gridEntries.length === 0) {
-          console.warn('⚠️ Payload missing grid-specific data.');
-          return;
-        }
+      if (gridEntries.length === 0) {
+        console.warn('⚠️ Payload missing grid-specific data.');
+        return;
+      }
 
-        const [gridId, gridData] = gridEntries[0];
-        const { pcs, playersInGridLastUpdated } = gridData || {};
+      const [gridId, gridData] = gridEntries[0];
+      const { pcs, playersInGridLastUpdated } = gridData || {};
 
-        if (!gridId || !pcs || !playersInGridLastUpdated) {
-          console.warn('⚠️ Invalid or incomplete PCs update:', {
-            gridId,
-            pcs,
-            playersInGridLastUpdated,
-            emitterId,
-          });
-          return;
-        }
-
-        const outboundPayload = {
+      if (!gridId || !pcs || !playersInGridLastUpdated) {
+        console.warn('⚠️ Invalid or incomplete PCs update:', {
+          gridId,
           pcs,
           playersInGridLastUpdated,
           emitterId,
-        };
+        });
+        return;
+      }
+
+      // Preserve the original structure for rebroadcast
+      const outboundPayload = {
+        [gridId]: {
+          pcs,
+          playersInGridLastUpdated
+        },
+        emitterId
+      };
+    
+      console.log(`📤 Broadcasting sync-PCs for grid ${gridId}`);
+      console.log('📤 Outbound sync-PCs payload:\n', JSON.stringify(outboundPayload, null, 2));
+    
+      socket.to(gridId).emit('sync-PCs', outboundPayload);
       
-        console.log(`📤 Broadcasting sync-PCs for grid ${gridId}`);
-        console.log('📤 Outbound sync-PCs payload:\n', JSON.stringify(outboundPayload, null, 2));
-      
-        socket.to(gridId).emit('sync-PCs', outboundPayload);
-        
-      });
+    });
 
       // Broadcast updated NPCs to others in the same grid
       socket.on('update-NPCsInGrid-NPCs', ({ gridId, npcs, NPCsInGridLastUpdated }) => {
