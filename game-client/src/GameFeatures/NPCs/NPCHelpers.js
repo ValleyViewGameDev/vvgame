@@ -67,7 +67,6 @@ export async function handleNPCClick(
           NPCsInGridManager.saveGridStateNPCs(currentPlayer.location.g);
           console.log(`✅ NPC ${npc.id} removed from town grid.`);
         }
-
         // ✅ Add NPC to home grid at (1,7)
         const homeGrid = NPCsInGridManager.getNPCsInGrid(currentPlayer.gridId);
         homeGrid.npcs[npc.id] = { 
@@ -104,7 +103,6 @@ export async function handleNPCClick(
       if (!hasCapacity) {
         console.warn('Not enough inventory space to collect resource.');
         FloatingTextManager.addFloatingText(20, col, row, TILE_SIZE);
-
         return { type: 'error', message: 'Not enough inventory space.' };
       }
 
@@ -146,12 +144,10 @@ export async function handleNPCClick(
           setInventory(updatedInventory);
           localStorage.setItem('inventory', JSON.stringify(updatedInventory));
           
-          const currentGrid = NPCsInGridManager.getNPCsInGrid(currentPlayer.location.g);
-          if (currentGrid?.npcs?.[npc.id]) {
-            currentGrid.npcs[npc.id].state = 'emptystall';
-            currentGrid.npcs[npc.id].hp = 0;
-          }
-          const existingNPC = NPCsInGridManager.getNPCsInGrid(currentPlayer.location.g)?.npcs?.[npc.id];
+          console.log('currentPlayer before update:', currentPlayer);
+          const existingNPC = NPCsInGridManager.getNPCsInGrid(currentPlayer.location.g)?.[npc.id];
+          console.log('Existing NPC:', existingNPC);
+          console.log('NPC ID:', npc.id);
           if (existingNPC) {
             await NPCsInGridManager.updateNPC(currentPlayer.location.g, npc.id, {
               ...existingNPC,

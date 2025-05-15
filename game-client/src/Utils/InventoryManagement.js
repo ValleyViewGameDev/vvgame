@@ -3,6 +3,7 @@ import axios from 'axios';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 
+
 export async function fetchInventoryAndBackpack(playerId) {
   if (!playerId) {
     console.error('No playerId provided for fetching inventory and backpack');

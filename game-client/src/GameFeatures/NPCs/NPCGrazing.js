@@ -293,7 +293,7 @@ async function handleFarmAnimalBehavior(gridId) {
 
                 break;
             }
-
+ 
         case 'processing': {
             console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
             console.log('Awaiting handleNPCClick');
