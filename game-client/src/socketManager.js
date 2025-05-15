@@ -102,24 +102,17 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
 
   // Updated handlePCSync to accept new payload structure
   const handlePCSync = (payload) => {
-    const { emitterId } = payload;
+    const { emitterId, pcs, playersInGridLastUpdated } = payload;
     const mySocketId = socket.id;
+    const foundGridId = gridId;
 
-    // Extract gridId from player payload structure
-    const gridEntries = Object.entries(payload).filter(([key]) => key !== 'emitterId');
-    if (gridEntries.length === 0) {
-      console.warn("Invalid sync-PCs payload (no grid keys):", payload);
-      return;
-    }
-
-    const [foundGridId, gridData] = gridEntries[0];
-    if (!gridData?.pcs) {
+    if (!pcs || typeof pcs !== 'object') {
       console.warn("Invalid sync-PCs payload (missing pcs):", payload);
       return;
     }
 
     console.log(`📥 Received sync-PCs:`, {
-      pcs: gridData.pcs,
+      pcs: pcs,
       gridId: foundGridId,
       emitterId,
       mySocketId,
@@ -130,7 +123,7 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
       return;
     }
 
-    const [playerId, incomingPC] = Object.entries(gridData.pcs)[0];
+    const [playerId, incomingPC] = Object.entries(pcs)[0];
     const incomingTime = new Date(incomingPC?.lastUpdated).getTime();
 
     setPlayersInGrid((prevState) => {
