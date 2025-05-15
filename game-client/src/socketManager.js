@@ -106,7 +106,7 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
 
     if (emitterId === socket.id) {
       console.log(`📤 Skipping sync-PCs from self (emitterId = socket.id)`);
-      return prevState;
+      return;
     }
     const [playerId, incomingPC] = Object.entries(pcs)[0];
     const incomingTime = new Date(incomingPC?.lastUpdated).getTime();
