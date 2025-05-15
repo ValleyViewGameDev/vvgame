@@ -140,16 +140,16 @@ class GridStatePCManager {
         console.error(`Cannot update PC ${playerId}. No NPCsInGrid or PC found for gridId: ${gridId}`);
         return;
       }
-
+    
       const now = Date.now();
       const updatedPC = {
         ...gridPCs[playerId],
         ...newProperties,
         lastUpdated: now,
       };
-
+    
       this.playersInGrid[gridId].pcs[playerId] = updatedPC;
-
+    
       // Save to server
       try {
         await axios.post(`${API_BASE}/api/save-single-pc`, {
@@ -162,24 +162,36 @@ class GridStatePCManager {
       } catch (error) {
         console.error(`❌ Failed to update PC ${playerId}:`, error);
       }
-
+    
       // Emit to other clients
-
       if (socket && socket.emit) {
         const payload = {
           [gridId]: {
             pcs: { [playerId]: updatedPC },
             playersInGridLastUpdated: now,
           },
-          emitterId: socket.id, // optionally include emitter for traceability
+          emitterId: socket.id,
         };
-      
+    
         console.log("📡 Emitting update-NPCsInGrid-PCs with payload:", JSON.stringify(payload, null, 2));
         socket.emit('update-NPCsInGrid-PCs', payload);
       }
- 
-      // Note: Caller should update React context using setPlayersInGrid if needed
+    
+      // ✅ Also update React state if setter is registered
+      if (this.setPlayersInGridReact) {
+        this.setPlayersInGridReact(prev => ({
+          ...prev,
+          [gridId]: {
+            ...(prev[gridId] || {}),
+            pcs: {
+              ...(prev[gridId]?.pcs || {}),
+              [playerId]: updatedPC,
+            },
+          },
+        }));
+      }
     }
+    
   }
     
 
