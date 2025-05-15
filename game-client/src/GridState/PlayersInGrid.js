@@ -164,12 +164,14 @@ class GridStatePCManager {
       }
 
       // Emit to other clients
+
       if (socket && socket.emit) {
         socket.emit('update-NPCsInGrid-PCs', {
           gridId,
           pcs: { [playerId]: updatedPC },
           playersInGridLastUpdated: now,
         });
+        console.log(`📡 Emitted update for PC ${playerId} to other clients.`);
       }
  
       // Note: Caller should update React context using setPlayersInGrid if needed
