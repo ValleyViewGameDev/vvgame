@@ -102,22 +102,17 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
 
   // Updated handlePCSync to accept new payload structure
   const handlePCSync = (payload) => {
+
+    console.log("📥 Received sync-PCs payload:", JSON.stringify(payload, null, 2));
+
     const { emitterId, pcs, playersInGridLastUpdated } = payload;
     const mySocketId = socket.id;
     const foundGridId = gridId;
 
     if (!pcs || typeof pcs !== 'object') {
-      console.warn("Invalid sync-PCs payload (missing pcs):", payload);
+      console.warn("📤 Invalid sync-PCs payload (missing pcs):", payload);
       return;
     }
-
-    console.log(`📥 Received sync-PCs:`, {
-      pcs: pcs,
-      gridId: foundGridId,
-      emitterId,
-      mySocketId,
-    });
-
     if (emitterId === mySocketId) {
       console.log(`📤 Skipping sync-PCs from self (emitterId = socket.id)`);
       return;
