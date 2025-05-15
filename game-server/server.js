@@ -204,16 +204,18 @@ mongoose.connect(process.env.MONGODB_URI, {
         });
       });
 
-      // Broadcast updated PCs to others in the same grid
-      socket.on('update-NPCsInGrid-PCs', ({ gridId, pcs, playersInGridLastUpdated }) => {
-        // DEBUG: Log the full payload and every key
-        console.log('DEBUG: Received update-NPCsInGrid-PCs event with payload:', {
-          gridId, pcs, playersInGridLastUpdated
-        });
-        if (!pcs || !playersInGridLastUpdated) {
-          console.warn('⚠️ Received invalid or missing PCs update:', { pcs, playersInGridLastUpdated });
+      // Broadcast updated PCs to others in the same grid (expects payload as { [gridId]: { pcs, playersInGridLastUpdated } })
+      socket.on('update-NPCsInGrid-PCs', (payload) => {
+        const [gridId, data] = Object.entries(payload)[0] || [];
+        const { pcs, playersInGridLastUpdated } = data || {};
+
+        console.log('DEBUG: Received update-NPCsInGrid-PCs event with payload:', payload);
+
+        if (!gridId || !pcs || !playersInGridLastUpdated) {
+          console.warn('⚠️ Received invalid or missing PCs update:', { gridId, pcs, playersInGridLastUpdated });
           return;
         }
+
         console.log(`📤 Broadcasting updated PCs for grid ${gridId}`);
         console.log('DEBUG: Emitter socket id =', socket.id);
         socket.to(gridId).emit('sync-PCs', {
