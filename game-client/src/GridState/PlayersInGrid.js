@@ -171,7 +171,7 @@ class GridStatePCManager {
           playersInGridLastUpdated: now,
         });
       }
-
+ 
       // Note: Caller should update React context using setPlayersInGrid if needed
     }
   }

@@ -23,10 +23,9 @@ const DynamicRenderer = ({
 }) => {
   const NPCsInGrid = useGridState(); // Use the updated NPCsInGrid from context
   const playersInGrid = usePlayersInGrid(); // Access PCs via modern PC-specific context
-  //const playersInGrid = playersInGridManager.getAllPCs(currentPlayer.location.g) || [];
 
-  console.log("🔄 Re-rendering PCs! Latest playersInGrid:", playersInGrid);
-  console.log("🔄 Re-rendering NPCs! Latest NPCsInGrid:", NPCsInGrid);
+  // console.log("🔄 Re-rendering PCs! Latest playersInGrid:", playersInGrid);
+  // console.log("🔄 Re-rendering NPCs! Latest NPCsInGrid:", NPCsInGrid);
 
   const masterResourcesRef = useRef(masterResources); // Keep masterResources in a ref
   useEffect(() => {
