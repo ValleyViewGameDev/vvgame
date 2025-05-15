@@ -462,14 +462,6 @@ useEffect(() => {
 }, [gridId]);  
 
 
-// // NPC GRID STATE:  Create new references for npcs to trigger re-renders  /////////////////////////
-// useEffect(() => {
-//   if (NPCsInGrid) {
-//     console.log('🔄 Updating local state for NPCs from GridState:', NPCsInGrid);
-//     setNpcs({ ...NPCsInGrid.npcs });
-//   }
-// }, [NPCsInGrid]);  // ✅ Trigger re-render when `NPCsInGrid` updates
-
 
 // 🔄 NPC Management Loop
 useEffect(() => {

@@ -23,7 +23,7 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
     }
     console.log(`👋 Player ${username} joined grid with data:`, playerData);
     setPlayersInGrid(prevState => {
-      const existing = prevState[gridId]?.[playerId];
+      const existing = prevState[gridId]?.pcs?.[playerId];
       const incomingTime = new Date(playerData?.lastUpdated).getTime() || 0;
       const localTime = new Date(existing?.lastUpdated).getTime() || 0;
 
@@ -33,7 +33,10 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
           ...prevState,
           [gridId]: {
             ...prevState[gridId],
-            [playerId]: playerData,
+            pcs: {
+              ...(prevState[gridId]?.pcs || {}),
+              [playerId]: playerData,
+            },
           },
         };
       }
@@ -50,12 +53,15 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
     }
     console.log(`👋 Player ${username} left grid`);
     setPlayersInGrid(prevState => {
-      if (!prevState[gridId]) return prevState;
-      const updatedGrid = { ...prevState[gridId] };
+      if (!prevState[gridId]?.pcs) return prevState;
+      const updatedGrid = { ...prevState[gridId]?.pcs };
       delete updatedGrid[playerId];
       return {
         ...prevState,
-        [gridId]: updatedGrid,
+        [gridId]: {
+          ...prevState[gridId],
+          pcs: updatedGrid,
+        },
       };
     });
   };
@@ -66,7 +72,10 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
       ...prev,
       [gridId]: {
         ...prev[gridId],
-        ...pcs,
+        pcs: {
+          ...(prev[gridId]?.pcs || {}),
+          ...pcs,
+        },
       },
     }));
   };
@@ -98,7 +107,7 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
     const incomingTime = new Date(incomingPC?.lastUpdated).getTime();
 
     setPlayersInGrid(prevState => {
-      const localPC = prevState[gridId]?.[playerId];
+      const localPC = prevState[gridId]?.pcs?.[playerId];
       const localTime = new Date(localPC?.lastUpdated).getTime() || 0;
 
       if (currentPlayer && playerId === String(currentPlayer._id)) {
@@ -126,7 +135,10 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
           ...prevState,
           [gridId]: {
             ...prevState[gridId],
-            [playerId]: incomingPC,
+            pcs: {
+              ...(prevState[gridId]?.pcs || {}),
+              [playerId]: incomingPC,
+            },
           },
         };
       }
