@@ -167,9 +167,10 @@ class GridStatePCManager {
 
       if (socket && socket.emit) {
         socket.emit('update-NPCsInGrid-PCs', {
-          gridId,
-          pcs: { [playerId]: updatedPC },
-          playersInGridLastUpdated: now,
+          [gridId]: {
+            pcs: { [playerId]: updatedPC },
+            playersInGridLastUpdated: now,
+          }
         });
         console.log(`📡 Emitted update for PC ${playerId} to other clients.`);
       }
