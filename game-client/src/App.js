@@ -159,7 +159,6 @@ useEffect(() => {
   playersInGridManager.registerTileSize(activeTileSize);
 }, [activeTileSize]);
 
-const [npcs, setNpcs] = useState({});
 
 const { updateStatus } = useContext(StatusBarContext); // Access the status bar updater
 const [setStatusMessage] = useState(0); // Initial status message index
@@ -184,9 +183,7 @@ const handlePCClick = (pc) => {
   openPanel('SocialPanel');  // Open the panel
 };
 
-const [hoveredResource, setHoveredResource] = useState(null);
-const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
-const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+const [hoverTooltip, setHoverTooltip] = useState(null);
 
 const [controllerUsername, setControllerUsername] = useState(null); // Add state for controller username
 const [isSocketConnected, setIsSocketConnected] = useState(false);
@@ -826,7 +823,6 @@ const zoomOut = () => {
 //////////// HANDLE CLICKING & HOVERING /////////////////////////
 
 let isProcessing = false; // Guard against duplicate clicks
-let tooltipDelayTimer = null;
 
 const handleTileClick = useCallback((rowIndex, colIndex) => {
   if (isProcessing) return; // Skip if still processing
@@ -979,39 +975,7 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
 
 }, [resources, gridId, inventory, currentPlayer, playerPosition, activeTileSize]);
   
-const handleTileHover = useCallback(
-  (rowIndex, colIndex, event) => {
-  const resource = resources.find((res) => res.x === colIndex && res.y === rowIndex);
-
-  if (!resource) {
-    handleTileLeave(); // Clear tooltip when no entity is present
-    setHoveredResource(null);
-    setIsTooltipVisible(false);
-    return;
-  }
-
-  const tileTop = rowIndex * activeTileSize + event.currentTarget.offsetParent.offsetTop;
-  const tileLeft = colIndex * activeTileSize + event.currentTarget.offsetParent.offsetLeft;
-
-  setTooltipPosition({
-    x: tileLeft - 190, // Adjust tooltip horizontally
-    y: tileTop - 120, // Adjust tooltip vertically above the tile
-  });
-
-  // Delay tooltip visibility
-  tooltipDelayTimer = setTimeout(() => {
-    // if (npc) setHoveredNPC(npc); // Set tooltip for NPC
-    // if (pc) setHoveredPC(pc); // Set tooltip for PC
-    if (resource) setHoveredResource(resource); // Set tooltip for resource
-    setIsTooltipVisible(true); // Make tooltip visible
-  }, 500); // Delay 
-}, [resources, activeTileSize, currentPlayer?.location?.g]);
-
-const handleTileLeave = () => {
-  clearTimeout(tooltipDelayTimer); // Cancel pending tooltip render
-  setHoveredResource(null);
-  setIsTooltipVisible(false);
-};
+// Tooltip logic removed
 
   
 //////////// HANDLE LOGIN and LOGOUT /////////////////////////
@@ -1137,8 +1101,9 @@ return ( <>
           </div>
         )}
       </div>
-      
-      <h3>Happening Now in Town:
+      <br />
+
+      <h3>⏪ Happening Now in Town:
         <span 
           onClick={() => setShowTimers(!showTimers)} 
           style={{ cursor: "pointer", fontSize: "16px", marginLeft: "5px" }}
@@ -1258,16 +1223,16 @@ return ( <>
             onNPCClick={handleQuestNPCClick}  // Pass the callback
             onPCClick={handlePCClick}  // Pass the callback
             masterResources={masterResources}
-          /> {/* Parallel rendering layer for PCs and NPCs */}
+            setHoverTooltip={setHoverTooltip} // ✅ NEW
+            /> {/* Parallel rendering layer for PCs and NPCs */}
 
           <RenderGrid
             grid={memoizedGrid}
             tileTypes={memoizedTileTypes}
             resources={memoizedResources}
             handleTileClick={handleTileClick}
-            handleTileHover={handleTileHover}
-            handleTileLeave={handleTileLeave}
             TILE_SIZE={activeTileSize}
+            setHoverTooltip={setHoverTooltip} // ✅ Add this line
           />
           {/* <RenderVFX 
             toggleVFX={currentPlayer?.settings?.toggleVFX}
@@ -1275,13 +1240,7 @@ return ( <>
             TILE_SIZE={activeTileSize}
           /> */}
 
-          <RenderTooltip
-            resource={hoveredResource}
-            //npc={hoveredNPC} // New prop for NPCs
-            //pc={hoveredPC} // New prop for PCs
-            tooltipPosition={tooltipPosition}
-            isTooltipVisible={isTooltipVisible}
-          />
+
         </>
       ) : null}
 
@@ -1609,6 +1568,19 @@ return ( <>
         />
       )}
  
+      {hoverTooltip && (
+        <div
+          className="HoverTooltip"
+          style={{
+            top: hoverTooltip.y,
+            left: hoverTooltip.x,
+            transform: 'translate(-50%, -100%) translateY(-8px)', // ⬅️ Center horizontally and offset upward
+            zIndex: 9999,
+            pointerEvents: 'none',
+          }}
+          dangerouslySetInnerHTML={{ __html: hoverTooltip.content }}
+        />
+      )}
       </div>
     </>
   );

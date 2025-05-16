@@ -19,10 +19,13 @@ const DynamicRenderer = ({
   setCurrentPlayer,
   onNPCClick, // This is needed because of the Quest NPCs and their Panels
   onPCClick,  // This is needed for the Social Panel
-  masterResources
+  masterResources,
+  setHoverTooltip, 
+
 }) => {
   const NPCsInGrid = useGridState(); // Use the updated NPCsInGrid from context
   const playersInGrid = usePlayersInGrid(); // Access PCs via modern PC-specific context
+  const hoveredEntityIdRef = useRef(null);
 
   // console.log("🔄 Re-rendering PCs! Latest playersInGrid:", playersInGrid);
   // console.log("🔄 Re-rendering NPCs! Latest NPCsInGrid:", NPCsInGrid);
@@ -106,8 +109,8 @@ const DynamicRenderer = ({
             }
           });
 
-          npcElement.addEventListener('mouseenter', (event) => handleNPCHover(event, npc, tooltipRef.current, TILE_SIZE));
-          npcElement.addEventListener('mouseleave', () => handleNPCHoverLeave(tooltipRef.current));
+          npcElement.addEventListener('mouseenter', (event) => handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverTooltip));
+          npcElement.addEventListener('mouseleave', () => handleNPCHoverLeave(tooltipRef.current, hoveredEntityIdRef, setHoverTooltip));
 
           npcElement.hasClickListener = true;
         }
@@ -160,8 +163,8 @@ const DynamicRenderer = ({
             handlePCClick(pc, currentPlayer, currentPlayer.location.g, TILE_SIZE);
           });
 
-          pcElement.addEventListener('mouseenter', (event) => handlePCHover(event, pc, tooltip, TILE_SIZE));
-          pcElement.addEventListener('mouseleave', () => handlePCHoverLeave(tooltip));
+          pcElement.addEventListener('mouseenter', (event) => handlePCHover(event, pc, TILE_SIZE, setHoverTooltip));
+          pcElement.addEventListener('mouseleave', () => handlePCHoverLeave(setHoverTooltip));
 
           container.appendChild(pcElement);
           pcElements.current.set(pc.playerId, pcElement);
@@ -243,28 +246,29 @@ function handlePCClick(pc, currentPlayer, gridId, TILE_SIZE) {
 // PC & NPC HOVER
 // CUSTOM TOOLTIP CODE FOR NPCS AND PCS
 
-function handlePCHover(event, pc, tooltip, TILE_SIZE) {
+function handlePCHover(event, pc, TILE_SIZE, setHoverTooltip) {
+  const rect = event.target.getBoundingClientRect();
+  const x = rect.left + TILE_SIZE / 2;
+  const y = rect.top;
+  
   const username = pc.username || 'Anonymous';
-  let tooltipContent = `<p>${username}</p><p>❤️‍🩹 HP: ${pc.hp}</p>`;
-  // ✅ Add "Camping" if pc.iscamping is true
-  if (pc.iscamping) {
-    tooltipContent += `<p>🏕️ Camping</p>`;
-  }
-
-  tooltip.innerHTML = tooltipContent;
-  tooltip.style.top = `${event.target.offsetTop - 60}px`;
-  tooltip.style.left = `${event.target.offsetLeft + TILE_SIZE / 2 - tooltip.offsetWidth / 2}px`;
-  tooltip.style.display = 'block';
+  let content = `<p>${username}</p><p>❤️‍🩹 HP: ${pc.hp}</p>`;
+  if (pc.iscamping) content += `<p>🏕️ Camping</p>`;
+  
+  setHoverTooltip({ x, y, content });
 }
 
-function handlePCHoverLeave(tooltip) {
-  tooltip.style.display = 'none'; // Hide tooltip
+function handlePCHoverLeave(setHoverTooltip) {
+  setHoverTooltip(null);
 }
 
-function handleNPCHover(event, npc, tooltip, TILE_SIZE) {
-  let tooltipContent = `<p>${npc.type}</p>`; // Use 'let' instead of 'const'
+// React-friendly tooltip handler for NPC hover
+function handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverTooltip) {
+  const rect = event.target.getBoundingClientRect();
+  const x = rect.left + TILE_SIZE / 2;
+  const y = rect.top;
 
-  console.log('NPC tooltip in RenderDynamic');
+  let tooltipContent = `<p>${npc.type}</p>`;
 
   switch (npc.action) {
     case 'graze': {
@@ -285,7 +289,7 @@ function handleNPCHover(event, npc, tooltip, TILE_SIZE) {
           }
           tooltipContent = `<p>${npc.type}</p><p>is grazing.</p>${countdownText}`;
           break;
-          }
+        }
         case 'idle':
           tooltipContent = `<p>Zzzz...</p>`;
           break;
@@ -313,14 +317,29 @@ function handleNPCHover(event, npc, tooltip, TILE_SIZE) {
       break;
   }
 
-  tooltip.innerHTML = tooltipContent;
-  tooltip.style.top = `${event.target.offsetTop - 60}px`;
-  tooltip.style.left = `${event.target.offsetLeft + TILE_SIZE / 2 - tooltip.offsetWidth / 2}px`;
-  tooltip.style.display = 'block'; // Show tooltip
+  hoveredEntityIdRef.current = npc.id;
+  setHoverTooltip({ x, y, content: tooltipContent });
 }
 
-function handleNPCHoverLeave(tooltip) {
-  tooltip.style.display = 'none'; // Hide tooltip
+function handleNPCHoverLeave(npc, hoveredEntityIdRef, setHoverTooltip) {
+  if (hoveredEntityIdRef.current === npc.id) {
+    setHoverTooltip(null);
+    hoveredEntityIdRef.current = null;
+  }
+}
+
+// RESOURCE HOVER
+function handleResourceHover(event, resource, TILE_SIZE, setHoverTooltip) {
+  const rect = event.target.getBoundingClientRect();
+  const x = rect.left + TILE_SIZE / 2;
+  const y = rect.top;
+
+  const content = `<p>${resource.name}</p><p>${resource.description || ''}</p>`;
+  setHoverTooltip({ x, y, content });
+}
+
+function handleResourceHoverLeave(setHoverTooltip) {
+  setHoverTooltip(null);
 }
 
 export default DynamicRenderer;

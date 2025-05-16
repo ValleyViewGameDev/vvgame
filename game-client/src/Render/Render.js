@@ -1,10 +1,52 @@
-import React, { memo, useState, useEffect } from 'react';
+import React, { memo, useState, useEffect, useRef } from 'react';
 import { startAmbientVFX, stopAmbientVFX } from '../VFX/AmbientVFX';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import '../App.css';
 
+export function generateResourceTooltip(resource) {
+  if (!resource || resource.category === 'doober' || resource.category === 'source') return '';
+
+  const lines = [];
+
+  const currentTime = Date.now();
+
+  switch (resource.category) {
+    case 'farmplot':
+      lines.push(`<p>${resource.type}</p>`);
+      if (resource.growEnd) {
+        const remainingTime = Math.max(0, resource.growEnd - currentTime);
+        const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+        if (remainingTime > 0) {
+          lines.push(`<p>🌱 ${minutes}m ${seconds}s remaining</p>`);
+        }
+      }
+      break;
+
+    case 'crafting':
+      lines.push(`<p>${resource.type}</p>`);
+      if (resource.craftEnd) {
+        const remainingTime = Math.max(0, resource.craftEnd - currentTime);
+        const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+        if (remainingTime > 0) {
+          lines.push(`<p>⏳ ${minutes}m ${seconds}s remaining</p>`);
+        }
+      }
+      break;
+
+    default:
+      lines.push(`<p>${resource.type}</p>`);
+      break;
+  }
+
+  return lines.join('');
+}
+
 export const RenderGrid = memo(
-  ({ grid, tileTypes, resources, handleTileClick, handleTileHover, handleTileLeave, TILE_SIZE }) => {
+  ({ grid, tileTypes, resources, handleTileClick, TILE_SIZE, setHoverTooltip }) => {
+
+    const hoverTimersRef = useRef({}); // ✅ Must be before any early return
 
     // Validation
     if (!grid || !Array.isArray(grid) || !tileTypes) { console.error('Invalid grid or tileTypes:', grid, tileTypes); return null; }
@@ -39,8 +81,27 @@ export const RenderGrid = memo(
           <div
             key={`${rowIndex}-${colIndex}-${resource?.symbol || ''}`}
             onClick={() => handleTileClick(rowIndex, colIndex)}
-            onMouseEnter={(event) => handleTileHover(rowIndex, colIndex, event)}
-            onMouseLeave={handleTileLeave}
+            onMouseEnter={(event) => {
+              if (resource && resource.category !== 'doober' && resource.category !== 'source') {
+                const rect = event.currentTarget.getBoundingClientRect();
+                const updateTooltip = () => {
+                  setHoverTooltip({
+                    x: rect.left + rect.width / 2,
+                    y: rect.top,
+                    content: generateResourceTooltip(resource),
+                  });
+                };
+                updateTooltip(); // Immediate render
+                hoverTimersRef.current[key] = setInterval(updateTooltip, 1000); // Store interval ID
+              }
+            }}
+            onMouseLeave={() => {
+              if (hoverTimersRef.current[key]) {
+                clearInterval(hoverTimersRef.current[key]);
+                delete hoverTimersRef.current[key];
+              }
+              setHoverTooltip(null);
+            }}
             className={tileClass}
             style={{
               position: 'absolute',
@@ -201,8 +262,8 @@ export const RenderTooltip = memo(({ resource, npc, pc, tooltipPosition, isToolt
 
   return (
     <div
-      className="tooltip-container"
-      style={{
+        className="HoverTooltip"
+        style={{
         position: 'absolute',
         top: tooltipPosition.y,
         left: tooltipPosition.x,
