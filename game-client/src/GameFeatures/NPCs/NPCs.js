@@ -49,8 +49,8 @@ class NPC {
 /////////////////
 
 update(currentTime, NPCsInGrid, gridId, TILE_SIZE) {
-  console.log(`[🐮 NPC.update] | NPCid= ${this.id} | time=${currentTime} | type=${this.type} | state=${this.state}`);
-  console.log('🐮 NPCsInGrid:', NPCsInGrid);
+  // console.log(`[🐮 NPC.update] | NPCid= ${this.id} | time=${currentTime} | type=${this.type} | state=${this.state}`);
+  // console.log('🐮 NPCsInGrid:', NPCsInGrid);
   const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId)?.npcs || {}); // Use the new NPCsInGrid.npcs
 
   const timeElapsed = currentTime - this.lastUpdated;

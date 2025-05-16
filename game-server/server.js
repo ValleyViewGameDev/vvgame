@@ -247,18 +247,36 @@ mongoose.connect(process.env.MONGODB_URI, {
     });
 
       // Broadcast updated NPCs to others in the same grid
-      socket.on('update-NPCsInGrid-NPCs', ({ gridId, npcs, NPCsInGridLastUpdated }) => {
-        if (!npcs || !NPCsInGridLastUpdated) {
-          console.warn('⚠️ Received invalid or missing NPCs update:', { npcs, NPCsInGridLastUpdated });
+      socket.on('update-NPCsInGrid-NPCs', (payload) => {
+        console.log('📩 Received update-NPCsInGrid-NPCs with payload:\n', JSON.stringify(payload, null, 2));
+      
+        const gridEntries = Object.entries(payload).filter(([key]) => key !== 'emitterId');
+        const emitterId = payload.emitterId || socket.id;
+      
+        if (gridEntries.length === 0) {
+          console.warn('⚠️ Payload missing grid-specific data.');
           return;
         }
-        console.log(`📤 Broadcasting updated NPCs for grid ${gridId}`);
-        socket.to(gridId).emit('sync-NPCs', {
-            npcs,
-            NPCsInGridLastUpdated,
-            emitterId: socket.id, // Keep emitterId for fallback and debugging
-        });
+      
+        const [gridId, gridData] = gridEntries[0];
+        const { npcs, NPCsInGridLastUpdated } = gridData || {};
+      
+        if (!gridId || !npcs || !NPCsInGridLastUpdated) {
+          console.warn('⚠️ Invalid or incomplete NPCs update:', { gridId, npcs, NPCsInGridLastUpdated, emitterId });
+          return;
+        }
+      
+        const outboundPayload = {
+          [gridId]: { npcs, NPCsInGridLastUpdated },
+          emitterId,
+        };
+      
+        console.log(`📤 Broadcasting sync-NPCs for grid ${gridId}`);
+        console.log('📤 Outbound sync-NPCs payload:\n', JSON.stringify(outboundPayload, null, 2));
+      
+        socket.to(gridId).emit('sync-NPCs', outboundPayload);
       });
+      
 
       socket.on('npc-moved', ({ gridId, npcId, newPosition }) => {
         if (!gridId || !npcId || !newPosition) {

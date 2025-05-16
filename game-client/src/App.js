@@ -466,6 +466,7 @@ useEffect(() => {
 // 🔄 NPC Management Loop
 useEffect(() => {
   if (!isAppInitialized) { console.log('App not initialized. Skipping NPC management.'); return; }
+  //console.log('🔄 NPC Management Loop started for gridId:', gridId);
 
   const interval = setInterval(() => {
     const currentGridNPCs = NPCsInGrid?.[gridId]?.npcs;
@@ -820,7 +821,7 @@ const zoomOut = () => {
 };
 
 
-//////////// HANDLE CLICKING & HOVERING /////////////////////////
+//////////// HANDLE CLICKING /////////////////////////
 
 let isProcessing = false; // Guard against duplicate clicks
 
@@ -975,7 +976,6 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
 
 }, [resources, gridId, inventory, currentPlayer, playerPosition, activeTileSize]);
   
-// Tooltip logic removed
 
   
 //////////// HANDLE LOGIN and LOGOUT /////////////////////////
@@ -1572,10 +1572,11 @@ return ( <>
         <div
           className="HoverTooltip"
           style={{
+            position: 'fixed',
+            zIndex: 9999,
             top: hoverTooltip.y,
             left: hoverTooltip.x,
             transform: 'translate(-50%, -100%) translateY(-8px)', // ⬅️ Center horizontally and offset upward
-            zIndex: 9999,
             pointerEvents: 'none',
           }}
           dangerouslySetInnerHTML={{ __html: hoverTooltip.content }}

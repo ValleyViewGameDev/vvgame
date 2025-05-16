@@ -261,7 +261,8 @@ body {
 }
 
 
-/* Homestead */
+/* GAME BOARD */
+
 .homestead {
   overflow: auto;
   margin-left: 200px;
@@ -341,6 +342,7 @@ body {
   pointer-events: none;
   z-index: 9999;
   position: fixed;
+  min-width: 50px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
 }
 
@@ -398,7 +400,6 @@ body {
   width: 100%;
   height: 100%;
   position: absolute;
-  border: 1px solid #958f8f;
 }
 
 .tile-g { background-color: #3dc43d; }

@@ -194,19 +194,38 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
   console.log("🌐 useEffect for NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
   if (!gridId) return;
 
-  const handleNPCSync = ({ npcs, emitterId }) => {
-    console.log('📥 Received sync-NPCs event:', { npcs, emitterId });
+  const handleNPCSync = (payload) => {
+    console.log('📥 Received sync-NPCs payload:', JSON.stringify(payload, null, 2));
+  
+    const { emitterId } = payload;
+    const mySocketId = socket.id;
+    if (emitterId === mySocketId) {
+      console.log(`📤 Skipping sync-NPCs from self (emitterId = socket.id)`);
+      return;
+    }
+  
+    // Extract gridId and gridData (we only expect one grid per payload)
+    const gridEntries = Object.entries(payload).filter(([key]) => key !== 'emitterId');
+    if (gridEntries.length === 0) {
+      console.warn("❌ No grid data found in sync-NPCs payload:", payload);
+      return;
+    }
+  
+    const [gridId, gridData] = gridEntries[0];
+    const { npcs, NPCsInGridLastUpdated } = gridData || {};
+    if (!npcs || typeof npcs !== 'object') {
+      console.warn("📤 Invalid sync-NPCs payload (missing npcs):", payload);
+      return;
+    }
+  
     const isController = npcController.isControllingGrid(gridId);
     console.log('IsNPCController:', isController);
-  
-    if (!npcs) return;
   
     setGridState(prevState => {
       const updatedNPCs = { ...prevState.npcs };
       const liveGrid = isController ? NPCsInGridManager.NPCsInGrids?.[gridId] : null;
   
       Object.entries(npcs).forEach(([npcId, incomingNPC]) => {
- 
         if (!incomingNPC) {
           console.log(`  🧹 Received null NPC ${npcId}; removing from local state.`);
           delete updatedNPCs[npcId];
@@ -216,7 +235,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
           }
           return;
         }
-
+  
         const localNPC = updatedNPCs[npcId];
         const incomingTime = new Date(incomingNPC.lastUpdated).getTime();
         const localTime = localNPC?.lastUpdated ? new Date(localNPC.lastUpdated).getTime() : 0;
@@ -224,7 +243,6 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
         if (incomingTime > localTime) {
           console.log(`  🐮📡 Updating NPC ${npcId} from emitter ${emitterId}: ${incomingNPC.state}`);
   
-          // Always rehydrate as full NPC instance
           const rehydrated = new NPC(
             incomingNPC.id,
             incomingNPC.type,
@@ -235,7 +253,6 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
   
           updatedNPCs[npcId] = rehydrated;
   
-          // 🔁 Update the controller’s live in-memory copy too
           if (isController && liveGrid?.npcs) {
             liveGrid.npcs[npcId] = rehydrated;
             console.log(`🧠 Controller rehydrated NPC ${npcId} into live NPCsInGrid`);

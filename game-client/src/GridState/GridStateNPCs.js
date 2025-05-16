@@ -214,12 +214,15 @@ class GridStateManager {
     }
 
     if (socket && socket.emit) {
-      socket.emit('update-NPCsInGrid-NPCs', {
-        gridId,
-        npcs: { [npc.id]: npc },
-        NPCsInGridLastUpdated: now,
-      });
-      console.log(`📡 Emitted NPC grid-state update for NPC ${npc.id}`);
+      const payload = {
+        [gridId]: {
+          npcs: { [npc.id]: npc }, // or [npc.id]: npc in addNPC
+          NPCsInGridLastUpdated: now,
+        },
+        emitterId: socket.id,
+      };
+      console.log("📡 Emitting update-NPCsInGrid-NPCs with payload:", JSON.stringify(payload, null, 2));
+      socket.emit('update-NPCsInGrid-NPCs', payload);
     }
   }
 
@@ -261,12 +264,15 @@ class GridStateManager {
     }
 
     if (socket && socket.emit) {
-      socket.emit('update-NPCsInGrid-NPCs', {
-        gridId,
-        npcs: { [npcId]: npc },
-        NPCsInGridLastUpdated: now,
-      });
-      console.log(`🐮📡 Emitted NPC update for ${npcId}`);
+      const payload = {
+        [gridId]: {
+          npcs: { [npcId]: npc }, // or [npc.id]: npc in addNPC
+          NPCsInGridLastUpdated: now,
+        },
+        emitterId: socket.id,
+      };
+      console.log("📡 Emitting update-NPCsInGrid-NPCs with payload:", JSON.stringify(payload, null, 2));
+      socket.emit('update-NPCsInGrid-NPCs', payload);
     }
 
     const updatedGridState = this.getNPCsInGrid(gridId);
