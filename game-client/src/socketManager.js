@@ -128,24 +128,24 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
     const [playerId, incomingPC] = Object.entries(pcs)[0];
     const incomingTime = new Date(incomingPC?.lastUpdated).getTime();
   
-    setPlayersInGrid((prevState) => {
+    const updateFn = (prevState) => {
       const localPC = prevState[gridId]?.pcs?.[playerId];
       const localTime = new Date(localPC?.lastUpdated).getTime() || 0;
-  
+    
       if (currentPlayer && playerId === String(currentPlayer._id)) {
         if (localPlayerMoveTimestampRef.current > incomingTime) {
           console.log(`⏳ Skipping local PC (${playerId}) update; local movement is newer.`);
           return prevState;
         }
       }
-  
+    
       if (incomingTime <= localTime) {
         console.log(`⏳ Skipping stale update for PC ${playerId}.`);
         return prevState;
       }
-  
+    
       console.log(`⏩ Updating PC ${playerId} from socket event.`);
-  
+    
       const prevPosition = localPC?.position;
       const newPosition = incomingPC?.position;
       if (
@@ -155,28 +155,27 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
       ) {
         animateRemotePC(playerId, prevPosition, newPosition, TILE_SIZE);
       }
-  
-      const prevGridState = prevState[gridId] || {};
-      const prevPCs = prevGridState.pcs || {};
-  
-      const setPayload = {
-        ...prevState,
-        [gridId]: {
-          ...prevGridState,
-          pcs: {
-            ...prevPCs,
-            [playerId]: incomingPC,
-          },
-          playersInGridLastUpdated: playersInGridLastUpdated || prevGridState.playersInGridLastUpdated,
-        },
-      };
-  
+    
       console.log("🧠 Pre-state before merge:", JSON.stringify(prevState, null, 2));
       console.log("📥 Incoming update for:", playerId, "with data:", incomingPC);
-      console.log("📦 setPlayersInGrid payload:", JSON.stringify(setPayload, null, 2));
-  
-      return setPayload;
-    });
+    
+      const newState = {
+        ...prevState,
+        [gridId]: {
+          ...prevState[gridId],
+          pcs: {
+            ...(prevState[gridId]?.pcs || {}),
+            [playerId]: incomingPC,
+          },
+        },
+      };
+    
+      console.log("📦 setPlayersInGrid payload:", JSON.stringify(newState, null, 2));
+      return newState;
+    };
+    
+    playersInGridManager.setPlayersInGridReact(updateFn);
+    
   };
 
   console.log("🧲 Subscribing to PC sync events for grid:", gridId);
