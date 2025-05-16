@@ -176,6 +176,10 @@ const DynamicRenderer = ({
         const renderX = overridePos ? overridePos.x * TILE_SIZE : pc.position.x * TILE_SIZE;
         const renderY = overridePos ? overridePos.y * TILE_SIZE : pc.position.y * TILE_SIZE;
 
+        // 🧪 ADD THIS LINE:
+        //console.log(`🖼️ Render ${pc.username}: override=`, renderPositions[pc.playerId], 'state=', pc.position);
+
+
         pcElement.style.left = `${renderX}px`;
         pcElement.style.top = `${renderY}px`;
       });

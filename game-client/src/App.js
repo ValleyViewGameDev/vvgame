@@ -135,6 +135,10 @@ useEffect(() => {
 }, [resources]);
 
 
+const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
+const TILE_SIZES = { close: 30, far: 16 }; // Rename for clarity
+const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
+
 const [inventory, setInventory]  = useState({});
 const [backpack, setBackpack] = useState({});
 const [playerPosition, setPlayerPosition] = useState(null);
@@ -151,6 +155,9 @@ const setPlayersInGrid = useGridStatePCUpdate();
 useEffect(() => {
   playersInGridManager.registerSetPlayersInGrid(setPlayersInGrid);
 }, [setPlayersInGrid]);
+useEffect(() => {
+  playersInGridManager.registerTileSize(activeTileSize);
+}, [activeTileSize]);
 
 const [npcs, setNpcs] = useState({});
 
@@ -180,10 +187,6 @@ const handlePCClick = (pc) => {
 const [hoveredResource, setHoveredResource] = useState(null);
 const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 const [isTooltipVisible, setIsTooltipVisible] = useState(false);
-
-const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
-const TILE_SIZES = { close: 30, far: 16 }; // Rename for clarity
-const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
 
 const [controllerUsername, setControllerUsername] = useState(null); // Add state for controller username
 const [isSocketConnected, setIsSocketConnected] = useState(false);

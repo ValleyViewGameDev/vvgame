@@ -83,34 +83,60 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
   const targetXpx = finalPosition.x * TILE_SIZE;
   const targetYpx = finalPosition.y * TILE_SIZE;
 
-  function animate() {
-    if (step >= stepCount) {
-      delete renderPositions[playerId];
-      const now = Date.now();
-      console.log(`🦶🦶 Player ${playerId} moved to (${finalPosition.x}, ${finalPosition.y})`);
-      console.log('🦶🦶 About to call updatePC');
-      playersInGridManager.updatePC(gridId, playerId, {
-        position: finalPosition,
-        lastUpdated: now,
-      });
-      const debugData = playersInGridManager.getPlayersInGrid(gridId);
-      console.log('🦶🦶 playersInGrid after updatePC:', debugData);
+  const now = Date.now();
 
-      centerCameraOnPlayer(finalPosition, TILE_SIZE);
-      return;
-    }
-    const interpolatedX = currentX + ((targetXpx - currentX) / stepCount) * step;
-    const interpolatedY = currentY + ((targetYpx - currentY) / stepCount) * step;
-    renderPositions[playerId] = {
-      x: interpolatedX / TILE_SIZE,
-      y: interpolatedY / TILE_SIZE,
-    };
+  playersInGridManager.updatePC(gridId, playerId, {
+    position: finalPosition,
+    lastUpdated: now,
+  });
 
-    step++;
-    requestAnimationFrame(animate);
-  }
+  centerCameraOnPlayer(finalPosition, TILE_SIZE);
+
+
+  // function animate() {
+  //   if (step >= stepCount) {
+  //     const now = Date.now();
+  //     console.log(`🦶🦶 Player ${playerId} moved to (${finalPosition.x}, ${finalPosition.y})`);
+  //     console.log('🦶🦶 About to call updatePC');
+      
+  //     playersInGridManager.updatePC(gridId, playerId, {
+  //       position: finalPosition,
+  //       lastUpdated: now,
+  //     });
+    
+  //     centerCameraOnPlayer(finalPosition, TILE_SIZE);
+    
+  //     // ⏳ Wait until pc.position has caught up before clearing render override
+  //     const waitForFlush = () => {
+  //       const confirmedPosition = playersInGridManager.getPlayerPosition(gridId, playerId);
+  //       if (
+  //         confirmedPosition &&
+  //         confirmedPosition.x === finalPosition.x &&
+  //         confirmedPosition.y === finalPosition.y
+  //       ) {
+  //         delete renderPositions[playerId];
+  //         console.log(`✅ Cleared render override for ${playerId} after confirmed update`);
+  //       } else {
+  //         requestAnimationFrame(waitForFlush);
+  //       }
+  //     };
+  //     requestAnimationFrame(waitForFlush);
+    
+  //     return;
+  //   }
+    
+  //   const interpolatedX = currentX + ((targetXpx - currentX) / stepCount) * step;
+  //   const interpolatedY = currentY + ((targetYpx - currentY) / stepCount) * step;
+  //   renderPositions[playerId] = {
+  //     x: interpolatedX / TILE_SIZE,
+  //     y: interpolatedY / TILE_SIZE,
+  //   };
+
+  //   step++;
+  //   requestAnimationFrame(animate);
+  // }
  
-  animate();
+  // animate();
 
 }
 

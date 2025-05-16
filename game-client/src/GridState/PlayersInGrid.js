@@ -1,6 +1,7 @@
 import API_BASE from '../config';
 import socket from '../socketManager';
 import axios from 'axios';
+import { animateRemotePC } from '../Render/RenderAnimatePosition';
 
 class GridStatePCManager {
     constructor() {
@@ -10,7 +11,9 @@ class GridStatePCManager {
     registerSetPlayersInGrid(setter) {
       this.setPlayersInGridReact = setter;
     }
-
+    registerTileSize(tileSize) {
+      this.tileSize = tileSize;
+    }
     /**
      * Initialize the playersInGrid for a specific gridId.
      */
@@ -141,6 +144,8 @@ class GridStatePCManager {
         return;
       }
     
+      const oldPosition = gridPCs[playerId]?.position;
+
       const now = Date.now();
       const updatedPC = {
         ...gridPCs[playerId],
@@ -148,21 +153,11 @@ class GridStatePCManager {
         lastUpdated: now,
       };
     
+      const newPosition = updatedPC.position; // 👈 and derive newPosition from updatedPC
+
       this.playersInGrid[gridId].pcs[playerId] = updatedPC;
     
-      // Save to server
-      try {
-        await axios.post(`${API_BASE}/api/save-single-pc`, {
-          gridId,
-          playerId,
-          pc: updatedPC,
-          lastUpdated: now,
-        });
-        console.log(`✅ Updated PC ${playerId} on server.`);
-      } catch (error) {
-        console.error(`❌ Failed to update PC ${playerId}:`, error);
-      }
-    
+
       // Emit to other clients
       if (socket && socket.emit) {
         const payload = {
@@ -177,6 +172,20 @@ class GridStatePCManager {
         socket.emit('update-NPCsInGrid-PCs', payload);
       }
     
+      console.log('oldPosition:', oldPosition);
+      console.log('newPosition:', newPosition);
+      console.log('this.tileSize:', this.tileSize);
+
+      if (
+        this.tileSize &&
+        oldPosition &&
+        newPosition &&
+        (oldPosition.x !== newPosition.x || oldPosition.y !== newPosition.y)
+      ) {
+        console.log('Calling animateRemotePC from updatePC');
+        animateRemotePC(playerId, oldPosition, newPosition, this.tileSize);
+      }
+
       // ✅ Also update React state if setter is registered
       if (this.setPlayersInGridReact) {
         this.setPlayersInGridReact(prev => ({
@@ -190,8 +199,21 @@ class GridStatePCManager {
           },
         }));
       }
+
+        // Save to server
+        try {
+          await axios.post(`${API_BASE}/api/save-single-pc`, {
+            gridId,
+            playerId,
+            pc: updatedPC,
+            lastUpdated: now,
+          });
+          console.log(`✅ Updated PC ${playerId} on server.`);
+        } catch (error) {
+          console.error(`❌ Failed to update PC ${playerId}:`, error);
+        }
     }
-    
+
   }
     
 
