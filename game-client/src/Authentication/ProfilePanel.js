@@ -175,6 +175,12 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
     <Panel onClose={onClose} descriptionKey="1019" titleKey="1119" panelName="ProfilePanel">
       <div className="panel-content">
         {/* User Details Form */}
+        <div className="panel-buttons">
+          <button className="btn-danger" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+        <br/>
         <div className="form-group">
           <label>Username:</label>
           <input
@@ -220,9 +226,6 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
         <div className="panel-buttons">
           <button className="btn-success" onClick={handleSave} disabled={isSaving}>
             {isSaving ? 'Saving...' : 'Save Changes'}
-          </button>
-          <button className="btn-danger" onClick={handleLogout}>
-            Logout
           </button>
         </div>
 

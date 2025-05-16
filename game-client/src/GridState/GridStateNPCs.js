@@ -103,7 +103,6 @@ class GridStateManager {
       console.warn(`⚠️ No NPCsInGrid found for gridId: ${gridId}`);
       return { npcs: {} }; // Only return NPCs
     }
-
     return NPCsInGrid.npcs;
   }
 

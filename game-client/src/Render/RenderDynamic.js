@@ -26,7 +26,8 @@ const DynamicRenderer = ({
   const NPCsInGrid = useGridState(); // Use the updated NPCsInGrid from context
   const playersInGrid = usePlayersInGrid(); // Access PCs via modern PC-specific context
   const hoveredEntityIdRef = useRef(null);
-
+  const suppressTooltipRef = useRef(false);
+  
   const masterResourcesRef = useRef(masterResources); // Keep masterResources in a ref
   useEffect(() => {
     masterResourcesRef.current = masterResources;
@@ -197,6 +198,7 @@ const DynamicRenderer = ({
         // Use mousedown, not onclick, for better cross-browser support
         npcDiv.addEventListener('mousedown', () => {
           setHoverTooltip(null);
+          suppressTooltipRef.current = true;
           const currentTime = Date.now();
           if (npc.action === 'attack' || npc.action === 'spawn') {
             if (currentTime < reloadRef.current) return;
@@ -220,10 +222,12 @@ const DynamicRenderer = ({
         });
 
         npcDiv.onmouseenter = (event) => {
+          if (suppressTooltipRef.current) return;
           handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverTooltip);
         };
 
         npcDiv.onmouseleave = () => {
+          suppressTooltipRef.current = false;
           handleNPCHoverLeave(npc, hoveredEntityIdRef, setHoverTooltip);
         };
 
@@ -291,15 +295,18 @@ const DynamicRenderer = ({
         // Use mousedown, not onclick, for better cross-browser support
         pcDiv.addEventListener('mousedown', () => {
           setHoverTooltip(null);
+          suppressTooltipRef.current = true;
           onPCClick(pc);
           handlePCClick(pc, currentPlayer, currentPlayer.location.g, TILE_SIZE);
         });
 
         pcDiv.onmouseenter = (event) => {
+          if (suppressTooltipRef.current) return;
           handlePCHover(event, pc, TILE_SIZE, setHoverTooltip);
         };
 
         pcDiv.onmouseleave = () => {
+          suppressTooltipRef.current = false;
           handlePCHoverLeave(setHoverTooltip);
         };
 

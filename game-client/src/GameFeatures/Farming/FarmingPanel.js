@@ -31,9 +31,6 @@ const FarmingPanel = ({
   const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
   const COOLDOWN_DURATION = 1200;
 
-  const getCurrentTileTypes = () => {
-    return [...tiles.map((row) => [...row])]; // Deep copy to avoid mutability issues
-  };
  
   useEffect(() => {
     fetchData();

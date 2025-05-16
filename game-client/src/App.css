@@ -340,7 +340,7 @@ body {
   padding: 0.5px 8px;
   font-size: 11px;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 8999;
   position: fixed;
   min-width: 50px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);

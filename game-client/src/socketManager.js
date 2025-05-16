@@ -223,7 +223,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
   
     setGridState(prevState => {
       const updatedNPCs = { ...prevState.npcs };
-      const liveGrid = isController ? NPCsInGridManager.NPCsInGrids?.[gridId] : null;
+      const liveGrid = isController ? NPCsInGridManager.NPCsInGrid?.[gridId] : null;
   
       Object.entries(npcs).forEach(([npcId, incomingNPC]) => {
         if (!incomingNPC) {
@@ -292,13 +292,13 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
               existing,
               existing.gridId || gridId
             );
-  
+   
         rehydrated.position = newPosition;
         updatedNPCs[npcId] = rehydrated;
   
         // ✅ Also patch live memory state for controller
         if (rehydrated instanceof NPC) {
-          NPCsInGridManager.NPCsInGrids[gridId].npcs[npcId] = rehydrated;
+          NPCsInGridManager.NPCsInGrid[gridId].npcs[npcId] = rehydrated;
         } else {
           console.warn(`🛑 Tried to inject non-NPC instance into live NPCsInGrid for ${npcId}`);
         }

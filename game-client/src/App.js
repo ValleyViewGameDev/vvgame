@@ -752,28 +752,6 @@ useEffect(() => {
 }, [socket, gridId]);
 
 
-/////////// HANDLE KEY MOVEMENT /////////////////////////
-
-const localPlayerMoveTimestampRef = useRef(0);
-
-useEffect(() => {
-  const handleKeyDown = (event) => {
-    if (activeModal) { return; } // Keyboard input disabled while modal is open
-    if (isOffSeason) { return; } // Keyboard input disabled while offseason
-    if (zoomLevel === 'frontier' || zoomLevel === 'settlement') { return; }  // Prevent movement if zoomed out
-    const activeElement = document.activeElement;
-    if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; } // Prevent movement if a text input is focused
-    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
-
-    console.log('About to call handleKeyMovement, with playersInGrid:', playersInGrid);
-    handleKeyMovement(event, currentPlayer, activeTileSize, masterResources);
-  };
-  window.addEventListener('keydown', handleKeyDown); 
-  return () => {
-    window.removeEventListener('keydown', handleKeyDown); 
-  };
-}, [currentPlayer, masterResources, activeTileSize, activeModal, zoomLevel]);
-
 
 /////////// HANDLE ZOOMING & RESIZING /////////////////////////
 
@@ -820,6 +798,29 @@ const zoomOut = () => {
   }
 };
 
+/////////// HANDLE KEY MOVEMENT /////////////////////////
+
+const localPlayerMoveTimestampRef = useRef(0);
+
+useEffect(() => {
+  const handleKeyDown = (event) => {
+    if (activeModal) { return; } // Keyboard input disabled while modal is open
+    if (isOffSeason) { return; } // Keyboard input disabled while offseason
+    if (zoomLevel === 'frontier' || zoomLevel === 'settlement') { return; }  // Prevent input if zoomed out
+    const activeElement = document.activeElement;
+    if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; } // Prevent movement if a text input is focused
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
+
+    console.log('About to call handleKeyMovement, with playersInGrid:', playersInGrid);
+    handleKeyMovement(event, currentPlayer, activeTileSize, masterResources);
+  };
+  window.addEventListener('keydown', handleKeyDown); 
+  return () => {
+    window.removeEventListener('keydown', handleKeyDown); 
+  };
+}, [currentPlayer, masterResources, activeTileSize, activeModal, zoomLevel]);
+
+
 
 //////////// HANDLE CLICKING /////////////////////////
 
@@ -830,107 +831,65 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
   isProcessing = true;
 
   const resource = resources.find((res) => res.x === colIndex && res.y === rowIndex);
-  console.log('⬆️ handleTileClick invoked with:', { rowIndex, colIndex });
-  console.log('Resource:', resource);
-
+  console.log('⬆️ handleTileClick invoked with:', { rowIndex, colIndex, resource });
   // Validate `gridId` and `username`
   if (!gridId || typeof gridId !== 'string') { console.error('Invalid gridId:', gridId); return; }
   if (!currentPlayer?.username || typeof currentPlayer.username !== 'string') { console.error('Invalid username:', currentPlayer?.username); return; }
-
   // ✅ Get player position from playersInGrid
   const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id));
   const targetPos = { x: colIndex, y: rowIndex };
-
   if (!playerPos || typeof playerPos.x === 'undefined' || typeof playerPos.y === 'undefined') {
       console.error("⚠️ Player position is invalid in NPCsInGrid; playerPos: ", playerPos);
       isProcessing = false;
       return;
   }
-  
   // If clicking a resource, check range before interacting (except NPCs)
   if (resource && resource.category !== 'npc') {
     const distance = calculateDistance(playerPos, targetPos);
     const playerRange = currentPlayer.range || 1; // Default range if not set
-
     console.log(`Checking range: Player at ${playerPos.x},${playerPos.y} | Target at ${targetPos.x},${targetPos.y} | Distance = ${distance} | Range = ${playerRange}`);
-
     if (distance > playerRange) {
         FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
-        console.log('Target out of range:', targetPos);
         isProcessing = false;
-        return; // Stop further execution
+        return; 
     }
   }
-
   if (resource) {
-
-    if (resource.category === 'npc') {
-      // handled in RenderDynamic
-    }
+    console.log('App.js: Resource clicked:', resource);
+    if (resource.category === 'npc') { } // handled in RenderDynamic
     else if (resource.category === 'training') {
-      console.log(`App.js: Training station clicked - ${resource.type}`);
-      setActiveStation({
-        type: resource.type, // ✅ Store station type
-        position: { x: colIndex, y: rowIndex }, // ✅ Store position
-        gridId: gridId, // ✅ Store gridId
-      });
-      openPanel('SkillsAndUpgradesPanel'); // ✅ Open panel without passing entryPoint directly
+      setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, });
+      openPanel('SkillsAndUpgradesPanel'); 
     }
     else if (resource.category === 'crafting') {
-      console.log('App.js: Crafting station clicked');
-      setActiveStation({
-        type: resource.type,
-        position: { x: colIndex, y: rowIndex }, // Position of the resource
-        gridId: gridId, // Current gridId
-      });
+      setActiveStation({type: resource.type,position: { x: colIndex, y: rowIndex }, gridId: gridId, });
       openPanel('CraftingStation');
     } 
     else if (resource.category === 'trading') {
-      console.log('App.js: Trading station clicked');
-      setActiveStation({
-        type: resource.type,
-        position: { x: colIndex, y: rowIndex }, // Position of the resource
-        gridId: gridId, // Current gridId
-      });
+      setActiveStation({type: resource.type,position: { x: colIndex, y: rowIndex }, gridId: gridId, });
       openPanel('TradingStation');
     } 
     else if (resource.category === 'stall') {
-      console.log('App.js: Animal Stall clicked');
-      setActiveStation({
-        type: resource.type, // The station type (e.g., "Cow in Stall")
-        position: { x: colIndex, y: rowIndex }, // Position of the resource
-        gridId: gridId, // Current gridId
-      });
+      setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, });
       openPanel('AnimalStall');
     } 
     else if (resource.category === 'station') {
-      console.log('App.js: Station clicked; resource.type = ',resource.type);
-      setActiveStation({
-        type: resource.type, // The station type (e.g., "Trade Stall")
-        position: { x: colIndex, y: rowIndex }, // Position of the resource
-        gridId: gridId, // Current gridId
-      });
+      setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, });
       switch (resource.type) {
         case 'Courthouse':
-          openPanel('Courthouse');
-          break;
+          openPanel('Courthouse'); break;
         case 'Trade Stall':
-          openPanel('TradeStall');
-          break;
+          openPanel('TradeStall'); break;
         case 'Mailbox':
-          openModal('Mailbox');
-          break;
+          openModal('Mailbox'); break;
         case 'Train':
-          openPanel('TrainPanel');
-          break;
+          openPanel('TrainPanel'); break;
         case 'Bank':
-          openPanel('BankPanel');
-          break;
+          openPanel('BankPanel'); break;
         case 'Farm Hand 1':
         case 'Farm Hand 2':
         case 'Farm Hand 3':
-          openPanel('FarmHandsPanel');
-          break;
+          openPanel('FarmHandsPanel'); break;
         default:
           console.warn(`Unhandled station type: ${resource.type}`);
       }
