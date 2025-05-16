@@ -714,11 +714,13 @@ useEffect(() => {
 
 // 🔄 SOCKET LISTENER: PCs: Real-time updates for GridState (PC sync)
 useEffect(() => {
+  if (!isAppInitialized) { console.log('App not initialized. Skipping PC socket changes.'); return; }  
   socketListenForPCstateChanges(activeTileSize, gridId, currentPlayer, setPlayersInGrid, localPlayerMoveTimestampRef);
 }, [socket, gridId, currentPlayer]);
 
 // 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
 useEffect(() => {
+  if (!isAppInitialized) { console.log('App not initialized. Skipping NPC socket changes.'); return; }  
   socketListenForNPCStateChanges(gridId, setGridState, npcController);
 }, [socket, gridId]);
 
