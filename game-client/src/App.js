@@ -496,16 +496,31 @@ useEffect(() => {
 }, [isAppInitialized, gridId, NPCsInGrid, currentPlayer, activeTileSize, controllerUsername]);
 
 
-// 🔄 PC Management Loop: Check for player death
+// 🔄 PC Management Loop: Check for player death & lava
 useEffect(() => {
   if (!isAppInitialized) { console.log('App not initialized. Skipping PC management.'); return; }
 
   const interval = setInterval(async () => {
-    if (playersInGrid) {
-      const playerPC = playersInGrid?.[gridId]?.pcs?.[String(currentPlayer?._id)];
+    if (playersInGrid && gridId && currentPlayer?._id) {
+      const playerId = String(currentPlayer._id);
+      const playerPC = playersInGrid?.[gridId]?.pcs?.[playerId];
       if (playerPC?.hp <= 0 && currentPlayer) {
-        console.log("💀 Player is dead. Handling death...");
+      // 💀 Check for player death
+         console.log("💀 Player is dead. Handling death...");
         await handlePlayerDeath(currentPlayer,setCurrentPlayer,setGridId,setGrid,setResources,setTileTypes,activeTileSize,updateStatus,setModalContent,setIsModalOpen);
+      } else {
+      // 🔥 Check for lava tile
+        const col = playerPC?.position?.x;
+        const row = playerPC?.position?.y;
+        console.log("tileTypes = ",tileTypes);
+        console.log("posX,Y = ",col,row);
+        const onTileType = tileTypes?.[row]?.[col];
+        console.log("Player is on tile type:", onTileType);
+        if (onTileType === "l") { 
+          const lavaDamage = 2;
+          playersInGrid[gridId].pcs[playerId].hp -= lavaDamage; 
+          FloatingTextManager.addFloatingText(`- ${lavaDamage} ❤️‍🩹 HP`, col, row, activeTileSize);
+          console.log("🔥 Player is standing on lava. Applying 2 damage."); }
       }
     }
   }, 1000);
@@ -811,7 +826,6 @@ useEffect(() => {
     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; } // Prevent movement if a text input is focused
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
 
-    console.log('About to call handleKeyMovement, with playersInGrid:', playersInGrid);
     handleKeyMovement(event, currentPlayer, activeTileSize, masterResources);
   };
   window.addEventListener('keydown', handleKeyDown); 
