@@ -294,7 +294,10 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     }
   };
   
-  
+  const getSymbol = (resourceType) => {
+    const resource = resourceData.find((res) => res.type === resourceType);
+    return resource?.symbol || '';
+  };
   
   return (
     <Panel onClose={onClose} descriptionKey="1008" titleKey="1108" panelName="TradeStall">
@@ -311,7 +314,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
             className={`trade-slot ${slot ? 'filled' : ''}`}
             onClick={() => handleSlotClick(index)}
           >
-            {slot ? `${slot.amount}x ${slot.resource} (${slot.price ?? 0} ea.)` : 'Empty'}
+            {slot ? `${slot.amount}x ${getSymbol(slot.resource)} ${slot.resource} (${slot.price ?? 0} ea.)` : 'Empty'}
           </div>
         ))}
       </div>
@@ -350,7 +353,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 
                     return (
                       <tr key={item.type}>
-                        <td>{item.type}</td>
+                        <td>{resourceDetails?.symbol} {item.type}</td>
                         <td>{item.quantity}</td>
                         <td>{price}</td>
                         <td>

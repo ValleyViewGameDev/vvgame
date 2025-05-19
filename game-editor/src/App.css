@@ -48,23 +48,26 @@ h4, h5, h6 {
   overflow-y: auto; /* Enables scrolling */
   scrollbar-width: thin; /* Optional: Customizes scrollbar width */
   scrollbar-color: #4a9e39 #c5e1a5; /* Optional: Customizes scrollbar colors */
+  z-index: 999;
 }
 
 /* Ensure Panel Content Can Exceed Panel Height */
 .editor-panel > * {
   flex-shrink: 0; /* Prevents content from squishing */
+  z-index: 999;
 }
 
 /* Grid Container: Now Fixed to Top and Left */
 .editor-grid-container {
-  margin-left: 25px; /* Ensure it starts right next to the panel */
-  margin-top: 10px; /* Ensure it starts right next to the panel */
-  width: calc(100% - 180px); /* Take remaining space */
+  margin-left: 0; /* No margin needed, already offset by left */
+  margin-top: 0;
+  width: calc(100% - 180px);
   height: 100vh;
-  position: absolute;
+  position: fixed; /* so it sits under the fixed panel */
   top: 0;
-  left: 180px; /* Matches panel width */
-  overflow: auto; /* Allow independent scrolling */
+  left: 200px;      /* match panel width */
+  overflow: auto;
+  z-index: 0;       /* ensure it is beneath the panel */
 }
 
 /* Fix Grid Positioning */

@@ -17,6 +17,7 @@ const GRID_SIZE = 64; // 64x64 grid
 
 const GridEditor = () => {
   const [tileSize, setTileSize] = useState(20); // Default size of 20px
+  const [brushSize, setBrushSize] = useState(1); // New brush size state
   const [masterResources, setMasterResources] = useState([]); // ✅ Store all resources
   const [grid, setGrid] = useState(
     Array.from({ length: GRID_SIZE }, () => 
@@ -67,16 +68,16 @@ const GridEditor = () => {
   useEffect(() => {
     const handleKeyPress = (event) => {
       if (!selectedTile) return;
-  
+
       // ✅ Ignore key presses if typing in an input, select, or textarea
       const activeElement = document.activeElement;
       if (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA" || activeElement.tagName === "SELECT") {
         return;
       }
-      
+
       const key = event.key.toLowerCase();
       console.log(`🎹 Key Pressed: ${key}`);
-  
+
       // Prevent default arrow key scrolling
       if (["arrowup", "arrowdown", "arrowleft", "arrowright"].includes(key)) {
         event.preventDefault();
@@ -84,12 +85,12 @@ const GridEditor = () => {
 
       let newX = selectedTile.x;
       let newY = selectedTile.y;
-  
+
       if (key === "arrowup" && newX > 0) newX -= 1;
       if (key === "arrowdown" && newX < GRID_SIZE - 1) newX += 1;
       if (key === "arrowleft" && newY > 0) newY -= 1;
       if (key === "arrowright" && newY < GRID_SIZE - 1) newY += 1;
-  
+
       if (newX !== selectedTile.x || newY !== selectedTile.y) {
         console.log(`➡️ Moving selection to (${newX}, ${newY})`);
         setSelectedTile({ x: newX, y: newY });
@@ -112,18 +113,33 @@ const GridEditor = () => {
 
       // Find the resource with a matching key
       const matchingTile = masterResources.find(res => res.category === "tile" && res.type.toLowerCase() === key);
-      
+
       if (matchingTile) {
         console.log(`✅ Setting tile type to: ${matchingTile.layoutkey}`);
-        updateTileType(selectedTile.x, selectedTile.y, matchingTile.layoutkey);
+        // --- Brush logic: apply in a diamond shape based on brushSize ---
+        for (let dx = -brushSize + 1; dx < brushSize; dx++) {
+          for (let dy = -brushSize + 1; dy < brushSize; dy++) {
+            const x = selectedTile.x + dx;
+            const y = selectedTile.y + dy;
+            if (
+              x >= 0 &&
+              x < GRID_SIZE &&
+              y >= 0 &&
+              y < GRID_SIZE &&
+              Math.abs(dx) + Math.abs(dy) < brushSize
+            ) {
+              updateTileType(x, y, matchingTile.layoutkey);
+            }
+          }
+        }
       }
     };
-  
+
     window.addEventListener("keydown", handleKeyPress);
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [selectedTile, masterResources]);
+  }, [selectedTile, masterResources, brushSize]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -536,6 +552,14 @@ const handleClearGrid = () => {
           type="range" min="10" max="50" value={tileSize} 
           onChange={(e) => setTileSize(Number(e.target.value))}
         />
+        <h4>Tile Brush Size:</h4>
+        <input
+          type="range"
+          min="1"
+          max="10"
+          value={brushSize}
+          onChange={(e) => setBrushSize(Number(e.target.value))}
+        />
   
         {selectedTile && (
           <>
@@ -624,30 +648,148 @@ const handleClearGrid = () => {
       </div>
   
       {/* Grid Container */}
-      <div className="editor-grid-container">
-        <div className="grid" style={{ 
-          display: 'grid', 
-          gridTemplateColumns: `repeat(${GRID_SIZE}, ${tileSize}px)`, 
-          gridTemplateRows: `repeat(${GRID_SIZE}, ${tileSize}px)`, 
-          gap: '1px', 
-          background: '#ccc',
-          width: `${GRID_SIZE * tileSize}px`,
-          height: `${GRID_SIZE * tileSize}px`
-        }}>
-          {grid.map((row, x) =>
-            row.map((tile, y) => (
-              <Tile 
-                key={`${x}-${y}`} 
-                x={x} 
-                y={y} 
-                tile={tile} 
-                updateTile={() => handleTileClick(x, y)}
-                isSelected={selectedTile?.x === x && selectedTile?.y === y}
-                setSelectedTile={setSelectedTile}
-                tileSize={tileSize} 
-              />
-            ))
-          )}
+      <div
+        className="editor-grid-container"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 180,
+          right: 0,
+          bottom: 0,
+          overflowX: 'auto',
+          overflowY: 'auto',
+          zIndex: 0
+        }}
+      >
+        <div
+          className="grid-with-rulers"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            marginLeft: tileSize,
+            minWidth: (GRID_SIZE + 3) * tileSize
+          }}
+        >
+          {/* Top Ruler */}
+          <div style={{ display: 'flex' }}>
+            <div
+              style={{
+                width: tileSize,
+                height: tileSize,
+                flexShrink: 0,
+                boxSizing: 'border-box'
+              }}
+            /> {/* Top-left corner spacer */}
+            {Array.from({ length: GRID_SIZE }).map((_, i) => (
+              <div
+                key={`top-${i}`}
+                style={{
+                  width: tileSize,
+                  height: tileSize,
+                  fontSize: '10px',
+                  textAlign: 'center',
+                  lineHeight: `${tileSize}px`,
+                  flexShrink: 0,
+                  boxSizing: 'border-box'
+                }}
+              >
+                {i}
+              </div>
+            ))}
+          </div>
+
+          {/* Grid Rows with Left/Right Rulers */}
+          {grid.map((row, x) => (
+            <div
+              key={`row-${x}`}
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center'
+              }}
+            >
+              {/* Left Ruler */}
+              <div
+                style={{
+                  width: tileSize,
+                  height: tileSize,
+                  fontSize: '10px',
+                  textAlign: 'center',
+                  lineHeight: `${tileSize}px`,
+                  flexShrink: 0,
+                  boxSizing: 'border-box'
+                }}
+              >
+                {x}
+              </div>
+
+              {/* Tiles as a grid row */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: `repeat(${GRID_SIZE}, ${tileSize}px)`,
+                  gridTemplateRows: `${tileSize}px`,
+                  flexShrink: 0
+                }}
+              >
+                {row.map((tile, y) => (
+                  <Tile
+                    key={`${x}-${y}`}
+                    x={x}
+                    y={y}
+                    tile={tile}
+                    updateTile={() => handleTileClick(x, y)}
+                    isSelected={selectedTile?.x === x && selectedTile?.y === y}
+                    setSelectedTile={setSelectedTile}
+                    tileSize={tileSize}
+                  />
+                ))}
+              </div>
+
+              {/* Right Ruler */}
+              <div
+                style={{
+                  width: tileSize,
+                  height: tileSize,
+                  fontSize: '10px',
+                  textAlign: 'center',
+                  lineHeight: `${tileSize}px`,
+                  flexShrink: 0,
+                  boxSizing: 'border-box'
+                }}
+              >
+                {x}
+              </div>
+            </div>
+          ))}
+
+          {/* Bottom Ruler */}
+          <div style={{ display: 'flex' }}>
+            <div
+              style={{
+                width: tileSize,
+                height: tileSize,
+                flexShrink: 0,
+                boxSizing: 'border-box'
+              }}
+            /> {/* Bottom-left corner spacer */}
+            {Array.from({ length: GRID_SIZE }).map((_, i) => (
+              <div
+                key={`bottom-${i}`}
+                style={{
+                  width: tileSize,
+                  height: tileSize,
+                  fontSize: '10px',
+                  textAlign: 'center',
+                  lineHeight: `${tileSize}px`,
+                  flexShrink: 0,
+                  boxSizing: 'border-box'
+                }}
+              >
+                {i}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
   
