@@ -512,10 +512,7 @@ useEffect(() => {
       // 🔥 Check for lava tile
         const col = playerPC?.position?.x;
         const row = playerPC?.position?.y;
-        console.log("tileTypes = ",tileTypes);
-        console.log("posX,Y = ",col,row);
         const onTileType = tileTypes?.[row]?.[col];
-        console.log("Player is on tile type:", onTileType);
         if (onTileType === "l") { 
           const lavaDamage = 2;
           playersInGrid[gridId].pcs[playerId].hp -= lavaDamage; 
@@ -931,6 +928,8 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
         updateStatus,
         masterResources,
         masterSkills,
+        setModalContent,
+        setIsModalOpen,
       ).finally(() => {
         isProcessing = false; // Reset flag after processing
       });
@@ -1256,12 +1255,21 @@ return ( <>
 
       <Modal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+        onClose={() => {
+          if (modalContent?.onClose) {
+            modalContent.onClose();
+          } else {
+            setIsModalOpen(false);
+          }
+        }}
         title={modalContent.title} 
         message={modalContent.message} 
         message2={modalContent.message2} 
-        size={modalContent.size || "standard"} // default to standard
-      />
+        size={modalContent.size || "standard"}
+      >
+        {modalContent.children}
+      </Modal>
+
       {activeModal === 'Mailbox' && (
         <Mailbox
           onClose={closeModal}  // ✅ This sets activeModal = null

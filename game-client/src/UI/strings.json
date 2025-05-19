@@ -33,7 +33,8 @@
     "32": "⛺️ You need to decamp first.",
     "33": "🏠 Moved items to the Warehouse.",
     "34": "🎒 Emptied backpack.",
-
+    "35": "You need a ",
+    "36": "You used a ",
     "50": "🚫 That username is already taken.",
 
     "100": "TRAVELING STRINGS:",
@@ -220,6 +221,7 @@
     "3012": "🐾 Animal Yards supply unique livestock, which can be transported back to Homesteads by any player.",
     "3013": "🚂 The Mayor can influence demand for goods at the Train.",
 
+
     "5000": "MORE MODAL STRINGS:",
 
     "5001": "💀 You have died.",
@@ -254,8 +256,9 @@
     "5040": "📰 Town News",
     "5041": "Here's what's happening in Town right now:",
 
-    "5045": "TKTK",
-    "5046": "TKTK",
+    "5045": "Use ",
+    "5046": "Do you want to use a",
+    "5047": "You have ",
 
     "5050": "TKTK",
     "5051": "TKTK",

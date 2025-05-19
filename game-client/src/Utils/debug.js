@@ -291,6 +291,7 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
         { type: 'Strawberry', quantity: 5000 },
         { type: 'Diamond', quantity: 500 },
         { type: 'Feverfew', quantity: 100 },
+        { type: 'Golden Key', quantity: 100 },
       ];
   
       // Fetch the latest inventory and work on a copy

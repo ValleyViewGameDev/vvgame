@@ -132,24 +132,6 @@ function InventoryPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus
 
     return (
         <Panel onClose={onClose} descriptionKey="1001" titleKey="1101" panelName="InventoryPanel">
-            <h3>🏚️ Warehouse</h3>
-            <div className="capacity-display">Capacity: {calculateTotalQuantity(inventory)}/{warehouseCapacity}</div>
-
-            <div className="inventory-table">
-                {inventory.length > 0 ? (
-                    inventory.map((item, index) => (
-                        <div className="inventory-row" key={index}>
-                            <div className="inventory-cell name-cell">{item.type}</div>
-                            <div className="inventory-cell quantity-cell">{item.quantity}</div>
-                        </div>
-                    ))
-                ) : (
-                    <p>Warehouse is empty.</p>
-                )}
-            </div>
-
-            <hr className="inventory-divider" />
-
             <h3>🎒 Backpack</h3>
             <div className="capacity-display">Capacity: {calculateTotalQuantity(backpack)}/{backpackCapacity}</div>
 
@@ -172,6 +154,25 @@ function InventoryPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus
                     <p>Backpack is empty.</p>
                 )}
             </div>
+
+            <hr className="inventory-divider" />
+
+            <h3>🏚️ Warehouse</h3>
+            <div className="capacity-display">Capacity: {calculateTotalQuantity(inventory)}/{warehouseCapacity}</div>
+
+            <div className="inventory-table">
+                {inventory.length > 0 ? (
+                    inventory.map((item, index) => (
+                        <div className="inventory-row" key={index}>
+                            <div className="inventory-cell name-cell">{item.type}</div>
+                            <div className="inventory-cell quantity-cell">{item.quantity}</div>
+                        </div>
+                    ))
+                ) : (
+                    <p>Warehouse is empty.</p>
+                )}
+            </div>
+
 
             {showBackpackModal && (() => {
                 const isAtHome = currentPlayer.location.g === currentPlayer.gridId;

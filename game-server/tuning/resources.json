@@ -2632,6 +2632,7 @@
         "output": "King's Crown",
         "passable": false,
         "requires": "Golden Key",
+        "source": "Buy",
         "validong": true,
         "validond": true,
         "validons": true,
@@ -2641,7 +2642,9 @@
         "validonn": true,
         "validono": true,
         "minprice": 0,
-        "maxprice": 0
+        "maxprice": 0,
+        "ingredient1": "Money",
+        "ingredient1qty": 250
     },
     {
         "type": "Merlin's Orb",

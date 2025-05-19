@@ -9,6 +9,7 @@ import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
 import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
 import { checkInventoryCapacity } from './Utils/InventoryManagement';
 import { createCollectEffect, createSourceConversionEffect, calculateTileCenter } from './VFX/VFX';
+import strings from './UI/strings.json';
 
  // Handles resource click actions based on category. //
  export async function handleResourceClick(
@@ -33,6 +34,8 @@ import { createCollectEffect, createSourceConversionEffect, calculateTileCenter 
   updateStatus,
   masterResources,
   masterSkills,
+  setModalContent,
+  setIsModalOpen,
 ) {
   console.log(`Resource Clicked:  (${row}, ${col}):`, { resource, tileType: tileTypes[row]?.[col] });
   console.log('Inventory when handleResourceClick is called:', inventory);
@@ -99,7 +102,10 @@ import { createCollectEffect, createSourceConversionEffect, calculateTileCenter 
           currentPlayer,
           setCurrentPlayer,
           masterResources,
-          masterSkills // Pass tuning data
+          masterSkills, 
+          setModalContent,
+          setIsModalOpen,
+          updateStatus
         );
         break;
 
@@ -325,6 +331,93 @@ async function handleDooberClick(
 }
 
 
+// Helper: Handles use of required key/item for a resource
+// Returns a Promise<boolean>: true if item used, false otherwise
+let pendingKeyResolve = null; // Module-level temporary resolve callback
+
+export async function handleUseKey(resource,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,setInventory,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus) {
+  console.log('handleUseKey: resource:', resource);
+  if (!resource.requires) return true;
+  if (pendingKeyResolve) {return false;}   // Only allow one modal pending at a time
+
+  const requiredType = resource.requires;
+  const requiredItem = currentPlayer.inventory.find((item) => item.type === requiredType);
+
+  if (!requiredItem || requiredItem.quantity <= 0) { updateStatus(`${strings["35"]}${requiredType}`); return false; }
+
+  return new Promise((resolve) => {
+    pendingKeyResolve = resolve;
+
+    const handleYes = async () => {
+      // Deduct from inventory and backpack if present
+      const updatedInventory = currentPlayer.inventory.map(item =>
+        item.type === requiredType
+          ? { ...item, quantity: item.quantity - 1 }
+          : item
+      ).filter(item => item.quantity > 0);
+
+      const updatedBackpack = (currentPlayer.backpack || []).map(item =>
+        item.type === requiredType
+          ? { ...item, quantity: item.quantity - 1 }
+          : item
+      ).filter(item => item.quantity > 0);
+
+      setInventory(updatedInventory);
+      const updatedPlayer = {
+        ...currentPlayer,
+        inventory: updatedInventory,
+        backpack: updatedBackpack
+      };
+      setCurrentPlayer(updatedPlayer);
+      localStorage.setItem('player', JSON.stringify(updatedPlayer));
+      updateStatus(`${strings["36"]}${requiredType}`);
+
+      try {
+        await axios.post(`${API_BASE}/api/update-inventory`, {
+          playerId: currentPlayer.playerId,
+          inventory: updatedInventory,
+          backpack: updatedBackpack,
+        });
+      } catch (err) {
+        console.error("❌ Failed to sync inventory to server:", err);
+      }
+
+      setIsModalOpen(false);
+      if (pendingKeyResolve) {
+        pendingKeyResolve(true);
+        pendingKeyResolve = null;
+      }
+    };
+
+    const handleNo = () => {
+      setIsModalOpen(false);
+      if (pendingKeyResolve) {
+        pendingKeyResolve(false);
+        pendingKeyResolve = null;
+      }
+    };
+
+    const totalOwned =
+      (currentPlayer.inventory.find(item => item.type === requiredType)?.quantity || 0) +
+      (currentPlayer.backpack?.find(item => item.type === requiredType)?.quantity || 0);
+      
+    setModalContent({
+      title: `${strings["5045"]} ${requiredType}?`,
+      message: `${strings["5046"]} ${requiredType}?`,
+      message2: `${strings["5047"]} ${totalOwned}.`,
+      size: 'small',
+      onClose: handleNo,  // 🔁 Close button acts like "No"
+      children: (
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px' }}>
+          <button onClick={handleYes}>Yes</button>
+          <button onClick={handleNo}>No</button>
+        </div>
+      ),
+    });
+    setIsModalOpen(true);
+  });
+}
+
 // HANDLE SOURCE CONVERSIONS //
 //
 export async function handleSourceConversion(
@@ -339,7 +432,10 @@ export async function handleSourceConversion(
   currentPlayer,
   setCurrentPlayer,
   masterResources,
-  masterSkills
+  masterSkills,
+  setModalContent,
+  setIsModalOpen,
+  updateStatus
 ) {
   if (resource.action !== 'convertTo') return;
 
@@ -360,17 +456,9 @@ export async function handleSourceConversion(
   // But instead it should look at the resource clicked and check it's "required"
   // This way we can have multiple things require the same Skill; right now, it's one resource per Skill
 
-
-  // KEY & SHRINE example; but Keys more broadly
-  // If resource.require = 'Golden Key' {
-  //    check if they have a key;
-  //      if not, do a FloatingText "You don't have: [resource.require]" and return;
-  //    else
-  //      pop a modal "Do you want to use a [Golden Key]?"
-  //        if NO, return;
-  // }
-
-
+  // 🔑 Handle Key Requirement
+  const usedKey = await handleUseKey(resource,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,setInventory,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus,);
+  if (!usedKey) return;
 
   // Build the new resource object to replace the one we just clicked
   const x = col;
