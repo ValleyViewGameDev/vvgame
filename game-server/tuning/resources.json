@@ -2632,7 +2632,6 @@
         "output": "King's Crown",
         "passable": false,
         "requires": "Golden Key",
-        "source": "Buy",
         "validong": true,
         "validond": true,
         "validons": true,
@@ -2642,9 +2641,7 @@
         "validonn": true,
         "validono": true,
         "minprice": 0,
-        "maxprice": 0,
-        "ingredient1": "Money",
-        "ingredient1qty": 250
+        "maxprice": 0
     },
     {
         "type": "Merlin's Orb",
@@ -4488,7 +4485,7 @@
     {
         "type": "Strength",
         "symbol": "🔪",
-        "category": "skill",
+        "category": "power",
         "output": "damage",
         "source": "Warrior's Den",
         "requires": "Combat",
@@ -4501,7 +4498,7 @@
     {
         "type": "Tracking",
         "symbol": "🔎",
-        "category": "skill",
+        "category": "power",
         "output": "range",
         "source": "Basic Skills",
         "requires": "Horse",
@@ -4516,7 +4513,7 @@
     {
         "type": "Scout",
         "symbol": "🔭",
-        "category": "skill",
+        "category": "power",
         "output": "range",
         "source": "Magic Shop",
         "requires": "Tracking",
@@ -4531,7 +4528,7 @@
     {
         "type": "Power",
         "symbol": "🔪",
-        "category": "upgrade",
+        "category": "power",
         "output": "damage",
         "source": "Warrior's Den",
         "requires": "Strength",
@@ -4546,7 +4543,7 @@
     {
         "type": "Psycho",
         "symbol": "🔪",
-        "category": "upgrade",
+        "category": "power",
         "output": "damage",
         "source": "Warrior's Den",
         "requires": "Power",
@@ -4561,7 +4558,7 @@
     {
         "type": "Quick Hit",
         "symbol": "⚔️",
-        "category": "skill",
+        "category": "power",
         "output": "speed",
         "source": "Warrior's Den",
         "requires": "Combat",
@@ -4574,7 +4571,7 @@
     {
         "type": "Rapid Fire",
         "symbol": "🔫",
-        "category": "upgrade",
+        "category": "power",
         "output": "speed",
         "source": "Warrior's Den",
         "requires": "Quick Hit",
@@ -4589,7 +4586,7 @@
     {
         "type": "Rifle",
         "symbol": "🔫",
-        "category": "skill",
+        "category": "power",
         "output": "attackrange",
         "source": "Warrior's Den",
         "requires": "Combat",
@@ -4602,7 +4599,7 @@
     {
         "type": "Scope",
         "symbol": "🔫",
-        "category": "upgrade",
+        "category": "power",
         "output": "attackrange",
         "source": "Warrior's Den",
         "requires": "Rifle",
@@ -4617,7 +4614,7 @@
     {
         "type": "Scope Max",
         "symbol": "🔫",
-        "category": "upgrade",
+        "category": "power",
         "output": "attackrange",
         "source": "Warrior's Den",
         "requires": "Scope",
@@ -4632,7 +4629,7 @@
     {
         "type": "Basic Armor",
         "symbol": "🛡️",
-        "category": "skill",
+        "category": "power",
         "output": "armorclass",
         "source": "Warrior's Den",
         "requires": "Combat",
@@ -4647,7 +4644,7 @@
     {
         "type": "Metal Armor",
         "symbol": "🛡️",
-        "category": "upgrade",
+        "category": "power",
         "output": "armorclass",
         "source": "Warrior's Den",
         "requires": "Basic Armor",
@@ -4666,7 +4663,7 @@
     {
         "type": "Magic Armor",
         "symbol": "🛡️",
-        "category": "upgrade",
+        "category": "power",
         "output": "armorclass",
         "source": "Magic Shop",
         "requires": "Metal Armor",
@@ -4683,7 +4680,7 @@
     {
         "type": "Accuracy",
         "symbol": "🎯",
-        "category": "skill",
+        "category": "power",
         "output": "attackbonus",
         "source": "Warrior's Den",
         "requires": "Combat",
@@ -4696,7 +4693,7 @@
     {
         "type": "Max Accuracy",
         "symbol": "🎯",
-        "category": "upgrade",
+        "category": "power",
         "output": "attackbonus",
         "source": "Magic Shop",
         "requires": "Accuracy",
@@ -4711,7 +4708,7 @@
     {
         "type": "Thick Skin",
         "symbol": "🛡️",
-        "category": "upgrade",
+        "category": "power",
         "output": "maxhp",
         "source": "Warrior's Den",
         "requires": "Combat",
@@ -4724,7 +4721,7 @@
     {
         "type": "Thicker Skin",
         "symbol": "🛡️",
-        "category": "upgrade",
+        "category": "power",
         "output": "maxhp",
         "source": "Warrior's Den",
         "requires": "Thick Skin",
@@ -4739,7 +4736,7 @@
     {
         "type": "Thickest Skin",
         "symbol": "🛡️",
-        "category": "upgrade",
+        "category": "power",
         "output": "maxhp",
         "source": "Warrior's Den",
         "requires": "Thicker Skin",

@@ -53,6 +53,7 @@ import QuestGiverPanel from './GameFeatures/NPCs/NPCsQuest';
 import CraftingStation from './GameFeatures/Crafting/CraftingStation';
 import FarmHandsPanel from './GameFeatures/FarmHands/FarmHands';
 import TradingStation from './GameFeatures/Crafting/TradingStation';
+import ShopStation from './GameFeatures/Crafting/ShopStation';
 import AnimalStall from './GameFeatures/FarmAnimals/AnimalStall';
 import TradeStall from './GameFeatures/Trading/TradeStall';
 import Mailbox from './GameFeatures/Mailbox/Mailbox';
@@ -61,6 +62,7 @@ import OffSeasonModal from './GameFeatures/Seasons/OffSeasonModal.js';
 import TownNews from './UI/TownNews.js';
 import SeasonPanel from './GameFeatures/Seasons/SeasonPanel';
 import SocialPanel from './GameFeatures/Social/SocialPanel';
+import CombatPanel from './GameFeatures/Combat/CombatPanel';
 import GridStateDebugPanel from './Utils/GridStateDebug.js';
 
 import { usePanelContext } from './UI/PanelContext';
@@ -333,21 +335,7 @@ useEffect(() => {
         console.warn("🧭 Player not in correct NPCsInGrid or missing entirely. Repositioning...");
         const targetPosition = { x: 0, y: 0 };
         console.warn('InitAppWrapper: adding PC to NPCsInGrid');
-        await playersInGridManager.addPC(gridId, DBPlayerData.playerId, {
-          playerId: DBPlayerData.playerId,
-          username: DBPlayerData.username,
-          type: "pc",
-          position: targetPosition,
-          icon: DBPlayerData.icon,
-          hp: DBPlayerData.hp,
-          maxhp: DBPlayerData.maxhp,
-          armorclass: DBPlayerData.armorclass,
-          attackbonus: DBPlayerData.attackbonus,
-          damage: DBPlayerData.damage,
-          attackrange: DBPlayerData.attackrange,
-          speed: DBPlayerData.speed,
-          iscamping: DBPlayerData.iscamping,
-        });
+        await playersInGridManager.addPC(gridId, DBPlayerData.playerId, DBPlayerData);
         // Refresh the NPCsInGrid and React state
         console.warn('InitAppWrapper: refreshing NPCsInGrid');
         setPlayersInGrid((prev) => ({
@@ -372,35 +360,6 @@ useEffect(() => {
       } else {
         console.log('✅ Player found in local NPCsInGrid.');
       }
-
-      // Step 9: Sync combat stats from NPCsInGrid
-      console.log('🏁✅ 9 InitAppWrapper: syncing combat stats from NPCsInGrid');
-
-      DBPlayerData.hp = gridPlayer.hp;
-      DBPlayerData.maxhp = gridPlayer.maxhp;
-      DBPlayerData.armorclass = gridPlayer.armorclass;
-      DBPlayerData.attackbonus = gridPlayer.attackbonus;
-      DBPlayerData.damage = gridPlayer.damage;
-      DBPlayerData.speed = gridPlayer.speed;
-      DBPlayerData.attackrange = gridPlayer.attackrange;
-      DBPlayerData.iscamping = gridPlayer.iscamping;
-
-      // Step 10: Backfill combat stats to DB player profile
-      console.log('🏁✅ 10 InitAppWrapper: updating player profile on DB');
-      await axios.post(`${API_BASE}/api/update-profile`, {
-        playerId: DBPlayerData.playerId,
-        updates: {
-          hp: DBPlayerData.hp,
-          maxhp: DBPlayerData.maxhp,
-          armorclass: DBPlayerData.armorclass,
-          attackbonus: DBPlayerData.attackbonus,
-          damage: DBPlayerData.damage,
-          attackrange: DBPlayerData.attackrange,
-          speed: DBPlayerData.speed,
-          iscamping: DBPlayerData.iscamping,
-        },
-      });
-      console.log(`✅ Backfilled combat stats to player document:`, DBPlayerData);
 
       // Step 11: Update local storage with final player state
       console.log('🏁✅ 11 InitAppWrapper: updating localStorage with player data');
@@ -888,6 +847,10 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
       setActiveStation({type: resource.type,position: { x: colIndex, y: rowIndex }, gridId: gridId, });
       openPanel('TradingStation');
     } 
+    else if (resource.category === 'shop') {
+      setActiveStation({type: resource.type,position: { x: colIndex, y: rowIndex }, gridId: gridId, });
+      openPanel('ShopStation');
+    } 
     else if (resource.category === 'stall') {
       setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, });
       openPanel('AnimalStall');
@@ -994,12 +957,20 @@ const handleLoginSuccess = async (player) => {
 };
 
 
+// FOR THE PANELS:
+
 const [showTimers, setShowTimers] = useState(false);
 const [showStats, setShowStats] = useState(false); // Toggle for combat stats UI
 const combatStats = currentPlayer?.location?.g
   ? playersInGrid?.[currentPlayer.location.g]?.pcs?.[String(currentPlayer?._id)] || {}
   : {};
-
+const gridStats = currentPlayer?.location
+  ? { gridCoord: currentPlayer.location.gridCoord,
+      gridType: currentPlayer.location.gtype,
+    }
+  : { gridCoord: 'Not loaded',
+      gridType: 'Not loaded',
+    };
   
 return ( <>
 
@@ -1015,6 +986,7 @@ return ( <>
           setActiveStation(null); // ✅ Reset activeStation
           openPanel("SkillsAndUpgradesPanel"); // ✅ Open the panel normally
         }}>⚙️</button>
+      <button className="nav-button" title="Combat" onClick={() => openPanel('CombatPanel')}>⚔️</button>
       <button className="nav-button" title="Government" onClick={() => openPanel('GovPanel')}>🏛️</button>
       <button className="nav-button" title="Seasons" onClick={() => openPanel('SeasonPanel')}>🗓️</button>
       <button className="nav-button" onClick={() => openPanel('DebugPanel')}>🐞</button>
@@ -1152,7 +1124,7 @@ return ( <>
             Object.entries(playersInGrid[gridId].pcs).map(([playerId, pc]) => (
               <p key={playerId} style={{ color: "white" }}>
                 {connectedPlayers.has(playerId) && '📡 '}
-                <strong>{pc.username}</strong> – HP: {pc.hp}, ({pc.position?.x}, {pc.position?.y})
+                <strong>{pc.username}</strong>
               </p>
             ))
           )
@@ -1161,7 +1133,7 @@ return ( <>
         )}
         <h4 style={{ color: "white" }}>
           {controllerUsername 
-            ? `${controllerUsername} is NPCController` 
+            ? `🐮 ${controllerUsername}` 
             : "There is no NPCController"}
         </h4>
       </div>
@@ -1169,6 +1141,8 @@ return ( <>
 
       <GridStateDebugPanel
         gridId={gridId}
+        gridCoord={gridStats.gridCoord}
+        gridType={gridStats.gridType}
         NPCsInGrid={NPCsInGrid}
         playersInGrid={playersInGrid}
       />
@@ -1416,6 +1390,19 @@ return ( <>
           TILE_SIZE={activeTileSize}
         />
       )}
+      {activePanel === 'CombatPanel' && (
+        <CombatPanel
+          onClose={closePanel}
+          inventory={inventory}
+          setInventory={setInventory}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          stationType={activeStation?.type} 
+          masterResources={masterResources} 
+          masterSkills={masterSkills} 
+          TILE_SIZE={activeTileSize}
+        />
+      )}
       {activePanel === 'CraftingStation' && (
         <CraftingStation
           onClose={closePanel}
@@ -1436,6 +1423,22 @@ return ( <>
       )}
       {activePanel === 'TradingStation' && (
         <TradingStation
+          onClose={closePanel}
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          setResources={setResources}
+          stationType={activeStation?.type} 
+          currentStationPosition={activeStation?.position} 
+          gridId={activeStation?.gridId}
+          TILE_SIZE={activeTileSize}
+        />
+      )}
+      {activePanel === 'ShopStation' && (
+        <ShopStation
           onClose={closePanel}
           inventory={inventory}
           setInventory={setInventory}

@@ -33,16 +33,18 @@ router.post('/register', async (req, res) => {
     // 3) Load default attributes from starterAccount
     const {
       icon: defaultIcon,
-      hp,
-      maxhp,
-      armorclass,
-      attackbonus,
-      damage,
-      speed,
-      attackrange,
+      range,
+      baseHp,
+      baseMaxhp,
+      baseArmorclass,
+      baseAttackbonus,
+      baseDamage,
+      baseSpeed,
+      baseAttackrange,
       inventory,
       backpack,
       skills,
+      powers,
       warehouseCapacity,
       backpackCapacity,
       accountStatus,
@@ -73,16 +75,18 @@ const newPlayer = new Player({
   password: hashedPassword,
   icon: defaultIcon,      // always use default icon from starterAccount
   language,
-  hp,
-  maxhp,
-  armorclass,
-  attackbonus,
-  damage,
-  speed,
-  attackrange,
+  range,
+  baseHp,
+  baseMaxhp,
+  baseArmorclass,
+  baseAttackbonus,
+  baseDamage,
+  baseSpeed,
+  baseAttackrange,
   inventory: [...inventory],
   backpack: [...backpack],
   skills: [...skills],
+  powers: [...powers],
   warehouseCapacity,
   backpackCapacity,
   accountStatus,
@@ -194,5 +198,3 @@ router.post('/login', async (req, res) => {
 
 
 module.exports = router;
-
-

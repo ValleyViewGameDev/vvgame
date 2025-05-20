@@ -133,33 +133,7 @@ export const changePlayerLocation = async (
   }
 
   try {
-    // ✅ STEP 1: Preserve combat stats from current PlayersInGrid and save to DB
-    const gridPCs = playersInGridManager.getPlayersInGrid(fromLocation.g) || {};
-    const combatPlayer = gridPCs[currentPlayer.playerId];
 
-    if (combatPlayer) {
-      const combatStats = {
-        hp: combatPlayer.hp,
-        maxhp: combatPlayer.maxhp,
-        armorclass: combatPlayer.armorclass,
-        attackbonus: combatPlayer.attackbonus,
-        damage: combatPlayer.damage,
-        speed: combatPlayer.speed,
-        attackrange: combatPlayer.attackrange,
-        iscamping: combatPlayer.iscamping,
-      };
-      console.log('💾 Preserving combat stats before location change:', combatStats);
-
-      await axios.post(`${API_BASE}/api/update-profile`, {
-        playerId: currentPlayer.playerId,
-        updates: combatStats,
-      });
-
-      Object.assign(currentPlayer, combatStats);
-      localStorage.setItem('player', JSON.stringify(currentPlayer));
-    } else {
-      console.warn('⚠️ No combat stats found in playersInGrid for this player.');
-    }
 
     // ✅ STEP 2: Update FROM grid's state (remove player)
     console.log(`1️⃣ Removing player from grid ${fromLocation.g}`);
@@ -167,6 +141,7 @@ export const changePlayerLocation = async (
     console.log('loading NPCS and PCS gridstates from db...');
     const fromGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${fromLocation.g}`);
     const fromPCs = fromGridResponse.data?.playersInGrid?.pcs || {};
+    const fromPlayerState = fromPCs[currentPlayer.playerId] || {}; // 👈 move this up BEFORE deletion
     console.log('Extracted fromPCs out of the NPCsInGrid we just loaded; fromPCs = ', fromPCs);
     console.log('Removing player from the fromPCs.');
     if (fromPCs[currentPlayer.playerId]) {
@@ -203,20 +178,22 @@ export const changePlayerLocation = async (
 
     // ✅ STEP 5: Add the player to the `pcs` object`
     console.log('Adding player to the toPCs object')
+    // Use combat stats from the fromGrid state if available, fallback to currentPlayer
+    console.log('fromPlayerState = ', fromPlayerState);
     const playerData = {
       playerId: currentPlayer.playerId,
       type: 'pc',
       username: currentPlayer.username,
       position: { x: toLocation.x, y: toLocation.y },
       icon: currentPlayer.icon || '😀',
-      hp: currentPlayer.hp || 25,
-      maxhp: currentPlayer.maxhp || 25,
-      armorclass: currentPlayer.armorclass || 10,
-      attackbonus: currentPlayer.attackbonus || 0,
-      damage: currentPlayer.damage || 1,
-      speed: currentPlayer.speed || 1,
-      attackrange: currentPlayer.attackrange || 1,
-      iscamping: currentPlayer.iscamping || false,
+      hp: fromPlayerState.hp ?? currentPlayer.hp ?? 25,
+      maxhp: fromPlayerState.maxhp ?? currentPlayer.maxhp ?? 25,
+      armorclass: fromPlayerState.armorclass ?? currentPlayer.armorclass ?? 10,
+      attackbonus: fromPlayerState.attackbonus ?? currentPlayer.attackbonus ?? 0,
+      damage: fromPlayerState.damage ?? currentPlayer.damage ?? 1,
+      speed: fromPlayerState.speed ?? currentPlayer.speed ?? 1,
+      attackrange: fromPlayerState.attackrange ?? currentPlayer.attackrange ?? 1,
+      iscamping: fromPlayerState.iscamping ?? currentPlayer.iscamping ?? false,
       lastUpdated: now,
     };
 
@@ -303,18 +280,9 @@ export const changePlayerLocation = async (
     
     // ✅ STEP 11: Center view on player
     console.log('6️⃣ Centering view...');
-    const gameContainer = document.querySelector('.homestead');
-    if (gameContainer) {
-      const centerX = toLocation.x * TILE_SIZE - window.innerWidth / 2;
-      const centerY = toLocation.y * TILE_SIZE - window.innerHeight / 2;
-      gameContainer.scrollTo({
-        left: centerX,
-        top: centerY,
-        behavior: 'instant',
-      });
-    }
+
     centerCameraOnPlayer({ x: toLocation.x, y: toLocation.y }, TILE_SIZE);
-        
+
     console.log('✅ Location change complete');
   } catch (error) {
     console.error('❌ Location change error:', error);

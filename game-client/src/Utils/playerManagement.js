@@ -120,6 +120,7 @@ export const handlePlayerDeath = async (
       x: 1,
       y: 1,
       g: player.gridId !== currentGridId ? player.gridId : currentGridId,
+      s: player.settlementId,
       gtype: "homestead",
     };
     // Preserve other location fields (frontier, settlement, gtype)

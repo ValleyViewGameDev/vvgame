@@ -88,17 +88,25 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
 
 
 export function centerCameraOnPlayer(position, TILE_SIZE) {
-  const gameContainer = document.querySelector(".homestead"); // Or adjust as needed
+  const gameContainer = document.querySelector(".homestead");
   if (!gameContainer) return;
 
-  const LEFT_PANEL_WIDTH = TILE_SIZE * 5; // Dynamic left panel width based on zoom level
-  const HEADER_HEIGHT = TILE_SIZE * 2;    // Dynamic header height based on zoom level
+  const LEFT_PANEL_WIDTH = 300;  // Scaled with zoom level
+  const HEADER_HEIGHT = 200;     // Same
+
   const centerX = position.x * TILE_SIZE - (window.innerWidth - LEFT_PANEL_WIDTH) / 2;
   const centerY = position.y * TILE_SIZE - (window.innerHeight - HEADER_HEIGHT) / 2;
 
+  // Clamp scroll positions so we don't scroll beyond the container's bounds
+  const maxScrollLeft = gameContainer.scrollWidth - gameContainer.clientWidth;
+  const maxScrollTop = gameContainer.scrollHeight - gameContainer.clientHeight;
+
+  const clampedX = Math.max(0, Math.min(centerX, maxScrollLeft));
+  const clampedY = Math.max(0, Math.min(centerY, maxScrollTop));
+
   gameContainer.scrollTo({
-    left: centerX,
-    top: centerY,
+    left: clampedX,
+    top: clampedY,
     behavior: "smooth",
   });
 

@@ -685,82 +685,8 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
         <button className="btn-success" onClick={handleGetSkills}> Get Skills </button>
         <button className="btn-neutral" onClick={() => setRefreshDebug((prev) => !prev)} > Refresh Debug Panel </button>
       </div>
-      <div className="debug-entities">
 
 
-      <h3>Active NPCs:</h3>
-
-      {npcs.length > 0 ? (
-       <ul style={{ listStyleType: 'none', padding: 0 }}>
-        {npcs.map((npc) => (
-            <li key={npc.id}>
-                <pre
-                  style={{
-                    background: '#f4f4f4',
-                    padding: '10px',
-                    borderRadius: '5px',
-                    overflowX: 'auto',
-                  }}
-                >
-        <p>{npc.type} no. {npc.id}</p>
-        <p>action: {npc.action}</p>
-        <p>state: {npc.state}</p>
-        <p>x: {npc.position.x}</p>
-        <p>y: {npc.position.y}</p>
-        <p>hp/hunger: {npc.hp}</p>
-        <p>maxhp: {npc.maxhp}</p>
-        <p>lastUpdated: {npc.lastUpdated}</p>
-        <p>nextspawn: {npc.nextspawn}</p>
-                
-                </pre>
-                <div style={{ margin: '10px 0' }}>
-                  {['maxhp', 'growTime', 'speed', 'range', 'attackrange', 'armorclass', 'attackbonus', 'damage', 'iscamping'].map((attribute) => (
-                    <div key={attribute} style={{ marginBottom: '5px' }}>
-                      <label>
-                        <strong>{attribute}:</strong>
-                      </label>
-
-                      <input
-                        type="number"
-                        value={npc[attribute] || 0}
-                        onChange={(e) => handleAttributeChange(npc.id, attribute, e.target.value)}
-                        style={{
-                          width: '50px',
-                          textAlign: 'center',
-                          marginRight: '5px',
-                        }}
-                      />
-
-                    </div>
-                  ))}
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p>No active NPCs.</p>
-        )}
-      </div>
-
-
-      <div className="debug-timers">
-        <h3>😀 Active PCs:</h3>
-
-        {pcs.length > 0 ? (
-        <ul style={{ listStyleType: 'none', padding: 0 }}>
-            {pcs.map((pc) => (
-              <p key={pc.playerId}>
-                {pc.username} ({pc.playerId}) 
-                Position: ({pc.position.x}, {pc.position.y})
-                ❤️‍🩹 HP: {pc.hp}
-              </p>
-            ))}
-          </ul>
-          
-        ) : (
-          <p>No active PCs.</p>
-        )}
-      </div>
 
       <div className="debug-timers">
         <h3>⏳ Active Timers:</h3>
@@ -780,17 +706,7 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
         )}
       </div>
 
-      {currentPlayer?.location ? (
-        <div className="debug-player-location">
-          <h3>📍 Current Location:</h3>
-          <p>FrontierID: {currentPlayer.location.f || 'N/A'}</p>
-          <p>SettlementID: {currentPlayer.location.s || 'N/A'}</p>
-          <p>GridID: {currentPlayer.location.g || 'N/A'}</p>
-          <p>GridType: {currentPlayer.location.gtype || 'N/A'}</p>
-        </div>
-      ) : (
-        <p>No player location data available.</p>
-      )}
+
     </Panel>
   );
 };

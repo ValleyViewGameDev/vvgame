@@ -215,11 +215,21 @@
   font-size: 14px;
 }
 
+.debug-toggles {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+
 .btn-toggle {
   margin: 5px;
   padding: 5px 5px;
   font-size: 10px;
-  width: 80px;
+  width: 120px;
   height: 30px;
   border: none;
   border-radius: 5px;

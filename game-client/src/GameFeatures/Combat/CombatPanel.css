@@ -1,0 +1,19 @@
+/* Base styling for CombatPanel — inherits from Panel.css */
+.combat-stats h4,
+.combat-powers p {
+  margin: 4px 0;
+  font-size: 12px;
+}
+
+.combat-powers {
+  margin-top: 1rem;
+}
+
+.combat-stats {
+  margin-bottom: 1rem;
+}
+
+.blue-text {
+  color: #3399ff;
+  font-weight: bold;
+}

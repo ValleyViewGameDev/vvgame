@@ -10,14 +10,14 @@ const playerSchema = new mongoose.Schema({
     required: true, // This might cause issues if `icon` is missing
     default: '😀', // Ensure a sensible default is provided
   },
-  hp: { type: Number, default: 10 },
-  maxhp: { type: Number, default: 10 },
-  range: { type: Number, default: 10 },
-  attackrange: { type: Number, default: 10 },
-  armorclass: { type: Number, default: 10 },
-  attackbonus: { type: Number, default: 10 },
-  damage: { type: Number, default: 10 },
-  speed: { type: Number, default: 2 },
+  range: { type: Number, default: 0 },
+  baseHp: { type: Number, default: 0 },
+  baseMaxhp: { type: Number, default: 0 },
+  baseAttackrange: { type: Number, default: 0 },
+  baseArmorclass: { type: Number, default: 0 },
+  baseAttackbonus: { type: Number, default: 0 },
+  baseDamage: { type: Number, default: 0 },
+  baseSpeed: { type: Number, default: 0 },
   location: {
     x: { type: Number, default: 0 },
     y: { type: Number, default: 0 },

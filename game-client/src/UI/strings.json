@@ -110,6 +110,8 @@
     "1021": "[Login description]",
     "1022": "[Train description]",
     "1023": "[Farm hands description]",
+    "1024": "[Combat description]",
+    "1025": "[Shop description]",
 
     "1101": "Inventory",
     "1102": "⚒️ Build",
@@ -126,7 +128,7 @@
     "1113": "Helper Character",
     "1114": "😀 Player Character",
     "1115": "🗓️ Season",
-    "1116": "Trader",
+    "1116": "🔁 Trader",
     "1117": "🏦 Bank",
     "1118": "🕹️ How to Play",
     "1119": "😀 Profile",
@@ -134,6 +136,8 @@
     "1121": "Welcome to Valley View",
     "1122": "🚂 Train",
     "1123": "🧑🏼‍🌾 Farm Hands",
+    "1124": "⚔️ Combat",
+    "1125": "🛒 Shop",
 
     "1400": "MODAL STRINGS",
 
@@ -281,7 +285,7 @@
     "maxhp": "Max Hit Points",
     "attackrange": "Attack Range",
     "attackbonus": "Attack Bonus",
-    "damage": "Attack Damage",
+    "damage": "Damage",
     "speed": "Attack Speed",
     "iscamping": "Is Camping",
     "armorclass": "Armor Class",

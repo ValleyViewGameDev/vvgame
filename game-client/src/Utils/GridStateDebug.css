@@ -1,0 +1,30 @@
+.grid-debug-panel {
+  background-color: #111;
+  color: lime;
+  padding: 1rem;
+  font-size: 12px;
+  max-height: 900px;
+  overflow-y: auto;
+  overflow-x: auto; /* Enable horizontal scroll if content overflows */
+  line-height: 1.2;
+  font-family: monospace;
+}
+
+.grid-debug-panel h4,
+.grid-debug-panel h5 {
+  color: white;
+  margin: 0.5em 0 0.2em;
+  white-space: pre; /* Prevent wrapping */
+}
+
+.grid-debug-panel pre {
+  white-space: pre; /* Preserve line breaks, no wrapping */
+  margin: 0 0 0.75em;
+}
+
+.grid-debug-panel p {
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
+  white-space: pre; /* Prevent wrapping */
+}

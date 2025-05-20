@@ -1,3 +1,4 @@
+import './CombatPanel.css';
 import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
@@ -10,10 +11,11 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { modifyPlayerStatsInPlayer, modifyPlayerStatsInGridState } from '../../Utils/playerManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
 import { isAGridStateStat } from '../../Utils/playerManagement';
+import playersInGridManager from '../../GridState/PlayersInGrid';
 import strings from '../../UI/strings.json';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 
-const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stationType, TILE_SIZE }) => {
+const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, stationType, masterResources, masterSkills, TILE_SIZE }) => {
   const [entryPoint, setEntryPoint] = useState(stationType || "Skills Panel"); 
   const [allResources, setAllResources] = useState([]);
   const [skillsToAcquire, setSkillsToAcquire] = useState([]);
@@ -25,6 +27,7 @@ const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stat
   const [isContentLoading, setIsContentLoading] = useState(false);
   const { updateStatus } = useContext(StatusBarContext);
   const [stationEmoji, setStationEmoji] = useState('📘'); // Default emoji for Skills Panel
+  const [fetchTrigger, setFetchTrigger] = useState(0);
 
   // ✅ Update `entryPoint` when `stationType` changes
   useEffect(() => {
@@ -93,7 +96,7 @@ const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stat
     };
 
     fetchResourcesAndInventory();
-  }, [entryPoint]); // ✅ Re-fetch when `entryPoint` changes
+  }, [entryPoint, fetchTrigger]); // ✅ Re-fetch when `entryPoint` OR `fetchTrigger` changes
 
 
   const hasRequiredSkill = (requiredSkill) => {
@@ -175,12 +178,8 @@ const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stat
       await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-      // Instead of re-fetching, update the acquire lists locally
-      if (resource.category === "skill") {
-        setSkillsToAcquire(prev => prev.filter(skill => skill.type !== resource.type));
-      } else if (resource.category === "upgrade") {
-        setUpgradesToAcquire(prev => prev.filter(upg => upg.type !== resource.type));
-      }
+      // ✅ Instead of calling fetchResourcesAndInventory, we trigger a refresh
+      setFetchTrigger((prev) => prev + 1); // 🔥 Increment `fetchTrigger` to force re-fetch
 
     } catch (error) {
       console.error('Error updating player on server:', error);
@@ -188,136 +187,91 @@ const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stat
     }
   };
 
+  // --- Stat helpers ---
+  const getStatModifier = (stat) => {
+    return currentPlayer.powers?.reduce((sum, item) => {
+      const res = masterResources.find(r => r.type === item.type);
+      return res?.output === stat ? sum + ((item.quantity || 0) * (res.qtycollected || 1)) : sum;
+    }, 0) || 0;
+  };
+
+  const getPlayerStats = () => {
+    return playersInGridManager.getAllPCs(currentPlayer.location.g)?.[currentPlayer._id] || {};
+  };
+  const getStatBreakdown = (stat) => {
+    const total = getPlayerStats()[stat] || 0;
+    const base = currentPlayer[`base${stat.charAt(0).toUpperCase() + stat.slice(1)}`] || 0;
+    const modifier = total - base;
+    return { base, modifier, total };
+  };
+
+  const hp = getStatBreakdown('hp');
+  const maxhp = getStatBreakdown('maxhp');
+  const damage = getStatBreakdown('damage');
+  const armorclass = getStatBreakdown('armorclass');
+  const attackbonus = getStatBreakdown('attackbonus');
+  const attackrange = getStatBreakdown('attackrange');
+  const speed = getStatBreakdown('speed');
+
   return (
-    <Panel onClose={onClose} descriptionKey="1005" titleKey="1105" panelName="SkillsAndUpgradesPanel">
+    <Panel onClose={onClose} descriptionKey="1024" titleKey="1124" panelName="CombatPanel">
       <div className="standard-panel">
-      <h3>{stationEmoji} {entryPoint}</h3> {/* ✅ Display emoji before entry point */}
       {isContentLoading ? (
           <p>Loading...</p>
         ) : (
           <>
-            <div className="skills-owned">
-              <h3>Skills you have:</h3>
-              {ownedSkills.length > 0 ? (
-                ownedSkills.map((skill, index) => (
-                  <div key={index}>
-                    {skill.type} 
-                  </div>
-                ))
-              ) : (
-                <p>No skills acquired yet.</p>
-              )}
+            <div className="combat-stats">
+              <h3>Your Stats:</h3>
+              <br />
+              <h3>❤️‍🩹 HP: <span className="stat-total">{hp.total}</span></h3>
+              <br />
+              <h4>
+                ❤️‍🩹 Max HP: {maxhp.base} + <span className="stat-total blue-text">{maxhp.modifier}</span> ={" "}
+                <span className="stat-total blue-text">{maxhp.modifier !== 0 ? maxhp.total : maxhp.base}</span>
+              </h4>
+              <h4>
+                🛡️ Armor Class: {armorclass.base} + <span className="stat-total blue-text">{armorclass.modifier}</span> ={" "}
+                <span className="stat-total blue-text">{armorclass.modifier !== 0 ? armorclass.total : armorclass.base}</span>
+              </h4>
+              <br />
+              <h4>
+                ⚔️ Attack Bonus: {attackbonus.base} + <span className="stat-total blue-text">{attackbonus.modifier}</span> ={" "}
+                <span className="stat-total blue-text">{attackbonus.modifier !== 0 ? attackbonus.total : attackbonus.base}</span>
+              </h4>
+              <h4>
+                ⚔️ Damage: {damage.base} + <span className="stat-total blue-text">{damage.modifier}</span> ={" "}
+                <span className="stat-total blue-text">{damage.modifier !== 0 ? damage.total : damage.base}</span>
+              </h4>
+              <h4>
+                🔭 Attack Range: {attackrange.base} + <span className="stat-total blue-text">{attackrange.modifier}</span> ={" "}
+                <span className="stat-total blue-text">{attackrange.modifier !== 0 ? attackrange.total : attackrange.base}</span>
+              </h4>
+              <h4>
+                🎯 Speed: {speed.base} + <span className="stat-total blue-text">{speed.modifier}</span> ={" "}
+                <span className="stat-total blue-text">{speed.modifier !== 0 ? speed.total : speed.base}</span>
+              </h4>
+              <h4>⛺️ Is Camping: {currentPlayer.iscamping ? "Yes" : "No"}</h4>
             </div>
 
-            <div className="upgrades-owned">
-              <h3>Upgrades you have:</h3>
-              {ownedUpgrades.length > 0 ? (
-                ownedUpgrades.map((upgrade, index) => (
-                  <div key={index}>
-                    {upgrade.type} 
-                  </div>
-                ))
-              ) : (
-                <p>No upgrades acquired yet.</p>
-              )}
-            </div>
+            <div className="combat-powers">
+              <h3>Weapons & Abilities:</h3>
+              <br></br>
+              {currentPlayer.powers?.length ? (
+                currentPlayer.powers.map((power, index) => {
+                  const resource = masterResources.find(r => r.type === power.type);
+                  if (!resource) return null;
 
-            <div className="skills-to-acquire">
-              <h3>Skills to Purchase:</h3>
-              <div className="skills-options">
-                {skillsToAcquire.map((resource) => {
-                  const ingredients = getIngredientDetails(resource, allResources);
-                  const affordable = canAfford(resource, inventory, 1);
-                  const meetsRequirement = hasRequiredSkill(resource.requires, ownedSkills);
-
-                  const details = `
-                    Costs: ${ingredients.join(', ') || 'None'}
-                    ${resource.requires ? `<br>Requires: ${resource.requires}` : ''}
-                  `;
-
-                  // ✅ **Check if this skill modifies a player attribute**
-                  const attributeModifier = resource.output
-                    ? `+${resource.qtycollected || 1} to ${strings[resource.output] || resource.output}`
-                    : null;
-
-                  const unlocks = allResources
-                    .filter((res) => res.requires === resource.type)
-                    .map((res) => `${res.symbol || ''} ${res.type}`)
-                    .join(', ') || 'None';
-
-                    const info = (
-                      <div className="info-content">
-                        {attributeModifier && <div>{attributeModifier}</div>}
-                        {unlocks !== 'None' && (
-                          <div style={{ display: 'block', marginBottom: '3px' }}>
-                            <strong>Unlocks:</strong> {unlocks}
-                          </div>
-                        )}
-                      </div>
-                    );
-
+                  const value = (resource.qtycollected || 1) * (power.quantity || 0);
+                  const outputLabel = resource.output ? (strings[resource.output] || resource.output) : 'Unknown';
                   return (
-                    <ResourceButton
-                      key={resource.type}
-                      symbol={resource.symbol}
-                      name={resource.type}
-                      details={details}
-                      info={info}
-                      disabled={!affordable || !meetsRequirement}
-                      onClick={() => handlePurchase(resource.type)}
-                    />
+                    <p key={index}>
+                      {resource.type} {value > 0 ? '+' : ''}{value} for {outputLabel}
+                    </p>
                   );
-                })}
-              </div>
-            </div>
-
-            <div className="upgrades-to-acquire">
-              <h3>Upgrades to Purchase:</h3>
-              <div className="skills-options">
-                {upgradesToAcquire.map((resource) => {
-                  const ingredients = getIngredientDetails(resource, allResources);
-                  const affordable = canAfford(resource, inventory, 1);
-                  const meetsRequirement = hasRequiredSkill(resource.requires, ownedSkills);
-
-                  const details = `
-                    Costs: ${ingredients.join(', ') || 'None'}
-                    ${resource.requires ? `<br>Requires: ${resource.requires}` : ''}
-                  `;
-
-                  // ✅ Check for attribute modifiers
-                  const attributeModifier = resource.output
-                    ? `+${resource.qtycollected || 1} to ${strings[resource.output] || resource.output}`
-                    : null;
-
-                  const unlocks = allResources
-                    .filter((res) => res.requires === resource.type)
-                    .map((res) => `${res.symbol || ''} ${res.type}`)
-                    .join(', ') || 'None';
-
-                    const info = (
-                      <div className="info-content">
-                        {attributeModifier && <div>{attributeModifier}</div>}
-                        {unlocks !== 'None' && (
-                          <div style={{ display: 'block', marginBottom: '3px' }}>
-                            <strong>Unlocks:</strong> {unlocks}
-                          </div>
-                        )}
-                      </div>
-                    );
-
-                  return (
-                    <ResourceButton
-                      key={resource.type}
-                      symbol={resource.symbol}
-                      name={resource.type}
-                      details={details}
-                      info={info}
-                      disabled={!affordable || !meetsRequirement}
-                      onClick={() => handlePurchase(resource.type)}
-                    />
-                  );
-                })}
-              </div>
+                })
+              ) : (
+                <p>No combat powers acquired.</p>
+              )}
             </div>
           </>
         )}
@@ -327,4 +281,4 @@ const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stat
   );
 };
 
-export default React.memo(SkillsAndUpgradesPanel);
+export default React.memo(CombatPanel);

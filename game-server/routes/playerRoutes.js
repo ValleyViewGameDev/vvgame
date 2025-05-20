@@ -417,7 +417,30 @@ router.post('/update-capacity', async (req, res) => {
 });
 
 
+router.post('/update-powers', async (req, res) => {
+  const { playerId, powers } = req.body;
 
+  if (!playerId || !Array.isArray(powers)) {
+    return res.status(400).json({ error: 'Missing or invalid playerId or powers array.' });
+  }
+
+  try {
+    const updatedPlayer = await Player.findByIdAndUpdate(
+      playerId,
+      { powers },
+      { new: true }
+    );
+
+    if (!updatedPlayer) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+
+    res.json({ message: 'Powers updated successfully.', powers: updatedPlayer.powers });
+  } catch (err) {
+    console.error('Error updating powers:', err);
+    res.status(500).json({ error: 'Failed to update powers.' });
+  }
+});
 
 
 ////////// LOCATION BASED ROUTES ///////////

@@ -2,6 +2,7 @@ import API_BASE from '../config';
 import socket from '../socketManager';
 import axios from 'axios';
 import { animateRemotePC } from '../Render/RenderAnimatePosition';
+import { loadMasterResources } from '../Utils/TuningManager';
 
 class GridStatePCManager {
     constructor() {
@@ -95,6 +96,7 @@ class GridStatePCManager {
     }
     
     // Add a new PC to the playersInGrid for a given gridId and playerId.
+    // This is only run on app initialization, IF the saved currentPlayer cannot be found in the playersInGrid.
     async addPC(gridId, playerId, pcData) {
       if (!this.playersInGrid[gridId]) {
         this.playersInGrid[gridId] = {
@@ -104,8 +106,34 @@ class GridStatePCManager {
       }
 
       const now = Date.now();
+      const masterResources = await loadMasterResources();
+
+      // Compute modifiers from powers
+      const modifiers = {};
+      (pcData.powers || []).forEach(power => {
+        const resource = masterResources.find(r => r.type === power.type);
+        if (resource?.output && typeof resource.qtycollected === 'number') {
+          const value = (power.quantity || 0) * resource.qtycollected;
+          modifiers[resource.output] = (modifiers[resource.output] || 0) + value;
+        }
+      });
+
+      const getStat = (baseKey, modKey) => (pcData[baseKey] || 0) + (modifiers[modKey] || 0);
+
       const newPC = {
-        ...pcData,
+        playerId,
+        username: pcData.username,
+        type: 'pc',
+        icon: pcData.icon,
+        position: pcData.position || { x: 0, y: 0 },
+        hp: getStat('baseHp', 'hp'),
+        maxhp: getStat('baseMaxhp', 'maxhp'),
+        armorclass: getStat('baseArmorclass', 'armorclass'),
+        attackbonus: getStat('baseAttackbonus', 'attackbonus'),
+        damage: getStat('baseDamage', 'damage'),
+        attackrange: getStat('baseAttackrange', 'attackrange'),
+        speed: getStat('baseSpeed', 'speed'),
+        iscamping: pcData.iscamping || false,
         lastUpdated: now,
       };
 

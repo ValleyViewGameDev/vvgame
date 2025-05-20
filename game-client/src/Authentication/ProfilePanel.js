@@ -174,13 +174,10 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
   return (
     <Panel onClose={onClose} descriptionKey="1019" titleKey="1119" panelName="ProfilePanel">
       <div className="panel-content">
+
+        <p><strong>Player ID:</strong> {currentPlayer?.playerId || 'N/A'}</p>
+
         {/* User Details Form */}
-        <div className="panel-buttons">
-          <button className="btn-danger" onClick={handleLogout}>
-            Logout
-          </button>
-        </div>
-        <br/>
         <div className="form-group">
           <label>Username:</label>
           <input
@@ -228,19 +225,12 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
             {isSaving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
-
-        {/* Player Stats */}
-        <h3>Stats from Current Player</h3>
-
-          <p>Range: {currentPlayer?.range}</p>
-          <p>HP: {currentPlayer?.hp}</p>
-          <p>MaxHP: {currentPlayer?.maxhp}</p>
-          <p>Armor Class: {currentPlayer?.armorclass}</p>
-          <p>Attack Range: {currentPlayer?.attackrange}</p>
-          <p>Attack Bonus: {currentPlayer?.attackbonus}</p>
-          <p>Attack Damage: {currentPlayer?.damage}</p>
-          <p>Attack Speed: {currentPlayer?.speed}</p>
-          <p>Is Camping: {currentPlayer?.iscamping ? "Yes" : "No"}</p> 
+        <div className="panel-buttons">
+          <button className="btn-danger" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
+        <br/>
 
         {/* Settings Toggles */}
         <h3>Settings</h3>
@@ -265,17 +255,6 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
           </button>
         </div>
 
-
-        {/* Debug Info */}
-        <div className="debug-info">
-          <label>Debug:</label>
-          <p><strong>Player ID:</strong> {currentPlayer?.playerId || 'N/A'}</p>
-          <p><strong>Frontier ID:</strong> {currentPlayer?.frontierId || 'N/A'}</p>
-          <p><strong>Settlement ID:</strong> {currentPlayer?.settlementId || 'N/A'}</p>
-          <p><strong>Homestead ID:</strong> {currentPlayer?.gridId || 'N/A'}</p>
-          <p><strong>Current Grid ID:</strong> {currentPlayer?.location?.g || 'N/A'}</p>
-        </div>
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
       </div>
     </Panel>
   );

@@ -266,7 +266,7 @@ body {
 .homestead {
   overflow: auto;
   margin-left: 200px;
-  width: calc(100% - 200px);
+  width: calc(100% - 260px);
   height: calc(100vh - 100px); /* Adjust for header and status bar */
   position: absolute;
   top: 85px;
