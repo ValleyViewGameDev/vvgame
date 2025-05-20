@@ -6,6 +6,7 @@ import playersInGridManager from '../GridState/PlayersInGrid';
 import socket from '../socketManager'; // ⚠️ At top of file if not already present
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { mergeResources, mergeTiles } from './ResourceHelpers';
+import { centerCameraOnPlayer } from '../PlayerMovement';
 
 export const updateGridResource = async (
   gridId,
@@ -312,6 +313,8 @@ export const changePlayerLocation = async (
         behavior: 'instant',
       });
     }
+    centerCameraOnPlayer({ x: toLocation.x, y: toLocation.y }, TILE_SIZE);
+        
     console.log('✅ Location change complete');
   } catch (error) {
     console.error('❌ Location change error:', error);

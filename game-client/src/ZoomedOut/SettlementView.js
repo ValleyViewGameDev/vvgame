@@ -6,6 +6,8 @@ import { StatusBarContext } from "../UI/StatusBar";
 import { changePlayerLocation } from "../Utils/GridManagement";
 import settlementTileData from './SettlementTile.json';
 import { getGridBackgroundColor } from './ZoomedOut';
+import { centerCameraOnPlayer } from "../PlayerMovement";
+import playersInGridManager from "../GridState/PlayersInGrid";
 
 const SettlementView = ({ 
   currentPlayer, 
@@ -15,11 +17,11 @@ const SettlementView = ({
   setGrid,      
   setResources, 
   setTileTypes,  
-  setGridState,
-  setPlayersInGrid,
   TILE_SIZE,
   masterResources,
 }) => {
+  console.log("TILE_SIZE at top of SettlementView:", TILE_SIZE);
+
   const [settlementGrid, setSettlementGrid] = useState([]);
   const [players, setPlayers] = useState({});  // Map player IDs to player data
   const [error, setError] = useState(null);
@@ -86,41 +88,39 @@ const SettlementView = ({
     fetchData();
   }, [currentPlayer.location.s]);
 
-  const handleTileClick = async (tile) => {
+
+  const handleTileClick = async (tile, TILE_SIZE) => {
     console.log("Clicked tile:", tile);
   
-    // Case 1: Clicking on the current valley tile
-    if (
-      ["valley0", "valley1", "valley2", "valley3"].includes(tile.gridType) &&
-      tile.gridId === currentPlayer.location.g
-    ) {
-      console.log("Clicked on the current valley tile. Zooming into grid view.");
-      setZoomLevel("far"); // Zoom into grid view
-      updateStatus(16); // Display "Zooming into grid view."
+    // Clicking on the tile where the player already is
+    if (tile.gridId === currentPlayer.location.g) {
+      console.log("Clicked on current tile. Already here — no need to move.");
+      console.log("TILE_SIZE:", TILE_SIZE);
+      setZoomLevel("far");
+      updateStatus(16); 
+      let pcs = null;
+      let pc = null;
+      pcs = playersInGridManager.getPlayersInGrid(tile.gridId);
+      pc = pcs?.[currentPlayer.playerId];
+      console.log("TILE_SIZE:", TILE_SIZE);
+      centerCameraOnPlayer(pc.position, TILE_SIZE);
       return;
     }
   
-    // Case 2: Clicking on any other valley tile
+    // Clicking on any other valley tile
     if (["valley0", "valley1", "valley2", "valley3"].includes(tile.gridType)) {
       updateStatus(9);
       return;
     }
 
-    // Case 3: Clicking on the tile where the player already is
-    if (tile.gridId === currentPlayer.location.g) {
-      console.log("Clicked on current tile. Already here — no need to move.");
-      setZoomLevel("far");
-      return;
-    }
-      
     try {
       const toLocation = {
-        x: 1,  // Default to (1, 1) or dynamically set if needed
+        x: 1,  
         y: 1,
         g: tile.gridId,
         s: currentPlayer.location.s,
         f: currentPlayer.location.f,
-        gtype: tile.gridType || "unknown",  // Include gridType if available
+        gtype: tile.gridType || "unknown", 
       };
   
       console.log("Built toLocation object:", toLocation);
@@ -140,8 +140,8 @@ const SettlementView = ({
         updateStatus,
       );
       // Zoom into grid view after movement
-      setZoomLevel("far");
-  
+      setZoomLevel("far"); 
+
     } catch (error) {
       console.error("Error changing player location:", error);
       updateStatus(10); // General error
@@ -167,41 +167,55 @@ const SettlementView = ({
     if (gridType === "homestead") {
       gridType = tile.available ? "homesteadEmpty" : "homesteadOccupied";
     }
-
+  
     const tileData = settlementTileData[gridType] || Array(8).fill(Array(8).fill(""));
     const isPlayerHere = tile.gridId === currentPlayer.location.g;
-    
+  
     let owner = null;
     if (tile.ownerId && players) {
       owner = players[tile.ownerId];
     }
-
+  
     const tooltip = getTooltip(tile);
-    
+  
+    let miniX = 0;
+    let miniY = 0;
+    const isValleyGrid = ["valley0", "valley1", "valley2", "valley3"].includes(gridType);
+    let playerPCs = null;
+    let playerPC = null;
+
+    if (isPlayerHere && isValleyGrid && tile.gridId) {
+      playerPCs = playersInGridManager.getPlayersInGrid(tile.gridId);
+      playerPC = playerPCs?.[currentPlayer.playerId];
+      if (playerPC?.position) {
+        miniX = Math.floor(playerPC.position.x / 8);
+        miniY = Math.floor(playerPC.position.y / 8);
+      }
+    }
+  
     return (
       <div className="mini-grid">
         {tileData.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
             let content = cell;
-            
-            // Player icon always goes in cell [0,7] if present
-            if (isPlayerHere && rowIndex === 0 && colIndex === 0) {
+  
+            if (isPlayerHere && isValleyGrid && rowIndex === miniY && colIndex === miniX) {
               content = currentPlayer.icon;
             }
-            if (isPlayerHere && rowIndex === 0 && colIndex === 1) {
-              content = "(You are here)";
-            }            
-            // For homesteads, handle special content
-            else if (gridType === "homesteadOccupied") {
+  
+            // 🏠 For homestead or other grid types, show icon at default corner
+            else if (isPlayerHere && !isValleyGrid && rowIndex === 0 && colIndex === 0) {
+              content = currentPlayer.icon;
+            }
+  
+            // 🛒 Homestead trade stall rendering
+            if (gridType === "homesteadOccupied") {
               if (rowIndex === 7 && colIndex < 6) {
-                // Trade stall rendering in first 6 cells of row 7
                 if (owner && Array.isArray(owner.tradeStall)) {
                   const stall = owner.tradeStall[colIndex];
-                  if (stall && typeof stall === 'object' && stall.resource) {
-                    const resourceTemplate = masterResources.find(r => r.type === stall.resource);
-                    if (resourceTemplate?.symbol) {
-                      content = resourceTemplate.symbol;
-                    }
+                  if (stall?.resource) {
+                    const template = masterResources.find(r => r.type === stall.resource);
+                    if (template?.symbol) content = template.symbol;
                   }
                 }
               } else if (cell === "username" && owner) {
@@ -212,12 +226,9 @@ const SettlementView = ({
                 content = owner.netWorth?.toLocaleString() || '0';
               }
             }
-            
+  
             return (
-              <div 
-                key={`${rowIndex}-${colIndex}`} 
-                className="mini-cell"
-              >
+              <div key={`${rowIndex}-${colIndex}`} className="mini-cell">
                 <span>{content}</span>
                 {tooltip && (
                   <div className="tooltip">
@@ -246,7 +257,7 @@ const SettlementView = ({
             style={{
               backgroundColor: getGridBackgroundColor(tile.gridType),
             }}
-            onClick={() => handleTileClick(tile)}
+            onClick={() => handleTileClick(tile,TILE_SIZE)}
           >
             {renderMiniGrid(tile)}
           </div>

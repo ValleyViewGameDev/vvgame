@@ -67,7 +67,6 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
     console.error('masterResources is not an array:', masterResources);
     return;
   }
-
   if (!isValidMove(targetX, targetY, masterResources)) {
     console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
     return;
@@ -75,13 +74,6 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
 
   const finalPosition = { x: targetX, y: targetY };
   console.log('➡️ Simple move to:', finalPosition);
-  
-  const stepCount = 10;
-  let step = 0;
-  const currentX = currentPosition.x * TILE_SIZE;
-  const currentY = currentPosition.y * TILE_SIZE;
-  const targetXpx = finalPosition.x * TILE_SIZE;
-  const targetYpx = finalPosition.y * TILE_SIZE;
 
   const now = Date.now();
 
@@ -92,66 +84,24 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
 
   centerCameraOnPlayer(finalPosition, TILE_SIZE);
 
-
-  // function animate() {
-  //   if (step >= stepCount) {
-  //     const now = Date.now();
-  //     console.log(`🦶🦶 Player ${playerId} moved to (${finalPosition.x}, ${finalPosition.y})`);
-  //     console.log('🦶🦶 About to call updatePC');
-      
-  //     playersInGridManager.updatePC(gridId, playerId, {
-  //       position: finalPosition,
-  //       lastUpdated: now,
-  //     });
-    
-  //     centerCameraOnPlayer(finalPosition, TILE_SIZE);
-    
-  //     // ⏳ Wait until pc.position has caught up before clearing render override
-  //     const waitForFlush = () => {
-  //       const confirmedPosition = playersInGridManager.getPlayerPosition(gridId, playerId);
-  //       if (
-  //         confirmedPosition &&
-  //         confirmedPosition.x === finalPosition.x &&
-  //         confirmedPosition.y === finalPosition.y
-  //       ) {
-  //         delete renderPositions[playerId];
-  //         console.log(`✅ Cleared render override for ${playerId} after confirmed update`);
-  //       } else {
-  //         requestAnimationFrame(waitForFlush);
-  //       }
-  //     };
-  //     requestAnimationFrame(waitForFlush);
-    
-  //     return;
-  //   }
-    
-  //   const interpolatedX = currentX + ((targetXpx - currentX) / stepCount) * step;
-  //   const interpolatedY = currentY + ((targetYpx - currentY) / stepCount) * step;
-  //   renderPositions[playerId] = {
-  //     x: interpolatedX / TILE_SIZE,
-  //     y: interpolatedY / TILE_SIZE,
-  //   };
-
-  //   step++;
-  //   requestAnimationFrame(animate);
-  // }
- 
-  // animate();
-
 }
 
 
 export function centerCameraOnPlayer(position, TILE_SIZE) {
-  const gameContainer = document.querySelector(".homestead"); // Adjust this if needed
+  const gameContainer = document.querySelector(".homestead"); // Or adjust as needed
   if (!gameContainer) return;
-  // Calculate the center position
-  const centerX = position.x * TILE_SIZE - window.innerWidth / 2;
-  const centerY = position.y * TILE_SIZE - window.innerHeight / 2;
+
+  const LEFT_PANEL_WIDTH = TILE_SIZE * 5; // Dynamic left panel width based on zoom level
+  const HEADER_HEIGHT = TILE_SIZE * 2;    // Dynamic header height based on zoom level
+  const centerX = position.x * TILE_SIZE - (window.innerWidth - LEFT_PANEL_WIDTH) / 2;
+  const centerY = position.y * TILE_SIZE - (window.innerHeight - HEADER_HEIGHT) / 2;
+
   gameContainer.scrollTo({
     left: centerX,
     top: centerY,
-    behavior: "smooth", // Smooth scrolling effect
+    behavior: "smooth",
   });
+
   console.log(`📷 Camera centered on player at (${position.x}, ${position.y})`);
 }
 

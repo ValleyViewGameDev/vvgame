@@ -769,15 +769,19 @@ useEffect(() => {
 
 const zoomIn = async () => {
   const gridId = currentPlayer?.location?.g;
+  const playerIdStr = String(currentPlayer._id);
+  const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
   if (!gridId) { console.warn("No valid gridId found for currentPlayer."); return; }
   if (currentPlayer.iscamping) { updateStatus(32); return; }
+  
   if (zoomLevel === 'frontier') {
     setZoomLevel('settlement'); // Zoom into the settlement view
     updateStatus(12); // "Settlement view."
   } else if (zoomLevel === 'settlement') {
     setZoomLevel('far'); // Zoom into the grid view
-    console.log('calling fetchHomesteadOwner from zoomIn');
     const { username, gridType } = await fetchHomesteadOwner(gridId);
+    // New logic to center camera on player using PlayersInGrid
+    centerCameraOnPlayer(playerPos, TILE_SIZES.far); // <- hardcode the *target* zoom level
 
     if (gridType === 'town') {
       updateStatus(14);
@@ -795,8 +799,12 @@ const zoomIn = async () => {
     }
   } else if (zoomLevel === 'far') {
     setZoomLevel('close'); // Zoom into a detailed view
+    setTimeout(() => {
+      centerCameraOnPlayer(playerPos, TILE_SIZES.close);
+    }, 50); // Allow brief render before scrolling
   }
 };
+
 const zoomOut = () => {
   if (currentPlayer.iscamping) { updateStatus(32); return; }
   if (zoomLevel === 'close') {
@@ -935,13 +943,24 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
       });
     }
   } else {
-    console.log('isTeleportEnabled:',currentPlayer?.settings?.isTeleportEnabled);
-
-    if (currentPlayer?.settings?.isTeleportEnabled) {  
-      // Handle player movement if no resource is clicked
-      const targetPosition = { x: colIndex, y: rowIndex }; // Grid coordinates
-      setPlayerPosition({ x: targetPosition.x * activeTileSize, y: targetPosition.y * activeTileSize });
-      console.log('Player teleported to:', targetPosition);
+    console.log('isTeleportEnabled:', currentPlayer?.settings?.isTeleportEnabled);
+  
+    if (currentPlayer?.settings?.isTeleportEnabled) {
+      const targetPosition = { x: colIndex, y: rowIndex };
+      console.log('📍 Player teleporting to grid position:', targetPosition);
+  
+      // Update currentPlayer state
+      const updatedPlayer = {
+        ...currentPlayer,
+        position: targetPosition
+      };
+      setCurrentPlayer(updatedPlayer);
+      localStorage.setItem('player', JSON.stringify(updatedPlayer));
+  
+      // Multiplayer sync — update PC in grid
+      playersInGridManager.updatePC(gridId, currentPlayer._id, {
+        position: targetPosition
+      });
     }
   }
   isProcessing = false; // Reset flag here
@@ -981,6 +1000,7 @@ const combatStats = currentPlayer?.location?.g
   ? playersInGrid?.[currentPlayer.location.g]?.pcs?.[String(currentPlayer?._id)] || {}
   : {};
 
+  
 return ( <>
 
 {/* New Navigation Column */}
@@ -1227,11 +1247,9 @@ return ( <>
         setGrid={setGrid}             
         setResources={setResources}   
         setTileTypes={setTileTypes}      
-        setGridState={setGridState}
-        setPlayersInGrid={setPlayersInGrid}
-        TILE_SIZE={activeTileSize}
+        TILE_SIZE={TILE_SIZES.far}
+        masterResources={masterResources}  
         onClose={() => setZoomLevel('far')}
-        masterResources={masterResources}  // Add this line
       />
     )}
     {zoomLevel === 'frontier' && (
@@ -1243,8 +1261,6 @@ return ( <>
         setGrid={setGrid}            
         setResources={setResources}  
         setTileTypes={setTileTypes}     
-        setGridState={setGridState}
-        setPlayersInGrid={setPlayersInGrid}
         TILE_SIZE={activeTileSize}
         onClose={() => setZoomLevel('settlement')}
         />

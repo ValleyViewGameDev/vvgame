@@ -444,22 +444,26 @@ export async function handleSourceConversion(
   if (!targetResource) { console.warn(`⚠️ No matching resource found for output: ${resource.output}`); return; }
 
   // Get required skill
-  const requiredSkill = masterResources.find((res) => res.output === resource.type ) ?.type;
+  const requiredSkill = resource.required;
 
   // Required Skill Missing
-  if (requiredSkill && !currentPlayer.skills.some((skill) => skill.type === requiredSkill)) {
-    addFloatingText(`${requiredSkill} Required`, col, row, TILE_SIZE );
-    return;
+  if (requiredSkill) {
+    const hasSkill = currentPlayer.skills?.some(skill => skill.type === requiredSkill);
+    if (!hasSkill) {
+      addFloatingText(`${requiredSkill} Required`, col, row, TILE_SIZE);
+      return;
+    }
   }
-  // Check the skill check above ^^ I'm surprised it's not using .required
-  // What it's doing now is looking up all the skills to see if a skill's output maps to the resource clicked
-  // But instead it should look at the resource clicked and check it's "required"
-  // This way we can have multiple things require the same Skill; right now, it's one resource per Skill
-
+  // ✅ Determine if 'requires' is a skill or upgrade — if not, treat it as a consumable
+  const requiresType = resource.requires;
+  const isSkillOrUpgrade = masterResources.some(
+    res => res.type === requiresType && (res.category === "skill" || res.category === "upgrade")
+  );
   // 🔑 Handle Key Requirement
-  const usedKey = await handleUseKey(resource,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,setInventory,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus,);
-  if (!usedKey) return;
-
+  if (requiresType && !isSkillOrUpgrade) {
+    const usedKey = await handleUseKey(resource,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,setInventory,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus,);
+    if (!usedKey) return;
+  }
   // Build the new resource object to replace the one we just clicked
   const x = col;
   const y = row;

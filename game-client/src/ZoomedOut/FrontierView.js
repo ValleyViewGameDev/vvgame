@@ -15,8 +15,6 @@ const FrontierView = ({
   setGrid,                  // ✅ Pass setGrid function
   setResources,             // ✅ Pass setResources function
   setTileTypes,             // ✅ Pass setTileTypes function
-  setGridState,
-  setPlayersInGrid,
   TILE_SIZE,
 }) => {
 
@@ -112,27 +110,27 @@ const FrontierView = ({
     
           if (ownedHomestead) {
             console.log("Traveling to owned homestead:", ownedHomestead);
+            const toLocation = {
+              x: 1,  
+              y: 1,
+              g: ownedHomestead.gridId, 
+              s: tile.settlementId, 
+              f: currentPlayer.location.f,
+              gtype: ownedHomestead.gridType, 
+              gridCoord: ownedHomestead.gridCoord  
+            };
             await changePlayerLocation(
               currentPlayer,
-              currentPlayer.location, // fromLocation
-              { 
-                x: 1, 
-                y: 1, 
-                g: ownedHomestead.gridId, 
-                s: tile.settlementId, 
-                f: currentPlayer.location.f,
-                gtype: ownedHomestead.gridType,  // Add this
-                gridCoord: ownedHomestead.gridCoord  // Add this
-              }, // toLocation
+              currentPlayer.location, 
+              toLocation,
               setCurrentPlayer,
               setGridId,                // ✅ Ensure this is passed
               setGrid,                  // ✅ Pass setGrid function
-              setResources,             // ✅ Pass setResources function
               setTileTypes,             // ✅ Pass setTileTypes function
-              setGridState,
-              setPlayersInGrid,
+              setResources,             // ✅ Pass setResources function
               TILE_SIZE,
-            );
+              updateStatus
+            ); 
 
             setZoomLevel("far");
             return;
@@ -155,31 +153,31 @@ const FrontierView = ({
         return;
       }
 
-      const toLocation = {
-        x: 1,
-        y: 1,
-        g: tile.gridId,
-        s: tile.settlementId,
-        f: currentPlayer.location.f,
-        gtype: tile.gridType || "unknown",
-        gridCoord: tile.gridCoord
-      };
+      // const toLocation = {
+      //   x: 1,
+      //   y: 1,
+      //   g: tile.gridId,
+      //   s: tile.settlementId,
+      //   f: currentPlayer.location.f,
+      //   gtype: tile.gridType || "unknown",
+      //   gridCoord: tile.gridCoord
+      // };
 
-      console.log('🚀 Attempting transit with location:', toLocation);
+      // console.log('🚀 Attempting transit with location:', toLocation);
 
-      await changePlayerLocation(
-        currentPlayer,
-        currentPlayer.location,
-        toLocation,
-        setCurrentPlayer,
-        setGridId,
-        setGrid,
-        setResources,
-        setTileTypes,
-        setGridState,
-        setPlayersInGrid,
-        TILE_SIZE,
-      );
+      // await changePlayerLocation(
+      //   currentPlayer,
+      //   currentPlayer.location,
+      //   toLocation,
+      //   setCurrentPlayer,
+      //   setGridId,
+      //   setGrid,
+      //   setResources,
+      //   setTileTypes,
+      //   setGridState,
+      //   setPlayersInGrid,
+      //   TILE_SIZE,
+      // );
 
     } catch (error) {
       console.error('❌ Transit error details:', {

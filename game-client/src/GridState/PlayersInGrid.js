@@ -145,19 +145,16 @@ class GridStatePCManager {
       }
     
       const oldPosition = gridPCs[playerId]?.position;
-
       const now = Date.now();
       const updatedPC = {
         ...gridPCs[playerId],
         ...newProperties,
         lastUpdated: now,
       };
-    
       const newPosition = updatedPC.position; // 👈 and derive newPosition from updatedPC
 
       this.playersInGrid[gridId].pcs[playerId] = updatedPC;
     
-
       // Emit to other clients
       if (socket && socket.emit) {
         const payload = {
