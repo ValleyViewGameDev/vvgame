@@ -513,6 +513,7 @@ export function socketListenForPlayerConnectedAndDisconnected(gridId, setConnect
   };
   
   const handleCurrentConnectedPlayers = ({ connectedPlayerIds }) => {
+    console.log("📦 Current connected players:", connectedPlayerIds);
     setConnectedPlayers(new Set(connectedPlayerIds));
   };
 
