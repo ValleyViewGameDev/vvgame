@@ -76,26 +76,14 @@ mongoose.connect(process.env.MONGODB_URI, {
       // Track controller assignments (move this OUTSIDE the connection handler)
       const gridControllers = io.gridControllers = io.gridControllers || new Map();
 
+      // Track connected players per grid (shared across all sockets)
+      const connectedPlayersByGrid = io.connectedPlayersByGrid = io.connectedPlayersByGrid || new Map();
+
       // 📡 Respond to a request for currently connected players in the grid
       socket.on('request-connected-players', async ({ gridId }) => {
-        console.log(`📥 Received request-connected-players for grid: ${gridId}`);
-        const connectedPlayerIds = new Set();
-        // Get all sockets in this grid room
-        const socketsInRoom = io.sockets.adapter.rooms.get(gridId);
-        if (!socketsInRoom) {
-          console.log(`📭 No players currently in grid: ${gridId}`);
-          socket.emit('connected-players', { gridId, connectedPlayerIds: [] });
-          return;
-        }
-        for (const socketId of socketsInRoom) {
-          const s = io.sockets.sockets.get(socketId);
-          if (s && s.playerId) {
-            connectedPlayerIds.add(s.playerId);
-          }
-        }
-
-        console.log(`📤 Sending connected player list for grid ${gridId}: `, [...connectedPlayerIds]);
-        socket.emit('connected-players', { gridId, connectedPlayerIds: [...connectedPlayerIds] });
+        // Use the connectedPlayersByGrid map to get the player IDs
+        const players = Array.from(connectedPlayersByGrid.get(gridId) || []);
+        socket.emit('connected-players', { gridId, connectedPlayerIds: players });
       });
 
       socket.on('disconnect', () => {
@@ -124,8 +112,17 @@ mongoose.connect(process.env.MONGODB_URI, {
             }
           }
         });
-        // Emit player-disconnected if we know player identity
+        // Remove the player from connectedPlayersByGrid and broadcast update
         if (socket.gridId && socket.playerId) {
+          const playerSet = connectedPlayersByGrid.get(socket.gridId);
+          if (playerSet) {
+            playerSet.delete(socket.playerId);
+            io.to(socket.gridId).emit('connected-players', {
+              gridId: socket.gridId,
+              connectedPlayerIds: Array.from(playerSet),
+            });
+          }
+          // Emit player-disconnected for legacy logic
           console.log(`❌ Emitting player-disconnected for ${socket.playerId}`);
           socket.to(socket.gridId).emit('player-disconnected', {
             playerId: socket.playerId
@@ -138,6 +135,15 @@ mongoose.connect(process.env.MONGODB_URI, {
         socket.join(gridId);      
         socket.gridId = gridId;
         socket.playerId = playerId; // Store playerId on the socket
+        // Track player in connectedPlayersByGrid and broadcast update
+        if (!connectedPlayersByGrid.has(gridId)) {
+          connectedPlayersByGrid.set(gridId, new Set());
+        }
+        connectedPlayersByGrid.get(gridId).add(playerId);
+        io.to(gridId).emit('connected-players', {
+          gridId,
+          connectedPlayerIds: Array.from(connectedPlayersByGrid.get(gridId)),
+        });
         console.log(`📡 Player ${playerId} joined grid ${gridId}`);
         io.to(gridId).emit('player-connected', { playerId });
         try {
@@ -168,6 +174,15 @@ mongoose.connect(process.env.MONGODB_URI, {
 
       socket.on('leave-grid', (gridId) => {
         socket.leave(gridId);
+        // Remove from connectedPlayersByGrid and broadcast update
+        const playerSet = connectedPlayersByGrid.get(gridId);
+        if (playerSet) {
+          playerSet.delete(socket.playerId);
+          io.to(gridId).emit('connected-players', {
+            gridId,
+            connectedPlayerIds: Array.from(playerSet),
+          });
+        }
         // If this socket was the controller, assign to another socket in the room
         if (gridControllers.get(gridId)?.socketId === socket.id) {
           const room = io.sockets.adapter.rooms.get(gridId);

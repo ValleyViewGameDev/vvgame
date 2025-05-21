@@ -499,22 +499,29 @@ export function socketListenForConnectAndDisconnect(gridId, currentPlayer, setIs
 // 🔄 SOCKET LISTENER: Listen for announcement that a player is connected/disconnected (I THINK ??)
 export function socketListenForPlayerConnectedAndDisconnected(gridId, setConnectedPlayers) {
   if (!socket || !gridId) return;
-  console.log("🌐 useEffect for player-connected/disconnected running. gridId:", gridId, "socket:", !!socket) ;
-  
+
+  console.log("🌐 useEffect for player-connected/disconnected running. gridId:", gridId);
+
+  // 🔄 Request current connection state on init
+  console.log("🔄 Requesting connected players list on startup.");
+  socket.emit('request-connected-players', { gridId });
+
   const handlePlayerConnected = ({ playerId }) => {
+    console.log(`📡 Player connected: ${playerId}`);
     setConnectedPlayers(prev => new Set(prev).add(playerId));
   };
 
   const handlePlayerDisconnected = ({ playerId }) => {
+    console.log(`📴 Player disconnected: ${playerId}`);
     setConnectedPlayers(prev => {
       const newSet = new Set(prev);
       newSet.delete(playerId);
       return newSet;
     });
   };
-  
+
   const handleCurrentConnectedPlayers = ({ connectedPlayerIds }) => {
-    console.log("📦 Current connected players:", connectedPlayerIds);
+    console.log("📦 Received full list of currently connected players:", connectedPlayerIds);
     setConnectedPlayers(new Set(connectedPlayerIds));
   };
 
@@ -527,6 +534,6 @@ export function socketListenForPlayerConnectedAndDisconnected(gridId, setConnect
     socket.off('player-disconnected', handlePlayerDisconnected);
     socket.off('current-connected-players', handleCurrentConnectedPlayers);
   };
-};
+}
 
 export default socket;
