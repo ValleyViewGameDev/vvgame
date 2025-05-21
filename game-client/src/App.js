@@ -18,6 +18,7 @@ import { socketListenForPCJoinAndLeave,
   socketListenForTileChanges,
   socketListenForNPCControllerStatus,
   socketListenForSeasonReset,
+  socketListenForPlayerConnectedAndDisconnected,
   socketListenForConnectAndDisconnect } from './socketManager';
 
 import farmState from './FarmState';
@@ -716,6 +717,12 @@ useEffect(() => {
   if (!socket || !currentPlayer || !gridId) return;
   socketListenForConnectAndDisconnect(gridId, currentPlayer, setIsSocketConnected);
 }, [socket, currentPlayer, gridId]);
+
+useEffect(() => {
+  if (!socket || !gridId) return;
+  const cleanup = socketListenForPlayerConnectedAndDisconnected(gridId, setConnectedPlayers);
+  return cleanup;
+}, [socket, gridId]);
 
 
 
