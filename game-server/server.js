@@ -76,6 +76,30 @@ mongoose.connect(process.env.MONGODB_URI, {
       // Track controller assignments (move this OUTSIDE the connection handler)
       const gridControllers = io.gridControllers = io.gridControllers || new Map();
 
+      // 📡 Respond to a request for currently connected players in the grid
+      socket.on('request-connected-players', async ({ gridId }) => {
+        console.log(`📥 Received request-connected-players for grid: ${gridId}`);
+        const connectedPlayerIds = new Set();
+
+        // Get all sockets in this grid room
+        const socketsInRoom = io.sockets.adapter.rooms.get(gridId);
+        if (!socketsInRoom) {
+          console.log(`📭 No players currently in grid: ${gridId}`);
+          socket.emit('connected-players', { gridId, connectedPlayerIds: [] });
+          return;
+        }
+
+        for (const socketId of socketsInRoom) {
+          const s = io.sockets.sockets.get(socketId);
+          if (s && s.playerId) {
+            connectedPlayerIds.add(s.playerId);
+          }
+        }
+
+        console.log(`📤 Sending connected player list for grid ${gridId}: `, [...connectedPlayerIds]);
+        socket.emit('connected-players', { gridId, connectedPlayerIds: [...connectedPlayerIds] });
+      });
+
       socket.on('disconnect', () => {
         console.log(`🔴 Client disconnected: ${socket.id}`);
         // Check all grids this socket was controlling
@@ -315,8 +339,6 @@ mongoose.connect(process.env.MONGODB_URI, {
         });
       });
     });
-
-
 
   httpServer.listen(PORT, () => {
     console.log(`🚀 Server + WebSocket running on port ${PORT}`);

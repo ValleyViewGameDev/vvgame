@@ -676,6 +676,12 @@ useEffect(() => {
 
 /////////// SOCKET LISTENERS /////////////////////////
 
+// 🔄 Request full connected players list on startup
+useEffect(() => {
+  if (socket && gridId) { socket.emit('request-connected-players', { gridId }); }
+  socketListenForPlayerConnectedAndDisconnected(gridId, setConnectedPlayers);
+}, [socket, gridId]);
+
 // 🔄 SOCKET LISTENER: Real-time updates for PC join and leave
 useEffect(() => {
   socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setPlayersInGrid);

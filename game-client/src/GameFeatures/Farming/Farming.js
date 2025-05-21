@@ -125,7 +125,7 @@ export const handleTerraform = async ({ actionType, gridId, currentPlayer, setTi
   // Determine the new tile type based on the action
   switch (actionType) {
     case "till":
-      newType = "l";
+      newType = "d";
       break;
     case "plantGrass":
       newType = "g";

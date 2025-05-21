@@ -276,7 +276,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
     console.log('IsNPCController:', isController);
   
     if (!npcId || !newPosition) return;
-  
+   
     setGridState(prevState => {
       const updatedNPCs = { ...prevState.npcs };
       const existing = updatedNPCs[npcId];
@@ -512,12 +512,18 @@ export function socketListenForPlayerConnectedAndDisconnected(gridId, setConnect
     });
   };
   
+  const handleCurrentConnectedPlayers = ({ connectedPlayerIds }) => {
+    setConnectedPlayers(new Set(connectedPlayerIds));
+  };
+
   socket.on('player-connected', handlePlayerConnected);
   socket.on('player-disconnected', handlePlayerDisconnected);
+  socket.on('current-connected-players', handleCurrentConnectedPlayers);
 
   return () => {
     socket.off('player-connected', handlePlayerConnected);
     socket.off('player-disconnected', handlePlayerDisconnected);
+    socket.off('current-connected-players', handleCurrentConnectedPlayers);
   };
 };
 
