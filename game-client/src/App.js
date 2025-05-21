@@ -189,7 +189,7 @@ const [hoverTooltip, setHoverTooltip] = useState(null);
 
 const [controllerUsername, setControllerUsername] = useState(null); // Add state for controller username
 const [isSocketConnected, setIsSocketConnected] = useState(false);
-const [connectedPlayers, setConnectedPlayers] = useState(new Set());
+const [connectedPlayers, setConnectedPlayers] = useState(() => new Set());
 
 //Forgot why we did this:
 const memoizedGrid = useMemo(() => grid, [grid]);
@@ -719,7 +719,9 @@ useEffect(() => {
 }, [socket, currentPlayer, gridId]);
 
 useEffect(() => {
-  socketListenForPlayerConnectedAndDisconnected(gridId, setConnectedPlayers);
+  if (!socket || !gridId) return;
+  const cleanup = socketListenForPlayerConnectedAndDisconnected(gridId, setConnectedPlayers);
+  return cleanup;
 }, [socket, gridId]);
 
 
