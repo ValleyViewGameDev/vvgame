@@ -18,7 +18,6 @@ import { socketListenForPCJoinAndLeave,
   socketListenForTileChanges,
   socketListenForNPCControllerStatus,
   socketListenForSeasonReset,
-  socketListenForPlayerConnectedAndDisconnected,
   socketListenForConnectAndDisconnect } from './socketManager';
 
 import farmState from './FarmState';
@@ -718,12 +717,6 @@ useEffect(() => {
   socketListenForConnectAndDisconnect(gridId, currentPlayer, setIsSocketConnected);
 }, [socket, currentPlayer, gridId]);
 
-useEffect(() => {
-  if (!socket || !gridId) return;
-  const cleanup = socketListenForPlayerConnectedAndDisconnected(gridId, setConnectedPlayers);
-  return cleanup;
-}, [socket, gridId]);
-
 
 
 /////////// HANDLE ZOOMING & RESIZING /////////////////////////
@@ -973,7 +966,7 @@ const gridStats = currentPlayer?.location
   : { gridCoord: 'Not loaded',
       gridType: 'Not loaded',
     };
-  
+
 return ( <>
 
 {/* New Navigation Column */}
