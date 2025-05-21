@@ -77,28 +77,26 @@ mongoose.connect(process.env.MONGODB_URI, {
       const gridControllers = io.gridControllers = io.gridControllers || new Map();
 
       // 📡 Respond to a request for currently connected players in the grid
-      socket.on('request-connected-players', async ({ gridId }) => {
-        console.log(`📥 Received request-connected-players for grid: ${gridId}`);
-        const connectedPlayerIds = new Set();
+      // socket.on('request-connected-players', async ({ gridId }) => {
+      //   console.log(`📥 Received request-connected-players for grid: ${gridId}`);
+      //   const connectedPlayerIds = new Set();
+      //   // Get all sockets in this grid room
+      //   const socketsInRoom = io.sockets.adapter.rooms.get(gridId);
+      //   if (!socketsInRoom) {
+      //     console.log(`📭 No players currently in grid: ${gridId}`);
+      //     socket.emit('connected-players', { gridId, connectedPlayerIds: [] });
+      //     return;
+      //   }
+      //   for (const socketId of socketsInRoom) {
+      //     const s = io.sockets.sockets.get(socketId);
+      //     if (s && s.playerId) {
+      //       connectedPlayerIds.add(s.playerId);
+      //     }
+      //   }
 
-        // Get all sockets in this grid room
-        const socketsInRoom = io.sockets.adapter.rooms.get(gridId);
-        if (!socketsInRoom) {
-          console.log(`📭 No players currently in grid: ${gridId}`);
-          socket.emit('connected-players', { gridId, connectedPlayerIds: [] });
-          return;
-        }
-
-        for (const socketId of socketsInRoom) {
-          const s = io.sockets.sockets.get(socketId);
-          if (s && s.playerId) {
-            connectedPlayerIds.add(s.playerId);
-          }
-        }
-
-        console.log(`📤 Sending connected player list for grid ${gridId}: `, [...connectedPlayerIds]);
-        socket.emit('connected-players', { gridId, connectedPlayerIds: [...connectedPlayerIds] });
-      });
+      //   console.log(`📤 Sending connected player list for grid ${gridId}: `, [...connectedPlayerIds]);
+      //   socket.emit('connected-players', { gridId, connectedPlayerIds: [...connectedPlayerIds] });
+      // });
 
       socket.on('disconnect', () => {
         console.log(`🔴 Client disconnected: ${socket.id}`);
@@ -194,7 +192,6 @@ mongoose.connect(process.env.MONGODB_URI, {
           }
         }
       });
-
       socket.on('player-joined-grid', ({ gridId, playerId, username, playerData }) => {
         console.log(`👋 Player ${username} joined grid ${gridId}`);
         console.log('playerId = ', playerId, "; username = ", username, "; playerData = ", playerData);
@@ -207,8 +204,6 @@ mongoose.connect(process.env.MONGODB_URI, {
         // Include the emitter's socket ID in the payload
         socket.to(gridId).emit('player-left-sync', { playerId, username, emitterId: socket.id });
       });
-
-
       // Track username with socket
       socket.on('set-username', ({ username }) => {
         socket.username = username;
@@ -232,18 +227,14 @@ mongoose.connect(process.env.MONGODB_URI, {
     // 📡 Broadcast updated PCs to others in the same grid
     socket.on('update-NPCsInGrid-PCs', (payload) => {
       console.log('📩 Received update-NPCsInGrid-PCs with payload:\n', JSON.stringify(payload, null, 2));
-
       const gridEntries = Object.entries(payload).filter(([key]) => key !== 'emitterId');
       const emitterId = payload.emitterId || socket.id;
-
       if (gridEntries.length === 0) {
         console.warn('⚠️ Payload missing grid-specific data.');
         return;
       }
-
       const [gridId, gridData] = gridEntries[0];
       const { pcs, playersInGridLastUpdated } = gridData || {};
-
       if (!gridId || !pcs || !playersInGridLastUpdated) {
         console.warn('⚠️ Invalid or incomplete PCs update:', {
           gridId,
@@ -253,7 +244,6 @@ mongoose.connect(process.env.MONGODB_URI, {
         });
         return;
       }
-
       // Preserve the original structure for rebroadcast
       const outboundPayload = {
         [gridId]: {
@@ -262,12 +252,9 @@ mongoose.connect(process.env.MONGODB_URI, {
         },
         emitterId
       };
-    
       console.log(`📤 Broadcasting sync-PCs for grid ${gridId}`);
       console.log('📤 Outbound sync-PCs payload:\n', JSON.stringify(outboundPayload, null, 2));
-    
       socket.to(gridId).emit('sync-PCs', outboundPayload);
-      
     });
 
       // Broadcast updated NPCs to others in the same grid
@@ -276,32 +263,25 @@ mongoose.connect(process.env.MONGODB_URI, {
       
         const gridEntries = Object.entries(payload).filter(([key]) => key !== 'emitterId');
         const emitterId = payload.emitterId || socket.id;
-      
         if (gridEntries.length === 0) {
           console.warn('⚠️ Payload missing grid-specific data.');
           return;
         }
-      
         const [gridId, gridData] = gridEntries[0];
         const { npcs, NPCsInGridLastUpdated } = gridData || {};
-      
         if (!gridId || !npcs || !NPCsInGridLastUpdated) {
           console.warn('⚠️ Invalid or incomplete NPCs update:', { gridId, npcs, NPCsInGridLastUpdated, emitterId });
           return;
         }
-      
         const outboundPayload = {
           [gridId]: { npcs, NPCsInGridLastUpdated },
           emitterId,
         };
-      
         console.log(`📤 Broadcasting sync-NPCs for grid ${gridId}`);
-        console.log('📤 Outbound sync-NPCs payload:\n', JSON.stringify(outboundPayload, null, 2));
-      
+        console.log('📤 Outbound sync-NPCs payload:\n', JSON.stringify(outboundPayload, null, 2));  
         socket.to(gridId).emit('sync-NPCs', outboundPayload);
       });
       
-
       socket.on('npc-moved', ({ gridId, npcId, newPosition }) => {
         if (!gridId || !npcId || !newPosition) {
           console.error('Invalid npc-moved payload:', { gridId, npcId, newPosition });
@@ -312,27 +292,23 @@ mongoose.connect(process.env.MONGODB_URI, {
       
       // Handle tile updates
       socket.on('update-tile', ({ gridId, updatedTiles }) => {
-
+        //console.log(`🌍 update-tile-received for grid ${gridId}`);
         io.in(gridId).fetchSockets().then(sockets => {
           //console.log(`📡 Broadcasting to ${sockets.length} clients in grid ${gridId}`);
         });
-
         // Broadcast tile updates to all clients in the grid
         io.to(gridId).emit('tile-sync', {
           gridId,
           updatedTiles,
         });
       });
-      
-      // Broadcast updated tiles and resources to others in the same grid
-      socket.on('update-resource', ({ gridId, updatedTiles, updatedResources }) => {
-        //console.log(`🌍 update-tile-resource received for grid ${gridId}`);
-        //console.log("📦 Incoming updatedResources:", updatedResources);
 
+      // Broadcast updated tiles and resources to others in the same grid
+      socket.on('update-resource', ({ gridId, updatedResources }) => {
+        //console.log(`🌍 update-resource received for grid ${gridId}`);
         io.in(gridId).fetchSockets().then(sockets => {
           //console.log(`📡 Broadcasting to ${sockets.length} clients in grid ${gridId}`);
         });
-        
         io.to(gridId).emit('resource-sync', {
           gridId,
           updatedResources,
