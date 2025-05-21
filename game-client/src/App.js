@@ -676,13 +676,6 @@ useEffect(() => {
 
 /////////// SOCKET LISTENERS /////////////////////////
 
-// 🔄 Request full connected players list on startup
-useEffect(() => {
-  if (socket && gridId) { socket.emit('request-connected-players', { gridId }); }
-  console.log("🔄 Requesting connected players list on startup.");
-  socketListenForPlayerConnectedAndDisconnected(gridId, setConnectedPlayers);
-}, [socket, gridId]);
-
 // 🔄 SOCKET LISTENER: Real-time updates for PC join and leave
 useEffect(() => {
   socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setPlayersInGrid);
@@ -729,6 +722,12 @@ useEffect(() => {
   socketListenForPlayerConnectedAndDisconnected(gridId, setConnectedPlayers);
 }, [socket, gridId]);
 
+// 🔄 Request full connected players list on startup
+useEffect(() => {
+  if (socket && gridId) { socket.emit('request-connected-players', { gridId }); }
+  console.log("🔄 Requesting connected players list on startup.");
+  socketListenForPlayerConnectedAndDisconnected(gridId, setConnectedPlayers);
+}, [socket, gridId]);
 
 
 /////////// HANDLE ZOOMING & RESIZING /////////////////////////
