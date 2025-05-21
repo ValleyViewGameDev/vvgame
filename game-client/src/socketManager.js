@@ -527,12 +527,13 @@ export function socketListenForPlayerConnectedAndDisconnected(gridId, setConnect
 
   socket.on('player-connected', handlePlayerConnected);
   socket.on('player-disconnected', handlePlayerDisconnected);
-  socket.on('current-connected-players', handleCurrentConnectedPlayers);
+  // Listen for the correct event name as emitted by the server
+  socket.on('connected-players', handleCurrentConnectedPlayers);
 
   return () => {
     socket.off('player-connected', handlePlayerConnected);
     socket.off('player-disconnected', handlePlayerDisconnected);
-    socket.off('current-connected-players', handleCurrentConnectedPlayers);
+    socket.off('connected-players', handleCurrentConnectedPlayers);
   };
 }
 
