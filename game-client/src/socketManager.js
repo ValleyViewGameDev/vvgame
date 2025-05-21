@@ -499,7 +499,8 @@ export function socketListenForConnectAndDisconnect(gridId, currentPlayer, setIs
 // 🔄 SOCKET LISTENER: Listen for announcement that a player is connected/disconnected (I THINK ??)
 export function socketListenForPlayerConnectedAndDisconnected(gridId, setConnectedPlayers) {
   if (!socket || !gridId) return;
-
+  console.log("🌐 useEffect for player-connected/disconnected running. gridId:", gridId, "socket:", !!socket) ;
+  
   const handlePlayerConnected = ({ playerId }) => {
     setConnectedPlayers(prev => new Set(prev).add(playerId));
   };
