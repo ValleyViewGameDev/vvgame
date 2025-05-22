@@ -286,6 +286,8 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
       const existing = updatedNPCs[npcId];
       console.log('📦 SETTING GridState for existing:', existing);
       if (existing) {
+        // Cache previous position BEFORE rehydration
+        const prevPosition = existing?.position;
         // ✅ Rehydrate if needed
         const rehydrated = existing instanceof NPC
           ? existing
@@ -299,13 +301,14 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
         console.log('📦 Rehydrated NPC:', rehydrated);
         // Animate movement if position changed
         if (
-          existing?.position &&
+          prevPosition &&
           newPosition &&
-          (existing.position.x !== newPosition.x || existing.position.y !== newPosition.y)
+          (prevPosition.x !== newPosition.x || prevPosition.y !== newPosition.y)
         ) {
-          console.log('Calling animateRemotePC', npcId, existing.position, newPosition);
-          animateRemotePC(npcId, existing.position, newPosition, TILE_SIZE); // Assume TILE_SIZE = 64
+          console.log('Calling animateRemotePC', npcId, prevPosition, newPosition);
+          animateRemotePC(npcId, prevPosition, newPosition, TILE_SIZE); // Assume TILE_SIZE = 64
         }
+        // Assign new position AFTER animation call
         rehydrated.position = newPosition;
         updatedNPCs[npcId] = rehydrated;
         // ✅ Also patch live memory state for controller
