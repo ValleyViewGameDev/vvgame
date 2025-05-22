@@ -4,6 +4,8 @@ export function animateRemotePC(playerId, from, to, TILE_SIZE) {
   const stepCount = 10;
   let step = 0;
 
+  console.log('animateRemotePC', playerId, from, to);
+  
   const currentX = from.x * TILE_SIZE;
   const currentY = from.y * TILE_SIZE;
   const targetX = to.x * TILE_SIZE;

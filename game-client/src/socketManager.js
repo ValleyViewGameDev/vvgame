@@ -302,6 +302,7 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
           newPosition &&
           (existing.position.x !== newPosition.x || existing.position.y !== newPosition.y)
         ) {
+          console.log('Calling animateRemotePC', npcId, existing.position, newPosition);
           animateRemotePC(npcId, existing.position, newPosition, TILE_SIZE); // Assume TILE_SIZE = 64
         }
         rehydrated.position = newPosition;
