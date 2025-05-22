@@ -102,7 +102,7 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
 
   // Updated handlePCSync to fully overwrite local PC with incoming PC if newer
   const handlePCSync = (payload) => {
-    console.log("📥 Received sync-PCs payload:", JSON.stringify(payload, null, 2));
+    //console.log("📥 Received sync-PCs payload:", JSON.stringify(payload, null, 2));
   
     const { emitterId } = payload;
     const mySocketId = socket.id;
