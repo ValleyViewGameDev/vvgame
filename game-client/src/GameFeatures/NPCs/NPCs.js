@@ -302,6 +302,7 @@ async moveOneTile(direction, tiles, resources, npcs) {
                   npcId: this.id,
                   newPosition: { x: targetX, y: targetY },
                 });
+                console.log(`📡 Emitting npc-moved for NPC ${this.id} to (${targetX}, ${targetY})`);
               }
               resolve(true);
               return;
