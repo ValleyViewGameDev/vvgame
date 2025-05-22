@@ -384,7 +384,8 @@ export function socketListenForResourceChanges(TILE_SIZE, gridId, isMasterResour
             const indexToRemove = updated.findIndex(
               (res) => res.x === newRes.x && res.y === newRes.y
             );
-              createCollectEffect(newRes.x, newRes.y, TILE_SIZE);
+            console.log('TILE_SIZE:', TILE_SIZE);
+            createCollectEffect(newRes.x, newRes.y, TILE_SIZE);
 
             if (indexToRemove !== -1) {
               updated.splice(indexToRemove, 1);
