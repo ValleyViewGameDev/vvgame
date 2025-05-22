@@ -284,7 +284,7 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
     setGridState(prevState => {
       const updatedNPCs = { ...prevState.npcs };
       const existing = updatedNPCs[npcId];
-
+      console.log('📦 SETTING GridState for existing:', existing);
       if (existing) {
         // ✅ Rehydrate if needed
         const rehydrated = existing instanceof NPC
@@ -296,6 +296,7 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
               existing,
               existing.gridId || gridId
             );
+        console.log('📦 Rehydrated NPC:', rehydrated);
         // Animate movement if position changed
         if (
           existing?.position &&
