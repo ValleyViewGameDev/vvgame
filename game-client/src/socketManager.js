@@ -190,7 +190,7 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
 
 
 // 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
-export function socketListenForNPCStateChanges(gridId, setGridState, npcController) {
+export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, npcController) {
   console.log("🌐 useEffect for NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
   if (!gridId) return;
 
@@ -304,7 +304,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
           newPosition &&
           (existing.position.x !== newPosition.x || existing.position.y !== newPosition.y)
         ) {
-          animateRemotePC(npcId, existing.position, newPosition, 64); // Assume TILE_SIZE = 64
+          animateRemotePC(npcId, existing.position, newPosition, TILE_SIZE); // Assume TILE_SIZE = 64
         }
         rehydrated.position = newPosition;
         updatedNPCs[npcId] = rehydrated;

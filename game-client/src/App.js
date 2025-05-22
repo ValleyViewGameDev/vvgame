@@ -690,7 +690,7 @@ useEffect(() => {
 // 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
 useEffect(() => {
   if (!isAppInitialized) { console.log('App not initialized. Skipping NPC socket changes.'); return; }  
-  socketListenForNPCStateChanges(gridId, setGridState, npcController);
+  socketListenForNPCStateChanges(activeTileSize, gridId, setGridState, npcController);
 }, [socket, gridId, isAppInitialized]);
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
