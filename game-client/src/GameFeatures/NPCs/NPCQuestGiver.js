@@ -3,7 +3,14 @@ import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTil
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { calculateDistance } from './NPCHelpers';
- 
+
+const updateThisNPC = async (npcInstance, gridId) => {
+  await NPCsInGridManager.updateNPC(gridId, npcInstance.id, {
+    state: npcInstance.state,
+    position: npcInstance.position,
+  });
+};
+
 async function handleQuestGiverBehavior(gridId) {
     const tiles = GlobalGridStateTilesAndResources.getTiles();
     const resources = GlobalGridStateTilesAndResources.getResources();
@@ -25,20 +32,20 @@ async function handleQuestGiverBehavior(gridId) {
             // );
             // if (pcsInRange) { break; }
             
-            await this.handleIdleState(tiles, resources, npcs, 5, () => {
-                //console.log(`NPC ${this.id} transitioning to roam state.`);
-                this.state = 'roam'; // Transition to the roam state
-                NPCsInGridManager.saveGridStateNPCs(gridId); // Save after transition
+            await this.handleIdleState(tiles, resources, npcs, 5, async () => {
+                this.state = 'roam';
+                await updateThisNPC(this, gridId); // Save after transition
             });
 
             break;
           }
 
           case 'roam': {
-            const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
-                calculateDistance(pc.position, this.position) <= this.range
-            );
-            if (pcsInRange) { this.state = 'idle'; break; }
+            //console.log(`NPC ${this.id} is roaming.`);
+            // const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
+            //     calculateDistance(pc.position, this.position) <= this.range
+            // );
+            // if (pcsInRange) { this.state = 'idle'; await updateThisNPC(); break; }
             
             await this.handleRoamState(tiles, resources, npcs, () => {
                 //console.log(`NPC ${this.id} transitioning back to idle.`);
