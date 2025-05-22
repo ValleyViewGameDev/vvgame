@@ -275,6 +275,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
 
   // Add handler for npc-moved-sync
   const handleNPCMoveSync = ({ npcId, newPosition, emitterId }) => {
+    console.log('📡 handleNPCMoveSync invoked.');
     console.log('📥 Received npc-moved-sync event:', { npcId, newPosition, emitterId });
     const isController = npcController.isControllingGrid(gridId);
     console.log('IsNPCController:', isController);
@@ -317,7 +318,10 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
 
   console.log("🧲 Subscribing to NPC sync events for grid:", gridId);
   socket.on("sync-NPCs", handleNPCSync);
-  socket.on("npc-moved-sync", handleNPCMoveSync);
+  socket.on("npc-moved-sync", (data) => {
+    console.log("🧲 socket.on('npc-moved-sync') triggered with data:", data);
+  });
+  socket.on("npc-moved-sync", handleNPCMoveSync); // main handler
 
   return () => {
     console.log("🧹 Unsubscribing from NPC sync events for grid:", gridId);
