@@ -66,7 +66,8 @@ class GridStateManager {
             npcId,
             lightweightNPC.type,
             lightweightNPC.position,
-            { ...npcTemplate, ...lightweightNPC }
+            { ...npcTemplate, ...lightweightNPC },
+            gridId
           );
 
           console.log('  ✅ Hydrated NPC instance:', hydrated);
