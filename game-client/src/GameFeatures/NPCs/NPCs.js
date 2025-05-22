@@ -250,6 +250,7 @@ async handlePursueState(playerPosition, tiles, resources, npcs, onAttackTransiti
 
 async moveOneTile(direction, tiles, resources, npcs) {
 
+  console.log('FROM moveOneTile; this.gridId:', this.gridId);
   if (this.action === 'spawn') {
     console.warn(`Spawner ${this.id} cannot move!`);
     return false; // ✅ Prevents spawners from moving at all
