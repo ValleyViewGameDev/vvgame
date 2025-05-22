@@ -202,13 +202,9 @@ async handleRoamState(tiles, resources, npcs, onTransition = () => {}) {  // Ini
 }
 
 async handlePursueState(playerPosition, tiles, resources, npcs, onAttackTransition) {
-  //console.log(`NPC ${this.id} pursuing player...`);
-
-  // Calculate the differences
   const dx = playerPosition.x - this.position.x;
   const dy = playerPosition.y - this.position.y;
 
-  // Determine primary direction to move
   let direction = null;
   if (Math.abs(dx) > Math.abs(dy)) {
     direction = dx > 0 ? 'E' : 'W';
@@ -224,23 +220,27 @@ async handlePursueState(playerPosition, tiles, resources, npcs, onAttackTransiti
     else if (dx < 0 && dy < 0) direction = 'NW';
   }
 
-  if (!direction) {
-    // console.warn(`NPC ${this.id} could not determine a valid direction to pursue.`);
-    return;
-  }
+  if (!direction) return;
 
-  // Move one tile in the determined direction
   const moved = await this.moveOneTile(direction, tiles, resources, npcs);
   if (moved) {
-    //console.log(`NPC ${this.id} moved one tile in direction: ${direction}`);
+    // ✅ Emit full NPC update after movement to sync animation and state
+    await NPCsInGridManager.updateNPC(this.gridId, this.id, {
+      position: {
+        x: Math.floor(this.position.x),
+        y: Math.floor(this.position.y),
+      },
+      state: this.state,
+    });
   }
 
-  // Check if within attack range and transition to "attack" if true
   const distanceToPlayer = calculateDistance(this.position, playerPosition);
   if (distanceToPlayer <= this.attackrange) {
-    //console.log(`NPC ${this.id} is within attack range (${distanceToPlayer} tiles). Transitioning to attack.`);
     this.state = 'attack';
-    onAttackTransition(); // Callback if needed for further behavior
+    onAttackTransition();
+    await NPCsInGridManager.updateNPC(this.gridId, this.id, {
+      state: this.state,
+    });
   }
 }
 
