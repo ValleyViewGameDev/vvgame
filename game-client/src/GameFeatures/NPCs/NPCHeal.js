@@ -23,10 +23,10 @@ async function handleHealBehavior(gridId) {
             //console.log(`NPC ${this.id} is in IDLE state.`);
 
             // ✅ **Check for nearby PCs using calculateDistance**
-            const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
-                calculateDistance(pc.position, this.position) <= this.range
-            );
-            if (pcsInRange) { break; }
+            // const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
+            //     calculateDistance(pc.position, this.position) <= this.range
+            // );
+            // if (pcsInRange) { break; }
             
             await this.handleIdleState(tiles, resources, npcs, 5, () => {
                 //console.log(`NPC ${this.id} transitioning to roam state.`);
