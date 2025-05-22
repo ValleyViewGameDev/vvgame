@@ -295,6 +295,7 @@ async moveOneTile(direction, tiles, resources, npcs) {
               this.position.x = targetX;
               this.position.y = targetY;
               //console.log(`NPC ${this.id} completed move to (${this.position.x}, ${this.position.y}).`);
+              console.log('FROM moveOneTile; gridId:', this.gridId);
               if (socket && socket.connected) {
                 socket.emit('npc-moved', {
                   gridId: this.gridId,
