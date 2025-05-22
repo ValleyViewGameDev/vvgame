@@ -171,9 +171,9 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
         },
       };
   
-      console.log("🧠 Pre-state before merge:", JSON.stringify(prevState, null, 2));
-      console.log("📥 Incoming update for:", playerId, "with data:", incomingPC);
-      console.log("📦 setPlayersInGrid payload:", JSON.stringify(setPayload, null, 2));
+      // console.log("🧠 Pre-state before merge:", JSON.stringify(prevState, null, 2));
+      // console.log("📥 Incoming update for:", playerId, "with data:", incomingPC);
+      // console.log("📦 setPlayersInGrid payload:", JSON.stringify(setPayload, null, 2));
   
       return setPayload;
     });
@@ -195,7 +195,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
   if (!gridId) return;
 
   const handleNPCSync = (payload) => {
-    console.log('📥 Received sync-NPCs payload:', JSON.stringify(payload, null, 2));
+    console.log('📥 Received sync-NPCs payload:');
   
     const { emitterId } = payload;
     const mySocketId = socket.id;
