@@ -10,6 +10,7 @@ import { attachSpawnBehavior } from './NPCSpawner';
 class NPC {
   constructor(id, type, position, properties, gridId) {
     console.log('NPC constructor: properties:', properties);
+    console.log('NPC constructor: gridId:', gridId);
     console.log(`NPC constructor: ID=${id}, type=${type}, grazeEnd=`, properties.grazeEnd);
 
     if (!properties || typeof properties !== 'object') {
@@ -17,7 +18,6 @@ class NPC {
       throw new Error('NPC constructor requires valid properties.');
     }
 
-    this.gridId = gridId; // Persist gridId in the instance
     this.updateInterval = properties.updateInterval || 1000; // Default to 1 second updates
     this.id = id;
     this.type = type;
@@ -38,7 +38,7 @@ class NPC {
     this.nextspawn = properties.nextspawn ?? (this.action === 'spawn' ? Date.now() + 5000 : null);
     this.grazeEnd = properties.grazeEnd || null; // this is preserved from NPCsInGrid
     this.lastUpdated = Date.now(); // Initialize lastUpdated
-    // this.gridId = properties.gridId || gridId; // Use the passed gridId or default to the one in properties
+    this.gridId = properties.gridId || gridId; // Use the passed gridId or default to the one in properties
     // Assign additional properties
     Object.assign(this, properties);
   }
