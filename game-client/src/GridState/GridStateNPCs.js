@@ -304,16 +304,13 @@ class GridStateManager {
     }
 
     if (socket && socket.emit) {
-      const now = Date.now();
-      const payload = {
-        [gridId]: {
-          npcs: { [npcId]: null },
-          NPCsInGridLastUpdated: now,
-        },
+
+      socket.emit('remove-NPC', {
+        gridId,
+        npcId,
         emitterId: socket.id,
-      };
-      socket.emit('update-NPCsInGrid-NPCs', payload);
-      console.log(`📡 Emitted NPC removal for ${npcId} with payload: `, payload);
+      });
+      console.log(`📡 Emitted NPC removal for ${npcId}`);
     }
   }
 

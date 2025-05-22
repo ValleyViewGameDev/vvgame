@@ -324,17 +324,35 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
     });
   };
 
+    // Add handler for npc-removal-sync
+  const handleNPCRemoval = ({ gridId, npcId }) => {
+    console.log(`🧹 Received remove-NPC for ${npcId} in grid ${gridId}`);
+    setGridState(prevState => {
+      const updatedNPCs = { ...prevState.npcs };
+      delete updatedNPCs[npcId];
+      const liveGrid = NPCsInGridManager.NPCsInGrid?.[gridId];
+      if (liveGrid?.npcs) {
+        delete liveGrid.npcs[npcId];
+        console.log(`🧠 Removed NPC ${npcId} from live NPCsInGrid (remove-NPC event)`);
+      }
+      return {
+        ...prevState,
+        npcs: updatedNPCs,
+      };
+    });
+  };
+
   console.log("🧲 Subscribing to NPC sync events for grid:", gridId);
+
   socket.on("sync-NPCs", handleNPCSync);
-  socket.on("npc-moved-sync", (data) => {
-    console.log("🧲 socket.on('npc-moved-sync') triggered with data:", data);
-  });
   socket.on("npc-moved-sync", handleNPCMoveSync); // main handler
+  socket.on("remove-NPC", handleNPCRemoval);
 
   return () => {
     console.log("🧹 Unsubscribing from NPC sync events for grid:", gridId);
     socket.off("sync-NPCs", handleNPCSync);
     socket.off("npc-moved-sync", handleNPCMoveSync);
+    socket.off("remove-NPC", handleNPCRemoval);
   };
 }
 

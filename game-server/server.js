@@ -305,6 +305,16 @@ mongoose.connect(process.env.MONGODB_URI, {
         socket.to(gridId).emit('npc-moved-sync', { npcId, newPosition, emitterId: socket.id });
         console.log(`📡 server: npc-moved; NPC ${npcId} moved to ${JSON.stringify(newPosition)} in grid ${gridId}`);
       });
+
+      // Handle NPC removal
+      socket.on('remove-NPC', ({ gridId, npcId }) => {
+        if (!gridId || !npcId) {
+          console.error('Invalid remove-NPC payload:', { gridId, npcId });
+          return;
+        }
+        console.log(`📡 server: remove-NPC; NPC ${npcId} removed from grid ${gridId}`);
+        socket.to(gridId).emit('remove-NPC', { gridId, npcId, emitterId: socket.id });
+      });
       
       // Handle tile updates
       socket.on('update-tile', ({ gridId, updatedTiles }) => {
