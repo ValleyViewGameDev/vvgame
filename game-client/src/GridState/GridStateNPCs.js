@@ -270,7 +270,7 @@ class GridStateManager {
         },
         emitterId: socket.id,
       };
-      console.log("📡 Emitting update-NPCsInGrid-NPCs with payload:", JSON.stringify(payload, null, 2));
+      //console.log("📡 Emitting update-NPCsInGrid-NPCs with payload:", JSON.stringify(payload, null, 2));
       socket.emit('update-NPCsInGrid-NPCs', payload);
     }
 
