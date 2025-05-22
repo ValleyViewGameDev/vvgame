@@ -691,7 +691,7 @@ useEffect(() => {
 useEffect(() => {
   if (!isAppInitialized) { console.log('App not initialized. Skipping NPC socket changes.'); return; }  
   socketListenForNPCStateChanges(gridId, setGridState, npcController);
-}, [socket, gridId]);
+}, [socket, gridId, isAppInitialized]);
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
 useEffect(() => {
