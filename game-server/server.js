@@ -303,6 +303,7 @@ mongoose.connect(process.env.MONGODB_URI, {
           return;
         }
         socket.to(gridId).emit('npc-moved-sync', { npcId, newPosition, emitterId: socket.id });
+        console.log(`📡 server: npc-moved; NPC ${npcId} moved to ${JSON.stringify(newPosition)} in grid ${gridId}`);
       });
       
       // Handle tile updates
