@@ -3,6 +3,7 @@ import NPCsInGridManager from './GridState/GridStateNPCs';
 import playersInGridManager from './GridState/PlayersInGrid';
 import { io } from 'socket.io-client';
 import { animateRemotePC } from './Render/RenderAnimatePosition';
+import { createCollectEffect } from './VFX/VFX';
 
 const socket = io('https://vvgame-server.onrender.com', {
   transports: ['websocket'],
@@ -277,8 +278,6 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
   const handleNPCMoveSync = ({ npcId, newPosition, emitterId }) => {
     console.log('📡 handleNPCMoveSync invoked.');
     console.log('📥 Received npc-moved-sync event:', { npcId, newPosition, emitterId });
-    const isController = npcController.isControllingGrid(gridId);
-    console.log('IsNPCController:', isController);
 
     if (!npcId || !newPosition) return;
 
@@ -297,7 +296,6 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
               existing,
               existing.gridId || gridId
             );
-
         // Animate movement if position changed
         if (
           existing?.position &&
@@ -308,7 +306,6 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
         }
         rehydrated.position = newPosition;
         updatedNPCs[npcId] = rehydrated;
-
         // ✅ Also patch live memory state for controller
         if (rehydrated instanceof NPC) {
           NPCsInGridManager.NPCsInGrid[gridId].npcs[npcId] = rehydrated;
@@ -316,7 +313,6 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
           console.warn(`🛑 Tried to inject non-NPC instance into live NPCsInGrid for ${npcId}`);
         }
       }
-
       return {
         ...prevState,
         npcs: updatedNPCs,
@@ -343,7 +339,6 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
   };
 
   console.log("🧲 Subscribing to NPC sync events for grid:", gridId);
-
   socket.on("sync-NPCs", handleNPCSync);
   socket.on("npc-moved-sync", handleNPCMoveSync); // main handler
   socket.on("remove-NPC", handleNPCRemoval);
@@ -358,20 +353,17 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
 
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
-export function socketListenForResourceChanges(gridId, isMasterResourcesReady, setResources, masterResources, enrichResourceFromMaster) {
+export function socketListenForResourceChanges(TILE_SIZE, gridId, isMasterResourcesReady, setResources, masterResources, enrichResourceFromMaster) {
 
-  console.log("🌐 useEffect for tile-resource-sync running. gridId:", gridId, "socket:", !!socket);
+  console.log("🌐 useEffect for resource-sync running. gridId:", gridId, "socket:", !!socket);
   
   // Wait until masterResources is ready
   if (!gridId || !socket || !isMasterResourcesReady) {
     console.warn('Master Resources not ready or missing gridId/socket.');
     return; // 🛑 Don't process until ready
   }
-  const handleResourceSync = ({ updatedTiles, updatedResources }) => {
-    console.log("🌐 Real-time tile/resource update received!", {
-      updatedTiles,
-      updatedResources,
-    });
+  const handleResourceSync = ({ updatedResources }) => {
+    console.log("🌐 Real-time tile/resource update received!", updatedResources);
 
     if (updatedResources?.length) {
       setResources((prevResources) => {
@@ -392,6 +384,8 @@ export function socketListenForResourceChanges(gridId, isMasterResourcesReady, s
             const indexToRemove = updated.findIndex(
               (res) => res.x === newRes.x && res.y === newRes.y
             );
+              createCollectEffect(newRes.x, newRes.y, TILE_SIZE);
+
             if (indexToRemove !== -1) {
               updated.splice(indexToRemove, 1);
             }
@@ -434,7 +428,7 @@ export function socketListenForTileChanges(gridId, setTileTypes, mergeTiles) {
   }
 
   const handleTileSync = ({ updatedTiles }) => {
-    console.log("🌐 Real-time tile update received!", { updatedTiles });
+    console.log("🌐 Real-time tile update received!", updatedTiles);
 
     updatedTiles.forEach(tile => {
       console.log("📦 Tile type in update:", tile.type); // Add this

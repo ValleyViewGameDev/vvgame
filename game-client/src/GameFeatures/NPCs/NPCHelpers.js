@@ -57,6 +57,9 @@ export async function handleNPCClick(
       console.log(`Handling grazing logic for NPC ${npc.id}.`);
 
       // ✅ Special case: If in town, relocate NPC to home grid
+
+/// THIS CODE NEEDS MODERNIZING:
+
       if (currentPlayer.location.gtype === 'town') {
         console.log(`🏠 Moving NPC ${npc.id} from town to home grid ${currentPlayer.gridId} at (1,7).`);
 
@@ -141,9 +144,9 @@ export async function handleNPCClick(
         });
 
         if (response.data.success) {
+          FloatingTextManager.addFloatingText(`+${quantityToCollect} ${npc.output}`, col, row, TILE_SIZE);
           setInventory(updatedInventory);
-          localStorage.setItem('inventory', JSON.stringify(updatedInventory));
-          
+          localStorage.setItem('inventory', JSON.stringify(updatedInventory));          
           console.log('currentPlayer before update:', currentPlayer);
           const existingNPC = NPCsInGridManager.getNPCsInGrid(currentPlayer.location.g)?.[npc.id];
           console.log('Existing NPC:', existingNPC);
@@ -155,8 +158,6 @@ export async function handleNPCClick(
               hp: 0,
             });
           }
-
-          FloatingTextManager.addFloatingText(`+${quantityToCollect} ${npc.output}`, col, row, TILE_SIZE);
           return { type: 'success', message: `Collected ${quantityToCollect} ${npc.output}.` };
         } else {
           throw new Error(response.data.message || 'Failed to update inventory');

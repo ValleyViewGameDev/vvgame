@@ -10,7 +10,7 @@ import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
 import { checkInventoryCapacity } from './Utils/InventoryManagement';
 import { createCollectEffect, createSourceConversionEffect, calculateTileCenter } from './VFX/VFX';
 import strings from './UI/strings.json';
-
+ 
  // Handles resource click actions based on category. //
  export async function handleResourceClick(
   resource,

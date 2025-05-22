@@ -304,7 +304,6 @@ class GridStateManager {
     }
 
     if (socket && socket.emit) {
-
       socket.emit('remove-NPC', {
         gridId,
         npcId,

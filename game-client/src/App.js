@@ -695,7 +695,7 @@ useEffect(() => {
 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
 useEffect(() => {
-  socketListenForResourceChanges(gridId, isMasterResourcesReady, setResources, masterResources, enrichResourceFromMaster);
+  socketListenForResourceChanges(activeTileSize, gridId, isMasterResourcesReady, setResources, masterResources, enrichResourceFromMaster);
 }, [socket, gridId, isMasterResourcesReady]); // ← Add isMasterResourcesReady as a dependency
 
 // 🔄 SOCKET LISTENER: Real-time updates for tiles
