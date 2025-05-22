@@ -178,9 +178,9 @@ const DynamicRenderer = ({
     npcs.forEach((npc) => {
       existingIds.add(npc.id);
       let npcDiv = npcElements.current.get(npc.id);
-      const top = npc.position.y * TILE_SIZE;
-      const left = npc.position.x * TILE_SIZE;
-      if (!npcDiv) {
+      const overridePos = renderPositions[npc.id];
+      const renderX = overridePos ? overridePos.x * TILE_SIZE : npc.position.x * TILE_SIZE;
+      const renderY = overridePos ? overridePos.y * TILE_SIZE : npc.position.y * TILE_SIZE;      if (!npcDiv) {
         // REPLACED LOGIC FOR CREATING npcDiv:
         npcDiv = document.createElement('div');
         npcDiv.className = 'npc';
@@ -239,14 +239,14 @@ const DynamicRenderer = ({
           npcDiv.textContent = npc.symbol;
         }
       }
-      npcDiv.style.top = `${top}px`;
-      npcDiv.style.left = `${left}px`;
+      npcDiv.style.left = `${renderX}px`;
+      npcDiv.style.top = `${renderY}px`;
     });
 
     // Remove NPC divs that no longer exist
     npcElements.current.forEach((div, id) => {
       if (!existingIds.has(id)) {
-        div.remove();
+        div.remove(); 
         npcElements.current.delete(id);
       }
     });
