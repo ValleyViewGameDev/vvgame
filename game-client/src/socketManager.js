@@ -223,15 +223,17 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
   
     setGridState(prevState => {
       const updatedNPCs = { ...prevState.npcs };
-      const liveGrid = isController ? NPCsInGridManager.NPCsInGrid?.[gridId] : null;
+      const liveGrid = NPCsInGridManager.NPCsInGrid?.[gridId];
   
       Object.entries(npcs).forEach(([npcId, incomingNPC]) => {
         if (!incomingNPC) {
           console.log(`  🧹 Received null NPC ${npcId}; removing from local state.`);
           delete updatedNPCs[npcId];
-          if (isController && liveGrid?.npcs) {
+          if (liveGrid?.npcs) {
             delete liveGrid.npcs[npcId];
-            console.log(`🧠 Controller removed NPC ${npcId} from live NPCsInGrid`);
+            console.log(`🧠 Removed NPC ${npcId} from live NPCsInGrid`);
+          } else {
+            console.warn(`⚠️ liveGrid.npcs missing for gridId ${gridId}`);
           }
           return;
         }
@@ -253,9 +255,11 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
   
           updatedNPCs[npcId] = rehydrated;
   
-          if (isController && liveGrid?.npcs) {
+          if (liveGrid?.npcs) {
             liveGrid.npcs[npcId] = rehydrated;
-            console.log(`🧠 Controller rehydrated NPC ${npcId} into live NPCsInGrid`);
+            console.log(`🧠 Rehydrated NPC ${npcId} into live NPCsInGrid`);
+          } else {
+            console.warn(`⚠️ liveGrid.npcs missing for gridId ${gridId}`);
           }
         } else {
           console.log(`  ⏳ Skipped NPC ${npcId}, newer or same version already present.`);
