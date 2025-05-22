@@ -291,6 +291,7 @@ class GridStateManager {
     }
 
     delete NPCsInGrid.npcs[npcId];
+    this.setAllNPCs(gridId, NPCsInGrid.npcs); // 🧠 Update React state after deletion
 
     try {
       await axios.post(`${API_BASE}/api/remove-single-npc`, {
@@ -303,11 +304,15 @@ class GridStateManager {
     }
 
     if (socket && socket.emit) {
-      socket.emit('update-NPCsInGrid-NPCs', {
-        gridId,
-        npcs: { [npcId]: null }, // Broadcast removal
-        NPCsInGridLastUpdated: Date.now(),
-      });
+      const now = Date.now();
+      const payload = {
+        [gridId]: {
+          npcs: { [npcId]: null },
+          NPCsInGridLastUpdated: now,
+        },
+        emitterId: socket.id,
+      };
+      socket.emit('update-NPCsInGrid-NPCs', payload);
       console.log(`📡 Emitted NPC removal for ${npcId}`);
     }
   }
