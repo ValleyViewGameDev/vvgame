@@ -5,6 +5,13 @@ import playersInGridManager from '../../GridState/PlayersInGrid';
 import { calculateDistance } from './NPCHelpers';
 
 async function handleHealBehavior(gridId) {
+    const updateThisNPC = async () => {
+        await NPCsInGridManager.updateNPC(gridId, this.id, {
+            state: this.state,
+            position: this.position,
+        });
+    };
+
     const tiles = GlobalGridStateTilesAndResources.getTiles();
     const resources = GlobalGridStateTilesAndResources.getResources();
     const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId)?.npcs || {}); 
@@ -28,10 +35,10 @@ async function handleHealBehavior(gridId) {
             // );
             // if (pcsInRange) { break; }
             
-            await this.handleIdleState(tiles, resources, npcs, 5, () => {
+            await this.handleIdleState(tiles, resources, npcs, 5, async () => {
                 //console.log(`NPC ${this.id} transitioning to roam state.`);
                 this.state = 'roam'; // Transition to the roam state
-                NPCsInGridManager.saveGridStateNPCs(gridId); // Save after transition
+                await updateThisNPC();
             });
 
             break;
@@ -39,10 +46,10 @@ async function handleHealBehavior(gridId) {
 
           case 'roam': {
             //console.log(`NPC ${this.id} is roaming.`);
-            const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
-                calculateDistance(pc.position, this.position) <= this.range
-            );
-            if (pcsInRange) { this.state = 'idle'; break; }
+            // const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
+            //     calculateDistance(pc.position, this.position) <= this.range
+            // );
+            // if (pcsInRange) { this.state = 'idle'; await updateThisNPC(); break; }
             
             await this.handleRoamState(tiles, resources, npcs, () => {
                 //console.log(`NPC ${this.id} transitioning back to idle.`);
