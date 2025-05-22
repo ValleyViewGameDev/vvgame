@@ -313,7 +313,7 @@ class GridStateManager {
         emitterId: socket.id,
       };
       socket.emit('update-NPCsInGrid-NPCs', payload);
-      console.log(`📡 Emitted NPC removal for ${npcId}`);
+      console.log(`📡 Emitted NPC removal for ${npcId} with payload: `, payload);
     }
   }
 
