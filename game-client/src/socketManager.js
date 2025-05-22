@@ -279,13 +279,13 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
     console.log('📥 Received npc-moved-sync event:', { npcId, newPosition, emitterId });
     const isController = npcController.isControllingGrid(gridId);
     console.log('IsNPCController:', isController);
-  
+
     if (!npcId || !newPosition) return;
-   
+
     setGridState(prevState => {
       const updatedNPCs = { ...prevState.npcs };
       const existing = updatedNPCs[npcId];
-  
+
       if (existing) {
         // ✅ Rehydrate if needed
         const rehydrated = existing instanceof NPC
@@ -297,10 +297,18 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
               existing,
               existing.gridId || gridId
             );
-   
+
+        // Animate movement if position changed
+        if (
+          existing?.position &&
+          newPosition &&
+          (existing.position.x !== newPosition.x || existing.position.y !== newPosition.y)
+        ) {
+          animateRemotePC(npcId, existing.position, newPosition, 64); // Assume TILE_SIZE = 64
+        }
         rehydrated.position = newPosition;
         updatedNPCs[npcId] = rehydrated;
-  
+
         // ✅ Also patch live memory state for controller
         if (rehydrated instanceof NPC) {
           NPCsInGridManager.NPCsInGrid[gridId].npcs[npcId] = rehydrated;
@@ -308,7 +316,7 @@ export function socketListenForNPCStateChanges(gridId, setGridState, npcControll
           console.warn(`🛑 Tried to inject non-NPC instance into live NPCsInGrid for ${npcId}`);
         }
       }
-  
+
       return {
         ...prevState,
         npcs: updatedNPCs,
