@@ -41,6 +41,7 @@ class NPC {
     this.gridId = properties.gridId || gridId; // Use the passed gridId or default to the one in properties
     // Assign additional properties
     Object.assign(this, properties);
+    console.log(`✅ NPC ${this.id} constructed at position (${this.position.x}, ${this.position.y}) with state: ${this.state}`);
   }
 
 
@@ -53,6 +54,7 @@ update(currentTime, NPCsInGrid, gridId, TILE_SIZE) {
   // console.log('🐮 NPCsInGrid:', NPCsInGrid);
   const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId)?.npcs || {}); // Use the new NPCsInGrid.npcs
 
+  console.log(`⏰ update() for NPC ${this.id} | currentTime: ${currentTime} | lastUpdated: ${this.lastUpdated} | elapsed: ${currentTime - this.lastUpdated}`);
   const timeElapsed = currentTime - this.lastUpdated;
   if (timeElapsed < this.updateInterval) {
     return;
@@ -68,7 +70,7 @@ async processState(NPCsInGrid, gridId, TILE_SIZE) {
   
   const npcs = Object.values(NPCsInGrid || {});
 
-
+  console.log(`🧪 processState | NPC ${this.id} | state=${this.state} | action=${this.action} | gridId=${gridId}`);
   try {
     //console.log(`NPCprocessState for NPC ${this.id}. action: ${this.action}, Current state: ${this.state}, gridId: ${gridId}`);
     // Call the behavior handler
@@ -202,6 +204,7 @@ async handleRoamState(tiles, resources, npcs, onTransition = () => {}) {  // Ini
 }
 
 async handlePursueState(playerPosition, tiles, resources, npcs, onAttackTransition) {
+  console.log(`🧠 handlePursueState | NPC ${this.id} at (${this.position.x}, ${this.position.y}) targeting (${playerPosition.x}, ${playerPosition.y})`);
   const dx = playerPosition.x - this.position.x;
   const dy = playerPosition.y - this.position.y;
 
@@ -319,6 +322,8 @@ async moveOneTile(direction, tiles, resources, npcs) {
           // Calculate the fractional progress
           const progress = elapsedTime / moveDuration;
           this.position.x = startX + progress * (targetX - startX);
+          // 🟡 Insert log for animation progress and position
+          console.log(`🔄 Animating NPC ${this.id} — progress: ${progress.toFixed(2)} | position: (${this.position.x.toFixed(2)}, ${this.position.y.toFixed(2)})`);
           this.position.y = startY + progress * (targetY - startY);
 
           // Request the next frame
