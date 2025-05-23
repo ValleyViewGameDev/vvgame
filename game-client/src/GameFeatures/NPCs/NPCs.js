@@ -224,13 +224,15 @@ async handlePursueState(playerPosition, tiles, resources, npcs, onAttackTransiti
 
   const moved = await this.moveOneTile(direction, tiles, resources, npcs);
   if (moved) {
-    // ✅ Emit full NPC update after movement to sync animation and state
-    await NPCsInGridManager.updateNPC(this.gridId, this.id, {
-      position: {
-        x: Math.floor(this.position.x),
-        y: Math.floor(this.position.y),
-      },
-      state: this.state,
+    // ✅ Delay full NPC update until after the frame has had a chance to animate
+    requestAnimationFrame(() => {
+      NPCsInGridManager.updateNPC(this.gridId, this.id, {
+        position: {
+          x: Math.floor(this.position.x),
+          y: Math.floor(this.position.y),
+        },
+        state: this.state,
+      });
     });
   }
 
