@@ -226,19 +226,19 @@ async handlePursueState(playerPosition, tiles, resources, npcs, onAttackTransiti
   if (!direction) return;
 
   const moved = await this.moveOneTile(direction, tiles, resources, npcs);
-  console.log(`🐾 Pursue movement for NPC ${this.id} — moved:`, moved, 'Current pos:', this.position);
   if (moved) {
-    // Wait until animation completes before updating server state
+    renderPositions[this.id] = { x: this.position.x, y: this.position.y };
+
     setTimeout(() => {
-      console.log(`📦 Delayed updateNPC call for ${this.id} after moveOneTile. Position now:`, this.position);
+      delete renderPositions[this.id]; // cleanup after animation finishes
       NPCsInGridManager.updateNPC(this.gridId, this.id, {
         position: {
           x: Math.floor(this.position.x),
           y: Math.floor(this.position.y),
         },
         state: this.state,
-      }); 
-    }, this.speed); // Use move duration to ensure animation completes
+      });
+    }, this.speed);
   }
 
   const distanceToPlayer = calculateDistance(this.position, playerPosition);
