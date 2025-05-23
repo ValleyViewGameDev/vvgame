@@ -226,29 +226,16 @@ async handlePursueState(playerPosition, tiles, resources, npcs, onAttackTransiti
   if (!direction) return;
 
   const moved = await this.moveOneTile(direction, tiles, resources, npcs);
+  console.log(`🐾 Pursue movement for NPC ${this.id} — moved:`, moved, 'Current pos:', this.position);
   if (moved) {
-    renderPositions[this.id] = { x: this.position.x, y: this.position.y };
-
-    setTimeout(() => {
-      delete renderPositions[this.id]; // cleanup after animation finishes
-      NPCsInGridManager.updateNPC(this.gridId, this.id, {
-        position: {
-          x: Math.floor(this.position.x),
-          y: Math.floor(this.position.y),
-        },
-        state: this.state,
-      });
-    }, this.speed);
+    console.log(`📦 NPC ${this.id} completed pursue move to (${this.position.x}, ${this.position.y})`);
   }
 
   const distanceToPlayer = calculateDistance(this.position, playerPosition);
   console.log(`🎯 NPC ${this.id} distance to player: ${distanceToPlayer} | range: ${this.attackrange}`);
   if (distanceToPlayer <= this.attackrange) {
     this.state = 'attack';
-    onAttackTransition();
-    await NPCsInGridManager.updateNPC(this.gridId, this.id, {
-      state: this.state,
-    });
+    await onAttackTransition();
   }
 }
 
