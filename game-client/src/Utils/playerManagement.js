@@ -129,12 +129,10 @@ export const handlePlayerDeath = async (
       ...targetLocation,
     };
 
-    const updatedPlayer = {
-      ...player,
-      hp: 25,
-      location: updatedLocation,
-      backpack: [],
-    };
+    // Update player object in place
+    player.hp = 25;
+    player.backpack = [];
+    player.location = updatedLocation;
 
     // 1. **Update Player Data in the Database**
     await axios.post(`${API_BASE}/api/update-profile`, {
@@ -143,11 +141,11 @@ export const handlePlayerDeath = async (
         backpack: [],  // Empty the backpack
         hp: 25,  // Reset HP
         location: updatedLocation,  // Update location
-        settings: updatedPlayer.settings,
+        settings: player.settings,
       },
     });
-    setCurrentPlayer(updatedPlayer);
-    localStorage.setItem('player', JSON.stringify(updatedPlayer));
+    setCurrentPlayer(player);
+    localStorage.setItem('player', JSON.stringify(player));
 
     // ✅ Show death modal immediately
     setModalContent({
@@ -165,14 +163,14 @@ export const handlePlayerDeath = async (
 
     // 4. **Load New Grid & Add Player to GridState**
     await changePlayerLocation(
-      updatedPlayer,
+      player,
       player.location,   // fromLocation
       updatedLocation,   // toLocation
       setCurrentPlayer,
-      setGridId,                // ✅ Ensure this is passed
-      setGrid,                  // ✅ Pass setGrid function
-      setTileTypes, 
-      setResources,             // ✅ Pass setResources function
+      setGridId,
+      setGrid,
+      setTileTypes,
+      setResources,
       TILE_SIZE,
       updateStatus,
     );
