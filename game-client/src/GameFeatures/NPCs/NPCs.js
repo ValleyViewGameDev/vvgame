@@ -224,16 +224,16 @@ async handlePursueState(playerPosition, tiles, resources, npcs, onAttackTransiti
 
   const moved = await this.moveOneTile(direction, tiles, resources, npcs);
   if (moved) {
-    // ✅ Delay full NPC update until after the frame has had a chance to animate
-    requestAnimationFrame(() => {
+    // Wait until animation completes before updating server state
+    setTimeout(() => {
       NPCsInGridManager.updateNPC(this.gridId, this.id, {
         position: {
           x: Math.floor(this.position.x),
           y: Math.floor(this.position.y),
         },
         state: this.state,
-      });
-    });
+      }); 
+    }, this.speed); // Use move duration to ensure animation completes
   }
 
   const distanceToPlayer = calculateDistance(this.position, playerPosition);
