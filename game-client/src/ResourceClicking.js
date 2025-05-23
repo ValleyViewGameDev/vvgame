@@ -95,6 +95,7 @@ import strings from './UI/strings.json';
           row,
           col,
           resources,
+          setResources,
           setInventory,
           gridId,
           addFloatingText,
@@ -309,14 +310,11 @@ async function handleDooberClick(
     }
   } catch (error) {
     console.error('Error during doober collection:', error);
-
     // Rollback local resource state on server failure
     setResources((prevResources) => [...prevResources, resource]);
-
     setTargetInventory((prevInventory) => {
       const revertedInventory = [...prevInventory];
       const index = revertedInventory.findIndex((item) => item.type === resource.type);
-
       if (index >= 0) {
         revertedInventory[index].quantity -= qtyCollected;
         if (revertedInventory[index].quantity <= 0) {
@@ -425,6 +423,7 @@ export async function handleSourceConversion(
   row,
   col,
   resources,
+  setResources,
   setInventory,
   gridId,
   addFloatingText,
@@ -477,6 +476,11 @@ export async function handleSourceConversion(
     growEnd: targetResource.growEnd || null,
   };
   console.log('Enriched newResource for local state: ', enrichedNewResource);
+
+    setResources((prevResources) => {
+    const filtered = prevResources.filter(r => !(r.x === col && r.y === row));
+    return [...filtered, enrichedNewResource];
+  });
 
   // Perform server update
     try {

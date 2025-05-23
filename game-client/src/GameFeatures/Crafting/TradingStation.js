@@ -78,40 +78,61 @@ const TradingStation = ({
   const handleTrade = async (recipe) => {
     setErrorMessage('');
     if (!recipe) { setErrorMessage('Invalid recipe selected.'); return; }
-    if (!canAfford(recipe, inventory, 1)) { updateStatus(4); return; }
+    // Ensure inventory and backpack are arrays
+    const safeInventory = Array.isArray(inventory) ? inventory : [];
+    const safeBackpack = Array.isArray(backpack) ? backpack : [];
+    if (!canAfford(recipe, [...safeInventory, ...safeBackpack], 1)) { updateStatus(4); return; }
 
-    const updatedInventory = [...inventory];
-    const success = checkAndDeductIngredients(recipe, updatedInventory, setErrorMessage);
+    // ✅ Combine inventories for deduction
+    const combinedInventory = [...safeInventory.map(item => ({ ...item })), ...safeBackpack.map(item => ({ ...item }))];
+    const success = checkAndDeductIngredients(recipe, combinedInventory, setErrorMessage);
     if (!success) return;
 
-    // ✅ Determine storage location
+    // ✅ Re-split combinedInventory into inventory and backpack based on original contents
+    const updatedInventory = [];
+    const updatedBackpack = [];
+
+    combinedInventory.forEach(item => {
+      const inOriginalInventory = safeInventory.find(orig => orig.type === item.type);
+      if (inOriginalInventory) {
+        updatedInventory.push(item);
+      } else {
+        updatedBackpack.push(item);
+      }
+    });
+
+    // ✅ Determine where to store the new item
     const gtype = currentPlayer.location.gtype;
     const isBackpack = ["town", "valley0", "valley1", "valley2", "valley3"].includes(gtype);
-    let targetInventory = isBackpack ? backpack : inventory;
+    const targetInventory = isBackpack ? updatedBackpack : updatedInventory;
     const setTargetInventory = isBackpack ? setBackpack : setInventory;
     const inventoryType = isBackpack ? "backpack" : "inventory";
 
-    // ✅ Add traded item directly to inventory
-    const tradedQty = 1;  
-    const updatedTargetInventory = [...targetInventory];
-    const itemIndex = updatedTargetInventory.findIndex(item => item.type === recipe.type);
-
+    // ✅ Add traded item to target inventory
+    const itemIndex = targetInventory.findIndex(item => item.type === recipe.type);
     if (itemIndex >= 0) {
-        updatedTargetInventory[itemIndex].quantity += tradedQty;
+      targetInventory[itemIndex].quantity += 1;
     } else {
-        updatedTargetInventory.push({ type: recipe.type, quantity: tradedQty });
+      targetInventory.push({ type: recipe.type, quantity: 1 });
     }
-    // ✅ Save updated inventory to DB
-    await axios.post(`${API_BASE}/api/update-inventory`, {
-        playerId: currentPlayer.playerId,
-        [inventoryType]: updatedTargetInventory,
-    });
-    console.log(`📡 ${inventoryType} updated successfully!`);
-    setTargetInventory(updatedTargetInventory);
 
-    // ✅ Track quest progress
-    await trackQuestProgress(currentPlayer, 'Trade', recipe.type, tradedQty, setCurrentPlayer);
-    // ✅ Refresh inventory
+    const payload = {
+      playerId: currentPlayer.playerId,
+      inventory: updatedInventory,
+      backpack: updatedBackpack,
+    };
+    console.log("📤 Sending inventory update with payload:", payload);
+
+    // ✅ Save both inventories to DB
+    await axios.post(`${API_BASE}/api/update-inventory`, payload);
+    console.log(`📡 Inventories updated successfully!`);
+
+    // ✅ Set both inventories in state
+    setInventory(updatedInventory);
+    setBackpack(updatedBackpack);
+
+    // ✅ Track quest progress and refresh player
+    await trackQuestProgress(currentPlayer, 'Trade', recipe.type, 1, setCurrentPlayer);
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
     console.log('recipe = ', recipe);
