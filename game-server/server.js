@@ -318,24 +318,24 @@ mongoose.connect(process.env.MONGODB_URI, {
       
       // Handle tile updates
       socket.on('update-tile', ({ gridId, updatedTiles }) => {
-        //console.log(`🌍 update-tile-received for grid ${gridId}`);
+        //console.log(`🌍 update-tile received for grid ${gridId}`);
         io.in(gridId).fetchSockets().then(sockets => {
           //console.log(`📡 Broadcasting to ${sockets.length} clients in grid ${gridId}`);
         });
         // Broadcast tile updates to all clients in the grid
-        io.to(gridId).emit('tile-sync', {
+      socket.to(gridId).emit('tile-sync', {
           gridId,
           updatedTiles,
         });
       });
 
-      // Broadcast updated tiles and resources to others in the same grid
+      // Broadcast updated resources to others in the same grid
       socket.on('update-resource', ({ gridId, updatedResources }) => {
         //console.log(`🌍 update-resource received for grid ${gridId}`);
         io.in(gridId).fetchSockets().then(sockets => {
           //console.log(`📡 Broadcasting to ${sockets.length} clients in grid ${gridId}`);
         });
-        io.to(gridId).emit('resource-sync', {
+      socket.to(gridId).emit('resource-sync', {
           gridId,
           updatedResources,
         });
