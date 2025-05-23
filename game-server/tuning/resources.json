@@ -4474,7 +4474,7 @@
         "type": "Combat",
         "symbol": "⚔️",
         "category": "skill",
-        "source": "Warrior's Den",
+        "source": "Basic Skills",
         "requires": "Mechanics",
         "qtycollected": 1,
         "level": 2,
