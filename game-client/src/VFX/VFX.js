@@ -62,7 +62,7 @@ export const createCollectEffect = (x, y, TILE_SIZE) => {
 export const createSourceConversionEffect = (x, y, TILE_SIZE, requiredSkill) => {
     const gameContainer = document.querySelector('.homestead');
     if (!gameContainer) return;
-    
+    console.log('createSourceConversionEffect called with x:', x, 'y:', y, 'requiredSkill:', requiredSkill);
     // Determine emoji based on required skill
     const emoji = requiredSkill?.includes('Axe') ? '🪓' : 
                  requiredSkill?.includes('Pickaxe') ? '⛏️' : 

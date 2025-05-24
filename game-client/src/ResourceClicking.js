@@ -443,8 +443,7 @@ export async function handleSourceConversion(
   if (!targetResource) { console.warn(`⚠️ No matching resource found for output: ${resource.output}`); return; }
 
   // Get required skill
-  const requiredSkill = resource.required;
-
+  const requiredSkill = resource.requires;
   // Required Skill Missing
   if (requiredSkill) {
     const hasSkill = currentPlayer.skills?.some(skill => skill.type === requiredSkill);

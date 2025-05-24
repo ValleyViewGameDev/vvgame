@@ -252,7 +252,7 @@ async moveOneTile(direction, tiles, resources, npcs) {
       return false;
   }
   console.log('Tile was valid.');
-  const moveDuration = 1000; // Standard movement speed for all NPCs
+  const moveDuration = 1200; // Standard movement speed for all NPCs
   const startTime = performance.now(); // Get the start time
   const startX = this.position.x;
   const startY = this.position.y;
