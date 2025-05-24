@@ -51,10 +51,10 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       }
 
       //console.log(`NPC ${this.id} is pursuing PC ${this.targetPC.username}.`);
-      await this.handlePursueState(this.targetPC.position, tiles, resources, pcs, () => {
+      await this.handlePursueState(this.targetPC.position, tiles, resources, pcs, async () => {
         //console.log(`NPC ${this.id} transitioned to ATTACK state targeting ${this.targetPC.username}.`);
         this.state = 'attack';
-        updateThisNPC.call(this, gridId); // Save after transition
+        await updateThisNPC.call(this, gridId); // Save after transition
       });
       break;
     }
