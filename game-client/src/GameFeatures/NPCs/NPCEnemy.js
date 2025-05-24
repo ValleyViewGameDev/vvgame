@@ -1,4 +1,3 @@
-import socket from '../../socketManager'; 
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
@@ -13,19 +12,20 @@ const updateThisNPC = async function(gridId) {
 };
 
 async function handleEnemyBehavior(gridId, TILE_SIZE) {
+  console.log(`🐺 NPC ${this.id} handling enemy behavior on grid ${gridId}.`);
   const tiles = GlobalGridStateTilesAndResources.getTiles();
   const resources = GlobalGridStateTilesAndResources.getResources();
-  const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId)?.npcs || {});
+  const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+  console.log('🐺 npcs = ', npcs);
   const pcs = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}); // Get all PCs on the grid
-
-  //console.log(`NPC ${this.id} handling enemy behavior on grid ${gridId}.`);
+  console.log('😀 pcs = ', pcs);
 
   if (!this.state) this.state = 'idle';
 
   switch (this.state) {
 
     case 'idle': {
-      await this.handleIdleState(tiles, resources, pcs, 5, async () => {
+      await this.handleIdleState(tiles, resources, npcs, 5, async () => {
         const closestPC = findClosestPC(this.position, pcs);
         if (closestPC && getDistance(this.position, closestPC.position) <= this.range) {
           //console.log(`NPC ${this.id} detected PC ${closestPC.username} within range. Entering 'pursue' state.`);
@@ -50,8 +50,8 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         break;
       }
 
-      //console.log(`NPC ${this.id} is pursuing PC ${this.targetPC.username}.`);
-      await this.handlePursueState(this.targetPC.position, tiles, resources, pcs, async () => {
+      console.log(`NPC ${this.id} is pursuing PC ${this.targetPC.username}.`);
+      await this.handlePursueState(this.targetPC.position, tiles, resources, npcs, pcs, async () => {
         //console.log(`NPC ${this.id} transitioned to ATTACK state targeting ${this.targetPC.username}.`);
         this.state = 'attack';
         await updateThisNPC.call(this, gridId); // Save after transition
@@ -120,7 +120,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
     }
 
     case 'roam': {
-      await this.handleRoamState(tiles, resources, pcs, async () => {
+      await this.handleRoamState(tiles, resources, npcs, async () => {
         //console.log(`NPC ${this.id} transitioning to IDLE state after roaming.`);
         this.state = 'idle';
         await updateThisNPC.call(this, gridId); // Save after transition

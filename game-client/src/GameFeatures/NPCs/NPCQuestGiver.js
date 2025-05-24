@@ -14,7 +14,8 @@ const updateThisNPC = async (npcInstance, gridId) => {
 async function handleQuestGiverBehavior(gridId) {
     const tiles = GlobalGridStateTilesAndResources.getTiles();
     const resources = GlobalGridStateTilesAndResources.getResources();
-    const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId)?.npcs || {}); 
+    const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+    console.log('🐉 handleQuestGiver:  npcs = ', npcs);
 
     gridId = gridId || this.gridId; // Fallback to npc.gridId if not provided
 
@@ -50,7 +51,8 @@ async function handleQuestGiverBehavior(gridId) {
             await this.handleRoamState(tiles, resources, npcs, () => {
                 //console.log(`NPC ${this.id} transitioning back to idle.`);
                 this.state = 'idle'; // Transition to the idle state
-            });
+
+              });
             break;
           }
 

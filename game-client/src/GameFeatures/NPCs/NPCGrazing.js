@@ -20,7 +20,7 @@ async function handleFarmAnimalBehavior(gridId) {
     };
     const tiles = GlobalGridStateTilesAndResources.getTiles();
     const resources = GlobalGridStateTilesAndResources.getResources();
-    const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId)?.npcs || {}); 
+    const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {}); 
 
     gridId = gridId || this.gridId; // Fallback to npc.gridId if not provided
 
