@@ -32,7 +32,7 @@ class NPC {
     this.range = properties.range;
     this.action = properties.action; // High-level behavioral category (e.g., "graze")
     this.state = 'idle'; // Default state
-    this.speed = properties.speed;
+    this.speed = properties.speed; // Keep speed for combat stats, but do not use for movement animation
     this.growTime = properties.growtime || 0; // Time to fully graze
     this.processingStartTime = undefined;
     this.nextspawn = properties.nextspawn ?? (this.action === 'spawn' ? Date.now() + 5000 : null);
@@ -115,7 +115,6 @@ async processState(NPCsInGrid, gridId, TILE_SIZE) {
 // NPC -- SHARED BEHAVIORS //
 /////////////////////////////
 
-
 async handleIdleState(tiles, resources, npcs, idleDuration, onTransition = () => {}) {
   if (!this.idleTimer) this.idleTimer = 0;
   this.idleTimer++;
@@ -134,11 +133,9 @@ async handleIdleState(tiles, resources, npcs, idleDuration, onTransition = () =>
       const moved = await this.moveOneTile(randomDirection, tiles, resources, npcs);
       if (moved) console.log(`🚶 NPC ${this.id} moved in idle to (${this.position.x}, ${this.position.y})`);
     }
-
     onTransition(); // callback to re-evaluate state
     return true; // idle completed
   }
-
   console.log(`🐮 NPC ${this.id} is idling. Timer: ${this.idleTimer}/${idleDuration}`);
   return false; // still idling
 }
@@ -173,8 +170,6 @@ async handleRoamState(tiles, resources, npcs, onTransition = () => {}) {  // Ini
   })
   if (validDirections.length > 0) {
     const direction = validDirections[Math.floor(Math.random() * validDirections.length)];
-    console.log('direction:', direction);
-    console.log("npcs:", npcs);
     await this.moveOneTile(direction, tiles, resources, npcs);
     this.roamSteps++;
   } else {
@@ -192,9 +187,7 @@ async handleRoamState(tiles, resources, npcs, onTransition = () => {}) {  // Ini
 }
 
 async handlePursueState(playerPosition, tiles, resources, npcs, pcs, onAttackTransition) {
-  console.log(`🧠 handlePursueState | NPC ${this.id} at (${this.position.x}, ${this.position.y}) targeting (${playerPosition.x}, ${playerPosition.y})`);
-  console.log('handlePursueState: pcs:', pcs);
-  console.log('handlePursueState: npcs:', npcs);
+
   const dx = playerPosition.x - this.position.x;
   const dy = playerPosition.y - this.position.y;
 
@@ -214,12 +207,7 @@ async handlePursueState(playerPosition, tiles, resources, npcs, pcs, onAttackTra
   
   if (!direction) return;
 
-  console.log('About to call moveOneTile with direction:', direction);
-  const moved = await this.moveOneTile(direction, tiles, resources, npcs);
-  console.log(`🐾 Pursue movement for NPC ${this.id} — moved:`, moved, 'Current pos:', this.position);
-  if (moved) {
-    console.log(`📦 NPC ${this.id} completed pursue move to (${this.position.x}, ${this.position.y})`);
-  }
+  await this.moveOneTile(direction, tiles, resources, npcs);
 
   const distanceToPlayer = calculateDistance(this.position, playerPosition);
   console.log(`🎯 NPC ${this.id} distance to player: ${distanceToPlayer} | range: ${this.attackrange}`);
@@ -235,7 +223,6 @@ async handlePursueState(playerPosition, tiles, resources, npcs, pcs, onAttackTra
 
 async moveOneTile(direction, tiles, resources, npcs) {
 
-  console.log('REACHED moveOneTile; this.gridId:', this.gridId,'; npcs: ', npcs);
   if (this.action === 'spawn') {
     console.warn(`Spawner ${this.id} cannot move!`);
     return false; // ✅ Prevents spawners from moving at all
@@ -256,18 +243,16 @@ async moveOneTile(direction, tiles, resources, npcs) {
       console.error(`Invalid direction: ${direction}`);
       return false;
   }
-
   const targetX = Math.floor(this.position.x + delta.x);
   const targetY = Math.floor(this.position.y + delta.y);
 
-  console.log('calling isValidTile with targetX:', targetX, 'targetY:', targetY, 'npcs:', npcs);
   // Validate the tile before moving
   if (!this.isValidTile(targetX, targetY, tiles, resources, npcs)) {
       console.warn(`NPC ${this.id} cannot move to invalid tile (${targetX}, ${targetY}).`);
       return false;
   }
   console.log('Tile was valid.');
-  const moveDuration = this.speed; // Total time to move one tile (ms)
+  const moveDuration = 1000; // Standard movement speed for all NPCs
   const startTime = performance.now(); // Get the start time
   const startX = this.position.x;
   const startY = this.position.y;
@@ -276,12 +261,11 @@ async moveOneTile(direction, tiles, resources, npcs) {
       const step = () => {
           const currentTime = performance.now();
           const elapsedTime = currentTime - startTime;
-
+          
           if (elapsedTime >= moveDuration) {
               // Snap to the final position and resolve
               this.position.x = targetX;
               this.position.y = targetY;
-              console.log(`NPC ${this.id} completed move to (${this.position.x}, ${this.position.y}).`);
               if (socket && socket.connected) {
                 socket.emit('npc-moved', {
                   gridId: this.gridId,
@@ -297,9 +281,7 @@ async moveOneTile(direction, tiles, resources, npcs) {
           // Calculate the fractional progress
           const progress = elapsedTime / moveDuration;
           this.position.x = startX + progress * (targetX - startX);
-          // 🟡 Insert log for animation progress and position
           this.position.y = startY + progress * (targetY - startY);
-          console.log(`🔄 Animating NPC ${this.id} — progress: ${progress.toFixed(2)} | position: (${this.position.x.toFixed(2)}, ${this.position.y.toFixed(2)})`);
 
           // Request the next frame
           requestAnimationFrame(step);
@@ -379,7 +361,7 @@ isValidTile(x, y, tiles, resources, npcs) {
     if (resourceInTile) {
   
       if (!resourceInTile.passable) {
-        //console.warn(`Tile (${x}, ${y}) is occupied by an impassable resource.`);
+        console.warn(`Tile (${x}, ${y}) is occupied by an impassable resource.`);
         return false;
       }
     }

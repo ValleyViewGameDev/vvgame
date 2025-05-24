@@ -433,7 +433,6 @@ useEffect(() => {
       console.warn('No NPCs in NPCsInGrid for gridId:', gridId);
       return;
     }
-
     const isController = controllerUsername === currentPlayer?.username;
     //console.log("🧑‍🌾 NPC Controller Username =", controllerUsername, "; currentPlayer =", currentPlayer?.username, "; isController =", isController);
 
