@@ -157,7 +157,7 @@ export const handlePlayerDeath = async (
     setIsModalOpen(true);
 
     // ✅ Immediately update PlayersInGrid with restored HP
-    playersInGridManager.updatePC(currentGridId, player._id, { hp: 25 });
+    await playersInGridManager.updatePC(currentGridId, player._id, { hp: 25 });
 
     console.log(`Player ${player.username} teleported to home grid with 5 HP.`);
 
