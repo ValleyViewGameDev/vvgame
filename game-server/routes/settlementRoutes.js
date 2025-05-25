@@ -546,6 +546,26 @@ router.post('/cast-vote', async (req, res) => {
   }
 });
 
+router.get('/settlement/:id/taxlog', async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: 'Invalid settlement ID.' });
+  }
+
+  try {
+    const settlement = await Settlement.findById(id, 'taxlog').lean();
+    if (!settlement) {
+      return res.status(404).json({ error: 'Settlement not found.' });
+    }
+
+    res.status(200).json({ taxlog: settlement.taxlog || [] });
+  } catch (error) {
+    console.error('❌ Error fetching tax log:', error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
 
 ///////////
 ////// TRAIN ROUTES

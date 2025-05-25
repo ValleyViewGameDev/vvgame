@@ -7,11 +7,11 @@ import { calculateDistance } from './NPCHelpers';
 async function handleFarmAnimalBehavior(gridId) {
     // Helper for updating just this NPC
     const updateThisNPC = async () => {
-        console.log(`[SAVE] NPC ${this.id}:`, {
-            state: this.state,
-            grazeEnd: this.grazeEnd,
-            position: this.position,
-          });
+        // console.log(`[SAVE] NPC ${this.id}:`, {
+        //     state: this.state,
+        //     grazeEnd: this.grazeEnd,
+        //     position: this.position,
+        //   });
         await NPCsInGridManager.updateNPC(gridId, this.id, {
             state: this.state,
             grazeEnd: this.grazeEnd,
@@ -33,9 +33,9 @@ async function handleFarmAnimalBehavior(gridId) {
 
     switch (this.state) {
         case 'idle': {
-            console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
+//            console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
             const idleCompleted = await this.handleIdleState(tiles, resources, npcs, 4, async () => {
-              console.log(`🔁 Retrying stall for NPC ${this.id}`);
+//              console.log(`🔁 Retrying stall for NPC ${this.id}`);
               this.state = 'stall';
               await updateThisNPC();
             });
@@ -51,8 +51,7 @@ async function handleFarmAnimalBehavior(gridId) {
 
         case 'hungry': {
             //console.log(`NPC ${this.id} is in HUNGRY state.`);
-            console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
-            console.log('grazeEnd = ', this.grazeEnd);
+            console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state} grazeEnd: ${this.grazeEnd}`);
 
             const currentTime = Date.now();
             if (this.grazeEnd && currentTime >= this.grazeEnd) {
@@ -176,21 +175,20 @@ async function handleFarmAnimalBehavior(gridId) {
  
           
         case 'grazing': {
-            console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
-            console.log('grazeEnd = ', this.grazeEnd);
+            console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state} grazeEnd: ${this.grazeEnd}`);
             const currentTime = Date.now();
         
             console.log(`grazeEnd: ${this.grazeEnd}, growTime: ${this.growTime}, type: ${this.type}`);
 
             if (!this.grazeEnd) {
                 this.grazeEnd = currentTime + (this.growTime * 1000); // Calculate grazing end time
-                console.log('in state = grazing; setting grazeEnd: ',this.grazeEnd);
+                //console.log('in state = grazing; setting grazeEnd: ',this.grazeEnd);
                 await updateThisNPC();
             }
             
             // ✅ Check if grazing is complete
             if (currentTime >= this.grazeEnd) {
-                console.log(`🐄 NPC ${this.id} finished grazing. Moving to stall.`);
+                //console.log(`🐄 NPC ${this.id} finished grazing. Moving to stall.`);
                 // ✅ Transition to stall
                 this.state = 'stall';
                 await updateThisNPC();
@@ -200,8 +198,7 @@ async function handleFarmAnimalBehavior(gridId) {
 
 
             case 'stall': {
-                console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
-                console.log('grazeEnd = ', this.grazeEnd);
+                console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state} grazeEnd: ${this.grazeEnd}`);
                 const fullGridState = NPCsInGridManager.getNPCsInGrid(gridId);
         
                 // Step 1: If no stall is currently assigned, find the nearest available stall
@@ -295,14 +292,14 @@ async function handleFarmAnimalBehavior(gridId) {
             }
  
         case 'processing': {
-            console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
-            console.log('Awaiting handleNPCClick');
             // awaiting handleNPCClick
+            // console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
+            console.log('Awaiting handleNPCClick');
         break;
         }
 
         case 'emptystall': {
-            console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
+            // console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
             this.targetStall = null;
             this.state = 'roam'; // Transition to roam state
             await updateThisNPC(); // Save after transition
@@ -311,7 +308,7 @@ async function handleFarmAnimalBehavior(gridId) {
          
         case 'roam': {
 
-            console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
+            // console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
             await this.handleRoamState(tiles, resources, npcs, async () => {
                 // ✅ This is your onTransition logic
                 if (!this.grazeEnd) {

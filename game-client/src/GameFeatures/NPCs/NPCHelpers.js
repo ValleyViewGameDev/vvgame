@@ -64,21 +64,18 @@ export async function handleNPCClick(
         console.log(`🏠 Moving NPC ${npc.id} from town to home grid ${currentPlayer.gridId} at (1,7).`);
 
         // ✅ Remove NPC from current grid
-        const currentGrid = NPCsInGridManager.getNPCsInGrid(currentPlayer.location.g);
-        if (currentGrid?.npcs?.[npc.id]) {
-          delete currentGrid.npcs[npc.id];
-          NPCsInGridManager.saveGridStateNPCs(currentPlayer.location.g);
-          console.log(`✅ NPC ${npc.id} removed from town grid.`);
-        }
-        // ✅ Add NPC to home grid at (1,7)
-        const homeGrid = NPCsInGridManager.getNPCsInGrid(currentPlayer.gridId);
-        homeGrid.npcs[npc.id] = { 
-          ...npc, 
-          position: { x: 1, y: 7 },
-          state: 'idle'
-        };
-        NPCsInGridManager.saveGridStateNPCs(currentPlayer.gridId);
+        await NPCsInGridManager.removeNPC(currentPlayer.location.g, npc.id);
 
+        const relocatedNPC = {
+          ...npc,
+          position: { x: 1, y: 7 },
+          state: 'idle',
+          lastUpdated: Date.now(),
+        };
+
+        // You may want to rehydrate this as a true `NPC` instance,
+        // but since `addNPC` accepts plain objects with valid structure, this works:
+        await NPCsInGridManager.addNPC(currentPlayer.gridId, relocatedNPC);
         console.log(`✅ NPC ${npc.id} successfully placed in home grid.`);
         return { type: 'success', message: `NPC moved to your homestead.` };
       }

@@ -7,7 +7,7 @@ const ModalContext = createContext();
 export const useModalContext = () => useContext(ModalContext);
 
 // Provider to wrap the app
-export const ModalProvider = ({ children }) => {
+export const ModalProvider = ({ children, custom }) => {
   const [activeModal, setActiveModal] = useState(null);
 
   const openModal = (modalName) => {
@@ -22,6 +22,7 @@ export const ModalProvider = ({ children }) => {
   return (
     <ModalContext.Provider value={{ activeModal, setActiveModal, openModal, closeModal }}>
       {children}
+      {custom}
     </ModalContext.Provider>
   );
 };

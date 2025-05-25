@@ -267,6 +267,12 @@
     "5050": "TKTK",
     "5051": "TKTK",
 
+    "5100": "Recent Tax Collections",
+    "5101": "No tax collection history available yet.",
+    "5102": "🗓️ Date",
+    "5103": "💰 Total Collected",
+    "5104": "Mayor",
+    "5105": "💰 Mayor Take",
     "7000": "GOLD ACCOUNT STRINGS:",
 
     "7001": "Upgrade to Gold Status",
@@ -293,3 +299,4 @@
     "warehouseCapacity": "Warehouse Capacity"
 
   }
+

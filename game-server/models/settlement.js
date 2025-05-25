@@ -73,7 +73,14 @@ const SettlementSchema = new mongoose.Schema({
       qty: { type: Number, required: true },
     }
   ],
-
+  taxlog: [
+    {
+      date: { type: Date, required: true },
+      totalcollected: { type: Number, required: true },
+      currentmayor: { type: String, required: true },
+      mayortake: { type: Number, required: true },
+    }
+  ],
   population: { type: Number, default: 0 }, // ✅ Track settlement population
   creationDate: { type: Date, default: Date.now },
 });

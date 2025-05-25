@@ -307,6 +307,7 @@ const CraftingStation = ({
 
         GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
         console.log("🌎 GlobalGridStateTilesAndResources updated successfully!");
+        setResources(updatedGlobalResources);
 
         // ✅ Reset UI state
         setActiveTimer(false);

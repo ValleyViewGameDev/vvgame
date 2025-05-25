@@ -40,131 +40,131 @@ const DynamicRenderer = ({
   const npcElements = useRef(new Map());
   const pcElements = useRef(new Map());
 
-  // Function to handle NPC hover events for manually created elements
-  function addNPCHoverListeners(npcDiv, npc) {
-    npcDiv.addEventListener('mouseenter', (event) => {
-      const rect = npcDiv.getBoundingClientRect();
-      const x = rect.left + TILE_SIZE / 2;
-      const y = rect.top;
+  // // Function to handle NPC hover events for manually created elements
+  // function addNPCHoverListeners(npcDiv, npc) {
+  //   npcDiv.addEventListener('mouseenter', (event) => {
+  //     const rect = npcDiv.getBoundingClientRect();
+  //     const x = rect.left + TILE_SIZE / 2;
+  //     const y = rect.top;
 
-      let tooltipContent = `<p>${npc.type}</p>`;
+  //     let tooltipContent = `<p>${npc.type}</p>`;
 
-      switch (npc.action) {
-        case 'graze': {
-          switch (npc.state) {
-            case 'processing':
-              tooltipContent = `<p>${npc.type}</p><p>is ready.</p>`;
-              break;
-            case 'hungry':
-              tooltipContent = `<p>${npc.type}</p><p>is hungry and</p><p>looking for grass.</p>`;
-              break;
-            case 'grazing': {
-              let countdownText = "";
-              if (npc.grazeEnd) {
-                const remainingTime = Math.max(0, npc.grazeEnd - Date.now());
-                const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-                countdownText = `<p>${minutes}m ${seconds}s</p>`;
-              }
-              tooltipContent = `<p>${npc.type}</p><p>is grazing.</p>${countdownText}`;
-              break;
-            }
-            case 'idle':
-              tooltipContent = `<p>Zzzz...</p>`;
-              break;
-            case 'roam':
-              tooltipContent = `<p>${npc.type}</p><p>is roaming.</p>`;
-              break;
-            case 'stall':
-              tooltipContent = `<p>${npc.type}</p><p>is looking for an Animal Stall.</p>`;
-              break;
-            default:
-              tooltipContent = `<p>${npc.type}</p>`;
-              break;
-          }
-          break;
-        }
-        case 'quest':
-          tooltipContent = `<p>${npc.type}</p><p>Quest, anyone?</p>`;
-          break;
-        case 'attack':
-        case 'spawn':
-          tooltipContent = `<p>${npc.type}</p><p>HP: ${npc.hp}/${npc.maxhp}</p>`;
-          break;
-        default:
-          tooltipContent = `<p>${npc.type}</p>`;
-          break;
-      }
+  //     switch (npc.action) {
+  //       case 'graze': {
+  //         switch (npc.state) {
+  //           case 'processing':
+  //             tooltipContent = `<p>${npc.type}</p><p>is ready.</p>`;
+  //             break;
+  //           case 'hungry':
+  //             tooltipContent = `<p>${npc.type}</p><p>is hungry and</p><p>looking for grass.</p>`;
+  //             break;
+  //           case 'grazing': {
+  //             let countdownText = "";
+  //             if (npc.grazeEnd) {
+  //               const remainingTime = Math.max(0, npc.grazeEnd - Date.now());
+  //               const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+  //               const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+  //               countdownText = `<p>${minutes}m ${seconds}s</p>`;
+  //             }
+  //             tooltipContent = `<p>${npc.type}</p><p>is grazing.</p>${countdownText}`;
+  //             break;
+  //           }
+  //           case 'idle':
+  //             tooltipContent = `<p>Zzzz...</p>`;
+  //             break;
+  //           case 'roam':
+  //             tooltipContent = `<p>${npc.type}</p><p>is roaming.</p>`;
+  //             break;
+  //           case 'stall':
+  //             tooltipContent = `<p>${npc.type}</p><p>is looking for an Animal Stall.</p>`;
+  //             break;
+  //           default:
+  //             tooltipContent = `<p>${npc.type}</p>`;
+  //             break;
+  //         }
+  //         break;
+  //       }
+  //       case 'quest':
+  //         tooltipContent = `<p>${npc.type}</p><p>Quest, anyone?</p>`;
+  //         break;
+  //       case 'attack':
+  //       case 'spawn':
+  //         tooltipContent = `<p>${npc.type}</p><p>HP: ${npc.hp}/${npc.maxhp}</p>`;
+  //         break;
+  //       default:
+  //         tooltipContent = `<p>${npc.type}</p>`;
+  //         break;
+  //     }
 
-      hoveredEntityIdRef.current = npc.id;
-      setHoverTooltip({ x, y, content: tooltipContent });
-    });
+  //     hoveredEntityIdRef.current = npc.id;
+  //     setHoverTooltip({ x, y, content: tooltipContent });
+  //   });
 
-    npcDiv.addEventListener('mouseleave', () => {
-      if (hoveredEntityIdRef.current === npc.id) {
-        setHoverTooltip(null);
-        hoveredEntityIdRef.current = null;
-      }
-    });
-  }
+  //   npcDiv.addEventListener('mouseleave', () => {
+  //     if (hoveredEntityIdRef.current === npc.id) {
+  //       setHoverTooltip(null);
+  //       hoveredEntityIdRef.current = null;
+  //     }
+  //   });
+  // }
 
-  // Function to handle PC hover events for manually created elements
-  function addPCHoverListeners(pcDiv, pc) {
-    pcDiv.addEventListener('mouseenter', () => {
-      const rect = pcDiv.getBoundingClientRect();
-      const x = rect.left + TILE_SIZE / 2;
-      const y = rect.top;
+  // // Function to handle PC hover events for manually created elements
+  // function addPCHoverListeners(pcDiv, pc) {
+  //   pcDiv.addEventListener('mouseenter', () => {
+  //     const rect = pcDiv.getBoundingClientRect();
+  //     const x = rect.left + TILE_SIZE / 2;
+  //     const y = rect.top;
       
-      const username = pc.username || 'Anonymous';
-      let content = `<p>${username}</p><p>❤️‍🩹 HP: ${pc.hp}</p>`;
-      if (pc.iscamping) content += `<p>🏕️ Camping</p>`;
+  //     const username = pc.username || 'Anonymous';
+  //     let content = `<p>${username}</p><p>❤️‍🩹 HP: ${pc.hp}</p>`;
+  //     if (pc.iscamping) content += `<p>🏕️ Camping</p>`;
       
-      setHoverTooltip({ x, y, content });
-    });
+  //     setHoverTooltip({ x, y, content });
+  //   });
 
-    pcDiv.addEventListener('mouseleave', () => {
-      setHoverTooltip(null);
-    });
-  }
+  //   pcDiv.addEventListener('mouseleave', () => {
+  //     setHoverTooltip(null);
+  //   });
+  // }
 
-  // Function to handle NPC clicks for manually created elements
-  function addNPCClickListener(npcDiv, npc) {
-    npcDiv.addEventListener('click', () => {
-      setHoverTooltip(null); // Remove the tooltip before mousedown triggers click
-      const currentTime = Date.now();
-      if (npc.action === 'attack' || npc.action === 'spawn') {
-        if (currentTime < reloadRef.current) {
-          // Optionally visual feedback could be added here
-          return;
-        }
-        reloadRef.current = currentTime + (currentPlayer.speed * 1000); // Apply cooldown
-      }
-      if (npc.action === 'quest' || npc.action === 'heal') {
-        onNPCClick(npc); // Open quest/healing panel
-      } else {
-        handleNPCClick(
-          npc,
-          Math.round(npc.position.y),
-          Math.round(npc.position.x),
-          setInventory,
-          setResources,
-          currentPlayer,
-          TILE_SIZE,
-          masterResourcesRef.current,
-          currentPlayer?.location?.g
-        );
-      }
-    });
-  }
+  // // Function to handle NPC clicks for manually created elements
+  // function addNPCClickListener(npcDiv, npc) {
+  //   npcDiv.addEventListener('click', () => {
+  //     setHoverTooltip(null); // Remove the tooltip before mousedown triggers click
+  //     const currentTime = Date.now();
+  //     if (npc.action === 'attack' || npc.action === 'spawn') {
+  //       if (currentTime < reloadRef.current) {
+  //         // Optionally visual feedback could be added here
+  //         return;
+  //       }
+  //       reloadRef.current = currentTime + (currentPlayer.speed * 1000); // Apply cooldown
+  //     }
+  //     if (npc.action === 'quest' || npc.action === 'heal') {
+  //       onNPCClick(npc); // Open quest/healing panel
+  //     } else {
+  //       handleNPCClick(
+  //         npc,
+  //         Math.round(npc.position.y),
+  //         Math.round(npc.position.x),
+  //         setInventory,
+  //         setResources,
+  //         currentPlayer,
+  //         TILE_SIZE,
+  //         masterResourcesRef.current,
+  //         currentPlayer?.location?.g
+  //       );
+  //     }
+  //   });
+  // }
 
-  // Function to handle PC clicks for manually created elements
-  function addPCClickListener(pcDiv, pc) {
-    pcDiv.addEventListener('click', () => {
-      setHoverTooltip(null);
-      onPCClick(pc); // Open Social Panel
-      handlePCClick(pc, currentPlayer, currentPlayer.location.g, TILE_SIZE);
-    });
-  }
+  // // Function to handle PC clicks for manually created elements
+  // function addPCClickListener(pcDiv, pc) {
+  //   pcDiv.addEventListener('click', () => {
+  //     setHoverTooltip(null);
+  //     onPCClick(pc); // Open Social Panel
+  //     handlePCClick(pc, currentPlayer, currentPlayer.location.g, TILE_SIZE);
+  //   });
+  // }
 
   // Function to create or update NPC divs
   function renderNPCs() {

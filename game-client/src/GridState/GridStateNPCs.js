@@ -189,10 +189,11 @@ class GridStateManager {
    */
   async addNPC(gridId, npc) {
     console.log(`Adding NPC to NPCsInGrid for gridId: ${gridId}. NPC:`, npc);
-    const NPCsInGrid = this.NPCsInGrid[gridId];
+    let NPCsInGrid = this.NPCsInGrid[gridId];
     if (!NPCsInGrid) {
-      console.error(`Cannot add NPC. No NPCsInGrid found for gridId: ${gridId}`);
-      return;
+      console.warn(`⚠️ No NPCsInGrid found for gridId: ${gridId}. Initializing new entry.`);
+      NPCsInGrid = { npcs: {}, NPCsInGridLastUpdated: Date.now() };
+      this.NPCsInGrid[gridId] = NPCsInGrid;
     }
     if (!NPCsInGrid.npcs) NPCsInGrid.npcs = {};
 

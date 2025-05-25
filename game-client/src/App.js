@@ -1259,6 +1259,7 @@ return ( <>
         size={modalContent.size || "standard"}
       >
         {modalContent.children}
+        {modalContent.custom}
       </Modal>
 
       {activeModal === 'Mailbox' && (
@@ -1364,6 +1365,8 @@ return ( <>
           onClose={closePanel}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
+          setModalContent={setModalContent}
+          setIsModalOpen={setIsModalOpen}
         />
       )}
       {activePanel === 'Courthouse' && (

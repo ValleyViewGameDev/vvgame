@@ -2,7 +2,7 @@
 import React from 'react';
 import './Modal.css';
 
-function Modal({ isOpen = true, onClose, title, children, message, message2, size = "standard", className }) {
+function Modal({ isOpen = true, onClose, title, children, custom, message, message2, size = "standard", className }) {
   if (!isOpen) return null;
 
   return (
@@ -19,6 +19,7 @@ function Modal({ isOpen = true, onClose, title, children, message, message2, siz
           {message && <p className="modal-message">{message}</p>}
           {message2 && <p className="modal-message">{message2}</p>}
           {children}
+          {custom}
         </div>
       </div>
     </div>

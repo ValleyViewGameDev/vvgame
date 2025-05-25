@@ -105,6 +105,42 @@ const levyTax = async (frontierId) => {
       }
     }
 
+    // ✅ Step 7.5: Log tax event in each settlement
+    for (const settlement of settlements) {
+      const mayorRole = settlement.roles.find(role => role.roleName === "Mayor");
+      let currentmayor = "None";
+      let mayortake = 0;
+
+      if (mayorRole && mayorRole.playerId && mayorPayouts[mayorRole.playerId]) {
+        try {
+          const mayorPlayer = await Player.findById(mayorRole.playerId);
+          currentmayor = mayorPlayer?.username || "Unknown";
+          mayortake = mayorPayouts[mayorRole.playerId];
+        } catch (error) {
+          console.warn(`⚠️ Could not resolve mayor username for tax log:`, error);
+        }
+      }
+
+      const taxLogEntry = {
+        date: new Date(),
+        totalcollected: totalTaxCollected,
+        currentmayor,
+        mayortake,
+      };
+
+      await Settlement.updateOne(
+        { _id: settlement._id },
+        {
+          $push: {
+            taxlog: {
+              $each: [taxLogEntry],
+              $slice: -10
+            }
+          }
+        }
+      );
+    }
+
     // ✅ Step 8: Transition to "waiting" phase & schedule next tax collection
     const waitingPhaseDuration = tuningConfig.taxes.phases.waiting * 60 * 1000; // Convert min → ms
     const nextTaxTime = now + waitingPhaseDuration;
