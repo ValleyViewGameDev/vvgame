@@ -1155,7 +1155,7 @@
         "ingredient2qty": 1,
         "ingredient3": "Carrot",
         "ingredient3qty": 2,
-        "crafttime": 120,
+        "crafttime": 10,
         "totalnestedtime": 490
     },
     {
@@ -2405,7 +2405,7 @@
         "maxprice": 11.625768807829843,
         "ingredient1": "Money",
         "ingredient1qty": 300,
-        "crafttime": 43200,
+        "crafttime": 10,
         "totalnestedtime": 44700
     },
     {

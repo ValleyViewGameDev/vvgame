@@ -411,7 +411,7 @@ useEffect(() => {
 }, []);  // Only run once when the component mounts
 
 
-// FARM STATE - Farming Seed Timer & Crafting Timer Management //////////////////////////////////////////////////////
+// FARM STATE - Farming Seed Timer Management //////////////////////////////////////////////////////
 useEffect(() => {
   if (gridId) {
     farmState.initializeFarmState(resources); // ✅ Works for seeds

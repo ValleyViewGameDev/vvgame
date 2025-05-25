@@ -215,7 +215,9 @@ const CraftingStation = ({
         const gtype = currentPlayer.location.gtype;
         const isBackpack = ["town", "valley0", "valley1", "valley2", "valley3"].includes(gtype);
 
-        let targetInventory = isBackpack ? backpack : inventory;
+        let targetInventory = isBackpack
+          ? (Array.isArray(backpack) ? [...backpack] : [])
+          : (Array.isArray(inventory) ? [...inventory] : []);
         const setTargetInventory = isBackpack ? setBackpack : setInventory;
         const inventoryType = isBackpack ? "backpack" : "inventory";
         const craftedResource = allResources.find(res => res.type === craftedItem);
@@ -243,34 +245,32 @@ const CraftingStation = ({
               })
               .map((buff) => buff.type);
 
+          if (!masterSkills) {
+            console.warn("⚠️ masterSkills is undefined in handleCollect(). This may lead to missing skill bonuses.");
+          }
           const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
-              const buffData = masterSkills[buff];
-              const buffValue = buffData ? buffData[recipe.type] : 1;
-
-              if (buffValue) {
-                  console.log(`Buff "${buff}" applies to "${recipe.type}": Multiplier x${buffValue}`);
-                  return multiplier * buffValue;
-              }
-              return multiplier;
+            const buffData = masterSkills?.[buff];
+            const buffValue = buffData ? buffData[recipe.type] : 1;
+            return multiplier * buffValue;
           }, 1);
 
           console.log("Final Skill Multiplier:", skillMultiplier);
           const craftedQty = 1 * skillMultiplier;
           const updatedInventory = [...targetInventory];
           const itemIndex = updatedInventory.findIndex((item) => item.type === recipe.type);
-  
+
           if (itemIndex >= 0) {
               updatedInventory[itemIndex].quantity += craftedQty;
           } else {
               updatedInventory.push({ type: recipe.type, quantity: craftedQty });
           }
-  
+
           // ✅ Save updated inventory to DB
           await axios.post(`${API_BASE}/api/update-inventory`, {
               playerId: currentPlayer.playerId,
               [inventoryType]: updatedInventory,
           });
-  
+
           console.log(`📡 ${inventoryType} updated successfully!`);
           updateStatus(`Collected ${craftedQty}x ${recipe.type}.`);
 

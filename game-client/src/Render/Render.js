@@ -46,6 +46,14 @@ export function generateResourceTooltip(resource) {
 export const RenderGrid = memo(
   ({ grid, tileTypes, resources, handleTileClick, TILE_SIZE, setHoverTooltip }) => {
 
+    const [, forceTick] = useState(0);
+      useEffect(() => {
+        const interval = setInterval(() => {
+          forceTick(t => t + 1);
+        }, 1000);
+        return () => clearInterval(interval);
+      }, []);
+
     const hoverTimersRef = useRef({}); // ✅ Must be before any early return
 
     // Validation
@@ -54,14 +62,13 @@ export const RenderGrid = memo(
 
     const currentTime = Date.now();
 
-    // Identify crafting stations that are either ready (✔️) or in progress (⌛️)
     const craftingStatus = resources.reduce((acc, res) => {
       if (res.category === 'crafting' && res.craftEnd) {
         const key = `${res.x}-${res.y}`;
         if (res.craftEnd < currentTime) {
-          acc.ready.push(key); // ✔️ Ready to collect
+          acc.ready.push(key);
         } else {
-          acc.inProgress.push(key); // ⌛️ Still crafting
+          acc.inProgress.push(key);
         }
       }
       return acc;
