@@ -70,16 +70,13 @@ const ShopStation = ({
       try {
         const allResourcesData = await loadMasterResources();
         const filteredRecipes = allResourcesData.filter((resource) =>
-          resource.category === "power" &&
           resource.source === stationType &&
           (!currentPlayer.powers || !currentPlayer.powers.some(p => p.type === resource.type))
         );
         setRecipes(filteredRecipes);
-
         const stationResource = allResourcesData.find((resource) => resource.type === stationType);
         setStationEmoji(stationResource?.symbol || '🛖');
         setStationDetails(stationResource);
-
         setAllResources(allResourcesData || []);
       } catch (error) {
         console.error('Error loading resources:', error);
@@ -89,8 +86,7 @@ const ShopStation = ({
   }, [stationType, fetchTrigger]);
 
 
-
-  const handleTrade = async (recipe) => {
+  const handlePurchase = async (recipe) => {
     setErrorMessage('');
     if (!recipe) { setErrorMessage('Invalid recipe selected.'); return; }
     if (!canAfford(recipe, inventory, 1)) { updateStatus(4); return; }
@@ -98,9 +94,7 @@ const ShopStation = ({
     const updatedInventory = [...inventory];
     const success = checkAndDeductIngredients(recipe, updatedInventory, setErrorMessage);
     if (!success) return;
-
     const tradedQty = 1;
-
     // ✅ Save updated inventory to DB
     await axios.post(`${API_BASE}/api/update-inventory`, {
       playerId: currentPlayer.playerId,
@@ -117,17 +111,14 @@ const ShopStation = ({
       } else {
         updatedPowers.push({ type: recipe.type, quantity: tradedQty });
       }
-
       await axios.post(`${API_BASE}/api/update-powers`, {
         playerId: currentPlayer.playerId,
         powers: updatedPowers,
       });
-
       setCurrentPlayer(prev => ({
         ...prev,
         powers: updatedPowers,
       }));
-
       if (recipe.output && typeof recipe.qtycollected === 'number') {
         const gridPlayer = playersInGridManager.getAllPCs(gridId)?.[currentPlayer.playerId];
         if (gridPlayer) {
@@ -157,13 +148,12 @@ const ShopStation = ({
     <Panel onClose={onClose} descriptionKey="1025" titleKey="1125" panelName="ShopStation">
       <div className="standard-panel">
         <h2> {stationEmoji} {stationType} </h2>
-        {/* ✅ Conditional text for Store-type stations */}
-        {stationType === "Store" && (
-          <p style={{ fontWeight: "bold", color: "#4CAF50" }}>
-            🏕️ To use a purchased tent, click on your own player icon.
-          </p>
-        )}
-        
+          {/* ✅ Conditional TENT text for the Store */}
+          {stationType === "Store" && (
+            <p style={{ fontWeight: "bold", color: "#4CAF50" }}>
+              {strings["410"]}
+            </p>
+          )}
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
               const ingredients = getIngredientDetails(recipe, allResources || []);
@@ -184,8 +174,7 @@ const ShopStation = ({
                       <strong>{outputSummary}</strong>
                     </div>
                   )}
-
-                  <div><strong>Base Value:</strong> 💰 {recipe.minprice || 'n/a'}</div>
+                  <div><strong>{strings[422]}</strong> 💰 {recipe.minprice || 'n/a'}</div>
                 </div>
               );
               
@@ -198,12 +187,12 @@ const ShopStation = ({
                 details={details}
                 info={info} 
                 disabled={!affordable || !meetsRequirement}
-                onClick={() => handleTrade(recipe)} // ✅ Now instantly trades
+                onClick={() => handlePurchase(recipe)} // ✅ Now instantly trades
                 >
                 </ResourceButton>
               );
             })
-          ) : <p>No trades available.</p>}
+          ) : <p>{strings[423]}</p>}
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 

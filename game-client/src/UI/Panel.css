@@ -122,6 +122,18 @@
   transform: scale(1.05);
 }
 
+/* Half-width button (used for inline button rows) */
+.panel-buttons button.btn-half {
+  width: 40% !important;
+  max-width: 120px;
+  flex-shrink: 0;
+}
+
+.panel-buttons .btn-half:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
 
 /* Panel Description */
 

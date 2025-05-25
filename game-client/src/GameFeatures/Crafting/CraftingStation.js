@@ -13,6 +13,7 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { createCollectEffect } from '../../VFX/VFX';
+import strings from '../../UI/strings';
 
 const CraftingStation = ({
   onClose,
@@ -398,13 +399,6 @@ const CraftingStation = ({
     <Panel onClose={onClose} descriptionKey="1009" titleKey="1109" panelName="CraftingStation">
       <div className="standard-panel">
         <h2> {stationEmoji} {stationType} </h2>
-
-        {/* ✅ Conditional text for Store-type stations */}
-        {stationType === "Store" && (
-          <p style={{ fontWeight: "bold", color: "#4CAF50" }}>
-            🏕️ To use a purchased tent, click on your own player icon.
-          </p>
-        )}
         
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
@@ -448,7 +442,7 @@ const CraftingStation = ({
                       .map((res) => `${res.symbol || ''} ${res.type}`)
                       .join(', ') || 'None'}
                   </div>
-                  <div><strong>Base Value:</strong> 💰 {recipe.minprice || 'n/a'}</div>
+                  <div><strong>{strings[422]}</strong> 💰 {recipe.minprice || 'n/a'}</div>
                 </div>
               );
               
@@ -457,26 +451,16 @@ const CraftingStation = ({
                 key={recipe.type}
                 symbol={recipe.symbol}
                 name={recipe.type}
-                className={`resource-button ${
-                  isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''
-                }`}                           
-                details={`Costs: ${ingredients.join(', ') || 'None'}
-                  ${recipe.requires ? `<br>Requires: ${recipe.requires}` : ''}
-                  ${craftTimeText}`
-                } //
+                className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''}`}                           
+                details={`Costs: ${ingredients.join(', ') || 'None'} ${recipe.requires ? `<br>Requires: ${recipe.requires}` : ''} ${craftTimeText}` } 
                 info={info} 
                 disabled={!isReadyToCollect && (craftedItem !== null || !affordable || !requirementsMet)}
-                onClick={() =>
-                  isReadyToCollect ? handleCollect(recipe) : handleCraft(recipe)
-                }
-              >
-
-
-              </ResourceButton>
-
+                onClick={() => isReadyToCollect ? handleCollect(recipe) : handleCraft(recipe) }
+                >
+                </ResourceButton>
               );
             })
-          ) : <p>No recipes available.</p>}
+          ) : <p>{strings[424]}</p>}
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
@@ -484,7 +468,7 @@ const CraftingStation = ({
           <>
             <hr />
             <button className="panel-shared-button" onClick={handleSellStation}>
-              Sell for Refund
+              {strings[425]}
             </button>
           </>
         )}

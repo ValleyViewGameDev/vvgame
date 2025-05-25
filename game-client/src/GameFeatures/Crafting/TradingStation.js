@@ -11,6 +11,7 @@ import { StatusBarContext } from '../../UI/StatusBar';
 import { loadMasterResources, loadMasterSkills } from '../../Utils/TuningManager';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
+import strings from '../../UI/strings';
 
 const TradingStation = ({
   onClose,
@@ -139,18 +140,13 @@ const TradingStation = ({
     updateStatus(`✅ Exchanged ${recipe.ingredient1} for ${recipe.type}.`);
   };
 
+   
 
   return (
     <Panel onClose={onClose} descriptionKey="1016" titleKey="1116" panelName="TradingStation">
       <div className="standard-panel">
         <h2> {stationEmoji} {stationType} </h2>
-        <h3>is offering theses items:</h3>
-        {/* ✅ Conditional text for Store-type stations */}
-        {stationType === "Store" && (
-          <p style={{ fontWeight: "bold", color: "#4CAF50" }}>
-            🏕️ To use a purchased tent, click on your own player icon.
-          </p>
-        )}
+        <h3>{strings[420]}</h3>
         
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
@@ -159,7 +155,7 @@ const TradingStation = ({
               const info = (
                 <div className="info-content">
                   <div>
-                    <strong>Used In:</strong>{' '}
+                    <strong>{strings[421]}</strong>{' '}
                     {allResources
                       .filter((res) =>
                         [res.ingredient1, res.ingredient2, res.ingredient3, res.ingredient4].includes(recipe.type)
@@ -167,7 +163,7 @@ const TradingStation = ({
                       .map((res) => `${res.symbol || ''} ${res.type}`)
                       .join(', ') || 'None'}
                   </div>
-                  <div><strong>Base Value:</strong> 💰 {recipe.minprice || 'n/a'}</div>
+                  <div><strong>{strings[422]}</strong> 💰 {recipe.minprice || 'n/a'}</div>
                 </div>
               );
               
@@ -185,7 +181,7 @@ const TradingStation = ({
                 </ResourceButton>
               );
             })
-          ) : <p>No trades available.</p>}
+          ) : <p>{strings[423]}</p>}
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 

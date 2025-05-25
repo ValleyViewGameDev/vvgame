@@ -154,8 +154,12 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
         <h3>{strings["3003"]} {taxRate}%</h3>
         <p>{strings["3004"]}</p>
         <p>{strings["3005"]}</p>
-        <button onClick={handleShowTaxLog}>View Tax Log</button>
-
+        <div className="panel-buttons">
+          <button className="btn-success" onClick={handleShowTaxLog}>
+            {strings[3020]}
+          </button>
+        </div>
+        
         {/* Government Officials Section */}
         <h3>{strings["3006"]}</h3>
         <div>

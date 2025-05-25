@@ -6,8 +6,23 @@ import { StatusBarContext } from '../../UI/StatusBar';
 import './Courthouse.css';
 import '../../UI/Panel.css';
 import strings from '../../UI/strings.json';
+import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 
 const CourthousePanel = ({ onClose, currentPlayer }) => {
+    // Community Buildings counts
+    const resources = GlobalGridStateTilesAndResources.getResources() || [];
+    const buildingCounts = {
+        School: 0,
+        Hospital: 0,
+        AnimalYard: 0,
+        Library: 0
+    };
+    resources.forEach(res => {
+        if (res.type === 'School') buildingCounts.School++;
+        if (res.type === 'Hospital') buildingCounts.Hospital++;
+        if (res.type === 'Animal Yard') buildingCounts.AnimalYard++;
+        if (res.type === 'Library') buildingCounts.Library++;
+    });
     const [settlement, setSettlement] = useState(null);
     const [taxRate, setTaxRate] = useState(0);
     const [isMayor, setIsMayor] = useState(false);
@@ -229,49 +244,73 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
         <Panel onClose={onClose} descriptionKey="1012" titleKey="1112" panelName="Courthouse">
             <div className="panel-content courthouse-panel">       
                 <div className="debug-buttons">
-                    <h1> {isMayor && ( <p>Welcome, Mayor.</p> )} </h1>
-
+                    {isMayor ? (
+                        <h1>{strings[2080]}</h1>
+                    ) : (
+                        <h2>{strings[2079]}</h2>
+                    )}
+                    
 {/* Settlement name section */}
-
-                    <h2>Your Settlement:</h2>
+                    <h3>{strings[2082]}</h3>
                     {isMayor ? (
                         <div className="settlement-name-editor">
                             <input
                                 type="text"
                                 value={tempSettlementName}
                                 onChange={(e) => setTempSettlementName(e.target.value)}
-                                placeholder="Enter settlement name..."
+                                placeholder={strings[2081]}
                             />
                             <button 
                                 className="btn-success" 
                                 onClick={handleSaveSettlementName}
                                 disabled={!tempSettlementName.trim()}
                             >
-                                Update Name
+                                {strings[2083]}
                             </button>
                         </div>
                     ) : (
                         <h2>{settlement?.displayName || 'Unnamed'}</h2>
                     )}
-
-{/* Tax rate section */}
-
-                    <h2>💰 Tax Rate: {taxRate}%</h2>
+ 
+{/* TAX RATE section */} 
+ 
+                    <h3>{strings[2041]} {taxRate}%</h3>
                     {isMayor && (
                         <div className="tax-rate-editor">
                             <input
                                 type="range" min="0" max="20" value={tempTaxRate}
                                 onChange={(e) => setTempTaxRate(Number(e.target.value))}
                             />
-                            <p>Proposed Tax Rate: {tempTaxRate}%</p>
-                            <button className="btn-success" onClick={handleSaveTaxRate}>
-                                Update Tax Rate
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+                            <span style={{ flex: 1 }}>{strings[2042]} {tempTaxRate}%</span>
+                            <button
+                                className="btn-success"
+                                onClick={handleSaveTaxRate}
+                                style={{
+                                width: 'auto',
+                                maxWidth: '100px',
+                                padding: '6px 10px',
+                                fontSize: '12px',
+                                flexShrink: 0
+                                }}
+                            >
+                                {strings["2043"]}
                             </button>
+                            </div>
                         </div>
                     )}
 
+{/* COMMUNITY BUILDINGS section */}
+                    <h3>{strings["2090"]}</h3>
+                    <p>{buildingCounts.School > 0 ? `${strings["2092"]}${buildingCounts.School}` : strings["2093"]}</p>
+                    <p>{buildingCounts.Hospital > 0 ? `${strings["2094"]}${buildingCounts.Hospital}` : strings["2095"]}</p>
+                    <p>{buildingCounts.AnimalYard > 0 ? `${strings["2096"]}${buildingCounts.AnimalYard}` : strings["2097"]}</p>
+                    <p>{buildingCounts.Library > 0 ? `${strings["2098"]}${buildingCounts.Library}` : strings["2099"]}</p>
+
+{/* ELECTIONS section */} 
+
                     <br></br>
-                    <h2>{strings["2045"]}</h2>
+                    <h3>{strings[2045]}</h3>
                     <p><strong>
                         {electionPhase === "Counting" && strings["2062"]}
                         {electionPhase === "Voting" && strings["2061"]}
@@ -284,7 +323,7 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
 
                     {electionPhase === "Campaigning" && (
                         <>
-                            <h3>📢 Campaign Promises</h3>
+                            <h3>{strings[2048]}</h3>
                             
                             {/* ✅ Scrollable List of Promises */}
                             <div className="campaign-promises">
@@ -295,7 +334,7 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
                                         </div>
                                     ))
                                 ) : (
-                                    <p>No one has made a campaign promise yet.</p>
+                                    <p>{strings[2071]}</p>
                                 )}
                             </div>
 
@@ -305,7 +344,7 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
                                     <textarea
                                         value={newPromise}
                                         onChange={(e) => setNewPromise(e.target.value)}
-                                        placeholder="Enter your campaign promise (max 200 characters)..."
+                                        placeholder={strings[2072]}
                                     />
                                     <button className="btn-success" onClick={handleAddCampaignPromise}>Submit Campaign Promise</button>
                                 </>
@@ -318,7 +357,7 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
                     {electionPhase === 'Voting' && (
                         <div className="voting-section">
                             {hasVoted ? (
-                                <p>You have already voted.</p>
+                                <p>{strings[2077]}</p>
                             ) : candidateList.length > 0 ? (
                                 <>
                                     <h3>Cast Your Vote</h3>
@@ -351,7 +390,7 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
                                         onClick={handleVote} 
                                         disabled={!selectedCandidate}
                                     >
-                                        Cast Your Vote
+                                        {strings[2074]}
                                     </button>
 
                                     {/* Tooltip */}
@@ -363,13 +402,13 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
                                                 top: tooltipPosition.y,
                                             }}
                                         >
-                                            <strong>Campaign promise:</strong><br />
+                                            <strong>{strings[2076]}</strong><br />
                                             "{getCandidatePromise(hoveredCandidate)}"
                                         </div>
                                     )}
                                 </>
                             ) : (
-                                <p>There were no candidates.</p>
+                                <p>{strings[2078]}</p>
                             )}
                         </div>
                     )}

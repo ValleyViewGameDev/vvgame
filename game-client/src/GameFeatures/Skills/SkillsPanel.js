@@ -111,7 +111,6 @@ const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stat
       setErrorMessage('Not enough resources to purchase this item.');
       return;
     }
-
     const updatedInventory = [...inventory];
     const updatedSkills = [...ownedSkills];
     const updatedUpgrades = [...ownedUpgrades];
