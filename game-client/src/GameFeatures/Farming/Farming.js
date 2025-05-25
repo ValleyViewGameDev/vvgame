@@ -2,7 +2,7 @@ import API_BASE from '../../config';
 import axios from 'axios';
 import { addResourceToGrid } from '../../Utils/worldHelpers';
 import { convertTileType, updateGridResource } from '../../Utils/GridManagement';
-import { validateTileType } from '../../Utils/ResourceHelpers';
+import { validateTileType, enrichResourceFromMaster } from '../../Utils/ResourceHelpers';
 import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients } from '../../Utils/InventoryManagement';
 import FloatingTextManager from '../../UI/FloatingText';
 import farmState from '../../FarmState';
@@ -14,6 +14,7 @@ export const handleFarmPlotPlacement = async ({
   selectedItem,
   TILE_SIZE,
   resources,
+  setResources,
   currentPlayer,
   inventory,
   setInventory,
@@ -58,22 +59,23 @@ export const handleFarmPlotPlacement = async ({
     const growEndTime = Date.now() + (selectedItem.growtime || 0) * 1000;
 
     // Lookup from masterResources for enrichment
-    const resourceTemplate = masterResources.find((r) => r.type === selectedItem.type);
-
-    const enrichedNewResource = {
-      ...resourceTemplate,
-      type: selectedItem.type,
-      x: tileX,
-      y: tileY,
-      growEnd: growEndTime,
-      symbol: resourceTemplate?.symbol || '🌱',
-      category: resourceTemplate?.category || 'seed',
-      qtycollected: resourceTemplate?.qtycollected || 1,
-    };
+    console.log("🌱 Attempting to plant:", selectedItem.type, "at", tileX, tileY);
+    const enrichedNewResource = enrichResourceFromMaster(
+      {
+        type: selectedItem.type,
+        x: tileX,
+        y: tileY,
+        growEnd: growEndTime,
+      },
+      masterResources
+    );
+    console.log("🌾 Enriched resource before setResources:", enrichedNewResource);
 
     // Optimistically update local client state
     const existing = GlobalGridStateTilesAndResources.getResources() || [];
     GlobalGridStateTilesAndResources.setResources([...existing, enrichedNewResource]);
+    console.log("🧪 Global resources after planting:", GlobalGridStateTilesAndResources.getResources());
+    setResources([...existing, enrichedNewResource]);
 
     // Update server and all clients
     const gridUpdateResponse = await updateGridResource(
@@ -140,5 +142,3 @@ export const handleTerraform = async ({ actionType, gridId, currentPlayer, setTi
   // Call convertTileType to update the tile in the database and emit the change
   await convertTileType(gridId, tileX, tileY, newType, setTileTypes);
 };
-
-

@@ -11,7 +11,7 @@ import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 const BuildPanel = ({
   TILE_SIZE,
   resources,
-  tiles,
+  setResources,
   currentPlayer,
   setCurrentPlayer,
   gridId,
@@ -101,6 +101,7 @@ const BuildPanel = ({
                   inventory,
                   setInventory,
                   resources,
+                  setResources,
                   setErrorMessage: console.error, // Replace with real error handling if needed
                   currentPlayer,
                   setCurrentPlayer,

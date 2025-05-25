@@ -19,14 +19,15 @@ export const updateGridResource = async (
     const { x, y, growEnd, craftEnd, craftedItem, type } = resource;
     
     // ✅ 1. Optimistically update GlobalGridStateTilesAndResources
-    const prevResources = GlobalGridStateTilesAndResources.getResources();
-    let updatedResources;
-    if (resource?.type === null) {
-      updatedResources = prevResources.filter((r) => !(r.x === x && r.y === y));
-    } else {
-      updatedResources = mergeResources(prevResources, [resource]);
-    }
-    GlobalGridStateTilesAndResources.setResources(updatedResources);
+    // const prevResources = GlobalGridStateTilesAndResources.getResources();
+    // console.log('prevResources = ', prevResources);
+    // let updatedResources;
+    // if (resource?.type === null) {
+    //   updatedResources = prevResources.filter((r) => !(r.x === x && r.y === y));
+    // } else {
+    //   updatedResources = mergeResources(prevResources, [resource]);
+    // }
+    // GlobalGridStateTilesAndResources.setResources(updatedResources);
 
     // ✅ 2. Flat payload — no "newResource" key
     const payload = {
@@ -48,9 +49,6 @@ export const updateGridResource = async (
 
     // ✅ 4. Emit to other clients
     if (broadcast && socket && socket.emit) {
-      console.log("📡 Emitting update-tile-resource from updateGridResource:");
-      console.log("GridId:", gridId);
-      console.log("Resource:", resource);
 
       socket.emit('update-resource', {
         gridId,

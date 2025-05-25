@@ -12,7 +12,7 @@ import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
-
+import { createCollectEffect } from '../../VFX/VFX';
 
 const CraftingStation = ({
   onClose,
@@ -326,7 +326,7 @@ const CraftingStation = ({
       setErrorMessage('Invalid inventory data.');
       return;
     }
-  
+
     const updatedInventory = [...inventory];
     const ingredients = [];
     for (let i = 1; i <= 3; i++) {
@@ -336,9 +336,9 @@ const CraftingStation = ({
         ingredients.push({ type: ingredientType, quantity: ingredientQty });
       }
     }
-  
+
     if (!ingredients.length) { console.error('No ingredients found for refund.'); return; }
-  
+
     try {
       ingredients.forEach(({ type, quantity }) => {
         const index = updatedInventory.findIndex((item) => item.type === type);
@@ -348,15 +348,13 @@ const CraftingStation = ({
           updatedInventory.push({ type, quantity });
         }
       });
-  
+
       await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         inventory: updatedInventory,
       });
-  
-      // REMOVING THE CRAFTING STATION FROM THE GRID
 
-      // HERE WE NEED TO CONSTRUCT THE PAYLOAD FIRST, THEN JUST SEND THE NEW RESOURCE OBJECT
+      // REMOVING THE CRAFTING STATION FROM THE GRID
       await updateGridResource(
         gridId, 
         {
@@ -367,11 +365,24 @@ const CraftingStation = ({
         setResources,
         true
       );
-  
+
+      // 🧹 Remove the station resource from global and React state
+      const filteredResources = GlobalGridStateTilesAndResources.getResources().filter(
+        (res) => !(res.x === currentStationPosition.x && res.y === currentStationPosition.y)
+      );
+      GlobalGridStateTilesAndResources.setResources(filteredResources);
+      // Insert log before setResources
+      console.log("🔁 Reactively removing station via setResources.");
+      setResources(prev => prev.filter(
+        (res) => !(res.x === currentStationPosition.x && res.y === currentStationPosition.y)
+      ));
+      console.log("🧹 Station resource removed from global and React state.");
+      createCollectEffect(currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+
       setInventory(updatedInventory);
       localStorage.setItem('inventory', JSON.stringify(updatedInventory));
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-  
+
       console.log(`Sold ${stationType} successfully.`);
       updateStatus(6);
       onClose();

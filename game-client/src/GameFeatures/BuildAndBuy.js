@@ -7,7 +7,8 @@ import FloatingTextManager from '../UI/FloatingText';
 import { trackQuestProgress } from './Quests/QuestGoalTracker';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
-import { getCurrentTileCoordinates } from '../Utils/ResourceHelpers';
+import { getCurrentTileCoordinates, enrichResourceFromMaster } from '../Utils/ResourceHelpers';
+import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 
 export const handleConstruction = async ({
   TILE_SIZE,
@@ -16,6 +17,7 @@ export const handleConstruction = async ({
   inventory,
   setInventory,
   resources,
+  setResources,
   setErrorMessage,
   currentPlayer,
   setCurrentPlayer,
@@ -93,25 +95,34 @@ export const handleConstruction = async ({
     // Spawning NPC directly at player’s tile coordinates
     NPCsInGridManager.spawnNPC(gridId, selectedResource, playerPosition);
     console.log('Spawned NPC:', gridId, selectedResource, playerPosition);
-
     // Track quest progress for "Buy" actions
     await trackQuestProgress(currentPlayer, 'Buy', selectedResource.type, 1, setCurrentPlayer);
-  } else {
 
-    console.log('Placing resource on the grid:', selectedItem); 
+  } else {
+    console.log('Placing resource on the grid:', selectedItem);
+    const debugBefore = resources.find(res => res.x === x && res.y === y);
+    console.log('🔍 Existing resource at location before setResources:', debugBefore);
+
+    const rawResource = { type: selectedItem, x, y };
+    const enriched = enrichResourceFromMaster(rawResource, buildOptions); // buildOptions contains masterResources
+    const merged = [...resources, enriched];
+
+    console.log('📦 Forcing Global and local resource update with:', enriched);
+    GlobalGridStateTilesAndResources.setResources(merged);
+    setResources(merged); // still triggers React re-render
+
+    console.log('🧪 setResources was called to update client state.');
+    
     try {
-      // Update the grid on the server
       const gridUpdateResponse = await updateGridResource(
         gridId, 
-        { type: selectedItem, x: x, y: y}, 
+        rawResource, 
         true
       );
       FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
 
-      // Track quest progress for "Build or Buy" actions
       await trackQuestProgress(currentPlayer, 'Build', selectedItem, 1, setCurrentPlayer);
       await trackQuestProgress(currentPlayer, 'Buy', selectedItem, 1, setCurrentPlayer);
-
     } catch (error) {
       console.error('Error placing resource on grid:', error);
       setErrorMessage('Failed to place resource on grid.');

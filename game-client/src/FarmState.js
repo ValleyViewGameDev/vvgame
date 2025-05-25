@@ -65,6 +65,18 @@ class FarmState {
 
             if (response?.success) {
               console.log(`Seed at (${seed.x}, ${seed.y}) converted to doober.`);
+              
+              const enriched = {
+                ...newCrop,
+                x: seed.x,
+                y: seed.y
+              };
+
+              setResources(prev => {
+                const filtered = prev.filter(r => !(r.x === seed.x && r.y === seed.y));
+                return [...filtered, enriched];
+              });
+              
               } else {
                 console.warn(`Failed to update grid resource for seed at (${seed.x}, ${seed.y}).`);
               }

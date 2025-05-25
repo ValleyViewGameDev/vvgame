@@ -8,6 +8,7 @@ import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManageme
 import { StatusBarContext } from '../../UI/StatusBar';
 import { loadMasterResources } from '../../Utils/TuningManager';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
+import { createCollectEffect } from '../../VFX/VFX';
 
 const AnimalStall = ({
   onClose,
@@ -19,6 +20,7 @@ const AnimalStall = ({
   stationType,
   currentStationPosition,
   gridId,
+  TILE_SIZE,
 }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [stallDetails, setStallDetails] = useState(null);
@@ -116,6 +118,12 @@ const AnimalStall = ({
         setResources,
         true
       );
+  
+      setResources(prevResources => 
+        prevResources.filter(res => !(res.x === currentStationPosition.x && res.y === currentStationPosition.y))
+      );
+      console.log("🧹 AnimalStall resource removed from client state.");
+      createCollectEffect(currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
   
       setInventory(updatedInventory);
       localStorage.setItem('inventory', JSON.stringify(updatedInventory));

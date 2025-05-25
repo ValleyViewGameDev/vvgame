@@ -1462,6 +1462,7 @@ return ( <>
           inventory={inventory}
           setInventory={setInventory}
           resources={resources}
+          setResources={setResources}
           tiles={grid}
           tileTypes={tileTypes}
           setTileTypes={setTileTypes}
@@ -1480,7 +1481,7 @@ return ( <>
           inventory={inventory}
           setInventory={setInventory}
           resources={resources}
-          tiles={grid}
+          setResources={setResources}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setIsMoving={setIsMoving}
@@ -1499,7 +1500,6 @@ return ( <>
           playerPosition={playerPosition}
           resources={resources}
           setResources={setResources}
-          tiles={grid}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setIsMoving={setIsMoving}
@@ -1543,6 +1543,7 @@ return ( <>
           stationType={activeStation?.type} 
           currentStationPosition={activeStation?.position} 
           gridId={activeStation?.gridId} 
+          TILE_SIZE={activeTileSize}
         />
       )}
       {activePanel === 'TradeStall' && (

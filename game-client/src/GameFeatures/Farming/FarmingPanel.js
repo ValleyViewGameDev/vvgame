@@ -13,6 +13,7 @@ import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 const FarmingPanel = ({
   TILE_SIZE,
   resources,
+  setResources,
   tiles,
   tileTypes,
   setTileTypes,
@@ -81,6 +82,7 @@ const handleFarmPlacementWithCooldown = async (item) => {
     selectedItem: item,
     TILE_SIZE,
     resources,
+    setResources,
     currentPlayer,
     inventory,
     setInventory,

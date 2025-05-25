@@ -110,7 +110,7 @@ export function mergeTiles(existingTiles, updatedTiles) {
 
 
 export function enrichResourceFromMaster(raw, masterResources) {
-
+// Used by socket listeners to enrich raw resource data with template details
   const template = masterResources.find(r => r.type === raw.type);  
   if (!template) {
     console.warn(`⚠️ No matching resource template found for ${raw.type}`);
