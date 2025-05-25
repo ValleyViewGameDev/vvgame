@@ -452,7 +452,7 @@ const CraftingStation = ({
                 symbol={recipe.symbol}
                 name={recipe.type}
                 className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''}`}                           
-                details={`Costs: ${ingredients.join(', ') || 'None'} ${recipe.requires ? `<br>Requires: ${recipe.requires}<br>` : ''} ${craftTimeText}` } 
+                details={`Costs: ${ingredients.join(', ') || 'None'} ${recipe.requires ? `<br>Requires: ${recipe.requires}` : ''} <br>${craftTimeText}` } 
                 info={info} 
                 disabled={!isReadyToCollect && (craftedItem !== null || !affordable || !requirementsMet)}
                 onClick={() => isReadyToCollect ? handleCollect(recipe) : handleCraft(recipe) }
