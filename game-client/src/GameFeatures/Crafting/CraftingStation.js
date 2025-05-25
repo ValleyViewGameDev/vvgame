@@ -434,7 +434,7 @@ const CraftingStation = ({
               const info = (
                 <div className="info-content">
                   <div>
-                    <strong>Used In:</strong>{' '}
+                    <strong>{strings[421]}</strong>{' '}
                     {allResources
                       .filter((res) =>
                         [res.ingredient1, res.ingredient2, res.ingredient3, res.ingredient4].includes(recipe.type)
@@ -452,7 +452,7 @@ const CraftingStation = ({
                 symbol={recipe.symbol}
                 name={recipe.type}
                 className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''}`}                           
-                details={`Costs: ${ingredients.join(', ') || 'None'} ${recipe.requires ? `<br>Requires: ${recipe.requires}` : ''} ${craftTimeText}` } 
+                details={`Costs: ${ingredients.join(', ') || 'None'} ${recipe.requires ? `<br>Requires: ${recipe.requires}<br>` : ''} ${craftTimeText}` } 
                 info={info} 
                 disabled={!isReadyToCollect && (craftedItem !== null || !affordable || !requirementsMet)}
                 onClick={() => isReadyToCollect ? handleCollect(recipe) : handleCraft(recipe) }
