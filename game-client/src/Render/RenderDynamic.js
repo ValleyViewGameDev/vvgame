@@ -21,7 +21,8 @@ const DynamicRenderer = ({
   onPCClick,  // This is needed for the Social Panel
   masterResources,
   setHoverTooltip, 
-
+  setModalContent,
+  setIsModalOpen
 }) => {
   const NPCsInGrid = useGridState(); // Use the updated NPCsInGrid from context
   const playersInGrid = usePlayersInGrid(); // Access PCs via modern PC-specific context
@@ -216,7 +217,9 @@ const DynamicRenderer = ({
               currentPlayer,
               TILE_SIZE,
               masterResourcesRef.current,
-              currentPlayer?.location?.g
+              currentPlayer?.location?.g,
+              setModalContent,
+              setIsModalOpen
             );
           }
         });

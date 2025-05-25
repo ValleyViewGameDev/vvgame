@@ -1181,6 +1181,14 @@ return ( <>
     <div className="homestead">
       {zoomLevel === 'far' || zoomLevel === 'close' ? (
         <>
+          <RenderGrid
+            grid={memoizedGrid}
+            tileTypes={memoizedTileTypes}
+            resources={memoizedResources}
+            handleTileClick={handleTileClick}
+            TILE_SIZE={activeTileSize}
+            setHoverTooltip={setHoverTooltip} 
+          />
           <DynamicRenderer
             TILE_SIZE={activeTileSize}
             setInventory={setInventory}
@@ -1190,17 +1198,10 @@ return ( <>
             onNPCClick={handleQuestNPCClick}  // Pass the callback
             onPCClick={handlePCClick}  // Pass the callback
             masterResources={masterResources}
-            setHoverTooltip={setHoverTooltip} // ✅ NEW
-            /> {/* Parallel rendering layer for PCs and NPCs */}
-
-          <RenderGrid
-            grid={memoizedGrid}
-            tileTypes={memoizedTileTypes}
-            resources={memoizedResources}
-            handleTileClick={handleTileClick}
-            TILE_SIZE={activeTileSize}
-            setHoverTooltip={setHoverTooltip} // ✅ Add this line
-          />
+            setHoverTooltip={setHoverTooltip}
+            setModalContent={setModalContent}
+            setIsModalOpen={setIsModalOpen} 
+          /> 
           {/* <RenderVFX 
             toggleVFX={currentPlayer?.settings?.toggleVFX}
             // Placeholder for VFX

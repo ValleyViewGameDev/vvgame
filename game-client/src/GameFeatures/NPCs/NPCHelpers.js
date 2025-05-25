@@ -36,7 +36,10 @@ export async function handleNPCClick(
   setResources,
   currentPlayer,
   TILE_SIZE,
-  masterResources
+  masterResources,
+  currentGridId,
+  setModalContent,
+  setIsModalOpen
 ) {
   if (!npc) {
     console.warn("handleNPCClick was called with an undefined NPC.");
@@ -58,26 +61,41 @@ export async function handleNPCClick(
 
       // ✅ Special case: If in town, relocate NPC to home grid
 
-/// THIS CODE NEEDS MODERNIZING:
-
       if (currentPlayer.location.gtype === 'town') {
-        console.log(`🏠 Moving NPC ${npc.id} from town to home grid ${currentPlayer.gridId} at (1,7).`);
+        return new Promise((resolve) => {
+          const handleYes = async () => {
+            await NPCsInGridManager.removeNPC(currentGridId, npc.id);
 
-        // ✅ Remove NPC from current grid
-        await NPCsInGridManager.removeNPC(currentPlayer.location.g, npc.id);
+            const relocatedNPC = {
+              ...npc,
+              position: { x: 1, y: 7 },
+              state: 'idle',
+              lastUpdated: Date.now(),
+            };
 
-        const relocatedNPC = {
-          ...npc,
-          position: { x: 1, y: 7 },
-          state: 'idle',
-          lastUpdated: Date.now(),
-        };
+            await NPCsInGridManager.addNPC(currentPlayer.gridId, relocatedNPC);
+            setIsModalOpen(false);
+            resolve({ type: 'success', message: `NPC moved to your homestead.` });
+          };
 
-        // You may want to rehydrate this as a true `NPC` instance,
-        // but since `addNPC` accepts plain objects with valid structure, this works:
-        await NPCsInGridManager.addNPC(currentPlayer.gridId, relocatedNPC);
-        console.log(`✅ NPC ${npc.id} successfully placed in home grid.`);
-        return { type: 'success', message: `NPC moved to your homestead.` };
+          const handleNo = () => {
+            setIsModalOpen(false);
+            resolve({ type: 'info', message: 'Cancelled.' });
+          };
+
+          setModalContent({
+            title: "Send this animal to your homestead?",
+            size: "small",
+            onClose: handleNo,
+            children: (
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px' }}>
+                <button onClick={handleYes}>Yes</button>
+                <button onClick={handleNo}>No</button>
+              </div>
+            ),
+          });
+          setIsModalOpen(true);
+        });
       }
       
       
