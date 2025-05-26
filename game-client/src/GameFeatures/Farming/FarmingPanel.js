@@ -8,6 +8,7 @@ import { usePanelContext } from '../../UI/PanelContext';
 import { canAfford, getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { handleFarmPlotPlacement, handleTerraform } from './Farming';
+import strings from '../../UI/strings';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
  
 const FarmingPanel = ({
@@ -103,7 +104,7 @@ const handleFarmPlacementWithCooldown = async (item) => {
             name="Till Land"
             details="Costs: None<br>Requires: Pickaxe"
             disabled={isActionCoolingDown || !hasRequiredSkill('Pickaxe')}
-            info="Makes: Dirt"
+            info={strings[310]}
             onClick={() => handleTerraformWithCooldown("till")}
           />
 
@@ -113,10 +114,19 @@ const handleFarmPlacementWithCooldown = async (item) => {
             name="Plant Grass"
             details="Costs: None<br>Requires: Grower"
             disabled={isActionCoolingDown || !hasRequiredSkill('Grower')}
-            info="Makes: Grass"
+            info={strings[311]}
             onClick={() => handleTerraformWithCooldown("plantGrass")}
           />
 
+          {/* Plant Grass Button */}
+          <ResourceButton
+            symbol="🟨"
+            name="Lay Pavement"
+            details="Costs: None"
+            disabled={isActionCoolingDown}
+            info={strings[312]}
+            onClick={() => handleTerraformWithCooldown("pave")}
+          />
 
           {/* Farm Plot Options */}
           {farmPlots.map((item) => {
@@ -124,8 +134,24 @@ const handleFarmPlacementWithCooldown = async (item) => {
             const affordable = canAfford(item, inventory, 1);
             const requirementsMet = hasRequiredSkill(item.requires);
 
+            const formatCountdown = (seconds) => {
+                const days = Math.floor(seconds / 86400);
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+              
+              return days > 0
+                ? `${days}d ${hours}h ${minutes}m`
+                : hours > 0
+                ? `${hours}h ${minutes}m ${secs}s`
+                : minutes > 0
+                ? `${minutes}m ${secs}s`
+                : `${secs}s`;
+              };
+
             const details = `
               Costs: ${ingredients.join(', ') || 'None'}
+              ${item.growtime ? `<br>Time: ${formatCountdown(item.growtime)}` : ''}
               ${item.requires ? `<br>Requires: ${item.requires}` : ''}
             `;
 

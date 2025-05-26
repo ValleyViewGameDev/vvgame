@@ -132,6 +132,9 @@ export const handleTerraform = async ({ actionType, gridId, currentPlayer, setTi
     case "plantGrass":
       newType = "g";
       break;
+    case "pave":
+      newType = "p";
+      break;
     default:
       console.error(`❌ handleTerraform: Unknown actionType "${actionType}"`);
       return;

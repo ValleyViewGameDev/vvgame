@@ -36,7 +36,14 @@
     "35": "You need a ",
     "36": "You used a ",
     "50": "🚫 That username is already taken.",
+    "70": "Session Expired",
+    "71": "You've been away for a while. Refreshing ensures your session works properly.",
+    "72": "This page will auto-refresh in 30 seconds unless you do it now.",
+    "73": "🔄 Refresh Now",
+    "74": "",
+    "75": "",
 
+  
     "100": "TRAVELING STRINGS:",
 
     "101": "🐴 Traveling home ... please wait.",
@@ -60,6 +67,10 @@
     "304": "🚜 Can't plant here",
     "305": "⚠️ Not enough resources",
     "306": "⚠️ Can't build here",
+    "310": "You need to till the land for planting.",
+    "311": "Your farm animals will need plenty of grass to graze on.",
+    "312": "Pavement can be useful to control wandering animals.",
+    "313": "",
 
     "400": "BUYING, CRAFTING, SKILLS, HEALING, ETC.",
 

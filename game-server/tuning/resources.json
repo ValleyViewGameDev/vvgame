@@ -500,7 +500,7 @@
         "source": "Oak Tree",
         "passable": true,
         "qtycollected": 8,
-        "level": 1,
+        "level": 0.2,
         "validong": true,
         "validond": true,
         "validons": true,
@@ -509,10 +509,10 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 0,
-        "maxprice": 0,
-        "crafttime": 1,
-        "totalnestedtime": 1
+        "minprice": 2,
+        "maxprice": 4.771212547196625,
+        "crafttime": 3,
+        "totalnestedtime": 3
     },
     {
         "type": "Stone",
@@ -1155,7 +1155,7 @@
         "ingredient2qty": 1,
         "ingredient3": "Carrot",
         "ingredient3qty": 2,
-        "crafttime": 10,
+        "crafttime": 120,
         "totalnestedtime": 490
     },
     {
@@ -1601,12 +1601,12 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 97,
-        "maxprice": 163.00356939925373,
+        "minprice": 98,
+        "maxprice": 163.47564721089583,
         "ingredient1": "Wood",
         "ingredient1qty": 20,
         "crafttime": 1800,
-        "totalnestedtime": 1820
+        "totalnestedtime": 1860
     },
     {
         "type": "Pottery",
@@ -1731,13 +1731,13 @@
         "validonn": true,
         "validono": true,
         "minprice": 743,
-        "maxprice": 1238.5618337266899,
+        "maxprice": 1238.5642464201965,
         "ingredient1": "Grapes",
         "ingredient1qty": 10,
         "ingredient2": "Wood",
         "ingredient2qty": 1,
         "crafttime": 3600,
-        "totalnestedtime": 90001
+        "totalnestedtime": 90003
     },
     {
         "type": "Port",
@@ -1759,7 +1759,7 @@
         "validonn": true,
         "validono": true,
         "minprice": 786,
-        "maxprice": 1311.6252606939202,
+        "maxprice": 1311.626491673393,
         "ingredient1": "Grapes",
         "ingredient1qty": 10,
         "ingredient2": "Honey",
@@ -1767,7 +1767,7 @@
         "ingredient3": "Wood",
         "ingredient3qty": 1,
         "crafttime": 3600,
-        "totalnestedtime": 176401
+        "totalnestedtime": 176403
     },
     {
         "type": "Olive Oil",
@@ -1933,7 +1933,7 @@
         "validonn": true,
         "validono": true,
         "minprice": 561,
-        "maxprice": 936.3205997461737,
+        "maxprice": 936.4651237335614,
         "ingredient1": "Lumber",
         "ingredient1qty": 2,
         "ingredient2": "Cloth",
@@ -1941,7 +1941,7 @@
         "ingredient3": "Thread",
         "ingredient3qty": 2,
         "crafttime": 43200,
-        "totalnestedtime": 48040
+        "totalnestedtime": 48120
     },
     {
         "type": "Aged Wine",
@@ -1963,13 +1963,13 @@
         "validonn": true,
         "validono": true,
         "minprice": 864,
-        "maxprice": 1441.4556820009743,
+        "maxprice": 1441.4582883010405,
         "ingredient1": "Wine",
         "ingredient1qty": 6,
         "ingredient2": "Wood",
         "ingredient2qty": 1,
         "crafttime": 43200,
-        "totalnestedtime": 583207
+        "totalnestedtime": 583221
     },
     {
         "type": "Olive Bread",
@@ -2257,11 +2257,11 @@
         "validonn": true,
         "validono": true,
         "minprice": 796,
-        "maxprice": 1327.0972319110663,
+        "maxprice": 1327.098196999192,
         "ingredient1": "Port",
         "ingredient1qty": 24,
         "crafttime": 86400,
-        "totalnestedtime": 4320024
+        "totalnestedtime": 4320072
     },
     {
         "type": "Potion A",
@@ -2346,7 +2346,7 @@
         "validonn": true,
         "validono": true,
         "minprice": 10,
-        "maxprice": 17.31809115150224,
+        "maxprice": 17.318097313589792,
         "ingredient1": "Potion B",
         "ingredient1qty": 1,
         "ingredient2": "Sunflower",
@@ -2356,7 +2356,7 @@
         "ingredient4": "Feverfew",
         "ingredient4qty": 1,
         "crafttime": 129600,
-        "totalnestedtime": 8457392
+        "totalnestedtime": 8457440
     },
     {
         "type": "Gem",
@@ -2377,11 +2377,11 @@
         "validonn": true,
         "validono": true,
         "minprice": 10,
-        "maxprice": 16.914557006176253,
+        "maxprice": 16.914583069172448,
         "ingredient1": "Aged Wine",
         "ingredient1qty": 10,
         "crafttime": 1,
-        "totalnestedtime": 5832071
+        "totalnestedtime": 5832211
     },
     {
         "type": "Book",
@@ -2405,7 +2405,7 @@
         "maxprice": 11.625768807829843,
         "ingredient1": "Money",
         "ingredient1qty": 300,
-        "crafttime": 10,
+        "crafttime": 43200,
         "totalnestedtime": 44700
     },
     {
@@ -2604,7 +2604,7 @@
         "layoutkey": "te",
         "category": "special",
         "action": "collect",
-        "source": "Store",
+        "source": "General Store",
         "passable": false,
         "qtycollected": 1,
         "level": 1,
@@ -2667,7 +2667,7 @@
         "totalnestedtime": 2592000
     },
     {
-        "type": "Store",
+        "type": "General Store",
         "symbol": "🏪",
         "layoutkey": "sT",
         "category": "shop",
@@ -2736,6 +2736,7 @@
         "layoutkey": "sL",
         "category": "training",
         "action": "openUI",
+        "source": "BuildTown",
         "passable": false,
         "validong": true,
         "validond": true,
@@ -2794,7 +2795,7 @@
         "ingredient2": "Wood",
         "ingredient2qty": 5,
         "crafttime": 0,
-        "totalnestedtime": 1255
+        "totalnestedtime": 1265
     },
     {
         "type": "Library",
@@ -2846,7 +2847,7 @@
         "ingredient2": "Wood",
         "ingredient2qty": 200,
         "crafttime": 0,
-        "totalnestedtime": 10200
+        "totalnestedtime": 10600
     },
     {
         "type": "Dairy",
@@ -2874,7 +2875,7 @@
         "ingredient3": "Stone",
         "ingredient3qty": 15,
         "crafttime": 0,
-        "totalnestedtime": 25260
+        "totalnestedtime": 25660
     },
     {
         "type": "Chicken Coop",
@@ -2900,7 +2901,7 @@
         "ingredient2": "Wood",
         "ingredient2qty": 20,
         "crafttime": 0,
-        "totalnestedtime": 25020
+        "totalnestedtime": 25060
     },
     {
         "type": "Lumber Yard",
@@ -2928,7 +2929,7 @@
         "ingredient3": "Stone",
         "ingredient3qty": 20,
         "crafttime": 0,
-        "totalnestedtime": 17880
+        "totalnestedtime": 18480
     },
     {
         "type": "Loom",
@@ -2954,7 +2955,7 @@
         "ingredient2": "Wood",
         "ingredient2qty": 300,
         "crafttime": 0,
-        "totalnestedtime": 50300
+        "totalnestedtime": 50900
     },
     {
         "type": "Oven",
@@ -2984,7 +2985,7 @@
         "ingredient4": "Clay",
         "ingredient4qty": 30,
         "crafttime": 0,
-        "totalnestedtime": 50670
+        "totalnestedtime": 51470
     },
     {
         "type": "Kitchen",
@@ -3012,7 +3013,7 @@
         "ingredient3": "Clay",
         "ingredient3qty": 40,
         "crafttime": 0,
-        "totalnestedtime": 50600
+        "totalnestedtime": 51400
     },
     {
         "type": "Beehive",
@@ -3038,7 +3039,7 @@
         "ingredient2": "Wood",
         "ingredient2qty": 20,
         "crafttime": 0,
-        "totalnestedtime": 40020
+        "totalnestedtime": 40060
     },
     {
         "type": "Studio",
@@ -3066,7 +3067,7 @@
         "ingredient3": "Clay",
         "ingredient3qty": 80,
         "crafttime": 0,
-        "totalnestedtime": 148200
+        "totalnestedtime": 149800
     },
     {
         "type": "Winery",
@@ -3096,7 +3097,7 @@
         "ingredient4": "Clay",
         "ingredient4qty": 120,
         "crafttime": 0,
-        "totalnestedtime": 173560
+        "totalnestedtime": 175160
     },
     {
         "type": "Animal Yard",
@@ -3123,7 +3124,7 @@
         "ingredient2": "Lumber",
         "ingredient2qty": 40,
         "crafttime": 0,
-        "totalnestedtime": 172800
+        "totalnestedtime": 174400
     },
     {
         "type": "Hospital",
@@ -3152,7 +3153,7 @@
         "ingredient3": "Stone",
         "ingredient3qty": 50,
         "crafttime": 0,
-        "totalnestedtime": 123000
+        "totalnestedtime": 124600
     },
     {
         "type": "Cow",
@@ -3325,7 +3326,7 @@
         "ingredient1": "Feverfew",
         "ingredient1qty": 1,
         "crafttime": 7200,
-        "totalnestedtime": 4327224
+        "totalnestedtime": 4327272
     },
     {
         "type": "Coyote",
@@ -4498,7 +4499,7 @@
     {
         "type": "Tracking",
         "symbol": "🔎",
-        "category": "power",
+        "category": "skill",
         "output": "range",
         "source": "Basic Skills",
         "requires": "Horse",

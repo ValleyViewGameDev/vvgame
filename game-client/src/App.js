@@ -85,26 +85,33 @@ function App() {
   useEffect(() => {
     const checkInitialSeasonPhase = async () => {
       console.log("Checking for on or off Season on app start");
-      const storedTimers = JSON.parse(localStorage.getItem("timers"));
-      console.log("Season phase = ",storedTimers.seasons.phase);
+
+      const raw = localStorage.getItem("timers");
+      if (!raw) {
+        console.warn("No timers in localStorage yet.");
+        return;
+      }
+
+      let storedTimers = null;
+      try {
+        storedTimers = JSON.parse(raw);
+      } catch (err) {
+        console.warn("Malformed timers in localStorage:", err);
+        return;
+      }
+
       if (storedTimers?.seasons?.phase === "offSeason") {
         console.log("🕵️ Initial local phase is offSeason, confirming with server...");
-    
+
         try {
           const res = await axios.get(`${API_BASE}/api/get-global-season-phase`);
           const serverPhase = res.data?.phase;
-          if (serverPhase === "offSeason") {
-            console.log("✅ Server confirms offSeason");
-            setIsOffSeason(true);
-          } else {
-            console.log("❌ Server says it's not offSeason");
-            setIsOffSeason(false);
-          }
+          setIsOffSeason(serverPhase === "offSeason");
+          console.log(serverPhase === "offSeason" ? "✅ Server confirms offSeason" : "❌ Server says it's not offSeason");
         } catch (error) {
           console.error("❌ Error confirming season with server:", error);
         }
       }
-
     };
     checkInitialSeasonPhase();
   }, []);
@@ -960,22 +967,94 @@ const handleLoginSuccess = async (player) => {
 };
 
 
-// FOR THE PANELS:
+  /////////////// HANDLE INACTIVITY for controller relinquishment and refresh //////////////
 
-const [showTimers, setShowTimers] = useState(false);
-const [showStats, setShowStats] = useState(false); // Toggle for combat stats UI
-const combatStats = currentPlayer?.location?.g
-  ? playersInGrid?.[currentPlayer.location.g]?.pcs?.[String(currentPlayer?._id)] || {}
-  : {};
-const gridStats = currentPlayer?.location
-  ? { gridCoord: currentPlayer.location.gridCoord,
-      gridType: currentPlayer.location.gtype,
-    }
-  : { gridCoord: 'Not loaded',
-      gridType: 'Not loaded',
+  useEffect(() => {
+    let lastActivity = Date.now();
+    const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 minutes
+    const REFRESH_TIMEOUT = 20 * 60 * 1000; // 20 minutes
+
+    const updateActivity = () => {
+      lastActivity = Date.now();
+      console.log('👋👋👋 Updated Activity');
+    };
+    const checkStaleness = () => {
+      const now = Date.now();
+      const inactiveTime = now - lastActivity;
+
+      if (inactiveTime >= REFRESH_TIMEOUT) {
+        console.warn('🔁 Inactive too long. Showing refresh modal.');
+        setModalContent({
+          title: strings["70"],
+          message: strings["71"],
+          message2: strings["72"],
+          size: "small",
+          onClose: () => setIsModalOpen(false),
+          children: (
+            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px' }}>
+              <button
+                className="btn-success"
+                onClick={() => {
+                  setIsModalOpen(false);
+                  window.location.reload();
+                }}
+              >
+                {strings["73"]}
+              </button>
+            </div>
+          ),
+        });
+        setIsModalOpen(true);
+
+        // Set a backup auto-refresh after 30 seconds
+        setTimeout(() => {
+          console.warn("🔁 Auto-refreshing due to inactivity...");
+          window.location.reload();
+        }, 30000);
+
+      } else if (inactiveTime >= INACTIVITY_LIMIT) {
+        console.warn('👋 Inactive for a while. Releasing controller role.');
+        if (controllerUsername === currentPlayer?.username) {
+          socket.emit('relinquish-npc-controller', { gridId });
+        }
+      }
     };
 
-return ( <>
+    window.addEventListener('mousemove', updateActivity);
+    window.addEventListener('keydown', updateActivity);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') updateActivity();
+    });
+
+    const interval = setInterval(checkStaleness, 60000); // check every minute
+
+    return () => {
+      window.removeEventListener('mousemove', updateActivity);
+      window.removeEventListener('keydown', updateActivity);
+      clearInterval(interval);
+    };
+  }, [currentPlayer, controllerUsername, gridId]);
+
+
+  ///////////////// FOR THE PANELS:
+  const [showTimers, setShowTimers] = useState(false);
+  const [showStats, setShowStats] = useState(false); // Toggle for combat stats UI
+  const combatStats = currentPlayer?.location?.g
+    ? playersInGrid?.[currentPlayer.location.g]?.pcs?.[String(currentPlayer?._id)] || {}
+    : {};
+  const gridStats = currentPlayer?.location
+    ? { gridCoord: currentPlayer.location.gridCoord,
+        gridType: currentPlayer.location.gtype,
+      }
+    : { gridCoord: 'Not loaded',
+        gridType: 'Not loaded',
+      };
+  
+
+
+  /////////////// RENDERING THE APP /////////////////////////
+
+  return ( <>
 
 {/* New Navigation Column */}
 
