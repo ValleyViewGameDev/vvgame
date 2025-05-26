@@ -973,15 +973,11 @@ const handleLoginSuccess = async (player) => {
     let lastActivity = Date.now();
     const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 minutes
     const REFRESH_TIMEOUT = 20 * 60 * 1000; // 20 minutes
+    const updateActivity = () => { lastActivity = Date.now(); };
 
-    const updateActivity = () => {
-      lastActivity = Date.now();
-      console.log('👋👋👋 Updated Activity');
-    };
     const checkStaleness = () => {
       const now = Date.now();
       const inactiveTime = now - lastActivity;
-
       if (inactiveTime >= REFRESH_TIMEOUT) {
         console.warn('🔁 Inactive too long. Showing refresh modal.');
         setModalContent({
@@ -1121,33 +1117,6 @@ const handleLoginSuccess = async (player) => {
       </div>
       <button className="shared-button" onClick={() => openPanel('HowToPanel')}>🕹️ How to Play</button>
       <br/>
-
-      <div>
-        {/* Button to toggle stats visibility */}
-        <h3>😀 Player Stats:
-          <span 
-            onClick={() => setShowStats(!showStats)} 
-            style={{ cursor: "pointer", fontSize: "16px", marginLeft: "5px" }}
-          >
-            {showStats ? "▼" : "▶"}
-          </span>
-        </h3>
-
-        {/* Collapsible Combat Stats Panel */}
-        {showStats && (
-          <div className="combat-stats-panel">
-            <h4>❤️‍🩹 HP: {combatStats.hp || 0}</h4>
-            <h4>❤️‍🩹 Max HP: {combatStats.maxhp || 0}</h4>
-            <h4>🛡️ Armor Class: {combatStats.armorclass || 0}</h4>
-            <h4>⚔️ Attack Bonus: {combatStats.attackbonus || 0}</h4>
-            <h4>⚔️ Damage: {combatStats.damage || 0}</h4>
-            <h4>🔭 Attack Range: {combatStats.attackrange || 0}</h4>
-            <h4>🎯 Speed: {combatStats.speed || 0}</h4>
-            <h4>⛺️ Is Camping: {combatStats.iscamping ? "Yes" : "No"}</h4> 
-          </div>
-        )}
-      </div>
-      <br />
 
       <h3>⏪ Happening Now in Town:
         <span 

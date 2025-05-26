@@ -151,8 +151,8 @@ const handleFarmPlacementWithCooldown = async (item) => {
 
             const details = `
               Costs: ${ingredients.join(', ') || 'None'}
-              ${item.growtime ? `<br>Time: ${formatCountdown(item.growtime)}` : ''}
-              ${item.requires ? `<br>Requires: ${item.requires}` : ''}
+              ${item.growtime ? `Time: ${formatCountdown(item.growtime)}` : ''}
+              ${item.requires ? `Requires: ${item.requires}` : ''}
             `;
 
             const info = `
