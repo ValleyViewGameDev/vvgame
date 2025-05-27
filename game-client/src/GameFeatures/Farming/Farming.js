@@ -57,6 +57,7 @@ export const handleFarmPlotPlacement = async ({
 
     // Timer setup
     const growEndTime = Date.now() + (selectedItem.growtime || 0) * 1000;
+    console.log(`⏱️ Planting ${selectedItem.type}: growtime = ${selectedItem.growtime}, growEndTime = ${growEndTime}, secondsFromNow = ${(growEndTime - Date.now()) / 1000}`);
 
     // Lookup from masterResources for enrichment
     console.log("🌱 Attempting to plant:", selectedItem.type, "at", tileX, tileY);

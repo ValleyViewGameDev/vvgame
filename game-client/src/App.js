@@ -427,7 +427,7 @@ useEffect(() => {
     farmState.startSeedTimer({gridId,setResources,activeTileSize,currentPlayer,setCurrentPlayer,});
   }
   return () => { farmState.stopSeedTimer(); };
-}, [gridId]);  
+}, [gridId, resources]);  
 
 
 

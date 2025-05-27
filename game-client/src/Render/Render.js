@@ -15,10 +15,17 @@ export function generateResourceTooltip(resource) {
       lines.push(`<p>${resource.type}</p>`);
       if (resource.growEnd) {
         const remainingTime = Math.max(0, resource.growEnd - currentTime);
+        const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
         if (remainingTime > 0) {
-          lines.push(`<p>🌱 ${minutes}m ${seconds}s remaining</p>`);
+          const parts = [];
+          if (days > 0) parts.push(`${days}d`);
+          if (hours > 0) parts.push(`${hours}h`);
+          if (minutes > 0) parts.push(`${minutes}m`);
+          if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
+          lines.push(`<p>🌱 ${parts.join(' ')} remaining</p>`);
         }
       }
       break;
@@ -27,10 +34,17 @@ export function generateResourceTooltip(resource) {
       lines.push(`<p>${resource.type}</p>`);
       if (resource.craftEnd) {
         const remainingTime = Math.max(0, resource.craftEnd - currentTime);
+        const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
         if (remainingTime > 0) {
-          lines.push(`<p>⏳ ${minutes}m ${seconds}s remaining</p>`);
+          const parts = [];
+          if (days > 0) parts.push(`${days}d`);
+          if (hours > 0) parts.push(`${hours}h`);
+          if (minutes > 0) parts.push(`${minutes}m`);
+          if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
+          lines.push(`<p>⏳ ${parts.join(' ')} remaining</p>`);
         }
       }
       break;

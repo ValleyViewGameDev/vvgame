@@ -133,13 +133,11 @@ const handleFarmPlacementWithCooldown = async (item) => {
             const ingredients = getIngredientDetails(item, allResources);
             const affordable = canAfford(item, inventory, 1);
             const requirementsMet = hasRequiredSkill(item.requires);
-
             const formatCountdown = (seconds) => {
-                const days = Math.floor(seconds / 86400);
-                const hours = Math.floor(seconds / 3600);
-                const minutes = Math.floor((seconds % 3600) / 60);
-                const secs = seconds % 60;
-              
+              const days = Math.floor(seconds / 86400);
+              const hours = Math.floor((seconds % 86400) / 3600);
+              const minutes = Math.floor((seconds % 3600) / 60);
+              const secs = Math.floor(seconds % 60);
               return days > 0
                 ? `${days}d ${hours}h ${minutes}m`
                 : hours > 0
@@ -147,7 +145,9 @@ const handleFarmPlacementWithCooldown = async (item) => {
                 : minutes > 0
                 ? `${minutes}m ${secs}s`
                 : `${secs}s`;
-              };
+            };
+
+            const symbol = allResources.find((res) => res.type === allResources.find((r) => r.type === item.type)?.output)?.symbol || '';
 
             const details = `
               Costs: ${ingredients.join(', ') || 'None'}
@@ -162,12 +162,12 @@ const handleFarmPlacementWithCooldown = async (item) => {
                   .map((res) => `${res.symbol || ''} ${res.type}`)
                   .join(', ') || 'None'
               }
-            `;
+            `; 
 
             return (
               <ResourceButton
                 key={item.type}
-                symbol={item.symbol}
+                symbol={symbol}
                 name={item.type}
                 details={details}
                 info={info}

@@ -11,8 +11,17 @@ class FarmState {
     }
   
     initializeFarmState(resources = []) {
+      // Log incoming farmplot resources
+      console.log('🧪 initializeFarmState input:', resources.filter(r => r.category === 'farmplot'));
       this.farmState = resources.filter((res) => res.category === 'farmplot' && res.growEnd);
-      console.log('initializeFarmState called. Updated farmState:', this.farmState);
+      // Log growEnd values and time remaining
+      console.log('🌱 Farm state initialized with growEnd values:', this.farmState.map(r => ({
+        type: r.type,
+        x: r.x,
+        y: r.y,
+        growEnd: r.growEnd,
+        secondsRemaining: (new Date(r.growEnd) - Date.now()) / 1000,
+      })));
     }
   
     addSeed(seed) {
@@ -28,6 +37,12 @@ class FarmState {
    */
   startSeedTimer({ gridId, setResources, TILE_SIZE, currentPlayer, setCurrentPlayer }) {
     if (farmTimer) clearInterval(farmTimer);
+    console.log("🧪 FarmState starting timer with seeds:");
+    this.farmState.forEach(seed => {
+      const now = Date.now();
+      const secondsRemaining = Math.floor((new Date(seed.growEnd) - now) / 1000);
+      console.log(`🌱 ${seed.type} → growEnd=${seed.growEnd}, now=${now}, secondsRemaining=${secondsRemaining}`);
+    });
   
     farmTimer = setInterval(async () => {
       //console.log('FarmState timer ticking.');
