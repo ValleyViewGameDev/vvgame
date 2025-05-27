@@ -6,7 +6,7 @@ import '../../UI/ResourceButton.css';
 import ResourceButton from '../../UI/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
 import { canAfford, getIngredientDetails } from '../../Utils/ResourceHelpers';
-import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients } from '../../Utils/InventoryManagement';
+import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients, checkInventoryCapacity } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
 import { loadMasterResources, loadMasterSkills } from '../../Utils/TuningManager';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
@@ -84,6 +84,7 @@ const TradingStation = ({
     const safeBackpack = Array.isArray(backpack) ? backpack : [];
     if (!canAfford(recipe, [...safeInventory, ...safeBackpack], 1)) { updateStatus(4); return; }
 
+
     // ✅ Combine inventories for deduction
     const combinedInventory = [...safeInventory.map(item => ({ ...item })), ...safeBackpack.map(item => ({ ...item }))];
     const success = checkAndDeductIngredients(recipe, combinedInventory, setErrorMessage);
@@ -109,10 +110,23 @@ const TradingStation = ({
     const setTargetInventory = isBackpack ? setBackpack : setInventory;
     const inventoryType = isBackpack ? "backpack" : "inventory";
 
-    // ✅ Add traded item to target inventory
-    const itemIndex = targetInventory.findIndex(item => item.type === recipe.type);
-    if (itemIndex >= 0) {
-      targetInventory[itemIndex].quantity += 1;
+    // ✅ Capacity check using checkInventoryCapacity
+    const hasCapacity = checkInventoryCapacity(
+      currentPlayer,
+      updatedInventory,
+      updatedBackpack,
+      recipe.type,
+      1
+    );
+
+    if (!hasCapacity) {
+      setErrorMessage('🎒 Not enough space to carry that item.');
+      return;
+    }
+
+    const targetItem = targetInventory.find(item => item.type === recipe.type);
+    if (targetItem) {
+      targetItem.quantity += 1;
     } else {
       targetInventory.push({ type: recipe.type, quantity: 1 });
     }
