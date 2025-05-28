@@ -12,7 +12,7 @@ export const PanelProvider = ({ children }) => {
     setActivePanel(null);
   };
   return (
-    <PanelContext.Provider value={{ activePanel, openPanel, closePanel }}>
+    <PanelContext.Provider value={{ activePanel, openPanel, closePanel, closeAllPanels: closePanel }}>
       {children}
     </PanelContext.Provider>
   );

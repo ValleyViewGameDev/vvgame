@@ -124,12 +124,27 @@ const TradingStation = ({
       return;
     }
 
-    const targetItem = targetInventory.find(item => item.type === recipe.type);
-    if (targetItem) {
-      targetItem.quantity += 1;
+    // --- Normalized stacking logic (mirrored from CraftingStation) ---
+    const updatedTargetInventory = [...targetInventory];
+    const itemIndex = updatedTargetInventory.findIndex((item) => item.type === recipe.type);
+    if (itemIndex >= 0) {
+      updatedTargetInventory[itemIndex].quantity += 1;
     } else {
-      targetInventory.push({ type: recipe.type, quantity: 1 });
+      updatedTargetInventory.push({ type: recipe.type, quantity: 1 });
     }
+
+    // Place the updated inventory back into the correct slot
+    if (isBackpack) {
+      // Overwrite updatedBackpack
+      for (let i = 0; i < updatedTargetInventory.length; i++) updatedBackpack[i] = updatedTargetInventory[i];
+      updatedBackpack.length = updatedTargetInventory.length;
+    } else {
+      for (let i = 0; i < updatedTargetInventory.length; i++) updatedInventory[i] = updatedTargetInventory[i];
+      updatedInventory.length = updatedTargetInventory.length;
+    }
+
+    // Ensure state is set before posting to API
+    setTargetInventory(updatedTargetInventory);
 
     const payload = {
       playerId: currentPlayer.playerId,
@@ -142,7 +157,7 @@ const TradingStation = ({
     await axios.post(`${API_BASE}/api/update-inventory`, payload);
     console.log(`📡 Inventories updated successfully!`);
 
-    // ✅ Set both inventories in state
+    // ✅ Set both inventories in state (redundant for setTargetInventory, but keeps both up-to-date)
     setInventory(updatedInventory);
     setBackpack(updatedBackpack);
 

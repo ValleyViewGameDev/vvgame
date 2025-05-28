@@ -19,6 +19,7 @@ const SettlementView = ({
   setTileTypes,  
   TILE_SIZE,
   masterResources,
+  closeAllPanels
 }) => {
   console.log("TILE_SIZE at top of SettlementView:", TILE_SIZE);
 
@@ -138,6 +139,7 @@ const SettlementView = ({
         setResources,             // ✅ Pass setResources function
         TILE_SIZE,
         updateStatus,
+        closeAllPanels
       );
       // Zoom into grid view after movement
       setZoomLevel("far"); 

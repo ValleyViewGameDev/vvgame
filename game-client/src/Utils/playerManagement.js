@@ -108,6 +108,7 @@ export const handlePlayerDeath = async (
   updateStatus,
   setModalContent,
   setIsModalOpen,
+  closeAllPanels
 
 ) => {
   console.log('⚰️ Handling player death for', player.username);
@@ -173,6 +174,7 @@ export const handlePlayerDeath = async (
       setResources,
       TILE_SIZE,
       updateStatus,
+      closeAllPanels,
     );
 
   } catch (error) {

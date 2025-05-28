@@ -13,7 +13,8 @@ export async function handleTransitSignpost(
   setResources,
   updateStatus,
   TILE_SIZE,
-  skills
+  skills,
+  closeAllPanels
 ) {
   try {
     console.log("Handling transit for resource:", resourceType);
@@ -58,6 +59,7 @@ export async function handleTransitSignpost(
         setTileTypes,
         setResources,
         TILE_SIZE,
+        closeAllPanels,
       );
       return;
     }
@@ -95,6 +97,7 @@ export async function handleTransitSignpost(
         setTileTypes,
         setResources,
         TILE_SIZE,
+        closeAllPanels,
       );
       return;
     }
@@ -209,6 +212,7 @@ export async function handleTransitSignpost(
       setTileTypes,
       setResources,
       TILE_SIZE,
+      closeAllPanels,
     );
 
     console.log(`Player moved to grid ID: ${targetGrid.gridId}`);

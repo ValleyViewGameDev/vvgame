@@ -7,6 +7,7 @@ import socket from '../socketManager'; // ⚠️ At top of file if not already p
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { mergeResources, mergeTiles } from './ResourceHelpers';
 import { centerCameraOnPlayer } from '../PlayerMovement';
+import { closePanel } from '../UI/PanelContext';
 
 export const updateGridResource = async (
   gridId,
@@ -112,7 +113,11 @@ export const changePlayerLocation = async (
   setResources,
   TILE_SIZE,
   updateStatus,
+  closeAllPanels // ✅ Add this prop
 ) => {
+
+  console.log("🔁 changePlayerLocation invoked. closeAllPanels =", !!closeAllPanels);
+  
   // DEBUG: Log input parameters for changePlayerLocation
   console.log('changePlayerLocation called with:', {
     currentPlayer,
@@ -121,6 +126,7 @@ export const changePlayerLocation = async (
     TILE_SIZE,
     // ...other setters omitted for brevity...
   });
+
 
   console.log('🔄 changePlayerLocation called');
   console.log('FROM:', { grid: fromLocation.g, type: fromLocation.gtype });
@@ -132,6 +138,11 @@ export const changePlayerLocation = async (
 
   try {
 
+    // STEP 1: Close any open panels before grid transition
+    if (closeAllPanels) {
+      closeAllPanels();
+      console.log("🧹 Closed all panels before location change.");
+    }
 
     // ✅ STEP 2: Update FROM grid's state (remove player)
     console.log(`1️⃣ Removing player from grid ${fromLocation.g}`);

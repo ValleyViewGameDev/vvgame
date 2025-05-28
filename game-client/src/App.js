@@ -179,6 +179,7 @@ const [isModalOpen, setIsModalOpen] = useState(false);
 const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
 const [isOffSeason, setIsOffSeason] = useState(false); // Track if it's off-season
 const { activePanel, openPanel, closePanel } = usePanelContext();
+const { closeAllPanels } = usePanelContext(); 
 const [activeQuestGiver, setActiveQuestGiver] = useState(null);
 const [activeSocialPC, setActiveSocialPC] = useState(null);
 const [activeStation, setActiveStation] = useState(null);
@@ -474,7 +475,7 @@ useEffect(() => {
       if (playerPC?.hp <= 0 && currentPlayer) {
       // 💀 Check for player death
          console.log("💀 Player is dead. Handling death...");
-        await handlePlayerDeath(currentPlayer,setCurrentPlayer,setGridId,setGrid,setResources,setTileTypes,activeTileSize,updateStatus,setModalContent,setIsModalOpen);
+        await handlePlayerDeath(currentPlayer,setCurrentPlayer,setGridId,setGrid,setResources,setTileTypes,activeTileSize,updateStatus,setModalContent,setIsModalOpen,closeAllPanels);
       } else {
       // 🔥 Check for lava tile
         const col = playerPC?.position?.x;
@@ -911,6 +912,7 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
         masterSkills,
         setModalContent,
         setIsModalOpen,
+        closeAllPanels,
       ).finally(() => {
         isProcessing = false; // Reset flag after processing
       });
@@ -1275,6 +1277,7 @@ const handleLoginSuccess = async (player) => {
         setTileTypes={setTileTypes}      
         TILE_SIZE={TILE_SIZES.far}
         masterResources={masterResources}  
+        closeAllPanels={closeAllPanels}
         onClose={() => setZoomLevel('far')}
       />
     )}
@@ -1288,6 +1291,7 @@ const handleLoginSuccess = async (player) => {
         setResources={setResources}  
         setTileTypes={setTileTypes}     
         TILE_SIZE={activeTileSize}
+        closeAllPanels={closeAllPanels}
         onClose={() => setZoomLevel('settlement')}
         />
       )}

@@ -16,6 +16,7 @@ const FrontierView = ({
   setResources,             // ✅ Pass setResources function
   setTileTypes,             // ✅ Pass setTileTypes function
   TILE_SIZE,
+  closeAllPanels
 }) => {
 
   const [frontierGrid, setFrontierGrid] = useState([]);
@@ -129,7 +130,8 @@ const FrontierView = ({
               setTileTypes,             // ✅ Pass setTileTypes function
               setResources,             // ✅ Pass setResources function
               TILE_SIZE,
-              updateStatus
+              updateStatus,
+              closeAllPanels
             ); 
 
             setZoomLevel("far");
@@ -152,32 +154,6 @@ const FrontierView = ({
         updateStatus(9); // Valley tile clicked
         return;
       }
-
-      // const toLocation = {
-      //   x: 1,
-      //   y: 1,
-      //   g: tile.gridId,
-      //   s: tile.settlementId,
-      //   f: currentPlayer.location.f,
-      //   gtype: tile.gridType || "unknown",
-      //   gridCoord: tile.gridCoord
-      // };
-
-      // console.log('🚀 Attempting transit with location:', toLocation);
-
-      // await changePlayerLocation(
-      //   currentPlayer,
-      //   currentPlayer.location,
-      //   toLocation,
-      //   setCurrentPlayer,
-      //   setGridId,
-      //   setGrid,
-      //   setResources,
-      //   setTileTypes,
-      //   setGridState,
-      //   setPlayersInGrid,
-      //   TILE_SIZE,
-      // );
 
     } catch (error) {
       console.error('❌ Transit error details:', {

@@ -8,6 +8,7 @@ import FloatingTextManager from '../../UI/FloatingText';
 import { canAfford, getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { updateGridResource } from '../../Utils/GridManagement';
 import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients } from '../../Utils/InventoryManagement';
+import { checkInventoryCapacity } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
@@ -231,9 +232,7 @@ const CraftingStation = ({
         } 
         
         // ✅ Add collected item to inventory
-
         else {
-
           // ✅ Apply Player Buffs for Crafting Bonus
           //const masterSkills = await loadMasterSkills();
           //const masterResources = await loadMasterResources();
@@ -256,6 +255,21 @@ const CraftingStation = ({
 
           console.log("Final Skill Multiplier:", skillMultiplier);
           const craftedQty = 1 * skillMultiplier;
+
+          // ✅ Check inventory capacity before adding crafted item
+          const hasCapacity = checkInventoryCapacity(
+            currentPlayer,
+            inventory,
+            backpack,
+            recipe.type,
+            craftedQty
+          );
+
+          if (!hasCapacity) {
+            updateStatus("Inventory full. Cannot collect crafted item.");
+            return;
+          }
+
           const updatedInventory = [...targetInventory];
           const itemIndex = updatedInventory.findIndex((item) => item.type === recipe.type);
 

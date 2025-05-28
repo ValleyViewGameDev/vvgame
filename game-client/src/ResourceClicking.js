@@ -36,6 +36,7 @@ import strings from './UI/strings.json';
   masterSkills,
   setModalContent,
   setIsModalOpen,
+  closeAllPanels,
 ) {
   console.log(`Resource Clicked:  (${row}, ${col}):`, { resource, tileType: tileTypes[row]?.[col] });
   console.log('Inventory when handleResourceClick is called:', inventory);
@@ -128,6 +129,7 @@ import strings from './UI/strings.json';
             updateStatus,
             TILE_SIZE,
             skills,
+            closeAllPanels
           );
         } catch (error) {
           console.error("Error handling travel signpost:", error.message || error);
