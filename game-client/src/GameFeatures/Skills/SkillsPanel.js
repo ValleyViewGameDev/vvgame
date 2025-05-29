@@ -5,25 +5,36 @@ import axios from 'axios';
 import ResourceButton from '../../UI/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
-import { canAfford, getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { modifyPlayerStatsInPlayer, modifyPlayerStatsInGridState } from '../../Utils/playerManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
 import { isAGridStateStat } from '../../Utils/playerManagement';
 import strings from '../../UI/strings.json';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
+import { spendIngredients } from '../../Utils/InventoryManagement';
 
-const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stationType, TILE_SIZE }) => {
+const SkillsAndUpgradesPanel = ({ 
+    onClose,
+    inventory,
+    setInventory,
+    backpack,
+    setBackpack,
+    currentPlayer,
+    setCurrentPlayer,
+    stationType, 
+    TILE_SIZE,
+    updateStatus,
+}) => {
   const [entryPoint, setEntryPoint] = useState(stationType || "Skills Panel"); 
   const [allResources, setAllResources] = useState([]);
   const [skillsToAcquire, setSkillsToAcquire] = useState([]);
   const [upgradesToAcquire, setUpgradesToAcquire] = useState([]);
   const [ownedSkills, setOwnedSkills] = useState([]);
   const [ownedUpgrades, setOwnedUpgrades] = useState([]);
-  const [inventory, setInventory] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [isContentLoading, setIsContentLoading] = useState(false);
-  const { updateStatus } = useContext(StatusBarContext);
   const [stationEmoji, setStationEmoji] = useState('📘'); // Default emoji for Skills Panel
 
   // ✅ Update `entryPoint` when `stationType` changes
@@ -50,10 +61,12 @@ const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stat
         ]);
 
         const serverInventory = inventoryResponse.data.inventory || [];
+        const serverBackpack = inventoryResponse.data.backpack || [];
         const serverSkills = skillsResponse.data.skills || [];
         const allResourcesData = resourcesResponse.data;
 
         setInventory(serverInventory);
+        setBackpack(serverBackpack);
         setAllResources(allResourcesData);
 
         const stationResource = allResourcesData.find((resource) => resource.type === stationType);
@@ -103,89 +116,78 @@ const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stat
   };
 
 
-  const handlePurchase = async (resourceType) => {
-    setErrorMessage('');
-    const resource = [...skillsToAcquire, ...upgradesToAcquire].find((item) => item.type === resourceType);
+const handlePurchase = async (resourceType) => {
+  const resource = [...skillsToAcquire, ...upgradesToAcquire].find((item) => item.type === resourceType);
 
-    if (!canAfford(resource, inventory, 1)) {
-      setErrorMessage('Not enough resources to purchase this item.');
-      return;
-    }
-    const updatedInventory = [...inventory];
-    const updatedSkills = [...ownedSkills];
-    const updatedUpgrades = [...ownedUpgrades];
+  console.log(`Attempting to purchase resource: ${resourceType}`, resource);
+  console.log('Current player:', currentPlayer);
+  console.log('Current inventory:', inventory);
+  console.log('Current backpack:', backpack);
+  const spendSuccess = await spendIngredients({
+    playerId: currentPlayer.playerId,
+    recipe: resource,
+    inventory,
+    backpack,
+    setInventory,
+    setBackpack,
+    setCurrentPlayer,
+    updateStatus,
+  });
 
-    for (let i = 1; i <= 3; i++) {
-      const ingredientType = resource[`ingredient${i}`];
-      const ingredientQty = resource[`ingredient${i}qty`];
+  if (!spendSuccess) {
+    console.warn('Failed to spend ingredients.');
+    return;
+  }
 
-      if (ingredientType && ingredientQty) {
-        const inventoryIndex = updatedInventory.findIndex((item) => item.type === ingredientType);
-        updatedInventory[inventoryIndex].quantity -= ingredientQty;
+  const updatedSkills = [...ownedSkills];
+  const updatedUpgrades = [...ownedUpgrades];
 
-        if (updatedInventory[inventoryIndex].quantity <= 0) {
-          updatedInventory.splice(inventoryIndex, 1);
+  // ✅ Check category before adding
+  if (resource.category === "skill") {
+    updatedSkills.push({ type: resource.type, category: resource.category, quantity: 1 });
+  } else if (resource.category === "upgrade") {
+    updatedUpgrades.push({ type: resource.type, category: resource.category, quantity: 1 });
+  }
+
+  setOwnedSkills(updatedSkills);
+  setOwnedUpgrades(updatedUpgrades);
+
+  updateStatus(`✅ ${resource.type} skill acquired.`);
+
+  try {
+    await axios.post(`${API_BASE}/api/update-skills`, {
+      playerId: currentPlayer.playerId,
+      skills: [...updatedSkills, ...updatedUpgrades], // ✅ Ensure all are sent to the server
+    });
+
+    if (resource.output) {
+      console.log(`Upgrade ${resource.type} will modify player stat ${resource.output}.`);
+      if (isAGridStateStat(resource.output)) {
+        await modifyPlayerStatsInGridState(resource.output, resource.qtycollected || 1, currentPlayer.playerId, currentPlayer.location.g);
+      } else {
+        const updatedPlayer = await modifyPlayerStatsInPlayer(resource.output, resource.qtycollected || 1, currentPlayer.playerId);
+        if (updatedPlayer) {
+          setCurrentPlayer(updatedPlayer);
+          localStorage.setItem('player', JSON.stringify(updatedPlayer));
         }
       }
     }
-    // ✅ Check category before adding
+
+    await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
+    await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+
+    // Instead of re-fetching, update the acquire lists locally
     if (resource.category === "skill") {
-      updatedSkills.push({ type: resource.type, category: resource.category, quantity: 1 });
+      setSkillsToAcquire(prev => prev.filter(skill => skill.type !== resource.type));
     } else if (resource.category === "upgrade") {
-      updatedUpgrades.push({ type: resource.type, category: resource.category, quantity: 1 });
+      setUpgradesToAcquire(prev => prev.filter(upg => upg.type !== resource.type));
     }
 
-    setOwnedSkills(updatedSkills);
-    setOwnedUpgrades(updatedUpgrades);
-    setInventory(updatedInventory);
-    localStorage.setItem('inventory', JSON.stringify(updatedInventory));
-
-    FloatingTextManager.addFloatingText(
-      `+1 ${resource.type}`, 
-      currentPlayer.location.x, 
-      currentPlayer.location.y, 
-      TILE_SIZE,
-    );
-
-    try {
-      await axios.post(`${API_BASE}/api/update-inventory`, {
-        playerId: currentPlayer.playerId,
-        inventory: updatedInventory,
-      });
-
-      await axios.post(`${API_BASE}/api/update-skills`, {
-        playerId: currentPlayer.playerId,
-        skills: [...updatedSkills, ...updatedUpgrades], // ✅ Ensure all are sent to the server
-      });
-
-      if (resource.output) {
-        console.log(`Upgrade ${resource.type} will modify player stat ${resource.output}.`);
-        if (isAGridStateStat(resource.output)) {
-          await modifyPlayerStatsInGridState(resource.output, resource.qtycollected || 1, currentPlayer.playerId, currentPlayer.location.g);
-        } else {
-          const updatedPlayer = await modifyPlayerStatsInPlayer(resource.output, resource.qtycollected || 1, currentPlayer.playerId);
-          if (updatedPlayer) {
-            setCurrentPlayer(updatedPlayer);
-            localStorage.setItem('player', JSON.stringify(updatedPlayer));
-          }
-        }
-      } 
-      
-      await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-      // Instead of re-fetching, update the acquire lists locally
-      if (resource.category === "skill") {
-        setSkillsToAcquire(prev => prev.filter(skill => skill.type !== resource.type));
-      } else if (resource.category === "upgrade") {
-        setUpgradesToAcquire(prev => prev.filter(upg => upg.type !== resource.type));
-      }
-
-    } catch (error) {
-      console.error('Error updating player on server:', error);
-      setErrorMessage('Error updating player on server.');
-    }
-  };
+  } catch (error) {
+    console.error('Error updating player on server:', error);
+    setErrorMessage('Error updating player on server.');
+  }
+};
 
   return (
     <Panel onClose={onClose} descriptionKey="1005" titleKey="1105" panelName="SkillsAndUpgradesPanel">
@@ -226,7 +228,7 @@ const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stat
               <div className="skills-options">
                 {skillsToAcquire.map((resource) => {
                   const ingredients = getIngredientDetails(resource, allResources);
-                  const affordable = canAfford(resource, inventory, 1);
+                  const affordable = canAfford(resource, inventory, 1, backpack);
                   const meetsRequirement = hasRequiredSkill(resource.requires, ownedSkills);
 
                   const details = `
@@ -275,7 +277,7 @@ const SkillsAndUpgradesPanel = ({ onClose, currentPlayer, setCurrentPlayer, stat
               <div className="skills-options">
                 {upgradesToAcquire.map((resource) => {
                   const ingredients = getIngredientDetails(resource, allResources);
-                  const affordable = canAfford(resource, inventory, 1);
+                  const affordable = canAfford(resource, inventory, 1, backpack);
                   const meetsRequirement = hasRequiredSkill(resource.requires, ownedSkills);
 
                   const details = `

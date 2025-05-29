@@ -1,5 +1,6 @@
 import API_BASE from '../../config';
 import axios from 'axios';
+import { gainIngredients } from '../../Utils/InventoryManagement';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import FloatingTextManager from '../../UI/FloatingText';
@@ -14,6 +15,8 @@ const AnimalStall = ({
   onClose,
   inventory,
   setInventory,
+  backpack,
+  setBackpack,
   currentPlayer,
   setCurrentPlayer,
   setResources,
@@ -21,11 +24,10 @@ const AnimalStall = ({
   currentStationPosition,
   gridId,
   TILE_SIZE,
+  updateStatus,
 }) => {
-  const [errorMessage, setErrorMessage] = useState('');
   const [stallDetails, setStallDetails] = useState(null);
   const [outputDetails, setOutputDetails] = useState(null);
-  const { updateStatus } = useContext(StatusBarContext);
 
   console.log('Inside Animal Stall:', { stationType, currentStationPosition });
 
@@ -43,7 +45,6 @@ const AnimalStall = ({
         }
       } catch (error) {
         console.error('Error loading stall resources:', error);
-        setErrorMessage('Failed to load stall resources.');
       }
     };
 
@@ -69,17 +70,7 @@ const AnimalStall = ({
     syncInventory();
   }, [currentPlayer]);
 
-  
-
-
   const handleSellStation = async () => {
-    if (!Array.isArray(inventory)) {
-      console.error('Inventory is invalid or not an array:', inventory);
-      setErrorMessage('Invalid inventory data.');
-      return;
-    }
-  
-    const updatedInventory = [...inventory];
     const ingredients = [];
     for (let i = 1; i <= 3; i++) {
       const ingredientType = stallDetails[`ingredient${i}`];
@@ -88,53 +79,47 @@ const AnimalStall = ({
         ingredients.push({ type: ingredientType, quantity: ingredientQty });
       }
     }
-  
-    if (!ingredients.length) {
-      console.error('No ingredients found for refund.');
-      return;
-    }
-  
+    if (!ingredients.length) { console.error('No ingredients found for refund.'); return; }
+
     try {
-      ingredients.forEach(({ type, quantity }) => {
-        const index = updatedInventory.findIndex((item) => item.type === type);
-        if (index >= 0) {
-          updatedInventory[index].quantity += quantity;
-        } else {
-          updatedInventory.push({ type, quantity });
-        }
-      });
-  
-      await axios.post(`${API_BASE}/api/update-inventory`, {
-        playerId: currentPlayer.playerId,
-        inventory: updatedInventory,
-      });
-  
-      // Remove the resource from the grid on the DB:
+      for (const { type, quantity } of ingredients) {
+        const success = await gainIngredients({
+          playerId: currentPlayer.playerId,
+          currentPlayer,
+          resource: type,
+          quantity,
+          inventory,
+          backpack,
+          setInventory,
+          setBackpack,
+          setCurrentPlayer,
+          updateStatus,
+        });
+        if (!success) return;
+      }
+
       await updateGridResource(
-        gridId, 
-        { type: null,
-        x: currentStationPosition.x,
-        y: currentStationPosition.y, }, 
+        gridId,
+        { type: null, x: currentStationPosition.x, y: currentStationPosition.y },
         setResources,
         true
       );
-  
-      setResources(prevResources => 
+
+      setResources(prevResources =>
         prevResources.filter(res => !(res.x === currentStationPosition.x && res.y === currentStationPosition.y))
       );
       console.log("🧹 AnimalStall resource removed from client state.");
       createCollectEffect(currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-  
-      setInventory(updatedInventory);
-      localStorage.setItem('inventory', JSON.stringify(updatedInventory));
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-  
-      console.log(`Sold ${stationType} successfully.`);
-      updateStatus(6);
+
+      const totalRefund = ingredients
+        .filter((item) => item.type === "Money")
+        .reduce((sum, item) => sum + item.quantity, 0);
+
+      console.log(`Sold ${stationType} successfully for ${totalRefund} Money.`);
+      updateStatus(`Sold ${stationType} for ${totalRefund} Money.`);
       onClose();
     } catch (error) {
       console.error('Error selling the stall:', error);
-      setErrorMessage('An error occurred while selling the stall.');
     }
   };
   

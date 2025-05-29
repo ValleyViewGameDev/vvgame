@@ -3,12 +3,21 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
 import ResourceButton from '../../UI/ResourceButton';
-import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients } from '../../Utils/InventoryManagement';
+import { refreshPlayerAfterInventoryUpdate, spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { formatCountdown } from '../../UI/Timers.js';
 import strings from '../../UI/strings.json';
 
-function BankPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) {
+function BankPanel({ 
+    onClose, 
+    inventory,
+    setInventory,
+    backpack,
+    setBackpack,
+    currentPlayer, 
+    setCurrentPlayer, 
+    updateStatus }) 
+{
     const [bankOffers, setBankOffers] = useState([]);
     const [bankTimer, setBankTimer] = useState("");
     const [allResources, setAllResources] = useState([]);
@@ -67,38 +76,40 @@ function BankPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) {
     const handleTrade = async (offer) => {
         if (!offer || !currentPlayer) return;
 
-        // ✅ Check if player has enough items
-        const success = checkAndDeductIngredients({ type: offer.itemBought, quantity: offer.qtyBought }, currentPlayer.inventory);
-        if (!success) {
-            updateStatus(`❌ Not enough ${offer.itemBought}`);
-            return;
-        }
-
-        // ✅ Update inventory: Remove "bought" item, Add "given" item
-        const updatedInventory = [...currentPlayer.inventory]
-            .map((item) =>
-                item.type === offer.itemBought 
-                    ? { ...item, quantity: item.quantity - offer.qtyBought } 
-                    : item
-            )
-            .filter((item) => item.quantity > 0); // ✅ Remove items with 0 quantity
-
-        // ✅ Add "given" item (Money) to inventory **without duplicates**
-        const givenItemIndex = updatedInventory.findIndex(item => item.type === offer.itemGiven);
-        if (givenItemIndex >= 0) {
-            updatedInventory[givenItemIndex].quantity += offer.qtyGiven;
-        } else {
-            updatedInventory.push({ type: offer.itemGiven, quantity: offer.qtyGiven });
-        }
-
-        // ✅ Save updated inventory to DB
-        await axios.post(`${API_BASE}/api/update-inventory`, {
-            playerId: currentPlayer.playerId,
-            inventory: updatedInventory,
+        // Spend ingredients
+        const success = await spendIngredients({
+          playerId: currentPlayer.playerId,
+          recipe: {
+            ingredient1: offer.itemBought,
+            ingredient1qty: offer.qtyBought,
+          },
+          inventory,
+          backpack,
+          setInventory,
+          setBackpack,
+          setCurrentPlayer,
+          updateStatus,
         });
 
-        setCurrentPlayer((prev) => ({ ...prev, inventory: updatedInventory }));
-        updateStatus(`✅ Exchanged ${offer.qtyBought} ${offer.itemBought} for ${offer.qtyGiven} ${offer.itemGiven}`);
+        if (!success) return;
+
+        // Gain the given item (usually Money)
+        const gainSuccess = await gainIngredients({
+          playerId: currentPlayer.playerId,
+          currentPlayer,
+          resource: offer.itemGiven,
+          quantity: offer.qtyGiven,
+          inventory,
+          backpack,
+          setInventory,
+          setBackpack,
+          setCurrentPlayer,
+          updateStatus,
+        });
+
+        if (!gainSuccess) return;
+
+        updateStatus(`✅ Exchanged ${offer.qtyBought} ${offer.itemBought} for ${offer.qtyGiven} ${offer.itemGiven}.`);
     };
 
     // ✅ Lookup function for symbols from `allResources`

@@ -4136,7 +4136,7 @@
         "symbol": "🎒",
         "category": "skill",
         "output": "backpackCapacity",
-        "source": "Basic Skills",
+        "source": "Adventure Camp",
         "requires": "Walking",
         "qtycollected": 20,
         "level": 2,

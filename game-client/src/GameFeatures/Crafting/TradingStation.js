@@ -5,8 +5,9 @@ import axios from 'axios';
 import '../../UI/ResourceButton.css';
 import ResourceButton from '../../UI/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
-import { canAfford, getIngredientDetails } from '../../Utils/ResourceHelpers';
-import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients, checkInventoryCapacity } from '../../Utils/InventoryManagement';
+import { getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { canAfford } from '../../Utils/InventoryManagement';
+import { refreshPlayerAfterInventoryUpdate, gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
 import { loadMasterResources, loadMasterSkills } from '../../Utils/TuningManager';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
@@ -25,13 +26,13 @@ const TradingStation = ({
   stationType,
   currentStationPosition,
   gridId,
-  TILE_SIZE
+  TILE_SIZE,
+  updateStatus,
 }) => {
   const [recipes, setRecipes] = useState([]);
   const [allResources, setAllResources] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [stationEmoji, setStationEmoji] = useState('🛖');
-  const { updateStatus } = useContext(StatusBarContext);
   const [stationDetails, setStationDetails] = useState(null);
 
   // Sync inventory with local storage and server
@@ -78,95 +79,51 @@ const TradingStation = ({
 
   const handleTrade = async (recipe) => {
     setErrorMessage('');
-    if (!recipe) { setErrorMessage('Invalid recipe selected.'); return; }
-    // Ensure inventory and backpack are arrays
-    const safeInventory = Array.isArray(inventory) ? inventory : [];
-    const safeBackpack = Array.isArray(backpack) ? backpack : [];
-    if (!canAfford(recipe, [...safeInventory, ...safeBackpack], 1)) { updateStatus(4); return; }
-
-
-    // ✅ Combine inventories for deduction
-    const combinedInventory = [...safeInventory.map(item => ({ ...item })), ...safeBackpack.map(item => ({ ...item }))];
-    const success = checkAndDeductIngredients(recipe, combinedInventory, setErrorMessage);
-    if (!success) return;
-
-    // ✅ Re-split combinedInventory into inventory and backpack based on original contents
-    const updatedInventory = [];
-    const updatedBackpack = [];
-
-    combinedInventory.forEach(item => {
-      const inOriginalInventory = safeInventory.find(orig => orig.type === item.type);
-      if (inOriginalInventory) {
-        updatedInventory.push(item);
-      } else {
-        updatedBackpack.push(item);
-      }
-    });
-
-    // ✅ Determine where to store the new item
-    const gtype = currentPlayer.location.gtype;
-    const isBackpack = ["town", "valley0", "valley1", "valley2", "valley3"].includes(gtype);
-    const targetInventory = isBackpack ? updatedBackpack : updatedInventory;
-    const setTargetInventory = isBackpack ? setBackpack : setInventory;
-    const inventoryType = isBackpack ? "backpack" : "inventory";
-
-    // ✅ Capacity check using checkInventoryCapacity
-    const hasCapacity = checkInventoryCapacity(
-      currentPlayer,
-      updatedInventory,
-      updatedBackpack,
-      recipe.type,
-      1
-    );
-
-    if (!hasCapacity) {
-      setErrorMessage('🎒 Not enough space to carry that item.');
+    if (!recipe) {
+      setErrorMessage('Invalid recipe selected.');
       return;
     }
 
-    // --- Normalized stacking logic (mirrored from CraftingStation) ---
-    const updatedTargetInventory = [...targetInventory];
-    const itemIndex = updatedTargetInventory.findIndex((item) => item.type === recipe.type);
-    if (itemIndex >= 0) {
-      updatedTargetInventory[itemIndex].quantity += 1;
-    } else {
-      updatedTargetInventory.push({ type: recipe.type, quantity: 1 });
-    }
+    const safeInventory = Array.isArray(inventory) ? inventory : [];
+    const safeBackpack = Array.isArray(backpack) ? backpack : [];
 
-    // Place the updated inventory back into the correct slot
-    if (isBackpack) {
-      // Overwrite updatedBackpack
-      for (let i = 0; i < updatedTargetInventory.length; i++) updatedBackpack[i] = updatedTargetInventory[i];
-      updatedBackpack.length = updatedTargetInventory.length;
-    } else {
-      for (let i = 0; i < updatedTargetInventory.length; i++) updatedInventory[i] = updatedTargetInventory[i];
-      updatedInventory.length = updatedTargetInventory.length;
-    }
-
-    // Ensure state is set before posting to API
-    setTargetInventory(updatedTargetInventory);
-
-    const payload = {
+    const spent = await spendIngredients({
       playerId: currentPlayer.playerId,
-      inventory: updatedInventory,
-      backpack: updatedBackpack,
-    };
-    console.log("📤 Sending inventory update with payload:", payload);
+      recipe,
+      inventory: safeInventory,
+      backpack: safeBackpack,
+      setInventory,
+      setBackpack,
+      setCurrentPlayer,
+      updateStatus,
+    });
 
-    // ✅ Save both inventories to DB
-    await axios.post(`${API_BASE}/api/update-inventory`, payload);
-    console.log(`📡 Inventories updated successfully!`);
+    if (!spent) {
+      setErrorMessage('Not enough ingredients.');
+      return;
+    }
 
-    // ✅ Set both inventories in state (redundant for setTargetInventory, but keeps both up-to-date)
-    setInventory(updatedInventory);
-    setBackpack(updatedBackpack);
+    const gained = await gainIngredients({
+      playerId: currentPlayer.playerId,
+      currentPlayer,
+      resource: recipe.type,
+      quantity: 1,
+      inventory: safeInventory,
+      backpack: safeBackpack,
+      setInventory,
+      setBackpack,
+      setCurrentPlayer,
+      updateStatus,
+    });
 
-    // ✅ Track quest progress and refresh player
+    if (!gained) {
+      setErrorMessage('Not enough space to carry that item.');
+      return;
+    }
+
     await trackQuestProgress(currentPlayer, 'Trade', recipe.type, 1, setCurrentPlayer);
-    await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-    console.log('recipe = ', recipe);
-    updateStatus(`✅ Exchanged ${recipe.ingredient1} for ${recipe.type}.`);
+    updateStatus(`✅ Exchanged ${recipe.ingredient1qty || 1} ${recipe.ingredient1} for 1 ${recipe.type}.`);
   };
 
    

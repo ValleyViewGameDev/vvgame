@@ -4,7 +4,8 @@ import Panel from '../../UI/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/ResourceButton';
 import { handleConstruction } from '../BuildAndBuy';
-import { canAfford, getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { canAfford } from '../../Utils/InventoryManagement';
 import { usePanelContext } from '../../UI/PanelContext';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 
@@ -12,18 +13,21 @@ const BuildPanel = ({
   TILE_SIZE,
   resources,
   setResources,
+  inventory,
+  setInventory,
+  backpack,
+  setBackpack,
   currentPlayer,
   setCurrentPlayer,
   gridId,
   setIsMoving,
-  updateStatus,
   masterResources, // Added for quest tracking
   masterSkills, // Uncomment if needed for skill checks
+  updateStatus,
 }) => {
   const { closePanel } = usePanelContext(); // Use closePanel from context
   const [buildOptions, setBuildOptions] = useState([]);
   const [allResources, setAllResources] = useState([]);
-  const [inventory, setInventory] = useState([]);
 
   // Fetch inventory and build options when the panel initializes
   useEffect(() => {
@@ -100,6 +104,8 @@ const BuildPanel = ({
                   buildOptions,
                   inventory,
                   setInventory,
+                  backpack,
+                  setBackpack, 
                   resources,
                   setResources,
                   setErrorMessage: console.error, // Replace with real error handling if needed
@@ -107,6 +113,7 @@ const BuildPanel = ({
                   setCurrentPlayer,
                   gridId,
                   setIsMoving,
+                  updateStatus,
                 })
               }
             />

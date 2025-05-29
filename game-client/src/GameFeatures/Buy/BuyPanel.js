@@ -4,27 +4,30 @@ import Panel from '../../UI/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/ResourceButton';
 import { handleConstruction } from '../BuildAndBuy';
-import { canAfford, getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { canAfford } from '../../Utils/InventoryManagement';
 import { usePanelContext } from '../../UI/PanelContext';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 
 const BuyPanel = ({
   TILE_SIZE,
-  playerPosition,
   resources,
   setResources,
+  inventory,
+  setInventory, 
+  backpack,
+  setBackpack,
   currentPlayer,
   setCurrentPlayer,
   gridId,
   setIsMoving,
-  updateStatus,
   masterResources, 
   masterSkills, 
+  updateStatus,
 }) => {
   const { closePanel } = usePanelContext();
   const [buyOptions, setBuyOptions] = useState([]);
   const [allResources, setAllResources] = useState([]);
-  const [inventory, setInventory] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,7 +84,8 @@ const BuyPanel = ({
                     buildOptions: buyOptions,
                     inventory,
                     setInventory,
-                    playerPosition,
+                    backpack,
+                    setBackpack,
                     resources,
                     setResources,
                     setErrorMessage: console.error,
@@ -89,6 +93,7 @@ const BuyPanel = ({
                     setCurrentPlayer,
                     gridId,
                     setIsMoving,
+                    updateStatus,
                   })
                 }
               />

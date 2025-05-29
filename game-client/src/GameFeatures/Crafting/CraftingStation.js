@@ -5,16 +5,17 @@ import axios from 'axios';
 import '../../UI/ResourceButton.css'; 
 import ResourceButton from '../../UI/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
-import { canAfford, getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { canAfford } from '../../Utils/InventoryManagement';
 import { updateGridResource } from '../../Utils/GridManagement';
-import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients } from '../../Utils/InventoryManagement';
-import { checkInventoryCapacity } from '../../Utils/InventoryManagement';
+import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { createCollectEffect } from '../../VFX/VFX';
 import strings from '../../UI/strings';
+import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 
 const CraftingStation = ({
   onClose,
@@ -30,7 +31,7 @@ const CraftingStation = ({
   gridId,
   masterResources,
   masterSkills,
-  TILE_SIZE
+  TILE_SIZE,
 }) => {
   const [recipes, setRecipes] = useState([]);
   const [allResources, setAllResources] = useState([]);
@@ -115,11 +116,9 @@ const CraftingStation = ({
         //const allResourcesData = await loadMasterResources();
         const filteredRecipes = masterResources.filter((resource) => resource.source === stationType);
         setRecipes(filteredRecipes);
-
         const stationResource = masterResources.find((resource) => resource.type === stationType);
         setStationEmoji(stationResource?.symbol || '🛖');
         setStationDetails(stationResource);
-
         setAllResources(masterResources || []);
       } catch (error) {
         console.error('Error loading resources:', error);
@@ -137,13 +136,19 @@ const CraftingStation = ({
   const handleCraft = async (recipe) => {
     setErrorMessage('');
     if (!recipe) { setErrorMessage('Invalid recipe selected.'); return; }
-    if (!canAfford(recipe, inventory, 1)) { updateStatus(4); return; }
 
-    ////////////////////////////////////////////////
+    const spent = await spendIngredients({
+      playerId: currentPlayer.playerId,
+      recipe,
+      inventory,
+      backpack,
+      setInventory,
+      setBackpack,
+      setCurrentPlayer,
+      updateStatus
+    });
+    if (!spent) return;
 
-    const updatedInventory = [...inventory];
-    const canCraft = checkAndDeductIngredients(recipe, updatedInventory, setErrorMessage);
-    if (!canCraft) return;
     const craftedQty = 1;
     const craftTime = recipe.crafttime || 60; // Default to 60s if no timer exists
     const craftEnd = Date.now() + craftTime * 1000; // Calculate timestamp
@@ -160,7 +165,6 @@ const CraftingStation = ({
       console.log('handleCraft: updatedStation:  ',updatedStation);
       await updateGridResource(gridId, updatedStation, setResources, true);
       console.log('📡 Fetched station from GlobalGridStateTilesAndResources:', GlobalGridStateTilesAndResources.getResources);
-
 
       // ✅ Step 1: Ensure UI Updates Immediately
       setCraftedItem(recipe.type);
@@ -183,7 +187,6 @@ const CraftingStation = ({
       // ✅ Step 3: Ensure UI State Reflects GlobalGridStateTilesAndResources
       setResources(updatedResources);
 
-    
       FloatingTextManager.addFloatingText(404, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
       console.log(`✅ ${recipe.type} will be ready at ${new Date(craftEnd).toLocaleTimeString()}`);
 
@@ -191,36 +194,17 @@ const CraftingStation = ({
         console.error(`❌ Error starting craft for ${recipe.type}:`, error);
       }
 
-//////////////// WE SHOULD STILL GIVE CREDIT FOR THE QUEST AT THE TIME OF CRAFTING?
-
     // Track quest progress for "Craft" actions
-    // trackQuestProgress expects: (player, action, item, quantity, setCurrentPlayer)
     await trackQuestProgress(currentPlayer, 'Craft', recipe.type, craftedQty, setCurrentPlayer);
-    
-
-//////////////// STILL IMPORTANT TO REFRESH INVENTORY BECAUSE WE SPENT ITEMS
-
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
   };
 
 
   const handleCollect = async (recipe) => {
-
-    if (!craftedItem || !recipe || craftedItem !== recipe.type) {
-      console.error("❌ No valid crafted item to collect.");
-      return;
-    }
+    if (!recipe) { console.error("❌ No valid crafted item to collect."); return; }
 
     try {
-        // ✅ Determine storage location
-        const gtype = currentPlayer.location.gtype;
-        const isBackpack = ["town", "valley0", "valley1", "valley2", "valley3"].includes(gtype);
-
-        let targetInventory = isBackpack
-          ? (Array.isArray(backpack) ? [...backpack] : [])
-          : (Array.isArray(inventory) ? [...inventory] : []);
-        const setTargetInventory = isBackpack ? setBackpack : setInventory;
-        const inventoryType = isBackpack ? "backpack" : "inventory";
+        // ✅ Find the crafted resource for potential NPC handling
         const craftedResource = allResources.find(res => res.type === craftedItem);
 
         // ✅ HANDLE NPCs
@@ -230,66 +214,43 @@ const CraftingStation = ({
           NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
           await trackQuestProgress(currentPlayer, 'Craft', craftedItem, 1, setCurrentPlayer);
         } 
-        
         // ✅ Add collected item to inventory
         else {
-          // ✅ Apply Player Buffs for Crafting Bonus
-          //const masterSkills = await loadMasterSkills();
-          //const masterResources = await loadMasterResources();
+          // ✅ Apply Player Buffs for Crafting Bonus (refactored logic)
+          const playerSkills = currentPlayer.skills || [];
 
-          const playerBuffs = inventory
-              .filter((item) => {
-                  const resourceDetails = masterResources.find((res) => res.type === item.type);
-                  return resourceDetails?.category === "skill" || resourceDetails?.category === "upgrade";
-              })
-              .map((buff) => buff.type);
+          // Identify relevant buffs for this recipe
+          const appliedBuffs = playerSkills.filter((item) => {
+            const skillValue = masterSkills?.[item.type]?.[recipe.type];
+            return skillValue && skillValue > 1;
+          }).map((item) => item.type);
 
-          if (!masterSkills) {
-            console.warn("⚠️ masterSkills is undefined in handleCollect(). This may lead to missing skill bonuses.");
-          }
-          const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
-            const buffData = masterSkills?.[buff];
-            const buffValue = buffData ? buffData[recipe.type] : 1;
-            return multiplier * buffValue;
+          const skillMultiplier = appliedBuffs.reduce((multiplier, skill) => {
+            const skillValue = masterSkills?.[skill]?.[recipe.type] || 1;
+            return multiplier * skillValue;
           }, 1);
 
-          console.log("Final Skill Multiplier:", skillMultiplier);
-          const craftedQty = 1 * skillMultiplier;
+          const craftedQty = Math.max(1, Math.floor(1 * skillMultiplier));
+          console.log("craftedQty:", craftedQty);
 
-          // ✅ Check inventory capacity before adding crafted item
-          const hasCapacity = checkInventoryCapacity(
+          const success = await gainIngredients({
+            playerId: currentPlayer.playerId,
             currentPlayer,
+            resource: recipe.type,
+            quantity: craftedQty,
             inventory,
             backpack,
-            recipe.type,
-            craftedQty
-          );
-
-          if (!hasCapacity) {
-            updateStatus("Inventory full. Cannot collect crafted item.");
-            return;
-          }
-
-          const updatedInventory = [...targetInventory];
-          const itemIndex = updatedInventory.findIndex((item) => item.type === recipe.type);
-
-          if (itemIndex >= 0) {
-              updatedInventory[itemIndex].quantity += craftedQty;
-          } else {
-              updatedInventory.push({ type: recipe.type, quantity: craftedQty });
-          }
-
-          // ✅ Save updated inventory to DB
-          await axios.post(`${API_BASE}/api/update-inventory`, {
-              playerId: currentPlayer.playerId,
-              [inventoryType]: updatedInventory,
+            setInventory,
+            setBackpack,
+            setCurrentPlayer,
+            updateStatus,
           });
-
-          console.log(`📡 ${inventoryType} updated successfully!`);
-          updateStatus(`Collected ${craftedQty}x ${recipe.type}.`);
-
-          setTargetInventory(updatedInventory);
-      }
+          if (!success) return;
+          const skillAppliedText = appliedBuffs.length === 0
+            ? `✅ Gained ${craftedQty} ${recipe.type}.`
+            : `✅ Gained ${craftedQty} ${recipe.type} (${appliedBuffs.join(', ')} skill applied.)`;
+          updateStatus(skillAppliedText);
+        }
 
         // ✅ Remove craftEnd & craftedItem from the grid resource
         const updateResponse = await updateGridResource(
@@ -310,7 +271,6 @@ const CraftingStation = ({
         console.log("🛠️ Grid resource updated:", updateResponse);
 
         // ✅ **Manually update GlobalGridStateTilesAndResources**
-
         const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
           res.x === currentStationPosition.x && res.y === currentStationPosition.y
             ? (() => {
@@ -333,17 +293,11 @@ const CraftingStation = ({
     } catch (error) {
         console.error(`❌ Error collecting ${recipe.type}:`, error);
     }
-};
+  };
 
 
   const handleSellStation = async () => {
-    if (!Array.isArray(inventory)) {
-      console.error('Inventory is invalid or not an array:', inventory);
-      setErrorMessage('Invalid inventory data.');
-      return;
-    }
 
-    const updatedInventory = [...inventory];
     const ingredients = [];
     for (let i = 1; i <= 3; i++) {
       const ingredientType = stationDetails[`ingredient${i}`];
@@ -356,19 +310,21 @@ const CraftingStation = ({
     if (!ingredients.length) { console.error('No ingredients found for refund.'); return; }
 
     try {
-      ingredients.forEach(({ type, quantity }) => {
-        const index = updatedInventory.findIndex((item) => item.type === type);
-        if (index >= 0) {
-          updatedInventory[index].quantity += quantity;
-        } else {
-          updatedInventory.push({ type, quantity });
-        }
-      });
-
-      await axios.post(`${API_BASE}/api/update-inventory`, {
-        playerId: currentPlayer.playerId,
-        inventory: updatedInventory,
-      });
+      for (const { type, quantity } of ingredients) {
+        const success = await gainIngredients({
+          playerId: currentPlayer.playerId,
+          currentPlayer,
+          resource: type,
+          quantity,
+          inventory,
+          backpack,
+          setInventory,
+          setBackpack,
+          setCurrentPlayer,
+          updateStatus,
+        });
+        if (!success) return;
+      }
 
       // REMOVING THE CRAFTING STATION FROM THE GRID
       await updateGridResource(
@@ -394,13 +350,10 @@ const CraftingStation = ({
       ));
       console.log("🧹 Station resource removed from global and React state.");
       createCollectEffect(currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-
-      setInventory(updatedInventory);
-      localStorage.setItem('inventory', JSON.stringify(updatedInventory));
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-      console.log(`Sold ${stationType} successfully.`);
-      updateStatus(6);
+      const totalRefund = ingredients
+        .filter((item) => item.type === "Money")
+        .reduce((sum, item) => sum + item.quantity, 0);
+      updateStatus(`Sold ${stationType} for ${totalRefund} Money.`);
       onClose();
     } catch (error) {
       console.error('Error selling the stall:', error);
@@ -417,7 +370,7 @@ const CraftingStation = ({
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
               const ingredients = getIngredientDetails(recipe, allResources || []);
-              const affordable = canAfford(recipe, inventory, 1);
+              const affordable = canAfford(recipe, inventory, Array.isArray(backpack) ? backpack : [], 1);
               const requirementsMet = hasRequiredSkill(recipe.requires);
               const isCrafting = craftedItem === recipe.type && craftingCountdown > 0;
               const isReadyToCollect = craftedItem === recipe.type && craftingCountdown === 0;

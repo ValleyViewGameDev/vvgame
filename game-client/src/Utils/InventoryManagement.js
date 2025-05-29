@@ -1,7 +1,25 @@
 import API_BASE from '../config';
 import axios from 'axios';
-import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
+
+
+export const canAfford = (recipe, inventory = [], backpack = [], amount = 1) => {
+  if (!recipe) return false;
+  const inv = Array.isArray(inventory) ? inventory : [];
+  const bp = Array.isArray(backpack) ? backpack : [];
+  for (let i = 1; i <= 3; i++) {
+    const ingredientType = recipe[`ingredient${i}`];
+    const ingredientQty = recipe[`ingredient${i}qty`] * amount;
+    if (ingredientType && ingredientQty >= 0) {
+      const backpackItem = bp.find((item) => item.type === ingredientType);
+      const inventoryItem = inv.find((item) => item.type === ingredientType);
+      const totalQty = (backpackItem?.quantity || 0) + (inventoryItem?.quantity || 0);
+      if (totalQty < ingredientQty) { return false; }
+    }
+  }
+  console.log(`✅ canAfford returns TRUE for ${recipe.type}`);
+  return true;
+};
 
 
 export async function fetchInventoryAndBackpack(playerId) {
@@ -37,15 +55,14 @@ export async function fetchInventory(playerId) {
   }
 }
 
-export async function updateInventory(currentPlayer, resourceType, quantityChange, setCurrentPlayer) {
+/// DEBUG function to add stuff to inventory without checking capacity, etc.
+export async function debugUpdateInventory(currentPlayer, resourceType, quantityChange, setCurrentPlayer) {
   if (!currentPlayer?.playerId) {
     console.error('No player ID provided for updating inventory');
     return [];
   }
-  
   try {
     const updatedInventory = [...currentPlayer.inventory];
-
     const resourceIndex = updatedInventory.findIndex((item) => item.type === resourceType);
     if (resourceIndex !== -1) {
       updatedInventory[resourceIndex].quantity += quantityChange;
@@ -55,20 +72,16 @@ export async function updateInventory(currentPlayer, resourceType, quantityChang
     } else if (quantityChange > 0) {
       updatedInventory.push({ type: resourceType, quantity: quantityChange });
     }
-
     await axios.post(`${API_BASE}/api/update-inventory`, {
       playerId: currentPlayer.playerId,
       inventory: updatedInventory,
       backpack: currentPlayer.backpack, // Ensure backpack remains unchanged
     });
-
     console.log('Inventory updated successfully on the server.');
-
     // Update currentPlayer and sync with localStorage
     const updatedPlayer = { ...currentPlayer, inventory: updatedInventory };
     setCurrentPlayer(updatedPlayer);
     localStorage.setItem('player', JSON.stringify(updatedPlayer));
-
     return updatedInventory;
   } catch (error) {
     console.error('Error updating inventory:', error);
@@ -86,7 +99,6 @@ export async function refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlay
   try {
     const response = await axios.get(`${API_BASE}/api/player/${playerId}`);
     const updatedPlayerData = response.data;
-
     // Pull latest location from playersInGridManager if available
     const gridPlayer = playersInGridManager.getPlayersInGrid(updatedPlayerData.location?.g)?.[playerId];
     if (gridPlayer) {
@@ -96,7 +108,6 @@ export async function refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlay
         y: gridPlayer.position.y,
       };
     }
-
     setCurrentPlayer(updatedPlayerData);
     console.log('Player refreshed successfully:', response.data);
   } catch (error) {
@@ -105,77 +116,130 @@ export async function refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlay
 }
 
 
-/**
- * Checks if the player has enough ingredients in the inventory and deducts them if possible.
- * @param {Object} resource - The resource to place (e.g., seed, building).
- * @param {Array} updatedInventory - A copy of the player's current inventory.
- * @param {Function} setErrorMessage - Optional function to set error messages.
- * @returns {Boolean} - Returns true if the ingredients were successfully deducted, false otherwise.
- */
-export function checkAndDeductIngredients(resource, updatedInventory) {
-  let canProceed = true;
 
-  // Validate and deduct ingredients
-  for (let i = 1; i <= 3; i++) {
-    const ingredientType = resource[`ingredient${i}`];
-    const ingredientQty = resource[`ingredient${i}qty`];
-    if (ingredientType && ingredientQty) {
-      const inventoryItem = updatedInventory.find((item) => item.type === ingredientType);
-      if (!inventoryItem || inventoryItem.quantity < ingredientQty) {
-        canProceed = false;
-        break;
-      }
+////////////////////////////////////////
+export async function gainIngredients({
+  playerId,
+  currentPlayer,
+  resource,
+  quantity,
+  inventory,
+  backpack,
+  setInventory,
+  setBackpack,
+  setCurrentPlayer,
+  updateStatus,
+}) {
+  console.log("Made it to gainIngredients; resource = ", resource, "; quantity = ", quantity);
+
+  const isMoney = resource === "Money";
+  const isHomestead = currentPlayer?.location?.gtype === 'homestead';
+  const storingInBackpack = !isMoney && !isHomestead;
+  console.log("🏠 isHomestead:", isHomestead, "| 💰 isMoney:", isMoney, "| 🎒 storingInBackpack:", storingInBackpack);
+
+  const target = isMoney || isHomestead ? [...inventory] : [...backpack];
+
+  // ✅ Backpack skill check if storing in backpack
+  if (storingInBackpack) {
+    const hasBackpackSkill = currentPlayer?.skills?.some((item) => item.type === 'Backpack' && item.quantity > 0);
+    if (!hasBackpackSkill) {
+      if (updateStatus) updateStatus(19); // Missing backpack
+      return false;
+    }
+  }
+    
+  // ✅ Capacity check
+  if (!isMoney) {
+    const capacity = isHomestead ? currentPlayer?.warehouseCapacity : currentPlayer?.backpackCapacity;
+    const totalItems = target
+      .filter(item => item && item.type !== 'Money' && typeof item.quantity === 'number')
+      .reduce((acc, item) => acc + item.quantity, 0);
+    if (totalItems + quantity > capacity) {
+      console.log("📦 Capacity check failed. totalItems =", totalItems, "quantity =", quantity, "capacity =", capacity);
+      if (updateStatus) updateStatus(isHomestead ? 20 : 21); // 20 = warehouse full, 21 = backpack full
+      return false;
     }
   }
 
-  if (canProceed) {
-    for (let i = 1; i <= 3; i++) {
-      const ingredientType = resource[`ingredient${i}`];
-      const ingredientQty = resource[`ingredient${i}qty`];
-      if (ingredientType && ingredientQty) {
-        const inventoryIndex = updatedInventory.findIndex((item) => item.type === ingredientType);
-        if (inventoryIndex >= 0) {
-          updatedInventory[inventoryIndex].quantity -= ingredientQty;
-          if (updatedInventory[inventoryIndex].quantity <= 0) {
-            updatedInventory.splice(inventoryIndex, 1); // Remove item if quantity is 0
-          }
-        }
-      }
-    }
+  // ✅ Apply gain
+  const index = target.findIndex((item) => item.type === resource);
+  if (index >= 0) {
+    target[index].quantity += quantity;
+  } else {
+    target.push({ type: resource, quantity });
   }
 
-  return canProceed;
+  const payload = {
+    playerId,
+    inventory: isMoney || isHomestead ? target : inventory,
+    backpack: !isMoney && !isHomestead ? target : backpack,
+  };
+  console.log("📤 Sending inventory payload to server:", payload);
+
+  try {
+    await axios.post(`${API_BASE}/api/update-inventory`, payload);
+    setInventory(payload.inventory);
+    setBackpack(payload.backpack);
+    await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
+    return true;
+  } catch (err) {
+    console.error("❌ Error gaining ingredient", err);
+    return false;
+  }
 }
 
+////////////////////////////////////////
+export async function spendIngredients({
+  playerId,
+  recipe,
+  inventory,
+  backpack,
+  setInventory,
+  setBackpack,
+  setCurrentPlayer,
+  updateStatus,
+}) {
+  console.log("Made it to spendIngredients; recipe = ",recipe);
+  let updatedInventory = [...inventory];
+  let updatedBackpack = [...backpack];
 
-/**
- * Checks if there is enough capacity to add an item to the inventory or backpack.
- * @param {Object} player - The current player object.
- * @param {Array} inventory - The player's inventory array.
- * @param {Array} backpack - The player's backpack array.
- * @param {String} type - The type of item being added.
- * @param {Number} quantity - The quantity of the item being added.
- * @returns {Boolean} - True if there is enough capacity, false otherwise.
- */
-export function checkInventoryCapacity(player, inventory = [], backpack = [], type, quantity) {
-  const gtype = player.location?.gtype || 'homestead';
-  const isBackpack = !["homestead"].includes(gtype);
+  if (!canAfford(recipe, inventory, backpack, 1)) { updateStatus(4); return false; }
 
-  const targetInventory = isBackpack ? backpack : inventory;
-  const maxCapacity = isBackpack ? player.backpackCapacity : player.warehouseCapacity;
+  // Deduct ingredients with new logic
+  for (let i = 1; i <= 3; i++) {
+    const type = recipe?.[`ingredient${i}`];
+    const qty = recipe?.[`ingredient${i}qty`];
+    if (type && qty) {
+      let remaining = qty;
 
-  // Safely calculate current capacity
-  const currentCapacity = targetInventory
-    .filter((item) => item.type !== 'Money')
-    .reduce((sum, item) => sum + (item.quantity || 0), 0);
-
-  // Check if there is enough capacity
-  const hasCapacity = currentCapacity + quantity <= maxCapacity;
-  if (!hasCapacity) {
-    console.warn(
-      `Cannot add ${quantity} ${type}: Exceeds capacity in ${isBackpack ? "backpack" : "warehouse"}.`
-    );
+      const deductFrom = (list) => {
+        const index = list.findIndex((item) => item.type === type);
+        if (index >= 0) {
+          const used = Math.min(remaining, list[index].quantity);
+          list[index].quantity -= used;
+          remaining -= used;
+          if (list[index].quantity <= 0) list.splice(index, 1);
+        }
+      };
+      deductFrom(updatedBackpack);
+      console.log(`✅ Deducted ${qty} of ${type} from inventory/backpack`);
+      if (remaining > 0) deductFrom(updatedInventory);
+    }
   }
 
-  return hasCapacity;
+  try {
+    await axios.post(`${API_BASE}/api/update-inventory`, {
+      playerId,
+      inventory: updatedInventory,
+      backpack: updatedBackpack,
+    });
+    setInventory(updatedInventory);
+    setBackpack(updatedBackpack);
+    await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
+    return true;
+
+  } catch (err) {
+    console.error("❌ Error spending ingredients:", err);
+    return false;
+  }
 }

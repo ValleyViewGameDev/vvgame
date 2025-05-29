@@ -1,15 +1,16 @@
 import API_BASE from './config.js'; 
 import axios from 'axios';
 import { fetchInventoryAndBackpack, refreshPlayerAfterInventoryUpdate } from './Utils/InventoryManagement';
+import { gainIngredients, spendIngredients } from './Utils/InventoryManagement';
 import { updateGridResource } from './Utils/GridManagement';
 import { loadMasterResources, loadMasterSkills } from './Utils/TuningManager'; // Centralized tuning manager
 import FloatingTextManager from './UI/FloatingText';
 import { lockResource, unlockResource } from './Utils/ResourceLockManager';
 import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
 import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
-import { checkInventoryCapacity } from './Utils/InventoryManagement';
 import { createCollectEffect, createSourceConversionEffect, calculateTileCenter } from './VFX/VFX';
 import strings from './UI/strings.json';
+import InventoryPanel from './GameFeatures/Inventory/InventoryPanel.js';
  
  // Handles resource click actions based on category. //
  export async function handleResourceClick(
@@ -39,8 +40,6 @@ import strings from './UI/strings.json';
   closeAllPanels,
 ) {
   console.log(`Resource Clicked:  (${row}, ${col}):`, { resource, tileType: tileTypes[row]?.[col] });
-  console.log('Inventory when handleResourceClick is called:', inventory);
-
   if (!resource || !resource.category) { console.error(`Invalid resource at (${col}, ${row}):`, resource); return; }
   
   lockResource(col, row); // Optimistically lock the resource
@@ -54,15 +53,12 @@ import strings from './UI/strings.json';
       masterSkills = await loadMasterSkills(); 
     }
     const skills = currentPlayer.skills;
-
     // Fetch inventory and backpack if either is empty
     if ((!Array.isArray(inventory)) || (!Array.isArray(backpack))) {
       console.warn('Inventory or backpack is not initialized; fetching from server.');
       const { inventory: fetchedInventory, backpack: fetchedBackpack } = await fetchInventoryAndBackpack(currentPlayer.playerId);
       setInventory(fetchedInventory); // Update state with fetched inventory
       setBackpack(fetchedBackpack); // Update state with fetched backpack
-      console.log('Fetched inventory:', fetchedInventory);
-      console.log('Fetched backpack:', fetchedBackpack);
     }
 
     switch (resource.category) {
@@ -97,7 +93,10 @@ import strings from './UI/strings.json';
           col,
           resources,
           setResources,
+          inventory,
           setInventory,
+          backpack,
+          setBackpack,  
           gridId,
           addFloatingText,
           TILE_SIZE,
@@ -175,17 +174,19 @@ async function handleDooberClick(
   const gtype = currentPlayer.location.gtype;
   const baseQtyCollected = resource.qtycollected || 1;
 
-  // Ensure inventory is an array
-  if (!Array.isArray(skills)) {
-    console.warn('Skills is not an array; defaulting to empty array.');
-    skills = [];
+  if (!Array.isArray(inventory) || !Array.isArray(backpack)) {
+    console.warn("Inventory or backpack missing; aborting doober click.");
+    return;
   }
 
+  console.log('MasterSkills:', masterSkills);
   // Extract player skills and upgrades from inventory
   const playerBuffs = skills
     .filter((item) => {
       const resourceDetails = masterResources.find((res) => res.type === item.type);
-      return resourceDetails?.category === 'skill' || resourceDetails?.category === 'upgrade';
+      const isSkill = resourceDetails?.category === 'skill' || resourceDetails?.category === 'upgrade';
+      const appliesToResource = (masterSkills?.[item.type]?.[resource.type] || 1) > 1;
+      return isSkill && appliesToResource;
     })
     .map((buffItem) => buffItem.type);
 
@@ -197,88 +198,20 @@ async function handleDooberClick(
     //console.log(`Buff "${buff}" applies to "${resource.type}" with multiplier x${buffValue}`);
     return multiplier * buffValue;
   }, 1);
-
   const qtyCollected = baseQtyCollected * skillMultiplier;
   console.log('[DEBUG] qtyCollected after multiplier:', qtyCollected);
 
-  // Special case: Money always goes to inventory and does not count against capacity
-  const isMoney = resource.type === 'Money';
-  const isBackpack = !isMoney && ["town", "valley0", "valley1", "valley2", "valley3"].includes(gtype);
-
-  console.log('[DEBUG] Resource Type:', resource.type, '| isMoney:', isMoney, '| isBackpack:', isBackpack);
-
-  // Check for Backpack skill if in town or valley
-  if (isBackpack) {
-    const hasBackpackSkill = skills.some((item) => item.type === 'Backpack' && item.quantity > 0);
-    console.log('[DEBUG] Backpack skill present:', hasBackpackSkill);
-    if (!hasBackpackSkill) {
-      console.warn('Cannot collect resources: Missing Backpack skill.');
-      addFloatingText(`Backpack Required!`, col * TILE_SIZE, row * TILE_SIZE);
-      updateStatus(19); // Status update for missing Backpack skill
-      return;
-    }
-  }
-
-  let targetInventory = isMoney ? inventory : isBackpack ? backpack : inventory;
-  const setTargetInventory = isMoney ? setInventory : isBackpack ? setBackpack : setInventory;
-
-  // If targetInventory is empty, fetch it from the server
-  if (!Array.isArray(targetInventory) || targetInventory.length === 0) {
-    console.warn(`${isBackpack ? "Backpack" : "Inventory"} is empty; fetching from server.`);
-    const { inventory: fetchedInventory, backpack: fetchedBackpack } = await fetchInventoryAndBackpack(currentPlayer.playerId);
-    setInventory(fetchedInventory);
-    setBackpack(fetchedBackpack);
-    targetInventory = isBackpack ? fetchedBackpack : fetchedInventory;
-    console.log('[DEBUG] After re-fetch: inventory:', fetchedInventory, 'backpack:', fetchedBackpack);
-  }
-
-  // Recalculate latest local inventory after any potential fetch
-  const latestInventory = isBackpack ? backpack : inventory;
-  const latestBackpack = isBackpack ? backpack : backpack; // redundant but explicit
-
-  // Capacity check — only for non-Money
-  if (!isMoney) {
-    console.log('[DEBUG] Checking capacity with inventory:', latestInventory, 'backpack:', latestBackpack);
-    const hasCapacity = checkInventoryCapacity(
-      currentPlayer,
-      latestInventory,
-      latestBackpack,
-      resource.type,
-      qtyCollected
-    );
-
-    if (!hasCapacity) {
-      const statusUpdate = isBackpack ? 21 : 20; // Backpack or warehouse full
-      console.warn(`Cannot collect doober: Exceeds capacity in ${isBackpack ? "backpack" : "warehouse"}.`);
-      addFloatingText(`No more capacity`, col * TILE_SIZE, row * TILE_SIZE); // Visual feedback
-      updateStatus(statusUpdate);
-      return;
-    }
-    console.log('[DEBUG] Passed capacity check. Proceeding to update inventory.');
-  }
-
   // Use exact same position calculation as VFX.js
   FloatingTextManager.addFloatingText(`+${qtyCollected} ${resource.type}`, col, row, TILE_SIZE );
-
+  if (skillMultiplier != 1) {
+    const skillAppliedText =
+    `(${playerBuffs.join(', ')} skill applied)`;
+    FloatingTextManager.addFloatingText(`${skillAppliedText}`, col, row-1.5, TILE_SIZE );
+  }
   // Optimistically remove the doober locally
   setResources((prevResources) =>
     prevResources.filter((res) => !(res.x === col && res.y === row))
   );
-  // Optimistically update target inventory locally
-  const updatedInventory = [...targetInventory];
-  const index = updatedInventory.findIndex((item) => item.type === resource.type);
-
-  if (index >= 0) {
-    updatedInventory[index].quantity += qtyCollected;
-  } else {
-    updatedInventory.push({ type: resource.type, quantity: qtyCollected });
-  }
-
-  console.log('[DEBUG] Updated inventory before setTargetInventory:', updatedInventory);
-
-  setTargetInventory(updatedInventory);
-  console.log('[DEBUG] setTargetInventory applied.');
-
   // Add VFX right before removing the doober
   createCollectEffect(col, row, TILE_SIZE);
 
@@ -289,16 +222,29 @@ async function handleDooberClick(
       { type: null, x: col, y: row }, // Collecting doober removes it
       true
     );
- 
     if (gridUpdateResponse?.success) {
       console.log('Doober collected successfully.');
 
-      // Update the server inventory or backpack
-      await axios.post(`${API_BASE}/api/update-inventory`, {
+      // Use gainIngredients to handle inventory/backpack update, sync, and capacity check
+      const gainSuccess = await gainIngredients({
         playerId: currentPlayer.playerId,
-        [isBackpack ? "backpack" : "inventory"]: updatedInventory,
+        currentPlayer,
+        resource: resource.type,
+        quantity: qtyCollected,
+        inventory,
+        backpack,
+        setInventory,
+        setBackpack,
+        setCurrentPlayer,
+        updateStatus,
       });
-      console.log('[DEBUG] Server inventory update complete.');
+
+      if (!gainSuccess) {
+        console.warn("❌ Failed to gain doober ingredient. Rolling back.");
+        // Restore the doober visually
+        setResources((prevResources) => [...prevResources, resource]);
+        return;
+      }
 
       // Track quest progress for "Collect" actions
       // trackQuestProgress expects: (player, action, item, quantity, setCurrentPlayer)
@@ -314,17 +260,6 @@ async function handleDooberClick(
     console.error('Error during doober collection:', error);
     // Rollback local resource state on server failure
     setResources((prevResources) => [...prevResources, resource]);
-    setTargetInventory((prevInventory) => {
-      const revertedInventory = [...prevInventory];
-      const index = revertedInventory.findIndex((item) => item.type === resource.type);
-      if (index >= 0) {
-        revertedInventory[index].quantity -= qtyCollected;
-        if (revertedInventory[index].quantity <= 0) {
-          revertedInventory.splice(index, 1); // Remove item if quantity is zero
-        }
-      }
-      return revertedInventory;
-    });
   } finally {
     unlockResource(col, row); // Always unlock the resource
   }
@@ -335,7 +270,7 @@ async function handleDooberClick(
 // Returns a Promise<boolean>: true if item used, false otherwise
 let pendingKeyResolve = null; // Module-level temporary resolve callback
 
-export async function handleUseKey(resource,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,setInventory,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus) {
+export async function handleUseKey(resource,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,inventory,setInventory,backpack,setBackpack,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus) {
   console.log('handleUseKey: resource:', resource);
   if (!resource.requires) return true;
   if (pendingKeyResolve) {return false;}   // Only allow one modal pending at a time
@@ -349,38 +284,25 @@ export async function handleUseKey(resource,col,row,TILE_SIZE,currentPlayer,setC
     pendingKeyResolve = resolve;
 
     const handleYes = async () => {
-      // Deduct from inventory and backpack if present
-      const updatedInventory = currentPlayer.inventory.map(item =>
-        item.type === requiredType
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      ).filter(item => item.quantity > 0);
+      const spent = await spendIngredients({
+        playerId: currentPlayer.playerId,
+        currentPlayer,
+        resource: requiredType,
+        quantity: 1,
+        inventory,
+        backpack,
+        setInventory,
+        setBackpack,
+        setCurrentPlayer,
+        updateStatus,
+      });
 
-      const updatedBackpack = (currentPlayer.backpack || []).map(item =>
-        item.type === requiredType
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      ).filter(item => item.quantity > 0);
-
-      setInventory(updatedInventory);
-      const updatedPlayer = {
-        ...currentPlayer,
-        inventory: updatedInventory,
-        backpack: updatedBackpack
-      };
-      setCurrentPlayer(updatedPlayer);
-      localStorage.setItem('player', JSON.stringify(updatedPlayer));
-      updateStatus(`${strings["36"]}${requiredType}`);
-
-      try {
-        await axios.post(`${API_BASE}/api/update-inventory`, {
-          playerId: currentPlayer.playerId,
-          inventory: updatedInventory,
-          backpack: updatedBackpack,
-        });
-      } catch (err) {
-        console.error("❌ Failed to sync inventory to server:", err);
+      if (!spent) {
+        console.warn('❌ Failed to spend key item.');
+        return;
       }
+
+      updateStatus(`${strings["36"]}${requiredType}`);
 
       setIsModalOpen(false);
       if (pendingKeyResolve) {
@@ -388,7 +310,6 @@ export async function handleUseKey(resource,col,row,TILE_SIZE,currentPlayer,setC
         pendingKeyResolve = null;
       }
     };
-
     const handleNo = () => {
       setIsModalOpen(false);
       if (pendingKeyResolve) {
@@ -426,7 +347,10 @@ export async function handleSourceConversion(
   col,
   resources,
   setResources,
+  inventory,
   setInventory,
+  backpack,
+  setBackpack,
   gridId,
   addFloatingText,
   TILE_SIZE,
@@ -461,7 +385,7 @@ export async function handleSourceConversion(
   );
   // 🔑 Handle Key Requirement
   if (requiresType && !isSkillOrUpgrade) {
-    const usedKey = await handleUseKey(resource,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,setInventory,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus,);
+    const usedKey = await handleUseKey(resource,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,inventory,setInventory,backpack,setBackpack,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus,);
     if (!usedKey) return;
   }
   // Build the new resource object to replace the one we just clicked
@@ -493,8 +417,6 @@ export async function handleSourceConversion(
     if (gridUpdateResponse?.success) {
       // VFX
       createSourceConversionEffect(col, row, TILE_SIZE, requiredSkill);
-      // Success Text
-      FloatingTextManager.addFloatingText(`Converted to ${targetResource.type}`, col, row, TILE_SIZE);
       console.log('✅ Source conversion completed successfully on the server.');
     } else {
       throw new Error('Server failed to confirm the source conversion.');

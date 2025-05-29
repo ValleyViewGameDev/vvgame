@@ -3,7 +3,7 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import Panel from '../UI/Panel';
 import '../UI/Panel.css'; // Specific styles for Debug Panel
-import { fetchInventory, updateInventory, refreshPlayerAfterInventoryUpdate } from './InventoryManagement';
+import { fetchInventory, debugUpdateInventory, refreshPlayerAfterInventoryUpdate } from './InventoryManagement';
 import { fetchGridData } from './GridManagement';
 import NPCsInGridManager from '../GridState/GridStateNPCs'; // Use default export for NPCsInGridManager
 import playersInGridManager from '../GridState/PlayersInGrid';
@@ -244,7 +244,7 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
       const currentInventory = await fetchInventory(playerId);
 
       // Add 1000 Money to the inventory
-      await updateInventory(currentPlayer, 'Money', 10000, setCurrentPlayer);
+      await debugUpdateInventory(currentPlayer, 'Money', 10000, setCurrentPlayer);
 
       // Update the state
       const updatedInventory = currentInventory.map((item) =>
@@ -294,6 +294,7 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
         { type: 'Golden Key', quantity: 100 },
         { type: 'Book', quantity: 100 },
         { type: 'Furniture', quantity: 1000 },
+        { type: 'Port', quantity: 1000 },
       ];
   
       // Fetch the latest inventory and work on a copy
@@ -307,9 +308,8 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
         } else {
           updatedInventory.push({ type: resource.type, quantity: resource.quantity });
         }
-  
         // Call updateInventory for each resource (server update only)
-        await updateInventory(
+        await debugUpdateInventory(
           { ...currentPlayer, inventory: updatedInventory }, // Simulate the updated player
           resource.type,
           resource.quantity,

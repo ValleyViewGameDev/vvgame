@@ -4,10 +4,9 @@ import Panel from '../../UI/Panel';
 import axios from 'axios';
 import '../../UI/ResourceButton.css';
 import ResourceButton from '../../UI/ResourceButton';
-import FloatingTextManager from '../../UI/FloatingText';
-import { canAfford, getIngredientDetails } from '../../Utils/ResourceHelpers';
-import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients } from '../../Utils/InventoryManagement';
-import { StatusBarContext } from '../../UI/StatusBar';
+import { getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { canAfford } from '../../Utils/InventoryManagement';
+import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import { loadMasterResources, loadMasterSkills } from '../../Utils/TuningManager';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
@@ -26,13 +25,13 @@ const ShopStation = ({
   stationType,
   currentStationPosition,
   gridId,
-  TILE_SIZE
+  TILE_SIZE,
+  updateStatus,
 }) => {
   const [recipes, setRecipes] = useState([]);
   const [allResources, setAllResources] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [stationEmoji, setStationEmoji] = useState('🛖');
-  const { updateStatus } = useContext(StatusBarContext);
   const [stationDetails, setStationDetails] = useState(null);
   const [fetchTrigger, setFetchTrigger] = useState(0);
 
@@ -88,20 +87,23 @@ const ShopStation = ({
 
   const handlePurchase = async (recipe) => {
     setErrorMessage('');
-    if (!recipe) { setErrorMessage('Invalid recipe selected.'); return; }
-    if (!canAfford(recipe, inventory, 1)) { updateStatus(4); return; }
-
-    const updatedInventory = [...inventory];
-    const success = checkAndDeductIngredients(recipe, updatedInventory, setErrorMessage);
-    if (!success) return;
-    const tradedQty = 1;
-    // ✅ Save updated inventory to DB
-    await axios.post(`${API_BASE}/api/update-inventory`, {
+    if (!recipe) {
+      setErrorMessage('Invalid recipe selected.');
+      return;
+    }
+    const success = await spendIngredients({
       playerId: currentPlayer.playerId,
-      inventory: updatedInventory,
+      recipe,
+      inventory,
+      backpack,
+      setInventory,
+      setBackpack,
+      setCurrentPlayer,
+      updateStatus,
     });
-    console.log(`📡 Inventory updated successfully!`);
-    setInventory(updatedInventory);
+    if (!success) return;
+
+    const tradedQty = 1;
 
     if (recipe.category === "power") {
       const updatedPowers = [...(currentPlayer.powers || [])];
@@ -132,14 +134,29 @@ const ShopStation = ({
         }
       }
     }
+    else {
+      const gainSuccess = await gainIngredients({
+        playerId: currentPlayer.playerId,
+        currentPlayer,
+        resource: recipe.type,
+        quantity: recipe.qtycollected || 1,
+        inventory,
+        backpack,
+        setInventory,
+        setBackpack,
+        setCurrentPlayer,
+        updateStatus,
+      });
 
-    // ✅ Track quest progress
+      if (!gainSuccess) {
+        console.warn(`Failed to gain ${recipe.type}`);
+        return;
+      }
+    }
+
     await trackQuestProgress(currentPlayer, 'Trade', recipe.type, tradedQty, setCurrentPlayer);
-    // ✅ Refresh inventory
-    await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-    console.log('recipe = ', recipe);
-    updateStatus(`✅ Exchanged ${recipe.ingredient1} for ${recipe.type}.`);
+    updateStatus(`✅ Acquired ${recipe.type}.`);
     setFetchTrigger(prev => prev + 1);
   };
 

@@ -4,8 +4,10 @@ import Panel from '../../UI/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
-import { canAfford, getIngredientDetails } from '../../Utils/ResourceHelpers';
-import { checkAndDeductIngredients, refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
+import { getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { canAfford } from '../../Utils/InventoryManagement';
+import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
+import { gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
 import { usePanelContext } from '../../UI/PanelContext';
 import { QuestGiverButton } from '../../UI/QuestButton';
@@ -14,20 +16,21 @@ import { modifyPlayerStatsInPlayer, modifyPlayerStatsInGridState } from '../../U
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
+import strings from '../../UI/strings';
 
 const QuestGiverPanel = ({
   onClose,
   npcData,
   inventory,
   setInventory,
+  backpack,
   setBackpack,
   currentPlayer,
   setCurrentPlayer,
   setResources,
-  TILE_SIZE
+  TILE_SIZE,
+  updateStatus,
 }) => {
-  const { updateStatus } = useContext(StatusBarContext);
-  const { closePanel } = usePanelContext();
   const [questList, setQuestList] = useState([]);
   const [healRecipes, setHealRecipes] = useState([]);
   const [allResources, setAllResources] = useState([]);
@@ -132,7 +135,6 @@ const QuestGiverPanel = ({
       if (response.data.success) {
         setCurrentPlayer(response.data.player); // Update player after quest is added
         updateStatus(202);
-        closePanel(); 
         console.log(`✅ Quest "${questTitle}" added with initial progress:`, initialProgress);
       } else {
         setStatusMessage(`Failed to accept quest: ${response.data.error}`);
@@ -145,84 +147,38 @@ const QuestGiverPanel = ({
 
   const handleGetReward = async (quest) => {
     try {
-      const isMoney = quest.reward === "Money";
-      const isBackpackLocation = ["town", "valley0", "valley1", "valley2", "valley3"].includes(currentPlayer.location.gtype);
-
-      let targetInventory = isMoney ? currentPlayer.inventory : isBackpackLocation ? currentPlayer.backpack : currentPlayer.inventory;
-      let maxCapacity = isMoney ? Infinity : isBackpackLocation ? currentPlayer.backpackCapacity : currentPlayer.warehouseCapacity;
-
-      // ✅ Check inventory capacity only if it's NOT Money
-      if (!isMoney) {
-        const currentCapacity = targetInventory
-          .filter((item) => item.type !== 'Money')
-          .reduce((sum, item) => sum + item.quantity, 0);
-
-        if (currentCapacity + quest.rewardqty > maxCapacity) {
-          const statusUpdate = isBackpackLocation ? 21 : 20; // 21 = Backpack Full, 20 = Warehouse Full
-          console.warn(`Cannot collect quest reward: Exceeds capacity in ${isBackpackLocation ? "backpack" : "warehouse"}.`);
-          updateStatus(statusUpdate);
-          return;
-        }
-      }
-  
-      // Proceed to collect the reward
-      const response = await axios.post(`${API_BASE}/api/complete-quest`, {
+      const success = await gainIngredients({
         playerId: currentPlayer.playerId,
-        questId: quest.title,
-        reward: {
-          type: quest.reward,
-          quantity: quest.rewardqty,
+        currentPlayer,
+        resource: quest.reward,
+        quantity: quest.rewardqty,
+        inventory,
+        backpack,
+        setInventory,
+        setBackpack,
+        setCurrentPlayer,
+        updateStatus,
+      });
+      if (!success) return;
+      
+      const updatedPlayer = {
+        ...currentPlayer,
+        completedQuests: [
+          ...currentPlayer.completedQuests,
+          { questId: quest.title, timestamp: Date.now() },
+        ],
+      };
+      await axios.post(`${API_BASE}/api/update-profile`, {
+        playerId: currentPlayer.playerId,
+        updates: {
+          completedQuests: updatedPlayer.completedQuests,
         },
       });
-   
-      if (response.data?.success) {
-        // Add quest to completedQuests in local state and on the server
-        const updatedPlayer = {
-          ...currentPlayer,
-          completedQuests: [
-            ...currentPlayer.completedQuests,
-            { questId: quest.title, timestamp: Date.now() },  // Add completed quest entry
-          ],
-        };
+      setCurrentPlayer(updatedPlayer);
+      setQuestList((prevList) => prevList.filter((q) => q.title !== quest.title));
+      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+      updateStatus(201);
 
-        // ✅ Update inventory locally
-        const updatedInventory = [...targetInventory];
-        const itemIndex = updatedInventory.findIndex(item => item.type === quest.reward);
-        if (itemIndex >= 0) {
-          updatedInventory[itemIndex].quantity += quest.rewardqty;
-        } else {
-          updatedInventory.push({ type: quest.reward, quantity: quest.rewardqty });
-        }
-  
-        // Save to server
-        await axios.post(`${API_BASE}/api/update-profile`, {
-          playerId: currentPlayer.playerId,
-          updates: {
-            completedQuests: updatedPlayer.completedQuests,
-          },
-        });
-  
-        // ✅ Ensure UI updates properly
-        setCurrentPlayer(updatedPlayer);
-        if (isMoney) {
-          setInventory(updatedInventory); // ✅ Money goes to inventory
-        } else if (isBackpackLocation) {
-          setBackpack(updatedInventory); // ✅ Backpack items in town
-        } else {
-          setInventory(updatedInventory); // ✅ Default: Warehouse
-        }
-        
-        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-        updateStatus(201); // Notify success
-        closePanel();  // Close the panel after successfully accepting the quest
-        FloatingTextManager.addFloatingText(
-          `+${quest.rewardqty} ${quest.reward}`,
-          window.innerWidth / 12,
-          window.innerHeight / 4,
-          TILE_SIZE,
-        );
-      }
     } catch (error) {
       console.error('Error collecting quest reward:', error);
       alert('Failed to collect quest reward.');
@@ -249,11 +205,6 @@ const handleHeal = async (recipe) => {
       setErrorMessage('Invalid healing recipe selected.');
       return;
     }
-    if (!canAfford(recipe, inventory, 1)) {
-      setErrorMessage('Not enough resources to heal.');
-      return;
-    }
-
     // Fetch current HP and Max HP from playersInGridManager
     const gridId = currentPlayer?.location?.g;
     const playerId = currentPlayer._id?.toString();
@@ -276,10 +227,16 @@ const handleHeal = async (recipe) => {
         return;
       }
     }
-    const updatedInventory = [...inventory];
-    if (!checkAndDeductIngredients(recipe, updatedInventory, setErrorMessage)) {
-      return;
-    }
+    const success = await spendIngredients({
+      playerId: currentPlayer.playerId,
+      recipe,
+      inventory,
+      backpack,
+      setInventory,
+      setBackpack,
+      updateStatus,
+    });
+    if (!success) return;
 
     const healAmount = npcData.qtycollected;
     const statToMod = 'hp';
@@ -293,25 +250,13 @@ const handleHeal = async (recipe) => {
       setCurrentPlayer((prev) => ({
         ...prev,
         hp: Math.min(prev.maxhp, prev.hp + amountToMod),
-      }));
-    
-      FloatingTextManager.addFloatingText(`+${amountToMod} HP`, -100, 115, TILE_SIZE);
+      }));  
+      updateStatus(`${strings[405]}${amountToMod}.`);
+
     } catch (error) {
       console.error('Error applying healing:', error);
     }
 
-    setInventory(updatedInventory);
-    localStorage.setItem('inventory', JSON.stringify(updatedInventory));
-
-    try {
-      await axios.post(`${API_BASE}/api/update-inventory`, {
-        playerId: currentPlayer.playerId,
-        inventory: updatedInventory,
-      });
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-    } catch (error) {
-      console.error('Error updating server after healing:', error);
-    }
   };
 
 

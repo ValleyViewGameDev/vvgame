@@ -3,12 +3,22 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
 import ResourceButton from '../../UI/ResourceButton';
-import { checkAndDeductIngredients } from '../../Utils/InventoryManagement';
+import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import './Train.css';
 import FloatingTextManager from '../../UI/FloatingText';
 import { formatCountdown } from '../../UI/Timers';
 
-function TrainPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) {
+function TrainPanel({ 
+  onClose, 
+  inventory,
+  setInventory,
+  backpack,
+  setBackpack,
+  currentPlayer, 
+  setCurrentPlayer, 
+  updateStatus,
+  }) 
+{
   const [trainOffers, setTrainOffers] = useState([]);
   const [trainPhase, setTrainPhase] = useState("loading");
   const [trainTimer, setTrainTimer] = useState("⏳");
@@ -101,11 +111,17 @@ function TrainPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) 
   const handleFulfill = async (offer) => {
     if (!offer || offer.claimedBy !== currentPlayer.playerId) return;
 
-    const affordable = checkAndDeductIngredients({ type: offer.itemBought, quantity: offer.qtyBought }, currentPlayer.inventory);
-    if (!affordable) {
-      updateStatus(`❌ Not enough ${offer.itemBought}`);
-      return;
-    }
+    // Spend the ingredients (the item being delivered)
+    const success = await spendIngredients({
+      playerId: currentPlayer.playerId,
+      recipe: { type: offer.itemBought, ingredient1: offer.itemBought, qtyingredient1: offer.qtyBought },
+      inventory,
+      backpack,
+      setInventory,
+      setBackpack,
+      updateStatus,
+    });
+    if (!success) return;
 
     try {
       // First update the train offer
@@ -116,39 +132,33 @@ function TrainPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) 
         },
       });
 
-      // Then update inventory only if train offer update was successful
-      const updatedInventory = [...currentPlayer.inventory]
-        .map((item) =>
-          item.type === offer.itemBought
-            ? { ...item, quantity: item.quantity - offer.qtyBought }
-            : item
-        )
-        .filter((item) => item.quantity > 0);
-
-      const moneyIndex = updatedInventory.findIndex(i => i.type === "Money");
-      if (moneyIndex >= 0) {
-        updatedInventory[moneyIndex].quantity += offer.qtyGiven;
-      } else {
-        updatedInventory.push({ type: "Money", quantity: offer.qtyGiven });
-      }
-
-      await axios.post(`${API_BASE}/api/update-inventory`, {
-        playerId: currentPlayer.playerId,
-        inventory: updatedInventory,
-      });
+      console.log('Offer = ',offer);
+      console.log('Offer.qtyGiven = ',offer.qtyGiven);
+      
+    // Award Money for fulfillment
+    await gainIngredients({
+      playerId: currentPlayer.playerId,
+      currentPlayer,
+      resource: "Money",
+      quantity: offer.qtyGiven,
+      inventory,
+      backpack,
+      setInventory,
+      setBackpack,
+      setCurrentPlayer,
+      updateStatus,
+    });
 
       // Update local state in correct order
-      setTrainOffers(prev => prev.map(o => 
-        o.itemBought === offer.itemBought && 
-        o.qtyBought === offer.qtyBought && 
+      setTrainOffers(prev => prev.map(o =>
+        o.itemBought === offer.itemBought &&
+        o.qtyBought === offer.qtyBought &&
         o.claimedBy === currentPlayer.playerId
           ? { ...o, filled: true }
           : o
       ));
-      
-      setCurrentPlayer(prev => ({ ...prev, inventory: updatedInventory }));
-      
-      updateStatus(`✅ Delivered ${offer.qtyBought} ${offer.itemBought}, received ${offer.qtyGiven} Money`);
+
+      updateStatus(`✅ Delivered ${offer.qtyBought} ${offer.itemBought}.`);
 
     } catch (error) {
       console.error("❌ Error fulfilling offer:", error);

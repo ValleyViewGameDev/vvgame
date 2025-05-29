@@ -20,9 +20,11 @@ const DynamicRenderer = ({
   onNPCClick, // This is needed because of the Quest NPCs and their Panels
   onPCClick,  // This is needed for the Social Panel
   masterResources,
+  masterSkills,
   setHoverTooltip, 
   setModalContent,
-  setIsModalOpen
+  setIsModalOpen,
+  updateStatus,
 }) => {
   const NPCsInGrid = useGridState(); // Use the updated NPCsInGrid from context
   const playersInGrid = usePlayersInGrid(); // Access PCs via modern PC-specific context
@@ -217,9 +219,11 @@ const DynamicRenderer = ({
               currentPlayer,
               TILE_SIZE,
               masterResourcesRef.current,
+              masterSkills,
               currentPlayer?.location?.g,
               setModalContent,
-              setIsModalOpen
+              setIsModalOpen,
+              updateStatus,
             );
           }
         });

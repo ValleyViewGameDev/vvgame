@@ -277,6 +277,7 @@ useEffect(() => {
       let updatedPlayerData = { ...parsedPlayer, ...DBPlayerData };
       setCurrentPlayer(updatedPlayerData);
       setInventory(DBPlayerData.inventory || []);  // Initialize inventory properly
+      setBackpack(DBPlayerData.backpack || []);
 
       // Step 4. Determine initial gridId from player or storage
       console.log('🏁✅ Determining local gridId...');
@@ -1250,16 +1251,17 @@ const handleLoginSuccess = async (player) => {
             onNPCClick={handleQuestNPCClick}  // Pass the callback
             onPCClick={handlePCClick}  // Pass the callback
             masterResources={masterResources}
+            masterSkills={masterSkills}
             setHoverTooltip={setHoverTooltip}
             setModalContent={setModalContent}
             setIsModalOpen={setIsModalOpen} 
+            updateStatus={updateStatus}
           /> 
           {/* <RenderVFX 
             toggleVFX={currentPlayer?.settings?.toggleVFX}
             // Placeholder for VFX
             TILE_SIZE={activeTileSize}
           /> */}
-
 
         </>
       ) : null}
@@ -1394,18 +1396,24 @@ const handleLoginSuccess = async (player) => {
       {activePanel === 'BankPanel' && (
         <BankPanel
           onClose={closePanel} 
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
-          setInventory={setInventory}
           updateStatus={updateStatus}
         />
       )}
       {activePanel === 'TrainPanel' && (
         <TrainPanel
           onClose={closePanel} 
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
-          setInventory={setInventory}
           updateStatus={updateStatus}
         />
       )}
@@ -1443,10 +1451,13 @@ const handleLoginSuccess = async (player) => {
           onClose={closePanel}
           inventory={inventory}
           setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack} 
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           stationType={activeStation?.type} 
           TILE_SIZE={activeTileSize}
+          updateStatus={updateStatus}
         />
       )}
       {activePanel === 'CombatPanel' && (
@@ -1460,6 +1471,7 @@ const handleLoginSuccess = async (player) => {
           masterResources={masterResources} 
           masterSkills={masterSkills} 
           TILE_SIZE={activeTileSize}
+          updateStatus={updateStatus}
         />
       )}
       {activePanel === 'CraftingStation' && (
@@ -1478,7 +1490,8 @@ const handleLoginSuccess = async (player) => {
           masterResources={masterResources} 
           masterSkills={masterSkills} 
           TILE_SIZE={activeTileSize}
-          />
+          updateStatus={updateStatus}
+        />
       )}
       {activePanel === 'TradingStation' && (
         <TradingStation
@@ -1494,6 +1507,7 @@ const handleLoginSuccess = async (player) => {
           currentStationPosition={activeStation?.position} 
           gridId={activeStation?.gridId}
           TILE_SIZE={activeTileSize}
+          updateStatus={updateStatus}
         />
       )}
       {activePanel === 'ShopStation' && (
@@ -1510,15 +1524,17 @@ const handleLoginSuccess = async (player) => {
           currentStationPosition={activeStation?.position} 
           gridId={activeStation?.gridId}
           TILE_SIZE={activeTileSize}
+          updateStatus={updateStatus}
         />
       )}
       {activePanel === 'FarmingPanel' && (
         <FarmingPanel
           onClose={closePanel}
-          username={currentPlayer.username}
           TILE_SIZE={activeTileSize}
           inventory={inventory}
           setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
           resources={resources}
           setResources={setResources}
           tiles={grid}
@@ -1530,6 +1546,7 @@ const handleLoginSuccess = async (player) => {
           gridId={gridId}
           masterResources={masterResources} 
           masterSkills={masterSkills} 
+          updateStatus={updateStatus}
         />
       )}
       {activePanel === 'BuildPanel' && (
@@ -1538,15 +1555,17 @@ const handleLoginSuccess = async (player) => {
           TILE_SIZE={activeTileSize}
           inventory={inventory}
           setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
           resources={resources}
           setResources={setResources}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setIsMoving={setIsMoving}
           gridId={gridId}
-          updateStatus={updateStatus}
           masterResources={masterResources} 
           masterSkills={masterSkills} 
+          updateStatus={updateStatus}
         />
       )}
       {activePanel === 'BuyPanel' && (
@@ -1555,16 +1574,17 @@ const handleLoginSuccess = async (player) => {
           TILE_SIZE={activeTileSize}
           inventory={inventory}
           setInventory={setInventory}
-          playerPosition={playerPosition}
+          backpack={backpack}
+          setBackpack={setBackpack}
           resources={resources}
           setResources={setResources}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setIsMoving={setIsMoving}
           gridId={gridId}
-          updateStatus={updateStatus}
           masterResources={masterResources} 
           masterSkills={masterSkills} 
+          updateStatus={updateStatus}
         />
       )}
       {activePanel === 'QuestGiverPanel' && (
@@ -1573,11 +1593,13 @@ const handleLoginSuccess = async (player) => {
           npcData={activeQuestGiver}
           inventory={inventory}
           setInventory={setInventory}
+          backpack={backpack}
           setBackpack={setBackpack}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setResources={setResources}
           TILE_SIZE={activeTileSize}
+          updateStatus={updateStatus}
         />
       )}
       {activePanel === 'SocialPanel' && (
@@ -1586,8 +1608,11 @@ const handleLoginSuccess = async (player) => {
           pcData={activeSocialPC}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
+          inventory={inventory}
           setInventory={setInventory}  
-          setBackpack={setBackpack}   
+          backpack={backpack}
+          setBackpack={setBackpack} 
+          updateStatus={updateStatus}
         />
       )}
       {activePanel === 'AnimalStall' && (
@@ -1595,6 +1620,8 @@ const handleLoginSuccess = async (player) => {
           onClose={closePanel}
           inventory={inventory}
           setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setResources={setResources}
@@ -1602,6 +1629,7 @@ const handleLoginSuccess = async (player) => {
           currentStationPosition={activeStation?.position} 
           gridId={activeStation?.gridId} 
           TILE_SIZE={activeTileSize}
+          updateStatus={updateStatus}
         />
       )}
       {activePanel === 'TradeStall' && (
@@ -1611,6 +1639,7 @@ const handleLoginSuccess = async (player) => {
             setInventory={setInventory}
             currentPlayer={currentPlayer}
             setCurrentPlayer={setCurrentPlayer}
+            updateStatus={updateStatus}
         />
       )}
       {activePanel === 'FarmHandsPanel' && (

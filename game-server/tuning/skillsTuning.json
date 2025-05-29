@@ -7,18 +7,25 @@
       "Sugarcane": 2,
       "Olive": 2,
       "Apple": 2,
-      "Lemon": 2
+      "Lemon": 2,
+      "Tomato": 2
     },
     "Winemaker": {
       "Grapes": 2,
       "Wine": 4,
       "Port": 3
     },
-    "Baker": {
+    "Cooking": {
       "Bread": 3,
       "Cornbread": 3,
       "Apple Pie": 4,
-      "Strawberry Pie": 4
+      "Strawberry Pie": 4,
+      "Omelette": 2,
+      "Pizza": 2,
+      "Tomato Soup": 2,
+      "Carrot Soup": 2,
+      "Olive Bread": 3,
+      "Lemon Cake": 2
     },
     "Better Axe": {
       "Wood": 2
@@ -27,14 +34,9 @@
       "Stone": 3
     },
     "Husbandry": {
-      "Grazing Time": 1,
-      "Milk": 1,
-      "Wool": 1
-    },
-    "Dairy Farmer": {
       "Grazing Time": 0.5,
-      "Milk": 3
-    }
-     
+      "Milk": 3,
+      "Wool": 2
+    }     
   }
   

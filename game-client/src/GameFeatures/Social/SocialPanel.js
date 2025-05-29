@@ -4,7 +4,7 @@ import Panel from '../../UI/Panel';
 import axios from 'axios';
 import { StatusBarContext } from '../../UI/StatusBar';
 import { usePanelContext } from '../../UI/PanelContext';
-import { checkAndDeductIngredients } from '../../Utils/InventoryManagement';
+import { spendIngredients } from '../../Utils/InventoryManagement';
 import NPCsInGridManager from '../../GridState/GridStateNPCs.js';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 
@@ -13,13 +13,12 @@ const SocialPanel = ({
   pcData,
   currentPlayer,
   setCurrentPlayer,
+  inventory,
   setInventory,
+  backpack,
   setBackpack,
+  updateStatus,
 }) => {
-  const { updateStatus } = useContext(StatusBarContext);
-  const { closePanel } = usePanelContext();
-  const [statusMessage, setStatusMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
   const [tentCount, setTentCount] = useState(0);
   const [isCamping, setIsCamping] = useState(false);
   const [displayedPCData, setDisplayedPCData] = useState(pcData);
@@ -72,42 +71,31 @@ const SocialPanel = ({
 
   // ✅ Handle Pitching a Tent
   const handlePitchTent = async () => {
-    console.log("⛺️ handlePitchTent called; tentCount = ",tentCount);
+    console.log("⛺️ handlePitchTent called; tentCount = ", tentCount);
     if (tentCount <= 0) return;
 
     try {
-      let updatedBackpack = [...currentPlayer.backpack];
-      // ✅ Deduct the tent from the backpack directly
-      const tentIndex = updatedBackpack.findIndex(item => item.type === "Tent");
-
-      if (tentIndex >= 0 && updatedBackpack[tentIndex].quantity > 0) {
-          updatedBackpack[tentIndex].quantity -= 1;
-          if (updatedBackpack[tentIndex].quantity <= 0) {
-              updatedBackpack.splice(tentIndex, 1); // Remove item if quantity reaches 0
-          }
-      } else {
-          console.warn("🚫 No tents found in backpack. Cannot pitch tent.");
-          updateStatus(27); // "You don't have a tent."
-          return;
-      }
-      console.log("⛺️ Tent deducted. Updated Backpack:", updatedBackpack);
-      setBackpack(updatedBackpack); // ✅ Update the backpack state
-
-      // ✅ Save updated inventory/backpack to DB
-      await axios.post(`${API_BASE}/api/update-inventory`, {
+      const fakeRecipe = { ingredient1: "Tent", ingredient1qty: 1 };
+      const success = await spendIngredients({
         playerId: currentPlayer.playerId,
-        backpack: updatedBackpack,
+        recipe: fakeRecipe,
+        inventory,
+        backpack,
+        setInventory,
+        setBackpack,
+        setCurrentPlayer,
+        updateStatus,
       });
-      console.log('⛺️ iscamping: updated inventory; updatedBackpack = ',updatedBackpack);
 
-      // ✅ Update camping status in the database
+      if (!success) return;
+
       const response = await axios.post(`${API_BASE}/api/update-profile`, {
         playerId: currentPlayer.playerId,
         updates: { iscamping: true },
       });
 
       if (response.data.success) {
-        console.log('⛺️ iscamping: updated profile successfully; response = ',response);
+        console.log('⛺️ iscamping: updated profile successfully; response = ', response);
         setIsCamping(true);
         setCurrentPlayer(prev => ({ ...prev, iscamping: true }));
         updateStatus(28);

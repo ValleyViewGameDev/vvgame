@@ -1,10 +1,9 @@
 import API_BASE from "../../config";
 import axios from "axios";    
-import { checkInventoryCapacity } from "../../Utils/InventoryManagement";
 import FloatingTextManager from "../../UI/FloatingText";
 import NPCsInGridManager from "../../GridState/GridStateNPCs";
 import { handleAttackOnNPC } from "../Combat/Combat";
-
+import { gainIngredients } from "../../Utils/InventoryManagement";
 
 export function loadNPCDefinitions(resources) {
     const npcDefinitions = {};
@@ -37,9 +36,11 @@ export async function handleNPCClick(
   currentPlayer,
   TILE_SIZE,
   masterResources,
+  masterSkills,
   currentGridId,
   setModalContent,
-  setIsModalOpen
+  setIsModalOpen,
+  updateStatus,
 ) {
   if (!npc) {
     console.warn("handleNPCClick was called with an undefined NPC.");
@@ -65,24 +66,20 @@ export async function handleNPCClick(
         return new Promise((resolve) => {
           const handleYes = async () => {
             await NPCsInGridManager.removeNPC(currentGridId, npc.id);
-
             const relocatedNPC = {
               ...npc,
               position: { x: 1, y: 7 },
               state: 'idle',
               lastUpdated: Date.now(),
             };
-
             await NPCsInGridManager.addNPC(currentPlayer.gridId, relocatedNPC);
             setIsModalOpen(false);
             resolve({ type: 'success', message: `NPC moved to your homestead.` });
           };
-
           const handleNo = () => {
             setIsModalOpen(false);
             resolve({ type: 'info', message: 'Cancelled.' });
           };
-
           setModalContent({
             title: "Send this animal to your homestead?",
             size: "small",
@@ -98,7 +95,8 @@ export async function handleNPCClick(
         });
       }
       
-      
+      // ✅ Otherwise, handle Animals in stalls in "procesing" state
+
       if (npc.state !== 'processing') {
         console.log(`NPC clicked but not in processing state: ${npc.state}`);
         return { type: 'info', message: 'NPC is not ready for collection.' };
@@ -107,61 +105,51 @@ export async function handleNPCClick(
       const baseQuantity = npc.qtycollected || 1;
       console.log('Base quantity to collect:', baseQuantity);
 
-      const skillModifier = 1;
+      // Extract player skills and upgrades from inventory
+      const playerBuffs = currentPlayer?.skills
+        .filter((item) => {
+          const res = masterResources.find((r) => r.type === item.type);
+          const isSkill = res?.category === 'skill' || res?.category === 'upgrade';
+          const applies = (masterSkills?.[item.type]?.[npc.output] || 1) > 1;
+          return isSkill && applies;
+        })
+        .map((item) => item.type);
+
+      const skillModifier = playerBuffs.reduce((mult, buff) => {
+        const boost = masterSkills?.[buff]?.[npc.output] || 1;
+        return mult * boost;
+      }, 1);
+
       const quantityToCollect = baseQuantity * skillModifier;
-
-      const hasCapacity = checkInventoryCapacity(
-        currentPlayer,
-        currentPlayer.inventory,
-        currentPlayer.backpack,
-        npc.output,
-        quantityToCollect
-      );
-
-      if (!hasCapacity) {
-        console.warn('Not enough inventory space to collect resource.');
-        FloatingTextManager.addFloatingText(20, col, row, TILE_SIZE);
-        return { type: 'error', message: 'Not enough inventory space.' };
-      }
+      console.log('[DEBUG] quantityToCollect after multiplier:', quantityToCollect);
 
       // Update the player's inventory
-      const updatedInventory = [...currentPlayer.inventory].filter(item => 
-        item && typeof item === 'object' && item.type && item.quantity
-      );
-      const resourceIndex = updatedInventory.findIndex((item) => item.type === npc.output);
+      
+      const gainSuccess = await gainIngredients({
+        playerId: currentPlayer.playerId,
+        currentPlayer,
+        resource: npc.output,
+        quantity: quantityToCollect,
+        inventory: currentPlayer.inventory,
+        backpack: currentPlayer.backpack,
+        setInventory,
+        setBackpack: () => {}, // no change to backpack in graze flow
+        setCurrentPlayer: () => {}, // optional: skip player refresh
+        updateStatus: () => {},     // optional: or pass a real one if available
+      });
 
-      if (resourceIndex >= 0) {
-        updatedInventory[resourceIndex].quantity += quantityToCollect;
-      } else {
-        updatedInventory.push({ 
-          type: npc.output, 
-          quantity: quantityToCollect 
-        });
+      if (!gainSuccess) {
+        FloatingTextManager.addFloatingText(`❌ No space`, col, row, TILE_SIZE);
+        return { type: 'error', message: 'Failed to collect item (no space?)' };
       }
-
-      // Validate inventory before sending to server
-      const validInventory = updatedInventory.every(item => 
-        item && 
-        typeof item === 'object' && 
-        typeof item.type === 'string' && 
-        typeof item.quantity === 'number'
-      );
-
-      if (!validInventory) {
-        console.error('Invalid inventory state:', updatedInventory);
-        return { type: 'error', message: 'Invalid inventory state' };
-      }
+      FloatingTextManager.addFloatingText(`+${quantityToCollect} ${npc.output}`, col, row, TILE_SIZE);
+      const statusMessage =
+        skillModifier === 1
+          ? `✅ Gained ${quantityToCollect} ${npc.output}.`
+          : `✅ Gained ${quantityToCollect} ${npc.output} (${playerBuffs.join(', ')} skill applied).`;
+      updateStatus(statusMessage);
 
       try {
-        const response = await axios.post(`${API_BASE}/api/update-inventory`, {
-          playerId: currentPlayer.playerId,
-          inventory: updatedInventory,
-        });
-
-        if (response.data.success) {
-          FloatingTextManager.addFloatingText(`+${quantityToCollect} ${npc.output}`, col, row, TILE_SIZE);
-          setInventory(updatedInventory);
-          localStorage.setItem('inventory', JSON.stringify(updatedInventory));          
           console.log('currentPlayer before update:', currentPlayer);
           const existingNPC = NPCsInGridManager.getNPCsInGrid(currentPlayer.location.g)?.[npc.id];
           console.log('Existing NPC:', existingNPC);
@@ -174,10 +162,8 @@ export async function handleNPCClick(
             });
           }
           return { type: 'success', message: `Collected ${quantityToCollect} ${npc.output}.` };
-        } else {
-          throw new Error(response.data.message || 'Failed to update inventory');
-        }
-      } catch (error) {
+
+        } catch (error) {
         console.error('Error updating inventory or grid state on server:', error);
         return { type: 'error', message: 'Failed to update inventory or stall.' };
       }

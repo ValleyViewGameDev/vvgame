@@ -1,23 +1,6 @@
 import playersInGridManager from "../GridState/PlayersInGrid";
 import axios from "axios";
 import API_BASE from "../config";
-
-export const canAfford = (recipe, inventory, amount = 1) => {
-    if (!recipe || !Array.isArray(inventory)) return false;
-  
-    for (let i = 1; i <= 3; i++) {
-      const ingredientType = recipe[`ingredient${i}`];
-      const ingredientQty = recipe[`ingredient${i}qty`] * amount;
-  
-      if (ingredientType && ingredientQty >= 0) {
-        const inventoryItem = inventory.find((item) => item.type === ingredientType);
-        if (!inventoryItem || inventoryItem.quantity <= ingredientQty) {
-          return false;
-        }
-      }
-    }
-    return true;
-  };
   
 export const getIngredientDetails = (recipe, allResources) => {
   

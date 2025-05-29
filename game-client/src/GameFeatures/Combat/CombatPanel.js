@@ -6,7 +6,7 @@ import axios from 'axios';
 import ResourceButton from '../../UI/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
-import { canAfford, getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { modifyPlayerStatsInPlayer, modifyPlayerStatsInGridState } from '../../Utils/playerManagement';
 import { StatusBarContext } from '../../UI/StatusBar';

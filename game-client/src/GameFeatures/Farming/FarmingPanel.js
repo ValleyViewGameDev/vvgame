@@ -5,14 +5,20 @@ import Panel from '../../UI/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/ResourceButton';
 import { usePanelContext } from '../../UI/PanelContext';
-import { canAfford, getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { handleFarmPlotPlacement, handleTerraform } from './Farming';
 import strings from '../../UI/strings';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
  
 const FarmingPanel = ({
+  onClose,
   TILE_SIZE,
+  inventory,
+  setInventory,
+  backpack,
+  setBackpack,
   resources,
   setResources,
   tiles,
@@ -23,13 +29,11 @@ const FarmingPanel = ({
   gridId,
   masterResources,
   masterSkills,
+  updateStatus,
 }) => {
 
-  const { closePanel } = usePanelContext();
   const [farmPlots, setFarmPlots] = useState([]);
   const [allResources, setAllResources] = useState([]);
-  const [inventory, setInventory] = useState([]);
-  const { updateStatus } = useContext(StatusBarContext);
   const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
   const COOLDOWN_DURATION = 1200;
 
@@ -85,17 +89,21 @@ const handleFarmPlacementWithCooldown = async (item) => {
     resources,
     setResources,
     currentPlayer,
+    setCurrentPlayer,
     inventory,
     setInventory,
+    backpack,
+    setBackpack,
     gridId,
     masterResources,
     masterSkills,
+    updateStatus,
   });
 };
 
 
   return (
-    <Panel onClose={closePanel} descriptionKey="1004" titleKey="1104" panelName="FarmingPanel">
+    <Panel onClose={onClose} descriptionKey="1004" titleKey="1104" panelName="FarmingPanel">
       <div className="standard-panel">
  
            {/* Till Land Button */}

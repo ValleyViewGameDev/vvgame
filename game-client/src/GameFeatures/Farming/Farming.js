@@ -3,7 +3,7 @@ import axios from 'axios';
 import { addResourceToGrid } from '../../Utils/worldHelpers';
 import { convertTileType, updateGridResource } from '../../Utils/GridManagement';
 import { validateTileType, enrichResourceFromMaster } from '../../Utils/ResourceHelpers';
-import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients } from '../../Utils/InventoryManagement';
+import { refreshPlayerAfterInventoryUpdate, spendIngredients } from '../../Utils/InventoryManagement';
 import FloatingTextManager from '../../UI/FloatingText';
 import farmState from '../../FarmState';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
@@ -16,11 +16,15 @@ export const handleFarmPlotPlacement = async ({
   resources,
   setResources,
   currentPlayer,
+  setCurrentPlayer,
   inventory,
   setInventory,
+  backpack,
+  setBackpack,
   gridId,
   masterResources,
   masterSkills,
+  updateStatus,
 }) => {
   try {
     console.log(masterResources);
@@ -41,19 +45,20 @@ export const handleFarmPlotPlacement = async ({
       return;
     }
 
-    const updatedInventory = [...inventory];
-    const canPlace = checkAndDeductIngredients(selectedItem.type, updatedInventory);
-    if (!canPlace) {
+    const didSpend = await spendIngredients({
+      playerId: currentPlayer.playerId,
+      recipe: selectedItem,
+      inventory,
+      backpack,
+      setInventory,
+      setBackpack,
+      setCurrentPlayer,
+      updateStatus,
+    });
+    if (!didSpend) {
       FloatingTextManager.addFloatingText(305, tileX, tileY, TILE_SIZE); // "Missing ingredients"
       return;
     }
-
-    // Save inventory
-    await axios.post(`${API_BASE}/api/update-inventory`, {
-      playerId: currentPlayer.playerId,
-      inventory: updatedInventory,
-    });
-    setInventory(updatedInventory);
 
     // Timer setup
     const growEndTime = Date.now() + (selectedItem.growtime || 0) * 1000;

@@ -1,6 +1,6 @@
 import API_BASE from '../config';
 import axios from 'axios';
-import { refreshPlayerAfterInventoryUpdate, checkAndDeductIngredients } from '../Utils/InventoryManagement';
+import { refreshPlayerAfterInventoryUpdate, spendIngredients } from '../Utils/InventoryManagement';
 import { updateGridResource } from '../Utils/GridManagement';
 import { addResourceToGrid } from '../Utils/worldHelpers';
 import FloatingTextManager from '../UI/FloatingText';
@@ -16,22 +16,23 @@ export const handleConstruction = async ({
   buildOptions,
   inventory,
   setInventory,
+  backpack,
+  setBackpack,
   resources,
   setResources,
-  setErrorMessage,
   currentPlayer,
   setCurrentPlayer,
   gridId,
+  updateStatus,
 }) => {
   if (!currentPlayer) {
     console.warn('Current Player not provided; inventory changes will not be saved.');
     return;
   }
   if (!selectedItem) {
-    setErrorMessage('Invalid building selection.');
+    console.warn('Invalid building selection.');
     return;
   }
-
   // **Get player position dynamically from the NPCsInGrid**
   const playerId = currentPlayer._id.toString();  // Convert ObjectId to string
   const NPCsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
@@ -50,7 +51,7 @@ export const handleConstruction = async ({
 
   // Ensure valid player position
   if (!playerPosition || tileX == null || tileY == null) {
-    setErrorMessage('Player position is invalid.');
+    console.warn('Player position is invalid.');
     return;
   }
 
@@ -64,30 +65,21 @@ export const handleConstruction = async ({
     return; // Exit before deducting inventory
   }
 
-  const updatedInventory = [...inventory];
-
-  // Check and deduct ingredients
-  const canBuild = checkAndDeductIngredients(selectedItem, updatedInventory);
-  if (!canBuild) {
+  const success = await spendIngredients({
+    playerId: currentPlayer.playerId,
+    recipe: selectedResource,
+    inventory,
+    backpack,
+    setInventory,
+    setBackpack,
+    setCurrentPlayer,
+    updateStatus,
+  });
+  if (!success) {
     FloatingTextManager.addFloatingText(305, playerPosition.x, playerPosition.y, TILE_SIZE);
     return;
   }
-
-  // Save inventory updates to the server
-  try {
-    await axios.post(`${API_BASE}/api/update-inventory`, {
-      playerId: currentPlayer.playerId,
-      inventory: updatedInventory,
-    });
-    console.log('Inventory successfully updated on server.');
-  } catch (error) {
-    console.error('Error updating inventory on server:', error);
-    setErrorMessage('Error updating inventory on server.');
-    return;
-  }
-
-  // Update inventory in the client
-  setInventory(updatedInventory);
+  await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
   console.log('selectedResource.action=', selectedResource.action);
 
@@ -114,26 +106,13 @@ export const handleConstruction = async ({
     console.log('🧪 setResources was called to update client state.');
     
     try {
-      const gridUpdateResponse = await updateGridResource(
-        gridId, 
-        rawResource, 
-        true
-      );
+      await updateGridResource(gridId, rawResource, true);
       FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
-
       await trackQuestProgress(currentPlayer, 'Build', selectedItem, 1, setCurrentPlayer);
       await trackQuestProgress(currentPlayer, 'Buy', selectedItem, 1, setCurrentPlayer);
     } catch (error) {
       console.error('Error placing resource on grid:', error);
-      setErrorMessage('Failed to place resource on grid.');
       return;
     }
-  }
-
-  // Refresh player data to ensure client sync
-  try {
-    console.log('Player refreshed successfully after construction.');
-  } catch (error) {
-    console.error('Error refreshing player after construction:', error);
   }
 };
