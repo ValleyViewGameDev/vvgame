@@ -98,11 +98,13 @@
 
     "899": "DEBUG STRINGS:",
 
-    "900": "Debug: Inventory & Skills cleared.",
+    "900": "Debug: Inventory cleared.",
     "901": "Debug: Quest history cleared.",
     "902": "Debug: Resources added.",
     "903": "Debug: Grid successfully reset.",
     "904": "Debug: Skills added.",
+    "905": "Debug: Skills & Powers cleared.",
+    "906": "Debug: Combat Stats reset.",
 
     "999": "PANEL UI STRINGS:",
 

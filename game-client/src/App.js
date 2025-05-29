@@ -1322,9 +1322,14 @@ const handleLoginSuccess = async (player) => {
       {activeModal === 'Mailbox' && (
         <Mailbox
           onClose={closeModal}  // ✅ This sets activeModal = null
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           resources={masterResources}
+          updateStatus={updateStatus}
         />
       )}
       {activeModal === 'TownNews' && (

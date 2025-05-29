@@ -5,12 +5,13 @@
       "body": "Includes core skills and starter crops. Expires 7 days after new account creation.",
       "rewards": [
         { "item": "Money", "qty": 10000 },
-        { "item": "Skill:Horse", "qty": 1 },
-        { "item": "Skill:Backpack", "qty": 1 },
-        { "item": "Skill:Grower", "qty": 1 },
-        { "item": "Skill:Axe", "qty": 1 },
-        { "item": "Skill:Pickaxe", "qty": 1 },
-        { "item": "Skill:Builder", "qty": 1 },
+        { "item": "Horse", "qty": 1 },
+        { "item": "Backpack", "qty": 1 },
+        { "item": "Grower", "qty": 1 },
+        { "item": "Axe", "qty": 1 },
+        { "item": "Pickaxe", "qty": 1 },
+        { "item": "Builder", "qty": 1 },
+        { "item": "Power", "qty": 1 },
         { "item": "Gem", "qty": 1 },
         { "item": "Potion 3", "qty": 1 },
         { "item": "Book", "qty": 1 },
@@ -28,7 +29,7 @@
       "rewards": [
         { "item": "Book", "qty": 100 },
         { "item": "Tent", "qty": 10 },
-        { "item": "BackpackCapacity", "qty": 25 }
+        { "item": "Deluxe Backpack", "qty": 1 }
       ],
       "price": 3.5
     },
@@ -75,7 +76,7 @@
       "title": "Elf’s Armor",
       "body": "Boost your defense with enchanted armor.",
       "rewards": [
-        { "item": "ArmorClass", "qty": 30 }
+        { "item": "Magic Armor", "qty": 30 }
       ],
       "price": 15
     }

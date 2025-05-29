@@ -4,15 +4,36 @@ import React, { useState, useEffect, useContext } from 'react';
 import { StatusBarContext } from '../../UI/StatusBar';
 import Modal from '../../UI/Modal';
 import './Mailbox.css';
+import { trackQuestProgress } from '../Quests/QuestGoalTracker';
+import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
+import playersInGridManager from '../../GridState/PlayersInGrid';
+import { loadMasterResources } from '../../Utils/TuningManager';
 
-function Mailbox({ onClose, currentPlayer, setCurrentPlayer, resources }) {
+function Mailbox({ 
+  onClose, 
+  inventory,
+  setInventory, 
+  backpack, 
+  setBackpack,
+  currentPlayer, 
+  setCurrentPlayer, 
+  resources,
+  updateStatus,
+}) {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { updateStatus } = useContext(StatusBarContext);
   const [markedReadIds, setMarkedReadIds] = useState([]);
+  const gridId = currentPlayer?.location?.g;
+  const [masterResources, setMasterResources] = useState([]);
 
-  console.log('currentPlayer = ',currentPlayer);
-  
+  useEffect(() => {
+    const fetchMasterResources = async () => {
+      const all = await loadMasterResources();
+      setMasterResources(all);
+    };
+    fetchMasterResources();
+  }, []);
+
   useEffect(() => {
   const fetchTemplatesAndMessages = async () => {
     try {
@@ -20,27 +41,22 @@ function Mailbox({ onClose, currentPlayer, setCurrentPlayer, resources }) {
       const templates = await response.json();
       setTemplates(templates);
       setLoading(false);
-
       const res = await axios.get(`${API_BASE}/api/player/${currentPlayer.playerId}`);
       const freshMessages = res.data.messages || [];
-
       const unreadMessages = freshMessages.filter(msg => !msg.read);
 
       if (unreadMessages.length > 0) {
         const updatedMessages = freshMessages.map(msg =>
           !msg.read ? { ...msg, read: true } : msg
         );
-
         // Save only to the DB — don't update local state yet
         await axios.post(`${API_BASE}/api/update-player-messages`, {
           playerId: currentPlayer.playerId,
           messages: updatedMessages,
         });
-
         // Track which ones we updated
         setMarkedReadIds(unreadMessages.map(msg => msg.messageId));
       }
-
       // Still show original messages (not visually marked as read yet)
       setCurrentPlayer(prev => ({ ...prev, messages: freshMessages }));
 
@@ -48,7 +64,6 @@ function Mailbox({ onClose, currentPlayer, setCurrentPlayer, resources }) {
       console.error("❌ Error fetching or updating mailbox data:", err);
     }
   };
-
   fetchTemplatesAndMessages();
 }, []);
 
@@ -57,10 +72,75 @@ function Mailbox({ onClose, currentPlayer, setCurrentPlayer, resources }) {
     try {
       const template = templates.find((t) => t.id === message.messageId);
       const rewards = message.rewards?.length > 0 ? message.rewards : template.rewards;
-      const updatedInventory = [...currentPlayer.inventory];
 
-      // Apply rewards
+      console.log("🎁 Rewards from message:", rewards);
+
+      // Categorize rewards
+      const tents = [];
+      const skills = [];
+      const powers = [];
+      const doobers = [];
+      const others = [];
+
       rewards.forEach(({ item, qty }) => {
+        const resourceMeta = resources.find(r => r.type === item);
+        const category = resourceMeta?.category || 'other';
+
+        switch (category) {
+          case 'tent':
+            tents.push({ item, qty });
+            break;
+          case 'skill':
+            skills.push({ item, qty });
+            break;
+          case 'power':
+            powers.push({ item, qty });
+            break;
+          case 'doober':
+            doobers.push({ item, qty });
+            break;
+          default:
+            others.push({ item, qty });
+        }
+      });
+
+      // Handle tents first
+      if (tents.length > 0) {
+        const hasBackpack = currentPlayer.inventory.some(i => i.type === "backpack");
+        if (!hasBackpack) {
+          updateStatus("You need a Backpack to own Tents.");
+          return;
+        }
+        tents.forEach(({ item, qty }) => {
+          const index = backpack.findIndex(b => b.type === item);
+          if (index !== -1) {
+            backpack[index].quantity += qty;
+          } else {
+            backpack.push({ type: item, quantity: qty });
+          }
+        });
+      }
+
+      // Handle remaining non-special rewards (others)
+      others.forEach(({ item, qty }) => {
+        const index = inventory.findIndex(i => i.type === item);
+        if (index !== -1) {
+          inventory[index].quantity += qty;
+        } else {
+          inventory.push({ type: item, quantity: qty });
+        }
+      });
+
+      // Update inventory and backpack
+      await axios.post(`${API_BASE}/api/update-inventory`, {
+        playerId: currentPlayer.playerId,
+        inventory,
+        backpack,
+      });
+
+      // Handle doobers: add directly to inventory
+      const updatedInventory = [...inventory];
+      doobers.forEach(({ item, qty }) => {
         const index = updatedInventory.findIndex((inv) => inv.type === item);
         if (index !== -1) {
           updatedInventory[index].quantity += qty;
@@ -69,11 +149,94 @@ function Mailbox({ onClose, currentPlayer, setCurrentPlayer, resources }) {
         }
       });
 
-      // Update server-side inventory
-      await axios.post(`${API_BASE}/api/update-inventory`, {
-        playerId: currentPlayer.playerId,
-        inventory: updatedInventory,
-      });
+      if (doobers.length > 0) {
+        await axios.post(`${API_BASE}/api/update-inventory`, {
+          playerId: currentPlayer.playerId,
+          inventory: updatedInventory,
+        });
+        setInventory(updatedInventory);
+      }
+
+      // Handle skills
+      const existingSkills = currentPlayer.skills || [];
+      let newSkills = [...existingSkills];
+
+      for (const skillReward of skills) {
+        const skillType = skillReward.item;
+        const qtyToAdd = skillReward.qty;
+        const alreadyHasSkill = existingSkills.some(s => s.type === skillType);
+        if (alreadyHasSkill) {
+          console.log(`⏭️ Player already has skill: ${skillType}, skipping.`);
+          continue;
+        }
+        newSkills.push({ type: skillType, quantity: qtyToAdd });
+        await trackQuestProgress(currentPlayer, 'Gain skill with', skillType, qtyToAdd, setCurrentPlayer);
+      }
+
+      if (newSkills.length > existingSkills.length) {
+        await axios.post(`${API_BASE}/api/update-skills`, {
+          playerId: currentPlayer.playerId,
+          skills: newSkills,
+        });
+        setCurrentPlayer(prev => ({ ...prev, skills: newSkills }));
+      }
+
+      // Handle powers
+      for (const powerReward of powers) {
+        const powerType = powerReward.item;
+        console.log(`💥 Processing power reward: ${powerType}`);
+
+        const qtyToAdd = powerReward.qty;
+        const alreadyHasPower = currentPlayer.powers?.some(p => p.type === powerType);
+        console.log(`🔎 alreadyHasPower = ${alreadyHasPower}`);
+
+        // 🔍 Look up from masterResources instead of template
+        const powerData = masterResources.find(r => r.type === powerType);
+
+        if (!powerData) {
+          console.warn(`⚠️ No master resource entry found for power: ${powerType}`);
+          continue;
+        }
+
+        if (alreadyHasPower) {
+          console.log(`⏭️ Player already has power: ${powerType}, skipping.`);
+          continue;
+        }
+
+        let updatedPowers = currentPlayer.powers ? [...currentPlayer.powers] : [];
+        updatedPowers.push({ type: powerType, quantity: qtyToAdd });
+        await axios.post(`${API_BASE}/api/update-powers`, {
+          playerId: currentPlayer.playerId,
+          powers: updatedPowers,
+        });
+
+        setCurrentPlayer(prev => ({ ...prev, powers: updatedPowers }));
+
+        const gridPlayerNew = playersInGridManager.getAllPCs(gridId)?.[currentPlayer.playerId];
+        if (gridPlayerNew && powerData.output && typeof powerData.qtycollected === 'number') {
+          const oldValue = gridPlayerNew[powerData.output] || 0;
+          const newValue = oldValue + powerData.qtycollected;
+
+          console.log("📦 New power acquired. updatePC with:", {
+            gridId,
+            playerId: currentPlayer.playerId,
+            field: powerData.output,
+            oldValue,
+            newValue
+          });
+
+          await playersInGridManager.updatePC(gridId, currentPlayer.playerId, {
+            [powerData.output]: newValue
+          });
+          console.log(`📦 Updated ${powerData.output} for player ${currentPlayer.playerId}: ${oldValue} -> ${newValue}`);
+        }
+
+        await trackQuestProgress(currentPlayer, 'Gain skill with', powerType, qtyToAdd, setCurrentPlayer);
+
+        console.log("📦 Called updatePC for power:", powerType);
+        console.log("📦 Updated Powers:", updatedPowers);
+      }
+
 
       // Remove the message from the player's messages array
       const updatedMessages = currentPlayer.messages.filter((m) => m !== message);
@@ -85,9 +248,21 @@ function Mailbox({ onClose, currentPlayer, setCurrentPlayer, resources }) {
       // Update client-side state
       setCurrentPlayer((prev) => ({
         ...prev,
-        inventory: updatedInventory,
         messages: updatedMessages,
       }));
+
+      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+
+      // Debug: Final PC state in grid after rewards
+      const updated = await playersInGridManager.getAllPCs(gridId)?.[currentPlayer.playerId];
+      const skillCheck = currentPlayer.skills?.map(s => s.type).join(', ') || 'none';
+      const powerCheck = currentPlayer.powers?.map(p => p.type).join(', ') || 'none';
+      console.log(`✅ Final PC state in grid after rewards:`, updated);
+      console.log(`✅ Final skills: ${skillCheck}`);
+      console.log(`✅ Final powers: ${powerCheck}`);
+      // Debug: Raw PCs in grid after update
+      const rawGridPCs = playersInGridManager.getAllPCs(gridId);
+      console.log("🧩 Raw PCs in grid after update:", rawGridPCs);
 
       updateStatus(`✅ Collected rewards from "${template.title}"`);
     } catch (err) {

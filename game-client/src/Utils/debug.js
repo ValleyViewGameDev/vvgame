@@ -387,60 +387,89 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
     }
   };
   
-  const handleClearInventory = async () => {
-    try {
-      const playerId = currentPlayer?.playerId;
-      if (!playerId) {
-        console.error('No player ID found. Cannot clear inventory and skills.');
-        return;
-      }
-  
-      // Retain only Money in the inventory
-      const filteredInventory = currentPlayer.inventory.filter(
-        (item) => item.type === 'Money'
-      );
-      console.log('Filtered inventory to retain only Money:', filteredInventory);
-  
-      // Clear skills and upgrades
-      const clearedSkills = [];
-      console.log('Clearing all skills and upgrades.');
-  
-      // Update inventory on the server
-      await axios.post(`${API_BASE}/api/update-inventory`, {
-        playerId,
-        inventory: filteredInventory,
-        backpack: currentPlayer.backpack || [], // Ensure backpack is included
-      });
-      console.log('Inventory updated successfully on the server.');
-  
-      // Update skills on the server
-      await axios.post(`${API_BASE}/api/update-skills`, {
-        playerId,
-        skills: clearedSkills,
-      });
-      console.log('Skills cleared successfully on the server.');
-  
-      // Refresh player data after updates
-      await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
-  
-      // Force a re-fetch to confirm changes are saved
-      const updatedInventory = await fetchInventory(playerId);
-      console.log('Fetched inventory after clearing:', updatedInventory);
-  
-      // Update the local state for inventory and skills
-      setInventory(updatedInventory);
-      setCurrentPlayer((prevPlayer) => ({
-        ...prevPlayer,
-        inventory: updatedInventory,
-        skills: clearedSkills,
-      }));
-      updateStatus(900);
-      console.log('Inventory and skills cleared successfully except for Money.');
-
-    } catch (error) {
-      console.error('Error clearing inventory and skills:', error);
+const handleClearInventory = async () => {
+  try {
+    const playerId = currentPlayer?.playerId;
+    if (!playerId) {
+      console.error('No player ID found. Cannot clear inventory.');
+      return;
     }
-  };
+
+    // Retain only Money in the inventory
+    const filteredInventory = currentPlayer.inventory.filter(
+      (item) => item.type === 'Money'
+    );
+    console.log('Filtered inventory to retain only Money:', filteredInventory);
+
+    // Update inventory on the server
+    await axios.post(`${API_BASE}/api/update-inventory`, {
+      playerId,
+      inventory: filteredInventory,
+      backpack: currentPlayer.backpack || [],
+    });
+    console.log('Inventory updated successfully on the server.');
+
+    // Refresh player data after updates
+    await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
+
+    // Force a re-fetch to confirm changes are saved
+    const updatedInventory = await fetchInventory(playerId);
+    console.log('Fetched inventory after clearing:', updatedInventory);
+
+    // Update the local state for inventory
+    setInventory(updatedInventory);
+    setCurrentPlayer((prevPlayer) => ({
+      ...prevPlayer,
+      inventory: updatedInventory,
+    }));
+    updateStatus(900);
+    console.log('Inventory cleared successfully except for Money.');
+  } catch (error) {
+    console.error('Error clearing inventory:', error);
+  }
+};
+
+const handleClearSkillsAndPowers = async () => {
+  try {
+    const playerId = currentPlayer?.playerId;
+    if (!playerId) {
+      console.error('No player ID found. Cannot clear skills and powers.');
+      return;
+    }
+
+    // Clear skills
+    const clearedSkills = [];
+    console.log('Clearing all skills.');
+    await axios.post(`${API_BASE}/api/update-skills`, {
+      playerId,
+      skills: clearedSkills,
+    });
+    console.log('Skills cleared successfully on the server.');
+
+    // Clear powers
+    const clearedPowers = [];
+    console.log('Clearing all powers.');
+    await axios.post(`${API_BASE}/api/update-powers`, {
+      playerId,
+      powers: clearedPowers,
+    });
+    console.log('Powers cleared successfully on the server.');
+
+    // Refresh player data after updates
+    await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
+
+    // Update the local state for skills and powers
+    setCurrentPlayer((prevPlayer) => ({
+      ...prevPlayer,
+      skills: clearedSkills,
+      powers: clearedPowers,
+    }));
+    updateStatus(905);
+    console.log('Skills and powers cleared successfully.');
+  } catch (error) {
+    console.error('Error clearing skills and powers:', error);
+  }
+};
   
   const handleClearQuestHistory = async () => {
     try {
@@ -666,6 +695,33 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
     }
   };
 
+  // Add Reset Combat Stats handler
+  const handleResetCombatStats = async () => {
+    try {
+      const playerId = currentPlayer?.playerId;
+      if (!playerId) {
+        console.error('No player ID found. Cannot reset combat stats.');
+        return;
+      }
+
+      const combatStats = {
+        maxhp: currentPlayer.baseMaxhp,
+        attackbonus: currentPlayer.baseAttackbonus,
+        armorclass: currentPlayer.baseArmorclass,
+        damage: currentPlayer.baseDamage,
+        attackrange: currentPlayer.baseAttackrange,
+        speed: currentPlayer.baseSpeed,
+      };
+
+      await playersInGridManager.updatePC(currentGridId, playerId, combatStats);
+
+      console.log('Combat stats reset successfully using updatePC.');
+      updateStatus(906); // Optional: new debug status
+    } catch (error) {
+      console.error('Error resetting combat stats:', error);
+    }
+  };
+
   return (
     <Panel onClose={onClose} titleKey="1120" panelName="DebugPanel">
       <div className="debug-buttons">
@@ -678,7 +734,9 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
         <button className="btn-danger" onClick={() => handleGenerateValley(1)}> Generate Valley 1 </button>
         <button className="btn-danger" onClick={() => handleGenerateValley(2)}> Generate Valley 2 </button>
         <button className="btn-danger" onClick={() => handleGenerateValley(3)}> Generate Valley 3 </button>
-        <button className="btn-danger" onClick={handleClearInventory}> Clear Inventory & Skills </button>
+        <button className="btn-danger" onClick={handleClearInventory}> Clear Inventory </button>
+        <button className="btn-danger" onClick={handleClearSkillsAndPowers}> Clear Skills & Powers </button>
+        <button className="btn-danger" onClick={handleResetCombatStats}> Reset Combat Stats </button>
         <button className="btn-danger" onClick={handleClearQuestHistory}> Clear Quest History </button>
         <button className="btn-danger" onClick={handleClearGridState}> Clear Grid State </button>
         <button className="btn-neutral" onClick={handleClearTradeStall}> Clear Trade Stall </button>

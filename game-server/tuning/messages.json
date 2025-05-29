@@ -1,7 +1,7 @@
 [
     {
       "id": 1,
-      "title": "Welcome to Valley View!",
+      "title": "😊 Welcome to Valley View!",
       "body": "Thanks for joining the world of Valley View. Here's a little something to get you started.",
       "rewards": [{ "item": "Money", "qty": 500 }],
       "everyoneRewards": true
@@ -22,7 +22,7 @@
     },
     {
       "id": 201,
-      "title": "🛒 Thank You for Your Purchase!",
+      "title": "🙏 Thank You for Your Purchase!",
       "body": "Here are the items you purchased from the Store.",
       "rewards": [],
       "everyoneRewards": false

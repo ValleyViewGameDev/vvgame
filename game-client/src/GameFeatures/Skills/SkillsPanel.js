@@ -118,11 +118,6 @@ const SkillsAndUpgradesPanel = ({
 
 const handlePurchase = async (resourceType) => {
   const resource = [...skillsToAcquire, ...upgradesToAcquire].find((item) => item.type === resourceType);
-
-  console.log(`Attempting to purchase resource: ${resourceType}`, resource);
-  console.log('Current player:', currentPlayer);
-  console.log('Current inventory:', inventory);
-  console.log('Current backpack:', backpack);
   const spendSuccess = await spendIngredients({
     playerId: currentPlayer.playerId,
     recipe: resource,
@@ -154,25 +149,11 @@ const handlePurchase = async (resourceType) => {
 
   updateStatus(`✅ ${resource.type} skill acquired.`);
 
-  try {
+  try { 
     await axios.post(`${API_BASE}/api/update-skills`, {
       playerId: currentPlayer.playerId,
       skills: [...updatedSkills, ...updatedUpgrades], // ✅ Ensure all are sent to the server
     });
-
-    if (resource.output) {
-      console.log(`Upgrade ${resource.type} will modify player stat ${resource.output}.`);
-      if (isAGridStateStat(resource.output)) {
-        await modifyPlayerStatsInGridState(resource.output, resource.qtycollected || 1, currentPlayer.playerId, currentPlayer.location.g);
-      } else {
-        const updatedPlayer = await modifyPlayerStatsInPlayer(resource.output, resource.qtycollected || 1, currentPlayer.playerId);
-        if (updatedPlayer) {
-          setCurrentPlayer(updatedPlayer);
-          localStorage.setItem('player', JSON.stringify(updatedPlayer));
-        }
-      }
-    }
-
     await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
