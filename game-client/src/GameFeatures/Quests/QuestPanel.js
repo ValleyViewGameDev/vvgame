@@ -5,6 +5,7 @@ import Panel from '../../UI/Panel';
 import { QuestButton } from '../../UI/QuestButton';
 import '../../UI/ResourceButton.css';
 import '../../UI/QuestButton.css';
+import strings from '../../UI/strings';
 
 function QuestPanel({ onClose, currentPlayer }) {
   const [playerQuests, setPlayerQuests] = useState([]);
@@ -33,7 +34,7 @@ function QuestPanel({ onClose, currentPlayer }) {
   return (
     <Panel onClose={onClose} descriptionKey="1006" titleKey="1106" panelName="QuestPanel">
       {(!playerQuests || playerQuests.length === 0) ? (
-        <p>No active quests at the moment.</p>
+        <p>{strings[203]}</p>
       ) : (
         <div className="standard-panel">
           {playerQuests.map((quest, index) => {

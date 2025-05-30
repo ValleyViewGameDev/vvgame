@@ -54,7 +54,7 @@ const QuestGiverPanel = ({
     } else if (npcData.action === 'heal') {
       fetchHealRecipes();
     }
-  }, [npcData]);
+  }, [npcData, currentPlayer]);
 
   
   ////////////////////////////////////////////////////////////
@@ -156,18 +156,20 @@ const handleGetReward = async (quest) => {
       });
       if (!success) return;
 
-      // Update completedQuests: set rewardCollected: true for the quest being rewarded
-      const updatedCompletedQuests = currentPlayer.completedQuests.map((q) =>
+      let updatedCompletedQuests = currentPlayer.completedQuests.map((q) =>
         q.questId === quest.title ? { ...q, rewardCollected: true } : q
       );
+      const alreadyCompleted = updatedCompletedQuests.some(q => q.questId === quest.title);
+      if (!alreadyCompleted) {
+        updatedCompletedQuests.push({
+          questId: quest.title,
+          rewardCollected: true,
+          timestamp: Date.now(),
+        });
+      }
 
       // Remove the quest from activeQuests
       const updatedActiveQuests = currentPlayer.activeQuests.filter(q => q.questId !== quest.title);
-
-      // Debug logs for filtering activeQuests
-      console.log("🔍 Filtering out quest from activeQuests:", quest.title);
-      console.log("🧾 Previous activeQuests:", currentPlayer.activeQuests);
-      console.log("🧾 Updated activeQuests:", updatedActiveQuests);
 
       const updatedPlayer = {
         ...currentPlayer,
@@ -183,13 +185,11 @@ const handleGetReward = async (quest) => {
       }).then((result) => {
         console.log("📬 Server responded with:", result.data);
       });
-      console.log("📦 Updated completedQuests:", updatedCompletedQuests);
       setCurrentPlayer({
         ...currentPlayer,
         completedQuests: updatedPlayer.completedQuests,
         activeQuests: updatedActiveQuests,
       });
-      console.log("✅ setCurrentPlayer called with updated activeQuests");
       setQuestList((prevList) => prevList.filter((q) => q.title !== quest.title));
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
       updateStatus(201);
@@ -286,9 +286,9 @@ const handleHeal = async (recipe) => {
         <div className="quest-options">
           <h2>{npcData.symbol} {npcData.type}</h2>
           {questList.length > 0 ? (
-            <h3>is offering these Quests:</h3>
+            <h3>{strings[204]}</h3>
           ) : (
-            <h3>has no quests for you at this time.</h3>
+            <h3>{strings[205]}</h3>
           )}
           {questList.map((quest) => {
             const isRewardable = currentPlayer.activeQuests.some(
