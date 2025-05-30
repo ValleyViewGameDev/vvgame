@@ -57,23 +57,23 @@ const QuestGiverPanel = ({
   }, [npcData]);
 
   
+  ////////////////////////////////////////////////////////////
+  ////////////////////// Fetch QUESTS for QUEST NPCs
   const fetchQuests = async () => {
     try {
       const response = await axios.get(`${API_BASE}/api/quests`);
-      const activeQuestIds = currentPlayer.activeQuests
-        .filter((quest) => !quest.completed || quest.rewardCollected)
-        .map((quest) => quest.questId);
-  
-      const completedQuestIds = currentPlayer.completedQuests.map((quest) => quest.questId);
-  
-      // Filter quests:
-      // - Exclude quests that are currently active/in-progress
-      // - Exclude quests with repeatable = false if they have been completed once
+
+      // Use new quest filtering logic
       const npcQuests = response.data
         .filter((quest) => quest.giver === npcData.type)
-        .filter((quest) => !activeQuestIds.includes(quest.title))
-        .filter((quest) => quest.repeatable || !completedQuestIds.includes(quest.title));  // Filter based on repeatability
-  
+        .filter((quest) => {
+          const activeQuest = currentPlayer.activeQuests.find(q => q.questId === quest.title);
+          if (activeQuest) {
+            return activeQuest.completed && !activeQuest.rewardCollected;
+          }
+          return quest.repeatable || !currentPlayer.completedQuests.some(q => q.questId === quest.title);
+        });
+
       setQuestList(npcQuests);
     } catch (error) {
       console.error('Error fetching quests:', error);
@@ -82,14 +82,12 @@ const QuestGiverPanel = ({
 
   const handleAcceptQuest = async (questTitle) => {
     if (!questTitle) return;
-
     // Find the accepted quest in questList
     const acceptedQuest = questList.find(q => q.title === questTitle);
     if (!acceptedQuest) {
         console.error(`Quest "${questTitle}" not found in available quests.`);
         return;
     }
-
     // Prepare progress tracking for skill-based goals
     let initialProgress = { goal1: 0, goal2: 0, goal3: 0 }; // Explicitly initialize
     let goalsCompleted = 0;
@@ -116,12 +114,9 @@ const QuestGiverPanel = ({
           initialProgress[`goal${i}`] = 0; // Default progress for other goals
       }
     }
-
     // If all goals are completed before even accepting, mark the quest as completed
     const isQuestCompleted = totalGoals > 0 && goalsCompleted === totalGoals;
-
     console.log('initialProgress = ',initialProgress);
-
 
     try {
       const response = await axios.post(`${API_BASE}/api/add-player-quest`, {
@@ -145,7 +140,7 @@ const QuestGiverPanel = ({
     }
   };
 
-  const handleGetReward = async (quest) => {
+const handleGetReward = async (quest) => {
     try {
       const success = await gainIngredients({
         playerId: currentPlayer.playerId,
@@ -160,21 +155,41 @@ const QuestGiverPanel = ({
         updateStatus,
       });
       if (!success) return;
-      
+
+      // Update completedQuests: set rewardCollected: true for the quest being rewarded
+      const updatedCompletedQuests = currentPlayer.completedQuests.map((q) =>
+        q.questId === quest.title ? { ...q, rewardCollected: true } : q
+      );
+
+      // Remove the quest from activeQuests
+      const updatedActiveQuests = currentPlayer.activeQuests.filter(q => q.questId !== quest.title);
+
+      // Debug logs for filtering activeQuests
+      console.log("🔍 Filtering out quest from activeQuests:", quest.title);
+      console.log("🧾 Previous activeQuests:", currentPlayer.activeQuests);
+      console.log("🧾 Updated activeQuests:", updatedActiveQuests);
+
       const updatedPlayer = {
         ...currentPlayer,
-        completedQuests: [
-          ...currentPlayer.completedQuests,
-          { questId: quest.title, timestamp: Date.now() },
-        ],
+        completedQuests: updatedCompletedQuests,
+        activeQuests: updatedActiveQuests,
       };
       await axios.post(`${API_BASE}/api/update-profile`, {
         playerId: currentPlayer.playerId,
         updates: {
           completedQuests: updatedPlayer.completedQuests,
+          activeQuests: updatedActiveQuests,
         },
+      }).then((result) => {
+        console.log("📬 Server responded with:", result.data);
       });
-      setCurrentPlayer(updatedPlayer);
+      console.log("📦 Updated completedQuests:", updatedCompletedQuests);
+      setCurrentPlayer({
+        ...currentPlayer,
+        completedQuests: updatedPlayer.completedQuests,
+        activeQuests: updatedActiveQuests,
+      });
+      console.log("✅ setCurrentPlayer called with updated activeQuests");
       setQuestList((prevList) => prevList.filter((q) => q.title !== quest.title));
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
       updateStatus(201);
@@ -185,6 +200,8 @@ const QuestGiverPanel = ({
     }
   };
 
+  ////////////////////////////////////////////////////////////
+  ////////////////////// Fetch HEALING RECIPES for HEALER NPCs
   const fetchHealRecipes = async () => {
     try {
       const allResourcesData = await loadMasterResources();
@@ -263,6 +280,8 @@ const handleHeal = async (recipe) => {
   return (
     <Panel onClose={onClose} descriptionKey="1013" titleKey="1113" panelName="QuestGiverPanel">
 
+{/* //////////////////// QUESTS //////////////////////// */}
+
       {npcData.action === 'quest' && (
         <div className="quest-options">
           <h2>{npcData.symbol} {npcData.type}</h2>
@@ -303,6 +322,9 @@ const handleHeal = async (recipe) => {
           })}
         </div>
       )}
+
+
+{/* //////////////////// HEALING //////////////////////// */}
 
       {npcData.action === 'heal' && healRecipes.length > 0 && (
         <div className="heal-options">

@@ -74,8 +74,8 @@ const playerSchema = new mongoose.Schema({
 
   activeQuests: [
     {
-      questId: String,       // "quest_berry_hunt"
-      startTime: Number,
+      questId: { type: String },       // "quest_berry_hunt"
+      startTime: { type: Number },
       symbol: { type: String },
       progress: {
         goal1: { type: Number, default: 0 }, // how many have been collected so far
@@ -95,7 +95,7 @@ const playerSchema = new mongoose.Schema({
       goal3qty: { type: Number },
     }
   ],
-  completedQuests: [ { questId: String, timestamp: Number, }, ],
+  completedQuests: [ { questId: { type: String }, timestamp: { type: Number } } ],
 
   frontierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Frontier', required: true }, // Where the user's homestead is
   settlementId: { type: mongoose.Schema.Types.ObjectId, ref: 'Settlement', required: true }, // Where the user's homestead is

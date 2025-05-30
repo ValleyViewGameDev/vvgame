@@ -173,7 +173,7 @@ const handlePurchase = async (resourceType) => {
   return (
     <Panel onClose={onClose} descriptionKey="1005" titleKey="1105" panelName="SkillsAndUpgradesPanel">
       <div className="standard-panel">
-      <h3>{stationEmoji} {entryPoint}</h3> {/* ✅ Display emoji before entry point */}
+      <h2>{stationEmoji} {entryPoint}</h2> {/* ✅ Display emoji before entry point */}
       {isContentLoading ? (
           <p>Loading...</p>
         ) : (

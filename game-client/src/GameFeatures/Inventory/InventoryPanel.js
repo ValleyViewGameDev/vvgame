@@ -147,7 +147,7 @@ function InventoryPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus
                     backpack.map((item, index) => (
                         <div className="inventory-row" key={index}>
                             <div className="inventory-cell name-cell">{item.type}</div>
-                            <div className="inventory-cell quantity-cell">{item.quantity}</div>
+                            <div className="inventory-cell quantity-cell">{item.quantity.toLocaleString()}</div>
                         </div>
                     ))
                 ) : (
@@ -165,7 +165,7 @@ function InventoryPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus
                     inventory.map((item, index) => (
                         <div className="inventory-row" key={index}>
                             <div className="inventory-cell name-cell">{item.type}</div>
-                            <div className="inventory-cell quantity-cell">{item.quantity}</div>
+                            <div className="inventory-cell quantity-cell">{item.quantity.toLocaleString()}</div>
                         </div>
                     ))
                 ) : (
@@ -199,7 +199,7 @@ function InventoryPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus
                                     return (
                                         <tr key={item.type}>
                                             <td>{item.type}</td>
-                                            <td>{item.quantity}</td>
+                                            <td>{item.quantity.toLocaleString()}</td>
                                             <td>
                                                 <button
                                                     className="add-button"

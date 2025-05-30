@@ -1,57 +1,122 @@
-import React from 'react';
-import './ResourceButton.css'; // Assuming shared styles are stored here
-import './QuestButton.css'; // Assuming shared styles are stored here
+import React, { useState, useRef } from 'react';
+import ReactDOM from 'react-dom'; // ✅ Add this
+import './ResourceButton.css';
+import './QuestButton.css';
 
-// Button for displaying player quests in QuestPanel
 const QuestButton = ({ quest, state, onClick }) => {
-  const { symbol, title, completed, goals = [] } = quest; // Default goals to an empty array
+  const { symbol, title, completed, goals = [], textbody } = quest;
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
+  const infoButtonRef = useRef(null);
+
+  const updateTooltipPosition = (event) => {
+    setTooltipPosition({
+      top: event.clientY + window.scrollY + 10,
+      left: event.clientX + window.scrollX + 15,
+    });
+  };
 
   return (
-    <div className={`resource-button ${state}`} onClick={onClick}>
+    <div
+      className={`quest-item ${state}`}
+      onClick={onClick}
+      style={{ position: 'relative' }}
+      onMouseLeave={() => setShowTooltip(false)}
+    >
       <h3>{symbol} {title}</h3>
       <h4>{completed ? 'Return to collect your reward.' : 'In Progress'}</h4>
-
-      {/* Safely map over goals */}
-      {goals.map((goal, index) => (
+      {goals.map((goal, index) =>
         goal.action && goal.item && goal.qty ? (
-          <p key={index}>
-            {goal.action} {goal.item} x{goal.qty}: {goal.progress} of {goal.qty}
-          </p>
+          <p key={index}>{goal.action} {goal.item} x{goal.qty}: {goal.progress} of {goal.qty}</p>
         ) : null
-      ))}
-    </div>
-  );
-};
-
-
-// Button for interacting with NPC quests in QuestGiverPanel
-const QuestGiverButton = ({ quest, state, onClick }) => {
-  const { symbol, title, textbody, reward, rewardqty, goals = [] } = quest;
-
-  // Determine button text based on state
-  const buttonText = state === 'reward' ? 'Get Reward' : 'Accept Quest';
-
-  return (
-    <div className={`resource-button ${state}`} onClick={onClick}>
-      <h3>{symbol} {title}</h3>
-      <p>{textbody}</p> 
-      {/* Display the goals */}
-      <div className="quest-goals">
-        {goals.map((goal, index) => (
-          goal.action && goal.item && goal.qty ? (
-            <p key={index}>
-              {goal.action} {goal.item} x{goal.qty}
-            </p>
-          ) : null
-        ))}
+      )}
+      <div
+        className="quest-info-button"
+        ref={infoButtonRef}
+        onMouseEnter={(e) => {
+          setShowTooltip(true);
+          updateTooltipPosition(e);
+        }}
+        onMouseMove={updateTooltipPosition}
+      >
+        ℹ️
       </div>
 
-      <p>Reward: {rewardqty} {reward}</p>
-
-      <button className="quest-giver-button">{buttonText}</button>
+      {/* ✅ Tooltip rendered into document.body to avoid clipping */}
+      {showTooltip && textbody && ReactDOM.createPortal(
+        <div
+          className="quest-info-tooltip"
+          style={{
+            top: tooltipPosition.top,
+            left: tooltipPosition.left,
+            position: 'absolute',
+          }}
+        >
+          {textbody}
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
 
-// Export components
+const QuestGiverButton = ({ quest, state, onClick }) => {
+  const { symbol, title, textbody, reward, rewardqty, goals = [] } = quest;
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
+  const infoButtonRef = useRef(null);
+  const buttonText = state === 'reward' ? 'Get Reward' : 'Accept Quest';
+
+  const updateTooltipPosition = (event) => {
+    setTooltipPosition({
+      top: event.clientY + window.scrollY + 10,
+      left: event.clientX + window.scrollX + 15,
+    });
+  };
+
+  return (
+    <div
+      className={`quest-item ${state}`}
+      onClick={onClick}
+      style={{ position: 'relative' }}
+      onMouseLeave={() => setShowTooltip(false)}
+    >
+      <h3>{symbol} {title}</h3>
+      <div className="quest-goals">
+        {goals.map((goal, index) =>
+          goal.action && goal.item && goal.qty ? (
+            <p key={index}>{goal.action} {goal.item} x{goal.qty}</p>
+          ) : null
+        )}
+      </div>
+      <p>Reward: {rewardqty} {reward}</p>
+      <button className="quest-giver-button">{buttonText}</button>
+      <div
+        className="quest-info-button"
+        ref={infoButtonRef}
+        onMouseEnter={(e) => {
+          setShowTooltip(true);
+          updateTooltipPosition(e);
+        }}
+        onMouseMove={updateTooltipPosition}
+      >
+        ℹ️
+      </div>
+      {showTooltip && textbody && ReactDOM.createPortal(
+        <div
+          className="quest-info-tooltip"
+          style={{
+            top: tooltipPosition.top,
+            left: tooltipPosition.left,
+            position: 'absolute',
+          }}
+        >
+          {textbody}
+        </div>,
+        document.body
+      )}
+    </div>
+  );
+};
+
 export { QuestButton, QuestGiverButton };

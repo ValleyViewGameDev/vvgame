@@ -51,7 +51,7 @@ import BankPanel from './GameFeatures/Trading/Bank';
 import TrainPanel from './GameFeatures/Trading/Train';
 import CourthousePanel from './GameFeatures/Government/Courthouse';
 import QuestPanel from './GameFeatures/Quests/QuestPanel';
-import QuestGiverPanel from './GameFeatures/NPCs/NPCsQuest';
+import QuestGiverPanel from './GameFeatures/NPCs/NPCsPanel.js';
 import CraftingStation from './GameFeatures/Crafting/CraftingStation';
 import FarmHandsPanel from './GameFeatures/FarmHands/FarmHands';
 import TradingStation from './GameFeatures/Crafting/TradingStation';
@@ -1076,7 +1076,8 @@ const handleLoginSuccess = async (player) => {
     <div className="app-container">
     <FloatingTextManager />
 
-{/* Base Panel */}
+
+{/* ///////////////////  Base Panel  ///////////////////// */}
 
     <div className="base-panel">
       <h1>Valley View</h1>  
@@ -1205,16 +1206,16 @@ const handleLoginSuccess = async (player) => {
       <button className="panel-button reset-button" onClick={handleResetTimers}>Reset All Timers</button>
     </div>
 
-{/* Header */}
+{/* //////////////////////  Header  //////////////////////// */}
 
     <header className="app-header">
       <div className="money-display">
         <h3>💰  
           {Array.isArray(currentPlayer?.inventory) ? (
-              <span className="money-value">
-                  {currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0}
-              </span>
-          ) : ( "..." )}
+            <span className="money-value">
+              {(currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0).toLocaleString()}
+            </span>
+          ) : ("...")}
         </h3>
       </div>
       <div className="header-controls">

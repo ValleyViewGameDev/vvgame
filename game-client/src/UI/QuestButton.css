@@ -71,7 +71,7 @@
 /* Details or subtitle styling */
 .quest-item h4,
 .quest-giver-item p {
-  margin: 2px 0;
+  margin: 0;
   font-size: 0.8rem;
   color: #555;
   white-space: pre-line;
@@ -81,12 +81,17 @@
 .quest-item p,
 .quest-giver-item p {
   display: block;
-  margin: 2px 0;
+  margin: 0;
   font-size: 0.7rem;
 }
 
+.quest-item h3 + h4,
+.quest-giver-item h3 + p {
+  margin-top: 4px;
+}
 
-/* MINI BUTTONS ON QUEST GIVER PANEL
+
+/* MINI BUTTONS ON QUEST GIVER PANEL */
 
 /* ✅ Make sure the action buttons (e.g., "Get Reward", "Accept Quest") fit properly */
 .quest-giver-button {
@@ -103,4 +108,34 @@
 /* Hover state for QuestGiver button */
 .quest-giver-button:hover {
   background-color: #0056b3;
+}
+
+/* Info button reused from ResourceButton */
+.quest-info-button {
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  cursor: help;
+  font-size: 12px;
+  color: #555;
+}
+
+/* Tooltip styling */
+.quest-info-tooltip {
+  position: absolute;
+  top: 50%;
+  left: 105%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 8px;
+  font-size: 12px;
+  color: #333;
+  z-index: 9999;
+  box-shadow: 4px 6px 10px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  max-width: 200px;
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
 }
