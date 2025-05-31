@@ -8,9 +8,6 @@ import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManageme
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import { modifyPlayerStatsInPlayer, modifyPlayerStatsInGridState } from '../../Utils/playerManagement';
-import { StatusBarContext } from '../../UI/StatusBar';
-import { isAGridStateStat } from '../../Utils/playerManagement';
 import strings from '../../UI/strings.json';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { spendIngredients } from '../../Utils/InventoryManagement';

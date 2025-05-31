@@ -133,6 +133,7 @@ export const handlePlayerDeath = async (
     // Update player object in place
     player.hp = 25;
     player.backpack = [];
+    const originalLocation = { ...player.location }; // ✅ preserve the correct fromLocation
     player.location = updatedLocation;
 
     // 1. **Update Player Data in the Database**
@@ -161,11 +162,12 @@ export const handlePlayerDeath = async (
     await playersInGridManager.updatePC(currentGridId, player._id, { hp: 25 });
 
     console.log(`Player ${player.username} teleported to home grid with 5 HP.`);
+console.log('📦 Player before changePlayerLocation:', JSON.stringify(player, null, 2));
 
     // 4. **Load New Grid & Add Player to GridState**
     await changePlayerLocation(
       player,
-      player.location,   // fromLocation
+      originalLocation,   // fromLocation
       updatedLocation,   // toLocation
       setCurrentPlayer,
       setGridId,

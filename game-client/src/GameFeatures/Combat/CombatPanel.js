@@ -3,14 +3,7 @@ import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
-import ResourceButton from '../../UI/ResourceButton';
-import FloatingTextManager from '../../UI/FloatingText';
-import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
-import { canAfford } from '../../Utils/InventoryManagement';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import { modifyPlayerStatsInPlayer, modifyPlayerStatsInGridState } from '../../Utils/playerManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
-import { isAGridStateStat } from '../../Utils/playerManagement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import strings from '../../UI/strings.json';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
@@ -99,93 +92,6 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, stationType, ma
   }, [entryPoint, fetchTrigger]); // ✅ Re-fetch when `entryPoint` OR `fetchTrigger` changes
 
 
-  const hasRequiredSkill = (requiredSkill) => {
-    return !requiredSkill || 
-        ownedSkills.some((owned) => owned.type === requiredSkill) || 
-        ownedUpgrades.some((owned) => owned.type === requiredSkill); // ✅ Now checks upgrades too
-  };
-
-
-  const handlePurchase = async (resourceType) => {
-    setErrorMessage('');
-    const resource = [...skillsToAcquire, ...upgradesToAcquire].find((item) => item.type === resourceType);
-
-    if (!canAfford(resource, inventory, 1)) {
-      setErrorMessage('Not enough resources to purchase this item.');
-      return;
-    }
-
-    const updatedInventory = [...inventory];
-    const updatedSkills = [...ownedSkills];
-    const updatedUpgrades = [...ownedUpgrades];
-
-    for (let i = 1; i <= 3; i++) {
-      const ingredientType = resource[`ingredient${i}`];
-      const ingredientQty = resource[`ingredient${i}qty`];
-
-      if (ingredientType && ingredientQty) {
-        const inventoryIndex = updatedInventory.findIndex((item) => item.type === ingredientType);
-        updatedInventory[inventoryIndex].quantity -= ingredientQty;
-
-        if (updatedInventory[inventoryIndex].quantity <= 0) {
-          updatedInventory.splice(inventoryIndex, 1);
-        }
-      }
-    }
-    // ✅ Check category before adding
-    if (resource.category === "skill") {
-      updatedSkills.push({ type: resource.type, category: resource.category, quantity: 1 });
-    } else if (resource.category === "upgrade") {
-      updatedUpgrades.push({ type: resource.type, category: resource.category, quantity: 1 });
-    }
-
-    setOwnedSkills(updatedSkills);
-    setOwnedUpgrades(updatedUpgrades);
-    setInventory(updatedInventory);
-    localStorage.setItem('inventory', JSON.stringify(updatedInventory));
-
-    FloatingTextManager.addFloatingText(
-      `+1 ${resource.type}`, 
-      currentPlayer.location.x, 
-      currentPlayer.location.y, 
-      TILE_SIZE,
-    );
-
-    try {
-      await axios.post(`${API_BASE}/api/update-inventory`, {
-        playerId: currentPlayer.playerId,
-        inventory: updatedInventory,
-      });
-
-      await axios.post(`${API_BASE}/api/update-skills`, {
-        playerId: currentPlayer.playerId,
-        skills: [...updatedSkills, ...updatedUpgrades], // ✅ Ensure all are sent to the server
-      });
-
-      if (resource.output) {
-        console.log(`Upgrade ${resource.type} will modify player stat ${resource.output}.`);
-        if (isAGridStateStat(resource.output)) {
-          await modifyPlayerStatsInGridState(resource.output, resource.qtycollected || 1, currentPlayer.playerId, currentPlayer.location.g);
-        } else {
-          const updatedPlayer = await modifyPlayerStatsInPlayer(resource.output, resource.qtycollected || 1, currentPlayer.playerId);
-          if (updatedPlayer) {
-            setCurrentPlayer(updatedPlayer);
-            localStorage.setItem('player', JSON.stringify(updatedPlayer));
-          }
-        }
-      } 
-      
-      await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-      // ✅ Instead of calling fetchResourcesAndInventory, we trigger a refresh
-      setFetchTrigger((prev) => prev + 1); // 🔥 Increment `fetchTrigger` to force re-fetch
-
-    } catch (error) {
-      console.error('Error updating player on server:', error);
-      setErrorMessage('Error updating player on server.');
-    }
-  };
 
   // --- Stat helpers ---
   const getStatModifier = (stat) => {

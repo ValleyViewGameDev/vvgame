@@ -2,7 +2,6 @@ import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTil
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import FloatingTextManager from "../../UI/FloatingText";
-import { modifyPlayerStatsInGridState } from '../../Utils/playerManagement';
 
 const updateThisNPC = async function(gridId) {
   await NPCsInGridManager.updateNPC(gridId, this.id, {
@@ -101,11 +100,11 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         // apply damage
         const damage = Math.floor(Math.random() * 6) + 1 + this.damage;
         // Define the stat and amount to modify before calling modifyPlayerStats
-        const statToMod = 'hp';
         const amountToMod = -damage;  // Damage is negative
         
-        try {
-          await modifyPlayerStatsInGridState(statToMod, amountToMod, this.targetPC.playerId, gridId);
+        try { 
+          const updatedValue = (this.targetPC.hp += amountToMod);
+          playersInGridManager.updatePC(gridId, this.targetPC.playerId, { hp: updatedValue });
           FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, this.targetPC.position.x, this.targetPC.position.y, TILE_SIZE );
           // ✅ Force update of NPCsInGrid after modifying HP
           NPCsInGridManager.saveGridStateNPCs(gridId);  // ✅ Ensures NPC logic reads the updated HP in next cycle

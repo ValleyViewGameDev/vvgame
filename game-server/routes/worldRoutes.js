@@ -103,8 +103,13 @@ router.post('/create-grid', async (req, res) => {
             type: resourceEntry.type,
             position: { x, y },
             state: resourceEntry.defaultState || 'idle',
-            hp: Math.max(resourceEntry.hp || 10, 0),
+            hp: resourceEntry.maxhp || 10,
             maxhp: resourceEntry.maxhp || 10,
+            armorclass: resourceEntry.armorclass || 10,
+            attackbonus: resourceEntry.attackbonus || 0,
+            damage: resourceEntry.damage || 1,
+            attackrange: resourceEntry.attackrange || 1,
+            speed: resourceEntry.speed || 1,
             lastUpdated: 0,
           };
         }
@@ -207,7 +212,7 @@ router.post('/reset-grid', async (req, res) => {
 
     // Step 5: Generate resources
     const newResources = generateResources(layout, newTiles, layout.resourceDistribution);
-
+ 
     
     const newNPCGridState = { npcs: {} };
     layout.resources.forEach((row, y) => {
@@ -221,8 +226,13 @@ router.post('/reset-grid', async (req, res) => {
             type: resourceEntry.type,
             position: { x, y },
             state: resourceEntry.defaultState || 'idle',
-            hp: Math.max(resourceEntry.hp || 10, 0),
+            hp: resourceEntry.maxhp || 10,
             maxhp: resourceEntry.maxhp || 10,
+            armorclass: resourceEntry.armorclass || 10,
+            attackbonus: resourceEntry.attackbonus || 0,
+            damage: resourceEntry.damage || 1,
+            attackrange: resourceEntry.attackrange || 1,
+            speed: resourceEntry.speed || 1,
             lastUpdated: 0,
           };
         }

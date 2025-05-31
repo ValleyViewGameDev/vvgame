@@ -149,9 +149,11 @@ export const changePlayerLocation = async (
 
     console.log('loading NPCS and PCS gridstates from db...');
     const fromGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${fromLocation.g}`);
+    console.log('fromGridResponse.data: ', fromGridResponse.data);
     const fromPCs = fromGridResponse.data?.playersInGrid?.pcs || {};
+    console.log('Extracted fromPCs from what we just loaded; fromPCs = ', fromPCs);
     const fromPlayerState = fromPCs[currentPlayer.playerId] || {}; // 👈 move this up BEFORE deletion
-    console.log('Extracted fromPCs out of the NPCsInGrid we just loaded; fromPCs = ', fromPCs);
+    console.log('fromPlayerState = ', fromPlayerState);
     console.log('Removing player from the fromPCs.');
     if (fromPCs[currentPlayer.playerId]) {
       delete fromPCs[currentPlayer.playerId];
@@ -186,9 +188,11 @@ export const changePlayerLocation = async (
     const now = Date.now();
 
     // ✅ STEP 5: Add the player to the `pcs` object`
-    console.log('Adding player to the toPCs object')
+    console.log('IN CHANGE PLAYER LOCATION:  Adding player to the toPCs object')
     // Use combat stats from the fromGrid state if available, fallback to currentPlayer
-    console.log('fromPlayerState = ', fromPlayerState);
+    console.log('🚨🚨🚨🚨fromPlayerState = ', fromPlayerState);
+    console.log('🚨🚨🚨🚨currentPlayer = ', currentPlayer);
+
     const playerData = {
       playerId: currentPlayer.playerId,
       type: 'pc',
