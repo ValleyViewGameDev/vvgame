@@ -15,7 +15,7 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
     icon: '',
     password: '',
     accountStatus: 'Free',
-    role: 'Peasant',
+    role: 'Citizen',
   });
 
   const { updateStatus } = useContext(StatusBarContext);
@@ -205,17 +205,6 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
             <option value="Bronze">Bronze</option>
             <option value="Silver">Silver</option>
             <option value="Gold">Gold</option>
-          </select>
-        </div>
-        <div className="form-group">
-          <label>Role:</label>
-          <select name="role" value={formData.role} onChange={handleInputChange}>
-            <option value="Peasant">Peasant</option>
-            <option value="Citizen">Citizen</option>
-            <option value="Sheriff">Sheriff</option>
-            <option value="Mayor">Mayor</option>
-            <option value="Governor">Governor</option>
-            <option value="President">President</option>
           </select>
         </div>
 

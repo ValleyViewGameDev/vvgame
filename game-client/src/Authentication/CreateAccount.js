@@ -14,7 +14,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
 
     try {
       const accountStatus = 'Free';
-      const role = 'Peasant';
+      const role = 'Citizen';
       const language = 'English';
       const frontierName = 'Valley View 1';
 

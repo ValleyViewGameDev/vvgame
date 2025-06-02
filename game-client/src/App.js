@@ -412,7 +412,7 @@ useEffect(() => {
       }
 
       console.log('✅🏁✅🏁✅🏁✅ App initialization complete.');
-      setShowTimers(showTimers);
+      setShowTimers(true);
       setIsAppInitialized(true);
 
     } catch (error) {
@@ -1062,6 +1062,14 @@ const handleLoginSuccess = async (player) => {
       <h1>Valley View</h1>  
       <br/>
 
+      <button className="shared-button" >Move Keys: AWSD</button>
+      <div className="zoom-controls">
+        <button className="zoom-button" disabled={!currentPlayer} onClick={zoomOut}>−</button>
+        <button className="zoom-button" disabled={!currentPlayer} onClick={zoomIn}>+</button>
+        <span><h3>to Zoom</h3></span>
+      </div>
+      <button className="shared-button" onClick={() => openPanel('HowToPanel')}>🕹️ How to Play</button>
+      <br/>
 
       {/* Add Role display if player has one */}
       {currentPlayer?.role === "Mayor" && (
@@ -1071,14 +1079,6 @@ const handleLoginSuccess = async (player) => {
         </>
       )}
 
-      <button className="shared-button" >Move Keys: AWSD</button>
-      <div className="zoom-controls">
-        <button className="zoom-button" disabled={!currentPlayer} onClick={zoomOut}>−</button>
-        <button className="zoom-button" disabled={!currentPlayer} onClick={zoomIn}>+</button>
-        <span><h3>to Zoom</h3></span>
-      </div>
-      <button className="shared-button" onClick={() => openPanel('HowToPanel')}>🕹️ How to Play</button>
-      <br/>
 
       {timers.seasons.phase === "onSeason" ? (
         <>
