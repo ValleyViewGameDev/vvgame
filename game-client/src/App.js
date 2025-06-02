@@ -83,9 +83,6 @@ import { handlePlayerDeath } from './Utils/playerManagement';
 
 function App() {
 
-  // Store the current season type (e.g., spring, summer, etc.)
-  const [seasonType, setSeasonType] = useState("unknown");
-
   useEffect(() => {
     const checkInitialSeasonPhase = async () => {
       console.log("Checking for on or off Season on app start");
@@ -110,13 +107,6 @@ function App() {
         try {
           const res = await axios.get(`${API_BASE}/api/get-global-season-phase`);
           const serverPhase = res.data?.phase;
-          // --- Set seasonType from server response ---
-          const serverSeasonType = res.data?.seasonType;
-          if (serverSeasonType) {
-            setSeasonType(serverSeasonType);
-          } else {
-            console.warn("No seasonType received from server.");
-          }
           setIsOffSeason(serverPhase === "offSeason");
           console.log(serverPhase === "offSeason" ? "✅ Server confirms offSeason" : "❌ Server says it's not offSeason");
         } catch (error) {
@@ -422,7 +412,7 @@ useEffect(() => {
       }
 
       console.log('✅🏁✅🏁✅🏁✅ App initialization complete.');
-      setShowTimers(true);
+      setShowTimers(showTimers);
       setIsAppInitialized(true);
 
     } catch (error) {
@@ -1090,8 +1080,6 @@ const handleLoginSuccess = async (player) => {
       <button className="shared-button" onClick={() => openPanel('HowToPanel')}>🕹️ How to Play</button>
       <br/>
 
-      <h2>It's {seasonType || "an unknown season"}</h2>
-
       {timers.seasons.phase === "onSeason" ? (
         <>
           <h4>📅 Season Ends in:</h4>
@@ -1191,10 +1179,6 @@ const handleLoginSuccess = async (player) => {
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> 🎒 Inventory </button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Store')}>🛒 Store</button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
-      </div>
-      {/* Display the current season type prominently in the header */}
-      <div className="season-display">
-        <h2>Season: {seasonType}</h2>
       </div>
       <div className="language-control">
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Language')}>🌎 EN</button>
