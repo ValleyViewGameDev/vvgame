@@ -116,7 +116,8 @@
         "reward": "Money",
         "rewardqty": 50,
         "goal1action": "Gain skill with",
-        "goal1item": "Masonry"
+        "goal1item": "Masonry",
+        "goal1qty": 1
     },
     {
         "title": "Grower",

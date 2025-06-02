@@ -175,34 +175,38 @@ const handlePurchase = async (resourceType) => {
           <p>Loading...</p>
         ) : (
           <>
-            <div className="skills-owned">
-              <h3>Skills you have:</h3>
-              {ownedSkills.length > 0 ? (
-                ownedSkills.map((skill, index) => (
-                  <div key={index}>
-                    {skill.type} 
-                  </div>
-                ))
-              ) : (
-                <p>No skills acquired yet.</p>
-              )}
-            </div>
+            {!["Warehouse", "Adventure Camp"].includes(entryPoint) && (
+              <div className="skills-owned">
+                <h3>{strings[1303]}</h3>
+                {ownedSkills.length > 0 ? (
+                  ownedSkills.map((skill, index) => (
+                    <div key={index}>
+                      {skill.type} 
+                    </div>
+                  ))
+                ) : (
+                  <p>{strings[1305]}</p>
+                )}
+              </div>
+            )}
 
-            <div className="upgrades-owned">
-              <h3>Upgrades you have:</h3>
-              {ownedUpgrades.length > 0 ? (
-                ownedUpgrades.map((upgrade, index) => (
-                  <div key={index}>
-                    {upgrade.type} 
-                  </div>
-                ))
-              ) : (
-                <p>No upgrades acquired yet.</p>
-              )}
-            </div>
+            {!["Warehouse", "Adventure Camp"].includes(entryPoint) && (
+              <div className="upgrades-owned">
+                <h3>{strings[1304]}</h3>
+                {ownedUpgrades.length > 0 ? (
+                  ownedUpgrades.map((upgrade, index) => (
+                    <div key={index}>
+                      {upgrade.type} 
+                    </div>
+                  ))
+                ) : (
+                  <p>{strings[1306]}</p>
+                )}
+              </div>
+            )}
 
             <div className="skills-to-acquire">
-              <h3>Skills to Purchase:</h3>
+              {skillsToAcquire.length > 0 && <h3>{strings[1301]}</h3>}
               <div className="skills-options">
                 {skillsToAcquire.map((resource) => {
                   const ingredients = getIngredientDetails(resource, allResources);
@@ -251,7 +255,7 @@ const handlePurchase = async (resourceType) => {
             </div>
 
             <div className="upgrades-to-acquire">
-              <h3>Upgrades to Purchase:</h3>
+              {upgradesToAcquire.length > 0 && <h3>{strings[1302]}</h3>}
               <div className="skills-options">
                 {upgradesToAcquire.map((resource) => {
                   const ingredients = getIngredientDetails(resource, allResources);

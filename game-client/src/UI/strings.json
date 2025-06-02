@@ -140,6 +140,7 @@
     "1023": "[Farm hands description]",
     "1024": "[Combat description]",
     "1025": "[Shop description]",
+    "1026": "[Money panel description]",
 
     "1101": "Inventory",
     "1102": "⚒️ Build",
@@ -166,6 +167,14 @@
     "1123": "🧑🏼‍🌾 Farm Hands",
     "1124": "⚔️ Combat",
     "1125": "🛒 Shop",
+    "1126": "💰 About Money",
+
+    "1301": "Skills to purchase:",
+    "1302": "Upgrades to purchase:",
+    "1303": "Skills you have:",
+    "1304": "Upgrades you have:",
+    "1305": "You have no skills yet.",
+    "1306": "You have no upgrades yet.",
 
     "1400": "MODAL STRINGS",
 

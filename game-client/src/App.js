@@ -46,6 +46,7 @@ import BuyPanel from './GameFeatures/Buy/BuyPanel';
 import SkillsAndUpgradesPanel from './GameFeatures/Skills/SkillsPanel';
 import FarmingPanel from './GameFeatures/Farming/FarmingPanel';
 import HowToPanel from './UI/HowToPanel';
+import HowToMoneyPanel from './UI/HowToMoneyPanel';
 import GovPanel from './GameFeatures/Government/GovPanel';
 import BankPanel from './GameFeatures/Trading/Bank';
 import TrainPanel from './GameFeatures/Trading/Train';
@@ -82,6 +83,9 @@ import { handlePlayerDeath } from './Utils/playerManagement';
 
 function App() {
 
+  // Store the current season type (e.g., spring, summer, etc.)
+  const [seasonType, setSeasonType] = useState("unknown");
+
   useEffect(() => {
     const checkInitialSeasonPhase = async () => {
       console.log("Checking for on or off Season on app start");
@@ -106,6 +110,13 @@ function App() {
         try {
           const res = await axios.get(`${API_BASE}/api/get-global-season-phase`);
           const serverPhase = res.data?.phase;
+          // --- Set seasonType from server response ---
+          const serverSeasonType = res.data?.seasonType;
+          if (serverSeasonType) {
+            setSeasonType(serverSeasonType);
+          } else {
+            console.warn("No seasonType received from server.");
+          }
           setIsOffSeason(serverPhase === "offSeason");
           console.log(serverPhase === "offSeason" ? "✅ Server confirms offSeason" : "❌ Server says it's not offSeason");
         } catch (error) {
@@ -411,6 +422,7 @@ useEffect(() => {
       }
 
       console.log('✅🏁✅🏁✅🏁✅ App initialization complete.');
+      setShowTimers(true);
       setIsAppInitialized(true);
 
     } catch (error) {
@@ -643,29 +655,6 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, [timers]); // Runs when timers update
 
-const handleResetTimers = async () => {
-  try {
-    // ✅ Step 1: Clear local storage timers
-    console.log("🧹 Local storage timer value before clearing:", localStorage.getItem("timers"));
-    localStorage.removeItem("timers");
-    console.log("🧼 Local storage timers cleared.");
-
-    // ✅ Step 2: Request server to reset timers
-    const response = await axios.post(`${API_BASE}/api/reset-all-timers`);
-    if (response.data.success) {
-      console.log("✅ Timers reset successfully from the client.");
-      updateStatus("🔄 All timers reset successfully.");
-      await fetchTimersData();
-
-    } else {
-      console.warn("⚠️ Timer reset failed.");
-      updateStatus("❌ Failed to reset timers.");
-    }
-  } catch (error) {
-    console.error("❌ Error resetting timers:", error);
-    updateStatus("❌ Timer reset request failed.");
-  }
-};
 
 const previousPhaseRef = useRef(timers.seasons?.phase);
 
@@ -1081,29 +1070,8 @@ const handleLoginSuccess = async (player) => {
 
     <div className="base-panel">
       <h1>Valley View</h1>  
-      <br />
-      <h3>Logged in as:</h3>
+      <br/>
 
-      <button className="shared-button"
-        onClick={() => {
-          if (currentPlayer?.username) { 
-            openPanel('ProfilePanel'); // Open Profile Panel if player is logged in
-          } else { 
-            openPanel('LoginPanel'); // Open Login Panel if player is not logged in
-          }
-        }}
-      >
-        {currentPlayer?.username || 'Sign In'}
-      </button>
-
-      {/* Add Account Status button if player is logged in */}
-      {currentPlayer?.accountStatus && (
-        <>
-          <button className="shared-button account-status-button" onClick={() => openModal('Store')} >
-            {currentPlayer.accountStatus} Account
-          </button>
-        </>
-      )}
 
       {/* Add Role display if player has one */}
       {currentPlayer?.role === "Mayor" && (
@@ -1113,7 +1081,7 @@ const handleLoginSuccess = async (player) => {
         </>
       )}
 
-      <button className="shared-button" >AWSD to Move</button>
+      <button className="shared-button" >Move Keys: AWSD</button>
       <div className="zoom-controls">
         <button className="zoom-button" disabled={!currentPlayer} onClick={zoomOut}>−</button>
         <button className="zoom-button" disabled={!currentPlayer} onClick={zoomIn}>+</button>
@@ -1121,6 +1089,22 @@ const handleLoginSuccess = async (player) => {
       </div>
       <button className="shared-button" onClick={() => openPanel('HowToPanel')}>🕹️ How to Play</button>
       <br/>
+
+      <h2>It's {seasonType || "an unknown season"}</h2>
+
+      {timers.seasons.phase === "onSeason" ? (
+        <>
+          <h4>📅 Season Ends in:</h4>
+          <h2>{countdowns.seasons}</h2>
+        </>
+      ) : (
+        <>
+          <h4>📅 Next Season in:</h4>
+          <h2>{countdowns.seasons}</h2>
+        </>
+      )}
+      <br />
+
 
       <h3>⏪ Happening Now in Town:
         <span 
@@ -1135,37 +1119,24 @@ const handleLoginSuccess = async (player) => {
         <div className="timers-panel">
 
       <br />
-      {timers.taxes.phase === "waiting" ? (
+
+          {timers.taxes.phase === "waiting" ? (
         <>
-          <h4>Next Tax Collection:</h4> 
-          <h2>{countdowns.taxes}</h2>
+          <h3>💰 Next Tax Collection:</h3> 
+          <p>In: {countdowns.taxes}</p>
         </>
       ) : (
         <>
           <h4>Now collecting taxes...</h4>
         </>
       )}
-      <br />
-      {timers.seasons.phase === "onSeason" ? (
-        <>
-          <h4>📅 Season Ends in:</h4>
-          <h2>{countdowns.seasons}</h2>
-        </>
-      ) : (
-        <>
-          <h4>📅 Next Season in:</h4>
-          <h2>{countdowns.seasons}</h2>
-        </>
-      )}
-      <br />
-
-          <h4>🏛️ Elections: {timers.elections.phase}</h4>
+          <h3>🏛️ Elections: {timers.elections.phase}</h3>
           <p>Ends: {countdowns.elections}</p>
-          <h4>🚂 Train: {timers.train.phase}</h4>
+          <h3>🚂 Train: {timers.train.phase}</h3>
           <p>Ends: {countdowns.train}</p>
-          <h4>🏦 Bank: {timers.bank.phase}</h4>
-          <p>Ends: {countdowns.bank}</p>
-          <button className="shared-button" onClick={() => openModal('TownNews')}> More </button>
+          <h3>🏦 Bank: {timers.bank.phase}</h3>
+          <p>New Offers: {countdowns.bank}</p>
+          <button className="shared-button" onClick={() => openModal('TownNews')}>Read the News!</button>
         </div>
       )}
 
@@ -1193,40 +1164,43 @@ const handleLoginSuccess = async (player) => {
         </h4>
       </div>
       <br />
-
-      <GridStateDebugPanel
-        gridId={gridId}
-        gridCoord={gridStats.gridCoord}
-        gridType={gridStats.gridType}
-        NPCsInGrid={NPCsInGrid}
-        playersInGrid={playersInGrid}
-      />
-
-      <br />
-      <button className="panel-button reset-button" onClick={handleResetTimers}>Reset All Timers</button>
     </div>
 
 {/* //////////////////////  Header  //////////////////////// */}
 
     <header className="app-header">
-      <div className="money-display">
-        <h3>💰  
-          {Array.isArray(currentPlayer?.inventory) ? (
-            <span className="money-value">
-              {(currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0).toLocaleString()}
-            </span>
-          ) : ("...")}
-        </h3>
+      <div className="header-controls-left">
+        <button className="shared-button"
+          onClick={() => {
+            if (currentPlayer?.username) { 
+              openPanel('ProfilePanel');
+            } else { 
+              openPanel('LoginPanel');
+            }
+          }}
+        >
+          😀 {currentPlayer?.username || 'Sign In'}
+        </button>
+        <button className="shared-button"
+          onClick={() => openPanel('HowToMoneyPanel')}
+        >
+          💰 {Array.isArray(currentPlayer?.inventory)
+            ? (currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0).toLocaleString()
+            : "..."}
+        </button>
+        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> 🎒 Inventory </button>
+        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Store')}>🛒 Store</button>
+        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
       </div>
-      <div className="header-controls">
-          <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> 🎒 Inventory </button>
-          <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Store')}>🛒 Store</button>
-          <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
+      {/* Display the current season type prominently in the header */}
+      <div className="season-display">
+        <h2>Season: {seasonType}</h2>
       </div>
       <div className="language-control">
-          <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Language')}>🌎 EN</button>
+        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Language')}>🌎 EN</button>
       </div>
     </header>
+    
     <div className="status-bar-wrapper"> <StatusBar /> </div>
 
 
@@ -1425,6 +1399,12 @@ const handleLoginSuccess = async (player) => {
       )}
       {activePanel === 'HowToPanel' && (
         <HowToPanel 
+          onOpen={openPanel}
+          onClose={closePanel}
+        />
+      )}
+      {activePanel === 'HowToMoneyPanel' && (
+        <HowToMoneyPanel 
           onOpen={openPanel}
           onClose={closePanel}
         />

@@ -7,6 +7,7 @@ import { fetchInventory, debugUpdateInventory, refreshPlayerAfterInventoryUpdate
 import { fetchGridData } from './GridManagement';
 import NPCsInGridManager from '../GridState/GridStateNPCs'; // Use default export for NPCsInGridManager
 import playersInGridManager from '../GridState/PlayersInGrid';
+import GridStateDebugPanel from './GridStateDebug';
 
 const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, setResources, currentGridId, updateStatus }) => {
   const [timers, setTimers] = useState([]);
@@ -722,6 +723,32 @@ const handleClearSkillsAndPowers = async () => {
     }
   };
 
+
+  const handleResetTimers = async () => {
+    try {
+      // ✅ Step 1: Clear local storage timers
+      console.log("🧹 Local storage timer value before clearing:", localStorage.getItem("timers"));
+      localStorage.removeItem("timers");
+      console.log("🧼 Local storage timers cleared.");
+  
+      // ✅ Step 2: Request server to reset timers
+      const response = await axios.post(`${API_BASE}/api/reset-all-timers`);
+      if (response.data.success) {
+        console.log("✅ Timers reset successfully from the client.");
+        updateStatus("🔄 All timers reset successfully.");
+ //       await fetchTimersData();
+  
+      } else {
+        console.warn("⚠️ Timer reset failed.");
+        updateStatus("❌ Failed to reset timers.");
+      }
+    } catch (error) {
+      console.error("❌ Error resetting timers:", error);
+      updateStatus("❌ Timer reset request failed.");
+    }
+  };
+
+
   return (
     <Panel onClose={onClose} titleKey="1120" panelName="DebugPanel">
       <div className="debug-buttons">
@@ -744,6 +771,9 @@ const handleClearSkillsAndPowers = async () => {
         <button className="btn-success" onClick={handleGetRich}> Get Rich </button>
         <button className="btn-success" onClick={handleGetSkills}> Get Skills </button>
         <button className="btn-neutral" onClick={() => setRefreshDebug((prev) => !prev)} > Refresh Debug Panel </button>
+
+        <button className="panel-button reset-button" onClick={handleResetTimers}>Reset All Timers</button>
+
       </div>
 
 
@@ -765,7 +795,14 @@ const handleClearSkillsAndPowers = async () => {
           <p>No active timers.</p>
         )}
       </div>
-
+          
+    <GridStateDebugPanel
+      gridId={currentGridId}
+      gridCoord={currentPlayer?.location?.gcoord}
+      gridType={currentPlayer?.location?.gtype}
+      NPCsInGrid={{ [currentGridId]: NPCsInGridManager.getNPCsInGrid(currentGridId) }}
+      playersInGrid={{ [currentGridId]: playersInGridManager.getPlayersInGrid(currentGridId) }}
+    />
 
     </Panel>
   );

@@ -220,6 +220,11 @@ body {
   justify-content: center;
 }
 
+.header-controls-left {
+  display: flex;
+  gap: 5px;
+}
+
 .money-display {
   /* Left section */
   grid-column: 1;
