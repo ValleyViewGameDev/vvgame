@@ -1,37 +1,62 @@
-/* Ensure full-height layout */
-.editor-container {
+/* Navigation Column */
+
+.nav-column {
+  width: 60px;
+  background-color: #a0dc4e;
   display: flex;
-  height: 100vh;
-  overflow: hidden; /* Prevent unnecessary scrollbars */
+  flex-direction: column;
+  align-items: center;
+  padding-top: 12px;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
 }
 
+.nav-column button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: white;
+  margin: 10px 0;
+  cursor: pointer;
+}
+
+.nav-column button:hover {
+  color: #67c257;
+}
+
+/* Ensure full-height layout */
+
+.editor-container {
+  display: flex;
+  height: calc(100vh - 40px); /* subtract header height */
+  overflow: hidden;
+  margin-top: 40px; /* offset content below the header */
+}
 
 h1 {
   margin: 8px 0;
   padding: 4px 0;
 }
-
 h2 {
   margin: 6px 0;
   padding: 3px 0;
   color: white;
 }
-
 h3 {
   margin: 5px 0;
   padding: 2px 0;
   color: white;
-
 }
-
 h4, h5, h6 {
   margin: 4px 0;
   padding: 2px 0;
 }
 
-
-
 /* Fixed Left Panel (Independent Scrolling) */
+
 .editor-panel {
   width: 180px;
   background-color: #67c257;
@@ -41,7 +66,7 @@ h4, h5, h6 {
   display: flex;
   flex-direction: column;
   position: fixed;
-  left: 0;
+  left: 60px;
   top: 0;
   bottom: 0;
   height: 100vh;  /* Ensures it always fills the screen */
@@ -61,11 +86,11 @@ h4, h5, h6 {
 .editor-grid-container {
   margin-left: 0; /* No margin needed, already offset by left */
   margin-top: 0;
-  width: calc(100% - 180px);
+  width: calc(100% - 240px);
   height: 100vh;
   position: fixed; /* so it sits under the fixed panel */
   top: 0;
-  left: 200px;      /* match panel width */
+  left: 240px;
   overflow: auto;
   z-index: 0;       /* ensure it is beneath the panel */
 }
@@ -102,3 +127,42 @@ h4, h5, h6 {
   transform: scale(0.95);     /* Slight press effect */
 }
 
+
+.panel-hidden {
+  display: none;
+}
+
+.panel-visible {
+  display: block;
+}
+.editor-header {
+  position: fixed;
+  top: 0;
+  left: 60px; /* offset from nav column */
+  right: 0;
+  height: 40px;
+  background-color: #3e8e41;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  z-index: 999;
+  color: white;
+}
+
+.header-controls {
+  display: flex;
+  gap: 12px;
+  margin-left: 190px; /* offset from the base panel */
+}
+
+.header-controls label {
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.header-controls select {
+  margin-left: 4px;
+  padding: 4px;
+  border-radius: 4px;
+  border: none;
+}

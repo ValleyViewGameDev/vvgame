@@ -1,0 +1,17 @@
+.frontier-base-panel {
+  position: absolute;
+  top: 0;
+  left: 60px; /* Align with nav panel */
+  width: 180px; /* Match base panel width */
+  height: 100vh;
+  background-color: #67c257;
+  padding: 10px;
+  overflow-y: auto;
+  z-index: 999;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.frontier-base-panel h2 {
+  color: white;
+  font-size: 18px;
+}

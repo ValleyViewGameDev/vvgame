@@ -7,17 +7,14 @@ const FileManager = ({ loadLayout, saveLayout, currentFile }) => {
 
   const handleSave = () => {
     console.log(`🔹 Save button clicked. File: ${fileName}, Directory: ${directory}`);
-
     if (!fileName) {
       alert('Please enter a file name.');
       return;
     }
-
     if (!directory) {
       alert('Please select a directory.');
       return;
     }
-
     saveLayout(fileName, directory);  // ✅ Ensuring directory gets passed correctly
   };
 
@@ -28,12 +25,10 @@ const FileManager = ({ loadLayout, saveLayout, currentFile }) => {
       alert('Please enter a file name.');
       return;
     }
-  
     if (!directory) {
       alert('Please select a directory.');
       return;
     }
-  
     loadLayout(fileName, directory);  // ✅ Ensuring directory gets passed correctly
   };
 

@@ -37,7 +37,8 @@ const GridEditor = () => {
 
   useEffect(() => {
     try {
-      const resourcePath = path.join(projectRoot, 'game-server', 'tuning', 'resources.json');      const fileContents = fs.readFileSync(resourcePath, 'utf-8');
+      const resourcePath = path.join(projectRoot, 'game-server', 'tuning', 'resources.json');      
+      const fileContents = fs.readFileSync(resourcePath, 'utf-8');
       const parsedResources = JSON.parse(fileContents);
       console.log("🔍 Loaded resources:", parsedResources);
       if (!Array.isArray(parsedResources)) {
@@ -653,7 +654,7 @@ const handleClearGrid = () => {
         style={{
           position: 'absolute',
           top: 0,
-          left: 180,
+          left: 240,
           right: 0,
           bottom: 0,
           overflowX: 'auto',

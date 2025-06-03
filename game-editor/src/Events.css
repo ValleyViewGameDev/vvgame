@@ -1,0 +1,23 @@
+/* Events.css */
+.events-base-panel {
+  position: fixed;
+  top: 0;
+  left: 60px; /* sits just to the right of nav panel */
+  width: 180px; /* same width as Grid Editor's base panel */
+  height: 100vh;
+  background-color: #67c257;
+  padding: 10px;
+  overflow-y: auto;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+.events-base-panel h2 {
+  color: #333;
+  font-size: 20px;
+}
+
+.events-base-panel p {
+  font-size: 14px;
+  color: #555;
+}
