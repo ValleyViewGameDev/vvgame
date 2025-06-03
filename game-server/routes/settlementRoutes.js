@@ -12,6 +12,18 @@ const Grid = require('../models/grid'); // Assuming you have a Grid model
 const Player = require('../models/player'); // Import the Player model
 const tuningConfig = require('../tuning/globalTuning.json');
 
+
+// ✅ Route to get all settlements with id and name
+router.get('/api/settlements', async (req, res) => {
+  try {
+    const settlements = await Settlement.find({}, '_id name').lean();
+    res.status(200).json(settlements);
+  } catch (error) {
+    console.error('❌ Error fetching settlements:', error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
 // SETTLEMENT ROUTES
 
 router.get('/get-settlement-by-grid/:gridId', async (req, res) => {
