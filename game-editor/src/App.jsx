@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import API_BASE from './config';
+import axios from 'axios';
 import GridEditor from './GridEditor';
 import Events from './Events';
 import FrontierView from './FrontierView';
@@ -13,25 +14,33 @@ const App = () => {
   const [settlements, setSettlements] = useState([]);
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/frontiers`)
-      .then(res => res.json())
-      .then(data => {
-        console.log("Frontiers:", data);
-        setFrontiers(data);
-        if (data.length > 0) {
-          setSelectedFrontier(data[0]._id);
+    const fetchData = async () => {
+      try {
+        const frontierRes = await axios.get(`${API_BASE}/api/frontiers`);
+        const frontierData = frontierRes.data;
+        console.log("Frontiers:", frontierData);
+        setFrontiers(frontierData);
+        if (frontierData.length > 0) {
+          setSelectedFrontier(frontierData[0]._id);
         }
-      });
+      } catch (error) {
+        console.error("Failed to fetch frontiers:", error);
+      }
 
-    fetch(`${API_BASE}/api/settlements`)
-      .then(res => res.json())
-      .then(data => {
-        console.log("Settlements:", data);
-        setSettlements(data);
-        if (data.length > 0) {
-          setSelectedSettlement(data[0]._id);
+      try {
+        const settlementRes = await axios.get(`${API_BASE}/api/settlements`);
+        const settlementData = settlementRes.data;
+        console.log("Settlements:", settlementData);
+        setSettlements(settlementData);
+        if (settlementData.length > 0) {
+          setSelectedSettlement(settlementData[0]._id);
         }
-      });
+      } catch (error) {
+        console.error("Failed to fetch settlements:", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   console.log("Selected Frontier:", selectedFrontier);
@@ -84,7 +93,7 @@ const App = () => {
           <Events selectedSettlement={selectedSettlement} />
         </div>
         <div className={activePanel === 'frontier' ? 'panel-visible' : 'panel-hidden'}>
-          <FrontierView selectedFrontier={selectedFrontier} />
+          <FrontierView selectedFrontier={selectedFrontier} settlements={settlements} />
         </div>
       </div>
     </div>

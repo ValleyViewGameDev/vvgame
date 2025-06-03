@@ -14,7 +14,7 @@ const tuningConfig = require('../tuning/globalTuning.json');
 
 
 // ✅ Route to get all settlements with id and name
-router.get('/api/settlements', async (req, res) => {
+router.get('/settlements', async (req, res) => {
   try {
     const settlements = await Settlement.find({}, '_id name').lean();
     res.status(200).json(settlements);

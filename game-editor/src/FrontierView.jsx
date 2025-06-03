@@ -1,28 +1,14 @@
 // game-editor/src/FrontierView.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './FrontierView.css';
-import axios from 'axios';
 import Modal from './Modal';
 
 const GRID_DIMENSION = 64;
 const FRONTIER_ID = 'yourFrontierIdHere'; // Replace or fetch dynamically
 
-const FrontierView = () => {
-  const [settlements, setSettlements] = useState([]);
+const FrontierView = ({ selectedFrontier, settlements }) => {
   const [modalMessage, setModalMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
-
-  useEffect(() => {
-    const fetchSettlements = async () => {
-      try {
-        const res = await axios.get(`/api/get-settlements-by-frontier/${FRONTIER_ID}`);
-        setSettlements(res.data.settlements || []);
-      } catch (error) {
-        console.error("Failed to fetch settlements:", error);
-      }
-    };
-    fetchSettlements();
-  }, []);
 
   const handleGridClick = async (gridCoord, gridType) => {
     if (!gridType?.startsWith('valley')) return;
