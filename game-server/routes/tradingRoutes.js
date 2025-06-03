@@ -33,7 +33,7 @@ router.post('/update-player-trade-stall', async (req, res) => {
         }
       }
     });
-
+ 
     // Update the trade stall on the player document
     player.tradeStall = tradeStall;
 

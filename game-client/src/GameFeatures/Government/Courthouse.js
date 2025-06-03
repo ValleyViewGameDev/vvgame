@@ -6,23 +6,9 @@ import { StatusBarContext } from '../../UI/StatusBar';
 import './Courthouse.css';
 import '../../UI/Panel.css';
 import strings from '../../UI/strings.json';
-import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 
 const CourthousePanel = ({ onClose, currentPlayer }) => {
-    // Community Buildings counts
-    const resources = GlobalGridStateTilesAndResources.getResources() || [];
-    const buildingCounts = {
-        School: 0,
-        Hospital: 0,
-        AnimalYard: 0,
-        Library: 0
-    };
-    resources.forEach(res => {
-        if (res.type === 'School') buildingCounts.School++;
-        if (res.type === 'Hospital') buildingCounts.Hospital++;
-        if (res.type === 'Animal Yard') buildingCounts.AnimalYard++;
-        if (res.type === 'Library') buildingCounts.Library++;
-    });
+
     const [settlement, setSettlement] = useState(null);
     const [taxRate, setTaxRate] = useState(0);
     const [isMayor, setIsMayor] = useState(false);
@@ -240,6 +226,9 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
         )?.text || "No campaign promise made.";
     };
 
+    console.log("hasVoted:", hasVoted);
+    console.log("electionPhase:", electionPhase);
+
     return (
         <Panel onClose={onClose} descriptionKey="1012" titleKey="1112" panelName="Courthouse">
             <div className="panel-content courthouse-panel">       
@@ -249,7 +238,8 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
                     ) : (
                         <h2>{strings[2079]}</h2>
                     )}
-                    
+                    <p>{strings[2084]}</p>
+
 {/* Settlement name section */}
                     <h3>{strings[2082]}</h3>
                     {isMayor ? (
@@ -300,13 +290,6 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
                         </div>
                     )}
 
-{/* COMMUNITY BUILDINGS section */}
-                    <h3>{strings["2090"]}</h3>
-                    <p>{buildingCounts.School > 0 ? `${strings["2092"]}${buildingCounts.School}` : strings["2093"]}</p>
-                    <p>{buildingCounts.Hospital > 0 ? `${strings["2094"]}${buildingCounts.Hospital}` : strings["2095"]}</p>
-                    <p>{buildingCounts.AnimalYard > 0 ? `${strings["2096"]}${buildingCounts.AnimalYard}` : strings["2097"]}</p>
-                    <p>{buildingCounts.Library > 0 ? `${strings["2098"]}${buildingCounts.Library}` : strings["2099"]}</p>
-
 {/* ELECTIONS section */} 
 
                     <br></br>
@@ -354,6 +337,9 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
 
 {/* Voting Phase UI */}
 
+<div className="voting-section">
+  <p>🧪 Debug: phase = [{electionPhase}]</p>
+</div>
                     {electionPhase === 'Voting' && (
                         <div className="voting-section">
                             {hasVoted ? (
@@ -410,6 +396,13 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
                             ) : (
                                 <p>{strings[2078]}</p>
                             )}
+
+
+                            {/* ✅ Extra message if no one ran */}
+                            {candidateList.length === 0 && (
+                                <p><em>No one ran for mayor this election cycle.</em></p>
+                            )}
+                            
                         </div>
                     )}
                 </div>

@@ -65,7 +65,7 @@ const playerSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ['Citizen', 'Mayor', 'Governor', 'President'],
-    default: 'Peasant',
+    default: 'Citizen',
   },
   tradeStall: {
     type: Array,
