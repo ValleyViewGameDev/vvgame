@@ -3,21 +3,36 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
 import strings from '../../UI/strings.json';
+import { getMayorUsername } from './GovUtils';
+import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 
 function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
   const [settlementData, setSettlementData] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
-  const [settlementRoles, setSettlementRoles] = useState([]);
-  const [playerNames, setPlayerNames] = useState({});
   const [taxRate, setTaxRate] = useState(0);
   const [population, setPopulation] = useState(0);
   const [taxLog, setTaxLog] = useState([]);
-
+  const [mayor, setMayor] = useState("");
+  // Community Buildings counts
+  const resources = GlobalGridStateTilesAndResources.getResources() || [];
+  const buildingCounts = {
+      School: 0,
+      Hospital: 0,
+      AnimalYard: 0,
+      Library: 0
+  };
+  resources.forEach(res => {
+      if (res.type === 'School') buildingCounts.School++;
+      if (res.type === 'Hospital') buildingCounts.Hospital++;
+      if (res.type === 'Animal Yard') buildingCounts.AnimalYard++;
+      if (res.type === 'Library') buildingCounts.Library++;
+  });
+  
   useEffect(() => {
     const fetchGovernmentData = async () => {
       if (!currentPlayer || !currentPlayer.settlementId) {
         console.warn("⚠️ currentPlayer or settlementId is not available yet.");
-        return;
+        return; 
       }
   
       try {
@@ -27,7 +42,6 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
         const settlement = settlementResponse.data;
         setSettlementData(settlement);
         setTaxLog(settlement.taxlog || []);
-        setSettlementRoles(settlement.roles || []);
         setTaxRate(settlement.taxrate || 0);
         
         const allGrids = settlement.grids?.flat() || []; 
@@ -35,37 +49,10 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
             grid.gridType === "homestead" && grid.available === false
         ).length || 0;
         setPopulation(occupiedHomesteads);
-                
-        // ✅ Extract `roleName` and `playerId` pairs properly
-        const roleEntries = settlement.roles.map(role => ({
-          roleName: role.roleName,
-          playerId: role.playerId
-        }));
-        console.log('✅ Extracted roleEntries:', roleEntries);
-  
-        // ✅ Fetch player usernames for all role holders
-        const fetchPlayerPromises = roleEntries.map(async ({ roleName, playerId }) => {
-          if (!playerId || playerId === "Vacant") {
-            return { roleName, username: "Vacant" };
-          }
-  
-          try {
-            const playerResponse = await axios.get(`${API_BASE}/api/player/${playerId}`);
-            return { roleName, username: playerResponse.data.username };
-          } catch (error) {
-            console.error(`❌ Error fetching player for ${roleName}:`, error);
-            return { roleName, username: "Error" };
-          }
-        });
-  
-        // ✅ Wait for all player lookups to complete
-        const resolvedPlayers = await Promise.all(fetchPlayerPromises);
-        const playerLookup = {};
-        resolvedPlayers.forEach(({ roleName, username }) => {
-          playerLookup[roleName] = username;
-        });
-  
-        setPlayerNames(playerLookup);
+        
+        const mayorName = await getMayorUsername(currentPlayer.settlementId);
+        setMayor(mayorName);
+          
       } catch (error) {
         console.error("❌ Error fetching government data:", error);
       }
@@ -111,10 +98,6 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
           </tbody>
         </table>
       );
-
-      console.log("📦 taxlog.length =", taxlog.length);
-      console.log("📦 typeof taxLogTable =", typeof taxLogTable);
-      console.log("📦 taxLogTable =", taxLogTable);
 
       setModalContent({
         title: strings["5100"],
@@ -163,23 +146,24 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
         {/* Government Officials Section */}
         <h3>{strings["3006"]}</h3>
         <div>
-          {settlementRoles.length > 0 ? (
-            settlementRoles.map((role, index) => (
-              <p key={index}>
-                <strong>{role.roleName}:</strong> {playerNames[role.roleName] || "Vacant"}
-              </p>
-            ))
-          ) : (
-            <p>{strings["3007"]}</p>
-          )}
+        <p><strong>Mayor:</strong> {mayor || "Vacant"}</p>
         </div>
 
-        <h3>{strings["3008"]}</h3>
         <p>{strings["3009"]}</p>
         <p>{strings["3010"]}</p>
         <p>{strings["3011"]}</p>
         <p>{strings["3012"]}</p>
         <p>{strings["3013"]}</p>
+
+
+        {/* COMMUNITY BUILDINGS section */}
+        <h3>{strings["2090"]}</h3>
+        <p>{buildingCounts.School > 0 ? `${strings["2092"]}${buildingCounts.School}` : strings["2093"]}</p>
+        <p>{buildingCounts.Hospital > 0 ? `${strings["2094"]}${buildingCounts.Hospital}` : strings["2095"]}</p>
+        <p>{buildingCounts.AnimalYard > 0 ? `${strings["2096"]}${buildingCounts.AnimalYard}` : strings["2097"]}</p>
+        <p>{buildingCounts.Library > 0 ? `${strings["2098"]}${buildingCounts.Library}` : strings["2099"]}</p>
+
+
       </div>
     </Panel>
   );

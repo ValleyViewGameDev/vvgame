@@ -117,6 +117,13 @@ function App() {
     checkInitialSeasonPhase();
   }, []);
 
+    // ✅ Fetch season data from local storage
+  const getSeasonData = () => {
+    const storedTimers = JSON.parse(localStorage.getItem("timers"));
+    return storedTimers?.seasons || { type: "Unknown", phase: "Unknown", endTime: null };
+  };
+  const seasonData = getSeasonData();
+
   const [currentPlayer, setCurrentPlayer] = useState(null); // Ensure this is defined
 
   // Initialize gridId with localStorage (do not depend on currentPlayer here)
@@ -1082,11 +1089,15 @@ const handleLoginSuccess = async (player) => {
 
       {timers.seasons.phase === "onSeason" ? (
         <>
+          <h2>It's {seasonData?.type || "[Season unknown]"}</h2>
+          <br />
           <h4>📅 Season Ends in:</h4>
           <h2>{countdowns.seasons}</h2>
         </>
       ) : (
         <>
+          <h2>It's {seasonData?.type || "[Season unknown]"}</h2>
+          <br />
           <h4>📅 Next Season in:</h4>
           <h2>{countdowns.seasons}</h2>
         </>

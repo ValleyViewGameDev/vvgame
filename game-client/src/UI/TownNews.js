@@ -6,6 +6,7 @@ import './TownNews.css';
 import { StatusBarContext } from './StatusBar';
 import strings from './strings.json';
 import { formatCountdown } from './Timers';
+import { getMayorUsername } from '../GameFeatures/Government/GovUtils';
 
 function TownNews({ onClose, currentPlayer, setCurrentPlayer }) {
     // Settlement data
@@ -36,16 +37,19 @@ function TownNews({ onClose, currentPlayer, setCurrentPlayer }) {
     };
 
     const fetchTownData = async () => {
-        try {
+        try { 
             // Fetch settlement data
             const settlementResponse = await axios.get(
                 `${API_BASE}/api/get-settlement/${currentPlayer.settlementId}`);
             const settlement = settlementResponse.data;
             
+            console.log("Settlement data fetched:", settlement);
             setSettlementName(settlement.name);
             setTaxRate(settlement.taxrate);
-            const mayorRole = settlement.roles.find(role => role.roleName === 'Mayor');
-            setMayor(mayorRole?.username || null);
+
+            const mayorName = await getMayorUsername(currentPlayer.settlementId);
+            console.log("👑 Mayor:", mayorName);
+            setMayor(mayorName);
 
             // Get current train offers
             setCurrentTrainOffers(settlement.currentoffers);
@@ -89,7 +93,7 @@ function TownNews({ onClose, currentPlayer, setCurrentPlayer }) {
             
             {mayor ? (
                 /* The current mayor is */
-                <p>{strings["1502"]} {mayor}, {strings["1503"]} {taxRate}%.</p>  
+                <p>{strings["1502"]} {mayor}{strings["1503"]} {taxRate}%.</p>  
             ) : (
                 /* No mayor */
                 <> <p>{strings["1512"]} {strings["1515"]} {taxRate}%.</p>  </>
