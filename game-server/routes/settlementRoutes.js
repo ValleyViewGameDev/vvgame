@@ -16,7 +16,7 @@ const tuningConfig = require('../tuning/globalTuning.json');
 // ✅ Route to get all settlements with id and name
 router.get('/settlements', async (req, res) => {
   try {
-    const settlements = await Settlement.find({}, '_id name').lean();
+const settlements = await Settlement.find({}, '_id name frontierId').lean();
     res.status(200).json(settlements);
   } catch (error) {
     console.error('❌ Error fetching settlements:', error);

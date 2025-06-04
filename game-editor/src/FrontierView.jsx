@@ -45,7 +45,9 @@ const FrontierView = ({ selectedFrontier, settlements }) => {
           <div className="frontier-row" key={x}>
             {Array.from({ length: GRID_DIMENSION }).map((_, y) => {
               const gridCoord = parseInt(`10${x.toString().padStart(2, '0')}${y.toString().padStart(2, '0')}`);
-              const foundGrid = settlements.flatMap(s => s.grids).flat().find(g => g.gridCoord === gridCoord);
+              const foundGrid = settlements
+                .flatMap(s => Array.isArray(s.grids) ? s.grids.flat() : [])
+                .find(g => g.gridCoord === gridCoord);
               const type = foundGrid?.gridType;
 
               return (

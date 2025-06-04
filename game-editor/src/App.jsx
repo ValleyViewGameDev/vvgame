@@ -45,15 +45,27 @@ const App = () => {
 
   console.log("Selected Frontier:", selectedFrontier);
   console.log("Selected Settlement:", selectedSettlement);
-  useEffect(() => {
-    // When selectedFrontier changes, update selectedSettlement to first settlement in that frontier
-    const filteredSettlements = settlements.filter(s => s.frontierId === selectedFrontier);
-    if (filteredSettlements.length > 0) {
-      setSelectedSettlement(filteredSettlements[0]._id);
-    } else {
-      setSelectedSettlement(null);
-    }
-  }, [selectedFrontier, settlements]);
+
+useEffect(() => {
+  console.log("🔍 Settlements for selected frontier:", selectedFrontier);
+  settlements.forEach((s, idx) => {
+    console.log(`🔍 [${idx}] Settlement:`, {
+      name: s.name,
+      _id: s._id,
+      frontierId: s.frontierId,
+      match: String(s.frontierId?._id || s.frontierId) === String(selectedFrontier)
+    });
+  });
+  const filtered = settlements.filter(
+    s => String(s.frontierId?._id || s.frontierId) === String(selectedFrontier)
+  );
+  console.log("✅ Filtered settlements:", filtered.map(s => `${s.name} (${s._id})`));
+  if (filtered.length > 0) {
+    setSelectedSettlement(filtered[0]._id);
+  } else {
+    setSelectedSettlement(null);
+  }
+}, [selectedFrontier, settlements]);
 
   return (
   <>
@@ -69,7 +81,7 @@ const App = () => {
           Settlement:
           <select value={selectedSettlement || ''} onChange={e => setSelectedSettlement(e.target.value)}>
             {settlements
-              .filter(s => s.frontierId === selectedFrontier)
+              .filter(s => String(s.frontierId) === String(selectedFrontier))
               .map(s => <option key={s._id} value={s._id}>{s.name}</option>)}
           </select>
         </label>
