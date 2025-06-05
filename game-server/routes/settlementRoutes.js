@@ -13,10 +13,10 @@ const Player = require('../models/player'); // Import the Player model
 const tuningConfig = require('../tuning/globalTuning.json');
 
 
-// ✅ Route to get all settlements with id and name
+// ✅ Route to get all settlements with id, name, frontierId, and grids
 router.get('/settlements', async (req, res) => {
   try {
-const settlements = await Settlement.find({}, '_id name frontierId').lean();
+    const settlements = await Settlement.find({}, '_id name frontierId grids').lean();
     res.status(200).json(settlements);
   } catch (error) {
     console.error('❌ Error fetching settlements:', error);

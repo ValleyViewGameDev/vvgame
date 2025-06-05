@@ -15,3 +15,63 @@
   color: white;
   font-size: 18px;
 }
+
+.frontier-grid {
+  position: fixed;
+  top: 40px; /* Account for fixed header height */
+  left: 260px; /* 60px nav + 180px base panel */
+  width: calc(100vw - 240px);
+  height: calc(100vh - 40px); /* Adjust for header */
+  display: flex;
+  flex-direction: column;
+  background-color: #f0f0f0;
+  overflow: auto;
+  z-index: 0;
+}
+
+.frontier-row {
+  display: flex;
+}
+
+.frontier-cell {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #ccc;
+  font-size: 12px;
+  cursor: pointer;
+  flex-shrink: 0; /* Prevent shrinking in flex layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.type-homestead {
+  background-color: #e4d5b7;
+}
+
+.type-town {
+  background-color: #e4d5b7;
+}
+
+.type-valley0,
+.type-valley1,
+.type-valley2,
+.type-valley3 {
+  background-color: #d0f0c0;
+}
+.frontier-cell.selected {
+  outline: 2px solid red;
+  outline-offset: -1px;
+}
+
+.selected-cell-info {
+  margin-top: 10px;
+  color: white;
+  font-size: 13px;
+  padding: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.selected-cell-info p {
+  margin: 4px 0;
+}

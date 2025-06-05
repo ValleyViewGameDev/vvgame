@@ -43,23 +43,12 @@ const App = () => {
     fetchData();
   }, []);
 
-  console.log("Selected Frontier:", selectedFrontier);
-  console.log("Selected Settlement:", selectedSettlement);
 
 useEffect(() => {
-  console.log("🔍 Settlements for selected frontier:", selectedFrontier);
-  settlements.forEach((s, idx) => {
-    console.log(`🔍 [${idx}] Settlement:`, {
-      name: s.name,
-      _id: s._id,
-      frontierId: s.frontierId,
-      match: String(s.frontierId?._id || s.frontierId) === String(selectedFrontier)
-    });
-  });
+
   const filtered = settlements.filter(
     s => String(s.frontierId?._id || s.frontierId) === String(selectedFrontier)
   );
-  console.log("✅ Filtered settlements:", filtered.map(s => `${s.name} (${s._id})`));
   if (filtered.length > 0) {
     setSelectedSettlement(filtered[0]._id);
   } else {

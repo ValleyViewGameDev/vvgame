@@ -33,7 +33,7 @@
   display: flex;
   height: calc(100vh - 40px); /* subtract header height */
   overflow: hidden;
-  margin-top: 40px; /* offset content below the header */
+  margin-top: 60px; /* offset content below the header */
 }
 
 h1 {
@@ -89,7 +89,7 @@ h4, h5, h6 {
   width: calc(100% - 240px);
   height: 100vh;
   position: fixed; /* so it sits under the fixed panel */
-  top: 0;
+  top: 40px;
   left: 240px;
   overflow: auto;
   z-index: 0;       /* ensure it is beneath the panel */
