@@ -3,9 +3,8 @@ import './FrontierView.css';
 import Modal from './Modal';
 
 const GRID_DIMENSION = 64;
-const FRONTIER_ID = 'yourFrontierIdHere'; // Replace or fetch dynamically
 
-const FrontierView = ({ selectedFrontier, settlements }) => {
+const FrontierView = ({ selectedFrontier, settlements, activePanel }) => {
 
 console.log("📦 FrontierView rendered");
 console.log("🧭 selectedFrontier:", selectedFrontier);
@@ -54,20 +53,21 @@ if (settlements.length > 0) {
     const map = new Map();
     console.log("🧩 Building gridMap:");
     settlements.forEach(s => {
-      console.log(`📥 Raw grids for settlement ${s.name}:`, JSON.stringify(s.grids));
+      //console.log(`📥 Raw grids for settlement ${s.name}:`, JSON.stringify(s.grids));
       const sid = s.frontierId?.toString();
       const match = sid === selectedFrontier?.toString();
-      console.log(`🧩 Settlement ${s.name} | frontierId: ${sid} | matches selected: ${match}`);
+      //console.log(`🧩 Settlement ${s.name} | frontierId: ${sid} | matches selected: ${match}`);
       if (match) {
         const grids = Array.isArray(s.grids) && s.grids.every(row => Array.isArray(row))
           ? s.grids.flatMap(row => row)
           : [];
         grids.forEach(grid => {
-          console.log(`  ➕ Adding gridCoord ${grid.gridCoord} with type ${grid.gridType}`);
-          map.set(grid.gridCoord, grid);
+          map.set(Number(grid.gridCoord), grid);
         });
       }
     });
+    console.log("🧾 Final gridMap contents:", Array.from(map.entries()));
+    console.log('📋 Sample gridMap keys:', Array.from(map.keys()).slice(0, 5));
     return map;
   }, [settlements, selectedFrontier]);
 
@@ -82,46 +82,27 @@ if (settlements.length > 0) {
   console.log(`📊 total grids for frontier ${selectedFrontier}:`, allGrids.length);
   console.log(`🧩 gridMap size:`, gridMap.size);
 
-  useEffect(() => {
-    console.log('📦 Logging allGrids content:');
-    allGrids.forEach((grid, index) => {
-      console.log(`🔹 Grid ${index}:`, grid);
-    });
-  }, [allGrids]);
 
 
-const handleGridClick = async (gridCoord, gridType) => {
-    console.log('🖱️ Grid clicked:', gridCoord, gridType);
-    if (!gridType?.startsWith('valley')) return;
-    setSelectedCell({ coord: gridCoord, type: gridType });
-    console.log(`🟢 setSelectedCell to:`, { coord: gridCoord, type: gridType });
-
-    console.log(`📌 Selected cell updated to: ${gridCoord}`);
-
-    const layoutPath = `../../../game-server/layouts/gridLayouts/valleyFixedCoord/${gridCoord}.json`;
-
-    try {
-      const fs = window.require('fs');
-      const path = window.require('path');
-      const app = window.require('@electron/remote').app;
-      const isDev = !app.isPackaged;
-      const projectRoot = isDev
-        ? path.join(__dirname, '..', '..', '..')
-        : path.join(app.getAppPath(), '..', '..', '..', '..', '..', '..', '..');
-
-      const fullPath = path.join(projectRoot, 'game-server', 'layouts', 'gridLayouts', 'valleyFixedCoord', `${gridCoord}.json`);
-
-      if (fs.existsSync(fullPath)) {
-        window.dispatchEvent(new CustomEvent('editor-load-grid', { detail: { gridCoord, gridType: 'valleyFixedCoord' } }));
-      } else {
-        setModalMessage("No available layout saved. Create a new one for this grid?");
-        setShowModal(true);
-      }
-    } catch (error) {
-      console.error("File check failed:", error);
-    }
+const handleGridClick = async (gridCoord) => {
+    const foundGrid = gridMap.get(Number(gridCoord));
+    const type = foundGrid?.gridType;
+    setSelectedCell({ coord: gridCoord, type });
   };
 
+const handleCreateGrid = () => {
+    console.log("handleCreateGrid called");
+    if (!selectedCell?.coord || !selectedCell?.type) return;
+    window.dispatchEvent(new CustomEvent('switch-to-editor'));
+    window.dispatchEvent(new CustomEvent('editor-create-grid', { detail: { gridCoord: selectedCell.coord, gridType: selectedCell.type } }));
+};
+
+const handleLoadGrid = () => {
+    console.log("handleLoadGrid called");
+    if (!selectedCell?.coord || !selectedCell?.type) return;
+    window.dispatchEvent(new CustomEvent('switch-to-editor'));
+    window.dispatchEvent(new CustomEvent('editor-load-grid', { detail: { gridCoord: selectedCell.coord, gridType: selectedCell.type } }));
+};
 
   return (
     <div className="frontier-container">
@@ -130,27 +111,42 @@ const handleGridClick = async (gridCoord, gridType) => {
 
         <div className="selected-cell-info">
           {selectedCell && (
-            <p>
-              <strong>Selected Cell:</strong> {selectedCell.coord}<br />
-              <strong>Type:</strong> {selectedCell.type ?? 'Unknown'}
-            </p>
+            <>
+              <p>
+                <strong>Selected Cell:</strong> {selectedCell.coord}<br />
+                <strong>Type:</strong> {selectedCell.type ?? 'Unknown'}
+              </p>
+              {(
+                layoutCache.has(Number(selectedCell.coord)) ||
+                ['homestead', 'town'].includes(selectedCell.type)
+              ) ? (
+                <button className="load-grid-button" onClick={handleLoadGrid}>Load Grid</button>
+              ) : (
+                <button className="create-grid-button" onClick={handleCreateGrid}>Create Grid</button>
+              )}
+            </>
           )}
         </div>
       </div>
 
       <div className="frontier-grid-container">
         <div className="frontier-grid">
-          {Array.from({ length: GRID_DIMENSION }).map((_, x) => (
-            <div className="frontier-row" key={x}>
-              {Array.from({ length: GRID_DIMENSION }).map((_, y) => {
-                const gridCoord = parseInt(`10${x.toString().padStart(2, '0')}${y.toString().padStart(2, '0')}`);
-//              console.log(`🔍 Looking up gridCoord: ${gridCoord}`);
-                const foundGrid = gridMap.get(gridCoord);
+          {Array.from({ length: GRID_DIMENSION }).map((_, row) => (
+            <div className="frontier-row" key={row}>
+              {Array.from({ length: GRID_DIMENSION }).map((_, col) => {
+                const megaRow = Math.floor(row / 8);
+                const megaCol = Math.floor(col / 8);
+                const minorRow = row % 8;
+                const minorCol = col % 8;
 
+                const minorIndex = minorRow * 8 + minorCol;
+                const megaIndex = megaRow * 8 + megaCol;
+                const trueIndex = megaIndex * 64 + minorIndex;
+
+                const foundGrid = allGrids[trueIndex];
+                const gridCoord = foundGrid?.gridCoord;
                 const type = foundGrid?.gridType;
-                if (!foundGrid) {
-//                  console.warn(`⚠️ No grid found for coord ${gridCoord}`);
-                }
+
                 let cellClass = 'frontier-cell';
                 let cellContent = '';
 
@@ -169,13 +165,11 @@ const handleGridClick = async (gridCoord, gridType) => {
                   cellClass += ' selected';
                 }
 
-        //console.log(`🔲 Rendering cell ${gridCoord} | type: ${type} | content: "${cellContent}" | selected: ${selectedCell?.coord === gridCoord}`);
-
                 return (
                   <div
-                    key={y}
+                    key={col}
                     className={cellClass}
-                    onClick={() => handleGridClick(gridCoord, type)}
+                    onClick={() => handleGridClick(gridCoord)}
                   >
                     {cellContent}
                   </div>
@@ -184,7 +178,6 @@ const handleGridClick = async (gridCoord, gridType) => {
             </div>
           ))}
         </div>
-        {showModal && <Modal onClose={() => setShowModal(false)}><p>{modalMessage}</p></Modal>}
       </div>
     </div>
   );

@@ -69,66 +69,66 @@ router.post('/register', async (req, res) => {
       });
     }
 
-// 5) Create the new player
-const newPlayer = new Player({
-  username,
-  password: hashedPassword,
-  icon: defaultIcon,      // always use default icon from starterAccount
-  language,
-  range,
-  baseHp,
-  baseMaxhp,
-  baseArmorclass,
-  baseAttackbonus,
-  baseDamage,
-  baseSpeed,
-  baseAttackrange,
-  inventory: [...inventory],
-  backpack: [...backpack],
-  skills: [...skills],
-  powers: [...powers],
-  warehouseCapacity,
-  backpackCapacity,
-  accountStatus,
-  role,
-  tradeStall: Array(starterAccount.tradeStallSlots[accountStatus] || 6).fill(null),
-  location: {
-    g: gridId,
-    s: settlementId,
-    f: frontierId,
-    gridCoord: gridCoord || null,  // store numeric or string code
-    x: x ?? 0,
-    y: y ?? 0,
-    gtype: gtype || '',
-  },
-  activeQuests: [
-    {
-      questId: "Find the Wizard in the Valley",
-      completed: true, // Mark as completed so the player can collect the reward
-      rewardCollected: false, // Ensure the reward is still available
-      progress: {}, // No progress required since it's marked completed
-      giver: "Wizard",
-      startTime: Date.now(),
-      reward: "Merlin's Orb",
-      rewardqty: 1,
-      symbol: "🧙", // Optional: Add a symbol for the quest
-    },
-  ],
-  iscamping,
-  gridId,
-  settlementId,
-  frontierId,
-  settings: {
-      isStateMachineEnabled: false,
-      isTeleportEnabled: false,
-      toggleVFX: true,
-      hasDied: false,
-    },
-});
+    // 5) Create the new player
+    const newPlayer = new Player({
+      username,
+      password: hashedPassword,
+      icon: defaultIcon,      // always use default icon from starterAccount
+      language,
+      range,
+      baseHp,
+      baseMaxhp,
+      baseArmorclass,
+      baseAttackbonus,
+      baseDamage,
+      baseSpeed,
+      baseAttackrange,
+      inventory: [...inventory],
+      backpack: [...backpack],
+      skills: [...skills],
+      powers: [...powers],
+      warehouseCapacity,
+      backpackCapacity,
+      accountStatus,
+      role,
+      tradeStall: Array(starterAccount.tradeStallSlots[accountStatus] || 6).fill(null),
+      location: {
+        g: gridId,
+        s: settlementId,
+        f: frontierId,
+        gridCoord: gridCoord || null,  // store numeric or string code
+        x: x ?? 0,
+        y: y ?? 0,
+        gtype: gtype || '',
+      },
+      activeQuests: [
+        {
+          questId: "Find the Wizard in the Valley",
+          completed: true, // Mark as completed so the player can collect the reward
+          rewardCollected: false, // Ensure the reward is still available
+          progress: {}, // No progress required since it's marked completed
+          giver: "Wizard",
+          startTime: Date.now(),
+          reward: "Merlin's Orb",
+          rewardqty: 1,
+          symbol: "🧙", // Optional: Add a symbol for the quest
+        },
+      ],
+      iscamping,
+      gridId,
+      settlementId,
+      frontierId,
+      settings: {
+          isStateMachineEnabled: false,
+          isTeleportEnabled: false,
+          toggleVFX: true,
+          hasDied: false,
+        },
+    });
 
-await newPlayer.save();
+    await newPlayer.save();
 
-console.log('End of API/register; newPlayer hp = ',newPlayer.hp);
+    console.log('End of API/register; newPlayer hp = ',newPlayer.hp);
 
     // 6) Populate playerId with _id (redundant, but often used by the client)
     newPlayer.playerId = newPlayer._id;

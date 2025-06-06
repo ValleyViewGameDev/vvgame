@@ -14,6 +14,18 @@ const App = () => {
   const [settlements, setSettlements] = useState([]);
 
   useEffect(() => {
+    const handleSwitchToEditor = () => {
+      console.log('🔁 Switching to Grid Editor');
+      setActivePanel('grid');
+    };
+    window.addEventListener('switch-to-editor', handleSwitchToEditor);
+    return () => {
+      window.removeEventListener('switch-to-editor', handleSwitchToEditor);
+    };
+  }, []);
+
+
+useEffect(() => {
     const fetchData = async () => {
       try {
         const frontierRes = await axios.get(`${API_BASE}/api/frontiers`);
@@ -88,13 +100,24 @@ useEffect(() => {
       {/* ✅ Base Panels Container with conditional visibility */}
       <div className="base-panels-container">
         <div className={activePanel === 'grid' ? 'panel-visible' : 'panel-hidden'}>
-          <GridEditor />
+          <GridEditor 
+            activePanel={activePanel} 
+            />
         </div>
         <div className={activePanel === 'events' ? 'panel-visible' : 'panel-hidden'}>
-          <Events selectedSettlement={selectedSettlement} />
+          <Events 
+            selectedFrontier={selectedFrontier} 
+            selectedSettlement={selectedSettlement} 
+            settlements={settlements} 
+            activePanel={activePanel}
+            />
         </div>
         <div className={activePanel === 'frontier' ? 'panel-visible' : 'panel-hidden'}>
-          <FrontierView selectedFrontier={selectedFrontier} settlements={settlements} />
+          <FrontierView 
+            selectedFrontier={selectedFrontier} 
+            settlements={settlements} 
+            activePanel={activePanel}
+            />
         </div>
       </div>
     </div>

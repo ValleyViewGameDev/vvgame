@@ -7,7 +7,7 @@ const projectRoot = isDev
   ? path.join(__dirname, '..', '..')
   : path.join(app.getAppPath(), '..', '..', '..', '..', '..', '..', '..');
   
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import Tile from './Tile';
 import FileManager from './FileManager';
@@ -15,25 +15,27 @@ import './App.css';
 
 const GRID_SIZE = 64; // 64x64 grid
 
-const GridEditor = () => {
-  const [tileSize, setTileSize] = useState(20); // Default size of 20px
-  const [brushSize, setBrushSize] = useState(1); // New brush size state
-  const [masterResources, setMasterResources] = useState([]); // ✅ Store all resources
+const GridEditor = ({ activePanel }) => {
   const [grid, setGrid] = useState(
     Array.from({ length: GRID_SIZE }, () => 
       Array.from({ length: GRID_SIZE }, () => ({ type: '', resource: '', npc: '' }))
     )
   );
+  const [tileSize, setTileSize] = useState(20); // Default size of 20px
+  const [brushSize, setBrushSize] = useState(1); // New brush size state
+  const [masterResources, setMasterResources] = useState([]); // ✅ Store all resources
   const [selectedTile, setSelectedTile] = useState(null);
   const [tileTypes, setTileTypes] = useState([]); // ✅ Add missing state
   const [availableResources, setAvailableResources] = useState([]);
   const [selectedResource, setSelectedResource] = useState(null);
   const [availableNpcs, setAvailableNpcs] = useState([]); // ✅ Store available NPCs
-
   const [tileDistribution, setTileDistribution] = useState({ g: 100, s: 0, d: 0, w: 0, p: 0, l: 0 });
   const [resourceDistribution, setResourceDistribution] = useState({});
   const tileColors = { g: "#3dc43d", s: "#8b989c", d: "#c0834a", w: "#58cad8", p: "#dab965", l: "#c4583d" };
   const [copiedResource, setCopiedResource] = useState(null); // Holds copied resource
+  const [currentFile, setCurrentFile] = useState('');
+  const [currentDirectory, setCurrentDirectory] = useState('');
+  const pendingLoad = useRef(null);
 
   useEffect(() => {
     try {
@@ -65,6 +67,25 @@ const GridEditor = () => {
     }
   }, []);
 
+  // LISTENER for the custom event that triggers loading the Grid Editor (from FrontierView)
+  useEffect(() => {
+    const handleEditorLoadGrid = (event) => {
+      const { gridCoord, gridType } = event.detail || {};
+      console.log("🕓 Received load request for:", gridCoord, gridType);
+      pendingLoad.current = { fileName: gridCoord, directory: gridType };
+    };
+    window.addEventListener('editor-load-grid', handleEditorLoadGrid);
+    return () => window.removeEventListener('editor-load-grid', handleEditorLoadGrid);
+  }, []);
+
+  useEffect(() => {
+    if (activePanel === 'grid' && pendingLoad.current && masterResources.length > 0) {
+      const { fileName, directory } = pendingLoad.current;
+      console.log("🚀 Performing deferred loadLayout:", fileName, directory);
+      loadLayout(fileName, directory, true);
+      pendingLoad.current = null;
+    }
+  }, [activePanel, masterResources]);
 
   useEffect(() => {
     const handleKeyPress = (event) => {
@@ -288,9 +309,28 @@ const handleResourceDistributionChange = (resourceType, value) => {
     setTileDistribution(adjustedDistribution);
   };
 
-  const loadLayout = async (fileName, directory) => {
+  // Modified loadLayout to accept setFileInfo and update currentFile/currentDirectory
+  const loadLayout = async (fileName, directory, setFileInfo = true) => {
+    console.log(`🔄 Loading layout: ${fileName} from directory: ${directory}`);
     try {
-      const layoutPath = path.join(projectRoot, 'game-server', 'layouts', 'gridLayouts', directory, `${fileName}.json`);
+      let adjustedDirectory = directory;
+
+      if (directory.startsWith('valley')) {
+        adjustedDirectory = 'valleyFixedCoord';
+      } else if (directory === 'homestead' || directory === 'town') {
+        alert('Please use the Grid Editor directly to load town and homestead layout templates.');
+        return;
+      }
+
+      const layoutPath = path.join(
+        projectRoot,
+        'game-server',
+        'layouts',
+        'gridLayouts',
+        adjustedDirectory,
+        `${fileName}.json`
+      );
+
       const raw = fs.readFileSync(layoutPath, 'utf-8');
       const loadedGrid = JSON.parse(raw);
 
@@ -299,6 +339,7 @@ const handleResourceDistributionChange = (resourceType, value) => {
         return;
       }
 
+      // Force a new grid object to ensure React state change is detected
       setGrid(
         loadedGrid.tiles.map((row, x) =>
           row.map((cell, y) => {
@@ -313,8 +354,28 @@ const handleResourceDistributionChange = (resourceType, value) => {
         )
       );
 
-      setTileDistribution(loadedGrid.tileDistribution || { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0 });
-      setResourceDistribution(loadedGrid.resourceDistribution || {});
+      setSelectedTile(null); // Force deselection to reset render state
+      setTileDistribution({ ...loadedGrid.tileDistribution } || { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0 });
+      setResourceDistribution({ ...loadedGrid.resourceDistribution } || {});
+
+      console.log("Is setFileInfo true?  ", setFileInfo);
+      console.log("Current file name:", fileName);
+      console.log("Current directory:", adjustedDirectory);
+      
+      if (setFileInfo) {
+        setCurrentFile(fileName);
+        setCurrentDirectory(adjustedDirectory);
+        setTimeout(() => {
+          const fileInput = document.querySelector('.file-input');
+          const dirSelect = document.querySelector('.directory-select');
+          if (fileInput) fileInput.value = fileName;
+          if (dirSelect) {
+            dirSelect.value = adjustedDirectory;
+            const event = new Event('change', { bubbles: true });
+            dirSelect.dispatchEvent(event);
+          }
+        }, 50);
+      }
 
       console.log("✅ Grid successfully loaded from:", layoutPath);
     } catch (error) {
@@ -322,6 +383,7 @@ const handleResourceDistributionChange = (resourceType, value) => {
       alert('Error: Unable to load layout. Check the console for details.');
     }
   };
+
 
   const saveLayout = async (fileName, directory) => {
     try {
@@ -537,13 +599,26 @@ const handleClearGrid = () => {
     console.log("🪧 Signposts placed at predefined positions.");
   };
 
+
+// --- Expose loadLayout and setCurrentFile/setCurrentDirectory globally for external triggering ---
+if (typeof window !== "undefined") {
+  window.gridEditorAPI = {
+    loadLayout,
+    setCurrentFile,
+    setCurrentDirectory
+  };
+}
+
+
+  //////////////////////////////////////////////////
+  // Render the Grid Editor UI
   return (
     <div className="editor-container">
       
       {/* Left Panel for UI Controls */}
       <div className="editor-panel">
         <h2>Grid Editor</h2>
-        <FileManager loadLayout={loadLayout} saveLayout={saveLayout} currentFile={''} />
+        <FileManager loadLayout={loadLayout} saveLayout={saveLayout} currentFile={currentFile} />
         <div className="button-group">
           <button className="small-button" onClick={handleClearGrid}>Clear</button>
         </div>
@@ -800,3 +875,4 @@ const handleClearGrid = () => {
 }
 
 export default GridEditor;
+
