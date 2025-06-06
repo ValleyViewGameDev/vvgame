@@ -61,6 +61,7 @@ router.post("/tuning", (req, res) => {
 router.post("/update-phase", (req, res) => {
   const tuningPath = path.join(__dirname, "../tuning/globalTuning.json");
   const { event, phase, duration } = req.body;
+  console.log("🔁 API:  Updating phase duration:", { event, phase, duration });
 
   if (!event || !phase || typeof duration !== "number") {
     return res.status(400).json({ success: false, message: "Invalid payload. Expected event, phase, and duration." });
