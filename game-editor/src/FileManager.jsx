@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css'; // ✅ Ensure styles are managed in a separate file
 
-const FileManager = ({ loadLayout, saveLayout, currentFile }) => {
+const FileManager = ({ loadLayout, saveLayout, currentFile, currentDirectory }) => {
   const [fileName, setFileName] = useState(currentFile || '');
-  const [directory, setDirectory] = useState('homestead'); // Default value
+  const [directory, setDirectory] = useState(currentDirectory || 'valleyFixedCoord'); // Default value
+
+  useEffect(() => {
+    setFileName(currentFile || '');
+  }, [currentFile]);
+
+  useEffect(() => {
+    setDirectory(currentDirectory || 'valleyFixedCoord');
+  }, [currentDirectory]);
 
   const handleSave = () => {
     console.log(`🔹 Save button clicked. File: ${fileName}, Directory: ${directory}`);
@@ -12,7 +20,7 @@ const FileManager = ({ loadLayout, saveLayout, currentFile }) => {
       return;
     }
     if (!directory) {
-      alert('Please select a directory.');
+      alert('Please enter a directory.');
       return;
     }
     saveLayout(fileName, directory);  // ✅ Ensuring directory gets passed correctly
@@ -26,12 +34,11 @@ const FileManager = ({ loadLayout, saveLayout, currentFile }) => {
       return;
     }
     if (!directory) {
-      alert('Please select a directory.');
+      alert('Please enter a directory.');
       return;
     }
     loadLayout(fileName, directory);  // ✅ Ensuring directory gets passed correctly
   };
-
 
   return (
     <div className="file-manager">
@@ -42,22 +49,30 @@ const FileManager = ({ loadLayout, saveLayout, currentFile }) => {
         placeholder="Enter file name..."
         className="file-input"
       />
-      
+
+      <input 
+        type="text" 
+        value={directory} 
+        onChange={(e) => setDirectory(e.target.value)} 
+        placeholder="Enter directory..."
+        className="directory-input"
+      />
+
       <select 
         value={directory} 
         onChange={(e) => { 
           console.log(`🔄 Directory changed to: ${e.target.value}`);
           setDirectory(e.target.value); 
         }} 
-        className="file-select"
+        className="directory-select"
       >
+        <option value="valleyFixedCoord">valleyFixedCoord/</option>
         <option value="homestead">homestead/</option>
         <option value="town">town/</option>
         <option value="valley0">valley0/</option>
         <option value="valley1">valley1/</option>
         <option value="valley2">valley2/</option>
         <option value="valley3">valley3/</option>
-        <option value="valleyFixedCoord">valleyFixedCoord/</option>
       </select>
 
       <div className="button-group">

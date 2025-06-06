@@ -45,7 +45,7 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
         icon: currentPlayer.icon || '',
         password: '',
         accountStatus: currentPlayer.accountStatus || 'Free',
-        role: currentPlayer.role || 'Peasant',
+        role: currentPlayer.role || 'Citizen',
       });
   
       setErrorMessage('');

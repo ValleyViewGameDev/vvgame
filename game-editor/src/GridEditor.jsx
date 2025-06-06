@@ -616,10 +616,15 @@ if (typeof window !== "undefined") {
     <div className="editor-container">
       
       {/* Left Panel for UI Controls */}
-      <div className="editor-panel">
+      <div className="editor-panel"> 
         <h2>Grid Editor</h2>
-        <FileManager loadLayout={loadLayout} saveLayout={saveLayout} currentFile={currentFile} />
-        <div className="button-group">
+          <FileManager
+            loadLayout={loadLayout}
+            saveLayout={saveLayout}
+            currentFile={currentFile}
+            currentDirectory={currentDirectory}
+          />       
+      <div className="button-group">
           <button className="small-button" onClick={handleClearGrid}>Clear</button>
         </div>
 
