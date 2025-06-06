@@ -31,7 +31,31 @@
   overflow-y: auto;
 }
 
-/* Each individual event dashboard box */
+/* Container for each event row */
+.event-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+
+/* Column 1: Frontier-wide dashboards */
+.events-main-container {
+  flex: 1;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+/* Column 2: Settlement-specific dashboards */
+.events-settlement-container {
+  flex: 1;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+/* Optional: Ensure event boxes look good side by side */
 .event-dashboard {
   background-color: #f3f3f3;
   border-left: 5px solid #67c257;
@@ -39,7 +63,9 @@
   margin-bottom: 16px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   border-radius: 4px;
-  width: 200px;
+  width: 260px; /* ⬅️ Increased and fixed width */
+  box-sizing: border-box;
+  flex-shrink: 0; /* ⬅️ Prevent shrinking in flex rows */
 }
 
 .event-dashboard h3 {

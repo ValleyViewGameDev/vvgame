@@ -1,3 +1,4 @@
+import globalTuning from './globalTuning.json';
 import React, { useEffect, useState } from 'react';
 import './Events.css';
 
@@ -14,6 +15,8 @@ const formatCountdown = (endTime, now) => {
 };
 
 const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, activePanel }) => {
+    
+  const activeSettlement = settlements.find(s => s._id === selectedSettlement);
   const activeFrontier = frontiers.find(f => f._id === selectedFrontier) || {};
   const timers = {
     seasons: activeFrontier.seasons || {},
@@ -29,6 +32,8 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
     train: '',
     bank: '',
   });
+
+  const [selectedDashboard, setSelectedDashboard] = useState(null);
 
   useEffect(() => {
     const updateCountdowns = () => {
@@ -48,35 +53,100 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
   }, [selectedFrontier]);
 
   return (
-    <div className="events-layout">
-      <div className="events-base-panel">
-        <h2>📆 Events</h2>
-        {/* Future buttons and controls go here */}
-      </div>
+  <div className="events-layout">
+    <div className="events-base-panel">
+      <h2>📆 Events</h2>
+      <h3>Selected: {selectedDashboard ? selectedDashboard.toUpperCase() : 'None'}</h3>
+      {selectedDashboard && (
+        globalTuning[selectedDashboard] ? (
+          <div>
+            <h4>{selectedDashboard.charAt(0).toUpperCase() + selectedDashboard.slice(1)} Phases</h4>
+            <ul style={{ paddingLeft: '1em' }}>
+              {Object.entries(globalTuning[selectedDashboard].phases || {}).map(([phase, duration]) => (
+                <li key={phase}>
+                  {phase}: {duration} min
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <p>No tuning data found for this event.</p>
+        )
+      )}
+      {/* Future buttons and controls go here */}
+    </div>
 
+    <div className="events-columns">
+      {/* Column 1: Frontier-wide event dashboards */}
       <div className="events-main-container">
         {['seasons', 'taxes', 'elections', 'train', 'bank'].map((key) => (
-          <div key={key} className="event-dashboard">
-            <h3 className="event-title">
-              {key === 'seasons' && `Season: ${timers.seasons.seasonType || 'Unknown'}`}
-              {key === 'taxes' && '💰 Taxes'}
-              {key === 'elections' && '🏛️ Elections'}
-              {key === 'train' && '🚂 Train'}
-              {key === 'bank' && '🏦 Bank'}
-            </h3>
-            {key === 'seasons' && (
-              <p className="event-detail">Season #: {timers.seasons.seasonNumber || 'N/A'}</p>
-            )}
-            {key === 'bank' && timers.bank?.offers && (
-              <p className="event-detail">Offers: {timers.bank.offers.length}</p>
-            )}
-            <p className="event-phase">Phase: {timers[key]?.phase || 'Unknown'}</p>
-            <p className="event-timer">Ends in: {countdowns[key]}</p>
+          <div key={key} className="event-row">
+            {/* Frontier-wide dashboard (left) */}
+            <div
+              className={`event-dashboard ${selectedDashboard === key ? 'selected' : ''}`}
+              onClick={() => setSelectedDashboard(key)}
+              style={{ cursor: 'pointer' }}
+            >
+              <h3>{key.charAt(0).toUpperCase() + key.slice(1)}</h3>
+              {key === 'seasons' ? (
+                <>
+                  <p>Season: {timers.seasons.seasonType || 'Unknown'}</p>
+                  <p>Phase: {timers[key]?.phase || 'Unknown'}</p>
+                  <p>Ends in: {countdowns[key]}</p>
+                </>
+              ) : (
+                <>
+                  <p>Phase: {timers[key]?.phase || 'Unknown'}</p>
+                  <p>Ends in: {countdowns[key]}</p>
+                </>
+              )}
+            </div>
+
+            {/* Settlement-specific dashboard (right) */}
+            <div className="event-dashboard">
+              <h3>{key.charAt(0).toUpperCase() + key.slice(1)} (Settlement)</h3>
+              {selectedSettlement ? (
+                key === 'taxes' ? (
+                  <>
+                    <p>Tax Rate: {activeSettlement.taxrate ?? 'Unknown'}%</p>
+                    <button className="small-button">View Tax Log</button>
+                  </>
+                ) : key === 'seasons' ? (
+                  <p>Population: {activeSettlement?.population ?? 'Unknown'}</p>
+                ) : key === 'elections' ? (
+                  <>
+                    <p>
+                      Mayor: {
+                        (activeSettlement?.roles?.find(r => r.roleName.toLowerCase() === 'mayor')?.playerId || 'No current Mayor.')
+                      }
+                    </p>
+                    <p>Votes Cast: {activeSettlement?.votes?.length || 0}</p>
+                  </>
+                ) : key === 'train' ? (
+                  activeSettlement?.trainrewards?.length > 0 ? (
+                    <ul>
+                      {activeSettlement.trainrewards.map((reward, idx) => (
+                        <li key={idx}>{reward.qty} × {reward.item}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>No train rewards.</p>
+                  )
+                ) : key === 'bank' ? (
+                  <p>[Coming soon]</p>
+                ) : (
+                  <p>[Coming soon]</p>
+                )
+              ) : (
+                <p>[Coming soon]</p>
+              )}
+            </div>
           </div>
         ))}
       </div>
     </div>
-  );
+  </div>);
 };
+
 
 export default Events;
