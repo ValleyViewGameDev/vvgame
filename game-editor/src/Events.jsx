@@ -1,6 +1,7 @@
-import globalTuning from './globalTuning.json';
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import './Events.css';
+import API_BASE from './config';
 
 
 // Local formatCountdown helper
@@ -16,6 +17,38 @@ const formatCountdown = (endTime, now) => {
 
 const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, activePanel }) => {
     
+  const [globalTuning, setGlobalTuning] = useState(null);
+  const [phaseEdits, setPhaseEdits] = useState({});
+
+  const updatePhaseDuration = async (eventKey, phaseName, newDuration) => {
+    try {
+      await axios.post(`${API_BASE}/api/tuning/update-phase`, {
+        eventKey,
+        phaseName,
+        newDuration: Number(newDuration),
+      });
+      const updated = { ...globalTuning };
+      updated[eventKey].phases[phaseName] = Number(newDuration);
+      setGlobalTuning(updated);
+      setPhaseEdits((prev) => ({ ...prev, [phaseName]: undefined }));
+      console.log(`✅ Updated ${eventKey}.${phaseName} to ${newDuration} min`);
+    } catch (error) {
+      console.error('❌ Failed to update phase duration:', error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchTuning = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/api/tuning`);
+        setGlobalTuning(response.data);
+      } catch (error) {
+        console.error('Failed to fetch global tuning data:', error);
+      }
+    };
+    fetchTuning();
+  }, []);
+
   const activeSettlement = settlements.find(s => s._id === selectedSettlement);
   const activeFrontier = frontiers.find(f => f._id === selectedFrontier) || {};
   const timers = {
@@ -56,23 +89,42 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
   <div className="events-layout">
     <div className="events-base-panel">
       <h2>📆 Events</h2>
-      <h3>Selected: {selectedDashboard ? selectedDashboard.toUpperCase() : 'None'}</h3>
-      {selectedDashboard && (
-        globalTuning[selectedDashboard] ? (
+      {selectedDashboard && globalTuning && globalTuning[selectedDashboard] ? (
           <div>
             <h4>{selectedDashboard.charAt(0).toUpperCase() + selectedDashboard.slice(1)} Phases</h4>
-            <ul style={{ paddingLeft: '1em' }}>
-              {Object.entries(globalTuning[selectedDashboard].phases || {}).map(([phase, duration]) => (
-                <li key={phase}>
-                  {phase}: {duration} min
-                </li>
-              ))}
-            </ul>
+            {Object.entries(globalTuning[selectedDashboard].phases || {}).map(([phase, duration]) => (
+              <div key={phase} style={{ marginBottom: '10px' }}>
+                <label>
+                  {phase}:
+                  <br/>
+                  <input
+                    type="number"
+                    min="0"
+                    value={phaseEdits[phase] ?? duration}
+                    onChange={(e) =>
+                      setPhaseEdits((prev) => ({ ...prev, [phase]: e.target.value }))
+                    }
+                    style={{ marginLeft: '10px', width: '60px' }}
+                  />
+                  <button
+                    className="small-button"
+                    disabled={
+                      phaseEdits[phase] === undefined ||
+                      phaseEdits[phase] === '' ||
+                      Number(phaseEdits[phase]) === duration
+                    }
+                    onClick={() => updatePhaseDuration(selectedDashboard, phase, phaseEdits[phase])}
+                    style={{ marginLeft: '10px' }}
+                  >
+                    Save Changes
+                  </button>
+                </label>
+              </div>
+            ))}
           </div>
-        ) : (
+      ) : selectedDashboard ? (
           <p>No tuning data found for this event.</p>
-        )
-      )}
+      ) : null}
       {/* Future buttons and controls go here */}
     </div>
 
