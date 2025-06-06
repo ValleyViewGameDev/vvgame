@@ -63,10 +63,10 @@ router.get('/frontiers-by-name', async (req, res) => {
 });
 
 // Example: GET /api/frontiers
-// Returns all frontiers with _id and name for UI dropdowns
+// Returns all frontiers with full document data (including season, tax, election, train, bank timing, etc.)
 router.get('/frontiers', async (req, res) => {
   try {
-    const frontiers = await Frontier.find({}, '_id name');
+    const frontiers = await Frontier.find({});
     res.status(200).json(frontiers);
   } catch (error) {
     console.error('❌ Error fetching frontiers:', error);

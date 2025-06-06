@@ -21,3 +21,34 @@
   font-size: 14px;
   color: #555;
 }
+
+
+/* Main container to the right of base panel */
+.events-main-container {
+  margin-left: 240px; /* space for nav (60px) + base panel (180px) */
+  padding: 20px;
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+/* Each individual event dashboard box */
+.event-dashboard {
+  background-color: #f3f3f3;
+  border-left: 5px solid #67c257;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 4px;
+  width: 200px;
+}
+
+.event-dashboard h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+.event-dashboard p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #444;
+}

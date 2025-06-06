@@ -108,6 +108,7 @@ useEffect(() => {
           <Events 
             selectedFrontier={selectedFrontier} 
             selectedSettlement={selectedSettlement} 
+            frontiers={frontiers}
             settlements={settlements} 
             activePanel={activePanel}
             />
