@@ -14,15 +14,14 @@ const formatCountdown = (endTime, now) => {
 };
 
 const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, activePanel }) => {
-  // Extract timers from selectedFrontier
+  const activeFrontier = frontiers.find(f => f._id === selectedFrontier) || {};
   const timers = {
-    seasons: frontiers.selectedFrontier?.seasons || {},
-    taxes: frontiers.selectedFrontier?.taxes || {},
-    elections: frontiers.selectedFrontier?.elections || {},
-    train: frontiers.selectedFrontier?.train || {},
-    bank: frontiers.selectedFrontier?.bank || {},
+    seasons: activeFrontier.seasons || {},
+    taxes: activeFrontier.taxes || {},
+    elections: activeFrontier.elections || {},
+    train: activeFrontier.train || {},
+    bank: activeFrontier.bank || {},
   };
-
   const [countdowns, setCountdowns] = useState({
     seasons: '',
     taxes: '',
@@ -58,7 +57,19 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
       <div className="events-main-container">
         {['seasons', 'taxes', 'elections', 'train', 'bank'].map((key) => (
           <div key={key} className="event-dashboard">
-            <h3 className="event-title">{key.charAt(0).toUpperCase() + key.slice(1)}</h3>
+            <h3 className="event-title">
+              {key === 'seasons' && `Season: ${timers.seasons.seasonType || 'Unknown'}`}
+              {key === 'taxes' && '💰 Taxes'}
+              {key === 'elections' && '🏛️ Elections'}
+              {key === 'train' && '🚂 Train'}
+              {key === 'bank' && '🏦 Bank'}
+            </h3>
+            {key === 'seasons' && (
+              <p className="event-detail">Season #: {timers.seasons.seasonNumber || 'N/A'}</p>
+            )}
+            {key === 'bank' && timers.bank?.offers && (
+              <p className="event-detail">Offers: {timers.bank.offers.length}</p>
+            )}
             <p className="event-phase">Phase: {timers[key]?.phase || 'Unknown'}</p>
             <p className="event-timer">Ends in: {countdowns[key]}</p>
           </div>
