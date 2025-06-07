@@ -61,6 +61,7 @@ router.post("/tuning", (req, res) => {
  */
 router.post("/force-end-phase", async (req, res) => {
   const { frontierId, event } = req.body;
+  console.log("🛬 Raw request body:", req.body);
   if (!frontierId || !event) {
     return res.status(400).json({ success: false, message: "Missing frontierId or event" });
   }
