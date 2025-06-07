@@ -60,6 +60,7 @@ router.post("/tuning", (req, res) => {
  */
 router.post("/update-phase", (req, res) => {
   const tuningPath = path.join(__dirname, "../tuning/globalTuning.json");
+  console.log("🔁 API:  tuningPath:", tuningPath);
   const { event, phase, duration } = req.body;
   console.log("🔁 API:  Updating phase duration:", { event, phase, duration });
 
@@ -69,8 +70,10 @@ router.post("/update-phase", (req, res) => {
 
   try {
     const data = fs.readFileSync(tuningPath, "utf-8");
+    console.log("🔁 API:  Read tuning config:", data);
     const config = JSON.parse(data);
-
+    console.log("🔁 API:  Parsed tuning config:", config);
+    
     if (!config[event] || !config[event].phases || !(phase in config[event].phases)) {
       return res.status(404).json({ success: false, message: "Event or phase not found in tuning config." });
     }

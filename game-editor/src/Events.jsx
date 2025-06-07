@@ -24,9 +24,9 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
     console.log(`Updating ${eventKey}.${phaseName} to ${newDuration} min`);
     try {
       await axios.post(`${API_BASE}/api/update-phase`, {
-        eventKey,
-        phaseName,
-        newDuration: Number(newDuration),
+        event: eventKey,
+        phase: phaseName,
+        duration: Number(newDuration),
       });
       const updated = { ...globalTuning };
       updated[eventKey].phases[phaseName] = Number(newDuration);
