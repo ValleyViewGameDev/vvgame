@@ -53,39 +53,4 @@ router.post("/tuning", (req, res) => {
 });
 
 
-/**
- * ✅ Update a Single Phase Duration for an Event
- * Example: POST /api/schedule/update-phase
- * Body: { event: "taxes", phase: "waiting", duration: 123 }
- */
-router.post("/update-phase", (req, res) => {
-  const tuningPath = path.join(__dirname, "../tuning/globalTuning.json");
-  console.log("🔁 API:  tuningPath:", tuningPath);
-  const { event, phase, duration } = req.body;
-  console.log("🔁 API:  Updating phase duration:", { event, phase, duration });
-
-  if (!event || !phase || typeof duration !== "number") {
-    return res.status(400).json({ success: false, message: "Invalid payload. Expected event, phase, and duration." });
-  }
-
-  try {
-    const data = fs.readFileSync(tuningPath, "utf-8");
-    console.log("🔁 API:  Read tuning config:", data);
-    const config = JSON.parse(data);
-    console.log("🔁 API:  Parsed tuning config:", config);
-    
-    if (!config[event] || !config[event].phases || !(phase in config[event].phases)) {
-      return res.status(404).json({ success: false, message: "Event or phase not found in tuning config." });
-    }
-
-    config[event].phases[phase] = duration;
-
-    fs.writeFileSync(tuningPath, JSON.stringify(config, null, 2), "utf-8");
-    res.json({ success: true, message: `Phase "${phase}" for "${event}" updated to ${duration} minutes.` });
-  } catch (error) {
-    console.error("❌ Error updating phase duration:", error);
-    res.status(500).json({ success: false, message: "Failed to update phase duration." });
-  }
-});
-
 module.exports = router;

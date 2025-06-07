@@ -1,50 +1,48 @@
 {
-    "closeZoom": 30,
-    "farZoom": 16, 
-    "mayorcut": 50,
-    "bankOffers": 3,
-    "seasonMoneyNerf": 0.10,
-    "seasonMoneyNerfGold": 0.25,
-    "tradeStallHaircut": 0.25,
-
-    "baseHoursForTrain": 2.5, 
- 
-    "taxes": {
-        "phases": {
-            "waiting": 1440,
-            "taxing": 0.75
-        },
-        "startPhase": "waiting"
+  "closeZoom": 30,
+  "farZoom": 16,
+  "mayorcut": 50,
+  "bankOffers": 3,
+  "seasonMoneyNerf": 0.1,
+  "seasonMoneyNerfGold": 0.25,
+  "tradeStallHaircut": 0.25,
+  "baseHoursForTrain": 2.5,
+  "taxes": {
+    "phases": {
+      "waiting": 1440,
+      "taxing": 0.75
     },
-    "seasons": {
-        "phases": {
-            "onSeason": 10078,     
-            "offSeason": 2
-        },
-        "startPhase": "onSeason"
+    "startPhase": "waiting"
+  },
+  "seasons": {
+    "phases": {
+      "onSeason": 10078,
+      "offSeason": 2
     },
-    "elections": {
-        "phases": {
-            "Administration": 4320,
-            "Campaigning": 2880,   
-            "Voting": 1439,
-            "Counting": 1
-        },
-        "startPhase": "Administration"
+    "startPhase": "onSeason"
+  },
+  "elections": {
+    "phases": {
+      "Administration": 4320,
+      "Campaigning": 2880,
+      "Voting": 1439,
+      "Counting": 1
     },
-    "train": {
-        "phases": {
-            "arriving": 1,  
-            "loading": 2878,  
-            "departing": 1 
-        },
-        "startPhase": "arriving"
+    "startPhase": "Administration"
+  },
+  "train": {
+    "phases": {
+      "arriving": 5,
+      "loading": 2878,
+      "departing": 1
     },
-    "bank": {
-        "phases": {
-            "active": 479,
-            "refreshing": 1
-        },
-        "startPhase": "active"
-    }
+    "startPhase": "arriving"
+  },
+  "bank": {
+    "phases": {
+      "active": 479,
+      "refreshing": 1
+    },
+    "startPhase": "active"
+  }
 }

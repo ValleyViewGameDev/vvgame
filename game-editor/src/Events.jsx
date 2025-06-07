@@ -2,6 +2,16 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './Events.css';
 import API_BASE from './config';
+import Modal from './components/Modal.jsx';
+
+
+const fs = window.require('fs');
+const path = window.require('path');
+const app = window.require('@electron/remote').app;
+const isDev = !app.isPackaged;
+const projectRoot = isDev
+  ? path.join(__dirname, '..', '..')
+  : path.join(app.getAppPath(), '..', '..', '..', '..', '..', '..', '..');
 
 
 // Local formatCountdown helper
@@ -19,19 +29,32 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
     
   const [globalTuning, setGlobalTuning] = useState(null);
   const [phaseEdits, setPhaseEdits] = useState({});
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [confirmationMessage, setConfirmationMessage] = useState('');
 
   const updatePhaseDuration = async (eventKey, phaseName, newDuration) => {
     console.log(`Updating ${eventKey}.${phaseName} to ${newDuration} min`);
     try {
-      await axios.post(`${API_BASE}/api/update-phase`, {
-        event: eventKey,
-        phase: phaseName,
-        duration: Number(newDuration),
-      });
+      const tuningPath = path.join(projectRoot, 'game-server', 'tuning', 'globalTuning.json');
+      const raw = fs.readFileSync(tuningPath, 'utf-8');
+      const config = JSON.parse(raw);
+
+      if (!config[eventKey] || !config[eventKey].phases || !(phaseName in config[eventKey].phases)) {
+        console.warn(`❌ Cannot find phase "${phaseName}" under "${eventKey}"`);
+        return;
+      }
+
+      config[eventKey].phases[phaseName] = Number(newDuration);
+      fs.writeFileSync(tuningPath, JSON.stringify(config, null, 2), 'utf-8');
+
       const updated = { ...globalTuning };
       updated[eventKey].phases[phaseName] = Number(newDuration);
       setGlobalTuning(updated);
       setPhaseEdits((prev) => ({ ...prev, [phaseName]: undefined }));
+
+      setConfirmationMessage(`✅ Updated ${eventKey}.${phaseName} to ${newDuration} min`);
+      setShowConfirmation(true);
+
       console.log(`✅ Updated ${eventKey}.${phaseName} to ${newDuration} min`);
     } catch (error) {
       console.error('❌ Failed to update phase duration:', error);
@@ -107,6 +130,16 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
                     }
                     style={{ marginLeft: '10px', width: '60px' }}
                   />
+                  <div style={{ fontSize: '12px', marginTop: '4px' }}>
+                    {(() => {
+                      const totalSeconds = (phaseEdits[phase] ?? duration) * 60;
+                      const d = Math.floor(totalSeconds / (3600 * 24));
+                      const h = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+                      const m = Math.floor((totalSeconds % 3600) / 60);
+                      const s = totalSeconds % 60;
+                      return `  ${d}d ${h}h ${m}m ${s}s`;
+                    })()}
+                  </div>
                   <button
                     className="small-button"
                     disabled={
@@ -198,6 +231,16 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
         ))}
       </div>
     </div>
+    {showConfirmation && (
+      <Modal 
+        isOpen={showConfirmation} 
+        onClose={() => setShowConfirmation(false)} 
+        title="Changes Saved"
+      >
+        <p>{confirmationMessage}</p>
+        <button onClick={() => setShowConfirmation(false)} className="small-button">OK</button>
+      </Modal>
+    )}
   </div>);
 };
 
