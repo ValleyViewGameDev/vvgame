@@ -92,6 +92,28 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
 
   const [selectedDashboard, setSelectedDashboard] = useState(null);
 
+  const handleEndCurrentPhase = async (eventKey) => {
+    console.log(`🛑 Request to end current phase for ${eventKey}`);
+    if (!selectedFrontier || !eventKey) return;
+
+    try {
+      const response = await axios.post(`${API_BASE}/api/force-end-phase`, {
+        frontierId: selectedFrontier,
+        eventKey: eventKey,
+      });
+
+      console.log(`✅ Ended current phase for ${eventKey}:`, response.data.message);
+      setConfirmationMessage(`✅ ${eventKey} phase will end shortly.`);
+      setShowConfirmation(true);
+    } catch (error) {
+      console.error(`❌ Failed to end current phase for ${eventKey}:`, error);
+      setConfirmationMessage(`❌ Failed to end phase: ${error.message}`);
+      setShowConfirmation(true);
+    }
+  };
+
+
+  
   useEffect(() => {
     const updateCountdowns = () => {
       const now = Date.now();
@@ -116,6 +138,14 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
       {selectedDashboard && globalTuning && globalTuning[selectedDashboard] ? (
           <div>
             <h4>{selectedDashboard.charAt(0).toUpperCase() + selectedDashboard.slice(1)} Phases</h4>
+            <button 
+              className="end-phase-button" 
+              onClick={() => handleEndCurrentPhase(selectedDashboard)}
+              style={{ marginBottom: '10px' }}
+            >
+              End Current Phase
+            </button>
+            <h3>Phases & Durations:</h3>
             {Object.entries(globalTuning[selectedDashboard].phases || {}).map(([phase, duration]) => (
               <div key={phase} style={{ marginBottom: '10px' }}>
                 <label>
@@ -130,7 +160,7 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
                     }
                     style={{ marginLeft: '10px', width: '60px' }}
                   />
-                  <div style={{ fontSize: '12px', marginTop: '4px' }}>
+                  <div style={{ fontSize: '12px', marginTop: '4px', marginLeft: '10px' }}>
                     {(() => {
                       const totalSeconds = (phaseEdits[phase] ?? duration) * 60;
                       const d = Math.floor(totalSeconds / (3600 * 24));
