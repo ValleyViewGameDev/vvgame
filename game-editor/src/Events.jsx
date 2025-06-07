@@ -97,9 +97,14 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
     if (!selectedFrontier || !eventKey) return;
 
     try {
+      console.log("🛫 Sending force-end request:", {
+        selectedFrontier,
+        eventKey
+      });
+
       const response = await axios.post(`${API_BASE}/api/force-end-phase`, {
         frontierId: selectedFrontier,
-        eventKey: eventKey,
+        event: eventKey,
       });
 
       console.log(`✅ Ended current phase for ${eventKey}:`, response.data.message);
