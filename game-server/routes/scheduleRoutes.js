@@ -2,6 +2,7 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const { resetAllTimers } = require("../utils/scheduleHelpers");
+const Frontier = require("../models/frontier");
 
 const router = express.Router();
 
@@ -58,8 +59,6 @@ router.post("/tuning", (req, res) => {
  * POST /api/force-end-phase
  * Body: { frontierId: "abc123", event: "bank" }
  */
-const Frontier = require("../models/frontier");
-
 router.post("/force-end-phase", async (req, res) => {
   const { frontierId, event } = req.body;
   if (!frontierId || !event) {
@@ -67,19 +66,23 @@ router.post("/force-end-phase", async (req, res) => {
   }
 
   try {
+    console.log(`📥 Received request to force-end phase:`, { frontierId, event });
+
     const frontier = await Frontier.findById(frontierId);
     if (!frontier) {
       return res.status(404).json({ success: false, message: "Frontier not found" });
     }
+    console.log(`🔍 Loaded frontier: ${frontier?.name || '[Unnamed]'} (${frontier._id})`);
 
     const now = new Date();
     const newEndTime = new Date(now.getTime() + 60 * 1000); // 1 minute from now
+    console.log(`⏳ Setting ${event}.endTime to ${newEndTime.toISOString()}`);
 
-    if (!frontier[event]) {
+    if (!frontier.toObject().hasOwnProperty(event)) {
       return res.status(400).json({ success: false, message: `Event "${event}" not found on frontier` });
     }
 
-    frontier[event].endTime = newEndTime;
+    frontier.set(`${event}.endTime`, newEndTime);
     await frontier.save();
 
     console.log(`⏳ Force-ended phase for ${event} on frontier ${frontierId}`);

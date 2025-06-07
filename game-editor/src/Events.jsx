@@ -207,7 +207,7 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
               {key === 'seasons' ? (
                 <>
                   <p>Season: {timers.seasons.seasonType || 'Unknown'}</p>
-                  <p>Phase: {timers[key]?.phase || 'Unknown'}</p>
+                  <p>Current Phase: {timers[key]?.phase || 'Unknown'}</p>
                   <p>Ends in: {countdowns[key]}</p>
                 </>
               ) : (

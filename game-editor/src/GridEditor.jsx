@@ -8,6 +8,7 @@ const projectRoot = isDev
   : path.join(app.getAppPath(), '..', '..', '..', '..', '..', '..', '..');
   
 import React, { useState, useEffect, useRef } from 'react';
+import Modal from './components/Modal.jsx';
 import axios from 'axios';
 import Tile from './Tile';
 import FileManager from './FileManager';
@@ -36,6 +37,9 @@ const GridEditor = ({ activePanel }) => {
   const [currentFile, setCurrentFile] = useState('');
   const [currentDirectory, setCurrentDirectory] = useState('');
   const pendingLoad = useRef(null);
+
+  const [showSaveConfirm, setShowSaveConfirm] = useState(false);
+  const [pendingSavePath, setPendingSavePath] = useState(null);
 
   useEffect(() => {
     try {
@@ -385,10 +389,17 @@ const handleResourceDistributionChange = (resourceType, value) => {
   };
 
 
-  const saveLayout = async (fileName, directory) => {
-    try {
-      const layoutPath = path.join(projectRoot, 'game-server', 'layouts', 'gridLayouts', directory, `${fileName}.json`);
+  const confirmAndSaveLayout = (fileName, directory) => {
+    const layoutPath = path.join(projectRoot, 'game-server', 'layouts', 'gridLayouts', directory, `${fileName}.json`);
+    setPendingSavePath({ fileName, directory, path: layoutPath });
+    setShowSaveConfirm(true);
+  };
 
+  const saveLayout = async () => {
+    if (!pendingSavePath) return;
+    const { fileName, directory, path: layoutPath } = pendingSavePath;
+
+    try {
       const formattedTiles = grid.map(row => 
         row.map(cell => {
           const tileResource = masterResources.find(res => res.layoutkey === cell.type && res.category === "tile");
@@ -421,6 +432,9 @@ const handleResourceDistributionChange = (resourceType, value) => {
     } catch (error) {
       console.error('❌ Failed to save layout:', error);
       alert('Error: Unable to save layout. Check the console for details.');
+    } finally {
+      setShowSaveConfirm(false);
+      setPendingSavePath(null);
     }
   };
 
@@ -620,10 +634,10 @@ if (typeof window !== "undefined") {
         <h2>Grid Editor</h2>
           <FileManager
             loadLayout={loadLayout}
-            saveLayout={saveLayout}
+            saveLayout={confirmAndSaveLayout}
             currentFile={currentFile}
             currentDirectory={currentDirectory}
-          />       
+          />
       <div className="button-group">
           <button className="small-button" onClick={handleClearGrid}>Clear</button>
         </div>
@@ -874,10 +888,21 @@ if (typeof window !== "undefined") {
         </div>
       </div>
   
+      {showSaveConfirm && (
+        <Modal
+          isOpen={showSaveConfirm}
+          onClose={() => setShowSaveConfirm(false)}
+          title="Confirm Save"
+        >
+          <p>Are you sure you want to save this layout?</p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+            <button onClick={() => setShowSaveConfirm(false)} className="small-button cancel-button">Cancel</button>
+            <button onClick={saveLayout} className="small-button confirm-button">Yes</button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
-
 }
 
 export default GridEditor;
-
