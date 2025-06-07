@@ -16,7 +16,7 @@ const tuningConfig = require('../tuning/globalTuning.json');
 // ✅ Route to get all settlements with full editor UI context
 router.get('/settlements', async (req, res) => {
   try {
-    const settlements = await Settlement.find({}, '_id name displayName frontierId grids taxrate roles population').lean();
+    const settlements = await Settlement.find({}).lean();
     res.status(200).json(settlements);
   } catch (error) {
     console.error('❌ Error fetching settlements:', error);

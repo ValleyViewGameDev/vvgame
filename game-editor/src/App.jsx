@@ -25,34 +25,34 @@ const App = () => {
   }, []);
 
 
-useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const frontierRes = await axios.get(`${API_BASE}/api/frontiers`);
-        const frontierData = frontierRes.data;
-        console.log("Frontiers:", frontierData);
-        setFrontiers(frontierData);
-        if (frontierData.length > 0) {
-          setSelectedFrontier(frontierData[0]._id);
-        }
-      } catch (error) {
-        console.error("Failed to fetch frontiers:", error);
+  const refreshFrontiers = async () => {
+    try {
+      const frontierRes = await axios.get(`${API_BASE}/api/frontiers`);
+      const frontierData = frontierRes.data;
+      console.log("🔁 Refreshed Frontiers:", frontierData);
+      setFrontiers(frontierData);
+      if (frontierData.length > 0) {
+        setSelectedFrontier(frontierData[0]._id);
       }
+    } catch (error) {
+      console.error("❌ Failed to refresh frontiers:", error);
+    }
 
-      try {
-        const settlementRes = await axios.get(`${API_BASE}/api/settlements`);
-        const settlementData = settlementRes.data;
-        console.log("Settlements:", settlementData);
-        setSettlements(settlementData);
-        if (settlementData.length > 0) {
-          setSelectedSettlement(settlementData[0]._id);
-        }
-      } catch (error) {
-        console.error("Failed to fetch settlements:", error);
+    try {
+      const settlementRes = await axios.get(`${API_BASE}/api/settlements`);
+      const settlementData = settlementRes.data;
+      console.log("🔁 Refreshed Settlements:", settlementData);
+      setSettlements(settlementData);
+      if (settlementData.length > 0) {
+        setSelectedSettlement(settlementData[0]._id);
       }
-    };
+    } catch (error) {
+      console.error("❌ Failed to refresh settlements:", error);
+    }
+  };
 
-    fetchData();
+  useEffect(() => {
+    refreshFrontiers();
   }, []);
 
 
@@ -111,7 +111,8 @@ useEffect(() => {
             frontiers={frontiers}
             settlements={settlements} 
             activePanel={activePanel}
-            />
+            refreshFrontiers={refreshFrontiers}
+          />
         </div>
         <div className={activePanel === 'frontier' ? 'panel-visible' : 'panel-hidden'}>
           <FrontierView 

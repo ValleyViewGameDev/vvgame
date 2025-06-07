@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './FrontierView.css';
-import Modal from './Modal';
+import Modal from './components/Modal.jsx';
 
 const GRID_DIMENSION = 64;
 

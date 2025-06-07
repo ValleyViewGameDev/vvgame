@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import './Events.css';
 import API_BASE from './config';
 import Modal from './components/Modal.jsx';
+import ShowLogs from './components/ShowLogs.jsx';
 
 
 const fs = window.require('fs');
@@ -14,18 +15,7 @@ const projectRoot = isDev
   : path.join(app.getAppPath(), '..', '..', '..', '..', '..', '..', '..');
 
 
-// Local formatCountdown helper
-const formatCountdown = (endTime, now) => {
-  if (!endTime || endTime <= now) return "0d 0h 0m 0s";
-  const timeDiff = new Date(endTime).getTime() - now;
-  const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
-  return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-};
-
-const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, activePanel }) => {
+const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, activePanel, refreshFrontiers }) => {
     
   const [globalTuning, setGlobalTuning] = useState(null);
   const [phaseEdits, setPhaseEdits] = useState({});
@@ -110,6 +100,10 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
       console.log(`✅ Ended current phase for ${eventKey}:`, response.data.message);
       setConfirmationMessage(`✅ ${eventKey} phase will end shortly.`);
       setShowConfirmation(true);
+
+      if (typeof refreshFrontiers === 'function') {
+        await refreshFrontiers();
+      }
     } catch (error) {
       console.error(`❌ Failed to end current phase for ${eventKey}:`, error);
       setConfirmationMessage(`❌ Failed to end phase: ${error.message}`);
@@ -118,26 +112,51 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
   };
 
 
-  
-  useEffect(() => {
-    const updateCountdowns = () => {
-      const now = Date.now();
-      setCountdowns({
-        seasons: formatCountdown(timers.seasons.endTime, now),
-        taxes: formatCountdown(timers.taxes.endTime, now),
-        elections: formatCountdown(timers.elections.endTime, now),
-        train: formatCountdown(timers.train.endTime, now),
-        bank: formatCountdown(timers.bank.endTime, now),
-      });
-    };
+const updateCountdowns = () => {
+  const now = Date.now();
+  const newCountdowns = {};
+  let needsRefresh = false;
+  ['seasons', 'taxes', 'elections', 'train', 'bank'].forEach((key) => {
+    const end = timers[key]?.endTime ? new Date(timers[key].endTime).getTime() : 0;
+    const diff = end - now;
+    if (diff <= 0) {
+      needsRefresh = true;
+    }
+    const d = Math.floor(Math.max(diff, 0) / (1000 * 60 * 60 * 24));
+    const h = Math.floor((Math.max(diff, 0) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const m = Math.floor((Math.max(diff, 0) % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((Math.max(diff, 0) % (1000 * 60)) / 1000);
+    newCountdowns[key] = `${d}d ${h}h ${m}m ${s}s`;
+  });
+  setCountdowns(newCountdowns);
+  if (needsRefresh && typeof refreshFrontiers === 'function') {
+    console.log("🔁 Timer expired — triggering refreshFrontiers()");
+    refreshFrontiers();
+  }
+};
+
+useEffect(() => {
+  const interval = setInterval(() => {
     updateCountdowns();
-    const interval = setInterval(updateCountdowns, 1000);
-    return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedFrontier]);
+  }, 1000);
+
+  updateCountdowns();
+
+  return () => clearInterval(interval);
+}, [selectedFrontier, refreshFrontiers]);
+
+useEffect(() => {
+  if (activePanel === 'events') {
+    updateCountdowns();
+  }
+}, [activePanel]);
+
 
   return (
   <div className="events-layout">
+
+{/* BASE PANEL UI */}
+
     <div className="events-base-panel">
       <h2>📆 Events</h2>
       {selectedDashboard && globalTuning && globalTuning[selectedDashboard] ? (
@@ -197,12 +216,13 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
       {/* Future buttons and controls go here */}
     </div>
 
+
+{/* Column 1: Frontier-wide event dashboards */}
+
     <div className="events-columns">
-      {/* Column 1: Frontier-wide event dashboards */}
       <div className="events-main-container">
         {['seasons', 'taxes', 'elections', 'train', 'bank'].map((key) => (
           <div key={key} className="event-row">
-            {/* Frontier-wide dashboard (left) */}
             <div
               className={`event-dashboard ${selectedDashboard === key ? 'selected' : ''}`}
               onClick={() => setSelectedDashboard(key)}
@@ -212,28 +232,32 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
               {key === 'seasons' ? (
                 <>
                   <p>Season: {timers.seasons.seasonType || 'Unknown'}</p>
-                  <p>Current Phase: {timers[key]?.phase || 'Unknown'}</p>
+                  <p>Current Phase: <strong>{timers[key]?.phase || 'Unknown'}</strong></p>
                   <p>Ends in: {countdowns[key]}</p>
                 </>
               ) : (
                 <>
-                  <p>Phase: {timers[key]?.phase || 'Unknown'}</p>
+                  <p>Current Phase: <strong>{timers[key]?.phase || 'Unknown'}</strong></p>
                   <p>Ends in: {countdowns[key]}</p>
                 </>
               )}
             </div>
 
-            {/* Settlement-specific dashboard (right) */}
+{/* Settlement-specific dashboard (right) */}
+
             <div className="event-dashboard">
               <h3>{key.charAt(0).toUpperCase() + key.slice(1)} (Settlement)</h3>
               {selectedSettlement ? (
                 key === 'taxes' ? (
                   <>
                     <p>Tax Rate: {activeSettlement.taxrate ?? 'Unknown'}%</p>
-                    <button className="small-button">View Tax Log</button>
+                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowTaxLog()}>View Tax Log</button>
                   </>
                 ) : key === 'seasons' ? (
-                  <p>Population: {activeSettlement?.population ?? 'Unknown'}</p>
+                  <>
+                    <p>Population: {activeSettlement?.population ?? 'Unknown'}</p>
+                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowSeasonLog()}>Show Log</button>
+                  </>
                 ) : key === 'elections' ? (
                   <>
                     <p>
@@ -242,21 +266,31 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
                       }
                     </p>
                     <p>Votes Cast: {activeSettlement?.votes?.length || 0}</p>
+                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowElectionLog()}>Show Log</button>
                   </>
                 ) : key === 'train' ? (
-                  activeSettlement?.trainrewards?.length > 0 ? (
-                    <ul>
-                      {activeSettlement.trainrewards.map((reward, idx) => (
-                        <li key={idx}>{reward.qty} × {reward.item}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p>No train rewards.</p>
-                  )
+                  <>
+                    {Array.isArray(activeSettlement?.trainrewards) && activeSettlement.trainrewards.length > 0 ? (
+                      <ul>
+                        {activeSettlement.trainrewards.map((reward, idx) => (
+                          <li key={reward._id || idx}>{reward.qty} × {reward.item}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>No train rewards.</p>
+                    )}
+                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowTrainLog()}>Show Log</button>
+                  </>
                 ) : key === 'bank' ? (
-                  <p>[Coming soon]</p>
+                  <>
+                    <p>[Coming soon]</p>
+                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowBankLog()}>Show Log</button>
+                  </>
                 ) : (
-                  <p>[Coming soon]</p>
+                  <>
+                    <p>[Coming soon]</p>
+                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowSeasonLog()}>Show Log</button>
+                  </>
                 )
               ) : (
                 <p>[Coming soon]</p>
@@ -276,6 +310,7 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
         <button onClick={() => setShowConfirmation(false)} className="small-button">OK</button>
       </Modal>
     )}
+    <ShowLogs selectedSettlement={selectedSettlement} />
   </div>);
 };
 

@@ -87,7 +87,7 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
             </tr>
           </thead>
           <tbody>
-            {taxlog.map((entry, i) => (
+            {[...taxlog].reverse().map((entry, i) => (
               <tr key={i}>
                 <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
                 <td style={{ padding: "6px 12px" }}>{entry.totalcollected}</td>
