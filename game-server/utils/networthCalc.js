@@ -49,7 +49,7 @@ async function calculateNetWorth(player) {
 
     // ✅ Step 1: Add Money from inventory
     // ✅ Step 2: Add minPrice * qty of all items in inventory & backpack
-    console.log(`📦 Adding inventory items to net worth`);
+    //console.log(`📦 Adding inventory items to net worth`);
     let inventoryValue = 0; // Track total inventory value separately
     [...(player.inventory || []), ...(player.backpack || [])].forEach(item => {
         const resourceData = masterResources.find(res => res.type === item.type);
@@ -58,10 +58,10 @@ async function calculateNetWorth(player) {
         inventoryValue += itemValue; // Increase inventoryValue, not totalWorth
     });
     totalWorth += inventoryValue; // Add to total net worth
-    console.log(`✅ Total inventory contribution: ${inventoryValue}`);
+    //console.log(`✅ Total inventory contribution: ${inventoryValue}`);
 
     // ✅ Step 3: Fetch built structures and add their value
-    console.log(`🏗️ Adding built structures to net worth`);
+    //console.log(`🏗️ Adding built structures to net worth`);
     let structuresValue = 0; // Track total structure value separately
     if (player.gridId) {
         const playerStructures = await getGridStructures(player.gridId);
@@ -72,10 +72,10 @@ async function calculateNetWorth(player) {
         });
     }
     totalWorth += structuresValue; // Add to total net worth
-    console.log(`✅ Total built structures contribution: ${structuresValue}`);
+    //console.log(`✅ Total built structures contribution: ${structuresValue}`);
 
     // ✅ Step 4: Add minPrice of all skills
-    console.log(`🎓 Adding skills to net worth`);
+    //console.log(`🎓 Adding skills to net worth`);
     let skillsValue = 0; // Track total skill value separately
     (player.skills || []).forEach(skill => {
         const resourceData = masterResources.find(res => res.type === skill.type);
@@ -83,37 +83,31 @@ async function calculateNetWorth(player) {
         skillsValue += minPrice; // Increase skillsValue, not totalWorth
     });
     totalWorth += skillsValue; // Add to total net worth
-    console.log(`✅ Total skills contribution: ${skillsValue}`);
+    //console.log(`✅ Total skills contribution: ${skillsValue}`);
 
     // ✅ Ensure net worth is always valid
     totalWorth = isNaN(totalWorth) || totalWorth === undefined ? 0 : totalWorth;
 
-    console.log(`📊 FINAL Net Worth for ${player.username}: ${totalWorth}`);
+    //console.log(`📊 FINAL Net Worth for ${player.username}: ${totalWorth}`);
     return totalWorth || 0;
 }
 
 // ✅ Fetch a player's built structures (Crafting Stations & Deco)
 async function getGridStructures(gridId) {
     try {
-        if (!gridId) {
-            console.warn("⚠️ No gridId provided to getGridStructures.");
-            return [];
-        }
+        if (!gridId) { console.warn("⚠️ No gridId provided to getGridStructures."); return []; }
 
-        console.log(`🔍 Fetching resources for gridId: ${gridId}...`);
+        //console.log(`🔍 Fetching resources for gridId: ${gridId}...`);
 
         // ✅ Fetch the grid document
         const grid = await Grid.findById(gridId).lean();
         if (!grid) { console.warn(`⚠️ Grid ${gridId} not found.`); return []; }
         // ✅ Extract resources array from the grid document
         const gridResources = grid.resources || [];
-        if (gridResources.length === 0) {
-            console.warn(`⚠️ No resources found on grid ${gridId}.`);
-            return [];
-        }
+        if (gridResources.length === 0) { console.warn(`⚠️ No resources found on grid ${gridId}.`); return []; }
 
         // ✅ Log full resource details before filtering
-        console.log(`📦 Found ${gridResources.length} resources in grid ${gridId}.`);
+        //console.log(`📦 Found ${gridResources.length} resources in grid ${gridId}.`);
 
         // ✅ Check which resources are failing lookup in masterResources
         gridResources.forEach(resource => {
@@ -131,7 +125,7 @@ async function getGridStructures(gridId) {
 
         // ✅ Log which structures passed the filter
         if (validStructures.length > 0) {
-            console.log(`✅ Found ${validStructures.length} crafting/deco structures in grid ${gridId}.`);
+            //console.log(`✅ Found ${validStructures.length} crafting/deco structures in grid ${gridId}.`);
         } else {
             console.warn(`⚠️ No crafting or deco structures found in grid ${gridId}, but resources exist.`);
         }
