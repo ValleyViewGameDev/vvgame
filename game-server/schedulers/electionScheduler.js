@@ -51,6 +51,28 @@ async function electionScheduler(frontierId, phase, frontier = null) {
                 }
             });
 
+            // Prepare candidates array for election log
+            const candidates = [];
+            for (const candidatePromise of campaignPromises) {
+                const candidateIdStr = candidatePromise.candidateId ? candidatePromise.candidateId.toString() : null;
+                const votesForCandidate = candidateIdStr && voteCounts[candidateIdStr] ? voteCounts[candidateIdStr] : 0;
+                let username = "Unknown";
+                try {
+                    if (candidateIdStr) {
+                        const player = await Player.findById(candidateIdStr);
+                        if (player) {
+                            username = player.username;
+                        }
+                    }
+                } catch (error) {
+                    console.warn(`⚠️ Could not resolve username for candidate ${candidateIdStr}:`, error);
+                }
+                candidates.push({
+                    username,
+                    votes: votesForCandidate
+                });
+            }
+
             // LOG THE ELECTION RESULTS
             let electedMayorUsername = "None";
             if (winnerId) {
@@ -63,9 +85,8 @@ async function electionScheduler(frontierId, phase, frontier = null) {
             }
             const electionLogEntry = {
                 date: new Date(),
+                candidates,
                 electedmayor: electedMayorUsername,
-                campaignpromises: campaignPromises.length,
-                votesreceived: maxVotes
             };
             await Settlement.updateOne(
                 { _id: settlement._id },
