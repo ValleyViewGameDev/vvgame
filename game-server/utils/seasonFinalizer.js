@@ -1,6 +1,9 @@
 // game-server/utils/seasonFinalizer.js
 
 const { updateNetWorthForFrontier } = require('./networthCalc'); // ⬅️ Now using the new source
+const Player = require('../models/player');
+const Settlement = require('../models/settlement');
+const sendMailboxMessage = require('../utils/messageUtils');
 
 async function seasonFinalizer(frontierId) {
   console.group("🗓️🗓️🗓️🗓️🗓️ Starting SEASON FINALIZER for Frontier", frontierId);
@@ -9,29 +12,36 @@ async function seasonFinalizer(frontierId) {
     console.log("📊 Recalculating final net worth...");
     await updateNetWorthForFrontier(frontierId);
 
-// Here we need to send Inbox rewards to the top players
-// We need to fetch the top players based on net worth -- get top 3 players across the whole frontier
-// Also, we need to fetch the winning settlement for the frontier; this will be based upon the settlement with the highest combined net worth 
+    console.log("📊 Fetching top 3 players by net worth...");
+    const topPlayers = await Player.find({ frontierId }).sort({ netWorth: -1 }).limit(3);
 
-// The top 3 players in the entire frontier get message id 301 sent to their inbox
-// All players in the top settlement get message id 302 sent to their inbox
+    console.log("📊 Fetching top settlement by combined net worth...");
+    const winningSettlement = await Settlement.findOne({ frontierId }).sort({ combinedNetWorth: -1 });
 
-    // const topPlayers = await Player.find({ frontierId })
-    //   .sort({ netWorth: -1 })
-    //   .limit(3);
-    // const winningSettlement = await Settlement.findOne({ frontierId })
-    //   .sort({ combinedNetWorth: -1 });
+    if (topPlayers.length > 0) {
+      console.log("🏆 Top Players:", topPlayers.map(p => p.username));
+      for (const player of topPlayers) {
+        try {
+          await sendMailboxMessage(player._id, 301); // Message ID 301 = Top Player Reward
+          console.log(`📬 Reward sent to top player ${player.username}`);
+        } catch (error) {
+          console.error(`❌ Failed to send top player reward to ${player.username}`, error);
+        }
+      }
+    }
 
-    // if (topPlayers.length > 0) {
-    //   console.log("🏆 Top Players:", topPlayers.map(p => p.username));
-    // }
-    
-    // if (winningSettlement) {
-    //   console.log("🏅 Winning Settlement:", winningSettlement.name);
-    // }
-
-// console.log("📬 Sending Inbox rewards to top players...")
-    ;
+    if (winningSettlement) {
+      console.log("🏅 Winning Settlement:", winningSettlement.name);
+      const winningPlayers = await Player.find({ settlementId: winningSettlement._id });
+      for (const player of winningPlayers) {
+        try {
+          await sendMailboxMessage(player._id, 302); // Message ID 302 = Top Settlement Reward
+          console.log(`📬 Reward sent to ${player.username} in top settlement`);
+        } catch (error) {
+          console.error(`❌ Failed to send top settlement reward to ${player.username}`, error);
+        }
+      }
+    }
 
     console.log("✅ Season finalization complete!");
   } catch (error) {
