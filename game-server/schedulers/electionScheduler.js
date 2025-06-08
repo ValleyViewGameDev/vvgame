@@ -41,15 +41,26 @@ async function electionScheduler(frontierId, phase, frontier = null) {
 
             console.log(`📊 Vote counts for ${settlement.name}:`, voteCounts);
 
-            // Find winner
+            // Find winner with tie handling
             let winnerId = null;
             let maxVotes = 0;
+            let tiedCandidates = [];
+
             Object.entries(voteCounts).forEach(([candidateId, count]) => {
                 if (count > maxVotes) {
-                    winnerId = candidateId;
                     maxVotes = count;
+                    tiedCandidates = [candidateId];
+                } else if (count === maxVotes) {
+                    tiedCandidates.push(candidateId);
                 }
             });
+
+            if (tiedCandidates.length === 1) {
+                winnerId = tiedCandidates[0];
+            } else if (tiedCandidates.length > 1) {
+                console.warn(`⚠️ Tie detected between ${tiedCandidates.length} candidates. Picking randomly.`);
+                winnerId = tiedCandidates[Math.floor(Math.random() * tiedCandidates.length)];
+            }
 
             // Prepare candidates array for election log
             const candidates = [];
