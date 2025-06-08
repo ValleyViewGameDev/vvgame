@@ -21,7 +21,7 @@ async function bankScheduler(frontierId, phase, frontier = null) {
                 const seasonLevel = getSeasonLevel(frontier?.seasons?.onSeasonStart, frontier?.seasons?.onSeasonEnd);
 
                 // ✅ Generate new offers during "active" phase
-                const newOffers = generateBankOffers(frontier);
+                const newOffers = generateBankOffers(seasonLevel);
                 console.log(`💰✅ ${newOffers.length} new bank offers generated.`);
 
                 
@@ -72,16 +72,11 @@ async function bankScheduler(frontierId, phase, frontier = null) {
 }
 
 // ✅ Function to generate offers based on `masterResources`
-function generateBankOffers(frontier) {
+function generateBankOffers(seasonLevel) {
     const offers = [];
     const numOffers = globalTuning.bankOffers || 3;
-    
-    // Get current season level
-    const seasonLevel = getSeasonLevel(
-        frontier?.seasons?.onSeasonStart,
-        frontier?.seasons?.onSeasonEnd
-    );
-    
+    console.log(`🎯 Generating offers for season level ${seasonLevel}`);
+
     // Filter resources by both category and level
     const validResources = masterResources.filter(res => {
         // Must be a doober
@@ -91,8 +86,6 @@ function generateBankOffers(frontier) {
         const resourceLevel = res.level || 1; // Default to level 1 if not specified
         return Math.abs(resourceLevel - seasonLevel) <= 1;
     });
-
-    console.log(`🎯 Generating offers for season level ${seasonLevel}`);
 
     for (let i = 0; i < numOffers; i++) {
         if (validResources.length === 0) {

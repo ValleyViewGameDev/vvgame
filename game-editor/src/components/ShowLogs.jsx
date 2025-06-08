@@ -80,6 +80,7 @@ const ShowLogs = ({ selectedSettlement }) => {
           <thead>
             <tr>
               <th style={{ padding: "6px 12px" }}>Date</th>
+              <th style={{ padding: "6px 12px" }}>Season Level</th>
               <th style={{ padding: "6px 12px" }}>Offers</th>
             </tr>
           </thead>
@@ -87,6 +88,7 @@ const ShowLogs = ({ selectedSettlement }) => {
             {[...banklog].reverse().map((entry, i) => (
               <tr key={i}>
                 <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.seasonlevel}</td>
                 <td style={{ padding: "6px 12px" }}>
                   {entry.offers.map((offer, j) => (
                     <div key={j}>

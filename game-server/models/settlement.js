@@ -95,8 +95,8 @@ const SettlementSchema = new mongoose.Schema({
   trainlog: [
     {
       date: { type: Date, required: true },
-      seasonlevel: { type: Number, required: true },
-      winners: { type: Number, required: true },
+      alloffersfilled: { type: Boolean, default: false },
+      totalwinners: { type: Number, required: true },
       rewards: [
         {
           item: { type: String, required: true },

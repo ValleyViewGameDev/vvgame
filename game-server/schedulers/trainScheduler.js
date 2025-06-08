@@ -159,7 +159,6 @@ function generateTrainOffers(settlement, seasonConfig, frontier) {
     weeksRemaining *
     (seasonConfig.trainOffersQtyMultiplier || 1)
   );
-
   let remainingEffort = totalEffort;
   const maxAdditionalOffers = 4; // Cap at 5 total offers (1 guaranteed + 4 additional)
 
@@ -167,12 +166,9 @@ function generateTrainOffers(settlement, seasonConfig, frontier) {
     const item = weightedRandomByCraftEffort(seasonResources);
     const timePerUnit = item.totalnestedtime || item.crafttime || 60;
     const maxQty = Math.floor(remainingEffort / timePerUnit);
-    
     if (maxQty < 1) break;
-
     const qtyBought = Math.ceil(Math.random() * maxQty);
     const qtyGiven = Math.floor((item.maxprice || 100) * qtyBought * (seasonConfig.seasonMultiplier || 1));
-
     const offer = {
       itemBought: item.type,
       qtyBought,
@@ -181,13 +177,10 @@ function generateTrainOffers(settlement, seasonConfig, frontier) {
       claimedBy: null,
       filled: false
     };
-    
     offers.push(offer);
     remainingEffort -= qtyBought * timePerUnit;
-
     console.log(`  📦 Additional Train Offer (${settlement.name}): ${qtyBought} ${item.type} → ${qtyGiven} Money`);
   }
-
   return offers;
 }
 
