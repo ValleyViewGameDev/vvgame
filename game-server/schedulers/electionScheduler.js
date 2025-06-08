@@ -51,13 +51,22 @@ async function electionScheduler(frontierId, phase, frontier = null) {
                 }
             });
 
+            // LOG THE ELECTION RESULTS
+            let electedMayorUsername = "None";
+            if (winnerId) {
+                try {
+                    const winnerPlayer = await Player.findById(winnerId);
+                    electedMayorUsername = winnerPlayer?.username || "Unknown";
+                } catch (error) {
+                    console.warn(`⚠️ Could not resolve elected mayor username:`, error);
+                }
+            }
             const electionLogEntry = {
                 date: new Date(),
-                electedmayor: winnerId || null,
+                electedmayor: electedMayorUsername,
                 campaignpromises: campaignPromises.length,
                 votesreceived: maxVotes
             };
-
             await Settlement.updateOne(
                 { _id: settlement._id },
                 {

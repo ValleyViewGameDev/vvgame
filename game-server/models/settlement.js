@@ -117,7 +117,7 @@ const SettlementSchema = new mongoose.Schema({
   electionlog: [
     {
       date: { type: Date, required: true },
-      electedmayor: { type: mongoose.Schema.Types.ObjectId, ref: 'Player', required: true },
+      electedmayor: { type: String, required: true },
       campaignpromises: { type: Number, required: true },
       votesreceived: { type: Number, required: true },
     }

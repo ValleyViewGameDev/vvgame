@@ -127,7 +127,7 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
         console.log(`   💾 DB Update result: ${JSON.stringify(updateResult)}`);
 
         // Schedule next check with fresh duration
-        setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), 30000);
+        setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), 15000);
       } else {
         console.log(`⚠️ End time changed, rescheduling check`);
         setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), 5000);
@@ -137,7 +137,7 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
       // When continuing an existing phase, use remaining time until end
       const delayMs = Math.max(endTime - now, 1000); // Minimum 1 second delay
       console.log(`⏳ Next ${featureKey} check in ${Math.floor(delayMs / 1000)}s`);
-      setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), 30000);
+      setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), 15000);
     }
   } catch (error) {
     console.error(`❌ Error in scheduleTimedFeature for ${featureKey}:`, error);

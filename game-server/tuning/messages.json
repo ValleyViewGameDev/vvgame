@@ -26,5 +26,19 @@
       "body": "Here are the items you purchased from the Store.",
       "rewards": [],
       "everyoneRewards": false
+    },
+    {
+      "id": 301,
+      "title": "🗓️ Season Reward",
+      "body": "For the top 3 players across the Frontier last season.",
+      "rewards": [{ "item": "Money", "qty": 10000 }, { "item": "Gold", "qty": 25 }],
+      "everyoneRewards": false
+    },
+    {
+      "id": 302,
+      "title": "🗓️ Season Reward",
+      "body": "For all players in the top Settlement last season.",
+      "rewards": [{ "item": "Money", "qty": 5000 }, { "item": "Silver", "qty": 10 }],
+      "everyoneRewards": false
     }
 ]

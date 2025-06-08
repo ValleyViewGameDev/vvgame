@@ -49,14 +49,9 @@ const levyTax = async (frontierId) => {
 
       for (const player of players) {
         const moneyItem = player.inventory.find((item) => item.type === "Money");
-
         if (!moneyItem || moneyItem.quantity <= 0) continue;
-
         const taxAmount = Math.floor(moneyItem.quantity * (settlement.taxrate / 100));
-
         if (taxAmount < 1) continue; // Skip if tax is too low
-
-        console.log(`💸 Player ${player.username} taxed ${taxAmount}`);
 
         // ✅ Step 5: Deduct tax from player
         moneyItem.quantity -= taxAmount;
@@ -64,12 +59,10 @@ const levyTax = async (frontierId) => {
 
         // ✅ Step 6: Allocate tax to mayor if applicable
         const mayorRole = settlement.roles.find(role => role.roleName === "Mayor");
-
         if (mayorRole && mayorRole.playerId) {
           const mayorCut = Math.floor(taxAmount * (tuningConfig.mayorcut / 100));
           mayorPayouts[mayorRole.playerId] = (mayorPayouts[mayorRole.playerId] || 0) + mayorCut;
         }
-
         await player.save();
       }
     }
@@ -77,22 +70,16 @@ const levyTax = async (frontierId) => {
     // ✅ Step 7: Pay out mayors
     for (const [mayorId, payout] of Object.entries(mayorPayouts)) {
       if (payout <= 0) continue; // ✅ Skip if payout is 0
-
       try {
         const mayor = await Player.findById(mayorId);
         if (!mayor) {
           console.warn(`⚠️ Mayor with ID ${mayorId} not found. Skipping payout.`);
           continue;
         }
-
-        console.log(`👑 Allocating ${payout} to Mayor ${mayor.username}...`);
-
         // ✅ Ensure the inventory exists
         if (!mayor.inventory) { mayor.inventory = [];}
-
         // ✅ Find the Money item in the mayor's inventory
         let moneyItem = mayor.inventory.find((item) => item.type === "Money");
-
         if (!moneyItem) {
           mayor.inventory.push({ type: "Money", quantity: payout });
         } else {
