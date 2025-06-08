@@ -6,8 +6,11 @@ import { formatCountdown } from '../../UI/Timers';
 function SeasonPanel({ onClose, currentPlayer }) {
   const [countdown, setCountdown] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
-  const [richestCitizens, setRichestCitizens] = useState([]);
+  const [topCitizens, setTopCitizens] = useState([]);
+  const [topSettlementName, setTopSettlementName] = useState("");
   const [seasonCycle, setSeasonCycle] = useState([]);
+  const [highestWealth, setHighestWealth] = useState(0);
+  const [settlementMap, setSettlementMap] = useState({});
 
 
   // ✅ Fetch season data from local storage
@@ -51,37 +54,81 @@ function SeasonPanel({ onClose, currentPlayer }) {
   }, []);
 
 
-  // ✅ Fetch wealthiest citizens based on net worth
+  // ✅ Fetch top 3 wealthiest citizens across the frontier and leading settlement
   useEffect(() => {
-    const fetchRichestCitizens = async () => {
-      if (!currentPlayer || !currentPlayer.settlementId) {
-        console.warn("⚠️ currentPlayer or settlementId is not available yet.");
+    const fetchTopCitizensAndSettlement = async () => {
+      if (!currentPlayer || !currentPlayer.frontierId) {
+        console.warn("⚠️ currentPlayer or frontierId is not available yet.");
         return;
       }
       try {
-        console.log("💰 Fetching wealthiest citizens for settlement:", currentPlayer.settlementId);
+        console.log("💰 Fetching top citizens and leading settlement for frontier:", currentPlayer.frontierId);
         
-        // ✅ Fetch all players in this settlement
-        const response = await axios.get(`${API_BASE}/api/get-players-by-settlement/${currentPlayer.settlementId}`);
+        // Fetch all players in this frontier
+        const response = await axios.get(`${API_BASE}/api/get-players-by-frontier/${currentPlayer.frontierId}`);
         const players = response.data;
 
-        // ✅ Sort players by Net Worth
-        const sortedPlayers = players
+        const settlementRes = await axios.get(`${API_BASE}/api/settlements`);
+        const settlements = settlementRes.data;
+        const settlementMap = settlements.reduce((acc, s) => {
+          acc[s._id] = s.displayName || s.name || "Unknown Settlement";
+          return acc;
+        }, {});
+        setSettlementMap(settlementMap);
+
+        // Group players by settlementId and sum their net worths
+        const settlementWealthMap = {};
+        players.forEach(player => {
+          const settlementId = player.settlementId || "unknown";
+          const netWorth = player.netWorth || 0;
+          if (!settlementWealthMap[settlementId]) {
+            settlementWealthMap[settlementId] = { totalNetWorth: 0, settlementName: settlementMap[settlementId] || "Unknown Settlement" };
+          }
+          settlementWealthMap[settlementId].totalNetWorth += netWorth;
+        });
+
+        // Find the settlement with highest total net worth
+        let leadingSettlementId = null;
+        let highestWealth = -1;
+        for (const [settlementId, data] of Object.entries(settlementWealthMap)) {
+          if (data.totalNetWorth > highestWealth) {
+            highestWealth = data.totalNetWorth;
+            leadingSettlementId = settlementId;
+          }
+        }
+        const leadingSettlementName = leadingSettlementId && settlementWealthMap[leadingSettlementId] ? settlementWealthMap[leadingSettlementId].settlementName : "No data available";
+        // Add logic to retrieve population:
+        let leadingSettlementPopulation = "Unknown";
+        if (leadingSettlementId && settlements) {
+          const matching = settlements.find(s => s._id === leadingSettlementId);
+          if (matching) {
+            leadingSettlementPopulation = matching.population || 0;
+          }
+        }
+        // store population into settlementMap with a compound key to retrieve later
+        if (leadingSettlementName) {
+          settlementMap[leadingSettlementName + "_pop"] = leadingSettlementPopulation;
+        }
+        setHighestWealth(highestWealth);
+
+        // Sort all players by net worth and take top 3
+        const topPlayers = players
           .map(player => ({
             username: player.username,
-            netWorth: player.netWorth || 0 // ✅ Use netWorth instead of Money
+            netWorth: player.netWorth || 0
           }))
-          .sort((a, b) => b.netWorth - a.netWorth) // ✅ Sort in descending order
-          .slice(0, 10); // ✅ Take the top 10
+          .sort((a, b) => b.netWorth - a.netWorth)
+          .slice(0, 3);
 
-        setRichestCitizens(sortedPlayers);
+        setTopCitizens(topPlayers);
+        setTopSettlementName(leadingSettlementName);
       } catch (error) {
-        console.error("❌ Error fetching richest citizens:", error);
+        console.error("❌ Error fetching top citizens and settlement:", error);
       }
     };
 
-    fetchRichestCitizens();
-  }, [currentPlayer]); // ✅ Runs when `currentPlayer` updates
+    fetchTopCitizensAndSettlement(); 
+  }, [currentPlayer]); // Runs when `currentPlayer` updates
 
 
     // ✅ Get current season data from local storage
@@ -93,7 +140,7 @@ function SeasonPanel({ onClose, currentPlayer }) {
     <Panel onClose={onClose} descriptionKey="1015" titleKey="1115" panelName="SeasonPanel">
       {seasonData?.phase === "onSeason" ? (
         <>
-          <h2>{seasonData?.type || "Loading..."}</h2>
+          <h2>It's {seasonData?.type || "Loading..."}</h2>
           <p>Season ends in: {countdown}</p>
         </>
       ) : (
@@ -103,24 +150,31 @@ function SeasonPanel({ onClose, currentPlayer }) {
       )}
 
       <br></br>
-      <br></br>
 
-      {/* ✅ Richest Wealthiest Section */}
-      <h3>💰 This Settlement's Wealthiest Citizens</h3>
-      <p>Calculated net worth is a sum of inventory, buildings, skills, and money.</p>
-      <p>Net worth is re-calculated only at tax time, and on season completion.</p>
-      {richestCitizens.length > 0 ? (
+      <p>At the end of the season, bonus rewards will be sent to the top players in the Frontier, as well as to all players in the top Settlement.</p>
+      <h3>🏆 Top Citizens in the Frontier</h3>
+      {topCitizens.length > 0 ? (
         <div>
-          {richestCitizens.map((citizen, index) => (
+          {topCitizens.map((citizen, index) => (
             <p key={index}>
-              {index + 1}. <strong>{citizen.username}</strong> : {citizen.netWorth}
+              {index + 1}. <strong>{citizen.username}</strong> : {citizen.netWorth.toLocaleString()}
             </p>
           ))}
         </div>
       ) : (
-        <p>No data available for wealthiest citizens.</p>
+        <p>No data available for top citizens.</p>
       )}
 
+      <h3>🏙️ Leading Settlement</h3>
+      {topSettlementName ? (
+        <>
+          <p><strong>{topSettlementName}</strong></p>
+          <p>Total Wealth: {highestWealth.toLocaleString()}</p>
+          <p>Population: {settlementMap[topSettlementName + "_pop"]?.toLocaleString() || "Unknown"}</p>
+        </>
+      ) : (
+        <p>No data available</p>
+      )}
 
     </Panel>
   );

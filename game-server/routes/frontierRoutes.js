@@ -62,6 +62,20 @@ router.get('/frontiers-by-name', async (req, res) => {
   }
 });
 
+
+// ✅ Get all players in a frontier
+router.get('/get-players-by-frontier/:frontierId', async (req, res) => {
+  try {
+    const { frontierId } = req.params;
+    const players = await Player.find({ frontierId }).lean();
+    res.status(200).json(players);
+  } catch (error) {
+    console.error('❌ Error fetching players by frontier:', error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+
 // Example: GET /api/frontiers
 // Returns all frontiers with full document data (including season, tax, election, train, bank timing, etc.)
 router.get('/frontiers', async (req, res) => {
