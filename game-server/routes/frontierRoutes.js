@@ -484,7 +484,7 @@ router.post("/levy-tax", async (req, res) => {
 /////////// LOGS
 
 // ✅ Get season log for a specific frontier
-router.get('/api/frontier/:frontierId/seasonlog', async (req, res) => {
+router.get('/frontier/:frontierId/seasonlog', async (req, res) => {
   try {
     const { frontierId } = req.params;
     const frontier = await Frontier.findById(frontierId).lean();
