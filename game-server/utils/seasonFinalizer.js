@@ -53,12 +53,6 @@ async function seasonFinalizer(frontierId) {
     console.log("📝 Checking Frontier document for season metadata: ",frontierDoc);
 
     if (frontierDoc?.seasons?.seasonNumber !== undefined && frontierDoc.seasons.seasonType) {
-      const now = new Date();
-      const seasonEnd = new Date(frontierDoc.seasons.endTime);
-      if (now > seasonEnd) {
-        console.warn("⚠️ Skipping season log: Already transitioned to new season.");
-        return;
-      }
       console.log("📝 Writing season log entry to Frontier document...");
       const seasonLogEntry = {
         date: new Date(),
@@ -69,7 +63,7 @@ async function seasonFinalizer(frontierId) {
           username: player.username,
           networth: player.netWorth || 0
         })),
-        winningsettlement: winningSettlement?.name || 'Unknown',
+        winningsettlement: winningSettlement?.displayName || winningSettlement?.name || 'Unknown',
         gridsreset: 0, // filled in by seasonReset
         playersrelocated: 0 // filled in by seasonReset
       };

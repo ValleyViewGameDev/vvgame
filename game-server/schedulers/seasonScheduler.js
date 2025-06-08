@@ -27,7 +27,6 @@ async function seasonScheduler(frontierId, phase, frontier = null) {
             ? seasons[(currentIndex + 1) % seasons.length].seasonType
             : "Spring";
 
-            // DEBUG: Temporarily disable these to test if they're causing the delay
             await seasonFinalizer(frontierId);
             await seasonReset(frontierId);  
             
