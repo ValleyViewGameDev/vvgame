@@ -116,10 +116,12 @@ const SettlementSchema = new mongoose.Schema({
   electionlog: [
     {
       date: { type: Date, required: true },
-      electedMayor: { type: mongoose.Schema.Types.ObjectId, ref: 'Player', required: true },
-      votesReceived: { type: Number, required: true },
+      electedmayor: { type: mongoose.Schema.Types.ObjectId, ref: 'Player', required: true },
+      campaignpromises: { type: Number, required: true },
+      votesreceived: { type: Number, required: true },
     }
   ],
+
   population: { type: Number, default: 0 }, // ✅ Track settlement population
   creationDate: { type: Date, default: Date.now },
 });

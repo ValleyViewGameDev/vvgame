@@ -246,7 +246,7 @@ useEffect(() => {
 {/* Settlement-specific dashboard (right) */}
 
             <div className="event-dashboard event-dashboard-settlement">
-              <h3>{key.charAt(0).toUpperCase() + key.slice(1)} (Settlement)</h3>
+              <h3>{key.charAt(0).toUpperCase() + key.slice(1)} (this Settlement)</h3>
               {selectedSettlement ? (
                 key === 'taxes' ? (
                   <>
@@ -284,7 +284,15 @@ useEffect(() => {
                   </>
                 ) : key === 'bank' ? (
                   <>
-                    <p>[Coming soon]</p>
+                    {Array.isArray(activeSettlement?.currentoffers) && activeSettlement.currentoffers.length > 0 ? (
+                      <p>
+                        {activeSettlement.currentoffers.map((offer, idx) =>
+                          `${offer.qtyBought}× ${offer.itemBought} → ${offer.qtyGiven}× ${offer.itemGiven}`
+                        ).join(',  ')}
+                      </p>
+                    ) : (
+                      <p>No current bank offers.</p>
+                    )}
                     <button className="small-button" onClick={() => window.showLogHandlers?.handleShowBankLog()}>Show Log</button>
                   </>
                 ) : (

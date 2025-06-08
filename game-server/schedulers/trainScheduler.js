@@ -232,6 +232,8 @@ function generateTrainRewards(settlement, seasonConfig) {
 }
 
 async function generateTrainLog(settlement, fulfilledPlayerIds) {
+  if ((settlement.population || 0) <= 0) { return; }
+
   const logEntry = {
     date: new Date(),
     alloffersfilled: (settlement.currentoffers || []).every(o => o.filled),
@@ -245,7 +247,7 @@ async function generateTrainLog(settlement, fulfilledPlayerIds) {
       $push: {
         trainlog: {
           $each: [logEntry],
-          $slice: -10
+          $slice: -8 // Keep last 8 entries
         }
       }
     }

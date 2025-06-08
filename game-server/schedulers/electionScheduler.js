@@ -13,6 +13,8 @@ async function electionScheduler(frontierId, phase, frontier = null) {
     const settlements = await Settlement.find({ frontierId, population: { $gt: 0 } });
 
     for (const settlement of settlements) {
+        if (settlement.population <= 0) { continue; }
+
         const { votes, campaignPromises } = settlement;
 
         console.log(`🏛️ Processing Settlement: ${settlement.name} (ID: ${settlement._id})`);
@@ -26,12 +28,10 @@ async function electionScheduler(frontierId, phase, frontier = null) {
                 console.warn(`⚠️ No candidates for ${settlement.name}. Skipping election.`);
                 continue;
             }
-
             if (!votes?.length) {
                 console.warn(`⚠️ No votes cast for ${settlement.name}. Skipping election.`);
                 continue;
             }
-
             // Count votes
             const voteCounts = votes.reduce((acc, vote) => {
                 const candidateId = vote.candidateId.toString();
@@ -50,6 +50,25 @@ async function electionScheduler(frontierId, phase, frontier = null) {
                     maxVotes = count;
                 }
             });
+
+            const electionLogEntry = {
+                date: new Date(),
+                electedmayor: winnerId || null,
+                campaignpromises: campaignPromises.length,
+                votesreceived: maxVotes
+            };
+
+            await Settlement.updateOne(
+                { _id: settlement._id },
+                {
+                    $push: {
+                        electionlog: {
+                            $each: [electionLogEntry],
+                            $slice: -10
+                        }
+                    }
+                }
+            );
 
             if (winnerId) {
                 try {
@@ -79,6 +98,8 @@ async function electionScheduler(frontierId, phase, frontier = null) {
                             campaignPromises: []
                         }
                     });
+
+                    console.log(`📝 Election log entry added for ${settlement.name}`);
 
                     console.log(`✅ Mayor role assigned in ${settlement.name}`);
                 } catch (error) {

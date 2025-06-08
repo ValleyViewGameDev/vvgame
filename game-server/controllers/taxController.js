@@ -107,6 +107,7 @@ const levyTax = async (frontierId) => {
 
     // ✅ Step 7.5: Log tax event in each settlement
     for (const settlement of settlements) {
+      if (settlement.population <= 0) continue;
       const mayorRole = settlement.roles.find(role => role.roleName === "Mayor");
       let currentmayor = "None";
       let mayortake = 0;

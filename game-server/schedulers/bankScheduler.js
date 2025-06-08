@@ -29,6 +29,7 @@ async function bankScheduler(frontierId, phase, frontier = null) {
                 const settlements = await Settlement.find({ frontierId: frontierId });
 
                 for (const settlement of settlements) {
+                  if (settlement.population <= 0) continue;
                   const offerSummaries = newOffers.map(o => ({
                     offer: o.itemBought,
                     qty: `${o.qtyBought} for ${o.qtyGiven} ${o.itemGiven}`
