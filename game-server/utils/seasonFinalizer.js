@@ -46,8 +46,12 @@ async function seasonFinalizer(frontierId) {
 
     console.log("✅ Season finalization complete!");
 
-    // Log season entry on the Frontier document
+    ///////////////////////////////
+    //// Log season entry on the Frontier document
+
     const frontierDoc = await Frontier.findById(frontierId);
+    console.log("📝 Checking Frontier document for season metadata: ",frontierDoc);
+
     if (frontierDoc && frontierDoc.currentSeasonNumber !== undefined && frontierDoc.currentSeasonType) {
       console.log("📝 Writing season log entry to Frontier document...");
       const seasonLogEntry = {
