@@ -27,18 +27,17 @@ async function trainScheduler(frontierId, phase, frontier = null) {
         const currentOffers = settlement.currentoffers || [];
         console.log('DEBUG: Departing phase - checking offers:', JSON.stringify(currentOffers, null, 2));
         
-        if (currentOffers.length > 0 && currentOffers.every(o => o.filled)) {
-          console.log(`🎉 All Train orders filled for ${settlement.name}. Sending rewards...`);
-      
-          const fulfilledPlayerIds = [...new Set(
-            currentOffers
-              .filter(offer => offer.claimedBy)
-              .map(offer => offer.claimedBy.toString())
-          )];
-      
+        const fulfilledPlayerIds = [...new Set(
+          currentOffers
+            .filter(offer => offer.filled && offer.claimedBy)
+            .map(offer => offer.claimedBy.toString())
+        )];
+
+        if (fulfilledPlayerIds.length > 0) {
+          console.log(`🎉 Some Train orders filled for ${settlement.name}. Sending rewards...`);
           console.log('DEBUG: Reward distribution - Players:', fulfilledPlayerIds);
           console.log('DEBUG: Rewards to distribute:', settlement.trainrewards);
-          
+
           for (const playerId of fulfilledPlayerIds) {
             const consolidated = consolidateRewards(settlement.trainrewards);
             console.log(`DEBUG: Sending consolidated rewards to ${playerId}:`, consolidated);
@@ -49,9 +48,12 @@ async function trainScheduler(frontierId, phase, frontier = null) {
               console.error(`❌ Error sending rewards to player ${playerId}:`, error);
             }
           }
-          await generateTrainLog(settlement, fulfilledPlayerIds);
-          console.log(`📝 Train log entry saved for ${settlement.name}`);
+        } else {
+          console.log(`🚫 No fulfilled train orders for ${settlement.name}. No rewards sent.`);
         }
+
+        await generateTrainLog(settlement, fulfilledPlayerIds);
+        console.log(`📝 Train log entry saved for ${settlement.name}`);
       }
       
       if (phase === "arriving") {
