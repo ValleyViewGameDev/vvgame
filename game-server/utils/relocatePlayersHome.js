@@ -5,98 +5,74 @@ const Settlement = require("../models/settlement");
 const ObjectId = require("mongoose").Types.ObjectId;
 
 async function relocatePlayersHome(frontierId) {
-  console.group("🏠 Relocating players to home grids...");
+  console.group("🏠 Relocating players to home grids (modernized schema)...");
 
   const players = await Player.find({ frontierId });
   const settlements = await Settlement.find({ frontierId });
   const grids = await Grid.find({ frontierId });
 
   const gridMap = new Map(grids.map(g => [g._id.toString(), g]));
+  const playerMap = new Map(players.map(p => [p._id.toString(), p]));
 
-  for (const player of players) {
-    const gridIdStr = player.gridId?.toString();
-    const homeGrid = gridMap.get(gridIdStr);
-    if (!homeGrid) {
-      throw new Error(`❌ No grid found for player ${player.username} (gridId: ${gridIdStr})`);
-    }
-
-    // Find gridCoord and gridType from settlements.grids
-    let gridCoord = null;
-    let gridType = null;
-    for (const settlement of settlements) {
-      for (const row of settlement.grids) {
-        for (const grid of row) {
-          if (grid.gridId?.toString() === gridIdStr) {
-            gridCoord = grid.gridCoord;
-            gridType = grid.gridType;
-          }
-        }
+  const settlementInfo = {};
+  for (const settlement of settlements) {
+    for (const row of settlement.grids) {
+      for (const grid of row) {
+        settlementInfo[grid.gridId.toString()] = {
+          gridCoord: grid.gridCoord,
+          gridType: grid.gridType,
+        };
       }
     }
+  }
 
-    if (!gridCoord || !gridType) {
-      throw new Error(`❌ Could not determine gridCoord/gridType for player ${player.username}`);
-    }
+  for (const grid of grids) {
+    const gridIdStr = grid._id.toString();
+    const playersInGrid = grid.playersInGrid || new Map();
 
-    // Update player.location
-    player.location = {
-      g: player.gridId,
-      s: player.settlementId,
-      f: player.frontierId,
-      gridCoord,
-      gtype: gridType,
-      x: 1,
-      y: 1
-    };
-    await player.save();
+    for (const [playerId, pcData] of playersInGrid.entries()) {
+      const player = playerMap.get(playerId);
+      if (!player) {
+        console.warn(`⚠️ No player found for ID ${playerId}, skipping...`);
+        continue;
+      }
 
-    // 🧠 Try to recover existing NPCsInGrid.pcs entry
-    let previousPCS = null;
-    const previousGrid = gridMap.get(player.location?.g?.toString());
-    if (
-      previousGrid &&
-      previousGrid.NPCsInGrid?.pcs &&
-      previousGrid.NPCsInGrid.pcs?.[player._id.toString()]
-    ) {
-      previousPCS = previousGrid.NPCsInGrid.pcs[player._id.toString()];
-    }
+      const homeGridIdStr = player.gridId?.toString();
+      const isHome = homeGridIdStr === gridIdStr;
+      if (isHome) continue;
 
-    if (!previousPCS) {
-      console.warn(`⚠️ No existing NPCsInGrid.pcs found for ${player.username}. Using fallback defaults.`);
-      previousPCS = {
-        playerId: player._id.toString(),
-        username: player.username,
-        icon: player.icon || "🙂",
-        type: "pc",
-        position: { x: 2, y: 2 },
-        hp: 25,
-        maxhp: 25,
-        attackbonus: 1,
-        armorclass: 10,
-        damage: 3,
-        attackrange: 1,
-        speed: 3,
-        iscamping: false,
+      const homeGrid = gridMap.get(homeGridIdStr);
+      if (!homeGrid) {
+        console.warn(`❌ No home grid found for player ${player.username}, skipping...`);
+        continue;
+      }
+
+      // Add to home grid's playersInGrid
+      homeGrid.playersInGrid = homeGrid.playersInGrid || new Map();
+      homeGrid.playersInGrid.set(playerId, pcData);
+      homeGrid.playersInGridLastUpdated = new Date();
+      await homeGrid.save();
+
+      // Remove from current grid
+      grid.playersInGrid.delete(playerId);
+      grid.playersInGridLastUpdated = new Date();
+      await grid.save();
+
+      // Update player.location
+      const info = settlementInfo[homeGridIdStr] || {};
+      player.location = {
+        g: player.gridId,
+        s: player.settlementId,
+        f: player.frontierId,
+        gridCoord: info.gridCoord || "0,0,0",
+        gtype: info.gridType || "valley",
+        x: 1,
+        y: 1
       };
+      await player.save();
+
+      console.log(`✅ Moved ${player.username} to home grid ${info.gridCoord || "?"}`);
     }
-
-    homeGrid.NPCsInGrid = homeGrid.NPCsInGrid || {};
-    const homeGridIdStr = homeGrid._id.toString();
-    homeGrid.NPCsInGrid.pcs = homeGrid.NPCsInGrid.pcs || {};
-    homeGrid.NPCsInGrid.pcs[player._id.toString()] = previousPCS;
-    await homeGrid.save();
-
-    // 🧹 Remove this player from all other grids (except home grid)
-    for (const otherGrid of grids) {
-      const otherId = otherGrid._id.toString();
-      if (otherId !== homeGridIdStr && otherGrid.NPCsInGrid?.pcs?.[player._id.toString()]) {
-        delete otherGrid.NPCsInGrid.pcs[player._id.toString()];
-        await otherGrid.save();
-        console.log(`🧹 Removed ${player.username} from grid ${otherId}`);
-      }
-    }
-
-    console.log(`✅ Relocated ${player.username} to home grid ${gridCoord}`);
   }
 
   console.groupEnd();

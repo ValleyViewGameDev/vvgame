@@ -14,9 +14,9 @@ const relocatePlayersHome = require("./relocatePlayersHome");
 const { resetGridDirect } = require('./resetGridLogic');
   
 const STEPS = {
-  wipeHomesteads: true,
-  resetPlayerAssignments: true,
-  reassignPlayers: true,
+  wipeHomesteads: false,
+  resetPlayerAssignments: false,
+  reassignPlayers: false,
   relocatePlayersHome: true,
   resetTownsAndValley: true,
   applyMoneyNerf: true,
