@@ -319,7 +319,7 @@ useEffect(() => {
         <button onClick={() => setShowConfirmation(false)} className="small-button">OK</button>
       </Modal>
     )}
-    <ShowLogs selectedSettlement={selectedSettlement} />
+    <ShowLogs selectedSettlement={selectedSettlement} selectedFrontier={selectedFrontier} />
   </div>);
 };
 

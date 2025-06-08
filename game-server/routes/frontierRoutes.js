@@ -480,4 +480,25 @@ router.post("/levy-tax", async (req, res) => {
   }
 });
 
+
+/////////// LOGS
+
+// ✅ Get season log for a specific frontier
+router.get('/api/frontier/:frontierId/seasonlog', async (req, res) => {
+  try {
+    const { frontierId } = req.params;
+    const frontier = await Frontier.findById(frontierId).lean();
+    if (!frontier) {
+      return res.status(404).json({ error: 'Frontier not found.' });
+    }
+
+    const seasonlog = frontier.seasonlog || [];
+    res.status(200).json({ seasonlog });
+  } catch (error) {
+    console.error("❌ Error fetching season log:", error);
+    res.status(500).json({ error: 'Failed to fetch season log.' });
+  }
+});
+
+
 module.exports = router;

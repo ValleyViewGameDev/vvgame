@@ -62,6 +62,24 @@ const FrontierSchema = new mongoose.Schema({
     endTime: { type: Date, required: true },
   },
 
+  seasonlog: [
+    {
+      date: { type: Date, required: true },
+      seasonnumber: { type: Number, required: true },
+      seasontype: { type: String, required: true }, // e.g., "Spring", "Summer", etc.
+      seasonwinners: [
+        {
+          playerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Player' },
+          username: { type: String, required: true },
+          networth: { type: Number, required: true }
+        }
+      ],
+      winningsettlement: { type: String, required: true },
+      gridsreset: { type: Number, required: true },
+      playersrelocated: { type: Number, required: true },
+    }
+  ],
+    
 });
 
 // Add indexes for timer queries

@@ -3,7 +3,7 @@ import axios from 'axios';
 import API_BASE from '../config';
 import Modal from './Modal';
 
-const ShowLogs = ({ selectedSettlement }) => {
+const ShowLogs = ({ selectedSettlement, selectedFrontier }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taxLogContent, setTaxLogContent] = useState(null);
 
@@ -55,11 +55,64 @@ const ShowLogs = ({ selectedSettlement }) => {
     }
   };
 
-  const handleShowSeasonLog = () => {
-    console.log("📘 Show Season Log clicked — functionality not yet implemented.");
-    alert("Season log view coming soon.");
+  const handleShowSeasonLog = async () => {
+    if (!selectedSettlement) { console.warn("⚠️ No settlement selected."); return; }
+    if (!selectedFrontier) { console.warn("⚠️ No frontier selected."); return; }
+    console.log("📘 Show Season Log clicked");
+
+    try {
+      const frontierId = selectedFrontier;
+      if (!frontierId) {
+        console.warn("❌ No frontierId found on settlement.");
+        return;
+      }
+      console.log("📤 Fetching season log for frontier:", frontierId);
+
+      const response = await axios.get(`${API_BASE}/api/frontier/${frontierId}/seasonlog`);
+      const seasonlog = response.data.seasonlog || [];
+
+      const seasonLogTable = (
+        <table className="season-log-table" style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th style={{ padding: "6px 12px" }}>Date</th>
+              <th style={{ padding: "6px 12px" }}>Season</th>
+              <th style={{ padding: "6px 12px" }}>Winners</th>
+              <th style={{ padding: "6px 12px" }}>Top Settlement</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...seasonlog].reverse().map((entry, i) => (
+              <tr key={i}>
+                <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.seasonnumber} ({entry.seasontype})</td>
+                <td style={{ padding: "6px 12px" }}>
+                  {entry.seasonwinners?.length > 0 ? (
+                    entry.seasonwinners.map((w, j) => (
+                      <div key={j}>{w.username}: {w.networth.toLocaleString()} net worth</div>
+                    ))
+                  ) : (
+                    <em>No winners</em>
+                  )}
+                </td>
+                <td style={{ padding: "6px 12px" }}>{entry.winningsettlement || 'Unknown'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+
+      setTaxLogContent(seasonLogTable);
+      setIsModalOpen(true);
+      console.log("✅ Modal opened with season log content.");
+    } catch (error) {
+      console.error("❌ Failed to fetch season log:", error);
+      setTaxLogContent(<p>Failed to load season log.</p>);
+      setIsModalOpen(true);
+    }
   };
 
+  
   const handleShowBankLog = async () => {
     if (!selectedSettlement) {
       console.warn("⚠️ No settlement selected.");

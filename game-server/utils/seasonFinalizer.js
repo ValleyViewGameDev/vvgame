@@ -4,6 +4,7 @@ const { updateNetWorthForFrontier } = require('./networthCalc'); // ⬅️ Now u
 const Player = require('../models/player');
 const Settlement = require('../models/settlement');
 const sendMailboxMessage = require('../utils/messageUtils');
+const Frontier = require('../models/frontier');
 
 async function seasonFinalizer(frontierId) {
   console.group("🗓️🗓️🗓️🗓️🗓️ Starting SEASON FINALIZER for Frontier", frontierId);
@@ -44,6 +45,33 @@ async function seasonFinalizer(frontierId) {
     }
 
     console.log("✅ Season finalization complete!");
+
+    // Log season entry on the Frontier document
+    const frontierDoc = await Frontier.findById(frontierId);
+    if (frontierDoc && frontierDoc.currentSeasonNumber !== undefined && frontierDoc.currentSeasonType) {
+      const seasonLogEntry = {
+        date: new Date(),
+        seasonnumber: frontierDoc.currentSeasonNumber,
+        seasontype: frontierDoc.currentSeasonType,
+        seasonwinners: topPlayers.map(player => ({
+          playerId: player._id,
+          username: player.username,
+          networth: player.netWorth || 0
+        })),
+        winningsettlement: winningSettlement?.name || 'Unknown',
+        gridsreset: 0, // Will be filled in by seasonReset
+        playersrelocated: 0 // Will be filled in by seasonReset
+      };
+
+      await Frontier.updateOne(
+        { _id: frontierId },
+        { $push: { seasonlog: { $each: [seasonLogEntry], $slice: -10 } } }
+      );
+
+      console.log("📝 Season log entry saved to Frontier document.");
+    } else {
+      console.warn("⚠️ Could not write season log: Missing season metadata on frontier document.");
+    }
   } catch (error) {
     console.error("❌ Error during season finalization:", error);
   }
