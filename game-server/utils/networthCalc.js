@@ -15,7 +15,7 @@ async function updateNetWorthForFrontier(frontierId) {
         // ✅ Iterate over players once and calculate their net worth
         for (const player of players) {
             const netWorth = await calculateNetWorth(player); // ✅ Await the async function
-
+ 
             if (isNaN(netWorth) || netWorth === undefined) {
                 console.warn(`⚠️ Skipping update for ${player.username}: Net worth is invalid.`);
                 continue; // ✅ Skip updating if the net worth calculation fails

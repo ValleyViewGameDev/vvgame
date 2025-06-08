@@ -4,7 +4,7 @@ const { updateNetWorthForFrontier } = require('./networthCalc'); // ⬅️ Now u
 
 async function seasonFinalizer(frontierId) {
   console.group("🗓️🗓️🗓️🗓️🗓️ Starting SEASON FINALIZER for Frontier", frontierId);
-
+ 
   try {
     console.log("📊 Recalculating final net worth...");
     await updateNetWorthForFrontier(frontierId);

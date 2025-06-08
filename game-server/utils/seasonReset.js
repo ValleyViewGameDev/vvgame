@@ -12,7 +12,7 @@ const { truncate } = require("fs/promises");
 const shuffle = (array) => array.sort(() => Math.random() - 0.5);
 const relocatePlayersHome = require("./relocatePlayersHome");
 const { resetGridDirect } = require('./resetGridLogic');
-
+  
 const STEPS = {
   wipeHomesteads: true,
   resetPlayerAssignments: true,

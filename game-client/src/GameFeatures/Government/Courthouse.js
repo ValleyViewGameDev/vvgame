@@ -91,13 +91,15 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
             const mayorRole = settlementData.roles.find(role => role.roleName === 'Mayor');
             setIsMayor(mayorRole && mayorRole.playerId.toString() === currentPlayer._id.toString());
 
-            // Check if player has already voted and update voting status
+            // Always reset hasVoted and votedFor before checking
+            setHasVoted(false);
+            setVotedFor('');
             if (settlementData.votes) {
-                const playerVote = settlementData.votes.find(v => v.voterId === currentPlayer._id);
+                const playerVote = settlementData.votes.find(v => String(v.voterId) === String(currentPlayer._id));
                 if (playerVote) {
                     setHasVoted(true);
                     const votedCandidate = settlementData.campaignPromises?.find(p => 
-                        p.playerId === playerVote.candidateId
+                        String(p.playerId) === String(playerVote.candidateId)
                     );
                     setVotedFor(votedCandidate?.username || 'Unknown');
                 }
