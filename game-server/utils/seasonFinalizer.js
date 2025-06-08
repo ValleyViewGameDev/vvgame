@@ -63,9 +63,9 @@ async function seasonFinalizer(frontierId) {
           username: player.username,
           networth: player.netWorth || 0
         })),
-        winningsettlement: winningSettlement?.displayName || 'Unknown',
-        gridsreset: 0, // Will be filled in by seasonReset
-        playersrelocated: 0 // Will be filled in by seasonReset
+        winningsettlement: winningSettlement?.name || 'Unknown',
+        gridsreset: 0, // filled in by seasonReset
+        playersrelocated: 0 // filled in by seasonReset
       };
       console.log("📝 Saving season log entry:", seasonLogEntry);
       await Frontier.updateOne(
