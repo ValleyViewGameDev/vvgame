@@ -109,6 +109,8 @@ const SettlementSchema = new mongoose.Schema({
     {
       date: { type: Date, required: true },
       season: { type: String, required: true }, // e.g., "Spring", "Summer", etc.
+      gridsreset: { type: Number, required: true },
+      playersrelocated: { type: Number, required: true },
     }
   ],
   electionlog: [
