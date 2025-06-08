@@ -38,6 +38,11 @@ async function relocatePlayersHome(frontierId) {
         continue;
       }
 
+      if (!player.gridId) {
+        console.warn(`⚠️ Player ${player.username || playerId} is missing gridId, skipping...`);
+        continue;
+      }
+
       const homeGridIdStr = player.gridId?.toString();
       const isHome = homeGridIdStr === gridIdStr;
       if (isHome) continue;
