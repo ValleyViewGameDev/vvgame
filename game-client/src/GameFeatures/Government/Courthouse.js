@@ -339,9 +339,8 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
 
 {/* Voting Phase UI */}
 
-<div className="voting-section">
-  <p>🧪 Debug: phase = [{electionPhase}]</p>
-</div>
+                <div className="voting-section">
+                </div>
                     {electionPhase === 'Voting' && (
                         <div className="voting-section">
                             {hasVoted ? (
