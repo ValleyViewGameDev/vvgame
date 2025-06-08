@@ -1,6 +1,7 @@
 import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
+import Modal from '../../UI/Modal';
 import axios from 'axios';
 import { StatusBarContext } from '../../UI/StatusBar';
 import './Courthouse.css';
@@ -25,6 +26,67 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
     const [hoveredCandidate, setHoveredCandidate] = useState(null);
     const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
     const [tempSettlementName, setTempSettlementName] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalContent, setModalContent] = useState(null);
+
+    
+    const handleViewElectionLog = async () => {
+        if (!currentPlayer?.settlementId) {
+          console.warn("⚠️ Cannot show election log: settlementId missing.");
+          return;
+        }
+
+        console.log("📤 Requesting election log for settlement ID:", currentPlayer.settlementId);
+
+        try {
+          const response = await axios.get(`${API_BASE}/api/settlement/${currentPlayer.settlementId}/electionlog`);
+          console.log("📥 Election log API response:", response.data);
+          const electionlog = response.data.electionlog || [];
+
+          const electionLogTable = (
+            <table className="tax-log-table" style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
+              <thead>
+                <tr>
+                  <th style={{ padding: "6px 12px" }}>Date</th>
+                  <th style={{ padding: "6px 12px" }}>Elected Mayor</th>
+                  <th style={{ padding: "6px 12px" }}>Total Promises</th>
+                  <th style={{ padding: "6px 12px" }}>Votes Received</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...electionlog].reverse().map((entry, i) => (
+                  <tr key={i}>
+                    <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
+                    <td style={{ padding: "6px 12px" }}>{entry.electedmayor}</td>
+                    <td style={{ padding: "6px 12px" }}>{entry.candidates?.length || 0}</td>
+                    <td style={{ padding: "6px 12px" }}>
+                      {entry.candidates?.reduce((acc, c) => acc + (c.votes || 0), 0)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          );
+
+          setModalContent({
+            title: "Recent Election Results",
+            size: "large",
+            message: electionlog.length === 0
+              ? "No election results recorded yet."
+              : undefined,
+            custom: electionLogTable,
+          });
+          setIsModalOpen(true);
+        } catch (error) {
+          console.error("❌ Failed to fetch election log:", error);
+          setModalContent({
+            title: "Error",
+            message: "Failed to load election log.",
+            size: "small",
+          });
+          setIsModalOpen(true);
+        }
+    };
 
     // Effect for initial data load only
     useEffect(() => {
@@ -296,6 +358,9 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
 
                     <br></br>
                     <h3>{strings[2045]}</h3>
+                    <button className="btn-success" onClick={handleViewElectionLog}>
+                      View Recent Election Results
+                    </button>
                     <p><strong>
                         {electionPhase === "Counting" && strings["2062"]}
                         {electionPhase === "Voting" && strings["2061"]}
@@ -408,6 +473,16 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
                     )}
                 </div>
             </div>
+            {isModalOpen && (
+                <Modal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    title={modalContent?.title}
+                    size={modalContent?.size}
+                    message={modalContent?.message}
+                    custom={modalContent?.custom}
+                />
+            )}
         </Panel>
     );
 };
