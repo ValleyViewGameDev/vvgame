@@ -60,9 +60,54 @@ const ShowLogs = ({ selectedSettlement }) => {
     alert("Season log view coming soon.");
   };
 
-  const handleShowBankLog = () => {
-    console.log("🏦 Show Bank Log clicked — functionality not yet implemented.");
-    alert("Bank log view coming soon.");
+  const handleShowBankLog = async () => {
+    if (!selectedSettlement) {
+      console.warn("⚠️ No settlement selected.");
+      return;
+    }
+
+    console.log("🏦 Show Bank Log clicked");
+    console.log("📤 Fetching bank log for settlement:", selectedSettlement);
+
+    try {
+      const response = await axios.get(`${API_BASE}/api/settlement/${selectedSettlement}/banklog`);
+      console.log("📥 Bank log API response:", response.data);
+
+      const banklog = response.data.banklog || [];
+
+      const bankLogTable = (
+        <table className="bank-log-table" style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th style={{ padding: "6px 12px" }}>Date</th>
+              <th style={{ padding: "6px 12px" }}>Offers</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...banklog].reverse().map((entry, i) => (
+              <tr key={i}>
+                <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
+                <td style={{ padding: "6px 12px" }}>
+                  {entry.offers.map((offer, j) => (
+                    <div key={j}>
+                      {offer.qty} → {offer.offer}
+                    </div>
+                  ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+
+      setTaxLogContent(bankLogTable);
+      setIsModalOpen(true);
+      console.log("✅ Modal opened with bank log content.");
+    } catch (error) {
+      console.error("❌ Failed to fetch bank log:", error);
+      setTaxLogContent(<p>Failed to load bank log.</p>);
+      setIsModalOpen(true);
+    }
   };
 
   const handleShowElectionLog = () => {
