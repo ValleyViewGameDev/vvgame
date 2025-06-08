@@ -112,9 +112,52 @@ const ShowLogs = ({ selectedSettlement }) => {
     }
   };
 
-  const handleShowElectionLog = () => {
-    console.log("🗳️ Show Election Log clicked — functionality not yet implemented.");
-    alert("Election log view coming soon.");
+  const handleShowElectionLog = async () => {
+    if (!selectedSettlement) {
+      console.warn("⚠️ No settlement selected.");
+      return;
+    }
+
+    console.log("🗳️ Show Election Log clicked");
+    console.log("📤 Fetching election log for settlement:", selectedSettlement);
+
+    try {
+      const response = await axios.get(`${API_BASE}/api/settlement/${selectedSettlement}/electionlog`);
+      console.log("📥 Election log API response:", response.data);
+
+      const electionlog = response.data.electionlog || [];
+
+      const electionLogTable = (
+        <table className="election-log-table" style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th style={{ padding: "6px 12px" }}>Date</th>
+              <th style={{ padding: "6px 12px" }}>Elected Mayor</th>
+              <th style={{ padding: "6px 12px" }}>Campaign Promises</th>
+              <th style={{ padding: "6px 12px" }}>Votes Received</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...electionlog].reverse().map((entry, i) => (
+              <tr key={i}>
+                <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.electedmayor || 'No one'}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.campaignpromises}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.votesreceived}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+
+      setTaxLogContent(electionLogTable);
+      setIsModalOpen(true);
+      console.log("✅ Modal opened with election log content.");
+    } catch (error) {
+      console.error("❌ Failed to fetch election log:", error);
+      setTaxLogContent(<p>Failed to load election log.</p>);
+      setIsModalOpen(true);
+    }
   };
 
   const handleShowTrainLog = async () => {
@@ -183,7 +226,7 @@ const ShowLogs = ({ selectedSettlement }) => {
         <Modal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          title="Tax Log"
+          title="Log Viewer"
         >
           {taxLogContent}
         </Modal>

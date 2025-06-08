@@ -256,7 +256,7 @@ useEffect(() => {
                 ) : key === 'seasons' ? (
                   <>
                     <p>Population: {activeSettlement?.population ?? 'Unknown'}</p>
-                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowSeasonLog()}>Show Log</button>
+                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowSeasonLog()}>View Season Log</button>
                   </>
                 ) : key === 'elections' ? (
                   <>
@@ -267,7 +267,7 @@ useEffect(() => {
                     </p>
                     <p>Votes Cast: {activeSettlement?.votes?.length || 0}</p>
                     <p>Campaign Promises: {activeSettlement?.campaignPromises?.length || 0}</p>
-                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowElectionLog()}>Show Log</button>
+                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowElectionLog()}>View Election Log</button>
                   </>
                 ) : key === 'train' ? (
                   <>
@@ -280,7 +280,7 @@ useEffect(() => {
                     ) : (
                       <p>No train rewards.</p>
                     )}
-                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowTrainLog()}>Show Log</button>
+                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowTrainLog()}>View Train Log</button>
                   </>
                 ) : key === 'bank' ? (
                   <>
@@ -293,12 +293,12 @@ useEffect(() => {
                     ) : (
                       <p>No current bank offers.</p>
                     )}
-                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowBankLog()}>Show Log</button>
+                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowBankLog()}>View Bank Log</button>
                   </>
                 ) : (
                   <>
                     <p>[Coming soon]</p>
-                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowSeasonLog()}>Show Log</button>
+                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowSeasonLog()}>View Log</button>
                   </>
                 )
               ) : (

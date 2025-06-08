@@ -655,6 +655,7 @@ router.get('/settlement/:id/banklog', async (req, res) => {
   }
 });
 
+
 router.get('/settlement/:id/trainlog', async (req, res) => {
   const { id } = req.params;
 
@@ -671,6 +672,26 @@ router.get('/settlement/:id/trainlog', async (req, res) => {
     res.status(200).json({ trainlog: settlement.trainlog || [] });
   } catch (error) {
     console.error('❌ Error fetching train log:', error);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+router.get('/settlement/:id/electionlog', async (req, res) => {
+  const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: 'Invalid settlement ID.' });
+  }
+
+  try {
+    const settlement = await Settlement.findById(id, 'electionlog').lean();
+    if (!settlement) {
+      return res.status(404).json({ error: 'Settlement not found.' });
+    }
+
+    res.status(200).json({ electionlog: settlement.electionlog || [] });
+  } catch (error) {
+    console.error('❌ Error fetching election log:', error);
     res.status(500).json({ error: 'Internal server error.' });
   }
 });
