@@ -32,9 +32,9 @@
   },
   "train": {
     "phases": {
-      "arriving": 5,
-      "loading": 2878,
-      "departing": 1
+      "arriving": 0.6,
+      "loading": 1.5,
+      "departing": 0.6
     },
     "startPhase": "arriving"
   },
