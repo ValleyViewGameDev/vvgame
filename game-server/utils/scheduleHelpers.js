@@ -29,34 +29,9 @@ const resetAllTimers = async () => {
       // ✅ Step 3: Reset each event timer for every frontier
       for (const [event, config] of Object.entries(globalTuning)) {
         if (!config.phases) continue;
-      
         let startPhase = config.startPhase;
         let durationMinutes = config.phases[startPhase] * 60 * 1000;
-      
-        // // Special case override for seasons only
-        // if (event === "seasons") {
-        //   startPhase = "onSeason";
-        //   durationMinutes = config.phases["onSeason"] * 60 * 1000;
-      
-        //   // Optional: reset to Spring for extra safety
-        //   for (const frontier of frontiers) {
-        //     await Frontier.updateOne(
-        //       { _id: frontier._id },
-        //       {
-        //         $set: {
-        //           "seasons.phase": startPhase,
-        //           "seasons.seasonType": "Spring",
-        //           "seasons.endTime": new Date(Date.now() + durationMinutes),
-        //           "seasons.startTime": Date.now(),
-        //           "seasons.seasonNumber": 1,
-        //         },
-        //       }
-        //     );
-        //   }
-        //   console.log(`🌱 Season timer reset to ${startPhase} with duration ${durationMinutes / 60000} min`);
-        //   continue; // Skip general timer scheduler for 'seasons'
-        // }
-      
+
         // General case for other events
         for (const frontier of frontiers) {
           const bufferTime = 2000;
@@ -71,9 +46,7 @@ const resetAllTimers = async () => {
           );
         }
       }
-  
       console.log("\n✅ All timers reset successfully!");
-  
     } catch (error) {
       console.error("❌ Error resetting timers:", error);
     }
@@ -81,12 +54,13 @@ const resetAllTimers = async () => {
 
 
 function clearAllTimers() {
-Object.values(activeTimers).forEach(clearTimeout);
-for (const key in activeTimers) {
-    delete activeTimers[key];
+    Object.values(activeTimers).forEach(clearTimeout);
+    for (const key in activeTimers) {
+        delete activeTimers[key];
+    }
+    console.log("✅ Active timers cleared.");
 }
-console.log("✅ Active timers cleared.");
-}
+
 
 function getSeasonLevel(onSeasonStart, onSeasonEnd, now = new Date()) {
     // If we're in offSeason, return 1

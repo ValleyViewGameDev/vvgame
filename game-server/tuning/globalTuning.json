@@ -41,7 +41,7 @@
   "bank": {
     "phases": {
       "active": 480,
-      "refreshing": 1
+      "refreshing": 0.5
     },
     "startPhase": "active"
   }

@@ -86,7 +86,7 @@ const SettlementSchema = new mongoose.Schema({
       seasonlevel: { type: Number, required: true },
       offers: [
         {
-          offer: { type: Number, required: true },
+          offer: { type: String, required: true },  // ✅ FIXED
           qty: { type: String, required: true },
         }
       ]
