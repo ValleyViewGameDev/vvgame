@@ -86,13 +86,8 @@ function App() {
   useEffect(() => {
     const checkInitialSeasonPhase = async () => {
       console.log("Checking for on or off Season on app start");
-
       const raw = localStorage.getItem("timers");
-      if (!raw) {
-        console.warn("No timers in localStorage yet.");
-        return;
-      }
-
+      if (!raw) { console.warn("No timers in localStorage yet."); return; }
       let storedTimers = null;
       try {
         storedTimers = JSON.parse(raw);
@@ -100,10 +95,8 @@ function App() {
         console.warn("Malformed timers in localStorage:", err);
         return;
       }
-
       if (storedTimers?.seasons?.phase === "offSeason") {
         console.log("🕵️ Initial local phase is offSeason, confirming with server...");
-
         try {
           const res = await axios.get(`${API_BASE}/api/get-global-season-phase`);
           const serverPhase = res.data?.phase;
@@ -123,7 +116,6 @@ function App() {
     return storedTimers?.seasons || { type: "Unknown", phase: "Unknown", endTime: null };
   };
   const seasonData = getSeasonData();
-
   const [currentPlayer, setCurrentPlayer] = useState(null); // Ensure this is defined
 
   // Initialize gridId with localStorage (do not depend on currentPlayer here)
@@ -153,7 +145,6 @@ useEffect(() => {
   }
 }, [resources]);
 
-
 const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
 const TILE_SIZES = { close: 30, far: 16 }; // Rename for clarity
 const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
@@ -177,7 +168,6 @@ useEffect(() => {
 useEffect(() => {
   playersInGridManager.registerTileSize(activeTileSize);
 }, [activeTileSize]);
-
 
 const { updateStatus } = useContext(StatusBarContext); // Access the status bar updater
 const [setStatusMessage] = useState(0); // Initial status message index
@@ -635,15 +625,6 @@ useEffect(() => {
 
   if (timers.seasons.phase === "offSeason") { 
     setIsOffSeason(true);
-    // 🌱 New logic to force-refresh when OffSeason ends
-    if (
-      currentPlayer &&
-      localStorage.getItem('gridId') !== currentPlayer.location?.g
-    ) {
-      console.warn("🌍 Grid mismatch after OffSeason reset. Forcing refresh.");
-      localStorage.setItem('gridId', currentPlayer.location.g);
-      window.location.reload();
-    }
   } else {
     setIsOffSeason(false); 
   }
