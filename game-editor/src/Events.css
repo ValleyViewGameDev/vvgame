@@ -53,6 +53,7 @@
   flex: 1;
   max-height: 100vh;
   overflow-y: auto;
+  width: 460px;
 }
 
 /* Optional: Ensure event boxes look good side by side */
@@ -63,9 +64,16 @@
   margin-bottom: 16px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   border-radius: 4px;
-  width: 260px; /* ⬅️ Increased and fixed width */
   box-sizing: border-box;
   flex-shrink: 0; /* ⬅️ Prevent shrinking in flex rows */
+}
+
+.event-dashboard-frontier {
+  width: 260px;
+}
+
+.event-dashboard-settlement {
+  width: 460px;
 }
 
 .event-dashboard h3 {

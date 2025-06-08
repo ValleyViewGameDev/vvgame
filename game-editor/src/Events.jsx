@@ -224,7 +224,7 @@ useEffect(() => {
         {['seasons', 'taxes', 'elections', 'train', 'bank'].map((key) => (
           <div key={key} className="event-row">
             <div
-              className={`event-dashboard ${selectedDashboard === key ? 'selected' : ''}`}
+              className={`event-dashboard event-dashboard-frontier ${selectedDashboard === key ? 'selected' : ''}`}
               onClick={() => setSelectedDashboard(key)}
               style={{ cursor: 'pointer' }}
             >
@@ -245,7 +245,7 @@ useEffect(() => {
 
 {/* Settlement-specific dashboard (right) */}
 
-            <div className="event-dashboard">
+            <div className="event-dashboard event-dashboard-settlement">
               <h3>{key.charAt(0).toUpperCase() + key.slice(1)} (Settlement)</h3>
               {selectedSettlement ? (
                 key === 'taxes' ? (
@@ -266,16 +266,17 @@ useEffect(() => {
                       }
                     </p>
                     <p>Votes Cast: {activeSettlement?.votes?.length || 0}</p>
+                    <p>Campaign Promises: {activeSettlement?.campaignPromises?.length || 0}</p>
                     <button className="small-button" onClick={() => window.showLogHandlers?.handleShowElectionLog()}>Show Log</button>
                   </>
                 ) : key === 'train' ? (
                   <>
                     {Array.isArray(activeSettlement?.trainrewards) && activeSettlement.trainrewards.length > 0 ? (
-                      <ul>
-                        {activeSettlement.trainrewards.map((reward, idx) => (
-                          <li key={reward._id || idx}>{reward.qty} × {reward.item}</li>
-                        ))}
-                      </ul>
+                      <p>
+                        {activeSettlement.trainrewards.map((reward, idx) =>
+                          `${reward.qty}× ${reward.item}`
+                        ).join(',  ')}
+                      </p>
                     ) : (
                       <p>No train rewards.</p>
                     )}

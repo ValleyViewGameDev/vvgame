@@ -1,4 +1,5 @@
 const Frontier = require("../models/frontier");
+const Settlement = require("../models/settlement");
 const globalTuning = require("../tuning/globalTuning.json");
 const masterResources = require("../tuning/resources.json");
 const { getSeasonLevel } = require("../utils/scheduleHelpers");
@@ -10,7 +11,7 @@ async function bankScheduler(frontierId, phase, frontier = null) {
         if (!phase) { console.warn("⚠️ No phase provided to bankScheduler."); return {}; }
 
         console.group(`\n💰 BANK LOGIC for Frontier ${frontierId} — Phase: ${phase}`);
-
+ 
         switch (phase) {
             case "refreshing":
                 console.log("💤 Refreshing phase — no actions required.");
@@ -20,6 +21,33 @@ async function bankScheduler(frontierId, phase, frontier = null) {
                 // ✅ Generate new offers during "active" phase
                 const newOffers = generateBankOffers(frontier);
                 console.log(`💰✅ ${newOffers.length} new bank offers generated.`);
+
+                // ✅ Log Bank Offers to All Settlements
+                const settlements = await Settlement.find({ frontierId: frontierId });
+
+                for (const settlement of settlements) {
+                  const offerSummaries = newOffers.map(o => ({
+                    offer: o.itemBought,
+                    qty: `${o.qtyBought} for ${o.qtyGiven} ${o.itemGiven}`
+                  }));
+
+                  const logEntry = {
+                    date: new Date(),
+                    offers: offerSummaries
+                  };
+
+                  await Settlement.updateOne(
+                    { _id: settlement._id },
+                    {
+                      $push: {
+                        banklog: {
+                          $each: [logEntry],
+                          $slice: -6 // Keep only the last 6 entries
+                        }
+                      }
+                    }
+                  );
+                }
 
                 return {
                     "bank.offers": newOffers

@@ -81,6 +81,42 @@ const SettlementSchema = new mongoose.Schema({
       mayortake: { type: Number, required: true },
     }
   ],
+  banklog: [
+    {
+      date: { type: Date, required: true },
+      offers: [
+        {
+          offer: { type: Number, required: true },
+          qty: { type: String, required: true },
+        }
+      ]
+    }
+  ],
+  trainlog: [
+    {
+      date: { type: Date, required: true },
+      winners: { type: Number, required: true },
+      rewards: [
+        {
+          item: { type: String, required: true },
+          qty: { type: Number, required: true },
+        }
+      ]
+    }
+  ],
+  seasonlog: [
+    {
+      date: { type: Date, required: true },
+      season: { type: String, required: true }, // e.g., "Spring", "Summer", etc.
+    }
+  ],
+  electionlog: [
+    {
+      date: { type: Date, required: true },
+      electedMayor: { type: mongoose.Schema.Types.ObjectId, ref: 'Player', required: true },
+      votesReceived: { type: Number, required: true },
+    }
+  ],
   population: { type: Number, default: 0 }, // ✅ Track settlement population
   creationDate: { type: Date, default: Date.now },
 });
