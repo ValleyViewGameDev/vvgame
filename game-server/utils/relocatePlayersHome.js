@@ -6,6 +6,7 @@ const ObjectId = require("mongoose").Types.ObjectId;
 
 async function relocatePlayersHome(frontierId) {
   console.group("🏠 Relocating players to home grids (modernized schema)...");
+  let relocatedCount = 0;
 
   const players = await Player.find({ frontierId });
   const settlements = await Settlement.find({ frontierId });
@@ -70,12 +71,13 @@ async function relocatePlayersHome(frontierId) {
         y: 1
       };
       await player.save();
-
+      relocatedCount++;
       console.log(`✅ Moved ${player.username} to home grid ${info.gridCoord || "?"}`);
     }
   }
-
+  console.log(`🔢 Total players relocated: ${relocatedCount}`);
   console.groupEnd();
+  return relocatedCount;
 }
 
 module.exports = relocatePlayersHome;

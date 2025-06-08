@@ -158,8 +158,24 @@ async function seasonReset(frontierId) {
       // ✅ STEP 4: Relocate players back home
       if (STEPS.relocatePlayersHome) {
         const stepStart = Date.now();
-        await relocatePlayersHome(frontierId);
+        const relocatedCount = await relocatePlayersHome(frontierId);
         console.log(`⏱️ Step 4 took ${Date.now() - stepStart}ms`);
+
+        // 🔁 Update the seasonlog for this season
+        const currentSeasonNumber = frontier.seasons?.seasonNumber;
+        if (currentSeasonNumber !== undefined) {
+          const updateResult = await Frontier.updateOne(
+            { _id: frontierId, "seasonlog.seasonnumber": currentSeasonNumber },
+            { $set: { "seasonlog.$.playersrelocated": relocatedCount } }
+          );
+          if (updateResult.modifiedCount > 0) {
+            console.log(`📝 Updated playersrelocated (${relocatedCount}) in seasonlog.`);
+          } else {
+            console.warn("⚠️ Could not update playersrelocated in seasonlog — matching seasonnumber not found.");
+          }
+        } else {
+          console.warn("⚠️ Current season number missing; cannot update playersrelocated in log.");
+        }
       } else {
         console.log("⏭️ STEP 4: Skipped relocating players.");
       }
