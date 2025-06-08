@@ -119,6 +119,7 @@ const SettlementSchema = new mongoose.Schema({
       date: { type: Date, required: true },
       candidates: [
         {
+          playerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Player' },
           username: { type: String, required: true },
           votes: { type: Number, required: true }
         }

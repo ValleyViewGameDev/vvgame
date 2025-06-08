@@ -54,7 +54,7 @@ async function electionScheduler(frontierId, phase, frontier = null) {
             // Prepare candidates array for election log
             const candidates = [];
             for (const candidatePromise of campaignPromises) {
-                const candidateIdStr = candidatePromise.candidateId ? candidatePromise.candidateId.toString() : null;
+                const candidateIdStr = candidatePromise.playerId ? candidatePromise.playerId.toString() : null;
                 const votesForCandidate = candidateIdStr && voteCounts[candidateIdStr] ? voteCounts[candidateIdStr] : 0;
                 let username = "Unknown";
                 try {
@@ -68,6 +68,7 @@ async function electionScheduler(frontierId, phase, frontier = null) {
                     console.warn(`⚠️ Could not resolve username for candidate ${candidateIdStr}:`, error);
                 }
                 candidates.push({
+                    playerId: candidateIdStr,
                     username,
                     votes: votesForCandidate
                 });

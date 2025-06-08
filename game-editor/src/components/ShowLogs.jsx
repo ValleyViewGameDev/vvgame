@@ -132,18 +132,24 @@ const ShowLogs = ({ selectedSettlement }) => {
           <thead>
             <tr>
               <th style={{ padding: "6px 12px" }}>Date</th>
+              <th style={{ padding: "6px 12px" }}>Candidates</th>
               <th style={{ padding: "6px 12px" }}>Elected Mayor</th>
-              <th style={{ padding: "6px 12px" }}>Campaign Promises</th>
-              <th style={{ padding: "6px 12px" }}>Votes Received</th>
             </tr>
           </thead>
           <tbody>
             {[...electionlog].reverse().map((entry, i) => (
               <tr key={i}>
                 <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
-                <td style={{ padding: "6px 12px" }}>{entry.electedmayor || 'No one'}</td>
-                <td style={{ padding: "6px 12px" }}>{entry.campaignpromises}</td>
-                <td style={{ padding: "6px 12px" }}>{entry.votesreceived}</td>
+                <td style={{ padding: "6px 12px" }}>
+                  {entry.candidates?.length > 0 ? (
+                    entry.candidates.map((c, j) => (
+                      <div key={j}>{c.username}: {c.votes} votes</div>
+                    ))
+                  ) : (
+                    <em>No candidates</em>
+                  )}
+                </td>
+                <td style={{ padding: "6px 12px" }}>{entry.electedmayor || 'None'}</td>
               </tr>
             ))}
           </tbody>
