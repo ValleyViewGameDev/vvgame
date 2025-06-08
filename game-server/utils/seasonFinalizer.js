@@ -56,14 +56,14 @@ async function seasonFinalizer(frontierId) {
       console.log("📝 Writing season log entry to Frontier document...");
       const seasonLogEntry = {
         date: new Date(),
-        seasonnumber: frontierDoc.currentSeasonNumber,
-        seasontype: frontierDoc.currentSeasonType,
+        seasonnumber: frontierDoc.seasons.seasonNumber,
+        seasontype: frontierDoc.seasons.seasonType,
         seasonwinners: topPlayers.map(player => ({
           playerId: player._id,
           username: player.username,
           networth: player.netWorth || 0
         })),
-        winningsettlement: winningSettlement?.name || 'Unknown',
+        winningsettlement: winningSettlement?.displayName || 'Unknown',
         gridsreset: 0, // Will be filled in by seasonReset
         playersrelocated: 0 // Will be filled in by seasonReset
       };
