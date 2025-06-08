@@ -27,23 +27,19 @@ if (!resourcesData) {
 // Helper function to create a distribution array
 function createDistributionArray(tileDistribution) {
   const distributionArray = [];
-
   Object.entries(tileDistribution).forEach(([tileType, percentage]) => {
     const count = Math.round(percentage * 100); // ✅ Ensure proportional weight
     for (let i = 0; i < count; i++) {
       distributionArray.push(tileType);
     }
   });
-
   if (distributionArray.length === 0) {
     console.warn("⚠️ Tile distribution array is empty! Defaulting to grass.");
     return ["g"]; // Default fallback to grass if distribution is missing
   }
-
-  console.log("📊 Generated Tile Distribution Array:", distributionArray.slice(0, 20)); // Debugging
+  //console.log("📊 Generated Tile Distribution Array:", distributionArray.slice(0, 20)); // Debugging
   return distributionArray;
 }
-
 
 
 function generateGrid(layout) {

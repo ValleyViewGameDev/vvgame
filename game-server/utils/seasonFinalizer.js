@@ -41,7 +41,7 @@ async function seasonFinalizer(frontierId) {
         } catch (error) {
           console.error(`❌ Failed to send top settlement reward to ${player.username}`, error);
         }
-      }
+      } 
     }
 
     console.log("✅ Season finalization complete!");
@@ -49,6 +49,7 @@ async function seasonFinalizer(frontierId) {
     // Log season entry on the Frontier document
     const frontierDoc = await Frontier.findById(frontierId);
     if (frontierDoc && frontierDoc.currentSeasonNumber !== undefined && frontierDoc.currentSeasonType) {
+      console.log("📝 Writing season log entry to Frontier document...");
       const seasonLogEntry = {
         date: new Date(),
         seasonnumber: frontierDoc.currentSeasonNumber,
@@ -62,7 +63,7 @@ async function seasonFinalizer(frontierId) {
         gridsreset: 0, // Will be filled in by seasonReset
         playersrelocated: 0 // Will be filled in by seasonReset
       };
-
+      console.log("📝 Saving season log entry:", seasonLogEntry);
       await Frontier.updateOne(
         { _id: frontierId },
         { $push: { seasonlog: { $each: [seasonLogEntry], $slice: -10 } } }
