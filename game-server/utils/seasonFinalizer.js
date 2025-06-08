@@ -6,7 +6,7 @@ const Settlement = require('../models/settlement');
 const sendMailboxMessage = require('../utils/messageUtils');
 const Frontier = require('../models/frontier');
 
-async function seasonFinalizer(frontierId) {
+async function seasonFinalizer(frontierId, seasonType, seasonNumber) {
   console.group("🗓️🗓️🗓️🗓️🗓️ Starting SEASON FINALIZER for Frontier", frontierId);
  
   try {
@@ -52,12 +52,12 @@ async function seasonFinalizer(frontierId) {
     const frontierDoc = await Frontier.findById(frontierId);
     console.log("📝 Checking Frontier document for season metadata: ",frontierDoc.seasons);
 
-    if (frontierDoc?.seasons?.seasonNumber !== undefined && frontierDoc.seasons.seasonType) {
+    if (seasonNumber !== undefined && seasonType) {
       console.log("📝 Writing season log entry to Frontier document...");
       const seasonLogEntry = {
         date: new Date(),
-        seasonnumber: frontierDoc.seasons.seasonNumber,
-        seasontype: frontierDoc.seasons.seasonType,
+        seasonnumber: seasonNumber,
+        seasontype: seasonType,
         seasonwinners: topPlayers.map(player => ({
           playerId: player._id,
           username: player.username,
