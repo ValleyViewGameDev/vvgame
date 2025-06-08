@@ -36,32 +36,38 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
           return;
         }
 
-        console.log("📤 Requesting election log for settlement ID:", currentPlayer.settlementId);
+        console.log("🗳️ Show Election Log clicked");
+        console.log("📤 Fetching election log for settlement:", currentPlayer.settlementId);
 
         try {
           const response = await axios.get(`${API_BASE}/api/settlement/${currentPlayer.settlementId}/electionlog`);
           console.log("📥 Election log API response:", response.data);
+
           const electionlog = response.data.electionlog || [];
 
           const electionLogTable = (
-            <table className="tax-log-table" style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
+            <table className="election-log-table" style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
                   <th style={{ padding: "6px 12px" }}>Date</th>
+                  <th style={{ padding: "6px 12px" }}>Candidates</th>
                   <th style={{ padding: "6px 12px" }}>Elected Mayor</th>
-                  <th style={{ padding: "6px 12px" }}>Total Promises</th>
-                  <th style={{ padding: "6px 12px" }}>Votes Received</th>
                 </tr>
               </thead>
               <tbody>
                 {[...electionlog].reverse().map((entry, i) => (
                   <tr key={i}>
                     <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
-                    <td style={{ padding: "6px 12px" }}>{entry.electedmayor}</td>
-                    <td style={{ padding: "6px 12px" }}>{entry.candidates?.length || 0}</td>
                     <td style={{ padding: "6px 12px" }}>
-                      {entry.candidates?.reduce((acc, c) => acc + (c.votes || 0), 0)}
+                      {entry.candidates?.length > 0 ? (
+                        entry.candidates.map((c, j) => (
+                          <div key={j}>{c.username}: {c.votes} votes</div>
+                        ))
+                      ) : (
+                        <em>No candidates</em>
+                      )}
                     </td>
+                    <td style={{ padding: "6px 12px" }}>{entry.electedmayor || 'None'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -358,9 +364,7 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
 
                     <br></br>
                     <h3>{strings[2045]}</h3>
-                    <button className="btn-success" onClick={handleViewElectionLog}>
-                      View Recent Election Results
-                    </button>
+                    <button className="btn-success" onClick={handleViewElectionLog}>Recent Election Results</button>
                     <p><strong>
                         {electionPhase === "Counting" && strings["2062"]}
                         {electionPhase === "Voting" && strings["2061"]}
