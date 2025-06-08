@@ -49,6 +49,8 @@ async function trainScheduler(frontierId, phase, frontier = null) {
               console.error(`❌ Error sending rewards to player ${playerId}:`, error);
             }
           }
+          await generateTrainLog(settlement, fulfilledPlayerIds);
+          console.log(`📝 Train log entry saved for ${settlement.name}`);
         }
       }
       
@@ -225,6 +227,27 @@ function generateTrainRewards(settlement, seasonConfig) {
   }
 
   return rewards;
+}
+
+async function generateTrainLog(settlement, fulfilledPlayerIds) {
+  const logEntry = {
+    date: new Date(),
+    alloffersfilled: (settlement.currentoffers || []).every(o => o.filled),
+    totalwinners: fulfilledPlayerIds.length,
+    rewards: settlement.trainrewards || []
+  };
+
+  await Settlement.updateOne(
+    { _id: settlement._id },
+    {
+      $push: {
+        trainlog: {
+          $each: [logEntry],
+          $slice: -10
+        }
+      }
+    }
+  );
 }
 
 module.exports = trainScheduler;

@@ -117,9 +117,56 @@ const ShowLogs = ({ selectedSettlement }) => {
     alert("Election log view coming soon.");
   };
 
-  const handleShowTrainLog = () => {
-    console.log("🚂 Show Train Log clicked — functionality not yet implemented.");
-    alert("Train log view coming soon.");
+  const handleShowTrainLog = async () => {
+    if (!selectedSettlement) {
+      console.warn("⚠️ No settlement selected.");
+      return;
+    }
+
+    console.log("🚂 Show Train Log clicked");
+    console.log("📤 Fetching train log for settlement:", selectedSettlement);
+
+    try {
+      const response = await axios.get(`${API_BASE}/api/settlement/${selectedSettlement}/trainlog`);
+      console.log("📥 Train log API response:", response.data);
+
+      const trainlog = response.data.trainlog || [];
+
+      const trainLogTable = (
+        <table className="train-log-table" style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th style={{ padding: "6px 12px" }}>Date</th>
+              <th style={{ padding: "6px 12px" }}>All Offers Filled</th>
+              <th style={{ padding: "6px 12px" }}>Total Winners</th>
+              <th style={{ padding: "6px 12px" }}>Rewards</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...trainlog].reverse().map((entry, i) => (
+              <tr key={i}>
+                <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.alloffersfilled ? 'Yes' : 'No'}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.totalwinners}</td>
+                <td style={{ padding: "6px 12px" }}>
+                  {entry.rewards.map((reward, j) => (
+                    <div key={j}>{reward.qty} × {reward.item}</div>
+                  ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+
+      setTaxLogContent(trainLogTable);
+      setIsModalOpen(true);
+      console.log("✅ Modal opened with train log content.");
+    } catch (error) {
+      console.error("❌ Failed to fetch train log:", error);
+      setTaxLogContent(<p>Failed to load train log.</p>);
+      setIsModalOpen(true);
+    }
   };
 
   window.showLogHandlers = {
