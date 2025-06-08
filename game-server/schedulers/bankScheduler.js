@@ -18,10 +18,13 @@ async function bankScheduler(frontierId, phase, frontier = null) {
                 break;
 
             case "active":
+                const seasonLevel = getSeasonLevel(frontier?.seasons?.onSeasonStart, frontier?.seasons?.onSeasonEnd);
+
                 // ✅ Generate new offers during "active" phase
                 const newOffers = generateBankOffers(frontier);
                 console.log(`💰✅ ${newOffers.length} new bank offers generated.`);
 
+                
                 // ✅ Log Bank Offers to All Settlements
                 const settlements = await Settlement.find({ frontierId: frontierId });
 
@@ -33,6 +36,7 @@ async function bankScheduler(frontierId, phase, frontier = null) {
 
                   const logEntry = {
                     date: new Date(),
+                    seasonlevel: seasonLevel,
                     offers: offerSummaries
                   };
 

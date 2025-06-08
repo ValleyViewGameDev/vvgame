@@ -46,7 +46,6 @@ const SettlementSchema = new mongoose.Schema({
       candidateId: { type: mongoose.Schema.Types.ObjectId, ref: 'Player', required: false }
     }
   ],
-
   currentoffers: [
     {
       itemBought: { type: String, required: true },
@@ -84,6 +83,7 @@ const SettlementSchema = new mongoose.Schema({
   banklog: [
     {
       date: { type: Date, required: true },
+      seasonlevel: { type: Number, required: true },
       offers: [
         {
           offer: { type: Number, required: true },
@@ -95,6 +95,7 @@ const SettlementSchema = new mongoose.Schema({
   trainlog: [
     {
       date: { type: Date, required: true },
+      seasonlevel: { type: Number, required: true },
       winners: { type: Number, required: true },
       rewards: [
         {
