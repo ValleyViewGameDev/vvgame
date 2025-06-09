@@ -27,20 +27,16 @@ async function seasonReset(frontierId) {
     try {
       const startTime = Date.now();
       console.group("↩️↩️↩️↩️↩️ STARTING seasonReset for frontier: ",frontierId);
-  
       const frontier = await Frontier.findById(frontierId);
       if (!frontier) return console.error("❌ Frontier not found");
-  
       const settlements = await Settlement.find({ frontierId });
-
       // ✅ Calculate population from settlements
       const totalPop = settlements.reduce((sum, s) => sum + (s.population || 0), 0);
       console.log(`📊 Total Population across all settlements: ${totalPop}`);
-      
       if (totalPop < POP_THRESHOLD) {
-        console.log("📦 Population under threshold — skipping reassignment.");
-        console.groupEnd();
-        return;
+        console.log("📦 Population under threshold — skipping reassignment of players to homesteads.");
+        STEPS.reassignPlayers = false;
+        STEPS.resetPlayerAssignments = false;
       }
 
       console.log("fetching players and grids...");
@@ -51,47 +47,46 @@ async function seasonReset(frontierId) {
 //////////////////////////////////////////////////////
 //////////////////////////////////////////////////////
 
-
-      // ✅ STEP 1: Wipe homestead ownership + availability
-      if (STEPS.wipeHomesteads) {
-        const stepStart = Date.now();
-        console.log("🔁 STEP 1: Wiping homestead ownership...");
-        for (const settlement of settlements) {
-          for (const row of settlement.grids) {
-            for (const grid of row) {
-              if (grid.gridType === "homestead") {
-                grid.available = true;
-                grid.gridId = null;
-              }
-            }
-          }
-          settlement.population = 0;
-          settlement.roles = {};
-          settlement.votes = [];
-          settlement.campaignPromises = [];
-          settlement.currentoffers = [];
-          settlement.nextoffers = [];
-          settlement.trainrewards = [];
+      // // ✅ STEP 1: Wipe homestead ownership + availability
+      // if (STEPS.wipeHomesteads) {
+      //   const stepStart = Date.now();
+      //   console.log("🔁 STEP 1: Wiping homestead ownership...");
+      //   for (const settlement of settlements) {
+      //     for (const row of settlement.grids) {
+      //       for (const grid of row) {
+      //         if (grid.gridType === "homestead") {
+      //           grid.available = true;
+      //           grid.gridId = null;
+      //         }
+      //       }
+      //     }
+      //     settlement.population = 0;
+      //     settlement.roles = {};
+      //     settlement.votes = [];
+      //     settlement.campaignPromises = [];
+      //     settlement.currentoffers = [];
+      //     settlement.nextoffers = [];
+      //     settlement.trainrewards = [];
   
-          if (SAVE_FLAG) {
-            await settlement.save();
-          } else {
-            console.log("🚩 SAVE_FLAG off; Skipped saving settlement");
-          }
-        }
+      //     if (SAVE_FLAG) {
+      //       await settlement.save();
+      //     } else {
+      //       console.log("🚩 SAVE_FLAG off; Skipped saving settlement");
+      //     }
+      //   }
   
-        for (const grid of grids) {
-          grid.ownerId = null;
-          if (SAVE_FLAG) {
-            await grid.save();
-          } else {
-            console.log("🚩 SAVE_FLAG off; Skipped saving grid");
-          }
-        }
-        console.log(`⏱️ Step 1 took ${Date.now() - stepStart}ms`);
-      } else {
-        console.log("⏭️ STEP 1: Skipped wiping homesteads.");
-      }
+      //   for (const grid of grids) {
+      //     grid.ownerId = null;
+      //     if (SAVE_FLAG) {
+      //       await grid.save();
+      //     } else {
+      //       console.log("🚩 SAVE_FLAG off; Skipped saving grid");
+      //     }
+      //   }
+      //   console.log(`⏱️ Step 1 took ${Date.now() - stepStart}ms`);
+      // } else {
+      //   console.log("⏭️ STEP 1: Skipped wiping homesteads.");
+      // }
   
       // ✅ STEP 2: Reset player grid assignments
       if (STEPS.resetPlayerAssignments) {
@@ -116,34 +111,27 @@ async function seasonReset(frontierId) {
         console.log("🔁 STEP 3: Reassigning players to homesteads...");
         const unassignedPlayers = shuffle([...allPlayers]);
         const homesteadGrids = grids.filter((g) => g.gridType === "homestead");
-  
         let currentSettlementIndex = 0;
         let currentGroup = [];
-  
         for (const player of unassignedPlayers) {
           if (currentGroup.length >= 30 || currentGroup.length === 0) {
             currentGroup = [];
             currentSettlementIndex++;
-          }
-  
+          }  
           const settlement = settlements[currentSettlementIndex % settlements.length];
           const settlementGrids = settlement.grids.flat().filter(g => g.gridType === "homestead" && g.available);
           const grid = shuffle(settlementGrids).find(g => g.available);
           if (!grid) {
             console.warn(`⚠️ No available homesteads for player ${player.username}`);
             continue;
-          }
-  
+          } 
           grid.available = false;
 //        grid.gridId = await createAndLinkGrid(player, settlement._id, frontierId, grid.gridCoord);
-  
           player.settlementId = settlement._id;
           player.gridId = grid.gridId;
-          player.frontierId = frontierId;
-  
+          player.frontierId = frontierId; 
           currentGroup.push(player);
         }
-  
         if (SAVE_FLAG) {
           await Promise.all(settlements.map((s) => s.save()));
         } else {
@@ -163,6 +151,7 @@ async function seasonReset(frontierId) {
         console.timeEnd("⏱ relocatePlayersHome");
         console.log("✅ relocatePlayersHome completed. Players relocated:", relocatedCount);
         console.log(`⏱️ Step 4 took ${Date.now() - stepStart}ms`);
+
 
         // 🔁 Update the seasonlog for this season
         const currentSeasonNumber = frontier.seasons?.seasonNumber;
@@ -187,9 +176,7 @@ async function seasonReset(frontierId) {
      if (STEPS.resetTownsAndValley) {
         const stepStart = Date.now();
         const publicGrids = await Grid.find({ frontierId }); // ✅ Check ALL grids
-
         console.log(`🔁 Found ${publicGrids.length} public grids to reset...`);
-
         for (const grid of publicGrids) {
           if (!grid.playersInGrid) { continue; }
           try {
@@ -205,6 +192,23 @@ async function seasonReset(frontierId) {
             console.error(`❌ Error resetting grid ${grid._id}:`, err.response?.data || err.message);
           }
         }
+        // 🔁 Update the seasonlog for this season
+        // Log the number of grids reset
+        const currentSeasonNumber = frontier.seasons?.seasonNumber;
+        if (currentSeasonNumber !== undefined) {
+          const logIndex = frontier.seasonlog?.findIndex(log => log.seasonnumber === currentSeasonNumber);
+          if (logIndex !== -1) {
+            frontier.seasonlog[logIndex].gridsreset = publicGrids.length;
+            frontier.markModified(`seasonlog.${logIndex}.gridsreset`);
+            await frontier.save();
+            console.log(`📝 Updated gridsreset (${publicGrids.length}) in seasonlog.`);
+          } else {
+            console.warn("⚠️ Could not update gridsreset — season entry not found.");
+          }
+        } else {
+          console.warn("⚠️ Current season number missing; cannot update gridsreset in log.");
+        }
+
      } else {
        console.log("⏭️ STEP 5: Skipped resetting towns and valley.");
      }
