@@ -34,6 +34,10 @@ async function relocatePlayersHome(frontierId) {
   console.log(`📦 Built settlementInfo map with ${Object.keys(settlementInfo).length} entries`);
 
   for (const grid of grids) {
+    if (!grid.playersInGrid || typeof grid.playersInGrid.entries !== 'function') {
+      console.warn(`⚠️ Grid ${grid._id} has invalid or missing playersInGrid map. Skipping.`);
+      continue;
+    }
     const gridIdStr = grid._id.toString();
     const playersInGrid = grid.playersInGrid instanceof Map
       ? grid.playersInGrid
@@ -45,14 +49,18 @@ async function relocatePlayersHome(frontierId) {
       console.log(`👤 Evaluating player ${playerId}`);
       const player = playerMap.get(playerId);
       if (!player) {
-        console.warn(`⚠️ No Player found in DB for ID ${playerIdStr}. Skipping.`);
+        console.warn(`⚠️ No Player found in DB for ID ${playerId}. Skipping.`);
         continue;
       }
       if (!player.gridId) {
         console.warn(`⚠️ Player ${player.username} has no gridId. Skipping.`);
         continue;
       }
-      const homeGridIdStr = player.gridId.toString();
+      const homeGridIdStr = player.gridId?.toString();
+      if (!homeGridIdStr) {
+        console.warn(`⚠️ Player ${player.username} has invalid or missing gridId. Skipping.`);
+        continue;
+      }
       const isHome = homeGridIdStr === gridIdStr;
       if (isHome) {
         console.log(`✅ Player ${player.username} already at home grid, skipping.`);
@@ -70,11 +78,13 @@ async function relocatePlayersHome(frontierId) {
       homeGrid.playersInGrid.set(playerId, pcData);
       homeGrid.playersInGridLastUpdated = new Date();
       await homeGrid.save();
+      console.log(`💾 Saved updated home grid ${homeGridIdStr} with player ${player.username}`);
 
       // Remove from current grid
       grid.playersInGrid.delete(playerId);
       grid.playersInGridLastUpdated = new Date();
       await grid.save();
+      console.log(`🧹 Removed ${player.username} from grid ${gridIdStr}`);
 
       // Update player.location
       const info = settlementInfo[homeGridIdStr] || {};
