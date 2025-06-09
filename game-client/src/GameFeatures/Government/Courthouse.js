@@ -7,6 +7,7 @@ import { StatusBarContext } from '../../UI/StatusBar';
 import './Courthouse.css';
 import '../../UI/Panel.css';
 import strings from '../../UI/strings.json';
+import '../../UI/Modal.css';
 
 const CourthousePanel = ({ onClose, currentPlayer }) => {
 
@@ -362,7 +363,7 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
 
 {/* ELECTIONS section */} 
 
-                    <br></br>
+                    <br></br> 
                     <h3>{strings[2045]}</h3>
                     <button className="btn-success" onClick={handleViewElectionLog}>Recent Election Results</button>
                     <p><strong>

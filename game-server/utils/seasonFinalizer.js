@@ -68,12 +68,17 @@ async function seasonFinalizer(frontierId, seasonType, seasonNumber) {
         playersrelocated: 0 // filled in by seasonReset
       };
       console.log("📝 Saving season log entry:", seasonLogEntry);
-      await Frontier.updateOne(
-        { _id: frontierId },
-        { $push: { seasonlog: { $each: [seasonLogEntry], $slice: -10 } } }
-      );
+      const existingLog = frontierDoc.seasonlog?.find(log => log.seasonnumber === seasonNumber);
 
-      console.log("📝 Season log entry saved to Frontier document.");
+      if (!existingLog) {
+        await Frontier.updateOne(
+          { _id: frontierId },
+          { $push: { seasonlog: { $each: [seasonLogEntry], $slice: -10 } } }
+        );
+        console.log("📝 Season log entry saved to Frontier document.");
+      } else {
+        console.warn(`⚠️ Season log for seasonNumber ${seasonNumber} already exists. Skipping duplicate entry.`);
+      }
     } else {
       console.warn("⚠️ Could not write season log: Missing season metadata on frontier document.");
     }

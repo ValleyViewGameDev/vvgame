@@ -1616,6 +1616,8 @@ const handleLoginSuccess = async (player) => {
           onClose={closePanel}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
+          setModalContent={setModalContent}
+          setIsModalOpen={setIsModalOpen}
         />
       )}
  

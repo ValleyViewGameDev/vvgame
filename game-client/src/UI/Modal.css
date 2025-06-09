@@ -74,3 +74,31 @@
     transform: scale(1.05);
     color: #f44336;
   }
+
+
+/* Shared styling for log tables */
+.tax-log-table,
+.season-log-table,
+.election-log-table {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.tax-log-table th,
+.season-log-table th,
+.election-log-table th,
+.tax-log-table td,
+.season-log-table td,
+.election-log-table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.tax-log-table tbody tr:nth-child(even),
+.season-log-table tbody tr:nth-child(even),
+.election-log-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}

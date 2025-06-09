@@ -3,8 +3,9 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
 import { formatCountdown } from '../../UI/Timers';
+import '../../UI/Modal.css';
 
-function SeasonPanel({ onClose, currentPlayer }) {
+function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
   const [countdown, setCountdown] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
   const [topCitizens, setTopCitizens] = useState([]);
@@ -139,18 +140,64 @@ function SeasonPanel({ onClose, currentPlayer }) {
 
   // New: Function to fetch and open season log
   const handleShowSeasonLog = async () => {
+    if (!currentPlayer?.frontierId) { 
+      console.warn("⚠️ Cannot show season log: frontierId missing.");
+      return;
+    }
+
+    console.log("📜 Fetching season log for frontier:", currentPlayer.frontierId);
+
     try {
       const response = await axios.get(`${API_BASE}/api/frontier/${currentPlayer.frontierId}/seasonlog`);
-      const seasonlog = response.data || [];
+      const seasonlog = response.data.seasonlog || [];
 
-      const event = new CustomEvent("openSeasonLogPanel", {
-        detail: { seasonlog }
+      const seasonLogTable = (
+        <table className="season-log-table" style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th style={{ padding: "6px 12px" }}>Season</th>
+              <th style={{ padding: "6px 12px" }}>Date</th>
+              <th style={{ padding: "6px 12px" }}>Top Settlement</th>
+              <th style={{ padding: "6px 12px" }}>Top Players</th>
+              <th style={{ padding: "6px 12px" }}>Grids Reset</th>
+              <th style={{ padding: "6px 12px" }}>Players Relocated</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...seasonlog].reverse().map((entry, i) => (
+              <tr key={i}>
+                <td style={{ padding: "6px 12px" }}>{entry.seasontype} #{entry.seasonnumber}</td>
+                <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.winningsettlement}</td>
+                <td style={{ padding: "6px 12px", whiteSpace: "pre-line" }}>
+                  {entry.seasonwinners.map(w => `${w.username}\n${w.networth.toLocaleString()}`).join('\n')}
+                </td>
+                <td style={{ padding: "6px 12px" }}>{entry.gridsreset}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.playersrelocated}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+
+      setModalContent({
+        title: "Season Log",
+        size: "large",
+        message: seasonlog.length === 0 ? "No season history found." : undefined,
+        custom: seasonLogTable,
       });
-      window.dispatchEvent(event);
+      setIsModalOpen(true);
     } catch (error) {
       console.error("❌ Failed to fetch season log:", error);
+      setModalContent({
+        title: "Error",
+        message: "Failed to load season log.",
+        size: "small",
+      });
+      setIsModalOpen(true);
     }
   };
+
 
   return (
     <Panel onClose={onClose} descriptionKey="1015" titleKey="1115" panelName="SeasonPanel">
@@ -192,12 +239,14 @@ function SeasonPanel({ onClose, currentPlayer }) {
         <p>No data available</p>
       )}
 
-      <button 
-        onClick={handleShowSeasonLog} 
-        style={{ marginTop: "20px", padding: "10px", fontWeight: "bold" }}
-      >
-        📜 View Season Log
-      </button>
+      <div className="panel-buttons">
+        <button className="btn-success"
+          onClick={handleShowSeasonLog} 
+          style={{ marginTop: "20px", padding: "10px", fontWeight: "bold" }}
+        >
+          View Season Log
+        </button>
+      </div>
     </Panel>
   );
 }

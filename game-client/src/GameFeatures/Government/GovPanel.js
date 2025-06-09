@@ -5,6 +5,7 @@ import Panel from '../../UI/Panel';
 import strings from '../../UI/strings.json';
 import { getMayorUsername } from './GovUtils';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
+import '../../UI/Modal.css';
 
 function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
   const [settlementData, setSettlementData] = useState(null);
@@ -68,7 +69,7 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
     }
 
     console.log("📤 Requesting tax log for settlement ID:", currentPlayer.settlementId);
-
+ 
     try {
       const response = await axios.get(`${API_BASE}/api/settlement/${currentPlayer.settlementId}/taxlog`);
       console.log("📥 Tax log response:", response.data);
