@@ -16,6 +16,7 @@ const dotenv = require('dotenv');
 const http = require('http');
 const { Server } = require('socket.io');
 const Player = require('./models/player');  // Ensure this is correct
+const Grid = require('./models/grid');
 
 const worldRoutes = require('./routes/worldRoutes');
 const gridRoutes = require('./routes/gridRoutes'); // Import NPCsInGrid routes
@@ -384,6 +385,8 @@ app._router.stack.forEach(function(r) {
     console.log(`Registered route: ${r.route.path}`);
   }
 });
+
+
 
 //
 // EDITOR ROUTES 
