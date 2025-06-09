@@ -43,13 +43,15 @@ async function relocatePlayersHome(frontierId) {
 
     for (const [playerId, pcData] of playersInGrid.entries()) {
       console.log(`👤 Evaluating player ${playerId}`);
-      const player = playerMap.get(playerId);
-      if (!player || !player.gridId) {
-        console.warn(`⚠️ Player ${playerId} has null player object or missing gridId`);
+      const player = playerMap.get(playerIdStr);
+      if (!player) {
+        console.warn(`⚠️ No Player found in DB for ID ${playerIdStr}. Skipping.`);
         continue;
       }
-      console.log(`🏠 Player's home gridId: ${player.gridId}, current grid: ${gridIdStr}`);
-
+      if (!player.gridId) {
+        console.warn(`⚠️ Player ${player.username} has no gridId. Skipping.`);
+        continue;
+      }
       const homeGridIdStr = player.gridId.toString();
       const isHome = homeGridIdStr === gridIdStr;
       if (isHome) {
