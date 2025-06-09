@@ -43,7 +43,7 @@ async function relocatePlayersHome(frontierId) {
 
     for (const [playerId, pcData] of playersInGrid.entries()) {
       console.log(`👤 Evaluating player ${playerId}`);
-      const player = playerMap.get(playerIdStr);
+      const player = playerMap.get(playerId);
       if (!player) {
         console.warn(`⚠️ No Player found in DB for ID ${playerIdStr}. Skipping.`);
         continue;
