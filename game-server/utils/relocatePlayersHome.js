@@ -12,8 +12,13 @@ async function relocatePlayersHome(frontierId) {
   const settlements = await Settlement.find({ frontierId });
   const grids = await Grid.find({ frontierId });
 
+  console.log(`📥 Loaded ${players.length} players, ${settlements.length} settlements, ${grids.length} grids`);
+
   const gridMap = new Map(grids.map(g => [g._id.toString(), g]));
+  console.log(`📦 Constructed gridMap with ${gridMap.size} entries`);
+
   const playerMap = new Map(players.map(p => [p._id.toString(), p]));
+  console.log(`📦 Constructed playerMap with ${playerMap.size} entries`);
 
   const settlementInfo = {};
   for (const settlement of settlements) {
@@ -26,6 +31,7 @@ async function relocatePlayersHome(frontierId) {
       }
     }
   }
+  console.log(`📦 Built settlementInfo map with ${Object.keys(settlementInfo).length} entries`);
 
   for (const grid of grids) {
     const gridIdStr = grid._id.toString();
@@ -33,19 +39,27 @@ async function relocatePlayersHome(frontierId) {
       ? grid.playersInGrid
       : new Map(Object.entries(grid.playersInGrid || {}));
 
+    console.log(`🔍 Checking grid ${gridIdStr} with ${playersInGrid.size} players`);
+
     for (const [playerId, pcData] of playersInGrid.entries()) {
+      console.log(`👤 Evaluating player ${playerId}`);
       const player = playerMap.get(playerId);
       if (!player || !player.gridId) {
         console.warn(`⚠️ Player ${playerId} has null player object or missing gridId`);
         continue;
       }
+      console.log(`🏠 Player's home gridId: ${player.gridId}, current grid: ${gridIdStr}`);
+
       const homeGridIdStr = player.gridId.toString();
       const isHome = homeGridIdStr === gridIdStr;
-      if (isHome) continue;
+      if (isHome) {
+        console.log(`✅ Player ${player.username} already at home grid, skipping.`);
+        continue;
+      }
 
       const homeGrid = gridMap.get(homeGridIdStr);
       if (!homeGrid) {
-        console.warn(`❌ No home grid found for player ${player.username}, skipping...`);
+        console.warn(`❌ No home grid found for player ${player.username} (homeGridId: ${homeGridIdStr}), skipping...`);
         continue;
       }
 
@@ -74,6 +88,7 @@ async function relocatePlayersHome(frontierId) {
       await player.save();
       relocatedCount++;
       console.log(`✅ Moved ${player.username} to home grid ${info.gridCoord || "?"}`);
+      console.log(`🚚 Moved player ${player.username} from ${gridIdStr} to ${homeGridIdStr}`);
     }
   }
   console.log(`🔢 Total players relocated: ${relocatedCount}`);
