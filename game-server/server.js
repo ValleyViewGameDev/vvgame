@@ -71,7 +71,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 
     // Set up socket events
     io.on('connection', (socket) => {
-      console.log(`🟢 New client connected: ${socket.id}`);
+      //console.log(`🟢 New client connected: ${socket.id}`);
 
       // Track controller assignments (move this OUTSIDE the connection handler)
       const gridControllers = io.gridControllers = io.gridControllers || new Map();
@@ -87,7 +87,7 @@ mongoose.connect(process.env.MONGODB_URI, {
       });
 
       socket.on('disconnect', () => {
-        console.log(`🔴 Client disconnected: ${socket.id}`);
+        //console.log(`🔴 Client disconnected: ${socket.id}`);
         // Check all grids this socket was controlling
         gridControllers.forEach((controller, gridId) => {
           if (controller.socketId === socket.id) {
@@ -123,7 +123,7 @@ mongoose.connect(process.env.MONGODB_URI, {
             });
           }
           // Emit player-disconnected for legacy logic
-          console.log(`❌ Emitting player-disconnected for ${socket.playerId}`);
+          //console.log(`❌ Emitting player-disconnected for ${socket.playerId}`);
           socket.to(socket.gridId).emit('player-disconnected', {
             playerId: socket.playerId
           });
@@ -131,7 +131,7 @@ mongoose.connect(process.env.MONGODB_URI, {
       });
       
       socket.on('join-grid', async ({ gridId, playerId }) => {
-        console.log(`📡 Socket ${socket.id} joined grid room: ${gridId}`);
+        //console.log(`📡 Socket ${socket.id} joined grid room: ${gridId}`);
         socket.join(gridId);      
         socket.gridId = gridId;
         socket.playerId = playerId; // Store playerId on the socket
@@ -144,13 +144,13 @@ mongoose.connect(process.env.MONGODB_URI, {
           gridId,
           connectedPlayerIds: Array.from(connectedPlayersByGrid.get(gridId)),
         });
-        console.log(`📡 Player ${playerId} joined grid ${gridId}`);
+        //console.log(`📡 Player ${playerId} joined grid ${gridId}`);
         io.to(gridId).emit('player-connected', { playerId });
         try {
           const gridDoc = await Grid.findById(gridId);
           const pcs = gridDoc?.playersInGrid || {};
           socket.emit('current-grid-players', { gridId, pcs });
-          console.log(`📦 Sent current PCs in grid ${gridId} to ${socket.id}`);
+          //console.log(`📦 Sent current PCs in grid ${gridId} to ${socket.id}`);
         } catch (error) {
           console.error(`❌ Failed to fetch grid PCs for grid ${gridId}:`, error);
         }
@@ -162,7 +162,7 @@ mongoose.connect(process.env.MONGODB_URI, {
             gridId,
             controllerUsername: socket.username 
           });
-          console.log(`🎮 Socket ${socket.id} (${socket.username}) assigned as controller for grid ${gridId}`);
+          //console.log(`🎮 Socket ${socket.id} (${socket.username}) assigned as controller for grid ${gridId}`);
         } else {
           // Inform the new joiner who the current controller is
           socket.emit('npc-controller-update', {
@@ -208,14 +208,14 @@ mongoose.connect(process.env.MONGODB_URI, {
         }
       });
       socket.on('player-joined-grid', ({ gridId, playerId, username, playerData }) => {
-        console.log(`👋 Player ${username} joined grid ${gridId}`);
-        console.log('playerId = ', playerId, "; username = ", username, "; playerData = ", playerData);
+        //console.log(`👋 Player ${username} joined grid ${gridId}`);
+        //console.log('playerId = ', playerId, "; username = ", username, "; playerData = ", playerData);
         // Emit a distinct event name to avoid confusion and include the emitter's socket ID
         socket.to(gridId).emit('player-joined-sync', { playerId, username, playerData, emitterId: socket.id });
       });
 
       socket.on('player-left-grid', ({ gridId, playerId, username }) => {
-        console.log(`👋 Player ${username} left grid ${gridId}`);
+        //console.log(`👋 Player ${username} left grid ${gridId}`);
         // Include the emitter's socket ID in the payload
         socket.to(gridId).emit('player-left-sync', { playerId, username, emitterId: socket.id });
       });
@@ -241,7 +241,7 @@ mongoose.connect(process.env.MONGODB_URI, {
   
     // 📡 Broadcast updated PCs to others in the same grid
     socket.on('update-NPCsInGrid-PCs', (payload) => {
-      console.log('📩 Received update-NPCsInGrid-PCs with payload:\n', JSON.stringify(payload, null, 2));
+      //console.log('📩 Received update-NPCsInGrid-PCs with payload:\n', JSON.stringify(payload, null, 2));
       const gridEntries = Object.entries(payload).filter(([key]) => key !== 'emitterId');
       const emitterId = payload.emitterId || socket.id;
       if (gridEntries.length === 0) {
@@ -267,14 +267,14 @@ mongoose.connect(process.env.MONGODB_URI, {
         },
         emitterId
       };
-      console.log(`📤 Broadcasting sync-PCs for grid ${gridId}`);
-      console.log('📤 Outbound sync-PCs payload:\n', JSON.stringify(outboundPayload, null, 2));
+      //console.log(`📤 Broadcasting sync-PCs for grid ${gridId}`);
+      //console.log('📤 Outbound sync-PCs payload:\n', JSON.stringify(outboundPayload, null, 2));
       socket.to(gridId).emit('sync-PCs', outboundPayload);
     });
 
       // Broadcast updated NPCs to others in the same grid
       socket.on('update-NPCsInGrid-NPCs', (payload) => {
-        console.log('📩 Received update-NPCsInGrid-NPCs with payload:\n', JSON.stringify(payload, null, 2));
+        //console.log('📩 Received update-NPCsInGrid-NPCs with payload:\n', JSON.stringify(payload, null, 2));
       
         const gridEntries = Object.entries(payload).filter(([key]) => key !== 'emitterId');
         const emitterId = payload.emitterId || socket.id;
@@ -292,8 +292,8 @@ mongoose.connect(process.env.MONGODB_URI, {
           [gridId]: { npcs, NPCsInGridLastUpdated },
           emitterId,
         };
-        console.log(`📤 Broadcasting sync-NPCs for grid ${gridId}`);
-        console.log('📤 Outbound sync-NPCs payload:\n', JSON.stringify(outboundPayload, null, 2));  
+        //console.log(`📤 Broadcasting sync-NPCs for grid ${gridId}`);
+        //console.log('📤 Outbound sync-NPCs payload:\n', JSON.stringify(outboundPayload, null, 2));  
         socket.to(gridId).emit('sync-NPCs', outboundPayload);
       });
       
@@ -303,7 +303,7 @@ mongoose.connect(process.env.MONGODB_URI, {
           return;
         }
         socket.to(gridId).emit('npc-moved-sync', { npcId, newPosition, emitterId: socket.id });
-        console.log(`📡 server: npc-moved; NPC ${npcId} moved to ${JSON.stringify(newPosition)} in grid ${gridId}`);
+        //console.log(`📡 server: npc-moved; NPC ${npcId} moved to ${JSON.stringify(newPosition)} in grid ${gridId}`);
       });
 
       // Handle NPC removal
@@ -312,7 +312,7 @@ mongoose.connect(process.env.MONGODB_URI, {
           console.error('Invalid remove-NPC payload:', { gridId, npcId });
           return;
         }
-        console.log(`📡 server: remove-NPC; NPC ${npcId} removed from grid ${gridId}`);
+        //console.log(`📡 server: remove-NPC; NPC ${npcId} removed from grid ${gridId}`);
         socket.to(gridId).emit('remove-NPC', { gridId, npcId, emitterId: socket.id });
       });
       
