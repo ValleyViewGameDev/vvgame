@@ -1,4 +1,3 @@
-// game-server/utils/seasonReset.js
 const axios = require('axios');
 const Frontier = require("../models/frontier");
 const Settlement = require("../models/settlement");
@@ -191,6 +190,7 @@ async function seasonReset(frontierId) {
         console.log(`🔁 Found ${publicGrids.length} public grids to reset...`);
 
         for (const grid of publicGrids) {
+          if (!grid.playersInGrid) { continue; }
           try {
             const payload = {
               gridId: grid._id,
