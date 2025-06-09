@@ -79,6 +79,8 @@ const ShowLogs = ({ selectedSettlement, selectedFrontier }) => {
               <th style={{ padding: "6px 12px" }}>Season</th>
               <th style={{ padding: "6px 12px" }}>Winners</th>
               <th style={{ padding: "6px 12px" }}>Top Settlement</th>
+              <th style={{ padding: "6px 12px" }}>Players Relocated</th>
+              <th style={{ padding: "6px 12px" }}>Grids Reset</th>
             </tr>
           </thead>
           <tbody>
@@ -89,13 +91,18 @@ const ShowLogs = ({ selectedSettlement, selectedFrontier }) => {
                 <td style={{ padding: "6px 12px" }}>
                   {entry.seasonwinners?.length > 0 ? (
                     entry.seasonwinners.map((w, j) => (
-                      <div key={j}>{w.username}: {w.networth.toLocaleString()} net worth</div>
+                      <div key={j}>
+                        {w.username}<br />
+                        {w.networth.toLocaleString()}
+                      </div>
                     ))
                   ) : (
                     <em>No winners</em>
                   )}
                 </td>
                 <td style={{ padding: "6px 12px" }}>{entry.winningsettlement || 'Unknown'}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.playersrelocated ?? '—'}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.gridsreset ?? '—'}</td>
               </tr>
             ))}
           </tbody>

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
 import { formatCountdown } from '../../UI/Timers';
+
 function SeasonPanel({ onClose, currentPlayer }) {
   const [countdown, setCountdown] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
@@ -136,6 +137,21 @@ function SeasonPanel({ onClose, currentPlayer }) {
   const nextSeasonType = getNextSeason(seasonData?.type);
 
 
+  // New: Function to fetch and open season log
+  const handleShowSeasonLog = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/api/frontier/${currentPlayer.frontierId}/seasonlog`);
+      const seasonlog = response.data || [];
+
+      const event = new CustomEvent("openSeasonLogPanel", {
+        detail: { seasonlog }
+      });
+      window.dispatchEvent(event);
+    } catch (error) {
+      console.error("❌ Failed to fetch season log:", error);
+    }
+  };
+
   return (
     <Panel onClose={onClose} descriptionKey="1015" titleKey="1115" panelName="SeasonPanel">
       {seasonData?.phase === "onSeason" ? (
@@ -176,6 +192,12 @@ function SeasonPanel({ onClose, currentPlayer }) {
         <p>No data available</p>
       )}
 
+      <button 
+        onClick={handleShowSeasonLog} 
+        style={{ marginTop: "20px", padding: "10px", fontWeight: "bold" }}
+      >
+        📜 View Season Log
+      </button>
     </Panel>
   );
 }
