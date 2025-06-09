@@ -165,11 +165,10 @@ async function seasonReset(frontierId) {
         // 🔁 Update the seasonlog for this season
         const currentSeasonNumber = frontier.seasons?.seasonNumber;
         if (currentSeasonNumber !== undefined) {
-          const updateResult = await Frontier.updateOne(
-            { _id: frontierId, "seasonlog.seasonnumber": currentSeasonNumber },
-            { $set: { "seasonlog.$.playersrelocated": relocatedCount } }
-          );
-          if (updateResult.modifiedCount > 0) {
+          const seasonEntry = frontier.seasonlog?.find(log => log.seasonnumber === currentSeasonNumber);
+          if (seasonEntry) {
+            seasonEntry.playersrelocated = relocatedCount;
+            await frontier.save();
             console.log(`📝 Updated playersrelocated (${relocatedCount}) in seasonlog.`);
           } else {
             console.warn("⚠️ Could not update playersrelocated in seasonlog — matching seasonnumber not found.");
