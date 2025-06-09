@@ -158,8 +158,11 @@ async function seasonReset(frontierId) {
       if (STEPS.relocatePlayersHome) {
         const stepStart = Date.now();
         console.log("🏠 Invoking relocatePlayersHome with frontierId:", frontierId);
+        console.time("⏱ relocatePlayersHome");
         const relocatedCount = await relocatePlayersHome(frontierId);
+        console.timeEnd("⏱ relocatePlayersHome");
         console.log("✅ relocatePlayersHome completed. Players relocated:", relocatedCount);
+        console.log(`⏱️ Step 4 took ${Date.now() - stepStart}ms`);
 
         // 🔁 Update the seasonlog for this season
         const currentSeasonNumber = frontier.seasons?.seasonNumber;
