@@ -40,8 +40,9 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
     // Refresh frontier document to get latest state
         // Already passed in; no need to re-fetch yet
     frontier = await Frontier.findById(frontier._id);
-    if (!frontier) {
-      console.error(`❌ Frontier ${frontier._id} not found. Stopping scheduler for ${featureKey}`);
+    
+    if (!frontier || !frontier._id) {
+      console.error(`❌ scheduleTimedFeature: Invalid frontier passed in for ${featureKey}:`, frontier);
       return;
     }
 
