@@ -179,13 +179,10 @@ async function seasonReset(frontierId) {
         console.log("⏭️ STEP 4: Skipped relocating players.");
       }
 
-     // ✅ STEP 5: Reset Towns AND VALLEY
+     // ✅ STEP 5: Reset All Grids (including towns, valley, and homesteads)
      if (STEPS.resetTownsAndValley) {
         const stepStart = Date.now();
-        const publicGrids = await Grid.find({
-          frontierId,
-          gridType: { $ne: 'homestead' }  // ✅ Match anything that's NOT a homestead
-        });
+        const publicGrids = await Grid.find({ frontierId }); // ✅ Check ALL grids
 
         console.log(`🔁 Found ${publicGrids.length} public grids to reset...`);
 
