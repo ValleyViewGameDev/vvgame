@@ -594,8 +594,8 @@ router.get('/get-resource/:gridId/:col/:row', async (req, res) => {
   try {
     console.log(`Fetching resource at (${col}, ${row}) in grid ${gridId}`);
 
-    // Fetch the grid by its MongoDB _id
-    const grid = await Grid.findOne({ _id: gridId });
+    // Fetch only the 'resources' field from the grid by its MongoDB _id
+    const grid = await Grid.findOne({ _id: gridId }).select('resources');
 
     if (!grid) {
       console.error(`Grid not found for ID: ${gridId}`);

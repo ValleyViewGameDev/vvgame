@@ -126,17 +126,17 @@ export function getCurrentTileCoordinates(gridId, currentPlayer) {
   return { tileX, tileY };
 }
 
-export async function getTileResource(gridId, x, y) {
-  try {
-    console.log(`Fetching resource at (${x}, ${y}) in grid ${gridId}`);
-    const response = await axios.get(`${API_BASE}/api/get-resource/${gridId}/${x}/${y}`);
-    console.log(`Resource at (${x}, ${y}):`, response.data);
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching resource at (${x}, ${y}) in grid ${gridId}:`, error);
-    throw error;
-  }
-}
+// export async function getTileResource(gridId, x, y) {
+//   try {
+//     console.log(`Fetching resource at (${x}, ${y}) in grid ${gridId}`);
+//     const response = await axios.get(`${API_BASE}/api/get-resource/${gridId}/${x}/${y}`);
+//     console.log(`Resource at (${x}, ${y}):`, response.data);
+//     return response.data;
+//   } catch (error) {
+//     console.error(`Error fetching resource at (${x}, ${y}) in grid ${gridId}:`, error);
+//     throw error;
+//   }
+// }
 
 export async function validateTileType(gridId, x, y) {
   try {

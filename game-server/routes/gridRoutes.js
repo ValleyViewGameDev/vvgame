@@ -169,8 +169,11 @@ router.post('/get-multiple-grid-states', async (req, res) => {
   }
 
   try {
-    // Find all grids in one query
-    const grids = await Grid.find({ _id: { $in: gridIds } });
+    // Find all grids in one query, selecting only relevant fields
+    const grids = await Grid.find(
+      { _id: { $in: gridIds } },
+      'playersInGrid playersInGridLastUpdated NPCsInGrid NPCsInGridLastUpdated'
+    );
     
     // Create a map of gridId to NPCsInGrid
     const NPCsInGrids = grids.reduce((acc, grid) => {
