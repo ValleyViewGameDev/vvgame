@@ -157,7 +157,9 @@ async function seasonReset(frontierId) {
       // ✅ STEP 4: Relocate players back home
       if (STEPS.relocatePlayersHome) {
         const stepStart = Date.now();
+        console.log("🏠 Invoking relocatePlayersHome with frontierId:", frontierId);
         const relocatedCount = await relocatePlayersHome(frontierId);
+        console.log("✅ relocatePlayersHome completed. Players relocated:", relocatedCount);
         console.log(`⏱️ Step 4 took ${Date.now() - stepStart}ms`);
 
         // 🔁 Update the seasonlog for this season
@@ -239,7 +241,8 @@ async function seasonReset(frontierId) {
       console.groupEnd();
 
     } catch (error) {
-      console.error("❌ Error in seasonReset.js:", error);
+      console.error("❌ Error in seasonReset.js:", error.message);
+      console.error(error.stack);
     }
   }
   
