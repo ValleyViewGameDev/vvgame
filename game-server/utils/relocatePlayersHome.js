@@ -10,7 +10,10 @@ async function relocatePlayersHome(frontierId) {
 
   const players = await Player.find({ frontierId });
   const settlements = await Settlement.find({ frontierId });
-  const grids = await Grid.find({ frontierId });
+  const grids = await Grid.find(
+    { frontierId },
+    { _id: 1, playersInGrid: 1, playersInGridLastUpdated: 1 }
+  );
 
   console.log(`📥 Loaded ${players.length} players, ${settlements.length} settlements, ${grids.length} grids`);
 
@@ -69,7 +72,11 @@ async function relocatePlayersHome(frontierId) {
         continue;
       }
 
-      const homeGrid = gridMap.get(homeGridIdStr);
+      let homeGrid = gridMap.get(homeGridIdStr);
+      if (!homeGrid) {
+        homeGrid = await Grid.findById(homeGridIdStr, { playersInGrid: 1, playersInGridLastUpdated: 1 });
+        if (homeGrid) gridMap.set(homeGridIdStr, homeGrid);
+      }
       if (!homeGrid) {
         console.warn(`❌ No home grid found for player ${player.username} (homeGridId: ${homeGridIdStr}), skipping...`);
         continue;
