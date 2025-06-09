@@ -24,10 +24,14 @@ async function relocatePlayersHome(frontierId) {
   for (const settlement of settlements) {
     for (const row of settlement.grids) {
       for (const grid of row) {
-        settlementInfo[grid.gridId.toString()] = {
-          gridCoord: grid.gridCoord,
-          gridType: grid.gridType,
-        };
+        if (grid.gridId) {
+          settlementInfo[grid.gridId.toString()] = {
+            gridCoord: grid.gridCoord,
+            gridType: grid.gridType,
+          };
+        } else {
+          console.warn(`⚠️ Found a grid with missing gridId in settlement ${settlement._id}`);
+        }
       }
     }
   }
