@@ -29,21 +29,17 @@ async function relocatePlayersHome(frontierId) {
 
   for (const grid of grids) {
     const gridIdStr = grid._id.toString();
-    const playersInGrid = grid.playersInGrid || new Map();
+    const playersInGrid = grid.playersInGrid instanceof Map
+      ? grid.playersInGrid
+      : new Map(Object.entries(grid.playersInGrid || {}));
 
     for (const [playerId, pcData] of playersInGrid.entries()) {
       const player = playerMap.get(playerId);
-      if (!player) {
-        console.warn(`⚠️ No player found for ID ${playerId}, skipping...`);
+      if (!player || !player.gridId) {
+        console.warn(`⚠️ Player ${playerId} has null player object or missing gridId`);
         continue;
       }
-
-      if (!player.gridId) {
-        console.warn(`⚠️ Player ${player.username || playerId} is missing gridId, skipping...`);
-        continue;
-      }
-
-      const homeGridIdStr = player.gridId?.toString();
+      const homeGridIdStr = player.gridId.toString();
       const isHome = homeGridIdStr === gridIdStr;
       if (isHome) continue;
 
