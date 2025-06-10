@@ -352,8 +352,8 @@ router.post('/update-inventory', (req, res) => {
   console.log("👀 Incoming inventory:", inventory);
   console.log("👀 Incoming backpack:", backpack);
 
-  // Enqueue the inventory update task
-  queue.enqueue(async () => {
+  // Enqueue the inventory update task using player-based key
+  queue.enqueueByKey(playerId, async () => {
     try {
       const player = await Player.findById(playerId);
       if (!player) {
@@ -381,7 +381,7 @@ router.post('/update-inventory', (req, res) => {
 });
 
 // ✅ Delta-based inventory update (safer for concurrent actions)
-router.post('/update-inventory-delta', async (req, res) => {
+router.post('/update-inventory-delta', (req, res) => {
   const { playerId, delta } = req.body;
   console.log(`POST /api/update-inventory-delta - Applying delta to playerId: ${playerId}`);
   console.log('Delta Payload:', delta);
@@ -389,35 +389,37 @@ router.post('/update-inventory-delta', async (req, res) => {
     return res.status(400).json({ error: 'playerId and delta are required.' });
   }
 
-  try {
-    const player = await Player.findById(playerId);
-    if (!player) {
-      return res.status(404).json({ error: 'Player not found.' });
-    }
-
-    const updates = Array.isArray(delta) ? delta : [delta];
-    player.inventory = player.inventory || [];
-
-    for (const change of updates) {
-      const { type, quantity } = change;
-      if (!type || typeof quantity !== 'number') continue;
-      const existing = player.inventory.find(item => item.type === type);
-      if (existing) {
-        existing.quantity += quantity;
-        if (existing.quantity <= 0) {
-          player.inventory = player.inventory.filter(i => i.type !== type);
-        }
-      } else if (quantity > 0) {
-        player.inventory.push({ type, quantity });
+  queue.enqueueByKey(playerId, async () => {
+    try {
+      const player = await Player.findById(playerId);
+      if (!player) {
+        return res.status(404).json({ error: 'Player not found.' });
       }
-    }
 
-    await player.save();
-    res.json({ success: true, player });
-  } catch (error) {
-    console.error('❌ Error in update-inventory-delta:', error);
-    res.status(500).json({ error: 'Failed to apply inventory delta.' });
-  }
+      const updates = Array.isArray(delta) ? delta : [delta];
+      player.inventory = player.inventory || [];
+
+      for (const change of updates) {
+        const { type, quantity } = change;
+        if (!type || typeof quantity !== 'number') continue;
+        const existing = player.inventory.find(item => item.type === type);
+        if (existing) {
+          existing.quantity += quantity;
+          if (existing.quantity <= 0) {
+            player.inventory = player.inventory.filter(i => i.type !== type);
+          }
+        } else if (quantity > 0) {
+          player.inventory.push({ type, quantity });
+        }
+      }
+
+      await player.save();
+      res.json({ success: true, player });
+    } catch (error) {
+      console.error('❌ Error in update-inventory-delta:', error);
+      res.status(500).json({ error: 'Failed to apply inventory delta.' });
+    }
+  });
 });
 
 

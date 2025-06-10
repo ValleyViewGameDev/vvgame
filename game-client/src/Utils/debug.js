@@ -173,28 +173,20 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
   const handleAddMoney = async () => {
     try {
       const playerId = currentPlayer?.playerId;
-      if (!playerId) {
-        console.error('No user logged in. Cannot add money.');
-        return;
-      }
-
-      // Fetch the latest inventory
-      const currentInventory = await fetchInventory(playerId);
-
-      // Add 1000 Money to the inventory
-      await debugUpdateInventory(currentPlayer, 'Money', 10000, setCurrentPlayer);
-
-      // Update the state
-      const updatedInventory = currentInventory.map((item) =>
-        item.type === 'Money'
-          ? { ...item, quantity: item.quantity + 10000 }
-          : item
-      );
+      if (!playerId) { console.error('No user logged in. Cannot add money.'); return; }
+      // Call delta-based inventory update
+      await axios.post(`${API_BASE}/api/update-inventory-delta`, {
+        playerId,
+        delta: { type: 'Money', quantity: 10000 },
+      });
+      // Refresh player data
+      await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
+      // Update local inventory state
+      const updatedInventory = await fetchInventory(playerId);
       setInventory(updatedInventory);
-
-      console.log('Added 1000 Money successfully.');
+      console.log('✅ Added 10,000 Money successfully using delta update.');
     } catch (error) {
-      console.error('Error adding money:', error);
+      console.error('❌ Error adding money:', error);
     }
   };
 

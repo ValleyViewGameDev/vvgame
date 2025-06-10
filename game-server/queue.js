@@ -1,21 +1,21 @@
-const gridQueues = new Map();
+const queuesByKey = new Map();
 
-function enqueueGridUpdate(gridId, task) {
-  if (!gridQueues.has(gridId)) {
-    gridQueues.set(gridId, {
+function enqueueByKey(key, task) {
+  if (!queuesByKey.has(key)) {
+    queuesByKey.set(key, {
       queue: [],
       processing: false,
     });
   }
 
-  const queueObj = gridQueues.get(gridId);
+  const queueObj = queuesByKey.get(key);
   queueObj.queue.push(task);
 
-  processNext(gridId);
+  processNext(key);
 }
 
-async function processNext(gridId) {
-  const queueObj = gridQueues.get(gridId);
+async function processNext(key) {
+  const queueObj = queuesByKey.get(key);
   if (!queueObj || queueObj.processing || queueObj.queue.length === 0) {
     return;
   }
@@ -26,13 +26,13 @@ async function processNext(gridId) {
   try {
     await task();
   } catch (error) {
-    console.error(`Error processing task for grid ${gridId}:`, error);
+    console.error(`Error processing task for key ${key}:`, error);
   } finally {
     queueObj.processing = false;
-    processNext(gridId);
+    processNext(key);
   }
 }
 
 module.exports = {
-  enqueueGridUpdate,
+  enqueueByKey,
 };
