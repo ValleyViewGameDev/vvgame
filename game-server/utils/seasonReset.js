@@ -10,7 +10,7 @@ const fs = require("fs");
 const { truncate } = require("fs/promises");
 const shuffle = (array) => array.sort(() => Math.random() - 0.5);
 const relocatePlayersHome = require("./relocatePlayersHome");
-const { resetGridDirect } = require('./resetGridLogic');
+const { performGridReset } = require('./resetGridLogic');
   
 const STEPS = {
   wipeHomesteads: false,
@@ -172,36 +172,35 @@ async function seasonReset(frontierId) {
         console.log("⏭️ STEP 4: Skipped relocating players.");
       }
 
+      
      // ✅ STEP 5: Reset All Grids (including towns, valley, and homesteads)
      if (STEPS.resetTownsAndValley) {
         const stepStart = Date.now();
         const publicGrids = await Grid.find({ frontierId }); // ✅ Check ALL grids
         console.log(`🔁 Found ${publicGrids.length} public grids to reset...`);
         for (const grid of publicGrids) {
-          if (!grid.playersInGrid) { continue; }
+          const isPublic = grid.gridType === "town" || grid.gridType.startsWith("valley");
+          if (!isPublic) continue;
+
           try {
-            const payload = {
-              gridId: grid._id,
-              gridType: grid.gridType,
-              gridCoord: grid.gridCoord,
-            };
             console.log(`🔁 Resetting ${grid.gridType} grid (${grid._id})`);
-            await resetGridDirect(payload);
+            await performGridReset(grid._id);
             console.log(`✅ Grid ${grid._id} reset successfully (${grid.gridType})`);
           } catch (err) {
-            console.error(`❌ Error resetting grid ${grid._id}:`, err.response?.data || err.message);
+            console.error(`❌ Error resetting grid ${grid._id}:`, err.message);
           }
         }
         // 🔁 Update the seasonlog for this season
         // Log the number of grids reset
         const currentSeasonNumber = frontier.seasons?.seasonNumber;
+        const gridsResetCount = publicGrids.filter(g => g.gridType === "town" || g.gridType.startsWith("valley")).length;
         if (currentSeasonNumber !== undefined) {
           const logIndex = frontier.seasonlog?.findIndex(log => log.seasonnumber === currentSeasonNumber);
           if (logIndex !== -1) {
-            frontier.seasonlog[logIndex].gridsreset = publicGrids.length;
+            frontier.seasonlog[logIndex].gridsreset = gridsResetCount;
             frontier.markModified(`seasonlog.${logIndex}.gridsreset`);
             await frontier.save();
-            console.log(`📝 Updated gridsreset (${publicGrids.length}) in seasonlog.`);
+            console.log(`📝 Updated gridsreset (${gridsResetCount}) in seasonlog.`);
           } else {
             console.warn("⚠️ Could not update gridsreset — season entry not found.");
           }

@@ -1,29 +1,16 @@
 const { readJSON } = require('./fileUtils');
 const config = require('../config');
 const path = require('path');
-const { getTemplate } = require('../utils/templateUtils');
 const masterResources = require('../tuning/resources.json'); // Import resources.json directly
-
-// File paths
 const resourcesFilePath = path.join(__dirname, '../tuning/resources.json');
-//const tileTypesFilePath = path.join(__dirname, '../layouts/tileTypes.json');
-//const layoutKeyFilePath = path.join(__dirname, '../layouts/layoutKey.json');
-
-// Load JSON files
 console.log('Loading resources ...');
 const resourcesData = readJSON(resourcesFilePath);
-//const tileTypes = readJSON(tileTypesFilePath);
-//const layoutKey = readJSON(layoutKeyFilePath);
 
 if (!resourcesData) {
   console.error('Error loading critical JSON files.');
   throw new Error('Failed to load required JSON files.');
 }
-
-// function lookupLayoutKey(cell) {
-//   return layoutKey[cell] || null;
-// }
-
+ 
 // Helper function to create a distribution array
 function createDistributionArray(tileDistribution) {
   const distributionArray = [];
@@ -76,10 +63,8 @@ function generateResources(layout, tiles) {
   }
 
   console.log("📌 Generating resources with new validation...");
-
   // ✅ Use the new resourceDistribution from the template
   const resourceDistribution = layout.resourceDistribution || {};
-
   const resources = [];
   const availableCells = [];
 

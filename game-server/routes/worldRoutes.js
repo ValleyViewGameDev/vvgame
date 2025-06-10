@@ -11,6 +11,7 @@ const Town = require('../models/town');
 const Grid = require('../models/grid'); // Assuming you have a Grid model
 const Player = require('../models/player'); // Adjust the path to match your project structure
 const { getFrontierId, getSettlementId, getgridId } = require('../utils/IDs');
+const { performGridReset } = require('../utils/resetGridLogic');
 const { generateGrid, generateResources } = require('../utils/worldUtils');
 //const tileTypesPath = path.resolve(__dirname, '../layouts/tileTypes.json');
 //const tileTypes = JSON.parse(fs.readFileSync(tileTypesPath, 'utf-8'));
@@ -149,112 +150,16 @@ router.post('/create-grid', async (req, res) => {
 
 // reset-grid
 router.post('/reset-grid', async (req, res) => {
-  const { gridCoord, gridId, gridType } = req.body;
-  console.log('Reached reset-grid;  gridCoord =', gridCoord, ', gridId =', gridId, ', gridType =', gridType);
-  if (!gridId || !gridType) {
-    console.error('Missing required fields in request body:', req.body);
-    return res.status(400).json({ error: 'gridId and gridType are required.' });
+  const { gridId } = req.body;
+  console.log('Reached reset-grid with gridId:', gridId);
+
+  if (!gridId) {
+    return res.status(400).json({ error: 'gridId is required.' });
   }
 
   try {
-    console.log(`Resetting grid with ID: ${gridId}, Type: ${gridType}`);
-
-    // Step 1: Load the Grid first so we can use frontierId for seasonal layouts
-    const grid = await Grid.findById(gridId);
-    if (!grid) {
-      console.error(`Grid not found for ID: ${gridId}`);
-      return res.status(404).json({ error: 'Grid not found.' });
-    }
-
-    // Step 2: Fetch layout based on gridType — with seasonal override for homesteads
-    let layout, layoutFileName;
-    if (gridType === 'homestead') {
-      const frontier = await Frontier.findById(grid.frontierId);
-      if (!frontier) {
-        return res.status(404).json({ error: 'Associated frontier not found.' });
-      }
-
-      const seasonType = frontier?.seasons?.seasonType || 'default';
-      const layoutFile = getHomesteadLayoutFile(seasonType);
-      const seasonalPath = path.join(__dirname, '../layouts/gridLayouts/homestead', layoutFile);
-      layout = readJSON(seasonalPath);
-      layoutFileName = layoutFile;
-      console.log(`🌱 Using seasonal homestead layout for reset: ${layoutFile}`);
-    } else {
-      // First, check for a fixed layout in valleyFixedCoord
-      console.log(`Checking for fixed layout at: ${gridCoord}`);
-      const fixedCoordPath = path.join(__dirname, `../layouts/gridLayouts/valleyFixedCoord/${gridCoord}.json`);
-      if (fs.existsSync(fixedCoordPath)) {
-        layout = readJSON(fixedCoordPath);
-        layoutFileName = `${gridCoord}.json`;
-        console.log(`📌 Using fixed-coordinate layout: ${layoutFileName}`);
-      } else {
-        const layoutInfo = getTemplate('gridLayouts', gridType, gridCoord);
-        layout = layoutInfo.template;
-        layoutFileName = layoutInfo.fileName;
-        console.log(`📦 Using standard grid layout: ${layoutFileName}`);
-      }
-    }
-
-    // Step 3: Validate layout content
-    if (!layout || !layout.tiles || !layout.resources) {
-      console.error(`Invalid layout for gridType: ${gridType}`);
-      return res.status(400).json({ error: `Invalid layout for gridType: ${gridType}` });
-    }
-
-    // Generate new tiles
-    const newTiles = generateGrid(layout, layout.tileDistribution).map(row =>
-      row.map(layoutKey => {
-        const tileResource = masterResources.find(res => res.layoutkey === layoutKey && res.category === "tile");
-        return tileResource ? tileResource.type : "g"; // Default to "g" if missing
-      })
-    );
-
-    // Step 5: Generate resources
-    const newResources = generateResources(layout, newTiles, layout.resourceDistribution);
- 
-    
-    const newNPCGridState = { npcs: {} };
-    layout.resources.forEach((row, y) => {
-      row.forEach((cell, x) => {
-        const resourceEntry = masterResources.find(res => res.layoutkey === cell);
-        if (resourceEntry && resourceEntry.category === 'npc') {
-          console.log(`📌 Placing NPC "${resourceEntry.type}" at (${x}, ${y})`);
-          const npcId = new ObjectId();
-          newNPCGridState.npcs[npcId.toString()] = {
-            id: npcId.toString(),
-            type: resourceEntry.type,
-            position: { x, y },
-            state: resourceEntry.defaultState || 'idle',
-            hp: resourceEntry.maxhp || 10,
-            maxhp: resourceEntry.maxhp || 10,
-            armorclass: resourceEntry.armorclass || 10,
-            attackbonus: resourceEntry.attackbonus || 0,
-            damage: resourceEntry.damage || 1,
-            attackrange: resourceEntry.attackrange || 1,
-            speed: resourceEntry.speed || 1,
-            lastUpdated: 0,
-          };
-        }
-      });
-    });
-
-    console.log('💾 newNPCGridState.npcs:', JSON.stringify(newNPCGridState.npcs, null, 2));
-    console.log('💾 Object.entries(newNPCGridState.npcs):', Object.entries(newNPCGridState.npcs));
-
-    // Reset tiles, resources, and NPCsInGrid
-    grid.tiles = newTiles;
-    grid.resources = newResources;
-    grid.NPCsInGrid = new Map(Object.entries(newNPCGridState.npcs));
-    grid.NPCsInGridLastUpdated = Date.now();
-
-    console.log('🧠 About to save grid.NPCsInGrid:', JSON.stringify(grid.NPCsInGrid, null, 2));
-
-    await grid.save();
-
-    console.log(`Grid reset successfully for ID: ${gridId}, Type: ${gridType}`);
+    await performGridReset(gridId);
     res.status(200).json({ success: true, message: 'Grid reset successfully.' });
-
   } catch (error) {
     console.error('Error resetting grid:', error);
     res.status(500).json({ error: 'Failed to reset grid.' });
