@@ -88,7 +88,7 @@ export async function debugUpdateInventory(currentPlayer, resourceType, quantity
     throw error;
   }
 }
-
+ 
 /**
  * Refreshes the player's state after an inventory update.
  * Ensures that the latest inventory and other properties are reflected in the UI.
@@ -169,17 +169,17 @@ export async function gainIngredients({
     target.push({ type: resource, quantity });
   }
 
-  const payload = {
+  // Prepare delta payload for update-inventory-delta endpoint
+  const deltaPayload = {
     playerId,
-    inventory: isMoney || isHomestead ? target : inventory,
-    backpack: !isMoney && !isHomestead ? target : backpack,
+    deltas: [{ type: resource, quantityChange: quantity }]
   };
-  console.log("📤 Sending inventory payload to server:", payload);
+  console.log("📤 Sending inventory delta payload to server:", deltaPayload);
 
   try {
-    await axios.post(`${API_BASE}/api/update-inventory`, payload);
-    setInventory(payload.inventory);
-    setBackpack(payload.backpack);
+    await axios.post(`${API_BASE}/api/update-inventory-delta`, deltaPayload);
+    setInventory(isMoney || isHomestead ? target : inventory);
+    setBackpack(!isMoney && !isHomestead ? target : backpack);
     await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
     return true;
   } catch (err) {

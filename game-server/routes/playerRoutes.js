@@ -376,7 +376,46 @@ router.post('/update-inventory', (req, res) => {
       res.status(500).json({ error: 'Failed to update inventory or backpack.' });
     }
   });
+});
 
+// ✅ Delta-based inventory update (safer for concurrent actions)
+router.post('/update-inventory-delta', async (req, res) => {
+  const { playerId, delta } = req.body;
+  console.log(`POST /api/update-inventory-delta - Applying delta to playerId: ${playerId}`);
+  
+  if (!playerId || !delta) {
+    return res.status(400).json({ error: 'playerId and delta are required.' });
+  }
+
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+
+    const updates = Array.isArray(delta) ? delta : [delta];
+    player.inventory = player.inventory || [];
+
+    for (const change of updates) {
+      const { type, quantity } = change;
+      if (!type || typeof quantity !== 'number') continue;
+      const existing = player.inventory.find(item => item.type === type);
+      if (existing) {
+        existing.quantity += quantity;
+        if (existing.quantity <= 0) {
+          player.inventory = player.inventory.filter(i => i.type !== type);
+        }
+      } else if (quantity > 0) {
+        player.inventory.push({ type, quantity });
+      }
+    }
+
+    await player.save();
+    res.json({ success: true, player });
+  } catch (error) {
+    console.error('❌ Error in update-inventory-delta:', error);
+    res.status(500).json({ error: 'Failed to apply inventory delta.' });
+  }
 });
 
 
@@ -416,31 +455,6 @@ router.post('/update-capacity', async (req, res) => {
   }
 });
 
-
-router.post('/update-powers', async (req, res) => {
-  const { playerId, powers } = req.body;
-
-  if (!playerId || !Array.isArray(powers)) {
-    return res.status(400).json({ error: 'Missing or invalid playerId or powers array.' });
-  }
-
-  try {
-    const updatedPlayer = await Player.findByIdAndUpdate(
-      playerId,
-      { powers },
-      { new: true }
-    );
-
-    if (!updatedPlayer) {
-      return res.status(404).json({ error: 'Player not found.' });
-    }
-
-    res.json({ message: 'Powers updated successfully.', powers: updatedPlayer.powers });
-  } catch (err) {
-    console.error('Error updating powers:', err);
-    res.status(500).json({ error: 'Failed to update powers.' });
-  }
-});
 
 
 ////////// LOCATION BASED ROUTES ///////////
@@ -534,7 +548,6 @@ router.post('/update-player-location', async (req, res) => {
 
 
 
-
 ////////////// SKILLS BASED ROUTES ///////////
 
 // Endpoint to get the current player skills
@@ -601,6 +614,27 @@ router.post('/update-skills', async (req, res) => {
   } catch (error) {
     console.error('Error updating skills:', error);
     res.status(500).json({ error: 'Failed to update skills.' });
+  }
+});
+
+router.post('/update-powers', async (req, res) => {
+  const { playerId, powers } = req.body;
+  if (!playerId || !Array.isArray(powers)) {
+    return res.status(400).json({ error: 'Missing or invalid playerId or powers array.' });
+  }
+  try {
+    const updatedPlayer = await Player.findByIdAndUpdate(
+      playerId,
+      { powers },
+      { new: true }
+    );
+    if (!updatedPlayer) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+    res.json({ message: 'Powers updated successfully.', powers: updatedPlayer.powers });
+  } catch (err) {
+    console.error('Error updating powers:', err);
+    res.status(500).json({ error: 'Failed to update powers.' });
   }
 });
 
