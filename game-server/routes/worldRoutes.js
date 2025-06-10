@@ -150,11 +150,12 @@ router.post('/create-grid', async (req, res) => {
 
 // reset-grid
 router.post('/reset-grid', async (req, res) => {
-  const { gridId } = req.body;
-  console.log('Reached reset-grid with gridId:', gridId);
+  const { gridCoord, gridId, gridType } = req.body;
+  console.log('Reached reset-grid;  gridCoord =', gridCoord, ', gridId =', gridId, ', gridType =', gridType);
 
-  if (!gridId) {
-    return res.status(400).json({ error: 'gridId is required.' });
+  if (!gridId || !gridType) {
+    console.error('Missing required fields in request body:', req.body);
+    return res.status(400).json({ error: 'gridId and gridType are required.' });
   }
 
   try {
