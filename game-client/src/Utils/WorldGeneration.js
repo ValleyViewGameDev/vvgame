@@ -2,14 +2,7 @@ import API_BASE from '../config';
 import axios from 'axios';
 
 
-export async function generateTownGrid ({
-    currentPlayer, 
-    setCurrentPlayer, 
-    setInventory, 
-    setResources, 
-    currentGridId, 
-    updateStatus
-})
+export async function generateTownGrid ({ currentPlayer })
     {
     try {
       const settlementId = currentPlayer.location.s;

@@ -8,7 +8,7 @@ import { fetchGridData } from './GridManagement';
 import NPCsInGridManager from '../GridState/GridStateNPCs'; // Use default export for NPCsInGridManager
 import playersInGridManager from '../GridState/PlayersInGrid';
 import GridStateDebugPanel from './GridStateDebug';
-import generateTownGrid from './WorldGeneration';
+import { generateTownGrid } from './WorldGeneration';
 
 const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, setResources, currentGridId, updateStatus }) => {
   const [timers, setTimers] = useState([]);
@@ -454,6 +454,94 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
     }
   };
 
+  const handleWelcomeMessage = async () => {
+    const playerId = currentPlayer?.playerId;
+    if (!playerId) { console.error("❌ No player ID available."); return; }
+    try {
+      await axios.post(`${API_BASE}/api/send-mailbox-message`, {
+        playerId,
+        messageId: 1, // Assuming 1 is the Welcome message ID
+      });
+      console.log("📬 Welcome message added to mailbox.");
+      updateStatus("✅ Welcome message delivered.");
+      await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
+
+    } catch (mailError) {
+      console.error("❌ Failed to send welcome message:", mailError);
+      updateStatus("❌ Failed to deliver welcome message.");
+    }
+  };
+
+  const handleRewardMessage = async () => {
+    const playerId = currentPlayer?.playerId;
+    if (!playerId) { console.error("❌ No player ID available."); return; }
+    try {
+      await axios.post(`${API_BASE}/api/send-mailbox-message`, {
+        playerId,
+        messageId: 101, 
+      });
+      console.log("📬 Welcome message added to mailbox.");
+      updateStatus("✅ Welcome message delivered.");
+      await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
+
+    } catch (mailError) {
+      console.error("❌ Failed to send welcome message:", mailError);
+      updateStatus("❌ Failed to deliver welcome message.");
+    }
+  };
+
+  const handleClearGridState = async (command) => {
+    switch (command) {
+      case 'cleargrid':
+        if (NPCsInGridManager.clearGridState(currentGridId)) {
+          updateStatus('Grid state cleared successfully');
+          // Clear from localStorage if you're using it
+          localStorage.removeItem(`NPCsInGrid_${currentGridId}`);
+        } else {
+          updateStatus('Failed to clear grid state');
+        }
+        break;
+
+      // Add other debug commands here
+      default:
+        console.warn(`Unknown debug command: ${command}`);
+    }
+  };
+
+  // Add Reset Combat Stats handler
+  const handleResetCombatStats = async () => {
+    try {
+      const playerId = currentPlayer?.playerId;
+      if (!playerId) {
+        console.error('No player ID found. Cannot reset combat stats.');
+        return;
+      }
+
+      const combatStats = {
+        maxhp: currentPlayer.baseMaxhp,
+        attackbonus: currentPlayer.baseAttackbonus,
+        armorclass: currentPlayer.baseArmorclass,
+        damage: currentPlayer.baseDamage,
+        attackrange: currentPlayer.baseAttackrange,
+        speed: currentPlayer.baseSpeed,
+      };
+
+      await playersInGridManager.updatePC(currentGridId, playerId, combatStats);
+
+      console.log('Combat stats reset successfully using updatePC.');
+      updateStatus(906); // Optional: new debug status
+    } catch (error) {
+      console.error('Error resetting combat stats:', error);
+    }
+  };
+
+  const handleGenerateTown = async () => {
+    try { await generateTownGrid({ currentPlayer }); } catch (error) {
+      console.error('Error generating town:', error);
+      alert('Failed to generate town. Check console for details.');
+    }
+  };
+
   const handleCreateNewFrontier = async () => {
     try {
       const response = await axios.post(`${API_BASE}/api/create-frontier`);
@@ -555,101 +643,6 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
     }
   };
 
-  const handleWelcomeMessage = async () => {
-    const playerId = currentPlayer?.playerId;
-    if (!playerId) { console.error("❌ No player ID available."); return; }
-    try {
-      await axios.post(`${API_BASE}/api/send-mailbox-message`, {
-        playerId,
-        messageId: 1, // Assuming 1 is the Welcome message ID
-      });
-      console.log("📬 Welcome message added to mailbox.");
-      updateStatus("✅ Welcome message delivered.");
-      await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
-
-    } catch (mailError) {
-      console.error("❌ Failed to send welcome message:", mailError);
-      updateStatus("❌ Failed to deliver welcome message.");
-    }
-  };
-
-  const handleRewardMessage = async () => {
-    const playerId = currentPlayer?.playerId;
-    if (!playerId) { console.error("❌ No player ID available."); return; }
-    try {
-      await axios.post(`${API_BASE}/api/send-mailbox-message`, {
-        playerId,
-        messageId: 101, 
-      });
-      console.log("📬 Welcome message added to mailbox.");
-      updateStatus("✅ Welcome message delivered.");
-      await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
-
-    } catch (mailError) {
-      console.error("❌ Failed to send welcome message:", mailError);
-      updateStatus("❌ Failed to deliver welcome message.");
-    }
-  };
-
-  const handleClearGridState = async (command) => {
-    switch (command) {
-      case 'cleargrid':
-        if (NPCsInGridManager.clearGridState(currentGridId)) {
-          updateStatus('Grid state cleared successfully');
-          // Clear from localStorage if you're using it
-          localStorage.removeItem(`NPCsInGrid_${currentGridId}`);
-        } else {
-          updateStatus('Failed to clear grid state');
-        }
-        break;
-
-      // Add other debug commands here
-      default:
-        console.warn(`Unknown debug command: ${command}`);
-    }
-  };
-
-  // Add Reset Combat Stats handler
-  const handleResetCombatStats = async () => {
-    try {
-      const playerId = currentPlayer?.playerId;
-      if (!playerId) {
-        console.error('No player ID found. Cannot reset combat stats.');
-        return;
-      }
-
-      const combatStats = {
-        maxhp: currentPlayer.baseMaxhp,
-        attackbonus: currentPlayer.baseAttackbonus,
-        armorclass: currentPlayer.baseArmorclass,
-        damage: currentPlayer.baseDamage,
-        attackrange: currentPlayer.baseAttackrange,
-        speed: currentPlayer.baseSpeed,
-      };
-
-      await playersInGridManager.updatePC(currentGridId, playerId, combatStats);
-
-      console.log('Combat stats reset successfully using updatePC.');
-      updateStatus(906); // Optional: new debug status
-    } catch (error) {
-      console.error('Error resetting combat stats:', error);
-    }
-  };
-
-const handleGenerateTown = async () => {
-  try {
-    await generateTownGrid({
-      currentPlayer,
-      setCurrentPlayer,
-      setInventory,
-      setResources,
-      currentGridId,
-      updateStatus
-    });
-  } catch (error) {
-    console.error('Error generating town:', error);
-    alert('Failed to generate town. Check console for details.');
-  }
 
   return (
     <Panel onClose={onClose} titleKey="1120" panelName="DebugPanel">
