@@ -72,6 +72,13 @@ export async function debugUpdateInventory(currentPlayer, resourceType, quantity
     } else if (quantityChange > 0) {
       updatedInventory.push({ type: resourceType, quantity: quantityChange });
     }
+
+    console.log("📤 Payload to /update-inventory:", {
+      playerId: currentPlayer.playerId,
+      inventory: updatedInventory,
+      backpack: currentPlayer.backpack,
+    });
+
     await axios.post(`${API_BASE}/api/update-inventory`, {
       playerId: currentPlayer.playerId,
       inventory: updatedInventory,

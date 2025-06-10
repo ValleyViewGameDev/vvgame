@@ -349,6 +349,8 @@ router.get('/inventory/:playerId', async (req, res) => {
 router.post('/update-inventory', (req, res) => {
   const { playerId, inventory, backpack } = req.body;
   console.log(`POST /api/update-inventory - Updating inventory and/or backpack for playerId: ${playerId}`);
+  console.log("👀 Incoming inventory:", inventory);
+  console.log("👀 Incoming backpack:", backpack);
 
   // Enqueue the inventory update task
   queue.enqueue(async () => {
