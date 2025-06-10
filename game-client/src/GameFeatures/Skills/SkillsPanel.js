@@ -190,7 +190,7 @@ const handlePurchase = async (resourceType) => {
               </div>
             )}
 
-            {!["Warehouse", "Adventure Camp"].includes(entryPoint) && (
+            {!["Warehouse", "Adventure Camp", "Laboratory"].includes(entryPoint) && (
               <div className="upgrades-owned">
                 <h3>{strings[1304]}</h3>
                 {ownedUpgrades.length > 0 ? (
