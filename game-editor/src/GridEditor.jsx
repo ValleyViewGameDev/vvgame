@@ -12,11 +12,13 @@ import Modal from './components/Modal.jsx';
 import axios from 'axios';
 import Tile from './Tile';
 import FileManager from './FileManager';
-import './App.css'; 
+import './App.css';
+import { useFileContext } from './FileContext';
 
 const GRID_SIZE = 64; // 64x64 grid
 
 const GridEditor = ({ activePanel }) => {
+  const { fileName, directory, setDirectory } = useFileContext();
   const [grid, setGrid] = useState(
     Array.from({ length: GRID_SIZE }, () => 
       Array.from({ length: GRID_SIZE }, () => ({ type: '', resource: '', npc: '' }))
@@ -34,8 +36,7 @@ const GridEditor = ({ activePanel }) => {
   const [resourceDistribution, setResourceDistribution] = useState({});
   const tileColors = { g: "#3dc43d", s: "#8b989c", d: "#c0834a", w: "#58cad8", p: "#dab965", l: "#c4583d" };
   const [copiedResource, setCopiedResource] = useState(null); // Holds copied resource
-  const [currentFile, setCurrentFile] = useState('');
-  const [currentDirectory, setCurrentDirectory] = useState('');
+  // Removed currentFile, setCurrentFile, currentDirectory, setCurrentDirectory
   const pendingLoad = useRef(null);
 
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
@@ -313,7 +314,7 @@ const handleResourceDistributionChange = (resourceType, value) => {
     setTileDistribution(adjustedDistribution);
   };
 
-  // Modified loadLayout to accept setFileInfo and update currentFile/currentDirectory
+  // Modified loadLayout to accept setFileInfo and update file context if needed
   const loadLayout = async (fileName, directory, setFileInfo = true) => {
     console.log(`🔄 Loading layout: ${fileName} from directory: ${directory}`);
     try {
@@ -366,20 +367,7 @@ const handleResourceDistributionChange = (resourceType, value) => {
       console.log("Current file name:", fileName);
       console.log("Current directory:", adjustedDirectory);
       
-      if (setFileInfo) {
-        setCurrentFile(fileName);
-        setCurrentDirectory(adjustedDirectory);
-        setTimeout(() => {
-          const fileInput = document.querySelector('.file-input');
-          const dirSelect = document.querySelector('.directory-select');
-          if (fileInput) fileInput.value = fileName;
-          if (dirSelect) {
-            dirSelect.value = adjustedDirectory;
-            const event = new Event('change', { bubbles: true });
-            dirSelect.dispatchEvent(event);
-          }
-        }, 50);
-      }
+      // Removed setCurrentFile and setCurrentDirectory here
 
       console.log("✅ Grid successfully loaded from:", layoutPath);
     } catch (error) {
@@ -614,12 +602,10 @@ const handleClearGrid = () => {
   };
 
 
-// --- Expose loadLayout and setCurrentFile/setCurrentDirectory globally for external triggering ---
+// --- Expose loadLayout globally for external triggering ---
 if (typeof window !== "undefined") {
   window.gridEditorAPI = {
-    loadLayout,
-    setCurrentFile,
-    setCurrentDirectory
+    loadLayout
   };
 }
 
@@ -635,8 +621,6 @@ if (typeof window !== "undefined") {
           <FileManager
             loadLayout={loadLayout}
             saveLayout={confirmAndSaveLayout}
-            currentFile={currentFile}
-            currentDirectory={currentDirectory}
           />
       <div className="button-group">
           <button className="small-button" onClick={handleClearGrid}>Clear</button>

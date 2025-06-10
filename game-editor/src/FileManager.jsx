@@ -1,17 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import './App.css'; // ✅ Ensure styles are managed in a separate file
+import { useFileContext } from './FileContext';
 
-const FileManager = ({ loadLayout, saveLayout, currentFile, currentDirectory }) => {
-  const [fileName, setFileName] = useState(currentFile || '');
-  const [directory, setDirectory] = useState(currentDirectory || 'valleyFixedCoord'); // Default value
-
-  useEffect(() => {
-    setFileName(currentFile || '');
-  }, [currentFile]);
-
-  useEffect(() => {
-    setDirectory(currentDirectory || 'valleyFixedCoord');
-  }, [currentDirectory]);
+const FileManager = ({ loadLayout, saveLayout }) => {
+  const { fileName, setFileName, directory, setDirectory } = useFileContext();
 
   const handleSave = () => {
     console.log(`🔹 Save button clicked. File: ${fileName}, Directory: ${directory}`);
@@ -61,18 +53,22 @@ const FileManager = ({ loadLayout, saveLayout, currentFile, currentDirectory }) 
       <select 
         value={directory} 
         onChange={(e) => { 
-          console.log(`🔄 Directory changed to: ${e.target.value}`);
-          setDirectory(e.target.value); 
+          let selectedDir = e.target.value;
+          if (!selectedDir.endsWith('/')) {
+            selectedDir += '/';
+          }
+          console.log(`🔄 Directory changed to: ${selectedDir}`);
+          setDirectory(selectedDir); 
         }} 
         className="directory-select"
       >
-        <option value="valleyFixedCoord">valleyFixedCoord/</option>
-        <option value="homestead">homestead/</option>
-        <option value="town">town/</option>
-        <option value="valley0">valley0/</option>
-        <option value="valley1">valley1/</option>
-        <option value="valley2">valley2/</option>
-        <option value="valley3">valley3/</option>
+        <option value="valleyFixedCoord/">valleyFixedCoord/</option>
+        <option value="homestead/">homestead/</option>
+        <option value="town/">town/</option>
+        <option value="valley0/">valley0/</option>
+        <option value="valley1/">valley1/</option>
+        <option value="valley2/">valley2/</option>
+        <option value="valley3/">valley3/</option>
       </select>
 
       <div className="button-group">

@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import './FrontierView.css';
 import Modal from './components/Modal.jsx';
+import { useFileContext } from './FileContext';
 
 const GRID_DIMENSION = 64;
 
 const FrontierView = ({ selectedFrontier, settlements, activePanel }) => {
+  const { setFileName, setDirectory } = useFileContext();
 
 console.log("📦 FrontierView rendered");
 console.log("🧭 selectedFrontier:", selectedFrontier);
@@ -100,6 +102,8 @@ const handleCreateGrid = () => {
 const handleLoadGrid = () => {
     console.log("handleLoadGrid called");
     if (!selectedCell?.coord || !selectedCell?.type) return;
+    setFileName(String(selectedCell.coord));
+    setDirectory("valleyFixedCoord/");
     window.dispatchEvent(new CustomEvent('switch-to-editor'));
     window.dispatchEvent(new CustomEvent('editor-load-grid', { detail: { gridCoord: selectedCell.coord, gridType: selectedCell.type } }));
 };
