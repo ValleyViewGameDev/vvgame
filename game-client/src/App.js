@@ -1343,6 +1343,7 @@ const handleLoginSuccess = async (player) => {
       {activePanel === 'InventoryPanel' && (
         <InventoryPanel
           onClose={closePanel} 
+          masterResources={masterResources}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setInventory={setInventory}
@@ -1359,6 +1360,7 @@ const handleLoginSuccess = async (player) => {
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           updateStatus={updateStatus}
+          masterResources={masterResources}
         />
       )}
       {activePanel === 'TrainPanel' && (
@@ -1371,6 +1373,7 @@ const handleLoginSuccess = async (player) => {
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           updateStatus={updateStatus}
+          masterResources={masterResources}
         />
       )}
       {activePanel === 'HowToPanel' && (
@@ -1470,6 +1473,7 @@ const handleLoginSuccess = async (player) => {
           gridId={activeStation?.gridId}
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
+          masterResources={masterResources}
         />
       )}
       {activePanel === 'ShopStation' && (
@@ -1487,6 +1491,7 @@ const handleLoginSuccess = async (player) => {
           gridId={activeStation?.gridId}
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
+          masterResources={masterResources}
         />
       )}
       {activePanel === 'FarmingPanel' && (
@@ -1562,6 +1567,7 @@ const handleLoginSuccess = async (player) => {
           setResources={setResources}
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
+          masterResources={masterResources}
         />
       )}
       {activePanel === 'SocialPanel' && (
@@ -1592,6 +1598,7 @@ const handleLoginSuccess = async (player) => {
           gridId={activeStation?.gridId} 
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
+          masterResources={masterResources}
         />
       )}
       {activePanel === 'TradeStall' && (

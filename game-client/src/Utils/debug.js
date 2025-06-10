@@ -177,7 +177,7 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
       // Call delta-based inventory update
       await axios.post(`${API_BASE}/api/update-inventory-delta`, {
         playerId,
-        delta: { type: 'Money', quantity: 10000 },
+        delta: { type: 'Money', quantity: 10000, target: 'inventory' },
       });
       // Refresh player data
       await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
@@ -226,10 +226,10 @@ const handleGetRich = async () => {
       { type: 'Port', quantity: 1000 },
     ];
 
-    // Use delta endpoint for batched update
+    // Use delta endpoint for batched update, adding target: 'inventory' to each resource
     await axios.post(`${API_BASE}/api/update-inventory-delta`, {
       playerId,
-      delta: resourcesToAdd,
+      delta: resourcesToAdd.map(item => ({ ...item, target: 'inventory' })),
     });
 
     // Refresh player data after the batched update

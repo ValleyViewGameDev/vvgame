@@ -395,21 +395,24 @@ router.post('/update-inventory-delta', (req, res) => {
       if (!player) {
         return res.status(404).json({ error: 'Player not found.' });
       }
-
       const updates = Array.isArray(delta) ? delta : [delta];
       player.inventory = player.inventory || [];
+      player.backpack = player.backpack || [];
 
       for (const change of updates) {
-        const { type, quantity } = change;
+        const { type, quantity, target = 'inventory' } = change;
         if (!type || typeof quantity !== 'number') continue;
-        const existing = player.inventory.find(item => item.type === type);
+
+        const container = target === 'backpack' ? player.backpack : player.inventory;
+        const existing = container.find(item => item.type === type);
         if (existing) {
           existing.quantity += quantity;
           if (existing.quantity <= 0) {
-            player.inventory = player.inventory.filter(i => i.type !== type);
+            const index = container.findIndex(i => i.type === type);
+            container.splice(index, 1);
           }
         } else if (quantity > 0) {
-          player.inventory.push({ type, quantity });
+          container.push({ type, quantity });
         }
       }
 

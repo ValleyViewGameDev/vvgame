@@ -136,6 +136,7 @@ export async function handleNPCClick(
         setBackpack: () => {}, // no change to backpack in graze flow
         setCurrentPlayer: () => {}, // optional: skip player refresh
         updateStatus: () => {},     // optional: or pass a real one if available
+        masterResources,
       });
 
       if (!gainSuccess) {

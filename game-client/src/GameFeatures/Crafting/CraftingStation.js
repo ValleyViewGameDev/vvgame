@@ -109,23 +109,19 @@ const CraftingStation = ({
     syncInventory();
   }, [currentPlayer]);
 
-  // Fetch recipes and resources
+  // Fetch recipes and resources (refactored: use masterResources directly)
   useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        //const allResourcesData = await loadMasterResources();
-        const filteredRecipes = masterResources.filter((resource) => resource.source === stationType);
-        setRecipes(filteredRecipes);
-        const stationResource = masterResources.find((resource) => resource.type === stationType);
-        setStationEmoji(stationResource?.symbol || '🛖');
-        setStationDetails(stationResource);
-        setAllResources(masterResources || []);
-      } catch (error) {
-        console.error('Error loading resources:', error);
-      }
-    };
-    fetchResources();
-  }, [stationType]);
+    try {
+      const filteredRecipes = masterResources.filter((resource) => resource.source === stationType);
+      setRecipes(filteredRecipes);
+      const stationResource = masterResources.find((resource) => resource.type === stationType);
+      setStationEmoji(stationResource?.symbol || '🛖');
+      setStationDetails(stationResource);
+      setAllResources(masterResources || []);
+    } catch (error) {
+      console.error('Error processing masterResources:', error);
+    }
+  }, [stationType, masterResources]);
 
 
   const hasRequiredSkill = (requiredSkill) => {
@@ -244,6 +240,7 @@ const CraftingStation = ({
             setBackpack,
             setCurrentPlayer,
             updateStatus,
+            masterResources,
           });
           if (!success) return;
           const skillAppliedText = appliedBuffs.length === 0
@@ -322,6 +319,7 @@ const CraftingStation = ({
           setBackpack,
           setCurrentPlayer,
           updateStatus,
+          masterResources,
         });
         if (!success) return;
       }

@@ -18,8 +18,8 @@
     "17": "You do not own a hometead here.",
     "18": "🚫 You can't go that way.",
     "19": "🎒 You need a Backpack to collect resources away from your homestead. Buy one at the Adventure Camp.",
-    "20": "🚫 Warehouse is full.",
-    "21": "🎒 Backpack is full. Open Inventory to manage Backpack contents.",
+    "20": "🚫 Not enough room in the Warehouse.",
+    "21": "🎒 Not enough room in the Backpack. Open Inventory to manage Backpack contents.",
     "22": "Items purchased.",
     "23": "⚠️ You can't build that here.",
     "24": "🎯 Out of range",
@@ -41,8 +41,10 @@
     "72": "This page will auto-refresh in 30 seconds unless you do it now.",
     "73": "🔄 Refresh Now",
     "74": "🎒 A Backpack is required to own a Tent.",
-    "75": "",
-
+    "75": "You do not own a Backpack. You can purchase one at the Adventure Camp in Town.",
+    "76": "Your Warehouse is empty.",
+    "77": "Your Backpack is empty.",
+    "78": "Manage Backpack",
   
     "100": "TRAVELING STRINGS:",
 

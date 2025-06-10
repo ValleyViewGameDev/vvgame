@@ -17,12 +17,12 @@ function TrainPanel({
   currentPlayer, 
   setCurrentPlayer, 
   updateStatus,
+  masterResources,
   }) 
 {
   const [trainOffers, setTrainOffers] = useState([]);
   const [trainPhase, setTrainPhase] = useState("loading");
   const [trainTimer, setTrainTimer] = useState("⏳");
-  const [allResources, setAllResources] = useState([]);
   const [nextOffers, setNextOffers] = useState([]);
   const [trainRewards, setTrainRewards] = useState([]);
 
@@ -30,7 +30,6 @@ function TrainPanel({
   useEffect(() => {
     if (currentPlayer?.settlementId) {
       fetchTrainOffers();
-      fetchResources(); // ✅ important!
     }
   }, [currentPlayer]);
 
@@ -78,17 +77,9 @@ function TrainPanel({
     }
   };
 
-  const fetchResources = async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/api/resources`);
-      setAllResources(res.data || []);
-    } catch (err) {
-      console.error("❌ Error fetching resources:", err);
-    }
-  };
 
   const getSymbol = (type) => {
-    return allResources.find(r => r.type === type)?.symbol || "❓";
+    return masterResources.find(r => r.type === type)?.symbol || "❓";
   };
 
   const handleClaim = async (offer) => {
@@ -147,6 +138,7 @@ function TrainPanel({
       setBackpack,
       setCurrentPlayer,
       updateStatus,
+      masterResources,
     });
 
       // Update local state in correct order

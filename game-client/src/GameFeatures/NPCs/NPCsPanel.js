@@ -30,10 +30,10 @@ const QuestGiverPanel = ({
   setResources,
   TILE_SIZE,
   updateStatus,
+  masterResources,
 }) => {
   const [questList, setQuestList] = useState([]);
   const [healRecipes, setHealRecipes] = useState([]);
-  const [allResources, setAllResources] = useState([]);
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -52,7 +52,8 @@ const QuestGiverPanel = ({
     if (npcData.action === 'quest') {
       fetchQuests();
     } else if (npcData.action === 'heal') {
-      fetchHealRecipes();
+      const filteredRecipes = masterResources.filter((resource) => resource.type === npcData.type);
+      setHealRecipes(filteredRecipes);
     }
   }, [npcData, currentPlayer]);
 
@@ -153,6 +154,7 @@ const handleGetReward = async (quest) => {
         setBackpack,
         setCurrentPlayer,
         updateStatus,
+        masterResources,
       });
       if (!success) return;
 
@@ -200,19 +202,6 @@ const handleGetReward = async (quest) => {
     }
   };
 
-  ////////////////////////////////////////////////////////////
-  ////////////////////// Fetch HEALING RECIPES for HEALER NPCs
-  const fetchHealRecipes = async () => {
-    try {
-      const allResourcesData = await loadMasterResources();
-      const filteredRecipes = allResourcesData.filter((resource) => resource.type === npcData.type);
-      console.log('filteredRecipes:', filteredRecipes);
-      setHealRecipes(filteredRecipes);
-      setAllResources(allResourcesData);
-    } catch (error) {
-      console.error('Error fetching heal recipes:', error);
-    }
-  };
 
 const handleHeal = async (recipe) => {
     setErrorMessage('');
@@ -350,7 +339,7 @@ const handleHeal = async (recipe) => {
 
           <h3>This NPC can heal you:</h3>
           {healRecipes.map((recipe) => {
-            const ingredients = getIngredientDetails(recipe, allResources);
+            const ingredients = getIngredientDetails(recipe, masterResources);
             const affordable = canAfford(recipe, inventory, 1);
             const healAmount = recipe.qtycollected; // Healing value
 

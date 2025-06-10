@@ -3,30 +3,21 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
 import './InventoryPanel.css';
-import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
+import strings from '../../UI/strings.json';
+import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
 
-function InventoryPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus }) {
-    const [allResources, setAllResources] = useState([]);
-    // Use currentPlayer's inventory directly instead of local state
+function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPlayer, updateStatus }) {
+
     const inventory = currentPlayer?.inventory || [];
     const backpack = currentPlayer?.backpack || [];
-    const warehouseCapacity = currentPlayer?.warehouseCapacity;
-    const backpackCapacity = currentPlayer?.backpackCapacity;
+    const baseWarehouseCapacity = currentPlayer?.warehouseCapacity || 0;
+    const baseBackpackCapacity = currentPlayer?.backpackCapacity || 0;
     const [showBackpackModal, setShowBackpackModal] = useState(false);
 
-    // Only fetch resources once when panel opens
-    useEffect(() => {
-        const fetchResources = async () => {
-            try {
-                const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
-                setAllResources(resourcesResponse.data || []);
-            } catch (error) {
-                console.error('Error fetching resources:', error);
-            }
-        };
+    const hasBackpackSkill = currentPlayer?.skills?.some(item => item.type === 'Backpack');
 
-        fetchResources();
-    }, []);
+    const finalCapacities = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources);
+
 
     const calculateTotalQuantity = (inventory) =>
         inventory.filter((item) => item.type !== 'Money').reduce((total, item) => total + item.quantity, 0);
@@ -133,32 +124,38 @@ function InventoryPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus
     return (
         <Panel onClose={onClose} descriptionKey="1001" titleKey="1101" panelName="InventoryPanel">
             <h3>🎒 Backpack</h3>
-            <div className="capacity-display">Capacity: {calculateTotalQuantity(backpack)}/{backpackCapacity}</div>
+            {hasBackpackSkill ? (
+              <>
+                <div className="capacity-display">Capacity: {calculateTotalQuantity(backpack)}/{finalCapacities.backpack}</div>
 
-            {backpack.length > 0 && (
-                <button className="empty-backpack-button" onClick={() => setShowBackpackModal(true)}>
-                    Manage Backpack
-                </button>
-            )}
-            <br></br>
-            <br></br>
-            <div className="inventory-table">
-                {backpack.length > 0 ? (
-                    backpack.map((item, index) => (
-                        <div className="inventory-row" key={index}>
-                            <div className="inventory-cell name-cell">{item.type}</div>
-                            <div className="inventory-cell quantity-cell">{item.quantity.toLocaleString()}</div>
-                        </div>
-                    ))
-                ) : (
-                    <p>Backpack is empty.</p>
+                {backpack.length > 0 && (
+                  <button className="empty-backpack-button" onClick={() => setShowBackpackModal(true)}>
+                      {strings[78]}
+                  </button>
                 )}
-            </div>
+                <br></br>
+                <br></br>
+                <div className="inventory-table">
+                    {backpack.length > 0 ? (
+                        backpack.map((item, index) => (
+                            <div className="inventory-row" key={index}>
+                                <div className="inventory-cell name-cell">{item.type}</div>
+                                <div className="inventory-cell quantity-cell">{item.quantity.toLocaleString()}</div>
+                            </div>
+                        ))
+                    ) : (
+                        <p>{strings[77]}</p>
+                    )}
+                </div>
+              </>
+            ) : (
+              <div className="capacity-display">{strings[75]}</div>
+            )}
 
             <hr className="inventory-divider" />
 
             <h3>🏚️ Warehouse</h3>
-            <div className="capacity-display">Capacity: {calculateTotalQuantity(inventory)}/{warehouseCapacity}</div>
+            <div className="capacity-display">Capacity: {calculateTotalQuantity(inventory)}/{finalCapacities.warehouse}</div>
 
             <div className="inventory-table">
                 {inventory.length > 0 ? (
@@ -169,7 +166,7 @@ function InventoryPanel({ onClose, currentPlayer, setCurrentPlayer, updateStatus
                         </div>
                     ))
                 ) : (
-                    <p>Warehouse is empty.</p>
+                    <p>{strings[76]}</p>
                 )}
             </div>
 

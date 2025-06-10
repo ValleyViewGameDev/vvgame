@@ -2,6 +2,35 @@ import API_BASE from '../config';
 import axios from 'axios';
 import playersInGridManager from '../GridState/PlayersInGrid';
 
+/**
+ * Derives the total warehouse and backpack capacity based on player skills and master resources.
+ * @param {object} currentPlayer - The player object including skills and base capacities.
+ * @param {Array} masterResources - Array of all master resource definitions.
+ * @returns {object} - { warehouse: number, backpack: number }
+ */
+
+export function deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources) {
+  const baseWarehouse = currentPlayer?.warehouseCapacity || 0;
+  const baseBackpack = currentPlayer?.backpackCapacity || 0;
+
+  return (currentPlayer?.skills || []).reduce(
+    (acc, skill) => {
+      const skillDetails = masterResources?.find(res => res.type === skill.type);
+      if (skillDetails) {
+        const bonus = skillDetails.qtycollected || 0;
+        if (skillDetails.output === 'warehouseCapacity') {
+          acc.warehouse += bonus;
+        } else if (skillDetails.output === 'backpackCapacity') {
+          acc.backpack += bonus;
+        }
+      }
+      return acc;
+    },
+    { warehouse: baseWarehouse, backpack: baseBackpack }
+  );
+}
+
+
 
 export const canAfford = (recipe, inventory = [], backpack = [], amount = 1) => {
   if (!recipe) return false;
@@ -96,9 +125,10 @@ export async function gainIngredients({
   setBackpack,
   setCurrentPlayer,
   updateStatus,
+  masterResources,
 }) {
   console.log("Made it to gainIngredients; resource = ", resource, "; quantity = ", quantity);
-
+  console.log("Current player gtype:", currentPlayer?.location?.gtype);
   const isMoney = resource === "Money";
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
   const storingInBackpack = !isMoney && !isHomestead;
@@ -117,7 +147,8 @@ export async function gainIngredients({
     
   // ✅ Capacity check
   if (!isMoney) {
-    const capacity = isHomestead ? currentPlayer?.warehouseCapacity : currentPlayer?.backpackCapacity;
+    const { warehouse, backpack: maxBackpack } = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources || []);
+    const capacity = isHomestead ? warehouse : maxBackpack;
     const totalItems = target
       .filter(item => item && item.type !== 'Money' && typeof item.quantity === 'number')
       .reduce((acc, item) => acc + item.quantity, 0);
@@ -136,32 +167,14 @@ export async function gainIngredients({
     target.push({ type: resource, quantity });
   }
 
-  // THIS IS THE ORIGINAL CODE THAT USED THE update-inventory ENDPOINT
-  // This is now replaced with the update-inventory-delta endpoint
-  //
-  // const payload = {
-  //   playerId,
-  //   inventory: isMoney || isHomestead ? target : inventory,
-  //   backpack: !isMoney && !isHomestead ? target : backpack,
-  // };
-  // console.log("📤 Sending inventory payload to server:", payload);
-
-  // try {
-  //   await axios.post(`${API_BASE}/api/update-inventory`, payload);
-  //   setInventory(payload.inventory);
-  //   setBackpack(payload.backpack);
-  //   await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
-  //   return true;
-  // } catch (err) {
-  //   console.error("❌ Error gaining ingredient", err);
-  //   return false;
-  // }
-
-
-  // Prepare delta payload for update-inventory-delta endpoint
+  // Prepare delta payload for update-inventory-delta endpoint, including explicit target
   const deltaPayload = {
     playerId,
-    delta: [{ type: resource, quantity: quantity }]
+    delta: [{
+      type: resource,
+      quantity: quantity,
+      target: storingInBackpack ? 'backpack' : 'inventory'
+    }]
   };
   console.log("📤 Sending inventory delta payload to server:", deltaPayload);
 

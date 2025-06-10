@@ -16,11 +16,11 @@ function BankPanel({
     setBackpack,
     currentPlayer, 
     setCurrentPlayer, 
-    updateStatus }) 
+    updateStatus,
+    masterResources, }) 
 {
     const [bankOffers, setBankOffers] = useState([]);
     const [bankTimer, setBankTimer] = useState("");
-    const [allResources, setAllResources] = useState([]);
     const [bankPhase, setBankPhase] = useState("");
 
     // Fetch data - separated from timer logic
@@ -57,18 +57,8 @@ function BankPanel({
 
     // Initial load
     useEffect(() => {
-        const fetchResources = async () => {
-            try {
-                const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
-                setAllResources(resourcesResponse.data || []);
-            } catch (error) {
-                console.error("❌ Error fetching master resources:", error);
-            }
-        };
-
         if (currentPlayer?.frontierId) {
             fetchBankOffers();
-            fetchResources();
         }
     }, [currentPlayer]);
 
@@ -105,6 +95,7 @@ function BankPanel({
           setBackpack,
           setCurrentPlayer,
           updateStatus,
+          masterResources,
         });
 
         if (!gainSuccess) return;
@@ -112,9 +103,9 @@ function BankPanel({
         updateStatus(`✅ Exchanged ${offer.qtyBought} ${offer.itemBought} for ${offer.qtyGiven} ${offer.itemGiven}.`);
     };
 
-    // ✅ Lookup function for symbols from `allResources`
+    // ✅ Lookup function for symbols from `masterResources`
     const getSymbol = (resourceType) => {
-        const resource = allResources.find(res => res.type === resourceType);
+        const resource = masterResources.find(res => res.type === resourceType);
         return resource?.symbol || "❓"; // Default to question mark if no symbol found
     };
 

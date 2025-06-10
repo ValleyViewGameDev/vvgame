@@ -27,9 +27,9 @@ const ShopStation = ({
   gridId,
   TILE_SIZE,
   updateStatus,
+  masterResources,
 }) => {
   const [recipes, setRecipes] = useState([]);
-  const [allResources, setAllResources] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [stationEmoji, setStationEmoji] = useState('🛖');
   const [stationDetails, setStationDetails] = useState(null);
@@ -63,26 +63,19 @@ const ShopStation = ({
     syncInventory();
   }, [currentPlayer]);
 
-  // Fetch recipes and resources
   useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        const allResourcesData = await loadMasterResources();
-        const filteredRecipes = allResourcesData.filter((resource) =>
-          resource.source === stationType &&
-          (!currentPlayer.powers || !currentPlayer.powers.some(p => p.type === resource.type))
-        );
-        setRecipes(filteredRecipes);
-        const stationResource = allResourcesData.find((resource) => resource.type === stationType);
-        setStationEmoji(stationResource?.symbol || '🛖');
-        setStationDetails(stationResource);
-        setAllResources(allResourcesData || []);
-      } catch (error) {
-        console.error('Error loading resources:', error);
-      }
-    };
-    fetchResources();
-  }, [stationType, fetchTrigger]);
+    if (!masterResources || !stationType) return;
+
+    const filteredRecipes = masterResources.filter((resource) =>
+      resource.source === stationType &&
+      (!currentPlayer.powers || !currentPlayer.powers.some(p => p.type === resource.type))
+    );
+    setRecipes(filteredRecipes);
+
+    const stationResource = masterResources.find((resource) => resource.type === stationType);
+    setStationEmoji(stationResource?.symbol || '🛖');
+    setStationDetails(stationResource);
+  }, [stationType, fetchTrigger, masterResources]);
 
 
   const handlePurchase = async (recipe) => {
@@ -146,6 +139,7 @@ const ShopStation = ({
         setBackpack,
         setCurrentPlayer,
         updateStatus,
+        masterResources,
       });
 
       if (!gainSuccess) {
@@ -173,7 +167,7 @@ const ShopStation = ({
           )}
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
-              const ingredients = getIngredientDetails(recipe, allResources || []);
+              const ingredients = getIngredientDetails(recipe, masterResources || []);
               const affordable = canAfford(recipe, inventory, 1);
               const meetsRequirement = hasRequirement(recipe.requires);
               const outputLabel = recipe.output ? (strings[recipe.output] || recipe.output) : '';

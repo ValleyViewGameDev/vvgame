@@ -7,7 +7,6 @@ import FloatingTextManager from '../../UI/FloatingText';
 import { updateGridResource } from '../../Utils/GridManagement';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
-import { loadMasterResources } from '../../Utils/TuningManager';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { createCollectEffect } from '../../VFX/VFX';
 
@@ -25,6 +24,7 @@ const AnimalStall = ({
   gridId,
   TILE_SIZE,
   updateStatus,
+  masterResources,
 }) => {
   const [stallDetails, setStallDetails] = useState(null);
   const [outputDetails, setOutputDetails] = useState(null);
@@ -32,24 +32,9 @@ const AnimalStall = ({
   console.log('Inside Animal Stall:', { stationType, currentStationPosition });
 
   useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        const allResources = await loadMasterResources();
-        const stallResource = allResources.find((res) => res.type === stationType);
-        console.log('Stall Resource:', stallResource);
-        setStallDetails(stallResource);
-
-        if (!stallResource.output) {
-          setOutputDetails(null);
-          return;
-        }
-      } catch (error) {
-        console.error('Error loading stall resources:', error);
-      }
-    };
-
-    fetchResources();
-  }, [stationType]);
+    const stallResource = masterResources.find((res) => res.type === stationType);
+    setStallDetails(stallResource);
+  }, [stationType, masterResources]);
 
   useEffect(() => {
     const syncInventory = async () => {
@@ -94,6 +79,7 @@ const AnimalStall = ({
           setBackpack,
           setCurrentPlayer,
           updateStatus,
+          masterResources,
         });
         if (!success) return;
       }

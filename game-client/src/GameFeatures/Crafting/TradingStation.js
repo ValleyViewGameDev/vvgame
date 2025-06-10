@@ -9,7 +9,7 @@ import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate, gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
-import { loadMasterResources, loadMasterSkills } from '../../Utils/TuningManager';
+import { loadMasterSkills } from '../../Utils/TuningManager';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import strings from '../../UI/strings';
@@ -28,9 +28,9 @@ const TradingStation = ({
   gridId,
   TILE_SIZE,
   updateStatus,
+  masterResources,
 }) => {
   const [recipes, setRecipes] = useState([]);
-  const [allResources, setAllResources] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [stationEmoji, setStationEmoji] = useState('🛖');
   const [stationDetails, setStationDetails] = useState(null);
@@ -55,27 +55,18 @@ const TradingStation = ({
     syncInventory();
   }, [currentPlayer]);
 
-  // Fetch recipes and resources
   useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        const allResourcesData = await loadMasterResources();
-        const filteredRecipes = allResourcesData.filter((resource) => resource.source === stationType);
-        setRecipes(filteredRecipes);
+    try {
+      const filteredRecipes = masterResources.filter((resource) => resource.source === stationType);
+      setRecipes(filteredRecipes);
 
-        const stationResource = allResourcesData.find((resource) => resource.type === stationType);
-        setStationEmoji(stationResource?.symbol || '🛖');
-        setStationDetails(stationResource);
-
-        setAllResources(allResourcesData || []);
-      } catch (error) {
-        console.error('Error loading resources:', error);
-      }
-    };
-    fetchResources();
-  }, [stationType]);
-
-
+      const stationResource = masterResources.find((resource) => resource.type === stationType);
+      setStationEmoji(stationResource?.symbol || '🛖');
+      setStationDetails(stationResource);
+    } catch (error) {
+      console.error('Error loading resources:', error);
+    }
+  }, [stationType, masterResources]);
 
   const handleTrade = async (recipe) => {
     setErrorMessage('');
@@ -114,6 +105,7 @@ const TradingStation = ({
       setBackpack,
       setCurrentPlayer,
       updateStatus,
+      masterResources,
     });
 
     if (!gained) {
@@ -126,8 +118,6 @@ const TradingStation = ({
     updateStatus(`✅ Exchanged ${recipe.ingredient1qty || 1} ${recipe.ingredient1} for 1 ${recipe.type}.`);
   };
 
-   
-
   return (
     <Panel onClose={onClose} descriptionKey="1016" titleKey="1116" panelName="TradingStation">
       <div className="standard-panel">
@@ -136,13 +126,13 @@ const TradingStation = ({
         
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
-              const ingredients = getIngredientDetails(recipe, allResources || []);
+              const ingredients = getIngredientDetails(recipe, masterResources || []);
               const affordable = canAfford(recipe, inventory, 1);
               const info = (
                 <div className="info-content">
                   <div>
                     <strong>{strings[421]}</strong>{' '}
-                    {allResources
+                    {masterResources
                       .filter((res) =>
                         [res.ingredient1, res.ingredient2, res.ingredient3, res.ingredient4].includes(recipe.type)
                       )
