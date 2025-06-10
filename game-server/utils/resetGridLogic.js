@@ -76,6 +76,7 @@ async function performGridReset(gridId) {
 
   grid.tiles = newTiles;
   grid.resources = newResources;
+  grid.NPCsInGrid = new Map(); // Clear existing NPCs explicitly before resetting
   grid.NPCsInGrid = new Map(Object.entries(newNPCs));
   grid.NPCsInGridLastUpdated = Date.now();
 

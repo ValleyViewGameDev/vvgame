@@ -161,7 +161,8 @@ async function seasonReset(frontierId) {
             frontier.seasonlog[logIndex].playersrelocated = relocatedCount;
             frontier.markModified(`seasonlog.${logIndex}.playersrelocated`);
             await frontier.save();
-            console.log(`📝 Updated playersrelocated (${relocatedCount}) in seasonlog.`);
+            const savedLog = frontier.seasonlog[logIndex];
+            console.log("📝 Final season log entry being saved:", JSON.stringify(savedLog, null, 2));
           } else {
             console.warn("⚠️ Could not update playersrelocated — season entry not found.");
           }
