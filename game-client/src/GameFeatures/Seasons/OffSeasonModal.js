@@ -68,25 +68,27 @@ function OffSeasonModal({ onClose, currentPlayer }) {
 
 
   useEffect(() => {
-    const fetchRichestCitizens = async () => {
+    const fetchSeasonWinners = async () => {
       try {
-        if (!currentPlayer?.settlementId) return;
-  
-        const response = await axios.get(`${API_BASE}/api/get-players-by-settlement/${currentPlayer.settlementId}`);
-        const players = response.data;
-  
-        const sortedPlayers = players
-          .map(player => ({ username: player.username, netWorth: player.netWorth || 0 }))
-          .sort((a, b) => b.netWorth - a.netWorth)
-          .slice(0, 5); // Show top 5 in modal
-  
-        setRichestCitizens(sortedPlayers);
+        if (!currentPlayer?.frontierId) return;
+
+        const response = await axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`);
+        const seasonLog = response.data?.seasonlog || [];
+        const currentSeasonNumber = response.data?.seasons?.seasonNumber;
+
+        const lastSeason = seasonLog.find(entry => entry.seasonnumber === currentSeasonNumber);
+        const winners = lastSeason?.seasonwinners || [];
+
+        setRichestCitizens(winners.map((w, i) => ({
+          username: w.username,
+          netWorth: w.networth
+        })));
       } catch (error) {
-        console.error("❌ Error fetching richest citizens:", error);
+        console.error("❌ Error fetching season winners:", error);
       }
     };
-  
-    fetchRichestCitizens();
+
+    fetchSeasonWinners();
   }, [currentPlayer]);
 
 
