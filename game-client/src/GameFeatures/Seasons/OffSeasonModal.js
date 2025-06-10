@@ -126,14 +126,12 @@ function OffSeasonModal({ onClose, currentPlayer }) {
 
 
       <ul style={{ paddingLeft: "1.5rem", marginBottom: "1rem" }}>
-        <li>📦 Wiping homestead ownership</li>
-        <li>🧑‍🌾 Reassigning players</li>
-        <li>🛠️ Resetting grids</li>
-        <li>💸 Applying money nerfs</li>
-        <li>📬 Sending reward mail</li>
+        <p>🧑‍🌾 Sending players home</p>
+        <p>🛠️ Resetting grids</p>
+        <p>💰 Nerfing money accounts</p>
+        <p>📬 Sending rewards to inboxes</p>
       </ul>
 
-      <p>🧪 This is a <strong>debug preview</strong>. No data has been changed yet.</p>
 
       <br />
     </Modal>

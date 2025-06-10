@@ -166,7 +166,7 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
           <tbody>
             {[...seasonlog].reverse().map((entry, i) => (
               <tr key={i}>
-                <td style={{ padding: "6px 12px" }}>{entry.seasontype} #{entry.seasonnumber}</td>
+                <td style={{ padding: "6px 12px" }}>#{entry.seasonnumber} {entry.seasontype}</td>
                 <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
                 <td style={{ padding: "6px 12px" }}>{entry.winningsettlement}</td>
                 <td style={{ padding: "6px 12px", whiteSpace: "pre-line" }}>
