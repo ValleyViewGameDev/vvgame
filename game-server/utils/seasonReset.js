@@ -221,22 +221,19 @@ async function seasonReset(frontierId) {
         for (const player of allPlayers) {
           const isGold = player.accountStatus?.includes("Gold");
           const nerf = isGold ? globalTuning.seasonMoneyNerfGold : globalTuning.seasonMoneyNerf;
-  
+
           const moneyItem = player.inventory.find((i) => i.type === "Money");
           if (moneyItem) {
             moneyItem.quantity = Math.floor(moneyItem.quantity * (1 - nerf));
           }
-  
+
           player.inventory = player.inventory.filter(i =>
-            ["Money", "Merlin’s Orb", "King’s Crown"].includes(i.type)
+            ["Money", "Prospero's Orb", "King’s Crown", "Golden Key"].includes(i.type)
           );
-  
+
           player.netWorth = null;
-          if (SAVE_FLAG) {
-            await player.save();
-          } else {
-            console.log("🚩 SAVE_FLAG off; Skipped saving player after money nerf.");
-          }
+          // 💾 Always save player after applying nerf and wiping inventory
+          await player.save();
         }
         console.log(`⏱️ Step 6 took ${Date.now() - stepStart}ms`);
       } else {

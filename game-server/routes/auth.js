@@ -109,7 +109,7 @@ router.post('/register', async (req, res) => {
           progress: {}, // No progress required since it's marked completed
           giver: "Wizard",
           startTime: Date.now(),
-          reward: "Merlin's Orb",
+          reward: "Prospero's Orb",
           rewardqty: 1,
           symbol: "🧙", // Optional: Add a symbol for the quest
         },
