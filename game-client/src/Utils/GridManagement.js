@@ -19,18 +19,7 @@ export const updateGridResource = async (
   try {
     const { x, y, growEnd, craftEnd, craftedItem, type } = resource;
     
-    // ✅ 1. Optimistically update GlobalGridStateTilesAndResources
-    // const prevResources = GlobalGridStateTilesAndResources.getResources();
-    // console.log('prevResources = ', prevResources);
-    // let updatedResources;
-    // if (resource?.type === null) {
-    //   updatedResources = prevResources.filter((r) => !(r.x === x && r.y === y));
-    // } else {
-    //   updatedResources = mergeResources(prevResources, [resource]);
-    // }
-    // GlobalGridStateTilesAndResources.setResources(updatedResources);
-
-    // ✅ 2. Flat payload — no "newResource" key
+    // ✅ 1. Flat payload — no "newResource" key
     const payload = {
       resource: {
         type,
@@ -44,13 +33,12 @@ export const updateGridResource = async (
     };
     console.log('UPDATE GRID RESOURCE; payload = ', payload);
 
-    // ✅ 3. Update the database
+    // ✅ 2. Update the database
     const response = await axios.patch(`${API_BASE}/api/update-grid/${gridId}`, payload);
     if (!response.data.success) throw new Error('Failed DB update');
 
-    // ✅ 4. Emit to other clients
+    // ✅ 3. Emit to other clients
     if (broadcast && socket && socket.emit) {
-
       socket.emit('update-resource', {
         gridId,
         updatedResources: [resource?.type === null ? { x, y, type: null } : resource],

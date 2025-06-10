@@ -1,31 +1,38 @@
-class Queue {
-    constructor() {
-      this.queue = [];
-      this.processing = false;
-    }
-  
-    enqueue(task) {
-      this.queue.push(task);
-      this.processNext();
-    }
-  
-    async processNext() {
-      if (this.processing || this.queue.length === 0) {
-        return;
-      }
-  
-      this.processing = true;
-      const task = this.queue.shift();
-  
-      try {
-        await task();
-      } catch (error) {
-        console.error('Error processing task:', error);
-      } finally {
-        this.processing = false;
-        this.processNext();
-      }
-    }
+const gridQueues = new Map();
+
+function enqueueGridUpdate(gridId, task) {
+  if (!gridQueues.has(gridId)) {
+    gridQueues.set(gridId, {
+      queue: [],
+      processing: false,
+    });
   }
-  
-  module.exports = new Queue();
+
+  const queueObj = gridQueues.get(gridId);
+  queueObj.queue.push(task);
+
+  processNext(gridId);
+}
+
+async function processNext(gridId) {
+  const queueObj = gridQueues.get(gridId);
+  if (!queueObj || queueObj.processing || queueObj.queue.length === 0) {
+    return;
+  }
+
+  queueObj.processing = true;
+  const task = queueObj.queue.shift();
+
+  try {
+    await task();
+  } catch (error) {
+    console.error(`Error processing task for grid ${gridId}:`, error);
+  } finally {
+    queueObj.processing = false;
+    processNext(gridId);
+  }
+}
+
+module.exports = {
+  enqueueGridUpdate,
+};

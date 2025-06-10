@@ -226,7 +226,8 @@ router.patch('/update-grid/:gridId', (req, res) => {
   }
 
   // Enqueue the update task
-  queue.enqueue(async () => {
+  const { enqueueGridUpdate } = require('../queue');
+  enqueueGridUpdate(gridId, async () => {
     try {
       const grid = await Grid.findById(gridId);
       if (!grid) {
