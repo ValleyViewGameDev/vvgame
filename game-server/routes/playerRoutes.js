@@ -382,7 +382,7 @@ router.post('/update-inventory', (req, res) => {
 router.post('/update-inventory-delta', async (req, res) => {
   const { playerId, delta } = req.body;
   console.log(`POST /api/update-inventory-delta - Applying delta to playerId: ${playerId}`);
-  
+  console.log('Delta Payload:', delta);
   if (!playerId || !delta) {
     return res.status(400).json({ error: 'playerId and delta are required.' });
   }
