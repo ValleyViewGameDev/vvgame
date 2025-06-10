@@ -169,10 +169,32 @@ export async function gainIngredients({
     target.push({ type: resource, quantity });
   }
 
+  // THIS IS THE ORIGINAL CODE THAT USED THE update-inventory ENDPOINT
+  // This is now replaced with the update-inventory-delta endpoint
+  //
+  // const payload = {
+  //   playerId,
+  //   inventory: isMoney || isHomestead ? target : inventory,
+  //   backpack: !isMoney && !isHomestead ? target : backpack,
+  // };
+  // console.log("📤 Sending inventory payload to server:", payload);
+
+  // try {
+  //   await axios.post(`${API_BASE}/api/update-inventory`, payload);
+  //   setInventory(payload.inventory);
+  //   setBackpack(payload.backpack);
+  //   await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
+  //   return true;
+  // } catch (err) {
+  //   console.error("❌ Error gaining ingredient", err);
+  //   return false;
+  // }
+
+
   // Prepare delta payload for update-inventory-delta endpoint
   const deltaPayload = {
     playerId,
-    deltas: [{ type: resource, quantityChange: quantity }]
+    delta: [{ type: resource, quantityChange: quantity }]
   };
   console.log("📤 Sending inventory delta payload to server:", deltaPayload);
 
@@ -187,6 +209,7 @@ export async function gainIngredients({
     return false;
   }
 }
+
 
 ////////////////////////////////////////
 export async function spendIngredients({
