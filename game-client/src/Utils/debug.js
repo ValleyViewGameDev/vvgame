@@ -8,6 +8,7 @@ import { fetchGridData } from './GridManagement';
 import NPCsInGridManager from '../GridState/GridStateNPCs'; // Use default export for NPCsInGridManager
 import playersInGridManager from '../GridState/PlayersInGrid';
 import GridStateDebugPanel from './GridStateDebug';
+import generateTownGrid from './WorldGeneration';
 
 const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, setResources, currentGridId, updateStatus }) => {
   const [timers, setTimers] = useState([]);
@@ -167,71 +168,6 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
     }
   }; 
 
-  const handleGenerateTown = async () => {
-    try {
-      const settlementId = currentPlayer.location.s;
-      if (!settlementId) {
-        console.error('No settlement ID found for the current player.');
-        alert('No settlement ID found for the current player.');
-        return;
-      }
-  
-      // Fetch the settlement data
-      const response = await axios.get(
-        `${API_BASE}/api/get-settlement/${settlementId}`
-      );
-  
-      const settlement = response.data;
-      if (!settlement || !settlement.grids || settlement.grids.length === 0) {
-        console.error('Settlement data is incomplete or missing grids.');
-        alert('Settlement data is incomplete or missing grids.');
-        return;
-      }
-  
-      // Find all uninitialized town grids by looking for gridType === 'town' but no gridId
-      const townGrids = [];
-      settlement.grids.forEach((row) => {
-        row.forEach((grid) => {
-          if (grid.gridType === 'town' && !grid.gridId) {
-            // Instead of placeholderName, push the gridCoord
-            townGrids.push(grid.gridCoord);
-          }
-        });
-      });
-  
-      if (townGrids.length === 0) {
-        console.log('No uninitialized town grids found in this settlement.');
-        alert('No uninitialized town grids found in this settlement.');
-        return;
-      }
-  
-      console.log(`Found ${townGrids.length} uninitialized town grids. Processing grids...`);
-  
-      // Generate/create each town grid by passing gridCoord
-      for (const gridCoord of townGrids) {
-        try {
-          console.log(`Creating Town grid with gridCoord: ${gridCoord}`);
-  
-          const result = await axios.post(`${API_BASE}/api/create-grid`, {
-            gridCoord,             // instead of placeholderName
-            gridType: 'town',
-            settlementId,
-            frontierId: settlement.frontierId,
-          });
-  
-          console.log(`Processed town grid for gridCoord: ${gridCoord}`, result.data);
-  
-        } catch (gridError) {
-          console.error(`Failed to process grid for gridCoord: ${gridCoord}`, gridError);
-        }
-      }
-  
-      alert('Town grids created successfully!');
-    } catch (error) {
-      console.error('Error processing town grids:', error);
-      alert('Failed to create town grids. Check the console for details.');
-    }
-  };
   
   const handleAddMoney = async () => {
     try {
@@ -388,89 +324,89 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
     }
   };
   
-const handleClearInventory = async () => {
-  try {
-    const playerId = currentPlayer?.playerId;
-    if (!playerId) {
-      console.error('No player ID found. Cannot clear inventory.');
-      return;
+  const handleClearInventory = async () => {
+    try {
+      const playerId = currentPlayer?.playerId;
+      if (!playerId) {
+        console.error('No player ID found. Cannot clear inventory.');
+        return;
+      }
+
+      // Retain only Money in the inventory
+      const filteredInventory = currentPlayer.inventory.filter(
+        (item) => item.type === 'Money'
+      );
+      console.log('Filtered inventory to retain only Money:', filteredInventory);
+
+      // Update inventory on the server
+      await axios.post(`${API_BASE}/api/update-inventory`, {
+        playerId,
+        inventory: filteredInventory,
+        backpack: currentPlayer.backpack || [],
+      });
+      console.log('Inventory updated successfully on the server.');
+
+      // Refresh player data after updates
+      await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
+
+      // Force a re-fetch to confirm changes are saved
+      const updatedInventory = await fetchInventory(playerId);
+      console.log('Fetched inventory after clearing:', updatedInventory);
+
+      // Update the local state for inventory
+      setInventory(updatedInventory);
+      setCurrentPlayer((prevPlayer) => ({
+        ...prevPlayer,
+        inventory: updatedInventory,
+      }));
+      updateStatus(900);
+      console.log('Inventory cleared successfully except for Money.');
+    } catch (error) {
+      console.error('Error clearing inventory:', error);
     }
+  };
 
-    // Retain only Money in the inventory
-    const filteredInventory = currentPlayer.inventory.filter(
-      (item) => item.type === 'Money'
-    );
-    console.log('Filtered inventory to retain only Money:', filteredInventory);
+  const handleClearSkillsAndPowers = async () => {
+    try {
+      const playerId = currentPlayer?.playerId;
+      if (!playerId) {
+        console.error('No player ID found. Cannot clear skills and powers.');
+        return;
+      }
 
-    // Update inventory on the server
-    await axios.post(`${API_BASE}/api/update-inventory`, {
-      playerId,
-      inventory: filteredInventory,
-      backpack: currentPlayer.backpack || [],
-    });
-    console.log('Inventory updated successfully on the server.');
+      // Clear skills
+      const clearedSkills = [];
+      console.log('Clearing all skills.');
+      await axios.post(`${API_BASE}/api/update-skills`, {
+        playerId,
+        skills: clearedSkills,
+      });
+      console.log('Skills cleared successfully on the server.');
 
-    // Refresh player data after updates
-    await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
+      // Clear powers
+      const clearedPowers = [];
+      console.log('Clearing all powers.');
+      await axios.post(`${API_BASE}/api/update-powers`, {
+        playerId,
+        powers: clearedPowers,
+      });
+      console.log('Powers cleared successfully on the server.');
 
-    // Force a re-fetch to confirm changes are saved
-    const updatedInventory = await fetchInventory(playerId);
-    console.log('Fetched inventory after clearing:', updatedInventory);
+      // Refresh player data after updates
+      await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
 
-    // Update the local state for inventory
-    setInventory(updatedInventory);
-    setCurrentPlayer((prevPlayer) => ({
-      ...prevPlayer,
-      inventory: updatedInventory,
-    }));
-    updateStatus(900);
-    console.log('Inventory cleared successfully except for Money.');
-  } catch (error) {
-    console.error('Error clearing inventory:', error);
-  }
-};
-
-const handleClearSkillsAndPowers = async () => {
-  try {
-    const playerId = currentPlayer?.playerId;
-    if (!playerId) {
-      console.error('No player ID found. Cannot clear skills and powers.');
-      return;
+      // Update the local state for skills and powers
+      setCurrentPlayer((prevPlayer) => ({
+        ...prevPlayer,
+        skills: clearedSkills,
+        powers: clearedPowers,
+      }));
+      updateStatus(905);
+      console.log('Skills and powers cleared successfully.');
+    } catch (error) {
+      console.error('Error clearing skills and powers:', error);
     }
-
-    // Clear skills
-    const clearedSkills = [];
-    console.log('Clearing all skills.');
-    await axios.post(`${API_BASE}/api/update-skills`, {
-      playerId,
-      skills: clearedSkills,
-    });
-    console.log('Skills cleared successfully on the server.');
-
-    // Clear powers
-    const clearedPowers = [];
-    console.log('Clearing all powers.');
-    await axios.post(`${API_BASE}/api/update-powers`, {
-      playerId,
-      powers: clearedPowers,
-    });
-    console.log('Powers cleared successfully on the server.');
-
-    // Refresh player data after updates
-    await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
-
-    // Update the local state for skills and powers
-    setCurrentPlayer((prevPlayer) => ({
-      ...prevPlayer,
-      skills: clearedSkills,
-      powers: clearedPowers,
-    }));
-    updateStatus(905);
-    console.log('Skills and powers cleared successfully.');
-  } catch (error) {
-    console.error('Error clearing skills and powers:', error);
-  }
-};
+  };
   
   const handleClearQuestHistory = async () => {
     try {
@@ -537,17 +473,14 @@ const handleClearSkillsAndPowers = async () => {
         alert("No frontier ID found for the current player.");
         return;
       }
-  
       console.log(`Fetching frontier data for ID: ${frontierId}`);
       const frontierResponse = await axios.get(`${API_BASE}/api/get-frontier/${frontierId}`);
       const frontierData = frontierResponse.data;
-  
       if (!frontierData || !frontierData.settlements) {
         console.error("Frontier data is incomplete or missing settlements.");
         alert("Frontier data is incomplete or missing settlements.");
         return;
       }
-  
       console.log(`Searching settlements for valley${valleyType} grids.`);
       const valleyGrids = [];
   
@@ -558,7 +491,6 @@ const handleClearSkillsAndPowers = async () => {
             console.warn("Settlement is invalid or missing settlementId. Skipping.");
             continue;
           }
-  
           try {
             console.log("Fetching settlement data for settlement ID:", settlement.settlementId);
             const settlementResponse = await axios.get(
@@ -570,7 +502,6 @@ const handleClearSkillsAndPowers = async () => {
               console.warn(`Settlement ${settlement.settlementId} has no grids. Skipping.`);
               continue;
             }
-  
             // 2) Find all uninitialized valleyX sub-grids (i.e., same valleyType, no gridId)
             settlementData.grids.flat().forEach((grid) => {
               if (grid.gridType === `valley${valleyType}` && !grid.gridId) {
@@ -623,24 +554,6 @@ const handleClearSkillsAndPowers = async () => {
       alert(`Failed to process valley${valleyType} grids. Check the console for details.`);
     }
   };
- 
-  
-  const handleAttributeChange = (npcId, attribute, newValue) => {
-    setNPCs((prevNPCs) => {
-      const updatedNPCs = prevNPCs.map((npc) =>
-        npc.id === npcId ? { ...npc, [attribute]: parseFloat(newValue) || 0 } : npc
-      );
-  
-      // Update the actual NPC object in the game state
-      const NPCsInGrid = NPCsInGridManager.getNPCsInGrid(currentGridId);
-      if (NPCsInGrid && NPCsInGrid.npcs[npcId]) {
-        NPCsInGrid.npcs[npcId][attribute] = parseFloat(newValue) || 0;
-      }
-  
-      return updatedNPCs;
-    });
-  };
-  
 
   const handleWelcomeMessage = async () => {
     const playerId = currentPlayer?.playerId;
@@ -723,31 +636,20 @@ const handleClearSkillsAndPowers = async () => {
     }
   };
 
-
-  const handleResetTimers = async () => {
-    try {
-      // ✅ Step 1: Clear local storage timers
-      console.log("🧹 Local storage timer value before clearing:", localStorage.getItem("timers"));
-      localStorage.removeItem("timers");
-      console.log("🧼 Local storage timers cleared.");
-  
-      // ✅ Step 2: Request server to reset timers
-      const response = await axios.post(`${API_BASE}/api/reset-all-timers`);
-      if (response.data.success) {
-        console.log("✅ Timers reset successfully from the client.");
-        updateStatus("🔄 All timers reset successfully.");
- //       await fetchTimersData();
-  
-      } else {
-        console.warn("⚠️ Timer reset failed.");
-        updateStatus("❌ Failed to reset timers.");
-      }
-    } catch (error) {
-      console.error("❌ Error resetting timers:", error);
-      updateStatus("❌ Timer reset request failed.");
-    }
-  };
-
+const handleGenerateTown = async () => {
+  try {
+    await generateTownGrid({
+      currentPlayer,
+      setCurrentPlayer,
+      setInventory,
+      setResources,
+      currentGridId,
+      updateStatus
+    });
+  } catch (error) {
+    console.error('Error generating town:', error);
+    alert('Failed to generate town. Check console for details.');
+  }
 
   return (
     <Panel onClose={onClose} titleKey="1120" panelName="DebugPanel">
@@ -771,8 +673,6 @@ const handleClearSkillsAndPowers = async () => {
         <button className="btn-success" onClick={handleGetRich}> Get Rich </button>
         <button className="btn-success" onClick={handleGetSkills}> Get Skills </button>
         <button className="btn-neutral" onClick={() => setRefreshDebug((prev) => !prev)} > Refresh Debug Panel </button>
-
-        <button className="panel-button reset-button" onClick={handleResetTimers}>Reset All Timers</button>
 
       </div>
 
