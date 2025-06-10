@@ -158,7 +158,7 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
               <th style={{ padding: "6px 12px" }}>Season</th>
               <th style={{ padding: "6px 12px" }}>Date</th>
               <th style={{ padding: "6px 12px" }}>Top Settlement</th>
-              <th style={{ padding: "6px 12px" }}>Top Players</th>
+              <th style={{ padding: "6px 12px" }}>Top Players by Net Worth</th>
               <th style={{ padding: "6px 12px" }}>Grids Reset</th>
               <th style={{ padding: "6px 12px" }}>Players Relocated</th>
             </tr>
