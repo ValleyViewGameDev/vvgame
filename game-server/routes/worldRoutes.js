@@ -78,17 +78,23 @@ router.post('/create-grid', async (req, res) => {
       return res.status(400).json({ error: `Invalid layout for gridType: ${gridType}` });
     }
 
-    // 4) Generate tiles using `tileDistribution`
-    console.log(`📌 Generating tiles using in-template tile distribution...`);
-    const newTiles = generateGrid(layout, layout.tileDistribution).map(row =>
-      row.map(layoutKey => {
-        const tileResource = masterResources.find(res => res.layoutkey === layoutKey && res.category === "tile");
-        return tileResource ? tileResource.type : "g"; // Default to "g" if missing
-      })
-    );    
-    // 5) Generate resources using `resourceDistribution`
-    console.log(`📌 Generating resources using in-template resource distribution...`);
-    const newResources = generateResources(layout, newTiles, layout.resourceDistribution); // ✅ Uses `layout.resourceDistribution`
+    // 4/5) Generate tiles/resources, or use fixed layout if valleyFixedCoord
+    let newTiles, newResources;
+    if (layoutFileName?.includes('valleyFixedCoord')) {
+      console.log(`🔒 Using fixed layout tiles and resources directly.`);
+      newTiles = layout.tiles;
+      newResources = layout.resources;
+    } else {
+      console.log(`📌 Generating tiles using in-template tile distribution...`);
+      newTiles = generateGrid(layout, layout.tileDistribution).map(row =>
+        row.map(layoutKey => {
+          const tileResource = masterResources.find(res => res.layoutkey === layoutKey && res.category === "tile");
+          return tileResource ? tileResource.type : "g";
+        })
+      );
+      console.log(`📌 Generating resources using in-template resource distribution...`);
+      newResources = generateResources(layout, newTiles, layout.resourceDistribution);
+    }
 
 
     // 6) Separate NPCs into NPCsInGrid Map
