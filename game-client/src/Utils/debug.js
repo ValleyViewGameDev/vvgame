@@ -3,7 +3,7 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import Panel from '../UI/Panel';
 import '../UI/Panel.css'; // Specific styles for Debug Panel
-import { fetchInventory, debugUpdateInventory, refreshPlayerAfterInventoryUpdate } from './InventoryManagement';
+import { fetchInventory, refreshPlayerAfterInventoryUpdate } from './InventoryManagement';
 import { fetchGridData } from './GridManagement';
 import NPCsInGridManager from '../GridState/GridStateNPCs'; // Use default export for NPCsInGridManager
 import playersInGridManager from '../GridState/PlayersInGrid';
@@ -190,74 +190,60 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
     }
   };
 
-  const handleGetRich = async () => {
-    try {
-      const playerId = currentPlayer?.playerId;
-      if (!playerId) {
-        console.error('No user logged in. Cannot perform Get Rich.');
-        return;
-      }
-  
-      // Define resources to add
-      const resourcesToAdd = [
-        { type: 'Money', quantity: 100000 },
-        { type: 'Wood', quantity: 10000 },
-        { type: 'Clay', quantity: 10000 },
-        { type: 'Stone', quantity: 10000 },
-        { type: 'Wheat', quantity: 10000 },
-        { type: 'Corn', quantity: 10000 },
-        { type: 'Carrot', quantity: 10000 },
-        { type: 'Potion 1', quantity: 50 },
-        { type: 'Potion 2', quantity: 50 },
-        { type: 'Cloth', quantity: 500 },
-        { type: 'Lumber', quantity: 500 },
-        { type: 'Thread', quantity: 500 },
-        { type: 'Metal', quantity: 500 },
-        { type: 'Aged Wine', quantity: 500 },
-        { type: 'Sweater', quantity: 5000 },
-        { type: 'Aged Wine', quantity: 500 },
-        { type: 'Cheese', quantity: 5000 },
-        { type: 'Sugarcane', quantity: 5000 },
-        { type: 'Strawberry', quantity: 5000 },
-        { type: 'Diamond', quantity: 500 },
-        { type: 'Feverfew', quantity: 100 },
-        { type: 'Golden Key', quantity: 100 },
-        { type: 'Book', quantity: 100 },
-        { type: 'Furniture', quantity: 1000 },
-        { type: 'Port', quantity: 1000 },
-      ];
-  
-      // Fetch the latest inventory and work on a copy
-      let updatedInventory = [...currentPlayer.inventory];
-  
-      // Process each resource and update the inventory in-memory
-      for (const resource of resourcesToAdd) {
-        const resourceIndex = updatedInventory.findIndex((item) => item.type === resource.type);
-        if (resourceIndex !== -1) {
-          updatedInventory[resourceIndex].quantity += resource.quantity;
-        } else {
-          updatedInventory.push({ type: resource.type, quantity: resource.quantity });
-        }
-        // Call updateInventory for each resource (server update only)
-        await debugUpdateInventory(
-          { ...currentPlayer, inventory: updatedInventory }, // Simulate the updated player
-          resource.type,
-          resource.quantity,
-          () => {} // Temporarily bypass setCurrentPlayer
-        );
-      }
-  
-      // Update state once with the final aggregated inventory
-      const finalPlayerState = { ...currentPlayer, inventory: updatedInventory };
-      setCurrentPlayer(finalPlayerState);
-      localStorage.setItem('player', JSON.stringify(finalPlayerState));
-      setInventory(updatedInventory);
-  
-      console.log('Get Rich: Inventory updated successfully.');
-    } catch (error) {
-      console.error('Error performing Get Rich:', error);
+const handleGetRich = async () => {
+  try {
+    const playerId = currentPlayer?.playerId;
+    if (!playerId) {
+      console.error('No user logged in. Cannot perform Get Rich.');
+      return;
     }
-  };
+
+    // Define resources to add
+    const resourcesToAdd = [
+      { type: 'Money', quantity: 100000 },
+      { type: 'Wood', quantity: 10000 },
+      { type: 'Clay', quantity: 10000 },
+      { type: 'Stone', quantity: 10000 },
+      { type: 'Wheat', quantity: 10000 },
+      { type: 'Corn', quantity: 10000 },
+      { type: 'Carrot', quantity: 10000 },
+      { type: 'Potion 1', quantity: 50 },
+      { type: 'Potion 2', quantity: 50 },
+      { type: 'Cloth', quantity: 500 },
+      { type: 'Lumber', quantity: 500 },
+      { type: 'Thread', quantity: 500 },
+      { type: 'Metal', quantity: 500 },
+      { type: 'Aged Wine', quantity: 500 },
+      { type: 'Sweater', quantity: 5000 },
+      { type: 'Cheese', quantity: 5000 },
+      { type: 'Sugarcane', quantity: 5000 },
+      { type: 'Strawberry', quantity: 5000 },
+      { type: 'Diamond', quantity: 500 },
+      { type: 'Feverfew', quantity: 100 },
+      { type: 'Golden Key', quantity: 100 },
+      { type: 'Book', quantity: 100 },
+      { type: 'Furniture', quantity: 1000 },
+      { type: 'Port', quantity: 1000 },
+    ];
+
+    // Use delta endpoint for batched update
+    await axios.post(`${API_BASE}/api/update-inventory-delta`, {
+      playerId,
+      delta: resourcesToAdd,
+    });
+
+    // Refresh player data after the batched update
+    await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
+
+    // Update local inventory state
+    const updatedInventory = await fetchInventory(playerId);
+    setInventory(updatedInventory);
+
+    console.log('💰 Get Rich: Inventory updated successfully via delta.');
+  } catch (error) {
+    console.error('❌ Error performing Get Rich:', error);
+  }
+};
   
   const handleGetSkills = async () => {
     try {

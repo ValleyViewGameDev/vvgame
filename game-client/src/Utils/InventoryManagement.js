@@ -55,46 +55,6 @@ export async function fetchInventory(playerId) {
   }
 }
 
-/// DEBUG function to add stuff to inventory without checking capacity, etc.
-export async function debugUpdateInventory(currentPlayer, resourceType, quantityChange, setCurrentPlayer) {
-  if (!currentPlayer?.playerId) {
-    console.error('No player ID provided for updating inventory');
-    return [];
-  }
-  try {
-    const updatedInventory = [...currentPlayer.inventory];
-    const resourceIndex = updatedInventory.findIndex((item) => item.type === resourceType);
-    if (resourceIndex !== -1) {
-      updatedInventory[resourceIndex].quantity += quantityChange;
-      if (updatedInventory[resourceIndex].quantity <= 0) {
-        updatedInventory.splice(resourceIndex, 1); // Remove resource if quantity is zero
-      }
-    } else if (quantityChange > 0) {
-      updatedInventory.push({ type: resourceType, quantity: quantityChange });
-    }
-
-    console.log("📤 Payload to /update-inventory:", {
-      playerId: currentPlayer.playerId,
-      inventory: updatedInventory,
-      backpack: currentPlayer.backpack,
-    });
-
-    await axios.post(`${API_BASE}/api/update-inventory`, {
-      playerId: currentPlayer.playerId,
-      inventory: updatedInventory,
-      backpack: currentPlayer.backpack, // Ensure backpack remains unchanged
-    });
-    console.log('Inventory updated successfully on the server.');
-    // Update currentPlayer and sync with localStorage
-    const updatedPlayer = { ...currentPlayer, inventory: updatedInventory };
-    setCurrentPlayer(updatedPlayer);
-    localStorage.setItem('player', JSON.stringify(updatedPlayer));
-    return updatedInventory;
-  } catch (error) {
-    console.error('Error updating inventory:', error);
-    throw error;
-  }
-}
  
 /**
  * Refreshes the player's state after an inventory update.
