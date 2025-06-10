@@ -175,7 +175,7 @@ const handlePurchase = async (resourceType) => {
           <p>Loading...</p>
         ) : (
           <>
-            {!["Warehouse", "Adventure Camp"].includes(entryPoint) && (
+            {!["Warehouse", "Adventure Camp", "Laboratory", "School"].includes(entryPoint) && (
               <div className="skills-owned">
                 <h3>{strings[1303]}</h3>
                 {ownedSkills.length > 0 ? (
@@ -190,7 +190,7 @@ const handlePurchase = async (resourceType) => {
               </div>
             )}
 
-            {!["Warehouse", "Adventure Camp", "Laboratory"].includes(entryPoint) && (
+            {!["Warehouse", "Adventure Camp", "Laboratory", "School"].includes(entryPoint) && (
               <div className="upgrades-owned">
                 <h3>{strings[1304]}</h3>
                 {ownedUpgrades.length > 0 ? (
