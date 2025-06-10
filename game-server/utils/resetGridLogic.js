@@ -3,8 +3,8 @@ const Grid = require('../models/grid');
 const Frontier = require('../models/frontier');
 const path = require('path');
 const fs = require('fs');
-const { readJSON, generateGrid, generateResources } = require('./worldUtils');
-const { ObjectId } = require('mongodb');
+const { generateGrid, generateResources } = require('./worldUtils');
+const { readJSON } = require('./fileUtils');const { ObjectId } = require('mongodb');
 const masterResources = require('../tuning/resources.json');
 const { getTemplate, getHomesteadLayoutFile } = require('./templateUtils');
 
