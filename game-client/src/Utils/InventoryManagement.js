@@ -194,7 +194,7 @@ export async function gainIngredients({
   // Prepare delta payload for update-inventory-delta endpoint
   const deltaPayload = {
     playerId,
-    delta: [{ type: resource, quantityChange: quantity }]
+    delta: [{ type: resource, quantity: quantity }]
   };
   console.log("📤 Sending inventory delta payload to server:", deltaPayload);
 
