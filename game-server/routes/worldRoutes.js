@@ -96,9 +96,13 @@ router.post('/create-grid', async (req, res) => {
     let newTiles, newResources;
     if (layoutFileName?.includes('valleyFixedCoord')) {
       console.log(`🔒 Using fixed layout tiles and resources directly.`);
+      console.log('🧪 layoutFileName =', layoutFileName);
+      console.log('🧪 layout.tiles present:', !!layout.tiles);
+      console.log('🧪 layout.resources present:', !!layout.resources);
       newTiles = layout.tiles;
       newResources = layout.resources;
     } else {
+      console.log('⚠️ Fixed layout condition failed. layoutFileName =', layoutFileName);
       console.log(`📌 Generating tiles using in-template tile distribution...`);
       newTiles = generateGrid(layout, layout.tileDistribution).map(row =>
         row.map(layoutKey => {
