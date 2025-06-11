@@ -6,7 +6,7 @@ import { useFileContext } from './FileContext';
 const GRID_DIMENSION = 64;
 
 const FrontierView = ({ selectedFrontier, settlements, activePanel }) => {
-  const { setFileName, setDirectory } = useFileContext();
+  const { setFileName, setDirectory, selectedCell, setSelectedCell } = useFileContext();
 
 console.log("📦 FrontierView rendered");
 console.log("🧭 selectedFrontier:", selectedFrontier);
@@ -15,7 +15,6 @@ console.log("📜 settlements.length:", settlements?.length);
   const [modalMessage, setModalMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [layoutCache, setLayoutCache] = useState(new Set());
-  const [selectedCell, setSelectedCell] = useState(null);
 
 
   useEffect(() => {
@@ -61,7 +60,7 @@ if (settlements.length > 0) {
     return () => {
       window.removeEventListener('refresh-layout-cache', refreshHandler);
     };
-  }, []);
+  }, [setSelectedCell]);
 
   const gridMap = useMemo(() => {
     const map = new Map();

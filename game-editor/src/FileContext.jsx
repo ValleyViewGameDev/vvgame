@@ -6,9 +6,17 @@ const FileContext = createContext();
 export const FileProvider = ({ children }) => {
   const [fileName, setFileName] = useState('');
   const [directory, setDirectory] = useState('');
+  const [selectedCell, setSelectedCell] = useState(null);
 
   return (
-    <FileContext.Provider value={{ fileName, setFileName, directory, setDirectory }}>
+    <FileContext.Provider value={{
+      fileName,
+      setFileName,
+      directory,
+      setDirectory,
+      selectedCell,
+      setSelectedCell
+    }}>
       {children}
     </FileContext.Provider>
   );
