@@ -165,7 +165,7 @@ router.post('/reset-grid', async (req, res) => {
   }
 
   try {
-    await performGridReset(gridId);
+    await performGridReset(gridId, gridCoord);
     res.status(200).json({ success: true, message: 'Grid reset successfully.' });
   } catch (error) {
     console.error('Error resetting grid:', error);

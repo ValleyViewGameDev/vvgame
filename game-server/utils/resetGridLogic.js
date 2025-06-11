@@ -8,11 +8,12 @@ const { readJSON } = require('./fileUtils');const { ObjectId } = require('mongod
 const masterResources = require('../tuning/resources.json');
 const { getTemplate, getHomesteadLayoutFile } = require('./templateUtils');
 
-async function performGridReset(gridId) {
+async function performGridReset(gridId, overrideGridCoord = null) {
   const grid = await Grid.findById(gridId);
   if (!grid) throw new Error(`Grid not found: ${gridId}`);
 
-  const { gridType, gridCoord } = grid;
+  const gridCoord = overrideGridCoord || grid.gridCoord;
+  const { gridType } = grid;
 
   // Load layout
   let layout, layoutFileName;

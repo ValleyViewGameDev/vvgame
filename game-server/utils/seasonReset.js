@@ -185,7 +185,7 @@ async function seasonReset(frontierId) {
 
           try {
             console.log(`🔁 Resetting ${grid.gridType} grid (${grid._id})`);
-            await performGridReset(grid._id);
+            await performGridReset(grid._id, grid.gridCoord);
             console.log(`✅ Grid ${grid._id} reset successfully (${grid.gridType})`);
           } catch (err) {
             console.error(`❌ Error resetting grid ${grid._id}:`, err.message);
