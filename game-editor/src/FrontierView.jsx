@@ -6,7 +6,7 @@ import { useFileContext } from './FileContext';
 const GRID_DIMENSION = 64;
 
 const FrontierView = ({ selectedFrontier, settlements, activePanel }) => {
-  const { setFileName, setDirectory } = useFileContext();
+  const { setFileName, setDirectory, selectedCell, setSelectedCell } = useFileContext();
 
 console.log("📦 FrontierView rendered");
 console.log("🧭 selectedFrontier:", selectedFrontier);
@@ -15,7 +15,6 @@ console.log("📜 settlements.length:", settlements?.length);
   const [modalMessage, setModalMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [layoutCache, setLayoutCache] = useState(new Set());
-  const [selectedCell, setSelectedCell] = useState(null);
 
 
   useEffect(() => {
@@ -49,7 +48,19 @@ if (settlements.length > 0) {
     });
 
     setLayoutCache(available);
-  }, [settlements]);
+    console.log("📁 Updated layoutCache with:", Array.from(available));
+  }, [settlements, selectedCell]);
+
+  useEffect(() => {
+    const refreshHandler = () => {
+      // Force re-run of layout cache update by resetting selectedCell to itself
+      setSelectedCell(prev => prev ? {...prev} : null);
+    };
+    window.addEventListener('refresh-layout-cache', refreshHandler);
+    return () => {
+      window.removeEventListener('refresh-layout-cache', refreshHandler);
+    };
+  }, [setSelectedCell]);
 
   const gridMap = useMemo(() => {
     const map = new Map();
@@ -93,10 +104,18 @@ const handleGridClick = async (gridCoord) => {
   };
 
 const handleCreateGrid = () => {
-    console.log("handleCreateGrid called");
-    if (!selectedCell?.coord || !selectedCell?.type) return;
-    window.dispatchEvent(new CustomEvent('switch-to-editor'));
-    window.dispatchEvent(new CustomEvent('editor-create-grid', { detail: { gridCoord: selectedCell.coord, gridType: selectedCell.type } }));
+  console.log("handleCreateGrid called");
+  if (!selectedCell?.coord || !selectedCell?.type) return;
+  setFileName(String(selectedCell.coord));
+  setDirectory("valleyFixedCoord/");
+  window.dispatchEvent(new CustomEvent('switch-to-editor'));
+  window.dispatchEvent(new CustomEvent('editor-clear-grid'));
+  window.dispatchEvent(new CustomEvent('editor-create-grid', {
+    detail: {
+      gridCoord: selectedCell.coord,
+      gridType: selectedCell.type
+    }
+  }));
 };
 
 const handleLoadGrid = () => {
