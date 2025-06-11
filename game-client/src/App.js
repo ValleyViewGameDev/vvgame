@@ -876,6 +876,10 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
   if (resource) {
     console.log('App.js: Resource clicked:', resource);
     if (resource.category === 'npc') { } // handled in RenderDynamic
+    else if (resource.category === 'travel') {
+      // Signpost clicking ignored; you have to walk onto them; 
+      updateStatus(110); // "You have to walk onto a signpost to travel."
+    }
     else if (resource.category === 'training') {
       setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, });
       openPanel('SkillsAndUpgradesPanel'); 
