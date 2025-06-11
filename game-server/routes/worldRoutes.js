@@ -94,7 +94,10 @@ router.post('/create-grid', async (req, res) => {
 
     // 4/5) Generate tiles/resources, or use fixed layout if valleyFixedCoord
     let newTiles, newResources;
-    if (layoutFileName?.includes('valleyFixedCoord')) {
+    const fixedLayoutPath = path.join(__dirname, '../layouts/gridLayouts/valleyFixedCoord');
+    console.log('🧪 Checking if fixed layout file exists at path:', path.join(fixedLayoutPath, layoutFileName));
+    const isFixedLayout = fs.existsSync(path.join(fixedLayoutPath, layoutFileName));
+    if (isFixedLayout) {
       console.log(`🔒 Using fixed layout tiles and resources directly.`);
       console.log('🧪 layoutFileName =', layoutFileName);
       console.log('🧪 layout.tiles present:', !!layout.tiles);
@@ -183,7 +186,7 @@ router.post('/reset-grid', async (req, res) => {
   }
 
   try {
-    await performGridReset(gridId);
+    await performGridReset(gridId, gridType, gridCoord);
     res.status(200).json({ success: true, message: 'Grid reset successfully.' });
   } catch (error) {
     console.error('Error resetting grid:', error);

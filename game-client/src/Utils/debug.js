@@ -614,7 +614,7 @@ const handleGetRich = async () => {
           
     <GridStateDebugPanel
       gridId={currentGridId}
-      gridCoord={currentPlayer?.location?.gcoord}
+      gridCoord={currentPlayer?.location?.gridCoord}
       gridType={currentPlayer?.location?.gtype}
       NPCsInGrid={{ [currentGridId]: NPCsInGridManager.getNPCsInGrid(currentGridId) }}
       playersInGrid={{ [currentGridId]: playersInGridManager.getPlayersInGrid(currentGridId) }}

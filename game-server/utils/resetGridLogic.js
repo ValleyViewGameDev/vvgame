@@ -8,11 +8,9 @@ const { readJSON } = require('./fileUtils');const { ObjectId } = require('mongod
 const masterResources = require('../tuning/resources.json');
 const { getTemplate, getHomesteadLayoutFile } = require('./templateUtils');
 
-async function performGridReset(gridId) {
+async function performGridReset(gridId, gridType, gridCoord) {
   const grid = await Grid.findById(gridId);
   if (!grid) throw new Error(`Grid not found: ${gridId}`);
-
-  const { gridType, gridCoord } = grid;
 
   // Load layout
   let layout, layoutFileName;
@@ -25,7 +23,9 @@ async function performGridReset(gridId) {
     layoutFileName = layoutFile;
     console.log(`🌱 Using seasonal homestead layout for reset: ${layoutFile}`);
   } else {
+    console.log(`🔍 Fetching layout for gridType: ${gridType}, gridCoord: ${gridCoord}`);
     const fixedCoordPath = path.join(__dirname, `../layouts/gridLayouts/valleyFixedCoord/${gridCoord}.json`);
+    console.log(`🔍 Checking for fixed-coordinate layout at: ${fixedCoordPath}`);
     if (fs.existsSync(fixedCoordPath)) {
       layout = readJSON(fixedCoordPath);
       layoutFileName = `${gridCoord}.json`;
