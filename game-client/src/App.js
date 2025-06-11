@@ -11,6 +11,7 @@ import DynamicRenderer from './Render/RenderDynamic.js';
 import { handleResourceClick } from './ResourceClicking';
 
 //test 
+// hi it's milo
 
 import socket from './socketManager';
 import { socketListenForPCJoinAndLeave,
