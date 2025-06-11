@@ -473,25 +473,86 @@ useEffect(() => {
     if (playersInGrid && gridId && currentPlayer?._id) {
       const playerId = String(currentPlayer._id);
       const playerPC = playersInGrid?.[gridId]?.pcs?.[playerId];
-      if (playerPC?.hp <= 0 && currentPlayer) {
-      // 💀 Check for player death
-         console.log("💀 Player is dead. Handling death...");
-        await handlePlayerDeath(currentPlayer,setCurrentPlayer,setGridId,setGrid,setResources,setTileTypes,activeTileSize,updateStatus,setModalContent,setIsModalOpen,closeAllPanels);
-      } else {
       // 🔥 Check for lava tile
-        const col = playerPC?.position?.x;
-        const row = playerPC?.position?.y;
-        const onTileType = tileTypes?.[row]?.[col];
-        if (onTileType === "l") { 
+      const col = playerPC?.position?.x;
+      const row = playerPC?.position?.y;
+      const onTileType = tileTypes?.[row]?.[col];
+      // 🪧 Check for Signpost resource (based on exact x/y match)
+      const onResource = resources?.flat().find(r => r?.x === col && r?.y === row);
+      const onResourceType = onResource?.type;
+
+      if (playerPC?.hp <= 0 && currentPlayer) {
+        console.log("💀 Player is dead. Handling death...");
+        await handlePlayerDeath(
+          currentPlayer,
+          setCurrentPlayer,
+          setGridId,
+          setGrid,
+          setResources,
+          setTileTypes,
+          activeTileSize,
+          updateStatus,
+          setModalContent,
+          setIsModalOpen,
+          closeAllPanels
+        );
+      } else {
+        if (onTileType === "l") {
           const lavaDamage = 2;
-          playersInGrid[gridId].pcs[playerId].hp -= lavaDamage; 
+          playersInGrid[gridId].pcs[playerId].hp -= lavaDamage;
           FloatingTextManager.addFloatingText(`- ${lavaDamage} ❤️‍🩹 HP`, col, row, activeTileSize);
-          console.log("🔥 Player is standing on lava. Applying 2 damage."); }
+          console.log("🔥 Player is standing on lava. Applying 2 damage.");
+        }
+
+        if (onResourceType?.startsWith("Signpost")) {
+          console.log("📍 Player is standing on a Signpost. Triggering click behavior.");
+          await handleResourceClick(
+            onResource,
+            row,
+            col,
+            resources,
+            setResources,
+            setInventory,
+            setBackpack,
+            inventory,
+            backpack,
+            FloatingTextManager.addFloatingText,
+            gridId,
+            activeTileSize,
+            tileTypes,
+            currentPlayer,
+            setCurrentPlayer,
+            setGridId,
+            setGrid,
+            setTileTypes,
+            updateStatus,
+            masterResources,
+            masterSkills,
+            setModalContent,
+            setIsModalOpen,
+            closeAllPanels
+          );
+        }
       }
     }
   }, 1000);
   return () => clearInterval(interval);
-}, [isAppInitialized, gridId, playersInGrid, currentPlayer, activeTileSize]);
+// Add dependencies for resources, setResources, setInventory, setBackpack, inventory, backpack, masterResources, masterSkills
+}, [
+  isAppInitialized,
+  gridId,
+  playersInGrid,
+  currentPlayer,
+  activeTileSize,
+  resources,
+  setResources,
+  setInventory,
+  setBackpack,
+  inventory,
+  backpack,
+  masterResources,
+  masterSkills,
+]);
 
 
 
