@@ -8,7 +8,7 @@ import { fetchGridData } from './GridManagement';
 import NPCsInGridManager from '../GridState/GridStateNPCs'; // Use default export for NPCsInGridManager
 import playersInGridManager from '../GridState/PlayersInGrid';
 import GridStateDebugPanel from './GridStateDebug';
-import { generateTownGrids, generateValleyGrids } from './WorldGeneration';
+import { generateTownGrids, generateValleyGrids, createSingleValleyGrid } from './WorldGeneration';
 
 const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, setResources, currentGridId, updateStatus }) => {
   const [timers, setTimers] = useState([]);
@@ -16,6 +16,7 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
   const [pcs, setPCs] = useState([]);
   const [updatedNPCs, setUpdatedNPCs] = useState(npcs);
   const [refreshDebug, setRefreshDebug] = useState(false);
+  const [singleGridCoord, setSingleGridCoord] = useState('');
   
   // Fetch resources with timers when the panel opens or gridId changes
   useEffect(() => {
@@ -561,9 +562,37 @@ const handleGetRich = async () => {
         <button className="btn-success" onClick={handleAddMoney}> Add Money </button>
         <button className="btn-success" onClick={handleGetRich}> Get Rich </button>
         <button className="btn-success" onClick={handleGetSkills}> Get Skills </button>
+
+        <h3>Create Single Valley Grid</h3>
+        <input
+          type="text"
+          placeholder="Enter GridCoord"
+          value={singleGridCoord}
+          onChange={(e) => setSingleGridCoord(e.target.value)}
+        />
+        <button
+          className="btn-danger"
+          onClick={async () => {
+            const settlementId = currentPlayer?.location?.s;
+            const frontierId = currentPlayer?.location?.f;
+            const gridType = currentPlayer?.location?.gtype || 'valley0';
+            if (!singleGridCoord || !settlementId || !frontierId) {
+              alert("Missing gridCoord, settlementId, or frontierId.");
+              return;
+            }
+            try {
+              await createSingleValleyGrid({
+                gridCoord: singleGridCoord,
+              });
+            } catch (error) {
+              console.error("Error creating single valley grid:", error);
+              alert("Failed to create valley grid. See console for details.");
+            }
+          }}
+        >
+          Create Grid
+        </button>
       </div>
-
-
 
       <div className="debug-timers">
         <h3>⏳ Active Timers:</h3>

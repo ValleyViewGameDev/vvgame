@@ -161,3 +161,61 @@ export async function generateValleyGrids({ valleyType, currentPlayer }) {
       alert(`Failed to process valley${valleyType} grids. Check the console for details.`);
     }
   };
+
+
+export async function createSingleValleyGrid({ gridCoord }) {
+  try {
+    console.log("🔍 Fetching all settlements to determine gridType for gridCoord:", gridCoord);
+    const settlementsResponse = await axios.get(`${API_BASE}/api/settlements`);
+    const settlements = settlementsResponse.data;
+
+    if (!settlements || settlements.length === 0) {
+      throw new Error("No settlements returned from the server");
+    }
+
+    let foundGrid = null;
+    let foundSettlementId = null;
+    let foundFrontierId = null;
+
+    for (const settlement of settlements) {
+      if (!settlement.grids) continue;
+
+      for (const row of settlement.grids) {
+        for (const grid of row) {
+          console.log(`🔍 Checking gridCoord ${grid.gridCoord} (type: ${typeof grid.gridCoord}) against input ${gridCoord}`);
+          if (String(grid.gridCoord) === String(gridCoord)) {
+            foundGrid = grid;
+            foundSettlementId = settlement._id;
+            foundFrontierId = settlement.frontierId;
+            break;
+          }
+        }
+        if (foundGrid) break;
+      }
+      if (foundGrid) break;
+    }
+
+    if (!foundGrid) {
+      console.warn(`❗ GridCoord ${gridCoord} not found in any settlement.`);
+      alert("GridCoord not found in any settlement data.");
+      return;
+    }
+
+    const payload = {
+      gridCoord,
+      gridType: foundGrid.gridType,
+      settlementId: foundSettlementId,
+      frontierId: foundFrontierId,
+    };
+
+    console.log("📤 Sending grid creation request with:", payload);
+
+    const response = await axios.post(`${API_BASE}/api/create-grid`, payload);
+
+    console.log(`✅ Grid created: ${gridCoord}`, response.data);
+    alert(`Grid ${gridCoord} created successfully!`);
+  } catch (error) {
+    console.error(`❌ Failed to create grid ${gridCoord}:`, error);
+    alert(`Failed to create grid ${gridCoord}. See console for details.`);
+  }
+}

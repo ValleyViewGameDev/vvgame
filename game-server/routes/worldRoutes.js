@@ -39,8 +39,22 @@ router.post('/create-grid', async (req, res) => {
 
   try {
     // 1) Fetch the settlement & frontier
-    const settlement = await Settlement.findById(settlementId);
-    if (!settlement) return res.status(404).json({ error: 'Settlement not found.' });
+    let settlement = await Settlement.findById(settlementId);
+    if (!settlement) {
+      // Try to find the gridCoord in all settlements if not found or settlementId is null
+      const allSettlements = await Settlement.find({});
+      for (const s of allSettlements) {
+        const flatGrids = s.grids?.flat?.() || [];
+        const match = flatGrids.find(g => g.gridCoord === Number(gridCoord));
+        if (match) {
+          settlement = s;
+          break;
+        }
+      }
+      if (!settlement) {
+        return res.status(404).json({ error: 'Settlement not found for gridCoord: ' + gridCoord });
+      }
+    }
 
     const frontier = await Frontier.findById(frontierId);
     if (!frontier) return res.status(404).json({ error: 'Frontier not found.' });
