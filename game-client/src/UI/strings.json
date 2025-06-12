@@ -350,6 +350,9 @@
     "7012": "✅ Customize your player icon: 😡 😎 😱 🤡 😇 😻 💩",
     "7013": "✅ Daily rewards sent to your Inbox",
     
+    "10000": "🔌 Server is Down",
+    "10001": "The server is currently down. We apologize for the inconvencient, please check back soon.",
+    "10002": "(This message will disappear when the server is back up.)",
 
     "hp": "Hit Points",
     "maxhp": "Max Hit Points",

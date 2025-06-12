@@ -84,6 +84,45 @@ import { handlePlayerDeath } from './Utils/playerManagement';
 
 function App() {
 
+    // Server connectivity check: periodically ping server and show modal if down
+useEffect(() => {
+  let interval;
+  let serverPreviouslyDown = false;
+  const checkServer = async () => {
+    console.log("Checking server connectivity every 2 seconds... API_BASE =", API_BASE); 
+    console.log("serverPreviouslyDown =", serverPreviouslyDown); 
+    try {
+      const response = await axios.get(`${API_BASE}/api/ping`);
+      console.log("✅ Server response received:", response);
+
+      // Always close modal if server is reachable
+      setIsModalOpen(false);
+
+      // If it was previously down, reload the page
+      if (serverPreviouslyDown) {
+        console.log("🔄 Server is back online after downtime. Refreshing...");
+        window.location.reload();
+      }
+
+    } catch (err) {
+      console.warn("❌ Server unreachable:", err.message);
+      if (!serverPreviouslyDown) {
+        setModalContent({
+          title: strings[10000],
+          message: strings[10001],
+          message2: strings[10002],
+        });
+        setIsModalOpen(true);
+        serverPreviouslyDown = true;
+      }
+    }
+  };
+
+  interval = setInterval(checkServer, 2000);
+  return () => clearInterval(interval);
+}, []);
+
+
   useEffect(() => {
     const checkInitialSeasonPhase = async () => {
       console.log("Checking for on or off Season on app start");
@@ -1714,3 +1753,4 @@ const handleLoginSuccess = async (player) => {
 }
 
 export default App;
+

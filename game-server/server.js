@@ -386,7 +386,9 @@ app._router.stack.forEach(function(r) {
   }
 });
 
-
+app.get('/api/ping', (req, res) => {
+  res.status(200).json({ success: true, message: 'pong' });
+});
 
 //
 // EDITOR ROUTES 
