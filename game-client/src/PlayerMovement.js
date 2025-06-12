@@ -3,33 +3,20 @@ import { animateRemotePC } from './Render/RenderAnimatePosition';
 import playersInGridManager from './GridState/PlayersInGrid'; // Correctly use NPCsInGridManager
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FloatingTextManager from "./UI/FloatingText";
+import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
 // Temporary render-only animation state for interpolated player positions
 export const renderPositions = {};
-
 let currentAnimationFrame = null; 
 
-function isValidMove(targetX, targetY, masterResources) {  // Function to check if movement is valid
-  const tiles = GlobalGridStateTilesAndResources.getTiles();
-  const resources = GlobalGridStateTilesAndResources.getResources();
-
-  if (!Array.isArray(resources)) {
-    console.warn('⛔ Movement blocked: resources is not an array yet.', resources);
-    return false;
-  }
-  // 1️⃣ **Check if the target is out of bounds**
-  if (targetX < 0 || targetY < 0 || targetX > 63 || targetY > 63) {
-    console.warn(`⛔ Movement blocked: (${targetX}, ${targetY}) is out of bounds.`);
-    return false;
-  }
-  // 2️⃣ **Check if tile is valid for movement (using existing isValidTile function)**
-  const canMove = isTileValidForPlayer(targetX, targetY, tiles, resources, masterResources, []);
-  if (!canMove) {
-    console.warn(`⛔ Movement blocked: Tile (${targetX}, ${targetY}) is not passable.`);
-  }
-  return canMove;
-}
-
-export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResources) {
+export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResources, 
+  setCurrentPlayer, 
+  setGridId, 
+  setGrid, 
+  setTileTypes, 
+  setResources, 
+  updateStatus, 
+  closeAllPanels) 
+{
 
   const directions = {
     ArrowUp: { dx: 0, dy: -1 },
@@ -67,7 +54,17 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
     console.error('masterResources is not an array:', masterResources);
     return;
   }
-  if (!isValidMove(targetX, targetY, masterResources)) {
+  if (!isValidMove(targetX, targetY, masterResources,
+    currentPlayer,
+    setCurrentPlayer,
+    setGridId,
+    setGrid,
+    setTileTypes,
+    setResources,
+    updateStatus,
+    TILE_SIZE,
+    closeAllPanels,
+  )) {
     console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
     return;
   }
@@ -84,6 +81,63 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
 
   centerCameraOnPlayer(finalPosition, TILE_SIZE);
 
+}
+
+function isValidMove(targetX, targetY, masterResources,
+  currentPlayer,
+  setCurrentPlayer,
+  setGridId,
+  setGrid,
+  setTileTypes,
+  setResources,
+  updateStatus,
+  TILE_SIZE,
+  closeAllPanels,
+ ) {  // Function to check if movement is valid
+  const tiles = GlobalGridStateTilesAndResources.getTiles();
+  const resources = GlobalGridStateTilesAndResources.getResources();
+
+  if (!Array.isArray(resources)) {
+    console.warn('⛔ Movement blocked: resources is not an array yet.', resources);
+    return false;
+  }
+
+  // 1️⃣ **Check if the target is out of bounds**
+  if (targetX < 0 || targetY < 0 || targetX > 63 || targetY > 63) {
+//  console.warn(`⛔ Movement blocked: (${targetX}, ${targetY}) is out of bounds.`);
+    const direction =
+      targetX < 0 ? "Signpost W" :
+      targetX > 63 ? "Signpost E" :
+      targetY < 0 ? "Signpost N" :
+      targetY > 63 ? "Signpost S" :
+      null;
+    if (!direction) { console.warn(`⛔ Invalid movement direction from (${targetX}, ${targetY}).`); return false; }
+
+    console.log(`📦 Attempting directional travel via: ${direction}`);
+    const skills = currentPlayer.skills;
+
+    handleTransitSignpost(
+      currentPlayer,
+      direction,
+      setCurrentPlayer,
+      setGridId,
+      setGrid,
+      setTileTypes,
+      setResources,
+      updateStatus,
+      TILE_SIZE,
+      skills,
+      closeAllPanels
+    );
+    return false; // Prevent normal movement handling
+  };
+
+  // 2️⃣ **Check if tile is valid for movement (using existing isValidTile function)**
+  const canMove = isTileValidForPlayer(targetX, targetY, tiles, resources, masterResources, []);
+  if (!canMove) {
+    console.warn(`⛔ Movement blocked: Tile (${targetX}, ${targetY}) is not passable.`);
+  }
+  return canMove;
 }
 
 

@@ -2,6 +2,7 @@ import API_BASE from "../../config";
 import axios from "axios";
 import { changePlayerLocation } from "../../Utils/GridManagement";
 import { getEntryPosition } from './transitConfig';
+import playersInGridManager from "../../GridState/PlayersInGrid";
 
 export async function handleTransitSignpost(
   currentPlayer,
@@ -17,8 +18,10 @@ export async function handleTransitSignpost(
   closeAllPanels
 ) {
   try {
+    if (typeof updateStatus !== "function") {
+      console.warn("⚠️ updateStatus is not a function:", updateStatus);
+    }
     console.log("Handling transit for resource:", resourceType);
-
     console.log("🔍 currentPlayer before checking skills:", currentPlayer);
     console.log("📜 currentPlayer.skills:", currentPlayer.skills);
 
@@ -40,8 +43,8 @@ export async function handleTransitSignpost(
       console.log("Signpost Home clicked. Traveling to player's homestead.");
 
       const newPlayerPosition = {
-        x: 0,  // Center of the homestead
-        y: 0,
+        x: 1,  // Center of the homestead
+        y: 1,
         g: currentPlayer.gridId,      // The player's homestead grid
         s: currentPlayer.settlementId,
         f: currentPlayer.location.f,
@@ -78,8 +81,8 @@ export async function handleTransitSignpost(
 
       console.log("Found town grid:", townGrid);
       const newPlayerPosition = {
-        x: 0,  // upper left of town
-        y: 0,
+        x: 1,  // upper left of town
+        y: 1,
         g: townGrid.gridId,
         s: settlementId,
         f: frontierId,
@@ -189,7 +192,33 @@ export async function handleTransitSignpost(
     }
 
     // 11) Get the entry position based on the direction traveled
-    const entryPosition = getEntryPosition(direction);
+    let entryPosition;
+    const playerId = currentPlayer._id?.toString();
+    const gridId = currentPlayer.location?.g;
+    const playerData = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+    const fromX = playerData?.position?.x ?? 0;
+    const fromY = playerData?.position?.y ?? 0;
+    console.log("Current player position:", { x: fromX, y: fromY });
+    console.log("Direction:", direction);
+
+    if (["E", "W"].includes(direction)) {
+      // Preserve row (Y) when moving left/right
+      entryPosition = {
+        x: direction === "E" ? 0 : 63,
+        y: fromY
+      };
+      console.log("Preserving row (Y) for E/W direction:", entryPosition);
+    } else if (["N", "S"].includes(direction)) {
+      // Preserve column (X) when moving up/down
+      entryPosition = {
+        x: fromX,
+        y: direction === "N" ? 63 : 0
+      };
+      console.log("Preserving column (X) for N/S direction:", entryPosition);
+    } else {
+      // Fallback to existing logic for diagonals and non-cardinal directions
+      entryPosition = getEntryPosition(direction);
+    }
 
     // 12) Finally, update the player location
     const newPlayerPosition = {
@@ -234,4 +263,3 @@ function decodeCoord(coord) {
     gCol:          parseInt(str.slice(7, 8), 10), // last 1 digit
   };
 }
-

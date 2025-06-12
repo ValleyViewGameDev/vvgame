@@ -89,21 +89,14 @@ useEffect(() => {
   let interval;
   let serverPreviouslyDown = false;
   const checkServer = async () => {
-    console.log("Checking server connectivity every 2 seconds... API_BASE =", API_BASE); 
-    console.log("serverPreviouslyDown =", serverPreviouslyDown); 
     try {
       const response = await axios.get(`${API_BASE}/api/ping`);
-      console.log("✅ Server response received:", response);
-
       // Always close modal if server is reachable
       setIsModalOpen(false);
-
       // If it was previously down, reload the page
       if (serverPreviouslyDown) {
-        console.log("🔄 Server is back online after downtime. Refreshing...");
         window.location.reload();
       }
-
     } catch (err) {
       console.warn("❌ Server unreachable:", err.message);
       if (!serverPreviouslyDown) {
@@ -117,7 +110,6 @@ useEffect(() => {
       }
     }
   };
-
   interval = setInterval(checkServer, 2000);
   return () => clearInterval(interval);
 }, []);
@@ -870,7 +862,15 @@ useEffect(() => {
     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; } // Prevent movement if a text input is focused
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
 
-    handleKeyMovement(event, currentPlayer, activeTileSize, masterResources);
+    handleKeyMovement(event, currentPlayer, activeTileSize, masterResources,
+        setCurrentPlayer, 
+        setGridId, 
+        setGrid, 
+        setTileTypes, 
+        setResources, 
+        updateStatus, 
+        closeAllPanels,
+    );
   };
   window.addEventListener('keydown', handleKeyDown); 
   return () => {
