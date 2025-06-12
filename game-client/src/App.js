@@ -90,7 +90,7 @@ useEffect(() => {
   let serverPreviouslyDown = false;
   const checkServer = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/api/ping`);
+      // await axios.get(`${API_BASE}/api/ping`);
       // Always close modal if server is reachable
       setIsModalOpen(false);
       // If it was previously down, reload the page
