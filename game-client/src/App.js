@@ -496,7 +496,8 @@ useEffect(() => {
 }, [isAppInitialized, gridId, NPCsInGrid, currentPlayer, activeTileSize, controllerUsername]);
 
 
-// 🔄 PC Management Loop: Check for player death & lava
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// 🔄 PC Management Loop: Check for player death & lava //////////////////////////////////////////////////////
 useEffect(() => {
   if (!isAppInitialized) { console.log('App not initialized. Skipping PC management.'); return; }
 
