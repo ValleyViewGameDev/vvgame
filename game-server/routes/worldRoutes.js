@@ -12,7 +12,7 @@ const Grid = require('../models/grid'); // Assuming you have a Grid model
 const Player = require('../models/player'); // Adjust the path to match your project structure
 const { getFrontierId, getSettlementId, getgridId } = require('../utils/IDs');
 const { performGridReset } = require('../utils/resetGridLogic');
-const { generateGrid, generateResources } = require('../utils/worldUtils');
+const { generateGrid, generateResources, generateFixedGrid, generateFixedResources } = require('../utils/worldUtils');
 //const tileTypesPath = path.resolve(__dirname, '../layouts/tileTypes.json');
 //const tileTypes = JSON.parse(fs.readFileSync(tileTypesPath, 'utf-8'));
 const masterResources = require('../tuning/resources.json'); // Import resources.json directly
@@ -66,7 +66,7 @@ router.post('/create-grid', async (req, res) => {
     if (!targetGrid) { return res.status(400).json({error: `No sub-grid found in settlement for gridCoord: ${gridCoord}`,}); }
 
     // 3) Load the correct grid template — seasonal override if gridType is 'homestead'
-    let layoutFileName, layout;
+    let layoutFileName, layout, isFixedLayout = false;
     if (gridType === 'homestead') {
       const seasonType = frontier.seasons?.seasonType || 'default'; // e.g., Spring, Summer
       const seasonalLayoutFile = getHomesteadLayoutFile(seasonType); // fallback-safe helper
@@ -80,6 +80,7 @@ router.post('/create-grid', async (req, res) => {
       if (fs.existsSync(fixedCoordPath)) {
         layout = readJSON(fixedCoordPath);
         layoutFileName = `${gridCoord}.json`;
+        isFixedLayout = true; // ✅ Track it here
         console.log(`📌 Using fixed-coordinate layout: ${layoutFileName}`);
       } else {
         const templateData = getTemplate('gridLayouts', gridType, gridCoord);
@@ -94,16 +95,11 @@ router.post('/create-grid', async (req, res) => {
 
     // 4/5) Generate tiles/resources, or use fixed layout if valleyFixedCoord
     let newTiles, newResources;
-    const fixedLayoutPath = path.join(__dirname, '../layouts/gridLayouts/valleyFixedCoord');
-    console.log('🧪 Checking if fixed layout file exists at path:', path.join(fixedLayoutPath, layoutFileName));
-    const isFixedLayout = fs.existsSync(path.join(fixedLayoutPath, layoutFileName));
     if (isFixedLayout) {
-      console.log(`🔒 Using fixed layout tiles and resources directly.`);
-      console.log('🧪 layoutFileName =', layoutFileName);
-      console.log('🧪 layout.tiles present:', !!layout.tiles);
-      console.log('🧪 layout.resources present:', !!layout.resources);
-      newTiles = layout.tiles;
-      newResources = layout.resources;
+      const { generateFixedGrid, generateFixedResources } = require('../utils/worldUtils');
+      console.log(`🔒 Using fixed layout tiles and resources via generateFixedGrid and generateFixedResources.`);
+      newTiles = generateFixedGrid(layout);
+      newResources = generateFixedResources(layout);
     } else {
       console.log('⚠️ Fixed layout condition failed. layoutFileName =', layoutFileName);
       console.log(`📌 Generating tiles using in-template tile distribution...`);

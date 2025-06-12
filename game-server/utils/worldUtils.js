@@ -1,6 +1,7 @@
 const { readJSON } = require('./fileUtils');
 const config = require('../config');
 const path = require('path');
+const { getTemplate } = require('../utils/templateUtils');
 const masterResources = require('../tuning/resources.json'); // Import resources.json directly
 const resourcesFilePath = path.join(__dirname, '../tuning/resources.json');
 console.log('Loading resources ...');
@@ -33,7 +34,6 @@ function generateGrid(layout) {
   if (!layout.tiles) {
     throw new Error('Invalid layout: Missing "tiles".');
   }
-
   const tileDistribution = layout.tileDistribution || {};
   const distributionArray = createDistributionArray(tileDistribution);
 
@@ -46,16 +46,14 @@ function generateGrid(layout) {
         
         // ✅ Find the correct layoutkey for the randomTile
         const tileResource = masterResources.find(res => res.type === randomTile && res.category === 'tile');
-        return tileResource ? tileResource.layoutkey : 'GR'; // ✅ Default to 'GR' if missing
+        return tileResource ? tileResource.layoutkey : 'g'; // ✅ Default to 'GR' if missing
       }
-
       // ✅ Directly return the correct tile layoutkey
       const tileResource = masterResources.find(res => res.layoutkey === cell && res.category === 'tile');
-      return tileResource ? tileResource.layoutkey : 'GR'; // ✅ Default to 'GR' if missing
+      return tileResource ? tileResource.layoutkey : 'g'; // ✅ Default to 'GR' if missing
     })
   );
 }
-
 
 function generateResources(layout, tiles) {
   if (!layout.resources) {
@@ -144,6 +142,49 @@ function generateResources(layout, tiles) {
   return resources;
 }
 
+function generateFixedGrid(layout) {
+  if (!layout.tiles) {
+    throw new Error('Invalid layout: Missing "tiles".');
+  }
+  return layout.tiles.map((row, rowIndex) =>
+    row.map((cell, colIndex) => {
+      // ✅ Lookup layoutkey and translate it to DB-friendly value
+      const tileResource = masterResources.find(res => res.layoutkey === cell && res.category === "tile");
+      return tileResource ? tileResource.type : 'g'; // fallback to grass
+    })
+  );
+}
+
+function generateFixedResources(layout) {
+  if (!layout.resources) {
+    throw new Error('Invalid layout: Missing "resources".');
+  }
+
+  const resources = [];
+
+  layout.resources.forEach((row, y) => {
+    row.forEach((cell, x) => {
+      if (cell === '**') return; // skip empty cells
+
+      const resourceEntry = masterResources.find(res => res.layoutkey === cell);
+
+      if (resourceEntry) {
+        if (resourceEntry.category === 'npc') {
+          console.log(`📌 Skipping NPC "${resourceEntry.type}" at (${x}, ${y}) – handled separately.`);
+        } else {
+          resources.push({ type: resourceEntry.type, x, y });
+        }
+      } else {
+        console.warn(`⚠️ No matching resource for key "${cell}" at (${x},${y}).`);
+      }
+    });
+  });
+
+  return resources;
+}
+
+
+
 // Helper function to determine if a resource is an NPC
 const isNPC = (resource) => {
   const npcEntry = masterResources.find(item => item.type === resource);
@@ -165,4 +206,6 @@ module.exports = {
   generateResources,
 //  lookupLayoutKey,
   isNPC,
+  generateFixedGrid,
+  generateFixedResources,
 };
