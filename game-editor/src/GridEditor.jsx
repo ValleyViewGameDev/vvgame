@@ -731,7 +731,7 @@ if (typeof window !== "undefined") {
         className="editor-grid-container"
         style={{
           position: 'absolute',
-          top: 0,
+          top: 40,
           left: 240,
           right: 0,
           bottom: 0,
@@ -739,7 +739,7 @@ if (typeof window !== "undefined") {
           overflowY: 'auto',
           zIndex: 0
         }}
-      >
+      > 
         <div
           className="grid-with-rulers"
           style={{

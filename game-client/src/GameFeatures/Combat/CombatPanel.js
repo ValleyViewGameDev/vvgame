@@ -119,6 +119,48 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, stationType, ma
   const attackrange = getStatBreakdown('attackrange');
   const speed = getStatBreakdown('speed');
 
+  const handleRefreshCombatStats = () => {
+    const gridId = currentPlayer.location.g;
+    const playerId = currentPlayer._id;
+
+    const baseStats = {
+      maxhp: currentPlayer.baseMaxhp || 0,
+      damage: currentPlayer.baseDamage || 0,
+      armorclass: currentPlayer.baseArmorclass || 0,
+      attackbonus: currentPlayer.baseAttackbonus || 0,
+      attackrange: currentPlayer.baseAttackrange || 0,
+      speed: currentPlayer.baseSpeed || 0,
+    };
+
+    const powers = currentPlayer.powers || [];
+    const powerBonuses = {
+      maxhp: 0, damage: 0, armorclass: 0, attackbonus: 0, attackrange: 0, speed: 0,
+    };
+
+    powers.forEach(power => {
+      const res = masterResources.find(r => r.type === power.type);
+      if (res && res.output && powerBonuses.hasOwnProperty(res.output)) {
+        powerBonuses[res.output] += (power.quantity || 0) * (res.qtycollected || 1);
+      }
+    });
+
+    const finalStats = {};
+    Object.keys(baseStats).forEach(stat => {
+      finalStats[stat] = baseStats[stat] + (powerBonuses[stat] || 0);
+    });
+
+    finalStats.playerId = playerId;
+    finalStats.username = currentPlayer.username;
+    finalStats.type = "pc";
+    finalStats.position = currentPlayer.position || {};
+    finalStats.icon = currentPlayer.icon || "😀";
+    finalStats.iscamping = currentPlayer.iscamping || false;
+    finalStats.lastUpdated = new Date().toISOString();
+
+    playersInGridManager.updatePC(gridId, playerId, finalStats);
+    updateStatus("✅ Combat stats refreshed from base stats + powers.");
+  };
+
   return (
     <Panel onClose={onClose} descriptionKey="1024" titleKey="1124" panelName="CombatPanel">
       <div className="standard-panel">
@@ -171,7 +213,7 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, stationType, ma
                   const outputLabel = resource.output ? (strings[resource.output] || resource.output) : 'Unknown';
                   return (
                     <p key={index}>
-                      {resource.type} {value > 0 ? '+' : ''}{value} for {outputLabel}
+                      <strong>{resource.type}</strong> gives {value > 0 ? ' +' : ''}{value} for {outputLabel}
                     </p>
                   );
                 })
@@ -183,6 +225,9 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, stationType, ma
         )}
         {errorMessage && <p className="error-message">{errorMessage}</p>}
       </div>
+      <button className="resource-button" onClick={handleRefreshCombatStats}>
+        🔄 Refresh Combat Stats
+      </button>
     </Panel>
   );
 };
