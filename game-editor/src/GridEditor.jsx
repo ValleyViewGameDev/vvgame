@@ -318,21 +318,21 @@ const handleResourceDistributionChange = (resourceType, value) => {
   const loadLayout = async (fileName, directory, setFileInfo = true) => {
     console.log(`🔄 Loading layout: ${fileName} from directory: ${directory}`);
     try {
-      let adjustedDirectory = directory;
+      // let adjustedDirectory = directory;
 
-      if (directory.startsWith('valley')) {
-        adjustedDirectory = 'valleyFixedCoord';
-      } else if (directory === 'homestead' || directory === 'town') {
-        alert('Please use the Grid Editor directly to load town and homestead layout templates.');
-        return;
-      }
+      // if (directory.startsWith('valley')) {
+      //   adjustedDirectory = 'valleyFixedCoord';
+      // } else if (directory === 'homestead' || directory === 'town') {
+      //   alert('Please use the Grid Editor directly to load town and homestead layout templates.');
+      //   return;
+      // }
 
       const layoutPath = path.join(
         projectRoot,
         'game-server',
         'layouts',
         'gridLayouts',
-        adjustedDirectory,
+        directory,
         `${fileName}.json`
       );
 
@@ -365,7 +365,7 @@ const handleResourceDistributionChange = (resourceType, value) => {
 
       console.log("Is setFileInfo true?  ", setFileInfo);
       console.log("Current file name:", fileName);
-      console.log("Current directory:", adjustedDirectory);
+      console.log("Current directory:", directory);
       
       // Removed setCurrentFile and setCurrentDirectory here
 
