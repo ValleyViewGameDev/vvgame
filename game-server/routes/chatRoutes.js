@@ -1,7 +1,6 @@
 const express = require('express');
-const ChatMessage = require('../models/chat').default;
-
 const router = express.Router();
+const ChatMessage = require('../models/chat');
 
 router.get('/chat/:scope/:scopeId', async (req, res) => {
   const { scope, scopeId } = req.params;
