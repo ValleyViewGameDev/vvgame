@@ -265,8 +265,17 @@ mongoose.connect(process.env.MONGODB_URI, {
 
         await newMessage.save(); // Save to MongoDB
 
-        const payload = newMessage.toObject();
+        const payload = {
+          id: newMessage._id.toString(),
+          sender: newMessage.username,
+          text: newMessage.message,
+          scope: newMessage.scope,
+          scopeId: newMessage.scopeId,
+          timestamp: newMessage.timestamp,
+        };
+
         io.to(scopeId).emit('receive-chat-message', payload);
+
       });
 
       socket.on('join-chat-rooms', ({ gridId, settlementId, frontierId }) => {
