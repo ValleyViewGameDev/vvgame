@@ -3,7 +3,7 @@ const ChatMessage = require('../models/chat');
 
 const router = express.Router();
 
-router.get('/:scope/:scopeId', async (req, res) => {
+router.get('/chat/:scope/:scopeId', async (req, res) => {
   const { scope, scopeId } = req.params;
 
   if (!['grid', 'settlement', 'frontier'].includes(scope)) {
