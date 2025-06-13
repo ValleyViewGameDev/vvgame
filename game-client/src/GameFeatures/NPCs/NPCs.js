@@ -51,7 +51,7 @@ class NPC {
 
 update(currentTime, NPCsInGrid, gridId, TILE_SIZE) {
 
-  console.log(`⏰ update() for NPC ${this.id} | currentTime: ${currentTime} | lastUpdated: ${this.lastUpdated} | elapsed: ${currentTime - this.lastUpdated}`);
+  //console.log(`⏰ update() for NPC ${this.id} | currentTime: ${currentTime} | lastUpdated: ${this.lastUpdated} | elapsed: ${currentTime - this.lastUpdated}`);
   const timeElapsed = currentTime - this.lastUpdated;
   if (timeElapsed < this.updateInterval) { return; }
   
@@ -61,7 +61,7 @@ update(currentTime, NPCsInGrid, gridId, TILE_SIZE) {
 
 async processState(NPCsInGrid, gridId, TILE_SIZE) {
   
-  console.log(`🧪 processState | NPC ${this.id} | state=${this.state} | action=${this.action} | gridId=${gridId}`);
+  //console.log(`🧪 processState | NPC ${this.id} | state=${this.state} | action=${this.action} | gridId=${gridId}`);
   try {
 
     switch (this.action) {
@@ -136,7 +136,7 @@ async handleIdleState(tiles, resources, npcs, idleDuration, onTransition = () =>
     onTransition(); // callback to re-evaluate state
     return true; // idle completed
   }
-  console.log(`🐮 NPC ${this.id} is idling. Timer: ${this.idleTimer}/${idleDuration}`);
+  //console.log(`🐮 NPC ${this.id} is idling. Timer: ${this.idleTimer}/${idleDuration}`);
   return false; // still idling
 }
 
@@ -251,7 +251,7 @@ async moveOneTile(direction, tiles, resources, npcs) {
       console.warn(`NPC ${this.id} cannot move to invalid tile (${targetX}, ${targetY}).`);
       return false;
   }
-  console.log('Tile was valid.');
+  //console.log('Tile was valid.');
   const moveDuration = 1200; // Standard movement speed for all NPCs
   const startTime = performance.now(); // Get the start time
   const startX = this.position.x;
@@ -272,7 +272,7 @@ async moveOneTile(direction, tiles, resources, npcs) {
                   npcId: this.id,
                   newPosition: { x: targetX, y: targetY },
                 });
-                console.log(`📡 Emitting npc-moved for NPC ${this.id} to (${targetX}, ${targetY})`);
+                //console.log(`📡 Emitting npc-moved for NPC ${this.id} to (${targetX}, ${targetY})`);
               }
               resolve(true);
               return;
@@ -361,7 +361,7 @@ isValidTile(x, y, tiles, resources, npcs) {
     if (resourceInTile) {
   
       if (!resourceInTile.passable) {
-        console.warn(`Tile (${x}, ${y}) is occupied by an impassable resource.`);
+        //console.warn(`Tile (${x}, ${y}) is occupied by an impassable resource.`);
         return false;
       }
     }

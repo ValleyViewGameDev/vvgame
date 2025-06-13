@@ -1,9 +1,10 @@
 import './App.css';
+import './GameFeatures/Chat/Chat.css';
 import './VFX/VFX.css';
 import API_BASE from './config.js';  
 import axios from 'axios';
+import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
-import NPC from './GameFeatures/NPCs/NPCs';
 import { initializeGrid, postLoginInitialization } from './AppInit';
 import { loadMasterSkills, loadMasterResources } from './Utils/TuningManager';
 import { RenderGrid, RenderVFX, RenderTooltip } from './Render/Render';
@@ -22,7 +23,9 @@ import { socketListenForPCJoinAndLeave,
   socketListenForNPCControllerStatus,
   socketListenForSeasonReset,
   socketListenForPlayerConnectedAndDisconnected,
-  socketListenForConnectAndDisconnect } from './socketManager';
+  socketListenForConnectAndDisconnect,
+  socketListenForChatMessages,
+} from './socketManager';
 
 import farmState from './FarmState';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
@@ -230,6 +233,7 @@ const [hoverTooltip, setHoverTooltip] = useState(null);
 const [controllerUsername, setControllerUsername] = useState(null); // Add state for controller username
 const [isSocketConnected, setIsSocketConnected] = useState(false);
 const [connectedPlayers, setConnectedPlayers] = useState(() => new Set());
+const [chatMessages, setChatMessages] = useState({});
 
 //Forgot why we did this:
 const memoizedGrid = useMemo(() => grid, [grid]);
@@ -330,6 +334,12 @@ useEffect(() => {
         playerData: DBPlayerData,
       });
       socket.emit('set-username', { username: DBPlayerData.username });
+
+      socket.emit('join-chat-rooms', {
+        gridId: DBPlayerData.location?.g,
+        settlementId: DBPlayerData.location?.s,
+        frontierId: DBPlayerData.frontierId,
+      });
 
       // Step 5. Initialize grid tiles, resources
       console.log('🏁✅ 5 InitAppWrapper; Initializing grid tiles and resources...');
@@ -795,7 +805,10 @@ useEffect(() => {
   return cleanup;
 }, [socket, gridId]);
 
-
+useEffect(() => {
+  const cleanup = socketListenForChatMessages(setChatMessages);
+  return cleanup;
+}, []);
 
 /////////// HANDLE ZOOMING & RESIZING /////////////////////////
 
@@ -1126,6 +1139,9 @@ const handleLoginSuccess = async (player) => {
 
   /////////////// RENDERING THE APP /////////////////////////
 
+  // Chat panel slideout state
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
   return ( <>
 
 {/* New Navigation Column */}
@@ -1280,12 +1296,25 @@ const handleLoginSuccess = async (player) => {
       </div>
       <div className="language-control">
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Language')}>🌎 EN</button>
+        <button className="shared-button" onClick={() => setIsChatOpen(prev => !prev)}>💬 Chat</button>
       </div>
     </header>
     
     <div className="status-bar-wrapper"> <StatusBar /> </div>
 
+    {/* Chat Slideout Panel */}
+    {isChatOpen && currentPlayer && (
+      <div className="chat-panel-slideout">
+        <Chat
+          currentGridId={currentPlayer.location?.g}
+          currentSettlementId={currentPlayer.location?.s}
+          currentFrontierId={currentPlayer.frontierId}
+          currentPlayer={currentPlayer}
+        />
+      </div>
+    )}
 
+      
 {/* //////////////////// Game Board //////////////////// */}
 
     <div className="homestead">
@@ -1733,7 +1762,7 @@ const handleLoginSuccess = async (player) => {
           setIsModalOpen={setIsModalOpen}
         />
       )}
- 
+
       {hoverTooltip && (
         <div
           className="HoverTooltip"

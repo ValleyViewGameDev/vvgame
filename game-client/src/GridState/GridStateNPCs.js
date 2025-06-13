@@ -231,7 +231,7 @@ class GridStateManager {
    * Update an NPC in the NPCsInGrid using the per-NPC save model.
    */
   async updateNPC(gridId, npcId, newProperties) {
-    console.log(`🐮++ Updating NPC ${npcId} for gridId: ${gridId}`);
+    //console.log(`🐮++ Updating NPC ${npcId} for gridId: ${gridId}`);
     const NPCsInGrid = this.NPCsInGrid[gridId];
     const existing = NPCsInGrid?.npcs?.[npcId];
 
@@ -250,7 +250,7 @@ class GridStateManager {
     Object.assign(npc, newProperties);
     npc.lastUpdated = now;
 
-    console.log(`[🐮 NPCsInGridManager.updateNPC] NPC ${npcId} updated with:`, newProperties);
+    //console.log(`[🐮 NPCsInGridManager.updateNPC] NPC ${npcId} updated with:`, newProperties);
 
     try {
       await axios.post(`${API_BASE}/api/save-single-npc`, {
@@ -259,7 +259,7 @@ class GridStateManager {
         npc,
         lastUpdated: now,
       });
-      console.log(`🐮✅ Saved single NPC ${npcId} to server.`);
+      //console.log(`🐮✅ Saved single NPC ${npcId} to server.`);
     } catch (error) {
       console.error(`❌ Failed to save single NPC ${npcId}:`, error);
     }
@@ -421,7 +421,7 @@ class GridStateManager {
   }
 
   setAllNPCs(gridId, npcsObject) {
-    console.log('Setting all NPCs for gridId:', gridId, '; NPCs object:', npcsObject);
+    //console.log('Setting all NPCs for gridId:', gridId, '; NPCs object:', npcsObject);
   
     // Safely get or create the current state
     const existingState = this.NPCsInGrid[gridId] || {};

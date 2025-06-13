@@ -68,7 +68,7 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
   };
 
   const handleCurrentGridPlayers = ({ gridId, pcs }) => {
-    console.log(`📦 Received current PCs for grid ${gridId}:`, pcs);
+    //console.log(`📦 Received current PCs for grid ${gridId}:`, pcs);
     setPlayersInGrid(prev => ({
       ...prev,
       [gridId]: {
@@ -192,11 +192,11 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
 
 // 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
 export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, npcController) {
-  console.log("🌐 useEffect for NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
+  //console.log("🌐 useEffect for NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
   if (!gridId) return;
 
   const handleNPCSync = (payload) => {
-    console.log('📥 Received sync-NPCs payload:');
+    //console.log('📥 Received sync-NPCs payload:');
   
     const { emitterId } = payload;
     const mySocketId = socket.id;
@@ -228,11 +228,11 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
   
       Object.entries(npcs).forEach(([npcId, incomingNPC]) => {
         if (!incomingNPC) {
-          console.log(`  🧹 Received null NPC ${npcId}; removing from local state.`);
+          //console.log(`  🧹 Received null NPC ${npcId}; removing from local state.`);
           delete updatedNPCs[npcId];
           if (liveGrid?.npcs) {
             delete liveGrid.npcs[npcId];
-            console.log(`🧠 Removed NPC ${npcId} from live NPCsInGrid`);
+            //console.log(`🧠 Removed NPC ${npcId} from live NPCsInGrid`);
           } else {
             console.warn(`⚠️ liveGrid.npcs missing for gridId ${gridId}`);
           }
@@ -244,7 +244,7 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
         const localTime = localNPC?.lastUpdated ? new Date(localNPC.lastUpdated).getTime() : 0;
   
         if (incomingTime > localTime) {
-          console.log(`  🐮📡 Updating NPC ${npcId} from emitter ${emitterId}: ${incomingNPC.state}`);
+          //console.log(`  🐮📡 Updating NPC ${npcId} from emitter ${emitterId}: ${incomingNPC.state}`);
   
           const rehydrated = new NPC(
             incomingNPC.id,
@@ -258,7 +258,7 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
   
           if (liveGrid?.npcs) {
             liveGrid.npcs[npcId] = rehydrated;
-            console.log(`🧠 Rehydrated NPC ${npcId} into live NPCsInGrid`);
+            //console.log(`🧠 Rehydrated NPC ${npcId} into live NPCsInGrid`);
           } else {
             console.warn(`⚠️ liveGrid.npcs missing for gridId ${gridId}`);
           }
@@ -276,15 +276,15 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
 
   // Add handler for npc-moved-sync
   const handleNPCMoveSync = ({ npcId, newPosition, emitterId }) => {
-    console.log('📡 handleNPCMoveSync invoked.');
-    console.log('📥 Received npc-moved-sync event:', { npcId, newPosition, emitterId });
+    //console.log('📡 handleNPCMoveSync invoked.');
+    //console.log('📥 Received npc-moved-sync event:', { npcId, newPosition, emitterId });
 
     if (!npcId || !newPosition) return;
 
     setGridState(prevState => {
       const updatedNPCs = { ...prevState.npcs };
       const existing = updatedNPCs[npcId];
-      console.log('📦 SETTING GridState for existing:', existing);
+      //console.log('📦 SETTING GridState for existing:', existing);
       if (existing) {
         // Cache previous position BEFORE rehydration
         const prevPosition = existing?.position;
@@ -298,7 +298,7 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
               existing,
               existing.gridId || gridId
             );
-        console.log('📦 Rehydrated NPC:', rehydrated);
+        //console.log('📦 Rehydrated NPC:', rehydrated);
         // Animate movement if position changed
         if (
           prevPosition &&
@@ -327,7 +327,7 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
 
     // Add handler for npc-removal-sync
   const handleNPCRemoval = ({ gridId, npcId }) => {
-    console.log(`🧹 Received remove-NPC for ${npcId} in grid ${gridId}`);
+    //console.log(`🧹 Received remove-NPC for ${npcId} in grid ${gridId}`);
     setGridState(prevState => {
       const updatedNPCs = { ...prevState.npcs };
       delete updatedNPCs[npcId];
@@ -343,13 +343,13 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
     });
   };
 
-  console.log("🧲 Subscribing to NPC sync events for grid:", gridId);
+  //console.log("🧲 Subscribing to NPC sync events for grid:", gridId);
   socket.on("sync-NPCs", handleNPCSync);
   socket.on("npc-moved-sync", handleNPCMoveSync); // main handler
   socket.on("remove-NPC", handleNPCRemoval);
 
   return () => {
-    console.log("🧹 Unsubscribing from NPC sync events for grid:", gridId);
+    //console.log("🧹 Unsubscribing from NPC sync events for grid:", gridId);
     socket.off("sync-NPCs", handleNPCSync);
     socket.off("npc-moved-sync", handleNPCMoveSync);
     socket.off("remove-NPC", handleNPCRemoval);
@@ -360,7 +360,7 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
 // 🔄 SOCKET LISTENER: Real-time updates for resources
 export function socketListenForResourceChanges(TILE_SIZE, gridId, isMasterResourcesReady, setResources, masterResources, enrichResourceFromMaster) {
 
-  console.log("🌐 useEffect for resource-sync running. gridId:", gridId, "socket:", !!socket);
+  //console.log("🌐 useEffect for resource-sync running. gridId:", gridId, "socket:", !!socket);
   
   // Wait until masterResources is ready
   if (!gridId || !socket || !isMasterResourcesReady) {
@@ -368,7 +368,7 @@ export function socketListenForResourceChanges(TILE_SIZE, gridId, isMasterResour
     return; // 🛑 Don't process until ready
   }
   const handleResourceSync = ({ updatedResources }) => {
-    console.log("🌐 Real-time tile/resource update received!", updatedResources);
+    //console.log("🌐 Real-time tile/resource update received!", updatedResources);
 
     if (updatedResources?.length) {
       setResources((prevResources) => {
@@ -385,11 +385,11 @@ export function socketListenForResourceChanges(TILE_SIZE, gridId, isMasterResour
 
           // ✅ HANDLE RESOURCE REMOVAL
           if (newRes.type === null) {
-            console.log(`🧹 Removing resource at (${newRes.x}, ${newRes.y})`);
+            //console.log(`🧹 Removing resource at (${newRes.x}, ${newRes.y})`);
             const indexToRemove = updated.findIndex(
               (res) => res.x === newRes.x && res.y === newRes.y
             );
-            console.log('TILE_SIZE:', TILE_SIZE);
+            //console.log('TILE_SIZE:', TILE_SIZE);
             createCollectEffect(newRes.x, newRes.y, TILE_SIZE);
 
             if (indexToRemove !== -1) {
@@ -404,7 +404,7 @@ export function socketListenForResourceChanges(TILE_SIZE, gridId, isMasterResour
             console.warn(`⚠️ No matching resource template found for ${newRes.type}`);
           }
           const enriched = enrichResourceFromMaster(newRes, masterResources);
-          console.log('🌐🌐 LISTENER: enriched resource = ', enriched);
+          //console.log('🌐🌐 LISTENER: enriched resource = ', enriched);
           const filtered = updated.filter(r => !(r.x === newRes.x && r.y === newRes.y));
           filtered.push(enriched);
           updated.splice(0, updated.length, ...filtered);
@@ -426,7 +426,7 @@ export function socketListenForResourceChanges(TILE_SIZE, gridId, isMasterResour
 // 🔄 SOCKET LISTENER: Real-time updates for tiles
 export function socketListenForTileChanges(gridId, setTileTypes, mergeTiles) {
 
-  console.log("🌐 useEffect for tile-sync running. gridId:", gridId, "socket:", !!socket);
+  //console.log("🌐 useEffect for tile-sync running. gridId:", gridId, "socket:", !!socket);
 
   if (!gridId || !socket) {
     console.warn('Missing gridId or socket.');
@@ -434,10 +434,10 @@ export function socketListenForTileChanges(gridId, setTileTypes, mergeTiles) {
   }
 
   const handleTileSync = ({ updatedTiles }) => {
-    console.log("🌐 Real-time tile update received!", updatedTiles);
+    //console.log("🌐 Real-time tile update received!", updatedTiles);
 
     updatedTiles.forEach(tile => {
-      console.log("📦 Tile type in update:", tile.type); // Add this
+      //console.log("📦 Tile type in update:", tile.type); // Add this
     });
 
     if (updatedTiles?.length) {
@@ -569,6 +569,40 @@ export function socketListenForPlayerConnectedAndDisconnected(gridId, setConnect
     socket.off('player-disconnected', handlePlayerDisconnected);
     socket.off('connected-players', handleCurrentConnectedPlayers);
   };
+}
+
+
+export function socketListenForChatMessages(setMessagesByScope) {
+  if (!socket) return;
+
+  const handleIncomingChatMessage = (msg) => {
+    console.log("💬 Incoming chat message:", msg);
+    const { scope, scopeId } = msg;
+    setMessagesByScope(prev => {
+      const prevMessages = prev[scopeId] || [];
+      return {
+        ...prev,
+        [scopeId]: [...prevMessages, msg],
+      };
+    });
+  };
+
+  socket.on('receive-chat-message', handleIncomingChatMessage);
+
+  return () => {
+    socket.off('receive-chat-message', handleIncomingChatMessage);
+  };
+}
+
+export function emitChatMessage({ playerId, username, message, scope, scopeId }) {
+  if (!socket) return;
+  socket.emit('send-chat-message', {
+    playerId,
+    username,
+    message,
+    scope,
+    scopeId,
+  });
 }
 
 

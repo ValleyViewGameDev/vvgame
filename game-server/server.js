@@ -17,6 +17,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const Player = require('./models/player');  // Ensure this is correct
 const Grid = require('./models/grid');
+const Chat = require('./models/chat'); // Import ChatMessage model
 
 const worldRoutes = require('./routes/worldRoutes');
 const gridRoutes = require('./routes/gridRoutes'); // Import NPCsInGrid routes
@@ -26,18 +27,21 @@ const tradingRoutes = require('./routes/tradingRoutes'); // Import trading route
 const frontierRoutes = require('./routes/frontierRoutes'); // Import frontier routes
 const settlementRoutes = require('./routes/settlementRoutes'); // Import frontier routes
 const scheduleRoutes = require('./routes/scheduleRoutes'); // Import frontier routes
+const chatRoutes = require('./routes/chatRoutes');
 
 // Load environment variables
 dotenv.config();
 
-const app = express();
-const PORT = process.env.PORT || 3001;
 
 // Middleware
 const corsOptions = {
   origin: ['http://localhost:3000', 'https://vvgame.onrender.com'], // ⬅️ your frontend domain
   credentials: true, // optional: if you're using cookies or auth headers
 };
+// Declare app before using it
+const app = express();
+const PORT = process.env.PORT || 3001;
+
 app.use(cors(corsOptions));
 
 app.use(express.json({ limit: '10mb' }));
@@ -70,7 +74,8 @@ mongoose.connect(process.env.MONGODB_URI, {
       }
     });
 
-    // Set up socket events
+///////// SOCKET EVENTS //////////
+
     io.on('connection', (socket) => {
       //console.log(`🟢 New client connected: ${socket.id}`);
 
@@ -239,7 +244,40 @@ mongoose.connect(process.env.MONGODB_URI, {
         });
       });
 
-  
+      // Handle incoming chat messages
+      socket.on('send-chat-message', async (msg) => {
+        const { scope, message, playerId, username } = msg;
+        let scopeId;
+
+        if (scope === 'grid') scopeId = socket.gridId;
+        else if (scope === 'settlement') scopeId = socket.settlementId;
+        else if (scope === 'frontier') scopeId = socket.frontierId;
+        else return;
+
+        const newMessage = new Chat({
+          playerId,
+          username,
+          message,
+          scope,
+          scopeId,
+          timestamp: Date.now()
+        });
+
+        await newMessage.save(); // Save to MongoDB
+
+        const payload = newMessage.toObject();
+        io.to(scopeId).emit('receive-chat-message', payload);
+      });
+
+      socket.on('join-chat-rooms', ({ gridId, settlementId, frontierId }) => {
+      if (gridId) socket.join(gridId);
+      if (settlementId) socket.join(settlementId);
+      if (frontierId) socket.join(frontierId);
+      socket.gridId = gridId;
+      socket.settlementId = settlementId;
+      socket.frontierId = frontierId;
+    });
+
     // 📡 Broadcast updated PCs to others in the same grid
     socket.on('update-NPCsInGrid-PCs', (payload) => {
       //console.log('📩 Received update-NPCsInGrid-PCs with payload:\n', JSON.stringify(payload, null, 2));
@@ -349,6 +387,8 @@ mongoose.connect(process.env.MONGODB_URI, {
 })
 
 
+
+//////////////////////////////////////////////////////
 // Log every incoming request before any route handling
 app.use((req, res, next) => {
   console.log(`Incoming request: ${req.method} ${req.url}`);
@@ -372,6 +412,8 @@ console.log('Setting up settlement routes...');
 app.use('/api', settlementRoutes);
 console.log('Setting up schedule routes...');
 app.use('/api', scheduleRoutes);
+console.log('Setting up chat routes...');
+app.use('/api', chatRoutes);
 
 
 // Root endpoint

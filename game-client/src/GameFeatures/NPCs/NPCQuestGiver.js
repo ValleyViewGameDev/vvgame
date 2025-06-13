@@ -15,7 +15,7 @@ async function handleQuestGiverBehavior(gridId) {
     const tiles = GlobalGridStateTilesAndResources.getTiles();
     const resources = GlobalGridStateTilesAndResources.getResources();
     const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-    console.log('🐉 handleQuestGiver:  npcs = ', npcs);
+    //console.log('🐉 handleQuestGiver:  npcs = ', npcs);
 
     gridId = gridId || this.gridId; // Fallback to npc.gridId if not provided
 
