@@ -335,11 +335,11 @@ useEffect(() => {
       });
       socket.emit('set-username', { username: DBPlayerData.username });
 
-      socket.emit('join-chat-rooms', {
-        gridId: DBPlayerData.location?.g,
-        settlementId: DBPlayerData.location?.s,
-        frontierId: DBPlayerData.frontierId,
-      });
+      // socket.emit('join-chat-rooms', {
+      //   gridId: DBPlayerData.location?.g,
+      //   settlementId: DBPlayerData.location?.s,
+      //   frontierId: DBPlayerData.frontierId,
+      // });
 
       // Step 5. Initialize grid tiles, resources
       console.log('🏁✅ 5 InitAppWrapper; Initializing grid tiles and resources...');

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import socket from '../../socketManager';
 import { emitChatMessage } from '../../socketManager';
 import './Chat.css';
+import API_BASE from '../../config';
 
 const TABS = ['Grid', 'Settlement', 'Frontier'];
 
@@ -12,6 +13,24 @@ const Chat = ({ currentGridId, currentSettlementId, currentFrontierId, currentPl
   const [inputText, setInputText] = useState('');
   const endRef = useRef(null);
   const playerId = currentPlayer?._id || 'unknown'; // Fallback if currentPlayer is not available
+
+  useEffect(() => {
+    console.log("🟨 Chat component mounted with props:", currentGridId, currentSettlementId, currentFrontierId);
+
+    // ✅ Delay room join until component is mounted
+    if (socket && socket.connected) {
+        console.log("📡 Joining chat rooms from Chat.js");
+        socket.emit('join-chat-rooms', {
+        gridId: currentGridId,
+        settlementId: currentSettlementId,
+        frontierId: currentFrontierId,
+        });
+    } else {
+        console.warn("⚠️ Socket not connected when Chat mounted.");
+    }
+
+    // ... your socket.on('receive-chat-message') goes here
+    }, []);
 
   useEffect(() => {
     if (!socket) return;
@@ -43,7 +62,7 @@ useEffect(() => {
     if (!scopeId) return;
 
     try {
-      const res = await fetch(`/api/chat/${scope}/${scopeId}`);
+      const res = await fetch(`${API_BASE}/api/chat/${scope}/${scopeId}`);
       const data = await res.json();
       setMessages(prev => ({
         ...prev,
