@@ -236,26 +236,24 @@ const handlePaste = () => {
     }
     const resource = masterResources.find(res => res.type === resourceType);
     console.log(`🎯 Selected Resource: ${resourceType} → ${resource?.symbol || "None"}`);
-    updateTileResource(selectedTile.x, selectedTile.y, resource ? resource.symbol : "");
+  updateTileResource(selectedTile.x, selectedTile.y, resourceType); // ✅ type only
     setSelectedResource(resourceType);
   };
 
-  const updateTileResource = (x, y, resource) => {
+  const updateTileResource = (x, y, resourceType) => {
     setGrid(prevGrid => {
       const newGrid = prevGrid.map((row, rowIndex) =>
         row.map((cell, colIndex) => {
           if (rowIndex === x && colIndex === y) {
-            console.log(`🔍 Updating grid at (${x}, ${y}): ${resource}`);
-            return { ...cell, resource }; // ✅ Ensure React detects this as a new object
+            return { ...cell, resource: resourceType }; // store the TYPE here
           }
           return cell;
         })
       );
-      console.log("📂 New grid state after update:", newGrid);
       return newGrid;
     });
-  
-    setSelectedResource(resource); // ✅ Ensure dropdown reflects the update
+
+    setSelectedResource(resourceType);
   };
 
 
@@ -350,7 +348,7 @@ const handleResourceDistributionChange = (resourceType, value) => {
 
             return {
               type: tileResource ? tileResource.layoutkey : '**',
-              resource: resourceItem ? resourceItem.symbol : '',
+  resource: resourceItem ? resourceItem.type : '', // ✅ store TYPE not symbol
             };
           })
         )
@@ -398,7 +396,7 @@ const handleResourceDistributionChange = (resourceType, value) => {
       const formattedResources = grid.map(row => 
         row.map(cell => {
           if (!cell.resource) return '**';
-          const resourceItem = masterResources.find(res => res.symbol === cell.resource);
+          const resourceItem = masterResources.find(res => res.type === cell.resource);
           return resourceItem ? resourceItem.layoutkey : '**';
         })
       );
@@ -781,6 +779,8 @@ if (typeof window !== "undefined") {
                     isSelected={selectedTile?.x === x && selectedTile?.y === y}
                     setSelectedTile={setSelectedTile}
                     tileSize={tileSize}
+                      masterResources={masterResources}
+
                   />
                 ))}
               </div>

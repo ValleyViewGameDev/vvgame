@@ -204,6 +204,8 @@ async function handleDooberClick(
   // Perform server validation
   try {
     // Use gainIngredients to handle inventory/backpack update, sync, and capacity check
+    console.log("Calling gainIngredients with: ",resource.type);
+    
     const gainSuccess = await gainIngredients({
       playerId: currentPlayer.playerId,
       currentPlayer,

@@ -1,15 +1,20 @@
 import React from 'react';
 
-const Tile = ({ x, y, tile, updateTile, isSelected, setSelectedTile, tileSize }) => {
+const Tile = ({ x, y, tile, updateTile, isSelected, setSelectedTile, tileSize, masterResources }) => {
+  const resourceSymbol = (() => {
+    if (!tile.resource) return "";
+    const res = masterResources.find(r => r.type === tile.resource);
+    return res?.symbol || "";
+  })();
+
   return (
     <div 
       onClick={() => updateTile(x, y)} 
       style={{
         width: `${tileSize}px`,
         height: `${tileSize}px`,
-
         background: 
-          tile.type === "**" ? "#fff" : // ✅ Ensure "None" tiles reset to white
+          tile.type === "**" ? "#fff" : // Ensure "None" tiles reset to white
           tile.type === "GR" ? "#3dc43d" :
           tile.type === "SL" ? "#8b989c" :
           tile.type === "DI" ? "#c0834a" :
@@ -26,7 +31,7 @@ const Tile = ({ x, y, tile, updateTile, isSelected, setSelectedTile, tileSize })
         userSelect: "none",
       }}
     >
-      {tile.resource ? tile.resource : ""}
+      {resourceSymbol}
     </div>
   );
 };
