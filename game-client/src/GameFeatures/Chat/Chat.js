@@ -36,6 +36,8 @@ const Chat = ({ currentGridId, currentSettlementId, currentFrontierId, currentPl
     if (!socket) return;
 
     socket.on('receive-chat-message', (msg) => {
+        console.log("📨 Received chat message via socket:", msg); // 🔍
+
         setMessages(prev => {
           const key = msg.scope === 'grid' ? 'Grid' : msg.scope === 'settlement' ? 'Settlement' : 'Frontier';
           return {
@@ -127,38 +129,39 @@ useEffect(() => {
 
 return (
     <div className="chat-panel">
-        <h2>Chat - {activeTab}</h2>
-      <div className="chat-tabs">
-        {TABS.map(tab => (
-          <button
-            key={tab}
-            className={tab === activeTab ? 'active' : ''}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
+      <h2>Chat - {activeTab}</h2>
+      
+        <div className="chat-tabs">
+            {TABS.map(tab => (
+            <button
+                key={tab}
+                className={tab === activeTab ? 'active' : ''}
+                onClick={() => setActiveTab(tab)}
+            >
+                {tab}
+            </button>
+            ))}
+        </div>
 
-      <div className="chat-messages">
-        {messages[activeTab].map(msg => (
-          <div key={msg.id} className="chat-message">
-            <strong>{msg.sender}</strong>: {msg.text}
-          </div>
+        <div className="chat-messages">
+        {messages[activeTab].map((msg, i) => (
+            <div key={msg.id || i} className="chat-message">
+            <strong>{msg.sender || '???'}</strong>: {msg.text || '[empty]'}
+            </div>
         ))}
         <div ref={endRef} />
-      </div>
+        </div>
 
-<div className="chat-input">
-  <input
-    type="text"
-    value={inputText}
-    onChange={e => setInputText(e.target.value)}
-    onKeyDown={handleKeyPress}
-    placeholder={`Message ${activeTab}...`}
-  />
-  <button type="button" onClick={handleSend}>Send</button>
-</div>
+        <div className="chat-input">
+        <input
+            type="text"
+            value={inputText}
+            onChange={e => setInputText(e.target.value)}
+            onKeyDown={handleKeyPress}
+            placeholder={`Message ${activeTab}...`}
+        />
+        <button type="button" onClick={handleSend}>Send</button>
+        </div>
 
     </div>
   );
