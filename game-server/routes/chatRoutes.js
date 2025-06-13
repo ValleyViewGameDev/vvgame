@@ -1,5 +1,5 @@
 const express = require('express');
-const ChatMessage = require('../models/chat');
+const ChatMessage = require('../models/chat').default;
 
 const router = express.Router();
 
