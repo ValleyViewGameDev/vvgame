@@ -19,7 +19,7 @@ router.get('/chat/:scope/:scopeId', async (req, res) => {
       timestamp: { $gte: oneDayAgo }
     }).sort({ timestamp: 1 });
 
-    res.json(messages);
+    res.json(Array.isArray(messages) ? messages : []);
   } catch (err) {
     console.error('❌ Error fetching chat messages:', err);
     res.status(500).json({ error: 'Failed to fetch messages' });
