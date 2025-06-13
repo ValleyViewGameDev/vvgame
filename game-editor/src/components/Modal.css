@@ -23,6 +23,7 @@
   position: relative;
   max-height: 80vh;
   overflow-y: auto;
+  color: #000;
 }
 
 .modal-header {

@@ -15,7 +15,7 @@ const FileManager = ({ loadLayout, saveLayout }) => {
       alert('Please enter a directory.');
       return;
     }
-    saveLayout(fileName, directory);  // ✅ Ensuring directory gets passed correctly
+    saveLayout();  
   };
 
   const handleLoad = () => {
@@ -29,7 +29,7 @@ const FileManager = ({ loadLayout, saveLayout }) => {
       alert('Please enter a directory.');
       return;
     }
-    loadLayout(fileName, directory);  // ✅ Ensuring directory gets passed correctly
+    loadLayout();  
   };
 
   return (

@@ -18,7 +18,7 @@ import { useFileContext } from './FileContext';
 const GRID_SIZE = 64; // 64x64 grid
 
 const GridEditor = ({ activePanel }) => {
-  const { fileName, directory, setDirectory } = useFileContext();
+  const { fileName, setFileName, directory, setDirectory } = useFileContext();
   const [grid, setGrid] = useState(
     Array.from({ length: GRID_SIZE }, () => 
       Array.from({ length: GRID_SIZE }, () => ({ type: '', resource: '', npc: '' }))
@@ -40,7 +40,7 @@ const GridEditor = ({ activePanel }) => {
   const pendingLoad = useRef(null);
 
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
-  const [pendingSavePath, setPendingSavePath] = useState(null);
+  const [showLoadConfirm, setShowLoadConfirm] = useState(false);
 
   useEffect(() => {
     try {
@@ -314,19 +314,16 @@ const handleResourceDistributionChange = (resourceType, value) => {
     setTileDistribution(adjustedDistribution);
   };
 
+
+
+  const confirmAndLoadLayout = () => {
+    setShowLoadConfirm(true);
+  };
+
   // Modified loadLayout to accept setFileInfo and update file context if needed
-  const loadLayout = async (fileName, directory, setFileInfo = true) => {
+  const loadLayout = async (setFileInfo = true) => {
     console.log(`🔄 Loading layout: ${fileName} from directory: ${directory}`);
     try {
-      // let adjustedDirectory = directory;
-
-      // if (directory.startsWith('valley')) {
-      //   adjustedDirectory = 'valleyFixedCoord';
-      // } else if (directory === 'homestead' || directory === 'town') {
-      //   alert('Please use the Grid Editor directly to load town and homestead layout templates.');
-      //   return;
-      // }
-
       const layoutPath = path.join(
         projectRoot,
         'game-server',
@@ -366,26 +363,30 @@ const handleResourceDistributionChange = (resourceType, value) => {
       console.log("Is setFileInfo true?  ", setFileInfo);
       console.log("Current file name:", fileName);
       console.log("Current directory:", directory);
-      
-      // Removed setCurrentFile and setCurrentDirectory here
-
       console.log("✅ Grid successfully loaded from:", layoutPath);
     } catch (error) {
       console.error('❌ Failed to load layout:', error);
       alert('Error: Unable to load layout. Check the console for details.');
+    } finally {
+      setShowLoadConfirm(false);
     }
   };
 
 
-  const confirmAndSaveLayout = (fileName, directory) => {
-    const layoutPath = path.join(projectRoot, 'game-server', 'layouts', 'gridLayouts', directory, `${fileName}.json`);
-    setPendingSavePath({ fileName, directory, path: layoutPath });
+  const confirmAndSaveLayout = () => {
     setShowSaveConfirm(true);
   };
 
   const saveLayout = async () => {
-    if (!pendingSavePath) return;
-    const { fileName, directory, path: layoutPath } = pendingSavePath;
+
+    const layoutPath = path.join(
+      projectRoot,
+      'game-server',
+      'layouts',
+      'gridLayouts',
+      directory,
+      `${fileName}.json`
+    );
 
     try {
       const formattedTiles = grid.map(row => 
@@ -394,7 +395,6 @@ const handleResourceDistributionChange = (resourceType, value) => {
           return tileResource ? tileResource.layoutkey : '**';
         })
       );
-
       const formattedResources = grid.map(row => 
         row.map(cell => {
           if (!cell.resource) return '**';
@@ -402,18 +402,15 @@ const handleResourceDistributionChange = (resourceType, value) => {
           return resourceItem ? resourceItem.layoutkey : '**';
         })
       );
-
       const filteredResourceDistribution = Object.fromEntries(
         Object.entries(resourceDistribution).filter(([_, value]) => value > 0)
       );
-
       const formattedGrid = {
         tiles: formattedTiles,
         resources: formattedResources,
         tileDistribution: tileDistribution,
         resourceDistribution: filteredResourceDistribution
       };
-
       fs.writeFileSync(layoutPath, JSON.stringify(formattedGrid, null, 2), 'utf-8');
       console.log(`✅ Successfully saved layout to ${layoutPath}`);
       alert(`Layout saved to ${layoutPath}`);
@@ -422,7 +419,6 @@ const handleResourceDistributionChange = (resourceType, value) => {
       alert('Error: Unable to save layout. Check the console for details.');
     } finally {
       setShowSaveConfirm(false);
-      setPendingSavePath(null);
     }
   };
 
@@ -436,30 +432,23 @@ const handleResourceDistributionChange = (resourceType, value) => {
    }
    if (!choice) return;
    console.log("🔄 Generating new tile types...");
-
    if (!grid || !tileDistribution || !masterResources) {
      console.warn("⚠️ Missing grid or tile distribution data. Cannot generate tiles.");
      return;
    }
-
    let tilePool = Object.entries(tileDistribution).flatMap(([tileType, count]) => {
      const tileResource = masterResources.find(res => res.type === tileType && res.category === "tile");
      return tileResource ? Array(count).fill(tileResource.layoutkey) : [];
    });
-
    if (tilePool.length === 0) {
      console.warn("⚠️ No valid tile distribution found.");
      return;
    }
-
    tilePool = tilePool.sort(() => Math.random() - 0.5); // Shuffle tile options
-
    let newGrid = grid.map(row => row.map(cell => ({ ...cell })));
-
    if (choice.toLowerCase() === 'all') {
      newGrid = newGrid.map(row => row.map(cell => ({ ...cell, type: "" })));
    }
-
    let targets = [];
    newGrid.forEach((row, x) => {
      row.forEach((cell, y) => {
@@ -468,12 +457,10 @@ const handleResourceDistributionChange = (resourceType, value) => {
        }
      });
    });
-
    targets.forEach(({ x, y }) => {
      const randomTile = tilePool[Math.floor(Math.random() * tilePool.length)];
      newGrid[x][y].type = randomTile;
    });
-
    setGrid(newGrid);
    console.log("✅ Tiles successfully generated!");
  };
@@ -489,30 +476,23 @@ const handleResourceDistributionChange = (resourceType, value) => {
    }
    if (!choice) return;
    console.log("🔄 Generating new resources...");
-
   if (!grid || !availableResources || !masterResources) {
     console.warn("⚠️ Missing grid or resource data. Cannot generate resources.");
     return;
   }
-
   let newGrid = grid.map(row => row.map(cell => ({ ...cell })));
-
   if (choice.toLowerCase() === "regenerate") {
     newGrid = newGrid.map(row => row.map(cell => ({ ...cell, resource: "" })));
   }
-
   let resourcePool = Object.entries(resourceDistribution).flatMap(([type, count]) => {
     const res = masterResources.find(r => r.type === type);
     return res ? Array(count).fill(res) : [];
   });
-
   if (resourcePool.length === 0) {
     console.warn("⚠️ No valid resource distribution found.");
     return;
   }
-
   resourcePool = resourcePool.sort(() => Math.random() - 0.5); // Shuffle
-
   let validCells = [];
   newGrid.forEach((row, x) =>
     row.forEach((cell, y) => {
@@ -522,16 +502,13 @@ const handleResourceDistributionChange = (resourceType, value) => {
       }
     })
   );
-
   validCells = validCells.sort(() => Math.random() - 0.5); // Shuffle again
-
   resourcePool.forEach((res, i) => {
     const cell = validCells[i];
     if (cell && res[`validon${cell.tileType}`]) {
       newGrid[cell.x][cell.y].resource = res.symbol;
     }
   });
-
   setGrid(newGrid);
   console.log("✅ Resources successfully generated!");
 };
@@ -550,56 +527,39 @@ const handleClearGrid = () => {
   //////////////////////////////////////////////////
 
   // --- Generate Signposts Handler ---
-  const handleGenerateSignposts = () => {
-    console.log("📦 Available resource types:", masterResources.map(r => r.type));
-
-    // Map signpost keys to their actual resource.type strings from your masterResources
-    const signpostTypes = {
-      SignpostNW: "Signpost NW",
-      SignpostN: "Signpost N",
-      SignpostNE: "Signpost NE",
-      SignpostE: "Signpost E",
-      SignpostSE: "Signpost SE",
-      SignpostS: "Signpost S",
-      SignpostSW: "Signpost SW",
-      SignpostW: "Signpost W"
-    };
-
-    // The keys here are the signpost names; the type string will be looked up in masterResources
-    const signpostLocations = [
-      { key: "SignpostNW", x: 0, y: 0 },
-      { key: "SignpostN",  x: 0, y: 31 },
-      { key: "SignpostNE", x: 0, y: 63 },
-      { key: "SignpostE",  x: 31, y: 63 },
-      { key: "SignpostSE", x: 63, y: 63 },
-      { key: "SignpostS",  x: 63, y: 31 },
-      { key: "SignpostSW", x: 63, y: 0 },
-      { key: "SignpostW",  x: 31, y: 0 },
-    ];
-
-    setGrid(prevGrid => {
-      const newGrid = prevGrid.map(row => [...row]);
-
-      signpostLocations.forEach(({ key, x, y }) => {
-        const type = signpostTypes[key];
-        const resource = masterResources.find(res => res.type === type);
-
-        if (resource) {
-          newGrid[x][y] = {
-            ...newGrid[x][y],
-            resource: resource.symbol,
-          };
-          console.log(`✅ Placed ${resource.symbol} at (${x}, ${y})`);
-        } else {
-          console.warn(`❗ Signpost resource "${type}" not found in masterResources.`);
-        }
-      });
-
-      return newGrid;
-    });
-
-    console.log("🪧 Signposts placed at predefined positions.");
-  };
+  // const handleGenerateSignposts = () => {
+  //   console.log("📦 Available resource types:", masterResources.map(r => r.type));
+  //   // Map signpost keys to their actual resource.type strings from your masterResources
+  //   const signpostTypes = {
+  //     SignpostNW: "Signpost NW",SignpostN: "Signpost N",SignpostNE: "Signpost NE",SignpostE: "Signpost E",
+  //     SignpostSE: "Signpost SE",SignpostS: "Signpost S",SignpostSW: "Signpost SW",SignpostW: "Signpost W"
+  //   };
+  //   // The keys here are the signpost names; the type string will be looked up in masterResources
+  //   const signpostLocations = [
+  //     { key: "SignpostNW", x: 0, y: 0 }, { key: "SignpostN",  x: 0, y: 31 },
+  //     { key: "SignpostNE", x: 0, y: 63 }, { key: "SignpostE",  x: 31, y: 63 },
+  //     { key: "SignpostSE", x: 63, y: 63 }, { key: "SignpostS",  x: 63, y: 31 },
+  //     { key: "SignpostSW", x: 63, y: 0 }, { key: "SignpostW",  x: 31, y: 0 },
+  //   ];
+  //   setGrid(prevGrid => {
+  //     const newGrid = prevGrid.map(row => [...row]);
+  //     signpostLocations.forEach(({ key, x, y }) => {
+  //       const type = signpostTypes[key];
+  //       const resource = masterResources.find(res => res.type === type);
+  //       if (resource) {
+  //         newGrid[x][y] = {
+  //           ...newGrid[x][y],
+  //           resource: resource.symbol,
+  //         };
+  //         console.log(`✅ Placed ${resource.symbol} at (${x}, ${y})`);
+  //       } else {
+  //         console.warn(`❗ Signpost resource "${type}" not found in masterResources.`);
+  //       }
+  //     });
+  //     return newGrid;
+  //   });
+  //   console.log("🪧 Signposts placed at predefined positions.");
+  // };
 
 
 // --- Expose loadLayout globally for external triggering ---
@@ -619,7 +579,7 @@ if (typeof window !== "undefined") {
       <div className="editor-panel"> 
         <h2>Grid Editor</h2>
           <FileManager
-            loadLayout={loadLayout}
+            loadLayout={confirmAndLoadLayout}
             saveLayout={confirmAndSaveLayout}
           />
       <div className="button-group">
@@ -707,9 +667,9 @@ if (typeof window !== "undefined") {
           <button className="small-button" onClick={handleGenerateResources}>Generate Resources</button>
         </div>
         {/* --- Add Generate Signposts Button --- */}
-        <div className="button-group">
+        {/* <div className="button-group">
           <button className="small-button" onClick={handleGenerateSignposts}>Generate Signposts</button>
-        </div>
+        </div> */}
         {availableResources.map(resource => (
           <div key={resource.type} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
             <input
@@ -878,10 +838,24 @@ if (typeof window !== "undefined") {
           onClose={() => setShowSaveConfirm(false)}
           title="Confirm Save"
         >
-          <p>Are you sure you want to save this layout?</p>
+          <p>Are you sure you want to save this layout? This cannot be undone</p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
             <button onClick={() => setShowSaveConfirm(false)} className="small-button cancel-button">Cancel</button>
             <button onClick={saveLayout} className="small-button confirm-button">Yes</button>
+          </div>
+        </Modal>
+      )}
+
+      {showLoadConfirm && (
+        <Modal
+          isOpen={showLoadConfirm}
+          onClose={() => setShowLoadConfirm(false)}
+          title="Confirm Save"
+        >
+          <p>Are you sure you want to load this layout? It will overwrite the current layout.</p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+            <button onClick={() => setShowLoadConfirm(false)} className="small-button cancel-button">Cancel</button>
+            <button onClick={loadLayout} className="small-button confirm-button">Yes</button>
           </div>
         </Modal>
       )}
