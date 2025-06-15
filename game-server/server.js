@@ -246,7 +246,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 
       const Filter = require('bad-words');
       const filter = new Filter();
-      
+
       // Handle incoming chat messages
       socket.on('send-chat-message', async (msg) => {
         const { scope, message, playerId, username } = msg;
@@ -257,10 +257,12 @@ mongoose.connect(process.env.MONGODB_URI, {
         else if (scope === 'frontier') scopeId = socket.frontierId;
         else return;
 
+        const cleanedMessage = filter.clean(message); // ✨
+
         const newMessage = new Chat({
           playerId,
           username,
-          message,
+          message: cleanedMessage,
           scope,
           scopeId,
           timestamp: Date.now()
