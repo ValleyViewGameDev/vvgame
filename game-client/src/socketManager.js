@@ -602,6 +602,7 @@ export function emitChatMessage({ playerId, username, message, scope, scopeId })
     message,
     scope,
     scopeId,
+    emitterId: socket.id // ✅ Add this
   });
 }
 

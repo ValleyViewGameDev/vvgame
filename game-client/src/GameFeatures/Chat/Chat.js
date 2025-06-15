@@ -6,7 +6,7 @@ import API_BASE from '../../config';
 
 const TABS = ['Grid', 'Settlement', 'Frontier'];
 
-const Chat = ({ currentGridId, currentSettlementId, currentFrontierId, currentPlayer }) => {
+const Chat = ({ currentGridId, currentSettlementId, currentFrontierId, currentPlayer, onClose }) => {
 
   const [activeTab, setActiveTab] = useState('Grid');
   const [messages, setMessages] = useState({ Grid: [], Settlement: [], Frontier: [] });
@@ -36,8 +36,14 @@ const Chat = ({ currentGridId, currentSettlementId, currentFrontierId, currentPl
     if (!socket) return;
 
     socket.on('receive-chat-message', (msg) => {
+      if (msg.emitterId === socket.id) {
+        console.log("📭 Ignoring self-echoed message");
+        return;
+      }        
+      if (!msg.username && currentPlayer?.username) {
+          msg.username = currentPlayer.username;
+        }
         console.log("📨 Received chat message via socket:", msg); // 🔍
-
         setMessages(prev => {
           const key = msg.scope === 'grid' ? 'Grid' : msg.scope === 'settlement' ? 'Settlement' : 'Frontier';
           return {
@@ -85,33 +91,28 @@ useEffect(() => {
 
 
   const handleSend = (e) => {
-    console.log("📨 Form submitted");
     e.preventDefault();
-    console.log("📨 Sending chat message:", inputText)  ;
-    if (!inputText.trim()) return;
+    const trimmed = inputText.trim();
+    if (!trimmed) return;
 
-    setInputText('');
-    // TODO: emit message via socket to server here
     const scope = activeTab.toLowerCase();
     const scopeId =
       scope === 'grid' ? currentGridId :
       scope === 'settlement' ? currentSettlementId :
       currentFrontierId;
 
-    console.log("📨 Sending chat message:", {
-        text: inputText.trim(),
-        scope: activeTab.toLowerCase(),
-        scopeId: currentGridId || currentSettlementId || currentFrontierId,
-    });
+    console.log("📨 Sending chat message:", trimmed);
 
     emitChatMessage({
       playerId,
       username: currentPlayer?.username || 'unknown',
-      message: inputText.trim(),
+      message: trimmed, // ✅ use the captured value
       scope,
       scopeId,
     });
 
+    
+    setInputText(''); // ✅ clear input after emitting
   };
 
   const handleKeyPress = (e) => {
@@ -125,8 +126,12 @@ useEffect(() => {
 return (
     <div className="chat-container">
 
+    <div className="chat-panel-header">
+      <h2>Chat ({activeTab})</h2>
+      <button className="chat-close-button" onClick={onClose}>✖</button>
+    </div>
+
     <div className="chat-panel">
-      <h2>Chat - {activeTab}</h2>
       
         <div className="chat-tabs">
             {TABS.map(tab => (

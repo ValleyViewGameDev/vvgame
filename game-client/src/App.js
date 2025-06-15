@@ -1310,6 +1310,7 @@ const handleLoginSuccess = async (player) => {
           currentSettlementId={currentPlayer.location?.s}
           currentFrontierId={currentPlayer.frontierId}
           currentPlayer={currentPlayer}
+          onClose={() => setIsChatOpen(false)}
         />
       </div>
     )}

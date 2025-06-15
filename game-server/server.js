@@ -267,11 +267,12 @@ mongoose.connect(process.env.MONGODB_URI, {
 
         const payload = {
           id: newMessage._id.toString(),
-          sender: newMessage.username,
-          text: newMessage.message,
+          username: newMessage.username,
+          message: newMessage.message,
           scope: newMessage.scope,
           scopeId: newMessage.scopeId,
           timestamp: newMessage.timestamp,
+          emitterId: socket.id, // 👈 Add this
         };
 
         io.to(scopeId).emit('receive-chat-message', payload);
