@@ -244,6 +244,9 @@ mongoose.connect(process.env.MONGODB_URI, {
         });
       });
 
+      const Filter = require('bad-words');
+      const filter = new Filter();
+      
       // Handle incoming chat messages
       socket.on('send-chat-message', async (msg) => {
         const { scope, message, playerId, username } = msg;
