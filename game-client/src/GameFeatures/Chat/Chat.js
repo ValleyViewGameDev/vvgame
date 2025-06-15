@@ -89,15 +89,7 @@ useEffect(() => {
     e.preventDefault();
     console.log("📨 Sending chat message:", inputText)  ;
     if (!inputText.trim()) return;
-    const newMessage = {
-      id: Date.now(),
-      sender: currentPlayer?.username || playerId,
-      text: inputText.trim(),
-    };
-    setMessages(prev => ({
-      ...prev,
-      [activeTab]: [...prev[activeTab], newMessage],
-    }));
+
     setInputText('');
     // TODO: emit message via socket to server here
     const scope = activeTab.toLowerCase();
@@ -146,7 +138,7 @@ return (
         <div className="chat-messages">
         {messages[activeTab].map((msg, i) => (
             <div key={msg.id || i} className="chat-message">
-            <strong>{msg.sender || '???'}</strong>: {msg.text || '[empty]'}
+              <strong>{msg.username || '???'}</strong>: {msg.message || '[empty]'}
             </div>
         ))}
         <div ref={endRef} />

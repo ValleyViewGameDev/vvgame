@@ -6,7 +6,7 @@ const ChatMessageSchema = new mongoose.Schema({
   message: { type: String, required: true },
   scope: { type: String, enum: ['grid', 'settlement', 'frontier'], required: true },
   scopeId: { type: String, required: true },
-  timestamp: { type: Date, default: Date.now }
+  timestamp: { type: Date, default: Date.now, expires: 60 * 60 * 24 }  // Expires after 24 hours
 });
 
 module.exports = mongoose.model('ChatMessage', ChatMessageSchema);
