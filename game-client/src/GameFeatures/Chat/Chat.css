@@ -3,9 +3,8 @@
   display: flex;
   flex-direction: column;
   height: 300px;
-  width: 300px;
+  width: 250px;
   background-color: #f5f5f5;
-  border: 1px solid #ccc;
   border-radius: 6px;
   font-family: sans-serif;
   overflow: hidden;
@@ -14,21 +13,37 @@
 .chat-tabs {
   display: flex;
   background-color: #ddd;
+  border-bottom: 1px solid #ccc;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+  padding: 2px;
 }
 
 .chat-tab {
   flex: 1;
   text-align: center;
-  padding: 6px;
+  padding: 8px 0;
   cursor: pointer;
   font-size: 14px;
-  border-bottom: 2px solid transparent;
+  background-color: #ccc;
+  border: 1px solid #aaa;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  margin-right: 2px;
+  box-shadow: inset 0 1px 0 #fff;
 }
 
 .chat-tab.active {
-  background-color: #fff;
-  border-bottom: 2px solid #444;
+  background-color: #f5f5f5;
+  border: 1px solid #aaa;
+  border-bottom: 1px solid #f5f5f5; /* merge tab with panel bg */
   font-weight: bold;
+  z-index: 2;
+}
+
+.chat-tab:not(.active) {
+  background-color: #ddd;
+  color: #555;
 }
 
 .chat-messages {
@@ -58,12 +73,21 @@
   font-size: 12px;
 }
 
-.chat-input input:focus {
-  outline: none;
-}
 
 .chat-input button {
-  background-color: yellow;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin: 4px;
+  cursor: pointer;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+
+}
+
+.chat-input button:hover {
+  background-color: #45a049;
 }
 
 /* Chat panel slideout for App.js */
@@ -79,4 +103,6 @@
   flex-direction: column;
   z-index: 1000;
   box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+    padding-left: 6px; /* 👈 Add this line */
+
 }

@@ -116,10 +116,15 @@ useEffect(() => {
 
   const handleKeyPress = (e) => {
     console.log("📨 Key pressed:", e.key);
-    if (e.key === 'Enter') handleSend();
+    if (e.key === 'Enter') {
+      e.preventDefault(); // Prevents default Enter behavior in input
+      handleSend(e); // Pass the actual event to handleSend
+    }
   };
 
 return (
+    <div className="chat-container">
+
     <div className="chat-panel">
       <h2>Chat - {activeTab}</h2>
       
@@ -127,7 +132,7 @@ return (
             {TABS.map(tab => (
             <button
                 key={tab}
-                className={tab === activeTab ? 'active' : ''}
+                className={`chat-tab ${tab === activeTab ? 'active' : ''}`}
                 onClick={() => setActiveTab(tab)}
             >
                 {tab}
@@ -155,6 +160,7 @@ return (
         <button type="button" onClick={handleSend}>Send</button>
         </div>
 
+    </div>
     </div>
   );
 };
