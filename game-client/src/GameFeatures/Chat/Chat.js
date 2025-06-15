@@ -108,26 +108,6 @@ useEffect(() => {
       scopeId,
     });
 
-    setMessages(prev => {
-  const key = activeTab;
-  return {
-    ...prev,
-    [key]: [
-      ...prev[key],
-      {
-        id: Date.now(), // fake ID
-        playerId,
-        username: currentPlayer?.username || 'unknown',
-        message: trimmed,
-        scope,
-        scopeId,
-        timestamp: new Date(),
-        emitterId: socket.id,
-      },
-    ],
-  };
-});
-
     setInputText(''); // ✅ clear input after emitting
   };
 
