@@ -36,10 +36,7 @@ const Chat = ({ currentGridId, currentSettlementId, currentFrontierId, currentPl
     if (!socket) return;
 
     socket.on('receive-chat-message', (msg) => {
-      if (msg.emitterId === socket.id) {
-        console.log("📭 Ignoring self-echoed message");
-        return;
-      }        
+  
       if (!msg.username && currentPlayer?.username) {
           msg.username = currentPlayer.username;
         }
