@@ -6,6 +6,8 @@ require('./schedulers/seasonScheduler');
 require('./schedulers/trainScheduler');
 require('./schedulers/taxScheduler');
 require('./schedulers/bankScheduler');
+import Filter from 'bad-words';
+const filter = new Filter();
 
 const fs = require('fs');
 const path = require('path');  
@@ -244,8 +246,6 @@ mongoose.connect(process.env.MONGODB_URI, {
         });
       });
 
-      const Filter = require('bad-words');
-      const filter = new Filter();
 
       // Handle incoming chat messages
       socket.on('send-chat-message', async (msg) => {
