@@ -6,8 +6,7 @@ require('./schedulers/seasonScheduler');
 require('./schedulers/trainScheduler');
 require('./schedulers/taxScheduler');
 require('./schedulers/bankScheduler');
-import Filter from 'bad-words';
-const filter = new Filter();
+
 
 const fs = require('fs');
 const path = require('path');  
@@ -30,6 +29,8 @@ const frontierRoutes = require('./routes/frontierRoutes'); // Import frontier ro
 const settlementRoutes = require('./routes/settlementRoutes'); // Import frontier routes
 const scheduleRoutes = require('./routes/scheduleRoutes'); // Import frontier routes
 const chatRoutes = require('./routes/chatRoutes');
+
+const leoProfanity = require('leo-profanity');
 
 // Load environment variables
 dotenv.config();
@@ -257,7 +258,7 @@ mongoose.connect(process.env.MONGODB_URI, {
         else if (scope === 'frontier') scopeId = socket.frontierId;
         else return;
 
-        const cleanedMessage = filter.clean(message); // ✨
+        const cleanedMessage = leoProfanity.clean(message);
 
         const newMessage = new Chat({
           playerId,
