@@ -267,6 +267,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 
         const payload = {
           id: newMessage._id.toString(),
+          playerId: newMessage.playerId,
           username: newMessage.username,
           message: newMessage.message,
           scope: newMessage.scope,
