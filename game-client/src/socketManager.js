@@ -577,6 +577,7 @@ export function socketListenForChatMessages(setMessagesByScope) {
 
   const handleIncomingChatMessage = (msg) => {
     console.log("💬 Incoming chat message:", msg);
+    const { scope, scopeId } = msg;
     setMessagesByScope(prev => {
       const prevMessages = prev[scopeId] || [];
       return {
