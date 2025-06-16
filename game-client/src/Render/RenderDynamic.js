@@ -127,21 +127,18 @@ const DynamicRenderer = ({
 
         const currentTime = Date.now();
 
-        // 🔧 Hardcode for test
-        if (npc.type === 'Coyote') {
-          npcDiv.style.cursor = 'wait'; // or classList.add('cursor-wait');
-        }
-        if ((npc.action === 'attack' || npc.action === 'spawn') && currentTime < reloadRef.current) {
-          console.log("Should change cursor to Wait.");
-          console.log("Setting cursor for", npc.action, "to:", npcDiv.style.cursor);
-    npcDiv.style.cursor = 'wait';
-        } else if (npc.action === 'quest') {
-          console.log("Should change cursor to Help.");
-          console.log("Setting cursor for", npc.action, "to:", npcDiv.style.cursor);
-    npcDiv.style.cursor = 'help';
+/// Dynamic Cursors for NPCs
+
+        if (npc.action === 'attack' || npc.action === 'spawn') {
+          if (currentTime < reloadRef.current) {
+            npcDiv.style.cursor = 'wait';
+          } else {
+            npcDiv.style.cursor = 'crosshair';
+          }
+        } else if (npc.action === 'quest' || npc.action === 'heal') {
+          npcDiv.style.cursor = 'help';
         } else {
-          console.log("Setting cursor for", npc.action, "to:", npcDiv.style.cursor);
-    npcDiv.style.cursor = 'pointer';
+          npcDiv.style.cursor = 'pointer';
         }
         
       } else {
