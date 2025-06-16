@@ -162,7 +162,7 @@ export const handlePlayerDeath = async (
     await playersInGridManager.updatePC(currentGridId, player._id, { hp: 25 });
 
     console.log(`Player ${player.username} teleported to home grid with 5 HP.`);
-console.log('📦 Player before changePlayerLocation:', JSON.stringify(player, null, 2));
+    console.log('📦 Player before changePlayerLocation:', JSON.stringify(player, null, 2));
 
     // 4. **Load New Grid & Add Player to GridState**
     await changePlayerLocation(

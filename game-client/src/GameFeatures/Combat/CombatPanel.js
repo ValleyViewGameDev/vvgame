@@ -119,6 +119,8 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, stationType, ma
   const attackrange = getStatBreakdown('attackrange');
   const speed = getStatBreakdown('speed');
 
+
+
   const handleRefreshCombatStats = () => {
     const gridId = currentPlayer.location.g;
     const playerId = currentPlayer._id;
@@ -151,12 +153,16 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, stationType, ma
 
     finalStats.playerId = playerId;
     finalStats.username = currentPlayer.username;
-    finalStats.type = "pc";
     finalStats.position = currentPlayer.position || {};
     finalStats.icon = currentPlayer.icon || "😀";
     finalStats.iscamping = currentPlayer.iscamping || false;
     finalStats.lastUpdated = new Date().toISOString();
 
+    const pc = getPlayerStats();
+    const pcPosition = pc?.position;
+    finalStats.position = (pcPosition && typeof pcPosition.x === 'number' && typeof pcPosition.y === 'number')
+      ? pcPosition : { x: 0, y: 0 }; // Fallback
+      
     playersInGridManager.updatePC(gridId, playerId, finalStats);
     updateStatus("✅ Combat stats refreshed from base stats + powers.");
   };
@@ -225,8 +231,10 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, stationType, ma
         )}
         {errorMessage && <p className="error-message">{errorMessage}</p>}
       </div>
+      <br />
+      <br />
       <button className="resource-button" onClick={handleRefreshCombatStats}>
-        🔄 Refresh Combat Stats
+        🔄 Fix Combat Stats
       </button>
     </Panel>
   );
