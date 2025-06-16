@@ -207,7 +207,14 @@ async handlePursueState(playerPosition, tiles, resources, npcs, pcs, onAttackTra
   
   if (!direction) return;
 
-  await this.moveOneTile(direction, tiles, resources, npcs);
+  const moved = await this.moveOneTile(direction, tiles, resources, npcs);
+  if (!moved) {
+    console.warn(`🚫 NPC ${this.id} couldn't move toward target. Stuck? Returning to idle.`);
+    this.state = 'idle';
+    this.pursueTimerStart = null;
+    this.targetPC = null;
+    return;
+  }
 
   const distanceToPlayer = calculateDistance(this.position, playerPosition);
   console.log(`🎯 NPC ${this.id} distance to player: ${distanceToPlayer} | range: ${this.attackrange}`);

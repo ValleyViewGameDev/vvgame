@@ -24,6 +24,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
   switch (this.state) {
 
     case 'idle': {
+      this.pursueTimerStart = null; // Clear pursuit timer
       await this.handleIdleState(tiles, resources, npcs, 5, async () => {
         const closestPC = findClosestPC(this.position, pcs);
         if (closestPC && getDistance(this.position, closestPC.position) <= this.range) {
@@ -42,13 +43,25 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
     }
 
     case 'pursue': {
+      this.targetPC = pcs.find(pc => pc.playerId === this.targetPC?.playerId);
       if (!this.targetPC) {
         //console.warn(`NPC ${this.id} lost its target. Returning to idle state.`);
         this.state = 'idle';
+        this.pursueTimerStart = null;
         await updateThisNPC.call(this, gridId); // Save after transition
         break;
       }
-
+      if (!this.pursueTimerStart) this.pursueTimerStart = Date.now();
+      const timeSincePursueStart = Date.now() - this.pursueTimerStart;
+      const distance = getDistance(this.position, this.targetPC?.position);
+      if (distance > this.range * 2 && timeSincePursueStart > 5000) {
+        console.log(`🐺 NPC ${this.id} gave up chasing ${this.targetPC?.username}.`);
+        this.state = 'idle';
+        this.pursueTimerStart = null;
+        this.targetPC = null;
+        await updateThisNPC.call(this, gridId);
+        break;
+      }
       console.log(`NPC ${this.id} is pursuing PC ${this.targetPC.username}.`);
       await this.handlePursueState(this.targetPC.position, tiles, resources, npcs, pcs, async () => {
         //console.log(`NPC ${this.id} transitioned to ATTACK state targeting ${this.targetPC.username}.`);
@@ -59,8 +72,11 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
     }
 
     case 'attack': {
+      this.targetPC = pcs.find(pc => pc.playerId === this.targetPC?.playerId);
+
       if (!this.targetPC) {
         //console.warn(`NPC ${this.id} lost its target. Returning to idle state.`);
+        this.pursueTimerStart = null;
         this.state = 'idle';
         await updateThisNPC.call(this, gridId); // Save after transition
         break;
@@ -119,6 +135,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
     }
 
     case 'roam': {
+      this.pursueTimerStart = null;
       await this.handleRoamState(tiles, resources, npcs, async () => {
         //console.log(`NPC ${this.id} transitioning to IDLE state after roaming.`);
         this.state = 'idle';
