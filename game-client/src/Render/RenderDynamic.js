@@ -1,5 +1,6 @@
 import '../App.css';
 import '../UI/Panel.css';
+import '../UI/Cursor.css';
 
 import React, { useEffect, useRef } from 'react';
 import { useGridState } from '../GridState/GridStateContext'; 
@@ -42,6 +43,8 @@ const DynamicRenderer = ({
 
   const npcElements = useRef(new Map());
   const pcElements = useRef(new Map());
+
+  const hoveredNPCDivRef = useRef(null);
 
   // Function to create or update NPC divs
   function renderNPCs() {
@@ -106,16 +109,41 @@ const DynamicRenderer = ({
 
         npcDiv.onmouseenter = (event) => {
           if (suppressTooltipRef.current) return;
+          hoveredEntityIdRef.current = npc.id;
+          hoveredNPCDivRef.current = npcDiv;
           handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverTooltip);
         };
 
         npcDiv.onmouseleave = () => {
           suppressTooltipRef.current = false;
+          npcDiv.classList.remove('cursor-wait', 'cursor-help', 'cursor-pointer');
+          npcDiv.classList.add('cursor-pointer');
+          hoveredNPCDivRef.current = null;
           handleNPCHoverLeave(npc, hoveredEntityIdRef, setHoverTooltip);
         };
 
         container.appendChild(npcDiv);
         npcElements.current.set(npc.id, npcDiv);
+
+        const currentTime = Date.now();
+
+        // 🔧 Hardcode for test
+        if (npc.type === 'Coyote') {
+          npcDiv.style.cursor = 'wait'; // or classList.add('cursor-wait');
+        }
+        if ((npc.action === 'attack' || npc.action === 'spawn') && currentTime < reloadRef.current) {
+          console.log("Should change cursor to Wait.");
+          console.log("Setting cursor for", npc.action, "to:", npcDiv.style.cursor);
+    npcDiv.style.cursor = 'wait';
+        } else if (npc.action === 'quest') {
+          console.log("Should change cursor to Help.");
+          console.log("Setting cursor for", npc.action, "to:", npcDiv.style.cursor);
+    npcDiv.style.cursor = 'help';
+        } else {
+          console.log("Setting cursor for", npc.action, "to:", npcDiv.style.cursor);
+    npcDiv.style.cursor = 'pointer';
+        }
+        
       } else {
         // Update symbol if changed
         if (npcDiv.textContent !== npc.symbol) {
@@ -172,7 +200,7 @@ const DynamicRenderer = ({
         pcDiv.style.justifyContent = 'center';
         pcDiv.style.zIndex = 16;
         pcDiv.style.pointerEvents = 'auto';
-        pcDiv.style.cursor = 'pointer';
+        //pcDiv.style.cursor = 'pointer';
         pcDiv.textContent = symbol;
 
         // Use mousedown, not onclick, for better cross-browser support
@@ -214,12 +242,15 @@ const DynamicRenderer = ({
   }
 
   // Animation loop to update positions smoothly if needed
-  function startRenderingLoop() {
-    if (!containerRef.current) return;
-    renderNPCs();
-    renderPCs();
-    animationFrameId.current = requestAnimationFrame(startRenderingLoop);
-  }
+function startRenderingLoop() {
+  if (!containerRef.current) return;
+  renderNPCs();
+  renderPCs();
+
+  animationFrameId.current = requestAnimationFrame(startRenderingLoop);
+}
+
+
 
   useEffect(() => {
     startRenderingLoop();
@@ -245,6 +276,7 @@ const DynamicRenderer = ({
       {/* NPCs and PCs are rendered manually in the container */}
     </div>
   );
+  
 };
 
 

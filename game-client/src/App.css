@@ -292,11 +292,7 @@ body {
 }
 
 
-/* NPCs */
-.npc {
-  cursor: pointer; /* Makes the mouse pointer appear as a clickable hand */
-  z-index: 50; /* Ensures NPCs are above tiles and other background elements */
-}
+/*  */
 
 /* Modals */
 .modal {

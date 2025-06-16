@@ -1,0 +1,9 @@
+.cursor-pointer {
+  cursor: pointer !important;
+}
+.cursor-wait {
+  cursor: wait !important;
+}
+.cursor-help {
+  cursor: help !important;
+}
