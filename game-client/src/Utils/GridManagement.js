@@ -135,13 +135,15 @@ export const changePlayerLocation = async (
     // ✅ STEP 2: Update FROM grid's state (remove player)
     console.log(`1️⃣ Removing player from grid ${fromLocation.g}`);
 
+    console.log('loading PCS gridstates from memory...');
+    const inMemoryFromPlayerState = playersInGridManager.getPlayersInGrid(fromLocation.g)?.[currentPlayer.playerId];
     console.log('loading NPCS and PCS gridstates from db...');
     const fromGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${fromLocation.g}`);
     console.log('fromGridResponse.data: ', fromGridResponse.data);
     const fromPCs = fromGridResponse.data?.playersInGrid?.pcs || {};
     console.log('Extracted fromPCs from what we just loaded; fromPCs = ', fromPCs);
-    const fromPlayerState = fromPCs[currentPlayer.playerId] || {}; // 👈 move this up BEFORE deletion
-    console.log('fromPlayerState = ', fromPlayerState);
+    const fromPlayerState = inMemoryFromPlayerState || fromPCs[currentPlayer.playerId] || {};
+    console.log('fromPlayerState (prioritize what was in memory) = ', fromPlayerState);
     console.log('Removing player from the fromPCs.');
     if (fromPCs[currentPlayer.playerId]) {
       delete fromPCs[currentPlayer.playerId];

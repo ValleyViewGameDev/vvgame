@@ -149,14 +149,6 @@ export const handlePlayerDeath = async (
     setCurrentPlayer(player);
     localStorage.setItem('player', JSON.stringify(player));
 
-    // ✅ Show death modal immediately
-    setModalContent({
-      title: strings["5001"],
-      message: strings["5002"],
-      message2: strings["5003"],
-      size: "small",
-    });
-    setIsModalOpen(true);
 
     // ✅ Immediately update PlayersInGrid with restored HP
     await playersInGridManager.updatePC(currentGridId, player._id, { hp: 25 });
@@ -178,6 +170,7 @@ export const handlePlayerDeath = async (
       updateStatus,
       closeAllPanels,
     );
+
 
   } catch (error) {
     console.error('Error during player death handling and teleportation:', error);

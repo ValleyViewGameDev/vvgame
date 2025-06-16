@@ -95,7 +95,9 @@ useEffect(() => {
     try {
       // await axios.get(`${API_BASE}/api/ping`);
       // Always close modal if server is reachable
-      setIsModalOpen(false);
+      if (modalContent?.title === strings[10000]) {
+        setIsModalOpen(false);
+      }
       // If it was previously down, reload the page
       if (serverPreviouslyDown) {
         window.location.reload();
@@ -538,6 +540,14 @@ useEffect(() => {
           setIsModalOpen,
           closeAllPanels
         );
+        setModalContent({
+          title: strings["5001"],
+          message: strings["5002"],
+          message2: strings["5003"],
+          size: "small",
+        });
+        setIsModalOpen(true);
+
       } else {
         if (onTileType === "l") {
           const lavaDamage = 2;
