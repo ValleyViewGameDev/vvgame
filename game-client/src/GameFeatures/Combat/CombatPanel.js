@@ -159,6 +159,8 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
               <h4>⛺️ Is Camping: {currentPlayer.iscamping ? "Yes" : "No"}</h4>
             </div>
 
+            <br></br>
+
             <div className="combat-powers">
               <h3>Weapons & Abilities:</h3>
               <br></br>
@@ -170,13 +172,13 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
                   const value = (resource.qtycollected || 1) * (power.quantity || 0);
                   const outputLabel = resource.output ? (strings[resource.output] || resource.output) : 'Unknown';
                   return (
-                    <p key={index}>
-                      <strong>{resource.type}</strong> gives {value > 0 ? ' +' : ''}{value} for {outputLabel}
-                    </p>
+                    <h3 key={index}>
+                      <strong>{resource.type}</strong> ({value > 0 ? '+' : ''}{value} for {outputLabel})
+                    </h3>
                   );
                 })
               ) : (
-                <p>No combat powers acquired.</p>
+                <p>No extra weapons or abilities.</p>
               )}
             </div>
           </>

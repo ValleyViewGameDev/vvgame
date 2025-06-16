@@ -1132,6 +1132,7 @@ const handleLoginSuccess = async (player) => {
 
 
   ///////////////// FOR THE PANELS:
+
   const [showTimers, setShowTimers] = useState(false);
   const [showStats, setShowStats] = useState(false); // Toggle for combat stats UI
   const combatStats = currentPlayer?.location?.g
@@ -1145,16 +1146,51 @@ const handleLoginSuccess = async (player) => {
         gridType: 'Not loaded',
       };
   
-
-
-  /////////////// RENDERING THE APP /////////////////////////
-
   // Chat panel slideout state
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  return ( <>
+  /////////////// RENDERING THE APP /////////////////////////
 
-{/* Left Side Navigation Column */}
+return ( <>
+
+{/* //////////////////////  Header  //////////////////////// */}
+
+    <header className="app-header">
+      <div className="header-controls-left">
+        <button className="shared-button"
+          onClick={() => openPanel('HowToMoneyPanel')}
+        >
+          💰 {Array.isArray(currentPlayer?.inventory)
+            ? (currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0).toLocaleString()
+            : "..."}
+        </button>
+        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> 🎒 Inventory </button>
+        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Store')}>🛒 Store</button>
+        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
+      </div>
+      <div className="language-control">
+        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Language')}>🌎 EN</button>
+        <button className="shared-button" onClick={() => setIsChatOpen(prev => !prev)}>💬 Chat</button>
+      </div>
+    </header>
+    
+    <div className="status-bar-wrapper"> <StatusBar /> </div>
+
+    {/* Chat Slideout Panel */}
+    {isChatOpen && currentPlayer && (
+      <div className="chat-panel-slideout">
+        <Chat
+          currentGridId={currentPlayer.location?.g}
+          currentSettlementId={currentPlayer.location?.s}
+          currentFrontierId={currentPlayer.frontierId}
+          currentPlayer={currentPlayer}
+          onClose={() => setIsChatOpen(false)}
+        />
+      </div>
+    )}
+
+
+{/* //////////////// Left Side Navigation Column ///////////////// */}
 
     <div className="nav-column">
       <button className="nav-button" title="Home" onClick={() => closePanel()}>🏡</button>
@@ -1210,12 +1246,10 @@ const handleLoginSuccess = async (player) => {
         </>
       )}
 
-
       {timers.seasons.phase === "onSeason" ? (
         <>
-          <h2>It's {seasonData?.type || "[Season unknown]"}</h2>
-          <br />
-          <h4>📅 Season Ends in:</h4>
+          <h2>📅 It's {seasonData?.type || "[Season unknown]"}</h2>
+          <h4>Season Ends in:</h4>
           <h2>{countdowns.seasons}</h2>
         </>
       ) : (
@@ -1288,42 +1322,6 @@ const handleLoginSuccess = async (player) => {
       </div>
       <br />
     </div>
-
-{/* //////////////////////  Header  //////////////////////// */}
-
-    <header className="app-header">
-      <div className="header-controls-left">
-        <button className="shared-button"
-          onClick={() => openPanel('HowToMoneyPanel')}
-        >
-          💰 {Array.isArray(currentPlayer?.inventory)
-            ? (currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0).toLocaleString()
-            : "..."}
-        </button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> 🎒 Inventory </button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Store')}>🛒 Store</button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
-      </div>
-      <div className="language-control">
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Language')}>🌎 EN</button>
-        <button className="shared-button" onClick={() => setIsChatOpen(prev => !prev)}>💬 Chat</button>
-      </div>
-    </header>
-    
-    <div className="status-bar-wrapper"> <StatusBar /> </div>
-
-    {/* Chat Slideout Panel */}
-    {isChatOpen && currentPlayer && (
-      <div className="chat-panel-slideout">
-        <Chat
-          currentGridId={currentPlayer.location?.g}
-          currentSettlementId={currentPlayer.location?.s}
-          currentFrontierId={currentPlayer.frontierId}
-          currentPlayer={currentPlayer}
-          onClose={() => setIsChatOpen(false)}
-        />
-      </div>
-    )}
 
       
 {/* //////////////////// Game Board //////////////////// */}
