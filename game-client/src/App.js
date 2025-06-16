@@ -1154,10 +1154,21 @@ const handleLoginSuccess = async (player) => {
 
   return ( <>
 
-{/* New Navigation Column */}
+{/* Left Side Navigation Column */}
 
     <div className="nav-column">
       <button className="nav-button" title="Home" onClick={() => closePanel()}>🏡</button>
+      <button className="nav-button" title="Profile" 
+          onClick={() => {
+            if (currentPlayer?.username) { 
+              openPanel('ProfilePanel');
+            } else { 
+              openPanel('LoginPanel');
+            }
+          }}
+        > 😀
+        </button>
+
       <button className="nav-button" title="Farming" onClick={() => openPanel('FarmingPanel')}>🚜</button>
       <button className="nav-button" title="Build" onClick={() => openPanel('BuildPanel')}>⚒️</button>
       <button className="nav-button" title="Buy Animals" onClick={() => openPanel('BuyPanel')}>🐮</button>
@@ -1282,17 +1293,6 @@ const handleLoginSuccess = async (player) => {
 
     <header className="app-header">
       <div className="header-controls-left">
-        <button className="shared-button"
-          onClick={() => {
-            if (currentPlayer?.username) { 
-              openPanel('ProfilePanel');
-            } else { 
-              openPanel('LoginPanel');
-            }
-          }}
-        >
-          😀 {currentPlayer?.username || 'Sign In'}
-        </button>
         <button className="shared-button"
           onClick={() => openPanel('HowToMoneyPanel')}
         >
@@ -1578,7 +1578,6 @@ const handleLoginSuccess = async (player) => {
           setInventory={setInventory}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
-          stationType={activeStation?.type} 
           masterResources={masterResources} 
           masterSkills={masterSkills} 
           TILE_SIZE={activeTileSize}

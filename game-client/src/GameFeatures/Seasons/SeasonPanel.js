@@ -170,7 +170,7 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
                 <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
                 <td style={{ padding: "6px 12px" }}>{entry.winningsettlement}</td>
                 <td style={{ padding: "6px 12px", whiteSpace: "pre-line" }}>
-                  {entry.seasonwinners.map(w => `${w.username}\n${w.networth.toLocaleString()}`).join('\n')}
+                  {entry.seasonwinners.map(w => `${w.username}: ${w.networth.toLocaleString()}`).join('\n')}
                 </td>
                 <td style={{ padding: "6px 12px" }}>{entry.gridsreset}</td>
                 <td style={{ padding: "6px 12px" }}>{entry.playersrelocated}</td>

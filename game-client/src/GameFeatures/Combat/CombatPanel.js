@@ -8,104 +8,56 @@ import playersInGridManager from '../../GridState/PlayersInGrid';
 import strings from '../../UI/strings.json';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 
-const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, stationType, masterResources, masterSkills, TILE_SIZE }) => {
-  const [entryPoint, setEntryPoint] = useState(stationType || "Skills Panel"); 
+const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources, masterSkills, TILE_SIZE }) => {
   const [allResources, setAllResources] = useState([]);
   const [skillsToAcquire, setSkillsToAcquire] = useState([]);
   const [upgradesToAcquire, setUpgradesToAcquire] = useState([]);
   const [ownedSkills, setOwnedSkills] = useState([]);
   const [ownedUpgrades, setOwnedUpgrades] = useState([]);
-  const [inventory, setInventory] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [isContentLoading, setIsContentLoading] = useState(false);
   const { updateStatus } = useContext(StatusBarContext);
-  const [stationEmoji, setStationEmoji] = useState('📘'); // Default emoji for Skills Panel
   const [fetchTrigger, setFetchTrigger] = useState(0);
-
-  // ✅ Update `entryPoint` when `stationType` changes
-  useEffect(() => {
-    if (!stationType) {
-      setEntryPoint("Basic Skills"); // ✅ Ensure default entry point when coming from the UI button
-      // NOTE: This "Basic Skills" string comes from resources.json
-    } else if (stationType !== entryPoint) {
-      setEntryPoint(stationType);
-    }
-  }, [stationType]);
+  const [playerStats, setPlayerStats] = useState({});
 
   // ✅ Fetch resources when `entryPoint` changes
   useEffect(() => {
-    const fetchResourcesAndInventory = async () => {
+    const fetchResources = async () => {
       setIsContentLoading(true);
       try {
-        console.log("Fetching skills and inventory for:", entryPoint);
-        
-        const [inventoryResponse, skillsResponse, resourcesResponse] = await Promise.all([
-          axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`),
-          axios.get(`${API_BASE}/api/skills/${currentPlayer.playerId}`),
+        const [skillsResponse, resourcesResponse] = await Promise.all([
           axios.get(`${API_BASE}/api/resources`),
         ]);
-
-        const serverInventory = inventoryResponse.data.inventory || [];
-        const serverSkills = skillsResponse.data.skills || [];
         const allResourcesData = resourcesResponse.data;
-
-        setInventory(serverInventory);
         setAllResources(allResourcesData);
-
-        const stationResource = allResourcesData.find((resource) => resource.type === stationType);
-        setStationEmoji(stationResource?.symbol || '⚙️');
-
-        // ✅ Separate skills and upgrades
-        const ownedSkills = serverSkills.filter(skill =>
-          allResourcesData.some(res => res.type === skill.type && res.category === 'skill')
-        );
-        setOwnedSkills(ownedSkills);
-
-        const ownedUpgrades = serverSkills.filter(skill =>
-          allResourcesData.some(res => res.type === skill.type && res.category === 'upgrade')
-        );
-        setOwnedUpgrades(ownedUpgrades);
-
-        // ✅ Filter skills & upgrades based on `entryPoint`
-        const availableSkills = allResourcesData.filter(
-          res => res.category === 'skill' &&
-          res.source === entryPoint && 
-          !ownedSkills.some(owned => owned.type === res.type)
-        );
-
-        const availableUpgrades = allResourcesData.filter(
-          res => res.category === 'upgrade' &&
-          res.source === entryPoint && 
-          !ownedUpgrades.some(owned => owned.type === res.type)
-        );
-
-        setSkillsToAcquire(availableSkills);
-        setUpgradesToAcquire(availableUpgrades);
       } catch (error) {
-        console.error('Error fetching resources, inventory, or skills:', error);
+        console.error('Error fetching resources or skills:', error);
       } finally {
         setIsContentLoading(false);
       }
     };
+    fetchResources();
+  }, [fetchTrigger]); 
 
-    fetchResourcesAndInventory();
-  }, [entryPoint, fetchTrigger]); // ✅ Re-fetch when `entryPoint` OR `fetchTrigger` changes
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const stats = playersInGridManager.getAllPCs(currentPlayer.location.g)?.[currentPlayer._id];
+      if (stats) {
+        setPlayerStats(stats);
+      }
+    }, 500); // Poll every 500ms
 
+    return () => clearInterval(interval);
+  }, [currentPlayer._id, currentPlayer.location.g]);
 
   // --- Stat helpers ---
-  const getStatModifier = (stat) => {
-    return currentPlayer.powers?.reduce((sum, item) => {
-      const res = masterResources.find(r => r.type === item.type);
-      return res?.output === stat ? sum + ((item.quantity || 0) * (res.qtycollected || 1)) : sum;
-    }, 0) || 0;
-  };
 
   const getPlayerStats = () => {
     return playersInGridManager.getAllPCs(currentPlayer.location.g)?.[currentPlayer._id] || {};
   };
   const getStatBreakdown = (stat) => {
-    const total = getPlayerStats()[stat] || 0;
+    const total = playerStats?.[stat] || 0;
     const base = currentPlayer[`base${stat.charAt(0).toUpperCase() + stat.slice(1)}`] || 0;
     const modifier = total - base;
     return { base, modifier, total };

@@ -3,7 +3,6 @@
     font-family: "Times New Roman", Times, serif;
     text-align: left;
     padding: 30px;
-    max-width: 600px;
 }
 
 .modal.TownNews h3 {
@@ -41,7 +40,6 @@
     font-family: "Times New Roman", Times, serif;
     text-align: left;
     padding: 30px;
-    max-width: 600px;
     color: #222;
 }
 
