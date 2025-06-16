@@ -125,10 +125,8 @@ const DynamicRenderer = ({
         container.appendChild(npcDiv);
         npcElements.current.set(npc.id, npcDiv);
 
+        /// Dynamic Cursors for NPCs
         const currentTime = Date.now();
-
-/// Dynamic Cursors for NPCs
-
         if (npc.action === 'attack' || npc.action === 'spawn') {
           if (currentTime < reloadRef.current) {
             npcDiv.style.cursor = 'wait';
@@ -220,6 +218,14 @@ const DynamicRenderer = ({
 
         container.appendChild(pcDiv);
         pcElements.current.set(pc.playerId, pcDiv);
+
+        /// Dynamic Cursors for PCs
+        if (pc.hp > 25) {
+            pcDiv.style.cursor = 'crosshair';
+        } else {
+          pcDiv.style.cursor = 'pointer';
+        }
+
       } else {
         if (pcDiv.textContent !== symbol) {
           pcDiv.textContent = symbol;
