@@ -6,10 +6,10 @@
         "level": 5,
         "repeatable": false,
         "giver": "Prospero",
-        "reward": "Prospero's Orb",
+        "reward": "Merlin's Orb",
         "rewardqty": 1,
         "goal1action": "Collect",
-        "goal1item": "Prospero's Orb",
+        "goal1item": "Merlin's Orb",
         "goal1qty": 1
     },
     {
@@ -501,8 +501,8 @@
         "level": 4,
         "repeatable": true,
         "giver": "Helena",
-        "reward": "Money",
-        "rewardqty": 1000,
+        "reward": "Golden Key",
+        "rewardqty": 1,
         "goal1action": "Collect",
         "goal1item": "Feverfew",
         "goal1qty": 50
