@@ -5,9 +5,9 @@ import API_BASE from './config.js';
 import axios from 'axios';
 import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
-import { initializeGrid, postLoginInitialization } from './AppInit';
+import { initializeGrid } from './AppInit';
 import { loadMasterSkills, loadMasterResources } from './Utils/TuningManager';
-import { RenderGrid, RenderVFX, RenderTooltip } from './Render/Render';
+import { RenderGrid } from './Render/Render';
 import DynamicRenderer from './Render/RenderDynamic.js';
 import { handleResourceClick } from './ResourceClicking';
 
@@ -183,7 +183,7 @@ useEffect(() => {
 }, [resources]);
 
 const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
-const TILE_SIZES = { close: 30, far: 16 }; // Rename for clarity
+const TILE_SIZES = { closer: 50, close: 30, far: 16 }; // Rename for clarity
 const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
 
 const [inventory, setInventory]  = useState({});
@@ -337,15 +337,8 @@ useEffect(() => {
       });
       socket.emit('set-username', { username: DBPlayerData.username });
 
-      // socket.emit('join-chat-rooms', {
-      //   gridId: DBPlayerData.location?.g,
-      //   settlementId: DBPlayerData.location?.s,
-      //   frontierId: DBPlayerData.frontierId,
-      // });
-
       // Step 5. Initialize grid tiles, resources
       console.log('🏁✅ 5 InitAppWrapper; Initializing grid tiles and resources...');
-      console.log('DBPlayerData = ',DBPlayerData);
       await initializeGrid(
         activeTileSize,
         initialGridId,
@@ -370,7 +363,6 @@ useEffect(() => {
       const playerPosition = freshPCState?.[playerId]?.position;
       console.log('Player position from playersInGrid:', playerPosition);
       if (playerPosition) {
-        console.log('🎯 Centering camera on player position:', playerPosition);
         centerCameraOnPlayer(playerPosition, activeTileSize);
       }
 
@@ -864,12 +856,19 @@ const zoomIn = async () => {
     setTimeout(() => {
       centerCameraOnPlayer(playerPos, TILE_SIZES.close);
     }, 50); // Allow brief render before scrolling
+  } else if (zoomLevel === 'close') {
+    setZoomLevel('closer');
+    setTimeout(() => {
+      centerCameraOnPlayer(playerPos, TILE_SIZES.closer);
+    }, 50); // Allow brief render before scrolling
   }
 };
 
 const zoomOut = () => {
   if (currentPlayer.iscamping) { updateStatus(32); return; }
-  if (zoomLevel === 'close') {
+  if (zoomLevel === 'closer') {
+    setZoomLevel('close');
+  } else if (zoomLevel === 'close') {
     setZoomLevel('far'); // Zoom out to grid view
   } else if (zoomLevel === 'far') {
     setZoomLevel('settlement'); // Zoom out to settlement view
@@ -925,7 +924,7 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
   // 🛡️ Prevent interaction on another player's homestead
   const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
 
-  if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {
+  if (resource && currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {
     const isFriend = false; // 🧪 Future: replace with actual friend-checking logic
     const alwaysBlocked = ['Mailbox', 'Trade Stall', 'Warehouse'];
     const isForbiddenStation = resource?.category === 'station' && alwaysBlocked.includes(resource?.type);
@@ -1356,7 +1355,7 @@ return ( <>
 {/* //////////////////// Game Board //////////////////// */}
 
     <div className="homestead">
-      {zoomLevel === 'far' || zoomLevel === 'close' ? (
+      {zoomLevel === 'far' || zoomLevel === 'closer' || zoomLevel === 'close' ? (
         <>
           <RenderGrid
             grid={memoizedGrid}
