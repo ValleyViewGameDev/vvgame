@@ -1,17 +1,14 @@
 import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
-import Panel from '../../UI/Panel';
 import axios from 'axios';
+import Panel from '../../UI/Panel';
+import './TradingStation.css';
 import '../../UI/ResourceButton.css';
 import ResourceButton from '../../UI/ResourceButton';
-import FloatingTextManager from '../../UI/FloatingText';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate, gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
-import { StatusBarContext } from '../../UI/StatusBar';
-import { loadMasterSkills } from '../../Utils/TuningManager';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import strings from '../../UI/strings';
 
 const TradingStation = ({
@@ -67,6 +64,16 @@ const TradingStation = ({
       console.error('Error loading resources:', error);
     }
   }, [stationType, masterResources]);
+
+  const storyStringMap = {
+    Iago: 1201,
+    Juliet: 1202,
+    Falstaff: 1203,
+    Apothecary: 1204,
+    Gertrude: 1205,
+    Leontes: 1206,
+    Caliban: 1207,
+  };
 
   const handleTrade = async (recipe) => {
     setErrorMessage('');
@@ -158,6 +165,12 @@ const TradingStation = ({
               );
             })
           ) : <p>{strings[423]}</p>}
+
+          {storyStringMap[stationType] && (
+            <div className="trader-story">
+              <p>{strings[storyStringMap[stationType]]}</p>
+            </div>
+          )}
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 

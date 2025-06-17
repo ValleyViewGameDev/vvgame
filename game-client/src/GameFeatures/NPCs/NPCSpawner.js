@@ -32,20 +32,20 @@ async function handleSpawnBehavior(gridId) {
         }
 
         case 'spawn': {
-            const existingNPCs = npcs.filter(npc => npc.type === this.output);
+            const existingNPCs = npcs.filter(npc => npc.type === this.requires);
             if (existingNPCs.length >= this.qtycollected) {
-                console.log(`[Spawner] Max ${this.output} reached (${this.qtycollected}). Returning to idle.`);
+                console.log(`[Spawner] Max ${this.requires} reached (${this.qtycollected}). Returning to idle.`);
                 this.state = 'idle';
                 await NPCsInGridManager.saveGridStateNPCs(gridId);
                 return;
             }
 
             if (!this.nextspawn || Date.now() >= this.nextspawn) {
-                console.log(`[Spawner] Spawning new ${this.output} at (${this.position.x}, ${this.position.y}).`);
+                console.log(`[Spawner] Spawning new ${this.requires} at (${this.position.x}, ${this.position.y}).`);
                 // 🛑 ENSURE THE SPAWNER AND NPC HAVE SEPARATE POSITION OBJECTS 🛑
                 const npcPosition = { x: this.position.x, y: this.position.y }; // NEW OBJECT, NOT A REFERENCE
 
-                await NPCsInGridManager.spawnNPC(gridId, { type: this.output }, npcPosition);
+                await NPCsInGridManager.spawnNPC(gridId, { type: this.requires }, npcPosition);
 
                 this.nextspawn = Date.now() + this.speed * 1000;
                 await NPCsInGridManager.saveGridStateNPCs(gridId);
