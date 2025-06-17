@@ -13,7 +13,8 @@ export const initializeGrid = async (
   setGrid,
   setResources,
   setTileTypes,
-  updateStatus
+  updateStatus,
+  DBPlayerData
 ) => {
   try {
     if (!gridId) {
@@ -22,8 +23,9 @@ export const initializeGrid = async (
     }
  
     console.log('Initializing grid for gridId:', gridId);
+    console.log('DBPlayerData = ',DBPlayerData);
 
-    const gridData = await fetchGridData(gridId, updateStatus);
+    const gridData = await fetchGridData(gridId, updateStatus, DBPlayerData);
     const { tiles, resources } = gridData;
 
     setGrid(tiles || []);

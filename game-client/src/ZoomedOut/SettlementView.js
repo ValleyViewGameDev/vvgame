@@ -152,16 +152,6 @@ const SettlementView = ({
       );
       // Zoom into grid view after movement
       setZoomLevel("far"); 
-      if (["valley0", "valley1", "valley2", "valley3"].includes(tile.gridType)) {
-        updateStatus(16);
-      } else if (tile.gridType === "town") {
-        updateStatus(111);
-      } else {
-        const { username, gridType } = await fetchHomesteadOwner(toLocation.g);
-        console.log("😀😀😀😀😀 username = ",username);
-        if (username === currentPlayer.username) { updateStatus(112) }
-        else { updateGridStatus(gridType, username, updateStatus) };
-      }
 
     } catch (error) {
       console.error("Error changing player location:", error);

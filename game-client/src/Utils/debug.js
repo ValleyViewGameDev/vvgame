@@ -25,7 +25,7 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
     const fetchTimers = async () => {
         try {
             console.log('Fetching timers for gridId:', currentGridId);
-            const gridData = await fetchGridData(currentGridId);
+            const gridData = await fetchGridData(currentGridId,updateStatus,currentPlayer);
 
             // ✅ Include both growEnd (Farming) and craftEnd (Crafting)
             const resourcesWithTimers = (gridData.resources || []).filter(

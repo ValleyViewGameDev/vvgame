@@ -8,6 +8,7 @@ import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesA
 import { mergeResources, mergeTiles } from './ResourceHelpers';
 import { centerCameraOnPlayer } from '../PlayerMovement';
 import { closePanel } from '../UI/PanelContext';
+import { fetchHomesteadOwner } from './worldHelpers';
 
 export const updateGridResource = async (
   gridId,
@@ -252,7 +253,7 @@ export const changePlayerLocation = async (
     // ✅ STEP 9: Initialize the new grid, PCs and NPCs
     console.log('!! Running initializeGridState and setGridState');
     await Promise.all([
-      initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus),
+      initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus, currentPlayer),
       (async () => {
         try {
           await NPCsInGridManager.initializeGridState(toLocation.g);
@@ -296,9 +297,10 @@ export const changePlayerLocation = async (
 
 
 
-export async function fetchGridData(gridId, updateStatus) {
+export async function fetchGridData(gridId, updateStatus, DBPlayerData) {
   try {
     console.log(`Fetching grid data for gridId: ${gridId}`);
+    console.log('DBPlayerData = ',DBPlayerData);
 
     // 1) Fetch the grid data (which now has separate playersInGrid and NPCsInGrid)
     const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${gridId}`);
@@ -312,6 +314,17 @@ export async function fetchGridData(gridId, updateStatus) {
       pcs: playersInGrid?.pcs || {},
       npcs: NPCsInGrid?.npcs || {},
     };
+
+    if (["valley0", "valley1", "valley2", "valley3"].includes(gridType)) {
+        updateStatus(16);
+      } else if (gridType === "town") {
+        updateStatus(111);
+      } else {
+        const { username, gridType } = await fetchHomesteadOwner(gridId);
+        console.log("😀😀😀😀😀 username = ",username);
+        if (username === DBPlayerData.username) { updateStatus(112) }
+        else { updateGridStatus(gridType, username, updateStatus) };
+      }
 
     return { ...gridData, NPCsInGrid: combinedGridState }; // Return the full grid data with combined NPCsInGrid
   } catch (error) {

@@ -345,13 +345,15 @@ useEffect(() => {
 
       // Step 5. Initialize grid tiles, resources
       console.log('🏁✅ 5 InitAppWrapper; Initializing grid tiles and resources...');
+      console.log('DBPlayerData = ',DBPlayerData);
       await initializeGrid(
         activeTileSize,
         initialGridId,
         setGrid,
         setResources,
         setTileTypes,
-        updateStatus
+        updateStatus,
+        DBPlayerData
       );
 
       // Step 6. Initialize NPCs
@@ -844,7 +846,11 @@ const zoomIn = async () => {
       updateStatus(16);
     } else if (gridType === 'homestead') {
       if (username) {
-        updateGridStatus(gridType, username, updateStatus);
+        if (username === currentPlayer.username) {
+          updateStatus(112);
+        } else {
+          updateGridStatus(gridType, username, updateStatus);
+        }
       } else {
         updateStatus('This homestead is unoccupied.');
       }
@@ -852,6 +858,7 @@ const zoomIn = async () => {
       console.warn(`Unexpected gridType: ${gridType}`);
       updateStatus('Unknown location.');
     }
+
   } else if (zoomLevel === 'far') {
     setZoomLevel('close'); // Zoom into a detailed view
     setTimeout(() => {
