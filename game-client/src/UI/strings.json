@@ -1,5 +1,5 @@
 {
-    "0": "Welcome to Valley View",
+    "0": "Welcome to Valley View", 
     "1": "Server is not running.",
     "3": "🚜 Land successfully tilled.",
     "4": "⚠️ You don't have enough resources.",
@@ -175,6 +175,17 @@
     "1125": "🛒 Shop",
     "1126": "💰 About Money",
 
+    "1200": "TRADER STORY STRINGS",
+
+    "1201": "Iago",
+    "1202": "Juliet",
+    "1203": "Falstaff",
+    "1204": "Apothecary",
+    "1205": "Gertrude",
+    "1206": "Leontes",
+    "1207": "Caliban",
+    "1208": "",
+    
     "1301": "Skills to purchase:",
     "1302": "Upgrades to purchase:",
     "1303": "Skills you have:",
