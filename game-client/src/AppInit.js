@@ -21,9 +21,8 @@ export const initializeGrid = async (
       console.error('GridId is missing. Cannot initialize grid.');
       return;
     }
- 
+
     console.log('Initializing grid for gridId:', gridId);
-    console.log('DBPlayerData = ',DBPlayerData);
 
     const gridData = await fetchGridData(gridId, updateStatus, DBPlayerData);
     const { tiles, resources } = gridData;

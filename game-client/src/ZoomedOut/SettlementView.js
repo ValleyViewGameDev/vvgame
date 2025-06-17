@@ -104,7 +104,6 @@ const SettlementView = ({
         updateStatus(111);
       } else {
         const { username, gridType } = await fetchHomesteadOwner(currentPlayer.location.g);
-        console.log("😀😀😀😀😀 username = ",username);
         if (username === currentPlayer.username) { updateStatus(112) }
         else { updateGridStatus(gridType, username, updateStatus) };
       }
@@ -112,7 +111,6 @@ const SettlementView = ({
       let pc = null;
       pcs = playersInGridManager.getPlayersInGrid(tile.gridId);
       pc = pcs?.[currentPlayer.playerId];
-      console.log("TILE_SIZE:", TILE_SIZE);
       centerCameraOnPlayer(pc.position, TILE_SIZE);
       return;
     }
