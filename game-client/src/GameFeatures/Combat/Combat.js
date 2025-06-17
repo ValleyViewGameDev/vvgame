@@ -6,6 +6,7 @@ import { extractXY } from "../NPCs/NPCHelpers";
 import { updateGridResource } from "../../Utils/GridManagement";
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
+import { createCollectEffect } from "../../VFX/VFX";
 
 /** Helper to check if target is in range and validate positions **/
 function checkRange(player, target, TILE_SIZE) {
@@ -83,6 +84,7 @@ export async function handleAttackOnNPC(npc, currentPlayer, TILE_SIZE, setResour
  
     const damage = calculateDamage(player);
     FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, npc.position.x, npc.position.y, TILE_SIZE);
+    createCollectEffect(npc.position.x, npc.position.y, TILE_SIZE);
 
     npc.hp -= damage;
     await NPCsInGridManager.updateNPC(gridId, npc.id, {
@@ -154,6 +156,7 @@ export async function handleAttackOnPC(pc, currentPlayer, gridId, TILE_SIZE) {
 
   const damage = calculateDamage(player, gridId);
   FloatingTextManager.addFloatingText(`- ${damage} HP`, pc.position.x, pc.position.y, TILE_SIZE);
+  createCollectEffect(pc.position.x, pc.position.y, TILE_SIZE);
 
   pc.hp -= damage;
 

@@ -914,6 +914,23 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
 
   const resource = resources.find((res) => res.x === colIndex && res.y === rowIndex);
   console.log('⬆️ handleTileClick invoked with:', { rowIndex, colIndex, resource });
+
+  // 🛡️ Prevent interaction on another player's homestead
+  const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
+
+  if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {
+    const isFriend = false; // 🧪 Future: replace with actual friend-checking logic
+    const alwaysBlocked = ['Mailbox', 'Trade Stall', 'Warehouse'];
+    const isForbiddenStation = resource?.category === 'station' && alwaysBlocked.includes(resource?.type);
+    const isSafe = resource?.category === 'npc'; // Expand as needed
+    if (isForbiddenStation || (!isSafe && !isFriend)) {
+      console.warn("🚫 Blocked interaction on another player’s homestead.");
+      updateStatus(90);
+      isProcessing = false;
+      return;
+    }
+  }
+
   // Validate `gridId` and `username`
   if (!gridId || typeof gridId !== 'string') { console.error('Invalid gridId:', gridId); return; }
   if (!currentPlayer?.username || typeof currentPlayer.username !== 'string') { console.error('Invalid username:', currentPlayer?.username); return; }
@@ -1228,8 +1245,13 @@ return ( <>
     <div className="base-panel">
       <h1>Valley View</h1>  
       <br/>
-
-      <button className="shared-button" >Move Keys: AWSD</button>
+        {currentPlayer && (
+          <button className="shared-button" onClick={() => openPanel('ProfilePanel')}>
+            😀 Logged in: {currentPlayer.username}
+          </button>
+        )}
+      <br/>
+      <button className="shared-button" onClick={() => openPanel('HowToPanel')}>↔️ Move Keys: AWSD</button>
       <div className="zoom-controls">
         <button className="zoom-button" disabled={!currentPlayer} onClick={zoomOut}>−</button>
         <button className="zoom-button" disabled={!currentPlayer} onClick={zoomIn}>+</button>
@@ -1240,29 +1262,29 @@ return ( <>
 
       {/* Add Role display if player has one */}
       {currentPlayer?.role === "Mayor" && (
-        <>
-          <h3 className="player-role"> You are the Mayor </h3>
+        <> <h3 className="player-role"> You are the Mayor </h3>
           <br />
         </>
       )}
 
+      {/* Hit Points */}
+      <button className="shared-button" onClick={() => openPanel('CombatPanel')}>❤️‍🩹 Health: <strong>{playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.hp ?? "?"} / {playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.maxhp ?? "?"}</strong></button>
+      <br />
+
+      {/* Season */}
       {timers.seasons.phase === "onSeason" ? (
         <>
-          <h2>📅 It's {seasonData?.type || "[Season unknown]"}</h2>
-          <h4>Season Ends in:</h4>
-          <h2>{countdowns.seasons}</h2>
+          <h2>🗓️ It's {seasonData?.type || "[Season unknown]"}</h2>
+          <button className="shared-button" onClick={() => openPanel('SeasonPanel')}>The Season Ends in:<br /><strong>{countdowns.seasons}</strong></button>
         </>
       ) : (
         <>
           <h2>It's {seasonData?.type || "[Season unknown]"}</h2>
-          <br />
-          <h4>📅 Next Season in:</h4>
-          <h2>{countdowns.seasons}</h2>
+          <button className="shared-button" onClick={() => openPanel('SeasonPanel')}>📅 Next Season in:<br /><strong>{countdowns.seasons}</strong></button>
         </>
       )}
       <br />
-
-
+      
       <h3>⏪ Happening Now in Town:
         <span 
           onClick={() => setShowTimers(!showTimers)} 

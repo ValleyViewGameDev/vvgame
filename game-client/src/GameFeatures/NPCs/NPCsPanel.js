@@ -317,26 +317,24 @@ const handleHeal = async (recipe) => {
 
       {npcData.action === 'heal' && healRecipes.length > 0 && (
         <div className="heal-options">
-          <h2>❤️‍🩹 Healing</h2>
-
+<br />
           {/* Fetch and display player's HP from playersInGridManager */}
           {(() => {
             const gridId = currentPlayer?.location?.g;
             const playerId = currentPlayer._id?.toString();
             const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
-
+<br />
             if (playerInGridState) {
               return (
                 <>
-                  <h4>Current HP: {playerInGridState.hp}</h4>
-                  <h4>Max HP: {playerInGridState.maxhp}</h4>
+                  <h2>❤️‍🩹 Health: <br />{playerInGridState.hp} / {playerInGridState.maxhp}</h2>
                 </>
               );
             } else {
-              return <h4>HP Data Unavailable</h4>;
+              return <h4>Health Unavailable</h4>;
             }
           })()}
-
+<br />
           <h3>This NPC can heal you:</h3>
           {healRecipes.map((recipe) => {
             const ingredients = getIngredientDetails(recipe, masterResources);

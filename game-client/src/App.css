@@ -134,7 +134,7 @@ body {
 }
 
 .base-panel .shared-button {
-  width: 80%; /* Ensure buttons fit well in the base panel */
+  width: 90%; /* Ensure buttons fit well in the base panel */
   text-align: left; /* Align text for a different look in base panel */
 }
 

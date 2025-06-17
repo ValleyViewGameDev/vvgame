@@ -313,13 +313,6 @@ export async function fetchGridData(gridId, updateStatus) {
       npcs: NPCsInGrid?.npcs || {},
     };
 
-    // 3) Update the status bar (e.g., "Welcome to Oberon's homestead")
-    let username = null;
-    if (gridType === 'homestead' && ownerId) {
-      username = ownerId.username || 'Unknown';
-    }
-    updateGridStatus(gridType, username, updateStatus);
-
     return { ...gridData, NPCsInGrid: combinedGridState }; // Return the full grid data with combined NPCsInGrid
   } catch (error) {
     console.error('Error fetching grid data:', error);
@@ -335,6 +328,7 @@ export async function fetchGridData(gridId, updateStatus) {
 export function updateGridStatus(gridType, ownerUsername, updateStatus) {
   if (!updateStatus) return;
 
+  console.log("😀😀 UPDATING GRID STATUS message");
   switch (gridType) {
     case 'homestead':
       updateStatus(`Welcome to ${ownerUsername || 'Unknown'}'s homestead.`);

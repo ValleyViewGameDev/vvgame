@@ -8,6 +8,8 @@ import settlementTileData from './SettlementTile.json';
 import { getGridBackgroundColor } from './ZoomedOut';
 import { centerCameraOnPlayer } from "../PlayerMovement";
 import playersInGridManager from "../GridState/PlayersInGrid";
+import { fetchHomesteadOwner } from "../Utils/worldHelpers";
+import { updateGridStatus } from "../Utils/GridManagement";
 
 const SettlementView = ({ 
   currentPlayer, 
@@ -95,10 +97,17 @@ const SettlementView = ({
   
     // Clicking on the tile where the player already is
     if (tile.gridId === currentPlayer.location.g) {
-      console.log("Clicked on current tile. Already here — no need to move.");
-      console.log("TILE_SIZE:", TILE_SIZE);
       setZoomLevel("far");
-      updateStatus(16); 
+      if (["valley0", "valley1", "valley2", "valley3"].includes(tile.gridType)) {
+        updateStatus(16);
+      } else if (tile.gridType === "town") {
+        updateStatus(111);
+      } else {
+        const { username, gridType } = await fetchHomesteadOwner(currentPlayer.location.g);
+        console.log("😀😀😀😀😀 username = ",username);
+        if (username === currentPlayer.username) { updateStatus(112) }
+        else { updateGridStatus(gridType, username, updateStatus) };
+      }
       let pcs = null;
       let pc = null;
       pcs = playersInGridManager.getPlayersInGrid(tile.gridId);
@@ -143,6 +152,16 @@ const SettlementView = ({
       );
       // Zoom into grid view after movement
       setZoomLevel("far"); 
+      if (["valley0", "valley1", "valley2", "valley3"].includes(tile.gridType)) {
+        updateStatus(16);
+      } else if (tile.gridType === "town") {
+        updateStatus(111);
+      } else {
+        const { username, gridType } = await fetchHomesteadOwner(toLocation.g);
+        console.log("😀😀😀😀😀 username = ",username);
+        if (username === currentPlayer.username) { updateStatus(112) }
+        else { updateGridStatus(gridType, username, updateStatus) };
+      }
 
     } catch (error) {
       console.error("Error changing player location:", error);

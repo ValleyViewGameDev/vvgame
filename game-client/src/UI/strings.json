@@ -45,6 +45,7 @@
     "76": "Your Warehouse is empty.",
     "77": "Your Backpack is empty.",
     "78": "Manage Backpack",
+    "90": "🚫 This is not your homestead.",
   
     "100": "TRAVELING STRINGS:",
 
@@ -55,6 +56,8 @@
     "105": "⚠️ There was a problem trying to travel.",
     "106": "🚫 You cannot travel beyond the frontier.",
     "110": "➡️ Walk onto Signposts to use them",
+    "111": "Welcome to town.",
+    "112": "Welcome home.",
 
     "200": "QUESTS",
 

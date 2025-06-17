@@ -1,6 +1,7 @@
 import API_BASE from './config';
 import axios from 'axios';
 import { fetchGridData } from './Utils/GridManagement'; // Utility for fetching grid data
+
 //import { syncPlayerAndGridState } from './Utils/playerManagement';
 
 /**
@@ -19,7 +20,7 @@ export const initializeGrid = async (
       console.error('GridId is missing. Cannot initialize grid.');
       return;
     }
-
+ 
     console.log('Initializing grid for gridId:', gridId);
 
     const gridData = await fetchGridData(gridId, updateStatus);

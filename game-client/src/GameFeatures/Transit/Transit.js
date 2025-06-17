@@ -3,6 +3,8 @@ import axios from "axios";
 import { changePlayerLocation } from "../../Utils/GridManagement";
 import { getEntryPosition } from './transitConfig';
 import playersInGridManager from "../../GridState/PlayersInGrid";
+import { fetchHomesteadOwner } from "../../Utils/worldHelpers";
+import { updateGridStatus } from "../../Utils/GridManagement";
 
 export async function handleTransitSignpost(
   currentPlayer,
@@ -64,6 +66,8 @@ export async function handleTransitSignpost(
         TILE_SIZE,
         closeAllPanels,
       );
+      updateStatus(112);
+      
       return;
     }
 
@@ -102,6 +106,7 @@ export async function handleTransitSignpost(
         TILE_SIZE,
         closeAllPanels,
       );
+      updateStatus(111);
       return;
     }
 
@@ -230,7 +235,7 @@ export async function handleTransitSignpost(
       gtype: targetGrid.gridType,
       gridCoord: targetGrid.gridCoord,
     };
-
+ 
     await changePlayerLocation(
       currentPlayer,
       currentPlayer.location,   // fromLocation
@@ -243,6 +248,8 @@ export async function handleTransitSignpost(
       TILE_SIZE,
       closeAllPanels,
     );
+    const { username, gridType } = await fetchHomesteadOwner(newPlayerPosition.g);
+    updateGridStatus(gridType, username, updateStatus);
 
     console.log(`Player moved to grid ID: ${targetGrid.gridId}`);
   } catch (error) {

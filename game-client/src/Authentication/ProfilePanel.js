@@ -76,6 +76,8 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
     });
   };
 
+  const handleLanguage = async () => {}
+
   const handleSave = async () => {
     setIsSaving(true);
     setErrorMessage('');
@@ -198,6 +200,7 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
             placeholder="Enter new password (optional)"
           />
         </div>
+        <br />
         <div className="form-group">
           <label>Account Status:</label>
           <select name="accountStatus" value={formData.accountStatus} onChange={handleInputChange}>
@@ -207,6 +210,7 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
             <option value="Gold">Gold</option>
           </select>
         </div>
+        <br />
 
         {/* Save and Logout Buttons */}
         <div className="panel-buttons">
@@ -223,6 +227,10 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
 
         {/* Settings Toggles */}
         <h3>Settings</h3>
+        <div className="panel-buttons">
+          <button className="btn-success" onClick={handleLanguage}>Language</button>
+        </div>
+
         <div className="debug-toggles">
           <button
             className={`btn-toggle ${localSettings.isTeleportEnabled ? 'btn-enabled' : 'btn-disabled'}`}
@@ -230,12 +238,7 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
           >
             Teleport: {localSettings.isTeleportEnabled ? 'is ON' : 'is OFF'}
           </button>
-          <button
-            className={`btn-toggle ${localSettings.isStateMachineEnabled ? 'btn-enabled' : 'btn-disabled'}`}
-            onClick={() => handleToggleChange('isStateMachineEnabled')}
-          >
-            State: {localSettings.isStateMachineEnabled ? 'is ON' : 'is OFF'}
-          </button>
+
           <button
             className={`btn-toggle ${localSettings.toggleVFX ? 'btn-enabled' : 'btn-disabled'}`}
             onClick={() => handleToggleChange('toggleVFX')}

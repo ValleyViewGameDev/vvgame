@@ -10,34 +10,10 @@ import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 
 const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources, masterSkills, TILE_SIZE }) => {
   const [allResources, setAllResources] = useState([]);
-  const [skillsToAcquire, setSkillsToAcquire] = useState([]);
-  const [upgradesToAcquire, setUpgradesToAcquire] = useState([]);
-  const [ownedSkills, setOwnedSkills] = useState([]);
-  const [ownedUpgrades, setOwnedUpgrades] = useState([]);
-  const [errorMessage, setErrorMessage] = useState('');
   const [isContentLoading, setIsContentLoading] = useState(false);
   const { updateStatus } = useContext(StatusBarContext);
   const [fetchTrigger, setFetchTrigger] = useState(0);
   const [playerStats, setPlayerStats] = useState({});
-
-  // ✅ Fetch resources when `entryPoint` changes
-  useEffect(() => {
-    const fetchResources = async () => {
-      setIsContentLoading(true);
-      try {
-        const [skillsResponse, resourcesResponse] = await Promise.all([
-          axios.get(`${API_BASE}/api/resources`),
-        ]);
-        const allResourcesData = resourcesResponse.data;
-        setAllResources(allResourcesData);
-      } catch (error) {
-        console.error('Error fetching resources or skills:', error);
-      } finally {
-        setIsContentLoading(false);
-      }
-    };
-    fetchResources();
-  }, [fetchTrigger]); 
 
 
   useEffect(() => {
@@ -129,10 +105,10 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
             <div className="combat-stats">
               <h3>Your Stats:</h3>
               <br />
-              <h3>❤️‍🩹 HP: <span className="stat-total">{hp.total}</span></h3>
+              <h3>❤️‍🩹 Health: <span className="stat-total">{hp.total}</span></h3>
               <br />
               <h4>
-                ❤️‍🩹 Max HP: {maxhp.base} + <span className="stat-total blue-text">{maxhp.modifier}</span> ={" "}
+                ❤️‍🩹 Max Health: {maxhp.base} + <span className="stat-total blue-text">{maxhp.modifier}</span> ={" "}
                 <span className="stat-total blue-text">{maxhp.modifier !== 0 ? maxhp.total : maxhp.base}</span>
               </h4>
               <h4>
@@ -183,7 +159,6 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
             </div>
           </>
         )}
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
       </div>
       <br />
       <br />
