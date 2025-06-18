@@ -134,7 +134,7 @@ const TradingStation = ({
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
               const ingredients = getIngredientDetails(recipe, masterResources || []);
-              const affordable = canAfford(recipe, inventory, 1);
+              const affordable = canAfford(recipe, inventory, backpack, 1);
               const info = (
                 <div className="info-content">
                   <div>
