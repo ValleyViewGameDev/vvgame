@@ -2,7 +2,8 @@ import API_BASE from '../../config';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
-import './InventoryPanel.css';
+import '../../UI/Panel.css';
+import './InventoryPanel.css'; 
 import strings from '../../UI/strings.json';
 import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
 
@@ -129,10 +130,13 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                 <div className="capacity-display">Capacity: {calculateTotalQuantity(backpack)}/{finalCapacities.backpack}</div>
 
                 {backpack.length > 0 && (
-                  <button className="empty-backpack-button" onClick={() => setShowBackpackModal(true)}>
-                      {strings[78]}
-                  </button>
+                <div className="panel-buttons">
+                    <button className="btn-success" onClick={() => setShowBackpackModal(true)}>
+                    {strings[78]}
+                    </button>
+                </div>
                 )}
+
                 <br></br>
                 <br></br>
                 <div className="inventory-table">
