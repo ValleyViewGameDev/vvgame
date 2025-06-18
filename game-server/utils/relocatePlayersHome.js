@@ -68,13 +68,14 @@ async function relocatePlayersHome(frontierId) {
       }
       const isHome = homeGridIdStr === gridIdStr;
       if (isHome) {
-        // 🩹 Restore HP for players already at home
+        // 🩹 Restore HP and reset position for players already at home
         if (typeof pcData === 'object' && player.baseMaxhp) {
           pcData.hp = player.baseMaxhp;
+          pcData.position = { x: 0, y: 0 };
           grid.playersInGrid.set(playerId, pcData);
           grid.playersInGridLastUpdated = new Date();
           await grid.save();
-          console.log(`🩺 Restored HP for player ${player.username} at home grid ${gridIdStr}`);
+          console.log(`🩺 Restored HP and position for player ${player.username} at home grid ${gridIdStr}`);
         }
         console.log(`✅ Player ${player.username} already at home grid, skipping.`);
         continue;
@@ -93,7 +94,10 @@ async function relocatePlayersHome(frontierId) {
       // Add to home grid's playersInGrid
       homeGrid.playersInGrid = homeGrid.playersInGrid || new Map();
       homeGrid.playersInGrid.set(playerId, pcData);
-      if (typeof pcData === 'object' && player.baseMaxhp) pcData.hp = player.baseMaxhp;
+      if (typeof pcData === 'object' && player.baseMaxhp) {
+        pcData.hp = player.baseMaxhp;
+        pcData.position = { x: 0, y: 0 };
+      }
       homeGrid.playersInGridLastUpdated = new Date();
       await homeGrid.save();
       console.log(`💾 Saved updated home grid ${homeGridIdStr} with player ${player.username}`);

@@ -216,6 +216,7 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
 
       <p>At the end of the season, bonus rewards will be sent to the top players in the Frontier, as well as to all players in the top Settlement.</p>
       <h3>🏆 Top Citizens in the Frontier</h3>
+      <p>(Net Worth is recalculated once per day)</p>
       {topCitizens.length > 0 ? (
         <div>
           {topCitizens.map((citizen, index) => (
