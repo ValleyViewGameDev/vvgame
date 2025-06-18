@@ -179,13 +179,24 @@ async function seasonReset(frontierId) {
         const stepStart = Date.now();
         const publicGrids = await Grid.find({ frontierId }); // ✅ Check ALL grids
         console.log(`🔁 Found ${publicGrids.length} public grids to reset...`);
+
+        const gridIdToCoordMap = {};
+        settlements.forEach(settlement => {
+          settlement.grids?.flat().forEach(g => {
+            if (g.gridId && g.gridCoord) {
+              gridIdToCoordMap[g.gridId.toString()] = g.gridCoord;
+            }
+          });
+        });
+
         for (const grid of publicGrids) {
           const isPublic = grid.gridType === "town" || grid.gridType.startsWith("valley");
           if (!isPublic) continue;
 
           try {
-            console.log(`🔁 Resetting ${grid.gridType} grid (${grid._id}) with gridCoord = (${grid.gridCoord}`);
-            await performGridReset(grid._id, grid.gridType, grid.gridCoord);
+            const gridCoord = gridIdToCoordMap[grid._id.toString()];
+            console.log(`🔁 Resetting ${grid.gridType} grid (${grid._id}) with gridCoord = (${gridCoord})`);
+            await performGridReset(grid._id, grid.gridType, gridCoord);
             console.log(`✅ Grid ${grid._id} reset successfully (${grid.gridType})`);
           } catch (err) {
             console.error(`❌ Error resetting grid ${grid._id}:`, err.message);
