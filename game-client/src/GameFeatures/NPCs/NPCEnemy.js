@@ -122,15 +122,15 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         // Define the stat and amount to modify before calling modifyPlayerStats
         const amountToMod = -damage;  // Damage is negative
         
-        try { 
-          const updatedValue = this.targetPC.hp + amountToMod;
-          playersInGridManager.updatePC(gridId, this.targetPC.playerId, { hp: updatedValue });
+        try {
+          const newHP = Math.max(0, this.targetPC.hp + amountToMod);
           FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, this.targetPC.position.x, this.targetPC.position.y, TILE_SIZE );
-          // ✅ Force update of NPCsInGrid after modifying HP
-          NPCsInGridManager.saveGridStateNPCs(gridId);  // ✅ Ensures NPC logic reads the updated HP in next cycle
-          // ✅ Immediately fetch the latest grid state
-          const updatedPcs = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {});
-          this.targetPC = updatedPcs.find(pc => pc.playerId === this.targetPC.playerId);
+          playersInGridManager.updatePC(gridId, this.targetPC.playerId, {
+            hp: newHP,
+            lastUpdated: Date.now()
+          });
+          NPCsInGridManager.saveGridStateNPCs(gridId);
+          this.targetPC = playersInGridManager.getPC(gridId, this.targetPC.playerId);
         } catch (error) {
           console.error(`Error applying damage to player ${this.targetPC.username}:`, error);
         }
