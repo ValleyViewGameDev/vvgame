@@ -30,7 +30,11 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
 
       if (!existing || incomingTime > localTime) {
         console.log(`⏩ Inserting or updating PC ${playerId} from player-joined-sync.`);
-        return {
+
+        // ✅ Update memory manager too
+      playersInGridManager.updatePC(gridId, playerId, playerData);
+  
+      return {
           ...prevState,
           [gridId]: {
             ...prevState[gridId],
@@ -53,6 +57,9 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
       return; // Ignore updates emitted by this client
     }
     console.log(`👋 Player ${username} left grid`);
+    // ✅ Remove from memory manager
+    playersInGridManager.removePC(gridId, playerId);
+
     setPlayersInGrid(prevState => {
       if (!prevState[gridId]?.pcs) return prevState;
       const updatedGrid = { ...prevState[gridId]?.pcs };
@@ -146,7 +153,8 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
       }
   
       console.log(`⏩ Updating PC ${playerId} from socket event.`);
-  
+      playersInGridManager.updatePC(gridId, playerId, incomingPC);
+
       const prevPosition = localPC?.position;
       const newPosition = incomingPC?.position;
       if (
