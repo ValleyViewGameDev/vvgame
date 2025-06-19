@@ -28,8 +28,8 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
       const incomingTime = new Date(playerData?.lastUpdated).getTime() || 0;
       const localTime = new Date(existing?.lastUpdated).getTime() || 0;
 
-      if (incomingTime > localTime) {
-        console.log(`⏩ Updating PC ${playerId} from player-joined-sync (newer data).`);
+      if (!existing || incomingTime > localTime) {
+        console.log(`⏩ Inserting or updating PC ${playerId} from player-joined-sync.`);
         return {
           ...prevState,
           [gridId]: {

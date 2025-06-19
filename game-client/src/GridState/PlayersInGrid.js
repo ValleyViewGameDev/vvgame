@@ -166,6 +166,7 @@ class GridStatePCManager {
 
     // Update an existing PC in the playersInGrid for a given gridId and playerId.
     async updatePC(gridId, playerId, newProperties) {
+      console.log("😀😀 updatePC -- gridId: ",gridId," playerId: ",playerId," newProperties:", newProperties);
       const gridPCs = this.playersInGrid[gridId]?.pcs;
       if (!gridPCs || !gridPCs[playerId]) {
         console.error(`Cannot update PC ${playerId}. No NPCsInGrid or PC found for gridId: ${gridId}`);

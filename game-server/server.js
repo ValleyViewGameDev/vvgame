@@ -295,6 +295,9 @@ mongoose.connect(process.env.MONGODB_URI, {
       socket.frontierId = frontierId;
     });
 
+
+
+    
     // 📡 Broadcast updated PCs to others in the same grid
     socket.on('update-NPCsInGrid-PCs', (payload) => {
       //console.log('📩 Received update-NPCsInGrid-PCs with payload:\n', JSON.stringify(payload, null, 2));
