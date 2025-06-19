@@ -191,6 +191,7 @@ export async function handleTransitSignpost(
  
     // 10) Find the sub-grid at newGRow/newGCol
     const targetGrid = targetSettlement.grids[newGRow][newGCol];
+    console.log('targetGrid = ',targetGrid);
     if (!targetGrid?.gridId) {
       updateStatus(18);
       return;
