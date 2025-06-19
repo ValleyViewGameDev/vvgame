@@ -34,6 +34,7 @@ export async function handleNPCClick(
   setInventory,
   setResources,
   currentPlayer,
+  setCurrentPlayer,
   TILE_SIZE,
   masterResources,
   masterSkills,
@@ -172,7 +173,7 @@ export async function handleNPCClick(
 
     case 'attack': 
     case 'spawn':
-      handleAttackOnNPC(npc,currentPlayer,TILE_SIZE,setResources,masterResources);
+      handleAttackOnNPC(npc,currentPlayer,setCurrentPlayer,TILE_SIZE,setResources,masterResources);
       
     break;
   

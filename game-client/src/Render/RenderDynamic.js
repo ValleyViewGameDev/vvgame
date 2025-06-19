@@ -96,6 +96,7 @@ const DynamicRenderer = ({
               setInventory,
               setResources,
               currentPlayer,
+              setCurrentPlayer,
               TILE_SIZE,
               masterResourcesRef.current,
               masterSkills,

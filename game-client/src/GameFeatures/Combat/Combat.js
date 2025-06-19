@@ -61,7 +61,7 @@ function calculateDamage(player) {
 }
 
 /** handle attack on NPC **/
-export async function handleAttackOnNPC(npc, currentPlayer, TILE_SIZE, setResources, masterResources) {
+export async function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZE, setResources, masterResources) {
     console.log(`Handling attack on NPC ${npc.id}.`);
 
     // Translate currentPlayer to pc from playersInGridManager
@@ -139,7 +139,7 @@ export async function handleAttackOnNPC(npc, currentPlayer, TILE_SIZE, setResour
         } catch (error) {
             console.error('Error removing NPC or spawning resource:', error);
         }
-        await trackQuestProgress(currentPlayer, 'Kill', npc.type, 1, currentPlayer);    }
+        await trackQuestProgress(currentPlayer, 'Kill', npc.type, 1, setCurrentPlayer);    }
 }
 
 
