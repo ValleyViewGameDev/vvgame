@@ -1,11 +1,23 @@
 /* Panels */
+/* Font options for panel content */
+/* You can set a custom font-family here for all panel content */
+.panel-container, .panel-header, .panel-title, .panel-content {
+  font-family: 'Segoe UI', 'Roboto', 'Arial', 'Helvetica Neue', sans-serif;
+}
+
+/* Example: To use a monospace font for debugging panels, you could add: */
+.debug-panel, .debug-panel * {
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
+}
+
+
 .panel-container {
     position: fixed;
     top: 0;
     left: 60px; /* Overlap with base panel */
     height: 100%;
     width: 200px; /* Fixed width for panels; overlaps base panel */
-    background-color: rgb(239, 235, 158);
+    background-color: rgb(255, 251, 179);
     box-shadow: 4px 0 8px rgba(0, 0, 0, 0.2);
     z-index: 1000;
     display: flex;
@@ -17,7 +29,7 @@
 .panel-header {
   position: sticky;
   top: 0;
-  background-color: rgb(239, 235, 158);
+  background-color: rgb(255, 251, 179);
   padding: 5px;
   z-index: 101;
   display: flex;
@@ -29,13 +41,13 @@
 
 /* Panel Title */
 .panel-title {
+  font: 'Roboto';
   font-size: 16px;
   font-weight: bold;
   margin: 0;
   padding: 0;
   flex-grow: 1; /* Allows title to expand while keeping the close button aligned */
 }
-
 /* Scrollable Panel Content */
 .panel-content {
   padding: 10px;
@@ -144,6 +156,7 @@
     font-size: 12px;
     color: #666;
     text-align: left;
+    font-style: italic;
   }
 
 
