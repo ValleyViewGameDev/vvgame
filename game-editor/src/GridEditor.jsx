@@ -504,7 +504,7 @@ const handleResourceDistributionChange = (resourceType, value) => {
   resourcePool.forEach((res, i) => {
     const cell = validCells[i];
     if (cell && res[`validon${cell.tileType}`]) {
-      newGrid[cell.x][cell.y].resource = res.symbol;
+      newGrid[cell.x][cell.y].resource = res.type;
     }
   });
   setGrid(newGrid);
