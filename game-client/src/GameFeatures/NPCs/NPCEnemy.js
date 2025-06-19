@@ -17,7 +17,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
   const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
   //console.log('🐺 npcs = ', npcs);
   const pcs = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}); // Get all PCs on the grid
-  console.log('😀 pcs = ', pcs);
+  //console.log('😀 pcs = ', pcs);
 
   if (!this.state) this.state = 'idle';
 
@@ -27,8 +27,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       this.pursueTimerStart = null; // Clear pursuit timer
       await this.handleIdleState(tiles, resources, npcs, 5, async () => {
         const closestPC = findClosestPC(this.position, pcs);
-        console.log('closestPC = ',closestPC);
-        if (closestPC) {
+        if (closestPC && getDistance(this.position, closestPC.position) <= this.range) {
           //console.log(`NPC ${this.id} detected PC ${closestPC.username} within range. Entering 'pursue' state.`);
           this.targetPC = closestPC; // Set the target PC
           this.state = 'pursue';
@@ -154,19 +153,21 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
 
 /**
  * Finds the closest PC to the given position.
- * Picks randomly among PCs within an arbitrary range cap.
  */
 function findClosestPC(npcPosition, pcs) {
-  const validPCs = pcs.filter(pc => pc.hp > 0);
-  if (validPCs.length === 0) return null;
+  let closestPC = null;
+  let minDistance = Infinity;
 
-  const pcsInRange = validPCs.filter(pc => getDistance(npcPosition, pc.position) <= 10); // Arbitrary range cap
+  pcs.forEach((pc) => {
+    if (pc.hp <= 0) return; // ✅ Skip PCs that are dead
+    const distance = getDistance(npcPosition, pc.position);
+    if (distance < minDistance) {
+      minDistance = distance;
+      closestPC = pc;
+    }
+  });
 
-  if (pcsInRange.length === 0) return null;
-
-  // If multiple are in range, pick one randomly
-  const randomIndex = Math.floor(Math.random() * pcsInRange.length);
-  return pcsInRange[randomIndex];
+  return closestPC;
 }
 
 /**
