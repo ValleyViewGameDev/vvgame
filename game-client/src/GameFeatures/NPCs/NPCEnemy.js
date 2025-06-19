@@ -17,7 +17,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
   const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
   //console.log('🐺 npcs = ', npcs);
   const pcs = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}); // Get all PCs on the grid
-  //console.log('😀 pcs = ', pcs);
+  console.log('😀 pcs = ', pcs);
 
   if (!this.state) this.state = 'idle';
 
@@ -27,6 +27,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       this.pursueTimerStart = null; // Clear pursuit timer
       await this.handleIdleState(tiles, resources, npcs, 5, async () => {
         const closestPC = findClosestPC(this.position, pcs);
+        console.log('closestPC = ',closestPC);
         if (closestPC) {
           //console.log(`NPC ${this.id} detected PC ${closestPC.username} within range. Entering 'pursue' state.`);
           this.targetPC = closestPC; // Set the target PC
