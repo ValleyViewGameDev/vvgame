@@ -26,18 +26,21 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
     case 'idle': {
       this.pursueTimerStart = null; // Clear pursuit timer
       await this.handleIdleState(tiles, resources, npcs, 5, async () => {
-        const closestPC = findClosestPC(this.position, pcs);
-        console.log('closestPC = ',closestPC);
-        if (closestPC && getDistance(this.position, closestPC.position) <= this.range) {
-          console.log(`NPC ${this.id} detected PC ${closestPC.username} within range. Entering 'pursue' state.`);
-          this.targetPC = closestPC; // Set the target PC
+        const pcsInRange = pcs.filter(pc => {
+          if (pc.hp <= 0) return false;
+          const dist = getDistance(this.position, pc.position);
+          return dist <= this.range;
+        });
+        const targetPC = pcsInRange[Math.floor(Math.random() * pcsInRange.length)];
+        if (targetPC) {
+          console.log(`NPC ${this.id} randomly chose PC ${targetPC.username} within range. Entering 'pursue' state.`);
+          this.targetPC = targetPC;
           this.state = 'pursue';
-          await updateThisNPC.call(this, gridId); // Save after transition
-
+          await updateThisNPC.call(this, gridId);
         } else {
           console.log(`NPC ${this.id} did not detect any PCs within range. Entering 'roam' state.`);
           this.state = 'roam';
-          await updateThisNPC.call(this, gridId); // Save after transition
+          await updateThisNPC.call(this, gridId);
         }
       });
       break;
