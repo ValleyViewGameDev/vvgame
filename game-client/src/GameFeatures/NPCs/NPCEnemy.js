@@ -82,7 +82,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         //console.warn(`NPC ${this.id} lost its target. Returning to idle state.`);
         this.pursueTimerStart = null;
         this.state = 'idle';
-        await updateThisNPC.call(this, gridId); // Save after transition
+        await updateThisNPC.call(gridId); // Save after transition
         break;
       }
       if (this.targetPC.hp <= 0 || this.targetPC.iscamping) {
@@ -123,7 +123,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         const amountToMod = -damage;  // Damage is negative
         
         try { 
-          const updatedValue = (this.targetPC.hp += amountToMod);
+          const updatedValue = this.targetPC.hp + amountToMod;
           playersInGridManager.updatePC(gridId, this.targetPC.playerId, { hp: updatedValue });
           FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, this.targetPC.position.x, this.targetPC.position.y, TILE_SIZE );
           // ✅ Force update of NPCsInGrid after modifying HP
