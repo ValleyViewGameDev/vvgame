@@ -75,42 +75,44 @@ export async function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TI
         return;
     }
 
+    const freshNPC = NPCsInGridManager.getNPCsInGrid(gridId)?.[npc.id] || npc;
+
     if (player.iscamping) {
-        FloatingTextManager.addFloatingText(31, npc.position.x, npc.position.y, TILE_SIZE);
+        FloatingTextManager.addFloatingText(31, freshNPC.position.x, freshNPC.position.y, TILE_SIZE);
         return;
     }
-    if (!checkRange(player, npc, TILE_SIZE)) return;
-    if (!isAHit(player, npc, TILE_SIZE)) return;
+    if (!checkRange(player, freshNPC, TILE_SIZE)) return;
+    if (!isAHit(player, freshNPC, TILE_SIZE)) return;
  
     const damage = calculateDamage(player);
-    FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, npc.position.x, npc.position.y, TILE_SIZE);
-    createCollectEffect(npc.position.x, npc.position.y, TILE_SIZE);
+    FloatingTextManager.addFloatingText(`- ${damage} ❤️‍🩹 HP`, freshNPC.position.x, freshNPC.position.y, TILE_SIZE);
+    createCollectEffect(freshNPC.position.x, freshNPC.position.y, TILE_SIZE);
 
-    npc.hp -= damage;
-    await NPCsInGridManager.updateNPC(gridId, npc.id, {
-      hp: npc.hp,
-      position: npc.position,
-      state: npc.state,
+    freshNPC.hp -= damage;
+    await NPCsInGridManager.updateNPC(gridId, freshNPC.id, {
+      hp: freshNPC.hp,
+      position: freshNPC.position,
+      state: freshNPC.state,
     });
 
-    if (npc.hp <= 0) {
-        console.log(`NPC ${npc.id} killed.`);
-        FloatingTextManager.addFloatingText(504, npc.position.x, npc.position.y-1, TILE_SIZE);
+    if (freshNPC.hp <= 0) {
+        console.log(`NPC ${freshNPC.id} killed.`);
+        FloatingTextManager.addFloatingText(504, freshNPC.position.x, freshNPC.position.y-1, TILE_SIZE);
 
         try {
-            await NPCsInGridManager.removeNPC(gridId, npc.id);
-            console.log(`NPC ${npc.id} successfully removed from grid.`);
+            await NPCsInGridManager.removeNPC(gridId, freshNPC.id);
+            console.log(`NPC ${freshNPC.id} successfully removed from grid.`);
 
             // Add the Dead NPC "output" to the grid:
-            if (npc.output) {
-                console.log(`Spawning resource: ${npc.output} at NPC's death position.`);
-                const resourceDetails = masterResources.find((res) => res.type === npc.output);
+            if (freshNPC.output) {
+                console.log(`Spawning resource: ${freshNPC.output} at NPC's death position.`);
+                const resourceDetails = masterResources.find((res) => res.type === freshNPC.output);
 
                 const enrichedResource = {
                     ...resourceDetails,
-                    type: npc.output,
-                    x: Math.floor(npc.position.x),
-                    y: Math.floor(npc.position.y),
+                    type: freshNPC.output,
+                    x: Math.floor(freshNPC.position.x),
+                    y: Math.floor(freshNPC.position.y),
                     category: resourceDetails.category || 'doober',
                     symbol: resourceDetails.symbol || '❓',
                     qtycollected: resourceDetails.qtycollected || 1,
@@ -126,20 +128,20 @@ export async function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TI
                 await updateGridResource(
                     gridId, 
                     { 
-                      type: npc.output,
-                      x: Math.floor(npc.position.x),
-                      y: Math.floor(npc.position.y),
+                      type: freshNPC.output,
+                      x: Math.floor(freshNPC.position.x),
+                      y: Math.floor(freshNPC.position.y),
                     },
                     setResources,
                     true
                   );
             } else {
-                console.warn(`NPC ${npc.id} has no output resource defined.`);
+                console.warn(`NPC ${freshNPC.id} has no output resource defined.`);
             }
         } catch (error) {
             console.error('Error removing NPC or spawning resource:', error);
         }
-        await trackQuestProgress(currentPlayer, 'Kill', npc.type, 1, setCurrentPlayer);    }
+        await trackQuestProgress(currentPlayer, 'Kill', freshNPC.type, 1, setCurrentPlayer);    }
 }
 
 
@@ -150,6 +152,9 @@ export async function handleAttackOnPC(pc, currentPlayer, gridId, TILE_SIZE) {
     console.error('Player not found in playersInGrid.');
     return;
   }
+
+  // Refresh the target PC from memory
+  pc = playersInGridManager.getPlayersInGrid(gridId)?.[pc.playerId] || pc;
 
   if (!checkRange(player, pc, TILE_SIZE)) return;
   if (!isAHit(player, pc, TILE_SIZE)) return;

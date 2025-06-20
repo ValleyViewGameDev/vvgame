@@ -245,12 +245,73 @@ const DynamicRenderer = ({
     });
   }
 
+  function renderPlayerRange() {
+    const gridId = currentPlayer?.location?.g;
+    const gridType = currentPlayer?.location?.gtype;
+    if (!gridId || !currentPlayer || !currentPlayer.range) return;
+    const container = containerRef.current; if (!container) return;
+
+    let rangeCircle = document.getElementById('player-range-circle');
+
+    if (!rangeCircle) {
+      rangeCircle = document.createElement('div');
+      rangeCircle.id = 'player-range-circle';
+      rangeCircle.style.position = 'absolute';
+      rangeCircle.style.backgroundColor = 'rgba(128, 128, 128, 0.2)';
+      rangeCircle.style.border = 'none';
+      rangeCircle.style.borderRadius = '50%';
+      rangeCircle.style.pointerEvents = 'none';
+      rangeCircle.style.zIndex = 10;
+      container.appendChild(rangeCircle);
+    }
+
+    const position = playersInGrid?.[gridId]?.pcs?.[currentPlayer._id]?.position;
+    if (!position) return;
+
+    const pixelX = position.x * TILE_SIZE;
+    const pixelY = position.y * TILE_SIZE;
+    const derivedRange = gridType === 'homestead' ? currentPlayer.range + 5 : currentPlayer.range;
+    const radius = derivedRange * TILE_SIZE;
+
+    rangeCircle.style.width = `${radius * 2}px`;
+    rangeCircle.style.height = `${radius * 2}px`;
+    rangeCircle.style.left = `${pixelX - radius + TILE_SIZE / 2}px`;
+    rangeCircle.style.top = `${pixelY - radius + TILE_SIZE / 2}px`;
+
+    // Add a second ring for attackrange
+    const attackRange = playersInGrid?.[gridId]?.pcs?.[currentPlayer._id]?.attackrange;
+    if (attackRange && attackRange > 0) {
+      let attackRangeRing = document.getElementById('player-attackrange-ring');
+      if (!attackRangeRing) {
+        attackRangeRing = document.createElement('div');
+        attackRangeRing.id = 'player-attackrange-ring';
+        attackRangeRing.style.position = 'absolute';
+        attackRangeRing.style.border = '2px dotted red';
+        attackRangeRing.style.borderRadius = '50%';
+        attackRangeRing.style.pointerEvents = 'none';
+        attackRangeRing.style.zIndex = 11;
+        container.appendChild(attackRangeRing);
+      }
+
+      const attackRadius = attackRange * TILE_SIZE;
+      attackRangeRing.style.width = `${attackRadius * 2}px`;
+      attackRangeRing.style.height = `${attackRadius * 2}px`;
+      attackRangeRing.style.left = `${pixelX - attackRadius + TILE_SIZE / 2}px`;
+      attackRangeRing.style.top = `${pixelY - attackRadius + TILE_SIZE / 2}px`;
+    } else {
+      // Remove attack range ring if attackrange is not present or 0
+      const existingAttackRing = document.getElementById('player-attackrange-ring');
+      if (existingAttackRing) existingAttackRing.remove();
+    }
+  }
+
   // Animation loop to update positions smoothly if needed
 function startRenderingLoop() {
   if (!containerRef.current) return;
   renderNPCs();
   renderPCs();
-
+  renderPlayerRange();
+  
   animationFrameId.current = requestAnimationFrame(startRenderingLoop);
 }
 
@@ -272,6 +333,10 @@ function startRenderingLoop() {
         div.remove();
       });
       pcElements.current.clear();
+      const existingRangeCircle = document.getElementById('player-range-circle');
+      if (existingRangeCircle) existingRangeCircle.remove();
+      const existingAttackRing = document.getElementById('player-attackrange-ring');
+      if (existingAttackRing) existingAttackRing.remove();
     };
   }, [NPCsInGrid, playersInGrid, currentPlayer, TILE_SIZE, setInventory, setResources, onNPCClick, onPCClick, masterResourcesRef.current]);
 

@@ -47,6 +47,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
     }
 
     case 'pursue': {
+      this.targetPC = pcs.find(pc => pc.playerId === this.targetPC?.playerId); // Refresh position from latest state
       this.targetPC = pcs.find(pc => pc.playerId === this.targetPC?.playerId);
       if (!this.targetPC) {
         //console.warn(`NPC ${this.id} lost its target. Returning to idle state.`);
@@ -58,6 +59,16 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       if (!this.pursueTimerStart) this.pursueTimerStart = Date.now();
       const timeSincePursueStart = Date.now() - this.pursueTimerStart;
       const distance = getDistance(this.position, this.targetPC?.position);
+      // Check if there's a closer PC to switch to
+      const closestPC = findClosestPC(this.position, pcs);
+      if (closestPC && closestPC.playerId !== this.targetPC.playerId) {
+        const distToCurrent = distance;
+        const distToClosest = getDistance(this.position, closestPC.position);
+        if (distToCurrent - distToClosest >= 2) {
+          console.log(`🔄 NPC ${this.id} switching target from ${this.targetPC.username} to much closer PC ${closestPC.username}.`);
+          this.targetPC = closestPC;
+        }
+      }
       if (distance > this.range * 2 && timeSincePursueStart > 5000) {
         console.log(`🐺 NPC ${this.id} gave up chasing ${this.targetPC?.username}.`);
         this.state = 'idle';
@@ -76,6 +87,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
     }
 
     case 'attack': {
+      this.targetPC = pcs.find(pc => pc.playerId === this.targetPC?.playerId); // Refresh position from latest state
       this.targetPC = pcs.find(pc => pc.playerId === this.targetPC?.playerId);
 
       if (!this.targetPC) {

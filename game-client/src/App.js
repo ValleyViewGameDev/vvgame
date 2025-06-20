@@ -949,7 +949,8 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
   // If clicking a resource, check range before interacting (except NPCs)
   if (resource && resource.category !== 'npc') {
     const distance = calculateDistance(playerPos, targetPos);
-    const playerRange = currentPlayer.range || 1; // Default range if not set
+    const gridType = currentPlayer?.location?.gtype;
+    const playerRange = (gridType === 'homestead' ? (currentPlayer.range + 5) : currentPlayer.range) || 1;
     console.log(`Checking range: Player at ${playerPos.x},${playerPos.y} | Target at ${targetPos.x},${targetPos.y} | Distance = ${distance} | Range = ${playerRange}`);
     if (distance > playerRange) {
         FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);

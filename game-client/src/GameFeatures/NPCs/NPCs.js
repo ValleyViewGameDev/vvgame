@@ -203,7 +203,7 @@ async handlePursueState(playerPosition, tiles, resources, npcs, pcs, onAttackTra
     else if (dx > 0 && dy < 0) direction = 'NE';
     else if (dx < 0 && dy > 0) direction = 'SW';
     else if (dx < 0 && dy < 0) direction = 'NW';
-  }
+  } 
   
   if (!direction) return;
 
