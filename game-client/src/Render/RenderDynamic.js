@@ -251,6 +251,13 @@ const DynamicRenderer = ({
     if (!gridId || !currentPlayer || !currentPlayer.range) return;
     const container = containerRef.current; if (!container) return;
 
+    // Prevent unwanted scrolling when VFX range rings overflow
+    container.style.overflow = 'hidden';
+    container.style.maxWidth = `${64 * TILE_SIZE}px`;
+    container.style.maxHeight = `${64 * TILE_SIZE}px`;
+    container.style.position = 'relative';
+    container.style.margin = '0 auto';
+
     let rangeCircle = document.getElementById('player-range-circle');
 
     if (!rangeCircle) {
@@ -286,7 +293,7 @@ const DynamicRenderer = ({
         attackRangeRing = document.createElement('div');
         attackRangeRing.id = 'player-attackrange-ring';
         attackRangeRing.style.position = 'absolute';
-        attackRangeRing.style.border = '2px dotted red';
+        attackRangeRing.style.border = '2px dotted rgba(255, 0, 0, 0.4)';
         attackRangeRing.style.borderRadius = '50%';
         attackRangeRing.style.pointerEvents = 'none';
         attackRangeRing.style.zIndex = 11;
@@ -341,7 +348,16 @@ function startRenderingLoop() {
   }, [NPCsInGrid, playersInGrid, currentPlayer, TILE_SIZE, setInventory, setResources, onNPCClick, onPCClick, masterResourcesRef.current]);
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', width: '100%', height: '100%' }}>
+    <div
+      ref={containerRef}
+      style={{
+        position: 'relative',
+        width: `${64 * TILE_SIZE}px`,
+        height: `${64 * TILE_SIZE}px`,
+        overflow: 'hidden',
+        margin: '0 auto'
+      }}
+    >
       {/* NPCs and PCs are rendered manually in the container */}
     </div>
   );
