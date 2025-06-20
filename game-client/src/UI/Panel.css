@@ -24,7 +24,7 @@
     flex-direction: column;
     overflow-y: auto;
   }
-  
+
 /* Fixed Panel Header (Title + Close Button) */
 .panel-header {
   position: sticky;

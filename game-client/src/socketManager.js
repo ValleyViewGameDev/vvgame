@@ -148,19 +148,35 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
     setPlayersInGrid((prevState) => {
       const localPC = prevState[gridId]?.pcs?.[playerId];
       const localTime = new Date(localPC?.lastUpdated).getTime() || 0;
-  
+
+      // --- Begin changed fields logging and floating text (like NPCs) ---
+      const changedFields = Object.keys(incomingPC).filter(key => {
+        if (key === 'lastUpdated') return false;
+        return JSON.stringify(incomingPC[key]) !== JSON.stringify(localPC?.[key]);
+      });
+
+      if (changedFields.length > 0) {
+        console.log(`🔄 PC ${playerId} changed fields: ${changedFields.join(', ')}`);
+        // Show floating damage text if HP was reduced
+        if (changedFields.includes('hp') && localPC?.hp && incomingPC?.hp < localPC.hp) {
+          const damageTaken = localPC.hp - incomingPC.hp;
+          FloatingTextManager.addFloatingText(`- ${damageTaken} ❤️‍🩹 HP`, incomingPC.position.x, incomingPC.position.y, TILE_SIZE);
+        }
+      }
+      // --- End changed fields logging and floating text ---
+
       if (currentPlayer && playerId === String(currentPlayer._id)) {
         if (localPlayerMoveTimestampRef.current > incomingTime) {
           console.log(`⏳ Skipping local PC (${playerId}) update; local movement is newer.`);
           return prevState;
         }
       }
-  
+
       if (incomingTime <= localTime) {
         console.log(`⏳ Skipping stale update for PC ${playerId}.`);
         return prevState;
       }
-  
+
       console.log(`⏩ Updating PC ${playerId} from socket event.`);
       playersInGridManager.updatePC(gridId, playerId, incomingPC);
 
@@ -173,10 +189,10 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
       ) {
         animateRemotePC(playerId, prevPosition, newPosition, TILE_SIZE);
       }
-  
+
       const prevGridState = prevState[gridId] || {};
       const prevPCs = prevGridState.pcs || {};
-  
+
       const setPayload = {
         ...prevState,
         [gridId]: {
@@ -188,11 +204,11 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
           playersInGridLastUpdated: playersInGridLastUpdated || prevGridState.playersInGridLastUpdated,
         },
       };
-  
+
       // console.log("🧠 Pre-state before merge:", JSON.stringify(prevState, null, 2));
       // console.log("📥 Incoming update for:", playerId, "with data:", incomingPC);
       // console.log("📦 setPlayersInGrid payload:", JSON.stringify(setPayload, null, 2));
-  
+
       return setPayload;
     });
   };
