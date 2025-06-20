@@ -24,7 +24,8 @@ const QuestButton = ({ quest, state, onClick }) => {
       style={{ position: 'relative' }}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      <h3>{symbol} {title}</h3>
+      <h2>{symbol}</h2>
+      <h3>{title}</h3>
       <h4>{completed ? strings[206] : strings[207] }</h4>
       {goals.map((goal, index) =>
         goal.action && goal.item && goal.qty ? (
@@ -82,7 +83,8 @@ const QuestGiverButton = ({ quest, state, onClick }) => {
       style={{ position: 'relative' }}
       onMouseLeave={() => setShowTooltip(false)}
     >
-      <h3>{symbol} {title}</h3>
+      <h2>{symbol}</h2>
+      <h3>{title}</h3>
       <div className="quest-goals">
         {goals.map((goal, index) =>
           goal.action && goal.item && goal.qty ? (

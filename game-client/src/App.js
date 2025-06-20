@@ -99,9 +99,7 @@ useEffect(() => {
         setIsModalOpen(false);
       }
       // If it was previously down, reload the page
-      if (serverPreviouslyDown) {
-        window.location.reload();
-      }
+      if (serverPreviouslyDown) { window.location.reload(); }
     } catch (err) {
       console.warn("❌ Server unreachable:", err.message);
       if (!serverPreviouslyDown) {
