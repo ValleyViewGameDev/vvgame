@@ -1,4 +1,5 @@
 import NPC from './GameFeatures/NPCs/NPCs';
+import FloatingTextManager from './UI/FloatingText';
 import NPCsInGridManager from './GridState/GridStateNPCs';
 import playersInGridManager from './GridState/PlayersInGrid';
 import { io } from 'socket.io-client';
@@ -254,14 +255,28 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
           }
           return;
         }
-  
+
         const localNPC = updatedNPCs[npcId];
         const incomingTime = new Date(incomingNPC.lastUpdated).getTime();
         const localTime = localNPC?.lastUpdated ? new Date(localNPC.lastUpdated).getTime() : 0;
-  
+
         if (incomingTime > localTime) {
+          // Broadly log which attributes changed
+          const changedFields = Object.keys(incomingNPC).filter(key => {
+            if (key === 'lastUpdated') return false;
+            return JSON.stringify(incomingNPC[key]) !== JSON.stringify(localNPC?.[key]);
+          });
+          if (changedFields.length > 0) {
+            console.log(`🔄 NPC ${npcId} changed fields: ${changedFields.join(', ')}`);
+            // Show floating damage text if HP was reduced
+            if (changedFields.includes('hp') && localNPC?.hp && incomingNPC?.hp < localNPC.hp) {
+              const damageTaken = localNPC.hp - incomingNPC.hp;
+              FloatingTextManager.addFloatingText(`- ${damageTaken} ❤️‍🩹 HP`, incomingNPC.position.x, incomingNPC.position.y, TILE_SIZE);
+            }
+          }
+
           //console.log(`  🐮📡 Updating NPC ${npcId} from emitter ${emitterId}: ${incomingNPC.state}`);
-  
+
           const rehydrated = new NPC(
             incomingNPC.id,
             incomingNPC.type,
@@ -269,9 +284,9 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
             incomingNPC,
             incomingNPC.gridId || gridId
           );
-  
+
           updatedNPCs[npcId] = rehydrated;
-  
+
           if (liveGrid?.npcs) {
             liveGrid.npcs[npcId] = rehydrated;
             //console.log(`🧠 Rehydrated NPC ${npcId} into live NPCsInGrid`);
