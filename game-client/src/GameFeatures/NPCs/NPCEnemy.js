@@ -129,7 +129,6 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
             hp: newHP,
             lastUpdated: Date.now()
           });
-          NPCsInGridManager.saveGridStateNPCs(gridId);
         } catch (error) {
           console.error(`Error applying damage to player ${this.targetPC.username}:`, error);
         }
