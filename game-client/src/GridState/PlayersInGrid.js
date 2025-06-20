@@ -95,9 +95,9 @@ class GridStatePCManager {
       }
     }
     
+    async addPlayer(gridId, playerId, pcData) {
     // Add a new PC to the playersInGrid for a given gridId and playerId.
     // This is only run on app initialization, IF the saved currentPlayer cannot be found in the playersInGrid.
-    async addPlayer(gridId, playerId, pcData) {
       if (!this.playersInGrid[gridId]) {
         this.playersInGrid[gridId] = {
           pcs: {},
@@ -285,6 +285,35 @@ class GridStatePCManager {
           console.error(`❌ Failed to update PC ${playerId}:`, error);
         }
     }
+
+
+  // Remove a PC from the playersInGrid for a given gridId and playerId.
+  removePC(gridId, playerId) {
+    if (!this.playersInGrid[gridId]?.pcs?.[playerId]) {
+      console.warn(`⚠️ Cannot remove PC ${playerId}; not found in grid ${gridId}.`);
+      return;
+    }
+
+    delete this.playersInGrid[gridId].pcs[playerId];
+
+    // Also update React state if setter is registered
+    if (this.setPlayersInGridReact) {
+      this.setPlayersInGridReact(prev => {
+        const updatedGrid = { ...(prev[gridId]?.pcs || {}) };
+        delete updatedGrid[playerId];
+
+        return {
+          ...prev,
+          [gridId]: {
+            ...(prev[gridId] || {}),
+            pcs: updatedGrid,
+          },
+        };
+      });
+    }
+
+    console.log(`🗑️ Removed PC ${playerId} from grid ${gridId}`);
+  }
 
   }
     

@@ -62,7 +62,11 @@ const handlePlayerJoinedGrid = ({ playerId, username, playerData, emitterId }) =
     }
     console.log(`👋 Player ${username} left grid`);
     // ✅ Remove from memory manager
-    playersInGridManager.removePC(gridId, playerId);
+    if (playersInGridManager.removePC) {
+      playersInGridManager.removePC(gridId, playerId);
+    } else {
+      console.warn('🛑 playersInGridManager.removePC is not defined.');
+    }
 
     setPlayersInGrid(prevState => {
       if (!prevState[gridId]?.pcs) return prevState;
