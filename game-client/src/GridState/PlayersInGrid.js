@@ -219,6 +219,22 @@ class GridStatePCManager {
         return;
       }
     
+      const currentData = gridPCs[playerId];
+      const incomingData = { ...currentData, ...newProperties };
+
+      // Check if all fields (except lastUpdated) are the same
+      const keysToCompare = Object.keys(incomingData).filter(key => key !== 'lastUpdated');
+      const isSame = keysToCompare.every(key => {
+        const a = currentData[key];
+        const b = incomingData[key];
+        return JSON.stringify(a) === JSON.stringify(b);
+      });
+
+      if (isSame) {
+        console.log(`⏭️ Skipping update for PC ${playerId}; no meaningful changes.`);
+        return;
+      }
+    
       const oldPosition = gridPCs[playerId]?.position;
       const now = Date.now();
       const updatedPC = {
