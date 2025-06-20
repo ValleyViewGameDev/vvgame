@@ -4177,7 +4177,7 @@
         "ingredient1qty": 6500
     },
     {
-        "type": "Deluxe Warehouse",
+        "type": "Storehouse",
         "symbol": "📦",
         "category": "upgrade",
         "output": "warehouseCapacity",
@@ -4194,12 +4194,12 @@
         "ingredient3qty": 10
     },
     {
-        "type": "Epic Warehouse",
+        "type": "Depot",
         "symbol": "📦",
         "category": "upgrade",
         "output": "warehouseCapacity",
         "source": "Warehouse",
-        "requires": "Deluxe Warehouse",
+        "requires": "Storehouse",
         "qtycollected": 1000,
         "level": 2,
         "minprice": 0,
@@ -4226,7 +4226,7 @@
         "ingredient2qty": 1
     },
     {
-        "type": "Deluxe Backpack",
+        "type": "Rucksack",
         "symbol": "🎒",
         "category": "upgrade",
         "output": "backpackCapacity",
@@ -4243,12 +4243,12 @@
         "ingredient3qty": 1
     },
     {
-        "type": "Epic Backpack",
+        "type": "Enchanted Pack",
         "symbol": "🎒",
         "category": "upgrade",
         "output": "backpackCapacity",
         "source": "Adventure Camp",
-        "requires": "Backpack",
+        "requires": "Rucksack",
         "qtycollected": 50,
         "level": 4,
         "minprice": 0,
@@ -4546,19 +4546,6 @@
         "ingredient1qty": 5000
     },
     {
-        "type": "Strength",
-        "symbol": "🔪",
-        "category": "power",
-        "output": "damage",
-        "source": "Warrior's Den",
-        "requires": "Combat",
-        "qtycollected": 7,
-        "level": 2,
-        "minprice": 0,
-        "ingredient1": "Money",
-        "ingredient1qty": 8000
-    },
-    {
         "type": "Tracking",
         "symbol": "🔎",
         "category": "skill",
@@ -4589,12 +4576,25 @@
         "ingredient2qty": 5
     },
     {
-        "type": "Power",
-        "symbol": "🔪",
+        "type": "Force",
+        "symbol": "💪",
         "category": "power",
         "output": "damage",
         "source": "Warrior's Den",
-        "requires": "Strength",
+        "requires": "Combat",
+        "qtycollected": 7,
+        "level": 2,
+        "minprice": 0,
+        "ingredient1": "Money",
+        "ingredient1qty": 8000
+    },
+    {
+        "type": "Wrath",
+        "symbol": "💪",
+        "category": "power",
+        "output": "damage",
+        "source": "Warrior's Den",
+        "requires": "Force",
         "qtycollected": 15,
         "level": 4,
         "minprice": 0,
@@ -4604,12 +4604,12 @@
         "ingredient2qty": 1
     },
     {
-        "type": "Psycho",
-        "symbol": "🔪",
+        "type": "Tempest",
+        "symbol": "💪",
         "category": "power",
         "output": "damage",
         "source": "Warrior's Den",
-        "requires": "Power",
+        "requires": "Wrath",
         "qtycollected": 10,
         "level": 5,
         "minprice": 0,
@@ -4619,7 +4619,7 @@
         "ingredient2qty": 5
     },
     {
-        "type": "Quick Hit",
+        "type": "Jab",
         "symbol": "⚔️",
         "category": "power",
         "output": "speed",
@@ -4632,14 +4632,14 @@
         "ingredient1qty": 9000
     },
     {
-        "type": "Rapid Fire",
-        "symbol": "🔫",
+        "type": "Flurry",
+        "symbol": "⚔️",
         "category": "power",
         "output": "speed",
         "source": "Warrior's Den",
-        "requires": "Quick Hit",
-        "qtycollected": -2,
-        "level": 4,
+        "requires": "Jab",
+        "qtycollected": -1,
+        "level": 3,
         "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 18000,
@@ -4647,25 +4647,35 @@
         "ingredient2qty": 8
     },
     {
-        "type": "Rifle",
-        "symbol": "🔫",
+        "type": "Barrage",
+        "symbol": "⚔️",
+        "category": "power",
+        "output": "speed",
+        "source": "Warrior's Den",
+        "requires": "Flurry",
+        "qtycollected": -1,
+        "level": 4
+    },
+    {
+        "type": "Focus",
+        "symbol": "👁️",
         "category": "power",
         "output": "attackrange",
         "source": "Warrior's Den",
         "requires": "Combat",
-        "qtycollected": 8,
+        "qtycollected": 2,
         "level": 2,
         "minprice": 0,
         "ingredient1": "Money",
         "ingredient1qty": 8000
     },
     {
-        "type": "Scope",
-        "symbol": "🔫",
+        "type": "Precision",
+        "symbol": "👁️",
         "category": "power",
         "output": "attackrange",
         "source": "Warrior's Den",
-        "requires": "Rifle",
+        "requires": "Focus",
         "qtycollected": 2,
         "level": 4,
         "minprice": 0,
@@ -4675,12 +4685,12 @@
         "ingredient2qty": 2
     },
     {
-        "type": "Scope Max",
-        "symbol": "🔫",
+        "type": "Horizon Eye",
+        "symbol": "👁️",
         "category": "power",
         "output": "attackrange",
         "source": "Warrior's Den",
-        "requires": "Scope",
+        "requires": "Precision",
         "qtycollected": 3,
         "level": 5,
         "minprice": 0,
@@ -4690,7 +4700,7 @@
         "ingredient2qty": 5
     },
     {
-        "type": "Basic Armor",
+        "type": "Padding",
         "symbol": "🛡️",
         "category": "power",
         "output": "armorclass",
@@ -4705,12 +4715,12 @@
         "ingredient2qty": 10
     },
     {
-        "type": "Metal Armor",
+        "type": "Armor",
         "symbol": "🛡️",
         "category": "power",
         "output": "armorclass",
         "source": "Warrior's Den",
-        "requires": "Basic Armor",
+        "requires": "Padding",
         "qtycollected": 5,
         "level": 3,
         "minprice": 0,
@@ -4724,12 +4734,12 @@
         "ingredient4qty": 5
     },
     {
-        "type": "Magic Armor",
+        "type": "Blessed Veil",
         "symbol": "🛡️",
         "category": "power",
         "output": "armorclass",
         "source": "Magic Shop",
-        "requires": "Metal Armor",
+        "requires": "Armor",
         "qtycollected": 5,
         "level": 5,
         "minprice": 0,
@@ -4741,7 +4751,7 @@
         "ingredient3qty": 50
     },
     {
-        "type": "Accuracy",
+        "type": "Steady Hand",
         "symbol": "🎯",
         "category": "power",
         "output": "attackbonus",
@@ -4754,12 +4764,12 @@
         "ingredient1qty": 7000
     },
     {
-        "type": "Max Accuracy",
+        "type": "Pinpoint",
         "symbol": "🎯",
         "category": "power",
         "output": "attackbonus",
         "source": "Magic Shop",
-        "requires": "Accuracy",
+        "requires": "Steady Hand",
         "qtycollected": 4,
         "level": 5,
         "minprice": 0,
@@ -4769,7 +4779,7 @@
         "ingredient2qty": 12
     },
     {
-        "type": "Thick Skin",
+        "type": "Fortitude",
         "symbol": "🛡️",
         "category": "power",
         "output": "maxhp",
@@ -4782,12 +4792,12 @@
         "ingredient1qty": 9000
     },
     {
-        "type": "Thicker Skin",
+        "type": "Stoneheart",
         "symbol": "🛡️",
         "category": "power",
         "output": "maxhp",
         "source": "Warrior's Den",
-        "requires": "Thick Skin",
+        "requires": "Fortitude",
         "qtycollected": 250,
         "level": 4,
         "minprice": 0,
@@ -4797,12 +4807,12 @@
         "ingredient2qty": 15
     },
     {
-        "type": "Thickest Skin",
+        "type": "Unbreakable",
         "symbol": "🛡️",
         "category": "power",
         "output": "maxhp",
         "source": "Warrior's Den",
-        "requires": "Thicker Skin",
+        "requires": "Stoneheart",
         "qtycollected": 500,
         "level": 5,
         "minprice": 0,
