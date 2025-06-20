@@ -17,39 +17,43 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
 
   if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
 
-  const handlePlayerJoinedGrid = ({ playerId, username, playerData, emitterId }) => {
-    if (emitterId === socket.id) {
-      console.log('😀 Ignoring player-joined event from self.');
-      return; // Ignore updates emitted by this client
-    }
-    console.log(`👋 Player ${username} joined grid with data:`, playerData);
-    setPlayersInGrid(prevState => {
-      const existing = prevState[gridId]?.pcs?.[playerId];
-      const incomingTime = new Date(playerData?.lastUpdated).getTime() || 0;
-      const localTime = new Date(existing?.lastUpdated).getTime() || 0;
+const handlePlayerJoinedGrid = ({ playerId, username, playerData, emitterId }) => {
+  if (emitterId === socket.id) {
+    console.log('😀 Ignoring player-joined event from self.');
+    return; // Ignore updates emitted by this client
+  }
+  console.log(`👋 Player ${username} joined grid with data:`, playerData);
+  setPlayersInGrid(prevState => {
+    const existing = prevState[gridId]?.pcs?.[playerId];
+    const incomingTime = new Date(playerData?.lastUpdated).getTime() || 0;
+    const localTime = new Date(existing?.lastUpdated).getTime() || 0;
 
-      if (!existing || incomingTime > localTime) {
-        console.log(`⏩ Inserting or updating PC ${playerId} from player-joined-sync.`);
+    if (!existing || incomingTime > localTime) {
+      console.log(`⏩ Inserting or updating PC ${playerId} from player-joined-sync.`);
 
-        // ✅ Update memory manager too
-      playersInGridManager.updatePC(gridId, playerId, playerData);
-  
-      return {
-          ...prevState,
-          [gridId]: {
-            ...prevState[gridId],
-            pcs: {
-              ...(prevState[gridId]?.pcs || {}),
-              [playerId]: playerData,
-            },
-          },
-        };
+      // ✅ Update memory manager too
+      if (playersInGridManager.addPC) {
+        playersInGridManager.addPC(gridId, playerId, playerData);
+      } else {
+        console.warn('🛑 playersInGridManager.addPC is not defined.');
       }
 
-      console.log(`⏳ Skipping player-joined-sync for ${playerId}; local is newer.`);
-      return prevState;
-    });
-  };
+      return {
+        ...prevState,
+        [gridId]: {
+          ...prevState[gridId],
+          pcs: {
+            ...(prevState[gridId]?.pcs || {}),
+            [playerId]: playerData,
+          },
+        },
+      };
+    }
+
+    console.log(`⏳ Skipping player-joined-sync for ${playerId}; local is newer.`);
+    return prevState;
+  });
+};
 
   const handlePlayerLeftGrid = ({ playerId, username, emitterId }) => {
     if (emitterId === socket.id) {

@@ -382,7 +382,7 @@ useEffect(() => {
         console.warn("🧭 Player not in correct NPCsInGrid or missing entirely. Repositioning...");
         const targetPosition = { x: 0, y: 0 };
         console.warn('InitAppWrapper: adding PC to NPCsInGrid');
-        await playersInGridManager.addPC(gridId, DBPlayerData.playerId, DBPlayerData);
+        await playersInGridManager.addPlayer(gridId, DBPlayerData.playerId, DBPlayerData);
         // Refresh the NPCsInGrid and React state
         console.warn('InitAppWrapper: refreshing NPCsInGrid');
         setPlayersInGrid((prev) => ({

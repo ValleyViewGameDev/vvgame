@@ -97,7 +97,7 @@ class GridStatePCManager {
     
     // Add a new PC to the playersInGrid for a given gridId and playerId.
     // This is only run on app initialization, IF the saved currentPlayer cannot be found in the playersInGrid.
-    async addPC(gridId, playerId, pcData) {
+    async addPlayer(gridId, playerId, pcData) {
       if (!this.playersInGrid[gridId]) {
         this.playersInGrid[gridId] = {
           pcs: {},
@@ -163,6 +163,52 @@ class GridStatePCManager {
 
       // Note: Caller should update React context using setPlayersInGrid if needed
     }
+
+
+    // Add a new lightweight PC (from grid.playersInGrid schema) to the local in-memory playersInGrid
+    addPC(gridId, playerId, pcData) {
+      if (!this.playersInGrid[gridId]) {
+        this.playersInGrid[gridId] = {
+          pcs: {},
+          playersInGridLastUpdated: Date.now(),
+        };
+      }
+
+      const now = Date.now();
+      const newPC = {
+        playerId: pcData.playerId,
+        username: pcData.username,
+        type: pcData.type,
+        icon: pcData.icon,
+        position: pcData.position || { x: 0, y: 0 },
+        hp: pcData.hp,
+        maxhp: pcData.maxhp,
+        armorclass: pcData.armorclass,
+        attackbonus: pcData.attackbonus,
+        damage: pcData.damage,
+        attackrange: pcData.attackrange,
+        speed: pcData.speed,
+        iscamping: pcData.iscamping || false,
+        lastUpdated: now,
+      };
+
+      this.playersInGrid[gridId].pcs[playerId] = newPC;
+
+      // Also update React state if setter is registered
+      if (this.setPlayersInGridReact) {
+        this.setPlayersInGridReact(prev => ({
+          ...prev,
+          [gridId]: {
+            ...(prev[gridId] || {}),
+            pcs: {
+              ...(prev[gridId]?.pcs || {}),
+              [playerId]: newPC,
+            },
+          },
+        }));
+      }
+    }
+
 
     // Update an existing PC in the playersInGrid for a given gridId and playerId.
     async updatePC(gridId, playerId, newProperties) {
