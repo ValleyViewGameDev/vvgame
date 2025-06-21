@@ -4,6 +4,7 @@ import axios from 'axios';
 import Panel from '../../UI/Panel';
 import ResourceButton from '../../UI/ResourceButton';
 import { refreshPlayerAfterInventoryUpdate, spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
+import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { formatCountdown } from '../../UI/Timers.js';
 import strings from '../../UI/strings.json';
@@ -99,6 +100,8 @@ function BankPanel({
         });
 
         if (!gainSuccess) return;
+
+        await trackQuestProgress(currentPlayer,'Sell',offer.itemBought,offer.qtyBought,setCurrentPlayer);
 
         updateStatus(`✅ Exchanged ${offer.qtyBought} ${offer.itemBought} for ${offer.qtyGiven} ${offer.itemGiven}.`);
     };

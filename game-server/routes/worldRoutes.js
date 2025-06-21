@@ -18,7 +18,7 @@ const { generateGrid, generateResources, generateFixedGrid, generateFixedResourc
 const masterResources = require('../tuning/resources.json'); // Import resources.json directly
 const { getTemplate, getHomesteadLayoutFile } = require('../utils/templateUtils');
 const queue = require('../queue'); // Import the in-memory queue
-
+const { getSeasonLevel } = require('../utils/scheduleHelpers');
 
 ///////////////////////////////////////////////////////////////
 // GRID ROUTES 
@@ -691,7 +691,7 @@ router.post('/api/generate-resources', async (req, res) => {
   }
 });
 
-// Add this near other debug/admin routes
+
 router.post('/debug/refresh-bank-offers/:frontierId', async (req, res) => {
   try {
     // Get frontier document for season data
@@ -700,9 +700,10 @@ router.post('/debug/refresh-bank-offers/:frontierId', async (req, res) => {
       return res.status(404).json({ error: 'Frontier not found' });
     }
 
-    // Import bankScheduler and generate new offers
+    // Import bankScheduler and generate new offers using correct seasonLevel
     const bankScheduler = require('../schedulers/bankScheduler');
-    const newOffers = bankScheduler.generateBankOffers(frontier);
+    const seasonLevel = getSeasonLevel(frontier?.seasons?.onSeasonStart, frontier?.seasons?.onSeasonEnd);
+    const newOffers = bankScheduler.generateBankOffers(seasonLevel);
 
     // Save new offers to frontier document
     await Frontier.findByIdAndUpdate(
