@@ -19,6 +19,7 @@ const STEPS = {
   relocatePlayersHome: true,
   resetTownsAndValley: true,
   applyMoneyNerf: true,
+  wipeQuests: true,
 };
 const POP_THRESHOLD = 5;
 const SAVE_FLAG = false;
@@ -224,7 +225,7 @@ async function seasonReset(frontierId) {
        console.log("⏭️ STEP 5: Skipped resetting towns and valley.");
      }
 
-
+ 
      // ✅ STEP 6: Apply money nerfs + wipe inventory
       if (STEPS.applyMoneyNerf) {
         const stepStart = Date.now();
@@ -249,10 +250,21 @@ async function seasonReset(frontierId) {
       } else {
         console.log("⏭️ STEP 6: Skipped money nerf/inventory wipe.");
       }
-  
-      console.log(`⏱️ Total seasonReset took ${Date.now() - startTime}ms`);
-      console.groupEnd();
 
+      // ✅ STEP 7: Wipe active and completed quests
+      if (STEPS.wipeQuests) {
+        console.log("🔁 STEP 7: Wiping quests...");
+        const questStepStart = Date.now();
+        for (const player of allPlayers) {
+          player.activeQuests = [];
+          player.completedQuests = [];
+          console.log(`🧹 Wiped quests for player ${player.username}`);
+          await player.save();
+        }
+        console.log(`⏱️ Step 7 took ${Date.now() - questStepStart}ms`);
+        console.log(`⏱️ Total seasonReset (including STEP 7) took ${Date.now() - startTime}ms`);
+        console.groupEnd();
+      }
     } catch (error) {
       console.error("❌ Error in seasonReset.js:", error.message);
       console.error(error.stack);
