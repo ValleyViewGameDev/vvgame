@@ -59,6 +59,13 @@
     "111": "Welcome to town.",
     "112": "Welcome home.",
 
+    "150": "TRADE STALL STRINGS:",
+
+    "151": "You cannot fill another player's trade stall.",
+    "152": "You do not have enough money to buy this item.",
+    "153": "is selling:",
+    "154": "are selling",
+
     "200": "QUESTS",
 
     "201": "✅ Quest completed. You have your reward.",

@@ -1,4 +1,5 @@
 import API_BASE from '../../config';
+import strings from '../../UI/strings';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel'; // Use Panel instead of Modal
 import axios from 'axios';
@@ -94,7 +95,14 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 
   const handleSlotClick = (index) => {
     const slot = tradeSlots[index];
-  
+
+    // Prevent interaction with empty slots in other players' trade stalls
+    const isOwnStall = viewedPlayer.playerId === currentPlayer.playerId;
+    if (!isOwnStall) {
+        updateStatus(151);
+      return; // Do nothing if viewing another player's stall
+    }
+
     if (slot && slot.amount > 0) {
       handleBuy(index); // Trigger the Buy action for filled slots
     } else {
@@ -113,7 +121,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
          
     if (totalCost > currentMoney) {
       console.warn('Not enough money to complete the purchase.');
-      updateStatus('You do not have enough money to buy this item.');
+      updateStatus(152);
       return;
     }
   
@@ -302,11 +310,16 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   return (
     <Panel onClose={onClose} descriptionKey="1008" titleKey="1108" panelName="TradeStall">
       <div className="username-container">
-        <button className="arrow-button" onClick={handlePreviousPlayer}>&larr;</button>
-        <span className="username">{viewedPlayer?.username || 'N/A'}</span>
-        <button className="arrow-button" onClick={handleNextPlayer}>&rarr;</button>
+        <button className="arrow-button" onClick={handlePreviousPlayer}>👈</button>
+        <span className="username" style={{ flexGrow: 1, textAlign: 'center' }}>
+          {viewedPlayer?.playerId === currentPlayer?.playerId ? 'You' : (viewedPlayer?.username || 'N/A')}
+        </span>
+        <button className="arrow-button" onClick={handleNextPlayer}>👉</button>
       </div>
-      <h3>is selling:</h3>
+      <h3 style={{ textAlign: 'center' }}>
+        {viewedPlayer?.playerId === currentPlayer?.playerId ? 'are selling:' : 'is selling:'}
+      </h3>
+      <br />
       <div className="trade-stall-slots">
         {tradeSlots.map((slot, index) => (
           <div
@@ -411,7 +424,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     onClick={handleSell}
     disabled={totalSellValue === 0}
   >
-    Sell for {Math.floor(totalSellValue * 0.5)}
+    Sell for {Math.floor(totalSellValue * tradeStallHaircut)}
   </button>
 </div>
 

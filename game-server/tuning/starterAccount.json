@@ -1,7 +1,7 @@
 {
     "defaultAttributes": {
       "icon": "😀",
-      "range": 10,
+      "range": 3,
       "baseHp": 1000,
       "baseMaxhp": 1000,
       "baseAttackrange": 10,

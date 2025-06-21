@@ -2,10 +2,13 @@
 
 .username-container {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  gap: 10px; /* Add spacing between the username and arrows */
-  margin: 10px 0; /* Optional: Add vertical spacing */
+  margin: 10px 0;
+  width: 100%;
+  max-width: 400px; /* Adjust as needed */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .arrow-button {
@@ -43,6 +46,7 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  border-radius: 8px;
 }
 
 .trade-slot.filled {
