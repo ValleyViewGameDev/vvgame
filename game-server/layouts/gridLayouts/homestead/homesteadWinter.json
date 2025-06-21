@@ -8454,12 +8454,12 @@
   "tileDistribution": {
     "g": 0,
     "s": 0,
-    "d": 20,
-    "w": 10,
+    "d": 21,
+    "w": 0,
     "p": 0,
     "l": 0,
     "n": 0,
-    "o": 70
+    "o": 79
   },
   "resourceDistribution": {
     "Oak Tree": 700,
