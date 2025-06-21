@@ -1,4 +1,5 @@
 import API_BASE from '../../config';
+import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import Modal from '../../UI/Modal';
@@ -9,7 +10,7 @@ import '../../UI/Panel.css';
 import strings from '../../UI/strings.json';
 import '../../UI/Modal.css';
 
-const CourthousePanel = ({ onClose, currentPlayer }) => {
+const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
 
     const [settlement, setSettlement] = useState(null);
     const [taxRate, setTaxRate] = useState(0);
@@ -232,6 +233,7 @@ const CourthousePanel = ({ onClose, currentPlayer }) => {
                 // Store the username of the voted candidate
                 const votedCandidate = candidateList.find(c => c.playerId === selectedCandidate);
                 setVotedFor(votedCandidate?.username || 'Unknown');
+                await trackQuestProgress(currentPlayer, 'Vote', 'Election', 1);
                 fetchElectionData();
             }
         } catch (error) {

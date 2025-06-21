@@ -120,7 +120,7 @@ const TradingStation = ({
       return;
     }
 
-    await trackQuestProgress(currentPlayer, 'Trade', recipe.type, 1, setCurrentPlayer);
+    await trackQuestProgress(currentPlayer, 'Collect', recipe.type, 1, setCurrentPlayer);
 
     updateStatus(`✅ Exchanged ${recipe.ingredient1qty || 1} ${recipe.ingredient1} for 1 ${recipe.type}.`);
   };

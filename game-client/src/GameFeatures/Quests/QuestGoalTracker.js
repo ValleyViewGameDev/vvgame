@@ -12,6 +12,8 @@ import axios from 'axios';
 export async function trackQuestProgress(player, action, item, quantity, setCurrentPlayer) {
   if (!player?.activeQuests?.length) return;
 
+  console.log("At trackQuestProgress; action = ",action);
+
   let questUpdated = false;
 
   const updatedQuests = player.activeQuests.map((quest) => {
@@ -50,6 +52,7 @@ export async function trackQuestProgress(player, action, item, quantity, setCurr
 
   if (questUpdated) {
     try {
+      console.log("Saving updated player quests; updatedQuests = ", updatedQuests);
       const response = await axios.post(`${API_BASE}/api/update-player-quests`, {
         playerId: player.playerId,
         activeQuests: updatedQuests,

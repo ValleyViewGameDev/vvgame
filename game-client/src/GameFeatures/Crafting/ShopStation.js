@@ -148,7 +148,7 @@ const ShopStation = ({
       }
     }
 
-    await trackQuestProgress(currentPlayer, 'Trade', recipe.type, tradedQty, setCurrentPlayer);
+    await trackQuestProgress(currentPlayer, 'Buy', recipe.type, tradedQty, setCurrentPlayer);
 
     updateStatus(`✅ Acquired ${recipe.type}.`);
     setFetchTrigger(prev => prev + 1);

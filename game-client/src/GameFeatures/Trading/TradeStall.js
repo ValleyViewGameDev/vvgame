@@ -250,40 +250,46 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   };
 
   const handleSell = async () => {
-  
     try {
-      // Calculate new inventory with updated Money (50% of item value)
+      // Calculate new inventory with updated Money (25% of item value)
       const halfSellValue = Math.floor(totalSellValue * tradeStallHaircut);
       const updatedInventory = inventory.map((item) =>
         item.type === 'Money'
           ? { ...item, quantity: (item.quantity || 0) + halfSellValue }
           : item
       );
-  
+
+      // Track progress for each item sold
+      for (const slot of tradeSlots) {
+        if (slot && slot.resource && slot.amount > 0) {
+          await trackQuestProgress(currentPlayer, 'Sell', slot.resource, slot.amount, setCurrentPlayer);
+        }
+      }
+
       // Update inventory on the server
       await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         inventory: updatedInventory,
       });
-  
+
       // Clear the TradeStall on the server
       const clearedSlots = tradeSlots.map(() => null);
       await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
         playerId: currentPlayer.playerId,
         tradeStall: clearedSlots,
       });
-  
+
       // Re-fetch inventory from server to ensure consistency
       const refreshedInventoryResponse = await axios.get(
         `${API_BASE}/api/inventory/${currentPlayer.playerId}`
       );
       const refreshedInventory = refreshedInventoryResponse.data.inventory || [];
-  
+
       // Update local state
       setInventory(refreshedInventory);
       setTradeSlots(clearedSlots);
       setTotalSellValue(0);
-  
+
       // Update currentPlayer state for Money
       const updatedPlayer = {
         ...currentPlayer,
@@ -291,10 +297,10 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         money: refreshedInventory.find((item) => item.type === 'Money')?.quantity || 0,
       };
       setCurrentPlayer(updatedPlayer);
-  
+
       // Sync local storage
       localStorage.setItem('player', JSON.stringify(updatedPlayer));
-  
+
       updateStatus(6); // status bar text
       console.log(`Items sold successfully! Total earned: ${halfSellValue}`);
     } catch (error) {
