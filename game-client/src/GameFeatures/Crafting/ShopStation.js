@@ -115,15 +115,35 @@ const ShopStation = ({
         powers: updatedPowers,
       }));
       if (recipe.output && typeof recipe.qtycollected === 'number') {
-        const gridPlayer = playersInGridManager.getAllPCs(gridId)?.[currentPlayer.playerId];
-        if (gridPlayer) {
-          const oldValue = gridPlayer[recipe.output] || 0;
-          const newValue = oldValue + recipe.qtycollected;
-
-          await playersInGridManager.updatePC(gridId, currentPlayer.playerId, {
-            [recipe.output]: newValue
+        if (recipe.output === "range") {
+          // ✅ Range is stored on the player document, not playersInGrid
+          const updatedRange = (currentPlayer.range || 0) + recipe.qtycollected;
+          await axios.post(`${API_BASE}/api/update-profile`, {
+            playerId: currentPlayer.playerId,
+            updates: { range: updatedRange }
           });
-          console.log(`🧠 Updated ${recipe.output} for player ${currentPlayer.playerId}: ${oldValue} -> ${newValue}`);
+
+          // Update local player state and localStorage
+          const updatedPlayer = {
+            ...currentPlayer,
+            range: updatedRange
+          };
+          setCurrentPlayer(updatedPlayer);
+          localStorage.setItem('player', JSON.stringify(updatedPlayer));
+
+          console.log(`🎯 Updated range on player document: ${updatedRange}`);
+        } else {
+          // Other combat stats updated in playersInGrid
+          const gridPlayer = playersInGridManager.getAllPCs(gridId)?.[currentPlayer.playerId];
+          if (gridPlayer) {
+            const oldValue = gridPlayer[recipe.output] || 0;
+            const newValue = oldValue + recipe.qtycollected;
+
+            await playersInGridManager.updatePC(gridId, currentPlayer.playerId, {
+              [recipe.output]: newValue
+            });
+            console.log(`🧠 Updated ${recipe.output} for player ${currentPlayer.playerId}: ${oldValue} -> ${newValue}`);
+          }
         }
       }
     }

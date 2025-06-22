@@ -140,12 +140,10 @@ const handlePurchase = async (resourceType) => {
   } else if (resource.category === "upgrade") {
     updatedUpgrades.push({ type: resource.type, category: resource.category, quantity: 1 });
   }
-
   setOwnedSkills(updatedSkills);
   setOwnedUpgrades(updatedUpgrades);
-
   updateStatus(`✅ ${resource.type} skill acquired.`);
-
+  
   try { 
     await axios.post(`${API_BASE}/api/update-skills`, {
       playerId: currentPlayer.playerId,
