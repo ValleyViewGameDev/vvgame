@@ -222,6 +222,14 @@ class GridStatePCManager {
       const currentData = gridPCs[playerId];
       
       const keysToCompare = Object.keys(newProperties).filter(key => key !== 'lastUpdated');
+      console.log('🔍 keysToCompare:', keysToCompare);
+      keysToCompare.forEach(key => {
+        const a = currentData[key];
+        const b = newProperties[key];
+        const isEqual = JSON.stringify(a) === JSON.stringify(b);
+        console.log(`🔍 Comparing key "${key}": current=${JSON.stringify(a)}, incoming=${JSON.stringify(b)}, equal=${isEqual}`);
+      });
+
       const isSame = keysToCompare.every(key => {
         const a = currentData[key];
         const b = newProperties[key];
