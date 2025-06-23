@@ -163,13 +163,11 @@ export async function handleAttackOnPC(pc, currentPlayer, gridId, TILE_SIZE) {
   FloatingTextManager.addFloatingText(`- ${damage} HP`, pc.position.x, pc.position.y, TILE_SIZE);
   createCollectEffect(pc.position.x, pc.position.y, TILE_SIZE);
 
-  pc.hp -= damage;
+  const newHP = Math.max(0, pc.hp - damage);
+  console.log('📢 Calling updatePC after reducing HP; current HP:', newHP);
+  await playersInGridManager.updatePC(gridId, pc.playerId, { hp: newHP });
 
-  // 🆕 Update the PC's HP properly via updatePC
-  console.log('📢 Calling updatePC after reducing HP; current HP:', pc.hp);
-  playersInGridManager.updatePC(gridId, pc.playerId, { hp: pc.hp });
-
-  if (pc.hp <= 0) {
+  if (newHP <= 0) {
     console.log(`PC ${pc.playerId} defeated.`);
     FloatingTextManager.addFloatingText(504, pc.position.x, pc.position.y+1, TILE_SIZE);
   }
