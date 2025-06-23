@@ -220,13 +220,11 @@ class GridStatePCManager {
       }
     
       const currentData = gridPCs[playerId];
-      const incomingData = { ...currentData, ...newProperties };
-
-      // Check if all fields (except lastUpdated) are the same
-      const keysToCompare = Object.keys(incomingData).filter(key => key !== 'lastUpdated');
+      
+      const keysToCompare = Object.keys(newProperties).filter(key => key !== 'lastUpdated');
       const isSame = keysToCompare.every(key => {
         const a = currentData[key];
-        const b = incomingData[key];
+        const b = newProperties[key];
         return JSON.stringify(a) === JSON.stringify(b);
       });
 
