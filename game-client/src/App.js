@@ -184,6 +184,14 @@ const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
 const TILE_SIZES = { closer: 50, close: 30, far: 16 }; // Rename for clarity
 const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
 const [isRelocating, setIsRelocating] = useState(null);
+// SettlementView visibleSettlementId state (MUST be at the top level for hooks compliance)
+const [visibleSettlementId, setVisibleSettlementId] = useState(null);
+useEffect(() => {
+  // currentPlayer may be null on first render, so initialize only when available
+  if (currentPlayer?.location?.s) {
+    setVisibleSettlementId(currentPlayer.location.s);
+  }
+}, [currentPlayer?.location?.s]);
 
 const [inventory, setInventory]  = useState({});
 const [backpack, setBackpack] = useState({});
@@ -1390,20 +1398,23 @@ return ( <>
 
 {/* //////////////////  ZOOM OUTS  ///////////////////*/}
 
+    {/* Settlement zoom view */}
     {zoomLevel === 'settlement' && (
       <SettlementView
         currentPlayer={currentPlayer}
-        setZoomLevel={setZoomLevel} 
+        setZoomLevel={setZoomLevel}
         isRelocating={isRelocating}
         setIsRelocating={setIsRelocating}
         setCurrentPlayer={setCurrentPlayer}
-        setGridId={setGridId}            
-        setGrid={setGrid}             
-        setResources={setResources}   
-        setTileTypes={setTileTypes}      
+        setGridId={setGridId}
+        setGrid={setGrid}
+        setResources={setResources}
+        setTileTypes={setTileTypes}
         TILE_SIZE={TILE_SIZES.far}
-        masterResources={masterResources}  
+        masterResources={masterResources}
         closeAllPanels={closeAllPanels}
+        visibleSettlementId={visibleSettlementId}
+        setVisibleSettlementId={setVisibleSettlementId}
         onClose={() => setZoomLevel('far')}
       />
     )}
@@ -1420,9 +1431,11 @@ return ( <>
         setTileTypes={setTileTypes}     
         TILE_SIZE={activeTileSize}
         closeAllPanels={closeAllPanels}
+        visibleSettlementId={visibleSettlementId}
+        setVisibleSettlementId={setVisibleSettlementId}
         onClose={() => setZoomLevel('settlement')}
-        />
-      )}
+      />
+    )}
     </div>
 
 {/* ///////////////////// MODALS ////////////////////// */}

@@ -18,7 +18,9 @@ const FrontierView = ({
   setResources,             // ✅ Pass setResources function
   setTileTypes,             // ✅ Pass setTileTypes function
   TILE_SIZE,
-  closeAllPanels
+  closeAllPanels,
+  visibleSettlementId,
+  setVisibleSettlementId,
 }) => {
 
   const [frontierGrid, setFrontierGrid] = useState([]);
@@ -58,9 +60,7 @@ const FrontierView = ({
           }
         }
         setSettlementGrids(settlementData);
-
-        if (isRelocating) updateStatus(125);
-
+      
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to fetch grid data");
@@ -70,6 +70,11 @@ const FrontierView = ({
     fetchData();
   }, [currentPlayer.location.f, currentPlayer.location.s]); // Add location.s as dependency
 
+  useEffect(() => {
+    if (isRelocating) {
+      updateStatus(125);
+    }
+  }, [isRelocating]);
 
   const handleTileClick = async (tile) => {
     console.log('🎯 Tile clicked:', tile);
@@ -83,6 +88,9 @@ const FrontierView = ({
     // Are we in RELOCATION mode?
     if (isRelocating) {
       if (tile.settlementType.startsWith('homesteadSet')) {
+        if (tile.settlementId) {
+          setVisibleSettlementId(tile.settlementId); // ✅ Select target settlement
+        }
         setZoomLevel('settlement');
         return;
       } else { 

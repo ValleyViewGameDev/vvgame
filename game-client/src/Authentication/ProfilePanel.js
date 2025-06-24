@@ -193,6 +193,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
     if (isRelocating) {
       setIsRelocating(false);
       setZoomLevel('close');
+      updateStatus(0);
     } else {
       setIsRelocating(true);
       setZoomLevel('frontier');
@@ -201,7 +202,17 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
 
   return (
-    <Panel onClose={onClose} descriptionKey="1019" titleKey="1119" panelName="ProfilePanel">
+    <Panel
+      onClose={() => {
+        setIsRelocating(false);
+        setZoomLevel('close');
+        updateStatus(0);
+        onClose();
+      }}
+      descriptionKey="1019"
+      titleKey="1119"
+      panelName="ProfilePanel"
+    >
       <div className="panel-content">
 
         <p><strong>Player ID:</strong> {currentPlayer?.playerId || 'N/A'}</p>

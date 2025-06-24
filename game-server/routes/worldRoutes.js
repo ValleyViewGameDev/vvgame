@@ -766,6 +766,14 @@ router.post('/relocate-homestead', async (req, res) => {
 
       grid.settlementId = targetSettlement._id;
       await grid.save();
+
+      // 🔁 Also update the player's location.s if they exist
+      const player = await Player.findOne({ 'location.g': fromGridId });
+      if (player) {
+        player.location.s = targetSettlement._id;
+        await player.save();
+        console.log(`✅ Player ${player.username} location.s updated to new settlementId ${targetSettlement._id}`);
+      }
     }
 
     // Step 3: Decrement the player's relocation count

@@ -24,7 +24,9 @@ const SettlementView = ({
   setTileTypes,  
   TILE_SIZE,
   masterResources,
-  closeAllPanels
+  closeAllPanels,
+  visibleSettlementId,
+  setVisibleSettlementId,
 }) => {
   console.log("TILE_SIZE at top of SettlementView:", TILE_SIZE);
 
@@ -33,7 +35,6 @@ const SettlementView = ({
   const [error, setError] = useState(null);
   const [NPCsInGrids, setGridStates] = useState({});  // Add new state for grid states
   const { updateStatus } = useContext(StatusBarContext);
-  const [visibleSettlementId, setVisibleSettlementId] = useState(currentPlayer.location.s);
 
   console.log("Entering SettlementView for:", visibleSettlementId);
 
@@ -86,8 +87,6 @@ const SettlementView = ({
         setPlayers(playersMap);
         console.log("Players in settlement:", playersMap);
 
-        if (isRelocating) updateStatus(125);
-
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to fetch settlement data");
@@ -96,6 +95,12 @@ const SettlementView = ({
 
     fetchData();
   }, [visibleSettlementId]);
+
+  useEffect(() => {
+    if (isRelocating) {
+      updateStatus(125);
+    }
+  }, [isRelocating]);
 
 
   const handleTileClick = async (tile, TILE_SIZE) => {
