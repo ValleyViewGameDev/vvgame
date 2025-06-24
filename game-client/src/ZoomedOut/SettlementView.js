@@ -28,7 +28,6 @@ const SettlementView = ({
   visibleSettlementId,
   setVisibleSettlementId,
 }) => {
-  console.log("TILE_SIZE at top of SettlementView:", TILE_SIZE);
 
   const [settlementGrid, setSettlementGrid] = useState([]);
   const [players, setPlayers] = useState({});  // Map player IDs to player data

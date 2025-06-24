@@ -1410,7 +1410,7 @@ return ( <>
         setGrid={setGrid}
         setResources={setResources}
         setTileTypes={setTileTypes}
-        TILE_SIZE={TILE_SIZES.far}
+        TILE_SIZE={activeTileSize}
         masterResources={masterResources}
         closeAllPanels={closeAllPanels}
         visibleSettlementId={visibleSettlementId}
