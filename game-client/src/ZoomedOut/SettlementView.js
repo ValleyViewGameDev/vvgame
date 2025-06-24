@@ -10,10 +10,13 @@ import { centerCameraOnPlayer } from "../PlayerMovement";
 import playersInGridManager from "../GridState/PlayersInGrid";
 import { fetchHomesteadOwner } from "../Utils/worldHelpers";
 import { updateGridStatus } from "../Utils/GridManagement";
+import { processRelocation } from "../Utils/Relocation";
 
 const SettlementView = ({ 
   currentPlayer, 
   setZoomLevel, 
+  isRelocating,
+  setIsRelocating,
   setCurrentPlayer,            
   setGridId,        
   setGrid,      
@@ -30,8 +33,9 @@ const SettlementView = ({
   const [error, setError] = useState(null);
   const [NPCsInGrids, setGridStates] = useState({});  // Add new state for grid states
   const { updateStatus } = useContext(StatusBarContext);
+  const [visibleSettlementId, setVisibleSettlementId] = useState(currentPlayer.location.s);
 
-  console.log("Entering SettlementView for:", currentPlayer.location.s);
+  console.log("Entering SettlementView for:", visibleSettlementId);
 
   // Fetch both settlement grid and player data
   useEffect(() => {
@@ -39,7 +43,7 @@ const SettlementView = ({
       try {
         // Fetch settlement grid and settlement data
         const gridResponse = await axios.get(
-          `${API_BASE}/api/get-settlement-grid/${currentPlayer.location.s}`
+          `${API_BASE}/api/get-settlement-grid/${visibleSettlementId}`
         );
         const gridData = gridResponse.data.grid || [];
         
@@ -66,7 +70,7 @@ const SettlementView = ({
 
         // Fetch all players in settlement with tradeStall data
         const playersResponse = await axios.get(
-          `${API_BASE}/api/get-players-by-settlement/${currentPlayer.location.s}?fields=username,role,netWorth,tradeStall`
+          `${API_BASE}/api/get-players-by-settlement/${visibleSettlementId}?fields=username,role,netWorth,tradeStall`
         );
         
         console.log('Raw player data from API:', playersResponse.data);
@@ -82,6 +86,8 @@ const SettlementView = ({
         setPlayers(playersMap);
         console.log("Players in settlement:", playersMap);
 
+        if (isRelocating) updateStatus(125);
+
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to fetch settlement data");
@@ -89,12 +95,36 @@ const SettlementView = ({
     };
 
     fetchData();
-  }, [currentPlayer.location.s]);
+  }, [visibleSettlementId]);
 
 
   const handleTileClick = async (tile, TILE_SIZE) => {
     console.log("Clicked tile:", tile);
+
+    if (tile.settlementId && tile.settlementId !== visibleSettlementId) {
+      console.log("Switching visible settlement to:", tile.settlementId);
+      setVisibleSettlementId(tile.settlementId);
+      return;
+    }
   
+    // Are we in RELOCATIONN mode?
+    if (isRelocating) {
+      if (tile.gridType !== 'homestead') {
+        updateStatus(123); return;
+      }
+      if (tile.available != true) {
+        updateStatus(124); return; 
+      }
+      if (tile.available === true) {
+        // CONFIRMATION MOADAL
+        processRelocation(currentPlayer, setCurrentPlayer, currentPlayer.gridId, tile.gridCoord, settlementGrid);
+        setIsRelocating(false);
+        setZoomLevel('close');
+        updateStatus(121);
+      }
+      return;
+    }
+
     // Clicking on the tile where the player already is
     if (tile.gridId === currentPlayer.location.g) {
       setZoomLevel("far");

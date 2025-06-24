@@ -11,7 +11,8 @@
         { "item": "Axe", "qty": 1 },
         { "item": "Pickaxe", "qty": 1 },
         { "item": "Builder", "qty": 1 },
-        { "item": "Power", "qty": 1 },
+        { "item": "Combat", "qty": 1 },
+        { "item": "Force", "qty": 1 },
         { "item": "Gem", "qty": 1 },
         { "item": "Potion 3", "qty": 1 },
         { "item": "Book", "qty": 1 },
@@ -23,19 +24,28 @@
       "shelflifeDays": 7
     },
     {
-      "id": 2,
+      "id": 10,
+      "title": "Relocations",
+      "body": "Additional homestead relocations. Move your entire homestead elsewhere in the frontier.",
+      "rewards": [
+        { "item": "Relocation", "qty": 5 }
+      ],
+      "price": 10
+    },
+    {
+      "id": 20,
       "title": "Adventurer's Pack",
       "body": "Books, tents, and expanded carrying power.",
       "rewards": [
         { "item": "Backpack", "qty": 1 },
-        { "item": "Deluxe Backpack", "qty": 1 },
+        { "item": "Rucksack", "qty": 1 },
         { "item": "Book", "qty": 100 },
         { "item": "Tent", "qty": 10 }
       ],
       "price": 3.5
     },
     {
-      "id": 3,
+      "id": 30,
       "title": "Politician's Pack",
       "body": "Bribery never looked so sparkly.",
       "rewards": [
@@ -45,7 +55,7 @@
       "price": 3.5
     },
     {
-      "id": 4,
+      "id": 40,
       "title": "Farmer's Pack",
       "body": "Boost your harvest potential with potions and lumber.",
       "rewards": [
@@ -55,7 +65,7 @@
       "price": 3.5
     },
     {
-      "id": 5,
+      "id": 50,
       "title": "Money Pack 1",
       "body": "Instantly adds 100,000 Money.",
       "rewards": [
@@ -64,7 +74,7 @@
       "price": 9.5
     },
     {
-      "id": 6,
+      "id": 60,
       "title": "Money Pack 2",
       "body": "Mega Money. Go wild.",
       "rewards": [
@@ -73,11 +83,11 @@
       "price": 70
     },
     {
-      "id": 7,
-      "title": "Elf’s Armor",
+      "id": 70,
+      "title": "Unbreakable",
       "body": "Boost your defense with enchanted armor.",
       "rewards": [
-        { "item": "Magic Armor", "qty": 1 }
+        { "item": "Unbreakable", "qty": 1 }
       ],
       "price": 15
     }

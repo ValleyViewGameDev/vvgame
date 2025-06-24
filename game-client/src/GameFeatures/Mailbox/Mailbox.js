@@ -77,6 +77,7 @@ function Mailbox({
 
       // Categorize rewards
       const tents = [];
+      const relocations = [];
       const skills = [];
       const powers = [];
       const doobers = [];
@@ -97,13 +98,19 @@ function Mailbox({
           case 'doober':
             doobers.push({ item, qty });
             break;
+         case 'tents':
+            tents.push({ item, qty });
+            break;
+         case 'relocations':
+            relocations.push({ item, qty });
+            break;
           default:
             others.push({ item, qty });
         }
       });
 
       // Handle non-special rewards (others), including Tents as special case
-      others.forEach(({ item, qty }) => {
+      tents.forEach(({ item, qty }) => {
         if (item === "Tent") {
           const index = backpack.findIndex(b => b.type === item);
           if (index !== -1) {
@@ -120,6 +127,16 @@ function Mailbox({
           inventory.push({ type: item, quantity: qty });
         }
       });
+
+      relocations.forEach(({ item, qty }) => {
+        if (item === "Relocation") {
+
+          // Update player document with more relocations
+          
+          return;
+        }
+      });
+
       // Update inventory and backpack
       await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,

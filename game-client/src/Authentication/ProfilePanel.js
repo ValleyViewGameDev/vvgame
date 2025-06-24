@@ -1,5 +1,5 @@
 import API_BASE from '../config';
-import React, { useState, useEffect, useContext, memo } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import '../UI/Panel.css'; // Use the standardized styles
 import Panel from '../UI/Panel';
@@ -8,7 +8,25 @@ import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { StatusBarContext } from '../UI/StatusBar';
 
-const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLogout }) => {
+const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, setZoomLevel }) => {
+
+  useEffect(() => {
+    const fetchLatestPlayer = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/api/player/${currentPlayer.playerId}`);
+        if (response.data?.player) {
+          setCurrentPlayer(response.data.player);
+          localStorage.setItem('player', JSON.stringify(response.data.player));
+        }
+      } catch (err) {
+        console.warn('⚠️ Failed to refresh player data in ProfilePanel:', err);
+      }
+    };
+
+    if (currentPlayer?.playerId) {
+      fetchLatestPlayer();
+    }
+  }, []);
 
   const [formData, setFormData] = useState({
     username: '',
@@ -31,7 +49,6 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
 
   // Initialize form fields and local settings
   useEffect(() => {
-
     if (currentPlayer) {
       const { settings } = currentPlayer;
       setLocalSettings({
@@ -51,7 +68,6 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
       setErrorMessage('');
 
       console.log('Profile: curentPlayer = ',currentPlayer);
-
     }
   }, [currentPlayer]);
 
@@ -173,6 +189,17 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
 };
 
 
+  const handleRelocation = async () => {
+    if (isRelocating) {
+      setIsRelocating(false);
+      setZoomLevel('close');
+    } else {
+      setIsRelocating(true);
+      setZoomLevel('frontier');
+    }
+  };
+
+
   return (
     <Panel onClose={onClose} descriptionKey="1019" titleKey="1119" panelName="ProfilePanel">
       <div className="panel-content">
@@ -212,6 +239,7 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
         </div>
         <br />
 
+
         {/* Save and Logout Buttons */}
         <div className="panel-buttons">
           <button className="btn-success" onClick={handleSave} disabled={isSaving}>
@@ -224,6 +252,19 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
           </button>
         </div>
         <br/>
+
+
+        {/* Relocation Controls */}
+        <h3>Homestead Relocation</h3>
+        <p>Relocations Remaining: <strong>{currentPlayer.relocations}</strong></p>
+        <div className="panel-buttons">
+          <button className="btn-success" onClick={handleRelocation} disabled={!currentPlayer.relocations}>
+            {isRelocating ? 'Cancel Relocation' : 'Relocate Homestead'}
+          </button>
+        <p>Visit the Store to purchase more Relocations.</p>
+        </div>
+        <br/>
+
 
         {/* Settings Toggles */}
         <h3>Settings</h3>
@@ -250,6 +291,6 @@ const ProfilePanel = memo(({ onClose, currentPlayer, setCurrentPlayer, handleLog
       </div>
     </Panel>
   );
-});
+};
 
 export default ProfilePanel;

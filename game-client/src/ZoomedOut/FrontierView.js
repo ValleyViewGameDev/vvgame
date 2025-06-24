@@ -10,6 +10,8 @@ import { getGridBackgroundColor } from './ZoomedOut';
 const FrontierView = ({ 
   currentPlayer, 
   setZoomLevel, 
+  isRelocating,
+  setIsRelocating,
   setCurrentPlayer,            
   setGridId,                // ✅ Ensure this is passed
   setGrid,                  // ✅ Pass setGrid function
@@ -57,6 +59,8 @@ const FrontierView = ({
         }
         setSettlementGrids(settlementData);
 
+        if (isRelocating) updateStatus(125);
+
       } catch (err) {
         console.error("Error fetching data:", err);
         setError("Failed to fetch grid data");
@@ -75,6 +79,17 @@ const FrontierView = ({
       location: currentPlayer?.location,
       gridId: currentPlayer?.gridId
     });
+
+    // Are we in RELOCATION mode?
+    if (isRelocating) {
+      if (tile.settlementType.startsWith('homesteadSet')) {
+        setZoomLevel('settlement');
+        return;
+      } else { 
+        updateStatus(122); 
+        return; 
+      }
+    };
 
     try {
       // Add validation before attempting transit

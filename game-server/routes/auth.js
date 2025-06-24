@@ -50,6 +50,7 @@ router.post('/register', async (req, res) => {
       accountStatus,
       role,
       iscamping,
+      relocations,
     } = starterAccount.defaultAttributes;
 
     // 4) Validate location data
@@ -114,6 +115,7 @@ router.post('/register', async (req, res) => {
           symbol: "🧙", // Optional: Add a symbol for the quest
         },
       ],
+      relocations,
       iscamping,
       gridId,
       settlementId,
@@ -127,8 +129,6 @@ router.post('/register', async (req, res) => {
     });
 
     await newPlayer.save();
-
-    console.log('End of API/register; newPlayer hp = ',newPlayer.hp);
 
     // 6) Populate playerId with _id (redundant, but often used by the client)
     newPlayer.playerId = newPlayer._id;

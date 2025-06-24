@@ -719,6 +719,71 @@ router.post('/debug/refresh-bank-offers/:frontierId', async (req, res) => {
   }
 });
 
+
+
+// 🔁 Relocate Homestead
+router.post('/relocate-homestead', async (req, res) => {
+  const { fromGridId, targetGridCoord, settlementGrid } = req.body;
+
+  try {
+    const fromGridObjectId = new mongoose.Types.ObjectId(fromGridId);
+    let fromSettlement = null;
+    let targetSettlement = null;
+
+    // Step 1: Loop through all settlements to update the source and target cells
+    const settlements = await Settlement.find({});
+
+    for (const settlement of settlements) {
+      let updated = false;
+
+      for (const row of settlement.grids) {
+        for (const cell of row) {
+          if (cell.gridId && String(cell.gridId) === fromGridId) {
+            cell.gridId = null;
+            cell.available = true;
+            fromSettlement = settlement;
+            updated = true;
+          } else if (cell.gridCoord === targetGridCoord) {
+            cell.gridId = fromGridId;
+            cell.available = false;
+            targetSettlement = settlement;
+            updated = true;
+          }
+        }
+      }
+
+      if (updated) await settlement.save();
+    }
+
+    if (!fromSettlement || !targetSettlement) {
+      return res.status(400).json({ error: 'Failed to locate both source and target settlement entries.' });
+    }
+
+    // Step 2: Update the Grid document to reference the new settlement if needed
+    if (fromSettlement._id.toString() !== targetSettlement._id.toString()) {
+      const grid = await Grid.findById(fromGridId);
+      if (!grid) return res.status(404).json({ error: 'Grid not found.' });
+
+      grid.settlementId = targetSettlement._id;
+      await grid.save();
+    }
+
+    // Step 3: Decrement the player's relocation count
+    const player = await Player.findOne({ 'location.g': fromGridId });
+    console.log('deprecating relocations; player = ',player);
+    if (player && player.relocations > 0) {
+      player.relocations -= 1;
+      await player.save();
+    }
+
+    res.status(200).json({ success: true, message: 'Homestead relocation completed.' });
+  } catch (error) {
+    console.error('Error in /relocate-homestead:', error);
+    res.status(500).json({ error: 'Failed to relocate homestead.' });
+  }
+});
+
+
 module.exports = router;
 
 

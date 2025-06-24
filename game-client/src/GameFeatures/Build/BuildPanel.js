@@ -20,7 +20,6 @@ const BuildPanel = ({
   currentPlayer,
   setCurrentPlayer,
   gridId,
-  setIsMoving,
   masterResources, // Added for quest tracking
   masterSkills, // Uncomment if needed for skill checks
   updateStatus,
@@ -112,7 +111,6 @@ const BuildPanel = ({
                   currentPlayer,
                   setCurrentPlayer,
                   gridId,
-                  setIsMoving,
                   updateStatus,
                 })
               }

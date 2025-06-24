@@ -20,7 +20,6 @@ const BuyPanel = ({
   currentPlayer,
   setCurrentPlayer,
   gridId,
-  setIsMoving,
   masterResources, 
   masterSkills, 
   updateStatus,
@@ -92,7 +91,6 @@ const BuyPanel = ({
                     currentPlayer,
                     setCurrentPlayer,
                     gridId,
-                    setIsMoving,
                     updateStatus,
                   })
                 }

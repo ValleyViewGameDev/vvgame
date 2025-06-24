@@ -183,11 +183,11 @@ useEffect(() => {
 const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
 const TILE_SIZES = { closer: 50, close: 30, far: 16 }; // Rename for clarity
 const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
+const [isRelocating, setIsRelocating] = useState(null);
 
 const [inventory, setInventory]  = useState({});
 const [backpack, setBackpack] = useState({});
 const [playerPosition, setPlayerPosition] = useState(null);
-const [isMoving, setIsMoving] = useState(null);
 
 const NPCsInGrid = useGridState();
 const setGridState = useGridStateUpdate();
@@ -1394,6 +1394,8 @@ return ( <>
       <SettlementView
         currentPlayer={currentPlayer}
         setZoomLevel={setZoomLevel} 
+        isRelocating={isRelocating}
+        setIsRelocating={setIsRelocating}
         setCurrentPlayer={setCurrentPlayer}
         setGridId={setGridId}            
         setGrid={setGrid}             
@@ -1409,6 +1411,8 @@ return ( <>
       <FrontierView
         currentPlayer={currentPlayer}
         setZoomLevel={setZoomLevel} 
+        isRelocating={isRelocating}
+        setIsRelocating={setIsRelocating}
         setCurrentPlayer={setCurrentPlayer}
         setGridId={setGridId}              
         setGrid={setGrid}            
@@ -1486,7 +1490,10 @@ return ( <>
         currentPlayer={currentPlayer}
         setCurrentPlayer={setCurrentPlayer}
         handleLogout={handleLogout}
-        />
+        isRelocating={isRelocating}
+        setIsRelocating={setIsRelocating}
+        setZoomLevel={setZoomLevel} 
+       />
       )}
       {activePanel === 'LoginPanel' && (
         <LoginPanel
@@ -1679,7 +1686,6 @@ return ( <>
           setTileTypes={setTileTypes}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
-          setIsMoving={setIsMoving}
           gridId={gridId}
           masterResources={masterResources} 
           masterSkills={masterSkills} 
@@ -1698,7 +1704,6 @@ return ( <>
           setResources={setResources}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
-          setIsMoving={setIsMoving}
           gridId={gridId}
           masterResources={masterResources} 
           masterSkills={masterSkills} 
@@ -1717,7 +1722,6 @@ return ( <>
           setResources={setResources}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
-          setIsMoving={setIsMoving}
           gridId={gridId}
           masterResources={masterResources} 
           masterSkills={masterSkills} 

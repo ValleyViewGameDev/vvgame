@@ -59,6 +59,13 @@
     "111": "Welcome to town.",
     "112": "Welcome home.",
 
+    "120": "You don't have any homestead moves left.",
+    "121": "You have successfully moved your homestead.",
+    "122": "You cannot move to the valley!",
+    "123": "You cannot move to the town!",
+    "124": "That homestead is occupied.",
+    "125": "Where are you moving to?",
+
     "150": "TRADE STALL STRINGS:",
 
     "151": "You cannot fill another player's trade stall.",
@@ -347,8 +354,9 @@
     "5046": "Do you want to use a",
     "5047": "You have ",
 
-    "5050": "TKTK",
-    "5051": "TKTK",
+    "5050": "⚠️ Confirm Homestead Move",
+    "5051": "Are you sure you want to move your homestead? This cannot be undone.",
+    "5052": "Close this dialog to cancel.",
 
     "5100": "Recent Tax Collections",
     "5101": "No tax collection history available yet.",

@@ -17,7 +17,8 @@
       "backpackCapacity": 10,
       "accountStatus": "Free",
       "role": "Citizen",
-      "iscamping": false
+      "iscamping": false,
+      "relocations": 2
     },
     "tradeStallSlots": {
       "Free": 6,

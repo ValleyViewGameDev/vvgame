@@ -108,6 +108,7 @@ const playerSchema = new mongoose.Schema({
     hasDied: { type: Boolean, default: false },
   },
 
+  relocations: { type: Number },
   iscamping: { type: Boolean, default: false },
   netWorth: { type: Number },
 
