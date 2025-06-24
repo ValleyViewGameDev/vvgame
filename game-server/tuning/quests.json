@@ -429,13 +429,13 @@
     {
         "index": 30,
         "title": "Sweet Words, Soft Crumbs",
-        "textbody": "A noble feast requires a noble end. Bake me Lemon Cookies—light as a sonnet, golden as a summer’s day. There is someone who needs cheering up, and dessert always helps.",
+        "textbody": "A noble feast requires a noble end. Bake me Lemon Cookies—light as a sonnet, golden as a summer’s day. There is someone who needs cheering up, and dessert always helps. If you master the art of these delectibles, I shall share a reward that will set you on the path to the Queen.",
         "symbol": "🧑🏻‍🍳",
         "level": 4,
-        "repeatable": false,
+        "repeatable": true,
         "giver": "Mistress Quickly",
-        "reward": "Daisy",
-        "rewardqty": 6,
+        "reward": "Blueberry",
+        "rewardqty": 10,
         "goal1action": "Craft",
         "goal1item": "Lemon Cookie",
         "goal1qty": 24
@@ -448,8 +448,8 @@
         "level": 4,
         "repeatable": false,
         "giver": "Mistress Quickly",
-        "reward": "Money",
-        "rewardqty": 100,
+        "reward": "Daisy",
+        "rewardqty": 6,
         "goal1action": "Build",
         "goal1item": "Kitchen",
         "goal1qty": 1
@@ -866,12 +866,12 @@
     {
         "index": 61,
         "title": "Blood for Juliet",
-        "textbody": "Angelo’s life is the price for my sister’s peace. Slay him, and I will call thee brother in arms. ‘Revenge is a dish best served cold,’ and tonight, we dine in vengeance.",
+        "textbody": "Angelo’s life is the price for my sister’s peace. Slay him, and I will call thee brother in arms, and give thee the key to the Shrine. ‘Revenge is a dish best served cold,’ and tonight, we dine in vengeance.",
         "symbol": "🧝",
         "repeatable": false,
         "giver": "Cassio",
-        "reward": "Book",
-        "rewardqty": 3,
+        "reward": "Skeleton Key",
+        "rewardqty": 1,
         "goal1action": "Kill",
         "goal1item": "Duke Angelo",
         "goal1qty": 1
@@ -923,7 +923,7 @@
         "repeatable": false,
         "giver": "Titania",
         "reward": "Gem",
-        "rewardqty": 5,
+        "rewardqty": 1,
         "goal1action": "Collect",
         "goal1item": "Golden Key",
         "goal1qty": 1
@@ -962,7 +962,7 @@
         "repeatable": true,
         "giver": "Titania",
         "reward": "Gem",
-        "rewardqty": 8,
+        "rewardqty": 4,
         "goal1action": "Kill",
         "goal1item": "Demon",
         "goal1qty": 10
@@ -974,14 +974,27 @@
         "symbol": "🧝‍♀️",
         "repeatable": true,
         "giver": "Titania",
-        "reward": "Gold",
-        "rewardqty": 25,
+        "reward": "Gem",
+        "rewardqty": 6,
         "goal1action": "Kill",
         "goal1item": "Dragon",
         "goal1qty": 1
     },
     {
         "index": 70,
+        "title": "Golden Trident",
+        "textbody": "Recover the golded trident of Poseidon, which the wicked Caliban desires. I shall reward you greatly, but you must promise not to give it to him.",
+        "symbol": "🧝‍♀️",
+        "repeatable": false,
+        "giver": "Titania",
+        "reward": "Gold",
+        "rewardqty": 120,
+        "goal1action": "Collect",
+        "goal1item": "Trident",
+        "goal1qty": 1
+    },
+    {
+        "index": 71,
         "title": "A Mind for the Realm",
         "textbody": "The first duty of citizenship is wisdom. Gain the skill of Politics, and thou mayst shape the world with words, not war. ‘The quality of mercy is not strained,’ but policy must be learned.",
         "symbol": "👩🏻‍⚖️",
@@ -994,7 +1007,7 @@
         "goal1qty": 1
     },
     {
-        "index": 71,
+        "index": 72,
         "title": "Raise Thy Voice",
         "textbody": "Vote, and thou art no longer a whisper in the wind but a force upon the stage. The ballot is mightier than the blade—use it well, and justice shall follow.",
         "symbol": "👩🏻‍⚖️",
@@ -1007,7 +1020,7 @@
         "goal1qty": 1
     },
     {
-        "index": 72,
+        "index": 73,
         "title": "Enlighten the Path",
         "textbody": "Seek Education, and find not only facts, but understanding. For what is a judge without learning? ‘Ignorance is the curse of God; knowledge the wing wherewith we fly to heaven.",
         "symbol": "👩🏻‍⚖️",
@@ -1020,7 +1033,7 @@
         "goal1qty": 1
     },
     {
-        "index": 73,
+        "index": 74,
         "title": "By Letter of Law",
         "textbody": "Master the Law, for with it comes the power to defend the meek and challenge the mighty. Libraries shall open to thee, and wisdom pour forth like verdicts in rhyme.",
         "symbol": "👩🏻‍⚖️",
@@ -1033,7 +1046,7 @@
         "goal1qty": 1
     },
     {
-        "index": 74,
+        "index": 75,
         "title": "A Tonic for the State",
         "textbody": "There is no justice without health, no law without life. Learn the skill of Medicine, and be the healer this town needs. ‘Give me leave to speak my bosom freely.’ So too must thou open hearts and mend them.",
         "symbol": "👩🏻‍⚖️",
@@ -1046,7 +1059,7 @@
         "goal1qty": 1
     },
     {
-        "index": 75,
+        "index": 76,
         "title": "The Knife’s Mercy",
         "textbody": "Surgery demands a steadier hand and a surer heart. Learn it, and thy touch may yet restore the fallen. Let the blade be a tool of grace, not grimness",
         "symbol": "👩🏻‍⚖️",
@@ -1059,7 +1072,7 @@
         "goal1qty": 1
     },
     {
-        "index": 76,
+        "index": 77,
         "title": "Let School Begin",
         "textbody": "Build a School, and teach the children well. Within its walls lies the future of every vote, every verdict. ‘It is a wise father that knows his own child’—let thy wisdom echo through these halls.",
         "symbol": "👩🏻‍⚖️",
@@ -1072,7 +1085,7 @@
         "goal1qty": 1
     },
     {
-        "index": 77,
+        "index": 78,
         "title": "Stacks of Power",
         "textbody": "Construct three Libraries. Knowledge must be accessible to all, not locked in towers. The adventurers hunger for books—let us sate their noble minds.",
         "symbol": "👩🏻‍⚖️",
@@ -1085,7 +1098,7 @@
         "goal1qty": 3
     },
     {
-        "index": 78,
+        "index": 79,
         "title": "Of Beasts and Benefits",
         "textbody": "Raise an Animal Yard, where the creatures of field and fancy may thrive. Let thy neighbors say, ‘This yard is a republic of feathers and fur.’",
         "symbol": "👩🏻‍⚖️",
@@ -1098,7 +1111,7 @@
         "goal1qty": 1
     },
     {
-        "index": 79,
+        "index": 80,
         "title": "In Sickness and in Health",
         "textbody": "A Hospital must rise, its halls bright with healing. Without it, our town limps toward ruin. Build it, and let mercy dwell in mortar and brick.",
         "symbol": "👩🏻‍⚖️",
@@ -1111,7 +1124,7 @@
         "goal1qty": 1
     },
     {
-        "index": 80,
+        "index": 81,
         "title": "Summon the Healers",
         "textbody": "Craft the Doctors we need, fifty strong. They are balm and blade both. ‘He jests at scars that never felt a wound’—but thou shalt tend them, and in so doing, be noble indeed.",
         "symbol": "👩🏻‍⚖️",

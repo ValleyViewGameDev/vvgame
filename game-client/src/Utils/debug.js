@@ -222,6 +222,7 @@ const handleGetRich = async () => {
       { type: 'Diamond', quantity: 500 },
       { type: 'Feverfew', quantity: 100 },
       { type: 'Golden Key', quantity: 100 },
+      { type: 'Skeleton Key', quantity: 100 },
       { type: 'Book', quantity: 100 },
       { type: 'Furniture', quantity: 1000 },
       { type: 'Port', quantity: 1000 },
