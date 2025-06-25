@@ -42,8 +42,12 @@ export async function handleTransitSignpost(
 
     // Signpost Home
     if (resourceType === "Signpost Home") {
-      console.log("Signpost Home clicked. Traveling to player's homestead.");
-
+      console.log("🏠 Traveling to homestead:", {
+        gridId: currentPlayer.gridId,
+        settlementId: currentPlayer.settlementId,
+        gridCoord: currentPlayer.gridCoord,
+      });
+      
       const newPlayerPosition = {
         x: 1,  // Center of the homestead
         y: 1,

@@ -725,6 +725,7 @@ router.post('/debug/refresh-bank-offers/:frontierId', async (req, res) => {
 router.post('/relocate-homestead', async (req, res) => {
   const { fromGridId, targetGridCoord } = req.body;
 
+  console.log("RELOCATE HOMESTEAD; fromGridId = ",fromGridId,"; targetGridCoord = ",targetGridCoord);
   try {
     let fromSettlement = null;
     let targetSettlement = null;
@@ -749,33 +750,36 @@ router.post('/relocate-homestead', async (req, res) => {
         }
       }
     }
-
+    console.log("fromSettlement = ",fromSettlement);
+    console.log("targetSettlement = ",targetSettlement);
+    
     if (!fromSettlement || !targetSettlement) {
       return res.status(400).json({ error: 'Failed to locate both source and target settlement entries.' });
     }
 
     // Ensure the gridId/available state is correct for both settlements
-    for (const row of targetSettlement.grids) {
-      for (const cell of row) {
-        if (cell.gridCoord === targetGridCoord) {
-          cell.gridId = fromGridId;
-          cell.available = false;
-        }
-      }
-    }
     for (const row of fromSettlement.grids) {
       for (const cell of row) {
-        if (cell.gridId && String(cell.gridId) === fromGridId) {
+        if (cell.gridCoord === targetGridCoord) {
+          console.log(`✅ Updating target cell: gridCoord=${cell.gridCoord}`);
+          cell.gridId = fromGridId;
+          cell.available = false;
+        } else if (cell.gridId && String(cell.gridId) === fromGridId) {
+          console.log(`✅ Clearing source cell: gridId=${cell.gridId}`);
           cell.gridId = null;
           cell.available = true;
         }
       }
     }
 
-    // Save both updated settlements
+    console.log("💾 Saving fromSettlement...");
     await fromSettlement.save();
+    console.log("✅ fromSettlement saved");
+
     if (fromSettlement._id.toString() !== targetSettlement._id.toString()) {
+      console.log("💾 Saving targetSettlement...");
       await targetSettlement.save();
+      console.log("✅ targetSettlement saved");
     }
 
     // Step 2: Update the Grid document to reference the new settlement if needed
@@ -797,7 +801,6 @@ router.post('/relocate-homestead', async (req, res) => {
 
     // Step 3: Decrement the player's relocation count
     const player = await Player.findOne({ 'location.g': fromGridId });
-    console.log('deprecating relocations; player = ', player);
     if (player && player.relocations > 0) {
       player.relocations -= 1;
       await player.save();
