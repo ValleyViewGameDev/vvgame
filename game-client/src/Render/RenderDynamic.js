@@ -251,12 +251,9 @@ const DynamicRenderer = ({
     if (!gridId || !currentPlayer || !currentPlayer.range) return;
     const container = containerRef.current; if (!container) return;
 
-    // Prevent unwanted scrolling when VFX range rings overflow
+    // Ensure overflow and position only (no fixed size or margin here)
     container.style.overflow = 'hidden';
-    container.style.maxWidth = `${64 * TILE_SIZE}px`;
-    container.style.maxHeight = `${64 * TILE_SIZE}px`;
     container.style.position = 'relative';
-    container.style.margin = '0 auto';
 
     let rangeCircle = document.getElementById('player-range-circle');
 
@@ -355,7 +352,7 @@ function startRenderingLoop() {
         width: `${64 * TILE_SIZE}px`,
         height: `${64 * TILE_SIZE}px`,
         overflow: 'hidden',
-        margin: '0 auto'
+//        margin: '0 auto'
       }}
     >
       {/* NPCs and PCs are rendered manually in the container */}

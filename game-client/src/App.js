@@ -871,11 +871,21 @@ const zoomIn = async () => {
 };
 
 const zoomOut = () => {
+  const gridId = currentPlayer?.location?.g;
+  const playerIdStr = String(currentPlayer._id);
+  const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
+
   if (currentPlayer.iscamping) { updateStatus(32); return; }
   if (zoomLevel === 'closer') {
     setZoomLevel('close');
+    setTimeout(() => {
+      centerCameraOnPlayer(playerPos, TILE_SIZES.close);
+    }, 50); // Allow brief render before scrolling
   } else if (zoomLevel === 'close') {
     setZoomLevel('far'); // Zoom out to grid view
+    setTimeout(() => {
+      centerCameraOnPlayer(playerPos, TILE_SIZES.far);
+    }, 50); // Allow brief render before scrolling
   } else if (zoomLevel === 'far') {
     setZoomLevel('settlement'); // Zoom out to settlement view
     updateStatus(12); // "Settlement view."
