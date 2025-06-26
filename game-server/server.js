@@ -38,7 +38,11 @@ dotenv.config();
 
 // Middleware
 const corsOptions = {
-  origin: ['http://localhost:3000', 'https://vvgame.onrender.com'], // ⬅️ your frontend domain
+  origin: [
+    'http://localhost:3000',
+    'https://vvgame.onrender.com',
+    'https://www.valleyviewgame.com'
+  ],
   credentials: true, // optional: if you're using cookies or auth headers
 };
 // Declare app before using it
@@ -72,7 +76,10 @@ mongoose.connect(process.env.MONGODB_URI, {
     // Create socket.io server
     const io = new Server(httpServer, {
       cors: {
-        origin: 'https://vvgame.onrender.com', // Your frontend
+        origin: [
+          'https://vvgame.onrender.com',
+          'https://www.valleyviewgame.com'
+        ],
         methods: ['GET', 'POST'],
       }
     });
