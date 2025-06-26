@@ -84,8 +84,12 @@ function Mailbox({
       const others = [];
 
       rewards.forEach(({ item, qty }) => {
-        const resourceMeta = resources.find(r => r.type === item);
-        const category = resourceMeta?.category || 'other';
+        // Find resource metadata, or fallback for special items
+        const resourceMeta = resources.find(r => r.type === item) || {};
+        // Fallback category for Relocation and others
+        const category = resourceMeta.category || (item === 'Relocation' ? 'relocations' : 'other');
+        console.log("resourceMeta = ", resourceMeta);
+        console.log("Category = ", category);
 
         switch (category) {
           case 'skill':
@@ -96,12 +100,13 @@ function Mailbox({
             powers.push({ item, qty });
             break;
           case 'doober':
+          case 'special':
             doobers.push({ item, qty });
             break;
-         case 'tents':
+          case 'tents':
             tents.push({ item, qty });
             break;
-         case 'relocations':
+          case 'relocations':
             relocations.push({ item, qty });
             break;
           default:
@@ -130,10 +135,15 @@ function Mailbox({
 
       relocations.forEach(({ item, qty }) => {
         if (item === "Relocation") {
-
-          // Update player document with more relocations
-          
-          return;
+          console.log("Item is Relocation.");
+          const currentQty = currentPlayer.relocations || 0;
+          const newQty = currentQty + qty;
+          console.log("currentQty = ",currentQty,"; newQty = ",newQty);
+          axios.post(`${API_BASE}/api/update-profile`, {
+            playerId: currentPlayer.playerId,
+            updates: { relocations: newQty },
+          });
+          setCurrentPlayer(prev => ({ ...prev, relocations: newQty }));
         }
       });
 

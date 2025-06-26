@@ -67,7 +67,7 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
                 <h3>{offer.title}</h3>
                 <p>{offer.body}</p>
                 <p className="store-reward-line">
-                🎁 {offer.rewards.map(r => {
+                 {offer.rewards.map(r => {
                     const symbol = resources.find(res => res.type === r.item)?.symbol || '';
                     return `${symbol} ${r.qty} ${r.item}`;
                 }).join(", ")}

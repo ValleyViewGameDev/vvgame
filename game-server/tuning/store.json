@@ -14,7 +14,7 @@
         { "item": "Combat", "qty": 1 },
         { "item": "Force", "qty": 1 },
         { "item": "Gem", "qty": 1 },
-        { "item": "Potion 3", "qty": 1 },
+        { "item": "Potion C", "qty": 1 },
         { "item": "Book", "qty": 1 },
         { "item": "Wheat", "qty": 100 },
         { "item": "Carrot", "qty": 100 },
@@ -59,7 +59,7 @@
       "title": "Farmer's Pack",
       "body": "Boost your harvest potential with potions and lumber.",
       "rewards": [
-        { "item": "Potion 3", "qty": 100 },
+        { "item": "Potion C", "qty": 100 },
         { "item": "Lumber", "qty": 30 }
       ],
       "price": 3.5
