@@ -8,7 +8,7 @@ import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { StatusBarContext } from '../UI/StatusBar';
 
-const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, setZoomLevel }) => {
+const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel }) => {
 
   useEffect(() => {
     const fetchLatestPlayer = async () => {
@@ -205,8 +205,10 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
     <Panel
       onClose={() => {
         setIsRelocating(false);
-        setZoomLevel('close');
-        updateStatus(0);
+        if (zoomLevel === 'settlement' || zoomLevel === 'frontier') {
+          setZoomLevel('close');
+          updateStatus(0);
+        }
         onClose();
       }}
       descriptionKey="1019"

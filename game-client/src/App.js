@@ -1515,6 +1515,7 @@ return ( <>
         handleLogout={handleLogout}
         isRelocating={isRelocating}
         setIsRelocating={setIsRelocating}
+        zoomLevel={zoomLevel}
         setZoomLevel={setZoomLevel} 
        />
       )}
