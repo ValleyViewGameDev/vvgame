@@ -270,15 +270,12 @@ async function handleDooberClick(
 // Returns a Promise<boolean>: true if item used, false otherwise
 let pendingKeyResolve = null; // Module-level temporary resolve callback
 
-export async function handleUseKey(resource,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,inventory,setInventory,backpack,setBackpack,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus) {
+export async function handleUseKey(resource,requirement,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,inventory,setInventory,backpack,setBackpack,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus) {
   console.log('handleUseKey: resource:', resource);
-  if (!resource.requires) return true;
+  if (!requirement) return true;
   if (pendingKeyResolve) {return false;}   // Only allow one modal pending at a time
-
-  const requiredType = resource.requires;
-  const requiredItem = currentPlayer.inventory.find((item) => item.type === requiredType);
-
-  if (!requiredItem || requiredItem.quantity <= 0) { updateStatus(`${strings["35"]}${requiredType}`); return false; }
+  const hasRequirement = currentPlayer.inventory.find((item) => item.type === requirement);
+  if (!hasRequirement) { updateStatus(`${strings["35"]}${requirement}`); return false; }
 
   return new Promise((resolve) => {
     pendingKeyResolve = resolve;
@@ -286,9 +283,10 @@ export async function handleUseKey(resource,col,row,TILE_SIZE,currentPlayer,setC
     const handleYes = async () => {
       const spent = await spendIngredients({
         playerId: currentPlayer.playerId,
-        currentPlayer,
-        resource: requiredType,
-        quantity: 1,
+        recipe: { 
+          item: requirement,
+          quantity: 1,
+        },
         inventory,
         backpack,
         setInventory,
@@ -302,7 +300,7 @@ export async function handleUseKey(resource,col,row,TILE_SIZE,currentPlayer,setC
         return;
       }
 
-      updateStatus(`${strings["36"]}${requiredType}`);
+      updateStatus(`${strings["36"]}${requirement}`);
 
       setIsModalOpen(false);
       if (pendingKeyResolve) {
@@ -319,12 +317,12 @@ export async function handleUseKey(resource,col,row,TILE_SIZE,currentPlayer,setC
     };
 
     const totalOwned =
-      (currentPlayer.inventory.find(item => item.type === requiredType)?.quantity || 0) +
-      (currentPlayer.backpack?.find(item => item.type === requiredType)?.quantity || 0);
+      (currentPlayer.inventory.find(item => item.type === requirement)?.quantity || 0) +
+      (currentPlayer.backpack?.find(item => item.type === requirement)?.quantity || 0);
       
     setModalContent({
-      title: `${strings["5045"]} ${requiredType}?`,
-      message: `${strings["5046"]} ${requiredType}?`,
+      title: `${strings["5045"]} ${requirement}?`,
+      message: `${strings["5046"]} ${requirement}?`,
       message2: `${strings["5047"]} ${totalOwned}.`,
       size: 'small',
       onClose: handleNo,  // 🔁 Close button acts like "No"
@@ -369,23 +367,25 @@ export async function handleSourceConversion(
   if (!targetResource) { console.warn(`⚠️ No matching resource found for output: ${resource.output}`); return; }
 
   // Get required skill
-  const requiredSkill = resource.requires;
+  const requirement = resource.requires;
+  const isSkillOrUpgrade = masterResources.some(
+    res => res.type === requirement && (res.category === "skill" || res.category === "upgrade")
+  );
+  const isKey = masterResources.some(
+    res => res.type === requirement && (res.category === "doober")
+  );
+
   // Required Skill Missing
-  if (requiredSkill) {
-    const hasSkill = currentPlayer.skills?.some(skill => skill.type === requiredSkill);
+  if (isSkillOrUpgrade) {
+    const hasSkill = currentPlayer.skills?.some(skill => skill.type === requirement);
     if (!hasSkill) {
-      addFloatingText(`${requiredSkill} Required`, col, row, TILE_SIZE);
+      addFloatingText(`${requirement} Required`, col, row, TILE_SIZE);
       return;
     }
   }
-  // ✅ Determine if 'requires' is a skill or upgrade — if not, treat it as a consumable
-  const requiresType = resource.requires;
-  const isSkillOrUpgrade = masterResources.some(
-    res => res.type === requiresType && (res.category === "skill" || res.category === "upgrade")
-  );
   // 🔑 Handle Key Requirement
-  if (requiresType && !isSkillOrUpgrade) {
-    const usedKey = await handleUseKey(resource,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,inventory,setInventory,backpack,setBackpack,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus,);
+  if (isKey) {
+    const usedKey = await handleUseKey(resource,requirement,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,inventory,setInventory,backpack,setBackpack,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus,);
     if (!usedKey) return;
   }
   // Build the new resource object to replace the one we just clicked
@@ -416,7 +416,7 @@ export async function handleSourceConversion(
     );
     if (gridUpdateResponse?.success) {
       // VFX
-      createSourceConversionEffect(col, row, TILE_SIZE, requiredSkill);
+      createSourceConversionEffect(col, row, TILE_SIZE, requirement);
       console.log('✅ Source conversion completed successfully on the server.');
     } else {
       throw new Error('Server failed to confirm the source conversion.');

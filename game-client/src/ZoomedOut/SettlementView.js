@@ -45,80 +45,27 @@ const SettlementView = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch all settlements
-        const settlementsResponse = await axios.get(`${API_BASE}/api/settlements`);
-        const allSettlements = settlementsResponse.data || [];
+        console.log("📦 Fetching settlement bundle for ID:", visibleSettlementId);
+        const response = await axios.post(`${API_BASE}/api/get-settlement-bundle`, { settlementId: visibleSettlementId });
+        console.log("✅ Settlement bundle response:", response.data);
+        const { gridStates, players: playersArray, settlement } = response.data;
 
-        // Collect all occupied gridIds across populated settlements
-        const occupiedGridIds = [];
-        let selectedSettlementGrid = [];
-
-        for (const settlement of allSettlements) {
-          if (settlement.population > 0 && Array.isArray(settlement.grids)) {
-            for (const row of settlement.grids) {
-              for (const cell of row) {
-                if (cell.gridId && cell.available === false) {
-                  occupiedGridIds.push(cell.gridId);
-                }
-              }
-            }
-          }
-
-          // Capture the grid data for the currently visible settlement
-          if (settlement._id === visibleSettlementId) {
-            selectedSettlementGrid = settlement.grids;
+        // Transform playersArray (array) to playersById (object)
+        const playersById = {};
+        if (Array.isArray(playersArray)) {
+          for (const player of playersArray) {
+            playersById[player._id] = player;
           }
         }
 
-        // Fetch grid states
-        if (occupiedGridIds.length > 0) {
-          const NPCsInGridsResponse = await axios.post(
-            `${API_BASE}/api/get-multiple-grid-states`,
-            { gridIds: occupiedGridIds }
-          );
-          setGridStates(NPCsInGridsResponse.data);
-        }
-
-        // Collect gridIds for enrichment
-        const selectedGridIds = selectedSettlementGrid.flat().map(cell => cell.gridId).filter(Boolean);
-
-        // Fetch grids to extract ownerId
-        const gridInfoResponse = await axios.post(`${API_BASE}/api/get-grids-by-id-array`, { gridIds: selectedGridIds });
-        const gridOwnerMap = {};
-        gridInfoResponse.data.grids.forEach(grid => {
-          if (grid._id && grid.ownerId) {
-            gridOwnerMap[grid._id] = grid.ownerId;
-          }
-        });
-
-        // Inject ownerId into selectedSettlementGrid
-        selectedSettlementGrid = selectedSettlementGrid.map(row =>
-          row.map(cell => ({
-            ...cell,
-            ownerId: gridOwnerMap[cell.gridId] || null
-          }))
-        );
-
-        // Set the visible settlement's grid (already contains enriched ownerId)
-        setSettlementGrid(selectedSettlementGrid); // already contains enriched ownerId
-
-        // Extract ownerIds as strings for player data fetch
-        const tilesWithOwnerId = selectedSettlementGrid.flat().filter(tile => tile.ownerId && tile.ownerId._id);
-        const ownerIds = tilesWithOwnerId.map(tile => tile.ownerId._id).filter(Boolean);
-
-        // Fetch player data for the visible settlement (use POST with explicit fields)
-        const playersResponse = await axios.post(
-          `${API_BASE}/api/get-players-by-settlement`,
-          { settlementId: visibleSettlementId, fields: ['username', 'role', 'netWorth', 'tradeStall'], ownerIds }
-        );
-        const playersMap = new Map();
-        playersResponse.data.forEach(player => {
-          playersMap.set(player._id, player);
-        });
-        setPlayers(playersMap);
-
+        setGridStates(gridStates || {});
+        console.log("🧱 Grid states set:", gridStates);
+        setPlayers(new Map(Object.entries(playersById || {})));
+        console.log("👤 Players map set:", playersById);
+        setSettlementGrid(settlement?.grids || []);
+        console.log("📐 Settlement grid set:", settlement?.grids);
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Error fetching settlement bundle:", err);
         setError("Failed to fetch settlement data");
       }
     };

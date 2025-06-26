@@ -670,4 +670,64 @@ router.post('/get-players-by-settlement', async (req, res) => {
 });
 
 
+
+
+// ✅ Optimized bundle route for SettlementView
+router.post('/get-settlement-bundle', async (req, res) => {
+  try {
+    const { settlementId } = req.body;
+    if (!settlementId || !mongoose.Types.ObjectId.isValid(settlementId)) {
+      return res.status(400).json({ error: 'Invalid or missing settlement ID.' });
+    }
+
+    const settlement = await Settlement.findById(settlementId).lean();
+    if (!settlement) {
+      return res.status(404).json({ error: 'Settlement not found.' });
+    }
+
+    const flatGrids = settlement.grids.flat().filter(cell => cell.gridId);
+    const gridIds = flatGrids.map(cell => cell.gridId);
+
+    const grids = await Grid.find({ _id: { $in: gridIds } }, { _id: 1, ownerId: 1 }).lean();
+    const ownerMap = {};
+    grids.forEach(grid => {
+      ownerMap[grid._id.toString()] = grid.ownerId;
+    });
+
+    const enrichedGrid = settlement.grids.map(row =>
+      row.map(cell => ({
+        ...cell,
+        ownerId: cell.gridId ? ownerMap[cell.gridId.toString()] || null : null
+      }))
+    );
+
+    const occupiedGridIds = enrichedGrid.flat().filter(cell => cell.available === false && cell.gridId).map(cell => cell.gridId);
+    const gridStates = {};
+    if (occupiedGridIds.length > 0) {
+      const npcResponse = await Grid.find({ _id: { $in: occupiedGridIds } }, { _id: 1, playersInGrid: 1 }).lean();
+      npcResponse.forEach(grid => {
+        gridStates[grid._id.toString()] = { playersInGrid: grid.playersInGrid };
+      });
+    }
+
+    const ownerIds = grids.map(grid => grid.ownerId).filter(Boolean).map(id => id.toString());
+    const players = await Player.find({ _id: { $in: ownerIds } }, 'username role netWorth tradeStall').lean();
+
+    res.status(200).json({
+      settlement: {
+        _id: settlement._id,
+        name: settlement.name,
+        displayName: settlement.displayName,
+        grids: enrichedGrid
+      },
+      gridStates,
+      players
+    });
+
+  } catch (error) {
+    console.error('❌ Error in get-settlement-bundle:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;
