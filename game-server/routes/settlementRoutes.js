@@ -11,7 +11,7 @@ const Town = require('../models/town');
 const Grid = require('../models/grid'); // Assuming you have a Grid model
 const Player = require('../models/player'); // Import the Player model
 const tuningConfig = require('../tuning/globalTuning.json');
-
+ 
 
 // ✅ Route to get all settlements with full editor UI context
 router.get('/settlements', async (req, res) => {
@@ -213,11 +213,9 @@ router.post('/update-settlement', async (req, res) => {
 
 router.post('/increment-settlement-population', async (req, res) => {
   const { settlementId } = req.body;
-
   if (!mongoose.Types.ObjectId.isValid(settlementId)) {
       return res.status(400).json({ error: 'Invalid settlement ID format.' });
   }
-
   try {
       // Update Settlement document
       const updatedSettlement = await Settlement.findByIdAndUpdate(
@@ -225,62 +223,15 @@ router.post('/increment-settlement-population', async (req, res) => {
           { $inc: { population: 1 } },
           { new: true }
       );
-
-      if (!updatedSettlement) {
-          return res.status(404).json({ error: 'Settlement not found.' });
-      }
-
+      if (!updatedSettlement) { return res.status(404).json({ error: 'Settlement not found.' }); }
       console.log('🔍 Settlement updated:', {
           id: updatedSettlement._id,
           newPopulation: updatedSettlement.population,
-          frontierId: updatedSettlement.frontierId
       });
-
-      // Find frontier using frontierId from the settlement
-      const frontier = await Frontier.findById(updatedSettlement.frontierId);
-
-      console.log('🔍 Found Frontier:', { id: frontier?._id, hasSettlements: !!frontier?.settlements });
-
-      if (frontier) {
-          let updated = false;
-          frontier.settlements.forEach((row, i) => {
-              row.forEach((settlement, j) => {
-                  if (settlement.settlementId.toString() === settlementId) {
-                      console.log('🔍 Found settlement in frontier:', {
-                          position: `[${i}][${j}]`,
-                          oldPopulation: settlement.population,
-                          newPopulation: updatedSettlement.population
-                      });
-                      settlement.population = updatedSettlement.population;
-                      updated = true;
-                  }
-              });
-          });
-
-          if (updated) {
-              frontier.markModified('settlements');
-              await frontier.save();
-              
-              // Verify the update
-              const verifyFrontier = await Frontier.findById(frontier._id);
-              const verifySettlement = verifyFrontier.settlements.flat()
-                  .find(s => s.settlementId.toString() === settlementId);
-              
-              console.log('✅ Verification after save:', {
-                  settlementId,
-                  expectedPopulation: updatedSettlement.population,
-                  actualPopulation: verifySettlement?.population
-              });
-          } else {
-              console.warn('⚠️ Settlement found in Frontier but not updated');
-          }
-      }
-
       res.status(200).json({ 
           success: true, 
           population: updatedSettlement.population 
       });
-
   } catch (error) {
       console.error('❌ Error incrementing settlement population:', error);
       res.status(500).json({ error: 'Failed to increment settlement population.' });
@@ -697,6 +648,26 @@ router.get('/settlement/:id/electionlog', async (req, res) => {
 });
 
 
+
+// Route to get players by settlementId with optional fields
+router.post('/get-players-by-settlement', async (req, res) => {
+  const { settlementId, fields } = req.body;
+
+  if (!settlementId) {
+    return res.status(400).json({ error: 'Missing settlementId' });
+  }
+
+  try {
+    const projection = {};
+    (fields || []).forEach(field => projection[field] = 1);
+
+    const players = await Player.find({ 'location.s': settlementId }, projection).lean();
+    res.json(players);
+  } catch (error) {
+    console.error('Error fetching players by settlement:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 
 module.exports = router;

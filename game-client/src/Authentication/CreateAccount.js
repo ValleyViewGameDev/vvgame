@@ -120,7 +120,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
       localStorage.removeItem('player');
       localStorage.setItem('player', JSON.stringify(player));
 
-// 6) Increment the settlement & frontier population
+// 6) Increment the settlement population
 
       try {
         await axios.post(`${API_BASE}/api/increment-settlement-population`, {settlementId: assignedSettlementId,});

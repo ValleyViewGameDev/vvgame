@@ -7,6 +7,7 @@ import { changePlayerLocation } from "../Utils/GridManagement";
 import frontierTileData from './FrontierTile.json';
 import { getGridBackgroundColor } from './ZoomedOut';
 
+
 const FrontierView = ({ 
   currentPlayer, 
   setZoomLevel, 
@@ -28,47 +29,26 @@ const FrontierView = ({
   const [error, setError] = useState(null);
   const { updateStatus } = useContext(StatusBarContext);
 
-  // Fetch Frontier Grid and Settlement Grids
+  // Fetch Frontier Grid and Settlement Grids together
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch frontier grid first
-        const response = await axios.get(
-          `${API_BASE}/api/get-frontier-grid/${currentPlayer.location.f}`
-        );
-        const gridData = response.data.frontierGrid || [];
-        setFrontierGrid(gridData);
+        const response = await axios.get(`${API_BASE}/api/frontier-bundle/${currentPlayer.location.f}`);
+        const { frontierGrid, settlementGrids = {} } = response.data;
 
-        // Then fetch settlement grids only if populated OR contains player
-        const settlementData = {};
-        for (const row of gridData) {
-          for (const tile of row) {
-            // Load if: has population OR is player's current settlement
-            if (tile.settlementId && (
-              tile.population > 0 || 
-              tile.settlementId === currentPlayer.location.s
-            )) {
-              try {
-                const settlementResponse = await axios.get(
-                  `${API_BASE}/api/get-settlement-grid/${tile.settlementId}`
-                );
-                settlementData[tile.settlementId] = settlementResponse.data;
-              } catch (err) {
-                console.error(`Error fetching settlement ${tile.settlementId}:`, err);
-              }
-            }
-          }
-        }
+        setFrontierGrid(frontierGrid);
+
+        const settlementData = settlementGrids;
         setSettlementGrids(settlementData);
-      
+
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Error fetching frontier bundle:", err);
         setError("Failed to fetch grid data");
       }
     };
 
     fetchData();
-  }, [currentPlayer.location.f, currentPlayer.location.s]); // Add location.s as dependency
+  }, [currentPlayer.location.f]);
 
   useEffect(() => {
     if (isRelocating) {

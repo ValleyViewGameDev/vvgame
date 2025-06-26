@@ -191,7 +191,7 @@ useEffect(() => {
   if (currentPlayer?.location?.s) {
     setVisibleSettlementId(currentPlayer.location.s);
   }
-}, [currentPlayer?.location?.s]);
+}, [currentPlayer]);
 
 const [inventory, setInventory]  = useState({});
 const [backpack, setBackpack] = useState({});

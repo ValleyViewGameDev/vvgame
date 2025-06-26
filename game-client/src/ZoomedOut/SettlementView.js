@@ -30,34 +30,47 @@ const SettlementView = ({
 }) => {
 
   const [settlementGrid, setSettlementGrid] = useState([]);
-  const [players, setPlayers] = useState({});  // Map player IDs to player data
+  const [players, setPlayers] = useState(new Map());  // Map player IDs to player data
   const [error, setError] = useState(null);
   const [NPCsInGrids, setGridStates] = useState({});  // Add new state for grid states
   const { updateStatus } = useContext(StatusBarContext);
 
-  console.log("Entering SettlementView for:", visibleSettlementId);
+  // Added diagnostic log for player-to-ownerId matching
+  if (players) {
+    const ownerIdsInGrid = settlementGrid.flat().map(tile => tile.ownerId).filter(Boolean);
+    const unmatchedOwnerIds = ownerIdsInGrid.filter(id => !players.get(id));
+  }
 
   // Fetch both settlement grid and player data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch settlement grid and settlement data
-        const gridResponse = await axios.get(
-          `${API_BASE}/api/get-settlement-grid/${visibleSettlementId}`
-        );
-        const gridData = gridResponse.data.grid || [];
-        
-        // Get all occupied grid IDs
-        const occupiedGridIds = [];
-        gridData.forEach(row => 
-          row.forEach(grid => {
-            if (grid.gridId && !grid.available) {
-              occupiedGridIds.push(grid.gridId);
-            }
-          })
-        );
+        // Fetch all settlements
+        const settlementsResponse = await axios.get(`${API_BASE}/api/settlements`);
+        const allSettlements = settlementsResponse.data || [];
 
-        // Fetch grid states if there are occupied grids
+        // Collect all occupied gridIds across populated settlements
+        const occupiedGridIds = [];
+        let selectedSettlementGrid = [];
+
+        for (const settlement of allSettlements) {
+          if (settlement.population > 0 && Array.isArray(settlement.grids)) {
+            for (const row of settlement.grids) {
+              for (const cell of row) {
+                if (cell.gridId && cell.available === false) {
+                  occupiedGridIds.push(cell.gridId);
+                }
+              }
+            }
+          }
+
+          // Capture the grid data for the currently visible settlement
+          if (settlement._id === visibleSettlementId) {
+            selectedSettlementGrid = settlement.grids;
+          }
+        }
+
+        // Fetch grid states
         if (occupiedGridIds.length > 0) {
           const NPCsInGridsResponse = await axios.post(
             `${API_BASE}/api/get-multiple-grid-states`,
@@ -65,26 +78,44 @@ const SettlementView = ({
           );
           setGridStates(NPCsInGridsResponse.data);
         }
-        
-        setSettlementGrid(gridData);
 
-        // Fetch all players in settlement with tradeStall data
-        const playersResponse = await axios.get(
-          `${API_BASE}/api/get-players-by-settlement/${visibleSettlementId}?fields=username,role,netWorth,tradeStall`
-        );
-        
-        console.log('Raw player data from API:', playersResponse.data);
+        // Collect gridIds for enrichment
+        const selectedGridIds = selectedSettlementGrid.flat().map(cell => cell.gridId).filter(Boolean);
 
-        playersResponse.data.forEach(player => {
-          console.log(`Player ${player.username} tradeStall:`, player.tradeStall);
+        // Fetch grids to extract ownerId
+        const gridInfoResponse = await axios.post(`${API_BASE}/api/get-grids-by-id-array`, { gridIds: selectedGridIds });
+        const gridOwnerMap = {};
+        gridInfoResponse.data.grids.forEach(grid => {
+          if (grid._id && grid.ownerId) {
+            gridOwnerMap[grid._id] = grid.ownerId;
+          }
         });
-        
-        const playersMap = playersResponse.data.reduce((acc, player) => {
-          acc[player._id] = player;
-          return acc;
-        }, {});
+
+        // Inject ownerId into selectedSettlementGrid
+        selectedSettlementGrid = selectedSettlementGrid.map(row =>
+          row.map(cell => ({
+            ...cell,
+            ownerId: gridOwnerMap[cell.gridId] || null
+          }))
+        );
+
+        // Set the visible settlement's grid (already contains enriched ownerId)
+        setSettlementGrid(selectedSettlementGrid); // already contains enriched ownerId
+
+        // Extract ownerIds as strings for player data fetch
+        const tilesWithOwnerId = selectedSettlementGrid.flat().filter(tile => tile.ownerId && tile.ownerId._id);
+        const ownerIds = tilesWithOwnerId.map(tile => tile.ownerId._id).filter(Boolean);
+
+        // Fetch player data for the visible settlement (use POST with explicit fields)
+        const playersResponse = await axios.post(
+          `${API_BASE}/api/get-players-by-settlement`,
+          { settlementId: visibleSettlementId, fields: ['username', 'role', 'netWorth', 'tradeStall'], ownerIds }
+        );
+        const playersMap = new Map();
+        playersResponse.data.forEach(player => {
+          playersMap.set(player._id, player);
+        });
         setPlayers(playersMap);
-        console.log("Players in settlement:", playersMap);
 
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -216,7 +247,11 @@ const SettlementView = ({
   
     let owner = null;
     if (tile.ownerId && players) {
-      owner = players[tile.ownerId];
+      const ownerIdStr = typeof tile.ownerId === 'object' ? tile.ownerId._id : tile.ownerId;
+      owner = players.get(ownerIdStr);
+    }
+  
+    if (tile.ownerId && !owner) {
     }
   
     const tooltip = getTooltip(tile);
@@ -261,12 +296,12 @@ const SettlementView = ({
                     if (template?.symbol) content = template.symbol;
                   }
                 }
-              } else if (cell === "username" && owner) {
-                content = owner.username;
-              } else if (cell === "role" && owner) {
-                content = owner.role || "Citizen";
-              } else if (cell === "netWorth" && owner) {
-                content = owner.netWorth?.toLocaleString() || '0';
+              } else if (cell === "username") {
+                content = owner?.username || "";
+              } else if (cell === "role") {
+                content = owner?.role || "Citizen";
+              } else if (cell === "netWorth") {
+                content = owner?.netWorth?.toLocaleString() || "0";
               }
             }
   

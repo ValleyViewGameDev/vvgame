@@ -501,4 +501,42 @@ router.get('/frontier/:frontierId/seasonlog', async (req, res) => {
 });
 
 
+
+// ✅ Bundled frontier data with settlement grids
+router.get('/frontier-bundle/:frontierId', async (req, res) => {
+  try {
+    const { frontierId } = req.params;
+
+    // Step 1: Fetch the frontier grid structure
+    const frontier = await Frontier.findById(frontierId).lean();
+    if (!frontier) {
+      return res.status(404).json({ error: 'Frontier not found' });
+    }
+
+    // Step 2: Build settlement map by ID
+    const settlementIds = frontier.settlements.flat().map(tile => tile.settlementId).filter(Boolean);
+    const settlements = await Settlement.find({ _id: { $in: settlementIds } }).lean();
+    const settlementsMap = {};
+    settlements.forEach(settlement => {
+      settlementsMap[settlement._id] = settlement;
+    });
+
+    // Step 3: Filter and load populated settlement grids
+    const populatedSettlementData = {};
+    for (const settlement of settlements) {
+      if (settlement.population > 0) {
+        populatedSettlementData[settlement._id] = { grid: settlement.grids };
+      }
+    }
+
+    res.status(200).json({
+      frontierGrid: frontier.settlements,
+      settlementGrids: populatedSettlementData,
+    });
+  } catch (error) {
+    console.error('❌ Error in /frontier-bundle:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

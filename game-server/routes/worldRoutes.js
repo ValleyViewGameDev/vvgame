@@ -725,7 +725,7 @@ router.post('/debug/refresh-bank-offers/:frontierId', async (req, res) => {
 router.post('/relocate-homestead', async (req, res) => {
   const { fromGridId, targetGridCoord } = req.body;
 
-  console.log("RELOCATE HOMESTEAD; fromGridId = ",fromGridId,"; targetGridCoord = ",targetGridCoord);
+  console.log("RELOCATE HOMESTEAD; fromGridId = ", fromGridId, "; targetGridCoord = ", targetGridCoord);
   try {
     let fromSettlement = null;
     let targetSettlement = null;
@@ -750,9 +750,9 @@ router.post('/relocate-homestead', async (req, res) => {
         }
       }
     }
-    console.log("fromSettlement = ",fromSettlement);
-    console.log("targetSettlement = ",targetSettlement);
-    
+    console.log("fromSettlement = ", fromSettlement);
+    console.log("targetSettlement = ", targetSettlement);
+
     if (!fromSettlement || !targetSettlement) {
       return res.status(400).json({ error: 'Failed to locate both source and target settlement entries.' });
     }
@@ -770,6 +770,24 @@ router.post('/relocate-homestead', async (req, res) => {
           cell.available = true;
         }
       }
+    }
+
+    if (fromSettlement._id.toString() !== targetSettlement._id.toString()) {
+      // Update population counts
+      if (typeof fromSettlement.population === 'number') {
+        fromSettlement.population = Math.max(0, fromSettlement.population - 1);
+      } else {
+        fromSettlement.population = 0;
+        console.warn("population was not a number; changed to 0");
+      }
+      if (typeof targetSettlement.population === 'number') {
+        targetSettlement.population += 1;
+      } else {
+        targetSettlement.population = 1;
+        console.warn("population was not a number; changed to 1");
+      }
+
+      console.log(`👥 Updated populations: from=${fromSettlement.population}, to=${targetSettlement.population}`);
     }
 
     console.log("💾 Saving fromSettlement...");
@@ -799,6 +817,14 @@ router.post('/relocate-homestead', async (req, res) => {
       }
     }
 
+    // STEP 2.5: Always update currentPlayer.settlementId to reflect their home settlement
+    const playerToUpdate = await Player.findOne({ 'location.g': fromGridId });
+    if (playerToUpdate) {
+      playerToUpdate.settlementId = targetSettlement._id;
+      await playerToUpdate.save();
+      console.log(`✅ Player ${playerToUpdate.username} settlementId updated to ${targetSettlement._id}`);
+    }
+
     // Step 3: Decrement the player's relocation count
     const player = await Player.findOne({ 'location.g': fromGridId });
     if (player && player.relocations > 0) {
@@ -813,6 +839,44 @@ router.post('/relocate-homestead', async (req, res) => {
   }
 });
 
+
+
+
+
+// Endpoint to fetch multiple grids by ID array, enriched with owner info
+router.post('/get-grids-by-id-array', async (req, res) => {
+  const { gridIds } = req.body;
+
+  if (!Array.isArray(gridIds) || gridIds.length === 0) {
+    return res.status(400).json({ error: 'gridIds must be a non-empty array.' });
+  }
+
+  try {
+    const objectIds = gridIds.map((id) => new mongoose.Types.ObjectId(id));
+    const grids = await Grid.find({ _id: { $in: objectIds } }).populate('ownerId', 'username netWorth role tradeStall');
+
+    const enrichedGrids = grids.map(grid => {
+      const gridObj = grid.toObject();
+      if (gridObj.ownerId && typeof gridObj.ownerId === 'object') {
+        gridObj.username = gridObj.ownerId.username || '';
+        gridObj.netWorth = gridObj.ownerId.netWorth || 0;
+        gridObj.role = gridObj.ownerId.role || '';
+        gridObj.tradeStall = gridObj.ownerId.tradeStall || null;
+      } else {
+        gridObj.username = '';
+        gridObj.netWorth = 0;
+        gridObj.role = '';
+        gridObj.tradeStall = null;
+      }
+      return gridObj;
+    });
+
+    res.json({ grids: enrichedGrids });
+  } catch (error) {
+    console.error('Error in /get-grids-by-id-array:', error);
+    res.status(500).json({ error: 'Failed to fetch grid data.' });
+  }
+});
 
 module.exports = router;
 
