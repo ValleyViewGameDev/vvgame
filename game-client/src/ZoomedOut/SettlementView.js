@@ -33,6 +33,7 @@ const SettlementView = ({
   const [players, setPlayers] = useState(new Map());  // Map player IDs to player data
   const [error, setError] = useState(null);
   const [NPCsInGrids, setGridStates] = useState({});  // Add new state for grid states
+  const [playersInGridMap, setPlayersInGrid] = useState({});
   const { updateStatus } = useContext(StatusBarContext);
 
   // Added diagnostic log for player-to-ownerId matching
@@ -59,11 +60,22 @@ const SettlementView = ({
         }
 
         setGridStates(gridStates || {});
-        console.log("🧱 Grid states set:", gridStates);
         setPlayers(new Map(Object.entries(playersById || {})));
-        console.log("👤 Players map set:", playersById);
         setSettlementGrid(settlement?.grids || []);
         console.log("📐 Settlement grid set:", settlement?.grids);
+
+        // 🔄 Fetch playersInGrid for all grids in this settlement
+        const gridIds = (settlement?.grids || []).flat().map(tile => tile.gridId).filter(Boolean);
+        const gridStateResponse = await axios.post(`${API_BASE}/api/get-multiple-grid-states`, { gridIds });
+        const mergedPlayersInGrid = {};
+
+        for (const gridId in gridStateResponse.data) {
+          const pcs = gridStateResponse.data[gridId]?.playersInGrid?.pcs || {};
+          mergedPlayersInGrid[gridId] = pcs;
+        }
+
+        setPlayersInGrid(mergedPlayersInGrid);
+
       } catch (err) {
         console.error("Error fetching settlement bundle:", err);
         setError("Failed to fetch settlement data");
@@ -171,18 +183,8 @@ const SettlementView = ({
 
 const getTooltip = (tile) => {
     if (!tile.gridId) return '';
-    const pcs = playersInGridManager.getPlayersInGrid(tile.gridId);
-    console.log("🔍 Tooltip check for gridId:", tile.gridId);
-    console.log("🔍 pcs = ", pcs);
-  
-    if (!pcs || Object.keys(pcs).length === 0) {
-      console.log("ℹ️ No player characters found in grid:", tile.gridId);
-      return '';
-    }
-  
-    console.log("🧠 Tooltip result for", tile.gridId, "=", Object.values(pcs)
-      .map(pc => `${pc.username || 'Unknown'}: ${pc.hp || 0} HP`)
-      .join('\n'));
+    const pcs = playersInGridMap[tile.gridId];
+    if (!pcs || Object.keys(pcs).length === 0) return '';
     return Object.values(pcs)
       .map(pc => `${pc.username || 'Unknown'}: ${pc.hp || 0} HP`)
       .join('\n');
