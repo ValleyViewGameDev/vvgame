@@ -80,8 +80,8 @@ function generateBankOffers(seasonLevel) {
 
     // Filter resources by both category and level
     const validResources = masterResources.filter(res => {
-        // Must be a doober
-        if (res.category !== "doober") return false;
+        // Must be a doober and not Money
+        if (res.category !== "doober" || res.type === "Money") return false;
         
         // Must be within ±1 of current season level
         const resourceLevel = res.level || 1; // Default to level 1 if not specified

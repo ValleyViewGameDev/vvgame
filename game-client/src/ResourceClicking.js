@@ -201,6 +201,18 @@ async function handleDooberClick(
   const qtyCollected = baseQtyCollected * skillMultiplier;
   console.log('[DEBUG] qtyCollected after multiplier:', qtyCollected);
 
+
+  createCollectEffect(col, row, TILE_SIZE);
+  FloatingTextManager.addFloatingText(`+${qtyCollected} ${resource.type}`, col, row, TILE_SIZE );
+  if (skillMultiplier != 1) {
+    const skillAppliedText =
+      `(${playerBuffs.join(', ')} skill applied)`;
+    FloatingTextManager.addFloatingText(`${skillAppliedText}`, col, row-1.5, TILE_SIZE );
+  }
+  setResources((prevResources) =>
+    prevResources.filter((res) => !(res.x === col && res.y === row))
+  );
+
   // Perform server validation
   try {
     // Use gainIngredients to handle inventory/backpack update, sync, and capacity check
@@ -227,10 +239,6 @@ async function handleDooberClick(
       return;
     }
 
-    // Track quest progress for "Collect" actions
-    // trackQuestProgress expects: (player, action, item, quantity, setCurrentPlayer)
-    await trackQuestProgress(currentPlayer, 'Collect', resource.type, qtyCollected, setCurrentPlayer);
-
     const gridUpdateResponse = await updateGridResource(
       gridId,
       { type: null, x: col, y: row }, // Collecting doober removes it
@@ -241,17 +249,11 @@ async function handleDooberClick(
       return;
     }
 
-    FloatingTextManager.addFloatingText(`+${qtyCollected} ${resource.type}`, col, row, TILE_SIZE );
-    if (skillMultiplier != 1) {
-      const skillAppliedText =
-        `(${playerBuffs.join(', ')} skill applied)`;
-      FloatingTextManager.addFloatingText(`${skillAppliedText}`, col, row-1.5, TILE_SIZE );
-    }
 
-    setResources((prevResources) =>
-      prevResources.filter((res) => !(res.x === col && res.y === row))
-    );
-    createCollectEffect(col, row, TILE_SIZE);
+
+        // Track quest progress for "Collect" actions
+    // trackQuestProgress expects: (player, action, item, quantity, setCurrentPlayer)
+    await trackQuestProgress(currentPlayer, 'Collect', resource.type, qtyCollected, setCurrentPlayer);
 
     // Update currentPlayer state locally
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
