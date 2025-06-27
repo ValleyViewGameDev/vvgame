@@ -11,6 +11,9 @@ const sendMailboxMessage = require('../utils/messageUtils'); // or messageUtils/
 
 // POST /create-checkout-session
 router.post('/create-checkout-session', async (req, res) => {
+
+  console.log("🔐 Stripe key loaded:", process.env.STRIPE_SECRET_KEY?.slice(0, 8)); // Redact most of it
+
   const { playerId, offerId } = req.body;
   const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
   const storeOffers = require('../tuning/store.json');
