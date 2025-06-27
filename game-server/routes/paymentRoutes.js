@@ -34,8 +34,12 @@ router.post('/create-checkout-session', async (req, res) => {
       quantity: 1,
     }],
     mode: 'payment',
-    success_url: `${process.env.YOUR_DOMAIN}/payment-success?playerId=${playerId}&offerId=${offerId}`,
-    cancel_url: `${process.env.YOUR_DOMAIN}/payment-cancelled`,
+    //success_url: `${process.env.YOUR_DOMAIN}/payment-success?playerId=${playerId}&offerId=${offerId}`,
+    success_url: `${process.env.YOUR_DOMAIN}/?purchase=success&playerId=${playerId}&offerId=${offerId}`,
+    
+    //cancel_url: `${process.env.YOUR_DOMAIN}/payment-cancelled`,
+    cancel_url: `${process.env.YOUR_DOMAIN}/?purchase=cancelled`,
+
     metadata: { playerId, offerId }
   });
 

@@ -11,6 +11,26 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
   const { updateStatus } = useContext(StatusBarContext);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const purchaseSuccess = params.get("purchase");
+    const playerId = params.get("playerId");
+    const offerId = params.get("offerId");
+
+    if (purchaseSuccess === "success" && playerId && offerId) {
+      // ✅ Show success message
+      updateStatus("✅ Purchase successful! Check your Inbox.");
+      openMailbox();
+
+      // ✅ Optionally hit backend to finalize fulfillment if needed
+
+      // ✅ Clean up query params from the URL
+      const url = new URL(window.location.href);
+      url.search = "";
+      window.history.replaceState({}, document.title, url.toString());
+    }
+  }, []);
+
+  useEffect(() => {
     fetchOffers();
   }, []);
 
