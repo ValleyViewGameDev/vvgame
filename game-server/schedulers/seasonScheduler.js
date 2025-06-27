@@ -5,7 +5,7 @@ const seasonFinalizer = require('../utils/seasonFinalizer');
 const seasonReset = require('../utils/seasonReset');
 
 async function seasonScheduler(frontierId, phase, frontier = null) {
-  
+   
     try {
         if (!frontierId) { console.warn("⚠️ No frontierId provided to seasonScheduler."); return {}; }
         frontier = frontier || await Frontier.findById(frontierId);

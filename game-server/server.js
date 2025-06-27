@@ -29,6 +29,7 @@ const frontierRoutes = require('./routes/frontierRoutes'); // Import frontier ro
 const settlementRoutes = require('./routes/settlementRoutes'); // Import frontier routes
 const scheduleRoutes = require('./routes/scheduleRoutes'); // Import frontier routes
 const chatRoutes = require('./routes/chatRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
 
 const leoProfanity = require('leo-profanity');
 
@@ -441,6 +442,8 @@ console.log('Setting up schedule routes...');
 app.use('/api', scheduleRoutes);
 console.log('Setting up chat routes...');
 app.use('/api', chatRoutes);
+console.log('Setting up payment routes...');
+app.use('/api', paymentRoutes);
 
 
 // Root endpoint

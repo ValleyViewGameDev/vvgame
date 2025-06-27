@@ -21,6 +21,7 @@
         { "item": "Corn", "qty": 100 }
       ],
       "price": 6,
+      "priceInCents": 600,
       "shelflifeDays": 7
     },
     {
@@ -30,7 +31,8 @@
       "rewards": [
         { "item": "Relocation", "qty": 5 }
       ],
-      "price": 10
+      "price": 10,
+      "priceInCents": 1000
     },
     {
       "id": 20,
@@ -42,7 +44,8 @@
         { "item": "Book", "qty": 100 },
         { "item": "Tent", "qty": 10 }
       ],
-      "price": 3.5
+      "price": 3.5,
+      "priceInCents": 350
     },
     {
       "id": 30,
@@ -52,7 +55,8 @@
         { "item": "Gem", "qty": 100 },
         { "item": "Lumber", "qty": 20 }
       ],
-      "price": 3.5
+      "price": 3.5,
+      "priceInCents": 350
     },
     {
       "id": 40,
@@ -62,7 +66,8 @@
         { "item": "Potion C", "qty": 100 },
         { "item": "Lumber", "qty": 30 }
       ],
-      "price": 3.5
+      "price": 3.5,
+      "priceInCents": 350
     },
     {
       "id": 50,
@@ -71,25 +76,31 @@
       "rewards": [
         { "item": "Money", "qty": 100000 }
       ],
-      "price": 9.5
+      "price": 9.5,
+      "priceInCents": 950
     },
     {
       "id": 60,
-      "title": "Money Pack 2",
-      "body": "Mega Money. Go wild.",
-      "rewards": [
-        { "item": "Money", "qty": 1000000 }
-      ],
-      "price": 70
-    },
-    {
-      "id": 70,
       "title": "Unbreakable",
       "body": "Boost your defense with enchanted armor.",
       "rewards": [
         { "item": "Unbreakable", "qty": 1 }
       ],
-      "price": 15
+      "price": 15,
+      "priceInCents": 1500
+    },
+    {
+      "id": 70,
+      "title": "Money Pack 2",
+      "body": "Mega Money. Go wild.",
+      "rewards": [
+        { "item": "Money", "qty": 1000000 }
+      ],
+      "price": 70,
+      "priceInCents": 7000
     }
 
   ]
+
+
+  

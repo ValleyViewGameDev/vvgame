@@ -649,121 +649,9 @@ router.post('/update-powers', async (req, res) => {
 });
 
 
-////////////// MESSAGE & STORE BASED ROUTES ///////////
+////////////////////////////////////////////////////////
+////////////// DELETE PLAYER ///////////////////////////
 
-
-// ✅ POST /api/send-mailbox-message
-router.post('/send-mailbox-message', async (req, res) => {
-  const { playerId, messageId, customRewards = [] } = req.body;
-
-  if (!playerId || !messageId) {
-    return res.status(400).json({ error: 'Missing playerId or messageId.' });
-  }
-
-  // ✅ Sanitize rewards here (removes MongoDB subdocument _ids)
-  const sanitizedRewards = customRewards.map(({ item, qty }) => ({
-    item,
-    qty
-  }));
-
-  try {
-    await sendMailboxMessage(playerId, messageId, sanitizedRewards);
-    return res.status(200).json({ success: true, message: 'Message delivered to mailbox.' });
-  } catch (error) {
-    console.error('❌ Error in send-mailbox-message route:', error);
-    return res.status(500).json({ error: 'Server error while sending message.' });
-  }
-});
-
-router.get('/messages', (req, res) => {
-  const filePath = path.join(__dirname, '../tuning/messages.json');
-  fs.readFile(filePath, 'utf8', (err, data) => {
-    if (err) {
-      console.error("Failed to read messages.json", err);
-      return res.status(500).json({ error: 'Failed to load messages' });
-    }
-    res.json(JSON.parse(data));
-  });
-});
-
-router.post('/update-player-messages', async (req, res) => {
-  const { playerId, messages } = req.body;
-
-  try {
-    const updatedPlayer = await Player.findByIdAndUpdate(
-      playerId,
-      { messages },
-      { new: true }
-    );
-    res.json({ success: true, player: updatedPlayer });
-  } catch (error) {
-    console.error("Error updating player messages:", error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-
-// ✅ POST /api/purchase-store-offer
-router.post('/purchase-store-offer', async (req, res) => {
-  const { playerId, offerId } = req.body;
-
-  if (!playerId || !offerId) {
-    return res.status(400).json({ error: "Missing playerId or offerId." });
-  }
-
-  try {
-    const Player = require("../models/player");
-    const sendMailboxMessage = require("../utils/messageUtils");
-    const storeOffers = require("../tuning/store.json");
-    const player = await Player.findById(playerId);
-
-    if (!player) {
-      return res.status(404).json({ error: "Player not found." });
-    }
-
-    const offer = storeOffers.find(o => o.id === offerId);
-    if (!offer) {
-      return res.status(404).json({ error: "Store offer not found." });
-    }
-
-    // ✅ Check shelf life (if defined)
-    if (offer.shelflifeDays) {
-      const createdAt = new Date(player.created);
-      const now = new Date();
-      const diffDays = Math.floor((now - createdAt) / (1000 * 60 * 60 * 24));
-      if (diffDays > offer.shelflifeDays) {
-        return res.status(403).json({ error: "Offer has expired for this player." });
-      }
-    }
-
-    // ✅ Send via Mailbox
-    const rewards = offer.rewards || [];
-    await sendMailboxMessage(playerId, 201, rewards); // 201 = store message template
-
-    return res.status(200).json({ success: true, message: "Purchase successful. Reward sent via Mailbox." });
-
-  } catch (error) {
-    console.error("❌ Error processing store purchase:", error);
-    return res.status(500).json({ error: "Server error while processing purchase." });
-  }
-});
-
-
-// ✅ GET /api/store-offers
-router.get('/store-offers', (req, res) => {
-  try {
-    const storeData = require('../tuning/store.json');
-    res.json(storeData);
-  } catch (err) {
-    console.error("❌ Failed to load store offers:", err);
-    res.status(500).json({ error: "Failed to load store offers." });
-  }
-});
-
-
-
-
-// POST /delete-player
 router.post('/delete-player', async (req, res) => {
   const { playerId } = req.body;
   if (!playerId) {
@@ -832,6 +720,62 @@ router.post('/delete-player', async (req, res) => {
     res.status(500).json({ error: 'Failed to delete player.' });
   }
 });
+
+
+
+////////////////////////////////////////////////////////
+////////////// MESSAGE & STORE BASED ROUTES ///////////
+
+// ✅ POST /api/send-mailbox-message
+router.post('/send-mailbox-message', async (req, res) => {
+  const { playerId, messageId, customRewards = [] } = req.body;
+
+  if (!playerId || !messageId) {
+    return res.status(400).json({ error: 'Missing playerId or messageId.' });
+  }
+
+  // ✅ Sanitize rewards here (removes MongoDB subdocument _ids)
+  const sanitizedRewards = customRewards.map(({ item, qty }) => ({
+    item,
+    qty
+  }));
+
+  try {
+    await sendMailboxMessage(playerId, messageId, sanitizedRewards);
+    return res.status(200).json({ success: true, message: 'Message delivered to mailbox.' });
+  } catch (error) {
+    console.error('❌ Error in send-mailbox-message route:', error);
+    return res.status(500).json({ error: 'Server error while sending message.' });
+  }
+});
+
+router.get('/messages', (req, res) => {
+  const filePath = path.join(__dirname, '../tuning/messages.json');
+  fs.readFile(filePath, 'utf8', (err, data) => {
+    if (err) {
+      console.error("Failed to read messages.json", err);
+      return res.status(500).json({ error: 'Failed to load messages' });
+    }
+    res.json(JSON.parse(data));
+  });
+});
+
+router.post('/update-player-messages', async (req, res) => {
+  const { playerId, messages } = req.body;
+
+  try {
+    const updatedPlayer = await Player.findByIdAndUpdate(
+      playerId,
+      { messages },
+      { new: true }
+    );
+    res.json({ success: true, player: updatedPlayer });
+  } catch (error) {
+    console.error("Error updating player messages:", error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 
 
 module.exports = router;

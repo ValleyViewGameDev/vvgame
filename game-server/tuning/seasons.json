@@ -6,7 +6,7 @@
         "SeasonMoneyNerf": 0.25,
         "pricePoints": 25,
         "trainOffersQtyMultiplier": 1,
-        "trainRewards": [ "Gem", "Potion C", "Book" ]
+        "trainRewards": [ "Gem", "Potion C", "Book" ] 
     },
     { 
         "seasonType": "Summer",

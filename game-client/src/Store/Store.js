@@ -4,6 +4,7 @@ import axios from 'axios';
 import Modal from '../UI/Modal';
 import './Store.css';
 import { StatusBarContext } from '../UI/StatusBar';
+import { loadStripe } from '@stripe/stripe-js';
 
 function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbox }) {
   const [offers, setOffers] = useState([]);
@@ -24,22 +25,20 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
 
   const handlePurchase = async (offerId) => {
     try {
-      const response = await axios.post(`${API_BASE}/api/purchase-store-offer`, {
+      const response = await axios.post(`${API_BASE}/api/create-checkout-session`, {
         playerId: currentPlayer.playerId,
         offerId
       });
 
-      if (response.data?.success) {
-        onClose();  // Close Store
-        setTimeout(() => {
-          openMailbox?.();  // Open Mailbox if the function exists
-        }, 100);
+      if (response.data?.id) {
+        const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+        await stripe.redirectToCheckout({ sessionId: response.data.id });
       } else {
-        updateStatus("❌ Purchase failed.");
+        updateStatus("❌ Failed to initiate checkout.");
       }
     } catch (err) {
-      console.error("❌ Error purchasing store offer:", err);
-      updateStatus("❌ Error processing your purchase.");
+      console.error("❌ Error initiating checkout:", err);
+      updateStatus("❌ Error initiating checkout.");
     }
   };
 
@@ -55,7 +54,9 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
 
   return (
     <Modal onClose={onClose} title="🛒 Store">
-        <h4>Purchases will be delivered to the Inbox.</h4>
+        <h3>Purchases will be delivered to the Inbox.</h3>
+        <h4>Thank you for your support! We are a tiny developer with few resources, but passionate about creating a fun space for a positive community. Please consider making purchases so we can continue to improve the game.</h4>
+
       <div className="store-offers">
         {offers
           .filter((offer) => !isOfferExpired(offer))
