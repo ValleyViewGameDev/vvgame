@@ -5,24 +5,10 @@ import Modal from '../UI/Modal';
 import './Store.css';
 import { StatusBarContext } from '../UI/StatusBar';
 import { loadStripe } from '@stripe/stripe-js';
-import { useNavigate, useLocation } from 'react-router-dom';
 
 function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbox }) {
   const [offers, setOffers] = useState([]);
   const { updateStatus } = useContext(StatusBarContext);
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const purchaseSuccess = params.get("purchase");
-
-    if (purchaseSuccess === "success") {
-      updateStatus("✅ Purchase successful! Check your Inbox.");
-      openMailbox();
-      navigate(location.pathname, { replace: true }); // clean up query params
-    }
-  }, []);
 
   useEffect(() => {
     fetchOffers();
