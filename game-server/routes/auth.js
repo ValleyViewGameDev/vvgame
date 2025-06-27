@@ -1,3 +1,4 @@
+
 const express = require('express');
 const bcrypt = require('bcrypt'); // or `bcryptjs`
 const mongoose = require('mongoose');
@@ -9,6 +10,8 @@ const router = express.Router();
 
 const starterAccountPath = path.resolve(__dirname, '../tuning/starterAccount.json');
 const starterAccount = JSON.parse(fs.readFileSync(starterAccountPath, 'utf8'));
+
+const { sendNewUserEmail } = require('../utils/emailUtils.js');
 
 // POST /register
 router.post('/register', async (req, res) => {
@@ -135,6 +138,7 @@ router.post('/register', async (req, res) => {
     await newPlayer.save();
 
     console.log(`New player registered: ${username}`);
+    sendNewUserEmail(newPlayer); // 🚀 Notify yourself
 
     // 7) Send final response
     res.status(201).json({ success: true, player: newPlayer });
