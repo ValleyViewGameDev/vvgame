@@ -130,4 +130,62 @@ async function relocatePlayersHome(frontierId) {
   return relocatedCount;
 }
 
-module.exports = relocatePlayersHome;
+
+async function relocateOnePlayerHome(playerId) {
+  const player = await Player.findById(playerId);
+  if (!player || !player.gridId) return false;
+
+  const gridIdStr = player.gridId.toString();
+
+  const grids = await Grid.find({ 
+    _id: { $in: [gridIdStr] } 
+  }, { playersInGrid: 1, playersInGridLastUpdated: 1 });
+
+  const currentGrid = grids.find(g => g.playersInGrid?.[playerId]);
+  const homeGrid = grids.find(g => g._id.toString() === gridIdStr);
+
+  if (!currentGrid || !homeGrid) return false;
+
+  const pcData = currentGrid.playersInGrid[playerId];
+  if (!pcData) return false;
+
+  // Remove from current grid
+  delete currentGrid.playersInGrid[playerId];
+  currentGrid.playersInGridLastUpdated = new Date();
+  await currentGrid.save();
+
+  // Add to home grid
+  homeGrid.playersInGrid[playerId] = {
+    ...pcData,
+    hp: player.baseMaxhp || 25,
+    position: { x: 0, y: 0 }
+  };
+  homeGrid.playersInGridLastUpdated = new Date();
+  await homeGrid.save();
+
+  // Update player.location
+  const settlement = await Settlement.findById(player.settlementId);
+  let info = {};
+  for (const row of settlement.grids) {
+    for (const g of row) {
+      if (g.gridId === gridIdStr) {
+        info = { gridCoord: g.gridCoord, gridType: g.gridType };
+      }
+    }
+  }
+
+  player.location = {
+    g: player.gridId,
+    s: player.settlementId,
+    f: player.frontierId,
+    gridCoord: info.gridCoord || "0,0,0",
+    gtype: info.gridType || "valley",
+    x: 1,
+    y: 1
+  };
+  await player.save();
+
+  return true;
+}
+
+module.exports = { relocatePlayersHome, relocateOnePlayerHome };

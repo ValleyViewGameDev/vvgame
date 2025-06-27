@@ -264,6 +264,34 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
             Logout
           </button>
         </div>
+        <div className="panel-buttons">
+          <button
+            className="btn-danger"
+            onClick={async () => {
+              const confirmed = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
+              if (!confirmed) return;
+
+              try {
+                const response = await axios.post(`${API_BASE}/api/delete-player`, {
+                  playerId: currentPlayer.playerId,
+                });
+
+                if (response.data.success) {
+                  alert("Account deleted successfully.");
+                  localStorage.removeItem('player');
+                  window.location.reload();
+                } else {
+                  alert("Failed to delete account.");
+                }
+              } catch (err) {
+                console.error("Error deleting account:", err);
+                alert("An error occurred while trying to delete your account.");
+              }
+            }}
+          >
+            Delete Account
+          </button>
+        </div>
         <br/>
 
 

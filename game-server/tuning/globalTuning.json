@@ -1,4 +1,5 @@
 {
+  "closerZoom": 50,
   "closeZoom": 30,
   "farZoom": 16,
   "mayorcut": 50,
@@ -16,8 +17,8 @@
   },
   "seasons": {
     "phases": {
-      "onSeason": 10078,
-      "offSeason": 1
+      "onSeason": 131040,
+      "offSeason": 3
     },
     "startPhase": "onSeason"
   },
@@ -33,7 +34,7 @@
   "train": {
     "phases": {
       "arriving": 0.6,
-      "loading": 1800,
+      "loading": 5760,
       "departing": 0.6
     },
     "startPhase": "arriving"

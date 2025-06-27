@@ -39,7 +39,7 @@
 }
 
 .mini-cell:hover .tooltip {
-  display: block;
+  display: inline-block;
 }
 
 .tooltip {
@@ -56,6 +56,7 @@
   left: 50%;
   transform: translateX(-50%);
   min-width: 100px;
+  pointer-events: none; /* Let hover pass through */
 }
 
 /* Text Content Container */

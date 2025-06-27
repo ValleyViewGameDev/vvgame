@@ -169,15 +169,20 @@ const SettlementView = ({
     }
   };
 
-  const getTooltip = (tile) => {
+const getTooltip = (tile) => {
     if (!tile.gridId) return '';
-    const NPCsInGrid = NPCsInGrids[tile.gridId];
-    const pcs = NPCsInGrid?.playersInGrid?.pcs;
+    const pcs = playersInGridManager.getPlayersInGrid(tile.gridId);
+    console.log("🔍 Tooltip check for gridId:", tile.gridId);
+    console.log("🔍 pcs = ", pcs);
   
     if (!pcs || Object.keys(pcs).length === 0) {
+      console.log("ℹ️ No player characters found in grid:", tile.gridId);
       return '';
     }
   
+    console.log("🧠 Tooltip result for", tile.gridId, "=", Object.values(pcs)
+      .map(pc => `${pc.username || 'Unknown'}: ${pc.hp || 0} HP`)
+      .join('\n'));
     return Object.values(pcs)
       .map(pc => `${pc.username || 'Unknown'}: ${pc.hp || 0} HP`)
       .join('\n');

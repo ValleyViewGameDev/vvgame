@@ -6,7 +6,7 @@
         "SeasonMoneyNerf": 0.25,
         "pricePoints": 25,
         "trainOffersQtyMultiplier": 1,
-        "trainRewards": [ "Gem", "Potion 3", "Book" ]
+        "trainRewards": [ "Gem", "Potion C", "Book" ]
     },
     { 
         "seasonType": "Summer",
@@ -15,7 +15,7 @@
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
         "trainOffersQtyMultiplier": 1,
-        "trainRewards": [ "Gem", "Potion 3", "Book" ]
+        "trainRewards": [ "Gem", "Potion C", "Book" ]
     },
     { 
         "seasonType": "Fall",
@@ -24,7 +24,7 @@
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
         "trainOffersQtyMultiplier": 1,
-        "trainRewards": [ "Gem", "Potion 3", "Book" ]
+        "trainRewards": [ "Gem", "Potion C", "Book" ]
     },
     { 
         "seasonType": "Winter",
@@ -33,6 +33,6 @@
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
         "trainOffersQtyMultiplier": 1,
-        "trainRewards": [ "Gem", "Potion 3", "Book" ]
+        "trainRewards": [ "Gem", "Potion C", "Book" ]
     }
 ]

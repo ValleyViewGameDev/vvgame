@@ -4,6 +4,9 @@ const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
 const Player = require('../models/player'); // Import the Player model
+const Grid = require('../models/grid');
+const Settlement = require('../models/settlement');
+const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
 const queue = require('../queue'); // Import the in-memory queue
 const sendMailboxMessage = require('../utils/messageUtils'); // or messageUtils/sendMailboxMessage.js
 
@@ -754,6 +757,79 @@ router.get('/store-offers', (req, res) => {
   } catch (err) {
     console.error("❌ Failed to load store offers:", err);
     res.status(500).json({ error: "Failed to load store offers." });
+  }
+});
+
+
+
+
+// POST /delete-player
+router.post('/delete-player', async (req, res) => {
+  const { playerId } = req.body;
+  if (!playerId) {
+    return res.status(400).json({ error: 'Player ID is required.' });
+  }
+
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+
+    const { gridId, settlementId } = player;
+
+    // 1. Send other players in this grid home
+    if (gridId) {
+      const grid = await Grid.findOne({ gridId });
+      if (grid && grid.playersInGrid) {
+        const playersInGrid = grid.playersInGrid instanceof Map
+          ? Array.from(grid.playersInGrid.keys())
+          : Object.keys(grid.playersInGrid);
+        for (const id of playersInGrid) {
+          if (id !== playerId.toString()) {
+            await relocateOnePlayerHome(id);
+          }
+        }
+      }
+    }
+
+    // 2. Update Settlement grid reference and availability (search ALL settlements for the grid)
+    if (gridId) {
+      let fromSettlement = null;
+      const settlements = await Settlement.find({});
+      for (const settlement of settlements) {
+        for (const row of settlement.grids) {
+          for (const cell of row) {
+            if (cell.gridId && String(cell.gridId) === String(gridId)) {
+              cell.gridId = null;
+              cell.available = true;
+              fromSettlement = settlement;
+            }
+          }
+        }
+      }
+
+      if (fromSettlement) {
+        fromSettlement.markModified('grids');
+        fromSettlement.population = Math.max((fromSettlement.population || 1) - 1, 0);
+        await fromSettlement.save();
+      }
+    }
+
+    // 3. Delete the Grid document
+    if (gridId) {
+      await Grid.deleteOne({ gridId });
+    }
+
+    // 4. Delete the player
+    await Player.deleteOne({ _id: playerId });
+
+    console.log(`✅ Player ${playerId} and associated grid ${gridId} deleted.`);
+    res.json({ success: true });
+
+  } catch (error) {
+    console.error('❌ Error deleting player:', error);
+    res.status(500).json({ error: 'Failed to delete player.' });
   }
 });
 
