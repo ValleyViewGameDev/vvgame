@@ -13,13 +13,32 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const purchaseSuccess = params.get("purchase");
+    console.log("🔍 URL query params:", {
+      purchaseSuccess,
+      playerId: params.get("playerId"),
+      offerId: params.get("offerId")
+    });
     const playerId = params.get("playerId");
     const offerId = params.get("offerId");
 
     if (purchaseSuccess === "success" && playerId && offerId) {
       // ✅ Show success message
-      updateStatus("✅ Purchase successful! Check your Inbox.");
-      openMailbox();
+
+      // ✅ Finalize fulfillment by notifying backend
+      axios.post(`${API_BASE}/api/purchase-store-offer`, {
+        playerId,
+        offerId
+      }).then(() => {
+        console.log("📬 Called /api/purchase-store-offer successfully for:", { playerId, offerId });
+        console.log("✅ Store reward successfully delivered.");
+        updateStatus("✅ Purchase successful! Check your Inbox.");
+        openMailbox();
+
+      }).catch((err) => {
+        console.error("🛑 Error calling /api/purchase-store-offer with:", { playerId, offerId });
+        console.error("❌ Failed to deliver store reward:", err);
+        updateStatus("⚠️ Purchase may not have been delivered. Please contact support.");
+      });
 
       // ✅ Optionally hit backend to finalize fulfillment if needed
 
