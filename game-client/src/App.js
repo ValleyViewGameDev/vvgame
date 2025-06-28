@@ -1205,7 +1205,7 @@ return ( <>
             : "..."}
         </button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> 🎒 Inventory </button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Store')}>🛒 Store</button>
+        <button className="shared-button" disabled={!currentPlayer} onClick={() => setActiveModal("Store")}>🛒 Store</button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
       </div>
       <div className="language-control">
@@ -1489,13 +1489,17 @@ return ( <>
           resources={masterResources}
         />
       )}
-      {activeModal === 'Store' && (
-        <Store 
-          onClose={closeModal} 
+      {activeModal === "Store" && (
+        <Store
+          onClose={({ openMailbox } = {}) => {
+            setActiveModal(null);
+            if (openMailbox) {
+              setTimeout(() => setActiveModal("Mailbox"), 100);
+            }
+          }}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           resources={masterResources}
-          openMailbox={() => setActiveModal('Mailbox')}  
         />
       )}
       {isOffSeason && (

@@ -32,8 +32,10 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
         console.log("📬 Called /api/purchase-store-offer successfully for:", { playerId, offerId });
         console.log("✅ Store reward successfully delivered.");
         updateStatus("✅ Purchase successful! Check your Inbox.");
-        openMailbox();
-
+        // ✅ Notify parent to open mailbox after modal is closed
+        if (typeof onClose === 'function') {
+          onClose({ openMailbox: true });
+        }
       }).catch((err) => {
         console.error("🛑 Error calling /api/purchase-store-offer with:", { playerId, offerId });
         console.error("❌ Failed to deliver store reward:", err);
@@ -92,7 +94,15 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
   };
 
   return (
-    <Modal onClose={onClose} title="🛒 Store">
+    <Modal
+      onClose={(args) => {
+        if (args?.openMailbox && typeof openMailbox === 'function') {
+          openMailbox();
+        }
+        onClose();
+      }}
+      title="🛒 Store"
+    >
         <h3>Purchases will be delivered to the Inbox.</h3>
         <h4>Thank you for your support! We are a tiny developer with few resources, but passionate about creating a fun space for a positive community. Please consider making purchases so we can continue to improve the game.</h4>
 
