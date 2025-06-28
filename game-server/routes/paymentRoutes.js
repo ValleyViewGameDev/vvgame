@@ -71,7 +71,7 @@ router.post('/purchase-store-offer', async (req, res) => {
       return res.status(404).json({ error: "Player not found." });
     }
 
-    const offer = storeOffers.find(o => o.id === offerId);
+    const offer = storeOffers.find(o => String(o.id) === String(offerId));
 
     console.log("🛍️ Offer found:", offer ? offer.id : "NOT FOUND");
 
