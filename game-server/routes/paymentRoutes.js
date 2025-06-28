@@ -53,6 +53,8 @@ router.post('/create-checkout-session', async (req, res) => {
 router.post('/purchase-store-offer', async (req, res) => {
   const { playerId, offerId } = req.body;
 
+  console.log("📥 Incoming store purchase:", { playerId, offerId });
+
   if (!playerId || !offerId) {
     return res.status(400).json({ error: "Missing playerId or offerId." });
   }
@@ -63,11 +65,16 @@ router.post('/purchase-store-offer', async (req, res) => {
     const storeOffers = require("../tuning/store.json");
     const player = await Player.findById(playerId);
 
+    console.log("👤 Player loaded:", player ? player._id : "NOT FOUND");
+
     if (!player) {
       return res.status(404).json({ error: "Player not found." });
     }
 
     const offer = storeOffers.find(o => o.id === offerId);
+
+    console.log("🛍️ Offer found:", offer ? offer.id : "NOT FOUND");
+
     if (!offer) {
       return res.status(404).json({ error: "Store offer not found." });
     }
@@ -84,12 +91,14 @@ router.post('/purchase-store-offer', async (req, res) => {
 
     // ✅ Send via Mailbox
     const rewards = offer.rewards || [];
+    console.log("📨 Sending mailbox message with rewards:", rewards);
     await sendMailboxMessage(playerId, 201, rewards); // 201 = store message template
 
     return res.status(200).json({ success: true, message: "Purchase successful. Reward sent via Mailbox." });
 
   } catch (error) {
     console.error("❌ Error processing store purchase:", error);
+    console.error("❌ Stack trace:", error.stack);
     return res.status(500).json({ error: "Server error while processing purchase." });
   }
 });
