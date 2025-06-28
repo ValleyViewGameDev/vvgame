@@ -1,8 +1,8 @@
 import './App.css';
 import './GameFeatures/Chat/Chat.css';
 import './VFX/VFX.css';
-import API_BASE from './config.js';  
 import axios from 'axios';
+import API_BASE from './config.js';
 import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
 import { initializeGrid } from './AppInit';
@@ -87,35 +87,69 @@ import { handlePlayerDeath } from './Utils/playerManagement';
 
 function App() {
 
-    // Server connectivity check: periodically ping server and show modal if down
-useEffect(() => {
-  let interval;
-  let serverPreviouslyDown = false;
-  const checkServer = async () => {
-    try {
-      // await axios.get(`${API_BASE}/api/ping`);
-      // Always close modal if server is reachable
-      if (modalContent?.title === strings[10000]) {
-        setIsModalOpen(false);
-      }
-      // If it was previously down, reload the page
-      if (serverPreviouslyDown) { window.location.reload(); }
-    } catch (err) {
-      console.warn("❌ Server unreachable:", err.message);
-      if (!serverPreviouslyDown) {
-        setModalContent({
-          title: strings[10000],
-          message: strings[10001],
-          message2: strings[10002],
-        });
-        setIsModalOpen(true);
-        serverPreviouslyDown = true;
-      }
+  // Store purchase fulfillment effect
+  const { activeModal, setActiveModal, openModal, closeModal } = useModalContext();
+  const { updateStatus } = useContext(StatusBarContext);
+  // Helper to open mailbox modal
+  const openMailbox = () => openModal && openModal('Mailbox');
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const purchaseSuccess = params.get("purchase");
+    const playerId = params.get("playerId");
+    const offerId = params.get("offerId");
+
+    if (purchaseSuccess === "success" && playerId && offerId) {
+      console.log("🧾 Processing store purchase via App.js effect:", { playerId, offerId });
+
+      axios.post(`${API_BASE}/api/purchase-store-offer`, {
+        playerId,
+        offerId
+      }).then(() => {
+        console.log("📬 Purchase reward sent successfully.");
+        updateStatus && updateStatus("✅ Purchase successful! Check your Inbox.");
+        openMailbox && openMailbox();
+      }).catch((err) => {
+        console.error("❌ Failed to fulfill purchase:", err);
+        updateStatus && updateStatus("⚠️ Purchase may not have been fulfilled. Contact support if missing.");
+      });
+
+      // Clean up the URL to remove query params
+      const url = new URL(window.location.href);
+      url.search = "";
+      window.history.replaceState({}, document.title, url.toString());
     }
-  };
-  interval = setInterval(checkServer, 2000);
-  return () => clearInterval(interval);
-}, []);
+  }, []);
+
+  // Server connectivity check: periodically ping server and show modal if down
+  useEffect(() => {
+    let interval;
+    let serverPreviouslyDown = false;
+    const checkServer = async () => {
+      try {
+        // await axios.get(`${API_BASE}/api/ping`);
+        // Always close modal if server is reachable
+        if (modalContent?.title === strings[10000]) {
+          setIsModalOpen(false);
+        }
+        // If it was previously down, reload the page
+        if (serverPreviouslyDown) { window.location.reload(); }
+      } catch (err) {
+        console.warn("❌ Server unreachable:", err.message);
+        if (!serverPreviouslyDown) {
+          setModalContent({
+            title: strings[10000],
+            message: strings[10001],
+            message2: strings[10002],
+          });
+          setIsModalOpen(true);
+          serverPreviouslyDown = true;
+        }
+      }
+    };
+    interval = setInterval(checkServer, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
 
   useEffect(() => {
@@ -212,10 +246,9 @@ useEffect(() => {
   playersInGridManager.registerTileSize(activeTileSize);
 }, [activeTileSize]);
 
-const { updateStatus } = useContext(StatusBarContext); // Access the status bar updater
+// updateStatus already set above for purchase effect
 const [setStatusMessage] = useState(0); // Initial status message index
 const [isLoginPanelOpen, setisLoginPanelOpen] = useState(false);
-const { activeModal, setActiveModal, openModal, closeModal } = useModalContext();
 const [isModalOpen, setIsModalOpen] = useState(false);
 const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
 const [isOffSeason, setIsOffSeason] = useState(false); // Track if it's off-season
