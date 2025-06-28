@@ -1,114 +1,146 @@
-[
-  
-{					
-"id":	1	,			
+[							
+{							
+"id":		1		,			
+"title":	"Basic Starter Pack"	,			
+"body":	"This pack gets you going with some starter Money, the Horse for going to Town, a Backpack for collecting away from home, and a few other skills and items."	,			
+"price":		5.03		,			
+"priceInCents":		503		,			
+"shelflifeDays":		7		,			
+"rewards": [							
+{ "item":"Money","qty":	10000	},
+{ "item":"Horse","qty":	1	},
+{ "item":"Backpack","qty":	1	},
+{ "item":"Axe","qty":	1	},
+{ "item":"Pickaxe","qty":	1	},
+{ "item":"Grower","qty":	1	},
+{ "item":"Builder","qty":	1	},
+{ "item":"Wheat","qty":	25	},
+{ "item":"Carrot","qty":	25	},
+{ "item":"Corn","qty":	25	}
+]							
+},							
+							
+							
+{							
+"id":		4		,			
 "title":	"Deluxe Starter Pack"	,			
-"body":	"Includes core skills and starter crops. Expires 7 days after new account creation."	,			
-"price":	21.87	,			
-"priceInCents":	2187	,			
-"shelflifeDays":	7	,			
-"rewards": [					
-{ "item":	"Money",	"qty":	5000	},
-{ "item":	"Horse"	,	"qty":	1	},
-{ "item":	"Backpack"	,	"qty":	1	},
-{ "item":	"Axe"	,	"qty":	1	},
-{ "item":	"Pickaxe"	,	"qty":	1	},
-{ "item":	"Grower"	,	"qty":	1	},
-{ "item":	"Builder"	,	"qty":	1	},
-{ "item":	"Combat"	,	"qty":	1	},
-{ "item":	"Gem"	,	"qty":	1	},
-{ "item":	"Potion C"	,	"qty":	1	},
-{ "item":	"Book"	,	"qty":	1	},
-{ "item":	"Wheat"	,	"qty":	50	},
-{ "item":	"Carrot"	,	"qty":	50	},
-{ "item":	"Corn"	,	"qty":	50	}
-]					
-}			,		
-					
-{					
-"id":	10	,			
+"body":	"This deluxe starter pack includes everything in the Basic Starter Pack, plus the Combat skill, and a few premium items to help with advanced skills."	,			
+"price":		15.90		,			
+"priceInCents":		1590		,			
+"shelflifeDays":		7		,			
+"rewards": [							
+{ "item":"Money","qty":	10000	},
+{ "item":"Horse","qty":	1	},
+{ "item":"Backpack","qty":	1	},
+{ "item":"Axe","qty":	1	},
+{ "item":"Pickaxe","qty":	1	},
+{ "item":"Grower","qty":	1	},
+{ "item":"Builder","qty":	1	},
+{ "item":"Combat","qty":	1	},
+{ "item":"Gem","qty":	1	},
+{ "item":"Potion C","qty":	2	},
+{ "item":"Book","qty":	3	},
+{ "item":"Wheat","qty":	50	},
+{ "item":"Carrot","qty":	50	},
+{ "item":"Corn","qty":	50	}
+]							
+},							
+							
+{							
+"id":		8		,			
+"title":	"Basic Money Pack"	,			
+"body":	"Instantly adds 25,000 Money."	,			
+"price":		11.25		,			
+"priceInCents":		1125		,			
+"rewards": [							
+{ "item":"Money","qty":	25000	}
+]							
+},							
+							
+{							
+"id":		10		,			
 "title":	"Relocations Pack"	,			
 "body":	"Additional homestead relocations. Move your entire homestead elsewhere in the frontier."	,			
-"price":	15.00	,			
-"priceInCents":	1500	,			
-"rewards": [					
-{ "item":	"Relocations"	,	"qty":	5	}
-]					
-}				,	
-					
-{					
-"id":	20	,			
+"price":		10.00		,			
+"priceInCents":		1000		,			
+"rewards": [							
+{ "item":"Relocations","qty":	5	}
+]							
+},							
+							
+{							
+"id":		20		,			
 "title":	"Adventurer's Pack"	,			
 "body":	"Books, tents, and expanded carrying power."	,			
-"price":	42.05	,			
-"priceInCents":	4205	,			
-"rewards": [					
-{ "item":	"Backpack"	,	"qty":	1	},
-{ "item":	"Rucksack"	,	"qty":	1	},
-{ "item":	"Book"	,	"qty":	1	},
-{ "item":	"Tent"	,	"qty":	5	}
-]					
-}			,		
-					
-{					
-"id":	30	,			
+"price":		31.90		,			
+"priceInCents":		3190		,			
+"rewards": [							
+{ "item":"Backpack","qty":	1	},
+{ "item":"Rucksack","qty":	1	},
+{ "item":"Book","qty":	15	},
+{ "item":"Tent","qty":	5	}
+]							
+},							
+							
+{							
+"id":		30		,			
 "title":	"Politician's Pack"	,			
 "body":	"Bribery never looked so sparkly."	,			
-"price":	49.45	,			
-"priceInCents":	4945	,			
-"rewards": [					
-{ "item":	"Gem"	,	"qty":	10	},
-{ "item":	"Husbandry"	,	"qty":	1	},
-{ "item":	"Politics"	,	"qty":	1	},
-{ "item":	"Lumber"	,	"qty":	30	}
-]					
-}					,
-					
-{					
-"id":	40	,			
+"price":		19.73		,			
+"priceInCents":		1972.5		,			
+"rewards": [							
+{ "item":"Gem","qty":	5	},
+{ "item":"Husbandry","qty":	1	},
+{ "item":"Politics","qty":	1	},
+{ "item":"Lumber","qty":	30	}
+]							
+},							
+							
+{							
+"id":		40		,			
 "title":	"Farmer's Pack"	,			
 "body":	"Boost your harvest potential with potions and lumber."	,			
-"price":	63.30	,			
-"priceInCents":	6330	,			
-"rewards": [					
-{ "item":	"Potion C"	,	"qty":	20	},
-{ "item":	"Grower"	,	"qty":	1	},
-{ "item":	"Farmer"	,	"qty":	1	},
-{ "item":	"Lumber"	,	"qty":	30	}
-]					
-}			,		
-					
-{					
-"id":	50	,			
-"title":	"Money Pack 1"	,			
-"body":	"Instantly adds 100,000 Money."	,			
-"price":	90.00	,			
-"priceInCents":	9000	,			
-"rewards": [					
-{ "item":	"Money"	,	"qty":	100000	}
-]					
-}			,		
-					
-{					
-"id":	60	,			
+"price":		21.65		,			
+"priceInCents":		2165		,			
+"rewards": [							
+{ "item":"Potion C","qty":	10	},
+{ "item":"Grower","qty":	1	},
+{ "item":"Farmer","qty":	1	},
+{ "item":"Lumber","qty":	30	}
+]							
+},							
+							
+{							
+"id":		50		,			
+"title":	"Big Money Pack"	,			
+"body":	"100,000 Money credits."	,			
+"price":		45.00		,			
+"priceInCents":		4500		,			
+"rewards": [							
+{ "item":"Money","qty":	100000	}
+]							
+},							
+							
+{							
+"id":		60		,			
 "title":	"Unbreakable"	,			
 "body":	"Boost your defense with enchanted armor."	,			
-"price":	45.90	,			
-"priceInCents":	4590	,			
-"rewards": [					
-{ "item":	"Unbreakable",	"qty":	1	}
+"price":		22.95		,			
+"priceInCents":		2295		,			
+"rewards": [							
+{ "item":"Unbreakable","qty":	1	}
+]							
+},							
+							
+{							
+"id":		70		,			
+"title":	"Mega Money Pack"	,			
+"body":	"One million Money credits."	,			
+"price":		400.00		,			
+"priceInCents":		40000		,			
+"rewards": [							
+{ "item":"Money","qty":	1000000	}
+]							
+}							
+							
 ]					
-}		,			
-					
-{					
-"id":	70	,			
-"title":	"Money Pack 2"	,			
-"body":	"Mega money. Go wild."	,			
-"price":	800.00	,			
-"priceInCents":	80000	,			
-"rewards": [					
-{ "item":	"Money"	,	"qty":	1000000	}
-]					
-}	
-					
-]
