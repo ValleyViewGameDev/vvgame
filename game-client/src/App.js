@@ -380,6 +380,7 @@ useEffect(() => {
 
       // 4.5. Open the socket
       socket.connect();
+      // Join the grid for grid-based updates
       socket.emit('join-grid', { gridId: initialGridId, playerId: DBPlayerData.playerId });
       console.log("📡 Connected to socket and joined grid:", initialGridId);
       socket.emit('player-joined-grid', {
@@ -388,6 +389,9 @@ useEffect(() => {
         username: DBPlayerData.username,
         playerData: DBPlayerData,
       });
+      // Join the player room for personal updates
+      socket.emit('join-player-room', { playerId: DBPlayerData.playerId });
+      console.log(`📡 Joined socket room for playerId: ${DBPlayerData.playerId}`);
       socket.emit('set-username', { username: DBPlayerData.username });
 
       // Step 5. Initialize grid tiles, resources

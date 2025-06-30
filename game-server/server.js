@@ -266,7 +266,13 @@ mongoose.connect(process.env.MONGODB_URI, {
         });
       });
 
-
+      // "Player-Room" is a room for private player-specific events, like Store and Mailbox updates
+      socket.on('join-player-room', ({ playerId }) => {
+        if (playerId) {
+          socket.join(playerId);
+          console.log(`🧩 Socket ${socket.id} joined player room: ${playerId}`);
+        }
+      });
       // Handle incoming chat messages
       socket.on('send-chat-message', async (msg) => {
         const { scope, message, playerId, username } = msg;
@@ -315,8 +321,6 @@ mongoose.connect(process.env.MONGODB_URI, {
     });
 
 
-
-    
     // 📡 Broadcast updated PCs to others in the same grid
     socket.on('update-NPCsInGrid-PCs', (payload) => {
       //console.log('📩 Received update-NPCsInGrid-PCs with payload:\n', JSON.stringify(payload, null, 2));
