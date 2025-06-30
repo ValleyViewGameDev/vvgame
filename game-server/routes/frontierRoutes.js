@@ -506,6 +506,7 @@ router.get('/frontier/:frontierId/seasonlog', async (req, res) => {
 router.get('/frontier-bundle/:frontierId', async (req, res) => {
   try {
     const { frontierId } = req.params;
+    const playerSettlementId = req.query?.playerSettlementId;
 
     // Step 1: Fetch the frontier grid structure
     const frontier = await Frontier.findById(frontierId).lean();
@@ -524,7 +525,10 @@ router.get('/frontier-bundle/:frontierId', async (req, res) => {
     // Step 3: Filter and load populated settlement grids
     const populatedSettlementData = {};
     for (const settlement of settlements) {
-      if (settlement.population > 0) {
+      if (
+        settlement.population > 0 ||
+        String(settlement._id) === String(playerSettlementId)
+      ) {
         populatedSettlementData[settlement._id] = { grid: settlement.grids };
       }
     }

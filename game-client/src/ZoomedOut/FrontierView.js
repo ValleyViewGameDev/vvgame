@@ -29,11 +29,13 @@ const FrontierView = ({
   const [error, setError] = useState(null);
   const { updateStatus } = useContext(StatusBarContext);
  
+  console.log("FrontierView");
+
   // Fetch Frontier Grid and Settlement Grids together
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${API_BASE}/api/frontier-bundle/${currentPlayer.location.f}`);
+        const response = await axios.get(`${API_BASE}/api/frontier-bundle/${currentPlayer.location.f}?playerSettlementId=${currentPlayer.location.s}`);
         const { frontierGrid, settlementGrids = {} } = response.data;
         setFrontierGrid(frontierGrid);
         const settlementData = settlementGrids;
@@ -149,32 +151,37 @@ const FrontierView = ({
   };
 
   const renderMiniGrid = (tile) => {
+    console.log("🔍 Rendering mini grid for tile type:", tile.settlementType, "settlementId:", tile.settlementId);
     const tileData = frontierTileData[tile.settlementType] || Array(8).fill(Array(8).fill(""));
+    console.log("tileData = ",tileData);
     const settlementGrid = settlementGrids[tile.settlementId]?.grid || [];
+    console.log("settlementGrid for", tile.settlementId, ":", settlementGrid.length);
     const flatSettlementGrid = settlementGrid.flat();
+    console.log("🧩 Flat settlement grid for", tile.settlementId, ":", flatSettlementGrid.length);
 
     return (
       <div className="mini-grid">
         {tileData.map((row, rowIndex) =>
           row.map((cell, colIndex) => {
-            let content = cell;
             const gridIndex = rowIndex * 8 + colIndex;
             const gridData = flatSettlementGrid[gridIndex];
-            
-            // Use gridData.gridId for comparison
-            if (gridData?.gridId === currentPlayer.location.g) {
-              console.log('✅ Found player at position:', { rowIndex, colIndex, gridId: gridData.gridId });
+
+            // Default content from tile data
+            let content = cell;
+
+            // Player's icon always overrides other content
+            if (gridData?.gridId && gridData.gridId === currentPlayer.location.g) {
+              console.log('✅ Match on player location:', {
+                gridDataGridId: gridData.gridId,
+                playerGridId: currentPlayer.location.g,
+                rowIndex,
+                colIndex,
+              });
               content = currentPlayer.icon;
-            } 
-            // Other content checks
-            else if (gridData?.gridType === 'homestead' && !gridData.available) {
+            } else if (gridData?.gridType === 'homestead' && !gridData.available) {
               content = '🏠';
-            }
-            else if (gridData?.gridType === 'town') {
+            } else if (gridData?.gridType === 'town') {
               content = '🚂';
-            }
-            else {
-              content = cell;
             }
 
             return (

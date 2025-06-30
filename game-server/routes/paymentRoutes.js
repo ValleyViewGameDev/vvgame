@@ -13,14 +13,11 @@ const sendMailboxMessage = require('../utils/messageUtils'); // or messageUtils/
 router.post('/create-checkout-session', async (req, res) => {
 
   console.log("🔐 Stripe key loaded:", process.env.STRIPE_SECRET_KEY?.slice(0, 8)); // Redact most of it
-
   const { playerId, offerId } = req.body;
   const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
   const storeOffers = require('../tuning/store.json');
   const offer = storeOffers.find(o => o.id === offerId);
-
   if (!offer) return res.status(400).json({ error: 'Invalid offerId' });
-
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
     line_items: [{
@@ -36,23 +33,17 @@ router.post('/create-checkout-session', async (req, res) => {
     mode: 'payment',
     //success_url: `${process.env.YOUR_DOMAIN}/payment-success?playerId=${playerId}&offerId=${offerId}`,
     success_url: `${process.env.YOUR_DOMAIN}/?purchase=success&playerId=${playerId}&offerId=${offerId}`,
-    
     //cancel_url: `${process.env.YOUR_DOMAIN}/payment-cancelled`,
     cancel_url: `${process.env.YOUR_DOMAIN}/?purchase=cancelled`,
-
     metadata: { playerId, offerId }
   });
-
   res.json({ id: session.id });
 });
-
-
 
 
 // ✅ POST /api/purchase-store-offer
 router.post('/purchase-store-offer', async (req, res) => {
   const { playerId, offerId } = req.body;
-
   console.log("📥 Incoming store purchase:", { playerId, offerId });
 
   if (!playerId || !offerId) {
@@ -64,20 +55,11 @@ router.post('/purchase-store-offer', async (req, res) => {
     const sendMailboxMessage = require("../utils/messageUtils");
     const storeOffers = require("../tuning/store.json");
     const player = await Player.findById(playerId);
-
     console.log("👤 Player loaded:", player ? player._id : "NOT FOUND");
-
-    if (!player) {
-      return res.status(404).json({ error: "Player not found." });
-    }
-
+    if (!player) { return res.status(404).json({ error: "Player not found." }); }
     const offer = storeOffers.find(o => String(o.id) === String(offerId));
-
     console.log("🛍️ Offer found:", offer ? offer.id : "NOT FOUND");
-
-    if (!offer) {
-      return res.status(404).json({ error: "Store offer not found." });
-    }
+    if (!offer) { return res.status(404).json({ error: "Store offer not found." }); }
 
     // ✅ Check shelf life (if defined)
     if (offer.shelflifeDays) {
@@ -93,7 +75,6 @@ router.post('/purchase-store-offer', async (req, res) => {
     const rewards = offer.rewards || [];
     console.log("📨 Sending mailbox message with rewards:", rewards);
     await sendMailboxMessage(playerId, 201, rewards); // 201 = store message template
-
     return res.status(200).json({ success: true, message: "Purchase successful. Reward sent via Mailbox." });
 
   } catch (error) {
