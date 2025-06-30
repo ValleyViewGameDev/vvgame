@@ -1,5 +1,5 @@
 import API_BASE from '../config';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import axios from 'axios';
 import '../UI/Panel.css'; // Use the standardized styles
 import Panel from '../UI/Panel';
@@ -10,23 +10,27 @@ import { StatusBarContext } from '../UI/StatusBar';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel }) => {
 
+  const [isDeveloper, setIsDeveloper] = useState(false);
+  const hasCheckedDeveloperStatus = useRef(false);
+
   useEffect(() => {
-    const fetchLatestPlayer = async () => {
+    const checkDevStatus = async () => {
       try {
-        const response = await axios.get(`${API_BASE}/api/player/${currentPlayer.playerId}`);
-        if (response.data?.player) {
-          setCurrentPlayer(response.data.player);
-          localStorage.setItem('player', JSON.stringify(response.data.player));
+        if (!hasCheckedDeveloperStatus.current && currentPlayer?.username) {
+          const res = await axios.get(`${API_BASE}/api/check-developer-status/${currentPlayer.username}`);
+          if (res.data?.isDeveloper) {
+            setIsDeveloper(true);
+          }
+          hasCheckedDeveloperStatus.current = true;
+          console.log('🔍 Developer check complete. isDeveloper:', res.data?.isDeveloper);
         }
       } catch (err) {
-        console.warn('⚠️ Failed to refresh player data in ProfilePanel:', err);
+        console.warn('⚠️ Failed to check developer status:', err);
       }
     };
 
-    if (currentPlayer?.playerId) {
-      fetchLatestPlayer();
-    }
-  }, []);
+    checkDevStatus();
+  }, [currentPlayer]);
 
   const [formData, setFormData] = useState({
     username: '',
@@ -314,12 +318,14 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         </div>
 
         <div className="debug-toggles">
-          <button
-            className={`btn-toggle ${localSettings.isTeleportEnabled ? 'btn-enabled' : 'btn-disabled'}`}
-            onClick={() => handleToggleChange('isTeleportEnabled')}
-          >
-            Teleport: {localSettings.isTeleportEnabled ? 'is ON' : 'is OFF'}
-          </button>
+          {isDeveloper && (
+            <button
+              className={`btn-toggle ${localSettings.isTeleportEnabled ? 'btn-enabled' : 'btn-disabled'}`}
+              onClick={() => handleToggleChange('isTeleportEnabled')}
+            >
+              Teleport: {localSettings.isTeleportEnabled ? 'is ON' : 'is OFF'}
+            </button>
+          )}
 
           <button
             className={`btn-toggle ${localSettings.toggleVFX ? 'btn-enabled' : 'btn-disabled'}`}

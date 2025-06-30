@@ -5,6 +5,7 @@ import Modal from '../UI/Modal';
 import './Store.css';
 import { StatusBarContext } from '../UI/StatusBar';
 import { loadStripe } from '@stripe/stripe-js';
+import { updateBadge } from '../Utils/appUtils';
 
 function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbox }) {
   const [offers, setOffers] = useState([]);
@@ -32,6 +33,7 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
         console.log("📬 Called /api/purchase-store-offer successfully for:", { playerId, offerId });
         console.log("✅ Store reward successfully delivered.");
         updateStatus("✅ Purchase successful! Check your Inbox.");
+        updateBadge(currentPlayer, () => {}, "store", false); // Clear store badge
         // ✅ Notify parent to open mailbox after modal is closed
         if (typeof onClose === 'function') {
           onClose({ openMailbox: true });

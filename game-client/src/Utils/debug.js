@@ -1,4 +1,4 @@
-import API_BASE from '../config';
+import API_BASE from '../config'; 
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import Panel from '../UI/Panel';

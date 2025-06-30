@@ -9,7 +9,7 @@ const Settlement = require('../models/settlement');
 const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
 const queue = require('../queue'); // Import the in-memory queue
 const sendMailboxMessage = require('../utils/messageUtils'); // or messageUtils/sendMailboxMessage.js
-
+ 
 
 ///////// QUEST ROUTES ////////////
 
@@ -742,6 +742,10 @@ router.post('/send-mailbox-message', async (req, res) => {
 
   try {
     await sendMailboxMessage(playerId, messageId, sanitizedRewards);
+    const io = req.app.get('socketio'); // assuming io was attached in server.js
+    console.log(`📡 Emitting mailbox-badge-update to playerId room: ${playerId}`);
+    io.to(playerId).emit('mailbox-badge-update', { playerId, hasNewMail: true });
+
     return res.status(200).json({ success: true, message: 'Message delivered to mailbox.' });
   } catch (error) {
     console.error('❌ Error in send-mailbox-message route:', error);
@@ -777,5 +781,24 @@ router.post('/update-player-messages', async (req, res) => {
 });
 
 
+
+
+
+// ✅ Check if player is a developer
+router.get('/check-developer-status/:username', async (req, res) => {
+  const { username } = req.params;
+  const pathToDevFile = path.join(__dirname, '../tuning/developerUsernames.json');
+
+  try {
+    const data = fs.readFileSync(pathToDevFile, 'utf-8');
+    const developerUsernames = JSON.parse(data);
+
+    const isDeveloper = developerUsernames.includes(username);
+    res.json({ isDeveloper });
+  } catch (error) {
+    console.error('Error checking developer status:', error);
+    res.status(500).json({ error: 'Failed to check developer status' });
+  }
+});
 
 module.exports = router;

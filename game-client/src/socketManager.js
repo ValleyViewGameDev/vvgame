@@ -654,4 +654,37 @@ export function emitChatMessage({ playerId, username, message, scope, scopeId })
 }
 
 
+// 🔄 SOCKET LISTENER: Mailbox badge updates
+export function socketListenForMailboxBadgeUpdates(currentPlayer, setBadgeState, updateBadge) {
+  const handler = ({ playerId, hasNewMail }) => {
+    console.log('📬 Received mailbox-badge-update event:', playerId, hasNewMail);
+    if (hasNewMail && currentPlayer?._id === playerId) {
+      console.log("📬 Received mailbox-badge-update for current player.");
+      updateBadge(currentPlayer, setBadgeState, 'mailbox', true);
+    }
+  };
+
+  socket.on('mailbox-badge-update', handler);
+  return () => {
+    socket.off('mailbox-badge-update', handler);
+  };
+}
+
+
+export function socketListenForStoreBadgeUpdates(currentPlayer, setBadgeState) {
+  function handleStoreUpdate(data) {
+    if (data?.username === currentPlayer.username) {
+      const key = `badges_${currentPlayer.username}`;
+      const current = JSON.parse(localStorage.getItem(key)) || {};
+      const updated = { ...current, store: true };
+      localStorage.setItem(key, JSON.stringify(updated));
+      setBadgeState(updated);
+    }
+  }
+
+  socket.on('store-badge-update', handleStoreUpdate);
+  return () => socket.off('store-badge-update', handleStoreUpdate);
+}
+
+
 export default socket;

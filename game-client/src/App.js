@@ -15,7 +15,8 @@ import { handleResourceClick } from './ResourceClicking';
 // hi it's milo
 
 import socket from './socketManager';
-import { socketListenForPCJoinAndLeave,
+import {
+  socketListenForPCJoinAndLeave,
   socketListenForPCstateChanges,
   socketListenForNPCStateChanges,
   socketListenForResourceChanges,
@@ -25,6 +26,8 @@ import { socketListenForPCJoinAndLeave,
   socketListenForPlayerConnectedAndDisconnected,
   socketListenForConnectAndDisconnect,
   socketListenForChatMessages,
+  socketListenForMailboxBadgeUpdates,
+  socketListenForStoreBadgeUpdates,
 } from './socketManager';
 
 import farmState from './FarmState';
@@ -74,6 +77,7 @@ import GridStateDebugPanel from './Utils/GridStateDebug.js';
 
 import { usePanelContext } from './UI/PanelContext';
 import { useModalContext } from './UI/ModalContext';
+import { checkDeveloperStatus, updateBadge, getBadgeState } from './Utils/appUtils';
 import FloatingTextManager from './UI/FloatingText';
 import StatusBar from './UI/StatusBar';
 import { StatusBarContext } from './UI/StatusBar';
@@ -92,6 +96,8 @@ function App() {
   const { updateStatus } = useContext(StatusBarContext);
   // Helper to open mailbox modal
   const openMailbox = () => openModal && openModal('Mailbox');
+  // Developer status state
+  const [isDeveloper, setIsDeveloper] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -275,6 +281,7 @@ const [controllerUsername, setControllerUsername] = useState(null); // Add state
 const [isSocketConnected, setIsSocketConnected] = useState(false);
 const [connectedPlayers, setConnectedPlayers] = useState(() => new Set());
 const [chatMessages, setChatMessages] = useState({});
+const [badgeState, setBadgeState] = useState({ chat: false, store: false, mailbox: false });
 
 //Forgot why we did this:
 const memoizedGrid = useMemo(() => grid, [grid]);
@@ -289,6 +296,9 @@ let isInitializing = false; // Declare inside useEffect to avoid global persiste
 const [isAppInitialized, setIsAppInitialized] = useState(false);
 
 // Central INITIALIZATION for player and grid data //////////////////////////////////////////////////////
+
+
+
 useEffect(() => {
 
   const initializeAppWrapper = async () => {
@@ -351,6 +361,10 @@ useEffect(() => {
       console.log('🏁✅ 3 InitAppWrapper; Merging player data and initializing inventory...');
       let updatedPlayerData = { ...parsedPlayer, ...DBPlayerData };
       setCurrentPlayer(updatedPlayerData);
+      if (updatedPlayerData?.username) {
+        const isDev = await checkDeveloperStatus(updatedPlayerData.username);
+        setIsDeveloper(isDev);
+      }
       setInventory(DBPlayerData.inventory || []);  // Initialize inventory properly
       setBackpack(DBPlayerData.backpack || []);
 
@@ -485,6 +499,10 @@ useEffect(() => {
         localStorage.setItem('player', JSON.stringify(updatedPlayerData));
       }
 
+      const storedBadges = getBadgeState(currentPlayer);
+      setBadgeState(storedBadges);
+      const cleanupMailboxBadge = socketListenForMailboxBadgeUpdates(currentPlayer, setBadgeState, updateBadge);
+
       console.log('✅🏁✅🏁✅🏁✅ App initialization complete.');
       setShowTimers(true);
       setIsAppInitialized(true);
@@ -496,6 +514,32 @@ useEffect(() => {
   }; 
   initializeAppWrapper();
 }, []);  // Only run once when the component mounts
+
+
+// Establish UI BADGING (Chat, Mailbox, Store) //////////////////////////////////////////////////////
+useEffect(() => {
+  if (!currentPlayer?.username) return;
+
+  // Load badge state from localStorage
+  const stored = localStorage.getItem(`badges_${currentPlayer.username}`);
+  if (stored) {
+    setBadgeState(JSON.parse(stored));
+  }
+
+  // Set up socket listeners
+  const cleanupChat = socketListenForChatMessages(currentPlayer, setChatMessages);
+  const cleanupMailbox = socketListenForMailboxBadgeUpdates(currentPlayer, setBadgeState, updateBadge);
+  const cleanupStore = socketListenForStoreBadgeUpdates
+    ? socketListenForStoreBadgeUpdates(currentPlayer, setBadgeState, updateBadge)
+    : undefined;
+
+  // Clean up on unmount or player change
+  return () => {
+    cleanupChat?.();
+    cleanupMailbox?.();
+    cleanupStore?.();
+  };
+}, [currentPlayer]);
 
 
 // FARM STATE - Farming Seed Timer Management //////////////////////////////////////////////////////
@@ -848,10 +892,6 @@ useEffect(() => {
   return cleanup;
 }, [socket, gridId]);
 
-useEffect(() => {
-  const cleanup = socketListenForChatMessages(setChatMessages);
-  return cleanup;
-}, []);
 
 /////////// HANDLE ZOOMING & RESIZING /////////////////////////
 
@@ -1238,13 +1278,26 @@ return ( <>
             : "..."}
         </button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> 🎒 Inventory </button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => setActiveModal("Store")}>🛒 Store</button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
+
+        <div className="nav-button-wrapper">
+          <button className="shared-button" disabled={!currentPlayer} onClick={() => setActiveModal("Store")}>🛒 Store</button>
+          {badgeState.store && <div className="badge-dot" />}
+        </div>
+
+        <div className="nav-button-wrapper">
+          <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
+          {badgeState.mailbox && <div className="badge-dot" />}
+        </div>
+
       </div>
-      <div className="language-control">
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Language')}>🌎 EN</button>
-        <button className="shared-button" onClick={() => setIsChatOpen(prev => !prev)}>💬 Chat</button>
-      </div>
+        <div className="header-controls-right">
+            <button className="shared-button" onClick={() => openModal('Language')}>🌎 EN</button>
+
+          <div className="nav-button-wrapper">
+            <button className="shared-button" onClick={() => setIsChatOpen(prev => !prev)}>💬 Chat</button>
+            {badgeState.chat && <div className="badge-dot" />}
+          </div>
+        </div>
     </header>
     
     <div className="status-bar-wrapper"> <StatusBar /> </div>
@@ -1289,7 +1342,11 @@ return ( <>
       <button className="nav-button" title="Combat" onClick={() => openPanel('CombatPanel')}>⚔️</button>
       <button className="nav-button" title="Government" onClick={() => openPanel('GovPanel')}>🏛️</button>
       <button className="nav-button" title="Seasons" onClick={() => openPanel('SeasonPanel')}>🗓️</button>
-      <button className="nav-button" onClick={() => openPanel('DebugPanel')}>🐞</button>
+      {isDeveloper && (
+        <button className="nav-button" title="Debug" onClick={() => openPanel('DebugPanel')}>
+          🐞
+        </button>
+      )}
     </div>
 
     <div className="app-container">

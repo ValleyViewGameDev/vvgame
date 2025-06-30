@@ -8,6 +8,7 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { loadMasterResources } from '../../Utils/TuningManager';
+import { updateBadge } from '../../Utils/appUtils';
 
 function Mailbox({ 
   onClose, 
@@ -33,13 +34,14 @@ function Mailbox({
     };
     fetchMasterResources();
   }, []);
-
+ 
   useEffect(() => {
   const fetchTemplatesAndMessages = async () => {
     try {
       const response = await fetch(`${API_BASE}/api/messages`);
       const templates = await response.json();
       setTemplates(templates);
+      updateBadge(currentPlayer, () => {}, 'mailbox', false); // 🧼 Clear badge
       setLoading(false);
       const res = await axios.get(`${API_BASE}/api/player/${currentPlayer.playerId}`);
       const freshMessages = res.data.messages || [];

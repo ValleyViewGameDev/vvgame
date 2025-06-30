@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import socket from '../../socketManager';
 import { emitChatMessage } from '../../socketManager';
+import { updateBadge } from '../../Utils/appUtils';
 import './Chat.css';
 import API_BASE from '../../config';
 
@@ -19,18 +20,21 @@ const Chat = ({ currentGridId, currentSettlementId, currentFrontierId, currentPl
 
     // ✅ Delay room join until component is mounted
     if (socket && socket.connected) {
-        console.log("📡 Joining chat rooms from Chat.js");
-        socket.emit('join-chat-rooms', {
+      console.log("📡 Joining chat rooms from Chat.js");
+      socket.emit('join-chat-rooms', {
         gridId: currentGridId,
         settlementId: currentSettlementId,
         frontierId: currentFrontierId,
-        });
+      });
     } else {
-        console.warn("⚠️ Socket not connected when Chat mounted.");
+      console.warn("⚠️ Socket not connected when Chat mounted.");
     }
 
-    // ... your socket.on('receive-chat-message') goes here
-    }, []);
+    // ✅ Clear chat badge on open
+    if (currentPlayer) {
+      updateBadge(currentPlayer, () => {}, 'chat', false);
+    }
+  }, []);
 
   useEffect(() => {
     if (!socket) return;

@@ -84,6 +84,7 @@ mongoose.connect(process.env.MONGODB_URI, {
         methods: ['GET', 'POST'],
       }
     });
+    app.set('socketio', io); // ✅ Attach io to app so it's accessible in route handlers
 
 ///////// SOCKET EVENTS //////////
 
@@ -145,6 +146,16 @@ mongoose.connect(process.env.MONGODB_URI, {
             playerId: socket.playerId
           });
         }
+      });
+      
+      // Handle mailbox badge updates
+      socket.on('update-mailbox-badge', ({ playerId, hasNewMail }) => {
+        if (!playerId || typeof hasNewMail !== 'boolean') {
+          console.warn('⚠️ Invalid update-mailbox-badge payload:', { playerId, hasNewMail });
+          return;
+        }
+        // Broadcast to all sockets EXCEPT sender
+        socket.broadcast.emit('mailbox-badge-update', { playerId, hasNewMail });
       });
       
       socket.on('join-grid', async ({ gridId, playerId }) => {

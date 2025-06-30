@@ -108,30 +108,33 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
               <h3>❤️‍🩹 Health: <span className="stat-total">{hp.total}</span></h3>
               <br />
               <h4>
-                ❤️‍🩹 Max Health: {maxhp.base} + <span className="stat-total blue-text">{maxhp.modifier}</span> ={" "}
-                <span className="stat-total blue-text">{maxhp.modifier !== 0 ? maxhp.total : maxhp.base}</span>
+                ❤️‍🩹 Max Health:<br></br> <span className="stat-total blue-text">{maxhp.modifier !== 0 ? maxhp.total : maxhp.base}</span>
+                {"  ("} {maxhp.base} + <span className="stat-total blue-text">{maxhp.modifier}</span> {")"}
+               
               </h4>
               <h4>
-                🛡️ Armor Class: {armorclass.base} + <span className="stat-total blue-text">{armorclass.modifier}</span> ={" "}
-                <span className="stat-total blue-text">{armorclass.modifier !== 0 ? armorclass.total : armorclass.base}</span>
+                🛡️ Armor Class: <br></br><span className="stat-total blue-text">{armorclass.modifier !== 0 ? armorclass.total : armorclass.base}</span>
+                {"  ("} {armorclass.base} + <span className="stat-total blue-text">{armorclass.modifier}</span> {")"}
               </h4>
               <br />
               <h4>
-                ⚔️ Attack Bonus: {attackbonus.base} + <span className="stat-total blue-text">{attackbonus.modifier}</span> ={" "}
-                <span className="stat-total blue-text">{attackbonus.modifier !== 0 ? attackbonus.total : attackbonus.base}</span>
+                ⚔️ Attack Bonus: <br></br><span className="stat-total blue-text">{attackbonus.modifier !== 0 ? attackbonus.total : attackbonus.base}</span>
+                {"  ("} {attackbonus.base} + <span className="stat-total blue-text">{attackbonus.modifier}</span> {")"}
               </h4>
               <h4>
-                ⚔️ Damage: {damage.base} + <span className="stat-total blue-text">{damage.modifier}</span> ={" "}
-                <span className="stat-total blue-text">{damage.modifier !== 0 ? damage.total : damage.base}</span>
+                ⚔️ Damage: <br></br><span className="stat-total blue-text">{damage.modifier !== 0 ? damage.total : damage.base}</span>
+                {"  ("} {damage.base} + <span className="stat-total blue-text">{damage.modifier}</span> {")"}
               </h4>
               <h4>
-                🔭 Attack Range: {attackrange.base} + <span className="stat-total blue-text">{attackrange.modifier}</span> ={" "}
-                <span className="stat-total blue-text">{attackrange.modifier !== 0 ? attackrange.total : attackrange.base}</span>
+                🔭 Attack Range: <br></br><span className="stat-total blue-text">{attackrange.modifier !== 0 ? attackrange.total : attackrange.base}</span>
+                {"  ("} {attackrange.base} + <span className="stat-total blue-text">{attackrange.modifier}</span> {")"}              
               </h4>
               <h4>
-                🎯 Speed: {speed.base} + <span className="stat-total blue-text">{speed.modifier}</span> ={" "}
-                <span className="stat-total blue-text">{speed.modifier !== 0 ? speed.total : speed.base}</span>
+                🎯 Speed: <br></br><span className="stat-total blue-text">{speed.modifier !== 0 ? speed.total : speed.base}</span>
+                {"  ("} {speed.base} + <span className="stat-total blue-text">{speed.modifier}</span> {")"}
               </h4>
+              <br></br>
+
               <h4>⛺️ Is Camping: {currentPlayer.iscamping ? "Yes" : "No"}</h4>
             </div>
 
@@ -148,9 +151,11 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
                   const value = (resource.qtycollected || 1) * (power.quantity || 0);
                   const outputLabel = resource.output ? (strings[resource.output] || resource.output) : 'Unknown';
                   return (
-                    <h3 key={index}>
-                      <strong>{resource.type}</strong> ({value > 0 ? '+' : ''}{value} for {outputLabel})
-                    </h3>
+                    <h4 key={index}>
+                      <span className="stat-total blue-text">
+                      <strong>{resource.type}</strong> <br></br> ({value > 0 ? '+' : ''}{value} for {outputLabel})
+                      </span>
+                    </h4>
                   );
                 })
               ) : (
