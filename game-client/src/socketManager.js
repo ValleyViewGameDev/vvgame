@@ -654,36 +654,31 @@ export function emitChatMessage({ playerId, username, message, scope, scopeId })
 }
 
 
-// 🔄 SOCKET LISTENER: Mailbox badge updates
-export function socketListenForMailboxBadgeUpdates(currentPlayer, setBadgeState, updateBadge) {
-  const handler = ({ playerId, hasNewMail }) => {
-    console.log('📬 Received mailbox-badge-update event:', playerId, hasNewMail);
-    if (hasNewMail && currentPlayer?._id === playerId) {
-      console.log("📬 Received mailbox-badge-update for current player.");
-      updateBadge(currentPlayer, setBadgeState, 'mailbox', true);
-    }
+
+// 🔄 SOCKET LISTENER: Consolidated badge updates (mailbox, store, chat, etc)
+export function socketListenForBadgeUpdates(currentPlayer, setBadgeState, updateBadge) {
+  if (!socket || !currentPlayer) return;
+
+  const handleBadge = ({ type, playerId, username, hasUpdate }) => {
+    const isMatch =
+      (playerId && currentPlayer._id === playerId) ||
+      (username && currentPlayer.username === username);
+
+    if (!isMatch) return;
+
+    console.log(`📛 Badge update received for ${type}.`);
+    updateBadge(currentPlayer, setBadgeState, type, hasUpdate);
   };
 
-  socket.on('mailbox-badge-update', handler);
+  socket.on('mailbox-badge-update', (data) => handleBadge({ ...data, type: 'mailbox' }));
+  socket.on('store-badge-update', (data) => handleBadge({ ...data, type: 'store' }));
+  socket.on('chat-badge-update', (data) => handleBadge({ ...data, type: 'chat' }));
+
   return () => {
-    socket.off('mailbox-badge-update', handler);
+    socket.off('mailbox-badge-update');
+    socket.off('store-badge-update');
+    socket.off('chat-badge-update');
   };
-}
-
-
-export function socketListenForStoreBadgeUpdates(currentPlayer, setBadgeState) {
-  function handleStoreUpdate(data) {
-    if (data?.username === currentPlayer.username) {
-      const key = `badges_${currentPlayer.username}`;
-      const current = JSON.parse(localStorage.getItem(key)) || {};
-      const updated = { ...current, store: true };
-      localStorage.setItem(key, JSON.stringify(updated));
-      setBadgeState(updated);
-    }
-  }
-
-  socket.on('store-badge-update', handleStoreUpdate);
-  return () => socket.off('store-badge-update', handleStoreUpdate);
 }
 
 

@@ -26,7 +26,7 @@ import {
   socketListenForPlayerConnectedAndDisconnected,
   socketListenForConnectAndDisconnect,
   socketListenForChatMessages,
-  socketListenForMailboxBadgeUpdates,
+  socketListenForBadgeUpdates,
   socketListenForStoreBadgeUpdates,
 } from './socketManager';
 
@@ -501,18 +501,24 @@ useEffect(() => {
 
       const storedBadges = getBadgeState(currentPlayer);
       setBadgeState(storedBadges);
-      const cleanupMailboxBadge = socketListenForMailboxBadgeUpdates(currentPlayer, setBadgeState, updateBadge);
+      const cleanupBadges = socketListenForBadgeUpdates(currentPlayer, setBadgeState, updateBadge);
 
       console.log('✅🏁✅🏁✅🏁✅ App initialization complete.');
       setShowTimers(true);
       setIsAppInitialized(true);
+
+      // Clean up badge socket listener on unmount
+      return () => {
+        cleanupBadges?.();
+      };
 
     } catch (error) {
       console.error('Error during app initialization:', error);
       updateStatus(error.code === 'ERR_NETWORK' ? 1 : 0);  // Handle errors
     }
   }; 
-  initializeAppWrapper();
+  const cleanup = initializeAppWrapper();
+  return cleanup;
 }, []);  // Only run once when the component mounts
 
 
@@ -527,17 +533,13 @@ useEffect(() => {
   }
 
   // Set up socket listeners
+  const cleanupBadges = socketListenForBadgeUpdates(currentPlayer, setBadgeState, updateBadge);
   const cleanupChat = socketListenForChatMessages(currentPlayer, setChatMessages);
-  const cleanupMailbox = socketListenForMailboxBadgeUpdates(currentPlayer, setBadgeState, updateBadge);
-  const cleanupStore = socketListenForStoreBadgeUpdates
-    ? socketListenForStoreBadgeUpdates(currentPlayer, setBadgeState, updateBadge)
-    : undefined;
 
   // Clean up on unmount or player change
   return () => {
     cleanupChat?.();
-    cleanupMailbox?.();
-    cleanupStore?.();
+    cleanupBadges?.();
   };
 }, [currentPlayer]);
 
