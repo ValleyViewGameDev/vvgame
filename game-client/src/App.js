@@ -529,20 +529,15 @@ useEffect(() => {
 // Establish UI BADGING (Chat, Mailbox, Store) //////////////////////////////////////////////////////
 useEffect(() => {
   if (!currentPlayer?.username) return;
-
   // Load badge state from localStorage
   const stored = localStorage.getItem(`badges_${currentPlayer.username}`);
   if (stored) {
     setBadgeState(JSON.parse(stored));
   }
-
-  // Set up socket listeners
+  // Set up badge socket listener
   const cleanupBadges = socketListenForBadgeUpdates(currentPlayer, setBadgeState, updateBadge);
-  const cleanupChat = socketListenForChatMessages(currentPlayer, setChatMessages);
-
   // Clean up on unmount or player change
   return () => {
-    cleanupChat?.();
     cleanupBadges?.();
   };
 }, [currentPlayer, socket]);
@@ -905,6 +900,12 @@ useEffect(() => {
   return cleanup;
 }, [socket, currentPlayer]);
 
+// 🔄 SOCKET LISTENER: Real-time chat messages
+useEffect(() => {
+  if (!socket || !currentPlayer) return;
+  const cleanup = socketListenForChatMessages(setChatMessages); // ✅ Must pass correct setter
+  return cleanup;
+}, [socket, currentPlayer]);
 
 
 /////////// HANDLE ZOOMING & RESIZING /////////////////////////
