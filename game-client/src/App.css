@@ -269,8 +269,8 @@ body {
 
 .badge-dot {
   position: absolute;
-  top: 1px;
-  right: 1px;
+  top: 2px;
+  right: 0px;
   height: 10px;
   width: 10px;
   background-color: red;
