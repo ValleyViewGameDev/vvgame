@@ -505,6 +505,11 @@ useEffect(() => {
 
       // Step 13: Check for buttons that need to be badged
       const storedBadges = getBadgeState(updatedPlayerData);
+      // 🔍 Step 13a: Badge the mailbox if any messages are unread
+      const hasUnreadMail = (updatedPlayerData.messages || []).some(msg => !msg.read);
+      if (hasUnreadMail) {
+        storedBadges.mailbox = true;
+      }
       setBadgeState(storedBadges);
       cleanupBadges = socketListenForBadgeUpdates(updatedPlayerData, setBadgeState, updateBadge);
 
