@@ -14,10 +14,13 @@ async function messageScheduler(frontierId, phase, frontier = null) {
 
     const players = await Player.find({});
     const now = new Date();
-    const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+    const cutOffDays = 14; // days to keep messages
+    //const cutOffMS = cutOffDays * 24 * 60 * 60 * 1000; // days to keep messages
+    const cutOffMS = 10;
+    const cutOffTime = new Date(now.getTime() - cutOffMS);
 
     // 1. Send daily message to all players
-    const dailyMessageId = tuningConfig.dailyMessageId || 1000; // ensure this exists in messages.json
+    const dailyMessageId = 5; // ensure this exists in messages.json
     for (const player of players) {
       player.messages.push({
         messageId: dailyMessageId,
@@ -34,7 +37,7 @@ async function messageScheduler(frontierId, phase, frontier = null) {
     for (const player of players) {
       const originalLength = player.messages.length;
       player.messages = player.messages.filter(msg => {
-        return msg.neverPurge || new Date(msg.timestamp) >= twoWeeksAgo;
+        return msg.neverPurge || new Date(msg.timestamp) >= cutOffTime;
       });
       if (player.messages.length !== originalLength) {
         await player.save();

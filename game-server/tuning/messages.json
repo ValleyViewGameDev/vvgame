@@ -9,12 +9,11 @@
     },
     {
       "id": 5,
-      "title": "Just another day in Valley View!",
+      "title": "😊 Just another day in Valley View!",
       "body": "Don't forget to enjoy the day :)",
-      "rewards": [{ "item": "Money", "qty": 10 }, { "item": "Wood", "qty": 5 }],
+      "rewards": [{ "item": "Money", "qty": 50 }, { "item": "Wood", "qty": 5 }],
       "everyoneRewards": true,
       "neverPurge": false
-
     },
     {
       "id": 101,
