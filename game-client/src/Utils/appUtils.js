@@ -13,7 +13,7 @@ export const checkDeveloperStatus = async (username) => {
 };
 
 // Badge update helper
-export function updateBadge(currentPlayer, setBadgeState, category, value) {
+export function updateBadge(currentPlayer, setBadgeState, category, value = true) {
   const key = `badges_${currentPlayer.username}`;
   const current = JSON.parse(localStorage.getItem(key)) || {};
   const updated = { ...current, [category]: value };
