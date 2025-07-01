@@ -627,7 +627,7 @@ const handleGetRich = async () => {
               return;
             }
             try {
-              await sendMessageToAll(messageIdentifier);
+              await sendMessageToAll(Number(messageIdentifier));
             } catch (error) {
               console.error("Error sending message to all users:", error);
               alert("Failed to send message. See console for details.");
