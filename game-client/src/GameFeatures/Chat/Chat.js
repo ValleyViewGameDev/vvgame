@@ -32,7 +32,7 @@ const Chat = ({ currentGridId, currentSettlementId, currentFrontierId, currentPl
 
     // ✅ Clear chat badge on open
     if (currentPlayer) {
-      updateBadge(currentPlayer, () => {}, 'chat', false);
+      updateBadge(currentPlayer, () => {}, 'chat', false ?? true);
     }
   }, []);
 
