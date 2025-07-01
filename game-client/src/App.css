@@ -114,6 +114,8 @@ body {
 
 /* Shared Button Styles */
 .shared-button {
+  position: relative;
+
   background-color: #94f175;
   color: #3a923d;
   border: none;

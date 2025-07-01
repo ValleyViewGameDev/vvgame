@@ -300,6 +300,7 @@ const [isAppInitialized, setIsAppInitialized] = useState(false);
 
 
 useEffect(() => {
+  let cleanupBadges = null;
 
   const initializeAppWrapper = async () => {
     console.log('🏁🏁🏁 App initialization begun.');
@@ -310,7 +311,6 @@ useEffect(() => {
     isInitializing = true;
 
     try {
-      
       // Step 1. Load tuning data
       console.log('🏁✅ 1 InitAppWrapper; Merging player data and initializing inventory...');
       const [skills, resources] = await Promise.all([loadMasterSkills(), loadMasterResources()]);
@@ -369,7 +369,7 @@ useEffect(() => {
       setBackpack(DBPlayerData.backpack || []);
 
       // Step 4. Determine initial gridId from player or storage
-      console.log('🏁✅ Determining local gridId...');
+      console.log('🏁✅ 4. Determining local gridId...');
       const initialGridId = parsedPlayer?.location?.g || localStorage.getItem('gridId');
       if (!initialGridId) {
         console.error('No gridId found. Unable to initialize grid.');
@@ -503,26 +503,26 @@ useEffect(() => {
         localStorage.setItem('player', JSON.stringify(updatedPlayerData));
       }
 
-      const storedBadges = getBadgeState(currentPlayer);
+      // Step 13: Check for buttons that need to be badged
+      const storedBadges = getBadgeState(updatedPlayerData);
       setBadgeState(storedBadges);
-      const cleanupBadges = socketListenForBadgeUpdates(currentPlayer, setBadgeState, updateBadge);
+      cleanupBadges = socketListenForBadgeUpdates(updatedPlayerData, setBadgeState, updateBadge);
 
       console.log('✅🏁✅🏁✅🏁✅ App initialization complete.');
       setShowTimers(true);
       setIsAppInitialized(true);
 
-      // Clean up badge socket listener on unmount
-      return () => {
-        cleanupBadges?.();
-      };
-
     } catch (error) {
       console.error('Error during app initialization:', error);
       updateStatus(error.code === 'ERR_NETWORK' ? 1 : 0);  // Handle errors
     }
-  }; 
-  const cleanup = initializeAppWrapper();
-  return cleanup;
+  };
+
+  initializeAppWrapper();
+
+  return () => {
+    cleanupBadges?.();
+  };
 }, []);  // Only run once when the component mounts
 
 
@@ -545,7 +545,7 @@ useEffect(() => {
     cleanupChat?.();
     cleanupBadges?.();
   };
-}, [currentPlayer]);
+}, [currentPlayer, socket]);
 
 
 // FARM STATE - Farming Seed Timer Management //////////////////////////////////////////////////////
@@ -897,6 +897,14 @@ useEffect(() => {
   const cleanup = socketListenForPlayerConnectedAndDisconnected(gridId, setConnectedPlayers);
   return cleanup;
 }, [socket, gridId]);
+
+// 🔄 SOCKET LISTENER: Real-time updates for mailbox badge
+useEffect(() => {
+  if (!socket || !currentPlayer?.playerId) return;
+  const cleanup = socketListenForBadgeUpdates(currentPlayer, setBadgeState, updateBadge);
+  return cleanup;
+}, [socket, currentPlayer]);
+
 
 
 /////////// HANDLE ZOOMING & RESIZING /////////////////////////

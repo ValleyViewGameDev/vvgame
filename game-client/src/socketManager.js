@@ -657,13 +657,19 @@ export function emitChatMessage({ playerId, username, message, scope, scopeId })
 
 // 🔄 SOCKET LISTENER: Consolidated badge updates (mailbox, store, chat, etc)
 export function socketListenForBadgeUpdates(currentPlayer, setBadgeState, updateBadge) {
+  console.log("📡 socketListenForBadgeUpdates called with player:", currentPlayer?.username);
+
   if (!socket || !currentPlayer) return;
 
   const handleBadge = ({ type, playerId, username, hasUpdate }) => {
+    console.log("🔔 SOCKET LISTENER: Received badge update:", { type, playerId, username, hasUpdate });
+    console.log("📛 Comparing currentPlayer._id:", currentPlayer._id, "to incoming:", playerId);
+    
     const isMatch =
-      (playerId && currentPlayer._id === playerId) ||
+      (playerId && String(currentPlayer._id) === String(playerId)) ||
       (username && currentPlayer.username === username);
 
+    console.log("🔔 isMatch:", isMatch, "for currentPlayer:", currentPlayer.username);
     if (!isMatch) return;
 
     console.log(`📛 Badge update received for ${type}.`);
