@@ -273,6 +273,7 @@ mongoose.connect(process.env.MONGODB_URI, {
           console.log(`🧩 Socket ${socket.id} joined player room: ${playerId}`);
         }
       });
+
       // Handle incoming chat messages
       socket.on('send-chat-message', async (msg) => {
         const { scope, message, playerId, username } = msg;
@@ -309,13 +310,17 @@ mongoose.connect(process.env.MONGODB_URI, {
 
         io.to(scopeId).emit('receive-chat-message', payload);
 
-        // 🔔 Emit chat badge update to the sender's player room
-        if (playerId) {
-          io.to(playerId).emit('chat-badge-update', {
-            playerId,
-            hasUpdate: true
-          });
-        }
+        // 🔔 Emit chat badge updates to ALL OTHER sockets in the same chat room (excluding sender)
+        socket.to(scopeId).emit('chat-badge-update', {
+          playerId, // optional if not needed by the listener
+          hasUpdate: true
+        });
+
+        // 🔔 Also update the sender's badge if desired (optional)
+        io.to(playerId).emit('chat-badge-update', {
+          playerId,
+          hasUpdate: true
+        });
       });
 
       socket.on('join-chat-rooms', ({ gridId, settlementId, frontierId }) => {

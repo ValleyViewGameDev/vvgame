@@ -632,6 +632,13 @@ export function socketListenForChatMessages(setMessagesByScope) {
         [scopeId]: [...prevMessages, msg],
       };
     });
+    // 🔔 Emit badge update for chat to this player and others
+    const badgePayload = {
+      playerId: msg.playerId,
+      username: msg.username,
+      hasUpdate: true,
+    };
+    socket.emit('chat-badge-update', badgePayload);
   };
   socket.on('receive-chat-message', handleIncomingChatMessage);
   return () => {
