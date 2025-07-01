@@ -111,7 +111,7 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
             console.log("🏦 Triggering bankScheduler...");
             extraPayload = await bankScheduler(frontierId, nextPhase, frontier);
             break;
-          case "bank":
+          case "messages":
             console.log("📪 Triggering messageScheduler...");
             extraPayload = await messageScheduler(frontierId, nextPhase, frontier);
             break;
