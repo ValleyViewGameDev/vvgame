@@ -5,6 +5,7 @@ const seasonScheduler = require("./seasonScheduler");
 const trainScheduler = require("./trainScheduler");
 const bankScheduler = require("./bankScheduler"); // Remove the destructuring
 const electionScheduler = require("./electionScheduler");
+const messageScheduler = require("./messageScheduler");
 // Add more logic-only schedulers as needed...
 
 // Helper: Advance to the next phase for a given system
@@ -30,6 +31,7 @@ async function initializeTimers() {
     scheduleTimedFeature(frontier, "train", globalTuning.train);
     scheduleTimedFeature(frontier, "bank", globalTuning.bank);
     scheduleTimedFeature(frontier, "elections", globalTuning.elections);
+    scheduleTimedFeature(frontier, "messages", globalTuning.messages);
     // Add others like trainScheduler, elections, etc.
   }
 }
@@ -108,6 +110,10 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
           case "bank":
             console.log("🏦 Triggering bankScheduler...");
             extraPayload = await bankScheduler(frontierId, nextPhase, frontier);
+            break;
+          case "bank":
+            console.log("📪 Triggering messageScheduler...");
+            extraPayload = await messageScheduler(frontierId, nextPhase, frontier);
             break;
           default:
             console.warn(`⚠️ No scheduler found for ${featureKey}. Skipping...`);

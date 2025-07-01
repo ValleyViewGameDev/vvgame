@@ -45,5 +45,12 @@
       "refreshing": 0.5
     },
     "startPhase": "active"
+  },
+  "messages": {
+    "phases": {
+      "waiting": 1439.5,
+      "sending": 0.5
+    },
+    "startPhase": "waiting"
   }
 }

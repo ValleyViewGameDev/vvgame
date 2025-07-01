@@ -375,7 +375,8 @@ const renderRewards = (rewards) => {
             </div>
           );
         })
-      )}
+      )}                      
+      <p>Most messages will be deleted after 14 days.</p>
     </Modal>
   );
 }

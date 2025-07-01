@@ -60,6 +60,13 @@ const FrontierSchema = new mongoose.Schema({
     startTime: { type: Date, default: Date.now },
     endTime: { type: Date, required: true },
   },
+  // ✅ Message Timing (Controlled Per Frontier, logic Per Player)
+  messages: {
+    phase: { type: String }, 
+    startTime: { type: Date, default: Date.now },
+    endTime: { type: Date, required: true },
+  },
+
 
   seasonlog: [
     {

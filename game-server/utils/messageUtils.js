@@ -32,6 +32,7 @@ async function sendMailboxMessage(playerId, messageId, customRewards = []) {
     messageId,
     receivedAt: new Date(),
     collected: false,
+    neverPurge: template.neverPurge || false,
   };
 
   if (!template.everyoneRewards) {

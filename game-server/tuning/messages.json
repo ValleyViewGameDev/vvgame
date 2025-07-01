@@ -4,42 +4,49 @@
       "title": "😊 Welcome to Valley View!",
       "body": "Thanks for joining the world of Valley View. Here's a little something to get you started.",
       "rewards": [{ "item": "Money", "qty": 500 }],
-      "everyoneRewards": true
+      "everyoneRewards": true,
+      "neverPurge": true
     },
     {
       "id": 5,
       "title": "Just another day in Valley View!",
       "body": "Don't forget to enjoy the day :)",
       "rewards": [{ "item": "Money", "qty": 10 }, { "item": "Wood", "qty": 5 }],
-      "everyoneRewards": true
+      "everyoneRewards": true,
+      "neverPurge": false
+
     },
     {
       "id": 101,
       "title": "🚂 Train Shipment Complete!",
       "body": "Your settlement filled all Train orders. Great teamwork! Here's your reward.",
       "rewards": [],
-      "everyoneRewards": false
+      "everyoneRewards": false,
+      "neverPurge": false
     },
     {
       "id": 201,
       "title": "🙏 Thank You for Your Purchase!",
       "body": "Here are the items you purchased from the Store.",
       "rewards": [],
-      "everyoneRewards": false
+      "everyoneRewards": false,
+      "neverPurge": false
     },
     {
       "id": 301,
       "title": "🗓️ Season Reward",
       "body": "For the top 3 players across the Frontier last season.",
       "rewards": [{ "item": "Money", "qty": 10000 }, { "item": "Gold", "qty": 25 }],
-      "everyoneRewards": false
+      "everyoneRewards": false,
+      "neverPurge": false
     },
     {
       "id": 302,
       "title": "🗓️ Season Reward",
       "body": "For all players in the top Settlement last season.",
       "rewards": [{ "item": "Money", "qty": 5000 }, { "item": "Silver", "qty": 10 }],
-      "everyoneRewards": false
+      "everyoneRewards": false,
+      "neverPurge": false
     },
 
     {
@@ -47,7 +54,8 @@
       "title": "😊 Thanks for playing Valley View!",
       "body": "We're so glad you're spending time with us. Here are some sweets to show our appreciation.",
       "rewards": [{ "item": "Money", "qty": 10 }, { "item": "Honey", "qty": 5 }, { "item": "Sugarcane", "qty": 15 }],
-      "everyoneRewards": true
+      "everyoneRewards": true,
+      "neverPurge": false
     }
 
 ]

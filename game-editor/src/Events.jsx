@@ -56,6 +56,7 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
       try {
         const response = await axios.get(`${API_BASE}/api/tuning`);
         setGlobalTuning(response.data);
+        console.log("✅ Loaded globalTuning keys:", Object.keys(response.data));
       } catch (error) {
         console.error('Failed to fetch global tuning data:', error);
       }
@@ -71,6 +72,7 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
     elections: activeFrontier.elections || {},
     train: activeFrontier.train || {},
     bank: activeFrontier.bank || {},
+    messages: activeFrontier.messages || {},
   };
   const [countdowns, setCountdowns] = useState({
     seasons: '',
@@ -78,6 +80,7 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
     elections: '',
     train: '',
     bank: '',
+    messages: '',
   });
 
   const [selectedDashboard, setSelectedDashboard] = useState(null);
@@ -116,7 +119,7 @@ const updateCountdowns = () => {
   const now = Date.now();
   const newCountdowns = {};
   let needsRefresh = false;
-  ['seasons', 'taxes', 'elections', 'train', 'bank'].forEach((key) => {
+  ['seasons', 'taxes', 'elections', 'train', 'bank', 'messages'].forEach((key) => {
     const end = timers[key]?.endTime ? new Date(timers[key].endTime).getTime() : 0;
     const diff = end - now;
     if (diff <= 0) {
@@ -159,6 +162,11 @@ useEffect(() => {
 
     <div className="events-base-panel">
       <h2>📆 Events</h2>
+      {console.log('DEBUG Base Panel UI Check:', {
+        selectedDashboard,
+        globalTuning,
+        selectedTuning: globalTuning?.[selectedDashboard]
+      })}
       {selectedDashboard && globalTuning && globalTuning[selectedDashboard] ? (
           <div>
             <h4>{selectedDashboard.charAt(0).toUpperCase() + selectedDashboard.slice(1)} Phases</h4>
@@ -221,7 +229,7 @@ useEffect(() => {
 
     <div className="events-columns">
       <div className="events-main-container">
-        {['seasons', 'taxes', 'elections', 'train', 'bank'].map((key) => (
+        {['seasons', 'taxes', 'elections', 'train', 'bank', 'messages'].map((key) => (
           <div key={key} className="event-row">
             <div
               className={`event-dashboard event-dashboard-frontier ${selectedDashboard === key ? 'selected' : ''}`}
@@ -252,6 +260,10 @@ useEffect(() => {
                   <>
                     <p>Tax Rate: {activeSettlement.taxrate ?? 'Unknown'}%</p>
                     <button className="small-button" onClick={() => window.showLogHandlers?.handleShowTaxLog()}>View Tax Log</button>
+                  </>
+                ) : key === 'messages' ? (
+                  <>
+                    <p>Last Message Sent: {new Date(timers.messages?.lastSent || 0).toLocaleString()}</p>
                   </>
                 ) : key === 'seasons' ? (
                   <>

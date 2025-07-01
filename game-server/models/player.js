@@ -124,7 +124,8 @@ const playerSchema = new mongoose.Schema({
         }
       ],
       read: { type: Boolean, default: false },
-      collected: { type: Boolean, default: false }
+      collected: { type: Boolean, default: false },
+      neverPurge: { type: Boolean, default: false } 
     }
   ],
 
