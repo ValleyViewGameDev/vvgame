@@ -1284,8 +1284,6 @@ return ( <>
 
     <header className="app-header">
       <div className="header-controls-left">
-
-        <button className="shared-button">📨 Inbox <div className="badge-dot" /></button>
         
         <button className="shared-button"
           onClick={() => openPanel('HowToMoneyPanel')}

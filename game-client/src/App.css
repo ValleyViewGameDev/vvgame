@@ -115,7 +115,6 @@ body {
 /* Shared Button Styles */
 .shared-button {
   position: relative;
-
   background-color: #94f175;
   color: #3a923d;
   border: none;
@@ -268,11 +267,10 @@ body {
   color: white;
 }
 
-
 .badge-dot {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 1px;
+  right: 1px;
   height: 10px;
   width: 10px;
   background-color: red;
@@ -285,6 +283,7 @@ body {
   position: relative;
   display: inline-block;
 }
+
 
 /* GAME BOARD */
 
