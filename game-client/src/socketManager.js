@@ -632,10 +632,10 @@ export function socketListenForChatMessages(setMessagesByScope) {
         [scopeId]: [...prevMessages, msg],
       };
     });
-    // 🔔 Emit badge update for chat to this player and others
+    // 🔔 Emit badge update for chat to all players in this scope
     const badgePayload = {
-      playerId: msg.playerId,
-      username: msg.username,
+      playerId: null, // null means broadcast to all clients
+      username: null,
       hasUpdate: true,
     };
     socket.emit('chat-badge-update', badgePayload);
@@ -667,10 +667,12 @@ export function socketListenForBadgeUpdates(currentPlayer, setBadgeState, update
   if (!socket || !currentPlayer) return;
 
   const handleBadge = ({ type, playerId, username, hasUpdate }) => {
+    console.log("🧪 handleBadge invoked with:", { type, playerId, username, hasUpdate });
     console.log("🔔 SOCKET LISTENER: Received badge update:", { type, playerId, username, hasUpdate });
     console.log("📛 Comparing currentPlayer._id:", currentPlayer._id, "to incoming:", playerId);
     
     const isMatch =
+      type === 'chat' ? true :
       (playerId && String(currentPlayer._id) === String(playerId)) ||
       (username && currentPlayer.username === username);
 
@@ -692,5 +694,10 @@ export function socketListenForBadgeUpdates(currentPlayer, setBadgeState, update
   };
 }
 
+// Utility to clear the chat badge for the current player
+export function clearChatBadge(currentPlayer, setBadgeState, updateBadge) {
+  if (!currentPlayer) return;
+  updateBadge(currentPlayer, setBadgeState, 'chat', false);
+}
 
 export default socket;
