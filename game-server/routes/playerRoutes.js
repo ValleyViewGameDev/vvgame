@@ -730,9 +730,7 @@ router.post('/delete-player', async (req, res) => {
 router.post('/send-mailbox-message', async (req, res) => {
   const { playerId, messageId, customRewards = [] } = req.body;
 
-  if (!playerId || !messageId) {
-    return res.status(400).json({ error: 'Missing playerId or messageId.' });
-  }
+  if (!playerId || !messageId) { return res.status(400).json({ error: 'Missing playerId or messageId.' }); }
 
   // ✅ Sanitize rewards here (removes MongoDB subdocument _ids)
   const sanitizedRewards = customRewards.map(({ item, qty }) => ({
@@ -752,6 +750,39 @@ router.post('/send-mailbox-message', async (req, res) => {
     return res.status(500).json({ error: 'Server error while sending message.' });
   }
 });
+
+// ✅ POST /api/send-mailbox-message-all
+router.post('/send-mailbox-message-all', async (req, res) => {
+  const { messageId, customRewards = [] } = req.body;
+
+  if (!messageId) { return res.status(400).json({ error: 'Missing messageId.' }); }
+
+  // ✅ Sanitize rewards here (removes MongoDB subdocument _ids)
+  const sanitizedRewards = customRewards.map(({ item, qty }) => ({
+    item,
+    qty
+  }));
+
+  try {
+    const players = await Player.find({}, '_id');
+    const io = req.app.get('socketio'); // assuming io was attached in server.js
+
+    for (const player of players) {
+      await sendMailboxMessage(player._id.toString(), messageId, sanitizedRewards);
+      io.to(player._id.toString()).emit('mailbox-badge-update', {
+        playerId: player._id.toString(),
+        hasNewMail: true,
+      });
+    }
+
+    console.log(`📬 Message ${messageId} sent to ${players.length} players.`);
+    return res.status(200).json({ success: true, message: `Message sent to ${players.length} players.` });
+  } catch (error) {
+    console.error('❌ Error in send-mailbox-message-all route:', error);
+    return res.status(500).json({ error: 'Server error while sending message to all players.' });
+  }
+});
+
 
 router.get('/messages', (req, res) => {
   const filePath = path.join(__dirname, '../tuning/messages.json');

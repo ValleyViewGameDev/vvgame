@@ -40,5 +40,14 @@
       "body": "For all players in the top Settlement last season.",
       "rewards": [{ "item": "Money", "qty": 5000 }, { "item": "Silver", "qty": 10 }],
       "everyoneRewards": false
+    },
+
+    {
+      "id": 1000,
+      "title": "😊 Thanks for playing Valley View!",
+      "body": "We're so glad you're spending time with us. Here are some sweets to show our appreciation.",
+      "rewards": [{ "item": "Money", "qty": 10 }, { "item": "Honey", "qty": 5 }, { "item": "Sugarcane", "qty": 15 }],
+      "everyoneRewards": true
     }
+
 ]

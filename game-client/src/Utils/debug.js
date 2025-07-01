@@ -17,6 +17,7 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
   const [updatedNPCs, setUpdatedNPCs] = useState(npcs);
   const [refreshDebug, setRefreshDebug] = useState(false);
   const [singleGridCoord, setSingleGridCoord] = useState('');
+  const [messageIdentifier, setMessageIdentifier] = useState('');
   
   // Fetch resources with timers when the panel opens or gridId changes
   useEffect(() => {
@@ -471,6 +472,23 @@ const handleGetRich = async () => {
     }
   };
 
+  const sendMessageToAll = async (messageId) => {
+    try {
+      await axios.post(`${API_BASE}/api/send-mailbox-message-all`, {
+        messageId: messageId, // Send to all players
+      });
+      console.log(`📬 Message ${messageId} added to mailbox for all users.`);
+      updateStatus(`✅ Message ${messageId} delivered to all users.`);
+      // Optionally refresh current player
+      if (currentPlayer?.playerId) {
+        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+      }
+    } catch (mailError) {
+      console.error(`❌ Failed to send message ${messageId}:`, mailError);
+      updateStatus(`❌ Failed to deliver message ${messageId}.`);
+    }
+  };
+  
   const handleClearGridState = async (command) => {
     switch (command) {
       case 'cleargrid':
@@ -593,7 +611,36 @@ const handleGetRich = async () => {
         >
           Create Grid
         </button>
+
+        <h3>Send Message to All Users</h3>
+        <input
+          type="text"
+          placeholder="Enter Message ID"
+          value={messageIdentifier}
+          onChange={(e) => setMessageIdentifier(e.target.value)}
+        />
+        <button
+          className="btn-danger"
+          onClick={async () => {
+            if (!messageIdentifier) {
+              alert("Please enter a message ID.");
+              return;
+            }
+            try {
+              await sendMessageToAll(messageIdentifier);
+            } catch (error) {
+              console.error("Error sending message to all users:", error);
+              alert("Failed to send message. See console for details.");
+            }
+          }}
+        >
+          Send Message
+        </button>
+
+
       </div>
+
+
 
       <div className="debug-timers">
         <h3>⏳ Active Timers:</h3>
