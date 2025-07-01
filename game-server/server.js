@@ -309,6 +309,13 @@ mongoose.connect(process.env.MONGODB_URI, {
 
         io.to(scopeId).emit('receive-chat-message', payload);
 
+        // 🔔 Emit chat badge update to the sender's player room
+        if (playerId) {
+          io.to(playerId).emit('chat-badge-update', {
+            playerId,
+            hasUpdate: true
+          });
+        }
       });
 
       socket.on('join-chat-rooms', ({ gridId, settlementId, frontierId }) => {

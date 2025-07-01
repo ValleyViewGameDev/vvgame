@@ -633,9 +633,7 @@ export function socketListenForChatMessages(setMessagesByScope) {
       };
     });
   };
-
   socket.on('receive-chat-message', handleIncomingChatMessage);
-
   return () => {
     socket.off('receive-chat-message', handleIncomingChatMessage);
   };
