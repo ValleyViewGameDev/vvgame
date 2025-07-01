@@ -15,8 +15,7 @@ async function messageScheduler(frontierId, phase, frontier = null) {
     const players = await Player.find({});
     const now = new Date();
     const cutOffDays = 14; // days to keep messages
-    //const cutOffMS = cutOffDays * 24 * 60 * 60 * 1000; // days to keep messages
-    const cutOffMS = 10;
+    const cutOffMS = cutOffDays * 24 * 60 * 60 * 1000; // days to keep messages
     const cutOffTime = new Date(now.getTime() - cutOffMS);
 
     // 1. Send daily message to all players
