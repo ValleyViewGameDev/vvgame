@@ -505,6 +505,8 @@ useEffect(() => {
 
       // Step 13: Check for buttons that need to be badged
       const storedBadges = getBadgeState(updatedPlayerData);
+      setBadgeState(storedBadges); // ✅ apply localStorage state to UI immediately
+
       // 🔍 Badge the mailbox if any messages are unread
       const hasUnreadMail = (updatedPlayerData.messages || []).some(msg => !msg.read);
       if (hasUnreadMail) {
