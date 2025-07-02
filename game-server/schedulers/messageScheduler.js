@@ -22,6 +22,7 @@ async function messageScheduler(frontierId, phase, frontier = null) {
     const io = getSocketIO();
     if (!io) { console.warn("⚠️ Socket.IO instance not found. Messages will be sent without badge updates."); }
 
+console.log("📦 io from getSocketIO():", io?.constructor?.name, io?.path);
 console.log("✅ getSocketIO returned an object. Known rooms:", Object.keys(io.sockets.adapter.rooms));
 console.log("🔍 Connected sockets (count):", io.engine.clientsCount);
 

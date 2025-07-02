@@ -762,6 +762,7 @@ router.post('/send-mailbox-message-all', async (req, res) => {
     const players = await Player.find({}, '_id');
     const io = req.app.get('socketio'); // assuming io was attached in server.js
 
+console.log("📦 io from req.app.get('socketio'):", io?.constructor?.name, io?.path);
 console.log("✅ req.app.get('socketio') returned. Known rooms:", Object.keys(io.sockets.adapter.rooms));
 console.log("🔍 Connected sockets (count):", io.engine.clientsCount);
 
