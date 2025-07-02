@@ -106,6 +106,7 @@ const playerSchema = new mongoose.Schema({
     isTeleportEnabled: { type: Boolean, default: false },
     toggleVFX: { type: Boolean, default: true },
     hasDied: { type: Boolean, default: false },
+    rangeOn: { type: Boolean, default: true },
   },
 
   relocations: { type: Number },

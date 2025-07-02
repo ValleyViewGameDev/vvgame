@@ -318,6 +318,13 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         </div>
 
         <div className="debug-toggles">
+          <button
+            className={`btn-toggle ${localSettings.toggleVFX ? 'btn-enabled' : 'btn-disabled'}`}
+            onClick={() => handleToggleChange('rangeOn')}
+          >
+            Range Indicator: {localSettings.rangeOn ? 'is ON' : 'is OFF'}
+          </button>
+
           {isDeveloper && (
             <button
               className={`btn-toggle ${localSettings.isTeleportEnabled ? 'btn-enabled' : 'btn-disabled'}`}

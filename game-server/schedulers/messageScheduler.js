@@ -21,7 +21,10 @@ async function messageScheduler(frontierId, phase, frontier = null) {
 
     // 1. Send daily message to all players
     const dailyMessageId = 5; // ensure this exists in messages.json
-    const io = require('../socketio'); // adjust as needed
+    const io = require('../server').getIO?.();
+    if (!io) {
+      console.warn("⚠️ Socket.IO instance not found. Messages will be sent without badge updates.");
+    }
 
     for (const player of players) {
     await sendMailboxMessage(player._id.toString(), dailyMessageId, [], io);
