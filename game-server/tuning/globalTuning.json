@@ -10,7 +10,7 @@
   "baseHoursForTrain": 2.5,
   "taxes": {
     "phases": {
-      "waiting": 1440,
+      "waiting": 1439.25,
       "taxing": 0.75
     },
     "startPhase": "waiting"

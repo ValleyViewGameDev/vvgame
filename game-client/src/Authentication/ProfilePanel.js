@@ -59,6 +59,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         isStateMachineEnabled: settings?.isStateMachineEnabled ?? false,
         isTeleportEnabled: settings?.isTeleportEnabled ?? false,
         toggleVFX: settings?.toggleVFX ?? true,
+        rangeOn: settings?.rangeOn ?? true,
       });
   
       setFormData({
