@@ -19,6 +19,7 @@ const { Server } = require('socket.io');
 const Player = require('./models/player');  // Ensure this is correct
 const Grid = require('./models/grid');
 const Chat = require('./models/chat'); // Import ChatMessage model
+const { setSocketIO } = require('./socketInstance');
 
 const worldRoutes = require('./routes/worldRoutes');
 const gridRoutes = require('./routes/gridRoutes'); // Import NPCsInGrid routes
@@ -85,7 +86,8 @@ mongoose.connect(process.env.MONGODB_URI, {
       }
     });
     app.set('socketio', io); // ✅ Attach io to app so it's accessible in route handlers
-
+    setSocketIO(io);         // ✅ Register globally for non-route modules
+    
 ///////// SOCKET EVENTS //////////
 
     io.on('connection', (socket) => {
