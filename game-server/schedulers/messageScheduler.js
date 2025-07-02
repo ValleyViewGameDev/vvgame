@@ -1,8 +1,9 @@
+const API_BASE = process.env.API_BASE || 'http://localhost:3001'; // Add API base URL
+const tuningConfig = require("../tuning/globalTuning.json");
 const Settlement = require("../models/settlement");
 const Frontier = require("../models/frontier");
 const Player = require("../models/player");
-const tuningConfig = require("../tuning/globalTuning.json");
-const API_BASE = process.env.API_BASE || 'http://localhost:3001'; // Add API base URL
+const sendMailboxMessage = require('../utils/messageUtils/sendMailboxMessage');
 
 async function messageScheduler(frontierId, phase, frontier = null) {
     if (!frontierId) { 
@@ -20,15 +21,10 @@ async function messageScheduler(frontierId, phase, frontier = null) {
 
     // 1. Send daily message to all players
     const dailyMessageId = 5; // ensure this exists in messages.json
+    const io = require('../socketio'); // adjust as needed
+
     for (const player of players) {
-      player.messages.push({
-        messageId: dailyMessageId,
-        timestamp: now,
-        rewards: [], // optionally use predefined rewards from messages.json
-        read: false,
-        collected: false,
-      });
-      await player.save();
+    await sendMailboxMessage(player._id.toString(), dailyMessageId, [], io);
     }
     console.log(`📬 Daily message ${dailyMessageId} sent to ${players.length} players.`);
 

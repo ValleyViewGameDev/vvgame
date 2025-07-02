@@ -739,10 +739,8 @@ router.post('/send-mailbox-message', async (req, res) => {
   }));
 
   try {
-    await sendMailboxMessage(playerId, messageId, sanitizedRewards);
     const io = req.app.get('socketio'); // assuming io was attached in server.js
-    console.log(`📡 Emitting mailbox-badge-update to playerId room: ${playerId}`);
-    io.to(playerId).emit('mailbox-badge-update', { playerId, hasNewMail: true });
+    await sendMailboxMessage(playerId, messageId, sanitizedRewards, io);
 
     return res.status(200).json({ success: true, message: 'Message delivered to mailbox.' });
   } catch (error) {
@@ -766,13 +764,8 @@ router.post('/send-mailbox-message-all', async (req, res) => {
   try {
     const players = await Player.find({}, '_id');
     const io = req.app.get('socketio'); // assuming io was attached in server.js
-
     for (const player of players) {
-      await sendMailboxMessage(player._id.toString(), messageId, sanitizedRewards);
-      io.to(player._id.toString()).emit('mailbox-badge-update', {
-        playerId: player._id.toString(),
-        hasNewMail: true,
-      });
+      await sendMailboxMessage(player._id.toString(), messageId, sanitizedRewards, io);
     }
 
     console.log(`📬 Message ${messageId} sent to ${players.length} players.`);

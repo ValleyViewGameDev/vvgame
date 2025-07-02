@@ -15,7 +15,7 @@ const messageTemplates = JSON.parse(
  * @param {String} messageId - ID of the message template
  * @param {Array} [customRewards=[]] - Optional rewards if everyoneRewards is false
  */
-async function sendMailboxMessage(playerId, messageId, customRewards = []) {
+async function sendMailboxMessage(playerId, messageId, customRewards = [], io = null) {
   console.log('DEBUG sendMailboxMessage:', {
     playerId,
     messageId,
@@ -45,6 +45,13 @@ async function sendMailboxMessage(playerId, messageId, customRewards = []) {
       { $push: { messages: message } }
     );
     console.log(`📬 Message '${messageId}' sent to player ${playerId} with rewards:`, customRewards);
+    if (io) {
+      console.log(`📡 Emitting mailbox-badge-update to playerId room: ${playerId}`);
+      io.to(playerId.toString()).emit('mailbox-badge-update', {
+        playerId: playerId.toString(),
+        hasNewMail: true,
+      });
+    }
   } catch (error) {
     console.error(`❌ Failed to send mailbox message to player ${playerId}:`, error);
     throw error; // Re-throw to catch in caller
