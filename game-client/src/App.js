@@ -299,6 +299,29 @@ const [isAppInitialized, setIsAppInitialized] = useState(false);
 
 
 
+// --- SOCKET "connect" LISTENER: Register before other listeners
+// This effect runs once at mount to set up socket.on('connect') as early as possible
+useEffect(() => {
+  if (!socket) return;
+  // Remove any previous connect listeners to avoid duplicate logs
+  socket.off('connect', socket.__vvgame_connect_listener);
+  const connectListener = () => {
+    console.log('📡 Socket connected!');
+    if (currentPlayer?.playerId) {
+      console.log('📡 Rejoining playerId room:', currentPlayer.playerId);
+      socket.emit('join-player-room', currentPlayer.playerId);
+    }
+  };
+  socket.on('connect', connectListener);
+  // Save a reference for cleanup
+  socket.__vvgame_connect_listener = connectListener;
+  return () => {
+    socket.off('connect', connectListener);
+    delete socket.__vvgame_connect_listener;
+  };
+  // Depend on currentPlayer so we can re-emit join-player-room if playerId changes
+}, [socket, currentPlayer]);
+
 useEffect(() => {
   let cleanupBadges = null;
 
