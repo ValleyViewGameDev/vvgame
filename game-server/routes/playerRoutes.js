@@ -8,7 +8,7 @@ const Grid = require('../models/grid');
 const Settlement = require('../models/settlement');
 const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
 const queue = require('../queue'); // Import the in-memory queue
-const sendMailboxMessage = require('../utils/messageUtils'); // or messageUtils/sendMailboxMessage.js
+const sendMailboxMessage = require('../utils/messageUtils');
  
 
 ///////// QUEST ROUTES ////////////

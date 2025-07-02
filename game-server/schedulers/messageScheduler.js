@@ -3,7 +3,7 @@ const tuningConfig = require("../tuning/globalTuning.json");
 const Settlement = require("../models/settlement");
 const Frontier = require("../models/frontier");
 const Player = require("../models/player");
-const sendMailboxMessage = require('../utils/messageUtils/sendMailboxMessage');
+const sendMailboxMessage = require('../utils/messageUtils');
 
 async function messageScheduler(frontierId, phase, frontier = null) {
     if (!frontierId) { 
