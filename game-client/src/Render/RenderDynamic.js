@@ -246,6 +246,7 @@ const DynamicRenderer = ({
   }
 
   function renderPlayerRange() {
+    if (currentPlayer?.settings?.rangeOn === false) return; 
     const gridId = currentPlayer?.location?.g;
     const gridType = currentPlayer?.location?.gtype;
     if (!gridId || !currentPlayer || !currentPlayer.range) return;
