@@ -752,22 +752,22 @@ router.post('/send-mailbox-message', async (req, res) => {
 // ✅ POST /api/send-mailbox-message-all
 router.post('/send-mailbox-message-all', async (req, res) => {
   const { messageId, customRewards = [] } = req.body;
-
   if (!messageId) { return res.status(400).json({ error: 'Missing messageId.' }); }
-
   // ✅ Sanitize rewards here (removes MongoDB subdocument _ids)
   const sanitizedRewards = customRewards.map(({ item, qty }) => ({
     item,
     qty
   }));
-
   try {
     const players = await Player.find({}, '_id');
     const io = req.app.get('socketio'); // assuming io was attached in server.js
+
+console.log("✅ req.app.get('socketio') returned. Known rooms:", Object.keys(io.sockets.adapter.rooms));
+console.log("🔍 Connected sockets (count):", io.engine.clientsCount);
+
     for (const player of players) {
       await sendMailboxMessage(player._id.toString(), messageId, sanitizedRewards, io);
     }
-
     console.log(`📬 Message ${messageId} sent to ${players.length} players.`);
     return res.status(200).json({ success: true, message: `Message sent to ${players.length} players.` });
   } catch (error) {

@@ -164,11 +164,7 @@ useEffect(() => {
 
     <div className="events-base-panel">
       <h2>📆 Events</h2>
-      {console.log('DEBUG Base Panel UI Check:', {
-        selectedDashboard,
-        globalTuning,
-        selectedTuning: globalTuning?.[selectedDashboard]
-      })}
+     
       {selectedDashboard && globalTuning && globalTuning[selectedDashboard] ? (
           <div>
             <h4>{selectedDashboard.charAt(0).toUpperCase() + selectedDashboard.slice(1)} Phases</h4>
