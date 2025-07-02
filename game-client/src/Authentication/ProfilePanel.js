@@ -300,6 +300,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
 
         {/* Relocation Controls */}
+
         <h3>Homestead Relocation</h3>
         <p>Relocations Remaining: <strong>{currentPlayer.relocations}</strong></p>
         <div className="panel-buttons">
@@ -312,6 +313,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
 
         {/* Settings Toggles */}
+
         <h3>Settings</h3>
         <div className="panel-buttons">
           <button className="btn-success" onClick={handleLanguage}>Language</button>
@@ -319,7 +321,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
         <div className="debug-toggles">
           <button
-            className={`btn-toggle ${localSettings.toggleVFX ? 'btn-enabled' : 'btn-disabled'}`}
+            className={`btn-toggle ${localSettings.rangeOn ? 'btn-enabled' : 'btn-disabled'}`}
             onClick={() => handleToggleChange('rangeOn')}
           >
             Range Indicator: {localSettings.rangeOn ? 'is ON' : 'is OFF'}

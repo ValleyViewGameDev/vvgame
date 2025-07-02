@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import axios from 'axios';
 import './Events.css';
 import API_BASE from './config';
@@ -16,7 +16,7 @@ const projectRoot = isDev
 
 
 const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, activePanel, refreshFrontiers }) => {
-    
+  const hasTriggeredRefreshRef = useRef(false);
   const [globalTuning, setGlobalTuning] = useState(null);
   const [phaseEdits, setPhaseEdits] = useState({});
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -107,6 +107,7 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
       if (typeof refreshFrontiers === 'function') {
         await refreshFrontiers();
       }
+      hasTriggeredRefreshRef.current = false;
     } catch (error) {
       console.error(`❌ Failed to end current phase for ${eventKey}:`, error);
       setConfirmationMessage(`❌ Failed to end phase: ${error.message}`);
@@ -132,7 +133,8 @@ const updateCountdowns = () => {
     newCountdowns[key] = `${d}d ${h}h ${m}m ${s}s`;
   });
   setCountdowns(newCountdowns);
-  if (needsRefresh && typeof refreshFrontiers === 'function') {
+  if (needsRefresh && typeof refreshFrontiers === 'function' && !hasTriggeredRefreshRef.current) {
+    hasTriggeredRefreshRef.current = true;
     console.log("🔁 Timer expired — triggering refreshFrontiers()");
     refreshFrontiers();
   }

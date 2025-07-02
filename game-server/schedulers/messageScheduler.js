@@ -4,6 +4,7 @@ const Settlement = require("../models/settlement");
 const Frontier = require("../models/frontier");
 const Player = require("../models/player");
 const sendMailboxMessage = require('../utils/messageUtils');
+const serverApp = require('../server').app;
 
 async function messageScheduler(frontierId, phase, frontier = null) {
     if (!frontierId) { 
@@ -21,7 +22,7 @@ async function messageScheduler(frontierId, phase, frontier = null) {
 
     // 1. Send daily message to all players
     const dailyMessageId = 5; // ensure this exists in messages.json
-    const io = require('../server').getIO?.();
+    const io = serverApp?.get('socketio');
     if (!io) {
       console.warn("⚠️ Socket.IO instance not found. Messages will be sent without badge updates.");
     }
