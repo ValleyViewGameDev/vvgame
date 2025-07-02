@@ -27,8 +27,9 @@
 .events-main-container {
   margin-left: 240px; /* space for nav (60px) + base panel (180px) */
   padding: 20px;
-  max-height: 100vh;
+  height: calc(100vh - 40px);
   overflow-y: auto;
+  box-sizing: border-box;
 }
 
 /* Container for each event row */
@@ -40,13 +41,6 @@
   margin-bottom: 16px;
 }
 
-
-/* Column 1: Frontier-wide dashboards */
-.events-main-container {
-  flex: 1;
-  max-height: 100vh;
-  overflow-y: auto;
-}
 
 /* Column 2: Settlement-specific dashboards */
 .events-settlement-container {
