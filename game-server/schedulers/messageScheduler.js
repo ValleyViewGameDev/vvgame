@@ -7,22 +7,10 @@ const sendMailboxMessage = require('../utils/messageUtils');
 const { getSocketIO } = require('../socketInstance');
 
 async function messageScheduler(frontierId, phase, frontier = null) {
-    if (!frontierId) { 
-        console.warn("⚠️ No frontierId provided to messageScheduler."); 
-        return {}; 
-    }
-
     console.log(`📪 MESSAGE SCHEDULING LOGIC for Frontier ${frontierId}, Phase: ${phase}`);
-
-    if (phase === "sending") {
-        console.log(`✉️ Phase is 'sending'. No action taken.`);
-        return {};
-    }
-
-    if (phase !== "waiting") {
-        console.log(`⏳ Phase '${phase}' is not actionable. Skipping.`);
-        return {};
-    }
+    if (!frontierId) { console.warn("⚠️ No frontierId provided to messageScheduler."); return {}; }
+    if (phase === "waiting") { console.log(`✉️ Phase is 'waiting'. No action taken.`); return {}; }
+    if (phase !== "sending") { console.log(`⏳ Phase '${phase}' is not actionable. Skipping.`); return {}; }
 
     const players = await Player.find({});
     const now = new Date();
@@ -32,9 +20,7 @@ async function messageScheduler(frontierId, phase, frontier = null) {
 
     const dailyMessageId = 5;
     const io = getSocketIO();
-    if (!io) {
-      console.warn("⚠️ Socket.IO instance not found. Messages will be sent without badge updates.");
-    }
+    if (!io) { console.warn("⚠️ Socket.IO instance not found. Messages will be sent without badge updates."); }
 
     for (const player of players) {
         await sendMailboxMessage(player._id.toString(), dailyMessageId, [], io);
@@ -51,7 +37,6 @@ async function messageScheduler(frontierId, phase, frontier = null) {
             console.log(`🧹 Purged old messages for player ${player._id}.`);
         }
     }
-
     return {};
 }
 
