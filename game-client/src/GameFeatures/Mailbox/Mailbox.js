@@ -324,7 +324,7 @@ const renderRewards = (rewards) => {
 
   return (
     <Modal onClose={handleClose} title="📬 Mailbox" className="mailbox-modal">
-      {loading || templates.length === 0 ? (
+      {loading && visibleMessages.length === 0 ? (
         <p>Loading messages...</p>
       ) : visibleMessages.length === 0 ? (
         <p>Your mailbox is empty.</p>
