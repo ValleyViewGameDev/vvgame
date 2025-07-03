@@ -242,6 +242,24 @@
     "1517": "The Train will be departing in",
     "1518": "The votes in the latest election for Mayor are being counted. Results expected in ",
 
+    "1600": "MAILBOX STRINGS:",
+
+    "1601": "Loading messages...",
+    "1602": "You have no messages.",
+    "1603": "Received",
+    "1604": "Collect",
+    "1605": "Most messages will be deleted afer 14 days. Store purcahses will not be deleted.",
+    "1606": "📪 Mailbox",
+    "1607": "🗑️ Message deleted.",
+    
+    "1700": "STORE STRINGS:",
+
+    "1701": "🛒 Store",
+    "1702": "Purchases will be delivered to the Inbox.",
+    "1703": "🙏 Thank you for your support! We are a tiny developer with few resources, but passionate about creating a fun space for a positive community.",
+    "1704": "Please consider making purchases so we can continue to improve the game.",
+
+
     "2000": "TRAIN, BANK, COURTHOUSE, etc. STRINGS:",
 
     "2002": "✅ Completed",

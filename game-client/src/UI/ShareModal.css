@@ -1,0 +1,87 @@
+.share-modal {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 400px;
+  margin: 60px auto;
+  text-align: center;
+}
+
+.share-buttons button {
+  background-color: #94f175;
+  color: #3a923d;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  margin: 5px;
+  transition: background-color 0.2s ease;
+}
+
+.share-buttons button:hover {
+  background-color: #f1f1f1;
+}
+
+.share-buttons button:active {
+  background-color: #e0e0e0;
+}
+
+.copy-link {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.copy-link input {
+  width: 220px;
+  padding: 6px;
+}
+
+.copy-link button,
+.close-btn button {
+  background-color: #94f175;
+  color: #3a923d;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.copy-link button:hover,
+.close-btn button:hover {
+  background-color: #f1f1f1;
+}
+
+.copy-link button:active,
+.close-btn button:active {
+  background-color: #e0e0e0;
+}
+
+.close-btn {
+  margin-top: 20px;
+}
+
+.share-buttons .facebook-btn {
+  background-color: #3b5998;
+  color: white;
+}
+
+.share-buttons .twitter-btn {
+  background-color: #000000;
+  color: white;
+}
+
+.share-buttons .reddit-btn {
+  background-color: #ff4500;
+  color: white;
+}
+
+.share-buttons .facebook-btn:hover,
+.share-buttons .twitter-btn:hover,
+.share-buttons .reddit-btn:hover {
+  opacity: 0.85;
+}

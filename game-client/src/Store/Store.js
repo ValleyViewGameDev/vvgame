@@ -6,6 +6,7 @@ import './Store.css';
 import { StatusBarContext } from '../UI/StatusBar';
 import { loadStripe } from '@stripe/stripe-js';
 import { updateBadge } from '../Utils/appUtils';
+import strings from '../UI/strings.json';
 
 function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbox }) {
   const [offers, setOffers] = useState([]);
@@ -115,10 +116,11 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
         }
         onClose();
       }}
-      title="🛒 Store"
+      title={strings[1701]}
     >
-        <h3>Purchases will be delivered to the Inbox.</h3>
-        <h4>Thank you for your support! We are a tiny developer with few resources, but passionate about creating a fun space for a positive community. Please consider making purchases so we can continue to improve the game.</h4>
+        <h3>{strings[1702]}</h3>
+        <h4>{strings[1703]}</h4>
+        <h4>{strings[1704]}</h4>
 
       <div className="store-offers">
         {offers

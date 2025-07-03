@@ -73,7 +73,7 @@ import TownNews from './UI/TownNews.js';
 import SeasonPanel from './GameFeatures/Seasons/SeasonPanel';
 import SocialPanel from './GameFeatures/Social/SocialPanel';
 import CombatPanel from './GameFeatures/Combat/CombatPanel';
-import GridStateDebugPanel from './Utils/GridStateDebug.js';
+import ShareModal from './UI/ShareModal';
 
 import { usePanelContext } from './UI/PanelContext';
 import { useModalContext } from './UI/ModalContext';
@@ -264,6 +264,7 @@ const { closeAllPanels } = usePanelContext();
 const [activeQuestGiver, setActiveQuestGiver] = useState(null);
 const [activeSocialPC, setActiveSocialPC] = useState(null);
 const [activeStation, setActiveStation] = useState(null);
+const [showShareModal, setShowShareModal] = useState(false);
 
 const handleQuestNPCClick = (npc) => {
   console.log('App.js: Opening QuestGiverPanel for NPC:', npc);
@@ -1322,12 +1323,10 @@ return ( <>
             : "..."}
         </button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> 🎒 Inventory </button>
-
         <div className="nav-button-wrapper">
           <button className="shared-button" disabled={!currentPlayer} onClick={() => setActiveModal("Store")}>🛒 Store</button>
           {badgeState.store && <div className="badge-dot" />}
         </div>
-
         <div className="nav-button-wrapper">
           <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
           {badgeState.mailbox && <div className="badge-dot" />}
@@ -1335,12 +1334,12 @@ return ( <>
 
       </div>
         <div className="header-controls-right">
+            <button className="shared-button" onClick={() => setShowShareModal(true)}>📢 Share</button>
             <button className="shared-button" onClick={() => openModal('Language')}>🌎 EN</button>
-
-          <div className="nav-button-wrapper">
-            <button className="shared-button" onClick={() => setIsChatOpen(prev => !prev)}>💬 Chat</button>
-            {badgeState.chat && <div className="badge-dot" />}
-          </div>
+            <div className="nav-button-wrapper">
+              <button className="shared-button" onClick={() => setIsChatOpen(prev => !prev)}>💬 Chat</button>
+              {badgeState.chat && <div className="badge-dot" />}
+            </div>
         </div>
     </header>
     
@@ -1583,6 +1582,10 @@ return ( <>
     </div>
 
 {/* ///////////////////// MODALS ////////////////////// */}
+
+      {showShareModal && (
+        <ShareModal onClose={() => setShowShareModal(false)} />
+      )}
 
       <Modal 
         isOpen={isModalOpen} 

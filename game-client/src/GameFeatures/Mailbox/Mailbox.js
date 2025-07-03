@@ -9,6 +9,7 @@ import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManageme
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { loadMasterResources } from '../../Utils/TuningManager';
 import { updateBadge } from '../../Utils/appUtils';
+import strings from '../../UI/strings.json';
 
 function Mailbox({ 
   onClose, 
@@ -289,7 +290,7 @@ const renderRewards = (rewards) => {
   // Prevent error if player or messages are not loaded
   if (!currentPlayer || !Array.isArray(currentPlayer.messages)) {
     return (
-      <Modal onClose={onClose} title="📬 Mailbox" message="No messages available." />
+      <Modal onClose={onClose} title={strings[1606]} message="No messages available." />
     );
   }
 
@@ -308,7 +309,7 @@ const renderRewards = (rewards) => {
         messages: updatedMessages,
       }));
   
-      updateStatus("🗑️ Message deleted.");
+      updateStatus(1607);
     } catch (error) {
       console.error("❌ Error deleting message:", error);
       updateStatus("❌ Failed to delete message.");
@@ -323,11 +324,11 @@ const renderRewards = (rewards) => {
 
 
   return (
-    <Modal onClose={handleClose} title="📬 Mailbox" className="mailbox-modal">
+    <Modal onClose={handleClose} title={strings[1606]} className="mailbox-modal">
       {loading && visibleMessages.length === 0 ? (
-        <p>Loading messages...</p>
+        <p>{strings[1601]}</p>
       ) : visibleMessages.length === 0 ? (
-        <p>Your mailbox is empty.</p>
+        <p>{strings[1602]}</p>
       ) : (
         visibleMessages.map((msg, index) => {
           const template = templates.find((t) => t.id === msg.messageId);
@@ -353,7 +354,7 @@ const renderRewards = (rewards) => {
                 </h3>
                 <p className="message-body">{template.body}</p>
                 <p className="mailbox-timestamp">
-                  Received: {new Date(msg.timestamp).toLocaleString()}
+                  {strings[1603]}: {new Date(msg.timestamp).toLocaleString()}
                 </p>
               </div>
 
@@ -364,7 +365,7 @@ const renderRewards = (rewards) => {
                 <div className="button-row">
                   {rewards?.length > 0 && (
                     <button className="collect-btn" onClick={() => handleCollect(msg)}>
-                      Collect
+                      {strings[1604]}
                     </button>
                   )}
                   <button
@@ -384,7 +385,7 @@ const renderRewards = (rewards) => {
           );
         })
       )}                      
-      <p>Most messages will be deleted after 14 days.</p>
+      <p>{strings[1605]}</p>
     </Modal>
   );
 }

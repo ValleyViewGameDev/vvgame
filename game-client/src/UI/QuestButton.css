@@ -129,3 +129,17 @@
   transition: opacity 0.2s ease-in-out;
 }
 
+
+.quest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* Instead of margin on buttons */
+}
+
+.quest-item {
+  transition: all 0.2s ease;
+}
+.quest-info-expanded {
+  transition: opacity 0.2s ease;
+  font-style: italic;
+}
