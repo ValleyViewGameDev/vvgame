@@ -81,11 +81,34 @@ export const addResourceToGrid = async (resources, newResource) => {
 };
 
 
-// Inline function to calculate Manhattan distance safely
+// Inline function to calculate Euclidean distance safely
 export const calculateDistance = (pos1, pos2) => {
   if (!pos1 || !pos2 || typeof pos1.x === 'undefined' || typeof pos1.y === 'undefined' || typeof pos2.x === 'undefined' || typeof pos2.y === 'undefined') {
-      console.warn("Skipping distance calculation due to invalid position:", { pos1, pos2 });
-      return Infinity; // Return a high value to trigger out-of-range logic
+    console.warn("Skipping distance calculation due to invalid position:", { pos1, pos2 });
+    return Infinity;
   }
-  return Math.abs(pos1.x - pos2.x) + Math.abs(pos1.y - pos2.y);
+  return Math.sqrt(Math.pow(pos1.x - pos2.x, 2) + Math.pow(pos1.y - pos2.y, 2));
+};
+
+
+// Calculates the derived range based on base range + bonus from skill metadata
+export const getDerivedRange = (currentPlayer, masterResources) => {
+  if (!currentPlayer || !Array.isArray(masterResources)) return 1;
+
+  const baseRange = currentPlayer.range || 1;
+
+  const bonusRangeFromSkills = currentPlayer.skills?.reduce((sum, skill) => {
+    const master = masterResources.find(r => r.type === skill.type);
+    if (master?.output === 'range' && typeof master.qtycollected === 'number') {
+      return sum + master.qtycollected;
+    }
+    return sum;
+  }, 0) || 0;
+
+  const gridType = currentPlayer?.location?.gtype;
+  const totalRange = gridType === 'homestead'
+    ? baseRange + bonusRangeFromSkills + 5
+    : baseRange + bonusRangeFromSkills;
+
+  return totalRange;
 };

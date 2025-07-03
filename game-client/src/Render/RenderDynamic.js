@@ -3,6 +3,7 @@ import '../UI/Panel.css';
 import '../UI/Cursor.css';
 
 import React, { useEffect, useRef } from 'react';
+import { getDerivedRange } from '../Utils/worldHelpers';
 import { useGridState } from '../GridState/GridStateContext'; 
 import { usePlayersInGrid } from '../GridState/GridStatePCContext';
 import { handleNPCClick } from '../GameFeatures/NPCs/NPCHelpers';
@@ -245,11 +246,10 @@ const DynamicRenderer = ({
     });
   }
 
-  function renderPlayerRange() {
+function renderPlayerRange() {
     if (currentPlayer?.settings?.rangeOn === false) return; 
     const gridId = currentPlayer?.location?.g;
-    const gridType = currentPlayer?.location?.gtype;
-    if (!gridId || !currentPlayer || !currentPlayer.range) return;
+    if (!gridId || !currentPlayer) return;
     const container = containerRef.current; if (!container) return;
 
     // Ensure overflow and position only (no fixed size or margin here)
@@ -275,7 +275,9 @@ const DynamicRenderer = ({
 
     const pixelX = position.x * TILE_SIZE;
     const pixelY = position.y * TILE_SIZE;
-    const derivedRange = gridType === 'homestead' ? currentPlayer.range + 5 : currentPlayer.range;
+
+    // Calculate derivedRange using utility
+    const derivedRange = getDerivedRange(currentPlayer, masterResourcesRef.current);
     const radius = derivedRange * TILE_SIZE;
 
     rangeCircle.style.width = `${radius * 2}px`;

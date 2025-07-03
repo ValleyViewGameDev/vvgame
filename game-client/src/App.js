@@ -87,6 +87,7 @@ import { fetchGridData, updateGridStatus } from './Utils/GridManagement';
 import { handleKeyMovement, centerCameraOnPlayer } from './PlayerMovement';
 import { mergeResources, mergeTiles, enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
+import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
 
 function App() {
@@ -1057,7 +1058,6 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
 
   // 🛡️ Prevent interaction on another player's homestead
   const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
-
   if (resource && currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {
     const isFriend = false; // 🧪 Future: replace with actual friend-checking logic
     const alwaysBlocked = ['Mailbox', 'Trade Stall', 'Warehouse'];
@@ -1085,13 +1085,11 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
   // If clicking a resource, check range before interacting (except NPCs)
   if (resource && resource.category !== 'npc') {
     const distance = calculateDistance(playerPos, targetPos);
-    const gridType = currentPlayer?.location?.gtype;
-    const playerRange = (gridType === 'homestead' ? (currentPlayer.range + 5) : currentPlayer.range) || 1;
-    console.log(`Checking range: Player at ${playerPos.x},${playerPos.y} | Target at ${targetPos.x},${targetPos.y} | Distance = ${distance} | Range = ${playerRange}`);
+    const playerRange = getDerivedRange(currentPlayer, masterResources);    
     if (distance > playerRange) {
-        FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
-        isProcessing = false;
-        return; 
+      FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
+      isProcessing = false;
+      return;
     }
   }
   if (resource) {

@@ -4715,8 +4715,8 @@
     {
         "type": "Combat",
         "symbol": "⚔️",
-        "category": "skill",
-        "source": "Basic Skills",
+        "category": "power",
+        "source": "Warrior's Den",
         "requires": "Mechanics",
         "qtycollected": 1,
         "level": 2,
@@ -4727,7 +4727,7 @@
     {
         "type": "Tracking",
         "symbol": "🔎",
-        "category": "power",
+        "category": "skill",
         "output": "range",
         "source": "Basic Skills",
         "requires": "Horse",
@@ -4740,7 +4740,7 @@
     {
         "type": "Scout",
         "symbol": "🔭",
-        "category": "power",
+        "category": "skill",
         "output": "range",
         "source": "Basic Skills",
         "requires": "Tracking",
