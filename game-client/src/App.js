@@ -93,14 +93,12 @@ import { handlePlayerDeath } from './Utils/playerManagement';
 
 function App() {
 
-  // Store purchase fulfillment effect
   const { activeModal, setActiveModal, openModal, closeModal } = useModalContext();
   const { updateStatus } = useContext(StatusBarContext);
-  // Helper to open mailbox modal
   const openMailbox = () => openModal && openModal('Mailbox');
-  // Developer status state
   const [isDeveloper, setIsDeveloper] = useState(false);
 
+// Store purchase fulfillment effect
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const purchaseSuccess = params.get("purchase");
@@ -121,24 +119,21 @@ function App() {
 
           // Re-fetch player to get updated accountStatus
           axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {
+            
             // Trigger gold panel open
-            if (typeof openModal === 'function') {
-              openModal("GoldBenefitsPanel");
-            }
+            openPanel('GoldBenefitsPanel');
 
             // Show modal
-            if (typeof setActiveModal === 'function') {
-              setActiveModal({
+            setModalContent({
                 title: strings["5060"],
                 message: strings["5061"],
                 size: "small",
               });
-            }
+            setIsModalOpen(true);
+
           }).catch((err) => {
             console.error("❌ Failed to refresh player data after Gold purchase:", err);
-            if (typeof openModal === 'function') {
-              openModal("GoldBenefitsPanel");
-            }
+
           });
         } else {
           updateStatus && updateStatus("✅ Purchase successful! Check your Inbox.");
