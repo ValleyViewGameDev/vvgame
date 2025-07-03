@@ -26,6 +26,7 @@ function Mailbox({
   const [markedReadIds, setMarkedReadIds] = useState([]);
   const gridId = currentPlayer?.location?.g;
   const [masterResources, setMasterResources] = useState([]);
+  const [visibleMessages, setVisibleMessages] = useState(currentPlayer?.messages || []);
 
   useEffect(() => {
     const fetchMasterResources = async () => {
@@ -34,6 +35,12 @@ function Mailbox({
     };
     fetchMasterResources();
   }, []);
+
+  useEffect(() => {
+    if (Array.isArray(currentPlayer?.messages)) {
+      setVisibleMessages(currentPlayer.messages);
+    }
+  }, [currentPlayer?.messages]);
  
   useEffect(() => {
   const fetchTemplatesAndMessages = async () => {
@@ -318,10 +325,10 @@ const renderRewards = (rewards) => {
     <Modal onClose={handleClose} title="📬 Mailbox" className="mailbox-modal">
       {loading ? (
         <p>Loading messages...</p>
-      ) : currentPlayer.messages.length === 0 ? (
+      ) : visibleMessages.length === 0 ? (
         <p>Your mailbox is empty.</p>
       ) : (
-        currentPlayer.messages.map((msg, index) => {
+        visibleMessages.map((msg, index) => {
           const template = templates.find((t) => t.id === msg.messageId);
 
           if (!template) {
