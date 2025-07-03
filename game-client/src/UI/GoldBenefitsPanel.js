@@ -17,7 +17,7 @@ const GoldBenefitsPanel = memo(({ currentPlayer, updateStatus, onClose }) => {
           {isGold ? (
             <p>Thank you for your Gold Account purchase.</p>
           ) : (
-            <button className="btn-gold" onClick={() => handlePurchase(9, currentPlayer, updateStatus)}>Purchase a Gold Account</button>
+            <button className="btn-gold" onClick={() => handlePurchase(1, currentPlayer, updateStatus)}>Purchase a Gold Account</button>
           )}
         </div>
 <br />

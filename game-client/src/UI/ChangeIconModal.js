@@ -50,7 +50,7 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
 
         {!isGold && (
           <div className="standard-buttons">
-            <button className="btn-purchase" onClick={() => handlePurchase(9, currentPlayer, updateStatus)}>Unlock Premium Avatars</button>
+            <button className="btn-purchase" onClick={() => handlePurchase(1, currentPlayer, updateStatus)}>Unlock Premium Avatars</button>
           </div>
         )}
 

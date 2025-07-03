@@ -1386,7 +1386,6 @@ return ( <>
       <button className="nav-button" title="Combat" onClick={() => openPanel('CombatPanel')}>⚔️</button>
       <button className="nav-button" title="Government" onClick={() => openPanel('GovPanel')}>🏛️</button>
       <button className="nav-button" title="Seasons" onClick={() => openPanel('SeasonPanel')}>🗓️</button>
-      <button className="nav-button" title="Gold Benefits" onClick={() => openPanel('GoldBenefitsPanel')}>⭐️</button>
       {isDeveloper && (
         <button className="nav-button" title="Debug" onClick={() => openPanel('DebugPanel')}>
           🐞

@@ -271,18 +271,22 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
         <h3>Account Management</h3>
 
-        <div className="form-group">
-          <label>Account Status:</label>
-          <select name="accountStatus" value={formData.accountStatus} onChange={handleInputChange}>
-            <option value="Free">Free</option>
-            <option value="Bronze">Bronze</option>
-            <option value="Silver">Silver</option>
-            <option value="Gold">Gold</option>
-          </select>
-        </div>
+        {isDeveloper && (
+          <div className="form-group">
+            <label>Account Status:</label>
+            <select name="accountStatus" value={formData.accountStatus} onChange={handleInputChange}>
+              <option value="Free">Free</option>
+              <option value="Bronze">Bronze</option>
+              <option value="Silver">Silver</option>
+              <option value="Gold">Gold</option>
+            </select>
+          </div>
+        )}
 
         <div className="panel-buttons">
-          <button className="btn-gold" onClick={handleGoldPanelSwitch}> Gold Account Benefits </button>
+          <button className="btn-gold" onClick={handleGoldPanelSwitch}>
+            {formData.accountStatus === 'Gold' ? 'You Have a Gold Account' : 'Gold Account Benefits'}
+          </button>
         </div>
         <div className="panel-buttons">
           <button className="btn-danger" onClick={handleLogout}>
