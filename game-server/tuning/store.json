@@ -131,7 +131,7 @@
 { "item":"Unbreakable","qty":	1	}
 ]							
 },							
-							
+
 {							
 "id":		70		,			
 "title":	"Mega Money Pack"	,			
@@ -141,6 +141,19 @@
 "rewards": [							
 { "item":"Money","qty":	1000000	}
 ]							
+}	,						
+
+
+{							
+"id":		1000		,			
+"title":	"Test purchase"	,			
+"body":	"testing."	,			
+"price":		1.00		,			
+"priceInCents":		100		,			
+"rewards": [							
+{ "item":"Money","qty":	1000	}
+]							
 }							
-							
+
+
 ]					
