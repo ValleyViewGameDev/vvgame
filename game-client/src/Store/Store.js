@@ -55,7 +55,8 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
         console.log("✅ Store reward successfully delivered.");
 
     /////////// Check if Gold Account was purchased
-
+        console.log("🔍 Checking if Gold Account was purchased with offerId:", offerId);
+        
         if (String(offerId) === "1") {
           updateStatus("🎉 Congratulations on purchasing a Gold Account!");
 
