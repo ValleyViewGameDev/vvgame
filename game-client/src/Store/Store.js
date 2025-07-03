@@ -42,7 +42,8 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
     });
     const playerId = params.get("playerId");
     const offerId = params.get("offerId");
- 
+    const normalizedOfferId = String(offerId);
+
     if (purchaseSuccess === "success" && playerId && offerId) {
       // ✅ Show success message
 
@@ -56,8 +57,9 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
 
     /////////// Check if Gold Account was purchased
         console.log("🔍 Checking if Gold Account was purchased with offerId:", offerId);
-        
-        if (String(offerId) === "1") {
+
+        if (normalizedOfferId === "1") {
+
           updateStatus("🎉 Congratulations on purchasing a Gold Account!");
 
           axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {
