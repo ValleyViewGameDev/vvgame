@@ -3,13 +3,16 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import ChangeIconModal from '../UI/ChangeIconModal';
 import axios from 'axios';
 import '../UI/Panel.css'; // Use the standardized styles
+import '../UI/SharedButtons.css'; // Use the standardized buttons
 import Panel from '../UI/Panel';
 import { updatePlayerSettings } from '../settings';  
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { StatusBarContext } from '../UI/StatusBar';
+import { usePanelContext } from '../UI/PanelContext';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel }) => {
+  const { openPanel } = usePanelContext();
 
   const [isDeveloper, setIsDeveloper] = useState(false);
   const hasCheckedDeveloperStatus = useRef(false);
@@ -207,6 +210,9 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
     }
   };
 
+  const handleGoldPanelSwitch = () => {
+    openPanel('GoldBenefitsPanel');
+  };
 
   return (
     <Panel
@@ -224,20 +230,17 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
     >
       <div className="panel-content">
 
-        <p><strong>Player ID:</strong> {currentPlayer?.playerId || 'N/A'}</p>
+        <h2>Hi, {currentPlayer.username} {currentPlayer.icon}</h2>
 
-      <div className="panel-buttons">
-        <button className="btn-success" onClick={() => setShowChangeIconModal(true)}>
-          {currentPlayer?.icon && <span style={{ marginRight: '8px' }}>{currentPlayer.icon}</span>}
-          Change Avatar
-        </button>
-      </div>
+        <div className="panel-buttons">
+          <button className="btn-success" onClick={() => setShowChangeIconModal(true)}>Change Avatar</button>
+        </div>
 
         <br />
 
         {/* User Details Form */}
         <div className="form-group">
-          <label>Username:</label>
+          <label>Change Username:</label>
           <input
             name="username"
             type="text"
@@ -247,7 +250,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           />
         </div>
         <div className="form-group">
-          <label>Password:</label>
+          <label>Change Password:</label>
           <input
             name="password"
             type="password"
@@ -256,7 +259,18 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
             placeholder="Enter new password (optional)"
           />
         </div>
+
+        <div className="panel-buttons">
+          <button className="btn-success" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
+
         <br />
+        <br />
+
+        <h3>Account Management</h3>
+
         <div className="form-group">
           <label>Account Status:</label>
           <select name="accountStatus" value={formData.accountStatus} onChange={handleInputChange}>
@@ -266,14 +280,9 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
             <option value="Gold">Gold</option>
           </select>
         </div>
-        <br />
 
-
-        {/* Save and Logout Buttons */}
         <div className="panel-buttons">
-          <button className="btn-success" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Saving...' : 'Save Changes'}
-          </button>
+          <button className="btn-gold" onClick={handleGoldPanelSwitch}> Gold Account Benefits </button>
         </div>
         <div className="panel-buttons">
           <button className="btn-danger" onClick={handleLogout}>
@@ -308,6 +317,8 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
             Delete Account
           </button>
         </div>
+        <p>Player ID: {currentPlayer?.playerId || 'N/A'}</p>
+
         <br/>
 
 
@@ -321,7 +332,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           </button>
         <p>Visit the Store to purchase more Relocations.</p>
         </div>
-        <br/>
 
 
         {/* Settings Toggles */}
@@ -360,6 +370,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           <ChangeIconModal
             currentPlayer={currentPlayer}
             setCurrentPlayer={setCurrentPlayer}
+            updateStatus={updateStatus}
             currentIcon={formData.icon}
             playerId={currentPlayer.playerId}
             onClose={() => setShowChangeIconModal(false)}

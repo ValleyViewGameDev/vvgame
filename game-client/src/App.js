@@ -73,6 +73,7 @@ import TownNews from './UI/TownNews.js';
 import SeasonPanel from './GameFeatures/Seasons/SeasonPanel';
 import SocialPanel from './GameFeatures/Social/SocialPanel';
 import CombatPanel from './GameFeatures/Combat/CombatPanel';
+import GoldBenefitsPanel from './UI/GoldBenefitsPanel';
 import ShareModal from './UI/ShareModal';
 
 import { usePanelContext } from './UI/PanelContext';
@@ -1373,7 +1374,7 @@ return ( <>
           }}
         > 😀
         </button>
-
+      
       <button className="nav-button" title="Farming" onClick={() => openPanel('FarmingPanel')}>🚜</button>
       <button className="nav-button" title="Build" onClick={() => openPanel('BuildPanel')}>⚒️</button>
       <button className="nav-button" title="Buy Animals" onClick={() => openPanel('BuyPanel')}>🐮</button>
@@ -1385,6 +1386,7 @@ return ( <>
       <button className="nav-button" title="Combat" onClick={() => openPanel('CombatPanel')}>⚔️</button>
       <button className="nav-button" title="Government" onClick={() => openPanel('GovPanel')}>🏛️</button>
       <button className="nav-button" title="Seasons" onClick={() => openPanel('SeasonPanel')}>🗓️</button>
+      <button className="nav-button" title="Gold Benefits" onClick={() => openPanel('GoldBenefitsPanel')}>⭐️</button>
       {isDeveloper && (
         <button className="nav-button" title="Debug" onClick={() => openPanel('DebugPanel')}>
           🐞
@@ -1406,6 +1408,8 @@ return ( <>
             😀 Logged in: {currentPlayer.username}
           </button>
         )}
+        <button className="gold-button" onClick={() => openPanel('GoldBenefitsPanel')}>You Have a Gold Account</button>
+
       <br/>
       <button className="shared-button" onClick={() => openPanel('HowToPanel')}>↔️ Move Keys: AWSD</button>
       <div className="zoom-controls">
@@ -1727,6 +1731,14 @@ return ( <>
       )}
       {activePanel === 'HowToMoneyPanel' && (
         <HowToMoneyPanel 
+          onOpen={openPanel}
+          onClose={closePanel}
+        />
+      )}
+      {activePanel === 'GoldBenefitsPanel' && (
+        <GoldBenefitsPanel 
+          currentPlayer={currentPlayer}
+          updateStatus={updateStatus}
           onOpen={openPanel}
           onClose={closePanel}
         />

@@ -1,6 +1,17 @@
 [							
 {							
 "id":		1		,			
+"title":	"Gold Account"	,			
+"body":	"Unlock a set of premium avatars, gain unlimited warehouse space, and receive extra daily rewards for your Gold Account status."	,			
+"price":		4.00		,			
+"priceInCents":		400		,			
+"rewards": [							
+{ "item": "Gold Account","qty":	1	}
+]							
+},
+
+{							
+"id":		3		,			
 "title":	"Basic Starter Pack"	,			
 "body":	"This pack gets you going with some starter Money, the Horse for going to Town, a Backpack for collecting away from home, and a few other skills and items."	,			
 "price":		5.03		,			
@@ -56,17 +67,6 @@
 { "item":"Money","qty":	25000	}
 ]							
 },							
-
-{							
-"id":		9		,			
-"title":	"Premium Avatars"	,			
-"body":	"Unlock a set of premium avatars, which you can change in the Profile UI."	,			
-"price":		4.00		,			
-"priceInCents":		400		,			
-"rewards": [							
-{ "item":"Money","qty":	50	}
-]							
-},
 
 {							
 "id":		10		,			

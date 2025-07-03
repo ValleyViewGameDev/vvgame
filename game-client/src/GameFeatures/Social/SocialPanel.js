@@ -210,6 +210,7 @@ const SocialPanel = ({
         <ChangeIconModal
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
+          updateStatus={updateStatus}
           currentIcon={currentPlayer.icon}
           playerId={currentPlayer.playerId}
           onClose={() => setShowChangeIconModal(false)}

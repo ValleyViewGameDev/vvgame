@@ -56,6 +56,11 @@
         "passable": true
     },
     {
+        "type": "Gold Account",
+        "symbol": "⭐",
+        "category": "special"
+    },
+    {
         "type": "Money",
         "symbol": "💰",
         "layoutkey": "$$",

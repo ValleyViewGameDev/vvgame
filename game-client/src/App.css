@@ -129,12 +129,35 @@ body {
 .shared-button:hover {
   background-color: #f1f1f1;
 }
-
 .shared-button:active {
   background-color: #e0e0e0;
 }
 
+.gold-button {
+  position: relative;
+  background-color: #ffea00;
+  color: #000000;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  margin: 5px 0; /* Add spacing between buttons */
+  text-align: center;
+}
+
+.gold-button:hover {
+  background-color: #d3b700;
+  transform: scale(1.05);
+}
+
+
 .base-panel .shared-button {
+  width: 95%; /* Ensure buttons fit well in the base panel */
+  text-align: left; /* Align text for a different look in base panel */
+}
+
+.base-panel .gold-button {
   width: 95%; /* Ensure buttons fit well in the base panel */
   text-align: left; /* Align text for a different look in base panel */
 }

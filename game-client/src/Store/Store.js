@@ -53,24 +53,42 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
       }).then(() => {
         console.log("📬 Called /api/purchase-store-offer successfully for:", { playerId, offerId });
         console.log("✅ Store reward successfully delivered.");
-        updateStatus("✅ Purchase successful! Check your Inbox.");
-        updateBadge(currentPlayer, () => {}, "store", false); // Clear store badge
 
-        // Refresh player mailbox data before opening Mailbox
-        axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {
-          setCurrentPlayer(playerResponse.data);
-          setTimeout(() => {
+        // Check if Gold Account was purchased
+        if (offerId === "1" || offerId === 1) {
+          updateStatus("🎉 Congratulations on purchasing a Gold Account!");
+
+          axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {
+            setCurrentPlayer(playerResponse.data);
+            setTimeout(() => {
+              if (typeof onClose === 'function') {
+                onClose({ openGoldBenefits: true });
+              }
+            }, 250);
+          }).catch((err) => {
+            console.error("❌ Failed to refresh player data:", err);
+            if (typeof onClose === 'function') {
+              onClose({ openGoldBenefits: true });
+            }
+          });
+        } else {
+          updateStatus("✅ Purchase successful! Check your Inbox.");
+          updateBadge(currentPlayer, () => {}, "store", false); // Clear store badge
+
+          axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {
+            setCurrentPlayer(playerResponse.data);
+            setTimeout(() => {
+              if (typeof onClose === 'function') {
+                onClose({ openMailbox: true });
+              }
+            }, 250);
+          }).catch((err) => {
+            console.error("❌ Failed to refresh player data:", err);
             if (typeof onClose === 'function') {
               onClose({ openMailbox: true });
             }
-          }, 250);
-        }).catch((err) => {
-          console.error("❌ Failed to refresh player data:", err);
-          // Still open mailbox as fallback
-          if (typeof onClose === 'function') {
-            onClose({ openMailbox: true });
-          }
-        });
+          });
+        }
       }).catch((err) => {
         console.error("🛑 Error calling /api/purchase-store-offer with:", { playerId, offerId });
         console.error("❌ Failed to deliver store reward:", err);

@@ -5,7 +5,7 @@ import { updatePlayerIcon } from '../Authentication/ChangeIcon';
 import ICON_OPTIONS from '../Authentication/PlayerIcons.json';
 import { handlePurchase } from '../Store/Store';
 
-export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, currentIcon, playerId, onClose, onSave }) {
+export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updateStatus, currentIcon, playerId, onClose, onSave }) {
   const [selectedIcon, setSelectedIcon] = useState(currentIcon);
 
   const handleSave = async () => {
@@ -48,9 +48,9 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, curre
 
         <h3>Premium Avatars</h3>
 
-                {!isGold && (
+        {!isGold && (
           <div className="standard-buttons">
-            <button className="btn-purchase" onClick={() => handlePurchase(9, currentPlayer, (msg) => alert(msg))}>Unlock Premium Avatars</button>
+            <button className="btn-purchase" onClick={() => handlePurchase(9, currentPlayer, updateStatus)}>Unlock Premium Avatars</button>
           </div>
         )}
 

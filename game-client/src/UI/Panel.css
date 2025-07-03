@@ -134,6 +134,16 @@
   transform: scale(1.05);
 }
 
+.panel-buttons .btn-gold {
+  background-color: #ffea00;
+  color: rgb(0, 0, 0);
+}
+
+.panel-buttons .btn-gold:hover {
+  background-color: #d3b700;
+  transform: scale(1.05);
+}
+
 /* Half-width button (used for inline button rows) */
 .panel-buttons button.btn-half {
   width: 40% !important;

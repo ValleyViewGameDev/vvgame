@@ -41,6 +41,16 @@
   transform: scale(1.05);
 }
 
+.standard-buttons .btn-gold {
+  background-color: #ffea00;
+  color: rgb(0, 0, 0);
+}
+
+.standard-buttons .btn-gold:hover {
+  background-color: #d3b700;
+  transform: scale(1.05);
+}
+
 
 .standard-buttons  .btn-purchase {
     padding: 6px 10px;
