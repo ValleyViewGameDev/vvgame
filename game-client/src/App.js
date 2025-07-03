@@ -115,8 +115,35 @@ function App() {
         offerId
       }).then(() => {
         console.log("📬 Purchase reward sent successfully.");
-        updateStatus && updateStatus("✅ Purchase successful! Check your Inbox.");
-        openMailbox && openMailbox();
+
+        if (String(offerId) === "1") {
+          updateStatus && updateStatus("🎉 Congratulations on purchasing a Gold Account!");
+
+          // Re-fetch player to get updated accountStatus
+          axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {
+            // Trigger gold panel open
+            if (typeof openModal === 'function') {
+              openModal("GoldBenefitsPanel");
+            }
+
+            // Show modal
+            if (typeof setActiveModal === 'function') {
+              setActiveModal({
+                title: strings["5060"],
+                message: strings["5061"],
+                size: "small",
+              });
+            }
+          }).catch((err) => {
+            console.error("❌ Failed to refresh player data after Gold purchase:", err);
+            if (typeof openModal === 'function') {
+              openModal("GoldBenefitsPanel");
+            }
+          });
+        } else {
+          updateStatus && updateStatus("✅ Purchase successful! Check your Inbox.");
+          openMailbox && openMailbox();
+        }
       }).catch((err) => {
         console.error("❌ Failed to fulfill purchase:", err);
         updateStatus && updateStatus("⚠️ Purchase may not have been fulfilled. Contact support if missing.");
