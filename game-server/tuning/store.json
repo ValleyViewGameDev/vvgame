@@ -3,8 +3,8 @@
 "id":		1		,			
 "title":	"Gold Account"	,			
 "body":	"Unlock a set of premium avatars, gain unlimited warehouse space, and receive extra daily rewards for your Gold Account status."	,			
-"price":		4.00		,			
-"priceInCents":		400		,			
+"price":		1.00		,			
+"priceInCents":		100		,			
 "rewards": [							
 { "item": "Gold Account","qty":	1	}
 ]							

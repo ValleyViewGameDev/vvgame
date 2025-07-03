@@ -17,6 +17,18 @@
     font-size: 14px;
   }
   
+  .store-offer-card-gold {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border: 2px solid #daa520;
+      border-radius: 6px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #fff8dc, #f5deb3);
+      font-size: 14px;
+      box-shadow: 0 0 8px rgba(218, 165, 32, 0.6);
+  }
+  
   /* LEFT SIDE: Title, body, rewards */
   .store-offer-left {
     flex-grow: 1;

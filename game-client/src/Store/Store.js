@@ -157,7 +157,7 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
           .map((offer) => (
 
 
-            <div key={offer.id} className="store-offer-card">
+            <div key={offer.id} className={`store-offer-card${offer.id === 1 ? ' store-offer-card-gold' : ''}`}>
             <div className="store-offer-left">
                 <h3>{offer.title}</h3>
                 <p>{offer.body}</p>
