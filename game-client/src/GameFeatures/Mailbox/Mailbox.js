@@ -3,6 +3,7 @@ import axios from 'axios';
 import React, { useState, useEffect, useContext } from 'react';
 import { StatusBarContext } from '../../UI/StatusBar';
 import Modal from '../../UI/Modal';
+import '../../UI/SharedButtons.css';
 import './Mailbox.css';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
@@ -362,9 +363,9 @@ const renderRewards = (rewards) => {
               <div className="message-actions">
                 {rewards?.length > 0 && renderRewards(rewards)}
 
-                <div className="button-row">
+                <div className="standard-buttons">
                   {rewards?.length > 0 && (
-                    <button className="collect-btn" onClick={() => handleCollect(msg)}>
+                    <button className="btn-success" onClick={() => handleCollect(msg)}>
                       {strings[1604]}
                     </button>
                   )}

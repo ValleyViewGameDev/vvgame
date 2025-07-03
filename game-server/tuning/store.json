@@ -56,7 +56,18 @@
 { "item":"Money","qty":	25000	}
 ]							
 },							
-							
+
+{							
+"id":		9		,			
+"title":	"Premium Avatars"	,			
+"body":	"Unlock a set of premium avatars, which you can change in the Profile UI."	,			
+"price":		4.00		,			
+"priceInCents":		400		,			
+"rewards": [							
+{ "item":"Money","qty":	50	}
+]							
+},
+
 {							
 "id":		10		,			
 "title":	"Relocations Pack"	,			

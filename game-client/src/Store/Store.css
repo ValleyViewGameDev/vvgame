@@ -77,4 +77,5 @@
   
   .store-offer-right button:hover {
     background-color: #145a86;
+    transform: scale(1.05);
   }

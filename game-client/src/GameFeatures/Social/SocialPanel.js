@@ -1,4 +1,5 @@
 import API_BASE from '../../config.js';
+import ChangeIconModal from '../../UI/ChangeIconModal';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
@@ -22,6 +23,7 @@ const SocialPanel = ({
   const [tentCount, setTentCount] = useState(0);
   const [isCamping, setIsCamping] = useState(false);
   const [displayedPCData, setDisplayedPCData] = useState(pcData);
+  const [showChangeIconModal, setShowChangeIconModal] = useState(false);
 
   console.log('made it to SocialPanel; pc = ', pcData);
 
@@ -157,7 +159,18 @@ const SocialPanel = ({
         <div className="panel-content">
         <div className="debug-buttons">
         <h2>{displayedPCData.username}{displayedPCData.username === currentPlayer.username && " (You)"}</h2>
-        <p>❤️‍🩹 HP: {displayedPCData.hp}</p>
+
+        {displayedPCData.username === currentPlayer.username && (
+          <button 
+            className="btn-success" 
+            onClick={() => setShowChangeIconModal(true)}
+          >
+            {currentPlayer.icon || '🙂'} Change Avatar
+          </button>
+        )}
+        
+        <br />  
+        <h3>❤️‍🩹 HP: {displayedPCData.hp}</h3>
 
         {/* ✅ Show "You are camping." if iscamping === true */}
         {displayedPCData.iscamping && (
@@ -187,12 +200,25 @@ const SocialPanel = ({
                 </button>
               </>
             )}
+
           </>
         )}
 
         </div>
         </div>
-
+      {showChangeIconModal && (
+        <ChangeIconModal
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          currentIcon={currentPlayer.icon}
+          playerId={currentPlayer.playerId}
+          onClose={() => setShowChangeIconModal(false)}
+          onSave={(newIcon) => {
+            setDisplayedPCData(prev => ({ ...prev, icon: newIcon }));
+            setShowChangeIconModal(false);
+          }}
+        />
+      )}
     </Panel>
   );
 };

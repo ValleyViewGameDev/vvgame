@@ -1,5 +1,6 @@
 import React from 'react';
 import './ShareModal.css';
+import './SharedButtons.css';
 import { shareToNetwork, copyToClipboard } from '../Utils/share';
 
 function ShareModal({ onClose }) {
@@ -22,7 +23,11 @@ function ShareModal({ onClose }) {
           <button className="shared-button" onClick={() => copyToClipboard(url)}>📋 Copy</button>
         </div>
 
-        <button onClick={onClose} className="shared-button">Close</button>
+<br />
+        <div className="standard-buttons">
+          <button className="btn-success" onClick={onClose}>Close</button>
+        </div>
+
       </div>
     </div>
   );

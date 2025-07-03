@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
 import './ChangeIconModal.css';
+import '../UI/SharedButtons.css';
 import { updatePlayerIcon } from '../Authentication/ChangeIcon';
-
-const ICON_OPTIONS = [
-  { id: 'bear', label: '🐻', locked: false },
-  { id: 'fox', label: '🦊', locked: false },
-  { id: 'wizard', label: '🧙‍♂️', locked: true },
-  { id: 'alien', label: '👽', locked: true },
-  // Add more...
-];
+import ICON_OPTIONS from '../Authentication/PlayerIcons.json';
+import { handlePurchase } from '../Store/Store';
 
 export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, currentIcon, playerId, onClose, onSave }) {
   const [selectedIcon, setSelectedIcon] = useState(currentIcon);
@@ -23,24 +18,62 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, curre
     }
   };
 
+  // Determine gold status
+  const isGold = currentPlayer.accountStatus === 'Gold';
+
+  // Split icons into free and paid
+  const freeIcons = ICON_OPTIONS.free || [];
+  const paidIcons = ICON_OPTIONS.paid || [];
+
   return (
     <div className="modal-overlay">
       <div className="icon-modal">
         <button className="modal-close-btn" onClick={onClose}>×</button>
         <h2>Choose Your Avatar</h2>
+
+        <br />
+
         <div className="icon-grid">
-          {ICON_OPTIONS.map(icon => (
+          {freeIcons.map(icon => (
             <button
-              key={icon.id}
-              className={`icon-button ${selectedIcon === icon.label ? 'selected' : ''} ${icon.locked ? 'locked' : ''}`}
-              disabled={icon.locked}
-              onClick={() => setSelectedIcon(icon.label)}
+              key={icon.value}
+              className={`icon-button ${selectedIcon === icon.value ? 'selected' : ''}`}
+              onClick={() => setSelectedIcon(icon.value)}
+              disabled={false}
             >
-              {icon.label}
+              {icon.value}
             </button>
           ))}
         </div>
-        <div className="modal-buttons">
+
+        <h3>Premium Avatars</h3>
+
+                {!isGold && (
+          <div className="standard-buttons">
+            <button className="btn-purchase" onClick={() => handlePurchase(9, currentPlayer, (msg) => alert(msg))}>Unlock Premium Avatars</button>
+          </div>
+        )}
+
+        <div className="icon-grid">
+          {paidIcons.map(icon => {
+            const locked = !isGold;
+            return (
+              <button
+                key={icon.value}
+                className={`icon-button ${selectedIcon === icon.value ? 'selected' : ''} ${locked ? 'locked' : ''}`}
+                disabled={locked}
+                onClick={() => {
+                  if (!locked) setSelectedIcon(icon.value);
+                }}
+              >
+                {icon.value}
+              </button>
+            );
+          })}
+        </div>
+
+
+        <div className="standard-buttons">
           <button className="btn-success" onClick={handleSave}>Save</button>
         </div>
       </div>

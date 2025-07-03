@@ -3,10 +3,30 @@ import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import Modal from '../UI/Modal';
 import './Store.css';
+import '../UI/SharedButtons.css';
 import { StatusBarContext } from '../UI/StatusBar';
 import { loadStripe } from '@stripe/stripe-js';
 import { updateBadge } from '../Utils/appUtils';
 import strings from '../UI/strings.json';
+
+export const handlePurchase = async (offerId, currentPlayer, updateStatus) => {
+  try {
+    const response = await axios.post(`${API_BASE}/api/create-checkout-session`, {
+      playerId: currentPlayer.playerId,
+      offerId
+    });
+
+    if (response.data?.id) {
+      const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
+      await stripe.redirectToCheckout({ sessionId: response.data.id });
+    } else {
+      updateStatus("❌ Failed to initiate checkout.");
+    }
+  } catch (err) {
+    console.error("❌ Error initiating checkout:", err);
+    updateStatus("❌ Error initiating checkout.");
+  }
+};
 
 function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbox }) {
   const [offers, setOffers] = useState([]);
@@ -79,25 +99,6 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
     }
   };
 
-  const handlePurchase = async (offerId) => {
-    try {
-      const response = await axios.post(`${API_BASE}/api/create-checkout-session`, {
-        playerId: currentPlayer.playerId,
-        offerId
-      });
-
-      if (response.data?.id) {
-        const stripe = await loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
-        await stripe.redirectToCheckout({ sessionId: response.data.id });
-      } else {
-        updateStatus("❌ Failed to initiate checkout.");
-      }
-    } catch (err) {
-      console.error("❌ Error initiating checkout:", err);
-      updateStatus("❌ Error initiating checkout.");
-    }
-  };
-
   const isOfferExpired = (offer) => {
     if (!offer.shelflifeDays || !currentPlayer?.created) return false;
 
@@ -142,7 +143,9 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
 
             <div className="store-offer-right">
                 <div className="store-price">USD ${offer.price.toFixed(2)}</div>
-                <button onClick={() => handlePurchase(offer.id)}>Buy</button>
+                <div className="standard-buttons">
+                  <button className="btn-purchase" onClick={() => handlePurchase(offer.id, currentPlayer, updateStatus)}>Buy</button>
+                </div>
             </div>
             </div>
 

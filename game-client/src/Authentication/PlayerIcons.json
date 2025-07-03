@@ -1,0 +1,27 @@
+
+
+{
+  "free": [
+    { "label": "Grinning Face", "value": "😀" },
+    { "label": "Face in Clouds", "value": "🫥" },
+    { "label": "Crying Face", "value": "😭" },
+    { "label": "Heart Eyes", "value": "😍" },
+    { "label": "Face Without Mouth", "value": "😶" },
+    { "label": "Face with Hand Over Mouth", "value": "🤭" },
+    { "label": "Nerd Face", "value": "🤓" }
+  ],
+  "paid": [
+    { "label": "Clown Face", "value": "🤡" },
+    { "label": "Alien", "value": "👽" },
+    { "label": "Robot", "value": "🤖" },
+    { "label": "Poop", "value": "💩" },
+    { "label": "Space Invader", "value": "👾" },
+    { "label": "Innocent Face", "value": "😇" },
+    { "label": "Screaming Face", "value": "😱" },
+    { "label": "Cowboy Hat Face", "value": "🤠" },
+    { "label": "Sunglasses Face", "value": "😎" },
+    { "label": "Monkey Face", "value": "🐵" },
+    { "label": "Panda Face", "value": "🐼" },
+    { "label": "Cat Face", "value": "🐱" }
+  ]
+}
