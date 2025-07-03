@@ -42,9 +42,9 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
     });
     const playerId = params.get("playerId");
     const offerId = params.get("offerId");
-    const normalizedOfferId = String(offerId);
 
     if (purchaseSuccess === "success" && playerId && offerId) {
+      const normalizedOfferId = String(offerId);
       // ✅ Show success message
 
       // ✅ Finalize fulfillment by notifying backend
@@ -160,7 +160,7 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
           .map((offer) => (
 
 
-            <div key={offer.id} className={`store-offer-card${offer.id === 1 ? ' store-offer-card-gold' : ''}`}>
+            <div key={offer.id} className={`store-offer-card${String(offer.id) === "1" ? ' store-offer-card-gold' : ''}`}>
             <div className="store-offer-left">
                 <h3>{offer.title}</h3>
                 <p>{offer.body}</p>
