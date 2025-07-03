@@ -44,41 +44,47 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
     const offerId = params.get("offerId");
  
     if (purchaseSuccess === "success" && playerId && offerId) {
-      // Parse offerId as a number for reliable comparison
-      const numericOfferId = Number(offerId);
+      // ✅ Show success message
 
-      // Gold Account branch (offerId === 1): skip /api/purchase-store-offer, do not openMailbox
-      if (numericOfferId === 1) {
-        updateStatus("🎉 Congratulations on purchasing a Gold Account!");
-        axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {
-          setCurrentPlayer(playerResponse.data);
-          setTimeout(() => {
+      // ✅ Finalize fulfillment by notifying backend
+      axios.post(`${API_BASE}/api/purchase-store-offer`, {
+        playerId,
+        offerId
+      }).then(() => {
+        console.log("📬 Called /api/purchase-store-offer successfully for:", { playerId, offerId });
+        console.log("✅ Store reward successfully delivered.");
+
+    /////////// Check if Gold Account was purchased
+
+        if (String(offerId) === "1") {
+          updateStatus("🎉 Congratulations on purchasing a Gold Account!");
+
+          axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {
+            setCurrentPlayer(playerResponse.data);
+            setTimeout(() => {
+              if (typeof onClose === 'function') {
+                onClose({ openGoldBenefits: true });
+              }
+            }, 250);
+          }).catch((err) => {
+            console.error("❌ Failed to refresh player data:", err);
             if (typeof onClose === 'function') {
               onClose({ openGoldBenefits: true });
             }
-          }, 250);
-        }).catch((err) => {
-          console.error("❌ Failed to refresh player data:", err);
-          if (typeof onClose === 'function') {
-            onClose({ openGoldBenefits: true });
-          }
-        });
-        setModalContent({
-          title: strings["5060"],
-          message: strings["5061"],
-          size: "small",
-        });
-        setIsModalOpen(true);
-      } else {
-        // All other offers: process as normal, call /api/purchase-store-offer, openMailbox
-        axios.post(`${API_BASE}/api/purchase-store-offer`, {
-          playerId,
-          offerId
-        }).then(() => {
-          console.log("📬 Called /api/purchase-store-offer successfully for:", { playerId, offerId });
-          console.log("✅ Store reward successfully delivered.");
+          });
+          setModalContent({
+              title: strings["5060"],
+              message: strings["5061"],
+              size: "small",
+            });
+          setIsModalOpen(true);
+
+    ////////////////////////////
+
+        } else {
           updateStatus("✅ Purchase successful! Check your Inbox.");
           updateBadge(currentPlayer, () => {}, "store", false); // Clear store badge
+
           axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {
             setCurrentPlayer(playerResponse.data);
             setTimeout(() => {
@@ -92,12 +98,15 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
               onClose({ openMailbox: true });
             }
           });
-        }).catch((err) => {
-          console.error("🛑 Error calling /api/purchase-store-offer with:", { playerId, offerId });
-          console.error("❌ Failed to deliver store reward:", err);
-          updateStatus("⚠️ Purchase may not have been delivered. Please contact support.");
-        });
-      }
+        }
+      }).catch((err) => {
+        console.error("🛑 Error calling /api/purchase-store-offer with:", { playerId, offerId });
+        console.error("❌ Failed to deliver store reward:", err);
+        updateStatus("⚠️ Purchase may not have been delivered. Please contact support.");
+      });
+
+      // ✅ Optionally hit backend to finalize fulfillment if needed
+
       // ✅ Clean up query params from the URL
       const url = new URL(window.location.href);
       url.search = "";
