@@ -68,6 +68,7 @@ function Mailbox({
       }
       // Still show original messages (not visually marked as read yet)
       setCurrentPlayer(prev => ({ ...prev, messages: freshMessages }));
+      setVisibleMessages(freshMessages);
 
     } catch (err) {
       console.error("❌ Error fetching or updating mailbox data:", err);
@@ -323,7 +324,7 @@ const renderRewards = (rewards) => {
 
   return (
     <Modal onClose={handleClose} title="📬 Mailbox" className="mailbox-modal">
-      {loading ? (
+      {loading || templates.length === 0 ? (
         <p>Loading messages...</p>
       ) : visibleMessages.length === 0 ? (
         <p>Your mailbox is empty.</p>
