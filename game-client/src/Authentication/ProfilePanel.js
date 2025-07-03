@@ -1,5 +1,6 @@
 import API_BASE from '../config';
 import React, { useState, useEffect, useContext, useRef } from 'react';
+import ChangeIconModal from '../UI/ChangeIconModal';
 import axios from 'axios';
 import '../UI/Panel.css'; // Use the standardized styles
 import Panel from '../UI/Panel';
@@ -12,6 +13,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
   const [isDeveloper, setIsDeveloper] = useState(false);
   const hasCheckedDeveloperStatus = useRef(false);
+  const [showChangeIconModal, setShowChangeIconModal] = useState(false);
 
   useEffect(() => {
     const checkDevStatus = async () => {
@@ -224,6 +226,15 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
         <p><strong>Player ID:</strong> {currentPlayer?.playerId || 'N/A'}</p>
 
+      <div className="panel-buttons">
+        <button className="btn-success" onClick={() => setShowChangeIconModal(true)}>
+          {currentPlayer?.icon && <span style={{ marginRight: '8px' }}>{currentPlayer.icon}</span>}
+          Change Avatar
+        </button>
+      </div>
+
+        <br />
+
         {/* User Details Form */}
         <div className="form-group">
           <label>Username:</label>
@@ -345,8 +356,22 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           </button>
         </div>
 
+        {showChangeIconModal && (
+          <ChangeIconModal
+            currentPlayer={currentPlayer}
+            setCurrentPlayer={setCurrentPlayer}
+            currentIcon={formData.icon}
+            playerId={currentPlayer.playerId}
+            onClose={() => setShowChangeIconModal(false)}
+            onSave={(newIcon) => {
+              setFormData(prev => ({ ...prev, icon: newIcon }));
+              setShowChangeIconModal(false);
+            }}
+          />
+        )}
       </div>
     </Panel>
+    
   );
 };
 

@@ -178,7 +178,7 @@ const DynamicRenderer = ({
       const renderX = overridePos ? overridePos.x * TILE_SIZE : pc.position.x * TILE_SIZE;
       const renderY = overridePos ? overridePos.y * TILE_SIZE : pc.position.y * TILE_SIZE;
 
-      let symbol = '😊';
+      let symbol = pc.icon || '😊';
       if (pc.iscamping) symbol = '⛺️';
       else if (pc.hp <= 0) symbol = '💀';
       else if (pc.hp < 20) symbol = '🤢';

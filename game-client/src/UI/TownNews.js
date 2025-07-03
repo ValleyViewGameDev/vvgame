@@ -44,7 +44,7 @@ function TownNews({ onClose, currentPlayer, setCurrentPlayer }) {
             const settlement = settlementResponse.data;
             
             console.log("Settlement data fetched:", settlement);
-            setSettlementName(settlement.name);
+            setSettlementName(settlement.displayName);
             setTaxRate(settlement.taxrate);
 
             const mayorName = await getMayorUsername(currentPlayer.settlementId);
