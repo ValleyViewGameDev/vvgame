@@ -1405,10 +1405,12 @@ return ( <>
       <br/>
         {currentPlayer && (
           <button className="shared-button" onClick={() => openPanel('ProfilePanel')}>
-            😀 Logged in: {currentPlayer.username}
+            {currentPlayer.icon} Logged in: {currentPlayer.username}
           </button>
         )}
-        <button className="gold-button" onClick={() => openPanel('GoldBenefitsPanel')}>You Have a Gold Account</button>
+        {currentPlayer?.accountStatus === 'Gold' && (
+          <button className="gold-button" onClick={() => openPanel('GoldBenefitsPanel')}>You Have a Gold Account</button>
+        )}
 
       <br/>
       <button className="shared-button" onClick={() => openPanel('HowToPanel')}>↔️ Move Keys: AWSD</button>
@@ -1641,6 +1643,8 @@ return ( <>
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           resources={masterResources}
+          setModalContent={setModalContent}
+ 	        setIsModalOpen={setIsModalOpen}
         />
       )}
       {isOffSeason && (
@@ -1741,6 +1745,8 @@ return ( <>
           updateStatus={updateStatus}
           onOpen={openPanel}
           onClose={closePanel}
+          setModalContent={setModalContent}
+ 	        setIsModalOpen={setIsModalOpen}
         />
       )}
       {activePanel === 'GovPanel' && (

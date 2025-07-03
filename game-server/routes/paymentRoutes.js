@@ -71,6 +71,13 @@ router.post('/purchase-store-offer', async (req, res) => {
       }
     }
 
+    // 🎖️ Special case: Gold Account upgrade
+    if (String(offerId) === "1") {
+      player.accountStatus = "Gold";
+      await player.save();
+      return res.status(200).json({ success: true, message: "Gold account upgraded." });
+    }
+
     // ✅ Send via Mailbox
     const rewards = offer.rewards || [];
     console.log("📨 Sending mailbox message with rewards:", rewards);

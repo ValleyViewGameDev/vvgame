@@ -5,7 +5,7 @@ import { updatePlayerIcon } from '../Authentication/ChangeIcon';
 import ICON_OPTIONS from '../Authentication/PlayerIcons.json';
 import { handlePurchase } from '../Store/Store';
 
-export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updateStatus, currentIcon, playerId, onClose, onSave }) {
+export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updateStatus, currentIcon, playerId, onClose, onSave, setModalContent, setModalIsOpen  }) {
   const [selectedIcon, setSelectedIcon] = useState(currentIcon);
 
   const handleSave = async () => {

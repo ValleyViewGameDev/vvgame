@@ -28,7 +28,7 @@ export const handlePurchase = async (offerId, currentPlayer, updateStatus) => {
   }
 };
 
-function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbox }) {
+function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbox, setModalContent, setIsModalOpen }) {
   const [offers, setOffers] = useState([]);
   const { updateStatus } = useContext(StatusBarContext);
 
@@ -54,8 +54,9 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
         console.log("📬 Called /api/purchase-store-offer successfully for:", { playerId, offerId });
         console.log("✅ Store reward successfully delivered.");
 
-        // Check if Gold Account was purchased
-        if (offerId === "1" || offerId === 1) {
+    /////////// Check if Gold Account was purchased
+
+        if (String(offerId) === "1") {
           updateStatus("🎉 Congratulations on purchasing a Gold Account!");
 
           axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {
@@ -71,6 +72,15 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
               onClose({ openGoldBenefits: true });
             }
           });
+          setModalContent({
+              title: strings["5060"],
+              message: strings["5061"],
+              size: "small",
+            });
+          setIsModalOpen(true);
+
+    ////////////////////////////
+
         } else {
           updateStatus("✅ Purchase successful! Check your Inbox.");
           updateBadge(currentPlayer, () => {}, "store", false); // Clear store badge
