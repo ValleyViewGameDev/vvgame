@@ -42,12 +42,19 @@ const leoProfanity = require('leo-profanity');
 
 // Middleware
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'https://vvgame.onrender.com',
-    'https://www.valleyviewgame.com'
-  ],
-  credentials: true, // optional: if you're using cookies or auth headers
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'https://vvgame.onrender.com',
+      'https://www.valleyviewgame.com'
+    ];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
 };
 // Declare app before using it
 const app = express();
