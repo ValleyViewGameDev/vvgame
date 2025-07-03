@@ -49,8 +49,10 @@ const levyTax = async (frontierId) => {
 
       for (const player of players) {
         const moneyItem = player.inventory.find((item) => item.type === "Money");
+        // Gold account holders pay half tax
+        const effectiveTaxRate = (player.accountStatus === "Gold") ? (settlement.taxrate / 2) : settlement.taxrate;
         if (!moneyItem || moneyItem.quantity <= 0) continue;
-        const taxAmount = Math.floor(moneyItem.quantity * (settlement.taxrate / 100));
+        const taxAmount = Math.floor(moneyItem.quantity * (effectiveTaxRate / 100));
         if (taxAmount < 1) continue; // Skip if tax is too low
 
         // ✅ Step 5: Deduct tax from player

@@ -12,6 +12,9 @@ import playersInGridManager from '../GridState/PlayersInGrid';
 export function deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources) {
   const baseWarehouse = currentPlayer?.warehouseCapacity || 0;
   const baseBackpack = currentPlayer?.backpackCapacity || 0;
+  const isGold = currentPlayer?.accountStatus === "Gold";
+  const warehouseBonus = isGold ? 1000000 : 0;
+  const backpackBonus = isGold ? 1000000 : 0;
 
   return (currentPlayer?.skills || []).reduce(
     (acc, skill) => {
@@ -26,7 +29,7 @@ export function deriveWarehouseAndBackpackCapacity(currentPlayer, masterResource
       }
       return acc;
     },
-    { warehouse: baseWarehouse, backpack: baseBackpack }
+    { warehouse: baseWarehouse + warehouseBonus, backpack: baseBackpack + backpackBonus }
   );
 }
 
