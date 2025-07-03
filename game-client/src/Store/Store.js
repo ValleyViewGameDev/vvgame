@@ -57,16 +57,8 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
 
         axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {
           setCurrentPlayer(playerResponse.data);
-          setTimeout(() => {
-            if (typeof onClose === 'function') {
-              onClose({ openMailbox: true });
-            }
-          }, 250);
         }).catch((err) => {
           console.error("❌ Failed to refresh player data:", err);
-          if (typeof onClose === 'function') {
-            onClose({ openMailbox: true });
-          }
         });
         
       }).catch((err) => {
