@@ -21,7 +21,7 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
     });
     const playerId = params.get("playerId");
     const offerId = params.get("offerId");
-
+ 
     if (purchaseSuccess === "success" && playerId && offerId) {
       // ✅ Show success message
 
@@ -34,12 +34,22 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
         console.log("✅ Store reward successfully delivered.");
         updateStatus("✅ Purchase successful! Check your Inbox.");
         updateBadge(currentPlayer, () => {}, "store", false); // Clear store badge
-        // ✅ Notify parent to open mailbox after modal is closed
-        setTimeout(() => {
+
+        // Refresh player mailbox data before opening Mailbox
+        axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {
+          setCurrentPlayer(playerResponse.data);
+          setTimeout(() => {
+            if (typeof onClose === 'function') {
+              onClose({ openMailbox: true });
+            }
+          }, 250);
+        }).catch((err) => {
+          console.error("❌ Failed to refresh player data:", err);
+          // Still open mailbox as fallback
           if (typeof onClose === 'function') {
             onClose({ openMailbox: true });
           }
-        }, 250); // small delay to ensure UI is ready
+        });
       }).catch((err) => {
         console.error("🛑 Error calling /api/purchase-store-offer with:", { playerId, offerId });
         console.error("❌ Failed to deliver store reward:", err);

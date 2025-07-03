@@ -29,7 +29,7 @@
       "body": "Here are the items you purchased from the Store.",
       "rewards": [],
       "everyoneRewards": false,
-      "neverPurge": false
+      "neverPurge": true
     },
     {
       "id": 301,
