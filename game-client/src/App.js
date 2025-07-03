@@ -109,32 +109,26 @@ function App() {
       console.log("🧾 Processing store purchase via App.js effect:", { playerId, offerId });
 
       axios.post(`${API_BASE}/api/purchase-store-offer`, {
-        playerId,
-        offerId
+        playerId, offerId
       }).then(() => {
         console.log("📬 Purchase reward sent successfully.");
 
+        /// If Gold Account was purchased, show modal and panel
         if (String(offerId) === "1") {
           updateStatus && updateStatus("🎉 Congratulations on purchasing a Gold Account!");
-
           // Re-fetch player to get updated accountStatus
-          axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {
-            
-            // Trigger gold panel open
-            openPanel('GoldBenefitsPanel');
-
-            // Show modal
-            setModalContent({
-                title: strings["5060"],
-                message: strings["5061"],
-                size: "small",
-              });
-            setIsModalOpen(true);
-
+          axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {            
+          openPanel('GoldBenefitsPanel');
+          setModalContent({
+              title: strings["5060"],
+              message: strings["5061"],
+              size: "small",
+            });
+          setIsModalOpen(true);
           }).catch((err) => {
             console.error("❌ Failed to refresh player data after Gold purchase:", err);
-
           });
+        /// If anything else was purchased, open Mailbox
         } else {
           updateStatus && updateStatus("✅ Purchase successful! Check your Inbox.");
           openMailbox && openMailbox();
