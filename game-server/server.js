@@ -1,3 +1,6 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 console.log('Server.js loaded and running...');
 
 require('./schedulers/mainScheduler');
@@ -13,7 +16,6 @@ const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
 const http = require('http');
 const { Server } = require('socket.io');
 const Player = require('./models/player');  // Ensure this is correct
@@ -32,10 +34,10 @@ const scheduleRoutes = require('./routes/scheduleRoutes'); // Import frontier ro
 const chatRoutes = require('./routes/chatRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 const leoProfanity = require('leo-profanity');
 
-// Load environment variables
-dotenv.config();
 
 
 // Middleware
@@ -473,6 +475,17 @@ console.log('Setting up chat routes...');
 app.use('/api', chatRoutes);
 console.log('Setting up payment routes...');
 app.use('/api', paymentRoutes);
+
+
+// Stripe test route: check mode and balance
+app.get('/api/stripe-test', async (req, res) => {
+  try {
+    const balance = await stripe.balance.retrieve();
+    res.json({ mode: stripe._apiKey.startsWith('sk_live_') ? 'live' : 'test', balance });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 
 // Root endpoint
