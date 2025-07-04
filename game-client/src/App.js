@@ -868,8 +868,10 @@ useEffect(() => {
 
   if (timers.seasons.phase === "offSeason") { 
     setIsOffSeason(true);
+    console.log("setisOffSeason (true) because timers.seasons.phase is offSeason");
   } else {
     setIsOffSeason(false); 
+    console.log("setisOffSeason (false) because timers.seasons.phase is NOT offSeason");
   }
 
   const interval = setInterval(checkPhaseTransitions, 1000); // ✅ Check every 1s
