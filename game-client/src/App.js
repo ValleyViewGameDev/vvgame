@@ -853,10 +853,11 @@ useEffect(() => {
     if (shouldFetchNewTimers) {
       console.log("⏳ A phase has ended! Fetching updated timers...");
       await fetchTimersData();
-      const updatedPhase = JSON.parse(localStorage.getItem("timers"))?.seasons?.phase;
-      if (updatedPhase === "offSeason") {
+      const latestTimers = JSON.parse(localStorage.getItem("timers"));
+      const newPhase = latestTimers?.seasons?.phase;
+      if (newPhase === "offSeason") {
         setIsOffSeason(true);
-        console.log("🕓 OffSeason detected immediately after fetch.");
+        console.log("🕓 OffSeason detected immediately after fetch at", new Date().toLocaleTimeString());
       }
     }
   };
