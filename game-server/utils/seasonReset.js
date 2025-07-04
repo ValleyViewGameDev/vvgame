@@ -3,11 +3,8 @@ const Frontier = require("../models/frontier");
 const Settlement = require("../models/settlement");
 const Grid = require("../models/grid");
 const Player = require("../models/player");
-const masterResources = require("../tuning/resources.json");
 const globalTuning = require("../tuning/globalTuning.json");
-const ObjectId = require("mongoose").Types.ObjectId;
 const fs = require("fs");
-const { truncate } = require("fs/promises");
 const shuffle = (array) => array.sort(() => Math.random() - 0.5);
 const { relocatePlayersHome } = require('./relocatePlayersHome');
 const { performGridReset } = require('./resetGridLogic');
@@ -24,13 +21,12 @@ async function seasonReset(frontierId) {
       const allPlayers = await Player.find({ frontierId });
   
       // ✅ STEP 1: Relocate players back home
-      const stepStart = Date.now();
-      console.log("🏠 Invoking relocatePlayersHome with frontierId:", frontierId);
+      console.log("🏠 STEP 1: Invoking relocatePlayersHome with frontierId:", frontierId);
       const relocatedCount = await relocatePlayersHome(frontierId);
       console.log("✅ relocatePlayersHome completed. Players relocated:", relocatedCount);
-      console.log(`⏱️ Step 4 took ${Date.now() - stepStart}ms`);
 
       // 🔁 Update the seasonlog
+      console.log("Updating seasonlog...");
       if (currentSeasonNumber !== undefined) {
         const logIndex = frontier.seasonlog?.findIndex(log => log.seasonnumber === currentSeasonNumber);
         if (logIndex !== -1) {
@@ -46,7 +42,8 @@ async function seasonReset(frontierId) {
         console.warn("⚠️ Current season number missing; cannot update playersrelocated in log.");
       }
 
-     // ✅ STEP 2: Reset All Grids (including towns, valley, and homesteads)
+      // ✅ STEP 2: Reset All Grids (including towns, valley)
+      console.log("🏠 STEP 2: Resetting grids: towns and valleys");
       const publicGrids = await Grid.find({ frontierId }); // ✅ Check ALL grids
       console.log(`🔁 Found ${publicGrids.length} public grids to reset...`);
 
@@ -72,6 +69,7 @@ async function seasonReset(frontierId) {
         }
       }
       // 🔁 Update the seasonlog
+      console.log("Updating seasonlog...");
       const gridsResetCount = publicGrids.filter(g => g.gridType === "town" || g.gridType.startsWith("valley")).length;
       if (currentSeasonNumber !== undefined) {
         const logIndex = frontier.seasonlog?.findIndex(log => log.seasonnumber === currentSeasonNumber);
@@ -89,48 +87,38 @@ async function seasonReset(frontierId) {
 
  
      // ✅ STEP 3: Apply money nerfs + wipe inventory
-      if (STEPS.applyMoneyNerf) {
-        const stepStart = Date.now();
-        console.log("🔁 STEP 6: Applying money nerfs and wiping inventories...");
-        for (const player of allPlayers) {
-          const isGold = player.accountStatus?.includes("Gold");
-          const nerf = isGold ? globalTuning.seasonMoneyNerfGold : globalTuning.seasonMoneyNerf;
-          console.log(`💰 Nerfing player ${player.username} (${player._id}) by ${nerf * 100}%`);
-          const moneyItem = player.inventory.find((i) => i.type === "Money");
-          if (moneyItem) {
-            moneyItem.quantity = Math.floor(moneyItem.quantity * (1 - nerf));
-          }
-          player.inventory = player.inventory.filter(i =>
-            ["Money", "Prospero's Orb", "King’s Crown", "Golden Key", "Skeleton Key", "Trident"].includes(i.type)
-          );
-          console.log(`Player ${player.username} inventory wiped, keeping Money, and certain high value quest items.`) ;
-          console.log('Player inventory after wipe:', player.inventory);
-          player.netWorth = null;
-          await player.save({ overwrite: true });
+      console.log("🔁 STEP 3: Applying money nerfs and wiping inventories...");
+      for (const player of allPlayers) {
+        const isGold = player.accountStatus?.includes("Gold");
+        const nerf = isGold ? globalTuning.seasonMoneyNerfGold : globalTuning.seasonMoneyNerf;
+        console.log(`💰 Nerfing player ${player.username} (${player._id}) by ${nerf * 100}%`);
+        const moneyItem = player.inventory.find((i) => i.type === "Money");
+        if (moneyItem) {
+          moneyItem.quantity = Math.floor(moneyItem.quantity * (1 - nerf));
         }
-        console.log(`⏱️ Step 6 took ${Date.now() - stepStart}ms`);
-      } else {
-        console.log("⏭️ STEP 6: Skipped money nerf/inventory wipe.");
+        player.inventory = player.inventory.filter(i =>
+          ["Money", "Prospero's Orb", "King’s Crown", "Golden Key", "Skeleton Key", "Trident"].includes(i.type)
+        );
+        console.log(`Player ${player.username} inventory wiped, keeping Money, and certain high value quest items.`) ;
+        console.log('Player inventory after wipe:', player.inventory);
+        player.netWorth = null;
+        await player.save({ overwrite: true });
       }
 
       // ✅ STEP 4: Wipe active and completed quests
-      if (STEPS.wipeQuests) {
-        console.log("🔁 STEP 7: Wiping quests...");
-        const questStepStart = Date.now();
-        for (const player of allPlayers) {
-          player.activeQuests = [];
-          player.completedQuests = [];
-          console.log(`🧹 Wiped quests for player ${player.username}`);
-          await player.save();
-        }
-        console.log(`⏱️ Step 7 took ${Date.now() - questStepStart}ms`);
-        console.log(`⏱️ Total seasonReset (including STEP 7) took ${Date.now() - startTime}ms`);
-        console.groupEnd();
+      console.log("🔁 STEP 4: Wiping quests...");
+      for (const player of allPlayers) {
+        player.activeQuests = [];
+        player.completedQuests = [];
+        console.log(`🧹 Wiped quests for player ${player.username}`);
+        await player.save();
       }
-    } catch (error) {
-      console.error("❌ Error in seasonReset.js:", error.message);
-      console.error(error.stack);
-    }
+
+      console.log(`⏱️ Total seasonReset (including STEP 7) took ${Date.now() - startTime}ms`);
+
+  } catch (error) {
+    console.error("❌ Error in seasonReset:", error);
   }
-  
-  module.exports = seasonReset;
+} 
+
+module.exports = seasonReset;

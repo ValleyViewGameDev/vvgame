@@ -331,7 +331,7 @@ const renderRewards = (rewards) => {
       ) : visibleMessages.length === 0 ? (
         <p>{strings[1602]}</p>
       ) : (
-        visibleMessages.map((msg, index) => {
+        [...visibleMessages].reverse().map((msg, index) => {
           const template = templates.find((t) => t.id === msg.messageId);
 
           if (!template) {
