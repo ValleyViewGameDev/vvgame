@@ -30,7 +30,6 @@ const GoldBenefitsPanel = memo(({ currentPlayer, updateStatus, onClose }) => {
         <p>{strings[9056]}</p>
         <p>{strings[9057]}</p>
         <p>{strings[9058]}</p>
-        <p>{strings[9059]}</p>
 
       </div>
     </Panel>
