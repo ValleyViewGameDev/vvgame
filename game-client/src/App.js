@@ -850,6 +850,10 @@ useEffect(() => {
       console.log("💰 Bank cycle ended. Fetching new bank timer...");
       shouldFetchNewTimers = true;
     }
+    if (timers.seasons.phase === "onSeason" && timers.seasons.endTime && now >= timers.seasons.endTime) {
+      console.log("⚡ OffSeason triggered immediately based on local timer (pre-fetch).");
+      setIsOffSeason(true);
+    }
     if (shouldFetchNewTimers) {
       console.log("⏳ A phase has ended! Fetching updated timers...");
       await fetchTimersData();
