@@ -129,9 +129,9 @@ function OffSeasonModal({ onClose, currentPlayer }) {
 
       <ul style={{ paddingLeft: "1.5rem", marginBottom: "1rem" }}>
         <p>🧑‍🌾 Sending players home</p>
-        <p>🛠️ Resetting grids</p>
+        <p>🛠️ Resetting towns and valleys</p>
         <p>💰 Nerfing money accounts</p>
-        <p>📬 Sending rewards to inboxes</p>
+        <p>📬 Sending out rewards</p>
       </ul>
 
 
