@@ -134,7 +134,7 @@ export const handlePlayerDeath = async (
     if (player.accountStatus === "Gold") {
       restoredHp = Math.floor(player.baseMaxhp / 2); // use baseMaxhp or maxHp as appropriate
     }
-
+    console.log(`Restored HP for ${player.username}: ${restoredHp}`);
     // Update player object in place
     player.hp = restoredHp;
     player.backpack = [];
