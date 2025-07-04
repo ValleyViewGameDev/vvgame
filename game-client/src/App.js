@@ -850,29 +850,22 @@ useEffect(() => {
       console.log("💰 Bank cycle ended. Fetching new bank timer...");
       shouldFetchNewTimers = true;
     }
-    if (timers.seasons.phase === "onSeason" && timers.seasons.endTime && now >= timers.seasons.endTime) {
-      console.log("⚡ OffSeason triggered immediately based on local timer (pre-fetch).");
-      setIsOffSeason(true);
-    }
     if (shouldFetchNewTimers) {
       console.log("⏳ A phase has ended! Fetching updated timers...");
       await fetchTimersData();
-      const latestTimers = JSON.parse(localStorage.getItem("timers"));
-      const newPhase = latestTimers?.seasons?.phase;
-      if (newPhase === "offSeason") {
+      const updatedPhase = JSON.parse(localStorage.getItem("timers"))?.seasons?.phase;
+      if (updatedPhase === "offSeason") {
         setIsOffSeason(true);
-        console.log("🕓 OffSeason detected immediately after fetch at", new Date().toLocaleTimeString());
+        console.log("🕓 OffSeason detected immediately after fetch.");
       }
     }
   };
 
-  // if (timers.seasons.phase === "offSeason") { 
-  //   setIsOffSeason(true);
-  //   console.log("setisOffSeason (true) because timers.seasons.phase is offSeason");
-  // } else {
-  //   setIsOffSeason(false); 
-  //   console.log("setisOffSeason (false) because timers.seasons.phase is NOT offSeason");
-  // }
+  if (timers.seasons.phase === "offSeason") { 
+    setIsOffSeason(true);
+  } else {
+    setIsOffSeason(false); 
+  }
 
   const interval = setInterval(checkPhaseTransitions, 1000); // ✅ Check every 1s
   return () => clearInterval(interval);
