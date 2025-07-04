@@ -18,7 +18,7 @@
   "seasons": {
     "phases": {
       "onSeason": 131040,
-      "offSeason": 3
+      "offSeason": 2
     },
     "startPhase": "onSeason"
   },

@@ -114,7 +114,6 @@ export const handlePlayerDeath = async (
   console.log('⚰️ Handling player death for', player.username);
 
   try {
-    const playerId = String(player._id);  // Ensure consistency
     const currentGridId = player.location.g;
     // Determine respawn grid and coordinates
     const targetLocation = {
@@ -130,8 +129,14 @@ export const handlePlayerDeath = async (
       ...targetLocation,
     };
 
+    // Determine restored HP based on account status
+    let restoredHp = 25;
+    if (player.accountStatus === "Gold") {
+      restoredHp = Math.floor(player.baseMaxhp / 2); // use baseMaxhp or maxHp as appropriate
+    }
+
     // Update player object in place
-    player.hp = 25;
+    player.hp = restoredHp;
     player.backpack = [];
     const originalLocation = { ...player.location }; // ✅ preserve the correct fromLocation
     player.location = updatedLocation;
@@ -141,7 +146,7 @@ export const handlePlayerDeath = async (
       playerId: player._id,
       updates: {
         backpack: [],  // Empty the backpack
-        hp: 25,  // Reset HP
+        hp: restoredHp,  // Use restored HP value
         location: updatedLocation,  // Update location
         settings: player.settings,
       },
@@ -149,11 +154,10 @@ export const handlePlayerDeath = async (
     setCurrentPlayer(player);
     localStorage.setItem('player', JSON.stringify(player));
 
-
     // ✅ Immediately update PlayersInGrid with restored HP
-    await playersInGridManager.updatePC(currentGridId, player._id, { hp: 25 });
+    await playersInGridManager.updatePC(currentGridId, player._id, { hp: restoredHp });
 
-    console.log(`Player ${player.username} teleported to home grid with 5 HP.`);
+    console.log(`Player ${player.username} teleported to home grid with ${restoredHp} HP.`);
     console.log('📦 Player before changePlayerLocation:', JSON.stringify(player, null, 2));
 
     // 4. **Load New Grid & Add Player to GridState**

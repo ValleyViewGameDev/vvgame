@@ -98,7 +98,7 @@ function App() {
   const openMailbox = () => openModal && openModal('Mailbox');
   const [isDeveloper, setIsDeveloper] = useState(false);
 
-// Store purchase fulfillment effect
+  // Store purchase fulfillment effect
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const purchaseSuccess = params.get("purchase");
@@ -243,7 +243,7 @@ const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
 const TILE_SIZES = { closer: 50, close: 30, far: 16 }; // Rename for clarity
 const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
 const [isRelocating, setIsRelocating] = useState(null);
-// SettlementView visibleSettlementId state (MUST be at the top level for hooks compliance)
+
 const [visibleSettlementId, setVisibleSettlementId] = useState(null);
 useEffect(() => {
   // currentPlayer may be null on first render, so initialize only when available
@@ -271,8 +271,6 @@ useEffect(() => {
   playersInGridManager.registerTileSize(activeTileSize);
 }, [activeTileSize]);
 
-// updateStatus already set above for purchase effect
-const [setStatusMessage] = useState(0); // Initial status message index
 const [isLoginPanelOpen, setisLoginPanelOpen] = useState(false);
 const [isModalOpen, setIsModalOpen] = useState(false);
 const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
@@ -317,8 +315,6 @@ let isInitializing = false; // Declare inside useEffect to avoid global persiste
 const [isAppInitialized, setIsAppInitialized] = useState(false);
 
 // Central INITIALIZATION for player and grid data //////////////////////////////////////////////////////
-
-
 
 // --- SOCKET "connect" LISTENER: Register before other listeners
 // This effect runs once at mount to set up socket.on('connect') as early as possible
@@ -866,7 +862,7 @@ useEffect(() => {
     setIsOffSeason(false); 
   }
 
-  const interval = setInterval(checkPhaseTransitions, 5000); // ✅ Check every 5s
+  const interval = setInterval(checkPhaseTransitions, 1000); // ✅ Check every 1s
   return () => clearInterval(interval);
 }, [timers]); // Runs when timers update
 
@@ -1534,35 +1530,35 @@ return ( <>
       )}
 
       {zoomLevel === 'far' || zoomLevel === 'closer' || zoomLevel === 'close' ? (
-        <>
-          <RenderGrid
-            grid={memoizedGrid}
-            tileTypes={memoizedTileTypes}
-            resources={memoizedResources}
-            handleTileClick={handleTileClick}
-            TILE_SIZE={activeTileSize}
-            setHoverTooltip={setHoverTooltip} 
-          />
-          <DynamicRenderer
-            TILE_SIZE={activeTileSize}
-            setInventory={setInventory}
-            setResources={setResources}
-            currentPlayer={currentPlayer}
-            openPanel={openPanel}
-            onNPCClick={handleQuestNPCClick}  // Pass the callback
-            onPCClick={handlePCClick}  // Pass the callback
-            masterResources={masterResources}
-            masterSkills={masterSkills}
-            setHoverTooltip={setHoverTooltip}
-            setModalContent={setModalContent}
-            setIsModalOpen={setIsModalOpen} 
-            updateStatus={updateStatus}
-          /> 
-          {/* <RenderVFX 
-            toggleVFX={currentPlayer?.settings?.toggleVFX}
-            // Placeholder for VFX
-            TILE_SIZE={activeTileSize}
-          /> */}
+      <>
+        <RenderGrid
+          grid={memoizedGrid}
+          tileTypes={memoizedTileTypes}
+          resources={memoizedResources}
+          handleTileClick={handleTileClick}
+          TILE_SIZE={activeTileSize}
+          setHoverTooltip={setHoverTooltip} 
+        />
+        <DynamicRenderer
+          TILE_SIZE={activeTileSize}
+          setInventory={setInventory}
+          setResources={setResources}
+          currentPlayer={currentPlayer}
+          openPanel={openPanel}
+          onNPCClick={handleQuestNPCClick}  // Pass the callback
+          onPCClick={handlePCClick}  // Pass the callback
+          masterResources={masterResources}
+          masterSkills={masterSkills}
+          setHoverTooltip={setHoverTooltip}
+          setModalContent={setModalContent}
+          setIsModalOpen={setIsModalOpen} 
+          updateStatus={updateStatus}
+        /> 
+        {/* <RenderVFX 
+          toggleVFX={currentPlayer?.settings?.toggleVFX}
+          // Placeholder for VFX
+          TILE_SIZE={activeTileSize}
+        /> */}
 
         </>
       ) : null}
