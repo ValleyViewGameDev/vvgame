@@ -122,6 +122,7 @@ function App() {
           setModalContent({
               title: strings["5060"],
               message: strings["5061"],
+              message2: strings["5062"],
               size: "small",
             });
           setIsModalOpen(true);

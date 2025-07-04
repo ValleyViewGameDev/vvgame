@@ -62,6 +62,7 @@ const LoginPanel = ({ onClose, setCurrentPlayer, onLoginSuccess }) => {
                 Create Account
               </button>
             </div>  
+            <h4>You will not be asked for an email address.</h4>
             <h4>With a new account, you'll be granted your own homestead to cultivate in a Settlement with other players, in a Frontier full of Settlements. Adventure awits you in the Valley.</h4>
 
             <h3>Have an existing account?</h3>

@@ -56,13 +56,17 @@ const getTemplate = (baseDir, type, gridCoord) => {
 
 
 /////////////////////////////////////////////////////////////
-// HOMESTEAD LAYOUTS -- always the same 4, based on the season
+// HOMESTEAD & TOWN LAYOUTS -- always the same 4, based on the season
 //
 function getHomesteadLayoutFile(seasonType) {
   const layoutFileName = `homestead${seasonType}.json`;
   const layoutPath = path.join(__dirname, '../layouts/gridLayouts/homestead', layoutFileName);
   return fs.existsSync(layoutPath) ? layoutFileName : 'homestead_default.json';
 }
+function getTownLayoutFile(seasonType) {
+  const layoutFileName = `town${seasonType}.json`;
+  const layoutPath = path.join(__dirname, '../layouts/gridLayouts/town', layoutFileName);
+  return fs.existsSync(layoutPath) ? layoutFileName : 'town_default.json';
+}
 
-
-module.exports = { getTemplate, getHomesteadLayoutFile };
+module.exports = { getTemplate, getHomesteadLayoutFile, getTownLayoutFile };

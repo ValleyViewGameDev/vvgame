@@ -6,22 +6,31 @@ const fs = require('fs');
 const { generateGrid, generateResources } = require('./worldUtils');
 const { readJSON } = require('./fileUtils');const { ObjectId } = require('mongodb');
 const masterResources = require('../tuning/resources.json');
-const { getTemplate, getHomesteadLayoutFile } = require('./templateUtils');
+const { getTemplate, getHomesteadLayoutFile, getTownLayoutFile } = require('./templateUtils');
 
 async function performGridReset(gridId, gridType, gridCoord) {
   const grid = await Grid.findById(gridId);
   if (!grid) throw new Error(`Grid not found: ${gridId}`);
 
+  const frontier = await Frontier.findById(grid.frontierId);
+  const seasonType = frontier?.seasons?.seasonType || 'default';
+
   // Load layout
   let layout, layoutFileName;
   if (gridType === 'homestead') {
-    const frontier = await Frontier.findById(grid.frontierId);
-    const seasonType = frontier?.seasons?.seasonType || 'default';
     const layoutFile = getHomesteadLayoutFile(seasonType);
     const seasonalPath = path.join(__dirname, '../layouts/gridLayouts/homestead', layoutFile);
     layout = readJSON(seasonalPath);
     layoutFileName = layoutFile;
-    console.log(`🌱 Using seasonal homestead layout for reset: ${layoutFile}`);
+    console.log(`🗓️ Using seasonal homestead layout for reset: ${layoutFile}`);
+
+  } else if (gridType === 'town') {
+    const layoutFile = getTownLayoutFile(seasonType);
+    const seasonalPath = path.join(__dirname, '../layouts/gridLayouts/town', layoutFile);
+    layout = readJSON(seasonalPath);
+    layoutFileName = layoutFile;
+    console.log(`🗓️ Using seasonal town layout for reset: ${layoutFile}`);
+
   } else {
     console.log(`🔍 Fetching layout for gridType: ${gridType}, gridCoord: ${gridCoord}`);
     const fixedCoordPath = path.join(__dirname, `../layouts/gridLayouts/valleyFixedCoord/${gridCoord}.json`);

@@ -67,13 +67,22 @@ router.post('/create-grid', async (req, res) => {
 
     // 3) Load the correct grid template — seasonal override if gridType is 'homestead'
     let layoutFileName, layout, isFixedLayout = false;
+    const seasonType = frontier.seasons?.seasonType || 'default'; // e.g., Spring, Summer
+
     if (gridType === 'homestead') {
-      const seasonType = frontier.seasons?.seasonType || 'default'; // e.g., Spring, Summer
-      const seasonalLayoutFile = getHomesteadLayoutFile(seasonType); // fallback-safe helper
+      const seasonalLayoutFile = getHomesteadLayoutFile(seasonType); 
       const seasonalPath = path.join(__dirname, '../layouts/gridLayouts/homestead', seasonalLayoutFile);
       layout = readJSON(seasonalPath);
       layoutFileName = seasonalLayoutFile;
-      console.log(`🌱 Using seasonal homestead layout: ${seasonalLayoutFile}`);
+      console.log(`🗓️ Using seasonal homestead layout: ${seasonalLayoutFile}`);
+
+    } else if (gridType === 'town') {
+      const seasonalLayoutFile = getTownLayoutFile(seasonType); 
+      const seasonalPath = path.join(__dirname, '../layouts/gridLayouts/town', seasonalLayoutFile);
+      layout = readJSON(seasonalPath);
+      layoutFileName = seasonalLayoutFile;
+      console.log(`🗓️ Using seasonal town layout: ${seasonalLayoutFile}`);
+
     } else {
       // First, check for a fixed layout in valleyFixedCoord
       const fixedCoordPath = path.join(__dirname, `../layouts/gridLayouts/valleyFixedCoord/${gridCoord}.json`);
@@ -171,7 +180,7 @@ router.post('/create-grid', async (req, res) => {
 });
 
 
-// reset-grid
+// reset-grid 
 router.post('/reset-grid', async (req, res) => {
   const { gridCoord, gridId, gridType } = req.body;
   console.log('Reached reset-grid;  gridCoord =', gridCoord, ', gridId =', gridId, ', gridType =', gridType);
