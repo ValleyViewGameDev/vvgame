@@ -10,6 +10,7 @@ import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { StatusBarContext } from '../UI/StatusBar';
 import { usePanelContext } from '../UI/PanelContext';
+import strings from '../UI/strings.json';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel }) => {
   const { openPanel } = usePanelContext();
@@ -230,17 +231,17 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
     >
       <div className="panel-content">
 
-        <h2>Hi, {currentPlayer.username} {currentPlayer.icon}</h2>
+        <h2>{strings[4051]} {currentPlayer.username} {currentPlayer.icon}</h2>
 
         <div className="panel-buttons">
-          <button className="btn-success" onClick={() => setShowChangeIconModal(true)}>Change Avatar</button>
+          <button className="btn-success" onClick={() => setShowChangeIconModal(true)}>{strings[4065]}</button>
         </div>
 
         <br />
 
         {/* User Details Form */}
         <div className="form-group">
-          <label>Change Username:</label>
+          <label>{strings[4052]}</label>
           <input
             name="username"
             type="text"
@@ -250,7 +251,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           />
         </div>
         <div className="form-group">
-          <label>Change Password:</label>
+          <label>{strings[4053]}</label>
           <input
             name="password"
             type="password"
@@ -269,11 +270,11 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         <br />
         <br />
 
-        <h3>Account Management</h3>
+        <h3>{strings[4054]}</h3>
 
         {isDeveloper && (
           <div className="form-group">
-            <label>Account Status:</label>
+            <label>{strings[4055]}</label>
             <select name="accountStatus" value={formData.accountStatus} onChange={handleInputChange}>
               <option value="Free">Free</option>
               <option value="Bronze">Bronze</option>
@@ -290,7 +291,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         </div>
         <div className="panel-buttons">
           <button className="btn-danger" onClick={handleLogout}>
-            Logout
+            {strings[4056]}
           </button>
         </div>
         <div className="panel-buttons">
@@ -318,31 +319,31 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
               }
             }}
           >
-            Delete Account
+            {strings[4057]}
           </button>
         </div>
-        <p>Player ID: {currentPlayer?.playerId || 'N/A'}</p>
+        <p>{strings[4058]} {currentPlayer?.playerId || 'N/A'}</p>
 
         <br/>
 
 
         {/* Relocation Controls */}
 
-        <h3>Homestead Relocation</h3>
-        <p>Relocations Remaining: <strong>{currentPlayer.relocations}</strong></p>
+        <h3>{strings[4059]}</h3>
+        <p>{strings[4060]} <strong>{currentPlayer.relocations}</strong></p>
         <div className="panel-buttons">
           <button className="btn-success" onClick={handleRelocation} disabled={!currentPlayer.relocations}>
             {isRelocating ? 'Cancel Relocation' : 'Relocate Homestead'}
           </button>
-        <p>Visit the Store to purchase more Relocations.</p>
+        <p>{strings[4061]}</p>
         </div>
 
 
         {/* Settings Toggles */}
 
-        <h3>Settings</h3>
+        <h3>{strings[4062]}</h3>
         <div className="panel-buttons">
-          <button className="btn-success" onClick={handleLanguage}>Language</button>
+          <button className="btn-success" onClick={handleLanguage}>{strings[4063]}</button>
         </div>
 
         <div className="debug-toggles">
@@ -350,7 +351,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
             className={`btn-toggle ${localSettings.rangeOn ? 'btn-enabled' : 'btn-disabled'}`}
             onClick={() => handleToggleChange('rangeOn')}
           >
-            Range Indicator: {localSettings.rangeOn ? 'is ON' : 'is OFF'}
+            {strings[4064]}{localSettings.rangeOn ? 'is ON' : 'is OFF'}
           </button>
 
           {isDeveloper && (

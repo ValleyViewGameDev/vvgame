@@ -308,6 +308,7 @@ const memoizedGrid = useMemo(() => grid, [grid]);
 const memoizedTileTypes = useMemo(() => tileTypes, [tileTypes]);
 const memoizedResources = useMemo(() => resources, [resources]);
 
+const [showKeyArt, setShowKeyArt] = useState(false);
 
 /////////// APP INITIALIZATION /////////////////////////
 
@@ -366,16 +367,10 @@ useEffect(() => {
       const storedPlayer = localStorage.getItem('player');
 
       if (!storedPlayer) {
-        console.log('No stored player found, opening login modal.');
+        console.log('No stored player found, showing login screen.');
         setisLoginPanelOpen(true);    
         openPanel("LoginPanel");  
-        setModalContent({
-          title: strings["5005"],  // "Welcome"
-          message: strings["5006"], 
-          message2: strings["5007"], 
-          size: "small"
-        });
-        setIsModalOpen(true);
+        setShowKeyArt(true);  // 👈 NEW STATE FLAG TO TRIGGER IMAGE
         return;
       }
       const parsedPlayer = JSON.parse(storedPlayer);
@@ -1527,6 +1522,17 @@ return ( <>
 {/* //////////////////// Game Board //////////////////// */}
 
     <div className="homestead">
+
+      {showKeyArt && (
+        <div className="keyart-wrapper">
+          <img
+            src="/assets/images/ValleyViewLoadScreen.png"
+            alt="Valley View Key Art"
+            className="keyart-image"
+          />
+        </div>
+      )}
+
       {zoomLevel === 'far' || zoomLevel === 'closer' || zoomLevel === 'close' ? (
         <>
           <RenderGrid

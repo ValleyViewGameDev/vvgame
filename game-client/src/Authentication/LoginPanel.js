@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import Panel from '../UI/Panel';
 import CreateAccount from './CreateAccount';
-import '../UI/Panel.css'; // Use the standardized styles
+import '../UI/Panel.css'; 
+import strings from '../UI/strings.json';
 
 const LoginPanel = ({ onClose, setCurrentPlayer, onLoginSuccess }) => {
   const [username, setUsername] = useState('');
@@ -53,17 +54,17 @@ const LoginPanel = ({ onClose, setCurrentPlayer, onLoginSuccess }) => {
             <div className="form-group">
 
             <div className="panel-buttons">
-            <h3>Don't have an account yet? Create a free account to start playing:</h3>
+            <h3>{strings[4001]}</h3>
               <button
                 type="button"
                 className="btn-success"
                 onClick={() => setShowCreateAccount(true)}
               >
-                Create Account
+                {strings[4002]}
               </button>
             </div>  
-            <h4>You will not be asked for an email address.</h4>
-            <h4>With a new account, you'll be granted your own homestead to cultivate in a Settlement with other players, in a Frontier full of Settlements. Adventure awits you in the Valley.</h4>
+            <h4>{strings[4004]}</h4>
+            <h4>{strings[4005]}</h4>
 
             <h3>Have an existing account?</h3>
 
@@ -77,7 +78,7 @@ const LoginPanel = ({ onClose, setCurrentPlayer, onLoginSuccess }) => {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="password">Password</label>
+              <label htmlFor="password">{strings[4006]}</label>
               <input
                 id="password"
                 type="password"
@@ -90,7 +91,7 @@ const LoginPanel = ({ onClose, setCurrentPlayer, onLoginSuccess }) => {
 
             <div className="panel-buttons">
               <button type="submit" className="btn-success">
-                Login
+                {strings[4007]}
               </button>
             </div>
           </form>
