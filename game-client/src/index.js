@@ -1,4 +1,5 @@
 import React from 'react';
+import { StringsProvider } from './UI/StringsContext';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
@@ -8,22 +9,25 @@ import { GridStateProvider } from './GridState/GridStateContext';
 import { GridStatePCProvider } from './GridState/GridStatePCContext';
 import { ModalProvider } from './UI/ModalContext';
 
+const savedPlayer = localStorage.getItem('player');
+const savedLanguage = savedPlayer ? JSON.parse(savedPlayer)?.language : 'en';
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <GridStateProvider>
-      <GridStatePCProvider>
-        <StatusBarProvider>
-          <PanelProvider> {/* Wrap App in PanelProvider */}
-            <ModalProvider>
-
-             <App />
-
-           </ModalProvider>
-          </PanelProvider>
-        </StatusBarProvider>
-      </GridStatePCProvider>
-    </GridStateProvider>
+    <StringsProvider language={savedLanguage}>
+      <GridStateProvider>
+        <GridStatePCProvider>
+          <StatusBarProvider>
+            <PanelProvider>
+              <ModalProvider>
+                <App />
+              </ModalProvider>
+            </PanelProvider>
+          </StatusBarProvider>
+        </GridStatePCProvider>
+      </GridStateProvider>
+    </StringsProvider>
   </React.StrictMode>
 );
 

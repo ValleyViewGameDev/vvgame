@@ -95,7 +95,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
         icon: '😀',  // or any default icon
         accountStatus,
         role,
-        language,
+        language: "en",
         location: {
           x: 2,
           y: 2,

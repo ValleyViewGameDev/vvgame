@@ -3,6 +3,7 @@ import './GameFeatures/Chat/Chat.css';
 import './VFX/VFX.css';
 import axios from 'axios';
 import API_BASE from './config.js';
+import { StringsProvider } from './UI/StringsContext';
 import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
 import { initializeGrid } from './AppInit';
@@ -10,9 +11,6 @@ import { loadMasterSkills, loadMasterResources } from './Utils/TuningManager';
 import { RenderGrid } from './Render/Render';
 import DynamicRenderer from './Render/RenderDynamic.js';
 import { handleResourceClick } from './ResourceClicking';
-
-//test 
-// hi it's milo
 
 import socket from './socketManager';
 import {
@@ -43,7 +41,9 @@ import SettlementView from './ZoomedOut/SettlementView';
 import FrontierView from './ZoomedOut/FrontierView';
 
 import Modal from './UI/Modal';
-import strings from './UI/strings.json';
+import LanguagePickerModal from './UI/LanguagePickerModal';
+import { useStrings } from './UI/StringsContext';
+import LANGUAGE_OPTIONS from './UI/Languages.json';
 import ProfilePanel from './Authentication/ProfilePanel';
 import LoginPanel from './Authentication/LoginPanel';
 import DebugPanel from './Utils/debug';
@@ -92,7 +92,7 @@ import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
 
 function App() {
-
+  const strings = useStrings();
   const { activeModal, setActiveModal, openModal, closeModal } = useModalContext();
   const { updateStatus } = useContext(StatusBarContext);
   const openMailbox = () => openModal && openModal('Mailbox');
@@ -558,6 +558,7 @@ useEffect(() => {
       updateStatus(error.code === 'ERR_NETWORK' ? 1 : 0);  // Handle errors
     }
   };
+
 
   initializeAppWrapper();
 
@@ -1320,9 +1321,11 @@ const handleLoginSuccess = async (player) => {
   // Chat panel slideout state
   const [isChatOpen, setIsChatOpen] = useState(false);
 
+
   /////////////// RENDERING THE APP /////////////////////////
 
-return ( <>
+return (
+    <>
 
 {/* //////////////////////  Header  //////////////////////// */}
 
@@ -1349,7 +1352,9 @@ return ( <>
       </div>
         <div className="header-controls-right">
             <button className="shared-button" onClick={() => setShowShareModal(true)}>📢 Share</button>
-            <button className="shared-button" onClick={() => openModal('Language')}>🌎 EN</button>
+            <button className="shared-button" onClick={() => setActiveModal('LanguagePicker')}>
+              🌎 {LANGUAGE_OPTIONS.find(l => l.code === currentPlayer?.language)?.label || 'Language'}
+            </button>
             <div className="nav-button-wrapper">
               <button className="shared-button" onClick={() => setIsChatOpen(prev => !prev)}>💬 Chat</button>
               {badgeState.chat && <div className="badge-dot" />}
@@ -1413,7 +1418,7 @@ return ( <>
 {/* ///////////////////  Base Panel  ///////////////////// */}
 
     <div className="base-panel">
-      <h1>Valley View</h1>  
+      <h1>{strings[0]}</h1>  
       <br/>
         {currentPlayer && (
           <button className="shared-button" onClick={() => openPanel('ProfilePanel')}>
@@ -1653,6 +1658,15 @@ return ( <>
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           resources={masterResources}
+        />
+      )}
+      {activeModal === 'LanguagePicker' && (
+        <LanguagePickerModal
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          updateStatus={updateStatus}
+          onClose={() => setActiveModal(null)}
+          onSave={() => setActiveModal(null)}
         />
       )}
       {activeModal === "Store" && (

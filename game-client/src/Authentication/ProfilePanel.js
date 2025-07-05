@@ -11,6 +11,8 @@ import playersInGridManager from '../GridState/PlayersInGrid';
 import { StatusBarContext } from '../UI/StatusBar';
 import { usePanelContext } from '../UI/PanelContext';
 import strings from '../UI/strings.json';
+import LANGUAGE_OPTIONS from '../UI/Languages.json';
+import { useModalContext } from '../UI/ModalContext';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel }) => {
   const { openPanel } = usePanelContext();
@@ -103,7 +105,11 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
     });
   };
 
-  const handleLanguage = async () => {}
+  const { setActiveModal } = useModalContext();
+
+  const handleLanguage = () => {
+    setActiveModal('LanguagePicker');
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -343,7 +349,9 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
         <h3>{strings[4062]}</h3>
         <div className="panel-buttons">
-          <button className="btn-success" onClick={handleLanguage}>{strings[4063]}</button>
+          <button className="btn-success" onClick={handleLanguage}>
+            🌎 {LANGUAGE_OPTIONS.find(l => l.code === currentPlayer.language)?.label || 'Language'}
+          </button>
         </div>
 
         <div className="debug-toggles">

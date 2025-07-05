@@ -1,5 +1,5 @@
 {
-    "0": "Valley View", 
+    "0": "Valley View [FR]", 
     "1": "Server is not running.",
     "3": "🚜 Land successfully tilled.",
     "4": "⚠️ You don't have enough resources.",
@@ -165,10 +165,10 @@
     "1026": "[Money panel description]",
     "1027": "These are the benefits of a Gold Account.",
 
-    "1101": "Inventory",
-    "1102": "⚒️ Build",
-    "1103": "🛒 Buy",
-    "1104": "🚜 Farming",
+    "1101": "Inventory [FR]",
+    "1102": "⚒️ Build [FR]",
+    "1103": "🛒 Buy [FR]",
+    "1104": "🚜 Farming [FR]",
     "1105": "⚙️ Skills & Upgrades",
     "1106": "❓ Quests",
     "1107": "🏛️ Government",

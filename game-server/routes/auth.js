@@ -182,6 +182,7 @@ router.post('/login', async (req, res) => {
       player: {
         playerId: player._id,
         username: player.username,
+        language: player.language,
         icon: player.icon,
         location: player.location,
         inventory: player.inventory,
