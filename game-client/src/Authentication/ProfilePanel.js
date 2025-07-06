@@ -10,11 +10,12 @@ import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { StatusBarContext } from '../UI/StatusBar';
 import { usePanelContext } from '../UI/PanelContext';
-import strings from '../UI/strings.json';
 import LANGUAGE_OPTIONS from '../UI/Languages.json';
 import { useModalContext } from '../UI/ModalContext';
+import { useStrings } from '../UI/StringsContext';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel }) => {
+  const strings = useStrings();
   const { openPanel } = usePanelContext();
 
   const [isDeveloper, setIsDeveloper] = useState(false);
@@ -269,7 +270,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
         <div className="panel-buttons">
           <button className="btn-success" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Saving...' : 'Save Changes'}
+            {isSaving ? 'Saving...' : strings[10128]}
           </button>
         </div>
 
@@ -292,7 +293,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
         <div className="panel-buttons">
           <button className="btn-gold" onClick={handleGoldPanelSwitch}>
-            {formData.accountStatus === 'Gold' ? 'You Have a Gold Account' : 'Gold Account Benefits'}
+            {formData.accountStatus === 'Gold' ? strings[10130] : strings[10131]}
           </button>
         </div>
         <div className="panel-buttons">
@@ -339,7 +340,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         <p>{strings[4060]} <strong>{currentPlayer.relocations}</strong></p>
         <div className="panel-buttons">
           <button className="btn-success" onClick={handleRelocation} disabled={!currentPlayer.relocations}>
-            {isRelocating ? 'Cancel Relocation' : 'Relocate Homestead'}
+            {isRelocating ? strings[10132] : strings[10133]}
           </button>
         <p>{strings[4061]}</p>
         </div>

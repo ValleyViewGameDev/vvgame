@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext } from 'react';
-import strings from './strings.json';
+import { useStrings } from './StringsContext';
 import './StatusBar.css';
 
 // Create Context
@@ -7,6 +7,7 @@ export const StatusBarContext = createContext();
 
 // Provider Component
 export const StatusBarProvider = ({ children }) => {
+  const strings = useStrings(); // Get strings from context
   const [message, setMessage] = useState('...'); // Default message
 
   /**

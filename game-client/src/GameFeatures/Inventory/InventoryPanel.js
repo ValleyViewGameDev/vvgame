@@ -4,11 +4,12 @@ import axios from 'axios';
 import Panel from '../../UI/Panel';
 import '../../UI/Panel.css';
 import './InventoryPanel.css'; 
-import strings from '../../UI/strings.json';
+import { useStrings } from '../../UI/StringsContext';
 import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
 
 function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPlayer, updateStatus }) {
 
+    const strings = useStrings();
     const inventory = currentPlayer?.inventory || [];
     const backpack = currentPlayer?.backpack || [];
     const baseWarehouseCapacity = currentPlayer?.warehouseCapacity || 0;

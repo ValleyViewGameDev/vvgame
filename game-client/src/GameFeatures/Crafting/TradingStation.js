@@ -9,7 +9,7 @@ import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate, gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import strings from '../../UI/strings';
+import { useStrings } from '../../UI/StringsContext';
 
 const TradingStation = ({
   onClose,
@@ -27,6 +27,7 @@ const TradingStation = ({
   updateStatus,
   masterResources,
 }) => {
+  const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [stationEmoji, setStationEmoji] = useState('🛖');

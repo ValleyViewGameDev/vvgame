@@ -9,7 +9,7 @@ import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { handleFarmPlotPlacement, handleTerraform } from './Farming';
-import strings from '../../UI/strings';
+import { useStrings } from '../../UI/StringsContext';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
  
 const FarmingPanel = ({
@@ -32,6 +32,7 @@ const FarmingPanel = ({
   updateStatus,
 }) => {
 
+  const strings = useStrings();
   const [farmPlots, setFarmPlots] = useState([]);
   const [allResources, setAllResources] = useState([]);
   const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);

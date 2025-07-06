@@ -5,10 +5,11 @@ import Panel from '../../UI/Panel';
 import axios from 'axios';
 import { StatusBarContext } from '../../UI/StatusBar';
 import playersInGridManager from '../../GridState/PlayersInGrid';
-import strings from '../../UI/strings.json';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
+import { useStrings } from '../../UI/StringsContext';
 
 const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources, masterSkills, TILE_SIZE }) => {
+  const strings = useStrings();
   const [allResources, setAllResources] = useState([]);
   const [isContentLoading, setIsContentLoading] = useState(false);
   const { updateStatus } = useContext(StatusBarContext);

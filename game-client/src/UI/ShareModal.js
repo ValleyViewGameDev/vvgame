@@ -2,8 +2,11 @@ import React from 'react';
 import './ShareModal.css';
 import './SharedButtons.css';
 import { shareToNetwork, copyToClipboard } from '../Utils/share';
+import { useStrings } from './StringsContext';
 
 function ShareModal({ onClose }) {
+
+  const strings = useStrings();
   const url = window.location.href;
 
   return (

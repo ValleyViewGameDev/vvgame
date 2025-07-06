@@ -11,7 +11,7 @@ import { loadMasterResources, loadMasterSkills } from '../../Utils/TuningManager
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import playersInGridManager from '../../GridState/PlayersInGrid';
-import strings from '../../UI/strings.json';
+import { useStrings } from '../../UI/StringsContext';
 
 const ShopStation = ({
   onClose,
@@ -29,6 +29,7 @@ const ShopStation = ({
   updateStatus,
   masterResources,
 }) => {
+  const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [stationEmoji, setStationEmoji] = useState('🛖');

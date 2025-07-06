@@ -2,9 +2,10 @@ import React, { useState, useRef } from 'react';
 import ReactDOM from 'react-dom'; // ✅ Add this
 import './ResourceButton.css';
 import './QuestButton.css';
-import strings from './strings.json'; // ✅ Import strings
+import { useStrings } from './StringsContext';
 
 const QuestButton = ({ quest, state, onClick }) => {
+  const strings = useStrings();
   const { symbol, title, completed, goals = [], textbody } = quest;
   const [isHovered, setIsHovered] = useState(false);
   const timeoutRef = useRef(null);
@@ -50,6 +51,7 @@ const QuestButton = ({ quest, state, onClick }) => {
 };
 
 const QuestGiverButton = ({ quest, state, onClick }) => {
+  const strings = useStrings();
   const { symbol, title, textbody, reward, rewardqty, goals = [] } = quest;
   const buttonText = state === 'reward' ? strings[208] : strings[209];
   const [isHovered, setIsHovered] = useState(false);

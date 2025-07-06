@@ -10,7 +10,7 @@ import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManageme
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { loadMasterResources } from '../../Utils/TuningManager';
 import { updateBadge } from '../../Utils/appUtils';
-import strings from '../../UI/strings.json';
+import { useStrings } from '../../UI/StringsContext';
 
 function Mailbox({ 
   onClose, 
@@ -23,6 +23,7 @@ function Mailbox({
   resources,
   updateStatus,
 }) {
+  const strings = useStrings();
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [markedReadIds, setMarkedReadIds] = useState([]);

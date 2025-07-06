@@ -1,5 +1,5 @@
 import API_BASE from '../../config';
-import strings from '../../UI/strings';
+import { useStrings } from '../../UI/StringsContext';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel'; // Use Panel instead of Modal
 import axios from 'axios';
@@ -10,6 +10,7 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 
 function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurrentPlayer }) {
 
+  const strings = useStrings();
   const [tradeSlots, setTradeSlots] = useState([]);
   const [selectedSlotIndex, setSelectedSlotIndex] = useState(null);
   const [amounts, setAmounts] = useState({}); // Store amounts per resource

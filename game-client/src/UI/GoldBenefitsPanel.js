@@ -1,12 +1,13 @@
 import React, { memo } from 'react';
 import Panel from './Panel'; 
-import strings from './strings.json'
 import { handlePurchase } from '../Store/Store';
 import './SharedButtons.css'; 
+import { useStrings } from './StringsContext';
 
 
 const GoldBenefitsPanel = memo(({ currentPlayer, updateStatus, onClose }) => {
   
+  const strings = useStrings();
   const isGold = currentPlayer.accountStatus === 'Gold';
 
   return (
@@ -15,9 +16,9 @@ const GoldBenefitsPanel = memo(({ currentPlayer, updateStatus, onClose }) => {
 
         <div className="standard-buttons">
           {isGold ? (
-            <p>Thank you for your Gold Account purchase.</p>
+            <p>{strings[9060]}</p>
           ) : (
-            <button className="btn-gold" onClick={() => handlePurchase(1, currentPlayer, updateStatus)}>Purchase a Gold Account</button>
+            <button className="btn-gold" onClick={() => handlePurchase(1, currentPlayer, updateStatus)}>{strings[9061]}</button>
           )}
         </div>
 <br />

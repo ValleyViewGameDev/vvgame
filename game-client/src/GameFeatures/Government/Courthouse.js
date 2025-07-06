@@ -7,11 +7,12 @@ import axios from 'axios';
 import { StatusBarContext } from '../../UI/StatusBar';
 import './Courthouse.css';
 import '../../UI/Panel.css';
-import strings from '../../UI/strings.json';
+import { useStrings } from '../../UI/StringsContext';
 import '../../UI/Modal.css';
 
 const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
 
+    const strings = useStrings();
     const [settlement, setSettlement] = useState(null);
     const [taxRate, setTaxRate] = useState(0);
     const [isMayor, setIsMayor] = useState(false);

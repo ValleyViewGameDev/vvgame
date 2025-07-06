@@ -8,7 +8,7 @@ import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManageme
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import strings from '../../UI/strings.json';
+import { useStrings } from '../../UI/StringsContext';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { spendIngredients } from '../../Utils/InventoryManagement';
 
@@ -24,6 +24,7 @@ const SkillsAndUpgradesPanel = ({
     TILE_SIZE,
     updateStatus,
 }) => {
+  const strings = useStrings();
   const [entryPoint, setEntryPoint] = useState(stationType || "Skills Panel"); 
   const [allResources, setAllResources] = useState([]);
   const [skillsToAcquire, setSkillsToAcquire] = useState([]);

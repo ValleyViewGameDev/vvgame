@@ -1,12 +1,27 @@
 import React, { createContext, useContext } from 'react';
 import stringsEN from './Strings/stringsEN.json';
 import stringsFR from './Strings/stringsFR.json';
-// Add more as needed...
+import stringsES from './Strings/stringsES.json';
+import stringsIT from './Strings/stringsIT.json';
+import stringsDE from './Strings/stringsDE.json';
+import stringsPT from './Strings/stringsPT.json';
+import stringsRU from './Strings/stringsRU.json';
+import stringsNO from './Strings/stringsNO.json';
+import stringsSV from './Strings/stringsSV.json';
+import stringsFI from './Strings/stringsFI.json';
 
 const STRINGS_MAP = {
   en: stringsEN,
   fr: stringsFR,
-  // Add more as needed...
+  es: stringsES,
+  de: stringsDE,
+  it: stringsIT,
+  pt: stringsPT,
+  ru: stringsRU,
+  no: stringsNO,
+  sv: stringsSV,
+  fi: stringsFI,
+  // Add more languages here as needed
 };
 
 const StringsContext = createContext(stringsEN); // Default to English

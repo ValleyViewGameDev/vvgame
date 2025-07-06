@@ -5,8 +5,10 @@ import './LanguagePickerModal.css';
 import './SharedButtons.css';
 import LANGUAGE_OPTIONS from './Languages.json';
 import axios from 'axios';
+import { useStrings } from './StringsContext';
 
 export default function LanguagePickerModal({ currentPlayer, setCurrentPlayer, updateStatus, onClose, onSave }) {
+  const strings = useStrings();
   const [selectedLanguage, setSelectedLanguage] = useState(currentPlayer.language || '');
 
   const handleLanguageClick = (langCode) => {

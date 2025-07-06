@@ -7,6 +7,7 @@ import { spendIngredients, gainIngredients } from '../../Utils/InventoryManageme
 import './Train.css';
 import FloatingTextManager from '../../UI/FloatingText';
 import { formatCountdown } from '../../UI/Timers';
+import { useStrings } from '../../UI/StringsContext';
 
 function TrainPanel({ 
   onClose, 
@@ -20,6 +21,7 @@ function TrainPanel({
   masterResources,
   }) 
 {
+  const strings = useStrings();
   const [trainOffers, setTrainOffers] = useState([]);
   const [trainPhase, setTrainPhase] = useState("loading");
   const [trainTimer, setTrainTimer] = useState("⏳");

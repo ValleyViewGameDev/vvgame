@@ -1,12 +1,13 @@
 // src/GameFeatures/Seasons/OffSeasonModal.js
 import React, { useState, useEffect } from 'react';
 import Modal from '../../UI/Modal';
-import strings from '../../UI/strings.json';
+import { useStrings } from '../../UI/StringsContext';
 import { formatCountdown } from '../../UI/Timers';
 import axios from 'axios';
 import API_BASE from '../../config';
 
 function OffSeasonModal({ onClose, currentPlayer }) {
+  const strings = useStrings();
   const [countdown, setCountdown] = useState("...");
   const [seasons, setSeasons] = useState([]);
   const [seasonData, setSeasonData] = useState({ type: "Unknown", phase: "Unknown", endTime: null });

@@ -2,8 +2,11 @@ import API_BASE from '../config';
 import React, { useState } from 'react';
 import axios from 'axios';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
+import { useStrings } from '../UI/StringsContext';
+import LANGUAGE_OPTIONS from '../UI/Languages.json';
 
 const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
+  const strings = useStrings();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [language, setLanguage] = useState('');
@@ -15,7 +18,6 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
     try {
       const accountStatus = 'Free';
       const role = 'Citizen';
-      const language = 'English';
       const frontierName = 'Valley View 1';
 
 // 1) Fetch the Frontier by Name
@@ -95,7 +97,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
         icon: '😀',  // or any default icon
         accountStatus,
         role,
-        language: "en",
+        language,
         location: {
           x: 2,
           y: 2,
@@ -205,7 +207,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
 
 return (
   <div id="create-account-form">
-    <h2>Create Account</h2>
+    <h2>{strings[4002]}</h2>
     <form onSubmit={handleCreateAccount}>
       <input
         type="text"
@@ -219,14 +221,19 @@ return (
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <input
-        type="language"
-        placeholder="language"
+      <select
         value={language}
         onChange={(e) => setLanguage(e.target.value)}
-      />
+      >
+        <option value="">{strings[4067]}</option>
+        {LANGUAGE_OPTIONS.map(({ code, label }) => (
+          <option key={code} value={code}>
+            {label}
+          </option>
+        ))}
+      </select>
       <div className="panel-buttons">
-        <button className="btn-success" type="submit">Create Account</button>
+        <button className="btn-success" type="submit">{strings[4002]}</button>
       </div>
     </form>
 
@@ -235,11 +242,14 @@ return (
         type="button"
         onClick={() => setIsLoggedIn(false)}
       >
-        Back to Login
+        {strings[4066]}
       </button>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       </div>
+
+      <p> <strong>{strings[4004]}</strong></p>
     </div>
+    
   );
 };
 

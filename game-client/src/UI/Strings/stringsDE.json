@@ -349,6 +349,7 @@
     "4008": "Username",
     "4009": "Login to your account to continue playing. If you don't have an",
 
+
     "4050": "PROFILE PANEL:",
 
     "4051": "Hi, ",
@@ -366,7 +367,9 @@
     "4063": "Language:",  
     "4064": "Range Indicator:",
     "4065": "Change Avatar",
-
+    "4066": "Back to Login",
+    "4067": "Select Language",
+    
     "5000": "MORE MODAL STRINGS:",
 
     "5001": "💀 You have died.",
@@ -458,6 +461,8 @@
     "9057": "✅ Lower Tax rate",
     "9058": "✅ Half your MaxHP restored on death",
     "9059": "✅ You can run for office",
+    "9060": "Thank you for your Gold Account purchase.",
+    "9061": "Purchase a Gold Account",
 
     "10000": "🔌 Server is Down",
     "10001": "The server is currently down. We apologize for the inconvencient, please check back soon.",
@@ -473,7 +478,45 @@
     "iscamping": "Is Camping",
     "armorclass": "Armor Class",
     "backpackCapacity": "Backpack Capacity",
-    "warehouseCapacity": "Warehouse Capacity"
+    "warehouseCapacity": "Warehouse Capacity",
+
+    "10100": "APP.JS STRINGS:",
+
+    "10101": "Welcome to Valley View!",
+    "10102": "Please login, or create a free account.",
+    "10103": "🎒 Inventory",
+    "10104": "🛒 Store",
+    "10105": "📨, Inbox",
+    "10106": "📢 Share",
+    "10107": "💬 Chat",
+    "10108": "You Have a Gold Account",
+    "10109": "↔️ Move Keys: ",
+    "10110": "🕹️ How to Play",
+    "10111": "You are the Mayor",
+    "10112": "❤️‍🩹 Health: ",
+    "10113": "🗓️ It's",
+    "10114": "The Season Ends in:",
+    "10115": "🗓️ Next Season in:",
+    "10116": "⏪ Happening Now in Town:",
+    "10117": "💰 Next Tax Collection:",
+    "10118": "In: ",
+    "10119": "Now collecting taxes...",
+    "10120": "🏛️ Elections: ",
+    "10121": "Ends: ",
+    "10122": "🚂 Train: ",
+    "10123": "🏦 Bank: ",
+    "10124": "New Offers: ",
+    "10125": "Read the News!",
+    "10126": "Who's here:",
+    "10127": "No PCs present in the grid.",
+    "10128": "Save Changes",
+    "10129": "",
+  
+    "10130": "You Have a Gold Account",
+    "10131": "Gold Account Benefits",
+
+    "10132": "Cancel Relocation",
+    "10133": "Relocate Homestead"
 
   }
 

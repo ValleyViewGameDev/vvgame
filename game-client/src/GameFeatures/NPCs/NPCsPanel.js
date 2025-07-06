@@ -11,7 +11,7 @@ import { QuestGiverButton } from '../../UI/QuestButton';
 import { modifyPlayerStatsInPlayer, modifyPlayerStatsInGridState } from '../../Utils/playerManagement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import strings from '../../UI/strings';
+import { useStrings } from '../../UI/StringsContext';
 
 const QuestGiverPanel = ({
   onClose,
@@ -27,6 +27,7 @@ const QuestGiverPanel = ({
   updateStatus,
   masterResources,
 }) => {
+  const strings = useStrings();
   const [questList, setQuestList] = useState([]);
   const [healRecipes, setHealRecipes] = useState([]);
   const [statusMessage, setStatusMessage] = useState('');

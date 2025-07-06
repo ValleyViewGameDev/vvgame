@@ -7,7 +7,7 @@ import '../UI/SharedButtons.css';
 import { StatusBarContext } from '../UI/StatusBar';
 import { loadStripe } from '@stripe/stripe-js';
 import { updateBadge } from '../Utils/appUtils';
-import strings from '../UI/strings.json';
+import { useStrings } from '../UI/StringsContext';
 
 export const handlePurchase = async (offerId, currentPlayer, updateStatus) => {
   try {
@@ -29,6 +29,7 @@ export const handlePurchase = async (offerId, currentPlayer, updateStatus) => {
 };
 
 function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbox, setModalContent, setIsModalOpen }) {
+  const strings = useStrings();
   const [offers, setOffers] = useState([]);
   const { updateStatus } = useContext(StatusBarContext);
 

@@ -1,8 +1,10 @@
 import React, { memo } from 'react';
 import Panel from './Panel'; // Importing the shared Panel component
-import strings from './strings.json'
+import { useStrings } from './StringsContext';
 
 const HowToMoneyPanel = memo(({ onClose }) => {
+
+  const strings = useStrings();
   return (
     <Panel onClose={onClose} descriptionKey="1026" titleKey="1126" panelName="HowToMoneyPanel">
       <div className="panel-content">

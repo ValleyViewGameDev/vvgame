@@ -7,7 +7,7 @@ import { refreshPlayerAfterInventoryUpdate, spendIngredients, gainIngredients } 
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { formatCountdown } from '../../UI/Timers.js';
-import strings from '../../UI/strings.json';
+import { useStrings } from '../../UI/StringsContext';
 
 function BankPanel({ 
     onClose, 
@@ -20,6 +20,7 @@ function BankPanel({
     updateStatus,
     masterResources, }) 
 {
+    const strings = useStrings();
     const [bankOffers, setBankOffers] = useState([]);
     const [bankTimer, setBankTimer] = useState("");
     const [bankPhase, setBankPhase] = useState("");

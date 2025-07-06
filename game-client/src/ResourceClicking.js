@@ -9,7 +9,7 @@ import { lockResource, unlockResource } from './Utils/ResourceLockManager';
 import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
 import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
 import { createCollectEffect, createSourceConversionEffect, calculateTileCenter } from './VFX/VFX';
-import strings from './UI/strings.json';
+import { useStrings } from './UI/StringsContext';
 import InventoryPanel from './GameFeatures/Inventory/InventoryPanel.js';
  
  // Handles resource click actions based on category. //
@@ -38,6 +38,7 @@ import InventoryPanel from './GameFeatures/Inventory/InventoryPanel.js';
   setModalContent,
   setIsModalOpen,
   closeAllPanels,
+  strings
 ) {
   console.log(`Resource Clicked:  (${row}, ${col}):`, { resource, tileType: tileTypes[row]?.[col] });
   if (!resource || !resource.category) { console.error(`Invalid resource at (${col}, ${row}):`, resource); return; }
@@ -106,7 +107,8 @@ import InventoryPanel from './GameFeatures/Inventory/InventoryPanel.js';
           masterSkills, 
           setModalContent,
           setIsModalOpen,
-          updateStatus
+          updateStatus,
+          strings
         );
         break;
 
@@ -360,7 +362,8 @@ export async function handleSourceConversion(
   masterSkills,
   setModalContent,
   setIsModalOpen,
-  updateStatus
+  updateStatus,
+  strings
 ) {
   if (resource.action !== 'convertTo') return;
 

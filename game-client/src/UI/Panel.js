@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { usePanelContext } from './PanelContext'; // Import the context
 import './Panel.css';
-import strings from './strings.json';
+import { useStrings } from './StringsContext';
 
 const Panel = ({ onClose, children, descriptionKey, panelName, titleKey }) => {
+  const strings = useStrings();
   const { activePanel, openPanel, closePanel } = usePanelContext();
 
   useEffect(() => {

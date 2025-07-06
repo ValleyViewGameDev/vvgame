@@ -4,10 +4,12 @@ import '../UI/SharedButtons.css';
 import { updatePlayerIcon } from '../Authentication/ChangeIcon';
 import ICON_OPTIONS from '../Authentication/PlayerIcons.json';
 import { handlePurchase } from '../Store/Store';
+import { useStrings } from '../UI/StringsContext';
 
 export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updateStatus, currentIcon, playerId, onClose, onSave, setModalContent, setModalIsOpen  }) {
   const [selectedIcon, setSelectedIcon] = useState(currentIcon);
-
+  const strings = useStrings();
+  
   const handleSave = async () => {
     try {
       // Save the emoji label instead of the ID

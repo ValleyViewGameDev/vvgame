@@ -3,7 +3,6 @@ import './GameFeatures/Chat/Chat.css';
 import './VFX/VFX.css';
 import axios from 'axios';
 import API_BASE from './config.js';
-import { StringsProvider } from './UI/StringsContext';
 import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
 import { initializeGrid } from './AppInit';
@@ -281,6 +280,16 @@ const [activeQuestGiver, setActiveQuestGiver] = useState(null);
 const [activeSocialPC, setActiveSocialPC] = useState(null);
 const [activeStation, setActiveStation] = useState(null);
 const [showShareModal, setShowShareModal] = useState(false);
+
+useEffect(() => {
+  const storedPlayer = localStorage.getItem('player');
+  if (!storedPlayer) {
+    console.log('[Watcher] No stored player found — showing login panel.');
+    setisLoginPanelOpen(true);
+    openPanel("LoginPanel");
+    setShowKeyArt(true);
+  }
+}, [activePanel]);
 
 const handleQuestNPCClick = (npc) => {
   console.log('App.js: Opening QuestGiverPanel for NPC:', npc);
@@ -702,7 +711,8 @@ useEffect(() => {
             masterSkills,
             setModalContent,
             setIsModalOpen,
-            closeAllPanels
+            closeAllPanels,
+            strings
           );
         }
       }
@@ -1339,24 +1349,24 @@ return (
             ? (currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0).toLocaleString()
             : "..."}
         </button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}> 🎒 Inventory </button>
+        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}>{strings[10103]} </button>
         <div className="nav-button-wrapper">
-          <button className="shared-button" disabled={!currentPlayer} onClick={() => setActiveModal("Store")}>🛒 Store</button>
+          <button className="shared-button" disabled={!currentPlayer} onClick={() => setActiveModal("Store")}>{strings[10104]}</button>
           {badgeState.store && <div className="badge-dot" />}
         </div>
         <div className="nav-button-wrapper">
-          <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>📨 Inbox</button>
+          <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>{strings[10105]}</button>
           {badgeState.mailbox && <div className="badge-dot" />}
         </div>
 
       </div>
         <div className="header-controls-right">
-            <button className="shared-button" onClick={() => setShowShareModal(true)}>📢 Share</button>
+            <button className="shared-button" onClick={() => setShowShareModal(true)}>{strings[10106]}</button>
             <button className="shared-button" onClick={() => setActiveModal('LanguagePicker')}>
               🌎 {LANGUAGE_OPTIONS.find(l => l.code === currentPlayer?.language)?.label || 'Language'}
             </button>
             <div className="nav-button-wrapper">
-              <button className="shared-button" onClick={() => setIsChatOpen(prev => !prev)}>💬 Chat</button>
+              <button className="shared-button" onClick={() => setIsChatOpen(prev => !prev)}>{strings[10107]}</button>
               {badgeState.chat && <div className="badge-dot" />}
             </div>
         </div>
@@ -1426,45 +1436,45 @@ return (
           </button>
         )}
         {currentPlayer?.accountStatus === 'Gold' && (
-          <button className="gold-button" onClick={() => openPanel('GoldBenefitsPanel')}>You Have a Gold Account</button>
+          <button className="gold-button" onClick={() => openPanel('GoldBenefitsPanel')}>{strings[10108]}</button>
         )}
 
       <br/>
-      <button className="shared-button" onClick={() => openPanel('HowToPanel')}>↔️ Move Keys: AWSD</button>
+      <button className="shared-button" onClick={() => openPanel('HowToPanel')}>{strings[10109]} AWSD</button>
       <div className="zoom-controls">
         <button className="zoom-button" disabled={!currentPlayer} onClick={zoomOut}>−</button>
         <button className="zoom-button" disabled={!currentPlayer} onClick={zoomIn}>+</button>
         <span><h3>to Zoom</h3></span>
       </div>
-      <button className="shared-button" onClick={() => openPanel('HowToPanel')}>🕹️ How to Play</button>
+      <button className="shared-button" onClick={() => openPanel('HowToPanel')}>{strings[10110]}</button>
       <br/>
 
       {/* Add Role display if player has one */}
       {currentPlayer?.role === "Mayor" && (
-        <> <h3 className="player-role"> You are the Mayor </h3>
+        <> <h3 className="player-role"> {strings[10111]} </h3>
           <br />
         </>
       )}
 
       {/* Hit Points */}
-      <button className="shared-button" onClick={() => openPanel('CombatPanel')}>❤️‍🩹 Health: <strong>{playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.hp ?? "?"} / {playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.maxhp ?? "?"}</strong></button>
+      <button className="shared-button" onClick={() => openPanel('CombatPanel')}>{strings[10112]} <strong>{playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.hp ?? "?"} / {playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.maxhp ?? "?"}</strong></button>
       <br />
 
       {/* Season */}
       {timers.seasons.phase === "onSeason" ? (
         <>
-          <h2>🗓️ It's {seasonData?.type || "[Season unknown]"}</h2>
-          <button className="shared-button" onClick={() => openPanel('SeasonPanel')}>The Season Ends in:<br /><strong>{countdowns.seasons}</strong></button>
+          <h2>{strings[10113]} {seasonData?.type || "[Season unknown]"}</h2>
+          <button className="shared-button" onClick={() => openPanel('SeasonPanel')}>{strings[10114]}<br /><strong>{countdowns.seasons}</strong></button>
         </>
       ) : (
         <>
-          <h2>It's {seasonData?.type || "[Season unknown]"}</h2>
-          <button className="shared-button" onClick={() => openPanel('SeasonPanel')}>📅 Next Season in:<br /><strong>{countdowns.seasons}</strong></button>
+          <h2>{strings[10113]} {seasonData?.type || "[Season unknown]"}</h2>
+          <button className="shared-button" onClick={() => openPanel('SeasonPanel')}>{strings[10115]}<br /><strong>{countdowns.seasons}</strong></button>
         </>
       )}
       <br />
       
-      <h3>⏪ Happening Now in Town:
+      <h3>{strings[10116]}
         <span 
           onClick={() => setShowTimers(!showTimers)} 
           style={{ cursor: "pointer", fontSize: "16px", marginLeft: "5px" }}
@@ -1480,30 +1490,30 @@ return (
 
           {timers.taxes.phase === "waiting" ? (
         <>
-          <h3>💰 Next Tax Collection:</h3> 
-          <p>In: {countdowns.taxes}</p>
+          <h3>{strings[10117]}</h3> 
+          <p>{strings[10118]}{countdowns.taxes}</p>
         </>
       ) : (
         <>
-          <h4>Now collecting taxes...</h4>
+          <h4>{strings[10119]}</h4>
         </>
       )}
-          <h3>🏛️ Elections: {timers.elections.phase}</h3>
-          <p>Ends: {countdowns.elections}</p>
-          <h3>🚂 Train: {timers.train.phase}</h3>
-          <p>Ends: {countdowns.train}</p>
-          <h3>🏦 Bank: {timers.bank.phase}</h3>
-          <p>New Offers: {countdowns.bank}</p>
-          <button className="shared-button" onClick={() => openModal('TownNews')}>Read the News!</button>
+          <h3>{strings[10120]}{timers.elections.phase}</h3>
+          <p>{strings[10121]}{countdowns.elections}</p>
+          <h3>{strings[10122]}{timers.train.phase}</h3>
+          <p>{strings[10121]}{countdowns.train}</p>
+          <h3>{strings[10123]}{timers.bank.phase}</h3>
+          <p>{strings[10124]}{countdowns.bank}</p>
+          <button className="shared-button" onClick={() => openModal('TownNews')}>{strings[10125]}</button>
         </div>
       )}
 
       <br />
-      <h3>Who's here:</h3>
+      <h3>{strings[10126]}</h3>
       <div>
       {playersInGrid?.[gridId]?.pcs && typeof playersInGrid[gridId].pcs === 'object' ? (
           Object.entries(playersInGrid[gridId].pcs).length === 0 ? (
-            <h4 style={{ color: "white" }}>No PCs present in the grid.</h4>
+            <h4 style={{ color: "white" }}>{strings[10127]}</h4>
           ) : (
             Object.entries(playersInGrid[gridId].pcs).map(([playerId, pc]) => (
               <p key={playerId} style={{ color: "white" }}>
@@ -1513,7 +1523,7 @@ return (
             ))
           )
         ) : (
-          <h4 style={{ color: "white" }}>No PCs present in the grid.</h4>
+          <h4 style={{ color: "white" }}>{strings[10127]}</h4>
         )}
         <h4 style={{ color: "white" }}>
           {controllerUsername 

@@ -4,11 +4,12 @@ import axios from 'axios';
 import Modal from './Modal';
 import './TownNews.css';
 import { StatusBarContext } from './StatusBar';
-import strings from './strings.json';
+import { useStrings } from './StringsContext';
 import { formatCountdown } from './Timers';
 import { getMayorUsername } from '../GameFeatures/Government/GovUtils';
 
 function TownNews({ onClose, currentPlayer, setCurrentPlayer }) {
+    const strings = useStrings();
     // Settlement data
     const [settlementName, setSettlementName] = useState("");
     const [mayor, setMayor] = useState("");

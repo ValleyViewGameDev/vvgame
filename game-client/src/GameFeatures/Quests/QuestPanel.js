@@ -5,9 +5,10 @@ import Panel from '../../UI/Panel';
 import { QuestButton } from '../../UI/QuestButton';
 import '../../UI/ResourceButton.css';
 import '../../UI/QuestButton.css';
-import strings from '../../UI/strings';
+import { useStrings } from '../../UI/StringsContext';
 
 function QuestPanel({ onClose, currentPlayer }) {
+  const strings = useStrings();
   const [playerQuests, setPlayerQuests] = useState([]);
   const [questTemplates, setQuestTemplates] = useState([]);
 

@@ -4,9 +4,10 @@ import axios from 'axios';
 import Panel from '../UI/Panel';
 import CreateAccount from './CreateAccount';
 import '../UI/Panel.css'; 
-import strings from '../UI/strings.json';
+import { useStrings } from '../UI/StringsContext';
 
 const LoginPanel = ({ onClose, setCurrentPlayer, onLoginSuccess }) => {
+  const strings = useStrings();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');

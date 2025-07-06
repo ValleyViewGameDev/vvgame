@@ -2,49 +2,52 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import './FloatingText.css';
 import { calculateTileCenter } from '../VFX/VFX.js';
-import strings from '../UI/strings.json';
+import { useStrings } from '../UI/StringsContext';
 
 let setFloatingTexts = null;
-
-const addFloatingText = (message, x, y, TILE_SIZE) => {
-    // Handle string code lookup
-    const displayText = typeof message === 'number' 
-        ? (strings[message] || `Missing string for code: ${message}`)
-        : message;
-
-    console.log('🎈 Adding floating text:', { message, displayText, x, y });
-
-    const container = document.querySelector('.homestead');
-    if (!container) return;
-
-    if (isNaN(x) || isNaN(y)) {
-        console.warn('Invalid coordinates in addFloatingText:', { x, y });
-        return;
-    }
-
-    const { centerX, centerY } = calculateTileCenter(x, y, TILE_SIZE);
-    const newId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
-    
-    setFloatingTexts(prev => {
-        console.log('🎈 Previous texts:', prev);
-        const updated = [
-            ...prev,
-            {
-                id: newId,
-                text: displayText, // Use resolved text string
-                x: centerX,
-                y: centerY,
-                timestamp: Date.now()
-            }
-        ];
-        console.log('🎈 Updated texts:', updated);
-        return updated;
-    });
-};
+let internalAddFloatingText = null;
 
 const FloatingTextManager = () => {
     const [floatingTexts, setFloatingTextsState] = useState([]);
     setFloatingTexts = setFloatingTextsState;
+
+    const strings = useStrings();
+
+    internalAddFloatingText = (message, x, y, TILE_SIZE) => {
+        // Handle string code lookup
+        const displayText = typeof message === 'number' 
+            ? (strings[message] || `Missing string for code: ${message}`)
+            : message;
+
+        console.log('🎈 Adding floating text:', { message, displayText, x, y });
+
+        const container = document.querySelector('.homestead');
+        if (!container) return;
+
+        if (isNaN(x) || isNaN(y)) {
+            console.warn('Invalid coordinates in addFloatingText:', { x, y });
+            return;
+        }
+
+        const { centerX, centerY } = calculateTileCenter(x, y, TILE_SIZE);
+        const newId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+        
+        setFloatingTexts(prev => {
+            console.log('🎈 Previous texts:', prev);
+            const updated = [
+                ...prev,
+                {
+                    id: newId,
+                    text: displayText, // Use resolved text string
+                    x: centerX,
+                    y: centerY,
+                    timestamp: Date.now()
+                }
+            ];
+            console.log('🎈 Updated texts:', updated);
+            return updated;
+        });
+    };
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -88,5 +91,9 @@ const FloatingTextManager = () => {
     );
 };
 
-FloatingTextManager.addFloatingText = addFloatingText;
+FloatingTextManager.addFloatingText = (...args) => {
+    if (internalAddFloatingText) internalAddFloatingText(...args);
+    else console.warn('FloatingTextManager not ready yet');
+};
+
 export default FloatingTextManager;

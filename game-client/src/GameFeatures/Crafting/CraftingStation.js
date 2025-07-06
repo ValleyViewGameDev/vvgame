@@ -14,7 +14,7 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { createCollectEffect } from '../../VFX/VFX';
-import strings from '../../UI/strings';
+import { useStrings } from '../../UI/StringsContext';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 
 const CraftingStation = ({
@@ -33,6 +33,7 @@ const CraftingStation = ({
   masterSkills,
   TILE_SIZE,
 }) => {
+  const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
   const [allResources, setAllResources] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');

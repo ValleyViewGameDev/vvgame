@@ -1,9 +1,7 @@
 import API_BASE from '../config';
 import axios from 'axios';
-import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { changePlayerLocation } from './GridManagement';
-import strings from '../UI/strings.json';
 
 export const modifyPlayerStatsInGridState = async (statToMod, amountToMod, playerId, gridId) => {
   try {

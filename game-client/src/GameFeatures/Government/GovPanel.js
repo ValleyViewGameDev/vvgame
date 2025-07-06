@@ -2,12 +2,13 @@ import API_BASE from '../../config';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
-import strings from '../../UI/strings.json';
 import { getMayorUsername } from './GovUtils';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import '../../UI/Modal.css';
+import { useStrings } from '../../UI/StringsContext';
 
 function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
+  const strings = useStrings();
   const [settlementData, setSettlementData] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [taxRate, setTaxRate] = useState(0);
