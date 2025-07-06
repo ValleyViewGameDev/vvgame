@@ -16,7 +16,7 @@ const sendMailboxMessage = require('../utils/messageUtils');
 // GET /api/quests
 router.get('/quests', (req, res) => {
   try {
-    const questsPath = path.join(__dirname, '../tuning/quests.json');
+    const questsPath = path.join(__dirname, '../tuning/quests/questsEN.json');
     const questsData = JSON.parse(fs.readFileSync(questsPath, 'utf-8'));
     res.json(questsData);
   } catch (error) {
@@ -49,7 +49,7 @@ router.post('/add-player-quest', async (req, res) => {
     }
 
     // Load quest details from quests.json
-    const questsPath = path.join(__dirname, '../tuning/quests.json');
+    const questsPath = path.join(__dirname, '../tuning/quests/questsEN.json');
     const questsData = JSON.parse(fs.readFileSync(questsPath, 'utf-8'));
     const questDetails = questsData.find((q) => q.title === questId);
 
