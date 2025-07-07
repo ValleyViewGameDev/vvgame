@@ -3,7 +3,6 @@
 {
   "free": [
     { "label": "Grinning Face", "value": "😀" },
-    { "label": "Face in Clouds", "value": "🫥" },
     { "label": "Crying Face", "value": "😭" },
     { "label": "Heart Eyes", "value": "😍" },
     { "label": "Face with Hand Over Mouth", "value": "🤭" },

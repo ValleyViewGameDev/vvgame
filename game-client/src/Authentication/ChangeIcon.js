@@ -2,7 +2,18 @@ import axios from 'axios';
 import API_BASE from '../config';
 import playersInGridManager from '../GridState/PlayersInGrid';
 
-export const updatePlayerIcon = async (currentPlayer, setCurrentPlayer, playerId, icon) => {
+export const updatePlayerIcon = async (currentPlayer, setCurrentPlayer, playerId, icon, updateStatus) => {
+
+    // ✅ Validate that the icon is a proper emoji
+    const isEmoji = (icon) => {
+      return typeof icon === 'string' && /\p{Emoji}/u.test(icon);
+    };
+
+    if (!isEmoji(icon)) {
+        console.error('❌ Attempted to set non-emoji icon:', icon);
+        updateStatus?.("Please select a valid emoji.");
+        return;
+    }
 
     const updates = { icon };
 
@@ -13,7 +24,8 @@ export const updatePlayerIcon = async (currentPlayer, setCurrentPlayer, playerId
     if (!res.data.success) {
         throw new Error('Failed to update icon');
     }
-    // ✅ Directly update playersInGrid via playersInGridManager
+
+    // ✅ Proceed only if DB update was successful
     const gridId = currentPlayer?.location?.g;
     if (gridId) {
         const playerData = playersInGridManager.getPlayersInGrid(gridId)?.[currentPlayer.playerId];
