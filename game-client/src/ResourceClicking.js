@@ -116,6 +116,10 @@ import InventoryPanel from './GameFeatures/Inventory/InventoryPanel.js';
         console.log('Seed clicked; do nothing');
         break;
 
+      case 'deco':
+        console.log('Deco clicked; placeholder for future functionality');
+        break;
+
       case 'travel':
         console.log('Travel sign clicked');
         try {

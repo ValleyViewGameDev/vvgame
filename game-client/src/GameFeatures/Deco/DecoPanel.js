@@ -11,7 +11,7 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { createCollectEffect } from '../../VFX/VFX';
 import '../../UI/SharedButtons.css';
 
-const AnimalStall = ({
+const DecoPanel = ({
   onClose,
   inventory,
   setInventory,
@@ -28,9 +28,8 @@ const AnimalStall = ({
   masterResources,
 }) => {
   const [stallDetails, setStallDetails] = useState(null);
-  const [outputDetails, setOutputDetails] = useState(null);
 
-  console.log('Inside Animal Stall:', { stationType, currentStationPosition });
+  console.log('Inside Deco Panel:', { stationType, currentStationPosition });
 
   useEffect(() => {
     const stallResource = masterResources.find((res) => res.type === stationType);
@@ -112,7 +111,7 @@ const AnimalStall = ({
   
 
   return (
-    <Panel onClose={onClose} descriptionKey="1011" titleKey="1111" panelName="AnimalStall" >
+    <Panel onClose={onClose} descriptionKey="1028" titleKey="1128" panelName="DecoPanel" >
       <div className="standard-panel">
         <h2>
             {stallDetails?.symbol || '🛖'} {stationType}
@@ -135,4 +134,4 @@ const AnimalStall = ({
   
 };
 
-export default React.memo(AnimalStall);
+export default React.memo(DecoPanel);
