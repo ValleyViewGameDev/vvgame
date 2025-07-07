@@ -10,6 +10,7 @@ import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { createCollectEffect } from '../../VFX/VFX';
 import '../../UI/SharedButtons.css';
+import { useStrings } from '../../UI/StringsContext';
 
 const AnimalStall = ({
   onClose,
@@ -29,6 +30,7 @@ const AnimalStall = ({
 }) => {
   const [stallDetails, setStallDetails] = useState(null);
   const [outputDetails, setOutputDetails] = useState(null);
+  const strings = useStrings();
 
   console.log('Inside Animal Stall:', { stationType, currentStationPosition });
 
@@ -124,7 +126,7 @@ const AnimalStall = ({
             <hr />
               <div className="standard-buttons">
                 <button className="btn-success" onClick={handleSellStation}>
-                Sell for Refund
+                  {strings[425]}
                 </button>
               </div>
           </>

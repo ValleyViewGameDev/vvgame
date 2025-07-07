@@ -62,10 +62,21 @@ const BuyPanel = ({
             const affordable = canAfford(item, inventory);
             const requirementsMet = hasRequiredSkill(item.requires);
 
-            const details = `
-              Costs: ${ingredients.join(', ') || 'None'}
-              ${item.requires ? `<br>Requires: ${item.requires}` : ''}
-            `;
+            const formattedCosts = [1, 2, 3, 4].map((i) => {
+              const type = item[`ingredient${i}`];
+              const qty = item[`ingredient${i}qty`];
+              if (!type || !qty) return '';
+
+              const playerQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
+              const color = playerQty >= qty ? 'green' : 'red';
+              const symbol = allResources.find(r => r.type === type)?.symbol || '';
+              return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+            }).join('');
+
+            const skillColor = requirementsMet ? 'green' : 'red';
+            const details =
+              `Costs:<div>${formattedCosts}</div>` +
+              (item.requires ? `<br><span style="color: ${skillColor};">Requires: ${item.requires}</span>` : '');
 
             return (
               <ResourceButton

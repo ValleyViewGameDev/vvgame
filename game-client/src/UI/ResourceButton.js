@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import './ResourceButton.css';
-
+ 
 const ResourceButton = ({ symbol, name, details, info, disabled, className, onClick, hideInfo = false, children }) => { 
   const [showInfo, setShowInfo] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });

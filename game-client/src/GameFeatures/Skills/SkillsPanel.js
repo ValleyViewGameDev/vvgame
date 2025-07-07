@@ -212,10 +212,21 @@ const handlePurchase = async (resourceType) => {
                   const affordable = canAfford(resource, inventory, 1, backpack);
                   const meetsRequirement = hasRequiredSkill(resource.requires, ownedSkills);
 
-                  const details = `
-                    Costs: ${ingredients.join(', ') || 'None'}
-                    ${resource.requires ? `<br>Requires: ${resource.requires}` : ''}
-                  `;
+                  const formattedCosts = [1, 2, 3, 4].map((i) => {
+                    const type = resource[`ingredient${i}`];
+                    const qty = resource[`ingredient${i}qty`];
+                    if (!type || !qty) return '';
+
+                    const playerQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
+                    const color = playerQty >= qty ? 'green' : 'red';
+                    const symbol = allResources.find(r => r.type === type)?.symbol || '';
+                    return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+                  }).join('');
+
+                  const skillColor = meetsRequirement ? 'green' : 'red';
+                  const details =
+                    `Costs:<div>${formattedCosts}</div>` +
+                    (resource.requires ? `<br><span style="color: ${skillColor};">Requires: ${resource.requires}</span>` : '');
 
                   // ✅ **Check if this skill modifies a player attribute**
                   const attributeModifier = resource.output
@@ -261,10 +272,21 @@ const handlePurchase = async (resourceType) => {
                   const affordable = canAfford(resource, inventory, 1, backpack);
                   const meetsRequirement = hasRequiredSkill(resource.requires, ownedSkills);
 
-                  const details = `
-                    Costs: ${ingredients.join(', ') || 'None'}
-                    ${resource.requires ? `<br>Requires: ${resource.requires}` : ''}
-                  `;
+                  const formattedCosts = [1, 2, 3, 4].map((i) => {
+                    const type = resource[`ingredient${i}`];
+                    const qty = resource[`ingredient${i}qty`];
+                    if (!type || !qty) return '';
+
+                    const playerQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
+                    const color = playerQty >= qty ? 'green' : 'red';
+                    const symbol = allResources.find(r => r.type === type)?.symbol || '';
+                    return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+                  }).join('');
+
+                  const skillColor = meetsRequirement ? 'green' : 'red';
+                  const details =
+                    `Costs:<div>${formattedCosts}</div>` +
+                    (resource.requires ? `<br><span style="color: ${skillColor};">Requires: ${resource.requires}</span>` : '');
 
                   // ✅ Check for attribute modifiers
                   const attributeModifier = resource.output

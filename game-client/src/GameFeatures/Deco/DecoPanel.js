@@ -3,13 +3,11 @@ import axios from 'axios';
 import { gainIngredients } from '../../Utils/InventoryManagement';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
-import FloatingTextManager from '../../UI/FloatingText';
 import { updateGridResource } from '../../Utils/GridManagement';
-import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { createCollectEffect } from '../../VFX/VFX';
 import '../../UI/SharedButtons.css';
+import { useStrings } from '../../UI/StringsContext';
 
 const DecoPanel = ({
   onClose,
@@ -28,6 +26,7 @@ const DecoPanel = ({
   masterResources,
 }) => {
   const [stallDetails, setStallDetails] = useState(null);
+  const strings = useStrings();
 
   console.log('Inside Deco Panel:', { stationType, currentStationPosition });
 
@@ -123,7 +122,7 @@ const DecoPanel = ({
             <hr />
               <div className="standard-buttons">
                 <button className="btn-success" onClick={handleSellStation}>
-                Sell for Refund
+                  {strings[425]}
                 </button>
               </div>
           </>

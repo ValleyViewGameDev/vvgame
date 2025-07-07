@@ -16,6 +16,7 @@ import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { createCollectEffect } from '../../VFX/VFX';
 import { useStrings } from '../../UI/StringsContext';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
+import '../../UI/SharedButtons.css';
 
 const CraftingStation = ({
   onClose,
@@ -412,16 +413,32 @@ const CraftingStation = ({
                 </div>
               );
               
+              // Format costs with color per ingredient (now using display: block and no <br>)
+              const formattedCosts = [1, 2, 3, 4].map((i) => {
+                const type = recipe[`ingredient${i}`];
+                const qty = recipe[`ingredient${i}qty`];
+                if (!type || !qty) return '';
+
+                const playerQty = inventory?.find(item => item.type === type)?.quantity || 0;
+                const color = playerQty >= qty ? 'green' : 'red';
+                const symbol = allResources.find(r => r.type === type)?.symbol || '';
+                return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+              }).join('');
+
               return (
                 <ResourceButton
-                key={recipe.type}
-                symbol={recipe.symbol}
-                name={recipe.type}
-                className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''}`}                           
-                details={`Costs: ${ingredients.join(', ') || 'None'} ${recipe.requires ? `<br>Requires: ${recipe.requires}` : ''} <br>${craftTimeText}` } 
-                info={info} 
-                disabled={!isReadyToCollect && (craftedItem !== null || !affordable || !requirementsMet)}
-                onClick={() => isReadyToCollect ? handleCollect(recipe) : handleCraft(recipe) }
+                  key={recipe.type}
+                  symbol={recipe.symbol}
+                  name={recipe.type}
+                  className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''}`}
+                  details={
+                    `Costs:<div>${formattedCosts}</div>` +
+                    (recipe.requires ? `<br>Requires: ${recipe.requires}` : '') +
+                    `<br>${craftTimeText}`
+                  }
+                  info={info}
+                  disabled={!isReadyToCollect && (craftedItem !== null || !affordable || !requirementsMet)}
+                  onClick={() => isReadyToCollect ? handleCollect(recipe) : handleCraft(recipe)}
                 >
                 </ResourceButton>
               );
@@ -433,9 +450,12 @@ const CraftingStation = ({
         {currentPlayer.location.gtype === 'homestead' && (
           <>
             <hr />
-            <button className="panel-shared-button" onClick={handleSellStation}>
-              {strings[425]}
-            </button>
+              <div className="standard-buttons">
+                <button className="btn-success" onClick={handleSellStation}>
+                  {strings[425]}
+                </button>
+              </div>
+
           </>
         )}
       </div>

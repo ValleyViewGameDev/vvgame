@@ -188,16 +188,30 @@ const ShopStation = ({
           )}
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
-              const ingredients = getIngredientDetails(recipe, masterResources || []);
               const affordable = canAfford(recipe, inventory, 1);
               const meetsRequirement = hasRequirement(recipe.requires);
               const outputLabel = recipe.output ? (strings[recipe.output] || recipe.output) : '';
               const outputSummary = recipe.output && typeof recipe.qtycollected === 'number'
-                ? `${recipe.qtycollected > 0 ? '+' : ''}${recipe.qtycollected} for ${outputLabel}`
+                ? `<span style="color: blue;">${recipe.qtycollected > 0 ? '+' : ''}${recipe.qtycollected} for ${outputLabel}</span>`
                 : null;
 
+              // Format costs in UI standard style
+              const formattedCosts = [1, 2, 3, 4].map((i) => {
+                const type = recipe[`ingredient${i}`];
+                const qty = recipe[`ingredient${i}qty`];
+                if (!type || !qty) return '';
+                const playerQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
+                const color = playerQty >= qty ? 'green' : 'red';
+                const symbol = masterResources.find(r => r.type === type)?.symbol || '';
+                return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+              }).join('');
+
+              const skillColor = meetsRequirement ? 'green' : 'red';
+
               const details =
-                `${outputSummary ? outputSummary + '<br />' : ''}${recipe.requires ? `Requires: ${recipe.requires}<br>` : ''}Costs: ${ingredients.join(', ') || 'None'}`;
+                `${outputSummary ? outputSummary + '<br>' : ''}` +
+                `Costs:<div>${formattedCosts}</div>` +
+                (recipe.requires ? `<br><span style="color: ${skillColor};">Requires: ${recipe.requires}</span>` : '');
 
               const info = (
                 <div className="info-content">
@@ -212,14 +226,14 @@ const ShopStation = ({
               
               return (
                 <ResourceButton
-                key={recipe.type}
-                symbol={recipe.symbol}
-                name={recipe.type}
-                className="resource-button"
-                details={details}
-                info={info} 
-                disabled={!affordable || !meetsRequirement}
-                onClick={() => handlePurchase(recipe)} // ✅ Now instantly trades
+                  key={recipe.type}
+                  symbol={recipe.symbol}
+                  name={recipe.type}
+                  className="resource-button"
+                  details={details}
+                  info={info} 
+                  disabled={!affordable || !meetsRequirement}
+                  onClick={() => handlePurchase(recipe)}
                 >
                 </ResourceButton>
               );
