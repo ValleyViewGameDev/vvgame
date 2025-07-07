@@ -64,6 +64,16 @@ router.post('/create-grid', async (req, res) => {
     //    If your schema stores gridCoord as a number, parse it here.
     const targetGrid = settlement.grids.flat().find( (g) => g.gridCoord === Number(gridCoord) );
     if (!targetGrid) { return res.status(400).json({error: `No sub-grid found in settlement for gridCoord: ${gridCoord}`,}); }
+    // Log if the gridCoord is already associated with a gridId
+    if (targetGrid.gridId) {
+      console.warn(`⚠️ Warning: targetGrid at coord ${gridCoord} already has gridId: ${targetGrid.gridId}`);
+      const existingGrid = await Grid.findById(targetGrid.gridId);
+      if (!existingGrid) {
+        console.warn(`❌ But gridId ${targetGrid.gridId} does not exist in DB! Potential orphan.`);
+      } else {
+        console.warn(`📦 Existing Grid found with gridType: ${existingGrid.gridType}, ownerId: ${existingGrid.ownerId || 'null'}`);
+      }
+    }
 
     // 3) Load the correct grid template — seasonal override if gridType is 'homestead'
     let layoutFileName, layout, isFixedLayout = false;
@@ -207,9 +217,15 @@ router.post('/claim-homestead/:gridId', async (req, res) => {
     return res.status(400).json({ error: 'No playerId provided to claim homestead.' });
   }
 
+  // Log attempt to claim homestead
+  console.log(`🔐 Attempting to claim gridId: ${gridId} for playerId: ${playerId}`);
+
   try {
     const grid = await Grid.findById(gridId);
     if (!grid) return res.status(404).json({ error: 'Grid not found.' });
+
+    // Log grid found
+    console.log(`📋 Grid found: type = ${grid.gridType}, ownerId = ${grid.ownerId || 'null'}`);
 
     if (grid.gridType !== 'homestead') {
       return res.status(400).json({ error: 'Cannot claim a non-homestead grid.' });

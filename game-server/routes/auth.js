@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 const Player = require('../models/player'); // Adjust path as needed
+const Grid = require('../models/grid'); // Assuming you have a Grid model
 const Settlement = require('../models/settlement'); 
 const router = express.Router();
 
@@ -20,7 +21,7 @@ router.post('/register', async (req, res) => {
 
   // Make sure we have username, password, language and location
   if (!username || !password || !language || !location) {
-    return res.status(400).json({ error: 'Username, password, and location are required.' });
+    return res.status(400).json({ error: 'Username, password, and language are required.' });
   }
 
   try {
@@ -130,6 +131,15 @@ router.post('/register', async (req, res) => {
           hasDied: false,
         },
     });
+
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      console.warn(`❌ gridId ${gridId} passed in player location does not exist.`);
+    } else if (grid.ownerId) {
+      console.warn(`⚠️ Warning: registering player to grid ${gridId}, but it already has ownerId: ${grid.ownerId}`);
+    } else {
+      console.log(`✅ gridId ${gridId} is valid and unclaimed`);
+    }
 
     await newPlayer.save();
 
