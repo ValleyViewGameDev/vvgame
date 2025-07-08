@@ -238,8 +238,8 @@ router.post('/register-new-player', async (req, res) => {
         s: location.settlementId,
         f: location.frontierId,
         gridCoord: location.gridCoord || null,
-        x: x ?? 0,
-        y: y ?? 0,
+        x: location.x ?? 0,
+        y: location.y ?? 0,
         gtype: location.gtype || '',
       },
       activeQuests: [
