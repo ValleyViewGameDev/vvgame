@@ -11,10 +11,12 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
   const [password, setPassword] = useState('');
   const [language, setLanguage] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCreateAccount = async (e) => {
     e.preventDefault();
-
+    if (isSubmitting) return; // prevent double submit
+    setIsSubmitting(true);
     try {
       const accountStatus = 'Free';
       const role = 'Citizen';
@@ -202,6 +204,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
     } catch (err) {
       console.error('Error during account creation:', err);
       setError(err.response?.data?.error || 'Account creation failed. Please try again.');
+      setIsSubmitting(false);
     }
   };
 
@@ -233,7 +236,9 @@ return (
         ))}
       </select>
       <div className="panel-buttons">
-        <button className="btn-success" type="submit">{strings[4002]}</button>
+        <button className="btn-success" type="submit" disabled={isSubmitting}>
+          {strings[4002]}
+        </button>
       </div>
     </form>
 
