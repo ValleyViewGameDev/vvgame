@@ -13,7 +13,7 @@ const starterAccountPath = path.resolve(__dirname, '../tuning/starterAccount.jso
 const starterAccount = JSON.parse(fs.readFileSync(starterAccountPath, 'utf8'));
 
 const { sendNewUserEmail } = require('../utils/emailUtils.js');
-const { performGridCreation } = require('../utils/createGridLogic.js');
+const { performGridCreation, claimHomestead } = require('../utils/createGridLogic');
 
 // POST /register
 router.post('/register', async (req, res) => {
@@ -269,6 +269,14 @@ router.post('/register-new-player', async (req, res) => {
     });
 
     await newPlayer.save();
+
+    // Claim homestead for the new player
+    try {
+      const claimResult = await claimHomestead(gridId, newPlayer._id);
+      console.log('🏡 Homestead claim result:', claimResult);
+    } catch (claimErr) {
+      console.error('❌ Failed to claim homestead:', claimErr);
+    }
 
     newPlayer.playerId = newPlayer._id;
     await newPlayer.save();
