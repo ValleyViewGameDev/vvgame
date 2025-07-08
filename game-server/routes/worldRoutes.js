@@ -11,10 +11,9 @@ const Town = require('../models/town');
 const Grid = require('../models/grid'); // Assuming you have a Grid model
 const Player = require('../models/player'); // Adjust the path to match your project structure
 const { getFrontierId, getSettlementId, getgridId } = require('../utils/IDs');
+const { performGridCreation } = require('../utils/gridCreationLogic');
 const { performGridReset } = require('../utils/resetGridLogic');
-const { generateGrid, generateResources, generateFixedGrid, generateFixedResources } = require('../utils/worldUtils');
-//const tileTypesPath = path.resolve(__dirname, '../layouts/tileTypes.json');
-//const tileTypes = JSON.parse(fs.readFileSync(tileTypesPath, 'utf-8'));
+const { generateGrid, generateResources } = require('../utils/worldUtils');
 const masterResources = require('../tuning/resources.json'); // Import resources.json directly
 const { getTemplate, getHomesteadLayoutFile } = require('../utils/templateUtils');
 const queue = require('../queue'); // Import the in-memory queue
@@ -27,167 +26,180 @@ const { getSeasonLevel } = require('../utils/scheduleHelpers');
 
 // create-grid
 router.post('/create-grid', async (req, res) => {
-  const { gridCoord, gridType, settlementId, frontierId } = req.body;
-
   console.log('Incoming request: /create-grid');
   console.log('req.body = ', req.body);
 
-  // Validate required fields
-  if (!gridCoord || !gridType || !settlementId || !frontierId) {
-    return res.status(400).json({ error: 'gridCoord, gridType, settlementId, and frontierId are required.' });
-  }
-
   try {
-    // 1) Fetch the settlement & frontier
-    let settlement = await Settlement.findById(settlementId);
-    if (!settlement) {
-      // Try to find the gridCoord in all settlements if not found or settlementId is null
-      const allSettlements = await Settlement.find({});
-      for (const s of allSettlements) {
-        const flatGrids = s.grids?.flat?.() || [];
-        const match = flatGrids.find(g => g.gridCoord === Number(gridCoord));
-        if (match) {
-          settlement = s;
-          break;
-        }
-      }
-      if (!settlement) {
-        return res.status(404).json({ error: 'Settlement not found for gridCoord: ' + gridCoord });
-      }
-    }
-
-    const frontier = await Frontier.findById(frontierId);
-    if (!frontier) return res.status(404).json({ error: 'Frontier not found.' });
-
-    // 2) Locate the target sub-grid in the settlement by gridCoord
-    //    Flatten the 2D array to find the matching subdocument
-    //    If your schema stores gridCoord as a number, parse it here.
-    const targetGrid = settlement.grids.flat().find( (g) => g.gridCoord === Number(gridCoord) );
-    if (!targetGrid) { return res.status(400).json({error: `No sub-grid found in settlement for gridCoord: ${gridCoord}`,}); }
-    // Log if the gridCoord is already associated with a gridId
-    if (targetGrid.gridId) {
-      console.warn(`⚠️ Warning: targetGrid at coord ${gridCoord} already has gridId: ${targetGrid.gridId}`);
-      const existingGrid = await Grid.findById(targetGrid.gridId);
-      if (!existingGrid) {
-        console.warn(`❌ But gridId ${targetGrid.gridId} does not exist in DB! Potential orphan.`);
-      } else {
-        console.warn(`📦 Existing Grid found with gridType: ${existingGrid.gridType}, ownerId: ${existingGrid.ownerId || 'null'}`);
-      }
-    }
-
-    // 3) Load the correct grid template — seasonal override if gridType is 'homestead'
-    let layoutFileName, layout, isFixedLayout = false;
-    const seasonType = frontier.seasons?.seasonType || 'default'; // e.g., Spring, Summer
-
-    if (gridType === 'homestead') {
-      const seasonalLayoutFile = getHomesteadLayoutFile(seasonType); 
-      const seasonalPath = path.join(__dirname, '../layouts/gridLayouts/homestead', seasonalLayoutFile);
-      layout = readJSON(seasonalPath);
-      layoutFileName = seasonalLayoutFile;
-      console.log(`🗓️ Using seasonal homestead layout: ${seasonalLayoutFile}`);
-
-    } else if (gridType === 'town') {
-      const seasonalLayoutFile = getTownLayoutFile(seasonType); 
-      const seasonalPath = path.join(__dirname, '../layouts/gridLayouts/town', seasonalLayoutFile);
-      layout = readJSON(seasonalPath);
-      layoutFileName = seasonalLayoutFile;
-      console.log(`🗓️ Using seasonal town layout: ${seasonalLayoutFile}`);
-
-    } else {
-      // First, check for a fixed layout in valleyFixedCoord
-      const fixedCoordPath = path.join(__dirname, `../layouts/gridLayouts/valleyFixedCoord/${gridCoord}.json`);
-      if (fs.existsSync(fixedCoordPath)) {
-        layout = readJSON(fixedCoordPath);
-        layoutFileName = `${gridCoord}.json`;
-        isFixedLayout = true; // ✅ Track it here
-        console.log(`📌 Using fixed-coordinate layout: ${layoutFileName}`);
-      } else {
-        const templateData = getTemplate('gridLayouts', gridType, gridCoord);
-        layout = templateData.template;
-        layoutFileName = templateData.fileName;
-        console.log(`📦 Using standard grid layout: ${layoutFileName}`);
-      }
-    }
-    if (!layout || !layout.tiles || !layout.resources || !layout.tileDistribution || !layout.resourceDistribution) {
-      return res.status(400).json({ error: `Invalid layout for gridType: ${gridType}` });
-    }
-
-    // 4/5) Generate tiles/resources, or use fixed layout if valleyFixedCoord
-    let newTiles, newResources;
-    if (isFixedLayout) {
-      const { generateFixedGrid, generateFixedResources } = require('../utils/worldUtils');
-      console.log(`🔒 Using fixed layout tiles and resources via generateFixedGrid and generateFixedResources.`);
-      newTiles = generateFixedGrid(layout);
-      newResources = generateFixedResources(layout);
-    } else {
-      console.log('⚠️ Fixed layout condition failed. layoutFileName =', layoutFileName);
-      console.log(`📌 Generating tiles using in-template tile distribution...`);
-      newTiles = generateGrid(layout, layout.tileDistribution).map(row =>
-        row.map(layoutKey => {
-          const tileResource = masterResources.find(res => res.layoutkey === layoutKey && res.category === "tile");
-          return tileResource ? tileResource.type : "g";
-        })
-      );
-      console.log(`📌 Generating resources using in-template resource distribution...`);
-      newResources = generateResources(layout, newTiles, layout.resourceDistribution);
-    }
-
-
-    // 6) Separate NPCs into NPCsInGrid Map
-    const newGridState = { npcs: {} };
-    layout.resources.forEach((row, y) => {
-      row.forEach((cell, x) => {
-        const resourceEntry = masterResources.find(res => res.layoutkey === cell);
-        if (resourceEntry && resourceEntry.category === 'npc') {
-          console.log(`📌 Placing NPC "${resourceEntry.type}" at (${x}, ${y})`);
-          const npcId = new ObjectId();
-          newGridState.npcs[npcId.toString()] = {
-            id: npcId.toString(),
-            type: resourceEntry.type,
-            position: { x, y },
-            state: resourceEntry.defaultState || 'idle',
-            hp: resourceEntry.maxhp || 10,
-            maxhp: resourceEntry.maxhp || 10,
-            armorclass: resourceEntry.armorclass || 10,
-            attackbonus: resourceEntry.attackbonus || 0,
-            damage: resourceEntry.damage || 1,
-            attackrange: resourceEntry.attackrange || 1,
-            speed: resourceEntry.speed || 1,
-            lastUpdated: 0,
-          };
-        }
-      });
-    });
-
-    // 7) Create the actual Grid document
-    const newGrid = new Grid({
-      gridType,
-      frontierId,
-      settlementId,
-      tiles: newTiles,
-      resources: newResources,
-      NPCsInGrid: new Map(Object.entries(newGridState.npcs)),
-      NPCsInGridLastUpdated: Date.now(),
-    });
-    await newGrid.save();
-
-    // 8) Update the settlement sub-grid to reference this new Grid
-    targetGrid.available = false;
-    targetGrid.gridId = newGrid._id;
-    await settlement.save();
-    console.log(`New Grid created successfully with ID: ${newGrid._id} for gridCoord: ${gridCoord}`);
-
-    // 9) Respond to client
-    res.status(201).json({
-      success: true,
-      gridId: newGrid._id,
-      message: 'Grid created successfully.',
-    });
+    const result = await performGridCreation(req.body);
+    res.status(201).json(result);
   } catch (error) {
     console.error('Error creating grid:', error);
-    res.status(500).json({ error: 'Failed to create grid.' });
+    res.status(500).json({ error: error.message || 'Failed to create grid.' });
   }
 });
+
+// router.post('/create-grid', async (req, res) => {
+//   const { gridCoord, gridType, settlementId, frontierId } = req.body;
+
+//   console.log('Incoming request: /create-grid');
+//   console.log('req.body = ', req.body);
+
+//   // Validate required fields
+//   if (!gridCoord || !gridType || !settlementId || !frontierId) {
+//     return res.status(400).json({ error: 'gridCoord, gridType, settlementId, and frontierId are required.' });
+//   }
+
+//   try {
+//     // 1) Fetch the settlement & frontier
+//     let settlement = await Settlement.findById(settlementId);
+//     if (!settlement) {
+//       // Try to find the gridCoord in all settlements if not found or settlementId is null
+//       const allSettlements = await Settlement.find({});
+//       for (const s of allSettlements) {
+//         const flatGrids = s.grids?.flat?.() || [];
+//         const match = flatGrids.find(g => g.gridCoord === Number(gridCoord));
+//         if (match) {
+//           settlement = s;
+//           break;
+//         }
+//       }
+//       if (!settlement) {
+//         return res.status(404).json({ error: 'Settlement not found for gridCoord: ' + gridCoord });
+//       }
+//     }
+
+//     const frontier = await Frontier.findById(frontierId);
+//     if (!frontier) return res.status(404).json({ error: 'Frontier not found.' });
+
+//     // 2) Locate the target sub-grid in the settlement by gridCoord
+//     //    Flatten the 2D array to find the matching subdocument
+//     //    If your schema stores gridCoord as a number, parse it here.
+//     const targetGrid = settlement.grids.flat().find( (g) => g.gridCoord === Number(gridCoord) );
+//     if (!targetGrid) { return res.status(400).json({error: `No sub-grid found in settlement for gridCoord: ${gridCoord}`,}); }
+//     // Log if the gridCoord is already associated with a gridId
+//     if (targetGrid.gridId) {
+//       console.warn(`⚠️ Warning: targetGrid at coord ${gridCoord} already has gridId: ${targetGrid.gridId}`);
+//       const existingGrid = await Grid.findById(targetGrid.gridId);
+//       if (!existingGrid) {
+//         console.warn(`❌ But gridId ${targetGrid.gridId} does not exist in DB! Potential orphan.`);
+//       } else {
+//         console.warn(`📦 Existing Grid found with gridType: ${existingGrid.gridType}, ownerId: ${existingGrid.ownerId || 'null'}`);
+//       }
+//     }
+
+//     // 3) Load the correct grid template — seasonal override if gridType is 'homestead'
+//     let layoutFileName, layout, isFixedLayout = false;
+//     const seasonType = frontier.seasons?.seasonType || 'default'; // e.g., Spring, Summer
+
+//     if (gridType === 'homestead') {
+//       const seasonalLayoutFile = getHomesteadLayoutFile(seasonType); 
+//       const seasonalPath = path.join(__dirname, '../layouts/gridLayouts/homestead', seasonalLayoutFile);
+//       layout = readJSON(seasonalPath);
+//       layoutFileName = seasonalLayoutFile;
+//       console.log(`🗓️ Using seasonal homestead layout: ${seasonalLayoutFile}`);
+
+//     } else if (gridType === 'town') {
+//       const seasonalLayoutFile = getTownLayoutFile(seasonType); 
+//       const seasonalPath = path.join(__dirname, '../layouts/gridLayouts/town', seasonalLayoutFile);
+//       layout = readJSON(seasonalPath);
+//       layoutFileName = seasonalLayoutFile;
+//       console.log(`🗓️ Using seasonal town layout: ${seasonalLayoutFile}`);
+
+//     } else {
+//       // First, check for a fixed layout in valleyFixedCoord
+//       const fixedCoordPath = path.join(__dirname, `../layouts/gridLayouts/valleyFixedCoord/${gridCoord}.json`);
+//       if (fs.existsSync(fixedCoordPath)) {
+//         layout = readJSON(fixedCoordPath);
+//         layoutFileName = `${gridCoord}.json`;
+//         isFixedLayout = true; // ✅ Track it here
+//         console.log(`📌 Using fixed-coordinate layout: ${layoutFileName}`);
+//       } else {
+//         const templateData = getTemplate('gridLayouts', gridType, gridCoord);
+//         layout = templateData.template;
+//         layoutFileName = templateData.fileName;
+//         console.log(`📦 Using standard grid layout: ${layoutFileName}`);
+//       }
+//     }
+//     if (!layout || !layout.tiles || !layout.resources || !layout.tileDistribution || !layout.resourceDistribution) {
+//       return res.status(400).json({ error: `Invalid layout for gridType: ${gridType}` });
+//     }
+
+//     // 4/5) Generate tiles/resources, or use fixed layout if valleyFixedCoord
+//     let newTiles, newResources;
+//     if (isFixedLayout) {
+//       const { generateFixedGrid, generateFixedResources } = require('../utils/worldUtils');
+//       console.log(`🔒 Using fixed layout tiles and resources via generateFixedGrid and generateFixedResources.`);
+//       newTiles = generateFixedGrid(layout);
+//       newResources = generateFixedResources(layout);
+//     } else {
+//       console.log('⚠️ Fixed layout condition failed. layoutFileName =', layoutFileName);
+//       console.log(`📌 Generating tiles using in-template tile distribution...`);
+//       newTiles = generateGrid(layout, layout.tileDistribution).map(row =>
+//         row.map(layoutKey => {
+//           const tileResource = masterResources.find(res => res.layoutkey === layoutKey && res.category === "tile");
+//           return tileResource ? tileResource.type : "g";
+//         })
+//       );
+//       console.log(`📌 Generating resources using in-template resource distribution...`);
+//       newResources = generateResources(layout, newTiles, layout.resourceDistribution);
+//     }
+
+
+//     // 6) Separate NPCs into NPCsInGrid Map
+//     const newGridState = { npcs: {} };
+//     layout.resources.forEach((row, y) => {
+//       row.forEach((cell, x) => {
+//         const resourceEntry = masterResources.find(res => res.layoutkey === cell);
+//         if (resourceEntry && resourceEntry.category === 'npc') {
+//           console.log(`📌 Placing NPC "${resourceEntry.type}" at (${x}, ${y})`);
+//           const npcId = new ObjectId();
+//           newGridState.npcs[npcId.toString()] = {
+//             id: npcId.toString(),
+//             type: resourceEntry.type,
+//             position: { x, y },
+//             state: resourceEntry.defaultState || 'idle',
+//             hp: resourceEntry.maxhp || 10,
+//             maxhp: resourceEntry.maxhp || 10,
+//             armorclass: resourceEntry.armorclass || 10,
+//             attackbonus: resourceEntry.attackbonus || 0,
+//             damage: resourceEntry.damage || 1,
+//             attackrange: resourceEntry.attackrange || 1,
+//             speed: resourceEntry.speed || 1,
+//             lastUpdated: 0,
+//           };
+//         }
+//       });
+//     });
+
+//     // 7) Create the actual Grid document
+//     const newGrid = new Grid({
+//       gridType,
+//       frontierId,
+//       settlementId,
+//       tiles: newTiles,
+//       resources: newResources,
+//       NPCsInGrid: new Map(Object.entries(newGridState.npcs)),
+//       NPCsInGridLastUpdated: Date.now(),
+//     });
+//     await newGrid.save();
+
+//     // 8) Update the settlement sub-grid to reference this new Grid
+//     targetGrid.available = false;
+//     targetGrid.gridId = newGrid._id;
+//     await settlement.save();
+//     console.log(`New Grid created successfully with ID: ${newGrid._id} for gridCoord: ${gridCoord}`);
+
+//     // 9) Respond to client
+//     res.status(201).json({
+//       success: true,
+//       gridId: newGrid._id,
+//       message: 'Grid created successfully.',
+//     });
+//   } catch (error) {
+//     console.error('Error creating grid:', error);
+//     res.status(500).json({ error: 'Failed to create grid.' });
+//   }
+// });
 
 
 // reset-grid 
@@ -208,6 +220,7 @@ router.post('/reset-grid', async (req, res) => {
     res.status(500).json({ error: 'Failed to reset grid.' });
   }
 });
+
 
 router.post('/claim-homestead/:gridId', async (req, res) => {
   const { gridId } = req.params;
