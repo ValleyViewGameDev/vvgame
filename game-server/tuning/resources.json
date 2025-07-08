@@ -1528,7 +1528,6 @@
         "action": "collect",
         "source": "Loom",
         "passable": true,
-        "requires": "Textiles",
         "qtycollected": 1,
         "level": 2,
         "validong": true,
