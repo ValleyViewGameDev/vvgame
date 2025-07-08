@@ -9,7 +9,7 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
   const strings = useStrings();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [language, setLanguage] = useState('');
+  const [language, setLanguage] = useState('en');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 

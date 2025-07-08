@@ -1,6 +1,11 @@
 import axios from 'axios';
 import API_BASE from '../config';
 
+// Utility: detect mobile browser
+export function isMobile() {
+  return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
 // Utility function: return boolean indicating developer status
 export const checkDeveloperStatus = async (username) => {
   try {

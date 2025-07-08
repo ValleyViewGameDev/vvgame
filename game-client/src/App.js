@@ -10,6 +10,7 @@ import { loadMasterSkills, loadMasterResources } from './Utils/TuningManager';
 import { RenderGrid } from './Render/Render';
 import DynamicRenderer from './Render/RenderDynamic.js';
 import { handleResourceClick } from './ResourceClicking';
+import { isMobile } from './Utils/appUtils';
 
 import socket from './socketManager';
 import {
@@ -94,7 +95,26 @@ import { handlePlayerDeath } from './Utils/playerManagement';
 function App() {
   const strings = useStrings();
   const { activeModal, setActiveModal, openModal, closeModal } = useModalContext();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
   const { updateStatus } = useContext(StatusBarContext);
+  // Mobile device detection: Show modal if on mobile
+  useEffect(() => {
+    if (isMobile()) {
+      setModalContent({
+        title: 'Unsupported Device',
+        size: 'small',
+        children: (
+          <div style={{ fontSize: '1rem', textAlign: 'center', padding: '1rem' }}>
+            🚫 This game is intended for desktop browsers only.<br /><br />
+            Please revisit on a laptop or desktop computer.
+          </div>
+        ),
+        onClose: () => {},
+      });
+      setIsModalOpen(true);
+    }
+  }, []);
   const openMailbox = () => openModal && openModal('Mailbox');
   const [isDeveloper, setIsDeveloper] = useState(false);
 
@@ -272,8 +292,6 @@ useEffect(() => {
 }, [activeTileSize]);
 
 const [isLoginPanelOpen, setisLoginPanelOpen] = useState(false);
-const [isModalOpen, setIsModalOpen] = useState(false);
-const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
 const [isOffSeason, setIsOffSeason] = useState(false); // Track if it's off-season
 const { activePanel, openPanel, closePanel } = usePanelContext();
 const { closeAllPanels } = usePanelContext(); 
