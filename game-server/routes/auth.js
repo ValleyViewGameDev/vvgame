@@ -13,6 +13,7 @@ const starterAccountPath = path.resolve(__dirname, '../tuning/starterAccount.jso
 const starterAccount = JSON.parse(fs.readFileSync(starterAccountPath, 'utf8'));
 
 const { sendNewUserEmail } = require('../utils/emailUtils.js');
+const { performGridCreation } = require('../utils/createGridLogic.js');
 
 // POST /register
 router.post('/register', async (req, res) => {
@@ -23,17 +24,14 @@ router.post('/register', async (req, res) => {
   if (!username || !password || !language || !location) {
     return res.status(400).json({ error: 'Username, password, and language are required.' });
   }
-
   try {
     // 1) Check if username already exists
     const existingPlayer = await Player.findOne({ username });
     if (existingPlayer) {
       return res.status(400).json({ error: 'Username already exists.' });
     }
-
     // 2) Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
-
     // 3) Load default attributes from starterAccount
     const {
       icon: defaultIcon,
@@ -146,7 +144,6 @@ router.post('/register', async (req, res) => {
     // 6) Populate playerId with _id (redundant, but often used by the client)
     newPlayer.playerId = newPlayer._id;
     await newPlayer.save();
-
     console.log(`New player registered: ${username}`);
     sendNewUserEmail(newPlayer); // 🚀 Notify yourself
 
@@ -155,6 +152,134 @@ router.post('/register', async (req, res) => {
   } catch (error) {
     console.error('Error during player registration:', error);
     res.status(500).json({ error: 'Failed to register player.' });
+  }
+});
+
+// POST /register-new-player (Atomic registration + grid creation)
+router.post('/register-new-player', async (req, res) => {
+  const { username, password, language, location } = req.body;
+  console.log('POST /register-new-player:', { username, location });
+
+  if (!username || !password || !language || !location || !location.gridCoord || !location.settlementId || !location.frontierId || !location.gtype) {
+    return res.status(400).json({ error: 'Missing required fields for registration.' });
+  }
+  try {
+    // Check if username exists
+    const existingPlayer = await Player.findOne({ username });
+    if (existingPlayer) {
+      return res.status(400).json({ error: 'Username already exists.' });
+    }
+
+    // Step 1: Create grid for homestead
+    const gridResult = await performGridCreation({
+      gridCoord: location.gridCoord,
+      gridType: 'homestead',
+      settlementId: location.settlementId,
+      frontierId: location.frontierId,
+    });
+
+    if (!gridResult?.success) {
+      return res.status(500).json({ error: 'Grid creation failed.' });
+    }
+
+    const gridId = gridResult.gridId;
+
+    // Step 2: Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Step 3: Load starter attributes
+    const {
+      icon: defaultIcon,
+      range,
+      baseHp,
+      baseMaxhp,
+      baseArmorclass,
+      baseAttackbonus,
+      baseDamage,
+      baseSpeed,
+      baseAttackrange,
+      inventory,
+      backpack,
+      skills,
+      powers,
+      warehouseCapacity,
+      backpackCapacity,
+      accountStatus,
+      role,
+      iscamping,
+      relocations,
+    } = starterAccount.defaultAttributes;
+
+    // Step 4: Create the new player
+    const newPlayer = new Player({
+      username,
+      password: hashedPassword,
+      icon: defaultIcon,
+      language,
+      range,
+      baseHp,
+      baseMaxhp,
+      baseArmorclass,
+      baseAttackbonus,
+      baseDamage,
+      baseSpeed,
+      baseAttackrange,
+      inventory: [...inventory],
+      backpack: [...backpack],
+      skills: [...skills],
+      powers: [...powers],
+      warehouseCapacity,
+      backpackCapacity,
+      accountStatus,
+      role,
+      tradeStall: Array(starterAccount.tradeStallSlots[accountStatus] || 6).fill(null),
+      location: {
+        g: gridId,
+        s: location.settlementId,
+        f: location.frontierId,
+        gridCoord: location.gridCoord || null,
+        x: x ?? 0,
+        y: y ?? 0,
+        gtype: location.gtype || '',
+      },
+      activeQuests: [
+        {
+          questId: "Find the Wizard in the Valley",
+          completed: true,
+          rewardCollected: false,
+          progress: {},
+          giver: "Wizard",
+          startTime: Date.now(),
+          reward: "Prospero's Orb",
+          rewardqty: 1,
+          symbol: "🧙",
+        },
+      ],
+      relocations,
+      iscamping,
+      gridId,
+      settlementId: location.settlementId,
+      frontierId: location.frontierId,
+      settings: {
+        isStateMachineEnabled: false,
+        isTeleportEnabled: false,
+        toggleVFX: true,
+        hasDied: false,
+      },
+    });
+
+    await newPlayer.save();
+
+    newPlayer.playerId = newPlayer._id;
+    await newPlayer.save();
+
+    console.log(`✅ New player created with grid ${gridId}: ${username}`);
+    sendNewUserEmail(newPlayer);
+
+    res.status(201).json({ success: true, player: newPlayer });
+  } catch (err) {
+    console.error('❌ Error in /register-new-player:', err);
+    res.status(500).json({ error: 'Failed to register player and create homestead.' });
   }
 });
 

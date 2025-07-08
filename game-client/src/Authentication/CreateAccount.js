@@ -40,9 +40,6 @@ const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
         throw new Error(`Invalid settlements data: ${JSON.stringify(frontier.settlements, null, 2)}`);
       }
 
-      // console.log("🛠️ Frontier Data:", JSON.stringify(frontier, null, 2));
-      // console.log("🏘️ Settlements:", JSON.stringify(frontier.settlements, null, 2));
-
 // 2) Locate an available sub-grid in a settlement
 
       for (const settlementRow of frontier.settlements) {

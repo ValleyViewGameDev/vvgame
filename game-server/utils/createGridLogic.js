@@ -115,4 +115,24 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
   return { success: true, gridId: newGrid._id, message: 'Grid created successfully.' };
 }
 
-module.exports = { performGridCreation };
+// Claim a homestead grid for a player
+async function claimHomestead(gridId, playerId) {
+  if (!playerId) throw new Error('No playerId provided to claim homestead.');
+
+  const grid = await Grid.findById(gridId);
+  if (!grid) throw new Error('Grid not found.');
+
+  if (grid.gridType !== 'homestead') {
+    throw new Error('Cannot claim a non-homestead grid.');
+  }
+
+  if (grid.ownerId) {
+    throw new Error('Homestead is already claimed.');
+  }
+
+  grid.ownerId = playerId;
+  await grid.save();
+  return { success: true, message: 'Homestead claimed successfully.' };
+}
+
+module.exports = { performGridCreation, claimHomestead };
