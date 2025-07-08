@@ -4,6 +4,7 @@ import FloatingTextManager from "../../UI/FloatingText";
 import NPCsInGridManager from "../../GridState/GridStateNPCs";
 import { handleAttackOnNPC } from "../Combat/Combat";
 import { gainIngredients } from "../../Utils/InventoryManagement";
+import { trackQuestProgress } from '../../GameFeatures/Quests/QuestGoalTracker';
 
 export function loadNPCDefinitions(resources) {
     const npcDefinitions = {};
@@ -150,6 +151,9 @@ export async function handleNPCClick(
           ? `✅ Gained ${quantityToCollect} ${npc.output}.`
           : `✅ Gained ${quantityToCollect} ${npc.output} (${playerBuffs.join(', ')} skill applied).`;
       updateStatus(statusMessage);
+
+      // ✅ Track quest progress for NPC graze collection
+      await trackQuestProgress(currentPlayer, 'Collect', npc.output, quantityToCollect, setCurrentPlayer);
 
       try {
           console.log('currentPlayer before update:', currentPlayer);

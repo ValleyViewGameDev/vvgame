@@ -96,15 +96,17 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 
   const handleSlotClick = (index) => {
     const slot = tradeSlots[index];
-
-    // Prevent interaction with empty slots in other players' trade stalls
     const isOwnStall = viewedPlayer.playerId === currentPlayer.playerId;
+    // Prevent interaction with empty slots in other players' trade stalls
     if (!isOwnStall) {
-        updateStatus(151);
+      updateStatus(151);
       return; // Do nothing if viewing another player's stall
     }
-
     if (slot && slot.amount > 0) {
+      if (isOwnStall) {
+        updateStatus(11001);
+        return; // Do nothing if it's your own filled slot
+      }
       handleBuy(index); // Trigger the Buy action for filled slots
     } else {
       setSelectedSlotIndex(index); // Open inventory modal for empty slots
