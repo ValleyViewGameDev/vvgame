@@ -1745,6 +1745,8 @@ return (
             setCurrentPlayer(player);
             closePanel(); 
           }}
+          zoomLevel={zoomLevel}
+          setZoomLevel={setZoomLevel} 
           onLoginSuccess={async (username, password) => {
             await handleLoginSuccess(username, password);
           }}

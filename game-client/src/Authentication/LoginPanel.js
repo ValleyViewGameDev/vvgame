@@ -6,7 +6,7 @@ import CreateAccount from './CreateAccount';
 import '../UI/Panel.css'; 
 import { useStrings } from '../UI/StringsContext';
 
-const LoginPanel = ({ onClose, setCurrentPlayer, onLoginSuccess }) => {
+const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLoginSuccess }) => {
   const strings = useStrings();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -44,6 +44,8 @@ const LoginPanel = ({ onClose, setCurrentPlayer, onLoginSuccess }) => {
       {showCreateAccount ? (
         <CreateAccount
           setCurrentPlayer={setCurrentPlayer}
+          zoomLevel={zoomLevel}
+          setZoomLevel={setZoomLevel}
           setIsLoggedIn={() => {
             setShowCreateAccount(false);
             onClose();

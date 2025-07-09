@@ -5,7 +5,7 @@ import NPCsInGridManager from '../GridState/GridStateNPCs';
 import { useStrings } from '../UI/StringsContext';
 import LANGUAGE_OPTIONS from '../UI/Languages.json';
 
-const CreateAccount = ({ setCurrentPlayer, setIsLoggedIn, closeModal }) => {
+const CreateAccount = ({ setCurrentPlayer, zoomLevel, setZoomLevel, setIsLoggedIn, closeModal }) => {
   const strings = useStrings();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -128,6 +128,7 @@ const handleCreateAccount = async (e) => {
     // 7. Close modal and reload
     if (closeModal) closeModal();
     window.location.reload();
+    setZoomLevel('far');
 
   } catch (err) {
     console.error('Error during account creation:', err);
