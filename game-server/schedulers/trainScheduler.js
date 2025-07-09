@@ -234,11 +234,26 @@ function generateTrainRewards(settlement, seasonConfig) {
 async function generateTrainLog(settlement, fulfilledPlayerIds) {
   if ((settlement.population || 0) <= 0) { return; }
 
+  // Build human-readable logic summary
+  const population = settlement.population || 1;
+  const offers = settlement.currentoffers || [];
+  const rewards = settlement.trainrewards || [];
+
+  const offerDescriptions = offers.map(o => `${o.qtyBought} ${o.itemBought} → ${o.qtyGiven} ${o.itemGiven}`).join("; ");
+  const rewardDescriptions = rewards.map(r => `${r.qty} ${r.item}`).join(", ");
+
+  const baseHours = globalTuning.baseHoursForTrain || 2.5;
+  const baseEffort = baseHours * 60 * 60;
+  const totalEffort = baseEffort * population;
+
+  const logicString = `Offers generated using ${population} population × ${baseHours} hours effort per player (base ${Math.floor(totalEffort)}s total). Offers: [${offerDescriptions}]. Rewards based on population: [${rewardDescriptions}].`;
+
   const logEntry = {
     date: new Date(),
     alloffersfilled: (settlement.currentoffers || []).every(o => o.filled),
     totalwinners: fulfilledPlayerIds.length,
-    rewards: settlement.trainrewards || []
+    rewards: settlement.trainrewards || [],
+    logic: logicString
   };
 
   await Settlement.updateOne(

@@ -219,9 +219,29 @@ function TrainPanel({
         {offers.map((offer, index) => {
           const isYours = offer.claimedBy === currentPlayer.playerId;
           const isCompleted = offer.filled;
-          const affordable = currentPlayer.inventory.some(
+          const affordable = inventory?.some(
             (item) => item.type === offer.itemBought && item.quantity >= offer.qtyBought
-          );
+          ) || false;
+
+          const playerQty = inventory?.find(inv => inv.type === offer.itemBought)?.quantity || 0;
+          const costColor = playerQty >= offer.qtyBought ? 'green' : 'red';
+          const costDisplay = `<span style="color: ${costColor};">${getSymbol(offer.itemBought)} ${offer.itemBought} ${offer.qtyBought} / ${playerQty}</span>`;
+          const rewardDisplay = `+${getSymbol(offer.itemGiven)} ${offer.itemGiven} ${offer.qtyGiven.toLocaleString()}`;
+          const details = `Offer:<div>${costDisplay}</div><br>Reward:<div>${rewardDisplay}</div>`;
+
+          let buttonText = '';
+          if (isCompleted) {
+            buttonText = '✅ Completed';
+          } else if (isYours && affordable) {
+            buttonText = 'Click to fulfill';
+          } else if (isYours) {
+            buttonText = 'Your Order';
+          } else if (offer.claimedBy) {
+            buttonText = 'Claimed';
+          } else {
+            buttonText = 'Claim Order';
+          }
+
           return (
             <ResourceButton
               key={index}
@@ -235,22 +255,9 @@ function TrainPanel({
                 !offer.claimedBy ? handleClaim(offer) : null
               }
               disabled={isCompleted || (!isYours && offer.claimedBy) || (isYours && !affordable)}
+              details={details}
             >
-              <div className="offer-details">
-                <span>{getSymbol(offer.itemBought)} {offer.itemBought} x{offer.qtyBought}</span><br />
-                <span>{getSymbol(offer.itemGiven)} {offer.qtyGiven}</span><br />
-                {isCompleted ? (
-                  <span className="checkmark">✅ Completed</span>
-                ) : isYours && affordable ? (
-                  <span className="fulfilled-label">Click to fulfill</span>
-                ) : isYours ? (
-                  <span className="fulfilled-label">Your Order</span>
-                ) : offer.claimedBy ? (
-                  <span className="claimed-label">Claimed</span>
-                ) : (
-                  <span className="claim-label">Claim Order</span>
-                )}
-              </div>
+
             </ResourceButton>
           );
         })}
