@@ -102,7 +102,8 @@ const SettlementSchema = new mongoose.Schema({
           item: { type: String, required: true },
           qty: { type: Number, required: true },
         }
-      ]
+      ],
+      logic: { type: String, required: false } 
     }
   ],
   electionlog: [

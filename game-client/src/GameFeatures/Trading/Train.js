@@ -8,6 +8,7 @@ import './Train.css';
 import FloatingTextManager from '../../UI/FloatingText';
 import { formatCountdown } from '../../UI/Timers';
 import { useStrings } from '../../UI/StringsContext';
+import { useModalContext } from '../../UI/ModalContext';
 
 function TrainPanel({ 
   onClose, 
@@ -22,6 +23,7 @@ function TrainPanel({
   }) 
 {
   const strings = useStrings();
+  const { setModalContent, setIsModalOpen } = useModalContext();
   const [trainOffers, setTrainOffers] = useState([]);
   const [trainPhase, setTrainPhase] = useState("loading");
   const [trainTimer, setTrainTimer] = useState("⏳");
@@ -79,6 +81,58 @@ function TrainPanel({
     }
   };
 
+  const handleShowTrainLog = async () => {
+    if (!currentPlayer?.settlementId) {
+      console.warn("⚠️ Cannot show train log: settlementId missing.");
+      return;
+    }
+
+    try {
+      const response = await axios.get(`${API_BASE}/api/settlement/${currentPlayer.settlementId}/trainlog`);
+      const trainlog = response.data.trainlog || [];
+
+      const trainLogTable = (
+        <table className="train-log-table" style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th style={{ padding: "6px 12px" }}>Date</th>
+              <th style={{ padding: "6px 12px" }}>Offers Filled</th>
+              <th style={{ padding: "6px 12px" }}>Total Winners</th>
+              <th style={{ padding: "6px 12px" }}>Reward Summary</th>
+              <th style={{ padding: "6px 12px" }}>Logic</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...trainlog].reverse().map((entry, i) => (
+              <tr key={i}>
+                <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.alloffersfilled ? '✅' : '❌'}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.totalwinners}</td>
+                <td style={{ padding: "6px 12px" }}>{(entry.rewards || []).map(r => `${r.qty} ${r.item}`).join(', ')}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.logic || ''}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+
+      setModalContent({
+        title: "Train Log",
+        size: "large",
+        message: trainlog.length === 0 ? "No recent train activity." : undefined,
+        custom: trainLogTable,
+      });
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error("❌ Failed to fetch train log:", error);
+      setModalContent({
+        title: "Error",
+        message: "Failed to load train log.",
+        size: "small",
+      });
+      setIsModalOpen(true);
+    }
+  };
 
   const getSymbol = (type) => {
     return masterResources.find(r => r.type === type)?.symbol || "❓";
@@ -279,6 +333,10 @@ function TrainPanel({
     <Panel onClose={onClose} descriptionKey="1022" titleKey="1122" panelName="TrainPanel">
       <h3>Train is {trainPhase}</h3>
       <h2>⏳ {trainTimer}</h2>
+
+      <button className="standard-button" onClick={handleShowTrainLog}>
+        Show Train Log
+      </button>
 
       {trainPhase === "loading" && (
         <>
