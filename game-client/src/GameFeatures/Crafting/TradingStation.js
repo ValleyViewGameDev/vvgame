@@ -134,35 +134,43 @@ const TradingStation = ({
         
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
-              const ingredients = getIngredientDetails(recipe, masterResources || []);
               const affordable = canAfford(recipe, inventory, backpack, 1);
+              const meetsRequirement = recipe.requires ? (currentPlayer?.skills?.includes(recipe.requires) || false) : true;
+ 
+
+              const formattedCosts = [1, 2, 3, 4].map((i) => {
+                const type = recipe[`ingredient${i}`];
+                const qty = recipe[`ingredient${i}qty`];
+                if (!type || !qty) return '';
+                const playerQty = (inventory.find((item) => item.type === type)?.quantity || 0) +
+                                  (backpack.find((item) => item.type === type)?.quantity || 0);
+                const color = playerQty >= qty ? 'green' : 'red';
+                const symbol = masterResources.find(r => r.type === type)?.symbol || '';
+                return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+              }).join('');
+
+              const skillColor = meetsRequirement ? 'green' : 'red';
+              const skillReq = recipe.requires ? `<br><span style="color: ${skillColor};">Requires: ${recipe.requires}</span>` : '';
+
+              const details = `For:<div>${formattedCosts}</div>${skillReq}`;
+
               const info = (
                 <div className="info-content">
-                  <div>
-                    <strong>{strings[421]}</strong>{' '}
-                    {masterResources
-                      .filter((res) =>
-                        [res.ingredient1, res.ingredient2, res.ingredient3, res.ingredient4].includes(recipe.type)
-                      )
-                      .map((res) => `${res.symbol || ''} ${res.type}`)
-                      .join(', ') || 'None'}
-                  </div>
                   <div><strong>{strings[422]}</strong> 💰 {recipe.minprice || 'n/a'}</div>
                 </div>
               );
-              
+
               return (
                 <ResourceButton
-                key={recipe.type}
-                symbol={recipe.symbol}
-                name={recipe.type}
-                className="resource-button"
-                details={`in exchange for ${ingredients.join(', ') || 'None'}${recipe.requires ? `<br>Requires: ${recipe.requires}` : ''}`}
-                info={info} 
-                disabled={!affordable}
-                onClick={() => handleTrade(recipe)} // ✅ Now instantly trades
-                >
-                </ResourceButton>
+                  key={recipe.type}
+                  symbol={recipe.symbol}
+                  name={recipe.type}
+                  className="resource-button"
+                  details={details}
+                  info={info}
+                  disabled={!affordable || !meetsRequirement}
+                  onClick={() => handleTrade(recipe)}
+                />
               );
             })
           ) : <p>{strings[423]}</p>}
