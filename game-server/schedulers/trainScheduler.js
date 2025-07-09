@@ -4,8 +4,8 @@ const Player = require("../models/player");
 const globalTuning = require("../tuning/globalTuning.json");
 const masterResources = require("../tuning/resources.json");
 const sendMailboxMessage = require("../utils/messageUtils.js");
-const { scheduleEvent } = require("../utils/scheduleHelpers");
 const seasonsConfig = require("../tuning/seasons.json");
+const { getSeasonLevel } = require("../utils/scheduleHelpers");
 
 async function trainScheduler(frontierId, phase, frontier = null) {
   try {
@@ -61,7 +61,7 @@ async function trainScheduler(frontierId, phase, frontier = null) {
           // Generate new offers before updating settlement
           const seasonConfig = seasonsConfig.find(s => s.seasonType === frontier.seasons?.seasonType);
           const newTrainOffers = generateTrainOffers(settlement, seasonConfig, frontier);
-          const newTrainRewards = generateTrainRewards(settlement, seasonConfig);
+          const newTrainRewards = generateTrainRewards(settlement, seasonConfig, frontier);
 
           // Verify we have offers before updating
           if (!newTrainOffers || newTrainOffers.length === 0) {
@@ -115,7 +115,8 @@ async function trainScheduler(frontierId, phase, frontier = null) {
 // 🛠️ Generates train offers using season-tuned logic and totalnestedtime
 function generateTrainOffers(settlement, seasonConfig, frontier) {
   const offers = [];
-  
+  const seasonLevel = getSeasonLevel(frontier?.seasons?.onSeasonStart, frontier?.seasons?.onSeasonEnd);
+
   // 🎯 Filter master resources to those valid for the current season (from seasons.json)
   const seasonResources = masterResources.filter(res =>
     (seasonConfig.seasonResources || []).includes(res.type)
@@ -136,7 +137,7 @@ function generateTrainOffers(settlement, seasonConfig, frontier) {
 
   // 🥇 Always generate a first offer to ensure at least one train deal
   // Select an item based on weighted random (favoring lower craft time), random qty (1–5), payout based on item price
-  const firstItem = weightedRandomByCraftEffort(seasonResources);
+  const firstItem = weightedRandomByCraftEffort(seasonResources, seasonLevel);
   const firstQty = Math.max(1, Math.ceil(Math.random() * 5));
   const firstOffer = {
     itemBought: firstItem.type,
@@ -170,7 +171,7 @@ function generateTrainOffers(settlement, seasonConfig, frontier) {
   const maxAdditionalOffers = 4; // Cap at 5 total offers (1 guaranteed + 4 additional)
 
   while (remainingEffort > 0 && offers.length < maxAdditionalOffers) {
-    const item = weightedRandomByCraftEffort(seasonResources);
+    const item = weightedRandomByCraftEffort(seasonResources, seasonLevel);
     const timePerUnit = item.totalnestedtime || item.crafttime || 60;
     const maxQty = Math.floor(remainingEffort / timePerUnit);
     if (maxQty < 1) break;
@@ -191,9 +192,13 @@ function generateTrainOffers(settlement, seasonConfig, frontier) {
   return offers;
 }
 
-// 🎲 Weighted random by inverse sqrt of totalnestedtime
-function weightedRandomByCraftEffort(items) {
-  const weights = items.map(item => 1 / Math.sqrt(item.totalnestedtime || item.crafttime || 60));
+// 🎲 Weighted random by inverse sqrt of totalnestedtime, adjusted by seasonLevel
+function weightedRandomByCraftEffort(items, seasonLevel = 1) {
+  const weights = items.map(item => {
+    const baseTime = item.totalnestedtime || item.crafttime || 60;
+    const complexityFactor = Math.pow(baseTime, seasonLevel / 6);
+    return 1 / complexityFactor;
+  });
   const totalWeight = weights.reduce((sum, w) => sum + w, 0);
   let rand = Math.random() * totalWeight;
 
@@ -202,7 +207,7 @@ function weightedRandomByCraftEffort(items) {
     if (rand <= 0) return items[i];
   }
 
-  return items[items.length - 1]; // fallback
+  return items[items.length - 1];
 }
 
 function consolidateRewards(rewardsArray) {
@@ -219,18 +224,19 @@ function consolidateRewards(rewardsArray) {
 }
 
 // 🎁 Generates train rewards using rewards defined in seasons.json
-function generateTrainRewards(settlement, seasonConfig) {
+function generateTrainRewards(settlement, seasonConfig, frontier) {
   const rewards = [];
   const rewardItems = seasonConfig.trainRewards || [];
   const population = settlement.population || 1;
+  const seasonLevel = getSeasonLevel(frontier?.seasons?.onSeasonStart, frontier?.seasons?.onSeasonEnd);
 
   // 🎁 Generate up to 3 rewards from season-configured reward items
-  // Qty is based on population (1 reward per 10 people)
+  // Qty is based on population (1 reward per 10 people), scaled by seasonLevel
   const numRewards = Math.min(rewardItems.length, 3);
 
   for (let i = 0; i < numRewards; i++) {
     const item = rewardItems[Math.floor(Math.random() * rewardItems.length)];
-    const qty = Math.ceil(population / 10);
+    const qty = Math.ceil((population / 10) * seasonLevel); // Scaled reward
     rewards.push({ item, qty });
   }
 
@@ -244,6 +250,7 @@ async function generateTrainLog(settlement, fulfilledPlayerIds) {
   const population = settlement.population || 1;
   const offers = settlement.currentoffers || [];
   const rewards = settlement.trainrewards || [];
+  const seasonLevel = getSeasonLevel(settlement.seasonStartTime, settlement.seasonEndTime);
 
   const rewardDescriptions = rewards.map(r => `${r.qty} ${r.item}`).join(", ");
 
@@ -270,12 +277,14 @@ async function generateTrainLog(settlement, fulfilledPlayerIds) {
   }).join(" | ");
 
   const logicString = `Limit possible offers to the ${settlement.seasonType || 'Unknown'} season as defined in tuning (seasons.json). Filtered candidate items include only those allowed in this season.
-Always generate a first offer to ensure there is at least one train deal, using a weighted random selection favoring items with lower crafting time (weight = 1 / sqrt(craft time)). Quantity is random (1–5), payout is based on item maxprice × qty × seasonMultiplier.
+Season complexity is adjusted dynamically using seasonLevel (1–6) based on season progression. A higher seasonLevel increases the likelihood of more complex crafts (longer totalnestedtime) by adjusting the weighting: weight = 1 / (craft time ^ (seasonLevel / 6)).
+Always generate a first offer to ensure there is at least one train deal, using weighted random selection. Quantity is random (1–5), payout is based on item maxprice × qty × seasonMultiplier.
 Total player effort capacity is calculated as: ${population} population × ${baseHours} hours/week × 3600s/hour = ${Math.floor(baseEffort)}s/player/week. Weeks remaining in the season: ${weeksRemaining}, so total effort pool = ${Math.floor(totalEffort)}s.
-Up to 4 additional offers may be generated, each consuming (qty × time per unit) effort until pool is depleted. Items are selected by same weighted logic. Offer reward = qty × item maxprice × seasonMultiplier.
+Up to 4 additional offers may be generated, each consuming (qty × time per unit) effort until pool is depleted. Items are selected using the same seasonLevel-adjusted weighting. Offer reward = qty × item maxprice × seasonMultiplier.
 Offer details: ${detailedOfferExplanations}.
-Items like Corn and Milk appear frequently because item selection is weighted inversely to sqrt(craft time), favoring quicker crafts.
-Rewards based on population (1 reward per 10 pop): [${rewardDescriptions}].`;
+Items like Corn and Milk appear frequently if they have low craft time, which gives them a higher weight in early season levels.
+Train rewards scale with season level. Base rewards are qty = ceil(population / 10). At seasonLevel ${seasonLevel}, this is multiplied by ${seasonLevel}, producing larger rewards in later parts of the season.
+Rewards based on population (1 reward per 10 pop × seasonLevel): [${rewardDescriptions}].`;
 
   const logEntry = {
     date: new Date(),
