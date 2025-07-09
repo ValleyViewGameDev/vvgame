@@ -1795,6 +1795,8 @@ return (
           setCurrentPlayer={setCurrentPlayer}
           updateStatus={updateStatus}
           masterResources={masterResources}
+          setModalContent={setModalContent}
+          setIsModalOpen={setIsModalOpen}
         />
       )}
       {activePanel === 'HowToPanel' && (

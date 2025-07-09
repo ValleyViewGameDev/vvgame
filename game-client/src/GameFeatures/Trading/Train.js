@@ -8,7 +8,6 @@ import './Train.css';
 import FloatingTextManager from '../../UI/FloatingText';
 import { formatCountdown } from '../../UI/Timers';
 import { useStrings } from '../../UI/StringsContext';
-import { useModalContext } from '../../UI/ModalContext';
 
 function TrainPanel({ 
   onClose, 
@@ -20,10 +19,11 @@ function TrainPanel({
   setCurrentPlayer, 
   updateStatus,
   masterResources,
+  setModalContent,
+  setIsModalOpen
   }) 
 {
   const strings = useStrings();
-  const { setModalContent, setIsModalOpen } = useModalContext();
   const [trainOffers, setTrainOffers] = useState([]);
   const [trainPhase, setTrainPhase] = useState("loading");
   const [trainTimer, setTrainTimer] = useState("⏳");
@@ -82,6 +82,11 @@ function TrainPanel({
   };
 
   const handleShowTrainLog = async () => {
+    if (!setModalContent || !setIsModalOpen) {
+      console.warn("Modal context functions not available.");
+      return;
+    }
+
     if (!currentPlayer?.settlementId) {
       console.warn("⚠️ Cannot show train log: settlementId missing.");
       return;
@@ -334,7 +339,7 @@ function TrainPanel({
       <h3>Train is {trainPhase}</h3>
       <h2>⏳ {trainTimer}</h2>
 
-      <button className="standard-button" onClick={handleShowTrainLog}>
+      <button className="standard-button" onClick={() => handleShowTrainLog()}>
         Show Train Log
       </button>
 

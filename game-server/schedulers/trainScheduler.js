@@ -256,17 +256,13 @@ async function generateTrainLog(settlement, fulfilledPlayerIds) {
     logic: logicString
   };
 
-  await Settlement.updateOne(
-    { _id: settlement._id },
-    {
-      $push: {
-        trainlog: {
-          $each: [logEntry],
-          $slice: -8 // Keep last 8 entries
-        }
-      }
-    }
-  );
+  const updatedSettlement = await Settlement.findById(settlement._id);
+  if (!updatedSettlement.trainlog) updatedSettlement.trainlog = [];
+  updatedSettlement.trainlog.push(logEntry);
+  if (updatedSettlement.trainlog.length > 8) {
+    updatedSettlement.trainlog = updatedSettlement.trainlog.slice(-8);
+  }
+  await updatedSettlement.save();
 }
 
 module.exports = trainScheduler;
