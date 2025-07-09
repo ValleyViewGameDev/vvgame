@@ -2393,17 +2393,15 @@
         "validonn": true,
         "validono": true,
         "minprice": 9,
-        "maxprice": 15.635403052118566,
+        "maxprice": 15.525026712874208,
         "ingredient1": "Rosemary",
         "ingredient1qty": 6,
         "ingredient2": "Daisy",
         "ingredient2qty": 2,
-        "ingredient3": "Honey",
-        "ingredient3qty": 2,
-        "ingredient4": "Olive Oil",
-        "ingredient4qty": 1,
+        "ingredient3": "Olive Oil",
+        "ingredient3qty": 1,
         "crafttime": 28800,
-        "totalnestedtime": 1795400
+        "totalnestedtime": 1621850
     },
     {
         "type": "Potion B",
@@ -2425,7 +2423,7 @@
         "validonn": true,
         "validono": true,
         "minprice": 9,
-        "maxprice": 16.46922410636045,
+        "maxprice": 16.41940628123073,
         "ingredient1": "Potion A",
         "ingredient1qty": 1,
         "ingredient2": "Mushroom",
@@ -2435,7 +2433,7 @@
         "ingredient4": "Garlic",
         "ingredient4qty": 2,
         "crafttime": 57600,
-        "totalnestedtime": 3869810
+        "totalnestedtime": 3696260
     },
     {
         "type": "Potion C",
@@ -2457,7 +2455,7 @@
         "validonn": true,
         "validono": true,
         "minprice": 10,
-        "maxprice": 17.882714032372867,
+        "maxprice": 17.869387229947304,
         "ingredient1": "Potion B",
         "ingredient1qty": 1,
         "ingredient2": "Sunflower",
@@ -2467,7 +2465,7 @@
         "ingredient4": "Feverfew",
         "ingredient4qty": 1,
         "crafttime": 129600,
-        "totalnestedtime": 14226092
+        "totalnestedtime": 14052542
     },
     {
         "type": "Gem",
@@ -4691,6 +4689,7 @@
         "type": "Combat",
         "symbol": "⚔️",
         "category": "power",
+        "output": "damage",
         "source": "Warrior's Den",
         "requires": "Mechanics",
         "qtycollected": 1,
