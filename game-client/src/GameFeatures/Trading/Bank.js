@@ -164,7 +164,7 @@ function BankPanel({
                     <p>{strings["1407"]}</p> {/* "Generating new orders. Thank you for your patience." */}
                 </>
             )}
-            <div className="debug-section" style={{ marginTop: '20px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+            {/* <div className="debug-section" style={{ marginTop: '20px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
                 <button 
                     className="debug-button" 
                     onClick={handleRefreshOffers}
@@ -179,7 +179,7 @@ function BankPanel({
                 >
                     🔄 Debug: Refresh Bank Offers
                 </button>
-            </div>
+            </div> */}
         </Panel>
     );
 }
