@@ -246,7 +246,23 @@ async function generateTrainLog(settlement, fulfilledPlayerIds) {
   const baseEffort = baseHours * 60 * 60;
   const totalEffort = baseEffort * population;
 
-  const logicString = `Offers generated using ${population} population × ${baseHours} hours effort per player (base ${Math.floor(totalEffort)}s total). Offers: [${offerDescriptions}]. Rewards based on population: [${rewardDescriptions}].`;
+  // Enhanced logic string with detailed per-offer explanation and weighting info
+  const detailedOfferExplanations = offers.map(o => {
+    const itemData = masterResources.find(r => r.type === o.itemBought);
+    const timePerUnit = itemData?.totalnestedtime || itemData?.crafttime || 60;
+    const unitPrice = itemData?.maxprice || 100;
+    const qtyEffort = o.qtyBought * timePerUnit;
+    const qtyGivenExpected = Math.floor(unitPrice * o.qtyBought * ((global.TUNING_SEASON_MULTIPLIER || 1) || 1));
+    // Try to use actual qtyGiven from offer for Money, fallback to calculated
+    const qtyGivenDisplay = o.qtyGiven !== undefined ? o.qtyGiven : qtyGivenExpected;
+    return `${o.qtyBought} ${o.itemBought} @ ${timePerUnit}s each = ${qtyEffort}s effort; × ${unitPrice} price = ${qtyGivenDisplay} Money`;
+  }).join(" | ");
+
+  const logicString = `Offers generated using ${population} population × ${baseHours} hours effort per player = ${Math.floor(totalEffort)}s total effort.
+Offer details: ${detailedOfferExplanations}.
+Items like Corn and Milk appear frequently because item selection is weighted inversely to sqrt(craft time), favoring quicker crafts.
+Remaining effort is reduced after each offer by (qty × time per unit), until exhausted or max offers reached.
+Rewards based on population: [${rewardDescriptions}].`;
 
   const logEntry = {
     date: new Date(),
