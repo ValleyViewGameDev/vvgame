@@ -367,7 +367,7 @@ const renderRewards = (rewards) => {
                 <div className="standard-buttons">
                   {rewards?.length > 0 && (
                     <button className="btn-success" onClick={() => handleCollect(msg)}>
-                      {strings[1604]}
+                      {strings[1604]} 
                     </button>
                   )}
                   <button
