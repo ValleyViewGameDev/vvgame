@@ -116,11 +116,12 @@ async function trainScheduler(frontierId, phase, frontier = null) {
 function generateTrainOffers(settlement, seasonConfig, frontier) {
   const offers = [];
   
-  // First, ensure we have valid season resources
+  // 🎯 Filter master resources to those valid for the current season (from seasons.json)
   const seasonResources = masterResources.filter(res =>
     (seasonConfig.seasonResources || []).includes(res.type)
   );
 
+  // 🪵 Fallback: If no valid seasonal resources, return default Wood offer
   if (seasonResources.length === 0) {
     console.warn(`⚠️ No season resources found for ${settlement.name}. Using fallback resource.`);
     return [{
@@ -133,7 +134,8 @@ function generateTrainOffers(settlement, seasonConfig, frontier) {
     }];
   }
 
-  // Always generate first offer
+  // 🥇 Always generate a first offer to ensure at least one train deal
+  // Select an item based on weighted random (favoring lower craft time), random qty (1–5), payout based on item price
   const firstItem = weightedRandomByCraftEffort(seasonResources);
   const firstQty = Math.max(1, Math.ceil(Math.random() * 5));
   const firstOffer = {
@@ -147,7 +149,8 @@ function generateTrainOffers(settlement, seasonConfig, frontier) {
   offers.push(firstOffer);
   console.log(`  📦 First Train Offer (${settlement.name}): ${firstOffer.qtyBought} ${firstOffer.itemBought} → ${firstOffer.qtyGiven} Money`);
 
-  // Then generate additional offers based on effort calculation
+  // ➕ Generate additional offers based on total player effort budget for the season
+  // Stop if effort runs out or max offers reached
   const baseHours = globalTuning.baseHoursForTrain || 2.5;
   const basePlayerEffortPerWeek = baseHours * 60 * 60;
   const population = Math.max(1, settlement.population || 1);
@@ -220,6 +223,9 @@ function generateTrainRewards(settlement, seasonConfig) {
   const rewards = [];
   const rewardItems = seasonConfig.trainRewards || [];
   const population = settlement.population || 1;
+
+  // 🎁 Generate up to 3 rewards from season-configured reward items
+  // Qty is based on population (1 reward per 10 people)
   const numRewards = Math.min(rewardItems.length, 3);
 
   for (let i = 0; i < numRewards; i++) {
@@ -239,12 +245,17 @@ async function generateTrainLog(settlement, fulfilledPlayerIds) {
   const offers = settlement.currentoffers || [];
   const rewards = settlement.trainrewards || [];
 
-  const offerDescriptions = offers.map(o => `${o.qtyBought} ${o.itemBought} → ${o.qtyGiven} ${o.itemGiven}`).join("; ");
   const rewardDescriptions = rewards.map(r => `${r.qty} ${r.item}`).join(", ");
 
   const baseHours = globalTuning.baseHoursForTrain || 2.5;
   const baseEffort = baseHours * 60 * 60;
   const totalEffort = baseEffort * population;
+
+  const now = Date.now();
+  const seasonEnd = new Date(settlement.seasonEndTime || now);
+  const msPerWeek = 1000 * 60 * 60 * 24 * 7;
+  let weeksRemaining = Math.ceil((seasonEnd - now) / msPerWeek);
+  if (weeksRemaining < 1) weeksRemaining = 1;
 
   // Enhanced logic string with detailed per-offer explanation and weighting info
   const detailedOfferExplanations = offers.map(o => {
@@ -258,11 +269,13 @@ async function generateTrainLog(settlement, fulfilledPlayerIds) {
     return `${o.qtyBought} ${o.itemBought} @ ${timePerUnit}s each = ${qtyEffort}s effort; × ${unitPrice} price = ${qtyGivenDisplay} Money`;
   }).join(" | ");
 
-  const logicString = `Offers generated using ${population} population × ${baseHours} hours effort per player = ${Math.floor(totalEffort)}s total effort.
+  const logicString = `Limit possible offers to the ${settlement.seasonType || 'Unknown'} season as defined in tuning (seasons.json). Filtered candidate items include only those allowed in this season.
+Always generate a first offer to ensure there is at least one train deal, using a weighted random selection favoring items with lower crafting time (weight = 1 / sqrt(craft time)). Quantity is random (1–5), payout is based on item maxprice × qty × seasonMultiplier.
+Total player effort capacity is calculated as: ${population} population × ${baseHours} hours/week × 3600s/hour = ${Math.floor(baseEffort)}s/player/week. Weeks remaining in the season: ${weeksRemaining}, so total effort pool = ${Math.floor(totalEffort)}s.
+Up to 4 additional offers may be generated, each consuming (qty × time per unit) effort until pool is depleted. Items are selected by same weighted logic. Offer reward = qty × item maxprice × seasonMultiplier.
 Offer details: ${detailedOfferExplanations}.
 Items like Corn and Milk appear frequently because item selection is weighted inversely to sqrt(craft time), favoring quicker crafts.
-Remaining effort is reduced after each offer by (qty × time per unit), until exhausted or max offers reached.
-Rewards based on population: [${rewardDescriptions}].`;
+Rewards based on population (1 reward per 10 pop): [${rewardDescriptions}].`;
 
   const logEntry = {
     date: new Date(),
