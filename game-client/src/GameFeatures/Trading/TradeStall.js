@@ -23,7 +23,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const { updateStatus } = useContext(StatusBarContext);
 
   const tradeStallHaircut = 0.25;
-  const sellWaitTime = 10000; // 10 seconds
+  const sellWaitTime = 60 * 60 * 10000; // 1 hour
 
   const calculateTotalSlots = (player) => {
     const baseSlots = 4;
