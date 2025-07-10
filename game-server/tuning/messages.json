@@ -8,8 +8,7 @@
         { "item": "Wood", "qty": 5 }, 
         { "item": "Wheat", "qty": 10 }, 
         { "item": "Carrot", "qty": 10 }, 
-        { "item": "Corn", "qty": 10 },
-        { "item": "Strawberry", "qty": 10 }
+        { "item": "Corn", "qty": 10 }
       ],
       "everyoneRewards": true,
       "neverPurge": true

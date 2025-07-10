@@ -597,8 +597,10 @@
         "validonn": true,
         "validono": true,
         "growtime": 10,
+        "ingredient1": "Wheat",
+        "ingredient1qty": 1,
         "crafttime": 10,
-        "totalnestedtime": 10
+        "totalnestedtime": 25
     },
     {
         "type": "Carrot Plot",
@@ -616,8 +618,10 @@
         "validonn": true,
         "validono": true,
         "growtime": 30,
+        "ingredient1": "Carrot",
+        "ingredient1qty": 1,
         "crafttime": 30,
-        "totalnestedtime": 30
+        "totalnestedtime": 90
     },
     {
         "type": "Corn Plot",
@@ -636,8 +640,10 @@
         "validonn": true,
         "validono": true,
         "growtime": 300,
+        "ingredient1": "Corn",
+        "ingredient1qty": 1,
         "crafttime": 300,
-        "totalnestedtime": 300
+        "totalnestedtime": 660
     },
     {
         "type": "Sugarcane Plot",
@@ -656,8 +662,10 @@
         "validonn": true,
         "validono": true,
         "growtime": 900,
+        "ingredient1": "Sugarcane",
+        "ingredient1qty": 1,
         "crafttime": 900,
-        "totalnestedtime": 900
+        "totalnestedtime": 1875
     },
     {
         "type": "Strawberry Plot",
@@ -676,8 +684,10 @@
         "validonn": true,
         "validono": true,
         "growtime": 64800,
+        "ingredient1": "Strawberry",
+        "ingredient1qty": 1,
         "crafttime": 64800,
-        "totalnestedtime": 64800
+        "totalnestedtime": 129840
     },
     {
         "type": "Garlic Plot",
@@ -696,8 +706,10 @@
         "validonn": true,
         "validono": true,
         "growtime": 259200,
+        "ingredient1": "Garlic",
+        "ingredient1qty": 1,
         "crafttime": 259200,
-        "totalnestedtime": 259200
+        "totalnestedtime": 518805
     },
     {
         "type": "Apple Tree",
@@ -766,8 +778,10 @@
         "validonn": true,
         "validono": true,
         "growtime": 43200,
+        "ingredient1": "Grapes",
+        "ingredient1qty": 1,
         "crafttime": 43200,
-        "totalnestedtime": 43200
+        "totalnestedtime": 64995
     },
     {
         "type": "Olive Tree",
@@ -812,8 +826,10 @@
         "validonn": true,
         "validono": true,
         "growtime": 57600,
+        "ingredient1": "Tomato",
+        "ingredient1qty": 1,
         "crafttime": 57600,
-        "totalnestedtime": 57600
+        "totalnestedtime": 115530
     },
     {
         "type": "Wheat",

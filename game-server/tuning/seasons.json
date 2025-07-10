@@ -1,7 +1,7 @@
 [
     { 
         "seasonType": "Spring",
-        "seasonResources": [ "Milk", "Carrot", "Strawberry Pie", "Lemon", "Honey", "Egg", "Flour", "Carrot Soup", "Lemon Cookie" ],
+        "seasonResources": [ "Carrot", "Strawberry", "Garlic", "Strawberry Pie", "Honey", "Egg", "Flour", "Garlic Bread", "Carrot Soup" ],
         "seasonMultiplier": 1,
         "SeasonMoneyNerf": 0.25,
         "pricePoints": 25,
@@ -10,7 +10,7 @@
     },
     { 
         "seasonType": "Summer",
-        "seasonResources": [ "Olive", "Olive Oil", "Corn", "Tomato", "Omelette", "Pizza", "Wine", "Grapes" ],
+        "seasonResources": [ "Corn", "Tomato", "Lemon", "Milk", "Bread", "Cornbread", "Lemon Cookie", "Tomato Soup", "Omelette", "Pizza" ],
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
@@ -19,7 +19,7 @@
     },
     { 
         "seasonType": "Fall",
-        "seasonResources": [ "Apple Pie", "Corn", "Apple Cider", "Wheat", "Cornbread", "Garlic Bread", "Bread", "Cheese", "Pumpkin Soup" ],
+        "seasonResources": [ "Apple", "Grapes", "Olive", "Apple Pie", "Apple Cider", "Olive Oil", "Wine", "Cheese", "Pumpkin Soup" ],
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
@@ -28,7 +28,7 @@
     },
     { 
         "seasonType": "Winter",
-        "seasonResources": [ "Sweater", "Cheese", "Tomato Soup", "Garlic Bread", "Wool", "Jacket", "Heavy Jacket", "Bread", "Cream" ],
+        "seasonResources": [ "Wheat", "Sugarcane", "Sweater", "Cheese", "Wool", "Jacket", "Heavy Jacket", "Bread", "Cream" ],
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
