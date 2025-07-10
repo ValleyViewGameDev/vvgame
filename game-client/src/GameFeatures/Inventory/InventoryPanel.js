@@ -141,8 +141,8 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                 <br></br>
                 <br></br>
                 <div className="inventory-table">
-                    {backpack.length > 0 ? (
-                        backpack.map((item, index) => (
+                    {backpack.filter(item => item.type !== 'Money').length > 0 ? (
+                        backpack.filter(item => item.type !== 'Money').map((item, index) => (
                             <div className="inventory-row" key={index}>
                                 <div className="inventory-cell name-cell">{item.type}</div>
                                 <div className="inventory-cell quantity-cell">{item.quantity.toLocaleString()}</div>
@@ -163,8 +163,8 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
             <div className="capacity-display">Capacity: {calculateTotalQuantity(inventory)}/{finalCapacities.warehouse}</div>
 
             <div className="inventory-table">
-                {inventory.length > 0 ? (
-                    inventory.map((item, index) => (
+                {inventory.filter(item => item.type !== 'Money').length > 0 ? (
+                    inventory.filter(item => item.type !== 'Money').map((item, index) => (
                         <div className="inventory-row" key={index}>
                             <div className="inventory-cell name-cell">{item.type}</div>
                             <div className="inventory-cell quantity-cell">{item.quantity.toLocaleString()}</div>
