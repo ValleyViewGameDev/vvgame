@@ -718,8 +718,10 @@
         "validonn": true,
         "validono": true,
         "growtime": 86400,
+        "ingredient1": "Apple",
+        "ingredient1qty": 1,
         "crafttime": 86400,
-        "totalnestedtime": 86400
+        "totalnestedtime": 129715
     },
     {
         "type": "Lemon Tree",
@@ -740,8 +742,10 @@
         "validonn": true,
         "validono": true,
         "growtime": 172800,
+        "ingredient1": "Lemon",
+        "ingredient1qty": 1,
         "crafttime": 172800,
-        "totalnestedtime": 172800
+        "totalnestedtime": 259330
     },
     {
         "type": "Grape Vine",
@@ -784,8 +788,10 @@
         "validonn": true,
         "validono": true,
         "growtime": 259200,
+        "ingredient1": "Olive",
+        "ingredient1qty": 1,
         "crafttime": 259200,
-        "totalnestedtime": 259200
+        "totalnestedtime": 389170
     },
     {
         "type": "Tomato Vine",
@@ -946,7 +952,33 @@
         "source": "Apple Tree",
         "passable": true,
         "requires": "Farmer",
-        "qtycollected": 1,
+        "qtycollected": 2,
+        "level": 1,
+        "validong": true,
+        "validond": true,
+        "validons": false,
+        "validonp": false,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true,
+        "minprice": 138,
+        "maxprice": 231,
+        "ingredient1": "Money",
+        "ingredient1qty": 23,
+        "crafttime": 43200,
+        "totalnestedtime": 43315
+    },
+    {
+        "type": "Lemon",
+        "symbol": "🍋",
+        "layoutkey": "lE",
+        "category": "doober",
+        "action": "collect",
+        "source": "Lemon Tree",
+        "passable": true,
+        "requires": "Farmer",
+        "qtycollected": 2,
         "level": 1,
         "validong": true,
         "validond": true,
@@ -959,35 +991,9 @@
         "minprice": 147,
         "maxprice": 246,
         "ingredient1": "Money",
-        "ingredient1qty": 23,
-        "crafttime": 86400,
-        "totalnestedtime": 86515
-    },
-    {
-        "type": "Lemon",
-        "symbol": "🍋",
-        "layoutkey": "lE",
-        "category": "doober",
-        "action": "collect",
-        "source": "Lemon Tree",
-        "passable": true,
-        "requires": "Farmer",
-        "qtycollected": 1,
-        "level": 1,
-        "validong": true,
-        "validond": true,
-        "validons": false,
-        "validonp": false,
-        "validonw": false,
-        "validonl": false,
-        "validonn": true,
-        "validono": true,
-        "minprice": 156,
-        "maxprice": 261,
-        "ingredient1": "Money",
         "ingredient1qty": 26,
-        "crafttime": 172800,
-        "totalnestedtime": 172930
+        "crafttime": 86400,
+        "totalnestedtime": 86530
     },
     {
         "type": "Grapes",
@@ -1050,7 +1056,7 @@
         "source": "Olive Tree",
         "passable": true,
         "requires": "Farmer",
-        "qtycollected": 1,
+        "qtycollected": 2,
         "level": 3,
         "validong": true,
         "validond": true,
@@ -1060,12 +1066,12 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 487,
-        "maxprice": 812,
+        "minprice": 460,
+        "maxprice": 767,
         "ingredient1": "Money",
         "ingredient1qty": 74,
-        "crafttime": 259200,
-        "totalnestedtime": 259570
+        "crafttime": 129600,
+        "totalnestedtime": 129970
     },
     {
         "type": "Tomato",
@@ -1450,8 +1456,8 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 472,
-        "maxprice": 788,
+        "minprice": 447,
+        "maxprice": 746,
         "ingredient1": "Apple",
         "ingredient1qty": 2,
         "ingredient2": "Flour",
@@ -1461,7 +1467,7 @@
         "ingredient4": "Butter",
         "ingredient4qty": 2,
         "crafttime": 1200,
-        "totalnestedtime": 181520
+        "totalnestedtime": 95120
     },
     {
         "type": "Strawberry Pie",
@@ -1704,8 +1710,8 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 502,
-        "maxprice": 837,
+        "minprice": 478,
+        "maxprice": 798,
         "ingredient1": "Lemon",
         "ingredient1qty": 2,
         "ingredient2": "Flour",
@@ -1715,7 +1721,7 @@
         "ingredient4": "Sugar",
         "ingredient4qty": 4,
         "crafttime": 600,
-        "totalnestedtime": 383030
+        "totalnestedtime": 210230
     },
     {
         "type": "Honey",
@@ -1760,12 +1766,12 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 364,
-        "maxprice": 608,
+        "minprice": 350,
+        "maxprice": 584,
         "ingredient1": "Apple",
         "ingredient1qty": 12,
         "crafttime": 172800,
-        "totalnestedtime": 1210980
+        "totalnestedtime": 692580
     },
     {
         "type": "Wine",
@@ -1843,12 +1849,12 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 366,
-        "maxprice": 611,
+        "minprice": 348,
+        "maxprice": 581,
         "ingredient1": "Olive",
         "ingredient1qty": 5,
         "crafttime": 7200,
-        "totalnestedtime": 1305050
+        "totalnestedtime": 657050
     },
     {
         "type": "Tomato Soup",
@@ -1867,8 +1873,8 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 747,
-        "maxprice": 1246,
+        "minprice": 722,
+        "maxprice": 1204,
         "ingredient1": "Tomato",
         "ingredient1qty": 6,
         "ingredient2": "Bread",
@@ -1878,7 +1884,7 @@
         "ingredient4": "Cream",
         "ingredient4qty": 3,
         "crafttime": 1800,
-        "totalnestedtime": 1704290
+        "totalnestedtime": 1056290
     },
     {
         "type": "Carrot Soup",
@@ -1897,8 +1903,8 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 754,
-        "maxprice": 1257,
+        "minprice": 733,
+        "maxprice": 1222,
         "ingredient1": "Tomato",
         "ingredient1qty": 2,
         "ingredient2": "Carrot",
@@ -1908,7 +1914,7 @@
         "ingredient4": "Olive Oil",
         "ingredient4qty": 1,
         "crafttime": 2700,
-        "totalnestedtime": 1943180
+        "totalnestedtime": 1295180
     },
     {
         "type": "Omelette",
@@ -1928,8 +1934,8 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 724,
-        "maxprice": 1207,
+        "minprice": 690,
+        "maxprice": 1151,
         "ingredient1": "Egg",
         "ingredient1qty": 4,
         "ingredient2": "Cheese",
@@ -1939,7 +1945,7 @@
         "ingredient4": "Cream",
         "ingredient4qty": 1,
         "crafttime": 600,
-        "totalnestedtime": 1092940
+        "totalnestedtime": 574540
     },
     {
         "type": "Pizza",
@@ -1959,8 +1965,8 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 928,
-        "maxprice": 1547,
+        "minprice": 892,
+        "maxprice": 1488,
         "ingredient1": "Wheat",
         "ingredient1qty": 4,
         "ingredient2": "Tomato",
@@ -1970,7 +1976,7 @@
         "ingredient4": "Cheese",
         "ingredient4qty": 4,
         "crafttime": 900,
-        "totalnestedtime": 1544930
+        "totalnestedtime": 896930
     },
     {
         "type": "Furniture",
@@ -2048,8 +2054,8 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 569,
-        "maxprice": 949,
+        "minprice": 543,
+        "maxprice": 906,
         "ingredient1": "Flour",
         "ingredient1qty": 1,
         "ingredient2": "Egg",
@@ -2059,7 +2065,7 @@
         "ingredient4": "Rosemary",
         "ingredient4qty": 1,
         "crafttime": 14400,
-        "totalnestedtime": 2138330
+        "totalnestedtime": 1101530
     },
     {
         "type": "Garlic Bread",
@@ -2107,8 +2113,8 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 188,
-        "maxprice": 314,
+        "minprice": 182,
+        "maxprice": 304,
         "ingredient1": "Flour",
         "ingredient1qty": 2,
         "ingredient2": "Egg",
@@ -2118,7 +2124,7 @@
         "ingredient4": "Lemon Cookie",
         "ingredient4qty": 4,
         "crafttime": 28800,
-        "totalnestedtime": 1925480
+        "totalnestedtime": 1234280
     },
     {
         "type": "Ink",
@@ -2486,11 +2492,11 @@
         "validonn": true,
         "validono": true,
         "minprice": 10,
-        "maxprice": 18,
+        "maxprice": 17,
         "ingredient1": "Olive Bread",
         "ingredient1qty": 12,
         "crafttime": 3600,
-        "totalnestedtime": 25663560
+        "totalnestedtime": 13221960
     },
     {
         "type": "Book",
@@ -2654,12 +2660,12 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
-        "minprice": 3507,
-        "maxprice": 5846,
+        "minprice": 3484,
+        "maxprice": 5808,
         "ingredient1": "Queen's Cake",
         "ingredient1qty": 10,
         "crafttime": 43200000,
-        "totalnestedtime": 62454800
+        "totalnestedtime": 55542800
     },
     {
         "type": "King's Crown",
@@ -3343,7 +3349,7 @@
         "ingredient3": "Gem",
         "ingredient3qty": 5,
         "crafttime": 0,
-        "totalnestedtime": 128492200
+        "totalnestedtime": 66284200
     },
     {
         "type": "Hospital",
@@ -3374,7 +3380,7 @@
         "ingredient4": "Gem",
         "ingredient4qty": 3,
         "crafttime": 0,
-        "totalnestedtime": 77115280
+        "totalnestedtime": 39790480
     },
     {
         "type": "Cow",
