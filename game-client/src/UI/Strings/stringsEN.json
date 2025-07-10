@@ -144,7 +144,6 @@
     "1005": "Acquire Skills and Upgrades to improve various attributes. Make sure to explore the Town to find additional places and ways to gain Skills and Upgrades.",
     "1006": "Manage all of your ongoing quests here. Look for quest-giving characters on your homestead as well as Town, or even the Valley.",
     "1007": "Governments in Valley View are formed at the settlement level. The elected mayor implements policies and builds buildings to help the community thrive.",
-    "1008": "Trade Stall: Sell your resources to other players or buy items from their trade stalls. Use the arrows to navigate between trade stalls within your Settlement. If no other players buy your items, you can always sell them to the game for 25% of their value.",
     "1009": "[Crafting description]",
     "1010": "[Mailbox description]",
     "1011": "This Animal Stall is empty. Make sure animals have grass to eat, and they will eventually come to the stall for harvesting.",
@@ -525,7 +524,8 @@
     "11000": "ADDED STRINGS:",
 
     "11001": "Sell your item, or wait for another player to buy it.",
-    "206": "Return to the NPC who gave you this quest to collect your reward."
+    "206": "Return to the NPC who gave you this quest to collect your reward.",
+    "1008": "Trade Stall: Sell your resources to other players or buy items from their trade stalls. Use the arrows to navigate between trade stalls within your Settlement. If no players buy your items before the timer expires, you can sell them to the game for fraction of their base value."
 
   }
 

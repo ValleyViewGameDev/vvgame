@@ -4,9 +4,10 @@ import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel'; // Use Panel instead of Modal
 import axios from 'axios';
 import './TradeStall.css';
-import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
+import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
+import { formatCountdown } from '../../UI/Timers';
 
 function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurrentPlayer }) {
 
@@ -22,6 +23,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const { updateStatus } = useContext(StatusBarContext);
 
   const tradeStallHaircut = 0.25;
+  const sellWaitTime = 10000; // 10 seconds
 
   const calculateTotalSlots = () => {
     const baseSlots = 4; // Free account base slots
@@ -115,54 +117,73 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   
   const handleBuy = async (slotIndex) => {
     const slot = tradeSlots[slotIndex];
-  
+
     if (!slot || slot.amount <= 0) return; // No valid slot to buy from
-  
+
     const totalCost = slot.amount * slot.price;
     console.log('Current inventory:', inventory);
     const currentMoney = inventory.find((item) => item.type === 'Money')?.quantity || 0;
-         
+
     if (totalCost > currentMoney) {
       console.warn('Not enough money to complete the purchase.');
       updateStatus(152);
       return;
     }
-  
+
     try {
-      // Deduct money from currentPlayer
-      const updatedInventory = inventory.map((item) =>
-        item.type === 'Money'
-          ? { ...item, quantity: item.quantity - totalCost }
-          : item
-      );
-  
-      // Add the purchased resource to currentPlayer's inventory
-      const existingResourceIndex = updatedInventory.findIndex((item) => item.type === slot.resource);
-      if (existingResourceIndex >= 0) {
-        updatedInventory[existingResourceIndex].quantity += slot.amount;
-      } else {
-        updatedInventory.push({ type: slot.resource, quantity: slot.amount });
-      }
-  
-      // Update the TradeStall to reduce or clear the slot
-      const updatedSlots = [...tradeSlots];
-      updatedSlots[slotIndex] = null;
-  
-      // Server API calls
-      await axios.post(`${API_BASE}/api/update-inventory`, {
+      // Use spendIngredients utility to deduct Money
+      const tempRecipe = {
+        ingredient1: 'Money',
+        ingredient1qty: totalCost,
+      };
+      console.log('Attempting to spend Money at trade stall:', tempRecipe);
+      const success = await spendIngredients({
         playerId: currentPlayer.playerId,
-        inventory: updatedInventory,
+        recipe: tempRecipe,
+        inventory,
+        backpack: [], // No backpack used here
+        setInventory,
+        setBackpack: () => {}, // No-op
+        setCurrentPlayer,
+        updateStatus,
       });
-  
+      if (!success) {
+        console.warn('Not enough Money to buy this item.');
+        return;
+      }
+
+      // Gain purchased resource properly
+      await gainIngredients({
+        playerId: currentPlayer.playerId,
+        currentPlayer,
+        resource: slot.resource,
+        quantity: slot.amount,
+        inventory,
+        backpack: [], // no backpack logic needed here
+        setInventory,
+        setBackpack: () => {},
+        setCurrentPlayer,
+        updateStatus,
+        masterResources: [], // optional; pass if available
+      });
+
+      // Update the TradeStall to mark the slot as purchased
+      const updatedSlots = [...tradeSlots];
+      updatedSlots[slotIndex] = {
+        ...slot,
+        boughtBy: currentPlayer.username,
+        boughtFor: totalCost
+      };
+      delete updatedSlots[slotIndex].sellTime;
+
       await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
         playerId: viewedPlayer.playerId,
         tradeStall: updatedSlots,
       });
-  
+
       // Update local state
-      setInventory(updatedInventory);
       setTradeSlots(updatedSlots);
-  
+
       updateStatus(22);
       console.log(`Purchased ${slot.amount}x ${slot.resource} for ${totalCost}`);
     } catch (error) {
@@ -201,24 +222,24 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const handleAddToSlot = async (resource) => {
     const amount = amounts[resource] || 0;
     const resourceInInventory = inventory.find((item) => item.type === resource);
-  
+
     if (selectedSlotIndex === null || amount <= 0 || !resourceInInventory || amount > resourceInInventory.quantity) {
       console.warn('Invalid amount or resource exceeds available quantity.');
       return;
     }
-  
+
     const resourceDetails = resourceData.find((item) => item.type === resource);
     const price = resourceDetails?.minprice || 0;
-  
+
     const updatedSlots = [...tradeSlots];
-    updatedSlots[selectedSlotIndex] = { resource, amount, price };
-  
+    updatedSlots[selectedSlotIndex] = { resource, amount, price, sellTime: Date.now() + sellWaitTime };
+
     try {
       await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
         playerId: currentPlayer.playerId,
         tradeStall: updatedSlots,
       });
-  
+
       await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
         inventory: inventory.map((item) =>
@@ -227,18 +248,54 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
             : item
         ).filter((item) => item.quantity > 0),
       });
-  
+
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-  
+
       const refreshedInventory = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
       setInventory(refreshedInventory.data.inventory);
-  
+
       setTradeSlots(updatedSlots);
       setSelectedSlotIndex(null);
       calculateTotalSellValue(updatedSlots);
     } catch (error) {
       console.error('Error adding item to Trade Stall:', error);
     }
+  };
+
+  
+  const handleSellSingle = async (slotIndex) => {
+    const slot = tradeSlots[slotIndex];
+    if (!slot) return;
+    const sellValue = Math.floor(slot.amount * slot.price * tradeStallHaircut);
+
+    await gainIngredients({
+      playerId: currentPlayer.playerId,
+      currentPlayer,
+      resource: 'Money',
+      quantity: sellValue,
+      inventory,
+      backpack: [],
+      setInventory,
+      setBackpack: () => {},
+      setCurrentPlayer,
+      updateStatus,
+      masterResources: [],
+    });
+
+    // Track quest progress for selling this item
+    await trackQuestProgress(currentPlayer, 'Sell', slot.resource, slot.amount, setCurrentPlayer);
+
+    const updatedSlots = [...tradeSlots];
+    updatedSlots[slotIndex] = null;
+
+    await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
+      playerId: currentPlayer.playerId,
+      tradeStall: updatedSlots,
+    });
+
+    setTradeSlots(updatedSlots);
+    calculateTotalSellValue(updatedSlots);
+    updateStatus(6);
   };
 
   const calculateTotalSellValue = (slots) => {
@@ -335,8 +392,57 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
             key={index}
             className={`trade-slot ${slot ? 'filled' : ''}`}
             onClick={() => handleSlotClick(index)}
+            style={slot ? { minHeight: '75px' } : {}}
           >
-            {slot ? `${slot.amount}x ${getSymbol(slot.resource)} ${slot.resource} (${slot.price ?? 0} ea.)` : 'Empty'}
+            {slot ? (
+              <div
+                style={{
+                  textAlign: 'center',
+                  fontSize: '1rem',
+                  minHeight: '75px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                }}
+              >
+                <div style={{ marginBottom: '6px' }}>
+                  {`${slot.amount}x ${getSymbol(slot.resource)} ${slot.resource}`}
+                </div>
+                {viewedPlayer.playerId === currentPlayer.playerId && slot.sellTime && slot.sellTime > Date.now() && (
+                  <div style={{ fontSize: '0.9rem' }}>{formatCountdown(slot.sellTime, Date.now())}</div>
+                )}
+                {viewedPlayer.playerId === currentPlayer.playerId && slot.sellTime && slot.sellTime <= Date.now() && (
+                  <button
+                    className="sell-button"
+                    style={{ fontSize: '0.95rem', padding: '4px 8px', marginTop: '4px' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSellSingle(index);
+                    }}
+                  >
+                    Sell for 💰{Math.floor(slot.amount * slot.price * tradeStallHaircut)}
+                  </button>
+                )}
+                {/* New block for collecting payment after purchase */}
+                {viewedPlayer.playerId === currentPlayer.playerId && slot.boughtBy && (
+                  <>
+                    <div style={{ fontSize: '0.9rem' }}>Bought by {slot.boughtBy}</div>
+                    <button
+                      className="sell-button"
+                      style={{ fontSize: '0.95rem', padding: '4px 8px', marginTop: '4px' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleCollectPayment(index);
+                      }}
+                    >
+                      Collect 💰{slot.boughtFor}
+                    </button>
+                  </>
+                )}
+              </div>
+            ) : (
+              'Empty'
+            )}
           </div>
         ))}
       </div>
@@ -426,19 +532,40 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         </div>
       )}
 
-
-<div className="sell-button-container">
-  <button
-    className="sell-button"
-    onClick={handleSell}
-    disabled={totalSellValue === 0}
-  >
-    Sell for {Math.floor(totalSellValue * tradeStallHaircut)}
-  </button>
-</div>
-
     </Panel>
   );
 };
 
 export default TradeStall;
+
+  // New function to collect payment from a bought slot
+  const handleCollectPayment = async (slotIndex) => {
+    const slot = tradeSlots[slotIndex];
+    if (!slot || !slot.boughtFor) return;
+
+    await gainIngredients({
+      playerId: currentPlayer.playerId,
+      currentPlayer,
+      resource: 'Money',
+      quantity: slot.boughtFor,
+      inventory,
+      backpack: [],
+      setInventory,
+      setBackpack: () => {},
+      setCurrentPlayer,
+      updateStatus,
+      masterResources: [],
+    });
+
+    const updatedSlots = [...tradeSlots];
+    updatedSlots[slotIndex] = null;
+
+    await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
+      playerId: currentPlayer.playerId,
+      tradeStall: updatedSlots,
+    });
+
+    setTradeSlots(updatedSlots);
+    calculateTotalSellValue(updatedSlots);
+    updateStatus(6);
+  };

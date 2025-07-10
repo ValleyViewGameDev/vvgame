@@ -39,18 +39,29 @@
 
 .trade-slot {
   width: 150px;
-  height: 50px;
+  height: 75px; /* Increased height to allow space */
   background: #f4f4f4;
   border: 1px solid #ccc;
   display: flex;
+  flex-direction: column; /* Stack content vertically */
   justify-content: center;
   align-items: center;
   cursor: pointer;
   border-radius: 8px;
+  padding: 4px;
+  font-size: 1.0rem;
 }
 
 .trade-slot.filled {
   background: #d9ffd9;
+}
+
+.trade-slot .sell-button {
+  font-size: 1.1rem;
+}
+
+.trade-slot .countdown {
+  font-size: 1.1rem;
 }
 
 .sell-button-container {
