@@ -248,9 +248,11 @@ async function generateTrainLog(settlement, fulfilledPlayerIds, frontier) {
 
   // Build human-readable logic summary
   const population = settlement.population || 1;
-  const offers = settlement.currentoffers || [];
+  const offers = Array.isArray(settlement.currentoffers) ? [...settlement.currentoffers] : [];
   const rewards = settlement.trainrewards || [];
   const seasonLevel = getSeasonLevel(frontier?.seasons?.onSeasonStart, frontier?.seasons?.onSeasonEnd);
+
+  console.log("🧾 Log is being generated from these offers:", offers);
 
   const rewardDescriptions = rewards.map(r => `${r.qty} ${r.item}`).join(", ");
 
@@ -266,25 +268,25 @@ async function generateTrainLog(settlement, fulfilledPlayerIds, frontier) {
 
   // Enhanced logic string with detailed per-offer explanation and weighting info
   const detailedOfferExplanations = offers.map(o => {
-    const itemData = masterResources.find(r => r.type === o.itemBought);
+    const itemData = masterResources.find(r => r.type === o.itemBought) || {};
     const timePerUnit = itemData?.totalnestedtime || itemData?.crafttime || 60;
     const unitPrice = itemData?.maxprice || 100;
     const qtyEffort = o.qtyBought * timePerUnit;
-    const qtyGivenExpected = Math.floor(unitPrice * o.qtyBought * ((global.TUNING_SEASON_MULTIPLIER || 1) || 1));
+    const seasonMultiplier = global.TUNING_SEASON_MULTIPLIER || 1;
+    const qtyGivenExpected = Math.floor(unitPrice * o.qtyBought * seasonMultiplier);
     // Try to use actual qtyGiven from offer for Money, fallback to calculated
     const qtyGivenDisplay = o.qtyGiven !== undefined ? o.qtyGiven : qtyGivenExpected;
     return `${o.qtyBought} ${o.itemBought} @ ${timePerUnit}s each = ${qtyEffort}s effort; × ${unitPrice} price = ${qtyGivenDisplay} Money`;
   }).join(" | ");
 
-  const logicString = `Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in tuning (seasons.json). Filtered candidate items include only those allowed in this season.
-Season complexity is adjusted dynamically using seasonLevel (1–6) based on season progression. A higher seasonLevel increases the likelihood of more complex crafts (longer totalnestedtime) by adjusting the weighting: weight = 1 / (craft time ^ (seasonLevel / 6)).
-Always generate a first offer to ensure there is at least one train deal, using weighted random selection. Quantity is random (1–5), payout is based on item maxprice × qty × seasonMultiplier.
+  const logicString = `Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in seasons tuning. 
+Offer complexity adjusted by season progression; current seasonLevel = ${seasonLevel} of 6. Higher seasonLevel = likelihood of more complex crafts (longer totalnestedtime): weight = 1 / (craft time ^ (seasonLevel / 6)).
+Always generate a first offer to ensure there is at least one train offer, using weighted random selection. Item quantity per offer is random (1–5). Money rewarded per offer = item.maxprice × qty × seasonMultiplier. (seasonMultiplier = ${seasonMultiplier}).
 Total player effort capacity is calculated as: ${population} population × ${baseHours} hours/week × 3600s/hour = ${Math.floor(baseEffort)}s/player/week. Weeks remaining in the season: ${weeksRemaining}, so total effort pool = ${Math.floor(totalEffort)}s.
 Up to 4 additional offers may be generated, each consuming (qty × time per unit) effort until pool is depleted. Items are selected using the same seasonLevel-adjusted weighting. Offer reward = qty × item maxprice × seasonMultiplier.
 Offer details: ${detailedOfferExplanations}.
-Items like Corn and Milk appear frequently if they have low craft time, which gives them a higher weight in early season levels.
-Train rewards scale with season level. Base rewards are qty = ceil(population / 10). At seasonLevel ${seasonLevel}, this is multiplied by ${seasonLevel}, producing larger rewards in later parts of the season.
-Rewards based on population (1 reward per 10 pop × seasonLevel): [${rewardDescriptions}].`;
+Train rewards are defined per season (in seasons tuning), and the quatity of each reward scales with population & season level (qty = Math.ceil((population / 10) * seasonLevel)), producing larger rewards in later parts of the season.
+Here are the Rewards: [${rewardDescriptions}].`;
 
   const logEntry = {
     date: new Date(),
