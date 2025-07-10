@@ -36,49 +36,50 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     return baseSlots + (accountStatusSlots[currentPlayer.accountStatus] || 0);
   };
 
-  useEffect(() => {
-    const fetchDataForViewedPlayer = async () => {
-      try {
-        // Fetch resource data (e.g., for prices)
-        const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
-        setResourceData(resourcesResponse.data);
-  
-        // Fetch inventory for the current player
-        const currentInventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
-        setInventory(currentInventoryResponse.data.inventory || []);
-  
-        // Fetch trade stall data for the viewed player
-        const tradeStallResponse = await axios.get(`${API_BASE}/api/player-trade-stall`, {
-          params: { playerId: viewedPlayer.playerId },
-        });
-  
-        // Calculate slots
-        const totalSlots = calculateTotalSlots(viewedPlayer);
-        const existingSlots = tradeStallResponse.data.tradeStall || [];
-        const filledSlots = Array(totalSlots).fill(null);
-        existingSlots.forEach((slot, index) => {
-          if (index < totalSlots) filledSlots[index] = slot;
-        });
-  
-        setTradeSlots(filledSlots);
-  
-        // Update totalSellValue only if viewing currentPlayer's stall
-        if (viewedPlayer.playerId === currentPlayer.playerId) {
-          const total = existingSlots.reduce((sum, slot) => {
-            if (slot?.amount && slot?.price) {
-              return sum + slot.amount * slot.price;
-            }
-            return sum;
-          }, 0);
-          setTotalSellValue(total);
-        } else {
-          setTotalSellValue(0); // Disable Sell functionality for other players
-        }
-      } catch (error) {
-        console.error('Error fetching TradeStall data:', error);
+  // Lift fetchDataForViewedPlayer out of useEffect for reuse
+  const fetchDataForViewedPlayer = async () => {
+    try {
+      // Fetch resource data (e.g., for prices)
+      const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
+      setResourceData(resourcesResponse.data);
+
+      // Fetch inventory for the current player
+      const currentInventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
+      setInventory(currentInventoryResponse.data.inventory || []);
+
+      // Fetch trade stall data for the viewed player
+      const tradeStallResponse = await axios.get(`${API_BASE}/api/player-trade-stall`, {
+        params: { playerId: viewedPlayer.playerId },
+      });
+
+      // Calculate slots
+      const totalSlots = calculateTotalSlots(viewedPlayer);
+      const existingSlots = tradeStallResponse.data.tradeStall || [];
+      const filledSlots = Array(totalSlots).fill(null);
+      existingSlots.forEach((slot, index) => {
+        if (index < totalSlots) filledSlots[index] = slot;
+      });
+
+      setTradeSlots(filledSlots);
+
+      // Update totalSellValue only if viewing currentPlayer's stall
+      if (viewedPlayer.playerId === currentPlayer.playerId) {
+        const total = existingSlots.reduce((sum, slot) => {
+          if (slot?.amount && slot?.price) {
+            return sum + slot.amount * slot.price;
+          }
+          return sum;
+        }, 0);
+        setTotalSellValue(total);
+      } else {
+        setTotalSellValue(0); // Disable Sell functionality for other players
       }
-    };
-  
+    } catch (error) {
+      console.error('Error fetching TradeStall data:', error);
+    }
+  };
+
+  useEffect(() => {
     const fetchSettlementPlayers = async () => {
       try {
         const settlementPlayersResponse = await axios.get(`${API_BASE}/api/players-in-settlement`, {
@@ -89,7 +90,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         console.error('Error fetching settlement players:', error);
       }
     };
-  
+
     fetchDataForViewedPlayer();
     fetchSettlementPlayers();
     
@@ -167,14 +168,9 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         masterResources: [], // optional; pass if available
       });
 
-      // Update the TradeStall to mark the slot as purchased
+      // Update the TradeStall to mark the slot as purchased by making it empty
       const updatedSlots = [...tradeSlots];
-      updatedSlots[slotIndex] = {
-        ...slot,
-        boughtBy: currentPlayer.username,
-        boughtFor: totalCost
-      };
-      delete updatedSlots[slotIndex].sellTime;
+      updatedSlots[slotIndex] = null;
 
       await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
         playerId: viewedPlayer.playerId,
@@ -183,6 +179,9 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 
       // Update local state
       setTradeSlots(updatedSlots);
+
+      // Re-fetch the trade stall data for the viewed player to ensure up-to-date state
+      await fetchDataForViewedPlayer();
 
       updateStatus(22);
       console.log(`Purchased ${slot.amount}x ${slot.resource} for ${totalCost}`);
@@ -470,6 +469,19 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                       Collect 💰{slot.boughtFor}
                     </button>
                   </>
+                )}
+                {/* Show Buy for button if viewing another player's slot, item for sale, and not bought */}
+                {viewedPlayer.playerId !== currentPlayer.playerId && !slot.boughtBy && (
+                  <button
+                    className="sell-button"
+                    style={{ fontSize: '0.95rem', padding: '4px 8px', marginTop: '4px' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleBuy(index);
+                    }}
+                  >
+                    Buy for 💰{slot.amount * slot.price}
+                  </button>
                 )}
               </div>
             ) : (
