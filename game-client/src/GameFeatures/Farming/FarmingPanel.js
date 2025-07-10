@@ -156,7 +156,7 @@ const handleFarmPlacementWithCooldown = async (item) => {
                 : `${secs}s`;
             };
 
-            const symbol = allResources.find((res) => res.type === allResources.find((r) => r.type === item.type)?.output)?.symbol || '';
+            const symbol = item.symbol || '';
 
             const formattedCosts = [1, 2, 3, 4].map((i) => {
               const type = item[`ingredient${i}`];

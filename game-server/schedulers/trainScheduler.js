@@ -52,7 +52,7 @@ async function trainScheduler(frontierId, phase, frontier = null) {
           console.log(`🚫 No fulfilled train orders for ${settlement.name}. No rewards sent.`);
         }
 
-        await generateTrainLog(settlement, fulfilledPlayerIds);
+        await generateTrainLog(settlement, fulfilledPlayerIds, frontier);
         console.log(`📝 Train log entry saved for ${settlement.name}`);
       }
       
@@ -243,14 +243,14 @@ function generateTrainRewards(settlement, seasonConfig, frontier) {
   return rewards;
 }
 
-async function generateTrainLog(settlement, fulfilledPlayerIds) {
+async function generateTrainLog(settlement, fulfilledPlayerIds, frontier) {
   if ((settlement.population || 0) <= 0) { return; }
 
   // Build human-readable logic summary
   const population = settlement.population || 1;
   const offers = settlement.currentoffers || [];
   const rewards = settlement.trainrewards || [];
-  const seasonLevel = getSeasonLevel(settlement.seasonStartTime, settlement.seasonEndTime);
+  const seasonLevel = getSeasonLevel(frontier?.seasons?.onSeasonStart, frontier?.seasons?.onSeasonEnd);
 
   const rewardDescriptions = rewards.map(r => `${r.qty} ${r.item}`).join(", ");
 
