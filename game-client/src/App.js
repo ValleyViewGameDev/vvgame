@@ -1421,8 +1421,8 @@ return (
 {/* //////////////// Left Side Navigation Column ///////////////// */}
 
     <div className="nav-column">
-      <button className="nav-button" title="Home" onClick={() => closePanel()}>🏡</button>
-      <button className="nav-button" title="Profile" 
+      <button className="nav-button" title={strings[12009]} onClick={() => closePanel()}>🏡</button>
+      <button className="nav-button" title={strings[12010]} 
           onClick={() => {
             if (currentPlayer?.username) { 
               openPanel('ProfilePanel');
@@ -1433,17 +1433,17 @@ return (
         > 😀
         </button>
       
-      <button className="nav-button" title="Farming" onClick={() => openPanel('FarmingPanel')}>🚜</button>
-      <button className="nav-button" title="Build" onClick={() => openPanel('BuildPanel')}>⚒️</button>
-      <button className="nav-button" title="Buy Animals" onClick={() => openPanel('BuyPanel')}>🐮</button>
-      <button className="nav-button" title="Active Quests" onClick={() => openPanel('QuestPanel')}>❓</button>
-      <button className="nav-button" title="Skills & Upgrades" disabled={!currentPlayer} onClick={() => {
+      <button className="nav-button" title={strings[12001]} disabled={!currentPlayer} onClick={() => openPanel('FarmingPanel')}>🚜</button>
+      <button className="nav-button" title={strings[12002]} disabled={!currentPlayer} onClick={() => openPanel('BuildPanel')}>⚒️</button>
+      <button className="nav-button" title={strings[12003]} disabled={!currentPlayer} onClick={() => openPanel('BuyPanel')}>🐮</button>
+      <button className="nav-button" title={strings[12005]} disabled={!currentPlayer} onClick={() => {
           setActiveStation(null); // ✅ Reset activeStation
           openPanel("SkillsAndUpgradesPanel"); // ✅ Open the panel normally
         }}>💪</button>
-      <button className="nav-button" title="Combat" onClick={() => openPanel('CombatPanel')}>⚔️</button>
-      <button className="nav-button" title="Government" onClick={() => openPanel('GovPanel')}>🏛️</button>
-      <button className="nav-button" title="Seasons" onClick={() => openPanel('SeasonPanel')}>🗓️</button>
+      <button className="nav-button" title={strings[12004]} disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}>❓</button>
+      <button className="nav-button" title={strings[12006]} disabled={!currentPlayer} onClick={() => openPanel('CombatPanel')}>⚔️</button>
+      <button className="nav-button" title={strings[12007]} onClick={() => openPanel('GovPanel')}>🏛️</button>
+      <button className="nav-button" title={strings[12008]} onClick={() => openPanel('SeasonPanel')}>🗓️</button>
       {isDeveloper && (
         <button className="nav-button" title="Debug" onClick={() => openPanel('DebugPanel')}>
           🐞

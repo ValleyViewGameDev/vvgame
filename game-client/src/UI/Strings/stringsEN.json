@@ -526,7 +526,18 @@
     "11001": "Wait for the timer to end, or for another player to buy this item.",
     "206": "Return to the NPC who gave you this quest to collect your reward.",
     "155": "Transaction failed. This item has already been sold.",
-    "1008": "Trade Stall: Sell your resources to other players or buy items from their trade stalls. Use the arrows to navigate between trade stalls within your Settlement. If no players buy your items before the timer expires, you can sell them to the game for fraction of their base value."
+    "1008": "Trade Stall: Sell your resources to other players or buy items from their trade stalls. Use the arrows to navigate between trade stalls within your Settlement. If no players buy your items before the timer expires, you can sell them to the game for fraction of their base value.",
+
+    "12001": "Farming",
+    "12002": "Build",
+    "12003": "Buy Animals & Decorations",
+    "12004": "Active Quests",
+    "12005": "Skills & Upgrades",
+    "12006": "Combat",
+    "12007": "Government",
+    "12008": "Seasons",
+    "12009": "Home",
+    "12010": "Profile"
 
   }
 
