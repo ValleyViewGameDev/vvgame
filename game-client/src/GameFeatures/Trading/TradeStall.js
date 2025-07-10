@@ -121,6 +121,19 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const handleBuy = async (slotIndex) => {
     const slot = tradeSlots[slotIndex];
     if (!slot || slot.amount <= 0) return; // No valid slot to buy from
+
+    // Re-fetch latest data to confirm availability
+    const tradeStallResponse = await axios.get(`${API_BASE}/api/player-trade-stall`, {
+      params: { playerId: viewedPlayer.playerId },
+    });
+    const latestSlots = tradeStallResponse.data.tradeStall || [];
+    const currentSlot = latestSlots[slotIndex];
+    if (!currentSlot || currentSlot.boughtBy) {
+      updateStatus(155); // Item was already purchased
+      fetchDataForViewedPlayer();
+      return;
+    }
+
     const totalCost = slot.amount * slot.price;
     console.log('Current inventory:', inventory);
     const currentMoney = inventory.find((item) => item.type === 'Money')?.quantity || 0;
@@ -259,6 +272,21 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const handleSellSingle = async (slotIndex) => {
     const slot = tradeSlots[slotIndex];
     if (!slot) return;
+
+    // Re-fetch the latest trade stall state for the player
+    const tradeStallResponse = await axios.get(`${API_BASE}/api/player-trade-stall`, {
+      params: { playerId: currentPlayer.playerId },
+    });
+    const latestSlots = tradeStallResponse.data.tradeStall || [];
+    const currentSlot = latestSlots[slotIndex];
+
+    // If slot is null or bought, treat as already purchased
+    if (!currentSlot || currentSlot.boughtBy) {
+      updateStatus(153); // Item was already purchased
+      fetchDataForViewedPlayer(); // Refresh UI
+      return;
+    }
+
     const sellValue = Math.floor(slot.amount * slot.price * tradeStallHaircut);
 
     await gainIngredients({

@@ -74,7 +74,7 @@
     "152": "You do not have enough money to buy this item.",
     "153": "is selling:",
     "154": "are selling",
-
+    
     "200": "QUESTS",
 
     "201": "✅ Quest completed. You have your reward.",
@@ -525,6 +525,7 @@
 
     "11001": "Sell your item, or wait for another player to buy it.",
     "206": "Return to the NPC who gave you this quest to collect your reward.",
+    "155": "Transaction failed. This item has already been sold.",
     "1008": "Trade Stall: Sell your resources to other players or buy items from their trade stalls. Use the arrows to navigate between trade stalls within your Settlement. If no players buy your items before the timer expires, you can sell them to the game for fraction of their base value."
 
   }
