@@ -373,6 +373,38 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     return resource?.symbol || '';
   };
   
+  // New function to collect payment from a bought slot
+  const handleCollectPayment = async (slotIndex) => {
+    const slot = tradeSlots[slotIndex];
+    if (!slot || !slot.boughtFor) return;
+
+    await gainIngredients({
+      playerId: currentPlayer.playerId,
+      currentPlayer,
+      resource: 'Money',
+      quantity: slot.boughtFor,
+      inventory,
+      backpack: [],
+      setInventory,
+      setBackpack: () => {},
+      setCurrentPlayer,
+      updateStatus,
+      masterResources: [],
+    });
+
+    const updatedSlots = [...tradeSlots];
+    updatedSlots[slotIndex] = null;
+
+    await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
+      playerId: currentPlayer.playerId,
+      tradeStall: updatedSlots,
+    });
+ 
+    setTradeSlots(updatedSlots);
+    calculateTotalSellValue(updatedSlots);
+    updateStatus(6);
+  };
+
   return (
     <Panel onClose={onClose} descriptionKey="1008" titleKey="1108" panelName="TradeStall">
       <div className="username-container">
@@ -537,35 +569,3 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 };
 
 export default TradeStall;
-
-  // New function to collect payment from a bought slot
-  const handleCollectPayment = async (slotIndex) => {
-    const slot = tradeSlots[slotIndex];
-    if (!slot || !slot.boughtFor) return;
-
-    await gainIngredients({
-      playerId: currentPlayer.playerId,
-      currentPlayer,
-      resource: 'Money',
-      quantity: slot.boughtFor,
-      inventory,
-      backpack: [],
-      setInventory,
-      setBackpack: () => {},
-      setCurrentPlayer,
-      updateStatus,
-      masterResources: [],
-    });
-
-    const updatedSlots = [...tradeSlots];
-    updatedSlots[slotIndex] = null;
-
-    await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
-      playerId: currentPlayer.playerId,
-      tradeStall: updatedSlots,
-    });
-
-    setTradeSlots(updatedSlots);
-    calculateTotalSellValue(updatedSlots);
-    updateStatus(6);
-  };
