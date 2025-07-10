@@ -1440,7 +1440,7 @@ return (
       <button className="nav-button" title="Skills & Upgrades" disabled={!currentPlayer} onClick={() => {
           setActiveStation(null); // ✅ Reset activeStation
           openPanel("SkillsAndUpgradesPanel"); // ✅ Open the panel normally
-        }}>⚙️</button>
+        }}>💪</button>
       <button className="nav-button" title="Combat" onClick={() => openPanel('CombatPanel')}>⚔️</button>
       <button className="nav-button" title="Government" onClick={() => openPanel('GovPanel')}>🏛️</button>
       <button className="nav-button" title="Seasons" onClick={() => openPanel('SeasonPanel')}>🗓️</button>

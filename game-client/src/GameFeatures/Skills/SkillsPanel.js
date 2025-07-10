@@ -68,7 +68,7 @@ const SkillsAndUpgradesPanel = ({
         setAllResources(allResourcesData);
 
         const stationResource = allResourcesData.find((resource) => resource.type === stationType);
-        setStationEmoji(stationResource?.symbol || '⚙️');
+        setStationEmoji(stationResource?.symbol || '💪');
 
         // ✅ Separate skills and upgrades
         const ownedSkills = serverSkills.filter(skill =>

@@ -245,7 +245,7 @@
     },
     {
         "type": "Trade Stall",
-        "symbol": "📥",
+        "symbol": "🏠",
         "layoutkey": "TS",
         "category": "station",
         "action": "openUI",
@@ -4523,7 +4523,7 @@
     },
     {
         "type": "Artistry",
-        "symbol": "⚙️",
+        "symbol": "🎨",
         "category": "skill",
         "source": "Basic Skills",
         "requires": "Textiles",
@@ -4726,7 +4726,7 @@
     },
     {
         "type": "Force",
-        "symbol": "💪",
+        "symbol": "⚔️",
         "category": "power",
         "output": "damage",
         "source": "Warrior's Den",
@@ -4739,7 +4739,7 @@
     },
     {
         "type": "Wrath",
-        "symbol": "💪",
+        "symbol": "⚔️",
         "category": "power",
         "output": "damage",
         "source": "Warrior's Den",
@@ -4754,7 +4754,7 @@
     },
     {
         "type": "Tempest",
-        "symbol": "💪",
+        "symbol": "⚔️",
         "category": "power",
         "output": "damage",
         "source": "Magic Shop",
