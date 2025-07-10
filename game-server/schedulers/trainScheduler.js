@@ -276,7 +276,7 @@ async function generateTrainLog(settlement, fulfilledPlayerIds, frontier) {
     return `${o.qtyBought} ${o.itemBought} @ ${timePerUnit}s each = ${qtyEffort}s effort; × ${unitPrice} price = ${qtyGivenDisplay} Money`;
   }).join(" | ");
 
-  const logicString = `Limit possible offers to the ${settlement.seasonType || 'Unknown'} season as defined in tuning (seasons.json). Filtered candidate items include only those allowed in this season.
+  const logicString = `Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in tuning (seasons.json). Filtered candidate items include only those allowed in this season.
 Season complexity is adjusted dynamically using seasonLevel (1–6) based on season progression. A higher seasonLevel increases the likelihood of more complex crafts (longer totalnestedtime) by adjusting the weighting: weight = 1 / (craft time ^ (seasonLevel / 6)).
 Always generate a first offer to ensure there is at least one train deal, using weighted random selection. Quantity is random (1–5), payout is based on item maxprice × qty × seasonMultiplier.
 Total player effort capacity is calculated as: ${population} population × ${baseHours} hours/week × 3600s/hour = ${Math.floor(baseEffort)}s/player/week. Weeks remaining in the season: ${weeksRemaining}, so total effort pool = ${Math.floor(totalEffort)}s.
