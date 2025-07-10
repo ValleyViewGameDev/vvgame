@@ -57,9 +57,14 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       const existingSlots = tradeStallResponse.data.tradeStall || [];
       const filledSlots = Array(totalSlots).fill(null);
       existingSlots.forEach((slot, index) => {
-        if (index < totalSlots) filledSlots[index] = slot;
+        if (index < totalSlots && slot && slot.resource) {
+          filledSlots[index] = { ...slot };
+        }
       });
-
+      // Ensure all unfilled slots remain null
+      for (let i = 0; i < filledSlots.length; i++) {
+        if (!filledSlots[i]) filledSlots[i] = null;
+      }
       setTradeSlots(filledSlots);
 
       // Update totalSellValue only if viewing currentPlayer's stall
@@ -118,26 +123,19 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   
   const handleBuy = async (slotIndex) => {
     const slot = tradeSlots[slotIndex];
-
     if (!slot || slot.amount <= 0) return; // No valid slot to buy from
-
     const totalCost = slot.amount * slot.price;
     console.log('Current inventory:', inventory);
     const currentMoney = inventory.find((item) => item.type === 'Money')?.quantity || 0;
 
     if (totalCost > currentMoney) {
-      console.warn('Not enough money to complete the purchase.');
-      updateStatus(152);
+      console.warn('Not enough money to complete the purchase.'); updateStatus(152);
       return;
     }
 
     try {
-      // Use spendIngredients utility to deduct Money
-      const tempRecipe = {
-        ingredient1: 'Money',
-        ingredient1qty: totalCost,
-      };
-      console.log('Attempting to spend Money at trade stall:', tempRecipe);
+      const tempRecipe = { ingredient1: 'Money', ingredient1qty: totalCost };
+
       const success = await spendIngredients({
         playerId: currentPlayer.playerId,
         recipe: tempRecipe,
@@ -148,12 +146,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         setCurrentPlayer,
         updateStatus,
       });
-      if (!success) {
-        console.warn('Not enough Money to buy this item.');
-        return;
-      }
+      if (!success) { console.warn('Not enough Money to buy this item.'); return; }
 
-      // Gain purchased resource properly
       await gainIngredients({
         playerId: currentPlayer.playerId,
         currentPlayer,
@@ -170,16 +164,19 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 
       // Update the TradeStall to mark the slot as purchased by making it empty
       const updatedSlots = [...tradeSlots];
-      updatedSlots[slotIndex] = null;
+      updatedSlots[slotIndex] = {
+        ...slot,
+        boughtBy: currentPlayer.username,
+        boughtFor: totalCost,
+      };
+      delete updatedSlots[slotIndex].sellTime;
 
       await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
         playerId: viewedPlayer.playerId,
         tradeStall: updatedSlots,
       });
 
-      // Update local state
       setTradeSlots(updatedSlots);
-
       // Re-fetch the trade stall data for the viewed player to ensure up-to-date state
       await fetchDataForViewedPlayer();
 
@@ -308,64 +305,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     setTotalSellValue(total);
   };
 
-  const handleSell = async () => {
-    try {
-      // Calculate new inventory with updated Money (25% of item value)
-      const halfSellValue = Math.floor(totalSellValue * tradeStallHaircut);
-      const updatedInventory = inventory.map((item) =>
-        item.type === 'Money'
-          ? { ...item, quantity: (item.quantity || 0) + halfSellValue }
-          : item
-      );
-
-      // Track progress for each item sold
-      for (const slot of tradeSlots) {
-        if (slot && slot.resource && slot.amount > 0) {
-          await trackQuestProgress(currentPlayer, 'Sell', slot.resource, slot.amount, setCurrentPlayer);
-        }
-      }
-
-      // Update inventory on the server
-      await axios.post(`${API_BASE}/api/update-inventory`, {
-        playerId: currentPlayer.playerId,
-        inventory: updatedInventory,
-      });
-
-      // Clear the TradeStall on the server
-      const clearedSlots = tradeSlots.map(() => null);
-      await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
-        playerId: currentPlayer.playerId,
-        tradeStall: clearedSlots,
-      });
-
-      // Re-fetch inventory from server to ensure consistency
-      const refreshedInventoryResponse = await axios.get(
-        `${API_BASE}/api/inventory/${currentPlayer.playerId}`
-      );
-      const refreshedInventory = refreshedInventoryResponse.data.inventory || [];
-
-      // Update local state
-      setInventory(refreshedInventory);
-      setTradeSlots(clearedSlots);
-      setTotalSellValue(0);
-
-      // Update currentPlayer state for Money
-      const updatedPlayer = {
-        ...currentPlayer,
-        inventory: refreshedInventory,
-        money: refreshedInventory.find((item) => item.type === 'Money')?.quantity || 0,
-      };
-      setCurrentPlayer(updatedPlayer);
-
-      // Sync local storage
-      localStorage.setItem('player', JSON.stringify(updatedPlayer));
-
-      updateStatus(6); // status bar text
-      console.log(`Items sold successfully! Total earned: ${halfSellValue}`);
-    } catch (error) {
-      console.error('Error selling items:', error);
-    }
-  };
+  
   
   const getSymbol = (resourceType) => {
     const resource = resourceData.find((res) => res.type === resourceType);
