@@ -8466,8 +8466,17 @@
     "Rocks": 300,
     "Stone": 10,
     "Tulip": 2,
-    "Apple": 20,
-    "Grapes": 20,
-    "Money": 10
+    "Apple": 10,
+    "Grapes": 10,
+    "Money": 10,
+    "Wheat": 5,
+    "Carrot": 5,
+    "Corn": 5,
+    "Sugarcane": 5,
+    "Strawberry": 5,
+    "Lemon": 5,
+    "Garlic": 5,
+    "Olive": 10,
+    "Tomato": 5
   }
 }

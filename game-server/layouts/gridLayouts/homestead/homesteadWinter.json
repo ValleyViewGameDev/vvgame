@@ -8466,8 +8466,18 @@
     "Pine Tree": 1000,
     "Rocks": 400,
     "Stone": 30,
-    "Sugarcane": 20,
+    "Sugarcane": 10,
     "Snowman": 10,
-    "Money": 10
+    "Money": 15,
+    "Wheat": 10,
+    "Carrot": 5,
+    "Corn": 5,
+    "Strawberry": 5,
+    "Apple": 5,
+    "Lemon": 5,
+    "Grapes": 5,
+    "Garlic": 5,
+    "Olive": 5,
+    "Tomato": 5
   }
 }

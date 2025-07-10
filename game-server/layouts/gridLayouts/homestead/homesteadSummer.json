@@ -8466,8 +8466,17 @@
     "Rocks": 300,
     "Stone": 10,
     "Rosemary": 15,
-    "Corn": 20,
+    "Corn": 10,
     "Tomato": 10,
-    "Money": 10
+    "Money": 10,
+    "Wheat": 5,
+    "Carrot": 5,
+    "Sugarcane": 5,
+    "Strawberry": 5,
+    "Apple": 5,
+    "Lemon": 10,
+    "Grapes": 5,
+    "Garlic": 5,
+    "Olive": 5
   }
 }

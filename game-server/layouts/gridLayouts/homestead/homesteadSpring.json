@@ -8467,8 +8467,17 @@
     "Stone": 10,
     "Sunflower": 2,
     "Daisy": 5,
-    "Carrot": 20,
+    "Carrot": 10,
     "Strawberry": 10,
-    "Money": 10
+    "Money": 10,
+    "Wheat": 5,
+    "Corn": 5,
+    "Apple": 5,
+    "Lemon": 5,
+    "Grapes": 5,
+    "Garlic": 10,
+    "Olive": 5,
+    "Tomato": 5,
+    "Sugarcane": 5
   }
 }
