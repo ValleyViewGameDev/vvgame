@@ -106,18 +106,15 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     const slot = tradeSlots[index];
     const isOwnStall = viewedPlayer.playerId === currentPlayer.playerId;
 
-    if (slot && slot.amount > 0) {
+    if (slot && slot.amount > 0 && !slot.boughtBy) {
       if (isOwnStall) {
         updateStatus(11001); // Can't buy your own stuff
         return;
       }
       handleBuy(index); // Buy from another player's filled slot
     } else {
-      if (!isOwnStall) {
-        updateStatus(151); // Can't fill another player's trade stall
-        return;
-      }
-      setSelectedSlotIndex(index); // Fill your own empty slot
+      updateStatus(151); // Treat slot with boughtBy as empty for other players
+      return;
     }
   };
   
@@ -346,6 +343,9 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 
   return (
     <Panel onClose={onClose} descriptionKey="1008" titleKey="1108" panelName="TradeStall">
+
+      {/* USER NAME AND ARROWS */}
+
       <div className="username-container">
         <button className="arrow-button" onClick={handlePreviousPlayer}>👈</button>
         <span className="username" style={{ flexGrow: 1, textAlign: 'center' }}>
@@ -357,15 +357,22 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         {viewedPlayer?.playerId === currentPlayer?.playerId ? 'are selling:' : 'is selling:'}
       </h3>
       <br />
+
+      {/* TRADE STALL SLOTS */}
+
       <div className="trade-stall-slots">
         {tradeSlots.map((slot, index) => (
           <div
             key={index}
-            className={`trade-slot ${slot ? 'filled' : ''}`}
+            className={`trade-slot ${
+              slot && !(slot.boughtBy && viewedPlayer.playerId !== currentPlayer.playerId) ? 'filled' : ''
+            } ${
+              slot && slot.boughtBy && viewedPlayer.playerId !== currentPlayer.playerId ? 'disabled' : ''
+            }`}
             onClick={() => handleSlotClick(index)}
             style={slot ? { minHeight: '75px' } : {}}
           >
-            {slot ? (
+            {(slot && !(slot.boughtBy && viewedPlayer.playerId !== currentPlayer.playerId)) ? (
               <div
                 style={{
                   textAlign: 'center',
@@ -394,7 +401,9 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                     Sell for 💰{Math.floor(slot.amount * slot.price * tradeStallHaircut)}
                   </button>
                 )}
+
                 {/* New block for collecting payment after purchase */}
+
                 {viewedPlayer.playerId === currentPlayer.playerId && slot.boughtBy && (
                   <>
                     <div style={{ fontSize: '0.9rem' }}>Bought by {slot.boughtBy}</div>
@@ -410,7 +419,9 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                     </button>
                   </>
                 )}
+
                 {/* Show Buy for button if viewing another player's slot, item for sale, and not bought */}
+
                 {viewedPlayer.playerId !== currentPlayer.playerId && !slot.boughtBy && (
                   <button
                     className="sell-button"
@@ -430,6 +441,9 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
           </div>
         ))}
       </div>
+
+
+{/* //////////////////  INVENTORY MODAL  ///////////////////*/}
 
       {selectedSlotIndex !== null && (
         <div className="inventory-modal">
