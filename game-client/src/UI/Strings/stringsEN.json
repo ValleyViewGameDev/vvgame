@@ -82,7 +82,6 @@
     "203": "No active quests at the moment.",
     "204": "is offering these Quests:",
     "205": "has no quests for you at this time.",
-    "206": "Return to collect your reward.",
     "207": "In Progress",
     "208": "Get Reward",
     "209": "Accept Quest",
@@ -520,9 +519,13 @@
     "10132": "Cancel Relocation",
     "10133": "Relocate Homestead",
 
+
+
+
     "11000": "ADDED STRINGS:",
 
-    "11001": "Sell your item, or wait for another player to buy it."
+    "11001": "Sell your item, or wait for another player to buy it.",
+    "206": "Return to the NPC who gave you this quest to collect your reward."
 
   }
 

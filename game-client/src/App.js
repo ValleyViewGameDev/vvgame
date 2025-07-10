@@ -579,6 +579,13 @@ useEffect(() => {
 
       console.log('✅🏁✅🏁✅🏁✅ App initialization complete.');
       setShowTimers(true);
+
+      const zoom = localStorage.getItem("initialZoomLevel");
+      if (zoom) {
+        setZoomLevel(zoom);
+        localStorage.removeItem("initialZoomLevel");
+      }
+
       setIsAppInitialized(true);
 
     } catch (error) {

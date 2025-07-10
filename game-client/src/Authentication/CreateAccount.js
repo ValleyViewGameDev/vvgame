@@ -127,8 +127,8 @@ const handleCreateAccount = async (e) => {
 
     // 7. Close modal and reload
     if (closeModal) closeModal();
+    localStorage.setItem("initialZoomLevel", "far");
     window.location.reload();
-    setZoomLevel('far');
 
   } catch (err) {
     console.error('Error during account creation:', err);

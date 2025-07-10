@@ -245,7 +245,7 @@
     },
     {
         "type": "Trade Stall",
-        "symbol": "🏠",
+        "symbol": "📥",
         "layoutkey": "TS",
         "category": "station",
         "action": "openUI",
