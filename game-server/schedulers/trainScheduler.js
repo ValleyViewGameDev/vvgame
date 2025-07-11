@@ -145,7 +145,7 @@ function generateTrainOffers(settlement, seasonConfig, frontier) {
     itemBought: firstItem.type,
     qtyBought: firstQty,
     itemGiven: "Money",
-    qtyGiven: Math.floor((firstItem.maxprice || 100) * firstQty * (seasonConfig.seasonMultiplier || 1)),
+    qtyGiven: Math.floor((firstItem.maxprice || 100) * firstQty),
     claimedBy: null,
     filled: false
   };
@@ -157,16 +157,12 @@ function generateTrainOffers(settlement, seasonConfig, frontier) {
   const baseHours = globalTuning.baseHoursForTrain || 2.5;
   const basePlayerEffortPerWeek = baseHours * 60 * 60;
   const population = Math.max(1, settlement.population || 1);
-  const now = Date.now();
-  const seasonEnd = new Date(frontier.seasons?.endTime || now);
-  const msPerWeek = 1000 * 60 * 60 * 24 * 7;
-  let weeksRemaining = Math.ceil((seasonEnd - now) / msPerWeek);
-  if (weeksRemaining < 1) weeksRemaining = 1;
+  const difficultyMultiplier = seasonLevel; // 1–6
 
   const totalEffort = Math.ceil(
     basePlayerEffortPerWeek *
     population *
-    weeksRemaining *
+    difficultyMultiplier *
     (seasonConfig.trainOffersQtyMultiplier || 1)
   );
   let remainingEffort = totalEffort;
@@ -178,7 +174,7 @@ function generateTrainOffers(settlement, seasonConfig, frontier) {
     const maxQty = Math.floor(remainingEffort / timePerUnit);
     if (maxQty < 1) break;
     const qtyBought = Math.ceil(Math.random() * maxQty);
-    const qtyGiven = Math.floor((item.maxprice || 100) * qtyBought * (seasonConfig.seasonMultiplier || 1));
+    const qtyGiven = Math.floor((item.maxprice || 100) * qtyBought);
     const offer = {
       itemBought: item.type,
       qtyBought,
@@ -262,11 +258,7 @@ async function generateTrainLog(settlement, fulfilledPlayerIds, frontier) {
   const baseEffort = baseHours * 60 * 60;
   const totalEffort = baseEffort * population;
 
-  const now = Date.now();
-  const seasonEnd = new Date(settlement.seasonEndTime || now);
-  const msPerWeek = 1000 * 60 * 60 * 24 * 7;
-  let weeksRemaining = Math.ceil((seasonEnd - now) / msPerWeek);
-  if (weeksRemaining < 1) weeksRemaining = 1;
+  // Removed calculation of weeksRemaining as per instructions
 
   // Enhanced logic string with detailed per-offer explanation and weighting info
   const detailedOfferExplanations = offers.map(o => {
@@ -274,20 +266,21 @@ async function generateTrainLog(settlement, fulfilledPlayerIds, frontier) {
     const timePerUnit = itemData?.totalnestedtime || itemData?.crafttime || 60;
     const unitPrice = itemData?.maxprice || 100;
     const qtyEffort = o.qtyBought * timePerUnit;
-    const seasonMultiplier = global.TUNING_SEASON_MULTIPLIER || 1;
-    const qtyGivenExpected = Math.floor(unitPrice * o.qtyBought * seasonMultiplier);
+    const qtyGivenExpected = Math.floor(unitPrice * o.qtyBought);
     // Try to use actual qtyGiven from offer for Money, fallback to calculated
     const qtyGivenDisplay = o.qtyGiven !== undefined ? o.qtyGiven : qtyGivenExpected;
     return `${o.qtyBought} ${o.itemBought} @ ${timePerUnit}s each = ${qtyEffort}s effort; × ${unitPrice} price = ${qtyGivenDisplay} Money`;
   }).join(" | ");
 
-  const logicString = `Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in seasons tuning. 
+  const logicString = `OFFERS: Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in seasons tuning. 
 Offer complexity adjusted by season progression; current seasonLevel = ${seasonLevel} of 6. Higher seasonLevel = likelihood of more complex crafts (longer totalnestedtime): weight = 1 / (craft time ^ (seasonLevel / 6)).
-Always generate a first offer to ensure there is at least one train offer, using weighted random selection. Item quantity per offer is random (1–5). Money rewarded per offer = item.maxprice × qty × seasonMultiplier. (seasonMultiplier = ${seasonMultiplier}).
-Total player effort capacity is calculated as: ${population} population × ${baseHours} hours/week × 3600s/hour = ${Math.floor(baseEffort)}s/player/week. Weeks remaining in the season: ${weeksRemaining}, so total effort pool = ${Math.floor(totalEffort)}s.
-Up to 4 additional offers may be generated, each consuming (qty × time per unit) effort until pool is depleted. Items are selected using the same seasonLevel-adjusted weighting. Offer reward = qty × item maxprice × seasonMultiplier.
-Offer details: ${detailedOfferExplanations}.
-Train rewards are defined per season (in seasons tuning), and the quatity of each reward scales with population & season level (qty = Math.ceil((population / 10) * seasonLevel)), producing larger rewards in later parts of the season.
+Always generate a first offer to ensure there is at least one train offer, using weighted random selection. 
+Item quantity per offer is random (1–5). 
+Total player effort capacity is calculated as: ${population} population × ${baseHours} hours/week × 3600s/hour = ${Math.floor(baseEffort)}s/player/week. Effort multiplier based on seasonLevel (${seasonLevel}), so total effort pool = ${Math.floor(totalEffort)}s.
+Up to 4 additional offers may be generated, each consuming (qty × time per unit) effort until pool is depleted. Items are selected using the same seasonLevel-adjusted weighting.
+Money paid per offer is standard (item.maxprice × qty). 
+Here are the offer details: ${detailedOfferExplanations}.
+REWARDS: defined per season (in seasons tuning); quatity of each reward scales with population & season level (qty = Math.ceil((population / 10) * seasonLevel)), producing larger rewards in later parts of the season.
 Here are the Rewards: [${rewardDescriptions}].`;
 
   const logEntry = {
