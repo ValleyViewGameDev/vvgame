@@ -27,14 +27,17 @@ async function trainScheduler(frontierId, phase, frontier = null) {
         const currentOffers = settlement.currentoffers || [];
         console.log('DEBUG: Departing phase - checking offers:', JSON.stringify(currentOffers, null, 2));
         
-        const fulfilledPlayerIds = [...new Set(
-          currentOffers
-            .filter(offer => offer.filled && offer.claimedBy)
-            .map(offer => offer.claimedBy.toString())
-        )];
+        const allOffersFilled = currentOffers.every(offer => offer.filled);
+        const fulfilledPlayerIds = allOffersFilled
+          ? [...new Set(
+              currentOffers
+                .filter(offer => offer.filled && offer.claimedBy)
+                .map(offer => offer.claimedBy.toString())
+            )]
+          : [];
 
-        if (fulfilledPlayerIds.length > 0) {
-          console.log(`🎉 Some Train orders filled for ${settlement.name}. Sending rewards...`);
+        if (allOffersFilled && fulfilledPlayerIds.length > 0) {
+          console.log(`🎉 All Train orders filled for ${settlement.name}. Sending rewards...`);
           console.log('DEBUG: Reward distribution - Players:', fulfilledPlayerIds);
           console.log('DEBUG: Rewards to distribute:', settlement.trainrewards);
 
@@ -49,7 +52,7 @@ async function trainScheduler(frontierId, phase, frontier = null) {
             }
           }
         } else {
-          console.log(`🚫 No fulfilled train orders for ${settlement.name}. No rewards sent.`);
+          console.log(`🚫 Not all train orders were filled for ${settlement.name}. No rewards distributed.`);
         }
         await generateTrainLog(settlement, fulfilledPlayerIds, frontier);
         console.log(`📝 Train log entry saved for ${settlement.name}`);
