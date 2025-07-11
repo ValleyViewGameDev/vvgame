@@ -261,13 +261,14 @@ async function generateTrainLog(settlement, fulfilledPlayerIds, frontier) {
 
   const logicString = `OFFERS: Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in seasons tuning. 
 Offer complexity adjusted by season progression; current seasonLevel = ${seasonLevel} of 6. Higher seasonLevel = likelihood of more complex crafts (longer totalnestedtime): weight = 1 / (craft time ^ (seasonLevel / 6)).
-Always generate a first offer to ensure there is at least one train offer, using weighted random selection. 
-Item quantity per offer is random (1–5). 
-Total player effort capacity is calculated as: ${population} population × ${baseHours} hours/week × 3600s/hour = ${Math.floor(baseEffort)}s/player/week. Effort multiplier based on seasonLevel (${seasonLevel}), so total effort pool = ${Math.floor(totalEffort)}s.
-Up to 4 additional offers may be generated, each consuming (qty × time per unit) effort until pool is depleted. Items are selected using the same seasonLevel-adjusted weighting.
+Number of offers determined by population: 1 per 4 people (rounded up). 
+Total player effort capacity is calculated as: ${population} population × ${baseHours} hours/week × 3600s/hour = ${Math.floor(baseEffort)}s/player/week. 
+Effort multiplier based on seasonLevel (${seasonLevel}), so total effort pool = ${Math.floor(totalEffort)}s.
+Each offer targets approximately (totalEffort / numOffers) effort. 
+Items selected using the same seasonLevel-adjusted weighting. 
 Money paid per offer is standard (item.maxprice × qty). 
 Here are the offer details: ${detailedOfferExplanations}.
-REWARDS: defined per season (in seasons tuning); quatity of each reward scales with population & season level (qty = Math.ceil((population / 10) * seasonLevel)), producing larger rewards in later parts of the season.
+REWARDS: defined per season (in seasons tuning); quantity of each reward scales with population & season level (qty = Math.ceil((population / 10) * seasonLevel)), producing larger rewards in later parts of the season.
 Here are the Rewards: [${rewardDescriptions}].`;
 
   const logEntry = {

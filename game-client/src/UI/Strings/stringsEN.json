@@ -527,6 +527,9 @@
     "206": "Return to the NPC who gave you this quest to collect your reward.",
     "155": "Transaction failed. This item has already been sold.",
     "1008": "Trade Stall: Sell your resources to other players or buy items from their trade stalls. Use the arrows to navigate between trade stalls within your Settlement. If no players buy your items before the timer expires, you can sell them to the game for fraction of their base value.",
+    "2014": "You can only claim one train offer at a time.",
+    "2015": "Show Train Log",
+    "2016": "✅ All orders were completed! Rewards have been mailed out.",
 
     "12001": "Farming",
     "12002": "Build",

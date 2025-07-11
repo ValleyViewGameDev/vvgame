@@ -146,6 +146,15 @@ function TrainPanel({
   const handleClaim = async (offer) => {
     if (!offer || offer.claimedBy) return;
 
+    // ⛔️ Check if player already has a claimed offer
+    const alreadyClaimed = trainOffers.some(
+      (o) => o.claimedBy === currentPlayer.playerId && !o.filled
+    );
+    if (alreadyClaimed) {
+      updateStatus(2014); // ⚠️ Already claimed an offer
+      return;
+    }
+
     try {
       await axios.post(`${API_BASE}/api/update-train-offer/${currentPlayer.settlementId}`, {
         updateOffer: {
@@ -233,7 +242,7 @@ function TrainPanel({
   
     return (
       <div className="next-shipment-preview">
-        <h4>📦 Next Shipment Preview:</h4>
+        <h4>{strings[2003]}</h4>
         <ul>
           {uniqueOffers.map((offer, index) => (
             <li key={index}>
@@ -258,7 +267,7 @@ function TrainPanel({
   
     return (
       <div className="reward-section">
-        <h4>🎁 Rewards for filling all orders:</h4>
+        <h4>{strings[2004]}</h4>
         <ul className="reward-list">
           {uniqueRewards.map((reward, index) => (
             <li key={index}>
@@ -290,15 +299,15 @@ function TrainPanel({
 
           let buttonText = '';
           if (isCompleted) {
-            buttonText = '✅ Completed';
+            buttonText = strings[2012];
           } else if (isYours && affordable) {
-            buttonText = 'Click to fulfill';
+            buttonText = strings[2005];
           } else if (isYours) {
-            buttonText = 'Your Order';
+            buttonText = strings[2006];
           } else if (offer.claimedBy) {
-            buttonText = 'Claimed';
+            buttonText = strings[2007];
           } else {
-            buttonText = 'Claim Order';
+            buttonText = strings[2008];
           }
 
           return (
@@ -336,26 +345,26 @@ function TrainPanel({
 
   return (
     <Panel onClose={onClose} descriptionKey="1022" titleKey="1122" panelName="TrainPanel">
-      <h3>Train is {trainPhase}</h3>
+      <h3>{strings[2020]} {trainPhase}</h3>
       <h2>⏳ {trainTimer}</h2>
 
       <button className="standard-button" onClick={() => handleShowTrainLog()}>
-        Show Train Log
+        {strings[2015]}
       </button>
 
       {trainPhase === "loading" && (
         <>
           {renderRewardSection()}
-          {renderOfferSection("Claimed by you:", claimedByYou)}
-          {renderOfferSection("Available to claim:", available)}
-          {renderOfferSection("Claimed by others:", claimedByOthers)}
-          {renderOfferSection("Completed:", completed)}
+          {renderOfferSection(strings[2009], claimedByYou)}
+          {renderOfferSection(strings[2010], available)}
+          {renderOfferSection(strings[2011], claimedByOthers)}
+          {renderOfferSection(strings[2012], completed)}
         </>
       )}
 
       {allOrdersFilled && (
         <div className="train-rewards-banner">
-          ✅ All orders were completed! Rewards have been mailed out.
+          {strings[2016]}
         </div>
       )}
 
