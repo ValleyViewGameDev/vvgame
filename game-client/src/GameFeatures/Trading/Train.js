@@ -29,9 +29,21 @@ function TrainPanel({
   const [trainTimer, setTrainTimer] = useState("⏳");
   const [nextOffers, setNextOffers] = useState([]);
   const [trainRewards, setTrainRewards] = useState([]);
+  const [latestInventory, setLatestInventory] = useState([]);
 
   // 1. Initial load for the player
   useEffect(() => {
+    const fetchInventory = async () => {
+      if (!currentPlayer?.playerId) return;
+      try {
+        const response = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
+        setLatestInventory(response.data.inventory || []);
+      } catch (error) {
+        console.error("❌ Error fetching latest inventory:", error);
+      }
+    };
+    fetchInventory();
+
     if (currentPlayer?.settlementId) {
       fetchTrainOffers();
     }
@@ -287,11 +299,11 @@ function TrainPanel({
         {offers.map((offer, index) => {
           const isYours = offer.claimedBy === currentPlayer.playerId;
           const isCompleted = offer.filled;
-          const affordable = inventory?.some(
+          const affordable = latestInventory?.some(
             (item) => item.type === offer.itemBought && item.quantity >= offer.qtyBought
           ) || false;
 
-          const playerQty = inventory?.find(inv => inv.type === offer.itemBought)?.quantity || 0;
+          const playerQty = latestInventory?.find(inv => inv.type === offer.itemBought)?.quantity || 0;
           const costColor = playerQty >= offer.qtyBought ? 'green' : 'red';
           const costDisplay = `<span style="color: ${costColor};">${getSymbol(offer.itemBought)} ${offer.itemBought} ${offer.qtyBought} / ${playerQty}</span>`;
           const rewardDisplay = `+${getSymbol(offer.itemGiven)} ${offer.itemGiven} ${offer.qtyGiven.toLocaleString()}`;
