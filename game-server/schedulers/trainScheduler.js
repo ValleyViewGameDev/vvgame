@@ -140,23 +140,6 @@ function generateTrainOffers(settlement, seasonConfig, frontier) {
     }];
   }
 
-  // 🥇 Always generate a first offer to ensure at least one train deal
-  // Select an item based on weighted random (favoring lower craft time), random qty (1–5), payout based on item price
-  const firstItem = weightedRandomByCraftEffort(seasonResources, seasonLevel);
-  const firstQty = Math.max(1, Math.ceil(Math.random() * 5));
-  const firstOffer = {
-    itemBought: firstItem.type,
-    qtyBought: firstQty,
-    itemGiven: "Money",
-    qtyGiven: Math.floor((firstItem.maxprice || 100) * firstQty),
-    claimedBy: null,
-    filled: false
-  };
-  offers.push(firstOffer);
-  console.log(`  📦 First Train Offer (${settlement.name}): ${firstOffer.qtyBought} ${firstOffer.itemBought} → ${firstOffer.qtyGiven} Money`);
-
-  // ➕ Generate additional offers based on total player effort budget for the season
-  // Stop if effort runs out or max offers reached
   const baseHours = globalTuning.baseHoursForTrain || 2.5;
   const basePlayerEffortPerWeek = baseHours * 60 * 60;
   const population = Math.max(1, settlement.population || 1);
@@ -165,30 +148,31 @@ function generateTrainOffers(settlement, seasonConfig, frontier) {
   const totalEffort = Math.ceil(
     basePlayerEffortPerWeek *
     population *
-    difficultyMultiplier *
-    (seasonConfig.trainOffersQtyMultiplier || 1)
+    difficultyMultiplier
   );
-  let remainingEffort = totalEffort;
-  const maxAdditionalOffers = 4; // Cap at 5 total offers (1 guaranteed + 4 additional)
 
-  while (remainingEffort > 0 && offers.length < maxAdditionalOffers) {
+  // Calculate number of offers: one per 4 population, rounded up
+  const totalOffers = Math.max(1, Math.ceil(population / 4));
+  const targetEffortPerOffer = Math.floor(totalEffort / totalOffers);
+
+  for (let i = 0; i < totalOffers; i++) {
     const item = weightedRandomByCraftEffort(seasonResources, seasonLevel);
     const timePerUnit = item.totalnestedtime || item.crafttime || 60;
-    const maxQty = Math.floor(remainingEffort / timePerUnit);
-    if (maxQty < 1) break;
-    const qtyBought = Math.ceil(Math.random() * maxQty);
-    const qtyGiven = Math.floor((item.maxprice || 100) * qtyBought);
+
+    // Choose a quantity that approximates the target effort
+    const estimatedQty = Math.max(1, Math.round(targetEffortPerOffer / timePerUnit));
+    const qtyGiven = Math.floor((item.maxprice || 100) * estimatedQty);
+
     const offer = {
       itemBought: item.type,
-      qtyBought,
+      qtyBought: estimatedQty,
       itemGiven: "Money",
       qtyGiven,
       claimedBy: null,
       filled: false
     };
     offers.push(offer);
-    remainingEffort -= qtyBought * timePerUnit;
-    console.log(`  📦 Additional Train Offer (${settlement.name}): ${qtyBought} ${item.type} → ${qtyGiven} Money`);
+    console.log(`  📦 Train Offer (${settlement.name}): ${offer.qtyBought} ${offer.itemBought} → ${offer.qtyGiven} Money`);
   }
   return offers;
 }
