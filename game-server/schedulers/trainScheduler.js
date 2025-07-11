@@ -51,18 +51,21 @@ async function trainScheduler(frontierId, phase, frontier = null) {
         } else {
           console.log(`🚫 No fulfilled train orders for ${settlement.name}. No rewards sent.`);
         }
-
         await generateTrainLog(settlement, fulfilledPlayerIds, frontier);
         console.log(`📝 Train log entry saved for ${settlement.name}`);
       }
       
+
       if (phase === "arriving") {
         try {
+          console.log(`🚂 Arriving phase for settlement ${settlement.name}. Generating offer & rewards...`);
           // Generate new offers before updating settlement
           const seasonConfig = seasonsConfig.find(s => s.seasonType === frontier.seasons?.seasonType);
           const newTrainOffers = generateTrainOffers(settlement, seasonConfig, frontier);
+          console.log(`  📦 Generated ${newTrainOffers.length} train offers for ${settlement.name}.`);
           const newTrainRewards = generateTrainRewards(settlement, seasonConfig, frontier);
-
+          console.log(`  🎁 Generated ${newTrainRewards.length} train rewards for ${settlement.name}.`);
+          
           // Verify we have offers before updating
           if (!newTrainOffers || newTrainOffers.length === 0) {
             console.error(`❌ No train offers generated for ${settlement.name}. Using fallback offer.`);
@@ -104,7 +107,6 @@ async function trainScheduler(frontierId, phase, frontier = null) {
         }
       }
     }
-
     return {};
   } catch (error) {
     console.error("❌ Error in trainScheduler:", error);
