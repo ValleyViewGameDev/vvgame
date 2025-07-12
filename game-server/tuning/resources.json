@@ -4457,6 +4457,18 @@
         "ingredient1qty": 2000
     },
     {
+        "type": "Green Thumb",
+        "symbol": "🌱",
+        "category": "skill",
+        "source": "Basic Skills",
+        "requires": "Farmer",
+        "qtycollected": 1,
+        "level": 3,
+        "minprice": 0,
+        "ingredient1": "Money",
+        "ingredient1qty": 5000
+    },
+    {
         "type": "Husbandry",
         "symbol": "🐮",
         "category": "skill",

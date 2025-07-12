@@ -3,12 +3,25 @@
       "Wheat": 3,
       "Corn": 3,
       "Carrot": 3,
-      "Strawberry": 2,
       "Sugarcane": 2,
-      "Olive": 2,
+      "Strawberry": 2,
       "Apple": 2,
       "Lemon": 2,
-      "Tomato": 2
+      "Olive": 2,
+      "Tomato": 2,
+      "Garlic": 2
+    },
+    "Green Thumb": {
+      "Wheat": 5,
+      "Corn": 5,
+      "Carrot": 5,
+      "Sugarcane": 4,
+      "Strawberry": 4,
+      "Apple": 4,
+      "Lemon": 4,
+      "Olive": 4,
+      "Tomato": 4,
+      "Garlic": 4
     },
     "Winemaker": {
       "Grapes": 2,
