@@ -23,6 +23,7 @@ const SkillsAndUpgradesPanel = ({
     stationType, 
     TILE_SIZE,
     updateStatus,
+    masterSkills,
 }) => {
   const strings = useStrings();
   const [entryPoint, setEntryPoint] = useState(stationType || "Skills Panel"); 
@@ -233,6 +234,18 @@ const handlePurchase = async (resourceType) => {
                     ? `+${resource.qtycollected || 1} to ${strings[resource.output] || resource.output}`
                     : null;
 
+                  // ✅ Check if this skill provides a collection buff
+                  let buffText = '';
+                  const buffedItems = masterSkills[resource.type];
+                  if (buffedItems && typeof buffedItems === 'object') {
+                    const items = Object.keys(buffedItems);
+                    if (items.length > 0) {
+                      const prettyList = items.slice(0, 10).join(', ');
+                      const plural = items.length > 1 ? 'resources' : 'resource';
+                      buffText = `Collection multiplied on ${items.length} ${plural} (${prettyList}${items.length > 10 ? ', ...' : ''}).`;
+                    }
+                  }
+
                   const unlocks = allResources
                     .filter((res) => res.requires === resource.type)
                     .map((res) => `${res.symbol || ''} ${res.type}`)
@@ -241,6 +254,7 @@ const handlePurchase = async (resourceType) => {
                     const info = (
                       <div className="info-content">
                         {attributeModifier && <div>{attributeModifier}</div>}
+                        {buffText && <div style={{ color: 'blue' }}>{buffText}</div>}
                         {unlocks !== 'None' && (
                           <div style={{ display: 'block', marginBottom: '3px' }}>
                             <strong>Unlocks:</strong> {unlocks}
@@ -293,6 +307,18 @@ const handlePurchase = async (resourceType) => {
                     ? `+${resource.qtycollected || 1} to ${strings[resource.output] || resource.output}`
                     : null;
 
+                  // ✅ Check if this upgrade provides a collection buff
+                  let buffText = '';
+                  const buffedItems = masterSkills[resource.type];
+                  if (buffedItems && typeof buffedItems === 'object') {
+                    const items = Object.keys(buffedItems);
+                    if (items.length > 0) {
+                      const prettyList = items.slice(0, 10).join(', ');
+                      const plural = items.length > 1 ? 'resources' : 'resource';
+                      buffText = `Collection multiplied on ${items.length} ${plural} (${prettyList}${items.length > 10 ? ', ...' : ''}).`;
+                    }
+                  }
+
                   const unlocks = allResources
                     .filter((res) => res.requires === resource.type)
                     .map((res) => `${res.symbol || ''} ${res.type}`)
@@ -301,6 +327,7 @@ const handlePurchase = async (resourceType) => {
                     const info = (
                       <div className="info-content">
                         {attributeModifier && <div>{attributeModifier}</div>}
+                        {buffText && <div style={{ color: 'blue' }}>{buffText}</div>}
                         {unlocks !== 'None' && (
                           <div style={{ display: 'block', marginBottom: '3px' }}>
                             <strong>Unlocks:</strong> {unlocks}

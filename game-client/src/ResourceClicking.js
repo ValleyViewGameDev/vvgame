@@ -10,7 +10,6 @@ import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
 import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
 import { createCollectEffect, createSourceConversionEffect, calculateTileCenter } from './VFX/VFX';
 import { useStrings } from './UI/StringsContext';
-import InventoryPanel from './GameFeatures/Inventory/InventoryPanel.js';
  
  // Handles resource click actions based on category. //
  export async function handleResourceClick(
@@ -196,8 +195,10 @@ async function handleDooberClick(
     })
     .map((buffItem) => buffItem.type);
 
-  //console.log('Player Buffs (Skills and Upgrades):', playerBuffs);
 
+  createCollectEffect(col, row, TILE_SIZE);
+
+  //console.log('Player Buffs (Skills and Upgrades):', playerBuffs);
   // Calculate skill multiplier
   const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
     const buffValue = masterSkills?.[buff]?.[resource.type] || 1;
@@ -208,12 +209,11 @@ async function handleDooberClick(
   console.log('[DEBUG] qtyCollected after multiplier:', qtyCollected);
 
 
-  createCollectEffect(col, row, TILE_SIZE);
   FloatingTextManager.addFloatingText(`+${qtyCollected} ${resource.type}`, col, row, TILE_SIZE );
   if (skillMultiplier != 1) {
     const skillAppliedText =
-      `(${playerBuffs.join(', ')} skill applied)`;
-    FloatingTextManager.addFloatingText(`${skillAppliedText}`, col, row-1.5, TILE_SIZE );
+      `${playerBuffs.join(', ')} skill applied (${skillMultiplier}x collected).`;
+    updateStatus(skillAppliedText);
   }
   setResources((prevResources) =>
     prevResources.filter((res) => !(res.x === col && res.y === row))

@@ -192,8 +192,7 @@ const ShopStation = ({
               const meetsRequirement = hasRequirement(recipe.requires);
               const outputLabel = recipe.output ? (strings[recipe.output] || recipe.output) : '';
               const outputSummary = recipe.output && typeof recipe.qtycollected === 'number'
-                ? `<span style="color: blue;">${recipe.qtycollected > 0 ? '+' : ''}${recipe.qtycollected} for ${outputLabel}</span>`
-                : null;
+                ? <span style={{ color: 'blue' }}>{recipe.qtycollected > 0 ? '+' : ''}{recipe.qtycollected} for {outputLabel}</span>                : null;
 
               // Format costs in UI standard style
               const formattedCosts = [1, 2, 3, 4].map((i) => {
@@ -209,7 +208,7 @@ const ShopStation = ({
               const skillColor = meetsRequirement ? 'green' : 'red';
 
               const details =
-                `${outputSummary ? outputSummary + '<br>' : ''}` +
+                `${recipe.output && typeof recipe.qtycollected === 'number' ? `<span style="color: blue;">${recipe.qtycollected > 0 ? '+' : ''}${recipe.qtycollected} for ${strings[recipe.output] || recipe.output}</span><br>` : ''}` +
                 `Costs:<div>${formattedCosts}</div>` +
                 (recipe.requires ? `<br><span style="color: ${skillColor};">Requires: ${recipe.requires}</span>` : '');
 

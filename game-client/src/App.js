@@ -1865,6 +1865,7 @@ return (
           stationType={activeStation?.type} 
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
+          masterSkills={masterSkills}
         />
       )}
       {activePanel === 'CombatPanel' && (

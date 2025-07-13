@@ -40,6 +40,16 @@
       "Olive Bread": 2,
       "Lemon Cake": 2
     },
+    "Baker": {
+      "Bread": 2,
+      "Cornbread": 2,
+      "Olive Bread": 2,
+      "Garlic Bread": 2,
+      "Apple Pie": 2,
+      "Strawberry Pie": 2,
+      "Lemon Cookie": 2,
+      "Queen's Cake": 2
+    },
     "Better Axe": {
       "Wood": 2
     },

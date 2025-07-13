@@ -4529,7 +4529,7 @@
     },
     {
         "type": "Cooking",
-        "symbol": "🍞",
+        "symbol": "🍴",
         "category": "skill",
         "source": "Laboratory",
         "requires": "Chemistry",
@@ -4539,6 +4539,20 @@
         "ingredient1": "Money",
         "ingredient1qty": 12000,
         "ingredient2": "Potion A",
+        "ingredient2qty": 5
+    },
+    {
+        "type": "Baker",
+        "symbol": "🍞",
+        "category": "skill",
+        "source": "Laboratory",
+        "requires": "Cooking",
+        "qtycollected": 1,
+        "level": 4,
+        "minprice": 0,
+        "ingredient1": "Money",
+        "ingredient1qty": 15000,
+        "ingredient2": "Potion B",
         "ingredient2qty": 5
     },
     {
