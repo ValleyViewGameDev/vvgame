@@ -12,32 +12,32 @@
       "Garlic": 2
     },
     "Green Thumb": {
-      "Wheat": 5,
-      "Corn": 5,
-      "Carrot": 5,
-      "Sugarcane": 4,
-      "Strawberry": 4,
-      "Apple": 4,
-      "Lemon": 4,
-      "Olive": 4,
-      "Tomato": 4,
-      "Garlic": 4
+      "Wheat": 2,
+      "Corn": 2,
+      "Carrot": 2,
+      "Sugarcane": 2,
+      "Strawberry": 2,
+      "Apple": 2,
+      "Lemon": 2,
+      "Olive": 2,
+      "Tomato": 2,
+      "Garlic": 2
     },
     "Winemaker": {
       "Grapes": 2,
-      "Wine": 4,
+      "Wine": 3,
       "Port": 3
     },
     "Cooking": {
-      "Bread": 3,
-      "Cornbread": 3,
-      "Apple Pie": 4,
-      "Strawberry Pie": 4,
+      "Bread": 2,
+      "Cornbread": 2,
+      "Apple Pie": 2,
+      "Strawberry Pie": 2,
       "Omelette": 2,
       "Pizza": 2,
       "Tomato Soup": 2,
       "Carrot Soup": 2,
-      "Olive Bread": 3,
+      "Olive Bread": 2,
       "Lemon Cake": 2
     },
     "Better Axe": {
