@@ -242,13 +242,18 @@ function TrainPanel({
     });
 
       // Update local state in correct order
-      setTrainOffers(prev => prev.map(o =>
-        o.itemBought === offer.itemBought &&
-        o.qtyBought === offer.qtyBought &&
-        o.claimedBy === currentPlayer.playerId
-          ? { ...o, filled: true }
-          : o
-      ));
+      setTrainOffers(prev => {
+        const index = prev.findIndex(o =>
+          o.itemBought === offer.itemBought &&
+          o.qtyBought === offer.qtyBought &&
+          o.claimedBy === currentPlayer.playerId &&
+          !o.filled
+        );
+        if (index === -1) return prev;
+        const newOffers = [...prev];
+        newOffers[index] = { ...newOffers[index], filled: true };
+        return newOffers;
+      });
 
       updateStatus(`✅ Delivered ${offer.qtyBought} ${offer.itemBought}.`);
 

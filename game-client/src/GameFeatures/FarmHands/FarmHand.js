@@ -2,7 +2,7 @@ import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
-import './TradingStation.css';
+import '../Crafting/TradingStation.css';
 import '../../UI/ResourceButton.css';
 import ResourceButton from '../../UI/ResourceButton';
 import { canAfford } from '../../Utils/InventoryManagement';
@@ -10,7 +10,7 @@ import { refreshPlayerAfterInventoryUpdate, gainIngredients, spendIngredients } 
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
 
-const TradingStation = ({
+const FarmHandPanel = ({
   onClose,
   inventory,
   setInventory,
@@ -187,4 +187,4 @@ const TradingStation = ({
   );
 };
 
-export default React.memo(TradingStation);
+export default React.memo(FarmHandPanel);

@@ -61,7 +61,7 @@ import CourthousePanel from './GameFeatures/Government/Courthouse';
 import QuestPanel from './GameFeatures/Quests/QuestPanel';
 import QuestGiverPanel from './GameFeatures/NPCs/NPCsPanel.js';
 import CraftingStation from './GameFeatures/Crafting/CraftingStation';
-import FarmHandsPanel from './GameFeatures/FarmHands/FarmHands';
+import FarmHandPanel from './GameFeatures/FarmHands/FarmHand.js';
 import TradingStation from './GameFeatures/Crafting/TradingStation';
 import ShopStation from './GameFeatures/Crafting/ShopStation';
 import AnimalStall from './GameFeatures/FarmAnimals/AnimalStall';
@@ -1163,6 +1163,10 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
       setActiveStation({type: resource.type,position: { x: colIndex, y: rowIndex }, gridId: gridId, });
       openPanel('TradingStation');
     } 
+    else if (resource.category === 'farm hand') {
+      setActiveStation({type: resource.type,position: { x: colIndex, y: rowIndex }, gridId: gridId, });
+      openPanel('FarmHandPanel');
+    } 
     else if (resource.category === 'shop') {
       setActiveStation({type: resource.type,position: { x: colIndex, y: rowIndex }, gridId: gridId, });
       openPanel('ShopStation');
@@ -1188,10 +1192,6 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
           openPanel('TrainPanel'); break;
         case 'Bank':
           openPanel('BankPanel'); break;
-        case 'Farm Hand 1':
-        case 'Farm Hand 2':
-        case 'Farm Hand 3':
-          openPanel('FarmHandsPanel'); break;
         default:
           console.warn(`Unhandled station type: ${resource.type}`);
       }
@@ -1936,6 +1936,24 @@ return (
           masterResources={masterResources}
         />
       )}
+      {activePanel === 'FarmHandPanel' && (
+        <FarmHandPanel
+          onClose={closePanel}
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          setResources={setResources}
+          stationType={activeStation?.type} 
+          currentStationPosition={activeStation?.position} 
+          gridId={activeStation?.gridId}
+          TILE_SIZE={activeTileSize}
+          updateStatus={updateStatus}
+          masterResources={masterResources}
+        />
+      )}
       {activePanel === 'FarmingPanel' && (
         <FarmingPanel
           onClose={closePanel}
@@ -2066,13 +2084,6 @@ return (
             currentPlayer={currentPlayer}
             setCurrentPlayer={setCurrentPlayer}
             updateStatus={updateStatus}
-        />
-      )}
-      {activePanel === 'FarmHandsPanel' && (
-        <FarmHandsPanel
-            onClose={closePanel}
-            currentPlayer={currentPlayer}
-            setCurrentPlayer={setCurrentPlayer}
         />
       )}
       {activePanel === 'SeasonPanel' && (
