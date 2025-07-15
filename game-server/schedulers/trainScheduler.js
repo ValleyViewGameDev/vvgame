@@ -26,14 +26,18 @@ async function trainScheduler(frontierId, phase, frontier = null) {
       if (phase === "arriving") {
         try {
           console.log(`🚂 Arriving phase for settlement ${settlement.name}. Generating offer & rewards...`);
-          // Generate new offers before updating settlement
+          
+          // 📝 Start a fresh train log entry
+          await appendTrainLog(settlement);
+
+          // Generate new offers and update log
           const seasonConfig = seasonsConfig.find(s => s.seasonType === frontier.seasons?.seasonType);
           const newTrainOffers = generateTrainOffers(settlement, frontier, seasonConfig);
           console.log(`  📦 Generated ${newTrainOffers.length} train offers for ${settlement.name}.`);
           const newTrainRewards = generateTrainRewards(settlement, seasonConfig, frontier);
           console.log(`  🎁 Generated ${newTrainRewards.length} train rewards for ${settlement.name}.`);
           
-          // Verify we have offers before updating
+          // Fallback offer if generation failed
           if (!newTrainOffers || newTrainOffers.length === 0) {
             console.error(`❌ No train offers generated for ${settlement.name}. Using fallback offer.`);
             newTrainOffers.push({
@@ -45,8 +49,6 @@ async function trainScheduler(frontierId, phase, frontier = null) {
               filled: false
             });
           }
-
-          // Use findOneAndUpdate with validation
           const result = await Settlement.findOneAndUpdate(
             { _id: settlement._id },
             {
@@ -58,19 +60,15 @@ async function trainScheduler(frontierId, phase, frontier = null) {
             },
             { new: true }
           );
-
           console.log(`  ✅ Updated settlement ${settlement.name}:`, {
             currentOffersCount: result.currentoffers?.length || 0,
             nextOffersCount: result.nextoffers?.length || 0,
             rewardsCount: result.trainrewards?.length || 0
           });
-
-          // Double-check the update was successful
           if (!result.currentoffers?.length) {
             console.error(`❌ Settlement ${settlement.name} has no current offers after update. Raw result:`, result);
           }
-          await appendTrainLog(result, result.currentoffers, result.trainrewards, frontier);
-          console.log(`📝 Train log entry appended for ${settlement.name}`);
+
         } catch (error) {
           console.error(`❌ Error updating settlement ${settlement.name}:`, error);
         }
@@ -191,7 +189,7 @@ function generateTrainOffers(settlement, frontier, seasonConfig) {
   }).join(" | ");
 
   const logicString =
-`NUMBER OF OFFERS: ${offers.length}; determined by population (=${population}) @ 1 per 4 people (rounded up).
+`NUMBER OF OFFERS: ${offers?.length || 0}; determined by population (=${population}) @ 1 per 4 people (rounded up).
 OFFER SELECTION: Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in seasons tuning. 
 OFFER DIFFICULTY: (a) Adjusted by season progression; current seasonLevel = ${seasonLevel} of 6. Higher seasonLevel = likelihood of more complex crafts (longer totalnestedtime): weight = 1 / (craft time ^ (seasonLevel / 6)).
 (b) Total player effort capacity is calculated as: ${population} population × ${baseHours} hours/week × 3600s/hour = ${Math.floor(basePlayerEffortPerWeek)}s/player/week. 
@@ -266,14 +264,12 @@ function generateTrainRewards(settlement, seasonConfig, frontier) {
 
 // 📝 appendTrainLog creates a new log entry at the start of a train cycle (phase === "arriving").
 // It records minimal info with empty rewards and logic, and marks the log as "in progress".
-async function appendTrainLog(settlement, offers, rewards, frontier) {
+async function appendTrainLog(settlement) {
   const existingInProgress = settlement.trainlog?.find(log => log.inprogress);
   if (existingInProgress) {
     console.warn(`⚠️ Skipping log append: settlement ${settlement.name} already has an in-progress log.`);
     return;
   }
-
-  const rewardDescriptions = rewards.map(r => `${r.qty} ${r.item}`).join(", ");
 
   const logEntry = {
     date: new Date(),
@@ -294,6 +290,7 @@ async function appendTrainLog(settlement, offers, rewards, frontier) {
 }
 
 // 📝 updateTrainLog updates the latest in-progress log entry with provided logic and/or rewards.
+
 async function updateTrainLog(settlementId, updates) {
   const settlement = await Settlement.findById(settlementId);
   if (!settlement || !settlement.trainlog) return;
@@ -310,11 +307,8 @@ async function updateTrainLog(settlementId, updates) {
   await settlement.save();
 }
 
-// 📝 updateTrainLog finalizes the latest log entry (previously marked as "inprogress").
-// It is called at the end of the train cycle (phase === "departing") to fill in:
-// - whether all offers were completed
-// - how many players fulfilled offers
-// - and then sets `inprogress` to false
+// 📝 finalizeTrainLog finalizes the latest log entry (previously marked as "inprogress").
+
 async function finalizeTrainLog(settlementId, fulfilledPlayerIds) {
   const settlement = await Settlement.findById(settlementId);
   if (!settlement || !settlement.trainlog) return;
