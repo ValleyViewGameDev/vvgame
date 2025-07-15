@@ -230,6 +230,9 @@ function generateTrainRewards(settlement, seasonConfig, frontier) {
   return rewards;
 }
 
+// 📝 appendTrainLog creates a new log entry at the start of a train cycle (phase === "arriving").
+// It records the generated offers, rewards, seasonal logic, and marks the log as "in progress".
+// The `totalwinners` is temporarily set to 0 and `alloffersfilled` is null until departure.
 async function appendTrainLog(settlement, offers, rewards, frontier) {
   const seasonLevel = getSeasonLevel(frontier?.seasons?.onSeasonStart, frontier?.seasons?.onSeasonEnd);
   const population = settlement.population || 1;
@@ -264,7 +267,7 @@ Here are the Rewards: [${rewardDescriptions}].`;
   const logEntry = {
     date: new Date(),
     alloffersfilled: null,
-    totalwinners: null,
+    totalwinners: 0,
     rewards,
     logic: logicString,
     inprogress: true
@@ -279,6 +282,11 @@ Here are the Rewards: [${rewardDescriptions}].`;
   await updatedSettlement.save();
 }
 
+// 📝 updateTrainLog finalizes the latest log entry (previously marked as "inprogress").
+// It is called at the end of the train cycle (phase === "departing") to fill in:
+// - whether all offers were completed
+// - how many players fulfilled offers
+// - and then sets `inprogress` to false
 async function updateTrainLog(settlementId, fulfilledPlayerIds) {
   const settlement = await Settlement.findById(settlementId);
   if (!settlement || !settlement.trainlog) return;
