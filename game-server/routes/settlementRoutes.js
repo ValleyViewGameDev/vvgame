@@ -532,11 +532,9 @@ router.post('/update-train-offer/:settlementId', async (req, res) => {
     const settlement = await Settlement.findById(settlementId);
     if (!settlement) return res.status(404).json({ error: 'Settlement not found' });
 
-    const offerIndex = settlement.currentoffers.findIndex(o =>
-      o.itemBought === updateOffer.itemBought &&
-      o.qtyBought === updateOffer.qtyBought &&
-      o.itemGiven === updateOffer.itemGiven &&
-      o.qtyGiven === updateOffer.qtyGiven
+    // ✅ Use _id to locate the specific offer to update
+    const offerIndex = settlement.currentoffers.findIndex(
+      (o) => o._id.toString() === updateOffer._id
     );
 
     if (offerIndex === -1) {
