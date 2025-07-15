@@ -54,8 +54,8 @@ async function trainScheduler(frontierId, phase, frontier = null) {
         } else {
           console.log(`🚫 Not all train orders were filled for ${settlement.name}. No rewards distributed.`);
         }
-        await generateTrainLog(settlement, fulfilledPlayerIds, frontier);
-        console.log(`📝 Train log entry saved for ${settlement.name}`);
+        await updateTrainLog(settlement._id, fulfilledPlayerIds);
+        console.log(`📝 Train log entry updated for ${settlement.name}`);
       }
       
 
@@ -105,6 +105,8 @@ async function trainScheduler(frontierId, phase, frontier = null) {
           if (!result.currentoffers?.length) {
             console.error(`❌ Settlement ${settlement.name} has no current offers after update. Raw result:`, result);
           }
+          await appendTrainLog(settlement, newTrainOffers, newTrainRewards, frontier);
+          console.log(`📝 Train log entry appended for ${settlement.name}`);
         } catch (error) {
           console.error(`❌ Error updating settlement ${settlement.name}:`, error);
         }
@@ -228,38 +230,25 @@ function generateTrainRewards(settlement, seasonConfig, frontier) {
   return rewards;
 }
 
-async function generateTrainLog(settlement, fulfilledPlayerIds, frontier) {
-  if ((settlement.population || 0) <= 0) { return; }
-
-  // Build human-readable logic summary
-  const population = settlement.population || 1;
-  const offers = Array.isArray(settlement.currentoffers) ? [...settlement.currentoffers] : [];
-  const rewards = settlement.trainrewards || [];
+async function appendTrainLog(settlement, offers, rewards, frontier) {
   const seasonLevel = getSeasonLevel(frontier?.seasons?.onSeasonStart, frontier?.seasons?.onSeasonEnd);
-
-  console.log("🧾 Log is being generated from these offers:", offers);
-
-  const rewardDescriptions = rewards.map(r => `${r.qty} ${r.item}`).join(", ");
-
+  const population = settlement.population || 1;
   const baseHours = globalTuning.baseHoursForTrain || 2.5;
   const baseEffort = baseHours * 60 * 60;
   const totalEffort = baseEffort * population;
 
-  // Removed calculation of weeksRemaining as per instructions
-
-  // Enhanced logic string with detailed per-offer explanation and weighting info
+  const rewardDescriptions = rewards.map(r => `${r.qty} ${r.item}`).join(", ");
   const detailedOfferExplanations = offers.map(o => {
     const itemData = masterResources.find(r => r.type === o.itemBought) || {};
     const timePerUnit = itemData?.totalnestedtime || itemData?.crafttime || 60;
     const unitPrice = itemData?.maxprice || 100;
     const qtyEffort = o.qtyBought * timePerUnit;
     const qtyGivenExpected = Math.floor(unitPrice * o.qtyBought);
-    // Try to use actual qtyGiven from offer for Money, fallback to calculated
     const qtyGivenDisplay = o.qtyGiven !== undefined ? o.qtyGiven : qtyGivenExpected;
     return `${o.qtyBought} ${o.itemBought} @ ${timePerUnit}s each = ${qtyEffort}s effort; × ${unitPrice} price = ${qtyGivenDisplay} Money`;
   }).join(" | ");
 
-  const logicString = 
+  const logicString =
 `NUMBER OF OFFERS: ${offers.length}; determined by population (=${population}) @ 1 per 4 people (rounded up).
 OFFER SELECTION: Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in seasons tuning. 
 OFFER DIFFICULTY: (a) Adjusted by season progression; current seasonLevel = ${seasonLevel} of 6. Higher seasonLevel = likelihood of more complex crafts (longer totalnestedtime): weight = 1 / (craft time ^ (seasonLevel / 6)).
@@ -274,10 +263,11 @@ Here are the Rewards: [${rewardDescriptions}].`;
 
   const logEntry = {
     date: new Date(),
-    alloffersfilled: (settlement.currentoffers || []).every(o => o.filled),
-    totalwinners: fulfilledPlayerIds.length,
-    rewards: settlement.trainrewards || [],
-    logic: logicString
+    alloffersfilled: null,
+    totalwinners: null,
+    rewards,
+    logic: logicString,
+    inprogress: true
   };
 
   const updatedSettlement = await Settlement.findById(settlement._id);
@@ -287,6 +277,23 @@ Here are the Rewards: [${rewardDescriptions}].`;
     updatedSettlement.trainlog = updatedSettlement.trainlog.slice(-8);
   }
   await updatedSettlement.save();
+}
+
+async function updateTrainLog(settlementId, fulfilledPlayerIds) {
+  const settlement = await Settlement.findById(settlementId);
+  if (!settlement || !settlement.trainlog) return;
+  const latestLog = settlement.trainlog.find(log => log.inprogress);
+
+  if (!latestLog) return;
+
+  const currentOffers = settlement.currentoffers || [];
+  const allOffersFilled = currentOffers.every(o => o.filled);
+
+  latestLog.alloffersfilled = allOffersFilled;
+  latestLog.totalwinners = fulfilledPlayerIds.length;
+  latestLog.inprogress = false;
+
+  await settlement.save();
 }
 
 module.exports = trainScheduler;
