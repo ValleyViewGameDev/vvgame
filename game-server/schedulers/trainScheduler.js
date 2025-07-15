@@ -21,43 +21,7 @@ async function trainScheduler(frontierId, phase, frontier = null) {
 
     for (const settlement of settlements) {
       console.log(`  🚉 Settlement ${settlement.name} - Using Frontier Phase: ${phase}`);
-      
-      if (phase === "departing") {
-        // ✅ Check and distribute rewards during departing phase
-        const currentOffers = settlement.currentoffers || [];
-        console.log('DEBUG: Departing phase - checking offers:', JSON.stringify(currentOffers, null, 2));
-        
-        const allOffersFilled = currentOffers.every(offer => offer.filled);
-        const fulfilledPlayerIds = allOffersFilled
-          ? [...new Set(
-              currentOffers
-                .filter(offer => offer.filled && offer.claimedBy)
-                .map(offer => offer.claimedBy.toString())
-            )]
-          : [];
-
-        if (allOffersFilled && fulfilledPlayerIds.length > 0) {
-          console.log(`🎉 All Train orders filled for ${settlement.name}. Sending rewards...`);
-          console.log('DEBUG: Reward distribution - Players:', fulfilledPlayerIds);
-          console.log('DEBUG: Rewards to distribute:', settlement.trainrewards);
-
-          for (const playerId of fulfilledPlayerIds) {
-            const consolidated = consolidateRewards(settlement.trainrewards);
-            console.log(`DEBUG: Sending consolidated rewards to ${playerId}:`, consolidated);
-            try {
-              await sendMailboxMessage(playerId, 101, consolidated);
-              console.log(`✅ Rewards sent to player ${playerId}`);
-            } catch (error) {
-              console.error(`❌ Error sending rewards to player ${playerId}:`, error);
-            }
-          }
-        } else {
-          console.log(`🚫 Not all train orders were filled for ${settlement.name}. No rewards distributed.`);
-        }
-        await updateTrainLog(settlement._id, fulfilledPlayerIds);
-        console.log(`📝 Train log entry updated for ${settlement.name}`);
-      }
-      
+    
 
       if (phase === "arriving") {
         try {
@@ -105,12 +69,50 @@ async function trainScheduler(frontierId, phase, frontier = null) {
           if (!result.currentoffers?.length) {
             console.error(`❌ Settlement ${settlement.name} has no current offers after update. Raw result:`, result);
           }
-          await appendTrainLog(settlement, newTrainOffers, newTrainRewards, frontier);
+          await appendTrainLog(result, result.currentoffers, result.trainrewards, frontier);
           console.log(`📝 Train log entry appended for ${settlement.name}`);
         } catch (error) {
           console.error(`❌ Error updating settlement ${settlement.name}:`, error);
         }
       }
+
+      
+      if (phase === "departing") {
+        // ✅ Check and distribute rewards during departing phase
+        const currentOffers = settlement.currentoffers || [];
+        console.log('DEBUG: Departing phase - checking offers:', JSON.stringify(currentOffers, null, 2));
+        
+        const allOffersFilled = currentOffers.every(offer => offer.filled);
+        const fulfilledPlayerIds = allOffersFilled
+          ? [...new Set(
+              currentOffers
+                .filter(offer => offer.filled && offer.claimedBy)
+                .map(offer => offer.claimedBy.toString())
+            )]
+          : [];
+
+        if (allOffersFilled && fulfilledPlayerIds.length > 0) {
+          console.log(`🎉 All Train orders filled for ${settlement.name}. Sending rewards...`);
+          console.log('DEBUG: Reward distribution - Players:', fulfilledPlayerIds);
+          console.log('DEBUG: Rewards to distribute:', settlement.trainrewards);
+
+          for (const playerId of fulfilledPlayerIds) {
+            const consolidated = consolidateRewards(settlement.trainrewards);
+            console.log(`DEBUG: Sending consolidated rewards to ${playerId}:`, consolidated);
+            try {
+              await sendMailboxMessage(playerId, 101, consolidated);
+              console.log(`✅ Rewards sent to player ${playerId}`);
+            } catch (error) {
+              console.error(`❌ Error sending rewards to player ${playerId}:`, error);
+            }
+          }
+        } else {
+          console.log(`🚫 Not all train orders were filled for ${settlement.name}. No rewards distributed.`);
+        }
+        await updateTrainLog(settlement._id, fulfilledPlayerIds);
+        console.log(`📝 Train log entry updated for ${settlement.name}`);
+      }
+      
     }
     return {};
   } catch (error) {
@@ -234,6 +236,11 @@ function generateTrainRewards(settlement, seasonConfig, frontier) {
 // It records the generated offers, rewards, seasonal logic, and marks the log as "in progress".
 // The `totalwinners` is temporarily set to 0 and `alloffersfilled` is null until departure.
 async function appendTrainLog(settlement, offers, rewards, frontier) {
+  const existingInProgress = settlement.trainlog?.find(log => log.inprogress);
+  if (existingInProgress) {
+    console.warn(`⚠️ Skipping log append: settlement ${settlement.name} already has an in-progress log.`);
+    return;
+  }
   const seasonLevel = getSeasonLevel(frontier?.seasons?.onSeasonStart, frontier?.seasons?.onSeasonEnd);
   const population = settlement.population || 1;
   const baseHours = globalTuning.baseHoursForTrain || 2.5;
