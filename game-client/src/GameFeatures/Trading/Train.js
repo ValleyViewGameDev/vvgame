@@ -168,14 +168,32 @@ function TrainPanel({
     }
 
     try {
+      // Find the exact index of the offer to ensure uniqueness
+      const offerIndex = trainOffers.findIndex(
+        (o) => o.itemBought === offer.itemBought &&
+              o.qtyBought === offer.qtyBought &&
+              !o.claimedBy &&
+              !o.filled
+      );
+      if (offerIndex === -1) {
+        console.warn("⚠️ No matching unclaimed offer found to claim.");
+        return;
+      }
+
+      const updatedOffer = {
+        ...trainOffers[offerIndex],
+        claimedBy: currentPlayer.playerId,
+      };
+
       await axios.post(`${API_BASE}/api/update-train-offer/${currentPlayer.settlementId}`, {
-        updateOffer: {
-          ...offer,
-          claimedBy: currentPlayer.playerId,
-        },
+        updateOffer: updatedOffer,
       });
 
-      setTrainOffers(prev => prev.map(o => o === offer ? { ...o, claimedBy: currentPlayer.playerId } : o));
+      setTrainOffers(prev => {
+        const newOffers = [...prev];
+        newOffers[offerIndex] = updatedOffer;
+        return newOffers;
+      });
     } catch (err) {
       console.error("❌ Error claiming train offer:", err);
     }
