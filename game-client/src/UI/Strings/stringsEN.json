@@ -162,8 +162,8 @@
     "1025": "[Shop description]",
     "1026": "[Money panel description]",
     "1027": "These are the benefits of a Gold Account.",
-    "1028": " ",
-
+    "1028": "[Decorations panel description]",
+    
     "1101": "Inventory",
     "1102": "⚒️ Build",
     "1103": "🛒 Buy",
@@ -192,6 +192,8 @@
     "1126": "💰 About Money",
     "1127": "⭐️ Gold Account",
     "1128": "🪑 Decorations",
+
+
 
     "1200": "TRADER STORY STRINGS",
 
@@ -530,7 +532,10 @@
     "2014": "You can only claim one train offer at a time.",
     "2015": "Show Train Log",
     "2016": "✅ All orders were completed! Rewards have been mailed out.",
+    "1029": "[Farm Hand panel description]",
+    "1129": "Farm Hand",
 
+    
     "12001": "Farming",
     "12002": "Build",
     "12003": "Buy Animals & Decorations",

@@ -65,15 +65,6 @@ const FarmHandPanel = ({
     }
   }, [stationType, masterResources]);
 
-  const storyStringMap = {
-    Iago: 1201,
-    Juliet: 1202,
-    Falstaff: 1203,
-    Apothecary: 1204,
-    Gertrude: 1205,
-    Leontes: 1206,
-    Caliban: 1207,
-  };
 
   const handleTrade = async (recipe) => {
     setErrorMessage('');
@@ -126,7 +117,7 @@ const FarmHandPanel = ({
   };
 
   return (
-    <Panel onClose={onClose} descriptionKey="1016" titleKey="1116" panelName="TradingStation">
+    <Panel onClose={onClose} descriptionKey="1029" titleKey="1129" panelName="FarmHandPanel">
       <div className="standard-panel">
         <h2> {stationEmoji} {stationType} </h2>
         <h3>{strings[420]}</h3>
@@ -174,11 +165,6 @@ const FarmHandPanel = ({
             })
           ) : <p>{strings[423]}</p>}
 
-          {storyStringMap[stationType] && (
-            <div className="trader-story">
-              <p>{strings[storyStringMap[stationType]]}</p>
-            </div>
-          )}
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
