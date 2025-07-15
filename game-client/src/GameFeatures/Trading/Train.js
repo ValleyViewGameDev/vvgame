@@ -123,8 +123,8 @@ function TrainPanel({
             {[...trainlog].reverse().map((entry, i) => (
               <tr key={i}>
                 <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
-                <td style={{ padding: "6px 12px" }}>{entry.alloffersfilled ? '✅' : '❌'}</td>
-                <td style={{ padding: "6px 12px" }}>{entry.totalwinners}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.inprogress ? 'In progress' : entry.alloffersfilled ? '✅' : '❌'}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.inprogress ? ' ' : entry.totalwinners}</td>
                 <td style={{ padding: "6px 12px" }}>{(entry.rewards || []).map(r => `${r.qty} ${r.item}`).join(', ')}</td>
                 <td style={{ padding: "6px 12px" }}>{entry.logic || ''}</td>
               </tr>
