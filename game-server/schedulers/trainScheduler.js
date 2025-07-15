@@ -27,16 +27,13 @@ async function trainScheduler(frontierId, phase, frontier = null) {
         try {
           console.log(`🚂 Arriving phase for settlement ${settlement.name}. Generating offer & rewards...`);
           
-          // 📝 Start a fresh train log entry
-          await appendTrainLog(settlement);
-
-          // Generate new offers and update log
           const seasonConfig = seasonsConfig.find(s => s.seasonType === frontier.seasons?.seasonType);
           const { offers: newTrainOffers, logicString } = generateTrainOffers(settlement, frontier, seasonConfig);
-          console.log(`  📦 Generated ${newTrainOffers.length} train offers for ${settlement.name}.`);
           const { rewards: newTrainRewards, rewardDescriptions } = generateTrainRewards(settlement, seasonConfig, frontier);
-          console.log(`  🎁 Generated ${newTrainRewards.length} train rewards for ${settlement.name}.`);
-          
+
+          // 📝 Start a fresh train log entry with generated offers & rewards
+          await appendTrainLog(settlement, newTrainOffers, newTrainRewards, logicString, rewardDescriptions);
+
           // Fallback offer if generation failed
           if (!newTrainOffers || newTrainOffers.length === 0) {
             console.error(`❌ No train offers generated for ${settlement.name}. Using fallback offer.`);
@@ -68,8 +65,6 @@ async function trainScheduler(frontierId, phase, frontier = null) {
           if (!result.currentoffers?.length) {
             console.error(`❌ Settlement ${settlement.name} has no current offers after update. Raw result:`, result);
           }
-
-          await updateTrainLog(settlement._id, { rewards: newTrainRewards, logic: logicString, rewardDescriptions });
 
         } catch (error) {
           console.error(`❌ Error updating settlement ${settlement.name}:`, error);
@@ -263,7 +258,7 @@ function generateTrainRewards(settlement, seasonConfig, frontier) {
 
 // 📝 appendTrainLog creates a new log entry at the start of a train cycle (phase === "arriving").
 // It records minimal info with empty rewards and logic, and marks the log as "in progress".
-async function appendTrainLog(settlement) {
+async function appendTrainLog(settlement, offers, rewards, logicString, rewardDescriptions) {
   const existingInProgress = settlement.trainlog?.find(log => log.inprogress);
   if (existingInProgress) {
     console.warn(`⚠️ Skipping log append: settlement ${settlement.name} already has an in-progress log.`);
@@ -274,9 +269,9 @@ async function appendTrainLog(settlement) {
     date: new Date(),
     alloffersfilled: null,
     totalwinners: 0,
-    rewards: [],
-    rewardDescriptions: "",
-    logic: "",
+    rewards: rewards || [],
+    rewardDescriptions: rewardDescriptions || "",
+    logic: logicString || "",
     inprogress: true
   };
 
