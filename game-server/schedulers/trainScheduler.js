@@ -28,7 +28,7 @@ async function trainScheduler(frontierId, phase, frontier = null) {
           console.log(`🚂 Arriving phase for settlement ${settlement.name}. Generating offer & rewards...`);
           // Generate new offers before updating settlement
           const seasonConfig = seasonsConfig.find(s => s.seasonType === frontier.seasons?.seasonType);
-          const newTrainOffers = generateTrainOffers(settlement, seasonConfig, frontier);
+          const newTrainOffers = generateTrainOffers(settlement, frontier, seasonConfig);
           console.log(`  📦 Generated ${newTrainOffers.length} train offers for ${settlement.name}.`);
           const newTrainRewards = generateTrainRewards(settlement, seasonConfig, frontier);
           console.log(`  🎁 Generated ${newTrainRewards.length} train rewards for ${settlement.name}.`);
@@ -109,7 +109,7 @@ async function trainScheduler(frontierId, phase, frontier = null) {
         } else {
           console.log(`🚫 Not all train orders were filled for ${settlement.name}. No rewards distributed.`);
         }
-        await updateTrainLog(settlement._id, fulfilledPlayerIds);
+        await finalizeTrainLog(settlement._id, fulfilledPlayerIds);
         console.log(`📝 Train log entry updated for ${settlement.name}`);
       }
       
@@ -122,7 +122,7 @@ async function trainScheduler(frontierId, phase, frontier = null) {
 }
 
 // 🛠️ Generates train offers using season-tuned logic and totalnestedtime
-function generateTrainOffers(settlement, seasonConfig, frontier) {
+function generateTrainOffers(settlement, frontier, seasonConfig) {
   const offers = [];
   const seasonLevel = getSeasonLevel(frontier?.seasons?.onSeasonStart, frontier?.seasons?.onSeasonEnd);
 
@@ -178,6 +178,34 @@ function generateTrainOffers(settlement, seasonConfig, frontier) {
     offers.push(offer);
     console.log(`  📦 Train Offer (${settlement.name}): ${offer.qtyBought} ${offer.itemBought} → ${offer.qtyGiven} Money`);
   }
+
+  const rewardDescriptions = []; // empty as no rewards here
+  const detailedOfferExplanations = offers.map(o => {
+    const itemData = masterResources.find(r => r.type === o.itemBought) || {};
+    const timePerUnit = itemData?.totalnestedtime || itemData?.crafttime || 60;
+    const unitPrice = itemData?.maxprice || 100;
+    const qtyEffort = o.qtyBought * timePerUnit;
+    const qtyGivenExpected = Math.floor(unitPrice * o.qtyBought);
+    const qtyGivenDisplay = o.qtyGiven !== undefined ? o.qtyGiven : qtyGivenExpected;
+    return `${o.qtyBought} ${o.itemBought} @ ${timePerUnit}s each = ${qtyEffort}s effort; × ${unitPrice} price = ${qtyGivenDisplay} Money`;
+  }).join(" | ");
+
+  const logicString =
+`NUMBER OF OFFERS: ${offers.length}; determined by population (=${population}) @ 1 per 4 people (rounded up).
+OFFER SELECTION: Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in seasons tuning. 
+OFFER DIFFICULTY: (a) Adjusted by season progression; current seasonLevel = ${seasonLevel} of 6. Higher seasonLevel = likelihood of more complex crafts (longer totalnestedtime): weight = 1 / (craft time ^ (seasonLevel / 6)).
+(b) Total player effort capacity is calculated as: ${population} population × ${baseHours} hours/week × 3600s/hour = ${Math.floor(basePlayerEffortPerWeek)}s/player/week. 
+(c) Effort multiplier based on seasonLevel (${seasonLevel}), so total effort pool was ${Math.floor(totalEffort)}s.
+(d) Each offer targets approximately (totalEffort / numOffers) effort. 
+(e) Items selected using the same seasonLevel-adjusted weighting. 
+(f) Money paid per offer is standard (item.maxprice × qty). 
+SUMMARY: Here are the offer details: ${detailedOfferExplanations}.
+REWARDS: [${rewardDescriptions}].`;
+
+  updateTrainLog(settlement._id, { logic: logicString }).catch(err => {
+    console.error(`❌ Error updating train log logic for settlement ${settlement.name}:`, err);
+  });
+
   return offers;
 }
 
@@ -229,54 +257,30 @@ function generateTrainRewards(settlement, seasonConfig, frontier) {
     rewards.push({ item, qty });
   }
 
+  updateTrainLog(settlement._id, { rewards }).catch(err => {
+    console.error(`❌ Error updating train log rewards for settlement ${settlement.name}:`, err);
+  });
+
   return rewards;
 }
 
 // 📝 appendTrainLog creates a new log entry at the start of a train cycle (phase === "arriving").
-// It records the generated offers, rewards, seasonal logic, and marks the log as "in progress".
-// The `totalwinners` is temporarily set to 0 and `alloffersfilled` is null until departure.
+// It records minimal info with empty rewards and logic, and marks the log as "in progress".
 async function appendTrainLog(settlement, offers, rewards, frontier) {
   const existingInProgress = settlement.trainlog?.find(log => log.inprogress);
   if (existingInProgress) {
     console.warn(`⚠️ Skipping log append: settlement ${settlement.name} already has an in-progress log.`);
     return;
   }
-  const seasonLevel = getSeasonLevel(frontier?.seasons?.onSeasonStart, frontier?.seasons?.onSeasonEnd);
-  const population = settlement.population || 1;
-  const baseHours = globalTuning.baseHoursForTrain || 2.5;
-  const baseEffort = baseHours * 60 * 60;
-  const totalEffort = baseEffort * population;
 
   const rewardDescriptions = rewards.map(r => `${r.qty} ${r.item}`).join(", ");
-  const detailedOfferExplanations = offers.map(o => {
-    const itemData = masterResources.find(r => r.type === o.itemBought) || {};
-    const timePerUnit = itemData?.totalnestedtime || itemData?.crafttime || 60;
-    const unitPrice = itemData?.maxprice || 100;
-    const qtyEffort = o.qtyBought * timePerUnit;
-    const qtyGivenExpected = Math.floor(unitPrice * o.qtyBought);
-    const qtyGivenDisplay = o.qtyGiven !== undefined ? o.qtyGiven : qtyGivenExpected;
-    return `${o.qtyBought} ${o.itemBought} @ ${timePerUnit}s each = ${qtyEffort}s effort; × ${unitPrice} price = ${qtyGivenDisplay} Money`;
-  }).join(" | ");
-
-  const logicString =
-`NUMBER OF OFFERS: ${offers.length}; determined by population (=${population}) @ 1 per 4 people (rounded up).
-OFFER SELECTION: Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in seasons tuning. 
-OFFER DIFFICULTY: (a) Adjusted by season progression; current seasonLevel = ${seasonLevel} of 6. Higher seasonLevel = likelihood of more complex crafts (longer totalnestedtime): weight = 1 / (craft time ^ (seasonLevel / 6)).
-(b) Total player effort capacity is calculated as: ${population} population × ${baseHours} hours/week × 3600s/hour = ${Math.floor(baseEffort)}s/player/week. 
-(c) Effort multiplier based on seasonLevel (${seasonLevel}), so total effort pool was ${Math.floor(totalEffort)}s.
-(d) Each offer targets approximately (totalEffort / numOffers) effort. 
-(e) Items selected using the same seasonLevel-adjusted weighting. 
-(f) Money paid per offer is standard (item.maxprice × qty). 
-SUMMARY: Here are the offer details: ${detailedOfferExplanations}.
-REWARDS: Defined per season (in seasons tuning); quantity of each reward scales with population & season level (qty = Math.ceil((population / 10) * seasonLevel)), producing larger rewards in later parts of the season.
-Here are the Rewards: [${rewardDescriptions}].`;
 
   const logEntry = {
     date: new Date(),
     alloffersfilled: null,
     totalwinners: 0,
-    rewards,
-    logic: logicString,
+    rewards: [],
+    logic: "",
     inprogress: true
   };
 
@@ -289,12 +293,29 @@ Here are the Rewards: [${rewardDescriptions}].`;
   await updatedSettlement.save();
 }
 
+// 📝 updateTrainLog updates the latest in-progress log entry with provided logic and/or rewards.
+async function updateTrainLog(settlementId, updates) {
+  const settlement = await Settlement.findById(settlementId);
+  if (!settlement || !settlement.trainlog) return;
+  const latestLog = settlement.trainlog.find(log => log.inprogress);
+  if (!latestLog) return;
+
+  if (updates.logic !== undefined) {
+    latestLog.logic = updates.logic;
+  }
+  if (updates.rewards !== undefined) {
+    latestLog.rewards = updates.rewards;
+  }
+
+  await settlement.save();
+}
+
 // 📝 updateTrainLog finalizes the latest log entry (previously marked as "inprogress").
 // It is called at the end of the train cycle (phase === "departing") to fill in:
 // - whether all offers were completed
 // - how many players fulfilled offers
 // - and then sets `inprogress` to false
-async function updateTrainLog(settlementId, fulfilledPlayerIds) {
+async function finalizeTrainLog(settlementId, fulfilledPlayerIds) {
   const settlement = await Settlement.findById(settlementId);
   if (!settlement || !settlement.trainlog) return;
   const latestLog = settlement.trainlog.find(log => log.inprogress);
