@@ -32,9 +32,9 @@ async function trainScheduler(frontierId, phase, frontier = null) {
 
           // Generate new offers and update log
           const seasonConfig = seasonsConfig.find(s => s.seasonType === frontier.seasons?.seasonType);
-          const newTrainOffers = generateTrainOffers(settlement, frontier, seasonConfig);
+          const { offers: newTrainOffers, logicString } = generateTrainOffers(settlement, frontier, seasonConfig);
           console.log(`  📦 Generated ${newTrainOffers.length} train offers for ${settlement.name}.`);
-          const newTrainRewards = generateTrainRewards(settlement, seasonConfig, frontier);
+          const { rewards: newTrainRewards, rewardDescriptions } = generateTrainRewards(settlement, seasonConfig, frontier);
           console.log(`  🎁 Generated ${newTrainRewards.length} train rewards for ${settlement.name}.`);
           
           // Fallback offer if generation failed
@@ -68,6 +68,8 @@ async function trainScheduler(frontierId, phase, frontier = null) {
           if (!result.currentoffers?.length) {
             console.error(`❌ Settlement ${settlement.name} has no current offers after update. Raw result:`, result);
           }
+
+          await updateTrainLog(settlement._id, { rewards: newTrainRewards, logic: logicString, rewardDescriptions });
 
         } catch (error) {
           console.error(`❌ Error updating settlement ${settlement.name}:`, error);
@@ -132,14 +134,17 @@ function generateTrainOffers(settlement, frontier, seasonConfig) {
   // 🪵 Fallback: If no valid seasonal resources, return default Wood offer
   if (seasonResources.length === 0) {
     console.warn(`⚠️ No season resources found for ${settlement.name}. Using fallback resource.`);
-    return [{
-      itemBought: "Wood",
-      qtyBought: 5,
-      itemGiven: "Money",
-      qtyGiven: 250,
-      claimedBy: null,
-      filled: false
-    }];
+    return {
+      offers: [{
+        itemBought: "Wood",
+        qtyBought: 5,
+        itemGiven: "Money",
+        qtyGiven: 250,
+        claimedBy: null,
+        filled: false
+      }],
+      logicString: "Fallback offer due to no seasonal resources."
+    };
   }
 
   const baseHours = globalTuning.baseHoursForTrain || 2.5;
@@ -177,7 +182,7 @@ function generateTrainOffers(settlement, frontier, seasonConfig) {
     console.log(`  📦 Train Offer (${settlement.name}): ${offer.qtyBought} ${offer.itemBought} → ${offer.qtyGiven} Money`);
   }
 
-  const rewardDescriptions = []; // empty as no rewards here
+  const rewardDescriptions = ""; // empty as no rewards here
   const detailedOfferExplanations = offers.map(o => {
     const itemData = masterResources.find(r => r.type === o.itemBought) || {};
     const timePerUnit = itemData?.totalnestedtime || itemData?.crafttime || 60;
@@ -200,11 +205,7 @@ OFFER DIFFICULTY: (a) Adjusted by season progression; current seasonLevel = ${se
 SUMMARY: Here are the offer details: ${detailedOfferExplanations}.
 REWARDS: [${rewardDescriptions}].`;
 
-  updateTrainLog(settlement._id, { logic: logicString }).catch(err => {
-    console.error(`❌ Error updating train log logic for settlement ${settlement.name}:`, err);
-  });
-
-  return offers;
+  return { offers, logicString };
 }
 
 // 🎲 Weighted random by inverse sqrt of totalnestedtime, adjusted by seasonLevel
@@ -255,11 +256,9 @@ function generateTrainRewards(settlement, seasonConfig, frontier) {
     rewards.push({ item, qty });
   }
 
-  updateTrainLog(settlement._id, { rewards }).catch(err => {
-    console.error(`❌ Error updating train log rewards for settlement ${settlement.name}:`, err);
-  });
+  const rewardDescriptions = rewards.map(r => `${r.qty} x ${r.item}`).join(", ");
 
-  return rewards;
+  return { rewards, rewardDescriptions };
 }
 
 // 📝 appendTrainLog creates a new log entry at the start of a train cycle (phase === "arriving").
@@ -276,6 +275,7 @@ async function appendTrainLog(settlement) {
     alloffersfilled: null,
     totalwinners: 0,
     rewards: [],
+    rewardDescriptions: "",
     logic: "",
     inprogress: true
   };
@@ -302,6 +302,9 @@ async function updateTrainLog(settlementId, updates) {
   }
   if (updates.rewards !== undefined) {
     latestLog.rewards = updates.rewards;
+  }
+  if (updates.rewardDescriptions !== undefined) {
+    latestLog.rewardDescriptions = updates.rewardDescriptions;
   }
 
   await settlement.save();
