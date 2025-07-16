@@ -180,7 +180,7 @@ function generateTrainOffersAndRewards(settlement, frontier, seasonConfig) {
     const qtyEffort = o.qtyBought * timePerUnit;
     const qtyGivenExpected = Math.floor(unitPrice * o.qtyBought);
     const qtyGivenDisplay = o.qtyGiven !== undefined ? o.qtyGiven : qtyGivenExpected;
-    return `${o.qtyBought} ${o.itemBought} @ ${timePerUnit}s each = ${qtyEffort}s effort; × ${unitPrice} price = ${qtyGivenDisplay} Money`;
+    return `${o.qtyBought} ${o.itemBought} @ ${timePerUnit}s ea = ${qtyEffort}s effort `;
   }).join(" | ");
 
   const rewardItems = seasonConfig.trainRewards || [];
@@ -197,16 +197,16 @@ function generateTrainOffersAndRewards(settlement, frontier, seasonConfig) {
 
   const logicString =
 `NUMBER OF OFFERS: ${offers?.length || 0}; determined by population (=${population}) @ 1 per 4 people (rounded up).
-OFFER SELECTION: Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in seasons tuning. 
-OFFER DIFFICULTY: (a) Adjusted by season progression; current seasonLevel = ${seasonLevel} of 6. Higher seasonLevel = likelihood of more complex crafts (longer totalnestedtime): weight = 1 / (craft time ^ (seasonLevel / 6)).
+🚂 OFFER SELECTION: Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in seasons tuning. 
+🚂 OFFER DIFFICULTY: (a) Adjusted by season progression; current seasonLevel = ${seasonLevel} of 6. Higher seasonLevel = likelihood of more complex crafts (longer totalnestedtime): weight = 1 / (craft time ^ (seasonLevel / 6)).
 (b) Total player effort capacity is calculated as: ${population} population × ${baseHours} hours/week × 3600s/hour = ${Math.floor(basePlayerEffortPerWeek)}s/player/week. 
 (c) Effort multiplier based on seasonLevel (${seasonLevel}), so total effort pool was ${Math.floor(totalEffort)}s.
 (d) Each offer targets approximately: ${Math.floor(totalEffort)}s / ${offers?.length || 0}. 
 (e) Items selected using the same seasonLevel-adjusted weighting. 
 (f) Money paid per offer is standard (item.maxprice × qty). 
-SUMMARY: Here are the offer details: ${detailedOfferExplanations}.
-Actual total effort = ${actualTotalEffort}s.
-REWARDS: [${rewardDescriptions}].`;
+🚂 FINAL OFFERS: ${detailedOfferExplanations}.
+🚂 FINAL TOTAL EFFORT: ${actualTotalEffort}s.
+🚂 REWARDS: [${rewardDescriptions}].`;
 
   return { offers, rewards, logicString };
 }
