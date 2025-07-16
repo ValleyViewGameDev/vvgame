@@ -7,7 +7,7 @@
   "seasonMoneyNerf": 0.9,
   "seasonMoneyNerfGold": 0.75,
   "tradeStallHaircut": 0.25,
-  "baseHoursForTrain": 2.5,
+  "baseHoursForTrain": 6,
   "taxes": {
     "phases": {
       "waiting": 1439.25,

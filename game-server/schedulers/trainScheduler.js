@@ -143,11 +143,12 @@ function generateTrainOffersAndRewards(settlement, frontier, seasonConfig) {
     };
   }
 
-  const baseHours = globalTuning.baseHoursForTrain || 2.5;
-  const basePlayerEffortPerWeek = baseHours * 60 * 60;
   const population = Math.max(1, settlement.population || 1);
+  const basePlayerHours = globalTuning.baseHoursForTrain || 6;
+  const basePlayerSeconds = basePlayerHours * 60 * 60;
   const difficultyMultiplier = seasonLevel;
   const totalEffort = Math.ceil(basePlayerEffortPerWeek * population * difficultyMultiplier);
+
   const totalOffers = Math.max(1, Math.ceil(population / 4));
   const targetEffortPerOffer = Math.floor(totalEffort / totalOffers);
 
@@ -176,10 +177,7 @@ function generateTrainOffersAndRewards(settlement, frontier, seasonConfig) {
   const detailedOfferExplanations = offers.map(o => {
     const itemData = masterResources.find(r => r.type === o.itemBought) || {};
     const timePerUnit = itemData?.totalnestedtime || itemData?.crafttime || 60;
-    const unitPrice = itemData?.maxprice || 100;
     const qtyEffort = o.qtyBought * timePerUnit;
-    const qtyGivenExpected = Math.floor(unitPrice * o.qtyBought);
-    const qtyGivenDisplay = o.qtyGiven !== undefined ? o.qtyGiven : qtyGivenExpected;
     return `${o.qtyBought} ${o.itemBought} @ ${timePerUnit}s ea = ${qtyEffort}s effort `;
   }).join(" | ");
 
@@ -199,9 +197,9 @@ function generateTrainOffersAndRewards(settlement, frontier, seasonConfig) {
 `NUMBER OF OFFERS: ${offers?.length || 0}; determined by population (=${population}) @ 1 per 4 people (rounded up).
 🚂 OFFER SELECTION: Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in seasons tuning. 
 🚂 OFFER DIFFICULTY: (a) Adjusted by season progression; current seasonLevel = ${seasonLevel} of 6. Higher seasonLevel = likelihood of more complex crafts (longer totalnestedtime): weight = 1 / (craft time ^ (seasonLevel / 6)).
-(b) Total player effort capacity is calculated as: ${population} population × ${baseHours} hours/week × 3600s/hour = ${Math.floor(basePlayerEffortPerWeek)}s/player/week. 
-(c) Effort multiplier based on seasonLevel (${seasonLevel}), so total effort pool was ${Math.floor(totalEffort)}s.
-(d) Each offer targets approximately: ${Math.floor(totalEffort)}s / ${offers?.length || 0}. 
+(b) Total player effort is calculated as: ${population} population × (${basePlayerHours} hours or ${Math.floor(basePlayerSeconds)} seconds). 
+(c) Total effort multiplied by seasonLevel (${seasonLevel}); final Total Effort pool = ${Math.floor(totalEffort)}s.
+(d) Each offer targets approximately: ${Math.floor(totalEffort)}s / ${offers?.length || 0} = ${targetEffortPerOffer}. 
 (e) Items selected using the same seasonLevel-adjusted weighting. 
 (f) Money paid per offer is standard (item.maxprice × qty). 
 🚂 FINAL OFFERS: ${detailedOfferExplanations}.
