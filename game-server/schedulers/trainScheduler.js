@@ -246,6 +246,9 @@ function consolidateRewards(rewardsArray) {
 // 📝 appendTrainLog creates a new log entry at the start of a train cycle (phase === "arriving").
 // It records minimal info with empty rewards and logic, and marks the log as "Next Train".
 async function appendTrainLog(settlement, logicString = "", rewards = []) {
+
+  console.log(`📝 Appending train log for settlement ${settlement.name} with logic:`, logicString);
+  
   const updatedSettlement = await Settlement.findById(settlement._id);
   if (!updatedSettlement.trainlog) updatedSettlement.trainlog = [];
 
