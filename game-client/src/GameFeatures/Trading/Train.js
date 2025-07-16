@@ -113,6 +113,7 @@ function TrainPanel({
           <thead>
             <tr>
               <th style={{ padding: "6px 12px" }}>Date</th>
+              <th style={{ padding: "6px 12px" }}>Status</th>
               <th style={{ padding: "6px 12px" }}>Offers Filled</th>
               <th style={{ padding: "6px 12px" }}>Total Winners</th>
               <th style={{ padding: "6px 12px" }}>Reward Summary</th>
@@ -123,6 +124,7 @@ function TrainPanel({
             {[...trainlog].reverse().map((entry, i) => (
               <tr key={i}>
                 <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.status || ''}</td>
                 <td style={{ padding: "6px 12px" }}>{entry.inprogress ? 'In progress' : entry.alloffersfilled ? '✅' : '❌'}</td>
                 <td style={{ padding: "6px 12px" }}>{entry.inprogress ? ' ' : entry.totalwinners}</td>
                 <td style={{ padding: "6px 12px" }}>{(entry.rewards || []).map(r => `${r.qty} ${r.item}`).join(', ')}</td>
