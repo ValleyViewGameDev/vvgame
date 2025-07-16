@@ -152,20 +152,66 @@ function generateTrainOffersAndRewards(settlement, frontier, seasonConfig) {
   const totalOffers = Math.max(1, Math.ceil(population / 4));
   const targetEffortPerOffer = Math.floor(totalEffort / totalOffers);
 
-  for (let i = 0; i < totalOffers; i++) {
-    const item = weightedRandomByCraftEffort(seasonResources, seasonLevel);
-    const timePerUnit = item.totalnestedtime || item.crafttime || 60;
-    const estimatedQty = Math.max(1, Math.round(targetEffortPerOffer / timePerUnit));
-    const qtyGiven = Math.floor((item.maxprice || 100) * estimatedQty);
+  const eligibleItems = seasonResources.filter(item => {
+    const time = item.totalnestedtime || item.crafttime || 60;
+    return time <= totalEffort;
+  });
 
-    offers.push({
-      itemBought: item.type,
-      qtyBought: estimatedQty,
-      itemGiven: "Money",
-      qtyGiven,
-      claimedBy: null,
-      filled: false
-    });
+  if (eligibleItems.length === 0) {
+    console.warn(`⚠️ No eligible seasonal resources under effort limit for ${settlement.name}. Using fallback resource.`);
+    return {
+      offers: [{
+        itemBought: "Wood",
+        qtyBought: 5,
+        itemGiven: "Money",
+        qtyGiven: 250,
+        claimedBy: null,
+        filled: false
+      }],
+      rewards: [],
+      rewardDescriptions: "",
+      logicString: "Fallback offer due to no eligible seasonal resources under effort limit."
+    };
+  }
+
+  for (let i = 0; i < totalOffers; i++) {
+    let bestMatch = null;
+    let closestEffortDiff = Infinity;
+
+    for (const item of eligibleItems) {
+      const timePerUnit = item.totalnestedtime || item.crafttime || 60;
+      const maxQty = Math.floor(targetEffortPerOffer / timePerUnit);
+      if (maxQty < 1) continue;
+
+      const totalEffort = maxQty * timePerUnit;
+      const effortDiff = targetEffortPerOffer - totalEffort;
+
+      if (effortDiff >= 0 && effortDiff < closestEffortDiff) {
+        bestMatch = {
+          itemBought: item.type,
+          qtyBought: maxQty,
+          itemGiven: "Money",
+          qtyGiven: Math.floor((item.maxprice || 100) * maxQty),
+          claimedBy: null,
+          filled: false
+        };
+        closestEffortDiff = effortDiff;
+      }
+    }
+
+    if (bestMatch) {
+      offers.push(bestMatch);
+    } else {
+      // fallback in case nothing fits
+      offers.push({
+        itemBought: "Wood",
+        qtyBought: 5,
+        itemGiven: "Money",
+        qtyGiven: 250,
+        claimedBy: null,
+        filled: false
+      });
+    }
   }
 
   const actualTotalEffort = offers.reduce((sum, o) => {
