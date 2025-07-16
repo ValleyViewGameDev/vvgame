@@ -27,9 +27,6 @@ async function trainScheduler(frontierId, phase, frontier = null) {
         try {
           console.log(`🚂 Arriving phase for settlement ${settlement.name}. Generating offer & rewards...`);
           
-          // First append the Next Train log entry
-          await appendTrainLog(settlement);
-
           const seasonConfig = seasonsConfig.find(s => s.seasonType === frontier.seasons?.seasonType);
           const { offers: newTrainOffers, rewards: newTrainRewards, logic: logicString } =
             generateTrainOffersAndRewards(settlement, frontier, seasonConfig);
@@ -46,6 +43,7 @@ async function trainScheduler(frontierId, phase, frontier = null) {
               filled: false
             });
           }
+          // Now update settlement's current/next offers & rewards
           const result = await Settlement.findOneAndUpdate(
             { _id: settlement._id },
             {
@@ -58,8 +56,8 @@ async function trainScheduler(frontierId, phase, frontier = null) {
             { new: true }
           );
 
-          // Update the Next Train log with logic string
-          await updateTrainLog(result._id, { logic: logicString, rewards: newTrainRewards });
+          // Append new log AFTER rewards and offers are finalized
+          await appendTrainLog(result, logicString, newTrainRewards);
 
           console.log(`  ✅ Updated settlement ${settlement.name}:`, {
             currentOffersCount: result.currentoffers?.length || 0,
@@ -247,29 +245,33 @@ function consolidateRewards(rewardsArray) {
 
 // 📝 appendTrainLog creates a new log entry at the start of a train cycle (phase === "arriving").
 // It records minimal info with empty rewards and logic, and marks the log as "Next Train".
-async function appendTrainLog(settlement) {
-  const existingNextTrain = settlement.trainlog?.find(log => log.status === "Next Train");
-  if (existingNextTrain) {
-    console.warn(`⚠️ Skipping log append: settlement ${settlement.name} already has a Next Train log.`);
-    return;
-  }
-  console.log(`📝 Appending Next Train log for settlement ${settlement.name}`);
+async function appendTrainLog(settlement, logic = "", rewards = []) {
+  const updatedSettlement = await Settlement.findById(settlement._id);
+  if (!updatedSettlement.trainlog) updatedSettlement.trainlog = [];
 
+  // 1. Promote existing "Next Train" log to "Current Train"
+  const existingNextTrain = updatedSettlement.trainlog.find(log => log.status === "Next Train");
+  if (existingNextTrain) {
+    existingNextTrain.status = "Current Train";
+    console.log(`🔁 Promoted previous Next Train log to Current Train for settlement ${settlement.name}`);
+  }
+
+  // 2. Create and append new "Next Train" log
   const logEntry = {
     date: new Date(),
     alloffersfilled: null,
     totalwinners: 0,
-    rewards: [],
-    logic: "",
+    rewards,
+    logic,
     status: "Next Train"
   };
-
-  const updatedSettlement = await Settlement.findById(settlement._id);
-  if (!updatedSettlement.trainlog) updatedSettlement.trainlog = [];
   updatedSettlement.trainlog.push(logEntry);
+
+  // 3. Trim logs to latest 8
   if (updatedSettlement.trainlog.length > 8) {
     updatedSettlement.trainlog = updatedSettlement.trainlog.slice(-8);
   }
+
   await updatedSettlement.save();
 }
 
@@ -307,12 +309,6 @@ async function finalizeTrainLog(settlementId, fulfilledPlayerIds) {
   currentLog.totalwinners = fulfilledPlayerIds.length;
   currentLog.status = "Departed Train";
 
-  // Promote the Next Train log to Current Train if it exists
-  const nextTrainLog = settlement.trainlog.find(log => log.status === "Next Train");
-  if (nextTrainLog) {
-    nextTrainLog.status = "Current Train";
-    console.log(`🔁 Promoted Next Train to Current Train for settlement ${settlement.name}`);
-  }
   await settlement.save();
 }
 
