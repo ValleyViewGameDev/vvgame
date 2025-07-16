@@ -206,7 +206,7 @@ OFFER DIFFICULTY: (a) Adjusted by season progression; current seasonLevel = ${se
 (e) Items selected using the same seasonLevel-adjusted weighting. 
 (f) Money paid per offer is standard (item.maxprice × qty). 
 SUMMARY: Here are the offer details: ${detailedOfferExplanations}.
-Actual total effort = ${actualTotalEffort}s
+Actual total effort = ${actualTotalEffort}s.
 REWARDS: [${rewardDescriptions}].`;
 
   return { offers, rewards, logicString, rewardDescriptions };
