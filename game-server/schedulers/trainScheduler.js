@@ -28,7 +28,7 @@ async function trainScheduler(frontierId, phase, frontier = null) {
           console.log(`🚂 Arriving phase for settlement ${settlement.name}. Generating offer & rewards...`);
           
           const seasonConfig = seasonsConfig.find(s => s.seasonType === frontier.seasons?.seasonType);
-          const { offers: newTrainOffers, rewards: newTrainRewards, logic: logicString } =
+         const { offers: newTrainOffers, rewards: newTrainRewards, logicString } =
             generateTrainOffersAndRewards(settlement, frontier, seasonConfig);
 
           // Fallback offer if generation failed
