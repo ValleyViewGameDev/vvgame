@@ -245,7 +245,7 @@ function consolidateRewards(rewardsArray) {
 
 // 📝 appendTrainLog creates a new log entry at the start of a train cycle (phase === "arriving").
 // It records minimal info with empty rewards and logic, and marks the log as "Next Train".
-async function appendTrainLog(settlement, logic = "", rewards = []) {
+async function appendTrainLog(settlement, logicString = "", rewards = []) {
   const updatedSettlement = await Settlement.findById(settlement._id);
   if (!updatedSettlement.trainlog) updatedSettlement.trainlog = [];
 
@@ -262,7 +262,7 @@ async function appendTrainLog(settlement, logic = "", rewards = []) {
     alloffersfilled: null,
     totalwinners: 0,
     rewards,
-    logic,
+    logic: logicString,
     status: "Next Train"
   };
   updatedSettlement.trainlog.push(logEntry);
@@ -275,22 +275,6 @@ async function appendTrainLog(settlement, logic = "", rewards = []) {
   await updatedSettlement.save();
 }
 
-// 📝 updateTrainLog updates the "Next Train" log entry with provided logic and/or rewards.
-
-async function updateTrainLog(settlementId, updates) {
-  const settlement = await Settlement.findById(settlementId);
-  if (!settlement || !settlement.trainlog) return;
-  const nextTrainLog = settlement.trainlog.find(log => log.status === "Next Train");
-  if (!nextTrainLog) return;
-
-  if (updates.logic !== undefined) {
-    nextTrainLog.logic = updates.logic;
-  }
-  if (updates.rewards !== undefined) {
-    nextTrainLog.rewards = updates.rewards;
-  }
-  await settlement.save();
-}
 
 // 📝 finalizeTrainLog finalizes the latest "Current Train" log entry.
 
