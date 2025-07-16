@@ -34,9 +34,6 @@ async function trainScheduler(frontierId, phase, frontier = null) {
           const { offers: newTrainOffers, rewards: newTrainRewards, logicString, rewardDescriptions } =
             generateTrainOffersAndRewards(settlement, frontier, seasonConfig);
 
-          // Update the Next Train log with logic and rewardDescriptions
-          await updateTrainLog(settlement._id, { logic: logicString, rewards: newTrainRewards, rewardDescriptions });
-
           // Fallback offer if generation failed
           if (!newTrainOffers || newTrainOffers.length === 0) {
             console.error(`❌ No train offers generated for ${settlement.name}. Using fallback offer.`);
@@ -60,6 +57,10 @@ async function trainScheduler(frontierId, phase, frontier = null) {
             },
             { new: true }
           );
+
+          // Update the Next Train log with logic and rewardDescriptions
+          await updateTrainLog(result._id, { logic: logicString, rewards: newTrainRewards, rewardDescriptions });
+
           console.log(`  ✅ Updated settlement ${settlement.name}:`, {
             currentOffersCount: result.currentoffers?.length || 0,
             nextOffersCount: result.nextoffers?.length || 0,
