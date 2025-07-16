@@ -28,10 +28,10 @@ async function trainScheduler(frontierId, phase, frontier = null) {
           console.log(`🚂 Arriving phase for settlement ${settlement.name}. Generating offer & rewards...`);
           
           // First append the Next Train log entry
-          await appendTrainLog(settlement, [], [], "", "");
+          await appendTrainLog(settlement);
 
           const seasonConfig = seasonsConfig.find(s => s.seasonType === frontier.seasons?.seasonType);
-          const { offers: newTrainOffers, rewards: newTrainRewards, logicString, rewardDescriptions } =
+          const { offers: newTrainOffers, rewards: newTrainRewards, logic: logicString } =
             generateTrainOffersAndRewards(settlement, frontier, seasonConfig);
 
           // Fallback offer if generation failed
@@ -58,8 +58,8 @@ async function trainScheduler(frontierId, phase, frontier = null) {
             { new: true }
           );
 
-          // Update the Next Train log with logic and rewardDescriptions
-          await updateTrainLog(result._id, { logic: logicString, rewards: newTrainRewards, rewardDescriptions });
+          // Update the Next Train log with logic string
+          await updateTrainLog(result._id, { logic: logicString, rewards: newTrainRewards });
 
           console.log(`  ✅ Updated settlement ${settlement.name}:`, {
             currentOffersCount: result.currentoffers?.length || 0,
@@ -210,7 +210,7 @@ SUMMARY: Here are the offer details: ${detailedOfferExplanations}.
 Actual total effort = ${actualTotalEffort}s.
 REWARDS: [${rewardDescriptions}].`;
 
-  return { offers, rewards, logicString, rewardDescriptions };
+  return { offers, rewards, logicString };
 }
 
 // 🎲 Weighted random by inverse sqrt of totalnestedtime, adjusted by seasonLevel
@@ -247,20 +247,20 @@ function consolidateRewards(rewardsArray) {
 
 // 📝 appendTrainLog creates a new log entry at the start of a train cycle (phase === "arriving").
 // It records minimal info with empty rewards and logic, and marks the log as "Next Train".
-async function appendTrainLog(settlement, offers, rewards, logicString, rewardDescriptions) {
+async function appendTrainLog(settlement) {
   const existingNextTrain = settlement.trainlog?.find(log => log.status === "Next Train");
   if (existingNextTrain) {
     console.warn(`⚠️ Skipping log append: settlement ${settlement.name} already has a Next Train log.`);
     return;
   }
+  console.log(`📝 Appending Next Train log for settlement ${settlement.name}`);
 
   const logEntry = {
     date: new Date(),
     alloffersfilled: null,
     totalwinners: 0,
-    rewards: rewards || [],
-    rewardDescriptions: rewardDescriptions || "",
-    logic: logicString || "",
+    rewards: [],
+    logic: "",
     status: "Next Train"
   };
 
@@ -287,21 +287,18 @@ async function updateTrainLog(settlementId, updates) {
   if (updates.rewards !== undefined) {
     nextTrainLog.rewards = updates.rewards;
   }
-  if (updates.rewardDescriptions !== undefined) {
-    nextTrainLog.rewardDescriptions = updates.rewardDescriptions;
-  }
-
   await settlement.save();
 }
 
 // 📝 finalizeTrainLog finalizes the latest "Current Train" log entry.
 
 async function finalizeTrainLog(settlementId, fulfilledPlayerIds) {
+  console.log(`📝 Finalizing train log for settlement ${settlementId} with fulfilled players:`, fulfilledPlayerIds);
   const settlement = await Settlement.findById(settlementId);
   if (!settlement || !settlement.trainlog) return;
   const currentLog = settlement.trainlog.find(log => log.status === "Current Train");
 
-  if (!currentLog) return;
+  if (!currentLog) { console.warn(`⚠️ No Current Train log found for settlement ${settlement.name}`); return; }
 
   const currentOffers = settlement.currentoffers || [];
   const allOffersFilled = currentOffers.every(o => o.filled);
@@ -314,8 +311,8 @@ async function finalizeTrainLog(settlementId, fulfilledPlayerIds) {
   const nextTrainLog = settlement.trainlog.find(log => log.status === "Next Train");
   if (nextTrainLog) {
     nextTrainLog.status = "Current Train";
+    console.log(`🔁 Promoted Next Train to Current Train for settlement ${settlement.name}`);
   }
-
   await settlement.save();
 }
 
