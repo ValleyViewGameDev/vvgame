@@ -147,7 +147,7 @@ function generateTrainOffersAndRewards(settlement, frontier, seasonConfig) {
   const basePlayerHours = globalTuning.baseHoursForTrain || 6;
   const basePlayerSeconds = basePlayerHours * 60 * 60;
   const difficultyMultiplier = seasonLevel;
-  const totalEffort = Math.ceil(basePlayerEffortPerWeek * population * difficultyMultiplier);
+  const totalEffort = Math.ceil(basePlayerSeconds * population * difficultyMultiplier);
 
   const totalOffers = Math.max(1, Math.ceil(population / 4));
   const targetEffortPerOffer = Math.floor(totalEffort / totalOffers);
