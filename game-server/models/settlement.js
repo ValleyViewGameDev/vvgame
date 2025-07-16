@@ -86,7 +86,7 @@ const SettlementSchema = new mongoose.Schema({
       seasonlevel: { type: Number, required: true },
       offers: [
         {
-          offer: { type: String, required: true },  // ✅ FIXED
+          offer: { type: String, required: true },  
           qty: { type: String, required: true },
         }
       ]
@@ -95,7 +95,7 @@ const SettlementSchema = new mongoose.Schema({
   trainlog: [
     {
       date: { type: Date, required: true },
-      inprogress: { type: Boolean, default: true },
+      status: { type: String, required: true },
       alloffersfilled: { type: Boolean, default: false },
       totalwinners: { type: Number, required: true },
       rewards: [
