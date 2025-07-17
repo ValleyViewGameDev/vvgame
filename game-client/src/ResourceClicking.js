@@ -154,7 +154,7 @@ import { useStrings } from './UI/StringsContext';
 
 // HANDLE DOOBER CLICKS //
 //
-async function handleDooberClick(
+export async function handleDooberClick(
   resource,
   row,
   col,

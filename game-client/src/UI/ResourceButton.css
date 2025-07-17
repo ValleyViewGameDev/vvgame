@@ -59,6 +59,13 @@
   color: white;
 }
 
+/* ✅ Special styling for bulk skills (light purple) */
+.resource-button.bulk-skill {
+  background-color: #e6ccff; /* Light purple */
+  border: 1px solid #b499d4;
+  color: #333;
+}
+
 
 /* Title styling for all buttons */
 .resource-title {

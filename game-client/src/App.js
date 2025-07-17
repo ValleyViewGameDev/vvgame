@@ -11,6 +11,7 @@ import { RenderGrid } from './Render/Render';
 import DynamicRenderer from './Render/RenderDynamic.js';
 import { handleResourceClick } from './ResourceClicking';
 import { isMobile } from './Utils/appUtils';
+import { useUILock } from './UI/UILockContext';
 
 import socket from './socketManager';
 import {
@@ -94,6 +95,8 @@ import { handlePlayerDeath } from './Utils/playerManagement';
 
 function App() {
   const strings = useStrings();
+  const { uiLocked } = useUILock();
+  const [isDeveloper, setIsDeveloper] = useState(false);
   const { activeModal, setActiveModal, openModal, closeModal } = useModalContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
@@ -116,7 +119,6 @@ function App() {
     }
   }, []);
   const openMailbox = () => openModal && openModal('Mailbox');
-  const [isDeveloper, setIsDeveloper] = useState(false);
 
   // Store purchase fulfillment effect
   useEffect(() => {
@@ -1945,6 +1947,7 @@ return (
           setBackpack={setBackpack}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
+          resources={resources}
           setResources={setResources}
           stationType={activeStation?.type} 
           currentStationPosition={activeStation?.position} 
@@ -1952,6 +1955,7 @@ return (
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}
+          masterSkills={masterSkills}
         />
       )}
       {activePanel === 'FarmingPanel' && (
@@ -2111,6 +2115,19 @@ return (
         />
       )}
       </div>
+
+      {uiLocked && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            backgroundColor: 'rgba(0,0,0,0.0)', // transparent blocker
+            cursor: 'wait',
+          }}
+        />
+      )}
+
     </>
   );
 }

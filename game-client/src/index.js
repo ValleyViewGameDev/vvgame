@@ -8,6 +8,7 @@ import { PanelProvider } from './UI/PanelContext';
 import { GridStateProvider } from './GridState/GridStateContext';
 import { GridStatePCProvider } from './GridState/GridStatePCContext';
 import { ModalProvider } from './UI/ModalContext';
+import { UILockProvider } from './UI/UILockContext';
 
 const savedPlayer = localStorage.getItem('player');
 const savedLanguage = savedPlayer ? JSON.parse(savedPlayer)?.language : 'en';
@@ -15,19 +16,21 @@ const savedLanguage = savedPlayer ? JSON.parse(savedPlayer)?.language : 'en';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <StringsProvider language={savedLanguage}>
-      <GridStateProvider>
-        <GridStatePCProvider>
-          <StatusBarProvider>
-            <PanelProvider>
-              <ModalProvider>
-                <App />
-              </ModalProvider>
-            </PanelProvider>
-          </StatusBarProvider>
-        </GridStatePCProvider>
-      </GridStateProvider>
-    </StringsProvider>
+    <UILockProvider>
+      <StringsProvider language={savedLanguage}>
+        <GridStateProvider>
+          <GridStatePCProvider>
+            <StatusBarProvider>
+              <PanelProvider>
+                <ModalProvider>
+                  <App />
+                </ModalProvider>
+              </PanelProvider>
+            </StatusBarProvider>
+          </GridStatePCProvider>
+        </GridStateProvider>
+      </StringsProvider>
+    </UILockProvider>
   </React.StrictMode>
 );
 

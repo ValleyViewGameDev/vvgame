@@ -1,10 +1,9 @@
 import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
-import { StatusBarContext } from '../../UI/StatusBar';
+import { useUILock } from '../../UI/UILockContext';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/ResourceButton';
-import { usePanelContext } from '../../UI/PanelContext';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
@@ -32,6 +31,7 @@ const FarmingPanel = ({
   updateStatus,
 }) => {
 
+  const { setUILocked } = useUILock();
   const strings = useStrings();
   const [farmPlots, setFarmPlots] = useState([]);
   const [allResources, setAllResources] = useState([]);
@@ -64,43 +64,51 @@ const FarmingPanel = ({
   };
 
 
-// Wrap for Terraform Actions
-const handleTerraformWithCooldown = async (actionType) => {
-  if (isActionCoolingDown) return;
-  setIsActionCoolingDown(true);
-  setTimeout(() => setIsActionCoolingDown(false), COOLDOWN_DURATION);
+  // Wrap for Terraform Actions
+  const handleTerraformWithCooldown = async (actionType) => {
+    if (isActionCoolingDown) return;
+    setIsActionCoolingDown(true);
+    setUILocked(true);
+    setTimeout(() => {
+      setIsActionCoolingDown(false);
+      setUILocked(false);
+    }, COOLDOWN_DURATION);
 
-  await handleTerraform({
-    actionType,
-    gridId,
-    currentPlayer,
-    setTileTypes,
-  });
-};
+    await handleTerraform({
+      actionType,
+      gridId,
+      currentPlayer,
+      setTileTypes,
+    });
+  };
 
-// Wrap for Farm Plot Placement
-const handleFarmPlacementWithCooldown = async (item) => {
-  if (isActionCoolingDown) return;
-  setIsActionCoolingDown(true);
-  setTimeout(() => setIsActionCoolingDown(false), COOLDOWN_DURATION);
+  // Wrap for Farm Plot Placement
+  const handleFarmPlacementWithCooldown = async (item) => {
+    if (isActionCoolingDown) return;
+    setIsActionCoolingDown(true);
+    setUILocked(true);
+    setTimeout(() => {
+      setIsActionCoolingDown(false);
+      setUILocked(false);
+    }, COOLDOWN_DURATION);
 
-  await handleFarmPlotPlacement({
-    selectedItem: item,
-    TILE_SIZE,
-    resources,
-    setResources,
-    currentPlayer,
-    setCurrentPlayer,
-    inventory,
-    setInventory,
-    backpack,
-    setBackpack,
-    gridId,
-    masterResources,
-    masterSkills,
-    updateStatus,
-  });
-};
+    await handleFarmPlotPlacement({
+      selectedItem: item,
+      TILE_SIZE,
+      resources,
+      setResources,
+      currentPlayer,
+      setCurrentPlayer,
+      inventory,
+      setInventory,
+      backpack,
+      setBackpack,
+      gridId,
+      masterResources,
+      masterSkills,
+      updateStatus,
+    });
+  };
 
 
   return (
