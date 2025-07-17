@@ -54,24 +54,32 @@ const FarmHandPanel = ({
 
   useEffect(() => {
     try {
-      const filteredRecipes = masterResources.filter((resource) => resource.source === stationType);
+      const farmOutputs = masterResources
+        .filter((res) => res.category === 'farmplot')
+        .map((res) => res.output)
+        .filter(Boolean);
+
+      const filteredRecipes = masterResources.filter((res) => farmOutputs.includes(res.type));
       setRecipes(filteredRecipes);
 
-      const stationResource = masterResources.find((resource) => resource.type === stationType);
+      const stationResource = masterResources.find((res) => res.type === stationType);
       setStationEmoji(stationResource?.symbol || '🛖');
       setStationDetails(stationResource);
     } catch (error) {
-      console.error('Error loading resources:', error);
+      console.error('Error loading farmhand offers:', error);
     }
   }, [stationType, masterResources]);
 
 
-  const handleTrade = async (recipe) => {
+  const handleTrade = async (resource) => {
     setErrorMessage('');
-    if (!recipe) {
-      setErrorMessage('Invalid recipe selected.');
-      return;
-    }
+    const cost = (resource.maxprice || 100) * 10;
+
+    const recipe = {
+      ingredient1: 'Money',
+      ingredient1qty: cost,
+      type: resource.type,
+    };
 
     const safeInventory = Array.isArray(inventory) ? inventory : [];
     const safeBackpack = Array.isArray(backpack) ? backpack : [];
@@ -88,14 +96,14 @@ const FarmHandPanel = ({
     });
 
     if (!spent) {
-      setErrorMessage('Not enough ingredients.');
+      setErrorMessage('Not enough money.');
       return;
     }
 
     const gained = await gainIngredients({
       playerId: currentPlayer.playerId,
       currentPlayer,
-      resource: recipe.type,
+      resource: resource.type,
       quantity: 1,
       inventory: safeInventory,
       backpack: safeBackpack,
@@ -111,55 +119,42 @@ const FarmHandPanel = ({
       return;
     }
 
-    await trackQuestProgress(currentPlayer, 'Collect', recipe.type, 1, setCurrentPlayer);
-
-    updateStatus(`✅ Exchanged ${recipe.ingredient1qty || 1} ${recipe.ingredient1} for 1 ${recipe.type}.`);
+    updateStatus(`✅ Bought 1 ${resource.type} for ${cost} Money.`);
   };
 
   return (
     <Panel onClose={onClose} descriptionKey="1029" titleKey="1129" panelName="FarmHandPanel">
       <div className="standard-panel">
         <h2> {stationEmoji} {stationType} </h2>
-        <h3>{strings[420]}</h3>
+
+
+
+        <h3>{strings[426]}</h3>
         
           {recipes?.length > 0 ? (
-            recipes.map((recipe) => {
-              const affordable = canAfford(recipe, inventory, backpack, 1);
-              const meetsRequirement = recipe.requires ? (currentPlayer?.skills?.includes(recipe.requires) || false) : true;
- 
+            recipes.map((resource) => {
+              const cost = (resource.maxprice || 100) * 10;
+              const playerMoney = (inventory.find((item) => item.type === 'Money')?.quantity || 0) +
+                                  (backpack.find((item) => item.type === 'Money')?.quantity || 0);
+              const affordable = playerMoney >= cost;
 
-              const formattedCosts = [1, 2, 3, 4].map((i) => {
-                const type = recipe[`ingredient${i}`];
-                const qty = recipe[`ingredient${i}qty`];
-                if (!type || !qty) return '';
-                const playerQty = (inventory.find((item) => item.type === type)?.quantity || 0) +
-                                  (backpack.find((item) => item.type === type)?.quantity || 0);
-                const color = playerQty >= qty ? 'green' : 'red';
-                const symbol = masterResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
-              }).join('');
-
-              const skillColor = meetsRequirement ? 'green' : 'red';
-              const skillReq = recipe.requires ? `<br><span style="color: ${skillColor};">Requires: ${recipe.requires}</span>` : '';
-
-              const details = `For:<div>${formattedCosts}</div>${skillReq}`;
+              const details = `Buy 1 for: 💰 ${cost}`;
 
               const info = (
                 <div className="info-content">
-                  <div><strong>{strings[422]}</strong> 💰 {recipe.minprice || 'n/a'}</div>
+                  <div><strong>{strings[422]}</strong> 💰 {cost}</div>
                 </div>
               );
 
               return (
                 <ResourceButton
-                  key={recipe.type}
-                  symbol={recipe.symbol}
-                  name={recipe.type}
+                  key={resource.type}
+                  symbol={resource.symbol}
+                  name={resource.type}
                   className="resource-button"
                   details={details}
-                  info={info}
-                  disabled={!affordable || !meetsRequirement}
-                  onClick={() => handleTrade(recipe)}
+                  disabled={!affordable}
+                  onClick={() => handleTrade(resource)}
                 />
               );
             })
