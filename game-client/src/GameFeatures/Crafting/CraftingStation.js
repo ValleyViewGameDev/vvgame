@@ -432,7 +432,7 @@ const CraftingStation = ({
                   name={recipe.type}
                   className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''}`}
                   details={
-                    `Costs:<div>${formattedCosts}</div>` +
+                    (isReadyToCollect ? '' : `Costs:<div>${formattedCosts}</div>`) +
                     (recipe.requires ? `<br>Requires: ${recipe.requires}` : '') +
                     `<br>${craftTimeText}`
                   }
