@@ -1,12 +1,12 @@
 [							
 {							
 "id":		1		,			
-"title":"Gold Account",			
-"body":"Unlock a set of premium avatars, gain near unlimited warehouse & backpack space, and receive extra bonuses for your Gold Account status, including a reduced tax rate, and more.",			
+"title":"Gold Pass (lasts to the end of the season)",			
+"body":"Unlock a set of premium avatars, gain near unlimited warehouse & backpack space, and receive extra bonuses for your Gold Pass status, including a reduced tax rate, and more. The pass expires with the changing of seasons.",			
 "price":		10.00		,			
 "priceInCents":		1000		,			
 "rewards": [							
-{ "item": "Gold Account","qty":	1	}
+{ "item": "Gold Pass","qty":	1	}
 ]							
 },
 					

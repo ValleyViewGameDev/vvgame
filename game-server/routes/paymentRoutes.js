@@ -71,7 +71,7 @@ router.post('/purchase-store-offer', async (req, res) => {
       }
     }
 
-    // 🎖️ Special case: Gold Account upgrade
+    // 🎖️ Special case: Gold Pass upgrade
     if (String(offerId) === "1") {
       player.accountStatus = "Gold";
       await player.save();

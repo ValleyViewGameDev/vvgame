@@ -135,9 +135,9 @@ function App() {
       }).then(() => {
         console.log("📬 Purchase reward sent successfully.");
 
-        /// If Gold Account was purchased, show modal and panel
+        /// If Gold Pass was purchased, show modal and panel
         if (String(offerId) === "1") {
-          updateStatus && updateStatus("🎉 Congratulations on purchasing a Gold Account!");
+          updateStatus && updateStatus("🎉 Congratulations on purchasing a Gold Pass!");
           // Re-fetch player to get updated accountStatus
           axios.get(`${API_BASE}/api/player/${playerId}`).then((playerResponse) => {            
           openPanel('GoldBenefitsPanel');

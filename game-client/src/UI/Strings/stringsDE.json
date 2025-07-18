@@ -163,7 +163,7 @@
     "1024": "[Combat description]",
     "1025": "[Shop description]",
     "1026": "[Money panel description]",
-    "1027": "These are the benefits of a Gold Account.",
+    "1027": "These are the benefits of a Gold Pass.",
     "1028": " ",
 
     "1101": "Inventory",
@@ -192,7 +192,7 @@
     "1124": "⚔️ Combat",
     "1125": "🛒 Shop",
     "1126": "💰 About Money",
-    "1127": "⭐️ Gold Account",
+    "1127": "⭐️ Gold Pass",
     "1128": "🪑 Decorations",
 
     "1200": "TRADER STORY STRINGS",
@@ -415,7 +415,7 @@
     "5052": "Close this dialog to cancel.",
 
     "5060": "⭐️ Congratulations!",
-    "5061": "You now have a Gold Account. Go to your Profile panel to customize your player icon, and discover other Gold benefits.",
+    "5061": "You now have a Gold Pass. Go to your Profile panel to customize your player icon, and discover other Gold benefits.",
     "5062": "Thank you for your support!",
 
     "5100": "Recent Tax Collections",
@@ -454,8 +454,8 @@
     "9027": "In TOWN you will disocver more Shops and Traders.",
 
     "9050": "Benefits",
-    "9051": "A Gold Account is a monthly subscription that gives you access to premium features and benefits in Valley View.",
-    "9052": "With a Gold Account, you can enjoy the following benefits:",
+    "9051": "A Gold Pass is a monthly subscription that gives you access to premium features and benefits in Valley View.",
+    "9052": "With a Gold Pass, you can enjoy the following benefits:",
     "9053": "✅ Premium avatars: 🐱🤡👽🤖💩👾",
     "9054": "✅ Near unlimited Warehouse capacity",
     "9055": "✅ Near unlimited Backpack capacity",
@@ -463,8 +463,8 @@
     "9057": "✅ Lower Tax rate",
     "9058": "✅ Half your MaxHP restored on death",
     "9059": "✅ You can run for office",
-    "9060": "Thank you for your Gold Account purchase.",
-    "9061": "Purchase a Gold Account",
+    "9060": "Thank you for your Gold Pass purchase.",
+    "9061": "Purchase a Gold Pass",
 
     "10000": "🔌 Server is Down",
     "10001": "The server is currently down. We apologize for the inconvencient, please check back soon.",
@@ -491,7 +491,7 @@
     "10105": "📨, Inbox",
     "10106": "📢 Share",
     "10107": "💬 Chat",
-    "10108": "You Have a Gold Account",
+    "10108": "You Have a Gold Pass",
     "10109": "↔️ Move Keys: ",
     "10110": "🕹️ How to Play",
     "10111": "You are the Mayor",
@@ -514,8 +514,8 @@
     "10128": "Save Changes",
     "10129": "",
   
-    "10130": "You Have a Gold Account",
-    "10131": "Gold Account Benefits",
+    "10130": "You Have a Gold Pass",
+    "10131": "Gold Pass Benefits",
 
     "10132": "Cancel Relocation",
     "10133": "Relocate Homestead"
