@@ -390,6 +390,7 @@ body {
   position: fixed;
   min-width: 50px;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
+  font-family: 'Arial', sans-serif;
 }
 
 
