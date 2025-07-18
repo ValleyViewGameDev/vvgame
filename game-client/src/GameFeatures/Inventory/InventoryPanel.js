@@ -159,7 +159,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
 
             <hr className="inventory-divider" />
 
-            <h3>🏚️ Warehouse</h3>
+            <h3>📦 Warehouse</h3>
             <div className="capacity-display">Capacity: {calculateTotalQuantity(inventory)}/{finalCapacities.warehouse}</div>
 
             <div className="inventory-table">

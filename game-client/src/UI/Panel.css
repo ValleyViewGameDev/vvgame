@@ -43,7 +43,7 @@
 /* Panel Title */
 .panel-title {
   font-family: 'Chewy', serif;
-  font-size: 24px;
+  font-size: 22px;
   color: rgb(154, 106, 22);
   margin: 0;
   padding: 0;
@@ -62,11 +62,21 @@
 .panel-content h1 {
   margin-top: 0px; /* Reduce space above */
   margin-bottom: 2px; /* Reduce space below */
+  color:rgb(58, 58, 58);
 }
-.panel-content h2,
-.panel-content h3 {
+.panel-content h2 {
+  font-family: 'Chewy', serif;
   margin-top: 4px; /* Reduce space above */
   margin-bottom: 4px; /* Reduce space below */
+  font-size: 20px;
+  color:rgb(58, 58, 58);
+}
+.panel-content h3 {
+  font-family: 'Chewy', serif;
+  margin-top: 4px; /* Reduce space above */
+  margin-bottom: 4px; /* Reduce space below */
+  font-size: 16px;
+  color:rgb(58, 58, 58);
 }
 
   
