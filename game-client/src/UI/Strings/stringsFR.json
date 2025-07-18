@@ -82,7 +82,6 @@
     "203": "Aucune quête active pour le moment.",
     "204": "propose ces quêtes :",
     "205": "n'a aucune quête pour vous pour le moment.",
-    "206": "Revenez pour récupérer votre récompense.",
     "207": "En cours",
     "208": "Obtenir la récompense",
     "209": "Accepter la quête",
@@ -145,7 +144,6 @@
     "1005": "Acquérez des compétences et améliorations pour améliorer vos attributs. Explorez la ville pour découvrir d'autres moyens d'en obtenir.",
     "1006": "Gérez toutes vos quêtes en cours ici. Cherchez des donneurs de quêtes sur votre domaine, en ville, ou même dans la vallée.",
     "1007": "Les gouvernements à Valley View se forment au niveau des colonies. Le maire élu met en place des politiques et construit des bâtiments pour aider la communauté à prospérer.",
-    "1008": "Étal commercial : Vendez vos ressources à d'autres joueurs ou achetez des objets sur leurs étals. Utilisez les flèches pour naviguer entre les étals de votre colonie. Si personne n'achète vos objets, vous pouvez toujours les vendre au jeu pour 25% de leur valeur.",
     "1009": "[Crafting description]",
     "1010": "[Mailbox description]",
     "1011": "Cet enclos est vide. Assurez-vous que les animaux ont de l'herbe à manger, ils viendront alors à l'enclos pour être récoltés.",
@@ -186,7 +184,7 @@
     "1118": "🕹️ How to Play",
     "1119": "😀 Profile",
     "1120": "🐞 Debug",
-    "1121": "😀 Welcome to Valley View™",
+    "1121": "😀 Welcome",
     "1122": "🚂 Train",
     "1123": "🧑🏼‍🌾 Farm Hands",
     "1124": "⚔️ Combat",
@@ -341,7 +339,7 @@
     
     "4000": "LOGIN PANEL:",
 
-    "4001": "Vous n'avez pas encore de compte ? Créez-en un gratuitement pour commencer à jouer :",
+    "4001": "Bienvenue à Valley View ! Vous n'avez pas encore de compte ? Créez-en un gratuitement pour commencer à jouer :",
     "4002": "Créer un compte",
     "4003": "Nom d'utilisateur",
     "4004": "Aucune adresse e-mail ne vous sera demandée.",
@@ -511,12 +509,41 @@
     "10126": "Présents :",
     "10127": "Aucun joueur présent sur cette grille.",
     "10128": "Enregistrer les modifications",
-
     "10130": "Vous avez un compte Or",
     "10131": "Avantages du compte Or",
-
     "10132": "Annuler le déménagement",
-    "10133": "Déménager le domaine"
+    "10133": "Déménager le domaine",
+
+  "11001": "Attendez la fin du minuteur ou qu’un autre joueur achète cet objet.",
+  "206": "Retournez voir le PNJ qui vous a donné cette quête pour recevoir votre récompense.",
+  "155": "Transaction échouée. Cet objet a déjà été vendu.",
+  "1008": "Étal d’échange : vendez vos ressources à d’autres joueurs ou achetez des objets dans leurs étals. Utilisez les flèches pour naviguer entre les étals de votre colonie. Si aucun joueur n’achète vos objets avant la fin du minuteur, vous pouvez les vendre au jeu pour une fraction de leur valeur de base.",
+  "2014": "Vous ne pouvez accepter qu’une offre de train à la fois.",
+  "2015": "Afficher le journal du train",
+  "2016": "✅ Toutes les commandes ont été complétées ! Les récompenses ont été envoyées par courrier.",
+  "426": "Cultures de départ coûteuses, mais utiles si vous êtes à court :",
+  "427": "Achetez la compétence de Récolte groupée du Fermier pour récolter toutes les cultures en une seule fois.",
+  "428": "Cliquez pour récolter instantanément toutes les cultures.",
+  "429": "Vous n’avez aucune culture à récolter.",
+  "430": "Compétences du Fermier :",
+  "431": "Achetez la compétence de Collecte animale groupée du Fermier pour collecter tous les animaux d’un coup.",
+  "432": "Achetez la compétence de Bûcheronnage du Fermier pour couper plusieurs arbres à la fois et récolter le bois.",
+  "433": "Achetez Amélioration du bûcheronnage pour augmenter le nombre d’arbres coupés en une fois.",
+  "434": "Cliquez pour collecter instantanément tous les animaux.",
+  "435": "Cliquez pour couper instantanément plusieurs arbres et récolter du bois.",
+  "436": "Vous n’avez aucun animal à collecter.",
+  "437": "Vous n’avez aucun arbre à couper.",
+
+  "12001": "Agriculture",
+  "12002": "Construction",
+  "12003": "Acheter des animaux et des décorations",
+  "12004": "Quêtes actives",
+  "12005": "Compétences",
+  "12006": "Combat",
+  "12007": "Gouvernement",
+  "12008": "Saisons",
+  "12009": "Accueil",
+  "12010": "Profil"
 
   }
 
