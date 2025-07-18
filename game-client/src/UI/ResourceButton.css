@@ -69,9 +69,11 @@
 
 /* Title styling for all buttons */
 .resource-title {
-  font-weight: bold;
+  font-family: 'Chewy', serif;
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.2rem;
+  color: #424242;
+
 }
 
 /* Details or subtitle styling */

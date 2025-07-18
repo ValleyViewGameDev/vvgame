@@ -1,14 +1,13 @@
 .craft-notification {
   font-size: 12px !important; /* ✅ Force override */
   text-shadow: 0.5px 0.5px 4px rgba(0, 0, 0, 0.3); /* ✅ Softer, smaller shadow */
-
 }
 
 /* Ensure the body and root elements are styled correctly */
 body {
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Chewy', serif;
   background-color: #f5f5f5;
 }
 
@@ -75,7 +74,7 @@ body {
 .base-panel h1 {
   margin: 0;
   padding: 0;
-  font-size: 1.5em;
+  font-size: 1.9em;
   color: white;
   text-align: left;
 }

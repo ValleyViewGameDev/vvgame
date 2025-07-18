@@ -12,6 +12,7 @@
    
   .status-bar {
     position: fixed;
+    font-family: Arial, Helvetica, sans-serif;
     top: 60px; /* Positioned under header */
     left: 260px; /* Start after the base panel */
     height: 16px;

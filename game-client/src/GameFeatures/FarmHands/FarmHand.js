@@ -459,9 +459,8 @@ const FarmHandPanel = ({
   };
 
   return (
-    <Panel onClose={onClose} descriptionKey="1029" titleKey="1129" panelName="FarmHandPanel">
+    <Panel onClose={onClose} descriptionKey="1023" titleKey="1123" panelName="FarmHandPanel">
       <div className="standard-panel">
-        <h2> {stationEmoji} {stationType} </h2>
 
         {skills?.some(item => item.type === 'Bulk Harvest') && (
           <div>

@@ -12,6 +12,7 @@
 /* Each message row */
 .mailbox-message {
   display: flex;
+  font-family: 'Arial', sans-serif;
   justify-content: space-between;
   align-items: center;
   background: #f4f4f4;

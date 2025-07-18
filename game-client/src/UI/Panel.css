@@ -28,6 +28,7 @@
 /* Fixed Panel Header (Title + Close Button) */
 .panel-header {
   position: sticky;
+  font-family: 'Chewy', serif;
   top: 0;
   background-color: rgb(255, 251, 179);
   padding: 5px;
@@ -41,9 +42,9 @@
 
 /* Panel Title */
 .panel-title {
-  font: 'Roboto';
-  font-size: 16px;
-  font-weight: bold;
+  font-family: 'Chewy', serif;
+  font-size: 24px;
+  color: rgb(154, 106, 22);
   margin: 0;
   padding: 0;
   flex-grow: 1; /* Allows title to expand while keeping the close button aligned */
