@@ -184,7 +184,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                 return (
                     <div className="inventory-modal">
                         <button className="close-button" onClick={() => setShowBackpackModal(false)}>✖</button>
-                        <h3>{isAtHome ? 'Add Items to Warehouse' : 'Discard Items'}</h3>
+                        <h2>{isAtHome ? 'Add Items to Warehouse' : 'Discard Items'}</h2>
 
                         <table>
                             <thead>

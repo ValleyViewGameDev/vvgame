@@ -1483,7 +1483,7 @@ return (
 
       {/* Add Role display if player has one */}
       {currentPlayer?.role === "Mayor" && (
-        <> <h3 className="player-role"> {strings[10111]} </h3>
+        <> <h2 className="player-role"> {strings[10111]} </h2>
           <br />
         </>
       )}
@@ -1506,14 +1506,14 @@ return (
       )}
       <br />
       
-      <h3>{strings[10116]}
+      <h2>{strings[10116]}
         <span 
           onClick={() => setShowTimers(!showTimers)} 
           style={{ cursor: "pointer", fontSize: "16px", marginLeft: "5px" }}
         >
           {showTimers ? "▼" : "▶"}
         </span>
-      </h3>
+      </h2>
 
       {showTimers && (
         <div className="timers-panel">
