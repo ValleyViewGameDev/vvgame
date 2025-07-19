@@ -1,0 +1,24 @@
+{
+  "name": "vvgame",
+  "version": "1.0.0",
+  "main": "testFileUtils.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jkisherenow/vvgame.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jkisherenow/vvgame/issues"
+  },
+  "homepage": "https://github.com/jkisherenow/vvgame#readme",
+  "description": "",
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "openai": "^5.10.1"
+  }
+}

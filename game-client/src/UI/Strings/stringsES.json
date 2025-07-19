@@ -74,7 +74,7 @@
     "152": "You do not have enough money to buy this item.",
     "153": "is selling:",
     "154": "are selling",
-
+    
     "200": "QUESTS",
 
     "201": "✅ Quest completed. You have your reward.",
@@ -82,7 +82,6 @@
     "203": "No active quests at the moment.",
     "204": "is offering these Quests:",
     "205": "has no quests for you at this time.",
-    "206": "Return to collect your reward.",
     "207": "In Progress",
     "208": "Get Reward",
     "209": "Accept Quest",
@@ -145,7 +144,6 @@
     "1005": "Acquire Skills and Upgrades to improve various attributes. Make sure to explore the Town to find additional places and ways to gain Skills and Upgrades.",
     "1006": "Manage all of your ongoing quests here. Look for quest-giving characters on your homestead as well as Town, or even the Valley.",
     "1007": "Governments in Valley View are formed at the settlement level. The elected mayor implements policies and builds buildings to help the community thrive.",
-    "1008": "Trade Stall: Sell your resources to other players or buy items from their trade stalls. Use the arrows to navigate between trade stalls within your Settlement. If no other players buy your items, you can always sell them to the game for 25% of their value.",
     "1009": "[Crafting description]",
     "1010": "[Mailbox description]",
     "1011": "This Animal Stall is empty. Make sure animals have grass to eat, and they will eventually come to the stall for harvesting.",
@@ -159,13 +157,13 @@
     "1019": "[Profile description]",
     "1021": "© Valley View Studios, 2025, All Rights Reserved.",
     "1022": "[Train description]",
-    "1023": "[Farm hands description]",
+    "1023": "[Farm hand description]",
     "1024": "[Combat description]",
     "1025": "[Shop description]",
     "1026": "[Money panel description]",
     "1027": "These are the benefits of a Gold Pass.",
-    "1028": " ",
-
+    "1028": "[Decorations panel description]",
+    
     "1101": "Inventory",
     "1102": "⚒️ Build",
     "1103": "🛒 Buy",
@@ -188,12 +186,14 @@
     "1120": "🐞 Debug",
     "1121": "😀 Welcome",
     "1122": "🚂 Train",
-    "1123": "🧑🏼‍🌾 Farm Hands",
+    "1123": "🧑🏼‍🌾 Farm Hand",
     "1124": "⚔️ Combat",
     "1125": "🛒 Shop",
     "1126": "💰 About Money",
     "1127": "⭐️ Gold Pass",
     "1128": "🪑 Decorations",
+
+
 
     "1200": "TRADER STORY STRINGS",
 
@@ -227,7 +227,7 @@
     "1410": "⚠️ You don't have enough upgrades.",
 
     "1500": "TOWN NEWS STRINGS:",
-    "1501": "News for settlement",
+    "1501": "News for ",
     "1502": "The current Mayor is",
     "1503": ", and the tax rate is",
     "1504": "Here's what's happening in Town right now:",
@@ -371,7 +371,7 @@
     "4065": "Change Avatar",
     "4066": "Back to Login",
     "4067": "Select Language",
-    
+
     "5000": "MORE MODAL STRINGS:",
 
     "5001": "💀 You have died.",
@@ -454,7 +454,7 @@
     "9027": "In TOWN you will disocver more Shops and Traders.",
 
     "9050": "Benefits",
-    "9051": "A Gold Pass is a monthly subscription that gives you access to premium features and benefits in Valley View.",
+    "9051": "A Gold Pass gives you access to premium features and benefits in Valley View for the duration of a season.",
     "9052": "With a Gold Pass, you can enjoy the following benefits:",
     "9053": "✅ Premium avatars: 🐱🤡👽🤖💩👾",
     "9054": "✅ Near unlimited Warehouse capacity",
@@ -518,7 +518,43 @@
     "10131": "Gold Pass Benefits",
 
     "10132": "Cancel Relocation",
-    "10133": "Relocate Homestead"
+    "10133": "Relocate Homestead",
+
+
+
+
+    "11000": "ADDED STRINGS:",
+
+    "11001": "Wait for the timer to end, or for another player to buy this item.",
+    "206": "Return to the NPC who gave you this quest to collect your reward.",
+    "155": "Transaction failed. This item has already been sold.",
+    "1008": "Trade Stall: Sell your resources to other players or buy items from their trade stalls. Use the arrows to navigate between trade stalls within your Settlement. If no players buy your items before the timer expires, you can sell them to the game for fraction of their base value.",
+    "2014": "You can only claim one train offer at a time.",
+    "2015": "Show Train Log",
+    "2016": "✅ All orders were completed! Rewards have been mailed out.",
+    "426": "Expensive starter crops, but in case you run out:",
+    "427": "Purchase the Farm Hand's Bulk Harvest skill to harvest all crops at once.",
+    "428": "Click to instantly harvest all crops.",
+    "429": "You have no crops to harvest.",
+    "430": "Farm Hand Skills:",
+    "431": "Purchase the Farm Hand's Bulk Animal Collect skill to collect from all animals at once.",
+    "432": "Purchase the Farm Hand's Logging skill to chop multiple trees at once and collect the wood.",
+    "433": "Purchase Better Logging to increase the number of trees chopped at once.",
+    "434": "Click to instantly collect from all animals.",
+    "435": "Click to instantly chop multiple trees and collect wood.",
+    "436": "You have no animals to collect from.",
+    "437": "You have no trees to chop.",
+
+    "12001": "Farming",
+    "12002": "Build",
+    "12003": "Buy Animals & Decorations",
+    "12004": "Active Quests",
+    "12005": "Skills",
+    "12006": "Combat",
+    "12007": "Government",
+    "12008": "Seasons",
+    "12009": "Home",
+    "12010": "Profile"
 
   }
 
