@@ -1,7 +1,7 @@
-import 'dotenv/config';
-import fs from 'fs';
-import path from 'path';
-import { config, OpenAIApi } from 'openai';
+require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
+const { OpenAI } = require('openai');
 
 console.log("🔑 OpenAI key:", process.env.OPENAI_API_KEY?.slice(0, 8) + '...');
 
@@ -13,8 +13,7 @@ if (!targetLang) {
   process.exit(1);
 }
 
-config.apiKey = process.env.OPENAI_API_KEY;
-const openai = new OpenAIApi(config);
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const inputPath = path.join('game-client', 'src', 'UI', 'Strings', 'stringsEN.json');
 const outputPath = path.join('game-client', 'src', 'UI', 'Strings', `strings${targetLang.toUpperCase()}.json`);
@@ -34,7 +33,7 @@ async function translateAllStrings() {
   for (let i = 0; i < values.length; i += chunkSize) {
     const chunk = values.slice(i, i + chunkSize);
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-3.5-turbo',
       messages: [
         {
           role: 'system',
@@ -47,7 +46,9 @@ async function translateAllStrings() {
       ],
     });
 
-    const translatedChunk = JSON.parse(response.choices[0].message.content);
+    const raw = response.choices[0].message.content;
+    const cleaned = raw.replace(/```json|```/g, '').trim();
+    const translatedChunk = JSON.parse(cleaned);
     chunks.push(...translatedChunk);
   }
 
