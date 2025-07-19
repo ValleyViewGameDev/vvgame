@@ -1394,11 +1394,11 @@ return (
       </div>
         <div className="header-controls-right">
             <button className="shared-button" onClick={() => setShowShareModal(true)}>{strings[10106]}</button>
-            <button className="shared-button" onClick={() => setActiveModal('LanguagePicker')}>
+            <button className="shared-button" disabled={!currentPlayer} onClick={() => setActiveModal('LanguagePicker')}>
               🌎 {LANGUAGE_OPTIONS.find(l => l.code === currentPlayer?.language)?.label || 'Language'}
             </button>
             <div className="nav-button-wrapper">
-              <button className="shared-button" onClick={() => setIsChatOpen(prev => !prev)}>{strings[10107]}</button>
+              <button className="shared-button" disabled={!currentPlayer} onClick={() => setIsChatOpen(prev => !prev)}>{strings[10107]}</button>
               {badgeState.chat && <div className="badge-dot" />}
             </div>
         </div>
