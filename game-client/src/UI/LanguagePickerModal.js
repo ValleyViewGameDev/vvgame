@@ -36,7 +36,7 @@ export default function LanguagePickerModal({ currentPlayer, setCurrentPlayer, u
   return (
     <Modal onClose={onClose} className="modal-LanguagePicker" size="standard">
       <div className="language-modal">
-        <h2>Select Your Language</h2>
+        <h2>{strings[130]}</h2>
         <ul className="language-list">
           {LANGUAGE_OPTIONS.map(({ code, label, flag }) => (
             <li
@@ -49,8 +49,7 @@ export default function LanguagePickerModal({ currentPlayer, setCurrentPlayer, u
           ))}
         </ul>
         <div className="modal-buttons">
-          <button className="shared-button" onClick={handleSave}>Save</button>
-          <button className="shared-button" onClick={onClose}>Cancel</button>
+          <button className="shared-button" onClick={handleSave}>{strings[131]}</button>
         </div>
       </div>
     </Modal>

@@ -521,10 +521,6 @@
     "10133": "Relocate Homestead",
 
 
-
-
-    "11000": "ADDED STRINGS:",
-
     "11001": "Wait for the timer to end, or for another player to buy this item.",
     "206": "Return to the NPC who gave you this quest to collect your reward.",
     "155": "Transaction failed. This item has already been sold.",
@@ -554,7 +550,15 @@
     "12007": "Government",
     "12008": "Seasons",
     "12009": "Home",
-    "12010": "Profile"
+    "12010": "Profile",
+
+
+    "11000": "ADDED STRINGS:",
+
+    "130": "Select your language:",
+    "131": "Confirm"
+
+
 
   }
 
