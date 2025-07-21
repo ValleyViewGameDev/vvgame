@@ -15,23 +15,27 @@ export default function LanguagePickerModal({ currentPlayer, setCurrentPlayer, u
     setSelectedLanguage(langCode);
   };
 
-  const handleSave = async () => {
-    try {
-        const updatedPlayer = { ...currentPlayer, language: selectedLanguage };
-        localStorage.setItem('player', JSON.stringify(updatedPlayer)); // 👈 THIS is the key line
-        setCurrentPlayer(updatedPlayer);
-        window.location.reload();
-        await axios.post(`${API_BASE}/api/update-profile`, {
-            playerId: currentPlayer._id,
-            updates: { language: selectedLanguage },
-        });
-        updateStatus && updateStatus('Language updated!');
-        onSave && onSave();
-    } catch (error) {
-        console.error('Error saving language:', error);
-        updateStatus && updateStatus('Failed to update language');
-    }
-  };
+const handleSave = async () => {
+  try {
+    const updatedPlayer = { ...currentPlayer, language: selectedLanguage };
+    localStorage.setItem('player', JSON.stringify(updatedPlayer));
+    setCurrentPlayer(updatedPlayer);
+
+    await axios.post(`${API_BASE}/api/update-profile`, {
+      playerId: currentPlayer._id,
+      updates: { language: selectedLanguage },
+    });
+
+    updateStatus && updateStatus('Language updated!');
+    onSave && onSave();
+
+    // ✅ Only reload after successful DB update
+    window.location.reload();
+  } catch (error) {
+    console.error('Error saving language:', error);
+    updateStatus && updateStatus('Failed to update language');
+  }
+};
 
   return (
     <Modal onClose={onClose} className="modal-LanguagePicker" size="standard">
