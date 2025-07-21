@@ -56,7 +56,7 @@
         "passable": true
     },
     {
-        "type": "Gold Pass",
+        "type": "Gold Account",
         "symbol": "⭐",
         "category": "special"
     },
@@ -4591,7 +4591,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 500,
         "ingredient2": "Potion C",
-        "ingredient2qty": 10
+        "ingredient2qty": 1
     },
     {
         "type": "Beekeeper",
@@ -4605,7 +4605,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 500,
         "ingredient2": "Potion C",
-        "ingredient2qty": 50
+        "ingredient2qty": 20
     },
     {
         "type": "Tailor",
@@ -4645,7 +4645,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 5000,
         "ingredient2": "Gem",
-        "ingredient2qty": 5
+        "ingredient2qty": 1
     },
     {
         "type": "Livestock",
@@ -4659,7 +4659,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 7000,
         "ingredient2": "Gem",
-        "ingredient2qty": 10
+        "ingredient2qty": 5
     },
     {
         "type": "Law",
@@ -4673,7 +4673,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 25000,
         "ingredient2": "Gem",
-        "ingredient2qty": 20
+        "ingredient2qty": 10
     },
     {
         "type": "Medicine",
@@ -4687,7 +4687,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 12000,
         "ingredient2": "Gem",
-        "ingredient2qty": 30
+        "ingredient2qty": 20
     },
     {
         "type": "Surgery",
@@ -4701,7 +4701,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 18000,
         "ingredient2": "Gem",
-        "ingredient2qty": 50
+        "ingredient2qty": 40
     },
     {
         "type": "Better Axe",
@@ -4794,7 +4794,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 500,
         "ingredient2": "Book",
-        "ingredient2qty": 12
+        "ingredient2qty": 1
     },
     {
         "type": "Tempest",
@@ -4809,7 +4809,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 1000,
         "ingredient2": "Book",
-        "ingredient2qty": 30
+        "ingredient2qty": 12
     },
     {
         "type": "Jab",
@@ -4837,7 +4837,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 500,
         "ingredient2": "Book",
-        "ingredient2qty": 15
+        "ingredient2qty": 2
     },
     {
         "type": "Barrage",
@@ -4851,7 +4851,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 1000,
         "ingredient2": "Book",
-        "ingredient2qty": 20
+        "ingredient2qty": 15
     },
     {
         "type": "Focus",
@@ -4879,7 +4879,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 500,
         "ingredient2": "Book",
-        "ingredient2qty": 8
+        "ingredient2qty": 6
     },
     {
         "type": "Horizon Eye",
@@ -4894,7 +4894,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 1000,
         "ingredient2": "Book",
-        "ingredient2qty": 14
+        "ingredient2qty": 10
     },
     {
         "type": "Padding",
@@ -4924,7 +4924,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 500,
         "ingredient2": "Book",
-        "ingredient2qty": 15,
+        "ingredient2qty": 12,
         "ingredient3": "Cloth",
         "ingredient3qty": 10,
         "ingredient4": "Silver",
@@ -4975,7 +4975,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 500,
         "ingredient2": "Book",
-        "ingredient2qty": 12
+        "ingredient2qty": 8
     },
     {
         "type": "Fortitude",
@@ -5003,7 +5003,7 @@
         "ingredient1": "Money",
         "ingredient1qty": 500,
         "ingredient2": "Book",
-        "ingredient2qty": 15
+        "ingredient2qty": 12
     },
     {
         "type": "Unbreakable",
