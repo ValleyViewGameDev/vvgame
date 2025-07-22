@@ -1539,6 +1539,15 @@ return (
           <button className="shared-button" onClick={() => openModal('TownNews')}>{strings[10125]}</button>
         </div>
       )}
+      <br />
+
+      <h2>Discord Server:</h2>
+      <button
+        className="shared-button"
+        onClick={() => window.open('https://discord.gg/mQgRP2K9', '_blank')}
+      >
+        Join our Discord
+      </button>
 
       <br />
       <h3>{strings[10126]}</h3>
