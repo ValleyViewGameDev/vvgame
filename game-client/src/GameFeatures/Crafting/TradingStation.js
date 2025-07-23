@@ -134,7 +134,9 @@ const TradingStation = ({
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
               const affordable = canAfford(recipe, inventory, backpack, 1);
-              const meetsRequirement = recipe.requires ? (currentPlayer?.skills?.includes(recipe.requires) || false) : true;
+              const meetsRequirement = recipe.requires
+                ? currentPlayer?.skills?.some(skill => skill.type === recipe.requires)
+                : true;
  
 
               const formattedCosts = [1, 2, 3, 4].map((i) => {

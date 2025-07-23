@@ -8,6 +8,7 @@ import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } 
 import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { formatCountdown } from '../../UI/Timers';
+import { useUILock } from '../../UI/UILockContext';
 
 function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurrentPlayer }) {
 
@@ -21,6 +22,9 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const [viewedPlayer, setViewedPlayer] = useState(currentPlayer);
   const [viewedPlayerIndex, setViewedPlayerIndex] = useState(0); // Index of the currently viewed player
   const { updateStatus } = useContext(StatusBarContext);
+  const { setUILocked } = useUILock();
+  const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
+  const COOLDOWN_DURATION = 2000;
 
   const tradeStallHaircut = 0.25;
   const sellWaitTime = 60 * 60 * 1000; // 1 hour
@@ -125,6 +129,15 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   };
   
   const handleBuy = async (slotIndex) => {
+    // Cooldown guard to prevent buy spamming
+    if (isActionCoolingDown) return;
+    setIsActionCoolingDown(true);
+    setUILocked(true);
+    setTimeout(() => {
+      setIsActionCoolingDown(false);
+      setUILocked(false);
+    }, COOLDOWN_DURATION);
+
     const slot = tradeSlots[slotIndex];
     if (!slot || slot.amount <= 0) return; // No valid slot to buy from
 
@@ -345,6 +358,14 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   
   // New function to collect payment from a bought slot
   const handleCollectPayment = async (slotIndex) => {
+    if (isActionCoolingDown) return;
+    setIsActionCoolingDown(true);
+    setUILocked(true);
+    setTimeout(() => {
+      setIsActionCoolingDown(false);
+      setUILocked(false);
+    }, COOLDOWN_DURATION);
+
     const slot = tradeSlots[slotIndex];
     if (!slot || !slot.boughtFor) return;
 
@@ -444,6 +465,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                     <button
                       className="sell-button"
                       style={{ fontSize: '0.95rem', padding: '4px 8px', marginTop: '4px' }}
+                      disabled={isActionCoolingDown}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleCollectPayment(index);
@@ -460,6 +482,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                   <button
                     className="sell-button"
                     style={{ fontSize: '0.95rem', padding: '4px 8px', marginTop: '4px' }}
+                    disabled={isActionCoolingDown}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleBuy(index);

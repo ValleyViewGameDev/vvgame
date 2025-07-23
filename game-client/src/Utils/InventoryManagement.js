@@ -39,7 +39,7 @@ export const canAfford = (recipe, inventory = [], backpack = [], amount = 1) => 
   if (!recipe) return false;
   const inv = Array.isArray(inventory) ? inventory : [];
   const bp = Array.isArray(backpack) ? backpack : [];
-  for (let i = 1; i <= 3; i++) {
+  for (let i = 1; i <= 4; i++) {
     const ingredientType = recipe[`ingredient${i}`];
     const ingredientQty = recipe[`ingredient${i}qty`] * amount;
     if (ingredientType && ingredientQty >= 0) {
@@ -212,7 +212,7 @@ export async function spendIngredients({
   if (!canAfford(recipe, inventory, backpack, 1)) { updateStatus(4); return false; }
 
   // Deduct ingredients with new logic
-  for (let i = 1; i <= 3; i++) {
+  for (let i = 1; i <= 4; i++) {
     const type = recipe?.[`ingredient${i}`];
     const qty = recipe?.[`ingredient${i}qty`];
     if (type && qty) {
