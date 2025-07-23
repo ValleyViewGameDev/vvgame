@@ -17,6 +17,7 @@ import { createCollectEffect } from '../../VFX/VFX';
 import { useStrings } from '../../UI/StringsContext';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import '../../UI/SharedButtons.css';
+import { useUILock } from '../../UI/UILockContext';
 
 const CraftingStation = ({
   onClose,
@@ -46,6 +47,9 @@ const CraftingStation = ({
   const [craftingCountdown, setCraftingCountdown] = useState(null);
   const [isCrafting, setIsCrafting] = useState(false);
   const [isReadyToCollect, setIsReadyToCollect] = useState(false);
+  const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
+  const COOLDOWN_DURATION = 1200;
+  const { setUILocked } = useUILock();
 
    // ✅ Check for active crafting timers
    useEffect(() => {
@@ -297,6 +301,14 @@ const CraftingStation = ({
 
   const handleSellStation = async () => {
 
+    if (isActionCoolingDown) return;
+    setIsActionCoolingDown(true);
+    setUILocked(true);
+    setTimeout(() => {
+      setIsActionCoolingDown(false);
+      setUILocked(false);
+    }, COOLDOWN_DURATION);
+
     const ingredients = [];
     for (let i = 1; i <= 3; i++) {
       const ingredientType = stationDetails[`ingredient${i}`];
@@ -451,8 +463,7 @@ const CraftingStation = ({
           <>
             <hr />
               <div className="standard-buttons">
-                <button className="btn-success" onClick={handleSellStation}>
-                  {strings[425]}
+                <button className="btn-success" onClick={handleSellStation} disabled={isActionCoolingDown}>                  {strings[425]}
                 </button>
               </div>
 

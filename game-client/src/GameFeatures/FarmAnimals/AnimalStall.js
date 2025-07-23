@@ -11,6 +11,7 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { createCollectEffect } from '../../VFX/VFX';
 import '../../UI/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
+import { useUILock } from '../../UI/UILockContext';
 
 const AnimalStall = ({
   onClose,
@@ -28,6 +29,10 @@ const AnimalStall = ({
   updateStatus,
   masterResources,
 }) => {
+  const { setUILocked } = useUILock();
+  const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
+  const COOLDOWN_DURATION = 1200;
+
   const [stallDetails, setStallDetails] = useState(null);
   const [outputDetails, setOutputDetails] = useState(null);
   const strings = useStrings();
@@ -59,6 +64,14 @@ const AnimalStall = ({
   }, [currentPlayer]);
 
   const handleSellStation = async () => {
+    if (isActionCoolingDown) return;
+    setIsActionCoolingDown(true);
+    setUILocked(true);
+    setTimeout(() => {
+      setIsActionCoolingDown(false);
+      setUILocked(false);
+    }, COOLDOWN_DURATION);
+
     const ingredients = [];
     for (let i = 1; i <= 3; i++) {
       const ingredientType = stallDetails[`ingredient${i}`];
@@ -125,7 +138,7 @@ const AnimalStall = ({
           <>
             <hr />
               <div className="standard-buttons">
-                <button className="btn-success" onClick={handleSellStation}>
+                <button className="btn-success" onClick={handleSellStation} disabled={isActionCoolingDown}>
                   {strings[425]}
                 </button>
               </div>

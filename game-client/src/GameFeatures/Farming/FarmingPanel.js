@@ -10,7 +10,7 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { handleFarmPlotPlacement, handleTerraform } from './Farming';
 import { useStrings } from '../../UI/StringsContext';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
- 
+  
 const FarmingPanel = ({
   onClose,
   TILE_SIZE,
