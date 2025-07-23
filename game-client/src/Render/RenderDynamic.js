@@ -376,10 +376,9 @@ function handlePCClick(pc, currentPlayer, gridId, TILE_SIZE) {
   const isNotSelf = String(pc.playerId) !== String(currentPlayer._id);
   const isAttackable = pc.hp > 0 && !pc.iscamping;
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
+  const isTown = currentPlayer?.location?.gtype === 'town';
 
-  console.log('isNotSelf =', isNotSelf, '; isAttackable:', isAttackable, '; isHomestead:', isHomestead);
-
-  if (isNotSelf && isAttackable && !isHomestead) {
+  if (isNotSelf && isAttackable && !isHomestead && !isTown) {
     handleAttackOnPC(pc, currentPlayer, gridId, TILE_SIZE);
   }
 }
