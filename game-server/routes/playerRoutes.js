@@ -215,6 +215,7 @@ router.post('/update-player-quests', async (req, res) => {
 
 ///////// CORE PLAYER ROUTES ////////////
 
+// ✅ Get player by ID
 router.get('/player/:playerId', async (req, res) => {
   const { playerId } = req.params;
 
@@ -234,6 +235,23 @@ router.get('/player/:playerId', async (req, res) => {
   } catch (error) {
     console.error('Error fetching player data:', error);
     res.status(500).json({ error: 'Failed to fetch player data.' });
+  }
+});
+
+// ✅ Get player by username
+router.get('/get-player-by-username/:username', async (req, res) => {
+  const { username } = req.params;
+
+  try {
+    const player = await Player.findOne({ username });
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+
+    res.json(player); // Return full player object
+  } catch (error) {
+    console.error('Error fetching player by username:', error);
+    res.status(500).json({ error: 'Failed to fetch player.' });
   }
 });
 

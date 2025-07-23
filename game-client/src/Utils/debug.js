@@ -9,7 +9,7 @@ import NPCsInGridManager from '../GridState/GridStateNPCs'; // Use default expor
 import playersInGridManager from '../GridState/PlayersInGrid';
 import GridStateDebugPanel from './GridStateDebug';
 import { generateTownGrids, generateValleyGrids, createSingleValleyGrid } from './WorldGeneration';
-
+ 
 const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, setResources, currentGridId, updateStatus }) => {
   const [timers, setTimers] = useState([]);
   const [npcs, setNPCs] = useState([]);
@@ -17,6 +17,7 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
   const [updatedNPCs, setUpdatedNPCs] = useState(npcs);
   const [refreshDebug, setRefreshDebug] = useState(false);
   const [singleGridCoord, setSingleGridCoord] = useState('');
+  const [usernameToDelete, setUsernameToDelete] = useState('');
   const [messageIdentifier, setMessageIdentifier] = useState('');
   
   // Fetch resources with timers when the panel opens or gridId changes
@@ -559,6 +560,46 @@ const handleGetRich = async () => {
     }
   };
 
+  const handleDeleteAccount = async (username) => {
+    // Accept either {username} or username string for backward compatibility
+    if (typeof username === "object" && username?.username) {
+      username = username.username;
+    }
+    if (!username) {
+      alert("Please enter a username.");
+      return;
+    }
+
+    try {
+      // Step 1: Look up the player by username
+      const lookupResponse = await axios.get(`${API_BASE}/api/get-player-by-username/${username}`);
+      const player = lookupResponse.data;
+
+      if (!player || !player._id) {
+        alert(`Player not found for username: ${username}`);
+        return;
+      }
+
+      const confirmed = window.confirm(`Are you sure you want to delete the account for "${username}"? This cannot be undone.`);
+      if (!confirmed) return;
+
+      // Step 2: Delete the player by ID
+      const deleteResponse = await axios.post(`${API_BASE}/api/delete-player`, {
+        playerId: player._id,
+      });
+
+      if (deleteResponse.data.success) {
+        alert(`✅ Account for "${username}" deleted successfully.`);
+        console.log(`✅ Account deleted for username: ${username}`);
+      } else {
+        alert("❌ Failed to delete account. See console for details.");
+        console.error("Delete failed:", deleteResponse.data);
+      }
+    } catch (error) {
+      console.error("❌ Error deleting account:", error);
+      alert("An error occurred while trying to delete the account.");
+    }
+  };
 
   return (
     <Panel onClose={onClose} titleKey="1120" panelName="DebugPanel">
@@ -611,6 +652,33 @@ const handleGetRich = async () => {
         >
           Create Grid
         </button>
+
+        <h3>Delete User Account</h3>
+        <input
+          type="text"
+          placeholder="Enter Username"
+          value={usernameToDelete}
+          onChange={(e) => setUsernameToDelete(e.target.value)}
+        />
+        <button
+          className="btn-danger"
+          onClick={async () => {
+            const confirmed = window.confirm(`⚠️ Are you absolutely sure you want to permanently delete the account for "${usernameToDelete}"? This cannot be undone.`);
+            if (!confirmed) return;
+
+            try {
+              await handleDeleteAccount({
+                username: usernameToDelete,
+              });
+            } catch (error) {
+              console.error("Error deleting user account:", error);
+              alert("Failed to delete user account. See console for details.");
+            }
+          }}
+        >
+          Delete
+        </button>
+        
 
         <h3>Send Message to All Users</h3>
         <input
