@@ -36,7 +36,7 @@ const FarmingPanel = ({
   const [farmPlots, setFarmPlots] = useState([]);
   const [allResources, setAllResources] = useState([]);
   const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
-  const COOLDOWN_DURATION = 1200;
+  const COOLDOWN_DURATION = 800;
 
  
   useEffect(() => {
