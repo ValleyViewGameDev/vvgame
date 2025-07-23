@@ -31,7 +31,7 @@ const AnimalStall = ({
 }) => {
   const { setUILocked } = useUILock();
   const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
-  const COOLDOWN_DURATION = 1200;
+  const COOLDOWN_DURATION = 2000;
 
   const [stallDetails, setStallDetails] = useState(null);
   const [outputDetails, setOutputDetails] = useState(null);

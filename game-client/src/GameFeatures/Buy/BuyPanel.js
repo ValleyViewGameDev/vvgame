@@ -38,8 +38,9 @@ const BuyPanel = ({
         const allResourcesData = resourcesResponse.data;
         setAllResources(allResourcesData);
 
+        const isHomestead = currentPlayer?.location?.gtype === 'homestead';
         const purchasableItems = allResourcesData.filter(
-          (resource) => resource.source === 'Buy'
+          (resource) => resource.source === 'Buy' && (isHomestead || resource.passable !== false)
         );
         setBuyOptions(purchasableItems);
       } catch (error) {

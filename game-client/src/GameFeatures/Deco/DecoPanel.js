@@ -27,17 +27,21 @@ const DecoPanel = ({
   masterResources,
 }) => {
   const [stallDetails, setStallDetails] = useState(null);
+  const isHomestead = currentPlayer?.location?.gtype === 'homestead';
   const strings = useStrings();
   const { setUILocked } = useUILock();
   const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
-  const COOLDOWN_DURATION = 1200;
+  const COOLDOWN_DURATION = 2000;
 
   console.log('Inside Deco Panel:', { stationType, currentStationPosition });
 
   useEffect(() => {
-    const stallResource = masterResources.find((res) => res.type === stationType);
+    const stallResource = masterResources.find((res) =>
+      res.type === stationType &&
+      (isHomestead || res.passable !== false)
+    );
     setStallDetails(stallResource);
-  }, [stationType, masterResources]);
+  }, [stationType, masterResources, isHomestead]);
 
   useEffect(() => {
     const syncInventory = async () => {
