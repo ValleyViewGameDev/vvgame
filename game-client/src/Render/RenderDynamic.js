@@ -369,10 +369,17 @@ function startRenderingLoop() {
 //
 function handlePCClick(pc, currentPlayer, gridId, TILE_SIZE) {
   if (!pc) {
-      console.warn("handlePCClick was called with an undefined PC.");
-      return;
+    console.warn("handlePCClick was called with an undefined PC.");
+    return;
   }
-  if (String(pc.playerId) !== String(currentPlayer._id) && pc.hp > 0 && !pc.iscamping) {
+
+  const isNotSelf = String(pc.playerId) !== String(currentPlayer._id);
+  const isAttackable = pc.hp > 0 && !pc.iscamping;
+  const isHomestead = currentPlayer?.location?.gtype === 'homestead';
+
+  console.log('isNotSelf =', isNotSelf, '; isAttackable:', isAttackable, '; isHomestead:', isHomestead);
+
+  if (isNotSelf && isAttackable && !isHomestead) {
     handleAttackOnPC(pc, currentPlayer, gridId, TILE_SIZE);
   }
 }
