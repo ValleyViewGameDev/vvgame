@@ -205,6 +205,14 @@ const CraftingStation = ({
   const handleCollect = async (recipe) => {
     if (!recipe) { console.error("❌ No valid crafted item to collect."); return; }
 
+    if (isActionCoolingDown) return;
+    setIsActionCoolingDown(true);
+    setUILocked(true);
+    setTimeout(() => {
+      setIsActionCoolingDown(false);
+      setUILocked(false);
+    }, COOLDOWN_DURATION);
+
     try {
         // ✅ Find the crafted resource for potential NPC handling
         const craftedResource = allResources.find(res => res.type === craftedItem);

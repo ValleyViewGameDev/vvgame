@@ -43,6 +43,7 @@ export async function handleNPCClick(
   setModalContent,
   setIsModalOpen,
   updateStatus,
+  setUILocked,
 ) {
   if (!npc) {
     console.warn("handleNPCClick was called with an undefined NPC.");
@@ -60,6 +61,12 @@ export async function handleNPCClick(
       }
  
     case 'graze': {
+      // Prevent repeated clicks by locking the cursor for 2 seconds
+      if (typeof setUILocked === 'function') {
+        setUILocked(true);
+        setTimeout(() => setUILocked(false), 2000);
+      }
+
       console.log(`Handling grazing logic for NPC ${npc.id}.`);
 
       // ✅ Special case: If in town, relocate NPC to home grid

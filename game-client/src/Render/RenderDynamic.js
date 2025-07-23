@@ -11,6 +11,7 @@ import { handleAttackOnPC } from '../GameFeatures/Combat/Combat';
 import { renderPositions } from '../PlayerMovement';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
+import { useUILock } from '../UI/UILockContext';
 
 
 const DynamicRenderer = ({
@@ -32,6 +33,7 @@ const DynamicRenderer = ({
   const playersInGrid = usePlayersInGrid(); // Access PCs via modern PC-specific context
   const hoveredEntityIdRef = useRef(null);
   const suppressTooltipRef = useRef(false);
+  const { setUILocked } = useUILock();
   
   const masterResourcesRef = useRef(masterResources); // Keep masterResources in a ref
   useEffect(() => {
@@ -105,6 +107,7 @@ const DynamicRenderer = ({
               setModalContent,
               setIsModalOpen,
               updateStatus,
+              setUILocked,
             );
           }
         });

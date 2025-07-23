@@ -11,6 +11,7 @@ import playersInGridManager from '../../GridState/PlayersInGrid';
 import { loadMasterResources } from '../../Utils/TuningManager';
 import { updateBadge } from '../../Utils/appUtils';
 import { useStrings } from '../../UI/StringsContext';
+import { useUILock } from '../../UI/UILockContext';
 
 function Mailbox({ 
   onClose, 
@@ -23,6 +24,8 @@ function Mailbox({
   resources,
   updateStatus,
 }) {
+  const { setUILocked } = useUILock();
+  const COOLDOWN_DURATION = 1400;
   const strings = useStrings();
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -82,6 +85,8 @@ function Mailbox({
 
 
   const handleCollect = async (message) => {
+    setUILocked(true);
+    setTimeout(() => setUILocked(false), COOLDOWN_DURATION);
     try {
       const template = templates.find((t) => t.id === message.messageId);
       const rewards = message.rewards?.length > 0 ? message.rewards : template.rewards;
