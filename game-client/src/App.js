@@ -682,6 +682,12 @@ useEffect(() => {
       const onResource = resources?.flat().find(r => r?.x === col && r?.y === row);
       const onResourceType = onResource?.type;
 
+      if (playerPC?.hp <= (currentPlayer.baseMaxhp/4) && currentPlayer.location.gtype === 'homestead') {
+          const healing = 2;
+          playersInGrid[gridId].pcs[playerId].hp += healing;
+          FloatingTextManager.addFloatingText(`+ ${healing} ❤️‍🩹 HP`, col, row, activeTileSize);
+        }
+
       if (playerPC?.hp <= 0 && currentPlayer) {
         console.log("💀 Player is dead. Handling death...");
         await handlePlayerDeath(
