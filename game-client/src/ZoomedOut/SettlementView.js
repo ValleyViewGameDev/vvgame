@@ -14,6 +14,7 @@ import { processRelocation } from "../Utils/Relocation";
 
 const SettlementView = ({ 
   currentPlayer, 
+  isDeveloper,
   setZoomLevel, 
   isRelocating,
   setIsRelocating,
@@ -140,7 +141,7 @@ const SettlementView = ({
     }
   
     // Clicking on any other valley tile
-    if (["valley0", "valley1", "valley2", "valley3"].includes(tile.gridType)) {
+    if (["valley0", "valley1", "valley2", "valley3"].includes(tile.gridType) && !isDeveloper) {
       updateStatus(9);
       return;
     }

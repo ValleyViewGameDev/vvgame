@@ -1669,6 +1669,7 @@ return (
     {zoomLevel === 'settlement' && (
       <SettlementView
         currentPlayer={currentPlayer}
+        isDeveloper={isDeveloper}
         setZoomLevel={setZoomLevel}
         isRelocating={isRelocating}
         setIsRelocating={setIsRelocating}
@@ -1688,6 +1689,7 @@ return (
     {zoomLevel === 'frontier' && (
       <FrontierView
         currentPlayer={currentPlayer}
+        isDeveloper={isDeveloper}
         setZoomLevel={setZoomLevel} 
         isRelocating={isRelocating}
         setIsRelocating={setIsRelocating}

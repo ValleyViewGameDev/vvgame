@@ -10,6 +10,7 @@ import { getGridBackgroundColor } from './ZoomedOut';
 
 const FrontierView = ({ 
   currentPlayer, 
+  isDeveloper,
   setZoomLevel, 
   isRelocating,
   setIsRelocating,
@@ -29,8 +30,6 @@ const FrontierView = ({
   const [error, setError] = useState(null);
   const { updateStatus } = useContext(StatusBarContext);
  
-  console.log("FrontierView");
-
   // Fetch Frontier Grid and Settlement Grids together
   useEffect(() => {
     const fetchData = async () => {
@@ -80,8 +79,8 @@ const FrontierView = ({
       }
 
       // Case 1: Current settlement
-      if (tile.settlementId === currentPlayer.location.s) {
-        console.log('🏠 Player clicked current settlement - zooming in');
+      if (tile.settlementId === currentPlayer.location.s || isDeveloper) {
+          console.log('🏠 Player clicked current settlement - zooming in');
         setZoomLevel("settlement");
         updateStatus(12);
         return;
@@ -151,13 +150,9 @@ const FrontierView = ({
   };
 
   const renderMiniGrid = (tile) => {
-    console.log("🔍 Rendering mini grid for tile type:", tile.settlementType, "settlementId:", tile.settlementId);
     const tileData = frontierTileData[tile.settlementType] || Array(8).fill(Array(8).fill(""));
-    console.log("tileData = ",tileData);
     const settlementGrid = settlementGrids[tile.settlementId]?.grid || [];
-    console.log("settlementGrid for", tile.settlementId, ":", settlementGrid.length);
     const flatSettlementGrid = settlementGrid.flat();
-    console.log("🧩 Flat settlement grid for", tile.settlementId, ":", flatSettlementGrid.length);
 
     return (
       <div className="mini-grid">
@@ -171,12 +166,6 @@ const FrontierView = ({
 
             // Player's icon always overrides other content
             if (gridData?.gridId && gridData.gridId === currentPlayer.location.g) {
-              console.log('✅ Match on player location:', {
-                gridDataGridId: gridData.gridId,
-                playerGridId: currentPlayer.location.g,
-                rowIndex,
-                colIndex,
-              });
               content = currentPlayer.icon;
             } else if (gridData?.gridType === 'homestead' && !gridData.available) {
               content = '🏠';
