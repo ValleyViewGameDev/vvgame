@@ -682,11 +682,11 @@ useEffect(() => {
       const onResource = resources?.flat().find(r => r?.x === col && r?.y === row);
       const onResourceType = onResource?.type;
 
-      if (playerPC?.hp <= (currentPlayer.baseMaxhp/4) && currentPlayer.location.gtype === 'homestead') {
-          const healing = 2;
-          playersInGrid[gridId].pcs[playerId].hp += healing;
-          FloatingTextManager.addFloatingText(`+ ${healing} ❤️‍🩹 HP`, col, row, activeTileSize);
-        }
+      // if (playerPC?.hp <= (currentPlayer.baseMaxhp/4) && currentPlayer.location.gtype === 'homestead') {
+      //     const healing = 2;
+      //     playersInGrid[gridId].pcs[playerId].hp += healing;
+      //     FloatingTextManager.addFloatingText(`+ ${healing} ❤️‍🩹 HP`, col, row, activeTileSize);
+      //   }
 
       if (playerPC?.hp <= 0 && currentPlayer) {
         console.log("💀 Player is dead. Handling death...");
@@ -770,7 +770,40 @@ useEffect(() => {
   masterSkills,
 ]);
 
+// 🔄 PC Management Loop: Check for low health //////////////////////////////////////////////////////
+useEffect(() => {
+  if (!isAppInitialized) { console.log('App not initialized. Skipping PC Health Check.'); return; }
 
+  const interval = setInterval(async () => {
+      if (playersInGrid && gridId && currentPlayer?._id) {
+        const col = playerPC?.position?.x;
+        const row = playerPC?.position?.y;
+        const playerId = String(currentPlayer._id);
+        const playerPC = playersInGrid?.[gridId]?.pcs?.[playerId];
+
+      if (playerPC?.hp <= (currentPlayer.baseMaxhp/4) && currentPlayer.location.gtype === 'homestead') {
+          const healing = 2;
+          playersInGrid[gridId].pcs[playerId].hp += healing;
+          FloatingTextManager.addFloatingText(`+ ${healing} ❤️‍🩹 HP`, col, row, activeTileSize);
+        }
+    }
+  }, 10000);
+  return () => clearInterval(interval);
+}, [
+  isAppInitialized,
+  gridId,
+  playersInGrid,
+  currentPlayer,
+  activeTileSize,
+  resources,
+  setResources,
+  setInventory,
+  setBackpack,
+  inventory,
+  backpack,
+  masterResources,
+  masterSkills,
+]);
 
 /////// TIMERS & SEASONS //////////////////////////////////////////////////////
 

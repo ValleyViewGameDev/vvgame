@@ -67,7 +67,7 @@
       "id": 1001,
       "title": "😢 Our bad!",
       "body": "We recently had some technical issues. Thanks for your patience.",
-      "rewards": [{ "item": "Money", "qty": 1000 }, { "item": "Wood", "qty": 10 }, { "item": "Wool", "qty": 10 }],
+      "rewards": [{ "item": "Money", "qty": 1000 }, { "item": "Wood", "qty": 100 }, { "item": "Wool", "qty": 10 }],
       "everyoneRewards": true,
       "neverPurge": false
     }

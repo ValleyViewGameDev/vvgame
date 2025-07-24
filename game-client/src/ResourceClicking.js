@@ -64,6 +64,7 @@ import { useStrings } from './UI/StringsContext';
     switch (resource.category) {
 
       case 'doober':
+      case 'sepcial':
         await handleDooberClick(
           resource,
           row,
