@@ -776,10 +776,10 @@ useEffect(() => {
 
   const interval = setInterval(async () => {
       if (playersInGrid && gridId && currentPlayer?._id) {
+        const playerId = String(currentPlayer._id);
         const playerPC = playersInGrid?.[gridId]?.pcs?.[playerId];
         const col = playerPC?.position?.x;
         const row = playerPC?.position?.y;
-        const playerId = String(currentPlayer._id);
 
       if (playerPC?.hp <= (currentPlayer.baseMaxhp/4) && currentPlayer.location.gtype === 'homestead') {
           const healing = 2;
