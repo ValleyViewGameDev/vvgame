@@ -55,7 +55,7 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
     const tiles = GlobalGridStateTilesAndResources.getTiles();
     const targetTileType = tiles?.[targetY]?.[targetX];
     if (targetTileType !== 'w') {
-      FloatingTextManager.addFloatingText("Can only move to water while in boat.", currentPlayer.location.x, currentPlayer.location.y, TILE_SIZE);
+      FloatingTextManager.addFloatingText("Can only move to water while in boat.", currentPosition.x, currentPosition.y, TILE_SIZE);
       return;
     }
     // For boat users moving to water, skip the normal isValidMove check
