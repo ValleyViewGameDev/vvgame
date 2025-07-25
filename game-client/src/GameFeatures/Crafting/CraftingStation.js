@@ -397,17 +397,17 @@ const CraftingStation = ({
 
               const formatCountdown = (seconds) => {
                 const days = Math.floor(seconds / 86400);
-                const hours = Math.floor(seconds / 3600);
+                const hours = Math.floor((seconds % 86400) / 3600);
                 const minutes = Math.floor((seconds % 3600) / 60);
                 const secs = seconds % 60;
               
-              return days > 0
-                ? `${days}d ${hours}h ${minutes}m`
-                : hours > 0
-                ? `${hours}h ${minutes}m ${secs}s`
-                : minutes > 0
-                ? `${minutes}m ${secs}s`
-                : `${secs}s`;
+                const parts = [];
+                if (days > 0) parts.push(`${days}d`);
+                if (hours > 0) parts.push(`${hours}h`);
+                if (minutes > 0) parts.push(`${minutes}m`);
+                if (secs > 0 && parts.length === 0) parts.push(`${secs}s`); // Only show seconds if no other units
+                
+                return parts.join(' ') || '0s';
               };
               
               const craftTimeText = isCrafting
