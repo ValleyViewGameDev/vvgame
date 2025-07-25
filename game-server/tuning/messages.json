@@ -2,7 +2,7 @@
     {
       "id": 1,
       "title": "😊 Welcome to Valley View!",
-      "body": "Thanks for joining the world of Valley View. Here's a little something to get you started.",
+      "body": "Thanks for joining the world of Valley View. Here's a little something to get you started. Don't forget to check out our Discord server for some help and community. The link is in the side panel of the game.",
       "rewards": [
         { "item": "Money", "qty": 500 }, 
         { "item": "Wood", "qty": 5 }, 
