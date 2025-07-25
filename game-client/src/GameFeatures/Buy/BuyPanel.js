@@ -68,7 +68,9 @@ const BuyPanel = ({
               const qty = item[`ingredient${i}qty`];
               if (!type || !qty) return '';
 
-              const playerQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
+              const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
+              const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
+              const playerQty = inventoryQty + backpackQty;
               const color = playerQty >= qty ? 'green' : 'red';
               const symbol = allResources.find(r => r.type === type)?.symbol || '';
               return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
