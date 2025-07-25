@@ -49,8 +49,8 @@ export async function handleTransitSignpost(
       });
       
       const newPlayerPosition = {
-        x: 1,  // Center of the homestead
-        y: 1,
+        x: 0, 
+        y: 0,
         g: currentPlayer.gridId,      // The player's homestead grid
         s: currentPlayer.settlementId,
         f: currentPlayer.location.f,
@@ -89,8 +89,8 @@ export async function handleTransitSignpost(
 
       console.log("Found town grid:", townGrid);
       const newPlayerPosition = {
-        x: 1,  // upper left of town
-        y: 1,
+        x: 0,  // upper left of town
+        y: 0,
         g: townGrid.gridId,
         s: settlementId,
         f: frontierId,

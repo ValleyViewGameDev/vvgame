@@ -739,36 +739,6 @@ useEffect(() => {
           console.log("🔥 Player is standing on lava. Applying 2 damage.");
         }
 
-        if (onResourceType?.startsWith("Signpost")) {
-          console.log("📍 Player is standing on a Signpost. Triggering click behavior.");
-          await handleResourceClick(
-            onResource,
-            row,
-            col,
-            resources,
-            setResources,
-            setInventory,
-            setBackpack,
-            inventory,
-            backpack,
-            FloatingTextManager.addFloatingText,
-            gridId,
-            activeTileSize,
-            tileTypes,
-            currentPlayer,
-            setCurrentPlayer,
-            setGridId,
-            setGrid,
-            setTileTypes,
-            updateStatus,
-            masterResources,
-            masterSkills,
-            setModalContent,
-            setIsModalOpen,
-            closeAllPanels,
-            strings
-          );
-        }
       }
     }
   }, 1000);
@@ -1162,7 +1132,7 @@ useEffect(() => {
 
 let isProcessing = false; // Guard against duplicate clicks
 
-const handleTileClick = useCallback((rowIndex, colIndex) => {
+const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   if (isProcessing) return; // Skip if still processing
   isProcessing = true;
 
@@ -1209,8 +1179,21 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
     console.log('App.js: Resource clicked:', resource);
     if (resource.category === 'npc') { } // handled in RenderDynamic
     else if (resource.category === 'travel') {
-      // Signpost clicking ignored; you have to walk onto them; 
-      updateStatus(110); // "You have to walk onto a signpost to travel."
+      // Handle clickable signposts
+      const { handleTransitSignpost } = await import('./GameFeatures/Transit/Transit');
+      await handleTransitSignpost(
+        currentPlayer,
+        resource.type,
+        setCurrentPlayer,
+        setGridId,
+        setGrid,
+        setTileTypes,
+        setResources,
+        updateStatus,
+        activeTileSize,
+        currentPlayer.skills,
+        closeAllPanels
+      );
     }
     else if (resource.category === 'training') {
       setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, });
