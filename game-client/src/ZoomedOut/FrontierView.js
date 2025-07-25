@@ -79,7 +79,7 @@ const FrontierView = ({
       }
 
       // Case 1: Current settlement
-      if (tile.settlementId === currentPlayer.location.s || isDeveloper) {
+      if (tile.settlementId === currentPlayer.location.s) {
           console.log('🏠 Player clicked current settlement - zooming in');
         setZoomLevel("settlement");
         updateStatus(12);

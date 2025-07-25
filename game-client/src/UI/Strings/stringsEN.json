@@ -556,8 +556,8 @@
     "11000": "ADDED STRINGS:",
 
     "130": "Select your language:",
-    "131": "Confirm"
-
+    "131": "Confirm",
+    "320": "Cannot terraform lava."
 
 
   }

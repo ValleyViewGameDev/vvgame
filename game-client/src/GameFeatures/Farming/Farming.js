@@ -115,7 +115,7 @@ export const handleFarmPlotPlacement = async ({
 
 
 
-export const handleTerraform = async ({ actionType, gridId, currentPlayer, setTileTypes }) => {
+export const handleTerraform = async ({ TILE_SIZE, actionType, gridId, currentPlayer, tileTypes, setTileTypes }) => {
 
   console.log("handleTerraform;  currentPlayer = ",currentPlayer);
   
@@ -127,9 +127,19 @@ export const handleTerraform = async ({ actionType, gridId, currentPlayer, setTi
   const coords = getCurrentTileCoordinates(gridId, currentPlayer);
   if (!coords) return;
   const { tileX, tileY } = coords;
-  
-  let newType;
+  const tile = tileTypes?.[tileY]?.[tileX];
+  console.log("tile at ",tileY,", ",tileX," = ",tile);
 
+  if (!tile) {
+    console.error("❌ handleTerraform: Could not find tile at given coordinates.");
+    return;
+  }
+  if (tile === 'l') {
+      FloatingTextManager.addFloatingText(320, tileX, tileY, TILE_SIZE);
+    return;
+  }
+
+  let newType;
   // Determine the new tile type based on the action
   switch (actionType) {
     case "till":

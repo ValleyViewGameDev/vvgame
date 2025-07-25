@@ -10,7 +10,7 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { handleFarmPlotPlacement, handleTerraform } from './Farming';
 import { useStrings } from '../../UI/StringsContext';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
-  
+
 const FarmingPanel = ({
   onClose,
   TILE_SIZE,
@@ -28,7 +28,7 @@ const FarmingPanel = ({
   gridId,
   masterResources,
   masterSkills,
-  updateStatus,
+  updateStatus
 }) => {
 
   const { setUILocked } = useUILock();
@@ -75,9 +75,11 @@ const FarmingPanel = ({
     }, COOLDOWN_DURATION);
 
     await handleTerraform({
+      TILE_SIZE,
       actionType,
       gridId,
       currentPlayer,
+      tileTypes,
       setTileTypes,
     });
   };
