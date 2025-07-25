@@ -29,6 +29,12 @@ const StringsContext = createContext(stringsEN); // Default to English
 export const StringsProvider = ({ language = 'en', children }) => {
   const selectedStrings = STRINGS_MAP[language?.toLowerCase()] || stringsEN;
 
+  React.useEffect(() => {
+    const id = Math.floor(Math.random() * 10000);
+    console.log(`🧩 StringsProvider mounted. ID: ${id}`);
+    return () => console.warn(`🧨 StringsProvider unmounted. ID: ${id}`);
+  }, []);
+
   console.log('🧬 StringsProvider:', {
     rawLanguage: language,
     normalized: language?.toLowerCase(),

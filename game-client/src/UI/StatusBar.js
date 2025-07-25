@@ -10,6 +10,12 @@ export const StatusBarProvider = ({ children }) => {
   const strings = useStrings(); // Get strings from context
   const [message, setMessage] = useState('...'); // Default message
 
+  React.useEffect(() => {
+    const id = Math.floor(Math.random() * 10000);
+    console.log(`🧩 StatusBarProvider mounted. ID: ${id}`);
+    return () => console.warn(`🧨 StatusBarProvider unmounted. ID: ${id}`);
+  }, []);
+
   /**
    * Updates the status bar message.
    * @param {number|string} input - Index for predefined message or custom string.

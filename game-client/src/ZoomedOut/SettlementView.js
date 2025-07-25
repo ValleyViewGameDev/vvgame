@@ -256,7 +256,7 @@ const getTooltip = (tile) => {
               } else if (cell === "role") {
                 content = owner?.role || "Citizen";
               } else if (cell === "netWorth") {
-                content = owner?.netWorth?.toLocaleString() || "0";
+                content = `${owner?.netWorth?.toLocaleString() || "0"} (net worth)`;
               }
             }
   

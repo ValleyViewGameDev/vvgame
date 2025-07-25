@@ -94,6 +94,17 @@ import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
 
 function App() {
+
+  const appInstanceId = Math.floor(Math.random() * 10000);
+console.log(`🧩 App mounted. Instance ID: ${appInstanceId}`);
+
+useEffect(() => {
+  const id = Math.floor(Math.random() * 10000);
+  console.log(`🧩 App mounted. Instance ID: ${id}`);
+  console.trace();
+}, []);
+
+
   const strings = useStrings();
   const { uiLocked } = useUILock();
   const [isDeveloper, setIsDeveloper] = useState(false);
@@ -1407,6 +1418,7 @@ const handleLoginSuccess = async (player) => {
 
 return (
     <>
+    <FloatingTextManager />
 
 {/* //////////////////////  Header  //////////////////////// */}
 
@@ -1493,7 +1505,6 @@ return (
     </div>
 
     <div className="app-container">
-    <FloatingTextManager />
 
 
 {/* ///////////////////  Base Panel  ///////////////////// */}
