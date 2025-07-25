@@ -111,6 +111,7 @@ const playerSchema = new mongoose.Schema({
 
   relocations: { type: Number },
   iscamping: { type: Boolean, default: false },
+  isinboat: { type: Boolean, default: false },
   netWorth: { type: Number },
 
   messages: [

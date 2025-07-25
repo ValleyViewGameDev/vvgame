@@ -134,6 +134,7 @@ class GridStatePCManager {
         attackrange: getStat('baseAttackrange', 'attackrange'),
         speed: getStat('baseSpeed', 'speed'),
         iscamping: pcData.iscamping || false,
+        isinboat: pcData.isinboat || false,
         lastUpdated: now,
       };
 
@@ -189,6 +190,7 @@ class GridStatePCManager {
         attackrange: pcData.attackrange,
         speed: pcData.speed,
         iscamping: pcData.iscamping || false,
+        isinboat: pcData.isinboat || false,
         lastUpdated: now,
       };
 

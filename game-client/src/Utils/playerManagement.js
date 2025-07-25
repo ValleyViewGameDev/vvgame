@@ -90,6 +90,7 @@ export const isAGridStateStat = (stat) => {
     "attackrange",
     "speed",
     "iscamping",
+    "isinboat",
   ]);
 
   return NPCsInGridStats.has(stat);

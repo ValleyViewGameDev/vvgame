@@ -50,23 +50,35 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
   const targetX = Math.round(currentPosition.x + movement.dx);
   const targetY = Math.round(currentPosition.y + movement.dy);
 
-  if (!Array.isArray(masterResources)) {
-    console.error('masterResources is not an array:', masterResources);
-    return;
-  }
-  if (!isValidMove(targetX, targetY, masterResources,
-    currentPlayer,
-    setCurrentPlayer,
-    setGridId,
-    setGrid,
-    setTileTypes,
-    setResources,
-    updateStatus,
-    TILE_SIZE,
-    closeAllPanels,
-  )) {
-    console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
-    return;
+  // Check if player is in boat and restrict movement to water tiles only
+  if (currentPlayer.isinboat) {
+    const tiles = GlobalGridStateTilesAndResources.getTiles();
+    const targetTileType = tiles?.[targetY]?.[targetX];
+    if (targetTileType !== 'w') {
+      FloatingTextManager.addFloatingText("Can only move to water while in boat.", currentPlayer.location.x, currentPlayer.location.y, TILE_SIZE);
+      return;
+    }
+    // For boat users moving to water, skip the normal isValidMove check
+  } else {
+    // Normal movement validation for non-boat users
+    if (!Array.isArray(masterResources)) {
+      console.error('masterResources is not an array:', masterResources);
+      return;
+    }
+    if (!isValidMove(targetX, targetY, masterResources,
+      currentPlayer,
+      setCurrentPlayer,
+      setGridId,
+      setGrid,
+      setTileTypes,
+      setResources,
+      updateStatus,
+      TILE_SIZE,
+      closeAllPanels,
+    )) {
+      console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
+      return;
+    }
   }
 
   const finalPosition = { x: targetX, y: targetY };

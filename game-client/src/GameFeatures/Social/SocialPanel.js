@@ -21,7 +21,9 @@ const SocialPanel = ({
   updateStatus,
 }) => {
   const [tentCount, setTentCount] = useState(0);
+  const [boatCount, setBoatCount] = useState(0);
   const [isCamping, setIsCamping] = useState(false);
+  const [isInBoat, setIsInBoat] = useState(false);
   const [displayedPCData, setDisplayedPCData] = useState(pcData);
   const [showChangeIconModal, setShowChangeIconModal] = useState(false);
 
@@ -39,9 +41,11 @@ const SocialPanel = ({
         const latestData = NPCsInGrid[pcData.playerId];
         if (latestData) {
             setIsCamping(latestData.iscamping || false);
+            setIsInBoat(latestData.isinboat || false);
             setDisplayedPCData(prev => ({
               ...prev,
               iscamping: latestData.iscamping,
+              isinboat: latestData.isinboat,
               hp: latestData.hp,
               username: latestData.username,
             }));
@@ -64,10 +68,15 @@ const SocialPanel = ({
     // ✅ Check if the selected PC is the current player
     if (pcData.username === currentPlayer.username) {
       setIsCamping(pcData.iscamping || false);
+      setIsInBoat(pcData.isinboat || false);
 
       // ✅ Get tent count from Backpack
       const tentsInBackpack = currentPlayer.backpack?.find(item => item.type === "Tent")?.quantity || 0;
       setTentCount(tentsInBackpack);
+
+      // ✅ Get boat count from Backpack
+      const boatsInBackpack = currentPlayer.backpack?.find(item => item.type === "Boat")?.quantity || 0;
+      setBoatCount(boatsInBackpack);
     }
   }, [pcData, currentPlayer]);
 
@@ -101,7 +110,12 @@ const SocialPanel = ({
         setIsCamping(true);
         setCurrentPlayer(prev => ({ ...prev, iscamping: true }));
         updateStatus(28);
-        updateCampingStateInGridState(currentPlayer.playerId, true);
+        
+        // Update PlayersInGrid directly
+        const gridId = currentPlayer?.location?.g;
+        if (gridId) {
+          playersInGridManager.updatePC(gridId, currentPlayer.playerId, { iscamping: true });
+        }
       }
     } catch (error) {
       console.error("❌ Error pitching tent:", error);
@@ -109,27 +123,7 @@ const SocialPanel = ({
     }
   };
 
-  const updateCampingStateInGridState = async (playerId, campingState) => {
-    try {
-        const gridId = currentPlayer?.location?.g;
-        if (!gridId) {
-            console.error("❌ Cannot update NPCsInGrid: No gridId found.");
-            return;
-        }
-
-        // ✅ Only update playersInGridManager
-        const playersInGrid = playersInGridManager.getPlayersInGrid(gridId);
-        if (playersInGrid?.[playerId]) {
-            playersInGridManager.updatePC(gridId, playerId, { iscamping: campingState });
-            console.log(`✅ Updated camping state in playersInGrid: ${playerId} iscamping=${campingState}`);
-        } else {
-            console.warn(`⚠️ Player ${playerId} not found in playersInGrid.`);
-        }
-    } catch (error) {
-        console.error("❌ Error updating camping state in playersInGrid:", error);
-    }
-};
-
+  
 
   // ✅ Handle Putting Away a Tent
   const handlePutAwayTent = async () => {
@@ -145,12 +139,71 @@ const SocialPanel = ({
         setCurrentPlayer(prev => ({ ...prev, iscamping: false }));
         updateStatus(30);
 
-        // ✅ Update GridState so other players see the change
-        updateCampingStateInGridState(currentPlayer.playerId, false);
+        // Update PlayersInGrid directly
+        const gridId = currentPlayer?.location?.g;
+        if (gridId) {
+          playersInGridManager.updatePC(gridId, currentPlayer.playerId, { iscamping: false });
+        }
       }
     } catch (error) {
       console.error("❌ Error putting away tent:", error);
       updateStatus(29);
+    }
+};
+
+  // ✅ Handle Getting in Boat
+  const handleGetInBoat = async () => {
+    console.log("🛶 handleGetInBoat called; boatCount = ", boatCount);
+    if (boatCount <= 0) return;
+
+    try {
+      // Note: Unlike tent, we don't consume the boat item
+      const response = await axios.post(`${API_BASE}/api/update-profile`, {
+        playerId: currentPlayer.playerId,
+        updates: { isinboat: true },
+      });
+
+      if (response.data.success) {
+        console.log('🛶 isinboat: updated profile successfully; response = ', response);
+        setIsInBoat(true);
+        setCurrentPlayer(prev => ({ ...prev, isinboat: true }));
+        updateStatus("You got in your boat."); // TODO: Add proper string ID
+        
+        // Update PlayersInGrid directly
+        const gridId = currentPlayer?.location?.g;
+        if (gridId) {
+          playersInGridManager.updatePC(gridId, currentPlayer.playerId, { isinboat: true });
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error getting in boat:", error);
+      updateStatus("Failed to get in boat."); // TODO: Add proper string ID
+    }
+  };
+
+  // ✅ Handle Getting out of Boat
+  const handleGetOutOfBoat = async () => {
+    try {
+      // ✅ Update boat status in the database
+      const response = await axios.post(`${API_BASE}/api/update-profile`, {
+        playerId: currentPlayer.playerId,
+        updates: { isinboat: false },
+      });
+
+      if (response.data.success) {
+        setIsInBoat(false);
+        setCurrentPlayer(prev => ({ ...prev, isinboat: false }));
+        updateStatus("You got out of your boat."); // TODO: Add proper string ID
+        
+        // Update PlayersInGrid directly
+        const gridId = currentPlayer?.location?.g;
+        if (gridId) {
+          playersInGridManager.updatePC(gridId, currentPlayer.playerId, { isinboat: false });
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error getting out of boat:", error);
+      updateStatus("Failed to get out of boat."); // TODO: Add proper string ID
     }
 };
 
@@ -177,9 +230,15 @@ const SocialPanel = ({
           <h3 style={{ fontWeight: "bold", color: "#4CAF50" }}>🏕️ Camping.</h3>
         )}
 
-        {/* ✅ Show camping button only for current player */}
+        {/* ✅ Show "You are in a boat." if isinboat === true */}
+        {displayedPCData.isinboat && (
+          <h3 style={{ fontWeight: "bold", color: "#2196F3" }}>🛶 In a boat.</h3>
+        )}
+
+        {/* ✅ Show camping and boat buttons only for current player */}
         {displayedPCData.username === currentPlayer.username && (
           <>
+            {/* Tent functionality */}
             {isCamping ? (
               <button className="btn-success" onClick={handlePutAwayTent}>⛺ Put Away Tent</button>
             ) : (
@@ -197,6 +256,30 @@ const SocialPanel = ({
                   }}
                 >
                   🏕️ Pitch Tent
+                </button>
+              </>
+            )}
+
+            <br /><br />
+
+            {/* Boat functionality */}
+            {isInBoat ? (
+              <button className="btn-success" onClick={handleGetOutOfBoat}>🛶 Get Out of Boat</button>
+            ) : (
+              <>
+                <p>You have <strong>{boatCount}</strong> boats.</p>
+                <button 
+                  className="btn-success" 
+                  onClick={() => {
+                    if (boatCount <= 0) {
+                      console.warn("🚫 No boats found. Button press ignored.");
+                      updateStatus("You don't have a boat."); // TODO: Add proper string ID
+                    } else {
+                      handleGetInBoat();
+                    }
+                  }}
+                >
+                  🛶 Get in Boat
                 </button>
               </>
             )}

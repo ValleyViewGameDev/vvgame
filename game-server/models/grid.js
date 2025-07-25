@@ -61,6 +61,7 @@ const GridSchema = new mongoose.Schema({
       attackrange: { type: Number, required: true },
       speed: { type: Number, required: true },
       iscamping: { type: Boolean, default: false },
+      isinboat: { type: Boolean, default: false },
       lastUpdated: { type: Date, default: Date.now }
     }),
     default: {}

@@ -187,6 +187,7 @@ const DynamicRenderer = ({
 
       let symbol = pc.icon || '😊';
       if (pc.iscamping) symbol = '⛺️';
+      else if (pc.isinboat) symbol = '🛶';
       else if (pc.hp <= 0) symbol = '💀';
       else if (pc.hp < 20) symbol = '🤢';
 
@@ -468,6 +469,7 @@ function handlePCHover(event, pc, TILE_SIZE, setHoverTooltip) {
   const username = pc.username || 'Anonymous';
   let content = `<p>${username}</p><p>❤️‍🩹 HP: ${pc.hp}</p>`;
   if (pc.iscamping) content += `<p>🏕️ Camping</p>`;
+  if (pc.isinboat) content += `<p>🛶 In a boat</p>`;
   
   setHoverTooltip({ x, y, content });
 }

@@ -103,6 +103,7 @@ const handleCreateAccount = async (e) => {
       attackrange: player.baseAttackrange || 1,
       speed: player.baseSpeed || 1,
       iscamping: false,
+      isinboat: false,
       lastUpdated: now,
     };
 

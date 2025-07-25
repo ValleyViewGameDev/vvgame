@@ -546,7 +546,22 @@
   "12007": "Gouvernement",
   "12008": "Saisons",
   "12009": "Accueil",
-  "12010": "Profil"
+  "12010": "Profil",
+
+      "320": "Cannot terraform lava.",
+    "2085": "Current Mayor:",
+    "438": "Remove Crop",
+    "439": "Crop returned.",
+    "315": "Select Crops to Harvest:",
+    "316": "Select All",
+    "317": "Deselect All",
+    "318": "Collect",
+    "319": "Select Animals to Collect:",
+
+    "1129": "🐾 Animals",
+    "1130": "🌱 Crops & Trees",
+    "1029": "[Animal panel]",
+    "1030": "[Crop panel]"
 
   }
 

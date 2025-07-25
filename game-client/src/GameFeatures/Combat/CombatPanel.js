@@ -85,6 +85,7 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
     finalStats.position = currentPlayer.position || {};
     finalStats.icon = currentPlayer.icon || "😀";
     finalStats.iscamping = currentPlayer.iscamping || false;
+    finalStats.isinboat = currentPlayer.isinboat || false;
     finalStats.lastUpdated = new Date().toISOString();
 
     const pc = getPlayerStats();
@@ -137,6 +138,7 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
               <br></br>
 
               <h4>⛺️ Is Camping: {currentPlayer.iscamping ? "Yes" : "No"}</h4>
+              <h4>🛶 In Boat: {currentPlayer.isinboat ? "Yes" : "No"}</h4>
             </div>
 
             <br></br>

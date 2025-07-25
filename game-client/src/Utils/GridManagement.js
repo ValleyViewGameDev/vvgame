@@ -198,6 +198,7 @@ export const changePlayerLocation = async (
       speed: fromPlayerState.speed ?? currentPlayer.speed ?? 1,
       attackrange: fromPlayerState.attackrange ?? currentPlayer.attackrange ?? 1,
       iscamping: fromPlayerState.iscamping ?? currentPlayer.iscamping ?? false,
+      isinboat: fromPlayerState.isinboat ?? currentPlayer.isinboat ?? false,
       lastUpdated: now,
     };
 
