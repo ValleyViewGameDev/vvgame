@@ -81,7 +81,9 @@ const FarmHandPanel = ({
         .map((res) => res.output)
         .filter(Boolean);
 
-      const filteredRecipes = masterResources.filter((res) => farmOutputs.includes(res.type));
+      const filteredRecipes = masterResources.filter((res) => 
+        farmOutputs.includes(res.type) && res.type !== 'Oak Tree'
+      );
       setRecipes(filteredRecipes);
 
       const stationResource = masterResources.find((res) => res.type === stationType);

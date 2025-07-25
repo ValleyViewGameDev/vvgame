@@ -371,42 +371,25 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     if (!slot || !slot.boughtFor) return;
 
     try {
-      // Get fresh inventory data
-      const freshInventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
-      const freshInventory = freshInventoryResponse.data.inventory || [];
-
-      // Find existing money entry or create new one
-      const moneyIndex = freshInventory.findIndex(item => item.type === 'Money');
-      let updatedInventory;
-      
-      if (moneyIndex >= 0) {
-        // Add to existing money
-        updatedInventory = [...freshInventory];
-        updatedInventory[moneyIndex] = {
-          ...updatedInventory[moneyIndex],
-          quantity: updatedInventory[moneyIndex].quantity + slot.boughtFor
-        };
-      } else {
-        // Create new money entry
-        updatedInventory = [...freshInventory, { type: 'Money', quantity: slot.boughtFor }];
-      }
-
-      // Update inventory directly on server
-      await axios.post(`${API_BASE}/api/update-inventory`, {
+      // Use gainIngredients utility to properly handle money addition
+      const success = await gainIngredients({
         playerId: currentPlayer.playerId,
-        inventory: updatedInventory,
+        currentPlayer,
+        resource: 'Money',
+        quantity: slot.boughtFor,
+        inventory,
+        backpack: [],
+        setInventory,
+        setBackpack: () => {},
+        setCurrentPlayer,
+        updateStatus,
+        masterResources: [],
       });
 
-      // Update local inventory state
-      setInventory(updatedInventory);
-
-      // Update player's money in currentPlayer state
-      const updatedPlayer = {
-        ...currentPlayer,
-        inventory: updatedInventory
-      };
-      setCurrentPlayer(updatedPlayer);
-      localStorage.setItem('player', JSON.stringify(updatedPlayer));
+      if (!success) {
+        updateStatus('❌ Failed to collect payment.');
+        return;
+      }
 
       // Clear the trade slot
       const updatedSlots = [...tradeSlots];
