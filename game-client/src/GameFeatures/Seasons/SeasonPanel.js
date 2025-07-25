@@ -4,6 +4,7 @@ import axios from 'axios';
 import Panel from '../../UI/Panel';
 import { formatCountdown } from '../../UI/Timers';
 import '../../UI/Modal.css';
+import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 
 function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
   const [countdown, setCountdown] = useState("");
@@ -99,12 +100,12 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
           }
         }
         const leadingSettlementName = leadingSettlementId && settlementWealthMap[leadingSettlementId] ? settlementWealthMap[leadingSettlementId].settlementName : "No data available";
-        // Add logic to retrieve population:
+        // Add logic to retrieve population using derived calculation:
         let leadingSettlementPopulation = "Unknown";
         if (leadingSettlementId && settlements) {
           const matching = settlements.find(s => s._id === leadingSettlementId);
           if (matching) {
-            leadingSettlementPopulation = matching.population || 0;
+            leadingSettlementPopulation = calculateSettlementPopulation(matching);
           }
         }
         // store population into settlementMap with a compound key to retrieve later

@@ -6,6 +6,7 @@ import { getMayorUsername } from './GovUtils';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import '../../UI/Modal.css';
 import { useStrings } from '../../UI/StringsContext';
+import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 
 function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
   const strings = useStrings();
@@ -46,11 +47,8 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
         setTaxLog(settlement.taxlog || []);
         setTaxRate(settlement.taxrate || 0);
         
-        const allGrids = settlement.grids?.flat() || []; 
-        const occupiedHomesteads = allGrids.filter(grid => 
-            grid.gridType === "homestead" && grid.available === false
-        ).length || 0;
-        setPopulation(occupiedHomesteads);
+        const population = calculateSettlementPopulation(settlement);
+        setPopulation(population);
         
         const mayorName = await getMayorUsername(currentPlayer.settlementId);
         setMayor(mayorName);
