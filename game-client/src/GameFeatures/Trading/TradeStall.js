@@ -27,7 +27,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const COOLDOWN_DURATION = 2000;
 
   const tradeStallHaircut = 0.25;
-  const sellWaitTime = 60 * 60 * 1000; // 1 hour
+  const sellWaitTime = 30 * 1000; // DEBUG 30 s
+//  const sellWaitTime = 60 * 60 * 1000; // 1 hour
 
   const calculateTotalSlots = (player) => {
     const baseSlots = 4;
@@ -370,24 +371,44 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     if (!slot || !slot.boughtFor) return;
 
     try {
-      // Fetch fresh inventory data before processing payment
+      // Get fresh inventory data
       const freshInventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
       const freshInventory = freshInventoryResponse.data.inventory || [];
 
-      await gainIngredients({
+      // Find existing money entry or create new one
+      const moneyIndex = freshInventory.findIndex(item => item.type === 'Money');
+      let updatedInventory;
+      
+      if (moneyIndex >= 0) {
+        // Add to existing money
+        updatedInventory = [...freshInventory];
+        updatedInventory[moneyIndex] = {
+          ...updatedInventory[moneyIndex],
+          quantity: updatedInventory[moneyIndex].quantity + slot.boughtFor
+        };
+      } else {
+        // Create new money entry
+        updatedInventory = [...freshInventory, { type: 'Money', quantity: slot.boughtFor }];
+      }
+
+      // Update inventory directly on server
+      await axios.post(`${API_BASE}/api/update-inventory`, {
         playerId: currentPlayer.playerId,
-        currentPlayer,
-        resource: 'Money',
-        quantity: slot.boughtFor,
-        inventory: freshInventory, // Use fresh inventory data
-        backpack: [],
-        setInventory,
-        setBackpack: () => {},
-        setCurrentPlayer,
-        updateStatus,
-        masterResources: [],
+        inventory: updatedInventory,
       });
 
+      // Update local inventory state
+      setInventory(updatedInventory);
+
+      // Update player's money in currentPlayer state
+      const updatedPlayer = {
+        ...currentPlayer,
+        inventory: updatedInventory
+      };
+      setCurrentPlayer(updatedPlayer);
+      localStorage.setItem('player', JSON.stringify(updatedPlayer));
+
+      // Clear the trade slot
       const updatedSlots = [...tradeSlots];
       updatedSlots[slotIndex] = null;
 
@@ -398,9 +419,10 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
    
       setTradeSlots(updatedSlots);
       calculateTotalSellValue(updatedSlots);
-      updateStatus(6);
+      updateStatus(`Collected ${slot.boughtFor} Money.`);
     } catch (error) {
       console.error('Error collecting payment:', error);
+      updateStatus('❌ Failed to collect payment.');
     }
   };
 
