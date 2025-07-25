@@ -14,7 +14,8 @@ export const setGridStateExternally = (state) => {
 };
 
 export function GridStateProvider({ children }) {
-  const [NPCsInGrid, setGridState] = useState({}); // instead of null  externalSetGridState = setGridState;
+  const [NPCsInGrid, setGridState] = useState({}); // instead of null
+  externalSetGridState = setGridState;
   React.useEffect(() => {
     const id = Math.floor(Math.random() * 10000);
     console.log(`🧩 GridStateProvider mounted. ID: ${id}`);

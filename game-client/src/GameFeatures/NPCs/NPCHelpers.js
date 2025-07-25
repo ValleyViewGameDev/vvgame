@@ -5,6 +5,7 @@ import NPCsInGridManager from "../../GridState/GridStateNPCs";
 import { handleAttackOnNPC } from "../Combat/Combat";
 import { gainIngredients } from "../../Utils/InventoryManagement";
 import { trackQuestProgress } from '../../GameFeatures/Quests/QuestGoalTracker';
+import AnimalPanel from '../FarmAnimals/FarmAnimals.js';
 
 export function loadNPCDefinitions(resources) {
     const npcDefinitions = {};
@@ -44,6 +45,8 @@ export async function handleNPCClick(
   setIsModalOpen,
   updateStatus,
   setUILocked,
+  openPanel,
+  setActiveStation,
 ) {
   if (!npc) {
     console.warn("handleNPCClick was called with an undefined NPC.");
@@ -61,11 +64,6 @@ export async function handleNPCClick(
       }
  
     case 'graze': {
-      // Prevent repeated clicks by locking the cursor for 2 seconds
-      if (typeof setUILocked === 'function') {
-        setUILocked(true);
-        setTimeout(() => setUILocked(false), 2000);
-      }
 
       console.log(`Handling grazing logic for NPC ${npc.id}.`);
 
@@ -103,14 +101,29 @@ export async function handleNPCClick(
           setIsModalOpen(true);
         });
       }
-      
-      // ✅ Otherwise, handle Animals in stalls in "procesing" state
 
       if (npc.state !== 'processing') {
         console.log(`NPC clicked but not in processing state: ${npc.state}`);
+
+        // Set the active station before opening the panel
+        setActiveStation({
+          type: npc.type,
+          position: { x: col, y: row },
+          gridId: currentGridId,
+          npcId: npc.id, // Include the NPC ID for reliable identification
+        });
+        openPanel('AnimalPanel');
+
         return { type: 'info', message: 'NPC is not ready for collection.' };
       }
 
+      // ✅ Otherwise, handle Animals in stalls in "procesing" state
+
+      // Prevent repeated clicks by locking the cursor for 2 seconds
+      if (typeof setUILocked === 'function') {
+        setUILocked(true);
+        setTimeout(() => setUILocked(false), 2000);
+      }
       const baseQuantity = npc.qtycollected || 1;
       console.log('Base quantity to collect:', baseQuantity);
 

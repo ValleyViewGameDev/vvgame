@@ -66,6 +66,7 @@ import FarmHandPanel from './GameFeatures/FarmHands/FarmHand.js';
 import TradingStation from './GameFeatures/Crafting/TradingStation';
 import ShopStation from './GameFeatures/Crafting/ShopStation';
 import AnimalStall from './GameFeatures/FarmAnimals/AnimalStall';
+import AnimalPanel from './GameFeatures/FarmAnimals/FarmAnimals.js';
 import DecoPanel from './GameFeatures/Deco/DecoPanel';
 import TradeStall from './GameFeatures/Trading/TradeStall';
 import Mailbox from './GameFeatures/Mailbox/Mailbox';
@@ -104,6 +105,13 @@ useEffect(() => {
   console.trace();
 }, []);
 
+useEffect(() => {
+  const appEl = document.getElementById('root');
+  console.log("📦 App mounted. Parent contents:", appEl?.innerHTML?.slice(0, 200));
+  return () => {
+    console.log("💥 App unmounted.");
+  };
+}, []);
 
   const strings = useStrings();
   const { uiLocked } = useUILock();
@@ -1652,10 +1660,12 @@ return (
         />
         <DynamicRenderer
           TILE_SIZE={activeTileSize}
+          openPanel={openPanel}
+          setActiveStation={setActiveStation}
           setInventory={setInventory}
           setResources={setResources}
           currentPlayer={currentPlayer}
-          openPanel={openPanel}
+          setCurrentPlayer={setCurrentPlayer}
           onNPCClick={handleQuestNPCClick}  // Pass the callback
           onPCClick={handlePCClick}  // Pass the callback
           masterResources={masterResources}
@@ -2118,6 +2128,25 @@ return (
           stationType={activeStation?.type} 
           currentStationPosition={activeStation?.position} 
           gridId={activeStation?.gridId} 
+          TILE_SIZE={activeTileSize}
+          updateStatus={updateStatus}
+          masterResources={masterResources}
+        />
+      )}
+      {activePanel === 'AnimalPanel' && (
+        <AnimalPanel
+          onClose={closePanel}
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          setResources={setResources}
+          stationType={activeStation?.type} 
+          currentStationPosition={activeStation?.position} 
+          gridId={activeStation?.gridId} 
+          npcId={activeStation?.npcId}
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}

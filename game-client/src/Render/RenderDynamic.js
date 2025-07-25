@@ -16,6 +16,8 @@ import { useUILock } from '../UI/UILockContext';
 
 const DynamicRenderer = ({
   TILE_SIZE,
+  openPanel,
+  setActiveStation,
   setInventory,
   setResources,
   currentPlayer,
@@ -108,6 +110,8 @@ const DynamicRenderer = ({
               setIsModalOpen,
               updateStatus,
               setUILocked,
+              openPanel,
+              setActiveStation,
             );
           }
         });

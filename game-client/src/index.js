@@ -12,8 +12,27 @@ import { UILockProvider } from './UI/UILockContext';
 
 console.warn("🔥 index.js evaluated again — app may remount");
 
-const savedPlayer = localStorage.getItem('player');
-const savedLanguage = savedPlayer ? JSON.parse(savedPlayer)?.language : 'en';
+// Prevent HMR from creating multiple instances
+if (window.__app_initialized__) {
+  console.log("🛑 App already initialized, preventing HMR remount");
+  // Don't execute the rest of the file
+} else {
+  window.__app_initialized__ = true;
+
+// Cache the language to prevent provider recreation when player data changes
+let cachedLanguage = 'en';
+try {
+  const savedPlayer = localStorage.getItem('player');
+  if (savedPlayer) {
+    const parsedPlayer = JSON.parse(savedPlayer);
+    if (parsedPlayer?.language) {
+      cachedLanguage = parsedPlayer.language;
+    }
+  }
+} catch (e) {
+  console.warn('Failed to parse player data for language:', e);
+}
+const savedLanguage = cachedLanguage;
 const rootEl = document.getElementById('root');
 console.log("🪵 root element:", rootEl);
 
@@ -49,6 +68,7 @@ if (!window.__app_rendered__) {
   console.error("❌ App already rendered — something is wrong");
 }
 
+} // Close the main HMR prevention block
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
