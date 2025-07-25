@@ -557,7 +557,8 @@
 
     "130": "Select your language:",
     "131": "Confirm",
-    "320": "Cannot terraform lava."
+    "320": "Cannot terraform lava.",
+    "2085": "Current Mayor:"
 
 
   }

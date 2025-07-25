@@ -9,6 +9,7 @@ import './Courthouse.css';
 import '../../UI/Panel.css';
 import { useStrings } from '../../UI/StringsContext';
 import '../../UI/Modal.css';
+import { getMayorUsername } from './GovUtils';
 
 const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
 
@@ -31,6 +32,7 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
     const [tempSettlementName, setTempSettlementName] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState(null);
+    const [mayor, setMayor] = useState("");
 
     
     const handleViewElectionLog = async () => {
@@ -161,6 +163,10 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
             // Update mayor status
             const mayorRole = settlementData.roles.find(role => role.roleName === 'Mayor');
             setIsMayor(mayorRole && mayorRole.playerId.toString() === currentPlayer._id.toString());
+            
+            // Fetch mayor username
+            const mayorName = await getMayorUsername(currentPlayer.settlementId);
+            setMayor(mayorName);
 
             // Always reset hasVoted and votedFor before checking
             setHasVoted(false);
@@ -335,6 +341,10 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
                     ) : (
                         <h2>{settlement?.displayName || 'Unnamed'}</h2>
                     )}
+
+{/* CURRENT MAYOR section */}
+                    <h3>{strings[2085]}</h3>
+                    <p><strong>{mayor || "Vacant"}</strong></p>
  
 {/* TAX RATE section */} 
  
