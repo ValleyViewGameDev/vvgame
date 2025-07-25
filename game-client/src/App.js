@@ -67,6 +67,7 @@ import TradingStation from './GameFeatures/Crafting/TradingStation';
 import ShopStation from './GameFeatures/Crafting/ShopStation';
 import AnimalStall from './GameFeatures/FarmAnimals/AnimalStall';
 import AnimalPanel from './GameFeatures/FarmAnimals/FarmAnimals.js';
+import CropPanel from './GameFeatures/Farming/CropPanel.js';
 import DecoPanel from './GameFeatures/Deco/DecoPanel';
 import TradeStall from './GameFeatures/Trading/TradeStall';
 import Mailbox from './GameFeatures/Mailbox/Mailbox';
@@ -1235,6 +1236,10 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
       setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, });
       openPanel('AnimalStall');
     } 
+    else if (resource.category === 'farmplot') {
+      setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, });
+      openPanel('CropPanel');
+    } 
     else if (resource.category === 'deco') {
       setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, });
       openPanel('DecoPanel');
@@ -2135,6 +2140,25 @@ return (
       )}
       {activePanel === 'AnimalPanel' && (
         <AnimalPanel
+          onClose={closePanel}
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          setResources={setResources}
+          stationType={activeStation?.type} 
+          currentStationPosition={activeStation?.position} 
+          gridId={activeStation?.gridId} 
+          npcId={activeStation?.npcId}
+          TILE_SIZE={activeTileSize}
+          updateStatus={updateStatus}
+          masterResources={masterResources}
+        />
+      )}
+      {activePanel === 'CropPanel' && (
+        <CropPanel
           onClose={closePanel}
           inventory={inventory}
           setInventory={setInventory}

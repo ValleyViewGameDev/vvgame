@@ -114,7 +114,7 @@
     "423": "No trades available.",
     "424": "No recipes available.",
     "425": "Sell for refund.",
-    
+        
     "500": "COMBAT STRINGS",
 
     "501": "🎯 Out of range.",
@@ -163,7 +163,7 @@
     "1026": "[Money panel description]",
     "1027": "These are the benefits of a Gold Pass.",
     "1028": "[Decorations panel description]",
-    
+ 
     "1101": "Inventory",
     "1102": "⚒️ Build",
     "1103": "🛒 Buy",
@@ -192,7 +192,6 @@
     "1126": "💰 About Money",
     "1127": "⭐️ Gold Pass",
     "1128": "🪑 Decorations",
-
 
 
     "1200": "TRADER STORY STRINGS",
@@ -540,6 +539,8 @@
     "435": "Click to instantly chop multiple trees and collect wood.",
     "436": "You have no animals to collect from.",
     "437": "You have no trees to chop.",
+    "130": "Select your language:",
+    "131": "Confirm",
 
     "12001": "Farming",
     "12002": "Build",
@@ -555,10 +556,15 @@
 
     "11000": "ADDED STRINGS:",
 
-    "130": "Select your language:",
-    "131": "Confirm",
     "320": "Cannot terraform lava.",
-    "2085": "Current Mayor:"
+    "2085": "Current Mayor:",
+    "438": "Delete Crop",
+    "439": "Crop deleted.",
+
+    "1129": "🐾 Animals",
+    "1130": "🌱 Crops & Trees",
+    "1029": "[Animal panel]",
+    "1030": "[Crop panel]"
 
 
   }

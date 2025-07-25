@@ -11,7 +11,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { useUILock } from '../../UI/UILockContext';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 
-const AnimalPanel = ({
+const CropPanel = ({
   onClose,
   inventory,
   setInventory,
@@ -161,27 +161,13 @@ const AnimalPanel = ({
       setResources(prevResources =>
         prevResources.filter(res => !(res.x === currentStationPosition.x && res.y === currentStationPosition.y))
       );
-      console.log("🧹 AnimalStall resource removed from client state.");
-
-      // Remove the animal NPC from NPCsInGrid using the specific NPC ID
-      try {
-        if (npcId) {
-          console.log(`🐄 Removing animal NPC ${npcId} (original position: ${currentStationPosition.x}, ${currentStationPosition.y})`);
-          await NPCsInGridManager.removeNPC(gridId, npcId);
-          console.log("🧹 Animal NPC removed from NPCsInGrid.");
-        } else {
-          console.error("No NPC ID provided - cannot remove animal NPC");
-        }
-      } catch (error) {
-        console.error('Error removing NPC:', error);
-      }
 
       const totalRefund = ingredients
         .filter((item) => item.type === "Money")
         .reduce((sum, item) => sum + item.quantity, 0);
 
       console.log(`Sold ${stationType} successfully for ${totalRefund} Money.`);
-      updateStatus(`Sold ${stationType} for ${totalRefund} Money.`);
+      updateStatus(439);
       onClose();
     } catch (error) {
       console.error('Error selling the stall:', error);
@@ -190,7 +176,7 @@ const AnimalPanel = ({
   
 
   return (
-    <Panel onClose={onClose} descriptionKey="1029" titleKey="1129" panelName="AnimalPanel" >
+    <Panel onClose={onClose} descriptionKey="1030" titleKey="1130" panelName="CropPanel" >
       <div className="standard-panel">
         <h2>
             {stallDetails?.symbol || '🛖'} {stationType}
@@ -208,7 +194,7 @@ const AnimalPanel = ({
             <hr />
               <div className="standard-buttons">
                 <button className="btn-success" onClick={handleSellStation} disabled={isActionCoolingDown}>
-                  {strings[425]}
+                  {strings[438]}
                 </button>
               </div>
           </>
@@ -219,4 +205,4 @@ const AnimalPanel = ({
   
 };
 
-export default React.memo(AnimalPanel);
+export default React.memo(CropPanel);
