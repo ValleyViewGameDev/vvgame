@@ -4489,6 +4489,18 @@
         "ingredient1qty": 10000
     },
     {
+        "type": "Bulk Replant",
+        "symbol": "🌱",
+        "category": "skill",
+        "source": "Farm Hand",
+        "requires": "Bulk Harvest",
+        "qtycollected": 1,
+        "level": 3,
+        "minprice": 0,
+        "ingredient1": "Money",
+        "ingredient1qty": 10000
+    },
+    {
         "type": "Logging",
         "symbol": "🪓",
         "category": "skill",
