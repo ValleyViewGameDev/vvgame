@@ -369,31 +369,39 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     const slot = tradeSlots[slotIndex];
     if (!slot || !slot.boughtFor) return;
 
-    await gainIngredients({
-      playerId: currentPlayer.playerId,
-      currentPlayer,
-      resource: 'Money',
-      quantity: slot.boughtFor,
-      inventory,
-      backpack: [],
-      setInventory,
-      setBackpack: () => {},
-      setCurrentPlayer,
-      updateStatus,
-      masterResources: [],
-    });
+    try {
+      // Fetch fresh inventory data before processing payment
+      const freshInventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
+      const freshInventory = freshInventoryResponse.data.inventory || [];
 
-    const updatedSlots = [...tradeSlots];
-    updatedSlots[slotIndex] = null;
+      await gainIngredients({
+        playerId: currentPlayer.playerId,
+        currentPlayer,
+        resource: 'Money',
+        quantity: slot.boughtFor,
+        inventory: freshInventory, // Use fresh inventory data
+        backpack: [],
+        setInventory,
+        setBackpack: () => {},
+        setCurrentPlayer,
+        updateStatus,
+        masterResources: [],
+      });
 
-    await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
-      playerId: currentPlayer.playerId,
-      tradeStall: updatedSlots,
-    });
- 
-    setTradeSlots(updatedSlots);
-    calculateTotalSellValue(updatedSlots);
-    updateStatus(6);
+      const updatedSlots = [...tradeSlots];
+      updatedSlots[slotIndex] = null;
+
+      await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
+        playerId: currentPlayer.playerId,
+        tradeStall: updatedSlots,
+      });
+   
+      setTradeSlots(updatedSlots);
+      calculateTotalSellValue(updatedSlots);
+      updateStatus(6);
+    } catch (error) {
+      console.error('Error collecting payment:', error);
+    }
   };
 
   return (
