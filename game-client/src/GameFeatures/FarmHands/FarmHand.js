@@ -3,6 +3,7 @@ import { useUILock } from '../../UI/UILockContext';
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
+import Modal from '../../UI/Modal';
 import '../Crafting/TradingStation.css';
 import '../../UI/ResourceButton.css';
 import ResourceButton from '../../UI/ResourceButton';
@@ -41,6 +42,12 @@ const FarmHandPanel = ({
   const [stationDetails, setStationDetails] = useState(null);
   const [farmhandSkills, setFarmhandSkills] = useState([]);
   const [farmhandUpgrades, setFarmhandUpgrades] = useState([]);
+  const [isHarvestModalOpen, setIsHarvestModalOpen] = useState(false);
+  const [selectedCropTypes, setSelectedCropTypes] = useState({});
+  const [availableCrops, setAvailableCrops] = useState([]);
+  const [isAnimalModalOpen, setIsAnimalModalOpen] = useState(false);
+  const [selectedAnimalTypes, setSelectedAnimalTypes] = useState({});
+  const [availableAnimals, setAvailableAnimals] = useState([]);
   const skills = currentPlayer.skills || [];
   
   // Sync inventory with local storage and server
@@ -176,26 +183,71 @@ const FarmHandPanel = ({
   };
 
 
-  async function handleBulkAnimalCollect() {
-    console.log('🐮 Bulk animal collect initiated');
+  function handleBulkAnimalCollect() {
+    console.log('🐮 Opening selective animal collect modal');
+    
+    const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+    const processingAnimals = npcs.filter(npc => npc.state === 'processing');
+
+    if (processingAnimals.length === 0) {
+      updateStatus('No animals are ready to collect.');
+      return;
+    }
+
+    // Count how many of each animal type is ready
+    const animalCounts = {};
+    processingAnimals.forEach((npc) => {
+      animalCounts[npc.type] = (animalCounts[npc.type] || 0) + 1;
+    });
+
+    // Create array of available animals with counts and symbols
+    const animalsWithDetails = Object.entries(animalCounts).map(([animalType, count]) => {
+      const resourceDef = masterResources.find(res => res.type === animalType);
+      return {
+        type: animalType,
+        count,
+        symbol: resourceDef?.symbol || '🐮'
+      };
+    });
+
+    setAvailableAnimals(animalsWithDetails);
+    
+    // Select all animals by default
+    const defaultSelection = {};
+    animalsWithDetails.forEach(animal => {
+      defaultSelection[animal.type] = true;
+    });
+    setSelectedAnimalTypes(defaultSelection);
+    
+    setIsAnimalModalOpen(true);
+  }
+
+  async function executeSelectiveAnimalCollect() {
+    console.log('🐮 Executing selective animal collect');
+    setIsAnimalModalOpen(false);
     onClose();
     setUILocked(true);
     setErrorMessage('');
 
     try {
-      const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-      const processingAnimals = npcs.filter(npc => npc.state === 'processing');
-
-      if (processingAnimals.length === 0) {
-        updateStatus('No animals are ready to collect.');
+      // Get selected animal types
+      const selectedTypes = Object.keys(selectedAnimalTypes).filter(type => selectedAnimalTypes[type]);
+      
+      if (selectedTypes.length === 0) {
+        updateStatus('No animals selected for collection.');
         setUILocked(false);
         return;
       }
 
+      const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+      const animalsToCollect = npcs.filter(npc => 
+        npc.state === 'processing' && selectedTypes.includes(npc.type)
+      );
+
       const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
       const successfulCollects = {};
 
-      for (const npc of processingAnimals) {
+      for (const npc of animalsToCollect) {
         await handleNPCClick(
           npc,
           npc.position.y,
@@ -206,7 +258,7 @@ const FarmHandPanel = ({
           setCurrentPlayer,
           TILE_SIZE,
           masterResources,
-          masterSkills, // replace with masterSkills if available
+          masterSkills,
           gridId,
           () => {}, // setModalContent (not used here)
           () => {}, // setIsModalOpen (not used here)
@@ -219,10 +271,10 @@ const FarmHandPanel = ({
 
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-      updateStatus(`✅ Bulk Animal Collect complete: ${Object.entries(successfulCollects).map(([t, q]) => `${q} ${t}`).join(', ')}`);
+      updateStatus(`✅ Selective Animal Collect complete: ${Object.entries(successfulCollects).map(([t, q]) => `${q} ${t}`).join(', ')}`);
     } catch (error) {
-      console.error('Bulk animal collect failed:', error);
-      setErrorMessage('Failed to bulk collect animals.');
+      console.error('Selective animal collect failed:', error);
+      setErrorMessage('Failed to collect selected animals.');
     } finally {
       setUILocked(false);
     }
@@ -365,39 +417,72 @@ const FarmHandPanel = ({
   }
 
 
-  async function handleBulkHarvest() {
+  function handleBulkHarvest() {
+    console.log('🚜 Opening selective harvest modal');
+    
+    // Get farmplot outputs (crop types)
+    const cropTypes = masterResources
+      .filter(res => res.category === 'farmplot')
+      .map(res => res.output)
+      .filter(Boolean);
 
-    console.log('🚜 Bulk harvest initiated');
+    // Count how many of each crop is present in the current grid (excluding trees)
+    const resourceCounts = {};
+    resources?.forEach((res) => {
+      if (cropTypes.includes(res.type) && res.type !== "Oak Tree" && res.type !== "Pine Tree") {
+        resourceCounts[res.type] = (resourceCounts[res.type] || 0) + 1;
+      }
+    });
+
+    if (Object.keys(resourceCounts).length === 0) {
+      updateStatus(429); // No crops available
+      return;
+    }
+
+    // Create array of available crops with counts and symbols
+    const cropsWithDetails = Object.entries(resourceCounts).map(([cropType, count]) => {
+      const resourceDef = masterResources.find(res => res.type === cropType);
+      return {
+        type: cropType,
+        count,
+        symbol: resourceDef?.symbol || '🌾'
+      };
+    });
+
+    setAvailableCrops(cropsWithDetails);
+    
+    // Select all crops by default
+    const defaultSelection = {};
+    cropsWithDetails.forEach(crop => {
+      defaultSelection[crop.type] = true;
+    });
+    setSelectedCropTypes(defaultSelection);
+    
+    setIsHarvestModalOpen(true);
+  }
+
+  async function executeSelectiveHarvest() {
+    console.log('🚜 Executing selective harvest');
+    setIsHarvestModalOpen(false);
     onClose();
     setUILocked(true);
-
     setErrorMessage('');
+
     const safeInventory = Array.isArray(inventory) ? inventory : [];
     const safeBackpack = Array.isArray(backpack) ? backpack : [];
 
     try {
-      // Step 1: Get farmplot outputs
-      const cropTypes = masterResources
-        .filter(res => res.category === 'farmplot')
-        .map(res => res.output)
-        .filter(Boolean);
-
-      // Step 2: Count how many of each crop is present in the current grid
-      const resourceCounts = {};
-      resources?.forEach((res) => {
-        if (cropTypes.includes(res.type)) {
-          resourceCounts[res.type] = (resourceCounts[res.type] || 0) + 1;
-        }
-      });
-
-      if (Object.keys(resourceCounts).length === 0) {
-        updateStatus(429);
+      // Get selected crop types
+      const selectedTypes = Object.keys(selectedCropTypes).filter(type => selectedCropTypes[type]);
+      
+      if (selectedTypes.length === 0) {
+        updateStatus('No crops selected for harvest.');
         setUILocked(false);
         return;
       }
 
-      // Step 3: Visually remove each crop using handleDooberClick
-      const cropsToHarvest = resources.filter(res => cropTypes.includes(res.type));
+      // Filter resources to only selected crop types
+      const cropsToHarvest = resources.filter(res => selectedTypes.includes(res.type));
       const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
       const successfulHarvest = {};
 
@@ -432,12 +517,10 @@ const FarmHandPanel = ({
 
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-      updateStatus(`✅ Bulk Crop Harvest complete: ${Object.entries(successfulHarvest).map(([t, q]) => `${q} ${t}`).join(', ')}`);
-
-      // TODO: remove the successfully harvested items from the board
+      updateStatus(`✅ Selective Crop Harvest complete: ${Object.entries(successfulHarvest).map(([t, q]) => `${q} ${t}`).join(', ')}`);
     } catch (error) {
-      console.error('Bulk crop harvest failed:', error);
-      setErrorMessage('Failed to bulk crop harvest.');
+      console.error('Selective crop harvest failed:', error);
+      setErrorMessage('Failed to harvest selected crops.');
     } finally {
       setUILocked(false);
     }
@@ -566,6 +649,134 @@ const FarmHandPanel = ({
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       </div>
+      
+      {/* Selective Harvest Modal */}
+      {isHarvestModalOpen && (
+        <Modal
+          isOpen={isHarvestModalOpen}
+          onClose={() => setIsHarvestModalOpen(false)}
+          title={strings[315]}
+          size="medium"
+        >
+          <div style={{ padding: '20px' }}>            
+            <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
+              <button 
+                onClick={() => {
+                  const allSelected = {};
+                  availableCrops.forEach(crop => {
+                    allSelected[crop.type] = true;
+                  });
+                  setSelectedCropTypes(allSelected);
+                }}
+                style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
+              >
+                {strings[316]}
+              </button>
+              <button 
+                onClick={() => setSelectedCropTypes({})}
+                style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '3px' }}
+              >
+                {strings[317]}
+              </button>
+            </div>
+            
+            <div style={{ marginBottom: '20px' }}>
+              {availableCrops.map(crop => (
+                <div key={crop.type} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedCropTypes[crop.type] || false}
+                    onChange={(e) => {
+                      setSelectedCropTypes(prev => ({
+                        ...prev,
+                        [crop.type]: e.target.checked
+                      }));
+                    }}
+                    style={{ marginRight: '10px' }}
+                  />
+                  <span style={{ marginRight: '10px' }}>{crop.symbol}</span>
+                  <span style={{ marginRight: '10px', fontWeight: 'bold' }}>{crop.type}</span>
+                  <span style={{ color: '#666' }}>({crop.count})</span>
+                </div>
+              ))}
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <button 
+                onClick={executeSelectiveHarvest}
+                style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px' }}
+                disabled={Object.values(selectedCropTypes).every(selected => !selected)}
+              >
+                {strings[318]}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+      
+      {/* Selective Animal Collect Modal */}
+      {isAnimalModalOpen && (
+        <Modal
+          isOpen={isAnimalModalOpen}
+          onClose={() => setIsAnimalModalOpen(false)}
+          title={strings[319]}
+          size="medium"
+        >
+          <div style={{ padding: '20px' }}>            
+            <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
+              <button 
+                onClick={() => {
+                  const allSelected = {};
+                  availableAnimals.forEach(animal => {
+                    allSelected[animal.type] = true;
+                  });
+                  setSelectedAnimalTypes(allSelected);
+                }}
+                style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
+              >
+                {strings[316]}
+              </button>
+              <button 
+                onClick={() => setSelectedAnimalTypes({})}
+                style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '3px' }}
+              >
+                {strings[317]}
+              </button>
+            </div>
+            
+            <div style={{ marginBottom: '20px' }}>
+              {availableAnimals.map(animal => (
+                <div key={animal.type} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                  <input
+                    type="checkbox"
+                    checked={selectedAnimalTypes[animal.type] || false}
+                    onChange={(e) => {
+                      setSelectedAnimalTypes(prev => ({
+                        ...prev,
+                        [animal.type]: e.target.checked
+                      }));
+                    }}
+                    style={{ marginRight: '10px' }}
+                  />
+                  <span style={{ marginRight: '10px' }}>{animal.symbol}</span>
+                  <span style={{ marginRight: '10px', fontWeight: 'bold' }}>{animal.type}</span>
+                  <span style={{ color: '#666' }}>({animal.count})</span>
+                </div>
+              ))}
+            </div>
+            
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <button 
+                onClick={executeSelectiveAnimalCollect}
+                style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px' }}
+                disabled={Object.values(selectedAnimalTypes).every(selected => !selected)}
+              >
+                {strings[318]}
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </Panel>
   );
 
