@@ -15,6 +15,8 @@ import { handleDooberClick, handleSourceConversion } from '../../ResourceClickin
 import FloatingTextManager from '../../UI/FloatingText';
 import NPCsInGridManager from "../../GridState/GridStateNPCs";
 import { handleNPCClick } from '../NPCs/NPCHelpers';
+import { updateGridResource } from '../../Utils/GridManagement';
+import { handleFarmPlotPlacement } from '../Farming/Farming';
 
 const FarmHandPanel = ({
   onClose,
@@ -44,11 +46,13 @@ const FarmHandPanel = ({
   const [farmhandUpgrades, setFarmhandUpgrades] = useState([]);
   const [isHarvestModalOpen, setIsHarvestModalOpen] = useState(false);
   const [selectedCropTypes, setSelectedCropTypes] = useState({});
+  const [selectedReplantTypes, setSelectedReplantTypes] = useState({});
   const [availableCrops, setAvailableCrops] = useState([]);
   const [isAnimalModalOpen, setIsAnimalModalOpen] = useState(false);
   const [selectedAnimalTypes, setSelectedAnimalTypes] = useState({});
   const [availableAnimals, setAvailableAnimals] = useState([]);
   const skills = currentPlayer.skills || [];
+  const hasBulkReplant = skills.some(skill => skill.type === 'Bulk Replant');
   
   // Sync inventory with local storage and server
   useEffect(() => {
@@ -490,6 +494,10 @@ const FarmHandPanel = ({
         const preInventory = [...safeInventory];
         const preBackpack = [...safeBackpack];
 
+        // Store crop position for potential replanting
+        const cropPosition = { x: crop.x, y: crop.y };
+        const shouldReplant = selectedReplantTypes[crop.type] || false;
+
         await handleDooberClick(
           crop,
           crop.y,
@@ -510,6 +518,47 @@ const FarmHandPanel = ({
           masterResources,
           masterSkills,
         );
+
+        // Handle replanting if selected
+        if (shouldReplant && hasBulkReplant) {
+          // Find the farmplot resource that outputs this crop type
+          const farmplotResource = masterResources.find(res => 
+            res.category === 'farmplot' && res.output === crop.type
+          );
+          
+          if (farmplotResource) {
+            console.log(`🌱 Replanting ${crop.type} with ${farmplotResource.type} at (${cropPosition.x}, ${cropPosition.y})`);
+            
+            // Direct placement using the existing server sync logic
+            const growEndTime = Date.now() + (farmplotResource.growtime || 0) * 1000;
+            
+            // Create the new farmplot resource
+            const enrichedNewResource = {
+              ...farmplotResource,
+              type: farmplotResource.type,
+              x: cropPosition.x,
+              y: cropPosition.y,
+              growEnd: growEndTime,
+            };
+            
+            // Update local state
+            setResources(prevResources => [...prevResources, enrichedNewResource]);
+            
+            // Update server and all clients
+            await updateGridResource(
+              gridId,
+              {
+                type: farmplotResource.type,
+                x: cropPosition.x,
+                y: cropPosition.y,
+                growEnd: growEndTime,
+              },
+              true
+            );
+            
+            FloatingTextManager.addFloatingText(302, cropPosition.x, cropPosition.y, TILE_SIZE); // "Planted!"
+          }
+        }
 
         successfulHarvest[crop.type] = (successfulHarvest[crop.type] || 0) + 1;
         await wait(100); // avoid hammering server
@@ -658,29 +707,68 @@ const FarmHandPanel = ({
           title={strings[315]}
           size="medium"
         >
-          <div style={{ padding: '20px' }}>            
+          <div style={{ padding: '20px', fontSize: '16px' }}>            
             <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
-              <button 
-                onClick={() => {
-                  const allSelected = {};
-                  availableCrops.forEach(crop => {
-                    allSelected[crop.type] = true;
-                  });
-                  setSelectedCropTypes(allSelected);
-                }}
-                style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
-              >
-                {strings[316]}
-              </button>
-              <button 
-                onClick={() => setSelectedCropTypes({})}
-                style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '3px' }}
-              >
-                {strings[317]}
-              </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button 
+                  onClick={() => {
+                    const allSelected = {};
+                    availableCrops.forEach(crop => {
+                      allSelected[crop.type] = true;
+                    });
+                    setSelectedCropTypes(allSelected);
+                  }}
+                  style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
+                >
+                  {strings[316]}
+                </button>
+                <button 
+                  onClick={() => setSelectedCropTypes({})}
+                  style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#808080', color: 'white', border: 'none', borderRadius: '3px' }}
+                >
+                  {strings[317]}
+                </button>
+              </div>
+              
+              {hasBulkReplant && (
+                <div style={{ display: 'flex', gap: '10px', marginLeft: '210px' }}>
+                  <button 
+                    onClick={() => {
+                      const allSelected = {};
+                      availableCrops.forEach(crop => {
+                        allSelected[crop.type] = true;
+                      });
+                      setSelectedReplantTypes(allSelected);
+                    }}
+                    style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
+                  >
+                    {strings[316]}
+                  </button>
+                  <button 
+                    onClick={() => setSelectedReplantTypes({})}
+                    style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#808080', color: 'white', border: 'none', borderRadius: '3px' }}
+                  >
+                    {strings[317]}
+                  </button>
+                </div>
+              )}
             </div>
             
             <div style={{ marginBottom: '20px' }}>
+              {/* Header row */}
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', fontWeight: 'bold', borderBottom: '1px solid #ccc', paddingBottom: '5px' }}>
+                <span style={{ marginRight: '10px', width: '20px' }}></span>
+                <span style={{ marginRight: '10px', width: '30px' }}></span>
+                <span style={{ marginRight: '10px', width: '100px' }}>Crop</span>
+                <span style={{ marginRight: '10px', width: '60px' }}>Count</span>
+                {hasBulkReplant && (
+                  <>
+                    <span style={{ marginRight: '10px', width: '80px' }}></span>
+                    <span style={{ width: '80px' }}>Replant?</span>
+                  </>
+                )}
+              </div>
+              
               {availableCrops.map(crop => (
                 <div key={crop.type} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                   <input
@@ -692,11 +780,27 @@ const FarmHandPanel = ({
                         [crop.type]: e.target.checked
                       }));
                     }}
-                    style={{ marginRight: '10px' }}
+                    style={{ marginRight: '10px', width: '20px' }}
                   />
-                  <span style={{ marginRight: '10px' }}>{crop.symbol}</span>
-                  <span style={{ marginRight: '10px', fontWeight: 'bold' }}>{crop.type}</span>
-                  <span style={{ color: '#666' }}>({crop.count})</span>
+                  <span style={{ marginRight: '10px', width: '30px' }}>{crop.symbol}</span>
+                  <span style={{ marginRight: '10px', width: '100px', fontWeight: 'bold' }}>{crop.type}</span>
+                  <span style={{ marginRight: '10px', width: '60px', color: '#666' }}>({crop.count})</span>
+                  
+                  {hasBulkReplant && (
+                    <div style={{ marginLeft: '60px', width: '80px', display: 'flex', justifyContent: 'center' }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedReplantTypes[crop.type] || false}
+                        onChange={(e) => {
+                          setSelectedReplantTypes(prev => ({
+                            ...prev,
+                            [crop.type]: e.target.checked
+                          }));
+                        }}
+                        style={{ width: '20px' }}
+                      />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -722,7 +826,7 @@ const FarmHandPanel = ({
           title={strings[319]}
           size="medium"
         >
-          <div style={{ padding: '20px' }}>            
+          <div style={{ padding: '20px', fontSize: '16px' }}>            
             <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
               <button 
                 onClick={() => {
