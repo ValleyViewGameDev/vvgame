@@ -1237,7 +1237,7 @@ const handleTileClick = useCallback((rowIndex, colIndex) => {
       openPanel('AnimalStall');
     } 
     else if (resource.category === 'farmplot') {
-      setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, });
+      setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, resource: resource });
       openPanel('CropPanel');
     } 
     else if (resource.category === 'deco') {
@@ -2170,7 +2170,7 @@ return (
           stationType={activeStation?.type} 
           currentStationPosition={activeStation?.position} 
           gridId={activeStation?.gridId} 
-          npcId={activeStation?.npcId}
+          currentResource={activeStation?.resource}
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}

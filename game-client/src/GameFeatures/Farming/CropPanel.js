@@ -9,7 +9,6 @@ import { createCollectEffect } from '../../VFX/VFX';
 import '../../UI/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
 import { useUILock } from '../../UI/UILockContext';
-import NPCsInGridManager from '../../GridState/GridStateNPCs';
 
 const CropPanel = ({
   onClose,
@@ -23,7 +22,7 @@ const CropPanel = ({
   stationType,
   currentStationPosition,
   gridId,
-  npcId,
+  currentResource,
   TILE_SIZE,
   updateStatus,
   masterResources,
@@ -31,33 +30,16 @@ const CropPanel = ({
   const { setUILocked } = useUILock();
   const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
   const COOLDOWN_DURATION = 2000;
-  const [stallDetails, setStallDetails] = useState(null);
-  const [currentNPC, setCurrentNPC] = useState(null);
+  const [cropDetails, setCropDetails] = useState(null);
   const [currentTime, setCurrentTime] = useState(Date.now());
   const strings = useStrings();
 
-  console.log('--------Inside Animal Panel:', { stationType, currentStationPosition });
+  console.log('--------Inside Crop Panel:', { stationType, currentStationPosition, currentResource });
 
   useEffect(() => {
-    const stallResource = masterResources.find((res) => res.type === stationType);
-    setStallDetails(stallResource);
+    const cropResource = masterResources.find((res) => res.type === stationType);
+    setCropDetails(cropResource);
   }, [stationType, masterResources]);
-
-  // Get current NPC data and update it periodically
-  useEffect(() => {
-    const updateNPCData = () => {
-      if (npcId && gridId) {
-        const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
-        const npc = Object.values(npcsInGrid).find(n => n.id === npcId);
-        setCurrentNPC(npc);
-      }
-    };
-
-    updateNPCData(); // Initial load
-    const interval = setInterval(updateNPCData, 1000); // Update every second for live status
-
-    return () => clearInterval(interval);
-  }, [npcId, gridId]);
 
   // Update current time every second for live countdown
   useEffect(() => {
@@ -68,30 +50,28 @@ const CropPanel = ({
     return () => clearInterval(timer);
   }, []);
 
-  // Function to generate status text like the tooltip
-  const getNPCStatusText = (npc) => {
-    if (!npc) return "Unknown status";
+  // Function to generate countdown text like the tooltip
+  const getCropStatusText = () => {
+    if (!currentResource || !currentResource.growEnd) return "Unknown status";
     
-    switch (npc.state) {
-      case 'processing':
-        return "is ready.";
-      case 'hungry':
-        return "is hungry and looking for grass.";
-      case 'grazing':
-        if (npc.grazeEnd) {
-          const timeLeft = Math.max(0, npc.grazeEnd - currentTime);
-          const minutes = Math.floor(timeLeft / 60000);
-          const seconds = Math.floor((timeLeft % 60000) / 1000);
-          return `is grazing. ${minutes}m ${seconds}s`;
-        }
-        return "is grazing.";
-      case 'roam':
-        return "is roaming.";
-      case 'stall':
-        return "is looking for an Animal Stall.";
-      default:
-        return `is in ${npc.state} state.`;
+    const remainingTime = Math.max(0, currentResource.growEnd - currentTime);
+    
+    if (remainingTime <= 0) {
+      return "🌱 Ready for harvest!";
     }
+    
+    const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+    
+    const parts = [];
+    if (days > 0) parts.push(`${days}d`);
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
+    
+    return `🌱 ${parts.join(' ')} remaining`;
   };
 
   useEffect(() => {
@@ -124,8 +104,8 @@ const CropPanel = ({
 
     const ingredients = [];
     for (let i = 1; i <= 3; i++) {
-      const ingredientType = stallDetails[`ingredient${i}`];
-      const ingredientQty = stallDetails[`ingredient${i}qty`];
+      const ingredientType = cropDetails[`ingredient${i}`];
+      const ingredientQty = cropDetails[`ingredient${i}qty`];
       if (ingredientType && ingredientQty) {
         ingredients.push({ type: ingredientType, quantity: ingredientQty });
       }
@@ -150,7 +130,7 @@ const CropPanel = ({
         if (!success) return;
       }
 
-      // Remove the animal stall resource from the grid
+      // Remove the crop resource from the grid
       await updateGridResource(
         gridId,
         { type: null, x: currentStationPosition.x, y: currentStationPosition.y },
@@ -179,15 +159,13 @@ const CropPanel = ({
     <Panel onClose={onClose} descriptionKey="1030" titleKey="1130" panelName="CropPanel" >
       <div className="standard-panel">
         <h2>
-            {stallDetails?.symbol || '🛖'} {stationType}
+            {cropDetails?.symbol || '🌱'} {stationType}
         </h2>
 
-        {/* Show current NPC status */}
-        {currentNPC && (
-          <p>
-            <strong>{currentNPC.type}</strong> {getNPCStatusText(currentNPC)}
-          </p>
-        )}
+        {/* Show crop growth status */}
+        <p>
+          {getCropStatusText()}
+        </p>
 
         {currentPlayer.location.gtype === 'homestead' && (
           <>
