@@ -844,4 +844,19 @@ router.get('/check-developer-status/:username', async (req, res) => {
   }
 });
 
+// GET /api/players - Get all players for editor
+router.get('/players', async (req, res) => {
+  try {
+    const players = await Player.find({})
+      .select('username settlementId accountStatus role created location icon')
+      .sort({ created: -1 }); // Sort by newest first
+    
+    console.log(`📋 Editor: Found ${players.length} players`);
+    res.json(players);
+  } catch (error) {
+    console.error('Error fetching all players:', error);
+    res.status(500).json({ error: 'Failed to fetch players' });
+  }
+});
+
 module.exports = router;
