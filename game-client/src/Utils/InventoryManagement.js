@@ -130,12 +130,14 @@ export async function gainIngredients({
   updateStatus,
   masterResources,
 }) {
-  console.log("Made it to gainIngredients; resource = ", resource, "; quantity = ", quantity);
-  console.log("Current player gtype:", currentPlayer?.location?.gtype);
+  console.log("🔍 [GAIN DEBUG] Made it to gainIngredients; resource = ", resource, "; quantity = ", quantity);
+  console.log("🔍 [GAIN DEBUG] Current inventory before gain:", inventory);
+  console.log("🔍 [GAIN DEBUG] Current backpack before gain:", backpack);
+  console.log("🔍 [GAIN DEBUG] Current player gtype:", currentPlayer?.location?.gtype);
   const isMoney = resource === "Money";
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
   const storingInBackpack = !isMoney && !isHomestead;
-  console.log("🏠 isHomestead:", isHomestead, "| 💰 isMoney:", isMoney, "| 🎒 storingInBackpack:", storingInBackpack);
+  console.log("🔍 [GAIN DEBUG] 🏠 isHomestead:", isHomestead, "| 💰 isMoney:", isMoney, "| 🎒 storingInBackpack:", storingInBackpack);
 
   const target = isMoney || isHomestead ? [...inventory] : [...backpack];
 
@@ -182,10 +184,19 @@ export async function gainIngredients({
   console.log("📤 Sending inventory delta payload to server:", deltaPayload);
 
   try {
+    console.log("🔍 [GAIN DEBUG] Sending delta payload to server:", deltaPayload);
     await axios.post(`${API_BASE}/api/update-inventory-delta`, deltaPayload);
+    
+    console.log("🔍 [GAIN DEBUG] About to update local state - target:", target);
+    console.log("🔍 [GAIN DEBUG] Will setInventory to:", isMoney || isHomestead ? target : inventory);
+    console.log("🔍 [GAIN DEBUG] Will setBackpack to:", !isMoney && !isHomestead ? target : backpack);
+    
     setInventory(isMoney || isHomestead ? target : inventory);
     setBackpack(!isMoney && !isHomestead ? target : backpack);
+    
+    console.log("🔍 [GAIN DEBUG] About to refresh player after inventory update");
     await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
+    console.log("🔍 [GAIN DEBUG] gainIngredients completed successfully");
     return true;
   } catch (err) {
     console.error("❌ Error gaining ingredient", err);

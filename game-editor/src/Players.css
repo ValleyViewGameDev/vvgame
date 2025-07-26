@@ -1,0 +1,337 @@
+/* Main layout container */
+.players-layout {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+}
+
+/* Base panel (left side) */
+.players-base-panel {
+  position: fixed;
+  top: 0;
+  left: 60px; /* sits just to the right of nav panel */
+  width: 180px; /* same width as other base panels */
+  height: 100vh;
+  background-color: #67c257;
+  padding: 10px;
+  overflow-y: auto;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+.players-base-panel h2 {
+  color: white;
+  font-size: 20px;
+  margin: 8px 0;
+  padding: 4px 0;
+}
+
+.players-base-panel p {
+  font-size: 14px;
+  color: white;
+  margin: 6px 0;
+}
+
+.players-stats {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.refresh-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.refresh-btn:hover {
+  background: #45a049;
+}
+
+/* Main content container (right side) */
+.players-main-container {
+  margin-left: 240px; /* space for nav (60px) + base panel (180px) */
+  padding: 20px;
+  height: calc(100vh - 40px);
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 40px;
+  font-size: 16px;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.error {
+  color: #d32f2f;
+}
+
+.error button {
+  margin-top: 10px;
+  background: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.players-table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.players-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.players-table th {
+  background: #f5f5f5;
+  padding: 12px 8px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #ddd;
+  color: #555;
+}
+
+.players-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.players-table th.sortable:hover {
+  background: #e8e8e8;
+}
+
+.players-table th.sort-asc {
+  background: #e3f2fd;
+}
+
+.players-table th.sort-desc {
+  background: #e3f2fd;
+}
+
+.players-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+
+.players-table tr:hover {
+  background: #f9f9f9;
+  cursor: pointer;
+}
+
+.players-table tr.selected {
+  background: #e3f2fd;
+}
+
+.players-table tr.selected:hover {
+  background: #bbdefb;
+}
+
+.username {
+  font-weight: 500;
+  color: #333;
+}
+
+.status {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status.free {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.status.bronze {
+  background: #efebe9;
+  color: #8d6e63;
+}
+
+.status.silver {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.status.gold {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.role {
+  padding: 3px 6px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.role.citizen {
+  background: #f1f8e9;
+  color: #689f38;
+}
+
+.role.mayor {
+  background: #e8f5e8;
+  color: #2e7d32;
+}
+
+.role.governor {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.role.president {
+  background: #fce4ec;
+  color: #c2185b;
+}
+
+.no-players {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .players-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .players-stats {
+    justify-content: center;
+  }
+  
+  .players-table {
+    font-size: 12px;
+  }
+  
+  .players-table th,
+  .players-table td {
+    padding: 8px 4px;
+  }
+}
+
+/* Selected player info section */
+.selected-player-info {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.selected-player-info h3 {
+  margin: 0 0 15px 0;
+  color: white;
+  font-size: 16px;
+}
+
+.player-details {
+  margin-bottom: 20px;
+}
+
+.player-details p {
+  margin: 8px 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: white;
+}
+
+.player-actions {
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  padding-top: 15px;
+}
+
+.player-actions h4 {
+  margin: 0 0 10px 0;
+  color: white;
+  font-size: 14px;
+}
+
+.action-btn {
+  display: block;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 6px 8px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  font-size: 12px;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.action-btn:not(:disabled) {
+  background: #007bff;
+  cursor: pointer;
+  opacity: 1;
+}
+
+.action-btn:not(:disabled):hover {
+  background: #0056b3;
+}
+
+.coming-soon {
+  font-size: 11px;
+  color: #666;
+  font-style: italic;
+  margin: 10px 0 0 0;
+  text-align: center;
+}
+
+/* Player stats section */
+.player-stats {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.player-stats p {
+  margin: 8px 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: white;
+}
+
+.skills-section, .powers-section {
+  margin-top: 15px;
+}
+
+.skills-list, .powers-list {
+  margin: 8px 0 0 15px;
+  padding: 0;
+  list-style-type: disc;
+}
+
+.skills-list li, .powers-list li {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 4px 0;
+  line-height: 1.3;
+}

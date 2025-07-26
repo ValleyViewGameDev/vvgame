@@ -26,6 +26,16 @@ function ShareModal({ onClose }) {
           <button className="shared-button" onClick={() => copyToClipboard(url)}>📋 Copy</button>
         </div>
 
+        <div className="discord-section">
+          <p>and</p>
+          <button
+            className="discord-btn"
+            onClick={() => window.open('https://discord.gg/mQgRP2K9', '_blank')}
+          >
+            Join our Discord
+          </button>
+        </div>
+
 <br />
         <div className="standard-buttons">
           <button className="btn-success" onClick={onClose}>Close</button>

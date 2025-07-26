@@ -4,6 +4,7 @@ import axios from 'axios';
 import GridEditor from './GridEditor';
 import Events from './Events';
 import FrontierView from './FrontierView';
+import Players from './Players';
 import './App.css';
 
 const App = () => {
@@ -95,6 +96,7 @@ useEffect(() => {
         <button title="Events" onClick={() => setActivePanel('events')}>📆</button>
         <button title="Grid Editor" onClick={() => setActivePanel('grid')}>✍️</button>
         <button title="Frontier View" onClick={() => setActivePanel('frontier')}>🔎</button>
+        <button title="Players" onClick={() => setActivePanel('players')}>😀</button>
       </div>
 
       {/* ✅ Base Panels Container with conditional visibility */}
@@ -117,6 +119,15 @@ useEffect(() => {
         <div className={activePanel === 'frontier' ? 'panel-visible' : 'panel-hidden'}>
           <FrontierView 
             selectedFrontier={selectedFrontier} 
+            settlements={settlements} 
+            activePanel={activePanel}
+            />
+        </div>
+        <div className={activePanel === 'players' ? 'panel-visible' : 'panel-hidden'}>
+          <Players 
+            selectedFrontier={selectedFrontier} 
+            selectedSettlement={selectedSettlement} 
+            frontiers={frontiers}
             settlements={settlements} 
             activePanel={activePanel}
             />

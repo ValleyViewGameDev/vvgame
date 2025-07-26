@@ -21,30 +21,43 @@ router.post('/update-player-trade-stall', async (req, res) => {
       return res.status(404).send('Player not found');
     }
 
-    // Deduct items from inventory
-    tradeStall.forEach((slot) => {
-      if (slot && slot.resource) {
-        const inventoryItem = player.inventory.find((item) => item.type === slot.resource);
-        if (inventoryItem) {
-          inventoryItem.quantity -= slot.amount;
-          if (inventoryItem.quantity <= 0) {
-            player.inventory = player.inventory.filter((item) => item.type !== slot.resource);
-          }
-        }
+    // Ensure player has proper tradeStall structure
+    if (!player.tradeStall || player.tradeStall.length !== 6) {
+      player.tradeStall = Array.from({ length: 6 }, (_, index) => ({
+        slotIndex: index,
+        resource: null,
+        amount: 0,
+        price: 0,
+        sellTime: null,
+        boughtBy: null,
+        boughtFor: null
+      }));
+    }
+
+    // Update only the specific slots that have changed, preserving slotIndex
+    tradeStall.forEach((slot, index) => {
+      if (slot && index < 6) {
+        player.tradeStall[index] = {
+          ...player.tradeStall[index],
+          slotIndex: index,
+          resource: slot.resource || null,
+          amount: slot.amount || 0,
+          price: slot.price || 0,
+          sellTime: slot.sellTime || null,
+          boughtBy: slot.boughtBy || null,
+          boughtFor: slot.boughtFor || null
+        };
       }
     });
- 
-    // Update the trade stall on the player document
-    player.tradeStall = tradeStall;
 
     // Save the updated player document
     await player.save();
 
-    console.log('Trade Stall and Inventory updated successfully:', player);
+    console.log('Trade Stall updated successfully:', player.tradeStall);
     res.status(200).json({ success: true, tradeStall: player.tradeStall, inventory: player.inventory });
   } catch (error) {
-    console.error('Error updating trade stall and inventory:', error);
-    res.status(500).send('Server error updating trade stall and inventory');
+    console.error('Error updating trade stall:', error);
+    res.status(500).send('Server error updating trade stall');
   }
 });
 
@@ -52,13 +65,27 @@ router.get('/player-trade-stall', async (req, res) => {
   const { playerId } = req.query;
 
   if (!playerId) {
-    return res.status(400).send('Missing required fields: username');
+    return res.status(400).send('Missing required fields: playerId');
   }
 
   try {
     const player = await Player.findOne({ playerId });
     if (!player) {
       return res.status(404).send('Player not found');
+    }
+
+    // Ensure player has proper tradeStall structure
+    if (!player.tradeStall || player.tradeStall.length !== 6) {
+      player.tradeStall = Array.from({ length: 6 }, (_, index) => ({
+        slotIndex: index,
+        resource: null,
+        amount: 0,
+        price: 0,
+        sellTime: null,
+        boughtBy: null,
+        boughtFor: null
+      }));
+      await player.save();
     }
 
     res.status(200).json({ tradeStall: player.tradeStall, inventory: player.inventory });

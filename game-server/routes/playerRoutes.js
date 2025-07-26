@@ -848,8 +848,8 @@ router.get('/check-developer-status/:username', async (req, res) => {
 router.get('/players', async (req, res) => {
   try {
     const players = await Player.find({})
-      .select('username settlementId accountStatus role created location icon language netWorth activeQuests completedQuests skills powers')
-      .sort({ created: -1 }); // Sort by newest first
+      .select('username settlementId accountStatus role created location icon language netWorth activeQuests completedQuests skills powers updatedAt')
+      .sort({ updatedAt: -1 }); // Sort by most recently active first
     
     console.log(`📋 Editor: Found ${players.length} players`);
     res.json(players);

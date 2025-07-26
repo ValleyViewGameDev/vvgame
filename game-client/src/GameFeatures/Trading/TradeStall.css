@@ -209,3 +209,124 @@
   width: 900px; /* Adjust this value for overall modal width */
   max-width: 90%; /* Prevents overflowing viewport */
 }
+
+/* NEW REFACTORED TRADE STALL STYLES */
+
+.trade-slot-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.trade-slot.empty {
+  background-color: #f9f9f9;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  min-height: 75px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trade-slot.filled {
+  background-color: #fff;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 8px;
+  min-height: 75px;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trade-slot.purchased {
+  background-color: #fff4e6;
+  border: 2px solid #ffb366;
+  border-radius: 8px;
+}
+
+.trade-slot-empty-text {
+  text-align: center;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.trade-slot-content {
+  text-align: center;
+  font-size: 1rem;
+}
+
+.trade-slot-item-name {
+  margin-bottom: 6px;
+  font-weight: bold;
+}
+
+.trade-slot-status {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.trade-slot-status.timer {
+  color: #666;
+}
+
+.trade-slot-status.ready {
+  color: #008000;
+}
+
+.trade-button-container {
+  display: flex;
+  gap: 4px;
+}
+
+.trade-buy-button {
+  flex: 1;
+  font-size: 0.85rem;
+  padding: 6px 4px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+}
+
+.trade-buy-button.enabled {
+  background-color: #4CAF50;
+  cursor: pointer;
+}
+
+.trade-buy-button.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.trade-collect-button {
+  flex: 1;
+  font-size: 0.85rem;
+  padding: 6px 4px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+}
+
+.trade-collect-button.not-yours {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.trade-collect-button.collect-payment {
+  background-color: #FF9800;
+  cursor: pointer;
+}
+
+.trade-collect-button.sell-to-game {
+  background-color: #4CAF50;
+  cursor: pointer;
+}
+
+.trade-collect-button.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}

@@ -98,7 +98,7 @@ import { handlePlayerDeath } from './Utils/playerManagement';
 function App() {
 
   const appInstanceId = Math.floor(Math.random() * 10000);
-console.log(`🧩 App mounted. Instance ID: ${appInstanceId}`);
+//console.log(`🧩 App mounted. Instance ID: ${appInstanceId}`);
 
 useEffect(() => {
   const id = Math.floor(Math.random() * 10000);
@@ -1482,9 +1482,27 @@ return (
         > 😀
         </button>
       
-      <button className="nav-button" title={strings[12001]} disabled={!currentPlayer} onClick={() => openPanel('FarmingPanel')}>🚜</button>
-      <button className="nav-button" title={strings[12002]} disabled={!currentPlayer} onClick={() => openPanel('BuildPanel')}>⚒️</button>
-      <button className="nav-button" title={strings[12003]} disabled={!currentPlayer} onClick={() => openPanel('BuyPanel')}>🐮</button>
+      <button 
+        className="nav-button" title={strings[12001]} disabled={!currentPlayer} 
+        onClick={() => {
+          if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
+          openPanel('FarmingPanel');
+        }}
+      >🚜</button>
+      <button 
+        className="nav-button" title={strings[12002]} disabled={!currentPlayer} 
+        onClick={() => {
+          if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
+          openPanel('BuildPanel');
+        }}
+      >⚒️</button>
+      <button 
+        className="nav-button" title={strings[12003]} disabled={!currentPlayer} 
+        onClick={() => {
+          if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
+          openPanel('BuyPanel');
+        }}
+      >🐮</button>
       <button className="nav-button" title={strings[12005]} disabled={!currentPlayer} onClick={() => {
           setActiveStation(null); // ✅ Reset activeStation
           openPanel("SkillsAndUpgradesPanel"); // ✅ Open the panel normally

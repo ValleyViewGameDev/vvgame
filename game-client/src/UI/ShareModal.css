@@ -85,3 +85,33 @@
 .share-buttons .reddit-btn:hover {
   opacity: 0.85;
 }
+
+.discord-section {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.discord-section p {
+  margin: 10px 0;
+  color: #666;
+  font-style: italic;
+}
+
+.discord-btn {
+  background-color: #7289da;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.discord-btn:hover {
+  background-color: #5b6eae;
+}
+
+.discord-btn:active {
+  background-color: #4e5d94;
+}

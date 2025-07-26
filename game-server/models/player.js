@@ -69,7 +69,18 @@ const playerSchema = new mongoose.Schema({
   },
   tradeStall: {
     type: Array,
-    default: [],
+    default: function() {
+      // Initialize with 6 empty slots (client will hide slots based on account status)
+      return Array.from({ length: 6 }, (_, index) => ({
+        slotIndex: index,
+        resource: null,
+        amount: 0,
+        price: 0,
+        sellTime: null,
+        boughtBy: null,
+        boughtFor: null
+      }));
+    }
   },
 
   activeQuests: [
@@ -135,6 +146,9 @@ created: { type: Date, default: Date.now },
 
 
 });
+
+// Enable automatic timestamps
+playerSchema.set('timestamps', true);
 
 const Player = mongoose.model('Player', playerSchema);
 module.exports = Player;

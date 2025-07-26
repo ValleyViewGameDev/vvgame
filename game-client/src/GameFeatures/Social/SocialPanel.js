@@ -246,6 +246,7 @@ const SocialPanel = ({
                 <p>You have <strong>{tentCount}</strong> tents.</p>
                 <button 
                   className="btn-success" 
+                  disabled={isInBoat}
                   onClick={() => {
                     if (tentCount <= 0) {
                       console.warn("🚫 No tents found. Button press ignored.");
@@ -270,6 +271,7 @@ const SocialPanel = ({
                 <p>You have <strong>{boatCount}</strong> boats.</p>
                 <button 
                   className="btn-success" 
+                  disabled={isCamping}
                   onClick={() => {
                     if (boatCount <= 0) {
                       console.warn("🚫 No boats found. Button press ignored.");
