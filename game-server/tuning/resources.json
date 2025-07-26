@@ -4701,7 +4701,7 @@
         "type": "Education",
         "symbol": "🏫",
         "category": "skill",
-        "source": "School",
+        "source": "Basic Skills",
         "requires": "Politics",
         "qtycollected": 1,
         "level": 2,
