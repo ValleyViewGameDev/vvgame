@@ -50,35 +50,24 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
   const targetX = Math.round(currentPosition.x + movement.dx);
   const targetY = Math.round(currentPosition.y + movement.dy);
 
-  // Check if player is in boat and restrict movement to water tiles only
-  if (currentPlayer.isinboat) {
-    const tiles = GlobalGridStateTilesAndResources.getTiles();
-    const targetTileType = tiles?.[targetY]?.[targetX];
-    if (targetTileType !== 'w') {
-      FloatingTextManager.addFloatingText("No water.", currentPosition.x, currentPosition.y, TILE_SIZE);
-      return;
-    }
-    // For boat users moving to water, skip the normal isValidMove check
-  } else {
-    // Normal movement validation for non-boat users
-    if (!Array.isArray(masterResources)) {
-      console.error('masterResources is not an array:', masterResources);
-      return;
-    }
-    if (!isValidMove(targetX, targetY, masterResources,
-      currentPlayer,
-      setCurrentPlayer,
-      setGridId,
-      setGrid,
-      setTileTypes,
-      setResources,
-      updateStatus,
-      TILE_SIZE,
-      closeAllPanels,
-    )) {
-      console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
-      return;
-    }
+  // Normal movement validation for all players (boats use existing transit logic)
+  if (!Array.isArray(masterResources)) {
+    console.error('masterResources is not an array:', masterResources);
+    return;
+  }
+  if (!isValidMove(targetX, targetY, masterResources,
+    currentPlayer,
+    setCurrentPlayer,
+    setGridId,
+    setGrid,
+    setTileTypes,
+    setResources,
+    updateStatus,
+    TILE_SIZE,
+    closeAllPanels,
+  )) {
+    console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
+    return;
   }
 
   const finalPosition = { x: targetX, y: targetY };
@@ -145,7 +134,7 @@ function isValidMove(targetX, targetY, masterResources,
   };
 
   // 2️⃣ **Check if tile is valid for movement (using existing isValidTile function)**
-  const canMove = isTileValidForPlayer(targetX, targetY, tiles, resources, masterResources, []);
+  const canMove = isTileValidForPlayer(targetX, targetY, tiles, resources, masterResources, currentPlayer);
   if (!canMove) {
     console.warn(`⛔ Movement blocked: Tile (${targetX}, ${targetY}) is not passable.`);
   }
@@ -180,7 +169,7 @@ export function centerCameraOnPlayer(position, TILE_SIZE) {
 }
 
 
-export function isTileValidForPlayer(x, y, tiles, resources, masterResources) {
+export function isTileValidForPlayer(x, y, tiles, resources, masterResources, currentPlayer = null) {
   x = Math.floor(x);
   y = Math.floor(y);
   // Check if tile is out of bounds
@@ -193,7 +182,18 @@ export function isTileValidForPlayer(x, y, tiles, resources, masterResources) {
   // Ensure the tile type exists
   if (!tileType) { console.warn(`⛔ Invalid tile at (${x}, ${y}) - No tileType found.`); return false; }
 
-  // **Step 1: Check if tile itself is passable using masterResources**
+  // **Special case: If player is in boat, they can only move on water tiles**
+  if (currentPlayer?.isinboat) {
+    if (tileType === 'w') {
+      console.log(`🚤 Boat player can move to water tile (${x}, ${y})`);
+      return true;
+    } else {
+      console.warn(`⛔ Boat player cannot move to non-water tile (${x}, ${y}): ${tileType}`);
+      return false;
+    }
+  }
+
+  // **Step 1: Check if tile itself is passable using masterResources (normal players)**
   const tileResource = masterResources.find(resource => resource.type === tileType);
 
   if (!tileResource || !tileResource.passable) {
