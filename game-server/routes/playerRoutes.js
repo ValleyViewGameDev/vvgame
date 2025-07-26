@@ -844,7 +844,8 @@ router.get('/check-developer-status/:username', async (req, res) => {
   }
 });
 
-// GET /api/players - Get all players for editor
+// GET /api/players - Get all players for editor ....
+
 router.get('/players', async (req, res) => {
   try {
     const players = await Player.find({})
