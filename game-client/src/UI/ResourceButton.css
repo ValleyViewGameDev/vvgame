@@ -120,6 +120,12 @@
   pointer-events: none;
   opacity: 1;
   transition: opacity 0.2s ease-in-out;
+  font-family: 'Arial', sans-serif !important; /* ✅ Force Arial font */
+}
+
+/* ✅ Ensure all text inside info-toaster uses Arial */
+.info-toaster * {
+  font-family: 'Arial', sans-serif !important;
 }
 
 /* ✅ Adjust position dynamically */
