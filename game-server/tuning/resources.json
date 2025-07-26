@@ -3004,11 +3004,11 @@
         "validono": true,
         "minprice": 0,
         "ingredient1": "Money",
-        "ingredient1qty": 250,
+        "ingredient1qty": 50,
         "ingredient2": "Wood",
-        "ingredient2qty": 15,
+        "ingredient2qty": 20,
         "crafttime": 0,
-        "totalnestedtime": 1295
+        "totalnestedtime": 310
     },
     {
         "type": "Library",
@@ -3058,11 +3058,11 @@
         "validono": true,
         "minprice": 0,
         "ingredient1": "Money",
-        "ingredient1qty": 1000,
+        "ingredient1qty": 500,
         "ingredient2": "Wood",
-        "ingredient2qty": 200,
+        "ingredient2qty": 100,
         "crafttime": 0,
-        "totalnestedtime": 5600
+        "totalnestedtime": 2800
     },
     {
         "type": "Dairy",
@@ -3084,13 +3084,13 @@
         "validono": true,
         "minprice": 0,
         "ingredient1": "Money",
-        "ingredient1qty": 5000,
+        "ingredient1qty": 2000,
         "ingredient2": "Wood",
         "ingredient2qty": 200,
         "ingredient3": "Stone",
-        "ingredient3qty": 15,
+        "ingredient3qty": 10,
         "crafttime": 0,
-        "totalnestedtime": 25660
+        "totalnestedtime": 10640
     },
     {
         "type": "Chicken Coop",
@@ -3166,11 +3166,11 @@
         "validono": true,
         "minprice": 0,
         "ingredient1": "Money",
-        "ingredient1qty": 10000,
+        "ingredient1qty": 5000,
         "ingredient2": "Wood",
         "ingredient2qty": 300,
         "crafttime": 0,
-        "totalnestedtime": 50900
+        "totalnestedtime": 25900
     },
     {
         "type": "Oven",
@@ -4344,7 +4344,7 @@
         "level": 1,
         "minprice": 0,
         "ingredient1": "Money",
-        "ingredient1qty": 6500
+        "ingredient1qty": 1500
     },
     {
         "type": "Storehouse",
@@ -4357,11 +4357,13 @@
         "level": 2,
         "minprice": 0,
         "ingredient1": "Money",
-        "ingredient1qty": 20000,
+        "ingredient1qty": 10000,
         "ingredient2": "Wood",
         "ingredient2qty": 30,
         "ingredient3": "Stone",
-        "ingredient3qty": 10
+        "ingredient3qty": 10,
+        "ingredient4": "Clay",
+        "ingredient4qty": 3
     },
     {
         "type": "Depot",
@@ -4374,11 +4376,13 @@
         "level": 2,
         "minprice": 0,
         "ingredient1": "Money",
-        "ingredient1qty": 40000,
+        "ingredient1qty": 20000,
         "ingredient2": "Wood",
         "ingredient2qty": 50,
         "ingredient3": "Stone",
-        "ingredient3qty": 20
+        "ingredient3qty": 20,
+        "ingredient4": "Clay",
+        "ingredient4qty": 5
     },
     {
         "type": "Backpack",
@@ -4474,7 +4478,7 @@
         "level": 2,
         "minprice": 0,
         "ingredient1": "Money",
-        "ingredient1qty": 7500
+        "ingredient1qty": 5000
     },
     {
         "type": "Bulk Animal Collect",
@@ -4486,7 +4490,7 @@
         "level": 2,
         "minprice": 0,
         "ingredient1": "Money",
-        "ingredient1qty": 10000
+        "ingredient1qty": 7500
     },
     {
         "type": "Bulk Replant",
@@ -5086,7 +5090,7 @@
         "layoutkey": "HB",
         "category": "deco",
         "source": "Buy",
-        "passable": false,
+        "passable": true,
         "qtycollected": 1,
         "validong": true,
         "validond": true,
@@ -5116,7 +5120,45 @@
         "validonn": true,
         "validono": true,
         "ingredient1": "Money",
-        "ingredient1qty": 10
+        "ingredient1qty": 20
+    },
+    {
+        "type": "Black Wall",
+        "symbol": "⬛️",
+        "layoutkey": "bw",
+        "category": "deco",
+        "source": "Buy",
+        "passable": false,
+        "qtycollected": 1,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 20
+    },
+    {
+        "type": "Sand Wall",
+        "symbol": "🟨",
+        "layoutkey": "Sw",
+        "category": "deco",
+        "source": "Buy",
+        "passable": false,
+        "qtycollected": 1,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 20
     },
     {
         "type": "Plant",
@@ -5155,6 +5197,25 @@
         "validono": true,
         "ingredient1": "Money",
         "ingredient1qty": 50
+    },
+    {
+        "type": "Harp",
+        "symbol": "🪉",
+        "layoutkey": "ha",
+        "category": "deco",
+        "source": "Buy",
+        "passable": true,
+        "qtycollected": 1,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 100
     },
     {
         "type": "Flag",
@@ -5212,6 +5273,25 @@
         "validono": true,
         "ingredient1": "Money",
         "ingredient1qty": 5000
+    },
+    {
+        "type": "Teddy Bear",
+        "symbol": "🧸",
+        "layoutkey": "TB",
+        "category": "deco",
+        "source": "Buy",
+        "passable": true,
+        "qtycollected": 1,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": true,
+        "validonl": false,
+        "validonn": true,
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 7500
     },
     {
         "type": "Fountain",
