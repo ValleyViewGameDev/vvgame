@@ -259,6 +259,15 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   };
 
   const handleAddToSlot = async (resource) => {
+    // Cooldown guard to prevent add spamming
+    if (isActionCoolingDown) return;
+    setIsActionCoolingDown(true);
+    setUILocked(true);
+    setTimeout(() => {
+      setIsActionCoolingDown(false);
+      setUILocked(false);
+    }, COOLDOWN_DURATION);
+
     const amount = amounts[resource] || 0;
     const resourceInInventory = inventory.find((item) => item.type === resource);
 
@@ -312,6 +321,15 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 
   
   const handleSellSingle = async (slotIndex) => {
+    // Cooldown guard to prevent sell spamming
+    if (isActionCoolingDown) return;
+    setIsActionCoolingDown(true);
+    setUILocked(true);
+    setTimeout(() => {
+      setIsActionCoolingDown(false);
+      setUILocked(false);
+    }, COOLDOWN_DURATION);
+
     console.log("💬 [DEBUG] Inventory snapshot at function start:", inventory);
     console.log("💬 [DEBUG] Trade slot state at function start:", tradeSlots);
     console.warn(`🧪 handleSellSingle(${slotIndex}) - slot:`, tradeSlots[slotIndex]);
@@ -649,7 +667,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                             className="add-button"
                             onClick={() => handleAddToSlot(item.type)}
                             disabled={
-                              !(amounts[item.type] > 0 && amounts[item.type] <= item.quantity) // Validate amount
+                              !(amounts[item.type] > 0 && amounts[item.type] <= item.quantity) || isActionCoolingDown // Validate amount and cooldown
                             }
                           >
                             Add
