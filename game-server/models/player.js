@@ -147,6 +147,11 @@ created: { type: Date, default: Date.now },
 
 });
 
+// Add lastActive field for tracking real player activity (not system updates)
+playerSchema.add({
+  lastActive: { type: Date, default: Date.now }
+});
+
 // Enable automatic timestamps
 playerSchema.set('timestamps', true);
 

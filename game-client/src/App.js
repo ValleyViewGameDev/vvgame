@@ -430,6 +430,17 @@ useEffect(() => {
         setisLoginPanelOpen(true);
         return;
       }
+      
+      // 2.2 Update lastActive timestamp for app initialization
+      console.log('🏁✅ 2.2 InitAppWrapper; updating lastActive timestamp...');
+      try {
+        await axios.post(`${API_BASE}/api/update-last-active`, {
+          playerId: parsedPlayer.playerId
+        });
+      } catch (error) {
+        console.warn('Failed to update lastActive:', error);
+        // Don't block app initialization if this fails
+      }
 
       // Step 2.5: Check for stale gridId (e.g. after offSeason relocation)
       console.log('🏁✅ 2.5 InitAppWrapper; checking for stale gridId after relocation...');

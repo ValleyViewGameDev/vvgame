@@ -112,7 +112,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
         let bValue = b[sortConfig.key];
 
         // Handle special cases for sorting
-        if (sortConfig.key === 'created' || sortConfig.key === 'updatedAt') {
+        if (sortConfig.key === 'created' || sortConfig.key === 'lastActive') {
           aValue = new Date(aValue || 0);
           bValue = new Date(bValue || 0);
         } else if (sortConfig.key === 'netWorth') {
@@ -285,10 +285,10 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                     Created {sortConfig.key === 'created' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </th>
                   <th 
-                    onClick={() => handleSort('updatedAt')}
-                    className={`sortable ${sortConfig.key === 'updatedAt' ? `sort-${sortConfig.direction}` : ''}`}
+                    onClick={() => handleSort('lastActive')}
+                    className={`sortable ${sortConfig.key === 'lastActive' ? `sort-${sortConfig.direction}` : ''}`}
                   >
-                    Last Active {sortConfig.key === 'updatedAt' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                    Last Active {sortConfig.key === 'lastActive' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </th>
                   <th>Last Location</th>
                 </tr>
@@ -317,12 +317,12 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                     </td>
                     <td>{player.created ? new Date(player.created).toLocaleDateString() : 'Unknown'}</td>
                     <td>
-                      {player.updatedAt ? (
-                        <span title={new Date(player.updatedAt).toLocaleString()}>
+                      {player.lastActive ? (
+                        <span title={new Date(player.lastActive).toLocaleString()}>
                           {(() => {
                             const now = new Date();
-                            const updated = new Date(player.updatedAt);
-                            const diffMs = now - updated;
+                            const lastActive = new Date(player.lastActive);
+                            const diffMs = now - lastActive;
                             const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
                             const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
                             const diffMinutes = Math.floor(diffMs / (1000 * 60));
@@ -334,7 +334,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                           })()}
                         </span>
                       ) : (
-                        'Unknown'
+                        'Never'
                       )}
                     </td>
                     <td>

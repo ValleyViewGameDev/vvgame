@@ -317,6 +317,11 @@ router.post('/login', async (req, res) => {
     }
 
     console.log('Login successful for user:', player.username);
+    
+    // Update lastActive on successful login
+    await Player.findByIdAndUpdate(player._id, { 
+      lastActive: new Date() 
+    });
 
     // Respond with player details (excluding password)
     return res.status(200).json({

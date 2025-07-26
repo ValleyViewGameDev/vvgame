@@ -844,12 +844,32 @@ router.get('/check-developer-status/:username', async (req, res) => {
   }
 });
 
+// POST /api/update-last-active - Update player's lastActive timestamp
+router.post('/update-last-active', async (req, res) => {
+  const { playerId } = req.body;
+  
+  if (!playerId) {
+    return res.status(400).json({ error: 'Player ID is required.' });
+  }
+  
+  try {
+    await Player.findByIdAndUpdate(playerId, { 
+      lastActive: new Date() 
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating lastActive:', error);
+    res.status(500).json({ error: 'Failed to update lastActive.' });
+  }
+});
+
 // GET /api/players - Get all players for editor
 router.get('/players', async (req, res) => {
   try {
     const players = await Player.find({})
-      .select('username settlementId accountStatus role created location icon language netWorth activeQuests completedQuests skills powers updatedAt')
-      .sort({ updatedAt: -1 }); // Sort by most recently active first
+      .select('username settlementId accountStatus role created location icon language netWorth activeQuests completedQuests skills powers lastActive')
+      .sort({ lastActive: -1 }); // Sort by most recently active first
     
     console.log(`📋 Editor: Found ${players.length} players`);
     res.json(players);
