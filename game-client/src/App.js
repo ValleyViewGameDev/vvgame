@@ -1498,7 +1498,7 @@ return (
         onClick={() => {
           if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
           // Check if on another player's homestead
-          const isOnOwnHomestead = currentPlayer?.homesteadId === currentPlayer?.location?.g;
+          const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
           if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
           openPanel('FarmingPanel');
         }}
@@ -1508,7 +1508,7 @@ return (
         onClick={() => {
           if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
           // Check if on another player's homestead
-          const isOnOwnHomestead = currentPlayer?.homesteadId === currentPlayer?.location?.g;
+          const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
           if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
           openPanel('BuildPanel');
         }}
@@ -1518,7 +1518,7 @@ return (
         onClick={() => {
           if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
           // Check if on another player's homestead
-          const isOnOwnHomestead = currentPlayer?.homesteadId === currentPlayer?.location?.g;
+          const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
           if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
           openPanel('BuyPanel');
         }}
