@@ -138,6 +138,10 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, gridId, currentPl
       FloatingTextManager.addFloatingText(320, tileX, tileY, TILE_SIZE);
     return;
   }
+  if (tile === 'w') {
+      FloatingTextManager.addFloatingText(320, tileX, tileY, TILE_SIZE); // Same message as lava for now
+    return;
+  }
 
   let newType;
   // Determine the new tile type based on the action

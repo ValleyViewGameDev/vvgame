@@ -464,6 +464,15 @@ const FarmHandPanel = ({
     });
     setSelectedCropTypes(defaultSelection);
     
+    // Select all replant options by default (if bulk replant skill is available)
+    if (hasBulkReplant) {
+      const defaultReplantSelection = {};
+      cropsWithDetails.forEach(crop => {
+        defaultReplantSelection[crop.type] = true;
+      });
+      setSelectedReplantTypes(defaultReplantSelection);
+    }
+    
     setIsHarvestModalOpen(true);
   }
 
