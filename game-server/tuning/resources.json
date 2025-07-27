@@ -3440,7 +3440,7 @@
         "source": "Animal Yard",
         "passable": true,
         "requires": "Livestock",
-        "qtycollected": 20,
+        "qtycollected": 10,
         "level": 2,
         "range": 8,
         "validong": true,

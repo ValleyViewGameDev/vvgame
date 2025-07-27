@@ -235,6 +235,21 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                   </ul>
                 </div>
               )}
+              
+              {selectedPlayer.inventory && selectedPlayer.inventory.length > 0 && (
+                <div className="inventory-section">
+                  <p><strong>Inventory:</strong></p>
+                  <ul className="skills-list">
+                    {selectedPlayer.inventory.map((item, index) => {
+                      // Handle different inventory item formats
+                      if (item && typeof item === 'object' && item.type && item.quantity !== undefined) {
+                        return <li key={index}>{item.type}: {item.quantity}</li>;
+                      }
+                      return <li key={index}>Invalid inventory item</li>;
+                    })}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         )}
