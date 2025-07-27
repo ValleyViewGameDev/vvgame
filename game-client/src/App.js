@@ -2003,6 +2003,7 @@ return (
           masterSkills={masterSkills} 
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
+          isDeveloper={isDeveloper}
         />
       )}
       {activePanel === 'TradingStation' && (
@@ -2163,6 +2164,7 @@ return (
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}
+          isDeveloper={isDeveloper}
         />
       )}
       {activePanel === 'AnimalPanel' && (
@@ -2219,6 +2221,7 @@ return (
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}
+          isDeveloper={isDeveloper}
         />
       )}
       {activePanel === 'TradeStall' && (

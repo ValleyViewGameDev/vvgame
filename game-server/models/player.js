@@ -165,7 +165,7 @@ playerSchema.add({
   },
   lastTransactionIds: {
     type: Map,
-    of: String, // Store the last processed transaction ID for each action type
+    of: mongoose.Schema.Types.Mixed, // Store transaction data (string or object with id/timestamp)
     default: function() { return new Map(); }
   }
 });

@@ -17,6 +17,64 @@ const { generateGrid, generateResources } = require('../utils/worldUtils');
 const masterResources = require('../tuning/resources.json'); // Import resources.json directly
 const { getTemplate, getHomesteadLayoutFile } = require('../utils/templateUtils');
 const queue = require('../queue'); // Import the in-memory queue
+
+// Cleanup old transaction IDs to prevent database bloat
+function cleanupTransactionIds(player, maxEntries = 100, maxAgeHours = 24) {
+  if (!player.lastTransactionIds || player.lastTransactionIds.size === 0) {
+    console.log(`🧹 No transaction IDs to clean for player ${player.playerId}`);
+    return;
+  }
+
+  const initialSize = player.lastTransactionIds.size;
+  const now = Date.now();
+  const maxAge = maxAgeHours * 60 * 60 * 1000;
+  let cleanedCount = 0;
+  let ageBasedRemovals = 0;
+  let sizeBasedRemovals = 0;
+  
+  console.log(`🧹 Starting cleanup for player ${player.playerId}: ${initialSize} transaction IDs (limit: ${maxEntries}, maxAge: ${maxAgeHours}h)`);
+  
+  // Remove entries older than maxAge hours
+  for (const [key, transactionData] of player.lastTransactionIds.entries()) {
+    // Handle both old format (just ID string) and new format (object with timestamp)
+    // For old format entries (strings), keep them (don't delete based on age)
+    if (typeof transactionData === 'object' && transactionData?.timestamp) {
+      const timestamp = transactionData.timestamp;
+      if (now - timestamp > maxAge) {
+        player.lastTransactionIds.delete(key);
+        cleanedCount++;
+      }
+    }
+  }
+  
+  // If still over limit, remove oldest entries (prioritize old format entries first)
+  if (player.lastTransactionIds.size > maxEntries) {
+    const sorted = Array.from(player.lastTransactionIds.entries())
+      .sort((a, b) => {
+        // Prioritize old format (strings) for removal first
+        const aIsOld = typeof a[1] === 'string';
+        const bIsOld = typeof b[1] === 'string';
+        
+        if (aIsOld && !bIsOld) return -1; // a goes first (will be removed)
+        if (!aIsOld && bIsOld) return 1;  // b goes first (will be removed)
+        
+        // If both are same format, sort by timestamp
+        const aTime = a[1]?.timestamp || 0;
+        const bTime = b[1]?.timestamp || 0;
+        return aTime - bTime;
+      });
+    
+    const toRemove = sorted.length - maxEntries;
+    for (let i = 0; i < toRemove; i++) {
+      player.lastTransactionIds.delete(sorted[i][0]);
+      cleanedCount++;
+    }
+  }
+  
+  if (cleanedCount > 0) {
+    console.log(`🧹 Cleaned up ${cleanedCount} old transaction IDs for player ${player.playerId}`);
+  }
+}
 const { getSeasonLevel } = require('../utils/scheduleHelpers');
 
 ///////////////////////////////////////////////////////////////
@@ -930,7 +988,8 @@ router.post('/crafting/collect-item', async (req, res) => {
     if (!player) throw new Error('Player not found');
 
     // Check if transaction already processed (idempotency)
-    const lastTxId = player.lastTransactionIds.get(transactionKey);
+    const lastTxData = player.lastTransactionIds.get(transactionKey);
+    const lastTxId = typeof lastTxData === 'object' ? lastTxData.id : lastTxData;
     if (lastTxId === transactionId) {
       return res.json({ success: true, message: 'Item already collected' });
     }
@@ -1017,8 +1076,9 @@ router.post('/crafting/collect-item', async (req, res) => {
     await grid.save();
     await player.save();
 
-    // Complete transaction
-    player.lastTransactionIds.set(transactionKey, transactionId);
+    // Complete transaction and cleanup old IDs
+    cleanupTransactionIds(player);
+    player.lastTransactionIds.set(transactionKey, { id: transactionId, timestamp: Date.now() });
     player.activeTransactions.delete(transactionKey);
     await player.save();
 
@@ -1064,7 +1124,8 @@ router.post('/crafting/start-craft', async (req, res) => {
     if (!player) throw new Error('Player not found');
 
     // Check if transaction already processed (idempotency)
-    const lastTxId = player.lastTransactionIds.get(transactionKey);
+    const lastTxData = player.lastTransactionIds.get(transactionKey);
+    const lastTxId = typeof lastTxData === 'object' ? lastTxData.id : lastTxData;
     if (lastTxId === transactionId) {
       return res.json({ success: true, message: 'Craft already started' });
     }
@@ -1192,8 +1253,9 @@ router.post('/crafting/start-craft', async (req, res) => {
     await grid.save();
     await player.save();
 
-    // Complete transaction
-    player.lastTransactionIds.set(transactionKey, transactionId);
+    // Complete transaction and cleanup old IDs
+    cleanupTransactionIds(player);
+    player.lastTransactionIds.set(transactionKey, { id: transactionId, timestamp: Date.now() });
     player.activeTransactions.delete(transactionKey);
     await player.save();
 
@@ -1240,7 +1302,8 @@ router.post('/farm-animal/collect', async (req, res) => {
     if (!player) throw new Error('Player not found');
 
     // Check if transaction already processed (idempotency)
-    const lastTxId = player.lastTransactionIds.get(transactionKey);
+    const lastTxData = player.lastTransactionIds.get(transactionKey);
+    const lastTxId = typeof lastTxData === 'object' ? lastTxData.id : lastTxData;
     if (lastTxId === transactionId) {
       return res.json({ success: true, message: 'Collection already processed' });
     }
@@ -1351,8 +1414,9 @@ router.post('/farm-animal/collect', async (req, res) => {
     await grid.save();
     await player.save();
 
-    // Complete transaction
-    player.lastTransactionIds.set(transactionKey, transactionId);
+    // Complete transaction and cleanup old IDs
+    cleanupTransactionIds(player);
+    player.lastTransactionIds.set(transactionKey, { id: transactionId, timestamp: Date.now() });
     player.activeTransactions.delete(transactionKey);
     await player.save();
 
@@ -1402,7 +1466,8 @@ router.post('/sell-for-refund', async (req, res) => {
     if (!player) throw new Error('Player not found');
 
     // Check if transaction already processed (idempotency)
-    const lastTxId = player.lastTransactionIds.get(transactionKey);
+    const lastTxData = player.lastTransactionIds.get(transactionKey);
+    const lastTxId = typeof lastTxData === 'object' ? lastTxData.id : lastTxData;
     if (lastTxId === transactionId) {
       return res.json({ success: true, message: 'Station already sold' });
     }
@@ -1503,8 +1568,9 @@ router.post('/sell-for-refund', async (req, res) => {
     await grid.save();
     await player.save();
 
-    // Complete transaction
-    player.lastTransactionIds.set(transactionKey, transactionId);
+    // Complete transaction and cleanup old IDs
+    cleanupTransactionIds(player);
+    player.lastTransactionIds.set(transactionKey, { id: transactionId, timestamp: Date.now() });
     player.activeTransactions.delete(transactionKey);
     await player.save();
 

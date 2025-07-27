@@ -30,6 +30,7 @@ const AnimalStall = ({
   TILE_SIZE,
   updateStatus,
   masterResources,
+  isDeveloper,
 }) => {
   const { setUILocked } = useUILock();
   const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
@@ -90,7 +91,7 @@ const AnimalStall = ({
         </h2>
 
 
-        {currentPlayer.location.gtype === 'homestead' && (
+        {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
           <>
             <hr />
               <div className="standard-buttons">

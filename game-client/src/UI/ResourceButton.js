@@ -84,7 +84,7 @@ const ResourceButton = ({
             {isProcessing ? '⏳' : symbol} {isProcessing ? 'Processing...' : name}
           </span>
           <span className="resource-details" dangerouslySetInnerHTML={{ 
-            __html: isProcessing ? 'Transaction in progress...' : details 
+            __html: isProcessing ? 'Processing...' : details 
           }} />
 
 

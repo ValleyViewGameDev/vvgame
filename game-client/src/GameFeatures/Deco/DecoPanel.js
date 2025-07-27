@@ -27,6 +27,7 @@ const DecoPanel = ({
   TILE_SIZE,
   updateStatus,
   masterResources,
+  isDeveloper,
 }) => {
   const [stallDetails, setStallDetails] = useState(null);
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
@@ -89,7 +90,7 @@ const DecoPanel = ({
         </h2>
 
 
-        {currentPlayer.location.gtype === 'homestead' && (
+        {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
           <>
             <hr />
               <div className="standard-buttons">

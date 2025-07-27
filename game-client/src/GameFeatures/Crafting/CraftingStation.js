@@ -36,6 +36,7 @@ const CraftingStation = ({
   masterResources,
   masterSkills,
   TILE_SIZE,
+  isDeveloper,
 }) => {
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
@@ -458,7 +459,7 @@ const CraftingStation = ({
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-        {currentPlayer.location.gtype === 'homestead' && (
+        {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
           <>
             <hr />
               <div className="standard-buttons">
