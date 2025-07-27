@@ -46,6 +46,12 @@
   cursor: not-allowed;
 }
 
+/* ✅ Processing State (Yellow) */
+.resource-button.processing {
+  background-color: #ffd700; /* Yellow */
+  cursor: not-allowed;
+}
+
 /* ✅ Ready-to-Collect State (Brighter Green) */
 .resource-button.ready {
   background-color: #00e639; /* Brighter Green */

@@ -23,6 +23,13 @@ const ResourceButton = ({
   const [transactionId] = useState(() => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
   const buttonRef = useRef(null);
 
+  // Debug processing state changes
+  useEffect(() => {
+    if (isTransactionMode && transactionKey) {
+      console.log(`📱 [RESOURCE_BUTTON] Processing state changed: ${isProcessing} for ${transactionKey}`);
+    }
+  }, [isProcessing, transactionKey, isTransactionMode]);
+
   const updateTooltipPosition = (event) => {
     setTooltipPosition({
       top: event.clientY + window.scrollY + 10, // ✅ Adjust Y position (below cursor)
@@ -38,12 +45,15 @@ const ResourceButton = ({
       e.preventDefault();
       e.stopPropagation();
       
+      console.log(`🔒 [RESOURCE_BUTTON] Setting processing state for ${transactionKey}`);
       setIsProcessing(true);
       try {
         await onTransactionAction(transactionId, transactionKey);
+        console.log(`✅ [RESOURCE_BUTTON] Transaction completed for ${transactionKey}`);
       } catch (error) {
         console.error('Transaction failed:', error);
       } finally {
+        console.log(`🔓 [RESOURCE_BUTTON] Clearing processing state for ${transactionKey}`);
         setIsProcessing(false);
       }
     } else if (onClick) {
@@ -71,10 +81,10 @@ const ResourceButton = ({
 
           {/* ✅ Ensure default content is displayed */}
           <span className="resource-title">
-            {isProcessing ? '⏳' : symbol} {name}
+            {isProcessing ? '⏳' : symbol} {isProcessing ? 'Processing...' : name}
           </span>
           <span className="resource-details" dangerouslySetInnerHTML={{ 
-            __html: isProcessing ? details.replace(/✅ Ready!/, 'Processing...') : details 
+            __html: isProcessing ? 'Transaction in progress...' : details 
           }} />
 
 
