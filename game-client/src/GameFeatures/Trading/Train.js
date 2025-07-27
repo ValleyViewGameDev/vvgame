@@ -30,6 +30,7 @@ function TrainPanel({
   const [nextOffers, setNextOffers] = useState([]);
   const [trainRewards, setTrainRewards] = useState([]);
   const [latestInventory, setLatestInventory] = useState([]);
+  const [playerUsernames, setPlayerUsernames] = useState({}); // Map of playerId -> username
 
   // 1. Initial load for the player
   useEffect(() => {
@@ -85,11 +86,51 @@ function TrainPanel({
   const fetchTrainOffers = async () => {
     try {
       const response = await axios.get(`${API_BASE}/api/get-settlement/${currentPlayer.settlementId}`);
-      setTrainOffers(response.data?.currentoffers || []);
+      const offers = response.data?.currentoffers || [];
+      setTrainOffers(offers);
       setNextOffers(response.data?.nextoffers || []);
       setTrainRewards(response.data?.trainrewards || []);
+      
+      // Fetch usernames for claimed/completed offers
+      await fetchUsernames(offers);
     } catch (error) {
       console.error("❌ Error fetching train offers:", error);
+    }
+  };
+
+  const fetchUsernames = async (offers) => {
+    try {
+      // Find all unique player IDs that have claimed or completed offers
+      const playerIds = [...new Set(
+        offers
+          .filter(offer => offer.claimedBy && offer.claimedBy !== currentPlayer.playerId)
+          .map(offer => offer.claimedBy)
+      )];
+
+      if (playerIds.length === 0) return;
+
+      // Fetch usernames for these player IDs
+      const usernamePromises = playerIds.map(async (playerId) => {
+        try {
+          const response = await axios.get(`${API_BASE}/api/player/${playerId}`);
+          return { playerId, username: response.data.username };
+        } catch (error) {
+          console.error(`❌ Error fetching username for player ${playerId}:`, error);
+          return { playerId, username: 'Unknown' };
+        }
+      });
+
+      const usernameResults = await Promise.all(usernamePromises);
+      
+      // Convert to map and update state
+      const usernameMap = usernameResults.reduce((acc, { playerId, username }) => {
+        acc[playerId] = username;
+        return acc;
+      }, {});
+
+      setPlayerUsernames(prev => ({ ...prev, ...usernameMap }));
+    } catch (error) {
+      console.error("❌ Error fetching usernames:", error);
     }
   };
 
@@ -336,13 +377,15 @@ function TrainPanel({
 
           let buttonText = '';
           if (isCompleted) {
-            buttonText = strings[2012];
+            const username = playerUsernames[offer.claimedBy] || 'Unknown';
+            buttonText = username;
           } else if (isYours && affordable) {
             buttonText = strings[2005];
           } else if (isYours) {
             buttonText = strings[2006];
           } else if (offer.claimedBy) {
-            buttonText = strings[2007];
+            const username = playerUsernames[offer.claimedBy] || 'Unknown';
+            buttonText = `${strings[2007]} (${username})`;
           } else {
             buttonText = strings[2008];
           }
@@ -350,6 +393,7 @@ function TrainPanel({
           return (
             <ResourceButton
               key={index}
+              name={isCompleted || offer.claimedBy ? (playerUsernames[offer.claimedBy] || 'Unknown') : ''}
               className={`train-offer-card ${
                 !offer.claimedBy ? 'unclaimed' : 
                 'resource-button'
@@ -362,7 +406,8 @@ function TrainPanel({
               disabled={isCompleted || (!isYours && offer.claimedBy) || (isYours && !affordable)}
               details={details}
             >
-
+              {!isCompleted && !offer.claimedBy ? buttonText : 
+               !isCompleted && offer.claimedBy ? strings[2007] : ''}
             </ResourceButton>
           );
         })}
@@ -385,10 +430,6 @@ function TrainPanel({
       <h3>{strings[2020]} {trainPhase}</h3>
       <h2>⏳ {trainTimer}</h2>
 
-      <button className="standard-button" onClick={() => handleShowTrainLog()}>
-        {strings[2015]}
-      </button>
-
       {trainPhase === "loading" && (
         <>
           {renderRewardSection()}
@@ -405,7 +446,11 @@ function TrainPanel({
         </div>
       )}
 
-      {(trainPhase === "loading" || trainPhase === "departing") && renderNextShipment()}      
+      {(trainPhase === "loading" || trainPhase === "departing") && renderNextShipment()}
+
+      <button className="standard-button" onClick={() => handleShowTrainLog()}>
+        {strings[2015]}
+      </button>
     </Panel>
   );
 }
