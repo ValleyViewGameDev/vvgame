@@ -118,6 +118,12 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
         } else if (sortConfig.key === 'netWorth') {
           aValue = Number(aValue) || 0;
           bValue = Number(bValue) || 0;
+        } else if (sortConfig.key === 'money') {
+          // Extract money from inventory for sorting
+          const aMoneyItem = a.inventory?.find(item => item.type === 'Money');
+          const bMoneyItem = b.inventory?.find(item => item.type === 'Money');
+          aValue = Number(aMoneyItem?.quantity) || 0;
+          bValue = Number(bMoneyItem?.quantity) || 0;
         } else if (typeof aValue === 'string') {
           aValue = aValue.toLowerCase();
           bValue = (bValue || '').toLowerCase();
@@ -267,6 +273,12 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                     Net Worth {sortConfig.key === 'netWorth' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </th>
                   <th 
+                    onClick={() => handleSort('money')}
+                    className={`sortable ${sortConfig.key === 'money' ? `sort-${sortConfig.direction}` : ''}`}
+                  >
+                    Money {sortConfig.key === 'money' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </th>
+                  <th 
                     onClick={() => handleSort('accountStatus')}
                     className={`sortable ${sortConfig.key === 'accountStatus' ? `sort-${sortConfig.direction}` : ''}`}
                   >
@@ -305,6 +317,10 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                     </td>
                     <td>{player.language || 'Unknown'}</td>
                     <td>{player.netWorth || 0}</td>
+                    <td>{(() => {
+                      const moneyItem = player.inventory?.find(item => item.type === 'Money');
+                      return moneyItem?.quantity || 0;
+                    })()}</td>
                     <td>
                       <span className={`status ${player.accountStatus?.toLowerCase() || 'free'}`}>
                         {player.accountStatus || 'Free'}
