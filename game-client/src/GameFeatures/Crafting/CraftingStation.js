@@ -202,107 +202,73 @@ const CraftingStation = ({
   };
 
 
-  const handleCollect = async (recipe) => {
-    if (!recipe) { console.error("❌ No valid crafted item to collect."); return; }
-
-    if (isActionCoolingDown) return;
-    setIsActionCoolingDown(true);
-    setUILocked(true);
-    setTimeout(() => {
-      setIsActionCoolingDown(false);
-      setUILocked(false);
-    }, COOLDOWN_DURATION);
+  // Protected function to collect crafted items using transaction system
+  const handleCollect = async (transactionId, transactionKey, recipe) => {
+    console.log(`🔒 [PROTECTED CRAFTING] Starting protected collection for ${recipe.type}`);
+    
+    if (!recipe) { 
+      console.error("❌ No valid crafted item to collect."); 
+      return; 
+    }
 
     try {
-        // ✅ Find the crafted resource for potential NPC handling
-        const craftedResource = allResources.find(res => res.type === craftedItem);
+      const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
+        playerId: currentPlayer.playerId,
+        gridId,
+        stationX: currentStationPosition.x,
+        stationY: currentStationPosition.y,
+        craftedItem,
+        transactionId,
+        transactionKey
+      });
 
-        // ✅ HANDLE NPCs
-        const isNPC = craftedResource?.category === 'npc';
+      if (response.data.success) {
+        // Update local state with server response
+        const { collectedItem, isNPC, inventory, updatedStation } = response.data;
+        
+        // Handle NPC spawning client-side
         if (isNPC) {
-          console.log(`🤖 Spawning NPC: ${craftedItem} at (${currentStationPosition.x}, ${currentStationPosition.y})`);
-          NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
-          await trackQuestProgress(currentPlayer, 'Craft', craftedItem, 1, setCurrentPlayer);
-        } 
-        // ✅ Add collected item to inventory
-        else {
-          // ✅ Apply Player Buffs for Crafting Bonus (refactored logic)
-          const playerSkills = currentPlayer.skills || [];
-
-          // Identify relevant buffs for this recipe
-          const appliedBuffs = playerSkills.filter((item) => {
-            const skillValue = masterSkills?.[item.type]?.[recipe.type];
-            return skillValue && skillValue > 1;
-          }).map((item) => item.type);
-
-          const skillMultiplier = appliedBuffs.reduce((multiplier, skill) => {
-            const skillValue = masterSkills?.[skill]?.[recipe.type] || 1;
-            return multiplier * skillValue;
-          }, 1);
-
-          const craftedQty = Math.max(1, Math.floor(1 * skillMultiplier));
-          console.log("craftedQty:", craftedQty);
-
-          const success = await gainIngredients({
-            playerId: currentPlayer.playerId,
-            currentPlayer,
-            resource: recipe.type,
-            quantity: craftedQty,
-            inventory,
-            backpack,
-            setInventory,
-            setBackpack,
-            setCurrentPlayer,
-            updateStatus,
-            masterResources,
-          });
-          if (!success) return;
-          const skillAppliedText = appliedBuffs.length === 0
-            ? `✅ Gained ${craftedQty} ${recipe.type}.`
-            : `✅ Gained ${craftedQty} ${recipe.type} (${appliedBuffs.join(', ')} skill applied.)`;
-          updateStatus(skillAppliedText);
+          const craftedResource = allResources.find(res => res.type === collectedItem);
+          if (craftedResource) {
+            NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
+            await trackQuestProgress(currentPlayer, 'Craft', collectedItem, 1, setCurrentPlayer);
+          }
         }
 
-        // ✅ Remove craftEnd & craftedItem from the grid resource
-        const updateResponse = await updateGridResource(
-            gridId, 
-            {
-            type: stationType, // ✅ Keep station type
-            x: currentStationPosition.x,
-            y: currentStationPosition.y,
-            craftEnd: null, // ✅ Remove timer
-            craftedItem: null, // ✅ Remove craftedItem
-            },
-            setResources,
-            true
-        );
-        if (!updateResponse?.success) {
-            console.warn("⚠️ Warning: Grid resource update failed or returned unexpected response.");
+        // Update inventory from server response
+        if (inventory) {
+          setInventory(inventory);
+          setCurrentPlayer(prev => ({ ...prev, inventory }));
         }
-        console.log("🛠️ Grid resource updated:", updateResponse);
 
-        // ✅ **Manually update GlobalGridStateTilesAndResources**
+        // Update grid resources to remove crafting state
         const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
           res.x === currentStationPosition.x && res.y === currentStationPosition.y
-            ? (() => {
-                const { craftEnd, craftedItem, ...rest } = res;
-                return rest;
-              })()
+            ? { ...res, craftEnd: undefined, craftedItem: undefined }
             : res
         );
-
         GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
-        console.log("🌎 GlobalGridStateTilesAndResources updated successfully!");
         setResources(updatedGlobalResources);
 
-        // ✅ Reset UI state
+        // Reset UI state
         setActiveTimer(false);
         setCraftedItem(null);
         setCraftingCountdown(null);
-        console.log(`✅ ${recipe.type} collected successfully.`);
+        setIsReadyToCollect(false);
 
+        // Refresh player data to ensure consistency
+        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+
+        updateStatus(`✅ Collected: ${collectedItem}`);
+        console.log(`✅ ${recipe.type} collected successfully using protected endpoint.`);
+      }
     } catch (error) {
-        console.error(`❌ Error collecting ${recipe.type}:`, error);
+      console.error('Error in protected crafting collection:', error);
+      if (error.response?.status === 429) {
+        updateStatus('⚠️ Collection already in progress');
+      } else {
+        updateStatus('❌ Failed to collect item');
+      }
     }
   };
 
@@ -460,7 +426,11 @@ const CraftingStation = ({
                   }
                   info={info}
                   disabled={!isReadyToCollect && (craftedItem !== null || !affordable || !requirementsMet)}
-                  onClick={() => isReadyToCollect ? handleCollect(recipe) : handleCraft(recipe)}
+                  onClick={!isReadyToCollect ? () => handleCraft(recipe) : undefined}
+                  // Transaction mode props for Ready buttons
+                  isTransactionMode={isReadyToCollect}
+                  transactionKey={isReadyToCollect ? `crafting-collect-${recipe.type}-${currentStationPosition.x}-${currentStationPosition.y}` : undefined}
+                  onTransactionAction={isReadyToCollect ? (transactionId, transactionKey) => handleCollect(transactionId, transactionKey, recipe) : undefined}
                 >
                 </ResourceButton>
               );

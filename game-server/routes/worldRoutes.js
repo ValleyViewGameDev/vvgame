@@ -916,6 +916,140 @@ router.post('/get-grids-by-id-array', async (req, res) => {
   }
 });
 
+// Protected crafting collection endpoint
+router.post('/crafting/collect-item', async (req, res) => {
+  const { playerId, gridId, stationX, stationY, craftedItem, transactionId, transactionKey } = req.body;
+  
+  if (!playerId || !gridId || stationX === undefined || stationY === undefined || !craftedItem || !transactionId || !transactionKey) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Find player and check transaction state
+    const player = await Player.findOne({ playerId });
+    if (!player) throw new Error('Player not found');
+
+    // Check if transaction already processed (idempotency)
+    const lastTxId = player.lastTransactionIds.get(transactionKey);
+    if (lastTxId === transactionId) {
+      return res.json({ success: true, message: 'Item already collected' });
+    }
+
+    // Check if there's an active transaction for this action
+    if (player.activeTransactions.has(transactionKey)) {
+      const activeTransaction = player.activeTransactions.get(transactionKey);
+      const timeSinceStart = Date.now() - activeTransaction.timestamp.getTime();
+      
+      if (timeSinceStart > 30000) {
+        player.activeTransactions.delete(transactionKey);
+        await player.save();
+      } else {
+        throw new Error('Transaction in progress');
+      }
+    }
+
+    // Mark transaction as active
+    player.activeTransactions.set(transactionKey, {
+      type: transactionKey,
+      timestamp: new Date(),
+      transactionId
+    });
+    await player.save();
+
+    // Find the grid and validate the crafting station
+    const grid = await Grid.findOne({ _id: gridId });
+    if (!grid) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(404).json({ error: 'Grid not found' });
+    }
+
+    // Find the station resource
+    const stationResource = grid.resources.find(res => res.x === stationX && res.y === stationY);
+    if (!stationResource || !stationResource.craftEnd || !stationResource.craftedItem) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'No crafted item ready at this location' });
+    }
+
+    // Validate the item matches and is ready
+    if (stationResource.craftedItem !== craftedItem || stationResource.craftEnd > Date.now()) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'Item not ready for collection' });
+    }
+
+    // Get item details for processing
+    const itemResource = masterResources.find(res => res.type === craftedItem);
+    if (!itemResource) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'Invalid crafted item' });
+    }
+
+    // Handle NPCs vs regular items
+    if (itemResource.category === 'npc') {
+      // For NPCs, we just need to spawn them (handled client-side for now)
+      console.log(`🤖 NPC ${craftedItem} ready for spawn at (${stationX}, ${stationY})`);
+    } else {
+      // Add regular items to player inventory
+      const inventory = player.inventory || [];
+      const existingItem = inventory.find(item => item.type === craftedItem);
+      
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        inventory.push({ type: craftedItem, quantity: 1 });
+      }
+      
+      player.inventory = inventory;
+    }
+
+    // Clear the crafting state from the station
+    const resourceIndex = grid.resources.findIndex(res => res.x === stationX && res.y === stationY);
+    if (resourceIndex !== -1) {
+      delete grid.resources[resourceIndex].craftEnd;
+      delete grid.resources[resourceIndex].craftedItem;
+      grid.markModified(`resources.${resourceIndex}`);
+    }
+
+    // Save changes
+    await grid.save();
+    await player.save();
+
+    // Complete transaction
+    player.lastTransactionIds.set(transactionKey, transactionId);
+    player.activeTransactions.delete(transactionKey);
+    await player.save();
+
+    res.json({ 
+      success: true, 
+      collectedItem: craftedItem,
+      isNPC: itemResource.category === 'npc',
+      inventory: player.inventory,
+      updatedStation: grid.resources[resourceIndex]
+    });
+
+  } catch (error) {
+    // Cleanup on error
+    try {
+      const player = await Player.findOne({ playerId });
+      if (player) {
+        player.activeTransactions.delete(transactionKey);
+        await player.save();
+      }
+    } catch (cleanupError) {
+      console.error('Error cleaning up failed crafting transaction:', cleanupError);
+    }
+
+    if (error.message === 'Transaction in progress') {
+      return res.status(429).json({ error: 'Collection already in progress' });
+    }
+    console.error('Error collecting crafted item:', error);
+    res.status(500).json({ error: 'Failed to collect crafted item' });
+  }
+});
+
 module.exports = router;
 
 
