@@ -1226,6 +1226,175 @@ router.post('/crafting/start-craft', async (req, res) => {
   }
 });
 
+// Protected farm animal collection endpoint
+router.post('/farm-animal/collect', async (req, res) => {
+  const { playerId, gridId, npcId, npcPosition, transactionId, transactionKey } = req.body;
+  
+  if (!playerId || !gridId || !npcId || !npcPosition || !transactionId || !transactionKey) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Find player and check transaction state
+    const player = await Player.findOne({ playerId });
+    if (!player) throw new Error('Player not found');
+
+    // Check if transaction already processed (idempotency)
+    const lastTxId = player.lastTransactionIds.get(transactionKey);
+    if (lastTxId === transactionId) {
+      return res.json({ success: true, message: 'Collection already processed' });
+    }
+
+    // Check if there's an active transaction for this action
+    if (player.activeTransactions.has(transactionKey)) {
+      const activeTransaction = player.activeTransactions.get(transactionKey);
+      const timeSinceStart = Date.now() - activeTransaction.timestamp.getTime();
+      
+      if (timeSinceStart > 30000) {
+        player.activeTransactions.delete(transactionKey);
+        await player.save();
+      } else {
+        throw new Error('Transaction in progress');
+      }
+    }
+
+    // Mark transaction as active
+    player.activeTransactions.set(transactionKey, {
+      type: transactionKey,
+      timestamp: new Date(),
+      transactionId
+    });
+    await player.save();
+
+    // Find the grid
+    const grid = await Grid.findOne({ _id: gridId });
+    if (!grid) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(404).json({ error: 'Grid not found' });
+    }
+
+    // Find the NPC in the grid's NPCs collection
+    console.log('🔍 Debug - Grid NPCsInGrid structure:', grid.NPCsInGrid);
+    console.log('🔍 Debug - Looking for NPC ID:', npcId);
+    console.log('🔍 Debug - Grid NPCsInGrid type:', typeof grid.NPCsInGrid);
+    
+    if (!grid.NPCsInGrid || !grid.NPCsInGrid.has(npcId)) {
+      console.log('🔍 Debug - Available NPC IDs:', grid.NPCsInGrid ? Array.from(grid.NPCsInGrid.keys()) : 'none');
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'NPC not found in grid' });
+    }
+
+    const npc = grid.NPCsInGrid.get(npcId);
+    console.log('🔍 Debug - Found NPC:', npc);
+    console.log('🔍 Debug - NPC state:', npc.state);
+    
+    // Validate NPC is ready for collection
+    if (npc.state !== 'processing') {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: `NPC not ready for collection (state: ${npc.state})` });
+    }
+
+    // Load master resources to get NPC definition
+    const fs = require('fs');
+    const path = require('path');
+    const resourcesPath = path.join(__dirname, '../tuning/resources.json');
+    const masterResources = JSON.parse(fs.readFileSync(resourcesPath, 'utf-8'));
+    
+    const npcDefinition = masterResources.find(res => res.type === npc.type);
+    if (!npcDefinition) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'NPC definition not found' });
+    }
+
+    // Load master skills for buff calculations
+    const skillsPath = path.join(__dirname, '../tuning/skillsTuning.json');
+    const masterSkills = JSON.parse(fs.readFileSync(skillsPath, 'utf-8'));
+
+    // Calculate collection quantity with skill buffs
+    const baseQuantity = npcDefinition.qtycollected || 1;
+    const playerSkills = player.skills || [];
+    
+    // Find applicable skill buffs
+    const skillsApplied = playerSkills
+      .filter(skill => {
+        const skillDef = masterResources.find(res => res.type === skill.type);
+        const isSkill = skillDef?.category === 'skill' || skillDef?.category === 'upgrade';
+        const applies = (masterSkills?.[skill.type]?.[npcDefinition.output] || 1) > 1;
+        return isSkill && applies;
+      })
+      .map(skill => skill.type);
+
+    const skillMultiplier = skillsApplied.reduce((mult, skillType) => {
+      const boost = masterSkills?.[skillType]?.[npcDefinition.output] || 1;
+      return mult * boost;
+    }, 1);
+
+    const collectedQuantity = Math.floor(baseQuantity * skillMultiplier);
+    const collectedItem = npcDefinition.output;
+
+    // Add items to player inventory
+    const inventory = player.inventory || [];
+    const existingItem = inventory.find(item => item.type === collectedItem);
+    
+    if (existingItem) {
+      existingItem.quantity += collectedQuantity;
+    } else {
+      inventory.push({ type: collectedItem, quantity: collectedQuantity });
+    }
+    
+    player.inventory = inventory;
+
+    // Update NPC state to 'emptystall'
+    npc.state = 'emptystall';
+    npc.hp = 0;
+    grid.NPCsInGrid.set(npcId, npc);
+    grid.markModified('NPCsInGrid');
+
+    // Save changes
+    await grid.save();
+    await player.save();
+
+    // Complete transaction
+    player.lastTransactionIds.set(transactionKey, transactionId);
+    player.activeTransactions.delete(transactionKey);
+    await player.save();
+
+    res.json({ 
+      success: true, 
+      collectedQuantity,
+      collectedItem,
+      skillsApplied,
+      inventory: player.inventory,
+      updatedNPC: {
+        state: 'emptystall',
+        hp: 0
+      }
+    });
+
+  } catch (error) {
+    // Cleanup on error
+    try {
+      const player = await Player.findOne({ playerId });
+      if (player) {
+        player.activeTransactions.delete(transactionKey);
+        await player.save();
+      }
+    } catch (cleanupError) {
+      console.error('Error cleaning up failed farm animal transaction:', cleanupError);
+    }
+
+    if (error.message === 'Transaction in progress') {
+      return res.status(429).json({ error: 'Collection already in progress' });
+    }
+    console.error('Error collecting from farm animal:', error);
+    res.status(500).json({ error: 'Failed to collect from farm animal' });
+  }
+});
+
 module.exports = router;
 
 

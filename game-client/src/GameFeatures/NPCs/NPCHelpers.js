@@ -7,6 +7,86 @@ import { gainIngredients } from "../../Utils/InventoryManagement";
 import { trackQuestProgress } from '../../GameFeatures/Quests/QuestGoalTracker';
 import AnimalPanel from '../FarmAnimals/FarmAnimals.js';
 
+// Generate unique transaction ID
+function generateTransactionId() {
+  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// Protected farm animal collection function
+async function handleProtectedFarmAnimalCollection(
+  npc,
+  row,
+  col,
+  setInventory,
+  setResources,
+  currentPlayer,
+  setCurrentPlayer,
+  TILE_SIZE,
+  masterResources,
+  masterSkills,
+  currentGridId,
+  updateStatus
+) {
+  console.log(`🔒 [PROTECTED FARM ANIMAL] Starting protected collection for NPC ${npc.id}`);
+  
+  // Generate transaction ID and key
+  const transactionId = generateTransactionId();
+  const transactionKey = `farm-animal-collect-${npc.id}-${currentGridId}`;
+  
+  try {
+    const response = await axios.post(`${API_BASE}/api/farm-animal/collect`, {
+      playerId: currentPlayer.playerId,
+      gridId: currentGridId,
+      npcId: npc.id,
+      npcPosition: { x: col, y: row },
+      transactionId,
+      transactionKey
+    });
+
+    if (response.data.success) {
+      const { collectedQuantity, collectedItem, skillsApplied, inventory, updatedNPC } = response.data;
+      
+      // Update inventory from server response
+      if (inventory) {
+        setInventory(inventory);
+        setCurrentPlayer(prev => ({ ...prev, inventory }));
+      }
+
+      // Update NPC state
+      if (updatedNPC) {
+        await NPCsInGridManager.updateNPC(currentGridId, npc.id, updatedNPC);
+      }
+
+      // Visual feedback
+      FloatingTextManager.addFloatingText(`+${collectedQuantity} ${collectedItem}`, col, row, TILE_SIZE);
+      
+      const statusMessage = skillsApplied.length === 0
+        ? `✅ Gained ${collectedQuantity} ${collectedItem}.`
+        : `✅ Gained ${collectedQuantity} ${collectedItem} (${skillsApplied.join(', ')} skill applied).`;
+      updateStatus(statusMessage);
+
+      // ✅ Track quest progress for NPC graze collection
+      await trackQuestProgress(currentPlayer, 'Collect', collectedItem, collectedQuantity, setCurrentPlayer);
+
+      console.log(`✅ Farm animal collection completed: ${collectedQuantity} ${collectedItem}`);
+      return { type: 'success', message: `Collected ${collectedQuantity} ${collectedItem}.` };
+    }
+  } catch (error) {
+    console.error('Error in protected farm animal collection:', error);
+    
+    if (error.response?.status === 429) {
+      updateStatus('⚠️ Collection already in progress');
+      return { type: 'error', message: 'Collection already in progress' };
+    } else if (error.response?.status === 400) {
+      updateStatus('❌ Animal not ready for collection');
+      return { type: 'error', message: 'Animal not ready for collection' };
+    } else {
+      updateStatus('❌ Failed to collect from animal');
+      return { type: 'error', message: 'Failed to collect from animal' };
+    }
+  }
+}
+
 export function loadNPCDefinitions(resources) {
     const npcDefinitions = {};
     resources.forEach((resource) => {
@@ -119,80 +199,21 @@ export async function handleNPCClick(
 
       // ✅ Otherwise, handle Animals in stalls in "procesing" state
 
-      // Prevent repeated clicks by locking the cursor for 2 seconds
-      if (typeof setUILocked === 'function') {
-        setUILocked(true);
-        setTimeout(() => setUILocked(false), 2000);
-      }
-      const baseQuantity = npc.qtycollected || 1;
-      console.log('Base quantity to collect:', baseQuantity);
-
-      // Extract player skills and upgrades from inventory
-      const playerBuffs = currentPlayer?.skills
-        .filter((item) => {
-          const res = masterResources.find((r) => r.type === item.type);
-          const isSkill = res?.category === 'skill' || res?.category === 'upgrade';
-          const applies = (masterSkills?.[item.type]?.[npc.output] || 1) > 1;
-          return isSkill && applies;
-        })
-        .map((item) => item.type);
-
-      const skillModifier = playerBuffs.reduce((mult, buff) => {
-        const boost = masterSkills?.[buff]?.[npc.output] || 1;
-        return mult * boost;
-      }, 1);
-
-      const quantityToCollect = baseQuantity * skillModifier;
-      console.log('[DEBUG] quantityToCollect after multiplier:', quantityToCollect);
-
-      // Update the player's inventory
-      
-      const gainSuccess = await gainIngredients({
-        playerId: currentPlayer.playerId,
-        currentPlayer,
-        resource: npc.output,
-        quantity: quantityToCollect,
-        inventory: currentPlayer.inventory,
-        backpack: currentPlayer.backpack,
+      // ✅ Use protected transaction system instead of UI lock hack
+      return await handleProtectedFarmAnimalCollection(
+        npc,
+        row,
+        col,
         setInventory,
-        setBackpack: () => {}, // no change to backpack in graze flow
-        setCurrentPlayer: () => {}, // optional: skip player refresh
-        updateStatus: () => {},     // optional: or pass a real one if available
+        setResources,
+        currentPlayer,
+        setCurrentPlayer,
+        TILE_SIZE,
         masterResources,
-      });
-
-      if (!gainSuccess) {
-        FloatingTextManager.addFloatingText(`❌ No space`, col, row, TILE_SIZE);
-        return { type: 'error', message: 'Failed to collect item (no space?)' };
-      }
-      FloatingTextManager.addFloatingText(`+${quantityToCollect} ${npc.output}`, col, row, TILE_SIZE);
-      const statusMessage =
-        skillModifier === 1
-          ? `✅ Gained ${quantityToCollect} ${npc.output}.`
-          : `✅ Gained ${quantityToCollect} ${npc.output} (${playerBuffs.join(', ')} skill applied).`;
-      updateStatus(statusMessage);
-
-      // ✅ Track quest progress for NPC graze collection
-      await trackQuestProgress(currentPlayer, 'Collect', npc.output, quantityToCollect, setCurrentPlayer);
-
-      try {
-          console.log('currentPlayer before update:', currentPlayer);
-          const existingNPC = NPCsInGridManager.getNPCsInGrid(currentPlayer.location.g)?.[npc.id];
-          console.log('Existing NPC:', existingNPC);
-          console.log('NPC ID:', npc.id);
-          if (existingNPC) {
-            await NPCsInGridManager.updateNPC(currentPlayer.location.g, npc.id, {
-              ...existingNPC,
-              state: 'emptystall',
-              hp: 0,
-            });
-          }
-          return { type: 'success', message: `Collected ${quantityToCollect} ${npc.output}.` };
-
-        } catch (error) {
-        console.error('Error updating inventory or grid state on server:', error);
-        return { type: 'error', message: 'Failed to update inventory or stall.' };
-      }
+        masterSkills,
+        currentGridId,
+        updateStatus
+      );
     }
 
     case 'attack': 
