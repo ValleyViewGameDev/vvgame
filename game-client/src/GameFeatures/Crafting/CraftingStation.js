@@ -135,7 +135,78 @@ const CraftingStation = ({
   };
 
 
-  const handleCraft = async (recipe) => {
+  // Protected function to start crafting using transaction system
+  const handleCraft = async (transactionId, transactionKey, recipe) => {
+    console.log(`🔒 [PROTECTED CRAFTING] Starting protected craft for ${recipe.type}`);
+    setErrorMessage('');
+    
+    if (!recipe) { 
+      setErrorMessage('Invalid recipe selected.'); 
+      return; 
+    }
+
+    try {
+      const response = await axios.post(`${API_BASE}/api/crafting/start-craft`, {
+        playerId: currentPlayer.playerId,
+        gridId,
+        stationX: currentStationPosition.x,
+        stationY: currentStationPosition.y,
+        recipe,
+        transactionId,
+        transactionKey
+      });
+
+      if (response.data.success) {
+        // Update local state with server response
+        const { craftEnd, craftedItem, inventory, backpack } = response.data;
+        
+        // Update inventory from server response
+        if (inventory) {
+          setInventory(inventory);
+          setCurrentPlayer(prev => ({ ...prev, inventory }));
+        }
+        if (backpack) {
+          setBackpack(backpack);
+          setCurrentPlayer(prev => ({ ...prev, backpack }));
+        }
+
+        // Update only the specific station resource in global state
+        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+          res.x === currentStationPosition.x && res.y === currentStationPosition.y
+            ? { ...res, craftEnd, craftedItem }
+            : res
+        );
+        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
+        setResources(updatedGlobalResources);
+
+        // Update UI state immediately
+        setCraftedItem(craftedItem);
+        setCraftingCountdown(Math.max(0, Math.floor((craftEnd - Date.now()) / 1000)));
+        setActiveTimer(true);
+        setIsCrafting(true);
+        setIsReadyToCollect(false);
+
+        // Refresh player data to ensure consistency
+        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+
+        FloatingTextManager.addFloatingText(404, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+        updateStatus(`✅ Started crafting ${recipe.type}`);
+        console.log(`✅ ${recipe.type} crafting started using protected endpoint.`);
+      }
+    } catch (error) {
+      console.error('Error in protected crafting start:', error);
+      if (error.response?.status === 429) {
+        updateStatus('⚠️ Crafting already in progress');
+      } else if (error.response?.status === 400) {
+        updateStatus('❌ Cannot afford crafting costs');
+      } else {
+        updateStatus('❌ Failed to start crafting');
+      }
+    }
+  };
+
+  // Legacy function for reference (can be removed after testing)
+  const handleCraftLegacy = async (recipe) => {
     setErrorMessage('');
     if (!recipe) { setErrorMessage('Invalid recipe selected.'); return; }
 
@@ -426,11 +497,15 @@ const CraftingStation = ({
                   }
                   info={info}
                   disabled={!isReadyToCollect && (craftedItem !== null || !affordable || !requirementsMet)}
-                  onClick={!isReadyToCollect ? () => handleCraft(recipe) : undefined}
-                  // Transaction mode props for Ready buttons
-                  isTransactionMode={isReadyToCollect}
-                  transactionKey={isReadyToCollect ? `crafting-collect-${recipe.type}-${currentStationPosition.x}-${currentStationPosition.y}` : undefined}
-                  onTransactionAction={isReadyToCollect ? (transactionId, transactionKey) => handleCollect(transactionId, transactionKey, recipe) : undefined}
+                  onClick={undefined} // Remove direct onClick since we're using transaction mode
+                  // Transaction mode props for both craft start and collect
+                  isTransactionMode={true}
+                  transactionKey={isReadyToCollect ? 
+                    `crafting-collect-${recipe.type}-${currentStationPosition.x}-${currentStationPosition.y}` : 
+                    `crafting-start-${recipe.type}-${currentStationPosition.x}-${currentStationPosition.y}`}
+                  onTransactionAction={isReadyToCollect ? 
+                    (transactionId, transactionKey) => handleCollect(transactionId, transactionKey, recipe) :
+                    (transactionId, transactionKey) => handleCraft(transactionId, transactionKey, recipe)}
                 >
                 </ResourceButton>
               );

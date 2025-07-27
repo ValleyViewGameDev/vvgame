@@ -1050,6 +1050,182 @@ router.post('/crafting/collect-item', async (req, res) => {
   }
 });
 
+// Protected crafting start endpoint
+router.post('/crafting/start-craft', async (req, res) => {
+  const { playerId, gridId, stationX, stationY, recipe, transactionId, transactionKey } = req.body;
+  
+  if (!playerId || !gridId || stationX === undefined || stationY === undefined || !recipe || !transactionId || !transactionKey) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Find player and check transaction state
+    const player = await Player.findOne({ playerId });
+    if (!player) throw new Error('Player not found');
+
+    // Check if transaction already processed (idempotency)
+    const lastTxId = player.lastTransactionIds.get(transactionKey);
+    if (lastTxId === transactionId) {
+      return res.json({ success: true, message: 'Craft already started' });
+    }
+
+    // Check if there's an active transaction for this action
+    if (player.activeTransactions.has(transactionKey)) {
+      const activeTransaction = player.activeTransactions.get(transactionKey);
+      const timeSinceStart = Date.now() - activeTransaction.timestamp.getTime();
+      
+      if (timeSinceStart > 30000) {
+        player.activeTransactions.delete(transactionKey);
+        await player.save();
+      } else {
+        throw new Error('Transaction in progress');
+      }
+    }
+
+    // Mark transaction as active
+    player.activeTransactions.set(transactionKey, {
+      type: transactionKey,
+      timestamp: new Date(),
+      transactionId
+    });
+    await player.save();
+
+    // Find the grid and validate the crafting station
+    const grid = await Grid.findOne({ _id: gridId });
+    if (!grid) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(404).json({ error: 'Grid not found' });
+    }
+
+    // Find the station resource
+    const stationResource = grid.resources.find(res => res.x === stationX && res.y === stationY);
+    if (!stationResource) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'Crafting station not found' });
+    }
+
+    // Check if station is already crafting
+    if (stationResource.craftEnd && stationResource.craftEnd > Date.now()) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'Station is already crafting' });
+    }
+
+    // Check if player can afford the recipe (server-side validation)
+    const inventory = player.inventory || [];
+    const backpack = player.backpack || [];
+    
+    // Validate ingredients
+    for (let i = 1; i <= 4; i++) {
+      const ingredientType = recipe[`ingredient${i}`];
+      const ingredientQty = recipe[`ingredient${i}qty`];
+      
+      if (ingredientType && ingredientQty) {
+        const inventoryQty = inventory.find(item => item.type === ingredientType)?.quantity || 0;
+        const backpackQty = backpack.find(item => item.type === ingredientType)?.quantity || 0;
+        const totalQty = inventoryQty + backpackQty;
+        
+        if (totalQty < ingredientQty) {
+          player.activeTransactions.delete(transactionKey);
+          await player.save();
+          return res.status(400).json({ error: `Insufficient ${ingredientType}` });
+        }
+      }
+    }
+
+    // Spend ingredients server-side
+    for (let i = 1; i <= 4; i++) {
+      const ingredientType = recipe[`ingredient${i}`];
+      const ingredientQty = recipe[`ingredient${i}qty`];
+      
+      if (ingredientType && ingredientQty) {
+        let remaining = ingredientQty;
+        
+        // Try inventory first
+        const inventoryItem = inventory.find(item => item.type === ingredientType);
+        if (inventoryItem && remaining > 0) {
+          const takeFromInventory = Math.min(inventoryItem.quantity, remaining);
+          inventoryItem.quantity -= takeFromInventory;
+          remaining -= takeFromInventory;
+          
+          if (inventoryItem.quantity <= 0) {
+            const index = inventory.findIndex(item => item.type === ingredientType);
+            inventory.splice(index, 1);
+          }
+        }
+        
+        // Then backpack if needed
+        if (remaining > 0) {
+          const backpackItem = backpack.find(item => item.type === ingredientType);
+          if (backpackItem) {
+            const takeFromBackpack = Math.min(backpackItem.quantity, remaining);
+            backpackItem.quantity -= takeFromBackpack;
+            remaining -= takeFromBackpack;
+            
+            if (backpackItem.quantity <= 0) {
+              const index = backpack.findIndex(item => item.type === ingredientType);
+              backpack.splice(index, 1);
+            }
+          }
+        }
+      }
+    }
+
+    // Update player inventory
+    player.inventory = inventory;
+    player.backpack = backpack;
+
+    // Set up crafting on the station
+    const craftTime = recipe.crafttime || 60;
+    const craftEnd = Date.now() + craftTime * 1000;
+    
+    const resourceIndex = grid.resources.findIndex(res => res.x === stationX && res.y === stationY);
+    if (resourceIndex !== -1) {
+      grid.resources[resourceIndex].craftEnd = craftEnd;
+      grid.resources[resourceIndex].craftedItem = recipe.type;
+      grid.markModified(`resources.${resourceIndex}`);
+    }
+
+    // Save changes
+    await grid.save();
+    await player.save();
+
+    // Complete transaction
+    player.lastTransactionIds.set(transactionKey, transactionId);
+    player.activeTransactions.delete(transactionKey);
+    await player.save();
+
+    res.json({ 
+      success: true, 
+      craftEnd,
+      craftedItem: recipe.type,
+      updatedResources: grid.resources,
+      inventory: player.inventory,
+      backpack: player.backpack
+    });
+
+  } catch (error) {
+    // Cleanup on error
+    try {
+      const player = await Player.findOne({ playerId });
+      if (player) {
+        player.activeTransactions.delete(transactionKey);
+        await player.save();
+      }
+    } catch (cleanupError) {
+      console.error('Error cleaning up failed crafting start transaction:', cleanupError);
+    }
+
+    if (error.message === 'Transaction in progress') {
+      return res.status(429).json({ error: 'Crafting start already in progress' });
+    }
+    console.error('Error starting crafting:', error);
+    res.status(500).json({ error: 'Failed to start crafting' });
+  }
+});
+
 module.exports = router;
 
 
