@@ -1275,20 +1275,13 @@ router.post('/farm-animal/collect', async (req, res) => {
     }
 
     // Find the NPC in the grid's NPCs collection
-    console.log('🔍 Debug - Grid NPCsInGrid structure:', grid.NPCsInGrid);
-    console.log('🔍 Debug - Looking for NPC ID:', npcId);
-    console.log('🔍 Debug - Grid NPCsInGrid type:', typeof grid.NPCsInGrid);
-    
     if (!grid.NPCsInGrid || !grid.NPCsInGrid.has(npcId)) {
-      console.log('🔍 Debug - Available NPC IDs:', grid.NPCsInGrid ? Array.from(grid.NPCsInGrid.keys()) : 'none');
       player.activeTransactions.delete(transactionKey);
       await player.save();
       return res.status(400).json({ error: 'NPC not found in grid' });
     }
 
     const npc = grid.NPCsInGrid.get(npcId);
-    console.log('🔍 Debug - Found NPC:', npc);
-    console.log('🔍 Debug - NPC state:', npc.state);
     
     // Validate NPC is ready for collection
     if (npc.state !== 'processing') {
