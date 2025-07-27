@@ -1497,6 +1497,9 @@ return (
         className="nav-button" title={strings[12001]} disabled={!currentPlayer} 
         onClick={() => {
           if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
+          // Check if on another player's homestead
+          const isOnOwnHomestead = currentPlayer?.homesteadId === currentPlayer?.location?.g;
+          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
           openPanel('FarmingPanel');
         }}
       >🚜</button>
@@ -1504,6 +1507,9 @@ return (
         className="nav-button" title={strings[12002]} disabled={!currentPlayer} 
         onClick={() => {
           if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
+          // Check if on another player's homestead
+          const isOnOwnHomestead = currentPlayer?.homesteadId === currentPlayer?.location?.g;
+          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
           openPanel('BuildPanel');
         }}
       >⚒️</button>
@@ -1511,6 +1517,9 @@ return (
         className="nav-button" title={strings[12003]} disabled={!currentPlayer} 
         onClick={() => {
           if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
+          // Check if on another player's homestead
+          const isOnOwnHomestead = currentPlayer?.homesteadId === currentPlayer?.location?.g;
+          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
           openPanel('BuyPanel');
         }}
       >🐮</button>
