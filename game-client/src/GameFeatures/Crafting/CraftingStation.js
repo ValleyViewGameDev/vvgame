@@ -18,6 +18,8 @@ import { useStrings } from '../../UI/StringsContext';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import '../../UI/SharedButtons.css';
 import { useUILock } from '../../UI/UILockContext';
+import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
+import TransactionButton from '../../UI/TransactionButton';
 
 const CraftingStation = ({
   onClose,
@@ -344,78 +346,20 @@ const CraftingStation = ({
   };
 
 
-  const handleSellStation = async () => {
-
-    if (isActionCoolingDown) return;
-    setIsActionCoolingDown(true);
-    setUILocked(true);
-    setTimeout(() => {
-      setIsActionCoolingDown(false);
-      setUILocked(false);
-    }, COOLDOWN_DURATION);
-
-    const ingredients = [];
-    for (let i = 1; i <= 3; i++) {
-      const ingredientType = stationDetails[`ingredient${i}`];
-      const ingredientQty = stationDetails[`ingredient${i}qty`];
-      if (ingredientType && ingredientQty) {
-        ingredients.push({ type: ingredientType, quantity: ingredientQty });
-      }
-    }
-
-    if (!ingredients.length) { console.error('No ingredients found for refund.'); return; }
-
-    try {
-      for (const { type, quantity } of ingredients) {
-        const success = await gainIngredients({
-          playerId: currentPlayer.playerId,
-          currentPlayer,
-          resource: type,
-          quantity,
-          inventory,
-          backpack,
-          setInventory,
-          setBackpack,
-          setCurrentPlayer,
-          updateStatus,
-          masterResources,
-        });
-        if (!success) return;
-      }
-
-      // REMOVING THE CRAFTING STATION FROM THE GRID
-      await updateGridResource(
-        gridId, 
-        {
-          type: null,
-          x: currentStationPosition.x,
-          y: currentStationPosition.y,
-        }, 
-        setResources,
-        true
-      );
-
-      // 🧹 Remove the station resource from global and React state
-      const filteredResources = GlobalGridStateTilesAndResources.getResources().filter(
-        (res) => !(res.x === currentStationPosition.x && res.y === currentStationPosition.y)
-      );
-      GlobalGridStateTilesAndResources.setResources(filteredResources);
-      // Insert log before setResources
-      console.log("🔁 Reactively removing station via setResources.");
-      setResources(prev => prev.filter(
-        (res) => !(res.x === currentStationPosition.x && res.y === currentStationPosition.y)
-      ));
-      console.log("🧹 Station resource removed from global and React state.");
-      createCollectEffect(currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-      const totalRefund = ingredients
-        .filter((item) => item.type === "Money")
-        .reduce((sum, item) => sum + item.quantity, 0);
-      updateStatus(`Sold ${stationType} for ${totalRefund} Money.`);
-      onClose();
-    } catch (error) {
-      console.error('Error selling the stall:', error);
-      setErrorMessage('An error occurred while selling the stall.');
-    }
+  const handleSellStation = async (transactionId, transactionKey) => {
+    await handleProtectedSelling({
+      currentPlayer,
+      setInventory,
+      setBackpack,
+      setCurrentPlayer,
+      setResources,
+      stationType,
+      currentStationPosition,
+      gridId,
+      TILE_SIZE,
+      updateStatus,
+      onClose
+    });
   };
   
 
@@ -518,8 +462,13 @@ const CraftingStation = ({
           <>
             <hr />
               <div className="standard-buttons">
-                <button className="btn-success" onClick={handleSellStation} disabled={isActionCoolingDown}>                  {strings[425]}
-                </button>
+                <TransactionButton 
+                  className="btn-success" 
+                  onAction={handleSellStation}
+                  transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
+                >
+                  {strings[425]}
+                </TransactionButton>
               </div>
 
           </>

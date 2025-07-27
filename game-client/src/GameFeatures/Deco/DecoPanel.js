@@ -9,6 +9,8 @@ import { createCollectEffect } from '../../VFX/VFX';
 import '../../UI/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
 import { useUILock } from '../../UI/UILockContext';
+import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
+import TransactionButton from '../../UI/TransactionButton';
 
 const DecoPanel = ({
   onClose,
@@ -62,66 +64,20 @@ const DecoPanel = ({
     syncInventory();
   }, [currentPlayer]);
 
-  const handleSellStation = async () => {
-    if (isActionCoolingDown) return;
-    setIsActionCoolingDown(true);
-    setUILocked(true);
-    setTimeout(() => {
-      setIsActionCoolingDown(false);
-      setUILocked(false);
-    }, COOLDOWN_DURATION);
-
-    const ingredients = [];
-    for (let i = 1; i <= 3; i++) {
-      const ingredientType = stallDetails[`ingredient${i}`];
-      const ingredientQty = stallDetails[`ingredient${i}qty`];
-      if (ingredientType && ingredientQty) {
-        ingredients.push({ type: ingredientType, quantity: ingredientQty });
-      }
-    }
-    if (!ingredients.length) { console.error('No ingredients found for refund.'); return; }
-
-    try {
-      for (const { type, quantity } of ingredients) {
-        const success = await gainIngredients({
-          playerId: currentPlayer.playerId,
-          currentPlayer,
-          resource: type,
-          quantity,
-          inventory,
-          backpack,
-          setInventory,
-          setBackpack,
-          setCurrentPlayer,
-          updateStatus,
-          masterResources,
-        });
-        if (!success) return;
-      }
-
-      await updateGridResource(
-        gridId,
-        { type: null, x: currentStationPosition.x, y: currentStationPosition.y },
-        setResources,
-        true
-      );
-
-      setResources(prevResources =>
-        prevResources.filter(res => !(res.x === currentStationPosition.x && res.y === currentStationPosition.y))
-      );
-      console.log("🧹 AnimalStall resource removed from client state.");
-      createCollectEffect(currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-
-      const totalRefund = ingredients
-        .filter((item) => item.type === "Money")
-        .reduce((sum, item) => sum + item.quantity, 0);
-
-      console.log(`Sold ${stationType} successfully for ${totalRefund} Money.`);
-      updateStatus(`Sold ${stationType} for ${totalRefund} Money.`);
-      onClose();
-    } catch (error) {
-      console.error('Error selling the stall:', error);
-    }
+  const handleSellStation = async (transactionId, transactionKey) => {
+    await handleProtectedSelling({
+      currentPlayer,
+      setInventory,
+      setBackpack,
+      setCurrentPlayer,
+      setResources,
+      stationType,
+      currentStationPosition,
+      gridId,
+      TILE_SIZE,
+      updateStatus,
+      onClose
+    });
   };
   
 
@@ -137,9 +93,13 @@ const DecoPanel = ({
           <>
             <hr />
               <div className="standard-buttons">
-                <button className="btn-success" onClick={handleSellStation} disabled={isActionCoolingDown}>
+                <TransactionButton 
+                  className="btn-success" 
+                  onAction={handleSellStation}
+                  transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
+                >
                   {strings[425]}
-                </button>
+                </TransactionButton>
               </div>
           </>
         )}

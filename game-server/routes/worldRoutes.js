@@ -1388,6 +1388,154 @@ router.post('/farm-animal/collect', async (req, res) => {
   }
 });
 
+// Protected sell for refund endpoint
+router.post('/sell-for-refund', async (req, res) => {
+  const { playerId, gridId, stationX, stationY, stationType, transactionId, transactionKey } = req.body;
+  
+  if (!playerId || !gridId || stationX === undefined || stationY === undefined || !stationType || !transactionId || !transactionKey) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Find player and check transaction state
+    const player = await Player.findOne({ playerId });
+    if (!player) throw new Error('Player not found');
+
+    // Check if transaction already processed (idempotency)
+    const lastTxId = player.lastTransactionIds.get(transactionKey);
+    if (lastTxId === transactionId) {
+      return res.json({ success: true, message: 'Station already sold' });
+    }
+
+    // Check if there's an active transaction for this action
+    if (player.activeTransactions.has(transactionKey)) {
+      const activeTransaction = player.activeTransactions.get(transactionKey);
+      const timeSinceStart = Date.now() - activeTransaction.timestamp.getTime();
+      
+      if (timeSinceStart > 30000) {
+        player.activeTransactions.delete(transactionKey);
+        await player.save();
+      } else {
+        throw new Error('Transaction in progress');
+      }
+    }
+
+    // Mark transaction as active
+    player.activeTransactions.set(transactionKey, {
+      type: transactionKey,
+      timestamp: new Date(),
+      transactionId
+    });
+    await player.save();
+
+    // Find the grid and validate the station
+    const grid = await Grid.findOne({ _id: gridId });
+    if (!grid) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(404).json({ error: 'Grid not found' });
+    }
+
+    // Find the station resource
+    const stationResource = grid.resources.find(res => res.x === stationX && res.y === stationY);
+    if (!stationResource || stationResource.type !== stationType) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'Station not found or type mismatch' });
+    }
+
+    // Load master resources to get station definition and refund ingredients
+    const fs = require('fs');
+    const path = require('path');
+    const resourcesPath = path.join(__dirname, '../tuning/resources.json');
+    const masterResources = JSON.parse(fs.readFileSync(resourcesPath, 'utf-8'));
+    
+    const stationDefinition = masterResources.find(res => res.type === stationType);
+    if (!stationDefinition) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'Station definition not found' });
+    }
+
+    // Calculate refund ingredients
+    const refundIngredients = [];
+    for (let i = 1; i <= 3; i++) {
+      const ingredientType = stationDefinition[`ingredient${i}`];
+      const ingredientQty = stationDefinition[`ingredient${i}qty`];
+      if (ingredientType && ingredientQty) {
+        refundIngredients.push({ type: ingredientType, quantity: ingredientQty });
+      }
+    }
+
+    if (refundIngredients.length === 0) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'No refund ingredients found' });
+    }
+
+    // Add refund items to player inventory
+    const inventory = player.inventory || [];
+    let totalMoneyRefund = 0;
+
+    for (const { type, quantity } of refundIngredients) {
+      if (type === 'Money') {
+        totalMoneyRefund += quantity;
+      }
+      
+      const existingItem = inventory.find(item => item.type === type);
+      if (existingItem) {
+        existingItem.quantity += quantity;
+      } else {
+        inventory.push({ type, quantity });
+      }
+    }
+    
+    player.inventory = inventory;
+
+    // Remove the station from the grid
+    const resourceIndex = grid.resources.findIndex(res => res.x === stationX && res.y === stationY);
+    if (resourceIndex !== -1) {
+      grid.resources.splice(resourceIndex, 1);
+      grid.markModified('resources');
+    }
+
+    // Save changes
+    await grid.save();
+    await player.save();
+
+    // Complete transaction
+    player.lastTransactionIds.set(transactionKey, transactionId);
+    player.activeTransactions.delete(transactionKey);
+    await player.save();
+
+    res.json({ 
+      success: true, 
+      refundIngredients,
+      totalMoneyRefund,
+      inventory: player.inventory,
+      removedStation: { x: stationX, y: stationY, type: stationType }
+    });
+
+  } catch (error) {
+    // Cleanup on error
+    try {
+      const player = await Player.findOne({ playerId });
+      if (player) {
+        player.activeTransactions.delete(transactionKey);
+        await player.save();
+      }
+    } catch (cleanupError) {
+      console.error('Error cleaning up failed sell transaction:', cleanupError);
+    }
+
+    if (error.message === 'Transaction in progress') {
+      return res.status(429).json({ error: 'Sale already in progress' });
+    }
+    console.error('Error selling station for refund:', error);
+    res.status(500).json({ error: 'Failed to sell station' });
+  }
+});
+
 module.exports = router;
 
 
