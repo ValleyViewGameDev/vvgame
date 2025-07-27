@@ -2,6 +2,7 @@ import API_BASE from '../../config';
 import { useStrings } from '../../UI/StringsContext';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel'; // Use Panel instead of Modal
+import TransactionButton from '../../UI/TransactionButton';
 import axios from 'axios';
 import './TradeStall.css';
 import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
@@ -23,10 +24,9 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const [viewedPlayerIndex, setViewedPlayerIndex] = useState(0); // Index of the currently viewed player
   const { updateStatus } = useContext(StatusBarContext);
   const { setUILocked } = useUILock();
-  const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
-  const COOLDOWN_DURATION = 2000;
 
   const tradeStallHaircut = 0.25;
+//  const sellWaitTime = 60 * 10 * 1000; // DEBUG 10 m
   const sellWaitTime = 30 * 1000; // DEBUG 30 s
 //  const sellWaitTime = 60 * 60 * 1000; // 1 hour
 
@@ -140,14 +140,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   };
   
   const handleBuy = async (slotIndex) => {
-    // Cooldown guard to prevent buy spamming
-    if (isActionCoolingDown) return;
-    setIsActionCoolingDown(true);
     setUILocked(true);
-    setTimeout(() => {
-      setIsActionCoolingDown(false);
-      setUILocked(false);
-    }, COOLDOWN_DURATION);
 
     const slot = tradeSlots[slotIndex];
     if (!slot || slot.amount <= 0) return; // No valid slot to buy from
@@ -227,6 +220,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       console.log(`Purchased ${slot.amount}x ${slot.resource} for ${totalCost}`);
     } catch (error) {
       console.error('Error processing purchase:', error);
+    } finally {
+      setUILocked(false);
     }
   };
 
@@ -259,14 +254,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   };
 
   const handleAddToSlot = async (resource) => {
-    // Cooldown guard to prevent add spamming
-    if (isActionCoolingDown) return;
-    setIsActionCoolingDown(true);
     setUILocked(true);
-    setTimeout(() => {
-      setIsActionCoolingDown(false);
-      setUILocked(false);
-    }, COOLDOWN_DURATION);
 
     const amount = amounts[resource] || 0;
     const resourceInInventory = inventory.find((item) => item.type === resource);
@@ -316,78 +304,49 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       calculateTotalSellValue(updatedSlots);
     } catch (error) {
       console.error('Error adding item to Trade Stall:', error);
+    } finally {
+      setUILocked(false);
     }
   };
 
   
-  const handleSellSingle = async (slotIndex) => {
-    // Cooldown guard to prevent sell spamming
-    if (isActionCoolingDown) return;
-    setIsActionCoolingDown(true);
-    setUILocked(true);
-    setTimeout(() => {
-      setIsActionCoolingDown(false);
-      setUILocked(false);
-    }, COOLDOWN_DURATION);
+  // Protected function to sell items to game using transaction system
+  const handleSellSingle = async (transactionId, transactionKey, slotIndex) => {
+    console.log(`🔒 [PROTECTED SELL] Starting protected sell for slot ${slotIndex}`);
+    
+    try {
+      const response = await axios.post(`${API_BASE}/api/trade-stall/sell-to-game`, {
+        playerId: currentPlayer.playerId,
+        slotIndex,
+        transactionId,
+        transactionKey: `${transactionKey}-${slotIndex}`
+      });
 
-    console.log("💬 [DEBUG] Inventory snapshot at function start:", inventory);
-    console.log("💬 [DEBUG] Trade slot state at function start:", tradeSlots);
-    console.warn(`🧪 handleSellSingle(${slotIndex}) - slot:`, tradeSlots[slotIndex]);
-    // Re-fetch the latest trade stall state for the player
-    const tradeStallResponse = await axios.get(`${API_BASE}/api/player-trade-stall`, {
-      params: { playerId: currentPlayer.playerId },
-    });
-    const latestSlots = tradeStallResponse.data.tradeStall || [];
-    const currentSlot = latestSlots[slotIndex];
-
-    if (!currentSlot || currentSlot.boughtBy) {
-      console.warn(`🚫 [handleSellSingle] Slot already bought or invalid:`, currentSlot);
-      updateStatus(153); // Item was already purchased
-      fetchDataForViewedPlayer(); // Refresh UI
-      return;
+      if (response.data.success) {
+        // Update local state with server response
+        if (response.data.tradeStall) {
+          setTradeSlots(response.data.tradeStall);
+        }
+        if (response.data.inventory) {
+          setInventory(response.data.inventory);
+        }
+        
+        // Track quest progress for selling this item
+        await trackQuestProgress(currentPlayer, 'Sell', response.data.resource, response.data.amount, setCurrentPlayer);
+        
+        updateStatus(`✅ Sold ${response.data.amount}x ${response.data.resource} for ${response.data.sold} Money.`);
+        
+        // Refresh trade stall data to ensure consistency
+        await fetchDataForViewedPlayer(true); // Skip inventory fetch to preserve server state
+      }
+    } catch (error) {
+      console.error('Error in protected sell:', error);
+      if (error.response?.status === 429) {
+        updateStatus('⚠️ Sale already in progress');
+      } else {
+        updateStatus('❌ Failed to sell item');
+      }
     }
-
-    const sellValue = Math.floor(currentSlot.amount * currentSlot.price * tradeStallHaircut);
-    console.log("🪙 [SELL DEBUG] Selling slot", slotIndex, "for", sellValue, "Money. Resource sold:", currentSlot.resource);
-
-    await gainIngredients({
-      playerId: currentPlayer.playerId,
-      currentPlayer,
-      resource: 'Money',
-      quantity: sellValue,
-      inventory,
-      backpack: [],
-      setInventory,
-      setBackpack: () => {},
-      setCurrentPlayer,
-      updateStatus,
-      masterResources: [],
-    });
-    console.log("🪙 [SELL DEBUG] Inventory after selling:", inventory);
-
-    // Track quest progress for selling this item
-    await trackQuestProgress(currentPlayer, 'Sell', currentSlot.resource, currentSlot.amount, setCurrentPlayer);
-
-    const updatedSlots = [...tradeSlots];
-    // Clear the slot but preserve the slotIndex structure
-    updatedSlots[slotIndex] = {
-      slotIndex: slotIndex,
-      resource: null,
-      amount: 0,
-      price: 0,
-      sellTime: null,
-      boughtBy: null,
-      boughtFor: null
-    };
-
-    await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
-      playerId: currentPlayer.playerId,
-      tradeStall: updatedSlots,
-    });
-
-    setTradeSlots(updatedSlots);
-    calculateTotalSellValue(updatedSlots);
-    updateStatus(6);
   };
 
   const calculateTotalSellValue = (slots) => {
@@ -408,79 +367,39 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     return resource?.symbol || '';
   };
   
-  // New function to collect payment from a bought slot
-  const handleCollectPayment = async (slotIndex) => {
-    console.log("💬 [DEBUG] Inventory snapshot at function start:", inventory);
-    console.log("💬 [DEBUG] Trade slot state at function start:", tradeSlots);
-    console.warn(`🧪 handleCollectPayment(${slotIndex}) - slot:`, tradeSlots[slotIndex]);
-    console.log(`🔍 [COLLECTION DEBUG] Starting collection for slot ${slotIndex}`);
-    console.log(`🔍 [COLLECTION DEBUG] Current inventory before collection:`, inventory);
-    console.log(`🔍 [COLLECTION DEBUG] Current tradeSlots:`, tradeSlots);
+  // Protected function to collect payment from a bought slot using transaction system
+  const handleCollectPayment = async (transactionId, transactionKey, slotIndex) => {
+    console.log(`🔒 [PROTECTED COLLECTION] Starting protected collection for slot ${slotIndex}`);
     
-    if (isActionCoolingDown) return;
-    setIsActionCoolingDown(true);
-    setUILocked(true);
-    setTimeout(() => {
-      setIsActionCoolingDown(false);
-      setUILocked(false);
-    }, COOLDOWN_DURATION);
-
-    const slot = tradeSlots[slotIndex];
-    console.log(`🔍 [COLLECTION DEBUG] Slot data:`, slot);
-    if (!slot || !slot.boughtFor) return;
-
     try {
-      console.log("📦 [COLLECTION DEBUG] Calling gainIngredients with Money:", slot.boughtFor);
-      const success = await gainIngredients({
+      const response = await axios.post(`${API_BASE}/api/trade-stall/collect-payment`, {
         playerId: currentPlayer.playerId,
-        currentPlayer,
-        resource: 'Money',
-        quantity: slot.boughtFor,
-        inventory,
-        backpack: [],
-        setInventory,
-        setBackpack: () => {},
-        setCurrentPlayer,
-        updateStatus,
-        masterResources: [],
+        slotIndex,
+        transactionId,
+        transactionKey: `${transactionKey}-${slotIndex}`
       });
-      console.log("📦 [COLLECTION DEBUG] Inventory after gainIngredients:", inventory);
 
-      if (!success) {
-        updateStatus('❌ Failed to collect payment.');
-        return;
+      if (response.data.success) {
+        // Update local state with server response
+        if (response.data.tradeStall) {
+          setTradeSlots(response.data.tradeStall);
+        }
+        if (response.data.inventory) {
+          setInventory(response.data.inventory);
+        }
+        
+        updateStatus(`✅ Collected ${response.data.collected} Money.`);
+        
+        // Refresh trade stall data to ensure consistency
+        await fetchDataForViewedPlayer(true); // Skip inventory fetch to preserve server state
       }
-
-      // Clear the trade slot but preserve the slotIndex structure
-      const updatedSlots = [...tradeSlots];
-      updatedSlots[slotIndex] = {
-        slotIndex: slotIndex,
-        resource: null,
-        amount: 0,
-        price: 0,
-        sellTime: null,
-        boughtBy: null,
-        boughtFor: null
-      };
-      console.log(`🔍 [COLLECTION DEBUG] Updated slots after clearing:`, updatedSlots);
-
-      await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
-        playerId: currentPlayer.playerId,
-        tradeStall: updatedSlots,
-      });
-   
-      setTradeSlots(updatedSlots);
-      calculateTotalSellValue(updatedSlots);
-      updateStatus(`Collected ${slot.boughtFor} Money.`);
-      
-      console.log(`🔍 [COLLECTION DEBUG] Collection complete for slot ${slotIndex}`);
-      
-      // Refresh trade stall data but skip inventory fetch to preserve gainIngredients state
-      console.log("🔍 [COLLECTION DEBUG] Refreshing trade stall data without inventory fetch");
-      await fetchDataForViewedPlayer(true); // Skip inventory fetch
     } catch (error) {
-      console.error('Error collecting payment:', error);
-      updateStatus('❌ Failed to collect payment.');
+      console.error('Error in protected collection:', error);
+      if (error.response?.status === 429) {
+        updateStatus('⚠️ Collection already in progress');
+      } else {
+        updateStatus('❌ Failed to collect payment');
+      }
     }
   };
 
@@ -553,7 +472,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                   {/* 3. BUY BUTTON (left 50%) */}
                   <button
                     className={`trade-buy-button ${(isOwnStall || isPurchased) ? 'disabled' : 'enabled'}`}
-                    disabled={isOwnStall || isPurchased || isActionCoolingDown}
+                    disabled={isOwnStall || isPurchased}
                     onClick={(e) => {
                       e.stopPropagation();
                       if (!isOwnStall && !isPurchased) {
@@ -565,29 +484,37 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                   </button>
 
                   {/* 4. COLLECT BUTTON (right 50%) */}
-                  <button
-                    className={`trade-collect-button ${
-                      !isOwnStall ? 'not-yours' :
-                      isPurchased ? 'collect-payment' :
-                      isReadyToSell ? 'sell-to-game' : 'disabled'
-                    }`}
-                    disabled={!isOwnStall || (!isPurchased && !isReadyToSell) || isActionCoolingDown}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (isOwnStall) {
-                        if (isPurchased) {
-                          handleCollectPayment(index);
-                        } else if (isReadyToSell) {
-                          handleSellSingle(index);
-                        }
-                      }
-                    }}
-                  >
-                    {!isOwnStall ? 'Not Yours' : 
-                     isPurchased ? `Collect 💰${slot.boughtFor}` :
-                     isReadyToSell ? `Sell 💰${Math.floor(slot.amount * slot.price * tradeStallHaircut)}` :
-                     hasTimer ? 'Wait...' : 'No Action'}
-                  </button>
+                  {isPurchased ? (
+                    <TransactionButton
+                      className={`trade-collect-button collect-payment`}
+                      disabled={!isOwnStall}
+                      transactionKey="collect-payment"
+                      onAction={(transactionId, transactionKey) => handleCollectPayment(transactionId, transactionKey, index)}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Collect 💰{slot.boughtFor}
+                    </TransactionButton>
+                  ) : isReadyToSell ? (
+                    <TransactionButton
+                      className={`trade-collect-button sell-to-game`}
+                      disabled={!isOwnStall}
+                      transactionKey="sell-to-game"
+                      onAction={(transactionId, transactionKey) => handleSellSingle(transactionId, transactionKey, index)}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Sell 💰{Math.floor(slot.amount * slot.price * tradeStallHaircut)}
+                    </TransactionButton>
+                  ) : (
+                    <button
+                      className={`trade-collect-button ${
+                        !isOwnStall ? 'not-yours' : 'disabled'
+                      }`}
+                      disabled={true}
+                    >
+                      {!isOwnStall ? 'Not Yours' : 
+                       hasTimer ? 'Wait...' : 'No Action'}
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -667,7 +594,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                             className="add-button"
                             onClick={() => handleAddToSlot(item.type)}
                             disabled={
-                              !(amounts[item.type] > 0 && amounts[item.type] <= item.quantity) || isActionCoolingDown // Validate amount and cooldown
+                              !(amounts[item.type] > 0 && amounts[item.type] <= item.quantity) // Validate amount
                             }
                           >
                             Add

@@ -152,6 +152,24 @@ playerSchema.add({
   lastActive: { type: Date, default: Date.now }
 });
 
+// Add transaction state tracking for preventing duplicate transactions
+playerSchema.add({
+  activeTransactions: {
+    type: Map,
+    of: {
+      type: { type: String, required: true },
+      timestamp: { type: Date, required: true },
+      transactionId: { type: String, required: true }
+    },
+    default: function() { return new Map(); }
+  },
+  lastTransactionIds: {
+    type: Map,
+    of: String, // Store the last processed transaction ID for each action type
+    default: function() { return new Map(); }
+  }
+});
+
 // Enable automatic timestamps
 playerSchema.set('timestamps', true);
 

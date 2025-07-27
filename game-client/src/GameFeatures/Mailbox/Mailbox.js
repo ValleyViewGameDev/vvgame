@@ -3,6 +3,7 @@ import axios from 'axios';
 import React, { useState, useEffect, useContext } from 'react';
 import { StatusBarContext } from '../../UI/StatusBar';
 import Modal from '../../UI/Modal';
+import TransactionButton from '../../UI/TransactionButton';
 import '../../UI/SharedButtons.css';
 import './Mailbox.css';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
@@ -25,7 +26,6 @@ function Mailbox({
   updateStatus,
 }) {
   const { setUILocked } = useUILock();
-  const COOLDOWN_DURATION = 1400;
   const strings = useStrings();
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,195 +84,64 @@ function Mailbox({
 }, []);
 
 
-  const handleCollect = async (message) => {
-    setUILocked(true);
-    setTimeout(() => setUILocked(false), COOLDOWN_DURATION);
+  // Protected function to collect mailbox rewards using transaction system
+  const handleCollect = async (transactionId, transactionKey, messageIndex) => {
+    console.log(`🔒 [PROTECTED MAILBOX] Starting protected collection for message ${messageIndex}`);
+    
     try {
-      const template = templates.find((t) => t.id === message.messageId);
-      const rewards = message.rewards?.length > 0 ? message.rewards : template.rewards;
-
-      console.log("🎁 Rewards from message:", rewards);
-
-      // Categorize rewards
-      const tents = [];
-      const relocations = [];
-      const skills = [];
-      const powers = [];
-      const doobers = [];
-      const others = [];
-
-      rewards.forEach(({ item, qty }) => {
-        // Find resource metadata, or fallback for special items
-        const resourceMeta = resources.find(r => r.type === item) || {};
-        // Fallback category for Relocation and others
-        const category = resourceMeta.category || (item === 'Relocation' ? 'relocations' : 'other');
-        console.log("resourceMeta = ", resourceMeta);
-        console.log("Category = ", category);
-
-        switch (category) {
-          case 'skill':
-          case 'upgrade':
-            skills.push({ item, qty });
-            break;
-          case 'power':
-            powers.push({ item, qty });
-            break;
-          case 'doober':
-          case 'special':
-            doobers.push({ item, qty });
-            break;
-          case 'tents':
-            tents.push({ item, qty });
-            break;
-          case 'relocations':
-            relocations.push({ item, qty });
-            break;
-          default:
-            others.push({ item, qty });
-        }
-      });
-
-      // Handle non-special rewards (others), including Tents as special case
-      tents.forEach(({ item, qty }) => {
-        if (item === "Tent") {
-          const index = backpack.findIndex(b => b.type === item);
-          if (index !== -1) {
-            backpack[index].quantity += qty;
-          } else {
-            backpack.push({ type: item, quantity: qty });
-          }
-          return;
-        }
-        const index = inventory.findIndex(i => i.type === item);
-        if (index !== -1) {
-          inventory[index].quantity += qty;
-        } else {
-          inventory.push({ type: item, quantity: qty });
-        }
-      });
-
-      relocations.forEach(({ item, qty }) => {
-        if (item === "Relocation") {
-          console.log("Item is Relocation.");
-          const currentQty = currentPlayer.relocations || 0;
-          const newQty = currentQty + qty;
-          console.log("currentQty = ",currentQty,"; newQty = ",newQty);
-          axios.post(`${API_BASE}/api/update-profile`, {
-            playerId: currentPlayer.playerId,
-            updates: { relocations: newQty },
-          });
-          setCurrentPlayer(prev => ({ ...prev, relocations: newQty }));
-        }
-      });
-
-      // Update inventory and backpack
-      await axios.post(`${API_BASE}/api/update-inventory`, {
+      const response = await axios.post(`${API_BASE}/api/mailbox/collect-rewards`, {
         playerId: currentPlayer.playerId,
-        inventory,
-        backpack,
+        messageIndex,
+        transactionId,
+        transactionKey
       });
 
-
-      // Handle doobers: add directly to inventory
-      const updatedInventory = [...inventory];
-      doobers.forEach(({ item, qty }) => {
-        const index = updatedInventory.findIndex((inv) => inv.type === item);
-        if (index !== -1) {
-          updatedInventory[index].quantity += qty;
-        } else {
-          updatedInventory.push({ type: item, quantity: qty });
-        }
-      });
-      if (doobers.length > 0) {
-        await axios.post(`${API_BASE}/api/update-inventory`, {
-          playerId: currentPlayer.playerId,
-          inventory: updatedInventory,
-        });
-        setInventory(updatedInventory);
-      }
-
-      // Handle skills
-      const existingSkills = currentPlayer.skills || [];
-      let newSkills = [...existingSkills];
-
-      for (const skillReward of skills) {
-        const skillType = skillReward.item;
-        const qtyToAdd = skillReward.qty;
-        const alreadyHasSkill = existingSkills.some(s => s.type === skillType);
-        if (alreadyHasSkill) {
-          console.log(`⏭️ Player already has skill: ${skillType}, skipping.`);
-          continue;
-        }
-        newSkills.push({ type: skillType, quantity: qtyToAdd });
-        await trackQuestProgress(currentPlayer, 'Gain skill with', skillType, qtyToAdd, setCurrentPlayer);
-      }
-      if (newSkills.length > existingSkills.length) {
-        await axios.post(`${API_BASE}/api/update-skills`, {
-          playerId: currentPlayer.playerId,
-          skills: newSkills,
-        });
-        setCurrentPlayer(prev => ({ ...prev, skills: newSkills }));
-      }
-
-      // Handle powers
-      for (const powerReward of powers) {
-        const powerType = powerReward.item;
-        console.log(`💥 Processing power reward: ${powerType}`);
-
-        const qtyToAdd = powerReward.qty;
-        const alreadyHasPower = currentPlayer.powers?.some(p => p.type === powerType);
-        console.log(`🔎 alreadyHasPower = ${alreadyHasPower}`);
-
-        // 🔍 Look up from masterResources instead of template
-        const powerData = masterResources.find(r => r.type === powerType);
-
-        if (!powerData) { console.warn(`⚠️ No master resource entry found for power: ${powerType}`); continue; }
-        if (alreadyHasPower) { console.log(`⏭️ Player already has power: ${powerType}, skipping.`); continue; }
+      if (response.data.success) {
+        // Update local state with server response
+        const { messages, inventory, backpack, skills, powers, relocations, collectedItems } = response.data;
         
-        let updatedPowers = currentPlayer.powers ? [...currentPlayer.powers] : [];
-        updatedPowers.push({ type: powerType, quantity: qtyToAdd });
-        await axios.post(`${API_BASE}/api/update-powers`, {
-          playerId: currentPlayer.playerId,
-          powers: updatedPowers,
-        });
-        setCurrentPlayer(prev => ({ ...prev, powers: updatedPowers }));
+        // Update all player data from server response
+        setCurrentPlayer(prev => ({
+          ...prev,
+          messages: messages || prev.messages,
+          inventory: inventory || prev.inventory,
+          backpack: backpack || prev.backpack,
+          skills: skills || prev.skills,
+          powers: powers || prev.powers,
+          relocations: relocations !== undefined ? relocations : prev.relocations
+        }));
 
-        const gridPlayerNew = playersInGridManager.getAllPCs(gridId)?.[currentPlayer.playerId];
-        if (gridPlayerNew && powerData.output && typeof powerData.qtycollected === 'number') {
-          const oldValue = gridPlayerNew[powerData.output] || 0;
-          const newValue = oldValue + powerData.qtycollected;
-          await playersInGridManager.updatePC(gridId, currentPlayer.playerId, {
-            [powerData.output]: newValue
-          });
+        // Update local state
+        if (inventory) setInventory(inventory);
+        if (backpack) setBackpack(backpack);
+        setVisibleMessages(messages || []);
+
+        // Handle quest progress tracking for skills
+        if (skills && collectedItems) {
+          for (const item of collectedItems) {
+            const match = item.match(/(\d+)\s+(.+)/);
+            if (match) {
+              const [, qty, skillType] = match;
+              if (skills.some(s => s.type === skillType)) {
+                await trackQuestProgress(currentPlayer, 'Gain skill with', skillType, parseInt(qty), setCurrentPlayer);
+              }
+            }
+          }
         }
-        await trackQuestProgress(currentPlayer, 'Gain skill with', powerType, qtyToAdd, setCurrentPlayer);
+
+        // Refresh player data to ensure consistency
+        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+
+        const template = templates.find(t => t.id === currentPlayer.messages[messageIndex]?.messageId);
+        updateStatus(`✅ Collected rewards: ${collectedItems.join(', ')}`);
       }
-
-      // Remove the message from the player's messages array
-      const updatedMessages = currentPlayer.messages.filter((m) => m !== message);
-      await axios.post(`${API_BASE}/api/update-player-messages`, {
-        playerId: currentPlayer.playerId,
-        messages: updatedMessages,
-      });
-
-      // Update client-side state
-      setCurrentPlayer((prev) => ({
-        ...prev,
-        messages: updatedMessages,
-      }));
-
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-      // Debug: Final PC state in grid after rewards
-      const updated = await playersInGridManager.getAllPCs(gridId)?.[currentPlayer.playerId];
-      const skillCheck = currentPlayer.skills?.map(s => s.type).join(', ') || 'none';
-      const powerCheck = currentPlayer.powers?.map(p => p.type).join(', ') || 'none';
-      // Debug: Raw PCs in grid after update
-      const rawGridPCs = playersInGridManager.getAllPCs(gridId);
-      updateStatus(`✅ Collected rewards from "${template.title}"`);
-    } catch (err) {
-      console.error("❌ Error collecting rewards:", err);
-      updateStatus("❌ Failed to collect rewards.");
+    } catch (error) {
+      console.error('Error in protected mailbox collection:', error);
+      if (error.response?.status === 429) {
+        updateStatus('⚠️ Collection already in progress');
+      } else {
+        updateStatus('❌ Failed to collect rewards');
+      }
     }
   };
 
@@ -371,9 +240,13 @@ const renderRewards = (rewards) => {
 
                 <div className="standard-buttons">
                   {rewards?.length > 0 && (
-                    <button className="btn-success" onClick={() => handleCollect(msg)}>
+                    <TransactionButton
+                      className="btn-success"
+                      transactionKey={`mailbox-collect-${index}`}
+                      onAction={(transactionId, transactionKey) => handleCollect(transactionId, transactionKey, visibleMessages.length - 1 - index)}
+                    >
                       {strings[1604]} 
-                    </button>
+                    </TransactionButton>
                   )}
                   <button
                     className="delete-btn"

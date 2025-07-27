@@ -823,6 +823,158 @@ router.post('/update-player-messages', async (req, res) => {
   }
 });
 
+// Protected mailbox collection endpoint
+router.post('/mailbox/collect-rewards', async (req, res) => {
+  const { playerId, messageIndex, transactionId, transactionKey } = req.body;
+  
+  if (!playerId || messageIndex === undefined || !transactionId || !transactionKey) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Import TransactionManager from tradingRoutes (we'll need to extract it to a shared utility)
+    const player = await Player.findOne({ playerId });
+    if (!player) throw new Error('Player not found');
+
+    // Check if transaction already processed (idempotency)
+    const lastTxId = player.lastTransactionIds.get(transactionKey);
+    if (lastTxId === transactionId) {
+      return res.json({ success: true, message: 'Rewards already collected' });
+    }
+
+    // Check if there's an active transaction for this action
+    if (player.activeTransactions.has(transactionKey)) {
+      const activeTransaction = player.activeTransactions.get(transactionKey);
+      const timeSinceStart = Date.now() - activeTransaction.timestamp.getTime();
+      
+      if (timeSinceStart > 30000) {
+        player.activeTransactions.delete(transactionKey);
+        await player.save();
+      } else {
+        throw new Error('Transaction in progress');
+      }
+    }
+
+    // Mark transaction as active
+    player.activeTransactions.set(transactionKey, {
+      type: transactionKey,
+      timestamp: new Date(),
+      transactionId
+    });
+    await player.save();
+
+    // Validate message exists
+    if (!player.messages || !player.messages[messageIndex]) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'Message not found' });
+    }
+
+    const message = player.messages[messageIndex];
+
+    // Load message templates to get reward info
+    const fs = require('fs');
+    const path = require('path');
+    const templatesPath = path.join(__dirname, '../tuning/messages.json');
+    const templates = JSON.parse(fs.readFileSync(templatesPath, 'utf-8'));
+    const template = templates.find(t => t.id === message.messageId);
+
+    if (!template) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'Message template not found' });
+    }
+
+    const rewards = message.rewards?.length > 0 ? message.rewards : template.rewards;
+
+    if (!rewards || rewards.length === 0) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ error: 'No rewards to collect' });
+    }
+
+    // Process rewards server-side
+    let collectedItems = [];
+
+    for (const reward of rewards) {
+      const { item, qty } = reward;
+
+      // Handle different reward types
+      if (item === 'Relocation') {
+        const currentRelocations = player.relocations || 0;
+        player.relocations = currentRelocations + qty;
+        collectedItems.push(`${qty} ${item}`);
+      } else if (item === 'Money' || item === 'Tent' || !['skill', 'power', 'upgrade'].includes(item)) {
+        // Handle inventory items (Money, Tent, and other regular items)
+        const targetContainer = item === 'Tent' ? 'backpack' : 'inventory';
+        const container = player[targetContainer] || [];
+        
+        const existingItem = container.find(i => i.type === item);
+        if (existingItem) {
+          existingItem.quantity += qty;
+        } else {
+          container.push({ type: item, quantity: qty });
+        }
+        
+        player[targetContainer] = container;
+        collectedItems.push(`${qty} ${item}`);
+      } else {
+        // Handle skills and powers
+        const isSkill = ['skill', 'upgrade'].includes(item);
+        const targetArray = isSkill ? 'skills' : 'powers';
+        const currentArray = player[targetArray] || [];
+        
+        const alreadyHas = currentArray.some(s => s.type === item);
+        if (!alreadyHas) {
+          currentArray.push({ type: item, quantity: qty });
+          player[targetArray] = currentArray;
+          collectedItems.push(`${qty} ${item}`);
+        }
+      }
+    }
+
+    // Remove the message
+    player.messages.splice(messageIndex, 1);
+
+    // Save all changes
+    await player.save();
+
+    // Complete transaction
+    player.lastTransactionIds.set(transactionKey, transactionId);
+    player.activeTransactions.delete(transactionKey);
+    await player.save();
+
+    res.json({ 
+      success: true, 
+      collectedItems,
+      messages: player.messages,
+      inventory: player.inventory,
+      backpack: player.backpack,
+      skills: player.skills,
+      powers: player.powers,
+      relocations: player.relocations
+    });
+
+  } catch (error) {
+    // Cleanup on error
+    try {
+      const player = await Player.findOne({ playerId });
+      if (player) {
+        player.activeTransactions.delete(transactionKey);
+        await player.save();
+      }
+    } catch (cleanupError) {
+      console.error('Error cleaning up failed mailbox transaction:', cleanupError);
+    }
+
+    if (error.message === 'Transaction in progress') {
+      return res.status(429).json({ error: 'Collection already in progress' });
+    }
+    console.error('Error collecting mailbox rewards:', error);
+    res.status(500).json({ error: 'Failed to collect rewards' });
+  }
+});
+
 
 
 
