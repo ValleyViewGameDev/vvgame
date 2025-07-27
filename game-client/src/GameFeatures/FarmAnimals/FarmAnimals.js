@@ -143,18 +143,8 @@ const AnimalPanel = ({
         if (!success) return;
       }
 
-      // Remove the animal stall resource from the grid
-      await updateGridResource(
-        gridId,
-        { type: null, x: currentStationPosition.x, y: currentStationPosition.y },
-        setResources,
-        true
-      );
-
-      setResources(prevResources =>
-        prevResources.filter(res => !(res.x === currentStationPosition.x && res.y === currentStationPosition.y))
-      );
-      console.log("🧹 AnimalStall resource removed from client state.");
+      // Note: We don't remove the animal stall building here - only the NPC
+      // The stall building can be sold separately from the AnimalStall panel
 
       // Remove the animal NPC from NPCsInGrid using the specific NPC ID
       try {

@@ -26,9 +26,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const { setUILocked } = useUILock();
 
   const tradeStallHaircut = 0.25;
-//  const sellWaitTime = 60 * 10 * 1000; // DEBUG 10 m
-  const sellWaitTime = 30 * 1000; // DEBUG 30 s
-//  const sellWaitTime = 60 * 60 * 1000; // 1 hour
+  const sellWaitTime = 60 * 60 * 1000; // 1 hour
 
   const calculateTotalSlots = (player) => {
     // Base slots are now 4 for Free, Gold gets +2 (total 6)
