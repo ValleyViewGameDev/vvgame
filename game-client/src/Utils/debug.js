@@ -4,19 +4,20 @@ import React, { useState, useEffect } from 'react';
 import Panel from '../UI/Panel';
 import '../UI/Panel.css'; // Specific styles for Debug Panel
 import { fetchInventory, refreshPlayerAfterInventoryUpdate } from './InventoryManagement';
-import { fetchGridData } from './GridManagement';
+import { fetchGridData, changePlayerLocation } from './GridManagement';
 import NPCsInGridManager from '../GridState/GridStateNPCs'; // Use default export for NPCsInGridManager
 import playersInGridManager from '../GridState/PlayersInGrid';
 import GridStateDebugPanel from './GridStateDebug';
 import { generateTownGrids, generateValleyGrids, createSingleValleyGrid } from './WorldGeneration';
- 
-const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, setResources, currentGridId, updateStatus }) => {
+
+const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, setResources, currentGridId, updateStatus, TILE_SIZE, setGrid, setGridId, setTileTypes, closeAllPanels }) => {
   const [timers, setTimers] = useState([]);
   const [npcs, setNPCs] = useState([]);
   const [pcs, setPCs] = useState([]);
   const [updatedNPCs, setUpdatedNPCs] = useState(npcs);
   const [refreshDebug, setRefreshDebug] = useState(false);
   const [singleGridCoord, setSingleGridCoord] = useState('');
+  const [toGridCoord, setToGridCoord] = useState('');
   const [usernameToDelete, setUsernameToDelete] = useState('');
   const [messageIdentifier, setMessageIdentifier] = useState('');
   
@@ -601,6 +602,82 @@ const handleGetRich = async () => {
     }
   };
 
+  const handleTeleport = async (gridCoord) => {
+    if (!gridCoord || typeof gridCoord !== 'number' || isNaN(gridCoord)) {
+      console.error('❌ Invalid gridCoord passed to handleTeleport:', gridCoord);
+      updateStatus('❌ Invalid grid selected for teleport.');
+      return;
+    }
+
+    // Extract settlement row and col from the 4th and 5th digits
+    const coordStr = String(gridCoord).padStart(7, '0'); // Ensure string is long enough
+    const row = parseInt(coordStr[3], 10); // 4th digit
+    const col = parseInt(coordStr[4], 10); // 5th digit
+
+    console.log(`🔢 Parsed gridCoord ${gridCoord} → row=${row}, col=${col}`);
+
+    try {
+      // 1. Call backend to get settlement data
+      const response = await axios.get(`${API_BASE}/api/get-settlement-by-coords/${row}/${col}`);
+      const settlement = response.data;
+
+      if (!settlement || !settlement.grids || settlement.grids.length === 0) {
+        console.warn('No settlement or empty grids array found.');
+        updateStatus('❌ Settlement data not found.');
+        return;
+      }
+
+      // 2. Search through grids to find the matching gridCoord
+      let matchingGridObj = null;
+      for (const row of settlement.grids) {
+        for (const cell of row) {
+          if (cell.gridCoord === gridCoord) {
+            matchingGridObj = cell;
+            break;
+          }
+        }
+        if (matchingGridObj) break;
+      }
+
+      if (!matchingGridObj) {
+        console.warn(`GridCoord ${gridCoord} not found in settlement.`);
+        updateStatus('❌ Grid not found in settlement.');
+        return;
+      }
+
+      // 3. Build toLocation using found grid data
+      const fromLocation = currentPlayer.location;
+      const toLocation = {
+        x: 0,
+        y: 0,
+        g: matchingGridObj.gridId,
+        s: settlement._id,
+        f: currentPlayer.location.f,
+        gtype: matchingGridObj.gridType,
+        gridCoord: gridCoord,
+      };
+
+      // 4. Call changePlayerLocation
+      changePlayerLocation(
+        currentPlayer,
+        fromLocation,
+        toLocation,
+        setCurrentPlayer,
+        setGridId,
+        setGrid,
+        setTileTypes,
+        setResources,
+        TILE_SIZE,
+        updateStatus,
+        closeAllPanels
+      );
+    } catch (error) {
+      console.error('Error during teleport:', error);
+      updateStatus('❌ Teleport failed due to error.');
+    }
+  };
+
+
   return (
     <Panel onClose={onClose} titleKey="1120" panelName="DebugPanel">
       <div className="debug-buttons">
@@ -652,6 +729,33 @@ const handleGetRich = async () => {
         >
           Create Grid
         </button>
+
+        <h3>Teleport to Another Grid</h3>
+        <input
+          type="text"
+          placeholder="Enter Username"
+          value={toGridCoord}
+          onChange={(e) => setToGridCoord(e.target.value)}
+        />
+        <button
+          className="btn-danger"
+          onClick={async () => {
+            try {
+              const parsedCoord = parseInt(toGridCoord, 10);
+              if (isNaN(parsedCoord)) {
+                alert("Invalid gridCoord (not a number).");
+                return;
+              }
+              await handleTeleport(parsedCoord);
+            } catch (error) {
+              console.error("Error teleporting:", error);
+              alert("Failed to teleport.");
+            }
+          }}
+        >
+          Teleport
+        </button>
+        
 
         <h3>Delete User Account</h3>
         <input

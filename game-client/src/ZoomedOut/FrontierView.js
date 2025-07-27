@@ -99,8 +99,8 @@ const FrontierView = ({
           if (ownedHomestead) {
             console.log("Traveling to owned homestead:", ownedHomestead);
             const toLocation = {
-              x: 1,  
-              y: 1,
+              x: 0,  
+              y: 0,
               g: ownedHomestead.gridId, 
               s: tile.settlementId, 
               f: currentPlayer.location.f,

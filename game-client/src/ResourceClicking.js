@@ -345,7 +345,7 @@ export async function handleUseKey(resource,requirement,col,row,TILE_SIZE,curren
     setIsModalOpen(true);
   });
 }
-
+ 
 // HANDLE SOURCE CONVERSIONS //
 //
 export async function handleSourceConversion(

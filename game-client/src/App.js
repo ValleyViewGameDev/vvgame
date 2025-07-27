@@ -1281,6 +1281,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         setModalContent,
         setIsModalOpen,
         closeAllPanels,
+        strings,
       ).finally(() => {
         isProcessing = false; // Reset flag after processing
       });
@@ -1867,6 +1868,11 @@ return (
           setResources={setResources}
           currentGridId={currentPlayer?.location?.g}
           updateStatus={updateStatus}
+          TILE_SIZE={activeTileSize}
+          setGrid={setGrid}
+          setGridId={setGridId}
+          setTileTypes={setTileTypes}
+          closeAllPanels={closeAllPanels}
         />
       )}
       {activePanel === 'InventoryPanel' && (

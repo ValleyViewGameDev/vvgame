@@ -148,8 +148,8 @@ const SettlementView = ({
 
     try {
       const toLocation = {
-        x: 1,  
-        y: 1,
+        x: 0,  
+        y: 0,
         g: tile.gridId,
         s: currentPlayer.location.s,
         f: currentPlayer.location.f,
