@@ -10,7 +10,6 @@ import '../../UI/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
 import { useUILock } from '../../UI/UILockContext';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
-import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
 
 const AnimalPanel = ({
@@ -116,30 +115,69 @@ const AnimalPanel = ({
   }, [currentPlayer]);
 
   const handleSellStation = async (transactionId, transactionKey) => {
-    try {
-      // Use protected selling for the main transaction
-      const result = await handleProtectedSelling({
-        currentPlayer,
-        setInventory,
-        setBackpack,
-        setCurrentPlayer,
-        setResources,
-        stationType,
-        currentStationPosition,
-        gridId,
-        TILE_SIZE,
-        updateStatus,
-        onClose
-      });
-
-      // If selling was successful, also remove the associated NPC
-      if (result?.success && npcId) {
-        console.log(`🐄 Removing animal NPC ${npcId} (original position: ${currentStationPosition.x}, ${currentStationPosition.y})`);
-        await NPCsInGridManager.removeNPC(gridId, npcId);
-        console.log("🧹 Animal NPC removed from NPCsInGrid.");
+    const ingredients = [];
+    for (let i = 1; i <= 3; i++) {
+      const ingredientType = stallDetails[`ingredient${i}`];
+      const ingredientQty = stallDetails[`ingredient${i}qty`];
+      if (ingredientType && ingredientQty) {
+        ingredients.push({ type: ingredientType, quantity: ingredientQty });
       }
+    }
+    if (!ingredients.length) { console.error('No ingredients found for refund.'); return; }
+
+    try {
+      for (const { type, quantity } of ingredients) {
+        const success = await gainIngredients({
+          playerId: currentPlayer.playerId,
+          currentPlayer,
+          resource: type,
+          quantity,
+          inventory,
+          backpack,
+          setInventory,
+          setBackpack,
+          setCurrentPlayer,
+          updateStatus,
+          masterResources,
+        });
+        if (!success) return;
+      }
+
+      // Remove the animal stall resource from the grid
+      await updateGridResource(
+        gridId,
+        { type: null, x: currentStationPosition.x, y: currentStationPosition.y },
+        setResources,
+        true
+      );
+
+      setResources(prevResources =>
+        prevResources.filter(res => !(res.x === currentStationPosition.x && res.y === currentStationPosition.y))
+      );
+      console.log("🧹 AnimalStall resource removed from client state.");
+
+      // Remove the animal NPC from NPCsInGrid using the specific NPC ID
+      try {
+        if (npcId) {
+          console.log(`🐄 Removing animal NPC ${npcId} (original position: ${currentStationPosition.x}, ${currentStationPosition.y})`);
+          await NPCsInGridManager.removeNPC(gridId, npcId);
+          console.log("🧹 Animal NPC removed from NPCsInGrid.");
+        } else {
+          console.error("No NPC ID provided - cannot remove animal NPC");
+        }
+      } catch (error) {
+        console.error('Error removing NPC:', error);
+      }
+
+      const totalRefund = ingredients
+        .filter((item) => item.type === "Money")
+        .reduce((sum, item) => sum + item.quantity, 0);
+
+      console.log(`Sold ${stationType} successfully for ${totalRefund} Money.`);
+      updateStatus(`Sold ${stationType} for ${totalRefund} Money.`);
+      onClose();
     } catch (error) {
-      console.error('Error in farm animal selling:', error);
+      console.error('Error selling the stall:', error);
     }
   };
   
