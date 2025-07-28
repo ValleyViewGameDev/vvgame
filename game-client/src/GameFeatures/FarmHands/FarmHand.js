@@ -52,6 +52,7 @@ const FarmHandPanel = ({
   const [availableAnimals, setAvailableAnimals] = useState([]);
   const skills = currentPlayer.skills || [];
   const hasBulkReplant = skills.some(skill => skill.type === 'Bulk Replant');
+  const [isContentLoading, setIsContentLoading] = useState(false);
   
   // Helper function to check if player has required skill (same logic as FarmingPanel)
   const hasRequiredSkill = (requiredSkill) => {

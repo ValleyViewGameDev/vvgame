@@ -8,6 +8,7 @@ import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { usePanelContext } from '../../UI/PanelContext';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
+import { useStrings } from '../../UI/StringsContext';
 
 const BuildPanel = ({
   TILE_SIZE,
@@ -27,30 +28,31 @@ const BuildPanel = ({
   const { closePanel } = usePanelContext(); // Use closePanel from context
   const [buildOptions, setBuildOptions] = useState([]);
   const [allResources, setAllResources] = useState([]);
+  const [isContentLoading, setIsContentLoading] = useState(false);
+  const strings = useStrings();
 
   // Fetch inventory and build options when the panel initializes
   useEffect(() => {
     const fetchData = async () => {
+      setIsContentLoading(true);
       try {
         // Fetch inventory
         const inventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
         setInventory(inventoryResponse.data.inventory || []);
-
         // Fetch all resources and filter for build options
         const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
         const allResourcesData = resourcesResponse.data;
         setAllResources(allResourcesData);
-
         // ✅ Filter build options based on the player's location
         const validBuildOptions = allResourcesData.filter(resource => 
           resource.source === 'Build' || 
           (resource.source === 'BuildTown' && currentPlayer.location.gtype === 'town' && currentPlayer.role === 'Mayor')
         );
-
-        setBuildOptions(validBuildOptions);
-        
+        setBuildOptions(validBuildOptions); 
       } catch (error) {
         console.error('Error fetching build panel data:', error);
+      } finally {
+        setIsContentLoading(false);
       }
     };
 
@@ -66,71 +68,76 @@ const BuildPanel = ({
   return (
     <Panel onClose={closePanel} descriptionKey="1002" titleKey="1102" panelName="BuildPanel">
       <div className="standard-panel">
-      {buildOptions.map((item) => {
-          const ingredients = getIngredientDetails(item, allResources);
-          const affordable = canAfford(item, inventory, backpack);
-          const requirementsMet = hasRequiredSkill(item.requires);
+        {isContentLoading ? (
+          <p>{strings[98]}</p>
+        ) : (
+          <>
+            {buildOptions.map((item) => {
+              const ingredients = getIngredientDetails(item, allResources);
+              const affordable = canAfford(item, inventory, backpack);
+              const requirementsMet = hasRequiredSkill(item.requires);
 
-          const formattedCosts = [1, 2, 3, 4].map((i) => {
-            const type = item[`ingredient${i}`];
-            const qty = item[`ingredient${i}qty`];
-            if (!type || !qty) return '';
+              const formattedCosts = [1, 2, 3, 4].map((i) => {
+                const type = item[`ingredient${i}`];
+                const qty = item[`ingredient${i}qty`];
+                if (!type || !qty) return '';
 
-            const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
-            const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
-            const playerQty = inventoryQty + backpackQty;
-            const color = playerQty >= qty ? 'green' : 'red';
-            const symbol = allResources.find(r => r.type === type)?.symbol || '';
-            return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
-          }).join('');
+                const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
+                const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
+                const playerQty = inventoryQty + backpackQty;
+                const color = playerQty >= qty ? 'green' : 'red';
+                const symbol = allResources.find(r => r.type === type)?.symbol || '';
+                return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+              }).join('');
 
-          const skillColor = requirementsMet ? 'green' : 'red';
-          const details =
-            `Costs:<div>${formattedCosts}</div>` +
-            (item.requires ? `<br><span style="color: ${skillColor};">Requires: ${item.requires}</span>` : '');
+              const skillColor = requirementsMet ? 'green' : 'red';
+              const details =
+                `Costs:<div>${formattedCosts}</div>` +
+                (item.requires ? `<br><span style="color: ${skillColor};">Requires: ${item.requires}</span>` : '');
 
-          // Dynamically create "info" content for the toaster
-          const info = `
-            Makes: ${
-              allResources
-                .filter((res) => res.source === item.type)
-                .map((res) => `${res.symbol || ''} ${res.type}`)
-                .join(', ') || 'None'
-            }
-          `;
+              const info = `
+                Makes: ${
+                  allResources
+                    .filter((res) => res.source === item.type)
+                    .map((res) => `${res.symbol || ''} ${res.type}`)
+                    .join(', ') || 'None'
+                }
+              `;
 
-          return (
-            <ResourceButton
-              key={item.type}
-              symbol={item.symbol}
-              name={item.type}
-              details={details}
-              info={info}
-              disabled={!affordable || !requirementsMet}
-              onClick={() =>
-                affordable &&
-                requirementsMet &&
-                handleConstruction({
-                  TILE_SIZE,
-                  selectedItem: item.type,
-                  buildOptions,
-                  inventory,
-                  setInventory,
-                  backpack,
-                  setBackpack, 
-                  resources,
-                  setResources,
-                  setErrorMessage: console.error, // Replace with real error handling if needed
-                  currentPlayer,
-                  setCurrentPlayer,
-                  gridId,
-                  updateStatus,
-                })
-              }
-            />
-          );
-        })}
-    </div>   
+              return (
+                <ResourceButton
+                  key={item.type}
+                  symbol={item.symbol}
+                  name={item.type}
+                  details={details}
+                  info={info}
+                  disabled={!affordable || !requirementsMet}
+                  onClick={() =>
+                    affordable &&
+                    requirementsMet &&
+                    handleConstruction({
+                      TILE_SIZE,
+                      selectedItem: item.type,
+                      buildOptions,
+                      inventory,
+                      setInventory,
+                      backpack,
+                      setBackpack, 
+                      resources,
+                      setResources,
+                      setErrorMessage: console.error, // Replace with real error handling if needed
+                      currentPlayer,
+                      setCurrentPlayer,
+                      gridId,
+                      updateStatus,
+                    })
+                  }
+                />
+              );
+            })}
+          </>
+        )}
+      </div>   
     </Panel>
   );
 };

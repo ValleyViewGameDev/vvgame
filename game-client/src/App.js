@@ -1177,7 +1177,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       return;
   }
   // If clicking a resource, check range before interacting (except NPCs)
-  if (resource && resource.category !== 'npc') {
+  if (resource && resource.category !== 'npc' && !isOnOwnHomestead) {
     const distance = calculateDistance(playerPos, targetPos);
     const playerRange = getDerivedRange(currentPlayer, masterResources);    
     if (distance > playerRange) {

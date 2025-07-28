@@ -31,16 +31,20 @@ function TrainPanel({
   const [trainRewards, setTrainRewards] = useState([]);
   const [latestInventory, setLatestInventory] = useState([]);
   const [playerUsernames, setPlayerUsernames] = useState({}); // Map of playerId -> username
+  const [isContentLoading, setIsContentLoading] = useState(false);
 
   // 1. Initial load for the player
   useEffect(() => {
     const fetchInventory = async () => {
       if (!currentPlayer?.playerId) return;
+      setIsContentLoading(true);
       try {
         const response = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
         setLatestInventory(response.data.inventory || []);
       } catch (error) {
         console.error("❌ Error fetching latest inventory:", error);
+      } finally {
+        setIsContentLoading(false);
       }
     };
     fetchInventory();
@@ -432,30 +436,36 @@ function TrainPanel({
 
   return (
     <Panel onClose={onClose} descriptionKey="1022" titleKey="1122" panelName="TrainPanel">
-      <h3>{strings[2020]} {trainPhase}</h3>
-      <h2>⏳ {trainTimer}</h2>
-
-      {trainPhase === "loading" && (
+      {isContentLoading ? (
+        <p>{strings[98]}</p>
+      ) : (
         <>
-          {renderRewardSection()}
-          {renderOfferSection(strings[2009], claimedByYou)}
-          {renderOfferSection(strings[2010], available)}
-          {renderOfferSection(strings[2011], claimedByOthers)}
-          {renderOfferSection(strings[2012], completed)}
+          <h3>{strings[2020]} {trainPhase}</h3>
+          <h2>⏳ {trainTimer}</h2>
+
+          {trainPhase === "loading" && (
+            <>
+              {renderRewardSection()}
+              {renderOfferSection(strings[2009], claimedByYou)}
+              {renderOfferSection(strings[2010], available)}
+              {renderOfferSection(strings[2011], claimedByOthers)}
+              {renderOfferSection(strings[2012], completed)}
+            </>
+          )}
+
+          {allOrdersFilled && (
+            <div className="train-rewards-banner">
+              {strings[2016]}
+            </div>
+          )}
+
+          {(trainPhase === "loading" || trainPhase === "departing") && renderNextShipment()}
+
+          <button className="standard-button" onClick={() => handleShowTrainLog()}>
+            {strings[2015]}
+          </button>
         </>
       )}
-
-      {allOrdersFilled && (
-        <div className="train-rewards-banner">
-          {strings[2016]}
-        </div>
-      )}
-
-      {(trainPhase === "loading" || trainPhase === "departing") && renderNextShipment()}
-
-      <button className="standard-button" onClick={() => handleShowTrainLog()}>
-        {strings[2015]}
-      </button>
     </Panel>
   );
 }

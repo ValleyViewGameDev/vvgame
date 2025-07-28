@@ -553,9 +553,6 @@
     "12009": "Home",
     "12010": "Profile",
 
-
-    "11000": "ADDED STRINGS:",
-
     "320": "Cannot terraform here.",
     "2085": "Current Mayor:",
     "438": "Remove Crop",
@@ -571,8 +568,11 @@
     "1129": "🐾 Animals",
     "1130": "🌱 Crops & Trees",
     "1029": "[Animal panel]",
-    "1030": "[Crop panel]"
+    "1030": "[Crop panel]",
 
+    "11000": "ADDED STRINGS:",
+
+    "98": "⏳ Loading ..."
 
   }
 

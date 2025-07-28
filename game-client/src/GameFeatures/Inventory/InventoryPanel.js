@@ -15,15 +15,11 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
     const baseWarehouseCapacity = currentPlayer?.warehouseCapacity || 0;
     const baseBackpackCapacity = currentPlayer?.backpackCapacity || 0;
     const [showBackpackModal, setShowBackpackModal] = useState(false);
-
     const hasBackpackSkill = currentPlayer?.skills?.some(item => item.type === 'Backpack');
-
     const finalCapacities = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources);
-
-
     const calculateTotalQuantity = (inventory) =>
         inventory.filter((item) => item.type !== 'Money').reduce((total, item) => total + item.quantity, 0);
-
+    
     const handleMoveItem = async (item) => {
         const isAtHome = currentPlayer.location.g === currentPlayer.gridId;
 

@@ -8,7 +8,6 @@ import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 
 function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
   const [countdown, setCountdown] = useState("");
-  const [statusMessage, setStatusMessage] = useState("");
   const [topCitizens, setTopCitizens] = useState([]);
   const [topSettlementName, setTopSettlementName] = useState("");
   const [seasonCycle, setSeasonCycle] = useState([]);

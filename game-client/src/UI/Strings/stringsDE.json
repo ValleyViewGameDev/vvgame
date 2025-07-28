@@ -486,5 +486,8 @@
   "speed": "Camping",
   "iscamping": "Rüstungsklasse",
   "armorclass": "Rucksackkapazität",
-  "backpackCapacity": "Lagerhauskapazität"
+  "backpackCapacity": "Lagerhauskapazität",
+
+  "98": "⏳ Loading ..."
+
 }

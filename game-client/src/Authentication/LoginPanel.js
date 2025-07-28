@@ -52,7 +52,7 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
           }}
         />
       ) : (
-        <div className="panel-content">
+        <div className="standard-panel">
           <form onSubmit={handleLogin} className="panel-form">
             <div className="form-group">
 

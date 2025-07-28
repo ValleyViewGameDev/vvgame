@@ -50,9 +50,6 @@ const CraftingStation = ({
   const [craftingCountdown, setCraftingCountdown] = useState(null);
   const [isCrafting, setIsCrafting] = useState(false);
   const [isReadyToCollect, setIsReadyToCollect] = useState(false);
-  const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
-  const COOLDOWN_DURATION = 2000;
-  const { setUILocked } = useUILock();
 
    // ✅ Check for active crafting timers
    useEffect(() => {

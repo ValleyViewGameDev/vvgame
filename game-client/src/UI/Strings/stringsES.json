@@ -486,5 +486,8 @@
   "speed": "Está de Campamento",
   "iscamping": "Clase de Armadura",
   "armorclass": "Capacidad de la Mochila",
-  "backpackCapacity": "Capacidad del Almacén"
+  "backpackCapacity": "Capacidad del Almacén",
+
+      "98": "⏳ Loading ..."
+
 }

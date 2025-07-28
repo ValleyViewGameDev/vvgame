@@ -33,6 +33,7 @@ const FarmingPanel = ({
   const strings = useStrings();
   const [farmPlots, setFarmPlots] = useState([]);
   const [allResources, setAllResources] = useState([]);
+  const [isContentLoading, setIsContentLoading] = useState(false);
   const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
   const COOLDOWN_DURATION = 500;
 
@@ -42,6 +43,7 @@ const FarmingPanel = ({
   }, []);
 
   const fetchData = async () => {
+    setIsContentLoading(true);
     try {
       const inventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
       setInventory(inventoryResponse.data.inventory || []);
@@ -54,6 +56,8 @@ const FarmingPanel = ({
       setFarmPlots(farmPlotItems);
     } catch (error) {
       console.error('Error fetching farming panel data:', error);
+    } finally {
+      setIsContentLoading(false);
     }
   };
 
@@ -110,103 +114,108 @@ const FarmingPanel = ({
   return (
     <Panel onClose={onClose} descriptionKey="1004" titleKey="1104" panelName="FarmingPanel">
       <div className="standard-panel">
- 
-           {/* Till Land Button */}
-           <ResourceButton
-            symbol="⛏️"
-            name="Till Land"
-            details="Costs: None<br>Requires: Pickaxe"
-            disabled={isActionCoolingDown || !hasRequiredSkill('Pickaxe')}
-            info={strings[310]}
-            onClick={() => handleTerraformWithCooldown("till")}
-          />
+        {isContentLoading ? (
+          <p>{strings[98]}</p>
+        ) : (
+          <>
+            {/* Till Land Button */}
+            <ResourceButton
+              symbol="⛏️"
+              name="Till Land"
+              details="Costs: None<br>Requires: Pickaxe"
+              disabled={isActionCoolingDown || !hasRequiredSkill('Pickaxe')}
+              info={strings[310]}
+              onClick={() => handleTerraformWithCooldown("till")}
+            />
 
-          {/* Plant Grass Button */}
-          <ResourceButton
-            symbol="🟩"
-            name="Plant Grass"
-            details="Costs: None<br>Requires: Grower"
-            disabled={isActionCoolingDown || !hasRequiredSkill('Grower')}
-            info={strings[311]}
-            onClick={() => handleTerraformWithCooldown("plantGrass")}
-          />
+            {/* Plant Grass Button */}
+            <ResourceButton
+              symbol="🟩"
+              name="Plant Grass"
+              details="Costs: None<br>Requires: Grower"
+              disabled={isActionCoolingDown || !hasRequiredSkill('Grower')}
+              info={strings[311]}
+              onClick={() => handleTerraformWithCooldown("plantGrass")}
+            />
 
-          {/* Plant Grass Button */}
-          <ResourceButton
-            symbol="🟨"
-            name="Lay Pavement"
-            details="Costs: None"
-            disabled={isActionCoolingDown}
-            info={strings[312]}
-            onClick={() => handleTerraformWithCooldown("pave")}
-          />
+            {/* Lay Pavement Button */}
+            <ResourceButton
+              symbol="🟨"
+              name="Lay Pavement"
+              details="Costs: None"
+              disabled={isActionCoolingDown}
+              info={strings[312]}
+              onClick={() => handleTerraformWithCooldown("pave")}
+            />
 
-          {/* Farm Plot Options */}
-          {farmPlots.map((item) => {
-            const ingredients = getIngredientDetails(item, allResources);
-            const affordable = canAfford(item, inventory, 1);
-            const requirementsMet = hasRequiredSkill(item.requires);
-            const formatCountdown = (seconds) => {
-              const days = Math.floor(seconds / 86400);
-              const hours = Math.floor((seconds % 86400) / 3600);
-              const minutes = Math.floor((seconds % 3600) / 60);
-              const secs = Math.floor(seconds % 60);
-              return days > 0
-                ? `${days}d ${hours}h ${minutes}m`
-                : hours > 0
-                ? `${hours}h ${minutes}m ${secs}s`
-                : minutes > 0
-                ? `${minutes}m ${secs}s`
-                : `${secs}s`;
-            };
+            {/* Farm Plot Options */}
+            {farmPlots.map((item) => {
+              const ingredients = getIngredientDetails(item, allResources);
+              const affordable = canAfford(item, inventory, 1);
+              const requirementsMet = hasRequiredSkill(item.requires);
+              const formatCountdown = (seconds) => {
+                const days = Math.floor(seconds / 86400);
+                const hours = Math.floor((seconds % 86400) / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const secs = Math.floor(seconds % 60);
+                return days > 0
+                  ? `${days}d ${hours}h ${minutes}m`
+                  : hours > 0
+                  ? `${hours}h ${minutes}m ${secs}s`
+                  : minutes > 0
+                  ? `${minutes}m ${secs}s`
+                  : `${secs}s`;
+              };
 
-            const symbol = item.symbol || '';
+              const symbol = item.symbol || '';
 
-            const formattedCosts = [1, 2, 3, 4].map((i) => {
-              const type = item[`ingredient${i}`];
-              const qty = item[`ingredient${i}qty`];
-              if (!type || !qty) return '';
+              const formattedCosts = [1, 2, 3, 4].map((i) => {
+                const type = item[`ingredient${i}`];
+                const qty = item[`ingredient${i}qty`];
+                if (!type || !qty) return '';
 
-              const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
-              const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
-              const playerQty = inventoryQty + backpackQty;
-              const color = playerQty >= qty ? 'green' : 'red';
-              const symbol = allResources.find(r => r.type === type)?.symbol || '';
-              return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
-            }).join('');
+                const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
+                const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
+                const playerQty = inventoryQty + backpackQty;
+                const color = playerQty >= qty ? 'green' : 'red';
+                const symbol = allResources.find(r => r.type === type)?.symbol || '';
+                return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+              }).join('');
 
-            const skillColor = requirementsMet ? 'green' : 'red';
+              const skillColor = requirementsMet ? 'green' : 'red';
 
-            const details =
-              `Costs:<div>${formattedCosts}</div>` +
-              (item.growtime ? `<br>Time: ${formatCountdown(item.growtime)}` : '') +
-              (item.requires ? `<br><span style="color: ${skillColor};">Requires: ${item.requires}</span>` : '');
+              const details =
+                `Costs:<div>${formattedCosts}</div>` +
+                (item.growtime ? `<br>Time: ${formatCountdown(item.growtime)}` : '') +
+                (item.requires ? `<br><span style="color: ${skillColor};">Requires: ${item.requires}</span>` : '');
 
-            const info =
-              `Makes: ${
-                allResources
-                  .filter((res) => res.source === item.type)
-                  .map((res) => `${res.symbol || ''} ${res.type}`)
-                  .join(', ') || 'None'
-              }`;
+              const info =
+                `Makes: ${
+                  allResources
+                    .filter((res) => res.source === item.type)
+                    .map((res) => `${res.symbol || ''} ${res.type}`)
+                    .join(', ') || 'None'
+                }`;
 
-            return (
-              <ResourceButton
-                key={item.type}
-                symbol={symbol}
-                name={item.type}
-                details={details}
-                info={info}
-                disabled={isActionCoolingDown || !affordable || !requirementsMet}
-                onClick={() =>
-                  affordable &&
-                  requirementsMet &&
-                  handleFarmPlacementWithCooldown(item)
-                }
-              />
-            );
-          })}
-        </div>
+              return (
+                <ResourceButton
+                  key={item.type}
+                  symbol={symbol}
+                  name={item.type}
+                  details={details}
+                  info={info}
+                  disabled={isActionCoolingDown || !affordable || !requirementsMet}
+                  onClick={() =>
+                    affordable &&
+                    requirementsMet &&
+                    handleFarmPlacementWithCooldown(item)
+                  }
+                />
+              );
+            })}
+          </>
+        )}
+      </div>
     </Panel>
   );
 }; 

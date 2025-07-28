@@ -21,18 +21,22 @@ function BankPanel({
     masterResources, }) 
 {
     const strings = useStrings();
+    const [isContentLoading, setIsContentLoading] = useState(false);
     const [bankOffers, setBankOffers] = useState([]);
     const [bankTimer, setBankTimer] = useState("");
     const [bankPhase, setBankPhase] = useState("");
 
     // Fetch data - separated from timer logic
     const fetchBankOffers = async () => {
-        try {
+       setIsContentLoading(true);
+       try {
             const response = await axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`);
             setBankOffers(response.data.bank?.offers || []);
             setBankPhase(response.data.bank?.phase || "");
         } catch (error) {
             console.error('❌ Error fetching bank offers:', error);
+        } finally {
+            setIsContentLoading(false);
         }
     };
 
@@ -127,60 +131,50 @@ function BankPanel({
     };
 
     return (
-        <Panel onClose={onClose} descriptionKey="1017" titleKey="1117" panelName="BankPanel">
-        {/* Active phase showing current offers */}
+      <Panel onClose={onClose} descriptionKey="1017" titleKey="1117" panelName="BankPanel">
+        {isContentLoading ? (
+          <p>{strings[98]}</p>
+        ) : (
+          <>
+            {/* Active phase showing current offers */}
             {bankPhase === "active" ? (
-                <>
-                    <h3>{strings["1402"]}</h3> {/* "These offers good for" */}
-                    <h2>{bankTimer}</h2>
-                    {bankOffers.length > 0 ? (
-                        bankOffers.map((offer, index) => (
-                            <ResourceButton
-                                key={index}
-                                className="resource-button"
-                                onClick={() => handleTrade(offer)}
-                                disabled={!currentPlayer.inventory.some((item) => 
-                                    item.type === offer.itemBought && 
-                                    item.quantity >= offer.qtyBought
-                                )}
-                                hideInfo={true}
-                            >
-                                <div className="resource-details">
-                                    <span><strong>{strings["1403"]}</strong></span> {/* "Will buy" */}
-                                    {getSymbol(offer.itemBought)} {offer.itemBought} x{offer.qtyBought}
-                                    <br />
-                                    {strings["1404"]} {getSymbol(offer.itemGiven)} {offer.qtyGiven} {/* "for" */}
-                                </div>
-                            </ResourceButton>
-                        ))
-                    ) : (
-                        <p>{strings["1405"]}</p>  
-                    )}
-                </>
+              <>
+                <h3>{strings["1402"]}</h3> {/* "These offers good for" */}
+                <h2>{bankTimer}</h2>
+                {bankOffers.length > 0 ? (
+                  bankOffers.map((offer, index) => (
+                    <ResourceButton
+                      key={index}
+                      className="resource-button"
+                      onClick={() => handleTrade(offer)}
+                      disabled={!currentPlayer.inventory.some((item) => 
+                        item.type === offer.itemBought && 
+                        item.quantity >= offer.qtyBought
+                      )}
+                      hideInfo={true}
+                    >
+                      <div className="resource-details">
+                        <span><strong>{strings["1403"]}</strong></span> {/* "Will buy" */}
+                        {getSymbol(offer.itemBought)} {offer.itemBought} x{offer.qtyBought}
+                        <br />
+                        {strings["1404"]} {getSymbol(offer.itemGiven)} {offer.qtyGiven} {/* "for" */}
+                      </div>
+                    </ResourceButton>
+                  ))
+                ) : (
+                  <p>{strings["1405"]}</p>  
+                )}
+              </>
             ) : (
-                <>
-                    <h3>{strings["1406"]}</h3> {/* "New offers in" */}
-                    <h2>{bankTimer}</h2>
-                    <p>{strings["1407"]}</p> {/* "Generating new orders. Thank you for your patience." */}
-                </>
+              <>
+                <h3>{strings["1406"]}</h3> {/* "New offers in" */}
+                <h2>{bankTimer}</h2>
+                <p>{strings["1407"]}</p> {/* "Generating new orders. Thank you for your patience." */}
+              </>
             )}
-            {/* <div className="debug-section" style={{ marginTop: '20px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
-                <button 
-                    className="debug-button" 
-                    onClick={handleRefreshOffers}
-                    style={{ 
-                        padding: '5px 10px',
-                        backgroundColor: '#444',
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                    }}
-                >
-                    🔄 Debug: Refresh Bank Offers
-                </button>
-            </div> */}
-        </Panel>
+          </>
+        )}
+      </Panel>
     );
 }
 

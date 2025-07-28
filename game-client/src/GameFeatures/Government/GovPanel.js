@@ -10,6 +10,7 @@ import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 
 function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
   const strings = useStrings();
+  const [isContentLoading, setIsContentLoading] = useState(false);
   const [settlementData, setSettlementData] = useState(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [taxRate, setTaxRate] = useState(0);
@@ -33,6 +34,7 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
   
   useEffect(() => {
     const fetchGovernmentData = async () => {
+      setIsContentLoading(true);
       if (!currentPlayer || !currentPlayer.settlementId) {
         console.warn("⚠️ currentPlayer or settlementId is not available yet.");
         return; 
@@ -55,6 +57,8 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
           
       } catch (error) {
         console.error("❌ Error fetching government data:", error);
+      } finally {
+        setIsContentLoading(false);
       }
     };
   
@@ -121,49 +125,52 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
 
   return (
     <Panel onClose={onClose} descriptionKey="1007" titleKey="1107" panelName="GovPanel">
-      <div className="panel-content">
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-  
-        {/* Settlement Information */}
-        {settlementData && (
+      <div className="standard-panel">
+        {isContentLoading ? (
+          <p>{strings[98]}</p>
+        ) : (
           <>
-            <h3><strong>{strings["3001"]}</strong></h3>  
-            <h3><strong>{settlementData.displayName || settlementData.name || 'Unnamed Settlement'}</strong></h3>
-            <h3>{strings["3002"]} <strong>{population}</strong></h3>
+            {errorMessage && <p className="error-message">{errorMessage}</p>}
+
+            {/* Settlement Information */}
+            {settlementData && (
+              <>
+                <h3><strong>{strings["3001"]}</strong></h3>  
+                <h3><strong>{settlementData.displayName || settlementData.name || 'Unnamed Settlement'}</strong></h3>
+                <h3>{strings["3002"]} <strong>{population}</strong></h3>
+              </>
+            )}
+
+            {/* Taxes Section */}
+            <h3>{strings["3003"]} {taxRate}%</h3>
+            <p>{strings["3004"]}</p>
+            <p>{strings["3005"]}</p>
+            <div className="panel-buttons">
+              <button className="btn-success" onClick={handleShowTaxLog}>
+                {strings[3020]}
+              </button>
+            </div>
+            
+            {/* Government Officials Section */}
+            <h3>{strings["3006"]}</h3>
+            <div>
+              <p><strong>Mayor:</strong> {mayor || "Vacant"}</p>
+            </div>
+
+            <p>{strings["3009"]}</p>
+            <p>{strings["3010"]}</p>
+            <p>{strings["3011"]}</p>
+            <p>{strings["3012"]}</p>
+            <p>{strings["3013"]}</p>
+
+            {/* COMMUNITY BUILDINGS section */}
+            <h3>{strings["2090"]}</h3>
+            <p>{buildingCounts.School > 0 ? `${strings["2092"]}${buildingCounts.School}` : strings["2093"]}</p>
+            <p>{buildingCounts.Hospital > 0 ? `${strings["2094"]}${buildingCounts.Hospital}` : strings["2095"]}</p>
+            <p>{buildingCounts.AnimalYard > 0 ? `${strings["2096"]}${buildingCounts.AnimalYard}` : strings["2097"]}</p>
+            <p>{buildingCounts.Library > 0 ? `${strings["2098"]}${buildingCounts.Library}` : strings["2099"]}</p>
           </>
         )}
-
-        {/* Taxes Section */}
-        <h3>{strings["3003"]} {taxRate}%</h3>
-        <p>{strings["3004"]}</p>
-        <p>{strings["3005"]}</p>
-        <div className="panel-buttons">
-          <button className="btn-success" onClick={handleShowTaxLog}>
-            {strings[3020]}
-          </button>
-        </div>
-        
-        {/* Government Officials Section */}
-        <h3>{strings["3006"]}</h3>
-        <div>
-        <p><strong>Mayor:</strong> {mayor || "Vacant"}</p>
-        </div>
-
-        <p>{strings["3009"]}</p>
-        <p>{strings["3010"]}</p>
-        <p>{strings["3011"]}</p>
-        <p>{strings["3012"]}</p>
-        <p>{strings["3013"]}</p>
-
-
-        {/* COMMUNITY BUILDINGS section */}
-        <h3>{strings["2090"]}</h3>
-        <p>{buildingCounts.School > 0 ? `${strings["2092"]}${buildingCounts.School}` : strings["2093"]}</p>
-        <p>{buildingCounts.Hospital > 0 ? `${strings["2094"]}${buildingCounts.Hospital}` : strings["2095"]}</p>
-        <p>{buildingCounts.AnimalYard > 0 ? `${strings["2096"]}${buildingCounts.AnimalYard}` : strings["2097"]}</p>
-        <p>{buildingCounts.Library > 0 ? `${strings["2098"]}${buildingCounts.Library}` : strings["2099"]}</p>
-
-
       </div>
     </Panel>
   );

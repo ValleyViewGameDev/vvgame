@@ -236,7 +236,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
       titleKey="1119"
       panelName="ProfilePanel"
     >
-      <div className="panel-content">
+      <div className="standard-panel">
 
         <h2>{strings[4051]} {currentPlayer.username} {currentPlayer.icon}</h2>
 

@@ -170,7 +170,7 @@ const handlePurchase = async (resourceType) => {
       <div className="standard-panel">
       <h2>{stationEmoji} {entryPoint}</h2> {/* ✅ Display emoji before entry point */}
       {isContentLoading ? (
-          <p>Loading...</p>
+          <p>{strings[98]}</p>
         ) : (
           <>
             {!["Warehouse", "Adventure Camp", "Laboratory", "School"].includes(entryPoint) && (

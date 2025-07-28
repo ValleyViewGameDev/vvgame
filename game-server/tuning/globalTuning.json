@@ -34,7 +34,7 @@
   "train": {
     "phases": {
       "arriving": 0.6,
-      "loading": 4320,
+      "loading": 2880,
       "departing": 0.6
     },
     "startPhase": "arriving"
