@@ -68,7 +68,7 @@ const BuildPanel = ({
       <div className="standard-panel">
       {buildOptions.map((item) => {
           const ingredients = getIngredientDetails(item, allResources);
-          const affordable = canAfford(item, inventory);
+          const affordable = canAfford(item, inventory, backpack);
           const requirementsMet = hasRequiredSkill(item.requires);
 
           const formattedCosts = [1, 2, 3, 4].map((i) => {

@@ -329,12 +329,6 @@ router.patch('/update-grid/:gridId', (req, res) => {
 
   const { type, x, y, growEnd, craftEnd, craftedItem } = resource;
 
-  console.log('🔄 update-grid request received.');
-  console.log('🔹 newResourceType =', type);
-  console.log(`🔹 Coordinates: (${x}, ${y})`);
-  console.log('🔹 growEnd:', growEnd);
-  console.log('🔹 craftEnd:', craftEnd);
-  console.log('🔹 craftedItem:', craftedItem);
 
   if (!mongoose.Types.ObjectId.isValid(gridId)) {
     return res.status(400).json({ error: 'Invalid gridId.' });
@@ -353,7 +347,6 @@ router.patch('/update-grid/:gridId', (req, res) => {
         console.error(`Grid not found for _id: ${gridId}`);
         return; // Avoid sending a response here since it's already enqueued
       }
-      console.log(`⏳ update-grid: ${Date.now() - startTime}ms`);
 
       // **Find the resource at the specified location**
       const resourceIndex = grid.resources.findIndex((res) => res.x === x && res.y === y);
@@ -362,8 +355,6 @@ router.patch('/update-grid/:gridId', (req, res) => {
 
           // ✅ CASE 1: Resource Exists - Determine if we're appending or replacing
           if (growEnd !== undefined || craftEnd !== undefined || craftedItem !== undefined) {
-            console.log(`🛠 Updating existing resource at (${x}, ${y})`);
-            console.log('🔹 craftEnd:', craftEnd, '| craftedItem:', craftedItem);
 
             if (growEnd !== undefined) {
                 if (growEnd === null) {
