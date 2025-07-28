@@ -43,7 +43,7 @@ const FarmingPanel = ({
   }, []);
 
   const fetchData = async () => {
-    setIsContentLoading(true);
+    //setIsContentLoading(true);
     try {
       const inventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
       setInventory(inventoryResponse.data.inventory || []);

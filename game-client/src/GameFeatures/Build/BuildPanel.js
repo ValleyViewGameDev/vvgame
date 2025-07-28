@@ -34,7 +34,7 @@ const BuildPanel = ({
   // Fetch inventory and build options when the panel initializes
   useEffect(() => {
     const fetchData = async () => {
-      setIsContentLoading(true);
+      //setIsContentLoading(true);
       try {
         // Fetch inventory
         const inventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);

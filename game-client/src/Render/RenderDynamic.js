@@ -287,6 +287,7 @@ const DynamicRenderer = ({
 
 function renderPlayerRange() {
     if (currentPlayer?.settings?.rangeOn === false) return; 
+    if (currentPlayer?.location?.gtype === "homestead") return; 
     const gridId = currentPlayer?.location?.g;
     if (!gridId || !currentPlayer) return;
     const container = containerRef.current; if (!container) return;
