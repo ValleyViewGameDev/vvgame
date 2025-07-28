@@ -67,7 +67,9 @@ const DynamicRenderer = ({
       let npcDiv = npcElements.current.get(npc.id);
       const overridePos = renderPositions[npc.id];
       const renderX = overridePos ? overridePos.x * TILE_SIZE : npc.position.x * TILE_SIZE;
-      const renderY = overridePos ? overridePos.y * TILE_SIZE : npc.position.y * TILE_SIZE;      if (!npcDiv) {
+      const renderY = overridePos ? overridePos.y * TILE_SIZE : npc.position.y * TILE_SIZE;
+      
+      if (!npcDiv) {
         // REPLACED LOGIC FOR CREATING npcDiv:
         npcDiv = document.createElement('div');
         npcDiv.className = 'npc';
