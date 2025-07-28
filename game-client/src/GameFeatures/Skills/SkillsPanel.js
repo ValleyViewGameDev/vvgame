@@ -3,9 +3,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/ResourceButton';
-import FloatingTextManager from '../../UI/FloatingText';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
-import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
@@ -209,8 +207,7 @@ const handlePurchase = async (resourceType) => {
               {skillsToAcquire.length > 0 && <h3>{strings[1301]}</h3>}
               <div className="skills-options">
                 {skillsToAcquire.map((resource) => {
-                  const ingredients = getIngredientDetails(resource, allResources);
-                  const affordable = canAfford(resource, inventory, 1, backpack);
+                  const affordable = canAfford(resource, inventory, backpack, 1);
                   const meetsRequirement = hasRequiredSkill(resource.requires, ownedSkills);
 
                   const formattedCosts = [1, 2, 3, 4].map((i) => {
@@ -284,8 +281,7 @@ const handlePurchase = async (resourceType) => {
               {upgradesToAcquire.length > 0 && <h3>{strings[1302]}</h3>}
               <div className="skills-options">
                 {upgradesToAcquire.map((resource) => {
-                  const ingredients = getIngredientDetails(resource, allResources);
-                  const affordable = canAfford(resource, inventory, 1, backpack);
+                  const affordable = canAfford(resource, inventory, backpack, 1);
                   const meetsRequirement = hasRequiredSkill(resource.requires, ownedSkills);
 
                   const formattedCosts = [1, 2, 3, 4].map((i) => {
