@@ -128,6 +128,13 @@ function TrainPanel({
         return acc;
       }, {});
 
+      // Add current player's username since we already have it
+      if (currentPlayer?.playerId && currentPlayer?.username) {
+        usernameMap[currentPlayer.playerId] = currentPlayer.username;
+        console.log(`🎯 Added current player username: ${currentPlayer.playerId} -> ${currentPlayer.username}`);
+      }
+
+      console.log('🎯 Final username map:', usernameMap);
       setPlayerUsernames(prev => ({ ...prev, ...usernameMap }));
     } catch (error) {
       console.error("❌ Error fetching usernames:", error);
@@ -378,6 +385,7 @@ function TrainPanel({
           let buttonText = '';
           if (isCompleted) {
             const username = playerUsernames[offer.claimedBy] || 'Unknown';
+            console.log(`🎯 Looking up completed offer username: ${offer.claimedBy} -> ${username} (available usernames:`, Object.keys(playerUsernames), ')');
             buttonText = username;
           } else if (isYours && affordable) {
             buttonText = strings[2005];
