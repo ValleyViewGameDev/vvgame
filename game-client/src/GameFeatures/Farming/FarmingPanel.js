@@ -1,6 +1,5 @@
 import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
-import { useUILock } from '../../UI/UILockContext';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/ResourceButton';
@@ -31,12 +30,11 @@ const FarmingPanel = ({
   updateStatus
 }) => {
 
-  const { setUILocked } = useUILock();
   const strings = useStrings();
   const [farmPlots, setFarmPlots] = useState([]);
   const [allResources, setAllResources] = useState([]);
   const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
-  const COOLDOWN_DURATION = 800;
+  const COOLDOWN_DURATION = 500;
 
  
   useEffect(() => {
@@ -68,10 +66,8 @@ const FarmingPanel = ({
   const handleTerraformWithCooldown = async (actionType) => {
     if (isActionCoolingDown) return;
     setIsActionCoolingDown(true);
-    setUILocked(true);
     setTimeout(() => {
       setIsActionCoolingDown(false);
-      setUILocked(false);
     }, COOLDOWN_DURATION);
 
     await handleTerraform({
@@ -88,10 +84,8 @@ const FarmingPanel = ({
   const handleFarmPlacementWithCooldown = async (item) => {
     if (isActionCoolingDown) return;
     setIsActionCoolingDown(true);
-    setUILocked(true);
     setTimeout(() => {
       setIsActionCoolingDown(false);
-      setUILocked(false);
     }, COOLDOWN_DURATION);
 
     await handleFarmPlotPlacement({

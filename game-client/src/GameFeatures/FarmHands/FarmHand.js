@@ -17,6 +17,7 @@ import NPCsInGridManager from "../../GridState/GridStateNPCs";
 import { handleNPCClick } from '../NPCs/NPCHelpers';
 import { updateGridResource } from '../../Utils/GridManagement';
 import { handleFarmPlotPlacement } from '../Farming/Farming';
+import { validateTileType } from '../../Utils/ResourceHelpers';
 
 const FarmHandPanel = ({
   onClose,
@@ -53,6 +54,11 @@ const FarmHandPanel = ({
   const [availableAnimals, setAvailableAnimals] = useState([]);
   const skills = currentPlayer.skills || [];
   const hasBulkReplant = skills.some(skill => skill.type === 'Bulk Replant');
+  
+  // Helper function to check if player has required skill (same logic as FarmingPanel)
+  const hasRequiredSkill = (requiredSkill) => {
+    return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
+  };
   
   // Sync inventory with local storage and server
   useEffect(() => {
@@ -464,11 +470,17 @@ const FarmHandPanel = ({
     });
     setSelectedCropTypes(defaultSelection);
     
-    // Select all replant options by default (if bulk replant skill is available)
+    // Select all replant options by default (if bulk replant skill is available and player has required skills)
     if (hasBulkReplant) {
       const defaultReplantSelection = {};
       cropsWithDetails.forEach(crop => {
-        defaultReplantSelection[crop.type] = true;
+        // Only default-select crops that the player has the skill to replant
+        const farmplotResource = masterResources.find(res => 
+          res.category === 'farmplot' && res.output === crop.type
+        );
+        if (hasRequiredSkill(farmplotResource?.requires)) {
+          defaultReplantSelection[crop.type] = true;
+        }
       });
       setSelectedReplantTypes(defaultReplantSelection);
     }
@@ -537,7 +549,16 @@ const FarmHandPanel = ({
             res.category === 'farmplot' && res.output === crop.type
           );
           
-          if (farmplotResource) {
+          // Double-check skill requirement as safety measure
+          if (farmplotResource && hasRequiredSkill(farmplotResource.requires)) {
+            // Check if the tile is still dirt before replanting
+            const tileType = await validateTileType(gridId, cropPosition.x, cropPosition.y);
+            if (tileType !== 'd') {
+              console.log(`⚠️ Skipping replant at (${cropPosition.x}, ${cropPosition.y}) - tile is not dirt (${tileType})`);
+              FloatingTextManager.addFloatingText(303, cropPosition.x, cropPosition.y, TILE_SIZE); // "Must be dirt"
+              continue; // Skip this replant and continue with next crop
+            }
+            
             console.log(`🌱 Replanting ${crop.type} with ${farmplotResource.type} at (${cropPosition.x}, ${cropPosition.y})`);
             
             // Direct placement using the existing server sync logic
@@ -747,7 +768,13 @@ const FarmHandPanel = ({
                     onClick={() => {
                       const allSelected = {};
                       availableCrops.forEach(crop => {
-                        allSelected[crop.type] = true;
+                        // Only select crops that the player has the skill to replant
+                        const farmplotResource = masterResources.find(res => 
+                          res.category === 'farmplot' && res.output === crop.type
+                        );
+                        if (hasRequiredSkill(farmplotResource?.requires)) {
+                          allSelected[crop.type] = true;
+                        }
                       });
                       setSelectedReplantTypes(allSelected);
                     }}
@@ -797,21 +824,37 @@ const FarmHandPanel = ({
                   <span style={{ marginRight: '10px', width: '100px', fontWeight: 'bold' }}>{crop.type}</span>
                   <span style={{ marginRight: '10px', width: '60px', color: '#666' }}>({crop.count})</span>
                   
-                  {hasBulkReplant && (
-                    <div style={{ marginLeft: '60px', width: '80px', display: 'flex', justifyContent: 'center' }}>
-                      <input
-                        type="checkbox"
-                        checked={selectedReplantTypes[crop.type] || false}
-                        onChange={(e) => {
-                          setSelectedReplantTypes(prev => ({
-                            ...prev,
-                            [crop.type]: e.target.checked
-                          }));
-                        }}
-                        style={{ width: '20px' }}
-                      />
-                    </div>
-                  )}
+                  {hasBulkReplant && (() => {
+                    // Find the farmplot resource that produces this crop to check skill requirements
+                    const farmplotResource = masterResources.find(res => 
+                      res.category === 'farmplot' && res.output === crop.type
+                    );
+                    const canReplant = hasRequiredSkill(farmplotResource?.requires);
+                    
+                    return (
+                      <div style={{ marginLeft: '60px', width: '80px', display: 'flex', justifyContent: 'center' }}>
+                        <input
+                          type="checkbox"
+                          checked={selectedReplantTypes[crop.type] || false}
+                          onChange={(e) => {
+                            if (canReplant) {
+                              setSelectedReplantTypes(prev => ({
+                                ...prev,
+                                [crop.type]: e.target.checked
+                              }));
+                            }
+                          }}
+                          disabled={!canReplant}
+                          style={{ 
+                            width: '20px',
+                            opacity: canReplant ? 1 : 0.5,
+                            cursor: canReplant ? 'pointer' : 'not-allowed'
+                          }}
+                          title={canReplant ? '' : `Requires ${farmplotResource?.requires || 'unknown skill'} to replant ${crop.type}`}
+                        />
+                      </div>
+                    );
+                  })()}
                 </div>
               ))}
             </div>

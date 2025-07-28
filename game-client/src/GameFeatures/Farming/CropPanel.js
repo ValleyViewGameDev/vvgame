@@ -8,7 +8,6 @@ import { updateGridResource } from '../../Utils/GridManagement';
 import { createCollectEffect } from '../../VFX/VFX';
 import '../../UI/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
-import { useUILock } from '../../UI/UILockContext';
 
 const CropPanel = ({
   onClose,
@@ -27,7 +26,6 @@ const CropPanel = ({
   updateStatus,
   masterResources,
 }) => {
-  const { setUILocked } = useUILock();
   const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
   const COOLDOWN_DURATION = 2000;
   const [cropDetails, setCropDetails] = useState(null);
@@ -96,10 +94,8 @@ const CropPanel = ({
   const handleSellStation = async () => {
     if (isActionCoolingDown) return;
     setIsActionCoolingDown(true);
-    setUILocked(true);
     setTimeout(() => {
       setIsActionCoolingDown(false);
-      setUILocked(false);
     }, COOLDOWN_DURATION);
 
     const ingredients = [];

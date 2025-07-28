@@ -9,7 +9,6 @@ import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } 
 import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { formatCountdown } from '../../UI/Timers';
-import { useUILock } from '../../UI/UILockContext';
 
 function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurrentPlayer }) {
 
@@ -23,7 +22,6 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const [viewedPlayer, setViewedPlayer] = useState(currentPlayer);
   const [viewedPlayerIndex, setViewedPlayerIndex] = useState(0); // Index of the currently viewed player
   const { updateStatus } = useContext(StatusBarContext);
-  const { setUILocked } = useUILock();
 
   const tradeStallHaircut = 0.25;
   const sellWaitTime = 60 * 60 * 1000; // 1 hour
@@ -137,9 +135,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     // Buy and Collect actions are handled by their respective buttons
   };
   
-  const handleBuy = async (slotIndex) => {
-    setUILocked(true);
-
+  const handleBuy = async (transactionId, transactionKey, slotIndex) => {
     const slot = tradeSlots[slotIndex];
     if (!slot || slot.amount <= 0) return; // No valid slot to buy from
 
@@ -218,8 +214,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       console.log(`Purchased ${slot.amount}x ${slot.resource} for ${totalCost}`);
     } catch (error) {
       console.error('Error processing purchase:', error);
-    } finally {
-      setUILocked(false);
+      throw error; // Re-throw to let TransactionButton handle the error state
     }
   };
 
@@ -251,9 +246,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     }));
   };
 
-  const handleAddToSlot = async (resource) => {
-    setUILocked(true);
-
+  const handleAddToSlot = async (transactionId, transactionKey, resource) => {
     const amount = amounts[resource] || 0;
     const resourceInInventory = inventory.find((item) => item.type === resource);
 
@@ -302,8 +295,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       calculateTotalSellValue(updatedSlots);
     } catch (error) {
       console.error('Error adding item to Trade Stall:', error);
-    } finally {
-      setUILocked(false);
+      throw error; // Re-throw to let TransactionButton handle the error state
     }
   };
 
@@ -468,18 +460,15 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
               {!isEmpty && (
                 <div className="trade-button-container">
                   {/* 3. BUY BUTTON (left 50%) */}
-                  <button
+                  <TransactionButton
                     className={`trade-buy-button ${(isOwnStall || isPurchased) ? 'disabled' : 'enabled'}`}
                     disabled={isOwnStall || isPurchased}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (!isOwnStall && !isPurchased) {
-                        handleBuy(index);
-                      }
-                    }}
+                    transactionKey={`buy-trade-${viewedPlayer.playerId}-${index}`}
+                    onAction={(transactionId, transactionKey) => handleBuy(transactionId, transactionKey, index)}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     {isPurchased ? 'Sold' : `Buy 💰${slot.amount * slot.price}`}
-                  </button>
+                  </TransactionButton>
 
                   {/* 4. COLLECT BUTTON (right 50%) */}
                   {isPurchased ? (
@@ -588,15 +577,16 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                           </div>
                         </td>
                         <td>
-                          <button
+                          <TransactionButton
                             className="add-button"
-                            onClick={() => handleAddToSlot(item.type)}
+                            onAction={(transactionId, transactionKey) => handleAddToSlot(transactionId, transactionKey, item.type)}
+                            transactionKey={`add-to-trade-slot-${item.type}`}
                             disabled={
                               !(amounts[item.type] > 0 && amounts[item.type] <= item.quantity) // Validate amount
                             }
                           >
                             Add
-                          </button>
+                          </TransactionButton>
                         </td>
                       </tr>
                     );
