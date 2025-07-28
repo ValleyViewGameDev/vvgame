@@ -2376,7 +2376,7 @@
         "ingredient3": "Milk",
         "ingredient3qty": 12,
         "crafttime": 28800,
-        "totalnestedtime": 318000
+        "totalnestedtime": 320400
     },
     {
         "type": "Potion B",
@@ -2408,7 +2408,7 @@
         "ingredient4": "Garlic",
         "ingredient4qty": 2,
         "crafttime": 57600,
-        "totalnestedtime": 2391600
+        "totalnestedtime": 2394000
     },
     {
         "type": "Potion C",
@@ -2440,7 +2440,7 @@
         "ingredient4": "Feverfew",
         "ingredient4qty": 1,
         "crafttime": 129600,
-        "totalnestedtime": 12697242
+        "totalnestedtime": 12699642
     },
     {
         "type": "Gem",
@@ -2837,10 +2837,12 @@
         "validonl": false,
         "validonn": true,
         "validono": true,
+        "minprice": 683,
+        "maxprice": 1139,
         "ingredient1": "Money",
-        "ingredient1qty": 25000,
+        "ingredient1qty": 100000,
         "crafttime": 1,
-        "totalnestedtime": 125001
+        "totalnestedtime": 500001
     },
     {
         "type": "Shrine",
@@ -4292,6 +4294,25 @@
         "passable": false,
         "qtycollected": 1,
         "level": 2,
+        "validong": false,
+        "validond": false,
+        "validons": false,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": false,
+        "validono": false
+    },
+    {
+        "type": "Farmer",
+        "symbol": "👨‍🌾",
+        "layoutkey": "fa",
+        "category": "npc",
+        "action": "farmhand",
+        "source": "Buy",
+        "passable": false,
+        "qtycollected": 1,
+        "level": 1,
         "validong": false,
         "validond": false,
         "validons": false,

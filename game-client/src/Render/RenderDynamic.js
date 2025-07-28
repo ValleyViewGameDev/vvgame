@@ -12,6 +12,7 @@ import { renderPositions } from '../PlayerMovement';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { useUILock } from '../UI/UILockContext';
+import { useNPCOverlay } from '../UI/NPCOverlayContext';
 
 
 const DynamicRenderer = ({
@@ -36,6 +37,7 @@ const DynamicRenderer = ({
   const hoveredEntityIdRef = useRef(null);
   const suppressTooltipRef = useRef(false);
   const { setUILocked } = useUILock();
+  const { getNPCOverlay } = useNPCOverlay();
   
   const masterResourcesRef = useRef(masterResources); // Keep masterResources in a ref
   useEffect(() => {
@@ -82,6 +84,12 @@ const DynamicRenderer = ({
 
         // Use mousedown, not onclick, for better cross-browser support
         npcDiv.addEventListener('mousedown', () => {
+          // Check if NPC has an overlay that prevents clicking
+          const overlayData = getNPCOverlay(npc.id);
+          if (overlayData && !overlayData.clickable) {
+            return; // Prevent clicking on non-clickable overlay NPCs
+          }
+          
           setHoverTooltip(null);
           suppressTooltipRef.current = true;
           const currentTime = Date.now();
@@ -91,7 +99,7 @@ const DynamicRenderer = ({
             if (currentTime < reloadRef.current) return;
             reloadRef.current = currentTime + (speed * 1000);
           }
-          if (npc.action === 'quest' || npc.action === 'heal') {
+          if (npc.action === 'quest' || npc.action === 'heal' || npc.action === 'farmhand') {
             onNPCClick(npc);
           } else {
             handleNPCClick(
@@ -133,6 +141,12 @@ const DynamicRenderer = ({
 
         container.appendChild(npcDiv);
         npcElements.current.set(npc.id, npcDiv);
+        
+        // Add overlay visual element if needed
+        const overlayData = getNPCOverlay(npc.id);
+        if (overlayData) {
+          renderNPCOverlay(npcDiv, overlayData.overlay);
+        }
 
         /// Dynamic Cursors for NPCs
         const currentTime = Date.now();
@@ -152,6 +166,23 @@ const DynamicRenderer = ({
         // Update symbol if changed
         if (npcDiv.textContent !== npc.symbol) {
           npcDiv.textContent = npc.symbol;
+        }
+        
+        // Update overlay visual if changed
+        const overlayData = getNPCOverlay(npc.id);
+        const existingOverlay = npcDiv.querySelector('.npc-overlay');
+        
+        if (overlayData && !existingOverlay) {
+          renderNPCOverlay(npcDiv, overlayData.overlay);
+        } else if (!overlayData && existingOverlay) {
+          existingOverlay.remove();
+        } else if (overlayData && existingOverlay) {
+          // Update existing overlay if type changed
+          const currentType = existingOverlay.getAttribute('data-overlay-type');
+          if (currentType !== overlayData.overlay) {
+            existingOverlay.remove();
+            renderNPCOverlay(npcDiv, overlayData.overlay);
+          }
         }
       }
       npcDiv.style.left = `${renderX}px`;
@@ -476,6 +507,41 @@ function handlePCHover(event, pc, TILE_SIZE, setHoverTooltip) {
 
 function handlePCHoverLeave(setHoverTooltip) {
   setHoverTooltip(null);
+}
+
+// Render visual overlay on NPC
+function renderNPCOverlay(npcDiv, overlayType) {
+  const overlay = document.createElement('div');
+  overlay.className = 'npc-overlay';
+  overlay.setAttribute('data-overlay-type', overlayType);
+  overlay.style.position = 'absolute';
+  overlay.style.top = '0';
+  overlay.style.right = '0';
+  overlay.style.fontSize = '0.6em';
+  overlay.style.zIndex = '20';
+  overlay.style.pointerEvents = 'none';
+  overlay.style.textShadow = '0 0 2px rgba(0,0,0,0.8)';
+  
+  switch (overlayType) {
+    case 'hourglass':
+      overlay.textContent = '⏳';
+      overlay.style.color = '#FFD700';
+      break;
+    case 'exclamation':
+      overlay.textContent = '❗';
+      overlay.style.color = '#FF6B35';
+      break;
+    case 'attack':
+      overlay.textContent = '⚔️';
+      overlay.style.color = '#DC143C';
+      break;
+    default:
+      overlay.textContent = '❓';
+      overlay.style.color = '#888';
+      break;
+  }
+  
+  npcDiv.appendChild(overlay);
 }
 
 export default DynamicRenderer;

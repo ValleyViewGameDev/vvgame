@@ -9,6 +9,7 @@ import { GridStateProvider } from './GridState/GridStateContext';
 import { GridStatePCProvider } from './GridState/GridStatePCContext';
 import { ModalProvider } from './UI/ModalContext';
 import { UILockProvider } from './UI/UILockContext';
+import { NPCOverlayProvider } from './UI/NPCOverlayContext';
 
 console.warn("🔥 index.js evaluated again — app may remount");
 
@@ -49,19 +50,21 @@ if (!window.__app_rendered__) {
   window.__app_rendered__ = true;
   window.__root.render(
     <UILockProvider>
-      <StringsProvider language={savedLanguage}>
-        <GridStateProvider>
-          <GridStatePCProvider>
-            <StatusBarProvider>
-              <PanelProvider>
-                <ModalProvider>
-                  <App />
-                </ModalProvider>
-              </PanelProvider>
-            </StatusBarProvider>
-          </GridStatePCProvider>
-        </GridStateProvider>
-      </StringsProvider>
+      <NPCOverlayProvider>
+        <StringsProvider language={savedLanguage}>
+          <GridStateProvider>
+            <GridStatePCProvider>
+              <StatusBarProvider>
+                <PanelProvider>
+                  <ModalProvider>
+                    <App />
+                  </ModalProvider>
+                </PanelProvider>
+              </StatusBarProvider>
+            </GridStatePCProvider>
+          </GridStateProvider>
+        </StringsProvider>
+      </NPCOverlayProvider>
     </UILockProvider>
   );
 } else {

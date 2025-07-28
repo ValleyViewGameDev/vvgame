@@ -17,9 +17,11 @@ import { handleNPCClick } from '../NPCs/NPCHelpers';
 import { updateGridResource } from '../../Utils/GridManagement';
 import { handleFarmPlotPlacement } from '../Farming/Farming';
 import { validateTileType } from '../../Utils/ResourceHelpers';
+import { useNPCOverlay } from '../../UI/NPCOverlayContext';
 
 const FarmHandPanel = ({
   onClose,
+  npc,
   inventory,
   setInventory,
   backpack,
@@ -53,6 +55,7 @@ const FarmHandPanel = ({
   const skills = currentPlayer.skills || [];
   const hasBulkReplant = skills.some(skill => skill.type === 'Bulk Replant');
   const [isContentLoading, setIsContentLoading] = useState(false);
+  const { setBusyOverlay, clearNPCOverlay } = useNPCOverlay();
   
   // Helper function to check if player has required skill (same logic as FarmingPanel)
   const hasRequiredSkill = (requiredSkill) => {
@@ -204,6 +207,12 @@ const FarmHandPanel = ({
       updateStatus('No animals are ready to collect.');
       return;
     }
+    
+    // Find the Farmer NPC to apply busy overlay
+    const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+    if (farmerNPC) {
+      setBusyOverlay(farmerNPC.id);
+    }
 
     // Count how many of each animal type is ready
     const animalCounts = {};
@@ -238,6 +247,13 @@ const FarmHandPanel = ({
     setIsAnimalModalOpen(false);
     onClose();
     setErrorMessage('');
+    
+    // Find the Farmer NPC to apply busy overlay
+    const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+    const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+    if (farmerNPC) {
+      setBusyOverlay(farmerNPC.id);
+    }
 
     try {
       // Get selected animal types
@@ -284,6 +300,13 @@ const FarmHandPanel = ({
     } catch (error) {
       console.error('Selective animal collect failed:', error);
       setErrorMessage('Failed to collect selected animals.');
+    } finally {
+      // Clear busy overlay when operation completes
+      const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+      const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+      if (farmerNPC) {
+        clearNPCOverlay(farmerNPC.id);
+      }
     }
   }
 
@@ -295,6 +318,13 @@ const FarmHandPanel = ({
 
     const safeInventory = Array.isArray(inventory) ? inventory : [];
     const safeBackpack = Array.isArray(backpack) ? backpack : [];
+    
+    // Find the Farmer NPC to apply busy overlay
+    const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+    const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+    if (farmerNPC) {
+      setBusyOverlay(farmerNPC.id);
+    }
 
     try {
       // Step 1: Determine how many trees we can chop
@@ -415,6 +445,13 @@ const FarmHandPanel = ({
     } catch (error) {
       console.error('Logging failed:', error);
       setErrorMessage('Failed to auto-chop trees.');
+    } finally {
+      // Clear busy overlay when operation completes
+      const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+      const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+      if (farmerNPC) {
+        clearNPCOverlay(farmerNPC.id);
+      }
     }
   }
 
@@ -439,6 +476,13 @@ const FarmHandPanel = ({
     if (Object.keys(resourceCounts).length === 0) {
       updateStatus(429); // No crops available
       return;
+    }
+    
+    // Find the Farmer NPC to apply busy overlay
+    const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+    const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+    if (farmerNPC) {
+      setBusyOverlay(farmerNPC.id);
     }
 
     // Create array of available crops with counts and symbols
@@ -486,6 +530,13 @@ const FarmHandPanel = ({
 
     const safeInventory = Array.isArray(inventory) ? inventory : [];
     const safeBackpack = Array.isArray(backpack) ? backpack : [];
+    
+    // Find the Farmer NPC to apply busy overlay
+    const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+    const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+    if (farmerNPC) {
+      setBusyOverlay(farmerNPC.id);
+    }
 
     try {
       // Get selected crop types
@@ -590,6 +641,13 @@ const FarmHandPanel = ({
     } catch (error) {
       console.error('Selective crop harvest failed:', error);
       setErrorMessage('Failed to harvest selected crops.');
+    } finally {
+      // Clear busy overlay when operation completes
+      const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+      const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+      if (farmerNPC) {
+        clearNPCOverlay(farmerNPC.id);
+      }
     }
   }
 

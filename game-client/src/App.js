@@ -332,11 +332,30 @@ useEffect(() => {
   }
 }, [activePanel]);
 
-const handleQuestNPCClick = (npc) => {
-  console.log('App.js: Opening QuestGiverPanel for NPC:', npc);
-  setActiveQuestGiver(npc);  // Set the active quest giver globally
-  openPanel('QuestGiverPanel');  // Open the panel
+const handleNPCPanel = (npc) => {
+  console.log('App.js: Handling an NPC Panel:', npc, npc.action);
+  switch (npc.action) {
+    case 'quest':
+    case 'heal': {
+      setActiveQuestGiver(npc);  // Set the active quest giver globally
+      openPanel('QuestGiverPanel');  
+      break;
+    }
+    case 'farmhand': {
+      setActiveQuestGiver(npc);  // Set the active quest giver globally
+      // Set activeStation data for NPC-based access to ensure gridId is available
+      setActiveStation({
+        type: 'Farmer',
+        position: npc.position,
+        gridId: currentPlayer.location?.g
+      });
+      openPanel('FarmHandPanel');  
+      break;
+    }
+    default: { break; }
+  }
 };
+
 const handlePCClick = (pc) => {
   console.log('App.js: Opening SocialPanel for PC:', pc);
   setActiveSocialPC(pc);  // Set the active clicked PC globally
@@ -1693,7 +1712,7 @@ return (
           setResources={setResources}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
-          onNPCClick={handleQuestNPCClick}  // Pass the callback
+          onNPCClick={handleNPCPanel}  // Pass the callback
           onPCClick={handlePCClick}  // Pass the callback
           masterResources={masterResources}
           masterSkills={masterSkills}
@@ -2042,26 +2061,6 @@ return (
           masterResources={masterResources}
         />
       )}
-      {activePanel === 'FarmHandPanel' && (
-        <FarmHandPanel
-          onClose={closePanel}
-          inventory={inventory}
-          setInventory={setInventory}
-          backpack={backpack}
-          setBackpack={setBackpack}
-          currentPlayer={currentPlayer}
-          setCurrentPlayer={setCurrentPlayer}
-          resources={resources}
-          setResources={setResources}
-          stationType={activeStation?.type} 
-          currentStationPosition={activeStation?.position} 
-          gridId={activeStation?.gridId}
-          TILE_SIZE={activeTileSize}
-          updateStatus={updateStatus}
-          masterResources={masterResources}
-          masterSkills={masterSkills}
-        />
-      )}
       {activePanel === 'FarmingPanel' && (
         <FarmingPanel
           onClose={closePanel}
@@ -2133,6 +2132,27 @@ return (
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}
+        />
+      )}
+      {activePanel === 'FarmHandPanel' && (
+        <FarmHandPanel
+          onClose={closePanel}
+          npc={activeQuestGiver}
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          resources={resources}
+          setResources={setResources}
+          stationType={activeStation?.type} 
+          currentStationPosition={activeStation?.position} 
+          gridId={activeStation?.gridId}
+          TILE_SIZE={activeTileSize}
+          updateStatus={updateStatus}
+          masterResources={masterResources}
+          masterSkills={masterSkills}
         />
       )}
       {activePanel === 'SocialPanel' && (

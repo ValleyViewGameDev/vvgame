@@ -6,6 +6,7 @@ import { attachQuestBehavior } from './NPCQuestGiver';
 import { attachEnemyBehavior } from './NPCEnemy';
 import { attachHealBehavior } from './NPCHeal';
 import { attachSpawnBehavior } from './NPCSpawner';
+import { attachFarmerBehavior } from './NPCFarmer';
  
 class NPC {
   constructor(id, type, position, properties, gridId) {
@@ -89,6 +90,10 @@ async processState(NPCsInGrid, gridId, TILE_SIZE) {
     
       case 'spawn':
         await this.handleSpawnBehavior(gridId);
+        break;
+
+      case 'farmhand':
+        await this.handleFarmerBehavior(gridId);
         break;
 
       case 'steal':
@@ -458,5 +463,6 @@ attachQuestBehavior(NPC);
 attachEnemyBehavior(NPC);
 attachHealBehavior(NPC);
 attachSpawnBehavior(NPC);
+attachFarmerBehavior(NPC);
 
 export default NPC;
