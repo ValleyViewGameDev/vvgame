@@ -10,7 +10,7 @@
   "baseHoursForTrain": 6,
   "taxes": {
     "phases": {
-      "waiting": 1439.25,
+      "waiting": 4319.25,
       "taxing": 0.75
     },
     "startPhase": "waiting"
@@ -24,8 +24,8 @@
   },
   "elections": {
     "phases": {
-      "Administration": 4320,
-      "Campaigning": 2880,
+      "Administration": 7200,
+      "Campaigning": 1440,
       "Voting": 1439,
       "Counting": 1
     },
