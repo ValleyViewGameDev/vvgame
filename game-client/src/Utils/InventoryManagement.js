@@ -36,9 +36,15 @@ export function deriveWarehouseAndBackpackCapacity(currentPlayer, masterResource
 
 
 export const canAfford = (recipe, inventory = [], backpack = [], amount = 1) => {
-  if (!recipe) return false;
+  if (!recipe) {
+    console.log(`❌ canAfford: no recipe provided`);
+    return false;
+  }
   const inv = Array.isArray(inventory) ? inventory : [];
   const bp = Array.isArray(backpack) ? backpack : [];
+  
+  console.log(`🔍 canAfford check for ${recipe.type}:`);
+  
   for (let i = 1; i <= 4; i++) {
     const ingredientType = recipe[`ingredient${i}`];
     const ingredientQty = recipe[`ingredient${i}qty`] * amount;
@@ -46,7 +52,11 @@ export const canAfford = (recipe, inventory = [], backpack = [], amount = 1) => 
       const backpackItem = bp.find((item) => item.type === ingredientType);
       const inventoryItem = inv.find((item) => item.type === ingredientType);
       const totalQty = (backpackItem?.quantity || 0) + (inventoryItem?.quantity || 0);
-      if (totalQty < ingredientQty) { return false; }
+      console.log(`   ${ingredientType}: need ${ingredientQty}, have ${totalQty} (inv: ${inventoryItem?.quantity || 0}, bp: ${backpackItem?.quantity || 0})`);
+      if (totalQty < ingredientQty) { 
+        console.log(`❌ canAfford returns FALSE for ${recipe.type} (insufficient ${ingredientType})`);
+        return false; 
+      }
     }
   }
   console.log(`✅ canAfford returns TRUE for ${recipe.type}`);
