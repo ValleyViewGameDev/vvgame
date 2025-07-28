@@ -70,28 +70,6 @@ const BuildPanel = ({
           const ingredients = getIngredientDetails(item, allResources);
           const affordable = canAfford(item, inventory, backpack);
           const requirementsMet = hasRequiredSkill(item.requires);
-          
-          // Debug logging for disabled buttons
-          if (!affordable || !requirementsMet) {
-            console.log(`🐛 BUILD DEBUG: ${item.type} button disabled:`);
-            console.log(`   affordable: ${affordable}`);
-            console.log(`   requirementsMet: ${requirementsMet}`);
-            console.log(`   requires skill: ${item.requires}`);
-            console.log(`   inventory:`, inventory);
-            console.log(`   backpack:`, backpack);
-            
-            // Check each ingredient individually
-            for (let i = 1; i <= 4; i++) {
-              const ingredientType = item[`ingredient${i}`];
-              const ingredientQty = item[`ingredient${i}qty`];
-              if (ingredientType && ingredientQty) {
-                const inventoryQty = inventory?.find(inv => inv.type === ingredientType)?.quantity || 0;
-                const backpackQty = backpack?.find(bp => bp.type === ingredientType)?.quantity || 0;
-                const totalQty = inventoryQty + backpackQty;
-                console.log(`   ${ingredientType}: need ${ingredientQty}, have ${totalQty} (inv: ${inventoryQty}, bp: ${backpackQty})`);
-              }
-            }
-          }
 
           const formattedCosts = [1, 2, 3, 4].map((i) => {
             const type = item[`ingredient${i}`];
