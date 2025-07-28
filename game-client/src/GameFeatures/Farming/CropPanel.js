@@ -55,7 +55,7 @@ const CropPanel = ({
     const remainingTime = Math.max(0, currentResource.growEnd - currentTime);
     
     if (remainingTime <= 0) {
-      return "🌱 Ready for harvest!";
+      return "Ready for harvest!";
     }
     
     const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
@@ -69,7 +69,7 @@ const CropPanel = ({
     if (minutes > 0) parts.push(`${minutes}m`);
     if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
     
-    return `🌱 ${parts.join(' ')} remaining`;
+    return `${parts.join(' ')} remaining`;
   };
 
   useEffect(() => {

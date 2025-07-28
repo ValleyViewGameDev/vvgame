@@ -2268,26 +2268,8 @@ return (
             zIndex: 9999,
             backgroundColor: 'rgba(0,0,0,0.0)', // transparent blocker
             cursor: 'wait',
-            pointerEvents: 'none', // Disable all pointer events on the overlay itself
           }}
         />
-      )}
-      
-      {/* Add styles to disable clicking on game elements while preserving scroll */}
-      {uiLocked && (
-        <style>
-          {`
-            .tile-grass, .tile-dirt, .tile-water, .tile-lava, .tile-pavement, .tile-unknown {
-              pointer-events: none !important;
-            }
-            .resource-overlay {
-              pointer-events: none !important;
-            }
-            .pc-render, .npc-render {
-              pointer-events: none !important;
-            }
-          `}
-        </style>
       )}
 
     </>

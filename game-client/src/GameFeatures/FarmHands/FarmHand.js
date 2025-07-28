@@ -1,5 +1,4 @@
 import API_BASE from '../../config';
-import { useUILock } from '../../UI/UILockContext';
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
@@ -37,7 +36,6 @@ const FarmHandPanel = ({
   masterResources,
   masterSkills, // Added as prop
 }) => {
-  const { setUILocked } = useUILock();
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
@@ -238,7 +236,6 @@ const FarmHandPanel = ({
     console.log('🐮 Executing selective animal collect');
     setIsAnimalModalOpen(false);
     onClose();
-    setUILocked(true);
     setErrorMessage('');
 
     try {
@@ -247,7 +244,6 @@ const FarmHandPanel = ({
       
       if (selectedTypes.length === 0) {
         updateStatus('No animals selected for collection.');
-        setUILocked(false);
         return;
       }
 
@@ -287,8 +283,6 @@ const FarmHandPanel = ({
     } catch (error) {
       console.error('Selective animal collect failed:', error);
       setErrorMessage('Failed to collect selected animals.');
-    } finally {
-      setUILocked(false);
     }
   }
 
@@ -296,7 +290,6 @@ const FarmHandPanel = ({
   async function handleLogging() {
     console.log('🪓🪓🪓🪓🪓 Logging initiated 🪓🪓🪓🪓🪓🪓');
     onClose();
-    setUILocked(true);
     setErrorMessage('');
 
     const safeInventory = Array.isArray(inventory) ? inventory : [];
@@ -314,7 +307,6 @@ const FarmHandPanel = ({
 
       if (maxTrees === 0) {
         updateStatus("No logging skills available.");
-        setUILocked(false);
         return;
       }
 
@@ -323,7 +315,6 @@ const FarmHandPanel = ({
 
       if (treeResources.length === 0) {
         updateStatus(437);
-        setUILocked(false);
         return;
       }
 
@@ -423,8 +414,6 @@ const FarmHandPanel = ({
     } catch (error) {
       console.error('Logging failed:', error);
       setErrorMessage('Failed to auto-chop trees.');
-    } finally {
-      setUILocked(false);
     }
   }
 
@@ -492,7 +481,6 @@ const FarmHandPanel = ({
     console.log('🚜 Executing selective harvest');
     setIsHarvestModalOpen(false);
     onClose();
-    setUILocked(true);
     setErrorMessage('');
 
     const safeInventory = Array.isArray(inventory) ? inventory : [];
@@ -504,7 +492,6 @@ const FarmHandPanel = ({
       
       if (selectedTypes.length === 0) {
         updateStatus('No crops selected for harvest.');
-        setUILocked(false);
         return;
       }
 
@@ -602,8 +589,6 @@ const FarmHandPanel = ({
     } catch (error) {
       console.error('Selective crop harvest failed:', error);
       setErrorMessage('Failed to harvest selected crops.');
-    } finally {
-      setUILocked(false);
     }
   }
 
