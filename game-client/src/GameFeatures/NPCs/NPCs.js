@@ -279,15 +279,12 @@ async moveOneTile(direction, tiles, resources, npcs) {
               this.position.x = targetX;
               this.position.y = targetY;
               if (socket && socket.connected) {
-                const emitData = {
+                socket.emit('npc-moved', {
                   gridId: this.gridId,
                   npcId: this.id,
                   newPosition: { x: targetX, y: targetY },
-                };
-                console.log(`📡 Emitting npc-moved for NPC ${this.id} to (${targetX}, ${targetY})`, emitData);
-                socket.emit('npc-moved', emitData);
-              } else {
-                console.warn(`📡 Cannot emit npc-moved for NPC ${this.id}: socket not connected`);
+                });
+                //console.log(`📡 Emitting npc-moved for NPC ${this.id} to (${targetX}, ${targetY})`);
               }
               resolve(true);
               return;

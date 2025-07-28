@@ -92,6 +92,12 @@ const DynamicRenderer = ({
             return; // Prevent clicking on non-clickable overlay NPCs
           }
           
+          // 🛡️ Prevent interaction with NPCs on another player's homestead
+          const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
+          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {
+            return; // Cannot interact with NPCs on another player's homestead
+          }
+          
           setHoverTooltip(null);
           suppressTooltipRef.current = true;
           const currentTime = Date.now();

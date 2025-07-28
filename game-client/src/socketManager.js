@@ -323,8 +323,8 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
 
   // Add handler for npc-moved-sync
   const handleNPCMoveSync = ({ npcId, newPosition, emitterId }) => {
-    console.log('📡 handleNPCMoveSync invoked.');
-    console.log('📥 Received npc-moved-sync event:', { npcId, newPosition, emitterId });
+    //console.log('📡 handleNPCMoveSync invoked.');
+    //console.log('📥 Received npc-moved-sync event:', { npcId, newPosition, emitterId });
 
     if (!npcId || !newPosition) return;
 
