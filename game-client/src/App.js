@@ -1148,7 +1148,6 @@ useEffect(() => {
         setResources, 
         updateStatus, 
         closeAllPanels,
-        localPlayerMoveTimestampRef
     );
   };
   window.addEventListener('keydown', handleKeyDown); 
