@@ -275,15 +275,9 @@ async function handleFarmAnimalBehavior(gridId) {
                 if (Math.floor(this.position.x) === this.targetStall.x &&
                     Math.floor(this.position.y) === this.targetStall.y) {
                 
-                    console.log(`🐮 NPC ${this.id} reached stall. Clearing grazeEnd and transitioning to processing.`);
+                    console.log(`🐮 NPC ${this.id} reached stall. Transitioning to processing (keeping grazeEnd for server validation).`);
                     
-                    // ✅ Now safe to clear grazeEnd
-                    delete this.grazeEnd;
-                    const NPCsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
-                    if (NPCsInGrid?.npcs?.[this.id]) {
-                        delete NPCsInGrid.npcs[this.id].grazeEnd;
-                    }
-                    
+                    // ✅ Keep grazeEnd for server validation - it will be cleared after successful collection
                     this.state = 'processing';
                     await updateThisNPC();
                     }
