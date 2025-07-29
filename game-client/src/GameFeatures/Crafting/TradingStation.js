@@ -31,6 +31,7 @@ const TradingStation = ({
   const [errorMessage, setErrorMessage] = useState('');
   const [stationEmoji, setStationEmoji] = useState('🛖');
   const [stationDetails, setStationDetails] = useState(null);
+  const [isContentLoading, setIsContentLoading] = useState(false);
 
   // Sync inventory with local storage and server
   useEffect(() => {
@@ -53,15 +54,20 @@ const TradingStation = ({
   }, [currentPlayer]);
 
   useEffect(() => {
+    setIsContentLoading(true);
     try {
       const filteredRecipes = masterResources.filter((resource) => resource.source === stationType);
       setRecipes(filteredRecipes);
+      console.log('Filtered recipes:', filteredRecipes);
+      console.log('recipes:', recipes);
 
       const stationResource = masterResources.find((resource) => resource.type === stationType);
       setStationEmoji(stationResource?.symbol || '🛖');
       setStationDetails(stationResource);
     } catch (error) {
       console.error('Error loading resources:', error);
+    } finally {
+      setIsContentLoading(false);
     }
   }, [stationType, masterResources]);
 
@@ -101,11 +107,15 @@ const TradingStation = ({
       return;
     }
 
+    const quantityToGive = recipe.tradeqty || 1;
+console.log("Trading recipe:", recipe);
+console.log("tradeQty in recipe:", recipe.tradeqty);
+
     const gained = await gainIngredients({
       playerId: currentPlayer.playerId,
       currentPlayer,
       resource: recipe.type,
-      quantity: 1,
+      quantity: quantityToGive,
       inventory: safeInventory,
       backpack: safeBackpack,
       setInventory,
@@ -120,9 +130,9 @@ const TradingStation = ({
       return;
     }
 
-    await trackQuestProgress(currentPlayer, 'Collect', recipe.type, 1, setCurrentPlayer);
+    await trackQuestProgress(currentPlayer, 'Collect', recipe.type, quantityToGive, setCurrentPlayer);
 
-    updateStatus(`✅ Exchanged ${recipe.ingredient1qty || 1} ${recipe.ingredient1} for 1 ${recipe.type}.`);
+    updateStatus(`✅ Exchanged ${recipe.ingredient1qty || 1} ${recipe.ingredient1} for ${quantityToGive} ${recipe.type}.`);
   };
 
   return (
@@ -130,7 +140,12 @@ const TradingStation = ({
       <div className="standard-panel">
         <h2> {stationEmoji} {stationType} </h2>
         <h3>{strings[420]}</h3>
-        
+
+      {isContentLoading ? (
+          <p>{strings[98]}</p>
+        ) : (
+          <>
+
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
               const affordable = canAfford(recipe, inventory, backpack, 1);
@@ -153,14 +168,15 @@ const TradingStation = ({
               const skillColor = meetsRequirement ? 'green' : 'red';
               const skillReq = recipe.requires ? `<br><span style="color: ${skillColor};">Requires: ${recipe.requires}</span>` : '';
 
-              const details = `For:<div>${formattedCosts}</div>${skillReq}`;
+              const outputQty = recipe.tradeqty || 1;
+              const details = `For:<div>${formattedCosts}</div>${skillReq}<br>Gives: ${outputQty} ${recipe.type}`;
 
               const info = (
                 <div className="info-content">
                   <div><strong>{strings[422]}</strong> 💰 {recipe.minprice || 'n/a'}</div>
                 </div>
               );
-
+ 
               return (
                 <ResourceButton
                   key={recipe.type}
@@ -183,6 +199,9 @@ const TradingStation = ({
           )}
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
+        
+          </>
+        )}
 
       </div>
     </Panel>
