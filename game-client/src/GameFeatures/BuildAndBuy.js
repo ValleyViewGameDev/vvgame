@@ -57,10 +57,28 @@ export const handleConstruction = async ({
 
   const selectedResource = buildOptions.find((item) => item.type === selectedItem);
 
-  // Check if the tile is already occupied
-  const isTileOccupied = resources.some((res) => res.x === x && res.y === y);
-  if (isTileOccupied) {
-    console.warn('Cannot build on an occupied tile.');
+  // Check if this is a multi-tile resource
+  const resourceRange = selectedResource.range || 1;
+  console.log(`🏗️ Building ${selectedItem} with range ${resourceRange}`);
+
+  // For multi-tile resources, check all required tiles
+  // Using player position as lower-left anchor
+  const tilesToCheck = [];
+  for (let dx = 0; dx < resourceRange; dx++) {
+    for (let dy = 0; dy < resourceRange; dy++) {
+      tilesToCheck.push({ x: x + dx, y: y - dy });
+    }
+  }
+
+  console.log('📍 Tiles to check for placement:', tilesToCheck);
+
+  // Check if any of the required tiles are occupied
+  const occupiedTile = tilesToCheck.find(tile => 
+    resources.some(res => res.x === tile.x && res.y === tile.y)
+  );
+
+  if (occupiedTile) {
+    console.warn(`Cannot build ${selectedItem} - tile at (${occupiedTile.x}, ${occupiedTile.y}) is occupied.`);
     FloatingTextManager.addFloatingText(306, x, y, TILE_SIZE);
     return; // Exit before deducting inventory
   }
@@ -97,6 +115,12 @@ export const handleConstruction = async ({
 
     const rawResource = { type: selectedItem, x, y };
     const enriched = enrichResourceFromMaster(rawResource, buildOptions); // buildOptions contains masterResources
+    
+    // Ensure range is included for multi-tile resources
+    if (resourceRange > 1) {
+      enriched.range = resourceRange;
+    }
+    
     const merged = [...resources, enriched];
 
     console.log('📦 Forcing Global and local resource update with:', enriched);

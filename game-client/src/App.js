@@ -728,8 +728,12 @@ useEffect(() => {
       const col = playerPC?.position?.x;
       const row = playerPC?.position?.y;
       const onTileType = tileTypes?.[row]?.[col];
-      // 🪧 Check for Signpost resource (based on exact x/y match)
-      const onResource = resources?.flat().find(r => r?.x === col && r?.y === row);
+      // 🪧 Check for Signpost resource (including multi-tile resources)
+      const onResource = resources?.flat().find(r => {
+        const range = r?.range || 1;
+        return col >= r?.x && col < r?.x + range &&
+               row <= r?.y && row > r?.y - range;
+      });
       const onResourceType = onResource?.type;
 
       // if (playerPC?.hp <= (currentPlayer.baseMaxhp/4) && currentPlayer.location.gtype === 'homestead') {
@@ -1166,7 +1170,14 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   if (isProcessing) return; // Skip if still processing
   isProcessing = true;
 
-  const resource = resources.find((res) => res.x === colIndex && res.y === rowIndex);
+  // Find resource including multi-tile resources
+  const resource = resources.find((res) => {
+    const range = res.range || 1;
+    // Check if the clicked tile falls within the resource's range
+    // Resource is anchored at lower-left (res.x, res.y)
+    return colIndex >= res.x && colIndex < res.x + range &&
+           rowIndex <= res.y && rowIndex > res.y - range;
+  });
   console.log('⬆️ handleTileClick invoked with:', { rowIndex, colIndex, resource });
 
   // 🛡️ Prevent interaction on another player's homestead
@@ -1226,39 +1237,39 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       );
     }
     else if (resource.category === 'training') {
-      setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, });
+      setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, });
       openPanel('SkillsAndUpgradesPanel'); 
     }
     else if (resource.category === 'crafting') {
-      setActiveStation({type: resource.type,position: { x: colIndex, y: rowIndex }, gridId: gridId, });
+      setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
       openPanel('CraftingStation');
     } 
     else if (resource.category === 'trading') {
-      setActiveStation({type: resource.type,position: { x: colIndex, y: rowIndex }, gridId: gridId, });
+      setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
       openPanel('TradingStation');
     } 
     else if (resource.category === 'farm hand') {
-      setActiveStation({type: resource.type,position: { x: colIndex, y: rowIndex }, gridId: gridId, });
+      setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
       openPanel('FarmHandPanel');
     } 
     else if (resource.category === 'shop') {
-      setActiveStation({type: resource.type,position: { x: colIndex, y: rowIndex }, gridId: gridId, });
+      setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
       openPanel('ShopStation');
     } 
     else if (resource.category === 'stall') {
-      setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, });
+      setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, });
       openPanel('AnimalStall');
     } 
     else if (resource.category === 'farmplot') {
-      setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, resource: resource });
+      setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, resource: resource });
       openPanel('CropPanel');
     } 
     else if (resource.category === 'deco') {
-      setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, });
+      setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, });
       openPanel('DecoPanel');
     } 
     else if (resource.category === 'station') {
-      setActiveStation({type: resource.type, position: { x: colIndex, y: rowIndex }, gridId: gridId, });
+      setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, });
       switch (resource.type) {
         case 'Courthouse':
           openPanel('Courthouse'); break;
@@ -1275,10 +1286,11 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       }
     } else {
       // Pass to handleResourceClick for all other resources
+      // Use resource's anchor position for multi-tile resources
       handleResourceClick(
         resource,
-        rowIndex,
-        colIndex,
+        resource.y,  // Use resource's actual y position
+        resource.x,  // Use resource's actual x position
         resources,
         setResources,
         setInventory,

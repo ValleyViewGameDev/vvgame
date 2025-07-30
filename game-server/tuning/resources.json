@@ -5334,5 +5334,25 @@
         "validono": true,
         "ingredient1": "Money",
         "ingredient1qty": 10000
+    },
+    {
+        "type": "Fountain Large",
+        "symbol": "⛲️",
+        "layoutkey": "F2",
+        "category": "deco",
+        "source": "Buy",
+        "passable": true,
+        "qtycollected": 1,
+        "range": 2,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": true,
+        "validonl": false,
+        "validonn": true,
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 500
     }
 ]

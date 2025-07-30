@@ -91,7 +91,14 @@ export const RenderGrid = memo(
     // Render tiles and resources
     return grid.map((row, rowIndex) =>
       row.map((tile, colIndex) => {
-        const resource = resources.find((res) => res.x === colIndex && res.y === rowIndex);
+        // Check if this tile is part of a multi-tile resource
+        const resource = resources.find((res) => {
+          const range = res.range || 1;
+          // Check if the current tile falls within the resource's range
+          // Resource is anchored at lower-left (res.x, res.y)
+          return colIndex >= res.x && colIndex < res.x + range &&
+                 rowIndex <= res.y && rowIndex > res.y - range;
+        });
         const tileType = tileTypes[rowIndex]?.[colIndex] || 'unknown';
         const tileClass = `tile-${tileType}`;
         const key = `${colIndex}-${rowIndex}`;
@@ -133,18 +140,28 @@ export const RenderGrid = memo(
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              zIndex: 1, // Base layer for tiles
+              zIndex: resource && resource.x === colIndex && resource.y === rowIndex && resource.range > 1 ? 10 : 1,
               cursor: resource ? 'pointer' : 'default',
+              overflow: resource && resource.x === colIndex && resource.y === rowIndex && resource.range > 1 ? 'visible' : 'hidden',
             }}
           >
-            {/* Resource Overlay */}
-            {resource && (
+            {/* Resource Overlay - only render at anchor position for multi-tile resources */}
+            {resource && resource.x === colIndex && resource.y === rowIndex && (
               <div
                 className="resource-overlay"
                 style={{
-                  fontSize: `${TILE_SIZE * 0.7}px`,
-                  zIndex: 2, // Above tiles, below NPCs
+                  fontSize: resource.range > 1 ? `${TILE_SIZE * 0.7 * resource.range}px` : `${TILE_SIZE * 0.7}px`,
+                  width: resource.range > 1 ? `${TILE_SIZE * resource.range}px` : 'auto',
+                  height: resource.range > 1 ? `${TILE_SIZE * resource.range}px` : 'auto',
+                  position: resource.range > 1 ? 'absolute' : 'static',
+                  left: resource.range > 1 ? '0' : 'auto',
+                  top: resource.range > 1 ? `-${TILE_SIZE * (resource.range - 1)}px` : 'auto',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  zIndex: resource.range > 1 ? 10 : 2, // Higher z-index for multi-tile
                   pointerEvents: 'none',
+                  overflow: 'visible',
                 }}
               >
                 {resource.symbol || ''}
