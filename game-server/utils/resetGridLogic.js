@@ -1,4 +1,4 @@
-// resetGridLogic.js
+// resetGridLogic.js 
 const Grid = require('../models/grid');
 const Frontier = require('../models/frontier');
 const path = require('path');
@@ -59,6 +59,39 @@ async function performGridReset(gridId, gridType, gridCoord) {
   );
 
   const newResources = generateResources(layout, newTiles, layout.resourceDistribution);
+  
+  // Add shadow objects for multi-tile resources
+  const shadowResources = [];
+  newResources.forEach(resource => {
+    const resourceDef = masterResources.find(r => r.type === resource.type);
+    if (resourceDef && resourceDef.range > 1) {
+      // Add anchorKey to the main resource
+      resource.anchorKey = `${resource.type}_${resource.x}_${resource.y}`;
+      
+      // Create shadow objects for non-anchor tiles
+      for (let dx = 0; dx < resourceDef.range; dx++) {
+        for (let dy = 0; dy < resourceDef.range; dy++) {
+          // Skip the anchor tile (0,0)
+          if (dx === 0 && dy === 0) continue;
+          
+          const shadowX = resource.x + dx;
+          const shadowY = resource.y - dy;
+          
+          shadowResources.push({
+            type: 'shadow',
+            x: shadowX,
+            y: shadowY,
+            parentAnchorKey: resource.anchorKey,
+            passable: resourceDef.passable
+            // No symbol - renders as invisible
+          });
+        }
+      }
+    }
+  });
+  
+  // Combine main resources with shadows
+  const allResources = [...newResources, ...shadowResources];
 
   const newNPCs = {};
   layout.resources.forEach((row, y) => {
@@ -84,7 +117,7 @@ async function performGridReset(gridId, gridType, gridCoord) {
   });
 
   grid.tiles = newTiles;
-  grid.resources = newResources;
+  grid.resources = allResources;
   grid.NPCsInGrid = new Map(); // Clear existing NPCs explicitly before resetting
   grid.NPCsInGrid = new Map(Object.entries(newNPCs));
   grid.NPCsInGridLastUpdated = Date.now();

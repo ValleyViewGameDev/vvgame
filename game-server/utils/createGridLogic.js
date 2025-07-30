@@ -71,6 +71,39 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
   const newResources = isFixedLayout
     ? generateFixedResources(layout)
     : generateResources(layout, newTiles, layout.resourceDistribution);
+  
+  // Add shadow objects for multi-tile resources
+  const shadowResources = [];
+  newResources.forEach(resource => {
+    const resourceDef = masterResources.find(r => r.type === resource.type);
+    if (resourceDef && resourceDef.range > 1) {
+      // Add anchorKey to the main resource
+      resource.anchorKey = `${resource.type}_${resource.x}_${resource.y}`;
+      
+      // Create shadow objects for non-anchor tiles
+      for (let dx = 0; dx < resourceDef.range; dx++) {
+        for (let dy = 0; dy < resourceDef.range; dy++) {
+          // Skip the anchor tile (0,0)
+          if (dx === 0 && dy === 0) continue;
+          
+          const shadowX = resource.x + dx;
+          const shadowY = resource.y - dy;
+          
+          shadowResources.push({
+            type: 'shadow',
+            x: shadowX,
+            y: shadowY,
+            parentAnchorKey: resource.anchorKey,
+            passable: resourceDef.passable
+            // No symbol - renders as invisible
+          });
+        }
+      }
+    }
+  });
+  
+  // Combine main resources with shadows
+  const allResources = [...newResources, ...shadowResources];
 
   const newGridState = { npcs: {} };
   layout.resources.forEach((row, y) => {
@@ -101,7 +134,7 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
     frontierId,
     settlementId,
     tiles: newTiles,
-    resources: newResources,
+    resources: allResources,
     NPCsInGrid: new Map(Object.entries(newGridState.npcs)),
     NPCsInGridLastUpdated: Date.now(),
   });
