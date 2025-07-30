@@ -205,73 +205,6 @@ const CraftingStation = ({
     }
   };
 
-  // Legacy function for reference (can be removed after testing)
-  const handleCraftLegacy = async (recipe) => {
-    setErrorMessage('');
-    if (!recipe) { setErrorMessage('Invalid recipe selected.'); return; }
-
-    const spent = await spendIngredients({
-      playerId: currentPlayer.playerId,
-      recipe,
-      inventory,
-      backpack,
-      setInventory,
-      setBackpack,
-      setCurrentPlayer,
-      updateStatus
-    });
-    if (!spent) return;
-
-    const craftedQty = 1;
-    const craftTime = recipe.crafttime || 60; // Default to 60s if no timer exists
-    const craftEnd = Date.now() + craftTime * 1000; // Calculate timestamp
-
-    try {
-      // ✅ Ensure we update only the clicked Crafting Station
-      const updatedStation = {
-        type: stationType,
-        x: currentStationPosition.x, 
-        y: currentStationPosition.y, 
-        craftEnd: craftEnd,
-        craftedItem: recipe.type,  // ✅ Store crafted item
-      };
-      console.log('handleCraft: updatedStation:  ',updatedStation);
-      await updateGridResource(gridId, updatedStation, setResources, true);
-      console.log('📡 Fetched station from GlobalGridStateTilesAndResources:', GlobalGridStateTilesAndResources.getResources);
-
-      // ✅ Step 1: Ensure UI Updates Immediately
-      setCraftedItem(recipe.type);
-      setCraftingCountdown(Math.max(0, Math.floor((craftEnd - Date.now()) / 1000)));
-      setActiveTimer(true);
-      setIsCrafting(true);
-      setIsReadyToCollect(false);
-
-      console.log(`🛠️ Started crafting ${recipe.type}. Will be ready at ${craftEnd}`);
-
-      // ✅ Step 2: Update GlobalGridStateTilesAndResources Immediately
-      const updatedResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-          res.x === currentStationPosition.x && res.y === currentStationPosition.y
-              ? { ...res, craftEnd, craftedItem: recipe.type }
-              : res
-      );
-      GlobalGridStateTilesAndResources.setResources(updatedResources);
-      console.log("🌎 GlobalGridStateTilesAndResources updated after crafting start!");
-
-      // ✅ Step 3: Ensure UI State Reflects GlobalGridStateTilesAndResources
-      setResources(updatedResources);
-
-      FloatingTextManager.addFloatingText(404, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-      console.log(`✅ ${recipe.type} will be ready at ${new Date(craftEnd).toLocaleTimeString()}`);
-
-      } catch (error) {
-        console.error(`❌ Error starting craft for ${recipe.type}:`, error);
-      }
-
-    // Track quest progress for "Craft" actions
-    await trackQuestProgress(currentPlayer, 'Craft', recipe.type, craftedQty, setCurrentPlayer);
-    await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-  };
-
 
   // Protected function to collect crafted items using transaction system
   const handleCollect = async (transactionId, transactionKey, recipe) => {
@@ -296,7 +229,33 @@ const CraftingStation = ({
       if (response.data.success) {
         // Update local state with server response
         const { collectedItem, isNPC, inventory, updatedStation } = response.data;
-        
+
+        // ✅ Apply skill buffs to crafted collection
+        console.log('MasterSkills:', masterSkills);
+
+        // Extract player skills and upgrades
+        const playerBuffs = (currentPlayer.skills || [])
+          .filter((item) => {
+            const resourceDetails = allResources.find((res) => res.type === item.type);
+            const isSkill = resourceDetails?.category === 'skill' || resourceDetails?.category === 'upgrade';
+            const appliesToResource = (masterSkills?.[item.type]?.[collectedItem] || 1) > 1;
+            return isSkill && appliesToResource;
+          })
+          .map((buffItem) => buffItem.type);
+
+        // Calculate skill multiplier
+        const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
+          const buffValue = masterSkills?.[buff]?.[collectedItem] || 1;
+          return multiplier * buffValue;
+        }, 1);
+
+        // Apply multiplier to quantity (default to 1 if not provided by backend)
+        const baseQtyCollected = 1;
+        const finalQtyCollected = baseQtyCollected * skillMultiplier;
+
+        console.log('[DEBUG] qtyCollected after multiplier:', finalQtyCollected);
+        FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${collectedItem}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+
         // Handle NPC spawning client-side
         if (isNPC) {
           const craftedResource = allResources.find(res => res.type === collectedItem);
@@ -306,10 +265,24 @@ const CraftingStation = ({
           }
         }
 
-        // Update inventory from server response
-        if (inventory) {
-          setInventory(inventory);
-          setCurrentPlayer(prev => ({ ...prev, inventory }));
+        // Update inventory with buffed quantity
+        // Use current player inventory instead of server response since server no longer adds items
+        const gained = await gainIngredients({
+          playerId: currentPlayer.playerId,
+          currentPlayer,
+          resource: collectedItem,
+          quantity: finalQtyCollected,
+          inventory: currentPlayer.inventory,
+          backpack: currentPlayer.backpack,
+          setInventory,
+          setBackpack,
+          setCurrentPlayer,
+          updateStatus,
+          masterResources,
+        });
+
+        if (!gained) {
+          console.error('❌ Failed to add buffed crafted item to inventory.');
         }
 
         // Update grid resources to remove crafting state
@@ -330,7 +303,13 @@ const CraftingStation = ({
         // Refresh player data to ensure consistency
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-        updateStatus(`✅ Collected: ${collectedItem}`);
+        if (skillMultiplier !== 1) {
+          const skillAppliedText = `${playerBuffs.join(', ')} skill applied (${skillMultiplier}x collected).`;
+          updateStatus(skillAppliedText);
+        } else {
+          updateStatus(`✅ Collected: ${collectedItem}.`);
+        }
+
         console.log(`✅ ${recipe.type} collected successfully using protected endpoint.`);
       }
     } catch (error) {

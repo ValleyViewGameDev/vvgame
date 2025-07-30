@@ -208,8 +208,6 @@ export async function handleDooberClick(
   }, 1);
   const qtyCollected = baseQtyCollected * skillMultiplier;
   console.log('[DEBUG] qtyCollected after multiplier:', qtyCollected);
-
-
   FloatingTextManager.addFloatingText(`+${qtyCollected} ${resource.type}`, col, row, TILE_SIZE );
   if (skillMultiplier != 1) {
     const skillAppliedText =

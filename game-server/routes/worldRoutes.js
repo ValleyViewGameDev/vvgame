@@ -1041,19 +1041,8 @@ router.post('/crafting/collect-item', async (req, res) => {
     if (itemResource.category === 'npc') {
       // For NPCs, we just need to spawn them (handled client-side for now)
       console.log(`🤖 NPC ${craftedItem} ready for spawn at (${stationX}, ${stationY})`);
-    } else {
-      // Add regular items to player inventory
-      const inventory = player.inventory || [];
-      const existingItem = inventory.find(item => item.type === craftedItem);
-      
-      if (existingItem) {
-        existingItem.quantity += 1;
-      } else {
-        inventory.push({ type: craftedItem, quantity: 1 });
-      }
-      
-      player.inventory = inventory;
     }
+    // Don't add items to inventory here - let client handle with skill buffs via gainIngredients
 
     // Clear the crafting state from the station
     const resourceIndex = grid.resources.findIndex(res => res.x === stationX && res.y === stationY);
