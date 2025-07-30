@@ -25,7 +25,7 @@ export async function handleProtectedSelling({
 }) {
   console.log(`🔒 [PROTECTED SELLING] Starting protected sale for ${stationType} at (${currentStationPosition.x}, ${currentStationPosition.y})`);
   
-  // Generate transaction ID and key
+  // Generate  transaction ID and key
   const transactionId = generateTransactionId();
   const transactionKey = `sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`;
   
