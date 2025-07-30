@@ -92,22 +92,49 @@ export async function fetchInventory(playerId) {
  * Ensures that the latest inventory and other properties are reflected in the UI.
  * @param {string} playerId - The player's ID.
  * @param {Function} setCurrentPlayer - Function to update the currentPlayer state.
+ * @param {boolean} preserveInventory - If true, preserves local inventory/backpack state
  */
-export async function refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer) {
+export async function refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer, preserveInventory = true) {
   try {
     const response = await axios.get(`${API_BASE}/api/player/${playerId}`);
     const updatedPlayerData = response.data;
-    // Pull latest location from playersInGridManager if available
-    const gridPlayer = playersInGridManager.getPlayersInGrid(updatedPlayerData.location?.g)?.[playerId];
-    if (gridPlayer) {
-      updatedPlayerData.location = {
-        ...updatedPlayerData.location,
-        x: gridPlayer.position.x,
-        y: gridPlayer.position.y,
-      };
+    
+    // If preserveInventory is true, keep the current inventory and backpack
+    if (preserveInventory) {
+      setCurrentPlayer(currentPlayer => {
+        const merged = {
+          ...updatedPlayerData,
+          inventory: currentPlayer.inventory,
+          backpack: currentPlayer.backpack
+        };
+        
+        // Pull latest location from playersInGridManager if available
+        const gridPlayer = playersInGridManager.getPlayersInGrid(merged.location?.g)?.[playerId];
+        if (gridPlayer) {
+          merged.location = {
+            ...merged.location,
+            x: gridPlayer.position.x,
+            y: gridPlayer.position.y,
+          };
+        }
+        
+        console.log('Player refreshed successfully (inventory preserved):', merged);
+        return merged;
+      });
+    } else {
+      // Original behavior - full replacement
+      // Pull latest location from playersInGridManager if available
+      const gridPlayer = playersInGridManager.getPlayersInGrid(updatedPlayerData.location?.g)?.[playerId];
+      if (gridPlayer) {
+        updatedPlayerData.location = {
+          ...updatedPlayerData.location,
+          x: gridPlayer.position.x,
+          y: gridPlayer.position.y,
+        };
+      }
+      setCurrentPlayer(updatedPlayerData);
+      console.log('Player refreshed successfully:', response.data);
     }
-    setCurrentPlayer(updatedPlayerData);
-    console.log('Player refreshed successfully:', response.data);
   } catch (error) {
     console.error('Error refreshing player:', error);
   }
@@ -221,34 +248,52 @@ export async function spendIngredients({
 
   if (!canAfford(recipe, inventory, backpack, 1)) { updateStatus(4); return false; }
 
+  // Build delta changes array
+  const deltaChanges = [];
+  
   // Deduct ingredients with new logic
   for (let i = 1; i <= 4; i++) {
     const type = recipe?.[`ingredient${i}`];
     const qty = recipe?.[`ingredient${i}qty`];
     if (type && qty) {
       let remaining = qty;
-
-      const deductFrom = (list) => {
-        const index = list.findIndex((item) => item.type === type);
-        if (index >= 0) {
-          const used = Math.min(remaining, list[index].quantity);
-          list[index].quantity -= used;
-          remaining -= used;
-          if (list[index].quantity <= 0) list.splice(index, 1);
+      
+      // First deduct from backpack
+      const backpackItem = updatedBackpack.find((item) => item.type === type);
+      if (backpackItem) {
+        const used = Math.min(remaining, backpackItem.quantity);
+        backpackItem.quantity -= used;
+        remaining -= used;
+        deltaChanges.push({ type, quantity: -used, target: 'backpack' });
+        if (backpackItem.quantity <= 0) {
+          updatedBackpack.splice(updatedBackpack.indexOf(backpackItem), 1);
         }
-      };
-      deductFrom(updatedBackpack);
+      }
+      
+      // Then deduct from inventory if needed
+      if (remaining > 0) {
+        const inventoryItem = updatedInventory.find((item) => item.type === type);
+        if (inventoryItem) {
+          const used = Math.min(remaining, inventoryItem.quantity);
+          inventoryItem.quantity -= used;
+          deltaChanges.push({ type, quantity: -used, target: 'inventory' });
+          if (inventoryItem.quantity <= 0) {
+            updatedInventory.splice(updatedInventory.indexOf(inventoryItem), 1);
+          }
+        }
+      }
+      
       console.log(`✅ Deducted ${qty} of ${type} from inventory/backpack`);
-      if (remaining > 0) deductFrom(updatedInventory);
     }
   }
 
   try {
-    await axios.post(`${API_BASE}/api/update-inventory`, {
+    // Use delta update endpoint to avoid race conditions
+    await axios.post(`${API_BASE}/api/update-inventory-delta`, {
       playerId,
-      inventory: updatedInventory,
-      backpack: updatedBackpack,
+      delta: deltaChanges
     });
+    
     setInventory(updatedInventory);
     setBackpack(updatedBackpack);
     await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
