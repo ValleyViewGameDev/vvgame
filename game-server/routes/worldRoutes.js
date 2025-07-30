@@ -1537,15 +1537,10 @@ router.post('/sell-for-refund', async (req, res) => {
     
     player.inventory = inventory;
 
-    // Remove the station from the grid
-    const resourceIndex = grid.resources.findIndex(res => res.x === stationX && res.y === stationY);
-    if (resourceIndex !== -1) {
-      grid.resources.splice(resourceIndex, 1);
-      grid.markModified('resources');
-    }
-
-    // Save changes
-    await grid.save();
+    // Don't remove station from grid here - let client handle via updateGridResource
+    // This ensures proper socket broadcasting to other players
+    
+    // Save player changes only
     await player.save();
 
     // Complete transaction and cleanup old IDs

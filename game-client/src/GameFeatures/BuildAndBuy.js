@@ -33,9 +33,8 @@ export const handleConstruction = async ({
     console.warn('Invalid building selection.');
     return;
   }
-  // **Get player position dynamically from the NPCsInGrid**
+  // **Get player position dynamically **
   const playerId = currentPlayer._id.toString();  // Convert ObjectId to string
-  const NPCsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
   const playersInGrid = playersInGridManager.getPlayersInGrid(gridId);
   const player = playersInGrid?.[playerId];
   const playerPosition = player?.position;  // Use grid-relative coordinates directly (no scaling)

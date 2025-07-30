@@ -2,6 +2,7 @@ import API_BASE from '../config';
 import axios from 'axios';
 import { createCollectEffect } from '../VFX/VFX';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
+import { updateGridResource } from './GridManagement';
 
 // Generate unique transaction ID
 function generateTransactionId() {
@@ -22,7 +23,7 @@ export async function handleProtectedSelling({
   updateStatus,
   onClose
 }) {
-  console.log(`🔒 [PROTECTED SELLING] Starting protected sale for ${stationType}`);
+  console.log(`🔒 [PROTECTED SELLING] Starting protected sale for ${stationType} at (${currentStationPosition.x}, ${currentStationPosition.y})`);
   
   // Generate transaction ID and key
   const transactionId = generateTransactionId();
@@ -48,7 +49,14 @@ export async function handleProtectedSelling({
         setCurrentPlayer(prev => ({ ...prev, inventory }));
       }
 
-      // Remove the station from grid resources
+      // Remove the station from grid using updateGridResource for proper DB update and socket broadcast
+      await updateGridResource(gridId, {
+        x: currentStationPosition.x,
+        y: currentStationPosition.y,
+        type: null
+      }, true);
+      
+      // Update local state to reflect removal
       const filteredResources = GlobalGridStateTilesAndResources.getResources().filter(
         (res) => !(res.x === currentStationPosition.x && res.y === currentStationPosition.y)
       );
