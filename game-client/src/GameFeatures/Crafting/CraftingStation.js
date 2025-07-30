@@ -261,7 +261,6 @@ const CraftingStation = ({
           const craftedResource = allResources.find(res => res.type === collectedItem);
           if (craftedResource) {
             NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
-            await trackQuestProgress(currentPlayer, 'Craft', collectedItem, 1, setCurrentPlayer);
           }
         }
 
@@ -284,6 +283,9 @@ const CraftingStation = ({
         if (!gained) {
           console.error('❌ Failed to add buffed crafted item to inventory.');
         }
+
+        // Track quest progress for all crafted items (both NPCs and regular items)
+        await trackQuestProgress(currentPlayer, 'Craft', collectedItem, finalQtyCollected, setCurrentPlayer);
 
         // Update grid resources to remove crafting state
         const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
