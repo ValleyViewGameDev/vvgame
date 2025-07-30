@@ -99,7 +99,7 @@ export const handleConstruction = async ({
     FloatingTextManager.addFloatingText(305, playerPosition.x, playerPosition.y, TILE_SIZE);
     return;
   }
-  await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+  // refreshPlayerAfterInventoryUpdate is already called inside spendIngredients
 
   console.log('selectedResource.action=', selectedResource.action);
 
@@ -124,21 +124,16 @@ export const handleConstruction = async ({
       enriched.anchorKey = `${selectedItem}_${x}_${y}`;
     }
     
-    const merged = [...resources, enriched];
+    let finalResources = [...resources, enriched];
 
-    console.log('📦 Forcing Global and local resource update with:', enriched);
-    GlobalGridStateTilesAndResources.setResources(merged);
-    setResources(merged); // still triggers React re-render
-
-    console.log('🧪 setResources was called to update client state.');
+    console.log('📦 Preparing resource update with:', enriched);
     
     try {
-      await updateGridResource(gridId, rawResource, true);
+      // Create shadow placeholders for multi-tile objects BEFORE updating state
+      const shadowPromises = [];
       
-      // Create shadow placeholders for multi-tile objects
       if (resourceRange > 1) {
         console.log(`🔲 Creating shadow placeholders for ${selectedItem} with anchorKey: ${enriched.anchorKey}`);
-        const shadowPromises = [];
         
         for (let dx = 0; dx < resourceRange; dx++) {
           for (let dy = 0; dy < resourceRange; dy++) {
@@ -159,21 +154,28 @@ export const handleConstruction = async ({
             console.log(`Creating shadow at (${shadowX}, ${shadowY}) for anchor ${enriched.anchorKey}`);
             shadowPromises.push(updateGridResource(gridId, shadowResource, true));
             
-            // Update local state immediately
-            const shadowEnriched = { ...shadowResource };
-            merged.push(shadowEnriched);
+            // Add shadow to final resources array
+            finalResources.push(shadowResource);
           }
         }
-        
-        // Update local state with shadows
-        GlobalGridStateTilesAndResources.setResources(merged);
-        setResources(merged);
-        
-        // Wait for all shadow updates to complete
+      }
+      
+      // Update local state ONCE with all resources (main + shadows)
+      console.log('🧪 Updating local state with all resources');
+      GlobalGridStateTilesAndResources.setResources(finalResources);
+      setResources(finalResources);
+      
+      // Update main resource in DB
+      await updateGridResource(gridId, rawResource, true);
+      
+      // Wait for all shadow updates to complete
+      if (shadowPromises.length > 0) {
         await Promise.all(shadowPromises);
       }
       
       FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
+      
+      // Track quest progress sequentially to avoid conflicts
       await trackQuestProgress(currentPlayer, 'Build', selectedItem, 1, setCurrentPlayer);
       await trackQuestProgress(currentPlayer, 'Buy', selectedItem, 1, setCurrentPlayer);
     } catch (error) {

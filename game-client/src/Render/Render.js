@@ -102,8 +102,20 @@ export const RenderGrid = memo(
         const tileType = tileTypes[rowIndex]?.[colIndex] || 'unknown';
         const tileClass = `tile-${tileType}`;
         const key = `${colIndex}-${rowIndex}`;
-        const isCraftReady = craftingStatus.ready.includes(key);
-        const isCraftInProgress = craftingStatus.inProgress.includes(key);
+        
+        // For multi-tile resources, check crafting status against anchor coordinates
+        let isCraftReady = false;
+        let isCraftInProgress = false;
+        
+        if (resource && resource.category === 'crafting') {
+          const resourceKey = `${resource.x}-${resource.y}`;
+          isCraftReady = craftingStatus.ready.includes(resourceKey);
+          isCraftInProgress = craftingStatus.inProgress.includes(resourceKey);
+        } else {
+          // For regular tiles, use current tile coordinates
+          isCraftReady = craftingStatus.ready.includes(key);
+          isCraftInProgress = craftingStatus.inProgress.includes(key);
+        }
 
         return (
           <div
@@ -169,7 +181,7 @@ export const RenderGrid = memo(
             )}
 
             {/* ✅ Add Checkmark for Ready Crafting Stations */}
-            {isCraftReady && (
+            {isCraftReady && (!resource || resource.range <= 1 || (resource.x === colIndex && resource.y === rowIndex)) && (
               <div
                 className="craft-notification"
                 style={{
@@ -179,7 +191,7 @@ export const RenderGrid = memo(
                   fontSize: `${TILE_SIZE * 0.5}px`,
                   color: 'green',
                   fontWeight: 'bold',
-                  zIndex: 3, // Ensure it's above everything else
+                  zIndex: 20, // Increased z-index to ensure visibility over multi-tile resources
                   pointerEvents: 'none',
                 }}
               >
@@ -188,7 +200,7 @@ export const RenderGrid = memo(
             )}
 
             {/* ✅ Add Timer (⌛️) for Crafting Stations Still in Progress */}
-            {isCraftInProgress && (
+            {isCraftInProgress && (!resource || resource.range <= 1 || (resource.x === colIndex && resource.y === rowIndex)) && (
               <div
                 className="craft-notification"
                 style={{
@@ -198,7 +210,7 @@ export const RenderGrid = memo(
                   fontSize: `${TILE_SIZE * 0.5}px`,
                   color: 'orange',
                   fontWeight: 'bold',
-                  zIndex: 3, // Ensure it's above everything else
+                  zIndex: 20, // Increased z-index to ensure visibility over multi-tile resources
                   pointerEvents: 'none',
                 }}
               >
