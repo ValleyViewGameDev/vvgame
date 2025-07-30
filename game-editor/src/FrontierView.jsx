@@ -162,11 +162,21 @@ const handleLoadGrid = () => {
                 const minorRow = row % 8;
                 const minorCol = col % 8;
 
-                const minorIndex = minorRow * 8 + minorCol;
-                const megaIndex = megaRow * 8 + megaCol;
-                const trueIndex = megaIndex * 64 + minorIndex;
-
-                const foundGrid = allGrids[trueIndex];
+                // The grid coordinates follow a pattern where position in the 64x64 grid
+                // determines the gridCoord value
+                // Pattern: 101SSGG where SS is settlement position (00-77) and GG is grid position (00-77)
+                const settlementRow = Math.floor(row / 8);
+                const settlementCol = Math.floor(col / 8);
+                const gridRowWithinSettlement = row % 8;
+                const gridColWithinSettlement = col % 8;
+                
+                // Convert positions to the gridCoord format
+                const settlementPart = settlementRow * 10 + settlementCol;
+                const gridPart = gridRowWithinSettlement * 10 + gridColWithinSettlement;
+                const calculatedGridCoord = 1010000 + (settlementPart * 100) + gridPart;
+                
+                // Look up this grid in the gridMap
+                const foundGrid = gridMap.get(calculatedGridCoord);
                 const gridCoord = foundGrid?.gridCoord;
                 const type = foundGrid?.gridType;
 
