@@ -80,6 +80,11 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
       // Add anchorKey to the main resource
       resource.anchorKey = `${resource.type}_${resource.x}_${resource.y}`;
       
+      // Ensure the main resource has the passable property
+      if (resourceDef.passable !== undefined) {
+        resource.passable = resourceDef.passable;
+      }
+      
       // Create shadow objects for non-anchor tiles
       for (let dx = 0; dx < resourceDef.range; dx++) {
         for (let dy = 0; dy < resourceDef.range; dy++) {
@@ -94,7 +99,7 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
             x: shadowX,
             y: shadowY,
             parentAnchorKey: resource.anchorKey,
-            passable: resourceDef.passable
+            passable: resourceDef.passable !== undefined ? resourceDef.passable : false
             // No symbol - renders as invisible
           });
         }
