@@ -60,26 +60,29 @@ export const handleConstruction = async ({
   const resourceRange = selectedResource.range || 1;
   console.log(`🏗️ Building ${selectedItem} with range ${resourceRange}`);
 
-  // For multi-tile resources, check all required tiles
-  // Using player position as lower-left anchor
-  const tilesToCheck = [];
-  for (let dx = 0; dx < resourceRange; dx++) {
-    for (let dy = 0; dy < resourceRange; dy++) {
-      tilesToCheck.push({ x: x + dx, y: y - dy });
+  // Skip tile occupation check for NPCs since they don't occupy grid tiles
+  if (selectedResource.category !== 'npc') {
+    // For multi-tile resources, check all required tiles
+    // Using player position as lower-left anchor
+    const tilesToCheck = [];
+    for (let dx = 0; dx < resourceRange; dx++) {
+      for (let dy = 0; dy < resourceRange; dy++) {
+        tilesToCheck.push({ x: x + dx, y: y - dy });
+      }
     }
-  }
 
-  console.log('📍 Tiles to check for placement:', tilesToCheck);
+    console.log('📍 Tiles to check for placement:', tilesToCheck);
 
-  // Check if any of the required tiles are occupied
-  const occupiedTile = tilesToCheck.find(tile => 
-    resources.some(res => res.x === tile.x && res.y === tile.y)
-  );
+    // Check if any of the required tiles are occupied
+    const occupiedTile = tilesToCheck.find(tile => 
+      resources.some(res => res.x === tile.x && res.y === tile.y)
+    );
 
-  if (occupiedTile) {
-    console.warn(`Cannot build ${selectedItem} - tile at (${occupiedTile.x}, ${occupiedTile.y}) is occupied.`);
-    FloatingTextManager.addFloatingText(306, x, y, TILE_SIZE);
-    return; // Exit before deducting inventory
+    if (occupiedTile) {
+      console.warn(`Cannot build ${selectedItem} - tile at (${occupiedTile.x}, ${occupiedTile.y}) is occupied.`);
+      FloatingTextManager.addFloatingText(306, x, y, TILE_SIZE);
+      return; // Exit before deducting inventory
+    }
   }
 
   const success = await spendIngredients({
