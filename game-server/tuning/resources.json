@@ -5354,5 +5354,25 @@
         "validono": true,
         "ingredient1": "Money",
         "ingredient1qty": 500
+    },
+    {
+        "type": "Stone Wall Large",
+        "symbol": "⬜",
+        "layoutkey": "w2",
+        "category": "deco",
+        "source": "Buy",
+        "passable": false,
+        "qtycollected": 1,
+        "range": 2,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 50
     }
 ]

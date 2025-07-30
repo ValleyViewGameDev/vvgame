@@ -49,6 +49,11 @@ export async function handleProtectedSelling({
         setCurrentPlayer(prev => ({ ...prev, inventory }));
       }
 
+      // Find the resource to check if it has shadows
+      const soldResource = GlobalGridStateTilesAndResources.getResources().find(
+        (res) => res.x === currentStationPosition.x && res.y === currentStationPosition.y
+      );
+      
       // Remove the station from grid using updateGridResource for proper DB update and socket broadcast
       await updateGridResource(gridId, {
         x: currentStationPosition.x,
@@ -56,9 +61,37 @@ export async function handleProtectedSelling({
         type: null
       }, true);
       
-      // Update local state to reflect removal
+      // If this was a multi-tile resource with shadows, remove them too
+      if (soldResource && soldResource.anchorKey) {
+        console.log(`🔲 Removing shadow placeholders for anchorKey: ${soldResource.anchorKey}`);
+        
+        // Find all shadows with this parentAnchorKey
+        const shadows = GlobalGridStateTilesAndResources.getResources().filter(
+          (res) => res.type === 'shadow' && res.parentAnchorKey === soldResource.anchorKey
+        );
+        
+        // Remove each shadow
+        const shadowPromises = shadows.map(shadow => 
+          updateGridResource(gridId, {
+            x: shadow.x,
+            y: shadow.y,
+            type: null
+          }, true)
+        );
+        
+        await Promise.all(shadowPromises);
+        console.log(`✅ Removed ${shadows.length} shadow placeholders`);
+      }
+      
+      // Update local state to reflect removal of station and shadows
       const filteredResources = GlobalGridStateTilesAndResources.getResources().filter(
-        (res) => !(res.x === currentStationPosition.x && res.y === currentStationPosition.y)
+        (res) => {
+          // Remove the sold station
+          if (res.x === currentStationPosition.x && res.y === currentStationPosition.y) return false;
+          // Remove any shadows belonging to this station
+          if (soldResource && soldResource.anchorKey && res.type === 'shadow' && res.parentAnchorKey === soldResource.anchorKey) return false;
+          return true;
+        }
       );
       GlobalGridStateTilesAndResources.setResources(filteredResources);
       setResources(filteredResources);

@@ -118,6 +118,7 @@ export const handleConstruction = async ({
     // Ensure range is included for multi-tile resources
     if (resourceRange > 1) {
       enriched.range = resourceRange;
+      enriched.anchorKey = `${selectedItem}_${x}_${y}`;
     }
     
     const merged = [...resources, enriched];
@@ -130,6 +131,45 @@ export const handleConstruction = async ({
     
     try {
       await updateGridResource(gridId, rawResource, true);
+      
+      // Create shadow placeholders for multi-tile objects
+      if (resourceRange > 1) {
+        console.log(`🔲 Creating shadow placeholders for ${selectedItem} with anchorKey: ${enriched.anchorKey}`);
+        const shadowPromises = [];
+        
+        for (let dx = 0; dx < resourceRange; dx++) {
+          for (let dy = 0; dy < resourceRange; dy++) {
+            // Skip the anchor tile (0,0)
+            if (dx === 0 && dy === 0) continue;
+            
+            const shadowX = x + dx;
+            const shadowY = y - dy;
+            const shadowResource = {
+              type: 'shadow',
+              x: shadowX,
+              y: shadowY,
+              parentAnchorKey: enriched.anchorKey,
+              passable: enriched.passable // Inherit passable property from parent
+              // No symbol - renders as empty/invisible
+            };
+            
+            console.log(`Creating shadow at (${shadowX}, ${shadowY}) for anchor ${enriched.anchorKey}`);
+            shadowPromises.push(updateGridResource(gridId, shadowResource, true));
+            
+            // Update local state immediately
+            const shadowEnriched = { ...shadowResource };
+            merged.push(shadowEnriched);
+          }
+        }
+        
+        // Update local state with shadows
+        GlobalGridStateTilesAndResources.setResources(merged);
+        setResources(merged);
+        
+        // Wait for all shadow updates to complete
+        await Promise.all(shadowPromises);
+      }
+      
       FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
       await trackQuestProgress(currentPlayer, 'Build', selectedItem, 1, setCurrentPlayer);
       await trackQuestProgress(currentPlayer, 'Buy', selectedItem, 1, setCurrentPlayer);
