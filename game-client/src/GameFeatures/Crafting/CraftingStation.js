@@ -262,26 +262,26 @@ const CraftingStation = ({
           if (craftedResource) {
             NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
           }
-        }
+        } else {
+          // Only add non-NPC items to inventory
+          // Update inventory with buffed quantity
+          const gained = await gainIngredients({
+            playerId: currentPlayer.playerId,
+            currentPlayer,
+            resource: collectedItem,
+            quantity: finalQtyCollected,
+            inventory: currentPlayer.inventory,
+            backpack: currentPlayer.backpack,
+            setInventory,
+            setBackpack,
+            setCurrentPlayer,
+            updateStatus,
+            masterResources,
+          });
 
-        // Update inventory with buffed quantity
-        // Use current player inventory instead of server response since server no longer adds items
-        const gained = await gainIngredients({
-          playerId: currentPlayer.playerId,
-          currentPlayer,
-          resource: collectedItem,
-          quantity: finalQtyCollected,
-          inventory: currentPlayer.inventory,
-          backpack: currentPlayer.backpack,
-          setInventory,
-          setBackpack,
-          setCurrentPlayer,
-          updateStatus,
-          masterResources,
-        });
-
-        if (!gained) {
-          console.error('❌ Failed to add buffed crafted item to inventory.');
+          if (!gained) {
+            console.error('❌ Failed to add buffed crafted item to inventory.');
+          }
         }
 
         // Track quest progress for all crafted items (both NPCs and regular items)
