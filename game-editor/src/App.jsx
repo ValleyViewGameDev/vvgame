@@ -19,9 +19,18 @@ const App = () => {
       console.log('🔁 Switching to Grid Editor');
       setActivePanel('grid');
     };
+    
+    const handleRefreshFrontierData = () => {
+      console.log('🔄 Handling refresh-frontier-data event');
+      refreshFrontiers();
+    };
+    
     window.addEventListener('switch-to-editor', handleSwitchToEditor);
+    window.addEventListener('refresh-frontier-data', handleRefreshFrontierData);
+    
     return () => {
       window.removeEventListener('switch-to-editor', handleSwitchToEditor);
+      window.removeEventListener('refresh-frontier-data', handleRefreshFrontierData);
     };
   }, []);
 

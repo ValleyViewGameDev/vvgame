@@ -53,6 +53,10 @@
   background-color: #e4d5b7;
 }
 
+.has-grid-id {
+  background-color: #ffffe0; /* Light yellow */
+}
+
 .type-valley0,
 .type-valley1,
 .type-valley2,
@@ -74,4 +78,41 @@
 
 .selected-cell-info p {
   margin: 4px 0;
+}
+
+.refresh-data-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  margin: 10px 0;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.refresh-data-button:hover {
+  background-color: #45a049;
+}
+
+.load-grid-button,
+.create-grid-button {
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  margin-top: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.load-grid-button:hover,
+.create-grid-button:hover {
+  background-color: #1976D2;
 }

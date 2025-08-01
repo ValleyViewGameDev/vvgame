@@ -127,10 +127,27 @@ const handleLoadGrid = () => {
     window.dispatchEvent(new CustomEvent('editor-load-grid', { detail: { gridCoord: selectedCell.coord, gridType: selectedCell.type } }));
 };
 
+  const handleRefreshData = () => {
+    console.log("🔄 Refreshing frontier data...");
+    // Dispatch a custom event to trigger data reload in the parent component
+    window.dispatchEvent(new CustomEvent('refresh-frontier-data'));
+    setModalMessage('Refreshing settlements data...');
+    setShowModal(true);
+    
+    // Auto-close modal after 2 seconds
+    setTimeout(() => {
+      setShowModal(false);
+    }, 2000);
+  };
+
   return (
     <div className="frontier-container">
       <div className="frontier-base-panel">
         <h2>🗺️ Frontier View</h2>
+
+        <button className="refresh-data-button" onClick={handleRefreshData}>
+          🔄 Refresh Data
+        </button>
 
         <div className="selected-cell-info">
           {selectedCell && (
@@ -183,6 +200,11 @@ const handleLoadGrid = () => {
                 let cellClass = 'frontier-cell';
                 let cellContent = '';
 
+                // Check if this grid has a gridId (meaning it's been created in the database)
+                if (foundGrid?.gridId) {
+                  cellClass += ' has-grid-id'; // Light yellow background
+                }
+
                 if (type === 'homestead') {
                   cellClass += ' type-homestead';
                 } else if (type === 'town') {
@@ -212,6 +234,13 @@ const handleLoadGrid = () => {
           ))}
         </div>
       </div>
+      
+      {showModal && (
+        <Modal
+          message={modalMessage}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </div>
   );
 };
