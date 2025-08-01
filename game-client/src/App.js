@@ -630,7 +630,8 @@ useEffect(() => {
       cleanupBadges = socketListenForBadgeUpdates(updatedPlayerData, setBadgeState, updateBadge);
 
       console.log('✅🏁✅🏁✅🏁✅ App initialization complete.');
-      setShowTimers(true);
+
+      //setShowTimers(true);    // default "Happening In Town" details open (true) or closed (flase)
 
       const zoom = localStorage.getItem("initialZoomLevel");
       if (zoom) {

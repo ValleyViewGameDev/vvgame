@@ -2,7 +2,7 @@
 .status-bar-wrapper {
     position: fixed;
     top: 55px; /* Adjust below header */
-    left: 260px; /* Align after base panel */
+    left: 210px; /* Align after base panel */
     width: calc(100% - 200px); /* Full width minus base panel */
     height: 30px;
 /*  background-color: #86512b; */
