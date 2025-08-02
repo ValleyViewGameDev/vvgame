@@ -8,12 +8,12 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Chewy', serif;
-  background-color: #439a45;
+  background-color: #f5f5f5;
 }
 
 /* Shift base panel and others to the right */
 .app-container {
-  margin-left: 260px; 
+  margin-left: 60px; /* Width of the nav column */
 }
 
 
@@ -59,9 +59,7 @@ body {
 /* Base Panel */
 
 .base-panel {
-  left: 0;
-  margin-left: 0;
-  width: 200px; /* keep original width */
+  width: 180px;
   background-color: #67c257;
   padding: 10px;
   font-size: 14px;
@@ -158,12 +156,12 @@ body {
 
 
 .base-panel .shared-button {
-  width: 90%; /* Ensure buttons fit well in the base panel */
+  width: 95%; /* Ensure buttons fit well in the base panel */
   text-align: left; /* Align text for a different look in base panel */
 }
 
 .base-panel .gold-button {
-  width: 90%; /* Ensure buttons fit well in the base panel */
+  width: 95%; /* Ensure buttons fit well in the base panel */
   text-align: left; /* Align text for a different look in base panel */
 }
 
@@ -195,13 +193,13 @@ body {
 }
 
 
-/* NAV COLUMN ///////////////////////////// */
+/* New Nav Column */
 
 .nav-column {
   position: fixed;
   top: 0;
-  left: 200px; /* moved right of the base-panel */
-  width: 60px; /* keep original width */
+  left: 0;
+  width: 60px;
   height: 100%;
   background-color: #94f175;
   padding-top: 60px;
@@ -220,7 +218,10 @@ body {
   color: white;
 }
 
-/* HEADER //////////////////////////////////// */
+
+
+
+/* Header */
 
 .app-header {
   background-color: #67c257;
@@ -228,8 +229,8 @@ body {
   padding: 10px 20px; /* Add more horizontal padding */
   position: fixed;
   top: 0;
-  left: 250px; /* shifted by total width */
-  width: calc(100% - 270px);
+  left: 250px;
+  width: calc(100% - 270px); /* Adjust width to account for added padding */
   z-index: 150;
   white-space: nowrap; /* ✅ Prevent text from wrapping */
   display: grid;
@@ -310,11 +311,12 @@ body {
 }
 
 
-/* GAME BOARD ////////////////////////////// */
+/* GAME BOARD */
 
 .homestead {
   overflow: auto;
-  margin-left: 0px; 
+  margin-left: 200px;
+  width: calc(100% - 260px);
   height: calc(100vh - 100px); /* Adjust for header and status bar */
   position: absolute;
   top: 85px;
