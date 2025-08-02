@@ -1514,8 +1514,8 @@ return (
 {/* //////////////// Left Side Navigation Column ///////////////// */}
 
     <div className="nav-column">
-      <button className="nav-button" title={strings[12009]} onClick={() => closePanel()}>🏡</button>
-      <button className="nav-button" title={strings[12010]} 
+      <button className={`nav-button ${!activePanel ? 'selected' : ''}`} title={strings[12009]} onClick={() => closePanel()}>🏡</button>
+      <button className={`nav-button ${activePanel === 'ProfilePanel' || activePanel === 'LoginPanel' ? 'selected' : ''}`} title={strings[12010]} 
           onClick={() => {
             if (currentPlayer?.username) { 
               openPanel('ProfilePanel');
@@ -1527,7 +1527,7 @@ return (
         </button>
       
       <button 
-        className="nav-button" title={strings[12001]} disabled={!currentPlayer} 
+        className={`nav-button ${activePanel === 'FarmingPanel' ? 'selected' : ''}`} title={strings[12001]} disabled={!currentPlayer} 
         onClick={() => {
           if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
           // Check if on another player's homestead
@@ -1537,7 +1537,7 @@ return (
         }}
       >🚜</button>
       <button 
-        className="nav-button" title={strings[12002]} disabled={!currentPlayer} 
+        className={`nav-button ${activePanel === 'BuildPanel' ? 'selected' : ''}`} title={strings[12002]} disabled={!currentPlayer} 
         onClick={() => {
           if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
           // Check if on another player's homestead
@@ -1547,7 +1547,7 @@ return (
         }}
       >⚒️</button>
       <button 
-        className="nav-button" title={strings[12003]} disabled={!currentPlayer} 
+        className={`nav-button ${activePanel === 'BuyPanel' ? 'selected' : ''}`} title={strings[12003]} disabled={!currentPlayer} 
         onClick={() => {
           if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
           // Check if on another player's homestead
@@ -1556,16 +1556,16 @@ return (
           openPanel('BuyPanel');
         }}
       >🐮</button>
-      <button className="nav-button" title={strings[12005]} disabled={!currentPlayer} onClick={() => {
+      <button className={`nav-button ${activePanel === 'SkillsAndUpgradesPanel' ? 'selected' : ''}`} title={strings[12005]} disabled={!currentPlayer} onClick={() => {
           setActiveStation(null); // ✅ Reset activeStation
           openPanel("SkillsAndUpgradesPanel"); // ✅ Open the panel normally
         }}>💪</button>
-      <button className="nav-button" title={strings[12004]} disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}>❓</button>
-      <button className="nav-button" title={strings[12006]} disabled={!currentPlayer} onClick={() => openPanel('CombatPanel')}>⚔️</button>
-      <button className="nav-button" title={strings[12007]} onClick={() => openPanel('GovPanel')}>🏛️</button>
-      <button className="nav-button" title={strings[12008]} onClick={() => openPanel('SeasonPanel')}>🗓️</button>
+      <button className={`nav-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}>❓</button>
+      <button className={`nav-button ${activePanel === 'CombatPanel' ? 'selected' : ''}`} title={strings[12006]} disabled={!currentPlayer} onClick={() => openPanel('CombatPanel')}>⚔️</button>
+      <button className={`nav-button ${activePanel === 'GovPanel' ? 'selected' : ''}`} title={strings[12007]} onClick={() => openPanel('GovPanel')}>🏛️</button>
+      <button className={`nav-button ${activePanel === 'SeasonPanel' ? 'selected' : ''}`} title={strings[12008]} onClick={() => openPanel('SeasonPanel')}>🗓️</button>
       {isDeveloper && (
-        <button className="nav-button" title="Debug" onClick={() => openPanel('DebugPanel')}>
+        <button className={`nav-button ${activePanel === 'DebugPanel' ? 'selected' : ''}`} title="Debug" onClick={() => openPanel('DebugPanel')}>
           🐞
         </button>
       )}
