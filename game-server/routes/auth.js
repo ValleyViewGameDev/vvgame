@@ -78,6 +78,7 @@ router.post('/register', async (req, res) => {
       password: hashedPassword,
       icon: defaultIcon,      // always use default icon from starterAccount
       language,
+      firsttimeuser: true, // always set to true for new players
       range,
       baseHp,
       baseMaxhp,
@@ -216,6 +217,7 @@ router.post('/register-new-player', async (req, res) => {
       password: hashedPassword,
       icon: defaultIcon,
       language,
+      firsttimeuser: true, 
       range,
       baseHp,
       baseMaxhp,

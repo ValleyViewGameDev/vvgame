@@ -31,6 +31,7 @@ import {
 
 import farmState from './FarmState';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
+import handleFTUE from './GameFeatures/FTUE/FTUE';
 
 import playersInGridManager from './GridState/PlayersInGrid';
 import { usePlayersInGrid, useGridStatePCUpdate } from './GridState/GridStatePCContext';

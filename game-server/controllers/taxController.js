@@ -33,18 +33,24 @@ const levyTax = async (frontierId) => {
       return { success: false, message: "Taxes not due yet." };
     }
 
-    // ✅ Step 3: Iterate through all settlements with players
+    // ✅ Step 3: Get all settlements with players
     const settlements = await Settlement.find({ frontierId, population: { $gt: 0 } });
 
-    let totalTaxCollected = 0;
-    let mayorPayouts = {};
+    let globalTotalTaxCollected = 0;
+    let globalMayorPayouts = {};
+    let settlementTaxData = {};
 
+    // ✅ Step 4: Process each settlement
     for (const settlement of settlements) {
       if (!settlement.taxrate || settlement.taxrate <= 0) continue;
 
       console.log(`🏛️ Taxing settlement ${settlement._id} at ${settlement.taxrate}%`);
 
-      // ✅ Step 4: Get all players in this settlement
+      let settlementTaxTotal = 0;
+      let settlementMayorPayout = 0;
+      const mayorRole = settlement.roles.find(role => role.roleName === "Mayor");
+
+      // ✅ Step 5: Get all players in this settlement
       const players = await Player.find({ settlementId: settlement._id });
 
       for (const player of players) {
@@ -55,32 +61,38 @@ const levyTax = async (frontierId) => {
         const taxAmount = Math.floor(moneyItem.quantity * (effectiveTaxRate / 100));
         if (taxAmount < 1) continue; // Skip if tax is too low
 
-        // ✅ Step 5: Deduct tax from player
+        // ✅ Step 6: Deduct tax from player
         moneyItem.quantity -= taxAmount;
-        totalTaxCollected += taxAmount;
+        settlementTaxTotal += taxAmount;
+        globalTotalTaxCollected += taxAmount;
 
-        // ✅ Step 6: Allocate tax to mayor if applicable
-        const mayorRole = settlement.roles.find(role => role.roleName === "Mayor");
+        // ✅ Step 7: Calculate mayor's cut for this tax payment
         if (mayorRole && mayorRole.playerId) {
           const mayorCut = Math.floor(taxAmount * (tuningConfig.mayorcut / 100));
-          mayorPayouts[mayorRole.playerId] = (mayorPayouts[mayorRole.playerId] || 0) + mayorCut;
+          settlementMayorPayout += mayorCut;
+          globalMayorPayouts[mayorRole.playerId] = (globalMayorPayouts[mayorRole.playerId] || 0) + mayorCut;
         }
         await player.save();
       }
+
+      // ✅ Step 8: Store settlement-specific tax data for logging
+      settlementTaxData[settlement._id] = {
+        totalCollected: settlementTaxTotal,
+        mayorId: mayorRole?.playerId,
+        mayorPayout: settlementMayorPayout
+      };
     }
 
-    // ✅ Step 7: Pay out mayors
-    for (const [mayorId, payout] of Object.entries(mayorPayouts)) {
-      if (payout <= 0) continue; // ✅ Skip if payout is 0
+    // ✅ Step 9: Pay out mayors
+    for (const [mayorId, payout] of Object.entries(globalMayorPayouts)) {
+      if (payout <= 0) continue;
       try {
         const mayor = await Player.findById(mayorId);
         if (!mayor) {
           console.warn(`⚠️ Mayor with ID ${mayorId} not found. Skipping payout.`);
           continue;
         }
-        // ✅ Ensure the inventory exists
         if (!mayor.inventory) { mayor.inventory = [];}
-        // ✅ Find the Money item in the mayor's inventory
         let moneyItem = mayor.inventory.find((item) => item.type === "Money");
         if (!moneyItem) {
           mayor.inventory.push({ type: "Money", quantity: payout });
@@ -94,18 +106,16 @@ const levyTax = async (frontierId) => {
       }
     }
 
-    // ✅ Step 7.5: Log tax event in each settlement
+    // ✅ Step 10: Log tax event for each settlement with correct settlement-specific data
     for (const settlement of settlements) {
-      if (settlement.population <= 0) continue;
-      const mayorRole = settlement.roles.find(role => role.roleName === "Mayor");
-      let currentmayor = "None";
-      let mayortake = 0;
+      const taxData = settlementTaxData[settlement._id];
+      if (!taxData || taxData.totalCollected === 0) continue;
 
-      if (mayorRole && mayorRole.playerId && mayorPayouts[mayorRole.playerId]) {
+      let currentmayor = "None";
+      if (taxData.mayorId) {
         try {
-          const mayorPlayer = await Player.findById(mayorRole.playerId);
+          const mayorPlayer = await Player.findById(taxData.mayorId);
           currentmayor = mayorPlayer?.username || "Unknown";
-          mayortake = mayorPayouts[mayorRole.playerId];
         } catch (error) {
           console.warn(`⚠️ Could not resolve mayor username for tax log:`, error);
         }
@@ -113,9 +123,9 @@ const levyTax = async (frontierId) => {
 
       const taxLogEntry = {
         date: new Date(),
-        totalcollected: totalTaxCollected,
+        totalcollected: taxData.totalCollected,
         currentmayor,
-        mayortake,
+        mayortake: taxData.mayorPayout,
       };
 
       await Settlement.updateOne(
@@ -129,6 +139,8 @@ const levyTax = async (frontierId) => {
           }
         }
       );
+
+      console.log(`💵 Settlement ${settlement._id}: Collected ${taxData.totalCollected}, Mayor take: ${taxData.mayorPayout}`);
     }
 
     // ✅ Step 8: Transition to "waiting" phase & schedule next tax collection
@@ -149,10 +161,10 @@ const levyTax = async (frontierId) => {
       }
     );
 
-    console.log(`✅ Taxes collected: ${totalTaxCollected}`);
+    console.log(`✅ Total taxes collected across all settlements: ${globalTotalTaxCollected}`);
     console.log(`⏳ Next tax collection at ${new Date(nextTaxTime).toLocaleString()}`);
 
-    return { success: true, totalTaxCollected, mayorPayouts, nextTaxCycle: frontier.taxes.endTime };
+    return { success: true, totalTaxCollected: globalTotalTaxCollected, mayorPayouts: globalMayorPayouts, nextTaxCycle: frontier.taxes.endTime };
 
   } catch (error) {
     console.error("❌ Error levying taxes:", error);
