@@ -20,8 +20,6 @@ const handleCreateAccount = async (e) => {
 
   try {
     const frontierName = 'Valley View 1';
-    const accountStatus = 'Free';
-    const role = 'Citizen';
 
     // 1. Fetch the Frontier by Name
     const frontierResponse = await axios.get(`${API_BASE}/api/frontiers-by-name`, { params: { name: frontierName } });
@@ -61,8 +59,8 @@ const handleCreateAccount = async (e) => {
       password,
       language,
       location: {
-        x: 2,
-        y: 2,
+        x: 1,
+        y: 1,
         gridCoord: assignedGridCoord,
         settlementId: assignedSettlementId,
         frontierId: frontier._id,
@@ -93,7 +91,7 @@ const handleCreateAccount = async (e) => {
       playerId: player._id,
       type: 'pc',
       username: player.username,
-      position: { x: 2, y: 2 },
+      position: { x: 1, y: 1 },
       icon: player.icon || '😀',
       hp: player.baseHp || 25,
       maxhp: player.baseMaxhp || 25,
