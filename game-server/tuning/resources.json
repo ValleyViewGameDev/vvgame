@@ -260,7 +260,7 @@
         "validono": true
     },
     {
-        "type": "Trading Post",
+        "type": "Trade",
         "symbol": "📥",
         "layoutkey": "T1",
         "category": "station",
