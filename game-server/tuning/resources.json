@@ -260,6 +260,23 @@
         "validono": true
     },
     {
+        "type": "Trading Post",
+        "symbol": "📥",
+        "layoutkey": "T1",
+        "category": "station",
+        "action": "openUI",
+        "passable": false,
+        "range": 2,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true
+    },
+    {
         "type": "Warehouse",
         "symbol": "📦",
         "layoutkey": "Wa",
