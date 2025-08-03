@@ -81,6 +81,7 @@ const levyTax = async (frontierId) => {
         mayorId: mayorRole?.playerId,
         mayorPayout: settlementMayorPayout
       };
+      console.log(`📊 Settlement ${settlement._id} tax data stored:`, settlementTaxData[settlement._id]);
     }
 
     // ✅ Step 9: Pay out mayors
@@ -109,7 +110,11 @@ const levyTax = async (frontierId) => {
     // ✅ Step 10: Log tax event for each settlement with correct settlement-specific data
     for (const settlement of settlements) {
       const taxData = settlementTaxData[settlement._id];
-      if (!taxData || taxData.totalCollected === 0) continue;
+      if (!taxData) {
+        console.log(`⚠️ No tax data found for settlement ${settlement._id}`);
+        continue;
+      }
+      // Log even if no taxes were collected (totalCollected === 0)
 
       let currentmayor = "None";
       if (taxData.mayorId) {
@@ -128,7 +133,7 @@ const levyTax = async (frontierId) => {
         mayortake: taxData.mayorPayout,
       };
 
-      await Settlement.updateOne(
+      const updateResult = await Settlement.updateOne(
         { _id: settlement._id },
         {
           $push: {
@@ -141,6 +146,7 @@ const levyTax = async (frontierId) => {
       );
 
       console.log(`💵 Settlement ${settlement._id}: Collected ${taxData.totalCollected}, Mayor take: ${taxData.mayorPayout}`);
+      console.log(`📝 Tax log update result for ${settlement._id}:`, updateResult);
     }
 
     // ✅ Step 8: Transition to "waiting" phase & schedule next tax collection

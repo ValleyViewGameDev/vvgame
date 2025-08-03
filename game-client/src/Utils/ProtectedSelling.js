@@ -54,34 +54,44 @@ export async function handleProtectedSelling({
         (res) => res.x === currentStationPosition.x && res.y === currentStationPosition.y
       );
       
-      // Remove the station from grid using updateGridResource for proper DB update and socket broadcast
-      await updateGridResource(gridId, {
-        x: currentStationPosition.x,
-        y: currentStationPosition.y,
-        type: null
-      }, true);
+      // Collect all resources to remove (shadows first, then main resource)
+      const resourcesToRemove = [];
       
-      // If this was a multi-tile resource with shadows, remove them too
+      // If this was a multi-tile resource with shadows, collect them first
       if (soldResource && soldResource.anchorKey) {
-        console.log(`🔲 Removing shadow placeholders for anchorKey: ${soldResource.anchorKey}`);
+        console.log(`🔲 Collecting shadow placeholders for anchorKey: ${soldResource.anchorKey}`);
         
         // Find all shadows with this parentAnchorKey
         const shadows = GlobalGridStateTilesAndResources.getResources().filter(
           (res) => res.type === 'shadow' && res.parentAnchorKey === soldResource.anchorKey
         );
         
-        // Remove each shadow
-        const shadowPromises = shadows.map(shadow => 
-          updateGridResource(gridId, {
+        // Add shadows to removal list FIRST
+        shadows.forEach(shadow => {
+          resourcesToRemove.push({
             x: shadow.x,
             y: shadow.y,
             type: null
-          }, true)
-        );
+          });
+        });
         
-        await Promise.all(shadowPromises);
-        console.log(`✅ Removed ${shadows.length} shadow placeholders`);
+        console.log(`📋 Found ${shadows.length} shadow placeholders to remove`);
       }
+      
+      // Add the main resource to removal list LAST
+      resourcesToRemove.push({
+        x: currentStationPosition.x,
+        y: currentStationPosition.y,
+        type: null
+      });
+      
+      // Remove all resources in order (shadows first, then main)
+      console.log(`🗑️ Removing ${resourcesToRemove.length} resources total`);
+      for (const resource of resourcesToRemove) {
+        await updateGridResource(gridId, resource, true);
+      }
+      
+      console.log(`✅ Removed main resource and any associated shadows`);
       
       // Update local state to reflect removal of station and shadows
       const filteredResources = GlobalGridStateTilesAndResources.getResources().filter(
