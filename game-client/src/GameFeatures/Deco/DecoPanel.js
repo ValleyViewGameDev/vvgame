@@ -29,7 +29,7 @@ const DecoPanel = ({
   masterResources,
   isDeveloper,
 }) => {
-  const [stallDetails, setStallDetails] = useState(null);
+  const [resourceDetails, setResourceDetails] = useState(null);
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
   const strings = useStrings();
   const { setUILocked } = useUILock();
@@ -39,11 +39,11 @@ const DecoPanel = ({
   console.log('Inside Deco Panel:', { stationType, currentStationPosition });
 
   useEffect(() => {
-    const stallResource = masterResources.find((res) =>
+    const availableResource = masterResources.find((res) =>
       res.type === stationType &&
       (isHomestead || res.passable !== false)
     );
-    setStallDetails(stallResource);
+    setResourceDetails(availableResource);
   }, [stationType, masterResources, isHomestead]);
 
   useEffect(() => {
@@ -86,7 +86,7 @@ const DecoPanel = ({
     <Panel onClose={onClose} descriptionKey="1028" titleKey="1128" panelName="DecoPanel" >
       <div className="standard-panel">
         <h2>
-            {stallDetails?.symbol || '🛖'} {stationType}
+            {resourceDetails?.symbol || '🛖'} {stationType}
         </h2>
 
 

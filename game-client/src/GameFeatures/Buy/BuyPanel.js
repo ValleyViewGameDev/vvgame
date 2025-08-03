@@ -24,6 +24,7 @@ const BuyPanel = ({
   masterResources, 
   masterSkills, 
   updateStatus,
+  isDeveloper,
 }) => {
   const { closePanel } = usePanelContext();
   const [buyOptions, setBuyOptions] = useState([]);
@@ -42,7 +43,7 @@ const BuyPanel = ({
         setAllResources(allResourcesData);
         const isHomestead = currentPlayer?.location?.gtype === 'homestead';
         const purchasableItems = allResourcesData.filter(
-          (resource) => resource.source === 'Buy' && (isHomestead || resource.passable !== false)
+          (resource) => resource.source === 'Buy' && (isDeveloper || isHomestead || resource.passable !== false)
         );
         setBuyOptions(purchasableItems);
       } catch (error) {
