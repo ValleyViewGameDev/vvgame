@@ -4339,7 +4339,6 @@
         "layoutkey": "fa",
         "category": "npc",
         "action": "farmhand",
-        "source": "Buy",
         "passable": false,
         "qtycollected": 1,
         "level": 1,
