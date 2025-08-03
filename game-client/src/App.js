@@ -269,14 +269,16 @@ useEffect(() => {
     
 // Synchronize tiles with GlobalGridStateTilesAndResources -- i did this so NPCs have knowledge of tiles and resources as they change
 useEffect(() => {
-  if (tileTypes?.length) {
+  // Always update, even if tileTypes is empty array
+  if (tileTypes !== undefined && tileTypes !== null) {
     GlobalGridStateTilesAndResources.setTiles(tileTypes);
     console.log('GlobalGridStateTilesAndResources tiles updated:', tileTypes);
   }
 }, [tileTypes]);
 // Synchronize resources with GlobalGridStateTilesAndResources -- i did this so NPCs have knowledge of tiles and resources as they change
 useEffect(() => {
-  if (resources?.length) {
+  // Always update, even if resources is empty array (important for grid transitions!)
+  if (resources !== undefined && resources !== null) {
     GlobalGridStateTilesAndResources.setResources(resources);
     console.log('GlobalGridStateTilesAndResources resources updated:', resources);
   }
