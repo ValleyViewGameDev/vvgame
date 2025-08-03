@@ -153,7 +153,8 @@ router.post('/create-frontier', async (req, res) => {
     const seasonDuration = tuningConfig.seasons.phases[tuningConfig.seasons.startPhase] * 60000;
     const trainDuration = tuningConfig.train.phases[tuningConfig.train.startPhase] * 60000;
     const bankDuration = tuningConfig.bank.phases[tuningConfig.bank.startPhase] * 60000;
-    
+    const messagesDuration = tuningConfig.messages.phases[tuningConfig.messages.startPhase] * 60000;
+
     // ✅ Define start and end times
     const seasonStart = now;
     const seasonEnd = new Date(now.getTime() + seasonDuration);
@@ -161,7 +162,8 @@ router.post('/create-frontier', async (req, res) => {
     const electionEnd = new Date(now.getTime() + electionDuration);
     const trainEnd = new Date(now.getTime() + trainDuration);
     const bankEnd = new Date(now.getTime() + bankDuration);
-    
+    const messagesEnd = new Date(now.getTime() + messagesDuration);
+
     // ✅ Ensure all timers are properly initialized
     const newFrontier = new Frontier({
       name: frontierName,
@@ -199,6 +201,12 @@ router.post('/create-frontier', async (req, res) => {
         phase: tuningConfig.bank.startPhase,
         startTime: now,
         endTime: bankEnd,
+        offers: [],
+      },
+      messages: {
+        phase: tuningConfig.messages.startPhase,
+        startTime: now,
+        endTime: messagesEnd,
         offers: [],
       },
     });
