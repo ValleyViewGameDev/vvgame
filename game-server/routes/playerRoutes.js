@@ -134,9 +134,6 @@ router.post('/clear-quest-history', async (req, res) => {
 router.post('/complete-quest', async (req, res) => {
   const { playerId, questId, reward } = req.body;
 
-  console.log('hitting complete-quest');
-  console.log('req.body = ', req.body);
-
   if (!playerId || !questId || !reward) {
     return res.status(400).json({ error: 'Missing required fields.' });
   }
@@ -187,8 +184,6 @@ router.post('/complete-quest', async (req, res) => {
 router.post('/update-player-quests', async (req, res) => {
   const { playerId, activeQuests } = req.body;
 
-  console.log('/update-player-quests: playerId: ',playerId,' activeQuests: ',activeQuests);
-
   if (!playerId || !Array.isArray(activeQuests)) {
     return res.status(400).json({ error: 'Invalid request data.' });
   }
@@ -201,7 +196,6 @@ router.post('/update-player-quests', async (req, res) => {
 
     // Update the player's active quests
     player.activeQuests = activeQuests;
-    console.log('player.activeQuests before save: ',player.activeQuests);
     await player.save();
 
     res.json({ success: true, player });
