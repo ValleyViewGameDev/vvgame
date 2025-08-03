@@ -1276,7 +1276,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         case 'Courthouse':
           openPanel('Courthouse'); break;
         case 'Trade Stall':
-        case 'Trading Post':
+        case 'Trade':
           openPanel('TradeStall'); break;
         case 'Mailbox':
           openModal('Mailbox'); break;
