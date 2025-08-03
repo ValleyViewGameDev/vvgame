@@ -4154,9 +4154,9 @@
       "WA",
       "WA",
       "WA",
-      "PA",
-      "PA",
-      "PA"
+      "SA",
+      "SA",
+      "SA"
     ],
     [
       "WA",
@@ -4219,10 +4219,10 @@
       "WA",
       "WA",
       "WA",
-      "PA",
-      "PA",
-      "PA",
-      "PA"
+      "SA",
+      "SA",
+      "SA",
+      "SA"
     ]
   ],
   "resources": [
@@ -8459,13 +8459,5 @@
     "p": 0,
     "l": 0
   },
-  "resourceDistribution": {
-    "Pine Tree": 400,
-    "Oak Tree": 800,
-    "Rocks": 50,
-    "Clay Pit": 4,
-    "Feverfew": 3,
-    "Rosemary": 14,
-    "Daisy": 2
-  }
+  "resourceDistribution": {}
 }
