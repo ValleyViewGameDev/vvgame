@@ -148,6 +148,7 @@ const playerSchema = new mongoose.Schema({
     {
       name: { type: String, required: true },
       relscore: { type: Number, default: 0 },
+      met: { type: Boolean },
       friend: { type: Boolean },
       crush: { type: Boolean },
       love: { type: Boolean },

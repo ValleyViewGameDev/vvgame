@@ -123,6 +123,18 @@
   transform: scale(1.05);
 }
 
+.panel-buttons .btn-success:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.panel-buttons .btn-success:disabled:hover {
+  background-color: #cccccc;
+  transform: none;
+}
+
 /* Danger buttons (red) */
 .panel-buttons .btn-danger {
   background-color: #d32f2f;
@@ -212,6 +224,18 @@
 .debug-buttons .btn-success:hover {
   background-color: #45a049;
   transform: scale(1.05);
+}
+
+.debug-buttons .btn-success:disabled {
+  background-color: #cccccc;
+  color: #666666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.debug-buttons .btn-success:disabled:hover {
+  background-color: #cccccc;
+  transform: none;
 }
 
 /* Danger buttons (red) */

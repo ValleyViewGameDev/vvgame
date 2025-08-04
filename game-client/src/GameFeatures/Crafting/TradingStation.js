@@ -82,17 +82,17 @@ const TradingStation = ({
     if (masterInteractions && stationType) {
       // Find the trade interaction threshold
       const tradeInteraction = masterInteractions.find(interaction => 
-        interaction.name === 'Trade' || interaction.name === 'trade'
+        interaction.interaction === 'Trade' || interaction.interaction === 'trade'
       );
       
       if (tradeInteraction) {
-        setTradeThreshold(tradeInteraction.relscorethreshold || 0);
+        setTradeThreshold(tradeInteraction.relscoremin || 0);
         
         // Get current relationship status
         const relationship = getRelationshipStatus(currentPlayer, stationType);
         const currentScore = relationship?.relscore || 0;
         
-        setCanTrade(currentScore >= tradeInteraction.relscorethreshold);
+        setCanTrade(currentScore >= tradeInteraction.relscoremin);
       } else {
         // If no trade threshold defined, allow trading
         setCanTrade(true);
@@ -178,16 +178,14 @@ console.log("tradeQty in recipe:", recipe.tradeqty);
           showActions={true}
           compact={false}
           masterInteractions={masterInteractions}
-          onRelationshipChange={(interaction) => {
-            // Handle interaction click - could open dialog, trigger action, etc.
-            updateStatus(`${interaction.icon} ${interaction.name} selected`);
+          updateStatus={updateStatus}
+          onRelationshipChange={(interaction, success) => {
+            // Additional handling if needed after interaction completes
           }}
         />
         
         {!canTrade ? (
-          <div className="trade-blocked">
-            <p>{strings[424] || `You need a relationship score of at least ${tradeThreshold} to trade with ${stationType}.`}</p>
-          </div>
+          <div> </div>
         ) : (
           <>
             <h3>{strings[420]}</h3>

@@ -65,9 +65,9 @@ export async function loadMasterInteractions() {
     try {
       const response = await axios.get(`${API_BASE}/api/interactions`);
       masterInteractions = response.data;
-      console.log('Master intearctions loaded:', masterInteractions);
+      console.log('Master interactions loaded:', masterInteractions);
     } catch (error) {
-      console.error('Error fetching master resources:', error);
+      console.error('Error fetching master interactions:', error);
       masterInteractions = [];
     }
   }

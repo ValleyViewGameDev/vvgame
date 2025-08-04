@@ -12,6 +12,9 @@ import { modifyPlayerStatsInPlayer, modifyPlayerStatsInGridState } from '../../U
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
+import RelationshipCard from '../Relationships/RelationshipCard';
+import { getRelationshipStatus } from '../Relationships/RelationshipUtils';
+import '../Relationships/Relationships.css';
 
 const QuestGiverPanel = ({
   onClose,
@@ -26,12 +29,15 @@ const QuestGiverPanel = ({
   TILE_SIZE,
   updateStatus,
   masterResources,
+  masterInteractions,
 }) => {
   const strings = useStrings();
   const [questList, setQuestList] = useState([]);
   const [healRecipes, setHealRecipes] = useState([]);
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [canQuest, setCanQuest] = useState(false);
+  const [questThreshold, setQuestThreshold] = useState(0);
 
   console.log('made it to QuestGiverPanel/Healer; npcData = ', npcData);
 
@@ -40,6 +46,29 @@ const QuestGiverPanel = ({
     console.warn("QuestGiverPanel was opened with missing npcData.");
     npcData = { type: "Unknown NPC", symbol: "❓" }; // Provide default fallback values
   }
+
+  // Check if player can quest based on relationship
+  useEffect(() => {
+    if (masterInteractions && npcData && npcData.action === 'quest') {
+      // Find the quest interaction threshold
+      const questInteraction = masterInteractions.find(interaction => 
+        interaction.interaction === 'Quest' || interaction.interaction === 'quest'
+      );
+      
+      if (questInteraction) {
+        setQuestThreshold(questInteraction.relscoremin || 0);
+        
+        // Get current relationship status
+        const relationship = getRelationshipStatus(currentPlayer, npcData.type);
+        const currentScore = relationship?.relscore || 0;
+        
+        setCanQuest(currentScore >= questInteraction.relscoremin);
+      } else {
+        // If no quest threshold defined, allow questing
+        setCanQuest(true);
+      }
+    }
+  }, [masterInteractions, npcData, currentPlayer]);
 
   // Handle quests or healing logic
   useEffect(() => {
@@ -270,12 +299,30 @@ const handleHeal = async (recipe) => {
       {npcData.action === 'quest' && (
         <div className="quest-options">
           <h2>{npcData.symbol} {npcData.type}</h2>
-          {questList.length > 0 ? (
-            <h3>{strings[204]}</h3>
-          ) : (
-            <h3>{strings[205]}</h3>
-          )}
-          {questList.map((quest) => {
+          
+          {/* Relationship Card */}
+          <RelationshipCard
+            currentPlayer={currentPlayer}
+            setCurrentPlayer={setCurrentPlayer}
+            targetName={npcData.type}
+            targetType="npc"
+            showActions={true}
+            compact={false}
+            masterInteractions={masterInteractions}
+            updateStatus={updateStatus}
+            onRelationshipChange={(interaction, success) => {
+              // Additional handling if needed after interaction completes
+            }}
+          />
+          
+          {canQuest && (
+            <>
+              {questList.length > 0 ? (
+                <h3>{strings[204]}</h3>
+              ) : (
+                <h3>{strings[205]}</h3>
+              )}
+              {questList.map((quest) => {
             const isRewardable = currentPlayer.activeQuests.some(
               (q) => q.questId === quest.title && q.completed && !q.rewardCollected
             );
@@ -304,7 +351,9 @@ const handleHeal = async (recipe) => {
                 onClick={onClick}
               />
             );
-          })}
+              })}
+            </>
+          )}
         </div>
       )}
 

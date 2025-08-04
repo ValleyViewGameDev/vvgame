@@ -34,7 +34,7 @@
 .relationship-score-gradient {
   position: relative;
   height: 10px;
-  background: linear-gradient(to right, #ff0000 0%, #ff6666 25%, #ffcc00 50%, #66ff66 75%, #00ff00 100%);
+  background: linear-gradient(to right, #a71c1c 0%, #ffcc00 50%, #4caf50 100%);
   border-radius: 5px;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
@@ -109,28 +109,29 @@
 }
 
 .relationship-actions button {
-  /* Inherit panel-button styles from Panel.css */
   width: 100%;
-  padding: 10px 8px;
-  font-size: 14px;
+  padding: 10px 10px;
+  font-size: 12px;
   min-height: 40px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
-/* Trade blocked message */
-.trade-blocked {
-  background-color: #fff3cd;
-  border: 1px solid #ffeeba;
-  color: #856404;
-  padding: 15px;
-  border-radius: 4px;
-  margin-top: 10px;
-  text-align: center;
+.relationship-actions button:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
 }
 
-.trade-blocked p {
-  margin: 0;
-  font-weight: bold;
+.relationship-actions button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
 }
+
 
 /* Relationship status display */
 .relationship-status-display {
@@ -147,6 +148,11 @@
   font-size: 12px;
   font-weight: bold;
   text-transform: uppercase;
+}
+
+.relationship-status-badge.met {
+  background-color: #2196F3;
+  color: white;
 }
 
 .relationship-status-badge.friend {
