@@ -58,7 +58,8 @@
         "relbitrequired": "met",
         "chance": 0.6,
         "relscoreresult": 10,
-        "relbitadd": "crush"
+        "relbitadd": "crush",
+        "relbitremove": "met"
     },
     {
         "index": 7,
@@ -69,22 +70,33 @@
         "relbitrequired": "met",
         "chance": 0.4,
         "relscoreresult": 15,
-        "relbitadd": "crush"
+        "relbitadd": "crush",
+        "relbitremove": "met"
     },
     {
         "index": 8,
+        "interaction": "Profess Love",
+        "isvisible": true,
+        "relscoremin": 70,
+        "relscoremax": 100,
+        "relbitrequired": "crush",
+        "chance": 0.5,
+        "relscoreresult": 10,
+        "relbitadd": "love",
+        "relbitremove": "crush"
+    },
+    {
+        "index": 9,
         "interaction": "Kiss",
         "isvisible": true,
         "relscoremin": 70,
         "relscoremax": 100,
         "relbitrequired": "crush",
         "chance": 0.5,
-        "relscoreresult": 15,
-        "relbitadd": "love",
-        "relbitremove": "crush"
+        "relscoreresult": 15
     },
     {
-        "index": 9,
+        "index": 10,
         "interaction": "Propose",
         "isvisible": true,
         "relscoremin": 85,
@@ -95,7 +107,7 @@
         "relbitadd": "married"
     },
     {
-        "index": 10,
+        "index": 11,
         "interaction": "Trade",
         "isvisible": false,
         "relscoremin": 20,
@@ -105,7 +117,7 @@
         "relscoreresult": 0
     },
     {
-        "index": 11,
+        "index": 12,
         "interaction": "Quest",
         "isvisible": false,
         "relscoremin": 10,
@@ -115,7 +127,7 @@
         "relscoreresult": 0
     },
     {
-        "index": 12,
+        "index": 13,
         "interaction": "Taunt",
         "isvisible": true,
         "relscoremin": -100,
@@ -125,7 +137,7 @@
         "relscoreresult": -10
     },
     {
-        "index": 13,
+        "index": 14,
         "interaction": "Insult",
         "isvisible": true,
         "relscoremin": -100,
@@ -137,7 +149,7 @@
         "relbitremove": "love"
     },
     {
-        "index": 14,
+        "index": 15,
         "interaction": "Apologize",
         "isvisible": true,
         "relscoremin": -100,
