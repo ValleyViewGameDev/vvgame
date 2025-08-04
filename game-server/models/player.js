@@ -144,6 +144,19 @@ const playerSchema = new mongoose.Schema({
     }
   ],
 
+  relationships: [
+    {
+      name: { type: String, required: true },
+      relscore: { type: Number, default: 0 },
+      friend: { type: Boolean },
+      crush: { type: Boolean },
+      love: { type: Boolean },
+      married: { type: Boolean },
+      rival: { type: Boolean },
+      _id: false // Disable automatic _id for relationship items
+    }
+  ],
+
 created: { type: Date, default: Date.now },
 
 

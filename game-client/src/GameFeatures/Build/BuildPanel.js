@@ -24,6 +24,7 @@ const BuildPanel = ({
   masterResources, // Added for quest tracking
   masterSkills, // Uncomment if needed for skill checks
   updateStatus,
+  isDeveloper,
 }) => {
   const { closePanel } = usePanelContext(); // Use closePanel from context
   const [buildOptions, setBuildOptions] = useState([]);
@@ -46,7 +47,7 @@ const BuildPanel = ({
         // ✅ Filter build options based on the player's location
         const validBuildOptions = allResourcesData.filter(resource => 
           resource.source === 'Build' || 
-          (resource.source === 'BuildTown' && currentPlayer.location.gtype === 'town' && currentPlayer.role === 'Mayor')
+          (resource.source === 'BuildTown' && currentPlayer.location.gtype === 'town' && (currentPlayer.role === 'Mayor' || isDeveloper))
         );
         setBuildOptions(validBuildOptions); 
       } catch (error) {

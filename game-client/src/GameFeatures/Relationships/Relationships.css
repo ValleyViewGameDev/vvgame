@@ -1,0 +1,184 @@
+.relationships-container {
+  padding: 20px;
+  min-height: 400px;
+}
+
+/* RelationshipCard styles */
+.relationship-card {
+  background-color: #f5f5f5;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.relationship-card-content {
+  position: relative;
+}
+
+/* Relationship title */
+.relationship-title {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  color: #333;
+}
+
+/* Score bar container */
+.relationship-score-bar-container {
+  margin-bottom: 10px;
+}
+
+.relationship-score-gradient {
+  position: relative;
+  height: 10px;
+  background: linear-gradient(to right, #ff0000 0%, #ff6666 25%, #ffcc00 50%, #66ff66 75%, #00ff00 100%);
+  border-radius: 5px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.relationship-score-marker {
+  position: absolute;
+  top: -4px;
+  width: 8px;
+  height: 18px;
+  background-color: #555;
+  border-radius: 4px;
+  transform: translateX(-50%);
+  transition: left 0.3s ease;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+
+.relationship-score-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+  font-size: 12px;
+  color: #666;
+}
+
+.relationship-bit-display {
+  margin-top: 8px;
+}
+
+.relationship-bit-label {
+  color: #666;
+}
+
+.relationship-bit-value {
+  font-weight: bold;
+  color: #4CAF50;
+  margin-left: 5px;
+}
+
+/* Compact version styles */
+.relationship-card-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.relationship-card-compact .relationship-name {
+  font-weight: bold;
+}
+
+.relationship-card-compact .relationship-score {
+  font-weight: bold;
+}
+
+.relationship-card-compact .relationship-bit {
+  color: #666;
+  font-style: italic;
+}
+
+.relationship-actions {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #ddd;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.relationship-actions button {
+  /* Inherit panel-button styles from Panel.css */
+  width: 100%;
+  padding: 10px 8px;
+  font-size: 14px;
+  min-height: 40px;
+}
+
+/* Trade blocked message */
+.trade-blocked {
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  color: #856404;
+  padding: 15px;
+  border-radius: 4px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.trade-blocked p {
+  margin: 0;
+  font-weight: bold;
+}
+
+/* Relationship status display */
+.relationship-status-display {
+  display: flex;
+  gap: 5px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.relationship-status-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.relationship-status-badge.friend {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.relationship-status-badge.crush {
+  background-color: #FF69B4;
+  color: white;
+}
+
+.relationship-status-badge.love {
+  background-color: #FF1493;
+  color: white;
+}
+
+.relationship-status-badge.married {
+  background-color: #FFD700;
+  color: #333;
+}
+
+.relationship-status-badge.rival {
+  background-color: #DC143C;
+  color: white;
+}
+
+/* Compact version status display */
+.relationship-card-compact .relationship-status {
+  margin-left: 5px;
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* Additional styles to be added based on design requirements */

@@ -6,7 +6,7 @@ import API_BASE from './config.js';
 import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
 import { initializeGrid } from './AppInit';
-import { loadMasterSkills, loadMasterResources } from './Utils/TuningManager';
+import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning } from './Utils/TuningManager';
 import { RenderGrid } from './Render/Render';
 import DynamicRenderer from './Render/RenderDynamic.js';
 import { handleResourceClick } from './ResourceClicking';
@@ -122,6 +122,7 @@ useEffect(() => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
   const { updateStatus } = useContext(StatusBarContext);
+
   // Mobile device detection: Show modal if on mobile
   useEffect(() => {
     if (isMobile()) {
@@ -266,7 +267,9 @@ useEffect(() => {
   const [masterResources, setMasterResources] = useState([]);
   const [isMasterResourcesReady, setIsMasterResourcesReady] = useState([]);
   const [masterSkills, setMasterSkills] = useState([]);
-    
+  const [globalTuning, setGlobalTuning] = useState([]);
+  const [masterInteractions, setMasterInteractions] = useState([]);
+
 // Synchronize tiles with GlobalGridStateTilesAndResources -- i did this so NPCs have knowledge of tiles and resources as they change
 useEffect(() => {
   // Always update, even if tileTypes is empty array
@@ -380,6 +383,7 @@ const memoizedResources = useMemo(() => resources, [resources]);
 
 const [showKeyArt, setShowKeyArt] = useState(false);
 
+
 /////////// APP INITIALIZATION /////////////////////////
 
 // Flags to track initialization
@@ -425,9 +429,11 @@ useEffect(() => {
     try {
       // Step 1. Load tuning data
       console.log('🏁✅ 1 InitAppWrapper; Merging player data and initializing inventory...');
-      const [skills, resources] = await Promise.all([loadMasterSkills(), loadMasterResources()]);
+      const [skills, resources, globalTuningData, interactions] = await Promise.all([loadMasterSkills(), loadMasterResources(), loadGlobalTuning(), loadMasterInteractions()]);
       setMasterResources(resources);
       setMasterSkills(skills);
+      setGlobalTuning(globalTuningData);
+      setMasterInteractions(interactions);
       setIsMasterResourcesReady(true); // ✅ Mark ready
 
       // Step 2. Fetch stored player from localStorage
@@ -2058,6 +2064,7 @@ return (
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}
+          masterInteractions={masterInteractions}
         />
       )}
       {activePanel === 'ShopStation' && (
@@ -2115,6 +2122,7 @@ return (
           masterResources={masterResources} 
           masterSkills={masterSkills} 
           updateStatus={updateStatus}
+          isDeveloper={isDeveloper}
         />
       )}
       {activePanel === 'BuyPanel' && (
@@ -2150,6 +2158,7 @@ return (
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}
+          masterInteractions={masterInteractions}
         />
       )}
       {activePanel === 'FarmHandPanel' && (
@@ -2184,6 +2193,7 @@ return (
           backpack={backpack}
           setBackpack={setBackpack} 
           updateStatus={updateStatus}
+          masterInteractions={masterInteractions}
         />
       )}
       {activePanel === 'AnimalStall' && (

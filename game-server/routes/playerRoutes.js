@@ -477,6 +477,123 @@ router.post('/update-capacity', async (req, res) => {
   }
 });
 
+////////// RELATIONSHIP ROUTES ///////////
+
+// Add a new relationship
+router.post('/add-relationship', async (req, res) => {
+  const { playerId, targetName, initialScore = 0 } = req.body;
+
+  if (!playerId || !targetName) {
+    return res.status(400).json({ error: 'Player ID and target name are required.' });
+  }
+
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+
+    // Check if relationship already exists
+    const existingRelationship = player.relationships.find(rel => rel.name === targetName);
+    if (existingRelationship) {
+      return res.status(400).json({ error: 'Relationship already exists.' });
+    }
+
+    // Add new relationship with just name and score
+    player.relationships.push({
+      name: targetName,
+      relscore: initialScore
+    });
+
+    await player.save();
+
+    res.json({
+      success: true,
+      relationships: player.relationships,
+      player
+    });
+  } catch (error) {
+    console.error('Error adding relationship:', error);
+    res.status(500).json({ error: 'Failed to add relationship.' });
+  }
+});
+
+// Update an existing relationship score
+router.post('/update-relationship', async (req, res) => {
+  const { playerId, targetName, delta } = req.body;
+
+  if (!playerId || !targetName || delta === undefined) {
+    return res.status(400).json({ error: 'Player ID, target name, and delta are required.' });
+  }
+
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+
+    // Find the relationship
+    const relationship = player.relationships.find(rel => rel.name === targetName);
+    if (!relationship) {
+      return res.status(404).json({ error: 'Relationship not found.' });
+    }
+
+    // Update relationship score (clamped between -100 and 100)
+    relationship.relscore = Math.max(-100, Math.min(100, relationship.relscore + delta));
+
+    await player.save();
+
+    res.json({
+      success: true,
+      relationship,
+      relationships: player.relationships,
+      player
+    });
+  } catch (error) {
+    console.error('Error updating relationship:', error);
+    res.status(500).json({ error: 'Failed to update relationship.' });
+  }
+});
+
+// Add or update relationship status (friend, crush, love, married, rival, etc.)
+router.post('/add-or-update-relationship-status', async (req, res) => {
+  const { playerId, name, status, value } = req.body;
+
+  if (!playerId || !name || !status || value === undefined) {
+    return res.status(400).json({ error: 'Player ID, name, status, and value are required.' });
+  }
+
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+
+    // Find the relationship
+    const relationship = player.relationships.find(rel => rel.name === name);
+    if (!relationship) {
+      return res.status(404).json({ error: 'Relationship not found.' });
+    }
+
+    // Dynamically set the status field
+    relationship[status] = value;
+
+    // Mark the path as modified since we're dynamically setting fields
+    player.markModified(`relationships`);
+    
+    await player.save();
+
+    res.json({
+      success: true,
+      relationship,
+      relationships: player.relationships,
+      player
+    });
+  } catch (error) {
+    console.error('Error updating relationship status:', error);
+    res.status(500).json({ error: 'Failed to update relationship status.' });
+  }
+});
 
 
 ////////// LOCATION BASED ROUTES ///////////
@@ -606,6 +723,17 @@ router.get('/skills-tuning', (req, res) => {
   } catch (error) {
     console.error('Error loading skillsTuning.json:', error);
     res.status(500).json({ error: 'Failed to load skills tuning.' });
+  }
+});
+
+router.get('/interactions', (req, res) => {
+  try {
+    const filePath = path.join(__dirname, '../tuning/interactions.json');
+    const interactions = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    res.json(interactions);
+  } catch (error) {
+    console.error('Error loading interactions.json:', error);
+    res.status(500).json({ error: 'Failed to load interactions.' });
   }
 });
 

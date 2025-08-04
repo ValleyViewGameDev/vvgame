@@ -1,0 +1,70 @@
+[
+    {
+        "index": 1,
+        "interaction": "Greet",
+        "relscorerequired": 0,
+        "chance": 1,
+        "relscoreresult": 10
+    },
+    {
+        "index": 2,
+        "interaction": "Talk",
+        "relscorerequired": 5,
+        "chance": 0.9,
+        "relscoreresult": 10
+    },
+    {
+        "index": 3,
+        "interaction": "Joke",
+        "relscorerequired": 20,
+        "chance": 0.5,
+        "relscoreresult": 15
+    },
+    {
+        "index": 4,
+        "interaction": "Hug",
+        "relscorerequired": 50,
+        "chance": 0.5,
+        "relscoreresult": 15
+    },
+    {
+        "index": 5,
+        "interaction": "Give Gift",
+        "relscorerequired": 0,
+        "chance": 1,
+        "relscoreresult": 20
+    },
+    {
+        "index": 6,
+        "interaction": "Flatter",
+        "relscorerequired": 10,
+        "chance": 0.5,
+        "relscoreresult": 20,
+        "relbitresult": "crush"
+    },
+    {
+        "index": 7,
+        "interaction": "Kiss",
+        "relscorerequired": 50,
+        "relbitrequired": "crush",
+        "chance": 0.5,
+        "relscoreresult": 15,
+        "relbitresult": "love"
+    },
+    {
+        "index": 8,
+        "interaction": "Propose",
+        "relscorerequired": 75,
+        "relbitrequired": "love",
+        "chance": 0.9,
+        "relscoreresult": 120,
+        "relbitresult": "married"
+    },
+    {
+        "index": 9,
+        "interaction": "Trade",
+        "relscorerequired": 20,
+        "chance": 1,
+        "relscoreresult": 0
+    }
+]

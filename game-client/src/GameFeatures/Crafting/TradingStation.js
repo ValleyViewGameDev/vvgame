@@ -9,6 +9,9 @@ import { canAfford } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate, gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
+import RelationshipCard from '../Relationships/RelationshipCard';
+import { getRelationshipStatus } from '../Relationships/RelationshipUtils';
+import '../Relationships/Relationships.css';
 
 const TradingStation = ({
   onClose,
@@ -25,6 +28,7 @@ const TradingStation = ({
   TILE_SIZE,
   updateStatus,
   masterResources,
+  masterInteractions,
 }) => {
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
@@ -32,6 +36,8 @@ const TradingStation = ({
   const [stationEmoji, setStationEmoji] = useState('🛖');
   const [stationDetails, setStationDetails] = useState(null);
   const [isContentLoading, setIsContentLoading] = useState(false);
+  const [canTrade, setCanTrade] = useState(false);
+  const [tradeThreshold, setTradeThreshold] = useState(0);
 
   // Sync inventory with local storage and server
   useEffect(() => {
@@ -70,6 +76,29 @@ const TradingStation = ({
       setIsContentLoading(false);
     }
   }, [stationType, masterResources]);
+
+  // Check if player can trade based on relationship
+  useEffect(() => {
+    if (masterInteractions && stationType) {
+      // Find the trade interaction threshold
+      const tradeInteraction = masterInteractions.find(interaction => 
+        interaction.name === 'Trade' || interaction.name === 'trade'
+      );
+      
+      if (tradeInteraction) {
+        setTradeThreshold(tradeInteraction.relscorethreshold || 0);
+        
+        // Get current relationship status
+        const relationship = getRelationshipStatus(currentPlayer, stationType);
+        const currentScore = relationship?.relscore || 0;
+        
+        setCanTrade(currentScore >= tradeInteraction.relscorethreshold);
+      } else {
+        // If no trade threshold defined, allow trading
+        setCanTrade(true);
+      }
+    }
+  }, [masterInteractions, stationType, currentPlayer]);
 
   const storyStringMap = {
     Iago: 1201,
@@ -139,7 +168,29 @@ console.log("tradeQty in recipe:", recipe.tradeqty);
     <Panel onClose={onClose} descriptionKey="1016" titleKey="1116" panelName="TradingStation">
       <div className="standard-panel">
         <h2> {stationEmoji} {stationType} </h2>
-        <h3>{strings[420]}</h3>
+        
+        {/* Relationship Card */}
+        <RelationshipCard
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          targetName={stationType}
+          targetType="npc"
+          showActions={true}
+          compact={false}
+          masterInteractions={masterInteractions}
+          onRelationshipChange={(interaction) => {
+            // Handle interaction click - could open dialog, trigger action, etc.
+            updateStatus(`${interaction.icon} ${interaction.name} selected`);
+          }}
+        />
+        
+        {!canTrade ? (
+          <div className="trade-blocked">
+            <p>{strings[424] || `You need a relationship score of at least ${tradeThreshold} to trade with ${stationType}.`}</p>
+          </div>
+        ) : (
+          <>
+            <h3>{strings[420]}</h3>
 
       {isContentLoading ? (
           <p>{strings[98]}</p>
@@ -200,6 +251,8 @@ console.log("tradeQty in recipe:", recipe.tradeqty);
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
         
+          </>
+        )}
           </>
         )}
 
