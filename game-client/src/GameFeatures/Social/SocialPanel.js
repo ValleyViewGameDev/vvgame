@@ -35,27 +35,25 @@ const SocialPanel = ({
   useEffect(() => {
     if (!pcData) return;
     
-    // ✅ Subscribe to playersInGridManager updates for camping state and HP and username
-    const interval = setInterval(() => {
-        const gridId = currentPlayer?.location?.g;
-        if (!gridId) return;
-        
-        const NPCsInGrid = playersInGridManager.getPlayersInGrid(gridId);
-        const latestData = NPCsInGrid[pcData.playerId];
-        if (latestData) {
-            setIsCamping(latestData.iscamping || false);
-            setIsInBoat(latestData.isinboat || false);
-            setDisplayedPCData(prev => ({
-              ...prev,
-              iscamping: latestData.iscamping,
-              isinboat: latestData.isinboat,
-              hp: latestData.hp,
-              username: latestData.username,
-            }));
-        }
-    }, 2000); // ✅ Refresh every 2 seconds
-
-    return () => clearInterval(interval);
+    // ✅ Update displayed data when viewing other players
+    if (pcData.username !== currentPlayer.username) {
+      const gridId = currentPlayer?.location?.g;
+      if (!gridId) return;
+      
+      const NPCsInGrid = playersInGridManager.getPlayersInGrid(gridId);
+      const latestData = NPCsInGrid[pcData.playerId];
+      if (latestData) {
+          setIsCamping(latestData.iscamping || false);
+          setIsInBoat(latestData.isinboat || false);
+          setDisplayedPCData(prev => ({
+            ...prev,
+            iscamping: latestData.iscamping,
+            isinboat: latestData.isinboat,
+            hp: latestData.hp,
+            username: latestData.username,
+          }));
+      }
+    }
 }, [pcData, currentPlayer]);
 
 
@@ -66,15 +64,18 @@ const SocialPanel = ({
       return;
     }
 
-    setDisplayedPCData(pcData);
-
     // ✅ Check if the selected PC is the current player
     if (pcData.username === currentPlayer.username) {
-      // Only update if not currently being modified by user action
-      if (!isCamping && !isInBoat) {
-        setIsCamping(pcData.iscamping || false);
-        setIsInBoat(pcData.isinboat || false);
-      }
+      // Update displayed data with current player's latest state
+      setDisplayedPCData({
+        ...pcData,
+        iscamping: currentPlayer.iscamping || false,
+        isinboat: currentPlayer.isinboat || false,
+        hp: currentPlayer.hp || pcData.hp
+      });
+      
+      setIsCamping(currentPlayer.iscamping || false);
+      setIsInBoat(currentPlayer.isinboat || false);
 
       // ✅ Get tent count from Backpack
       const tentsInBackpack = currentPlayer.backpack?.find(item => item.type === "Tent")?.quantity || 0;
@@ -83,8 +84,10 @@ const SocialPanel = ({
       // ✅ Get boat count from Backpack
       const boatsInBackpack = currentPlayer.backpack?.find(item => item.type === "Boat")?.quantity || 0;
       setBoatCount(boatsInBackpack);
+    } else {
+      setDisplayedPCData(pcData);
     }
-  }, [pcData, currentPlayer]);
+  }, [pcData, currentPlayer, currentPlayer.iscamping, currentPlayer.isinboat]);
 
   // ✅ Handle Pitching a Tent
   const handlePitchTent = async () => {
