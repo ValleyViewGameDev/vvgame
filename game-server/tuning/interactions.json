@@ -50,6 +50,7 @@
         "isvisible": true,
         "relscoremin": -100,
         "relscoremax": 100,
+        "relbitrequired": "met",
         "chance": 0.9,
         "relscoreresult": 5
     },
@@ -60,6 +61,7 @@
         "isvisible": true,
         "relscoremin": 20,
         "relscoremax": 100,
+        "relbitrequired": "met",
         "chance": 0.5,
         "relscoreresult": 15
     },
@@ -70,6 +72,7 @@
         "isvisible": true,
         "relscoremin": 30,
         "relscoremax": 100,
+        "relbitrequired": "met",
         "chance": 0.5,
         "relscoreresult": 12
     },
@@ -80,6 +83,7 @@
         "isvisible": false,
         "relscoremin": 0,
         "relscoremax": 100,
+        "relbitrequired": "met",
         "chance": 1,
         "relscoreresult": 20
     },
@@ -90,6 +94,7 @@
         "isvisible": true,
         "relscoremin": 50,
         "relscoremax": 100,
+        "relbitrequired": "met",
         "relbitblock1": "crush",
         "relbitblock2": "love",
         "chance": 0.6,
@@ -103,6 +108,7 @@
         "isvisible": true,
         "relscoremin": 40,
         "relscoremax": 100,
+        "relbitrequired": "met",
         "relbitblock1": "crush",
         "relbitblock2": "love",
         "chance": 0.4,
@@ -154,6 +160,7 @@
         "isvisible": false,
         "relscoremin": 20,
         "relscoremax": 100,
+        "relbitrequired": "met",
         "chance": 1,
         "relscoreresult": 0
     },
@@ -162,8 +169,9 @@
         "interaction": "Quest",
         "isaninteraction": true,
         "isvisible": false,
-        "relscoremin": 10,
+        "relscoremin": 20,
         "relscoremax": 100,
+        "relbitrequired": "met",
         "chance": 1,
         "relscoreresult": 0
     },
@@ -174,6 +182,7 @@
         "isvisible": true,
         "relscoremin": -70,
         "relscoremax": 50,
+        "relbitrequired": "met",
         "relbitblock1": "crush",
         "chance": 1,
         "relscoreresult": -15
@@ -185,6 +194,7 @@
         "isvisible": true,
         "relscoremin": 51,
         "relscoremax": 100,
+        "relbitrequired": "met",
         "chance": 1,
         "relscoreresult": -5,
         "relbitremove": "crush"
@@ -196,6 +206,7 @@
         "isvisible": true,
         "relscoremin": -100,
         "relscoremax": -20,
+        "relbitrequired": "met",
         "chance": 1,
         "relscoreresult": -25,
         "relbitadd": "rival",
@@ -208,6 +219,7 @@
         "isvisible": true,
         "relscoremin": -100,
         "relscoremax": -30,
+        "relbitrequired": "rival",
         "chance": 0.6,
         "relscoreresult": 20,
         "relbitremove": "rival"
