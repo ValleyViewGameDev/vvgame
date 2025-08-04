@@ -234,19 +234,12 @@ const RelationshipCard = ({
   const availableInteractions = masterInteractions.filter(interaction => {
     // Only include actual interactions
     if (interaction.isaninteraction === false) return false;
-    
     // Only show visible interactions
     if (!interaction.isvisible) return false;
-    
-    // Special case: if relscore is 0, only show Greet
-    if (relationship.relscore === 0 && interaction.interaction !== 'Greet') {
-      return false;
-    }
-    
     // Check if relationship score is within min/max range
     const minScore = interaction.relscoremin ?? -100;
     const maxScore = interaction.relscoremax ?? 100;
-    if (relationship.relscore <= minScore || relationship.relscore > maxScore) return false;
+    if (relationship.relscore < minScore || relationship.relscore > maxScore) return false;
     
     // Check if required relationship status exists
     if (interaction.relbitrequired && !relationship[interaction.relbitrequired]) {
