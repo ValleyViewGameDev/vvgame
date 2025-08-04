@@ -10,14 +10,14 @@
         "interaction": "Crush",
         "isaninteraction": false,
         "isvisible": true,
-        "relscoremin": 0
+        "relscoremin": 30
     },
     {
         "index": 3,
         "interaction": "Love",
         "isaninteraction": false,
         "isvisible": true,
-        "relscoremin": 0
+        "relscoremin": 10
     },
     {
         "index": 4,
@@ -172,14 +172,25 @@
         "interaction": "Taunt",
         "isaninteraction": true,
         "isvisible": true,
-        "relscoremin": -100,
+        "relscoremin": -70,
         "relscoremax": 50,
         "relbitblock1": "crush",
         "chance": 1,
-        "relscoreresult": -10
+        "relscoreresult": -15
     },
     {
         "index": 19,
+        "interaction": "Tease",
+        "isaninteraction": true,
+        "isvisible": true,
+        "relscoremin": 51,
+        "relscoremax": 100,
+        "chance": 1,
+        "relscoreresult": -5,
+        "relbitremove": "crush"
+    },
+    {
+        "index": 20,
         "interaction": "Insult",
         "isaninteraction": true,
         "isvisible": true,
@@ -191,7 +202,7 @@
         "relbitremove": "love"
     },
     {
-        "index": 20,
+        "index": 21,
         "interaction": "Apologize",
         "isaninteraction": true,
         "isvisible": true,

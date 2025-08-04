@@ -246,7 +246,7 @@ const RelationshipCard = ({
     // Check if relationship score is within min/max range
     const minScore = interaction.relscoremin ?? -100;
     const maxScore = interaction.relscoremax ?? 100;
-    if (relationship.relscore < minScore || relationship.relscore > maxScore) return false;
+    if (relationship.relscore <= minScore || relationship.relscore > maxScore) return false;
     
     // Check if required relationship status exists
     if (interaction.relbitrequired && !relationship[interaction.relbitrequired]) {
