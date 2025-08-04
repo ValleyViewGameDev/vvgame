@@ -183,6 +183,9 @@ const handleGetReward = async (quest) => {
       });
       if (!success) return;
 
+      // Track quest progress for "Collect" type quests
+      await trackQuestProgress(currentPlayer, 'Collect', quest.reward, quest.rewardqty, setCurrentPlayer);
+
       let updatedCompletedQuests = currentPlayer.completedQuests.map((q) =>
         q.questId === quest.title ? { ...q, rewardCollected: true } : q
       );
