@@ -536,7 +536,7 @@
         "textbody": "Feverfew—bitter and bold. The apothecary whispers that it holds the power to banish fevered dreams. Collect it, and let no malaise linger.",
         "symbol": "🧑‍🎤",
         "level": 4,
-        "repeatable": true,
+        "repeatable": false,
         "giver": "Helena",
         "reward": "Golden Key",
         "rewardqty": 1,
