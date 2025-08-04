@@ -257,7 +257,11 @@ function TrainPanel({
     // Spend the ingredients (the item being delivered)
     const success = await spendIngredients({
       playerId: currentPlayer.playerId,
-      recipe: { type: offer.itemBought, ingredient1: offer.itemBought, qtyingredient1: offer.qtyBought },
+      recipe: { 
+        type: offer.itemBought, 
+        ingredient1: offer.itemBought, 
+        ingredient1qty: offer.qtyBought 
+      },
       inventory,
       backpack,
       setInventory,
