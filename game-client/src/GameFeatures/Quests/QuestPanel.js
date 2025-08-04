@@ -71,6 +71,8 @@ function QuestPanel({ onClose, currentPlayer }) {
                   completed: quest.completed,
                   goals,
                   textbody: template?.textbody || '',
+                  reward: template?.reward || '',
+                  rewardqty: template?.rewardqty || 1,
                 }}
                 state={quest.completed ? 'reward' : 'in-progress'}
                 onClick={null}

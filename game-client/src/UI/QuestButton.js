@@ -6,7 +6,7 @@ import { useStrings } from './StringsContext';
 
 const QuestButton = ({ quest, state, onClick }) => {
   const strings = useStrings();
-  const { symbol, title, completed, goals = [], textbody } = quest;
+  const { symbol, title, completed, goals = [], textbody, reward, rewardqty } = quest;
   const [isHovered, setIsHovered] = useState(false);
   const timeoutRef = useRef(null);
 
@@ -38,6 +38,9 @@ const QuestButton = ({ quest, state, onClick }) => {
             {goal.action} {goal.item} x{goal.qty}: {goal.progress} of {goal.qty}
           </p>
         ) : null
+      )}
+      {reward && rewardqty && (
+        <p>Reward: {rewardqty} {reward}</p>
       )}
       {isHovered && textbody && (
         <div style={{ marginTop: '8px' }}>
