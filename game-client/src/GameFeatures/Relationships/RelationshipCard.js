@@ -64,7 +64,7 @@ const RelationshipCard = ({
       
       if (result.success && result.player) {
         setCurrentPlayer(result.player);
-        const updatedRel = result.player.relationships.find(rel => rel.name === targetName);
+        let updatedRel = result.player.relationships.find(rel => rel.name === targetName);
         setRelationship(updatedRel);
         
         // Add relationship status if specified
@@ -78,8 +78,8 @@ const RelationshipCard = ({
           
           if (statusResult.success && statusResult.player) {
             setCurrentPlayer(statusResult.player);
-            const finalRel = statusResult.player.relationships.find(rel => rel.name === targetName);
-            setRelationship(finalRel);
+            updatedRel = statusResult.player.relationships.find(rel => rel.name === targetName);
+            setRelationship(updatedRel);
           }
         }
         
@@ -94,8 +94,38 @@ const RelationshipCard = ({
           
           if (removeResult.success && removeResult.player) {
             setCurrentPlayer(removeResult.player);
-            const finalRel = removeResult.player.relationships.find(rel => rel.name === targetName);
-            setRelationship(finalRel);
+            updatedRel = removeResult.player.relationships.find(rel => rel.name === targetName);
+            setRelationship(updatedRel);
+          }
+        }
+        
+        // Check if any relationship statuses should be removed due to score falling below minimum
+        const statusesToRemove = masterInteractions.filter(item => {
+          // Only check non-interaction status items
+          if (item.isaninteraction !== false) return false;
+          
+          // Check if this status has a minimum score requirement
+          if (typeof item.relscoremin !== 'number') return false;
+          
+          // Check if the new score is below the minimum and the relationship has this status
+          const statusKey = item.interaction.toLowerCase();
+          return updatedRel.relscore < item.relscoremin && updatedRel[statusKey] === true;
+        });
+        
+        // Remove any statuses that no longer meet minimum score requirements
+        for (const statusItem of statusesToRemove) {
+          const statusKey = statusItem.interaction.toLowerCase();
+          const removeResult = await updateRelationshipStatus(
+            currentPlayer,
+            targetName,
+            statusKey,
+            false
+          );
+          
+          if (removeResult.success && removeResult.player) {
+            setCurrentPlayer(removeResult.player);
+            updatedRel = removeResult.player.relationships.find(rel => rel.name === targetName);
+            setRelationship(updatedRel);
           }
         }
         
@@ -110,8 +140,38 @@ const RelationshipCard = ({
       
       if (result.success && result.player) {
         setCurrentPlayer(result.player);
-        const updatedRel = result.player.relationships.find(rel => rel.name === targetName);
+        let updatedRel = result.player.relationships.find(rel => rel.name === targetName);
         setRelationship(updatedRel);
+        
+        // Check if any relationship statuses should be removed due to score falling below minimum
+        const statusesToRemove = masterInteractions.filter(item => {
+          // Only check non-interaction status items
+          if (item.isaninteraction !== false) return false;
+          
+          // Check if this status has a minimum score requirement
+          if (typeof item.relscoremin !== 'number') return false;
+          
+          // Check if the new score is below the minimum and the relationship has this status
+          const statusKey = item.interaction.toLowerCase();
+          return updatedRel.relscore < item.relscoremin && updatedRel[statusKey] === true;
+        });
+        
+        // Remove any statuses that no longer meet minimum score requirements
+        for (const statusItem of statusesToRemove) {
+          const statusKey = statusItem.interaction.toLowerCase();
+          const removeResult = await updateRelationshipStatus(
+            currentPlayer,
+            targetName,
+            statusKey,
+            false
+          );
+          
+          if (removeResult.success && removeResult.player) {
+            setCurrentPlayer(removeResult.player);
+            updatedRel = removeResult.player.relationships.find(rel => rel.name === targetName);
+            setRelationship(updatedRel);
+          }
+        }
       }
       
       if (updateStatus) {
@@ -142,6 +202,16 @@ const RelationshipCard = ({
 
   const scoreColor = getScoreColor(relationship.relscore);
 
+  // Get visible relationship statuses early so we can use in both compact and full views
+  const visibleStatuses = masterInteractions.filter(item => {
+    // Only consider non-interaction items
+    if (item.isaninteraction !== false) return false;
+    
+    // Check if visible and if the relationship has this status
+    const statusKey = item.interaction.toLowerCase();
+    return item.isvisible && relationship[statusKey] === true;
+  });
+
   if (compact) {
     // Compact version for inline display
     return (
@@ -151,33 +221,53 @@ const RelationshipCard = ({
           [{relationship.relscore}]
         </span>
         {/* Status flags */}
-        {relationship.friend && <span className="relationship-status">• Friend</span>}
-        {relationship.crush && <span className="relationship-status">• Crush</span>}
-        {relationship.love && <span className="relationship-status">• Love</span>}
-        {relationship.married && <span className="relationship-status">• Married</span>}
-        {relationship.rival && <span className="relationship-status">• Rival</span>}
+        {visibleStatuses.map((status) => (
+          <span key={status.interaction} className="relationship-status">
+            • {status.interaction}
+          </span>
+        ))}
       </div>
     );
   }
 
   // Get available interactions based on visibility and relationship score
   const availableInteractions = masterInteractions.filter(interaction => {
+    // Only include actual interactions
+    if (interaction.isaninteraction === false) return false;
+    
     // Only show visible interactions
     if (!interaction.isvisible) return false;
+    
+    // Special case: if relscore is 0, only show Greet
+    if (relationship.relscore === 0 && interaction.interaction !== 'Greet') {
+      return false;
+    }
     
     // Check if relationship score is within min/max range
     const minScore = interaction.relscoremin ?? -100;
     const maxScore = interaction.relscoremax ?? 100;
     if (relationship.relscore < minScore || relationship.relscore > maxScore) return false;
     
-    // Check if the interaction would grant a status that already exists
-    if (interaction.relbitadd && relationship[interaction.relbitadd]) {
-      return false; // Already has this status, so hide the interaction
-    }
-    
     // Check if required relationship status exists
     if (interaction.relbitrequired && !relationship[interaction.relbitrequired]) {
       return false; // Doesn't have required status
+    }
+    
+    // Check relbitblock fields - hide interaction if any blocked status exists
+    for (let i = 1; i <= 3; i++) {
+      const blockField = interaction[`relbitblock${i}`];
+      if (blockField) {
+        if (blockField === 'all') {
+          // Block if ANY relationship status exists
+          const hasAnyStatus = relationship.met || relationship.friend || 
+                             relationship.crush || relationship.love || 
+                             relationship.married || relationship.rival;
+          if (hasAnyStatus) return false;
+        } else if (relationship[blockField]) {
+          // Block if specific status exists
+          return false;
+        }
+      }
     }
     
     return true;
@@ -202,12 +292,14 @@ const RelationshipCard = ({
 
         {/* Status flags display */}
         <div className="relationship-status-display">
-          {relationship.met && <span className="relationship-status-badge met">Met</span>}
-          {relationship.friend && <span className="relationship-status-badge friend">Friend</span>}
-          {relationship.crush && <span className="relationship-status-badge crush">Crush</span>}
-          {relationship.love && <span className="relationship-status-badge love">Love</span>}
-          {relationship.married && <span className="relationship-status-badge married">Married</span>}
-          {relationship.rival && <span className="relationship-status-badge rival">Rival</span>}
+          {visibleStatuses.map((status) => (
+            <span 
+              key={status.interaction}
+              className={`relationship-status-badge ${status.interaction.toLowerCase()}`}
+            >
+              {status.interaction}
+            </span>
+          ))}
         </div>
 
         {showActions && availableInteractions.length > 0 && (

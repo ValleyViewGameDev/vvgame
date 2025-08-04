@@ -84,22 +84,6 @@ export const getRelationshipStatus = (currentPlayer, targetName) => {
 };
 
 /**
- * Check if a specific action is allowed based on relationship score
- */
-export const canPerformAction = (relscore, action) => {
-  const actionRequirements = {
-    trade: -40,      // Can trade if score > -40
-    gift: -20,       // Can give gifts if score > -20
-    quest: -60,      // Can accept quests if score > -60
-    special: 40,     // Special actions require score > 40
-    marry: 80        // Marriage requires score > 80
-  };
-
-  const requiredScore = actionRequirements[action] || 0;
-  return relscore > requiredScore;
-};
-
-/**
  * Calculate relationship change with modifiers
  */
 export const calculateRelationshipChange = (baseChange, modifiers = {}) => {
