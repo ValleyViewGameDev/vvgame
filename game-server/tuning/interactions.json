@@ -7,32 +7,39 @@
     },
     {
         "index": 2,
-        "interaction": "Crush",
+        "interaction": "Friend",
         "isaninteraction": false,
         "isvisible": true,
         "relscoremin": 30
     },
     {
         "index": 3,
+        "interaction": "Crush",
+        "isaninteraction": false,
+        "isvisible": true,
+        "relscoremin": 20
+    },
+    {
+        "index": 4,
         "interaction": "Love",
         "isaninteraction": false,
         "isvisible": true,
         "relscoremin": 10
     },
     {
-        "index": 4,
+        "index": 5,
         "interaction": "Married",
         "isaninteraction": false,
         "isvisible": true
     },
     {
-        "index": 5,
+        "index": 6,
         "interaction": "Rival",
         "isaninteraction": false,
         "isvisible": true
     },
     {
-        "index": 6,
+        "index": 7,
         "interaction": "Greet",
         "isaninteraction": true,
         "isvisible": true,
@@ -44,7 +51,7 @@
         "relbitadd": "met"
     },
     {
-        "index": 7,
+        "index": 8,
         "interaction": "Talk",
         "isaninteraction": true,
         "isvisible": true,
@@ -55,7 +62,7 @@
         "relscoreresult": 5
     },
     {
-        "index": 8,
+        "index": 9,
         "interaction": "Joke",
         "isaninteraction": true,
         "isvisible": true,
@@ -66,7 +73,7 @@
         "relscoreresult": 15
     },
     {
-        "index": 9,
+        "index": 10,
         "interaction": "Hug",
         "isaninteraction": true,
         "isvisible": true,
@@ -77,7 +84,7 @@
         "relscoreresult": 12
     },
     {
-        "index": 10,
+        "index": 11,
         "interaction": "Give Gift",
         "isaninteraction": true,
         "isvisible": false,
@@ -88,7 +95,20 @@
         "relscoreresult": 20
     },
     {
-        "index": 11,
+        "index": 12,
+        "interaction": "Make Friends",
+        "isaninteraction": true,
+        "isvisible": true,
+        "relscoremin": 35,
+        "relscoremax": 100,
+        "relbitrequired": "met",
+        "relbitblock1": "friend",
+        "chance": 1,
+        "relscoreresult": 0,
+        "relbitadd": "friend"
+    },
+    {
+        "index": 13,
         "interaction": "Compliment",
         "isaninteraction": true,
         "isvisible": true,
@@ -102,7 +122,7 @@
         "relbitadd": "crush"
     },
     {
-        "index": 12,
+        "index": 14,
         "interaction": "Flatter",
         "isaninteraction": true,
         "isvisible": true,
@@ -116,7 +136,7 @@
         "relbitadd": "crush"
     },
     {
-        "index": 13,
+        "index": 15,
         "interaction": "Profess Love",
         "isaninteraction": true,
         "isvisible": true,
@@ -130,7 +150,7 @@
         "relbitremove": "crush"
     },
     {
-        "index": 14,
+        "index": 16,
         "interaction": "Kiss",
         "isaninteraction": true,
         "isvisible": true,
@@ -141,7 +161,7 @@
         "relscoreresult": 15
     },
     {
-        "index": 15,
+        "index": 17,
         "interaction": "Propose",
         "isaninteraction": true,
         "isvisible": true,
@@ -154,7 +174,7 @@
         "relbitadd": "married"
     },
     {
-        "index": 16,
+        "index": 18,
         "interaction": "Trade",
         "isaninteraction": true,
         "isvisible": false,
@@ -165,7 +185,7 @@
         "relscoreresult": 0
     },
     {
-        "index": 17,
+        "index": 19,
         "interaction": "Quest",
         "isaninteraction": true,
         "isvisible": false,
@@ -176,7 +196,7 @@
         "relscoreresult": 0
     },
     {
-        "index": 18,
+        "index": 20,
         "interaction": "Taunt",
         "isaninteraction": true,
         "isvisible": true,
@@ -188,7 +208,7 @@
         "relscoreresult": -15
     },
     {
-        "index": 19,
+        "index": 21,
         "interaction": "Tease",
         "isaninteraction": true,
         "isvisible": true,
@@ -200,7 +220,7 @@
         "relbitremove": "crush"
     },
     {
-        "index": 20,
+        "index": 22,
         "interaction": "Insult",
         "isaninteraction": true,
         "isvisible": true,
@@ -213,12 +233,12 @@
         "relbitremove": "love"
     },
     {
-        "index": 21,
+        "index": 23,
         "interaction": "Apologize",
         "isaninteraction": true,
         "isvisible": true,
         "relscoremin": -100,
-        "relscoremax": -30,
+        "relscoremax": 100,
         "relbitrequired": "rival",
         "chance": 0.6,
         "relscoreresult": 20,

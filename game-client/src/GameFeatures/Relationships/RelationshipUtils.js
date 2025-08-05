@@ -1,5 +1,6 @@
 import axios from 'axios';
 import API_BASE from '../../config';
+import RelationshipMatrix from './RelationshipMatrix.json';
 
 /**
  * Central utility for managing relationship changes
@@ -83,37 +84,192 @@ export const getRelationshipStatus = (currentPlayer, targetName) => {
   };
 };
 
+
 /**
- * Calculate relationship change with modifiers
+ * Get NPC reactions when player forms a new relationship status
+ * Returns an array of NPCs that would react and their relationship changes
  */
-export const calculateRelationshipChange = (baseChange, modifiers = {}) => {
-  let finalChange = baseChange;
-
-  // Apply modifiers (e.g., skills, items, events)
-  if (modifiers.charismaBonus) {
-    finalChange *= (1 + modifiers.charismaBonus);
-  }
-
-  if (modifiers.dailyLimit) {
-    // Implement daily interaction limits
-    finalChange = Math.min(finalChange, modifiers.dailyLimit);
-  }
-
-  // Ensure score stays within bounds (-100 to 100)
-  return Math.round(finalChange);
+export const getNPCReactions = (targetNPC, newStatus) => {
+  const reactions = [];
+  
+  // Check each NPC in the matrix
+  Object.entries(RelationshipMatrix).forEach(([npc, relationships]) => {
+    // Skip the target NPC
+    if (npc === targetNPC) return;
+    
+    // Check if this NPC has a relationship with the target
+    const npcRelationshipWithTarget = relationships[targetNPC];
+    
+    if (npcRelationshipWithTarget) {
+      // If new status is love, and another NPC loves this NPC
+      if (newStatus === 'love' && npcRelationshipWithTarget === 'love') {
+        reactions.push({
+          npc: npc,
+          setScore: -50,
+          clearAllStatuses: true,
+          setStatus: 'rival'
+        });
+      }
+      // If new status is friend, and another NPC has Rival with this NPC
+      else if (newStatus === 'friend' && npcRelationshipWithTarget === 'rival') {
+        reactions.push({
+          npc: npc,
+          setScore: -50,
+          clearAllStatuses: true,
+          setStatus: 'rival'
+        });
+      }
+      // If new status is friend, and another NPC has Friend with this NPC
+      else if (newStatus === 'friend' && npcRelationshipWithTarget === 'friend') {
+        reactions.push({
+          npc: npc,
+          scoreChange: 10
+        });
+      }
+      // If new status is rival, and another NPC has Rival with this NPC
+      else if (newStatus === 'rival' && npcRelationshipWithTarget === 'rival') {
+        reactions.push({
+          npc: npc,
+          scoreChange: 50
+        });
+      }
+    }
+  });
+  
+  return reactions;
 };
 
 /**
- * Get all NPCs that would be affected by a relationship change
+ * Check if an interaction should be blocked based on other relationships
+ * Returns { allowed: boolean, reason?: string }
  */
-export const getCascadeTargets = (targetName, relationshipType) => {
-  // This would be defined based on game logic
-  // Example: changing relationship with one merchant affects all merchants
-  const cascadeRules = {
-    merchant: ['all_merchants'],
-    guard: ['all_guards'],
-    noble: ['related_nobles']
-  };
+export const checkOtherRelationships = (currentPlayer, targetNPC, interaction) => {
+  // Check if this interaction would add a relationship status
+  if (!interaction.relbitadd) {
+    return { allowed: true };
+  }
+  
+  // Check for married status - can only be married to one NPC
+  if (interaction.relbitadd === 'married') {
+    const existingMarriage = currentPlayer.relationships?.find(rel => 
+      rel.married === true && rel.name !== targetNPC
+    );
+    if (existingMarriage) {
+      return { 
+        allowed: false, 
+        reason: `You are already married to ${existingMarriage.name}` 
+      };
+    }
+  }
+  
+  // Check for friend status with rivals
+  if (interaction.relbitadd === 'friend') {
+    // Get all NPCs that are rivals of the target
+    const targetRivals = [];
+    Object.entries(RelationshipMatrix).forEach(([npc, relationships]) => {
+      if (relationships[targetNPC] === 'rival') {
+        targetRivals.push(npc);
+      }
+    });
+    
+    // Check if player is friends with any of target's rivals
+    for (const rival of targetRivals) {
+      const playerRelWithRival = currentPlayer.relationships?.find(rel => rel.name === rival);
+      if (playerRelWithRival?.friend === true) {
+        return { 
+          allowed: false, 
+          reason: `${targetNPC} won't be friends with you because you're friends with ${rival}` 
+        };
+      }
+    }
+  }
+  
+  // Check for love/crush status with NPCs who are already in love
+  if (interaction.relbitadd === 'love' || interaction.relbitadd === 'crush') {
+    // Check if target NPC already loves someone else
+    const targetRelationships = RelationshipMatrix[targetNPC];
+    if (targetRelationships) {
+      const targetLoves = Object.entries(targetRelationships).find(([npc, status]) => 
+        status === 'love'
+      );
+      if (targetLoves) {
+        return { 
+          allowed: false, 
+          reason: `${targetNPC} is already in love with ${targetLoves[0]}` 
+        };
+      }
+    }
+  }
+  
+  return { allowed: true };
+};
 
-  return cascadeRules[relationshipType] || [];
+/**
+ * Generate a status message for relationship changes
+ * @param {string} targetName - The NPC the player interacted with
+ * @param {string} newStatus - The new relationship status (if any)
+ * @param {boolean} success - Whether the interaction was successful
+ * @param {Array} reactions - Array of NPC reactions from getNPCReactions
+ * @returns {string} The status message to display
+ */
+export const generateRelationshipStatusMessage = (targetName, newStatus, success, reactions = []) => {
+  let message = '';
+  
+  if (success && newStatus) {
+    // Generate primary status message based on the new status
+    switch (newStatus) {
+      case 'met':
+        message = `You've met ${targetName}.`;
+        break;
+      case 'friend':
+        message = `You're now friends with ${targetName}.`;
+        break;
+      case 'crush':
+        message = `You have a crush on ${targetName}.`;
+        break;
+      case 'love':
+        message = `You're in love with ${targetName}.`;
+        break;
+      case 'married':
+        message = `You and ${targetName} are now married.`;
+        break;
+      case 'rival':
+        message = `You and ${targetName} are now rivals.`;
+        break;
+      default:
+        message = `Your relationship with ${targetName} has changed.`;
+    }
+    
+    // Add reaction messages if there are any
+    if (reactions && reactions.length > 0) {
+      const negativeReactions = reactions.filter(r => r.setStatus === 'rival' || r.scoreChange < 0);
+      const positiveReactions = reactions.filter(r => r.scoreChange > 0 && r.setStatus !== 'rival');
+      
+      if (negativeReactions.length > 0) {
+        if (negativeReactions.length === 1) {
+          const reaction = negativeReactions[0];
+          if (reaction.setStatus === 'rival') {
+            message += ` ${reaction.npc} is now your rival because of this.`;
+          } else {
+            message += ` ${reaction.npc} isn't going to be very happy about this...`;
+          }
+        } else {
+          const npcNames = negativeReactions.map(r => r.npc).join(' and ');
+          message += ` ${npcNames} aren't going to be very happy about this...`;
+        }
+      }
+      
+      if (positiveReactions.length > 0) {
+        if (positiveReactions.length === 1) {
+          const reaction = positiveReactions[0];
+          message += ` ${reaction.npc} approves of this.`;
+        } else {
+          const npcNames = positiveReactions.map(r => r.npc).join(' and ');
+          message += ` ${npcNames} approve of this.`;
+        }
+      }
+    }
+  }
+  
+  return message;
 };

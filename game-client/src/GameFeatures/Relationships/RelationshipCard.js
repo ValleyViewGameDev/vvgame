@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { updateRelationship, updateRelationshipStatus } from './RelationshipUtils';
+import { 
+  updateRelationship, 
+  updateRelationshipStatus, 
+  getNPCReactions, 
+  checkOtherRelationships,
+  generateRelationshipStatusMessage 
+} from './RelationshipUtils';
 
 const RelationshipCard = ({ 
   currentPlayer,
@@ -53,6 +59,16 @@ const RelationshipCard = ({
     
     setIsProcessing(true);
     
+    // Check if interaction is allowed based on other relationships
+    const relationshipCheck = checkOtherRelationships(currentPlayer, targetName, interaction);
+    if (!relationshipCheck.allowed) {
+      if (updateStatus) {
+        updateStatus(`❌ ${relationshipCheck.reason}`);
+      }
+      setIsProcessing(false);
+      return;
+    }
+    
     // Roll for success based on interaction chance
     const randomRoll = Math.random();
     const success = randomRoll <= (interaction.chance || 1.0);
@@ -80,6 +96,94 @@ const RelationshipCard = ({
             setCurrentPlayer(statusResult.player);
             updatedRel = statusResult.player.relationships.find(rel => rel.name === targetName);
             setRelationship(updatedRel);
+            
+            // Check for NPC reactions only if this is an NPC
+            let npcReactions = [];
+            if (targetType === 'npc') {
+              npcReactions = getNPCReactions(targetName, interaction.relbitadd);
+              
+              // Apply each reaction
+              for (const reaction of npcReactions) {
+                // Clear all statuses if needed
+                if (reaction.clearAllStatuses) {
+                  // First, set the score to the exact value
+                  const scoreResult = await updateRelationship(
+                    statusResult.player, 
+                    reaction.npc, 
+                    reaction.setScore - (statusResult.player.relationships?.find(r => r.name === reaction.npc)?.relscore || 0)
+                  );
+                  
+                  if (scoreResult.success && scoreResult.player) {
+                    // Clear all statuses
+                    const statuses = ['met', 'friend', 'crush', 'love', 'married', 'rival'];
+                    for (const status of statuses) {
+                      await updateRelationshipStatus(scoreResult.player, reaction.npc, status, false);
+                    }
+                    
+                    // Set new status
+                    if (reaction.setStatus) {
+                      // First ensure they are "met"
+                      const metResult = await updateRelationshipStatus(
+                        scoreResult.player, 
+                        reaction.npc, 
+                        'met', 
+                        true
+                      );
+                      
+                      // Then set the reaction status
+                      const finalResult = await updateRelationshipStatus(
+                        metResult.success ? metResult.player : scoreResult.player, 
+                        reaction.npc, 
+                        reaction.setStatus, 
+                        true
+                      );
+                      if (finalResult.success && finalResult.player) {
+                        setCurrentPlayer(finalResult.player);
+                      }
+                    }
+                  }
+                } else if (reaction.scoreChange) {
+                  // Just change the score
+                  const scoreResult = await updateRelationship(
+                    statusResult.player, 
+                    reaction.npc, 
+                    reaction.scoreChange
+                  );
+                  if (scoreResult.success && scoreResult.player) {
+                    // Ensure they are "met" if relationship exists and score is positive
+                    const updatedRelWithReactor = scoreResult.player.relationships?.find(r => r.name === reaction.npc);
+                    if (updatedRelWithReactor && !updatedRelWithReactor.met) {
+                      const metResult = await updateRelationshipStatus(
+                        scoreResult.player, 
+                        reaction.npc, 
+                        'met', 
+                        true
+                      );
+                      if (metResult.success && metResult.player) {
+                        setCurrentPlayer(metResult.player);
+                      } else {
+                        setCurrentPlayer(scoreResult.player);
+                      }
+                    } else {
+                      setCurrentPlayer(scoreResult.player);
+                    }
+                  }
+                }
+              }
+            }
+            
+            // Generate and display status message for successful interaction
+            if (updateStatus) {
+              const statusMessage = generateRelationshipStatusMessage(
+                targetName, 
+                interaction.relbitadd, 
+                true, 
+                npcReactions
+              );
+              if (statusMessage) {
+                updateStatus(statusMessage);
+              }
+            }
           }
         }
         
@@ -128,10 +232,9 @@ const RelationshipCard = ({
             setRelationship(updatedRel);
           }
         }
+      
+        // Here we need to give feedback for successful interaction in a speech bubble above the NPC
         
-        if (updateStatus) {
-          updateStatus(`✅ ${interaction.interaction} successful!`);
-        }
       }
     } else {
       // Failed interaction - decrease score by same amount
@@ -174,9 +277,7 @@ const RelationshipCard = ({
         }
       }
       
-      if (updateStatus) {
-        updateStatus(`❌ ${interaction.interaction} failed.`);
-      }
+      /// Here we need to give feedback for failed interaction in a specch bubble above the NPC
     }
     
     // Call the parent's relationship change handler

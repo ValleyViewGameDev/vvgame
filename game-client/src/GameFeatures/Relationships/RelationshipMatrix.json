@@ -1,0 +1,26 @@
+{
+  "Portia": {
+    "Iago": "rival",
+    "Cassio": "crush"
+  },
+  "Gertrude": {
+    "Helena": "love"
+  },
+  "Leontes": {
+    "Gertrude": "love",
+    "Prospero": "friend"
+  },
+  "Helena": {
+    "Gertrude": "love"
+  },
+  "Iago": {
+    "Portia": "rival",
+    "Cassio": "rival"
+  },
+  "Cassio": {
+    "Iago": "rival"
+  },
+  "Prospero": {
+    "Leontes": "friend"
+  }
+}
