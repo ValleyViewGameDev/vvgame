@@ -562,7 +562,48 @@
   "1130": "🌱 Cultures et arbres",
   "1029": "[Panneau des animaux]",
   "1030": "[Panneau des cultures]",
-  "98": "⏳ Chargement ..."
 
-  }
+  "98": "⏳ Chargement ...",
+
+  "600": "CHAÎNES DE RELATION :",
+  "601": "Relation :",
+  "602": "Vous avez rencontré",
+  "603": "Vous êtes maintenant ami avec",
+  "604": "Vous avez un coup de cœur pour",
+  "605": "Vous êtes amoureux de",
+  "606": "Vous et",
+  "607": "êtes maintenant mariés.",
+  "608": "êtes maintenant rivaux.",
+  "609": "est désormais votre rival à cause de cela.",
+  "610": "ne va pas être très content de cela...",
+  "611": "ne vont pas être très contents de cela...",
+  "612": "sera très heureux de cela.",
+  "613": "approuvent cela.",
+  "614": "et",
+  "615": "Votre relation avec",
+  "616": "a changé.",
+
+  "700": "CHAÎNES FTUE :",
+  "701": "Bienvenue à Valley View (Bêta Ouverte)",
+  "702": "Bienvenue, voyageur ! Vous êtes arrivé à Valley View, une terre de frontière pleine d’opportunités et d’aventures.",
+  "703": "Votre Ferme",
+  "704": "Voici votre ferme, votre espace personnel pour 🚜 cultiver, 🛖 fabriquer et ⚒️ construire. Utilisez les touches WASD pour vous déplacer et explorer vos terres. Rassemblez des ressources 🪵, plantez des cultures 🌾 et achetez des animaux 🐮.",
+  "705": "Commerce",
+  "706": "Ouvrez le 📤 Comptoir de Commerce sur votre ferme pour vendre des biens et gagner de l’argent 💰. Échangez avec d’autres joueurs pour de meilleurs prix.",
+  "707": "Développez vos Compétences",
+  "708": "Gagnez des Compétences 💪 pour développer votre ferme et voyager au-delà. Avec le temps, vous pouvez vous spécialiser en 🚜 Agriculture, ⚔️ Aventure ou 🏛️ Politique. Équilibrez vos compétences avec celles des autres joueurs et créez une communauté prospère.",
+  "709": "Explorer",
+  "710": "Votre ferme fait partie d’un plus grand établissement avec d’autres joueurs. Utilisez les ➡️ Panneaux indicateurs pour voyager, ou marchez jusqu’au bord de n’importe quelle carte.",
+  "711": "Les Personnages de Valley View",
+  "712": "Rencontrez divers personnages dans et au-delà de la ville. Échangez avec eux 🥷 et partez en quêtes 👵🏻, mais construisez vos relations 💙 avec soin.",
+  "713": "La Vallée d’Au-delà",
+  "714": "Aventurez-vous au-delà de votre établissement dans une Vallée pleine de mystères, de trésors et de dangers. Soyez le premier à trouver le 🧙 Magicien et à gagner l’Orbe de Prospero. Mais préparez-vous bien avant de partir !",
+  "715": "Prêt à Jouer",
+  "716": "Ce jeu est en Bêta Ouverte. Vos retours sont les bienvenus et nous aideront à améliorer le jeu. Cherchez le bouton dans le panneau de gauche pour rejoindre notre serveur Discord, où vous pourrez partager vos impressions et expériences.",
+  "730": "Passer le tutoriel",
+  "731": "Suivant",
+  "732": "Retour",
+  "733": "Jouer"
+
+}
 

@@ -569,9 +569,6 @@
     "1130": "🌱 Crops & Trees",
     "1029": "[Animal panel]",
     "1030": "[Crop panel]",
-
-    "11000": "ADDED STRINGS:",
-
     "98": "⏳ Loading ...",
 
     "600": "RELATIONSHIP STRINGS:",
@@ -613,6 +610,9 @@
     "730": "Skip Tutorial",
     "731": "Next",
     "732": "Back",
-    "733": "Play"
+    "733": "Play",
+
+        "11000": "ADDED STRINGS:"
+
   }
 
