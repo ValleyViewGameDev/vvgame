@@ -83,8 +83,23 @@ router.post("/force-end-phase", async (req, res) => {
       return res.status(400).json({ success: false, message: `Event "${event}" not found on frontier` });
     }
 
+    // Debug logging for networth
+    if (event === 'networth') {
+      console.log(`🔍 Before update - ${event}.endTime:`, frontier[event]?.endTime);
+      console.log(`🔍 Frontier ${event} object:`, frontier[event]);
+    }
+    
     frontier.set(`${event}.endTime`, newEndTime);
-    await frontier.save();
+    
+    if (event === 'networth') {
+      console.log(`🔍 After set - ${event}.endTime:`, frontier[event]?.endTime);
+    }
+    
+    const saveResult = await frontier.save();
+    
+    if (event === 'networth') {
+      console.log(`🔍 After save - ${event}.endTime:`, saveResult[event]?.endTime);
+    }
 
     console.log(`⏳ Force-ended phase for ${event} on frontier ${frontierId}`);
     res.json({ success: true, message: `End time for ${event} set to 1 minute from now.` });

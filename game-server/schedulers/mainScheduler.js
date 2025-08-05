@@ -35,7 +35,7 @@ async function initializeTimers() {
     scheduleTimedFeature(frontier, "elections", globalTuning.elections);
     scheduleTimedFeature(frontier, "messages", globalTuning.messages);
     scheduleTimedFeature(frontier, "networth", globalTuning.networth);
-    // Add others like trainScheduler, elections, etc.
+    // Add others 
   }
 }
 

@@ -66,6 +66,12 @@ const FrontierSchema = new mongoose.Schema({
     startTime: { type: Date, default: Date.now },
     endTime: { type: Date, required: true },
   },
+  // ✅ Networth Calculation Timing (Controlled Per Frontier, logic Per Player)
+  networth: {
+    phase: { type: String }, 
+    startTime: { type: Date, default: Date.now },
+    endTime: { type: Date, required: true },
+  },
 
 
   seasonlog: [
@@ -94,5 +100,7 @@ FrontierSchema.index({ 'taxes.endTime': 1 });
 FrontierSchema.index({ 'elections.endTime': 1 });
 FrontierSchema.index({ 'train.endTime': 1 });
 FrontierSchema.index({ 'bank.endTime': 1 });
+FrontierSchema.index({ 'messages.endTime': 1 });
+FrontierSchema.index({ 'networth.endTime': 1 });
 
 module.exports = mongoose.model('Frontier', FrontierSchema);

@@ -73,6 +73,7 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
     train: activeFrontier.train || {},
     bank: activeFrontier.bank || {},
     messages: activeFrontier.messages || {},
+    networth: activeFrontier.networth || {},
   };
   const [countdowns, setCountdowns] = useState({
     seasons: '',
@@ -81,6 +82,7 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
     train: '',
     bank: '',
     messages: '',
+    networth: '',
   });
 
   const [selectedDashboard, setSelectedDashboard] = useState(null);
@@ -120,7 +122,7 @@ const updateCountdowns = () => {
   const now = Date.now();
   const newCountdowns = {};
   let needsRefresh = false;
-  ['seasons', 'taxes', 'elections', 'train', 'bank', 'messages'].forEach((key) => {
+  ['seasons', 'taxes', 'elections', 'train', 'bank', 'messages', 'networth'].forEach((key) => {
     const end = timers[key]?.endTime ? new Date(timers[key].endTime).getTime() : 0;
     const diff = end - now;
     if (diff <= 0) {
@@ -227,7 +229,7 @@ useEffect(() => {
 
     <div className="events-columns">
       <div className="events-main-container">
-        {['seasons', 'taxes', 'elections', 'train', 'bank', 'messages'].map((key) => (
+        {['seasons', 'taxes', 'elections', 'train', 'bank', 'messages', 'networth'].map((key) => (
           <div key={key} className="event-row">
             <div
               className={`event-dashboard event-dashboard-frontier ${selectedDashboard === key ? 'selected' : ''}`}
@@ -262,6 +264,10 @@ useEffect(() => {
                 ) : key === 'messages' ? (
                   <>
                     <p>Last Message Sent: {new Date(timers.messages?.lastSent || 0).toLocaleString()}</p>
+                  </>
+                ) : key === 'networth' ? (
+                  <>
+                    <p>Last Networth Calculated: {new Date(timers.networth?.lastSent || 0).toLocaleString()}</p>
                   </>
                 ) : key === 'seasons' ? (
                   <>

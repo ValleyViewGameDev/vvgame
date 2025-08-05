@@ -1,4 +1,5 @@
 const API_BASE = process.env.API_BASE || 'http://localhost:3001'; // Add API base URL
+const { updateNetWorthForFrontier } = require('../utils/networthCalc');
 
 async function networthScheduler(frontierId, phase, frontier = null) {
     
