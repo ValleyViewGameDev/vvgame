@@ -682,6 +682,43 @@ const handleGetRich = async () => {
   };
 
 
+  const handleResetFTUE = async () => {
+    const playerId = currentPlayer?.playerId;
+    if (!playerId) { console.error("❌ No player ID available."); return; }
+
+    try {
+      // Update player document on DB: player.firsttimeuser = true
+      const response = await axios.post(`${API_BASE}/api/update-profile`, {
+        playerId,
+        updates: { firsttimeuser: true }
+      });
+      
+      if (response.data.success) {
+        // Update in the local storage as well
+        const updatedPlayer = {
+          ...currentPlayer,
+          firsttimeuser: true
+        };
+        localStorage.setItem('player', JSON.stringify(updatedPlayer));
+        
+        console.log('✅ FTUE reset successfully.');
+        updateStatus('✅ FTUE reset. Refreshing page...');
+        
+        // Refresh the window after a short delay
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else {
+        console.error('❌ Failed to reset FTUE:', response.data.error);
+        updateStatus('❌ Failed to reset FTUE.');
+      }
+    } catch (error) {
+      console.error('❌ Error resetting FTUE:', error);
+      updateStatus('❌ Error resetting FTUE.');
+    }
+  };
+
+
   return (
     <Panel onClose={onClose} titleKey="1120" panelName="DebugPanel">
       <div className="debug-buttons">
@@ -698,6 +735,7 @@ const handleGetRich = async () => {
         <button className="btn-neutral" onClick={handleClearQuestHistory}> Clear Quest History </button>
         <button className="btn-neutral" onClick={handleClearGridState}> Clear Grid State </button>
         <button className="btn-neutral" onClick={handleClearTradeStall}> Clear Trade Stall </button>
+        <button className="btn-success" onClick={handleResetFTUE}> Reset FTUE </button>
         <button className="btn-success" onClick={handleWelcomeMessage}> Resend Welcome Message </button>
         <button className="btn-success" onClick={handleRewardMessage}> Resend Reward Message </button>
         <button className="btn-success" onClick={handleAddMoney}> Add Money </button>

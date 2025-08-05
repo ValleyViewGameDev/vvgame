@@ -575,6 +575,7 @@
     "98": "⏳ Loading ...",
 
     "600": "RELATIONSHIP STRINGS:",
+
     "601": "Relationship:",
     "602": "You've met",
     "603": "You're now friends with",
@@ -590,6 +591,28 @@
     "613": "approve of this.",
     "614": "and",
     "615": "Your relationship with",
-    "616": "has changed."
+    "616": "has changed.",
+
+    "700": "FTUE STRINGS:",
+    "701": "Welcome to Valley View (Open Beta)",
+    "702": "Welcome, traveler! You've arrived in Valley View, a frontier land of opportunity and adventure.",
+    "703": "Your Homestead",
+    "704": "This is your homestead, your personal space to 🚜 farm, 🛖 craft and ⚒️ build. Use WASD keys to move around and explore your land. Gather resources 🪵, plant crops 🌾, and buy animals 🐮.",
+    "705": "Trading",
+    "706": "Open the 📤 Trading Post on your homestead to sell goods and earn 💰 money. Trade with other players for better prices.",
+    "707": "Grow Your Skills",
+    "708": "Gain 💪 Skills to grow your homestead and travel beyond it. Over time, you can specialize in 🚜 Farming, ⚔️ Adventure or 🏛️ Politics. Balance skills with other players, and create a thriving community.",
+    "709": "Explore",
+    "710": "Your homestead is part of a larger settlement of other players. Use ➡️ Signposts to travel, or walk to the edge of any map.",
+    "711": "Characters of Valley View",
+    "712": "Meet and greet various characters in and beyond the town. Trade with them 🥷 and go on quests 👵🏻, but build your relationshps 💙 carefully.",
+    "713": "The Valley Beyond",
+    "714": "Venture beyond your settlement into a Valley full of mysteries, treasure and danger. Be the first to find the 🧙 Wizard and earn Prospero's Orb. But prepare well before venturing forth!",
+    "715": "Ready to Play",
+    "716": "This game is in Open Beta. Your feedback is very welcome, and will help us improve the game. Look for the button on the left panel to join our Discord Server, where you can share your thoughts and experiences.",
+    "730": "Skip Tutorial",
+    "731": "Next",
+    "732": "Back",
+    "733": "Play"
   }
 

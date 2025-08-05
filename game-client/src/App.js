@@ -31,7 +31,7 @@ import {
 
 import farmState from './FarmState';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
-import handleFTUE from './GameFeatures/FTUE/FTUE';
+import FTUE from './GameFeatures/FTUE/FTUE';
 
 import playersInGridManager from './GridState/PlayersInGrid';
 import { usePlayersInGrid, useGridStatePCUpdate } from './GridState/GridStatePCContext';
@@ -327,6 +327,7 @@ const [activeQuestGiver, setActiveQuestGiver] = useState(null);
 const [activeSocialPC, setActiveSocialPC] = useState(null);
 const [activeStation, setActiveStation] = useState(null);
 const [showShareModal, setShowShareModal] = useState(false);
+const [showFTUE, setShowFTUE] = useState(false);
 
 useEffect(() => {
   const storedPlayer = localStorage.getItem('player');
@@ -649,6 +650,12 @@ useEffect(() => {
       }
 
       setIsAppInitialized(true);
+      
+      // Check if FTUE should be shown
+      if (updatedPlayerData.firsttimeuser === true) {
+        console.log('🎓 First time user detected, showing FTUE');
+        setShowFTUE(true);
+      }
 
     } catch (error) {
       console.error('Error during app initialization:', error);
@@ -1285,6 +1292,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
           openPanel('Courthouse'); break;
         case 'Trade Stall':
         case 'Trade':
+        case 'Trading Post':
           openPanel('TradeStall'); break;
         case 'Mailbox':
           openModal('Mailbox'); break;
@@ -1801,6 +1809,14 @@ return (
 
       {showShareModal && (
         <ShareModal onClose={() => setShowShareModal(false)} />
+      )}
+      
+      {showFTUE && (
+        <FTUE 
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          onClose={() => setShowFTUE(false)}
+        />
       )}
 
       <Modal 

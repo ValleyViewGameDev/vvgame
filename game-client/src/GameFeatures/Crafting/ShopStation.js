@@ -94,6 +94,9 @@ const ShopStation = ({
     });
     if (!success) return;
 
+    // Refresh player to update money display after any purchase
+    await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+
     const tradedQty = 1;
 
     if (recipe.category === "power") {
