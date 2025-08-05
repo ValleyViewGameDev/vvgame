@@ -5,7 +5,7 @@ import axios from 'axios';
 import '../../UI/ResourceButton.css';
 import ResourceButton from '../../UI/ResourceButton';
 import { canAfford } from '../../Utils/InventoryManagement';
-import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
+import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { useStrings } from '../../UI/StringsContext';

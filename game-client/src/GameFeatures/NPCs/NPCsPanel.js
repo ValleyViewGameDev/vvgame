@@ -268,9 +268,13 @@ const handleHeal = async (recipe) => {
       backpack,
       setInventory,
       setBackpack,
+      setCurrentPlayer,
       updateStatus,
     });
     if (!success) return;
+    
+    // Refresh player to update money display
+    await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
     const healAmount = npcData.qtycollected;
     const statToMod = 'hp';
