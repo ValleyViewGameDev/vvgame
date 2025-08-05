@@ -9,6 +9,7 @@ require('./schedulers/seasonScheduler');
 require('./schedulers/trainScheduler');
 require('./schedulers/taxScheduler');
 require('./schedulers/bankScheduler');
+require('./schedulers/networthScheduler');
 
 
 const fs = require('fs');
@@ -18,19 +19,19 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const http = require('http');
 const { Server } = require('socket.io');
-const Player = require('./models/player');  // Ensure this is correct
+const Player = require('./models/player'); 
 const Grid = require('./models/grid');
 const Chat = require('./models/chat'); // Import ChatMessage model
 const { setSocketIO } = require('./socketInstance');
 
 const worldRoutes = require('./routes/worldRoutes');
-const gridRoutes = require('./routes/gridRoutes'); // Import NPCsInGrid routes
+const gridRoutes = require('./routes/gridRoutes'); 
 const playerRoutes = require('./routes/playerRoutes'); 
-const authRoutes = require('./routes/auth');  // <-- Import auth routes
-const tradingRoutes = require('./routes/tradingRoutes'); // Import trading routes
-const frontierRoutes = require('./routes/frontierRoutes'); // Import frontier routes
-const settlementRoutes = require('./routes/settlementRoutes'); // Import frontier routes
-const scheduleRoutes = require('./routes/scheduleRoutes'); // Import frontier routes
+const authRoutes = require('./routes/auth');  
+const tradingRoutes = require('./routes/tradingRoutes'); 
+const frontierRoutes = require('./routes/frontierRoutes'); 
+const settlementRoutes = require('./routes/settlementRoutes'); 
+const scheduleRoutes = require('./routes/scheduleRoutes'); 
 const chatRoutes = require('./routes/chatRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 

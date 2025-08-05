@@ -1,11 +1,13 @@
 const Frontier = require("../models/frontier");
 const globalTuning = require("../tuning/globalTuning.json");
+
 const taxScheduler = require("./taxScheduler");
 const seasonScheduler = require("./seasonScheduler");
 const trainScheduler = require("./trainScheduler");
-const bankScheduler = require("./bankScheduler"); // Remove the destructuring
+const bankScheduler = require("./bankScheduler"); 
 const electionScheduler = require("./electionScheduler");
 const messageScheduler = require("./messageScheduler");
+const networthScheduler = require("./networthScheduler");
 // Add more logic-only schedulers as needed...
 
 // Helper: Advance to the next phase for a given system
@@ -32,6 +34,7 @@ async function initializeTimers() {
     scheduleTimedFeature(frontier, "bank", globalTuning.bank);
     scheduleTimedFeature(frontier, "elections", globalTuning.elections);
     scheduleTimedFeature(frontier, "messages", globalTuning.messages);
+    scheduleTimedFeature(frontier, "networth", globalTuning.networth);
     // Add others like trainScheduler, elections, etc.
   }
 }
@@ -114,6 +117,10 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
           case "messages":
             console.log("📪 Triggering messageScheduler...");
             extraPayload = await messageScheduler(frontierId, nextPhase, frontier);
+            break;
+          case "networth":
+            console.log("💰 Triggering networthScheduler...");
+            extraPayload = await networthScheduler(frontierId, nextPhase, frontier);
             break;
           default:
             console.warn(`⚠️ No scheduler found for ${featureKey}. Skipping...`);

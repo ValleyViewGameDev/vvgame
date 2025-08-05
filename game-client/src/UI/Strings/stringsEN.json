@@ -572,7 +572,24 @@
 
     "11000": "ADDED STRINGS:",
 
-    "98": "⏳ Loading ..."
+    "98": "⏳ Loading ...",
 
+    "600": "RELATIONSHIP STRINGS:",
+    "601": "Relationship:",
+    "602": "You've met",
+    "603": "You're now friends with",
+    "604": "You have a crush on",
+    "605": "You're in love with",
+    "606": "You and",
+    "607": "are now married.",
+    "608": "are now rivals.",
+    "609": "is now your rival because of this.",
+    "610": "isn't going to be very happy about this...",
+    "611": "aren't going to be very happy about this...",
+    "612": "will be very happy about this.",
+    "613": "approve of this.",
+    "614": "and",
+    "615": "Your relationship with",
+    "616": "has changed."
   }
 

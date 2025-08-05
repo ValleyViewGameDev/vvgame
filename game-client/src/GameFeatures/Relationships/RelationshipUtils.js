@@ -210,34 +210,35 @@ export const checkOtherRelationships = (currentPlayer, targetNPC, interaction) =
  * @param {string} newStatus - The new relationship status (if any)
  * @param {boolean} success - Whether the interaction was successful
  * @param {Array} reactions - Array of NPC reactions from getNPCReactions
+ * @param {Object} strings - The strings object from useStrings hook
  * @returns {string} The status message to display
  */
-export const generateRelationshipStatusMessage = (targetName, newStatus, success, reactions = []) => {
+export const generateRelationshipStatusMessage = (targetName, newStatus, success, reactions = [], strings = {}) => {
   let message = '';
   
   if (success && newStatus) {
     // Generate primary status message based on the new status
     switch (newStatus) {
       case 'met':
-        message = `You've met ${targetName}.`;
+        message = `${strings[602]} ${targetName}.`;
         break;
       case 'friend':
-        message = `You're now friends with ${targetName}.`;
+        message = `${strings[603]} ${targetName}.`;
         break;
       case 'crush':
-        message = `You have a crush on ${targetName}.`;
+        message = `${strings[604]} ${targetName}.`;
         break;
       case 'love':
-        message = `You're in love with ${targetName}.`;
+        message = `${strings[605]} ${targetName}.`;
         break;
       case 'married':
-        message = `You and ${targetName} are now married.`;
+        message = `${strings[606]} ${targetName} ${strings[607]}`;
         break;
       case 'rival':
-        message = `You and ${targetName} are now rivals.`;
+        message = `${strings[606]} ${targetName} ${strings[608]}`;
         break;
       default:
-        message = `Your relationship with ${targetName} has changed.`;
+        message = `${strings[615]} ${targetName} ${strings[616]}`;
     }
     
     // Add reaction messages if there are any
@@ -249,23 +250,23 @@ export const generateRelationshipStatusMessage = (targetName, newStatus, success
         if (negativeReactions.length === 1) {
           const reaction = negativeReactions[0];
           if (reaction.setStatus === 'rival') {
-            message += ` ${reaction.npc} is now your rival because of this.`;
+            message += ` ${reaction.npc} ${strings[609]}`;
           } else {
-            message += ` ${reaction.npc} isn't going to be very happy about this...`;
+            message += ` ${reaction.npc} ${strings[610]}`;
           }
         } else {
-          const npcNames = negativeReactions.map(r => r.npc).join(' and ');
-          message += ` ${npcNames} aren't going to be very happy about this...`;
+          const npcNames = negativeReactions.map(r => r.npc).join(` ${strings[614]} `);
+          message += ` ${npcNames} ${strings[611]}`;
         }
       }
       
       if (positiveReactions.length > 0) {
         if (positiveReactions.length === 1) {
           const reaction = positiveReactions[0];
-          message += ` ${reaction.npc} approves of this.`;
+          message += ` ${reaction.npc} ${strings[612]}`;
         } else {
-          const npcNames = positiveReactions.map(r => r.npc).join(' and ');
-          message += ` ${npcNames} approve of this.`;
+          const npcNames = positiveReactions.map(r => r.npc).join(` ${strings[614]} `);
+          message += ` ${npcNames} ${strings[613]}`;
         }
       }
     }

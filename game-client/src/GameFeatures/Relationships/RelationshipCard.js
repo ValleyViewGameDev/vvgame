@@ -6,6 +6,7 @@ import {
   checkOtherRelationships,
   generateRelationshipStatusMessage 
 } from './RelationshipUtils';
+import { useStrings } from '../../UI/StringsContext';
 
 const RelationshipCard = ({ 
   currentPlayer,
@@ -21,6 +22,7 @@ const RelationshipCard = ({
   const [relationship, setRelationship] = useState(null);
   const [isInitializing, setIsInitializing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const strings = useStrings();
 
   useEffect(() => {
     loadOrCreateRelationship();
@@ -114,8 +116,10 @@ const RelationshipCard = ({
                   );
                   
                   if (scoreResult.success && scoreResult.player) {
-                    // Clear all statuses
-                    const statuses = ['met', 'friend', 'crush', 'love', 'married', 'rival'];
+                    // Clear all statuses dynamically from masterInteractions
+                    const statuses = masterInteractions
+                      .filter(item => item.isaninteraction === false)
+                      .map(item => item.interaction.toLowerCase());
                     for (const status of statuses) {
                       await updateRelationshipStatus(scoreResult.player, reaction.npc, status, false);
                     }
@@ -178,7 +182,8 @@ const RelationshipCard = ({
                 targetName, 
                 interaction.relbitadd, 
                 true, 
-                npcReactions
+                npcReactions,
+                strings
               );
               if (statusMessage) {
                 updateStatus(statusMessage);
@@ -371,7 +376,7 @@ const RelationshipCard = ({
   return (
     <div className="relationship-card">
       <div className="relationship-card-content">
-        <h3 className="relationship-title">Relationship</h3>
+        <h3 className="relationship-title">{strings[601]}</h3>
         
         <div className="relationship-score-bar-container">
           <div className="relationship-score-gradient">

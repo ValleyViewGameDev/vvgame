@@ -52,5 +52,12 @@
       "sending": 0.5
     },
     "startPhase": "waiting"
+  },
+  "networth": {
+    "phases": {
+      "waiting": 1439.5,
+      "calculating": 0.5
+    },
+    "startPhase": "waiting"
   }
 }
