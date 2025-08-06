@@ -10,6 +10,33 @@ const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
 const queue = require('../queue'); // Import the in-memory queue
 const sendMailboxMessage = require('../utils/messageUtils');
  
+///////// PLAYER MANAGEMENT ROUTES ////////////
+
+// POST /api/send-player-home
+router.post('/send-player-home', async (req, res) => {
+  const { playerId } = req.body;
+  
+  if (!playerId) {
+    return res.status(400).json({ error: 'Player ID is required' });
+  }
+  
+  try {
+    console.log(`🏠 Sending player ${playerId} home...`);
+    
+    const success = await relocateOnePlayerHome(playerId);
+    
+    if (success) {
+      console.log(`✅ Successfully sent player ${playerId} home`);
+      res.json({ success: true, message: 'Player sent home successfully' });
+    } else {
+      console.error(`❌ Failed to send player ${playerId} home`);
+      res.status(400).json({ error: 'Failed to send player home' });
+    }
+  } catch (error) {
+    console.error('Error sending player home:', error);
+    res.status(500).json({ error: 'Server error while sending player home' });
+  }
+});
 
 ///////// QUEST ROUTES ////////////
 

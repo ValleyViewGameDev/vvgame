@@ -92,6 +92,89 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
     setSelectedPlayer(player);
   };
 
+  // Handle account deletion
+  const handleDeleteAccount = async (player) => {
+    if (!player) return;
+    
+    const confirmed = window.confirm(
+      `Are you sure you want to delete the account for "${player.username}"?\n\n` +
+      `This will permanently delete:\n` +
+      `• All player data\n` +
+      `• All inventory items\n` +
+      `• All progress and achievements\n\n` +
+      `This action cannot be undone!`
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+      console.log(`🗑️ Deleting account for player: ${player.username} (ID: ${player._id})`);
+      
+      const response = await axios.post(`${API_BASE}/api/delete-player`, {
+        playerId: player._id,
+      });
+      
+      if (response.data.success) {
+        alert(`✅ Account for "${player.username}" deleted successfully.`);
+        console.log(`✅ Account deleted for username: ${player.username}`);
+        
+        // Remove the deleted player from the list
+        setPlayers(players.filter(p => p._id !== player._id));
+        
+        // Clear the selected player
+        setSelectedPlayer(null);
+      } else {
+        alert("❌ Failed to delete account. See console for details.");
+        console.error("Delete failed:", response.data);
+      }
+    } catch (error) {
+      console.error("❌ Error deleting player:", error);
+      alert(`❌ Error deleting account: ${error.message}`);
+    }
+  };
+
+  // Handle sending player home
+  const handleSendHome = async (player) => {
+    if (!player) return;
+    
+    const confirmed = window.confirm(
+      `Send "${player.username}" back to their home grid?\n\n` +
+      `This will:\n` +
+      `• Move them to their home grid\n` +
+      `• Reset their position to (0, 0)\n` +
+      `• Restore their HP to full\n\n` +
+      `Continue?`
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+      console.log(`🏠 Sending player home: ${player.username} (ID: ${player._id})`);
+      
+      const response = await axios.post(`${API_BASE}/api/send-player-home`, {
+        playerId: player._id,
+      });
+      
+      if (response.data.success) {
+        alert(`✅ "${player.username}" has been sent home successfully.`);
+        console.log(`✅ Player sent home: ${player.username}`);
+        
+        // Optionally refresh the player data to show updated location
+        if (player.location) {
+          player.location.x = 0;
+          player.location.y = 0;
+          setSelectedPlayer({...player});
+        }
+      } else {
+        alert("❌ Failed to send player home. See console for details.");
+        console.error("Send home failed:", response.data);
+      }
+    } catch (error) {
+      console.error("❌ Error sending player home:", error);
+      alert(`❌ Error sending player home: ${error.message}`);
+    }
+  };
+
   // Handle column sorting
   const handleSort = (columnKey) => {
     let direction = 'asc';
@@ -179,7 +262,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
               <h3><strong>{selectedPlayer.icon || '😀'} {selectedPlayer.username}</strong></h3>
             </div>
             
-            {/* Placeholder for future player management buttons */}
+            {/* Player management buttons */}
             <div className="player-actions">
               <h4>Actions</h4>
               <button className="action-btn" disabled>
@@ -188,10 +271,24 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
               <button className="action-btn" disabled>
                 Send Message
               </button>
+              <button 
+                className="action-btn" 
+                onClick={() => handleSendHome(selectedPlayer)}
+                style={{ backgroundColor: '#28a745', color: 'white' }}
+              >
+                🏠 Send Home
+              </button>
               <button className="action-btn" disabled>
                 Modify Account
               </button>
-              <p className="coming-soon">Functions coming soon...</p>
+              <button 
+                className="action-btn delete-btn" 
+                onClick={() => handleDeleteAccount(selectedPlayer)}
+                style={{ backgroundColor: '#dc3545', color: 'white' }}
+              >
+                🗑️ Delete Account
+              </button>
+              <p className="coming-soon">Some functions coming soon...</p>
             </div>
 
             {/* Player Stats */}
