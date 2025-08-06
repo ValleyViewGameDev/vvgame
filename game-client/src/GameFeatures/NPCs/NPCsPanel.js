@@ -1,6 +1,7 @@
 import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
+import '../../UI/SharedButtons.css';
 import axios from 'axios';
 import ResourceButton from '../../UI/ResourceButton';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';

@@ -7,7 +7,6 @@ import ResourceButton from '../../UI/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford } from '../../Utils/InventoryManagement';
-import { updateGridResource } from '../../Utils/GridManagement';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
@@ -17,7 +16,6 @@ import { createCollectEffect } from '../../VFX/VFX';
 import { useStrings } from '../../UI/StringsContext';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import '../../UI/SharedButtons.css';
-import { useUILock } from '../../UI/UILockContext';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
 
