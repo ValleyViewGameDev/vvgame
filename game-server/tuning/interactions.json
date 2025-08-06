@@ -243,5 +243,17 @@
         "chance": 0.6,
         "relscoreresult": 20,
         "relbitremove": "rival"
+    },
+    {
+        "index": 24,
+        "interaction": "End Marriage",
+        "isaninteraction": true,
+        "isvisible": true,
+        "relscoremin": -100,
+        "relscoremax": 100,
+        "relbitrequired": "married",
+        "chance": 1,
+        "relscoreresult": -50,
+        "relbitremove": "married"
     }
 ]

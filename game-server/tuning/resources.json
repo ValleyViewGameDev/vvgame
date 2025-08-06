@@ -217,7 +217,9 @@
         "layoutkey": "TW",
         "category": "travel",
         "action": "travel",
+        "source": "Buy",
         "passable": true,
+        "qtycollected": 1,
         "validong": true,
         "validond": true,
         "validons": true,
@@ -225,7 +227,9 @@
         "validonw": true,
         "validonl": true,
         "validonn": true,
-        "validono": true
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 1
     },
     {
         "type": "Signpost Home",
@@ -233,7 +237,9 @@
         "layoutkey": "SH",
         "category": "travel",
         "action": "travel",
+        "source": "Buy",
         "passable": true,
+        "qtycollected": 1,
         "validong": true,
         "validond": true,
         "validons": true,
@@ -241,7 +247,9 @@
         "validonw": true,
         "validonl": true,
         "validonn": true,
-        "validono": true
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 1
     },
     {
         "type": "Trade Stall",
@@ -257,7 +265,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "validono": true
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 1
     },
     {
         "type": "Trading Post",
@@ -265,7 +275,9 @@
         "layoutkey": "T1",
         "category": "station",
         "action": "openUI",
+        "source": "Buy",
         "passable": false,
+        "qtycollected": 1,
         "range": 2,
         "validong": true,
         "validond": true,
@@ -274,7 +286,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "validono": true
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 1
     },
     {
         "type": "Warehouse",
@@ -282,7 +296,10 @@
         "layoutkey": "Wa",
         "category": "training",
         "action": "openUI",
+        "source": "Buy",
         "passable": false,
+        "qtycollected": 1,
+        "range": 2,
         "validong": true,
         "validond": true,
         "validons": true,
@@ -290,7 +307,51 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "validono": true
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 1
+    },
+    {
+        "type": "Abandoned House",
+        "symbol": "🏚️",
+        "layoutkey": "AH",
+        "category": "crafting",
+        "action": "openUI",
+        "source": "Buy",
+        "passable": false,
+        "qtycollected": 1,
+        "range": 2,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 1
+    },
+    {
+        "type": "Farm House",
+        "symbol": "🏠",
+        "layoutkey": "FH",
+        "category": "crafting",
+        "action": "openUI",
+        "source": "Buy",
+        "passable": false,
+        "qtycollected": 1,
+        "range": 2,
+        "validong": true,
+        "validond": true,
+        "validons": true,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": true,
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 1
     },
     {
         "type": "Bank",
@@ -307,7 +368,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "validono": true
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 1
     },
     {
         "type": "Courthouse",
@@ -324,7 +387,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "validono": true
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 1
     },
     {
         "type": "Train",
@@ -341,7 +406,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "validono": true
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 1
     },
     {
         "type": "Mailbox",
@@ -357,7 +424,9 @@
         "validonw": false,
         "validonl": false,
         "validonn": true,
-        "validono": true
+        "validono": true,
+        "ingredient1": "Money",
+        "ingredient1qty": 1
     },
     {
         "type": "Oak Tree",
@@ -556,6 +625,7 @@
     {
         "type": "Wheat Plot",
         "symbol": "🌱",
+        "layoutkey": "whplot",
         "category": "farmplot",
         "action": "convertTo",
         "output": "Wheat",
@@ -577,6 +647,7 @@
     {
         "type": "Carrot Plot",
         "symbol": "🌱",
+        "layoutkey": "ctplot",
         "category": "farmplot",
         "action": "convertTo",
         "output": "Carrot",
@@ -598,6 +669,7 @@
     {
         "type": "Corn Plot",
         "symbol": "🌱",
+        "layoutkey": "coplot",
         "category": "farmplot",
         "action": "convertTo",
         "output": "Corn",
@@ -620,6 +692,7 @@
     {
         "type": "Sugarcane Plot",
         "symbol": "🌱",
+        "layoutkey": "suplot",
         "category": "farmplot",
         "action": "convertTo",
         "output": "Sugarcane",
@@ -642,6 +715,7 @@
     {
         "type": "Strawberry Plot",
         "symbol": "🌱",
+        "layoutkey": "sbplot",
         "category": "farmplot",
         "action": "convertTo",
         "output": "Strawberry",
@@ -664,6 +738,7 @@
     {
         "type": "Garlic Plot",
         "symbol": "🌱",
+        "layoutkey": "gaplot",
         "category": "farmplot",
         "action": "convertTo",
         "output": "Garlic",
@@ -4339,6 +4414,7 @@
         "layoutkey": "fa",
         "category": "npc",
         "action": "farmhand",
+        "output": "Buy",
         "passable": false,
         "qtycollected": 1,
         "level": 1,
@@ -4350,6 +4426,36 @@
         "validonl": false,
         "validonn": false,
         "validono": false
+    },
+    {
+        "type": "Rancher",
+        "symbol": "👩🏽‍🌾",
+        "layoutkey": "ra",
+        "category": "npc",
+        "action": "farmhand",
+        "output": "Buy",
+        "passable": false,
+        "qtycollected": 1,
+        "level": 1,
+        "validong": false,
+        "validond": false,
+        "validons": false,
+        "validonp": true,
+        "validonw": false,
+        "validonl": false,
+        "validonn": false,
+        "validono": false
+    },
+    {
+        "type": "Lumberjack",
+        "symbol": "👨🏾‍🌾",
+        "layoutkey": "lj",
+        "category": "npc",
+        "action": "farmhand",
+        "output": "Buy",
+        "passable": false,
+        "qtycollected": 1,
+        "level": 1
     },
     {
         "type": "Walking",

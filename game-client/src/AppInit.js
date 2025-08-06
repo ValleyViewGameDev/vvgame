@@ -15,7 +15,8 @@ export const initializeGrid = async (
   setResources,
   setTileTypes,
   updateStatus,
-  DBPlayerData
+  DBPlayerData,
+  masterResources
 ) => {
   try {
     if (!gridId) {
@@ -27,28 +28,45 @@ export const initializeGrid = async (
 
     const gridData = await fetchGridData(gridId, updateStatus, DBPlayerData);
     const { tiles, resources } = gridData;
+    
 
     // Process resources to add shadow tiles for multi-tile buildings
     const processedResources = [];
     const loadedResources = resources || [];
     
-    for (const resource of loadedResources) {
+    for (const rawResource of loadedResources) {
+      // Enrich resource with master data to get properties like range, passable, etc
+      let resource = rawResource;
+      if (masterResources && masterResources.length > 0) {
+        const template = masterResources.find(r => r.type === rawResource.type);
+        if (template) {
+          resource = {
+            ...template,
+            ...rawResource // Raw data overrides template (for x, y, growEnd, etc)
+          };
+        }
+      }
+      
       processedResources.push(resource);
       
+      
       // If this is a multi-tile resource (has range > 1), create shadow tiles
-      if (resource.range && resource.range > 1 && resource.anchorKey) {
-        console.log(`🔲 Recreating shadow tiles for ${resource.type} with range ${resource.range}`);
+      // Note: Resources from server might not have anchorKey, so we generate one if needed
+      if (resource.range && resource.range > 1) {
+        const anchorKey = resource.anchorKey || `${resource.type}-${resource.x}-${resource.y}`;
         
         for (let dx = 0; dx < resource.range; dx++) {
           for (let dy = 0; dy < resource.range; dy++) {
             // Skip the anchor tile (0,0)
             if (dx === 0 && dy === 0) continue;
             
+            const shadowX = resource.x + dx;
+            const shadowY = resource.y - dy;
             const shadowResource = {
               type: 'shadow',
-              x: resource.x + dx,
-              y: resource.y - dy,
-              parentAnchorKey: resource.anchorKey,
+              x: shadowX,
+              y: shadowY,
+              parentAnchorKey: anchorKey,
               passable: resource.passable
             };
             
@@ -64,6 +82,7 @@ export const initializeGrid = async (
     
     // Also update the global grid state
     GlobalGridStateTilesAndResources.setResources(processedResources);
+    
 
     console.log('Grid, tiles, and resources initialized for gridId:', gridId);
   } catch (error) {

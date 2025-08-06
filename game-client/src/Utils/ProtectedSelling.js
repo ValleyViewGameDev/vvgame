@@ -68,8 +68,15 @@ export async function handleProtectedSelling({
         (res) => {
           // Remove the sold station
           if (res.x === currentStationPosition.x && res.y === currentStationPosition.y) return false;
+          
           // Remove any shadows belonging to this station
-          if (soldResource && soldResource.anchorKey && res.type === 'shadow' && res.parentAnchorKey === soldResource.anchorKey) return false;
+          if (soldResource && soldResource.range && soldResource.range > 1 && res.type === 'shadow') {
+            // Generate the anchorKey the same way we do when creating shadows
+            const anchorKey = soldResource.anchorKey || `${soldResource.type}-${soldResource.x}-${soldResource.y}`;
+            if (res.parentAnchorKey === anchorKey) {
+              return false;
+            }
+          }
           return true;
         }
       );

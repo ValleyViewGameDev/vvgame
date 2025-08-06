@@ -463,7 +463,32 @@ export function socketListenForResourceChanges(TILE_SIZE, gridId, isMasterResour
           updated.splice(0, updated.length, ...filtered);
         });
 
-        return updated;
+        // Now recreate shadow tiles for all multi-tile resources
+        // This also handles removal - any old shadow tiles not recreated will be gone
+        const finalResources = [...updated];
+        updated.forEach((resource) => {
+          if (resource.range && resource.range > 1) {
+            const anchorKey = resource.anchorKey || `${resource.type}-${resource.x}-${resource.y}`;
+            for (let dx = 0; dx < resource.range; dx++) {
+              for (let dy = 0; dy < resource.range; dy++) {
+                if (dx === 0 && dy === 0) continue; // Skip anchor
+                
+                const shadowX = resource.x + dx;
+                const shadowY = resource.y - dy;
+                const shadowResource = {
+                  type: 'shadow',
+                  x: shadowX,
+                  y: shadowY,
+                  parentAnchorKey: anchorKey,
+                  passable: resource.passable // Inherit from anchor
+                };
+                finalResources.push(shadowResource);
+              }
+            }
+          }
+        });
+        
+        return finalResources;
       });
     }
   };

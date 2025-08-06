@@ -267,7 +267,7 @@ useEffect(() => {
   const [masterResources, setMasterResources] = useState([]);
   const [isMasterResourcesReady, setIsMasterResourcesReady] = useState([]);
   const [masterSkills, setMasterSkills] = useState([]);
-  const [globalTuning, setGlobalTuning] = useState([]);
+  const [globalTuning, setGlobalTuning] = useState(null);
   const [masterInteractions, setMasterInteractions] = useState([]);
 
 // Synchronize tiles with GlobalGridStateTilesAndResources -- i did this so NPCs have knowledge of tiles and resources as they change
@@ -288,7 +288,11 @@ useEffect(() => {
 }, [resources]);
 
 const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
-const TILE_SIZES = { closer: 50, close: 30, far: 16 }; // Rename for clarity
+const TILE_SIZES = globalTuning?.closerZoom ? {
+  closer: globalTuning.closerZoom,
+  close: globalTuning.closeZoom,
+  far: globalTuning.farZoom
+} : { closer: 50, close: 30, far: 16 }; // Use globalTuning or fallback to defaults
 const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
 const [isRelocating, setIsRelocating] = useState(null);
 
@@ -527,7 +531,8 @@ useEffect(() => {
         setResources,
         setTileTypes,
         updateStatus,
-        DBPlayerData
+        DBPlayerData,
+        masterResources
       );
 
       // Step 6. Initialize NPCs

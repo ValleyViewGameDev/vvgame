@@ -104,6 +104,7 @@ function isValidMove(targetX, targetY, masterResources,
  ) {  // Function to check if movement is valid
   const tiles = GlobalGridStateTilesAndResources.getTiles();
   const resources = GlobalGridStateTilesAndResources.getResources();
+  
 
   if (!Array.isArray(resources)) {
     console.warn('⛔ Movement blocked: resources is not an array yet.', resources);
@@ -208,9 +209,13 @@ export function isTileValidForPlayer(x, y, tiles, resources, masterResources, cu
     return false;
   }
   // **Step 2: Check for an impassable resource in this tile**
+  
   const resourceInTile = resources.find(res => res.x === x && res.y === y);
+  
+  
   if (resourceInTile) {
-    if (!resourceInTile.passable) {
+    // Check if passable is explicitly false (not just falsy)
+    if (resourceInTile.passable === false) {
       console.warn(`⛔ Tile (${x}, ${y}) contains an impassable resource (${resourceInTile.type}).`);
       return false;
     }

@@ -131,7 +131,6 @@ export const handleConstruction = async ({
     try {
       // Create shadow placeholders for multi-tile objects in LOCAL STATE ONLY
       if (resourceRange > 1) {
-        console.log(`🔲 Creating shadow placeholders for ${selectedItem} with anchorKey: ${enriched.anchorKey}`);
         
         for (let dx = 0; dx < resourceRange; dx++) {
           for (let dy = 0; dy < resourceRange; dy++) {
@@ -149,7 +148,6 @@ export const handleConstruction = async ({
               // No symbol - renders as empty/invisible
             };
             
-            console.log(`Creating shadow at (${shadowX}, ${shadowY}) for anchor ${enriched.anchorKey}`);
             
             // Add shadow to final resources array (LOCAL STATE ONLY - NOT SAVED TO DB)
             finalResources.push(shadowResource);

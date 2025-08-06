@@ -40,6 +40,20 @@ function calcGridCoord(frontierTier, frontierIndex, setRow, setCol, gridRow, gri
 }
 
 // ============================================
+// TUNING DATA ROUTES
+// ============================================
+
+// GET /api/global-tuning - Returns global tuning configuration
+router.get('/global-tuning', async (req, res) => {
+  try {
+    res.json(tuningConfig);
+  } catch (error) {
+    console.error('Error fetching global tuning:', error);
+    res.status(500).json({ error: 'Failed to fetch global tuning' });
+  }
+});
+
+// ============================================
 // FRONTIER ROUTES
 // ============================================
 

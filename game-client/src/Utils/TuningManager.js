@@ -50,15 +50,15 @@ export async function loadGlobalTuning() {
       globalTuning = response.data;
       console.log('Global tuning loaded:', globalTuning);
     } catch (error) {
-      console.error('Error fetching master resources:', error);
-      globalTuning = [];
+      console.error('Error fetching global tuning:', error);
+      globalTuning = {};
     }
   }
   return globalTuning;
 }
 
 /**
- * Fetch and cache globalTuning.json
+ * Fetch and cache interactions.json
  */
 export async function loadMasterInteractions() {
   if (!masterInteractions) {

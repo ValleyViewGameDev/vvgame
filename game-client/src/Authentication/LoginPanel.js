@@ -93,7 +93,7 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
             {error && <p className="error-message">{error}</p>}
 
             <div className="panel-buttons">
-              <button type="submit" className="btn-success">
+              <button type="submit" className="btn-neutral">
                 {strings[4007]}
               </button>
             </div>

@@ -444,7 +444,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                     )}
                     {hasTimer && !isPurchased && (
                       <div className="trade-slot-status timer">
-                        {strings[158]} {formatCountdown(slot.sellTime, Date.now())}
+                        {formatCountdown(slot.sellTime, Date.now())}
                       </div>
                     )}
                     {isReadyToSell && !isPurchased && (
