@@ -3513,8 +3513,8 @@
         "validono": true,
         "ingredient1": "Money",
         "ingredient1qty": 250,
-        "crafttime": 10,
-        "totalnestedtime": 1260
+        "crafttime": 28800,
+        "totalnestedtime": 30050
     },
     {
         "type": "Surgeon",
@@ -3539,8 +3539,8 @@
         "validono": true,
         "ingredient1": "Rosemary",
         "ingredient1qty": 2,
-        "crafttime": 7200,
-        "totalnestedtime": 64800
+        "crafttime": 43200,
+        "totalnestedtime": 100800
     },
     {
         "type": "Fairy",
@@ -3563,8 +3563,8 @@
         "validono": true,
         "ingredient1": "Feverfew",
         "ingredient1qty": 1,
-        "crafttime": 7200,
-        "totalnestedtime": 7446672
+        "crafttime": 86400,
+        "totalnestedtime": 7525872
     },
     {
         "type": "Coyote",

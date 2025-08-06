@@ -15,6 +15,8 @@ import { useStrings } from '../../UI/StringsContext';
 import RelationshipCard from '../Relationships/RelationshipCard';
 import { getRelationshipStatus } from '../Relationships/RelationshipUtils';
 import '../Relationships/Relationships.css';
+import NPCsInGridManager from '../../GridState/GridStateNPCs';
+import { checkDeveloperStatus } from '../../Utils/appUtils';
 
 const QuestGiverPanel = ({
   onClose,
@@ -38,6 +40,7 @@ const QuestGiverPanel = ({
   const [errorMessage, setErrorMessage] = useState('');
   const [canQuest, setCanQuest] = useState(false);
   const [questThreshold, setQuestThreshold] = useState(0);
+  const [isDeveloper, setIsDeveloper] = useState(false);
 
   console.log('made it to QuestGiverPanel/Healer; npcData = ', npcData);
 
@@ -46,6 +49,12 @@ const QuestGiverPanel = ({
     console.warn("QuestGiverPanel was opened with missing npcData.");
     npcData = { type: "Unknown NPC", symbol: "❓" }; // Provide default fallback values
   }
+
+  // Check developer status
+  useEffect(() => {
+    const devStatus = checkDeveloperStatus(currentPlayer);
+    setIsDeveloper(devStatus);
+  }, [currentPlayer]);
 
   // Check if player can quest based on relationship
   useEffect(() => {
@@ -297,6 +306,23 @@ const handleHeal = async (recipe) => {
 
   };
 
+  const handleSellNPC = async () => {
+    if (!npcData || !npcData.id) {
+      console.error('Cannot sell NPC: Missing NPC data or ID');
+      return;
+    }
+
+    try {
+      const gridId = currentPlayer.location.g;
+      await NPCsInGridManager.removeNPC(gridId, npcData.id);
+      updateStatus(`✅ ${npcData.type} has been removed from the grid.`);
+      onClose(); // Close the panel after selling
+    } catch (error) {
+      console.error('Error selling NPC:', error);
+      updateStatus(`❌ Failed to remove ${npcData.type}.`);
+    }
+  };
+
 
   return (
     <Panel onClose={onClose} descriptionKey="1013" titleKey="1113" panelName="QuestGiverPanel">
@@ -361,6 +387,19 @@ const handleHeal = async (recipe) => {
               })}
             </>
           )}
+          
+          {/* Developer option to sell NPC */}
+          {isDeveloper && (
+            <div style={{ marginTop: '20px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+              <button 
+                className="btn-danger" 
+                onClick={handleSellNPC}
+                style={{ width: '100%', padding: '10px' }}
+              >
+                🗑️ Sell this NPC (Dev Only)
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -405,6 +444,19 @@ const handleHeal = async (recipe) => {
             );
           })}
           {errorMessage && <p className="error-message">{errorMessage}</p>}
+          
+          {/* Developer option to sell NPC */}
+          {isDeveloper && (
+            <div style={{ marginTop: '20px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+              <button 
+                className="btn-danger" 
+                onClick={handleSellNPC}
+                style={{ width: '100%', padding: '10px' }}
+              >
+                🗑️ Sell this NPC (Dev Only)
+              </button>
+            </div>
+          )}
         </div>
       )}
 

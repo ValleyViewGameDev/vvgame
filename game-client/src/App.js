@@ -1204,7 +1204,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
     const isFriend = false; // 🧪 Future: replace with actual friend-checking logic
     const alwaysBlocked = ['Mailbox', 'Trade Stall', 'Warehouse'];
     const isForbiddenStation = resource?.category === 'station' && alwaysBlocked.includes(resource?.type);
-    const isSafe = resource?.category === 'npc'; // Expand as needed
+    const isSafe = resource?.category === 'npc' || resource?.category === 'travel'; // Expand as needed
     if (isForbiddenStation || (!isSafe && !isFriend)) {
       console.warn("🚫 Blocked interaction on another player’s homestead.");
       updateStatus(90);
