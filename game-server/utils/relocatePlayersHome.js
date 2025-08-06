@@ -132,60 +132,163 @@ async function relocatePlayersHome(frontierId) {
 
 
 async function relocateOnePlayerHome(playerId) {
-  const player = await Player.findById(playerId);
-  if (!player || !player.gridId) return false;
+  try {
+    console.log(`🔍 Looking up player with ID: ${playerId}`);
+    const player = await Player.findById(playerId);
+    if (!player) {
+      console.error(`❌ Player not found with ID: ${playerId}`);
+      return false;
+    }
+    
+    if (!player.gridId) {
+      console.error(`❌ Player ${player.username} has no gridId`);
+      return false;
+    }
 
-  const gridIdStr = player.gridId.toString();
+    const homeGridIdStr = player.gridId.toString();
+    const playerIdStr = playerId.toString();
+    
+    console.log(`🏠 Player's home grid: ${homeGridIdStr}`);
+    console.log(`📍 Player's current location: ${JSON.stringify(player.location)}`);
 
-  const grids = await Grid.find({ 
-    _id: { $in: [gridIdStr] } 
-  }, { playersInGrid: 1, playersInGridLastUpdated: 1 });
+    // Find the current grid the player is in
+    const currentGrid = await Grid.findOne({
+      $or: [
+        { [`playersInGrid.pcs.${playerIdStr}`]: { $exists: true } },
+        { [`playersInGrid.${playerIdStr}`]: { $exists: true } }
+      ]
+    });
 
-  const currentGrid = grids.find(g => g.playersInGrid?.[playerId]);
-  const homeGrid = grids.find(g => g._id.toString() === gridIdStr);
+    if (!currentGrid) {
+      console.error(`❌ Could not find player ${player.username} in any grid`);
+      return false;
+    }
 
-  if (!currentGrid || !homeGrid) return false;
+    const currentGridIdStr = currentGrid._id.toString();
+    console.log(`📍 Found player in grid: ${currentGridIdStr}`);
 
-  const pcData = currentGrid.playersInGrid[playerId];
-  if (!pcData) return false;
+    // If already home, just restore HP and position
+    if (currentGridIdStr === homeGridIdStr) {
+      console.log(`✅ Player already at home grid, restoring HP and position`);
+      
+      const playersInGrid = currentGrid.playersInGrid instanceof Map
+        ? currentGrid.playersInGrid
+        : new Map(Object.entries(currentGrid.playersInGrid?.pcs || currentGrid.playersInGrid || {}));
+      
+      const pcData = playersInGrid.get(playerIdStr);
+      if (pcData) {
+        pcData.hp = player.baseMaxhp || pcData.maxhp || 1000;
+        pcData.position = { x: 0, y: 0 };
+        
+        if (currentGrid.playersInGrid instanceof Map) {
+          currentGrid.playersInGrid.set(playerIdStr, pcData);
+        } else if (currentGrid.playersInGrid.pcs) {
+          currentGrid.playersInGrid.pcs[playerIdStr] = pcData;
+        } else {
+          currentGrid.playersInGrid[playerIdStr] = pcData;
+        }
+        
+        currentGrid.playersInGridLastUpdated = new Date();
+        await currentGrid.save();
+      }
+      
+      // Update player location
+      player.location.x = 0;
+      player.location.y = 0;
+      await player.save();
+      
+      return true;
+    }
 
-  // Remove from current grid
-  delete currentGrid.playersInGrid[playerId];
-  currentGrid.playersInGridLastUpdated = new Date();
-  await currentGrid.save();
+    // Get player data from current grid
+    let pcData;
+    if (currentGrid.playersInGrid instanceof Map) {
+      pcData = currentGrid.playersInGrid.get(playerIdStr);
+    } else if (currentGrid.playersInGrid?.pcs) {
+      pcData = currentGrid.playersInGrid.pcs[playerIdStr];
+    } else {
+      pcData = currentGrid.playersInGrid?.[playerIdStr];
+    }
 
-  // Add to home grid
-  homeGrid.playersInGrid[playerId] = {
-    ...pcData,
-    hp: player.baseMaxhp || 25,
-    position: { x: 0, y: 0 }
-  };
-  homeGrid.playersInGridLastUpdated = new Date();
-  await homeGrid.save();
+    if (!pcData) {
+      console.error(`❌ Could not find player data in current grid`);
+      return false;
+    }
 
-  // Update player.location
-  const settlement = await Settlement.findById(player.settlementId);
-  let info = {};
-  for (const row of settlement.grids) {
-    for (const g of row) {
-      if (g.gridId === gridIdStr) {
-        info = { gridCoord: g.gridCoord, gridType: g.gridType };
+    // Load home grid
+    const homeGrid = await Grid.findById(homeGridIdStr);
+    if (!homeGrid) {
+      console.error(`❌ Home grid not found: ${homeGridIdStr}`);
+      return false;
+    }
+
+    // Remove from current grid
+    if (currentGrid.playersInGrid instanceof Map) {
+      currentGrid.playersInGrid.delete(playerIdStr);
+    } else if (currentGrid.playersInGrid?.pcs) {
+      delete currentGrid.playersInGrid.pcs[playerIdStr];
+    } else {
+      delete currentGrid.playersInGrid[playerIdStr];
+    }
+    currentGrid.playersInGridLastUpdated = new Date();
+    await currentGrid.save();
+    console.log(`✅ Removed player from grid ${currentGridIdStr}`);
+
+    // Add to home grid with restored HP and reset position
+    const restoredPcData = {
+      ...pcData,
+      hp: player.baseMaxhp || pcData.maxhp || 1000,
+      position: { x: 0, y: 0 }
+    };
+
+    if (!homeGrid.playersInGrid) {
+      homeGrid.playersInGrid = {};
+    }
+
+    if (homeGrid.playersInGrid instanceof Map) {
+      homeGrid.playersInGrid.set(playerIdStr, restoredPcData);
+    } else if (homeGrid.playersInGrid.pcs) {
+      homeGrid.playersInGrid.pcs[playerIdStr] = restoredPcData;
+    } else {
+      homeGrid.playersInGrid[playerIdStr] = restoredPcData;
+    }
+    
+    homeGrid.playersInGridLastUpdated = new Date();
+    await homeGrid.save();
+    console.log(`✅ Added player to home grid ${homeGridIdStr}`);
+
+    // Update player.location
+    const settlement = await Settlement.findById(player.settlementId);
+    let info = { gridCoord: "0,0,0", gridType: "homestead" };
+    
+    if (settlement && settlement.grids) {
+      for (const row of settlement.grids) {
+        for (const g of row) {
+          if (g.gridId && g.gridId.toString() === homeGridIdStr) {
+            info = { gridCoord: g.gridCoord, gridType: g.gridType };
+            break;
+          }
+        }
       }
     }
+
+    player.location = {
+      g: player.gridId,
+      s: player.settlementId,
+      f: player.frontierId,
+      gridCoord: info.gridCoord,
+      gtype: info.gridType,
+      x: 0,
+      y: 0
+    };
+    await player.save();
+    console.log(`✅ Updated player location to home grid`);
+
+    return true;
+  } catch (error) {
+    console.error(`❌ Error in relocateOnePlayerHome:`, error);
+    return false;
   }
-
-  player.location = {
-    g: player.gridId,
-    s: player.settlementId,
-    f: player.frontierId,
-    gridCoord: info.gridCoord || "0,0,0",
-    gtype: info.gridType || "valley",
-    x: 1,
-    y: 1
-  };
-  await player.save();
-
-  return true;
 }
 
 module.exports = { relocatePlayersHome, relocateOnePlayerHome };
