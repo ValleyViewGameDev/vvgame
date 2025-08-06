@@ -283,8 +283,9 @@ async moveOneTile(direction, tiles, resources, npcs) {
                   gridId: this.gridId,
                   npcId: this.id,
                   newPosition: { x: targetX, y: targetY },
+                  emitterId: socket.id
                 });
-                //console.log(`📡 Emitting npc-moved for NPC ${this.id} to (${targetX}, ${targetY})`);
+                //console.log(`📡 Emitting npc-moved for NPC ${this.id} to (${targetX}, ${targetY}) from ${socket.id}`);
               }
               resolve(true);
               return;

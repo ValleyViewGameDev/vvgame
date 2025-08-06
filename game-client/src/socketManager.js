@@ -327,6 +327,12 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
     //console.log('📥 Received npc-moved-sync event:', { npcId, newPosition, emitterId });
 
     if (!npcId || !newPosition) return;
+    
+    // Skip if this is the controller receiving their own broadcast
+    if (emitterId && emitterId === socket.id) {
+      console.log(`📤 Skipping NPC animation for own broadcast (NPC ${npcId})`);
+      return;
+    }
 
     setGridState(prevState => {
       const updatedNPCs = { ...prevState.npcs };
@@ -352,8 +358,8 @@ export function socketListenForNPCStateChanges(TILE_SIZE, gridId, setGridState, 
           newPosition &&
           (prevPosition.x !== newPosition.x || prevPosition.y !== newPosition.y)
         ) {
-          console.log('Calling animateRemotePC', npcId, prevPosition, newPosition);
-          animateRemotePC(npcId, prevPosition, newPosition, TILE_SIZE); // Assume TILE_SIZE = 64
+          console.log('Calling animateRemotePC for NPC', npcId, prevPosition, newPosition);
+          animateRemotePC(npcId, prevPosition, newPosition, TILE_SIZE, 30); // More steps for smoother NPC movement
         }
         // Assign new position AFTER animation call
         rehydrated.position = newPosition;
