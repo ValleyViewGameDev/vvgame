@@ -5,6 +5,9 @@ const VFX_TIMING = {
     FADE_DURATION: 400,         // How long fade-out takes
 };
 
+// Track recent effects to prevent duplicates
+const recentEffects = new Map();
+
 const createParticleElement = (char, x, y) => {
     const particle = document.createElement('div');
     particle.innerText = char;
@@ -27,9 +30,53 @@ export const calculateTileCenter = (x, y, TILE_SIZE) => {
 export const createCollectEffect = (x, y, TILE_SIZE) => {
     const gameContainer = document.querySelector('.homestead');
     if (!gameContainer) return;
-    // Use the utility function
-    const { centerX, centerY } = calculateTileCenter(x, y, TILE_SIZE);
-    console.log('centerX= ',centerX,'; centerY= ',centerY);
+    
+    // Debounce duplicate effects at the same location
+    const effectKey = `collect-${x}-${y}`;
+    const now = Date.now();
+    const lastEffectTime = recentEffects.get(effectKey);
+    
+    if (lastEffectTime && (now - lastEffectTime) < 100) {
+        console.log('Skipping duplicate collect effect at', x, y);
+        return;
+    }
+    
+    recentEffects.set(effectKey, now);
+    
+    // Clean up old entries after 1 second
+    setTimeout(() => {
+        recentEffects.delete(effectKey);
+    }, 1000);
+    
+    // Try to find the actual tile element to get its real position
+    const tiles = gameContainer.querySelectorAll('.tile');
+    let tileElement = null;
+    
+    // Find the tile at position (x, y) by checking computed positions
+    tiles.forEach(tile => {
+        const tileTop = parseInt(tile.style.top) / TILE_SIZE;
+        const tileLeft = parseInt(tile.style.left) / TILE_SIZE;
+        if (Math.round(tileLeft) === x && Math.round(tileTop) === y) {
+            tileElement = tile;
+        }
+    });
+    
+    let centerX, centerY;
+    
+    if (tileElement) {
+        // Use the actual tile's position for accurate placement
+        const rect = tileElement.getBoundingClientRect();
+        const containerRect = gameContainer.getBoundingClientRect();
+        centerX = rect.left - containerRect.left + (rect.width / 2) - 6;
+        centerY = rect.top - containerRect.top + (rect.height / 2) - 6;
+    } else {
+        // Fallback to calculated position
+        const { centerX: calcX, centerY: calcY } = calculateTileCenter(x, y, TILE_SIZE);
+        centerX = calcX;
+        centerY = calcY;
+    }
+    
+    console.log('createCollectEffect at grid(', x, ',', y, ') -> screen(', centerX, ',', centerY, ')');
 
     const directions = [
         { dx: -1, dy: -1, startX: -2, startY: -2 }, 
