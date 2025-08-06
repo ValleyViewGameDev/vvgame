@@ -15,7 +15,8 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
   setTileTypes, 
   setResources, 
   updateStatus, 
-  closeAllPanels) 
+  closeAllPanels,
+  localPlayerMoveTimestampRef) 
 {
 
   const directions = {
@@ -74,6 +75,12 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
   console.log('➡️ Simple move to:', finalPosition);
 
   const now = Date.now();
+  
+  // Update the local player movement timestamp to prevent our own broadcasts from overriding
+  if (localPlayerMoveTimestampRef) {
+    localPlayerMoveTimestampRef.current = now;
+    console.log('🕐 Updated localPlayerMoveTimestamp to:', now);
+  }
 
   playersInGridManager.updatePC(gridId, playerId, {
     position: finalPosition,

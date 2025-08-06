@@ -166,8 +166,8 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
       // --- End changed fields logging and floating text ---
 
       if (currentPlayer && playerId === String(currentPlayer._id)) {
-        if (localPlayerMoveTimestampRef.current > incomingTime) {
-          console.log(`⏳ Skipping local PC (${playerId}) update; local movement is newer.`);
+        if (localPlayerMoveTimestampRef.current >= incomingTime) {
+          console.log(`⏳ Skipping local PC (${playerId}) update; local movement is newer or same time.`);
           return prevState;
         }
       }
