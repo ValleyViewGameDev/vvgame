@@ -430,7 +430,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
               >
                 {isEmpty ? (
                   <div className="trade-slot-empty-text">
-                    Empty
+                    {strings[156]}
                   </div>
                 ) : (
                   <div className="trade-slot-content">
@@ -439,17 +439,17 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                     </div>
                     {isPurchased && (
                       <div className="trade-slot-status">
-                        Bought by {slot.boughtBy}
+                        {strings[157]} {slot.boughtBy}
                       </div>
                     )}
                     {hasTimer && !isPurchased && (
                       <div className="trade-slot-status timer">
-                        Timer: {formatCountdown(slot.sellTime, Date.now())}
+                        {strings[158]} {formatCountdown(slot.sellTime, Date.now())}
                       </div>
                     )}
                     {isReadyToSell && !isPurchased && (
                       <div className="trade-slot-status ready">
-                        Ready to sell
+                        {strings[159]}
                       </div>
                     )}
                   </div>

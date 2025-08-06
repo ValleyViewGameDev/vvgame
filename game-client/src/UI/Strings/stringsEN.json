@@ -74,7 +74,8 @@
     "152": "You do not have enough money to buy this item.",
     "153": "is selling:",
     "154": "are selling",
-    
+    "155": "Transaction failed. This item has already been sold.",
+
     "200": "QUESTS",
 
     "201": "✅ Quest completed. You have your reward.",
@@ -522,7 +523,6 @@
 
     "11001": "Wait for the timer to end, or for another player to buy this item.",
     "206": "Return to the NPC who gave you this quest to collect your reward.",
-    "155": "Transaction failed. This item has already been sold.",
     "1008": "Trade Stall: Sell your resources to other players or buy items from their trade stalls. Use the arrows to navigate between trade stalls within your Settlement. If no players buy your items before the timer expires, you can sell them to the game for fraction of their base value.",
     "2014": "You can only claim one train offer at a time.",
     "2015": "Show Train Log",
@@ -614,7 +614,11 @@
 
     "11000": "ADDED STRINGS:",
 
-    "490": "Sell for refund (Dev only)"
+    "490": "Sell for refund (Dev only)",
+    "156": "Empty (add items)",
+    "157": "Bought by",
+    "158": "Timer: ",
+    "159": "Ready to sell"
 
   }
 
