@@ -9,6 +9,8 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { spendIngredients } from '../../Utils/InventoryManagement';
+import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
+import TransactionButton from '../../UI/TransactionButton';
 
 const SkillsAndUpgradesPanel = ({ 
     onClose,
@@ -19,9 +21,13 @@ const SkillsAndUpgradesPanel = ({
     currentPlayer,
     setCurrentPlayer,
     stationType, 
+    currentStationPosition,
+    gridId,
+    isDeveloper,
     TILE_SIZE,
     updateStatus,
     masterSkills,
+    setResources,
 }) => {
   const strings = useStrings();
   const [entryPoint, setEntryPoint] = useState(stationType || "Skills Panel"); 
@@ -165,10 +171,51 @@ const handlePurchase = async (resourceType) => {
   }
 };
 
+  const handleSellStation = async () => {
+    try {
+      const success = await handleProtectedSelling({
+        currentPlayer,
+        stationType,
+        currentStationPosition,
+        gridId,
+        setResources,
+        setInventory,
+        setCurrentPlayer,
+        updateStatus,
+        onClose,
+      });
+      
+      if (success) {
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error selling station:', error);
+      updateStatus('Failed to sell station');
+    }
+  };
+
+  // Check if we should show the sell button
+  const showSellButton = isDeveloper && 
+    ["Warehouse", "Adventure Camp", "Laboratory", "School"].includes(entryPoint) &&
+    currentStationPosition && gridId;
+
   return (
     <Panel onClose={onClose} descriptionKey="1005" titleKey="1105" panelName="SkillsAndUpgradesPanel">
       <div className="standard-panel">
       <h2>{stationEmoji} {entryPoint}</h2> {/* ✅ Display emoji before entry point */}
+      
+      {showSellButton && (
+        <div className="standard-buttons">
+          <TransactionButton 
+            className="btn-danger" 
+            onAction={handleSellStation}
+            transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
+          >
+            {strings[490]}
+          </TransactionButton>
+        </div>
+      )}
+      
       {isContentLoading ? (
           <p>{strings[98]}</p>
         ) : (

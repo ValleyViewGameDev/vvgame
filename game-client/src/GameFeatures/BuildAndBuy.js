@@ -129,9 +129,7 @@ export const handleConstruction = async ({
     console.log('📦 Preparing resource update with:', enriched);
     
     try {
-      // Create shadow placeholders for multi-tile objects BEFORE updating state
-      const shadowPromises = [];
-      
+      // Create shadow placeholders for multi-tile objects in LOCAL STATE ONLY
       if (resourceRange > 1) {
         console.log(`🔲 Creating shadow placeholders for ${selectedItem} with anchorKey: ${enriched.anchorKey}`);
         
@@ -152,9 +150,8 @@ export const handleConstruction = async ({
             };
             
             console.log(`Creating shadow at (${shadowX}, ${shadowY}) for anchor ${enriched.anchorKey}`);
-            shadowPromises.push(updateGridResource(gridId, shadowResource, true));
             
-            // Add shadow to final resources array
+            // Add shadow to final resources array (LOCAL STATE ONLY - NOT SAVED TO DB)
             finalResources.push(shadowResource);
           }
         }
@@ -165,13 +162,8 @@ export const handleConstruction = async ({
       GlobalGridStateTilesAndResources.setResources(finalResources);
       setResources(finalResources);
       
-      // Update main resource in DB
+      // Update ONLY the main resource in DB (NOT shadows)
       await updateGridResource(gridId, rawResource, true);
-      
-      // Wait for all shadow updates to complete
-      if (shadowPromises.length > 0) {
-        await Promise.all(shadowPromises);
-      }
       
       FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
       

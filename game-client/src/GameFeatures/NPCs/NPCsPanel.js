@@ -390,13 +390,13 @@ const handleHeal = async (recipe) => {
           
           {/* Developer option to sell NPC */}
           {isDeveloper && (
-            <div style={{ marginTop: '20px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+              <div className="standard-buttons">
               <button 
                 className="btn-danger" 
                 onClick={handleSellNPC}
                 style={{ width: '100%', padding: '10px' }}
               >
-                🗑️ Sell this NPC (Dev Only)
+                {strings[490]}
               </button>
             </div>
           )}
@@ -447,13 +447,13 @@ const handleHeal = async (recipe) => {
           
           {/* Developer option to sell NPC */}
           {isDeveloper && (
-            <div style={{ marginTop: '20px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+              <div className="standard-buttons">
               <button 
                 className="btn-danger" 
                 onClick={handleSellNPC}
                 style={{ width: '100%', padding: '10px' }}
               >
-                🗑️ Sell this NPC (Dev Only)
+                {strings[490]}
               </button>
             </div>
           )}

@@ -442,11 +442,11 @@ const CraftingStation = ({
             <hr />
               <div className="standard-buttons">
                 <TransactionButton 
-                  className="btn-success" 
+                  className="btn-danger" 
                   onAction={handleSellStation}
                   transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
                 >
-                  {strings[425]}
+                  {strings[490]}
                 </TransactionButton>
               </div>
 

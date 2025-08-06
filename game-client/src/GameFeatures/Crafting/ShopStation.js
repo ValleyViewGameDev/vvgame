@@ -9,6 +9,9 @@ import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } 
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { useStrings } from '../../UI/StringsContext';
+import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
+import TransactionButton from '../../UI/TransactionButton';
+import '../../UI/SharedButtons.css';
 
 const ShopStation = ({
   onClose,
@@ -25,6 +28,7 @@ const ShopStation = ({
   TILE_SIZE,
   updateStatus,
   masterResources,
+  isDeveloper,
 }) => {
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
@@ -175,6 +179,28 @@ const ShopStation = ({
     setFetchTrigger(prev => prev + 1);
   };
 
+  const handleSellStation = async () => {
+    try {
+      const success = await handleProtectedSelling({
+        currentPlayer,
+        stationType,
+        currentStationPosition,
+        gridId,
+        setResources,
+        setInventory,
+        setCurrentPlayer,
+        updateStatus,
+        onClose,
+      });
+      
+      if (success) {
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error selling station:', error);
+      updateStatus('Failed to sell station');
+    }
+  };
 
   return (
     <Panel onClose={onClose} descriptionKey="1025" titleKey="1125" panelName="ShopStation">
@@ -242,6 +268,21 @@ const ShopStation = ({
           ) : <p>{strings[423]}</p>}
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
+
+        {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
+          <>
+            <hr />
+            <div className="standard-buttons">
+              <TransactionButton 
+                className="btn-danger" 
+                onAction={handleSellStation}
+                transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
+              >
+                {strings[490]}
+              </TransactionButton>
+            </div>
+          </>
+        )}
 
       </div>
     </Panel>

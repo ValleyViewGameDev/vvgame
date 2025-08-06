@@ -2027,9 +2027,13 @@ return (
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           stationType={activeStation?.type} 
+          currentStationPosition={activeStation?.position}
+          gridId={activeStation?.gridId}
+          isDeveloper={isDeveloper}
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterSkills={masterSkills}
+          setResources={setResources}
         />
       )}
       {activePanel === 'CombatPanel' && (
@@ -2100,6 +2104,7 @@ return (
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}
+          isDeveloper={isDeveloper}
         />
       )}
       {activePanel === 'FarmingPanel' && (

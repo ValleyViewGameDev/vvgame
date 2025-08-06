@@ -114,7 +114,7 @@
     "423": "No trades available.",
     "424": "No recipes available.",
     "425": "Sell for refund.",
-        
+
     "500": "COMBAT STRINGS",
 
     "501": "🎯 Out of range.",
@@ -612,7 +612,9 @@
     "732": "Back",
     "733": "Play",
 
-        "11000": "ADDED STRINGS:"
+    "11000": "ADDED STRINGS:",
+
+    "490": "Sell for refund (Dev only)"
 
   }
 
