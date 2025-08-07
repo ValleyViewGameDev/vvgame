@@ -2221,6 +2221,7 @@ return (
           setBackpack={setBackpack} 
           updateStatus={updateStatus}
           masterInteractions={masterInteractions}
+          isDeveloper={isDeveloper}
         />
       )}
       {activePanel === 'AnimalStall' && (

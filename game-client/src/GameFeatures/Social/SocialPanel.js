@@ -22,6 +22,7 @@ const SocialPanel = ({
   setBackpack,
   updateStatus,
   masterInteractions,
+  isDeveloper,
 }) => {
   const [tentCount, setTentCount] = useState(0);
   const [boatCount, setBoatCount] = useState(0);
@@ -288,6 +289,55 @@ const SocialPanel = ({
     }
 };
 
+  // ✅ Handle Remove from GridState (Debug)
+  const handleRemoveFromGridState = async () => {
+    if (!pcData || !pcData.playerId) {
+      console.error("❌ Cannot remove: No player data");
+      updateStatus("Failed to remove player from grid state");
+      return;
+    }
+
+    const gridId = currentPlayer?.location?.g;
+    if (!gridId) {
+      console.error("❌ Cannot remove: No grid ID found");
+      updateStatus("Failed to remove player from grid state");
+      return;
+    }
+
+    const playerId = pcData.playerId;
+    
+    console.log(`🗑️ Removing player ${pcData.username} (${playerId}) from grid ${gridId}`);
+    
+    try {
+      // Step 1: Remove from database first
+      console.log('📤 Calling /remove-single-pc to remove player from database...');
+      const response = await axios.post(`${API_BASE}/api/remove-single-pc`, {
+        gridId: gridId,
+        playerId: playerId,
+      });
+      
+      if (!response.data.success) {
+        throw new Error('Failed to remove player from database');
+      }
+      
+      console.log(`✅ Successfully removed player ${pcData.username} from database`);
+      
+      // Step 2: Remove from local state
+      playersInGridManager.removePC(gridId, playerId);
+      console.log(`✅ Successfully removed player ${pcData.username} from local grid state`);
+      
+      updateStatus(`Removed ${pcData.username} from grid (permanent)`);
+      
+      // Close the panel since the player is no longer in the grid
+      if (pcData.username !== currentPlayer.username) {
+        onClose();
+      }
+    } catch (error) {
+      console.error("❌ Error removing player from grid state:", error);
+      updateStatus("Failed to remove player from grid state");
+    }
+  };
+
   return (
     <Panel onClose={onClose} descriptionKey="1014" titleKey="1114" panelName="SocialPanel">
         <div className="panel-content">
@@ -332,6 +382,18 @@ const SocialPanel = ({
               // Additional handling if needed after interaction completes
             }}
           />
+        )}
+
+        {/* Debug button for developers to remove player from grid state */}
+        {isDeveloper && displayedPCData.username !== currentPlayer.username && (
+          <div className="standard-buttons">
+            <button 
+              className="btn-danger" 
+              onClick={handleRemoveFromGridState}
+            >
+              🗑️ Remove from GridState (dev only)
+            </button>
+          </div>
         )}
         
 

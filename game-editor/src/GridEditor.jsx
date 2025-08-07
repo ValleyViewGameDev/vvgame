@@ -769,20 +769,65 @@ if (typeof window !== "undefined") {
                   flexShrink: 0
                 }}
               >
-                {row.map((tile, y) => (
-                  <Tile
-                    key={`${x}-${y}`}
-                    x={x}
-                    y={y}
-                    tile={tile}
-                    updateTile={() => handleTileClick(x, y)}
-                    isSelected={selectedTile?.x === x && selectedTile?.y === y}
-                    setSelectedTile={setSelectedTile}
-                    tileSize={tileSize}
+                {row.map((tile, y) => {
+                  // Check if this tile is the anchor of a multi-tile resource
+                  const multiTileResource = masterResources.find(res => {
+                    if (!tile.resource || res.type !== tile.resource) return false;
+                    // Only check the anchor tile (where the resource is stored)
+                    if (grid[x][y].resource === res.type) {
+                      return res.range > 1;
+                    }
+                    return false;
+                  });
+                  
+                  // Check if this tile is covered by a multi-tile resource from another tile
+                  let isCoveredByMultiTile = false;
+                  let coveringResource = null;
+                  
+                  // Check all potential anchor positions that could cover this tile
+                  for (let dx = 0; dx < 4; dx++) {
+                    for (let dy = 0; dy < 4; dy++) {
+                      const anchorX = x - dx;
+                      const anchorY = y + dy;
+                      
+                      if (anchorX >= 0 && anchorX < GRID_SIZE && anchorY >= 0 && anchorY < GRID_SIZE) {
+                        const anchorTile = grid[anchorX][anchorY];
+                        if (anchorTile && anchorTile.resource) {
+                          const resource = masterResources.find(r => r.type === anchorTile.resource);
+                          if (resource && resource.range > 1) {
+                            // Check if this tile falls within the resource's range
+                            // Resources in the editor use top-left anchoring (different from game's bottom-left)
+                            if (x >= anchorX && x < anchorX + resource.range &&
+                                y >= anchorY && y < anchorY + resource.range &&
+                                !(x === anchorX && y === anchorY)) {
+                              isCoveredByMultiTile = true;
+                              coveringResource = resource;
+                              break;
+                            }
+                          }
+                        }
+                      }
+                    }
+                    if (isCoveredByMultiTile) break;
+                  }
+                  
+                  return (
+                    <Tile
+                      key={`${x}-${y}`}
+                      x={x}
+                      y={y}
+                      tile={tile}
+                      updateTile={() => handleTileClick(x, y)}
+                      isSelected={selectedTile?.x === x && selectedTile?.y === y}
+                      setSelectedTile={setSelectedTile}
+                      tileSize={tileSize}
                       masterResources={masterResources}
-
-                  />
-                ))}
+                      multiTileResource={multiTileResource}
+                      isCoveredByMultiTile={isCoveredByMultiTile}
+                      coveringResource={coveringResource}
+                    />
+                  );
+                })}
               </div>
 
               {/* Right Ruler */}
