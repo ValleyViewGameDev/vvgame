@@ -1,14 +1,11 @@
 import React from 'react';
 
-const Tile = ({ x, y, tile, updateTile, isSelected, setSelectedTile, tileSize, masterResources, multiTileResource, isCoveredByMultiTile, coveringResource }) => {
+const Tile = ({ x, y, tile, updateTile, isSelected, setSelectedTile, tileSize, masterResources, multiTileResource }) => {
   const resourceSymbol = (() => {
     if (!tile.resource) return "";
     const res = masterResources.find(r => r.type === tile.resource);
     return res?.symbol || "";
   })();
-  
-  // If this tile is covered by a multi-tile resource, make it semi-transparent
-  const opacity = isCoveredByMultiTile ? 0.3 : 1;
 
   return (
     <div 
@@ -32,8 +29,8 @@ const Tile = ({ x, y, tile, updateTile, isSelected, setSelectedTile, tileSize, m
         justifyContent: "center",
         fontSize: `${tileSize * 0.6}px`,
         userSelect: "none",
-        opacity: opacity,
         position: "relative",
+        overflow: "visible",
       }}
     >
       {/* Multi-tile resource rendering */}
@@ -45,7 +42,7 @@ const Tile = ({ x, y, tile, updateTile, isSelected, setSelectedTile, tileSize, m
             height: `${tileSize * multiTileResource.range}px`,
             position: 'absolute',
             left: '0',
-            top: '0',
+            bottom: '0',  // Changed from top: '0' to bottom: '0' for bottom-left anchoring
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -55,20 +52,6 @@ const Tile = ({ x, y, tile, updateTile, isSelected, setSelectedTile, tileSize, m
           }}
         >
           {resourceSymbol}
-        </div>
-      ) : isCoveredByMultiTile ? (
-        // Show a subtle indicator that this tile is part of a multi-tile object
-        <div
-          style={{
-            position: 'absolute',
-            top: '2px',
-            right: '2px',
-            fontSize: `${tileSize * 0.3}px`,
-            color: '#888',
-            pointerEvents: 'none',
-          }}
-        >
-          ◆
         </div>
       ) : (
         // Single-tile resource rendering

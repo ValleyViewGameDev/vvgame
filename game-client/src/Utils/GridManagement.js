@@ -283,10 +283,55 @@ export const changePlayerLocation = async (
     console.log(`📡 Emitted join-grid for grid: ${toLocation.g}`);
     socket.emit('set-username', { username: currentPlayer.username });
     
-    // ✅ STEP 11: Center view on player
+    // ✅ STEP 11: Check if we need to find a signpost location
+    let finalX = toLocation.x;
+    let finalY = toLocation.y;
+    
+    if (toLocation.findSignpost) {
+      console.log(`🔍 Looking for ${toLocation.findSignpost} on the destination grid...`);
+      
+      // Get the resources that were just loaded
+      const currentResources = GlobalGridStateTilesAndResources.getResources();
+      const signpost = currentResources.find(res => res.type === toLocation.findSignpost);
+      
+      if (signpost) {
+        console.log(`✅ Found ${toLocation.findSignpost} at (${signpost.x}, ${signpost.y})`);
+        finalX = signpost.x;
+        finalY = signpost.y;
+        
+        // Update the player's position to the signpost location
+        const updatedPlayerData = {
+          ...playerData,
+          position: { x: finalX, y: finalY }
+        };
+        
+        // Update local state
+        playersInGridManager.updatePC(toLocation.g, currentPlayer.playerId, updatedPlayerData);
+        
+        // Update database
+        await axios.post(`${API_BASE}/api/save-single-pc`, {
+          gridId: toLocation.g,
+          playerId: currentPlayer.playerId,
+          pc: updatedPlayerData,
+          lastUpdated: Date.now(),
+        });
+        
+        // Emit updated position
+        socket.emit('player-moved', {
+          gridId: toLocation.g,
+          playerId: currentPlayer.playerId,
+          position: { x: finalX, y: finalY },
+          username: currentPlayer.username,
+        });
+      } else {
+        console.log(`⚠️ ${toLocation.findSignpost} not found on destination grid, using default position (0, 0)`);
+      }
+    }
+    
+    // ✅ STEP 12: Center view on player
     console.log('6️⃣ Centering view...');
 
-    centerCameraOnPlayer({ x: toLocation.x, y: toLocation.y }, TILE_SIZE);
+    centerCameraOnPlayer({ x: finalX, y: finalY }, TILE_SIZE);
 
     console.log('✅ Location change complete');
   } catch (error) {

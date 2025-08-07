@@ -48,14 +48,17 @@ export async function handleTransitSignpost(
         gridCoord: currentPlayer.gridCoord,
       });
       
+      // We need to find the Signpost Town location on the homestead
+      // This will be done after changePlayerLocation loads the destination grid
       const newPlayerPosition = {
-        x: 0, 
+        x: 0, // Will be updated to Signpost Town location
         y: 0,
         g: currentPlayer.gridId,      // The player's homestead grid
         s: currentPlayer.settlementId,
         f: currentPlayer.location.f,
         gtype: "homestead",
         gridCoord: currentPlayer.gridCoord,
+        findSignpost: "Signpost Town", // Flag to find this resource after grid loads
       };
       updateStatus(101);
       await changePlayerLocation(
@@ -89,13 +92,14 @@ export async function handleTransitSignpost(
 
       console.log("Found town grid:", townGrid);
       const newPlayerPosition = {
-        x: 0,  // upper left of town
+        x: 0,  // Will be updated to Signpost Home location
         y: 0,
         g: townGrid.gridId,
         s: settlementId,
         f: frontierId,
         gtype: "town",
         gridCoord: townGrid.gridCoord,
+        findSignpost: "Signpost Home", // Flag to find this resource after grid loads
       };
       updateStatus(102);
       await changePlayerLocation(
