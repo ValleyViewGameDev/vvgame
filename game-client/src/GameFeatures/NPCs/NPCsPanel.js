@@ -53,8 +53,13 @@ const QuestGiverPanel = ({
 
   // Check developer status
   useEffect(() => {
-    const devStatus = checkDeveloperStatus(currentPlayer);
-    setIsDeveloper(devStatus);
+    const checkStatus = async () => {
+      if (currentPlayer?.username) {
+        const devStatus = await checkDeveloperStatus(currentPlayer.username);
+        setIsDeveloper(devStatus);
+      }
+    };
+    checkStatus();
   }, [currentPlayer]);
 
   // Check if player can quest based on relationship
@@ -100,7 +105,7 @@ const QuestGiverPanel = ({
       const response = await axios.get(`${API_BASE}/api/quests`);
 
       // Use new quest filtering logic
-      const npcQuests = response.data
+      let npcQuests = response.data
         .filter((quest) => quest.giver === npcData.type)
         .filter((quest) => {
           const activeQuest = currentPlayer.activeQuests.find(q => q.questId === quest.title);
@@ -109,6 +114,15 @@ const QuestGiverPanel = ({
           }
           return quest.repeatable || !currentPlayer.completedQuests.some(q => q.questId === quest.title);
         });
+
+      // Filter by FTUE step if player has one
+      if (currentPlayer.ftuestep != null) {
+        console.log(`🎓 Filtering quests by FTUE step: ${currentPlayer.ftuestep}`);
+        npcQuests = npcQuests.filter((quest) => {
+          // Only show quests that have an ftuestep and it's less than or equal to current step
+          return quest.ftuestep != null && quest.ftuestep <= currentPlayer.ftuestep;
+        });
+      }
 
       setQuestList(npcQuests);
     } catch (error) {
