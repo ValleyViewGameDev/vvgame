@@ -60,6 +60,13 @@ class GridStatePCManager {
         }));
 
         console.log(`✅ Initialized playersInGrid for gridId ${gridId}:`, pcs);
+        
+        // Request fresh player list from server after loading DB state
+        // This will override any stale data with current server state
+        console.log('🔄 Requesting current players from server for grid:', gridId);
+        if (socket && socket.emit) {
+          socket.emit('request-current-grid-players', { gridId });
+        }
       } catch (error) {
         console.error('❌ Error fetching playersInGrid:', error);
       }

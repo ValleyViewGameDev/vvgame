@@ -125,13 +125,29 @@ const GridEditor = ({ activePanel }) => {
 
       // ✅ DELETE or BACKSPACE now removes resource if present, else resets tile type
       if (key === "backspace" || key === "delete") {
-        const currentTile = grid[selectedTile.x][selectedTile.y];
-        if (currentTile.resource) {
-          console.log(`❌ Removing resource at (${selectedTile.x}, ${selectedTile.y})`);
-          updateTileResource(selectedTile.x, selectedTile.y, "");
-        } else {
-          console.log(`❌ Resetting tile at (${selectedTile.x}, ${selectedTile.y}) to "None (**)"`);
-          updateTileType(selectedTile.x, selectedTile.y, "**");
+        console.log(`❌ Deleting with brush size ${brushSize}`);
+        // Apply delete in a diamond shape based on brushSize
+        for (let dx = -brushSize + 1; dx < brushSize; dx++) {
+          for (let dy = -brushSize + 1; dy < brushSize; dy++) {
+            const x = selectedTile.x + dx;
+            const y = selectedTile.y + dy;
+            if (
+              x >= 0 &&
+              x < GRID_SIZE &&
+              y >= 0 &&
+              y < GRID_SIZE &&
+              Math.abs(dx) + Math.abs(dy) < brushSize
+            ) {
+              const currentTile = grid[x][y];
+              if (currentTile.resource) {
+                console.log(`❌ Removing resource at (${x}, ${y})`);
+                updateTileResource(x, y, "");
+              } else {
+                console.log(`❌ Resetting tile at (${x}, ${y}) to "None (**)"`);
+                updateTileType(x, y, "**");
+              }
+            }
+          }
         }
         // Ensure selectedTile state is refreshed so user can DEL again
         setSelectedTile({ x: selectedTile.x, y: selectedTile.y });

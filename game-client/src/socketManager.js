@@ -11,7 +11,7 @@ const socket = io('https://vvgame-server.onrender.com', {
   autoConnect: false, // Don't connect until explicitly told to
 });
 
-export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setPlayersInGrid) {
+export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setPlayersInGrid, controllerUsername, setControllerUsername) {
 
   console.log("🌐 useEffect for PC join & leave running. gridId:", gridId, "socket:", !!socket);
   console.log("  🌐 isMasterResourcesReady = ", isMasterResourcesReady);
@@ -83,18 +83,37 @@ const handlePlayerJoinedGrid = ({ playerId, username, playerData, emitterId }) =
     });
   };
 
-  const handleCurrentGridPlayers = ({ gridId, pcs }) => {
-    //console.log(`📦 Received current PCs for grid ${gridId}:`, pcs);
+  const handleCurrentGridPlayers = ({ gridId: receivedGridId, pcs }) => {
+    console.log(`📦 Received current PCs for grid ${receivedGridId}:`, pcs);
+    
+    // Only update if this is for our current grid
+    if (receivedGridId !== gridId) {
+      console.log(`🔄 Ignoring PC list for different grid ${receivedGridId} (current: ${gridId})`);
+      return;
+    }
+    
+    // Replace the entire pcs object with server's authoritative list
     setPlayersInGrid(prev => ({
       ...prev,
       [gridId]: {
         ...prev[gridId],
-        pcs: {
-          ...(prev[gridId]?.pcs || {}),
-          ...pcs,
-        },
+        pcs: pcs || {}, // Complete replacement, not a merge
       },
     }));
+    
+    // Also update the memory manager with the complete list
+    if (playersInGridManager.setAllPCs) {
+      playersInGridManager.setAllPCs(gridId, pcs || {});
+    }
+    
+    // Check if the current controller is in the player list
+    if (controllerUsername && setControllerUsername) {
+      const controllerStillInGrid = Object.values(pcs || {}).some(pc => pc.username === controllerUsername);
+      if (!controllerStillInGrid) {
+        console.log(`🎮 NPCController ${controllerUsername} is not in the current player list, clearing controller`);
+        setControllerUsername(null);
+      }
+    }
   };
 
   console.log("🧲 [NPCsInGrid join/leave] Subscribing to PC and NPC join/leave sync events for grid:", gridId);

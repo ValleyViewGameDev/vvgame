@@ -10,7 +10,7 @@ import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { formatCountdown } from '../../UI/Timers';
 
-function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurrentPlayer }) {
+function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurrentPlayer, globalTuning }) {
 
   const strings = useStrings();
   const [tradeSlots, setTradeSlots] = useState([]);
@@ -23,8 +23,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const [viewedPlayerIndex, setViewedPlayerIndex] = useState(0); // Index of the currently viewed player
   const { updateStatus } = useContext(StatusBarContext);
 
-  const tradeStallHaircut = 0.25;
-  const sellWaitTime = 60 * 60 * 1000; // 1 hour
+  const tradeStallHaircut = globalTuning?.tradeStallHaircut || 0.25;
+  const sellWaitTime = globalTuning?.sellWaitTime || 60000; // Default to 60 seconds if not set
 
   const calculateTotalSlots = (player) => {
     // Base slots are now 4 for Free, Gold gets +2 (total 6)
@@ -39,8 +39,6 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 
   // Lift fetchDataForViewedPlayer out of useEffect for reuse
   const fetchDataForViewedPlayer = async (skipInventoryFetch = false) => {
-    console.log("🔍 [FETCH DEBUG] fetchDataForViewedPlayer called, skipInventoryFetch:", skipInventoryFetch);
-    console.trace("🔍 [FETCH DEBUG] Call stack for fetchDataForViewedPlayer");
     try {
       // Fetch resource data (e.g., for prices)
       const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
@@ -48,13 +46,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 
       // Only fetch inventory if not skipping (to avoid overwriting during collections)
       if (!skipInventoryFetch) {
-        console.log("🔍 [FETCH DEBUG] About to fetch inventory from server");
         const currentInventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
-        console.log("🔍 [FETCH DEBUG] Server returned inventory:", currentInventoryResponse.data.inventory);
-        console.log("🔍 [FETCH DEBUG] Previous local inventory was:", inventory);
         setInventory(currentInventoryResponse.data.inventory || []);
-      } else {
-        console.log("🔍 [FETCH DEBUG] Skipping inventory fetch to preserve local state");
       }
 
       // Fetch trade stall data for the viewed player
@@ -113,7 +106,6 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       }
     };
 
-    console.log("🔍 [EFFECT DEBUG] TradeStall useEffect triggered - viewedPlayer:", viewedPlayer?.playerId, "currentPlayer:", currentPlayer?.playerId);
     fetchDataForViewedPlayer();
     fetchSettlementPlayers();
     
@@ -152,7 +144,6 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     }
 
     const totalCost = slot.amount * slot.price;
-    console.log('Current inventory:', inventory);
     const currentMoney = inventory.find((item) => item.type === 'Money')?.quantity || 0;
 
     if (totalCost > currentMoney) {
@@ -166,8 +157,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       const success = await spendIngredients({
         playerId: currentPlayer.playerId,
         recipe: tempRecipe,
-        inventory,
-        backpack: [], // No backpack used here
+        inventory: currentPlayer.inventory || inventory,  // Use currentPlayer.inventory if available
+        backpack: currentPlayer.backpack || [], // No backpack used here
         setInventory,
         setBackpack: () => {}, // No-op
         setCurrentPlayer,
@@ -180,8 +171,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         currentPlayer,
         resource: slot.resource,
         quantity: slot.amount,
-        inventory,
-        backpack: [], // no backpack logic needed here
+        inventory: currentPlayer.inventory || inventory,  // Use currentPlayer.inventory if available
+        backpack: currentPlayer.backpack || [], // no backpack logic needed here
         setInventory,
         setBackpack: () => {},
         setCurrentPlayer,
@@ -201,6 +192,9 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         boughtFor: totalCost,
       };
 
+      // Remove this refresh call - spendIngredients and gainIngredients already handle it
+      // refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+      
       await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
         playerId: viewedPlayer.playerId,
         tradeStall: updatedSlots,
@@ -208,10 +202,10 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 
       setTradeSlots(updatedSlots);
       // Re-fetch the trade stall data for the viewed player to ensure up-to-date state
-      await fetchDataForViewedPlayer();
+      // Skip inventory fetch to preserve the updated inventory from spendIngredients/gainIngredients
+      await fetchDataForViewedPlayer(true);
 
       updateStatus(22);
-      console.log(`Purchased ${slot.amount}x ${slot.resource} for ${totalCost}`);
     } catch (error) {
       console.error('Error processing purchase:', error);
       throw error; // Re-throw to let TransactionButton handle the error state

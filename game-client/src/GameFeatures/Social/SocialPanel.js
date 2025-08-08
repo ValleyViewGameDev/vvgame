@@ -10,6 +10,7 @@ import NPCsInGridManager from '../../GridState/GridStateNPCs.js';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import RelationshipCard from '../Relationships/RelationshipCard';
 import '../Relationships/Relationships.css';
+import socket from '../../socketManager';
 
 const SocialPanel = ({
   onClose,
@@ -23,6 +24,8 @@ const SocialPanel = ({
   updateStatus,
   masterInteractions,
   isDeveloper,
+  controllerUsername,
+  setControllerUsername,
 }) => {
   const [tentCount, setTentCount] = useState(0);
   const [boatCount, setBoatCount] = useState(0);
@@ -326,7 +329,35 @@ const SocialPanel = ({
       playersInGridManager.removePC(gridId, playerId);
       console.log(`✅ Successfully removed player ${pcData.username} from local grid state`);
       
-      updateStatus(`Removed ${pcData.username} from grid (permanent)`);
+      // Step 3: Force NPCController transfer if the removed player was the controller
+      // Check if the removed player was the controller
+      if (controllerUsername === pcData.username) {
+        console.log(`🎮 Removed player ${pcData.username} was the NPCController, clearing controller`);
+        // Clear the controller username locally first
+        if (setControllerUsername) {
+          setControllerUsername(null);
+        }
+      }
+      
+      if (socket) {
+        console.log(`🎮 Forcing NPCController reassignment after removing ${pcData.username}`);
+        // Tell the server to remove this player and reassign controller
+        // Using existing socket events that the server already handles
+        socket.emit('leave-grid', { 
+          gridId: gridId,
+          playerId: playerId,
+          username: pcData.username
+        });
+        
+        // If they were the controller, request to become the new controller
+        if (controllerUsername === pcData.username) {
+          setTimeout(() => {
+            socket.emit('request-npc-controller', { gridId: gridId });
+          }, 100);
+        }
+      }
+      
+      updateStatus(`Removed ${pcData.username} from grid${controllerUsername === pcData.username ? ' and cleared NPC control' : ''}`);
       
       // Close the panel since the player is no longer in the grid
       if (pcData.username !== currentPlayer.username) {

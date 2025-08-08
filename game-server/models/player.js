@@ -6,7 +6,7 @@ const playerSchema = new mongoose.Schema({
   password: { type: String, required: true },
   language: { type: String, default: "English", required: true },
   firsttimeuser: { type: Boolean, default: true },
-  
+  ftuestep: { type: Number, default: 0 }, // e.g., 1 for first step
   icon: {
     type: String,
     required: true, // This might cause issues if `icon` is missing

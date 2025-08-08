@@ -80,12 +80,12 @@
 
     "201": "✅ Quest completed. You have your reward.",
     "202": "✅ Quest accepted.",
-    "203": "No active quests at the moment.",
-    "204": "Quests:",
-    "205": "No quests at this time.",
+    "203": "No active To Do's at the moment.",
+    "204": "To Do List:",
+    "205": "Nothing at this time.",
     "207": "In Progress",
     "208": "Get Reward",
-    "209": "Accept Quest",
+    "209": "Accept",
 
     "299": "FARMING STRINGS:",
     
@@ -143,7 +143,7 @@
     "1003": "Purchased animals will appear at your player icon, and immediately begin life on the homestead.",
     "1004": "Till land to dirt in order to plant crops. Plant grass to give farm animals something to graze on.",
     "1005": "Acquire Skills and Upgrades to improve various attributes. Make sure to explore the Town to find additional places and ways to gain Skills and Upgrades.",
-    "1006": "Manage all of your ongoing quests here. Look for quest-giving characters on your homestead as well as Town, or even the Valley.",
+    "1006": "Manage your ongoing To Do list here. Look for quest-giving characters on your homestead as well as Town, or even the Valley.",
     "1007": "Governments in Valley View are formed at the settlement level. The elected mayor implements policies and builds buildings to help the community thrive.",
     "1009": "[Crafting description]",
     "1010": "[Mailbox description]",
@@ -164,13 +164,13 @@
     "1026": "[Money panel description]",
     "1027": "These are the benefits of a Gold Pass.",
     "1028": "[Decorations panel description]",
- 
+
     "1101": "Inventory",
     "1102": "⚒️ Build",
     "1103": "🛒 Buy",
     "1104": "🚜 Farming",
     "1105": "💪 Skills",
-    "1106": "❓ Quests",
+    "1106": "❓ To Do List",
     "1107": "🏛️ Government",
     "1108": "📥 Trade", 
     "1109": "Crafting",
@@ -192,7 +192,7 @@
     "1125": "🛒 Shop",
     "1126": "💰 About Money",
     "1127": "⭐️ Gold Pass",
-    "1128": "🪑 Decorations",
+    "1128": "🪴 Decorations",
 
 
     "1200": "TRADER STORY STRINGS",
@@ -544,8 +544,7 @@
 
     "12001": "Farming",
     "12002": "Build",
-    "12003": "Buy Animals & Decorations",
-    "12004": "Active Quests",
+    "12004": "To Do List",
     "12005": "Skills",
     "12006": "Combat",
     "12007": "Government",
@@ -594,11 +593,11 @@
     "701": "Welcome to Valley View (Open Beta)",
     "702": "Welcome, traveler! You've arrived in Valley View, a frontier land of opportunity and adventure.",
     "703": "Your Homestead",
-    "704": "This is your homestead, your personal space to 🚜 farm, 🛖 craft and ⚒️ build. Use WASD keys to move around and explore your land. Gather resources 🪵, plant crops 🌾, and buy animals 🐮.",
-    "705": "Trading",
-    "706": "Open the 📤 Trading Post on your homestead to sell goods and earn 💰 money. Trade with other players for better prices.",
-    "707": "Grow Your Skills",
-    "708": "Gain 💪 Skills to grow your homestead and travel beyond it. Over time, you can specialize in 🚜 Farming, ⚔️ Adventure or 🏛️ Politics. Balance skills with other players, and create a thriving community.",
+    "704": "You've inherited a Homestead in a Settlement with other players. Start by fixing up this abandoned farm house. You'll need to gather some wood first.",
+    "705": "Hire Kent",
+    "706": "Excellent! Now, you're going to need to start making money. But you can't do it alone; you'll need a Farm Manager who can live here full time and help you grow the operation. Click on the Farm House to hire employees.",
+    "707": "Listen to Kent",
+    "708": "Great, Kent is the best! Listen to him, and you'll be growing this place in no time. He'll give you advice, and you can check your 'To Do' list at any time.",
     "709": "Explore",
     "710": "Your homestead is part of a larger settlement of other players. Use ➡️ Signposts to travel, or walk to the edge of any map.",
     "711": "Characters of Valley View",
@@ -608,16 +607,23 @@
     "715": "Ready to Play",
     "716": "This game is in Open Beta. Your feedback is very welcome, and will help us improve the game. Look for the button on the left panel to join our Discord Server, where you can share your thoughts and experiences.",
     "730": "Skip Tutorial",
-    "731": "Next",
+    "731": "OK",
     "732": "Back",
     "733": "Play",
+
+    "750": "Trading",
+    "751": "Open the 📤 Trading Post on your homestead to sell goods and earn 💰 money. Trade with other players for better prices.",
+    "753": "Gain 💪 Skills to grow your homestead and travel beyond it. Over time, you can specialize in 🚜 Farming, ⚔️ Adventure or 🏛️ Politics. Balance skills with other players, and create a thriving community.",
 
     "11000": "ADDED STRINGS:",
 
     "490": "Sell for refund (Dev only)",
     "156": "Empty (add items)",
     "157": "Bought by",
-    "159": "Ready to sell"
-
+    "159": "Ready to sell",
+    "12003": "Animals",
+    "12011": "Decorations",
+    "1031": "Buy decorations for your homesetead. You will be able to sell these for a full refund.",
+    "1131": "🪴 Decorations"
   }
 

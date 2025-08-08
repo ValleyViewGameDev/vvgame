@@ -1,0 +1,51 @@
+[
+   {
+      "step": 1,
+      "titleKey": 701,
+      "bodyKey": 702,
+      "image": "ftue-welcome.png",
+      "continue": true
+    },
+    {
+      "step": 2,
+      "titleKey": 703,
+      "bodyKey": 704,
+      "image": "ftue-abandonedhouse.png",
+      "continue": false
+    },
+    {
+      "step": 3,
+      "titleKey": 705,
+      "bodyKey": 706,
+      "image": "ftue-kent.png",
+      "continue": false
+    },
+    {
+      "step": 4,
+      "titleKey": 707,
+      "bodyKey": 708,
+      "image": "ftue-skills.png",
+      "continue": false
+    },
+    {
+      "step": 5,
+      "titleKey": 709,
+      "bodyKey": 710,
+      "image": "ftue-exploring.png",
+      "continue": false
+    },
+    {
+      "step": 6,
+      "titleKey": 711,
+      "bodyKey": 712,
+      "image": "ftue-quests.png",
+      "continue": false
+    },
+    {
+      "step": 7,
+      "titleKey": 713,
+      "bodyKey": 714,
+      "image": "ftue-valley.png",
+      "continue": false
+    }
+]

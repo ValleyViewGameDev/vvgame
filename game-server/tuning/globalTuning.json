@@ -2,11 +2,12 @@
   "closerZoom": 50,
   "closeZoom": 30,
   "farZoom": 16,
+  "tradeStallHaircut": 0.25,
+  "sellWaitTime": 3600000,
   "mayorcut": 50,
   "bankOffers": 3,
   "seasonMoneyNerf": 0.9,
   "seasonMoneyNerfGold": 0.75,
-  "tradeStallHaircut": 0.25,
   "baseHoursForTrain": 6,
   "taxes": {
     "phases": {

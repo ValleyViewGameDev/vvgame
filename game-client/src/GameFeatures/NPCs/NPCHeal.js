@@ -1,7 +1,6 @@
 import axios from 'axios';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
-import playersInGridManager from '../../GridState/PlayersInGrid';
 import { calculateDistance } from './NPCHelpers';
 
 async function handleHealBehavior(gridId) {
@@ -27,13 +26,6 @@ async function handleHealBehavior(gridId) {
 
     switch (this.state) {
         case 'idle': {
-            //console.log(`NPC ${this.id} is in IDLE state.`);
-
-            // ✅ **Check for nearby PCs using calculateDistance**
-            // const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
-            //     calculateDistance(pc.position, this.position) <= this.range
-            // );
-            // if (pcsInRange) { break; }
             
             await this.handleIdleState(tiles, resources, npcs, 5, async () => {
                 //console.log(`NPC ${this.id} transitioning to roam state.`);
@@ -45,12 +37,7 @@ async function handleHealBehavior(gridId) {
           }
 
           case 'roam': {
-            //console.log(`NPC ${this.id} is roaming.`);
-            // const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
-            //     calculateDistance(pc.position, this.position) <= this.range
-            // );
-            // if (pcsInRange) { this.state = 'idle'; await updateThisNPC(); break; }
-            
+
             await this.handleRoamState(tiles, resources, npcs, () => {
                 //console.log(`NPC ${this.id} transitioning back to idle.`);
                 this.state = 'idle'; // Transition to the idle state

@@ -479,7 +479,7 @@ function handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverToolt
       break;
     }
     case 'quest':
-      tooltipContent = `<p>${npc.type}</p><p>Quest, anyone?</p>`;
+      tooltipContent = `<p>${npc.type}</p><p>"Need some advice?"</p>`;
       break;
     case 'attack':
     case 'spawn':

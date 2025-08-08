@@ -12,12 +12,14 @@ import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
+import playersInGridManager from '../../GridState/PlayersInGrid';
 import { createCollectEffect } from '../../VFX/VFX';
 import { useStrings } from '../../UI/StringsContext';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import '../../UI/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
+import { handleConstruction } from '../BuildAndBuy';
 
 const CraftingStation = ({
   onClose,
@@ -48,6 +50,7 @@ const CraftingStation = ({
   const [craftingCountdown, setCraftingCountdown] = useState(null);
   const [isCrafting, setIsCrafting] = useState(false);
   const [isReadyToCollect, setIsReadyToCollect] = useState(false);
+  const [npcRefreshKey, setNpcRefreshKey] = useState(0);
 
    // ✅ Check for active crafting timers
    useEffect(() => {
@@ -116,7 +119,30 @@ const CraftingStation = ({
   // Fetch recipes and resources (refactored: use masterResources directly)
   useEffect(() => {
     try {
-      const filteredRecipes = masterResources.filter((resource) => resource.source === stationType);
+      let filteredRecipes = masterResources.filter((resource) => resource.source === stationType);
+      
+      // Filter out non-repeatable resources that already exist on the grid
+      const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
+      if (npcsInGrid) {
+        // Get all NPC types currently on the grid
+        // NPCs are stored directly under NPCsInGrid with their ID as the key
+        const existingNPCTypes = Object.values(npcsInGrid)
+          .filter(npc => npc && npc.type) // Filter out any null/undefined entries
+          .map(npc => npc.type);
+        
+        console.log('Existing NPC types on grid:', existingNPCTypes);
+        
+        // Filter out non-repeatable recipes that already exist
+        filteredRecipes = filteredRecipes.filter(recipe => {
+          // If it's not repeatable and already exists, filter it out
+          if (recipe.repeatable === false && existingNPCTypes.includes(recipe.type)) {
+            console.log(`Filtering out non-repeatable ${recipe.type} - already exists on grid`);
+            return false;
+          }
+          return true;
+        });
+      }
+      
       setRecipes(filteredRecipes);
       const stationResource = masterResources.find((resource) => resource.type === stationType);
       setStationEmoji(stationResource?.symbol || '🛖');
@@ -125,7 +151,16 @@ const CraftingStation = ({
     } catch (error) {
       console.error('Error processing masterResources:', error);
     }
-  }, [stationType, masterResources]);
+  }, [stationType, masterResources, gridId, npcRefreshKey]);
+  
+  // Periodically refresh to check for NPC changes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNpcRefreshKey(prev => prev + 1);
+    }, 2000); // Check every 2 seconds
+    
+    return () => clearInterval(interval);
+  }, []);
 
 
   const hasRequiredSkill = (requiredSkill) => {
@@ -213,6 +248,13 @@ const CraftingStation = ({
       return; 
     }
 
+    // Special handling for Repair type recipes
+    if (recipe.type === "Repair") {
+      console.log("🔧 Repair type detected, calling handleRepairHouse");
+      await handleRepairHouse(transactionId, transactionKey, recipe);
+      return;
+    }
+
     try {
       const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
         playerId: currentPlayer.playerId,
@@ -259,6 +301,8 @@ const CraftingStation = ({
           const craftedResource = allResources.find(res => res.type === collectedItem);
           if (craftedResource) {
             NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
+            // Trigger refresh to update available recipes
+            setNpcRefreshKey(prev => prev + 1);
           }
         } else {
           // Only add non-NPC items to inventory
@@ -339,6 +383,95 @@ const CraftingStation = ({
     });
   };
   
+  // Handle repair of Abandoned House to Farm House
+  const handleRepairHouse = async (transactionId, transactionKey, recipe) => {
+    console.log("🔧 Starting house repair process");
+    
+    try {
+      // Save the current position before selling
+      const repairX = currentStationPosition.x;
+      const repairY = currentStationPosition.y;
+      
+      console.log("📦 Step 1: Removing Abandoned House via sell");
+      
+      // First, sell/remove the Abandoned House using existing selling logic
+      await handleProtectedSelling({
+        currentPlayer,
+        setInventory,
+        setBackpack,
+        setCurrentPlayer,
+        setResources,
+        stationType,
+        currentStationPosition,
+        gridId,
+        TILE_SIZE,
+        updateStatus,
+        onClose: () => {} // Don't close the panel yet
+      });
+      
+      // Wait a bit to ensure the sell completes
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      console.log("🏠 Step 2: Placing Farm House at the same location");
+      
+      // Create a mock current player position at the repair location
+      // This is needed because handleConstruction uses player position
+      const mockPlayersInGrid = {
+        [currentPlayer.playerId]: {
+          position: { x: repairX, y: repairY }
+        }
+      };
+      
+      // Temporarily override the playersInGridManager to return our position
+      const originalGetPlayersInGrid = playersInGridManager.getPlayersInGrid;
+      playersInGridManager.getPlayersInGrid = () => mockPlayersInGrid;
+      
+      try {
+        // Now place the Farm House using existing construction logic
+        await handleConstruction({
+          TILE_SIZE,
+          selectedItem: "Farm House",
+          buildOptions: masterResources, // This contains all resources including Farm House
+          inventory,
+          setInventory,
+          backpack,
+          setBackpack,
+          resources: GlobalGridStateTilesAndResources.getResources(),
+          setResources,
+          currentPlayer,
+          setCurrentPlayer,
+          gridId,
+          updateStatus
+        });
+      } finally {
+        // Restore the original function
+        playersInGridManager.getPlayersInGrid = originalGetPlayersInGrid;
+      }
+      
+      // Track quest progress for Repair type
+      console.log("🎯 Tracking quest progress for Repair");
+      await trackQuestProgress(currentPlayer, 'Repair', 'Farm House', 1, setCurrentPlayer);
+      
+      // Advance FTUE step when repair is completed
+      if (currentPlayer?.ftuestep && currentPlayer.ftuestep > 0) {
+        const { incrementFTUEStep } = await import('../FTUE/FTUE');
+        await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+        console.log("📚 Advanced FTUE step after house repair");
+      }
+      
+      // Success message
+      updateStatus("🏠 House repaired successfully!");
+      
+      // Close the panel after successful repair
+      setTimeout(() => {
+        onClose();
+      }, 1000);
+      
+    } catch (error) {
+      console.error('❌ Error in handleRepairHouse:', error);
+      updateStatus('❌ Failed to repair house');
+    }
+  };
 
   return (
     <Panel onClose={onClose} descriptionKey="1009" titleKey="1109" panelName="CraftingStation">

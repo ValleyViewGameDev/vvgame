@@ -183,11 +183,14 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
         playerId,
         delta: { type: 'Money', quantity: 10000, target: 'inventory' },
       });
-      // Refresh player data
-      await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
+
       // Update local inventory state
       const updatedInventory = await fetchInventory(playerId);
       setInventory(updatedInventory);
+      // Update currentPlayer with the new inventory
+      setCurrentPlayer(prev => ({ ...prev, inventory: updatedInventory }));
+      // Refresh player data (but preserve the inventory we just set)
+      await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer, true);
       console.log('✅ Added 10,000 Money successfully using delta update.');
     } catch (error) {
       console.error('❌ Error adding money:', error);
@@ -241,12 +244,15 @@ const handleGetRich = async () => {
       delta: resourcesToAdd.map(item => ({ ...item, target: 'inventory' })),
     });
 
-    // Refresh player data after the batched update
-    await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
-
     // Update local inventory state
     const updatedInventory = await fetchInventory(playerId);
     setInventory(updatedInventory);
+    
+    // Update currentPlayer with the new inventory
+    setCurrentPlayer(prev => ({ ...prev, inventory: updatedInventory }));
+    
+    // Refresh player data after the batched update (preserve inventory)
+    await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer, true);
 
     console.log('💰 Get Rich: Inventory updated successfully via delta.');
   } catch (error) {
@@ -690,14 +696,15 @@ const handleGetRich = async () => {
       // Update player document on DB: player.firsttimeuser = true
       const response = await axios.post(`${API_BASE}/api/update-profile`, {
         playerId,
-        updates: { firsttimeuser: true }
+        updates: { firsttimeuser: true, ftuestep: 1 }, 
       });
       
       if (response.data.success) {
         // Update in the local storage as well
         const updatedPlayer = {
           ...currentPlayer,
-          firsttimeuser: true
+          firsttimeuser: true,
+          ftuestep: 1, 
         };
         localStorage.setItem('player', JSON.stringify(updatedPlayer));
         
@@ -850,11 +857,10 @@ const handleGetRich = async () => {
         >
           Send Message
         </button>
-
-
       </div>
 
-
+    <br />
+    <h3>FTUE Step: {currentPlayer?.ftuestep || "Not set"}</h3>
 
       <div className="debug-timers">
         <h3>⏳ Active Timers:</h3>

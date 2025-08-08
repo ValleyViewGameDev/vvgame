@@ -142,8 +142,8 @@ const FarmingPanel = ({
             <ResourceButton
               symbol="🟨"
               name="Lay Pavement"
-              details="Costs: None"
-              disabled={isActionCoolingDown}
+              details="Costs: None<br>Requires: Pickaxe"
+              disabled={isActionCoolingDown || !hasRequiredSkill('Pickaxe')}
               info={strings[312]}
               onClick={() => handleTerraformWithCooldown("pave")}
             />

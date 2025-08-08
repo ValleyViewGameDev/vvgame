@@ -87,17 +87,35 @@ const SkillsAndUpgradesPanel = ({
         setOwnedUpgrades(ownedUpgrades);
 
         // ✅ Filter skills & upgrades based on `entryPoint`
-        const availableSkills = allResourcesData.filter(
+        let availableSkills = allResourcesData.filter(
           res => res.category === 'skill' &&
           res.source === entryPoint && 
           !ownedSkills.some(owned => owned.type === res.type)
         );
 
-        const availableUpgrades = allResourcesData.filter(
+        let availableUpgrades = allResourcesData.filter(
           res => res.category === 'upgrade' &&
           res.source === entryPoint && 
           !ownedUpgrades.some(owned => owned.type === res.type)
         );
+
+        // ✅ Additional filter for first-time users
+        if (currentPlayer?.firsttimeuser === true) {
+          // Helper function to check if skill can be acquired
+          const canAcquireSkill = (skill) => {
+            // Check if skill has requirements
+            if (skill.requires) {
+              // Check if the player owns the required skill
+              return ownedSkills.some(owned => owned.type === skill.requires) ||
+                     ownedUpgrades.some(owned => owned.type === skill.requires);
+            }
+            // If no requirements, can acquire
+            return true;
+          };
+
+          availableSkills = availableSkills.filter(canAcquireSkill);
+          availableUpgrades = availableUpgrades.filter(canAcquireSkill);
+        }
 
         setSkillsToAcquire(availableSkills);
         setUpgradesToAcquire(availableUpgrades);

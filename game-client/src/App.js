@@ -52,6 +52,7 @@ import DebugPanel from './Utils/debug';
 import InventoryPanel from './GameFeatures/Inventory/InventoryPanel';
 import BuildPanel from './GameFeatures/Build/BuildPanel';
 import BuyPanel from './GameFeatures/Buy/BuyPanel';
+import BuyDecoPanel from './GameFeatures/Deco/BuyDecoPanel';
 import SkillsAndUpgradesPanel from './GameFeatures/Skills/SkillsPanel';
 import FarmingPanel from './GameFeatures/Farming/FarmingPanel';
 import HowToPanel from './UI/HowToPanel';
@@ -304,6 +305,21 @@ useEffect(() => {
   }
 }, [currentPlayer]);
 
+// Track the last shown FTUE step to detect changes
+const [lastShownFTUEStep, setLastShownFTUEStep] = useState(null);
+
+// Watch for ftuestep changes to show FTUE modal
+useEffect(() => {
+  if (currentPlayer?.ftuestep && currentPlayer.ftuestep > 0) {
+    // Only show modal if this is a different step than last shown
+    if (currentPlayer.ftuestep !== lastShownFTUEStep) {
+      console.log('🎓 FTUE step changed to:', currentPlayer.ftuestep, ', showing FTUE');
+      setShowFTUE(true);
+      setLastShownFTUEStep(currentPlayer.ftuestep);
+    }
+  }
+}, [currentPlayer?.ftuestep, lastShownFTUEStep]);
+
 const [inventory, setInventory]  = useState({});
 const [backpack, setBackpack] = useState({});
 const [playerPosition, setPlayerPosition] = useState(null);
@@ -521,6 +537,10 @@ useEffect(() => {
       socket.emit('join-player-room', { playerId: DBPlayerData.playerId });
       console.log(`📡 Joined socket room for playerId: ${DBPlayerData.playerId}`);
       socket.emit('set-username', { username: DBPlayerData.username });
+      
+      // Request current NPCController status to clear any stale controller data
+      console.log(`🎮 Requesting current NPCController for grid: ${initialGridId}`);
+      socket.emit('request-npc-controller', { gridId: initialGridId });
 
       // Step 5. Initialize grid tiles, resources
       console.log('🏁✅ 5 InitAppWrapper; Initializing grid tiles and resources...');
@@ -656,9 +676,9 @@ useEffect(() => {
 
       setIsAppInitialized(true);
       
-      // Check if FTUE should be shown
-      if (updatedPlayerData.firsttimeuser === true) {
-        console.log('🎓 First time user detected, showing FTUE');
+      // Check if FTUE should be shown based on ftuestep
+      if (updatedPlayerData.ftuestep && updatedPlayerData.ftuestep > 0) {
+        console.log('🎓 FTUE step detected:', updatedPlayerData.ftuestep, ', showing FTUE');
         setShowFTUE(true);
       }
 
@@ -1017,8 +1037,8 @@ useEffect(() => {
 
 // 🔄 SOCKET LISTENER: Real-time updates for PC join and leave
 useEffect(() => {
-  socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setPlayersInGrid);
-}, [socket, gridId, isMasterResourcesReady, currentPlayer]);
+  socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterResourcesReady, setPlayersInGrid, controllerUsername, setControllerUsername);
+}, [socket, gridId, isMasterResourcesReady, currentPlayer, controllerUsername]);
 
 // 🔄 SOCKET LISTENER: PCs: Real-time updates for GridState (PC sync)
 useEffect(() => {
@@ -1463,17 +1483,8 @@ const handleLoginSuccess = async (player) => {
 
   const [showTimers, setShowTimers] = useState(false);
   const [showStats, setShowStats] = useState(false); // Toggle for combat stats UI
-  const combatStats = currentPlayer?.location?.g
-    ? playersInGrid?.[currentPlayer.location.g]?.pcs?.[String(currentPlayer?._id)] || {}
-    : {};
-  const gridStats = currentPlayer?.location
-    ? { gridCoord: currentPlayer.location.gridCoord,
-        gridType: currentPlayer.location.gtype,
-      }
-    : { gridCoord: 'Not loaded',
-        gridType: 'Not loaded',
-      };
-  
+  const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
+
   // Chat panel slideout state
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -1489,6 +1500,20 @@ return (
     <header className="app-header">
       <div className="header-controls-left">
         
+        <h1>{strings[0]}</h1>  
+
+        {currentPlayer?.accountStatus === 'Gold' && (
+          <button className="gold-button" onClick={() => openPanel('ProfilePanel')}>{currentPlayer.icon} Logged in as: {currentPlayer.username}</button>
+        )}
+        {currentPlayer?.accountStatus === 'Free' && (
+          <button className="shared-button" onClick={() => openPanel('ProfilePanel')}>{currentPlayer.icon} Logged in as: {currentPlayer.username}</button>
+        )}
+
+        <div className="zoom-controls">
+          <button className="zoom-button" disabled={!currentPlayer} onClick={zoomOut}>−</button>
+          <button className="zoom-button" disabled={!currentPlayer} onClick={zoomIn}>+</button>
+        </div>
+
         <button className="shared-button"
           onClick={() => openPanel('HowToMoneyPanel')}
         >
@@ -1539,55 +1564,49 @@ return (
 
     <div className="nav-column">
       <button className={`nav-button ${!activePanel ? 'selected' : ''}`} title={strings[12009]} onClick={() => closePanel()}>🏡</button>
-      <button className={`nav-button ${activePanel === 'ProfilePanel' || activePanel === 'LoginPanel' ? 'selected' : ''}`} title={strings[12010]} 
-          onClick={() => {
-            if (currentPlayer?.username) { 
-              openPanel('ProfilePanel');
-            } else { 
-              openPanel('LoginPanel');
-            }
-          }}
-        > 😀
-        </button>
-      
+      <button className={`nav-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}>❓</button>
+
       <button 
         className={`nav-button ${activePanel === 'FarmingPanel' ? 'selected' : ''}`} title={strings[12001]} disabled={!currentPlayer} 
         onClick={() => {
           if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
-          // Check if on another player's homestead
-          const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
           if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
           openPanel('FarmingPanel');
         }}
       >🚜</button>
       <button 
-        className={`nav-button ${activePanel === 'BuildPanel' ? 'selected' : ''}`} title={strings[12002]} disabled={!currentPlayer} 
-        onClick={() => {
-          if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
-          // Check if on another player's homestead
-          const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
-          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
-          openPanel('BuildPanel');
-        }}
-      >⚒️</button>
-      <button 
         className={`nav-button ${activePanel === 'BuyPanel' ? 'selected' : ''}`} title={strings[12003]} disabled={!currentPlayer} 
         onClick={() => {
           if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
-          // Check if on another player's homestead
-          const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
           if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
           openPanel('BuyPanel');
         }}
       >🐮</button>
+      <button 
+        className={`nav-button ${activePanel === 'BuildPanel' ? 'selected' : ''}`} title={strings[12002]} disabled={!currentPlayer} 
+        onClick={() => {
+          if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
+          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
+          openPanel('BuildPanel');
+        }}
+      >⚒️</button>
       <button className={`nav-button ${activePanel === 'SkillsAndUpgradesPanel' ? 'selected' : ''}`} title={strings[12005]} disabled={!currentPlayer} onClick={() => {
           setActiveStation(null); // ✅ Reset activeStation
           openPanel("SkillsAndUpgradesPanel"); // ✅ Open the panel normally
         }}>💪</button>
-      <button className={`nav-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}>❓</button>
+
+      <button 
+        className={`nav-button ${activePanel === 'BuyDecoPanel' ? 'selected' : ''}`} title={strings[12011]} disabled={!currentPlayer} 
+        onClick={() => {
+          if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
+          // Check if on another player's homestead
+          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
+          openPanel('BuyDecoPanel');
+        }}
+      >🪴</button>
+
       <button className={`nav-button ${activePanel === 'CombatPanel' ? 'selected' : ''}`} title={strings[12006]} disabled={!currentPlayer} onClick={() => openPanel('CombatPanel')}>⚔️</button>
       <button className={`nav-button ${activePanel === 'GovPanel' ? 'selected' : ''}`} title={strings[12007]} onClick={() => openPanel('GovPanel')}>🏛️</button>
-      <button className={`nav-button ${activePanel === 'SeasonPanel' ? 'selected' : ''}`} title={strings[12008]} onClick={() => openPanel('SeasonPanel')}>🗓️</button>
       {isDeveloper && (
         <button className={`nav-button ${activePanel === 'DebugPanel' ? 'selected' : ''}`} title="Debug" onClick={() => openPanel('DebugPanel')}>
           🐞
@@ -1601,24 +1620,8 @@ return (
 {/* ///////////////////  Base Panel  ///////////////////// */}
 
     <div className="base-panel">
-      <h1>{strings[0]}</h1>  
-      <br/>
-        {currentPlayer && (
-          <button className="shared-button" onClick={() => openPanel('ProfilePanel')}>
-            {currentPlayer.icon} Logged in: {currentPlayer.username}
-          </button>
-        )}
-        {currentPlayer?.accountStatus === 'Gold' && (
-          <button className="gold-button" onClick={() => openPanel('GoldBenefitsPanel')}>{strings[10108]}</button>
-        )}
 
-      <br/>
       <button className="shared-button" onClick={() => openPanel('HowToPanel')}>{strings[10109]} AWSD</button>
-      <div className="zoom-controls">
-        <button className="zoom-button" disabled={!currentPlayer} onClick={zoomOut}>−</button>
-        <button className="zoom-button" disabled={!currentPlayer} onClick={zoomIn}>+</button>
-        <span><h3>to Zoom</h3></span>
-      </div>
       <button className="shared-button" onClick={() => openPanel('HowToPanel')}>{strings[10110]}</button>
       <br/>
 
@@ -2171,6 +2174,25 @@ return (
           isDeveloper={isDeveloper}
         />
       )}
+      {activePanel === 'BuyDecoPanel' && (
+        <BuyDecoPanel
+          onClose={closePanel}
+          TILE_SIZE={activeTileSize}
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          resources={resources}
+          setResources={setResources}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          gridId={gridId}
+          masterResources={masterResources} 
+          masterSkills={masterSkills} 
+          updateStatus={updateStatus}
+          isDeveloper={isDeveloper}
+        />
+      )}
       {activePanel === 'QuestGiverPanel' && (
         <QuestGiverPanel
           onClose={closePanel}
@@ -2222,6 +2244,8 @@ return (
           updateStatus={updateStatus}
           masterInteractions={masterInteractions}
           isDeveloper={isDeveloper}
+          controllerUsername={controllerUsername}
+          setControllerUsername={setControllerUsername}
         />
       )}
       {activePanel === 'AnimalStall' && (
@@ -2308,6 +2332,7 @@ return (
             currentPlayer={currentPlayer}
             setCurrentPlayer={setCurrentPlayer}
             updateStatus={updateStatus}
+            globalTuning={globalTuning}
         />
       )}
       {activePanel === 'SeasonPanel' && (

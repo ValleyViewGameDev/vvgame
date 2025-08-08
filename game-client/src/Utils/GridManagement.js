@@ -283,6 +283,10 @@ export const changePlayerLocation = async (
     console.log(`📡 Emitted join-grid for grid: ${toLocation.g}`);
     socket.emit('set-username', { username: currentPlayer.username });
     
+    // Request current NPCController status to clear any stale controller data
+    console.log(`🎮 Requesting current NPCController for grid: ${toLocation.g}`);
+    socket.emit('request-npc-controller', { gridId: toLocation.g });
+    
     // ✅ STEP 11: Check if we need to find a signpost location
     let finalX = toLocation.x;
     let finalY = toLocation.y;
