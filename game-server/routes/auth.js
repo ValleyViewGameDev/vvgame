@@ -15,150 +15,9 @@ const starterAccount = JSON.parse(fs.readFileSync(starterAccountPath, 'utf8'));
 const { sendNewUserEmail } = require('../utils/emailUtils.js');
 const { performGridCreation, claimHomestead } = require('../utils/createGridLogic');
 
-// POST /register
-// router.post('/register', async (req, res) => {
-//   const { username, password, language, location } = req.body;
-//   console.log('POST /register:', { username, location });
-
-//   // Make sure we have username, password, language and location
-//   if (!username || !password || !language || !location) {
-//     return res.status(400).json({ error: 'Username, password, and language are required.' });
-//   }
-//   try {
-//     // 1) Check if username already exists
-//     const existingPlayer = await Player.findOne({ username });
-//     if (existingPlayer) {
-//       return res.status(400).json({ error: 'Username already exists.' });
-//     }
-//     // 2) Hash the password
-//     const hashedPassword = await bcrypt.hash(password, 10);
-//     // 3) Load default attributes from starterAccount
-//     const {
-//       icon: defaultIcon,
-//       range,
-//       baseHp,
-//       baseMaxhp,
-//       baseArmorclass,
-//       baseAttackbonus,
-//       baseDamage,
-//       baseSpeed,
-//       baseAttackrange,
-//       inventory,
-//       backpack,
-//       skills,
-//       powers,
-//       warehouseCapacity,
-//       backpackCapacity,
-//       accountStatus,
-//       role,
-//       iscamping,
-//       relocations,
-//     } = starterAccount.defaultAttributes;
-
-//     // 4) Validate location data
-//     const {
-//       g: gridId,
-//       s: settlementId,
-//       f: frontierId,
-//       gridCoord,
-//       x,
-//       y,
-//       gtype,
-//     } = location;
-
-//     if (!gridId || !settlementId || !frontierId) {
-//       return res.status(400).json({
-//         error: 'Location must include g (gridId), s (settlementId), and f (frontierId).',
-//       });
-//     }
-
-//     // 5) Create the new player
-//     const newPlayer = new Player({
-//       username,
-//       password: hashedPassword,
-//       icon: defaultIcon,      // always use default icon from starterAccount
-//       language,
-//       firsttimeuser: true, // always set to true for new players
-//       range,
-//       baseHp,
-//       baseMaxhp,
-//       baseArmorclass,
-//       baseAttackbonus,
-//       baseDamage,
-//       baseSpeed,
-//       baseAttackrange,
-//       inventory: [...inventory],
-//       backpack: [...backpack],
-//       skills: [...skills],
-//       powers: [...powers],
-//       warehouseCapacity,
-//       backpackCapacity,
-//       accountStatus,
-//       role,
-//       tradeStall: Array(starterAccount.tradeStallSlots[accountStatus] || 6).fill(null),
-//       location: {
-//         g: gridId,
-//         s: settlementId,
-//         f: frontierId,
-//         gridCoord: gridCoord || null,  // store numeric or string code
-//         x: x ?? 0,
-//         y: y ?? 0,
-//         gtype: gtype || '',
-//       },
-//       activeQuests: [
-//         {
-//           questId: "Find the Wizard in the Valley",
-//           completed: true, // Mark as completed so the player can collect the reward
-//           rewardCollected: false, // Ensure the reward is still available
-//           progress: {}, // No progress required since it's marked completed
-//           giver: "Wizard",
-//           startTime: Date.now(),
-//           reward: "Prospero's Orb",
-//           rewardqty: 1,
-//           symbol: "🧙", // Optional: Add a symbol for the quest
-//         },
-//       ],
-//       relocations,
-//       iscamping,
-//       gridId,
-//       settlementId,
-//       frontierId,
-//       settings: {
-//           isStateMachineEnabled: false,
-//           isTeleportEnabled: false,
-//           toggleVFX: true,
-//           hasDied: false,
-//         },
-//     });
-
-//     const grid = await Grid.findById(gridId);
-//     if (!grid) {
-//       console.warn(`❌ gridId ${gridId} passed in player location does not exist.`);
-//     } else if (grid.ownerId) {
-//       console.warn(`⚠️ Warning: registering player to grid ${gridId}, but it already has ownerId: ${grid.ownerId}`);
-//     } else {
-//       console.log(`✅ gridId ${gridId} is valid and unclaimed`);
-//     }
-
-//     await newPlayer.save();
-
-//     // 6) Populate playerId with _id (redundant, but often used by the client)
-//     newPlayer.playerId = newPlayer._id;
-//     await newPlayer.save();
-//     console.log(`New player registered: ${username}`);
-//     sendNewUserEmail(newPlayer); // 🚀 Notify yourself
-
-//     // 7) Send final response
-//     res.status(201).json({ success: true, player: newPlayer });
-//   } catch (error) {
-//     console.error('Error during player registration:', error);
-//     res.status(500).json({ error: 'Failed to register player.' });
-//   }
-// });
-
-
 
 // POST /register-new-player (Atomic registration + grid creation)
+
 router.post('/register-new-player', async (req, res) => {
   const { username, password, language, location } = req.body;
   console.log('POST /register-new-player:', { username, location });
@@ -211,16 +70,27 @@ router.post('/register-new-player', async (req, res) => {
       role,
       iscamping,
       relocations,
+      firsttimeuser,
+      ftuestep,
+      location: defaultLocation,
+      activeQuests: defaultActiveQuests,
+      settings,
     } = starterAccount.defaultAttributes;
 
     // Step 4: Create the new player
+    // Process activeQuests to set startTime dynamically
+    const processedActiveQuests = defaultActiveQuests.map(quest => ({
+      ...quest,
+      startTime: quest.startTime === "Date.now()" ? Date.now() : quest.startTime
+    }));
+
     const newPlayer = new Player({
       username,
       password: hashedPassword,
       icon: defaultIcon,
       language,
-      firsttimeuser: true, 
-      ftuestep: 1,
+      firsttimeuser,
+      ftuestep,
       range,
       baseHp,
       baseMaxhp,
@@ -243,34 +113,17 @@ router.post('/register-new-player', async (req, res) => {
         s: location.settlementId,
         f: location.frontierId,
         gridCoord: location.gridCoord || null,
-        x: location.x ?? 22,
-        y: location.y ?? 33,
-        gtype: location.gtype || '',
+        x: location.x ?? defaultLocation.x,
+        y: location.y ?? defaultLocation.y,
+        gtype: location.gtype || defaultLocation.gtype,
       },
-      activeQuests: [
-        {
-          questId: "Find the Wizard in the Valley",
-          completed: true,
-          rewardCollected: false,
-          progress: {},
-          giver: "Wizard",
-          startTime: Date.now(),
-          reward: "Prospero's Orb",
-          rewardqty: 1,
-          symbol: "🧙",
-        },
-      ],
+      activeQuests: processedActiveQuests,
       relocations,
       iscamping,
       gridId,
       settlementId: location.settlementId,
       frontierId: location.frontierId,
-      settings: {
-        isStateMachineEnabled: false,
-        isTeleportEnabled: false,
-        toggleVFX: true,
-        hasDied: false,
-      },
+      settings,
     });
 
     await newPlayer.save();

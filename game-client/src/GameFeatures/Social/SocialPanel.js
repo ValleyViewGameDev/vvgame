@@ -349,6 +349,12 @@ const SocialPanel = ({
           username: pcData.username
         });
         
+        // Request fresh player list from server to ensure state consistency
+        setTimeout(() => {
+          console.log('🔄 Requesting current players from server after removal');
+          socket.emit('request-current-grid-players', { gridId });
+        }, 50);
+        
         // If they were the controller, request to become the new controller
         if (controllerUsername === pcData.username) {
           setTimeout(() => {

@@ -1825,6 +1825,9 @@ return (
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           onClose={() => setShowFTUE(false)}
+          openPanel={openPanel}
+          setActiveQuestGiver={setActiveQuestGiver}
+          gridId={gridId}
         />
       )}
 

@@ -9,6 +9,7 @@ import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } 
 import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { formatCountdown } from '../../UI/Timers';
+import { incrementFTUEStep } from '../FTUE/FTUE';
 
 function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurrentPlayer, globalTuning }) {
 
@@ -24,7 +25,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const { updateStatus } = useContext(StatusBarContext);
 
   const tradeStallHaircut = globalTuning?.tradeStallHaircut || 0.25;
-  const sellWaitTime = globalTuning?.sellWaitTime || 60000; // Default to 60 seconds if not set
+  // First time users get 10 second wait time, otherwise use global tuning
+  const sellWaitTime = currentPlayer.firsttimeuser ? 10000 : (globalTuning?.sellWaitTime || 60000);
 
   const calculateTotalSlots = (player) => {
     // Base slots are now 4 for Free, Gold gets +2 (total 6)
@@ -317,6 +319,12 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         
         // Track quest progress for selling this item
         await trackQuestProgress(currentPlayer, 'Sell', response.data.resource, response.data.amount, setCurrentPlayer);
+        
+        // Check if we should increment FTUE step after selling
+        if (currentPlayer.ftuestep === 5) {
+          console.log('🎓 Player at FTUE step 5 completed a sale, incrementing FTUE step');
+          await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+        }
         
         updateStatus(`✅ Sold ${response.data.amount}x ${response.data.resource} for ${response.data.sold} Money.`);
         

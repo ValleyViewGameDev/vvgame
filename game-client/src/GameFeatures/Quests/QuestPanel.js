@@ -12,12 +12,28 @@ function QuestPanel({ onClose, currentPlayer }) {
   const [playerQuests, setPlayerQuests] = useState([]);
   const [questTemplates, setQuestTemplates] = useState([]);
 
-  // Load active player quests
+  // Load active player quests and filter by FTUE step
   useEffect(() => {
-    if (currentPlayer?.activeQuests) {
+    if (currentPlayer?.activeQuests && questTemplates.length > 0) {
+      let filteredQuests = currentPlayer.activeQuests;
+      
+      // Filter by FTUE step if player has one
+      if (currentPlayer.ftuestep != null) {
+        console.log(`🎓 Filtering player quests by FTUE step: ${currentPlayer.ftuestep}`);
+        filteredQuests = currentPlayer.activeQuests.filter((quest) => {
+          const template = questTemplates.find(t => t.title === quest.questId);
+          if (!template) return true; // Keep quest if no template found
+          // Only show quests that have an ftuestep and it's less than or equal to current step
+          return template.ftuestep != null && template.ftuestep <= currentPlayer.ftuestep;
+        });
+      }
+      
+      setPlayerQuests(filteredQuests);
+    } else if (currentPlayer?.activeQuests) {
+      // If no templates loaded yet, show all quests temporarily
       setPlayerQuests(currentPlayer.activeQuests);
     }
-  }, [currentPlayer]);
+  }, [currentPlayer, questTemplates]);
 
   // Load all quest templates from tuning file
   useEffect(() => {

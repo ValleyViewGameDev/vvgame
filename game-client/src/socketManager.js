@@ -73,6 +73,13 @@ const handlePlayerJoinedGrid = ({ playerId, username, playerData, emitterId }) =
       if (!prevState[gridId]?.pcs) return prevState;
       const updatedGrid = { ...prevState[gridId]?.pcs };
       delete updatedGrid[playerId];
+      
+      // Check if removed player was the controller
+      if (controllerUsername === username && setControllerUsername) {
+        console.log(`🎮 Removed player ${username} was the NPCController, clearing controller`);
+        setControllerUsername(null);
+      }
+      
       return {
         ...prevState,
         [gridId]: {

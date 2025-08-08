@@ -4,8 +4,9 @@ import API_BASE from '../../config';
 import { useStrings } from '../../UI/StringsContext';
 import './FTUE.css';
 import FTUEstepsData from './FTUEsteps.json';
+import NPCsInGridManager from '../../GridState/GridStateNPCs';
 
-const FTUE = ({ currentPlayer, setCurrentPlayer, onClose }) => {
+const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQuestGiver, gridId }) => {
   const strings = useStrings();
   const [currentStepData, setCurrentStepData] = useState(null);
   
@@ -25,15 +26,39 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose }) => {
 
   const handleOK = async () => {
     try {
-      const nextStep = currentPlayer.ftuestep + 1;      
+      const currentStep = currentPlayer.ftuestep;
+      const nextStep = currentStep + 1;      
       // Check if there's a next step in the data
       const hasNextStep = FTUEstepsData.some(step => step.step === nextStep);
+      
+      // Check if we should open a panel after this step
+      if (currentStep === 3 && openPanel) {
+        console.log(`🎓 Opening QuestPanel after FTUE step ${currentStep}`);
+        onClose(); // Close FTUE modal first
+        openPanel('QuestPanel');
+      } else if (currentStep === 5 && openPanel && setActiveQuestGiver && gridId) {
+        // Find Kent NPC and open QuestGiverPanel
+        console.log(`🎓 Looking for Kent NPC after FTUE step 5`);
+        const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
+        if (npcsInGrid) {
+          const kentNPC = Object.values(npcsInGrid).find(npc => npc.type === 'Kent');
+          if (kentNPC) {
+            console.log(`🎓 Found Kent, opening QuestGiverPanel`);
+            onClose(); // Close FTUE modal first
+            setActiveQuestGiver(kentNPC); // Set Kent as the active quest giver
+            openPanel('QuestGiverPanel'); // Open the quest giver panel
+          } else {
+            console.log(`⚠️ Kent NPC not found in grid`);
+            onClose(); // Still close FTUE modal
+          }
+        }
+      }
       
       if (!hasNextStep) {
         completeTutorial();
 
       } else {
-        const stepData = FTUEstepsData.find(step => step.step === currentPlayer.ftuestep);
+        const stepData = FTUEstepsData.find(step => step.step === currentStep);
         if (stepData?.continue) {
           // If the current step has a continue action, advance the FTUE step
           const response = await axios.post(`${API_BASE}/api/update-profile`, {
@@ -105,7 +130,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose }) => {
         <div className="ftue-header">
           <h2>{strings[currentStepData.titleKey]}</h2>
           <button className="ftue-skip-button" onClick={handleSkip}>
-            {strings[730]}
+            {strings[795]}
           </button>
         </div>
         
@@ -123,7 +148,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose }) => {
           </div>
           
           <div className="ftue-buttons">
-            <button className="ftue-button ftue-button-primary" onClick={handleOK}>{strings[731]}</button>
+            <button className="ftue-button ftue-button-primary" onClick={handleOK}>{strings[796]}</button>
           </div>
         </div>
       </div>

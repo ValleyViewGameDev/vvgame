@@ -20,6 +20,7 @@ import '../../UI/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
 import { handleConstruction } from '../BuildAndBuy';
+import { incrementFTUEStep } from '../FTUE/FTUE';
 
 const CraftingStation = ({
   onClose,
@@ -328,6 +329,12 @@ const CraftingStation = ({
 
         // Track quest progress for all crafted items (both NPCs and regular items)
         await trackQuestProgress(currentPlayer, 'Craft', collectedItem, finalQtyCollected, setCurrentPlayer);
+
+        // Check if we should increment FTUE step when crafting Kent at FarmHouse
+        if (stationType === 'Farm House' && collectedItem === 'Kent') {
+          console.log('🎓 Player crafted Kent at FarmHouse, incrementing FTUE step');
+          await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+        }
 
         // Update grid resources to remove crafting state
         const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
