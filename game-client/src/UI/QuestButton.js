@@ -29,7 +29,10 @@ const QuestButton = ({ quest, state, onClick }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <h2>{symbol}</h2>
+      <div className="quest-header">
+        <h2>{symbol}</h2>
+        {state === 'reward' && <span className="quest-checkmark">✅</span>}
+      </div>
       <h3>{title}</h3>
       <h4>{completed ? strings[206] : strings[207]}</h4>
       {goals.map((goal, index) =>
@@ -70,7 +73,10 @@ const QuestGiverButton = ({ quest, state, onClick }) => {
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <h2>{symbol}</h2>
+      <div className="quest-header">
+        <h2>{symbol}</h2>
+        {state === 'reward' && <span className="quest-checkmark">✅</span>}
+      </div>
       <h3>{title}</h3>
       <div className="quest-goals">
         {goals.map((goal, index) =>

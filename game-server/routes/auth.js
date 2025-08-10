@@ -107,7 +107,7 @@ router.post('/register-new-player', async (req, res) => {
       backpackCapacity,
       accountStatus,
       role,
-      tradeStall: Array(starterAccount.tradeStallSlots[accountStatus] || 6).fill(null),
+      tradeStall: Array(starterAccount.tradeStallSlots[accountStatus] || 4).fill(null),
       location: {
         g: gridId,
         s: location.settlementId,

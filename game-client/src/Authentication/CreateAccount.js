@@ -59,7 +59,7 @@ const handleCreateAccount = async (e) => {
       password,
       language,
       location: {
-        x: 22,
+        x: 33,
         y: 33,
         gridCoord: assignedGridCoord,
         settlementId: assignedSettlementId,
@@ -91,7 +91,7 @@ const handleCreateAccount = async (e) => {
       playerId: player._id,
       type: 'pc',
       username: player.username,
-      position: { x: 22, y: 33 },
+      position: { x: 33, y: 33 },
       icon: player.icon || '😀',
       hp: player.baseHp || 25,
       maxhp: player.baseMaxhp || 25,

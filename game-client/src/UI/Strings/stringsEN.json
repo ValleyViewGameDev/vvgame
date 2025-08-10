@@ -531,7 +531,7 @@
     "427": "Purchase the Farm Hand's Bulk Harvest skill to harvest all crops at once.",
     "428": "Click to instantly harvest all crops.",
     "429": "You have no crops to harvest.",
-    "430": "Farm Hand Skills:",
+    "430": "Farm Worker Skills to Buy:",
     "431": "Purchase the Farm Hand's Bulk Animal Collect skill to collect from all animals at once.",
     "432": "Purchase the Farm Hand's Logging skill to chop multiple trees at once and collect the wood.",
     "433": "Purchase Better Logging to increase the number of trees chopped at once.",
@@ -637,6 +637,20 @@
     "12003": "Animals",
     "12011": "Decorations",
     "1031": "Buy decorations for your homesetead. You will be able to sell these for a full refund.",
-    "1131": "🪴 Decorations"
+    "1131": "🪴 Decorations",
+    "1032": "🏠 Farm House",
+    "1132": "The Farm House is where you can hire people to help you run your homestead." ,
+
+        "440": "Started crafting ",
+        "441": "In progress ...",
+        "442": "🏠 House repairs complete!",
+        "450": "❌ Cannot afford crafting costs",
+        "451": "⚠️ Crafting already in progress",
+        "452": "❌ Failed to start crafting.",
+        "453": "❌ Failed to repair house.",
+        "454": "❌ Failed to hire worker.",
+        "455": " has arrived!",
+        "456": "No more workers available."
+
   }
 

@@ -296,6 +296,9 @@ export const changePlayerLocation = async (
       
       // Get the resources that were just loaded
       const currentResources = GlobalGridStateTilesAndResources.getResources();
+      console.log(`📦 Total resources loaded: ${currentResources.length}`);
+      console.log(`📦 Resources types: ${currentResources.map(r => r.type).join(', ')}`);
+      
       const signpost = currentResources.find(res => res.type === toLocation.findSignpost);
       
       if (signpost) {

@@ -64,6 +64,7 @@ import CourthousePanel from './GameFeatures/Government/Courthouse';
 import QuestPanel from './GameFeatures/Quests/QuestPanel';
 import QuestGiverPanel from './GameFeatures/NPCs/NPCsPanel.js';
 import CraftingStation from './GameFeatures/Crafting/CraftingStation';
+import FarmHouse from './GameFeatures/Crafting/FarmHouse';
 import FarmHandPanel from './GameFeatures/FarmHands/FarmHand.js';
 import TradingStation from './GameFeatures/Crafting/TradingStation';
 import ShopStation from './GameFeatures/Crafting/ShopStation';
@@ -1291,9 +1292,9 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
       openPanel('TradingStation');
     } 
-    else if (resource.category === 'farm hand') {
+    else if (resource.category === 'farmhouse') {
       setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
-      openPanel('FarmHandPanel');
+      openPanel('FarmHouse');
     } 
     else if (resource.category === 'shop') {
       setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
@@ -2080,6 +2081,26 @@ return (
           isDeveloper={isDeveloper}
         />
       )}
+      {activePanel === 'FarmHouse' && (
+        <FarmHouse
+          onClose={closePanel}
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          setResources={setResources}
+          stationType={activeStation?.type} 
+          currentStationPosition={activeStation?.position} 
+          gridId={activeStation?.gridId} 
+          masterResources={masterResources} 
+          masterSkills={masterSkills} 
+          TILE_SIZE={activeTileSize}
+          updateStatus={updateStatus}
+          isDeveloper={isDeveloper}
+        />
+      )}
       {activePanel === 'TradingStation' && (
         <TradingStation
           onClose={closePanel}
@@ -2336,6 +2357,8 @@ return (
             setCurrentPlayer={setCurrentPlayer}
             updateStatus={updateStatus}
             globalTuning={globalTuning}
+            setModalContent={setModalContent}
+            setIsModalOpen={setIsModalOpen}
         />
       )}
       {activePanel === 'SeasonPanel' && (

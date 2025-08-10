@@ -149,3 +149,10 @@ export async function validateTileType(gridId, x, y) {
     throw error;
   }
 }
+
+export function isACrop(itemType, masterResources) {
+  // Check if this item is the output of any farmplot resource
+  return masterResources.some(resource => 
+    resource.category === 'farmplot' && resource.output === itemType
+  );
+}

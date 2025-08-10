@@ -99,6 +99,23 @@
   background-color: #14550d; /* Darker green hover */
 }
 
+/* Quest header with symbol and checkmark */
+.quest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.quest-header h2 {
+  margin: 0;
+}
+
+.quest-checkmark {
+  font-size: 24px;
+  margin-right: 8px;
+}
+
 /* Info button reused from ResourceButton */
 .quest-info-button {
   position: absolute;

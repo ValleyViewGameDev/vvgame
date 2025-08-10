@@ -22,7 +22,7 @@ import TransactionButton from '../../UI/TransactionButton';
 import { handleConstruction } from '../BuildAndBuy';
 import { incrementFTUEStep } from '../FTUE/FTUE';
 
-const CraftingStation = ({
+const FarmHouse = ({
   onClose,
   inventory,
   setInventory,
@@ -56,14 +56,13 @@ const CraftingStation = ({
    // ✅ Check for active crafting timers
    useEffect(() => {
     if (!stationType || !currentStationPosition) return;
-
-    console.log('🔄 Checking GlobalGridStateTilesAndResources for active crafting timers...');
     
     const station = GlobalGridStateTilesAndResources.getResources()?.find(
       (res) => res.x === currentStationPosition.x && res.y === currentStationPosition.y
     );
 
     if (station && station.craftEnd) {
+        console.log(`⏳ Active crafting found: ${station.craftedItem} until ${new Date(station.craftEnd).toLocaleTimeString()}`);
         
         setCraftedItem(station.craftedItem);
         setIsCrafting(true);
@@ -74,7 +73,6 @@ const CraftingStation = ({
           setCraftingCountdown(remainingTime);
 
           if (remainingTime === 0) {
-              console.log('✅ Crafting complete! Ready to collect.');
               setIsCrafting(false);
               setIsReadyToCollect(true);
           }
@@ -118,6 +116,15 @@ const CraftingStation = ({
   useEffect(() => {
     try {
       let filteredRecipes = masterResources.filter((resource) => resource.source === stationType);
+      
+      // Filter by FTUE step if player has one
+      if (currentPlayer.ftuestep != null) {
+        console.log(`🎓 Filtering FarmHouse recipes by FTUE step: ${currentPlayer.ftuestep}`);
+        filteredRecipes = filteredRecipes.filter((recipe) => {
+          // Only show recipes with level <= current FTUE step
+          return recipe.level == null || recipe.level <= currentPlayer.ftuestep;
+        });
+      }
       
       // Filter out non-repeatable resources that already exist on the grid
       const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
@@ -221,9 +228,8 @@ const CraftingStation = ({
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
         FloatingTextManager.addFloatingText(404, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-        updateStatus(`${strings[440]} ${recipe.type}`);
+        updateStatus(`${strings[441]} ${recipe.type}`);
 
-        console.log(`✅ ${recipe.type} crafting started using protected endpoint.`);
       }
     } catch (error) {
       console.error('Error in protected crafting start:', error);
@@ -240,11 +246,12 @@ const CraftingStation = ({
 
   // Protected function to collect crafted items using transaction system
   const handleCollect = async (transactionId, transactionKey, recipe) => {
-    console.log(`🔒 [PROTECTED CRAFTING] Starting protected collection for ${recipe.type}`);
     
-    if (!recipe) { 
-      console.error("❌ No valid crafted item to collect."); 
-      return; 
+    if (!recipe) { console.error("❌ No valid crafted item to collect."); return; }
+    // Special handling for Repair type recipes
+    if (recipe.type === "Repair") {
+      await handleRepairHouse(transactionId, transactionKey, recipe);
+      return;
     }
 
     try {
@@ -321,6 +328,15 @@ const CraftingStation = ({
         // Track quest progress for all crafted items (both NPCs and regular items)
         await trackQuestProgress(currentPlayer, 'Craft', collectedItem, finalQtyCollected, setCurrentPlayer);
 
+        // Check if we should increment FTUE step when crafting Kent at FarmHouse
+        if (stationType === 'Farm House' && collectedItem === 'Kent') {
+          console.log('🎓 Player hired Kent at FarmHouse, incrementing FTUE step');
+          await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+        }
+        if (stationType === 'Farm House' && collectedItem === 'The Shepherd') {
+          console.log('🎓 Player hired The Shepherd at FarmHouse, incrementing FTUE step');
+          await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+        }
         // Update grid resources to remove crafting state
         const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
           res.x === currentStationPosition.x && res.y === currentStationPosition.y
@@ -343,17 +359,16 @@ const CraftingStation = ({
           const skillAppliedText = `${playerBuffs.join(', ')} skill applied (${skillMultiplier}x collected).`;
           updateStatus(skillAppliedText);
         } else {
-          updateStatus(`✅ Collected: ${collectedItem}.`);
+          updateStatus(`✅ ${collectedItem} ${strings[455]}`);
         }
 
-        console.log(`✅ ${recipe.type} collected successfully using protected endpoint.`);
       }
     } catch (error) {
       console.error('Error in protected crafting collection:', error);
       if (error.response?.status === 429) {
-        updateStatus('⚠️ Collection already in progress');
+        updateStatus('⚠️ Already in progress');
       } else {
-        updateStatus('❌ Failed to collect item');
+        updateStatus(454);
       }
     }
   };
@@ -375,11 +390,93 @@ const CraftingStation = ({
     });
   };
   
+  // Handle repair of Abandoned House to Farm House
+  const handleRepairHouse = async (transactionId, transactionKey, recipe) => {
+    
+    try {
+      // Save the current position before selling
+      const repairX = currentStationPosition.x;
+      const repairY = currentStationPosition.y;
+            
+      // First, sell/remove the Abandoned House using existing selling logic
+      await handleProtectedSelling({
+        currentPlayer,
+        setInventory,
+        setBackpack,
+        setCurrentPlayer,
+        setResources,
+        stationType,
+        currentStationPosition,
+        gridId,
+        TILE_SIZE,
+        updateStatus,
+        onClose: () => {} // Don't close the panel yet
+      });
+      
+      // Wait a bit to ensure the sell completes
+      await new Promise(resolve => setTimeout(resolve, 500));
+            
+      // Create a mock current player position at the repair location
+      // This is needed because handleConstruction uses player position
+      const mockPlayersInGrid = {
+        [currentPlayer.playerId]: {
+          position: { x: repairX, y: repairY }
+        }
+      };
+      
+      // Temporarily override the playersInGridManager to return our position
+      const originalGetPlayersInGrid = playersInGridManager.getPlayersInGrid;
+      playersInGridManager.getPlayersInGrid = () => mockPlayersInGrid;
+      
+      try {
+        // Now place the Farm House using existing construction logic
+        await handleConstruction({
+          TILE_SIZE,
+          selectedItem: "Farm House",
+          buildOptions: masterResources, // This contains all resources including Farm House
+          inventory,
+          setInventory,
+          backpack,
+          setBackpack,
+          resources: GlobalGridStateTilesAndResources.getResources(),
+          setResources,
+          currentPlayer,
+          setCurrentPlayer,
+          gridId,
+          updateStatus
+        });
+      } finally {
+        // Restore the original function
+        playersInGridManager.getPlayersInGrid = originalGetPlayersInGrid;
+      }
+      
+      // Track quest progress for Repair type
+      await trackQuestProgress(currentPlayer, 'Repair', 'Farm House', 1, setCurrentPlayer);
+      
+      // Advance FTUE step when repair is completed
+      if (currentPlayer?.ftuestep && currentPlayer.ftuestep > 0) {
+        const { incrementFTUEStep } = await import('../FTUE/FTUE');
+        await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+        console.log("📚 Advanced FTUE step after house repair");
+      }
+      
+      // Success message
+      updateStatus(442);
+      
+      // Close the panel after successful repair
+      setTimeout(() => {
+        onClose();
+      }, 1000);
+      
+    } catch (error) {
+      console.error('❌ Error in handleRepairHouse:', error);
+      updateStatus(453);
+    }
+  };
 
   return (
-    <Panel onClose={onClose} descriptionKey="1009" titleKey="1109" panelName="CraftingStation">
+    <Panel onClose={onClose} descriptionKey="1132" titleKey="1032" panelName="FarmHouse">
       <div className="standard-panel">
-        <h2> {stationEmoji} {stationType} </h2>
         
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
@@ -467,11 +564,11 @@ const CraftingStation = ({
                 </ResourceButton>
               );
             })
-          ) : <p>{strings[424]}</p>}
+          ) : <p>{strings[456]}</p>}
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-        {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
+        {(isDeveloper) && (
           <>
             <hr />
               <div className="standard-buttons">
@@ -491,4 +588,4 @@ const CraftingStation = ({
   );
 };
 
-export default React.memo(CraftingStation);
+export default React.memo(FarmHouse);

@@ -5,13 +5,16 @@ import Panel from '../../UI/Panel'; // Use Panel instead of Modal
 import TransactionButton from '../../UI/TransactionButton';
 import axios from 'axios';
 import './TradeStall.css';
+import '../../UI/Modal.css';
+import '../../UI/SharedButtons.css';
 import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { formatCountdown } from '../../UI/Timers';
 import { incrementFTUEStep } from '../FTUE/FTUE';
+import { isACrop } from '../../Utils/ResourceHelpers';
 
-function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurrentPlayer, globalTuning }) {
+function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurrentPlayer, globalTuning, setModalContent, setIsModalOpen }) {
 
   const strings = useStrings();
   const [tradeSlots, setTradeSlots] = useState([]);
@@ -23,6 +26,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const [viewedPlayer, setViewedPlayer] = useState(currentPlayer);
   const [viewedPlayerIndex, setViewedPlayerIndex] = useState(0); // Index of the currently viewed player
   const { updateStatus } = useContext(StatusBarContext);
+  const [masterResources, setMasterResources] = useState([]); // Store master resources for isACrop check
 
   const tradeStallHaircut = globalTuning?.tradeStallHaircut || 0.25;
   // First time users get 10 second wait time, otherwise use global tuning
@@ -45,6 +49,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       // Fetch resource data (e.g., for prices)
       const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
       setResourceData(resourcesResponse.data);
+      setMasterResources(resourcesResponse.data); // Store for isACrop checks
 
       // Only fetch inventory if not skipping (to avoid overwriting during collections)
       if (!skipInventoryFetch) {
@@ -251,6 +256,44 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       return;
     }
 
+    // Check if selling all of a crop item
+    if (amount === resourceInInventory.quantity && isACrop(resource, masterResources)) {
+      // Show confirmation modal using standard modal system
+      setModalContent({
+        title: '⚠️ Warning',
+        message: `This will leave you with 0 ${resource}, so you will not be able to plant ${resource} again.`,
+        message2: 'Are you sure?',
+        size: 'small',
+        onClose: () => setIsModalOpen(false),
+        children: (
+          <div className="standard-buttons" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px' }}>
+            <button
+              className="btn-neutral"
+              onClick={() => setIsModalOpen(false)}
+            >
+              Cancel
+            </button>
+            <button 
+              className="btn-danger"
+              onClick={async () => {
+                setIsModalOpen(false);
+                await performAddToSlot(transactionId, transactionKey, resource, amount);
+              }}
+            >
+              Yes, Sell All
+            </button>
+          </div>
+        ),
+      });
+      setIsModalOpen(true);
+      return;
+    }
+
+    // Continue with normal add to slot
+    await performAddToSlot(transactionId, transactionKey, resource, amount);
+  };
+
+  const performAddToSlot = async (transactionId, transactionKey, resource, amount) => {
     const resourceDetails = resourceData.find((item) => item.type === resource);
     const price = resourceDetails?.minprice || 0;
 
@@ -527,7 +570,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
             <table>
               <thead>
                 <tr>
-                  <th>Resource</th>
+                  <th>Item</th>
                   <th>Available</th>
                   <th>Price</th>
                   <th>Amount</th>
@@ -575,6 +618,14 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                               disabled={item.quantity <= (amounts[item.type] || 0)}
                             >
                               +
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleAmountChange(item.type, item.quantity)
+                              }
+                              style={{ marginLeft: '4px' }}
+                            >
+                              All
                             </button>
                           </div>
                         </td>
