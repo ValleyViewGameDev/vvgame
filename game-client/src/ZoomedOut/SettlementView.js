@@ -147,9 +147,36 @@ const SettlementView = ({
     }
 
     try {
+      // Default position
+      let arrivalX = 0;
+      let arrivalY = 0;
+      
+      // If clicking on a town tile, find the Signpost Home location
+      if (tile.gridType === "town") {
+        console.log("🏘️ Clicking on town grid, fetching Signpost Home location...");
+        try {
+          const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${tile.gridId}`);
+          const gridData = gridResponse.data;
+          
+          if (gridData.resources && Array.isArray(gridData.resources)) {
+            const signpostHome = gridData.resources.find(res => res.type === "Signpost Home");
+            if (signpostHome) {
+              arrivalX = signpostHome.x;
+              arrivalY = signpostHome.y;
+              console.log(`✅ Found Signpost Home at (${arrivalX}, ${arrivalY}) on town grid`);
+            } else {
+              console.log("⚠️ Signpost Home not found on town grid, using default (0, 0)");
+            }
+          }
+        } catch (error) {
+          console.error("❌ Error fetching town grid data:", error);
+          // Continue with default position
+        }
+      }
+      
       const toLocation = {
-        x: 0,  
-        y: 0,
+        x: arrivalX,  
+        y: arrivalY,
         g: tile.gridId,
         s: currentPlayer.location.s,
         f: currentPlayer.location.f,
