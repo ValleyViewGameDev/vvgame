@@ -191,11 +191,11 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
       }
       // --- End changed fields logging and floating text ---
 
+      // CRITICAL: Never update our own player from socket broadcasts
+      // This prevents the race condition where high latency causes our movements to be overwritten
       if (currentPlayer && playerId === String(currentPlayer._id)) {
-        if (localPlayerMoveTimestampRef.current >= incomingTime) {
-          console.log(`⏳ Skipping local PC (${playerId}) update; local movement is newer or same time.`);
-          return prevState;
-        }
+        console.log(`🛡️ Blocking socket update for own player (${playerId}). LocalTimestamp: ${localPlayerMoveTimestampRef.current}, IncomingTimestamp: ${incomingTime}`);
+        return prevState;
       }
 
       if (incomingTime <= localTime) {

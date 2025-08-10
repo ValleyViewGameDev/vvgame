@@ -98,9 +98,33 @@ const FrontierView = ({
           );    
           if (ownedHomestead) {
             console.log("Traveling to owned homestead:", ownedHomestead);
+            
+            // Fetch the homestead grid data to find Signpost Town location
+            let arrivalX = 0;
+            let arrivalY = 0;
+            
+            try {
+              const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${ownedHomestead.gridId}`);
+              const gridData = gridResponse.data;
+              
+              if (gridData.resources && Array.isArray(gridData.resources)) {
+                const signpostTown = gridData.resources.find(res => res.type === "Signpost Town");
+                if (signpostTown) {
+                  arrivalX = signpostTown.x;
+                  arrivalY = signpostTown.y;
+                  console.log(`✅ Found Signpost Town at (${arrivalX}, ${arrivalY}) on homestead grid`);
+                } else {
+                  console.log("⚠️ Signpost Town not found on homestead grid, using default (0, 0)");
+                }
+              }
+            } catch (error) {
+              console.error("❌ Error fetching homestead grid data:", error);
+              // Continue with default position
+            }
+            
             const toLocation = {
-              x: 0,  
-              y: 0,
+              x: arrivalX,  
+              y: arrivalY,
               g: ownedHomestead.gridId, 
               s: tile.settlementId, 
               f: currentPlayer.location.f,
