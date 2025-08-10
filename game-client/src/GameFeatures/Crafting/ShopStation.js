@@ -214,7 +214,7 @@ const ShopStation = ({
           )}
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
-              const affordable = canAfford(recipe, inventory, 1);
+              const affordable = canAfford(recipe, inventory, backpack, 1);
               const meetsRequirement = hasRequirement(recipe.requires);
               const outputLabel = recipe.output ? (strings[recipe.output] || recipe.output) : '';
               const outputSummary = recipe.output && typeof recipe.qtycollected === 'number'
