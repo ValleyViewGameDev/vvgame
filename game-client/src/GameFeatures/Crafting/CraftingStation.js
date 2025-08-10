@@ -343,10 +343,10 @@ const CraftingStation = ({
           const skillAppliedText = `${playerBuffs.join(', ')} skill applied (${skillMultiplier}x collected).`;
           updateStatus(skillAppliedText);
         } else {
-          updateStatus(`✅ Collected: ${collectedItem}.`);
+          updateStatus(`Collected: ${collectedItem}.`);
         }
 
-        console.log(`✅ ${recipe.type} collected successfully using protected endpoint.`);
+        console.log(`${recipe.type} collected successfully using protected endpoint.`);
       }
     } catch (error) {
       console.error('Error in protected crafting collection:', error);
@@ -407,7 +407,7 @@ const CraftingStation = ({
               const craftTimeText = isCrafting
               ? `⏳ In progress: ${formatCountdown(craftingCountdown)}`
               : isReadyToCollect
-              ? `✅ Ready!`
+              ? `Ready!`
               : recipe.crafttime
               ? `Time: ${formatCountdown(recipe.crafttime)}`
               : `Instant`;

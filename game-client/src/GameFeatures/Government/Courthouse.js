@@ -213,7 +213,7 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
 
             if (response.data.message) {
                 console.log(`📢 ${response.data.message}`);
-                updateStatus('✅ Campaign promise submitted.');
+                updateStatus('🏛️ Campaign promise submitted.');
                 setCampaignPromises(response.data.campaignPromises);
                 setNewPromise('');
             }
@@ -235,7 +235,7 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
 
             if (response.data.message) {
                 console.log(`🗳️ ${response.data.message}`);
-                updateStatus('✅ Vote successfully cast.');
+                updateStatus('🏛️ Vote successfully cast.');
                 setHasVoted(true);
                 // Store the username of the voted candidate
                 const votedCandidate = candidateList.find(c => c.playerId === selectedCandidate);
@@ -266,7 +266,7 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
     
             if (response.data.success) {
                 console.log(`✅ Tax rate updated successfully.`);
-                updateStatus(`✅ Tax rate set to ${tempTaxRate}%`);
+                updateStatus(`💰 Tax rate set to ${tempTaxRate}%`);
                 // ✅ Sync stored tax rate with UI slider
                 setTaxRate(tempTaxRate);
             } else {
@@ -289,7 +289,7 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
             });
 
             if (response.data.success) {
-                updateStatus(`✅ Settlement renamed to ${tempSettlementName}`);
+                updateStatus(`Settlement renamed to ${tempSettlementName}`);
                 setSettlement(prev => ({ ...prev, displayName: tempSettlementName }));
             } else {
                 updateStatus("❌ Error updating settlement name.");

@@ -78,18 +78,18 @@
 
     "200": "QUESTS",
 
-    "201": "✅ Quest completed. You have your reward.",
-    "202": "✅ Quest accepted.",
-    "203": "No active To Do's at the moment.",
+    "201": "✅ Action item completed. You have your reward.",
+    "202": "✅ Action item accepted.",
+    "203": "No action items at the moment.",
     "204": "To Do List:",
-    "205": "Nothing at this time.",
+    "205": "Nothing new at this time. Check your ✅ To Do list!",
     "207": "In Progress",
     "208": "Get Reward",
     "209": "Accept",
 
     "299": "FARMING STRINGS:",
     
-    "300": "✅ Added",
+    "300": "Added",
     "301": "🚜 Tilled",
     "302": "🚜 Planted",
     "303": "🚜 Must plant on dirt",
@@ -170,7 +170,7 @@
     "1103": "🛒 Buy",
     "1104": "🚜 Farming",
     "1105": "💪 Skills",
-    "1106": "❓ To Do List",
+    "1106": "✅ To Do List",
     "1107": "🏛️ Government",
     "1108": "📥 Trade", 
     "1109": "Crafting",
@@ -266,7 +266,7 @@
 
     "2000": "TRAIN, BANK, COURTHOUSE, etc. STRINGS:",
 
-    "2002": "✅ Completed",
+    "2002": "Completed",
     "2003": "📦 Next Shipment Preview:",
     "2004": "🎁 Rewards for filling all orders:",
     "2005": "Click to fulfill",
@@ -526,7 +526,7 @@
     "1008": "Trade Stall: Sell your resources to other players or buy items from their trade stalls. Use the arrows to navigate between trade stalls within your Settlement. If no players buy your items before the timer expires, you can sell them to the game for fraction of their base value.",
     "2014": "You can only claim one train offer at a time.",
     "2015": "Show Train Log",
-    "2016": "✅ All orders were completed! Rewards have been mailed out.",
+    "2016": "🎉 All orders were completed! Rewards have been mailed out.",
     "426": "Expensive starter crops, but in case you run out:",
     "427": "Purchase the Farm Hand's Bulk Harvest skill to harvest all crops at once.",
     "428": "Click to instantly harvest all crops.",

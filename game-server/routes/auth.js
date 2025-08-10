@@ -73,16 +73,10 @@ router.post('/register-new-player', async (req, res) => {
       firsttimeuser,
       ftuestep,
       location: defaultLocation,
-      activeQuests: defaultActiveQuests,
       settings,
     } = starterAccount.defaultAttributes;
 
     // Step 4: Create the new player
-    // Process activeQuests to set startTime dynamically
-    const processedActiveQuests = defaultActiveQuests.map(quest => ({
-      ...quest,
-      startTime: quest.startTime === "Date.now()" ? Date.now() : quest.startTime
-    }));
 
     const newPlayer = new Player({
       username,
@@ -117,7 +111,6 @@ router.post('/register-new-player', async (req, res) => {
         y: location.y ?? defaultLocation.y,
         gtype: location.gtype || defaultLocation.gtype,
       },
-      activeQuests: processedActiveQuests,
       relocations,
       iscamping,
       gridId,

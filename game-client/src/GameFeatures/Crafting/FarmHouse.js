@@ -359,7 +359,7 @@ const FarmHouse = ({
           const skillAppliedText = `${playerBuffs.join(', ')} skill applied (${skillMultiplier}x collected).`;
           updateStatus(skillAppliedText);
         } else {
-          updateStatus(`✅ ${collectedItem} ${strings[455]}`);
+          updateStatus(`${collectedItem} ${strings[455]}`);
         }
 
       }
@@ -504,7 +504,7 @@ const FarmHouse = ({
               const craftTimeText = isCrafting
               ? `⏳ In progress: ${formatCountdown(craftingCountdown)}`
               : isReadyToCollect
-              ? `✅ Ready!`
+              ? `Ready!`
               : recipe.crafttime
               ? `Time: ${formatCountdown(recipe.crafttime)}`
               : `Instant`;

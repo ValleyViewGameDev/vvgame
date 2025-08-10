@@ -1565,7 +1565,7 @@ return (
 
     <div className="nav-column">
       <button className={`nav-button ${!activePanel ? 'selected' : ''}`} title={strings[12009]} onClick={() => closePanel()}>🏡</button>
-      <button className={`nav-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}>❓</button>
+      <button className={`nav-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}>✅</button>
 
       <button 
         className={`nav-button ${activePanel === 'FarmingPanel' ? 'selected' : ''}`} title={strings[12001]} disabled={!currentPlayer} 
@@ -1829,6 +1829,7 @@ return (
           openPanel={openPanel}
           setActiveQuestGiver={setActiveQuestGiver}
           gridId={gridId}
+          setActiveStation={setActiveStation}
         />
       )}
 

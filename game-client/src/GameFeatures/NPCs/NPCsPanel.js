@@ -330,7 +330,7 @@ const handleHeal = async (recipe) => {
     try {
       const gridId = currentPlayer.location.g;
       await NPCsInGridManager.removeNPC(gridId, npcData.id);
-      updateStatus(`✅ ${npcData.type} has been removed from the grid.`);
+      updateStatus(`${npcData.type} has been removed from the grid.`);
       onClose(); // Close the panel after selling
     } catch (error) {
       console.error('Error selling NPC:', error);

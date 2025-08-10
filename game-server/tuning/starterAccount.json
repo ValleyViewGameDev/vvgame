@@ -22,66 +22,11 @@
       "firsttimeuser": true,
       "ftuestep": 1,
       "location": {
-        "x": 33,
+        "x": 22,
         "y": 33,
         "gtype": ""
       },
-      "activeQuests": [
-        {
-          "questId": "Find the Wizard in the Valley",
-          "completed": true,
-          "rewardCollected": false,
-          "progress": {},
-          "giver": "Wizard",
-          "startTime": "Date.now()",
-          "reward": "Prospero's Orb",
-          "rewardqty": 1,
-          "symbol": "🧙"
-        },
-      {
-          "questId": "Gather Wood",
-          "completed": false,
-          "rewardCollected": false,
-          "progress": {},
-          "giver": "Kent",
-          "startTime": "Date.now()",
-          "reward": "Money",
-          "rewardqty": 5,
-          "goal1action": "Collect",
-          "goal1item": "Wood",
-          "goal1qty": 10,
-          "symbol": "👨🏽"
-      },
-      {
-          "questId": "Repair House",
-          "completed": false,
-          "rewardCollected": false,
-          "progress": {},
-          "giver": "Kent",
-          "startTime": "Date.now()",
-          "reward": "Money",
-          "rewardqty": 5,
-          "goal1action": "Repair",
-          "goal1item": "Farm House",
-          "goal1qty": 1,
-          "symbol": "👨🏽"
-      },
-      {
-          "questId": "Hire Kent",
-          "completed": false,
-          "rewardCollected": false,
-          "progress": {},
-          "giver": "Kent",
-          "startTime": "Date.now()",
-          "reward": "Money",
-          "rewardqty": 5,
-          "goal1action": "Collect",
-          "goal1item": "Kent",
-          "goal1qty": 1,
-          "symbol": "👨🏽"
-      }
-
-    ],
+      
       "settings": {
         "isStateMachineEnabled": false,
         "isTeleportEnabled": false,

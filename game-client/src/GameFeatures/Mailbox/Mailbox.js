@@ -133,7 +133,7 @@ function Mailbox({
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
         const template = templates.find(t => t.id === currentPlayer.messages[messageIndex]?.messageId);
-        updateStatus(`✅ Collected rewards: ${collectedItems.join(', ')}`);
+        updateStatus(`Collected rewards: ${collectedItems.join(', ')}`);
       }
     } catch (error) {
       console.error('Error in protected mailbox collection:', error);

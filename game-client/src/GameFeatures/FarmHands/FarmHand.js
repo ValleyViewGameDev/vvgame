@@ -161,7 +161,7 @@ const FarmHandPanel = ({
       return;
     }
 
-    updateStatus(`✅ Bought 1 ${resource.type} for ${cost} Money.`);
+    updateStatus(`Bought 1 ${resource.type} for ${cost} Money.`);
   };
 
   const handlePurchaseSkill = async (resource) => {
@@ -193,7 +193,7 @@ const FarmHandPanel = ({
 
     await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-    updateStatus(`✅ ${resource.type} acquired.`);
+    updateStatus(`${resource.type} acquired.`);
   };
 
 
@@ -296,7 +296,7 @@ const FarmHandPanel = ({
 
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-      updateStatus(`✅ Selective Animal Collect complete: ${Object.entries(successfulCollects).map(([t, q]) => `${q} ${t}`).join(', ')}`);
+      updateStatus(`Selective Animal Collect complete: ${Object.entries(successfulCollects).map(([t, q]) => `${q} ${t}`).join(', ')}`);
     } catch (error) {
       console.error('Selective animal collect failed:', error);
       setErrorMessage('Failed to collect selected animals.');
@@ -438,7 +438,7 @@ const FarmHandPanel = ({
             console.warn('⚠️ No doober found at position:', pos);
           }
         }
-        updateStatus(`✅ Logging complete: ${treesToChop.length} trees chopped and collected.`);
+        updateStatus(`🪵 Logging complete: ${treesToChop.length} trees chopped and collected.`);
       }, 50);
 
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
@@ -637,7 +637,7 @@ const FarmHandPanel = ({
 
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-      updateStatus(`✅ Selective Crop Harvest complete: ${Object.entries(successfulHarvest).map(([t, q]) => `${q} ${t}`).join(', ')}`);
+      updateStatus(`🌱 Selective Crop Harvest complete: ${Object.entries(successfulHarvest).map(([t, q]) => `${q} ${t}`).join(', ')}`);
     } catch (error) {
       console.error('Selective crop harvest failed:', error);
       setErrorMessage('Failed to harvest selected crops.');

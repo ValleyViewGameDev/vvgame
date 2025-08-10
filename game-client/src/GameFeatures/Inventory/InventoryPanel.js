@@ -47,7 +47,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     backpack: updatedBackpack,
                 });
 
-                updateStatus(`✅ Moved ${item.quantity}x ${item.type} to warehouse`);
+                updateStatus(`Moved ${item.quantity}x ${item.type} to warehouse`);
             } else {
                 const updatedBackpack = backpack.filter(i => i.type !== item.type);
 
@@ -100,7 +100,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     backpack: updatedBackpack,
                 });
 
-                updateStatus(`✅ Moved all items to warehouse`);
+                updateStatus(`Moved all items to warehouse`);
             } else {
                 await axios.post(`${API_BASE}/api/update-inventory`, {
                     playerId: currentPlayer.playerId,

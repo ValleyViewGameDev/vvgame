@@ -161,7 +161,7 @@ console.log("tradeQty in recipe:", recipe.tradeqty);
 
     await trackQuestProgress(currentPlayer, 'Collect', recipe.type, quantityToGive, setCurrentPlayer);
 
-    updateStatus(`✅ Exchanged ${recipe.ingredient1qty || 1} ${recipe.ingredient1} for ${quantityToGive} ${recipe.type}.`);
+    updateStatus(`Exchanged ${recipe.ingredient1qty || 1} ${recipe.ingredient1} for ${quantityToGive} ${recipe.type}.`);
   };
 
   return (

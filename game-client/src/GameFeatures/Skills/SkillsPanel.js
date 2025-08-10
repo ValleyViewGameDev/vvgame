@@ -166,7 +166,7 @@ const handlePurchase = async (resourceType) => {
   }
   setOwnedSkills(updatedSkills);
   setOwnedUpgrades(updatedUpgrades);
-  updateStatus(`✅ ${resource.type} skill acquired.`);
+  updateStatus(`💪 ${resource.type} skill acquired.`);
   
   try { 
     await axios.post(`${API_BASE}/api/update-skills`, {

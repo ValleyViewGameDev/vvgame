@@ -61,14 +61,14 @@ async function handleProtectedFarmAnimalCollection(
       FloatingTextManager.addFloatingText(`+${collectedQuantity} ${collectedItem}`, col, row, TILE_SIZE);
       
       const statusMessage = skillsApplied.length === 0
-        ? `✅ Gained ${collectedQuantity} ${collectedItem}.`
-        : `✅ Gained ${collectedQuantity} ${collectedItem} (${skillsApplied.join(', ')} skill applied).`;
+        ? `Gained ${collectedQuantity} ${collectedItem}.`
+        : `Gained ${collectedQuantity} ${collectedItem} (${skillsApplied.join(', ')} skill applied).`;
       updateStatus(statusMessage);
 
       // ✅ Track quest progress for NPC graze collection
       await trackQuestProgress(currentPlayer, 'Collect', collectedItem, collectedQuantity, setCurrentPlayer);
 
-      console.log(`✅ Farm animal collection completed: ${collectedQuantity} ${collectedItem}`);
+      console.log(`Farm animal collection completed: ${collectedQuantity} ${collectedItem}`);
       return { type: 'success', message: `Collected ${collectedQuantity} ${collectedItem}.` };
     }
   } catch (error) {
