@@ -48,32 +48,55 @@ export async function handleTransitSignpost(
         gridCoord: currentPlayer.gridCoord,
       });
       
-      // We need to find the Signpost Town location on the homestead
-      // This will be done after changePlayerLocation loads the destination grid
-      const newPlayerPosition = {
-        x: 0, // Will be updated to Signpost Town location
-        y: 0,
-        g: currentPlayer.gridId,      // The player's homestead grid
-        s: currentPlayer.settlementId,
-        f: currentPlayer.location.f,
-        gtype: "homestead",
-        gridCoord: currentPlayer.gridCoord,
-        findSignpost: "Signpost Town", // Flag to find this resource after grid loads
-      };
-      updateStatus(101);
-      await changePlayerLocation(
-        currentPlayer,
-        currentPlayer.location,   // fromLocation
-        newPlayerPosition,        // toLocation
-        setCurrentPlayer,
-        setGridId,
-        setGrid,
-        setTileTypes,
-        setResources,
-        TILE_SIZE,
-        closeAllPanels,
-      );
-      updateStatus(112);
+      // Fetch the homestead grid data to find Signpost Town location
+      try {
+        const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${currentPlayer.gridId}`);
+        const gridData = gridResponse.data;
+        
+        // Find the Signpost Town resource
+        let signpostX = 0;
+        let signpostY = 0;
+        
+        if (gridData.resources && Array.isArray(gridData.resources)) {
+          const signpostTown = gridData.resources.find(res => res.type === "Signpost Town");
+          if (signpostTown) {
+            signpostX = signpostTown.x;
+            signpostY = signpostTown.y;
+            console.log(`✅ Found Signpost Town at (${signpostX}, ${signpostY}) on homestead grid`);
+          } else {
+            console.log("⚠️ Signpost Town not found on homestead grid, using default (0, 0)");
+          }
+        }
+        
+        const newPlayerPosition = {
+          x: signpostX,
+          y: signpostY,
+          g: currentPlayer.gridId,      // The player's homestead grid
+          s: currentPlayer.settlementId,
+          f: currentPlayer.location.f,
+          gtype: "homestead",
+          gridCoord: currentPlayer.gridCoord,
+        };
+        
+        updateStatus(101);
+        await changePlayerLocation(
+          currentPlayer,
+          currentPlayer.location,   // fromLocation
+          newPlayerPosition,        // toLocation
+          setCurrentPlayer,
+          setGridId,
+          setGrid,
+          setTileTypes,
+          setResources,
+          TILE_SIZE,
+          closeAllPanels,
+        );
+        updateStatus(112);
+        
+      } catch (error) {
+        console.error("❌ Error fetching homestead grid data:", error);
+        updateStatus("Error traveling home");
+      }
       
       return;
     }
@@ -91,30 +114,57 @@ export async function handleTransitSignpost(
       if (!townGrid) { updateStatus(104); return; }
 
       console.log("Found town grid:", townGrid);
-      const newPlayerPosition = {
-        x: 0,  // Will be updated to Signpost Home location
-        y: 0,
-        g: townGrid.gridId,
-        s: settlementId,
-        f: frontierId,
-        gtype: "town",
-        gridCoord: townGrid.gridCoord,
-        findSignpost: "Signpost Home", // Flag to find this resource after grid loads
-      };
-      updateStatus(102);
-      await changePlayerLocation(
-        currentPlayer,
-        currentPlayer.location,   // fromLocation
-        newPlayerPosition,        // toLocation
-        setCurrentPlayer,
-        setGridId,
-        setGrid,
-        setTileTypes,
-        setResources,
-        TILE_SIZE,
-        closeAllPanels,
-      );
-      updateStatus(111);
+      
+      // Fetch the town grid data to find Signpost Home location
+      try {
+        const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${townGrid.gridId}`);
+        const gridData = gridResponse.data;
+        
+        // Find the Signpost Home resource
+        let signpostX = 0;
+        let signpostY = 0;
+        
+        if (gridData.resources && Array.isArray(gridData.resources)) {
+          const signpostHome = gridData.resources.find(res => res.type === "Signpost Home");
+          if (signpostHome) {
+            signpostX = signpostHome.x;
+            signpostY = signpostHome.y;
+            console.log(`✅ Found Signpost Home at (${signpostX}, ${signpostY}) on town grid`);
+          } else {
+            console.log("⚠️ Signpost Home not found on town grid, using default (0, 0)");
+          }
+        }
+        
+        const newPlayerPosition = {
+          x: signpostX,
+          y: signpostY,
+          g: townGrid.gridId,
+          s: settlementId,
+          f: frontierId,
+          gtype: "town",
+          gridCoord: townGrid.gridCoord,
+        };
+        
+        updateStatus(102);
+        await changePlayerLocation(
+          currentPlayer,
+          currentPlayer.location,   // fromLocation
+          newPlayerPosition,        // toLocation
+          setCurrentPlayer,
+          setGridId,
+          setGrid,
+          setTileTypes,
+          setResources,
+          TILE_SIZE,
+          closeAllPanels,
+        );
+        updateStatus(111);
+        
+      } catch (error) {
+        console.error("❌ Error fetching town grid data:", error);
+        updateStatus("Error traveling to town");
+      }
+      
       return;
     }
 
