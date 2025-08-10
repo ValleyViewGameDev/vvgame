@@ -65,7 +65,22 @@
           "goal1item": "Farm House",
           "goal1qty": 1,
           "symbol": "👨🏽"
+      },
+      {
+          "questId": "Hire Kent",
+          "completed": false,
+          "rewardCollected": false,
+          "progress": {},
+          "giver": "Kent",
+          "startTime": "Date.now()",
+          "reward": "Money",
+          "rewardqty": 5,
+          "goal1action": "Collect",
+          "goal1item": "Kent",
+          "goal1qty": 1,
+          "symbol": "👨🏽"
       }
+
     ],
       "settings": {
         "isStateMachineEnabled": false,
