@@ -295,6 +295,7 @@ async function handleFarmAnimalBehavior(gridId) {
         case 'emptystall': {
             // console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
             this.targetStall = null;
+            this.grazeEnd = null; // Clear grazeEnd so cow will go hungry after roaming
             this.state = 'roam'; // Transition to roam state
             await updateThisNPC(); // Save after transition
             break;
