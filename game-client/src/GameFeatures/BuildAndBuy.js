@@ -9,6 +9,7 @@ import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { getCurrentTileCoordinates, enrichResourceFromMaster } from '../Utils/ResourceHelpers';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
+import { incrementFTUEStep } from './FTUE/FTUE';
 
 export const handleConstruction = async ({
   TILE_SIZE,
@@ -104,11 +105,17 @@ export const handleConstruction = async ({
   console.log('selectedResource.action=', selectedResource.action);
 
   if (selectedResource.category === 'npc') {
-    // Spawning NPC directly at player’s tile coordinates
+    // Spawning NPC directly at player's tile coordinates
     NPCsInGridManager.spawnNPC(gridId, selectedResource, playerPosition);
     console.log('Spawned NPC:', gridId, selectedResource, playerPosition);
     // Track quest progress for "Buy" actions
     await trackQuestProgress(currentPlayer, 'Buy', selectedResource.type, 1, setCurrentPlayer);
+    
+    // Check if first-time user bought a cow
+    if (currentPlayer.firsttimeuser === true && selectedResource.type === 'Cow') {
+      console.log('🎓 First-time user purchased first Cow, advancing FTUE step');
+      await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+    }
 
   } else {
     console.log('Placing resource on the grid:', selectedItem);
