@@ -11,6 +11,7 @@ import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { spendIngredients } from '../../Utils/InventoryManagement';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
+import { incrementFTUEStep } from '../FTUE/FTUE';
 
 const SkillsAndUpgradesPanel = ({ 
     onClose,
@@ -175,6 +176,12 @@ const handlePurchase = async (resourceType) => {
     });
     await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+    
+    // Check if the player is a first-time user and just acquired the Axe Skill
+    if (currentPlayer.firsttimeuser === true && resource.type === 'Axe Skill') {
+      console.log('🎓 First-time user acquired Axe Skill, advancing FTUE step');
+      await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+    }
 
     // Instead of re-fetching, update the acquire lists locally
     if (resource.category === "skill") {

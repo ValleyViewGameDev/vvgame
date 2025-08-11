@@ -358,8 +358,8 @@
         "ingredient1qty": 200,
         "ingredient2": "Wood",
         "ingredient2qty": 10,
-        "crafttime": 5,
-        "totalnestedtime": 1035
+        "crafttime": 3,
+        "totalnestedtime": 1033
     },
     {
         "type": "Bank",
@@ -4070,8 +4070,8 @@
         "validono": false,
         "ingredient1": "Money",
         "ingredient1qty": 1000,
-        "crafttime": 5,
-        "totalnestedtime": 5005
+        "crafttime": 3,
+        "totalnestedtime": 5003
     },
     {
         "type": "Portia",
@@ -4112,9 +4112,9 @@
         "validonn": false,
         "validono": false,
         "ingredient1": "Money",
-        "ingredient1qty": 5000,
-        "crafttime": 5,
-        "totalnestedtime": 25005
+        "ingredient1qty": 1000,
+        "crafttime": 3,
+        "totalnestedtime": 5003
     },
     {
         "type": "Hotspur",
@@ -4445,7 +4445,7 @@
         "source": "Farm House",
         "passable": false,
         "repeatable": false,
-        "requires": "Farmer",
+        "requires": "Grower",
         "qtycollected": 1,
         "level": 7,
         "validong": false,
@@ -4642,26 +4642,14 @@
         "level": 1,
         "minprice": 0,
         "ingredient1": "Money",
-        "ingredient1qty": 1000
-    },
-    {
-        "type": "Farmer",
-        "symbol": "🌱",
-        "category": "skill",
-        "source": "Basic Skills",
-        "requires": "Grower",
-        "qtycollected": 1,
-        "level": 2,
-        "minprice": 0,
-        "ingredient1": "Money",
-        "ingredient1qty": 2000
+        "ingredient1qty": 500
     },
     {
         "type": "Green Thumb",
         "symbol": "🌱",
         "category": "skill",
         "source": "Basic Skills",
-        "requires": "Farmer",
+        "requires": "Grower",
         "qtycollected": 1,
         "level": 3,
         "minprice": 0,
@@ -4673,7 +4661,6 @@
         "symbol": "🌱",
         "category": "skill",
         "source": "Farm Hand",
-        "requires": "Farmer",
         "qtycollected": 1,
         "level": 2,
         "minprice": 0,
@@ -4685,7 +4672,6 @@
         "symbol": "🐮",
         "category": "skill",
         "source": "Farm Hand",
-        "requires": "Husbandry",
         "qtycollected": 1,
         "level": 2,
         "minprice": 0,
@@ -4737,7 +4723,7 @@
         "level": 1,
         "minprice": 0,
         "ingredient1": "Money",
-        "ingredient1qty": 3000
+        "ingredient1qty": 500
     },
     {
         "type": "Mechanics",
@@ -4748,7 +4734,7 @@
         "level": 1,
         "minprice": 0,
         "ingredient1": "Money",
-        "ingredient1qty": 5000
+        "ingredient1qty": 2000
     },
     {
         "type": "Builder",
