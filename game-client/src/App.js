@@ -4,7 +4,7 @@ import './VFX/VFX.css';
 import axios from 'axios';
 import API_BASE from './config.js';
 import Chat from './GameFeatures/Chat/Chat';
-import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef } from 'react';
+import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef, act } from 'react';
 import { initializeGrid } from './AppInit';
 import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning } from './Utils/TuningManager';
 import { RenderGrid } from './Render/Render';
@@ -1596,18 +1596,24 @@ return (
           openPanel("SkillsAndUpgradesPanel"); // ✅ Open the panel normally
         }}>💪</button>
 
-      <button 
-        className={`nav-button ${activePanel === 'BuyDecoPanel' ? 'selected' : ''}`} title={strings[12011]} disabled={!currentPlayer} 
-        onClick={() => {
-          if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
-          // Check if on another player's homestead
-          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
-          openPanel('BuyDecoPanel');
-        }}
-      >🪴</button>
+      {!currentPlayer?.firsttimeuser && (
+        <button 
+          className={`nav-button ${activePanel === 'BuyDecoPanel' ? 'selected' : ''}`} title={strings[12011]} disabled={!currentPlayer} 
+          onClick={() => {
+            if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
+            // Check if on another player's homestead
+            if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
+            openPanel('BuyDecoPanel');
+          }}
+        >🪴</button>
+      )}
 
-      <button className={`nav-button ${activePanel === 'CombatPanel' ? 'selected' : ''}`} title={strings[12006]} disabled={!currentPlayer} onClick={() => openPanel('CombatPanel')}>⚔️</button>
-      <button className={`nav-button ${activePanel === 'GovPanel' ? 'selected' : ''}`} title={strings[12007]} onClick={() => openPanel('GovPanel')}>🏛️</button>
+      {!currentPlayer?.firsttimeuser && (
+        <button className={`nav-button ${activePanel === 'CombatPanel' ? 'selected' : ''}`} title={strings[12006]} disabled={!currentPlayer} onClick={() => openPanel('CombatPanel')}>⚔️</button>
+      )}
+      {!currentPlayer?.firsttimeuser && (
+        <button className={`nav-button ${activePanel === 'GovPanel' ? 'selected' : ''}`} title={strings[12007]} onClick={() => openPanel('GovPanel')}>🏛️</button>
+      )}
       {isDeveloper && (
         <button className={`nav-button ${activePanel === 'DebugPanel' ? 'selected' : ''}`} title="Debug" onClick={() => openPanel('DebugPanel')}>
           🐞
@@ -1830,6 +1836,9 @@ return (
           setActiveQuestGiver={setActiveQuestGiver}
           gridId={gridId}
           setActiveStation={setActiveStation}
+          masterResources={masterResources}
+          setResources={setResources}
+          TILE_SIZE={activeTileSize}
         />
       )}
 

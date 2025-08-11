@@ -38,27 +38,41 @@
       "step": 6,
       "titleKey": 723,
       "bodyKey": 724,
-      "image": "ftue-shepherd.png",
+      "image": "ftue-farming.png",
       "continue": false
     },
     {
       "step": 7,
       "titleKey": 727,
       "bodyKey": 728,
-      "image": "ftue-exploring.png",
+      "image": "ftue-shepherd.png",
       "continue": false
     },
     {
       "step": 8,
-      "titleKey": 731,
-      "bodyKey": 732,
-      "image": "ftue-quests.png",
+      "titleKey": 729,
+      "bodyKey": 730,
+      "image": "ftue-cow.png",
       "continue": false
     },
     {
       "step": 9,
+      "titleKey": 731,
+      "bodyKey": 732,
+      "image": "ftue-axe.png",
+      "continue": false
+    },
+    {
+      "step": 10,
       "titleKey": 737,
       "bodyKey": 738,
+      "image": "ftue-valley.png",
+      "continue": false
+    },
+    {
+      "step": 11,
+      "titleKey": 739,
+      "bodyKey": 740,
       "image": "ftue-valley.png",
       "continue": false
     }

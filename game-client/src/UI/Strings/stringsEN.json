@@ -601,22 +601,28 @@
     "710": "You've inherited a Homestead in a Settlement with other players. Start by fixing up this abandoned farm house. Check your ✅ To Do List. You'll need to gather some wood first.",
     
     "715": "👨🏽 Hire Kent",
-    "716": "Excellent! Now, you're going to need to start making 💰 money. But you can't do it alone. You'll need a Farm Manager who can live here full time and help you grow the operation. Open the 🏠 Farm House to hire people.",
+    "716": "Excellent! Now, you're going to need to start making 💰 money. You'll need a Farm Manager who can live here full time and help you grow the operation. Open the 🏠 Farm House to hire people.",
     
     "721": "👨🏽 Listen to Kent",
     "722": "Great, Kent is the best! Get to know him well, and he'll give you ✅ advice. Kent's first order of business: harvest some 🌾 Wheat, and use the 📥 Trading Post to sell it.",
     
-    "723": "Husbandry",
-    "724": "Now that you know how to make money, you can invest in 🐮 Farm Animals. Hire the 👵🏻 Shepherd from the 🏠 Farm House, and she'll tell you what to do.",
+    "723": "Farm the Land",
+    "724": "Go ahead and expand your farm. Plant crops using the 🚜 Farming panel. When you have enough money, acquire the Grower skill to expand your farming capabilities.",
 
-    "727": "Get Choppin'!",
-    "728": "Great! With that axe you can gather wood for a number of things, including building crafting stations. You can also chop your way to the Train Station at the edge of your Homestead, where you can eventually travel into Town.",
-
-    "731": "Time to Explore",
-    "732": "Your Homestead is part of a larger Settlement of other players sharing a large Frontier. Zoom out (+ and -) to see the whole Settlement and Frontier. Use ➡️ Signposts to travel, or walk to the edge of any map.",
+    "727": "👵🏻 Hire the Shepherd",
+    "728": "Nice work! Now hire the 👵🏻 Shepherd from the 🏠 Farm House, and she'll help bring some 🐮 animal life to the farm, so you can continue to expand your business.",
     
-    "737": "Characters of Valley View",
-    "738": "Meet and greet various characters in and beyond the town. Trade with them 🥷 and go on quests ✅, but build your relationshps 💙 carefully.",
+    "729": "🐮 Animal Husbandry",
+    "730": "Go to the 🐮 Animal Panel to acquire farm animals. Start with a Cow. The Cow needs grass to graze upon, so place it carefully. And you already have your first 🟫 Animal Stal, where you can produce milk once the cow is full.",
+
+    "731": "Get Choppin'!",
+    "732": "You've mastered the 🪓 axe -- excellent! Wood is useful for a number of things, including building crafting stations. You can also chop your way to the 🚂 Train Station at the edge of your Homestead, where you can eventually travel into Town.",
+
+    "737": "Time to Explore",
+    "738": "Your Homestead is part of a larger Settlement of other players sharing a large Frontier. Zoom out (+ and -) to see the whole Settlement and Frontier. Use ➡️ Signposts to travel, or walk to the edge of any map.",
+    
+    "739": "Characters of Valley View",
+    "740": "Meet and greet various characters in and beyond the town. Trade with them 🥷 and go on quests ✅, but build your relationshps 💙 carefully.",
     
     "795": "Skip Tutorial",
     "796": "OK",

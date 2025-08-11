@@ -115,6 +115,10 @@ const QuestGiverPanel = ({
           return quest.repeatable || !currentPlayer.completedQuests.some(q => q.questId === quest.title);
         });
 
+      // Debug logging
+      console.log(`📋 Before FTUE filter - quests available: ${npcQuests.length}`);
+      console.log(`👤 Player FTUE status - firsttimeuser: ${currentPlayer.firsttimeuser}, ftuestep: ${currentPlayer.ftuestep}`);
+      
       // Filter by FTUE step only if player is a first-time user
       if (currentPlayer.firsttimeuser === true && currentPlayer.ftuestep != null) {
         console.log(`🎓 Filtering quests by FTUE step: ${currentPlayer.ftuestep}`);
@@ -122,6 +126,7 @@ const QuestGiverPanel = ({
           // Only show quests that have an ftuestep and it's less than or equal to current step
           return quest.ftuestep != null && quest.ftuestep <= currentPlayer.ftuestep;
         });
+        console.log(`📋 After FTUE filter - quests remaining: ${npcQuests.length}`);
       }
 
       setQuestList(npcQuests);

@@ -6,8 +6,11 @@ import './FTUE.css';
 import FTUEstepsData from './FTUEsteps.json';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
+import { updateGridResource } from '../../Utils/GridManagement';
+import { enrichResourceFromMaster } from '../../Utils/ResourceHelpers';
+import FloatingTextManager from '../../UI/FloatingText';
 
-const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQuestGiver, gridId, setActiveStation }) => {
+const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQuestGiver, gridId, setActiveStation, masterResources, setResources, TILE_SIZE }) => {
   const strings = useStrings();
   const [currentStepData, setCurrentStepData] = useState(null);
   
@@ -32,56 +35,25 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       // Check if there's a next step in the data
       const hasNextStep = FTUEstepsData.some(step => step.step === nextStep);
       
-      // Check if we should open a panel after this step
+//////////// FTUE STEP 3 /////////////
+
       if (currentStep === 3 && openPanel) {
         console.log(`🎓 Adding starter quests and opening QuestPanel after FTUE step ${currentStep}`);
         
         // Add the two starter quests sequentially
-        const playerAfterFirstQuest = await addAcceptedQuest(
-          currentPlayer.playerId, 
-          currentPlayer, 
-          setCurrentPlayer, 
-          "Gather Wood", 
-          "👨🏽",
-          {
-            goal1action: "Collect",
-            goal1item: "Wood",
-            goal1qty: 10
-          }
-        );
-        
-        await addAcceptedQuest(
-          currentPlayer.playerId, 
-          playerAfterFirstQuest, 
-          setCurrentPlayer, 
-          "Repair House", 
-          "👨🏽",
-          {
-            goal1action: "Repair",
-            goal1item: "Farm House",
-            goal1qty: 1
-          }
-        );
+        const playerAfterFirstQuest = await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 2);
+        await addAcceptedQuest(currentPlayer.playerId, playerAfterFirstQuest, setCurrentPlayer, 3);
         
         onClose(); // Close FTUE modal first
         openPanel('QuestPanel');
+
+//////////// FTUE STEP 4 /////////////
 
       } else if (currentStep === 4 && openPanel && setActiveStation) {
         console.log(`🎓 Adding Hire Kent quest and opening FarmHousePanel after FTUE step ${currentStep}`);
         
         // Add the "Hire Kent" quest
-        await addAcceptedQuest(
-          currentPlayer.playerId, 
-          currentPlayer, 
-          setCurrentPlayer, 
-          "Hire Kent", 
-          "👨🏽",
-          {
-            goal1action: "Craft",
-            goal1item: "Kent",
-            goal1qty: 1
-          }
-        );
+        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 4);
         
         // Find the Farm House on the grid
         const resources = GlobalGridStateTilesAndResources.getResources();
@@ -101,8 +73,16 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
           console.log(`⚠️ Farm House not found on grid`);
           onClose(); // Still close FTUE modal
         }
+
+//////////// FTUE STEP 5 /////////////
+
       } else if (currentStep === 5 && openPanel && setActiveQuestGiver && gridId) {
-        // Find Kent NPC and open QuestGiverPanel
+        console.log(`🎓 Processing FTUE step 5`);
+        
+        // First, add the Trading Post at (29, 32)
+        await handleAddTradingPost();
+        
+        // Then find Kent NPC and open QuestGiverPanel
         console.log(`🎓 Looking for Kent NPC after FTUE step 5`);
         const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
         if (npcsInGrid) {
@@ -117,40 +97,70 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
             onClose(); // Still close FTUE modal
           }
         }
+
+//////////// FTUE STEP 6 /////////////
+
+      } else if (currentStep === 6) {
+        
+        // Add the two starter quests sequentially
+        // Add the "Grower" and "Harvest" quests
+        const playerAfterFirstQuest = await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 7);
+        await addAcceptedQuest(currentPlayer.playerId, playerAfterFirstQuest, setCurrentPlayer, 8);
+        onClose(); // Close FTUE modal first
+        openPanel('QuestPanel');
+
+//////////// FTUE STEP 7 /////////////
+
+      } else if (currentStep === 7) {
+        console.log(`🎓 Adding Hire the Shepherd quest after FTUE step ${currentStep}`);
+        
+        // Add the "Hire the Shepherd" quest
+        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 9);
+        
+        onClose(); // Close FTUE modal
+
+//////////// FTUE STEP 8 /////////////
+
       } else if (currentStep === 8) {
+        console.log(`🎓 Adding gain Husbandry quest after FTUE step ${currentStep}`);
+        
+        // Add the "Hire the Shepherd" quest
+        const playerAfterFirstQuest = await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 18);
+        await addAcceptedQuest(currentPlayer.playerId, playerAfterFirstQuest, setCurrentPlayer, 19);
+        
+        onClose(); // Close FTUE modal
+
+//////////// FTUE STEP 9 /////////////
+
+      } else if (currentStep === 9) {
+        console.log(`🎓 Adding Axe quest after FTUE step ${currentStep}`);
+        
+        // Add the "Hire the Shepherd" quest
+        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 10);
+        
+        onClose(); // Close FTUE modal
+
+//////////// FTUE STEP 10 /////////////
+
+      } else if (currentStep === 10) {
         console.log(`🎓 Adding completed Wizard quest after FTUE step ${currentStep}`);
         
         // Add the completed "Find the Wizard in the Valley" quest
-        // First add the quest
-        const updatedPlayer = await addAcceptedQuest(
-          currentPlayer.playerId, 
-          currentPlayer, 
-          setCurrentPlayer, 
-          "Find the Wizard in the Valley", 
-          "🧙",
-          {
-            // No goals needed as this quest is already completed
-          }
-        );
+        const updatedPlayer = await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 1);
         
         // Then mark it as completed
-        const questIndex = updatedPlayer.activeQuests.findIndex(q => q.questId === "Find the Wizard in the Valley");
-        if (questIndex !== -1) {
-          updatedPlayer.activeQuests[questIndex].completed = true;
-          
-          // Update the player in the database with the completed quest
-          const response = await axios.post(`${API_BASE}/api/update-profile`, {
-            playerId: currentPlayer.playerId,
-            updates: { activeQuests: updatedPlayer.activeQuests }
-          });
-          
-          if (response.data.success) {
-            setCurrentPlayer(prev => ({
-              ...prev,
-              activeQuests: updatedPlayer.activeQuests
-            }));
-            console.log(`✅ Added completed Wizard quest`);
-          }
+        updatedPlayer.activeQuests[1].completed = true;
+        const response = await axios.post(`${API_BASE}/api/update-profile`, {
+          playerId: currentPlayer.playerId,
+          updates: { activeQuests: updatedPlayer.activeQuests }
+        });
+        
+        if (response.data.success) {
+          setCurrentPlayer(prev => ({
+            ...prev,
+            activeQuests: updatedPlayer.activeQuests
+          }));
+          console.log(`✅ Added completed Wizard quest`);
         }
         
         onClose(); // Close FTUE modal
@@ -219,6 +229,54 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
 
   const handleSkip = () => {
     completeTutorial();
+  };
+
+  // Add Trading Post to the grid at specific coordinates
+  const handleAddTradingPost = async () => {
+    try {
+      console.log('🏪 Adding Trading Post to grid at (29, 32)');
+      
+      // Check if Trading Post already exists at this location
+      const resources = GlobalGridStateTilesAndResources.getResources();
+      const existingTradingPost = resources?.find(res => 
+        res.type === 'Trading Post' && res.x === 29 && res.y === 32
+      );
+      
+      if (existingTradingPost) {
+        console.log('🏪 Trading Post already exists at (29, 32)');
+        return;
+      }
+      
+      // Find Trading Post in masterResources to get its properties
+      const tradingPostResource = masterResources?.find(res => res.type === 'Trading Post');
+      if (!tradingPostResource) {
+        console.error('❌ Trading Post not found in masterResources');
+        return;
+      }
+      
+      // Create the Trading Post resource
+      const rawResource = { type: 'Trading Post', x: 29, y: 32 };
+      const enriched = enrichResourceFromMaster(rawResource, masterResources);
+      
+      // Add to local state
+      const finalResources = [...(resources || []), enriched];
+      GlobalGridStateTilesAndResources.setResources(finalResources);
+      if (setResources) {
+        setResources(finalResources);
+      }
+      
+      // Update in database
+      await updateGridResource(gridId, rawResource, true);
+      
+      // Show success message
+      if (TILE_SIZE) {
+        FloatingTextManager.addFloatingText('🏪 Trading Post added!', 29, 32, TILE_SIZE);
+      }
+      
+      console.log('✅ Trading Post successfully added to grid');
+    } catch (error) {
+      console.error('❌ Error adding Trading Post:', error);
+    }
   };
 
   // Don't render if no step data
@@ -320,13 +378,24 @@ export const incrementFTUEStep = async (playerId, currentPlayer, setCurrentPlaye
 };
 
 // Export function to add an accepted quest to player data
-export const addAcceptedQuest = async (playerId, currentPlayer, setCurrentPlayer, questId, questSymbol, questGoals = {}) => {
+export const addAcceptedQuest = async (playerId, currentPlayer, setCurrentPlayer, questIndex) => {
   try {
+    // Fetch quest template from API
+    const response = await axios.get(`${API_BASE}/api/quests`);
+    const questTemplates = response.data || [];
+    
+    // Find the specific quest template by index
+    const questTemplate = questTemplates.find(q => q.index === questIndex);
+    if (!questTemplate) {
+      console.error(`❌ Quest template not found for index: ${questIndex}`);
+      return currentPlayer;
+    }
+    
     // Create the quest object following the activeQuests format
     const newQuest = {
-      questId: questId,
+      questId: questTemplate.title, // Use title from template
       startTime: Date.now(),
-      symbol: questSymbol,
+      symbol: questTemplate.symbol || '❓',
       progress: {
         goal1: 0,
         goal2: 0,
@@ -334,17 +403,25 @@ export const addAcceptedQuest = async (playerId, currentPlayer, setCurrentPlayer
       },
       completed: false,
       rewardCollected: false,
-      // Spread the questGoals to only include provided goal fields
-      ...questGoals
+      // Add goal fields from template
+      goal1action: questTemplate.goal1action || null,
+      goal1item: questTemplate.goal1item || null,
+      goal1qty: questTemplate.goal1qty || null,
+      goal2action: questTemplate.goal2action || null,
+      goal2item: questTemplate.goal2item || null,
+      goal2qty: questTemplate.goal2qty || null,
+      goal3action: questTemplate.goal3action || null,
+      goal3item: questTemplate.goal3item || null,
+      goal3qty: questTemplate.goal3qty || null
     };
     
     // Get current active quests
     const currentActiveQuests = currentPlayer?.activeQuests || [];
     
     // Check if quest already exists
-    const questExists = currentActiveQuests.some(q => q.questId === questId);
+    const questExists = currentActiveQuests.some(q => q.questId === questTemplate.title);
     if (questExists) {
-      console.log(`📚 Quest "${questId}" already exists in active quests`);
+      console.log(`📚 Quest "${questTemplate.title}" already exists in active quests`);
       return currentPlayer;
     }
     
@@ -352,12 +429,12 @@ export const addAcceptedQuest = async (playerId, currentPlayer, setCurrentPlayer
     const updatedActiveQuests = [...currentActiveQuests, newQuest];
     
     // Update database
-    const response = await axios.post(`${API_BASE}/api/update-profile`, {
+    const updateResponse = await axios.post(`${API_BASE}/api/update-profile`, {
       playerId,
       updates: { activeQuests: updatedActiveQuests }
     });
     
-    if (response.data.success) {
+    if (updateResponse.data.success) {
       // Update local state
       const updatedPlayer = {
         ...currentPlayer,
@@ -365,7 +442,7 @@ export const addAcceptedQuest = async (playerId, currentPlayer, setCurrentPlayer
       };
       setCurrentPlayer(updatedPlayer);
       
-      console.log(`✅ Quest "${questId}" added to active quests`);
+      console.log(`✅ Quest "${questTemplate.title}" (index: ${questIndex}) added to active quests`);
       return updatedPlayer;
     }
     

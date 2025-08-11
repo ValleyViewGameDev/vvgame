@@ -258,8 +258,14 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 
     // Check if selling all of a crop item
     if (amount === resourceInInventory.quantity && isACrop(resource, masterResources)) {
-      // Show confirmation modal using standard modal system
-      setModalContent({
+      // Check if the plot for this crop has a cost
+      const plotResource = masterResources.find(res => res.output === resource && res.category === 'farmplot');
+      const plotHasCost = plotResource && plotResource.ingredient1qty > 0;
+      
+      // Only show confirmation if the plot has a cost (e.g., Corn Plot costs 1 Corn)
+      if (plotHasCost) {
+        // Show confirmation modal using standard modal system
+        setModalContent({
         title: '⚠️ Warning',
         message: `This will leave you with 0 ${resource}, so you will not be able to plant ${resource} again.`,
         message2: 'Are you sure?',
@@ -287,6 +293,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       });
       setIsModalOpen(true);
       return;
+      }
     }
 
     // Continue with normal add to slot
