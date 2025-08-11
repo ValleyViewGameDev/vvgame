@@ -115,8 +115,8 @@ const QuestGiverPanel = ({
           return quest.repeatable || !currentPlayer.completedQuests.some(q => q.questId === quest.title);
         });
 
-      // Filter by FTUE step if player has one
-      if (currentPlayer.ftuestep != null) {
+      // Filter by FTUE step only if player is a first-time user
+      if (currentPlayer.firsttimeuser === true && currentPlayer.ftuestep != null) {
         console.log(`🎓 Filtering quests by FTUE step: ${currentPlayer.ftuestep}`);
         npcQuests = npcQuests.filter((quest) => {
           // Only show quests that have an ftuestep and it's less than or equal to current step

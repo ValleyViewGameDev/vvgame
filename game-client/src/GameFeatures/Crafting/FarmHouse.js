@@ -117,8 +117,8 @@ const FarmHouse = ({
     try {
       let filteredRecipes = masterResources.filter((resource) => resource.source === stationType);
       
-      // Filter by FTUE step if player has one
-      if (currentPlayer.ftuestep != null) {
+      // Filter by FTUE step only if player is a first-time user
+      if (currentPlayer.firsttimeuser === true && currentPlayer.ftuestep != null) {
         console.log(`🎓 Filtering FarmHouse recipes by FTUE step: ${currentPlayer.ftuestep}`);
         filteredRecipes = filteredRecipes.filter((recipe) => {
           // Only show recipes with level <= current FTUE step

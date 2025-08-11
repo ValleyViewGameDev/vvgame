@@ -107,10 +107,17 @@ const SkillsAndUpgradesPanel = ({
             // Check if skill has requirements
             if (skill.requires) {
               // Check if the player owns the required skill
-              return ownedSkills.some(owned => owned.type === skill.requires) ||
-                     ownedUpgrades.some(owned => owned.type === skill.requires);
+              const hasRequirement = ownedSkills.some(owned => owned.type === skill.requires) ||
+                                   ownedUpgrades.some(owned => owned.type === skill.requires);
+              if (!hasRequirement) return false;
             }
-            // If no requirements, can acquire
+            
+            // Check if skill level is appropriate for FTUE step
+            if (currentPlayer.ftuestep != null && skill.level != null) {
+              return skill.level <= currentPlayer.ftuestep;
+            }
+            
+            // If no FTUE step or skill level, can acquire
             return true;
           };
 
