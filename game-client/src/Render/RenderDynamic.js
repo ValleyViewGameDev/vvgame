@@ -1,6 +1,7 @@
 import '../App.css';
 import '../UI/Panel.css';
 import '../UI/Cursor.css';
+import './Render.css';
 
 import React, { useEffect, useRef } from 'react';
 import axios from 'axios';
@@ -212,7 +213,7 @@ const DynamicRenderer = ({
         // Add overlay visual element if needed
         const overlayData = getNPCOverlay(npc.id);
         if (overlayData) {
-          renderNPCOverlay(npcDiv, overlayData.overlay);
+          renderOverlay(npcDiv, overlayData.overlay);
         } else if (npc.action === 'quest') {
           // Check quest NPC status only if not already cached
           const cachedStatus = questNPCStatusRef.current.get(npc.id);
@@ -222,13 +223,13 @@ const DynamicRenderer = ({
                 questNPCStatusRef.current.set(npc.id, status);
                 const npcDivCheck = npcElements.current.get(npc.id);
                 if (npcDivCheck && !npcDivCheck.querySelector('.npc-overlay')) {
-                  renderNPCOverlay(npcDivCheck, status);
+                  renderOverlay(npcDivCheck, status);
                 }
               }
             });
           } else {
             // Use cached status
-            renderNPCOverlay(npcDiv, cachedStatus);
+            renderOverlay(npcDiv, cachedStatus);
           }
         }
 
@@ -257,7 +258,7 @@ const DynamicRenderer = ({
         const existingOverlay = npcDiv.querySelector('.npc-overlay');
         
         if (overlayData && !existingOverlay) {
-          renderNPCOverlay(npcDiv, overlayData.overlay);
+          renderOverlay(npcDiv, overlayData.overlay);
         } else if (!overlayData && existingOverlay) {
           // Check if this is a quest NPC that might need overlay
           if (npc.action === 'quest') {
@@ -268,7 +269,7 @@ const DynamicRenderer = ({
               const currentType = existingOverlay.getAttribute('data-overlay-type');
               if (currentType !== cachedStatus) {
                 existingOverlay.remove();
-                renderNPCOverlay(npcDiv, cachedStatus);
+                renderOverlay(npcDiv, cachedStatus);
               }
             } else {
               // Re-check quest status
@@ -278,7 +279,7 @@ const DynamicRenderer = ({
                   if (existingOverlay) {
                     existingOverlay.remove();
                   }
-                  renderNPCOverlay(npcDiv, status);
+                  renderOverlay(npcDiv, status);
                 } else {
                   existingOverlay.remove();
                   questNPCStatusRef.current.delete(npc.id);
@@ -293,20 +294,20 @@ const DynamicRenderer = ({
           const currentType = existingOverlay.getAttribute('data-overlay-type');
           if (currentType !== overlayData.overlay) {
             existingOverlay.remove();
-            renderNPCOverlay(npcDiv, overlayData.overlay);
+            renderOverlay(npcDiv, overlayData.overlay);
           }
         } else if (!overlayData && npc.action === 'quest' && !existingOverlay) {
           // Quest NPC without overlay - check if it needs one
           const cachedStatus = questNPCStatusRef.current.get(npc.id);
           if (cachedStatus) {
-            renderNPCOverlay(npcDiv, cachedStatus);
+            renderOverlay(npcDiv, cachedStatus);
           } else {
             checkQuestNPCStatus(npc).then(status => {
               if (status) {
                 questNPCStatusRef.current.set(npc.id, status);
                 const npcDivCheck = npcElements.current.get(npc.id);
                 if (npcDivCheck && !npcDivCheck.querySelector('.npc-overlay')) {
-                  renderNPCOverlay(npcDivCheck, status);
+                  renderOverlay(npcDivCheck, status);
                 }
               }
             });
@@ -643,47 +644,37 @@ function handlePCHoverLeave(setHoverTooltip) {
   setHoverTooltip(null);
 }
 
-// Render visual overlay on NPC
-function renderNPCOverlay(npcDiv, overlayType) {
+// Render visual overlay on any entity (NPC, crafting station, etc)
+export function renderOverlay(parentDiv, overlayType) {
   const overlay = document.createElement('div');
-  overlay.className = 'npc-overlay';
+  overlay.className = 'game-overlay';
   overlay.setAttribute('data-overlay-type', overlayType);
-  overlay.style.position = 'absolute';
-  overlay.style.top = '0';
-  overlay.style.right = '0';
-  overlay.style.fontSize = '0.6em';
-  overlay.style.zIndex = '20';
-  overlay.style.pointerEvents = 'none';
-  overlay.style.textShadow = '0 0 2px rgba(0,0,0,0.8)';
   
-  switch (overlayType) {
-    case 'hourglass':
-      overlay.textContent = '⏳';
-      overlay.style.color = '#FFD700';
-      break;
-    case 'exclamation':
-      overlay.textContent = '❗';
-      overlay.style.color = '#FF6B35';
-      break;
-    case 'attack':
-      overlay.textContent = '⚔️';
-      overlay.style.color = '#DC143C';
-      break;
-    case 'completed':
-      overlay.textContent = '✅';
-      overlay.style.color = '#32CD32';
-      break;
-    case 'available':
-      overlay.textContent = '👋';
-      overlay.style.color = '#FFD700';
-      break;
-    default:
-      overlay.textContent = '';
-      overlay.style.color = '#888';
-      break;
-  }
+  const content = getOverlayContent(overlayType);
+  overlay.textContent = content.emoji;
+  overlay.style.color = content.color;
   
-  npcDiv.appendChild(overlay);
+  parentDiv.appendChild(overlay);
 }
+
+// React component for overlay content
+export const getOverlayContent = (overlayType) => {
+  switch (overlayType) {
+    case 'exclamation':
+      return { emoji: '❗', color: '#FF6B35' };
+    case 'attack':
+      return { emoji: '⚔️', color: '#DC143C' };
+    case 'completed':
+      return { emoji: '✅', color: '#32CD32' };
+    case 'available':
+      return { emoji: '👋', color: '#FFD700' };
+    case 'ready':
+      return { emoji: '✅', color: 'green' };
+    case 'inprogress':
+      return { emoji: '🕑', color: 'orange' };
+    default:
+      return { emoji: '', color: '#888' };
+  }
+};
 
 export default DynamicRenderer;

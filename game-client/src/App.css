@@ -1,7 +1,3 @@
-.craft-notification {
-  font-size: 12px !important; /* ✅ Force override */
-  text-shadow: 0.5px 0.5px 4px rgba(0, 0, 0, 0.3); /* ✅ Softer, smaller shadow */
-}
 
 /* Ensure the body and root elements are styled correctly */
 body {

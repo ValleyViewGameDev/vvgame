@@ -1,6 +1,8 @@
 import React, { memo, useState, useEffect, useRef } from 'react';
 import { startAmbientVFX, stopAmbientVFX } from '../VFX/AmbientVFX';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
+import { getOverlayContent } from './RenderDynamic';
+import './Render.css';
 import '../App.css';
 
 export function generateResourceTooltip(resource) {
@@ -149,6 +151,7 @@ export const RenderGrid = memo(
               left: colIndex * TILE_SIZE,
               width: TILE_SIZE,
               height: TILE_SIZE,
+              fontSize: `${TILE_SIZE * 0.7}px`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -183,38 +186,24 @@ export const RenderGrid = memo(
             {/* ✅ Add Checkmark for Ready Crafting Stations */}
             {isCraftReady && (!resource || resource.range <= 1 || (resource.x === colIndex && resource.y === rowIndex)) && (
               <div
-                className="craft-notification"
+                className="game-overlay"
                 style={{
-                  position: 'absolute',
-                  top: '10%',
-                  right: '10%',
-                  fontSize: `${TILE_SIZE * 0.5}px`,
-                  color: 'green',
-                  fontWeight: 'bold',
-                  zIndex: 20, // Increased z-index to ensure visibility over multi-tile resources
-                  pointerEvents: 'none',
+                  color: getOverlayContent('ready').color,
                 }}
               >
-                ✅
+                {getOverlayContent('ready').emoji}
               </div>
             )}
 
             {/* ✅ Add Timer (⌛️) for Crafting Stations Still in Progress */}
             {isCraftInProgress && (!resource || resource.range <= 1 || (resource.x === colIndex && resource.y === rowIndex)) && (
               <div
-                className="craft-notification"
+                className="game-overlay"
                 style={{
-                  position: 'absolute',
-                  top: '10%',
-                  right: '10%',
-                  fontSize: `${TILE_SIZE * 0.5}px`,
-                  color: 'orange',
-                  fontWeight: 'bold',
-                  zIndex: 20, // Increased z-index to ensure visibility over multi-tile resources
-                  pointerEvents: 'none',
+                  color: getOverlayContent('inprogress').color,
                 }}
               >
-                ⌛️
+                {getOverlayContent('inprogress').emoji}
               </div>
             )}
           </div>

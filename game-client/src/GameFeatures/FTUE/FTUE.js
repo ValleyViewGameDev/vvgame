@@ -16,6 +16,13 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
   
   // Load the current step data based on player's ftuestep
   useEffect(() => {
+    // Only show FTUE if player is explicitly a first-time user
+    if (currentPlayer?.firsttimeuser !== true) {
+      console.log('Player is not a first-time user, closing FTUE');
+      onClose();
+      return;
+    }
+    
     if (currentPlayer?.ftuestep) {
       const stepData = FTUEstepsData.find(step => step.step === currentPlayer.ftuestep);
       if (stepData) {
@@ -26,7 +33,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         onClose();
       }
     }
-  }, [currentPlayer?.ftuestep, onClose]);
+  }, [currentPlayer?.ftuestep, currentPlayer?.firsttimeuser, onClose]);
 
   const handleOK = async () => {
     try {
