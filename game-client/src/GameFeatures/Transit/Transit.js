@@ -5,6 +5,7 @@ import { getEntryPosition } from './transitConfig';
 import playersInGridManager from "../../GridState/PlayersInGrid";
 import { fetchHomesteadOwner } from "../../Utils/worldHelpers";
 import { updateGridStatus } from "../../Utils/GridManagement";
+import { incrementFTUEStep } from "../FTUE/FTUE";
 
 export async function handleTransitSignpost(
   currentPlayer,
@@ -27,18 +28,23 @@ export async function handleTransitSignpost(
     console.log("🔍 currentPlayer before checking skills:", currentPlayer);
     console.log("📜 currentPlayer.skills:", currentPlayer.skills);
 
-    // 1) Ensure the player has the Horse skill
-    skills = currentPlayer.skills.length ? currentPlayer.skills : await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`).then(res => res.data.skills || []);
-
-    console.log('skillResponse.data: ', skills);
-    console.log('currentPlayer = ',currentPlayer.username);
-    
-    const hasHorse = skills.some((item) => item.type === "Horse" && item.quantity > 0);
-    console.log('hasHorse: ', hasHorse);
-    if (!hasHorse) { updateStatus(15); return; }
-
-    // 2) Handle special signposts
+    // 1) Handle special signposts (no Horse skill required for Town/Home)
     const { g: currentGridId, s: settlementId, f: frontierId } = currentPlayer.location;
+    
+    // Check if this is Signpost Town or Signpost Home (no Horse required)
+    const isSpecialSignpost = resourceType === "Signpost Town" || resourceType === "Signpost Home";
+    
+    // 2) For non-special signposts, ensure the player has the Horse skill
+    if (!isSpecialSignpost) {
+        skills = currentPlayer.skills.length ? currentPlayer.skills : await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`).then(res => res.data.skills || []);
+
+        console.log('skillResponse.data: ', skills);
+        console.log('currentPlayer = ',currentPlayer.username);
+        
+        const hasHorse = skills.some((item) => item.type === "Horse" && item.quantity > 0);
+        console.log('hasHorse: ', hasHorse);
+        if (!hasHorse) { updateStatus(15); return; }
+    }
 
     // Signpost Home
     if (resourceType === "Signpost Home") {
@@ -146,6 +152,41 @@ export async function handleTransitSignpost(
         };
         
         updateStatus(102);
+        
+        // Check if first-time user is using Signpost Town
+        if (currentPlayer.firsttimeuser === true) {
+          console.log('🎓 First-time user used Signpost Town, completing tutorial');
+          
+          // First increment the FTUE step
+          await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+          
+          // Then complete the tutorial by setting firsttimeuser to false
+          try {
+            const response = await axios.post(`${API_BASE}/api/update-profile`, {
+              playerId: currentPlayer.playerId,
+              updates: { 
+                firsttimeuser: false,
+                ftuestep: null  // Remove ftuestep field
+              }
+            });
+            
+            if (response.data.success) {
+              // Update local state
+              setCurrentPlayer(prev => {
+                const updated = {
+                  ...prev,
+                  firsttimeuser: false
+                };
+                delete updated.ftuestep;  // Remove ftuestep from local state
+                return updated;
+              });
+              console.log('✅ Tutorial completed - firsttimeuser set to false');
+            }
+          } catch (error) {
+            console.error('Error completing tutorial:', error);
+          }
+        }
+        
         await changePlayerLocation(
           currentPlayer,
           currentPlayer.location,   // fromLocation

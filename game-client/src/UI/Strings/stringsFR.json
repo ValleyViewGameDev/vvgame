@@ -539,7 +539,7 @@
 
   "12001": "Agriculture",
   "12002": "Construction",
-  "12003": "Acheter des animaux et des décorations",
+  "12003": "Animaux",
   "12004": "Quêtes actives",
   "12005": "Compétences",
   "12006": "Combat",
@@ -547,6 +547,7 @@
   "12008": "Saisons",
   "12009": "Accueil",
   "12010": "Profil",
+  "12011": "Décorations",
 
   "320": "Impossible de terraformer ici.",
   "2085": "Maire actuel :",
@@ -603,7 +604,36 @@
   "730": "Passer le tutoriel",
   "731": "Suivant",
   "732": "Retour",
-  "733": "Jouer"
+  "733": "Jouer",
+
+  "790": "Commerce",
+  "791": "Ouvrez le 📤 Comptoir de commerce sur votre propriété pour vendre des biens et gagner de l’💰 argent. Échangez avec d’autres joueurs pour obtenir de meilleurs prix.",
+  "792": "Compétences",
+  "793": "Acquérez des 💪 compétences pour développer votre propriété et voyager au-delà. Avec le temps, vous pourrez vous spécialiser en 🚜 agriculture, ⚔️ aventure ou 🏛️ politique. Équilibrez vos compétences avec celles des autres joueurs et créez une communauté prospère.",
+
+  "490": "Vendre pour remboursement (Dev seulement)",
+  "156": "Vide (ajouter des objets)",
+  "157": "Acheté par",
+  "159": "Prêt à vendre",
+  "1031": "Achetez des décorations pour votre propriété. Vous pourrez les revendre pour un remboursement complet.",
+  "1131": "🪴 Décorations",
+  "1032": "🏠 Maison de ferme",
+  "1132": "La maison de ferme est l’endroit où vous pouvez embaucher des personnes pour vous aider à gérer votre propriété.",
+
+  "440": "Fabrication commencée ",
+  "441": "En cours ...",
+  "442": "🏠 Réparations de la maison terminées !",
+  "450": "❌ Impossible de payer les frais de fabrication",
+  "451": "⚠️ Fabrication déjà en cours",
+  "452": "❌ Échec du démarrage de la fabrication.",
+  "453": "❌ Échec de la réparation de la maison.",
+  "454": "❌ Échec de l’embauche de l’ouvrier.",
+  "455": " est arrivé(e) !",
+  "456": "Plus aucun ouvrier disponible.",
+
+  "12012": "Outils",
+  "1033": "⛏️ Outils",
+  "1133": "Façonnez la terre avec ces outils. Les animaux ont besoin d’herbe pour paître, les cultures ont besoin de terre pour pousser. Le pavage peut être utile pour contrôler les déplacements des animaux et des personnages."
 
 }
 

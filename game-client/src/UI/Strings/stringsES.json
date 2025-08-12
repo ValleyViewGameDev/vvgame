@@ -463,16 +463,17 @@
   "10133": "CADENAS AGREGADAS:",
   "11000": "Espera a que termine el temporizador, o que otro jugador compre este artículo.",
   "11001": "Agricultura",
+  
   "12001": "Construir",
-  "12002": "Comprar Animales y Decoraciones",
-  "12003": "Misiones Activas",
-  "12004": "Habilidades",
-  "12005": "Combate",
-  "12006": "Gobierno",
-  "12007": "Estaciones",
-  "12008": "Hogar",
-  "12009": "Perfil",
-  "12010": "Puntos de Golpe",
+  "12003": "Animales",
+  "12004": "Misiones Activas",
+  "12005": "Habilidades",
+  "12006": "Combate",
+  "12007": "Gobierno",
+  "12008": "Estaciones",
+  "12009": "Hogar",
+  "12010": "Perfil",
+  "12011": "Decoraciones",
 
   "130": "Selecciona tu idioma:",
   "131": "Confirmar",
@@ -529,5 +530,36 @@
   "730": "Saltar tutorial",
   "731": "Siguiente",
   "732": "Atrás",
-  "733": "Jugar"
+  "733": "Jugar",
+
+  "790": "Comercio",
+  "791": "Abre el 📤 Puesto de Comercio en tu propiedad para vender bienes y ganar 💰 dinero. Intercambia con otros jugadores para obtener mejores precios.",
+  "792": "Habilidades",
+  "793": "Gana 💪 habilidades para hacer crecer tu propiedad y viajar más allá de ella. Con el tiempo, podrás especializarte en 🚜 agricultura, ⚔️ aventura o 🏛️ política. Equilibra tus habilidades con las de otros jugadores y crea una comunidad próspera.",
+
+  "490": "Vender para reembolso (Solo desarrollo)",
+  "156": "Vacío (añadir objetos)",
+  "157": "Comprado por",
+  "159": "Listo para vender",
+  "1031": "Compra decoraciones para tu propiedad. Podrás venderlas para obtener un reembolso completo.",
+  "1131": "🪴 Decoraciones",
+  "1032": "🏠 Casa de Granja",
+  "1132": "La casa de granja es donde puedes contratar personas para ayudarte a administrar tu propiedad.",
+
+  "440": "Fabricación iniciada ",
+  "441": "En progreso ...",
+  "442": "🏠 ¡Reparaciones de la casa completas!",
+  "450": "❌ No puedes pagar los costos de fabricación",
+  "451": "⚠️ Fabricación ya en progreso",
+  "452": "❌ No se pudo iniciar la fabricación.",
+  "453": "❌ No se pudo reparar la casa.",
+  "454": "❌ No se pudo contratar al trabajador.",
+  "455": " ha llegado!",
+  "456": "No hay más trabajadores disponibles.",
+
+  "12012": "Herramientas",
+  "1033": "⛏️ Herramientas",
+  "1133": "Transforma la tierra con estas herramientas. Los animales necesitan pasto para pastar, los cultivos necesitan tierra para crecer. El pavimento puede ser útil para controlar el movimiento de animales y personajes."
+
+
 }

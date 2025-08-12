@@ -184,9 +184,9 @@ const handlePurchase = async (resourceType) => {
     await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
     
-    // Check if the player is a first-time user and just acquired the Axe Skill or Grower skill
-    if (currentPlayer.firsttimeuser === true && resource.type === 'Axe Skill') {
-      console.log('🎓 First-time user acquired Axe Skill, advancing FTUE step');
+    // Check if the player is a first-time user and just acquired the Axe or Grower skill
+    if (currentPlayer.firsttimeuser === true && resource.type === 'Axe') {
+      console.log('🎓 First-time user acquired Axe skill, advancing FTUE step');
       await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
     }
     

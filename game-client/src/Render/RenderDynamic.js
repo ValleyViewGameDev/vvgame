@@ -3,16 +3,18 @@ import '../UI/Panel.css';
 import '../UI/Cursor.css';
 
 import React, { useEffect, useRef } from 'react';
+import axios from 'axios';
+import API_BASE from '../config';
 import { getDerivedRange } from '../Utils/worldHelpers';
 import { useGridState } from '../GridState/GridStateContext'; 
 import { usePlayersInGrid } from '../GridState/GridStatePCContext';
 import { handleNPCClick } from '../GameFeatures/NPCs/NPCHelpers';
 import { handleAttackOnPC } from '../GameFeatures/Combat/Combat';
 import { renderPositions } from '../PlayerMovement';
-import NPCsInGridManager from '../GridState/GridStateNPCs';
-import playersInGridManager from '../GridState/PlayersInGrid';
 import { useUILock } from '../UI/UILockContext';
 import { useNPCOverlay } from '../UI/NPCOverlayContext';
+import NPCsInGridManager from '../GridState/GridStateNPCs';
+import playersInGridManager from '../GridState/PlayersInGrid';
 
 
 const DynamicRenderer = ({
@@ -52,6 +54,63 @@ const DynamicRenderer = ({
   const pcElements = useRef(new Map());
 
   const hoveredNPCDivRef = useRef(null);
+  const questNPCStatusRef = useRef(new Map()); // Cache quest NPC status
+
+  // Function to check quest NPC status
+  async function checkQuestNPCStatus(npc) {
+    if (npc.action !== 'quest' || !currentPlayer) return null;
+    
+    try {
+      // Fetch available quests for this NPC
+      const response = await axios.get(`${API_BASE}/api/quests`);
+      
+      // Use same filtering logic as QuestGiverPanel
+      let npcQuests = response.data
+        .filter((quest) => quest.giver === npc.type)
+        .filter((quest) => {
+          const activeQuest = currentPlayer.activeQuests?.find(q => q.questId === quest.title);
+          if (activeQuest) {
+            return activeQuest.completed && !activeQuest.rewardCollected;
+          }
+          return (quest.repeatable === true || quest.repeatable === 'true') || !currentPlayer.completedQuests?.some(q => q.questId === quest.title);
+        });
+
+      // Apply FTUE filtering for first-time users
+      if (currentPlayer.firsttimeuser === true) {
+        npcQuests = npcQuests.filter((quest) => {
+          const hasFtuestep = quest.ftuestep != null && 
+                             quest.ftuestep !== undefined && 
+                             quest.ftuestep !== '' && 
+                             quest.ftuestep !== 0;
+          
+          if (!hasFtuestep) {
+            return false;
+          } else if (quest.ftuestep > (currentPlayer.ftuestep || 0)) {
+            return false;
+          } else {
+            return true;
+          }
+        });
+      }
+
+      // Check if any quests have completed rewards to collect
+      const hasCompletedQuests = npcQuests.some(quest => {
+        const activeQuest = currentPlayer.activeQuests?.find(q => q.questId === quest.title);
+        return activeQuest && activeQuest.completed && !activeQuest.rewardCollected;
+      });
+
+      if (hasCompletedQuests) {
+        return 'completed'; // Show checkmark
+      } else if (npcQuests.length > 0) {
+        return 'available'; // Show question mark
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error checking quest NPC status:', error);
+      return null;
+    }
+  }
 
   // Function to create or update NPC divs
   function renderNPCs() {
@@ -154,6 +213,23 @@ const DynamicRenderer = ({
         const overlayData = getNPCOverlay(npc.id);
         if (overlayData) {
           renderNPCOverlay(npcDiv, overlayData.overlay);
+        } else if (npc.action === 'quest') {
+          // Check quest NPC status only if not already cached
+          const cachedStatus = questNPCStatusRef.current.get(npc.id);
+          if (!cachedStatus) {
+            checkQuestNPCStatus(npc).then(status => {
+              if (status) {
+                questNPCStatusRef.current.set(npc.id, status);
+                const npcDivCheck = npcElements.current.get(npc.id);
+                if (npcDivCheck && !npcDivCheck.querySelector('.npc-overlay')) {
+                  renderNPCOverlay(npcDivCheck, status);
+                }
+              }
+            });
+          } else {
+            // Use cached status
+            renderNPCOverlay(npcDiv, cachedStatus);
+          }
         }
 
         /// Dynamic Cursors for NPCs
@@ -183,13 +259,57 @@ const DynamicRenderer = ({
         if (overlayData && !existingOverlay) {
           renderNPCOverlay(npcDiv, overlayData.overlay);
         } else if (!overlayData && existingOverlay) {
-          existingOverlay.remove();
+          // Check if this is a quest NPC that might need overlay
+          if (npc.action === 'quest') {
+            // Check cached status first
+            const cachedStatus = questNPCStatusRef.current.get(npc.id);
+            if (cachedStatus) {
+              // Keep the overlay if we have a cached status
+              const currentType = existingOverlay.getAttribute('data-overlay-type');
+              if (currentType !== cachedStatus) {
+                existingOverlay.remove();
+                renderNPCOverlay(npcDiv, cachedStatus);
+              }
+            } else {
+              // Re-check quest status
+              checkQuestNPCStatus(npc).then(status => {
+                if (status) {
+                  questNPCStatusRef.current.set(npc.id, status);
+                  if (existingOverlay) {
+                    existingOverlay.remove();
+                  }
+                  renderNPCOverlay(npcDiv, status);
+                } else {
+                  existingOverlay.remove();
+                  questNPCStatusRef.current.delete(npc.id);
+                }
+              });
+            }
+          } else {
+            existingOverlay.remove();
+          }
         } else if (overlayData && existingOverlay) {
           // Update existing overlay if type changed
           const currentType = existingOverlay.getAttribute('data-overlay-type');
           if (currentType !== overlayData.overlay) {
             existingOverlay.remove();
             renderNPCOverlay(npcDiv, overlayData.overlay);
+          }
+        } else if (!overlayData && npc.action === 'quest' && !existingOverlay) {
+          // Quest NPC without overlay - check if it needs one
+          const cachedStatus = questNPCStatusRef.current.get(npc.id);
+          if (cachedStatus) {
+            renderNPCOverlay(npcDiv, cachedStatus);
+          } else {
+            checkQuestNPCStatus(npc).then(status => {
+              if (status) {
+                questNPCStatusRef.current.set(npc.id, status);
+                const npcDivCheck = npcElements.current.get(npc.id);
+                if (npcDivCheck && !npcDivCheck.querySelector('.npc-overlay')) {
+                  renderNPCOverlay(npcDivCheck, status);
+                }
+              }
+            });
           }
         }
       }
@@ -295,7 +415,7 @@ const DynamicRenderer = ({
 
 function renderPlayerRange() {
     if (currentPlayer?.settings?.rangeOn === false) return; 
-    if (currentPlayer?.location?.gtype === "homestead") return; 
+//    if (currentPlayer?.location?.gtype === "homestead") return; 
     const gridId = currentPlayer?.location?.g;
     if (!gridId || !currentPlayer) return;
     const container = containerRef.current; if (!container) return;
@@ -371,6 +491,11 @@ function startRenderingLoop() {
 }
 
 
+
+  // Clear quest NPC status cache when player's quests change
+  useEffect(() => {
+    questNPCStatusRef.current.clear();
+  }, [currentPlayer?.activeQuests, currentPlayer?.completedQuests]);
 
   useEffect(() => {
     startRenderingLoop();
@@ -544,8 +669,16 @@ function renderNPCOverlay(npcDiv, overlayType) {
       overlay.textContent = '⚔️';
       overlay.style.color = '#DC143C';
       break;
+    case 'completed':
+      overlay.textContent = '✅';
+      overlay.style.color = '#32CD32';
+      break;
+    case 'available':
+      overlay.textContent = '👋';
+      overlay.style.color = '#FFD700';
+      break;
     default:
-      overlay.textContent = '❓';
+      overlay.textContent = '';
       overlay.style.color = '#888';
       break;
   }

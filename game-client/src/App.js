@@ -50,19 +50,20 @@ import ProfilePanel from './Authentication/ProfilePanel';
 import LoginPanel from './Authentication/LoginPanel';
 import DebugPanel from './Utils/debug';
 import InventoryPanel from './GameFeatures/Inventory/InventoryPanel';
+import HowToPanel from './UI/HowToPanel';
+import HowToMoneyPanel from './UI/HowToMoneyPanel';
+import QuestPanel from './GameFeatures/Quests/QuestPanel';
+import QuestGiverPanel from './GameFeatures/NPCs/NPCsPanel.js';
 import BuildPanel from './GameFeatures/Build/BuildPanel';
 import BuyPanel from './GameFeatures/Buy/BuyPanel';
 import BuyDecoPanel from './GameFeatures/Deco/BuyDecoPanel';
-import SkillsAndUpgradesPanel from './GameFeatures/Skills/SkillsPanel';
 import FarmingPanel from './GameFeatures/Farming/FarmingPanel';
-import HowToPanel from './UI/HowToPanel';
-import HowToMoneyPanel from './UI/HowToMoneyPanel';
+import ToolsPanel from './GameFeatures/Farming/ToolsPanel';
+import SkillsAndUpgradesPanel from './GameFeatures/Skills/SkillsPanel';
 import GovPanel from './GameFeatures/Government/GovPanel';
 import BankPanel from './GameFeatures/Trading/Bank';
 import TrainPanel from './GameFeatures/Trading/Train';
 import CourthousePanel from './GameFeatures/Government/Courthouse';
-import QuestPanel from './GameFeatures/Quests/QuestPanel';
-import QuestGiverPanel from './GameFeatures/NPCs/NPCsPanel.js';
 import CraftingStation from './GameFeatures/Crafting/CraftingStation';
 import FarmHouse from './GameFeatures/Crafting/FarmHouse';
 import FarmHandPanel from './GameFeatures/FarmHands/FarmHand.js';
@@ -1251,7 +1252,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       return;
   }
   // If clicking a resource, check range before interacting (except NPCs)
-  if (resource && resource.category !== 'npc' && !isOnOwnHomestead) {
+//  if (resource && resource.category !== 'npc' && !isOnOwnHomestead) {
+  if (resource && resource.category !== 'npc') {
     const distance = calculateDistance(playerPos, targetPos);
     const playerRange = getDerivedRange(currentPlayer, masterResources);    
     if (distance > playerRange) {
@@ -1575,6 +1577,14 @@ return (
           openPanel('FarmingPanel');
         }}
       >🚜</button>
+      <button 
+        className={`nav-button ${activePanel === 'ToolsPanel' ? 'selected' : ''}`} title={strings[12012]} disabled={!currentPlayer} 
+        onClick={() => {
+          if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
+          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
+          openPanel('ToolsPanel');
+        }}
+      >⛏️</button>
       <button 
         className={`nav-button ${activePanel === 'BuyPanel' ? 'selected' : ''}`} title={strings[12003]} disabled={!currentPlayer} 
         onClick={() => {
@@ -2151,6 +2161,27 @@ return (
       )}
       {activePanel === 'FarmingPanel' && (
         <FarmingPanel
+          onClose={closePanel}
+          TILE_SIZE={activeTileSize}
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          resources={resources}
+          setResources={setResources}
+          tiles={grid}
+          tileTypes={tileTypes}
+          setTileTypes={setTileTypes}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          gridId={gridId}
+          masterResources={masterResources} 
+          masterSkills={masterSkills} 
+          updateStatus={updateStatus}
+        />
+      )}
+      {activePanel === 'ToolsPanel' && (
+        <ToolsPanel
           onClose={closePanel}
           TILE_SIZE={activeTileSize}
           inventory={inventory}

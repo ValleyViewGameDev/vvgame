@@ -10,7 +10,7 @@ import { handleFarmPlotPlacement, handleTerraform } from './Farming';
 import { useStrings } from '../../UI/StringsContext';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 
-const FarmingPanel = ({
+const ToolsPanel = ({
   onClose,
   TILE_SIZE,
   inventory,
@@ -112,7 +112,7 @@ const FarmingPanel = ({
 
 
   return (
-    <Panel onClose={onClose} descriptionKey="1004" titleKey="1104" panelName="FarmingPanel">
+    <Panel onClose={onClose} descriptionKey="1133" titleKey="1033" panelName="ToolsPanel">
       <div className="standard-panel">
         {isContentLoading ? (
           <p>{strings[98]}</p>
@@ -148,71 +148,7 @@ const FarmingPanel = ({
               onClick={() => handleTerraformWithCooldown("pave")}
             />
 
-            {/* Farm Plot Options */}
-            {farmPlots.map((item) => {
-              const ingredients = getIngredientDetails(item, allResources);
-              const affordable = canAfford(item, inventory, 1);
-              const requirementsMet = hasRequiredSkill(item.requires);
-              const formatCountdown = (seconds) => {
-                const days = Math.floor(seconds / 86400);
-                const hours = Math.floor((seconds % 86400) / 3600);
-                const minutes = Math.floor((seconds % 3600) / 60);
-                const secs = Math.floor(seconds % 60);
-                return days > 0
-                  ? `${days}d ${hours}h ${minutes}m`
-                  : hours > 0
-                  ? `${hours}h ${minutes}m ${secs}s`
-                  : minutes > 0
-                  ? `${minutes}m ${secs}s`
-                  : `${secs}s`;
-              };
 
-              const symbol = item.symbol || '';
-
-              const formattedCosts = [1, 2, 3, 4].map((i) => {
-                const type = item[`ingredient${i}`];
-                const qty = item[`ingredient${i}qty`];
-                if (!type || !qty) return '';
-
-                const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
-                const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
-                const playerQty = inventoryQty + backpackQty;
-                const color = playerQty >= qty ? 'green' : 'red';
-                const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
-              }).join('');
-
-              const skillColor = requirementsMet ? 'green' : 'red';
-
-              const details =
-                `Costs:<div>${formattedCosts}</div>` +
-                (item.growtime ? `<br>Time: ${formatCountdown(item.growtime)}` : '') +
-                (item.requires ? `<br><span style="color: ${skillColor};">Requires: ${item.requires}</span>` : '');
-
-              const info =
-                `Makes: ${
-                  allResources
-                    .filter((res) => res.source === item.type)
-                    .map((res) => `${res.symbol || ''} ${res.type}`)
-                    .join(', ') || 'None'
-                }`;
-
-              return (
-                <ResourceButton
-                  key={item.type}
-                  symbol={symbol}
-                  name={item.type}
-                  details={details}
-                  info={info}
-                  disabled={isActionCoolingDown || !affordable || !requirementsMet}
-                  onClick={() =>
-                    affordable &&
-                    requirementsMet &&
-                    handleFarmPlacementWithCooldown(item)
-                  }
-                />
-              );
-            })}
           </>
         )}
       </div>
@@ -220,4 +156,4 @@ const FarmingPanel = ({
   );
 }; 
 
-export default React.memo(FarmingPanel);
+export default React.memo(ToolsPanel);

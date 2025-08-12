@@ -143,27 +143,19 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
 //////////// FTUE STEP 10 /////////////
 
       } else if (currentStep === 10) {
-        console.log(`🎓 Adding completed Wizard quest after FTUE step ${currentStep}`);
+        console.log(`🎓 Adding Wizard quest after FTUE step ${currentStep}`);
         
-        // Add the completed "Find the Wizard in the Valley" quest
-        const updatedPlayer = await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 1);
-        
-        // Then mark it as completed
-        updatedPlayer.activeQuests[1].completed = true;
-        const response = await axios.post(`${API_BASE}/api/update-profile`, {
-          playerId: currentPlayer.playerId,
-          updates: { activeQuests: updatedPlayer.activeQuests }
-        });
-        
-        if (response.data.success) {
-          setCurrentPlayer(prev => ({
-            ...prev,
-            activeQuests: updatedPlayer.activeQuests
-          }));
-          console.log(`✅ Added completed Wizard quest`);
-        }
+        // Add the Axe quest
+        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 1);
         
         onClose(); // Close FTUE modal
+
+//////////// FTUE STEP 11 /////////////
+
+      } else if (currentStep === 11) {
+        console.log(`🎓 Final FTUE step reached, completing tutorial`);
+        await completeTutorial();
+        return; // Don't continue with normal step advancement
       }
       
       if (!hasNextStep) {
@@ -197,6 +189,36 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
 
   const completeTutorial = async () => {
     try {
+      // First check if the Wizard quest (index=1) has already been added
+      const currentActiveQuests = currentPlayer?.activeQuests || [];
+      const wizardQuestExists = currentActiveQuests.some(q => q.questId === "Find the Wizard in the Valley");
+      
+      let finalActiveQuests = currentActiveQuests;
+      
+      if (!wizardQuestExists) {
+        console.log('🎓 Adding completed Wizard quest before completing tutorial');
+        
+        // Add the quest with index=1
+        const updatedPlayer = await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 1);
+        
+        // Mark it as completed
+        if (updatedPlayer.activeQuests && updatedPlayer.activeQuests.length > 0) {
+          const questIndex = updatedPlayer.activeQuests.findIndex(q => q.questId === "Find the Wizard in the Valley");
+          if (questIndex !== -1) {
+            updatedPlayer.activeQuests[questIndex].completed = true;
+            finalActiveQuests = updatedPlayer.activeQuests;
+            
+            // Save the completed quest
+            await axios.post(`${API_BASE}/api/update-profile`, {
+              playerId: currentPlayer.playerId,
+              updates: { activeQuests: finalActiveQuests }
+            });
+          }
+        }
+      } else {
+        console.log('🎓 Wizard quest already exists, skipping addition');
+      }
+      
       // Update the player's firsttimeuser flag to false and remove ftuestep
       const response = await axios.post(`${API_BASE}/api/update-profile`, {
         playerId: currentPlayer.playerId,
@@ -211,7 +233,8 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         setCurrentPlayer(prev => {
           const updated = {
             ...prev,
-            firsttimeuser: false
+            firsttimeuser: false,
+            activeQuests: finalActiveQuests
           };
           delete updated.ftuestep;  // Remove ftuestep from local state
           return updated;

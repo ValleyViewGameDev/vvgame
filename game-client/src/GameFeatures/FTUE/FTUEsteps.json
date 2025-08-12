@@ -64,16 +64,16 @@
     },
     {
       "step": 10,
-      "titleKey": 737,
-      "bodyKey": 738,
-      "image": "ftue-valley.png",
+      "titleKey": 733,
+      "bodyKey": 734,
+      "image": "ftue-tools.png",
       "continue": false
     },
     {
       "step": 11,
-      "titleKey": 739,
-      "bodyKey": 740,
-      "image": "ftue-valley.png",
+      "titleKey": 737,
+      "bodyKey": 738,
+      "image": "ftue-exploring.png",
       "continue": false
     }
 ]

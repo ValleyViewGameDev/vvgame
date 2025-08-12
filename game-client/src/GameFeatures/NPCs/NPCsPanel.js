@@ -95,7 +95,7 @@ const QuestGiverPanel = ({
       const filteredRecipes = masterResources.filter((resource) => resource.type === npcData.type);
       setHealRecipes(filteredRecipes);
     }
-  }, [npcData, currentPlayer]);
+  }, [npcData, currentPlayer?.activeQuests, currentPlayer?.completedQuests, currentPlayer?.ftuestep]);
 
   
   ////////////////////////////////////////////////////////////
@@ -104,29 +104,45 @@ const QuestGiverPanel = ({
     try {
       const response = await axios.get(`${API_BASE}/api/quests`);
 
+      
       // Use new quest filtering logic
       let npcQuests = response.data
         .filter((quest) => quest.giver === npcData.type)
         .filter((quest) => {
           const activeQuest = currentPlayer.activeQuests.find(q => q.questId === quest.title);
+          const isInCompleted = currentPlayer.completedQuests.some(q => q.questId === quest.title);
+          
+          
           if (activeQuest) {
-            return activeQuest.completed && !activeQuest.rewardCollected;
+            const shouldShow = activeQuest.completed && !activeQuest.rewardCollected;
+            return shouldShow;
           }
-          return quest.repeatable || !currentPlayer.completedQuests.some(q => q.questId === quest.title);
+          
+          const shouldShow = (quest.repeatable === true || quest.repeatable === 'true') || !isInCompleted;
+          return shouldShow;
         });
 
-      // Debug logging
-      console.log(`📋 Before FTUE filter - quests available: ${npcQuests.length}`);
-      console.log(`👤 Player FTUE status - firsttimeuser: ${currentPlayer.firsttimeuser}, ftuestep: ${currentPlayer.ftuestep}`);
       
       // Filter by FTUE step only if player is a first-time user
-      if (currentPlayer.firsttimeuser === true && currentPlayer.ftuestep != null) {
-        console.log(`🎓 Filtering quests by FTUE step: ${currentPlayer.ftuestep}`);
+      if (currentPlayer.firsttimeuser === true) {
+        // Apply FTUE filtering to the already-filtered npcQuests, not the original response.data
         npcQuests = npcQuests.filter((quest) => {
-          // Only show quests that have an ftuestep and it's less than or equal to current step
-          return quest.ftuestep != null && quest.ftuestep <= currentPlayer.ftuestep;
+          // For first-time users:
+          // 1. Quest must have ftuestep defined (not null, undefined, or empty string)
+          // 2. Quest ftuestep must be <= current player ftuestep
+          const hasFtuestep = quest.ftuestep != null && 
+                             quest.ftuestep !== undefined && 
+                             quest.ftuestep !== '' && 
+                             quest.ftuestep !== 0;
+          
+          if (!hasFtuestep) {
+            return false;
+          } else if (quest.ftuestep > (currentPlayer.ftuestep || 0)) {
+            return false;
+          } else {
+            return true;
+          }
         });
-        console.log(`📋 After FTUE filter - quests remaining: ${npcQuests.length}`);
       }
 
       setQuestList(npcQuests);

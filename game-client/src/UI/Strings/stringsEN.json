@@ -13,7 +13,7 @@
     "12": "Settlement view. Depending on your location, you may need to scroll to see the Town.",
     "13": "Frontier view.",
     "14": "🚂 Welcome to town.",
-    "15": "🐴 You need the Horseriding skill to travel here. Check your 💪 Skills panel.",
+    "15": "🐴 You need the Horseriding skill to travel here. Visit the Adventure Camp in Town.",
     "16": "You're in the valley.",
     "17": "You do not own a hometead here.",
     "18": "🚫 You can't go that way.",
@@ -544,6 +544,7 @@
 
     "12001": "Farming",
     "12002": "Build",
+    "12003": "Animals",
     "12004": "To Do List",
     "12005": "Skills",
     "12006": "Combat",
@@ -551,6 +552,7 @@
     "12008": "Seasons",
     "12009": "Home",
     "12010": "Profile",
+    "12011": "Decorations",
 
     "320": "Cannot terraform here.",
     "2085": "Current Mayor:",
@@ -613,16 +615,16 @@
     "728": "Nice work! Now hire the 👵🏻 Shepherd from the 🏠 Farm House, and she'll help bring some 🐮 animal life to the farm, so you can continue to expand your business.",
     
     "729": "🐮 Animal Husbandry",
-    "730": "Go to the 🐮 Animal Panel to acquire farm animals. Start with a Cow. The Cow needs grass to graze upon, so place it carefully. And you already have your first 🟫 Animal Stal, where you can produce milk once the cow is full.",
+    "730": "Go to the 🐮 Animal Panel to acquire farm animals. Start with a cow. The cow needs 🟩 grass to graze, so place it carefully. And you already have your first 🟫 Animal Stall; this is where you can produce milk once the cow is full.",
 
-    "731": "Get Choppin'!",
-    "732": "You've mastered the 🪓 axe -- excellent! Wood is useful for a number of things, including building crafting stations. You can also chop your way to the 🚂 Train Station at the edge of your Homestead, where you can eventually travel into Town.",
+    "731": "⛏️ Shape the Land",
+    "732": "Crops need dirt. Cows and sheep need 🟩 grass. Pavement can help contain the movements of people and animals. Use the ⛏️ Tools to pave the land to your liking, and learn the  🪓 axe skill to chop trees for wood.",
+
+    "733": "⚒️ Builder",
+    "734": "You've mastered the 🪓 axe -- excellent! Wood is useful for a number of things, including building crafting stations. You can also chop your way to the 🚂 Train Station at the edge of your Homestead, where you can eventually travel into Town.",
 
     "737": "Time to Explore",
     "738": "Your Homestead is part of a larger Settlement of other players sharing a large Frontier. Zoom out (+ and -) to see the whole Settlement and Frontier. Use ➡️ Signposts to travel, or walk to the edge of any map.",
-    
-    "739": "Characters of Valley View",
-    "740": "Meet and greet various characters in and beyond the town. Trade with them 🥷 and go on quests ✅, but build your relationshps 💙 carefully.",
     
     "795": "Skip Tutorial",
     "796": "OK",
@@ -634,29 +636,33 @@
     "792": "Skills",
     "793": "Gain 💪 Skills to grow your homestead and travel beyond it. Over time, you can specialize in 🚜 Farming, ⚔️ Adventure or 🏛️ Politics. Balance skills with other players, and create a thriving community.",
 
-    "11000": "ADDED STRINGS:",
-
     "490": "Sell for refund (Dev only)",
     "156": "Empty (add items)",
     "157": "Bought by",
     "159": "Ready to sell",
-    "12003": "Animals",
-    "12011": "Decorations",
+
     "1031": "Buy decorations for your homesetead. You will be able to sell these for a full refund.",
     "1131": "🪴 Decorations",
     "1032": "🏠 Farm House",
     "1132": "The Farm House is where you can hire people to help you run your homestead." ,
 
-        "440": "Started crafting ",
-        "441": "In progress ...",
-        "442": "🏠 House repairs complete!",
-        "450": "❌ Cannot afford crafting costs",
-        "451": "⚠️ Crafting already in progress",
-        "452": "❌ Failed to start crafting.",
-        "453": "❌ Failed to repair house.",
-        "454": "❌ Failed to hire worker.",
-        "455": " has arrived!",
-        "456": "No more workers available."
+    "440": "Started crafting ",
+    "441": "In progress ...",
+    "442": "🏠 House repairs complete!",
+    "450": "❌ Cannot afford crafting costs",
+    "451": "⚠️ Crafting already in progress",
+    "452": "❌ Failed to start crafting.",
+    "453": "❌ Failed to repair house.",
+    "454": "❌ Failed to hire worker.",
+    "455": " has arrived!",
+    "456": "No more workers available.",
+
+    "12012": "Tools",
+    "1033": "⛏️ Tools",
+    "1133": "Terraform the land with these tools. Animals need grass for grazing, crops need dirt to grow on. Pavement can be useful for controlling movements of animals and characters.",
+
+
+        "11000": "ADDED STRINGS:"
 
   }
 
