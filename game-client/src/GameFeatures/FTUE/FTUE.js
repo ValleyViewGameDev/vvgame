@@ -277,6 +277,19 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         return;
       }
       
+      // Check if there's any other resource at this location that needs to be removed
+      const existingResource = resources?.find(res => res.x === 29 && res.y === 32);
+      if (existingResource) {
+        console.log(`🗑️ Removing existing resource at (29, 32): ${existingResource.type}`);
+        
+        // Remove from local state
+        const filteredResources = resources.filter(res => !(res.x === 29 && res.y === 32));
+        GlobalGridStateTilesAndResources.setResources(filteredResources);
+        
+        // Remove from database
+        await updateGridResource(gridId, { type: null, x: 29, y: 32 }, true);
+      }
+      
       // Find Trading Post in masterResources to get its properties
       const tradingPostResource = masterResources?.find(res => res.type === 'Trading Post');
       if (!tradingPostResource) {
@@ -289,7 +302,8 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       const enriched = enrichResourceFromMaster(rawResource, masterResources);
       
       // Add to local state
-      const finalResources = [...(resources || []), enriched];
+      const currentResources = GlobalGridStateTilesAndResources.getResources() || [];
+      const finalResources = [...currentResources, enriched];
       GlobalGridStateTilesAndResources.setResources(finalResources);
       if (setResources) {
         setResources(finalResources);

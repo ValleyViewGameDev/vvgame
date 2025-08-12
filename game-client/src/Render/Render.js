@@ -60,7 +60,7 @@ export function generateResourceTooltip(resource) {
 }
 
 export const RenderGrid = memo(
-  ({ grid, tileTypes, resources, handleTileClick, TILE_SIZE, setHoverTooltip }) => {
+  ({ grid, tileTypes, resources, handleTileClick, TILE_SIZE, setHoverTooltip, currentPlayer }) => {
 
     const [, forceTick] = useState(0);
       useEffect(() => {
@@ -90,6 +90,19 @@ export const RenderGrid = memo(
       return acc;
     }, { ready: [], inProgress: [] });
 
+    // Check for completed trades at Trading Post
+    const tradingStatus = resources.reduce((acc, res) => {
+      if (res.type === 'Trading Post' && currentPlayer?.tradeStall) {
+        const hasCompletedTrades = currentPlayer.tradeStall.some(trade => 
+          trade && trade.sellTime && new Date(trade.sellTime) < currentTime
+        );
+        if (hasCompletedTrades) {
+          acc.ready.push(`${res.x}-${res.y}`);
+        }
+      }
+      return acc;
+    }, { ready: [] });
+
     // Render tiles and resources
     return grid.map((row, rowIndex) =>
       row.map((tile, colIndex) => {
@@ -108,11 +121,15 @@ export const RenderGrid = memo(
         // For multi-tile resources, check crafting status against anchor coordinates
         let isCraftReady = false;
         let isCraftInProgress = false;
+        let isTradingReady = false;
         
         if (resource && resource.category === 'crafting') {
           const resourceKey = `${resource.x}-${resource.y}`;
           isCraftReady = craftingStatus.ready.includes(resourceKey);
           isCraftInProgress = craftingStatus.inProgress.includes(resourceKey);
+        } else if (resource && resource.type === 'Trading Post') {
+          const resourceKey = `${resource.x}-${resource.y}`;
+          isTradingReady = tradingStatus.ready.includes(resourceKey);
         } else {
           // For regular tiles, use current tile coordinates
           isCraftReady = craftingStatus.ready.includes(key);
@@ -204,6 +221,18 @@ export const RenderGrid = memo(
                 }}
               >
                 {getOverlayContent('inprogress').emoji}
+              </div>
+            )}
+
+            {/* ✅ Add Checkmark for Trading Post with completed trades */}
+            {isTradingReady && resource && resource.type === 'Trading Post' && resource.x === colIndex && resource.y === rowIndex && (
+              <div
+                className="game-overlay"
+                style={{
+                  color: getOverlayContent('ready').color,
+                }}
+              >
+                {getOverlayContent('ready').emoji}
               </div>
             )}
           </div>

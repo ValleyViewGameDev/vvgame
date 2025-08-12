@@ -1760,7 +1760,8 @@ return (
           resources={memoizedResources}
           handleTileClick={handleTileClick}
           TILE_SIZE={activeTileSize}
-          setHoverTooltip={setHoverTooltip} 
+          setHoverTooltip={setHoverTooltip}
+          currentPlayer={currentPlayer}
         />
         <DynamicRenderer
           TILE_SIZE={activeTileSize}
