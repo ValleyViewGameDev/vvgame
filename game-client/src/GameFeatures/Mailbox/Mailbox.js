@@ -12,7 +12,6 @@ import playersInGridManager from '../../GridState/PlayersInGrid';
 import { loadMasterResources } from '../../Utils/TuningManager';
 import { updateBadge } from '../../Utils/appUtils';
 import { useStrings } from '../../UI/StringsContext';
-import { useUILock } from '../../UI/UILockContext';
 
 function Mailbox({ 
   onClose, 
@@ -24,23 +23,14 @@ function Mailbox({
   setCurrentPlayer, 
   resources,
   updateStatus,
+  masterResources,
 }) {
-  const { setUILocked } = useUILock();
   const strings = useStrings();
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [markedReadIds, setMarkedReadIds] = useState([]);
   const gridId = currentPlayer?.location?.g;
-  const [masterResources, setMasterResources] = useState([]);
   const [visibleMessages, setVisibleMessages] = useState(currentPlayer?.messages || []);
-
-  useEffect(() => {
-    const fetchMasterResources = async () => {
-      const all = await loadMasterResources();
-      setMasterResources(all);
-    };
-    fetchMasterResources();
-  }, []);
 
   useEffect(() => {
     if (Array.isArray(currentPlayer?.messages)) {

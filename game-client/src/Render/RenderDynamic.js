@@ -12,7 +12,6 @@ import { usePlayersInGrid } from '../GridState/GridStatePCContext';
 import { handleNPCClick } from '../GameFeatures/NPCs/NPCHelpers';
 import { handleAttackOnPC } from '../GameFeatures/Combat/Combat';
 import { renderPositions } from '../PlayerMovement';
-import { useUILock } from '../UI/UILockContext';
 import { useNPCOverlay } from '../UI/NPCOverlayContext';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
@@ -40,7 +39,6 @@ const DynamicRenderer = ({
   const playersInGrid = usePlayersInGrid(); // Access PCs via modern PC-specific context
   const hoveredEntityIdRef = useRef(null);
   const suppressTooltipRef = useRef(false);
-  const { setUILocked } = useUILock();
   const { getNPCOverlay } = useNPCOverlay();
   
   const masterResourcesRef = useRef(masterResources); // Keep masterResources in a ref
@@ -186,7 +184,6 @@ const DynamicRenderer = ({
               setModalContent,
               setIsModalOpen,
               updateStatus,
-              setUILocked,
               openPanel,
               setActiveStation,
             );

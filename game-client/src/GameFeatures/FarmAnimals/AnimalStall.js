@@ -11,7 +11,6 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { createCollectEffect } from '../../VFX/VFX';
 import '../../UI/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
-import { useUILock } from '../../UI/UILockContext';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
 
@@ -32,9 +31,6 @@ const AnimalStall = ({
   masterResources,
   isDeveloper,
 }) => {
-  const { setUILocked } = useUILock();
-  const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
-  const COOLDOWN_DURATION = 2000;
 
   const [stallDetails, setStallDetails] = useState(null);
   const [outputDetails, setOutputDetails] = useState(null);

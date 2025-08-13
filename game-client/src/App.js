@@ -1885,6 +1885,7 @@ return (
           setCurrentPlayer={setCurrentPlayer}
           resources={masterResources}
           updateStatus={updateStatus}
+          masterResources={masterResources}
         />
       )}
       {activeModal === 'TownNews' && (

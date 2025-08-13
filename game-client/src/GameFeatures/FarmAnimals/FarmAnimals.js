@@ -8,7 +8,6 @@ import { updateGridResource } from '../../Utils/GridManagement';
 import { createCollectEffect } from '../../VFX/VFX';
 import '../../UI/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
-import { useUILock } from '../../UI/UILockContext';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import TransactionButton from '../../UI/TransactionButton';
 
@@ -29,9 +28,7 @@ const AnimalPanel = ({
   updateStatus,
   masterResources,
 }) => {
-  const { setUILocked } = useUILock();
-  const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
-  const COOLDOWN_DURATION = 2000;
+
   const [stallDetails, setStallDetails] = useState(null);
   const [currentNPC, setCurrentNPC] = useState(null);
   const [currentTime, setCurrentTime] = useState(Date.now());

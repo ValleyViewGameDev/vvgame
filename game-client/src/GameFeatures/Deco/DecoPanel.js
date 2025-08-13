@@ -8,7 +8,6 @@ import { StatusBarContext } from '../../UI/StatusBar';
 import { createCollectEffect } from '../../VFX/VFX';
 import '../../UI/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
-import { useUILock } from '../../UI/UILockContext';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
 
@@ -32,9 +31,6 @@ const DecoPanel = ({
   const [resourceDetails, setResourceDetails] = useState(null);
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
   const strings = useStrings();
-  const { setUILocked } = useUILock();
-  const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
-  const COOLDOWN_DURATION = 2000;
 
   console.log('Inside Deco Panel:', { stationType, currentStationPosition });
 

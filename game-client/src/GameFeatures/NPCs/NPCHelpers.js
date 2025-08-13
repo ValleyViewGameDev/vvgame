@@ -124,7 +124,6 @@ export async function handleNPCClick(
   setModalContent,
   setIsModalOpen,
   updateStatus,
-  setUILocked,
   openPanel,
   setActiveStation,
 ) {
