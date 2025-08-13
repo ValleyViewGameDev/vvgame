@@ -661,8 +661,9 @@
     "1033": "⛏️ Tools",
     "1133": "Terraform the land with these tools. Animals need grass for grazing, crops need dirt to grow on. Pavement can be useful for controlling movements of animals and characters.",
 
+        "11000": "ADDED STRINGS:",
 
-        "11000": "ADDED STRINGS:"
+    "620": "You need to move closer to interact with this character."
 
   }
 

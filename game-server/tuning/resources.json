@@ -4470,9 +4470,9 @@
     "validonn": false,
     "validono": false,
     "ingredient1": "Money",
-    "ingredient1qty": 2000,
-    "crafttime": 5,
-    "totalnestedtime": 10005
+    "ingredient1qty": 10000,
+    "crafttime": 28800,
+    "totalnestedtime": 78800
   },
   {
     "type": "Rancher",
@@ -4496,9 +4496,9 @@
     "validonn": false,
     "validono": false,
     "ingredient1": "Money",
-    "ingredient1qty": 3000,
-    "crafttime": 5,
-    "totalnestedtime": 15005
+    "ingredient1qty": 10000,
+    "crafttime": 28800,
+    "totalnestedtime": 78800
   },
   {
     "type": "Lumberjack",
@@ -4522,9 +4522,9 @@
     "validonn": false,
     "validono": false,
     "ingredient1": "Money",
-    "ingredient1qty": 5000,
-    "crafttime": 5,
-    "totalnestedtime": 25005
+    "ingredient1qty": 10000,
+    "crafttime": 28800,
+    "totalnestedtime": 78800
   },
   {
     "type": "Grower",

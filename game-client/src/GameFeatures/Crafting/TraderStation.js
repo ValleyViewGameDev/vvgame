@@ -2,7 +2,7 @@ import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
-import './TradingStation.css';
+import './TraderStation.css';
 import '../../UI/ResourceButton.css';
 import ResourceButton from '../../UI/ResourceButton';
 import { canAfford } from '../../Utils/InventoryManagement';
@@ -12,8 +12,10 @@ import { useStrings } from '../../UI/StringsContext';
 import RelationshipCard from '../Relationships/RelationshipCard';
 import { getRelationshipStatus } from '../Relationships/RelationshipUtils';
 import '../Relationships/Relationships.css';
+import playersInGridManager from '../../GridState/PlayersInGrid';
+import { calculateDistance, getDerivedRange } from '../../Utils/worldHelpers';
 
-const TradingStation = ({
+const TraderStation = ({
   onClose,
   inventory,
   setInventory,
@@ -29,6 +31,9 @@ const TradingStation = ({
   updateStatus,
   masterResources,
   masterInteractions,
+  zoomLevel,
+  setZoomLevel,
+  centerCameraOnPlayer,
 }) => {
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
@@ -165,7 +170,7 @@ console.log("tradeQty in recipe:", recipe.tradeqty);
   };
 
   return (
-    <Panel onClose={onClose} descriptionKey="1016" titleKey="1116" panelName="TradingStation">
+    <Panel onClose={onClose} descriptionKey="1016" titleKey="1116" panelName="TraderStation">
       <div className="standard-panel">
         <h2> {stationEmoji} {stationType} </h2>
         
@@ -179,6 +184,50 @@ console.log("tradeQty in recipe:", recipe.tradeqty);
           compact={false}
           masterInteractions={masterInteractions}
           updateStatus={updateStatus}
+          checkDistance={() => {
+            // Get player position
+            const gridId = currentPlayer?.location?.g;
+            const playerId = currentPlayer._id?.toString();
+            const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+            if (!playerInGridState?.position) return false;
+            
+            // Get trader station position (passed as prop)
+            if (!currentStationPosition) return false;
+            
+            // Calculate distance
+            const distance = calculateDistance(playerInGridState.position, currentStationPosition);
+            const playerRange = getDerivedRange(currentPlayer, masterResources);
+            
+            return distance <= playerRange;
+          }}
+          onInteractionClick={() => {
+            const wasZoomedOut = zoomLevel !== 'closer';
+            
+            // Zoom to closer if not already
+            if (wasZoomedOut) {
+              setZoomLevel('closer');
+            }
+            
+            // Center camera on player
+            const gridId = currentPlayer?.location?.g;
+            const playerId = currentPlayer._id?.toString();
+            const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+            if (playerInGridState?.position) {
+              // If we just zoomed in, we need to wait for the zoom to take effect
+              if (wasZoomedOut) {
+                // Use setTimeout to ensure zoom has taken effect
+                setTimeout(() => {
+                  // Get the TILE_SIZE for 'closer' zoom from masterResources
+                  const globalTuning = masterResources?.find(r => r.type === 'globalTuning');
+                  const closerTileSize = globalTuning?.closerZoom || 50;
+                  centerCameraOnPlayer(playerInGridState.position, closerTileSize);
+                }, 100);
+              } else {
+                // Already at closer zoom, use current TILE_SIZE
+                centerCameraOnPlayer(playerInGridState.position, TILE_SIZE);
+              }
+            }
+          }}
           onRelationshipChange={(interaction, success) => {
             // Additional handling if needed after interaction completes
           }}
@@ -259,4 +308,4 @@ console.log("tradeQty in recipe:", recipe.tradeqty);
   );
 };
 
-export default React.memo(TradingStation);
+export default React.memo(TraderStation);

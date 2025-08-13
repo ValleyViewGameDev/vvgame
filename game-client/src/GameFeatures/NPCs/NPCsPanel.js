@@ -19,6 +19,7 @@ import '../Relationships/Relationships.css';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { checkDeveloperStatus } from '../../Utils/appUtils';
 import questCache from '../../Utils/QuestCache';
+import { calculateDistance, getDerivedRange } from '../../Utils/worldHelpers';
 
 const QuestGiverPanel = ({
   onClose,
@@ -34,6 +35,9 @@ const QuestGiverPanel = ({
   updateStatus,
   masterResources,
   masterInteractions,
+  zoomLevel,
+  setZoomLevel,
+  centerCameraOnPlayer,
 }) => {
   const strings = useStrings();
   const [questList, setQuestList] = useState([]);
@@ -387,6 +391,51 @@ const handleHeal = async (recipe) => {
             compact={false}
             masterInteractions={masterInteractions}
             updateStatus={updateStatus}
+            checkDistance={() => {
+              // Get player position
+              const gridId = currentPlayer?.location?.g;
+              const playerId = currentPlayer._id?.toString();
+              const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+              if (!playerInGridState?.position) return false;
+              
+              // Get NPC position
+              const npcInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
+              if (!npcInGrid?.position) return false;
+              
+              // Calculate distance
+              const distance = calculateDistance(playerInGridState.position, npcInGrid.position);
+              const playerRange = getDerivedRange(currentPlayer, masterResources);
+              
+              return distance <= playerRange;
+            }}
+            onInteractionClick={() => {
+              const wasZoomedOut = zoomLevel !== 'closer';
+              
+              // Zoom to closer if not already
+              if (wasZoomedOut) {
+                setZoomLevel('closer');
+              }
+              
+              // Center camera on player
+              const gridId = currentPlayer?.location?.g;
+              const playerId = currentPlayer._id?.toString();
+              const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+              if (playerInGridState?.position) {
+                // If we just zoomed in, we need to wait for the zoom to take effect
+                if (wasZoomedOut) {
+                  // Use setTimeout to ensure zoom has taken effect
+                  setTimeout(() => {
+                    // Get the TILE_SIZE for 'closer' zoom from masterResources
+                    const globalTuning = masterResources?.find(r => r.type === 'globalTuning');
+                    const closerTileSize = globalTuning?.closerZoom || 50;
+                    centerCameraOnPlayer(playerInGridState.position, closerTileSize);
+                  }, 100);
+                } else {
+                  // Already at closer zoom, use current TILE_SIZE
+                  centerCameraOnPlayer(playerInGridState.position, TILE_SIZE);
+                }
+              }
+            }}
             onRelationshipChange={(interaction, success) => {
               // Additional handling if needed after interaction completes
             }}

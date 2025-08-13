@@ -28,10 +28,10 @@ async function handleQuestGiverBehavior(gridId) {
 
     switch (this.state) {
         case 'idle': {
-            // const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
-            //     calculateDistance(pc.position, this.position) <= this.range && pc.hp>0
-            // );
-            // if (pcsInRange) { break; }
+            const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
+                calculateDistance(pc.position, this.position) <= this.range && pc.hp>0
+            );
+            if (pcsInRange) { break; }
             
             await this.handleIdleState(tiles, resources, npcs, 5, async () => {
                 this.state = 'roam';

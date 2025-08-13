@@ -67,7 +67,7 @@ import CourthousePanel from './GameFeatures/Government/Courthouse';
 import CraftingStation from './GameFeatures/Crafting/CraftingStation';
 import FarmHouse from './GameFeatures/Crafting/FarmHouse';
 import FarmHandPanel from './GameFeatures/FarmHands/FarmHand.js';
-import TradingStation from './GameFeatures/Crafting/TradingStation';
+import TraderStation from './GameFeatures/Crafting/TraderStation';
 import ShopStation from './GameFeatures/Crafting/ShopStation';
 import AnimalStall from './GameFeatures/FarmAnimals/AnimalStall';
 import AnimalPanel from './GameFeatures/FarmAnimals/FarmAnimals.js';
@@ -1295,7 +1295,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
     } 
     else if (resource.category === 'trading') {
       setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
-      openPanel('TradingStation');
+      openPanel('TraderStation');
     } 
     else if (resource.category === 'farmhouse') {
       setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
@@ -2125,8 +2125,8 @@ return (
           isDeveloper={isDeveloper}
         />
       )}
-      {activePanel === 'TradingStation' && (
-        <TradingStation
+      {activePanel === 'TraderStation' && (
+        <TraderStation
           onClose={closePanel}
           inventory={inventory}
           setInventory={setInventory}
@@ -2142,6 +2142,9 @@ return (
           updateStatus={updateStatus}
           masterResources={masterResources}
           masterInteractions={masterInteractions}
+          zoomLevel={zoomLevel}
+          setZoomLevel={setZoomLevel}
+          centerCameraOnPlayer={centerCameraOnPlayer}
         />
       )}
       {activePanel === 'ShopStation' && (
@@ -2277,6 +2280,9 @@ return (
           updateStatus={updateStatus}
           masterResources={masterResources}
           masterInteractions={masterInteractions}
+          zoomLevel={zoomLevel}
+          setZoomLevel={setZoomLevel}
+          centerCameraOnPlayer={centerCameraOnPlayer}
         />
       )}
       {activePanel === 'FarmHandPanel' && (

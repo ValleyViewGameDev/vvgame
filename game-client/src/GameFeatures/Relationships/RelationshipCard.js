@@ -17,7 +17,9 @@ const RelationshipCard = ({
   showActions = true,
   compact = false,
   masterInteractions = [],
-  updateStatus
+  updateStatus,
+  checkDistance = null, // Optional function to check if target is in range
+  onInteractionClick = null // Optional function to handle zoom/camera when interaction is clicked
 }) => {
   const [relationship, setRelationship] = useState(null);
   const [isInitializing, setIsInitializing] = useState(false);
@@ -60,6 +62,20 @@ const RelationshipCard = ({
     if (!relationship || isProcessing) return;
     
     setIsProcessing(true);
+    
+    // Handle zoom and camera centering if callback is provided
+    if (onInteractionClick) {
+      onInteractionClick();
+    }
+    
+    // Check distance if checkDistance function is provided
+    if (checkDistance && !checkDistance()) {
+      if (updateStatus) {
+        updateStatus(620); // "You are too far away"
+      }
+      setIsProcessing(false);
+      return;
+    }
     
     // Check if interaction is allowed based on other relationships
     const relationshipCheck = checkOtherRelationships(currentPlayer, targetName, interaction);

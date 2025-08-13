@@ -139,6 +139,16 @@ const SettlementView = ({
       centerCameraOnPlayer(pc.position, TILE_SIZE);
       return;
     }
+    
+    // Check if player has Horse skill before allowing teleportation to another grid
+    if (tile.gridId && tile.gridId !== currentPlayer.location.g) {
+      const hasHorse = currentPlayer.skills?.some((skill) => skill.type === "Horse" && skill.quantity > 0);
+      if (!hasHorse) {
+        console.log("🐴 Player lacks Horse skill for teleportation");
+        updateStatus(15); // "You need Horse skill to travel"
+        return;
+      }
+    }
   
     // Clicking on any other valley tile
     if (["valley0", "valley1", "valley2", "valley3"].includes(tile.gridType) && !isDeveloper) {

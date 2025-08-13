@@ -3,7 +3,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
 import Modal from '../../UI/Modal';
-import '../Crafting/TradingStation.css';
+import '../Crafting/TraderStation.css';
 import '../../UI/ResourceButton.css';
 import ResourceButton from '../../UI/ResourceButton';
 import { canAfford } from '../../Utils/InventoryManagement';
