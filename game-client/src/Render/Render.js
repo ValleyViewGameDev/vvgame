@@ -94,7 +94,10 @@ export const RenderGrid = memo(
     const tradingStatus = resources.reduce((acc, res) => {
       if (res.type === 'Trading Post' && currentPlayer?.tradeStall) {
         const hasCompletedTrades = currentPlayer.tradeStall.some(trade => 
-          trade && trade.sellTime && new Date(trade.sellTime) < currentTime
+          trade && (
+            (trade.sellTime && new Date(trade.sellTime) < currentTime) ||
+            (trade.boughtBy !== null && trade.boughtBy !== undefined)
+          )
         );
         if (hasCompletedTrades) {
           acc.ready.push(`${res.x}-${res.y}`);

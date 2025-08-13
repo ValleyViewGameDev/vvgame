@@ -118,35 +118,6 @@ const FarmingPanel = ({
           <p>{strings[98]}</p>
         ) : (
           <>
-            {/* Till Land Button */}
-            <ResourceButton
-              symbol="⛏️"
-              name="Till Land"
-              details="Costs: None"
-              disabled={isActionCoolingDown}
-              info={strings[310]}
-              onClick={() => handleTerraformWithCooldown("till")}
-            />
-
-            {/* Plant Grass Button */}
-            <ResourceButton
-              symbol="🟩"
-              name="Plant Grass"
-              details="Costs: None<br>Requires: Grower"
-              disabled={isActionCoolingDown || !hasRequiredSkill('Grower')}
-              info={strings[311]}
-              onClick={() => handleTerraformWithCooldown("plantGrass")}
-            />
-
-            {/* Lay Pavement Button */}
-            <ResourceButton
-              symbol="🟨"
-              name="Lay Pavement"
-              details="Costs: None<br>Requires: Pickaxe"
-              disabled={isActionCoolingDown || !hasRequiredSkill('Pickaxe')}
-              info={strings[312]}
-              onClick={() => handleTerraformWithCooldown("pave")}
-            />
 
             {/* Farm Plot Options */}
             {farmPlots.map((item) => {

@@ -456,7 +456,7 @@ function renderPlayerRange() {
 
     // Add a second ring for attackrange
     const attackRange = playersInGrid?.[gridId]?.pcs?.[currentPlayer._id]?.attackrange;
-    if (attackRange && attackRange > 0) {
+    if (attackRange && attackRange > 0 && (currentPlayer?.location?.gtype != "homestead")) {
       let attackRangeRing = document.getElementById('player-attackrange-ring');
       if (!attackRangeRing) {
         attackRangeRing = document.createElement('div');

@@ -376,7 +376,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
           await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
         }
         
-        updateStatus(`✅ Sold ${response.data.amount}x ${response.data.resource} for ${response.data.sold} Money.`);
+        updateStatus(`💰 Sold ${response.data.amount}x ${response.data.resource} for ${response.data.sold}.`);
         
         // Refresh trade stall data to ensure consistency
         await fetchDataForViewedPlayer(true); // Skip inventory fetch to preserve server state
@@ -428,9 +428,24 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         }
         if (response.data.inventory) {
           setInventory(response.data.inventory);
+          // Force update currentPlayer to trigger UI refresh
+          setCurrentPlayer(prev => ({
+            ...prev,
+            inventory: response.data.inventory,
+            tradeStall: response.data.tradeStall
+          }));
+        }
+
+        // Track quest progress for selling this item
+        await trackQuestProgress(currentPlayer, 'Sell', response.data.resource, response.data.amount, setCurrentPlayer);
+        
+        // Check if we should increment FTUE step after selling
+        if (currentPlayer.ftuestep === 5) {
+          console.log('🎓 Player at FTUE step 5 completed a sale, incrementing FTUE step');
+          await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
         }
         
-        updateStatus(`✅ Collected ${response.data.collected} Money.`);
+        updateStatus(`💰 Collected ${response.data.collected}.`);
         
         // Refresh trade stall data to ensure consistency
         await fetchDataForViewedPlayer(true); // Skip inventory fetch to preserve server state

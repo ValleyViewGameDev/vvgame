@@ -59,14 +59,14 @@
       "step": 9,
       "titleKey": 731,
       "bodyKey": 732,
-      "image": "ftue-axe.png",
+      "image": "ftue-tools.png",
       "continue": false
     },
     {
       "step": 10,
       "titleKey": 733,
       "bodyKey": 734,
-      "image": "ftue-tools.png",
+      "image": "ftue-axe.png",
       "continue": false
     },
     {

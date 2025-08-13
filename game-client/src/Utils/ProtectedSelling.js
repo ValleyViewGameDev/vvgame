@@ -25,6 +25,24 @@ export async function handleProtectedSelling({
 }) {
   console.log(`🔒 [PROTECTED SELLING] Starting protected sale for ${stationType} at (${currentStationPosition.x}, ${currentStationPosition.y})`);
   
+  // Debug: Check what resources exist at this position
+  const allResources = GlobalGridStateTilesAndResources.getResources();
+  const resourcesAtPosition = allResources.filter(res => {
+    // Check exact position
+    if (res.x === currentStationPosition.x && res.y === currentStationPosition.y) {
+      return true;
+    }
+    // Check if this position is covered by a multi-tile resource
+    const range = res.range || 1;
+    if (range > 1) {
+      return currentStationPosition.x >= res.x && currentStationPosition.x < res.x + range &&
+             currentStationPosition.y <= res.y && currentStationPosition.y > res.y - range;
+    }
+    return false;
+  });
+  
+  console.log(`🔍 Resources at/covering position (${currentStationPosition.x}, ${currentStationPosition.y}):`, resourcesAtPosition);
+  
   // Generate  transaction ID and key
   const transactionId = generateTransactionId();
   const transactionKey = `sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`;
@@ -100,7 +118,8 @@ export async function handleProtectedSelling({
     if (error.response?.status === 429) {
       updateStatus('⚠️ Sale already in progress');
     } else if (error.response?.status === 400) {
-      updateStatus('❌ Cannot sell this station');
+      console.error('❌ 400 Error details:', error.response?.data);
+      updateStatus(`❌ Cannot sell: ${error.response?.data?.error || 'Invalid request'}`);
     } else {
       updateStatus('❌ Failed to sell station');
     }

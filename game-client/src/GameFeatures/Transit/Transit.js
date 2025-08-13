@@ -155,36 +155,10 @@ export async function handleTransitSignpost(
         
         // Check if first-time user is using Signpost Town
         if (currentPlayer.firsttimeuser === true) {
-          console.log('🎓 First-time user used Signpost Town, completing tutorial');
+          console.log('🎓 First-time user used Signpost Town, incrementing FTUE step');
           
-          // First increment the FTUE step
+          // Increment the FTUE step
           await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-          
-          // Then complete the tutorial by setting firsttimeuser to false
-          try {
-            const response = await axios.post(`${API_BASE}/api/update-profile`, {
-              playerId: currentPlayer.playerId,
-              updates: { 
-                firsttimeuser: false,
-                ftuestep: null  // Remove ftuestep field
-              }
-            });
-            
-            if (response.data.success) {
-              // Update local state
-              setCurrentPlayer(prev => {
-                const updated = {
-                  ...prev,
-                  firsttimeuser: false
-                };
-                delete updated.ftuestep;  // Remove ftuestep from local state
-                return updated;
-              });
-              console.log('✅ Tutorial completed - firsttimeuser set to false');
-            }
-          } catch (error) {
-            console.error('Error completing tutorial:', error);
-          }
         }
         
         await changePlayerLocation(
