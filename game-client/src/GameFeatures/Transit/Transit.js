@@ -157,8 +157,14 @@ export async function handleTransitSignpost(
         if (currentPlayer.firsttimeuser === true) {
           console.log('🎓 First-time user used Signpost Town, incrementing FTUE step');
           
-          // Increment the FTUE step
-          await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+          // Increment the FTUE step and wait for it to fully complete
+          const newFtueStep = await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+          
+          // Add a small delay to ensure the server has processed the update
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          // Update the currentPlayer object with the new ftuestep to pass through location change
+          currentPlayer = { ...currentPlayer, ftuestep: newFtueStep };
         }
         
         await changePlayerLocation(

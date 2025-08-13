@@ -84,6 +84,21 @@
     "totalnestedtime": 5
   },
   {
+    "type": "Stub",
+    "symbol": "❌",
+    "layoutkey": "xx",
+    "category": "special",
+    "passable": false,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": true,
+    "validonl": true,
+    "validonn": true,
+    "validono": true
+  },
+  {
     "type": "Signpost N",
     "symbol": "⬆️",
     "layoutkey": "SN",

@@ -18,6 +18,7 @@ import { getRelationshipStatus } from '../Relationships/RelationshipUtils';
 import '../Relationships/Relationships.css';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { checkDeveloperStatus } from '../../Utils/appUtils';
+import questCache from '../../Utils/QuestCache';
 
 const QuestGiverPanel = ({
   onClose,
@@ -90,7 +91,12 @@ const QuestGiverPanel = ({
     if (!npcData || !npcData.type) return;
 
     if (npcData.action === 'quest') {
-      fetchQuests();
+      // Add a small delay to debounce rapid changes
+      const timeoutId = setTimeout(() => {
+        fetchQuests();
+      }, 100);
+      
+      return () => clearTimeout(timeoutId);
     } else if (npcData.action === 'heal') {
       const filteredRecipes = masterResources.filter((resource) => resource.type === npcData.type);
       setHealRecipes(filteredRecipes);
@@ -102,11 +108,12 @@ const QuestGiverPanel = ({
   ////////////////////// Fetch QUESTS for QUEST NPCs
   const fetchQuests = async () => {
     try {
-      const response = await axios.get(`${API_BASE}/api/quests`);
+      // Use cached quests instead of direct API call
+      const allQuests = await questCache.getQuests();
 
       
       // Use new quest filtering logic
-      let npcQuests = response.data
+      let npcQuests = allQuests
         .filter((quest) => quest.giver === npcData.type)
         .filter((quest) => {
           const activeQuest = currentPlayer.activeQuests.find(q => q.questId === quest.title);
@@ -202,6 +209,7 @@ const QuestGiverPanel = ({
         setCurrentPlayer(response.data.player); // Update player after quest is added
         updateStatus(202);
         console.log(`✅ Quest "${questTitle}" added with initial progress:`, initialProgress);
+        // No need to invalidate cache when accepting quests
       } else {
         setStatusMessage(`Failed to accept quest: ${response.data.error}`);
       }

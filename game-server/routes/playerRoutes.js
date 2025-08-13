@@ -832,10 +832,30 @@ router.post('/delete-player', async (req, res) => {
     }
 
     const { gridId, settlementId } = player;
+    const currentLocationGridId = player.location?.g;
 
-    // 1. Send other players in this grid home
+    // 1. Remove player from their current location's grid state (if different from homestead)
+    if (currentLocationGridId && currentLocationGridId !== gridId) {
+      console.log(`🧹 Removing player from current location grid: ${currentLocationGridId}`);
+      try {
+        // Use the existing remove-single-pc endpoint logic
+        const currentGrid = await Grid.findById(currentLocationGridId);
+        if (currentGrid) {
+          const pcs = new Map(currentGrid.playersInGrid || []);
+          pcs.delete(playerId.toString());
+          currentGrid.playersInGrid = pcs;
+          currentGrid.playersInGridLastUpdated = new Date();
+          await currentGrid.save();
+          console.log(`✅ Removed player ${playerId} from grid ${currentLocationGridId} playersInGrid data`);
+        }
+      } catch (error) {
+        console.error(`❌ Error removing player from current location grid: ${error}`);
+      }
+    }
+
+    // 2. Send other players in this grid home
     if (gridId) {
-      const grid = await Grid.findOne({ gridId });
+      const grid = await Grid.findById(gridId);
       if (grid && grid.playersInGrid) {
         const playersInGrid = grid.playersInGrid instanceof Map
           ? Array.from(grid.playersInGrid.keys())
@@ -848,7 +868,7 @@ router.post('/delete-player', async (req, res) => {
       }
     }
 
-    // 2. Update Settlement grid reference and availability (search ALL settlements for the grid)
+    // 3. Update Settlement grid reference and availability (search ALL settlements for the grid)
     if (gridId) {
       let fromSettlement = null;
       const settlements = await Settlement.find({});
@@ -871,12 +891,13 @@ router.post('/delete-player', async (req, res) => {
       }
     }
 
-    // 3. Delete the Grid document
+    // 4. Delete the Grid document
     if (gridId) {
-      await Grid.deleteOne({ gridId });
+      await Grid.findByIdAndDelete(gridId);
+      console.log(`🗑️ Deleted homestead grid: ${gridId}`);
     }
 
-    // 4. Delete the player
+    // 5. Delete the player
     await Player.deleteOne({ _id: playerId });
 
     console.log(`✅ Player ${playerId} and associated grid ${gridId} deleted.`);

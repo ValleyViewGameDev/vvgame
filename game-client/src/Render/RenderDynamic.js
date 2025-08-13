@@ -16,6 +16,7 @@ import { useUILock } from '../UI/UILockContext';
 import { useNPCOverlay } from '../UI/NPCOverlayContext';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
+import questCache from '../Utils/QuestCache';
 
 
 const DynamicRenderer = ({
@@ -62,11 +63,11 @@ const DynamicRenderer = ({
     if (npc.action !== 'quest' || !currentPlayer) return null;
     
     try {
-      // Fetch available quests for this NPC
-      const response = await axios.get(`${API_BASE}/api/quests`);
+      // Use cached quests instead of direct API call
+      const allQuests = await questCache.getQuests();
       
       // Use same filtering logic as QuestGiverPanel
-      let npcQuests = response.data
+      let npcQuests = allQuests
         .filter((quest) => quest.giver === npc.type)
         .filter((quest) => {
           const activeQuest = currentPlayer.activeQuests?.find(q => q.questId === quest.title);

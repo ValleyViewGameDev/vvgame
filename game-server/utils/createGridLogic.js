@@ -111,12 +111,19 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
     });
   });
 
+  // Remove any "Stub" resources before finalizing the grid
+  const filteredResources = newResources.filter(resource => resource.type !== 'Stub');
+  
+  if (newResources.length !== filteredResources.length) {
+    console.log(`🧹 Removed ${newResources.length - filteredResources.length} Stub resource(s) from grid at ${gridCoord}`);
+  }
+
   const newGrid = new Grid({
     gridType,
     frontierId,
     settlementId,
     tiles: newTiles,
-    resources: newResources,  // Use only the main resources, not shadows
+    resources: filteredResources,  // Use filtered resources without Stubs
     NPCsInGrid: new Map(Object.entries(newGridState.npcs)),
     NPCsInGridLastUpdated: Date.now(),
   });

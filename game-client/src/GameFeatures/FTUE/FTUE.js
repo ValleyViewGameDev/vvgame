@@ -129,42 +129,32 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
 //////////// FTUE STEP 8 /////////////
 
       } else if (currentStep === 8) {
-        console.log(`🎓 Adding gain Husbandry quest after FTUE step ${currentStep}`);
-        
-        // Add the "Hire the Shepherd" quest
-        const playerAfterFirstQuest = await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 18);
-        await addAcceptedQuest(currentPlayer.playerId, playerAfterFirstQuest, setCurrentPlayer, 19);
-        
+    
         onClose(); // Close FTUE modal
 
 //////////// FTUE STEP 9 /////////////
 
       } else if (currentStep === 9) {
         console.log(`🎓 Adding Axe quest after FTUE step ${currentStep}`);
-        
+    
         // Add the "Hire the Shepherd" quest
         await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 10);
-        
-        onClose(); // Close FTUE modal
-
-//////////// FTUE STEP 10 /////////////
-
-      } else if (currentStep === 10) {
-        console.log(`🎓 Adding Wizard quest after FTUE step ${currentStep}`);
-        
-        // Add the Axe quest
-        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 1);
         
         onClose(); // Close FTUE modal
 
 //////////// FTUE STEP 11 /////////////
 
       } else if (currentStep === 11) {
-        console.log(`🎓 Final FTUE step reached, completing tutorial`);
+        console.log(`🎓 Adding Wizard quest after FTUE step ${currentStep}`);
+        
+        // Add the Axe quest
+        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 1);
         await completeTutorial();
+
+        onClose(); // Close FTUE modal
         return; // Don't continue with normal step advancement
       }
-      
+
       if (!hasNextStep) {
         completeTutorial();
 

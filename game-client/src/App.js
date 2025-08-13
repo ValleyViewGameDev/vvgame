@@ -314,8 +314,9 @@ const [lastShownFTUEStep, setLastShownFTUEStep] = useState(null);
 useEffect(() => {
   // Only process FTUE if player is explicitly a first-time user
   if (currentPlayer?.firsttimeuser === true && currentPlayer?.ftuestep && currentPlayer.ftuestep > 0) {
-    // Only show modal if this is a different step than last shown
-    if (currentPlayer.ftuestep !== lastShownFTUEStep) {
+    // Only show modal if this is a different step than last shown AND it's a forward progression
+    if (currentPlayer.ftuestep !== lastShownFTUEStep && 
+        (lastShownFTUEStep === null || currentPlayer.ftuestep > lastShownFTUEStep)) {
       console.log('🎓 FTUE step changed to:', currentPlayer.ftuestep, ', showing FTUE');
       setShowFTUE(true);
       setLastShownFTUEStep(currentPlayer.ftuestep);
@@ -683,6 +684,7 @@ useEffect(() => {
       if (updatedPlayerData.firsttimeuser === true && updatedPlayerData.ftuestep && updatedPlayerData.ftuestep > 0) {
         console.log('🎓 FTUE step detected for first-time user:', updatedPlayerData.ftuestep, ', showing FTUE');
         setShowFTUE(true);
+        setLastShownFTUEStep(updatedPlayerData.ftuestep);
       }
 
     } catch (error) {

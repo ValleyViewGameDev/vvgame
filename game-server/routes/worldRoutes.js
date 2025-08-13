@@ -279,6 +279,98 @@ router.post('/reset-grid', async (req, res) => {
   }
 });
 
+// Import relocateOnePlayerHome at the top of the file if not already imported
+const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
+
+// Remove homestead - delete grid and update settlement
+router.post('/remove-homestead', async (req, res) => {
+  const { gridId } = req.body;
+  console.log('🏚️ Removing homestead grid:', gridId);
+
+  if (!gridId) {
+    return res.status(400).json({ error: 'gridId is required.' });
+  }
+
+  try {
+    // 1. Find the grid to get its settlement info and players
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found.' });
+    }
+
+    const settlementId = grid.settlementId;
+    const gridCoord = grid.gridCoord;
+
+    // 2. Relocate all players in this grid before deleting it
+    if (grid.playersInGrid) {
+      const playersInGrid = grid.playersInGrid instanceof Map
+        ? Array.from(grid.playersInGrid.keys())
+        : Object.keys(grid.playersInGrid);
+      
+      console.log(`🚶 Found ${playersInGrid.length} players to relocate`);
+      
+      for (const playerId of playersInGrid) {
+        console.log(`🏠 Relocating player ${playerId} to their home...`);
+        try {
+          await relocateOnePlayerHome(playerId);
+        } catch (relocateError) {
+          console.error(`⚠️ Failed to relocate player ${playerId}:`, relocateError);
+          // Continue with other players even if one fails
+        }
+      }
+    }
+
+    // 3. Delete the grid from the grids collection
+    await Grid.findByIdAndDelete(gridId);
+    console.log('✅ Grid deleted from database');
+
+    // 4. Update the settlement to remove this grid reference
+    const settlement = await Settlement.findById(settlementId);
+    if (settlement && settlement.grids) {
+      // Find and update the grid cell in the settlement's grids array
+      let updated = false;
+      for (let row = 0; row < settlement.grids.length; row++) {
+        for (let col = 0; col < settlement.grids[row].length; col++) {
+          const cell = settlement.grids[row][col];
+          if (cell.gridId && cell.gridId.toString() === gridId) {
+            // Mark this cell as available with no gridId
+            settlement.grids[row][col] = {
+              gridCoord: cell.gridCoord,
+              gridType: cell.gridType,
+              gridId: null,
+              available: true
+            };
+            updated = true;
+            console.log(`✅ Updated settlement grid at [${row}][${col}] to available`);
+            break;
+          }
+        }
+        if (updated) break;
+      }
+
+      if (updated) {
+        await settlement.save();
+        console.log('✅ Settlement updated successfully');
+      } else {
+        console.warn('⚠️ Grid not found in settlement grids array');
+      }
+    } else {
+      console.warn('⚠️ Settlement not found or has no grids array');
+    }
+
+    res.status(200).json({ 
+      success: true, 
+      message: 'Homestead removed successfully. All players relocated.',
+      deletedGridId: gridId,
+      settlementId: settlementId
+    });
+
+  } catch (error) {
+    console.error('❌ Error removing homestead:', error);
+    res.status(500).json({ error: 'Failed to remove homestead.' });
+  }
+});
+
 
 router.post('/claim-homestead/:gridId', async (req, res) => {
   const { gridId } = req.params;

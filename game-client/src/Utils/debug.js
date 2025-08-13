@@ -725,12 +725,65 @@ const handleGetRich = async () => {
     }
   };
 
+  const handleRemoveHomestead = async () => {
+    if (!currentGridId) {
+      console.error('❌ No grid ID available.');
+      updateStatus('❌ No grid ID available.');
+      return;
+    }
+
+    // Check if this is actually a homestead
+    const gridType = currentPlayer?.location?.gtype;
+    if (gridType !== 'homestead') {
+      alert('⚠️ This command only works on homestead grids.');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `⚠️ Are you absolutely sure you want to remove this homestead grid?\n\n` +
+      `Grid ID: ${currentGridId}\n\n` +
+      `This will:\n` +
+      `1. Delete this grid from the database\n` +
+      `2. Mark this location as available in the settlement\n\n` +
+      `This action CANNOT be undone!`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      console.log('🏚️ Removing homestead grid:', currentGridId);
+      
+      const response = await axios.post(`${API_BASE}/api/remove-homestead`, {
+        gridId: currentGridId
+      });
+
+      if (response.data.success) {
+        console.log('✅ Homestead removed successfully');
+        updateStatus('✅ Homestead removed. Players relocated. Reloading...');
+        
+        // The server has relocated all players using relocateOnePlayerHome
+        // Just reload the page to reflect the new state
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        console.error('❌ Failed to remove homestead:', response.data);
+        updateStatus('❌ Failed to remove homestead.');
+      }
+    } catch (error) {
+      console.error('❌ Error removing homestead:', error);
+      updateStatus('❌ Error removing homestead.');
+      alert('Failed to remove homestead. Check console for details.');
+    }
+  };
+
 
   return (
     <Panel onClose={onClose} titleKey="1120" panelName="DebugPanel">
       <div className="debug-buttons">
         <button className="btn-danger" onClick={handleCreateNewFrontier}> Create New Frontier </button>
         <button className="btn-danger" onClick={handleResetGrid}> Reset This Grid </button>
+        <button className="btn-danger" onClick={handleRemoveHomestead}> Remove Homestead </button>
         <button className="btn-danger" onClick={handleGenerateTown}> Generate Town </button>
         <button className="btn-danger" onClick={() => handleGenerateValley(0)}> Generate Valley 0 </button>
         <button className="btn-danger" onClick={() => handleGenerateValley(1)}> Generate Valley 1 </button>
