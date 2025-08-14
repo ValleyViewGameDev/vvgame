@@ -2,23 +2,6 @@ import React, { useState, useEffect } from 'react';
 import './Conversation.css';
 import ConversationManager from './ConversationManager';
 
-// Component to display speech bubble with emoji
-const SpeechBubble = ({ position, emoji, topic, isVisible }) => {
-  if (!isVisible || !position) return null;
-  
-  return (
-    <div 
-      className="speech-bubble"
-      style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`
-      }}
-    >
-      <div className="speech-emoji">{topic || emoji}</div>
-    </div>
-  );
-};
-
 // Main conversation sequence handler
 export const playConversation = async (
   playerPosition,
@@ -52,15 +35,7 @@ export const playConversation = async (
     }
     return TILE_SIZE; // Fallback to passed TILE_SIZE
   };
-  
-  // Helper function to calculate screen position with current tile size
-  const getScreenPosition = (gridPosition) => {
-    const currentTileSize = getCurrentTileSize();
-    return {
-      x: gridPosition.x * currentTileSize + currentTileSize / 2, // Center horizontally
-      y: gridPosition.y * currentTileSize - currentTileSize * 1.2 // Higher above the character
-    };
-  };
+
   
   // Create context for topic resolution
   const topicContext = {
@@ -104,6 +79,102 @@ export const playConversation = async (
     onComplete();
   }
 };
+
+
+// Get topic emoji based on interaction type and relationship status
+export const getConversationTopic = (interaction, relationship) => {
+  // TODO: Implement topic selection algorithm
+  // For now, return a default topic
+
+  return '?';
+};
+
+// Convert topic key to actual symbol/emoji
+export const getTopicSymbol = (topicKey, context = {}) => {
+  if (!topicKey) return '❓'; // Default fallback
+  
+  // Handle emoji shortcuts
+  if (topicKey.startsWith('emoji_')) {
+    const emojiMap = {
+      'emoji_heart': '❤️',
+      'emoji_pinkheart': '💖',
+      'emoji_friend': '👫',
+      'emoji_diamond': '💍',
+      'emoji_forgive': '🙏',
+      'emoji_questionmark': '❓',
+      'emoji_annoyed': '😠',
+      'emoji_laughing': '😂',
+      'emoji_blush': '😊',
+      'emoji_hug': '🤗',
+      'emoji_wink': '😉',
+      'emoji_kiss': '😘',
+      'emoji_angry': '😡',
+      'emoji_sad': '😢',
+      'emoji_happy': '😊',
+      'emoji_thinking': '🤔',
+      'emoji_wow': '😮',
+      'emoji_love': '🥰',
+      'emoji_cool': '😎',
+      'emoji_party': '🥳',
+      'emoji_sleepy': '😴',
+      'emoji_hungry': '😋',
+      'emoji_brokenheart': '💔'
+    };
+    return emojiMap[topicKey] || '❓';
+  }
+  
+  // Handle special context-based topics
+  switch (topicKey) {
+    case 'player':
+      return context.playerIcon || '😊';
+      
+    case 'npc':
+      return context.npcIcon || '🤔';
+      
+    case 'interest':
+      // TODO: Add logic for showing player's current interest
+      const interests = ['🎨', '📚', '🛶', '🔬', '🪉', '⛺', '💰'];
+      return interests[Math.floor(Math.random() * interests.length)];
+
+    case 'relationship':
+      // TODO: Add logic based on relationship status
+      return '👫';
+      
+    case 'random':
+      // TODO: Add random topic selection
+      const randomTopics = ['🚂', '🚜', '👩‍🌾', '🐺', '🐻'];
+      return randomTopics[Math.floor(Math.random() * randomTopics.length)];
+      
+    case 'random_secret':
+      // TODO: Add random topic selection
+      const secretTopics = ['🧝‍♀️', '🐲', '🧌', '💍', '👻', '🔱', '🎪', '🦄', '🔑', '🖼️'];
+      return secretTopics[Math.floor(Math.random() * secretTopics.length)];
+
+      case 'quest':
+      return '✅';
+      
+    case 'trade':
+      return '💰';
+      
+    case 'skill':
+      return '💪';
+      
+    case 'location':
+      return '🗺️';
+      
+    case 'weather':
+      const weatherTopics = ['☀️', '🌨️', '🌦️', '🌩️'];
+      return weatherTopics[Math.floor(Math.random() * weatherTopics.length)];
+      
+    case 'time':
+      return '🕐';
+      
+    default:
+      // If it's not a recognized key, just return it as-is (might be an emoji already)
+      return topicKey;
+  }
+};
+
 
 // Show speech bubble for a character
 const showSpeech = async (speakerType, speakerId, emoji, topic) => {
@@ -172,84 +243,6 @@ const animateCharacter = async (characterType, position, TILE_SIZE) => {
 
 // Utility delay function
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Get topic emoji based on interaction type and relationship status
-export const getConversationTopic = (interaction, relationship) => {
-  // TODO: Implement topic selection algorithm
-  // For now, return a default topic
-  return '💭';
-};
-
-// Convert topic key to actual symbol/emoji
-export const getTopicSymbol = (topicKey, context = {}) => {
-  if (!topicKey) return '💭'; // Default fallback
-  
-  // Handle emoji shortcuts
-  if (topicKey.startsWith('emoji_')) {
-    const emojiMap = {
-      'emoji_heart': '❤️',
-      'emoji_laughing': '😂',
-      'emoji_hug': '🤗',
-      'emoji_wink': '😉',
-      'emoji_kiss': '😘',
-      'emoji_angry': '😠',
-      'emoji_sad': '😢',
-      'emoji_happy': '😊',
-      'emoji_thinking': '🤔',
-      'emoji_surprised': '😮',
-      'emoji_love': '🥰',
-      'emoji_cool': '😎',
-      'emoji_party': '🥳',
-      'emoji_sleepy': '😴',
-      'emoji_hungry': '🤤'
-    };
-    return emojiMap[topicKey] || '💭';
-  }
-  
-  // Handle special context-based topics
-  switch (topicKey) {
-    case 'player':
-      return context.playerIcon || '😊';
-      
-    case 'npc':
-      return context.npcIcon || '🤔';
-      
-    case 'interest':
-      // TODO: Add logic for showing player's current interest
-      return '💡';
-      
-    case 'relationship':
-      // TODO: Add logic based on relationship status
-      return '💕';
-      
-    case 'random':
-      // TODO: Add random topic selection
-      const randomTopics = ['🎵', '🌟', '🎨', '📚', '🎮', '🌺', '🍕', '⚡'];
-      return randomTopics[Math.floor(Math.random() * randomTopics.length)];
-      
-    case 'quest':
-      return '❗';
-      
-    case 'trade':
-      return '💰';
-      
-    case 'skill':
-      return '⚔️';
-      
-    case 'location':
-      return '🗺️';
-      
-    case 'weather':
-      return '☀️';
-      
-    case 'time':
-      return '🕐';
-      
-    default:
-      // If it's not a recognized key, just return it as-is (might be an emoji already)
-      return topicKey;
-  }
-};
 
 // Component for rendering conversation UI if needed
 const ConversationUI = ({ isActive, playerData, npcData }) => {

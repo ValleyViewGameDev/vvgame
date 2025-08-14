@@ -61,12 +61,12 @@
     "relbitrequired": "met",
     "chance": 0.9,
     "relscoreresult": 5,
-    "rounds": 1,
+    "rounds": 3,
     "playertopic1": "interest",
-    "playertopic2": "relationship",
+    "playertopic2": "npc",
     "playertopic3": "random",
-    "npctopic1": "player",
-    "npctopic2": "relationship",
+    "npctopic1": "interest",
+    "npctopic2": "player",
     "npctopic3": "random"
   },
   {
@@ -81,7 +81,9 @@
     "relscoreresult": 15,
     "rounds": 2,
     "playertopic1": "emoji_laughing",
-    "playertopic2": "interest"
+    "playertopic2": "interest",
+    "npctopic1": "player",
+    "npctopic2": "interest"
   },
   {
     "index": 10,
@@ -182,7 +184,8 @@
     "relbitadd": "love",
     "relbitremove": "crush",
     "rounds": 1,
-    "playertopic1": "emoji_heart"
+    "playertopic1": "emoji_heart",
+    "npctopic1": "emoji_blush"
   },
   {
     "index": 16,
@@ -248,7 +251,7 @@
     "chance": 1,
     "relscoreresult": -15,
     "rounds": 2,
-    "playertopic1": "emoji_scold",
+    "playertopic1": "emoji_taunt",
     "playertopic2": "npc",
     "npctopic1": "player",
     "npctopic2": "emoji_angry"
