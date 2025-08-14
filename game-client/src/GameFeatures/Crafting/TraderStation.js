@@ -2,7 +2,6 @@ import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
-import './TraderStation.css';
 import '../../UI/ResourceButton.css';
 import ResourceButton from '../../UI/ResourceButton';
 import { canAfford } from '../../Utils/InventoryManagement';
@@ -180,10 +179,19 @@ console.log("tradeQty in recipe:", recipe.tradeqty);
           setCurrentPlayer={setCurrentPlayer}
           targetName={stationType}
           targetType="npc"
+          targetEmoji={stationEmoji}
           showActions={true}
           compact={false}
           masterInteractions={masterInteractions}
           updateStatus={updateStatus}
+          playerPosition={(() => {
+            const gridId = currentPlayer?.location?.g;
+            const playerId = currentPlayer._id?.toString();
+            const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+            return playerInGridState?.position || null;
+          })()}
+          targetPosition={currentStationPosition}
+          TILE_SIZE={TILE_SIZE}
           checkDistance={() => {
             // Get player position
             const gridId = currentPlayer?.location?.g;

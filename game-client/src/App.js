@@ -53,7 +53,7 @@ import InventoryPanel from './GameFeatures/Inventory/InventoryPanel';
 import HowToPanel from './UI/HowToPanel';
 import HowToMoneyPanel from './UI/HowToMoneyPanel';
 import QuestPanel from './GameFeatures/Quests/QuestPanel';
-import QuestGiverPanel from './GameFeatures/NPCs/NPCsPanel.js';
+import NPCPanel from './GameFeatures/NPCs/NPCsPanel.js';
 import BuildPanel from './GameFeatures/Build/BuildPanel';
 import BuyPanel from './GameFeatures/Buy/BuyPanel';
 import BuyDecoPanel from './GameFeatures/Deco/BuyDecoPanel';
@@ -67,7 +67,6 @@ import CourthousePanel from './GameFeatures/Government/Courthouse';
 import CraftingStation from './GameFeatures/Crafting/CraftingStation';
 import FarmHouse from './GameFeatures/Crafting/FarmHouse';
 import FarmHandPanel from './GameFeatures/FarmHands/FarmHand.js';
-import TraderStation from './GameFeatures/Crafting/TraderStation';
 import ShopStation from './GameFeatures/Crafting/ShopStation';
 import AnimalStall from './GameFeatures/FarmAnimals/AnimalStall';
 import AnimalPanel from './GameFeatures/FarmAnimals/FarmAnimals.js';
@@ -367,9 +366,10 @@ const handleNPCPanel = (npc) => {
   console.log('App.js: Handling an NPC Panel:', npc, npc.action);
   switch (npc.action) {
     case 'quest':
+    case 'trade':
     case 'heal': {
       setActiveQuestGiver(npc);  // Set the active quest giver globally
-      openPanel('QuestGiverPanel');  
+      openPanel('NPCPanel');  
       break;
     }
     case 'farmhand': {
@@ -1293,10 +1293,6 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
       openPanel('CraftingStation');
     } 
-    else if (resource.category === 'trading') {
-      setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
-      openPanel('TraderStation');
-    } 
     else if (resource.category === 'farmhouse') {
       setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
       openPanel('FarmHouse');
@@ -2126,28 +2122,6 @@ return (
           isDeveloper={isDeveloper}
         />
       )}
-      {activePanel === 'TraderStation' && (
-        <TraderStation
-          onClose={closePanel}
-          inventory={inventory}
-          setInventory={setInventory}
-          backpack={backpack}
-          setBackpack={setBackpack}
-          currentPlayer={currentPlayer}
-          setCurrentPlayer={setCurrentPlayer}
-          setResources={setResources}
-          stationType={activeStation?.type} 
-          currentStationPosition={activeStation?.position} 
-          gridId={activeStation?.gridId}
-          TILE_SIZE={activeTileSize}
-          updateStatus={updateStatus}
-          masterResources={masterResources}
-          masterInteractions={masterInteractions}
-          zoomLevel={zoomLevel}
-          setZoomLevel={setZoomLevel}
-          centerCameraOnPlayer={centerCameraOnPlayer}
-        />
-      )}
       {activePanel === 'ShopStation' && (
         <ShopStation
           onClose={closePanel}
@@ -2266,8 +2240,8 @@ return (
           isDeveloper={isDeveloper}
         />
       )}
-      {activePanel === 'QuestGiverPanel' && (
-        <QuestGiverPanel
+      {activePanel === 'NPCPanel' && (
+        <NPCPanel
           onClose={closePanel}
           npcData={activeQuestGiver}
           inventory={inventory}

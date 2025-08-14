@@ -3,7 +3,7 @@ import '../UI/Panel.css';
 import '../UI/Cursor.css';
 import './Render.css';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import API_BASE from '../config';
 import { getDerivedRange } from '../Utils/worldHelpers';
@@ -16,6 +16,8 @@ import { useNPCOverlay } from '../UI/NPCOverlayContext';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import questCache from '../Utils/QuestCache';
+import ConversationManager from '../GameFeatures/Relationships/ConversationManager';
+import '../GameFeatures/Relationships/Conversation.css';
 
 
 const DynamicRenderer = ({
@@ -55,6 +57,9 @@ const DynamicRenderer = ({
 
   const hoveredNPCDivRef = useRef(null);
   const questNPCStatusRef = useRef(new Map()); // Cache quest NPC status
+  
+  // State for active conversations
+  const [conversationVersion, setConversationVersion] = useState(0);
 
   // Function to check quest NPC status
   async function checkQuestNPCStatus(npc) {
@@ -64,7 +69,7 @@ const DynamicRenderer = ({
       // Use cached quests instead of direct API call
       const allQuests = await questCache.getQuests();
       
-      // Use same filtering logic as QuestGiverPanel
+      // Use same filtering logic as NPCPanel
       let npcQuests = allQuests
         .filter((quest) => quest.giver === npc.type)
         .filter((quest) => {
@@ -108,6 +113,28 @@ const DynamicRenderer = ({
       return null;
     } catch (error) {
       console.error('Error checking quest NPC status:', error);
+      return null;
+    }
+  }
+
+  // Check trade NPC status - returns the first trade item symbol
+  function checkTradeNPCStatus(npc) {
+    if (npc.action !== 'trade') return null;
+    
+    try {
+      // Find recipes that this NPC trades
+      const tradeRecipes = masterResourcesRef.current.filter(resource => 
+        resource.source === npc.type
+      );
+      
+      if (tradeRecipes.length > 0) {
+        // Return the symbol of the first trade item
+        return tradeRecipes[0].symbol || '📦';
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error checking trade NPC status:', error);
       return null;
     }
   }
@@ -166,7 +193,7 @@ const DynamicRenderer = ({
             if (currentTime < reloadRef.current) return;
             reloadRef.current = currentTime + (speed * 1000);
           }
-          if (npc.action === 'quest' || npc.action === 'heal' || npc.action === 'farmhand') {
+          if (npc.action === 'quest' || npc.action === 'heal' || npc.action === 'farmhand' || npc.action === 'trade') {
             onNPCClick(npc);
           } else {
             handleNPCClick(
@@ -229,6 +256,12 @@ const DynamicRenderer = ({
             // Use cached status
             renderOverlay(npcDiv, cachedStatus);
           }
+        } else if (npc.action === 'trade') {
+          // Check trade NPC for trade item symbol
+          const tradeSymbol = checkTradeNPCStatus(npc);
+          if (tradeSymbol) {
+            renderOverlay(npcDiv, tradeSymbol);
+          }
         }
 
         /// Dynamic Cursors for NPCs
@@ -239,7 +272,7 @@ const DynamicRenderer = ({
           } else {
             npcDiv.style.cursor = 'crosshair';
           }
-        } else if (npc.action === 'quest' || npc.action === 'heal') {
+        } else if (npc.action === 'quest' || npc.action === 'heal' || npc.action === 'trade') {
           npcDiv.style.cursor = 'help';
         } else {
           npcDiv.style.cursor = 'pointer';
@@ -284,6 +317,18 @@ const DynamicRenderer = ({
                 }
               });
             }
+          } else if (npc.action === 'trade') {
+            // Check if trade NPC still has items to trade
+            const tradeSymbol = checkTradeNPCStatus(npc);
+            if (tradeSymbol) {
+              const currentType = existingOverlay.getAttribute('data-overlay-type');
+              if (currentType !== tradeSymbol) {
+                existingOverlay.remove();
+                renderOverlay(npcDiv, tradeSymbol);
+              }
+            } else {
+              existingOverlay.remove();
+            }
           } else {
             existingOverlay.remove();
           }
@@ -310,10 +355,23 @@ const DynamicRenderer = ({
               }
             });
           }
+        } else if (!overlayData && npc.action === 'trade' && !existingOverlay) {
+          // Trade NPC without overlay - check if it needs one
+          const tradeSymbol = checkTradeNPCStatus(npc);
+          if (tradeSymbol) {
+            renderOverlay(npcDiv, tradeSymbol);
+          }
         }
       }
       npcDiv.style.left = `${renderX}px`;
       npcDiv.style.top = `${renderY}px`;
+      
+      // Render speech bubble if active - use NPC type as ID for consistency
+      const npcSpeakerId = npc.type;
+      renderSpeechBubble(npcDiv, npcSpeakerId, 'npc');
+      
+      // Render relationship outcome if active
+      renderRelationshipOutcome(npcDiv, npcSpeakerId);
     });
 
     // Remove NPC divs that no longer exist
@@ -401,6 +459,13 @@ const DynamicRenderer = ({
       }
       pcDiv.style.left = `${renderX}px`;
       pcDiv.style.top = `${renderY}px`;
+      
+      // Render speech bubble if active - use player ID for consistency
+      const pcSpeakerId = pc.playerId;
+      renderSpeechBubble(pcDiv, pcSpeakerId, 'player');
+      
+      // Render relationship outcome if active
+      renderRelationshipOutcome(pcDiv, pcSpeakerId);
     });
 
     // Remove PC divs that no longer exist
@@ -495,6 +560,15 @@ function startRenderingLoop() {
   useEffect(() => {
     questNPCStatusRef.current.clear();
   }, [currentPlayer?.activeQuests, currentPlayer?.completedQuests]);
+  
+  // Subscribe to conversation changes
+  useEffect(() => {
+    const unsubscribe = ConversationManager.subscribe(() => {
+      console.log('🗨️ DynamicRenderer: Conversation changed, triggering update');
+      setConversationVersion(v => v + 1);
+    });
+    return unsubscribe;
+  }, []);
 
   useEffect(() => {
     startRenderingLoop();
@@ -655,6 +729,57 @@ export function renderOverlay(parentDiv, overlayType) {
   parentDiv.appendChild(overlay);
 }
 
+// Render speech bubble on entity
+function renderSpeechBubble(parentDiv, speakerId, speakerType) {
+  const speech = ConversationManager.getSpeech(speakerId);
+  
+  // Check if bubble already exists with correct content
+  const existingBubble = parentDiv.querySelector('.conversation-speech-bubble');
+  if (existingBubble) {
+    const existingEmoji = existingBubble.querySelector('.speech-emoji')?.textContent;
+    if (!speech) {
+      existingBubble.remove();
+      return;
+    }
+    if (existingEmoji === (speech.topic || speech.emoji)) {
+      return; // Bubble already exists with correct content
+    }
+    existingBubble.remove();
+  }
+  
+  if (!speech) return;
+  
+  const bubble = document.createElement('div');
+  bubble.className = `conversation-speech-bubble ${speakerType}`;
+  bubble.style.position = 'absolute';
+  bubble.style.left = '50%';
+  bubble.style.bottom = '100%';
+  bubble.style.transform = 'translateX(-50%)';
+  bubble.style.marginBottom = '10px';
+  
+  // Scale bubble size based on parent size (which scales with zoom)
+  const parentSize = parseInt(window.getComputedStyle(parentDiv).width);
+  const scale = parentSize / 30 * 0.5; // Base size is 30px, then 50% of that
+  bubble.style.fontSize = `${20 * scale}px`;
+  bubble.style.minWidth = `${70 * scale}px`;
+  bubble.style.minHeight = `${70 * scale}px`;
+  bubble.style.padding = `${12 * scale}px`;
+  bubble.style.borderWidth = `${3 * scale}px`;
+  bubble.style.borderRadius = `${20 * scale}px`;
+  
+  const emojiDiv = document.createElement('div');
+  emojiDiv.className = 'speech-emoji';
+  emojiDiv.textContent = speech.topic || speech.emoji;
+  emojiDiv.style.fontSize = `${32 * scale * 2}px`; // Scale emoji size (compensate for smaller bubble)
+  bubble.appendChild(emojiDiv);
+  
+  parentDiv.appendChild(bubble);
+  
+  // Log detailed position info
+  const bubbleRect = bubble.getBoundingClientRect();
+  const parentRect = parentDiv.getBoundingClientRect();
+}
+
 // React component for overlay content
 export const getOverlayContent = (overlayType) => {
   switch (overlayType) {
@@ -671,8 +796,64 @@ export const getOverlayContent = (overlayType) => {
     case 'inprogress':
       return { emoji: '🕑', color: 'orange' };
     default:
+      // For trade NPCs, the overlayType is the actual trade item symbol
+      if (overlayType && overlayType.length <= 3) {
+        return { emoji: overlayType, color: '#4B9BFF' };
+      }
       return { emoji: '', color: '#888' };
   }
 };
+
+// Render relationship outcome VFX on entity
+function renderRelationshipOutcome(parentDiv, speakerId) {
+  const outcome = ConversationManager.getOutcome(speakerId);
+  
+  // Check if outcome element exists
+  const existingOutcome = parentDiv.querySelector('.relationship-outcome');
+  if (existingOutcome) {
+    if (!outcome) {
+      existingOutcome.remove();
+      return;
+    }
+    // If same type and timestamp, keep it
+    const existingType = existingOutcome.getAttribute('data-outcome-type');
+    const existingTimestamp = existingOutcome.getAttribute('data-timestamp');
+    if (existingType === outcome.type && existingTimestamp === String(outcome.timestamp)) {
+      return;
+    }
+    existingOutcome.remove();
+  }
+  
+  if (!outcome) return;
+  
+  const outcomeDiv = document.createElement('div');
+  outcomeDiv.className = 'relationship-outcome';
+  outcomeDiv.setAttribute('data-outcome-type', outcome.type);
+  outcomeDiv.setAttribute('data-timestamp', String(outcome.timestamp));
+  outcomeDiv.style.position = 'absolute';
+  outcomeDiv.style.left = '50%';
+  outcomeDiv.style.bottom = '100%';
+  outcomeDiv.style.transform = 'translateX(-50%)';
+  outcomeDiv.style.marginBottom = '10px';
+  outcomeDiv.style.pointerEvents = 'none';
+  outcomeDiv.style.zIndex = '1001';
+  
+  // Scale based on parent size (which scales with zoom)
+  const parentSize = parseInt(window.getComputedStyle(parentDiv).width);
+  const scale = parentSize / 30; // Base size is 30px
+  
+  if (outcome.type === 'positive') {
+    outcomeDiv.textContent = '++';
+    outcomeDiv.style.color = '#4CAF50';
+    outcomeDiv.style.fontSize = `${24 * scale}px`;
+    outcomeDiv.style.fontWeight = 'bold';
+    outcomeDiv.style.textShadow = '2px 2px 4px rgba(0,0,0,0.3)';
+  } else {
+    outcomeDiv.textContent = '❌';
+    outcomeDiv.style.fontSize = `${20 * scale}px`;
+  }
+  
+  parentDiv.appendChild(outcomeDiv);
+}
 
 export default DynamicRenderer;

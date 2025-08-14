@@ -21,7 +21,7 @@ import { checkDeveloperStatus } from '../../Utils/appUtils';
 import questCache from '../../Utils/QuestCache';
 import { calculateDistance, getDerivedRange } from '../../Utils/worldHelpers';
 
-const QuestGiverPanel = ({
+const NPCPanel = ({
   onClose,
   npcData,
   inventory,
@@ -42,17 +42,20 @@ const QuestGiverPanel = ({
   const strings = useStrings();
   const [questList, setQuestList] = useState([]);
   const [healRecipes, setHealRecipes] = useState([]);
+  const [tradeRecipes, setTradeRecipes] = useState([]);
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [canQuest, setCanQuest] = useState(false);
   const [questThreshold, setQuestThreshold] = useState(0);
+  const [canTrade, setCanTrade] = useState(false);
+  const [tradeThreshold, setTradeThreshold] = useState(0);
   const [isDeveloper, setIsDeveloper] = useState(false);
 
-  console.log('made it to QuestGiverPanel/Healer; npcData = ', npcData);
+  console.log('made it to NPCPanel/Healer; npcData = ', npcData);
 
   // Ensure npcData has default values
   if (!npcData) {
-    console.warn("QuestGiverPanel was opened with missing npcData.");
+    console.warn("NPCPanel was opened with missing npcData.");
     npcData = { type: "Unknown NPC", symbol: "❓" }; // Provide default fallback values
   }
 
@@ -88,6 +91,26 @@ const QuestGiverPanel = ({
         setCanQuest(true);
       }
     }
+    
+    // Check if player can trade based on relationship
+    if (npcData && npcData.action === 'trade') {
+      const tradeInteraction = masterInteractions.find(interaction => 
+        interaction.interaction === 'Trade' || interaction.interaction === 'trade'
+      );
+      
+      if (tradeInteraction) {
+        setTradeThreshold(tradeInteraction.relscoremin || 0);
+        
+        // Get current relationship status
+        const relationship = getRelationshipStatus(currentPlayer, npcData.type);
+        const currentScore = relationship?.relscore || 0;
+        
+        setCanTrade(currentScore >= tradeInteraction.relscoremin);
+      } else {
+        // If no trade threshold defined, allow trading
+        setCanTrade(true);
+      }
+    }
   }, [masterInteractions, npcData, currentPlayer]);
 
   // Handle quests or healing logic
@@ -104,8 +127,12 @@ const QuestGiverPanel = ({
     } else if (npcData.action === 'heal') {
       const filteredRecipes = masterResources.filter((resource) => resource.type === npcData.type);
       setHealRecipes(filteredRecipes);
+    } else if (npcData.action === 'trade') {
+      const filteredRecipes = masterResources.filter((resource) => resource.source === npcData.type);
+      setTradeRecipes(filteredRecipes);
+      console.log('Filtered trade recipes:', filteredRecipes);
     }
-  }, [npcData, currentPlayer?.activeQuests, currentPlayer?.completedQuests, currentPlayer?.ftuestep]);
+  }, [npcData, currentPlayer?.activeQuests, currentPlayer?.completedQuests, currentPlayer?.ftuestep, masterResources]);
 
   
   ////////////////////////////////////////////////////////////
@@ -354,6 +381,76 @@ const handleHeal = async (recipe) => {
 
   };
 
+  const handleTrade = async (recipe) => {
+    setErrorMessage('');
+    if (!recipe) {
+      setErrorMessage('Invalid recipe selected.');
+      return;
+    }
+
+    const safeInventory = Array.isArray(inventory) ? inventory : [];
+    const safeBackpack = Array.isArray(backpack) ? backpack : [];
+
+    const spent = await spendIngredients({
+      playerId: currentPlayer.playerId,
+      recipe,
+      inventory: safeInventory,
+      backpack: safeBackpack,
+      setInventory,
+      setBackpack,
+      setCurrentPlayer,
+      updateStatus,
+    });
+
+    if (!spent) {
+      setErrorMessage('Not enough ingredients.');
+      return;
+    }
+
+    const quantityToGive = recipe.tradeqty || 1;
+    console.log("Trading recipe:", recipe);
+    console.log("tradeQty in recipe:", recipe.tradeqty);
+
+    const gained = await gainIngredients({
+      playerId: currentPlayer.playerId,
+      currentPlayer,
+      resource: recipe.type,
+      quantity: quantityToGive,
+      inventory: safeInventory,
+      backpack: safeBackpack,
+      setInventory,
+      setBackpack,
+      setCurrentPlayer,
+      updateStatus,
+      masterResources,
+    });
+    
+    if (!gained) {
+      setErrorMessage('Failed to complete trade.');
+      return;
+    }
+
+    // Track quest progress for trading (using 'Collect' action to match quest system)
+    await trackQuestProgress(currentPlayer, 'Collect', recipe.type, quantityToGive, setCurrentPlayer);
+    
+    // Build ingredient list for status message
+    const ingredientList = [];
+    for (let i = 1; i <= 4; i++) {
+      const ingredientType = recipe[`ingredient${i}`];
+      const ingredientQty = recipe[`ingredient${i}qty`];
+      if (ingredientType && ingredientQty) {
+        ingredientList.push(`${ingredientQty} ${ingredientType}`);
+      }
+    }
+    const ingredientString = ingredientList.join(', ');
+    
+    // Show success message
+    updateStatus(`Exchanged ${ingredientString} for ${quantityToGive} ${recipe.type}.`);
+    
+    // Refresh player to update money display
+    await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+  };
+
   const handleSellNPC = async () => {
     if (!npcData || !npcData.id) {
       console.error('Cannot sell NPC: Missing NPC data or ID');
@@ -373,7 +470,7 @@ const handleHeal = async (recipe) => {
 
 
   return (
-    <Panel onClose={onClose} descriptionKey="1013" titleKey="1113" panelName="QuestGiverPanel">
+    <Panel onClose={onClose} descriptionKey="1013" titleKey="1113" panelName="NPCPanel">
 
 {/* //////////////////// QUESTS //////////////////////// */}
 
@@ -387,10 +484,23 @@ const handleHeal = async (recipe) => {
             setCurrentPlayer={setCurrentPlayer}
             targetName={npcData.type}
             targetType="npc"
+            targetEmoji={npcData.symbol}
             showActions={true}
             compact={false}
             masterInteractions={masterInteractions}
             updateStatus={updateStatus}
+            playerPosition={(() => {
+              const gridId = currentPlayer?.location?.g;
+              const playerId = currentPlayer._id?.toString();
+              const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+              return playerInGridState?.position || null;
+            })()}
+            targetPosition={(() => {
+              const gridId = currentPlayer?.location?.g;
+              const npcInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
+              return npcInGrid?.position || null;
+            })()}
+            TILE_SIZE={TILE_SIZE}
             checkDistance={() => {
               // Get player position
               const gridId = currentPlayer?.location?.g;
@@ -409,32 +519,38 @@ const handleHeal = async (recipe) => {
               return distance <= playerRange;
             }}
             onInteractionClick={() => {
-              const wasZoomedOut = zoomLevel !== 'closer';
-              
-              // Zoom to closer if not already
-              if (wasZoomedOut) {
-                setZoomLevel('closer');
-              }
-              
-              // Center camera on player
-              const gridId = currentPlayer?.location?.g;
-              const playerId = currentPlayer._id?.toString();
-              const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
-              if (playerInGridState?.position) {
-                // If we just zoomed in, we need to wait for the zoom to take effect
+              return new Promise((resolve) => {
+                const wasZoomedOut = zoomLevel !== 'closer';
+                
+                // Zoom to closer if not already
                 if (wasZoomedOut) {
-                  // Use setTimeout to ensure zoom has taken effect
+                  setZoomLevel('closer');
+                  // Wait for zoom animation and re-render to complete
                   setTimeout(() => {
-                    // Get the TILE_SIZE for 'closer' zoom from masterResources
-                    const globalTuning = masterResources?.find(r => r.type === 'globalTuning');
-                    const closerTileSize = globalTuning?.closerZoom || 50;
-                    centerCameraOnPlayer(playerInGridState.position, closerTileSize);
+                    // Center camera on player after zoom
+                    const gridId = currentPlayer?.location?.g;
+                    const playerId = currentPlayer._id?.toString();
+                    const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+                    if (playerInGridState?.position) {
+                      // Use a larger tile size for closer zoom (typically 50)
+                      const closerTileSize = masterResources?.find(r => r.type === 'globalTuning')?.closerZoom || 50;
+                      centerCameraOnPlayer(playerInGridState.position, closerTileSize);
+                    }
+                    // Give additional time for camera centering
+                    setTimeout(resolve, 300);
                   }, 100);
                 } else {
-                  // Already at closer zoom, use current TILE_SIZE
-                  centerCameraOnPlayer(playerInGridState.position, TILE_SIZE);
+                  // Already zoomed in, just center camera
+                  const gridId = currentPlayer?.location?.g;
+                  const playerId = currentPlayer._id?.toString();
+                  const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+                  if (playerInGridState?.position) {
+                    // Already at closer zoom, use current TILE_SIZE
+                    centerCameraOnPlayer(playerInGridState.position, TILE_SIZE);
+                  }
+                  resolve();
                 }
-              }
+              });
             }}
             onRelationshipChange={(interaction, success) => {
               // Additional handling if needed after interaction completes
@@ -553,8 +669,158 @@ const handleHeal = async (recipe) => {
         </div>
       )}
 
+{/* //////////////////// TRADING //////////////////////// */}
+
+      {npcData.action === 'trade' && (
+        <div className="trade-options">
+          <h2>{npcData.symbol} {npcData.type}</h2>
+          
+          {/* Relationship Card */}
+          <RelationshipCard
+            currentPlayer={currentPlayer}
+            setCurrentPlayer={setCurrentPlayer}
+            targetName={npcData.type}
+            targetType="npc"
+            targetEmoji={npcData.symbol}
+            showActions={true}
+            compact={false}
+            masterInteractions={masterInteractions}
+            updateStatus={updateStatus}
+            playerPosition={(() => {
+              const gridId = currentPlayer?.location?.g;
+              const playerId = currentPlayer._id?.toString();
+              const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+              return playerInGridState?.position || null;
+            })()}
+            targetPosition={(() => {
+              const gridId = currentPlayer?.location?.g;
+              const npcInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
+              return npcInGrid?.position || null;
+            })()}
+            TILE_SIZE={TILE_SIZE}
+            checkDistance={() => {
+              // Get player position
+              const gridId = currentPlayer?.location?.g;
+              const playerId = currentPlayer._id?.toString();
+              const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+              if (!playerInGridState?.position) return false;
+              
+              // Get NPC position
+              const npcInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
+              if (!npcInGrid?.position) return false;
+              
+              // Calculate distance
+              const distance = calculateDistance(playerInGridState.position, npcInGrid.position);
+              const playerRange = getDerivedRange(currentPlayer, masterResources);
+              
+              return distance <= playerRange;
+            }}
+            onInteractionClick={() => {
+              return new Promise((resolve) => {
+                const wasZoomedOut = zoomLevel !== 'closer';
+                
+                // Zoom to closer if not already
+                if (wasZoomedOut) {
+                  setZoomLevel('closer');
+                  // Wait for zoom animation and re-render to complete
+                  setTimeout(() => {
+                    // Center camera on player after zoom
+                    const gridId = currentPlayer?.location?.g;
+                    const playerId = currentPlayer._id?.toString();
+                    const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+                    if (playerInGridState?.position) {
+                      // Use a larger tile size for closer zoom (typically 50)
+                      const closerTileSize = masterResources?.find(r => r.type === 'globalTuning')?.closerZoom || 50;
+                      centerCameraOnPlayer(playerInGridState.position, closerTileSize);
+                    }
+                    // Give additional time for camera centering
+                    setTimeout(resolve, 300);
+                  }, 100);
+                } else {
+                  // Already zoomed in, just center camera
+                  const gridId = currentPlayer?.location?.g;
+                  const playerId = currentPlayer._id?.toString();
+                  const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+                  if (playerInGridState?.position) {
+                    // Already at closer zoom, use current TILE_SIZE
+                    centerCameraOnPlayer(playerInGridState.position, TILE_SIZE);
+                  }
+                  resolve();
+                }
+              });
+            }}
+            onRelationshipChange={(interaction, success) => {
+              // Additional handling if needed after interaction completes
+            }}
+          />
+          
+          {!canTrade ? (
+            <div></div>
+          ) : (
+            <>
+              <h3>{strings[420]}</h3>
+              {tradeRecipes.length > 0 ? (
+                tradeRecipes.map((recipe) => {
+                  const ingredients = getIngredientDetails(recipe, masterResources);
+                  const affordable = canAfford(recipe, inventory, backpack, 1);
+                  const quantityToGive = recipe.tradeqty || 1;
+
+                  return (
+                    <ResourceButton
+                      key={recipe.type}
+                      symbol={recipe.symbol}
+                      name={recipe.type}
+                      details={`Costs: ${ingredients.join(', ') || 'None'}<br>Gives: ${quantityToGive} ${recipe.type}`}
+                      disabled={!affordable}
+                      onClick={() => handleTrade(recipe)}
+                    />
+                  );
+                })
+              ) : (
+                <p>{strings[423]}</p>
+              )}
+              
+              {/* Trader story text */}
+              {(() => {
+                const storyStringMap = {
+                  Iago: 1201,
+                  Juliet: 1202,
+                  Falstaff: 1203,
+                  Apothecary: 1204,
+                  Gertrude: 1205,
+                  Leontes: 1206,
+                  Caliban: 1207,
+                };
+                
+                if (storyStringMap[npcData.type]) {
+                  return (
+                    <div className="trader-story">
+                      <p>{strings[storyStringMap[npcData.type]]}</p>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+            </>
+          )}
+          
+          {/* Developer option to sell NPC */}
+          {isDeveloper && (
+            <div className="standard-buttons">
+              <button 
+                className="btn-danger" 
+                onClick={handleSellNPC}
+                style={{ width: '100%', padding: '10px' }}
+              >
+                {strings[490]}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
     </Panel>
   );
 };
 
-export default React.memo(QuestGiverPanel);
+export default React.memo(NPCPanel);

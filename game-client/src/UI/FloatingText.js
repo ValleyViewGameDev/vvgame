@@ -19,7 +19,7 @@ const FloatingTextManager = () => {
     useEffect(() => {
         globalForceUpdate = forceUpdate;
         
-        FloatingTextManager.addFloatingText = (message, x, y, TILE_SIZE) => {
+        FloatingTextManager.addFloatingText = (message, x, y, TILE_SIZE, options = {}) => {
             const displayText = typeof message === 'number'
                 ? (strings[message] || `Missing string for code: ${message}`)
                 : message;
@@ -40,7 +40,9 @@ const FloatingTextManager = () => {
                 text: displayText,
                 x: centerX,
                 y: centerY,
-                timestamp: Date.now()
+                timestamp: Date.now(),
+                color: options.color,
+                size: options.size
             });
 
             if (globalForceUpdate) globalForceUpdate();
@@ -52,7 +54,7 @@ const FloatingTextManager = () => {
     
     return createPortal(
         <div className="floating-text-container">
-            {globalFloatingTexts.map(({ id, text, x, y }) => (
+            {globalFloatingTexts.map(({ id, text, x, y, color, size }) => (
                 <div
                     key={id}
                     className="floating-text"
@@ -60,7 +62,9 @@ const FloatingTextManager = () => {
                         position: 'absolute',
                         left: x,
                         top: y - 30,
-                        transform: 'translate(-50%, -50%)'
+                        transform: 'translate(-50%, -50%)',
+                        color: color || undefined,
+                        fontSize: size || undefined
                     }}
                     onAnimationEnd={(e) => {
                         // Immediately hide the element to prevent visual artifacts

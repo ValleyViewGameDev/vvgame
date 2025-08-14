@@ -7,6 +7,7 @@ import { attachEnemyBehavior } from './NPCEnemy';
 import { attachHealBehavior } from './NPCHeal';
 import { attachSpawnBehavior } from './NPCSpawner';
 import { attachFarmerBehavior } from './NPCFarmer';
+import { attachTraderBehavior } from './NPCTrader';
  
 class NPC {
   constructor(id, type, position, properties, gridId) {
@@ -29,7 +30,7 @@ class NPC {
     this.symbol = properties.symbol;
     this.hp = properties.hp || 0; // Use hp as hunger
     this.output = properties.output;
-    this.maxhp = properties.hp || 0;
+    this.maxhp = properties.maxhp || 0;
     this.range = properties.range;
     this.action = properties.action; // High-level behavioral category (e.g., "graze")
     this.state = 'idle'; // Default state
@@ -80,6 +81,10 @@ async processState(NPCsInGrid, gridId, TILE_SIZE) {
         await this.handleQuestGiverBehavior(gridId);
         break;
     
+      case 'trade':
+        await this.handleTraderBehavior(gridId);
+        break;
+
       case 'attack':
         await this.handleEnemyBehavior(gridId, TILE_SIZE);
         break;
@@ -94,6 +99,10 @@ async processState(NPCsInGrid, gridId, TILE_SIZE) {
 
       case 'farmhand':
         await this.handleFarmerBehavior(gridId);
+        break;
+        
+      case 'trade':
+        await this.handleTraderBehavior(gridId);
         break;
 
       case 'steal':
@@ -465,5 +474,6 @@ attachEnemyBehavior(NPC);
 attachHealBehavior(NPC);
 attachSpawnBehavior(NPC);
 attachFarmerBehavior(NPC);
+attachTraderBehavior(NPC);
 
 export default NPC;

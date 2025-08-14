@@ -7,19 +7,25 @@ import {
   generateRelationshipStatusMessage 
 } from './RelationshipUtils';
 import { useStrings } from '../../UI/StringsContext';
+import { playConversation } from './Conversation';
+import ConversationManager from './ConversationManager';
 
 const RelationshipCard = ({ 
   currentPlayer,
   setCurrentPlayer,
   targetName,
   targetType = 'npc', // 'npc' or 'player'
+  targetEmoji = null, // Optional emoji for the target
   onRelationshipChange,
   showActions = true,
   compact = false,
   masterInteractions = [],
   updateStatus,
   checkDistance = null, // Optional function to check if target is in range
-  onInteractionClick = null // Optional function to handle zoom/camera when interaction is clicked
+  onInteractionClick = null, // Optional function to handle zoom/camera when interaction is clicked
+  playerPosition = null, // Player's grid position for conversation
+  targetPosition = null, // Target's grid position for conversation
+  TILE_SIZE = 30 // Tile size for positioning speech bubbles
 }) => {
   const [relationship, setRelationship] = useState(null);
   const [isInitializing, setIsInitializing] = useState(false);
@@ -63,18 +69,18 @@ const RelationshipCard = ({
     
     setIsProcessing(true);
     
-    // Handle zoom and camera centering if callback is provided
-    if (onInteractionClick) {
-      onInteractionClick();
-    }
-    
-    // Check distance if checkDistance function is provided
+    // Check distance first, before any zoom/camera operations
     if (checkDistance && !checkDistance()) {
       if (updateStatus) {
         updateStatus(620); // "You are too far away"
       }
       setIsProcessing(false);
       return;
+    }
+    
+    // Handle zoom and camera centering only after distance check passes
+    if (onInteractionClick) {
+      await onInteractionClick();
     }
     
     // Check if interaction is allowed based on other relationships
@@ -85,6 +91,32 @@ const RelationshipCard = ({
       }
       setIsProcessing(false);
       return;
+    }
+    
+    // Play conversation sequence if positions are provided
+    if (playerPosition && targetPosition) {
+      const playerEmoji = currentPlayer.icon || '😊';
+      const defaultTargetEmoji = targetType === 'npc' ? '🤔' : '😊';
+      const conversationTargetEmoji = targetEmoji || defaultTargetEmoji;
+      
+      // Use player ID for consistent tracking
+      const playerId = currentPlayer._id?.toString() || currentPlayer.playerId;
+      const targetId = targetType === 'npc' ? targetName : targetName; // For NPCs, use name as ID
+      
+      await playConversation(
+        playerPosition,
+        targetPosition,
+        playerEmoji,
+        conversationTargetEmoji,
+        TILE_SIZE,
+        () => {
+          // Conversation complete - continue with interaction
+        },
+        playerId,
+        targetId,
+        interaction,
+        currentPlayer
+      );
     }
     
     // Roll for success based on interaction chance
@@ -254,7 +286,11 @@ const RelationshipCard = ({
           }
         }
       
-        // Here we need to give feedback for successful interaction in a speech bubble above the NPC
+        // Show relationship outcome VFX
+        if (scoreChange !== 0) {
+          const targetId = targetType === 'npc' ? targetName : targetName; // For NPCs, use name as ID
+          ConversationManager.showOutcome(targetId, scoreChange > 0);
+        }
         
       }
     } else {
@@ -298,7 +334,11 @@ const RelationshipCard = ({
         }
       }
       
-      /// Here we need to give feedback for failed interaction in a specch bubble above the NPC
+      // Show relationship outcome VFX for failed interaction
+      if (scoreChange < 0) {
+        const targetId = targetType === 'npc' ? targetName : targetName; // For NPCs, use name as ID
+        ConversationManager.showOutcome(targetId, false);
+      }
     }
     
     // Call the parent's relationship change handler

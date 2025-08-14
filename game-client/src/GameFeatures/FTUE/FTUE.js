@@ -89,16 +89,16 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         // First, add the Trading Post at (29, 32)
         await handleAddTradingPost();
         
-        // Then find Kent NPC and open QuestGiverPanel
+        // Then find Kent NPC and open NPCPanel
         console.log(`🎓 Looking for Kent NPC after FTUE step 5`);
         const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
         if (npcsInGrid) {
           const kentNPC = Object.values(npcsInGrid).find(npc => npc.type === 'Kent');
           if (kentNPC) {
-            console.log(`🎓 Found Kent, opening QuestGiverPanel`);
+            console.log(`🎓 Found Kent, opening NPCPanel`);
             onClose(); // Close FTUE modal first
             setActiveQuestGiver(kentNPC); // Set Kent as the active quest giver
-            openPanel('QuestGiverPanel'); // Open the quest giver panel
+            openPanel('NPCPanel'); // Open the quest giver panel
           } else {
             console.log(`⚠️ Kent NPC not found in grid`);
             onClose(); // Still close FTUE modal

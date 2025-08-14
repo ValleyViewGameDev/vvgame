@@ -318,3 +318,13 @@
   background-color: #dc3545;
   color: white;
 }
+
+/* Trader story text styling */
+.trader-story {
+  margin-top: 16px;
+  font-style: italic;
+  color: #555;
+  font-size: 1.2rem;
+  line-height: 1.2;
+  font-family: 'Baskerville', serif;
+}
