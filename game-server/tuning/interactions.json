@@ -96,7 +96,8 @@
     "chance": 0.5,
     "relscoreresult": 12,
     "rounds": 1,
-    "playertopic1": "emoji_hug"
+    "playertopic1": "emoji_hug",
+    "npctopic1": "emoji_blush"
   },
   {
     "index": 11,
@@ -197,7 +198,9 @@
     "relbitrequired": "crush",
     "chance": 0.5,
     "relscoreresult": 15,
-    "rounds": 1
+    "rounds": 1,
+    "playertopic1": "emoji_kiss",
+    "npctopic1": "emoji_blush"
   },
   {
     "index": 17,
