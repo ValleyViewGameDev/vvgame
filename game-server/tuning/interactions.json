@@ -49,7 +49,9 @@
     "chance": 1,
     "relscoreresult": 10,
     "relbitadd": "met",
-    "rounds": 1
+    "rounds": 1,
+    "playertopic1": "player",
+    "npctopic1": "npc"
   },
   {
     "index": 8,
