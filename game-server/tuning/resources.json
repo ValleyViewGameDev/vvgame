@@ -5455,6 +5455,25 @@
     "ingredient1qty": 100
   },
   {
+    "type": "Stack of Books",
+    "symbol": "📚",
+    "layoutkey": "Bo",
+    "category": "deco",
+    "source": "Deco",
+    "passable": true,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 1000
+  },
+  {
     "type": "Chair",
     "symbol": "🪑",
     "layoutkey": "Ch",
@@ -5504,12 +5523,52 @@
     "validond": true,
     "validons": true,
     "validonp": true,
-    "validonw": true,
+    "validonw": false,
     "validonl": false,
     "validonn": true,
     "validono": true,
     "ingredient1": "Money",
     "ingredient1qty": 7500
+  },
+  {
+    "type": "Big Hole",
+    "symbol": "🕳️",
+    "layoutkey": "BH",
+    "category": "deco",
+    "source": "Deco",
+    "passable": false,
+    "qtycollected": 1,
+    "range": 3,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 15000
+  },
+  {
+    "type": "Slide",
+    "symbol": "🛝",
+    "layoutkey": "Sl",
+    "category": "deco",
+    "source": "Deco",
+    "passable": true,
+    "qtycollected": 1,
+    "range": 2,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": true,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 15000
   },
   {
     "type": "Fountain",
@@ -5528,7 +5587,7 @@
     "validonn": true,
     "validono": true,
     "ingredient1": "Money",
-    "ingredient1qty": 5000
+    "ingredient1qty": 10000
   },
   {
     "type": "Fountain Large",
@@ -5548,6 +5607,26 @@
     "validonn": true,
     "validono": true,
     "ingredient1": "Money",
-    "ingredient1qty": 10000
+    "ingredient1qty": 20000
+  },
+  {
+    "type": "Large Decorative Palm Tree",
+    "symbol": "🌴",
+    "layoutkey": "P2",
+    "category": "deco",
+    "source": "Deco",
+    "passable": true,
+    "qtycollected": 1,
+    "range": 2,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 40000
   }
 ]
