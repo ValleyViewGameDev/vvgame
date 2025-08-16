@@ -2,6 +2,7 @@ import API_BASE from '../config';
 import axios from 'axios';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { changePlayerLocation } from './GridManagement';
+import { fetchHomesteadSignpostPosition } from './worldHelpers';
 
 export const modifyPlayerStatsInGridState = async (statToMod, amountToMod, playerId, gridId) => {
   try {
@@ -114,10 +115,14 @@ export const handlePlayerDeath = async (
 
   try {
     const currentGridId = player.location.g;
+    
+    // Fetch the Signpost Town position from the homestead grid
+    const signpostPosition = await fetchHomesteadSignpostPosition(player.gridId);
+    
     // Determine respawn grid and coordinates
     const targetLocation = {
-      x: 1,
-      y: 1,
+      x: signpostPosition.x,
+      y: signpostPosition.y,
       g: player.gridId !== currentGridId ? player.gridId : currentGridId,
       s: player.settlementId,
       gtype: "homestead",

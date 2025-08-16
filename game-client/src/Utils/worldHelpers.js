@@ -1,6 +1,60 @@
 import API_BASE from '../config';
 import axios from 'axios';
 import { loadMasterResources } from './TuningManager';
+
+/**
+ * Fetches the Signpost Town position from a homestead grid
+ * @param {string} gridId - The homestead grid ID
+ * @returns {Promise<{x: number, y: number}>} The x,y coordinates of Signpost Town, or default {x: 1, y: 1}
+ */
+export const fetchHomesteadSignpostPosition = async (gridId) => {
+  try {
+    const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${gridId}`);
+    const gridData = gridResponse.data;
+    
+    if (gridData.resources && Array.isArray(gridData.resources)) {
+      const signpostTown = gridData.resources.find(res => res.type === "Signpost Town");
+      if (signpostTown) {
+        console.log(`✅ Found Signpost Town at (${signpostTown.x}, ${signpostTown.y}) on homestead grid ${gridId}`);
+        return { x: signpostTown.x, y: signpostTown.y };
+      } else {
+        console.log(`⚠️ Signpost Town not found on homestead grid ${gridId}, using default (1, 1)`);
+      }
+    }
+  } catch (error) {
+    console.error(`❌ Error fetching homestead grid data for grid ${gridId}:`, error);
+  }
+  
+  // Return default position if not found or error
+  return { x: 1, y: 1 };
+};
+
+/**
+ * Fetches the Signpost Home position from a town grid
+ * @param {string} gridId - The town grid ID
+ * @returns {Promise<{x: number, y: number}>} The x,y coordinates of Signpost Home, or default {x: 0, y: 0}
+ */
+export const fetchTownSignpostPosition = async (gridId) => {
+  try {
+    const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${gridId}`);
+    const gridData = gridResponse.data;
+    
+    if (gridData.resources && Array.isArray(gridData.resources)) {
+      const signpostHome = gridData.resources.find(res => res.type === "Signpost Home");
+      if (signpostHome) {
+        console.log(`✅ Found Signpost Home at (${signpostHome.x}, ${signpostHome.y}) on town grid ${gridId}`);
+        return { x: signpostHome.x, y: signpostHome.y };
+      } else {
+        console.log(`⚠️ Signpost Home not found on town grid ${gridId}, using default (0, 0)`);
+      }
+    }
+  } catch (error) {
+    console.error(`❌ Error fetching town grid data for grid ${gridId}:`, error);
+  }
+  
+  // Return default position if not found or error
+  return { x: 0, y: 0 };
+};
  
 export const fetchHomesteadOwner = async (gridId) => {
   try {

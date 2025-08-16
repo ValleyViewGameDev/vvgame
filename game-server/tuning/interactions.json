@@ -62,7 +62,7 @@
     "relscoremax": 100,
     "relbitrequired": "met",
     "chance": 0.9,
-    "relscoreresult": 5,
+    "relscoreresult": 8,
     "rounds": 3,
     "playertopic1": "interest",
     "playertopic2": "npc",
@@ -144,13 +144,11 @@
     "chance": 0.6,
     "relscoreresult": 10,
     "relbitadd": "crush",
-    "rounds": 3,
+    "rounds": 2,
     "playertopic1": "npc",
-    "playertopic2": "random",
-    "playertopic3": "interest",
+    "playertopic2": "interest",
     "npctopic1": "player",
-    "npctopic2": "emoji_blush",
-    "npctopic3": "emoji_pinkheart"
+    "npctopic2": "emoji_blush"
   },
   {
     "index": 14,
@@ -165,13 +163,11 @@
     "chance": 0.4,
     "relscoreresult": 15,
     "relbitadd": "crush",
-    "rounds": 3,
+    "rounds": 2,
     "playertopic1": "npc",
-    "playertopic2": "random",
-    "playertopic3": "interest",
+    "playertopic2": "interest",
     "npctopic1": "player",
-    "npctopic2": "emoji_blush",
-    "npctopic3": "random"
+    "npctopic2": "emoji_blush"
   },
   {
     "index": 15,

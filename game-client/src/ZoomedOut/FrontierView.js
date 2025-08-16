@@ -4,6 +4,7 @@ import axios from "axios";
 import "./FrontierView.css";
 import { StatusBarContext } from "../UI/StatusBar";
 import { changePlayerLocation } from "../Utils/GridManagement";
+import { fetchHomesteadSignpostPosition } from "../Utils/worldHelpers";
 import frontierTileData from './FrontierTile.json';
 import { getGridBackgroundColor } from './ZoomedOut';
 
@@ -100,31 +101,11 @@ const FrontierView = ({
             console.log("Traveling to owned homestead:", ownedHomestead);
             
             // Fetch the homestead grid data to find Signpost Town location
-            let arrivalX = 0;
-            let arrivalY = 0;
-            
-            try {
-              const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${ownedHomestead.gridId}`);
-              const gridData = gridResponse.data;
-              
-              if (gridData.resources && Array.isArray(gridData.resources)) {
-                const signpostTown = gridData.resources.find(res => res.type === "Signpost Town");
-                if (signpostTown) {
-                  arrivalX = signpostTown.x;
-                  arrivalY = signpostTown.y;
-                  console.log(`✅ Found Signpost Town at (${arrivalX}, ${arrivalY}) on homestead grid`);
-                } else {
-                  console.log("⚠️ Signpost Town not found on homestead grid, using default (0, 0)");
-                }
-              }
-            } catch (error) {
-              console.error("❌ Error fetching homestead grid data:", error);
-              // Continue with default position
-            }
+            const signpostPosition = await fetchHomesteadSignpostPosition(ownedHomestead.gridId);
             
             const toLocation = {
-              x: arrivalX,  
-              y: arrivalY,
+              x: signpostPosition.x,  
+              y: signpostPosition.y,
               g: ownedHomestead.gridId, 
               s: tile.settlementId, 
               f: currentPlayer.location.f,

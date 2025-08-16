@@ -142,25 +142,35 @@ const NPCPanel = ({
       // Use cached quests instead of direct API call
       const allQuests = await questCache.getQuests();
 
-      
       // Use new quest filtering logic
       let npcQuests = allQuests
         .filter((quest) => quest.giver === npcData.type)
         .filter((quest) => {
           const activeQuest = currentPlayer.activeQuests.find(q => q.questId === quest.title);
-          const isInCompleted = currentPlayer.completedQuests.some(q => q.questId === quest.title);
-          
-          
+          const isInCompleted = currentPlayer.completedQuests.some(q => q.questId === quest.title);        
           if (activeQuest) {
             const shouldShow = activeQuest.completed && !activeQuest.rewardCollected;
             return shouldShow;
-          }
-          
+          }          
           const shouldShow = (quest.repeatable === true || quest.repeatable === 'true') || !isInCompleted;
           return shouldShow;
         });
 
-      
+      // Filter by relationship requirements
+      const relationship = currentPlayer.relationships?.find(rel => rel.name === npcData.type);
+      npcQuests = npcQuests.filter((quest) => {
+        // Check if quest has relationship requirements
+        if (quest.rel || quest.relscore) {
+          // If no relationship exists with this NPC, exclude the quest
+          if (!relationship) return false;
+          // Check relationship status requirement
+          if (quest.rel && relationship[quest.rel] !== true) { return false; }
+          // Check relationship score requirement
+          if (quest.relscore && (relationship.relscore || 0) < quest.relscore) { return false; }
+        }
+        return true;
+      });
+
       // Filter by FTUE step only if player is a first-time user
       if (currentPlayer.firsttimeuser === true) {
         // Apply FTUE filtering to the already-filtered npcQuests, not the original response.data
@@ -182,7 +192,6 @@ const NPCPanel = ({
           }
         });
       }
-
       setQuestList(npcQuests);
     } catch (error) {
       console.error('Error fetching quests:', error);
@@ -407,10 +416,26 @@ const handleHeal = async (recipe) => {
       return;
     }
 
-    const quantityToGive = recipe.tradeqty || 1;
-    console.log("Trading recipe:", recipe);
-    console.log("tradeQty in recipe:", recipe.tradeqty);
-
+    let quantityToGive = recipe.tradeqty || 1;
+    let bonusMessage = '';
+    
+    // Check relationship and apply bonuses
+    const relationship = currentPlayer.relationships?.find(rel => rel.name === npcData.type);
+    if (relationship) {
+      let multiplier = 1;
+      
+      // Apply bonuses based on relationship status
+      if (relationship.love === true) {
+        multiplier = 2;
+        bonusMessage = ' Bonus for being in love!';
+      } else if (relationship.married === true) {
+        multiplier = 3;
+        bonusMessage = ' Bonus for being married!';
+      }
+      
+      quantityToGive = Math.floor(quantityToGive * multiplier);
+    }
+    
     const gained = await gainIngredients({
       playerId: currentPlayer.playerId,
       currentPlayer,
@@ -444,8 +469,8 @@ const handleHeal = async (recipe) => {
     }
     const ingredientString = ingredientList.join(', ');
     
-    // Show success message
-    updateStatus(`Exchanged ${ingredientString} for ${quantityToGive} ${recipe.type}.`);
+    // Show success message with bonus if applicable
+    updateStatus(`Exchanged ${ingredientString} for ${quantityToGive} ${recipe.type}.${bonusMessage}`);
     
     // Refresh player to update money display
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
@@ -489,6 +514,7 @@ const handleHeal = async (recipe) => {
             compact={false}
             masterInteractions={masterInteractions}
             updateStatus={updateStatus}
+            masterResources={masterResources}
             playerPosition={(() => {
               const gridId = currentPlayer?.location?.g;
               const playerId = currentPlayer._id?.toString();
@@ -686,6 +712,7 @@ const handleHeal = async (recipe) => {
             compact={false}
             masterInteractions={masterInteractions}
             updateStatus={updateStatus}
+            masterResources={masterResources}
             playerPosition={(() => {
               const gridId = currentPlayer?.location?.g;
               const playerId = currentPlayer._id?.toString();

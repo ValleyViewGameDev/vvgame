@@ -13,7 +13,8 @@ export const playConversation = async (
   playerId = null,
   npcId = null,
   interaction = null,
-  currentPlayer = null
+  currentPlayer = null,
+  masterResources = null
 ) => {
   console.log('🗨️ playConversation started:', { playerPosition, npcPosition, playerEmoji, npcEmoji, playerId, npcId, interaction });
   
@@ -42,8 +43,17 @@ export const playConversation = async (
     playerIcon: currentPlayer?.icon || playerEmoji,
     npcIcon: npcEmoji,
     currentPlayer: currentPlayer,
-    interaction: interaction
+    interaction: interaction,
+    masterResources: masterResources
   };
+  
+  // Add relationship score if it exists
+  if (currentPlayer?.relationships && npcId) {
+    const relationship = currentPlayer.relationships.find(rel => rel.name === npcId);
+    if (relationship) {
+      topicContext.relscore = relationship.relscore;
+    }
+  }
   
   // Play conversation sequence
   for (let i = 0; i < numExchanges; i++) {
@@ -52,7 +62,7 @@ export const playConversation = async (
     // Player speaks - use provided ID or position-based ID
     const playerSpeakerId = playerId || `player_${Math.floor(playerPosition.x)}_${Math.floor(playerPosition.y)}`;
     const playerTopicKey = interaction?.[`playertopic${roundNum}`];
-    const playerTopic = playerTopicKey ? getTopicSymbol(playerTopicKey, topicContext) : '💭';
+    const playerTopic = playerTopicKey ? getTopicSymbol(playerTopicKey, topicContext, true) : '💭';
     
     await showSpeech('player', playerSpeakerId, playerEmoji, playerTopic);
     await animateCharacter('player', playerPosition, getCurrentTileSize());
@@ -64,7 +74,7 @@ export const playConversation = async (
     // NPC responds - use provided ID or position-based ID
     const npcSpeakerId = npcId || `npc_${Math.floor(npcPosition.x)}_${Math.floor(npcPosition.y)}`;
     const npcTopicKey = interaction?.[`npctopic${roundNum}`];
-    const npcTopic = npcTopicKey ? getTopicSymbol(npcTopicKey, topicContext) : '💭';
+    const npcTopic = npcTopicKey ? getTopicSymbol(npcTopicKey, topicContext, false) : '💭';
     
     await showSpeech('npc', npcSpeakerId, npcEmoji, npcTopic);
     await animateCharacter('npc', npcPosition, getCurrentTileSize());
@@ -90,7 +100,7 @@ export const getConversationTopic = (interaction, relationship) => {
 };
 
 // Convert topic key to actual symbol/emoji
-export const getTopicSymbol = (topicKey, context = {}) => {
+export const getTopicSymbol = (topicKey, context = {}, isPlayerTurn = false) => {
   if (!topicKey) return '❓'; // Default fallback
   
   // Handle emoji shortcuts
@@ -132,7 +142,32 @@ export const getTopicSymbol = (topicKey, context = {}) => {
       return context.npcIcon || '🤔';
       
     case 'interest':
-      // TODO: Add logic for showing player's current interest
+      // Show player's top resources from inventory/backpack
+      if (isPlayerTurn && context.currentPlayer && context.masterResources) {
+        const inventory = context.currentPlayer.inventory || [];
+        const backpack = context.currentPlayer.backpack || [];
+        
+        // Combine inventory and backpack items
+        const allItems = [...inventory, ...backpack];
+        
+        // Sort by quantity and get top 3 (excluding Money)
+        const topItems = allItems
+          .filter(item => item.type !== 'Money')
+          .sort((a, b) => b.quantity - a.quantity)
+          .slice(0, 5)
+          .map(item => {
+            const resource = context.masterResources.find(r => r.type === item.type);
+            return resource?.symbol || item.type;
+          })
+          .filter(symbol => symbol); // Remove any undefined
+        
+        // Return random item from top 3, or fallback
+        if (topItems.length > 0) {
+          return topItems[Math.floor(Math.random() * topItems.length)];
+        }
+      }
+      
+      // Fallback to default interests
       const interests = ['🎨', '📚', '🛶', '🔬', '🪉', '⛺', '💰'];
       return interests[Math.floor(Math.random() * interests.length)];
 
@@ -142,13 +177,14 @@ export const getTopicSymbol = (topicKey, context = {}) => {
       
     case 'random':
       // TODO: Add random topic selection
-      const randomTopics = ['🚂', '🚜', '👩‍🌾', '🐺', '🐻'];
-      return randomTopics[Math.floor(Math.random() * randomTopics.length)];
-      
-    case 'random_secret':
-      // TODO: Add random topic selection
-      const secretTopics = ['🧝‍♀️', '🐲', '🧌', '💍', '👻', '🔱', '🎪', '🦄', '🔑', '🖼️'];
-      return secretTopics[Math.floor(Math.random() * secretTopics.length)];
+      if (context.relscore > 80) {
+        // If relscore is high, use secret topics
+        const secretTopics = ['🧝‍♀️', '🐲', '🧌', '💍', '👻', '🔱', '🎪', '🦄', '🔑', '🖼️'];
+        return secretTopics[Math.floor(Math.random() * secretTopics.length)];
+      } else {
+        const randomTopics = ['🚂', '🚜', '👩‍🌾', '🐺', '🐻'];
+        return randomTopics[Math.floor(Math.random() * randomTopics.length)];
+      };
 
       case 'quest':
       return '✅';

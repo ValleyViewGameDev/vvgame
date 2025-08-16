@@ -25,7 +25,8 @@ const RelationshipCard = ({
   onInteractionClick = null, // Optional function to handle zoom/camera when interaction is clicked
   playerPosition = null, // Player's grid position for conversation
   targetPosition = null, // Target's grid position for conversation
-  TILE_SIZE = 30 // Tile size for positioning speech bubbles
+  TILE_SIZE = 30, // Tile size for positioning speech bubbles
+  masterResources = [] // Master resources for topic resolution
 }) => {
   const [relationship, setRelationship] = useState(null);
   const [isInitializing, setIsInitializing] = useState(false);
@@ -115,7 +116,8 @@ const RelationshipCard = ({
         playerId,
         targetId,
         interaction,
-        currentPlayer
+        currentPlayer,
+        masterResources
       );
     }
     

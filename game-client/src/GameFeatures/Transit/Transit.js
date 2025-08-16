@@ -3,7 +3,7 @@ import axios from "axios";
 import { changePlayerLocation } from "../../Utils/GridManagement";
 import { getEntryPosition } from './transitConfig';
 import playersInGridManager from "../../GridState/PlayersInGrid";
-import { fetchHomesteadOwner } from "../../Utils/worldHelpers";
+import { fetchHomesteadOwner, fetchHomesteadSignpostPosition, fetchTownSignpostPosition } from "../../Utils/worldHelpers";
 import { updateGridStatus } from "../../Utils/GridManagement";
 import { incrementFTUEStep } from "../FTUE/FTUE";
 
@@ -56,27 +56,11 @@ export async function handleTransitSignpost(
       
       // Fetch the homestead grid data to find Signpost Town location
       try {
-        const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${currentPlayer.gridId}`);
-        const gridData = gridResponse.data;
-        
-        // Find the Signpost Town resource
-        let signpostX = 0;
-        let signpostY = 0;
-        
-        if (gridData.resources && Array.isArray(gridData.resources)) {
-          const signpostTown = gridData.resources.find(res => res.type === "Signpost Town");
-          if (signpostTown) {
-            signpostX = signpostTown.x;
-            signpostY = signpostTown.y;
-            console.log(`✅ Found Signpost Town at (${signpostX}, ${signpostY}) on homestead grid`);
-          } else {
-            console.log("⚠️ Signpost Town not found on homestead grid, using default (0, 0)");
-          }
-        }
+        const signpostPosition = await fetchHomesteadSignpostPosition(currentPlayer.gridId);
         
         const newPlayerPosition = {
-          x: signpostX,
-          y: signpostY,
+          x: signpostPosition.x,
+          y: signpostPosition.y,
           g: currentPlayer.gridId,      // The player's homestead grid
           s: currentPlayer.settlementId,
           f: currentPlayer.location.f,
@@ -123,27 +107,11 @@ export async function handleTransitSignpost(
       
       // Fetch the town grid data to find Signpost Home location
       try {
-        const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${townGrid.gridId}`);
-        const gridData = gridResponse.data;
-        
-        // Find the Signpost Home resource
-        let signpostX = 0;
-        let signpostY = 0;
-        
-        if (gridData.resources && Array.isArray(gridData.resources)) {
-          const signpostHome = gridData.resources.find(res => res.type === "Signpost Home");
-          if (signpostHome) {
-            signpostX = signpostHome.x;
-            signpostY = signpostHome.y;
-            console.log(`✅ Found Signpost Home at (${signpostX}, ${signpostY}) on town grid`);
-          } else {
-            console.log("⚠️ Signpost Home not found on town grid, using default (0, 0)");
-          }
-        }
+        const signpostPosition = await fetchTownSignpostPosition(townGrid.gridId);
         
         const newPlayerPosition = {
-          x: signpostX,
-          y: signpostY,
+          x: signpostPosition.x,
+          y: signpostPosition.y,
           g: townGrid.gridId,
           s: settlementId,
           f: frontierId,
