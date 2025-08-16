@@ -92,7 +92,7 @@ import { StatusBarContext } from './UI/StatusBar';
 import { formatCountdown } from './UI/Timers';
 
 import { fetchGridData, updateGridStatus } from './Utils/GridManagement';
-import { handleKeyMovement, centerCameraOnPlayer } from './PlayerMovement';
+import { handleKeyMovement, centerCameraOnPlayer, centerCameraOnPlayerFast } from './PlayerMovement';
 import { mergeResources, mergeTiles, enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
@@ -1116,10 +1116,9 @@ const zoomIn = async () => {
     setZoomLevel('settlement'); // Zoom into the settlement view
     updateStatus(12); // "Settlement view."
   } else if (zoomLevel === 'settlement') {
+    centerCameraOnPlayerFast(playerPos, TILE_SIZES.far); 
     setZoomLevel('far'); // Zoom into the grid view
     const { username, gridType } = await fetchHomesteadOwner(gridId);
-    // New logic to center camera on player using PlayersInGrid
-    centerCameraOnPlayer(playerPos, TILE_SIZES.far); // <- hardcode the *target* zoom level
 
     if (gridType === 'town') {
       updateStatus(14);
@@ -1141,15 +1140,15 @@ const zoomIn = async () => {
     }
 
   } else if (zoomLevel === 'far') {
+    setTimeout(() => {
+      centerCameraOnPlayerFast(playerPos, TILE_SIZES.close);
+    }, 50); // Allow brief render before scrolling
     setZoomLevel('close'); // Zoom into a detailed view
-    setTimeout(() => {
-      centerCameraOnPlayer(playerPos, TILE_SIZES.close);
-    }, 50); // Allow brief render before scrolling
   } else if (zoomLevel === 'close') {
-    setZoomLevel('closer');
     setTimeout(() => {
-      centerCameraOnPlayer(playerPos, TILE_SIZES.closer);
+      centerCameraOnPlayerFast(playerPos, TILE_SIZES.closer);
     }, 50); // Allow brief render before scrolling
+    setZoomLevel('closer');
   }
 };
 
@@ -1162,12 +1161,12 @@ const zoomOut = () => {
   if (zoomLevel === 'closer') {
     setZoomLevel('close');
     setTimeout(() => {
-      centerCameraOnPlayer(playerPos, TILE_SIZES.close);
+      centerCameraOnPlayerFast(playerPos, TILE_SIZES.close);
     }, 50); // Allow brief render before scrolling
   } else if (zoomLevel === 'close') {
     setZoomLevel('far'); // Zoom out to grid view
     setTimeout(() => {
-      centerCameraOnPlayer(playerPos, TILE_SIZES.far);
+      centerCameraOnPlayerFast(playerPos, TILE_SIZES.far);
     }, 50); // Allow brief render before scrolling
   } else if (zoomLevel === 'far') {
     setZoomLevel('settlement'); // Zoom out to settlement view

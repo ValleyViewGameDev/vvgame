@@ -177,6 +177,31 @@ export function centerCameraOnPlayer(position, TILE_SIZE) {
 }
 
 
+export function centerCameraOnPlayerFast(position, TILE_SIZE) {
+  const gameContainer = document.querySelector(".homestead");
+  if (!gameContainer) return;
+
+  const LEFT_PANEL_WIDTH = 300;  // Scaled with zoom level
+  const HEADER_HEIGHT = 200;     // Same
+
+  const centerX = position.x * TILE_SIZE - (window.innerWidth - LEFT_PANEL_WIDTH) / 2;
+  const centerY = position.y * TILE_SIZE - (window.innerHeight - HEADER_HEIGHT) / 2;
+
+  // Clamp scroll positions so we don't scroll beyond the container's bounds
+  const maxScrollLeft = gameContainer.scrollWidth - gameContainer.clientWidth;
+  const maxScrollTop = gameContainer.scrollHeight - gameContainer.clientHeight;
+
+  const clampedX = Math.max(0, Math.min(centerX, maxScrollLeft));
+  const clampedY = Math.max(0, Math.min(centerY, maxScrollTop));
+
+  gameContainer.scrollTo({
+    left: clampedX,
+    top: clampedY,
+  });
+
+  console.log(`📷 Camera centered on player at (${position.x}, ${position.y})`);
+}
+
 export function isTileValidForPlayer(x, y, tiles, resources, masterResources, currentPlayer = null) {
   x = Math.floor(x);
   y = Math.floor(y);

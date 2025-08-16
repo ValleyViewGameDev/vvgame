@@ -761,11 +761,11 @@ function renderSpeechBubble(parentDiv, speakerId, speakerType) {
   const parentSize = parseInt(window.getComputedStyle(parentDiv).width);
   const scale = parentSize / 30 * 0.5; // Base size is 30px, then 50% of that
   bubble.style.fontSize = `${20 * scale}px`;
-  bubble.style.minWidth = `${70 * scale}px`;
-  bubble.style.minHeight = `${70 * scale}px`;
-  bubble.style.padding = `${12 * scale}px`;
+  bubble.style.width = `${80 * scale}px`;
+  bubble.style.height = `${80 * scale}px`;
+  bubble.style.padding = `${15 * scale}px`;
   bubble.style.borderWidth = `${3 * scale}px`;
-  bubble.style.borderRadius = `${20 * scale}px`;
+  // Don't set borderRadius here - let CSS handle it for the circular shape
   
   const emojiDiv = document.createElement('div');
   emojiDiv.className = 'speech-emoji';
@@ -843,8 +843,8 @@ function renderRelationshipOutcome(parentDiv, speakerId) {
   const scale = parentSize / 30; // Base size is 30px
   
   if (outcome.type === 'positive') {
-    outcomeDiv.textContent = '++';
-    outcomeDiv.style.color = '#4CAF50';
+    outcomeDiv.textContent = '👍';
+    outcomeDiv.style.color = 'rgb(252, 249, 249)';
     outcomeDiv.style.fontSize = `${24 * scale}px`;
     outcomeDiv.style.fontWeight = 'bold';
     outcomeDiv.style.textShadow = '2px 2px 4px rgba(0,0,0,0.3)';
