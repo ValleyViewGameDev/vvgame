@@ -366,7 +366,7 @@ const FarmHouse = ({
     } catch (error) {
       console.error('Error in protected crafting collection:', error);
       if (error.response?.status === 429) {
-        updateStatus('⚠️ Already in progress');
+        updateStatus(471);
       } else {
         updateStatus(454);
       }

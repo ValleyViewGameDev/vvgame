@@ -132,8 +132,7 @@ const SettlementView = ({
         updateStatus(111);
       } else {
         const { username, gridType } = await fetchHomesteadOwner(currentPlayer.location.g);
-        if (username === currentPlayer.username) { updateStatus(112) }
-        else { updateGridStatus(gridType, username, updateStatus) };
+        await updateGridStatus(gridType, username, updateStatus, currentPlayer, currentPlayer.location.g);
       }
       let pcs = null;
       let pc = null;

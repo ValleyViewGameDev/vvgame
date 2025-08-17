@@ -301,8 +301,6 @@ export async function handleTransitSignpost(
       updateStatus,
       bulkOperationContext
     );
-    const { username, gridType } = await fetchHomesteadOwner(newPlayerPosition.g);
-    updateGridStatus(gridType, username, updateStatus);
 
     console.log(`Player moved to grid ID: ${targetGrid.gridId}`);
   } catch (error) {

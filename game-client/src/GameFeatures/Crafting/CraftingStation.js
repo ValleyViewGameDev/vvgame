@@ -351,7 +351,7 @@ const CraftingStation = ({
     } catch (error) {
       console.error('Error in protected crafting collection:', error);
       if (error.response?.status === 429) {
-        updateStatus('⚠️ Collection already in progress');
+        updateStatus(471);
       } else {
         updateStatus('❌ Failed to collect item');
       }

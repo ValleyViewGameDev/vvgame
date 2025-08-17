@@ -75,7 +75,7 @@ async function handleProtectedFarmAnimalCollection(
     console.error('Error in protected farm animal collection:', error);
     
     if (error.response?.status === 429) {
-      updateStatus('⚠️ Collection already in progress');
+      updateStatus(471);
       return { type: 'error', message: 'Collection already in progress' };
     } else if (error.response?.status === 400) {
       updateStatus('❌ Animal not ready for collection');

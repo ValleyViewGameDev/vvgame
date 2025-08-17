@@ -663,7 +663,9 @@
 
         "11000": "ADDED STRINGS:",
 
-    "620": "You need to move closer to interact with this character."
+    "620": "You need to move closer to interact with this character.",
+    "470": "Cannot travel right now, farming actions in progress.",
+    "471": "⚠️ Already in progress."
 
   }
 

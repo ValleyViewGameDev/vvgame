@@ -1128,11 +1128,7 @@ const zoomIn = async () => {
       updateStatus(16);
     } else if (gridType === 'homestead') {
       if (username) {
-        if (username === currentPlayer.username) {
-          updateStatus(112);
-        } else {
-          updateGridStatus(gridType, username, updateStatus);
-        }
+        await updateGridStatus(gridType, username, updateStatus, currentPlayer, currentPlayer.location.g);
       } else {
         updateStatus('This homestead is unoccupied.');
       }
@@ -1274,8 +1270,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       // Check if any bulk operation is active
       if (bulkOperationContext?.isAnyBulkOperationActive?.()) {
         const activeOps = bulkOperationContext.getActiveBulkOperations();
-        console.log('🚫 Travel blocked: Bulk operation in progress', activeOps);
-        FloatingTextManager.addFloatingText("Bulk operation in progress", resource.x, resource.y, activeTileSize);
+        updateStatus(470);
         return;
       }
       

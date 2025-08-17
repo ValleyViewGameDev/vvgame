@@ -112,10 +112,10 @@ export const changePlayerLocation = async (
   
   // Check if any bulk operation is active
   if (bulkOperationContext?.isAnyBulkOperationActive?.()) {
-    const activeOps = bulkOperationContext.getActiveBulkOperations();
-    //console.log('🚫 Travel blocked: Bulk operation in progress', activeOps);
+    // const activeOps = bulkOperationContext.getActiveBulkOperations();
+    // console.log('🚫 Travel blocked: Bulk operation in progress', activeOps);
     if (updateStatus) {
-      updateStatus("Travel blocked: Bulk operation in progress");
+      updateStatus(470); // "Bulk operation in progress"
     }
     return false;
   }
@@ -247,7 +247,7 @@ export const changePlayerLocation = async (
     if (!locationResponse.data.success) {
       throw new Error(locationResponse.data.error);
     }
-    console.log('✅ Player location updated in DB');
+    //console.log('✅ Player location updated in DB');
 
     // ✅ STEP 8: Update local state
     //console.log('4️⃣ Updating local Player Document...');
@@ -352,6 +352,11 @@ export const changePlayerLocation = async (
 
     centerCameraOnPlayer({ x: finalX, y: finalY }, TILE_SIZE);
 
+    // ✅ STEP 13: Update status bar with new grid info
+    if (updateStatus && toLocation.gtype) {
+      await updateGridStatus(toLocation.gtype, null, updateStatus, currentPlayer, toLocation.g);
+    }
+
     console.log('✅ Location change complete');
   } catch (error) {
     console.error('❌ Location change error:', error);
@@ -379,16 +384,6 @@ export async function fetchGridData(gridId, updateStatus, DBPlayerData) {
       npcs: NPCsInGrid?.npcs || {},
     };
 
-    if (["valley0", "valley1", "valley2", "valley3"].includes(gridType)) {
-        updateStatus(16);
-      } else if (gridType === "town") {
-        updateStatus(111);
-      } else {
-        const { username, gridType } = await fetchHomesteadOwner(gridId);
-        if (username === DBPlayerData.username) { updateStatus(112) }
-        else { updateGridStatus(gridType, username, updateStatus) };
-      }
-
     return { ...gridData, NPCsInGrid: combinedGridState }; // Return the full grid data with combined NPCsInGrid
   } catch (error) {
     console.error('Error fetching grid data:', error);
@@ -401,12 +396,21 @@ export async function fetchGridData(gridId, updateStatus, DBPlayerData) {
 
 
 // Separate function for status updates
-export function updateGridStatus(gridType, ownerUsername, updateStatus) {
+export async function updateGridStatus(gridType, ownerUsername, updateStatus, currentPlayer = null, gridId = null) {
   if (!updateStatus) return;
 
   console.log("😀😀 UPDATING GRID STATUS message");
   switch (gridType) {
     case 'homestead':
+      // If we have currentPlayer and gridId, check if it's their homestead
+      if (currentPlayer && gridId) {
+        const { username } = await fetchHomesteadOwner(gridId);
+        if (username === currentPlayer.username) {
+          updateStatus(112); // "You're home."
+          return;
+        }
+        ownerUsername = username;
+      }
       updateStatus(`Welcome to ${ownerUsername || 'Unknown'}'s homestead.`);
       break;
     case 'town':

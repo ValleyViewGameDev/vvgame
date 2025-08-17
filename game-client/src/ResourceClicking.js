@@ -130,7 +130,7 @@ import { useStrings } from './UI/StringsContext';
         if (bulkOperationContext?.isAnyBulkOperationActive?.()) {
           const activeOps = bulkOperationContext.getActiveBulkOperations();
           console.log('🚫 Travel blocked: Bulk operation in progress', activeOps);
-          addFloatingText("Bulk operation in progress", col, row, TILE_SIZE);
+          updateStatus(470);
           return;
         }
         

@@ -384,7 +384,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     } catch (error) {
       console.error('Error in protected sell:', error);
       if (error.response?.status === 429) {
-        updateStatus('⚠️ Sale already in progress');
+        updateStatus(471);
       } else {
         updateStatus('❌ Failed to sell item');
       }
@@ -453,7 +453,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     } catch (error) {
       console.error('Error in protected collection:', error);
       if (error.response?.status === 429) {
-        updateStatus('⚠️ Collection already in progress');
+        updateStatus(471);
       } else {
         updateStatus('❌ Failed to collect payment');
       }

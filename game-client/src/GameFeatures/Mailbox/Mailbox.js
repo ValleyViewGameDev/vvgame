@@ -128,7 +128,7 @@ function Mailbox({
     } catch (error) {
       console.error('Error in protected mailbox collection:', error);
       if (error.response?.status === 429) {
-        updateStatus('⚠️ Collection already in progress');
+        updateStatus(471);
       } else {
         updateStatus('❌ Failed to collect rewards');
       }

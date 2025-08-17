@@ -116,7 +116,7 @@ export async function handleProtectedSelling({
     console.error('Error in protected station selling:', error);
     
     if (error.response?.status === 429) {
-      updateStatus('⚠️ Sale already in progress');
+      updateStatus(471);
     } else if (error.response?.status === 400) {
       console.error('❌ 400 Error details:', error.response?.data);
       updateStatus(`❌ Cannot sell: ${error.response?.data?.error || 'Invalid request'}`);
