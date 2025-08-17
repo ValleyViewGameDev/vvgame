@@ -84,7 +84,6 @@ export async function handleTransitSignpost(
           updateStatus,
           bulkOperationContext
         );
-        updateStatus(112);
         
       } catch (error) {
         console.error("❌ Error fetching homestead grid data:", error);
@@ -152,7 +151,6 @@ export async function handleTransitSignpost(
           updateStatus,
           bulkOperationContext
         );
-        updateStatus(111);
         
       } catch (error) {
         console.error("❌ Error fetching town grid data:", error);
