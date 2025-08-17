@@ -6,6 +6,7 @@ import { StatusBarContext } from "../UI/StatusBar";
 import { changePlayerLocation } from "../Utils/GridManagement";
 import { fetchTownSignpostPosition, fetchHomesteadSignpostPosition } from "../Utils/worldHelpers";
 import settlementTileData from './SettlementTile.json';
+import { useBulkOperation } from "../UI/BulkOperationContext";
 import { getGridBackgroundColor } from './ZoomedOut';
 import { centerCameraOnPlayer } from "../PlayerMovement";
 import playersInGridManager from "../GridState/PlayersInGrid";
@@ -37,6 +38,7 @@ const SettlementView = ({
   const [NPCsInGrids, setGridStates] = useState({});  // Add new state for grid states
   const [playersInGridMap, setPlayersInGrid] = useState({});
   const { updateStatus } = useContext(StatusBarContext);
+  const bulkOperationContext = useBulkOperation();
 
   // Added diagnostic log for player-to-ownerId matching
   if (players) {
@@ -200,8 +202,9 @@ const SettlementView = ({
         setTileTypes,             // ✅ Pass setTileTypes function
         setResources,             // ✅ Pass setResources function
         TILE_SIZE,
+        closeAllPanels,
         updateStatus,
-        closeAllPanels
+        bulkOperationContext
       );
       // Zoom into grid view after movement
       setZoomLevel("far"); 

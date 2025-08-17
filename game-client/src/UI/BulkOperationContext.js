@@ -7,7 +7,6 @@ export const BulkOperationProvider = ({ children }) => {
   const [activeBulkOperations, setActiveBulkOperations] = useState({});
   
   const startBulkOperation = (operationType, operationId) => {
-    console.log(`🚀 Starting bulk operation: ${operationType} (${operationId})`);
     setActiveBulkOperations(prev => ({
       ...prev,
       [operationId]: {
@@ -19,7 +18,6 @@ export const BulkOperationProvider = ({ children }) => {
   };
   
   const endBulkOperation = (operationId) => {
-    console.log(`✅ Ending bulk operation: ${operationId}`);
     setActiveBulkOperations(prev => {
       const newState = { ...prev };
       delete newState[operationId];

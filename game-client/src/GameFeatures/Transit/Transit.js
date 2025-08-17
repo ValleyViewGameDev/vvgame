@@ -18,7 +18,8 @@ export async function handleTransitSignpost(
   updateStatus,
   TILE_SIZE,
   skills,
-  closeAllPanels
+  closeAllPanels,
+  bulkOperationContext
 ) {
   try {
     if (typeof updateStatus !== "function") {
@@ -80,6 +81,8 @@ export async function handleTransitSignpost(
           setResources,
           TILE_SIZE,
           closeAllPanels,
+          updateStatus,
+          bulkOperationContext
         );
         updateStatus(112);
         
@@ -146,6 +149,8 @@ export async function handleTransitSignpost(
           setResources,
           TILE_SIZE,
           closeAllPanels,
+          updateStatus,
+          bulkOperationContext
         );
         updateStatus(111);
         
@@ -295,6 +300,8 @@ export async function handleTransitSignpost(
       setResources,
       TILE_SIZE,
       closeAllPanels,
+      updateStatus,
+      bulkOperationContext
     );
     const { username, gridType } = await fetchHomesteadOwner(newPlayerPosition.g);
     updateGridStatus(gridType, username, updateStatus);

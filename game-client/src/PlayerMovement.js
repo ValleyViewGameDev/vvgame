@@ -16,7 +16,8 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
   setResources, 
   updateStatus, 
   closeAllPanels,
-  localPlayerMoveTimestampRef) 
+  localPlayerMoveTimestampRef,
+  bulkOperationContext) 
 {
 
   const directions = {
@@ -65,7 +66,8 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
     setResources,
     updateStatus,
     TILE_SIZE,
-    closeAllPanels
+    closeAllPanels,
+    bulkOperationContext
   )) {
     console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
     return;
@@ -100,7 +102,8 @@ function isValidMove(targetX, targetY, masterResources,
   setResources,
   updateStatus,
   TILE_SIZE,
-  closeAllPanels
+  closeAllPanels,
+  bulkOperationContext
  ) {  // Function to check if movement is valid
   const tiles = GlobalGridStateTilesAndResources.getTiles();
   const resources = GlobalGridStateTilesAndResources.getResources();
@@ -136,7 +139,8 @@ function isValidMove(targetX, targetY, masterResources,
       updateStatus,
       TILE_SIZE,
       skills,
-      closeAllPanels
+      closeAllPanels,
+      bulkOperationContext
     );
     return false; // Prevent normal movement handling
   };

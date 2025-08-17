@@ -56,6 +56,7 @@ const FarmHandPanel = ({
   const hasBulkReplant = skills.some(skill => skill.type === 'Bulk Replant');
   const [isContentLoading, setIsContentLoading] = useState(false);
   const { setBusyOverlay, clearNPCOverlay } = useNPCOverlay();
+  const { startBulkOperation, endBulkOperation } = useBulkOperation();
   
   // Helper function to check if player has required skill (same logic as FarmingPanel)
   const hasRequiredSkill = (requiredSkill) => {
@@ -255,6 +256,10 @@ const FarmHandPanel = ({
       setBusyOverlay(farmerNPC.id);
     }
 
+    // Start bulk operation tracking
+    const operationId = `bulk-animal-collect-${Date.now()}`;
+    startBulkOperation('bulk-animal-collect', operationId);
+
     try {
       // Get selected animal types
       const selectedTypes = Object.keys(selectedAnimalTypes).filter(type => selectedAnimalTypes[type]);
@@ -301,6 +306,9 @@ const FarmHandPanel = ({
       console.error('Selective animal collect failed:', error);
       setErrorMessage('Failed to collect selected animals.');
     } finally {
+      // End bulk operation tracking
+      endBulkOperation(operationId);
+      
       // Clear busy overlay when operation completes
       const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
       const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
@@ -325,6 +333,10 @@ const FarmHandPanel = ({
     if (farmerNPC) {
       setBusyOverlay(farmerNPC.id);
     }
+
+    // Start bulk operation tracking
+    const operationId = `bulk-logging-${Date.now()}`;
+    startBulkOperation('bulk-logging', operationId);
 
     try {
       // Step 1: Determine how many trees we can chop
@@ -446,6 +458,9 @@ const FarmHandPanel = ({
       console.error('Logging failed:', error);
       setErrorMessage('Failed to auto-chop trees.');
     } finally {
+      // End bulk operation tracking
+      endBulkOperation(operationId);
+      
       // Clear busy overlay when operation completes
       const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
       const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
@@ -537,6 +552,10 @@ const FarmHandPanel = ({
     if (farmerNPC) {
       setBusyOverlay(farmerNPC.id);
     }
+
+    // Start bulk operation tracking
+    const operationId = `bulk-harvest-${Date.now()}`;
+    startBulkOperation('bulk-harvest', operationId);
 
     try {
       // Get selected crop types
@@ -642,6 +661,9 @@ const FarmHandPanel = ({
       console.error('Selective crop harvest failed:', error);
       setErrorMessage('Failed to harvest selected crops.');
     } finally {
+      // End bulk operation tracking
+      endBulkOperation(operationId);
+      
       // Clear busy overlay when operation completes
       const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
       const farmerNPC = npcs.find(npc => npc.action === 'farmhand');

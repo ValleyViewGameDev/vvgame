@@ -15,7 +15,7 @@ export const updateGridResource = async (
   resource,
   broadcast = true
 ) => {
-  console.log('UPDATE GRID RESOURCE; resource = ', resource);
+  //console.log('UPDATE GRID RESOURCE; resource = ', resource);
 
   try {
     const { x, y, growEnd, craftEnd, craftedItem, type } = resource;
@@ -32,7 +32,7 @@ export const updateGridResource = async (
       },
       broadcast, // optional - depending on your server usage
     };
-    console.log('UPDATE GRID RESOURCE; payload = ', payload);
+    //console.log('UPDATE GRID RESOURCE; payload = ', payload);
 
     // ✅ 2. Update the database
     const response = await axios.patch(`${API_BASE}/api/update-grid/${gridId}`, payload);
@@ -56,7 +56,7 @@ export const updateGridResource = async (
 
 export const convertTileType = async (gridId, x, y, newType, setTileTypes = null) => {
   try {
-    console.log(`Converting tile at (${x}, ${y}) to type: ${newType}`);
+    //console.log(`Converting tile at (${x}, ${y}) to type: ${newType}`);
 
     // Update the tile in the database
     const response = await axios.patch(`${API_BASE}/api/update-tile/${gridId}`, {
@@ -66,7 +66,7 @@ export const convertTileType = async (gridId, x, y, newType, setTileTypes = null
     });
 
     if (response.data.success) {
-      console.log(`✅ Tile at (${x}, ${y}) successfully updated to ${newType} in the database.`);
+      //console.log(`✅ Tile at (${x}, ${y}) successfully updated to ${newType} in the database.`);
 
       // ✅ Immediately update local state optimistically
       if (setTileTypes) {
@@ -77,7 +77,7 @@ export const convertTileType = async (gridId, x, y, newType, setTileTypes = null
         });
       }
 
-      console.log('newType before emitter:', newType);
+      //console.log('newType before emitter:', newType);
       // Emit the change to all connected clients via the socket
       socket.emit('update-tile', {
         gridId,
@@ -106,12 +106,14 @@ export const changePlayerLocation = async (
   bulkOperationContext // ✅ Add bulk operation context
 ) => {
 
-  console.log("🔁 changePlayerLocation invoked. closeAllPanels =", !!closeAllPanels);
+  // console.log("🔁 changePlayerLocation invoked. closeAllPanels =", !!closeAllPanels);
+  // console.log("bulkOperationContext in changePlayerLocation:", bulkOperationContext);
+  // console.log("isAnyBulkOperationActive:", bulkOperationContext?.isAnyBulkOperationActive?.());
   
   // Check if any bulk operation is active
   if (bulkOperationContext?.isAnyBulkOperationActive?.()) {
     const activeOps = bulkOperationContext.getActiveBulkOperations();
-    console.log('🚫 Travel blocked: Bulk operation in progress', activeOps);
+    //console.log('🚫 Travel blocked: Bulk operation in progress', activeOps);
     if (updateStatus) {
       updateStatus("Travel blocked: Bulk operation in progress");
     }
@@ -119,18 +121,18 @@ export const changePlayerLocation = async (
   }
   
   // DEBUG: Log input parameters for changePlayerLocation
-  console.log('changePlayerLocation called with:', {
-    currentPlayer,
-    fromLocation,
-    toLocation,
-    TILE_SIZE,
-    // ...other setters omitted for brevity...
-  });
+  // console.log('changePlayerLocation called with:', {
+  //   currentPlayer,
+  //   fromLocation,
+  //   toLocation,
+  //   TILE_SIZE,
+  //   // ...other setters omitted for brevity...
+  // });
 
 
-  console.log('🔄 changePlayerLocation called');
-  console.log('FROM:', { grid: fromLocation.g, type: fromLocation.gtype });
-  console.log('TO:', { grid: toLocation.g, type: toLocation.gtype });
+  //console.log('🔄 changePlayerLocation called');
+  //console.log('FROM:', { grid: fromLocation.g, type: fromLocation.gtype });
+  //console.log('TO:', { grid: toLocation.g, type: toLocation.gtype });
   if (!fromLocation || !toLocation) {
     console.error('❌ Invalid fromLocation or toLocation');
     return;
@@ -141,27 +143,27 @@ export const changePlayerLocation = async (
     // STEP 1: Close any open panels before grid transition
     if (closeAllPanels) {
       closeAllPanels();
-      console.log("🧹 Closed all panels before location change.");
+      //console.log("🧹 Closed all panels before location change.");
     }
 
     // ✅ STEP 2: Update FROM grid's state (remove player)
-    console.log(`1️⃣ Removing player from grid ${fromLocation.g}`);
+    //console.log(`1️⃣ Removing player from grid ${fromLocation.g}`);
 
-    console.log('loading PCS gridstates from memory...');
+    //console.log('loading PCS gridstates from memory...');
     const inMemoryFromPlayerState = playersInGridManager.getPlayersInGrid(fromLocation.g)?.[currentPlayer.playerId];
-    console.log('loading NPCS and PCS gridstates from db...');
+    //console.log('loading NPCS and PCS gridstates from db...');
     const fromGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${fromLocation.g}`);
-    console.log('fromGridResponse.data: ', fromGridResponse.data);
+    //console.log('fromGridResponse.data: ', fromGridResponse.data);
     const fromPCs = fromGridResponse.data?.playersInGrid?.pcs || {};
-    console.log('Extracted fromPCs from what we just loaded; fromPCs = ', fromPCs);
+    //console.log('Extracted fromPCs from what we just loaded; fromPCs = ', fromPCs);
     const fromPlayerState = inMemoryFromPlayerState || fromPCs[currentPlayer.playerId] || {};
-    console.log('fromPlayerState (prioritize what was in memory) = ', fromPlayerState);
-    console.log('Removing player from the fromPCs.');
+    //console.log('fromPlayerState (prioritize what was in memory) = ', fromPlayerState);
+    //console.log('Removing player from the fromPCs.');
     if (fromPCs[currentPlayer.playerId]) {
       delete fromPCs[currentPlayer.playerId];
     }
 
-    console.log('📤 Calling /remove-single-pc route to remove player from grid...');
+    //console.log('📤 Calling /remove-single-pc route to remove player from grid...');
     await axios.post(`${API_BASE}/api/remove-single-pc`, {
       gridId: fromLocation.g,
       playerId: currentPlayer.playerId,
@@ -173,27 +175,27 @@ export const changePlayerLocation = async (
       playerId: currentPlayer.playerId,
       username: currentPlayer.username,
     });
-    console.log(`📢 Emitted [player-left-grid] for ${fromLocation.g}`);
+    //console.log(`📢 Emitted [player-left-grid] for ${fromLocation.g}`);
   
     socket.emit('leave-grid', fromLocation.g);
-    console.log(`📢 Emitted [leave-grid] for grid: ${fromLocation.g}`);
+    //console.log(`📢 Emitted [leave-grid] for grid: ${fromLocation.g}`);
       
     // ✅ STEP 4: Update TO grid's state (add player)
 
-    console.log(`2️⃣ Adding player to grid ${toLocation.g}`);
-    console.log('loading NPCsInGrid from db...');
+    //console.log(`2️⃣ Adding player to grid ${toLocation.g}`);
+    //console.log('loading NPCsInGrid from db...');
     const toGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${toLocation.g}`);
-    console.log('toGridResponse.data: ', toGridResponse.data);
+    //console.log('toGridResponse.data: ', toGridResponse.data);
     const toPCs = toGridResponse.data?.playersInGrid?.pcs || {};
-    console.log('Extracted toPCs from what we just loaded; toPCs = ', toPCs);
+    //console.log('Extracted toPCs from what we just loaded; toPCs = ', toPCs);
 
     const now = Date.now();
 
     // ✅ STEP 5: Add the player to the `pcs` object`
-    console.log('IN CHANGE PLAYER LOCATION:  Adding player to the toPCs object')
+    //console.log('IN CHANGE PLAYER LOCATION:  Adding player to the toPCs object')
     // Use combat stats from the fromGrid state if available, fallback to currentPlayer
-    console.log('🚨🚨🚨🚨fromPlayerState = ', fromPlayerState);
-    console.log('🚨🚨🚨🚨currentPlayer = ', currentPlayer);
+    //console.log('🚨🚨🚨🚨fromPlayerState = ', fromPlayerState);
+    //console.log('🚨🚨🚨🚨currentPlayer = ', currentPlayer);
 
     const playerData = {
       playerId: currentPlayer.playerId,
@@ -220,10 +222,10 @@ export const changePlayerLocation = async (
       pc: playerData,
       lastUpdated: now,
     };
-    console.log('📤 Constructed Payload for adding player:', toPayload);
+    //console.log('📤 Constructed Payload for adding player:', toPayload);
 
     // ✅ STEP 6: Save only this PC to DB
-    console.log('📤 Saving single PC to grid...');
+    //console.log('📤 Saving single PC to grid...');
     await axios.post(`${API_BASE}/api/save-single-pc`, toPayload);
 
     socket.emit('player-joined-grid', {
@@ -232,11 +234,11 @@ export const changePlayerLocation = async (
       username: currentPlayer.username,
       playerData,
     });
-    console.log(`📢 Emitted player-joined-grid for ${toLocation.g}`);
+    //console.log(`📢 Emitted player-joined-grid for ${toLocation.g}`);
   
 
     // ✅ STEP 7: Update player location in player record on the DB
-    console.log('3️⃣ Updating player location...');
+    //console.log('3️⃣ Updating player location...');
     const locationResponse = await axios.post(`${API_BASE}/api/update-player-location`, {
       playerId: currentPlayer.playerId,
       location: toLocation,
@@ -248,7 +250,7 @@ export const changePlayerLocation = async (
     console.log('✅ Player location updated in DB');
 
     // ✅ STEP 8: Update local state
-    console.log('4️⃣ Updating local Player Document...');
+    //console.log('4️⃣ Updating local Player Document...');
     const updatedPlayer = {
       ...currentPlayer,
       location: toLocation,
@@ -258,12 +260,12 @@ export const changePlayerLocation = async (
     localStorage.setItem('player', JSON.stringify(updatedPlayer));
 
     // 5. Change grid context & fetch new grid data
-    console.log('5️⃣ Calling setGridId...');
+    //console.log('5️⃣ Calling setGridId...');
     setGridId(toLocation.g);
     // WHAT does this ^^ do?
 
     // ✅ STEP 9: Initialize the new grid, PCs and NPCs
-    console.log('!! Running initializeGridState and setGridState');
+    //console.log('!! Running initializeGridState and setGridState');
     await Promise.all([
       initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus, currentPlayer),
       (async () => {
@@ -287,15 +289,15 @@ export const changePlayerLocation = async (
         }
       })(),
     ]);
-    console.log('✅ New grid fully initialized');
+    //console.log('✅ New grid fully initialized');
 
     // ✅ STEP 10: Ensure the client joins the new grid room
     socket.emit('join-grid', { gridId: toLocation.g, playerId: currentPlayer.playerId });
-    console.log(`📡 Emitted join-grid for grid: ${toLocation.g}`);
+    //console.log(`📡 Emitted join-grid for grid: ${toLocation.g}`);
     socket.emit('set-username', { username: currentPlayer.username });
     
     // Request current NPCController status to clear any stale controller data
-    console.log(`🎮 Requesting current NPCController for grid: ${toLocation.g}`);
+    //console.log(`🎮 Requesting current NPCController for grid: ${toLocation.g}`);
     socket.emit('request-npc-controller', { gridId: toLocation.g });
     
     // ✅ STEP 11: Check if we need to find a signpost location
@@ -307,13 +309,13 @@ export const changePlayerLocation = async (
       
       // Get the resources that were just loaded
       const currentResources = GlobalGridStateTilesAndResources.getResources();
-      console.log(`📦 Total resources loaded: ${currentResources.length}`);
-      console.log(`📦 Resources types: ${currentResources.map(r => r.type).join(', ')}`);
+      //console.log(`📦 Total resources loaded: ${currentResources.length}`);
+      //console.log(`📦 Resources types: ${currentResources.map(r => r.type).join(', ')}`);
       
       const signpost = currentResources.find(res => res.type === toLocation.findSignpost);
       
       if (signpost) {
-        console.log(`✅ Found ${toLocation.findSignpost} at (${signpost.x}, ${signpost.y})`);
+        //console.log(`✅ Found ${toLocation.findSignpost} at (${signpost.x}, ${signpost.y})`);
         finalX = signpost.x;
         finalY = signpost.y;
         
@@ -347,7 +349,6 @@ export const changePlayerLocation = async (
     }
     
     // ✅ STEP 12: Center view on player
-    console.log('6️⃣ Centering view...');
 
     centerCameraOnPlayer({ x: finalX, y: finalY }, TILE_SIZE);
 
@@ -363,7 +364,7 @@ export const changePlayerLocation = async (
 
 export async function fetchGridData(gridId, updateStatus, DBPlayerData) {
   try {
-    console.log(`Fetching grid data for gridId: ${gridId}`);
+    //console.log(`Fetching grid data for gridId: ${gridId}`);
 
     // 1) Fetch the grid data (which now has separate playersInGrid and NPCsInGrid)
     const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${gridId}`);

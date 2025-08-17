@@ -14,24 +14,48 @@
     font-family: Arial, Helvetica, sans-serif;
     top: 60px; /* Positioned under header */
     left: 260px; /* Start after the base panel */
-    height: 16px;
-    width: 100%; /* Stretch across the full width of the container */
-    line-height: 0.1; /* Adjust line-height for compactness */
+    height: 24px; /* Increased height for better vertical centering */
+    width: calc(100% - 260px); /* Adjust width to account for left position */
+    line-height: 20px; /* Match height for vertical centering */
     font-size: 12px; /* Adjust font size as needed */
     padding: 0px 10px; /* Add some padding for aesthetics */
-    text-align: left; /* Center the text */
-    z-index: 150; /* High enough to prevent conflicts */ 
+    text-align: left; /* Left align text */
+    z-index: 150; /* High enough to prevent conflicts */
+    overflow: hidden; /* Hide messages that go off screen */
+    white-space: nowrap; /* Prevent text wrapping */
+    display: flex;
+    align-items: center; /* Vertically center content */
   }
 
-  
-  .status-bar p {
-    display: inline-block;
-    transform: translateX(-100%);
-    animation: slide-in 0.5s ease-out forwards;
+  .status-bar-messages {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: flex-start;
   }
   
-  @keyframes slide-in {
+  .status-message {
+    display: inline-block;
+    white-space: nowrap;
+  }
+  
+  .status-bar-messages.slide-all {
+    animation: slide-all-in 0.5s ease-out forwards;
+  }
+  
+  @keyframes slide-all-in {
+    from {
+      transform: translateX(-150px);
+    }
     to {
       transform: translateX(0);
     }
+  }
+  
+  .status-separator {
+    display: inline-block;
+    color: #666;
+    font-weight: bold;
+    margin: 0 5px;
   }

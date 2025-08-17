@@ -51,7 +51,7 @@ async function handleFarmAnimalBehavior(gridId) {
 
         case 'hungry': {
             //console.log(`NPC ${this.id} is in HUNGRY state.`);
-            console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state} grazeEnd: ${this.grazeEnd}`);
+            //console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state} grazeEnd: ${this.grazeEnd}`);
 
             const currentTime = Date.now();
             if (this.grazeEnd && currentTime >= this.grazeEnd) {
@@ -175,10 +175,10 @@ async function handleFarmAnimalBehavior(gridId) {
  
           
         case 'grazing': {
-            console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state} grazeEnd: ${this.grazeEnd}`);
+            //console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state} grazeEnd: ${this.grazeEnd}`);
             const currentTime = Date.now();
         
-            console.log(`grazeEnd: ${this.grazeEnd}, growTime: ${this.growTime}, type: ${this.type}`);
+            //console.log(`grazeEnd: ${this.grazeEnd}, growTime: ${this.growTime}, type: ${this.type}`);
 
             if (!this.grazeEnd) {
                 this.grazeEnd = currentTime + (this.growTime * 1000); // Calculate grazing end time
@@ -198,7 +198,7 @@ async function handleFarmAnimalBehavior(gridId) {
 
 
             case 'stall': {
-                console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state} grazeEnd: ${this.grazeEnd}`);
+                //console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state} grazeEnd: ${this.grazeEnd}`);
                 const fullGridState = NPCsInGridManager.getNPCsInGrid(gridId);
         
                 // Step 1: If no stall is currently assigned, find the nearest available stall
@@ -288,7 +288,7 @@ async function handleFarmAnimalBehavior(gridId) {
         case 'processing': {
             // awaiting handleNPCClick
             // console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
-            console.log('Awaiting handleNPCClick');
+            // console.log('Awaiting handleNPCClick');
         break;
         }
 

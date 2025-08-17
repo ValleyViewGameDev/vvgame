@@ -37,7 +37,8 @@ import { useStrings } from './UI/StringsContext';
   setModalContent,
   setIsModalOpen,
   closeAllPanels,
-  strings
+  strings,
+  bulkOperationContext
 ) {
   console.log(`Resource Clicked:  (${row}, ${col}):`, { resource, tileType: tileTypes[row]?.[col] });
   if (!resource || !resource.category) { console.error(`Invalid resource at (${col}, ${row}):`, resource); return; }
@@ -122,6 +123,17 @@ import { useStrings } from './UI/StringsContext';
 
       case 'travel':
         console.log('Travel sign clicked');
+        console.log('bulkOperationContext:', bulkOperationContext);
+        console.log('isAnyBulkOperationActive:', bulkOperationContext?.isAnyBulkOperationActive?.());
+        
+        // Check if any bulk operation is active
+        if (bulkOperationContext?.isAnyBulkOperationActive?.()) {
+          const activeOps = bulkOperationContext.getActiveBulkOperations();
+          console.log('🚫 Travel blocked: Bulk operation in progress', activeOps);
+          addFloatingText("Bulk operation in progress", col, row, TILE_SIZE);
+          return;
+        }
+        
         try {
           await handleTransitSignpost(
             currentPlayer,
@@ -134,7 +146,8 @@ import { useStrings } from './UI/StringsContext';
             updateStatus,
             TILE_SIZE,
             skills,
-            closeAllPanels
+            closeAllPanels,
+            bulkOperationContext
           );
         } catch (error) {
           console.error("Error handling travel signpost:", error.message || error);

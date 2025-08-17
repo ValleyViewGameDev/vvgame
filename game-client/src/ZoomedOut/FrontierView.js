@@ -6,6 +6,7 @@ import { StatusBarContext } from "../UI/StatusBar";
 import { changePlayerLocation } from "../Utils/GridManagement";
 import { fetchHomesteadSignpostPosition } from "../Utils/worldHelpers";
 import frontierTileData from './FrontierTile.json';
+import { useBulkOperation } from "../UI/BulkOperationContext";
 import { getGridBackgroundColor } from './ZoomedOut';
 
 
@@ -30,6 +31,7 @@ const FrontierView = ({
   const [settlementGrids, setSettlementGrids] = useState({}); // Store all settlement grids
   const [error, setError] = useState(null);
   const { updateStatus } = useContext(StatusBarContext);
+  const bulkOperationContext = useBulkOperation();
  
   // Fetch Frontier Grid and Settlement Grids together
   useEffect(() => {
@@ -122,8 +124,9 @@ const FrontierView = ({
               setTileTypes,             // ✅ Pass setTileTypes function
               setResources,             // ✅ Pass setResources function
               TILE_SIZE,
+              closeAllPanels,
               updateStatus,
-              closeAllPanels
+              bulkOperationContext
             ); 
             setZoomLevel("far");
             return;

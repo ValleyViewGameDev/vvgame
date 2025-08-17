@@ -86,6 +86,7 @@ import ShareModal from './UI/ShareModal';
 import { usePanelContext } from './UI/PanelContext';
 import { useModalContext } from './UI/ModalContext';
 import { checkDeveloperStatus, updateBadge, getBadgeState } from './Utils/appUtils';
+import { useBulkOperation } from './UI/BulkOperationContext';
 import FloatingTextManager from './UI/FloatingText';
 import StatusBar from './UI/StatusBar';
 import { StatusBarContext } from './UI/StatusBar';
@@ -124,6 +125,7 @@ useEffect(() => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
   const { updateStatus } = useContext(StatusBarContext);
+  const bulkOperationContext = useBulkOperation();
 
   // Mobile device detection: Show modal if on mobile
   useEffect(() => {
@@ -1198,7 +1200,8 @@ useEffect(() => {
         setResources, 
         updateStatus, 
         closeAllPanels,
-        localPlayerMoveTimestampRef
+        localPlayerMoveTimestampRef,
+        bulkOperationContext
     );
   };
   window.addEventListener('keydown', handleKeyDown); 
@@ -1268,6 +1271,14 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
     console.log('App.js: Resource clicked:', resource);
     if (resource.category === 'npc') { } // handled in RenderDynamic
     else if (resource.category === 'travel') {
+      // Check if any bulk operation is active
+      if (bulkOperationContext?.isAnyBulkOperationActive?.()) {
+        const activeOps = bulkOperationContext.getActiveBulkOperations();
+        console.log('🚫 Travel blocked: Bulk operation in progress', activeOps);
+        FloatingTextManager.addFloatingText("Bulk operation in progress", resource.x, resource.y, activeTileSize);
+        return;
+      }
+      
       // Handle clickable signposts
       const { handleTransitSignpost } = await import('./GameFeatures/Transit/Transit');
       await handleTransitSignpost(
@@ -1281,7 +1292,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         updateStatus,
         activeTileSize,
         currentPlayer.skills,
-        closeAllPanels
+        closeAllPanels,
+        bulkOperationContext
       );
     }
     else if (resource.category === 'training') {
@@ -1359,6 +1371,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         setIsModalOpen,
         closeAllPanels,
         strings,
+        bulkOperationContext
       ).finally(() => {
         isProcessing = false; // Reset flag after processing
       });
