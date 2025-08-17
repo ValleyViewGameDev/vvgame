@@ -65,7 +65,7 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
     setResources,
     updateStatus,
     TILE_SIZE,
-    closeAllPanels,
+    closeAllPanels
   )) {
     console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
     return;
@@ -100,7 +100,7 @@ function isValidMove(targetX, targetY, masterResources,
   setResources,
   updateStatus,
   TILE_SIZE,
-  closeAllPanels,
+  closeAllPanels
  ) {  // Function to check if movement is valid
   const tiles = GlobalGridStateTilesAndResources.getTiles();
   const resources = GlobalGridStateTilesAndResources.getResources();

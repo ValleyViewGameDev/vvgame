@@ -17,6 +17,7 @@ import { updateGridResource } from '../../Utils/GridManagement';
 import { handleFarmPlotPlacement } from '../Farming/Farming';
 import { validateTileType } from '../../Utils/ResourceHelpers';
 import { useNPCOverlay } from '../../UI/NPCOverlayContext';
+import { useBulkOperation } from '../../UI/BulkOperationContext';
 
 const FarmHandPanel = ({
   onClose,

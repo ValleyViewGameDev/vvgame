@@ -101,11 +101,22 @@ export const changePlayerLocation = async (
   setTileTypes,
   setResources,
   TILE_SIZE,
+  closeAllPanels, // ✅ Add this prop
   updateStatus,
-  closeAllPanels // ✅ Add this prop
+  bulkOperationContext // ✅ Add bulk operation context
 ) => {
 
   console.log("🔁 changePlayerLocation invoked. closeAllPanels =", !!closeAllPanels);
+  
+  // Check if any bulk operation is active
+  if (bulkOperationContext?.isAnyBulkOperationActive?.()) {
+    const activeOps = bulkOperationContext.getActiveBulkOperations();
+    console.log('🚫 Travel blocked: Bulk operation in progress', activeOps);
+    if (updateStatus) {
+      updateStatus("Travel blocked: Bulk operation in progress");
+    }
+    return false;
+  }
   
   // DEBUG: Log input parameters for changePlayerLocation
   console.log('changePlayerLocation called with:', {
