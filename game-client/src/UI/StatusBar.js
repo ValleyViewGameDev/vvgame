@@ -85,7 +85,7 @@ const StatusBar = () => {
               {msg}
             </span>
             {index < messages.length - 1 && (
-              <span className="status-separator"> | </span>
+              <span className="status-separator"> ⬥ </span>
             )}
           </React.Fragment>
         ))}

@@ -75,6 +75,13 @@ async function performGridReset(gridId, gridType, gridCoord) {
     }
   });
 
+  // Remove any "Stub" resources before finalizing the grid
+  const filteredResources = newResources.filter(resource => resource.type !== 'Stub');
+  
+  if (newResources.length !== filteredResources.length) {
+    console.log(`🧹 Removed ${newResources.length - filteredResources.length} Stub resource(s) from grid at ${gridCoord}`);
+  }
+
   const newNPCs = {};
   layout.resources.forEach((row, y) => {
     row.forEach((cell, x) => {
@@ -99,7 +106,7 @@ async function performGridReset(gridId, gridType, gridCoord) {
   });
 
   grid.tiles = newTiles;
-  grid.resources = newResources;  // Use only the main resources, not shadows
+  grid.resources = filteredResources;  // Use filtered resources without Stubs
   grid.NPCsInGrid = new Map(); // Clear existing NPCs explicitly before resetting
   grid.NPCsInGrid = new Map(Object.entries(newNPCs));
   grid.NPCsInGridLastUpdated = Date.now();

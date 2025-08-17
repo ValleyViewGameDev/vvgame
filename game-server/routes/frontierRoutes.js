@@ -544,11 +544,16 @@ router.get('/frontier-bundle/:frontierId', async (req, res) => {
       settlementsMap[settlement._id] = settlement;
     });
 
-    // Step 3: Filter and load populated settlement grids
+    // Step 3: Load settlement grids - include if has any claimed homesteads or is player's settlement
     const populatedSettlementData = {};
     for (const settlement of settlements) {
+      // Check if settlement has any claimed homesteads (non-available homestead slots)
+      const hasClaimedHomesteads = settlement.grids.flat().some(cell => 
+        cell && cell.gridType === 'homestead' && cell.gridId && !cell.available
+      );
+      
       if (
-        settlement.population > 0 ||
+        hasClaimedHomesteads ||
         String(settlement._id) === String(playerSettlementId)
       ) {
         populatedSettlementData[settlement._id] = { grid: settlement.grids };
