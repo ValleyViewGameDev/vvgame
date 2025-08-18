@@ -198,7 +198,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
         if (sortConfig.key === 'created' || sortConfig.key === 'lastActive') {
           aValue = new Date(aValue || 0);
           bValue = new Date(bValue || 0);
-        } else if (sortConfig.key === 'netWorth') {
+        } else if (sortConfig.key === 'netWorth' || sortConfig.key === 'ftuestep') {
           aValue = Number(aValue) || 0;
           bValue = Number(bValue) || 0;
         } else if (sortConfig.key === 'money') {
@@ -293,6 +293,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
 
             {/* Player Stats */}
             <div className="player-stats">
+              <p><strong>First time user?:</strong> {selectedPlayer.firsttimeuser === true ? 'true' : 'false'}</p>
               <p><strong>Active Quests:</strong> {selectedPlayer.activeQuests?.length || 0}</p>
               <p><strong>Completed Quests:</strong> {selectedPlayer.completedQuests?.length || 0}</p>
               
@@ -415,6 +416,12 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                     Last Active {sortConfig.key === 'lastActive' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </th>
                   <th>Last Location</th>
+                  <th 
+                    onClick={() => handleSort('ftuestep')}
+                    className={`sortable ${sortConfig.key === 'ftuestep' ? `sort-${sortConfig.direction}` : ''}`}
+                  >
+                    FTUE Step {sortConfig.key === 'ftuestep' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -474,6 +481,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                         'Unknown'
                       )}
                     </td>
+                    <td>{player.ftuestep || ''}</td>
                   </tr>
                 ))}
               </tbody>
