@@ -350,8 +350,8 @@
     "action": "openUI",
     "passable": false,
     "qtycollected": 1,
-    "range": 2,
     "source": "Buy",
+    "range": 2,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -4570,7 +4570,7 @@
     "level": 8,
     "minprice": 0,
     "ingredient1": "Money",
-    "ingredient1qty": 7500
+    "ingredient1qty": 50
   },
   {
     "type": "Axe",
@@ -4614,7 +4614,7 @@
     "level": 10,
     "minprice": 0,
     "ingredient1": "Money",
-    "ingredient1qty": 5000
+    "ingredient1qty": 50
   },
   {
     "type": "Bulk Replant",
@@ -4626,7 +4626,7 @@
     "level": 10,
     "minprice": 0,
     "ingredient1": "Money",
-    "ingredient1qty": 10000
+    "ingredient1qty": 5000
   },
   {
     "type": "Logging",
@@ -4637,8 +4637,8 @@
     "qtycollected": 5,
     "level": 10,
     "minprice": 0,
-    "ingredient1": "Money",
-    "ingredient1qty": 7500
+    "ingredient1": "Wood",
+    "ingredient1qty": 50
   },
   {
     "type": "Better Logging",

@@ -3,7 +3,7 @@
   display: grid;
   grid-template-columns: repeat(8, 100px);
   gap: 2px;  /* Increased from 1px to 2px */
-  background-color: #54bc56;
+  background-color: var(--settlement-gridline-color, #45a049); /* Use same green as SettlementView */
   justify-content: start;
   padding: 0;  /* Remove padding that was creating the outer border */
   margin: 0;   /* Remove margin */

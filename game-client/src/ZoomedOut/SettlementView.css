@@ -1,9 +1,15 @@
+:root {
+  --settlement-background-color: #4CAF50; /* Configurable green */
+  --settlement-gridline-color: #45a049; /* Slightly darker green for gridlines */
+}
+
 /* Settlement Grid */
 .settlement-grid {
   display: grid;
   grid-template-columns: repeat(8, 144px); /* Was 120px */
   gap: 3px; /* Was 2px */
   padding: 12px; /* Was 10px */
+  background-color: var(--settlement-gridline-color); /* Grid gaps will show this color */
 }
 
 /* Settlement Tile */

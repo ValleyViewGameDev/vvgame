@@ -3,7 +3,7 @@ import { usePanelContext } from './PanelContext'; // Import the context
 import './Panel.css';
 import { useStrings } from './StringsContext';
 
-const Panel = ({ onClose, children, descriptionKey, panelName, titleKey }) => {
+const Panel = ({ onClose, children, descriptionKey, panelName, titleKey, title }) => {
   const strings = useStrings();
   const { activePanel, openPanel, closePanel } = usePanelContext();
 
@@ -21,7 +21,7 @@ const Panel = ({ onClose, children, descriptionKey, panelName, titleKey }) => {
     <div className="panel-container">
       {/* Fixed Header with Title and Close Button */}
       <div className="panel-header">
-        <h2 className="panel-title">{strings[titleKey] || "Panel"}</h2>
+        <h2 className="panel-title">{title || strings[titleKey] || "Panel"}</h2>
         <button
           className="panel-close-btn"
           onClick={() => {

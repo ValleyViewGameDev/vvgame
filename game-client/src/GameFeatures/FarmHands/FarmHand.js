@@ -58,6 +58,15 @@ const FarmHandPanel = ({
   const { setBusyOverlay, clearNPCOverlay } = useNPCOverlay();
   const { startBulkOperation, endBulkOperation } = useBulkOperation();
   
+  // Determine which features to show based on NPC type
+  const npcType = npc?.type || stationType; // Use NPC type from the npc object, fallback to stationType
+  const showBulkHarvest = ['Farmer', 'Farm Hand'].includes(npcType);
+  const showBulkReplant = ['Farmer', 'Farm Hand'].includes(npcType) && hasBulkReplant;
+  const showBulkAnimalCollect = ['Farmer', 'Rancher'].includes(npcType);
+  const showLogging = ['Farmer', 'Lumberjack'].includes(npcType);
+  const showBetterLogging = ['Farmer', 'Lumberjack'].includes(npcType);
+  const showCropPurchase = ['Farmer', 'Farm Hand'].includes(npcType);
+  
   // Helper function to check if player has required skill (same logic as FarmingPanel)
   const hasRequiredSkill = (requiredSkill) => {
     return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
@@ -105,14 +114,25 @@ const FarmHandPanel = ({
 
   useEffect(() => {
     const ownedTypes = currentPlayer.skills?.map(skill => skill.type) || [];
-    const skills = masterResources.filter(res =>
+    let skills = masterResources.filter(res =>
       (res.category === 'skill' || res.category === 'upgrade') &&
       res.source === 'Farm Hand' &&
       !ownedTypes.includes(res.type)
     );
+    
+    // Filter skills based on NPC type
+    if (npcType === 'Farm Hand') {
+      skills = skills.filter(res => ['Bulk Harvest', 'Bulk Replant'].includes(res.type));
+    } else if (npcType === 'Rancher') {
+      skills = skills.filter(res => res.type === 'Bulk Animal Collect');
+    } else if (npcType === 'Lumberjack') {
+      skills = skills.filter(res => ['Logging', 'Better Logging'].includes(res.type));
+    }
+    // For 'Farmer', show all skills (no filtering needed)
+    
     setFarmhandSkills(skills.filter(res => res.category === 'skill'));
     setFarmhandUpgrades(skills.filter(res => res.category === 'upgrade'));
-  }, [masterResources, currentPlayer]);
+  }, [masterResources, currentPlayer, npcType]);
 
   const handleTrade = async (resource) => {
     setErrorMessage('');
@@ -520,7 +540,7 @@ const FarmHandPanel = ({
     setSelectedCropTypes(defaultSelection);
     
     // Select all replant options by default (if bulk replant skill is available and player has required skills)
-    if (hasBulkReplant) {
+    if (showBulkReplant) {
       const defaultReplantSelection = {};
       cropsWithDetails.forEach(crop => {
         // Only default-select crops that the player has the skill to replant
@@ -601,7 +621,7 @@ const FarmHandPanel = ({
         );
 
         // Handle replanting if selected
-        if (shouldReplant && hasBulkReplant) {
+        if (shouldReplant && showBulkReplant) {
           // Find the farmplot resource that outputs this crop type
           const farmplotResource = masterResources.find(res => 
             res.category === 'farmplot' && res.output === crop.type
@@ -689,10 +709,10 @@ const FarmHandPanel = ({
   };
 
   return (
-    <Panel onClose={onClose} descriptionKey="1023" titleKey="1123" panelName="FarmHandPanel">
+    <Panel onClose={onClose} descriptionKey="1023" title={npc?.symbol ? `${npc.symbol} ${npcType}` : npcType} panelName="FarmHandPanel">
       <div className="standard-panel">
 
-        {skills?.some(item => item.type === 'Bulk Harvest') && (
+        {showBulkHarvest && skills?.some(item => item.type === 'Bulk Harvest') && (
           <div>
             <ResourceButton
               symbol="🚜"
@@ -703,7 +723,7 @@ const FarmHandPanel = ({
             />
           </div>
         )}
-        {skills?.some(item => item.type === 'Bulk Animal Collect') && (
+        {showBulkAnimalCollect && skills?.some(item => item.type === 'Bulk Animal Collect') && (
           <div>
             <ResourceButton
               symbol="🐮"
@@ -714,7 +734,7 @@ const FarmHandPanel = ({
             />
           </div>
         )}
-        {skills?.some(item => item.type === 'Logging') && (
+        {showLogging && skills?.some(item => item.type === 'Logging') && (
           <div>
             <ResourceButton
               symbol="🪓"
@@ -761,36 +781,40 @@ const FarmHandPanel = ({
           </>
         )}
 
-        <h3>{strings[426]}</h3>
-        
-          {recipes?.length > 0 ? (
-            recipes.map((resource) => {
-              const cost = (resource.maxprice || 100) * 10;
-              const playerMoney = (inventory.find((item) => item.type === 'Money')?.quantity || 0) +
-                                  (backpack.find((item) => item.type === 'Money')?.quantity || 0);
-              const affordable = playerMoney >= cost;
+        {showCropPurchase && (
+          <>
+            <h3>{strings[426]}</h3>
+            
+            {recipes?.length > 0 ? (
+              recipes.map((resource) => {
+                const cost = (resource.maxprice || 100) * 10;
+                const playerMoney = (inventory.find((item) => item.type === 'Money')?.quantity || 0) +
+                                    (backpack.find((item) => item.type === 'Money')?.quantity || 0);
+                const affordable = playerMoney >= cost;
 
-              const details = `Buy 1 for: 💰 ${cost}`;
+                const details = `Buy 1 for: 💰 ${cost}`;
 
-              const info = (
-                <div className="info-content">
-                  <div><strong>{strings[422]}</strong> 💰 {cost}</div>
-                </div>
-              );
+                const info = (
+                  <div className="info-content">
+                    <div><strong>{strings[422]}</strong> 💰 {cost}</div>
+                  </div>
+                );
 
-              return (
-                <ResourceButton
-                  key={resource.type}
-                  symbol={resource.symbol}
-                  name={resource.type}
-                  className="resource-button"
-                  details={details}
-                  disabled={!affordable}
-                  onClick={() => handleTrade(resource)}
-                />
-              );
-            })
-          ) : <p>{strings[423]}</p>}
+                return (
+                  <ResourceButton
+                    key={resource.type}
+                    symbol={resource.symbol}
+                    name={resource.type}
+                    className="resource-button"
+                    details={details}
+                    disabled={!affordable}
+                    onClick={() => handleTrade(resource)}
+                  />
+                );
+              })
+            ) : <p>{strings[423]}</p>}
+          </>
+        )}
 
 
         {errorMessage && <p className="error-message">{errorMessage}</p>}
@@ -828,7 +852,7 @@ const FarmHandPanel = ({
                 </button>
               </div>
               
-              {hasBulkReplant && (
+              {showBulkReplant && (
                 <div style={{ display: 'flex', gap: '10px', marginLeft: '210px' }}>
                   <button 
                     onClick={() => {
@@ -865,7 +889,7 @@ const FarmHandPanel = ({
                 <span style={{ marginRight: '10px', width: '30px' }}></span>
                 <span style={{ marginRight: '10px', width: '100px' }}>Crop</span>
                 <span style={{ marginRight: '10px', width: '60px' }}>Count</span>
-                {hasBulkReplant && (
+                {showBulkReplant && (
                   <>
                     <span style={{ marginRight: '10px', width: '80px' }}></span>
                     <span style={{ width: '80px' }}>Replant?</span>
@@ -890,7 +914,7 @@ const FarmHandPanel = ({
                   <span style={{ marginRight: '10px', width: '100px', fontWeight: 'bold' }}>{crop.type}</span>
                   <span style={{ marginRight: '10px', width: '60px', color: '#666' }}>({crop.count})</span>
                   
-                  {hasBulkReplant && (() => {
+                  {showBulkReplant && (() => {
                     // Find the farmplot resource that produces this crop to check skill requirements
                     const farmplotResource = masterResources.find(res => 
                       res.category === 'farmplot' && res.output === crop.type

@@ -1,10 +1,15 @@
 
+:root {
+  --settlement-background-color: #4CAF50; /* Configurable green */
+  --settlement-gridline-color: #45a049; /* Slightly darker green for gridlines */
+}
+
 /* Ensure the body and root elements are styled correctly */
 body {
   margin: 0;
   padding: 0;
   font-family: 'Chewy', serif;
-  background-color: #f5f5f5;
+  background-color: var(--settlement-gridline-color, #45a049); /* Use same green as grids */
 }
 
 /* Shift base panel and others to the right */
@@ -253,6 +258,7 @@ body {
   position: absolute;
   top: 85px;
   z-index: 100;
+  background-color: var(--settlement-gridline-color, #45a049); /* Match settlement grid background */
 }
 
 /* Shared Button Styles /////////////////////////////////// */

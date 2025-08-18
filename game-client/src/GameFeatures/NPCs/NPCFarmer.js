@@ -5,6 +5,18 @@ import { calculateDistance } from './NPCHelpers';
 
 async function handleFarmerBehavior(gridId) {
     const updateThisNPC = async () => {
+        // Check if this NPC exists in the grid before updating
+        const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
+        if (!npcsInGrid || !npcsInGrid[this.id]) {
+            console.warn(`⚠️ NPC ${this.id} (${this.type}) attempting to update but not found in grid ${gridId}. This NPC may be orphaned.`);
+            // Stop this NPC from continuing to update
+            if (this.updateInterval) {
+                clearInterval(this.updateInterval);
+                this.updateInterval = null;
+            }
+            return;
+        }
+        
         await NPCsInGridManager.updateNPC(gridId, this.id, {
             state: this.state,
             position: this.position,

@@ -23,6 +23,19 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       return;
     }
     
+    // Handle step 0 by advancing to step 1
+    if (currentPlayer?.ftuestep === 0) {
+      console.log('🎓 Player at FTUE step 0, advancing to step 1');
+      incrementFTUEStep(currentPlayer.playerId || currentPlayer._id, currentPlayer, setCurrentPlayer)
+        .then(() => {
+          console.log('Successfully advanced from step 0 to step 1');
+        })
+        .catch(err => {
+          console.error('Failed to advance from step 0:', err);
+        });
+      return;
+    }
+    
     if (currentPlayer?.ftuestep) {
       const stepData = FTUEstepsData.find(step => step.step === currentPlayer.ftuestep);
       if (stepData) {

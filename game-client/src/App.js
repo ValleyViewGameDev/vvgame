@@ -4,7 +4,7 @@ import './VFX/VFX.css';
 import axios from 'axios';
 import API_BASE from './config.js';
 import Chat from './GameFeatures/Chat/Chat';
-import React, { useContext, useState, useEffect, memo, useMemo, useCallback, useRef, act } from 'react';
+import React, { useContext, useState, useEffect, useLayoutEffect, memo, useMemo, useCallback, useRef, act } from 'react';
 import { initializeGrid } from './AppInit';
 import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning } from './Utils/TuningManager';
 import { RenderGrid } from './Render/Render';
@@ -308,13 +308,27 @@ useEffect(() => {
   }
 }, [currentPlayer]);
 
+// Maintain camera position during zoom transitions
+useLayoutEffect(() => {
+  if (zoomLevel && zoomLevel !== 'settlement' && zoomLevel !== 'frontier' && currentPlayer?.location?.g) {
+    const gridId = currentPlayer.location.g;
+    const playerIdStr = String(currentPlayer._id);
+    const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
+    
+    if (playerPos && activeTileSize) {
+      // Use fast centering without animation to prevent jump
+      centerCameraOnPlayerFast(playerPos, activeTileSize);
+    }
+  }
+}, [zoomLevel, activeTileSize]);
+
 // Track the last shown FTUE step to detect changes
 const [lastShownFTUEStep, setLastShownFTUEStep] = useState(null);
 
 // Watch for ftuestep changes to show FTUE modal
 useEffect(() => {
   // Only process FTUE if player is explicitly a first-time user
-  if (currentPlayer?.firsttimeuser === true && currentPlayer?.ftuestep && currentPlayer.ftuestep > 0) {
+  if (currentPlayer?.firsttimeuser === true && currentPlayer?.ftuestep !== undefined && currentPlayer.ftuestep >= 0) {
     // Only show modal if this is a different step than last shown AND it's a forward progression
     if (currentPlayer.ftuestep !== lastShownFTUEStep && 
         (lastShownFTUEStep === null || currentPlayer.ftuestep > lastShownFTUEStep)) {
@@ -378,7 +392,7 @@ const handleNPCPanel = (npc) => {
       setActiveQuestGiver(npc);  // Set the active quest giver globally
       // Set activeStation data for NPC-based access to ensure gridId is available
       setActiveStation({
-        type: 'Farmer',
+        type: npc.type, // Use the actual NPC type (Farmer, Farm Hand, Rancher, Lumberjack)
         position: npc.position,
         gridId: currentPlayer.location?.g
       });
@@ -683,7 +697,7 @@ useEffect(() => {
       setIsAppInitialized(true);
       
       // Check if FTUE should be shown based on ftuestep AND firsttimeuser flag
-      if (updatedPlayerData.firsttimeuser === true && updatedPlayerData.ftuestep && updatedPlayerData.ftuestep > 0) {
+      if (updatedPlayerData.firsttimeuser === true && updatedPlayerData.ftuestep !== undefined && updatedPlayerData.ftuestep >= 0) {
         console.log('🎓 FTUE step detected for first-time user:', updatedPlayerData.ftuestep, ', showing FTUE');
         setShowFTUE(true);
         setLastShownFTUEStep(updatedPlayerData.ftuestep);
@@ -752,6 +766,13 @@ useEffect(() => {
           console.warn(`🛑 Skipping NPC without update() method:`, npc);
           return;
         }
+        
+        // Verify NPC belongs to current grid before updating
+        if (npc.gridId && npc.gridId !== gridId) {
+          console.warn(`⚠️ NPC ${npc.id} (${npc.type}) has gridId ${npc.gridId} but is being updated in grid ${gridId}. Skipping.`);
+          return;
+        }
+        
         //console.log(`[🐮 NPC LOOP] Controller running update() for NPC ${npc.id}, state=${npc.state}`);
         npc.update(Date.now(), NPCsInGrid[gridId], gridId, activeTileSize);
       });
