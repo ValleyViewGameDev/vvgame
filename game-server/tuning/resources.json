@@ -350,7 +350,7 @@
     "action": "openUI",
     "passable": false,
     "qtycollected": 1,
-    "source": "Buy",
+    "source": "Build",
     "range": 2,
     "validong": true,
     "validond": true,

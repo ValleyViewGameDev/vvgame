@@ -237,9 +237,8 @@ const handlePurchase = async (resourceType) => {
     currentStationPosition && gridId;
 
   return (
-    <Panel onClose={onClose} descriptionKey="1005" titleKey="1105" panelName="SkillsAndUpgradesPanel">
+    <Panel onClose={onClose} descriptionKey="1005" title={`${stationEmoji} ${entryPoint}`} panelName="SkillsAndUpgradesPanel">
       <div className="standard-panel">
-      <h2>{stationEmoji} {entryPoint}</h2> {/* ✅ Display emoji before entry point */}
       
       {showSellButton && (
         <div className="standard-buttons">

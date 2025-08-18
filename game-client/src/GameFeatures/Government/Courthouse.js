@@ -10,6 +10,7 @@ import '../../UI/Panel.css';
 import { useStrings } from '../../UI/StringsContext';
 import '../../UI/Modal.css';
 import { getMayorUsername } from './GovUtils';
+import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 
 const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
 
@@ -33,6 +34,7 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalContent, setModalContent] = useState(null);
     const [mayor, setMayor] = useState("");
+    const [population, setPopulation] = useState(0);
 
     
     const handleViewElectionLog = async () => {
@@ -167,6 +169,10 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
             // Fetch mayor username
             const mayorName = await getMayorUsername(currentPlayer.settlementId);
             setMayor(mayorName);
+            
+            // Calculate population
+            const populationCount = calculateSettlementPopulation(settlementData);
+            setPopulation(populationCount);
 
             // Always reset hasVoted and votedFor before checking
             setHasVoted(false);
@@ -312,13 +318,11 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
     return (
         <Panel onClose={onClose} descriptionKey="1012" titleKey="1112" panelName="Courthouse">
             <div className="panel-content courthouse-panel">       
+
+            {isMayor && <h2>{strings[2080]}</h2>}
+            
                 <div className="debug-buttons">
-                    {isMayor ? (
-                        <h1>{strings[2080]}</h1>
-                    ) : (
-                        <h2>{strings[2079]}</h2>
-                    )}
-                    <p>{strings[2084]}</p>
+
 
 {/* Settlement name section */}
                     <h3>{strings[2082]}</h3>
@@ -339,13 +343,12 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
                             </button>
                         </div>
                     ) : (
-                        <h2>{settlement?.displayName || 'Unnamed'}</h2>
+                        <h3 style={{ color: 'rgb(154, 106, 22)' }}><strong>{settlement?.displayName || 'Unnamed'}</strong></h3>
                     )}
-
-{/* CURRENT MAYOR section */}
-                    <h3>{strings[2085]}</h3>
-                    <p><strong>{mayor || "Vacant"}</strong></p>
  
+{/* POPULATION section */}
+                    <h3>{strings["3002"]} <strong>{population}</strong></h3>
+
 {/* TAX RATE section */} 
  
                     <h3>{strings[2041]} {taxRate}%</h3>
@@ -374,10 +377,23 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
                         </div>
                     )}
 
+{/* CURRENT MAYOR section - only show if player is not the mayor */}
+                    {!isMayor && (
+                        <>
+                            <h3>{strings[2085]}</h3>
+                            <h2 style={{ color: 'rgb(154, 106, 22)' }}><strong>{mayor || "Vacant"}</strong></h2>
+                        </>
+                    )}
+
+                    {!isMayor && <h2>{strings[2079]}</h2>}
+
+                    <p>{strings[2084]}</p>
+
+
 {/* ELECTIONS section */} 
 
                     <br></br> 
-                    <h3>{strings[2045]}</h3>
+                    <h2>{strings[2045]}</h2>
                     <button className="btn-success" onClick={handleViewElectionLog}>Recent Election Results</button>
                     <p><strong>
                         {electionPhase === "Counting" && strings["2062"]}

@@ -495,13 +495,12 @@ const handleHeal = async (recipe) => {
 
 
   return (
-    <Panel onClose={onClose} descriptionKey="1013" titleKey="1113" panelName="NPCPanel">
+    <Panel onClose={onClose} descriptionKey="1013" title={`${npcData.symbol} ${npcData.type}`} panelName="NPCPanel">
 
 {/* //////////////////// QUESTS //////////////////////// */}
 
       {npcData.action === 'quest' && (
         <div className="quest-options">
-          <h2>{npcData.symbol} {npcData.type}</h2>
           
           {/* Relationship Card */}
           <RelationshipCard
@@ -653,15 +652,14 @@ const handleHeal = async (recipe) => {
             if (playerInGridState) {
               return (
                 <>
-                  <h2>❤️‍🩹 Health: <br />{playerInGridState.hp} / {playerInGridState.maxhp}</h2>
+                  <h2>❤️‍🩹 Your Health: <br />{playerInGridState.hp} / {playerInGridState.maxhp}</h2>
                 </>
               );
             } else {
-              return <h4>Health Unavailable</h4>;
+              return <h4>Your Health Unavailable</h4>;
             }
           })()}
 <br />
-          <h3>This NPC can heal you:</h3>
           {healRecipes.map((recipe) => {
             const ingredients = getIngredientDetails(recipe, masterResources);
             const affordable = canAfford(recipe, inventory, 1);
@@ -699,7 +697,6 @@ const handleHeal = async (recipe) => {
 
       {npcData.action === 'trade' && (
         <div className="trade-options">
-          <h2>{npcData.symbol} {npcData.type}</h2>
           
           {/* Relationship Card */}
           <RelationshipCard

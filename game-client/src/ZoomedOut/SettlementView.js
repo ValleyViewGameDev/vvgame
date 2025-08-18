@@ -14,6 +14,84 @@ import { fetchHomesteadOwner } from "../Utils/worldHelpers";
 import { updateGridStatus } from "../Utils/GridManagement";
 import { processRelocation } from "../Utils/Relocation";
 
+// Center camera on player's current grid in settlement view
+export function centerCameraOnPlayerGrid(currentPlayer, settlementGrid) {
+  if (!currentPlayer?.location?.g || !settlementGrid || settlementGrid.length === 0) {
+    console.warn("Cannot center camera: missing player location or settlement grid");
+    return;
+  }
+
+  const playerGridId = currentPlayer.location.g;
+  
+  // Find the player's grid position in the settlement
+  let playerRow = -1;
+  let playerCol = -1;
+  
+  for (let row = 0; row < settlementGrid.length; row++) {
+    for (let col = 0; col < settlementGrid[row].length; col++) {
+      if (settlementGrid[row][col]?.gridId === playerGridId) {
+        playerRow = row;
+        playerCol = col;
+        break;
+      }
+    }
+    if (playerRow !== -1) break;
+  }
+  
+  if (playerRow === -1 || playerCol === -1) {
+    console.warn(`Player's grid ${playerGridId} not found in settlement`);
+    return;
+  }
+
+  // Wait for next frame to ensure layout is complete
+  requestAnimationFrame(() => {
+    // Find the specific tile element instead of calculating position
+    const allTiles = document.querySelectorAll(".settlement-tile");
+    const tileIndex = playerRow * 8 + playerCol; // 8 columns per row
+    const playerTile = allTiles[tileIndex];
+    
+    if (!playerTile) {
+      console.warn("Player tile element not found");
+      return;
+    }
+
+    // Scroll the tile into view with centering
+    playerTile.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+      inline: "center"
+    });
+    
+    // Fallback: If scrollIntoView doesn't work well, try manual scroll after a delay
+    setTimeout(() => {
+      const updatedRect = playerTile.getBoundingClientRect();
+      const isVisible = (
+        updatedRect.top >= 0 &&
+        updatedRect.left >= 0 &&
+        updatedRect.bottom <= window.innerHeight &&
+        updatedRect.right <= window.innerWidth
+      );
+      
+      if (!isVisible) {
+        // Calculate center manually using body scroll
+        const tileCenterX = updatedRect.left + (updatedRect.width / 2);
+        const tileCenterY = updatedRect.top + (updatedRect.height / 2);
+        const windowCenterX = window.innerWidth / 2;
+        const windowCenterY = window.innerHeight / 2;
+        
+        const scrollX = window.scrollX + (tileCenterX - windowCenterX);
+        const scrollY = window.scrollY + (tileCenterY - windowCenterY);
+        
+        window.scrollTo({
+          left: Math.max(0, scrollX),
+          top: Math.max(0, scrollY),
+          behavior: "smooth"
+        });
+      }
+    }, 500);
+  });
+}
+
 const SettlementView = ({ 
   currentPlayer, 
   isDeveloper,
@@ -94,6 +172,16 @@ const SettlementView = ({
       updateStatus(125);
     }
   }, [isRelocating]);
+
+  // Center camera on player's grid when settlement view loads
+  useEffect(() => {
+    if (settlementGrid.length > 0 && currentPlayer?.location?.g) {
+      // Delay to ensure DOM is ready and rendered
+      setTimeout(() => {
+        centerCameraOnPlayerGrid(currentPlayer, settlementGrid);
+      }, 300);
+    }
+  }, [settlementGrid, currentPlayer?.location?.g]);
 
 
   const handleTileClick = async (tile, TILE_SIZE) => {

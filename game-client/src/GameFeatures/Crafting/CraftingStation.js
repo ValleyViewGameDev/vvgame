@@ -377,9 +377,8 @@ const CraftingStation = ({
   
 
   return (
-    <Panel onClose={onClose} descriptionKey="1009" titleKey="1109" panelName="CraftingStation">
+    <Panel onClose={onClose} descriptionKey="1009" title={`${stationEmoji} ${stationType}`} panelName="CraftingStation">
       <div className="standard-panel">
-        <h2> {stationEmoji} {stationType} </h2>
         
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
@@ -399,9 +398,9 @@ const CraftingStation = ({
                 if (days > 0) parts.push(`${days}d`);
                 if (hours > 0) parts.push(`${hours}h`);
                 if (minutes > 0) parts.push(`${minutes}m`);
-                if (secs > 0 && parts.length === 0) parts.push(`${secs}s`); // Only show seconds if no other units
+                parts.push(`${secs}s`); // Always show seconds
                 
-                return parts.join(' ') || '0s';
+                return parts.join(' ');
               };
               
               const craftTimeText = isCrafting

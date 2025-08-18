@@ -203,9 +203,8 @@ const ShopStation = ({
   };
 
   return (
-    <Panel onClose={onClose} descriptionKey="1025" titleKey="1125" panelName="ShopStation">
+    <Panel onClose={onClose} descriptionKey="1025" title={`${stationEmoji} ${stationType}`} panelName="ShopStation">
       <div className="standard-panel">
-        <h2> {stationEmoji} {stationType} </h2>
           {/* ✅ Conditional TENT text for the Store */}
           {stationType === "Store" && (
             <p style={{ fontWeight: "bold", color: "#4CAF50" }}>

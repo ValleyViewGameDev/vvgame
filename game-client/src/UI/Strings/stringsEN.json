@@ -320,7 +320,7 @@
 
     "3000": "GOV PANEL:",
 
-    "3001": "Settlement:",
+    "3001": "Your Settlement:",
     "3002": "😊 Pop.",
     "3003": "💰 Tax Rate:",
     "3004": "The tax rate is set by the Mayor, for this Settlement, and a percentage of all taxes collected are added to the Mayor's account.",
@@ -646,7 +646,7 @@
     "1032": "🏠 Farm House",
     "1132": "The Farm House is where you can hire people to help you run your homestead." ,
 
-    "440": "Started crafting ",
+    "440": "Started ",
     "441": "In progress ...",
     "442": "🏠 House repairs complete!",
     "450": "❌ Cannot afford crafting costs",

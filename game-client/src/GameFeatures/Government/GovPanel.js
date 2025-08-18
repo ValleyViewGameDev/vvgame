@@ -136,27 +136,24 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
             {settlementData && (
               <>
                 <h3><strong>{strings["3001"]}</strong></h3>  
-                <h3><strong>{settlementData.displayName || settlementData.name || 'Unnamed Settlement'}</strong></h3>
+                <h3 style={{ color: 'rgb(154, 106, 22)' }}><strong>{settlementData.displayName || settlementData.name || 'Unnamed Settlement'}</strong></h3>
                 <h3>{strings["3002"]} <strong>{population}</strong></h3>
               </>
             )}
 
             {/* Taxes Section */}
             <h3>{strings["3003"]} {taxRate}%</h3>
-            <p>{strings["3004"]}</p>
-            <p>{strings["3005"]}</p>
             <div className="panel-buttons">
-              <button className="btn-success" onClick={handleShowTaxLog}>
-                {strings[3020]}
-              </button>
+              <button className="btn-success" onClick={handleShowTaxLog}>{strings[3020]}</button>            
             </div>
+            <p>{strings["3004"]}</p>
             
-            {/* Government Officials Section */}
-            <h3>{strings["3006"]}</h3>
-            <div>
-              <p><strong>Mayor:</strong> {mayor || "Vacant"}</p>
-            </div>
 
+{/* CURRENT MAYOR section */}
+            <h3>{strings[2085]}</h3>
+            <h2 style={{ color: 'rgb(154, 106, 22)' }}><strong>{mayor || "Vacant"}</strong></h2>
+
+            <p>{strings["3005"]}</p>
             <p>{strings["3009"]}</p>
             <p>{strings["3010"]}</p>
             <p>{strings["3011"]}</p>
