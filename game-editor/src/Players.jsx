@@ -264,10 +264,6 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
             
             {/* Player management buttons */}
             <div className="player-actions">
-              <h4>Actions</h4>
-              <button className="action-btn" disabled>
-                View Details
-              </button>
               <button className="action-btn" disabled>
                 Send Message
               </button>
