@@ -323,7 +323,7 @@
     "3001": "Your Settlement:",
     "3002": "😊 Pop.",
     "3003": "💰 Tax Rate:",
-    "3004": "The tax rate is set by the Mayor, for this Settlement, and a percentage of all taxes collected are added to the Mayor's account.",
+    "3004": "The tax rate is set by the Mayor, for this Settlement, and a percentage of all taxes collected are added to the Mayor's bank account.",
     "3005": "Mayors are elected at the Courthouse in Town.",
     "3006": "🏛️ Government Officials",
     "3007": "No government officials elected yet.",
@@ -341,15 +341,12 @@
     
     "4000": "LOGIN PANEL:",
 
-    "4001": "Welcome to Valley View! Don't have an account yet? Create a free account to start playing:",
-    "4002": "Create Account",
     "4003": "Username",
     "4004": "You will not be asked for an email address.",
-    "4005": "With a new account, you'll be granted your own homestead to cultivate in a Settlement with other players, in a Frontier full of Settlements. Adventure awits you in the Valley.",   
     "4006": "Password",
     "4007": "Login",
     "4008": "Username",
-    "4009": "Login to your account to continue playing. If you don't have an",
+    "4009": "Login to your profile to continue playing. If you don't have an",
 
 
     "4050": "PROFILE PANEL:",
@@ -357,10 +354,7 @@
     "4051": "Hi, ",
     "4052": "Change Username:",
     "4053": "Change Password:",
-    "4054": "Account Management",
-    "4055": "Account Status:",
     "4056": "Logout",
-    "4057": "Delete Account",
     "4058": "Player ID:",
     "4059": "Homestead Relocation",
     "4060": "Relocations Remaining:",
@@ -379,7 +373,6 @@
     "5003": "Be more careful next time.",
 
     "5005": "😀 Welcome to Valley View™",
-    "5006": "Please login, or create a free account.",
     "5007": "© Valley View Studios, 2025, All Rights Reserved.",
 
     "5010": "📨 Inbox",
@@ -390,7 +383,6 @@
     "5017": "Be aware that most inventory items are wiped between seasons, so please check the season clock before purchasing, and see the seasons panel for more information.",
 
     "5020": "🚫 You are currently logged out.",
-    "5021": "Click the Login or Create Account button to begin.",
     
     "5025": "🙏 Thank you for your support!",
     "5026": "Your purchase has been delivered to your Inbox.",
@@ -485,7 +477,6 @@
     "10100": "APP.JS STRINGS:",
 
     "10101": "Welcome to Valley View!",
-    "10102": "Please login, or create a free account.",
     "10103": "🎒 Inventory",
     "10104": "🛒 Store",
     "10105": "📨, Inbox",
@@ -663,6 +654,15 @@
 
         "11000": "ADDED STRINGS:",
 
+    "4001": "Welcome to Valley View! Don't have a profile yet? Create a new free profile to start playing:",
+    "4002": "New Profile",
+    "4005": "With your own profile, you'll be granted your own homestead to cultivate in a Settlement with other players, in a Frontier full of Settlements. Adventure awits you in the Valley.",   
+    "10102": "Please login, or create a free profile.",
+    "5006": "Please login, or create a free profile.",
+    "5021": "Click the Login or Create Profile button to begin.",
+    "4054": "Profile Management",
+    "4055": "Profile Status:",
+    "4057": "Delete Your Profile",
     "620": "You need to move closer to interact with this character.",
     "470": "Cannot travel right now, farming actions in progress.",
     "471": "⚠️ Already in progress."
