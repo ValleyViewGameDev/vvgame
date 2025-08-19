@@ -69,7 +69,7 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
             <h4>{strings[4004]}</h4>
             <h4>{strings[4005]}</h4>
 
-            <h3>Have an existing account?</h3>
+            <h3>{strings[5033]}</h3>
 
               <label htmlFor="username">Username</label>
               <input

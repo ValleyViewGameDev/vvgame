@@ -7,15 +7,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jkisherenow/vvgame.git"
+    "url": "git+https://github.com/ValleyViewGameDev/vvgame.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jkisherenow/vvgame/issues"
+    "url": "https://github.com/ValleyViewGameDev/vvgame/issues"
   },
-  "homepage": "https://github.com/jkisherenow/vvgame#readme",
+  "homepage": "https://github.com/ValleyViewGameDev/vvgame#readme",
   "description": "",
   "dependencies": {
     "dotenv": "^17.2.0",
