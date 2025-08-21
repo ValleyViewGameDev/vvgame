@@ -2,6 +2,10 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 console.log('Server.js loaded and running...');
+// Debug: Log email configuration at startup
+console.log('📧 Email environment variables at startup:');
+console.log('  ALERT_EMAIL_USERNAME:', process.env.ALERT_EMAIL_USERNAME);
+console.log('  ALERT_EMAIL_RECEIVER:', process.env.ALERT_EMAIL_RECEIVER);
 
 require('./schedulers/mainScheduler');
 require('./schedulers/electionScheduler');

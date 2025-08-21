@@ -61,7 +61,7 @@ const GridEditor = ({ activePanel }) => {
       setTileTypes(tileTypeList);
 
       const filteredResources = parsedResources.filter(res =>
-        ["source", "doober", "reward", "special", "crafting", "training", "shop", "trading", "station", "deco", "travel", "stall"].includes(res.category)
+        ["source", "editor", "doober", "reward", "special", "crafting", "training", "shop", "trading", "station", "deco", "travel", "stall"].includes(res.category)
       );
       setAvailableResources(filteredResources);
 

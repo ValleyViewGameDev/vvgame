@@ -1,6 +1,11 @@
 import nodemailer from 'nodemailer';
 
 export async function sendNewUserEmail(player) {
+  // Debug logging
+  console.log('📧 Email configuration:');
+  console.log('  ALERT_EMAIL_USERNAME:', process.env.ALERT_EMAIL_USERNAME);
+  console.log('  ALERT_EMAIL_RECEIVER:', process.env.ALERT_EMAIL_RECEIVER);
+  
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
