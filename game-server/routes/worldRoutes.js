@@ -1482,15 +1482,16 @@ router.post('/farm-animal/collect', async (req, res) => {
     grid.NPCsInGrid.set(npcId, npc);
     grid.markModified('NPCsInGrid');
 
-    // Save changes
-    await grid.save();
-    await player.save();
-
     // Complete transaction and cleanup old IDs
     cleanupTransactionIds(player);
     player.lastTransactionIds.set(transactionKey, { id: transactionId, timestamp: Date.now() });
     player.activeTransactions.delete(transactionKey);
-    await player.save();
+
+    // Save all changes in a single operation
+    await Promise.all([
+      grid.save(),
+      player.save()
+    ]);
 
     res.json({ 
       success: true, 
