@@ -53,7 +53,16 @@ const GridSchema = new mongoose.Schema({
           message: 'Invalid icon format. Expected an emoji.'
         }
       },
-     cd
+      hp: { type: Number, default: 25 },
+      maxhp: { type: Number, default: 25 },
+      attackbonus: { type: Number, required: true },
+      armorclass: { type: Number, required: true },
+      damage: { type: Number, required: true },
+      attackrange: { type: Number, required: true },
+      speed: { type: Number, required: true },
+      iscamping: { type: Boolean, default: false },
+      isinboat: { type: Boolean, default: false },
+      lastUpdated: { type: Date, default: Date.now }
     }),
     default: {}
   },
