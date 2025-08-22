@@ -34,13 +34,19 @@ const GridEditor = ({ activePanel }) => {
   const [availableNpcs, setAvailableNpcs] = useState([]); // ✅ Store available NPCs
   const [tileDistribution, setTileDistribution] = useState({ g: 100, s: 0, d: 0, w: 0, p: 0, l: 0 });
   const [resourceDistribution, setResourceDistribution] = useState({});
+  const [enemyDistribution, setEnemyDistribution] = useState({}); // Track enemy distribution
   const tileColors = { g: "#3dc43d", s: "#8b989c", d: "#c0834a", w: "#58cad8", p: "#dab965", l: "#c4583d" };
   const [copiedResource, setCopiedResource] = useState(null); // Holds copied resource
+  const [currentGridType, setCurrentGridType] = useState(''); // Track current grid's type
+  const [selectedTileTypes, setSelectedTileTypes] = useState({ g: true, s: true, d: true, w: true, p: true, l: true }); // For selective tile deletion
   // Removed currentFile, setCurrentFile, currentDirectory, setCurrentDirectory
   const pendingLoad = useRef(null);
 
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [showLoadConfirm, setShowLoadConfirm] = useState(false);
+  
+  // Computed list of enemy NPCs
+  const enemyNpcs = availableNpcs.filter(npc => npc.action === 'attack' || npc.action === 'spawn');
 
   useEffect(() => {
     try {
@@ -67,6 +73,14 @@ const GridEditor = ({ activePanel }) => {
 
       const filteredNpcs = parsedResources.filter(res => res.category === "npc");
       setAvailableNpcs(filteredNpcs);
+      
+      // Initialize enemy distribution for NPCs with attack or spawn actions
+      const enemies = filteredNpcs.filter(npc => npc.action === 'attack' || npc.action === 'spawn');
+      const initialEnemyDist = {};
+      enemies.forEach(enemy => {
+        initialEnemyDist[enemy.type] = 0;
+      });
+      setEnemyDistribution(initialEnemyDist);
     } catch (error) {
       console.error('Failed to load resources:', error);
     }
@@ -75,9 +89,13 @@ const GridEditor = ({ activePanel }) => {
   // LISTENER for the custom event that triggers loading the Grid Editor (from FrontierView)
   useEffect(() => {
     const handleEditorLoadGrid = (event) => {
-      const { gridCoord, gridType } = event.detail || {};
-      console.log("🕓 Received load request for:", gridCoord, gridType);
-      pendingLoad.current = { fileName: gridCoord, directory: gridType };
+      const { gridCoord, gridType, directory } = event.detail || {};
+      console.log("🕓 Received load request for:", gridCoord, "gridType:", gridType, "directory:", directory);
+      pendingLoad.current = { fileName: gridCoord, directory: directory || gridType };
+      // Set the actual grid type from the database
+      if (gridType) {
+        setCurrentGridType(gridType);
+      }
     };
     window.addEventListener('editor-load-grid', handleEditorLoadGrid);
     return () => window.removeEventListener('editor-load-grid', handleEditorLoadGrid);
@@ -280,6 +298,13 @@ const handleResourceDistributionChange = (resourceType, value) => {
   }));
 };
 
+const handleEnemyDistributionChange = (enemyType, value) => {
+  setEnemyDistribution(prev => ({
+    ...prev,
+    [enemyType]: value === "" ? 0 : parseInt(value, 10)
+  }));
+};
+
 
   const handleTileClick = (x, y) => {
     setGrid(prevGrid => {
@@ -337,6 +362,7 @@ const handleResourceDistributionChange = (resourceType, value) => {
   // Modified loadLayout to accept setFileInfo and update file context if needed
   const loadLayout = async (setFileInfo = true) => {
     console.log(`🔄 Loading layout: ${fileName} from directory: ${directory}`);
+    // Grid type should be set from the database, not the directory
     try {
       const layoutPath = path.join(
         projectRoot,
@@ -436,33 +462,29 @@ const handleResourceDistributionChange = (resourceType, value) => {
     }
   };
 
- // 🔹 Generate Tiles Function (Client)
- const handleGenerateTiles = () => {
-   let choice = null;
-   if (window.confirm("Generate tile types across the entire board? Click Cancel to limit to blank tiles.")) {
-     choice = 'all';
-   } else if (window.confirm("Generate tile types only for blank tiles?")) {
-     choice = 'blanks';
-   }
-   if (!choice) return;
-   console.log("🔄 Generating new tile types...");
+ // 🔹 Generate Tiles Functions
+ const handleGenerateTilesBlanksOnly = () => {
+   if (!window.confirm("Generate tiles only on blank spaces?")) return;
+   
+   console.log("🔄 Generating tiles on blank spaces...");
    if (!grid || !tileDistribution || !masterResources) {
      console.warn("⚠️ Missing grid or tile distribution data. Cannot generate tiles.");
      return;
    }
+   
    let tilePool = Object.entries(tileDistribution).flatMap(([tileType, count]) => {
      const tileResource = masterResources.find(res => res.type === tileType && res.category === "tile");
      return tileResource ? Array(count).fill(tileResource.layoutkey) : [];
    });
+   
    if (tilePool.length === 0) {
      console.warn("⚠️ No valid tile distribution found.");
      return;
    }
+   
    tilePool = tilePool.sort(() => Math.random() - 0.5); // Shuffle tile options
    let newGrid = grid.map(row => row.map(cell => ({ ...cell })));
-   if (choice.toLowerCase() === 'all') {
-     newGrid = newGrid.map(row => row.map(cell => ({ ...cell, type: "" })));
-   }
+   
    let targets = [];
    newGrid.forEach((row, x) => {
      row.forEach((cell, y) => {
@@ -471,12 +493,52 @@ const handleResourceDistributionChange = (resourceType, value) => {
        }
      });
    });
+   
    targets.forEach(({ x, y }) => {
      const randomTile = tilePool[Math.floor(Math.random() * tilePool.length)];
      newGrid[x][y].type = randomTile;
    });
+   
    setGrid(newGrid);
-   console.log("✅ Tiles successfully generated!");
+   console.log("✅ Tiles successfully generated on blank spaces!");
+ };
+
+ const handleGenerateTilesOverwriteAll = () => {
+   if (!window.confirm("Overwrite ALL tiles based on distribution?")) return;
+   
+   console.log("🔄 Overwriting all tiles...");
+   if (!grid || !tileDistribution || !masterResources) {
+     console.warn("⚠️ Missing grid or tile distribution data. Cannot generate tiles.");
+     return;
+   }
+   
+   let tilePool = Object.entries(tileDistribution).flatMap(([tileType, count]) => {
+     const tileResource = masterResources.find(res => res.type === tileType && res.category === "tile");
+     return tileResource ? Array(count).fill(tileResource.layoutkey) : [];
+   });
+   
+   if (tilePool.length === 0) {
+     console.warn("⚠️ No valid tile distribution found.");
+     return;
+   }
+   
+   tilePool = tilePool.sort(() => Math.random() - 0.5); // Shuffle tile options
+   let newGrid = grid.map(row => row.map(cell => ({ ...cell, type: "" }))); // Clear all tiles first
+   
+   let targets = [];
+   newGrid.forEach((row, x) => {
+     row.forEach((cell, y) => {
+       targets.push({ x, y });
+     });
+   });
+   
+   targets.forEach(({ x, y }) => {
+     const randomTile = tilePool[Math.floor(Math.random() * tilePool.length)];
+     newGrid[x][y].type = randomTile;
+   });
+   
+   setGrid(newGrid);
+   console.log("✅ All tiles successfully overwritten!");
  };
 
 
@@ -527,6 +589,127 @@ const handleResourceDistributionChange = (resourceType, value) => {
   console.log("✅ Resources successfully generated!");
 };
 
+// 🔹 Populate Random Enemies Function
+const handlePopulateRandomEnemies = () => {
+  console.log("🎯 Populating random enemies...");
+  if (!grid || !enemyDistribution || !masterResources) {
+    console.warn("⚠️ Missing grid or enemy distribution data.");
+    return;
+  }
+  
+  // Create enemy pool based on distribution
+  let enemyPool = [];
+  Object.entries(enemyDistribution).forEach(([type, count]) => {
+    const enemy = masterResources.find(r => r.type === type && r.category === 'npc' && (r.action === 'attack' || r.action === 'spawn'));
+    if (enemy && count > 0) {
+      for (let i = 0; i < count; i++) {
+        enemyPool.push(enemy);
+      }
+    }
+  });
+  
+  if (enemyPool.length === 0) {
+    console.warn("⚠️ No enemies to place. Set enemy quantities first.");
+    alert("No enemies to place. Please set enemy quantities first.");
+    return;
+  }
+  
+  // Find all valid cells for enemy placement
+  let validCells = [];
+  grid.forEach((row, x) => {
+    row.forEach((cell, y) => {
+      if (!cell.resource) {
+        // Get the tile type
+        const tileResource = masterResources.find(r => r.layoutkey === cell.type && r.category === 'tile');
+        if (tileResource) {
+          validCells.push({ x, y, tileType: tileResource.type });
+        }
+      }
+    });
+  });
+  
+  if (validCells.length === 0) {
+    console.warn("⚠️ No valid cells available for enemy placement.");
+    alert("No valid cells available for enemy placement.");
+    return;
+  }
+  
+  // Shuffle enemy pool to randomize placement
+  enemyPool = enemyPool.sort(() => Math.random() - 0.5);
+  
+  // Place enemies respecting tile validity
+  let newGrid = grid.map(row => row.map(cell => ({ ...cell })));
+  let placedCount = 0;
+  let skippedCount = 0;
+  
+  for (const enemy of enemyPool) {
+    // Shuffle valid cells for each enemy to ensure random placement
+    const shuffledCells = [...validCells].sort(() => Math.random() - 0.5);
+    
+    // Find first valid cell for this enemy
+    let placed = false;
+    for (const cell of shuffledCells) {
+      // Check if enemy is valid on this tile type
+      const validOnProperty = `validon${cell.tileType}`;
+      if (enemy[validOnProperty]) {
+        newGrid[cell.x][cell.y].resource = enemy.type;
+        // Remove this cell from validCells so it won't be used again
+        validCells = validCells.filter(c => !(c.x === cell.x && c.y === cell.y));
+        placedCount++;
+        placed = true;
+        break;
+      }
+    }
+    
+    if (!placed) {
+      skippedCount++;
+      console.warn(`⚠️ Could not place ${enemy.type} - no valid tiles available`);
+    }
+    
+    // If no more valid cells, stop trying
+    if (validCells.length === 0) break;
+  }
+  
+  setGrid(newGrid);
+  console.log(`✅ Successfully placed ${placedCount} enemies!`);
+  
+  if (placedCount < enemyPool.length) {
+    if (skippedCount > 0) {
+      alert(`Placed ${placedCount} out of ${enemyPool.length} enemies.\n${skippedCount} enemies could not be placed due to tile validity restrictions.`);
+    } else {
+      alert(`Only ${placedCount} out of ${enemyPool.length} enemies could be placed due to limited empty cells.`);
+    }
+  }
+};
+
+// 🔹 Clear All Enemies Function
+const handleClearAllEnemies = () => {
+  if (!window.confirm("Are you sure you want to remove all enemies from the grid?")) return;
+  
+  console.log("🗑️ Clearing all enemies from grid...");
+  
+  const newGrid = grid.map(row =>
+    row.map(cell => {
+      // Check if this resource is an enemy NPC
+      if (cell.resource) {
+        const resource = masterResources.find(r => 
+          r.type === cell.resource && 
+          r.category === 'npc' && 
+          (r.action === 'attack' || r.action === 'spawn')
+        );
+        if (resource) {
+          // Remove the enemy
+          return { ...cell, resource: "" };
+        }
+      }
+      return cell;
+    })
+  );
+  
+  setGrid(newGrid);
+  console.log("✅ All enemies removed from grid.");
+};
+
 // 🔹 Clear Grid Function
 const handleClearGrid = () => {
   const clearedGrid = grid.map(row =>
@@ -537,43 +720,154 @@ const handleClearGrid = () => {
   console.log("🧹 Cleared all tiles and resources.");
 };
 
+// Delete all resources from the grid
+const handleDeleteAllResources = () => {
+  if (!window.confirm("Are you sure you want to delete all resources from the grid?")) return;
+  
+  const newGrid = grid.map(row =>
+    row.map(cell => ({ ...cell, resource: "" }))
+  );
+  setGrid(newGrid);
+  console.log("🗑️ Deleted all resources from grid.");
+};
 
-  //////////////////////////////////////////////////
+// Delete tiles based on selected types
+const handleDeleteSelectedTiles = () => {
+  const selectedTypes = Object.entries(selectedTileTypes)
+    .filter(([_, selected]) => selected)
+    .map(([type, _]) => type);
+    
+  if (selectedTypes.length === 0) {
+    alert("Please select at least one tile type to delete.");
+    return;
+  }
+  
+  if (!window.confirm(`Are you sure you want to delete all tiles of types: ${selectedTypes.join(', ')}?`)) return;
+  
+  // Map single-letter types to their layoutkey equivalents
+  const typeMapping = {
+    'g': 'GR',  // grass
+    's': 'SL',  // slate
+    'd': 'DI',  // dirt
+    'w': 'WA',  // water
+    'p': 'PA',  // pavement
+    'l': 'LV'   // lava
+  };
+  
+  const layoutKeysToDelete = selectedTypes.map(type => typeMapping[type] || type);
+  
+  const newGrid = grid.map(row =>
+    row.map(cell => {
+      if (layoutKeysToDelete.includes(cell.type)) {
+        return { ...cell, type: "" };
+      }
+      return cell;
+    })
+  );
+  setGrid(newGrid);
+  console.log(`🗑️ Deleted tiles of types: ${selectedTypes.join(', ')} (layoutkeys: ${layoutKeysToDelete.join(', ')})`);
+};
 
-  // --- Generate Signposts Handler ---
-  // const handleGenerateSignposts = () => {
-  //   console.log("📦 Available resource types:", masterResources.map(r => r.type));
-  //   // Map signpost keys to their actual resource.type strings from your masterResources
-  //   const signpostTypes = {
-  //     SignpostNW: "Signpost NW",SignpostN: "Signpost N",SignpostNE: "Signpost NE",SignpostE: "Signpost E",
-  //     SignpostSE: "Signpost SE",SignpostS: "Signpost S",SignpostSW: "Signpost SW",SignpostW: "Signpost W"
-  //   };
-  //   // The keys here are the signpost names; the type string will be looked up in masterResources
-  //   const signpostLocations = [
-  //     { key: "SignpostNW", x: 0, y: 0 }, { key: "SignpostN",  x: 0, y: 31 },
-  //     { key: "SignpostNE", x: 0, y: 63 }, { key: "SignpostE",  x: 31, y: 63 },
-  //     { key: "SignpostSE", x: 63, y: 63 }, { key: "SignpostS",  x: 63, y: 31 },
-  //     { key: "SignpostSW", x: 63, y: 0 }, { key: "SignpostW",  x: 31, y: 0 },
-  //   ];
-  //   setGrid(prevGrid => {
-  //     const newGrid = prevGrid.map(row => [...row]);
-  //     signpostLocations.forEach(({ key, x, y }) => {
-  //       const type = signpostTypes[key];
-  //       const resource = masterResources.find(res => res.type === type);
-  //       if (resource) {
-  //         newGrid[x][y] = {
-  //           ...newGrid[x][y],
-  //           resource: resource.symbol,
-  //         };
-  //         console.log(`✅ Placed ${resource.symbol} at (${x}, ${y})`);
-  //       } else {
-  //         console.warn(`❗ Signpost resource "${type}" not found in masterResources.`);
-  //       }
-  //     });
-  //     return newGrid;
-  //   });
-  //   console.log("🪧 Signposts placed at predefined positions.");
-  // };
+// Populate resource quantities based on random template from gridType folder
+const handlePopulateResourceQuantities = () => {
+  if (!currentGridType) {
+    alert("Please load a grid first to determine its type.");
+    return;
+  }
+  
+  try {
+    const layoutDir = path.join(
+      projectRoot,
+      'game-server',
+      'layouts',
+      'gridLayouts',
+      currentGridType
+    );
+    
+    // Get all JSON files in the directory
+    const files = fs.readdirSync(layoutDir).filter(file => file.endsWith('.json'));
+    
+    if (files.length === 0) {
+      alert(`No template files found in ${currentGridType} folder.`);
+      return;
+    }
+    
+    // Pick a random file
+    const randomFile = files[Math.floor(Math.random() * files.length)];
+    const templatePath = path.join(layoutDir, randomFile);
+    
+    // Read and parse the template
+    const templateData = JSON.parse(fs.readFileSync(templatePath, 'utf-8'));
+    
+    if (templateData.resourceDistribution) {
+      // Reset all resource quantities to 0
+      const newDistribution = {};
+      availableResources.forEach(res => {
+        newDistribution[res.type] = 0;
+      });
+      
+      // Apply quantities from template
+      Object.entries(templateData.resourceDistribution).forEach(([type, quantity]) => {
+        if (newDistribution.hasOwnProperty(type)) {
+          newDistribution[type] = quantity;
+        }
+      });
+      
+      setResourceDistribution(newDistribution);
+      console.log(`✅ Populated resource quantities from template: ${randomFile}`);
+      alert(`Resource quantities populated from template: ${randomFile}`);
+    } else {
+      alert("Selected template has no resource distribution data.");
+    }
+  } catch (error) {
+    console.error('Failed to populate resource quantities:', error);
+    alert('Error loading template. Check console for details.');
+  }
+};
+
+// Populate tile distribution based on random template from gridType folder
+const handlePopulateTileDistribution = () => {
+  if (!currentGridType) {
+    alert("Please load a grid first to determine its type.");
+    return;
+  }
+  
+  try {
+    const layoutDir = path.join(
+      projectRoot,
+      'game-server',
+      'layouts',
+      'gridLayouts',
+      currentGridType
+    );
+    
+    // Get all JSON files in the directory
+    const files = fs.readdirSync(layoutDir).filter(file => file.endsWith('.json'));
+    
+    if (files.length === 0) {
+      alert(`No template files found in ${currentGridType} folder.`);
+      return;
+    }
+    
+    // Pick a random file
+    const randomFile = files[Math.floor(Math.random() * files.length)];
+    const templatePath = path.join(layoutDir, randomFile);
+    
+    // Read and parse the template
+    const templateData = JSON.parse(fs.readFileSync(templatePath, 'utf-8'));
+    
+    if (templateData.tileDistribution) {
+      setTileDistribution({ ...templateData.tileDistribution });
+      console.log(`✅ Populated tile distribution from template: ${randomFile}`);
+      alert(`Tile distribution populated from template: ${randomFile}`);
+    } else {
+      alert("Selected template has no tile distribution data.");
+    }
+  } catch (error) {
+    console.error('Failed to populate tile distribution:', error);
+    alert('Error loading template. Check console for details.');
+  }
+};
 
 
 // --- Expose loadLayout globally for external triggering ---
@@ -592,33 +886,69 @@ if (typeof window !== "undefined") {
       {/* Left Panel for UI Controls */}
       <div className="editor-panel"> 
         <h2>Grid Editor</h2>
+        
+        <div className="small-button" style={{ marginTop: '4px', marginBottom: '4px' }}>
+          <button onClick={handleClearGrid}>Clear Grid</button>
+        </div>
+
+        {/* File Management Container */}
+        <div style={{ 
+          backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+          padding: '10px', 
+          borderRadius: '5px', 
+          marginBottom: '15px',
+          border: '1px solid rgba(0,0,0,0.1)'
+        }}>
           <FileManager
             loadLayout={confirmAndLoadLayout}
             saveLayout={confirmAndSaveLayout}
           />
-      <div className="button-group">
-          <button className="small-button" onClick={handleClearGrid}>Clear</button>
+
+          {/* Display current grid type */}
+          <div style={{ marginTop: '8px' }}>
+            <strong>Grid Type:</strong> {currentGridType || 'Not loaded'}
+          </div>
         </div>
 
-        <h4>Tile Size:</h4>
-        <input 
-          type="range" min="10" max="50" value={tileSize} 
-          onChange={(e) => setTileSize(Number(e.target.value))}
-        />
-        <h4>Tile Brush Size:</h4>
-        <input
-          type="range"
-          min="1"
-          max="10"
-          value={brushSize}
-          onChange={(e) => setBrushSize(Number(e.target.value))}
-        />
+        {/* Size Controls Container */}
+        <div style={{ 
+          backgroundColor: 'white', 
+          padding: '10px', 
+          borderRadius: '5px', 
+          marginBottom: '15px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        }}>
+          <h4 style={{ margin: '0 0 5px 0' }}>Tile Size:</h4>
+          <input 
+            type="range" min="10" max="50" value={tileSize} 
+            onChange={(e) => setTileSize(Number(e.target.value))}
+            style={{ width: '100%', marginBottom: '10px' }}
+          />
+          <h4 style={{ margin: '0 0 5px 0' }}>Tile Brush Size:</h4>
+          <input
+            type="range"
+            min="1"
+            max="10"
+            value={brushSize}
+            onChange={(e) => setBrushSize(Number(e.target.value))}
+            style={{ width: '100%' }}
+          />
+        </div>
   
+        {/* Selected Tile Container */}
+        <div style={{ 
+          backgroundColor: 'white', 
+          padding: '10px', 
+          borderRadius: '5px', 
+          marginBottom: '15px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        }}>
+
         {selectedTile && (
           <>
-            <h3>Selected Tile:</h3>
+            <h4>SELECTED TILE:</h4>
             <h4>Tile Type: {grid[selectedTile.x][selectedTile.y].type || "None"}</h4>
-            <p>Shortcuts: (g)rass; (d)irt; (s)late; (p)avement; (w)ater; (l)ava; sa(n)d; (DEL)=clear</p>
+            <p style={{ fontSize: '12px', color: '#666' }}>Shortcuts: (g)rass; (d)irt; (s)late; (p)avement; (w)ater; (l)ava; sa(n)d; (DEL)=clear</p>
   
             <h4>Resource: {grid[selectedTile.x][selectedTile.y].resource || "None"}</h4>
 
@@ -643,17 +973,50 @@ if (typeof window !== "undefined") {
             </select>
           </>
         )}
-
-        {/* Moved Tile Distribution Below Selected Tile Info */}
-        <h3>Tile Distribution:</h3>
-        <p>Blank tile random distribution (when grid is created):</p>
-        <div className="button-group">
-          <button className="small-button" onClick={handleGenerateTiles}>Generate Tiles</button>
         </div>
+
+
+        <h3>TILES:</h3>
+
+        <div className="button-group" style={{ marginBottom: '10px' }}>
+          <button className="small-button" onClick={handleDeleteSelectedTiles}>Delete Selected Tiles</button>
+        </div>
+        
+        {/* Tile type checkboxes for selective deletion */}
+        <div style={{ marginBottom: '15px', padding: '8px', backgroundColor: '#f5f5f5', borderRadius: '5px' }}>
+          <p style={{ fontSize: '12px', marginBottom: '5px' }}>Select tile types to delete:</p>
+          {Object.entries(tileColors).map(([type, color]) => (
+            <div key={type} style={{ display: 'inline-block', marginRight: '15px', marginBottom: '5px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={selectedTileTypes[type]}
+                  onChange={(e) => setSelectedTileTypes(prev => ({ ...prev, [type]: e.target.checked }))}
+                  style={{ marginRight: '5px' }}
+                />
+                <span style={{ 
+                  backgroundColor: color, 
+                  color: 'white', 
+                  padding: '2px 8px', 
+                  borderRadius: '3px',
+                  fontSize: '12px',
+                  fontWeight: 'bold'
+                }}>
+                  {type}
+                </span>
+              </label>
+            </div>
+          ))}
+        </div>
+        
+        <div className="button-group" >
+          <button className="small-button" onClick={handlePopulateTileDistribution}>Populate tile sliders based on gridType (Loads tile %'s from random template in the {currentGridType || 'gridType'} folder) </button>
+        </div>
+
         {Object.keys(tileDistribution).map(type => (
-          <div key={type} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+          <div key={type} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
             <label style={{
-              width: '30px',
+              fontSize: '12px', width: '30px',
               fontWeight: 'bold'
             }}>
               {type.toLowerCase()}:
@@ -673,17 +1036,50 @@ if (typeof window !== "undefined") {
           </div>
         ))}
 
+        <div className="button-group" style={{ marginBottom: '6px' }}>
+          <button className="small-button" onClick={handleGenerateTilesBlanksOnly}>Generate tiles based on sliders (fill blank tiles only)</button>
+        </div>
+        <div className="button-group">
+          <button className="small-button" onClick={handleGenerateTilesOverwriteAll}>Generate tiles based on sliders (overwrite all tiles)</button>
+        </div>
+
+
+        {/* 🎯 Enemy Distribution Section */}
+        <h3>ENEMIES:</h3>
+
+        <div className="button-group" style={{ marginBottom: '10px' }}>
+          <button className="small-button" onClick={handlePopulateRandomEnemies}>Populate random enemies</button>
+        </div>
+        <div className="button-group" style={{ marginBottom: '10px' }}>
+          <button className="small-button" onClick={handleClearAllEnemies}>Clear all enemies</button>
+        </div>
+        {enemyNpcs.map(enemy => (
+          <div key={enemy.type} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+            <input
+              type="number"
+              min="0"
+              value={enemyDistribution[enemy.type] || ""}
+              onChange={(e) => handleEnemyDistributionChange(enemy.type, e.target.value)}
+              style={{ width: "50px", marginRight: "10px" }}
+            />
+            <label>{enemy.symbol} {enemy.type}</label>
+          </div>
+        ))}
+
 
         {/* 🔹 Resource Distribution Section */}
-        <h3>Resource Distribution</h3>
-        <p>Enter how many of each resource should randomly generate:</p>
-        <div className="button-group">
-          <button className="small-button" onClick={handleGenerateResources}>Generate Resources</button>
+        <h3>RESOURCES:</h3>
+
+        <div className="button-group" style={{ marginBottom: '6px' }}>
+          <button className="small-button" onClick={handleDeleteAllResources}>Delete All Resources (removes all resources but keeps tile types)</button>
         </div>
-        {/* --- Add Generate Signposts Button --- */}
-        {/* <div className="button-group">
-          <button className="small-button" onClick={handleGenerateSignposts}>Generate Signposts</button>
-        </div> */}
+        <div className="button-group" style={{ marginBottom: '6px' }}>
+          <button className="small-button" onClick={handlePopulateResourceQuantities}>Populate quantities based on gridType (Loads resource counts from a random template in the {currentGridType || 'gridType'} folder)</button>
+        </div>
+        <div className="button-group">
+          <button className="small-button" onClick={handleGenerateResources}>Generate Resources (places resources randomly on valid tiles based on set quantities)</button>
+        </div>
+
         {availableResources.map(resource => (
           <div key={resource.type} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
             <input

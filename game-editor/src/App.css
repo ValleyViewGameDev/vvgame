@@ -112,7 +112,7 @@ h4, h5, h6 {
   color: #4a9e39;             /* Green text */
   font-size: 12px;            /* Smaller text */
   font-weight: bold;
-  padding: 3px 8px;           /* Reduce padding */
+  padding: 3px 4px;           /* Reduce padding */
   cursor: pointer;
   border-radius: 4px;         /* Slight rounding */
   transition: all 0.2s ease-in-out;

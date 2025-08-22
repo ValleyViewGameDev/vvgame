@@ -2,8 +2,10 @@ import React, { useState, useEffect, useMemo } from 'react';
 import './FrontierView.css';
 import Modal from './components/Modal.jsx';
 import { useFileContext } from './FileContext';
+import axios from 'axios';
 
 const GRID_DIMENSION = 64;
+const API_BASE = 'http://localhost:3001'; // You can make this configurable later
 
 const FrontierView = ({ selectedFrontier, settlements, activePanel }) => {
   const { setFileName, setDirectory, selectedCell, setSelectedCell } = useFileContext();
@@ -124,8 +126,170 @@ const handleLoadGrid = () => {
     setFileName(String(selectedCell.coord));
     setDirectory("valleyFixedCoord/");
     window.dispatchEvent(new CustomEvent('switch-to-editor'));
-    window.dispatchEvent(new CustomEvent('editor-load-grid', { detail: { gridCoord: selectedCell.coord, gridType: selectedCell.type } }));
+    window.dispatchEvent(new CustomEvent('editor-load-grid', { 
+      detail: { 
+        gridCoord: selectedCell.coord, 
+        gridType: selectedCell.type,
+        directory: "valleyFixedCoord/"  // Pass directory explicitly
+      } 
+    }));
 };
+
+const handleCreateGridLive = async () => {
+    console.log("handleCreateGridLive called");
+    if (!selectedCell?.coord || !selectedCell?.type) return;
+    
+    // Don't allow for homestead or town types
+    if (['homestead', 'town'].includes(selectedCell.type)) {
+      alert('Cannot create live grids for homestead or town types.');
+      return;
+    }
+    
+    const confirmed = window.confirm(
+      `Are you sure you want to create this grid in the live game?\n\n` +
+      `Grid Coordinate: ${selectedCell.coord}\n` +
+      `Grid Type: ${selectedCell.type}\n\n` +
+      `This will create a real grid in the game database.`
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+      console.log("🔍 Fetching all settlements to determine grid details for gridCoord:", selectedCell.coord);
+      const settlementsResponse = await axios.get(`${API_BASE}/api/settlements`);
+      const settlements = settlementsResponse.data;
+
+      if (!settlements || settlements.length === 0) {
+        throw new Error("No settlements returned from the server");
+      }
+
+      let foundGrid = null;
+      let foundSettlementId = null;
+      let foundFrontierId = null;
+
+      for (const settlement of settlements) {
+        if (!settlement.grids) continue;
+
+        for (const row of settlement.grids) {
+          for (const grid of row) {
+            if (String(grid.gridCoord) === String(selectedCell.coord)) {
+              foundGrid = grid;
+              foundSettlementId = settlement._id;
+              foundFrontierId = settlement.frontierId;
+              break;
+            }
+          }
+          if (foundGrid) break;
+        }
+        if (foundGrid) break;
+      }
+
+      if (!foundGrid) {
+        console.warn(`❗ GridCoord ${selectedCell.coord} not found in any settlement.`);
+        alert("GridCoord not found in any settlement data.");
+        return;
+      }
+
+      const payload = {
+        gridCoord: selectedCell.coord,
+        gridType: foundGrid.gridType,
+        settlementId: foundSettlementId,
+        frontierId: foundFrontierId,
+      };
+
+      console.log("📤 Sending grid creation request with:", payload);
+
+      const response = await axios.post(`${API_BASE}/api/create-grid`, payload);
+
+      console.log(`✅ Grid created: ${selectedCell.coord}`, response.data);
+      setModalMessage(`Grid ${selectedCell.coord} created successfully in the live game!`);
+      setShowModal(true);
+      
+      // Refresh the frontier data to update the view
+      setTimeout(() => {
+        handleRefreshData();
+      }, 1500);
+    } catch (error) {
+      console.error(`❌ Failed to create grid ${selectedCell.coord}:`, error);
+      alert(`Failed to create grid ${selectedCell.coord}. See console for details.`);
+    }
+};
+
+const handleResetGridLive = async () => {
+    console.log("handleResetGridLive called");
+    if (!selectedCell?.coord || !selectedCell?.type) return;
+    
+    // First, check if this grid has been created (has a gridId)
+    const foundGrid = gridMap.get(Number(selectedCell.coord));
+    if (!foundGrid?.gridId) {
+      alert('This grid has not been created in the live game yet.');
+      return;
+    }
+    
+    const confirmed = window.confirm(
+      `Are you sure you want to reset this grid in the live game?\n\n` +
+      `Grid Coordinate: ${selectedCell.coord}\n` +
+      `Grid Type: ${selectedCell.type}\n` +
+      `Grid ID: ${foundGrid.gridId}\n\n` +
+      `This will reset all resources and tiles in the game database.`
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+      console.log('handleResetGrid: gridId:', foundGrid.gridId);
+      
+      // First get the settlement and frontier IDs
+      let foundSettlementId = null;
+      let foundFrontierId = null;
+      
+      // Find the settlement that contains this grid
+      for (const settlement of settlements) {
+        const sid = settlement.frontierId?.toString();
+        if (sid === selectedFrontier?.toString()) {
+          const grids = Array.isArray(settlement.grids) && settlement.grids.every(row => Array.isArray(row))
+            ? settlement.grids.flatMap(row => row)
+            : [];
+          
+          for (const grid of grids) {
+            if (grid.gridCoord === Number(selectedCell.coord)) {
+              foundSettlementId = settlement._id;
+              foundFrontierId = settlement.frontierId;
+              break;
+            }
+          }
+        }
+        if (foundSettlementId) break;
+      }
+      
+      if (!foundSettlementId || !foundFrontierId) {
+        console.error('Could not find settlement or frontier for this grid');
+        alert('Could not find settlement or frontier for this grid');
+        return;
+      }
+      
+      // Send request to reset the grid
+      const resetResponse = await axios.post(`${API_BASE}/api/reset-grid`, {
+        gridCoord: selectedCell.coord,
+        gridId: foundGrid.gridId,
+        gridType: foundGrid.gridType,
+        settlementId: foundSettlementId,
+        frontierId: foundFrontierId,
+      });
+      
+      console.log(`Grid ${foundGrid.gridId} of type ${foundGrid.gridType} reset successfully:`, resetResponse.data);
+      setModalMessage(`Grid ${selectedCell.coord} reset successfully in the live game!`);
+      setShowModal(true);
+      
+      // Refresh the frontier data to update the view
+      setTimeout(() => {
+        handleRefreshData();
+      }, 1500);
+    } catch (error) {
+      console.error(`Error resetting grid "${foundGrid.gridId}":`, error);
+      alert(`Failed to reset grid "${selectedCell.coord}". Check the console for details.`);
+    }
+  };
 
   const handleRefreshData = () => {
     console.log("🔄 Refreshing frontier data...");
@@ -154,15 +318,32 @@ const handleLoadGrid = () => {
             <>
               <p>
                 <strong>Selected Cell:</strong> {selectedCell.coord}<br />
-                <strong>Type:</strong> {selectedCell.type ?? 'Unknown'}
+                <strong>GridType:</strong> {selectedCell.type ?? 'Unknown'}
               </p>
               {(
                 layoutCache.has(Number(selectedCell.coord)) ||
                 ['homestead', 'town'].includes(selectedCell.type)
               ) ? (
-                <button className="load-grid-button" onClick={handleLoadGrid}>Load Grid</button>
+                <>
+                  <button className="load-grid-button" onClick={handleLoadGrid}>Load Layout</button>
+                  {/* Show Create Grid button for valleyFixedCoord templates */}
+                  {layoutCache.has(Number(selectedCell.coord)) && 
+                   !['homestead', 'town'].includes(selectedCell.type) && 
+                   !gridMap.get(Number(selectedCell.coord))?.gridId && (
+                    <button className="create-grid-button" onClick={handleCreateGridLive}>Create Grid (Live Game)</button>
+                  )}
+                </>
               ) : (
-                <button className="create-grid-button" onClick={handleCreateGrid}>Create Grid</button>
+                <>
+                  <button className="create-grid-button" onClick={handleCreateGrid}>Create New Layout</button>
+                  {!['homestead', 'town'].includes(selectedCell.type) && (
+                    <button className="create-grid-button" onClick={handleCreateGridLive}>Create Grid (Live Game)</button>
+                  )}
+                </>
+              )}
+              {/* Show Reset Grid button if grid has been created (has gridId) */}
+              {gridMap.get(Number(selectedCell.coord))?.gridId && (
+                <button className="create-grid-button" onClick={handleResetGridLive}>Reset Grid (Live Game)</button>
               )}
             </>
           )}
