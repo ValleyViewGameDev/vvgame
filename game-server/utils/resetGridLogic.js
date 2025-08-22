@@ -3,7 +3,7 @@ const Grid = require('../models/grid');
 const Frontier = require('../models/frontier');
 const path = require('path');
 const fs = require('fs');
-const { generateGrid, generateResources } = require('./worldUtils');
+const { generateGrid, generateResources, generateFixedGrid, generateFixedResources } = require('./worldUtils');
 const { readJSON } = require('./fileUtils');const { ObjectId } = require('mongodb');
 const masterResources = require('../tuning/resources.json');
 const { getTemplate, getHomesteadLayoutFile, getTownLayoutFile } = require('./templateUtils');
@@ -16,7 +16,7 @@ async function performGridReset(gridId, gridType, gridCoord) {
   const seasonType = frontier?.seasons?.seasonType || 'default';
 
   // Load layout
-  let layout, layoutFileName;
+  let layout, layoutFileName, isFixedLayout = false;
   if (gridType === 'homestead') {
     const layoutFile = getHomesteadLayoutFile(seasonType);
     const seasonalPath = path.join(__dirname, '../layouts/gridLayouts/homestead', layoutFile);
@@ -38,6 +38,7 @@ async function performGridReset(gridId, gridType, gridCoord) {
     if (fs.existsSync(fixedCoordPath)) {
       layout = readJSON(fixedCoordPath);
       layoutFileName = `${gridCoord}.json`;
+      isFixedLayout = true;
       console.log(`📌 Using fixed-coordinate layout: ${layoutFileName}`);
     } else {
       const layoutInfo = getTemplate('gridLayouts', gridType, gridCoord);
@@ -51,14 +52,18 @@ async function performGridReset(gridId, gridType, gridCoord) {
     throw new Error(`Invalid layout for gridType: ${gridType}`);
   }
 
-  const newTiles = generateGrid(layout, layout.tileDistribution).map(row =>
-    row.map(layoutKey => {
-      const tileRes = masterResources.find(r => r.layoutkey === layoutKey && r.category === 'tile');
-      return tileRes ? tileRes.type : 'g';
-    })
-  );
+  const newTiles = isFixedLayout
+    ? generateFixedGrid(layout)
+    : generateGrid(layout, layout.tileDistribution).map(row =>
+        row.map(layoutKey => {
+          const tileRes = masterResources.find(r => r.layoutkey === layoutKey && r.category === 'tile');
+          return tileRes ? tileRes.type : 'g';
+        })
+      );
 
-  const newResources = generateResources(layout, newTiles, layout.resourceDistribution);
+  const newResources = isFixedLayout
+    ? generateFixedResources(layout)
+    : generateResources(layout, newTiles, layout.resourceDistribution);
   
   // Enrich multi-tile resources with anchorKey and passable properties
   // Note: Shadow tiles are created on the client side only, not stored in DB
