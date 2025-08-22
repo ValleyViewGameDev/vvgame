@@ -466,7 +466,7 @@
     "validonp": false,
     "validonw": false,
     "validonl": false,
-    "validonn": true,
+    "validonn": false,
     "validono": true
   },
   {
@@ -484,7 +484,7 @@
     "validonp": false,
     "validonw": false,
     "validonl": false,
-    "validonn": true,
+    "validonn": false,
     "validono": true
   },
   {
@@ -573,7 +573,7 @@
     "validonp": false,
     "validonw": false,
     "validonl": false,
-    "validonn": true,
+    "validonn": false,
     "validono": true
   },
   {
@@ -638,7 +638,7 @@
     "validonp": false,
     "validonw": false,
     "validonl": false,
-    "validonn": true,
+    "validonn": false,
     "validono": true,
     "minprice": 41,
     "maxprice": 69,
