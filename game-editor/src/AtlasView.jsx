@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import axios from 'axios';
+import API_BASE from './config';
 import './AtlasView.css';
 
 const fs = window.require('fs');
@@ -67,8 +69,9 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
       const newLoadedGrids = new Map();
       let totalGrids = 0;
       let loadedCount = 0;
+      const gridsWithData = new Set();
 
-      // Count total grids to load
+      // Count grids from settlements
       settlements.forEach(settlement => {
         const sid = settlement.frontierId?.toString();
         if (sid === selectedFrontier?.toString()) {
@@ -77,7 +80,7 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
         }
       });
 
-      // Load each grid
+      // FIRST PRIORITY: Load actual grid data from database for grids with gridId
       for (const settlement of settlements) {
         const sid = settlement.frontierId?.toString();
         if (sid !== selectedFrontier?.toString()) continue;
@@ -86,43 +89,64 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
         
         for (const gridInfo of grids) {
           if (!gridInfo.gridId) continue;
-
+          
           try {
-            // Try valleyFixedCoord first
-            let layoutPath = path.join(
-              projectRoot,
-              'game-server',
-              'layouts',
-              'gridLayouts',
-              'valleyFixedCoord',
-              `${gridInfo.gridCoord}.json`
-            );
-
-            if (!fs.existsSync(layoutPath)) {
-              // Fall back to grid type directory
-              layoutPath = path.join(
-                projectRoot,
-                'game-server',
-                'layouts',
-                'gridLayouts',
-                gridInfo.gridType,
-                `${gridInfo.gridCoord}.json`
-              );
-            }
-
-            if (fs.existsSync(layoutPath)) {
-              const raw = fs.readFileSync(layoutPath, 'utf-8');
-              const gridData = JSON.parse(raw);
+            // Fetch actual grid data from database
+            const response = await axios.get(`${API_BASE}/api/load-grid/${gridInfo.gridId}`);
+            const gridData = response.data;
+            
+            if (gridData && gridData.tiles) {
               newLoadedGrids.set(gridInfo.gridCoord, {
-                ...gridData,
+                tiles: gridData.tiles,
+                resources: gridData.resources || [],
                 gridCoord: gridInfo.gridCoord,
-                gridType: gridInfo.gridType
+                gridType: gridInfo.gridType,
+                fromDatabase: true
               });
+              gridsWithData.add(gridInfo.gridCoord);
               loadedCount++;
               setLoadProgress(Math.round((loadedCount / totalGrids) * 100));
             }
           } catch (error) {
-            console.error(`Failed to load grid ${gridInfo.gridCoord}:`, error);
+            console.error(`Failed to load grid data from database for ${gridInfo.gridCoord}:`, error);
+          }
+        }
+      }
+
+      // SECOND PRIORITY: Load valleyFixedCoord templates for grids without database data
+      const valleyFixedCoordPath = path.join(
+        projectRoot,
+        'game-server',
+        'layouts',
+        'gridLayouts',
+        'valleyFixedCoord'
+      );
+      
+      if (fs.existsSync(valleyFixedCoordPath)) {
+        const files = fs.readdirSync(valleyFixedCoordPath);
+        for (const file of files) {
+          if (file.endsWith('.json')) {
+            const gridCoord = parseInt(file.replace('.json', ''));
+            // Check if this grid belongs to the selected frontier
+            const coordStr = String(gridCoord).padStart(7, '0');
+            const frontierIdFromCoord = parseInt(coordStr.substring(0, 3));
+            
+            if (frontierIdFromCoord === parseInt(selectedFrontier) && !gridsWithData.has(gridCoord)) {
+              try {
+                const layoutPath = path.join(valleyFixedCoordPath, file);
+                const raw = fs.readFileSync(layoutPath, 'utf-8');
+                const gridData = JSON.parse(raw);
+                newLoadedGrids.set(gridCoord, {
+                  ...gridData,
+                  gridCoord: gridCoord,
+                  gridType: 'valley',
+                  fromTemplate: true
+                });
+                loadedCount++;
+              } catch (error) {
+                console.error(`Failed to load valleyFixedCoord grid ${file}:`, error);
+              }
+            }
           }
         }
       }
@@ -152,6 +176,11 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     
+    if (!ctx) {
+      console.error('Failed to get 2D context');
+      return;
+    }
+    
     // Calculate canvas size
     const totalWidth = SETTLEMENTS_PER_FRONTIER * GRIDS_PER_SETTLEMENT * GRID_SIZE * PIXEL_PER_TILE;
     const totalHeight = totalWidth;
@@ -166,9 +195,12 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
       canvas.height = window.innerHeight;
     }
     
-    // Clear canvas
-    ctx.fillStyle = '#000000';
+    // Clear canvas - white background
+    ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
+    console.log('Drawing', loadedGrids.size, 'grids');
     
     // Apply transformations
     ctx.save();
@@ -193,11 +225,14 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
         gridData.tiles.forEach((row, y) => {
           row.forEach((tileKey, x) => {
             if (tileKey && tileKey !== '**') {
-              // For fixed grids, tileKey might already be the type (like 'g', 's', etc)
-              let color = tileColors[tileKey];
+              let color = null;
               
-              if (!color) {
-                // Try to find tile resource to get the type
+              // Check if this is from database (single letter) or template (layout key)
+              if (gridData.fromDatabase || tileKey.length === 1) {
+                // Database format: already uses type letters like 'g', 's', etc.
+                color = tileColors[tileKey];
+              } else {
+                // Template format: uses layout keys like 'GR', 'ST', etc.
                 const tileResource = masterResources.find(r => r.layoutkey === tileKey && r.category === 'tile');
                 if (tileResource && tileColors[tileResource.type]) {
                   color = tileColors[tileResource.type];
@@ -252,6 +287,18 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
           });
         }
       }
+      
+      // Add border for template grids (not from database)
+      if (gridData.fromTemplate) {
+        ctx.strokeStyle = 'rgba(255, 0, 0, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(
+          baseX,
+          baseY,
+          GRID_SIZE * PIXEL_PER_TILE,
+          GRID_SIZE * PIXEL_PER_TILE
+        );
+      }
     });
     
     ctx.restore();
@@ -285,7 +332,7 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
   return (
     <div className="atlas-container" ref={containerRef}>
       <div className="atlas-controls">
-        <h2>🗺️ Atlas View</h2>
+        <h2>Atlas View</h2>
         {loading && <div className="loading-bar">Loading grids... {loadProgress}%</div>}
         <div className="zoom-info">Zoom: {Math.round(zoom * 100)}%</div>
         <div className="grid-count">Loaded: {loadedGrids.size} grids</div>
