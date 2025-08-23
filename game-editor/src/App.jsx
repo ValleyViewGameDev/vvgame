@@ -5,6 +5,7 @@ import GridEditor from './GridEditor';
 import Events from './Events';
 import FrontierView from './FrontierView';
 import Players from './Players';
+import AtlasView from './AtlasView';
 import './App.css';
 
 const App = () => {
@@ -105,6 +106,7 @@ useEffect(() => {
         <button title="Events" onClick={() => setActivePanel('events')}>📆</button>
         <button title="Grid Editor" onClick={() => setActivePanel('grid')}>✍️</button>
         <button title="Frontier View" onClick={() => setActivePanel('frontier')}>🔎</button>
+        <button title="Atlas View" onClick={() => setActivePanel('atlas')}>🗺️</button>
         <button title="Players" onClick={() => setActivePanel('players')}>😀</button>
       </div>
 
@@ -137,6 +139,13 @@ useEffect(() => {
             selectedFrontier={selectedFrontier} 
             selectedSettlement={selectedSettlement} 
             frontiers={frontiers}
+            settlements={settlements} 
+            activePanel={activePanel}
+            />
+        </div>
+        <div className={activePanel === 'atlas' ? 'panel-visible' : 'panel-hidden'}>
+          <AtlasView 
+            selectedFrontier={selectedFrontier} 
             settlements={settlements} 
             activePanel={activePanel}
             />

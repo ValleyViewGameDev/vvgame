@@ -32,13 +32,13 @@ const GridEditor = ({ activePanel }) => {
   const [availableResources, setAvailableResources] = useState([]);
   const [selectedResource, setSelectedResource] = useState(null);
   const [availableNpcs, setAvailableNpcs] = useState([]); // ✅ Store available NPCs
-  const [tileDistribution, setTileDistribution] = useState({ g: 100, s: 0, d: 0, w: 0, p: 0, l: 0 });
+  const [tileDistribution, setTileDistribution] = useState({ g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0 });
   const [resourceDistribution, setResourceDistribution] = useState({});
   const [enemyDistribution, setEnemyDistribution] = useState({}); // Track enemy distribution
-  const tileColors = { g: "#3dc43d", s: "#8b989c", d: "#c0834a", w: "#58cad8", p: "#dab965", l: "#c4583d" };
+  const tileColors = { g: "#3dc43d", s: "#8b989c", d: "#c0834a", w: "#58cad8", p: "#dab965", l: "#c4583d", n: "#f4e4bc" };
   const [copiedResource, setCopiedResource] = useState(null); // Holds copied resource
   const [currentGridType, setCurrentGridType] = useState(''); // Track current grid's type
-  const [selectedTileTypes, setSelectedTileTypes] = useState({ g: true, s: true, d: true, w: true, p: true, l: true }); // For selective tile deletion
+  const [selectedTileTypes, setSelectedTileTypes] = useState({ g: true, s: true, d: true, w: true, p: true, l: true, n: true }); // For selective tile deletion
   // Removed currentFile, setCurrentFile, currentDirectory, setCurrentDirectory
   const pendingLoad = useRef(null);
 
@@ -397,7 +397,7 @@ const handleEnemyDistributionChange = (enemyType, value) => {
       );
 
       setSelectedTile(null); // Force deselection to reset render state
-      setTileDistribution({ ...loadedGrid.tileDistribution } || { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0 });
+      setTileDistribution({ ...loadedGrid.tileDistribution } || { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0 });
       setResourceDistribution({ ...loadedGrid.resourceDistribution } || {});
 
       console.log("Is setFileInfo true?  ", setFileInfo);
@@ -751,7 +751,8 @@ const handleDeleteSelectedTiles = () => {
     'd': 'DI',  // dirt
     'w': 'WA',  // water
     'p': 'PA',  // pavement
-    'l': 'LV'   // lava
+    'l': 'LV',  // lava
+    'n': 'SA'   // sand
   };
   
   const layoutKeysToDelete = selectedTypes.map(type => typeMapping[type] || type);
