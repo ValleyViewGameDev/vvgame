@@ -27,6 +27,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const [viewedPlayerIndex, setViewedPlayerIndex] = useState(0); // Index of the currently viewed player
   const { updateStatus } = useContext(StatusBarContext);
   const [masterResources, setMasterResources] = useState([]); // Store master resources for isACrop check
+  const [playerTradeStalls, setPlayerTradeStalls] = useState({}); // Cache of all players' trade stalls
 
   const tradeStallHaircut = globalTuning?.tradeStallHaircut || 0.25;
   // First time users get 10 second wait time, otherwise use global tuning
@@ -107,7 +108,23 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         const settlementPlayersResponse = await axios.get(`${API_BASE}/api/players-in-settlement`, {
           params: { settlementId: currentPlayer.location.s },
         });
-        setSettlementPlayers(settlementPlayersResponse.data.players || []);
+        const players = settlementPlayersResponse.data.players || [];
+        setSettlementPlayers(players);
+        
+        // Fetch trade stalls for all players to determine which have items
+        const tradeStallsData = {};
+        for (const player of players) {
+          try {
+            const response = await axios.get(`${API_BASE}/api/player-trade-stall`, {
+              params: { playerId: player.playerId },
+            });
+            tradeStallsData[player.playerId] = response.data.tradeStall || [];
+          } catch (error) {
+            console.error(`Error fetching trade stall for player ${player.playerId}:`, error);
+            tradeStallsData[player.playerId] = [];
+          }
+        }
+        setPlayerTradeStalls(tradeStallsData);
       } catch (error) {
         console.error('Error fetching settlement players:', error);
       }
@@ -221,7 +238,21 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 
   const handleNextPlayer = () => {
     if (settlementPlayers.length > 0) {
-      const nextIndex = (viewedPlayerIndex + 1) % settlementPlayers.length;
+      let nextIndex = viewedPlayerIndex;
+      let attempts = 0;
+      
+      do {
+        nextIndex = (nextIndex + 1) % settlementPlayers.length;
+        attempts++;
+        
+        // If we've checked all players and none have items, just move to next
+        if (attempts >= settlementPlayers.length) {
+          setViewedPlayerIndex(nextIndex);
+          setViewedPlayer(settlementPlayers[nextIndex]);
+          return;
+        }
+      } while (nextIndex !== viewedPlayerIndex && !playerHasItems(settlementPlayers[nextIndex]));
+      
       setViewedPlayerIndex(nextIndex);
       setViewedPlayer(settlementPlayers[nextIndex]);
     }
@@ -229,17 +260,49 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   
   const handlePreviousPlayer = () => {
     if (settlementPlayers.length > 0) {
-      const previousIndex =
-        (viewedPlayerIndex - 1 + settlementPlayers.length) % settlementPlayers.length;
+      let previousIndex = viewedPlayerIndex;
+      let attempts = 0;
+      
+      do {
+        previousIndex = (previousIndex - 1 + settlementPlayers.length) % settlementPlayers.length;
+        attempts++;
+        
+        // If we've checked all players and none have items, just move to previous
+        if (attempts >= settlementPlayers.length) {
+          setViewedPlayerIndex(previousIndex);
+          setViewedPlayer(settlementPlayers[previousIndex]);
+          return;
+        }
+      } while (previousIndex !== viewedPlayerIndex && !playerHasItems(settlementPlayers[previousIndex]));
+      
       setViewedPlayerIndex(previousIndex);
       setViewedPlayer(settlementPlayers[previousIndex]);
     }
   };
   
+  // Helper function to check if a player has any items in their trade stall
+  const playerHasItems = (player) => {
+    // For current player being viewed, check current tradeSlots
+    if (player.playerId === viewedPlayer.playerId) {
+      return tradeSlots.some(slot => slot?.resource && slot?.amount > 0);
+    }
+    
+    // For other players, check cached trade stall data
+    const playerStall = playerTradeStalls[player.playerId];
+    if (playerStall) {
+      return playerStall.some(slot => slot?.resource && slot?.amount > 0);
+    }
+    
+    // If we don't have data yet, assume they might have items
+    return true;
+  };
+  
   
   const handleAmountChange = (type, value) => {
     const resourceInInventory = inventory.find((item) => item.type === type);
-    const maxAmount = resourceInInventory ? resourceInInventory.quantity : 0;
+    const inventoryAmount = resourceInInventory ? resourceInInventory.quantity : 0;
+    const maxTradeAmount = globalTuning?.maxTradeAmount || 30;
+    const maxAmount = Math.min(inventoryAmount, maxTradeAmount);
   
     setAmounts((prev) => ({
       ...prev,
@@ -339,6 +402,12 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       setTradeSlots(updatedSlots);
       setSelectedSlotIndex(null);
       calculateTotalSellValue(updatedSlots);
+      
+      // Update the cache for current player
+      setPlayerTradeStalls(prev => ({
+        ...prev,
+        [currentPlayer.playerId]: updatedSlots
+      }));
     } catch (error) {
       console.error('Error adding item to Trade Stall:', error);
       throw error; // Re-throw to let TransactionButton handle the error state
@@ -637,13 +706,13 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                               onClick={() =>
                                 handleAmountChange(item.type, (amounts[item.type] || 0) + 1)
                               }
-                              disabled={item.quantity <= (amounts[item.type] || 0)}
+                              disabled={(amounts[item.type] || 0) >= Math.min(item.quantity, globalTuning?.maxTradeAmount || 30)}
                             >
                               +
                             </button>
                             <button
                               onClick={() =>
-                                handleAmountChange(item.type, item.quantity)
+                                handleAmountChange(item.type, Math.min(item.quantity, globalTuning?.maxTradeAmount || 30))
                               }
                               style={{ marginLeft: '4px' }}
                             >

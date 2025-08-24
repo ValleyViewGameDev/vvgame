@@ -9,7 +9,7 @@
   "seasonMoneyNerf": 0.9,
   "seasonMoneyNerfGold": 0.75,
   "baseHoursForTrain": 6,
-  "maxTradeAmount": 30,
+  "maxTradeAmount": 50,
   "taxes": {
     "phases": {
       "waiting": 4319.25,
