@@ -397,7 +397,10 @@ const handleEnemyDistributionChange = (enemyType, value) => {
       );
 
       setSelectedTile(null); // Force deselection to reset render state
-      setTileDistribution({ ...loadedGrid.tileDistribution } || { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0 });
+      // Ensure all tile types are included, even if not in the loaded grid
+      const defaultDistribution = { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0 };
+      const loadedDistribution = loadedGrid.tileDistribution || {};
+      setTileDistribution({ ...defaultDistribution, ...loadedDistribution });
       setResourceDistribution({ ...loadedGrid.resourceDistribution } || {});
 
       console.log("Is setFileInfo true?  ", setFileInfo);
@@ -858,7 +861,9 @@ const handlePopulateTileDistribution = () => {
     const templateData = JSON.parse(fs.readFileSync(templatePath, 'utf-8'));
     
     if (templateData.tileDistribution) {
-      setTileDistribution({ ...templateData.tileDistribution });
+      // Ensure all tile types are included, even if not in the template
+      const defaultDistribution = { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0 };
+      setTileDistribution({ ...defaultDistribution, ...templateData.tileDistribution });
       console.log(`✅ Populated tile distribution from template: ${randomFile}`);
       alert(`Tile distribution populated from template: ${randomFile}`);
     } else {

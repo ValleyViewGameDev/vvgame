@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import API_BASE from './config';
-import './AtlasView.css';
 
 const fs = window.require('fs');
 const path = window.require('path');
@@ -202,11 +201,10 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
     console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
     console.log('Drawing', loadedGrids.size, 'grids');
     
-    // Apply transformations
+    // Apply transformations - anchor at top-left
     ctx.save();
-    ctx.translate(canvas.width / 2, canvas.height / 2);
     ctx.scale(zoom, zoom);
-    ctx.translate(-totalWidth / 2 + pan.x, -totalHeight / 2 + pan.y);
+    ctx.translate(pan.x, pan.y);
     
     // Render each grid
     loadedGrids.forEach((gridData, gridCoord) => {
@@ -330,25 +328,68 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
   }, []);
 
   return (
-    <div className="atlas-container" ref={containerRef}>
-      <div className="atlas-controls">
+    <div style={{ display: 'flex', height: '100vh', position: 'relative' }}>
+      {/* Side Panel */}
+      <div className="editor-panel" style={{ height: 'calc(100vh - 40px)' }}>
         <h2>Atlas View</h2>
-        {loading && <div className="loading-bar">Loading grids... {loadProgress}%</div>}
-        <div className="zoom-info">Zoom: {Math.round(zoom * 100)}%</div>
-        <div className="grid-count">Loaded: {loadedGrids.size} grids</div>
-        <button onClick={() => { setPan({ x: 0, y: 0 }); setZoom(1); }}>Reset View</button>
+        
+        <div style={{ 
+          backgroundColor: 'white', 
+          padding: '10px', 
+          borderRadius: '5px', 
+          marginBottom: '15px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        }}>
+          <h4 style={{ margin: '0 0 10px 0' }}>View Controls</h4>
+          {loading && <div className="loading-bar">Loading grids... {loadProgress}%</div>}
+          <div style={{ marginBottom: '5px' }}>Zoom: {Math.round(zoom * 100)}%</div>
+          <div style={{ marginBottom: '10px' }}>Loaded: {loadedGrids.size} grids</div>
+          <button className="small-button" onClick={() => { setPan({ x: 0, y: 0 }); setZoom(1); }}>Reset View</button>
+        </div>
+        
+        <div style={{ 
+          backgroundColor: 'white', 
+          padding: '10px', 
+          borderRadius: '5px', 
+          marginBottom: '15px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        }}>
+          <h4 style={{ margin: '0 0 5px 0' }}>Controls</h4>
+          <p style={{ fontSize: '12px', marginBottom: '3px' }}>• Drag to pan</p>
+          <p style={{ fontSize: '12px', marginBottom: '3px' }}>• Scroll to zoom</p>
+          <p style={{ fontSize: '12px', marginBottom: '3px' }}>• Red borders = template only</p>
+        </div>
       </div>
       
-      <canvas
-        ref={canvasRef}
-        className="atlas-canvas"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onWheel={handleWheel}
-        style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
-      />
+      {/* Canvas Container */}
+      <div 
+        ref={containerRef}
+        style={{
+          position: 'absolute',
+          top: 40,
+          left: 240,
+          right: 0,
+          bottom: 0,
+          overflow: 'hidden',
+          backgroundColor: 'white'
+        }}
+      >
+        <canvas
+          ref={canvasRef}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onWheel={handleWheel}
+          style={{ 
+            cursor: isDragging ? 'grabbing' : 'grab',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            imageRendering: 'pixelated'
+          }}
+        />
+      </div>
     </div>
   );
 };
