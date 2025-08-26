@@ -365,13 +365,10 @@ isValidTile(x, y, tiles, resources, npcs) {
     const tileType = tiles[y][x]; // Get the tile type at x, y
     //console.log(`Checking tileType: ${tileType} for NPC ${this.id}`);
   
-    const canWalkOnTile =
-      (tileType === 'g' && this.validong) || 
-      (tileType === 'p' && this.validonp) || 
-      (tileType === 'w' && this.validonw) || 
-      (tileType === 'd' && this.validond) || 
-      (tileType === 'l' && this.validonl) || 
-      (tileType === 's' && this.validons);
+    // Dynamically check if NPC can walk on this tile type
+    // Property name is 'validon' + tileType (e.g., 'validong' for 'g')
+    const validPropertyName = `validon${tileType}`;
+    const canWalkOnTile = this[validPropertyName] === true;
   
     if (!canWalkOnTile) {
     //   console.warn(`NPC ${this.id} cannot step on tile type "${tileType}".`);
