@@ -27,6 +27,7 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
   const [loadProgress, setLoadProgress] = useState(0);
   const [tileColors, setTileColors] = useState({});
   const [masterResources, setMasterResources] = useState([]);
+  const [loadResources, setLoadResources] = useState(false); // Toggle for loading resources
 
   // Load master resources on mount
   useEffect(() => {
@@ -80,6 +81,9 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
       });
 
       // FIRST PRIORITY: Load actual grid data from database for grids with gridId
+      const gridPromises = [];
+      const gridInfoMap = new Map();
+      
       for (const settlement of settlements) {
         const sid = settlement.frontierId?.toString();
         if (sid !== selectedFrontier?.toString()) continue;
@@ -89,26 +93,61 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
         for (const gridInfo of grids) {
           if (!gridInfo.gridId) continue;
           
-          try {
-            // Fetch actual grid data from database
-            const response = await axios.get(`${API_BASE}/api/load-grid/${gridInfo.gridId}`);
-            const gridData = response.data;
-            
-            if (gridData && gridData.tiles) {
-              newLoadedGrids.set(gridInfo.gridCoord, {
-                tiles: gridData.tiles,
-                resources: gridData.resources || [],
-                gridCoord: gridInfo.gridCoord,
-                gridType: gridInfo.gridType,
-                fromDatabase: true
-              });
-              gridsWithData.add(gridInfo.gridCoord);
-              loadedCount++;
-              setLoadProgress(Math.round((loadedCount / totalGrids) * 100));
-            }
-          } catch (error) {
-            console.error(`Failed to load grid data from database for ${gridInfo.gridCoord}:`, error);
-          }
+          // Store grid info for later use
+          gridInfoMap.set(gridInfo.gridId, gridInfo);
+          
+          // Create promise for this grid
+          const promise = axios.get(`${API_BASE}/api/load-grid/${gridInfo.gridId}`)
+            .then(response => ({
+              gridId: gridInfo.gridId,
+              data: response.data,
+              error: null
+            }))
+            .catch(error => ({
+              gridId: gridInfo.gridId,
+              data: null,
+              error
+            }));
+          
+          gridPromises.push(promise);
+        }
+      }
+      
+      // Load grids in batches to avoid overwhelming the server
+      const BATCH_SIZE = 10;
+      const results = [];
+      
+      for (let i = 0; i < gridPromises.length; i += BATCH_SIZE) {
+        const batch = gridPromises.slice(i, i + BATCH_SIZE);
+        const batchResults = await Promise.all(batch);
+        results.push(...batchResults);
+        
+        // Update progress after each batch
+        const batchProgress = Math.round(((i + batch.length) / gridPromises.length) * 50); // First 50% for database loading
+        setLoadProgress(batchProgress);
+      }
+      
+      // Process results
+      for (const result of results) {
+        if (result.error) {
+          console.error(`Failed to load grid ${result.gridId}:`, result.error);
+          continue;
+        }
+        
+        const gridInfo = gridInfoMap.get(result.gridId);
+        const gridData = result.data;
+        
+        if (gridData && gridData.tiles) {
+          newLoadedGrids.set(gridInfo.gridCoord, {
+            tiles: gridData.tiles,
+            resources: loadResources ? (gridData.resources || []) : [],
+            gridCoord: gridInfo.gridCoord,
+            gridType: gridInfo.gridType,
+            fromDatabase: true
+          });
+          gridsWithData.add(gridInfo.gridCoord);
+          loadedCount++;
+          setLoadProgress(Math.round((loadedCount / totalGrids) * 100));
         }
       }
 
@@ -166,7 +205,7 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
     };
 
     loadGrids();
-  }, [activePanel, selectedFrontier, settlements]);
+  }, [activePanel, selectedFrontier, settlements, loadResources]);
 
   // Render all grids on canvas
   useEffect(() => {
@@ -251,8 +290,8 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
         });
       }
       
-      // Render resources as single pixels
-      if (gridData.resources) {
+      // Render resources as single pixels (only if loaded)
+      if (loadResources && gridData.resources) {
         // Resources might be in array format [{type, x, y}] or grid format
         if (Array.isArray(gridData.resources) && gridData.resources.length > 0 && gridData.resources[0].x !== undefined) {
           // Array format from server
@@ -344,6 +383,15 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
           {loading && <div className="loading-bar">Loading grids... {loadProgress}%</div>}
           <div style={{ marginBottom: '5px' }}>Zoom: {Math.round(zoom * 100)}%</div>
           <div style={{ marginBottom: '10px' }}>Loaded: {loadedGrids.size} grids</div>
+          <label style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={loadResources}
+              onChange={(e) => setLoadResources(e.target.checked)}
+              style={{ marginRight: '5px' }}
+            />
+            <span style={{ fontSize: '12px' }}>Show Resources</span>
+          </label>
           <button className="small-button" onClick={() => { setPan({ x: 0, y: 0 }); setZoom(1); }}>Reset View</button>
         </div>
         

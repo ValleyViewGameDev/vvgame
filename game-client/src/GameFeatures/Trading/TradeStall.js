@@ -301,7 +301,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const handleAmountChange = (type, value) => {
     const resourceInInventory = inventory.find((item) => item.type === type);
     const inventoryAmount = resourceInInventory ? resourceInInventory.quantity : 0;
-    const maxTradeAmount = globalTuning?.maxTradeAmount || 30;
+    const maxTradeAmount = globalTuning?.maxTradeAmount || 50;
     const maxAmount = Math.min(inventoryAmount, maxTradeAmount);
   
     setAmounts((prev) => ({
@@ -657,6 +657,9 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
             ✖
           </button>
           <h3>Items to Sell</h3>
+          <p style={{ textAlign: 'center', margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>
+            {globalTuning?.maxTradeAmount || 50} {strings[158]}
+          </p>
           <div className="inventory-modal-scroll">
             <table>
               <thead>
@@ -706,13 +709,13 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                               onClick={() =>
                                 handleAmountChange(item.type, (amounts[item.type] || 0) + 1)
                               }
-                              disabled={(amounts[item.type] || 0) >= Math.min(item.quantity, globalTuning?.maxTradeAmount || 30)}
+                              disabled={(amounts[item.type] || 0) >= Math.min(item.quantity, globalTuning?.maxTradeAmount || 50)}
                             >
                               +
                             </button>
                             <button
                               onClick={() =>
-                                handleAmountChange(item.type, Math.min(item.quantity, globalTuning?.maxTradeAmount || 30))
+                                handleAmountChange(item.type, Math.min(item.quantity, globalTuning?.maxTradeAmount || 50))
                               }
                               style={{ marginLeft: '4px' }}
                             >

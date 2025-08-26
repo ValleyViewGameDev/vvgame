@@ -1103,26 +1103,16 @@ if (typeof window !== "undefined") {
       </div>
   
       {/* Grid Container */}
-      <div
-        className="editor-grid-container"
-        style={{
-          position: 'absolute',
-          top: 40,
-          left: 240,
-          right: 0,
-          bottom: 0,
-          overflowX: 'auto',
-          overflowY: 'auto',
-          zIndex: 0
-        }}
-      > 
+      <div className="editor-grid-container"> 
         <div
           className="grid-with-rulers"
           style={{
             display: 'flex',
             flexDirection: 'column',
             marginLeft: tileSize,
-            minWidth: (GRID_SIZE + 3) * tileSize
+            minWidth: (GRID_SIZE + 3) * tileSize,
+            padding: '10px',
+            paddingBottom: '50px' // Extra padding at bottom
           }}
         >
           {/* Top Ruler */}

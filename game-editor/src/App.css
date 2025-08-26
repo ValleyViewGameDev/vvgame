@@ -73,26 +73,38 @@ h4, h5, h6 {
   overflow-y: auto; /* Enables scrolling */
   scrollbar-width: thin; /* Optional: Customizes scrollbar width */
   scrollbar-color: #4a9e39 #c5e1a5; /* Optional: Customizes scrollbar colors */
-  z-index: 999;
+  z-index: 1001;
 }
 
 /* Ensure Panel Content Can Exceed Panel Height */
 .editor-panel > * {
   flex-shrink: 0; /* Prevents content from squishing */
-  z-index: 999;
+  z-index: 1001;
 }
 
-/* Grid Container: Now Fixed to Top and Left */
-.editor-grid-container {
-  margin-left: 0; /* No margin needed, already offset by left */
-  margin-top: 0;
-  width: calc(100% - 240px);
-  height: 100vh;
-  position: fixed; /* so it sits under the fixed panel */
+/* Standardized main container for all tabs */
+.main-container {
+  position: fixed;
   top: 40px;
   left: 240px;
+  right: 0;
+  bottom: 0;
   overflow: auto;
-  z-index: 0;       /* ensure it is beneath the panel */
+  z-index: 0;
+  box-sizing: border-box;
+}
+
+/* Grid Container: Now uses standard main container */
+.editor-grid-container {
+  position: fixed;
+  top: 40px;
+  left: 240px;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+  z-index: 0;
+  padding-bottom: 30px; /* Extra padding to ensure last row is visible */
+  box-sizing: border-box;
 }
 
 /* Fix Grid Positioning */
@@ -155,7 +167,7 @@ h4, h5, h6 {
   display: flex;
   align-items: center;
   padding: 0 16px;
-  z-index: 800;
+  z-index: 500;
   color: white;
 }
 

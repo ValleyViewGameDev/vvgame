@@ -1,15 +1,15 @@
 /* Events.css */
 .events-base-panel {
   position: fixed;
-  top: 0;
+  top: 40px;
   left: 60px; /* sits just to the right of nav panel */
   width: 180px; /* same width as Grid Editor's base panel */
-  height: 100vh;
+  height: calc(100vh - 40px);
   background-color: #67c257;
   padding: 10px;
   overflow-y: auto;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  z-index: 999;
+  z-index: 1001;
 }
 
 .events-base-panel h2 {
