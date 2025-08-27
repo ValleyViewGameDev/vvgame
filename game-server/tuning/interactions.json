@@ -63,7 +63,7 @@
     "relbitrequired": "met",
     "chance": 0.9,
     "relscoreresult": 8,
-    "rounds": 3,
+    "rounds": 1,
     "playertopic1": "interest",
     "playertopic2": "npc",
     "playertopic3": "random",

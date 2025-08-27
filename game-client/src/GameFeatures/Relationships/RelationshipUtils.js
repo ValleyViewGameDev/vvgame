@@ -92,13 +92,16 @@ export const getRelationshipStatus = (currentPlayer, targetName) => {
 export const getNPCReactions = (targetNPC, newStatus) => {
   const reactions = [];
   
-  // Check each NPC in the matrix
-  Object.entries(RelationshipMatrix).forEach(([npc, relationships]) => {
+  // RelationshipMatrix is now an array, so iterate through it
+  RelationshipMatrix.forEach((npcEntry) => {
+    // Get the NPC name from the 'type' field
+    const npc = npcEntry.type;
+    
     // Skip the target NPC
     if (npc === targetNPC) return;
     
     // Check if this NPC has a relationship with the target
-    const npcRelationshipWithTarget = relationships[targetNPC];
+    const npcRelationshipWithTarget = npcEntry[targetNPC];
     
     if (npcRelationshipWithTarget) {
       // If new status is love, and another NPC loves this NPC
@@ -123,7 +126,7 @@ export const getNPCReactions = (targetNPC, newStatus) => {
       else if (newStatus === 'friend' && npcRelationshipWithTarget === 'friend') {
         reactions.push({
           npc: npc,
-          scoreChange: 10
+          scoreChange: 30
         });
       }
       // If new status is rival, and another NPC has Rival with this NPC
@@ -166,8 +169,9 @@ export const checkOtherRelationships = (currentPlayer, targetNPC, interaction) =
   if (interaction.relbitadd === 'friend') {
     // Get all NPCs that are rivals of the target
     const targetRivals = [];
-    Object.entries(RelationshipMatrix).forEach(([npc, relationships]) => {
-      if (relationships[targetNPC] === 'rival') {
+    RelationshipMatrix.forEach((npcEntry) => {
+      const npc = npcEntry.type;
+      if (npcEntry[targetNPC] === 'rival') {
         targetRivals.push(npc);
       }
     });
@@ -187,15 +191,16 @@ export const checkOtherRelationships = (currentPlayer, targetNPC, interaction) =
   // Check for love/crush status with NPCs who are already in love
   if (interaction.relbitadd === 'love' || interaction.relbitadd === 'crush') {
     // Check if target NPC already loves someone else
-    const targetRelationships = RelationshipMatrix[targetNPC];
-    if (targetRelationships) {
-      const targetLoves = Object.entries(targetRelationships).find(([npc, status]) => 
-        status === 'love'
-      );
-      if (targetLoves) {
+    const targetNPCEntry = RelationshipMatrix.find(entry => entry.type === targetNPC);
+    if (targetNPCEntry) {
+      // Find who the target loves by checking all their relationships
+      const targetLoves = Object.entries(targetNPCEntry)
+        .filter(([key, value]) => key !== 'type' && key !== 'symbol' && value === 'love');
+      
+      if (targetLoves.length > 0) {
         return { 
           allowed: false, 
-          reason: `${targetNPC} is already in love with ${targetLoves[0]}` 
+          reason: `${targetNPC} is already in love with ${targetLoves[0][0]}` 
         };
       }
     }

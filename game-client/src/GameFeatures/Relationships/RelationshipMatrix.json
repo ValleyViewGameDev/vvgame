@@ -1,26 +1,118 @@
-{
-  "Portia": {
+[
+  {
+    "type": "Kent",
+    "symbol": "👨🏽"
+  },
+  {
+    "type": "The Shepherd",
+    "symbol": "👵🏻"
+  },
+  {
+    "type": "Portia",
+    "symbol": "👩🏻‍⚖️",
+    "Cassio": "love",
+    "Iago": "rival"
+  },
+  {
+    "type": "Hotspur",
+    "symbol": "💂",
+    "Cassio": "rival"
+  },
+  {
+    "type": "Cassio",
+    "symbol": "🧝",
+    "Hotspur": "rival",
     "Iago": "rival",
-    "Cassio": "crush"
+    "Juliet": "friend"
   },
-  "Gertrude": {
-    "Helena": "love"
+  {
+    "type": "Mistress Quickly",
+    "symbol": "🧑🏼‍🍳",
+    "Hotspur": "love"
   },
-  "Leontes": {
-    "Gertrude": "love",
-    "Prospero": "friend"
+  {
+    "type": "Feste",
+    "symbol": "👨🏽‍🎨",
+    "Caliban": "friend"
   },
-  "Helena": {
+  {
+    "type": "Helena",
+    "symbol": "🧑‍🎤",
     "Gertrude": "love"
   },
-  "Iago": {
+  {
+    "type": "Titania",
+    "symbol": "🧝‍♀️",
+    "Prospero": "friend"
+  },
+  {
+    "type": "Vampire",
+    "symbol": "🧛🏻‍♂️"
+  },
+  {
+    "type": "Prospero",
+    "symbol": "🧙🏻",
+    "Titania": "friend",
+    "Leontes": "friend"
+  },
+  {
+    "type": "Falstaff",
+    "symbol": "👨🏻‍🏭",
+    "buff4love": 3,
+    "buff4marriage": 5,
+    "buff4friend": 2,
+    "Mistress_Quickley": "love"
+  },
+  {
+    "type": "Apothecary",
+    "symbol": "🧕",
+    "buff4love": 3,
+    "buff4marriage": 5,
+    "buff4friend": 2
+  },
+  {
+    "type": "Iago",
+    "symbol": "🥷",
+    "buff4love": 3,
+    "buff4marriage": 10,
+    "buff4friend": 2,
     "Portia": "rival",
     "Cassio": "rival"
   },
-  "Cassio": {
-    "Iago": "rival"
+  {
+    "type": "Gertrude",
+    "symbol": "👸",
+    "buff4love": 3,
+    "buff4marriage": 5,
+    "buff4friend": 2,
+    "Helena": "love"
   },
-  "Prospero": {
-    "Leontes": "friend"
+  {
+    "type": "Leontes",
+    "symbol": "🫅",
+    "buff4love": 3,
+    "buff4marriage": 5,
+    "buff4friend": 2,
+    "Prospero": "friend",
+    "Iago": "rival",
+    "Gertrude": "love"
+  },
+  {
+    "type": "Caliban",
+    "symbol": "🧌",
+    "buff4love": 3,
+    "buff4marriage": 5,
+    "buff4friend": 2,
+    "Feste": "friend",
+    "Titania": "love",
+    "Prospero": "rival"
+  },
+  {
+    "type": "Juliet",
+    "symbol": "👩‍🦰",
+    "buff4love": 3,
+    "buff4marriage": 5,
+    "buff4friend": 2,
+    "Cassio": "friend"
   }
-}
+]
