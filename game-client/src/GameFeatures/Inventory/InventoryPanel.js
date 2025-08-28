@@ -7,7 +7,7 @@ import './InventoryPanel.css';
 import { useStrings } from '../../UI/StringsContext';
 import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
 
-function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPlayer, updateStatus }) {
+function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus }) {
 
     const strings = useStrings();
     const inventory = currentPlayer?.inventory || [];
@@ -46,6 +46,10 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     inventory: updatedWarehouse,
                     backpack: updatedBackpack,
                 });
+                
+                // Also update parent component's state
+                setInventory(updatedWarehouse);
+                setBackpack(updatedBackpack);
 
                 updateStatus(`Moved ${item.quantity}x ${item.type} to warehouse`);
             } else {
@@ -60,6 +64,9 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     ...currentPlayer,
                     backpack: updatedBackpack,
                 });
+                
+                // Also update parent component's state
+                setBackpack(updatedBackpack);
 
                 updateStatus(`❌ Discarded ${item.quantity}x ${item.type}`);
             }
@@ -99,6 +106,10 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     inventory: updatedWarehouseInventory,
                     backpack: updatedBackpack,
                 });
+                
+                // Also update parent component's state
+                setInventory(updatedWarehouseInventory);
+                setBackpack(updatedBackpack);
 
                 updateStatus(`Moved all items to warehouse`);
             } else {
@@ -111,6 +122,9 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     ...currentPlayer,
                     backpack: [],
                 });
+                
+                // Also update parent component's state
+                setBackpack([]);
 
                 updateStatus(`❌ Discarded all items`);
             }

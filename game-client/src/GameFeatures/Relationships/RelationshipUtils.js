@@ -279,3 +279,46 @@ export const generateRelationshipStatusMessage = (targetName, newStatus, success
   
   return message;
 };
+
+/**
+ * Get resource multiplier based on relationship status with an NPC
+ * @param {string} npcName - The name of the NPC
+ * @param {Object} currentPlayer - The current player object with relationships
+ * @returns {Object} - { multiplier: number, bonusMessage: string }
+ */
+export const getRelationshipMultiplier = (npcName, currentPlayer) => {
+  // Find the NPC in the RelationshipMatrix
+  const npcEntry = RelationshipMatrix.find(entry => entry.type === npcName);
+  
+  // If no NPC entry found or no buffs defined, return default
+  if (!npcEntry || (!npcEntry.buff4friend && !npcEntry.buff4love && !npcEntry.buff4marriage)) {
+    return { multiplier: 1, bonusMessage: '' };
+  }
+  
+  // Find player's relationship with this NPC
+  const relationship = currentPlayer.relationships?.find(rel => rel.name === npcName);
+  
+  if (!relationship) {
+    return { multiplier: 1, bonusMessage: '' };
+  }
+  
+  // Check relationship status and apply appropriate buff
+  if (relationship.married === true && npcEntry.buff4marriage) {
+    return { 
+      multiplier: npcEntry.buff4marriage, 
+      bonusMessage: ` ${npcEntry.buff4marriage}x for being married.` 
+    };
+  } else if (relationship.love === true && npcEntry.buff4love) {
+    return { 
+      multiplier: npcEntry.buff4love, 
+      bonusMessage: ` ${npcEntry.buff4love}x for being in love.` 
+    };
+  } else if (relationship.friend === true && npcEntry.buff4friend) {
+    return { 
+      multiplier: npcEntry.buff4friend, 
+      bonusMessage: ` ${npcEntry.buff4friend}x for being friends.` 
+    };
+  }
+  
+  return { multiplier: 1, bonusMessage: '' };
+};

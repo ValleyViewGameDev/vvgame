@@ -5,6 +5,7 @@ let masterSkills = null;
 let masterResources = null;
 let globalTuning = null;
 let masterInteractions = null;
+let masterTraders = null;
 /**
  * Fetch and cache skillsTuning.json
  */
@@ -75,9 +76,27 @@ export async function loadMasterInteractions() {
 }
 
 /**
+ * Fetch and cache traders.json
+ */
+export async function loadMasterTraders() {
+  if (!masterTraders) {
+    try {
+      const response = await axios.get(`${API_BASE}/api/traders`);
+      masterTraders = response.data;
+      console.log('Master traders loaded:', masterTraders);
+    } catch (error) {
+      console.error('Error fetching master traders:', error);
+      masterTraders = [];
+    }
+  }
+  return masterTraders;
+}
+
+/**
  * Clear cached data (optional, for debugging or forced reloads).
  */
 export function clearTuningCache() {
   masterSkills = null;
   masterResources = null;
+  masterTraders = null;
 }

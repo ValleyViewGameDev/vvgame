@@ -104,10 +104,28 @@ export const handleConstruction = async ({
 
   console.log('selectedResource.action=', selectedResource.action);
 
+  // Calculate total cost for status message
+  const costDetails = [];
+  for (let i = 1; i <= 4; i++) {
+    const ingredientType = selectedResource[`ingredient${i}`];
+    const ingredientQty = selectedResource[`ingredient${i}qty`];
+    if (ingredientType && ingredientQty) {
+      costDetails.push(`${ingredientQty} ${ingredientType}`);
+    }
+  }
+  const costString = costDetails.length > 0 ? costDetails.join(', ') : 'free';
+
   if (selectedResource.category === 'npc') {
     // Spawning NPC directly at player's tile coordinates
     NPCsInGridManager.spawnNPC(gridId, selectedResource, playerPosition);
     console.log('Spawned NPC:', gridId, selectedResource, playerPosition);
+    
+    // Show floating text for NPC purchase
+    FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
+    
+    // Show status message with purchase details
+    updateStatus(`${selectedResource.type} purchased for ${costString}.`);
+    
     // Track quest progress for "Buy" actions
     await trackQuestProgress(currentPlayer, 'Buy', selectedResource.type, 1, setCurrentPlayer);
     
@@ -171,6 +189,9 @@ export const handleConstruction = async ({
       await updateGridResource(gridId, rawResource, true);
       
       FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
+      
+      // Show status message with purchase details
+      updateStatus(`${selectedItem} purchased for ${costString}.`);
       
       // Track quest progress sequentially to avoid conflicts
       await trackQuestProgress(currentPlayer, 'Build', selectedItem, 1, setCurrentPlayer);

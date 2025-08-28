@@ -140,6 +140,13 @@ const AnimalPanel = ({
         if (!success) return;
       }
 
+      // Update currentPlayer with the new inventory to ensure money display updates
+      setCurrentPlayer(prev => ({ 
+        ...prev, 
+        inventory: inventory,
+        backpack: backpack 
+      }));
+
       // Note: We don't remove the animal stall building here - only the NPC
       // The stall building can be sold separately from the AnimalStall panel
 

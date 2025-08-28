@@ -6,7 +6,7 @@ import API_BASE from './config.js';
 import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, useLayoutEffect, memo, useMemo, useCallback, useRef, act } from 'react';
 import { initializeGrid } from './AppInit';
-import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning } from './Utils/TuningManager';
+import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders } from './Utils/TuningManager';
 import { RenderGrid } from './Render/Render';
 import DynamicRenderer from './Render/RenderDynamic.js';
 import { handleResourceClick } from './ResourceClicking';
@@ -273,6 +273,7 @@ useEffect(() => {
   const [masterSkills, setMasterSkills] = useState([]);
   const [globalTuning, setGlobalTuning] = useState(null);
   const [masterInteractions, setMasterInteractions] = useState([]);
+  const [masterTraders, setMasterTraders] = useState([]);
 
 // Synchronize tiles with GlobalGridStateTilesAndResources -- i did this so NPCs have knowledge of tiles and resources as they change
 useEffect(() => {
@@ -470,11 +471,12 @@ useEffect(() => {
     try {
       // Step 1. Load tuning data
       console.log('🏁✅ 1 InitAppWrapper; Merging player data and initializing inventory...');
-      const [skills, resources, globalTuningData, interactions] = await Promise.all([loadMasterSkills(), loadMasterResources(), loadGlobalTuning(), loadMasterInteractions()]);
+      const [skills, resources, globalTuningData, interactions, traders] = await Promise.all([loadMasterSkills(), loadMasterResources(), loadGlobalTuning(), loadMasterInteractions(), loadMasterTraders()]);
       setMasterResources(resources);
       setMasterSkills(skills);
       setGlobalTuning(globalTuningData);
       setMasterInteractions(interactions);
+      setMasterTraders(traders);
       setIsMasterResourcesReady(true); // ✅ Mark ready
 
       // Step 2. Fetch stored player from localStorage
@@ -2002,6 +2004,7 @@ return (
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setInventory={setInventory}
+          setBackpack={setBackpack}
           updateStatus={updateStatus}
         />
       )}
@@ -2283,6 +2286,7 @@ return (
           updateStatus={updateStatus}
           masterResources={masterResources}
           masterInteractions={masterInteractions}
+          masterTraders={masterTraders}
           zoomLevel={zoomLevel}
           setZoomLevel={setZoomLevel}
           centerCameraOnPlayer={centerCameraOnPlayer}

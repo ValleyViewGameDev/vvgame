@@ -1,3 +1,5 @@
+import API_BASE from '../../config';
+import axios from 'axios';
 import FloatingTextManager from "../../UI/FloatingText";
 import NPCsInGridManager from "../../GridState/GridStateNPCs";
 import playersInGridManager from "../../GridState/PlayersInGrid";
@@ -141,7 +143,39 @@ export async function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TI
         } catch (error) {
             console.error('Error removing NPC or spawning resource:', error);
         }
-        await trackQuestProgress(currentPlayer, 'Kill', freshNPC.type, 1, setCurrentPlayer);    }
+        
+        // Special case for Duke Angelo - auto-accept quest if not active
+        if (freshNPC.type === 'Duke Angelo') {
+            const bloodForJulietQuest = currentPlayer.activeQuests?.find(q => q.questId === 'Blood for Juliet');
+            
+            if (!bloodForJulietQuest) {
+                // Quest not active - auto-accept it with completed status
+                try {
+                    const response = await axios.post(`${API_BASE}/api/add-player-quest`, {
+                        playerId: currentPlayer.playerId,
+                        questId: 'Blood for Juliet',
+                        startTime: Date.now(),
+                        progress: { goal1: 1 }, // Mark as already completed
+                        completed: true, // Mark quest as completed
+                    });
+                    
+                    if (response.data.success) {
+                        setCurrentPlayer(response.data.player);
+                        FloatingTextManager.addFloatingText('Quest: Blood for Juliet completed!', freshNPC.position.x, freshNPC.position.y-2, TILE_SIZE);
+                        console.log('Auto-accepted and completed Blood for Juliet quest');
+                    }
+                } catch (error) {
+                    console.error('Error auto-accepting Blood for Juliet quest:', error);
+                }
+            } else {
+                // Quest is active - track progress normally
+                await trackQuestProgress(currentPlayer, 'Kill', freshNPC.type, 1, setCurrentPlayer);
+            }
+        } else {
+            // Normal quest progress tracking for other NPCs
+            await trackQuestProgress(currentPlayer, 'Kill', freshNPC.type, 1, setCurrentPlayer);
+        }
+    }
 }
 
 

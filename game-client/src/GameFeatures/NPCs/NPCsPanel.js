@@ -5,7 +5,7 @@ import '../../UI/SharedButtons.css';
 import axios from 'axios';
 import ResourceButton from '../../UI/ResourceButton';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
-import { canAfford } from '../../Utils/InventoryManagement';
+import { canAfford, hasRoomFor } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
 import { QuestGiverButton } from '../../UI/QuestButton';
@@ -14,7 +14,7 @@ import playersInGridManager from '../../GridState/PlayersInGrid';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
 import RelationshipCard from '../Relationships/RelationshipCard';
-import { getRelationshipStatus } from '../Relationships/RelationshipUtils';
+import { getRelationshipStatus, getRelationshipMultiplier } from '../Relationships/RelationshipUtils';
 import '../Relationships/Relationships.css';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { checkDeveloperStatus } from '../../Utils/appUtils';
@@ -35,6 +35,7 @@ const NPCPanel = ({
   updateStatus,
   masterResources,
   masterInteractions,
+  masterTraders,
   zoomLevel,
   setZoomLevel,
   centerCameraOnPlayer,
@@ -51,7 +52,6 @@ const NPCPanel = ({
   const [tradeThreshold, setTradeThreshold] = useState(0);
   const [isDeveloper, setIsDeveloper] = useState(false);
 
-  console.log('made it to NPCPanel/Healer; npcData = ', npcData);
 
   // Ensure npcData has default values
   if (!npcData) {
@@ -128,11 +128,40 @@ const NPCPanel = ({
       const filteredRecipes = masterResources.filter((resource) => resource.type === npcData.type);
       setHealRecipes(filteredRecipes);
     } else if (npcData.action === 'trade') {
-      const filteredRecipes = masterResources.filter((resource) => resource.source === npcData.type);
-      setTradeRecipes(filteredRecipes);
-      console.log('Filtered trade recipes:', filteredRecipes);
+      // Find this trader in masterTraders
+      const trader = masterTraders?.find(t => t.trader === npcData.type);
+      
+      if (trader && trader.trades) {
+        // Transform trader.trades into the format expected by the rest of the component
+        const filteredRecipes = trader.trades.map(trade => {
+          // Get the symbol from masterResources
+          const resourceDef = masterResources.find(r => r.type === trade.gives.type);
+          
+          return {
+            type: trade.gives.type,
+            symbol: resourceDef?.symbol || '?',
+            tradeqty: trade.gives.quantity,
+            ingredient1: trade.requires[0]?.type,
+            ingredient1qty: trade.requires[0]?.quantity,
+            ingredient2: trade.requires[1]?.type,
+            ingredient2qty: trade.requires[1]?.quantity,
+            ingredient3: trade.requires[2]?.type,
+            ingredient3qty: trade.requires[2]?.quantity,
+            ingredient4: trade.requires[3]?.type,
+            ingredient4qty: trade.requires[3]?.quantity,
+            requires: trade.requiresSkill,
+            source: npcData.type
+          };
+        });
+        
+        setTradeRecipes(filteredRecipes);
+      } else {
+        // Fallback to old method if masterTraders is not available
+        const filteredRecipes = masterResources.filter((resource) => resource.source === npcData.type);
+        setTradeRecipes(filteredRecipes);
+      }
     }
-  }, [npcData, currentPlayer?.activeQuests, currentPlayer?.completedQuests, currentPlayer?.ftuestep, masterResources]);
+  }, [npcData, currentPlayer?.activeQuests, currentPlayer?.completedQuests, currentPlayer?.ftuestep, masterResources, masterTraders]);
 
   
   ////////////////////////////////////////////////////////////
@@ -234,7 +263,6 @@ const NPCPanel = ({
     }
     // If all goals are completed before even accepting, mark the quest as completed
     const isQuestCompleted = totalGoals > 0 && goalsCompleted === totalGoals;
-    console.log('initialProgress = ',initialProgress);
 
     try {
       const response = await axios.post(`${API_BASE}/api/add-player-quest`, {
@@ -248,7 +276,6 @@ const NPCPanel = ({
       if (response.data.success) {
         setCurrentPlayer(response.data.player); // Update player after quest is added
         updateStatus(202);
-        console.log(`✅ Quest "${questTitle}" added with initial progress:`, initialProgress);
         // No need to invalidate cache when accepting quests
       } else {
         setStatusMessage(`Failed to accept quest: ${response.data.error}`);
@@ -261,13 +288,21 @@ const NPCPanel = ({
 
 const handleGetReward = async (quest) => {
     try {
+      // Get relationship-based multiplier from RelationshipMatrix data
+      const { multiplier, bonusMessage } = getRelationshipMultiplier(npcData.type, currentPlayer);
+      const rewardQuantity = Math.floor((quest.rewardqty || 1) * multiplier);
+      
+      // Ensure inventory and backpack are valid arrays
+      const safeInventory = Array.isArray(inventory) ? inventory : [];
+      const safeBackpack = Array.isArray(backpack) ? backpack : [];
+      
       const success = await gainIngredients({
         playerId: currentPlayer.playerId,
         currentPlayer,
         resource: quest.reward,
-        quantity: quest.rewardqty,
-        inventory,
-        backpack,
+        quantity: rewardQuantity,
+        inventory: safeInventory,
+        backpack: safeBackpack,
         setInventory,
         setBackpack,
         setCurrentPlayer,
@@ -276,8 +311,8 @@ const handleGetReward = async (quest) => {
       });
       if (!success) return;
 
-      // Track quest progress for "Collect" type quests
-      await trackQuestProgress(currentPlayer, 'Collect', quest.reward, quest.rewardqty, setCurrentPlayer);
+      // Track quest progress for "Collect" type quests (use multiplied quantity)
+      await trackQuestProgress(currentPlayer, 'Collect', quest.reward, rewardQuantity, setCurrentPlayer);
 
       let updatedCompletedQuests = currentPlayer.completedQuests.map((q) =>
         q.questId === quest.title ? { ...q, rewardCollected: true } : q
@@ -306,16 +341,23 @@ const handleGetReward = async (quest) => {
           activeQuests: updatedActiveQuests,
         },
       }).then((result) => {
-        console.log("📬 Server responded with:", result.data);
       });
-      setCurrentPlayer({
-        ...currentPlayer,
+      // Don't call refreshPlayerAfterInventoryUpdate here - gainIngredients already updated the state
+      // and calling refresh would overwrite the local updates with potentially stale server data
+      // Update player with quest progress but preserve the inventory that was just updated
+      setCurrentPlayer(prev => ({
+        ...prev,
         completedQuests: updatedPlayer.completedQuests,
         activeQuests: updatedActiveQuests,
-      });
+      }));
       setQuestList((prevList) => prevList.filter((q) => q.title !== quest.title));
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-      updateStatus(201);
+      
+      // Show quest complete message with bonus if applicable
+      if (bonusMessage) {
+        updateStatus(`Action item complete! Received ${rewardQuantity} ${quest.reward}. ${bonusMessage}`);
+      } else {
+        updateStatus(201);
+      }
 
     } catch (error) {
       console.error('Error collecting quest reward:', error);
@@ -326,7 +368,6 @@ const handleGetReward = async (quest) => {
 
 const handleHeal = async (recipe) => {
     setErrorMessage('');
-    console.log('made it to handleHeal');
 
     if (!recipe) {
       setErrorMessage('Invalid healing recipe selected.');
@@ -335,10 +376,6 @@ const handleHeal = async (recipe) => {
     // Fetch current HP and Max HP from playersInGridManager
     const gridId = currentPlayer?.location?.g;
     const playerId = currentPlayer._id?.toString();
-    // Additional console logs for debug
-    console.log('gridId =', gridId);
-    console.log('playerId =', playerId);
-    console.log('playersInGridManager.getPlayersInGrid(gridId) =', playersInGridManager.getPlayersInGrid(gridId));
     const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
     if (!playerInGridState) {
       console.error(`Player ${currentPlayer.username} not found in NPCsInGrid.`);
@@ -354,7 +391,7 @@ const handleHeal = async (recipe) => {
         return;
       }
     }
-    const success = await spendIngredients({
+    const spendResult = await spendIngredients({
       playerId: currentPlayer.playerId,
       recipe,
       inventory,
@@ -364,7 +401,7 @@ const handleHeal = async (recipe) => {
       setCurrentPlayer,
       updateStatus,
     });
-    if (!success) return;
+    if (!spendResult) return;
     
     // Refresh player to update money display
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
@@ -372,11 +409,8 @@ const handleHeal = async (recipe) => {
     const healAmount = npcData.qtycollected;
     const statToMod = 'hp';
     const amountToMod = Math.min(healAmount, maxHp - currentHp);  // Ensure it doesn't exceed max HP
-    
-    console.log('About to mofidy stats;  amountToMod = ',amountToMod,'; statToMod = ',statToMod);
 
     try {
-      console.log('calling modifyPlayerStats with: statToMod: ',statToMod,'; amountToMod: ',amountToMod,'; currentPlayer._id= ',currentPlayer._id,'; gridId: ',gridId);
       await modifyPlayerStatsInGridState(statToMod, amountToMod, currentPlayer._id, gridId);
       setCurrentPlayer((prev) => ({
         ...prev,
@@ -397,10 +431,45 @@ const handleHeal = async (recipe) => {
       return;
     }
 
+    let quantityToGive = recipe.tradeqty || 1;
+    
+    // Get relationship-based multiplier from RelationshipMatrix data
+    const { multiplier, bonusMessage } = getRelationshipMultiplier(npcData.type, currentPlayer);
+    quantityToGive = Math.floor(quantityToGive * multiplier);
+    
+    // Check if we have room for the trade reward BEFORE spending ingredients
+    const hasRoom = hasRoomFor({
+      resource: recipe.type,
+      quantity: quantityToGive,
+      currentPlayer,
+      inventory: inventory,  // Use current prop
+      backpack: backpack,    // Use current prop
+      masterResources
+    });
+    
+    // Create safe copies after the capacity check
     const safeInventory = Array.isArray(inventory) ? inventory : [];
     const safeBackpack = Array.isArray(backpack) ? backpack : [];
+    
+    if (!hasRoom) {
+      const isHomestead = currentPlayer?.location?.gtype === 'homestead';
+      const isMoney = recipe.type === "Money";
+      
+      if (!isMoney && !isHomestead) {
+        // Check if player has backpack skill
+        const hasBackpackSkill = currentPlayer?.skills?.some((item) => item.type === 'Backpack' && item.quantity > 0);
+        if (!hasBackpackSkill) {
+          updateStatus(19); // Missing backpack
+        } else {
+          updateStatus(21); // Backpack full
+        }
+      } else {
+        updateStatus(20); // Warehouse full
+      }
+      return;
+    }
 
-    const spent = await spendIngredients({
+    const spendResult = await spendIngredients({
       playerId: currentPlayer.playerId,
       recipe,
       inventory: safeInventory,
@@ -411,38 +480,19 @@ const handleHeal = async (recipe) => {
       updateStatus,
     });
 
-    if (!spent) {
+    if (!spendResult || (spendResult.success !== undefined && !spendResult.success)) {
       setErrorMessage('Not enough ingredients.');
       return;
     }
-
-    let quantityToGive = recipe.tradeqty || 1;
-    let bonusMessage = '';
     
-    // Check relationship and apply bonuses
-    const relationship = currentPlayer.relationships?.find(rel => rel.name === npcData.type);
-    if (relationship) {
-      let multiplier = 1;
-      
-      // Apply bonuses based on relationship status
-      if (relationship.love === true) {
-        multiplier = 2;
-        bonusMessage = ' Bonus for being in love!';
-      } else if (relationship.married === true) {
-        multiplier = 3;
-        bonusMessage = ' Bonus for being married!';
-      }
-      
-      quantityToGive = Math.floor(quantityToGive * multiplier);
-    }
-    
+    // Use the updated inventory and backpack from spendIngredients
     const gained = await gainIngredients({
       playerId: currentPlayer.playerId,
       currentPlayer,
       resource: recipe.type,
       quantity: quantityToGive,
-      inventory: safeInventory,
-      backpack: safeBackpack,
+      inventory: spendResult.updatedInventory,  // Use the updated inventory
+      backpack: spendResult.updatedBackpack,   // Use the updated backpack
       setInventory,
       setBackpack,
       setCurrentPlayer,
@@ -471,9 +521,6 @@ const handleHeal = async (recipe) => {
     
     // Show success message with bonus if applicable
     updateStatus(`Exchanged ${ingredientString} for ${quantityToGive} ${recipe.type}.${bonusMessage}`);
-    
-    // Refresh player to update money display
-    await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
   };
 
   const handleSellNPC = async () => {

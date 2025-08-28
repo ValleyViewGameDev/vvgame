@@ -58,7 +58,11 @@ export async function trackQuestProgress(player, action, item, quantity, setCurr
         activeQuests: updatedQuests,
       });
       if (typeof setCurrentPlayer === 'function') {
-        setCurrentPlayer(response.data.player); // Update the player's state
+        // Only update quest-related fields to avoid overwriting inventory changes
+        setCurrentPlayer(prev => ({
+          ...prev,
+          activeQuests: response.data.player.activeQuests || updatedQuests
+        }));
       }    
       } catch (error) {
       console.error('Error updating quest progress:', error);

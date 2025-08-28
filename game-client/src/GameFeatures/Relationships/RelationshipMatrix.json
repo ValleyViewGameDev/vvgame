@@ -1,21 +1,33 @@
 [
   {
     "type": "Kent",
-    "symbol": "👨🏽"
+    "symbol": "👨🏽",
+    "buff4love": 3,
+    "buff4marriage": 5,
+    "buff4friend": 2
   },
   {
     "type": "The Shepherd",
-    "symbol": "👵🏻"
+    "symbol": "👵🏻",
+    "buff4love": 3,
+    "buff4marriage": 5,
+    "buff4friend": 2
   },
   {
     "type": "Portia",
     "symbol": "👩🏻‍⚖️",
+    "buff4love": 3,
+    "buff4marriage": 5,
+    "buff4friend": 2,
     "Cassio": "love",
     "Iago": "rival"
   },
   {
     "type": "Hotspur",
     "symbol": "💂",
+    "buff4love": 3,
+    "buff4marriage": 5,
+    "buff4friend": 2,
     "Cassio": "rival"
   },
   {
@@ -28,11 +40,17 @@
   {
     "type": "Mistress Quickly",
     "symbol": "🧑🏼‍🍳",
+    "buff4love": 3,
+    "buff4marriage": 5,
+    "buff4friend": 2,
     "Hotspur": "love"
   },
   {
     "type": "Feste",
     "symbol": "👨🏽‍🎨",
+    "buff4love": 3,
+    "buff4marriage": 5,
+    "buff4friend": 2,
     "Caliban": "friend"
   },
   {
@@ -43,6 +61,9 @@
   {
     "type": "Titania",
     "symbol": "🧝‍♀️",
+    "buff4love": 3,
+    "buff4marriage": 5,
+    "buff4friend": 2,
     "Prospero": "friend"
   },
   {

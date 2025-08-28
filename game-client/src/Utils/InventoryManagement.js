@@ -52,6 +52,48 @@ export const canAfford = (recipe, inventory = [], backpack = [], amount = 1) => 
   return true;
 };
 
+/**
+ * Checks if there's room to store a resource without actually adding it
+ * @param {object} params - Parameters for checking capacity
+ * @returns {boolean} - True if there's room, false otherwise
+ */
+export const hasRoomFor = ({
+  resource,
+  quantity,
+  currentPlayer,
+  inventory,
+  backpack,
+  masterResources
+}) => {
+  const isMoney = resource === "Money";
+  const isHomestead = currentPlayer?.location?.gtype === 'homestead';
+  const storingInBackpack = !isMoney && !isHomestead;
+  
+  
+  // Money always has room
+  if (isMoney) return true;
+  
+  // Check backpack skill if storing in backpack
+  if (storingInBackpack) {
+    const hasBackpackSkill = currentPlayer?.skills?.some((item) => item.type === 'Backpack' && item.quantity > 0);
+    if (!hasBackpackSkill) {
+      return false;
+    }
+  }
+  
+  // Check capacity
+  const target = isHomestead ? inventory : backpack;
+  
+  const { warehouse, backpack: maxBackpack } = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources || []);
+  const capacity = isHomestead ? warehouse : maxBackpack;
+  
+  const totalItems = target
+    .filter(item => item && item.type !== 'Money' && typeof item.quantity === 'number')
+    .reduce((acc, item) => acc + item.quantity, 0);
+    
+  return totalItems + quantity <= capacity;
+};
+
 
 export async function fetchInventoryAndBackpack(playerId) {
   if (!playerId) {
@@ -118,7 +160,6 @@ export async function refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlay
           };
         }
         
-        console.log('Player refreshed successfully (inventory preserved):', merged);
         return merged;
       });
     } else {
@@ -133,7 +174,6 @@ export async function refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlay
         };
       }
       setCurrentPlayer(updatedPlayerData);
-      console.log('Player refreshed successfully:', response.data);
     }
   } catch (error) {
     console.error('Error refreshing player:', error);
@@ -156,14 +196,9 @@ export async function gainIngredients({
   updateStatus,
   masterResources,
 }) {
-  console.log("🔍 [GAIN DEBUG] Made it to gainIngredients; resource = ", resource, "; quantity = ", quantity);
-  console.log("🔍 [GAIN DEBUG] Current inventory before gain:", inventory);
-  console.log("🔍 [GAIN DEBUG] Current backpack before gain:", backpack);
-  console.log("🔍 [GAIN DEBUG] Current player gtype:", currentPlayer?.location?.gtype);
   const isMoney = resource === "Money";
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
   const storingInBackpack = !isMoney && !isHomestead;
-  console.log("🔍 [GAIN DEBUG] 🏠 isHomestead:", isHomestead, "| 💰 isMoney:", isMoney, "| 🎒 storingInBackpack:", storingInBackpack);
 
   const target = isMoney || isHomestead ? [...inventory] : [...backpack];
 
@@ -184,7 +219,6 @@ export async function gainIngredients({
       .filter(item => item && item.type !== 'Money' && typeof item.quantity === 'number')
       .reduce((acc, item) => acc + item.quantity, 0);
     if (totalItems + quantity > capacity) {
-      console.log("📦 Capacity check failed. totalItems =", totalItems, "quantity =", quantity, "capacity =", capacity);
       if (updateStatus) updateStatus(isHomestead ? 20 : 21); // 20 = warehouse full, 21 = backpack full
       return false;
     }
@@ -207,22 +241,20 @@ export async function gainIngredients({
       target: storingInBackpack ? 'backpack' : 'inventory'
     }]
   };
-  console.log("📤 Sending inventory delta payload to server:", deltaPayload);
 
   try {
-    console.log("🔍 [GAIN DEBUG] Sending delta payload to server:", deltaPayload);
     await axios.post(`${API_BASE}/api/update-inventory-delta`, deltaPayload);
-    
-    console.log("🔍 [GAIN DEBUG] About to update local state - target:", target);
-    console.log("🔍 [GAIN DEBUG] Will setInventory to:", isMoney || isHomestead ? target : inventory);
-    console.log("🔍 [GAIN DEBUG] Will setBackpack to:", !isMoney && !isHomestead ? target : backpack);
     
     setInventory(isMoney || isHomestead ? target : inventory);
     setBackpack(!isMoney && !isHomestead ? target : backpack);
     
-    console.log("🔍 [GAIN DEBUG] About to refresh player after inventory update");
+    // Update currentPlayer with new inventory to ensure UI updates properly
+    setCurrentPlayer(prev => ({
+      ...prev,
+      inventory: isMoney || isHomestead ? target : inventory,
+      backpack: !isMoney && !isHomestead ? target : backpack
+    }));
     await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
-    console.log("🔍 [GAIN DEBUG] gainIngredients completed successfully");
     return true;
   } catch (err) {
     console.error("❌ Error gaining ingredient", err);
@@ -242,7 +274,6 @@ export async function spendIngredients({
   setCurrentPlayer,
   updateStatus,
 }) {
-  console.log("Made it to spendIngredients; recipe = ",recipe);
   let updatedInventory = [...inventory];
   let updatedBackpack = [...backpack];
 
@@ -283,7 +314,6 @@ export async function spendIngredients({
         }
       }
       
-      console.log(`✅ Deducted ${qty} of ${type} from inventory/backpack`);
     }
   }
 
@@ -296,8 +326,21 @@ export async function spendIngredients({
     
     setInventory(updatedInventory);
     setBackpack(updatedBackpack);
+    
+    // Update currentPlayer with new inventory to ensure UI updates properly
+    setCurrentPlayer(prev => ({
+      ...prev,
+      inventory: updatedInventory,
+      backpack: updatedBackpack
+    }));
+    
     await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
-    return true;
+    
+    // Return object that's backward compatible (truthy) but also includes updated arrays
+    const result = { success: true, updatedInventory, updatedBackpack };
+    // Make the object truthy for backward compatibility
+    result.valueOf = () => true;
+    return result;
 
   } catch (err) {
     console.error("❌ Error spending ingredients:", err);

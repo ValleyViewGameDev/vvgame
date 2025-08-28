@@ -1,0 +1,196 @@
+[
+  {
+    "trader": "Juliet",
+    "trades": [
+      {
+        "gives": {
+          "type": "Tulip",
+          "quantity": 12
+        },
+        "requires": [
+          {
+            "type": "Portrait",
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "trader": "Falstaff",
+    "trades": [
+      {
+        "gives": {
+          "type": "Feverfew",
+          "quantity": 1
+        },
+        "requires": [
+          {
+            "type": "Port",
+            "quantity": 24
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "trader": "Apothecary",
+    "trades": [
+      {
+        "gives": {
+          "type": "Potion A",
+          "quantity": 1
+        },
+        "requires": [
+          {
+            "type": "Rosemary",
+            "quantity": 6
+          },
+          {
+            "type": "Daisy",
+            "quantity": 2
+          },
+          {
+            "type": "Milk",
+            "quantity": 24
+          }
+        ]
+      },
+      {
+        "gives": {
+          "type": "Potion B",
+          "quantity": 1
+        },
+        "requires": [
+          {
+            "type": "Potion A",
+            "quantity": 1
+          },
+          {
+            "type": "Mushroom",
+            "quantity": 4
+          },
+          {
+            "type": "Tulip",
+            "quantity": 4
+          },
+          {
+            "type": "Garlic",
+            "quantity": 2
+          } 
+        ],
+        "requiresSkill": "Chemistry"
+      },
+      {
+        "gives": {
+          "type": "Potion C",
+          "quantity": 1
+        },
+        "requires": [
+          {
+            "type": "Potion B",
+            "quantity": 1
+          },
+          {
+            "type": "Sunflower",
+            "quantity": 12
+          },
+          {
+            "type": "Ink",
+            "quantity": 2
+          },
+          {
+            "type": "Feverfew",
+            "quantity": 1
+          }
+        ],
+        "requiresSkill": "Chemistry"
+      }
+    ]
+  },
+  {
+    "trader": "Iago",
+    "trades": [
+      {
+        "gives": {
+          "type": "Gem",
+          "quantity": 1
+        },
+        "requires": [
+          {
+            "type": "Olive Bread",
+            "quantity": 12
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "trader": "Caliban",
+    "trades": [
+      {
+        "gives": {
+          "type": "Silver",
+          "quantity": 3
+        },
+        "requires": [
+          {
+            "type": "Bones",
+            "quantity": 10
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "trader": "Leontes",
+    "trades": [
+      {
+        "gives": {
+          "type": "Gold",
+          "quantity": 50
+        },
+        "requires": [
+          {
+            "type": "King's Crown",
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "trader": "Gertrude",
+    "trades": [
+      {
+        "gives": {
+          "type": "Diamond Ring",
+          "quantity": 1
+        },
+        "requires": [
+          {
+            "type": "Queen's Cake",
+            "quantity": 10
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "trader": "Mermaid",
+    "trades": [
+      {
+        "gives": {
+          "type": "Gold",
+          "quantity": 25
+        },
+        "requires": [
+          {
+            "type": "Trident",
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  }
+]
