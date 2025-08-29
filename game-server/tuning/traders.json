@@ -105,6 +105,18 @@
           }
         ],
         "requiresSkill": "Chemistry"
+      },
+      {
+        "gives": {
+          "type": "Money",
+          "quantity": 666
+        },
+        "requires": [
+          {
+            "type": "Magic Mushroom",
+            "quantity": 1
+          }
+        ]
       }
     ]
   },
