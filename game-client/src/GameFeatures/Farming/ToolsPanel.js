@@ -151,7 +151,7 @@ const ToolsPanel = ({
 
             {/* Lay Stone Button */}
             <ResourceButton
-              symbol="🟨"
+              symbol="⬜️"
               name="Lay Stone"
               details="Costs: None<br>Requires: Pickaxe"
               disabled={isActionCoolingDown || !hasRequiredSkill('Pickaxe')}
