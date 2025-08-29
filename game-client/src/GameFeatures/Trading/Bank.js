@@ -66,7 +66,7 @@ function BankPanel({
         if (currentPlayer?.frontierId) {
             fetchBankOffers();
         }
-    }, [currentPlayer]);
+    }, [currentPlayer?.frontierId]);
 
     // ✅ Handle trade transaction
     const handleTrade = async (offer) => {

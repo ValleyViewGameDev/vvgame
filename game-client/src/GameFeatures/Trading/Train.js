@@ -52,7 +52,7 @@ function TrainPanel({
     if (currentPlayer?.settlementId) {
       fetchTrainOffers();
     }
-  }, [currentPlayer]);
+  }, [currentPlayer?.playerId, currentPlayer?.settlementId]);
 
 
   // 2. Fetch fresh train offers on *every* phase change
@@ -261,6 +261,7 @@ function TrainPanel({
       backpack,
       setInventory,
       setBackpack,
+      setCurrentPlayer,
       updateStatus,
     });
     if (!success) return;
@@ -274,9 +275,6 @@ function TrainPanel({
         },
       });
 
-      console.log('Offer = ',offer);
-      console.log('Offer.qtyGiven = ',offer.qtyGiven);
-      
     // Award Money for fulfillment
     await gainIngredients({
       playerId: currentPlayer.playerId,
