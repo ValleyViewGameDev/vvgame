@@ -185,7 +185,11 @@ export const RenderGrid = memo(
               <div
                 className="resource-overlay"
                 style={{
-                  fontSize: resource.range > 1 ? `${TILE_SIZE * 0.85 * resource.range}px` : `${TILE_SIZE * 0.7}px`,
+                  fontSize: resource.range > 1 
+                    ? `${TILE_SIZE * 1.1 * resource.range}px` 
+                    : resource.category === 'deco' && resource.action === 'wall'
+                      ? `${TILE_SIZE * 1.1}px` // Walls render slightly larger so they join
+                      : `${TILE_SIZE * 0.7}px`,
                   width: resource.range > 1 ? `${TILE_SIZE * resource.range}px` : 'auto',
                   height: resource.range > 1 ? `${TILE_SIZE * resource.range}px` : 'auto',
                   position: resource.range > 1 ? 'absolute' : 'static',
