@@ -8467,5 +8467,8 @@
     "Clay Pit": 10,
     "Pine Tree": 300,
     "Rosemary": 17
+  },
+  "enemiesDistribution": {
+    "Coyote": 12
   }
 }

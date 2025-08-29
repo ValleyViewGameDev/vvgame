@@ -8457,16 +8457,21 @@
     "d": 3,
     "w": 0,
     "p": 0,
-    "l": 0
+    "l": 0,
+    "n": 0
   },
   "resourceDistribution": {
     "Oak Tree": 300,
     "Pine Tree": 2000,
-    "Rosemary": 50,
+    "Rosemary": 30,
     "Daisy": 12,
     "Tulip": 4,
-    "Mushroom": 50,
+    "Mushroom": 80,
     "Feverfew": 22,
     "Gem": 12
+  },
+  "enemiesDistribution": {
+    "Zombie": 8,
+    "Zombie Spawner": 9
   }
 }

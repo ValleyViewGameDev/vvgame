@@ -8457,7 +8457,8 @@
     "d": 3,
     "w": 0,
     "p": 0,
-    "l": 0
+    "l": 0,
+    "n": 0
   },
   "resourceDistribution": {
     "Oak Tree": 300,
@@ -8469,5 +8470,8 @@
     "Feverfew": 30,
     "Diamond Ring": 1,
     "Silver": 1
+  },
+  "enemiesDistribution": {
+    "Ogre": 12
   }
 }

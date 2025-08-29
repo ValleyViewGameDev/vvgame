@@ -8457,7 +8457,8 @@
     "d": 3,
     "w": 0,
     "p": 0,
-    "l": 0
+    "l": 0,
+    "n": 0
   },
   "resourceDistribution": {
     "Oak Tree": 400,
@@ -8468,5 +8469,9 @@
     "Mushroom": 50,
     "Feverfew": 8,
     "Gold": 2
+  },
+  "enemiesDistribution": {
+    "Spider": 10,
+    "Zombie": 4
   }
 }

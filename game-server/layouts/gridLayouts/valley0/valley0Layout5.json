@@ -8470,5 +8470,8 @@
     "Honey": 2,
     "Sugar": 10,
     "Strawberry": 12
+  },
+  "enemiesDistribution": {
+    "Coyote": 6
   }
 }

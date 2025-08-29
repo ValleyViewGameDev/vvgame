@@ -8463,15 +8463,13 @@
   "resourceDistribution": {
     "Oak Tree": 1300,
     "Pine Tree": 900,
-    "Rosemary": 22,
-    "Daisy": 50,
+    "Rosemary": 6,
     "Feverfew": 5,
-    "Mushroom": 50,
-    "Tulip": 20,
-    "Honey": 6
+    "Mushroom": 48,
+    "Tulip": 5,
+    "Garlic": 12
   },
   "enemiesDistribution": {
-    "Coyote": 6,
-    "Bear": 12
+    "Zombie Spawner": 12
   }
 }

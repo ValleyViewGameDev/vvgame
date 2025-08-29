@@ -8452,9 +8452,9 @@
     ]
   ],
   "tileDistribution": {
-    "g": 73,
+    "g": 75,
     "s": 0,
-    "d": 27,
+    "d": 25,
     "w": 0,
     "p": 0,
     "l": 0,
@@ -8468,5 +8468,8 @@
     "Rosemary": 100,
     "Mushroom": 2,
     "Tulip": 1
+  },
+  "enemiesDistribution": {
+    "Bear": 3
   }
 }
