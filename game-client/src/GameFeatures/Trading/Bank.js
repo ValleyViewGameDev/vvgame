@@ -142,25 +142,32 @@ function BankPanel({
                 <h3>{strings["1402"]}</h3> {/* "These offers good for" */}
                 <h2>{bankTimer}</h2>
                 {bankOffers.length > 0 ? (
-                  bankOffers.map((offer, index) => (
-                    <ResourceButton
-                      key={index}
-                      className="resource-button"
-                      onClick={() => handleTrade(offer)}
-                      disabled={!canAfford({
-                        ingredient1: offer.itemBought,
-                        ingredient1qty: offer.qtyBought
-                      }, inventory, backpack, 1)}
-                      hideInfo={true}
-                    >
-                      <div className="resource-details">
-                        <span><strong>{strings["1403"]}</strong></span> {/* "Will buy" */}
-                        {getSymbol(offer.itemBought)} {offer.itemBought} x{offer.qtyBought}
-                        <br />
-                        {strings["1404"]} {getSymbol(offer.itemGiven)} {offer.qtyGiven} {/* "for" */}
-                      </div>
-                    </ResourceButton>
-                  ))
+                  bankOffers.map((offer, index) => {
+                    // Calculate player's total quantity from inventory and backpack
+                    const inventoryQty = inventory?.find(item => item.type === offer.itemBought)?.quantity || 0;
+                    const backpackQty = backpack?.find(item => item.type === offer.itemBought)?.quantity || 0;
+                    const playerQty = inventoryQty + backpackQty;
+                    
+                    return (
+                      <ResourceButton
+                        key={index}
+                        className="resource-button"
+                        onClick={() => handleTrade(offer)}
+                        disabled={!canAfford({
+                          ingredient1: offer.itemBought,
+                          ingredient1qty: offer.qtyBought
+                        }, inventory, backpack, 1)}
+                        hideInfo={true}
+                      >
+                        <div className="resource-details">
+                          <span><strong>{strings["1403"]}</strong></span> {/* "Will buy" */}
+                          {getSymbol(offer.itemBought)} {offer.itemBought} x{offer.qtyBought} / {playerQty}
+                          <br />
+                          {strings["1404"]} {getSymbol(offer.itemGiven)} {offer.qtyGiven} {/* "for" */}
+                        </div>
+                      </ResourceButton>
+                    );
+                  })
                 ) : (
                   <p>{strings["1405"]}</p>  
                 )}

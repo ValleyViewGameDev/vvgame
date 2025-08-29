@@ -1731,12 +1731,19 @@ return (
       )}
       <br />
 
-      <h2>Discord Server:</h2>
+      <h2>{strings[96]}</h2>
       <button
         className="shared-button"
         onClick={() => window.open('https://discord.gg/mQgRP2K9', '_blank')}
       >
-        Join our Discord
+        Join Discord Server
+      </button>
+      
+      <button
+        className="shared-button"
+        onClick={() => window.location.href = 'mailto:valleyviewgamedev@gmail.com'}
+      >
+        {strings[97]}
       </button>
 
       <br />
