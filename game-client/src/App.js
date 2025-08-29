@@ -2219,6 +2219,7 @@ return (
           masterResources={masterResources} 
           masterSkills={masterSkills} 
           updateStatus={updateStatus}
+          isDeveloper={isDeveloper}
         />
       )}
       {activePanel === 'BuildPanel' && (

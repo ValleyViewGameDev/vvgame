@@ -27,7 +27,8 @@ const ToolsPanel = ({
   gridId,
   masterResources,
   masterSkills,
-  updateStatus
+  updateStatus,
+  isDeveloper
 }) => {
 
   const strings = useStrings();
@@ -147,6 +148,28 @@ const ToolsPanel = ({
               info={strings[312]}
               onClick={() => handleTerraformWithCooldown("pave")}
             />
+
+            {/* Lay Stone Button */}
+            <ResourceButton
+              symbol="🟨"
+              name="Lay Stone"
+              details="Costs: None<br>Requires: Pickaxe"
+              disabled={isActionCoolingDown || !hasRequiredSkill('Pickaxe')}
+              info={strings[312]}
+              onClick={() => handleTerraformWithCooldown("stone")}
+            />
+
+            {/* Create Water Button - Developer Only */}
+            {isDeveloper && (
+              <ResourceButton
+                symbol="💧"
+                name="Create Water"
+                details="Costs: None<br>Developer Only"
+                disabled={isActionCoolingDown}
+                info="Creates a water tile (Developer only)"
+                onClick={() => handleTerraformWithCooldown("water")}
+              />
+            )}
 
 
           </>

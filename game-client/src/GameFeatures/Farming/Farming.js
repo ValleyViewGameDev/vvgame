@@ -155,6 +155,12 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, gridId, currentPl
     case "pave":
       newType = "p";
       break;
+    case "stone":
+      newType = "s";
+      break;
+    case "water":
+      newType = "w";
+      break;
     default:
       console.error(`❌ handleTerraform: Unknown actionType "${actionType}"`);
       return;
