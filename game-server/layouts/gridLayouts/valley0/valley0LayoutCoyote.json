@@ -8467,9 +8467,8 @@
     "Mushroom": 2,
     "Tulip": 2,
     "Daisy": 10,
-    "Rosemary": 5,
-    "Train": 1
-  },
+    "Rosemary": 5
+    },
   "enemiesDistribution": {
     "Bear": 4
   }
