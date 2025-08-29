@@ -107,7 +107,7 @@ function TrainPanel({
       // Find all unique player IDs that have claimed or completed offers
       const playerIds = [...new Set(
         offers
-          .filter(offer => offer.claimedBy && offer.claimedBy !== currentPlayer.playerId)
+          .filter(offer => offer.claimedBy)
           .map(offer => offer.claimedBy)
       )];
 
@@ -131,11 +131,6 @@ function TrainPanel({
         acc[playerId] = username;
         return acc;
       }, {});
-
-      // Add current player's username since we already have it
-      if (currentPlayer?.playerId && currentPlayer?.username) {
-        usernameMap[currentPlayer.playerId] = currentPlayer.username;
-      }
 
       setPlayerUsernames(prev => ({ ...prev, ...usernameMap }));
     } catch (error) {

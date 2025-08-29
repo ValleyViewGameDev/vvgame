@@ -132,6 +132,13 @@ router.post('/register-new-player', async (req, res) => {
     newPlayer.playerId = newPlayer._id;
     await newPlayer.save();
 
+    // Increment settlement population
+    await Settlement.findByIdAndUpdate(
+      location.settlementId,
+      { $inc: { population: 1 } },
+      { new: true }
+    );
+
     console.log(`✅ New player created with grid ${gridId}: ${username}`);
     sendNewUserEmail(newPlayer);
 

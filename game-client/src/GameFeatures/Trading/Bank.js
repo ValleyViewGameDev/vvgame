@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
 import ResourceButton from '../../UI/ResourceButton';
-import { refreshPlayerAfterInventoryUpdate, spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
+import { refreshPlayerAfterInventoryUpdate, spendIngredients, gainIngredients, canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { formatCountdown } from '../../UI/Timers.js';
@@ -147,10 +147,10 @@ function BankPanel({
                       key={index}
                       className="resource-button"
                       onClick={() => handleTrade(offer)}
-                      disabled={!currentPlayer.inventory.some((item) => 
-                        item.type === offer.itemBought && 
-                        item.quantity >= offer.qtyBought
-                      )}
+                      disabled={!canAfford({
+                        ingredient1: offer.itemBought,
+                        ingredient1qty: offer.qtyBought
+                      }, inventory, backpack, 1)}
                       hideInfo={true}
                     >
                       <div className="resource-details">
