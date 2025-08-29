@@ -137,7 +137,7 @@ export async function handleNPCClick(
 
     case 'quest': 
     case 'heal':
-    case 'farmhand':
+    case 'worker':
       {
         //handled directly in RenderDynamic  
         break;

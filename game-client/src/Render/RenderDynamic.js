@@ -193,7 +193,7 @@ const DynamicRenderer = ({
             if (currentTime < reloadRef.current) return;
             reloadRef.current = currentTime + (speed * 1000);
           }
-          if (npc.action === 'quest' || npc.action === 'heal' || npc.action === 'farmhand' || npc.action === 'trade') {
+          if (npc.action === 'quest' || npc.action === 'heal' || npc.action === 'worker' || npc.action === 'trade') {
             onNPCClick(npc);
           } else {
             handleNPCClick(

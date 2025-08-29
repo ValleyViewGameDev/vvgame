@@ -97,7 +97,7 @@ async processState(NPCsInGrid, gridId, TILE_SIZE) {
         await this.handleSpawnBehavior(gridId);
         break;
 
-      case 'farmhand':
+      case 'worker':
         await this.handleFarmerBehavior(gridId);
         break;
         

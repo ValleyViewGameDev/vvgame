@@ -43,8 +43,8 @@ const FarmHandPanel = ({
   const [errorMessage, setErrorMessage] = useState('');
   const [stationEmoji, setStationEmoji] = useState('🛖');
   const [stationDetails, setStationDetails] = useState(null);
-  const [farmhandSkills, setFarmhandSkills] = useState([]);
-  const [farmhandUpgrades, setFarmhandUpgrades] = useState([]);
+  const [workerSkills, setFarmhandSkills] = useState([]);
+  const [workerUpgrades, setFarmhandUpgrades] = useState([]);
   const [isHarvestModalOpen, setIsHarvestModalOpen] = useState(false);
   const [selectedCropTypes, setSelectedCropTypes] = useState({});
   const [selectedReplantTypes, setSelectedReplantTypes] = useState({});
@@ -108,7 +108,7 @@ const FarmHandPanel = ({
       setStationEmoji(stationResource?.symbol || '🛖');
       setStationDetails(stationResource);
     } catch (error) {
-      console.error('Error loading farmhand offers:', error);
+      console.error('Error loading worker offers:', error);
     }
   }, [stationType, masterResources]);
 
@@ -230,7 +230,7 @@ const FarmHandPanel = ({
     }
     
     // Find the Farmer NPC to apply busy overlay
-    const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+    const farmerNPC = npcs.find(npc => npc.action === 'worker');
     if (farmerNPC) {
       setBusyOverlay(farmerNPC.id);
     }
@@ -271,7 +271,7 @@ const FarmHandPanel = ({
     
     // Find the Farmer NPC to apply busy overlay
     const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-    const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+    const farmerNPC = npcs.find(npc => npc.action === 'worker');
     if (farmerNPC) {
       setBusyOverlay(farmerNPC.id);
     }
@@ -331,7 +331,7 @@ const FarmHandPanel = ({
       
       // Clear busy overlay when operation completes
       const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-      const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+      const farmerNPC = npcs.find(npc => npc.action === 'worker');
       if (farmerNPC) {
         clearNPCOverlay(farmerNPC.id);
       }
@@ -349,7 +349,7 @@ const FarmHandPanel = ({
     
     // Find the Farmer NPC to apply busy overlay
     const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-    const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+    const farmerNPC = npcs.find(npc => npc.action === 'worker');
     if (farmerNPC) {
       setBusyOverlay(farmerNPC.id);
     }
@@ -483,7 +483,7 @@ const FarmHandPanel = ({
       
       // Clear busy overlay when operation completes
       const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-      const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+      const farmerNPC = npcs.find(npc => npc.action === 'worker');
       if (farmerNPC) {
         clearNPCOverlay(farmerNPC.id);
       }
@@ -515,7 +515,7 @@ const FarmHandPanel = ({
     
     // Find the Farmer NPC to apply busy overlay
     const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-    const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+    const farmerNPC = npcs.find(npc => npc.action === 'worker');
     if (farmerNPC) {
       setBusyOverlay(farmerNPC.id);
     }
@@ -568,7 +568,7 @@ const FarmHandPanel = ({
     
     // Find the Farmer NPC to apply busy overlay
     const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-    const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+    const farmerNPC = npcs.find(npc => npc.action === 'worker');
     if (farmerNPC) {
       setBusyOverlay(farmerNPC.id);
     }
@@ -686,7 +686,7 @@ const FarmHandPanel = ({
       
       // Clear busy overlay when operation completes
       const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-      const farmerNPC = npcs.find(npc => npc.action === 'farmhand');
+      const farmerNPC = npcs.find(npc => npc.action === 'worker');
       if (farmerNPC) {
         clearNPCOverlay(farmerNPC.id);
       }
@@ -746,11 +746,11 @@ const FarmHandPanel = ({
           </div>
         )}
 
-        {farmhandSkills.length > 0 && (
+        {workerSkills.length > 0 && (
           <>
             <h3>{strings[430]}</h3>
 
-            {farmhandSkills.map((resource) => {
+            {workerSkills.map((resource) => {
               const affordable = canAfford(resource, inventory, 1, backpack);
               const formattedCosts = [1, 2, 3, 4].map((i) => {
                 const type = resource[`ingredient${i}`];

@@ -389,7 +389,7 @@ const handleNPCPanel = (npc) => {
       openPanel('NPCPanel');  
       break;
     }
-    case 'farmhand': {
+    case 'worker': {
       setActiveQuestGiver(npc);  // Set the active quest giver globally
       // Set activeStation data for NPC-based access to ensure gridId is available
       setActiveStation({
