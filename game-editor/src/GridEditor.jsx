@@ -402,6 +402,27 @@ const handleEnemyDistributionChange = (enemyType, value) => {
       const loadedDistribution = loadedGrid.tileDistribution || {};
       setTileDistribution({ ...defaultDistribution, ...loadedDistribution });
       setResourceDistribution({ ...loadedGrid.resourceDistribution } || {});
+      
+      // Load enemy distribution
+      if (loadedGrid.enemiesDistribution) {
+        // Initialize with zeros for all enemy types
+        const newEnemyDist = {};
+        enemyNpcs.forEach(enemy => {
+          newEnemyDist[enemy.type] = 0;
+        });
+        // Override with loaded values
+        Object.entries(loadedGrid.enemiesDistribution).forEach(([type, count]) => {
+          newEnemyDist[type] = count;
+        });
+        setEnemyDistribution(newEnemyDist);
+      } else {
+        // Reset to zeros if no enemy distribution in file
+        const initialEnemyDist = {};
+        enemyNpcs.forEach(enemy => {
+          initialEnemyDist[enemy.type] = 0;
+        });
+        setEnemyDistribution(initialEnemyDist);
+      }
 
       console.log("Is setFileInfo true?  ", setFileInfo);
       console.log("Current file name:", fileName);
@@ -448,12 +469,19 @@ const handleEnemyDistributionChange = (enemyType, value) => {
       const filteredResourceDistribution = Object.fromEntries(
         Object.entries(resourceDistribution).filter(([_, value]) => value > 0)
       );
+      const filteredEnemyDistribution = Object.fromEntries(
+        Object.entries(enemyDistribution).filter(([_, value]) => value > 0)
+      );
       const formattedGrid = {
         tiles: formattedTiles,
         resources: formattedResources,
         tileDistribution: tileDistribution,
         resourceDistribution: filteredResourceDistribution
       };
+      // Add enemiesDistribution if it has any values
+      if (Object.keys(filteredEnemyDistribution).length > 0) {
+        formattedGrid.enemiesDistribution = filteredEnemyDistribution;
+      }
       fs.writeFileSync(layoutPath, JSON.stringify(formattedGrid, null, 2), 'utf-8');
       console.log(`✅ Successfully saved layout to ${layoutPath}`);
       alert(`Layout saved to ${layoutPath}`);

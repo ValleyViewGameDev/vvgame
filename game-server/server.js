@@ -558,6 +558,10 @@ app.post('/api/save-layout', (req, res) => {
     .filter(([_, value]) => value > 0)
     .map(([key, value]) => `    "${key}": ${value}`)
     .join(",\n");
+  const filteredEnemiesDistribution = Object.entries(grid.enemiesDistribution || {})
+    .filter(([_, value]) => value > 0)
+    .map(([key, value]) => `    "${key}": ${value}`)
+    .join(",\n");
 
     const jsonString = `{
       "tiles": [
@@ -571,6 +575,9 @@ app.post('/api/save-layout', (req, res) => {
       }${filteredResourceDistribution ? `,
       "resourceDistribution": {
     ${filteredResourceDistribution}
+      }` : ""}${filteredEnemiesDistribution ? `,
+      "enemiesDistribution": {
+    ${filteredEnemiesDistribution}
       }` : ""}
     }`;
 

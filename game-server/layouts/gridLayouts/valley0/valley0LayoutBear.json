@@ -8457,7 +8457,8 @@
     "d": 29,
     "w": 0,
     "p": 0,
-    "l": 0
+    "l": 0,
+    "n": 0
   },
   "resourceDistribution": {
     "Oak Tree": 1500,
@@ -8465,5 +8466,8 @@
     "Rocks": 200,
     "Mushroom": 2,
     "Tulip": 2
+  },
+  "enemiesDistribution": {
+    "Coyote": 6
   }
 }

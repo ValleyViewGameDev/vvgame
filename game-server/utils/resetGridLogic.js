@@ -3,7 +3,7 @@ const Grid = require('../models/grid');
 const Frontier = require('../models/frontier');
 const path = require('path');
 const fs = require('fs');
-const { generateGrid, generateResources, generateFixedGrid, generateFixedResources } = require('./worldUtils');
+const { generateGrid, generateResources, generateFixedGrid, generateFixedResources, generateEnemies } = require('./worldUtils');
 const { readJSON } = require('./fileUtils');const { ObjectId } = require('mongodb');
 const masterResources = require('../tuning/resources.json');
 const { getTemplate, getHomesteadLayoutFile, getTownLayoutFile } = require('./templateUtils');
@@ -109,6 +109,14 @@ async function performGridReset(gridId, gridType, gridCoord) {
       };
     });
   });
+
+  // Generate random enemies for non-fixed layouts
+  if (!isFixedLayout && layout.enemiesDistribution) {
+    const newEnemies = generateEnemies(layout, newTiles, newNPCs);
+    // Merge the generated enemies into the existing NPCs
+    Object.assign(newNPCs, newEnemies);
+    console.log(`🎯 Generated ${Object.keys(newEnemies).length} enemies for grid reset ${gridCoord}`);
+  }
 
   grid.tiles = newTiles;
   grid.resources = filteredResources;  // Use filtered resources without Stubs

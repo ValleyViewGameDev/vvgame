@@ -8,7 +8,7 @@ const Grid = require('../models/grid');
 const { readJSON } = require('./fileUtils');
 const { getTemplate, getHomesteadLayoutFile, getTownLayoutFile } = require('./templateUtils');
 const masterResources = require('../tuning/resources.json');
-const { generateGrid, generateResources, generateFixedGrid, generateFixedResources } = require('./worldUtils');
+const { generateGrid, generateResources, generateFixedGrid, generateFixedResources, generateEnemies } = require('./worldUtils');
 
 async function performGridCreation({ gridCoord, gridType, settlementId, frontierId }) {
   if (!gridCoord || !gridType || !settlementId || !frontierId) {
@@ -110,6 +110,14 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
       }
     });
   });
+
+  // Generate random enemies for non-fixed layouts
+  if (!isFixedLayout && layout.enemiesDistribution) {
+    const newEnemies = generateEnemies(layout, newTiles, newGridState.npcs);
+    // Merge the generated enemies into the existing NPCs
+    Object.assign(newGridState.npcs, newEnemies);
+    console.log(`🎯 Generated ${Object.keys(newEnemies).length} enemies for grid ${gridCoord}`);
+  }
 
   // Remove any "Stub" resources before finalizing the grid
   const filteredResources = newResources.filter(resource => resource.type !== 'Stub');

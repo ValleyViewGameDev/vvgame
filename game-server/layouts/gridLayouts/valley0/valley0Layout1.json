@@ -8468,5 +8468,9 @@
     "Pine Tree": 300,
     "Rosemary": 5,
     "Daisy": 3
+  },
+  "enemiesDistribution": {
+    "Coyote": 6,
+    "Bear": 6
   }
 }

@@ -2,7 +2,8 @@ const { readJSON } = require('./fileUtils');
 const config = require('../config');
 const path = require('path');
 const { getTemplate } = require('../utils/templateUtils');
-const masterResources = require('../tuning/resources.json'); // Import resources.json directly
+const masterResources = require('../tuning/resources.json');
+const mongoose = require('mongoose'); // Import resources.json directly
 const resourcesFilePath = path.join(__dirname, '../tuning/resources.json');
 console.log('Loading resources ...');
 const resourcesData = readJSON(resourcesFilePath);
@@ -142,6 +143,100 @@ function generateResources(layout, tiles) {
   return resources;
 }
 
+function generateEnemies(layout, tiles, existingNPCs = {}) {
+  const enemiesDistribution = layout.enemiesDistribution || {};
+  const enemies = {};
+  const availableCells = [];
+
+  // Find all walkable tiles that don't already have NPCs or resources
+  const occupiedPositions = new Set();
+  
+  // Mark existing NPC positions as occupied
+  Object.values(existingNPCs).forEach(npc => {
+    occupiedPositions.add(`${npc.position.x},${npc.position.y}`);
+  });
+
+  // Mark resource positions as occupied (from layout.resources)
+  if (layout.resources) {
+    layout.resources.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        if (cell !== '**') {
+          occupiedPositions.add(`${x},${y}`);
+        }
+      });
+    });
+  }
+
+  // Find available walkable tiles
+  tiles.forEach((row, y) => {
+    row.forEach((tileType, x) => {
+      const posKey = `${x},${y}`;
+      if (!occupiedPositions.has(posKey)) {
+        // Check if it's a walkable tile (not water, not mountain)
+        const tileResource = masterResources.find(r => r.type === tileType && r.category === 'tile');
+        if (tileResource && !tileResource.blocksmovement) {
+          availableCells.push({ x, y, tileType });
+        }
+      }
+    });
+  });
+
+  shuffleArray(availableCells);
+
+  // Generate enemies based on distribution
+  Object.entries(enemiesDistribution).forEach(([enemyType, quantity]) => {
+    const enemyDef = masterResources.find(res => res.type === enemyType && res.category === 'npc');
+    if (!enemyDef) {
+      console.warn(`⚠️ Enemy type "${enemyType}" not found in masterResources`);
+      return;
+    }
+
+    let remaining = quantity;
+    let retries = 0;
+    const maxRetries = 10;
+
+    while (remaining > 0 && availableCells.length > 0) {
+      if (retries >= maxRetries) {
+        console.warn(`⚠️ Max retries reached for "${enemyType}". Unable to place remaining ${remaining} instances.`);
+        break;
+      }
+
+      const { x, y, tileType } = availableCells.pop();
+      const validKey = `validon${tileType.toLowerCase()}`;
+      const isValid = enemyDef[validKey] === true;
+
+      if (isValid) {
+        const npcId = new mongoose.Types.ObjectId().toString();
+        enemies[npcId] = {
+          id: npcId,
+          type: enemyType,
+          position: { x, y },
+          state: enemyDef.defaultState || 'idle',
+          hp: enemyDef.maxhp || 10,
+          maxhp: enemyDef.maxhp || 10,
+          armorclass: enemyDef.armorclass || 10,
+          attackbonus: enemyDef.attackbonus || 0,
+          damage: enemyDef.damage || 1,
+          attackrange: enemyDef.attackrange || 1,
+          speed: enemyDef.speed || 1,
+          lastUpdated: 0,
+        };
+        remaining--;
+        retries = 0;
+      } else {
+        availableCells.unshift({ x, y, tileType }); // Put it back
+        retries++;
+      }
+    }
+
+    if (remaining > 0) {
+      console.warn(`⚠️ Unable to place ${remaining} instances of enemy "${enemyType}".`);
+    }
+  });
+
+  return enemies;
+}
+
 function generateFixedGrid(layout) {
   if (!layout.tiles) {
     throw new Error('Invalid layout: Missing "tiles".');
@@ -204,6 +299,7 @@ module.exports = {
 //  tileTypes,
   generateGrid,
   generateResources,
+  generateEnemies,
 //  lookupLayoutKey,
   isNPC,
   generateFixedGrid,
