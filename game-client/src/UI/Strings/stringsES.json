@@ -123,6 +123,7 @@
   "504": "💀 Muerto",
   "505": "⚠️ Error",
   "510": "❤️‍🩹 Estás recibiendo daño...",
+  "796": "OK",
   "899": "CADENAS DE DEPURACIÓN:",
   "900": "Depuración: Inventario limpiado.",
   "901": "Depuración: Historial de misiones limpiado.",
@@ -559,7 +560,14 @@
 
   "12012": "Herramientas",
   "1033": "⛏️ Herramientas",
-  "1133": "Transforma la tierra con estas herramientas. Los animales necesitan pasto para pastar, los cultivos necesitan tierra para crecer. El pavimento puede ser útil para controlar el movimiento de animales y personajes."
+  "1133": "Transforma la tierra con estas herramientas. Los animales necesitan pasto para pastar, los cultivos necesitan tierra para crecer. El pavimento puede ser útil para controlar el movimiento de animales y personajes.",
+
+"620": "Necesitas acercarte más para interactuar con este personaje.",
+"470": "No puedes viajar ahora, hay acciones agrícolas en progreso.",
+"471": "⚠️ Ya en progreso.",
+"158": " límite por pedido.",
+"96": "¿Tienes comentarios?",
+"97": "@ Envíanos un correo"
 
 
 }

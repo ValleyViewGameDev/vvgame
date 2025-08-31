@@ -654,13 +654,14 @@
 
 "11000": "ADDED STRINGS:",
 
-    "4001": "Welcome to Valley View! Don't have a profile yet? Create a new free profile to start playing:",
-    "4002": "New Profile",
-    "4005": "With your own profile, you'll be granted your own homestead to cultivate in a Settlement with other players, in a Frontier full of Settlements. Adventure awits you in the Valley.",   
-    "10102": "Please login, or create a free profile.",
     "5006": "Please login, or create a free profile.",
     "5021": "Click the Login or Create Profile button to begin.",
     "5033": "Have an existing profile?",
+    "4001": "Welcome to Valley View! Don't have a profile yet? Create a new free profile to start playing:",
+    "4002": "New Profile",
+    "4005": "With your own profile, you'll be granted your own homestead to cultivate in a Settlement with other players, in a Frontier full of Settlements. Adventure awits you in the Valley.",   
+
+    "10102": "Please login, or create a free profile.",
     "4054": "Profile Management",
     "4055": "Profile Status:",
     "4057": "Delete Your Profile",

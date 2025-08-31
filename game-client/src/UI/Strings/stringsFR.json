@@ -124,6 +124,8 @@
     "505": "⚠️ Erreur",
     "510": "❤️‍🩹 Vous subissez des dégâts...",
 
+    "796": "OK",
+
     "899": "DEBUG STRINGS:",
 
     "900": "Debug : Inventaire vidé.",
@@ -396,6 +398,7 @@
     "5030": "😀 Bienvenue à Valley View !",
     "5031": "Aucun joueur connecté ou le serveur est hors ligne.",
     "5032": "Veuillez actualiser la page, vérifier votre connexion internet ou revenir plus tard.",
+    "5033": "Vous avez déjà un profil ?",
 
     "5035": "Nous sommes entre deux saisons !",
     "5036": "Valley View est temporairement indisponible pendant la remise à zéro de la saison.",
@@ -630,10 +633,15 @@
   "454": "❌ Échec de l’embauche de l’ouvrier.",
   "455": " est arrivé(e) !",
   "456": "Plus aucun ouvrier disponible.",
-
   "12012": "Outils",
   "1033": "⛏️ Outils",
-  "1133": "Façonnez la terre avec ces outils. Les animaux ont besoin d’herbe pour paître, les cultures ont besoin de terre pour pousser. Le pavage peut être utile pour contrôler les déplacements des animaux et des personnages."
+  "1133": "Façonnez la terre avec ces outils. Les animaux ont besoin d’herbe pour paître, les cultures ont besoin de terre pour pousser. Le pavage peut être utile pour contrôler les déplacements des animaux et des personnages.",
+"620": "Vous devez vous rapprocher pour interagir avec ce personnage.",
+"470": "Impossible de voyager maintenant, des actions agricoles sont en cours.",
+"471": "⚠️ Déjà en cours.",
+"158": " limite par commande.",
+"96": "Vous avez des commentaires ?",
+"97": "@ Nous contacter par e-mail"
 
 }
 
