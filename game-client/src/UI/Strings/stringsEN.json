@@ -46,7 +46,9 @@
     "77": "Your Backpack is empty.",
     "78": "Manage Backpack",
     "90": "🚫 This is not your homestead.",
-  
+    "96": "Have Feedback?",
+    "97": "@ Email Us",
+    "98": "⏳ Loading ...",
     "99": "⚠️ Something went wrong.",
 
     "100": "TRAVELING STRINGS:",
@@ -75,6 +77,7 @@
     "153": "is selling:",
     "154": "are selling",
     "155": "Transaction failed. This item has already been sold.",
+    "158": " limit per order.",
 
     "200": "QUESTS",
 
@@ -115,6 +118,31 @@
     "423": "No trades available.",
     "424": "No recipes available.",
     "425": "Sell for refund.",
+    "426": "Expensive starter crops, but in case you run out:",
+    "427": "Purchase the Farm Hand's Bulk Harvest skill to harvest all crops at once.",
+    "428": "Click to instantly harvest all crops.",
+    "429": "You have no crops to harvest.",
+    "430": "Purchase these farm skills:",
+    "431": "Purchase the Farm Hand's Bulk Animal Collect skill to collect from all animals at once.",
+    "432": "Purchase the Farm Hand's Logging skill to chop multiple trees at once and collect the wood.",
+    "433": "Purchase Better Logging to increase the number of trees chopped at once.",
+    "434": "Click to instantly collect from all animals.",
+    "435": "Click to instantly chop multiple trees and collect wood.",
+    "436": "You have no animals to collect from.",
+    "437": "You have no trees to chop.",
+    "440": "Started ",
+    "441": "In progress ...",
+    "442": "🏠 House repairs complete!",
+    "450": "❌ Cannot afford crafting costs",
+    "451": "⚠️ Crafting already in progress",
+    "452": "❌ Failed to start crafting.",
+    "453": "❌ Failed to repair house.",
+    "454": "❌ Failed to hire worker.",
+    "455": " has arrived!",
+    "456": "No more workers available.",
+
+    "470": "Cannot travel right now, farming actions in progress.",
+    "471": "⚠️ Already in progress.",
 
     "500": "COMBAT STRINGS",
 
@@ -124,6 +152,74 @@
     "504": "💀 Killed",
     "505": "⚠️ Error",
     "510": "❤️‍🩹 You're taking damage ...",
+
+        "600": "RELATIONSHIP STRINGS:",
+
+    "601": "Relationship:",
+    "602": "You've met",
+    "603": "You're now friends with",
+    "604": "You have a crush on",
+    "605": "You're in love with",
+    "606": "You and",
+    "607": "are now married.",
+    "608": "are now rivals.",
+    "609": "is now your rival because of this.",
+    "610": "isn't going to be very happy about this...",
+    "611": "aren't going to be very happy about this...",
+    "612": "will be very happy about this.",
+    "613": "approve of this.",
+    "614": "and",
+    "615": "Your relationship with",
+    "616": "has changed.",
+    "620": "You need to move closer to interact with this character.",
+
+
+    "700": "FTUE STRINGS:",
+
+    "701": "Welcome to Valley View (Open Beta)",
+    "702": "Welcome, traveler! You've arrived in Valley View, a frontier land of opportunity and adventure.",
+    
+    "705": "😀 This game is in Open Beta 😀",
+    "706": "Your feedback is very welcome, and will help us improve the game. Look for the button on the left panel to join our Discord Server, where you can share your thoughts and experiences.",
+    
+    "709": "🏚️ Your Homestead",
+    "710": "You've inherited a Homestead in a Settlement with other players. Start by fixing up this abandoned farm house. Check your ✅ To Do List. You'll need to gather some wood first.",
+    
+    "715": "👨🏽 Hire Kent",
+    "716": "Excellent! Now, you're going to need to start making 💰 money. You'll need a Farm Manager who can live here full time and help you grow the operation. Open the 🏠 Farm House to hire people.",
+    
+    "721": "👨🏽 Listen to Kent",
+    "722": "Great, Kent is the best! Get to know him well, and he'll give you ✅ advice. Kent's first order of business: harvest some 🌾 Wheat, and use the 📥 Trading Post to sell it.",
+    
+    "723": "Farm the Land",
+    "724": "Go ahead and expand your farm. Plant crops using the 🚜 Farming panel. When you have enough money, acquire the Grower skill to expand your farming capabilities.",
+
+    "727": "👵🏻 Hire the Shepherd",
+    "728": "Nice work! Now hire the 👵🏻 Shepherd from the 🏠 Farm House, and she'll help bring some 🐮 animal life to the farm, so you can continue to expand your business.",
+    
+    "729": "🐮 Animal Husbandry",
+    "730": "Go to the 🐮 Animal Panel to acquire farm animals. Start with a cow. The cow needs 🟩 grass to graze, so place it carefully. And you already have your first 🟫 Animal Stall; this is where you can produce milk once the cow is full.",
+
+    "731": "⛏️ Shape the Land",
+    "732": "Crops need dirt. Cows and sheep need 🟩 grass. Pavement can help contain the movements of people and animals. Use the ⛏️ Tools to pave the land to your liking, and learn the  🪓 axe skill to chop trees for wood.",
+
+    "733": "⚒️ Builder",
+    "734": "You've mastered the 🪓 axe -- excellent! Wood is useful for a number of things, including building crafting stations. You can also chop your way to the 🚂 Train Station at the edge of your Homestead, where you can eventually travel into Town.",
+
+    "737": "Time to Explore",
+    "738": "Your Homestead is part of a larger Settlement of other players sharing a large Frontier. Zoom out (+ and -) to see the whole Settlement and Frontier. Use ➡️ Signposts to travel, or walk to the edge of any map. ENJOY PLAYING VALLEY VIEW!",
+    
+    "795": "Skip Tutorial",
+    "796": "OK",
+    "797": "Back",
+    "798": "Play",
+
+    "790": "Trading",
+    "791": "Open the 📤 Trading Post on your homestead to sell goods and earn 💰 money. Trade with other players for better prices.",
+    "792": "Skills",
+    "793": "Gain 💪 Skills to grow your homestead and travel beyond it. Over time, you can specialize in 🚜 Farming, ⚔️ Adventure or 🏛️ Politics. Balance skills with other players, and create a thriving community.",
+
+
 
     "899": "DEBUG STRINGS:",
 
@@ -164,6 +260,11 @@
     "1026": "[Money panel description]",
     "1027": "These are the benefits of a Gold Pass.",
     "1028": "[Decorations panel description]",
+    "1029": "[Animal panel]",
+    "1030": "[Crop panel]",
+    "1031": "Buy decorations for your homesetead. You will be able to sell these for a full refund.",
+    "1032": "The Farm House is where you can hire people to help you run your homestead." ,
+    "1033": "Terraform the land with these tools. Animals need grass for grazing, crops need dirt to grow on. Pavement can be useful for controlling movements of animals and characters.",
 
     "1101": "Inventory",
     "1102": "⚒️ Build",
@@ -193,6 +294,11 @@
     "1126": "💰 About Money",
     "1127": "⭐️ Gold Pass",
     "1128": "🪴 Decorations",
+    "1129": "🐾 Animals",
+    "1130": "🌱 Crops & Trees",
+    "1131": "🪴 Decorations",
+    "1132": "🏠 Farm House",
+    "1133": "⛏️ Tools",
 
 
     "1200": "TRADER STORY STRINGS",
@@ -341,6 +447,9 @@
     
     "4000": "LOGIN PANEL:",
 
+    "4001": "Welcome to Valley View! Don't have a profile yet? Create a new free profile to start playing:",
+    "4002": "New Profile",
+    "4005": "With your own profile, you'll be granted your own homestead to cultivate in a Settlement with other players, in a Frontier full of Settlements. Adventure awits you in the Valley.",   
     "4003": "Username",
     "4004": "You will not be asked for an email address.",
     "4006": "Password",
@@ -354,7 +463,10 @@
     "4051": "Hi, ",
     "4052": "Change Username:",
     "4053": "Change Password:",
+    "4054": "Profile Management",
+    "4055": "Profile Status:",
     "4056": "Logout",
+    "4057": "Delete Your Profile",
     "4058": "Player ID:",
     "4059": "Homestead Relocation",
     "4060": "Relocations Remaining:",
@@ -366,23 +478,22 @@
     "4066": "Back to Login",
     "4067": "Select Language",
 
+
     "5000": "MORE MODAL STRINGS:",
 
     "5001": "💀 You have died.",
     "5002": "You have been returned home. Any backpack 🎒 items you had were lost.",
     "5003": "Be more careful next time.",
-
     "5005": "😀 Welcome to Valley View™",
+    "5006": "Please login, or create a free profile.",
     "5007": "© Valley View Studios, 2025, All Rights Reserved.",
-
     "5010": "📨 Inbox",
     "5011": "You have no messages",
-
     "5015": "🛒 Store",
     "5016": "Purchases will be delivered to the Inbox. We are unable to offer returns. All purchases are final.",
     "5017": "Be aware that most inventory items are wiped between seasons, so please check the season clock before purchasing, and see the seasons panel for more information.",
-
     "5020": "🚫 You are currently logged out.",
+    "5021": "Click the Login or Create Profile button to begin.",
     
     "5025": "🙏 Thank you for your support!",
     "5026": "Your purchase has been delivered to your Inbox.",
@@ -390,6 +501,7 @@
     
     "5030": "😀 Welcome to Valley View!",
     "5031": "No player is logged in or the server is offline.",
+
     "5032": "Please refresh the page, check your internet connetion, or return later.",
 
     "5035": "We are between seasons!",
@@ -477,6 +589,7 @@
     "10100": "APP.JS STRINGS:",
 
     "10101": "Welcome to Valley View!",
+    "10102": "Please login, or create a free profile.",
     "10103": "🎒 Inventory",
     "10104": "🛒 Store",
     "10105": "📨, Inbox",
@@ -513,23 +626,12 @@
 
 
     "11001": "Wait for the timer to end, or for another player to buy this item.",
+
     "206": "Return to the NPC who gave you this quest to collect your reward.",
     "1008": "Trade Stall: Sell your resources to other players or buy items from their trade stalls. Use the arrows to navigate between trade stalls within your Settlement. If no players buy your items before the timer expires, you can sell them to the game for fraction of their base value.",
     "2014": "You can only claim one train offer at a time.",
     "2015": "Show Train Log",
     "2016": "🎉 All orders were completed! Rewards have been mailed out.",
-    "426": "Expensive starter crops, but in case you run out:",
-    "427": "Purchase the Farm Hand's Bulk Harvest skill to harvest all crops at once.",
-    "428": "Click to instantly harvest all crops.",
-    "429": "You have no crops to harvest.",
-    "430": "Purchase these farm skills:",
-    "431": "Purchase the Farm Hand's Bulk Animal Collect skill to collect from all animals at once.",
-    "432": "Purchase the Farm Hand's Logging skill to chop multiple trees at once and collect the wood.",
-    "433": "Purchase Better Logging to increase the number of trees chopped at once.",
-    "434": "Click to instantly collect from all animals.",
-    "435": "Click to instantly chop multiple trees and collect wood.",
-    "436": "You have no animals to collect from.",
-    "437": "You have no trees to chop.",
     "130": "Select your language:",
     "131": "Confirm",
 
@@ -557,120 +659,16 @@
 
     "340": "Not avilable unless you're on foot.",
 
-    "1129": "🐾 Animals",
-    "1130": "🌱 Crops & Trees",
-    "1029": "[Animal panel]",
-    "1030": "[Crop panel]",
-    "98": "⏳ Loading ...",
 
-    "600": "RELATIONSHIP STRINGS:",
-
-    "601": "Relationship:",
-    "602": "You've met",
-    "603": "You're now friends with",
-    "604": "You have a crush on",
-    "605": "You're in love with",
-    "606": "You and",
-    "607": "are now married.",
-    "608": "are now rivals.",
-    "609": "is now your rival because of this.",
-    "610": "isn't going to be very happy about this...",
-    "611": "aren't going to be very happy about this...",
-    "612": "will be very happy about this.",
-    "613": "approve of this.",
-    "614": "and",
-    "615": "Your relationship with",
-    "616": "has changed.",
-
-    "700": "FTUE STRINGS:",
-
-    "701": "Welcome to Valley View (Open Beta)",
-    "702": "Welcome, traveler! You've arrived in Valley View, a frontier land of opportunity and adventure.",
-    
-    "705": "😀 This game is in Open Beta 😀",
-    "706": "Your feedback is very welcome, and will help us improve the game. Look for the button on the left panel to join our Discord Server, where you can share your thoughts and experiences.",
-    
-    "709": "🏚️ Your Homestead",
-    "710": "You've inherited a Homestead in a Settlement with other players. Start by fixing up this abandoned farm house. Check your ✅ To Do List. You'll need to gather some wood first.",
-    
-    "715": "👨🏽 Hire Kent",
-    "716": "Excellent! Now, you're going to need to start making 💰 money. You'll need a Farm Manager who can live here full time and help you grow the operation. Open the 🏠 Farm House to hire people.",
-    
-    "721": "👨🏽 Listen to Kent",
-    "722": "Great, Kent is the best! Get to know him well, and he'll give you ✅ advice. Kent's first order of business: harvest some 🌾 Wheat, and use the 📥 Trading Post to sell it.",
-    
-    "723": "Farm the Land",
-    "724": "Go ahead and expand your farm. Plant crops using the 🚜 Farming panel. When you have enough money, acquire the Grower skill to expand your farming capabilities.",
-
-    "727": "👵🏻 Hire the Shepherd",
-    "728": "Nice work! Now hire the 👵🏻 Shepherd from the 🏠 Farm House, and she'll help bring some 🐮 animal life to the farm, so you can continue to expand your business.",
-    
-    "729": "🐮 Animal Husbandry",
-    "730": "Go to the 🐮 Animal Panel to acquire farm animals. Start with a cow. The cow needs 🟩 grass to graze, so place it carefully. And you already have your first 🟫 Animal Stall; this is where you can produce milk once the cow is full.",
-
-    "731": "⛏️ Shape the Land",
-    "732": "Crops need dirt. Cows and sheep need 🟩 grass. Pavement can help contain the movements of people and animals. Use the ⛏️ Tools to pave the land to your liking, and learn the  🪓 axe skill to chop trees for wood.",
-
-    "733": "⚒️ Builder",
-    "734": "You've mastered the 🪓 axe -- excellent! Wood is useful for a number of things, including building crafting stations. You can also chop your way to the 🚂 Train Station at the edge of your Homestead, where you can eventually travel into Town.",
-
-    "737": "Time to Explore",
-    "738": "Your Homestead is part of a larger Settlement of other players sharing a large Frontier. Zoom out (+ and -) to see the whole Settlement and Frontier. Use ➡️ Signposts to travel, or walk to the edge of any map. ENJOY PLAYING VALLEY VIEW!",
-    
-    "795": "Skip Tutorial",
-    "796": "OK",
-    "797": "Back",
-    "798": "Play",
-
-    "790": "Trading",
-    "791": "Open the 📤 Trading Post on your homestead to sell goods and earn 💰 money. Trade with other players for better prices.",
-    "792": "Skills",
-    "793": "Gain 💪 Skills to grow your homestead and travel beyond it. Over time, you can specialize in 🚜 Farming, ⚔️ Adventure or 🏛️ Politics. Balance skills with other players, and create a thriving community.",
 
     "490": "Sell for refund (Dev only)",
     "156": "Empty (add items)",
     "157": "Bought by",
     "159": "Ready to sell",
 
-    "1031": "Buy decorations for your homesetead. You will be able to sell these for a full refund.",
-    "1131": "🪴 Decorations",
-    "1032": "🏠 Farm House",
-    "1132": "The Farm House is where you can hire people to help you run your homestead." ,
-
-    "440": "Started ",
-    "441": "In progress ...",
-    "442": "🏠 House repairs complete!",
-    "450": "❌ Cannot afford crafting costs",
-    "451": "⚠️ Crafting already in progress",
-    "452": "❌ Failed to start crafting.",
-    "453": "❌ Failed to repair house.",
-    "454": "❌ Failed to hire worker.",
-    "455": " has arrived!",
-    "456": "No more workers available.",
-
     "12012": "Tools",
-    "1033": "⛏️ Tools",
-    "1133": "Terraform the land with these tools. Animals need grass for grazing, crops need dirt to grow on. Pavement can be useful for controlling movements of animals and characters.",
 
-"11000": "ADDED STRINGS:",
-
-    "5006": "Please login, or create a free profile.",
-    "5021": "Click the Login or Create Profile button to begin.",
-    "5033": "Have an existing profile?",
-    "4001": "Welcome to Valley View! Don't have a profile yet? Create a new free profile to start playing:",
-    "4002": "New Profile",
-    "4005": "With your own profile, you'll be granted your own homestead to cultivate in a Settlement with other players, in a Frontier full of Settlements. Adventure awits you in the Valley.",   
-
-    "10102": "Please login, or create a free profile.",
-    "4054": "Profile Management",
-    "4055": "Profile Status:",
-    "4057": "Delete Your Profile",
-    "620": "You need to move closer to interact with this character.",
-    "470": "Cannot travel right now, farming actions in progress.",
-    "471": "⚠️ Already in progress.",
-    "158": " limit per order.",
-    "96": "Have Feedback?",
-    "97": "@ Email Us"
+    "11000": "ADDED STRINGS:"
 
   }
 

@@ -475,7 +475,7 @@ const FarmHouse = ({
   };
 
   return (
-    <Panel onClose={onClose} descriptionKey="1132" titleKey="1032" panelName="FarmHouse">
+    <Panel onClose={onClose} descriptionKey="1032" titleKey="1132" panelName="FarmHouse">
       <div className="standard-panel">
         
           {recipes?.length > 0 ? (
