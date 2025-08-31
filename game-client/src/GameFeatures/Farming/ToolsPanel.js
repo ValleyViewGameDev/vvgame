@@ -113,7 +113,7 @@ const ToolsPanel = ({
 
 
   return (
-    <Panel onClose={onClose} descriptionKey="1133" titleKey="1033" panelName="ToolsPanel">
+    <Panel onClose={onClose} descriptionKey="1033" titleKey="1133" panelName="ToolsPanel">
       <div className="standard-panel">
         {isContentLoading ? (
           <p>{strings[98]}</p>

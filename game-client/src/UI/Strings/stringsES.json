@@ -69,6 +69,12 @@
   "153": "está vendiendo:",
   "154": "están vendiendo",
   "155": "La transacción falló. Este artículo ya ha sido vendido.",
+  "160": "Artículos para vender",
+  "161": "Artículo",
+  "162": "Disponible",
+  "163": "Precio",
+  "164": "Cantidad",
+
   "200": "MISIONES",
   "201": "✅ Misión completada. Tienes tu recompensa.",
   "202": "✅ Misión aceptada.",
@@ -548,7 +554,7 @@
   "1032": "La casa de granja es donde puedes contratar personas para ayudarte a administrar tu propiedad.",
 
   "440": "Fabricación iniciada ",
-  "441": "En progreso ...",
+  "441": "⌛️ En progreso ...",
   "442": "🏠 ¡Reparaciones de la casa completas!",
   "450": "❌ No puedes pagar los costos de fabricación",
   "451": "⚠️ Fabricación ya en progreso",
@@ -557,6 +563,9 @@
   "454": "❌ No se pudo contratar al trabajador.",
   "455": " ha llegado!",
   "456": "No hay más trabajadores disponibles.",
+  "457": "¡Listo!",
+  "458": "Tiempo: ",
+  "459": "Instantáneo",
 
   "12012": "Herramientas",
   "1133": "⛏️ Herramientas",

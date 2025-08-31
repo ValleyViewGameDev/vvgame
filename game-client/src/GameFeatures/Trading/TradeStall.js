@@ -656,7 +656,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
           >
             ✖
           </button>
-          <h3>Items to Sell</h3>
+          <h3>{strings[160]}</h3>
           <p style={{ textAlign: 'center', margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>
             {globalTuning?.maxTradeAmount || 50} {strings[158]}
           </p>
@@ -664,10 +664,10 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
             <table>
               <thead>
                 <tr>
-                  <th>Item</th>
-                  <th>Available</th>
-                  <th>Price</th>
-                  <th>Amount</th>
+                  <th>{strings[161]}</th>
+                  <th>{strings[162]}</th>
+                  <th>{strings[163]}</th>
+                  <th>{strings[164]}</th>
                   <th></th>
                 </tr>
               </thead>

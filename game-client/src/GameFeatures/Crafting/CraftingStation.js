@@ -404,12 +404,12 @@ const CraftingStation = ({
               };
               
               const craftTimeText = isCrafting
-              ? `⏳ In progress: ${formatCountdown(craftingCountdown)}`
+              ? `${strings[441]} ${formatCountdown(craftingCountdown)}`
               : isReadyToCollect
-              ? `Ready!`
+              ? strings[457] 
               : recipe.crafttime
-              ? `Time: ${formatCountdown(recipe.crafttime)}`
-              : `Instant`;
+              ? `${strings[458]} ${formatCountdown(recipe.crafttime)}`
+              : strings[459];
               
               const info = (
                 <div className="info-content">

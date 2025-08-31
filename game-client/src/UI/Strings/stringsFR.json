@@ -74,6 +74,11 @@
     "152": "Vous n'avez pas assez d'argent pour acheter cet objet.",
     "153": "vend :",
     "154": "vendent",
+    "160": "Articles à vendre",
+    "161": "Article",
+    "162": "Disponible",
+    "163": "Prix",
+    "164": "Quantité",
 
     "200": "QUESTS",
 
@@ -114,7 +119,10 @@
     "423": "Aucun échange disponible.",
     "424": "Aucune recette disponible.",
     "425": "Vendre pour remboursement.",
-    
+    "457": "Prêt !",
+    "458": "Temps : ",
+    "459": "Instantané" ,
+
     "500": "COMBAT STRINGS",
 
     "501": "🎯 Hors de portée.",
@@ -624,7 +632,7 @@
   "1032": "La maison de ferme est l’endroit où vous pouvez embaucher des personnes pour vous aider à gérer votre propriété.",
 
   "440": "Fabrication commencée ",
-  "441": "En cours ...",
+  "441": "⌛️  En cours ...",
   "442": "🏠 Réparations de la maison terminées !",
   "450": "❌ Impossible de payer les frais de fabrication",
   "451": "⚠️ Fabrication déjà en cours",
