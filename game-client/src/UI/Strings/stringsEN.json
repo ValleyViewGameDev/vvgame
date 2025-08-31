@@ -84,6 +84,13 @@
     "159": "Ready to sell",
     "155": "Transaction failed. This item has already been sold.",
     "158": " limit per order.",
+    "160": "Items to Sell",
+    "161": "Item",
+    "162": "Available",
+    "163": "Price",
+    "164": "Amount",
+    "165": "All",
+    "166": "Add",
 
     "200": "QUESTS",
 
@@ -663,13 +670,8 @@
 
 
 
-    "11000": "ADDED STRINGS:",
+    "11000": "ADDED STRINGS:"
 
-    "160": "Items to Sell",
-    "161": "Item",
-    "162": "Available",
-    "163": "Price",
-    "164": "Amount"
 
   }
 

@@ -719,7 +719,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                               }
                               style={{ marginLeft: '4px' }}
                             >
-                              All
+                              {strings[165]}
                             </button>
                           </div>
                         </td>
@@ -732,7 +732,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                               !(amounts[item.type] > 0 && amounts[item.type] <= item.quantity) // Validate amount
                             }
                           >
-                            Add
+                            {strings[166]}
                           </TransactionButton>
                         </td>
                       </tr>
