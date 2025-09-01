@@ -1,13 +1,13 @@
 import socket from '../../socketManager'; 
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
-import { calculateDistance } from './NPCHelpers';
-import { attachGrazingBehavior } from './NPCGrazing';
-import { attachQuestBehavior } from './NPCQuestGiver';
-import { attachEnemyBehavior } from './NPCEnemy';
-import { attachHealBehavior } from './NPCHeal';
-import { attachSpawnBehavior } from './NPCSpawner';
-import { attachFarmerBehavior } from './NPCFarmer';
-import { attachTraderBehavior } from './NPCTrader';
+import { calculateDistance } from './NPCUtils';
+import { attachGrazingBehavior } from './NPCGrazeBehavior';
+import { attachQuestBehavior } from './NPCQuestBehavior';
+import { attachEnemyBehavior } from './NPCEnemyBehavior';
+import { attachHealBehavior } from './NPCHealBehavior';
+import { attachSpawnBehavior } from './NPCSpawnerBehavior';
+import { attachFarmerBehavior } from './NPCWorkerBehavior';
+import { attachTraderBehavior } from './NPCTraderBehavior';
  
 class NPC {
   constructor(id, type, position, properties, gridId) {
@@ -72,9 +72,9 @@ async processState(NPCsInGrid, gridId, TILE_SIZE) {
         await this.handleFarmAnimalBehavior(gridId);
         break;
     
-      case 'pester':
-        // Future implementation for Pests
-        // console.log('Pester behavior not implemented yet.');
+      case 'pet':
+        // Future implementation for Pets
+        // console.log('Pet behavior not implemented yet.');
         break;
     
       case 'quest':
@@ -85,36 +85,22 @@ async processState(NPCsInGrid, gridId, TILE_SIZE) {
         await this.handleTraderBehavior(gridId);
         break;
 
-      case 'attack':
-        await this.handleEnemyBehavior(gridId, TILE_SIZE);
+      case 'worker':
+        await this.handleWorkerBehavior(gridId);
         break;
     
       case 'heal':
         await this.handleHealBehavior(gridId);
         break;
     
+      case 'attack':
+        await this.handleEnemyBehavior(gridId, TILE_SIZE);
+        break;
+    
       case 'spawn':
         await this.handleSpawnBehavior(gridId);
         break;
 
-      case 'worker':
-        await this.handleFarmerBehavior(gridId);
-        break;
-        
-      case 'trade':
-        await this.handleTraderBehavior(gridId);
-        break;
-
-      case 'steal':
-        // Future implementation for Bandits
-        console.log('Steal behavior not implemented yet.');
-        break;
-    
-      case 'work':
-        // Future implementation for Farm Hands
-        console.log('Work behavior not implemented yet.');
-        break;
-    
       default:
         console.warn(`Unhandled NPC action: ${this.action}`);
         break;

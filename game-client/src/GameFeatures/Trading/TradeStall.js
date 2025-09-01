@@ -1,5 +1,6 @@
 import API_BASE from '../../config';
 import { useStrings } from '../../UI/StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel'; // Use Panel instead of Modal
 import TransactionButton from '../../UI/TransactionButton';
@@ -571,7 +572,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                 ) : (
                   <div className="trade-slot-content">
                     <div className="trade-slot-item-name">
-                      {`${slot.amount}x ${getSymbol(slot.resource)} ${slot.resource}`}
+                      {`${slot.amount}x ${getSymbol(slot.resource)} ${getLocalizedString(slot.resource, strings)}`}
                     </div>
                     {isPurchased && (
                       <div className="trade-slot-status">
@@ -685,7 +686,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 
                     return (
                       <tr key={item.type}>
-                        <td>{resourceDetails?.symbol} {item.type}</td>
+                        <td>{resourceDetails?.symbol} {getLocalizedString(item.type, strings)}</td>
                         <td>{item.quantity}</td>
                         <td>{price}</td>
                         <td>

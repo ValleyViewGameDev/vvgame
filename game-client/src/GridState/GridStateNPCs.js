@@ -1,7 +1,7 @@
 import API_BASE from '../config';
 import socket from '../socketManager'; 
 import axios from 'axios';
-import NPC from '../GameFeatures/NPCs/NPCs';
+import NPC from '../GameFeatures/NPCs/AllNPCsShared';
 import { loadMasterResources } from '../Utils/TuningManager';
 
 let gridTimer = null; // For periodic grid updates

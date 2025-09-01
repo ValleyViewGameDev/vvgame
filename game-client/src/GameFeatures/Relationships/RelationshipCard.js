@@ -7,6 +7,7 @@ import {
   generateRelationshipStatusMessage 
 } from './RelationshipUtils';
 import { useStrings } from '../../UI/StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
 import { playConversation } from './Conversation';
 import ConversationManager from './ConversationManager';
 
@@ -387,7 +388,7 @@ const RelationshipCard = ({
         {/* Status flags */}
         {visibleStatuses.map((status) => (
           <span key={status.interaction} className="relationship-status">
-            • {status.interaction}
+            • {getLocalizedString(status.interaction, strings)}
           </span>
         ))}
       </div>
@@ -454,7 +455,7 @@ const RelationshipCard = ({
               key={status.interaction}
               className={`relationship-status-badge ${status.interaction.toLowerCase()}`}
             >
-              {status.interaction}
+              {getLocalizedString(status.interaction, strings)}
             </span>
           ))}
         </div>
@@ -463,12 +464,12 @@ const RelationshipCard = ({
           <div className="relationship-actions">
             {availableInteractions.map((interaction) => (
               <button
-                key={interaction.interaction}
+                key={interaction.interaction} 
                 className="panel-button"
                 onClick={() => handleInteraction(interaction)}
                 disabled={isProcessing}
               >
-                {interaction.interaction}
+                {getLocalizedString(interaction.interaction, strings)}
               </button>
             ))}
           </div>

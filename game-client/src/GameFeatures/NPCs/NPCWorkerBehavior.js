@@ -1,9 +1,9 @@
 import axios from 'axios';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
-import { calculateDistance } from './NPCHelpers';
+import { calculateDistance } from './NPCUtils';
 
-async function handleFarmerBehavior(gridId) {
+async function handleWorkerBehavior(gridId) {
     const updateThisNPC = async () => {
         // Check if this NPC exists in the grid before updating
         const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
@@ -65,5 +65,5 @@ async function handleFarmerBehavior(gridId) {
 
 // Attach the quest-giver behavior to the NPC class
 export function attachFarmerBehavior(NPC) {
-    NPC.prototype.handleFarmerBehavior = handleFarmerBehavior;
+    NPC.prototype.handleWorkerBehavior = handleWorkerBehavior;
 }

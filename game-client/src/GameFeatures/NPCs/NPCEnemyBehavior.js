@@ -15,11 +15,10 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
   const tiles = GlobalGridStateTilesAndResources.getTiles();
   const resources = GlobalGridStateTilesAndResources.getResources();
   const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-  //console.log('🐺 npcs = ', npcs);
   const pcs = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}); // Get all PCs on the grid
 
   if (!this.state) this.state = 'idle';
-
+ 
   switch (this.state) {
 
     case 'idle': {

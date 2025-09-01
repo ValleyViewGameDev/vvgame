@@ -7,6 +7,7 @@ import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManageme
 import { canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { spendIngredients } from '../../Utils/InventoryManagement';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
@@ -174,7 +175,7 @@ const handlePurchase = async (resourceType) => {
   }
   setOwnedSkills(updatedSkills);
   setOwnedUpgrades(updatedUpgrades);
-  updateStatus(`💪 ${resource.type} skill acquired.`);
+  updateStatus(`💪 ${getLocalizedString(resource.type, strings)} skill acquired.`);
   
   try { 
     await axios.post(`${API_BASE}/api/update-skills`, {
@@ -262,7 +263,7 @@ const handlePurchase = async (resourceType) => {
                 {ownedSkills.length > 0 ? (
                   ownedSkills.map((skill, index) => (
                     <div key={index}>
-                      {skill.type} 
+                      {getLocalizedString(skill.type, strings)} 
                     </div>
                   ))
                 ) : (
@@ -303,13 +304,13 @@ const handlePurchase = async (resourceType) => {
                     const playerQty = inventoryQty + backpackQty;
                     const color = playerQty >= qty ? 'green' : 'red';
                     const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                    return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+                    return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
                   }).join('');
 
                   const skillColor = meetsRequirement ? 'green' : 'red';
                   const details =
-                    `Costs:<div>${formattedCosts}</div>` +
-                    (resource.requires ? `<br><span style="color: ${skillColor};">Requires: ${resource.requires}</span>` : '');
+                    `${strings[461]}<div>${formattedCosts}</div>` +
+                    (resource.requires ? `<br><span style="color: ${skillColor};">${strings[460]}${getLocalizedString(resource.requires, strings)}</span>` : '');
 
                   // ✅ **Check if this skill modifies a player attribute**
                   const attributeModifier = resource.output
@@ -330,7 +331,7 @@ const handlePurchase = async (resourceType) => {
 
                   const unlocks = allResources
                     .filter((res) => res.requires === resource.type)
-                    .map((res) => `${res.symbol || ''} ${res.type}`)
+                    .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
                     .join(', ') || 'None';
 
                     const info = (
@@ -349,7 +350,7 @@ const handlePurchase = async (resourceType) => {
                     <ResourceButton
                       key={resource.type}
                       symbol={resource.symbol}
-                      name={resource.type}
+                      name={getLocalizedString(resource.type, strings)}
                       details={details}
                       info={info}
                       disabled={!affordable || !meetsRequirement}
@@ -377,13 +378,13 @@ const handlePurchase = async (resourceType) => {
                     const playerQty = inventoryQty + backpackQty;
                     const color = playerQty >= qty ? 'green' : 'red';
                     const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                    return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+                    return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
                   }).join('');
 
                   const skillColor = meetsRequirement ? 'green' : 'red';
                   const details =
-                    `Costs:<div>${formattedCosts}</div>` +
-                    (resource.requires ? `<br><span style="color: ${skillColor};">Requires: ${resource.requires}</span>` : '');
+                    `${strings[461]}<div>${formattedCosts}</div>` +
+                    (resource.requires ? `<br><span style="color: ${skillColor};">${strings[460]}${getLocalizedString(resource.requires, strings)}</span>` : '');
 
                   // ✅ Check for attribute modifiers
                   const attributeModifier = resource.output
@@ -404,7 +405,7 @@ const handlePurchase = async (resourceType) => {
 
                   const unlocks = allResources
                     .filter((res) => res.requires === resource.type)
-                    .map((res) => `${res.symbol || ''} ${res.type}`)
+                    .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
                     .join(', ') || 'None';
 
                     const info = (
@@ -423,7 +424,7 @@ const handlePurchase = async (resourceType) => {
                     <ResourceButton
                       key={resource.type}
                       symbol={resource.symbol}
-                      name={resource.type}
+                      name={getLocalizedString(resource.type, strings)}
                       details={details}
                       info={info}
                       disabled={!affordable || !meetsRequirement}

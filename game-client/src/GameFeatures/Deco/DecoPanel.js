@@ -8,6 +8,7 @@ import { StatusBarContext } from '../../UI/StatusBar';
 import { createCollectEffect } from '../../VFX/VFX';
 import '../../UI/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
 
@@ -82,7 +83,7 @@ const DecoPanel = ({
     <Panel onClose={onClose} descriptionKey="1028" titleKey="1128" panelName="DecoPanel" >
       <div className="standard-panel">
         <h2>
-            {resourceDetails?.symbol || '🛖'} {stationType}
+            {resourceDetails?.symbol || '🛖'} {getLocalizedString(stationType, strings)}
         </h2>
 
 

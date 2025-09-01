@@ -9,6 +9,7 @@ import { canAfford } from '../../Utils/InventoryManagement';
 import { usePanelContext } from '../../UI/PanelContext';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { useStrings } from '../../UI/StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
 
 const BuyPanel = ({
   TILE_SIZE,
@@ -82,19 +83,19 @@ const BuyPanel = ({
                 const playerQty = inventoryQty + backpackQty;
                 const color = playerQty >= qty ? 'green' : 'red';
                 const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+                return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
               const skillColor = requirementsMet ? 'green' : 'red';
               const details =
-                `Costs:<div>${formattedCosts}</div>` +
-                (item.requires ? `<br><span style="color: ${skillColor};">Requires: ${item.requires}</span>` : '');
+                `${strings[461]}<div>${formattedCosts}</div>` +
+                (item.requires ? `<br><span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '');
 
               return (
                 <ResourceButton
                   key={item.type}
                   symbol={item.symbol}
-                  name={item.type}
+                  name={getLocalizedString(item.type, strings)}
                   details={details}
                   disabled={!affordable || !requirementsMet}
                   onClick={() =>

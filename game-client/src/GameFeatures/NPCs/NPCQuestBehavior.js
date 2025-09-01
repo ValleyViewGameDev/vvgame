@@ -2,7 +2,7 @@ import axios from 'axios';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
-import { calculateDistance } from './NPCHelpers';
+import { calculateDistance } from './NPCUtils';
 
 const updateThisNPC = async (npcInstance, gridId) => {
   await NPCsInGridManager.updateNPC(gridId, npcInstance.id, {

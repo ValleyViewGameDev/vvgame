@@ -8,6 +8,7 @@ import { canAfford } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate, gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
 import RelationshipCard from '../Relationships/RelationshipCard';
 import { getRelationshipStatus } from '../Relationships/RelationshipUtils';
 import '../Relationships/Relationships.css';
@@ -165,13 +166,13 @@ console.log("tradeQty in recipe:", recipe.tradeqty);
 
     await trackQuestProgress(currentPlayer, 'Collect', recipe.type, quantityToGive, setCurrentPlayer);
 
-    updateStatus(`Exchanged ${recipe.ingredient1qty || 1} ${recipe.ingredient1} for ${quantityToGive} ${recipe.type}.`);
+    updateStatus(`Exchanged ${recipe.ingredient1qty || 1} ${getLocalizedString(recipe.ingredient1, strings)} for ${quantityToGive} ${getLocalizedString(recipe.type, strings)}.`);
   };
 
   return (
     <Panel onClose={onClose} descriptionKey="1016" titleKey="1116" panelName="TraderStation">
       <div className="standard-panel">
-        <h2> {stationEmoji} {stationType} </h2>
+        <h2> {stationEmoji} {getLocalizedString(stationType, strings)} </h2>
         
         {/* Relationship Card */}
         <RelationshipCard
@@ -268,14 +269,14 @@ console.log("tradeQty in recipe:", recipe.tradeqty);
                                   (backpack.find((item) => item.type === type)?.quantity || 0);
                 const color = playerQty >= qty ? 'green' : 'red';
                 const symbol = masterResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+                return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
               const skillColor = meetsRequirement ? 'green' : 'red';
-              const skillReq = recipe.requires ? `<br><span style="color: ${skillColor};">Requires: ${recipe.requires}</span>` : '';
+              const skillReq = recipe.requires ? `<br><span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span>` : '';
 
               const outputQty = recipe.tradeqty || 1;
-              const details = `For:<div>${formattedCosts}</div>${skillReq}<br>Gives: ${outputQty} ${recipe.type}`;
+              const details = `${strings[461]}<div>${formattedCosts}</div>${skillReq}<br>${strings[462]} ${outputQty} ${getLocalizedString(recipe.type, strings)}`;
 
               const info = (
                 <div className="info-content">
@@ -287,7 +288,7 @@ console.log("tradeQty in recipe:", recipe.tradeqty);
                 <ResourceButton
                   key={recipe.type}
                   symbol={recipe.symbol}
-                  name={recipe.type}
+                  name={getLocalizedString(recipe.type, strings)}
                   className="resource-button"
                   details={details}
                   info={info}

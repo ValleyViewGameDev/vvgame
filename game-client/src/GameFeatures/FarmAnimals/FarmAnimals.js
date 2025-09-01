@@ -8,6 +8,7 @@ import { updateGridResource } from '../../Utils/GridManagement';
 import { createCollectEffect } from '../../VFX/VFX';
 import '../../UI/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import TransactionButton from '../../UI/TransactionButton';
 
@@ -168,7 +169,7 @@ const AnimalPanel = ({
         .reduce((sum, item) => sum + item.quantity, 0);
 
       console.log(`Sold ${stationType} successfully for ${totalRefund} Money.`);
-      updateStatus(`Sold ${stationType} for ${totalRefund} Money.`);
+      updateStatus(`Sold ${getLocalizedString(stationType, strings)} for ${totalRefund} ${getLocalizedString('Money', strings)}.`);
       onClose();
     } catch (error) {
       console.error('Error selling the stall:', error);
@@ -180,13 +181,13 @@ const AnimalPanel = ({
     <Panel onClose={onClose} descriptionKey="1029" titleKey="1129" panelName="AnimalPanel" >
       <div className="standard-panel">
         <h2>
-            {stallDetails?.symbol || '🛖'} {stationType}
+            {stallDetails?.symbol || '🛖'} {getLocalizedString(stationType, strings)}
         </h2>
 
         {/* Show current NPC status */}
         {currentNPC && (
           <p>
-            <strong>{currentNPC.type}</strong> {getNPCStatusText(currentNPC)}
+            <strong>{getLocalizedString(currentNPC.type, strings)}</strong> {getNPCStatusText(currentNPC)}
           </p>
         )}
 

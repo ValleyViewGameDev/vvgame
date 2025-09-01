@@ -1,4 +1,4 @@
-import NPC from './GameFeatures/NPCs/NPCs';
+import NPC from './GameFeatures/NPCs/AllNPCsShared';
 import FloatingTextManager from './UI/FloatingText';
 import NPCsInGridManager from './GridState/GridStateNPCs';
 import playersInGridManager from './GridState/PlayersInGrid';

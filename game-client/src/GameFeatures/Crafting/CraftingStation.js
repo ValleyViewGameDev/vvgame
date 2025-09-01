@@ -15,6 +15,7 @@ import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { createCollectEffect } from '../../VFX/VFX';
 import { useStrings } from '../../UI/StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import '../../UI/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
@@ -221,7 +222,7 @@ const CraftingStation = ({
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
         FloatingTextManager.addFloatingText(404, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-        updateStatus(`${strings[440]} ${recipe.type}`);
+        updateStatus(`${strings[440]} ${getLocalizedString(recipe.type, strings)}`);
 
         console.log(`✅ ${recipe.type} crafting started using protected endpoint.`);
       }
@@ -377,7 +378,7 @@ const CraftingStation = ({
   
 
   return (
-    <Panel onClose={onClose} descriptionKey="1009" title={`${stationEmoji} ${stationType}`} panelName="CraftingStation">
+    <Panel onClose={onClose} descriptionKey="1009" title={`${stationEmoji} ${getLocalizedString(stationType, strings)}`} panelName="CraftingStation">
       <div className="standard-panel">
         
           {recipes?.length > 0 ? (
@@ -419,7 +420,7 @@ const CraftingStation = ({
                       .filter((res) =>
                         [res.ingredient1, res.ingredient2, res.ingredient3, res.ingredient4].includes(recipe.type)
                       )
-                      .map((res) => `${res.symbol || ''} ${res.type}`)
+                      .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
                       .join(', ') || 'None'}
                   </div>
                   <div><strong>{strings[422]}</strong> 💰 {recipe.minprice || 'n/a'}</div>
@@ -437,18 +438,18 @@ const CraftingStation = ({
                 const playerQty = inventoryQty + backpackQty;
                 const color = playerQty >= qty ? 'green' : 'red';
                 const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+                return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
               return (
                 <ResourceButton
                   key={recipe.type}
                   symbol={recipe.symbol}
-                  name={recipe.type}
+                  name={getLocalizedString(recipe.type, strings)}
                   className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''}`}
                   details={
-                    (isReadyToCollect ? '' : `Costs:<div>${formattedCosts}</div>`) +
-                    (recipe.requires ? `<br>Requires: ${recipe.requires}` : '') +
+                    (isReadyToCollect ? '' : `${strings[461]}<div>${formattedCosts}</div>`) +
+                    (recipe.requires ? `<br>${strings[460]}${getLocalizedString(recipe.requires, strings)}` : '') +
                     `<br>${craftTimeText}`
                   }
                   info={info}

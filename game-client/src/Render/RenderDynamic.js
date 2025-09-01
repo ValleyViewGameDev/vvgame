@@ -9,7 +9,7 @@ import API_BASE from '../config';
 import { getDerivedRange } from '../Utils/worldHelpers';
 import { useGridState } from '../GridState/GridStateContext'; 
 import { usePlayersInGrid } from '../GridState/GridStatePCContext';
-import { handleNPCClick } from '../GameFeatures/NPCs/NPCHelpers';
+import { handleNPCClick } from '../GameFeatures/NPCs/NPCUtils';
 import { handleAttackOnPC } from '../GameFeatures/Combat/Combat';
 import { renderPositions } from '../PlayerMovement';
 import { useNPCOverlay } from '../UI/NPCOverlayContext';

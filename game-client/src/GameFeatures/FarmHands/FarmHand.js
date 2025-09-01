@@ -12,7 +12,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { handleDooberClick, handleSourceConversion } from '../../ResourceClicking'; // adjust path if necessary
 import FloatingTextManager from '../../UI/FloatingText';
 import NPCsInGridManager from "../../GridState/GridStateNPCs";
-import { handleNPCClick } from '../NPCs/NPCHelpers';
+import { handleNPCClick } from '../NPCs/NPCUtils';
 import { updateGridResource } from '../../Utils/GridManagement';
 import { handleFarmPlotPlacement } from '../Farming/Farming';
 import { validateTileType } from '../../Utils/ResourceHelpers';

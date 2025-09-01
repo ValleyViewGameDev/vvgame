@@ -9,6 +9,7 @@ import { canAfford } from '../../Utils/InventoryManagement';
 import { usePanelContext } from '../../UI/PanelContext';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { useStrings } from '../../UI/StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
 
 const BuildPanel = ({
   TILE_SIZE,
@@ -88,19 +89,19 @@ const BuildPanel = ({
                 const playerQty = inventoryQty + backpackQty;
                 const color = playerQty >= qty ? 'green' : 'red';
                 const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+                return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
               const skillColor = requirementsMet ? 'green' : 'red';
               const details =
-                `Costs:<div>${formattedCosts}</div>` +
-                (item.requires ? `<br><span style="color: ${skillColor};">Requires: ${item.requires}</span>` : '');
+                `${strings[461]}<div>${formattedCosts}</div>` +
+                (item.requires ? `<br><span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '');
 
               const info = `
                 Makes: ${
                   allResources
                     .filter((res) => res.source === item.type)
-                    .map((res) => `${res.symbol || ''} ${res.type}`)
+                    .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
                     .join(', ') || 'None'
                 }
               `;
@@ -109,7 +110,7 @@ const BuildPanel = ({
                 <ResourceButton
                   key={item.type}
                   symbol={item.symbol}
-                  name={item.type}
+                  name={getLocalizedString(item.type, strings)}
                   details={details}
                   info={info}
                   disabled={!affordable || !requirementsMet}

@@ -13,6 +13,7 @@ import { modifyPlayerStatsInPlayer, modifyPlayerStatsInGridState } from '../../U
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
 import RelationshipCard from '../Relationships/RelationshipCard';
 import { getRelationshipStatus, getRelationshipMultiplier } from '../Relationships/RelationshipUtils';
 import '../Relationships/Relationships.css';
@@ -354,7 +355,7 @@ const handleGetReward = async (quest) => {
       
       // Show quest complete message with bonus if applicable
       if (bonusMessage) {
-        updateStatus(`Action item complete! Received ${rewardQuantity} ${quest.reward}. ${bonusMessage}`);
+        updateStatus(`Action item complete! Received ${rewardQuantity} ${getLocalizedString(quest.reward, strings)}. ${bonusMessage}`);
       } else {
         updateStatus(201);
       }
@@ -520,7 +521,7 @@ const handleHeal = async (recipe) => {
     const ingredientString = ingredientList.join(', ');
     
     // Show success message with bonus if applicable
-    updateStatus(`Exchanged ${ingredientString} for ${quantityToGive} ${recipe.type}.${bonusMessage}`);
+    updateStatus(`Exchanged ${ingredientString} for ${quantityToGive} ${getLocalizedString(recipe.type, strings)}.${bonusMessage}`);
   };
 
   const handleSellNPC = async () => {
@@ -532,17 +533,17 @@ const handleHeal = async (recipe) => {
     try {
       const gridId = currentPlayer.location.g;
       await NPCsInGridManager.removeNPC(gridId, npcData.id);
-      updateStatus(`${npcData.type} has been removed from the grid.`);
+      updateStatus(`${getLocalizedString(npcData.type, strings)} has been removed from the grid.`);
       onClose(); // Close the panel after selling
     } catch (error) {
       console.error('Error selling NPC:', error);
-      updateStatus(`❌ Failed to remove ${npcData.type}.`);
+      updateStatus(`❌ Failed to remove ${getLocalizedString(npcData.type, strings)}.`);
     }
   };
 
 
   return (
-    <Panel onClose={onClose} descriptionKey="1013" title={`${npcData.symbol} ${npcData.type}`} panelName="NPCPanel">
+    <Panel onClose={onClose} descriptionKey="1013" title={`${npcData.symbol} ${getLocalizedString(npcData.type, strings)}`} panelName="NPCPanel">
 
 {/* //////////////////// QUESTS //////////////////////// */}
 
@@ -716,8 +717,8 @@ const handleHeal = async (recipe) => {
               <ResourceButton
                 key={recipe.type}
                 symbol={recipe.symbol}
-                name={recipe.type}
-                details={`Costs: ${ingredients.join(', ') || 'None'}<br>Heals: ❤️‍🩹 +${healAmount}`}
+                name={getLocalizedString(recipe.type, strings)}
+                details={`${strings[461]} ${ingredients.join(', ') || 'None'}<br>${strings[463]} ❤️‍🩹 +${healAmount}`}
                 disabled={!affordable}
                 onClick={() => handleHeal(recipe)}
               />
@@ -840,8 +841,8 @@ const handleHeal = async (recipe) => {
                     <ResourceButton
                       key={recipe.type}
                       symbol={recipe.symbol}
-                      name={recipe.type}
-                      details={`Costs: ${ingredients.join(', ') || 'None'}<br>Gives: ${quantityToGive} ${recipe.type}`}
+                      name={getLocalizedString(recipe.type, strings)}
+                      details={`${strings[461]} ${ingredients.join(', ') || 'None'}<br>${strings[462]} ${quantityToGive} ${getLocalizedString(recipe.type, strings)}`}
                       disabled={!affordable}
                       onClick={() => handleTrade(recipe)}
                     />

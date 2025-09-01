@@ -8,6 +8,7 @@ import { canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { handleFarmPlotPlacement, handleTerraform } from './Farming';
 import { useStrings } from '../../UI/StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 
 const ToolsPanel = ({
@@ -122,8 +123,8 @@ const ToolsPanel = ({
             {/* Till Land Button */}
             <ResourceButton
               symbol="⛏️"
-              name="Till Land"
-              details="Costs: None"
+              name={getLocalizedString("Till Land", strings)}
+              details={`${strings[461]} None`}
               disabled={isActionCoolingDown}
               info={strings[310]}
               onClick={() => handleTerraformWithCooldown("till")}
@@ -132,8 +133,8 @@ const ToolsPanel = ({
             {/* Plant Grass Button */}
             <ResourceButton
               symbol="🟩"
-              name="Plant Grass"
-              details="Costs: None<br>Requires: Grower"
+              name={getLocalizedString("Plant Grass", strings)}
+              details={`${strings[461]} None<br>${strings[460]}${getLocalizedString('Grower', strings)}`}
               disabled={isActionCoolingDown || !hasRequiredSkill('Grower')}
               info={strings[311]}
               onClick={() => handleTerraformWithCooldown("plantGrass")}
@@ -142,8 +143,8 @@ const ToolsPanel = ({
             {/* Lay Pavement Button */}
             <ResourceButton
               symbol="🟨"
-              name="Lay Pavement"
-              details="Costs: None<br>Requires: Pickaxe"
+              name={getLocalizedString("Lay Pavement", strings)}
+              details={`${strings[461]} None<br>${strings[460]}${getLocalizedString('Pickaxe', strings)}`}
               disabled={isActionCoolingDown || !hasRequiredSkill('Pickaxe')}
               info={strings[312]}
               onClick={() => handleTerraformWithCooldown("pave")}
@@ -152,8 +153,8 @@ const ToolsPanel = ({
             {/* Lay Stone Button */}
             <ResourceButton
               symbol="⬜️"
-              name="Lay Stone"
-              details="Costs: None<br>Requires: Pickaxe"
+              name={getLocalizedString("Lay Stone", strings)}
+              details={`${strings[461]} None<br>${strings[460]}${getLocalizedString('Pickaxe', strings)}`}
               disabled={isActionCoolingDown || !hasRequiredSkill('Pickaxe')}
               info={strings[312]}
               onClick={() => handleTerraformWithCooldown("stone")}
@@ -163,8 +164,8 @@ const ToolsPanel = ({
             {isDeveloper && (
               <ResourceButton
                 symbol="💧"
-                name="Create Water"
-                details="Costs: None<br>Developer Only"
+                name={getLocalizedString("Create Water", strings)}
+                details={`${strings[461]} None<br>Developer Only`}
                 disabled={isActionCoolingDown}
                 info="Creates a water tile (Developer only)"
                 onClick={() => handleTerraformWithCooldown("water")}

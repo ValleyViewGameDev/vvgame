@@ -1,10 +1,10 @@
-import API_BASE from "../../config";
+import API_BASE from "../../config.js";
 import axios from "axios";    
-import FloatingTextManager from "../../UI/FloatingText";
-import NPCsInGridManager from "../../GridState/GridStateNPCs";
-import { handleAttackOnNPC } from "../Combat/Combat";
-import { gainIngredients } from "../../Utils/InventoryManagement";
-import { trackQuestProgress } from '../../GameFeatures/Quests/QuestGoalTracker';
+import FloatingTextManager from "../../UI/FloatingText.js";
+import NPCsInGridManager from "../../GridState/GridStateNPCs.js";
+import { handleAttackOnNPC } from "../Combat/Combat.js";
+import { gainIngredients } from "../../Utils/InventoryManagement.js";
+import { trackQuestProgress } from '../Quests/QuestGoalTracker.js';
 import AnimalPanel from '../FarmAnimals/FarmAnimals.js';
 
 // Generate unique transaction ID

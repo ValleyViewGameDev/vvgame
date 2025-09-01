@@ -5,6 +5,7 @@ import Panel from '../../UI/Panel';
 import '../../UI/Panel.css';
 import './InventoryPanel.css'; 
 import { useStrings } from '../../UI/StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
 import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
 
 function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus }) {
@@ -51,7 +52,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                 setInventory(updatedWarehouse);
                 setBackpack(updatedBackpack);
 
-                updateStatus(`Moved ${item.quantity}x ${item.type} to warehouse`);
+                updateStatus(`Moved ${item.quantity}x ${getLocalizedString(item.type, strings)} to warehouse`);
             } else {
                 const updatedBackpack = backpack.filter(i => i.type !== item.type);
 
@@ -68,7 +69,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                 // Also update parent component's state
                 setBackpack(updatedBackpack);
 
-                updateStatus(`❌ Discarded ${item.quantity}x ${item.type}`);
+                updateStatus(`❌ Discarded ${item.quantity}x ${getLocalizedString(item.type, strings)}`);
             }
         } catch (error) {
             console.error('Error updating inventory:', error);
@@ -135,10 +136,10 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
 
     return (
         <Panel onClose={onClose} descriptionKey="1001" titleKey="1101" panelName="InventoryPanel">
-            <h3>🎒 Backpack</h3>
+            <h3>{strings[182]}</h3>
             {hasBackpackSkill ? (
               <>
-                <div className="capacity-display">Capacity: {calculateTotalQuantity(backpack)}/{finalCapacities.backpack}</div>
+                <div className="capacity-display">{strings[183]} {calculateTotalQuantity(backpack)}/{finalCapacities.backpack}</div>
 
                 {backpack.length > 0 && (
                 <div className="panel-buttons">
@@ -154,7 +155,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     {backpack.filter(item => item.type !== 'Money').length > 0 ? (
                         backpack.filter(item => item.type !== 'Money').map((item, index) => (
                             <div className="inventory-row" key={index}>
-                                <div className="inventory-cell name-cell">{item.type}</div>
+                                <div className="inventory-cell name-cell">{getLocalizedString(item.type, strings)}</div>
                                 <div className="inventory-cell quantity-cell">{item.quantity.toLocaleString()}</div>
                             </div>
                         ))
@@ -169,14 +170,14 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
 
             <hr className="inventory-divider" />
 
-            <h3>📦 Warehouse</h3>
-            <div className="capacity-display">Capacity: {calculateTotalQuantity(inventory)}/{finalCapacities.warehouse}</div>
+            <h3>{strings[181]}</h3>
+            <div className="capacity-display">{strings[183]} {calculateTotalQuantity(inventory)}/{finalCapacities.warehouse}</div>
 
             <div className="inventory-table">
                 {inventory.filter(item => item.type !== 'Money').length > 0 ? (
                     inventory.filter(item => item.type !== 'Money').map((item, index) => (
                         <div className="inventory-row" key={index}>
-                            <div className="inventory-cell name-cell">{item.type}</div>
+                            <div className="inventory-cell name-cell">{getLocalizedString(item.type, strings)}</div>
                             <div className="inventory-cell quantity-cell">{item.quantity.toLocaleString()}</div>
                         </div>
                     ))
@@ -210,7 +211,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
 
                                     return (
                                         <tr key={item.type}>
-                                            <td>{item.type}</td>
+                                            <td>{getLocalizedString(item.type, strings)}</td>
                                             <td>{item.quantity.toLocaleString()}</td>
                                             <td>
                                                 <button

@@ -8,6 +8,7 @@ import { canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { handleFarmPlotPlacement, handleTerraform } from './Farming';
 import { useStrings } from '../../UI/StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 
 const FarmingPanel = ({
@@ -150,21 +151,21 @@ const FarmingPanel = ({
                 const playerQty = inventoryQty + backpackQty;
                 const color = playerQty >= qty ? 'green' : 'red';
                 const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
+                return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
               const skillColor = requirementsMet ? 'green' : 'red';
 
               const details =
-                `Costs:<div>${formattedCosts}</div>` +
-                (item.growtime ? `<br>Time: ${formatCountdown(item.growtime)}` : '') +
-                (item.requires ? `<br><span style="color: ${skillColor};">Requires: ${item.requires}</span>` : '');
+                `${strings[461]}<div>${formattedCosts}</div>` +
+                (item.growtime ? `<br>${strings[458]}${formatCountdown(item.growtime)}` : '') +
+                (item.requires ? `<br><span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '');
 
               const info =
                 `Makes: ${
                   allResources
                     .filter((res) => res.source === item.type)
-                    .map((res) => `${res.symbol || ''} ${res.type}`)
+                    .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
                     .join(', ') || 'None'
                 }`;
 
@@ -172,7 +173,7 @@ const FarmingPanel = ({
                 <ResourceButton
                   key={item.type}
                   symbol={symbol}
-                  name={item.type}
+                  name={getLocalizedString(item.type, strings)}
                   details={details}
                   info={info}
                   disabled={isActionCoolingDown || !affordable || !requirementsMet}

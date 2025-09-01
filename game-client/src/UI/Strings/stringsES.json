@@ -77,6 +77,13 @@
   "165": "Todo",
   "166": "Agregar",
 
+  "180": "INVENTORY STRINGS:",
+
+  "181": "📦 Almacén",
+  "182": "🎒 Mochila",
+  "183": "Capacidad: ",
+  "184": "Gestionar mochila",
+
   "200": "MISIONES",
   "201": "✅ Misión completada. Tienes tu recompensa.",
   "202": "✅ Misión aceptada.",
@@ -124,6 +131,12 @@
   "435": "Haz clic para cortar al instante varios árboles y recolectar madera.",
   "436": "No tienes animales para recolectar.",
   "437": "No tienes árboles para cortar.",
+
+  "460": "Requiere: ",
+  "461": "Cuesta: ",
+  "462": "Da: ",
+  "463": "Cura: ",
+
   "500": "CADENAS DE COMBATE",
   "501": "🎯 Fuera de alcance.",
   "502": "🎯 ¡Acertaste!",
@@ -578,7 +591,31 @@
 "471": "⚠️ Ya en progreso.",
 "158": " límite por pedido.",
 "96": "¿Tienes comentarios?",
-"97": "@ Envíanos un correo"
+"97": "@ Envíanos un correo",
 
+"630": "Saludar",
+"631": "Hablar",
+"632": "Comerciar",
+"633": "Misión",
+"634": "Conocido",
+"635": "Amigo",
+"636": "Casado",
+"637": "Rival",
+"638": "Amor",
+"639": "Enamoramiento",
+"640": "Bromear",
+"641": "Hacer amistad",
+"642": "Insultar",
+"643": "Abrazar",
+"644": "Besar",
+"645": "Disculparse",
+"646": "Dar un regalo",
+"647": "Halagar",
+"648": "Adular",
+"649": "Declarar amor",
+"650": "Proponer matrimonio",
+"651": "Provocar",
+"652": "Molestar",
+"653": "Terminar matrimonio"
 
 }
