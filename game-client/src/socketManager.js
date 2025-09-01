@@ -147,14 +147,7 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
   const handlePCSync = (payload) => {
     //console.log("📥 Received sync-PCs payload:", JSON.stringify(payload, null, 2));
   
-    const { emitterId } = payload;
-    const mySocketId = socket.id;
-    if (emitterId === mySocketId) {
-      console.log(`📤 Skipping sync-PCs from self (emitterId = socket.id)`);
-      return;
-    }
-  
-    // Extract gridId and gridData (we only expect one grid per payload)
+    // Extract gridId and gridData first to check player ID
     const gridEntries = Object.entries(payload).filter(([key]) => key !== 'emitterId');
     if (gridEntries.length === 0) {
       console.warn("❌ No grid data found in sync-PCs payload:", payload);
@@ -169,6 +162,21 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
     }
   
     const [playerId, incomingPC] = Object.entries(pcs)[0];
+    
+    // CRITICAL: Check if this is the local player FIRST, before any other checks
+    const currentPlayerId = currentPlayer?._id || currentPlayer?.playerId;
+    if (currentPlayer && playerId === String(currentPlayerId)) {
+      console.log(`🛡️ Blocking socket sync for own player (${playerId}) - should never update local player from socket`);
+      return;
+    }
+    
+    // Then check emitterId to avoid processing our own emissions
+    const { emitterId } = payload;
+    const mySocketId = socket.id;
+    if (emitterId === mySocketId) {
+      console.log(`📤 Skipping sync-PCs from self (emitterId = socket.id)`);
+      return;
+    }
     const incomingTime = new Date(incomingPC?.lastUpdated).getTime();
   
     setPlayersInGrid((prevState) => {
@@ -190,13 +198,6 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
         }
       }
       // --- End changed fields logging and floating text ---
-
-      // CRITICAL: Never update our own player from socket broadcasts
-      // This prevents the race condition where high latency causes our movements to be overwritten
-      if (currentPlayer && playerId === String(currentPlayer._id)) {
-        console.log(`🛡️ Blocking socket update for own player (${playerId}). LocalTimestamp: ${localPlayerMoveTimestampRef.current}, IncomingTimestamp: ${incomingTime}`);
-        return prevState;
-      }
 
       if (incomingTime <= localTime) {
         console.log(`⏳ Skipping stale update for PC ${playerId}.`);

@@ -1251,13 +1251,13 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
 
   // 🛡️ Prevent interaction on another player's homestead
   const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
-  if (resource && currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {
+  if (resource && currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {
     const isFriend = false; // 🧪 Future: replace with actual friend-checking logic
     const alwaysBlocked = ['Mailbox', 'Trade Stall', 'Warehouse'];
     const isForbiddenStation = resource?.category === 'station' && alwaysBlocked.includes(resource?.type);
     const isSafe = resource?.category === 'npc' || resource?.category === 'travel'; // Expand as needed
     if (isForbiddenStation || (!isSafe && !isFriend)) {
-      console.warn("🚫 Blocked interaction on another player’s homestead.");
+      console.warn("🚫 Blocked interaction on another player's homestead.");
       updateStatus(90);
       isProcessing = false;
       return;
