@@ -121,3 +121,13 @@
   z-index: 999;
 }
 
+/* Green outline for matching topics or relbuff bonuses */
+.conversation-speech-bubble.match {
+  border-color: #4CAF50 !important;
+  box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4), 0 0 20px rgba(76, 175, 80, 0.3);
+}
+
+.conversation-speech-bubble.match::before {
+  border-top-color: #4CAF50 !important;
+}
+

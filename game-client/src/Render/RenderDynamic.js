@@ -753,7 +753,7 @@ function renderSpeechBubble(parentDiv, speakerId, speakerType) {
   if (!speech) return;
   
   const bubble = document.createElement('div');
-  bubble.className = `conversation-speech-bubble ${speakerType}`;
+  bubble.className = `conversation-speech-bubble ${speakerType}${speech.isMatch ? ' match' : ''}`;
   bubble.style.position = 'absolute';
   bubble.style.left = '50%';
   bubble.style.bottom = '100%';

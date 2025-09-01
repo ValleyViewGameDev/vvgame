@@ -7,12 +7,13 @@ class ConversationManager {
   }
   
   // Add a conversation bubble
-  addSpeech(speakerId, emoji, topic) {
-    console.log('🗨️ ConversationManager.addSpeech:', { speakerId, emoji, topic });
+  addSpeech(speakerId, emoji, topic, isMatch = false) {
+    console.log('🗨️ ConversationManager.addSpeech:', { speakerId, emoji, topic, isMatch });
     this.activeConversations.set(speakerId, {
       emoji,
       topic,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      isMatch
     });
     this.notifyListeners();
   }

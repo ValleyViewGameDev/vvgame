@@ -8,7 +8,7 @@ import {
 } from './RelationshipUtils';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { playConversation } from './Conversation';
+import { playConversation, calculateModifiedChance } from './Conversation';
 import ConversationManager from './ConversationManager';
 
 const RelationshipCard = ({ 
@@ -105,14 +105,18 @@ const RelationshipCard = ({
       const playerId = currentPlayer._id?.toString() || currentPlayer.playerId;
       const targetId = targetType === 'npc' ? targetName : targetName; // For NPCs, use name as ID
       
+      // Store conversation results for chance calculation
+      let conversationResults = null;
+      
       await playConversation(
         playerPosition,
         targetPosition,
         playerEmoji,
         conversationTargetEmoji,
         TILE_SIZE,
-        () => {
-          // Conversation complete - continue with interaction
+        (results) => {
+          // Store conversation results
+          conversationResults = results;
         },
         playerId,
         targetId,
@@ -120,12 +124,37 @@ const RelationshipCard = ({
         currentPlayer,
         masterResources
       );
+      
+      // Calculate modified chance based on conversation results
+      const baseChance = interaction.chance || 1.0;
+      const modifiedChance = conversationResults 
+        ? calculateModifiedChance(baseChance, interaction, conversationResults, currentPlayer, targetName)
+        : baseChance;
+      
+      console.log('🎲 Chance calculation:', {
+        baseChance,
+        conversationResults,
+        modifiedChance
+      });
+      
+      // Roll for success based on modified chance
+      const randomRoll = Math.random();
+      const success = randomRoll <= modifiedChance;
+      
+      // Continue with success/failure handling
+      await handleInteractionOutcome(success, interaction);
+    } else {
+      // No conversation - use base chance
+      const randomRoll = Math.random();
+      const success = randomRoll <= (interaction.chance || 1.0);
+      
+      // Continue with success/failure handling
+      await handleInteractionOutcome(success, interaction);
     }
-    
-    // Roll for success based on interaction chance
-    const randomRoll = Math.random();
-    const success = randomRoll <= (interaction.chance || 1.0);
-    
+  };
+  
+  // Helper function to handle interaction outcome
+  const handleInteractionOutcome = async (success, interaction) => {
     if (success) {
       // Update relationship score
       const scoreChange = interaction.relscoreresult || 0;

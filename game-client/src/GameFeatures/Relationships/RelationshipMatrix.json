@@ -4,14 +4,20 @@
     "symbol": "👨🏽",
     "buff4love": 3,
     "buff4marriage": 5,
-    "buff4friend": 2
+    "buff4friend": 2,
+    "interest1": "Wheat",
+    "interest2": "Wheat",
+    "interest3": "Wheat"
   },
   {
     "type": "The Shepherd",
     "symbol": "👵🏻",
     "buff4love": 3,
     "buff4marriage": 5,
-    "buff4friend": 2
+    "buff4friend": 2,
+    "interest1": "Cow",
+    "interest2": "Cow",
+    "interest3": "Cow"
   },
   {
     "type": "Portia",
@@ -19,6 +25,9 @@
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
+    "interest1": "School",
+    "interest2": "Hospital",
+    "interest3": "Library",
     "Cassio": "love",
     "Iago": "rival"
   },
@@ -28,11 +37,16 @@
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
+    "interest1": "Zombie",
+    "interest2": "Ghost",
+    "interest3": "Spider",
     "Cassio": "rival"
   },
   {
     "type": "Cassio",
     "symbol": "🧝",
+    "interest1": "Duke Angelo",
+    "interest2": "Juliet",
     "Hotspur": "rival",
     "Iago": "rival",
     "Juliet": "friend"
@@ -43,6 +57,9 @@
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
+    "interest1": "Apple Pie",
+    "interest2": "Strawberry Pie",
+    "interest3": "Lemon",
     "Hotspur": "love"
   },
   {
@@ -51,11 +68,13 @@
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
+    "interest1": "Portrait",
     "Caliban": "friend"
   },
   {
     "type": "Helena",
     "symbol": "🧑‍🎤",
+    "interest1": "Rosesmary",
     "Gertrude": "love"
   },
   {
@@ -64,6 +83,7 @@
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
+    "interest1": "Dragon",
     "Prospero": "friend"
   },
   {
@@ -82,6 +102,7 @@
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
+    "interest1": "Port",
     "Mistress_Quickley": "love"
   },
   {
@@ -89,7 +110,8 @@
     "symbol": "🧕",
     "buff4love": 3,
     "buff4marriage": 5,
-    "buff4friend": 2
+    "buff4friend": 2,
+    "interest1": "Potion A"
   },
   {
     "type": "Iago",
@@ -97,6 +119,7 @@
     "buff4love": 3,
     "buff4marriage": 10,
     "buff4friend": 2,
+    "interest1": "Gem",
     "Portia": "rival",
     "Cassio": "rival"
   },
@@ -106,6 +129,7 @@
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
+    "interest1": "Queen's Cake",
     "Helena": "love"
   },
   {
@@ -114,6 +138,7 @@
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
+    "interest1": "King's Crown",
     "Prospero": "friend",
     "Iago": "rival",
     "Gertrude": "love"
@@ -124,6 +149,7 @@
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
+    "interest1": "Bones",
     "Feste": "friend",
     "Titania": "love",
     "Prospero": "rival"
@@ -134,6 +160,7 @@
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
+    "interest1": "Tulip",
     "Cassio": "friend"
   }
 ]

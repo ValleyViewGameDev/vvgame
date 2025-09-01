@@ -1,6 +1,50 @@
 import React, { useState, useEffect } from 'react';
 import './Conversation.css';
 import ConversationManager from './ConversationManager';
+import RelationshipMatrix from './RelationshipMatrix.json';
+
+// Track conversation results for chance modification
+let conversationResults = {
+  matchingInterests: 0,
+  matchingRandom: 0,
+  totalRounds: 0
+};
+
+// Calculate modified chance based on conversation results
+export const calculateModifiedChance = (baseChance, interaction, conversationResults, currentPlayer, targetName) => {
+  let modifiedChance = baseChance || 1.0;
+  
+  // 1. Add bonus for matching interests during conversation
+  if (interaction.interaction === 'Talk' && conversationResults.matchingInterests > 0) {
+    // Add 0.5 for each matching interest
+    modifiedChance += (0.5 * conversationResults.matchingInterests);
+  }
+  
+  // 1b. Add bonus for matching random topics during conversation
+  if (interaction.interaction === 'Talk' && conversationResults.matchingRandom > 0) {
+    // Add 0.5 for each matching random topic
+    modifiedChance += (0.5 * conversationResults.matchingRandom);
+  }
+  
+  // 2. Add bonus for relationship status buffs
+  if (currentPlayer && currentPlayer.relationships) {
+    const relationship = currentPlayer.relationships.find(rel => rel.name === targetName);
+    if (relationship && relationship.relstatus) {
+      // Check relbuff1, relbuff2, relbuff3
+      for (let i = 1; i <= 3; i++) {
+        const buffField = interaction[`relbuff${i}`];
+        if (buffField && relationship.relstatus.includes(buffField)) {
+          // Add the buff amount (default 0.2 if not specified)
+          const buffAmount = interaction[`relbuffamount${i}`] || 0.2;
+          modifiedChance += buffAmount;
+        }
+      }
+    }
+  }
+  
+  // Cap at 1.0 (100% chance)
+  return Math.min(modifiedChance, 1.0);
+};
 
 // Main conversation sequence handler
 export const playConversation = async (
@@ -17,6 +61,13 @@ export const playConversation = async (
   masterResources = null
 ) => {
   console.log('🗨️ playConversation started:', { playerPosition, npcPosition, playerEmoji, npcEmoji, playerId, npcId, interaction });
+  
+  // Reset conversation results
+  conversationResults = {
+    matchingInterests: 0,
+    matchingRandom: 0,
+    totalRounds: 0
+  };
   
   // Use rounds from interaction if available, otherwise random 1-3
   const numExchanges = interaction?.rounds || (Math.floor(Math.random() * 3) + 1);
@@ -44,7 +95,8 @@ export const playConversation = async (
     npcIcon: npcEmoji,
     currentPlayer: currentPlayer,
     interaction: interaction,
-    masterResources: masterResources
+    masterResources: masterResources,
+    npcId: npcId
   };
   
   // Add relationship score if it exists
@@ -58,6 +110,7 @@ export const playConversation = async (
   // Play conversation sequence
   for (let i = 0; i < numExchanges; i++) {
     const roundNum = i + 1;
+    conversationResults.totalRounds = roundNum;
     
     // Player speaks - use provided ID or position-based ID
     const playerSpeakerId = playerId || `player_${Math.floor(playerPosition.x)}_${Math.floor(playerPosition.y)}`;
@@ -76,7 +129,24 @@ export const playConversation = async (
     const npcTopicKey = interaction?.[`npctopic${roundNum}`];
     const npcTopic = npcTopicKey ? getTopicSymbol(npcTopicKey, topicContext, false) : '💭';
     
-    await showSpeech('npc', npcSpeakerId, npcEmoji, npcTopic);
+    // Check if topics match for bonus
+    let isMatch = false;
+    
+    // Check if both topics are interests and if they match
+    if (playerTopicKey === 'interest' && npcTopicKey === 'interest' && playerTopic === npcTopic) {
+      conversationResults.matchingInterests++;
+      isMatch = true;
+      console.log('🎯 Matching interests!', playerTopic, npcTopic, 'Total matches:', conversationResults.matchingInterests);
+    }
+    
+    // Check if both topics are random and if they match
+    if (playerTopicKey === 'random' && npcTopicKey === 'random' && playerTopic === npcTopic) {
+      conversationResults.matchingRandom++;
+      isMatch = true;
+      console.log('🎯 Matching random topics!', playerTopic, npcTopic, 'Total matches:', conversationResults.matchingRandom);
+    }
+    
+    await showSpeech('npc', npcSpeakerId, npcEmoji, npcTopic, isMatch);
     await animateCharacter('npc', npcPosition, getCurrentTileSize());
     await delay(1500);
     await hideSpeech(npcSpeakerId);
@@ -84,9 +154,9 @@ export const playConversation = async (
     await delay(500); // Brief pause before next exchange
   }
   
-  // Conversation complete - trigger callback
+  // Conversation complete - trigger callback with results
   if (onComplete) {
-    onComplete();
+    onComplete(conversationResults);
   }
 };
 
@@ -167,6 +237,30 @@ export const getTopicSymbol = (topicKey, context = {}, isPlayerTurn = false) => 
         }
       }
       
+      // For NPC turn, check RelationshipMatrix for interests
+      if (!isPlayerTurn && context.npcId && context.masterResources) {
+        const npcEntry = RelationshipMatrix.find(entry => entry.type === context.npcId);
+        if (npcEntry) {
+          // Collect all defined interests (interest1, interest2, interest3, etc.)
+          const npcInterests = [];
+          let i = 1;
+          while (npcEntry[`interest${i}`]) {
+            // Look up the interest in masterResources to get its symbol
+            const interest = npcEntry[`interest${i}`];
+            const resource = context.masterResources.find(r => r.type === interest);
+            if (resource && resource.symbol) {
+              npcInterests.push(resource.symbol);
+            }
+            i++;
+          }
+          
+          // If NPC has interests defined, return one randomly
+          if (npcInterests.length > 0) {
+            return npcInterests[Math.floor(Math.random() * npcInterests.length)];
+          }
+        }
+      }
+      
       // Fallback to default interests
       const interests = ['🎨', '📚', '🛶', '🔬', '🪉', '⛺', '💰'];
       return interests[Math.floor(Math.random() * interests.length)];
@@ -213,9 +307,9 @@ export const getTopicSymbol = (topicKey, context = {}, isPlayerTurn = false) => 
 
 
 // Show speech bubble for a character
-const showSpeech = async (speakerType, speakerId, emoji, topic) => {
-  console.log('🗨️ showSpeech called:', { speakerType, speakerId, emoji, topic });
-  ConversationManager.addSpeech(speakerId, emoji, topic || emoji);
+const showSpeech = async (speakerType, speakerId, emoji, topic, isMatch = false) => {
+  console.log('🗨️ showSpeech called:', { speakerType, speakerId, emoji, topic, isMatch });
+  ConversationManager.addSpeech(speakerId, emoji, topic || emoji, isMatch);
 };
 
 // Hide speech bubble for a character
