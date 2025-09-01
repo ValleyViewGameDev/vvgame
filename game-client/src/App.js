@@ -1734,7 +1734,7 @@ return (
       <h2>{strings[96]}</h2>
       <button
         className="shared-button"
-        onClick={() => window.open('https://discord.gg/mQgRP2K9', '_blank')}
+        onClick={() => window.open('https://discord.gg/cVqP6rwA', '_blank')}
       >
         Join Discord Server
       </button>
