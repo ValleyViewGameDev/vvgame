@@ -1602,7 +1602,7 @@ return (
         className={`nav-button ${activePanel === 'FarmingPanel' ? 'selected' : ''}`} title={strings[12001]} disabled={!currentPlayer} 
         onClick={() => {
           if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
-          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
+          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
           openPanel('FarmingPanel');
         }}
       >🚜</button>
@@ -1618,7 +1618,7 @@ return (
         className={`nav-button ${activePanel === 'BuyPanel' ? 'selected' : ''}`} title={strings[12003]} disabled={!currentPlayer} 
         onClick={() => {
           if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
-          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
+          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
           openPanel('BuyPanel');
         }}
       >🐮</button>
@@ -1626,7 +1626,7 @@ return (
         className={`nav-button ${activePanel === 'BuildPanel' ? 'selected' : ''}`} title={strings[12002]} disabled={!currentPlayer} 
         onClick={() => {
           if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
-          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
+          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
           openPanel('BuildPanel');
         }}
       >⚒️</button>
@@ -1641,7 +1641,7 @@ return (
           onClick={() => {
             if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
             // Check if on another player's homestead
-            if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
+            if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
             openPanel('BuyDecoPanel');
           }}
         >🪴</button>

@@ -68,11 +68,11 @@
     "relscoreresult": 5,
     "rounds": 3,
     "playertopic1": "interest",
-    "playertopic2": "npc",
-    "playertopic3": "random",
+    "playertopic2": "random",
+    "playertopic3": "interest",
     "npctopic1": "interest",
-    "npctopic2": "player",
-    "npctopic3": "random"
+    "npctopic2": "random",
+    "npctopic3": "interest"
   },
   {
     "index": 9,

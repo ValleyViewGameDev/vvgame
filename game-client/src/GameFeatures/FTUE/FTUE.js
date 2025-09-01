@@ -260,9 +260,6 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
     }
   };
 
-  const handleSkip = () => {
-    completeTutorial();
-  };
 
   // Add Trading Post to the grid at specific coordinates
   const handleAddTradingPost = async () => {
@@ -336,9 +333,6 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       <div className="ftue-modal">
         <div className="ftue-header">
           <h2>{strings[currentStepData.titleKey]}</h2>
-          <button className="ftue-skip-button" onClick={handleSkip}>
-            {strings[795]}
-          </button>
         </div>
         
         <div className="ftue-text">
