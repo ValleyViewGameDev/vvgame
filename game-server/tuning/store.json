@@ -14,8 +14,8 @@
 "id":		3		,			
 "title":	"Basic Starter Pack"	,			
 "body":	"This pack gets you going with some starter Money, the Horse for going to Town, a Backpack for collecting away from home, and a few other skills and items."	,			
-"price":		2.51		,			
-"priceInCents":		251		,			
+"price":		2.50		,			
+"priceInCents":		250		,			
 "shelflifeDays":		7		,			
 "rewards": [							
 { "item":"Money","qty":	20000	},
@@ -60,11 +60,11 @@
 {							
 "id":		8		,			
 "title":	"Basic Money Pack"	,			
-"body":	"Instantly adds 25,000 Money."	,			
-"price":		9.00		,			
-"priceInCents":		900		,			
+"body":	"Instantly adds 100,000 Money."	,			
+"price":		6.00		,			
+"priceInCents":		600		,			
 "rewards": [							
-{ "item":"Money","qty":	50000	}
+{ "item":"Money","qty":	100000	}
 ]							
 },							
 							
@@ -72,8 +72,8 @@
 "id":		10		,			
 "title":	"Relocations Pack"	,			
 "body":	"Additional homestead relocations. Move your entire homestead elsewhere in the frontier."	,			
-"price":		10.00		,			
-"priceInCents":		1000		,			
+"price":		5.00		,			
+"priceInCents":		500		,			
 "rewards": [							
 { "item":"Relocations","qty":	5	}
 ]							
@@ -83,8 +83,8 @@
 "id":		20		,			
 "title":	"Adventurer's Pack"	,			
 "body":	"Books, tents, and expanded carrying power."	,			
-"price":		16.76		,			
-"priceInCents":		1676		,			
+"price":		8.00		,			
+"priceInCents":		800		,			
 "rewards": [							
 { "item":"Backpack","qty":	1	},
 { "item":"Rucksack","qty":	1	},
@@ -97,8 +97,8 @@
 "id":		30		,			
 "title":	"Politician's Pack"	,			
 "body":	"Bribery never looked so sparkly."	,			
-"price":		11.95		,			
-"priceInCents":		1195		,			
+"price":		6.00		,			
+"priceInCents":		600		,			
 "rewards": [							
 { "item":"Gem","qty":	10	},
 { "item":"Husbandry","qty":	1	},
@@ -111,8 +111,8 @@
 "id":		40		,			
 "title":	"Farmer's Pack"	,			
 "body":	"Boost your harvest potential with potions and lumber."	,			
-"price":		15.70		,			
-"priceInCents":		1570		,			
+"price":		8.00		,			
+"priceInCents":		800		,			
 "rewards": [							
 { "item":"Potion C","qty":	20	},
 { "item":"Grower","qty":	1	},
@@ -124,11 +124,11 @@
 {							
 "id":		50		,			
 "title":	"Big Money Pack"	,			
-"body":	"100,000 Money credits."	,			
-"price":		18.00		,			
-"priceInCents":		1800		,			
+"body":	"500,000 Money credits."	,			
+"price":		12.00		,			
+"priceInCents":		1200		,			
 "rewards": [							
-{ "item":"Money","qty":	100000	}
+{ "item":"Money","qty":	500000	}
 ]							
 },							
 							
@@ -136,8 +136,8 @@
 "id":		60		,			
 "title":	"Unbreakable"	,			
 "body":	"Boost your defense with enchanted armor."	,			
-"price":		11.43		,			
-"priceInCents":		1143		,			
+"price":		10.00		,			
+"priceInCents":		1000		,			
 "rewards": [							
 { "item":"Unbreakable","qty":	1	}
 ]							
@@ -146,11 +146,11 @@
 {							
 "id":		70		,			
 "title":	"Mega Money Pack"	,			
-"body":	"One million Money credits."	,			
-"price":		160.00		,			
-"priceInCents":		16000		,			
+"body":	"Five million Money credits."	,			
+"price":		90.00		,			
+"priceInCents":		9000		,			
 "rewards": [							
-{ "item":"Money","qty":	1000000	}
+{ "item":"Money","qty":	5000000	}
 ]							
 }							
 							
