@@ -34,6 +34,12 @@ export const getStringIdByValue = (value) => {
  * @returns {string} - The localized string if found, original value otherwise
  */
 export const getLocalizedString = (value, strings) => {
+  // Handle undefined strings object
+  if (!strings) {
+    console.warn('getLocalizedString: strings object is undefined, returning original value');
+    return value;
+  }
+  
   const stringId = getStringIdByValue(value);
   if (stringId && strings[stringId]) {
     return strings[stringId];

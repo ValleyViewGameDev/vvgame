@@ -18,6 +18,7 @@ import playersInGridManager from '../GridState/PlayersInGrid';
 import questCache from '../Utils/QuestCache';
 import ConversationManager from '../GameFeatures/Relationships/ConversationManager';
 import '../GameFeatures/Relationships/Conversation.css';
+import { getLocalizedString } from '../Utils/stringLookup';
 
 
 const DynamicRenderer = ({
@@ -36,6 +37,7 @@ const DynamicRenderer = ({
   setModalContent,
   setIsModalOpen,
   updateStatus,
+  strings,
 }) => {
   const NPCsInGrid = useGridState(); // Use the updated NPCsInGrid from context
   const playersInGrid = usePlayersInGrid(); // Access PCs via modern PC-specific context
@@ -221,7 +223,7 @@ const DynamicRenderer = ({
           if (suppressTooltipRef.current) return;
           hoveredEntityIdRef.current = npc.id;
           hoveredNPCDivRef.current = npcDiv;
-          handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverTooltip);
+          handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverTooltip, strings);
         };
 
         npcDiv.onmouseleave = () => {
@@ -634,21 +636,22 @@ function handlePCClick(pc, currentPlayer, gridId, TILE_SIZE) {
 // CUSTOM TOOLTIP CODE FOR NPCS AND PCS
 
 // React-friendly tooltip handler for NPC hover
-function handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverTooltip) {
+function handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverTooltip, strings) {
   const rect = event.target.getBoundingClientRect();
   const x = rect.left + TILE_SIZE / 2;
   const y = rect.top;
 
-  let tooltipContent = `<p>${npc.type}</p>`;
+  const localizedNPCType = getLocalizedString(npc.type, strings);
+  let tooltipContent = `<p>${localizedNPCType}</p>`;
 
   switch (npc.action) {
     case 'graze': {
       switch (npc.state) {
         case 'processing':
-          tooltipContent = `<p>${npc.type}</p><p>is ready.</p>`;
+          tooltipContent = `<p>${localizedNPCType}</p><p>is ready.</p>`;
           break;
         case 'hungry':
-          tooltipContent = `<p>${npc.type}</p><p>is hungry and</p><p>looking for grass.</p>`;
+          tooltipContent = `<p>${localizedNPCType}</p><p>is hungry and</p><p>looking for grass.</p>`;
           break;
         case 'grazing': {
           let countdownText = "";
@@ -658,30 +661,30 @@ function handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverToolt
             const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
             countdownText = `<p>${minutes}m ${seconds}s</p>`;
           }
-          tooltipContent = `<p>${npc.type}</p><p>is grazing.</p>${countdownText}`;
+          tooltipContent = `<p>${localizedNPCType}</p><p>is grazing.</p>${countdownText}`;
           break;
         }
         case 'idle':
           tooltipContent = `<p>Zzzz...</p>`;
           break;
         case 'roam':
-          tooltipContent = `<p>${npc.type}</p><p>is roaming.</p>`;
+          tooltipContent = `<p>${localizedNPCType}</p><p>is roaming.</p>`;
           break;
         case 'stall':
-          tooltipContent = `<p>${npc.type}</p><p>is looking for an Animal Stall.</p>`;
+          tooltipContent = `<p>${localizedNPCType}</p><p>is looking for an Animal Stall.</p>`;
           break;
         default:
-          tooltipContent = `<p>${npc.type}</p>`;
+          tooltipContent = `<p>${localizedNPCType}</p>`;
           break;
       }
       break;
     }
     case 'quest':
-      tooltipContent = `<p>${npc.type}</p><p>"Need some advice?"</p>`;
+      tooltipContent = `<p>${localizedNPCType}</p><p>"Need some advice?"</p>`;
       break;
     case 'attack':
     case 'spawn':
-      tooltipContent = `<p>${npc.type}</p><p>HP: ${npc.hp}/${npc.maxhp}</p>`;
+      tooltipContent = `<p>${localizedNPCType}</p><p>HP: ${npc.hp}/${npc.maxhp}</p>`;
       break;
     default:
       tooltipContent = `<p>${npc.type}</p>`;

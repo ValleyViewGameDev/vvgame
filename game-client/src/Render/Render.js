@@ -2,19 +2,21 @@ import React, { memo, useState, useEffect, useRef } from 'react';
 import { startAmbientVFX, stopAmbientVFX } from '../VFX/AmbientVFX';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { getOverlayContent } from './RenderDynamic';
+import { getLocalizedString } from '../Utils/stringLookup';
 import './Render.css';
 import '../App.css';
 
-export function generateResourceTooltip(resource) {
+export function generateResourceTooltip(resource, strings) {
   if (!resource || resource.category === 'doober' || resource.category === 'source') return '';
 
   const lines = [];
 
   const currentTime = Date.now();
+  const localizedResourceType = getLocalizedString(resource.type, strings);
 
   switch (resource.category) {
     case 'farmplot':
-      lines.push(`<p>${resource.type}</p>`);
+      lines.push(`<p>${localizedResourceType}</p>`);
       if (resource.growEnd) {
         const remainingTime = Math.max(0, resource.growEnd - currentTime);
         const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
@@ -33,7 +35,7 @@ export function generateResourceTooltip(resource) {
       break;
 
     case 'crafting':
-      lines.push(`<p>${resource.type}</p>`);
+      lines.push(`<p>${localizedResourceType}</p>`);
       if (resource.craftEnd) {
         const remainingTime = Math.max(0, resource.craftEnd - currentTime);
         const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
@@ -52,7 +54,7 @@ export function generateResourceTooltip(resource) {
       break;
 
     default:
-      lines.push(`<p>${resource.type}</p>`);
+      lines.push(`<p>${localizedResourceType}</p>`);
       break;
   }
 
@@ -60,7 +62,7 @@ export function generateResourceTooltip(resource) {
 }
 
 export const RenderGrid = memo(
-  ({ grid, tileTypes, resources, handleTileClick, TILE_SIZE, setHoverTooltip, currentPlayer }) => {
+  ({ grid, tileTypes, resources, handleTileClick, TILE_SIZE, setHoverTooltip, currentPlayer, strings }) => {
 
     const [, forceTick] = useState(0);
       useEffect(() => {
@@ -150,7 +152,7 @@ export const RenderGrid = memo(
                   setHoverTooltip({
                     x: rect.left + rect.width / 2,
                     y: rect.top,
-                    content: generateResourceTooltip(resource),
+                    content: generateResourceTooltip(resource, strings),
                   });
                 };
                 updateTooltip(); // Immediate render

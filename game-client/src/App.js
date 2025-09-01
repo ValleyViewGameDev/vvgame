@@ -1797,6 +1797,7 @@ return (
           TILE_SIZE={activeTileSize}
           setHoverTooltip={setHoverTooltip}
           currentPlayer={currentPlayer}
+          strings={strings}
         />
         <DynamicRenderer
           TILE_SIZE={activeTileSize}
@@ -1814,6 +1815,7 @@ return (
           setModalContent={setModalContent}
           setIsModalOpen={setIsModalOpen} 
           updateStatus={updateStatus}
+          strings={strings}
         /> 
         {/* <RenderVFX 
           toggleVFX={currentPlayer?.settings?.toggleVFX}
