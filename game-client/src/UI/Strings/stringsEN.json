@@ -257,7 +257,7 @@
 
     "1000": "[Description needed]",
     "1001": "Inventory: Resources collected at the Homestead will go into the warehouse. Resources collected in town or in the valley will go into the backpack. To buy a backpack, go to Skills. Crafting stations will only pull items from the warehouse. You can empty your backpack into the warehouse anytime you are on your Homestead.",
-    "1002": "Build: Build crafting stations on your Homestead using resources from your warehouse.",
+    "1002": "Build crafting stations on your Homestead using resources from your warehouse.",
     "1003": "Purchased animals will appear at your player icon, and immediately begin life on the homestead.",
     "1004": "Till land to dirt in order to plant crops. Plant grass to give farm animals something to graze on.",
     "1005": "Acquire Skills and Upgrades to improve various attributes. Make sure to explore the Town to find additional places and ways to gain Skills and Upgrades.",
@@ -277,7 +277,6 @@
     "1019": "[Profile description]",
     "1021": "© Valley View Studios, 2025, All Rights Reserved.",
     "1022": "[Train description]",
-    "1023": "[Farm hand description]",
     "1024": "[Combat description]",
     "1025": "[Shop description]",
     "1026": "[Money panel description]",
@@ -968,7 +967,8 @@
 
   "11000": "ADDED STRINGS:",
 
-      "10114": "Next Season starts in:"
+      "10114": "Next Season starts in:",
+    "1023": "Workers help you run your homestead. Hire them at the Farm House."
 
 
   }
