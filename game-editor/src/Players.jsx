@@ -175,6 +175,40 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
     }
   };
 
+  // Handle password reset
+  const handleResetPassword = async (player) => {
+    if (!player) return;
+    
+    const confirmed = window.confirm(
+      `Reset password for "${player.username}"?\n\n` +
+      `This will:\n` +
+      `• Reset their password to: temp\n` +
+      `• They will need to login with this temporary password\n\n` +
+      `Continue?`
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+      console.log(`🔑 Resetting password for player: ${player.username} (ID: ${player._id})`);
+      
+      const response = await axios.post(`${API_BASE}/api/reset-password`, {
+        playerId: player._id,
+      });
+      
+      if (response.data.success) {
+        alert(`✅ Password reset to "temp" for "${player.username}".`);
+        console.log(`✅ Password reset for: ${player.username}`);
+      } else {
+        alert("❌ Failed to reset password. See console for details.");
+        console.error("Reset password failed:", response.data);
+      }
+    } catch (error) {
+      console.error("❌ Error resetting password:", error);
+      alert(`❌ Error resetting password: ${error.message}`);
+    }
+  };
+
   // Handle column sorting
   const handleSort = (columnKey) => {
     let direction = 'asc';
@@ -273,6 +307,13 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                 style={{ backgroundColor: '#28a745', color: 'white' }}
               >
                 🏠 Send Home
+              </button>
+              <button 
+                className="action-btn" 
+                onClick={() => handleResetPassword(selectedPlayer)}
+                style={{ backgroundColor: '#ff9800', color: 'white' }}
+              >
+                🔑 Reset Password
               </button>
               <button className="action-btn" disabled>
                 Modify Account

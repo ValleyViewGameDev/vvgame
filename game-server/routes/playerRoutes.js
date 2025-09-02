@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
 const Player = require('../models/player'); // Import the Player model
 const Grid = require('../models/grid');
 const Settlement = require('../models/settlement');
@@ -909,6 +910,41 @@ router.post('/delete-player', async (req, res) => {
   }
 });
 
+
+////////////////////////////////////////////////////////
+////////////// RESET PASSWORD //////////////////////////
+
+router.post('/reset-password', async (req, res) => {
+  const { playerId } = req.body;
+  if (!playerId) {
+    return res.status(400).json({ error: 'Player ID is required.' });
+  }
+
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+
+    // Hash the temporary password "temp"
+    const tempPassword = 'temp';
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    // Update the player's password
+    player.password = hashedPassword;
+    await player.save();
+
+    console.log(`✅ Password reset to 'temp' for player: ${player.username} (ID: ${playerId})`);
+    res.json({ 
+      success: true, 
+      message: `Password reset to 'temp' for ${player.username}` 
+    });
+
+  } catch (error) {
+    console.error('❌ Error resetting password:', error);
+    res.status(500).json({ error: 'Failed to reset password.' });
+  }
+});
 
 
 ////////////////////////////////////////////////////////
