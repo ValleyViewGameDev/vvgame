@@ -232,7 +232,7 @@ const renderRewards = (rewards) => {
                   {rewards?.length > 0 && (
                     <TransactionButton
                       className="btn-success"
-                      transactionKey={`mailbox-collect-${index}`}
+                      transactionKey={`mailbox-collect-${msg.messageId}-${visibleMessages.length - 1 - index}`}
                       onAction={(transactionId, transactionKey) => handleCollect(transactionId, transactionKey, visibleMessages.length - 1 - index)}
                     >
                       {strings[1604]} 

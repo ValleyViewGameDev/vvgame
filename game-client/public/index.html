@@ -44,6 +44,19 @@
   
   
   <title>Valley View</title>
+  <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+  <script>
+    window.onload = function() {
+      if (window.kofiWidgetOverlay) {
+        kofiWidgetOverlay.draw('valleyviewgamedev', {
+          'type': 'floating-chat',
+          'floating-chat.donateButton.text': 'Support us',
+          'floating-chat.donateButton.background-color': '#5cb85c',
+          'floating-chat.donateButton.text-color': '#fff'
+        });
+      }
+    };
+  </script>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

@@ -187,7 +187,7 @@
 
   .panel-description {
     margin-top: auto; /* Push to bottom */
-    padding: 10px;
+    padding: 1px 10px; /* Reduced top/bottom padding from 10px to 5px */
     border-top: 1px solid #ccc;
     font-size: 12px;
     color: #666;
@@ -195,6 +195,13 @@
     font-style: italic;
     background-color: rgb(255, 251, 179); /* Match panel background */
     min-height: fit-content; /* Ensure it expands to fit content */
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+
+  /* Buffer space for Ko-fi widget */
+  .panel-buffer-space {
+    height: 60px;
+    background-color: rgb(255, 251, 179); /* Match panel background */
     flex-shrink: 0; /* Prevent shrinking */
   }
 

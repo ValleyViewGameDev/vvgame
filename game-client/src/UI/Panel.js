@@ -55,6 +55,9 @@ const Panel = ({ onClose, children, descriptionKey, panelName, titleKey, title }
           <p>{strings[descriptionKey]}</p>
         </div>
       )}
+      
+      {/* Buffer space for Ko-fi widget */}
+      <div className="panel-buffer-space"></div>
     </div>
   );
 };
