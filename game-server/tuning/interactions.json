@@ -252,7 +252,7 @@
     "interaction": "Quest",
     "isaninteraction": true,
     "isvisible": false,
-    "relscoremin": 20,
+    "relscoremin": 15,
     "relscoremax": 100,
     "relbitrequired": "met",
     "chance": 1,
