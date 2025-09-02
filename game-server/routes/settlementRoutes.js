@@ -250,6 +250,12 @@ router.post('/update-settlement-role', async (req, res) => {
 
       console.log(`🏛️ Assigning player ${playerId} to role "${roleName}" in settlement ${settlementId}`);
 
+      // Don't store Citizen roles - it's the default
+      if (roleName === 'Citizen') {
+          console.log(`✅ Skipping Citizen role assignment (default role).`);
+          return res.status(200).json({ message: 'Citizen is the default role and is not stored.' });
+      }
+
       if (!mongoose.Types.ObjectId.isValid(settlementId) || !mongoose.Types.ObjectId.isValid(playerId)) {
           return res.status(400).json({ error: 'Invalid settlement or player ID format.' });
       }
