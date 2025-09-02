@@ -289,6 +289,13 @@ router.post('/update-profile', async (req, res) => {
         return res.status(400).json({ error: "TAKEN" });
       }
     }
+    
+    // ✅ Hash the password if it's being updated
+    if (updates.password) {
+      const hashedPassword = await bcrypt.hash(updates.password, 10);
+      updates.password = hashedPassword;
+      console.log(`🔐 Password hashed for player ${playerId}`);
+    }
         
     // ✅ Proceed with the update if no conflicts
     const player = await Player.findByIdAndUpdate(playerId, { $set: updates }, { new: true });
