@@ -107,7 +107,7 @@ export async function handleTransitSignpost(
 
       console.log("Found town grid:", townGrid);
       
-      // Fetch the town grid data to find Signpost Home location
+      // Fetch the town grid data to find Train location
       try {
         const signpostPosition = await fetchTownSignpostPosition(townGrid.gridId);
         

@@ -30,9 +30,9 @@ export const fetchHomesteadSignpostPosition = async (gridId) => {
 };
 
 /**
- * Fetches the Signpost Home position from a town grid
+ * Fetches the Train position from a town grid (for arrival via signpost)
  * @param {string} gridId - The town grid ID
- * @returns {Promise<{x: number, y: number}>} The x,y coordinates of Signpost Home, or default {x: 0, y: 0}
+ * @returns {Promise<{x: number, y: number}>} The x,y coordinates of Train, or default {x: 0, y: 0}
  */
 export const fetchTownSignpostPosition = async (gridId) => {
   try {
@@ -40,12 +40,12 @@ export const fetchTownSignpostPosition = async (gridId) => {
     const gridData = gridResponse.data;
     
     if (gridData.resources && Array.isArray(gridData.resources)) {
-      const signpostHome = gridData.resources.find(res => res.type === "Signpost Home");
-      if (signpostHome) {
-        console.log(`✅ Found Signpost Home at (${signpostHome.x}, ${signpostHome.y}) on town grid ${gridId}`);
-        return { x: signpostHome.x, y: signpostHome.y };
+      const train = gridData.resources.find(res => res.type === "Train");
+      if (train) {
+        console.log(`✅ Found Train at (${train.x}, ${train.y}) on town grid ${gridId}`);
+        return { x: train.x, y: train.y };
       } else {
-        console.log(`⚠️ Signpost Home not found on town grid ${gridId}, using default (0, 0)`);
+        console.log(`⚠️ Train not found on town grid ${gridId}, using default (0, 0)`);
       }
     }
   } catch (error) {

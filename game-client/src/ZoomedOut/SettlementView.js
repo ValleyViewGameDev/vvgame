@@ -251,9 +251,9 @@ const SettlementView = ({
       let arrivalX = 0;
       let arrivalY = 0;
       
-      // If clicking on a town tile, find the Signpost Home location
+      // If clicking on a town tile, find the Train location
       if (tile.gridType === "town") {
-        console.log("🏘️ Clicking on town grid, fetching Signpost Home location...");
+        console.log("🏘️ Clicking on town grid, fetching Train location...");
         const signpostPosition = await fetchTownSignpostPosition(tile.gridId);
         arrivalX = signpostPosition.x;
         arrivalY = signpostPosition.y;
