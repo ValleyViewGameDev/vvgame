@@ -13,14 +13,15 @@ router.get('/daily-active-users', async (req, res) => {
     startDate.setDate(startDate.getDate() - days);
     startDate.setHours(0, 0, 0, 0);
 
-    // Aggregate daily active users
+    // Aggregate daily active users (excluding developers)
     const dailyData = await Player.aggregate([
       {
         $match: {
           lastActive: { 
             $gte: startDate,
             $lte: endDate 
-          }
+          },
+          isDeveloper: { $ne: true } // Exclude players where isDeveloper is true
         }
       },
       {
