@@ -1,0 +1,125 @@
+.analytics-container {
+  padding: 20px;
+  background-color: white;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.analytics-container h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.date-range-selector {
+  margin-bottom: 20px;
+}
+
+.date-range-selector select {
+  margin-left: 10px;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.metric-card {
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.metric-card h3 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #555;
+}
+
+.chart-container {
+  margin-bottom: 20px;
+}
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 250px;
+  padding: 10px 0;
+  overflow-x: auto;
+}
+
+.bar-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 30px;
+  flex: 1;
+}
+
+.bar-wrapper {
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  height: 200px;
+}
+
+.bar {
+  width: 100%;
+  background-color: #4CAF50;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  transition: all 0.3s ease;
+  min-height: 5px;
+}
+
+.bar:hover {
+  background-color: #45a049;
+}
+
+.bar-value {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  font-weight: bold;
+  color: #333;
+  white-space: nowrap;
+}
+
+.bar-label {
+  margin-top: 5px;
+  font-size: 11px;
+  color: #666;
+  transform: rotate(-45deg);
+  transform-origin: center;
+  white-space: nowrap;
+}
+
+.summary-stats {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+}

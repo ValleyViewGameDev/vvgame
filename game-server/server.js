@@ -38,6 +38,7 @@ const settlementRoutes = require('./routes/settlementRoutes');
 const scheduleRoutes = require('./routes/scheduleRoutes'); 
 const chatRoutes = require('./routes/chatRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
@@ -487,6 +488,8 @@ console.log('Setting up chat routes...');
 app.use('/api', chatRoutes);
 console.log('Setting up payment routes...');
 app.use('/api', paymentRoutes);
+console.log('Setting up analytics routes...');
+app.use('/api/analytics', analyticsRoutes);
 
 
 // Stripe test route: check mode and balance

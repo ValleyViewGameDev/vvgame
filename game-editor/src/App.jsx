@@ -6,6 +6,7 @@ import Events from './Events';
 import FrontierView from './FrontierView';
 import Players from './Players';
 import AtlasView from './AtlasView';
+import Analytics from './Analytics';
 import './App.css';
 
 const App = () => {
@@ -94,6 +95,10 @@ useEffect(() => {
           <select value={selectedSettlement || ''} onChange={e => setSelectedSettlement(e.target.value)}>
             {settlements
               .filter(s => String(s.frontierId) === String(selectedFrontier))
+              .sort((a, b) => {
+                // Natural sort for settlement names like "Settlement_0_0", "Settlement_1_2", etc.
+                return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+              })
               .map(s => <option key={s._id} value={s._id}>{s.name}</option>)}
           </select>
         </label>
@@ -108,6 +113,7 @@ useEffect(() => {
         <button title="Frontier View" onClick={() => setActivePanel('frontier')}>🔎</button>
         <button title="Atlas View" onClick={() => setActivePanel('atlas')}>🗺️</button>
         <button title="Players" onClick={() => setActivePanel('players')}>😀</button>
+        <button title="Analytics" onClick={() => setActivePanel('analytics')}>📊</button>
       </div>
 
       {/* ✅ Base Panels Container with conditional visibility */}
@@ -147,6 +153,11 @@ useEffect(() => {
           <AtlasView 
             selectedFrontier={selectedFrontier} 
             settlements={settlements} 
+            activePanel={activePanel}
+            />
+        </div>
+        <div className={activePanel === 'analytics' ? 'panel-visible' : 'panel-hidden'}>
+          <Analytics 
             activePanel={activePanel}
             />
         </div>
