@@ -342,7 +342,7 @@
   "3023": "",
   "3024": "",
   "3025": "PANEL DE INICIO DE SESIÓN:",
-  "4000": "¡Bienvenido a Valley View! ¿Todavía no tienes una cuenta? Crea una cuenta gratuita para empezar a jugar:",
+  "4000": "¿Todavía no tienes una cuenta? Crea una cuenta gratuita para empezar a jugar:",
   "4001": "Crear Cuenta",
   "4002": "Nombre de Usuario",
   "4003": "No se te pedirá una dirección de correo electrónico.",
@@ -616,6 +616,9 @@
 "650": "Proponer matrimonio",
 "651": "Provocar",
 "652": "Molestar",
-"653": "Terminar matrimonio"
+"653": "Terminar matrimonio",
+
+
+    "4010": "Already have a profile?"
 
 }

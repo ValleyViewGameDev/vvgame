@@ -362,7 +362,7 @@
     
     "4000": "LOGIN PANEL:",
 
-    "4001": "Bienvenue à Valley View ! Vous n'avez pas encore de compte ? Créez-en un gratuitement pour commencer à jouer :",
+    "4001": "Vous n'avez pas encore de compte ? Créez-en un gratuitement pour commencer à jouer :",
     "4002": "Créer un compte",
     "4003": "Nom d'utilisateur",
     "4004": "Aucune adresse e-mail ne vous sera demandée.",
@@ -968,7 +968,9 @@
 "200282": "Grande Fontaine",
 "200283": "Grand Palmier Décoratif",
 
-    "11000": "ADDED STRINGS:"
+    "11000": "ADDED STRINGS:",
 
+
+    "4010": "Already have a profile?"
 }
 

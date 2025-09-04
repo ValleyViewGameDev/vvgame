@@ -4,6 +4,8 @@ import axios from 'axios';
 import Panel from '../UI/Panel';
 import CreateAccount from './CreateAccount';
 import '../UI/Panel.css'; 
+import '../UI/SharedButtons.css'; 
+
 import { useStrings } from '../UI/StringsContext';
 
 const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLoginSuccess }) => {
@@ -71,6 +73,8 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
 
             <h3>{strings[5033]}</h3>
 
+            <h3>{strings[4010]}</h3>
+
               <label htmlFor="username">Username</label>
               <input
                 id="username"
@@ -98,7 +102,20 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
               </button>
             </div>
           </form>
+          <div className="panel-buffer-space" />
+          <div className="panel-buffer-space" />
+
+          <div className="panel-buttons">
+            <button
+              className="btn-success"
+              onClick={() => window.location.href = 'mailto:valleyviewgamedev@gmail.com'}
+            >
+              {strings[97]}
+            </button>
+          </div>
+
         </div>
+        
       )}
     </Panel>
   );

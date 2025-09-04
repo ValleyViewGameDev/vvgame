@@ -473,7 +473,7 @@
     
     "4000": "LOGIN PANEL:",
 
-    "4001": "Welcome to Valley View! Don't have a profile yet? Create a new free profile to start playing:",
+    "4001": "Don't have a profile? Create a new free profile to start playing:",
     "4002": "New Profile",
     "4005": "With your own profile, you'll be granted your own homestead to cultivate in a Settlement with other players, in a Frontier full of Settlements. Adventure awits you in the Valley.",   
     "4003": "Username",
@@ -968,7 +968,8 @@
   "11000": "ADDED STRINGS:",
 
       "10114": "Next Season starts in:",
-    "1023": "Workers help you run your homestead. Hire them at the Farm House."
+    "1023": "Workers help you run your homestead. Hire them at the Farm House.",
+    "4010": "Already have a profile?"
 
 
   }

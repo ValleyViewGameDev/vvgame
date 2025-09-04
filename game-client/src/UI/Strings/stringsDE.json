@@ -474,7 +474,7 @@
     
     "4000": "ANMELDE-PANEL:",
 
-    "4001": "Willkommen bei Valley View! Hast du noch kein Profil? Erstelle ein neues kostenloses Profil, um zu spielen:",
+    "4001": "Hast du noch kein Profil? Erstelle ein neues kostenloses Profil, um zu spielen:",
     "4002": "Neues Profil",
     "4005": "Mit deinem eigenen Profil erhältst du dein eigenes Gehöft zum Bewirtschaften in einer Siedlung mit anderen Spielern, in einer Grenze voller Siedlungen. Abenteuer erwarten dich im Tal.",   
     "4003": "Benutzername",
@@ -967,7 +967,10 @@
   "200280": "Rutsche",
   "200281": "Brunnen",
   "200282": "Großer Brunnen",
-  "200283": "Große dekorative Palme"
+  "200283": "Große dekorative Palme",
+
+      "4010": "Already have a profile?"
+
 
 
   }
