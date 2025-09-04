@@ -86,20 +86,44 @@ router.post('/remove-single-pc', async (req, res) => {
 
     const grid = await Grid.findById(gridId);
     if (!grid) {
+      console.log(`⚠️ Grid not found for removal: ${gridId}`);
       return res.status(404).json({ error: 'Grid not found.' });
     }
 
     const pcs = new Map(grid.playersInGrid || []);
-    pcs.delete(playerId);
+    const beforeSize = pcs.size;
+    
+    // Log all player IDs in the grid before removal
+    console.log(`📋 Players in grid ${gridId} before removal:`, Array.from(pcs.keys()));
+    console.log(`🔍 Attempting to remove player: ${playerId} (type: ${typeof playerId})`);
+    
+    // Try both string and potential ObjectId formats
+    let removed = false;
+    if (pcs.has(playerId)) {
+      pcs.delete(playerId);
+      removed = true;
+    } else {
+      // Try converting to string if it's not found
+      const playerIdStr = playerId.toString();
+      if (pcs.has(playerIdStr)) {
+        pcs.delete(playerIdStr);
+        removed = true;
+      }
+    }
+    
+    const afterSize = pcs.size;
+    console.log(`📊 Grid ${gridId} players: ${beforeSize} → ${afterSize} (removed: ${removed})`);
+    
+    if (!removed) {
+      console.warn(`⚠️ Player ${playerId} was not found in grid ${gridId}`);
+    }
+    
     grid.playersInGrid = pcs;
-
-    // Optionally update global PC timestamp
     grid.playersInGridLastUpdated = new Date();
-
     await grid.save();
 
-    console.log(`🗑️ Removed PC ${playerId} from gridId: ${gridId}`);
-    res.status(200).json({ success: true });
+    console.log(`✅ Completed remove-single-pc for player ${playerId} from grid ${gridId}`);
+    res.status(200).json({ success: true, removed });
   } catch (error) {
     console.error('❌ Error removing single PC:', error);
     res.status(500).json({ error: 'Failed to remove single PC.' });
