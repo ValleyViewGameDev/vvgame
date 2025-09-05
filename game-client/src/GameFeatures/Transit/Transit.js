@@ -86,8 +86,12 @@ export async function handleTransitSignpost(
         );
         
       } catch (error) {
-        console.error("❌ Error fetching homestead grid data:", error);
-        updateStatus("Error traveling home");
+        console.error("❌ Error traveling home:", error);
+        if (error.message && error.message.includes('Failed to remove player from previous grid')) {
+          updateStatus("Failed to leave current location. Please try again.");
+        } else {
+          updateStatus("Error traveling home");
+        }
       }
       
       return;
@@ -153,8 +157,12 @@ export async function handleTransitSignpost(
         );
         
       } catch (error) {
-        console.error("❌ Error fetching town grid data:", error);
-        updateStatus("Error traveling to town");
+        console.error("❌ Error traveling to town:", error);
+        if (error.message && error.message.includes('Failed to remove player from previous grid')) {
+          updateStatus("Failed to leave current location. Please try again.");
+        } else {
+          updateStatus("Error traveling to town");
+        }
       }
       
       return;

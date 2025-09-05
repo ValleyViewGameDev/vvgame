@@ -164,10 +164,22 @@ export const changePlayerLocation = async (
     }
 
     //console.log('📤 Calling /remove-single-pc route to remove player from grid...');
-    await axios.post(`${API_BASE}/api/remove-single-pc`, {
-      gridId: fromLocation.g,
-      playerId: currentPlayer.playerId,
-    });
+    try {
+      const removeResponse = await axios.post(`${API_BASE}/api/remove-single-pc`, {
+        gridId: fromLocation.g,
+        playerId: currentPlayer.playerId,
+      });
+      
+      if (!removeResponse.data.success) {
+        console.error('❌ Remove-single-pc returned unsuccessful');
+      } else if (removeResponse.data.removed === false) {
+        console.warn('⚠️ Player was not found in the from grid - might already be removed');
+      }
+    } catch (removeError) {
+      console.error('❌ CRITICAL: Failed to remove player from previous grid:', removeError);
+      // Throw error to stop the location change
+      throw new Error('Failed to remove player from previous grid. Aborting travel to prevent ghost player.');
+    }
 
     // ✅ STEP 3: Emit AFTER saving to DB
     socket.emit('player-left-grid', {
