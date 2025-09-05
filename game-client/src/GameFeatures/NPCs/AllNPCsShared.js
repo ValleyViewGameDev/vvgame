@@ -1,6 +1,6 @@
 import socket from '../../socketManager'; 
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
-import { calculateDistance } from './NPCUtils';
+import { calculateDistance } from '../../Utils/worldHelpers';
 import { attachGrazingBehavior } from './NPCGrazeBehavior';
 import { attachQuestBehavior } from './NPCQuestBehavior';
 import { attachEnemyBehavior } from './NPCEnemyBehavior';

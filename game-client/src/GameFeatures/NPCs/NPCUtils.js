@@ -6,6 +6,7 @@ import { handleAttackOnNPC } from "../Combat/Combat.js";
 import { gainIngredients } from "../../Utils/InventoryManagement.js";
 import { trackQuestProgress } from '../Quests/QuestGoalTracker.js';
 import AnimalPanel from '../FarmAnimals/FarmAnimals.js';
+import { calculateDistance } from '../../Utils/worldHelpers.js';
 
 // Generate unique transaction ID
 function generateTransactionId() {
@@ -105,9 +106,8 @@ export function extractXY(location) {
   return { x: location.x, y: location.y };
 }
 
-export function calculateDistance(pos1, pos2) {
-    return Math.abs(pos1.x - pos2.x) + Math.abs(pos1.y - pos2.y);
-}
+// Re-export calculateDistance from worldHelpers to maintain backward compatibility
+export { calculateDistance } from '../../Utils/worldHelpers.js';
   
 export async function handleNPCClick(
   npc,

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
-import { calculateDistance } from './NPCUtils';
+import { calculateDistance } from '../../Utils/worldHelpers';
 
 async function handleTraderBehavior(gridId) { 
     const updateThisNPC = async () => {

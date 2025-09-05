@@ -1,4 +1,4 @@
-import { calculateDistance } from './NPCUtils';
+import { calculateDistance } from '../../Utils/worldHelpers';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 

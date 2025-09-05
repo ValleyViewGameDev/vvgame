@@ -3,7 +3,7 @@ import axios from 'axios';
 import FloatingTextManager from "../../UI/FloatingText";
 import NPCsInGridManager from "../../GridState/GridStateNPCs";
 import playersInGridManager from "../../GridState/PlayersInGrid";
-import { calculateDistance } from "../NPCs/NPCUtils";
+import { calculateDistance } from "../../Utils/worldHelpers";
 import { extractXY } from "../NPCs/NPCUtils";
 import { updateGridResource } from "../../Utils/GridManagement";
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
