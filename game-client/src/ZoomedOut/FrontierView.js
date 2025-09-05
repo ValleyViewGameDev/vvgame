@@ -25,6 +25,7 @@ const FrontierView = ({
   closeAllPanels,
   visibleSettlementId,
   setVisibleSettlementId,
+  masterResources,          // ✅ Add masterResources prop
 }) => {
 
   const [frontierGrid, setFrontierGrid] = useState([]);
@@ -126,7 +127,8 @@ const FrontierView = ({
               TILE_SIZE,
               closeAllPanels,
               updateStatus,
-              bulkOperationContext
+              bulkOperationContext,
+              masterResources           // ✅ Pass masterResources
             ); 
             setZoomLevel("far");
             return;

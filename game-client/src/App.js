@@ -1311,7 +1311,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         activeTileSize,
         currentPlayer.skills,
         closeAllPanels,
-        bulkOperationContext
+        bulkOperationContext,
+        masterResources
       );
     }
     else if (resource.category === 'training') {
@@ -1860,7 +1861,8 @@ return (
         setGridId={setGridId}              
         setGrid={setGrid}            
         setResources={setResources}  
-        setTileTypes={setTileTypes}     
+        setTileTypes={setTileTypes}
+        masterResources={masterResources}     
         TILE_SIZE={activeTileSize}
         closeAllPanels={closeAllPanels}
         visibleSettlementId={visibleSettlementId}

@@ -35,7 +35,17 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
   };
   const getStatBreakdown = (stat) => {
     const total = playerStats?.[stat] || 0;
-    const base = currentPlayer[`base${stat.charAt(0).toUpperCase() + stat.slice(1)}`] || 0;
+    // Handle special case for maxhp -> baseMaxhp (capital M)
+    let basePropertyName;
+    if (stat === 'maxhp') {
+      basePropertyName = 'baseMaxhp';
+    } else if (stat === 'hp') {
+      basePropertyName = 'baseHp';
+    } else {
+      // For other stats: damage -> baseDamage, attackrange -> baseAttackrange, etc.
+      basePropertyName = `base${stat.charAt(0).toUpperCase() + stat.slice(1)}`;
+    }
+    const base = currentPlayer[basePropertyName] || 0;
     const modifier = total - base;
     return { base, modifier, total };
   };
@@ -55,6 +65,7 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
     const playerId = currentPlayer._id;
 
     const baseStats = {
+      hp: currentPlayer.baseHp || 0,  // Add hp calculation
       maxhp: currentPlayer.baseMaxhp || 0,
       damage: currentPlayer.baseDamage || 0,
       armorclass: currentPlayer.baseArmorclass || 0,
@@ -65,7 +76,7 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
 
     const powers = currentPlayer.powers || [];
     const powerBonuses = {
-      maxhp: 0, damage: 0, armorclass: 0, attackbonus: 0, attackrange: 0, speed: 0,
+      hp: 0, maxhp: 0, damage: 0, armorclass: 0, attackbonus: 0, attackrange: 0, speed: 0,
     };
 
     powers.forEach(power => {
@@ -79,6 +90,14 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
     Object.keys(baseStats).forEach(stat => {
       finalStats[stat] = baseStats[stat] + (powerBonuses[stat] || 0);
     });
+
+    // Special handling for HP - use current HP if available, otherwise use max HP
+    const currentPCStats = getPlayerStats();
+    if (currentPCStats?.hp !== undefined) {
+      finalStats.hp = currentPCStats.hp; // Keep current HP value
+    } else if (!finalStats.hp || finalStats.hp === 0) {
+      finalStats.hp = finalStats.maxhp; // Set HP to max if not already set
+    }
 
     finalStats.playerId = playerId;
     finalStats.username = currentPlayer.username;

@@ -103,7 +103,8 @@ export const changePlayerLocation = async (
   TILE_SIZE,
   closeAllPanels, // ✅ Add this prop
   updateStatus,
-  bulkOperationContext // ✅ Add bulk operation context
+  bulkOperationContext, // ✅ Add bulk operation context
+  masterResources = null // ✅ Add masterResources for combat stat calculations
 ) => {
 
   // console.log("🔁 changePlayerLocation invoked. closeAllPanels =", !!closeAllPanels);
@@ -209,6 +210,7 @@ export const changePlayerLocation = async (
     //console.log('🚨🚨🚨🚨fromPlayerState = ', fromPlayerState);
     //console.log('🚨🚨🚨🚨currentPlayer = ', currentPlayer);
 
+    // REVERT: The issue is in how data is stored/loaded, not in changePlayerLocation
     const playerData = {
       playerId: currentPlayer.playerId,
       type: 'pc',
