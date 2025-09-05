@@ -833,16 +833,29 @@ const handleHeal = async (recipe) => {
               <h3>{strings[420]}</h3>
               {tradeRecipes.length > 0 ? (
                 tradeRecipes.map((recipe) => {
-                  const ingredients = getIngredientDetails(recipe, masterResources);
                   const affordable = canAfford(recipe, inventory, backpack, 1);
                   const quantityToGive = recipe.tradeqty || 1;
+
+                  // Format costs with color per ingredient (matching CraftingStation.js style)
+                  const formattedCosts = [1, 2, 3, 4].map((i) => {
+                    const type = recipe[`ingredient${i}`];
+                    const qty = recipe[`ingredient${i}qty`];
+                    if (!type || !qty) return '';
+                    
+                    const inventoryQty = inventory?.find(item => item.type === type)?.quantity || 0;
+                    const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
+                    const playerQty = inventoryQty + backpackQty;
+                    const color = playerQty >= qty ? 'green' : 'red';
+                    const symbol = masterResources.find(r => r.type === type)?.symbol || '';
+                    return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                  }).join('');
 
                   return (
                     <ResourceButton
                       key={recipe.type}
                       symbol={recipe.symbol}
                       name={getLocalizedString(recipe.type, strings)}
-                      details={`${strings[461]} ${ingredients.join(', ') || 'None'}<br>${strings[462]} ${quantityToGive} ${getLocalizedString(recipe.type, strings)}`}
+                      details={`${strings[461]}<div>${formattedCosts}</div>`}
                       disabled={!affordable}
                       onClick={() => handleTrade(recipe)}
                     />
