@@ -209,9 +209,6 @@ export async function handleDooberClick(
     })
     .map((buffItem) => buffItem.type);
 
-
-  createCollectEffect(col, row, TILE_SIZE);
-
   //console.log('Player Buffs (Skills and Upgrades):', playerBuffs);
   // Calculate skill multiplier
   const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
@@ -221,12 +218,8 @@ export async function handleDooberClick(
   }, 1);
   const qtyCollected = baseQtyCollected * skillMultiplier;
   console.log('[DEBUG] qtyCollected after multiplier:', qtyCollected);
-  FloatingTextManager.addFloatingText(`+${qtyCollected} ${resource.type}`, col, row, TILE_SIZE );
-  if (skillMultiplier != 1) {
-    const skillAppliedText =
-      `${playerBuffs.join(', ')} skill applied (${skillMultiplier}x collected).`;
-    updateStatus(skillAppliedText);
-  }
+  
+  // Optimistically remove the resource from display
   setResources((prevResources) =>
     prevResources.filter((res) => !(res.x === col && res.y === row))
   );
@@ -255,6 +248,15 @@ export async function handleDooberClick(
       // Restore the doober visually
       setResources((prevResources) => [...prevResources, resource]);
       return;
+    }
+    
+    // Only show VFX and floating text after successful collection
+    createCollectEffect(col, row, TILE_SIZE);
+    FloatingTextManager.addFloatingText(`+${qtyCollected} ${resource.type}`, col, row, TILE_SIZE );
+    if (skillMultiplier != 1) {
+      const skillAppliedText =
+        `${playerBuffs.join(', ')} skill applied (${skillMultiplier}x collected).`;
+      updateStatus(skillAppliedText);
     }
 
     const gridUpdateResponse = await updateGridResource(

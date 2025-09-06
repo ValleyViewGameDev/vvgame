@@ -320,6 +320,9 @@ const CraftingStation = ({
             console.error('❌ Failed to add buffed crafted item to inventory.');
             return; // Exit early - don't clear crafting state if we couldn't collect
           }
+          
+          // Show floating text only after successful collection
+          FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${collectedItem}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
         }
 
         // Only clear crafting state if we successfully collected (or it's an NPC)
