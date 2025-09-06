@@ -9,6 +9,7 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { handleFarmPlotPlacement, handleTerraform } from './Farming';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
+import { formatDuration } from '../../UI/Timers';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 
 const FarmingPanel = ({
@@ -125,19 +126,6 @@ const FarmingPanel = ({
               const ingredients = getIngredientDetails(item, allResources);
               const affordable = canAfford(item, inventory, 1);
               const requirementsMet = hasRequiredSkill(item.requires);
-              const formatCountdown = (seconds) => {
-                const days = Math.floor(seconds / 86400);
-                const hours = Math.floor((seconds % 86400) / 3600);
-                const minutes = Math.floor((seconds % 3600) / 60);
-                const secs = Math.floor(seconds % 60);
-                return days > 0
-                  ? `${days}d ${hours}h ${minutes}m`
-                  : hours > 0
-                  ? `${hours}h ${minutes}m ${secs}s`
-                  : minutes > 0
-                  ? `${minutes}m ${secs}s`
-                  : `${secs}s`;
-              };
 
               const symbol = item.symbol || '';
 
@@ -158,7 +146,7 @@ const FarmingPanel = ({
 
               const details =
                 `${strings[461]}<div>${formattedCosts}</div>` +
-                (item.growtime ? `<br>${strings[458]}${formatCountdown(item.growtime)}` : '') +
+                (item.growtime ? `<br>${strings[458]}${formatDuration(item.growtime)}` : '') +
                 (item.requires ? `<br><span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '');
 
               const info =

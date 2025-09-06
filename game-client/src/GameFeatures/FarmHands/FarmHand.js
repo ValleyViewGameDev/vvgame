@@ -12,6 +12,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { handleDooberClick, handleSourceConversion } from '../../ResourceClicking'; // adjust path if necessary
 import FloatingTextManager from '../../UI/FloatingText';
 import NPCsInGridManager from "../../GridState/GridStateNPCs";
+import playersInGridManager from '../../GridState/PlayersInGrid';
 import { handleNPCClick } from '../NPCs/NPCUtils';
 import { updateGridResource } from '../../Utils/GridManagement';
 import { handleFarmPlotPlacement } from '../Farming/Farming';
@@ -347,11 +348,11 @@ const FarmHandPanel = ({
     const safeInventory = Array.isArray(inventory) ? inventory : [];
     const safeBackpack = Array.isArray(backpack) ? backpack : [];
     
-    // Find the Farmer NPC to apply busy overlay
-    const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-    const farmerNPC = npcs.find(npc => npc.action === 'worker');
-    if (farmerNPC) {
-      setBusyOverlay(farmerNPC.id);
+    // Find the appropriate worker NPC to apply busy overlay (Lumberjack or Farmer)
+    let npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+    const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Lumberjack'].includes(npc.type));
+    if (workerNPC) {
+      setBusyOverlay(workerNPC.id);
     }
 
     // Start bulk operation tracking
@@ -373,26 +374,55 @@ const FarmHandPanel = ({
         return;
       }
 
-      // Step 2: Get all trees from resources
-      const treeResources = resources.filter(res => res.type === 'Oak Tree');
+      // Step 2: Find the center position for tree selection (Lumberjack → Farmer → Player)
+      const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+      const lumberjackNPC = npcs.find(npc => npc.type === 'Lumberjack');
+      const farmerNPC = npcs.find(npc => npc.type === 'Farmer' || npc.type === 'Farm Hand');
+      
+      let centerPos;
+      let centerType;
+      
+      if (lumberjackNPC) {
+        centerPos = lumberjackNPC.position;
+        centerType = "Lumberjack";
+      } else if (farmerNPC) {
+        centerPos = farmerNPC.position;
+        centerType = "Farmer";
+      } else {
+        // Use player position as fallback
+        const playerData = playersInGridManager.getPlayersInGrid(gridId)?.[currentPlayer.playerId];
+        if (playerData && playerData.position) {
+          centerPos = playerData.position;
+          centerType = "Player";
+        } else {
+          // Ultimate fallback to (0,0) if no player position found
+          centerPos = { x: 0, y: 0 };
+          centerType = "Default";
+        }
+      }
+      
+      console.log(`🪓 Using ${centerType} position as center: (${centerPos.x}, ${centerPos.y})`);
+
+      // Step 3: Get all trees from resources and calculate distances from center position
+      const treeResources = resources
+        .filter(res => res.type === 'Oak Tree')
+        .map(tree => ({
+          ...tree,
+          distance: Math.sqrt(
+            Math.pow(tree.x - centerPos.x, 2) + 
+            Math.pow(tree.y - centerPos.y, 2)
+          )
+        }))
+        .sort((a, b) => a.distance - b.distance); // Sort by distance from center
 
       if (treeResources.length === 0) {
         updateStatus(437);
         return;
       }
 
-      // Select trees in top-to-bottom, left-to-right row scan order
-      const treesToChop = [];
-      for (let row = 0; row < 100; row++) {
-        for (let col = 0; col < 100; col++) {
-          const tree = resources.find(res => res.type === 'Oak Tree' && res.y === row && res.x === col);
-          if (tree) {
-            treesToChop.push(tree);
-            if (treesToChop.length === maxTrees) break;
-          }
-        }
-        if (treesToChop.length === maxTrees) break;
-      }
+      // Select the closest trees up to maxTrees limit
+      const treesToChop = treeResources.slice(0, maxTrees);
+      console.log(`🌲 Found ${treeResources.length} trees, will chop ${treesToChop.length} closest to Lumberjack`);
       const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
       // ---- Two-phase processing ----
@@ -482,10 +512,10 @@ const FarmHandPanel = ({
       endBulkOperation(operationId);
       
       // Clear busy overlay when operation completes
-      const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-      const farmerNPC = npcs.find(npc => npc.action === 'worker');
-      if (farmerNPC) {
-        clearNPCOverlay(farmerNPC.id);
+      const npcsCleanup = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+      const workerNPCCleanup = npcsCleanup.find(npc => npc.action === 'worker' && ['Farmer', 'Lumberjack'].includes(npc.type));
+      if (workerNPCCleanup) {
+        clearNPCOverlay(workerNPCCleanup.id);
       }
     }
   }

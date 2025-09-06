@@ -11,6 +11,7 @@ import { useStrings } from '../../UI/StringsContext';
 import '../../UI/Modal.css';
 import { getMayorUsername } from './GovUtils';
 import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
+import { formatCountdown } from '../../UI/Timers';
 
 const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
 
@@ -120,18 +121,14 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
                 setElectionPhase(newPhase);
             }
 
-            // Then update countdown
+            // Then update countdown using shared formatCountdown function
             const endTime = electionData.endTime;
             if (!endTime || isNaN(endTime)) {
                 setCountdown("N/A");
                 return;
             }
 
-            const remainingTime = Math.max(0, Math.floor((endTime - now) / 1000));
-            const hours = Math.floor(remainingTime / 3600);
-            const minutes = Math.floor((remainingTime % 3600) / 60);
-            const seconds = remainingTime % 60;
-            setCountdown(`${hours}h ${minutes}m ${seconds}s`);
+            setCountdown(formatCountdown(endTime, now));
         };
 
         updateTimerAndPhase(); // Initial run

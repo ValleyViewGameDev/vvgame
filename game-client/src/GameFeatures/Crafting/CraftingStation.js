@@ -22,6 +22,7 @@ import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
 import { handleConstruction } from '../BuildAndBuy';
 import { incrementFTUEStep } from '../FTUE/FTUE';
+import { formatCountdown, formatDuration } from '../../UI/Timers';
 
 const CraftingStation = ({
   onClose,
@@ -389,27 +390,13 @@ const CraftingStation = ({
               const isCrafting = craftedItem === recipe.type && craftingCountdown > 0;
               const isReadyToCollect = craftedItem === recipe.type && craftingCountdown === 0;
 
-              const formatCountdown = (seconds) => {
-                const days = Math.floor(seconds / 86400);
-                const hours = Math.floor((seconds % 86400) / 3600);
-                const minutes = Math.floor((seconds % 3600) / 60);
-                const secs = seconds % 60;
-              
-                const parts = [];
-                if (days > 0) parts.push(`${days}d`);
-                if (hours > 0) parts.push(`${hours}h`);
-                if (minutes > 0) parts.push(`${minutes}m`);
-                parts.push(`${secs}s`); // Always show seconds
-                
-                return parts.join(' ');
-              };
               
               const craftTimeText = isCrafting
-              ? `${strings[441]} ${formatCountdown(craftingCountdown)}`
+              ? `${strings[441]} ${formatCountdown(Date.now() + craftingCountdown * 1000, Date.now())}`
               : isReadyToCollect
               ? strings[457] 
               : recipe.crafttime
-              ? `${strings[458]} ${formatCountdown(recipe.crafttime)}`
+              ? `${strings[458]} ${formatDuration(recipe.crafttime)}`
               : strings[459];
               
               const info = (
