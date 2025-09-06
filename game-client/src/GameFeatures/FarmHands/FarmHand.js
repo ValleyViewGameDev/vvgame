@@ -129,6 +129,9 @@ const FarmHandPanel = ({
     if (npcType === 'Crafter' || npcType === 'Farmer') {
       validSources.push('Crafter'); // Include Crafter skills for Crafter and Farmer NPCs
     }
+    if (npcType === 'Rancher' || npcType === 'Farmer') {
+      validSources.push('Rancher'); // Include Rancher skills for Rancher and Farmer NPCs
+    }
     
     let skills = masterResources.filter(res =>
       (res.category === 'skill' || res.category === 'upgrade') &&
@@ -247,10 +250,10 @@ const FarmHandPanel = ({
       return;
     }
     
-    // Find the Farmer NPC to apply busy overlay
-    const farmerNPC = npcs.find(npc => npc.action === 'worker');
-    if (farmerNPC) {
-      setBusyOverlay(farmerNPC.id);
+    // Find the appropriate worker NPC to apply busy overlay (Farmer or Rancher)
+    const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Rancher'].includes(npc.type));
+    if (workerNPC) {
+      setBusyOverlay(workerNPC.id);
     }
 
     // Count how many of each animal type is ready
@@ -287,11 +290,11 @@ const FarmHandPanel = ({
     onClose();
     setErrorMessage('');
     
-    // Find the Farmer NPC to apply busy overlay
+    // Find the appropriate worker NPC to apply busy overlay (Farmer or Rancher)
     const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-    const farmerNPC = npcs.find(npc => npc.action === 'worker');
-    if (farmerNPC) {
-      setBusyOverlay(farmerNPC.id);
+    const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Rancher'].includes(npc.type));
+    if (workerNPC) {
+      setBusyOverlay(workerNPC.id);
     }
 
     // Start bulk operation tracking
@@ -330,7 +333,10 @@ const FarmHandPanel = ({
           gridId,
           () => {}, // setModalContent (not used here)
           () => {}, // setIsModalOpen (not used here)
-          updateStatus
+          updateStatus,
+          () => {}, // openPanel (not used here)
+          () => {}, // setActiveStation (not used here)
+          strings
         );
 
         successfulCollects[npc.type] = (successfulCollects[npc.type] || 0) + 1;
@@ -339,7 +345,7 @@ const FarmHandPanel = ({
 
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-      updateStatus(`Selective Animal Collect complete: ${Object.entries(successfulCollects).map(([t, q]) => `${q} ${t}`).join(', ')}`);
+      updateStatus(`${strings[469]} ${Object.entries(successfulCollects).map(([t, q]) => `${q} ${getLocalizedString(t, strings)}`).join(', ')}`);
     } catch (error) {
       console.error('Selective animal collect failed:', error);
       setErrorMessage('Failed to collect selected animals.');
@@ -348,10 +354,10 @@ const FarmHandPanel = ({
       endBulkOperation(operationId);
       
       // Clear busy overlay when operation completes
-      const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-      const farmerNPC = npcs.find(npc => npc.action === 'worker');
-      if (farmerNPC) {
-        clearNPCOverlay(farmerNPC.id);
+      const npcsCleanup = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+      const workerNPCCleanup = npcsCleanup.find(npc => npc.action === 'worker' && ['Farmer', 'Rancher'].includes(npc.type));
+      if (workerNPCCleanup) {
+        clearNPCOverlay(workerNPCCleanup.id);
       }
     }
   }
@@ -725,7 +731,7 @@ const FarmHandPanel = ({
 
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-      updateStatus(`🌱 Selective Crop Harvest complete: ${Object.entries(successfulHarvest).map(([t, q]) => `${q} ${t}`).join(', ')}`);
+      updateStatus(`${strings[472]} ${Object.entries(successfulHarvest).map(([t, q]) => `${q} ${getLocalizedString(t, strings)}`).join(', ')}`);
     } catch (error) {
       console.error('Selective crop harvest failed:', error);
       setErrorMessage('Failed to harvest selected crops.');
@@ -961,9 +967,9 @@ const FarmHandPanel = ({
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
       
       if (Object.keys(successfulCollects).length > 0) {
-        let statusMessage = `🔨 Bulk Crafting complete: ${Object.entries(successfulCollects).map(([t, q]) => `${q} ${t}`).join(', ')}`;
+        let statusMessage = `${strings[467]} ${Object.entries(successfulCollects).map(([t, q]) => `${q} ${getLocalizedString(t, strings)}`).join(', ')}`;
         if (Object.keys(successfulRestarts).length > 0) {
-          statusMessage += ` | Restarted: ${Object.entries(successfulRestarts).map(([t, q]) => `${q} ${t}`).join(', ')}`;
+          statusMessage += ` | ${strings[468]} ${Object.entries(successfulRestarts).map(([t, q]) => `${q} ${getLocalizedString(t, strings)}`).join(', ')}`;
         }
         updateStatus(statusMessage);
       } else {
@@ -1205,7 +1211,15 @@ const FarmHandPanel = ({
       {isHarvestModalOpen && (
         <Modal
           isOpen={isHarvestModalOpen}
-          onClose={() => setIsHarvestModalOpen(false)}
+          onClose={() => {
+            setIsHarvestModalOpen(false);
+            // Clear busy overlay when modal is closed
+            const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+            const workerNPC = npcs.find(npc => npc.action === 'worker');
+            if (workerNPC) {
+              clearNPCOverlay(workerNPC.id);
+            }
+          }}
           title={strings[315]}
           size="medium"
         >
@@ -1352,7 +1366,15 @@ const FarmHandPanel = ({
       {isAnimalModalOpen && (
         <Modal
           isOpen={isAnimalModalOpen}
-          onClose={() => setIsAnimalModalOpen(false)}
+          onClose={() => {
+            setIsAnimalModalOpen(false);
+            // Clear busy overlay when modal is closed
+            const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+            const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Rancher'].includes(npc.type));
+            if (workerNPC) {
+              clearNPCOverlay(workerNPC.id);
+            }
+          }}
           title={strings[319]}
           size="medium"
         >
@@ -1422,7 +1444,15 @@ const FarmHandPanel = ({
       {isCraftingModalOpen && (
         <Modal
           isOpen={isCraftingModalOpen}
-          onClose={() => setIsCraftingModalOpen(false)}
+          onClose={() => {
+            setIsCraftingModalOpen(false);
+            // Clear busy overlay when modal is closed
+            const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+            const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Crafter'].includes(npc.type));
+            if (workerNPC) {
+              clearNPCOverlay(workerNPC.id);
+            }
+          }}
           title={strings[467] || "Select Crafting Stations to Collect"}
           size="medium"
         >
