@@ -230,7 +230,7 @@ const FarmHouse = ({
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
         FloatingTextManager.addFloatingText(404, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-        updateStatus(`${strings[441]} ${getLocalizedString(recipe.type, strings)}`);
+        updateStatus(`${strings[440]} ${getLocalizedString(recipe.type, strings)}`);
 
       }
     } catch (error) {

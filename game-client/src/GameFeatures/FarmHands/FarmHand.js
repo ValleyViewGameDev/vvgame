@@ -958,7 +958,7 @@ const FarmHandPanel = ({
               );
               
               if (stationGroup && stationGroup.recipe) {
-                const restarted = await restartCrafting(station, stationGroup.recipe);
+                const restarted = await restartCrafting(station, stationGroup.recipe, strings);
                 if (restarted) {
                   successfulRestarts[stationGroup.recipe.type] = (successfulRestarts[stationGroup.recipe.type] || 0) + 1;
                   console.log(`✅ Restarted crafting at station (${station.x}, ${station.y})`);
@@ -1001,7 +1001,7 @@ const FarmHandPanel = ({
   }
 
   // Helper function to restart crafting at a station
-  async function restartCrafting(station, recipe) {
+  async function restartCrafting(station, recipe, strings) {
     if (!recipe) {
       console.log(`No recipe found for restarting craft at station (${station.x}, ${station.y})`);
       return false;
@@ -1060,6 +1060,7 @@ const FarmHandPanel = ({
         setResources(updatedResources);
         
         FloatingTextManager.addFloatingText(404, station.x, station.y, TILE_SIZE);
+        updateStatus(`${strings[440]} ${getLocalizedString(recipe.type, strings)}`);
         console.log(`✅ Restarted crafting ${recipe.type} at station (${station.x}, ${station.y})`);
         return true;
       }
