@@ -253,13 +253,29 @@ class GridStateManager {
     //console.log(`[🐮 NPCsInGridManager.updateNPC] NPC ${npcId} updated with:`, newProperties);
 
     try {
+      // Send only the essential properties to the server
+      const npcData = {
+        id: npc.id,
+        type: npc.type,
+        position: npc.position,
+        state: npc.state,
+        hp: npc.hp,
+        maxhp: npc.maxhp,
+        grazeEnd: npc.grazeEnd,
+        lastUpdated: npc.lastUpdated,
+        action: npc.action,
+        gridId: npc.gridId
+      };
+      
+      console.log(`🐮 Saving NPC ${npcId} to server with state: ${npcData.state}`);
+      
       await axios.post(`${API_BASE}/api/save-single-npc`, {
         gridId,
         npcId,
-        npc,
+        npc: npcData,
         lastUpdated: now,
       });
-      //console.log(`🐮✅ Saved single NPC ${npcId} to server.`);
+      console.log(`🐮✅ Saved single NPC ${npcId} to server with state: ${npcData.state}`);
     } catch (error) {
       console.error(`❌ Failed to save single NPC ${npcId}:`, error);
     }

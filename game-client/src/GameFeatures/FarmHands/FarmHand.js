@@ -244,6 +244,15 @@ const FarmHandPanel = ({
     
     const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
     const processingAnimals = npcs.filter(npc => npc.state === 'processing');
+    
+    // Log animal states for debugging
+    console.log('🐮 Processing animals:', processingAnimals.map(npc => ({
+      id: npc.id,
+      type: npc.type,
+      state: npc.state,
+      grazeEnd: npc.grazeEnd,
+      position: npc.position
+    })));
 
     if (processingAnimals.length === 0) {
       updateStatus('No animals are ready to collect.');

@@ -7,11 +7,7 @@ import { calculateDistance } from '../../Utils/worldHelpers';
 async function handleFarmAnimalBehavior(gridId) {
     // Helper for updating just this NPC
     const updateThisNPC = async () => {
-        // console.log(`[SAVE] NPC ${this.id}:`, {
-        //     state: this.state,
-        //     grazeEnd: this.grazeEnd,
-        //     position: this.position,
-        //   });
+        console.log(`[SAVE] NPC ${this.id}: Updating state to '${this.state}' at position (${this.position.x}, ${this.position.y})`);
         await NPCsInGridManager.updateNPC(gridId, this.id, {
             state: this.state,
             grazeEnd: this.grazeEnd,
@@ -275,11 +271,52 @@ async function handleFarmAnimalBehavior(gridId) {
             if (Math.floor(this.position.x) === this.targetStall.x &&
                 Math.floor(this.position.y) === this.targetStall.y) {
             
-                console.log(`🐮 NPC ${this.id} reached stall. Transitioning to processing (keeping grazeEnd for server validation).`);
+                // Check if another animal is already at this position
+                const otherNPCsAtStall = Object.values(fullGridState || {}).filter(otherNpc => 
+                    otherNpc.id !== this.id &&
+                    Math.floor(otherNpc.position?.x) === this.targetStall.x &&
+                    Math.floor(otherNpc.position?.y) === this.targetStall.y &&
+                    otherNpc.action === 'graze'
+                );
+                
+                console.log(`🐮 NPC ${this.id} reached stall at (${this.targetStall.x}, ${this.targetStall.y}). Other animals at same position: ${otherNPCsAtStall.length}`);
+                
+                if (otherNPCsAtStall.length > 0) {
+                    console.log(`🐮 Multiple animals at stall - allowing all to process. Other animals:`, otherNPCsAtStall.map(n => ({
+                        id: n.id,
+                        type: n.type,
+                        state: n.state,
+                        grazeEnd: n.grazeEnd
+                    })));
+                }
                 
                 // ✅ Keep grazeEnd for server validation - it will be cleared after successful collection
+                // Allow multiple animals to be in processing state at the same stall
                 this.state = 'processing';
-                await updateThisNPC();
+                console.log(`🐮✅ NPC ${this.id} transitioning to processing state. GrazeEnd: ${this.grazeEnd}`);
+                
+                // Save the state change immediately and wait for confirmation
+                try {
+                    await updateThisNPC();
+                    console.log(`🐮✅ NPC ${this.id} state update to 'processing' sent to server`);
+                    
+                    // Wait a moment for the update to propagate
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    // Verify the update was successful
+                    const updatedNPC = NPCsInGridManager.getNPCsInGrid(gridId)?.[this.id];
+                    if (updatedNPC && updatedNPC.state !== 'processing') {
+                        console.error(`❌ State update verification failed! NPC ${this.id} state is ${updatedNPC.state} instead of 'processing'`);
+                        // Try to update again
+                        this.state = 'processing';
+                        await updateThisNPC();
+                        console.log(`🐮🔄 Retried state update for NPC ${this.id}`);
+                    } else {
+                        console.log(`🐮✅ Verified NPC ${this.id} is in processing state`);
+                    }
+                } catch (error) {
+                    console.error(`❌ Failed to update NPC ${this.id} to processing state:`, error);
+                }
                 }
 
             break;
