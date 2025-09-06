@@ -215,6 +215,7 @@ const DynamicRenderer = ({
               updateStatus,
               openPanel,
               setActiveStation,
+              strings
             );
           }
         });

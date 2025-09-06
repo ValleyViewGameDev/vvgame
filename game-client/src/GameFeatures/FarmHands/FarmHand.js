@@ -798,8 +798,16 @@ const FarmHandPanel = ({
     });
     setSelectedCraftingStations(defaultSelection);
     
-    // Clear restart selections by default (will be populated if player has the skill)
-    setSelectedRestartStations({});
+    // If player has Bulk Restart Craft skill, pre-select all restart options
+    if (hasBulkRestartCraft) {
+      const defaultRestartSelection = {};
+      stationsWithDetails.forEach(group => {
+        defaultRestartSelection[`${group.stationType}-${group.craftedItem}`] = true;
+      });
+      setSelectedRestartStations(defaultRestartSelection);
+    } else {
+      setSelectedRestartStations({});
+    }
     
     setIsCraftingModalOpen(true);
   }
@@ -1269,8 +1277,14 @@ const FarmHandPanel = ({
                 )}
               </div>
               
-              {availableCrops.map(crop => (
-                <div key={crop.type} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+              {availableCrops.map((crop, index) => (
+                <div key={crop.type} style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  marginBottom: '10px',
+                  padding: '5px',
+                  backgroundColor: index % 2 === 0 ? 'transparent' : '#f0f0f0'
+                }}>
                   <input
                     type="checkbox"
                     checked={selectedCropTypes[crop.type] || false}
@@ -1365,8 +1379,14 @@ const FarmHandPanel = ({
             </div>
             
             <div style={{ marginBottom: '20px' }}>
-              {availableAnimals.map(animal => (
-                <div key={animal.type} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+              {availableAnimals.map((animal, index) => (
+                <div key={animal.type} style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  marginBottom: '10px',
+                  padding: '5px',
+                  backgroundColor: index % 2 === 0 ? 'transparent' : '#f0f0f0'
+                }}>
                   <input
                     type="checkbox"
                     checked={selectedAnimalTypes[animal.type] || false}
@@ -1470,10 +1490,16 @@ const FarmHandPanel = ({
                 )}
               </div>
               
-              {availableCraftingStations.map(group => {
+              {availableCraftingStations.map((group, index) => {
                 const key = `${group.stationType}-${group.craftedItem}`;
                 return (
-                  <div key={key} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                  <div key={key} style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    marginBottom: '10px',
+                    padding: '5px',
+                    backgroundColor: index % 2 === 0 ? 'transparent' : '#f0f0f0'
+                  }}>
                     <input
                       type="checkbox"
                       checked={selectedCraftingStations[key] || false}
@@ -1487,8 +1513,8 @@ const FarmHandPanel = ({
                     />
                     <span style={{ marginRight: '10px', width: '30px' }}>{group.stationSymbol}</span>
                     <span style={{ marginRight: '10px', width: '30px' }}>{group.craftedSymbol}</span>
-                    <span style={{ marginRight: '10px', width: '120px', fontWeight: 'bold' }}>{getLocalizedString(group.stationType, strings)}</span>
-                    <span style={{ marginRight: '10px', width: '120px' }}>{getLocalizedString(group.craftedItem, strings)}</span>
+                    <span style={{ marginRight: '10px', width: '120px' }}>{getLocalizedString(group.stationType, strings)}</span>
+                    <span style={{ marginRight: '10px', width: '120px', fontWeight: 'bold' }}>{getLocalizedString(group.craftedItem, strings)}</span>
                     <span style={{ marginRight: '10px', width: '60px', color: '#666' }}>({group.count})</span>
                     
                     {hasBulkRestartCraft && (

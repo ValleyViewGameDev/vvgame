@@ -7,6 +7,7 @@ import { gainIngredients } from "../../Utils/InventoryManagement.js";
 import { trackQuestProgress } from '../Quests/QuestGoalTracker.js';
 import AnimalPanel from '../FarmAnimals/FarmAnimals.js';
 import { calculateDistance } from '../../Utils/worldHelpers.js';
+import { getLocalizedString } from '../../Utils/stringLookup.js';
 
 // Generate unique transaction ID
 function generateTransactionId() {
@@ -26,7 +27,8 @@ async function handleProtectedFarmAnimalCollection(
   masterResources,
   masterSkills,
   currentGridId,
-  updateStatus
+  updateStatus,
+  strings = {}
 ) {
   console.log(`🔒 [PROTECTED FARM ANIMAL] Starting protected collection for NPC ${npc.id}`);
   
@@ -59,7 +61,7 @@ async function handleProtectedFarmAnimalCollection(
       }
 
       // Visual feedback
-      FloatingTextManager.addFloatingText(`+${collectedQuantity} ${collectedItem}`, col, row, TILE_SIZE);
+      FloatingTextManager.addFloatingText(`+${collectedQuantity} ${getLocalizedString(collectedItem, strings)}`, col, row, TILE_SIZE);
       
       const statusMessage = skillsApplied.length === 0
         ? `Gained ${collectedQuantity} ${collectedItem}.`
@@ -126,6 +128,7 @@ export async function handleNPCClick(
   updateStatus,
   openPanel,
   setActiveStation,
+  strings = {}
 ) {
   if (!npc) {
     console.warn("handleNPCClick was called with an undefined NPC.");
@@ -212,7 +215,8 @@ export async function handleNPCClick(
         masterResources,
         masterSkills,
         currentGridId,
-        updateStatus
+        updateStatus,
+        strings
       );
     }
 
