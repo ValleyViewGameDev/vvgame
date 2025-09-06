@@ -19,6 +19,7 @@ import { handleFarmPlotPlacement } from '../Farming/Farming';
 import { validateTileType } from '../../Utils/ResourceHelpers';
 import { useNPCOverlay } from '../../UI/NPCOverlayContext';
 import { useBulkOperation } from '../../UI/BulkOperationContext';
+import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 
 const FarmHandPanel = ({
   onClose,
@@ -67,6 +68,7 @@ const FarmHandPanel = ({
   const showLogging = ['Farmer', 'Lumberjack'].includes(npcType);
   const showBetterLogging = ['Farmer', 'Lumberjack'].includes(npcType);
   const showCropPurchase = ['Farmer', 'Farm Hand'].includes(npcType);
+  const showBulkCrafting = ['Farmer', 'Crafter'].includes(npcType);
   
   // Helper function to check if player has required skill (same logic as FarmingPanel)
   const hasRequiredSkill = (requiredSkill) => {
@@ -115,9 +117,16 @@ const FarmHandPanel = ({
 
   useEffect(() => {
     const ownedTypes = currentPlayer.skills?.map(skill => skill.type) || [];
+    
+    // Get skills from multiple sources based on NPC type
+    let validSources = ['Farm Hand']; // Always include Farm Hand skills
+    if (npcType === 'Crafter' || npcType === 'Farmer') {
+      validSources.push('Crafter'); // Include Crafter skills for Crafter and Farmer NPCs
+    }
+    
     let skills = masterResources.filter(res =>
       (res.category === 'skill' || res.category === 'upgrade') &&
-      res.source === 'Farm Hand' &&
+      validSources.includes(res.source) &&
       !ownedTypes.includes(res.type)
     );
     
@@ -128,8 +137,10 @@ const FarmHandPanel = ({
       skills = skills.filter(res => res.type === 'Bulk Animal Collect');
     } else if (npcType === 'Lumberjack') {
       skills = skills.filter(res => ['Logging', 'Better Logging'].includes(res.type));
+    } else if (npcType === 'Crafter') {
+      skills = skills.filter(res => res.type === 'Bulk Crafting');
     }
-    // For 'Farmer', show all skills (no filtering needed)
+    // For 'Farmer', show all skills from all valid sources
     
     setFarmhandSkills(skills.filter(res => res.category === 'skill'));
     setFarmhandUpgrades(skills.filter(res => res.category === 'upgrade'));
@@ -723,6 +734,161 @@ const FarmHandPanel = ({
     }
   }
 
+  async function handleBulkCrafting() {
+    console.log('🛖 Bulk Crafting initiated');
+    onClose();
+    setErrorMessage('');
+    
+    // Find the appropriate worker NPC to apply busy overlay
+    const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+    const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Crafter'].includes(npc.type));
+    if (workerNPC) {
+      setBusyOverlay(workerNPC.id);
+    }
+
+    // Start bulk operation tracking
+    const operationId = `bulk-crafting-${Date.now()}`;
+    startBulkOperation('bulk-crafting', operationId);
+
+    try {
+      const now = Date.now();
+      const resources = GlobalGridStateTilesAndResources.getResources() || [];
+      
+      // Find all crafting stations with completed crafts
+      const readyStations = resources.filter(res => {
+        // Check if this is a crafting station
+        const stationDef = masterResources.find(r => r.type === res.type);
+        if (!stationDef || stationDef.category !== 'crafting') return false;
+        
+        // Check if it has a completed craft
+        return res.craftEnd && res.craftEnd <= now && res.craftedItem;
+      });
+
+      if (readyStations.length === 0) {
+        updateStatus(466);
+        return;
+      }
+
+      console.log(`🔨 Found ${readyStations.length} crafting stations ready to collect`);
+      
+      const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+      const successfulCollects = {};
+
+      for (const station of readyStations) {
+        try {
+          const craftedItem = station.craftedItem;
+          
+          // Create a unique transaction for each collection
+          const transactionId = `bulk-craft-collect-${Date.now()}-${Math.random()}`;
+          const transactionKey = `crafting-collect-${craftedItem}-${station.x}-${station.y}`;
+          
+          console.log(`📦 Collecting ${craftedItem} from station at (${station.x}, ${station.y})`);
+          
+          // Call the server endpoint directly (similar to handleCollect in CraftingStation)
+          const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
+            playerId: currentPlayer.playerId,
+            gridId,
+            stationX: station.x,
+            stationY: station.y,
+            craftedItem,
+            transactionId,
+            transactionKey
+          });
+
+          if (response.data.success) {
+            const { collectedItem, isNPC } = response.data;
+            
+            // Apply skill buffs to crafted collection
+            const playerBuffs = (currentPlayer.skills || [])
+              .filter((item) => {
+                const resourceDetails = masterResources.find((res) => res.type === item.type);
+                const isSkill = resourceDetails?.category === 'skill' || resourceDetails?.category === 'upgrade';
+                const appliesToResource = (masterSkills?.[item.type]?.[collectedItem] || 1) > 1;
+                return isSkill && appliesToResource;
+              })
+              .map((buffItem) => buffItem.type);
+
+            // Calculate skill multiplier
+            const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
+              const buffValue = masterSkills?.[buff]?.[collectedItem] || 1;
+              return multiplier * buffValue;
+            }, 1);
+
+            const finalQtyCollected = skillMultiplier;
+            
+            FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${collectedItem}`, station.x, station.y, TILE_SIZE);
+
+            // Handle NPC spawning client-side
+            if (isNPC) {
+              const craftedResource = masterResources.find(res => res.type === collectedItem);
+              if (craftedResource) {
+                NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: station.x, y: station.y });
+              }
+            } else {
+              // Add to inventory with buffs
+              const gained = await gainIngredients({
+                playerId: currentPlayer.playerId,
+                currentPlayer,
+                resource: collectedItem,
+                quantity: finalQtyCollected,
+                inventory: currentPlayer.inventory,
+                backpack: currentPlayer.backpack,
+                setInventory,
+                setBackpack,
+                setCurrentPlayer,
+                updateStatus,
+                masterResources,
+              });
+
+              if (!gained) {
+                console.error('❌ Failed to add crafted item to inventory.');
+              }
+            }
+
+            // Track quest progress
+            await trackQuestProgress(currentPlayer, 'Craft', collectedItem, finalQtyCollected, setCurrentPlayer);
+
+            // Update local resources to clear the crafting state
+            const updatedResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+              res.x === station.x && res.y === station.y
+                ? { ...res, craftEnd: undefined, craftedItem: undefined }
+                : res
+            );
+            GlobalGridStateTilesAndResources.setResources(updatedResources);
+            setResources(updatedResources);
+
+            successfulCollects[collectedItem] = (successfulCollects[collectedItem] || 0) + finalQtyCollected;
+          }
+          
+          await wait(100); // Avoid overloading server
+        } catch (error) {
+          console.error(`Failed to collect from station at (${station.x}, ${station.y}):`, error);
+        }
+      }
+
+      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+      
+      if (Object.keys(successfulCollects).length > 0) {
+        updateStatus(`🔨 Bulk Crafting complete: ${Object.entries(successfulCollects).map(([t, q]) => `${q} ${t}`).join(', ')}`);
+      } else {
+        updateStatus('Failed to collect any crafted items.');
+      }
+    } catch (error) {
+      console.error('Bulk crafting failed:', error);
+      setErrorMessage('Failed to collect crafted items.');
+    } finally {
+      // End bulk operation tracking
+      endBulkOperation(operationId);
+      
+      // Clear busy overlay when operation completes
+      const npcsCleanup = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+      const workerNPCCleanup = npcsCleanup.find(npc => npc.action === 'worker' && ['Farmer', 'Crafter'].includes(npc.type));
+      if (workerNPCCleanup) {
+        clearNPCOverlay(workerNPCCleanup.id);
+      }
+    }
+  }
+
   const getSkillTooltip = (skillType) => {
     switch (skillType) {
       case 'Bulk Harvest':
@@ -733,6 +899,8 @@ const FarmHandPanel = ({
         return strings[432]; // Add a new string in your strings file if needed
       case 'Better Logging':
         return strings[433]; // Add a new string in your strings file if needed
+      case 'Bulk Crafting':
+        return strings[464]; // Add a new string in your strings file if needed
       default:
         return '';
     }
@@ -772,6 +940,17 @@ const FarmHandPanel = ({
               className="resource-button bulk-skill"
               details={strings[435]}
               onClick={handleLogging}
+            />
+          </div>
+        )}
+        {showBulkCrafting && skills?.some(item => item.type === 'Bulk Crafting') && (
+          <div>
+            <ResourceButton
+              symbol="🛖"
+              name="Bulk Crafting"
+              className="resource-button bulk-skill"
+              details={strings[465]}
+              onClick={handleBulkCrafting}
             />
           </div>
         )}
