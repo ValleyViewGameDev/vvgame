@@ -4776,6 +4776,16 @@
     "ingredient1qty": 10000
   },
   {
+    "type": "Bulk Crafting",
+    "symbol": "🛖",
+    "category": "skill",
+    "source": "Crafter",
+    "qtycollected": 5,
+    "level": 10,
+    "ingredient1": "Money",
+    "ingredient1qty": 50
+  },
+  {
     "type": "Better Axe",
     "symbol": "🪓",
     "category": "upgrade",
