@@ -288,7 +288,6 @@ const CraftingStation = ({
         const finalQtyCollected = baseQtyCollected * skillMultiplier;
 
         console.log('[DEBUG] qtyCollected after multiplier:', finalQtyCollected);
-        FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${collectedItem}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
 
         // Handle NPC spawning client-side
         if (isNPC) {
@@ -298,6 +297,8 @@ const CraftingStation = ({
             // Trigger refresh to update available recipes
             setNpcRefreshKey(prev => prev + 1);
           }
+          // Show floating text for NPCs immediately since they don't need inventory space
+          FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${collectedItem}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
         } else {
           // Only add non-NPC items to inventory
           // Update inventory with buffed quantity
@@ -317,9 +318,12 @@ const CraftingStation = ({
 
           if (!gained) {
             console.error('❌ Failed to add buffed crafted item to inventory.');
+            return; // Exit early - don't clear crafting state if we couldn't collect
           }
         }
 
+        // Only clear crafting state if we successfully collected (or it's an NPC)
+        
         // Track quest progress for all crafted items (both NPCs and regular items)
         await trackQuestProgress(currentPlayer, 'Craft', collectedItem, finalQtyCollected, setCurrentPlayer);
 
