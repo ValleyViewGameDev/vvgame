@@ -4,7 +4,8 @@
     "layoutkey": "GR",
     "category": "tile",
     "action": "grass",
-    "passable": true
+    "passable": true,
+    "MoneyPerMinute": 50
   },
   {
     "type": "s",
@@ -81,7 +82,9 @@
     "maxprice": 1,
     "ingredient4qty": 1,
     "crafttime": 5,
-    "totalnestedtime": 5
+    "totalnestedtime": 5,
+    "seconds": 5,
+    "logvalue": 0.6989700043360189
   },
   {
     "type": "Stub",
@@ -384,7 +387,8 @@
     "ingredient2": "Wood",
     "ingredient2qty": 10,
     "crafttime": 3,
-    "totalnestedtime": 1033
+    "totalnestedtime": 1033,
+    "seconds": 3
   },
   {
     "type": "Mountain",
@@ -642,7 +646,10 @@
     "minprice": 2,
     "maxprice": 4,
     "crafttime": 3,
-    "totalnestedtime": 3
+    "totalnestedtime": 3,
+    "seconds": 3,
+    "logvalue": 0.47712125471966244,
+    "TotalRecipies": 19
   },
   {
     "type": "Stone",
@@ -665,7 +672,10 @@
     "minprice": 21,
     "maxprice": 30,
     "crafttime": 4,
-    "totalnestedtime": 4
+    "totalnestedtime": 4,
+    "seconds": 4,
+    "logvalue": 0.6020599913279624,
+    "TotalRecipies": 10
   },
   {
     "type": "Clay",
@@ -688,7 +698,10 @@
     "minprice": 48,
     "maxprice": 69,
     "crafttime": 5,
-    "totalnestedtime": 5
+    "totalnestedtime": 5,
+    "seconds": 5,
+    "logvalue": 0.6989700043360189,
+    "TotalRecipies": 10
   },
   {
     "type": "Wheat Plot",
@@ -708,7 +721,8 @@
     "validono": true,
     "growtime": 10,
     "crafttime": 10,
-    "totalnestedtime": 10
+    "totalnestedtime": 10,
+    "seconds": 10
   },
   {
     "type": "Carrot Plot",
@@ -730,7 +744,8 @@
     "ingredient1": "Carrot",
     "ingredient1qty": 1,
     "crafttime": 30,
-    "totalnestedtime": 75
+    "totalnestedtime": 75,
+    "seconds": 30
   },
   {
     "type": "Corn Plot",
@@ -753,7 +768,8 @@
     "ingredient1": "Corn",
     "ingredient1qty": 1,
     "crafttime": 300,
-    "totalnestedtime": 600
+    "totalnestedtime": 600,
+    "minutes": 5
   },
   {
     "type": "Sugarcane Plot",
@@ -776,7 +792,8 @@
     "ingredient1": "Sugarcane",
     "ingredient1qty": 1,
     "crafttime": 900,
-    "totalnestedtime": 1800
+    "totalnestedtime": 1800,
+    "minutes": 15
   },
   {
     "type": "Strawberry Plot",
@@ -799,7 +816,8 @@
     "ingredient1": "Strawberry",
     "ingredient1qty": 1,
     "crafttime": 64800,
-    "totalnestedtime": 129600
+    "totalnestedtime": 129600,
+    "hours": 18
   },
   {
     "type": "Apple Tree",
@@ -823,7 +841,8 @@
     "ingredient1": "Apple",
     "ingredient1qty": 1,
     "crafttime": 86400,
-    "totalnestedtime": 129600
+    "totalnestedtime": 129600,
+    "days": 1
   },
   {
     "type": "Lemon Tree",
@@ -847,7 +866,8 @@
     "ingredient1": "Lemon",
     "ingredient1qty": 1,
     "crafttime": 172800,
-    "totalnestedtime": 259200
+    "totalnestedtime": 259200,
+    "days": 2
   },
   {
     "type": "Grape Vine",
@@ -871,7 +891,8 @@
     "ingredient1": "Grapes",
     "ingredient1qty": 1,
     "crafttime": 43200,
-    "totalnestedtime": 64800
+    "totalnestedtime": 64800,
+    "hours": 12
   },
   {
     "type": "Garlic Plot",
@@ -894,7 +915,8 @@
     "ingredient1": "Garlic",
     "ingredient1qty": 1,
     "crafttime": 259200,
-    "totalnestedtime": 518400
+    "totalnestedtime": 518400,
+    "days": 3
   },
   {
     "type": "Olive Tree",
@@ -918,7 +940,8 @@
     "ingredient1": "Olive",
     "ingredient1qty": 1,
     "crafttime": 259200,
-    "totalnestedtime": 388800
+    "totalnestedtime": 388800,
+    "days": 3
   },
   {
     "type": "Tomato Vine",
@@ -942,7 +965,8 @@
     "ingredient1": "Tomato",
     "ingredient1qty": 1,
     "crafttime": 57600,
-    "totalnestedtime": 115200
+    "totalnestedtime": 115200,
+    "hours": 16
   },
   {
     "type": "Oak Tree Plot",
@@ -965,7 +989,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 5,
     "crafttime": 28800,
-    "totalnestedtime": 28825
+    "totalnestedtime": 28825,
+    "hours": 8
   },
   {
     "type": "Wheat",
@@ -988,7 +1013,11 @@
     "minprice": 17,
     "maxprice": 25,
     "crafttime": 10,
-    "totalnestedtime": 10
+    "totalnestedtime": 10,
+    "seconds": 20,
+    "logvalue": 1,
+    "TotalRecipies": 3,
+    "MoneyPerMinute": 150
   },
   {
     "type": "Carrot",
@@ -1011,7 +1040,11 @@
     "minprice": 28,
     "maxprice": 41,
     "crafttime": 45,
-    "totalnestedtime": 45
+    "totalnestedtime": 45,
+    "seconds": 45,
+    "logvalue": 1.6532125137753437,
+    "TotalRecipies": 3,
+    "MoneyPerMinute": 54.666666666666664
   },
   {
     "type": "Corn",
@@ -1035,7 +1068,11 @@
     "minprice": 42,
     "maxprice": 61,
     "crafttime": 300,
-    "totalnestedtime": 300
+    "totalnestedtime": 300,
+    "minutes": 5,
+    "logvalue": 2.4771212547196626,
+    "TotalRecipies": 3,
+    "MoneyPerMinute": 12.2
   },
   {
     "type": "Sugarcane",
@@ -1059,7 +1096,11 @@
     "minprice": 51,
     "maxprice": 73,
     "crafttime": 900,
-    "totalnestedtime": 900
+    "totalnestedtime": 900,
+    "minutes": 15,
+    "logvalue": 2.9542425094393248,
+    "TotalRecipies": 2,
+    "MoneyPerMinute": 4.866666666666666
   },
   {
     "type": "Strawberry",
@@ -1083,7 +1124,11 @@
     "minprice": 84,
     "maxprice": 120,
     "crafttime": 64800,
-    "totalnestedtime": 64800
+    "totalnestedtime": 64800,
+    "hours": 18,
+    "logvalue": 4.811575005870593,
+    "TotalRecipies": 3,
+    "MoneyPerMinute": 0.1111111111111111
   },
   {
     "type": "Apple",
@@ -1107,7 +1152,11 @@
     "minprice": 80,
     "maxprice": 115,
     "crafttime": 43200,
-    "totalnestedtime": 43200
+    "totalnestedtime": 43200,
+    "days": 1,
+    "logvalue": 4.635483746814912,
+    "TotalRecipies": 3,
+    "MoneyPerMinute": 0.1597222222222222
   },
   {
     "type": "Lemon",
@@ -1131,7 +1180,11 @@
     "minprice": 86,
     "maxprice": 123,
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "days": 2,
+    "logvalue": 4.936513742478893,
+    "TotalRecipies": 2,
+    "MoneyPerMinute": 0.08541666666666667
   },
   {
     "type": "Grapes",
@@ -1155,7 +1208,11 @@
     "minprice": 75,
     "maxprice": 108,
     "crafttime": 21600,
-    "totalnestedtime": 21600
+    "totalnestedtime": 21600,
+    "hours": 12,
+    "logvalue": 4.334453751150931,
+    "TotalRecipies": 3,
+    "MoneyPerMinute": 0.3
   },
   {
     "type": "Garlic",
@@ -1179,7 +1236,11 @@
     "minprice": 94,
     "maxprice": 135,
     "crafttime": 259200,
-    "totalnestedtime": 259200
+    "totalnestedtime": 259200,
+    "days": 3,
+    "logvalue": 5.413634997198556,
+    "TotalRecipies": 4,
+    "MoneyPerMinute": 0.03125
   },
   {
     "type": "Olive",
@@ -1203,7 +1264,11 @@
     "minprice": 88,
     "maxprice": 127,
     "crafttime": 129600,
-    "totalnestedtime": 129600
+    "totalnestedtime": 129600,
+    "days": 3,
+    "logvalue": 5.1126050015345745,
+    "TotalRecipies": 4,
+    "MoneyPerMinute": 0.0587962962962963
   },
   {
     "type": "Tomato",
@@ -1227,7 +1292,11 @@
     "minprice": 83,
     "maxprice": 119,
     "crafttime": 57600,
-    "totalnestedtime": 57600
+    "totalnestedtime": 57600,
+    "hours": 16,
+    "logvalue": 4.760422483423212,
+    "TotalRecipies": 4,
+    "MoneyPerMinute": 0.12395833333333334
   },
   {
     "type": "Blueberry",
@@ -1249,7 +1318,11 @@
     "minprice": 86,
     "maxprice": 123,
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "days": 1,
+    "logvalue": 4.936513742478893,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.08541666666666667
   },
   {
     "type": "Milk",
@@ -1273,7 +1346,11 @@
     "minprice": 56,
     "maxprice": 81,
     "crafttime": 1800,
-    "totalnestedtime": 1800
+    "totalnestedtime": 1800,
+    "minutes": 30,
+    "logvalue": 3.255272505103306,
+    "TotalRecipies": 4,
+    "MoneyPerMinute": 2.7
   },
   {
     "type": "Wool",
@@ -1297,7 +1374,11 @@
     "minprice": 144,
     "maxprice": 207,
     "crafttime": 14400,
-    "totalnestedtime": 14400
+    "totalnestedtime": 14400,
+    "hours": 4,
+    "logvalue": 4.158362492095249,
+    "TotalRecipies": 4,
+    "MoneyPerMinute": 0.8625
   },
   {
     "type": "Egg",
@@ -1323,7 +1404,11 @@
     "ingredient1": "Chicken Feed",
     "ingredient1qty": 3,
     "crafttime": 7200,
-    "totalnestedtime": 8790
+    "totalnestedtime": 8790,
+    "hours": 2,
+    "logvalue": 3.9439888750737717,
+    "TotalRecipies": 6,
+    "MoneyPerMinute": 2.013651877133106
   },
   {
     "type": "Flour",
@@ -1348,7 +1433,11 @@
     "ingredient1": "Wheat",
     "ingredient1qty": 6,
     "crafttime": 300,
-    "totalnestedtime": 360
+    "totalnestedtime": 360,
+    "minutes": 5,
+    "logvalue": 2.5563025007672873,
+    "TotalRecipies": 7,
+    "MoneyPerMinute": 31.833333333333332
   },
   {
     "type": "Chicken Feed",
@@ -1377,7 +1466,11 @@
     "ingredient3": "Carrot",
     "ingredient3qty": 2,
     "crafttime": 120,
-    "totalnestedtime": 530
+    "totalnestedtime": 530,
+    "minutes": 2,
+    "logvalue": 2.724275869600789,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 23.09433962264151
   },
   {
     "type": "Sugar",
@@ -1402,7 +1495,11 @@
     "ingredient1": "Sugarcane",
     "ingredient1qty": 4,
     "crafttime": 600,
-    "totalnestedtime": 4200
+    "totalnestedtime": 4200,
+    "minutes": 10,
+    "logvalue": 3.6232492903979003,
+    "TotalRecipies": 4,
+    "MoneyPerMinute": 3.8714285714285714
   },
   {
     "type": "Cornmeal",
@@ -1427,7 +1524,11 @@
     "ingredient1": "Corn",
     "ingredient1qty": 4,
     "crafttime": 28800,
-    "totalnestedtime": 30000
+    "totalnestedtime": 30000,
+    "hours": 8,
+    "logvalue": 4.477121254719663,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.67
   },
   {
     "type": "Lumber",
@@ -1452,7 +1553,11 @@
     "ingredient1": "Wood",
     "ingredient1qty": 20,
     "crafttime": 1800,
-    "totalnestedtime": 1860
+    "totalnestedtime": 1860,
+    "minutes": 30,
+    "logvalue": 3.2695129442179165,
+    "TotalRecipies": 5,
+    "MoneyPerMinute": 5.258064516129032
   },
   {
     "type": "Butter",
@@ -1478,7 +1583,11 @@
     "ingredient1": "Milk",
     "ingredient1qty": 2,
     "crafttime": 600,
-    "totalnestedtime": 4200
+    "totalnestedtime": 4200,
+    "minutes": 10,
+    "logvalue": 3.6232492903979003,
+    "TotalRecipies": 3,
+    "MoneyPerMinute": 5.171428571428572
   },
   {
     "type": "Cream",
@@ -1506,7 +1615,11 @@
     "ingredient2": "Sugar",
     "ingredient2qty": 2,
     "crafttime": 900,
-    "totalnestedtime": 12900
+    "totalnestedtime": 12900,
+    "minutes": 15,
+    "logvalue": 4.110589710299249,
+    "TotalRecipies": 3,
+    "MoneyPerMinute": 1.9116279069767441
   },
   {
     "type": "Cheese",
@@ -1532,7 +1645,11 @@
     "ingredient1": "Milk",
     "ingredient1qty": 4,
     "crafttime": 600,
-    "totalnestedtime": 7800
+    "totalnestedtime": 7800,
+    "minutes": 10,
+    "logvalue": 3.8920946026904804,
+    "TotalRecipies": 2,
+    "MoneyPerMinute": 2.9923076923076923
   },
   {
     "type": "Thread",
@@ -1557,7 +1674,11 @@
     "ingredient1": "Wool",
     "ingredient1qty": 1,
     "crafttime": 300,
-    "totalnestedtime": 14700
+    "totalnestedtime": 14700,
+    "minutes": 5,
+    "logvalue": 4.1673173347481764,
+    "TotalRecipies": 6,
+    "MoneyPerMinute": 0.8489795918367347
   },
   {
     "type": "Cloth",
@@ -1582,7 +1703,11 @@
     "ingredient1": "Wool",
     "ingredient1qty": 4,
     "crafttime": 600,
-    "totalnestedtime": 58200
+    "totalnestedtime": 58200,
+    "minutes": 10,
+    "logvalue": 4.764922984649888,
+    "TotalRecipies": 10,
+    "MoneyPerMinute": 0.49072164948453606
   },
   {
     "type": "Sweater",
@@ -1612,7 +1737,12 @@
     "ingredient3": "Thread",
     "ingredient3qty": 2,
     "crafttime": 3600,
-    "totalnestedtime": 192600
+    "totalnestedtime": 192600,
+    "hours": 1,
+    "logvalue": 5.284656282788515,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.16448598130841122,
+    "isdeadend": true
   },
   {
     "type": "Jacket",
@@ -1644,7 +1774,11 @@
     "ingredient4": "Pelt",
     "ingredient4qty": 2,
     "crafttime": 28800,
-    "totalnestedtime": 275700
+    "totalnestedtime": 275700,
+    "hours": 8,
+    "logvalue": 5.4404367661057735,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.1775843307943417
   },
   {
     "type": "Heavy Jacket",
@@ -1674,7 +1808,12 @@
     "ingredient3": "Bear Skin",
     "ingredient3qty": 1,
     "crafttime": 7200,
-    "totalnestedtime": 499800
+    "totalnestedtime": 499800,
+    "hours": 2,
+    "logvalue": 5.698796251790431,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.1709483793517407,
+    "isdeadend": true
   },
   {
     "type": "Runic Tunic",
@@ -1703,7 +1842,12 @@
     "ingredient3": "Ink",
     "ingredient3qty": 10,
     "crafttime": 86400,
-    "totalnestedtime": 9110850
+    "totalnestedtime": 9110850,
+    "days": 1,
+    "logvalue": 6.959558896521744,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.006868733433214244,
+    "isdeadend": true
   },
   {
     "type": "Bread",
@@ -1730,7 +1874,11 @@
     "ingredient2": "Butter",
     "ingredient2qty": 1,
     "crafttime": 7200,
-    "totalnestedtime": 12120
+    "totalnestedtime": 12120,
+    "hours": 2,
+    "logvalue": 4.083502619830267,
+    "TotalRecipies": 2,
+    "MoneyPerMinute": 3.0297029702970297
   },
   {
     "type": "Cornbread",
@@ -1761,7 +1909,12 @@
     "ingredient4": "Butter",
     "ingredient4qty": 1,
     "crafttime": 14400,
-    "totalnestedtime": 96540
+    "totalnestedtime": 96540,
+    "hours": 4,
+    "logvalue": 4.984707294482673,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.4642635177128651,
+    "isdeadend": true
   },
   {
     "type": "Apple Pie",
@@ -1792,7 +1945,12 @@
     "ingredient4": "Butter",
     "ingredient4qty": 2,
     "crafttime": 1200,
-    "totalnestedtime": 100560
+    "totalnestedtime": 100560,
+    "minutes": 20,
+    "logvalue": 5.0024252646779015,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.44749403341288785,
+    "isdeadend": true
   },
   {
     "type": "Strawberry Pie",
@@ -1823,7 +1981,12 @@
     "ingredient4": "Cream",
     "ingredient4qty": 2,
     "crafttime": 1200,
-    "totalnestedtime": 230160
+    "totalnestedtime": 230160,
+    "minutes": 20,
+    "logvalue": 5.36202984888227,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.20959332638164754,
+    "isdeadend": true
   },
   {
     "type": "Lemon Cookie",
@@ -1854,7 +2017,11 @@
     "ingredient4": "Sugar",
     "ingredient4qty": 4,
     "crafttime": 600,
-    "totalnestedtime": 208140
+    "totalnestedtime": 208140,
+    "minutes": 10,
+    "logvalue": 5.318355550225704,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.2297492072643413
   },
   {
     "type": "Olive Bread",
@@ -1886,7 +2053,11 @@
     "ingredient4": "Rosemary",
     "ingredient4qty": 1,
     "crafttime": 14400,
-    "totalnestedtime": 1097940
+    "totalnestedtime": 1097940,
+    "hours": 4,
+    "logvalue": 6.040578607526734,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.049510902235094814
   },
   {
     "type": "Garlic Bread",
@@ -1914,7 +2085,12 @@
     "ingredient2": "Garlic",
     "ingredient2qty": 3,
     "crafttime": 3600,
-    "totalnestedtime": 793320
+    "totalnestedtime": 793320,
+    "hours": 1,
+    "logvalue": 5.89944840320859,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.08916956587505673,
+    "isdeadend": true
   },
   {
     "type": "Queen's Cake",
@@ -1945,7 +2121,11 @@
     "ingredient4": "Lemon Cookie",
     "ingredient4qty": 4,
     "crafttime": 28800,
-    "totalnestedtime": 1225260
+    "totalnestedtime": 1225260,
+    "hours": 8,
+    "logvalue": 6.088228255707905,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.014886636305763675
   },
   {
     "type": "Tomato Soup",
@@ -1975,7 +2155,12 @@
     "ingredient4": "Cream",
     "ingredient4qty": 3,
     "crafttime": 1800,
-    "totalnestedtime": 1065540
+    "totalnestedtime": 1065540,
+    "minutes": 30,
+    "logvalue": 6.027569757619631,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.06785291964637649,
+    "isdeadend": true
   },
   {
     "type": "Carrot Soup",
@@ -2005,7 +2190,12 @@
     "ingredient4": "Olive Oil",
     "ingredient4qty": 1,
     "crafttime": 2700,
-    "totalnestedtime": 1291770
+    "totalnestedtime": 1291770,
+    "minutes": 45,
+    "logvalue": 6.111185194291551,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.056759330221324227,
+    "isdeadend": true
   },
   {
     "type": "Omelette",
@@ -2036,7 +2226,12 @@
     "ingredient4": "Cream",
     "ingredient4qty": 1,
     "crafttime": 600,
-    "totalnestedtime": 598260
+    "totalnestedtime": 598260,
+    "minutes": 10,
+    "logvalue": 5.7768899666394615,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.11583592418012235,
+    "isdeadend": true
   },
   {
     "type": "Pizza",
@@ -2067,7 +2262,12 @@
     "ingredient4": "Cheese",
     "ingredient4qty": 4,
     "crafttime": 900,
-    "totalnestedtime": 917740
+    "totalnestedtime": 917740,
+    "minutes": 15,
+    "logvalue": 5.962719660984818,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.09741321071327391,
+    "isdeadend": true
   },
   {
     "type": "Honey",
@@ -2093,7 +2293,11 @@
     "ingredient1": "Money",
     "ingredient1qty": 75,
     "crafttime": 86400,
-    "totalnestedtime": 86775
+    "totalnestedtime": 86775,
+    "days": 1,
+    "logvalue": 4.938394622343449,
+    "TotalRecipies": 2,
+    "MoneyPerMinute": 0.5116681071737251
   },
   {
     "type": "Apple Cider",
@@ -2117,7 +2321,12 @@
     "ingredient1": "Apple",
     "ingredient1qty": 12,
     "crafttime": 172800,
-    "totalnestedtime": 691200
+    "totalnestedtime": 691200,
+    "days": 2,
+    "logvalue": 5.839603729470837,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.05060763888888889,
+    "isdeadend": true
   },
   {
     "type": "Wine",
@@ -2145,7 +2354,11 @@
     "ingredient2": "Wood",
     "ingredient2qty": 1,
     "crafttime": 3600,
-    "totalnestedtime": 219603
+    "totalnestedtime": 219603,
+    "hours": 1,
+    "logvalue": 5.341638268722254,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.3647491154492425
   },
   {
     "type": "Port",
@@ -2175,7 +2388,11 @@
     "ingredient3": "Wood",
     "ingredient3qty": 1,
     "crafttime": 3600,
-    "totalnestedtime": 306378
+    "totalnestedtime": 306378,
+    "hours": 1,
+    "logvalue": 5.48625757681686,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.2684918629927736
   },
   {
     "type": "Olive Oil",
@@ -2200,7 +2417,11 @@
     "ingredient1": "Olive",
     "ingredient1qty": 5,
     "crafttime": 7200,
-    "totalnestedtime": 655200
+    "totalnestedtime": 655200,
+    "hours": 2,
+    "logvalue": 5.816373888752362,
+    "TotalRecipies": 3,
+    "MoneyPerMinute": 0.0532051282051282
   },
   {
     "type": "Aged Wine",
@@ -2228,7 +2449,12 @@
     "ingredient2": "Wood",
     "ingredient2qty": 1,
     "crafttime": 43200,
-    "totalnestedtime": 1360821
+    "totalnestedtime": 1360821,
+    "days": 3,
+    "logvalue": 6.133801002628138,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.06759154951312481,
+    "isdeadend": true
   },
   {
     "type": "Pottery",
@@ -2252,7 +2478,11 @@
     "ingredient1": "Clay",
     "ingredient1qty": 3,
     "crafttime": 2700,
-    "totalnestedtime": 2715
+    "totalnestedtime": 2715,
+    "minutes": 45,
+    "logvalue": 3.433769833924866,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 7.580110497237569
   },
   {
     "type": "Furniture",
@@ -2281,7 +2511,11 @@
     "ingredient3": "Thread",
     "ingredient3qty": 2,
     "crafttime": 43200,
-    "totalnestedtime": 134520
+    "totalnestedtime": 134520,
+    "hours": 12,
+    "logvalue": 5.128786858642598,
+    "TotalRecipies": 2,
+    "MoneyPerMinute": 0.45718108831400533
   },
   {
     "type": "Ink",
@@ -2312,7 +2546,11 @@
     "ingredient4": "Tulip",
     "ingredient4qty": 1,
     "crafttime": 14400,
-    "totalnestedtime": 849885
+    "totalnestedtime": 849885,
+    "hours": 4,
+    "logvalue": 5.9293601642504346,
+    "TotalRecipies": 3,
+    "MoneyPerMinute": 0.06276143242909335
   },
   {
     "type": "Urns",
@@ -2341,7 +2579,12 @@
     "ingredient3": "Ink",
     "ingredient3qty": 6,
     "crafttime": 7200,
-    "totalnestedtime": 5117430
+    "totalnestedtime": 5117430,
+    "hours": 2,
+    "logvalue": 6.7090519107733995,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.0157227358263816,
+    "isdeadend": true
   },
   {
     "type": "Rosemary",
@@ -2364,7 +2607,11 @@
     "minprice": 155,
     "maxprice": 222,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "hours": 8,
+    "logvalue": 4.459392487759231,
+    "TotalRecipies": 3,
+    "MoneyPerMinute": 0.4625
   },
   {
     "type": "Mushroom",
@@ -2387,7 +2634,11 @@
     "minprice": 311,
     "maxprice": 445,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "hours": 8,
+    "logvalue": 4.459392487759231,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.9270833333333334
   },
   {
     "type": "Magic Mushroom",
@@ -2410,7 +2661,11 @@
     "minprice": 248,
     "maxprice": 355,
     "crafttime": 3600,
-    "totalnestedtime": 3600
+    "totalnestedtime": 3600,
+    "hours": 1,
+    "logvalue": 3.5563025007672873,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 5.916666666666667
   },
   {
     "type": "Daisy",
@@ -2433,7 +2688,11 @@
     "minprice": 333,
     "maxprice": 476,
     "crafttime": 57600,
-    "totalnestedtime": 57600
+    "totalnestedtime": 57600,
+    "hours": 16,
+    "logvalue": 4.760422483423212,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.49583333333333335
   },
   {
     "type": "Tulip",
@@ -2457,7 +2716,11 @@
     "ingredient1": "Portrait",
     "ingredient1qty": 1,
     "crafttime": 86400,
-    "totalnestedtime": 345600
+    "totalnestedtime": 345600,
+    "days": 1,
+    "logvalue": 5.538573733806856,
+    "TotalRecipies": 2,
+    "MoneyPerMinute": 0.1440972222222222
   },
   {
     "type": "Sunflower",
@@ -2480,7 +2743,11 @@
     "minprice": 518,
     "maxprice": 740,
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "days": 1,
+    "logvalue": 4.936513742478893,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.5138888888888888
   },
   {
     "type": "Feverfew",
@@ -2504,7 +2771,11 @@
     "ingredient1": "Port",
     "ingredient1qty": 24,
     "crafttime": 86400,
-    "totalnestedtime": 7439472
+    "totalnestedtime": 7439472,
+    "days": 1,
+    "logvalue": 6.871542113553467,
+    "TotalRecipies": 2,
+    "MoneyPerMinute": 0.011081431585467356
   },
   {
     "type": "Potion A",
@@ -2532,7 +2803,11 @@
     "ingredient3": "Milk",
     "ingredient3qty": 12,
     "crafttime": 28800,
-    "totalnestedtime": 338400
+    "totalnestedtime": 338400,
+    "hours": 8,
+    "logvalue": 5.529430354366986,
+    "TotalRecipies": 4,
+    "MoneyPerMinute": 0.002304964539007092
   },
   {
     "type": "Potion B",
@@ -2562,7 +2837,11 @@
     "ingredient4": "Garlic",
     "ingredient4qty": 2,
     "crafttime": 57600,
-    "totalnestedtime": 2412000
+    "totalnestedtime": 2412000,
+    "hours": 16,
+    "logvalue": 6.382377303468114,
+    "TotalRecipies": 3,
+    "MoneyPerMinute": 0.00037313432835820896
   },
   {
     "type": "Potion C",
@@ -2592,7 +2871,12 @@
     "ingredient4": "Feverfew",
     "ingredient4qty": 1,
     "crafttime": 129600,
-    "totalnestedtime": 12717642
+    "totalnestedtime": 12717642,
+    "days": 1,
+    "hours": 12,
+    "logvalue": 7.104406595485397,
+    "TotalRecipies": 4,
+    "MoneyPerMinute": 0.0000802035471669984
   },
   {
     "type": "Gem",
@@ -2616,7 +2900,11 @@
     "ingredient1": "Olive Bread",
     "ingredient1qty": 12,
     "crafttime": 3600,
-    "totalnestedtime": 13178880
+    "totalnestedtime": 13178880,
+    "hours": 1,
+    "logvalue": 7.119878503544198,
+    "TotalRecipies": 9,
+    "MoneyPerMinute": 0.00007739656177156177
   },
   {
     "type": "Book",
@@ -2641,7 +2929,11 @@
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "crafttime": 43200,
-    "totalnestedtime": 48200
+    "totalnestedtime": 48200,
+    "hours": 12,
+    "logvalue": 4.68304703823885,
+    "TotalRecipies": 12,
+    "MoneyPerMinute": 0.013692946058091286
   },
   {
     "type": "Pelt",
@@ -2663,7 +2955,11 @@
     "minprice": 155,
     "maxprice": 222,
     "crafttime": 28800,
-    "totalnestedtime": 28800
+    "totalnestedtime": 28800,
+    "hours": 8,
+    "logvalue": 4.459392487759231,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.4625
   },
   {
     "type": "Bear Skin",
@@ -2685,7 +2981,11 @@
     "minprice": 182,
     "maxprice": 261,
     "crafttime": 172800,
-    "totalnestedtime": 172800
+    "totalnestedtime": 172800,
+    "days": 2,
+    "logvalue": 5.237543738142874,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.090625
   },
   {
     "type": "Bones",
@@ -2707,7 +3007,11 @@
     "minprice": 623,
     "maxprice": 890,
     "crafttime": 864000,
-    "totalnestedtime": 864000
+    "totalnestedtime": 864000,
+    "days": 10,
+    "logvalue": 5.936513742478893,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.06180555555555556
   },
   {
     "type": "Silver",
@@ -2731,7 +3035,11 @@
     "ingredient1": "Bones",
     "ingredient1qty": 10,
     "crafttime": 8640000,
-    "totalnestedtime": 17280000
+    "totalnestedtime": 17280000,
+    "days": 500,
+    "logvalue": 7.237543738142874,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.010052083333333333
   },
   {
     "type": "Gold",
@@ -2755,7 +3063,11 @@
     "ingredient1": "King's Crown",
     "ingredient1qty": 1,
     "crafttime": 69120000,
-    "totalnestedtime": 69206400
+    "totalnestedtime": 69206400,
+    "days": 800,
+    "logvalue": 7.840146258563131,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.0033985296157580803
   },
   {
     "type": "Diamond Ring",
@@ -2779,7 +3091,11 @@
     "ingredient1": "Queen's Cake",
     "ingredient1qty": 10,
     "crafttime": 43200000,
-    "totalnestedtime": 55452600
+    "totalnestedtime": 55452600,
+    "days": 500,
+    "logvalue": 7.743921913680508,
+    "TotalRecipies": 0,
+    "MoneyPerMinute": 0.006283204033715281
   },
   {
     "type": "King's Crown",
@@ -2801,7 +3117,11 @@
     "minprice": 8,
     "maxprice": 12,
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "days": 1,
+    "logvalue": 4.936513742478893,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.008333333333333333
   },
   {
     "type": "Portrait",
@@ -2823,7 +3143,11 @@
     "minprice": 94,
     "maxprice": 135,
     "crafttime": 259200,
-    "totalnestedtime": 259200
+    "totalnestedtime": 259200,
+    "days": 3,
+    "logvalue": 5.413634997198556,
+    "TotalRecipies": 1,
+    "MoneyPerMinute": 0.03125
   },
   {
     "type": "Trident",
@@ -2845,7 +3169,10 @@
     "minprice": 8,
     "maxprice": 12,
     "crafttime": 86400,
-    "totalnestedtime": 86400
+    "totalnestedtime": 86400,
+    "days": 1,
+    "logvalue": 4.936513742478893,
+    "TotalRecipies": 0
   },
   {
     "type": "Skeleton Key",
@@ -2867,7 +3194,10 @@
     "minprice": 17,
     "maxprice": 25,
     "crafttime": 10,
-    "totalnestedtime": 10
+    "totalnestedtime": 10,
+    "seconds": 10,
+    "logvalue": 1,
+    "TotalRecipies": 0
   },
   {
     "type": "Golden Key",
@@ -2889,7 +3219,10 @@
     "minprice": 35,
     "maxprice": 50,
     "crafttime": 10,
-    "totalnestedtime": 10
+    "totalnestedtime": 10,
+    "seconds": 10,
+    "logvalue": 1,
+    "TotalRecipies": 0
   },
   {
     "type": "Scroll",
@@ -2912,7 +3245,10 @@
     "minprice": 17,
     "maxprice": 25,
     "crafttime": 10,
-    "totalnestedtime": 10
+    "totalnestedtime": 10,
+    "seconds": 10,
+    "logvalue": 1,
+    "TotalRecipies": 0
   },
   {
     "type": "Prospero's Orb",
@@ -2934,7 +3270,10 @@
     "minprice": 22447,
     "maxprice": 32068,
     "crafttime": 2592000,
-    "totalnestedtime": 2592000
+    "totalnestedtime": 2592000,
+    "days": 30,
+    "logvalue": 6.413634997198556,
+    "TotalRecipies": 0
   },
   {
     "type": "Tent",
@@ -2959,7 +3298,10 @@
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "crafttime": 1,
-    "totalnestedtime": 25001
+    "totalnestedtime": 25001,
+    "seconds": 1,
+    "logvalue": 4.397957380103888,
+    "TotalRecipies": 0
   },
   {
     "type": "Boat",
@@ -2984,7 +3326,10 @@
     "ingredient1": "Money",
     "ingredient1qty": 1000000,
     "crafttime": 1,
-    "totalnestedtime": 5000001
+    "totalnestedtime": 5000001,
+    "seconds": 1,
+    "logvalue": 6.698970091194907,
+    "TotalRecipies": 0
   },
   {
     "type": "Shrine",
@@ -3220,7 +3565,8 @@
     "ingredient2": "Wood",
     "ingredient2qty": 20,
     "crafttime": 0,
-    "totalnestedtime": 310
+    "totalnestedtime": 310,
+    "logvalue": 2.4913616938342726
   },
   {
     "type": "Mill",
@@ -3246,7 +3592,8 @@
     "ingredient2": "Wood",
     "ingredient2qty": 100,
     "crafttime": 0,
-    "totalnestedtime": 2800
+    "totalnestedtime": 2800,
+    "logvalue": 3.4471580313422194
   },
   {
     "type": "Dairy",
@@ -3274,7 +3621,8 @@
     "ingredient3": "Stone",
     "ingredient3qty": 10,
     "crafttime": 0,
-    "totalnestedtime": 10640
+    "totalnestedtime": 10640,
+    "logvalue": 4.0269416279590295
   },
   {
     "type": "Chicken Coop",
@@ -3300,7 +3648,8 @@
     "ingredient2": "Wood",
     "ingredient2qty": 20,
     "crafttime": 0,
-    "totalnestedtime": 25060
+    "totalnestedtime": 25060,
+    "logvalue": 4.3989810666581315
   },
   {
     "type": "Lumber Yard",
@@ -3328,7 +3677,8 @@
     "ingredient3": "Stone",
     "ingredient3qty": 20,
     "crafttime": 0,
-    "totalnestedtime": 18480
+    "totalnestedtime": 18480,
+    "logvalue": 4.266701966884088
   },
   {
     "type": "Loom",
@@ -3354,7 +3704,8 @@
     "ingredient2": "Wood",
     "ingredient2qty": 300,
     "crafttime": 0,
-    "totalnestedtime": 25900
+    "totalnestedtime": 25900,
+    "logvalue": 4.413299764081252
   },
   {
     "type": "Oven",
@@ -3384,7 +3735,8 @@
     "ingredient4": "Clay",
     "ingredient4qty": 30,
     "crafttime": 0,
-    "totalnestedtime": 51470
+    "totalnestedtime": 51470,
+    "logvalue": 4.71155416825017
   },
   {
     "type": "Kitchen",
@@ -3412,7 +3764,8 @@
     "ingredient3": "Clay",
     "ingredient3qty": 40,
     "crafttime": 0,
-    "totalnestedtime": 51400
+    "totalnestedtime": 51400,
+    "logvalue": 4.710963118995275
   },
   {
     "type": "Beehive",
@@ -3438,7 +3791,8 @@
     "ingredient2": "Wood",
     "ingredient2qty": 20,
     "crafttime": 0,
-    "totalnestedtime": 40060
+    "totalnestedtime": 40060,
+    "logvalue": 4.602710944957558
   },
   {
     "type": "Studio",
@@ -3466,7 +3820,8 @@
     "ingredient3": "Clay",
     "ingredient3qty": 80,
     "crafttime": 0,
-    "totalnestedtime": 149800
+    "totalnestedtime": 149800,
+    "logvalue": 5.175511813363448
   },
   {
     "type": "Winery",
@@ -3496,7 +3851,8 @@
     "ingredient4": "Clay",
     "ingredient4qty": 120,
     "crafttime": 0,
-    "totalnestedtime": 175160
+    "totalnestedtime": 175160,
+    "logvalue": 5.243434936520088
   },
   {
     "type": "Library",
@@ -3528,7 +3884,8 @@
     "ingredient4": "Gem",
     "ingredient4qty": 3,
     "crafttime": 0,
-    "totalnestedtime": 40922040
+    "totalnestedtime": 40922040,
+    "logvalue": 7.611957275545004
   },
   {
     "type": "Animal Yard",
@@ -3558,7 +3915,8 @@
     "ingredient3": "Gem",
     "ingredient3qty": 5,
     "crafttime": 0,
-    "totalnestedtime": 66068800
+    "totalnestedtime": 66068800,
+    "logvalue": 7.819996418839329
   },
   {
     "type": "Hospital",
@@ -3591,7 +3949,8 @@
     "ingredient4": "Gem",
     "ingredient4qty": 3,
     "crafttime": 0,
-    "totalnestedtime": 39661240
+    "totalnestedtime": 39661240,
+    "logvalue": 7.598366288203602
   },
   {
     "type": "Cow",
@@ -3619,7 +3978,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "crafttime": 1800,
-    "totalnestedtime": 4300
+    "totalnestedtime": 4300,
+    "minutes": 30
   },
   {
     "type": "Sheep",
@@ -3647,7 +4007,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 2000,
     "crafttime": 14400,
-    "totalnestedtime": 24400
+    "totalnestedtime": 24400,
+    "hours": 4
   },
   {
     "type": "Brown Cow",
@@ -3675,7 +4036,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "crafttime": 86400,
-    "totalnestedtime": 111400
+    "totalnestedtime": 111400,
+    "days": 1
   },
   {
     "type": "Doctor",
@@ -3701,7 +4063,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 250,
     "crafttime": 28800,
-    "totalnestedtime": 30050
+    "totalnestedtime": 30050,
+    "hours": 8
   },
   {
     "type": "Surgeon",
@@ -3727,7 +4090,8 @@
     "ingredient1": "Rosemary",
     "ingredient1qty": 2,
     "crafttime": 43200,
-    "totalnestedtime": 100800
+    "totalnestedtime": 100800,
+    "hours": 12
   },
   {
     "type": "Fairy",
@@ -3751,7 +4115,8 @@
     "ingredient1": "Feverfew",
     "ingredient1qty": 1,
     "crafttime": 86400,
-    "totalnestedtime": 7525872
+    "totalnestedtime": 7525872,
+    "days": 1
   },
   {
     "type": "Kent",
@@ -3776,7 +4141,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "crafttime": 3,
-    "totalnestedtime": 5003
+    "totalnestedtime": 5003,
+    "seconds": 3
   },
   {
     "type": "Portia",
@@ -3819,7 +4185,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "crafttime": 3,
-    "totalnestedtime": 5003
+    "totalnestedtime": 5003,
+    "seconds": 3
   },
   {
     "type": "Hotspur",
@@ -4143,7 +4510,7 @@
     "action": "worker",
     "passable": false,
     "repeatable": false,
-    "requires": "Grower",
+    "requires": "Farmer",
     "qtycollected": 1,
     "validong": false,
     "validond": false,
@@ -4156,7 +4523,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 2000,
     "crafttime": 5,
-    "totalnestedtime": 10005
+    "totalnestedtime": 10005,
+    "seconds": 5
   },
   {
     "type": "Farm Hand",
@@ -4182,7 +4550,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "crafttime": 28800,
-    "totalnestedtime": 78800
+    "totalnestedtime": 78800,
+    "hours": 8
   },
   {
     "type": "Rancher",
@@ -4208,7 +4577,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "crafttime": 28800,
-    "totalnestedtime": 78800
+    "totalnestedtime": 78800,
+    "hours": 8
   },
   {
     "type": "Lumberjack",
@@ -4234,7 +4604,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "crafttime": 28800,
-    "totalnestedtime": 78800
+    "totalnestedtime": 78800,
+    "hours": 8
   },
   {
     "type": "Crafter",
@@ -4260,7 +4631,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "crafttime": 28800,
-    "totalnestedtime": 78800
+    "totalnestedtime": 78800,
+    "hours": 8
   },
   {
     "type": "Coyote",
@@ -4669,7 +5041,8 @@
     "qtycollected": 1,
     "level": 6,
     "ingredient1": "Money",
-    "ingredient1qty": 500
+    "ingredient1qty": 500,
+    "logvalue": 0
   },
   {
     "type": "Green Thumb",
@@ -4680,7 +5053,8 @@
     "qtycollected": 1,
     "level": 7,
     "ingredient1": "Money",
-    "ingredient1qty": 5000
+    "ingredient1qty": 5000,
+    "logvalue": 0
   },
   {
     "type": "Husbandry",
@@ -4690,7 +5064,8 @@
     "qtycollected": 1,
     "level": 8,
     "ingredient1": "Money",
-    "ingredient1qty": 500
+    "ingredient1qty": 500,
+    "logvalue": 0
   },
   {
     "type": "Bulk Animal Collect",
@@ -4710,7 +5085,8 @@
     "qtycollected": 1,
     "level": 9,
     "ingredient1": "Money",
-    "ingredient1qty": 50
+    "ingredient1qty": 50,
+    "logvalue": 0
   },
   {
     "type": "Pickaxe",
@@ -4720,7 +5096,8 @@
     "qtycollected": 1,
     "level": 9,
     "ingredient1": "Money",
-    "ingredient1qty": 75
+    "ingredient1qty": 75,
+    "logvalue": 0
   },
   {
     "type": "Builder",
@@ -4730,7 +5107,8 @@
     "qtycollected": 1,
     "level": 9,
     "ingredient1": "Money",
-    "ingredient1qty": 1000
+    "ingredient1qty": 1000,
+    "logvalue": 0
   },
   {
     "type": "Bulk Harvest",
@@ -4780,10 +5158,20 @@
     "symbol": "🛖",
     "category": "skill",
     "source": "Crafter",
-    "qtycollected": 5,
+    "qtycollected": 1,
     "level": 10,
     "ingredient1": "Money",
     "ingredient1qty": 50
+  },
+  {
+    "type": "Bulk Restart Craft",
+    "symbol": "🛖",
+    "category": "skill",
+    "source": "Crafter",
+    "qtycollected": 1,
+    "level": 10,
+    "ingredient1": "Money",
+    "ingredient1qty": 5000
   },
   {
     "type": "Better Axe",
@@ -4795,7 +5183,8 @@
     "qtycollected": 1,
     "level": 10,
     "ingredient1": "Money",
-    "ingredient1qty": 5000
+    "ingredient1qty": 5000,
+    "logvalue": 0
   },
   {
     "type": "Better Pickaxe",
@@ -4807,7 +5196,8 @@
     "qtycollected": 1,
     "level": 10,
     "ingredient1": "Money",
-    "ingredient1qty": 6000
+    "ingredient1qty": 6000,
+    "logvalue": 0
   },
   {
     "type": "Storehouse",
@@ -4825,7 +5215,8 @@
     "ingredient3": "Stone",
     "ingredient3qty": 10,
     "ingredient4": "Clay",
-    "ingredient4qty": 3
+    "ingredient4qty": 3,
+    "logvalue": 0
   },
   {
     "type": "Depot",
@@ -4890,7 +5281,8 @@
     "qtycollected": 1,
     "level": 10,
     "ingredient1": "Money",
-    "ingredient1qty": 5000
+    "ingredient1qty": 5000,
+    "logvalue": 0
   },
   {
     "type": "Mechanics",
@@ -4900,7 +5292,8 @@
     "qtycollected": 1,
     "level": 10,
     "ingredient1": "Money",
-    "ingredient1qty": 1000
+    "ingredient1qty": 1000,
+    "logvalue": 0
   },
   {
     "type": "Chemistry",
@@ -4913,7 +5306,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 12000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 1
+    "ingredient2qty": 1,
+    "logvalue": 0
   },
   {
     "type": "Cooking",
@@ -4926,7 +5320,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 12000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 5
+    "ingredient2qty": 5,
+    "logvalue": 0
   },
   {
     "type": "Baker",
@@ -4939,7 +5334,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 15000,
     "ingredient2": "Potion B",
-    "ingredient2qty": 5
+    "ingredient2qty": 5,
+    "logvalue": 0
   },
   {
     "type": "Textiles",
@@ -4952,7 +5348,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 25000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 5
+    "ingredient2qty": 5,
+    "logvalue": 0
   },
   {
     "type": "Artistry",
@@ -4965,7 +5362,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 40000,
     "ingredient2": "Potion B",
-    "ingredient2qty": 5
+    "ingredient2qty": 5,
+    "logvalue": 0
   },
   {
     "type": "Winemaker",
@@ -4978,7 +5376,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "ingredient2": "Potion C",
-    "ingredient2qty": 1
+    "ingredient2qty": 1,
+    "logvalue": 0
   },
   {
     "type": "Beekeeper",
@@ -4991,7 +5390,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "ingredient2": "Potion C",
-    "ingredient2qty": 20
+    "ingredient2qty": 20,
+    "logvalue": 0
   },
   {
     "type": "Tailor",
@@ -5004,7 +5404,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "ingredient2": "Potion C",
-    "ingredient2qty": 100
+    "ingredient2qty": 100,
+    "logvalue": 0
   },
   {
     "type": "Politics",
@@ -5015,7 +5416,8 @@
     "qtycollected": 1,
     "level": 11,
     "ingredient1": "Money",
-    "ingredient1qty": 9000
+    "ingredient1qty": 9000,
+    "logvalue": 0
   },
   {
     "type": "Education",
@@ -5028,7 +5430,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "ingredient2": "Gem",
-    "ingredient2qty": 1
+    "ingredient2qty": 1,
+    "logvalue": 0
   },
   {
     "type": "Livestock",
@@ -5041,7 +5444,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 7000,
     "ingredient2": "Gem",
-    "ingredient2qty": 5
+    "ingredient2qty": 5,
+    "logvalue": 0
   },
   {
     "type": "Law",
@@ -5054,7 +5458,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 25000,
     "ingredient2": "Gem",
-    "ingredient2qty": 10
+    "ingredient2qty": 10,
+    "logvalue": 0
   },
   {
     "type": "Medicine",
@@ -5067,7 +5472,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 12000,
     "ingredient2": "Gem",
-    "ingredient2qty": 20
+    "ingredient2qty": 20,
+    "logvalue": 0
   },
   {
     "type": "Surgery",
@@ -5080,7 +5486,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 18000,
     "ingredient2": "Gem",
-    "ingredient2qty": 40
+    "ingredient2qty": 40,
+    "logvalue": 0
   },
   {
     "type": "Backpack",
@@ -5093,7 +5500,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 50,
     "ingredient2": "Cloth",
-    "ingredient2qty": 1
+    "ingredient2qty": 1,
+    "logvalue": 0
   },
   {
     "type": "Rucksack",
@@ -5109,7 +5517,8 @@
     "ingredient2": "Cloth",
     "ingredient2qty": 10,
     "ingredient3": "Thread",
-    "ingredient3qty": 1
+    "ingredient3qty": 1,
+    "logvalue": 0
   },
   {
     "type": "Enchanted Pack",
@@ -5125,7 +5534,8 @@
     "ingredient2": "Cloth",
     "ingredient2qty": 10,
     "ingredient3": "Book",
-    "ingredient3qty": 5
+    "ingredient3qty": 5,
+    "logvalue": 0
   },
   {
     "type": "Horse",
@@ -5135,7 +5545,8 @@
     "qtycollected": 1,
     "level": 11,
     "ingredient1": "Money",
-    "ingredient1qty": 3000
+    "ingredient1qty": 3000,
+    "logvalue": 0
   },
   {
     "type": "Combat",
@@ -5147,7 +5558,8 @@
     "qtycollected": 1,
     "level": 11,
     "ingredient1": "Money",
-    "ingredient1qty": 8000
+    "ingredient1qty": 8000,
+    "logvalue": 0
   },
   {
     "type": "Tracking",
@@ -5159,7 +5571,8 @@
     "qtycollected": 1,
     "level": 9,
     "ingredient1": "Money",
-    "ingredient1qty": 12000
+    "ingredient1qty": 12000,
+    "logvalue": 0
   },
   {
     "type": "Scout",
@@ -5171,7 +5584,8 @@
     "qtycollected": 1,
     "level": 9,
     "ingredient1": "Money",
-    "ingredient1qty": 15000
+    "ingredient1qty": 15000,
+    "logvalue": 0
   },
   {
     "type": "Force",
@@ -5183,7 +5597,8 @@
     "qtycollected": 7,
     "level": 8,
     "ingredient1": "Money",
-    "ingredient1qty": 8000
+    "ingredient1qty": 8000,
+    "logvalue": 0
   },
   {
     "type": "Wrath",
@@ -5211,7 +5626,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "ingredient2": "Book",
-    "ingredient2qty": 12
+    "ingredient2qty": 12,
+    "logvalue": 0
   },
   {
     "type": "Jab",
@@ -5223,7 +5639,8 @@
     "qtycollected": -2,
     "level": 8,
     "ingredient1": "Money",
-    "ingredient1qty": 9000
+    "ingredient1qty": 9000,
+    "logvalue": 0
   },
   {
     "type": "Flurry",
@@ -5237,7 +5654,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "ingredient2": "Book",
-    "ingredient2qty": 2
+    "ingredient2qty": 2,
+    "logvalue": 0
   },
   {
     "type": "Barrage",
@@ -5263,7 +5681,8 @@
     "qtycollected": 2,
     "level": 8,
     "ingredient1": "Money",
-    "ingredient1qty": 8000
+    "ingredient1qty": 8000,
+    "logvalue": 0
   },
   {
     "type": "Precision",
@@ -5277,7 +5696,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "ingredient2": "Book",
-    "ingredient2qty": 6
+    "ingredient2qty": 6,
+    "logvalue": 0
   },
   {
     "type": "Horizon Eye",
@@ -5305,7 +5725,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 7000,
     "ingredient2": "Cloth",
-    "ingredient2qty": 10
+    "ingredient2qty": 10,
+    "logvalue": 0
   },
   {
     "type": "Armor",
@@ -5323,7 +5744,8 @@
     "ingredient3": "Cloth",
     "ingredient3qty": 10,
     "ingredient4": "Silver",
-    "ingredient4qty": 10
+    "ingredient4qty": 10,
+    "logvalue": 0
   },
   {
     "type": "Blessed Veil",
@@ -5341,7 +5763,8 @@
     "ingredient3": "Cloth",
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
-    "ingredient4qty": 1
+    "ingredient4qty": 1,
+    "logvalue": 0
   },
   {
     "type": "Steady Hand",
