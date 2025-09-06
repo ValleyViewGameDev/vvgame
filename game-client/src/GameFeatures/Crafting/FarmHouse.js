@@ -295,7 +295,7 @@ const FarmHouse = ({
         const finalQtyCollected = baseQtyCollected * skillMultiplier;
 
         console.log('[DEBUG] qtyCollected after multiplier:', finalQtyCollected);
-        FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${collectedItem}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+        FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
 
         // Handle NPC spawning client-side
         if (isNPC) {

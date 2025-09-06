@@ -9,6 +9,7 @@ import { canAfford } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate, gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
+import { getLocalizedString } from '../../Utils/stringLookup';
 import { handleDooberClick, handleSourceConversion } from '../../ResourceClicking'; // adjust path if necessary
 import FloatingTextManager from '../../UI/FloatingText';
 import NPCsInGridManager from "../../GridState/GridStateNPCs";
@@ -509,7 +510,8 @@ const FarmHandPanel = ({
               setCurrentPlayer,
               updateStatus,
               masterResources,
-              masterSkills
+              masterSkills,
+              strings
             );
             await wait(100);
           } else {
@@ -664,6 +666,7 @@ const FarmHandPanel = ({
           updateStatus,
           masterResources,
           masterSkills,
+          strings
         );
 
         // Handle replanting if selected
@@ -881,7 +884,7 @@ const FarmHandPanel = ({
 
             const finalQtyCollected = skillMultiplier;
             
-            FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${collectedItem}`, station.x, station.y, TILE_SIZE);
+            FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${getLocalizedString(collectedItem, strings)}`, station.x, station.y, TILE_SIZE);
 
             // Handle NPC spawning client-side
             if (isNPC) {
@@ -1280,7 +1283,7 @@ const FarmHandPanel = ({
                     style={{ marginRight: '10px', width: '20px' }}
                   />
                   <span style={{ marginRight: '10px', width: '30px' }}>{crop.symbol}</span>
-                  <span style={{ marginRight: '10px', width: '100px', fontWeight: 'bold' }}>{crop.type}</span>
+                  <span style={{ marginRight: '10px', width: '100px', fontWeight: 'bold' }}>{getLocalizedString(crop.type, strings)}</span>
                   <span style={{ marginRight: '10px', width: '60px', color: '#666' }}>({crop.count})</span>
                   
                   {showBulkReplant && (() => {
@@ -1376,7 +1379,7 @@ const FarmHandPanel = ({
                     style={{ marginRight: '10px' }}
                   />
                   <span style={{ marginRight: '10px' }}>{animal.symbol}</span>
-                  <span style={{ marginRight: '10px', fontWeight: 'bold' }}>{animal.type}</span>
+                  <span style={{ marginRight: '10px', fontWeight: 'bold' }}>{getLocalizedString(animal.type, strings)}</span>
                   <span style={{ color: '#666' }}>({animal.count})</span>
                 </div>
               ))}
@@ -1484,8 +1487,8 @@ const FarmHandPanel = ({
                     />
                     <span style={{ marginRight: '10px', width: '30px' }}>{group.stationSymbol}</span>
                     <span style={{ marginRight: '10px', width: '30px' }}>{group.craftedSymbol}</span>
-                    <span style={{ marginRight: '10px', width: '120px', fontWeight: 'bold' }}>{group.stationType}</span>
-                    <span style={{ marginRight: '10px', width: '120px' }}>{group.craftedItem}</span>
+                    <span style={{ marginRight: '10px', width: '120px', fontWeight: 'bold' }}>{getLocalizedString(group.stationType, strings)}</span>
+                    <span style={{ marginRight: '10px', width: '120px' }}>{getLocalizedString(group.craftedItem, strings)}</span>
                     <span style={{ marginRight: '10px', width: '60px', color: '#666' }}>({group.count})</span>
                     
                     {hasBulkRestartCraft && (

@@ -10,6 +10,7 @@ import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
 import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
 import { createCollectEffect, createSourceConversionEffect, calculateTileCenter } from './VFX/VFX';
 import { useStrings } from './UI/StringsContext';
+import { getLocalizedString } from './Utils/stringLookup';
  
  // Handles resource click actions based on category. //
  export async function handleResourceClick(
@@ -84,7 +85,8 @@ import { useStrings } from './UI/StringsContext';
           setCurrentPlayer,
           updateStatus,
           masterResources,
-          masterSkills // Pass tuning data
+          masterSkills, // Pass tuning data
+          strings
         );
         break;
 
@@ -186,7 +188,8 @@ export async function handleDooberClick(
   setCurrentPlayer,
   updateStatus,
   masterResources,
-  masterSkills
+  masterSkills,
+  strings = {}
 ) {
   console.log('handleDooberClick: Current Player:', currentPlayer);
   console.log('handleDooberClick: Current backpack:', backpack);
@@ -252,7 +255,7 @@ export async function handleDooberClick(
     
     // Only show VFX and floating text after successful collection
     createCollectEffect(col, row, TILE_SIZE);
-    FloatingTextManager.addFloatingText(`+${qtyCollected} ${resource.type}`, col, row, TILE_SIZE );
+    FloatingTextManager.addFloatingText(`+${qtyCollected} ${getLocalizedString(resource.type, strings)}`, col, row, TILE_SIZE );
     if (skillMultiplier != 1) {
       const skillAppliedText =
         `${playerBuffs.join(', ')} skill applied (${skillMultiplier}x collected).`;
