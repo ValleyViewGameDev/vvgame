@@ -304,6 +304,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                         <button className="close-button" onClick={() => setShowBackpackModal(false)}>✖</button>
                         <h2>{isAtHome ? strings[187] : strings[193]}</h2>
 
+                        <div className="inventory-modal-scroll">
                         <table>
                             <thead>
                                 <tr>
@@ -379,6 +380,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                         >
                             {isAtHome ? strings[189] : strings[190]}
                         </button>
+                        </div>
                     </div>
                 );
             })()}
@@ -388,6 +390,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     <button className="close-button" onClick={() => setShowWarehouseModal(false)}>✖</button>
                     <h2>{strings[193]}</h2>
 
+                    <div className="inventory-modal-scroll">
                     <table>
                         <thead>
                             <tr>
@@ -457,6 +460,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     >
                         {strings[190]}
                     </button>
+                    </div>
                 </div>
             )}
         </Panel>

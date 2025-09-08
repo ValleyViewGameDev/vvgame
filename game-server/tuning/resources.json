@@ -4143,7 +4143,6 @@
     "action": "worker",
     "passable": false,
     "repeatable": false,
-    "requires": "Farmer",
     "qtycollected": 1,
     "validong": false,
     "validond": false,

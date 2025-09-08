@@ -1467,7 +1467,7 @@ const FarmHandPanel = ({
           size="medium"
         >
           <div style={{ padding: '20px', fontSize: '16px' }}>
-            <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
+            <div style={{ marginBottom: '15px', display: 'flex', gap: '10px', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button 
                   onClick={() => {
@@ -1490,7 +1490,7 @@ const FarmHandPanel = ({
               </div>
               
               {hasBulkRestartCraft && (
-                <div style={{ display: 'flex', gap: '10px', marginLeft: '180px' }}>
+                <div style={{ display: 'flex', gap: '10px', marginLeft: 'auto' }}>
                   <button 
                     onClick={() => {
                       const allSelected = {};
@@ -1518,14 +1518,14 @@ const FarmHandPanel = ({
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', fontWeight: 'bold', borderBottom: '1px solid #ccc', paddingBottom: '5px' }}>
                 <span style={{ marginRight: '10px', width: '20px' }}></span>
                 <span style={{ marginRight: '10px', width: '30px' }}></span>
-                <span style={{ marginRight: '10px', width: '30px' }}></span>
-                <span style={{ marginRight: '10px', width: '120px' }}>Station</span>
-                <span style={{ marginRight: '10px', width: '120px' }}>Item</span>
-                <span style={{ marginRight: '10px', width: '60px' }}>Count</span>
+                <span style={{ marginRight: '10px', width: '120px' }}>{strings[476]}</span>
+                <span style={{ marginRight: '10px', width: '120px' }}>{strings[161]}</span>
+                <span style={{ marginRight: '10px', width: '40px' }}>{strings[164]}</span>
                 {hasBulkRestartCraft && (
                   <>
                     <span style={{ marginRight: '10px', width: '80px' }}></span>
-                    <span style={{ width: '80px' }}>Restart?</span>
+                    <span style={{ marginRight: '10px', width: '80px' }}>{strings[475]}</span>
+                    <span style={{ width: '200px' }}>{strings[177]}</span> {/* "Need" */}
                   </>
                 )}
               </div>
@@ -1552,12 +1552,12 @@ const FarmHandPanel = ({
                       style={{ marginRight: '10px', width: '20px' }}
                     />
                     <span style={{ marginRight: '10px', width: '30px' }}>{group.stationSymbol}</span>
-                    <span style={{ marginRight: '10px', width: '30px' }}>{group.craftedSymbol}</span>
                     <span style={{ marginRight: '10px', width: '120px' }}>{getLocalizedString(group.stationType, strings)}</span>
                     <span style={{ marginRight: '10px', width: '120px', fontWeight: 'bold' }}>{getLocalizedString(group.craftedItem, strings)}</span>
                     <span style={{ marginRight: '10px', width: '60px', color: '#666' }}>({group.count})</span>
                     
                     {hasBulkRestartCraft && (
+                      <>
                       <div style={{ marginLeft: '60px', width: '80px', display: 'flex', justifyContent: 'center' }}>
                         <input
                           type="checkbox"
@@ -1575,6 +1575,66 @@ const FarmHandPanel = ({
                           title="Restart crafting after collection"
                         />
                       </div>
+                      
+                      {/* Need column */}
+                      <div style={{ width: '200px' }}>
+                        {(() => {
+                          // Get the crafted item's recipe from masterResources
+                          const craftedResource = masterResources.find(r => r.type === group.craftedItem);
+                          if (!craftedResource) return <span style={{ color: '#666' }}>-</span>;
+                          
+                          // Collect ingredients from ingredient1, ingredient2, etc.
+                          const ingredients = [];
+                          for (let i = 1; i <= 5; i++) {
+                            const ingredientType = craftedResource[`ingredient${i}`];
+                            const ingredientQty = craftedResource[`ingredient${i}qty`];
+                            if (ingredientType) {
+                              ingredients.push({ type: ingredientType, quantity: ingredientQty || 1 });
+                            }
+                          }
+                          
+                          if (ingredients.length === 0) return <span style={{ color: '#666' }}>-</span>;
+                          
+                          const playerInventory = {};
+                          
+                          // Combine inventory and backpack
+                          [...(inventory || []), ...(backpack || [])].forEach(item => {
+                            playerInventory[item.type] = (playerInventory[item.type] || 0) + item.quantity;
+                          });
+                          
+                          // Check if player has all required ingredients
+                          let hasAllIngredients = true;
+                          const ingredientElements = ingredients.map((ing, idx) => {
+                            const needed = ing.quantity * group.count;
+                            const has = playerInventory[ing.type] || 0;
+                            const hasEnough = has >= needed;
+                            if (!hasEnough) hasAllIngredients = false;
+                            
+                            const ingredientResource = masterResources.find(r => r.type === ing.type);
+                            const symbol = ingredientResource?.symbol || '?';
+                            
+                            return (
+                              <div key={idx} style={{ 
+                                color: hasEnough ? '#666' : 'red'
+                              }}>
+                                {symbol} {needed} / {has}
+                              </div>
+                            );
+                          });
+                          
+                          return (
+                            <div style={{ 
+                              display: 'flex', 
+                              flexDirection: 'column',
+                              gap: '2px',
+                              color: hasAllIngredients ? '#666' : 'red'
+                            }}>
+                              {ingredientElements}
+                            </div>
+                          );
+                        })()}
+                      </div>
+                      </>
                     )}
                   </div>
                 );

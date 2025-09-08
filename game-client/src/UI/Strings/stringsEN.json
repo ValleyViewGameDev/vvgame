@@ -207,13 +207,14 @@
     "464": "Purchase Bulk Crafting to collect from ready crafting stations all at once.",
     "465": "Click to instantly collect from all ready crafting stations.",
     "466": "You have no crafting stations ready to collect from.",
-    "467": "Bulk craft collect complete: ",
     "468": "Restarted: ",
     "469": "Selective Animal Collect complete: ",
-    "472": "Selective Crop Harvest complete: ",
-
     "470": "Cannot travel right now, farming actions in progress.",
     "471": "⚠️ Already in progress.",
+    "472": "Selective Crop Harvest complete: ",
+    "475": "Restart?",
+    "476": "Station",
+        
     "490": "Sell for refund (Dev only)",
 
     "500": "COMBAT STRINGS",
@@ -291,7 +292,6 @@
     "1005": "Acquire Skills and Upgrades to improve various attributes. Make sure to explore the Town to find additional places and ways to gain Skills and Upgrades.",
     "1006": "Manage your ongoing To Do list here. Look for quest-giving characters on your homestead as well as Town, or even the Valley.",
     "1007": "Governments in Valley View are formed at the settlement level. The elected mayor implements policies and builds buildings to help the community thrive.",
-    "1008": "Trade Stall: Sell your resources to other players or buy items from their trade stalls. Use the arrows to navigate between trade stalls within your Settlement. If no players buy your items before the timer expires, you can sell them to the game for fraction of their base value.",
     "1009": "[Crafting description]",
     "1010": "[Mailbox description]",
     "1011": "This Animal Stall is empty. Make sure animals have grass to eat, and they will eventually come to the stall for harvesting.",
@@ -1000,6 +1000,10 @@
     "4010": "Already have a profile?",
 
         "199": "Gold Pass holders have near unlimited inventory.",
+    "1008": "Buy and sell with other players. Use the arrows to navigate between active traders in your Settlement. If no players buy your items before the timer expires, sell them to the game for a fraction of their base value.",
+
+    "467": "Bulk Crafting",
+
 
     "1001": "Resources collected at the homestead go into the warehouse. Resources collected in town or in the valley will go into the backpack. To buy a backpack, visit the Store in town. To empty the backpack or warehouse, use the Manage buttons.",
     "723": "💪 Grower",

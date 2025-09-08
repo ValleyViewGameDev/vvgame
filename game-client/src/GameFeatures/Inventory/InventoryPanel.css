@@ -92,3 +92,10 @@
   margin-bottom: 10px;
   font-style: italic;
 }
+
+/* Scrollable content for inventory modal */
+.inventory-modal-scroll {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
