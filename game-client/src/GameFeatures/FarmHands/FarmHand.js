@@ -813,11 +813,39 @@ const FarmHandPanel = ({
     });
     setSelectedCraftingStations(defaultSelection);
     
-    // If player has Bulk Restart Craft skill, pre-select all restart options
+    // If player has Bulk Restart Craft skill, pre-select restart options only if player has enough ingredients
     if (hasBulkRestartCraft) {
       const defaultRestartSelection = {};
+      const playerInventory = {};
+      
+      // Combine inventory and backpack
+      [...(inventory || []), ...(backpack || [])].forEach(item => {
+        playerInventory[item.type] = (playerInventory[item.type] || 0) + item.quantity;
+      });
+      
       stationsWithDetails.forEach(group => {
-        defaultRestartSelection[`${group.stationType}-${group.craftedItem}`] = true;
+        const craftedResource = masterResources.find(r => r.type === group.craftedItem);
+        if (craftedResource) {
+          // Check if player has all ingredients
+          let hasAllIngredients = true;
+          for (let i = 1; i <= 5; i++) {
+            const ingredientType = craftedResource[`ingredient${i}`];
+            const ingredientQty = craftedResource[`ingredient${i}qty`] || 1;
+            if (ingredientType) {
+              const needed = ingredientQty * group.count;
+              const has = playerInventory[ingredientType] || 0;
+              if (has < needed) {
+                hasAllIngredients = false;
+                break;
+              }
+            }
+          }
+          
+          // Only pre-select if player has all ingredients
+          if (hasAllIngredients) {
+            defaultRestartSelection[`${group.stationType}-${group.craftedItem}`] = true;
+          }
+        }
       });
       setSelectedRestartStations(defaultRestartSelection);
     } else {
@@ -1556,55 +1584,29 @@ const FarmHandPanel = ({
                     <span style={{ marginRight: '10px', width: '120px', fontWeight: 'bold' }}>{getLocalizedString(group.craftedItem, strings)}</span>
                     <span style={{ marginRight: '10px', width: '60px', color: '#666' }}>({group.count})</span>
                     
-                    {hasBulkRestartCraft && (
-                      <>
-                      <div style={{ marginLeft: '60px', width: '80px', display: 'flex', justifyContent: 'center' }}>
-                        <input
-                          type="checkbox"
-                          checked={selectedRestartStations[key] || false}
-                          onChange={(e) => {
-                            setSelectedRestartStations(prev => ({
-                              ...prev,
-                              [key]: e.target.checked
-                            }));
-                          }}
-                          style={{ 
-                            width: '20px',
-                            cursor: 'pointer'
-                          }}
-                          title="Restart crafting after collection"
-                        />
-                      </div>
+                    {hasBulkRestartCraft && (() => {
+                      // Calculate if player has enough ingredients
+                      const craftedResource = masterResources.find(r => r.type === group.craftedItem);
+                      let hasAllIngredients = true;
+                      let ingredientElements = [];
                       
-                      {/* Need column */}
-                      <div style={{ width: '200px' }}>
-                        {(() => {
-                          // Get the crafted item's recipe from masterResources
-                          const craftedResource = masterResources.find(r => r.type === group.craftedItem);
-                          if (!craftedResource) return <span style={{ color: '#666' }}>-</span>;
-                          
-                          // Collect ingredients from ingredient1, ingredient2, etc.
-                          const ingredients = [];
-                          for (let i = 1; i <= 5; i++) {
-                            const ingredientType = craftedResource[`ingredient${i}`];
-                            const ingredientQty = craftedResource[`ingredient${i}qty`];
-                            if (ingredientType) {
-                              ingredients.push({ type: ingredientType, quantity: ingredientQty || 1 });
-                            }
+                      if (craftedResource) {
+                        const ingredients = [];
+                        for (let i = 1; i <= 5; i++) {
+                          const ingredientType = craftedResource[`ingredient${i}`];
+                          const ingredientQty = craftedResource[`ingredient${i}qty`];
+                          if (ingredientType) {
+                            ingredients.push({ type: ingredientType, quantity: ingredientQty || 1 });
                           }
-                          
-                          if (ingredients.length === 0) return <span style={{ color: '#666' }}>-</span>;
-                          
+                        }
+                        
+                        if (ingredients.length > 0) {
                           const playerInventory = {};
-                          
-                          // Combine inventory and backpack
                           [...(inventory || []), ...(backpack || [])].forEach(item => {
                             playerInventory[item.type] = (playerInventory[item.type] || 0) + item.quantity;
                           });
                           
-                          // Check if player has all required ingredients
-                          let hasAllIngredients = true;
-                          const ingredientElements = ingredients.map((ing, idx) => {
+                          ingredientElements = ingredients.map((ing, idx) => {
                             const needed = ing.quantity * group.count;
                             const has = playerInventory[ing.type] || 0;
                             const hasEnough = has >= needed;
@@ -1621,21 +1623,55 @@ const FarmHandPanel = ({
                               </div>
                             );
                           });
+                        } else {
+                          hasAllIngredients = false;
+                        }
+                      } else {
+                        hasAllIngredients = false;
+                      }
+                      
+                      return (
+                        <>
+                          <div style={{ marginLeft: '60px', width: '80px', display: 'flex', justifyContent: 'center' }}>
+                            <input
+                              type="checkbox"
+                              checked={hasAllIngredients ? (selectedRestartStations[key] || false) : false}
+                              onChange={(e) => {
+                                if (hasAllIngredients) {
+                                  setSelectedRestartStations(prev => ({
+                                    ...prev,
+                                    [key]: e.target.checked
+                                  }));
+                                }
+                              }}
+                              disabled={!hasAllIngredients}
+                              style={{ 
+                                width: '20px',
+                                cursor: hasAllIngredients ? 'pointer' : 'not-allowed',
+                                opacity: hasAllIngredients ? 1 : 0.5
+                              }}
+                              title={hasAllIngredients ? "Restart crafting after collection" : "Not enough ingredients to restart"}
+                            />
+                          </div>
                           
-                          return (
-                            <div style={{ 
-                              display: 'flex', 
-                              flexDirection: 'column',
-                              gap: '2px',
-                              color: hasAllIngredients ? '#666' : 'red'
-                            }}>
-                              {ingredientElements}
-                            </div>
-                          );
-                        })()}
-                      </div>
-                      </>
-                    )}
+                          {/* Need column */}
+                          <div style={{ width: '200px' }}>
+                            {ingredientElements.length > 0 ? (
+                              <div style={{ 
+                                display: 'flex', 
+                                flexDirection: 'column',
+                                gap: '2px',
+                                color: hasAllIngredients ? '#666' : 'red'
+                              }}>
+                                {ingredientElements}
+                              </div>
+                            ) : (
+                              <span style={{ color: '#666' }}>-</span>
+                            )}
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
                 );
               })}
