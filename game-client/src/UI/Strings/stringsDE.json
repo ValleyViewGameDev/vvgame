@@ -985,8 +985,16 @@
   "200282": "Großer Brunnen",
   "200283": "Große dekorative Palme",
 
-      "4010": "Already have a profile?"
+      "4010": "Already have a profile?",
 
-
+      "170": "Handelsplatz freigeschaltet",
+      "171": "Gold Pass erforderlich",
+      "172": "Gesperrt",
+      "173": "Limit von",
+      "174": "zum Verkaufen",
+      "175": "Freischalten für",
+      "176": "Holz",
+      "177": "Benötigt",
+      "178": "um diesen Platz freizuschalten"
 
   }

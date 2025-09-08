@@ -11,9 +11,10 @@ import '../../UI/SharedButtons.css';
 import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import { formatCountdown } from '../../UI/Timers';
+import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { incrementFTUEStep } from '../FTUE/FTUE';
 import { isACrop } from '../../Utils/ResourceHelpers';
+import { handlePurchase } from '../../Store/Store';
 
 function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurrentPlayer, globalTuning, setModalContent, setIsModalOpen }) {
 
@@ -31,8 +32,115 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const [playerTradeStalls, setPlayerTradeStalls] = useState({}); // Cache of all players' trade stalls
 
   const tradeStallHaircut = globalTuning?.tradeStallHaircut || 0.25;
-  // First time users get 10 second wait time, otherwise use global tuning
-  const sellWaitTime = currentPlayer.firsttimeuser ? 10000 : (globalTuning?.sellWaitTime || 60000);
+  const tradeStallSlotConfig = globalTuning?.tradeStallSlots || [];
+  
+  // Get slot-specific configuration
+  const getSlotConfig = (slotIndex) => {
+    const config = tradeStallSlotConfig.find(slot => slot.slotIndex === slotIndex);
+    return config || {
+      maxAmount: globalTuning?.maxTradeAmount || 50,
+      sellWaitTime: currentPlayer.firsttimeuser ? 5000 : (globalTuning?.sellWaitTime || 300000),
+      unlocked: slotIndex === 0,
+      unlockCost: 0,
+      requiresGoldPass: false
+    };
+  };
+  
+  const isSlotUnlocked = (slotIndex) => {
+    const slot = tradeSlots[slotIndex];
+    const config = getSlotConfig(slotIndex);
+    
+    // If slot doesn't exist
+    if (!slot) {
+      return false;
+    }
+    
+    // Handle backward compatibility - if locked field is undefined
+    if (slot.locked === undefined) {
+      // For backward compatibility: slots with items are considered unlocked
+      if (slot.resource && slot.amount > 0) {
+        return true;
+      }
+      // Otherwise, only first slot is unlocked by default
+      return slotIndex === 0;
+    }
+    
+    // If slot is explicitly locked
+    if (slot.locked === true) {
+      // Check if it's a Gold Pass slot and user has Gold Pass
+      if (config.requiresGoldPass && currentPlayer.accountStatus === 'Gold') {
+        return true; // Gold Pass overrides the locked state
+      }
+      return false;
+    }
+    
+    return true; // If not locked, it's unlocked
+  };
+  
+  const handleUnlockSlot = async (slotIndex) => {
+    const config = getSlotConfig(slotIndex);
+    if (!config || config.requiresGoldPass) return;
+    
+    try {
+      // First, use spendIngredients to handle the wood cost properly
+      const tempRecipe = { 
+        ingredient1: 'Wood', 
+        ingredient1qty: config.unlockCost 
+      };
+      
+      const success = await spendIngredients({
+        playerId: currentPlayer.playerId,
+        recipe: tempRecipe,
+        inventory: currentPlayer.inventory || inventory,
+        backpack: currentPlayer.backpack || [],
+        setInventory,
+        setBackpack: () => {}, // No-op
+        setCurrentPlayer,
+        updateStatus,
+      });
+      
+      if (!success) {
+        console.warn('Not enough Wood to unlock this slot.');
+        updateStatus(`${strings[177]} ${config.unlockCost} ${strings[176]} ${strings[178]}`);
+        return;
+      }
+      
+      // If wood was spent successfully, update only this specific slot
+      const updatedSlots = tradeSlots.map((slot, index) => {
+        if (index === slotIndex) {
+          return {
+            ...slot,
+            locked: false
+          };
+        }
+        return slot;
+      });
+      
+      // Update the trade stall on the server
+      await axios.post(`${API_BASE}/api/update-player-trade-stall`, {
+        playerId: currentPlayer.playerId,
+        tradeStall: updatedSlots
+      });
+      
+      // Update local state
+      setTradeSlots(updatedSlots);
+      setCurrentPlayer({
+        ...currentPlayer,
+        tradeStall: updatedSlots
+      });
+      
+      // Refresh player data to ensure consistency
+      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+      
+      // Re-fetch trade stall data to ensure UI is in sync
+      await fetchDataForViewedPlayer(true); // Skip inventory fetch since it was just updated
+      
+      updateStatus(`${strings[170]} ${slotIndex + 1}!`);
+    } catch (error) {
+      console.error('Error unlocking slot:', error);
+      updateStatus('Failed to unlock slot');
+    }
+  };
 
   const calculateTotalSlots = (player) => {
     // Base slots are now 4 for Free, Gold gets +2 (total 6)
@@ -64,15 +172,20 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         params: { playerId: viewedPlayer.playerId },
       });
 
-      // Handle slots - server now provides 6 slots, client shows based on account status
-      const totalSlots = calculateTotalSlots(viewedPlayer);
+      // Always show all 6 slots
       const serverSlots = tradeStallResponse.data.tradeStall || [];
       
-      // Ensure we have exactly 6 slots from server, create empty ones if missing
+      // Ensure we have exactly 6 slots from server, preserve existing slot data
       const allSlots = Array.from({ length: 6 }, (_, index) => {
         const existingSlot = serverSlots.find(slot => slot && slot.slotIndex === index);
-        return existingSlot || {
+        if (existingSlot) {
+          // Preserve all existing slot data including locked state
+          return existingSlot;
+        }
+        // Only create default locked slot if it doesn't exist on server
+        return {
           slotIndex: index,
+          locked: true,
           resource: null,
           amount: 0,
           price: 0,
@@ -82,13 +195,11 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         };
       });
       
-      // Only show slots based on account status (4 for Free, 6 for Gold)
-      const visibleSlots = allSlots.slice(0, totalSlots);
-      setTradeSlots(visibleSlots);
+      setTradeSlots(allSlots);
 
       // Update totalSellValue only if viewing currentPlayer's stall
       if (viewedPlayer.playerId === currentPlayer.playerId) {
-        const total = visibleSlots.reduce((sum, slot) => {
+        const total = allSlots.reduce((sum, slot) => {
           if (slot?.resource && slot?.amount && slot?.price && !slot?.boughtBy) {
             return sum + slot.amount * slot.price;
           }
@@ -141,15 +252,27 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     const slot = tradeSlots[index];
     const isOwnStall = viewedPlayer.playerId === currentPlayer.playerId;
     const isEmpty = !slot?.resource;
+    const slotUnlocked = isSlotUnlocked(index);
+    const config = getSlotConfig(index);
     
-    console.log('Slot clicked:', index, 'Slot data:', slot, 'Is own stall:', isOwnStall, 'Is empty:', isEmpty);
+    console.log('Slot clicked:', index, 'Is unlocked:', slotUnlocked, 'Is own stall:', isOwnStall, 'Is empty:', isEmpty);
 
-    // Only allow slot clicks for empty slots on your own stall
-    if (isOwnStall && isEmpty) {
+    // If it's own stall and slot is locked
+    if (isOwnStall && !slotUnlocked) {
+      if (config.requiresGoldPass && currentPlayer.accountStatus !== 'Gold') {
+        // Gold Pass required - do nothing, button will handle it
+        return;
+      } else if (!config.requiresGoldPass) {
+        // Regular unlock with wood - do nothing, button will handle it
+        return;
+      }
+    }
+    
+    // Only allow slot clicks for empty, unlocked slots on your own stall
+    if (isOwnStall && isEmpty && slotUnlocked) {
       setSelectedSlotIndex(index); // Open inventory modal for your own empty slot
     }
-    // All other clicks (filled slots, other players' stalls) do nothing
-    // Buy and Collect actions are handled by their respective buttons
+    // All other clicks do nothing
   };
   
   const handleBuy = async (transactionId, transactionKey, slotIndex) => {
@@ -302,8 +425,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const handleAmountChange = (type, value) => {
     const resourceInInventory = inventory.find((item) => item.type === type);
     const inventoryAmount = resourceInInventory ? resourceInInventory.quantity : 0;
-    const maxTradeAmount = globalTuning?.maxTradeAmount || 50;
-    const maxAmount = Math.min(inventoryAmount, maxTradeAmount);
+    const slotConfig = getSlotConfig(selectedSlotIndex);
+    const maxAmount = Math.min(inventoryAmount, slotConfig.maxAmount);
   
     setAmounts((prev) => ({
       ...prev,
@@ -367,6 +490,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const performAddToSlot = async (transactionId, transactionKey, resource, amount) => {
     const resourceDetails = resourceData.find((item) => item.type === resource);
     const price = resourceDetails?.minprice || 0;
+    const slotConfig = getSlotConfig(selectedSlotIndex);
 
     const updatedSlots = [...tradeSlots];
     // Update the specific slot with the new item, preserving slotIndex
@@ -375,7 +499,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       resource, 
       amount, 
       price, 
-      sellTime: Date.now() + sellWaitTime,
+      sellTime: Date.now() + slotConfig.sellWaitTime,
       boughtBy: null,
       boughtFor: null
     };
@@ -441,8 +565,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         await trackQuestProgress(currentPlayer, 'Sell', response.data.resource, response.data.amount, setCurrentPlayer);
         
         // Check if we should increment FTUE step after selling
-        if (currentPlayer.ftuestep === 5) {
-          console.log('🎓 Player at FTUE step 5 completed a sale, incrementing FTUE step');
+        if (currentPlayer.ftuestep === 3) {
+          console.log('🎓 Player at FTUE step 3 sold wheat, incrementing FTUE step');
           await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
         }
         
@@ -510,8 +634,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         await trackQuestProgress(currentPlayer, 'Sell', response.data.resource, response.data.amount, setCurrentPlayer);
         
         // Check if we should increment FTUE step after selling
-        if (currentPlayer.ftuestep === 5) {
-          console.log('🎓 Player at FTUE step 5 completed a sale, incrementing FTUE step');
+        if (currentPlayer.ftuestep === 3) {
+          console.log('🎓 Player at FTUE step 3 sold wheat, incrementing FTUE step');
           await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
         }
         
@@ -542,10 +666,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         </span>
         <button className="arrow-button" onClick={handleNextPlayer}>👉</button>
       </div>
-      <h3 style={{ textAlign: 'center' }}>
-        {viewedPlayer?.playerId === currentPlayer?.playerId ? 'are selling:' : 'is selling:'}
-      </h3>
-      <br />
+
 
       {/* TRADE STALL SLOTS */}
 
@@ -556,92 +677,151 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
           const isPurchased = slot?.boughtBy;
           const isReadyToSell = slot?.sellTime && slot.sellTime <= Date.now();
           const hasTimer = slot?.sellTime && slot.sellTime > Date.now();
+          const slotUnlocked = isSlotUnlocked(index);
+          const config = getSlotConfig(index);
           
           return (
-            <div key={index} className="trade-slot-container">
-              {/* 1. SLOT DISPLAY */}
-              <div
-                className={`trade-slot ${isEmpty ? 'empty' : 'filled'} ${isPurchased ? 'purchased' : ''}`}
-                onClick={() => handleSlotClick(index)}
-                style={{ cursor: (isOwnStall && isEmpty) ? 'pointer' : 'default' }}
-              >
-                {isEmpty ? (
-                  <div className="trade-slot-empty-text">
-                    {strings[156]}
-                  </div>
-                ) : (
-                  <div className="trade-slot-content">
-                    <div className="trade-slot-item-name">
-                      {`${slot.amount}x ${getSymbol(slot.resource)} ${getLocalizedString(slot.resource, strings)}`}
+            <>
+              <div key={index} className="trade-slot-container">
+                {/* 1. SLOT DISPLAY */}
+                <div
+                  className={`trade-slot ${isEmpty ? 'empty' : 'filled'} ${isPurchased ? 'purchased' : ''} ${!slotUnlocked ? 'locked' : ''}`}
+                  onClick={() => handleSlotClick(index)}
+                  style={{ cursor: (isOwnStall && isEmpty && slotUnlocked) ? 'pointer' : 'default' }}
+                >
+                  {(index >= 4 && currentPlayer.accountStatus !== 'Gold' && isOwnStall) ? (
+                    // Always show Gold Pass required for slots 5-6 for non-Gold users
+                    <div className="trade-slot-locked">
+                      <div className="trade-slot-lock-icon">🔒</div>
+                      <div className="trade-slot-lock-text">{strings[171]}</div>
+                      <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>
+                        {strings[173]} {config.maxAmount}
+                      </div>
+                      <div style={{ fontSize: '0.8rem' }}>
+                        {formatDuration(config.sellWaitTime / 1000)} {strings[174]}
+                      </div>
                     </div>
-                    {isPurchased && (
-                      <div className="trade-slot-status">
-                        {strings[157]} {slot.boughtBy}
+                  ) : (!slotUnlocked && isOwnStall) ? (
+                    // Show unlock UI for locked slots on own stall
+                    <div className="trade-slot-locked">
+                      <div className="trade-slot-lock-icon">🔒</div>
+                      <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>
+                        {strings[173]} {config.maxAmount}
                       </div>
-                    )}
-                    {hasTimer && !isPurchased && (
-                      <div className="trade-slot-status timer">
-                        {formatCountdown(slot.sellTime, Date.now())}
+                      <div style={{ fontSize: '0.8rem' }}>
+                        {formatDuration(config.sellWaitTime / 1000)} {strings[174]}
                       </div>
-                    )}
-                    {isReadyToSell && !isPurchased && (
-                      <div className="trade-slot-status ready">
-                        {strings[159]}
+                    </div>
+                  ) : isEmpty ? (
+                    <div className="trade-slot-empty-text">
+                      <div>{strings[156]}</div>
+                      <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>
+                        {strings[173]} {config.maxAmount}
                       </div>
+                      <div style={{ fontSize: '0.8rem' }}>
+                        {formatDuration(config.sellWaitTime / 1000)} {strings[174]}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="trade-slot-content">
+                      <div className="trade-slot-item-name">
+                        {`${slot.amount}x ${getSymbol(slot.resource)} ${getLocalizedString(slot.resource, strings)}`}
+                      </div>
+                      {isPurchased && (
+                        <div className="trade-slot-status">
+                          {strings[157]} {slot.boughtBy}
+                        </div>
+                      )}
+                      {hasTimer && !isPurchased && (
+                        <div className="trade-slot-status timer">
+                          {formatCountdown(slot.sellTime, Date.now())}
+                        </div>
+                      )}
+                      {isReadyToSell && !isPurchased && (
+                        <div className="trade-slot-status ready">
+                          {strings[159]}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. BUTTON CONTAINER */}
+                {(index >= 4 && currentPlayer.accountStatus !== 'Gold' && isOwnStall) ? (
+                  // Show Gold Pass purchase button for slots 5-6
+                  <div className="trade-button-container">
+                    <div className="standard-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                      <button 
+                        className="btn-gold"
+                        style={{ width: '100%' }}
+                        onClick={() => handlePurchase(1, currentPlayer, updateStatus)}
+                      >
+                        {strings[9061]}
+                      </button>
+                    </div>
+                  </div>
+                ) : (!slotUnlocked && isOwnStall) ? (
+                  // Show unlock button for locked non-Gold Pass slots
+                  <div className="trade-button-container">
+                    <div className="standard-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                      <button 
+                        className="btn-success"
+                        style={{ width: '100%' }}
+                        onClick={() => handleUnlockSlot(index)}
+                      >
+                        {strings[175]} {config.unlockCost} {strings[176]}
+                      </button>
+                    </div>
+                  </div>
+                ) : !isEmpty && (
+                  <div className="trade-button-container">
+                    {/* 3. BUY BUTTON (left 50%) */}
+                    <TransactionButton
+                      className={`trade-buy-button ${(isOwnStall || isPurchased) ? 'disabled' : 'enabled'}`}
+                      disabled={isOwnStall || isPurchased}
+                      transactionKey={`buy-trade-${viewedPlayer.playerId}-${index}`}
+                      onAction={(transactionId, transactionKey) => handleBuy(transactionId, transactionKey, index)}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {isPurchased ? 'Sold' : `Buy 💰${slot.amount * slot.price}`}
+                    </TransactionButton>
+
+                    {/* 4. COLLECT BUTTON (right 50%) */}
+                    {isPurchased ? (
+                      <TransactionButton
+                        className={`trade-collect-button collect-payment`}
+                        disabled={!isOwnStall}
+                        transactionKey="collect-payment"
+                        onAction={(transactionId, transactionKey) => handleCollectPayment(transactionId, transactionKey, index)}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Collect 💰{slot.boughtFor}
+                      </TransactionButton>
+                    ) : isReadyToSell ? (
+                      <TransactionButton
+                        className={`trade-collect-button sell-to-game`}
+                        disabled={!isOwnStall}
+                        transactionKey="sell-to-game"
+                        onAction={(transactionId, transactionKey) => handleSellSingle(transactionId, transactionKey, index)}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Sell 💰{Math.floor(slot.amount * slot.price * tradeStallHaircut)}
+                      </TransactionButton>
+                    ) : (
+                      <button
+                        className={`trade-collect-button ${
+                          !isOwnStall ? 'not-yours' : 'disabled'
+                        }`}
+                        disabled={true}
+                      >
+                        {!isOwnStall ? 'Not Yours' : 
+                         hasTimer ? 'Wait...' : 'No Action'}
+                      </button>
                     )}
                   </div>
                 )}
               </div>
-
-              {/* 2. BUTTON CONTAINER */}
-              {!isEmpty && (
-                <div className="trade-button-container">
-                  {/* 3. BUY BUTTON (left 50%) */}
-                  <TransactionButton
-                    className={`trade-buy-button ${(isOwnStall || isPurchased) ? 'disabled' : 'enabled'}`}
-                    disabled={isOwnStall || isPurchased}
-                    transactionKey={`buy-trade-${viewedPlayer.playerId}-${index}`}
-                    onAction={(transactionId, transactionKey) => handleBuy(transactionId, transactionKey, index)}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {isPurchased ? 'Sold' : `Buy 💰${slot.amount * slot.price}`}
-                  </TransactionButton>
-
-                  {/* 4. COLLECT BUTTON (right 50%) */}
-                  {isPurchased ? (
-                    <TransactionButton
-                      className={`trade-collect-button collect-payment`}
-                      disabled={!isOwnStall}
-                      transactionKey="collect-payment"
-                      onAction={(transactionId, transactionKey) => handleCollectPayment(transactionId, transactionKey, index)}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      Collect 💰{slot.boughtFor}
-                    </TransactionButton>
-                  ) : isReadyToSell ? (
-                    <TransactionButton
-                      className={`trade-collect-button sell-to-game`}
-                      disabled={!isOwnStall}
-                      transactionKey="sell-to-game"
-                      onAction={(transactionId, transactionKey) => handleSellSingle(transactionId, transactionKey, index)}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      Sell 💰{Math.floor(slot.amount * slot.price * tradeStallHaircut)}
-                    </TransactionButton>
-                  ) : (
-                    <button
-                      className={`trade-collect-button ${
-                        !isOwnStall ? 'not-yours' : 'disabled'
-                      }`}
-                      disabled={true}
-                    >
-                      {!isOwnStall ? 'Not Yours' : 
-                       hasTimer ? 'Wait...' : 'No Action'}
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+            </>
           );
         })}
       </div>
@@ -650,7 +830,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 {/* //////////////////  INVENTORY MODAL  ///////////////////*/}
 
       {selectedSlotIndex !== null && (
-        <div className="inventory-modal">
+        <div className="inventory-modal wider">
           <button
             className="close-button"
             onClick={() => setSelectedSlotIndex(null)}
@@ -659,7 +839,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
           </button>
           <h3>{strings[160]}</h3>
           <p style={{ textAlign: 'center', margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>
-            {globalTuning?.maxTradeAmount || 50} {strings[158]}
+            {getSlotConfig(selectedSlotIndex).maxAmount} {strings[158]}
           </p>
           <div className="inventory-modal-scroll">
             <table>
@@ -710,13 +890,13 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                               onClick={() =>
                                 handleAmountChange(item.type, (amounts[item.type] || 0) + 1)
                               }
-                              disabled={(amounts[item.type] || 0) >= Math.min(item.quantity, globalTuning?.maxTradeAmount || 50)}
+                              disabled={(amounts[item.type] || 0) >= Math.min(item.quantity, getSlotConfig(selectedSlotIndex).maxAmount)}
                             >
                               +
                             </button>
                             <button
                               onClick={() =>
-                                handleAmountChange(item.type, Math.min(item.quantity, globalTuning?.maxTradeAmount || 50))
+                                handleAmountChange(item.type, Math.min(item.quantity, getSlotConfig(selectedSlotIndex).maxAmount))
                               }
                               style={{ marginLeft: '4px' }}
                             >

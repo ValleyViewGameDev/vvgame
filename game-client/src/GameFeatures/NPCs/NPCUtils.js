@@ -39,6 +39,14 @@ async function handleProtectedFarmAnimalCollection(
   try {
     console.log(`🐮 Attempting to collect animal - ID: ${npc.id}, State: ${npc.state}, GrazeEnd: ${npc.grazeEnd}, Current Time: ${Date.now()}`);
     
+    // Double-check the NPC state from the grid manager before making the request
+    const currentNPCState = NPCsInGridManager.getNPCsInGrid(currentGridId)?.[npc.id];
+    if (currentNPCState && currentNPCState.state !== 'processing') {
+      console.warn(`⚠️ NPC ${npc.id} state changed to ${currentNPCState.state} before collection attempt`);
+      updateStatus(`❌ Animal not ready - state: ${currentNPCState.state}`);
+      return { type: 'error', message: `Animal not in processing state (${currentNPCState.state})` };
+    }
+    
     const response = await axios.post(`${API_BASE}/api/farm-animal/collect`, {
       playerId: currentPlayer.playerId,
       gridId: currentGridId,

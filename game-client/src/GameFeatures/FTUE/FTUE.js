@@ -57,53 +57,10 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       
 //////////// FTUE STEP 3 /////////////
 
-      if (currentStep === 3 && openPanel) {
-        console.log(`🎓 Adding starter quests and opening QuestPanel after FTUE step ${currentStep}`);
+      if (currentStep === 3 && openPanel && setActiveQuestGiver && gridId) {
+        console.log(`🎓 Step 3: Opening Kent panel to guide player`);
         
-        // Add the two starter quests sequentially
-        const playerAfterFirstQuest = await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 2);
-        await addAcceptedQuest(currentPlayer.playerId, playerAfterFirstQuest, setCurrentPlayer, 3);
-        
-        onClose(); // Close FTUE modal first
-        openPanel('QuestPanel');
-
-//////////// FTUE STEP 4 /////////////
-
-      } else if (currentStep === 4 && openPanel && setActiveStation) {
-        console.log(`🎓 Adding Hire Kent quest and opening FarmHousePanel after FTUE step ${currentStep}`);
-        
-        // Add the "Hire Kent" quest
-        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 4);
-        
-        // Find the Farm House on the grid
-        const resources = GlobalGridStateTilesAndResources.getResources();
-        const farmHouse = resources?.find(res => res.type === 'Farm House');
-        
-        if (farmHouse) {
-          console.log(`🎓 Found Farm House at (${farmHouse.x}, ${farmHouse.y})`);
-          // Set the active station with the Farm House position
-          setActiveStation({
-            type: farmHouse.type,
-            position: { x: farmHouse.x, y: farmHouse.y },
-            gridId: gridId
-          });
-          onClose(); // Close FTUE modal first
-          openPanel('FarmHouse');
-        } else {
-          console.log(`⚠️ Farm House not found on grid`);
-          onClose(); // Still close FTUE modal
-        }
-
-//////////// FTUE STEP 5 /////////////
-
-      } else if (currentStep === 5 && openPanel && setActiveQuestGiver && gridId) {
-        console.log(`🎓 Processing FTUE step 5`);
-        
-        // First, add the Trading Post at (29, 32)
-        await handleAddTradingPost();
-        
-        // Then find Kent NPC and open NPCPanel
-        console.log(`🎓 Looking for Kent NPC after FTUE step 5`);
+        // Find Kent NPC and open NPCPanel
         const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
         if (npcsInGrid) {
           const kentNPC = Object.values(npcsInGrid).find(npc => npc.type === 'Kent');
@@ -118,46 +75,57 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
           }
         }
 
-//////////// FTUE STEP 6 /////////////
+//////////// FTUE STEP 4 /////////////
 
-      } else if (currentStep === 6) {
+      } else if (currentStep === 4) {
+        console.log(`🎓 Processing FTUE step 4 - Adding Grower quest`);
         
-        // Add the two starter quests sequentially
-        // Add the "Grower" and "Harvest" quests
-        const playerAfterFirstQuest = await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 7);
-        await addAcceptedQuest(currentPlayer.playerId, playerAfterFirstQuest, setCurrentPlayer, 8);
-        onClose(); // Close FTUE modal first
-        openPanel('QuestPanel');
+        // Add the Grower quest
+        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 7);
+        
+        onClose(); // Close FTUE modal
 
-//////////// FTUE STEP 7 /////////////
+//////////// FTUE STEP 5 /////////////
 
-      } else if (currentStep === 7) {
-        console.log(`🎓 Adding Hire the Shepherd quest after FTUE step ${currentStep}`);
+      } else if (currentStep === 5) {
+        console.log(`🎓 Processing FTUE step 5 - Adding Hire the Shepherd quest`);
         
         // Add the "Hire the Shepherd" quest
         await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 9);
         
         onClose(); // Close FTUE modal
 
+//////////// FTUE STEP 6 /////////////
+
+      } else if (currentStep === 6) {
+        console.log(`🎓 Processing FTUE step 6 - cow purchased`);
+        // Just close modal after cow purchase
+        onClose();
+
+//////////// FTUE STEP 7 /////////////
+
+      } else if (currentStep === 7 && openPanel) {
+        console.log(`🎓 Adding shepherd quest after FTUE step ${currentStep}`);
+        
+        // Add the shepherd quest (quest 8)
+        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 8);
+         
+        onClose(); // Close FTUE modal first
+        openPanel('QuestPanel');
+
 //////////// FTUE STEP 8 /////////////
 
       } else if (currentStep === 8) {
-    
+        console.log(`🎓 Adding Axe quest after FTUE step ${currentStep}`);
+        
+        // Add the Axe quest
+        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 10);
+        
         onClose(); // Close FTUE modal
 
 //////////// FTUE STEP 9 /////////////
 
       } else if (currentStep === 9) {
-        console.log(`🎓 Adding Axe quest after FTUE step ${currentStep}`);
-    
-        // Add the "Hire the Shepherd" quest
-        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 10);
-        
-        onClose(); // Close FTUE modal
-
-//////////// FTUE STEP 11 /////////////
-
-      } else if (currentStep === 11) {
         console.log(`🎓 Adding Wizard quest after FTUE step ${currentStep}`);
         
         // Add the Axe quest
@@ -261,67 +229,6 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
   };
 
 
-  // Add Trading Post to the grid at specific coordinates
-  const handleAddTradingPost = async () => {
-    try {
-      console.log('🏪 Adding Trading Post to grid at (29, 32)');
-      
-      // Check if Trading Post already exists at this location
-      const resources = GlobalGridStateTilesAndResources.getResources();
-      const existingTradingPost = resources?.find(res => 
-        res.type === 'Trading Post' && res.x === 29 && res.y === 32
-      );
-      
-      if (existingTradingPost) {
-        console.log('🏪 Trading Post already exists at (29, 32)');
-        return;
-      }
-      
-      // Check if there's any other resource at this location that needs to be removed
-      const existingResource = resources?.find(res => res.x === 29 && res.y === 32);
-      if (existingResource) {
-        console.log(`🗑️ Removing existing resource at (29, 32): ${existingResource.type}`);
-        
-        // Remove from local state
-        const filteredResources = resources.filter(res => !(res.x === 29 && res.y === 32));
-        GlobalGridStateTilesAndResources.setResources(filteredResources);
-        
-        // Remove from database
-        await updateGridResource(gridId, { type: null, x: 29, y: 32 }, true);
-      }
-      
-      // Find Trading Post in masterResources to get its properties
-      const tradingPostResource = masterResources?.find(res => res.type === 'Trading Post');
-      if (!tradingPostResource) {
-        console.error('❌ Trading Post not found in masterResources');
-        return;
-      }
-      
-      // Create the Trading Post resource
-      const rawResource = { type: 'Trading Post', x: 29, y: 32 };
-      const enriched = enrichResourceFromMaster(rawResource, masterResources);
-      
-      // Add to local state
-      const currentResources = GlobalGridStateTilesAndResources.getResources() || [];
-      const finalResources = [...currentResources, enriched];
-      GlobalGridStateTilesAndResources.setResources(finalResources);
-      if (setResources) {
-        setResources(finalResources);
-      }
-      
-      // Update in database
-      await updateGridResource(gridId, rawResource, true);
-      
-      // Show success message
-      if (TILE_SIZE) {
-        FloatingTextManager.addFloatingText('🏪 Trading Post added!', 29, 32, TILE_SIZE);
-      }
-      
-      console.log('✅ Trading Post successfully added to grid');
-    } catch (error) {
-      console.error('❌ Error adding Trading Post:', error);
-    }
-  };
 
   // Don't render if no step data
   if (!currentStepData) {

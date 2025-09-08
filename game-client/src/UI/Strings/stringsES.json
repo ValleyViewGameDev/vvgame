@@ -82,7 +82,16 @@
   "181": "📦 Almacén",
   "182": "🎒 Mochila",
   "183": "Capacidad: ",
-  "184": "Gestionar mochila",
+  "184": "Administrar almacén",
+  "185": "Cantidad",
+  "186": "Monto",
+  "187": "Añadir al almacén",
+  "188": "Descartar",
+  "189": "Añadir todo al almacén",
+  "190": "Descartar todo",
+  "191": "Artículo",
+  "192": "Acción",
+  "193": "Descartar artículos",
 
   "200": "MISIONES",
   "201": "✅ Misión completada. Tienes tu recompensa.",
@@ -627,6 +636,16 @@
 "653": "Terminar matrimonio",
 
 
-    "4010": "Already have a profile?"
+    "4010": "Already have a profile?",
+
+    "170": "Ranura de comercio desbloqueada",
+    "171": "Requiere Pase Dorado",
+    "172": "Bloqueado",
+    "173": "Límite de",
+    "174": "para Vender",
+    "175": "Desbloquear por",
+    "176": "Madera",
+    "177": "Necesitas",
+    "178": "para desbloquear esta ranura"
 
 }

@@ -72,9 +72,10 @@ const playerSchema = new mongoose.Schema({
   tradeStall: {
     type: Array,
     default: function() {
-      // Initialize with 6 empty slots (client will hide slots based on account status)
+      // Initialize with 6 slots, first one unlocked by default
       return Array.from({ length: 6 }, (_, index) => ({
         slotIndex: index,
+        locked: index !== 0, // First slot (index 0) is unlocked
         resource: null,
         amount: 0,
         price: 0,

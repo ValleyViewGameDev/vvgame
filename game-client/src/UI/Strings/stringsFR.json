@@ -989,6 +989,16 @@
     "11000": "ADDED STRINGS:",
 
 
-    "4010": "Already have a profile?"
+    "4010": "Already have a profile?",
+
+    "170": "Emplacement de commerce déverrouillé",
+    "171": "Pass Or Requis",
+    "172": "Verrouillé",
+    "173": "Limite de",
+    "174": "pour Vendre",
+    "175": "Débloquer pour",
+    "176": "Bois",
+    "177": "Besoin de",
+    "178": "pour débloquer cet emplacement"
 }
 

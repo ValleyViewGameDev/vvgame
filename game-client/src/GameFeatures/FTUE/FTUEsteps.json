@@ -15,62 +15,48 @@
     },
     {
       "step": 3,
-      "titleKey": 709,
-      "bodyKey": 710,
-      "image": "ftue-abandonedhouse.png",
-      "continue": false
-    },
-    {
-      "step": 4,
-      "titleKey": 715,
-      "bodyKey": 716,
-      "image": "ftue-kent.png",
-      "continue": false
-    },
-    {
-      "step": 5,
       "titleKey": 721,
       "bodyKey": 722,
       "image": "ftue-todo.png",
       "continue": false
     },
     {
-      "step": 6,
+      "step": 4,
       "titleKey": 723,
       "bodyKey": 724,
       "image": "ftue-farming.png",
       "continue": false
     },
     {
-      "step": 7,
+      "step": 5,
       "titleKey": 727,
       "bodyKey": 728,
       "image": "ftue-shepherd.png",
       "continue": false
     },
     {
-      "step": 8,
+      "step": 6,
       "titleKey": 729,
       "bodyKey": 730,
       "image": "ftue-cow.png",
       "continue": false
     },
     {
-      "step": 9,
+      "step": 7,
       "titleKey": 731,
       "bodyKey": 732,
       "image": "ftue-tools.png",
       "continue": false
     },
     {
-      "step": 10,
+      "step": 8,
       "titleKey": 733,
       "bodyKey": 734,
       "image": "ftue-axe.png",
       "continue": false
     },
     {
-      "step": 11,
+      "step": 9,
       "titleKey": 737,
       "bodyKey": 738,
       "image": "ftue-exploring.png",

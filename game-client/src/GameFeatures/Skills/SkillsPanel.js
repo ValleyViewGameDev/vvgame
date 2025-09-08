@@ -191,8 +191,8 @@ const handlePurchase = async (resourceType) => {
       await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
     }
     
-    if (currentPlayer.firsttimeuser === true && resource.type === 'Grower') {
-      console.log('🎓 First-time user acquired Grower skill, advancing FTUE step');
+    if (currentPlayer.firsttimeuser === true && resource.type === 'Grower' && currentPlayer.ftuestep === 4) {
+      console.log('🎓 First-time user at step 4 acquired Grower skill, advancing FTUE step');
       await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
     }
 

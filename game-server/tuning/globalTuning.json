@@ -3,13 +3,63 @@
   "closeZoom": 34,
   "farZoom": 16,
   "tradeStallHaircut": 0.25,
-  "sellWaitTime": 3600000,
+  "sellWaitTime": 300000,
   "mayorcut": 50,
   "bankOffers": 3,
   "seasonMoneyNerf": 0.9,
   "seasonMoneyNerfGold": 0.75,
   "baseHoursForTrain": 6,
   "maxTradeAmount": 50,
+  "tradeStallSlots": [
+    {
+      "slotIndex": 0,
+      "maxAmount": 50,
+      "sellWaitTime": 5000,
+      "unlocked": true,
+      "unlockCost": 5,
+      "requiresGoldPass": false
+    },
+    {
+      "slotIndex": 1,
+      "maxAmount": 75,
+      "sellWaitTime": 300000,
+      "unlocked": false,
+      "unlockCost": 50,
+      "requiresGoldPass": false
+    },
+    {
+      "slotIndex": 2,
+      "maxAmount": 100,
+      "sellWaitTime": 600000,
+      "unlocked": false,
+      "unlockCost": 100,
+      "requiresGoldPass": false
+    },
+    {
+      "slotIndex": 3,
+      "maxAmount": 200,
+      "sellWaitTime": 1800000,
+      "unlocked": false,
+      "unlockCost": 150,
+      "requiresGoldPass": false
+    },
+    {
+      "slotIndex": 4,
+      "maxAmount": 200,
+      "sellWaitTime": 600000,
+      "unlocked": false,
+      "unlockCost": 0,
+      "requiresGoldPass": true
+    },
+    {
+      "slotIndex": 5,
+      "maxAmount": 200,
+      "sellWaitTime": 600000,
+      "unlocked": false,
+      "unlockCost": 0,
+      "requiresGoldPass": true
+    }
+  ],
   "taxes": {
     "phases": {
       "waiting": 4319.25,

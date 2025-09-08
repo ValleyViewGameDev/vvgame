@@ -74,6 +74,7 @@ router.post('/register-new-player', async (req, res) => {
       ftuestep,
       location: defaultLocation,
       settings,
+      tradeStall,
     } = starterAccount.defaultAttributes;
 
     // Step 4: Create the new player
@@ -101,7 +102,7 @@ router.post('/register-new-player', async (req, res) => {
       backpackCapacity,
       accountStatus,
       role,
-      tradeStall: Array(starterAccount.tradeStallSlots[accountStatus] || 4).fill(null),
+      tradeStall: [...tradeStall],
       location: {
         g: gridId,
         s: location.settlementId,

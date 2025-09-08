@@ -110,9 +110,10 @@ router.post('/trade-stall/collect-payment', async (req, res) => {
       player.inventory.push({ type: 'Money', quantity: slot.boughtFor });
     }
 
-    // Clear the slot
+    // Clear the slot but preserve locked state
     player.tradeStall[slotIndex] = {
       slotIndex: slotIndex,
+      locked: player.tradeStall[slotIndex].locked || false, // Preserve locked state
       resource: null,
       amount: 0,
       price: 0,
@@ -191,9 +192,10 @@ router.post('/trade-stall/sell-to-game', async (req, res) => {
       player.inventory.push({ type: 'Money', quantity: sellValue });
     }
 
-    // Clear the slot
+    // Clear the slot but preserve locked state
     player.tradeStall[slotIndex] = {
       slotIndex: slotIndex,
+      locked: player.tradeStall[slotIndex].locked || false, // Preserve locked state
       resource: null,
       amount: 0,
       price: 0,
@@ -253,6 +255,7 @@ router.post('/update-player-trade-stall', async (req, res) => {
     if (!player.tradeStall || player.tradeStall.length !== 6) {
       player.tradeStall = Array.from({ length: 6 }, (_, index) => ({
         slotIndex: index,
+        locked: index !== 0, // First slot unlocked by default
         resource: null,
         amount: 0,
         price: 0,
@@ -262,12 +265,13 @@ router.post('/update-player-trade-stall', async (req, res) => {
       }));
     }
 
-    // Update only the specific slots that have changed, preserving slotIndex
+    // Update only the specific slots that have changed, preserving slotIndex and locked state
     tradeStall.forEach((slot, index) => {
       if (slot && index < 6) {
         player.tradeStall[index] = {
           ...player.tradeStall[index],
           slotIndex: index,
+          locked: slot.locked !== undefined ? slot.locked : player.tradeStall[index].locked, // Preserve or update locked state
           resource: slot.resource || null,
           amount: slot.amount || 0,
           price: slot.price || 0,
@@ -306,6 +310,7 @@ router.get('/player-trade-stall', async (req, res) => {
     if (!player.tradeStall || player.tradeStall.length !== 6) {
       player.tradeStall = Array.from({ length: 6 }, (_, index) => ({
         slotIndex: index,
+        locked: index !== 0, // First slot unlocked by default
         resource: null,
         amount: 0,
         price: 0,
@@ -314,6 +319,26 @@ router.get('/player-trade-stall', async (req, res) => {
         boughtFor: null
       }));
       await player.save();
+    } else {
+      // Migration for existing players: add locked field if missing
+      let needsSave = false;
+      player.tradeStall.forEach((slot, index) => {
+        if (slot && slot.locked === undefined) {
+          // For existing users, unlock slots that have items in them
+          // This preserves their current functionality
+          if (slot.resource && slot.amount > 0) {
+            slot.locked = false;
+          } else {
+            // Empty slots: first slot unlocked, others locked
+            slot.locked = index !== 0;
+          }
+          needsSave = true;
+        }
+      });
+      
+      if (needsSave) {
+        await player.save();
+      }
     }
 
     res.status(200).json({ tradeStall: player.tradeStall, inventory: player.inventory });

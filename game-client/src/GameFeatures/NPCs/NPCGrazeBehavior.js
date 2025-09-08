@@ -26,6 +26,16 @@ async function handleFarmAnimalBehavior(gridId) {
         console.error(`Tiles or resources are missing for NPC ${this.id}.`);
         return;
     }
+    
+    // IMPORTANT: If NPC is in processing state, don't allow any state transitions except to emptystall
+    if (this.state === 'processing') {
+        // Only log periodically to avoid spam
+        if (!this.lastProcessingLog || Date.now() - this.lastProcessingLog > 5000) {
+            console.log(`🐮 NPC ${this.id} is in processing state, waiting for collection. GrazeEnd: ${this.grazeEnd}`);
+            this.lastProcessingLog = Date.now();
+        }
+        return; // Exit early, don't process any state transitions
+    }
 
     switch (this.state) {
         case 'idle': {
@@ -300,17 +310,18 @@ async function handleFarmAnimalBehavior(gridId) {
                     await updateThisNPC();
                     console.log(`🐮✅ NPC ${this.id} state update to 'processing' sent to server`);
                     
-                    // Wait a moment for the update to propagate
-                    await new Promise(resolve => setTimeout(resolve, 100));
+                    // Wait longer for the update to propagate to the server
+                    await new Promise(resolve => setTimeout(resolve, 500));
                     
                     // Verify the update was successful
                     const updatedNPC = NPCsInGridManager.getNPCsInGrid(gridId)?.[this.id];
                     if (updatedNPC && updatedNPC.state !== 'processing') {
                         console.error(`❌ State update verification failed! NPC ${this.id} state is ${updatedNPC.state} instead of 'processing'`);
-                        // Try to update again
+                        // Try to update again with longer wait
                         this.state = 'processing';
                         await updateThisNPC();
                         console.log(`🐮🔄 Retried state update for NPC ${this.id}`);
+                        await new Promise(resolve => setTimeout(resolve, 500));
                     } else {
                         console.log(`🐮✅ Verified NPC ${this.id} is in processing state`);
                     }
@@ -326,6 +337,10 @@ async function handleFarmAnimalBehavior(gridId) {
             // awaiting handleNPCClick
             // console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
             // console.log('Awaiting handleNPCClick');
+            // IMPORTANT: Don't transition out of processing state unless explicitly collected
+            if (this.grazeEnd && Date.now() >= this.grazeEnd) {
+                console.log(`🐮 NPC ${this.id} is in processing state and ready for collection. GrazeEnd: ${this.grazeEnd}`);
+            }
         break;
         }
 

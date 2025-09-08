@@ -18,6 +18,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import '../../UI/SharedButtons.css';
+import workerPlacementData from './WorkerPlacement.json';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
 import { handleConstruction } from '../BuildAndBuy';
@@ -301,7 +302,18 @@ const FarmHouse = ({
         if (isNPC) {
           const craftedResource = allResources.find(res => res.type === collectedItem);
           if (craftedResource) {
-            NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
+            // Get placement offset from WorkerPlacement.json
+            const placementData = workerPlacementData.find(data => data.workerType === collectedItem);
+            const offsetX = placementData?.offsetX || 0;
+            const offsetY = placementData?.offsetY || 0;
+            
+            const spawnPosition = {
+              x: currentStationPosition.x + offsetX,
+              y: currentStationPosition.y + offsetY
+            };
+            
+            console.log(`Spawning ${collectedItem} at offset (${offsetX}, ${offsetY}) from Farm House, final position: (${spawnPosition.x}, ${spawnPosition.y})`);
+            NPCsInGridManager.spawnNPC(gridId, craftedResource, spawnPosition);
             // Trigger refresh to update available recipes
             setNpcRefreshKey(prev => prev + 1);
           }
@@ -497,20 +509,61 @@ const FarmHouse = ({
               ? `${strings[458]} ${formatDuration(recipe.crafttime)}`
               : strings[459];
               
-              const info = (
-                <div className="info-content">
-                  <div>
-                    <strong>{strings[421]}</strong>{' '}
-                    {allResources
-                      .filter((res) =>
-                        [res.ingredient1, res.ingredient2, res.ingredient3, res.ingredient4].includes(recipe.type)
-                      )
-                      .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
-                      .join(', ') || 'None'}
+              // Custom tooltips for workers
+              let info;
+              if (recipe.type === 'Farm Hand') {
+                info = (
+                  <div className="info-content">
+                    <div>{strings[350]}</div>
                   </div>
-                  <div><strong>{strings[422]}</strong> 💰 {recipe.minprice || 'n/a'}</div>
-                </div>
-              );
+                );
+              } else if (recipe.type === 'Rancher') {
+                info = (
+                  <div className="info-content">
+                    <div>{strings[351]}</div>
+                  </div>
+                );
+              } else if (recipe.type === 'Lumberjack') {
+                info = (
+                  <div className="info-content">
+                    <div>{strings[352]}</div>
+                  </div>
+                );
+              } else if (recipe.type === 'Crafter') {
+                info = (
+                  <div className="info-content">
+                    <div>{strings[353]}</div>
+                  </div>
+                );
+              } else if (recipe.type === 'Kent') {
+                info = (
+                  <div className="info-content">
+                    <div>{strings[354]}</div>
+                  </div>
+                );
+              } else if (recipe.type === 'The Shepherd') {
+                info = (
+                  <div className="info-content">
+                    <div>{strings[355]}</div>
+                  </div>
+                );
+              } else {
+                // Default info for non-worker recipes
+                info = (
+                  <div className="info-content">
+                    <div>
+                      <strong>{strings[421]}</strong>{' '}
+                      {allResources
+                        .filter((res) =>
+                          [res.ingredient1, res.ingredient2, res.ingredient3, res.ingredient4].includes(recipe.type)
+                        )
+                        .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
+                        .join(', ') || 'None'}
+                    </div>
+                    <div><strong>{strings[422]}</strong> 💰 {recipe.minprice || 'n/a'}</div>
+                  </div>
+                );
+              }
               
               // Format costs with color per ingredient (now using display: block and no <br>)
               const formattedCosts = [1, 2, 3, 4].map((i) => {

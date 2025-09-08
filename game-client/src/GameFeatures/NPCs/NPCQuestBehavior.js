@@ -28,15 +28,15 @@ async function handleQuestGiverBehavior(gridId) {
 
     switch (this.state) {
         case 'idle': {
-            const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
-                calculateDistance(pc.position, this.position) <= this.range && pc.hp>0
-            );
-            if (pcsInRange) { break; }
+            // const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
+            //     calculateDistance(pc.position, this.position) <= this.range && pc.hp>0
+            // );
+            // if (pcsInRange) { break; }
             
-            await this.handleIdleState(tiles, resources, npcs, 5, async () => {
-                this.state = 'roam';
-                await updateThisNPC(this, gridId); // Save after transition
-            });
+            // await this.handleIdleState(tiles, resources, npcs, 5, async () => {
+            //     this.state = 'roam';
+            //     await updateThisNPC(this, gridId); // Save after transition
+            // });
 
             break;
           }
@@ -48,11 +48,11 @@ async function handleQuestGiverBehavior(gridId) {
             // );
             // if (pcsInRange) { this.state = 'idle'; await updateThisNPC(); break; }
             
-            await this.handleRoamState(tiles, resources, npcs, () => {
-                //console.log(`NPC ${this.id} transitioning back to idle.`);
-                this.state = 'idle'; // Transition to the idle state
+            // await this.handleRoamState(tiles, resources, npcs, () => {
+            //     //console.log(`NPC ${this.id} transitioning back to idle.`);
+            //     this.state = 'idle'; // Transition to the idle state
 
-              });
+            //   });
             break;
           }
 

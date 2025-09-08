@@ -1,0 +1,32 @@
+[
+  {
+    "workerType": "Kent",
+    "offsetX": -2,
+    "offsetY": 0
+  },
+  {
+    "workerType": "The Shepherd",
+    "offsetX": 2,
+    "offsetY": 0
+  },
+  {
+    "workerType": "Farm Hand",
+    "offsetX": 0,
+    "offsetY": -2
+  },
+  {
+    "workerType": "Rancher",
+    "offsetX": 1,
+    "offsetY": -2
+  },
+  {
+    "workerType": "Lumberjack",
+    "offsetX": 2,
+    "offsetY": -2
+  },
+  {
+    "workerType": "Crafter",
+    "offsetX": 3,
+    "offsetY": -2
+  }
+]

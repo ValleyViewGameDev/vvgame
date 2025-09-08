@@ -37,9 +37,22 @@
   gap: 10px;
 }
 
+/* Gold Pass button styling within trade stall */
+.trade-stall-slots .standard-buttons {
+  flex: 0 0 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Gold Pass divider specific styling */
+.trade-stall-slots .gold-pass-divider {
+  margin: 5px 0;
+  padding: 5px 0;
+}
+
 .trade-slot {
   width: 150px;
-  height: 75px; /* Increased height to allow space */
+  height: 85px; /* Increased height to allow space for limit and time */
   background: #f4f4f4;
   border: 1px solid #ccc;
   display: flex;
@@ -125,6 +138,8 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
+  table-layout: auto; /* Allow table to size based on content */
+  min-width: 700px; /* Ensure minimum width for all columns */
 }
 
 .inventory-modal th,
@@ -132,9 +147,6 @@
   text-align: center;
   padding: 10px;
   border: 1px solid #ddd;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap; /* Prevents wrapping of content */
 }
 
 .inventory-modal th {
@@ -200,8 +212,9 @@
 
 /* SCROLLABLE CONTENT */
 .inventory-modal-scroll {
-  max-height: 300px; /* Adjustable height */
+  max-height: 400px; /* Increased height */
   overflow-y: auto;
+  overflow-x: auto; /* Allow horizontal scroll if needed */
 }
 
 /* CONFIGURABLE WIDTH */
@@ -223,7 +236,7 @@
   border: 2px solid #ccc;
   border-radius: 8px;
   padding: 8px;
-  min-height: 75px;
+  min-height: 85px;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -235,7 +248,7 @@
   border: 2px solid #ccc;
   border-radius: 8px;
   padding: 8px;
-  min-height: 75px;
+  min-height: 85px;
   cursor: default;
   display: flex;
   align-items: center;
@@ -330,3 +343,31 @@
   background-color: #ccc;
   cursor: not-allowed;
 }
+
+/* LOCKED SLOT STYLING */
+.trade-slot.locked {
+  background-color: #e9e9e9;
+  border: 2px dashed #999;
+  cursor: default;
+  min-height: 85px;
+}
+
+.trade-slot-locked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #666;
+}
+
+.trade-slot-lock-icon {
+  font-size: 1.5rem;
+  margin-bottom: 4px;
+}
+
+.trade-slot-lock-text {
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+

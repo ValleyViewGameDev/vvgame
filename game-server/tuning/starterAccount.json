@@ -9,7 +9,7 @@
       "baseAttackbonus": 10,
       "baseDamage": 15,
       "baseSpeed": 5,
-      "inventory": [{ "type": "Money", "quantity": 6000 }],
+      "inventory": [{ "type": "Money", "quantity": 6000 },{ "type": "Wood", "quantity": 20 }],
       "backpack": [],
       "skills": [{ "type": "Walking" }],
       "powers": [],
@@ -32,7 +32,69 @@
         "isTeleportEnabled": false,
         "toggleVFX": true,
         "hasDied": false
-      }
+      },
+      "tradeStall": [
+        {
+          "slotIndex": 0,
+          "locked": false,
+          "resource": null,
+          "amount": 0,
+          "price": 0,
+          "sellTime": null,
+          "boughtBy": null,
+          "boughtFor": null
+        },
+        {
+          "slotIndex": 1,
+          "locked": true,
+          "resource": null,
+          "amount": 0,
+          "price": 0,
+          "sellTime": null,
+          "boughtBy": null,
+          "boughtFor": null
+        },
+        {
+          "slotIndex": 2,
+          "locked": true,
+          "resource": null,
+          "amount": 0,
+          "price": 0,
+          "sellTime": null,
+          "boughtBy": null,
+          "boughtFor": null
+        },
+        {
+          "slotIndex": 3,
+          "locked": true,
+          "resource": null,
+          "amount": 0,
+          "price": 0,
+          "sellTime": null,
+          "boughtBy": null,
+          "boughtFor": null
+        },
+        {
+          "slotIndex": 4,
+          "locked": true,
+          "resource": null,
+          "amount": 0,
+          "price": 0,
+          "sellTime": null,
+          "boughtBy": null,
+          "boughtFor": null
+        },
+        {
+          "slotIndex": 5,
+          "locked": true,
+          "resource": null,
+          "amount": 0,
+          "price": 0,
+          "sellTime": null,
+          "boughtBy": null,
+          "boughtFor": null
+        }
+      ]
     },
     "tradeStallSlots": {
       "Free": 6,

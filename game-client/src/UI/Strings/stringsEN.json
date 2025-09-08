@@ -97,7 +97,16 @@
     "181": "📦 Warehouse",
     "182": "🎒 Backpack",
     "183": "Capacity: ",
-
+    "184": "Manage Warehouse",
+    "185": "Quantity",
+    "186": "Amount",
+    "187": "Add to Warehouse",
+    "188": "Discard",
+    "189": "Add All to Warehouse",
+    "190": "Discard All",
+    "191": "Item",
+    "192": "Action",
+    "193": "Discard Items",
 
     "200": "QUESTS",
 
@@ -980,22 +989,23 @@
     "1023": "Workers help you run your homestead. Hire them at the Farm House.",
     "4010": "Already have a profile?",
 
-    "184": "Manage Warehouse",
-    "185": "Quantity",
-    "186": "Amount",
-    "187": "Add to Warehouse",
-    "188": "Discard",
-    "189": "Add All to Warehouse",
-    "190": "Discard All",
-    "191": "Item",
-    "192": "Action",
-    "193": "Discard Items",
-
+    "170": "Unlocked trading slot",
+    "171": "Gold Pass Required",
+    "172": "Locked",
+    "173": "Limit of",
+    "174": "to Sell",
+    "175": "Unlock for",
+    "176": "Wood",
+    "177": "Need",
+    "178": "to unlock this slot",
+    
+    
     "1001": "Resources collected at the homestead go into the warehouse. Resources collected in town or in the valley will go into the backpack. To buy a backpack, visit the Store in town. To empty the backpack or warehouse, use the Manage buttons.",
     "723": "💪 Grower",
     "724": "Well done, you're making money now! Go ahead and expand your farm. Plant crops using the 🚜 Farming panel, harvest them, and sell. Acquire the Grower skill to expand your farming capabilities.",
     "702": "Welcome, traveler! You've arrived in Valley View, a frontier land of opportunity, mystery and adventure.",
     "730": "Welcome 👵🏻 Shepherd! Now visit the 🐮 Animal Panel to acquire a cow. Cows need 🟩 grass to graze, so place them carefully. And you already have your first 🟫 Animal Stall; this is where you can produce milk once the cow is full."
+
 
 
 
