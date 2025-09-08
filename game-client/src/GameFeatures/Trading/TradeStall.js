@@ -30,6 +30,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const { updateStatus } = useContext(StatusBarContext);
   const [masterResources, setMasterResources] = useState([]); // Store master resources for isACrop check
   const [playerTradeStalls, setPlayerTradeStalls] = useState({}); // Cache of all players' trade stalls
+  const [showPlayerDropdown, setShowPlayerDropdown] = useState(false); // Show/hide player dropdown
+  const [isLoadingPlayers, setIsLoadingPlayers] = useState(false); // Loading state for dropdown
 
   const tradeStallHaircut = globalTuning?.tradeStallHaircut || 0.25;
   const tradeStallSlotConfig = globalTuning?.tradeStallSlots || [];
@@ -247,6 +249,20 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     
   }, [viewedPlayer?.playerId, currentPlayer?.playerId]); // More stable dependencies
   
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showPlayerDropdown && !event.target.closest('.username-container')) {
+        setShowPlayerDropdown(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showPlayerDropdown]);
+  
 
   const handleSlotClick = (index) => {
     const slot = tradeSlots[index];
@@ -361,6 +377,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   };
 
   const handleNextPlayer = () => {
+    setShowPlayerDropdown(false); // Close dropdown when clicking arrow
     if (settlementPlayers.length > 0) {
       let nextIndex = viewedPlayerIndex;
       let attempts = 0;
@@ -383,6 +400,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   };
   
   const handlePreviousPlayer = () => {
+    setShowPlayerDropdown(false); // Close dropdown when clicking arrow
     if (settlementPlayers.length > 0) {
       let previousIndex = viewedPlayerIndex;
       let attempts = 0;
@@ -404,21 +422,82 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     }
   };
   
-  // Helper function to check if a player has any items in their trade stall
+  // Helper function to check if a player has any unsold items in their trade stall
   const playerHasItems = (player) => {
-    // For current player being viewed, check current tradeSlots
-    if (player.playerId === viewedPlayer.playerId) {
-      return tradeSlots.some(slot => slot?.resource && slot?.amount > 0);
+    // Always allow navigation to current player
+    if (player.playerId === currentPlayer.playerId) {
+      return true;
     }
     
-    // For other players, check cached trade stall data
+    // For current player being viewed, check current tradeSlots for unsold items
+    if (player.playerId === viewedPlayer.playerId) {
+      return tradeSlots.some(slot => 
+        slot?.resource && 
+        slot?.amount > 0 && 
+        !slot?.boughtBy
+      );
+    }
+    
+    // For other players, check cached trade stall data for unsold items
     const playerStall = playerTradeStalls[player.playerId];
     if (playerStall) {
-      return playerStall.some(slot => slot?.resource && slot?.amount > 0);
+      return playerStall.some(slot => 
+        slot?.resource && 
+        slot?.amount > 0 && 
+        !slot?.boughtBy
+      );
     }
     
     // If we don't have data yet, assume they might have items
     return true;
+  };
+  
+  // Get list of players who have items in their trade stalls (plus current player)
+  const getPlayersWithItems = () => {
+    const playersWithItems = settlementPlayers.filter(player => {
+      // Always include current player
+      if (player.playerId === currentPlayer.playerId) return true;
+      
+      // Include other players only if they have unsold items
+      const stall = playerTradeStalls[player.playerId];
+      return stall && stall.some(slot => 
+        slot?.resource && 
+        slot?.amount > 0 && 
+        !slot?.boughtBy // Only include if not sold
+      );
+    });
+    
+    // Sort to put current player first
+    return playersWithItems.sort((a, b) => {
+      if (a.playerId === currentPlayer.playerId) return -1;
+      if (b.playerId === currentPlayer.playerId) return 1;
+      return 0;
+    });
+  };
+  
+  // Get unique resource symbols for a player's trade stall (excluding sold items)
+  const getPlayerResourceSymbols = (playerId) => {
+    const stall = playerTradeStalls[playerId];
+    if (!stall) return [];
+    
+    const uniqueResources = new Set();
+    stall.forEach(slot => {
+      if (slot?.resource && slot?.amount > 0 && !slot?.boughtBy) {
+        uniqueResources.add(slot.resource);
+      }
+    });
+    
+    return Array.from(uniqueResources).map(resourceType => getSymbol(resourceType));
+  };
+  
+  // Handle selecting a player from the dropdown
+  const handleSelectPlayer = (player) => {
+    const playerIndex = settlementPlayers.findIndex(p => p.playerId === player.playerId);
+    if (playerIndex !== -1) {
+      setViewedPlayerIndex(playerIndex);
+      setViewedPlayer(player);
+    }
+    setShowPlayerDropdown(false);
   };
   
   
@@ -661,9 +740,74 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 
       <div className="username-container">
         <button className="arrow-button" onClick={handlePreviousPlayer}>👈</button>
-        <span className="username" style={{ flexGrow: 1, textAlign: 'center' }}>
-          {viewedPlayer?.playerId === currentPlayer?.playerId ? 'You' : (viewedPlayer?.username || 'N/A')}
-        </span>
+        <div style={{ flexGrow: 1, textAlign: 'center', position: 'relative' }}>
+          <span 
+            className="username clickable" 
+            onClick={async () => {
+              if (!showPlayerDropdown) {
+                setShowPlayerDropdown(true);
+                setIsLoadingPlayers(true);
+                
+                // Refetch player trade stalls to ensure fresh data
+                try {
+                  const tradeStallsData = {};
+                  for (const player of settlementPlayers) {
+                    try {
+                      const response = await axios.get(`${API_BASE}/api/player-trade-stall`, {
+                        params: { playerId: player.playerId },
+                      });
+                      tradeStallsData[player.playerId] = response.data.tradeStall || [];
+                    } catch (error) {
+                      console.error(`Error fetching trade stall for player ${player.playerId}:`, error);
+                      tradeStallsData[player.playerId] = [];
+                    }
+                  }
+                  setPlayerTradeStalls(tradeStallsData);
+                } catch (error) {
+                  console.error('Error fetching player trade stalls:', error);
+                } finally {
+                  setIsLoadingPlayers(false);
+                }
+              } else {
+                setShowPlayerDropdown(false);
+              }
+            }}
+            style={{ cursor: 'pointer' }}
+          >
+            {viewedPlayer?.playerId === currentPlayer?.playerId ? 'You' : (viewedPlayer?.username || 'N/A')}
+          </span>
+          {showPlayerDropdown && (
+            <div className="player-dropdown">
+              {isLoadingPlayers ? (
+                <div className="player-dropdown-loading">⏳</div>
+              ) : (
+                getPlayersWithItems().length > 0 ? (
+                  getPlayersWithItems().map(player => {
+                    const resourceSymbols = getPlayerResourceSymbols(player.playerId);
+                    return (
+                      <div 
+                        key={player.playerId}
+                        className="player-dropdown-item"
+                        onClick={() => handleSelectPlayer(player)}
+                      >
+                        <div>{player.playerId === currentPlayer.playerId ? 'You' : player.username}</div>
+                        {resourceSymbols.length > 0 && (
+                          <div className="player-resources">
+                            {resourceSymbols.join(' ')}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="player-dropdown-item" style={{ textAlign: 'center', color: '#999', justifyContent: 'center' }}>
+                    No players with items
+                  </div>
+                )
+              )}
+            </div>
+          )}
+        </div>
         <button className="arrow-button" onClick={handleNextPlayer}>👉</button>
       </div>
 
