@@ -642,6 +642,16 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         // Update local state with server response
         if (response.data.tradeStall) {
           setTradeSlots(response.data.tradeStall);
+          // Also update currentPlayer to trigger UI updates
+          setCurrentPlayer(prev => ({
+            ...prev,
+            tradeStall: response.data.tradeStall
+          }));
+          // Update the cache for current player
+          setPlayerTradeStalls(prev => ({
+            ...prev,
+            [currentPlayer.playerId]: response.data.tradeStall
+          }));
         }
         if (response.data.inventory) {
           setInventory(response.data.inventory);
@@ -705,6 +715,11 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         // Update local state with server response
         if (response.data.tradeStall) {
           setTradeSlots(response.data.tradeStall);
+          // Update the cache for current player
+          setPlayerTradeStalls(prev => ({
+            ...prev,
+            [currentPlayer.playerId]: response.data.tradeStall
+          }));
         }
         if (response.data.inventory) {
           setInventory(response.data.inventory);
@@ -853,7 +868,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
               <div key={index} className="trade-slot-container">
                 {/* 1. SLOT DISPLAY */}
                 <div
-                  className={`trade-slot ${isEmpty ? 'empty' : 'filled'} ${isPurchased ? 'purchased' : ''} ${!slotUnlocked ? 'locked' : ''}`}
+                  className={`trade-slot ${isEmpty ? 'empty' : 'filled'} ${isPurchased ? 'purchased' : ''} ${!slotUnlocked ? 'locked' : ''} ${index >= 4 ? 'gold-slot' : ''}`}
                   onClick={() => handleSlotClick(index)}
                   style={{ cursor: (isOwnStall && isEmpty && slotUnlocked) ? 'pointer' : 'default' }}
                 >

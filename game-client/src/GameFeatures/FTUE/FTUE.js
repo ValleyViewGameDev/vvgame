@@ -99,7 +99,10 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
 
       } else if (currentStep === 6) {
         console.log(`🎓 Processing FTUE step 6 - cow purchased`);
-        // Just close modal after cow purchase
+        
+        // Add the Get Axe quest (quest 10) at step 6 so it's ready for step 7
+        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 10);
+        
         onClose();
 
 //////////// FTUE STEP 7 /////////////
@@ -116,10 +119,9 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
 //////////// FTUE STEP 8 /////////////
 
       } else if (currentStep === 8) {
-        console.log(`🎓 Adding Axe quest after FTUE step ${currentStep}`);
+        console.log(`🎓 Processing FTUE step 8 - axe acquired`);
         
-        // Add the Axe quest
-        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 10);
+        // No quest to add here since Get Axe quest was already added at step 6
         
         onClose(); // Close FTUE modal
 

@@ -405,6 +405,27 @@
   min-height: 85px;
 }
 
+/* GOLD PASS SLOT STYLING (slots 5-6) */
+.trade-slot.gold-slot {
+  background-color: #ffec43; /* Light yellow */
+  border-color: #f0e68c;
+}
+
+.trade-slot.gold-slot.locked {
+  background-color: #ffec43; /* Light yellow even when locked */
+  border-color: #dad420;
+}
+
+.trade-slot.gold-slot.filled {
+  background-color: #ffec43; /* Slightly darker yellow when filled */
+  border-color: #dad420;
+}
+
+.trade-slot.gold-slot.purchased {
+  background-color: #ffec43; /* Cornsilk for purchased gold slots */
+  border-color: #dad420;
+}
+
 .trade-slot-locked {
   display: flex;
   flex-direction: column;
