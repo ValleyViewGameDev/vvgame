@@ -16,6 +16,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
     const baseWarehouseCapacity = currentPlayer?.warehouseCapacity || 0;
     const baseBackpackCapacity = currentPlayer?.backpackCapacity || 0;
     const [showBackpackModal, setShowBackpackModal] = useState(false);
+    const [showWarehouseModal, setShowWarehouseModal] = useState(false);
     const hasBackpackSkill = currentPlayer?.skills?.some(item => item.type === 'Backpack');
     const finalCapacities = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources);
     const calculateTotalQuantity = (inventory) =>
@@ -134,6 +135,50 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
         }
     };
 
+    const handleDiscardWarehouseItem = async (item) => {
+        try {
+            const updatedWarehouse = inventory.filter(i => i.type !== item.type);
+
+            await axios.post(`${API_BASE}/api/update-inventory`, {
+                playerId: currentPlayer.playerId,
+                inventory: updatedWarehouse,
+            });
+
+            setCurrentPlayer({
+                ...currentPlayer,
+                inventory: updatedWarehouse,
+            });
+            
+            // Also update parent component's state
+            setInventory(updatedWarehouse);
+
+            updateStatus(`❌ Discarded ${item.quantity}x ${getLocalizedString(item.type, strings)}`);
+        } catch (error) {
+            console.error('Error updating inventory:', error);
+        }
+    };
+
+    const handleDiscardAllWarehouse = async () => {
+        try {
+            await axios.post(`${API_BASE}/api/update-inventory`, {
+                playerId: currentPlayer.playerId,
+                inventory: [],
+            });
+
+            setCurrentPlayer({
+                ...currentPlayer,
+                inventory: [],
+            });
+            
+            // Also update parent component's state
+            setInventory([]);
+
+            updateStatus(`❌ Discarded all warehouse items`);
+        } catch (error) {
+            console.error('Error updating inventory:', error);
+        }
+    };
+
     return (
         <Panel onClose={onClose} descriptionKey="1001" titleKey="1101" panelName="InventoryPanel">
             <h3>{strings[182]}</h3>
@@ -173,6 +218,16 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
             <h3>{strings[181]}</h3>
             <div className="capacity-display">{strings[183]} {calculateTotalQuantity(inventory)}/{finalCapacities.warehouse}</div>
 
+            {inventory.length > 0 && (
+            <div className="panel-buttons">
+                <button className="btn-success" onClick={() => setShowWarehouseModal(true)}>
+                Manage Warehouse
+                </button>
+            </div>
+            )}
+
+            <br></br>
+            <br></br>
             <div className="inventory-table">
                 {inventory.filter(item => item.type !== 'Money').length > 0 ? (
                     inventory.filter(item => item.type !== 'Money').map((item, index) => (
@@ -238,6 +293,46 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     </div>
                 );
             })()}
+
+            {showWarehouseModal && (
+                <div className="inventory-modal">
+                    <button className="close-button" onClick={() => setShowWarehouseModal(false)}>✖</button>
+                    <h2>Discard Items</h2>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {inventory.filter(item => item.type !== 'Money').map((item) => (
+                                <tr key={item.type}>
+                                    <td>{getLocalizedString(item.type, strings)}</td>
+                                    <td>{item.quantity.toLocaleString()}</td>
+                                    <td>
+                                        <button
+                                            className="add-button"
+                                            onClick={() => handleDiscardWarehouseItem(item)}
+                                        >
+                                            Discard
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+
+                    <button 
+                        className="sell-button" 
+                        onClick={handleDiscardAllWarehouse}
+                    >
+                        Discard All
+                    </button>
+                </div>
+            )}
         </Panel>
     );
 }
