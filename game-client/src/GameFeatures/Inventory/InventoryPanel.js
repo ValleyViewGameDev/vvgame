@@ -17,25 +17,44 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
     const baseBackpackCapacity = currentPlayer?.backpackCapacity || 0;
     const [showBackpackModal, setShowBackpackModal] = useState(false);
     const [showWarehouseModal, setShowWarehouseModal] = useState(false);
+    const [backpackAmounts, setBackpackAmounts] = useState({}); // Store amounts per resource for backpack
+    const [warehouseAmounts, setWarehouseAmounts] = useState({}); // Store amounts per resource for warehouse
     const hasBackpackSkill = currentPlayer?.skills?.some(item => item.type === 'Backpack');
     const finalCapacities = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources);
     const calculateTotalQuantity = (inventory) =>
         inventory.filter((item) => item.type !== 'Money').reduce((total, item) => total + item.quantity, 0);
     
+    const handleAmountChange = (amounts, setAmounts, type, value, maxValue) => {
+        const clampedValue = Math.min(Math.max(0, value), maxValue);
+        setAmounts((prev) => ({
+            ...prev,
+            [type]: clampedValue,
+        }));
+    };
+
     const handleMoveItem = async (item) => {
         const isAtHome = currentPlayer.location.g === currentPlayer.gridId;
+        const amount = backpackAmounts[item.type] || 0;
+        
+        if (amount <= 0) return;
 
         try {
             if (isAtHome) {
                 const updatedWarehouse = [...inventory];
                 const existingIndex = updatedWarehouse.findIndex(i => i.type === item.type);
                 if (existingIndex !== -1) {
-                    updatedWarehouse[existingIndex].quantity += item.quantity;
+                    updatedWarehouse[existingIndex].quantity += amount;
                 } else {
-                    updatedWarehouse.push(item);
+                    updatedWarehouse.push({ ...item, quantity: amount });
                 }
 
-                const updatedBackpack = backpack.filter(i => i.type !== item.type);
+                const updatedBackpack = backpack.map(i => {
+                    if (i.type === item.type) {
+                        const newQuantity = i.quantity - amount;
+                        return newQuantity > 0 ? { ...i, quantity: newQuantity } : null;
+                    }
+                    return i;
+                }).filter(Boolean);
 
                 await axios.post(`${API_BASE}/api/update-inventory`, {
                     playerId: currentPlayer.playerId,
@@ -53,9 +72,15 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                 setInventory(updatedWarehouse);
                 setBackpack(updatedBackpack);
 
-                updateStatus(`Moved ${item.quantity}x ${getLocalizedString(item.type, strings)} to warehouse`);
+                updateStatus(`Moved ${amount}x ${getLocalizedString(item.type, strings)} to warehouse`);
             } else {
-                const updatedBackpack = backpack.filter(i => i.type !== item.type);
+                const updatedBackpack = backpack.map(i => {
+                    if (i.type === item.type) {
+                        const newQuantity = i.quantity - amount;
+                        return newQuantity > 0 ? { ...i, quantity: newQuantity } : null;
+                    }
+                    return i;
+                }).filter(Boolean);
 
                 await axios.post(`${API_BASE}/api/update-inventory`, {
                     playerId: currentPlayer.playerId,
@@ -70,7 +95,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                 // Also update parent component's state
                 setBackpack(updatedBackpack);
 
-                updateStatus(`❌ Discarded ${item.quantity}x ${getLocalizedString(item.type, strings)}`);
+                updateStatus(`❌ Discarded ${amount}x ${getLocalizedString(item.type, strings)}`);
             }
         } catch (error) {
             console.error('Error updating inventory:', error);
@@ -137,7 +162,17 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
 
     const handleDiscardWarehouseItem = async (item) => {
         try {
-            const updatedWarehouse = inventory.filter(i => i.type !== item.type);
+            const amount = warehouseAmounts[item.type] || 0;
+            
+            if (amount <= 0) return;
+            
+            const updatedWarehouse = inventory.map(i => {
+                if (i.type === item.type) {
+                    const newQuantity = i.quantity - amount;
+                    return newQuantity > 0 ? { ...i, quantity: newQuantity } : null;
+                }
+                return i;
+            }).filter(Boolean);
 
             await axios.post(`${API_BASE}/api/update-inventory`, {
                 playerId: currentPlayer.playerId,
@@ -152,7 +187,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
             // Also update parent component's state
             setInventory(updatedWarehouse);
 
-            updateStatus(`❌ Discarded ${item.quantity}x ${getLocalizedString(item.type, strings)}`);
+            updateStatus(`❌ Discarded ${amount}x ${getLocalizedString(item.type, strings)}`);
         } catch (error) {
             console.error('Error updating inventory:', error);
         }
@@ -221,7 +256,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
             {inventory.length > 0 && (
             <div className="panel-buttons">
                 <button className="btn-success" onClick={() => setShowWarehouseModal(true)}>
-                Manage Warehouse
+                {strings[184]}
                 </button>
             </div>
             )}
@@ -249,14 +284,15 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                 return (
                     <div className="inventory-modal">
                         <button className="close-button" onClick={() => setShowBackpackModal(false)}>✖</button>
-                        <h2>{isAtHome ? 'Add Items to Warehouse' : 'Discard Items'}</h2>
+                        <h2>{isAtHome ? strings[187] : strings[193]}</h2>
 
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Item</th>
-                                    <th>Quantity</th>
-                                    <th>Action</th>
+                                    <th>{strings[191]}</th>
+                                    <th>{strings[185]}</th>
+                                    <th>{strings[186]}</th>
+                                    <th>{strings[192]}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -269,12 +305,47 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                                             <td>{getLocalizedString(item.type, strings)}</td>
                                             <td>{item.quantity.toLocaleString()}</td>
                                             <td>
+                                                <div className="amount-input">
+                                                    <button
+                                                        onClick={() =>
+                                                            handleAmountChange(backpackAmounts, setBackpackAmounts, item.type, (backpackAmounts[item.type] || 0) - 1, item.quantity)
+                                                        }
+                                                        disabled={(backpackAmounts[item.type] || 0) <= 0}
+                                                    >
+                                                        -
+                                                    </button>
+                                                    <input
+                                                        type="number"
+                                                        value={backpackAmounts[item.type] || 0}
+                                                        onChange={(e) =>
+                                                            handleAmountChange(backpackAmounts, setBackpackAmounts, item.type, parseInt(e.target.value, 10) || 0, item.quantity)
+                                                        }
+                                                    />
+                                                    <button
+                                                        onClick={() =>
+                                                            handleAmountChange(backpackAmounts, setBackpackAmounts, item.type, (backpackAmounts[item.type] || 0) + 1, item.quantity)
+                                                        }
+                                                        disabled={(backpackAmounts[item.type] || 0) >= item.quantity}
+                                                    >
+                                                        +
+                                                    </button>
+                                                    <button
+                                                        onClick={() =>
+                                                            handleAmountChange(backpackAmounts, setBackpackAmounts, item.type, item.quantity, item.quantity)
+                                                        }
+                                                        style={{ marginLeft: '4px' }}
+                                                    >
+                                                        {strings[165]}
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <td>
                                                 <button
                                                     className="add-button"
                                                     onClick={() => handleMoveItem(item)}
-                                                    disabled={isTentAtHome || isBoatAtHome}
+                                                    disabled={isTentAtHome || isBoatAtHome || !(backpackAmounts[item.type] > 0 && backpackAmounts[item.type] <= item.quantity)}
                                                 >
-                                                    {isAtHome ? "Add to Warehouse" : "Discard"}
+                                                    {isAtHome ? strings[187] : strings[188]}
                                                 </button>
                                             </td>
                                         </tr>
@@ -288,7 +359,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                             onClick={handleMoveAll} 
                             disabled={isAddAllDisabled}
                         >
-                            {isAtHome ? "Add All to Warehouse" : "Discard All"}
+                            {isAtHome ? strings[189] : strings[190]}
                         </button>
                     </div>
                 );
@@ -297,14 +368,15 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
             {showWarehouseModal && (
                 <div className="inventory-modal">
                     <button className="close-button" onClick={() => setShowWarehouseModal(false)}>✖</button>
-                    <h2>Discard Items</h2>
+                    <h2>{strings[193]}</h2>
 
                     <table>
                         <thead>
                             <tr>
-                                <th>Item</th>
-                                <th>Quantity</th>
-                                <th>Action</th>
+                                <th>{strings[191]}</th>
+                                <th>{strings[185]}</th>
+                                <th>{strings[186]}</th>
+                                <th>{strings[192]}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -313,11 +385,47 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                                     <td>{getLocalizedString(item.type, strings)}</td>
                                     <td>{item.quantity.toLocaleString()}</td>
                                     <td>
+                                        <div className="amount-input">
+                                            <button
+                                                onClick={() =>
+                                                    handleAmountChange(warehouseAmounts, setWarehouseAmounts, item.type, (warehouseAmounts[item.type] || 0) - 1, item.quantity)
+                                                }
+                                                disabled={(warehouseAmounts[item.type] || 0) <= 0}
+                                            >
+                                                -
+                                            </button>
+                                            <input
+                                                type="number"
+                                                value={warehouseAmounts[item.type] || 0}
+                                                onChange={(e) =>
+                                                    handleAmountChange(warehouseAmounts, setWarehouseAmounts, item.type, parseInt(e.target.value, 10) || 0, item.quantity)
+                                                }
+                                            />
+                                            <button
+                                                onClick={() =>
+                                                    handleAmountChange(warehouseAmounts, setWarehouseAmounts, item.type, (warehouseAmounts[item.type] || 0) + 1, item.quantity)
+                                                }
+                                                disabled={(warehouseAmounts[item.type] || 0) >= item.quantity}
+                                            >
+                                                +
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    handleAmountChange(warehouseAmounts, setWarehouseAmounts, item.type, item.quantity, item.quantity)
+                                                }
+                                                style={{ marginLeft: '4px' }}
+                                            >
+                                                {strings[165]}
+                                            </button>
+                                        </div>
+                                    </td>
+                                    <td>
                                         <button
                                             className="add-button"
                                             onClick={() => handleDiscardWarehouseItem(item)}
+                                            disabled={!(warehouseAmounts[item.type] > 0 && warehouseAmounts[item.type] <= item.quantity)}
                                         >
-                                            Discard
+                                            {strings[188]}
                                         </button>
                                     </td>
                                 </tr>
@@ -329,7 +437,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                         className="sell-button" 
                         onClick={handleDiscardAllWarehouse}
                     >
-                        Discard All
+                        {strings[190]}
                     </button>
                 </div>
             )}

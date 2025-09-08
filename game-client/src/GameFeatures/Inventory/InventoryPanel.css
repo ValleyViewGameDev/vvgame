@@ -43,3 +43,43 @@
   width: 40%; /* Adjust width for quantity */
   text-align: right;
 }
+
+/* Inventory Modal Table Column Widths */
+.inventory-modal table {
+  table-layout: fixed;
+}
+
+.inventory-modal th:nth-child(1), /* Item column */
+.inventory-modal td:nth-child(1) {
+  width: 30%;
+}
+
+.inventory-modal th:nth-child(2), /* Quantity column */
+.inventory-modal td:nth-child(2) {
+  width: 20%;
+}
+
+.inventory-modal th:nth-child(3), /* Amount column - reduced by 40% */
+.inventory-modal td:nth-child(3) {
+  width: 30%; /* Reduced from default */
+}
+
+.inventory-modal th:nth-child(4), /* Action column */
+.inventory-modal td:nth-child(4) {
+  width: 20%;
+}
+
+/* Adjust amount input to fit in narrower column */
+.inventory-modal .amount-input {
+  gap: 2px; /* Reduce gap between elements */
+}
+
+.inventory-modal .amount-input input {
+  width: 40px; /* Reduce from 50px */
+}
+
+.inventory-modal .amount-input button {
+  width: 25px; /* Reduce from 30px */
+  height: 25px;
+  font-size: 12px;
+}

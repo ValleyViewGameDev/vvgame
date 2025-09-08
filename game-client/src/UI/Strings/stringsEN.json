@@ -97,7 +97,6 @@
     "181": "📦 Warehouse",
     "182": "🎒 Backpack",
     "183": "Capacity: ",
-    "184": "Manage Backpack",
 
 
     "200": "QUESTS",
@@ -132,6 +131,13 @@
     "319": "Select Animals to Collect:",
     "320": "Cannot terraform here.",
     "340": "Not avilable unless you're on foot.",
+
+    "350": "The Farm Hand will help you automate harvesting and planting of crops.",
+    "351": "The Rancher will help you automate collecting from animals.",
+    "352": "The Lumberjack will help you automate chopping trees for wood.",
+    "353": "The Crafter will help you automate collecting from crafting stations.",
+    "354": "Kent is your Farm Manager. He can help you run your homestead.",
+    "355": "The Shepherd will guide you in the management of your farm animals.",
 
     "400": "BUYING, CRAFTING, SKILLS, HEALING, ETC.",
 
@@ -224,21 +230,17 @@
     "700": "FTUE STRINGS:",
 
     "701": "Welcome to Valley View (Open Beta)",
-    "702": "Welcome, traveler! You've arrived in Valley View, a frontier land of opportunity and adventure.",
     "705": "😀 This game is in Open Beta 😀",
-    "706": "Your feedback is very welcome, and will help us improve the game. Look for the button on the left panel to join our Discord Server, where you can share your thoughts and experiences.",  
+    "706": "Your feedback is very welcome, and will help us improve the game. Look for the buttons on the left panel to send us email, or join our Discord Server. Please share your thoughts and experiences!",  
     "709": "🏚️ Your Homestead",
     "710": "You've inherited a Homestead in a Settlement with other players. Start by fixing up this abandoned farm house. Check your ✅ To Do List. You'll need to gather some wood first.", 
     "715": "👨🏽 Hire Kent",
     "716": "Excellent! Now, you're going to need to start making 💰 money. You'll need a Farm Manager who can live here full time and help you grow the operation. Open the 🏠 Farm House to hire people.",
-    "721": "👨🏽 Listen to Kent",
-    "722": "Great, Kent is the best! Get to know him well, and he'll give you ✅ advice. Kent's first order of business: harvest some 🌾 Wheat, and use the 📥 Trading Post to sell it.",
-    "723": "Farm the Land",
-    "724": "Go ahead and expand your farm. Plant crops using the 🚜 Farming panel. When you have enough money, acquire the Grower skill to expand your farming capabilities.",
+    "721": "👨🏽 Meet Kent",
+    "722": "This is Kent, your Farm Manager. Talk with him, and he'll give you ✅ advice. Kent's first order of business: harvest some 🌾 Wheat, and use the 📥 Trading Post to sell it.",
     "727": "👵🏻 Hire the Shepherd",
     "728": "Nice work! Now hire the 👵🏻 Shepherd from the 🏠 Farm House, and she'll help bring some 🐮 animal life to the farm, so you can continue to expand your business.",   
     "729": "🐮 Animal Husbandry",
-    "730": "Go to the 🐮 Animal Panel to acquire farm animals. Start with a cow. The cow needs 🟩 grass to graze, so place it carefully. And you already have your first 🟫 Animal Stall; this is where you can produce milk once the cow is full.",
     "731": "⛏️ Shape the Land",
     "732": "Crops need dirt. Cows and sheep need 🟩 grass. Pavement can help contain the movements of people and animals. Use the ⛏️ Tools to pave the land to your liking, and learn the  🪓 axe skill to chop trees for wood.",
     "733": "⚒️ Builder",
@@ -264,7 +266,6 @@
     "999": "PANEL UI STRINGS:",
 
     "1000": "[Description needed]",
-    "1001": "Inventory: Resources collected at the Homestead will go into the warehouse. Resources collected in town or in the valley will go into the backpack. To buy a backpack, go to Skills. Crafting stations will only pull items from the warehouse. You can empty your backpack into the warehouse anytime you are on your Homestead.",
     "1002": "Build crafting stations on your Homestead using resources from your warehouse.",
     "1003": "Purchased animals will appear at your player icon, and immediately begin life on the homestead.",
     "1004": "Till land to dirt in order to plant crops. Plant grass to give farm animals something to graze on.",
@@ -975,9 +976,27 @@
 
   "11000": "ADDED STRINGS:",
 
-      "10114": "Next Season starts in:",
+    "10114": "Next Season starts in:",
     "1023": "Workers help you run your homestead. Hire them at the Farm House.",
-    "4010": "Already have a profile?"
+    "4010": "Already have a profile?",
+
+    "184": "Manage Warehouse",
+    "185": "Quantity",
+    "186": "Amount",
+    "187": "Add to Warehouse",
+    "188": "Discard",
+    "189": "Add All to Warehouse",
+    "190": "Discard All",
+    "191": "Item",
+    "192": "Action",
+    "193": "Discard Items",
+
+    "1001": "Resources collected at the homestead go into the warehouse. Resources collected in town or in the valley will go into the backpack. To buy a backpack, visit the Store in town. To empty the backpack or warehouse, use the Manage buttons.",
+    "723": "💪 Grower",
+    "724": "Well done, you're making money now! Go ahead and expand your farm. Plant crops using the 🚜 Farming panel, harvest them, and sell. Acquire the Grower skill to expand your farming capabilities.",
+    "702": "Welcome, traveler! You've arrived in Valley View, a frontier land of opportunity, mystery and adventure.",
+    "730": "Welcome 👵🏻 Shepherd! Now visit the 🐮 Animal Panel to acquire a cow. Cows need 🟩 grass to graze, so place them carefully. And you already have your first 🟫 Animal Stall; this is where you can produce milk once the cow is full."
+
 
 
   }

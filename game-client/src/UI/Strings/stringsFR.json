@@ -87,7 +87,6 @@
     "181": "📦 Entrepôt",
     "182": "🎒 Sac à dos",
     "183": "Capacité : ",
-    "184": "Gérer le sac à dos",
 
     "200": "QUESTS",
 
@@ -621,7 +620,7 @@
 "701": "Bienvenue à Valley View (Bêta Ouverte)",
 "702": "Bienvenue, voyageur ! Vous êtes arrivé à Valley View, une terre de frontière pleine d'opportunités et d'aventures.",
 "705": "😀 Ce jeu est en Bêta Ouverte 😀",
-"706": "Vos commentaires sont les bienvenus et nous aideront à améliorer le jeu. Cherchez le bouton sur le panneau de gauche pour rejoindre notre serveur Discord, où vous pouvez partager vos réflexions et expériences.",
+"706": "Vos commentaires sont très bienvenus et nous aideront à améliorer le jeu. Recherchez les boutons sur le panneau de gauche pour nous envoyer un e-mail ou rejoindre notre serveur Discord. N'hésitez pas à partager vos réflexions et expériences !",
 "709": "🏚️ Votre Ferme",
 "710": "Vous avez hérité d'une Ferme dans une Colonie avec d'autres joueurs. Commencez par réparer cette ferme abandonnée. Consultez votre ✅ Liste de Tâches. Vous devrez d'abord rassembler du bois.",
 "715": "👨🏽 Embaucher Kent",
@@ -975,6 +974,17 @@
 "200281": "Fontaine",
 "200282": "Grande Fontaine",
 "200283": "Grand Palmier Décoratif",
+
+"184": "Gérer l'entrepôt",
+"185": "Quantité",
+"186": "Montant",
+"187": "Ajouter à l'entrepôt",
+"188": "Jeter",
+"189": "Tout ajouter à l'entrepôt",
+"190": "Tout jeter",
+"191": "Article",
+"192": "Action",
+"193": "Jeter les articles",
 
     "11000": "ADDED STRINGS:",
 

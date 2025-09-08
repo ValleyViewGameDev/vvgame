@@ -97,8 +97,16 @@
     "181": "📦 Lagerhaus",
     "182": "🎒 Rucksack",
     "183": "Kapazität: ",
-    "184": "Rucksack verwalten",
-
+    "184": "Lager verwalten",
+    "185": "Menge",
+    "186": "Betrag",
+    "187": "Zum Lager hinzufügen",
+    "188": "Verwerfen",
+    "189": "Alles zum Lager hinzufügen",
+    "190": "Alles verwerfen",
+    "191": "Gegenstand",
+    "192": "Aktion",
+    "193": "Gegenstände verwerfen",
 
     "200": "QUESTS",
 
@@ -226,7 +234,7 @@
     "701": "Willkommen bei Valley View (Open Beta)",
     "702": "Willkommen, Reisender! Du bist in Valley View angekommen, einem Grenzland voller Möglichkeiten und Abenteuer.",
     "705": "😀 Dieses Spiel ist in Open Beta 😀",
-    "706": "Dein Feedback ist sehr willkommen und wird uns helfen, das Spiel zu verbessern. Suche nach dem Button im linken Panel, um unserem Discord-Server beizutreten, wo du deine Gedanken und Erfahrungen teilen kannst.",  
+    "706": "Dein Feedback ist sehr willkommen und wird uns helfen, das Spiel zu verbessern. Suche nach den Schaltflächen im linken Panel, um uns eine E-Mail zu senden oder unserem Discord-Server beizutreten. Bitte teile deine Gedanken und Erfahrungen mit uns!",
     "709": "🏚️ Dein Gehöft",
     "710": "Du hast ein Gehöft in einer Siedlung mit anderen Spielern geerbt. Beginne damit, dieses verlassene Bauernhaus zu reparieren. Überprüfe deine ✅ Aufgabenliste. Du musst zuerst etwas Holz sammeln.", 
     "715": "👨🏽 Kent einstellen",
