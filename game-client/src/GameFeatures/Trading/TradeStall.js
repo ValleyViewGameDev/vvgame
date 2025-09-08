@@ -225,20 +225,27 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         const players = settlementPlayersResponse.data.players || [];
         setSettlementPlayers(players);
         
-        // Fetch trade stalls for all players to determine which have items
+        // Fetch trade stalls for all players in parallel
+        const promises = players.map(player => 
+          axios.get(`${API_BASE}/api/player-trade-stall`, {
+            params: { playerId: player.playerId },
+          }).then(response => ({
+            playerId: player.playerId,
+            tradeStall: response.data.tradeStall || []
+          })).catch(error => ({
+            playerId: player.playerId,
+            tradeStall: []
+          }))
+        );
+        
+        const results = await Promise.all(promises);
         const tradeStallsData = {};
-        for (const player of players) {
-          try {
-            const response = await axios.get(`${API_BASE}/api/player-trade-stall`, {
-              params: { playerId: player.playerId },
-            });
-            tradeStallsData[player.playerId] = response.data.tradeStall || [];
-          } catch (error) {
-            console.error(`Error fetching trade stall for player ${player.playerId}:`, error);
-            tradeStallsData[player.playerId] = [];
-          }
-        }
+        results.forEach(result => {
+          tradeStallsData[result.playerId] = result.tradeStall;
+        });
+        
         setPlayerTradeStalls(tradeStallsData);
+        window.tradeStallLastFetch = Date.now();
       } catch (error) {
         console.error('Error fetching settlement players:', error);
       }
@@ -746,27 +753,44 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
             onClick={async () => {
               if (!showPlayerDropdown) {
                 setShowPlayerDropdown(true);
-                setIsLoadingPlayers(true);
                 
-                // Refetch player trade stalls to ensure fresh data
-                try {
-                  const tradeStallsData = {};
-                  for (const player of settlementPlayers) {
-                    try {
-                      const response = await axios.get(`${API_BASE}/api/player-trade-stall`, {
-                        params: { playerId: player.playerId },
-                      });
-                      tradeStallsData[player.playerId] = response.data.tradeStall || [];
-                    } catch (error) {
-                      console.error(`Error fetching trade stall for player ${player.playerId}:`, error);
-                      tradeStallsData[player.playerId] = [];
-                    }
+                // Only refetch if we don't have recent data (within last 30 seconds)
+                const now = Date.now();
+                const lastFetchTime = window.tradeStallLastFetch || 0;
+                const needsRefresh = (now - lastFetchTime) > 30000; // 30 seconds
+                
+                if (needsRefresh || Object.keys(playerTradeStalls).length === 0) {
+                  setIsLoadingPlayers(true);
+                  
+                  try {
+                    // Fetch all trade stalls in parallel
+                    const promises = settlementPlayers
+                      .filter(player => player.location?.s === currentPlayer.location.s) // Same settlement only
+                      .map(player => 
+                        axios.get(`${API_BASE}/api/player-trade-stall`, {
+                          params: { playerId: player.playerId },
+                        }).then(response => ({
+                          playerId: player.playerId,
+                          tradeStall: response.data.tradeStall || []
+                        })).catch(error => ({
+                          playerId: player.playerId,
+                          tradeStall: []
+                        }))
+                      );
+                    
+                    const results = await Promise.all(promises);
+                    const tradeStallsData = {};
+                    results.forEach(result => {
+                      tradeStallsData[result.playerId] = result.tradeStall;
+                    });
+                    
+                    setPlayerTradeStalls(tradeStallsData);
+                    window.tradeStallLastFetch = now;
+                  } catch (error) {
+                    console.error('Error fetching player trade stalls:', error);
+                  } finally {
+                    setIsLoadingPlayers(false);
                   }
-                  setPlayerTradeStalls(tradeStallsData);
-                } catch (error) {
-                  console.error('Error fetching player trade stalls:', error);
-                } finally {
-                  setIsLoadingPlayers(false);
                 }
               } else {
                 setShowPlayerDropdown(false);
