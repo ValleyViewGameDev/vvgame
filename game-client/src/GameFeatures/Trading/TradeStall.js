@@ -101,7 +101,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       
       if (!success) {
         console.warn('Not enough Wood to unlock this slot.');
-        updateStatus(`${strings[177]} ${config.unlockCost} ${strings[176]} ${strings[178]}`);
+        updateStatus(`${strings[177]} ${config.unlockCost} ${getSymbol('Wood')} ${strings[176]} ${strings[178]}`);
         return;
       }
       
@@ -135,7 +135,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       // Re-fetch trade stall data to ensure UI is in sync
       await fetchDataForViewedPlayer(true); // Skip inventory fetch since it was just updated
       
-      updateStatus(`${strings[170]} ${slotIndex + 1}!`);
+      updateStatus(`${strings[170]}`);
     } catch (error) {
       console.error('Error unlocking slot:', error);
       updateStatus('Failed to unlock slot');
@@ -769,7 +769,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                         style={{ width: '100%' }}
                         onClick={() => handleUnlockSlot(index)}
                       >
-                        {strings[175]} {config.unlockCost} {strings[176]}
+                        {strings[175]} {config.unlockCost} {getSymbol('Wood')} {strings[176]}
                       </button>
                     </div>
                   </div>

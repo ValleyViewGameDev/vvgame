@@ -91,6 +91,15 @@
     "164": "Amount",
     "165": "All",
     "166": "Add",
+    "170": "Unlocked trading slot",
+    "171": "Gold Pass Required",
+    "172": "Locked",
+    "173": "Limit of",
+    "174": "to Sell",
+    "175": "Unlock for",
+    "176": "Wood",
+    "177": "Need",
+    "178": "to unlock this slot",
 
     "180": "INVENTORY STRINGS:",
 
@@ -107,6 +116,7 @@
     "191": "Item",
     "192": "Action",
     "193": "Discard Items",
+
 
     "200": "QUESTS",
 
@@ -989,17 +999,8 @@
     "1023": "Workers help you run your homestead. Hire them at the Farm House.",
     "4010": "Already have a profile?",
 
-    "170": "Unlocked trading slot",
-    "171": "Gold Pass Required",
-    "172": "Locked",
-    "173": "Limit of",
-    "174": "to Sell",
-    "175": "Unlock for",
-    "176": "Wood",
-    "177": "Need",
-    "178": "to unlock this slot",
-    
-    
+        "199": "Gold Pass holders have near unlimited inventory.",
+
     "1001": "Resources collected at the homestead go into the warehouse. Resources collected in town or in the valley will go into the backpack. To buy a backpack, visit the Store in town. To empty the backpack or warehouse, use the Manage buttons.",
     "723": "💪 Grower",
     "724": "Well done, you're making money now! Go ahead and expand your farm. Plant crops using the 🚜 Farming panel, harvest them, and sell. Acquire the Grower skill to expand your farming capabilities.",

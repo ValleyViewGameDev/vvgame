@@ -83,3 +83,12 @@
   height: 25px;
   font-size: 12px;
 }
+
+/* Gold Pass promotion text */
+.gold-pass-info {
+  font-size: 0.8rem;
+  text-align: center;
+  color: #666;
+  margin-bottom: 10px;
+  font-style: italic;
+}

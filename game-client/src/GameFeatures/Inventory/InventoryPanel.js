@@ -7,6 +7,7 @@ import './InventoryPanel.css';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
+import { handlePurchase } from '../../Store/Store';
 
 function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus }) {
 
@@ -216,6 +217,23 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
 
     return (
         <Panel onClose={onClose} descriptionKey="1001" titleKey="1101" panelName="InventoryPanel">
+            {/* Gold Pass info for non-Gold users */}
+            {currentPlayer.accountStatus !== 'Gold' && (
+                <>
+                    <div className="gold-pass-info">
+                        {strings[199]}
+                    </div>
+                    <div className="standard-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: '20px' }}>
+                        <button 
+                            className="btn-gold"
+                            style={{ width: '100%' }}
+                            onClick={() => handlePurchase(1, currentPlayer, updateStatus)}
+                        >
+                            {strings[9061]}
+                        </button>
+                    </div>
+                </>
+            )}
             <h3>{strings[182]}</h3>
             {hasBackpackSkill ? (
               <>
