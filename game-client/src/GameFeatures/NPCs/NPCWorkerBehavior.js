@@ -39,22 +39,22 @@ async function handleWorkerBehavior(gridId) {
     switch (this.state) {
         case 'idle': {
             
-            await this.handleIdleState(tiles, resources, npcs, 5, async () => {
-                //console.log(`NPC ${this.id} transitioning to roam state.`);
-                this.state = 'roam'; // Transition to the roam state
-                await updateThisNPC();
-            });
+            // await this.handleIdleState(tiles, resources, npcs, 5, async () => {
+            //     //console.log(`NPC ${this.id} transitioning to roam state.`);
+            //     this.state = 'roam'; // Transition to the roam state
+            //     await updateThisNPC();
+            // });
 
             break;
           }
 
           case 'roam': {
 
-            await this.handleRoamState(tiles, resources, npcs, () => {
-                //console.log(`NPC ${this.id} transitioning back to idle.`);
-                this.state = 'idle'; // Transition to the idle state
-            });
-            break;
+            // await this.handleRoamState(tiles, resources, npcs, () => {
+            //     //console.log(`NPC ${this.id} transitioning back to idle.`);
+            //     this.state = 'idle'; // Transition to the idle state
+            // });
+            // break;
           }
 
         default:

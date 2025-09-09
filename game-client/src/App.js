@@ -1390,7 +1390,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         setIsModalOpen,
         closeAllPanels,
         strings,
-        bulkOperationContext
+        bulkOperationContext,
+        openPanel
       ).finally(() => {
         isProcessing = false; // Reset flag after processing
       });

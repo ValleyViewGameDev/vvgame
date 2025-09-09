@@ -39,7 +39,8 @@ import { getLocalizedString } from './Utils/stringLookup';
   setIsModalOpen,
   closeAllPanels,
   strings,
-  bulkOperationContext
+  bulkOperationContext,
+  openPanel
 ) {
   console.log(`Resource Clicked:  (${row}, ${col}):`, { resource, tileType: tileTypes[row]?.[col] });
   if (!resource || !resource.category) { console.error(`Invalid resource at (${col}, ${row}):`, resource); return; }
@@ -86,7 +87,8 @@ import { getLocalizedString } from './Utils/stringLookup';
           updateStatus,
           masterResources,
           masterSkills, // Pass tuning data
-          strings
+          strings,
+          openPanel
         );
         break;
 
@@ -189,7 +191,8 @@ export async function handleDooberClick(
   updateStatus,
   masterResources,
   masterSkills,
-  strings = {}
+  strings = {},
+  openPanel = null
 ) {
   console.log('handleDooberClick: Current Player:', currentPlayer);
   console.log('handleDooberClick: Current backpack:', backpack);
@@ -250,6 +253,14 @@ export async function handleDooberClick(
       console.warn("❌ Failed to gain doober ingredient. Rolling back.");
       // Restore the doober visually
       setResources((prevResources) => [...prevResources, resource]);
+      
+      // Open InventoryPanel if capacity is full
+      if (openPanel && typeof openPanel === 'function') {
+        // Note: gainIngredients calls updateStatus with 20 (warehouse full) or 21 (backpack full)
+        // when capacity check fails, so the user will see the appropriate message
+        openPanel('InventoryPanel');
+      }
+      
       return;
     }
     

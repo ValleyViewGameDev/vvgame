@@ -247,8 +247,6 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                 </div>
                 )}
 
-                <br></br>
-                <br></br>
                 <div className="inventory-table">
                     {backpack.filter(item => item.type !== 'Money').length > 0 ? (
                         backpack.filter(item => item.type !== 'Money').map((item, index) => (

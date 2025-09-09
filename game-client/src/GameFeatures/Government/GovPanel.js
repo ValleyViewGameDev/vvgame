@@ -160,12 +160,16 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
             <p>{strings["3012"]}</p>
             <p>{strings["3013"]}</p>
 
-            {/* COMMUNITY BUILDINGS section */}
-            <h3>{strings["2090"]}</h3>
-            <p>{buildingCounts.School > 0 ? `${strings["2092"]}${buildingCounts.School}` : strings["2093"]}</p>
-            <p>{buildingCounts.Hospital > 0 ? `${strings["2094"]}${buildingCounts.Hospital}` : strings["2095"]}</p>
-            <p>{buildingCounts.AnimalYard > 0 ? `${strings["2096"]}${buildingCounts.AnimalYard}` : strings["2097"]}</p>
-            <p>{buildingCounts.Library > 0 ? `${strings["2098"]}${buildingCounts.Library}` : strings["2099"]}</p>
+            {/* COMMUNITY BUILDINGS section - only show in towns */}
+            {currentPlayer?.location?.gtype === 'town' && (
+              <>
+                <h3>{strings["2090"]}</h3>
+                <p>{buildingCounts.School > 0 ? `${strings["2092"]}${buildingCounts.School}` : strings["2093"]}</p>
+                <p>{buildingCounts.Hospital > 0 ? `${strings["2094"]}${buildingCounts.Hospital}` : strings["2095"]}</p>
+                <p>{buildingCounts.AnimalYard > 0 ? `${strings["2096"]}${buildingCounts.AnimalYard}` : strings["2097"]}</p>
+                <p>{buildingCounts.Library > 0 ? `${strings["2098"]}${buildingCounts.Library}` : strings["2099"]}</p>
+              </>
+            )}
           </>
         )}
       </div>
