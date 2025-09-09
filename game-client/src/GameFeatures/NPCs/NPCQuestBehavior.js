@@ -33,7 +33,7 @@ async function handleQuestGiverBehavior(gridId) {
             );
             if (pcsInRange) { break; }
             
-            await this.handleIdleState(tiles, resources, npcs, 5, async () => {
+            await this.handleIdleState(tiles, resources, npcs, 10, async () => {
                 this.state = 'roam';
                 await updateThisNPC(this, gridId); // Save after transition
             });
