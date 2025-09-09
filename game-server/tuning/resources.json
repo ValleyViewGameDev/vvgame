@@ -4142,7 +4142,6 @@
     "category": "npc",
     "action": "worker",
     "passable": false,
-    "repeatable": false,
     "qtycollected": 1,
     "validong": false,
     "validond": false,
@@ -4180,8 +4179,8 @@
     "validono": false,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
-    "crafttime": 28800,
-    "totalnestedtime": 78800
+    "crafttime": 1800,
+    "totalnestedtime": 51800
   },
   {
     "type": "Rancher",
@@ -4206,8 +4205,8 @@
     "validono": false,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
-    "crafttime": 28800,
-    "totalnestedtime": 78800
+    "crafttime": 14400,
+    "totalnestedtime": 64400
   },
   {
     "type": "Lumberjack",
@@ -4258,8 +4257,8 @@
     "validono": false,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
-    "crafttime": 28800,
-    "totalnestedtime": 78800
+    "crafttime": 57600,
+    "totalnestedtime": 107600
   },
   {
     "type": "Coyote",
