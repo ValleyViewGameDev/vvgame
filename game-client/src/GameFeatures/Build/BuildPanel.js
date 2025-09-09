@@ -48,7 +48,8 @@ const BuildPanel = ({
         // ✅ Filter build options based on the player's location
         const validBuildOptions = allResourcesData.filter(resource => 
           resource.source === 'Build' || 
-          (resource.source === 'BuildTown' && currentPlayer.location.gtype === 'town' && (currentPlayer.role === 'Mayor' || isDeveloper))
+          (resource.source === 'BuildTown' && currentPlayer.location.gtype === 'town' && (currentPlayer.role === 'Mayor' || isDeveloper)) ||
+          (resource.source === 'BuildValley' && currentPlayer.location.gtype != 'homestead' && (isDeveloper))
         );
         setBuildOptions(validBuildOptions); 
       } catch (error) {

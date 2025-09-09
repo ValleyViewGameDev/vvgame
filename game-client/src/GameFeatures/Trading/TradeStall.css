@@ -1,5 +1,13 @@
 /* TRADE STALL SLOTS */
 
+.outpost-header {
+  font-size: 0.8rem;
+  text-align: center;
+  color: #666;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+
 .username-container {
   display: flex;
   justify-content: space-between;

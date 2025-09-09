@@ -217,7 +217,9 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
 
     return (
         <Panel onClose={onClose} descriptionKey="1001" titleKey="1101" panelName="InventoryPanel">
+            
             {/* Gold Pass info for non-Gold users */}
+            
             {currentPlayer.accountStatus !== 'Gold' && (
                 <>
                     <div className="gold-pass-info">
@@ -234,7 +236,11 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     </div>
                 </>
             )}
+
+            {/* BACKPACK */}
+
             <h3>{strings[182]}</h3>
+
             {hasBackpackSkill ? (
               <>
                 <div className="capacity-display">{strings[183]} {calculateTotalQuantity(backpack)}/{finalCapacities.backpack}</div>
@@ -246,7 +252,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     </button>
                 </div>
                 )}
-
+                <br></br>
                 <div className="inventory-table">
                     {backpack.filter(item => item.type !== 'Money').length > 0 ? (
                         backpack.filter(item => item.type !== 'Money').map((item, index) => (
@@ -266,7 +272,10 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
 
             <hr className="inventory-divider" />
 
+            {/* WAREHOUSE */}
+
             <h3>{strings[181]}</h3>
+
             <div className="capacity-display">{strings[183]} {calculateTotalQuantity(inventory)}/{finalCapacities.warehouse}</div>
 
             {inventory.length > 0 && (
@@ -277,7 +286,6 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
             </div>
             )}
 
-            <br></br>
             <br></br>
             <div className="inventory-table">
                 {inventory.filter(item => item.type !== 'Money').length > 0 ? (

@@ -101,6 +101,8 @@
     "177": "Need",
     "178": "to unlock this slot",
 
+    "179": "This Outpost only accepts items from your backpack. Any player can collect money from an Outpost.",
+
     "180": "INVENTORY STRINGS:",
 
     "181": "📦 Warehouse",
@@ -1000,7 +1002,7 @@
     "4010": "Already have a profile?",
 
         "199": "Gold Pass holders have near unlimited inventory.",
-    "1008": "Buy and sell with other players. Use the arrows to navigate between active traders in your Settlement. If no players buy your items before the timer expires, sell them to the game for a fraction of their base value.",
+    "1008": "Buy and sell with other players. If no players buy your items before the timer expires, sell them to the game for a fraction of their base value.",
 
     "467": "Bulk Crafting",
 

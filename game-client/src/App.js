@@ -1351,6 +1351,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         case 'Trade Stall':
         case 'Trade':
         case 'Trading Post':
+        case 'Outpost':
           openPanel('TradeStall'); break;
         case 'Mailbox':
           openModal('Mailbox'); break;
@@ -2424,12 +2425,15 @@ return (
             onClose={closePanel}
             inventory={inventory}
             setInventory={setInventory}
+            backpack={backpack}
+            setBackpack={setBackpack}
             currentPlayer={currentPlayer}
             setCurrentPlayer={setCurrentPlayer}
             updateStatus={updateStatus}
             globalTuning={globalTuning}
             setModalContent={setModalContent}
             setIsModalOpen={setIsModalOpen}
+            activeStation={activeStation}
         />
       )}
       {activePanel === 'SeasonPanel' && (
