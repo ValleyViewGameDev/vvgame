@@ -2453,6 +2453,7 @@ return (
           setResources={setResources}
           setInventory={setInventory}
           TILE_SIZE={activeTileSize}
+          globalTuning={globalTuning}
         />
       )}
       {activePanel === 'SeasonPanel' && (

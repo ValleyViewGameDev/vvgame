@@ -14,7 +14,7 @@ import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { isACrop } from '../../Utils/ResourceHelpers';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 
-function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlayer, gridId, setModalContent, setIsModalOpen, isDeveloper, stationType, currentStationPosition, setResources, setInventory, TILE_SIZE }) {
+function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlayer, gridId, setModalContent, setIsModalOpen, isDeveloper, stationType, currentStationPosition, setResources, setInventory, TILE_SIZE, globalTuning }) {
   const strings = useStrings();
   const [tradeSlots, setTradeSlots] = useState([]);
   const [selectedSlotIndex, setSelectedSlotIndex] = useState(null);
@@ -23,12 +23,20 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
   const { updateStatus } = useContext(StatusBarContext);
   const [masterResources, setMasterResources] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(Date.now());
 
-  // Fixed configuration for Outpost slots
+  // Use Trading Post configuration from globalTuning
   const OUTPOST_SLOTS = 4;
-  const OUTPOST_MAX_AMOUNT = 50;
-  const OUTPOST_SELL_TIME = 300000; // 5 minutes
-  const OUTPOST_HAIRCUT = 0.25;
+  const OUTPOST_HAIRCUT = globalTuning?.tradeStallHaircut || 0.25;
+  
+  // Get slot-specific configuration
+  const getSlotConfig = (slotIndex) => {
+    const slotConfig = globalTuning?.tradeStallSlots?.find(slot => slot.slotIndex === slotIndex);
+    return slotConfig || {
+      maxAmount: 50,
+      sellWaitTime: 300000
+    };
+  };
 
   // Initialize trade slots structure
   useEffect(() => {
@@ -77,6 +85,15 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
     fetchData();
   }, [gridId]);
 
+  // Update current time every second for live countdown
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   const getSymbol = (resourceType) => {
     const resource = resourceData.find((res) => res.type === resourceType);
     return resource?.symbol || '';
@@ -95,7 +112,8 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
   const handleAmountChange = (type, value) => {
     const resourceInBackpack = backpack.find((item) => item.type === type);
     const backpackAmount = resourceInBackpack ? resourceInBackpack.quantity : 0;
-    const maxAmount = Math.min(backpackAmount, OUTPOST_MAX_AMOUNT);
+    const slotConfig = getSlotConfig(selectedSlotIndex);
+    const maxAmount = Math.min(backpackAmount, slotConfig.maxAmount);
 
     setAmounts((prev) => ({
       ...prev,
@@ -155,6 +173,7 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
   const performAddToSlot = async (transactionId, transactionKey, resource, amount) => {
     const resourceDetails = resourceData.find((item) => item.type === resource);
     const price = resourceDetails?.minprice || 0;
+    const slotConfig = getSlotConfig(selectedSlotIndex);
 
     try {
       // Update grid's outpost trade stall
@@ -164,7 +183,7 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
         resource,
         amount,
         price,
-        sellTime: Date.now() + OUTPOST_SELL_TIME,
+        sellTime: Date.now() + slotConfig.sellWaitTime,
         sellerUsername: currentPlayer.username,
         sellerId: currentPlayer.playerId,
         transactionId,
@@ -349,8 +368,8 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
           const isEmpty = !slot?.resource;
           const isPurchased = slot?.boughtBy;
           const isOwnItem = slot?.sellerId === currentPlayer.playerId;
-          const isReadyToSell = slot?.sellTime && slot.sellTime <= Date.now() && isOwnItem;
-          const hasTimer = slot?.sellTime && slot.sellTime > Date.now();
+          const isReadyToSell = slot?.sellTime && slot.sellTime <= currentTime && isOwnItem;
+          const hasTimer = slot?.sellTime && slot.sellTime > currentTime;
 
           return (
             <div key={index} className="trade-slot-container">
@@ -363,10 +382,10 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
                   <div className="trade-slot-empty-text">
                     <div>{strings[156]}</div>
                     <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>
-                      {strings[173]} {OUTPOST_MAX_AMOUNT}
+                      {strings[173]} {getSlotConfig(index).maxAmount}
                     </div>
                     <div style={{ fontSize: '0.8rem' }}>
-                      {formatDuration(OUTPOST_SELL_TIME / 1000)} {strings[174]}
+                      {formatDuration(getSlotConfig(index).sellWaitTime / 1000)} {strings[174]}
                     </div>
                   </div>
                 ) : (
@@ -386,7 +405,7 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
                     )}
                     {hasTimer && !isPurchased && (
                       <div className="trade-slot-status timer">
-                        {formatCountdown(slot.sellTime, Date.now())}
+                        {formatCountdown(slot.sellTime, currentTime)}
                       </div>
                     )}
                     {isReadyToSell && !isPurchased && (
@@ -448,7 +467,7 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
           </button>
           <h3>{strings[160]}</h3>
           <p style={{ textAlign: 'center', margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>
-            {OUTPOST_MAX_AMOUNT} {strings[158]}
+            {getSlotConfig(selectedSlotIndex).maxAmount} {strings[158]}
           </p>
           <div className="inventory-modal-scroll">
             <table>
@@ -494,13 +513,13 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
                               onClick={() =>
                                 handleAmountChange(item.type, (amounts[item.type] || 0) + 1)
                               }
-                              disabled={(amounts[item.type] || 0) >= Math.min(item.quantity, OUTPOST_MAX_AMOUNT)}
+                              disabled={(amounts[item.type] || 0) >= Math.min(item.quantity, getSlotConfig(selectedSlotIndex).maxAmount)}
                             >
                               +
                             </button>
                             <button
                               onClick={() =>
-                                handleAmountChange(item.type, Math.min(item.quantity, OUTPOST_MAX_AMOUNT))
+                                handleAmountChange(item.type, Math.min(item.quantity, getSlotConfig(selectedSlotIndex).maxAmount))
                               }
                               style={{ marginLeft: '5px' }}
                             >
