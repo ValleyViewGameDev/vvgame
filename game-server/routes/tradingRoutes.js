@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Player = require('../models/player'); // Ensure the player schema includes tradeStall
+const Grid = require('../models/grid'); // For Outpost trade stalls
 
 /**
  * Transaction management helper functions
@@ -379,6 +380,400 @@ router.post('/sell-items', async (req, res) => {
   } catch (error) {
     console.error('Error selling items:', error);
     res.status(500).send('Server error selling items');
+  }
+});
+
+/**
+ * Outpost Trade Stall endpoints (grid-based)
+ */
+
+// Initialize outpost trade stall on a grid
+router.post('/outpost/initialize', async (req, res) => {
+  const { gridId } = req.body;
+
+  if (!gridId) {
+    return res.status(400).json({ error: 'Missing gridId' });
+  }
+
+  try {
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found' });
+    }
+
+    // Initialize outpost trade stall with 4 slots
+    grid.outpostTradeStall = Array.from({ length: 4 }, (_, index) => ({
+      slotIndex: index,
+      resource: null,
+      amount: 0,
+      price: 0,
+      sellTime: null,
+      boughtBy: null,
+      boughtFor: null,
+      sellerUsername: null,
+      sellerId: null
+    }));
+
+    await grid.save();
+
+    res.json({ success: true, outpostTradeStall: grid.outpostTradeStall });
+  } catch (error) {
+    console.error('Error initializing outpost:', error);
+    res.status(500).json({ error: 'Failed to initialize outpost' });
+  }
+});
+
+// Add item to outpost slot - protected endpoint
+router.post('/outpost/add-item', async (req, res) => {
+  const { 
+    gridId, 
+    slotIndex, 
+    resource, 
+    amount, 
+    price, 
+    sellTime, 
+    sellerUsername, 
+    sellerId,
+    transactionId, 
+    transactionKey 
+  } = req.body;
+
+  if (!gridId || slotIndex === undefined || !resource || !amount || !price || !sellTime || !sellerId || !transactionId || !transactionKey) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Start transaction for the seller
+    const { success, message, player } = await TransactionManager.startTransaction(
+      sellerId, 
+      `${transactionKey}-${slotIndex}`, 
+      transactionId
+    );
+
+    if (message === 'Already processed') {
+      // Return the current state if already processed
+      const grid = await Grid.findById(gridId);
+      return res.json({ success: true, message: 'Item already added', outpostTradeStall: grid.outpostTradeStall });
+    }
+
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      await TransactionManager.failTransaction(sellerId, `${transactionKey}-${slotIndex}`);
+      return res.status(404).json({ error: 'Grid not found' });
+    }
+
+    // Initialize outpost trade stall if it doesn't exist
+    if (!grid.outpostTradeStall) {
+      grid.outpostTradeStall = Array.from({ length: 4 }, (_, index) => ({
+        slotIndex: index,
+        resource: null,
+        amount: 0,
+        price: 0,
+        sellTime: null,
+        boughtBy: null,
+        boughtFor: null,
+        sellerUsername: null,
+        sellerId: null
+      }));
+    }
+
+    // Validate slot
+    if (slotIndex < 0 || slotIndex >= 4) {
+      await TransactionManager.failTransaction(sellerId, `${transactionKey}-${slotIndex}`);
+      return res.status(400).json({ error: 'Invalid slot index' });
+    }
+
+    const slot = grid.outpostTradeStall[slotIndex];
+    if (slot.resource) {
+      await TransactionManager.failTransaction(sellerId, `${transactionKey}-${slotIndex}`);
+      return res.status(400).json({ error: 'Slot already occupied' });
+    }
+
+    // Remove item from player's backpack
+    const backpackItem = player.backpack.find(item => item.type === resource);
+    if (!backpackItem || backpackItem.quantity < amount) {
+      await TransactionManager.failTransaction(sellerId, `${transactionKey}-${slotIndex}`);
+      return res.status(400).json({ error: 'Insufficient items in backpack' });
+    }
+
+    backpackItem.quantity -= amount;
+    if (backpackItem.quantity === 0) {
+      player.backpack = player.backpack.filter(item => item.type !== resource);
+    }
+
+    // Add item to outpost slot
+    grid.outpostTradeStall[slotIndex] = {
+      slotIndex: slotIndex,
+      resource: resource,
+      amount: amount,
+      price: price,
+      sellTime: sellTime,
+      boughtBy: null,
+      boughtFor: null,
+      sellerUsername: sellerUsername,
+      sellerId: sellerId
+    };
+
+    await grid.save();
+    await player.save();
+
+    // Complete transaction
+    await TransactionManager.completeTransaction(sellerId, `${transactionKey}-${slotIndex}`, transactionId);
+
+    res.json({ 
+      success: true, 
+      outpostTradeStall: grid.outpostTradeStall,
+      backpack: player.backpack
+    });
+
+  } catch (error) {
+    await TransactionManager.failTransaction(sellerId, `${transactionKey}-${slotIndex}`);
+    if (error.message === 'Transaction in progress') {
+      return res.status(429).json({ error: 'Add item already in progress' });
+    }
+    console.error('Error adding item to outpost:', error);
+    res.status(500).json({ error: 'Failed to add item to outpost' });
+  }
+});
+
+// Buy item from outpost - protected endpoint
+router.post('/outpost/buy-item', async (req, res) => {
+  const { gridId, slotIndex, buyerId, buyerUsername, transactionId, transactionKey } = req.body;
+
+  if (!gridId || slotIndex === undefined || !buyerId || !buyerUsername || !transactionId || !transactionKey) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Start transaction for the buyer
+    const { success, message, player } = await TransactionManager.startTransaction(
+      buyerId, 
+      `${transactionKey}-${slotIndex}`, 
+      transactionId
+    );
+
+    if (message === 'Already processed') {
+      return res.json({ success: true, message: 'Item already purchased' });
+    }
+
+    const grid = await Grid.findById(gridId);
+    if (!grid || !grid.outpostTradeStall || !grid.outpostTradeStall[slotIndex]) {
+      await TransactionManager.failTransaction(buyerId, `${transactionKey}-${slotIndex}`);
+      return res.status(404).json({ error: 'Invalid outpost or slot' });
+    }
+
+    const slot = grid.outpostTradeStall[slotIndex];
+    if (!slot.resource || slot.boughtBy) {
+      await TransactionManager.failTransaction(buyerId, `${transactionKey}-${slotIndex}`);
+      return res.status(400).json({ error: 'Slot empty or already purchased' });
+    }
+
+    const totalCost = slot.amount * slot.price;
+    const moneyItem = player.inventory.find(item => item.type === 'Money');
+    const currentMoney = moneyItem ? moneyItem.quantity : 0;
+
+    if (totalCost > currentMoney) {
+      await TransactionManager.failTransaction(buyerId, `${transactionKey}-${slotIndex}`);
+      return res.status(400).json({ error: 'Insufficient funds' });
+    }
+
+    // Deduct money from buyer
+    if (moneyItem) {
+      moneyItem.quantity -= totalCost;
+    }
+
+    // Add item to buyer's inventory
+    const existingItem = player.inventory.find(item => item.type === slot.resource);
+    if (existingItem) {
+      existingItem.quantity += slot.amount;
+    } else {
+      player.inventory.push({ type: slot.resource, quantity: slot.amount });
+    }
+
+    // Mark slot as purchased
+    slot.boughtBy = buyerUsername;
+    slot.boughtFor = totalCost;
+
+    await grid.save();
+    await player.save();
+
+    // Complete transaction
+    await TransactionManager.completeTransaction(buyerId, `${transactionKey}-${slotIndex}`, transactionId);
+
+    res.json({ 
+      success: true,
+      outpostTradeStall: grid.outpostTradeStall,
+      inventory: player.inventory
+    });
+
+  } catch (error) {
+    await TransactionManager.failTransaction(buyerId, `${transactionKey}-${slotIndex}`);
+    if (error.message === 'Transaction in progress') {
+      return res.status(429).json({ error: 'Purchase already in progress' });
+    }
+    console.error('Error buying from outpost:', error);
+    res.status(500).json({ error: 'Failed to buy from outpost' });
+  }
+});
+
+// Collect payment from outpost - protected endpoint
+router.post('/outpost/collect-payment', async (req, res) => {
+  const { gridId, slotIndex, playerId, transactionId, transactionKey } = req.body;
+
+  if (!gridId || slotIndex === undefined || !playerId || !transactionId || !transactionKey) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Start transaction
+    const { success, message, player } = await TransactionManager.startTransaction(
+      playerId, 
+      `${transactionKey}-${slotIndex}`, 
+      transactionId
+    );
+
+    if (message === 'Already processed') {
+      return res.json({ success: true, message: 'Payment already collected' });
+    }
+
+    const grid = await Grid.findById(gridId);
+    if (!grid || !grid.outpostTradeStall || !grid.outpostTradeStall[slotIndex]) {
+      await TransactionManager.failTransaction(playerId, `${transactionKey}-${slotIndex}`);
+      return res.status(404).json({ error: 'Invalid outpost or slot' });
+    }
+
+    const slot = grid.outpostTradeStall[slotIndex];
+    if (!slot.boughtBy || !slot.boughtFor || slot.sellerId !== playerId) {
+      await TransactionManager.failTransaction(playerId, `${transactionKey}-${slotIndex}`);
+      return res.status(400).json({ error: 'Invalid collection attempt' });
+    }
+
+    // Add money to player's inventory
+    const moneyItem = player.inventory.find(item => item.type === 'Money');
+    if (moneyItem) {
+      moneyItem.quantity += slot.boughtFor;
+    } else {
+      player.inventory.push({ type: 'Money', quantity: slot.boughtFor });
+    }
+
+    // Clear the slot
+    grid.outpostTradeStall[slotIndex] = {
+      slotIndex: slotIndex,
+      resource: null,
+      amount: 0,
+      price: 0,
+      sellTime: null,
+      boughtBy: null,
+      boughtFor: null,
+      sellerUsername: null,
+      sellerId: null
+    };
+
+    await grid.save();
+    await player.save();
+
+    // Complete transaction
+    await TransactionManager.completeTransaction(playerId, `${transactionKey}-${slotIndex}`, transactionId);
+
+    res.json({ 
+      success: true,
+      collected: slot.boughtFor,
+      outpostTradeStall: grid.outpostTradeStall,
+      inventory: player.inventory
+    });
+
+  } catch (error) {
+    await TransactionManager.failTransaction(playerId, `${transactionKey}-${slotIndex}`);
+    if (error.message === 'Transaction in progress') {
+      return res.status(429).json({ error: 'Collection already in progress' });
+    }
+    console.error('Error collecting payment:', error);
+    res.status(500).json({ error: 'Failed to collect payment' });
+  }
+});
+
+// Sell to game from outpost - protected endpoint
+router.post('/outpost/sell-to-game', async (req, res) => {
+  const { gridId, slotIndex, playerId, transactionId, transactionKey } = req.body;
+
+  if (!gridId || slotIndex === undefined || !playerId || !transactionId || !transactionKey) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Start transaction
+    const { success, message, player } = await TransactionManager.startTransaction(
+      playerId, 
+      `${transactionKey}-${slotIndex}`, 
+      transactionId
+    );
+
+    if (message === 'Already processed') {
+      return res.json({ success: true, message: 'Item already sold' });
+    }
+
+    const grid = await Grid.findById(gridId);
+    if (!grid || !grid.outpostTradeStall || !grid.outpostTradeStall[slotIndex]) {
+      await TransactionManager.failTransaction(playerId, `${transactionKey}-${slotIndex}`);
+      return res.status(404).json({ error: 'Invalid outpost or slot' });
+    }
+
+    const slot = grid.outpostTradeStall[slotIndex];
+    if (!slot.resource || slot.boughtBy || !slot.sellTime || slot.sellTime > Date.now() || slot.sellerId !== playerId) {
+      await TransactionManager.failTransaction(playerId, `${transactionKey}-${slotIndex}`);
+      return res.status(400).json({ error: 'Slot not ready to sell or invalid seller' });
+    }
+
+    // Calculate sell value (with haircut)
+    const outpostHaircut = 0.25;
+    const sellValue = Math.floor(slot.amount * slot.price * outpostHaircut);
+
+    // Add money to player's inventory
+    const moneyItem = player.inventory.find(item => item.type === 'Money');
+    if (moneyItem) {
+      moneyItem.quantity += sellValue;
+    } else {
+      player.inventory.push({ type: 'Money', quantity: sellValue });
+    }
+
+    const soldResource = slot.resource;
+    const soldAmount = slot.amount;
+
+    // Clear the slot
+    grid.outpostTradeStall[slotIndex] = {
+      slotIndex: slotIndex,
+      resource: null,
+      amount: 0,
+      price: 0,
+      sellTime: null,
+      boughtBy: null,
+      boughtFor: null,
+      sellerUsername: null,
+      sellerId: null
+    };
+
+    await grid.save();
+    await player.save();
+
+    // Complete transaction
+    await TransactionManager.completeTransaction(playerId, `${transactionKey}-${slotIndex}`, transactionId);
+
+    res.json({ 
+      success: true,
+      sold: sellValue,
+      resource: soldResource,
+      amount: soldAmount,
+      outpostTradeStall: grid.outpostTradeStall,
+      inventory: player.inventory
+    });
+
+  } catch (error) {
+    await TransactionManager.failTransaction(playerId, `${transactionKey}-${slotIndex}`);
+    if (error.message === 'Transaction in progress') {
+      return res.status(429).json({ error: 'Sale already in progress' });
+    }
+    console.error('Error selling to game:', error);
+    res.status(500).json({ error: 'Failed to sell to game' });
   }
 });
 

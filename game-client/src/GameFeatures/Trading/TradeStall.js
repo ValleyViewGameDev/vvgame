@@ -16,7 +16,7 @@ import { incrementFTUEStep } from '../FTUE/FTUE';
 import { isACrop } from '../../Utils/ResourceHelpers';
 import { handlePurchase } from '../../Store/Store';
 
-function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, currentPlayer, setCurrentPlayer, globalTuning, setModalContent, setIsModalOpen, activeStation }) {
+function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurrentPlayer, globalTuning, setModalContent, setIsModalOpen }) {
 
   const strings = useStrings();
   const [tradeSlots, setTradeSlots] = useState([]);
@@ -35,7 +35,6 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
   const tradeStallHaircut = globalTuning?.tradeStallHaircut || 0.25;
   const tradeStallSlotConfig = globalTuning?.tradeStallSlots || [];
-  const isOutpost = activeStation?.type === 'Outpost';
   
   // Get slot-specific configuration
   const getSlotConfig = (slotIndex) => {
@@ -50,11 +49,6 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   };
   
   const isSlotUnlocked = (slotIndex) => {
-    // For Outpost, slots 0-3 are always unlocked
-    if (isOutpost && slotIndex <= 3) {
-      return true;
-    }
-    
     const slot = tradeSlots[slotIndex];
     const config = getSlotConfig(slotIndex);
     
@@ -224,12 +218,6 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
   useEffect(() => {
     const fetchSettlementPlayers = async () => {
-      // For Outpost, only show current player
-      if (isOutpost) {
-        setSettlementPlayers([currentPlayer]);
-        return;
-      }
-      
       try {
         const settlementPlayersResponse = await axios.get(`${API_BASE}/api/players-in-settlement`, {
           params: { settlementId: currentPlayer.location.s },
@@ -266,7 +254,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     fetchDataForViewedPlayer();
     fetchSettlementPlayers();
     
-  }, [viewedPlayer?.playerId, currentPlayer?.playerId, isOutpost]); // More stable dependencies
+  }, [viewedPlayer?.playerId, currentPlayer?.playerId]); // More stable dependencies
   
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -521,8 +509,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   
   
   const handleAmountChange = (type, value) => {
-    const sourceInventory = isOutpost ? (backpack || []) : inventory;
-    const resourceInInventory = sourceInventory.find((item) => item.type === type);
+    const resourceInInventory = inventory.find((item) => item.type === type);
     const inventoryAmount = resourceInInventory ? resourceInInventory.quantity : 0;
     const slotConfig = getSlotConfig(selectedSlotIndex);
     const maxAmount = Math.min(inventoryAmount, slotConfig.maxAmount);
@@ -535,8 +522,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
   const handleAddToSlot = async (transactionId, transactionKey, resource) => {
     const amount = amounts[resource] || 0;
-    const sourceInventory = isOutpost ? (backpack || []) : inventory;
-    const resourceInInventory = sourceInventory.find((item) => item.type === resource);
+    const resourceInInventory = inventory.find((item) => item.type === resource);
 
     if (selectedSlotIndex === null || amount <= 0 || !resourceInInventory || amount > resourceInInventory.quantity) {
       console.warn('Invalid amount or resource exceeds available quantity.');
@@ -610,37 +596,19 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         tradeStall: updatedSlots,
       });
 
-      // Update the correct inventory based on whether it's an Outpost
-      if (isOutpost) {
-        // Update backpack for Outpost
-        await axios.post(`${API_BASE}/api/update-inventory`, {
-          playerId: currentPlayer.playerId,
-          backpack: backpack.map((item) =>
-            item.type === resource
-              ? { ...item, quantity: item.quantity - amount }
-              : item
-          ).filter((item) => item.quantity > 0),
-        });
-      } else {
-        // Update inventory for regular Trade Stall
-        await axios.post(`${API_BASE}/api/update-inventory`, {
-          playerId: currentPlayer.playerId,
-          inventory: inventory.map((item) =>
-            item.type === resource
-              ? { ...item, quantity: item.quantity - amount }
-              : item
-          ).filter((item) => item.quantity > 0),
-        });
-      }
+      await axios.post(`${API_BASE}/api/update-inventory`, {
+        playerId: currentPlayer.playerId,
+        inventory: inventory.map((item) =>
+          item.type === resource
+            ? { ...item, quantity: item.quantity - amount }
+            : item
+        ).filter((item) => item.quantity > 0),
+      });
 
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
       const refreshedInventory = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
-      if (isOutpost) {
-        setBackpack(refreshedInventory.data.backpack || []);
-      } else {
-        setInventory(refreshedInventory.data.inventory);
-      }
+      setInventory(refreshedInventory.data.inventory);
 
       setTradeSlots(updatedSlots);
       setSelectedSlotIndex(null);
@@ -795,13 +763,8 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   return (
     <Panel onClose={onClose} descriptionKey="1008" titleKey="1108" panelName="TradeStall">
 
-      {/* USER NAME AND ARROWS - Hide for Outpost */}
+      {/* USER NAME AND ARROWS */}
 
-      {isOutpost ? (
-        <div className="outpost-header">
-          {strings[179]}
-        </div>
-      ) : (
       <div className="username-container">
         <button className="arrow-button" onClick={handlePreviousPlayer}>👈</button>
         <div style={{ flexGrow: 1, textAlign: 'center', position: 'relative' }}>
@@ -891,17 +854,12 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         </div>
         <button className="arrow-button" onClick={handleNextPlayer}>👉</button>
       </div>
-      )}
 
 
       {/* TRADE STALL SLOTS */}
 
       <div className="trade-stall-slots">
         {tradeSlots.map((slot, index) => {
-          // Hide slots 5 and 6 for Outpost
-          if (isOutpost && index >= 4) {
-            return null;
-          }
           const isOwnStall = viewedPlayer.playerId === currentPlayer.playerId;
           const isEmpty = !slot?.resource;
           const isPurchased = slot?.boughtBy;
@@ -1083,7 +1041,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                 </tr>
               </thead>
               <tbody>
-                {(isOutpost ? (backpack || []) : inventory)
+                {inventory
                   .filter((item) => {
                     const resourceDetails = resourceData.find((res) => res.type === item.type);
                     return (

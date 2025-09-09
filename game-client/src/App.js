@@ -73,6 +73,7 @@ import AnimalPanel from './GameFeatures/FarmAnimals/FarmAnimals.js';
 import CropPanel from './GameFeatures/Farming/CropPanel.js';
 import DecoPanel from './GameFeatures/Deco/DecoPanel';
 import TradeStall from './GameFeatures/Trading/TradeStall';
+import Outpost from './GameFeatures/Trading/Outpost';
 import Mailbox from './GameFeatures/Mailbox/Mailbox';
 import Store from './Store/Store';
 import OffSeasonModal from './GameFeatures/Seasons/OffSeasonModal.js';
@@ -2421,20 +2422,30 @@ return (
         />
       )}
       {activePanel === 'TradeStall' && (
-        <TradeStall
+        activeStation?.type === 'Outpost' ? (
+          <Outpost
+            onClose={closePanel}
+            backpack={backpack}
+            setBackpack={setBackpack}
+            currentPlayer={currentPlayer}
+            setCurrentPlayer={setCurrentPlayer}
+            gridId={gridId}
+            setModalContent={setModalContent}
+            setIsModalOpen={setIsModalOpen}
+          />
+        ) : (
+          <TradeStall
             onClose={closePanel}
             inventory={inventory}
             setInventory={setInventory}
-            backpack={backpack}
-            setBackpack={setBackpack}
             currentPlayer={currentPlayer}
             setCurrentPlayer={setCurrentPlayer}
             updateStatus={updateStatus}
             globalTuning={globalTuning}
             setModalContent={setModalContent}
             setIsModalOpen={setIsModalOpen}
-            activeStation={activeStation}
-        />
+          />
+        )
       )}
       {activePanel === 'SeasonPanel' && (
         <SeasonPanel
