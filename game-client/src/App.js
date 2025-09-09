@@ -1352,8 +1352,11 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         case 'Trade Stall':
         case 'Trade':
         case 'Trading Post':
+          openPanel('TradeStall'); 
+          break;
         case 'Outpost':
-          openPanel('TradeStall'); break;
+          openPanel('OutpostPanel'); 
+          break;
         case 'Mailbox':
           openModal('Mailbox'); break;
         case 'Train':
@@ -2422,30 +2425,35 @@ return (
         />
       )}
       {activePanel === 'TradeStall' && (
-        activeStation?.type === 'Outpost' ? (
-          <Outpost
-            onClose={closePanel}
-            backpack={backpack}
-            setBackpack={setBackpack}
-            currentPlayer={currentPlayer}
-            setCurrentPlayer={setCurrentPlayer}
-            gridId={gridId}
-            setModalContent={setModalContent}
-            setIsModalOpen={setIsModalOpen}
-          />
-        ) : (
-          <TradeStall
-            onClose={closePanel}
-            inventory={inventory}
-            setInventory={setInventory}
-            currentPlayer={currentPlayer}
-            setCurrentPlayer={setCurrentPlayer}
-            updateStatus={updateStatus}
-            globalTuning={globalTuning}
-            setModalContent={setModalContent}
-            setIsModalOpen={setIsModalOpen}
-          />
-        )
+        <TradeStall
+          onClose={closePanel}
+          inventory={inventory}
+          setInventory={setInventory}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          updateStatus={updateStatus}
+          globalTuning={globalTuning}
+          setModalContent={setModalContent}
+          setIsModalOpen={setIsModalOpen}
+        />
+      )}
+      {activePanel === 'OutpostPanel' && (
+        <Outpost
+          onClose={closePanel}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          gridId={activeStation?.gridId}
+          setModalContent={setModalContent}
+          setIsModalOpen={setIsModalOpen}
+          isDeveloper={isDeveloper}
+          stationType={activeStation?.type}
+          currentStationPosition={activeStation?.position}
+          setResources={setResources}
+          setInventory={setInventory}
+          TILE_SIZE={activeTileSize}
+        />
       )}
       {activePanel === 'SeasonPanel' && (
         <SeasonPanel

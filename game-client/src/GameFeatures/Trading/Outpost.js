@@ -12,9 +12,9 @@ import { StatusBarContext } from '../../UI/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { isACrop } from '../../Utils/ResourceHelpers';
+import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 
-function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlayer, gridId, setModalContent, setIsModalOpen }) {
-
+function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlayer, gridId, setModalContent, setIsModalOpen, isDeveloper, stationType, currentStationPosition, setResources, setInventory, TILE_SIZE }) {
   const strings = useStrings();
   const [tradeSlots, setTradeSlots] = useState([]);
   const [selectedSlotIndex, setSelectedSlotIndex] = useState(null);
@@ -60,10 +60,12 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
         setMasterResources(resourcesResponse.data);
 
         // Fetch grid data to get outpost trade stall
-        const gridResponse = await axios.get(`${API_BASE}/api/grid/${gridId}`);
-        if (gridResponse.data.outpostTradeStall) {
+        const gridResponse = await axios.get(`${API_BASE}/api/load-grid/${gridId}`);
+        
+        if (gridResponse.data.outpostTradeStall && Array.isArray(gridResponse.data.outpostTradeStall)) {
           setTradeSlots(gridResponse.data.outpostTradeStall);
         }
+        // Otherwise keep the default slots initialized in the previous useEffect
       } catch (error) {
         console.error('Error fetching Outpost data:', error);
         updateStatus('Failed to load Outpost data');
@@ -273,6 +275,22 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
     }
   };
 
+  const handleSellStation = async (transactionId, transactionKey) => {
+    await handleProtectedSelling({
+      currentPlayer,
+      setInventory,
+      setBackpack,
+      setCurrentPlayer,
+      setResources,
+      stationType,
+      currentStationPosition,
+      gridId,
+      TILE_SIZE,
+      updateStatus,
+      onClose
+    });
+  };
+
   const handleSellToGame = async (transactionId, transactionKey, slotIndex) => {
     const slot = tradeSlots[slotIndex];
     if (!slot || !slot.resource || slot.sellerId !== currentPlayer.playerId) return;
@@ -309,7 +327,7 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
 
   if (isLoading) {
     return (
-      <Panel onClose={onClose} descriptionKey="1008" titleKey="1108" panelName="Outpost">
+      <Panel onClose={onClose} descriptionKey="1008" titleKey="1108" panelName="OutpostPanel">
         <div style={{ textAlign: 'center', padding: '20px' }}>
           {strings[98]} {/* Loading... */}
         </div>
@@ -318,11 +336,11 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
   }
 
   return (
-    <Panel onClose={onClose} descriptionKey="1008" titleKey="1108" panelName="Outpost">
+    <Panel onClose={onClose} descriptionKey="1008" titleKey="1108" panelName="OutpostPanel">
       
       {/* Outpost header */}
       <div className="outpost-header">
-        {strings[179]}
+        {strings?.[179] || 'Outpost'}
       </div>
 
       {/* Trade slots */}
@@ -507,6 +525,22 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
             </table>
           </div>
         </div>
+      )}
+      
+      {/* Sell for Refund button - only visible for developers */}
+      {isDeveloper && (
+        <>
+          <br />
+          <div className="standard-buttons">
+            <TransactionButton 
+              className="btn-success" 
+              onAction={handleSellStation}
+              transactionKey={`sell-refund-${stationType}-${currentStationPosition?.x}-${currentStationPosition?.y}-${gridId}`}
+            >
+              {strings[425] || 'Sell for Refund'}
+            </TransactionButton>
+          </div>
+        </>
       )}
     </Panel>
   );
