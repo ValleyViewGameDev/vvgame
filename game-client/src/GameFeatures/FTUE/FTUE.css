@@ -19,6 +19,7 @@
   width: 90%;
   max-width: 600px;
   max-height: 80vh;
+  min-height: 400px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -66,11 +67,17 @@
 .ftue-image-container {
   text-align: center;
   margin-bottom: 20px;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ftue-image {
   max-width: 100%;
   max-height: 300px;
+  width: auto;
+  height: auto;
 }
 
 .ftue-text {
@@ -170,6 +177,63 @@
   box-shadow: none;
 }
 
+/* Aspiration Choice Styles */
+.ftue-aspiration-content {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ftue-aspiration-panels {
+  display: flex;
+  gap: 15px;
+  width: 100%;
+  height: 100%;
+  max-height: 300px;
+}
+
+.ftue-aspiration-panel {
+  flex: 1;
+  background-color: #f8f8f8;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-height: 200px;
+}
+
+.ftue-aspiration-panel:hover {
+  background-color: #e8f5e9;
+  border-color: #4CAF50;
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.ftue-aspiration-panel h3 {
+  color: rgb(154, 106, 22);
+  font-size: 18px;
+  margin: 0 0 15px 0;
+  font-weight: bold;
+}
+
+.ftue-aspiration-panel p {
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  font-family: 'Arial', sans-serif;
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .ftue-modal {
@@ -188,5 +252,25 @@
   .ftue-button {
     font-size: 14px;
     padding: 8px 16px;
+  }
+  
+  .ftue-aspiration-panels {
+    flex-direction: column;
+    max-height: none;
+    gap: 10px;
+  }
+  
+  .ftue-aspiration-panel {
+    min-height: auto;
+    padding: 15px;
+  }
+  
+  .ftue-aspiration-panel h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  .ftue-aspiration-panel p {
+    font-size: 13px;
   }
 }

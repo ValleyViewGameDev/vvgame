@@ -13,6 +13,7 @@ import FloatingTextManager from '../../UI/FloatingText';
 const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQuestGiver, gridId, setActiveStation, masterResources, setResources, TILE_SIZE }) => {
   const strings = useStrings();
   const [currentStepData, setCurrentStepData] = useState(null);
+  const [imageLoaded, setImageLoaded] = useState(false);
   
   // Load the current step data based on player's ftuestep
   useEffect(() => {
@@ -23,16 +24,13 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       return;
     }
     
-    // Handle step 0 by advancing to step 1
+    // Handle step 0 by showing step 1 content without advancing yet
     if (currentPlayer?.ftuestep === 0) {
-      console.log('🎓 Player at FTUE step 0, advancing to step 1');
-      incrementFTUEStep(currentPlayer.playerId || currentPlayer._id, currentPlayer, setCurrentPlayer)
-        .then(() => {
-          console.log('Successfully advanced from step 0 to step 1');
-        })
-        .catch(err => {
-          console.error('Failed to advance from step 0:', err);
-        });
+      console.log('🎓 Player at FTUE step 0, showing step 1 content');
+      const step1Data = FTUEstepsData.find(step => step.step === 1);
+      if (step1Data) {
+        setCurrentStepData(step1Data);
+      }
       return;
     }
     
@@ -48,9 +46,27 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
     }
   }, [currentPlayer?.ftuestep, currentPlayer?.firsttimeuser, onClose]);
 
+  // Preload image when step data changes
+  useEffect(() => {
+    if (currentStepData?.image) {
+      setImageLoaded(false);
+      const img = new Image();
+      img.src = `/assets/${currentStepData.image}`;
+      img.onload = () => {
+        setImageLoaded(true);
+      };
+      img.onerror = () => {
+        console.error('Failed to load FTUE image:', currentStepData.image);
+        setImageLoaded(true); // Still show modal even if image fails
+      };
+    }
+  }, [currentStepData]);
+
   const handleOK = async () => {
     try {
-      const currentStep = currentPlayer.ftuestep;
+      // If we're showing step 1 content but player is still at step 0, advance to step 1
+      const currentStep = currentPlayer.ftuestep === 0 ? 1 : currentPlayer.ftuestep;
+      const actualCurrentStep = currentPlayer.ftuestep;
       const nextStep = currentStep + 1;      
       // Check if there's a next step in the data
       const hasNextStep = FTUEstepsData.some(step => step.step === nextStep);
@@ -145,14 +161,15 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         const stepData = FTUEstepsData.find(step => step.step === currentStep);
         if (stepData?.continue) {
           // If the current step has a continue action, advance the FTUE step
+          // Use actualCurrentStep to handle step 0 -> 1 transition properly
           const response = await axios.post(`${API_BASE}/api/update-profile`, {
             playerId: currentPlayer.playerId,
-            updates: { ftuestep: nextStep }
+            updates: { ftuestep: actualCurrentStep + 1 }
           });
           if (response.data.success) {
             setCurrentPlayer(prev => ({
               ...prev,
-              ftuestep: nextStep
+              ftuestep: actualCurrentStep + 1
             }));
             onClose();
           }
@@ -232,11 +249,85 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
 
 
 
-  // Don't render if no step data
-  if (!currentStepData) {
+  // Handle aspiration choice for step 2
+  const handleAspirationChoice = async (aspiration) => {
+    try {
+      // Update player's aspiration in the database
+      const response = await axios.post(`${API_BASE}/api/update-profile`, {
+        playerId: currentPlayer.playerId,
+        updates: { 
+          aspiration: aspiration,
+          ftuestep: 3 // Advance to next step after choosing
+        }
+      });
+      
+      if (response.data.success) {
+        setCurrentPlayer(prev => ({
+          ...prev,
+          aspiration: aspiration,
+          ftuestep: 3
+        }));
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error setting aspiration:', error);
+    }
+  };
+
+  // Don't render if no step data or (image not loaded for non-step-2)
+  if (!currentStepData || (currentPlayer?.ftuestep !== 2 && !imageLoaded)) {
     return null;
   }
 
+  // Custom render for step 2 - Aspiration choice
+  if (currentPlayer?.ftuestep === 2) {
+    return (
+      <div className="ftue-overlay">
+        <div className="ftue-modal">
+          <div className="ftue-header">
+            <h2>{strings[currentStepData.titleKey]}</h2>
+          </div>
+          
+          <div className="ftue-text">
+            <p>{strings[currentStepData.bodyKey]}</p>
+          </div>
+          
+          <div className="ftue-aspiration-content">
+            <div className="ftue-aspiration-panels">
+              {/* Panel 1 */}
+              <div 
+                className="ftue-aspiration-panel" 
+                onClick={() => handleAspirationChoice(1)}
+              >
+                <h3>{strings[750]}</h3>
+                <p>{strings[751]}</p>
+              </div>
+              
+              {/* Panel 2 */}
+              <div 
+                className="ftue-aspiration-panel" 
+                onClick={() => handleAspirationChoice(2)}
+              >
+                <h3>{strings[752]}</h3>
+                <p>{strings[753]}</p>
+              </div>
+              
+              {/* Panel 3 */}
+              <div 
+                className="ftue-aspiration-panel" 
+                onClick={() => handleAspirationChoice(3)}
+              >
+                <h3>{strings[754]}</h3>
+                <p>{strings[755]}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Standard render for other steps
   return (
     <div className="ftue-overlay">
       <div className="ftue-modal">

@@ -327,20 +327,6 @@ useLayoutEffect(() => {
 // Track the last shown FTUE step to detect changes
 const [lastShownFTUEStep, setLastShownFTUEStep] = useState(null);
 
-// Watch for ftuestep changes to show FTUE modal
-useEffect(() => {
-  // Only process FTUE if player is explicitly a first-time user
-  if (currentPlayer?.firsttimeuser === true && currentPlayer?.ftuestep !== undefined && currentPlayer.ftuestep >= 0) {
-    // Only show modal if this is a different step than last shown AND it's a forward progression
-    if (currentPlayer.ftuestep !== lastShownFTUEStep && 
-        (lastShownFTUEStep === null || currentPlayer.ftuestep > lastShownFTUEStep)) {
-      console.log('🎓 FTUE step changed to:', currentPlayer.ftuestep, ', showing FTUE');
-      setShowFTUE(true);
-      setLastShownFTUEStep(currentPlayer.ftuestep);
-    }
-  }
-}, [currentPlayer?.ftuestep, lastShownFTUEStep]);
-
 const [inventory, setInventory]  = useState({});
 const [backpack, setBackpack] = useState({});
 const [playerPosition, setPlayerPosition] = useState(null);
@@ -699,11 +685,10 @@ useEffect(() => {
 
       setIsAppInitialized(true);
       
-      // Check if FTUE should be shown based on ftuestep AND firsttimeuser flag
+      // Store FTUE info but don't show yet - wait for grid to load
       if (updatedPlayerData.firsttimeuser === true && updatedPlayerData.ftuestep !== undefined && updatedPlayerData.ftuestep >= 0) {
-        console.log('🎓 FTUE step detected for first-time user:', updatedPlayerData.ftuestep, ', showing FTUE');
-        setShowFTUE(true);
-        setLastShownFTUEStep(updatedPlayerData.ftuestep);
+        console.log('🎓 FTUE step detected for first-time user:', updatedPlayerData.ftuestep, ', will show after grid loads');
+        // Don't show FTUE yet - let the grid load first
       }
 
     } catch (error) {
@@ -736,6 +721,47 @@ useEffect(() => {
     cleanupBadges?.();
   };
 }, [currentPlayer, socket]);
+
+// Watch for ftuestep changes to show FTUE modal
+useEffect(() => {
+  // Only process FTUE if player is explicitly a first-time user
+  if (currentPlayer?.firsttimeuser === true && currentPlayer?.ftuestep !== undefined && currentPlayer.ftuestep >= 0) {
+    // Only show modal if this is a different step than last shown AND it's a forward progression
+    if (currentPlayer.ftuestep !== lastShownFTUEStep && 
+        (lastShownFTUEStep === null || currentPlayer.ftuestep > lastShownFTUEStep)) {
+      
+      // Check if app is initialized and grid has loaded
+      const gridLoaded = isAppInitialized && tileTypes.length > 0 && resources.length > 0;
+      
+      if (gridLoaded) {
+        console.log('🎓 FTUE step changed to:', currentPlayer.ftuestep, ', showing FTUE (grid loaded)');
+        setShowFTUE(true);
+        setLastShownFTUEStep(currentPlayer.ftuestep);
+      } else {
+        console.log('🎓 FTUE step changed to:', currentPlayer.ftuestep, ', but waiting for grid to load');
+      }
+    }
+  }
+}, [currentPlayer?.ftuestep, lastShownFTUEStep, isAppInitialized, tileTypes.length, resources.length]);
+
+// Also check when grid loads to show pending FTUE
+useEffect(() => {
+  if (currentPlayer?.firsttimeuser === true && 
+      currentPlayer?.ftuestep !== undefined && 
+      currentPlayer.ftuestep >= 0 &&
+      !showFTUE &&
+      isAppInitialized && 
+      tileTypes.length > 0 && 
+      resources.length > 0) {
+    
+    // If we have a pending FTUE step that hasn't been shown yet
+    if (currentPlayer.ftuestep !== lastShownFTUEStep) {
+      console.log('🎓 Grid loaded, showing pending FTUE step:', currentPlayer.ftuestep);
+      setShowFTUE(true);
+      setLastShownFTUEStep(currentPlayer.ftuestep);
+    }
+  }
+}, [isAppInitialized, tileTypes.length, resources.length, currentPlayer, lastShownFTUEStep, showFTUE]);
 
 
 // FARM STATE - Farming Seed Timer Management //////////////////////////////////////////////////////

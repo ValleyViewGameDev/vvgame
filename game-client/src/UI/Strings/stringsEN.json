@@ -251,9 +251,7 @@
 
     "700": "FTUE STRINGS:",
 
-    "701": "Welcome to Valley View (Open Beta)",
-    "705": "😀 This game is in Open Beta 😀",
-    "706": "Your feedback is very welcome, and will help us improve the game. Look for the buttons on the left panel to send us email, or join our Discord Server. Please share your thoughts and experiences!",  
+    "701": "😀 Welcome to Valley View",
     "709": "🏚️ Your Homestead",
     "710": "You've inherited a Homestead in a Settlement with other players. Start by fixing up this abandoned farm house. Check your ✅ To Do List. You'll need to gather some wood first.", 
     "715": "🤠 Hire Kent",
@@ -994,9 +992,13 @@
   "200281": "Fountain",
   "200282": "Fountain Large",
   "200283": "Large Decorative Palm Tree",
+  "200284": "Maelstrom",
+  "200285": "Oblivion",
+  "200286": "Unerring",
+
 
   "11000": "ADDED STRINGS:",
-
+  
     "10114": "Next Season starts in:",
     "1023": "Workers help you run your homestead. Hire them at the Farm House.",
     "4010": "Already have a profile?",
@@ -1007,6 +1009,16 @@
     "723": "💪 Grower",
     "724": "Well done, you're making money now! Go ahead and expand your farm. Plant crops using the 🚜 Farming panel, harvest them, and sell. Acquire the Grower skill to expand your farming capabilities.",
     "702": "Welcome, traveler! You've arrived in Valley View, a frontier land of opportunity, mystery and adventure.",
+
+    "705": "Fulfill your aspirations",
+    "706": "Valley View is a big world, with a lot of depth and different pursuits. It's up to you how you want to spend your time. Which of these aspirations best suits your style of play?",  
+  "750": "🚜 The Farmer",
+  "751": "Cultivate your homestead, grow crops, raise animals, and craft goods to sell at the Trading Post or to other players.",
+  "752": "⚔️ The Adventurer",
+  "753": "Venture into the Valley, fight monsters, and discover lost treasures and secrets.",
+  "754": "🏛️ The Politician",
+  "755": "Run for Mayor, build community buildings in Town, like Hospitals, Schools, and Libraries, and help your settlement thrive.",
+
     "730": "Welcome 👵🏻 Shepherd! Now visit the 🐮 Animal Panel to acquire a cow. Cows need 🟩 grass to graze, so place them carefully. And you already have your first 🟫 Animal Stall; this is where you can produce milk once the cow is full."
 
 

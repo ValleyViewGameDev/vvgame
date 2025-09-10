@@ -10,8 +10,8 @@
       "step": 2,
       "titleKey": 705,
       "bodyKey": 706,
-      "image": "ftue-discord.png",
-      "continue": true
+      "image": "ftue-aspiration.png",
+      "continue": false
     },
     {
       "step": 3,

@@ -7,6 +7,7 @@ const playerSchema = new mongoose.Schema({
   language: { type: String, default: "English", required: true },
   firsttimeuser: { type: Boolean, default: true },
   ftuestep: { type: Number, default: 0 }, // e.g., 1 for first step
+  aspiration: { type: Number, default: null }, // Player's chosen aspiration (1, 2, or 3)
   icon: {
     type: String,
     required: true, // This might cause issues if `icon` is missing

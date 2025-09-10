@@ -408,7 +408,7 @@
 /* LOCKED SLOT STYLING */
 .trade-slot.locked {
   background-color: #e9e9e9;
-  border: 2px dashed #999;
+  border: 2px dashed #c0c0c0;
   cursor: default;
   min-height: 85px;
 }
@@ -440,16 +440,22 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #666;
+  color: #999;
+}
+
+.trade-slot-locked div {
+  color: #b6b6b6;
 }
 
 .trade-slot-lock-icon {
   font-size: 1.5rem;
   margin-bottom: 4px;
+  color: #999;
 }
 
 .trade-slot-lock-text {
   font-size: 0.85rem;
   font-weight: bold;
+  color: #999;
 }
 

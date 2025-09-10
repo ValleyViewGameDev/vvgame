@@ -459,6 +459,12 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                   >
                     FTUE Step {sortConfig.key === 'ftuestep' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </th>
+                  <th 
+                    onClick={() => handleSort('aspiration')}
+                    className={`sortable ${sortConfig.key === 'aspiration' ? `sort-${sortConfig.direction}` : ''}`}
+                  >
+                    Aspiration {sortConfig.key === 'aspiration' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -519,6 +525,12 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                       )}
                     </td>
                     <td>{player.ftuestep || ''}</td>
+                    <td>
+                      {player.aspiration === 1 ? '🚜' : 
+                       player.aspiration === 2 ? '⚔️' : 
+                       player.aspiration === 3 ? '🏛️' : 
+                       ''}
+                    </td>
                   </tr>
                 ))}
               </tbody>
