@@ -232,7 +232,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
         if (sortConfig.key === 'created' || sortConfig.key === 'lastActive') {
           aValue = new Date(aValue || 0);
           bValue = new Date(bValue || 0);
-        } else if (sortConfig.key === 'netWorth' || sortConfig.key === 'ftuestep') {
+        } else if (sortConfig.key === 'netWorth' || sortConfig.key === 'ftuestep' || sortConfig.key === 'aspiration') {
           aValue = Number(aValue) || 0;
           bValue = Number(bValue) || 0;
         } else if (sortConfig.key === 'money') {
