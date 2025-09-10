@@ -5166,18 +5166,6 @@
     "ingredient1qty": 3000
   },
   {
-    "type": "Combat",
-    "symbol": "⚔️",
-    "category": "power",
-    "output": "damage",
-    "source": "Warrior's Den",
-    "requires": "Mechanics",
-    "qtycollected": 1,
-    "level": 9,
-    "ingredient1": "Money",
-    "ingredient1qty": 8000
-  },
-  {
     "type": "Tracking",
     "symbol": "🔎",
     "category": "skill",
@@ -5200,6 +5188,18 @@
     "level": 7,
     "ingredient1": "Money",
     "ingredient1qty": 15000
+  },
+  {
+    "type": "Combat",
+    "symbol": "⚔️",
+    "category": "power",
+    "output": "damage",
+    "source": "Warrior's Den",
+    "requires": "Mechanics",
+    "qtycollected": 1,
+    "level": 9,
+    "ingredient1": "Money",
+    "ingredient1qty": 8000
   },
   {
     "type": "Force",
@@ -5240,6 +5240,34 @@
     "ingredient1qty": 1000,
     "ingredient2": "Book",
     "ingredient2qty": 12
+  },
+  {
+    "type": "Maelstrom",
+    "symbol": "⚔️",
+    "category": "power",
+    "output": "damage",
+    "source": "Magic Shop",
+    "requires": "Tempest",
+    "qtycollected": 5,
+    "level": 6,
+    "ingredient1": "Money",
+    "ingredient1qty": 1000,
+    "ingredient2": "Book",
+    "ingredient2qty": 20
+  },
+  {
+    "type": "Oblivion",
+    "symbol": "⚔️",
+    "category": "power",
+    "output": "damage",
+    "source": "Magic Shop",
+    "requires": "Maelstrom",
+    "qtycollected": 7,
+    "level": 6,
+    "ingredient1": "Money",
+    "ingredient1qty": 1000,
+    "ingredient2": "Book",
+    "ingredient2qty": 50
   },
   {
     "type": "Jab",
@@ -5396,6 +5424,20 @@
     "ingredient1qty": 500,
     "ingredient2": "Book",
     "ingredient2qty": 8
+  },
+  {
+    "type": "Unerring",
+    "symbol": "🎯",
+    "category": "power",
+    "output": "attackbonus",
+    "source": "Warrior's Den",
+    "requires": "Pinpoint",
+    "qtycollected": 4,
+    "level": 6,
+    "ingredient1": "Money",
+    "ingredient1qty": 500,
+    "ingredient2": "Book",
+    "ingredient2qty": 15
   },
   {
     "type": "Fortitude",
