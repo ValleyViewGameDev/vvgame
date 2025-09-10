@@ -452,17 +452,16 @@ body {
 }
 
 .keyart-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 40px;
+  position: fixed;
+  top: 85px; /* Account for header height + small buffer */
+  left: 258px; /* Account for nav column (60px) + base panel (180px) + small buffer */
+  overflow: hidden;
 }
 
 .keyart-image {
-  max-width: 100%;
-  max-height: 100%;
+  width: 1000px;
+  height: 600px;
   object-fit: contain;
-  border-radius: 12px;
 }
 
 /* Tile Colors */

@@ -13,7 +13,7 @@
   "tradeStallSlots": [
     {
       "slotIndex": 0,
-      "maxAmount": 25,
+      "maxAmount": 10,
       "sellWaitTime": 5000,
       "unlocked": true,
       "unlockCost": 5,

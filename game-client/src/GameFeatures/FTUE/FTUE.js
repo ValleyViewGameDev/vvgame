@@ -100,6 +100,12 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 7);
         
         onClose(); // Close FTUE modal
+        
+        // Auto-open the Farming panel
+        if (openPanel) {
+          console.log(`🎓 Step 4: Auto-opening Farming panel`);
+          openPanel('FarmingPanel');
+        }
 
 //////////// FTUE STEP 5 /////////////
 

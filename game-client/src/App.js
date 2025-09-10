@@ -92,6 +92,7 @@ import FloatingTextManager from './UI/FloatingText';
 import StatusBar from './UI/StatusBar';
 import { StatusBarContext } from './UI/StatusBar';
 import { formatCountdown } from './UI/Timers';
+import CowboyAnimation from './UI/CowboyAnimation';
 
 import { fetchGridData, updateGridStatus } from './Utils/GridManagement';
 import { handleKeyMovement, centerCameraOnPlayer, centerCameraOnPlayerFast } from './PlayerMovement';
@@ -1817,6 +1818,7 @@ return (
             alt="Valley View Key Art"
             className="keyart-image"
           />
+          <CowboyAnimation />
         </div>
       )}
 
