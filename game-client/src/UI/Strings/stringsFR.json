@@ -623,8 +623,6 @@
 
 "701": "Bienvenue à Valley View",
 "702": "Bienvenue, voyageur ! Vous êtes arrivé à Valley View, une terre de frontière pleine d'opportunités et d'aventures.",
-"705": "😀 Ce jeu est en Bêta Ouverte 😀",
-"706": "Vos commentaires sont très bienvenus et nous aideront à améliorer le jeu. Recherchez les boutons sur le panneau de gauche pour nous envoyer un e-mail ou rejoindre notre serveur Discord. N'hésitez pas à partager vos réflexions et expériences !",
 "709": "🏚️ Votre Ferme",
 "710": "Vous avez hérité d'une Ferme dans une Colonie avec d'autres joueurs. Commencez par réparer cette ferme abandonnée. Consultez votre ✅ Liste de Tâches. Vous devrez d'abord rassembler du bois.",
 "715": "🤠 Embaucher Kent",
@@ -647,6 +645,14 @@
 "797": "Retour",
 "798": "Jouer",
 
+"705": "Réalisez vos aspirations",
+"706": "Valley View est un vaste monde. C'est à vous de décider comment vous voulez passer votre temps. Laquelle de ces aspirations correspond le mieux à votre style de jeu ? (Ce choix ne limitera en aucun cas vos options.)",
+"750": "🚜 Fermier",
+"751": "Cultivez votre ferme, faites pousser des cultures, occupez-vous des animaux et fabriquez des produits à vendre et échanger avec d'autres joueurs. Investissez dans les compétences agricoles et artisanales pour augmenter vos profits.",
+"752": "⚔️ Aventurier",
+"753": "Aventurez-vous dans la Vallée pour trouver des ressources et des objets rares. Combattez animaux et créatures, découvrez des lieux cachés et rencontrez des personnages magiques. Investissez dans les compétences de combat pour devenir un combattant redoutable.",
+"754": "🏛️ Politicien",
+"755": "Présentez-vous comme Maire, fixez le taux d'imposition et percevez des revenus fiscaux pour vous-même. Investissez dans des bâtiments communautaires pour toute la Ville, comme des Hôpitaux, Écoles et Bibliothèques, et aidez votre communauté à prospérer.",
 
   "490": "Vendre pour remboursement (Dev seulement)",
   "156": "Vide (ajouter des objets)",

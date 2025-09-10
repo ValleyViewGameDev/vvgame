@@ -236,8 +236,6 @@
 
     "701": "Willkommen bei Valley View",
     "702": "Willkommen, Reisender! Du bist in Valley View angekommen, einem Grenzland voller Möglichkeiten und Abenteuer.",
-    "705": "😀 Dieses Spiel ist in Open Beta 😀",
-    "706": "Dein Feedback ist sehr willkommen und wird uns helfen, das Spiel zu verbessern. Suche nach den Schaltflächen im linken Panel, um uns eine E-Mail zu senden oder unserem Discord-Server beizutreten. Bitte teile deine Gedanken und Erfahrungen mit uns!",
     "709": "🏚️ Dein Gehöft",
     "710": "Du hast ein Gehöft in einer Siedlung mit anderen Spielern geerbt. Beginne damit, dieses verlassene Bauernhaus zu reparieren. Überprüfe deine ✅ Aufgabenliste. Du musst zuerst etwas Holz sammeln.", 
     "715": "🤠 Kent einstellen",
@@ -261,6 +259,14 @@
     "797": "Zurück",
     "798": "Spielen",
 
+"705": "Erfülle deine Ziele",
+"706": "Valley View ist eine große Welt. Es liegt an dir, wie du deine Zeit verbringen möchtest. Welches dieser Ziele passt am besten zu deinem Spielstil? (Diese Wahl wird deine Optionen in keiner Weise einschränken.)",
+"750": "🚜 Bauer",
+"751": "Bewirtschafte deinen Hof, baue Feldfrüchte an, kümmere dich um Tiere und stelle Waren her, um sie zu verkaufen und mit anderen Spielern zu handeln. Investiere in Landwirtschafts- und Handwerksfähigkeiten, um deine Gewinne zu steigern.",
+"752": "⚔️ Abenteurer",
+"753": "Wage dich ins Tal, um Ressourcen und seltene Gegenstände zu finden. Kämpfe gegen Tiere und Kreaturen, entdecke verborgene Orte und triff magische Charaktere. Investiere in Kampffähigkeiten, um ein furchteinflößender Kämpfer zu werden.",
+"754": "🏛️ Politiker",
+"755": "Kandidiere als Bürgermeister, lege den Steuersatz fest und verdiene Steuereinnahmen für dich selbst. Investiere in Gemeinschaftsgebäude für die ganze Stadt, wie Krankenhäuser, Schulen und Bibliotheken, und hilf deiner Siedlung zu gedeihen.",
 
     "899": "DEBUG-STRINGS:",
 
