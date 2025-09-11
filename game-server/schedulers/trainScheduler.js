@@ -87,7 +87,9 @@ async function trainScheduler(frontierId, phase, frontier = null) {
       
       if (phase === "departing") {
         // ✅ Check and distribute rewards during departing phase
-        const currentOffers = settlement.currentoffers || [];
+        // Fetch fresh settlement data to ensure we have the latest offer status
+        const freshSettlement = await Settlement.findById(settlement._id);
+        const currentOffers = freshSettlement.currentoffers || [];
         console.log('DEBUG: Departing phase - checking offers:', JSON.stringify(currentOffers, null, 2));
         
         const allOffersFilled = currentOffers.every(offer => offer.filled);
@@ -101,16 +103,16 @@ async function trainScheduler(frontierId, phase, frontier = null) {
 
         if (allOffersFilled && fulfilledPlayerIds.length > 0) {
           // Check if rewards were already sent (look for finalized train log)
-          const currentLog = settlement.trainlog?.find(log => log.status === "Current Train");
+          const currentLog = freshSettlement.trainlog?.find(log => log.status === "Current Train");
           if (currentLog && currentLog.alloffersfilled !== null) {
             console.warn(`⚠️ Train rewards already distributed for ${settlement.name}, skipping duplicate distribution`);
           } else {
             console.log(`🎉 All Train orders filled for ${settlement.name}. Sending rewards...`);
             console.log('DEBUG: Reward distribution - Players:', fulfilledPlayerIds);
-            console.log('DEBUG: Rewards to distribute:', settlement.trainrewards);
+            console.log('DEBUG: Rewards to distribute:', freshSettlement.trainrewards);
 
             for (const playerId of fulfilledPlayerIds) {
-              const consolidated = consolidateRewards(settlement.trainrewards);
+              const consolidated = consolidateRewards(freshSettlement.trainrewards);
               console.log(`DEBUG: Sending consolidated rewards to ${playerId}:`, consolidated);
               try {
                 await sendMailboxMessage(playerId, 101, consolidated);
@@ -123,7 +125,7 @@ async function trainScheduler(frontierId, phase, frontier = null) {
         } else {
           console.log(`🚫 Not all train orders were filled for ${settlement.name}. No rewards distributed.`);
         }
-        await finalizeTrainLog(settlement._id, fulfilledPlayerIds);
+        await finalizeTrainLog(freshSettlement._id, fulfilledPlayerIds);
         console.log(`📝 Train log entry updated for ${settlement.name}`);
       }
       
