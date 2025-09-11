@@ -27,6 +27,17 @@ async function trainScheduler(frontierId, phase, frontier = null) {
         try {
           console.log(`🚂 Arriving phase for settlement ${settlement.name}. Generating offer & rewards...`);
           
+          // First, promote any "Next Train" to "Current Train"
+          const settlementToUpdate = await Settlement.findById(settlement._id);
+          if (settlementToUpdate.trainlog) {
+            const nextTrain = settlementToUpdate.trainlog.find(log => log.status === "Next Train");
+            if (nextTrain) {
+              nextTrain.status = "Current Train";
+              await settlementToUpdate.save();
+              console.log(`🔁 Promoted Next Train to Current Train for settlement ${settlement.name}`);
+            }
+          }
+          
           const seasonConfig = seasonsConfig.find(s => s.seasonType === frontier.seasons?.seasonType);
          const { offers: newTrainOffers, rewards: newTrainRewards, logicString } =
             generateTrainOffersAndRewards(settlement, frontier, seasonConfig);
@@ -89,18 +100,24 @@ async function trainScheduler(frontierId, phase, frontier = null) {
           : [];
 
         if (allOffersFilled && fulfilledPlayerIds.length > 0) {
-          console.log(`🎉 All Train orders filled for ${settlement.name}. Sending rewards...`);
-          console.log('DEBUG: Reward distribution - Players:', fulfilledPlayerIds);
-          console.log('DEBUG: Rewards to distribute:', settlement.trainrewards);
+          // Check if rewards were already sent (look for finalized train log)
+          const currentLog = settlement.trainlog?.find(log => log.status === "Current Train");
+          if (currentLog && currentLog.alloffersfilled !== null) {
+            console.warn(`⚠️ Train rewards already distributed for ${settlement.name}, skipping duplicate distribution`);
+          } else {
+            console.log(`🎉 All Train orders filled for ${settlement.name}. Sending rewards...`);
+            console.log('DEBUG: Reward distribution - Players:', fulfilledPlayerIds);
+            console.log('DEBUG: Rewards to distribute:', settlement.trainrewards);
 
-          for (const playerId of fulfilledPlayerIds) {
-            const consolidated = consolidateRewards(settlement.trainrewards);
-            console.log(`DEBUG: Sending consolidated rewards to ${playerId}:`, consolidated);
-            try {
-              await sendMailboxMessage(playerId, 101, consolidated);
-              console.log(`✅ Rewards sent to player ${playerId}`);
-            } catch (error) {
-              console.error(`❌ Error sending rewards to player ${playerId}:`, error);
+            for (const playerId of fulfilledPlayerIds) {
+              const consolidated = consolidateRewards(settlement.trainrewards);
+              console.log(`DEBUG: Sending consolidated rewards to ${playerId}:`, consolidated);
+              try {
+                await sendMailboxMessage(playerId, 101, consolidated);
+                console.log(`✅ Rewards sent to player ${playerId}`);
+              } catch (error) {
+                console.error(`❌ Error sending rewards to player ${playerId}:`, error);
+              }
             }
           }
         } else {
@@ -121,7 +138,7 @@ async function trainScheduler(frontierId, phase, frontier = null) {
 // 🎁 Consolidated function to generate train offers and rewards with unified logic string
 function generateTrainOffersAndRewards(settlement, frontier, seasonConfig) {
   const offers = [];
-  const seasonLevel = getSeasonLevel(frontier?.seasons?.onSeasonStart, frontier?.seasons?.onSeasonEnd);
+  const seasonLevel = getSeasonLevel(frontier?.seasons?.startTime, frontier?.seasons?.endTime);
   const seasonResources = masterResources.filter(res =>
     (seasonConfig.seasonResources || []).includes(res.type)
   );
@@ -283,14 +300,23 @@ async function appendTrainLog(settlement, logicString = "", rewards = []) {
   const updatedSettlement = await Settlement.findById(settlement._id);
   if (!updatedSettlement.trainlog) updatedSettlement.trainlog = [];
 
-  // 1. Promote existing "Next Train" log to "Current Train"
-  const existingNextTrain = updatedSettlement.trainlog.find(log => log.status === "Next Train");
-  if (existingNextTrain) {
-    existingNextTrain.status = "Current Train";
-    console.log(`🔁 Promoted previous Next Train log to Current Train for settlement ${settlement.name}`);
+  // 1. Check if we already have a Next Train log (duplicate prevention)
+  const existingNextTrainLog = updatedSettlement.trainlog.find(log => log.status === "Next Train");
+  if (existingNextTrainLog) {
+    console.log(`⚠️ Next Train log already exists for ${settlement.name}, skipping duplicate creation`);
+    return;
   }
 
-  // 2. Create and append new "Next Train" log
+  // 2. Promote existing "Current Train" to "Departed Train" 
+  const existingCurrentTrain = updatedSettlement.trainlog.find(log => log.status === "Current Train");
+  if (existingCurrentTrain && !existingCurrentTrain.alloffersfilled) {
+    // If current train hasn't been finalized, mark it as incomplete
+    existingCurrentTrain.status = "Departed Train (Incomplete)";
+    existingCurrentTrain.alloffersfilled = false;
+    console.log(`⚠️ Previous Current Train marked as incomplete for settlement ${settlement.name}`);
+  }
+
+  // 3. Create and append new "Next Train" log
   const logEntry = {
     date: new Date(),
     alloffersfilled: null,
@@ -319,6 +345,12 @@ async function finalizeTrainLog(settlementId, fulfilledPlayerIds) {
   const currentLog = settlement.trainlog.find(log => log.status === "Current Train");
 
   if (!currentLog) { console.warn(`⚠️ No Current Train log found for settlement ${settlement.name}`); return; }
+
+  // Check if already finalized (duplicate prevention)
+  if (currentLog.alloffersfilled !== null) {
+    console.warn(`⚠️ Train log already finalized for settlement ${settlement.name}, skipping duplicate finalization`);
+    return;
+  }
 
   const currentOffers = settlement.currentoffers || [];
   const allOffersFilled = currentOffers.every(o => o.filled);

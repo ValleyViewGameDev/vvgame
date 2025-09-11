@@ -18,7 +18,7 @@ async function bankScheduler(frontierId, phase, frontier = null) {
                 break;
 
             case "active":
-                const seasonLevel = getSeasonLevel(frontier?.seasons?.onSeasonStart, frontier?.seasons?.onSeasonEnd);
+                const seasonLevel = getSeasonLevel(frontier?.seasons?.startTime, frontier?.seasons?.endTime);
 
                 // ✅ Generate new offers during "active" phase
                 const newOffers = generateBankOffers(seasonLevel);

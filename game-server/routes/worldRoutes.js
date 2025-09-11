@@ -730,7 +730,7 @@ router.post('/debug/refresh-bank-offers/:frontierId', async (req, res) => {
 
     // Import bankScheduler and generate new offers using correct seasonLevel
     const bankScheduler = require('../schedulers/bankScheduler');
-    const seasonLevel = getSeasonLevel(frontier?.seasons?.onSeasonStart, frontier?.seasons?.onSeasonEnd);
+    const seasonLevel = getSeasonLevel(frontier?.seasons?.startTime, frontier?.seasons?.endTime);
     const newOffers = bankScheduler.generateBankOffers(seasonLevel);
 
     // Save new offers to frontier document

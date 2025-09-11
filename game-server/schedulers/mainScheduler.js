@@ -80,12 +80,27 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
 
 
     if (now >= endTime) {
-      // Double check we still have current data
-      const currentFrontier = await Frontier.findById(frontierId);
-      const currentEndTime = new Date(currentFrontier[featureKey].endTime).getTime();
+      // Use atomic findOneAndUpdate to claim processing rights
+      const processingKey = `${featureKey}Processing`;
+      const claimResult = await Frontier.findOneAndUpdate(
+        { 
+          _id: frontierId,
+          [`${featureKey}.endTime`]: state.endTime,
+          [`${processingKey}`]: { $ne: true }
+        },
+        { 
+          $set: { [`${processingKey}`]: true }
+        },
+        { new: true }
+      );
       
-      if (now >= currentEndTime) {
-        
+      if (!claimResult) {
+        console.log(`⚠️ Another process is already handling ${featureKey} for frontier ${frontierId}`);
+        setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), 30000);
+        return;
+      }
+      
+      try {
         const { nextPhase, durationMs } = getNextPhaseData(phase, tuningData.phases);
         const startTime = new Date();
         const nextEndTime = new Date(Date.now() + durationMs);
@@ -126,11 +141,13 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
             console.warn(`⚠️ No scheduler found for ${featureKey}. Skipping...`);
         }
 
-        // Merge scheduler result with timer update
+        // Merge scheduler result with timer update and clear processing flag
+        const processingKey = `${featureKey}Processing`;
         const updatePayload = {
           [`${featureKey}.phase`]: nextPhase,
           [`${featureKey}.startTime`]: startTime,
           [`${featureKey}.endTime`]: nextEndTime,
+          [`${processingKey}`]: false,
           ...extraPayload, // may be empty
         };
 
@@ -142,10 +159,14 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
 
         // Schedule next check with fresh duration
         setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), 15000);
-      } else {
-        console.log(`⚠️ End time changed, rescheduling check`);
-        setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), 5000);
-        return;
+      } catch (error) {
+        // If error occurs, clear the processing flag
+        const processingKey = `${featureKey}Processing`;
+        await Frontier.updateOne(
+          { _id: frontierId },
+          { $set: { [`${processingKey}`]: false } }
+        );
+        throw error;
       }
     } else {
       // When continuing an existing phase, use remaining time until end
