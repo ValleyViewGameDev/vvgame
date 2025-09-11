@@ -694,7 +694,17 @@ useEffect(() => {
 
     } catch (error) {
       console.error('Error during app initialization:', error);
-      updateStatus(error.code === 'ERR_NETWORK' ? 1 : 0);  // Handle errors
+      
+      // If player not found (404), clear local storage and show login panel
+      if (error.response?.status === 404) {
+        console.log('Player not found (possibly deleted). Clearing local storage and showing login panel.');
+        localStorage.removeItem("player");
+        localStorage.removeItem("playerId");
+        setCurrentPlayer(null);
+        setisLoginPanelOpen(true);
+      } else {
+        updateStatus(error.code === 'ERR_NETWORK' ? 1 : 0);  // Handle other errors
+      }
     }
   };
 
