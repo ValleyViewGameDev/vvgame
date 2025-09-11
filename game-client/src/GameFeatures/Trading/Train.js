@@ -232,17 +232,34 @@ function TrainPanel({
         claimedBy: currentPlayer.playerId,
       };
 
-      await axios.post(`${API_BASE}/api/update-train-offer/${currentPlayer.settlementId}`, {
+      const response = await axios.post(`${API_BASE}/api/update-train-offer/${currentPlayer.settlementId}`, {
         updateOffer: updatedOffer,
       });
 
-      setTrainOffers(prev => {
-        const newOffers = [...prev];
-        newOffers[offerIndex] = updatedOffer;
-        return newOffers;
-      });
+      if (response.status === 200) {
+        setTrainOffers(prev => {
+          const newOffers = [...prev];
+          newOffers[offerIndex] = updatedOffer;
+          return newOffers;
+        });
+        
+        // Add current player's username to the map immediately
+        setPlayerUsernames(prev => ({
+          ...prev,
+          [currentPlayer.playerId]: currentPlayer.username
+        }));
+      }
     } catch (err) {
       console.error("❌ Error claiming train offer:", err);
+      
+      // Handle case where offer was already claimed
+      if (err.response?.status === 409) {
+        updateStatus(155); // Transaction failed. This item has already been sold.
+        // Refresh offers to get latest state
+        fetchTrainOffers();
+      } else {
+        updateStatus(505); // Generic error
+      }
     }
   };
 

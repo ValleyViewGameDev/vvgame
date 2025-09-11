@@ -547,10 +547,23 @@ router.post('/update-train-offer/:settlementId', async (req, res) => {
       return res.status(404).json({ error: 'Offer not found' });
     }
 
-    // ✅ Apply updates dynamically if fields are present
-    if ('claimedBy' in updateOffer) {
+    // ✅ Validate claim attempts
+    if ('claimedBy' in updateOffer && !settlement.currentoffers[offerIndex].claimedBy) {
+      // This is a new claim attempt - verify the offer is still available
+      const currentOffer = settlement.currentoffers[offerIndex];
+      if (currentOffer.claimedBy) {
+        // Offer was already claimed by someone else
+        return res.status(409).json({ 
+          error: 'Offer already claimed',
+          claimedBy: currentOffer.claimedBy 
+        });
+      }
+      settlement.currentoffers[offerIndex].claimedBy = updateOffer.claimedBy;
+    } else if ('claimedBy' in updateOffer) {
+      // Allow updates to claimedBy only if it's the same player or clearing the claim
       settlement.currentoffers[offerIndex].claimedBy = updateOffer.claimedBy;
     }
+    
     if ('filled' in updateOffer) {
       settlement.currentoffers[offerIndex].filled = updateOffer.filled;
     }
