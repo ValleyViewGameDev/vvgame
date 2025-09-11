@@ -548,20 +548,29 @@ router.post('/update-train-offer/:settlementId', async (req, res) => {
     }
 
     // ✅ Validate claim attempts
-    if ('claimedBy' in updateOffer && !settlement.currentoffers[offerIndex].claimedBy) {
-      // This is a new claim attempt - verify the offer is still available
-      const currentOffer = settlement.currentoffers[offerIndex];
-      if (currentOffer.claimedBy) {
+    const currentOffer = settlement.currentoffers[offerIndex];
+    
+    console.log('🚂 Train offer update attempt:', {
+      currentClaimedBy: currentOffer.claimedBy,
+      newClaimedBy: updateOffer.claimedBy,
+      offerItem: currentOffer.itemBought
+    });
+    
+    if ('claimedBy' in updateOffer && updateOffer.claimedBy) {
+      // Someone is trying to claim this offer
+      if (currentOffer.claimedBy && currentOffer.claimedBy.toString() !== updateOffer.claimedBy) {
         // Offer was already claimed by someone else
+        console.log('❌ Rejecting claim - already claimed by:', currentOffer.claimedBy);
         return res.status(409).json({ 
           error: 'Offer already claimed',
           claimedBy: currentOffer.claimedBy 
         });
       }
+      // Either unclaimed or same player reclaiming - allow the update
       settlement.currentoffers[offerIndex].claimedBy = updateOffer.claimedBy;
-    } else if ('claimedBy' in updateOffer) {
-      // Allow updates to claimedBy only if it's the same player or clearing the claim
-      settlement.currentoffers[offerIndex].claimedBy = updateOffer.claimedBy;
+    } else if ('claimedBy' in updateOffer && !updateOffer.claimedBy) {
+      // Clearing the claim (setting claimedBy to null)
+      settlement.currentoffers[offerIndex].claimedBy = null;
     }
     
     if ('filled' in updateOffer) {
