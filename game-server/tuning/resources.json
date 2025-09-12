@@ -1706,7 +1706,7 @@
     "passable": true,
     "requires": "Artistry",
     "qtycollected": 1,
-    "level": 3,
+    "level": 5,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -1715,16 +1715,16 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 730,
-    "maxprice": 1043,
+    "minprice": 1135,
+    "maxprice": 1622,
     "ingredient1": "Cloth",
     "ingredient1qty": 6,
     "ingredient2": "Thread",
     "ingredient2qty": 12,
     "ingredient3": "Ink",
-    "ingredient3qty": 10,
-    "crafttime": 86400,
-    "totalnestedtime": 9110850
+    "ingredient3qty": 4,
+    "crafttime": 43200,
+    "totalnestedtime": 3104340
   },
   {
     "type": "Bread",
@@ -2322,8 +2322,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 622,
-    "maxprice": 889,
+    "minprice": 609,
+    "maxprice": 870,
     "ingredient1": "Strawberry",
     "ingredient1qty": 3,
     "ingredient2": "Egg",
@@ -2333,7 +2333,7 @@
     "ingredient4": "Tulip",
     "ingredient4qty": 1,
     "crafttime": 14400,
-    "totalnestedtime": 849885
+    "totalnestedtime": 633885
   },
   {
     "type": "Urns",
@@ -2353,16 +2353,16 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 938,
-    "maxprice": 1341,
+    "minprice": 854,
+    "maxprice": 1221,
     "ingredient1": "Pottery",
     "ingredient1qty": 4,
     "ingredient2": "Clay",
     "ingredient2qty": 12,
     "ingredient3": "Ink",
-    "ingredient3qty": 6,
+    "ingredient3qty": 2,
     "crafttime": 7200,
-    "totalnestedtime": 5117430
+    "totalnestedtime": 1285890
   },
   {
     "type": "Rosemary",
@@ -2473,12 +2473,12 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 581,
-    "maxprice": 830,
+    "minprice": 536,
+    "maxprice": 766,
     "ingredient1": "Portrait",
     "ingredient1qty": 1,
     "crafttime": 86400,
-    "totalnestedtime": 345600
+    "totalnestedtime": 129600
   },
   {
     "type": "Sunflower",
@@ -2583,7 +2583,7 @@
     "ingredient4": "Garlic",
     "ingredient4qty": 2,
     "crafttime": 57600,
-    "totalnestedtime": 2412000
+    "totalnestedtime": 1548000
   },
   {
     "type": "Potion C",
@@ -2613,7 +2613,7 @@
     "ingredient4": "Feverfew",
     "ingredient4qty": 1,
     "crafttime": 129600,
-    "totalnestedtime": 12717642
+    "totalnestedtime": 11421642
   },
   {
     "type": "Gem",
@@ -2841,10 +2841,10 @@
     "validonl": false,
     "validonn": true,
     "validono": true,
-    "minprice": 94,
-    "maxprice": 135,
-    "crafttime": 259200,
-    "totalnestedtime": 259200
+    "minprice": 80,
+    "maxprice": 115,
+    "crafttime": 43200,
+    "totalnestedtime": 43200
   },
   {
     "type": "Trident",
