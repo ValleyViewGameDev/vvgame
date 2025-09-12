@@ -146,6 +146,14 @@ function TrainPanel({
     }
   };
 
+  const [showLogicModal, setShowLogicModal] = useState(false);
+  const [logicModalData, setLogicModalData] = useState({ logic: '', trainNumber: null });
+
+  const handleShowLogic = (logicText, trainNumber) => {
+    setLogicModalData({ logic: logicText, trainNumber });
+    setShowLogicModal(true);
+  };
+
   const handleShowTrainLog = async () => {
     if (!setModalContent || !setIsModalOpen) {
       console.warn("Modal context functions not available.");
@@ -183,7 +191,18 @@ function TrainPanel({
                 <td style={{ padding: "6px 12px" }}>{entry.inprogress ? 'In progress' : entry.alloffersfilled ? '✅' : '❌'}</td>
                 <td style={{ padding: "6px 12px" }}>{entry.inprogress ? ' ' : entry.totalwinners}</td>
                 <td style={{ padding: "6px 12px" }}>{(entry.rewards || []).map(r => `${r.qty} ${r.item}`).join(', ')}</td>
-                <td style={{ padding: "6px 12px" }}>{entry.logic || ''}</td>
+                <td style={{ padding: "6px 12px" }}>
+                  {entry.logic ? (
+                    <button 
+                      onClick={() => handleShowLogic(entry.logic, entry.trainnumber)}
+                      className="train-logic-button"
+                    >
+                      Logic
+                    </button>
+                  ) : (
+                    '-'
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -459,6 +478,7 @@ function TrainPanel({
 
 
   return (
+    <>
     <Panel onClose={onClose} descriptionKey="1022" titleKey="1122" panelName="TrainPanel">
       {isContentLoading ? (
         <p>{strings[98]}</p>
@@ -491,6 +511,26 @@ function TrainPanel({
         </>
       )}
     </Panel>
+    
+    {showLogicModal && (
+      <div className="train-logic-modal-overlay">
+        <div className="train-logic-modal">
+          <button 
+            onClick={() => setShowLogicModal(false)}
+            className="train-logic-modal-close"
+          >
+            ×
+          </button>
+          <h3>
+            Train #{logicModalData.trainNumber || '?'} Logic
+          </h3>
+          <pre>
+            {logicModalData.logic || 'No logic information available'}
+          </pre>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 

@@ -30,3 +30,76 @@
     border: 1px solid #ddd;
     border-radius: 4px;
 }
+
+/* Logic Modal Overlay */
+.train-logic-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200000; /* Higher than Modal.css z-index of 100000 */
+}
+
+.train-logic-modal {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 80%;
+    max-height: 80%;
+    overflow: auto;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.train-logic-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+}
+
+.train-logic-modal-close:hover {
+    color: #999;
+}
+
+.train-logic-modal h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.train-logic-modal pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 12px;
+    line-height: 1.5;
+    font-family: monospace;
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 0;
+}
+
+/* Logic button in train log table */
+.train-logic-button {
+    padding: 4px 8px;
+    font-size: 12px;
+    background-color: #67c257;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.train-logic-button:hover {
+    background-color: #5ab048;
+}
