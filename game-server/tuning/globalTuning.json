@@ -3,13 +3,11 @@
   "closeZoom": 34,
   "farZoom": 16,
   "tradeStallHaircut": 0.25,
-  "sellWaitTime": 300000,
   "mayorcut": 50,
   "bankOffers": 3,
   "seasonMoneyNerf": 0.9,
   "seasonMoneyNerfGold": 0.75,
-  "baseHoursForTrain": 24,
-  "maxTradeAmount": 50,
+  "baseHoursForTrain": 16,
   "tradeStallSlots": [
     {
       "slotIndex": 0,

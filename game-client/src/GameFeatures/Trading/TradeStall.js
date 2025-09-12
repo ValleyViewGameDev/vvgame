@@ -40,8 +40,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const getSlotConfig = (slotIndex) => {
     const config = tradeStallSlotConfig.find(slot => slot.slotIndex === slotIndex);
     return config || {
-      maxAmount: globalTuning?.maxTradeAmount || 50,
-      sellWaitTime: currentPlayer.firsttimeuser ? 5000 : (globalTuning?.sellWaitTime || 300000),
+      maxAmount: 50,
+      sellWaitTime: currentPlayer.firsttimeuser ? 5000 : 300000,
       unlocked: slotIndex === 0,
       unlockCost: 0,
       requiresGoldPass: false
