@@ -27,15 +27,28 @@ async function trainScheduler(frontierId, phase, frontier = null) {
         try {
           console.log(`🚂 Arriving phase for settlement ${settlement.name}. Generating offer & rewards...`);
           
-          // First, promote any "Next Train" to "Current Train"
+          // First, ensure any existing Current Train is properly finalized
           const settlementToUpdate = await Settlement.findById(settlement._id);
           if (settlementToUpdate.trainlog) {
+            // Mark any existing Current Train as Departed if not already done
+            const currentTrain = settlementToUpdate.trainlog.find(log => log.status === "Current Train");
+            if (currentTrain) {
+              currentTrain.status = "Departed Train";
+              if (currentTrain.alloffersfilled === null) {
+                currentTrain.alloffersfilled = false;
+                currentTrain.totalwinners = 0;
+              }
+              console.log(`🔄 Marked existing Current Train as Departed for settlement ${settlement.name}`);
+            }
+            
+            // Then promote Next Train to Current Train
             const nextTrain = settlementToUpdate.trainlog.find(log => log.status === "Next Train");
             if (nextTrain) {
               nextTrain.status = "Current Train";
-              await settlementToUpdate.save();
               console.log(`🔁 Promoted Next Train to Current Train for settlement ${settlement.name}`);
             }
+            
+            await settlementToUpdate.save();
           }
           
           const seasonConfig = seasonsConfig.find(s => s.seasonType === frontier.seasons?.seasonType);
@@ -54,20 +67,19 @@ async function trainScheduler(frontierId, phase, frontier = null) {
               filled: false
             });
           }
-          // Now update settlement's current/next offers & rewards
+          // Now update settlement's current/next offers
           const result = await Settlement.findOneAndUpdate(
             { _id: settlement._id },
             {
               $set: {
                 currentoffers: settlement.nextoffers?.length > 0 ? settlement.nextoffers : newTrainOffers,
-                nextoffers: newTrainOffers,
-                trainrewards: newTrainRewards
+                nextoffers: newTrainOffers
               }
             },
             { new: true }
           );
 
-          // Append new log AFTER rewards and offers are finalized
+          // Append new log AFTER offers are finalized, with the new train's rewards
           await appendTrainLog(result, logicString, newTrainRewards);
 
           console.log(`  ✅ Updated settlement ${settlement.name}:`, {
@@ -106,13 +118,14 @@ async function trainScheduler(frontierId, phase, frontier = null) {
           const currentLog = freshSettlement.trainlog?.find(log => log.status === "Current Train");
           if (currentLog && currentLog.alloffersfilled !== null) {
             console.warn(`⚠️ Train rewards already distributed for ${settlement.name}, skipping duplicate distribution`);
-          } else {
+          } else if (currentLog && currentLog.rewards) {
             console.log(`🎉 All Train orders filled for ${settlement.name}. Sending rewards...`);
             console.log('DEBUG: Reward distribution - Players:', fulfilledPlayerIds);
-            console.log('DEBUG: Rewards to distribute:', freshSettlement.trainrewards);
+            console.log('DEBUG: Rewards from current train log:', currentLog.rewards);
+            console.log(`DEBUG: Train #${currentLog.trainnumber || 'unknown'} rewards`);
 
             for (const playerId of fulfilledPlayerIds) {
-              const consolidated = consolidateRewards(freshSettlement.trainrewards);
+              const consolidated = consolidateRewards(currentLog.rewards);
               console.log(`DEBUG: Sending consolidated rewards to ${playerId}:`, consolidated);
               try {
                 await sendMailboxMessage(playerId, 101, consolidated);
@@ -121,6 +134,8 @@ async function trainScheduler(frontierId, phase, frontier = null) {
                 console.error(`❌ Error sending rewards to player ${playerId}:`, error);
               }
             }
+          } else {
+            console.error(`❌ No current train log or rewards found for ${settlement.name}`);
           }
         } else {
           console.log(`🚫 Not all train orders were filled for ${settlement.name}. No rewards distributed.`);
@@ -309,27 +324,23 @@ async function appendTrainLog(settlement, logicString = "", rewards = []) {
     return;
   }
 
-  // 2. Promote existing "Current Train" to "Departed Train" 
-  const existingCurrentTrain = updatedSettlement.trainlog.find(log => log.status === "Current Train");
-  if (existingCurrentTrain && !existingCurrentTrain.alloffersfilled) {
-    // If current train hasn't been finalized, mark it as incomplete
-    existingCurrentTrain.status = "Departed Train (Incomplete)";
-    existingCurrentTrain.alloffersfilled = false;
-    console.log(`⚠️ Previous Current Train marked as incomplete for settlement ${settlement.name}`);
-  }
+  // 2. Get the next train number
+  const trainNumber = updatedSettlement.nextTrainNumber || 1;
+  updatedSettlement.nextTrainNumber = trainNumber + 1;
 
   // 3. Create and append new "Next Train" log
   const logEntry = {
     date: new Date(),
     alloffersfilled: null,
     totalwinners: 0,
+    trainnumber: trainNumber,
     rewards,
     logic: logicString,
     status: "Next Train"
   };
   updatedSettlement.trainlog.push(logEntry);
 
-  // 3. Trim logs to latest 8
+  // 4. Trim logs to latest 8
   if (updatedSettlement.trainlog.length > 8) {
     updatedSettlement.trainlog = updatedSettlement.trainlog.slice(-8);
   }

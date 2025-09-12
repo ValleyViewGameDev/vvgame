@@ -32,6 +32,7 @@ function TrainPanel({
   const [latestInventory, setLatestInventory] = useState([]);
   const [playerUsernames, setPlayerUsernames] = useState({}); // Map of playerId -> username
   const [isContentLoading, setIsContentLoading] = useState(false);
+  const [currentTrainNumber, setCurrentTrainNumber] = useState(null);
 
   // 1. Initial load for the player
   useEffect(() => {
@@ -95,6 +96,13 @@ function TrainPanel({
       setNextOffers(response.data?.nextoffers || []);
       setTrainRewards(response.data?.trainrewards || []);
       
+      // Get current train number from trainlog
+      const trainlog = response.data?.trainlog || [];
+      const currentTrain = trainlog.find(log => log.status === "Current Train");
+      if (currentTrain?.trainnumber) {
+        setCurrentTrainNumber(currentTrain.trainnumber);
+      }
+      
       // Fetch usernames for claimed/completed offers
       await fetchUsernames(offers);
     } catch (error) {
@@ -157,6 +165,7 @@ function TrainPanel({
         <table className="train-log-table" style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
           <thead>
             <tr>
+              <th style={{ padding: "6px 12px" }}>Train #</th>
               <th style={{ padding: "6px 12px" }}>Date</th>
               <th style={{ padding: "6px 12px" }}>Status</th>
               <th style={{ padding: "6px 12px" }}>Offers Filled</th>
@@ -168,6 +177,7 @@ function TrainPanel({
           <tbody>
             {[...trainlog].reverse().map((entry, i) => (
               <tr key={i}>
+                <td style={{ padding: "6px 12px" }}>{entry.trainnumber || '-'}</td>
                 <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
                 <td style={{ padding: "6px 12px" }}>{entry.status || ''}</td>
                 <td style={{ padding: "6px 12px" }}>{entry.inprogress ? 'In progress' : entry.alloffersfilled ? '✅' : '❌'}</td>
@@ -254,7 +264,7 @@ function TrainPanel({
       
       // Handle case where offer was already claimed
       if (err.response?.status === 409) {
-        updateStatus(155); // Transaction failed. This item has already been sold.
+        updateStatus(2017); // This order has already been claimed.
         // Refresh offers to get latest state
         fetchTrainOffers();
       } else {
@@ -454,7 +464,7 @@ function TrainPanel({
         <p>{strings[98]}</p>
       ) : (
         <>
-          <h3>{strings[2020]} {trainPhase}</h3>
+          <h3>{strings[2020]} {trainPhase} {currentTrainNumber ? `(Train #${currentTrainNumber})` : ''}</h3>
           <h2>⏳ {trainTimer}</h2>
 
           {trainPhase === "loading" && (

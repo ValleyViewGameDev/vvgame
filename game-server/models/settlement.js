@@ -98,6 +98,7 @@ const SettlementSchema = new mongoose.Schema({
       status: { type: String, required: true },
       alloffersfilled: { type: Boolean, default: false },
       totalwinners: { type: Number, required: true },
+      trainnumber: { type: Number, required: true },
       rewards: [
         {
           item: { type: String, required: true },
@@ -107,6 +108,7 @@ const SettlementSchema = new mongoose.Schema({
       logic: { type: String, required: false } 
     }
   ],
+  nextTrainNumber: { type: Number, default: 1 },
   electionlog: [
     {
       date: { type: Date, required: true },
