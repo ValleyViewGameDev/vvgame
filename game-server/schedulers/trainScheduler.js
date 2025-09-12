@@ -214,19 +214,62 @@ async function generateTrainOffersAndRewards(settlement, frontier, seasonConfig)
     };
   }
 
-  const effortFlex = Math.floor(targetEffortPerOffer * 0.2); // ±20% tolerance
+  const effortFlex = Math.floor(targetEffortPerOffer * 0.25); // ±25% tolerance
+
+  // Categorize eligible items
+  const cropItems = eligibleItems.filter(item => isACrop(item.type));
+  const deadEndItems = eligibleItems.filter(item => isDeadEnd(item.type));
+  const otherItems = eligibleItems.filter(item => !isACrop(item.type) && !isDeadEnd(item.type));
+  
+  console.log(`🌾 Categorized items - Crops: ${cropItems.length}, Dead-ends: ${deadEndItems.length}, Others: ${otherItems.length}`);
+  
+  // Calculate constraints
+  const maxCrops = Math.floor(totalOffers * 0.33);
+  const minDeadEnds = Math.ceil(totalOffers * 0.33);
+  
+  let cropsAdded = 0;
+  let deadEndsAdded = 0;
+  const selectedItems = new Set(); // Track selected items to avoid duplicates
 
   for (let i = 0; i < totalOffers; i++) {
-    // Build a pool of items within the flexible effort range
-    const pool = eligibleItems.filter(item => {
+    let item;
+    let pool;
+    
+    // Determine which pool to select from based on constraints
+    if (deadEndsAdded < minDeadEnds && deadEndItems.length > 0) {
+      // Need more dead-end items
+      pool = deadEndItems.filter(item => !selectedItems.has(item.type));
+      if (pool.length === 0) pool = deadEndItems; // Allow duplicates if necessary
+    } else if (cropsAdded >= maxCrops) {
+      // Already have enough crops, avoid more
+      pool = [...deadEndItems, ...otherItems].filter(item => !selectedItems.has(item.type));
+      if (pool.length === 0) pool = [...deadEndItems, ...otherItems];
+    } else {
+      // Normal selection from all eligible items
+      pool = eligibleItems.filter(item => !selectedItems.has(item.type));
+      if (pool.length === 0) pool = eligibleItems;
+    }
+    
+    // Try to find items within effort range
+    const flexPool = pool.filter(item => {
       const time = item.totalnestedtime || item.crafttime || 60;
       const estEffort = time * Math.round(targetEffortPerOffer / time);
       return estEffort >= (targetEffortPerOffer - effortFlex) &&
              estEffort <= (targetEffortPerOffer + effortFlex);
     });
-
-    const selectionPool = pool.length > 0 ? pool : eligibleItems;
-    const item = weightedRandomByCraftEffort(selectionPool, seasonLevel);
+    
+    const selectionPool = flexPool.length > 0 ? flexPool : pool;
+    item = weightedRandomByCraftEffort(selectionPool, seasonLevel);
+    
+    // Track what type of item we selected
+    if (isACrop(item.type)) {
+      cropsAdded++;
+    }
+    if (isDeadEnd(item.type)) {
+      deadEndsAdded++;
+    }
+    selectedItems.add(item.type);
+    
     const timePerUnit = item.totalnestedtime || item.crafttime || 60;
     const estimatedQty = Math.max(1, Math.round(targetEffortPerOffer / timePerUnit));
     const qtyGiven = Math.floor((item.maxprice || 100) * estimatedQty);
@@ -240,6 +283,8 @@ async function generateTrainOffersAndRewards(settlement, frontier, seasonConfig)
       filled: false
     });
   }
+  
+  console.log(`🚂 Final offer composition - Crops: ${cropsAdded}/${totalOffers}, Dead-ends: ${deadEndsAdded}/${totalOffers}`);
 
   const actualTotalEffort = offers.reduce((sum, o) => {
     const itemData = masterResources.find(r => r.type === o.itemBought) || {};
@@ -284,7 +329,7 @@ async function generateTrainOffersAndRewards(settlement, frontier, seasonConfig)
 (f) Money paid per offer is standard (item.maxprice × qty). 
 🚂 FINAL OFFERS: ${detailedOfferExplanations}.
 🚂 FINAL TOTAL EFFORT: ${actualTotalEffort}s.
-🚂 REWARDS: [${rewardDescriptions}] (with ±15% variation per item).`;
+🚂 REWARDS: [${rewardDescriptions}] (random set of 3 rewards chosen from Book/PotionC/Gem, quantity=(activePopulation/10)*seasonLevel, with ±15% variation per item).`;
 
   return { offers, rewards, logicString };
 }
@@ -305,6 +350,32 @@ function weightedRandomByCraftEffort(items, seasonLevel = 1) {
   }
 
   return items[items.length - 1];
+}
+
+// Helper function to determine if a resource is a crop
+function isACrop(resourceType) {
+  const resource = masterResources.find(r => r.type === resourceType);
+  if (!resource || !resource.source) return false;
+  
+  // Check if source contains Plot, Tree, or Vine
+  return resource.source.includes('Plot') || 
+         resource.source.includes('Tree') || 
+         resource.source.includes('Vine');
+}
+
+// Helper function to determine if a resource is a dead-end (not used as ingredient in any doober)
+function isDeadEnd(resourceType) {
+  // Check if this resource is used as an ingredient in any doober
+  const usedAsIngredient = masterResources.some(r => {
+    if (r.category !== 'doober') return false;
+    
+    return r.ingredient1 === resourceType ||
+           r.ingredient2 === resourceType ||
+           r.ingredient3 === resourceType ||
+           r.ingredient4 === resourceType;
+  });
+  
+  return !usedAsIngredient;
 }
 
 function consolidateRewards(rewardsArray) {
