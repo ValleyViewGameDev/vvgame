@@ -85,7 +85,7 @@ async function trainScheduler(frontierId, phase, frontier = null) {
           console.log(`  ✅ Updated settlement ${settlement.name}:`, {
             currentOffersCount: result.currentoffers?.length || 0,
             nextOffersCount: result.nextoffers?.length || 0,
-            rewardsCount: result.trainrewards?.length || 0
+            rewardsCount: newTrainRewards?.length || 0
           });
           if (!result.currentoffers?.length) {
             console.error(`❌ Settlement ${settlement.name} has no current offers after update. Raw result:`, result);

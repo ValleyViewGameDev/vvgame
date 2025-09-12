@@ -7,13 +7,19 @@ console.log('📧 Email environment variables at startup:');
 console.log('  ALERT_EMAIL_USERNAME:', process.env.ALERT_EMAIL_USERNAME);
 console.log('  ALERT_EMAIL_RECEIVER:', process.env.ALERT_EMAIL_RECEIVER);
 
-require('./schedulers/mainScheduler');
-require('./schedulers/electionScheduler');
-require('./schedulers/seasonScheduler');
-require('./schedulers/trainScheduler');
-require('./schedulers/taxScheduler');
-require('./schedulers/bankScheduler');
-require('./schedulers/networthScheduler');
+// Only run schedulers in production to avoid conflicts with local development
+if (process.env.NODE_ENV === 'production') {
+  console.log('🚀 Running in PRODUCTION mode - Schedulers ENABLED');
+  require('./schedulers/mainScheduler');
+  require('./schedulers/electionScheduler');
+  require('./schedulers/seasonScheduler');
+  require('./schedulers/trainScheduler');
+  require('./schedulers/taxScheduler');
+  require('./schedulers/bankScheduler');
+  require('./schedulers/networthScheduler');
+} else {
+  console.log('🏠 Running in DEVELOPMENT mode - Schedulers DISABLED to prevent conflicts with production');
+}
 
 
 const fs = require('fs');

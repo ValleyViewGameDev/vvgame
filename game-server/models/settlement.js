@@ -66,12 +66,6 @@ const SettlementSchema = new mongoose.Schema({
       filled: { type: Boolean, default: false },
     }
   ],
-  trainrewards: [
-    {
-      item: { type: String, required: true },
-      qty: { type: Number, required: true },
-    }
-  ],
   taxlog: [
     {
       date: { type: Date, required: true },

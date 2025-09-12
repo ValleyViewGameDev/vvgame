@@ -94,13 +94,18 @@ function TrainPanel({
       const offers = response.data?.currentoffers || [];
       setTrainOffers(offers);
       setNextOffers(response.data?.nextoffers || []);
-      setTrainRewards(response.data?.trainrewards || []);
-      
-      // Get current train number from trainlog
+      // Get current train info from trainlog
       const trainlog = response.data?.trainlog || [];
       const currentTrain = trainlog.find(log => log.status === "Current Train");
-      if (currentTrain?.trainnumber) {
-        setCurrentTrainNumber(currentTrain.trainnumber);
+      if (currentTrain) {
+        // Use rewards from the current train log entry
+        setTrainRewards(currentTrain.rewards || []);
+        if (currentTrain.trainnumber) {
+          setCurrentTrainNumber(currentTrain.trainnumber);
+        }
+      } else {
+        // No current train, clear rewards
+        setTrainRewards([]);
       }
       
       // Fetch usernames for claimed/completed offers
