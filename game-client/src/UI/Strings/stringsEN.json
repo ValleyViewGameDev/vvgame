@@ -497,6 +497,7 @@
     "3023": "",
     "3024": "",
     "3025": "",
+
     
     "4000": "LOGIN PANEL:",
 
@@ -1022,7 +1023,13 @@
 
     "730": "Welcome 👵🏻 Shepherd! Now visit the 🐮 Animal Panel to acquire a cow. Cows need 🟩 grass to graze, so place them carefully. And you already have your first 🟫 Animal Stall; this is where you can produce milk once the cow is full.",
 
-    "2017": "This order has already been claimed."
+    "2017": "This order has already been claimed.",
+
+    "3050": "SEASON PANEL STRINGS",
+
+    "3051": "(Net worth is recalculated twice per day.)",
+    "3052": "No data available for top citizens."
+
 
 
 

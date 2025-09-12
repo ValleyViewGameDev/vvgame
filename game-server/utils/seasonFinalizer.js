@@ -5,6 +5,7 @@ const Player = require('../models/player');
 const Settlement = require('../models/settlement');
 const sendMailboxMessage = require('../utils/messageUtils');
 const Frontier = require('../models/frontier');
+const { isDeveloper } = require('./developerHelpers');
 
 async function seasonFinalizer(frontierId, seasonType, seasonNumber) {
   console.group("🗓️🗓️🗓️🗓️🗓️ Starting SEASON FINALIZER for Frontier", frontierId);
@@ -13,11 +14,30 @@ async function seasonFinalizer(frontierId, seasonType, seasonNumber) {
     console.log("📊 Recalculating final net worth...");
     await updateNetWorthForFrontier(frontierId);
 
-    console.log("📊 Fetching top 3 players by net worth...");
-    const topPlayers = await Player.find({ frontierId }).sort({ netWorth: -1 }).limit(3);
+    console.log("📊 Fetching top 3 players by net worth (excluding developers)...");
+    // Get all players, then filter out developers
+    const allPlayers = await Player.find({ frontierId }).sort({ netWorth: -1 });
+    const topPlayers = allPlayers
+      .filter(player => !isDeveloper(player.username))
+      .slice(0, 3);
 
-    console.log("📊 Fetching top settlement by combined net worth...");
-    const winningSettlement = await Settlement.findOne({ frontierId }).sort({ combinedNetWorth: -1 });
+    console.log("📊 Calculating top settlement by combined net worth (excluding developers)...");
+    // Get all settlements and calculate combined net worth excluding developers
+    const settlements = await Settlement.find({ frontierId });
+    let winningSettlement = null;
+    let highestNetWorth = 0;
+    
+    for (const settlement of settlements) {
+      const players = await Player.find({ settlementId: settlement._id });
+      const combinedNetWorth = players
+        .filter(player => !isDeveloper(player.username))
+        .reduce((sum, player) => sum + (player.netWorth || 0), 0);
+      
+      if (combinedNetWorth > highestNetWorth) {
+        highestNetWorth = combinedNetWorth;
+        winningSettlement = settlement;
+      }
+    }
 
     if (topPlayers.length > 0) {
       console.log("🏆 Top Players:", topPlayers.map(p => p.username));
@@ -35,6 +55,11 @@ async function seasonFinalizer(frontierId, seasonType, seasonNumber) {
       console.log("🏅 Winning Settlement:", winningSettlement.name);
       const winningPlayers = await Player.find({ settlementId: winningSettlement._id });
       for (const player of winningPlayers) {
+        // Skip developers from receiving rewards
+        if (isDeveloper(player.username)) {
+          console.log(`⚠️ Skipping developer ${player.username} from top settlement rewards`);
+          continue;
+        }
         try {
           await sendMailboxMessage(player._id, 302); // Message ID 302 = Top Settlement Reward
           console.log(`📬 Reward sent to ${player.username} in top settlement`);

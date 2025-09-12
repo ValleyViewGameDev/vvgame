@@ -1244,4 +1244,26 @@ router.get('/players', async (req, res) => {
   }
 });
 
+// GET /api/players-by-frontier-with-dev-status/:frontierId - Get all players in a frontier with developer status
+router.get('/players-by-frontier-with-dev-status/:frontierId', async (req, res) => {
+  try {
+    const { frontierId } = req.params;
+    const { addDeveloperFlags } = require('../utils/developerHelpers');
+    
+    const players = await Player.find({ frontierId })
+      .select('username settlementId netWorth') // Only select fields we need
+      .lean();
+    
+    // Add isDeveloper flag to each player
+    const playersWithDeveloperFlag = addDeveloperFlags(players);
+    
+    console.log(`📋 Found ${players.length} players in frontier ${frontierId}, ${playersWithDeveloperFlag.filter(p => p.isDeveloper).length} are developers`);
+    
+    res.json(playersWithDeveloperFlag);
+  } catch (error) {
+    console.error('❌ Error fetching players with developer status:', error);
+    res.status(500).json({ error: 'Failed to fetch players with developer status' });
+  }
+});
+
 module.exports = router;

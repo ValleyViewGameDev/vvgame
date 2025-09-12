@@ -66,8 +66,8 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
       try {
         console.log("💰 Fetching top citizens and leading settlement for frontier:", currentPlayer.frontierId);
         
-        // Fetch all players in this frontier
-        const response = await axios.get(`${API_BASE}/api/get-players-by-frontier/${currentPlayer.frontierId}`);
+        // Fetch all players in this frontier with developer status
+        const response = await axios.get(`${API_BASE}/api/players-by-frontier-with-dev-status/${currentPlayer.frontierId}`);
         const players = response.data;
 
         const settlementRes = await axios.get(`${API_BASE}/api/settlements`);
@@ -78,9 +78,10 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
         }, {});
         setSettlementMap(settlementMap);
 
-        // Group players by settlementId and sum their net worths
+        // Group players by settlementId and sum their net worths, excluding developers
         const settlementWealthMap = {};
         players.forEach(player => {
+          if (player.isDeveloper) return; // Skip developers
           const settlementId = player.settlementId || "unknown";
           const netWorth = player.netWorth || 0;
           if (!settlementWealthMap[settlementId]) {
@@ -113,8 +114,9 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
         }
         setHighestWealth(highestWealth);
 
-        // Sort all players by net worth and take top 3
+        // Sort all players by net worth and take top 3, excluding developers
         const topPlayers = players
+          .filter(player => !player.isDeveloper)
           .map(player => ({
             username: player.username,
             netWorth: player.netWorth || 0
