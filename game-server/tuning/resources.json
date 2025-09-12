@@ -697,7 +697,7 @@
     "source": "Clay Pit",
     "passable": true,
     "qtycollected": 2,
-    "level": 2,
+    "level": 1,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -706,10 +706,10 @@
     "validonl": false,
     "validonn": true,
     "validono": true,
-    "minprice": 48,
-    "maxprice": 69,
-    "crafttime": 5,
-    "totalnestedtime": 5
+    "minprice": 172,
+    "maxprice": 246,
+    "crafttime": 86400,
+    "totalnestedtime": 86400
   },
   {
     "type": "Wheat Plot",
@@ -2268,12 +2268,12 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 240,
-    "maxprice": 343,
+    "minprice": 378,
+    "maxprice": 541,
     "ingredient1": "Clay",
     "ingredient1qty": 3,
     "crafttime": 2700,
-    "totalnestedtime": 2715
+    "totalnestedtime": 261900
   },
   {
     "type": "Furniture",
@@ -2353,8 +2353,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 854,
-    "maxprice": 1221,
+    "minprice": 913,
+    "maxprice": 1305,
     "ingredient1": "Pottery",
     "ingredient1qty": 4,
     "ingredient2": "Clay",
@@ -2362,7 +2362,7 @@
     "ingredient3": "Ink",
     "ingredient3qty": 2,
     "crafttime": 7200,
-    "totalnestedtime": 1285890
+    "totalnestedtime": 3359370
   },
   {
     "type": "Rosemary",
@@ -3331,11 +3331,11 @@
     "validono": true,
     "minprice": 0,
     "ingredient1": "Money",
-    "ingredient1qty": 50,
+    "ingredient1qty": 25,
     "ingredient2": "Wood",
     "ingredient2qty": 20,
     "crafttime": 0,
-    "totalnestedtime": 310
+    "totalnestedtime": 185
   },
   {
     "type": "Mill",
@@ -3357,11 +3357,11 @@
     "validono": true,
     "minprice": 0,
     "ingredient1": "Money",
-    "ingredient1qty": 500,
+    "ingredient1qty": 400,
     "ingredient2": "Wood",
-    "ingredient2qty": 100,
+    "ingredient2qty": 50,
     "crafttime": 0,
-    "totalnestedtime": 2800
+    "totalnestedtime": 2150
   },
   {
     "type": "Dairy",
@@ -3385,11 +3385,11 @@
     "ingredient1": "Money",
     "ingredient1qty": 2000,
     "ingredient2": "Wood",
-    "ingredient2qty": 200,
+    "ingredient2qty": 100,
     "ingredient3": "Stone",
     "ingredient3qty": 10,
     "crafttime": 0,
-    "totalnestedtime": 10640
+    "totalnestedtime": 10340
   },
   {
     "type": "Chicken Coop",
@@ -3499,7 +3499,7 @@
     "ingredient4": "Clay",
     "ingredient4qty": 30,
     "crafttime": 0,
-    "totalnestedtime": 51470
+    "totalnestedtime": 2643320
   },
   {
     "type": "Kitchen",
@@ -3527,7 +3527,7 @@
     "ingredient3": "Clay",
     "ingredient3qty": 40,
     "crafttime": 0,
-    "totalnestedtime": 51400
+    "totalnestedtime": 3507200
   },
   {
     "type": "Beehive",
@@ -3581,7 +3581,7 @@
     "ingredient3": "Clay",
     "ingredient3qty": 80,
     "crafttime": 0,
-    "totalnestedtime": 149800
+    "totalnestedtime": 7061400
   },
   {
     "type": "Winery",
@@ -3611,7 +3611,7 @@
     "ingredient4": "Clay",
     "ingredient4qty": 120,
     "crafttime": 0,
-    "totalnestedtime": 175160
+    "totalnestedtime": 10542560
   },
   {
     "type": "Cow",
