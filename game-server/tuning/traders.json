@@ -5,7 +5,7 @@
       {
         "gives": {
           "type": "Tulip",
-          "quantity": 12
+          "quantity": 64
         },
         "requires": [
           {

@@ -19,7 +19,7 @@
     },
     { 
         "seasonType": "Fall",
-        "seasonResources": [ "Egg", "Wool", "Thread", "Pottery", "Apple", "Grapes", "Olive", "Apple Pie", "Apple Cider", "Olive Oil", "Wine", "Cheese", "Pumpkin Soup" ],
+        "seasonResources": [ "Egg", "Wool", "Thread", "Pottery", "Apple", "Grapes", "Olive", "Apple Pie", "Apple Cider", "Olive Oil", "Wine", "Cheese", "Runic Tunic", "Urns" ],
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,

@@ -8,7 +8,7 @@
   "bankOffers": 3,
   "seasonMoneyNerf": 0.9,
   "seasonMoneyNerfGold": 0.75,
-  "baseHoursForTrain": 6,
+  "baseHoursForTrain": 24,
   "maxTradeAmount": 50,
   "tradeStallSlots": [
     {

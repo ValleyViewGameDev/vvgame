@@ -53,7 +53,7 @@ async function trainScheduler(frontierId, phase, frontier = null) {
           
           const seasonConfig = seasonsConfig.find(s => s.seasonType === frontier.seasons?.seasonType);
          const { offers: newTrainOffers, rewards: newTrainRewards, logicString } =
-            generateTrainOffersAndRewards(settlement, frontier, seasonConfig);
+            await generateTrainOffersAndRewards(settlement, frontier, seasonConfig);
 
           // Fallback offer if generation failed
           if (!newTrainOffers || newTrainOffers.length === 0) {
@@ -153,7 +153,7 @@ async function trainScheduler(frontierId, phase, frontier = null) {
 }
 
 // 🎁 Consolidated function to generate train offers and rewards with unified logic string
-function generateTrainOffersAndRewards(settlement, frontier, seasonConfig) {
+async function generateTrainOffersAndRewards(settlement, frontier, seasonConfig) {
   const offers = [];
   const seasonLevel = getSeasonLevel(frontier?.seasons?.startTime, frontier?.seasons?.endTime);
   const seasonResources = masterResources.filter(res =>
@@ -177,7 +177,13 @@ function generateTrainOffersAndRewards(settlement, frontier, seasonConfig) {
     };
   }
 
-  const population = Math.max(1, settlement.population || 1);
+  // Get actual player count excluding first-time users
+  const activePlayers = await Player.countDocuments({
+    'location.s': settlement._id,
+    firsttimeuser: { $ne: true }
+  });
+  const population = Math.max(1, activePlayers || 1);
+  console.log(`👥 Settlement ${settlement.name}: ${activePlayers} active players (excluding first-time users)`);
   const basePlayerHours = globalTuning.baseHoursForTrain || 6;
   const basePlayerSeconds = basePlayerHours * 60 * 60;
   const difficultyMultiplier = seasonLevel;
@@ -254,14 +260,21 @@ function generateTrainOffersAndRewards(settlement, frontier, seasonConfig) {
 
   for (let i = 0; i < numRewards; i++) {
     const item = rewardItems[Math.floor(Math.random() * rewardItems.length)];
-    const qty = Math.ceil((population / 10) * seasonLevel);
+    const baseQty = Math.ceil((population / 10) * seasonLevel);
+    
+    // Add +/- 15% randomness to the quantity
+    const variation = 0.15; // 15% variation
+    const minQty = Math.floor(baseQty * (1 - variation));
+    const maxQty = Math.ceil(baseQty * (1 + variation));
+    const qty = Math.floor(Math.random() * (maxQty - minQty + 1)) + minQty;
+    
     rewards.push({ item, qty });
   }
 
   const rewardDescriptions = rewards.map(r => `${r.qty} x ${r.item}`).join(", ");
 
   const logicString =
-`NUMBER OF OFFERS: ${offers?.length || 0}; determined by population (=${population}) @ 1 per 4 people (rounded up).
+`NUMBER OF OFFERS: ${offers?.length || 0}; determined by active population (=${population}, excluding first-time users) @ 1 per 4 people (rounded up).
 🚂 OFFER SELECTION: Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in seasons tuning. 
 🚂 OFFER DIFFICULTY: (a) Adjusted by season progression; current seasonLevel = ${seasonLevel} of 6. Higher seasonLevel = likelihood of more complex crafts (longer totalnestedtime): weight = 1 / (craft time ^ (seasonLevel / 6)).
 (b) Total player effort is calculated as: ${population} population × (${basePlayerHours} hours or ${Math.floor(basePlayerSeconds)} seconds). 
@@ -271,7 +284,7 @@ function generateTrainOffersAndRewards(settlement, frontier, seasonConfig) {
 (f) Money paid per offer is standard (item.maxprice × qty). 
 🚂 FINAL OFFERS: ${detailedOfferExplanations}.
 🚂 FINAL TOTAL EFFORT: ${actualTotalEffort}s.
-🚂 REWARDS: [${rewardDescriptions}].`;
+🚂 REWARDS: [${rewardDescriptions}] (with ±15% variation per item).`;
 
   return { offers, rewards, logicString };
 }
