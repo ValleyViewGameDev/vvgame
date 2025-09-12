@@ -5,8 +5,10 @@ import Panel from '../../UI/Panel';
 import { formatCountdown } from '../../UI/Timers';
 import '../../UI/Modal.css';
 import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
+import { useStrings } from '../../UI/StringsContext';
 
 function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
+  const strings = useStrings();
   const [countdown, setCountdown] = useState("");
   const [topCitizens, setTopCitizens] = useState([]);
   const [topSettlementName, setTopSettlementName] = useState("");
@@ -205,20 +207,20 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
     <Panel onClose={onClose} descriptionKey="1015" titleKey="1115" panelName="SeasonPanel">
       {seasonData?.phase === "onSeason" ? (
         <>
-          <h2>It's {seasonData?.type || "Loading..."}</h2>
-          <p>Season ends in: {countdown}</p>
+          <h2>{strings[3053]} {seasonData?.type || strings[3054]}</h2>
+          <p>{strings[3055]} {countdown}</p>
         </>
       ) : (
         <>
-          <h2>We are in between seasons.</h2>
+          <h2>{strings[3056]}</h2>
         </>
       )}
 
       <br></br>
 
-      <p>At the end of the season, bonus rewards will be sent to the top players in the Frontier, as well as to all players in the top Settlement.</p>
-      <h3>🏆 Top Citizens in the Frontier</h3>
-      <p>(Net Worth is recalculated once per day)</p>
+      <p>{strings[3057]}</p>
+      <h3>{strings[3058]}</h3>
+      <p>{strings[3051]}</p>
       {topCitizens.length > 0 ? (
         <div>
           {topCitizens.map((citizen, index) => (
@@ -228,18 +230,18 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
           ))}
         </div>
       ) : (
-        <p>No data available for top citizens.</p>
+        <p>{strings[3052]}</p>
       )}
 
-      <h3>🏙️ Leading Settlement</h3>
+      <h3>{strings[3059]}</h3>
       {topSettlementName ? (
         <>
           <p><strong>{topSettlementName}</strong></p>
-          <p>Total Wealth: {highestWealth.toLocaleString()}</p>
-          <p>Population: {settlementMap[topSettlementName + "_pop"]?.toLocaleString() || "Unknown"}</p>
+          <p>{strings[3060]} {highestWealth.toLocaleString()}</p>
+          <p>{strings[3061]} {settlementMap[topSettlementName + "_pop"]?.toLocaleString() || strings[3062]}</p>
         </>
       ) : (
-        <p>No data available</p>
+        <p>{strings[3063]}</p>
       )}
 
       <div className="panel-buttons">
@@ -247,7 +249,7 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
           onClick={handleShowSeasonLog} 
           style={{ marginTop: "20px", padding: "10px", fontWeight: "bold" }}
         >
-          View Season Log
+          {strings[3064]}
         </button>
       </div>
     </Panel>

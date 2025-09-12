@@ -361,7 +361,25 @@
   "3022": "",
   "3023": "",
   "3024": "",
-  "3025": "PANEL DE INICIO DE SESIÓN:",
+
+  "3050": "TEXTOS DEL PANEL DE TEMPORADA",
+    
+  "3051": "(El patrimonio neto se recalcula dos veces al día.)",
+  "3052": "No hay datos disponibles para los mejores ciudadanos.",
+  "3053": "Es",
+  "3054": "Cargando...",
+  "3055": "La temporada termina en:",
+  "3056": "Estamos entre temporadas.",
+  "3057": "Al final de la temporada, se enviarán recompensas adicionales a los mejores jugadores de la Frontera, así como a todos los jugadores del mejor Asentamiento.",
+  "3058": "🏆 Mejores Ciudadanos de la Frontera",
+  "3059": "🏙️ Asentamiento Líder",
+  "3060": "Riqueza Total:",
+  "3061": "Población:",
+  "3062": "Desconocido",
+  "3063": "No hay datos disponibles",
+  "3064": "Ver Registro de Temporada",
+
+
   "4000": "¿Todavía no tienes una cuenta? Crea una cuenta gratuita para empezar a jugar:",
   "4001": "Crear Cuenta",
   "4002": "Nombre de Usuario",

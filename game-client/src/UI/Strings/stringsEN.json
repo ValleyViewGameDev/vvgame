@@ -498,7 +498,23 @@
     "3024": "",
     "3025": "",
 
-    
+    "3050": "SEASON PANEL STRINGS",
+
+    "3051": "(Net worth is recalculated twice per day.)",
+    "3052": "No data available for top citizens.",
+    "3053": "It's",
+    "3054": "Loading...",
+    "3055": "Season ends in:",
+    "3056": "We are in between seasons.",
+    "3057": "At the end of the season, bonus rewards will be sent to the top players in the Frontier, as well as to all players in the top Settlement.",
+    "3058": "🏆 Top Citizens in the Frontier",
+    "3059": "🏙️ Leading Settlement",
+    "3060": "Total Wealth:",
+    "3061": "Population:",
+    "3062": "Unknown",
+    "3063": "No data available",
+    "3064": "View Season Log",
+
     "4000": "LOGIN PANEL:",
 
     "4001": "Don't have a profile? Create a new free profile to start playing:",
@@ -1023,12 +1039,7 @@
 
     "730": "Welcome 👵🏻 Shepherd! Now visit the 🐮 Animal Panel to acquire a cow. Cows need 🟩 grass to graze, so place them carefully. And you already have your first 🟫 Animal Stall; this is where you can produce milk once the cow is full.",
 
-    "2017": "This order has already been claimed.",
-
-    "3050": "SEASON PANEL STRINGS",
-
-    "3051": "(Net worth is recalculated twice per day.)",
-    "3052": "No data available for top citizens."
+    "2017": "This order has already been claimed." 
 
 
 
