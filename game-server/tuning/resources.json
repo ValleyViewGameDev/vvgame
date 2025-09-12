@@ -5270,6 +5270,20 @@
     "ingredient2qty": 50
   },
   {
+    "type": "Titan",
+    "symbol": "⚔️",
+    "category": "power",
+    "output": "damage",
+    "source": "Magic Shop",
+    "requires": "Oblivion",
+    "qtycollected": 10,
+    "level": 6,
+    "ingredient1": "Money",
+    "ingredient1qty": 1000,
+    "ingredient2": "Book",
+    "ingredient2qty": 200
+  },
+  {
     "type": "Jab",
     "symbol": "⚔️",
     "category": "power",
