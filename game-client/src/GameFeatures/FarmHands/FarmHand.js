@@ -40,6 +40,7 @@ const FarmHandPanel = ({
   updateStatus,
   masterResources,
   masterSkills, // Added as prop
+  currentSeason,
 }) => {
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
@@ -108,9 +109,17 @@ const FarmHandPanel = ({
         .map((res) => res.output)
         .filter(Boolean);
 
-      const filteredRecipes = masterResources.filter((res) => 
-        farmOutputs.includes(res.type) && res.type !== 'Oak Tree'
-      );
+      const filteredRecipes = masterResources.filter((res) => {
+        // Check if resource is in farmOutputs and not Oak Tree
+        if (!farmOutputs.includes(res.type) || res.type === 'Oak Tree') return false;
+        
+        // Check seasonal restriction
+        if (res.season && currentSeason && res.season !== currentSeason) {
+          return false;
+        }
+        
+        return true;
+      });
       setRecipes(filteredRecipes);
 
       const stationResource = masterResources.find((res) => res.type === stationType);

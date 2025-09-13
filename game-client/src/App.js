@@ -2372,6 +2372,7 @@ return (
           updateStatus={updateStatus}
           masterResources={masterResources}
           masterSkills={masterSkills}
+          currentSeason={seasonData?.type}
         />
       )}
       {activePanel === 'SocialPanel' && (
