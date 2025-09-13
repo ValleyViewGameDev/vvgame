@@ -1,7 +1,7 @@
 [
     { 
         "seasonType": "Spring",
-        "seasonResources": [ "Milk", "Carrot", "Strawberry", "Garlic", "Strawberry Pie", "Honey", "Egg", "Flour", "Garlic Bread", "Carrot Soup", "Pottery" ],
+        "seasonResources": [ "Milk", "Carrot", "Strawberry", "Garlic", "Strawberry Pie", "Honey", "Egg", "Flour", "Garlic Bread", "Carrot Soup", "Pottery", "Furniture" ],
         "seasonMultiplier": 1,
         "SeasonMoneyNerf": 0.25,
         "pricePoints": 25,
@@ -19,7 +19,7 @@
     },
     { 
         "seasonType": "Fall",
-        "seasonResources": [ "Egg", "Wool", "Thread", "Apple", "Grapes", "Olive", "Apple Pie", "Apple Cider", "Olive Oil", "Wine", "Cheese", "Runic Tunic" ],
+        "seasonResources": [ "Wool", "Thread", "Apple", "Grapes", "Olive", "Apple Pie", "Apple Cider", "Olive Oil", "Wine", "Cheese", "Runic Tunic" ],
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
@@ -28,7 +28,7 @@
     },
     { 
         "seasonType": "Winter",
-        "seasonResources": [ "Wheat", "Pumpkin", "Butter", "Sugarcane", "Sweater", "Pumpkin Pie", "Wool", "Jacket", "Heavy Jacket", "Pumpkin Soup", "Cream", "Furniture" ],
+        "seasonResources": [ "Wheat", "Pumpkin", "Butter", "Sugarcane", "Sweater", "Pumpkin Pie", "Wool", "Jacket", "Heavy Jacket", "Pumpkin Soup", "Cream" ],
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
