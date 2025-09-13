@@ -2186,6 +2186,7 @@ return (
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
+          currentSeason={seasonData?.type}
         />
       )}
       {activePanel === 'FarmHouse' && (
@@ -2246,6 +2247,7 @@ return (
           masterResources={masterResources} 
           masterSkills={masterSkills} 
           updateStatus={updateStatus}
+          currentSeason={seasonData?.type}
         />
       )}
       {activePanel === 'ToolsPanel' && (
@@ -2287,6 +2289,7 @@ return (
           masterSkills={masterSkills} 
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
+          currentSeason={seasonData?.type}
         />
       )}
       {activePanel === 'BuyPanel' && (
@@ -2306,6 +2309,7 @@ return (
           masterSkills={masterSkills} 
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
+          currentSeason={seasonData?.type}
         />
       )}
       {activePanel === 'BuyDecoPanel' && (
@@ -2325,6 +2329,7 @@ return (
           masterSkills={masterSkills} 
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
+          currentSeason={seasonData?.type}
         />
       )}
       {activePanel === 'NPCPanel' && (

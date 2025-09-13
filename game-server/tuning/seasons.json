@@ -28,7 +28,7 @@
     },
     { 
         "seasonType": "Winter",
-        "seasonResources": [ "Wheat", "Butter", "Sugarcane", "Sweater", "Cheese", "Wool", "Jacket", "Heavy Jacket", "Bread", "Cream", "Lumber", "Furniture" ],
+        "seasonResources": [ "Wheat", "Pumpkin", "Butter", "Sugarcane", "Sweater", "Pumpkin Pie", "Wool", "Jacket", "Heavy Jacket", "Pumpkin Soup", "Cream", "Furniture" ],
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,

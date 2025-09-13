@@ -29,7 +29,8 @@ const FarmingPanel = ({
   gridId,
   masterResources,
   masterSkills,
-  updateStatus
+  updateStatus,
+  currentSeason
 }) => {
 
   const strings = useStrings();
@@ -54,7 +55,17 @@ const FarmingPanel = ({
       const allResourcesData = resourcesResponse.data;
       setAllResources(allResourcesData);
 
-      const farmPlotItems = allResourcesData.filter((resource) => resource.category === 'farmplot');
+      const farmPlotItems = allResourcesData.filter((resource) => {
+        // Check if resource is a farm plot
+        if (resource.category !== 'farmplot') return false;
+        
+        // Check seasonal restriction
+        if (resource.season && currentSeason && resource.season !== currentSeason) {
+          return false;
+        }
+        
+        return true;
+      });
       setFarmPlots(farmPlotItems);
     } catch (error) {
       console.error('Error fetching farming panel data:', error);

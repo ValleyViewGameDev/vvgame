@@ -40,6 +40,7 @@ const CraftingStation = ({
   masterSkills,
   TILE_SIZE,
   isDeveloper,
+  currentSeason,
 }) => {
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
@@ -119,7 +120,17 @@ const CraftingStation = ({
   // Fetch recipes and resources (refactored: use masterResources directly)
   useEffect(() => {
     try {
-      let filteredRecipes = masterResources.filter((resource) => resource.source === stationType);
+      let filteredRecipes = masterResources.filter((resource) => {
+        // Check if resource source matches station type
+        if (resource.source !== stationType) return false;
+        
+        // Check seasonal restriction
+        if (resource.season && currentSeason && resource.season !== currentSeason) {
+          return false;
+        }
+        
+        return true;
+      });
       
       // Filter out non-repeatable resources that already exist on the grid
       const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);

@@ -26,6 +26,7 @@ const BuildPanel = ({
   masterSkills, // Uncomment if needed for skill checks
   updateStatus,
   isDeveloper,
+  currentSeason,
 }) => {
   const { closePanel } = usePanelContext(); // Use closePanel from context
   const [buildOptions, setBuildOptions] = useState([]);
@@ -46,11 +47,21 @@ const BuildPanel = ({
         const allResourcesData = resourcesResponse.data;
         setAllResources(allResourcesData);
         // ✅ Filter build options based on the player's location
-        const validBuildOptions = allResourcesData.filter(resource => 
-          resource.source === 'Build' || 
-          (resource.source === 'BuildTown' && currentPlayer.location.gtype === 'town' && (currentPlayer.role === 'Mayor' || isDeveloper)) ||
-          (resource.source === 'BuildValley' && currentPlayer.location.gtype != 'homestead' )
-        );
+        const validBuildOptions = allResourcesData.filter(resource => {
+          // Check if resource is a valid build option based on source and location
+          const isValidSource = resource.source === 'Build' || 
+            (resource.source === 'BuildTown' && currentPlayer.location.gtype === 'town' && (currentPlayer.role === 'Mayor' || isDeveloper)) ||
+            (resource.source === 'BuildValley' && currentPlayer.location.gtype != 'homestead');
+          
+          if (!isValidSource) return false;
+          
+          // Check seasonal restriction
+          if (resource.season && currentSeason && resource.season !== currentSeason) {
+            return false;
+          }
+          
+          return true;
+        });
         setBuildOptions(validBuildOptions); 
       } catch (error) {
         console.error('Error fetching build panel data:', error);

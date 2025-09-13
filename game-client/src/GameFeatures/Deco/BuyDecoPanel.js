@@ -26,6 +26,7 @@ const BuyDecoPanel = ({
   masterSkills, 
   updateStatus,
   isDeveloper,
+  currentSeason,
 }) => {
   const { closePanel } = usePanelContext();
   const [buyOptions, setBuyOptions] = useState([]);
@@ -44,7 +45,20 @@ const BuyDecoPanel = ({
         setAllResources(allResourcesData);
         const isHomestead = currentPlayer?.location?.gtype === 'homestead';
         const purchasableItems = allResourcesData.filter(
-          (resource) => resource.source === 'Deco' && (isDeveloper || isHomestead || resource.passable !== false)
+          (resource) => {
+            // Check if resource is a deco item
+            if (resource.source !== 'Deco') return false;
+            
+            // Check passability based on location
+            if (!isDeveloper && !isHomestead && resource.passable === false) return false;
+            
+            // Check seasonal restriction
+            if (resource.season && currentSeason && resource.season !== currentSeason) {
+              return false;
+            }
+            
+            return true;
+          }
         );
         setBuyOptions(purchasableItems);
       } catch (error) {
