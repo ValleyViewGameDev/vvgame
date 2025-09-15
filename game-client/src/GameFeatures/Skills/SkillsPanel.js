@@ -309,8 +309,8 @@ const handlePurchase = async (resourceType) => {
 
                   const skillColor = meetsRequirement ? 'green' : 'red';
                   const details =
-                    `${strings[461]}<div>${formattedCosts}</div>` +
-                    (resource.requires ? `<br><span style="color: ${skillColor};">${strings[460]}${getLocalizedString(resource.requires, strings)}</span>` : '');
+                    (resource.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(resource.requires, strings)}</span><br>` : '') +
+                    `${strings[461]}<div>${formattedCosts}</div>`;
 
                   // ✅ **Check if this skill modifies a player attribute**
                   const attributeModifier = resource.output
@@ -383,8 +383,8 @@ const handlePurchase = async (resourceType) => {
 
                   const skillColor = meetsRequirement ? 'green' : 'red';
                   const details =
-                    `${strings[461]}<div>${formattedCosts}</div>` +
-                    (resource.requires ? `<br><span style="color: ${skillColor};">${strings[460]}${getLocalizedString(resource.requires, strings)}</span>` : '');
+                    (resource.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(resource.requires, strings)}</span><br>` : '') +
+                    `${strings[461]}<div>${formattedCosts}</div>`;
 
                   // ✅ Check for attribute modifiers
                   const attributeModifier = resource.output

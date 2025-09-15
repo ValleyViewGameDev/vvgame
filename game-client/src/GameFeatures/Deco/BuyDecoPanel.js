@@ -102,8 +102,8 @@ const BuyDecoPanel = ({
 
               const skillColor = requirementsMet ? 'green' : 'red';
               const details =
-                `${strings[461]}<div>${formattedCosts}</div>` +
-                (item.requires ? `<br><span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '');
+                (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span><br>` : '') +
+                `${strings[461]}<div>${formattedCosts}</div>`;
 
               return (
                 <ResourceButton

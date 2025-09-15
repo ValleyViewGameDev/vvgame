@@ -497,6 +497,7 @@ const FarmHouse = ({
               const ingredients = getIngredientDetails(recipe, allResources || []);
               const affordable = canAfford(recipe, inventory, Array.isArray(backpack) ? backpack : [], 1);
               const requirementsMet = hasRequiredSkill(recipe.requires);
+              const skillColor = requirementsMet ? 'green' : 'red';
               const isCrafting = craftedItem === recipe.type && craftingCountdown > 0;
               const isReadyToCollect = craftedItem === recipe.type && craftingCountdown === 0;
 
@@ -586,9 +587,12 @@ const FarmHouse = ({
                   name={getLocalizedString(recipe.type, strings)}
                   className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''}`}
                   details={
-                    (isReadyToCollect ? '' : `${strings[461]}<div>${formattedCosts}</div>`) +
-                    (recipe.requires ? `<br>${strings[460]}${getLocalizedString(recipe.requires, strings)}` : '') +
-                    `<br>${craftTimeText}`
+                    isCrafting ? craftTimeText :
+                    (
+                      (recipe.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span><br>` : '') +
+                      `${craftTimeText}<br>` +
+                      (isReadyToCollect ? '' : `${strings[461]}<div>${formattedCosts}</div>`)
+                    )
                   }
                   info={info}
                   disabled={!isReadyToCollect && (craftedItem !== null || !affordable || !requirementsMet)}

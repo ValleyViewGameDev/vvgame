@@ -275,24 +275,29 @@ const CraftingStation = ({
         // Update local state with server response
         const { collectedItem, isNPC, inventory, updatedStation } = response.data;
 
-        // ✅ Apply skill buffs to crafted collection
+        // ✅ Apply skill buffs to crafted collection (station-based)
         console.log('MasterSkills:', masterSkills);
+        console.log('Station Type:', stationType);
 
-        // Extract player skills and upgrades
-        const playerBuffs = (currentPlayer.skills || [])
+        // Find skills that apply to this station
+        const applicableSkills = (currentPlayer.skills || [])
           .filter((item) => {
             const resourceDetails = allResources.find((res) => res.type === item.type);
             const isSkill = resourceDetails?.category === 'skill' || resourceDetails?.category === 'upgrade';
-            const appliesToResource = (masterSkills?.[item.type]?.[collectedItem] || 1) > 1;
-            return isSkill && appliesToResource;
-          })
-          .map((buffItem) => buffItem.type);
+            const appliesToStation = masterSkills?.[item.type]?.[stationType] > 1;
+            return isSkill && appliesToStation;
+          });
 
-        // Calculate skill multiplier
-        const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
-          const buffValue = masterSkills?.[buff]?.[collectedItem] || 1;
-          return multiplier * buffValue;
-        }, 1);
+        // Calculate skill multiplier for this station
+        let skillMultiplier = 1;
+        let appliedSkillName = null;
+        
+        if (applicableSkills.length > 0) {
+          // Use the first applicable skill (typically there should only be one per station)
+          const skill = applicableSkills[0];
+          skillMultiplier = masterSkills?.[skill.type]?.[stationType] || 1;
+          appliedSkillName = skill.type;
+        }
 
         // Apply multiplier to quantity (default to 1 if not provided by backend)
         const baseQtyCollected = 1;
@@ -359,8 +364,8 @@ const CraftingStation = ({
         // Refresh player data to ensure consistency
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-        if (skillMultiplier !== 1) {
-          const skillAppliedText = `${playerBuffs.join(', ')} skill applied (${skillMultiplier}x collected).`;
+        if (skillMultiplier !== 1 && appliedSkillName) {
+          const skillAppliedText = `${appliedSkillName} skill applied (${skillMultiplier}x collected).`;
           updateStatus(skillAppliedText);
         } else {
           updateStatus(`Collected: ${collectedItem}.`);
@@ -395,16 +400,57 @@ const CraftingStation = ({
     });
   };
   
+  // Generate skill bonus message
+  const getSkillBonusMessage = () => {
+    // Find skill that applies to this station
+    const skillEntry = Object.entries(masterSkills || {}).find(([skillName, stations]) => {
+      return stations && typeof stations === 'object' && stations[stationType] > 1;
+    });
+    
+    if (!skillEntry) return null;
+    
+    const [skillName, stations] = skillEntry;
+    const multiplier = stations[stationType];
+    
+    // Check if player has this skill
+    const hasSkill = currentPlayer.skills?.some(item => item.type === skillName);
+    
+    // Find where this skill is acquired
+    const skillResource = allResources.find(res => res.type === skillName);
+    const skillSource = skillResource?.source || 'Skill Shop';
+    
+    if (hasSkill) {
+      // "Your [skill] Skill increases the base output of this station by [X]."
+      return `${strings[805]}${getLocalizedString(skillName, strings)}${strings[806]}${multiplier}x.`;
+    } else {
+      // "Acquire the [skill] Skill at the [source] to increase the output of this station by [X]x."
+      return `${strings[801]}${getLocalizedString(skillName, strings)}${strings[802]}${getLocalizedString(skillSource, strings)}${strings[803]}${multiplier}x.`;
+    }
+  };
+
+  const skillMessage = getSkillBonusMessage();
 
   return (
     <Panel onClose={onClose} descriptionKey="1009" title={`${stationEmoji} ${getLocalizedString(stationType, strings)}`} panelName="CraftingStation">
       <div className="standard-panel">
+        {skillMessage && (
+          <div style={{ 
+            marginBottom: '15px', 
+            padding: '10px', 
+            backgroundColor: '#f0f0f0', 
+            borderRadius: '5px',
+            fontStyle: 'italic'
+          }}>
+            {skillMessage}
+          </div>
+        )}
         
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
               const ingredients = getIngredientDetails(recipe, allResources || []);
               const affordable = canAfford(recipe, inventory, Array.isArray(backpack) ? backpack : [], 1);
               const requirementsMet = hasRequiredSkill(recipe.requires);
+              const skillColor = requirementsMet ? 'green' : 'red';
               const isCrafting = craftedItem === recipe.type && craftingCountdown > 0;
               const isReadyToCollect = craftedItem === recipe.type && craftingCountdown === 0;
 
@@ -453,9 +499,12 @@ const CraftingStation = ({
                   name={getLocalizedString(recipe.type, strings)}
                   className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''}`}
                   details={
-                    (isReadyToCollect ? '' : `${strings[461]}<div>${formattedCosts}</div>`) +
-                    (recipe.requires ? `<br>${strings[460]}${getLocalizedString(recipe.requires, strings)}` : '') +
-                    `<br>${craftTimeText}`
+                    isCrafting ? craftTimeText :
+                    (
+                      (recipe.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span><br>` : '') +
+                      `${craftTimeText}<br>` +
+                      (isReadyToCollect ? '' : `${strings[461]}<div>${formattedCosts}</div>`)
+                    )
                   }
                   info={info}
                   disabled={!isReadyToCollect && (craftedItem !== null || !affordable || !requirementsMet)}

@@ -718,7 +718,7 @@ const handleHeal = async (recipe) => {
                 key={recipe.type}
                 symbol={recipe.symbol}
                 name={getLocalizedString(recipe.type, strings)}
-                details={`${strings[461]} ${ingredients.join(', ') || 'None'}<br>${strings[463]} ❤️‍🩹 +${healAmount}`}
+                details={`${strings[463]} ❤️‍🩹 +${healAmount}<br>${strings[461]} ${ingredients.join(', ') || 'None'}`}
                 disabled={!affordable}
                 onClick={() => handleHeal(recipe)}
               />

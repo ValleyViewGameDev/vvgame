@@ -249,41 +249,6 @@ export async function handleNPCClick(
 
       console.log(`Handling grazing logic for NPC ${npc.id}.`);
 
-      // ✅ Special case: If in town, relocate NPC to home grid
-
-      if (currentPlayer.location.gtype === 'town') {
-        return new Promise((resolve) => {
-          const handleYes = async () => {
-            await NPCsInGridManager.removeNPC(currentGridId, npc.id);
-            const relocatedNPC = {
-              ...npc,
-              position: { x: 1, y: 7 },
-              state: 'idle',
-              lastUpdated: Date.now(),
-            };
-            await NPCsInGridManager.addNPC(currentPlayer.gridId, relocatedNPC);
-            setIsModalOpen(false);
-            resolve({ type: 'success', message: `NPC moved to your homestead.` });
-          };
-          const handleNo = () => {
-            setIsModalOpen(false);
-            resolve({ type: 'info', message: 'Cancelled.' });
-          };
-          setModalContent({
-            title: "Send this animal to your homestead?",
-            size: "small",
-            onClose: handleNo,
-            children: (
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px' }}>
-                <button onClick={handleYes}>Yes</button>
-                <button onClick={handleNo}>No</button>
-              </div>
-            ),
-          });
-          setIsModalOpen(true);
-        });
-      }
-
       if (npc.state !== 'processing') {
         console.log(`🐮 NPC ${npc.id} clicked but not in processing state: ${npc.state}`);
         

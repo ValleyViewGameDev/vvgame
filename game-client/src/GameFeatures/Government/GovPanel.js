@@ -22,13 +22,11 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
   const buildingCounts = {
       School: 0,
       Hospital: 0,
-      AnimalYard: 0,
       Library: 0
   };
   resources.forEach(res => {
       if (res.type === 'School') buildingCounts.School++;
       if (res.type === 'Hospital') buildingCounts.Hospital++;
-      if (res.type === 'Animal Yard') buildingCounts.AnimalYard++;
       if (res.type === 'Library') buildingCounts.Library++;
   });
   
@@ -166,7 +164,6 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
                 <h3>{strings["2090"]}</h3>
                 <p>{buildingCounts.School > 0 ? `${strings["2092"]}${buildingCounts.School}` : strings["2093"]}</p>
                 <p>{buildingCounts.Hospital > 0 ? `${strings["2094"]}${buildingCounts.Hospital}` : strings["2095"]}</p>
-                <p>{buildingCounts.AnimalYard > 0 ? `${strings["2096"]}${buildingCounts.AnimalYard}` : strings["2097"]}</p>
                 <p>{buildingCounts.Library > 0 ? `${strings["2098"]}${buildingCounts.Library}` : strings["2099"]}</p>
               </>
             )}

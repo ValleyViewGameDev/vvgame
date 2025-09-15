@@ -236,8 +236,8 @@ const ShopStation = ({
 
               const details =
                 `${recipe.output && typeof recipe.qtycollected === 'number' ? `<span style="color: blue;">${recipe.qtycollected > 0 ? '+' : ''}${recipe.qtycollected} for ${strings[recipe.output] || recipe.output}</span><br>` : ''}` +
-                `Costs:<div>${formattedCosts}</div>` +
-                (recipe.requires ? `<br><span style="color: ${skillColor};">Requires: ${recipe.requires}</span>` : '');
+                (recipe.requires ? `<span style="color: ${skillColor};">Requires: ${recipe.requires}</span><br>` : '') +
+                `Costs:<div>${formattedCosts}</div>`;
 
               const info = (
                 <div className="info-content">

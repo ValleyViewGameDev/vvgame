@@ -102,8 +102,16 @@ const BuyPanel = ({
 
               const skillColor = requirementsMet ? 'green' : 'red';
               const details =
-                `${strings[461]}<div>${formattedCosts}</div>` +
-                (item.requires ? `<br><span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '');
+                (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span><br>` : '') +
+                `${strings[461]}<div>${formattedCosts}</div>`;
+
+              // Create info tooltip content
+              const info = (
+                <div className="info-content">
+                  <div>{strings[820]}{item.output ? `${allResources.find(r => r.type === item.output)?.symbol || ''} ${getLocalizedString(item.output, strings)}` : 'Nothing'}</div>
+                  <div>{strings[821]}{item.qtycollected || 1}</div>
+                </div>
+              );
 
               return (
                 <ResourceButton
@@ -111,6 +119,7 @@ const BuyPanel = ({
                   symbol={item.symbol}
                   name={getLocalizedString(item.type, strings)}
                   details={details}
+                  info={info}
                   disabled={!affordable || !requirementsMet}
                   onClick={() =>
                     affordable &&

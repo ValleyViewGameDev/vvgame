@@ -1170,19 +1170,6 @@
   },
   {
     "index": 85,
-    "title": "Of Beasts and Benefits",
-    "textbody": "Raise an Animal Yard, where the creatures of field and fancy may thrive. Let thy neighbors say, ‘This yard is a republic of feathers and fur.’",
-    "symbol": "👩🏻‍⚖️",
-    "repeatable": false,
-    "giver": "Portia",
-    "reward": "Gem",
-    "rewardqty": 1,
-    "goal1action": "Build",
-    "goal1item": "Animal Yard",
-    "goal1qty": 1
-  },
-  {
-    "index": 86,
     "title": "In Sickness and in Health",
     "textbody": "A Hospital must rise, its halls bright with healing. Without it, our town limps toward ruin. Build it, and let mercy dwell in mortar and brick.",
     "symbol": "👩🏻‍⚖️",
@@ -1195,7 +1182,7 @@
     "goal1qty": 1
   },
   {
-    "index": 87,
+    "index": 86,
     "title": "Summon the Healers",
     "textbody": "Craft the Doctors we need, fifty strong. They are balm and blade both. ‘He jests at scars that never felt a wound’ -- but thou shalt tend them, and in so doing, be noble indeed.",
     "symbol": "👩🏻‍⚖️",

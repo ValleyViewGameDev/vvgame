@@ -106,11 +106,11 @@ const BuildPanel = ({
 
               const skillColor = requirementsMet ? 'green' : 'red';
               const details =
-                `${strings[461]}<div>${formattedCosts}</div>` +
-                (item.requires ? `<br><span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '');
+                (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span><br>` : '') +
+                `${strings[461]}<div>${formattedCosts}</div>`;
 
               const info = `
-                Makes: ${
+                ${strings[820]}${
                   allResources
                     .filter((res) => res.source === item.type)
                     .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
