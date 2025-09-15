@@ -3493,6 +3493,7 @@
   },
   {
     "type": "Mill",
+    "range": 2,
     "symbol": "🛖",
     "layoutkey": "c1",
     "category": "crafting",
