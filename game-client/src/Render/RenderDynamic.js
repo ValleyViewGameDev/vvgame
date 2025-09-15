@@ -151,6 +151,12 @@ const DynamicRenderer = ({
     const existingIds = new Set();
 
     npcs.forEach((npc) => {
+      // Skip NPCs without valid position data
+      if (!npc || !npc.position || typeof npc.position.x === 'undefined' || typeof npc.position.y === 'undefined') {
+        console.warn('NPC missing position data:', npc);
+        return;
+      }
+      
       existingIds.add(npc.id);
       let npcDiv = npcElements.current.get(npc.id);
       const overridePos = renderPositions[npc.id];
@@ -200,8 +206,8 @@ const DynamicRenderer = ({
           } else {
             handleNPCClick(
               npc,
-              Math.round(npc.position.y),
-              Math.round(npc.position.x),
+              Math.round(npc.position?.y || 0),
+              Math.round(npc.position?.x || 0),
               setInventory,
               setResources,
               currentPlayer,
