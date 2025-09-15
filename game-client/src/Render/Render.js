@@ -81,7 +81,7 @@ export const RenderGrid = memo(
     const currentTime = Date.now();
 
     const craftingStatus = resources.reduce((acc, res) => {
-      if (res.category === 'crafting' && res.craftEnd) {
+      if ((res.category === 'crafting' || res.category === 'farmhouse') && res.craftEnd) {
         const key = `${res.x}-${res.y}`;
         if (res.craftEnd < currentTime) {
           acc.ready.push(key);
@@ -128,7 +128,7 @@ export const RenderGrid = memo(
         let isCraftInProgress = false;
         let isTradingReady = false;
         
-        if (resource && resource.category === 'crafting') {
+        if (resource && (resource.category === 'crafting' || resource.category === 'farmhouse')) {
           const resourceKey = `${resource.x}-${resource.y}`;
           isCraftReady = craftingStatus.ready.includes(resourceKey);
           isCraftInProgress = craftingStatus.inProgress.includes(resourceKey);
@@ -188,10 +188,12 @@ export const RenderGrid = memo(
                 className="resource-overlay"
                 style={{
                   fontSize: resource.range > 1 
-                    ? `${TILE_SIZE * 1.1 * resource.range}px` 
-                    : resource.category === 'deco' && resource.action === 'wall'
-                      ? `${TILE_SIZE * 1.1}px` // Walls render slightly larger so they join
-                      : `${TILE_SIZE * 0.7}px`,
+                    ? resource.action === 'wall'
+                      ? `${TILE_SIZE * 1.1 * resource.range}px` // Multi-tile walls
+                      : `${TILE_SIZE * 0.8 * resource.range}px` // Other multi-tile resources
+                    : resource.action === 'wall'
+                      ? `${TILE_SIZE * 1.1}px` // Single-tile walls
+                      : `${TILE_SIZE * 0.7}px`, // Other single-tile resources
                   width: resource.range > 1 ? `${TILE_SIZE * resource.range}px` : 'auto',
                   height: resource.range > 1 ? `${TILE_SIZE * resource.range}px` : 'auto',
                   position: resource.range > 1 ? 'absolute' : 'static',
