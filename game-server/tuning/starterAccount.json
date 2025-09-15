@@ -13,7 +13,7 @@
       "backpack": [],
       "skills": [{ "type": "Walking" }],
       "powers": [],
-      "warehouseCapacity": 5000,
+      "warehouseCapacity": 1000,
       "backpackCapacity": 20,
       "accountStatus": "Free",
       "role": "Citizen",

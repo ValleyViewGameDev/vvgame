@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { loadMasterResources } from './Utils/TuningManager';
 import { updateGridResource } from './Utils/GridManagement';
 
 let farmTimer = null;
@@ -35,8 +34,12 @@ class FarmState {
   /**
    * Process seeds periodically to check for growth completion.
    */
-  startSeedTimer({ gridId, setResources, TILE_SIZE, currentPlayer, setCurrentPlayer }) {
+  startSeedTimer({ gridId, setResources, masterResources }) {
     if (farmTimer) clearInterval(farmTimer);
+    
+    // Store the current gridId to check if we're still on the same grid
+    const currentGridId = gridId;
+    
     console.log("🧪 FarmState starting timer with seeds:");
     this.farmState.forEach(seed => {
       const now = Date.now();
@@ -55,20 +58,23 @@ class FarmState {
       if (completedSeeds.length > 0) {
 
         // Update the Seeds to become Crops
-
-        const masterResources = await loadMasterResources();
-        console.log('Loaded masterResources:', masterResources);
+        console.log('Using provided masterResources');
   
-        for (const seed of completedSeeds) {
+        // Process all completed seeds in parallel instead of sequentially
+        const updatePromises = completedSeeds.map(async (seed) => {
           console.log('Processing seed:', seed);
           const newCrop = masterResources.find((res) => res.type === seed.output);
           console.log('Target output (crop) found for seed:', newCrop);
-          if (newCrop) {
+          
+          if (!newCrop) {
+            console.warn(`No target resource found for seed output: ${seed.output}`);
+            return null;
+          }
 
           try {
             console.log(`Updating grid resource for seed at (${seed.x}, ${seed.y}).`);
             const response = await updateGridResource(
-              gridId, 
+              currentGridId, 
               { 
                 type: newCrop.type,
                 x: seed.x,
@@ -87,24 +93,39 @@ class FarmState {
                 y: seed.y
               };
 
-              setResources(prev => {
-                const filtered = prev.filter(r => !(r.x === seed.x && r.y === seed.y));
-                return [...filtered, enriched];
-              });
-              
-              } else {
-                console.warn(`Failed to update grid resource for seed at (${seed.x}, ${seed.y}).`);
-              }
-            } catch (error) {
-              console.error(`Error updating grid resource for seed at (${seed.x}, ${seed.y}):`, error);
+              return { seed, enriched };
+            } else {
+              console.warn(`Failed to update grid resource for seed at (${seed.x}, ${seed.y}).`);
+              return null;
             }
-  
-            // Remove processed seed from farmState
-            this.farmState = this.farmState.filter((s) => s !== seed);
-            console.log('Updated farmState after removing processed seed:', this.farmState);
-          } else {
-            console.warn(`No target resource found for seed output: ${seed.output}`);
+          } catch (error) {
+            console.error(`Error updating grid resource for seed at (${seed.x}, ${seed.y}):`, error);
+            return null;
           }
+        });
+
+        // Wait for all updates to complete
+        const results = await Promise.all(updatePromises);
+        
+        // Filter out failed updates
+        const successfulUpdates = results.filter(result => result !== null);
+        
+        // Update the UI state all at once
+        if (successfulUpdates.length > 0) {
+          setResources(prev => {
+            // Remove all successfully updated seeds
+            const seedPositions = successfulUpdates.map(({ seed }) => `${seed.x},${seed.y}`);
+            const filtered = prev.filter(r => !seedPositions.includes(`${r.x},${r.y}`));
+            
+            // Add all new crops
+            const newCrops = successfulUpdates.map(({ enriched }) => enriched);
+            return [...filtered, ...newCrops];
+          });
+          
+          // Remove processed seeds from farmState
+          const processedSeeds = successfulUpdates.map(({ seed }) => seed);
+          this.farmState = this.farmState.filter(s => !processedSeeds.includes(s));
+          console.log('Updated farmState after removing processed seeds:', this.farmState);
         }
       }
     }, 1000);

@@ -777,12 +777,12 @@ useEffect(() => {
 
 // FARM STATE - Farming Seed Timer Management //////////////////////////////////////////////////////
 useEffect(() => {
-  if (gridId) {
+  if (gridId && masterResources) {
     farmState.initializeFarmState(resources); // ✅ Works for seeds
-    farmState.startSeedTimer({gridId,setResources,activeTileSize,currentPlayer,setCurrentPlayer,});
+    farmState.startSeedTimer({gridId,setResources,masterResources});
   }
   return () => { farmState.stopSeedTimer(); };
-}, [gridId, resources]);  
+}, [gridId, resources, masterResources]);  
 
 
 
