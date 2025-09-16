@@ -29,6 +29,9 @@
     "Baker": {
       "Oven": 2
     },
+    "Creamery": {
+      "Dairy": 2
+    },
     "Mechanics": {
       "Mill": 2
     },

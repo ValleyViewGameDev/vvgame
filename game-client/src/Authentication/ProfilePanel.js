@@ -355,9 +355,9 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           </button>
         </div>
 
-        <div className="debug-toggles">
+        <div className="panel-buttons">
           <button
-            className={`btn-toggle ${localSettings.rangeOn ? 'btn-enabled' : 'btn-disabled'}`}
+            className={localSettings.rangeOn ? 'btn-success' : 'btn-neutral'}
             onClick={() => handleToggleChange('rangeOn')}
           >
             {strings[4064]}{localSettings.rangeOn ? 'is ON' : 'is OFF'}
@@ -365,7 +365,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
           {isDeveloper && (
             <button
-              className={`btn-toggle ${localSettings.isTeleportEnabled ? 'btn-enabled' : 'btn-disabled'}`}
+              className={localSettings.isTeleportEnabled ? 'btn-success' : 'btn-neutral'}
               onClick={() => handleToggleChange('isTeleportEnabled')}
             >
               Teleport: {localSettings.isTeleportEnabled ? 'is ON' : 'is OFF'}
@@ -373,7 +373,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           )}
 
           <button
-            className={`btn-toggle ${localSettings.toggleVFX ? 'btn-enabled' : 'btn-disabled'}`}
+            className={localSettings.toggleVFX ? 'btn-success' : 'btn-neutral'}
             onClick={() => handleToggleChange('toggleVFX')}
           >
             VFX: {localSettings.toggleVFX ? 'is ON' : 'is OFF'}

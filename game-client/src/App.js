@@ -1595,6 +1595,7 @@ return (
           <button className="zoom-button" disabled={!currentPlayer} onClick={zoomIn}>+</button>
         </div>
 
+        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}>{strings[10103]} </button>
         <button className="shared-button"
           onClick={() => openPanel('HowToMoneyPanel')}
         >
@@ -1609,14 +1610,13 @@ return (
             ? (currentPlayer.inventory.find((item) => item.type === "Gem")?.quantity || 0).toLocaleString()
             : "..."}
         </button>
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}>{strings[10103]} </button>
-        <div className="nav-button-wrapper">
-          <button className="shared-button" disabled={!currentPlayer} onClick={() => setActiveModal("Store")}>{strings[10104]}</button>
-          {badgeState.store && <div className="badge-dot" />}
-        </div>
         <div className="nav-button-wrapper">
           <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>{strings[10105]}</button>
           {badgeState.mailbox && <div className="badge-dot" />}
+        </div>
+        <div className="nav-button-wrapper">
+          <button className="shared-button gold-button" disabled={!currentPlayer} onClick={() => setActiveModal("Store")}>{strings[10104]}</button>
+          {badgeState.store && <div className="badge-dot" />}
         </div>
 
       </div>
@@ -1855,6 +1855,7 @@ return (
           setHoverTooltip={setHoverTooltip}
           currentPlayer={currentPlayer}
           strings={strings}
+          badgeState={badgeState}
         />
         <DynamicRenderer
           TILE_SIZE={activeTileSize}
@@ -2117,6 +2118,8 @@ return (
       )}
       {activePanel === 'HowToGemsPanel' && (
         <HowToGemsPanel 
+          currentPlayer={currentPlayer}
+          updateStatus={updateStatus}
           onOpen={openPanel}
           onClose={closePanel}
         />
@@ -2127,8 +2130,6 @@ return (
           updateStatus={updateStatus}
           onOpen={openPanel}
           onClose={closePanel}
-          setModalContent={setModalContent}
- 	        setIsModalOpen={setIsModalOpen}
         />
       )}
       {activePanel === 'GovPanel' && (

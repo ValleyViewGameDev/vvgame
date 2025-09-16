@@ -62,7 +62,7 @@ export function generateResourceTooltip(resource, strings) {
 }
 
 export const RenderGrid = memo(
-  ({ grid, tileTypes, resources, handleTileClick, TILE_SIZE, setHoverTooltip, currentPlayer, strings }) => {
+  ({ grid, tileTypes, resources, handleTileClick, TILE_SIZE, setHoverTooltip, currentPlayer, strings, badgeState }) => {
 
     const [, forceTick] = useState(0);
       useEffect(() => {
@@ -237,6 +237,18 @@ export const RenderGrid = memo(
 
             {/* ✅ Add Checkmark for Trading Post with completed trades */}
             {isTradingReady && resource && resource.type === 'Trading Post' && resource.x === colIndex && resource.y === rowIndex && (
+              <div
+                className="game-overlay"
+                style={{
+                  color: getOverlayContent('ready').color,
+                }}
+              >
+                {getOverlayContent('ready').emoji}
+              </div>
+            )}
+
+            {/* ✅ Add Checkmark for Mailbox with unread messages */}
+            {badgeState?.mailbox && resource && resource.type === 'Mailbox' && resource.x === colIndex && resource.y === rowIndex && (
               <div
                 className="game-overlay"
                 style={{
