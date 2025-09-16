@@ -23,7 +23,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
     const hasBackpackSkill = currentPlayer?.skills?.some(item => item.type === 'Backpack');
     const finalCapacities = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources);
     const calculateTotalQuantity = (inventory) =>
-        inventory.filter((item) => item.type !== 'Money').reduce((total, item) => total + item.quantity, 0);
+        inventory.filter((item) => item.type !== 'Money' && item.type !== 'Gem').reduce((total, item) => total + item.quantity, 0);
     
     const handleAmountChange = (amounts, setAmounts, type, value, maxValue) => {
         const clampedValue = Math.min(Math.max(0, value), maxValue);
@@ -254,8 +254,8 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                 )}
                 <br></br>
                 <div className="inventory-table">
-                    {backpack.filter(item => item.type !== 'Money').length > 0 ? (
-                        backpack.filter(item => item.type !== 'Money').map((item, index) => (
+                    {backpack.filter(item => item.type !== 'Money' && item.type !== 'Gem').length > 0 ? (
+                        backpack.filter(item => item.type !== 'Money' && item.type !== 'Gem').map((item, index) => (
                             <div className="inventory-row" key={index}>
                                 <div className="inventory-cell name-cell">{getLocalizedString(item.type, strings)}</div>
                                 <div className="inventory-cell quantity-cell">{item.quantity.toLocaleString()}</div>
@@ -288,8 +288,8 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
 
             <br></br>
             <div className="inventory-table">
-                {inventory.filter(item => item.type !== 'Money').length > 0 ? (
-                    inventory.filter(item => item.type !== 'Money').map((item, index) => (
+                {inventory.filter(item => item.type !== 'Money' && item.type !== 'Gem').length > 0 ? (
+                    inventory.filter(item => item.type !== 'Money' && item.type !== 'Gem').map((item, index) => (
                         <div className="inventory-row" key={index}>
                             <div className="inventory-cell name-cell">{getLocalizedString(item.type, strings)}</div>
                             <div className="inventory-cell quantity-cell">{item.quantity.toLocaleString()}</div>
@@ -407,7 +407,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                             </tr>
                         </thead>
                         <tbody>
-                            {inventory.filter(item => item.type !== 'Money').map((item) => (
+                            {inventory.filter(item => item.type !== 'Money' && item.type !== 'Gem').map((item) => (
                                 <tr key={item.type}>
                                     <td>{getLocalizedString(item.type, strings)}</td>
                                     <td>{item.quantity.toLocaleString()}</td>

@@ -455,8 +455,9 @@ const handleHeal = async (recipe) => {
     if (!hasRoom) {
       const isHomestead = currentPlayer?.location?.gtype === 'homestead';
       const isMoney = recipe.type === "Money";
+      const isGem = recipe.type === "Gem";
       
-      if (!isMoney && !isHomestead) {
+      if (!isMoney && !isGem && !isHomestead) {
         // Check if player has backpack skill
         const hasBackpackSkill = currentPlayer?.skills?.some((item) => item.type === 'Backpack' && item.quantity > 0);
         if (!hasBackpackSkill) {

@@ -56,9 +56,41 @@
 { "item":"Corn","qty":	75	}
 ]							
 },							
-							
+
+{							
+"id":		6		,			
+"title":	"100 Gems"	,			
+"body":	"Instantly adds 100 Gems."	,			
+"price":		1.00		,			
+"priceInCents":		100		,			
+"rewards": [							
+{ "item":"Gem","qty":	100	}
+]							
+},							
+{							
+"id":		7		,			
+"title":	"500 Gems (best value)"	,			
+"body":	"Instantly adds 500 Gems for the price of 400."	,			
+"price":		4.00		,			
+"priceInCents":		400		,			
+"rewards": [							
+{ "item":"Gem","qty":	500	}
+]							
+},			
+
 {							
 "id":		8		,			
+"title":	"1000 Gems (most popular)"	,			
+"body":	"Instantly adds 1000 Gems for the price of 800."	,			
+"price":		8.00		,			
+"priceInCents":		800		,			
+"rewards": [							
+{ "item":"Gem","qty":	1000	}
+]							
+},			
+
+{							
+"id":		9		,			
 "title":	"Basic Money Pack"	,			
 "body":	"Instantly adds 100,000 Money."	,			
 "price":		6.00		,			

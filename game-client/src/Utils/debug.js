@@ -328,11 +328,11 @@ const handleGetRich = async () => {
         return;
       }
 
-      // Retain only Money in the inventory
+      // Retain only Money and Gems in the inventory
       const filteredInventory = currentPlayer.inventory.filter(
-        (item) => item.type === 'Money'
+        (item) => item.type === 'Money' || item.type === 'Gem'
       );
-      console.log('Filtered inventory to retain only Money:', filteredInventory);
+      console.log('Filtered inventory to retain only Money and Gems:', filteredInventory);
 
       // Update inventory on the server
       await axios.post(`${API_BASE}/api/update-inventory`, {

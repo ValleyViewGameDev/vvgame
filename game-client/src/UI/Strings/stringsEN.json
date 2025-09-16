@@ -306,7 +306,6 @@
     "1022": "[Train description]",
     "1024": "[Combat description]",
     "1025": "[Shop description]",
-    "1026": "[Money panel description]",
     "1027": "These are the benefits of a Gold Pass.",
     "1028": "[Decorations panel description]",
     "1029": "[Animal panel]",
@@ -314,6 +313,7 @@
     "1031": "Buy decorations for your homesetead. You will be able to sell these for a full refund.",
     "1032": "The Farm House is where you can hire people to help you run your homestead." ,
     "1033": "Terraform the land with these tools. Animals need grass for grazing, crops need dirt to grow on. Pavement can be useful for controlling movements of animals and characters.",
+
 
     "1101": "Inventory",
     "1102": "⚒️ Build",
@@ -624,6 +624,7 @@
     "9025": "Spending Money",
     "9026": "Surprise, most things cost Money. Initially, you will want to spend money on 💪 SKILLS, 🐮 FARM ANIMALS, and ⚒️ CRAFTING STATIONS. Explore the panels at the left side of the screen. These will help you generate more resources, which in turn will help you earn more Money.",
     "9027": "In TOWN you will disocver more Shops and Traders.",
+
 
     "9050": "Benefits",
     "9051": "A Gold Pass gives you access to premium features and benefits in Valley View for the duration of a season.",
@@ -1052,6 +1053,15 @@
 
     "3009": "Only the Mayor can build Schools, Hospitals and Libraries in the Town.",
     "3012": "🏤 Libraries are a source of Books, which are vital to Adventurers looking to learn new skills.",
+
+    "1026": "Earning and spending Money.",
+    "1034": "Earning and spending Gems.",
+    "1134": "💎 Gems",
+    "9030": "How to Earn Gems",
+    "9031": "Gems are a rare resource that can be used to purchase various things to help accelerate your play.",
+    "9032": "You can purchase Gems in the Store, or by clicking here:",
+    "9033": "On rare occassions, Gems can be found in the Valley, or earned as rewards for crushing it with the Train, or finishing strong at the end of a Season.",
+
 
     "2017": "This order has already been claimed." 
 

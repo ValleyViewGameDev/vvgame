@@ -52,6 +52,7 @@ import DebugPanel from './Utils/debug';
 import InventoryPanel from './GameFeatures/Inventory/InventoryPanel';
 import HowToPanel from './UI/HowToPanel';
 import HowToMoneyPanel from './UI/HowToMoneyPanel';
+import HowToGemsPanel from './UI/HowToGemsPanel';
 import QuestPanel from './GameFeatures/Quests/QuestPanel';
 import NPCPanel from './GameFeatures/NPCs/NPCsPanel.js';
 import BuildPanel from './GameFeatures/Build/BuildPanel';
@@ -1565,7 +1566,11 @@ const handleLoginSuccess = async (player) => {
   const [isChatOpen, setIsChatOpen] = useState(false);
 
 
+  ///////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////
   /////////////// RENDERING THE APP /////////////////////////
+  ///////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////
 
 return (
     <>
@@ -1595,6 +1600,13 @@ return (
         >
           💰 {Array.isArray(currentPlayer?.inventory)
             ? (currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0).toLocaleString()
+            : "..."}
+        </button>
+        <button className="shared-button"
+          onClick={() => openPanel('HowToGemsPanel')}
+        >
+          💎 {Array.isArray(currentPlayer?.inventory)
+            ? (currentPlayer.inventory.find((item) => item.type === "Gem")?.quantity || 0).toLocaleString()
             : "..."}
         </button>
         <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}>{strings[10103]} </button>
@@ -2099,6 +2111,12 @@ return (
       )}
       {activePanel === 'HowToMoneyPanel' && (
         <HowToMoneyPanel 
+          onOpen={openPanel}
+          onClose={closePanel}
+        />
+      )}
+      {activePanel === 'HowToGemsPanel' && (
+        <HowToGemsPanel 
           onOpen={openPanel}
           onClose={closePanel}
         />

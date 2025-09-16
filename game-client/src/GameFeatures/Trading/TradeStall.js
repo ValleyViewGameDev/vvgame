@@ -1045,7 +1045,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                   .filter((item) => {
                     const resourceDetails = resourceData.find((res) => res.type === item.type);
                     return (
-                      item.type !== 'Money'
+                      item.type !== 'Money' && item.type !== 'Gem'
                     );
                   })
                   .map((item) => {

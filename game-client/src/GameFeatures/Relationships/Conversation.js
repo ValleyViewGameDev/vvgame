@@ -222,7 +222,7 @@ export const getTopicSymbol = (topicKey, context = {}, isPlayerTurn = false) => 
         
         // Sort by quantity and get top 3 (excluding Money)
         const topItems = allItems
-          .filter(item => item.type !== 'Money')
+          .filter(item => item.type !== 'Money' && item.type !== 'Gem')
           .sort((a, b) => b.quantity - a.quantity)
           .slice(0, 5)
           .map(item => {

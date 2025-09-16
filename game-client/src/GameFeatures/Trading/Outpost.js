@@ -482,7 +482,7 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
               </thead>
               <tbody>
                 {(backpack || [])
-                  .filter(item => item.type !== 'Money')
+                  .filter(item => item.type !== 'Money' && item.type !== 'Gem')
                   .map((item) => {
                     const resourceDetails = resourceData.find((res) => res.type === item.type);
                     const price = resourceDetails?.minprice || 'N/A';
