@@ -406,6 +406,21 @@
     "crafttime": 3
   },
   {
+    "type": "Worker Slot",
+    "symbol": "⊕",
+    "layoutkey": "ws",
+    "category": "special",
+    "passable": false,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": true,
+    "validonl": true,
+    "validonn": true,
+    "validono": true
+  },
+  {
     "type": "Mountain",
     "symbol": "⛰️",
     "layoutkey": "m1",
