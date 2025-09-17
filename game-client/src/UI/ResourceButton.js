@@ -170,7 +170,7 @@ const ResourceButton = ({
         </button>
 
         {/* ✅ Gem button for gem purchases - moved outside button so it's always clickable */}
-        {!hideGem && shouldCalculateGem && gemCalculation && (
+        {!hideGem && shouldCalculateGem && gemCalculation && !isProcessing && (
           <span
             className="gem-button"
             onClick={handleGemClick}

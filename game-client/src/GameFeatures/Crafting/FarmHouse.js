@@ -187,15 +187,21 @@ const FarmHouse = ({
     }
 
     try {
-      const response = await axios.post(`${API_BASE}/api/crafting/start-craft`, {
+      const payload = {
         playerId: currentPlayer.playerId,
         gridId,
         stationX: currentStationPosition.x,
         stationY: currentStationPosition.y,
         recipe,
         transactionId,
-        transactionKey
-      });
+        transactionKey,
+        // Add flag to indicate if this is a gem purchase (ingredients already paid)
+        isGemPurchase: transactionKey && transactionKey.includes('crafting-gem-')
+      };
+      
+      console.log('🔍 [CRAFT DEBUG] Sending to server:', payload);
+      
+      const response = await axios.post(`${API_BASE}/api/crafting/start-craft`, payload);
 
       if (response.data.success) {
         // Update local state with server response
@@ -236,6 +242,7 @@ const FarmHouse = ({
       }
     } catch (error) {
       console.error('Error in protected crafting start:', error);
+      console.error('Error response data:', error.response?.data);
       if (error.response?.status === 429) {
         updateStatus(451);
       } else if (error.response?.status === 400) {
@@ -405,6 +412,73 @@ const FarmHouse = ({
   };
   
   // Handle repair of Abandoned House to Farm House
+  const handleGemPurchase = async (modifiedRecipe) => {
+    console.log('🔍 [GEM DEBUG] handleGemPurchase called with:', modifiedRecipe);
+    
+    // This is called by the gem button with a recipe modified to include gems
+    // First spend the ingredients (including gems)
+    const spendSuccess = await spendIngredients({
+      playerId: currentPlayer.playerId,
+      recipe: modifiedRecipe,
+      inventory,
+      backpack,
+      setInventory,
+      setBackpack,
+      setCurrentPlayer,
+      updateStatus,
+    });
+
+    if (!spendSuccess) {
+      console.warn('Failed to spend ingredients for gem purchase.');
+      return;
+    }
+    
+    console.log('🔍 [GEM DEBUG] Ingredients spent successfully');
+
+    // For gem purchases with NPCs, spawn them immediately
+    const craftedResource = allResources.find(res => res.type === modifiedRecipe.type);
+    if (craftedResource && craftedResource.category === 'npc') {
+      // Get placement offset from WorkerPlacement.json
+      const placementData = workerPlacementData.find(data => data.workerType === modifiedRecipe.type);
+      const offsetX = placementData?.offsetX || 0;
+      const offsetY = placementData?.offsetY || 0;
+      
+      const spawnPosition = {
+        x: currentStationPosition.x + offsetX,
+        y: currentStationPosition.y + offsetY
+      };
+      
+      console.log(`Spawning ${modifiedRecipe.type} at offset (${offsetX}, ${offsetY}) from Farm House`);
+      NPCsInGridManager.spawnNPC(gridId, craftedResource, spawnPosition);
+      
+      // Track quest progress
+      await trackQuestProgress(currentPlayer, 'Craft', modifiedRecipe.type, 1, setCurrentPlayer);
+      
+      // Check FTUE progress
+      if (stationType === 'Farm House' && modifiedRecipe.type === 'Kent') {
+        console.log('🎓 Player hired Kent at FarmHouse, incrementing FTUE step');
+        await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+      }
+      if (stationType === 'Farm House' && modifiedRecipe.type === 'The Shepherd') {
+        console.log('🎓 Player hired The Shepherd at FarmHouse, incrementing FTUE step');
+        await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+      }
+      
+      // Update status and effects
+      updateStatus(`💎 ${getLocalizedString(modifiedRecipe.type, strings)} hired instantly!`);
+      FloatingTextManager.addFloatingText(`+1 ${getLocalizedString(modifiedRecipe.type, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+      
+      // Trigger refresh
+      setNpcRefreshKey(prev => prev + 1);
+      
+      // Refresh player data
+      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+    } else {
+      // For non-NPC items, we would need different handling
+      updateStatus('Gem purchase not supported for this item type');
+    }
+  };
+
   const handleRepairHouse = async (transactionId, transactionKey, recipe) => {
     
     try {
@@ -605,6 +679,16 @@ const FarmHouse = ({
                   onTransactionAction={isReadyToCollect ? 
                     (transactionId, transactionKey) => handleCollect(transactionId, transactionKey, recipe) :
                     (transactionId, transactionKey) => handleCraft(transactionId, transactionKey, recipe)}
+                  // Gem purchase props
+                  gemCost={recipe.gemcost || null}
+                  onGemPurchase={(recipe.gemcost && (!affordable || !requirementsMet || craftedItem !== null)) ? handleGemPurchase : null}
+                  resource={recipe}
+                  inventory={inventory}
+                  backpack={backpack}
+                  masterResources={masterResources || allResources}
+                  currentPlayer={currentPlayer}
+                  // Hide gem button if crafting or ready to collect
+                  hideGem={isCrafting || isReadyToCollect || !recipe.gemcost}
                 >
                 </ResourceButton>
               );

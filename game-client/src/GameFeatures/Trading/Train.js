@@ -382,13 +382,13 @@ function TrainPanel({
     return (
       <div className="next-shipment-preview">
         <h4>{strings[2003]}</h4>
-        <ul>
+        <div className="next-shipment-container">
           {uniqueOffers.map((offer, index) => (
-            <li key={index}>
+            <div key={index} className="next-shipment-item">
               {getSymbol(offer.itemBought)} {offer.itemBought}
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     );
   };
@@ -407,13 +407,13 @@ function TrainPanel({
     return (
       <div className="reward-section">
         <h4>{strings[2004]}</h4>
-        <ul className="reward-list">
+        <div className="train-rewards-container">
           {uniqueRewards.map((reward, index) => (
-            <li key={index}>
-              {getSymbol(reward.item)} {reward.item}
-            </li>
+            <div key={index} className="train-reward-item">
+              {getSymbol(reward.item)} {reward.qty} {reward.item}
+            </div>
           ))}
-        </ul>
+        </div>
       </div>
     );
   };
