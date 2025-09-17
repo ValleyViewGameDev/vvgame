@@ -151,7 +151,8 @@ const NPCPanel = ({
             ingredient4: trade.requires[3]?.type,
             ingredient4qty: trade.requires[3]?.quantity,
             requires: trade.requiresSkill,
-            source: npcData.type
+            source: npcData.type,
+            gemcost: resourceDef?.gemcost || null
           };
         });
         
@@ -366,6 +367,16 @@ const handleGetReward = async (quest) => {
     }
   };
 
+
+const handleGemPurchase = async (modifiedRecipe, actionType) => {
+    // This is called by the gem button with a recipe modified to include gems
+    // Route to the appropriate handler based on action type
+    if (actionType === 'heal') {
+      return handleHeal(modifiedRecipe);
+    } else if (actionType === 'trade') {
+      return handleTrade(modifiedRecipe);
+    }
+  };
 
 const handleHeal = async (recipe) => {
     setErrorMessage('');
@@ -722,6 +733,14 @@ const handleHeal = async (recipe) => {
                 details={`${strings[463]} ❤️‍🩹 +${healAmount}<br>${strings[461]} ${ingredients.join(', ') || 'None'}`}
                 disabled={!affordable}
                 onClick={() => handleHeal(recipe)}
+                // Gem purchase props
+                gemCost={recipe.gemcost || null}
+                onGemPurchase={(recipe.gemcost && !affordable) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'heal') : null}
+                resource={recipe}
+                inventory={inventory}
+                backpack={backpack}
+                masterResources={masterResources}
+                currentPlayer={currentPlayer}
               />
             );
           })}
@@ -859,6 +878,14 @@ const handleHeal = async (recipe) => {
                       details={`${strings[461]}<div>${formattedCosts}</div>`}
                       disabled={!affordable}
                       onClick={() => handleTrade(recipe)}
+                      // Gem purchase props
+                      gemCost={recipe.gemcost || null}
+                      onGemPurchase={(recipe.gemcost && !affordable) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'trade') : null}
+                      resource={recipe}
+                      inventory={inventory}
+                      backpack={backpack}
+                      masterResources={masterResources}
+                      currentPlayer={currentPlayer}
                     />
                   );
                 })

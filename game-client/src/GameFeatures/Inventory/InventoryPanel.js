@@ -141,20 +141,23 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
 
                 updateStatus(`Moved all items to warehouse`);
             } else {
+                // When not at home, discard all items except Tent and Boat
+                const itemsToKeep = backpack.filter((item) => item.type === "Tent" || item.type === "Boat");
+                
                 await axios.post(`${API_BASE}/api/update-inventory`, {
                     playerId: currentPlayer.playerId,
-                    backpack: [],
+                    backpack: itemsToKeep,
                 });
 
                 setCurrentPlayer({
                     ...currentPlayer,
-                    backpack: [],
+                    backpack: itemsToKeep,
                 });
                 
                 // Also update parent component's state
-                setBackpack([]);
+                setBackpack(itemsToKeep);
 
-                updateStatus(`❌ Discarded all items`);
+                updateStatus(`❌ Discarded all items except Tent and Boat`);
             }
         } catch (error) {
             console.error('Error updating inventory:', error);
@@ -316,7 +319,8 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
             {showBackpackModal && (() => {
                 const isAtHome = currentPlayer.location.g === currentPlayer.gridId;
                 const nonTentBoatItems = backpack.filter( (item) => item.type !== "Tent" && item.type !== "Boat" );
-                const isAddAllDisabled = isAtHome && (backpack.length === 0 || nonTentBoatItems.length === 0);
+                const isAddAllDisabled = isAtHome ? (backpack.length === 0 || nonTentBoatItems.length === 0) : 
+                                        (backpack.length === 0 || nonTentBoatItems.length === 0);
                 return (
                     <div className="inventory-modal">
                         <button className="close-button" onClick={() => setShowBackpackModal(false)}>✖</button>
@@ -336,6 +340,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                                 {backpack.map((item) => {
                                     const isTentAtHome = isAtHome && item.type === "Tent";
                                     const isBoatAtHome = isAtHome && item.type === "Boat";
+                                    const isTentOrBoatNotHome = !isAtHome && (item.type === "Tent" || item.type === "Boat");
 
                                     return (
                                         <tr key={item.type}>
@@ -380,7 +385,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                                                 <button
                                                     className="add-button"
                                                     onClick={() => handleMoveItem(item)}
-                                                    disabled={isTentAtHome || isBoatAtHome || !(backpackAmounts[item.type] > 0 && backpackAmounts[item.type] <= item.quantity)}
+                                                    disabled={isTentAtHome || isBoatAtHome || isTentOrBoatNotHome || !(backpackAmounts[item.type] > 0 && backpackAmounts[item.type] <= item.quantity)}
                                                 >
                                                     {isAtHome ? strings[187] : strings[188]}
                                                 </button>

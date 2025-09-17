@@ -80,6 +80,11 @@ const ShopStation = ({
   }, [stationType, fetchTrigger, masterResources]);
 
 
+  const handleGemPurchase = async (modifiedRecipe) => {
+    // This is called by the gem button with a recipe modified to include gems
+    return handlePurchase(modifiedRecipe);
+  };
+
   const handlePurchase = async (recipe) => {
     setErrorMessage('');
     if (!recipe) {
@@ -260,6 +265,14 @@ const ShopStation = ({
                   info={info} 
                   disabled={!affordable || !meetsRequirement}
                   onClick={() => handlePurchase(recipe)}
+                  // Gem purchase props
+                  gemCost={recipe.gemcost || null}
+                  onGemPurchase={(recipe.gemcost && (!affordable || !meetsRequirement)) ? handleGemPurchase : null}
+                  resource={recipe}
+                  inventory={inventory}
+                  backpack={backpack}
+                  masterResources={masterResources}
+                  currentPlayer={currentPlayer}
                 >
                 </ResourceButton>
               );

@@ -2654,6 +2654,7 @@
     "validono": true,
     "minprice": 690,
     "maxprice": 987,
+    "gemcost": 9,
     "moneyvalue": 987,
     "crafttime": 86400
   },
@@ -2682,6 +2683,7 @@
     "ingredient2qty": 2,
     "ingredient3": "Milk",
     "ingredient3qty": 24,
+    "gemcost": 6,
     "moneyvalue": 3780,
     "crafttime": 28800
   },
@@ -2712,6 +2714,7 @@
     "ingredient3qty": 4,
     "ingredient4": "Garlic",
     "ingredient4qty": 2,
+    "gemcost": 12,
     "moneyvalue": 3475,
     "crafttime": 57600
   },
@@ -2742,6 +2745,7 @@
     "ingredient3qty": 2,
     "ingredient4": "Feverfew",
     "ingredient4qty": 1,
+    "gemcost": 20,
     "moneyvalue": 8126,
     "crafttime": 129600
   },
@@ -2789,6 +2793,7 @@
     "maxprice": 11,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
+    "gemcost": 30,
     "moneyvalue": 1000,
     "crafttime": 43200
   },
@@ -2877,6 +2882,7 @@
     "validono": true,
     "minprice": 1941,
     "maxprice": 2774,
+    "gemcost": 30,
     "moneyvalue": 2774,
     "crafttime": 8640000
   },
@@ -2899,6 +2905,7 @@
     "validono": true,
     "minprice": 2743,
     "maxprice": 3919,
+    "gemcost": 40,
     "moneyvalue": 3919,
     "crafttime": 69120000
   },
@@ -2921,6 +2928,7 @@
     "validono": true,
     "minprice": 4008,
     "maxprice": 5726,
+    "gemcost": 50,
     "moneyvalue": 5726,
     "crafttime": 43200000
   },

@@ -108,8 +108,8 @@
       },
       {
         "gives": {
-          "type": "Money",
-          "quantity": 666
+          "type": "Gold",
+          "quantity": 1
         },
         "requires": [
           {
