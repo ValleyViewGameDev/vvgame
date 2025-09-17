@@ -356,6 +356,16 @@ body {
   justify-content: center;
 }
 
+.app-header .gold-button {
+  width: auto;
+  min-width: fit-content;
+  padding: 5px 15px;
+  font-size: 14px;
+  height: 30px;
+  line-height: 20px;
+  white-space: nowrap;
+}
+
 .reset-button {
   background-color: #ff5252; /* Bright Red */
   color: white;

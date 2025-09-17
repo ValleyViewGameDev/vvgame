@@ -1,5 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
+import { calculateGemPurchase } from './GemPurchaseCalculation';
+import { useStrings } from './StringsContext';
+import { usePanelContext } from './PanelContext';
 import './ResourceButton.css';
  
 const ResourceButton = ({ 
@@ -15,13 +18,50 @@ const ResourceButton = ({
   // Transaction support props
   transactionKey,
   onTransactionAction,
-  isTransactionMode = false
+  isTransactionMode = false,
+  // Gem button props
+  gemCost = null,
+  onGemPurchase = null,
+  hideGem = false,
+  // For gem calculation
+  resource = null,
+  inventory = null,
+  backpack = null,
+  masterResources = null,
+  currentPlayer = null
 }) => { 
+  const strings = useStrings();
+  const { openPanel } = usePanelContext();
   const [showInfo, setShowInfo] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const [isProcessing, setIsProcessing] = useState(false);
   const [transactionId] = useState(() => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+  const [showGemTooltip, setShowGemTooltip] = useState(false);
+  const [gemTooltipPosition, setGemTooltipPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef(null);
+  
+  // Only create gem calculation when we have gem functionality enabled
+  const shouldCalculateGem = !!(resource && inventory && backpack && masterResources && currentPlayer && gemCost && onGemPurchase);
+  
+  const gemCalculation = useMemo(() => {
+    if (!shouldCalculateGem) {
+      return null;
+    }
+    
+    try {
+      return calculateGemPurchase({
+        resource,
+        inventory,
+        backpack,
+        masterResources,
+        currentPlayer,
+        strings
+      });
+    } catch (error) {
+      console.error('Error creating gem calculation:', error);
+      return null;
+    }
+  }, [shouldCalculateGem, resource, inventory, backpack, masterResources, currentPlayer, strings]);
 
   // Debug processing state changes
   useEffect(() => {
@@ -34,6 +74,13 @@ const ResourceButton = ({
     setTooltipPosition({
       top: event.clientY + window.scrollY + 10, // ✅ Adjust Y position (below cursor)
       left: event.clientX + window.scrollX + 15, // ✅ Adjust X position (to the right of cursor)
+    });
+  };
+
+  const updateGemTooltipPosition = (event) => {
+    setGemTooltipPosition({
+      top: event.clientY + window.scrollY + 10,
+      left: event.clientX + window.scrollX + 15,
     });
   };
 
@@ -62,11 +109,25 @@ const ResourceButton = ({
     }
   };
 
+  const handleGemClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onGemPurchase && gemCalculation) {
+      if (gemCalculation.hasEnoughGems) {
+        // Has enough gems - execute the purchase
+        const modifiedRecipe = gemCalculation.getModifiedRecipe();
+        onGemPurchase(modifiedRecipe);
+      } else {
+        // Not enough gems - open the HowToGemsPanel
+        openPanel('HowToGemsPanel');
+      }
+    }
+  };
+
   return (
     <>
       <div
         className="resource-button-wrapper"
-        onMouseLeave={() => setShowInfo(false)}
       >
         <button
           ref={buttonRef}
@@ -100,12 +161,29 @@ const ResourceButton = ({
                 updateTooltipPosition(event);
               }}
               onMouseMove={updateTooltipPosition} // ✅ Dynamically reposition on cursor move
+              onMouseLeave={() => setShowInfo(false)}
             >
               ℹ️
             </span>
             )}
 
         </button>
+
+        {/* ✅ Gem button for gem purchases - moved outside button so it's always clickable */}
+        {!hideGem && shouldCalculateGem && gemCalculation && (
+          <span
+            className="gem-button"
+            onClick={handleGemClick}
+            onMouseEnter={(event) => {
+              setShowGemTooltip(true);
+              updateGemTooltipPosition(event);
+            }}
+            onMouseMove={updateGemTooltipPosition}
+            onMouseLeave={() => setShowGemTooltip(false)}
+          >
+            💎
+          </span>
+        )}
       </div>
 
       {/* ✅ Render info toaster inside `document.body` for proper layering */}
@@ -123,6 +201,21 @@ const ResourceButton = ({
           ) : (
             <>{info}</> // ✅ Supports JSX rendering
           )}
+        </div>,
+        document.body
+      )}
+
+      {/* ✅ Render gem tooltip inside `document.body` for proper layering */}
+      {showGemTooltip && gemCalculation && ReactDOM.createPortal(
+        <div
+          style={{
+            top: gemTooltipPosition.top,
+            left: gemTooltipPosition.left,
+            position: 'absolute',
+            zIndex: 99999,
+          }}
+        >
+          {gemCalculation.render()}
         </div>,
         document.body
       )}

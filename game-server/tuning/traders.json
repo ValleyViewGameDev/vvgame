@@ -131,7 +131,19 @@
         "requires": [
           {
             "type": "Olive Bread",
-            "quantity": 12
+            "quantity": 120
+          }
+        ]
+      },
+      {
+        "gives": {
+          "type": "Gem",
+          "quantity": 1
+        },
+        "requires": [
+          {
+            "type": "Magic Mushroom",
+            "quantity": 1
           }
         ]
       }

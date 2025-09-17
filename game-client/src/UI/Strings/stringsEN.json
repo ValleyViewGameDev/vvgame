@@ -44,7 +44,7 @@
     "75": "You do not own a Backpack. You can purchase one at the Adventure Camp in Town.",
     "76": "Your Warehouse is empty.",
     "77": "Your Backpack is empty.",
-    "78": "Manage Backpack",
+    "78": "Manage Contents",
     "90": "🚫 This is not your homestead.",
     "96": "Have Feedback?",
     "97": "@ Email Us",
@@ -108,7 +108,7 @@
     "181": "📦 Warehouse",
     "182": "🎒 Backpack",
     "183": "Capacity: ",
-    "184": "Manage Warehouse",
+    "184": "Manage Contents",
     "185": "Quantity",
     "186": "Amount",
     "187": "Add to Warehouse",
@@ -1018,7 +1018,6 @@
     "10114": "Next Season starts in:",
     "1023": "Workers help you run your homestead. Hire them at the Farm House.",
     "4010": "Already have a profile?",
-    "199": "Gold Pass holders have near unlimited inventory.",
     "1008": "Buy and sell with other players. If no players buy your items before the timer expires, sell them to the game for a fraction of their base value.",
     "467": "Bulk Crafting",
     "1001": "Resources collected at the homestead go into the warehouse. Resources collected in town or in the valley will go into the backpack. To buy a backpack, visit the Store in town. To empty the backpack or warehouse, use the Manage buttons.",
@@ -1068,6 +1067,10 @@
     "9043": "500 💎 Gems for ",
     "9044": "Most Popular:",
     "9045": "1000 💎 Gems for ",
+
+    "194": "Expand Warehouse",
+"195": "Expand Backpack at the Adventure Camp in Town.",
+    "199": "Near unlimited capacity with Gold Pass (among other benefits).",
 
     "2017": "This order has already been claimed." 
 

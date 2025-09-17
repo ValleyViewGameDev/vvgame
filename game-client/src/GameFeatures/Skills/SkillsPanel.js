@@ -30,6 +30,7 @@ const SkillsAndUpgradesPanel = ({
     updateStatus,
     masterSkills,
     setResources,
+    masterResources,
 }) => {
   const strings = useStrings();
   const [entryPoint, setEntryPoint] = useState(stationType || "Skills Panel"); 
@@ -146,11 +147,18 @@ const SkillsAndUpgradesPanel = ({
   };
 
 
-const handlePurchase = async (resourceType) => {
+const handleGemPurchase = async (modifiedRecipe) => {
+  // This is called by the gem button with a recipe modified to include gems
+  return handlePurchase(modifiedRecipe.type, modifiedRecipe);
+};
+
+const handlePurchase = async (resourceType, customRecipe = null) => {
   const resource = [...skillsToAcquire, ...upgradesToAcquire].find((item) => item.type === resourceType);
+  const recipeToUse = customRecipe || resource;
+  
   const spendSuccess = await spendIngredients({
     playerId: currentPlayer.playerId,
-    recipe: resource,
+    recipe: recipeToUse,
     inventory,
     backpack,
     setInventory,
@@ -323,9 +331,8 @@ const handlePurchase = async (resourceType) => {
                   if (buffedItems && typeof buffedItems === 'object') {
                     const items = Object.keys(buffedItems);
                     if (items.length > 0) {
-                      const prettyList = items.slice(0, 10).join(', ');
-                      const plural = items.length > 1 ? 'resources' : 'resource';
-                      buffText = `Collection multiplied on ${items.length} ${plural} (${prettyList}${items.length > 10 ? ', ...' : ''}).`;
+                      const prettyList = items.join(', ');
+                      buffText = `Collection multiplied: ${prettyList}`;
                     }
                   }
 
@@ -337,12 +344,12 @@ const handlePurchase = async (resourceType) => {
                     const info = (
                       <div className="info-content">
                         {attributeModifier && <div>{attributeModifier}</div>}
-                        {buffText && <div style={{ color: 'blue' }}>{buffText}</div>}
                         {unlocks !== 'None' && (
                           <div style={{ display: 'block', marginBottom: '3px' }}>
                             <strong>Unlocks:</strong> {unlocks}
                           </div>
                         )}
+                        {buffText && <div style={{ color: 'blue' }}>{buffText}</div>}
                       </div>
                     );
 
@@ -355,6 +362,13 @@ const handlePurchase = async (resourceType) => {
                       info={info}
                       disabled={!affordable || !meetsRequirement}
                       onClick={() => handlePurchase(resource.type)}
+                      gemCost={resource.gemcost || null}
+                      onGemPurchase={(resource.gemcost && (!affordable || !meetsRequirement)) ? handleGemPurchase : null}
+                      resource={resource}
+                      inventory={inventory}
+                      backpack={backpack}
+                      masterResources={masterResources || allResources}
+                      currentPlayer={currentPlayer}
                     />
                   );
                 })}
@@ -411,12 +425,12 @@ const handlePurchase = async (resourceType) => {
                     const info = (
                       <div className="info-content">
                         {attributeModifier && <div>{attributeModifier}</div>}
-                        {buffText && <div style={{ color: 'blue' }}>{buffText}</div>}
                         {unlocks !== 'None' && (
                           <div style={{ display: 'block', marginBottom: '3px' }}>
                             <strong>Unlocks:</strong> {unlocks}
                           </div>
                         )}
+                        {buffText && <div style={{ color: 'blue' }}>{buffText}</div>}
                       </div>
                     );
 
@@ -429,6 +443,13 @@ const handlePurchase = async (resourceType) => {
                       info={info}
                       disabled={!affordable || !meetsRequirement}
                       onClick={() => handlePurchase(resource.type)}
+                      gemCost={resource.gemcost || null}
+                      onGemPurchase={(resource.gemcost && (!affordable || !meetsRequirement)) ? handleGemPurchase : null}
+                      resource={resource}
+                      inventory={inventory}
+                      backpack={backpack}
+                      masterResources={masterResources || allResources}
+                      currentPlayer={currentPlayer}
                     />
                   );
                 })}

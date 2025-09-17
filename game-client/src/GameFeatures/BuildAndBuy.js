@@ -11,6 +11,21 @@ import { getCurrentTileCoordinates, enrichResourceFromMaster } from '../Utils/Re
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { incrementFTUEStep } from './FTUE/FTUE';
 
+export const handleConstructionWithGems = async (params) => {
+  // Wrapper function that uses a modified recipe if provided
+  if (params.modifiedRecipe) {
+    // Replace the selected resource in buildOptions with the modified recipe
+    const modifiedBuildOptions = params.buildOptions.map(item =>
+      item.type === params.modifiedRecipe.type ? params.modifiedRecipe : item
+    );
+    return handleConstruction({
+      ...params,
+      buildOptions: modifiedBuildOptions,
+    });
+  }
+  return handleConstruction(params);
+};
+
 export const handleConstruction = async ({
   TILE_SIZE,
   selectedItem,

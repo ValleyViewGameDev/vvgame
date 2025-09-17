@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/ResourceButton';
-import { handleConstruction } from '../BuildAndBuy';
+import { handleConstruction, handleConstructionWithGems } from '../BuildAndBuy';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { usePanelContext } from '../../UI/PanelContext';
@@ -75,6 +75,26 @@ const BuyPanel = ({
     return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
   };
 
+  const handleGemPurchase = async (modifiedRecipe) => {
+    // This is called by the gem button with a recipe modified to include gems
+    return handleConstructionWithGems({
+      TILE_SIZE,
+      selectedItem: modifiedRecipe.type,
+      buildOptions: buyOptions,
+      inventory,
+      setInventory,
+      backpack,
+      setBackpack,
+      resources,
+      setResources,
+      currentPlayer,
+      setCurrentPlayer,
+      gridId,
+      updateStatus,
+      modifiedRecipe, // Pass the gem-modified recipe
+    });
+  };
+
   return ( 
     <Panel onClose={closePanel} descriptionKey="1003" titleKey="1103" panelName="BuyPanel">
       <div className="standard-panel">
@@ -141,6 +161,13 @@ const BuyPanel = ({
                       updateStatus,
                     })
                   }
+                  gemCost={item.gemcost || null}
+                  onGemPurchase={(item.gemcost && (!affordable || !requirementsMet)) ? handleGemPurchase : null}
+                  resource={item}
+                  inventory={inventory}
+                  backpack={backpack}
+                  masterResources={masterResources || allResources}
+                  currentPlayer={currentPlayer}
                 />
               );
             })}

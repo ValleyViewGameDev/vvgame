@@ -46,6 +46,7 @@ import Modal from './UI/Modal';
 import LanguagePickerModal from './UI/LanguagePickerModal';
 import { useStrings } from './UI/StringsContext';
 import LANGUAGE_OPTIONS from './UI/Languages.json';
+
 import ProfilePanel from './Authentication/ProfilePanel';
 import LoginPanel from './Authentication/LoginPanel';
 import DebugPanel from './Utils/debug';
@@ -2074,6 +2075,8 @@ return (
           setInventory={setInventory}
           setBackpack={setBackpack}
           updateStatus={updateStatus}
+          openPanel={openPanel}
+          setActiveStation={setActiveStation}
         />
       )}
       {activePanel === 'BankPanel' && (

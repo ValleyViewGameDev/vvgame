@@ -9,7 +9,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
 import { handlePurchase } from '../../Store/Store';
 
-function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus }) {
+function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, openPanel, setActiveStation }) {
 
     const strings = useStrings();
     const inventory = currentPlayer?.inventory || [];
@@ -277,6 +277,18 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
             <h3>{strings[181]}</h3>
 
             <div className="capacity-display">{strings[183]} {calculateTotalQuantity(inventory)}/{finalCapacities.warehouse}</div>
+
+            <div className="panel-buttons">
+                <button className="btn-success" onClick={() => {
+                    setActiveStation({ type: 'Warehouse' });
+                    onClose();
+                    setTimeout(() => {
+                        openPanel('SkillsAndUpgradesPanel');
+                    }, 0);
+                }}>
+                {strings[194]}
+                </button>
+            </div>
 
             {inventory.length > 0 && (
             <div className="panel-buttons">
