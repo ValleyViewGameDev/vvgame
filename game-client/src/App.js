@@ -1402,6 +1402,22 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
           openPanel('TrainPanel'); break;
         case 'Bank':
           openPanel('BankPanel'); break;
+        case 'Worker Slot':
+          // Find the Farm House on the grid
+          const farmHouse = resources.find(res => res.type === 'Farm House' && res.category === 'farmhouse');
+          if (farmHouse) {
+            // Set the Farm House as the active station
+            setActiveStation({
+              type: 'Farm House', 
+              position: { x: farmHouse.x, y: farmHouse.y }, 
+              gridId: gridId
+            });
+            openPanel('FarmHouse');
+          } else {
+            console.warn('Farm House not found on grid');
+            updateStatus('Farm House not found');
+          }
+          break;
         default:
           console.warn(`Unhandled station type: ${resource.type}`);
       }
@@ -1585,10 +1601,10 @@ return (
         <h1>{strings[0]}</h1>  
 
         {currentPlayer?.accountStatus === 'Gold' && (
-          <button className="gold-button" onClick={() => openPanel('ProfilePanel')}>{currentPlayer.icon} Logged in as: {currentPlayer.username}</button>
+          <button className="gold-button" onClick={() => openPanel('ProfilePanel')}>{currentPlayer.icon} {currentPlayer.username}</button>
         )}
         {currentPlayer?.accountStatus === 'Free' && (
-          <button className="shared-button" onClick={() => openPanel('ProfilePanel')}>{currentPlayer.icon} Logged in as: {currentPlayer.username}</button>
+          <button className="shared-button" onClick={() => openPanel('ProfilePanel')}>{currentPlayer.icon} {currentPlayer.username}</button>
         )}
 
         <div className="zoom-controls">

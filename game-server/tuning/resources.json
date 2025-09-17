@@ -407,9 +407,11 @@
   },
   {
     "type": "Worker Slot",
-    "symbol": "⊕",
+    "symbol": "🪑",
     "layoutkey": "ws",
-    "category": "special",
+    "category": "station",
+    "action": "openUI",
+    "source": "Buy",
     "passable": false,
     "validong": true,
     "validond": true,
