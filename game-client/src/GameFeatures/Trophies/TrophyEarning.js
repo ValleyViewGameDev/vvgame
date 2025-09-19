@@ -43,8 +43,12 @@ function TrophyNotification({ trophy, onDismiss }) {
 /**
  * Shows a trophy notification
  * @param {Object} trophy - The trophy data to display
+ * @param {boolean} isNewMilestone - Whether this is a new milestone achievement
  */
-function showTrophyNotification(trophy) {
+function showTrophyNotification(trophy, isNewMilestone) {
+    // Only show notification for new milestones
+    if (!isNewMilestone) return;
+    
     // Clear any existing notification
     if (notificationTimer) {
         clearTimeout(notificationTimer);
@@ -92,11 +96,17 @@ export async function earnTrophy(playerId, trophyName, progressIncrement = 1) {
         });
         
         if (response.data.success) {
-            console.log(`🏆 Trophy earned: ${trophyName}`, response.data.trophy);
+            const { trophy, isNewMilestone } = response.data;
             
-            // Show trophy notification
-            if (response.data.trophy) {
-                showTrophyNotification(response.data.trophy);
+            if (isNewMilestone) {
+                console.log(`🏆 Trophy milestone earned: ${trophyName}`, trophy);
+            } else {
+                console.log(`📈 Trophy progress: ${trophyName} - ${trophy.progress}/${trophy.nextMilestone}`);
+            }
+            
+            // Show trophy notification only for new milestones
+            if (trophy) {
+                showTrophyNotification(trophy, isNewMilestone);
             }
             
             return response.data;

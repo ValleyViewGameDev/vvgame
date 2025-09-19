@@ -43,29 +43,42 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
         const currentProgress = playerTrophy?.progress || 0;
         const progressArray = trophyDef.progress;
         
-        // Find which milestone we're at
+        // Find current position in milestones
         let lastMilestone = 0;
         let nextMilestone = progressArray[0];
-        let milestoneIndex = -1;
+        let achievedMilestones = [];
         
         for (let i = 0; i < progressArray.length; i++) {
             if (currentProgress >= progressArray[i]) {
+                achievedMilestones.push(progressArray[i]);
                 lastMilestone = progressArray[i];
-                milestoneIndex = i;
-                nextMilestone = progressArray[i + 1] || progressArray[i];
+                // Look for next milestone
+                if (i + 1 < progressArray.length) {
+                    nextMilestone = progressArray[i + 1];
+                } else {
+                    // Max milestone reached
+                    nextMilestone = progressArray[i];
+                }
             } else {
+                // Found the next milestone to achieve
                 nextMilestone = progressArray[i];
                 break;
             }
         }
         
+        // For display, we show progress between current milestone boundaries
+        const progressBetweenMilestones = currentProgress - lastMilestone;
+        const milestoneDifference = nextMilestone - lastMilestone;
+        const percentage = milestoneDifference > 0 ? (progressBetweenMilestones / milestoneDifference) * 100 : 100;
+        
         return {
             current: currentProgress,
             lastMilestone,
             nextMilestone,
-            percentage: ((currentProgress - lastMilestone) / (nextMilestone - lastMilestone)) * 100,
+            percentage: Math.min(100, Math.max(0, percentage)),
             displayText: `${currentProgress} / ${nextMilestone}`,
-            achievedMilestone: milestoneIndex >= 0 ? progressArray[milestoneIndex] : null
+            achievedMilestones,
+            hasAchievedAll: currentProgress >= progressArray[progressArray.length - 1]
         };
     };
 
@@ -87,12 +100,12 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                                 <div 
                                     key={index} 
                                     className={`trophy-card ${!isEarned ? 'unearned' : ''} trophy-${(trophyDef.type || 'Milestone').toLowerCase()}`}
-                                    title={trophyDef.tooltip || ''}
+                                    data-tooltip={trophyDef.tooltip || ''}
                                 >
                                     <div className="trophy-icon-wrapper">
                                         <div className="trophy-icon">🏆</div>
-                                        {isEarned && trophyDef.type === 'Progress' && progressInfo?.achievedMilestone && (
-                                            <div className="progress-number">{progressInfo.achievedMilestone}</div>
+                                        {isEarned && trophyDef.type === 'Progress' && progressInfo?.achievedMilestones.length > 0 && (
+                                            <div className="progress-number">{progressInfo.achievedMilestones.length}</div>
                                         )}
                                     </div>
                                     <div className="trophy-content">

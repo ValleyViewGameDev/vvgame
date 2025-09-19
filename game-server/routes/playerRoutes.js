@@ -239,7 +239,7 @@ router.post('/update-player-quests', async (req, res) => {
 
 // POST /api/earn-trophy
 router.post('/earn-trophy', async (req, res) => {
-  const { playerId, trophyName, progress } = req.body;
+  const { playerId, trophyName, progressIncrement = 1 } = req.body;
   
   if (!playerId || !trophyName) {
     return res.status(400).json({ error: 'Player ID and trophy name are required.' });
@@ -251,43 +251,88 @@ router.post('/earn-trophy', async (req, res) => {
       return res.status(404).json({ error: 'Player not found.' });
     }
     
-    // Check if player already has this trophy
-    const existingTrophy = player.trophies.find(t => t.name === trophyName);
+    // Load master trophies directly from file
+    const trophiesPath = path.join(__dirname, '../tuning/trophies.json');
+    const masterTrophies = JSON.parse(fs.readFileSync(trophiesPath, 'utf8'));
+    const trophyDef = masterTrophies.find(t => t.name === trophyName);
     
-    if (existingTrophy) {
-      if (progress !== undefined) {
-        // Update progress for Progress type trophies
-        existingTrophy.progress = progress;
-        console.log(`🏆 Player ${player.username} updated ${trophyName} progress to ${progress}`);
+    if (!trophyDef) {
+      return res.status(400).json({ error: 'Trophy not found in master trophies.' });
+    }
+    
+    // Check if player already has this trophy
+    let existingTrophy = player.trophies.find(t => t.name === trophyName);
+    let isNewMilestone = false;
+    let currentProgress = 0;
+    let nextMilestone = null;
+    
+    if (trophyDef.type === 'Progress' && trophyDef.progress) {
+      // Handle Progress trophy
+      if (existingTrophy) {
+        // Increment existing progress
+        currentProgress = (existingTrophy.progress || 0) + progressIncrement;
+        existingTrophy.progress = currentProgress;
       } else {
-        // Increment quantity for Milestone type
+        // First time earning progress
+        currentProgress = progressIncrement;
+        existingTrophy = {
+          name: trophyName,
+          progress: currentProgress,
+          qty: 1,
+          timestamp: new Date()
+        };
+        player.trophies.push(existingTrophy);
+      }
+      
+      // Check if we hit a milestone
+      const progressMilestones = trophyDef.progress;
+      for (let milestone of progressMilestones) {
+        if (currentProgress >= milestone && (!existingTrophy.lastMilestone || milestone > existingTrophy.lastMilestone)) {
+          isNewMilestone = true;
+          existingTrophy.lastMilestone = milestone;
+          break;
+        }
+      }
+      
+      // Find next milestone
+      nextMilestone = progressMilestones.find(m => m > currentProgress) || progressMilestones[progressMilestones.length - 1];
+      
+      console.log(`🏆 Player ${player.username} progress on ${trophyName}: ${currentProgress} (next milestone: ${nextMilestone})`);
+      
+    } else {
+      // Handle Milestone trophy
+      if (existingTrophy) {
         existingTrophy.qty += 1;
         console.log(`🏆 Player ${player.username} earned another ${trophyName} (total: ${existingTrophy.qty})`);
+      } else {
+        existingTrophy = {
+          name: trophyName,
+          qty: 1,
+          timestamp: new Date()
+        };
+        player.trophies.push(existingTrophy);
+        isNewMilestone = true;
+        console.log(`🏆 Player ${player.username} earned first ${trophyName} trophy!`);
       }
-    } else {
-      // Add new trophy
-      const newTrophy = {
-        name: trophyName,
-        qty: 1,
-        timestamp: new Date()
-      };
-      
-      // Add progress if provided
-      if (progress !== undefined) {
-        newTrophy.progress = progress;
-      }
-      
-      player.trophies.push(newTrophy);
-      console.log(`🏆 Player ${player.username} earned first ${trophyName} trophy!`);
     }
     
     await player.save();
     
-    res.json({
+    // Return trophy data including progress info
+    const responseData = {
       success: true,
-      trophy: existingTrophy || player.trophies[player.trophies.length - 1],
-      message: existingTrophy ? `Trophy "${trophyName}" updated` : `New trophy "${trophyName}" earned!`
-    });
+      trophy: {
+        name: existingTrophy.name,
+        progress: existingTrophy.progress,
+        qty: existingTrophy.qty,
+        type: trophyDef.type,
+        nextMilestone: nextMilestone
+      },
+      isNewMilestone: isNewMilestone,
+      message: isNewMilestone ? `Trophy milestone reached: ${trophyName}!` : `Progress updated for ${trophyName}`
+    };
+    
+    res.json(responseData);
     
   } catch (error) {
     console.error('Error earning trophy:', error);
