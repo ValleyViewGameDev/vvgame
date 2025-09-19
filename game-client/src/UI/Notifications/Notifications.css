@@ -1,0 +1,119 @@
+/* Generic Notification Styles */
+#notification-container {
+    position: absolute; /* Changed to absolute to position within game container */
+    top: 100px; /* Further below status bar to avoid overlap */
+    left: 0;
+    right: 0;
+    z-index: 998; /* Below panels (999) to appear behind them */
+    pointer-events: none;
+}
+
+.notification {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    border: 2px solid #ffb74d;
+    border-radius: 8px;
+    padding: 15px 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    min-width: 300px;
+    max-width: 400px;
+    position: absolute;
+    pointer-events: all;
+    left: 290px; /* Final position - Panel width (280px) + padding (10px) */
+    animation: slideInFromLeft 0.6s ease-out forwards, fadeOut 0.6s ease-out 4.4s forwards;
+}
+
+@keyframes slideInFromLeft {
+    from {
+        left: -400px; /* Start completely off-screen */
+    }
+    to {
+        left: 290px; /* Panel width (280px) + padding (10px) */
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        left: 290px;
+    }
+    to {
+        opacity: 0;
+        left: 290px;
+    }
+}
+
+.notification-dismiss {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-dismiss:hover {
+    color: #333;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.notification-icon-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.notification-icon {
+    font-size: 40px;
+    line-height: 1;
+}
+
+/* Milestone number overlay */
+.notification-milestone {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 1px 4px;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.notification-text {
+    flex: 1;
+}
+
+.notification-title {
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.notification-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 4px;
+}
+

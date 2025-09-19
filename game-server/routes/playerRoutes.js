@@ -273,7 +273,7 @@ router.post('/earn-trophy', async (req, res) => {
         currentProgress = (existingTrophy.progress || 0) + progressIncrement;
         existingTrophy.progress = currentProgress;
       } else {
-        // First time earning progress
+        // First time earning progress - create trophy entry
         currentProgress = progressIncrement;
         existingTrophy = {
           name: trophyName,
@@ -284,23 +284,21 @@ router.post('/earn-trophy', async (req, res) => {
         player.trophies.push(existingTrophy);
       }
       
-      // Check if we hit a milestone
+      // Check if current progress matches a milestone
       const progressMilestones = trophyDef.progress;
-      for (let milestone of progressMilestones) {
-        if (currentProgress >= milestone && (!existingTrophy.lastMilestone || milestone > existingTrophy.lastMilestone)) {
-          isNewMilestone = true;
-          existingTrophy.lastMilestone = milestone;
-          break;
-        }
-      }
+      isNewMilestone = progressMilestones.includes(currentProgress);
       
       // Find next milestone
       nextMilestone = progressMilestones.find(m => m > currentProgress) || progressMilestones[progressMilestones.length - 1];
       
-      console.log(`🏆 Player ${player.username} progress on ${trophyName}: ${currentProgress} (next milestone: ${nextMilestone})`);
+      if (isNewMilestone) {
+        console.log(`🏆 Player ${player.username} hit milestone for ${trophyName}: ${currentProgress}!`);
+      } else {
+        console.log(`📈 Player ${player.username} progress on ${trophyName}: ${currentProgress} (next milestone: ${nextMilestone})`);
+      }
       
     } else {
-      // Handle Milestone trophy
+      // Handle Event trophy
       if (existingTrophy) {
         existingTrophy.qty += 1;
         console.log(`🏆 Player ${player.username} earned another ${trophyName} (total: ${existingTrophy.qty})`);

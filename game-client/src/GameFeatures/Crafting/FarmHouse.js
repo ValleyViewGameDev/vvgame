@@ -24,7 +24,7 @@ import TransactionButton from '../../UI/TransactionButton';
 import { handleConstruction } from '../BuildAndBuy';
 import { incrementFTUEStep } from '../FTUE/FTUE';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
-import { earnTrophy, isFirstFarmWorker } from '../Trophies/TrophyEarning';
+import { earnTrophy, isFirstFarmWorker } from '../Trophies/TrophyUtils';
 
 const FarmHouse = ({
   onClose,

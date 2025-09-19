@@ -2,7 +2,7 @@
     {
         "name": "First Farm Worker",
         "tooltip": "Hire your first farm worker.",
-        "type": "Milestone"
+        "type": "Event"
     },
     {
         "name": "Skill Builder",
@@ -19,11 +19,11 @@
     {
         "name": "Season Winner",
         "tooltip": "Finish in the top 3 players across the Frontier at the end of a season.",
-        "type": "Milestone"
+        "type": "Event"
     },
     {
         "name": "Season Champion",
         "tooltip": "Be the top player across the Frontier at the end of a season.",
-        "type": "Milestone"
+        "type": "Event"
     }
 ]

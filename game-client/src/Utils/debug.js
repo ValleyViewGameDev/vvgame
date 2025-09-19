@@ -333,7 +333,7 @@ const handleGetRich = async () => {
       console.log('Clearing all trophies.');
       
       // Update trophies on the server by setting to empty array
-      await axios.post(`${API_BASE}/api/update-player`, {
+      await axios.post(`${API_BASE}/api/update-profile`, {
         playerId,
         updates: {
           trophies: clearedTrophies

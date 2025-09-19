@@ -43,14 +43,15 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
         const currentProgress = playerTrophy?.progress || 0;
         const progressArray = trophyDef.progress;
         
-        // Find current position in milestones
-        let lastMilestone = 0;
+        // Find last achieved milestone and next milestone
+        let lastAchievedMilestone = null;
+        let lastMilestone = 0; // For progress bar calculation
         let nextMilestone = progressArray[0];
-        let achievedMilestones = [];
         
         for (let i = 0; i < progressArray.length; i++) {
             if (currentProgress >= progressArray[i]) {
-                achievedMilestones.push(progressArray[i]);
+                // This milestone has been achieved
+                lastAchievedMilestone = progressArray[i];
                 lastMilestone = progressArray[i];
                 // Look for next milestone
                 if (i + 1 < progressArray.length) {
@@ -73,11 +74,11 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
         
         return {
             current: currentProgress,
-            lastMilestone,
+            lastAchievedMilestone, // The actual milestone number to display on icon
+            lastMilestone, // For progress bar calculation
             nextMilestone,
             percentage: Math.min(100, Math.max(0, percentage)),
             displayText: `${currentProgress} / ${nextMilestone}`,
-            achievedMilestones,
             hasAchievedAll: currentProgress >= progressArray[progressArray.length - 1]
         };
     };
@@ -99,13 +100,13 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                             return (
                                 <div 
                                     key={index} 
-                                    className={`trophy-card ${!isEarned ? 'unearned' : ''} trophy-${(trophyDef.type || 'Milestone').toLowerCase()}`}
+                                    className={`trophy-card ${!isEarned ? 'unearned' : ''} trophy-${(trophyDef.type || 'Event').toLowerCase()}`}
                                     data-tooltip={trophyDef.tooltip || ''}
                                 >
                                     <div className="trophy-icon-wrapper">
                                         <div className="trophy-icon">🏆</div>
-                                        {isEarned && trophyDef.type === 'Progress' && progressInfo?.achievedMilestones.length > 0 && (
-                                            <div className="progress-number">{progressInfo.achievedMilestones.length}</div>
+                                        {isEarned && trophyDef.type === 'Progress' && progressInfo?.lastAchievedMilestone && (
+                                            <div className="progress-number">{progressInfo.lastAchievedMilestone}</div>
                                         )}
                                     </div>
                                     <div className="trophy-content">

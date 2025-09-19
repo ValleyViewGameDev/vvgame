@@ -13,7 +13,7 @@ import { spendIngredients } from '../../Utils/InventoryManagement';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
 import { incrementFTUEStep } from '../FTUE/FTUE';
-import { earnTrophy } from '../Trophies/TrophyEarning';
+import { earnTrophy } from '../Trophies/TrophyUtils';
 
 const SkillsAndUpgradesPanel = ({ 
     onClose,
