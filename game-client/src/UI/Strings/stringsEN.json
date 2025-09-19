@@ -598,6 +598,11 @@
     "5105": "💰 Mayor Take",
     "5110": "",
     
+    "6000": "TROPHY STRINGS:",
+
+    "6001": "Here are your lifetime Trophies:",
+    "6002": "You have no trophies yet. Earn trophies for achievements throughout the game.",
+
     "8999": "HOW TO PLAY STRINGS:",
 
     "9000": "Welcome to Valley View!",
@@ -704,7 +709,7 @@
     "12010": "Profile",
     "12011": "Decorations",
     "12012": "Tools",
-
+    
     "630": "Greet",
     "631": "Talk",
     "632": "Trade",
@@ -1015,6 +1020,11 @@
 
   "11000": "ADDED STRINGS:",
   
+
+  "30000": "TROPHIES:",
+  "30001": "First Farm Worker",
+
+
     "10114": "Next Season starts in:",
     "1023": "Workers help you run your homestead. Hire them at the Farm House.",
     "4010": "Already have a profile?",
@@ -1071,6 +1081,11 @@
     "194": "Expand Warehouse",
 "195": "Expand Backpack at the Adventure Camp in Town.",
     "199": "Near unlimited capacity with Gold Pass (among other benefits).",
+
+    "1035": "This is your collection of lifetime Trophies.",
+    "1135": "🏆 Trophies",
+    "12013": "Trophies",
+
 
     "2017": "This order has already been claimed." 
 

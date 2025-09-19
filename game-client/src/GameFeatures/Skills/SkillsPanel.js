@@ -13,6 +13,7 @@ import { spendIngredients } from '../../Utils/InventoryManagement';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
 import { incrementFTUEStep } from '../FTUE/FTUE';
+import { earnTrophy } from '../Trophies/TrophyEarning';
 
 const SkillsAndUpgradesPanel = ({ 
     onClose,
@@ -191,6 +192,10 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
       skills: [...updatedSkills, ...updatedUpgrades], // ✅ Ensure all are sent to the server
     });
     await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
+    
+    // Award Skill Builder trophy for acquiring skills
+    await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1);
+    
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
     
     // Check if the player is a first-time user and just acquired the Axe or Grower skill

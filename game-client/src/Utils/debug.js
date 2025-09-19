@@ -320,6 +320,44 @@ const handleGetRich = async () => {
     }
   };
   
+  const handleClearTrophies = async () => {
+    try {
+      const playerId = currentPlayer?.playerId;
+      if (!playerId) {
+        console.error('No player ID found. Cannot clear trophies.');
+        return;
+      }
+
+      // Clear trophies
+      const clearedTrophies = [];
+      console.log('Clearing all trophies.');
+      
+      // Update trophies on the server by setting to empty array
+      await axios.post(`${API_BASE}/api/update-player`, {
+        playerId,
+        updates: {
+          trophies: clearedTrophies
+        }
+      });
+      
+      console.log('Trophies cleared successfully on the server.');
+
+      // Refresh player data after updates
+      await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
+
+      // Update the local state for trophies
+      setCurrentPlayer((prevPlayer) => ({
+        ...prevPlayer,
+        trophies: clearedTrophies
+      }));
+      
+      updateStatus('Trophies cleared successfully.');
+      console.log('Trophies cleared successfully.');
+    } catch (error) {
+      console.error('Error clearing trophies:', error);
+    }
+  };
+  
   const handleClearInventory = async () => {
     try {
       const playerId = currentPlayer?.playerId;
@@ -797,6 +835,7 @@ const handleGetRich = async () => {
         <button className="btn-neutral" onClick={handleClearQuestHistory}> Clear Quest History </button>
         <button className="btn-neutral" onClick={handleClearGridState}> Clear Grid State </button>
         <button className="btn-neutral" onClick={handleClearTradeStall}> Clear Trade Stall </button>
+        <button className="btn-neutral" onClick={handleClearTrophies}> Clear Trophies </button>
         <button className="btn-success" onClick={handleResetFTUE}> Reset FTUE </button>
         <button className="btn-success" onClick={handleWelcomeMessage}> Resend Welcome Message </button>
         <button className="btn-success" onClick={handleRewardMessage}> Resend Reward Message </button>

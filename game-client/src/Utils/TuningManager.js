@@ -6,6 +6,7 @@ let masterResources = null;
 let globalTuning = null;
 let masterInteractions = null;
 let masterTraders = null;
+let masterTrophies = null;
 /**
  * Fetch and cache skillsTuning.json
  */
@@ -93,10 +94,28 @@ export async function loadMasterTraders() {
 }
 
 /**
+ * Fetch and cache trophies.json
+ */
+export async function loadMasterTrophies() {
+  if (!masterTrophies) {
+    try {
+      const response = await axios.get(`${API_BASE}/api/trophies`);
+      masterTrophies = response.data;
+      console.log('Master trophies loaded:', masterTrophies);
+    } catch (error) {
+      console.error('Error fetching master trophies:', error);
+      masterTrophies = [];
+    }
+  }
+  return masterTrophies;
+}
+
+/**
  * Clear cached data (optional, for debugging or forced reloads).
  */
 export function clearTuningCache() {
   masterSkills = null;
   masterResources = null;
   masterTraders = null;
+  masterTrophies = null;
 }

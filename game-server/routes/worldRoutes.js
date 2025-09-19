@@ -545,6 +545,21 @@ router.get('/traders', (req, res) => {
   }
 });
 
+// GET /world/trophies - Get all trophy definitions
+router.get('/trophies', (req, res) => {
+  try {
+    const trophiesData = readJSON(path.join(__dirname, '../tuning/trophies.json'));
+    if (!trophiesData) {
+      console.error('No trophies data found');
+      return res.status(404).json({ error: 'Trophies not found' });
+    }
+    res.json(trophiesData);
+  } catch (error) {
+    console.error('Error fetching trophies:', error);
+    res.status(500).json({ error: 'Error fetching trophies' });
+  }
+});
+
 // Endpoint to fetch a specific resource at (x, y) in the grid
 router.get('/get-resource/:gridId/:col/:row', async (req, res) => {
   const { gridId, col, row } = req.params;

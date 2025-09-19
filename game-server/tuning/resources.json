@@ -411,7 +411,6 @@
     "layoutkey": "ws",
     "category": "station",
     "action": "openUI",
-    "source": "Buy",
     "passable": false,
     "validong": true,
     "validond": true,

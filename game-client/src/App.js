@@ -6,7 +6,7 @@ import API_BASE from './config.js';
 import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, useLayoutEffect, memo, useMemo, useCallback, useRef, act } from 'react';
 import { initializeGrid } from './AppInit';
-import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders } from './Utils/TuningManager';
+import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies } from './Utils/TuningManager';
 import { RenderGrid } from './Render/Render';
 import DynamicRenderer from './Render/RenderDynamic.js';
 import { handleResourceClick } from './ResourceClicking';
@@ -51,6 +51,7 @@ import ProfilePanel from './Authentication/ProfilePanel';
 import LoginPanel from './Authentication/LoginPanel';
 import DebugPanel from './Utils/debug';
 import InventoryPanel from './GameFeatures/Inventory/InventoryPanel';
+import TrophyPanel from './GameFeatures/Trophies/TrophyPanel.js';
 import HowToPanel from './UI/HowToPanel';
 import HowToMoneyPanel from './UI/HowToMoneyPanel';
 import HowToGemsPanel from './UI/HowToGemsPanel';
@@ -278,6 +279,7 @@ useEffect(() => {
   const [globalTuning, setGlobalTuning] = useState(null);
   const [masterInteractions, setMasterInteractions] = useState([]);
   const [masterTraders, setMasterTraders] = useState([]);
+  const [masterTrophies, setMasterTrophies] = useState([]);
 
 // Synchronize tiles with GlobalGridStateTilesAndResources -- i did this so NPCs have knowledge of tiles and resources as they change
 useEffect(() => {
@@ -461,12 +463,13 @@ useEffect(() => {
     try {
       // Step 1. Load tuning data
       console.log('🏁✅ 1 InitAppWrapper; Merging player data and initializing inventory...');
-      const [skills, resources, globalTuningData, interactions, traders] = await Promise.all([loadMasterSkills(), loadMasterResources(), loadGlobalTuning(), loadMasterInteractions(), loadMasterTraders()]);
+      const [skills, resources, globalTuningData, interactions, traders, trophies] = await Promise.all([loadMasterSkills(), loadMasterResources(), loadGlobalTuning(), loadMasterInteractions(), loadMasterTraders(), loadMasterTrophies()]);
       setMasterResources(resources);
       setMasterSkills(skills);
       setGlobalTuning(globalTuningData);
       setMasterInteractions(interactions);
       setMasterTraders(traders);
+      setMasterTrophies(trophies);
       setIsMasterResourcesReady(true); // ✅ Mark ready
 
       // Step 2. Fetch stored player from localStorage
@@ -1726,6 +1729,9 @@ return (
       {!currentPlayer?.firsttimeuser && (
         <button className={`nav-button ${activePanel === 'GovPanel' ? 'selected' : ''}`} title={strings[12007]} onClick={() => openPanel('GovPanel')}>🏛️</button>
       )}
+
+      <button className={`nav-button ${activePanel === 'TrophyPanel' ? 'selected' : ''}`} title={strings[12013]} onClick={() => openPanel('TrophyPanel')}>🏆</button>
+
       {isDeveloper && (
         <button className={`nav-button ${activePanel === 'DebugPanel' ? 'selected' : ''}`} title="Debug" onClick={() => openPanel('DebugPanel')}>
           🐞
@@ -2090,6 +2096,18 @@ return (
           setCurrentPlayer={setCurrentPlayer}
           setInventory={setInventory}
           setBackpack={setBackpack}
+          updateStatus={updateStatus}
+          openPanel={openPanel}
+          setActiveStation={setActiveStation}
+        />
+      )}
+      {activePanel === 'TrophyPanel' && (
+        <TrophyPanel
+          onClose={closePanel} 
+          masterResources={masterResources}
+          masterTrophies={masterTrophies}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
           updateStatus={updateStatus}
           openPanel={openPanel}
           setActiveStation={setActiveStation}

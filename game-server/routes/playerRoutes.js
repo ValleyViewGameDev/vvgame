@@ -235,6 +235,89 @@ router.post('/update-player-quests', async (req, res) => {
 
 
 
+///////// TROPHY ROUTES ////////////
+
+// POST /api/earn-trophy
+router.post('/earn-trophy', async (req, res) => {
+  const { playerId, trophyName, progress } = req.body;
+  
+  if (!playerId || !trophyName) {
+    return res.status(400).json({ error: 'Player ID and trophy name are required.' });
+  }
+  
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+    
+    // Check if player already has this trophy
+    const existingTrophy = player.trophies.find(t => t.name === trophyName);
+    
+    if (existingTrophy) {
+      if (progress !== undefined) {
+        // Update progress for Progress type trophies
+        existingTrophy.progress = progress;
+        console.log(`🏆 Player ${player.username} updated ${trophyName} progress to ${progress}`);
+      } else {
+        // Increment quantity for Milestone type
+        existingTrophy.qty += 1;
+        console.log(`🏆 Player ${player.username} earned another ${trophyName} (total: ${existingTrophy.qty})`);
+      }
+    } else {
+      // Add new trophy
+      const newTrophy = {
+        name: trophyName,
+        qty: 1,
+        timestamp: new Date()
+      };
+      
+      // Add progress if provided
+      if (progress !== undefined) {
+        newTrophy.progress = progress;
+      }
+      
+      player.trophies.push(newTrophy);
+      console.log(`🏆 Player ${player.username} earned first ${trophyName} trophy!`);
+    }
+    
+    await player.save();
+    
+    res.json({
+      success: true,
+      trophy: existingTrophy || player.trophies[player.trophies.length - 1],
+      message: existingTrophy ? `Trophy "${trophyName}" updated` : `New trophy "${trophyName}" earned!`
+    });
+    
+  } catch (error) {
+    console.error('Error earning trophy:', error);
+    res.status(500).json({ error: 'Failed to earn trophy.' });
+  }
+});
+
+// GET /api/player/:playerId/trophies
+router.get('/player/:playerId/trophies', async (req, res) => {
+  const { playerId } = req.params;
+  
+  try {
+    const player = await Player.findById(playerId).select('trophies username');
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+    
+    res.json({
+      success: true,
+      username: player.username,
+      trophies: player.trophies || []
+    });
+    
+  } catch (error) {
+    console.error('Error fetching trophies:', error);
+    res.status(500).json({ error: 'Failed to fetch trophies.' });
+  }
+});
+
+
 ///////// CORE PLAYER ROUTES ////////////
 
 // ✅ Get player by ID

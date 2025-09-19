@@ -97,9 +97,9 @@ async function seasonReset(frontierId) {
           moneyItem.quantity = Math.floor(moneyItem.quantity * (1 - nerf));
         }
         player.inventory = player.inventory.filter(i =>
-          ["Money", "Prospero's Orb", "King’s Crown", "Golden Key", "Skeleton Key", "Trident"].includes(i.type)
+          ["Money", "Gem", "Prospero's Orb", "King's Crown", "Golden Key", "Skeleton Key", "Trident"].includes(i.type)
         );
-        console.log(`Player ${player.username} inventory wiped, keeping Money, and certain high value quest items.`) ;
+        console.log(`Player ${player.username} inventory wiped, keeping Money, Gems, and certain high value quest items.`) ;
         console.log('Player inventory after wipe:', player.inventory);
         player.netWorth = null;
         await player.save({ overwrite: true });

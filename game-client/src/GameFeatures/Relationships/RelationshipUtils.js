@@ -136,6 +136,15 @@ export const getNPCReactions = (targetNPC, newStatus) => {
           scoreChange: 50
         });
       }
+      // If new status is rival, and another NPC has Love with this NPC
+      else if (newStatus === 'rival' && npcRelationshipWithTarget === 'love') {
+        reactions.push({
+          npc: npc,
+          setScore: -50,
+          clearAllStatuses: true,
+          setStatus: 'rival'
+        });
+      }
     }
   });
   
