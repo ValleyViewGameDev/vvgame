@@ -165,6 +165,7 @@ const playerSchema = new mongoose.Schema({
       name: { type: String, required: true },
       progress: { type: Number, default: 0 }, // For Progress type trophies
       qty: { type: Number, default: 1 },
+      collected: { type: Boolean, default: false }, // Whether gem reward has been collected
       timestamp: { type: Date, default: Date.now },
       _id: false // Disable automatic _id for trophy items
     }

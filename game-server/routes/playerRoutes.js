@@ -279,6 +279,7 @@ router.post('/earn-trophy', async (req, res) => {
           name: trophyName,
           progress: currentProgress,
           qty: 1,
+          collected: false,
           timestamp: new Date()
         };
         player.trophies.push(existingTrophy);
@@ -288,14 +289,16 @@ router.post('/earn-trophy', async (req, res) => {
       const progressMilestones = trophyDef.progress;
       isNewMilestone = progressMilestones.includes(currentProgress);
       
-      // Find next milestone
-      nextMilestone = progressMilestones.find(m => m > currentProgress) || progressMilestones[progressMilestones.length - 1];
-      
+      // If hitting a new milestone, set collected to false
       if (isNewMilestone) {
+        existingTrophy.collected = false;
         console.log(`🏆 Player ${player.username} hit milestone for ${trophyName}: ${currentProgress}!`);
       } else {
         console.log(`📈 Player ${player.username} progress on ${trophyName}: ${currentProgress} (next milestone: ${nextMilestone})`);
       }
+      
+      // Find next milestone
+      nextMilestone = progressMilestones.find(m => m > currentProgress) || progressMilestones[progressMilestones.length - 1];
       
     } else {
       // Handle Event trophy
@@ -306,6 +309,7 @@ router.post('/earn-trophy', async (req, res) => {
         existingTrophy = {
           name: trophyName,
           qty: 1,
+          collected: false,
           timestamp: new Date()
         };
         player.trophies.push(existingTrophy);
@@ -357,6 +361,67 @@ router.get('/player/:playerId/trophies', async (req, res) => {
   } catch (error) {
     console.error('Error fetching trophies:', error);
     res.status(500).json({ error: 'Failed to fetch trophies.' });
+  }
+});
+
+// POST /api/collect-trophy-reward
+router.post('/collect-trophy-reward', async (req, res) => {
+  const { playerId, trophyName } = req.body;
+  
+  if (!playerId || !trophyName) {
+    return res.status(400).json({ error: 'Player ID and trophy name are required.' });
+  }
+  
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+    
+    // Find the trophy in player's trophies
+    const trophy = player.trophies.find(t => t.name === trophyName);
+    if (!trophy) {
+      return res.status(404).json({ error: 'Trophy not found in player trophies.' });
+    }
+    
+    // Check if already collected
+    if (trophy.collected === true) {
+      return res.status(400).json({ error: 'Trophy reward already collected.' });
+    }
+    
+    // Load master trophies to get reward amount
+    const trophiesPath = path.join(__dirname, '../tuning/trophies.json');
+    const masterTrophies = JSON.parse(fs.readFileSync(trophiesPath, 'utf8'));
+    const trophyDef = masterTrophies.find(t => t.name === trophyName);
+    
+    if (!trophyDef || !trophyDef.reward) {
+      return res.status(400).json({ error: 'Trophy reward not defined.' });
+    }
+    
+    // Mark as collected
+    trophy.collected = true;
+    
+    // Add gems to inventory
+    const gemIndex = player.inventory.findIndex(item => item.type === 'Gem');
+    if (gemIndex >= 0) {
+      player.inventory[gemIndex].quantity += trophyDef.reward;
+    } else {
+      player.inventory.push({ type: 'Gem', quantity: trophyDef.reward });
+    }
+    
+    await player.save();
+    
+    console.log(`💎 Player ${player.username} collected ${trophyDef.reward} gems from ${trophyName} trophy!`);
+    
+    res.json({
+      success: true,
+      gemsCollected: trophyDef.reward,
+      message: `Collected ${trophyDef.reward} gem${trophyDef.reward > 1 ? 's' : ''}!`
+    });
+    
+  } catch (error) {
+    console.error('Error collecting trophy reward:', error);
+    res.status(500).json({ error: 'Failed to collect trophy reward.' });
   }
 });
 

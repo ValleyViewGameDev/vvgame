@@ -2,28 +2,33 @@
     {
         "name": "First Farm Worker",
         "tooltip": "Hire your first farm worker.",
-        "type": "Event"
+        "type": "Event",
+        "reward": 1
     },
     {
         "name": "Skill Builder",
         "tooltip": "Keep aquiring skills.",
         "type": "Progress",
-        "progress": [ 1, 5, 10, 50, 100 ]
+        "progress": [ 1, 5, 10, 50, 100 ],
+        "reward": 1
     },
    {
         "name": "Lifetime Trading Sales",
         "tooltip": "Achieve trading sales milestones.",
         "type": "Progress",
-        "progress": [ 10, 1000, 10000, 100000, 1000000 ]
+        "progress": [ 10, 1000, 10000, 100000, 1000000 ],
+        "reward": 1
     },
     {
         "name": "Season Winner",
         "tooltip": "Finish in the top 3 players across the Frontier at the end of a season.",
-        "type": "Event"
+        "type": "Event",
+        "reward": 1
     },
     {
         "name": "Season Champion",
         "tooltip": "Be the top player across the Frontier at the end of a season.",
-        "type": "Event"
+        "type": "Event",
+        "reward": 1
     }
 ]
