@@ -2111,6 +2111,10 @@ return (
           updateStatus={updateStatus}
           openPanel={openPanel}
           setActiveStation={setActiveStation}
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
         />
       )}
       {activePanel === 'BankPanel' && (

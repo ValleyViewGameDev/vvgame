@@ -6,13 +6,16 @@ import '../../UI/Panel.css';
 import './TrophyPanel.css'; 
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
+import { gainIngredients } from '../../Utils/InventoryManagement';
+import FloatingTextManager from '../../UI/FloatingText';
 
 
-function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, setCurrentPlayer, updateStatus, openPanel, setActiveStation }) {
+function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, setCurrentPlayer, updateStatus, openPanel, setActiveStation, inventory, setInventory, backpack, setBackpack }) {
 
     const strings = useStrings();
     const [trophies, setTrophies] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [collecting, setCollecting] = useState(null); // Track which trophy is being collected
     
     useEffect(() => {
         // Fetch trophies when panel opens
@@ -35,6 +38,45 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
             fetchTrophies();
         }
     }, [currentPlayer?.playerId]);
+    
+    // Handle collecting trophy reward
+    const handleCollectReward = async (trophyName) => {
+        try {
+            setCollecting(trophyName);
+            
+            const response = await axios.post(`${API_BASE}/api/collect-trophy-reward`, {
+                playerId: currentPlayer.playerId,
+                trophyName: trophyName
+            });
+            
+            if (response.data.success) {
+                const { gemReward, inventory } = response.data;
+                
+                // Update inventory from server response
+                if (inventory) {
+                    setInventory(inventory);
+                    setCurrentPlayer(prev => ({ ...prev, inventory }));
+                }
+                
+                // Update local trophy state to mark as collected
+                setTrophies(prevTrophies => 
+                    prevTrophies.map(t => 
+                        t.name === trophyName ? { ...t, collected: true } : t
+                    )
+                );
+                
+                FloatingTextManager.addFloatingText(`+${gemReward} 💎`, window.innerWidth / 2, window.innerHeight / 2, 64);
+                updateStatus(`Collected ${gemReward} gem${gemReward > 1 ? 's' : ''} from ${trophyName}!`);
+            } else {
+                updateStatus(response.data.message || 'Failed to collect reward');
+            }
+        } catch (error) {
+            console.error('Error collecting trophy reward:', error);
+            updateStatus('Failed to collect trophy reward');
+        } finally {
+            setCollecting(null);
+        }
+    };
 
     // Helper function to get progress info
     const getProgressInfo = (trophyDef, playerTrophy) => {
@@ -96,6 +138,8 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                             const playerTrophy = trophies.find(t => t.name === trophyDef.name);
                             const isEarned = !!playerTrophy;
                             const progressInfo = trophyDef.type === 'Progress' ? getProgressInfo(trophyDef, playerTrophy) : null;
+                            const hasUncollectedReward = isEarned && playerTrophy?.collected === false;
+                            const isCollecting = collecting === trophyDef.name;
                             
                             return (
                                 <div 
@@ -129,6 +173,18 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                                             </div>
                                         )}
                                     </div>
+                                    {hasUncollectedReward && (
+                                        <div 
+                                            className="trophy-reward-gem"
+                                            onClick={() => handleCollectReward(trophyDef.name)}
+                                            style={{
+                                                opacity: isCollecting ? 0.5 : 1,
+                                                cursor: isCollecting ? 'wait' : 'pointer'
+                                            }}
+                                        >
+                                            💎
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}

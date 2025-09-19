@@ -415,7 +415,8 @@ router.post('/collect-trophy-reward', async (req, res) => {
     
     res.json({
       success: true,
-      gemsCollected: trophyDef.reward,
+      gemReward: trophyDef.reward,
+      inventory: player.inventory,
       message: `Collected ${trophyDef.reward} gem${trophyDef.reward > 1 ? 's' : ''}!`
     });
     
