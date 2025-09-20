@@ -6,6 +6,7 @@ const masterResources = require("../tuning/resources.json");
 const sendMailboxMessage = require("../utils/messageUtils.js");
 const seasonsConfig = require("../tuning/seasons.json");
 const { getSeasonLevel } = require("../utils/scheduleHelpers");
+const { awardTrophy } = require("../utils/trophyUtils");
 
 async function trainScheduler(frontierId, phase, frontier = null) {
   try {
@@ -130,8 +131,14 @@ async function trainScheduler(frontierId, phase, frontier = null) {
               try {
                 await sendMailboxMessage(playerId, 101, consolidated);
                 console.log(`✅ Rewards sent to player ${playerId}`);
+                
+                // Award Trains Completed trophy
+                const trophyResult = await awardTrophy(playerId, 'Trains Completed');
+                if (trophyResult.success && trophyResult.isNewMilestone) {
+                  console.log(`🏆 Awarded Trains Completed trophy to player ${playerId}`);
+                }
               } catch (error) {
-                console.error(`❌ Error sending rewards to player ${playerId}:`, error);
+                console.error(`❌ Error sending rewards or trophy to player ${playerId}:`, error);
               }
             }
           } else {

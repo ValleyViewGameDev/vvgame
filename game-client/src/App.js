@@ -5,6 +5,7 @@ import axios from 'axios';
 import API_BASE from './config.js';
 import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, useLayoutEffect, memo, useMemo, useCallback, useRef, act } from 'react';
+import { registerNotificationClickHandler } from './UI/Notifications/Notifications';
 import { initializeGrid } from './AppInit';
 import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies } from './Utils/TuningManager';
 import { RenderGrid } from './Render/Render';
@@ -122,6 +123,7 @@ useEffect(() => {
     console.log("💥 App unmounted.");
   };
 }, []);
+
 
   const strings = useStrings();
   const { uiLocked } = useUILock();
@@ -317,7 +319,7 @@ useEffect(() => {
 
 // Maintain camera position during zoom transitions
 useLayoutEffect(() => {
-  if (zoomLevel && zoomLevel !== 'settlement' && zoomLevel !== 'frontier' && currentPlayer?.location?.g) {
+  if (zoomLevel && zoomLevel !== 'settlement' && zoomLevel !== 'frontier' && currentPlayer?.location?.g && currentPlayer?._id) {
     const gridId = currentPlayer.location.g;
     const playerIdStr = String(currentPlayer._id);
     const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
@@ -360,6 +362,13 @@ const [activeSocialPC, setActiveSocialPC] = useState(null);
 const [activeStation, setActiveStation] = useState(null);
 const [showShareModal, setShowShareModal] = useState(false);
 const [showFTUE, setShowFTUE] = useState(false);
+
+// Register notification click handlers
+useEffect(() => {
+  registerNotificationClickHandler('Trophy', (data) => {
+    openPanel('TrophyPanel');
+  });
+}, [openPanel]);
 
 useEffect(() => {
   const storedPlayer = localStorage.getItem('player');
@@ -1175,9 +1184,9 @@ useEffect(() => {
 
 const zoomIn = async () => {
   const gridId = currentPlayer?.location?.g;
+  if (!gridId || !currentPlayer?._id) { console.warn("No valid gridId or playerId found for currentPlayer."); return; }
   const playerIdStr = String(currentPlayer._id);
   const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
-  if (!gridId) { console.warn("No valid gridId found for currentPlayer."); return; }
   if (currentPlayer.iscamping) { updateStatus(32); return; }
   
   if (zoomLevel === 'frontier') {
@@ -1218,6 +1227,7 @@ const zoomIn = async () => {
 
 const zoomOut = () => {
   const gridId = currentPlayer?.location?.g;
+  if (!gridId || !currentPlayer?._id) { console.warn("No valid gridId or playerId found for currentPlayer."); return; }
   const playerIdStr = String(currentPlayer._id);
   const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
 
@@ -1311,6 +1321,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   if (!gridId || typeof gridId !== 'string') { console.error('Invalid gridId:', gridId); return; }
   if (!currentPlayer?.username || typeof currentPlayer.username !== 'string') { console.error('Invalid username:', currentPlayer?.username); return; }
   // ✅ Get player position from playersInGrid
+  if (!currentPlayer?._id) { console.error('No player ID found'); return; }
   const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id));
   const targetPos = { x: colIndex, y: rowIndex };
   if (!playerPos || typeof playerPos.x === 'undefined' || typeof playerPos.y === 'undefined') {
@@ -1475,9 +1486,11 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       localStorage.setItem('player', JSON.stringify(updatedPlayer));
   
       // Multiplayer sync — update PC in grid
-      playersInGridManager.updatePC(gridId, currentPlayer._id, {
-        position: targetPosition
-      });
+      if (currentPlayer?._id) {
+        playersInGridManager.updatePC(gridId, currentPlayer._id, {
+          position: targetPosition
+        });
+      }
     }
   }
   isProcessing = false; // Reset flag here
@@ -1758,7 +1771,7 @@ return (
       )}
 
       {/* Hit Points */}
-      <button className="shared-button" onClick={() => openPanel('CombatPanel')}>{strings[10112]} <strong>{playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.hp ?? "?"} / {playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.maxhp ?? "?"}</strong></button>
+      <button className="shared-button" onClick={() => openPanel('CombatPanel')}>{strings[10112]} <strong>{currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.hp ?? "?" : "?"} / {currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.maxhp ?? "?" : "?"}</strong></button>
       <br />
 
       {/* Season */}
@@ -2264,6 +2277,7 @@ return (
           gridId={activeStation?.gridId} 
           masterResources={masterResources} 
           masterSkills={masterSkills} 
+          masterTrophies={masterTrophies}
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
@@ -2285,6 +2299,7 @@ return (
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}
+          masterTrophies={masterTrophies}
           isDeveloper={isDeveloper}
         />
       )}
@@ -2447,6 +2462,7 @@ return (
           setBackpack={setBackpack} 
           updateStatus={updateStatus}
           masterInteractions={masterInteractions}
+          masterTrophies={masterTrophies}
           isDeveloper={isDeveloper}
           controllerUsername={controllerUsername}
           setControllerUsername={setControllerUsername}

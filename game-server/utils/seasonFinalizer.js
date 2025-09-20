@@ -6,6 +6,7 @@ const Settlement = require('../models/settlement');
 const sendMailboxMessage = require('../utils/messageUtils');
 const Frontier = require('../models/frontier');
 const { isDeveloper } = require('./developerHelpers');
+const { awardTrophy } = require('./trophyUtils');
 
 async function seasonFinalizer(frontierId, seasonType, seasonNumber) {
   console.group("🗓️🗓️🗓️🗓️🗓️ Starting SEASON FINALIZER for Frontier", frontierId);
@@ -41,12 +42,29 @@ async function seasonFinalizer(frontierId, seasonType, seasonNumber) {
 
     if (topPlayers.length > 0) {
       console.log("🏆 Top Players:", topPlayers.map(p => p.username));
-      for (const player of topPlayers) {
+      for (let i = 0; i < topPlayers.length; i++) {
+        const player = topPlayers[i];
         try {
           await sendMailboxMessage(player._id, 301); // Message ID 301 = Top Player Reward
           console.log(`📬 Reward sent to top player ${player.username}`);
+          
+          // Award trophies
+          if (i === 0) {
+            // First place gets Season Champion trophy
+            const championResult = await awardTrophy(player._id, 'Season Champion');
+            if (championResult.success && championResult.isNewMilestone) {
+              console.log(`🏆 Awarded Season Champion trophy to ${player.username}`);
+            }
+          }
+          
+          // Top 3 get Season Winner trophy
+          const winnerResult = await awardTrophy(player._id, 'Season Winner');
+          if (winnerResult.success && winnerResult.isNewMilestone) {
+            console.log(`🏆 Awarded Season Winner trophy to ${player.username}`);
+          }
+          
         } catch (error) {
-          console.error(`❌ Failed to send top player reward to ${player.username}`, error);
+          console.error(`❌ Failed to send top player reward or trophy to ${player.username}`, error);
         }
       }
     }

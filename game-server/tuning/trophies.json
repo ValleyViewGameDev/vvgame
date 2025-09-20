@@ -12,23 +12,53 @@
         "progress": [ 1, 5, 10, 50, 100 ],
         "reward": 1
     },
-   {
-        "name": "Lifetime Trading Sales",
-        "tooltip": "Achieve trading sales milestones.",
-        "type": "Progress",
-        "progress": [ 10, 1000, 10000, 100000, 1000000 ],
+    {
+        "name": "Trains Completed",
+        "tooltip": "Tracks the number of times you participated in Train with all orders filled.",
+        "type": "Count",
         "reward": 1
     },
     {
         "name": "Season Winner",
         "tooltip": "Finish in the top 3 players across the Frontier at the end of a season.",
-        "type": "Event",
+        "type": "Count",
         "reward": 1
     },
     {
         "name": "Season Champion",
         "tooltip": "Be the top player across the Frontier at the end of a season.",
+        "type": "Count",
+        "reward": 1
+    },
+    {
+        "name": "Meet the Cast",
+        "tooltip": "Greet all of the non-player characters in Valley View.",
         "type": "Event",
+        "reward": 1
+    },
+    {
+        "name": "Fighter",
+        "tooltip": "Defeat the enemies of Valley View.",
+        "type": "Progress",
+        "progress": [ 1, 10, 50, 100, 1000, 5000, 10000, 20000 ],
+        "reward": 1
+    },
+    {
+        "name": "Adventurer",
+        "tooltip": "Camp in a tent for the first time. Click on the player avatar to pitch a tent.",
+        "type": "Event",
+        "reward": 1
+    },
+    {
+        "name": "Mariner",
+        "tooltip": "Obtain the means to travel by water. Purchase a boat at the General Store.",
+        "type": "Event",
+        "reward": 1
+    },
+    {
+        "name": "Kill the Duke",
+        "tooltip": "Slay Duke Angelo to avenge the lover of Juliet.",
+        "type": "Count",
         "reward": 1
     }
 ]

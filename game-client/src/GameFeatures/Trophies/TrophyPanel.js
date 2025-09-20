@@ -66,7 +66,7 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                 );
                 
                 FloatingTextManager.addFloatingText(`+${gemReward} 💎`, window.innerWidth / 2, window.innerHeight / 2, 64);
-                updateStatus(`Collected ${gemReward} gem${gemReward > 1 ? 's' : ''} from ${trophyName}!`);
+                updateStatus(`💎 Earned ${gemReward} Gem${gemReward > 1 ? 's' : ''} from your trophy`);
             } else {
                 updateStatus(response.data.message || 'Failed to collect reward');
             }
@@ -133,7 +133,39 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                     <div className="loading">Loading trophies...</div>
                 ) : (
                     <div className="trophy-grid">
-                        {masterTrophies?.map((trophyDef, index) => {
+                        {masterTrophies?.sort((a, b) => {
+                            // Sort trophies by status:
+                            // 1. Earned but not collected (highest priority)
+                            // 2. Earned and collected
+                            // 3. Not earned (lowest priority)
+                            
+                            const playerTrophyA = trophies.find(t => t.name === a.name);
+                            const playerTrophyB = trophies.find(t => t.name === b.name);
+                            
+                            const isEarnedA = !!playerTrophyA;
+                            const isEarnedB = !!playerTrophyB;
+                            
+                            const hasUncollectedRewardA = isEarnedA && playerTrophyA?.collected === false;
+                            const hasUncollectedRewardB = isEarnedB && playerTrophyB?.collected === false;
+                            
+                            // If both have uncollected rewards, maintain original order
+                            if (hasUncollectedRewardA && hasUncollectedRewardB) return 0;
+                            // If only A has uncollected reward, A comes first
+                            if (hasUncollectedRewardA && !hasUncollectedRewardB) return -1;
+                            // If only B has uncollected reward, B comes first
+                            if (!hasUncollectedRewardA && hasUncollectedRewardB) return 1;
+                            
+                            // Neither has uncollected rewards, check if earned
+                            // If both are earned and collected, maintain original order
+                            if (isEarnedA && isEarnedB) return 0;
+                            // If only A is earned, A comes first
+                            if (isEarnedA && !isEarnedB) return -1;
+                            // If only B is earned, B comes first
+                            if (!isEarnedA && isEarnedB) return 1;
+                            
+                            // Neither is earned, maintain original order
+                            return 0;
+                        }).map((trophyDef, index) => {
                             // Find if player has earned this trophy
                             const playerTrophy = trophies.find(t => t.name === trophyDef.name);
                             const isEarned = !!playerTrophy;
@@ -169,6 +201,13 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                                                             width: `${Math.min(100, Math.max(0, progressInfo.percentage))}%`
                                                         }}
                                                     />
+                                                </div>
+                                            </div>
+                                        )}
+                                        {trophyDef.type === 'Count' && isEarned && playerTrophy?.qty > 0 && (
+                                            <div className="trophy-count">
+                                                <div className="count-text">
+                                                    {playerTrophy.qty}x
                                                 </div>
                                             </div>
                                         )}

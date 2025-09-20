@@ -12,6 +12,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
 import '../../UI/SharedButtons.css';
+import { earnTrophy } from '../Trophies/TrophyUtils';
 
 const ShopStation = ({
   onClose,
@@ -28,6 +29,7 @@ const ShopStation = ({
   TILE_SIZE,
   updateStatus,
   masterResources,
+  masterTrophies,
   isDeveloper,
 }) => {
   const strings = useStrings();
@@ -180,7 +182,13 @@ const ShopStation = ({
 
     await trackQuestProgress(currentPlayer, 'Buy', recipe.type, tradedQty, setCurrentPlayer);
 
-    updateStatus(`Acquired ${recipe.type}.`);
+    updateStatus(`${strings[80]} ${recipe.type}.`);
+    
+    // Award Mariner trophy if purchased a Boat
+    if (recipe.type === 'Boat' && currentPlayer?.playerId) {
+      earnTrophy(currentPlayer.playerId, 'Mariner', 1, currentPlayer, masterTrophies);
+    }
+    
     setFetchTrigger(prev => prev + 1);
   };
 

@@ -5,11 +5,12 @@ import './Notifications.css';
 // Global notification manager
 let notificationRoot = null;
 let notificationTimer = null;
+let globalClickHandlers = {};
 
 /**
  * Generic notification component
  */
-function Notification({ type, data, onDismiss }) {
+function Notification({ type, data, onDismiss, onClick }) {
     React.useEffect(() => {
         // Auto-dismiss after 5 seconds
         const timer = setTimeout(() => {
@@ -29,6 +30,9 @@ function Notification({ type, data, onDismiss }) {
                             <div className="notification-icon">🏆</div>
                             {data.type === 'Progress' && data.progress && (
                                 <div className="notification-milestone">{data.progress}</div>
+                            )}
+                            {data.type === 'Count' && data.qty && (
+                                <div className="notification-milestone">{data.qty}x</div>
                             )}
                         </div>
                         <div className="notification-text">
@@ -80,8 +84,11 @@ function Notification({ type, data, onDismiss }) {
     };
     
     return (
-        <div className="notification">
-            <button className="notification-dismiss" onClick={onDismiss}>×</button>
+        <div className="notification" onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
+            <button className="notification-dismiss" onClick={(e) => {
+                e.stopPropagation();
+                onDismiss();
+            }}>×</button>
             <div className="notification-content">
                 {renderContent()}
             </div>
@@ -93,8 +100,18 @@ function Notification({ type, data, onDismiss }) {
  * Shows a notification
  * @param {string} type - The type of notification ('Trophy', 'Phase Change', 'Message', etc.)
  * @param {Object} data - The data to display in the notification
+ * @param {Function} onClick - Optional click handler for the notification
  */
-export function showNotification(type, data) {
+/**
+ * Register a global click handler for a notification type
+ * @param {string} type - The notification type
+ * @param {Function} handler - The click handler
+ */
+export function registerNotificationClickHandler(type, handler) {
+    globalClickHandlers[type] = handler;
+}
+
+export function showNotification(type, data, onClick = null) {
     // Clear any existing notification
     if (notificationTimer) {
         clearTimeout(notificationTimer);
@@ -120,11 +137,15 @@ export function showNotification(type, data) {
         }
     };
     
+    // Use passed onClick or fall back to global handler for this type
+    const clickHandler = onClick || (globalClickHandlers[type] ? () => globalClickHandlers[type](data) : null);
+    
     notificationRoot.render(
         <Notification 
             type={type}
             data={data}
             onDismiss={handleDismiss}
+            onClick={clickHandler}
         />
     );
 }

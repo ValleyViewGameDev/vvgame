@@ -87,7 +87,6 @@
     "181": "📦 Entrepôt",
     "182": "🎒 Sac à dos",
     "183": "Capacité : ",
-    "199": "Les détenteurs du Pass Or ont un inventaire presque illimité.",
 
     "200": "QUESTS",
 
@@ -139,7 +138,6 @@
     "464": "Achetez l'Artisanat en masse pour collecter depuis toutes les stations d'artisanat prêtes en une seule fois.",
     "465": "Cliquez pour collecter instantanément depuis toutes les stations d'artisanat prêtes.",
     "466": "Vous n'avez aucune station d'artisanat prête pour la collecte.",
-    "467": "Collecte d'artisanat en masse terminée: ",
     "468": "Redémarré : ",
     "469": "Collecte sélective d'animaux terminée : ",
     "472": "Récolte sélective de cultures terminée : ",
@@ -171,7 +169,6 @@
     "999": "PANEL UI STRINGS:",
 
     "1000": "[Description needed]",
-    "1001": "Inventaire : Les ressources collectées au domaine vont dans l'entrepôt. Celles collectées en ville ou dans la vallée vont dans le sac à dos. Pour acheter un sac à dos, allez dans Compétences. Les ateliers de fabrication n'utilisent que les objets de l'entrepôt. Vous pouvez vider votre sac à dos dans l'entrepôt à tout moment depuis votre domaine.",
     "1002": "Construction : Construisez des ateliers sur votre domaine en utilisant les ressources de votre entrepôt.",
     "1003": "Les animaux achetés apparaîtront à votre icône de joueur et commenceront immédiatement leur vie sur le domaine.",
     "1004": "Labourez la terre pour planter des cultures. Plantez de l'herbe pour nourrir les animaux de la ferme.",
@@ -191,10 +188,8 @@
     "1019": "[Profile description]",
     "1021": "© Valley View Studios, 2025, All Rights Reserved.",
     "1022": "[Train description]",
-    "1023": "[Farm hands description]",
     "1024": "[Combat description]",
     "1025": "[Shop description]",
-    "1026": "[Money panel description]",
     "1027": "Voici les avantages d'un compte Or.",
     "1028": " ",
 
@@ -359,10 +354,8 @@
     "3005": "Les maires sont élus au tribunal en ville.",
     "3006": "🏛️ Officiels du gouvernement",
     "3007": "Aucun officiel élu pour le moment.",
-    "3009": "Seul le maire peut construire des écoles, hôpitaux et enclos à animaux en ville.",
     "3010": "🏫 Les écoles donnent accès à certaines compétences exclusives.",
     "3011": "🏥 Les hôpitaux fournissent des médecins pour soigner les aventuriers revenant de la vallée.",
-    "3012": "🐾 Les enclos à animaux fournissent du bétail unique, transportable vers les domaines par tout joueur.",
     "3013": "🚂 Le maire peut influencer la demande de marchandises au train.",
     "3020": "Voir l'historique des impôts",
     "3021": "",
@@ -546,7 +539,6 @@
     "10111": "Vous êtes le Maire",
     "10112": "❤️‍🩹 Santé : ",
     "10113": "🗓️ Nous sommes le",
-    "10114": "Fin de la saison dans :",
     "10115": "🗓️ Prochaine saison dans :",
     "10116": "⏪ En cours en ville :",
     "10117": "💰 Prochaine collecte d'impôts :",
@@ -569,7 +561,6 @@
   "11001": "Attendez la fin du minuteur ou qu’un autre joueur achète cet objet.",
   "206": "Retournez voir le PNJ qui vous a donné cette quête pour recevoir votre récompense.",
   "155": "Transaction échouée. Cet objet a déjà été vendu.",
-  "1008": "Étal d’échange : vendez vos ressources à d’autres joueurs ou achetez des objets dans leurs étals. Utilisez les flèches pour naviguer entre les étals de votre colonie. Si aucun joueur n’achète vos objets avant la fin du minuteur, vous pouvez les vendre au jeu pour une fraction de leur valeur de base.",
   "2014": "Vous ne pouvez accepter qu’une offre de train à la fois.",
   "2015": "Afficher le journal du train",
   "2016": "✅ Toutes les commandes ont été complétées ! Les récompenses ont été envoyées par courrier.",
@@ -639,19 +630,14 @@
   "700": "CHAÎNES FTUE :",
 
 "701": "Bienvenue à Valley View",
-"702": "Bienvenue, voyageur ! Vous êtes arrivé à Valley View, une terre de frontière pleine d'opportunités et d'aventures.",
 "709": "🏚️ Votre Ferme",
 "710": "Vous avez hérité d'une Ferme dans une Colonie avec d'autres joueurs. Commencez par réparer cette ferme abandonnée. Consultez votre ✅ Liste de Tâches. Vous devrez d'abord rassembler du bois.",
 "715": "🤠 Embaucher Kent",
 "716": "Excellent ! Maintenant, vous allez devoir commencer à gagner de l'💰 argent. Vous aurez besoin d'un Gestionnaire de Ferme qui peut vivre ici à plein temps et vous aider à développer l'exploitation. Ouvrez la 🏠 Maison de Ferme pour embaucher des gens.",
 "721": "🤠 Écouter Kent",
-"722": "Super, Kent est le meilleur ! Apprenez à bien le connaître, et il vous donnera des ✅ conseils. Première priorité de Kent : récolter du 🌾 Blé et utiliser le 📥 Comptoir Commercial pour le vendre.",
-"723": "Cultiver la Terre",
-"724": "Allez-y et développez votre ferme. Plantez des cultures en utilisant le panneau 🚜 Agriculture. Quand vous aurez assez d'argent, acquérez la compétence Cultivateur pour étendre vos capacités agricoles.",
 "727": "👵🏻 Embaucher la Bergère",
 "728": "Beau travail ! Maintenant embauchez la 👵🏻 Bergère depuis la 🏠 Maison de Ferme, et elle aidera à apporter de la 🐮 vie animale à la ferme, pour que vous puissiez continuer à développer votre entreprise.",
 "729": "🐮 Élevage",
-"730": "Allez au Panneau 🐮 Animaux pour acquérir des animaux de ferme. Commencez avec une vache. La vache a besoin d'🟩 herbe pour paître, alors placez-la soigneusement. Et vous avez déjà votre première 🟫 Étable ; c'est là où vous pouvez produire du lait une fois que la vache est rassasiée.",
 "731": "⛏️ Façonner le Terrain",
 "732": "Les cultures ont besoin de terre. Les vaches et moutons ont besoin d'🟩 herbe. Le pavage peut aider à contenir les mouvements des gens et des animaux. Utilisez les ⛏️ Outils pour paver le terrain à votre goût, et apprenez la compétence 🪓 hache pour couper des arbres pour le bois.",
 "733": "⚒️ Constructeur",
@@ -661,15 +647,6 @@
 "795": "Passer le tutoriel",
 "797": "Retour",
 "798": "Jouer",
-
-"705": "Réalisez vos aspirations",
-"706": "Valley View est un vaste monde. C'est à vous de décider comment vous voulez passer votre temps. Laquelle de ces aspirations correspond le mieux à votre style de jeu ? (Ce choix ne limitera en aucun cas vos options.)",
-"750": "🚜 Fermier",
-"751": "Cultivez votre ferme, faites pousser des cultures, occupez-vous des animaux et fabriquez des produits à vendre et échanger avec d'autres joueurs. Investissez dans les compétences agricoles et artisanales pour augmenter vos profits.",
-"752": "⚔️ Aventurier",
-"753": "Aventurez-vous dans la Vallée pour trouver des ressources et des objets rares. Combattez animaux et créatures, découvrez des lieux cachés et rencontrez des personnages magiques. Investissez dans les compétences de combat pour devenir un combattant redoutable.",
-"754": "🏛️ Politicien",
-"755": "Présentez-vous comme Maire, fixez le taux d'imposition et percevez des revenus fiscaux pour vous-même. Investissez dans des bâtiments communautaires pour toute la Ville, comme des Hôpitaux, Écoles et Bibliothèques, et aidez votre communauté à prospérer.",
 
   "490": "Vendre pour remboursement (Dev seulement)",
   "156": "Vide (ajouter des objets)",
@@ -1006,6 +983,14 @@
 "200286": "Infaillible",
 "200287": "Titan",
 
+"30000": "TROPHÉES :",
+"30001": "Premier Ouvrier Agricole",
+"30002": "Constructeur de Compétences",
+"30003": "Trains Terminés",
+"30004": "Gagnant de Saison",
+"30005": "Champion de Saison",
+
+
 "184": "Gérer l'entrepôt",
 "185": "Quantité",
 "186": "Montant",
@@ -1017,19 +1002,79 @@
 "192": "Action",
 "193": "Jeter les articles",
 
-    "11000": "ADDED STRINGS:",
+"11000": "ADDED STRINGS:",
 
+"170": "Emplacement de commerce déverrouillé",
+"171": "Pass Or Requis",
+"172": "Verrouillé",
+"173": "Limite de",
+"174": "pour Vendre",
+"175": "Débloquer pour",
+"176": "Bois",
+"177": "Besoin de",
+"178": "pour débloquer cet emplacement",
 
-    "4010": "Already have a profile?",
+"10114": "La prochaine saison commence dans :",
+"1023": "Les ouvriers vous aident à gérer votre ferme. Embauchez-les à la Ferme.",
+"4010": "Vous avez déjà un profil ?",
+"1008": "Achetez et vendez avec d'autres joueurs. Si aucun joueur n'achète vos articles avant l'expiration du minuteur, vendez-les au jeu pour une fraction de leur valeur de base.",
+"467": "Fabrication en masse",
+"1001": "Les ressources collectées à la ferme vont dans l'entrepôt. Les ressources collectées en ville ou dans la vallée iront dans le sac à dos. Pour acheter un sac à dos, visitez le Magasin en ville. Pour vider le sac à dos ou l'entrepôt, utilisez les boutons Gérer.",
+"723": "💪 Cultivateur",
+"724": "Bien joué, vous gagnez de l'argent maintenant ! Allez-y et développez votre ferme. Plantez des cultures en utilisant le panneau 🚜 Agriculture, récoltez-les et vendez. Acquérez la compétence Cultivateur pour étendre vos capacités agricoles.",
+"702": "Bienvenue, voyageur ! Vous êtes arrivé à Valley View, une terre frontière d'opportunités, de mystère et d'aventure.",
 
-    "170": "Emplacement de commerce déverrouillé",
-    "171": "Pass Or Requis",
-    "172": "Verrouillé",
-    "173": "Limite de",
-    "174": "pour Vendre",
-    "175": "Débloquer pour",
-    "176": "Bois",
-    "177": "Besoin de",
-    "178": "pour débloquer cet emplacement"
+"705": "Aspiration",
+"706": "Valley View est un grand monde. C'est à vous de décider comment vous voulez passer votre temps. Laquelle de ces aspirations convient le mieux à votre style de jeu ? (Ce choix ne limitera en aucune façon vos options.)",
+"750": "🚜 Fermier",
+"751": "Cultivez votre ferme, faites pousser des cultures, occupez-vous des animaux et fabriquez des biens à vendre et échanger avec d'autres joueurs. Investissez dans les compétences agricoles et artisanales pour augmenter vos profits.",
+"752": "⚔️ Aventurier",
+"753": "Aventurez-vous dans la Vallée pour des ressources et des objets rares. Combattez des animaux et des créatures, découvrez des lieux cachés et rencontrez des personnages magiques. Investissez dans les compétences de combat pour devenir un combattant redoutable.",
+"754": "🏛️ Politicien",
+"755": "Présentez-vous comme Maire, fixez le taux d'imposition et gagnez des revenus fiscaux pour vous-même. Investissez dans des bâtiments communautaires pour toute la Ville, comme des Hôpitaux, des Écoles et des Bibliothèques, et aidez votre colonie à prospérer.",
+"722": "Voici Kent, votre Gestionnaire de Ferme. Parlez-lui et il vous donnera ✅ une Liste de Tâches. Votre premier objectif : Récoltez du 🌾 Blé et vendez-le au 📥 Comptoir Commercial.",
+"730": "Bienvenue 👵🏻 Berger ! Maintenant, visitez le 🐮 Panneau des Animaux pour acquérir une vache. Les vaches ont besoin d'🟩 herbe pour paître, alors placez-les soigneusement. Et vous avez déjà votre première 🟫 Étable ; c'est là que vous pouvez produire du lait une fois que la vache est rassasiée.",
+
+"800": "PLUS DE CHAÎNES DE STATION D'ARTISANAT :",
+
+"801": "Acquérez la compétence ",
+"802": " au ",
+"803": " pour augmenter la production de cette station de ",
+"805": "Votre compétence ",
+"806": " augmente la production de base de cette station de ",
+
+"810": "Vous pouvez aussi acheter cette compétence directement : ",
+
+"820": "Produit : ",
+"821": "Quantité de base : ",
+
+"3009": "Seul le Maire peut construire des Écoles, des Hôpitaux et des Bibliothèques dans la Ville.",
+"3012": "🏤 Les Bibliothèques sont une source de Livres, qui sont vitaux pour les Aventuriers cherchant à apprendre de nouvelles compétences.",
+
+"1026": "Gagner et dépenser de l'Argent.",
+"1034": "Gagner et dépenser des Gemmes.",
+"1134": "💎 Gemmes",
+"9030": "Comment Gagner des Gemmes",
+"9031": "Les Gemmes sont une ressource rare qui peut être utilisée pour acheter diverses choses pour accélérer votre jeu.",
+"9032": "Vous pouvez acheter des Gemmes dans le Magasin, ou en cliquant ici :",
+"9033": "En de rares occasions, des Gemmes peuvent être trouvées dans la Vallée, ou gagnées comme récompenses pour avoir excellé avec le Train, ou terminé fort à la fin d'une Saison.",
+
+"9040": "Évident :",
+"9041": "100 💎 Gemmes pour ",
+"9042": "Meilleure Valeur :",
+"9043": "500 💎 Gemmes pour ",
+"9044": "Plus Populaire :",
+"9045": "1000 💎 Gemmes pour ",
+
+"194": "Agrandir l'Entrepôt",
+"195": "Agrandir le Sac à dos au Camp d'Aventure en Ville.",
+"199": "Capacité quasi illimitée avec le Pass Or (entre autres avantages).",
+
+"1035": "Ceci est votre collection de Trophées à vie.",
+"1135": "🏆 Trophées",
+"12013": "Trophées",
+
+"2017": "Cette commande a déjà été réclamée."
+
 }
 

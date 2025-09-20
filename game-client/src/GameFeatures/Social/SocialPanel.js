@@ -11,6 +11,7 @@ import playersInGridManager from '../../GridState/PlayersInGrid';
 import RelationshipCard from '../Relationships/RelationshipCard';
 import '../Relationships/Relationships.css';
 import socket from '../../socketManager';
+import { earnTrophy } from '../Trophies/TrophyUtils';
 
 const SocialPanel = ({
   onClose,
@@ -23,6 +24,7 @@ const SocialPanel = ({
   setBackpack,
   updateStatus,
   masterInteractions,
+  masterTrophies,
   isDeveloper,
   controllerUsername,
   setControllerUsername,
@@ -150,6 +152,11 @@ const SocialPanel = ({
 
       console.log('⛺️ iscamping: updated profile successfully');
       updateStatus(28);
+      
+      // Award Adventurer trophy for first time camping
+      if (currentPlayer?.playerId) {
+        earnTrophy(currentPlayer.playerId, 'Adventurer', 1, currentPlayer, masterTrophies);
+      }
       
       // Update PlayersInGrid directly
       const gridId = currentPlayer?.location?.g;

@@ -1018,12 +1018,14 @@
   "200287": "Titan",
 
 
-  "11000": "ADDED STRINGS:",
   
 
   "30000": "TROPHIES:",
   "30001": "First Farm Worker",
-
+  "30002": "Skill Builder",
+  "30003": "Trains Completed",
+  "30004": "Season Winner",
+  "30005": "Season Champion",
 
     "10114": "Next Season starts in:",
     "1023": "Workers help you run your homestead. Hire them at the Farm House.",
@@ -1079,19 +1081,19 @@
     "9045": "1000 💎 Gems for ",
 
     "194": "Expand Warehouse",
-"195": "Expand Backpack at the Adventure Camp in Town.",
+    "195": "Expand Backpack at the Adventure Camp in Town.",
     "199": "Near unlimited capacity with Gold Pass (among other benefits).",
 
     "1035": "This is your collection of lifetime Trophies.",
     "1135": "🏆 Trophies",
     "12013": "Trophies",
 
-
-    "2017": "This order has already been claimed." 
-
+    "2017": "This order has already been claimed.",
 
 
+      "11000": "ADDED STRINGS:",
 
+    "80": "Acquired "
 
   }
 

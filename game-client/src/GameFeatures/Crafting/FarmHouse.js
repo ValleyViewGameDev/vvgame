@@ -24,7 +24,7 @@ import TransactionButton from '../../UI/TransactionButton';
 import { handleConstruction } from '../BuildAndBuy';
 import { incrementFTUEStep } from '../FTUE/FTUE';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
-import { earnTrophy, isFirstFarmWorker } from '../Trophies/TrophyUtils';
+import { earnTrophy } from '../Trophies/TrophyUtils';
 
 const FarmHouse = ({
   onClose,
@@ -40,6 +40,7 @@ const FarmHouse = ({
   gridId,
   masterResources,
   masterSkills,
+  masterTrophies,
   TILE_SIZE,
   isDeveloper,
 }) => {
@@ -324,8 +325,8 @@ const FarmHouse = ({
             NPCsInGridManager.spawnNPC(gridId, craftedResource, spawnPosition);
             
             // Check for First Farm Worker trophy
-            if (craftedResource.action === 'worker' && isFirstFarmWorker(currentPlayer)) {
-              await earnTrophy(currentPlayer.playerId, 'First Farm Worker');
+            if (craftedResource.action === 'worker') {
+              await earnTrophy(currentPlayer.playerId, 'First Farm Worker', 1, currentPlayer, masterTrophies);
             }
             
             // Trigger refresh to update available recipes
@@ -459,8 +460,8 @@ const FarmHouse = ({
       NPCsInGridManager.spawnNPC(gridId, craftedResource, spawnPosition);
       
       // Check for First Farm Worker trophy
-      if (craftedResource.action === 'worker' && isFirstFarmWorker(currentPlayer)) {
-        await earnTrophy(currentPlayer.playerId, 'First Farm Worker');
+      if (craftedResource.action === 'worker') {
+        await earnTrophy(currentPlayer.playerId, 'First Farm Worker', 1, currentPlayer, masterTrophies);
       }
       
       // Track quest progress

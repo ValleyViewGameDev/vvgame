@@ -61,6 +61,38 @@ export const updateRelationshipStatus = async (currentPlayer, targetName, status
       value: value
     });
     
+    // Check for "Meet the Cast" trophy if status is "met" and value is true
+    if (response.data.success && status === 'met' && value === true) {
+      // Get all character names from RelationshipMatrix
+      const allCharacters = RelationshipMatrix
+        .filter(char => char.type)
+        .map(char => char.type);
+      
+      // Check if player has met all characters
+      const updatedPlayer = response.data.player;
+      const metCharacters = updatedPlayer.relationships.filter(rel => rel.met === true);
+      const hasMetAll = allCharacters.every(charName => 
+        metCharacters.some(rel => rel.name === charName)
+      );
+      
+      if (hasMetAll) {
+        // Award "Meet the Cast" trophy
+        try {
+          const trophyResponse = await axios.post(`${API_BASE}/api/earn-trophy`, {
+            playerId,
+            trophyName: 'Meet the Cast'
+          });
+          
+          if (trophyResponse.data.success && trophyResponse.data.isNewMilestone) {
+            console.log(`🏆 Player earned Meet the Cast trophy!`);
+            // Trophy notification will be handled by the earn-trophy endpoint
+          }
+        } catch (trophyError) {
+          console.error('Error awarding Meet the Cast trophy:', trophyError);
+        }
+      }
+    }
+    
     return {
       success: response.data.success,
       player: response.data.player,

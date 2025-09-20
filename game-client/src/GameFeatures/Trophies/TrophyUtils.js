@@ -7,10 +7,25 @@ import { showNotification } from '../../UI/Notifications/Notifications';
  * @param {string} playerId - The player's ID
  * @param {string} trophyName - The name of the trophy to earn (must match trophies.json)
  * @param {number} progressIncrement - For Progress trophies, the amount to increment (default 1)
+ * @param {Object} currentPlayer - The current player object (optional, for Event trophy checking)
+ * @param {Array} masterTrophies - The master trophies list (optional, for Event trophy checking)
  * @returns {Promise<Object>} The result of the API call
  */
-export async function earnTrophy(playerId, trophyName, progressIncrement = 1) {
+export async function earnTrophy(playerId, trophyName, progressIncrement = 1, currentPlayer = null, masterTrophies = null) {
     try {
+        // If we have currentPlayer and masterTrophies, check if this is an Event trophy that's already earned
+        if (currentPlayer && masterTrophies) {
+            const trophyDef = masterTrophies.find(t => t.name === trophyName);
+            if (trophyDef && trophyDef.type === 'Event') {
+                // Check if player already has this Event trophy
+                const hasEventTrophy = currentPlayer.trophies?.some(t => t.name === trophyName);
+                if (hasEventTrophy) {
+                    console.log(`⚠️ Player already has Event trophy: ${trophyName}`);
+                    return { success: false, message: 'Trophy already earned' };
+                }
+            }
+        }
+        
         const response = await axios.post(`${API_BASE}/api/earn-trophy`, {
             playerId,
             trophyName,
@@ -36,25 +51,4 @@ export async function earnTrophy(playerId, trophyName, progressIncrement = 1) {
         console.error('Error earning trophy:', error);
         return { success: false, error: error.message };
     }
-}
-
-/**
- * Checks if this is the player's first farm worker
- * @param {Object} currentPlayer - The current player object
- * @returns {boolean} True if this is the first worker
- */
-export function isFirstFarmWorker(currentPlayer) {
-    if (!currentPlayer?.npcsInGrid) return true;
-    
-    // Check all grids for any existing workers
-    for (const gridId in currentPlayer.npcsInGrid) {
-        const npcs = currentPlayer.npcsInGrid[gridId] || [];
-        const hasWorker = npcs.some(npc => 
-            npc.action === 'worker' && 
-            ['Farmer', 'Farm Hand', 'Rancher', 'Lumberjack', 'Crafter'].includes(npc.type)
-        );
-        if (hasWorker) return false;
-    }
-    
-    return true;
 }

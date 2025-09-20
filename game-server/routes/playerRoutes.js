@@ -10,6 +10,7 @@ const Settlement = require('../models/settlement');
 const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
 const queue = require('../queue'); // Import the in-memory queue
 const sendMailboxMessage = require('../utils/messageUtils');
+const { awardTrophy } = require('../utils/trophyUtils');
  
 ///////// PLAYER MANAGEMENT ROUTES ////////////
 
@@ -246,95 +247,14 @@ router.post('/earn-trophy', async (req, res) => {
   }
   
   try {
-    const player = await Player.findById(playerId);
-    if (!player) {
-      return res.status(404).json({ error: 'Player not found.' });
+    // Use the utility function
+    const result = await awardTrophy(playerId, trophyName, progressIncrement);
+    
+    if (!result.success) {
+      return res.status(result.error ? 400 : 200).json(result);
     }
     
-    // Load master trophies directly from file
-    const trophiesPath = path.join(__dirname, '../tuning/trophies.json');
-    const masterTrophies = JSON.parse(fs.readFileSync(trophiesPath, 'utf8'));
-    const trophyDef = masterTrophies.find(t => t.name === trophyName);
-    
-    if (!trophyDef) {
-      return res.status(400).json({ error: 'Trophy not found in master trophies.' });
-    }
-    
-    // Check if player already has this trophy
-    let existingTrophy = player.trophies.find(t => t.name === trophyName);
-    let isNewMilestone = false;
-    let currentProgress = 0;
-    let nextMilestone = null;
-    
-    if (trophyDef.type === 'Progress' && trophyDef.progress) {
-      // Handle Progress trophy
-      if (existingTrophy) {
-        // Increment existing progress
-        currentProgress = (existingTrophy.progress || 0) + progressIncrement;
-        existingTrophy.progress = currentProgress;
-      } else {
-        // First time earning progress - create trophy entry
-        currentProgress = progressIncrement;
-        existingTrophy = {
-          name: trophyName,
-          progress: currentProgress,
-          qty: 1,
-          collected: false,
-          timestamp: new Date()
-        };
-        player.trophies.push(existingTrophy);
-      }
-      
-      // Check if current progress matches a milestone
-      const progressMilestones = trophyDef.progress;
-      isNewMilestone = progressMilestones.includes(currentProgress);
-      
-      // If hitting a new milestone, set collected to false
-      if (isNewMilestone) {
-        existingTrophy.collected = false;
-        console.log(`🏆 Player ${player.username} hit milestone for ${trophyName}: ${currentProgress}!`);
-      } else {
-        console.log(`📈 Player ${player.username} progress on ${trophyName}: ${currentProgress} (next milestone: ${nextMilestone})`);
-      }
-      
-      // Find next milestone
-      nextMilestone = progressMilestones.find(m => m > currentProgress) || progressMilestones[progressMilestones.length - 1];
-      
-    } else {
-      // Handle Event trophy
-      if (existingTrophy) {
-        existingTrophy.qty += 1;
-        console.log(`🏆 Player ${player.username} earned another ${trophyName} (total: ${existingTrophy.qty})`);
-      } else {
-        existingTrophy = {
-          name: trophyName,
-          qty: 1,
-          collected: false,
-          timestamp: new Date()
-        };
-        player.trophies.push(existingTrophy);
-        isNewMilestone = true;
-        console.log(`🏆 Player ${player.username} earned first ${trophyName} trophy!`);
-      }
-    }
-    
-    await player.save();
-    
-    // Return trophy data including progress info
-    const responseData = {
-      success: true,
-      trophy: {
-        name: existingTrophy.name,
-        progress: existingTrophy.progress,
-        qty: existingTrophy.qty,
-        type: trophyDef.type,
-        nextMilestone: nextMilestone
-      },
-      isNewMilestone: isNewMilestone,
-      message: isNewMilestone ? `Trophy milestone reached: ${trophyName}!` : `Progress updated for ${trophyName}`
-    };
-    
-    res.json(responseData);
+    res.json(result);
     
   } catch (error) {
     console.error('Error earning trophy:', error);
