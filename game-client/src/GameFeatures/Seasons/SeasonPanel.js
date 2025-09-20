@@ -142,6 +142,54 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
   const nextSeasonType = getNextSeason(seasonData?.type);
 
 
+  // Function to show season rules in modal
+  const handleShowSeasonRules = () => {
+    const rulesContent = (
+      <div style={{ textAlign: 'left', paddingLeft: '20px', paddingRight: '20px' }}>
+        {/* Header 1 - string 15002 */}
+        <p>{strings[15001]}</p>
+        <h3 style={{ marginTop: '20px', marginBottom: '10px' }}>{strings[15002]}</h3>
+        <ol style={{ paddingLeft: '40px' }}>
+          <li>{strings[15003]}</li>
+          <li>{strings[15004]}</li>
+          <li>{strings[15005]}</li>
+          <li>{strings[15006]}</li>
+        </ol>
+        
+        {/* Header 2 - string 15007 */}
+        <h3 style={{ marginTop: '20px', marginBottom: '10px' }}>{strings[15007]}</h3>
+        <ol start="7" style={{ paddingLeft: '40px' }}>
+          <li>{strings[15008]}</li>
+          <li>{strings[15009]}</li>
+          <li>{strings[15010]}</li>
+          <li>{strings[15011]}</li>
+          <li>{strings[15012]}</li>
+          <li>{strings[15013]}</li>
+          <li>{strings[15014]}</li>
+          <li>{strings[15015]}</li>
+          <li>{strings[15016]}</li>
+          <li>{strings[15017]}</li>
+        </ol>
+        
+        {/* Header 3 - string 15018 */}
+        <h3 style={{ marginTop: '20px', marginBottom: '10px' }}>{strings[15018]}</h3>
+        <ol start="17" style={{ paddingLeft: '40px' }}>
+          <li>{strings[15019]}</li>
+          <li>{strings[15020]}</li>
+          <li>{strings[15021]}</li>
+          <li>{strings[15022]}</li>
+        </ol>
+      </div>
+    );
+
+    setModalContent({
+      title: "Season Rules",
+      size: "large",
+      custom: rulesContent,
+    });
+    setIsModalOpen(true);
+  };
+
   // New: Function to fetch and open season log
   const handleShowSeasonLog = async () => {
     if (!currentPlayer?.frontierId) { 
@@ -217,7 +265,15 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
         </>
       )}
 
-      <br></br>
+      <div className="panel-buttons">
+        <button className="btn-success"
+          onClick={handleShowSeasonRules} 
+          style={{ marginTop: "20px", padding: "10px", fontWeight: "bold" }}
+        >
+          {strings[15000]}
+        </button>
+      </div>
+
 
       <p>{strings[3057]}</p>
       <h3>{strings[3058]}</h3>

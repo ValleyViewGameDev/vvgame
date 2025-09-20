@@ -1074,7 +1074,35 @@
 "1135": "🏆 Trophées",
 "12013": "Trophées",
 
-"2017": "Cette commande a déjà été réclamée."
+"2017": "Cette commande a déjà été réclamée.",
+
+"80": "Acquis ",
+"511": "❤️‍🩹 Votre Santé : ",
+"512": "Votre Santé Indisponible",
+
+"15000": "🗓️ Règles de Saison",
+"15001": "Les saisons durent trois mois.",
+"15002": "Récompenses",
+"15003": "💰 La valeur nette sera calculée en fonction de votre argent, des objets de votre inventaire et des objets sur votre ferme.",
+"15004": "🏆 Les 3 meilleurs joueurs à travers la frontière recevront des récompenses dans votre boîte aux lettres, et gagneront aussi un trophée 'Gagnant de Saison'.",
+"15005": "🏆 Le meilleur joueur de la frontière gagnera aussi le trophée 'Champion de Saison'.",
+"15006": "🎁 Tous les joueurs dans la meilleure colonie recevront des récompenses supplémentaires dans votre boîte aux lettres.",
+"15007": "Réinitialisation des Joueurs et des Lieux",
+"15008": "🏠 Vous serez relocalisé à votre ferme si vous êtes loin de chez vous quand la saison se termine.",
+"15009": "🏠 Vos fermes ne seront PAS réinitialisées – toute la disposition, les tuiles et les ressources sont conservées.",
+"15010": "🎒 Votre inventaire SERA effacé, à l'exception des objets rares comme l'Orbe de Prospero, la Couronne du Roi, les Clés Dorées & Squelettes, le Trident).",
+"15011": "💎 Vous garderez toutes les Gemmes.",
+"15012": "💰 L'argent sera réduit à 10% du montant actuel (25% pour les détenteurs du Pass Or).",
+"15013": "✅ Toutes les quêtes seront effacées.",
+"15014": "💪 Vos compétences & pouvoirs sont conservés.",
+"15015": "❤️ Vos relations sont conservées.",
+"15016": "⭐️ Votre statut Pass Or sera révoqué pour la nouvelle saison.",
+"15017": "🌲 Toutes les grilles de ville et de vallée seront réinitialisées avec de nouvelles tuiles, ressources et ennemis.",
+"15018": "Qu'est-ce qui Change ?",
+"15019": "🎃 Les villes auront des tuiles et des ressources selon le nouveau contenu de saison.",
+"15020": "😀 Les nouveaux joueurs qui rejoignent (et créent de nouvelles fermes) obtiendront des tuiles et ressources de démarrage selon le nouveau contenu de saison.",
+"15021": "🚂 Les commandes de train sont affectées par les saisons.",
+"15022": "🏆 De nouvelles récompenses et trophées peuvent être gagnés."
 
 }
 

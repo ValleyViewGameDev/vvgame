@@ -712,11 +712,11 @@ const handleHeal = async (recipe) => {
             if (playerInGridState) {
               return (
                 <>
-                  <h2>❤️‍🩹 Your Health: <br />{playerInGridState.hp} / {playerInGridState.maxhp}</h2>
+                  <h2>{strings[511]} <br />{playerInGridState.hp} / {playerInGridState.maxhp}</h2>
                 </>
               );
             } else {
-              return <h4>Your Health Unavailable</h4>;
+              return <h4>{strings[512]}</h4>;
             }
           })()}
 <br />

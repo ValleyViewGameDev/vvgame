@@ -227,7 +227,7 @@
     "504": "💀 Killed",
     "505": "⚠️ Error",
     "510": "❤️‍🩹 You're taking damage ...",
-
+    
     "600": "RELATIONSHIP STRINGS:",
 
     "601": "Relationship:",
@@ -248,6 +248,30 @@
     "616": "has changed.",
     "620": "You need to move closer to interact with this character.",
 
+    "630": "Greet",
+    "631": "Talk",
+    "632": "Trade",
+    "633": "Quest", 
+    "634": "Met",
+    "635": "Friend",
+    "636": "Married",
+    "637": "Rival",
+    "638": "Love",
+    "639": "Crush",
+    "640": "Joke",
+    "641": "Make Friends",
+    "642": "Insult",
+    "643": "Hug",
+    "644": "Kiss",
+    "645": "Apologize",
+    "646": "Give Gift",
+    "647": "Compliment",
+    "648": "Flatter",
+    "649": "Profess Love",
+    "650": "Propose",
+    "651": "Taunt",
+    "652": "Tease",
+    "653": "End Marriage",
 
     "700": "FTUE STRINGS:",
 
@@ -710,30 +734,6 @@
     "12011": "Decorations",
     "12012": "Tools",
     
-    "630": "Greet",
-    "631": "Talk",
-    "632": "Trade",
-    "633": "Quest", 
-    "634": "Met",
-    "635": "Friend",
-    "636": "Married",
-    "637": "Rival",
-    "638": "Love",
-    "639": "Crush",
-    "640": "Joke",
-    "641": "Make Friends",
-    "642": "Insult",
-    "643": "Hug",
-    "644": "Kiss",
-    "645": "Apologize",
-    "646": "Give Gift",
-    "647": "Compliment",
-    "648": "Flatter",
-    "649": "Profess Love",
-    "650": "Propose",
-    "651": "Taunt",
-    "652": "Tease",
-    "653": "End Marriage",
 
     "20000": "RESOURCES",
 
@@ -1017,10 +1017,8 @@
   "200286": "Unerring",
   "200287": "Titan",
 
-
-  
-
   "30000": "TROPHIES:",
+
   "30001": "First Farm Worker",
   "30002": "Skill Builder",
   "30003": "Trains Completed",
@@ -1090,10 +1088,38 @@
 
     "2017": "This order has already been claimed.",
 
+  "80": "Acquired ",
+  "511": "❤️‍🩹 Your Health: ",
+  "512": "Your Health Unavailable",
 
       "11000": "ADDED STRINGS:",
 
-    "80": "Acquired "
+
+  "15000": "🗓️ Season Rules",
+  "15001": "Seasons last three months.",
+  "15002": "Rewards",
+  "15003": "💰 Net worth will be calculated based on your money, inventory items, and items on your homestead.",
+  "15004": "🏆 The top 3 players across the frontier will have rewards sent to your mailbox, and also earn a “Season Winner” trophy.",
+  "15005": "🏆 The top player in the frontier will also earn the “Season Champion” trophy.",
+  "15006": "🎁 All players in the top settlement will receive additional rewards in your mailbox.",
+  "15007": "Resetting Players and Locations",
+  "15008": "🏠 You will be relocated back to your homestead if you are away from home when the season ends.",
+  "15009": "🏠 Your homesteads will NOT reset – all layout, tiles and resources carry over.",
+  "15010": "🎒 Your inventory WILL be wiped, with the exception of rare items like Prospero’s Orb, King’s Crown, Golden & Skeleton Keys, Trident).",
+  "15011": "💎 You will keep all Gems.",
+  "15012": "💰 Money will be nerfed to 10% of the current amount (25% for Gold Pass holders).",
+  "15013": "✅ All quests will be wiped.",
+  "15014": "💪 Your skills & powers carry over.",
+  "15015": "❤️ Your relationships carry over.",
+  "15016": "⭐️ Your Gold Pass status will be revoked for the new season.",
+  "15017": "🌲 All town and valley grids will be reset with fresh tiles, resources and enemies.",
+  "15018": "What Changes?",
+  "15019": "🎃 Towns will have tiles and resources according to the new season content.",
+  "15020": "😀 New players joining (and creating new homesteads) will get starter tiles and resources according to the new season content.",
+  "15021": "🚂 Train orders are affected by the seasons.",
+  "15022": "🏆 New rewards and trophies can be earned."
+
+    
 
   }
 

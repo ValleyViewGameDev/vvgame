@@ -1040,6 +1040,33 @@
     "30004": "Saisonsieger",
     "30005": "Saisonmeister",
 
-        "11000": "HINZUGEFÜGTE STRINGS:"
+    "80": "Erworben ",
+"511": "❤️‍🩹 Deine Gesundheit: ",
+"512": "Deine Gesundheit Nicht Verfügbar",
+
+        "15000": "🗓️ Saisonregeln",
+"15001": "Saisons dauern drei Monate.",
+"15002": "Belohnungen",
+"15003": "💰 Das Nettovermögen wird basierend auf deinem Geld, Inventargegenständen und Gegenständen auf deinem Gehöft berechnet.",
+"15004": "🏆 Die Top 3 Spieler über die Grenze hinweg erhalten Belohnungen in deinem Briefkasten und verdienen auch eine 'Saisonsieger'-Trophäe.",
+"15005": "🏆 Der beste Spieler an der Grenze erhält auch die 'Saisonmeister'-Trophäe.",
+"15006": "🎁 Alle Spieler in der besten Siedlung erhalten zusätzliche Belohnungen in deinem Briefkasten.",
+"15007": "Zurücksetzen von Spielern und Orten",
+"15008": "🏠 Du wirst zu deinem Gehöft zurückversetzt, wenn du bei Saisonende von zu Hause weg bist.",
+"15009": "🏠 Deine Gehöfte werden NICHT zurückgesetzt – alle Layouts, Kacheln und Ressourcen bleiben erhalten.",
+"15010": "🎒 Dein Inventar WIRD gelöscht, mit Ausnahme seltener Gegenstände wie Prosperos Kugel, Königskrone, Goldene & Skelettschlüssel, Dreizack).",
+"15011": "💎 Du behältst alle Edelsteine.",
+"15012": "💰 Geld wird auf 10% des aktuellen Betrags reduziert (25% für Gold Pass-Inhaber).",
+"15013": "✅ Alle Quests werden gelöscht.",
+"15014": "💪 Deine Fähigkeiten & Kräfte bleiben erhalten.",
+"15015": "❤️ Deine Beziehungen bleiben erhalten.",
+"15016": "⭐️ Dein Gold Pass-Status wird für die neue Saison widerrufen.",
+"15017": "🌲 Alle Stadt- und Talgitter werden mit frischen Kacheln, Ressourcen und Feinden zurückgesetzt.",
+"15018": "Was ändert sich?",
+"15019": "🎃 Städte haben Kacheln und Ressourcen entsprechend dem neuen Saisoninhalt.",
+"15020": "😀 Neue Spieler, die beitreten (und neue Gehöfte erstellen), erhalten Starter-Kacheln und Ressourcen entsprechend dem neuen Saisoninhalt.",
+"15021": "🚂 Zugbestellungen werden von den Saisons beeinflusst.",
+"15022": "🏆 Neue Belohnungen und Trophäen können verdient werden."
+
 
 }
