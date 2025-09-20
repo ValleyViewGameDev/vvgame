@@ -3898,7 +3898,7 @@
     "source": "Hospital",
     "passable": true,
     "requires": "Surgery",
-    "qtycollected": 20,
+    "qtycollected": 25,
     "level": 5,
     "range": 3,
     "validong": true,
@@ -3909,10 +3909,10 @@
     "validonl": false,
     "validonn": true,
     "validono": true,
-    "ingredient1": "Gem",
-    "ingredient1qty": 50,
-    "gemcost": 4,
-    "moneyvalue": 250,
+    "ingredient1": "Money",
+    "ingredient1qty": 1000,
+    "gemcost": 5,
+    "moneyvalue": 1000,
     "crafttime": 43200
   },
   {
