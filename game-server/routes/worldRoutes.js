@@ -1328,8 +1328,38 @@ router.post('/farm-animal/collect', async (req, res) => {
     const collectedQuantity = Math.floor(baseQuantity * skillMultiplier);
     const collectedItem = npcDefinition.output;
 
-    // Add items to player inventory
+    // Check warehouse capacity before adding items
     const inventory = player.inventory || [];
+    const warehouseCapacity = player.warehouseCapacity || 50;
+    
+    // Calculate warehouse bonus from skills
+    let warehouseBonus = 0;
+    for (const skill of playerSkills) {
+      const skillDef = masterResources.find(res => res.type === skill.type);
+      if (skillDef && skillDef.output === 'warehouseCapacity' && skillDef.qtycollected) {
+        warehouseBonus += skillDef.qtycollected * (skill.quantity || 1);
+      }
+    }
+    const totalWarehouseCapacity = warehouseCapacity + warehouseBonus;
+    
+    // Calculate current warehouse usage (excluding Money and Gem)
+    const currentWarehouseUsage = inventory
+      .filter(item => item.type !== 'Money' && item.type !== 'Gem')
+      .reduce((total, item) => total + (item.quantity || 0), 0);
+    
+    // Check if adding items would exceed capacity
+    if (currentWarehouseUsage + collectedQuantity > totalWarehouseCapacity) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(400).json({ 
+        error: 'Warehouse full', 
+        currentUsage: currentWarehouseUsage,
+        capacity: totalWarehouseCapacity,
+        attemptedToAdd: collectedQuantity
+      });
+    }
+
+    // Add items to player inventory
     const existingItem = inventory.find(item => item.type === collectedItem);
     
     if (existingItem) {

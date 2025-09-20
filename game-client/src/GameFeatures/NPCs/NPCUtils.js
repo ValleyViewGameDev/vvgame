@@ -126,6 +126,14 @@ async function handleProtectedFarmAnimalCollection(
       const errorMessage = error.response?.data?.error || 'Animal not ready for collection';
       const errorDetails = error.response?.data;
       console.error(`❌ 400 Error details:`, errorDetails);
+      
+      // Handle warehouse full error
+      if (errorMessage === 'Warehouse full') {
+        console.error(`❌ Cannot collect: Warehouse is full (${errorDetails.currentUsage}/${errorDetails.capacity})`);
+        updateStatus(20); // Warehouse full status message
+        return { type: 'error', message: 'Warehouse is full' };
+      }
+      
       console.error(`❌ Animal state mismatch - Client state: ${npc.state}, Server error: ${errorMessage}`);
       console.error(`❌ Animal details - ID: ${npc.id}, GrazeEnd: ${npc.grazeEnd}, Current Time: ${Date.now()}`);
       

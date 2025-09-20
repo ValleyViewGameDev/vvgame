@@ -29,6 +29,14 @@
   z-index: 2;
 }
 
+.chat-panel-header h3 {
+  font-family: 'Chewy', cursive;
+  font-size: 24px;
+  color: rgb(154, 106, 22);
+  margin: 0;
+  padding: 8px 0;
+}
+
 .chat-close-button {
   background: transparent;
   border: none;

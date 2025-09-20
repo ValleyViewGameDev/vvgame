@@ -5,53 +5,46 @@ import { updateBadge } from '../../Utils/appUtils';
 import './Chat.css';
 import API_BASE from '../../config';
 
-const TABS = ['Grid', 'Settlement', 'Frontier'];
-
 const Chat = ({ currentGridId, currentSettlementId, currentFrontierId, currentPlayer, onClose }) => {
 
-  const [activeTab, setActiveTab] = useState('Grid');
-  const [messages, setMessages] = useState({ Grid: [], Settlement: [], Frontier: [] });
+  const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const endRef = useRef(null);
   const playerId = currentPlayer?._id || 'unknown'; // Fallback if currentPlayer is not available
 
   useEffect(() => {
-    console.log("🟨 Chat component mounted with props:", currentGridId, currentSettlementId, currentFrontierId);
+    console.log("🟨 Chat component mounted with frontierId:", currentFrontierId);
 
-    // ✅ Delay room join until component is mounted
-    if (socket && socket.connected) {
-      console.log("📡 Joining chat rooms from Chat.js");
+    // ✅ Join only frontier chat room
+    if (socket && socket.connected && currentFrontierId) {
+      console.log("📡 Joining frontier chat room from Chat.js");
       socket.emit('join-chat-rooms', {
-        gridId: currentGridId,
-        settlementId: currentSettlementId,
+        gridId: null,
+        settlementId: null,
         frontierId: currentFrontierId,
       });
     } else {
-      console.warn("⚠️ Socket not connected when Chat mounted.");
+      console.warn("⚠️ Socket not connected or no frontierId when Chat mounted.");
     }
 
     // ✅ Clear chat badge on open
     if (currentPlayer) {
       updateBadge(currentPlayer, () => {}, 'chat', false ?? true);
     }
-  }, []);
+  }, [currentFrontierId]);
 
   useEffect(() => {
     if (!socket) return;
 
     socket.on('receive-chat-message', (msg) => {
-  
+      // Only show frontier messages
+      if (msg.scope !== 'frontier') return;
+      
       if (!msg.username && currentPlayer?.username) {
-          msg.username = currentPlayer.username;
-        }
-        console.log("📨 Received chat message via socket:", msg); // 🔍
-        setMessages(prev => {
-          const key = msg.scope === 'grid' ? 'Grid' : msg.scope === 'settlement' ? 'Settlement' : 'Frontier';
-          return {
-            ...prev,
-            [key]: [...prev[key], msg],
-          };
-        });
+        msg.username = currentPlayer.username;
+      }
+      console.log("📨 Received chat message via socket:", msg);
+      setMessages(prev => [...prev, msg]);
     });
 
     return () => {
@@ -62,28 +55,19 @@ const Chat = ({ currentGridId, currentSettlementId, currentFrontierId, currentPl
 
 useEffect(() => {
   const fetchMessages = async () => {
-    const scope = activeTab.toLowerCase();
-    const scopeId =
-      scope === 'grid' ? currentGridId :
-      scope === 'settlement' ? currentSettlementId :
-      currentFrontierId;
-
-    if (!scopeId) return;
-
+    if (!currentFrontierId) return;
+    
     try {
-      const res = await fetch(`${API_BASE}/api/chat/${scope}/${scopeId}`);
+      const res = await fetch(`${API_BASE}/api/chat/frontier/${currentFrontierId}`);
       const data = await res.json();
-      setMessages(prev => ({
-        ...prev,
-        [activeTab]: data,
-      }));
+      setMessages(data);
     } catch (err) {
       console.error("Failed to fetch chat history:", err);
     }
   };
 
   fetchMessages();
-}, [activeTab, currentGridId, currentSettlementId, currentFrontierId]);
+}, [currentFrontierId]);
 
 
   useEffect(() => {
@@ -94,22 +78,16 @@ useEffect(() => {
   const handleSend = (e) => {
     e.preventDefault();
     const trimmed = inputText.trim();
-    if (!trimmed) return;
-
-    const scope = activeTab.toLowerCase();
-    const scopeId =
-      scope === 'grid' ? currentGridId :
-      scope === 'settlement' ? currentSettlementId :
-      currentFrontierId;
+    if (!trimmed || !currentFrontierId) return;
 
     console.log("📨 Sending chat message:", trimmed);
 
     emitChatMessage({
       playerId,
       username: currentPlayer?.username || 'unknown',
-      message: trimmed, // ✅ use the captured value
-      scope,
-      scopeId,
+      message: trimmed,
+      scope: 'frontier',
+      scopeId: currentFrontierId
     });
 
     setInputText(''); // ✅ clear input after emitting
@@ -127,26 +105,13 @@ return (
     <div className="chat-container">
 
     <div className="chat-panel-header">
-      <h3>💬 Chat ({activeTab})</h3>
+      <h3>💬 Chat</h3>
       <button className="chat-close-button" onClick={onClose}>✖</button>
     </div>
 
     <div className="chat-panel">
-      
-        <div className="chat-tabs">
-            {TABS.map(tab => (
-            <button
-                key={tab}
-                className={`chat-tab ${tab === activeTab ? 'active' : ''}`}
-                onClick={() => setActiveTab(tab)}
-            >
-                {tab}
-            </button>
-            ))}
-        </div>
-
         <div className="chat-messages">
-        {messages[activeTab].map((msg, i) => (
+        {messages.map((msg, i) => (
             <div key={msg.id || i} className="chat-message">
               <strong>{msg.username || '???'}</strong>: {msg.message || '[empty]'}
             </div>
@@ -160,7 +125,7 @@ return (
             value={inputText}
             onChange={e => setInputText(e.target.value)}
             onKeyDown={handleKeyPress}
-            placeholder={`Message ${activeTab}...`}
+            placeholder="Message everyone..."
         />
         <button type="button" onClick={handleSend}>Send</button>
         </div>
