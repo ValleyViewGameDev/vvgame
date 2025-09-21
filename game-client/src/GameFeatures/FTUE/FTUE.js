@@ -100,6 +100,12 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       } else if (currentStep === 4) {
         console.log(`🎓 Processing FTUE step 4 - Adding Grower quest`);
         
+        // Show notification for step 4
+        showNotification('To Do', {
+          title: strings[7001],
+          message: strings[7006]
+        });
+        
         // Add the Grower quest
         await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 7);
         
@@ -120,6 +126,22 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 9);
         
         onClose(); // Close FTUE modal
+        
+        // Auto-open the FarmHouse panel
+        if (openPanel && setActiveStation && masterResources) {
+          console.log(`🎓 Step 5: Auto-opening FarmHouse panel`);
+          
+          // Find the FarmHouse resource to set as active station
+          const farmHouseResource = masterResources.find(res => res.type === 'Farm House');
+          if (farmHouseResource) {
+            setActiveStation({ 
+              type: 'Farm House',
+              x: 30, // Default farmhouse position
+              y: 30
+            });
+            openPanel('CraftingStation');
+          }
+        }
 
 //////////// FTUE STEP 6 /////////////
 
