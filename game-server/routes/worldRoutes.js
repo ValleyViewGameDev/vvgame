@@ -851,28 +851,31 @@ router.post('/relocate-homestead', async (req, res) => {
       grid.settlementId = targetSettlement._id;
       await grid.save();
 
-      // 🔁 Also update the player's location.s if they exist
-      const player = await Player.findOne({ 'location.g': fromGridId });
+      // 🔁 Update the player who owns this homestead
+      // Find player by their gridId (homestead), not their current location
+      const player = await Player.findOne({ gridId: fromGridId });
       if (player) {
-        player.location.s = targetSettlement._id;
+        // Update their home settlement reference
+        player.settlementId = targetSettlement._id;
+        
+        // If they're currently at their homestead, update their current location too
+        if (player.location.g?.toString() === fromGridId.toString()) {
+          player.location.s = targetSettlement._id;
+          console.log(`✅ Player ${player.username} is at homestead, updating location.s to ${targetSettlement._id}`);
+        } else {
+          console.log(`⚠️ Player ${player.username} is not at homestead (at ${player.location.g}), only updating settlementId`);
+        }
+        
+        // Decrement relocation count
+        if (player.relocations > 0) {
+          player.relocations -= 1;
+        }
+        
         await player.save();
-        console.log(`✅ Player ${player.username} location.s updated to new settlementId ${targetSettlement._id}`);
+        console.log(`✅ Player ${player.username} homestead relocated to settlement ${targetSettlement._id}`);
+      } else {
+        console.log(`⚠️ No player found with gridId ${fromGridId}`);
       }
-    }
-
-    // STEP 2.5: Always update currentPlayer.settlementId to reflect their home settlement
-    const playerToUpdate = await Player.findOne({ 'location.g': fromGridId });
-    if (playerToUpdate) {
-      playerToUpdate.settlementId = targetSettlement._id;
-      await playerToUpdate.save();
-      console.log(`✅ Player ${playerToUpdate.username} settlementId updated to ${targetSettlement._id}`);
-    }
-
-    // Step 3: Decrement the player's relocation count
-    const player = await Player.findOne({ 'location.g': fromGridId });
-    if (player && player.relocations > 0) {
-      player.relocations -= 1;
-      await player.save();
     }
 
     res.status(200).json({ success: true, message: 'Homestead relocation completed.' });
