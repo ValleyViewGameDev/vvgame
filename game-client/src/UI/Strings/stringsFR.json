@@ -13,7 +13,6 @@
     "12": "Vue de la colonie. Selon votre position, vous devrez peut-être faire défiler pour voir la ville.",
     "13": "Vue de la frontière.",
     "14": "🚂 Bienvenue en ville.",
-    "15": "🐴 Vous avez besoin de la compétence Équitation pour voyager ici. Vérifiez votre panneau 💪 Compétences.",
     "16": "Vous êtes dans la vallée.",
     "17": "Vous ne possédez pas de domaine ici.",
     "18": "🚫 Vous ne pouvez pas aller par là.",
@@ -153,8 +152,6 @@
     "504": "💀 Tué",
     "505": "⚠️ Erreur",
     "510": "❤️‍🩹 Vous subissez des dégâts...",
-
-    "796": "OK",
 
     "899": "DEBUG STRINGS:",
 
@@ -629,24 +626,6 @@
 
   "700": "CHAÎNES FTUE :",
 
-"701": "Bienvenue à Valley View",
-"709": "🏚️ Votre Ferme",
-"710": "Vous avez hérité d'une Ferme dans une Colonie avec d'autres joueurs. Commencez par réparer cette ferme abandonnée. Consultez votre ✅ Liste de Tâches. Vous devrez d'abord rassembler du bois.",
-"715": "🤠 Embaucher Kent",
-"716": "Excellent ! Maintenant, vous allez devoir commencer à gagner de l'💰 argent. Vous aurez besoin d'un Gestionnaire de Ferme qui peut vivre ici à plein temps et vous aider à développer l'exploitation. Ouvrez la 🏠 Maison de Ferme pour embaucher des gens.",
-"721": "🤠 Écouter Kent",
-"727": "👵🏻 Embaucher la Bergère",
-"728": "Beau travail ! Maintenant embauchez la 👵🏻 Bergère depuis la 🏠 Maison de Ferme, et elle aidera à apporter de la 🐮 vie animale à la ferme, pour que vous puissiez continuer à développer votre entreprise.",
-"729": "🐮 Élevage",
-"731": "⛏️ Façonner le Terrain",
-"732": "Les cultures ont besoin de terre. Les vaches et moutons ont besoin d'🟩 herbe. Le pavage peut aider à contenir les mouvements des gens et des animaux. Utilisez les ⛏️ Outils pour paver le terrain à votre goût, et apprenez la compétence 🪓 hache pour couper des arbres pour le bois.",
-"733": "⚒️ Constructeur",
-"734": "Vous maîtrisez la 🪓 hache -- excellent ! Le bois est utile pour plusieurs choses, y compris construire des stations d'artisanat. Vous pouvez aussi vous frayer un chemin jusqu'à la 🚂 Gare au bord de votre Ferme, où vous pourrez éventuellement voyager en Ville.",
-"737": "Temps d'Explorer",
-"738": "Votre Ferme fait partie d'une Colonie plus grande avec d'autres joueurs partageant une grande Frontière. Dézoomez (+ et -) pour voir toute la Colonie et la Frontière. Utilisez les ➡️ Panneaux pour voyager, ou marchez jusqu'au bord de n'importe quelle carte. AMUSEZ-VOUS À JOUER À VALLEY VIEW !",
-"795": "Passer le tutoriel",
-"797": "Retour",
-"798": "Jouer",
 
   "490": "Vendre pour remboursement (Dev seulement)",
   "156": "Vide (ajouter des objets)",
@@ -1020,10 +999,6 @@
 "1008": "Achetez et vendez avec d'autres joueurs. Si aucun joueur n'achète vos articles avant l'expiration du minuteur, vendez-les au jeu pour une fraction de leur valeur de base.",
 "467": "Fabrication en masse",
 "1001": "Les ressources collectées à la ferme vont dans l'entrepôt. Les ressources collectées en ville ou dans la vallée iront dans le sac à dos. Pour acheter un sac à dos, visitez le Magasin en ville. Pour vider le sac à dos ou l'entrepôt, utilisez les boutons Gérer.",
-"723": "💪 Cultivateur",
-"724": "Bien joué, vous gagnez de l'argent maintenant ! Allez-y et développez votre ferme. Plantez des cultures en utilisant le panneau 🚜 Agriculture, récoltez-les et vendez. Acquérez la compétence Cultivateur pour étendre vos capacités agricoles.",
-"702": "Bienvenue, voyageur ! Vous êtes arrivé à Valley View, une terre frontière d'opportunités, de mystère et d'aventure.",
-
 "705": "Aspiration",
 "706": "Valley View est un grand monde. C'est à vous de décider comment vous voulez passer votre temps. Laquelle de ces aspirations convient le mieux à votre style de jeu ? (Ce choix ne limitera en aucune façon vos options.)",
 "750": "🚜 Fermier",
@@ -1032,8 +1007,6 @@
 "753": "Aventurez-vous dans la Vallée pour des ressources et des objets rares. Combattez des animaux et des créatures, découvrez des lieux cachés et rencontrez des personnages magiques. Investissez dans les compétences de combat pour devenir un combattant redoutable.",
 "754": "🏛️ Politicien",
 "755": "Présentez-vous comme Maire, fixez le taux d'imposition et gagnez des revenus fiscaux pour vous-même. Investissez dans des bâtiments communautaires pour toute la Ville, comme des Hôpitaux, des Écoles et des Bibliothèques, et aidez votre colonie à prospérer.",
-"722": "Voici Kent, votre Gestionnaire de Ferme. Parlez-lui et il vous donnera ✅ une Liste de Tâches. Votre premier objectif : Récoltez du 🌾 Blé et vendez-le au 📥 Comptoir Commercial.",
-"730": "Bienvenue 👵🏻 Berger ! Maintenant, visitez le 🐮 Panneau des Animaux pour acquérir une vache. Les vaches ont besoin d'🟩 herbe pour paître, alors placez-les soigneusement. Et vous avez déjà votre première 🟫 Étable ; c'est là que vous pouvez produire du lait une fois que la vache est rassasiée.",
 
 "800": "PLUS DE CHAÎNES DE STATION D'ARTISANAT :",
 
@@ -1102,7 +1075,38 @@
 "15019": "🎃 Les villes auront des tuiles et des ressources selon le nouveau contenu de saison.",
 "15020": "😀 Les nouveaux joueurs qui rejoignent (et créent de nouvelles fermes) obtiendront des tuiles et ressources de démarrage selon le nouveau contenu de saison.",
 "15021": "🚂 Les commandes de train sont affectées par les saisons.",
-"15022": "🏆 De nouvelles récompenses et trophées peuvent être gagnés."
+"15022": "🏆 De nouvelles récompenses et trophées peuvent être gagnés.",
+
+"701": "😀 Bienvenue à Valley View",
+"702": "Bienvenue, voyageur ! Vous êtes arrivé à Valley View, une terre frontalière pleine d'opportunités, de mystères et d'aventures.",
+"721": "🤠 Rencontrez Kent le Gestionnaire de Ferme",
+"722": "Commençons par le début ! Récoltez du 🌾 Blé et vendez-le au 📥 Comptoir Commercial pour gagner de l'💰 Argent.",
+"723": "🚜 Commencez à Cultiver",
+"724": "Bien joué, vous gagnez de l'argent maintenant, alors commencez à cultiver ! Plantez des cultures en utilisant le panneau 🚜 Agriculture, récoltez-les et vendez.",
+"730": "Bienvenue 👵🏻 Bergère ! Maintenant visitez le panneau 🐮 Animaux pour acquérir une vache. Les vaches ont besoin d'🟩 herbe pour paître, alors placez-les soigneusement. Et vous avez déjà votre première 🟫 Étable ; c'est là que vous pourrez produire du lait une fois la vache rassasiée.",
+"727": "👵🏻 Engagez la Bergère",
+"728": "Bon travail ! Maintenant engagez la 👵🏻 Bergère depuis la 🏠 Ferme, et elle aidera à apporter de la 🐮 vie animale à la ferme, pour que vous puissiez continuer à développer votre entreprise.",
+"729": "🐮 Élevage d'Animaux",
+"731": "⛏️ Façonnez le Terrain",
+"732": "Les cultures ont besoin de terre. Les vaches et moutons ont besoin d'🟩 herbe. Le pavage peut aider à contenir les mouvements des gens et des animaux. Utilisez les ⛏️ Outils pour paver le terrain à votre goût, et apprenez la compétence 🪓 hache pour couper des arbres pour du bois.",
+"733": "⚒️ Constructeur",
+"734": "Vous maîtrisez la 🪓 hache -- excellent ! Le bois est utile pour plusieurs choses, notamment construire des stations d'artisanat. Vous pouvez aussi vous frayer un chemin jusqu'à la 🚂 Gare au bord de votre Propriété, où vous pourrez éventuellement voyager en Ville.",
+"737": "Temps d'Explorer",
+"738": "Votre Propriété fait partie d'une Colonie plus grande avec d'autres joueurs partageant une grande Frontière. Dézoomez (+ et -) pour voir toute la Colonie et la Frontière. Utilisez les ➡️ Panneaux pour voyager, ou marchez jusqu'au bord de n'importe quelle carte. AMUSEZ-VOUS À JOUER À VALLEY VIEW !",
+"795": "Passer le Tutoriel",
+"796": "OK",
+"797": "Retour",
+"798": "Jouer",
+"6003": "Trophée Gagné !",
+"15": "🐴 Vous avez besoin d'un Cheval pour voyager ici. Visitez le Camp d'Aventure en Ville.",
+"91": "🐴 Cheval requis.",
+"7000": "TEXTES DE NOTIFICATION :",
+"7001": "Conseil :",
+"7005": "Utilisez A-W-S-D ou les Touches Fléchées pour vous Déplacer.",
+"7006": "Cherchez l'icône 💪 pour ouvrir le panneau des Compétences.",
+"7007": "Tenez-vous sur l'herbe, puis trouvez le panneau 🐮 Acheter pour acheter une vache. Vous aurez d'abord besoin de la compétence Élevage.",
+"7009": "Continuez à vérifier votre ✅ Liste de Tâches, et continuez à consulter 🤠 Kent et 👵🏻 la Bergère.",
+"7015": "Cliquez sur + et - en haut de l'écran pour zoomer et dézoomer."
 
 }
 
