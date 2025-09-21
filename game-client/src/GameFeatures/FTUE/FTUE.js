@@ -136,8 +136,11 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
           if (farmHouseResource) {
             setActiveStation({ 
               type: 'Farm House',
-              x: 30, // Default farmhouse position
-              y: 30
+              position: {
+                x: 30, // Default farmhouse position
+                y: 30
+              },
+              gridId: gridId
             });
             openPanel('CraftingStation');
           }
