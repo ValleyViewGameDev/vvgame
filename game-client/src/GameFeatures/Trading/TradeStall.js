@@ -902,7 +902,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                     </div>
                   ) : isEmpty ? (
                     <div className="trade-slot-empty-text">
-                      <div>{strings[156]}</div>
+                      <div>➕ {strings[156]}</div>
                       <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>
                         {strings[173]} {config.maxAmount}
                       </div>

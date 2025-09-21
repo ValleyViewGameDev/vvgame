@@ -33,6 +33,13 @@
         "toggleVFX": true,
         "hasDied": false
       },
+      "relationships": [
+        {
+          "name": "Kent",
+          "relscore": 35,
+          "met": true
+        }
+      ],
       "tradeStall": [
         {
           "slotIndex": 0,

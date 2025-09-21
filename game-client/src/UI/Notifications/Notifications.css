@@ -24,6 +24,11 @@
     animation: slideInFromLeft 0.6s ease-out forwards, fadeOut 0.6s ease-out 4.4s forwards;
 }
 
+/* Persistent notifications that don't auto-dismiss */
+.notification.notification-persistent {
+    animation: slideInFromLeft 0.6s ease-out forwards;
+}
+
 @keyframes slideInFromLeft {
     from {
         left: -400px; /* Start completely off-screen */
@@ -103,17 +108,19 @@
 }
 
 .notification-title {
-    font-size: 12px;
+    font-family: 'Chewy', cursive;
+    font-size: 18px;
     color: #666;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 2px;
+    text-transform: none;
+    letter-spacing: normal;
+    margin-bottom: 4px;
 }
 
 .notification-name {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 14px;
+    font-weight: normal;
     color: #333;
     margin-bottom: 4px;
+    font-family: inherit; /* Use standard font */
 }
 

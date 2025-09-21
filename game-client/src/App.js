@@ -368,6 +368,10 @@ useEffect(() => {
   registerNotificationClickHandler('Trophy', (data) => {
     openPanel('TrophyPanel');
   });
+  
+  registerNotificationClickHandler('To Do', (data) => {
+    openPanel('QuestPanel');
+  });
 }, [openPanel]);
 
 useEffect(() => {

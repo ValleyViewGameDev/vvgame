@@ -5,10 +5,8 @@ import { useStrings } from '../../UI/StringsContext';
 import './FTUE.css';
 import FTUEstepsData from './FTUEsteps.json';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
-import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import { updateGridResource } from '../../Utils/GridManagement';
-import { enrichResourceFromMaster } from '../../Utils/ResourceHelpers';
-import FloatingTextManager from '../../UI/FloatingText';
+import { showNotification } from '../../UI/Notifications/Notifications';
+
 
 const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQuestGiver, gridId, setActiveStation, masterResources, setResources, TILE_SIZE }) => {
   const strings = useStrings();
@@ -75,6 +73,12 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
 
       if (currentStep === 3 && openPanel && setActiveQuestGiver && gridId) {
         console.log(`🎓 Step 3: Opening Kent panel to guide player`);
+        
+        // Show notification for step 3
+        showNotification('To Do', {
+          title: strings[7001],
+          message: strings[7005]
+        });
         
         // Find Kent NPC and open NPCPanel
         const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);

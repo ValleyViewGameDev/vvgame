@@ -74,6 +74,7 @@ router.post('/register-new-player', async (req, res) => {
       ftuestep,
       location: defaultLocation,
       settings,
+      relationships,
       tradeStall,
     } = starterAccount.defaultAttributes;
 
@@ -102,6 +103,7 @@ router.post('/register-new-player', async (req, res) => {
       backpackCapacity,
       accountStatus,
       role,
+      relationships: [...relationships],
       tradeStall: [...tradeStall],
       location: {
         g: gridId,

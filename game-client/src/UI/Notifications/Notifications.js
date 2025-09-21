@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './Notifications.css';
+import { useStrings } from '../StringsContext';
 
 // Global notification manager
 let notificationRoot = null;
@@ -11,14 +12,35 @@ let globalClickHandlers = {};
  * Generic notification component
  */
 function Notification({ type, data, onDismiss, onClick }) {
+    const strings = useStrings();
+    
+    // Add unmount detection
     React.useEffect(() => {
-        // Auto-dismiss after 5 seconds
-        const timer = setTimeout(() => {
-            onDismiss();
-        }, 5000);
-        
-        return () => clearTimeout(timer);
-    }, [onDismiss]);
+        console.log(`[Notification] Component mounted for type: ${type}`);
+        return () => {
+            console.log(`[Notification] Component unmounting for type: ${type}`);
+        };
+    }, []);
+    
+    React.useEffect(() => {
+        console.log(`[Notification] Type: ${type}, Setting up auto-dismiss logic`);
+        // Auto-dismiss after 5 seconds (except for 'To Do' and 'Message' notifications)
+        if (type !== 'To Do' && type !== 'Message') {
+            console.log(`[Notification] Type ${type} will auto-dismiss in 5 seconds`);
+            const timer = setTimeout(() => {
+                console.log(`[Notification] Auto-dismissing ${type} notification`);
+                onDismiss();
+            }, 5000);
+            
+            return () => {
+                console.log(`[Notification] Clearing timer for ${type} notification`);
+                clearTimeout(timer);
+            };
+        } else {
+            console.log(`[Notification] Type ${type} will NOT auto-dismiss`);
+        }
+        // Remove onDismiss from dependencies to prevent re-running effect
+    }, [type]);
     
     // Render different content based on notification type
     const renderContent = () => {
@@ -36,7 +58,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                             )}
                         </div>
                         <div className="notification-text">
-                            <div className="notification-title">Trophy Earned!</div>
+                            <div className="notification-title">{strings[6003]}</div>
                             <div className="notification-name">{data.name}</div>
                         </div>
                     </>
@@ -67,7 +89,20 @@ function Notification({ type, data, onDismiss, onClick }) {
                         </div>
                     </>
                 );
-            
+
+            case 'To Do':
+                return (
+                    <>
+                        <div className="notification-icon-wrapper">
+                            <div className="notification-icon">✅</div>
+                        </div>
+                        <div className="notification-text">
+                            <div className="notification-title">{data.title || strings[204]}</div>
+                            <div className="notification-name">{data.message}</div>
+                        </div>
+                    </>
+                );
+
             default:
                 return (
                     <>
@@ -83,8 +118,12 @@ function Notification({ type, data, onDismiss, onClick }) {
         }
     };
     
+    // Add persistent class for notifications that shouldn't auto-dismiss
+    const isPersistent = type === 'To Do' || type === 'Message';
+    const className = `notification ${isPersistent ? 'notification-persistent' : ''}`;
+    
     return (
-        <div className="notification" onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
+        <div className={className} onClick={onClick} style={{ cursor: onClick ? 'pointer' : 'default' }}>
             <button className="notification-dismiss" onClick={(e) => {
                 e.stopPropagation();
                 onDismiss();
@@ -112,6 +151,7 @@ export function registerNotificationClickHandler(type, handler) {
 }
 
 export function showNotification(type, data, onClick = null) {
+    console.log(`[showNotification] Called with type: ${type}`, data);
     // Clear any existing notification
     if (notificationTimer) {
         clearTimeout(notificationTimer);
@@ -132,6 +172,7 @@ export function showNotification(type, data, onClick = null) {
     }
     
     const handleDismiss = () => {
+        console.log(`[handleDismiss] Dismissing notification of type: ${type}`);
         if (notificationRoot) {
             notificationRoot.render(null);
         }

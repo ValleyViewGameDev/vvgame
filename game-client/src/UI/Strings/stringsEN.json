@@ -79,7 +79,7 @@
     "152": "You do not have enough money to buy this item.",
     "153": "is selling:",
     "154": "are selling",
-    "156": "Empty (add items)",
+    "156": "Click to sell",
     "157": "Bought by",
     "159": "Ready to sell",
     "155": "Transaction failed. This item has already been sold.",
@@ -627,6 +627,8 @@
     "6001": "Here are your lifetime Trophies:",
     "6002": "You have no trophies yet. Earn trophies for achievements throughout the game.",
 
+    
+
     "8999": "HOW TO PLAY STRINGS:",
 
     "9000": "Welcome to Valley View!",
@@ -1043,7 +1045,7 @@
     "753": "Venture into the Valley for resources and rare items. Fight animals and creatures, uncover hidden locations, and meet magical characters. Invest in combat skills to become a formidable fighter.",
     "754": "🏛️ Politician",
     "755": "Run for Mayor, set the tax rate, and earn tax revenue for your self. Invest in community buildings for the whole Town, like Hospitals, Schools, and Libraries, and help your settlement thrive.",
-    "722": "This is Kent, your Farm Manager. Talk with him, and he'll give you ✅ a To Do List. Your first goal: Harvest 🌾 Wheat, and sell it at the 📥 Trading Post.",
+    "722": "This is Kent, your Farm Manager. Your first goal: Harvest 🌾 Wheat and sell it at the 📥 Trading Post.",
     "730": "Welcome 👵🏻 Shepherd! Now visit the 🐮 Animal Panel to acquire a cow. Cows need 🟩 grass to graze, so place them carefully. And you already have your first 🟫 Animal Stall; this is where you can produce milk once the cow is full.",
 
 
@@ -1092,9 +1094,6 @@
   "511": "❤️‍🩹 Your Health: ",
   "512": "Your Health Unavailable",
 
-      "11000": "ADDED STRINGS:",
-
-
   "15000": "🗓️ Season Rules",
   "15001": "Seasons last three months.",
   "15002": "Rewards",
@@ -1117,9 +1116,15 @@
   "15019": "🎃 Towns will have tiles and resources according to the new season content.",
   "15020": "😀 New players joining (and creating new homesteads) will get starter tiles and resources according to the new season content.",
   "15021": "🚂 Train orders are affected by the seasons.",
-  "15022": "🏆 New rewards and trophies can be earned."
+  "15022": "🏆 New rewards and trophies can be earned.",
 
-    
+"11000": "ADDED STRINGS:",
+
+  "6003": "Trophy Earned!",
+
+  "7000": "NOTIFICAITION STRINGS:",
+"7001": "Tip:",
+"7005": "Use A-W-S-D or the Arrow Keys to Move."
 
   }
 
