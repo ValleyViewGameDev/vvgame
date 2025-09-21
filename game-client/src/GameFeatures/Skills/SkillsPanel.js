@@ -192,20 +192,12 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
       skills: [...updatedSkills, ...updatedUpgrades], // ✅ Ensure all are sent to the server
     });
     await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
-    
-    // Award Skill Builder trophy for acquiring skills
-    await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1);
-    
+    await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1);    
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
     
-    // Check if the player is a first-time user and just acquired the Axe or Grower skill
+    // Check if the player is a first-time user and just acquired the Axe skill
     if (currentPlayer.firsttimeuser === true && resource.type === 'Axe') {
       console.log('🎓 First-time user acquired Axe skill, advancing FTUE step');
-      await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-    }
-    
-    if (currentPlayer.firsttimeuser === true && resource.type === 'Grower' && currentPlayer.ftuestep === 4) {
-      console.log('🎓 First-time user at step 4 acquired Grower skill, advancing FTUE step');
       await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
     }
 

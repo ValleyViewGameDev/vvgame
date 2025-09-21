@@ -181,8 +181,12 @@ export function showNotification(type, data, onClick = null) {
     // Use passed onClick or fall back to global handler for this type
     const clickHandler = onClick || (globalClickHandlers[type] ? () => globalClickHandlers[type](data) : null);
     
+    // Use a unique key to force React to remount the component and trigger animation
+    const notificationKey = `${type}-${Date.now()}`;
+    
     notificationRoot.render(
         <Notification 
+            key={notificationKey}
             type={type}
             data={data}
             onDismiss={handleDismiss}

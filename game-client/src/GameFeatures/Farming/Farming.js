@@ -105,6 +105,13 @@ export const handleFarmPlotPlacement = async ({
       });
 
       FloatingTextManager.addFloatingText(302, tileX, tileY, TILE_SIZE); // "Planted!"
+      
+      // Check for FTUE step 4 advancement when ANY farm plot is placed
+      if (currentPlayer.firsttimeuser === true && currentPlayer.ftuestep === 4) {
+        console.log('🎓 Player placed a farm plot at FTUE step 4, incrementing step');
+        const { incrementFTUEStep } = await import('../FTUE/FTUE');
+        await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+      }
     } else {
       throw new Error('Server update failed.');
     }

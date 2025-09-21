@@ -270,6 +270,21 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     };
   }, [showPlayerDropdown]);
   
+  // Auto-set max Wheat amount for FTUE users at step 3 or less
+  useEffect(() => {
+    if (selectedSlotIndex !== null && currentPlayer.firsttimeuser === true && currentPlayer.ftuestep <= 3) {
+      // Find wheat in inventory
+      const wheatItem = inventory.find(item => item.type === 'Wheat');
+      if (wheatItem) {
+        const slotConfig = getSlotConfig(selectedSlotIndex);
+        const maxAmount = Math.min(wheatItem.quantity, slotConfig.maxAmount);
+        setAmounts(prev => ({
+          ...prev,
+          'Wheat': maxAmount
+        }));
+      }
+    }
+  }, [selectedSlotIndex, currentPlayer.firsttimeuser, currentPlayer.ftuestep, inventory]);
 
   const handleSlotClick = (index) => {
     const slot = tradeSlots[index];
@@ -860,6 +875,10 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
 
       <div className="trade-stall-slots">
         {tradeSlots.map((slot, index) => {
+          // Check if we should hide this slot for FTUE users
+          if (currentPlayer.firsttimeuser === true && currentPlayer.ftuestep <= 3 && index > 0) {
+            return null; // Don't render slots after the first one for new players at step 3 or less
+          }
           const isOwnStall = viewedPlayer.playerId === currentPlayer.playerId;
           const isEmpty = !slot?.resource;
           const isPurchased = slot?.boughtBy;

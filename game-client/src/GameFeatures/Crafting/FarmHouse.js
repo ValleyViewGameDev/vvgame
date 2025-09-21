@@ -261,10 +261,14 @@ const FarmHouse = ({
     
     if (!recipe) { console.error("❌ No valid crafted item to collect."); return; }
     // Special handling for Repair type recipes
-    if (recipe.type === "Repair") {
-      await handleRepairHouse(transactionId, transactionKey, recipe);
-      return;
-    }
+
+    console.log('🔍 [COLLECT DEBUG] Starting collection:', {
+      craftedItem,
+      recipeType: recipe?.type,
+      ftuestep: currentPlayer.ftuestep,
+      firsttimeuser: currentPlayer.firsttimeuser,
+      stationType
+    });
 
     try {
       const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
@@ -280,6 +284,12 @@ const FarmHouse = ({
       if (response.data.success) {
         // Update local state with server response
         const { collectedItem, isNPC, inventory, updatedStation } = response.data;
+        
+        console.log('🔍 [COLLECT DEBUG] Server response:', {
+          collectedItem,
+          isNPC,
+          hasInventory: !!inventory
+        });
 
         // ✅ Apply skill buffs to crafted collection
         console.log('MasterSkills:', masterSkills);
@@ -357,14 +367,19 @@ const FarmHouse = ({
         // Track quest progress for all crafted items (both NPCs and regular items)
         await trackQuestProgress(currentPlayer, 'Craft', collectedItem, finalQtyCollected, setCurrentPlayer);
 
-        // Check if we should increment FTUE step when crafting Kent at FarmHouse
-        if (stationType === 'Farm House' && collectedItem === 'Kent') {
-          console.log('🎓 Player hired Kent at FarmHouse, incrementing FTUE step');
-          await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-        }
-        if (stationType === 'Farm House' && collectedItem === 'The Shepherd') {
+        console.log('🔍 [SHEPHERD DEBUG] Checking for FTUE advancement:', {
+          collectedItem,
+          isTheShepherd: collectedItem === 'The Shepherd',
+          ftuestep: currentPlayer.ftuestep,
+          firsttimeuser: currentPlayer.firsttimeuser,
+          shouldAdvance: collectedItem === 'The Shepherd' && currentPlayer.firsttimeuser === true && currentPlayer.ftuestep === 5
+        });
+
+        if (collectedItem === 'The Shepherd') {
           console.log('🎓 Player hired The Shepherd at FarmHouse, incrementing FTUE step');
+          console.log('🔍 [SHEPHERD DEBUG] About to call incrementFTUEStep');
           await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+          console.log('🔍 [SHEPHERD DEBUG] incrementFTUEStep completed');
         }
         // Update grid resources to remove crafting state
         const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
@@ -383,13 +398,6 @@ const FarmHouse = ({
 
         // Refresh player data to ensure consistency
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-        if (skillMultiplier !== 1) {
-          const skillAppliedText = `${playerBuffs.join(', ')} skill applied (${skillMultiplier}x collected).`;
-          updateStatus(skillAppliedText);
-        } else {
-          updateStatus(`${collectedItem} ${strings[455]}`);
-        }
 
       }
     } catch (error) {

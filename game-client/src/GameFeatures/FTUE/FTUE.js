@@ -142,24 +142,49 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
               },
               gridId: gridId
             });
-            openPanel('CraftingStation');
+            openPanel('FarmHouse');
           }
         }
 
 //////////// FTUE STEP 6 /////////////
 
-      } else if (currentStep === 6) {
+      } else if (currentStep === 6 && openPanel && setActiveQuestGiver && gridId) {
         console.log(`🎓 Processing FTUE step 6 - cow purchased`);
+        
+        // Show notification for step 6
+        showNotification('To Do', {
+          title: strings[7001],
+          message: strings[7007]
+        });
         
         // Add the Get Axe quest (quest 10) at step 6 so it's ready for step 7
         await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 10);
         
-        onClose();
+        // Find The Shepherd NPC and open NPCPanel
+        const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
+        if (npcsInGrid) {
+          const shepherdNPC = Object.values(npcsInGrid).find(npc => npc.type === 'The Shepherd');
+          if (shepherdNPC) {
+            console.log(`🎓 Found The Shepherd, opening NPCPanel`);
+            onClose(); // Close FTUE modal first
+            setActiveQuestGiver(shepherdNPC); // Set The Shepherd as the active quest giver
+            openPanel('NPCPanel'); // Open the quest giver panel
+          } else {
+            console.log(`⚠️ The Shepherd NPC not found in grid`);
+            onClose(); // Still close FTUE modal
+          }
+        }
 
 //////////// FTUE STEP 7 /////////////
 
       } else if (currentStep === 7 && openPanel) {
-        console.log(`🎓 Adding shepherd quest after FTUE step ${currentStep}`);
+        console.log(`🎓 Processing FTUE step 7 - Adding shepherd quest`);
+        
+        // Show notification for step 7
+        showNotification('To Do', {
+          title: strings[7001],
+          message: strings[7009]
+        });
         
         // Add the shepherd quest (quest 8)
         await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 8);
@@ -250,6 +275,12 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       } else {
         console.log('🎓 Wizard quest already exists, skipping addition');
       }
+      
+      // Show completion notification
+      showNotification('To Do', {
+        title: strings[7001],
+        message: strings[7015]
+      });
       
       // Update the player's firsttimeuser flag to false and remove ftuestep
       const response = await axios.post(`${API_BASE}/api/update-profile`, {

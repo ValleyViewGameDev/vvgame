@@ -38,6 +38,11 @@
           "name": "Kent",
           "relscore": 35,
           "met": true
+        },
+        {
+          "name": "The Shepherd",
+          "relscore": 35,
+          "met": true
         }
       ],
       "tradeStall": [
