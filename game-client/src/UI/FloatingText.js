@@ -34,12 +34,40 @@ const FloatingTextManager = () => {
 
             const { centerX, centerY } = calculateTileCenter(x, y, TILE_SIZE);
             const newId = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+            
+            // Edge detection and offset calculation
+            const EDGE_THRESHOLD = 100; // Distance from edge to trigger offset
+            const OFFSET_AMOUNT = 40; // How much to offset when near edge
+            
+            let finalX = centerX;
+            let finalY = centerY;
+            
+            // Get container dimensions (64x64 grid)
+            const gridSize = 64 * TILE_SIZE;
+            
+            // Check left edge
+            if (centerX < EDGE_THRESHOLD) {
+                finalX = centerX + OFFSET_AMOUNT;
+            }
+            // Check right edge
+            else if (centerX > gridSize - EDGE_THRESHOLD) {
+                finalX = centerX - OFFSET_AMOUNT;
+            }
+            
+            // Check top edge
+            if (centerY < EDGE_THRESHOLD) {
+                finalY = centerY + OFFSET_AMOUNT;
+            }
+            // Check bottom edge  
+            else if (centerY > gridSize - EDGE_THRESHOLD) {
+                finalY = centerY - OFFSET_AMOUNT;
+            }
 
             globalFloatingTexts.push({
                 id: newId,
                 text: displayText,
-                x: centerX,
-                y: centerY,
+                x: finalX,
+                y: finalY,
                 timestamp: Date.now(),
                 color: options.color,
                 size: options.size

@@ -6,6 +6,7 @@ import playersInGridManager from "../../GridState/PlayersInGrid";
 import { fetchHomesteadOwner, fetchHomesteadSignpostPosition, fetchTownSignpostPosition } from "../../Utils/worldHelpers";
 import { updateGridStatus } from "../../Utils/GridManagement";
 import { incrementFTUEStep } from "../FTUE/FTUE";
+import FloatingTextManager from "../../UI/FloatingText";
 
 export async function handleTransitSignpost(
   currentPlayer,
@@ -45,7 +46,16 @@ export async function handleTransitSignpost(
         
         const hasHorse = skills.some((item) => item.type === "Horse" && item.quantity > 0);
         console.log('hasHorse: ', hasHorse);
-        if (!hasHorse) { updateStatus(15); return; }
+        if (!hasHorse) { 
+            updateStatus(15);
+            // Add floating text at player's current position using PlayersInGrid
+            const playersInGrid = playersInGridManager.getPlayersInGrid(currentGridId);
+            if (playersInGrid && playersInGrid[currentPlayer.playerId]) {
+                const position = playersInGrid[currentPlayer.playerId].position;
+                FloatingTextManager.addFloatingText(91, position.x, position.y, TILE_SIZE);
+            }
+            return; 
+        }
     }
 
     // Signpost Home
