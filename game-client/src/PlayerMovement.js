@@ -6,8 +6,50 @@ import FloatingTextManager from "./UI/FloatingText";
 import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
 // Temporary render-only animation state for interpolated player positions
 export const renderPositions = {};
-let currentAnimationFrame = null; 
+let currentAnimationFrame = null;
 
+// Track currently pressed keys for diagonal movement
+const pressedKeys = new Set();
+let movementTimeout = null;
+const MOVEMENT_DELAY = 20; // milliseconds to wait for additional key presses 
+
+// Helper function to handle key press events
+export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources, 
+  setCurrentPlayer, 
+  setGridId, 
+  setGrid, 
+  setTileTypes, 
+  setResources, 
+  updateStatus, 
+  closeAllPanels,
+  localPlayerMoveTimestampRef,
+  bulkOperationContext) 
+{
+  // Add the key to our set of pressed keys
+  pressedKeys.add(event.key);
+  
+  // Clear any existing timeout
+  if (movementTimeout) {
+    clearTimeout(movementTimeout);
+  }
+  
+  // Set a new timeout to process movement after a short delay
+  // This allows multiple keys pressed in quick succession to be combined
+  movementTimeout = setTimeout(() => {
+    processMovement(currentPlayer, TILE_SIZE, masterResources, 
+      setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources, 
+      updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext);
+    movementTimeout = null;
+  }, MOVEMENT_DELAY);
+}
+
+// Helper function to handle key release events
+export function handleKeyUp(event) {
+  // Remove the key from our set of pressed keys
+  pressedKeys.delete(event.key);
+}
+
+// Main movement handler that processes diagonal movement
 export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResources, 
   setCurrentPlayer, 
   setGridId, 
@@ -19,7 +61,24 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
   localPlayerMoveTimestampRef,
   bulkOperationContext) 
 {
+  // For backward compatibility, treat this as a key press
+  handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources, 
+    setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources, 
+    updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext);
+}
 
+// Process movement based on all currently pressed keys
+function processMovement(currentPlayer, TILE_SIZE, masterResources, 
+  setCurrentPlayer, 
+  setGridId, 
+  setGrid, 
+  setTileTypes, 
+  setResources, 
+  updateStatus, 
+  closeAllPanels,
+  localPlayerMoveTimestampRef,
+  bulkOperationContext)
+{
   const directions = {
     ArrowUp: { dx: 0, dy: -1 },
     w: { dx: 0, dy: -1 },
@@ -35,8 +94,24 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
     D: { dx: 1, dy: 0 },
   };
 
-  const movement = directions[event.key];
-  if (!movement) return;
+  // Calculate combined movement vector from all pressed keys
+  let totalDx = 0;
+  let totalDy = 0;
+  
+  for (const key of pressedKeys) {
+    const movement = directions[key];
+    if (movement) {
+      totalDx += movement.dx;
+      totalDy += movement.dy;
+    }
+  }
+  
+  // If no movement, return
+  if (totalDx === 0 && totalDy === 0) return;
+  
+  // Clamp diagonal movement to -1, 0, or 1
+  totalDx = Math.max(-1, Math.min(1, totalDx));
+  totalDy = Math.max(-1, Math.min(1, totalDy));
 
   if (currentPlayer.iscamping) {
     FloatingTextManager.addFloatingText(32, currentPlayer.location.x, currentPlayer.location.y, TILE_SIZE);
@@ -49,8 +124,8 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
   if (!playersInGrid || !playersInGrid[playerId]) return;
 
   const currentPosition = playersInGrid[playerId].position;
-  const targetX = Math.round(currentPosition.x + movement.dx);
-  const targetY = Math.round(currentPosition.y + movement.dy);
+  const targetX = Math.round(currentPosition.x + totalDx);
+  const targetY = Math.round(currentPosition.y + totalDy);
 
   // Normal movement validation for all players (boats use existing transit logic)
   if (!Array.isArray(masterResources)) {
@@ -74,7 +149,8 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
   }
 
   const finalPosition = { x: targetX, y: targetY };
-  console.log('➡️ Simple move to:', finalPosition);
+  const movementType = (totalDx !== 0 && totalDy !== 0) ? 'Diagonal' : 'Simple';
+  console.log(`➡️ ${movementType} move to:`, finalPosition);
 
   const now = Date.now();
   
@@ -90,7 +166,6 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
   });
 
   centerCameraOnPlayer(finalPosition, TILE_SIZE);
-
 }
 
 function isValidMove(targetX, targetY, masterResources,

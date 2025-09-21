@@ -99,7 +99,7 @@ import { formatCountdown } from './UI/Timers';
 import CowboyAnimation from './UI/CowboyAnimation';
 
 import { fetchGridData, updateGridStatus } from './Utils/GridManagement';
-import { handleKeyMovement, centerCameraOnPlayer, centerCameraOnPlayerFast } from './PlayerMovement';
+import { handleKeyMovement, handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, centerCameraOnPlayerFast } from './PlayerMovement';
 import { mergeResources, mergeTiles, enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
@@ -1268,7 +1268,7 @@ useEffect(() => {
     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; } // Prevent movement if a text input is focused
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
 
-    handleKeyMovement(event, currentPlayer, activeTileSize, masterResources,
+    handleMovementKeyDown(event, currentPlayer, activeTileSize, masterResources,
         setCurrentPlayer, 
         setGridId, 
         setGrid, 
@@ -1280,9 +1280,17 @@ useEffect(() => {
         bulkOperationContext
     );
   };
+  
+  const handleKeyUp = (event) => {
+    // Handle key release for diagonal movement
+    handleMovementKeyUp(event);
+  };
+  
   window.addEventListener('keydown', handleKeyDown); 
+  window.addEventListener('keyup', handleKeyUp);
   return () => {
     window.removeEventListener('keydown', handleKeyDown); 
+    window.removeEventListener('keyup', handleKeyUp);
   };
 }, [currentPlayer, masterResources, activeTileSize, activeModal, zoomLevel]);
 
