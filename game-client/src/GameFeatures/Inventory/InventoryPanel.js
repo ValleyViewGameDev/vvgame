@@ -9,7 +9,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
 import { handlePurchase } from '../../Store/Store';
 
-function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, openPanel, setActiveStation }) {
+function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, openPanel, setActiveStation, setModalContent, setIsModalOpen }) {
 
     const strings = useStrings();
     const inventory = currentPlayer?.inventory || [];
@@ -41,6 +41,15 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
 
         try {
             if (isAtHome) {
+                // Check warehouse capacity before moving
+                const currentWarehouseUsage = calculateTotalQuantity(inventory);
+                const spaceAvailable = finalCapacities.warehouse - currentWarehouseUsage;
+                
+                if (amount > spaceAvailable) {
+                    updateStatus(20); // Warehouse full message
+                    return;
+                }
+                
                 const updatedWarehouse = [...inventory];
                 const existingIndex = updatedWarehouse.findIndex(i => i.type === item.type);
                 if (existingIndex !== -1) {
@@ -109,6 +118,16 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
         try {
             if (isAtHome) {
                 const itemsToMove = backpack.filter((item) => item.type !== "Tent" && item.type !== "Boat");
+                
+                // Calculate total quantity to move
+                const totalToMove = itemsToMove.reduce((sum, item) => sum + item.quantity, 0);
+                const currentWarehouseUsage = calculateTotalQuantity(inventory);
+                const spaceAvailable = finalCapacities.warehouse - currentWarehouseUsage;
+                
+                if (totalToMove > spaceAvailable) {
+                    updateStatus(20); // Warehouse full message
+                    return;
+                }
 
                 const updatedWarehouseInventory = [...inventory];
 
@@ -213,6 +232,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
             setInventory([]);
 
             updateStatus(`❌ Discarded all warehouse items`);
+            setShowWarehouseModal(false);
         } catch (error) {
             console.error('Error updating inventory:', error);
         }
@@ -479,7 +499,34 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
 
                     <button 
                         className="sell-button" 
-                        onClick={handleDiscardAllWarehouse}
+                        onClick={() => {
+                            setModalContent({
+                                title: "Are you sure?",
+                                message: "This will permanently discard ALL items in your warehouse!",
+                                message2: "This action cannot be undone.",
+                                custom: (
+                                    <div className="standard-buttons" style={{ marginTop: '20px' }}>
+                                        <button 
+                                            className="btn-danger" 
+                                            onClick={() => {
+                                                handleDiscardAllWarehouse();
+                                                setIsModalOpen(false);
+                                            }}
+                                        >
+                                            Yes, Discard All
+                                        </button>
+                                        <button 
+                                            className="btn-success" 
+                                            onClick={() => setIsModalOpen(false)}
+                                            style={{ marginLeft: '10px' }}
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                )
+                            });
+                            setIsModalOpen(true);
+                        }}
                     >
                         {strings[190]}
                     </button>

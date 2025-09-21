@@ -1597,6 +1597,15 @@ const handleLoginSuccess = async (player) => {
 
   // Chat panel slideout state
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isChatClosing, setIsChatClosing] = useState(false);
+  
+  const handleCloseChat = () => {
+    setIsChatClosing(true);
+    setTimeout(() => {
+      setIsChatOpen(false);
+      setIsChatClosing(false);
+    }, 300); // Match the animation duration
+  };
 
 
   ///////////////////////////////////////////////////////////
@@ -1669,13 +1678,13 @@ return (
 
     {/* Chat Slideout Panel */}
     {isChatOpen && currentPlayer && (
-      <div className="chat-panel-slideout">
+      <div className={`chat-panel-slideout ${isChatClosing ? 'closing' : ''}`}>
         <Chat
           currentGridId={currentPlayer.location?.g}
           currentSettlementId={currentPlayer.location?.s}
           currentFrontierId={currentPlayer.frontierId}
           currentPlayer={currentPlayer}
-          onClose={() => setIsChatOpen(false)}
+          onClose={handleCloseChat}
         />
       </div>
     )}
@@ -2112,6 +2121,8 @@ return (
           updateStatus={updateStatus}
           openPanel={openPanel}
           setActiveStation={setActiveStation}
+          setModalContent={setModalContent}
+          setIsModalOpen={setIsModalOpen}
         />
       )}
       {activePanel === 'TrophyPanel' && (

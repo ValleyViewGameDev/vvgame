@@ -32,14 +32,41 @@
     "Creamery": {
       "Dairy": 2
     },
-    "Mechanics": {
-      "Mill": 2
-    },
     "Textiles": {
       "Loom": 2
     },
-    "Winemaker": {
-      "Winery": 2
+    "Mechanics": {
+      "Mill": 2,
+      "Loom": 2
+    },
+
+
+    "Miller": {
+      "Mill": 3
+    },
+    "Fromager": {
+      "Dairy": 3
+    },
+    "Cuisinier": {
+      "Kitchen": 3
+    },
+    "Artisan": {
+      "Studio": 3
+    },
+    "Couturier": {
+      "Oven": 3
+    },
+    "Weaver": {
+      "Loom": 2
+    },
+    "Fowler": {
+      "Chicken Coop": 3
+    },
+    "Apiarch": {
+      "Beehive": 3
+    },
+    "Vintner": {   
+      "Winery": 4
     },
     "Better Axe": {
       "Wood": 2

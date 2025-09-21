@@ -247,7 +247,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
 
   // Check if we should show the sell button
   const showSellButton = isDeveloper && 
-    ["Warehouse", "Adventure Camp", "Laboratory", "School"].includes(entryPoint) &&
+    ["Warehouse", "Adventure Camp", "Laboratory", "School", "Guild"].includes(entryPoint) &&
     currentStationPosition && gridId;
 
   return (
@@ -270,7 +270,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
           <p>{strings[98]}</p>
         ) : (
           <>
-            {!["Warehouse", "Adventure Camp", "Laboratory", "School"].includes(entryPoint) && (
+            {!["Warehouse", "Adventure Camp", "Laboratory", "School", "Guild"].includes(entryPoint) && (
               <div className="skills-owned">
                 <h3>{strings[1303]}</h3>
                 {ownedSkills.length > 0 ? (
@@ -285,7 +285,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
               </div>
             )}
 
-            {!["Warehouse", "Adventure Camp", "Laboratory", "School"].includes(entryPoint) && (
+            {!["Warehouse", "Adventure Camp", "Laboratory", "School", "Guild"].includes(entryPoint) && (
               <div className="upgrades-owned">
                 <h3>{strings[1304]}</h3>
                 {ownedUpgrades.length > 0 ? (

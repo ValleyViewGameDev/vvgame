@@ -288,15 +288,19 @@ const CraftingStation = ({
             return isSkill && appliesToStation;
           });
 
-        // Calculate skill multiplier for this station
+        // Calculate combined skill multiplier for this station
         let skillMultiplier = 1;
-        let appliedSkillName = null;
+        let appliedSkillNames = [];
         
         if (applicableSkills.length > 0) {
-          // Use the first applicable skill (typically there should only be one per station)
-          const skill = applicableSkills[0];
-          skillMultiplier = masterSkills?.[skill.type]?.[stationType] || 1;
-          appliedSkillName = skill.type;
+          // Multiply all applicable skill bonuses together
+          applicableSkills.forEach(skill => {
+            const multiplier = masterSkills?.[skill.type]?.[stationType] || 1;
+            if (multiplier > 1) {
+              skillMultiplier *= multiplier;
+              appliedSkillNames.push(skill.type);
+            }
+          });
         }
 
         // Apply multiplier to quantity (default to 1 if not provided by backend)
@@ -364,8 +368,9 @@ const CraftingStation = ({
         // Refresh player data to ensure consistency
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-        if (skillMultiplier !== 1 && appliedSkillName) {
-          const skillAppliedText = `${appliedSkillName} skill applied (${skillMultiplier}x collected).`;
+        if (skillMultiplier > 1 && appliedSkillNames.length > 0) {
+          const skillsText = appliedSkillNames.join(' & ');
+          const skillAppliedText = `${skillsText} skill${appliedSkillNames.length > 1 ? 's' : ''} applied (${skillMultiplier}x collected).`;
           updateStatus(skillAppliedText);
         } else {
           updateStatus(`Collected: ${collectedItem}.`);
@@ -402,30 +407,53 @@ const CraftingStation = ({
   
   // Generate skill bonus message
   const getSkillBonusMessage = () => {
-    // Find skill that applies to this station
-    const skillEntry = Object.entries(masterSkills || {}).find(([skillName, stations]) => {
-      return stations && typeof stations === 'object' && stations[stationType] > 1;
-    });
+    // Find all skills that apply to this station
+    const applicableSkills = Object.entries(masterSkills || {})
+      .filter(([skillName, stations]) => {
+        return stations && typeof stations === 'object' && stations[stationType] > 1;
+      })
+      .map(([skillName, stations]) => ({
+        skillName,
+        multiplier: stations[stationType],
+        hasSkill: currentPlayer.skills?.some(item => item.type === skillName)
+      }));
     
-    if (!skillEntry) return null;
+    if (applicableSkills.length === 0) return null;
     
-    const [skillName, stations] = skillEntry;
-    const multiplier = stations[stationType];
+    // Separate owned and unowned skills
+    const ownedSkills = applicableSkills.filter(skill => skill.hasSkill);
+    const unownedSkills = applicableSkills.filter(skill => !skill.hasSkill);
     
-    // Check if player has this skill
-    const hasSkill = currentPlayer.skills?.some(item => item.type === skillName);
+    // Calculate combined multiplier for owned skills
+    const combinedMultiplier = ownedSkills.reduce((total, skill) => total * skill.multiplier, 1);
     
-    // Find where this skill is acquired
-    const skillResource = allResources.find(res => res.type === skillName);
-    const skillSource = skillResource?.source || 'Skill Shop';
+    let messages = [];
     
-    if (hasSkill) {
-      // "Your [skill] Skill increases the base output of this station by [X]."
-      return `${strings[805]}${getLocalizedString(skillName, strings)}${strings[806]}${multiplier}x.`;
-    } else {
-      // "Acquire the [skill] Skill at the [source] to increase the output of this station by [X]x."
-      return `${strings[801]}${getLocalizedString(skillName, strings)}${strings[802]}${getLocalizedString(skillSource, strings)}${strings[803]}${multiplier}x.`;
+    // Message for owned skills
+    if (ownedSkills.length > 0) {
+      if (ownedSkills.length === 1) {
+        // Single skill: "Your [skill] Skill increases the base output of this station by [X]."
+        messages.push(`${strings[805]}${getLocalizedString(ownedSkills[0].skillName, strings)}${strings[806]}${ownedSkills[0].multiplier}x.`);
+      } else {
+        // Multiple skills: list them with their multipliers and show combined effect
+        const skillsList = ownedSkills
+          .map(skill => `${getLocalizedString(skill.skillName, strings)} (${skill.multiplier}x)`)
+          .join(' & ');
+        messages.push(`Your ${skillsList} skills combine to increase output by ${combinedMultiplier}x.`);
+      }
     }
+    
+    // Message for unowned skills
+    if (unownedSkills.length > 0) {
+      unownedSkills.forEach(skill => {
+        const skillResource = allResources.find(res => res.type === skill.skillName);
+        const skillSource = skillResource?.source || 'Skill Shop';
+        // "Acquire the [skill] Skill at the [source] to increase the output of this station by [X]x."
+        messages.push(`${strings[801]}${getLocalizedString(skill.skillName, strings)}${strings[802]}${getLocalizedString(skillSource, strings)}${strings[803]}${skill.multiplier}x.`);
+      });
+    }
+    
+    return messages.join(' ');
   };
 
   const skillMessage = getSkillBonusMessage();

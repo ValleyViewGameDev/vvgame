@@ -132,6 +132,24 @@
 }
 
 /* Chat panel slideout for App.js */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
 .chat-panel-slideout {
   position: fixed;
   top: 60px; /* Adjust depending on your header height */
@@ -143,6 +161,10 @@
   flex-direction: column;
   z-index: 1000;
   box-shadow: -2px 0 5px rgba(0,0,0,0.2);
-    padding-left: 6px; /* 👈 Add this line */
+  padding-left: 6px; /* 👈 Add this line */
+  animation: slideIn 0.3s ease-out;
+}
 
+.chat-panel-slideout.closing {
+  animation: slideOut 0.3s ease-out;
 }
