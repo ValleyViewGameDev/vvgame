@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import './ProgressModal.css';
 
-function ProgressModal({ isOpen, title, message }) {
+function ProgressModal({ isOpen, title, message, onComplete }) {
   const [progress, setProgress] = useState(0);
-  
-  console.log('ProgressModal render:', { isOpen, title, message });
   
   useEffect(() => {
     if (!isOpen) {
@@ -13,8 +11,8 @@ function ProgressModal({ isOpen, title, message }) {
       return;
     }
     
-    // Animate progress bar over 2 seconds minimum
-    const duration = 2000; // 2 seconds
+    // Animate progress bar over 4 seconds
+    const duration = 4000; // 4 seconds
     const interval = 20; // Update every 20ms for smooth animation
     const increment = 100 / (duration / interval);
     
@@ -23,6 +21,10 @@ function ProgressModal({ isOpen, title, message }) {
         const next = prev + increment;
         if (next >= 100) {
           clearInterval(timer);
+          // Call onComplete callback when animation finishes
+          if (onComplete) {
+            setTimeout(onComplete, 100); // Small delay to show 100% briefly
+          }
           return 100;
         }
         return next;
@@ -30,14 +32,9 @@ function ProgressModal({ isOpen, title, message }) {
     }, interval);
     
     return () => clearInterval(timer);
-  }, [isOpen]);
+  }, [isOpen, onComplete]);
   
-  if (!isOpen) {
-    console.log('ProgressModal not open, returning null');
-    return null;
-  }
-  
-  console.log('ProgressModal rendering modal with progress:', progress);
+  if (!isOpen) return null;
   
   return (
     <Modal

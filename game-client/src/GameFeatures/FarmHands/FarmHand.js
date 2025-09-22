@@ -68,7 +68,7 @@ const FarmHandPanel = ({
   const hasBulkReplant = skills.some(skill => skill.type === 'Bulk Replant');
   const hasBulkRestartCraft = skills.some(skill => skill.type === 'Bulk Restart Craft');
   const [isContentLoading, setIsContentLoading] = useState(false);
-  const [bulkProgressModal, setBulkProgressModal] = useState({ isOpen: false, message: '' });
+  const [bulkProgressModal, setBulkProgressModal] = useState({ isOpen: false, message: '', onComplete: null });
   const { setBusyOverlay, clearNPCOverlay } = useNPCOverlay();
   const { startBulkOperation, endBulkOperation } = useBulkOperation();
   
@@ -648,21 +648,27 @@ const FarmHandPanel = ({
       setBusyOverlay(farmerNPC.id);
     }
 
-    // Show progress modal
-    console.log('Setting bulk progress modal to open');
-    console.log('Current state before:', bulkProgressModal);
-    setBulkProgressModal({ 
-      isOpen: true, 
-      message: strings[477],
-    });
-    console.log('State set, should be open now');
-
     // Start bulk operation tracking
     const operationId = `bulk-harvest-${Date.now()}`;
     startBulkOperation('bulk-harvest', operationId);
     
-    // Track when operation started for minimum 2 second display
-    const startTime = Date.now();
+    // Store cleanup function reference
+    let cleanupExecuted = false;
+    const cleanup = () => {
+      if (cleanupExecuted) return;
+      cleanupExecuted = true;
+      
+      setBulkProgressModal({ isOpen: false, message: '', onComplete: null });
+      if (farmerNPC) clearNPCOverlay(farmerNPC.id);
+      endBulkOperation(operationId);
+    };
+    
+    // Show progress modal with onComplete callback
+    setBulkProgressModal({ 
+      isOpen: true, 
+      message: strings[477],
+      onComplete: cleanup
+    });
 
     try {
       // Get selected crop types
@@ -670,14 +676,7 @@ const FarmHandPanel = ({
       
       if (selectedTypes.length === 0) {
         updateStatus(strings[449] || 'No crops selected for harvest.');
-        // Ensure modal stays open for at least 2 seconds even on early return
-        const elapsedTime = Date.now() - startTime;
-        const remainingTime = Math.max(0, 2000 - elapsedTime);
-        setTimeout(() => {
-          setBulkProgressModal({ isOpen: false, message: '' });
-          if (farmerNPC) clearNPCOverlay(farmerNPC.id);
-          endBulkOperation(operationId);
-        }, remainingTime);
+        // Progress modal will auto-close via onComplete
         return;
       }
 
@@ -695,14 +694,7 @@ const FarmHandPanel = ({
         const spaceNeeded = capacityCheck.totalCapacityNeeded;
         const spaceAvailable = capacityCheck.availableSpace;
         updateStatus(`${strings[447] || 'Not enough space'}: ${spaceNeeded} needed, ${spaceAvailable} available`);
-        // Ensure modal stays open for at least 2 seconds even on early return
-        const elapsedTime = Date.now() - startTime;
-        const remainingTime = Math.max(0, 2000 - elapsedTime);
-        setTimeout(() => {
-          setBulkProgressModal({ isOpen: false, message: '' });
-          if (farmerNPC) clearNPCOverlay(farmerNPC.id);
-          endBulkOperation(operationId);
-        }, remainingTime);
+        // Progress modal will auto-close via onComplete
         return;
       }
 
@@ -839,21 +831,8 @@ const FarmHandPanel = ({
       console.error('Bulk harvest error:', error);
       updateStatus(error.response?.data?.error || strings[448] || 'Bulk harvest failed');
     } finally {
-      // Ensure modal stays open for at least 2 seconds
-      const elapsedTime = Date.now() - startTime;
-      const remainingTime = Math.max(0, 2000 - elapsedTime);
-      
-      setTimeout(() => {
-        // Close progress modal
-        setBulkProgressModal({ isOpen: false, message: '' });
-        
-        // Clear busy overlay
-        if (farmerNPC) {
-          clearNPCOverlay(farmerNPC.id);
-        }
-        // End bulk operation tracking
-        endBulkOperation(operationId);
-      }, remainingTime);
+      // Cleanup handled by onComplete callback in ProgressModal
+      // No need for manual cleanup here
     }
   }
 
@@ -1793,8 +1772,9 @@ const FarmHandPanel = ({
       {/* Bulk Operation Progress Modal */}
       <ProgressModal
         isOpen={bulkProgressModal.isOpen}
-        title="Processing..."
+        title={strings[478]}
         message={bulkProgressModal.message}
+        onComplete={bulkProgressModal.onComplete}
       />
     </Panel>
   );
