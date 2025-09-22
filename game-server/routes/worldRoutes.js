@@ -1567,6 +1567,300 @@ router.post('/sell-for-refund', async (req, res) => {
   }
 });
 
+// Protected bulk harvest/replant endpoint
+router.post('/bulk-harvest', async (req, res) => {
+  const { playerId, gridId, operations, transactionId, transactionKey } = req.body;
+  
+  if (!playerId || !gridId || !operations || !Array.isArray(operations) || operations.length === 0 || !transactionId || !transactionKey) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Find player and check transaction state
+    const player = await Player.findOne({ playerId });
+    if (!player) throw new Error('Player not found');
+
+    // Check if transaction already processed (idempotency)
+    const lastTxData = player.lastTransactionIds.get(transactionKey);
+    const lastTxId = typeof lastTxData === 'object' ? lastTxData.id : lastTxData;
+    if (lastTxId === transactionId) {
+      return res.json({ success: true, message: 'Bulk harvest already processed' });
+    }
+
+    // Check if there's an active transaction for this action
+    if (player.activeTransactions.has(transactionKey)) {
+      const activeTransaction = player.activeTransactions.get(transactionKey);
+      const timeSinceStart = Date.now() - activeTransaction.timestamp.getTime();
+      
+      if (timeSinceStart > 30000) {
+        player.activeTransactions.delete(transactionKey);
+        await player.save();
+      } else {
+        throw new Error('Transaction in progress');
+      }
+    }
+
+    // Mark transaction as active
+    player.activeTransactions.set(transactionKey, {
+      type: transactionKey,
+      timestamp: new Date(),
+      transactionId
+    });
+    await player.save();
+
+    // Find the grid
+    const grid = await Grid.findOne({ _id: gridId });
+    if (!grid) {
+      player.activeTransactions.delete(transactionKey);
+      await player.save();
+      return res.status(404).json({ error: 'Grid not found' });
+    }
+
+    // Load master resources and skills
+    const fs = require('fs');
+    const path = require('path');
+    const resourcesPath = path.join(__dirname, '../tuning/resources.json');
+    const skillsPath = path.join(__dirname, '../tuning/skills.json');
+    const masterResources = JSON.parse(fs.readFileSync(resourcesPath, 'utf-8'));
+    const masterSkills = JSON.parse(fs.readFileSync(skillsPath, 'utf-8'));
+
+    // Calculate warehouse and backpack capacities with skills
+    const warehouseMultiplier = player.skills?.find(s => s.type === 'Warehouse')?.level || 1;
+    const backpackMultiplier = player.skills?.find(s => s.type === 'Backpacker')?.level || 1;
+    const warehouseCapacity = player.warehouseCapacity * warehouseMultiplier;
+    const backpackCapacity = player.backpackCapacity * backpackMultiplier;
+
+    // Calculate current usage
+    const currentWarehouseUsage = (player.inventory || []).reduce((sum, item) => sum + (item.quantity || 0), 0);
+    const currentBackpackUsage = (player.backpack || []).reduce((sum, item) => sum + (item.quantity || 0), 0);
+    const totalCapacity = warehouseCapacity + backpackCapacity;
+    const currentTotalUsage = currentWarehouseUsage + currentBackpackUsage;
+    const availableSpace = totalCapacity - currentTotalUsage;
+
+    // Track harvest results
+    const harvestResults = {
+      harvested: {},
+      replanted: {},
+      failed: [],
+      totalYield: 0,
+      seedsUsed: {}
+    };
+
+    // Process each operation
+    for (const operation of operations) {
+      const { cropType, positions, replant, expectedYield } = operation;
+      
+      if (!cropType || !positions || !Array.isArray(positions) || positions.length === 0) {
+        harvestResults.failed.push({ cropType, reason: 'Invalid operation data' });
+        continue;
+      }
+
+      const baseCrop = masterResources.find(r => r.type === cropType);
+      if (!baseCrop) {
+        harvestResults.failed.push({ cropType, reason: 'Unknown crop type' });
+        continue;
+      }
+
+      // Calculate skill multipliers for this crop
+      let skillMultiplier = 1;
+      const playerSkills = player.skills || [];
+      
+      playerSkills.forEach(skill => {
+        // Check if this skill buffs this crop type
+        const buffValue = masterSkills?.[skill.type]?.[cropType];
+        if (buffValue && buffValue > 1) {
+          skillMultiplier *= buffValue;
+        }
+      });
+
+      const baseYield = baseCrop.qtycollected || 1;
+      const yieldPerCrop = Math.floor(baseYield * skillMultiplier);
+      const totalYieldForType = positions.length * yieldPerCrop;
+
+      // Check if we have enough space for this harvest
+      if (harvestResults.totalYield + totalYieldForType > availableSpace) {
+        harvestResults.failed.push({ 
+          cropType, 
+          reason: 'Not enough inventory space',
+          needed: totalYieldForType,
+          available: availableSpace - harvestResults.totalYield
+        });
+        continue;
+      }
+
+      // Harvest each position
+      const harvestedPositions = [];
+      for (const pos of positions) {
+        const resourceIndex = grid.resources.findIndex(r => r.x === pos.x && r.y === pos.y && r.type === cropType);
+        if (resourceIndex !== -1) {
+          grid.resources.splice(resourceIndex, 1);
+          harvestedPositions.push(pos);
+        }
+      }
+
+      if (harvestedPositions.length > 0) {
+        const actualYield = harvestedPositions.length * yieldPerCrop;
+        harvestResults.harvested[cropType] = {
+          count: harvestedPositions.length,
+          quantity: actualYield,
+          skillMultiplier,
+          positions: harvestedPositions
+        };
+        harvestResults.totalYield += actualYield;
+
+        // Add to player inventory
+        const existingItem = player.inventory.find(item => item.type === cropType);
+        if (existingItem) {
+          existingItem.quantity += actualYield;
+        } else {
+          player.inventory.push({ type: cropType, quantity: actualYield });
+        }
+      }
+
+      // Handle replanting if requested
+      if (replant && harvestedPositions.length > 0) {
+        // Find the farmplot that produces this crop
+        const farmplot = masterResources.find(r => 
+          r.category === 'farmplot' && r.output === cropType
+        );
+
+        if (farmplot) {
+          // Check and consume seeds
+          const seedsNeeded = {};
+          for (let i = 1; i <= 4; i++) {
+            const ingredientType = farmplot[`ingredient${i}`];
+            const ingredientQty = farmplot[`ingredient${i}qty`];
+            
+            if (ingredientType && ingredientQty) {
+              const totalNeeded = ingredientQty * harvestedPositions.length;
+              seedsNeeded[ingredientType] = totalNeeded;
+            }
+          }
+
+          // Check if player has enough seeds
+          let canReplant = true;
+          const seedsToConsume = {};
+          
+          for (const [seedType, needed] of Object.entries(seedsNeeded)) {
+            const inInventory = player.inventory?.find(item => item.type === seedType)?.quantity || 0;
+            const inBackpack = player.backpack?.find(item => item.type === seedType)?.quantity || 0;
+            const totalHas = inInventory + inBackpack;
+            
+            if (totalHas < needed) {
+              canReplant = false;
+              harvestResults.failed.push({
+                cropType,
+                reason: `Not enough ${seedType} for replanting`,
+                needed,
+                has: totalHas
+              });
+              break;
+            }
+            seedsToConsume[seedType] = needed;
+          }
+
+          if (canReplant) {
+            // Consume seeds from backpack first, then inventory
+            for (const [seedType, needed] of Object.entries(seedsToConsume)) {
+              let remaining = needed;
+              
+              // Take from backpack first
+              const backpackItem = player.backpack?.find(item => item.type === seedType);
+              if (backpackItem && backpackItem.quantity > 0) {
+                const toTake = Math.min(remaining, backpackItem.quantity);
+                backpackItem.quantity -= toTake;
+                remaining -= toTake;
+                
+                if (backpackItem.quantity === 0) {
+                  player.backpack = player.backpack.filter(item => item.type !== seedType);
+                }
+              }
+              
+              // Take remaining from inventory
+              if (remaining > 0) {
+                const invItem = player.inventory.find(item => item.type === seedType);
+                if (invItem) {
+                  invItem.quantity -= remaining;
+                  if (invItem.quantity === 0) {
+                    player.inventory = player.inventory.filter(item => item.type !== seedType);
+                  }
+                }
+              }
+
+              harvestResults.seedsUsed[seedType] = (harvestResults.seedsUsed[seedType] || 0) + needed;
+            }
+
+            // Add new farmplots
+            const seasonLevel = getSeasonLevel();
+            const currentTime = new Date();
+            
+            for (const pos of harvestedPositions) {
+              grid.resources.push({
+                type: farmplot.type,
+                x: pos.x,
+                y: pos.y,
+                state: 'growingtimer',
+                growtimeremaining: Math.floor(farmplot.growtime * 60),
+                passable: true,
+                seasonLevel: seasonLevel,
+                plantedAt: currentTime
+              });
+            }
+
+            harvestResults.replanted[cropType] = {
+              farmplotType: farmplot.type,
+              count: harvestedPositions.length,
+              growtime: farmplot.growtime,
+              positions: harvestedPositions
+            };
+          }
+        }
+      }
+    }
+
+    // Save grid and player changes
+    await grid.save();
+    await player.save();
+
+    // Complete transaction and cleanup old IDs
+    cleanupTransactionIds(player);
+    player.lastTransactionIds.set(transactionKey, { id: transactionId, timestamp: Date.now() });
+    player.activeTransactions.delete(transactionKey);
+    await player.save();
+
+    res.json({
+      success: true,
+      results: harvestResults,
+      inventory: {
+        warehouse: player.inventory,
+        backpack: player.backpack,
+        capacities: {
+          warehouse: { used: currentWarehouseUsage, total: warehouseCapacity },
+          backpack: { used: currentBackpackUsage, total: backpackCapacity }
+        }
+      }
+    });
+
+  } catch (error) {
+    // Cleanup on error
+    try {
+      const player = await Player.findOne({ playerId });
+      if (player) {
+        player.activeTransactions.delete(transactionKey);
+        await player.save();
+      }
+    } catch (cleanupError) {
+      console.error('Error cleaning up failed bulk harvest transaction:', cleanupError);
+    }
+
+    if (error.message === 'Transaction in progress') {
+      return res.status(429).json({ error: 'Bulk harvest already in progress' });
+    }
+    console.error('Error in bulk harvest:', error);
+    res.status(500).json({ error: 'Failed to process bulk harvest' });
+  }
+});
+
 module.exports = router;
 
 

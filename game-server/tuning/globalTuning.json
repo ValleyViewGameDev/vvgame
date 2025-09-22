@@ -1,4 +1,5 @@
 {
+  "maxCrops": 1000,
   "closerZoom": 50,
   "closeZoom": 34,
   "farZoom": 16,
