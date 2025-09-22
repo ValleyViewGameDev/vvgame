@@ -652,6 +652,9 @@ const FarmHandPanel = ({
     const operationId = `bulk-harvest-${Date.now()}`;
     startBulkOperation('bulk-harvest', operationId);
     
+    // Store the status message to show after modal completes
+    let pendingStatusMessage = '';
+    
     // Store cleanup function reference
     let cleanupExecuted = false;
     const cleanup = () => {
@@ -661,6 +664,11 @@ const FarmHandPanel = ({
       setBulkProgressModal({ isOpen: false, message: '', onComplete: null });
       if (farmerNPC) clearNPCOverlay(farmerNPC.id);
       endBulkOperation(operationId);
+      
+      // Show the status message after modal closes
+      if (pendingStatusMessage) {
+        updateStatus(pendingStatusMessage);
+      }
     };
     
     // Show progress modal with onComplete callback
@@ -675,7 +683,7 @@ const FarmHandPanel = ({
       const selectedTypes = Object.keys(selectedCropTypes).filter(type => selectedCropTypes[type]);
       
       if (selectedTypes.length === 0) {
-        updateStatus(strings[449] || 'No crops selected for harvest.');
+        pendingStatusMessage = strings[449] || 'No crops selected for harvest.';
         // Progress modal will auto-close via onComplete
         return;
       }
@@ -693,7 +701,7 @@ const FarmHandPanel = ({
       if (!capacityCheck.canHarvest) {
         const spaceNeeded = capacityCheck.totalCapacityNeeded;
         const spaceAvailable = capacityCheck.availableSpace;
-        updateStatus(`${strings[447] || 'Not enough space'}: ${spaceNeeded} needed, ${spaceAvailable} available`);
+        pendingStatusMessage = `${strings[447] || 'Not enough space'}: ${spaceNeeded} needed, ${spaceAvailable} available`;
         // Progress modal will auto-close via onComplete
         return;
       }
@@ -795,9 +803,8 @@ const FarmHandPanel = ({
           }
         }
 
-        // Show success message
-        const message = formatBulkHarvestResults(results, strings, getLocalizedString);
-        updateStatus(message);
+        // Store success message to show after modal closes
+        pendingStatusMessage = formatBulkHarvestResults(results, strings, getLocalizedString);
 
         // Track quest progress for harvested items
         Object.entries(results.harvested).forEach(([type, data]) => {
@@ -824,12 +831,12 @@ const FarmHandPanel = ({
         });
 
       } else {
-        updateStatus(strings[448] || 'Bulk harvest failed');
+        pendingStatusMessage = strings[448] || 'Bulk harvest failed';
       }
 
     } catch (error) {
       console.error('Bulk harvest error:', error);
-      updateStatus(error.response?.data?.error || strings[448] || 'Bulk harvest failed');
+      pendingStatusMessage = error.response?.data?.error || strings[448] || 'Bulk harvest failed';
     } finally {
       // Cleanup handled by onComplete callback in ProgressModal
       // No need for manual cleanup here
