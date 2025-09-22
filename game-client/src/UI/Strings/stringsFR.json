@@ -138,8 +138,6 @@
     "465": "Cliquez pour collecter instantanément depuis toutes les stations d'artisanat prêtes.",
     "466": "Vous n'avez aucune station d'artisanat prête pour la collecte.",
     "468": "Redémarré : ",
-    "469": "Collecte sélective d'animaux terminée : ",
-    "472": "Récolte sélective de cultures terminée : ",
 
     "475": "Redémarrer ?",
     "476": "Station",
@@ -1106,7 +1104,12 @@
 "7006": "Cherchez l'icône 💪 pour ouvrir le panneau des Compétences.",
 "7007": "Tenez-vous sur l'herbe, puis trouvez le panneau 🐮 Acheter pour acheter une vache. Vous aurez d'abord besoin de la compétence Élevage.",
 "7009": "Continuez à vérifier votre ✅ Liste de Tâches, et continuez à consulter 🤠 Kent et 👵🏻 la Bergère.",
-"7015": "Cliquez sur + et - en haut de l'écran pour zoomer et dézoomer."
+"7015": "Cliquez sur + et - en haut de l'écran pour zoomer et dézoomer.",
+
+"469": "Collecte d'animaux terminée : ",
+"472": "Récolte terminée : ",
+"477": "Vos ouvriers agricoles sont occupés...",
+"478": "🚜 Au travail"
 
 }
 

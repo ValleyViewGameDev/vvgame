@@ -150,8 +150,6 @@
   "466": "No tienes estaciones de fabricación listas para recolectar.",
   "467": "Recolección de fabricación en masa completada: ",
   "468": "Reiniciado: ",
-  "469": "Recolección selectiva de animales completada: ",
-  "472": "Cosecha selectiva de cultivos completada: ",
   "475": "¿Reiniciar?",
   "476": "Estación",
 
@@ -1037,6 +1035,11 @@
 "7006": "Busca el ícono 💪 para abrir el panel de Habilidades.",
 "7007": "Párate en la hierba, luego encuentra el panel 🐮 Comprar para adquirir una vaca. Primero necesitarás la habilidad de Ganadería.",
 "7009": "Sigue revisando tu ✅ Lista de Tareas, y sigue consultando con 🤠 Kent y 👵🏻 la Pastora.",
-"7015": "Haz clic en + y - en la parte superior de la pantalla para acercar y alejar el zoom."
+"7015": "Haz clic en + y - en la parte superior de la pantalla para acercar y alejar el zoom.",
+
+"469": "Recolección de animales completada: ",
+"472": "Cosecha completada: ",
+"477": "Tus trabajadores agrícolas están ocupados...",
+"478": "🚜 Trabajando"
 
 }
