@@ -11,7 +11,7 @@ let currentAnimationFrame = null;
 // Track currently pressed keys for diagonal movement
 const pressedKeys = new Set();
 let movementTimeout = null;
-const MOVEMENT_DELAY = 20; // milliseconds to wait for additional key presses 
+const MOVEMENT_DELAY = 1; // milliseconds to wait for additional key presses 
 
 // Helper function to handle key press events
 export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources, 
