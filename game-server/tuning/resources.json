@@ -5373,13 +5373,13 @@
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 5,
+    "ingredient2qty": 10,
     "ingredient3": "Potion B",
     "ingredient3qty": 5,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 115,
-    "moneyvalue": 5205
+    "gemcost": 120,
+    "moneyvalue": 5250
   },
   {
     "type": "Weaver",
@@ -5418,6 +5418,25 @@
     "ingredient4qty": 10,
     "gemcost": 115,
     "moneyvalue": 5205
+  },
+  {
+    "type": "Fromager",
+    "symbol": "🛖",
+    "category": "skill",
+    "source": "Guild",
+    "requires": "Dairy",
+    "qtycollected": 1,
+    "level": 10,
+    "ingredient1": "Money",
+    "ingredient1qty": 5000,
+    "ingredient2": "Potion A",
+    "ingredient2qty": 15,
+    "ingredient3": "Potion B",
+    "ingredient3qty": 5,
+    "ingredient4": "Potion C",
+    "ingredient4qty": 10,
+    "gemcost": 125,
+    "moneyvalue": 5295
   },
   {
     "type": "Cuisinier",
@@ -5468,13 +5487,13 @@
     "ingredient1": "Money",
     "ingredient1qty": 20000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 5,
+    "ingredient2qty": 10,
     "ingredient3": "Potion B",
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
     "ingredient4qty": 25,
-    "gemcost": 350,
-    "moneyvalue": 20420
+    "gemcost": 355,
+    "moneyvalue": 20465
   },
   {
     "type": "Law",

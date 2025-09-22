@@ -209,13 +209,11 @@
     "465": "Click to instantly collect from all ready crafting stations.",
     "466": "You have no crafting stations ready to collect from.",
     "468": "Restarted: ",
-    "469": "Selective Animal Collect complete: ",
     "470": "Cannot travel right now, farming actions in progress.",
     "471": "⚠️ Already in progress.",
-    "472": "Selective Crop Harvest complete: ",
+
     "475": "Restart?",
     "476": "Station",
-        
     "490": "Sell for refund (Dev only)",
 
     "500": "COMBAT STRINGS",
@@ -1128,7 +1126,12 @@
 "7006": "Look for the 💪 icon to open the Skills panel.",
 "7007": "Stand on grass, then find the 🐮 Buy panel to purchase a cow. You'll first need the Husbandry skill.",
 "7009": "Keep checking your ✅ To-Do-List, and keep checking with 🤠 Kent and 👵🏻 the Shepherd.",
-"7015": "Click + and - at the top of the screen to zoom in and out."
+"7015": "Click + and - at the top of the screen to zoom in and out.",
+
+    "469": "Animal Collect complete: ",
+    "472": "Harvest complete: ",
+    "477": "Your farm workers are busy..."
+
 
   }
 

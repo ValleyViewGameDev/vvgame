@@ -1620,19 +1620,41 @@ router.post('/bulk-harvest', async (req, res) => {
     const fs = require('fs');
     const path = require('path');
     const resourcesPath = path.join(__dirname, '../tuning/resources.json');
-    const skillsPath = path.join(__dirname, '../tuning/skills.json');
+    const skillsPath = path.join(__dirname, '../tuning/skillsTuning.json');
     const masterResources = JSON.parse(fs.readFileSync(resourcesPath, 'utf-8'));
     const masterSkills = JSON.parse(fs.readFileSync(skillsPath, 'utf-8'));
 
     // Calculate warehouse and backpack capacities with skills
-    const warehouseMultiplier = player.skills?.find(s => s.type === 'Warehouse')?.level || 1;
-    const backpackMultiplier = player.skills?.find(s => s.type === 'Backpacker')?.level || 1;
-    const warehouseCapacity = player.warehouseCapacity * warehouseMultiplier;
-    const backpackCapacity = player.backpackCapacity * backpackMultiplier;
+    // Match the client-side logic from deriveWarehouseAndBackpackCapacity
+    const baseWarehouse = player.warehouseCapacity || 0;
+    const baseBackpack = player.backpackCapacity || 0;
+    const isGold = player.accountStatus === "Gold";
+    const warehouseBonus = isGold ? 1000000 : 0;
+    const backpackBonus = isGold ? 1000000 : 0;
 
-    // Calculate current usage
-    const currentWarehouseUsage = (player.inventory || []).reduce((sum, item) => sum + (item.quantity || 0), 0);
-    const currentBackpackUsage = (player.backpack || []).reduce((sum, item) => sum + (item.quantity || 0), 0);
+    let warehouseCapacity = baseWarehouse + warehouseBonus;
+    let backpackCapacity = baseBackpack + backpackBonus;
+
+    // Add skill bonuses
+    (player.skills || []).forEach(skill => {
+      const skillDetails = masterResources.find(res => res.type === skill.type);
+      if (skillDetails) {
+        const bonus = skillDetails.qtycollected || 0;
+        if (skillDetails.output === 'warehouseCapacity') {
+          warehouseCapacity += bonus;
+        } else if (skillDetails.output === 'backpackCapacity') {
+          backpackCapacity += bonus;
+        }
+      }
+    });
+
+    // Calculate current usage (exclude Money and Gem)
+    const currentWarehouseUsage = (player.inventory || [])
+      .filter(item => item.type !== 'Money' && item.type !== 'Gem')
+      .reduce((sum, item) => sum + (item.quantity || 0), 0);
+    const currentBackpackUsage = (player.backpack || [])
+      .filter(item => item.type !== 'Money' && item.type !== 'Gem')
+      .reduce((sum, item) => sum + (item.quantity || 0), 0);
     const totalCapacity = warehouseCapacity + backpackCapacity;
     const currentTotalUsage = currentWarehouseUsage + currentBackpackUsage;
     const availableSpace = totalCapacity - currentTotalUsage;
@@ -1792,18 +1814,22 @@ router.post('/bulk-harvest', async (req, res) => {
 
             // Add new farmplots
             const seasonLevel = getSeasonLevel();
-            const currentTime = new Date();
+            const currentTime = Date.now();
             
             for (const pos of harvestedPositions) {
+              // Match the exact format from handleFarmPlotPlacement
+              const growEndTime = currentTime + (farmplot.growtime || 0) * 1000;
+              
               grid.resources.push({
                 type: farmplot.type,
                 x: pos.x,
                 y: pos.y,
+                growEnd: growEndTime,
                 state: 'growingtimer',
-                growtimeremaining: Math.floor(farmplot.growtime * 60),
                 passable: true,
                 seasonLevel: seasonLevel,
-                plantedAt: currentTime
+                // Include output for crop conversion (matching farmState.addSeed)
+                output: farmplot.output
               });
             }
 

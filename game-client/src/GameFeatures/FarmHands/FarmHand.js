@@ -3,6 +3,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
 import Modal from '../../UI/Modal';
+import ProgressModal from '../../UI/ProgressModal';
 import '../../UI/ResourceButton.css';
 import ResourceButton from '../../UI/ResourceButton';
 import { canAfford } from '../../Utils/InventoryManagement';
@@ -21,6 +22,9 @@ import { validateTileType } from '../../Utils/ResourceHelpers';
 import { useNPCOverlay } from '../../UI/NPCOverlayContext';
 import { useBulkOperation } from '../../UI/BulkOperationContext';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
+import { calculateBulkHarvestCapacity, buildBulkHarvestOperations, formatBulkHarvestResults } from './BulkHarvestUtils';
+import { enrichResourceFromMaster } from '../../Utils/ResourceHelpers';
+import farmState from '../../FarmState';
 
 const FarmHandPanel = ({
   onClose,
@@ -64,6 +68,7 @@ const FarmHandPanel = ({
   const hasBulkReplant = skills.some(skill => skill.type === 'Bulk Replant');
   const hasBulkRestartCraft = skills.some(skill => skill.type === 'Bulk Restart Craft');
   const [isContentLoading, setIsContentLoading] = useState(false);
+  const [bulkProgressModal, setBulkProgressModal] = useState({ isOpen: false, message: '' });
   const { setBusyOverlay, clearNPCOverlay } = useNPCOverlay();
   const { startBulkOperation, endBulkOperation } = useBulkOperation();
   
@@ -628,16 +633,14 @@ const FarmHandPanel = ({
     
     setIsHarvestModalOpen(true);
   }
-
+ 
   async function executeSelectiveHarvest() {
     console.log('🚜 Executing selective harvest');
     setIsHarvestModalOpen(false);
-    onClose();
+    // Don't close the panel immediately - keep it open for progress modal
+    // onClose();
     setErrorMessage('');
 
-    const safeInventory = Array.isArray(inventory) ? inventory : [];
-    const safeBackpack = Array.isArray(backpack) ? backpack : [];
-    
     // Find the Farmer NPC to apply busy overlay
     const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
     const farmerNPC = npcs.find(npc => npc.action === 'worker');
@@ -645,124 +648,212 @@ const FarmHandPanel = ({
       setBusyOverlay(farmerNPC.id);
     }
 
+    // Show progress modal
+    console.log('Setting bulk progress modal to open');
+    console.log('Current state before:', bulkProgressModal);
+    setBulkProgressModal({ 
+      isOpen: true, 
+      message: strings[477],
+    });
+    console.log('State set, should be open now');
+
     // Start bulk operation tracking
     const operationId = `bulk-harvest-${Date.now()}`;
     startBulkOperation('bulk-harvest', operationId);
+    
+    // Track when operation started for minimum 2 second display
+    const startTime = Date.now();
 
     try {
       // Get selected crop types
       const selectedTypes = Object.keys(selectedCropTypes).filter(type => selectedCropTypes[type]);
       
       if (selectedTypes.length === 0) {
-        updateStatus('No crops selected for harvest.');
+        updateStatus(strings[449] || 'No crops selected for harvest.');
+        // Ensure modal stays open for at least 2 seconds even on early return
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, 2000 - elapsedTime);
+        setTimeout(() => {
+          setBulkProgressModal({ isOpen: false, message: '' });
+          if (farmerNPC) clearNPCOverlay(farmerNPC.id);
+          endBulkOperation(operationId);
+        }, remainingTime);
         return;
       }
 
-      // Filter resources to only selected crop types
-      const cropsToHarvest = resources.filter(res => selectedTypes.includes(res.type));
-      const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-      const successfulHarvest = {};
+      // First, calculate capacity to check if we can harvest
+      const capacityCheck = await calculateBulkHarvestCapacity(
+        selectedTypes,
+        resources,
+        masterResources,
+        masterSkills,
+        currentPlayer
+      );
 
-      for (const crop of cropsToHarvest) {
-        const preInventory = [...safeInventory];
-        const preBackpack = [...safeBackpack];
+      // Check if we have enough space
+      if (!capacityCheck.canHarvest) {
+        const spaceNeeded = capacityCheck.totalCapacityNeeded;
+        const spaceAvailable = capacityCheck.availableSpace;
+        updateStatus(`${strings[447] || 'Not enough space'}: ${spaceNeeded} needed, ${spaceAvailable} available`);
+        // Ensure modal stays open for at least 2 seconds even on early return
+        const elapsedTime = Date.now() - startTime;
+        const remainingTime = Math.max(0, 2000 - elapsedTime);
+        setTimeout(() => {
+          setBulkProgressModal({ isOpen: false, message: '' });
+          if (farmerNPC) clearNPCOverlay(farmerNPC.id);
+          endBulkOperation(operationId);
+        }, remainingTime);
+        return;
+      }
 
-        // Store crop position for potential replanting
-        const cropPosition = { x: crop.x, y: crop.y };
-        const shouldReplant = selectedReplantTypes[crop.type] || false;
+      // If replanting, check seeds
+      if (showBulkReplant && !capacityCheck.canReplantAll) {
+        const missingSeeds = Object.entries(capacityCheck.hasEnoughSeeds)
+          .filter(([_, data]) => !data.enough)
+          .map(([type, data]) => `${getLocalizedString(type, strings)}: ${data.needed - data.has} more needed`)
+          .join(', ');
+        
+        // Still proceed with harvest, but warn about replanting
+        console.log(`⚠️ Not enough seeds for replanting: ${missingSeeds}`);
+      }
 
-        await handleDooberClick(
-          crop,
-          crop.y,
-          crop.x,
-          resources,
-          setResources,
-          setInventory,
-          setBackpack,
-          preInventory,
-          preBackpack,
-          currentPlayer.skills,
-          gridId,
-          FloatingTextManager.addFloatingText,
-          TILE_SIZE,
-          currentPlayer,
-          setCurrentPlayer,
-          updateStatus,
-          masterResources,
-          masterSkills,
-          strings
-        );
+      // Build operations for API call
+      const operations = buildBulkHarvestOperations(capacityCheck, selectedReplantTypes);
+      
+      // Generate transaction ID for idempotency
+      const transactionId = `bulk-harvest-${currentPlayer._id}-${Date.now()}`;
+      const transactionKey = `bulk-harvest-${gridId}`;
 
-        // Handle replanting if selected
-        if (shouldReplant && showBulkReplant) {
-          // Find the farmplot resource that outputs this crop type
-          const farmplotResource = masterResources.find(res => 
-            res.category === 'farmplot' && res.output === crop.type
-          );
+      // Make the bulk harvest API call
+      const response = await axios.post(`${API_BASE}/api/bulk-harvest`, {
+        playerId: currentPlayer._id,
+        gridId: gridId,
+        operations: operations,
+        transactionId: transactionId,
+        transactionKey: transactionKey
+      });
+
+      if (response.data.success) {
+        const results = response.data.results;
+        
+        // Update local inventory state
+        setInventory(response.data.inventory.warehouse);
+        setBackpack(response.data.inventory.backpack);
+        
+        // Update player state with new inventory
+        setCurrentPlayer(prev => ({
+          ...prev,
+          inventory: response.data.inventory.warehouse,
+          backpack: response.data.inventory.backpack
+        }));
+
+        // Remove harvested resources from local state
+        const harvestedPositions = new Set();
+        Object.values(results.harvested).forEach(data => {
+          data.positions.forEach(pos => {
+            harvestedPositions.add(`${pos.x},${pos.y}`);
+          });
+        });
+
+        setResources(prev => prev.filter(res => !harvestedPositions.has(`${res.x},${res.y}`)));
+
+        // Add replanted resources to local state
+        if (results.replanted) {
+          const allNewResources = [];
           
-          // Double-check skill requirement as safety measure
-          if (farmplotResource && hasRequiredSkill(farmplotResource.requires)) {
-            // Check if the tile is still dirt before replanting
-            const tileType = await validateTileType(gridId, cropPosition.x, cropPosition.y);
-            if (tileType !== 'd') {
-              console.log(`⚠️ Skipping replant at (${cropPosition.x}, ${cropPosition.y}) - tile is not dirt (${tileType})`);
-              FloatingTextManager.addFloatingText(303, cropPosition.x, cropPosition.y, TILE_SIZE); // "Must be dirt"
-              continue; // Skip this replant and continue with next crop
+          Object.values(results.replanted).forEach(data => {
+            const farmplotDef = masterResources.find(r => r.type === data.farmplotType);
+            if (farmplotDef) {
+              data.positions.forEach(pos => {
+                // Calculate growEnd time matching server logic
+                const growEndTime = Date.now() + (data.growtime || 0) * 1000;
+                
+                // Enrich the resource with master data, matching handleFarmPlotPlacement
+                const enrichedResource = enrichResourceFromMaster(
+                  {
+                    type: data.farmplotType,
+                    x: pos.x,
+                    y: pos.y,
+                    growEnd: growEndTime,
+                  },
+                  masterResources
+                );
+                
+                allNewResources.push(enrichedResource);
+                
+                // Add to farmState for crop conversion tracking
+                farmState.addSeed({
+                  type: data.farmplotType,
+                  x: pos.x,
+                  y: pos.y,
+                  growEnd: growEndTime,
+                  output: farmplotDef.output
+                });
+              });
             }
+          });
+          
+          if (allNewResources.length > 0) {
+            // Update both global and local state, matching handleFarmPlotPlacement
+            const currentGlobalResources = GlobalGridStateTilesAndResources.getResources() || [];
+            const updatedGlobalResources = [...currentGlobalResources, ...allNewResources];
+            GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
             
-            console.log(`🌱 Replanting ${crop.type} with ${farmplotResource.type} at (${cropPosition.x}, ${cropPosition.y})`);
-            
-            // Direct placement using the existing server sync logic
-            const growEndTime = Date.now() + (farmplotResource.growtime || 0) * 1000;
-            
-            // Create the new farmplot resource
-            const enrichedNewResource = {
-              ...farmplotResource,
-              type: farmplotResource.type,
-              x: cropPosition.x,
-              y: cropPosition.y,
-              growEnd: growEndTime,
-            };
-            
-            // Update local state
-            setResources(prevResources => [...prevResources, enrichedNewResource]);
-            
-            // Update server and all clients
-            await updateGridResource(
-              gridId,
-              {
-                type: farmplotResource.type,
-                x: cropPosition.x,
-                y: cropPosition.y,
-                growEnd: growEndTime,
-              },
-              true
-            );
-            
-            FloatingTextManager.addFloatingText(302, cropPosition.x, cropPosition.y, TILE_SIZE); // "Planted!"
+            setResources(prev => [...prev, ...allNewResources]);
           }
         }
 
-        successfulHarvest[crop.type] = (successfulHarvest[crop.type] || 0) + 1;
-        await wait(100); // avoid hammering server
+        // Show success message
+        const message = formatBulkHarvestResults(results, strings, getLocalizedString);
+        updateStatus(message);
+
+        // Track quest progress for harvested items
+        Object.entries(results.harvested).forEach(([type, data]) => {
+          trackQuestProgress({
+            questProgressCategory: 'collect',
+            itemName: type,
+            quantity: data.quantity,
+            currentPlayer,
+            setCurrentPlayer,
+            masterResources
+          });
+        });
+
+        // Track quest progress for seeds used in replanting
+        Object.entries(results.seedsUsed || {}).forEach(([type, quantity]) => {
+          trackQuestProgress({
+            questProgressCategory: 'spend',
+            itemName: type,
+            quantity: quantity,
+            currentPlayer,
+            setCurrentPlayer,
+            masterResources
+          });
+        });
+
+      } else {
+        updateStatus(strings[448] || 'Bulk harvest failed');
       }
 
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-      updateStatus(`${strings[472]} ${Object.entries(successfulHarvest).map(([t, q]) => `${q} ${getLocalizedString(t, strings)}`).join(', ')}`);
     } catch (error) {
-      console.error('Selective crop harvest failed:', error);
-      setErrorMessage('Failed to harvest selected crops.');
+      console.error('Bulk harvest error:', error);
+      updateStatus(error.response?.data?.error || strings[448] || 'Bulk harvest failed');
     } finally {
-      // End bulk operation tracking
-      endBulkOperation(operationId);
+      // Ensure modal stays open for at least 2 seconds
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, 2000 - elapsedTime);
       
-      // Clear busy overlay when operation completes
-      const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-      const farmerNPC = npcs.find(npc => npc.action === 'worker');
-      if (farmerNPC) {
-        clearNPCOverlay(farmerNPC.id);
-      }
+      setTimeout(() => {
+        // Close progress modal
+        setBulkProgressModal({ isOpen: false, message: '' });
+        
+        // Clear busy overlay
+        if (farmerNPC) {
+          clearNPCOverlay(farmerNPC.id);
+        }
+        // End bulk operation tracking
+        endBulkOperation(operationId);
+      }, remainingTime);
     }
   }
 
@@ -1698,6 +1789,13 @@ const FarmHandPanel = ({
           </div>
         </Modal>
       )}
+      
+      {/* Bulk Operation Progress Modal */}
+      <ProgressModal
+        isOpen={bulkProgressModal.isOpen}
+        title="Processing..."
+        message={bulkProgressModal.message}
+      />
     </Panel>
   );
 

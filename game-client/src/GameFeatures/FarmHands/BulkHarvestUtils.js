@@ -1,4 +1,4 @@
-import { getWarehouseCapacityWithSkills, getBackpackCapacityWithSkills } from '../../Utils/InventoryManagement';
+import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
 
 /**
  * Calculate total capacity needed for bulk harvest operation
@@ -19,27 +19,32 @@ export async function calculateBulkHarvestCapacity(
   let totalCapacityNeeded = 0;
   const harvestDetails = [];
   
-  // Get player's current inventory usage
+  // Get player's current inventory usage (exclude Money and Gem from capacity calculations)
   const currentWarehouseUsage = (currentPlayer.inventory || [])
+    .filter(item => item.type !== 'Money' && item.type !== 'Gem')
     .reduce((sum, item) => sum + (item.quantity || 0), 0);
   const currentBackpackUsage = (currentPlayer.backpack || [])
+    .filter(item => item.type !== 'Money' && item.type !== 'Gem')
     .reduce((sum, item) => sum + (item.quantity || 0), 0);
   
-  // Get total capacities with skills
-  const warehouseCapacity = getWarehouseCapacityWithSkills(
-    currentPlayer.warehouseCapacity,
-    currentPlayer.skills || [],
-    masterResources
-  );
-  const backpackCapacity = getBackpackCapacityWithSkills(
-    currentPlayer.backpackCapacity,
-    currentPlayer.skills || [],
-    masterResources
-  );
+  // Get total capacities with skills using the existing function
+  const capacities = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources);
+  const warehouseCapacity = capacities.warehouse || 0;
+  const backpackCapacity = capacities.backpack || 0;
   
   const totalCapacity = warehouseCapacity + backpackCapacity;
   const currentTotalUsage = currentWarehouseUsage + currentBackpackUsage;
   const availableSpace = totalCapacity - currentTotalUsage;
+  
+  console.log('Bulk harvest capacity check:', {
+    warehouseCapacity,
+    backpackCapacity,
+    totalCapacity,
+    currentWarehouseUsage,
+    currentBackpackUsage,
+    currentTotalUsage,
+    availableSpace
+  });
   
   // Calculate yield for each crop type
   for (const cropType of selectedTypes) {
