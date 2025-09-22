@@ -7,6 +7,9 @@ import { loadMasterResources } from '../Utils/TuningManager';
 class GridStatePCManager {
     constructor() {
       this.playersInGrid = {}; // Store PC states in memory
+      this.pendingUpdates = {}; // Track pending position updates
+      this.batchInterval = null; // Interval for batch saving
+      this.BATCH_SAVE_INTERVAL = 500; // Save positions every 500ms
     }
  
     registerSetPlayersInGrid(setter) {
@@ -14,6 +17,62 @@ class GridStatePCManager {
     }
     registerTileSize(tileSize) {
       this.tileSize = tileSize;
+    }
+    
+    // Start the batch save interval
+    startBatchSaving() {
+      if (this.batchInterval) return; // Already running
+      
+      this.batchInterval = setInterval(() => {
+        this.processPendingUpdates();
+      }, this.BATCH_SAVE_INTERVAL);
+      console.log('🔄 Started batch saving interval');
+    }
+    
+    // Stop the batch save interval
+    stopBatchSaving() {
+      if (this.batchInterval) {
+        clearInterval(this.batchInterval);
+        this.batchInterval = null;
+      }
+      // Save any remaining updates
+      this.processPendingUpdates();
+    }
+    
+    // Process all pending position updates
+    async processPendingUpdates() {
+      const updates = Object.entries(this.pendingUpdates);
+      if (updates.length === 0) return;
+      
+      console.log(`📦 Processing ${updates.length} pending position updates`);
+      
+      // Clear pending updates first
+      this.pendingUpdates = {};
+      
+      // For now, use individual saves until batch endpoint exists
+      for (const [key, data] of updates) {
+        try {
+          await axios.post(`${API_BASE}/api/save-single-pc`, {
+            gridId: data.gridId,
+            playerId: data.playerId,
+            pc: data.pc,
+            lastUpdated: data.lastUpdated,
+          });
+        } catch (error) {
+          console.error(`❌ Failed to save position for ${data.playerId}:`, error);
+          // Re-add failed update back to pending
+          this.pendingUpdates[key] = data;
+        }
+      }
+      
+      if (Object.keys(this.pendingUpdates).length === 0) {
+        console.log(`✅ All position updates saved successfully`);
+      }
+    }
+    
+    // Force save all pending updates immediately
+    async forceSavePendingUpdates() {
+      await this.processPendingUpdates();
     }
     /**
      * Initialize the playersInGrid for a specific gridId.
@@ -60,6 +119,32 @@ class GridStatePCManager {
         }));
 
         console.log(`✅ Initialized playersInGrid for gridId ${gridId}:`, pcs);
+        
+        // Start batch saving for position updates
+        this.startBatchSaving();
+        
+        // Save positions before page unload
+        if (!this.unloadListenerAdded) {
+          window.addEventListener('beforeunload', () => {
+            console.log('🔄 Page unloading, saving pending positions...');
+            // Use synchronous XMLHttpRequest for beforeunload
+            const updates = Object.entries(this.pendingUpdates);
+            if (updates.length > 0) {
+              for (const [key, data] of updates) {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', `${API_BASE}/api/save-single-pc`, false); // false = synchronous
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({
+                  gridId: data.gridId,
+                  playerId: data.playerId,
+                  pc: data.pc,
+                  lastUpdated: data.lastUpdated,
+                }));
+              }
+            }
+          });
+          this.unloadListenerAdded = true;
+        }
         
         // Request fresh player list from server after loading DB state
         // This will override any stale data with current server state
@@ -221,7 +306,6 @@ class GridStatePCManager {
 
     // Update an existing PC in the playersInGrid for a given gridId and playerId.
     async updatePC(gridId, playerId, newProperties) {
-      console.log("😀😀 updatePC -- gridId: ",gridId," playerId: ",playerId," newProperties:", newProperties);
       const gridPCs = this.playersInGrid[gridId]?.pcs;
       if (!gridPCs || !gridPCs[playerId]) {
         console.error(`Cannot update PC ${playerId}. No NPCsInGrid or PC found for gridId: ${gridId}`);
@@ -231,14 +315,6 @@ class GridStatePCManager {
       const currentData = gridPCs[playerId];
       
       const keysToCompare = Object.keys(newProperties).filter(key => key !== 'lastUpdated');
-      console.log('🔍 keysToCompare:', keysToCompare);
-      keysToCompare.forEach(key => {
-        const a = currentData[key];
-        const b = newProperties[key];
-        const isEqual = JSON.stringify(a) === JSON.stringify(b);
-        console.log(`🔍 Comparing key "${key}": current=${JSON.stringify(a)}, incoming=${JSON.stringify(b)}, equal=${isEqual}`);
-      });
-
       const isSame = keysToCompare.every(key => {
         const a = currentData[key];
         const b = newProperties[key];
@@ -246,8 +322,7 @@ class GridStatePCManager {
       });
 
       if (isSame) {
-        console.log(`⏭️ Skipping update for PC ${playerId}; no meaningful changes.`);
-        return;
+        return; // Skip update if no changes
       }
     
       const oldPosition = gridPCs[playerId]?.position;
@@ -271,21 +346,15 @@ class GridStatePCManager {
           emitterId: socket.id,
         };
     
-        console.log("📡 Emitting update-NPCsInGrid-PCs with payload:", JSON.stringify(payload, null, 2));
         socket.emit('update-NPCsInGrid-PCs', payload);
       }
     
-      console.log('oldPosition:', oldPosition);
-      console.log('newPosition:', newPosition);
-      console.log('this.tileSize:', this.tileSize);
-
       if (
         this.tileSize &&
         oldPosition &&
         newPosition &&
         (oldPosition.x !== newPosition.x || oldPosition.y !== newPosition.y)
       ) {
-        console.log('Calling animateRemotePC from updatePC');
         animateRemotePC(playerId, oldPosition, newPosition, this.tileSize);
       }
 
@@ -303,17 +372,18 @@ class GridStatePCManager {
         }));
       }
 
-        // Save to server
-        try {
-          await axios.post(`${API_BASE}/api/save-single-pc`, {
-            gridId,
-            playerId,
-            pc: updatedPC,
-            lastUpdated: now,
-          });
-          console.log(`✅ Updated PC ${playerId} on server.`);
-        } catch (error) {
-          console.error(`❌ Failed to update PC ${playerId}:`, error);
+        // Add to pending updates for batch saving instead of immediate save
+        const updateKey = `${gridId}-${playerId}`;
+        this.pendingUpdates[updateKey] = {
+          gridId,
+          playerId,
+          pc: updatedPC,
+          lastUpdated: now
+        };
+        
+        // Start batch saving if not already running
+        if (!this.batchInterval) {
+          this.startBatchSaving();
         }
     }
 

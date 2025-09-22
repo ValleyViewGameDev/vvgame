@@ -10,8 +10,6 @@ let currentAnimationFrame = null;
 
 // Track currently pressed keys for diagonal movement
 const pressedKeys = new Set();
-let movementTimeout = null;
-const MOVEMENT_DELAY = 1; // milliseconds to wait for additional key presses 
 
 // Helper function to handle key press events
 export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources, 
@@ -28,19 +26,10 @@ export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources,
   // Add the key to our set of pressed keys
   pressedKeys.add(event.key);
   
-  // Clear any existing timeout
-  if (movementTimeout) {
-    clearTimeout(movementTimeout);
-  }
-  
-  // Set a new timeout to process movement after a short delay
-  // This allows multiple keys pressed in quick succession to be combined
-  movementTimeout = setTimeout(() => {
-    processMovement(currentPlayer, TILE_SIZE, masterResources, 
-      setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources, 
-      updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext);
-    movementTimeout = null;
-  }, MOVEMENT_DELAY);
+  // Process movement immediately
+  processMovement(currentPlayer, TILE_SIZE, masterResources, 
+    setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources, 
+    updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext);
 }
 
 // Helper function to handle key release events
@@ -149,15 +138,11 @@ function processMovement(currentPlayer, TILE_SIZE, masterResources,
   }
 
   const finalPosition = { x: targetX, y: targetY };
-  const movementType = (totalDx !== 0 && totalDy !== 0) ? 'Diagonal' : 'Simple';
-  console.log(`➡️ ${movementType} move to:`, finalPosition);
-
   const now = Date.now();
   
   // Update the local player movement timestamp to prevent our own broadcasts from overriding
   if (localPlayerMoveTimestampRef) {
     localPlayerMoveTimestampRef.current = now;
-    console.log('🕐 Updated localPlayerMoveTimestamp to:', now);
   }
 
   playersInGridManager.updatePC(gridId, playerId, {
