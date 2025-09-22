@@ -1919,6 +1919,7 @@ return (
           openPanel={openPanel}
           setActiveStation={setActiveStation}
           setInventory={setInventory}
+          setBackpack={setBackpack}
           setResources={setResources}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}

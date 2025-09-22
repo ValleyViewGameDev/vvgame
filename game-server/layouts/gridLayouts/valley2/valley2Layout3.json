@@ -8470,6 +8470,8 @@
     "Tulip": 30
   },
   "enemiesDistribution": {
-    "Bear": 12
+    "Bear": 8,
+    "Spider": 6
+
   }
 }

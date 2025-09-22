@@ -20,6 +20,7 @@ async function handleProtectedFarmAnimalCollection(
   row,
   col,
   setInventory,
+  setBackpack,
   setResources,
   currentPlayer,
   setCurrentPlayer,
@@ -57,12 +58,30 @@ async function handleProtectedFarmAnimalCollection(
     });
 
     if (response.data.success) {
-      const { collectedQuantity, collectedItem, skillsApplied, inventory, updatedNPC } = response.data;
+      const { collectedQuantity, collectedItem, skillsApplied, updatedNPC } = response.data;
       
-      // Update inventory from server response
-      if (inventory) {
-        setInventory(inventory);
-        setCurrentPlayer(prev => ({ ...prev, inventory }));
+      // Don't use server inventory - use gainIngredients to properly handle capacity
+      // This ensures Gold Pass warehouse bonus is respected
+      
+      // Add to inventory using gainIngredients (respects Gold Pass capacity)
+      const gained = await gainIngredients({
+        playerId: currentPlayer.playerId,
+        currentPlayer,
+        resource: collectedItem,
+        quantity: collectedQuantity,
+        inventory: currentPlayer.inventory,
+        backpack: currentPlayer.backpack,
+        setInventory,
+        setBackpack,
+        setCurrentPlayer,
+        updateStatus,
+        masterResources,
+      });
+      
+      if (!gained) {
+        console.error('❌ Failed to add animal product to inventory - warehouse may be full');
+        // Note: gainIngredients will have already shown the appropriate status message
+        return { type: 'error', message: 'Warehouse full' };
       }
 
       // Update NPC state
@@ -108,7 +127,7 @@ async function handleProtectedFarmAnimalCollection(
       const statusMessage = skillsApplied.length === 0
         ? `Gained ${collectedQuantity} ${collectedItem}.`
         : `Gained ${collectedQuantity} ${collectedItem} (${skillsApplied.join(', ')} skill applied).`;
-      updateStatus(statusMessage);
+      // Note: updateStatus was already called by gainIngredients if needed
 
       // ✅ Track quest progress for NPC graze collection
       await trackQuestProgress(currentPlayer, 'Collect', collectedItem, collectedQuantity, setCurrentPlayer);
@@ -172,6 +191,7 @@ async function handleProtectedFarmAnimalCollection(
               row,
               col,
               setInventory,
+              setBackpack,
               setResources,
               currentPlayer,
               setCurrentPlayer,
@@ -223,6 +243,7 @@ export async function handleNPCClick(
   row,
   col,
   setInventory,
+  setBackpack,
   setResources,
   currentPlayer,
   setCurrentPlayer,
@@ -330,6 +351,7 @@ export async function handleNPCClick(
         row,
         col,
         setInventory,
+        setBackpack,
         setResources,
         currentPlayer,
         setCurrentPlayer,

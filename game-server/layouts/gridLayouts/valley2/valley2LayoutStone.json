@@ -8466,6 +8466,7 @@
     "Stone": 300
   },
   "enemiesDistribution": {
-    "Coyote": 12
+    "Coyote": 12,
+    "Spider": 6
   }
 }

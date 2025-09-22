@@ -1331,47 +1331,8 @@ router.post('/farm-animal/collect', async (req, res) => {
     const collectedQuantity = Math.floor(baseQuantity * skillMultiplier);
     const collectedItem = npcDefinition.output;
 
-    // Check warehouse capacity before adding items
-    const inventory = player.inventory || [];
-    const warehouseCapacity = player.warehouseCapacity || 50;
-    
-    // Calculate warehouse bonus from skills
-    let warehouseBonus = 0;
-    for (const skill of playerSkills) {
-      const skillDef = masterResources.find(res => res.type === skill.type);
-      if (skillDef && skillDef.output === 'warehouseCapacity' && skillDef.qtycollected) {
-        warehouseBonus += skillDef.qtycollected * (skill.quantity || 1);
-      }
-    }
-    const totalWarehouseCapacity = warehouseCapacity + warehouseBonus;
-    
-    // Calculate current warehouse usage (excluding Money and Gem)
-    const currentWarehouseUsage = inventory
-      .filter(item => item.type !== 'Money' && item.type !== 'Gem')
-      .reduce((total, item) => total + (item.quantity || 0), 0);
-    
-    // Check if adding items would exceed capacity
-    if (currentWarehouseUsage + collectedQuantity > totalWarehouseCapacity) {
-      player.activeTransactions.delete(transactionKey);
-      await player.save();
-      return res.status(400).json({ 
-        error: 'Warehouse full', 
-        currentUsage: currentWarehouseUsage,
-        capacity: totalWarehouseCapacity,
-        attemptedToAdd: collectedQuantity
-      });
-    }
-
-    // Add items to player inventory
-    const existingItem = inventory.find(item => item.type === collectedItem);
-    
-    if (existingItem) {
-      existingItem.quantity += collectedQuantity;
-    } else {
-      inventory.push({ type: collectedItem, quantity: collectedQuantity });
-    }
-    
-    player.inventory = inventory;
+    // Don't add items to inventory on server - let client handle with gainIngredients
+    // This ensures Gold Pass warehouse bonus is properly respected
 
     // Update NPC state to 'emptystall'
     npc.state = 'emptystall';
@@ -1395,7 +1356,6 @@ router.post('/farm-animal/collect', async (req, res) => {
       collectedQuantity,
       collectedItem,
       skillsApplied,
-      inventory: player.inventory,
       updatedNPC: {
         state: 'emptystall',
         hp: 0
@@ -1886,6 +1846,212 @@ router.post('/bulk-harvest', async (req, res) => {
     res.status(500).json({ error: 'Failed to process bulk harvest' });
   }
 });
+
+// Bulk crafting collection endpoint
+router.post('/crafting/collect-bulk', async (req, res) => {
+  const { playerId, gridId, stations } = req.body;
+  
+  if (!playerId || !gridId || !Array.isArray(stations) || stations.length === 0) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Find player
+    const player = await Player.findOne({ playerId });
+    if (!player) throw new Error('Player not found');
+
+    // Find the grid
+    const grid = await Grid.findOne({ _id: gridId });
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found' });
+    }
+
+    const results = [];
+    const updatedInventory = [...player.inventory];
+    const updatedBackpack = [...player.backpack];
+    
+    // Process each station
+    for (const station of stations) {
+      const { x, y, craftedItem, transactionId, shouldRestart, restartRecipe } = station;
+      
+      try {
+        // Find the station resource
+        const stationResource = grid.resources.find(res => res.x === x && res.y === y);
+        if (!stationResource || !stationResource.craftEnd || !stationResource.craftedItem) {
+          results.push({ 
+            success: false, 
+            station, 
+            error: 'No crafted item ready at this location' 
+          });
+          continue;
+        }
+
+        // Validate the item matches and is ready
+        if (stationResource.craftedItem !== craftedItem || stationResource.craftEnd > Date.now()) {
+          results.push({ 
+            success: false, 
+            station, 
+            error: 'Item not ready for collection' 
+          });
+          continue;
+        }
+
+        // Get item details
+        const itemResource = masterResources.find(res => res.type === craftedItem);
+        if (!itemResource) {
+          results.push({ 
+            success: false, 
+            station, 
+            error: 'Invalid crafted item' 
+          });
+          continue;
+        }
+
+        // Handle NPCs vs regular items
+        const isNPC = itemResource.category === 'npc';
+        
+        // Don't add items to inventory on server - let client handle with skill buffs
+        // This matches how individual crafting collection works
+
+        // Clear the crafting state from the station
+        const resourceIndex = grid.resources.findIndex(res => res.x === x && res.y === y);
+        if (resourceIndex !== -1) {
+          delete grid.resources[resourceIndex].craftEnd;
+          delete grid.resources[resourceIndex].craftedItem;
+          grid.markModified(`resources.${resourceIndex}`);
+        }
+
+        // Handle restart if requested
+        let restarted = false;
+        if (shouldRestart && restartRecipe && !isNPC) {
+          // Check skill requirements first
+          const hasRequiredSkill = !restartRecipe.requires || 
+            (player.skills && player.skills.some(skill => skill.type === restartRecipe.requires));
+          
+          if (!hasRequiredSkill) {
+            console.log(`Player missing required skill ${restartRecipe.requires} for ${restartRecipe.type}`);
+          } else {
+            // Check if player can afford the recipe
+            const canAfford = checkCanAfford(restartRecipe, updatedInventory, updatedBackpack);
+            
+            if (canAfford) {
+              // Spend ingredients
+              const spent = spendIngredients(restartRecipe, updatedInventory, updatedBackpack);
+              
+              if (spent) {
+                // Get craft time from masterResources (in seconds)
+                const craftedResource = masterResources.find(r => r.type === restartRecipe.type);
+                const craftTimeSeconds = craftedResource?.crafttime || restartRecipe.crafttime || 60;
+                const craftEnd = Date.now() + (craftTimeSeconds * 1000);
+                
+                // Set new craft on station
+                grid.resources[resourceIndex].craftEnd = craftEnd;
+                grid.resources[resourceIndex].craftedItem = restartRecipe.type;
+                grid.markModified(`resources.${resourceIndex}`);
+                
+                restarted = true;
+              }
+            }
+          }
+        }
+
+        results.push({ 
+          success: true, 
+          station,
+          collectedItem: craftedItem,
+          isNPC,
+          restarted
+        });
+        
+      } catch (stationError) {
+        console.error(`Error processing station (${station.x}, ${station.y}):`, stationError);
+        results.push({ 
+          success: false, 
+          station, 
+          error: stationError.message 
+        });
+      }
+    }
+
+    // Save grid changes only (inventory updates handled by client)
+    await grid.save();
+    await player.save();
+
+    res.json({ 
+      success: true, 
+      results
+    });
+
+  } catch (error) {
+    console.error('Error in bulk crafting collection:', error);
+    res.status(500).json({ error: 'Failed to process bulk crafting' });
+  }
+});
+
+// Helper function to check if player can afford recipe
+function checkCanAfford(recipe, inventory, backpack) {
+  for (let i = 1; i <= 4; i++) {
+    const ingredientType = recipe[`ingredient${i}`];
+    const ingredientQty = recipe[`ingredient${i}qty`];
+    
+    if (ingredientType && ingredientQty > 0) {
+      const invItem = inventory.find(item => item.type === ingredientType);
+      const backpackItem = backpack.find(item => item.type === ingredientType);
+      const totalQty = (invItem?.quantity || 0) + (backpackItem?.quantity || 0);
+      
+      if (totalQty < ingredientQty) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+// Helper function to spend ingredients from inventory/backpack
+function spendIngredients(recipe, inventory, backpack) {
+  // First check if we can afford everything
+  if (!checkCanAfford(recipe, inventory, backpack)) {
+    return false;
+  }
+
+  // Then spend the ingredients
+  for (let i = 1; i <= 4; i++) {
+    const ingredientType = recipe[`ingredient${i}`];
+    let ingredientQty = recipe[`ingredient${i}qty`];
+    
+    if (ingredientType && ingredientQty > 0) {
+      // Try to spend from inventory first
+      const invItem = inventory.find(item => item.type === ingredientType);
+      if (invItem && invItem.quantity > 0) {
+        const spent = Math.min(invItem.quantity, ingredientQty);
+        invItem.quantity -= spent;
+        ingredientQty -= spent;
+        
+        // Remove item if quantity reaches 0
+        if (invItem.quantity === 0) {
+          const index = inventory.indexOf(invItem);
+          inventory.splice(index, 1);
+        }
+      }
+      
+      // Then spend remaining from backpack
+      if (ingredientQty > 0) {
+        const backpackItem = backpack.find(item => item.type === ingredientType);
+        if (backpackItem && backpackItem.quantity >= ingredientQty) {
+          backpackItem.quantity -= ingredientQty;
+          
+          // Remove item if quantity reaches 0
+          if (backpackItem.quantity === 0) {
+            const index = backpack.indexOf(backpackItem);
+            backpack.splice(index, 1);
+          }
+        }
+      }
+    }
+  }
+  
+  return true;
+}
 
 module.exports = router;
 

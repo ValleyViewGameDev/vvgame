@@ -179,19 +179,28 @@ export function buildBulkHarvestOperations(capacityCheck, selectedReplantTypes) 
 /**
  * Format harvest results for display
  * @param {Object} results - Results from bulk harvest API
+ * @param {Object} skillsInfo - Skills applied for each crop type
  * @param {Object} strings - Localized strings
  * @param {Function} getLocalizedString - String localization function
  * @returns {String} Formatted message
  */
-export function formatBulkHarvestResults(results, strings, getLocalizedString) {
+export function formatBulkHarvestResults(results, skillsInfo, strings, getLocalizedString) {
   const parts = [];
   
-  // Format harvested items
+  // Format harvested items with skill info
   if (results.harvested && Object.keys(results.harvested).length > 0) {
     const harvestParts = Object.entries(results.harvested)
-      .map(([type, data]) => `${data.quantity} ${getLocalizedString(type, strings)}`)
+      .map(([type, data]) => {
+        const skillInfo = skillsInfo[type];
+        if (skillInfo && skillInfo.skills.length > 0) {
+          const skillsStr = skillInfo.skills.join(', ');
+          return `${data.quantity} ${getLocalizedString(type, strings)} with ${skillsStr} applied (${skillInfo.multiplier}x)`;
+        } else {
+          return `${data.quantity} ${getLocalizedString(type, strings)}`;
+        }
+      })
       .join(', ');
-    parts.push(`${strings[472]} ${harvestParts}`);
+    parts.push(`Harvest complete: ${harvestParts}`);
   }
   
   // Format replanted items
@@ -199,7 +208,7 @@ export function formatBulkHarvestResults(results, strings, getLocalizedString) {
     const replantParts = Object.entries(results.replanted)
       .map(([type, data]) => `${data.count} ${getLocalizedString(type, strings)}`)
       .join(', ');
-    parts.push(`Replanted: ${replantParts}`);
+    parts.push(`${replantParts} replanted`);
   }
   
   return parts.join(' | ');

@@ -26,6 +26,7 @@ const DynamicRenderer = ({
   openPanel,
   setActiveStation,
   setInventory,
+  setBackpack,
   setResources,
   currentPlayer,
   setCurrentPlayer,
@@ -209,6 +210,7 @@ const DynamicRenderer = ({
               Math.round(npc.position?.y || 0),
               Math.round(npc.position?.x || 0),
               setInventory,
+              setBackpack,
               setResources,
               currentPlayer,
               setCurrentPlayer,
@@ -600,7 +602,7 @@ function startRenderingLoop() {
       const existingAttackRing = document.getElementById('player-attackrange-ring');
       if (existingAttackRing) existingAttackRing.remove();
     };
-  }, [NPCsInGrid, playersInGrid, currentPlayer, TILE_SIZE, setInventory, setResources, onNPCClick, onPCClick, masterResourcesRef.current]);
+  }, [NPCsInGrid, playersInGrid, currentPlayer, TILE_SIZE, setInventory, setBackpack, setResources, onNPCClick, onPCClick, masterResourcesRef.current]);
 
   return (
     <div

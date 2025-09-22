@@ -803,8 +803,27 @@ const FarmHandPanel = ({
           }
         }
 
+        // Calculate which skills were applied for each harvested type
+        const harvestSkillsInfo = {};
+        Object.entries(results.harvested).forEach(([cropType, data]) => {
+          // Find skills that apply to this crop type
+          const applicableSkills = (currentPlayer.skills || [])
+            .filter(skill => {
+              const buffValue = masterSkills?.[skill.type]?.[cropType];
+              return buffValue && buffValue > 1;
+            })
+            .map(skill => skill.type);
+          
+          if (applicableSkills.length > 0 && data.skillMultiplier > 1) {
+            harvestSkillsInfo[cropType] = {
+              skills: applicableSkills,
+              multiplier: data.skillMultiplier
+            };
+          }
+        });
+        
         // Store success message to show after modal closes
-        pendingStatusMessage = formatBulkHarvestResults(results, strings, getLocalizedString);
+        pendingStatusMessage = formatBulkHarvestResults(results, harvestSkillsInfo, strings, getLocalizedString);
 
         // Track quest progress for harvested items
         Object.entries(results.harvested).forEach(([type, data]) => {
@@ -944,7 +963,6 @@ const FarmHandPanel = ({
   async function executeSelectiveCrafting() {
     console.log('🛖 Executing selective crafting');
     setIsCraftingModalOpen(false);
-    onClose();
     setErrorMessage('');
     
     // Find the appropriate worker NPC to apply busy overlay
@@ -957,6 +975,35 @@ const FarmHandPanel = ({
     // Start bulk operation tracking
     const operationId = `bulk-crafting-${Date.now()}`;
     startBulkOperation('bulk-crafting', operationId);
+    
+    // Store the status message to show after modal completes
+    let pendingStatusMessage = '';
+    
+    // Store cleanup function reference
+    let cleanupExecuted = false;
+    const cleanup = () => {
+      if (cleanupExecuted) return;
+      cleanupExecuted = true;
+      
+      setBulkProgressModal({ isOpen: false, message: '', onComplete: null });
+      if (workerNPC) clearNPCOverlay(workerNPC.id);
+      endBulkOperation(operationId);
+      
+      // Show the status message after modal closes
+      if (pendingStatusMessage) {
+        updateStatus(pendingStatusMessage);
+      }
+      
+      // Close the panel after showing status
+      onClose();
+    };
+    
+    // Show progress modal with onComplete callback
+    setBulkProgressModal({ 
+      isOpen: true, 
+      message: strings[477], // Same as bulk harvest - "Processing..."
+      onComplete: cleanup
+    });
 
     try {
       // Get selected station groups
@@ -966,7 +1013,7 @@ const FarmHandPanel = ({
         .filter(Boolean);
       
       if (selectedGroups.length === 0) {
-        updateStatus('No crafting stations selected for collection.');
+        pendingStatusMessage = 'No crafting stations selected for collection.';
         return;
       }
 
@@ -975,30 +1022,191 @@ const FarmHandPanel = ({
 
       console.log(`🔨 Found ${stationsToCollect.length} crafting stations ready to collect`);
       
+      // Prepare batch data for all stations
+      const batchStations = stationsToCollect.map(station => {
+        const key = `${station.type}-${station.craftedItem}`;
+        const shouldRestart = hasBulkRestartCraft && selectedRestartStations[key];
+        
+        // Find the recipe if we need to restart
+        let restartRecipe = null;
+        if (shouldRestart) {
+          const stationGroup = selectedGroups.find(g => 
+            g.stationType === station.type && g.craftedItem === station.craftedItem
+          );
+          if (stationGroup && stationGroup.recipe) {
+            restartRecipe = stationGroup.recipe;
+          }
+        }
+        
+        return {
+          x: station.x,
+          y: station.y,
+          type: station.type,
+          craftedItem: station.craftedItem,
+          transactionId: `bulk-craft-collect-${Date.now()}-${Math.random()}`,
+          shouldRestart,
+          restartRecipe
+        };
+      });
+      
       const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
       const successfulCollects = {};
       const successfulRestarts = {};
-
-      for (const station of stationsToCollect) {
-        try {
-          const craftedItem = station.craftedItem;
+      const appliedSkillsInfo = {}; // Track skills and multipliers for status message
+      
+      // Try bulk endpoint first, fallback to individual calls if it doesn't exist
+      let useBulkEndpoint = true;
+      try {
+        console.log('🔨 Attempting bulk crafting collection with stations:', batchStations);
+        const response = await axios.post(`${API_BASE}/api/crafting/collect-bulk`, {
+          playerId: currentPlayer.playerId,
+          gridId,
+          stations: batchStations
+        });
+        
+        console.log('🔨 Bulk crafting response:', response.data);
+        console.log('🔨 Number of results returned:', response.data.results?.length);
+        
+        if (response.data.success) {
+          // Process bulk response
+          const results = response.data.results;
           
-          // Create a unique transaction for each collection
-          const transactionId = `bulk-craft-collect-${Date.now()}-${Math.random()}`;
-          const transactionKey = `crafting-collect-${craftedItem}-${station.x}-${station.y}`;
+          for (const result of results) {
+            if (result.success) {
+              const { station, collectedItem, isNPC, restarted } = result;
+              
+              // Apply skill buffs to crafted collection (matching individual crafting)
+              // Skills apply to the station type, not the collected item
+              const stationType = station.stationType || station.type;
+              const playerBuffs = (currentPlayer.skills || [])
+                .filter((item) => {
+                  const resourceDetails = masterResources.find((res) => res.type === item.type);
+                  const isSkill = resourceDetails?.category === 'skill' || resourceDetails?.category === 'upgrade';
+                  const appliesToStation = (masterSkills?.[item.type]?.[stationType] || 1) > 1;
+                  return isSkill && appliesToStation;
+                })
+                .map((buffItem) => buffItem.type);
+              
+              // Calculate skill multiplier
+              const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
+                const buffValue = masterSkills?.[buff]?.[stationType] || 1;
+                return multiplier * buffValue;
+              }, 1);
+              
+              // Base quantity is 1 per crafting station (matching individual crafting)
+              const baseQtyCollected = 1;
+              const finalQtyCollected = baseQtyCollected * skillMultiplier;
+              
+              // Track successful collects and skills applied
+              successfulCollects[collectedItem] = (successfulCollects[collectedItem] || 0) + finalQtyCollected;
+              
+              // Track skills applied for this item type (only need to do once per item type)
+              if (!appliedSkillsInfo[collectedItem] && playerBuffs.length > 0) {
+                appliedSkillsInfo[collectedItem] = {
+                  skills: playerBuffs,
+                  multiplier: skillMultiplier
+                };
+              }
+              
+              // Don't show individual floating text for bulk operations
+              
+              // Handle NPC spawning
+              if (isNPC) {
+                const craftedResource = masterResources.find(res => res.type === collectedItem);
+                if (craftedResource) {
+                  NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: station.x, y: station.y });
+                }
+              } else {
+                // Add to inventory with buffs
+                await gainIngredients({
+                  playerId: currentPlayer.playerId,
+                  currentPlayer,
+                  resource: collectedItem,
+                  quantity: finalQtyCollected,
+                  inventory: currentPlayer.inventory,
+                  backpack: currentPlayer.backpack,
+                  setInventory,
+                  setBackpack,
+                  setCurrentPlayer,
+                  updateStatus: () => {}, // Don't update status during processing
+                  masterResources,
+                });
+              }
+              
+              // Don't track quest progress individually in bulk - will do it at the end
+              
+              // Track restarts
+              if (restarted && station.restartRecipe) {
+                successfulRestarts[station.restartRecipe.type] = 
+                  (successfulRestarts[station.restartRecipe.type] || 0) + 1;
+              }
+            }
+          }
           
-          console.log(`📦 Collecting ${craftedItem} from station at (${station.x}, ${station.y})`);
-          
-          // Call the server endpoint directly (similar to handleCollect in CraftingStation)
-          const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
-            playerId: currentPlayer.playerId,
-            gridId,
-            stationX: station.x,
-            stationY: station.y,
-            craftedItem,
-            transactionId,
-            transactionKey
+          // Update local resources state based on successful results
+          const currentResources = GlobalGridStateTilesAndResources.getResources();
+          const updatedResources = currentResources.map(res => {
+            // Find if this resource was processed
+            const processedResult = results.find(r => 
+              r.success && r.station.x === res.x && r.station.y === res.y
+            );
+            
+            if (processedResult) {
+              // Clear crafting state
+              const updated = { ...res };
+              delete updated.craftEnd;
+              delete updated.craftedItem;
+              
+              // If restarted, add new crafting state
+              if (processedResult.restarted && processedResult.station.restartRecipe) {
+                // Get craft time from masterResources (in seconds)
+                const craftedResource = masterResources.find(r => r.type === processedResult.station.restartRecipe.type);
+                const craftTimeSeconds = craftedResource?.crafttime || processedResult.station.restartRecipe.crafttime || 60;
+                updated.craftEnd = Date.now() + (craftTimeSeconds * 1000);
+                updated.craftedItem = processedResult.station.restartRecipe.type;
+              }
+              
+              return updated;
+            }
+            
+            return res;
           });
+          
+          GlobalGridStateTilesAndResources.setResources(updatedResources);
+          setResources(updatedResources);
+        }
+      } catch (bulkError) {
+        console.error('🔨 Bulk crafting error:', bulkError.response?.data || bulkError.message);
+        // If bulk endpoint doesn't exist, fall back to individual processing
+        if (bulkError.response?.status === 404) {
+          console.log('Bulk endpoint not found, falling back to individual processing');
+          useBulkEndpoint = false;
+        } else if (bulkError.response?.status === 500 || bulkError.response?.status === 400) {
+          console.log('Bulk endpoint returned error, falling back to individual processing');
+          useBulkEndpoint = false;
+        } else {
+          throw bulkError;
+        }
+      }
+      
+      // If bulk endpoint wasn't available, process individually
+      if (!useBulkEndpoint) {
+        for (const station of batchStations) {
+          try {
+            const craftedItem = station.craftedItem;
+            
+            console.log(`📦 Collecting ${craftedItem} from station at (${station.x}, ${station.y})`);
+            
+            // Call the server endpoint directly (similar to handleCollect in CraftingStation)
+            const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
+              playerId: currentPlayer.playerId,
+              gridId,
+              stationX: station.x,
+              stationY: station.y,
+              craftedItem,
+              transactionId: station.transactionId,
+              transactionKey: `crafting-collect-${craftedItem}-${station.x}-${station.y}`
+            });
 
           if (response.data.success) {
             const { collectedItem, isNPC } = response.data;
@@ -1019,9 +1227,11 @@ const FarmHandPanel = ({
               return multiplier * buffValue;
             }, 1);
 
-            const finalQtyCollected = skillMultiplier;
+            // Base quantity is 1 per crafting station (matching individual crafting)
+            const baseQtyCollected = 1;
+            const finalQtyCollected = baseQtyCollected * skillMultiplier;
             
-            FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${getLocalizedString(collectedItem, strings)}`, station.x, station.y, TILE_SIZE);
+            // Don't show individual floating text for bulk operations
 
             // Handle NPC spawning client-side
             if (isNPC) {
@@ -1064,56 +1274,69 @@ const FarmHandPanel = ({
 
             successfulCollects[collectedItem] = (successfulCollects[collectedItem] || 0) + finalQtyCollected;
             
-            // Handle restart if selected and player has the skill
-            if (hasBulkRestartCraft && selectedRestartStations[`${station.type}-${collectedItem}`]) {
-              // Find the station group to get the recipe
-              const stationGroup = selectedGroups.find(g => 
-                g.stationType === station.type && g.craftedItem === collectedItem
-              );
-              
-              if (stationGroup && stationGroup.recipe) {
-                const restarted = await restartCrafting(station, stationGroup.recipe, strings);
-                if (restarted) {
-                  successfulRestarts[stationGroup.recipe.type] = (successfulRestarts[stationGroup.recipe.type] || 0) + 1;
-                  console.log(`✅ Restarted crafting at station (${station.x}, ${station.y})`);
-                }
+            // Handle restart if this station should restart
+            if (station.shouldRestart && station.restartRecipe) {
+              const restarted = await restartCrafting(station, station.restartRecipe, strings);
+              if (restarted) {
+                successfulRestarts[station.restartRecipe.type] = (successfulRestarts[station.restartRecipe.type] || 0) + 1;
+                console.log(`✅ Restarted crafting at station (${station.x}, ${station.y})`);
               }
             }
           }
           
-          await wait(100); // Avoid overloading server
-        } catch (error) {
-          console.error(`Failed to collect from station at (${station.x}, ${station.y}):`, error);
+            await wait(100); // Avoid overloading server
+          } catch (error) {
+            console.error(`Failed to collect from station at (${station.x}, ${station.y}):`, error);
+          }
         }
       }
 
+      // Track quest progress in bulk (no floating text for bulk operations)
+      if (Object.keys(successfulCollects).length > 0) {
+        for (const [collectedItem, quantity] of Object.entries(successfulCollects)) {
+          await trackQuestProgress(currentPlayer, 'Craft', collectedItem, quantity, setCurrentPlayer);
+        }
+      }
+      
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
       
       if (Object.keys(successfulCollects).length > 0) {
-        let statusMessage = `${strings[467]} ${Object.entries(successfulCollects).map(([t, q]) => `${q} ${getLocalizedString(t, strings)}`).join(', ')}`;
-        if (Object.keys(successfulRestarts).length > 0) {
-          statusMessage += ` | ${strings[468]} ${Object.entries(successfulRestarts).map(([t, q]) => `${q} ${getLocalizedString(t, strings)}`).join(', ')}`;
-        }
-        updateStatus(statusMessage);
+        pendingStatusMessage = formatBulkCraftingResults(successfulCollects, successfulRestarts, appliedSkillsInfo, strings, getLocalizedString);
       } else {
-        updateStatus('Failed to collect any crafted items.');
+        pendingStatusMessage = 'Failed to collect any crafted items.';
       }
     } catch (error) {
       console.error('Bulk crafting failed:', error);
-      setErrorMessage('Failed to collect crafted items.');
-    } finally {
-      // End bulk operation tracking
-      endBulkOperation(operationId);
-      
-      // Clear busy overlay when operation completes
-      const npcsCleanup = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-      const workerNPCCleanup = npcsCleanup.find(npc => npc.action === 'worker' && ['Farmer', 'Crafter'].includes(npc.type));
-      if (workerNPCCleanup) {
-        clearNPCOverlay(workerNPCCleanup.id);
-      }
+      pendingStatusMessage = error.response?.data?.error || 'Failed to collect crafted items.';
     }
   }
 
+  // Helper function to format bulk crafting results
+  function formatBulkCraftingResults(collects, restarts, appliedSkillsInfo, strings, getLocalizedString) {
+    const parts = [];
+    
+    if (Object.keys(collects).length > 0) {
+      // Format collected items with skills info
+      const collectsStr = Object.entries(collects).map(([itemType, qty]) => {
+        const skillInfo = appliedSkillsInfo[itemType];
+        if (skillInfo && skillInfo.skills.length > 0) {
+          const skillsStr = skillInfo.skills.join(', ');
+          return `${qty} ${getLocalizedString(itemType, strings)} with ${skillsStr} applied (${skillInfo.multiplier}x)`;
+        } else {
+          return `${qty} ${getLocalizedString(itemType, strings)}`;
+        }
+      }).join(', ');
+      
+      parts.push(`Crafting complete: ${collectsStr}`);
+    }
+    
+    if (Object.keys(restarts).length > 0) {
+      parts.push(`${Object.entries(restarts).map(([t, q]) => `${q} ${getLocalizedString(t, strings)}`).join(', ')} restarted`);
+    }
+    
+    return parts.join(' | ');
+  }
+  
   // Helper function to restart crafting at a station
   async function restartCrafting(station, recipe, strings) {
     if (!recipe) {
@@ -1174,7 +1397,7 @@ const FarmHandPanel = ({
         setResources(updatedResources);
         
         FloatingTextManager.addFloatingText(404, station.x, station.y, TILE_SIZE);
-        updateStatus(`${strings[440]} ${getLocalizedString(recipe.type, strings)}`);
+        // Status update will be handled in bulk after all operations complete
         console.log(`✅ Restarted crafting ${recipe.type} at station (${station.x}, ${station.y})`);
         return true;
       }
