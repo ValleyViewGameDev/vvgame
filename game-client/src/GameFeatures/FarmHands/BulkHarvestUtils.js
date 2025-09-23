@@ -1,4 +1,5 @@
 import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
+import { calculateSkillMultiplier } from './SkillCalculationUtils';
 
 /**
  * Calculate total capacity needed for bulk harvest operation
@@ -54,27 +55,19 @@ export async function calculateBulkHarvestCapacity(
     const baseCrop = masterResources.find(r => r.type === cropType);
     if (!baseCrop) continue;
     
-    // Calculate skill multipliers for this crop
-    let skillMultiplier = 1;
-    const playerSkills = currentPlayer.skills || [];
-    
-    playerSkills.forEach(skill => {
-      // Check if this skill buffs this crop type
-      const buffValue = masterSkills?.[skill.type]?.[cropType];
-      if (buffValue && buffValue > 1) {
-        skillMultiplier *= buffValue;
-      }
-    });
+    // Use shared utility for skill calculations
+    const skillInfo = calculateSkillMultiplier(cropType, currentPlayer.skills || [], masterSkills);
     
     const baseYield = baseCrop.qtycollected || 1;
-    const yieldPerCrop = Math.floor(baseYield * skillMultiplier);
+    const yieldPerCrop = Math.floor(baseYield * skillInfo.multiplier);
     const totalYield = crops.length * yieldPerCrop;
     
     harvestDetails.push({
       type: cropType,
       count: crops.length,
       baseYield,
-      skillMultiplier,
+      skillMultiplier: skillInfo.multiplier,
+      skillInfo,
       yieldPerCrop,
       totalYield,
       positions: crops.map(c => ({ x: c.x, y: c.y })),

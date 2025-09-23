@@ -25,6 +25,7 @@ import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTil
 import { calculateBulkHarvestCapacity, buildBulkHarvestOperations, formatBulkHarvestResults } from './BulkHarvestUtils';
 import { enrichResourceFromMaster } from '../../Utils/ResourceHelpers';
 import farmState from '../../FarmState';
+import { calculateSkillMultiplier } from './SkillCalculationUtils';
 
 const FarmHandPanel = ({
   onClose,
@@ -803,22 +804,12 @@ const FarmHandPanel = ({
           }
         }
 
-        // Calculate which skills were applied for each harvested type
+        // Calculate which skills were applied for each harvested type using shared utility
         const harvestSkillsInfo = {};
         Object.entries(results.harvested).forEach(([cropType, data]) => {
-          // Find skills that apply to this crop type
-          const applicableSkills = (currentPlayer.skills || [])
-            .filter(skill => {
-              const buffValue = masterSkills?.[skill.type]?.[cropType];
-              return buffValue && buffValue > 1;
-            })
-            .map(skill => skill.type);
-          
-          if (applicableSkills.length > 0 && data.skillMultiplier > 1) {
-            harvestSkillsInfo[cropType] = {
-              skills: applicableSkills,
-              multiplier: data.skillMultiplier
-            };
+          const skillInfo = calculateSkillMultiplier(cropType, currentPlayer.skills || [], masterSkills);
+          if (skillInfo.hasSkills) {
+            harvestSkillsInfo[cropType] = skillInfo;
           }
         });
         
@@ -998,13 +989,6 @@ const FarmHandPanel = ({
       onClose();
     };
     
-    // Show progress modal with onComplete callback
-    setBulkProgressModal({ 
-      isOpen: true, 
-      message: strings[477], // Same as bulk harvest - "Processing..."
-      onComplete: cleanup
-    });
-
     try {
       // Get selected station groups
       const selectedGroups = Object.keys(selectedCraftingStations)
@@ -1019,6 +1003,18 @@ const FarmHandPanel = ({
 
       // Flatten all selected stations
       const stationsToCollect = selectedGroups.flatMap(group => group.stations);
+      
+      // Calculate estimated duration based on number of stations
+      // Minimum 5 seconds, plus 100ms per station for individual processing
+      const estimatedDuration = Math.max(5000, stationsToCollect.length * 100);
+      
+      // Show progress modal with onComplete callback
+      setBulkProgressModal({ 
+        isOpen: true, 
+        message: strings[477], // Same as bulk harvest - "Processing..."
+        onComplete: cleanup,
+        duration: estimatedDuration
+      });
 
       console.log(`🔨 Found ${stationsToCollect.length} crafting stations ready to collect`);
       
@@ -1071,6 +1067,17 @@ const FarmHandPanel = ({
           // Process bulk response
           const results = response.data.results;
           
+          // Update inventory from server response if provided
+          if (response.data.inventory) {
+            setInventory(response.data.inventory.warehouse || response.data.inventory);
+            setBackpack(response.data.inventory.backpack || []);
+            setCurrentPlayer(prev => ({
+              ...prev,
+              inventory: response.data.inventory.warehouse || response.data.inventory,
+              backpack: response.data.inventory.backpack || []
+            }));
+          }
+          
           for (const result of results) {
             if (result.success) {
               const { station, collectedItem, isNPC, restarted } = result;
@@ -1117,20 +1124,19 @@ const FarmHandPanel = ({
                   NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: station.x, y: station.y });
                 }
               } else {
-                // Add to inventory with buffs
-                await gainIngredients({
-                  playerId: currentPlayer.playerId,
-                  currentPlayer,
-                  resource: collectedItem,
-                  quantity: finalQtyCollected,
-                  inventory: currentPlayer.inventory,
-                  backpack: currentPlayer.backpack,
-                  setInventory,
-                  setBackpack,
-                  setCurrentPlayer,
-                  updateStatus: () => {}, // Don't update status during processing
-                  masterResources,
-                });
+                // Server doesn't add items - client handles with skill buffs
+                // Track successful collects with skill bonuses
+                const baseQtyCollected = 1;
+                const finalQtyCollected = baseQtyCollected * skillMultiplier;
+                successfulCollects[collectedItem] = (successfulCollects[collectedItem] || 0) + finalQtyCollected;
+                
+                // Track skills applied for this item type (only need to do once per item type)
+                if (!appliedSkillsInfo[collectedItem] && playerBuffs.length > 0) {
+                  appliedSkillsInfo[collectedItem] = {
+                    skills: playerBuffs,
+                    multiplier: skillMultiplier
+                  };
+                }
               }
               
               // Don't track quest progress individually in bulk - will do it at the end
@@ -1212,18 +1218,20 @@ const FarmHandPanel = ({
             const { collectedItem, isNPC } = response.data;
             
             // Apply skill buffs to crafted collection
+            // Skills apply to the station type, not the collected item
+            const stationType = station.type;
             const playerBuffs = (currentPlayer.skills || [])
               .filter((item) => {
                 const resourceDetails = masterResources.find((res) => res.type === item.type);
                 const isSkill = resourceDetails?.category === 'skill' || resourceDetails?.category === 'upgrade';
-                const appliesToResource = (masterSkills?.[item.type]?.[collectedItem] || 1) > 1;
-                return isSkill && appliesToResource;
+                const appliesToStation = (masterSkills?.[item.type]?.[stationType] || 1) > 1;
+                return isSkill && appliesToStation;
               })
               .map((buffItem) => buffItem.type);
 
             // Calculate skill multiplier
             const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
-              const buffValue = masterSkills?.[buff]?.[collectedItem] || 1;
+              const buffValue = masterSkills?.[buff]?.[stationType] || 1;
               return multiplier * buffValue;
             }, 1);
 
@@ -1274,6 +1282,14 @@ const FarmHandPanel = ({
 
             successfulCollects[collectedItem] = (successfulCollects[collectedItem] || 0) + finalQtyCollected;
             
+            // Track skills applied for this item type (only need to do once per item type)
+            if (!appliedSkillsInfo[collectedItem] && playerBuffs.length > 0) {
+              appliedSkillsInfo[collectedItem] = {
+                skills: playerBuffs,
+                multiplier: skillMultiplier
+              };
+            }
+            
             // Handle restart if this station should restart
             if (station.shouldRestart && station.restartRecipe) {
               const restarted = await restartCrafting(station, station.restartRecipe, strings);
@@ -1291,9 +1307,25 @@ const FarmHandPanel = ({
         }
       }
 
-      // Track quest progress in bulk (no floating text for bulk operations)
+      // Add collected items to inventory
       if (Object.keys(successfulCollects).length > 0) {
         for (const [collectedItem, quantity] of Object.entries(successfulCollects)) {
+          // Add to inventory with skill-modified quantities
+          await gainIngredients({
+            playerId: currentPlayer.playerId,
+            currentPlayer,
+            resource: collectedItem,
+            quantity: quantity,
+            inventory: inventory,
+            backpack: backpack,
+            setInventory,
+            setBackpack,
+            setCurrentPlayer,
+            updateStatus: () => {}, // Don't show individual status messages
+            masterResources,
+          });
+          
+          // Track quest progress
           await trackQuestProgress(currentPlayer, 'Craft', collectedItem, quantity, setCurrentPlayer);
         }
       }

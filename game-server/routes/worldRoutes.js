@@ -1643,21 +1643,9 @@ router.post('/bulk-harvest', async (req, res) => {
         continue;
       }
 
-      // Calculate skill multipliers for this crop
-      let skillMultiplier = 1;
-      const playerSkills = player.skills || [];
-      
-      playerSkills.forEach(skill => {
-        // Check if this skill buffs this crop type
-        const buffValue = masterSkills?.[skill.type]?.[cropType];
-        if (buffValue && buffValue > 1) {
-          skillMultiplier *= buffValue;
-        }
-      });
-
-      const baseYield = baseCrop.qtycollected || 1;
-      const yieldPerCrop = Math.floor(baseYield * skillMultiplier);
-      const totalYieldForType = positions.length * yieldPerCrop;
+      // Trust client's expectedYield which includes skill calculations
+      // Server doesn't calculate skills - that's handled client-side
+      const totalYieldForType = expectedYield || positions.length;
 
       // Check if we have enough space for this harvest
       if (harvestResults.totalYield + totalYieldForType > availableSpace) {
@@ -1681,11 +1669,11 @@ router.post('/bulk-harvest', async (req, res) => {
       }
 
       if (harvestedPositions.length > 0) {
-        const actualYield = harvestedPositions.length * yieldPerCrop;
+        // Use the client's expected yield which includes skill bonuses
+        const actualYield = totalYieldForType;
         harvestResults.harvested[cropType] = {
           count: harvestedPositions.length,
           quantity: actualYield,
-          skillMultiplier,
           positions: harvestedPositions
         };
         harvestResults.totalYield += actualYield;
@@ -1979,7 +1967,11 @@ router.post('/crafting/collect-bulk', async (req, res) => {
 
     res.json({ 
       success: true, 
-      results
+      results,
+      inventory: {
+        warehouse: player.inventory,
+        backpack: player.backpack
+      }
     });
 
   } catch (error) {

@@ -798,7 +798,7 @@
     "growtime": 86400,
     "ingredient1": "Apple",
     "ingredient1qty": 1,
-    "moneyvalue": 64,
+    "moneyvalue": 68,
     "crafttime": 86400
   },
   {
@@ -822,7 +822,7 @@
     "growtime": 172800,
     "ingredient1": "Lemon",
     "ingredient1qty": 1,
-    "moneyvalue": 68,
+    "moneyvalue": 72,
     "crafttime": 172800
   },
   {
@@ -846,7 +846,7 @@
     "growtime": 43200,
     "ingredient1": "Grapes",
     "ingredient1qty": 1,
-    "moneyvalue": 60,
+    "moneyvalue": 64,
     "crafttime": 43200
   },
   {
@@ -893,7 +893,7 @@
     "growtime": 259200,
     "ingredient1": "Olive",
     "ingredient1qty": 1,
-    "moneyvalue": 71,
+    "moneyvalue": 75,
     "crafttime": 259200
   },
   {
@@ -976,7 +976,7 @@
     "source": "Wheat Plot",
     "passable": true,
     "requires": "Grower",
-    "qtycollected": 2,
+    "qtycollected": 1,
     "level": 0.25,
     "validong": true,
     "validond": true,
@@ -986,10 +986,10 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 8,
-    "maxprice": 12,
-    "moneyvalue": 12,
-    "crafttime": 10
+    "minprice": 11,
+    "maxprice": 16,
+    "moneyvalue": 16,
+    "crafttime": 20
   },
   {
     "type": "Carrot",
@@ -1096,31 +1096,7 @@
     "source": "Apple Tree",
     "passable": true,
     "requires": "Green Thumb",
-    "qtycollected": 2,
-    "level": 0.4,
-    "validong": true,
-    "validond": true,
-    "validons": false,
-    "validonp": false,
-    "validonw": false,
-    "validonl": false,
-    "validonn": false,
-    "validono": true,
-    "minprice": 64,
-    "maxprice": 92,
-    "moneyvalue": 92,
-    "crafttime": 43200
-  },
-  {
-    "type": "Lemon",
-    "symbol": "🍋",
-    "layoutkey": "lE",
-    "category": "doober",
-    "action": "collect",
-    "source": "Lemon Tree",
-    "passable": true,
-    "requires": "Green Thumb",
-    "qtycollected": 2,
+    "qtycollected": 1,
     "level": 0.4,
     "validong": true,
     "validond": true,
@@ -1136,15 +1112,15 @@
     "crafttime": 86400
   },
   {
-    "type": "Grapes",
-    "symbol": "🍇",
-    "layoutkey": "gR",
+    "type": "Lemon",
+    "symbol": "🍋",
+    "layoutkey": "lE",
     "category": "doober",
     "action": "collect",
-    "source": "Grape Vine",
+    "source": "Lemon Tree",
     "passable": true,
-    "requires": "Winemaker",
-    "qtycollected": 2,
+    "requires": "Green Thumb",
+    "qtycollected": 1,
     "level": 0.4,
     "validong": true,
     "validond": true,
@@ -1154,10 +1130,34 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 60,
-    "maxprice": 86,
-    "moneyvalue": 86,
-    "crafttime": 21600
+    "minprice": 72,
+    "maxprice": 104,
+    "moneyvalue": 104,
+    "crafttime": 172800
+  },
+  {
+    "type": "Grapes",
+    "symbol": "🍇",
+    "layoutkey": "gR",
+    "category": "doober",
+    "action": "collect",
+    "source": "Grape Vine",
+    "passable": true,
+    "requires": "Winemaker",
+    "qtycollected": 1,
+    "level": 0.4,
+    "validong": true,
+    "validond": true,
+    "validons": false,
+    "validonp": false,
+    "validonw": false,
+    "validonl": false,
+    "validonn": false,
+    "validono": true,
+    "minprice": 64,
+    "maxprice": 92,
+    "moneyvalue": 92,
+    "crafttime": 43200
   },
   {
     "type": "Garlic",
@@ -1192,7 +1192,7 @@
     "source": "Olive Tree",
     "passable": true,
     "requires": "Green Thumb",
-    "qtycollected": 2,
+    "qtycollected": 1,
     "level": 0.4,
     "validong": true,
     "validond": true,
@@ -1202,10 +1202,10 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 71,
-    "maxprice": 102,
-    "moneyvalue": 102,
-    "crafttime": 129600
+    "minprice": 75,
+    "maxprice": 108,
+    "moneyvalue": 108,
+    "crafttime": 259200
   },
   {
     "type": "Tomato",
@@ -1345,11 +1345,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 206,
-    "maxprice": 295,
+    "minprice": 207,
+    "maxprice": 296,
     "ingredient1": "Chicken Feed",
     "ingredient1qty": 3,
-    "moneyvalue": 426,
+    "moneyvalue": 429,
     "crafttime": 7200
   },
   {
@@ -1370,11 +1370,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 133,
-    "maxprice": 191,
+    "minprice": 137,
+    "maxprice": 196,
     "ingredient1": "Wheat",
     "ingredient1qty": 6,
-    "moneyvalue": 48,
+    "moneyvalue": 66,
     "crafttime": 300
   },
   {
@@ -1395,15 +1395,15 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 142,
-    "maxprice": 204,
+    "minprice": 143,
+    "maxprice": 205,
     "ingredient1": "Wheat",
     "ingredient1qty": 2,
     "ingredient2": "Corn",
     "ingredient2qty": 1,
     "ingredient3": "Carrot",
     "ingredient3qty": 2,
-    "moneyvalue": 96,
+    "moneyvalue": 102,
     "crafttime": 120
   },
   {
@@ -1752,13 +1752,13 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 428,
-    "maxprice": 612,
+    "minprice": 429,
+    "maxprice": 613,
     "ingredient1": "Flour",
     "ingredient1qty": 2,
     "ingredient2": "Butter",
     "ingredient2qty": 1,
-    "moneyvalue": 519,
+    "moneyvalue": 527,
     "crafttime": 7200
   },
   {
@@ -1789,7 +1789,7 @@
     "ingredient3qty": 2,
     "ingredient4": "Butter",
     "ingredient4qty": 1,
-    "moneyvalue": 1266,
+    "moneyvalue": 1272,
     "crafttime": 14400
   },
   {
@@ -1810,8 +1810,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 525,
-    "maxprice": 750,
+    "minprice": 553,
+    "maxprice": 790,
     "ingredient1": "Apple",
     "ingredient1qty": 2,
     "ingredient2": "Flour",
@@ -1820,7 +1820,7 @@
     "ingredient3qty": 1,
     "ingredient4": "Butter",
     "ingredient4qty": 2,
-    "moneyvalue": 956,
+    "moneyvalue": 968,
     "crafttime": 1200
   },
   {
@@ -1851,7 +1851,7 @@
     "ingredient3qty": 2,
     "ingredient4": "Cream",
     "ingredient4qty": 2,
-    "moneyvalue": 1286,
+    "moneyvalue": 1290,
     "crafttime": 1200
   },
   {
@@ -1873,8 +1873,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 485,
-    "maxprice": 694,
+    "minprice": 486,
+    "maxprice": 695,
     "ingredient1": "Pumpkin",
     "ingredient1qty": 1,
     "ingredient2": "Flour",
@@ -1883,7 +1883,7 @@
     "ingredient3qty": 1,
     "ingredient4": "Butter",
     "ingredient4qty": 2,
-    "moneyvalue": 937,
+    "moneyvalue": 941,
     "crafttime": 1200
   },
   {
@@ -1905,8 +1905,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 557,
-    "maxprice": 797,
+    "minprice": 585,
+    "maxprice": 837,
     "ingredient1": "Lemon",
     "ingredient1qty": 2,
     "ingredient2": "Flour",
@@ -1915,7 +1915,7 @@
     "ingredient3qty": 2,
     "ingredient4": "Sugar",
     "ingredient4qty": 4,
-    "moneyvalue": 1437,
+    "moneyvalue": 1451,
     "crafttime": 600
   },
   {
@@ -1937,8 +1937,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 634,
-    "maxprice": 906,
+    "minprice": 664,
+    "maxprice": 949,
     "ingredient1": "Flour",
     "ingredient1qty": 1,
     "ingredient2": "Egg",
@@ -1947,7 +1947,7 @@
     "ingredient3qty": 8,
     "ingredient4": "Rosemary",
     "ingredient4qty": 1,
-    "moneyvalue": 1268,
+    "moneyvalue": 1306,
     "crafttime": 14400
   },
   {
@@ -1975,7 +1975,7 @@
     "ingredient1qty": 1,
     "ingredient2": "Garlic",
     "ingredient2qty": 3,
-    "moneyvalue": 653,
+    "moneyvalue": 654,
     "crafttime": 3600
   },
   {
@@ -1997,8 +1997,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 212,
-    "maxprice": 304,
+    "minprice": 219,
+    "maxprice": 314,
     "ingredient1": "Flour",
     "ingredient1qty": 2,
     "ingredient2": "Egg",
@@ -2007,7 +2007,7 @@
     "ingredient3qty": 4,
     "ingredient4": "Lemon Cookie",
     "ingredient4qty": 4,
-    "moneyvalue": 3250,
+    "moneyvalue": 3372,
     "crafttime": 28800
   },
   {
@@ -2028,8 +2028,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 843,
-    "maxprice": 1205,
+    "minprice": 872,
+    "maxprice": 1246,
     "ingredient1": "Tomato",
     "ingredient1qty": 6,
     "ingredient2": "Bread",
@@ -2038,7 +2038,7 @@
     "ingredient3qty": 1,
     "ingredient4": "Cream",
     "ingredient4qty": 3,
-    "moneyvalue": 2519,
+    "moneyvalue": 2542,
     "crafttime": 1800
   },
   {
@@ -2059,8 +2059,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 855,
-    "maxprice": 1222,
+    "minprice": 879,
+    "maxprice": 1257,
     "ingredient1": "Tomato",
     "ingredient1qty": 2,
     "ingredient2": "Carrot",
@@ -2069,7 +2069,7 @@
     "ingredient3qty": 2,
     "ingredient4": "Olive Oil",
     "ingredient4qty": 1,
-    "moneyvalue": 826,
+    "moneyvalue": 847,
     "crafttime": 2700
   },
   {
@@ -2091,8 +2091,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 616,
-    "maxprice": 881,
+    "minprice": 645,
+    "maxprice": 922,
     "ingredient1": "Pumpkin",
     "ingredient1qty": 2,
     "ingredient2": "Carrot",
@@ -2101,7 +2101,7 @@
     "ingredient3qty": 1,
     "ingredient4": "Cream",
     "ingredient4qty": 3,
-    "moneyvalue": 1577,
+    "moneyvalue": 1598,
     "crafttime": 3600
   },
   {
@@ -2123,8 +2123,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 808,
-    "maxprice": 1155,
+    "minprice": 846,
+    "maxprice": 1209,
     "ingredient1": "Egg",
     "ingredient1qty": 4,
     "ingredient2": "Cheese",
@@ -2133,7 +2133,7 @@
     "ingredient3qty": 4,
     "ingredient4": "Cream",
     "ingredient4qty": 1,
-    "moneyvalue": 2483,
+    "moneyvalue": 2503,
     "crafttime": 600
   },
   {
@@ -2155,8 +2155,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 1043,
-    "maxprice": 1490,
+    "minprice": 1083,
+    "maxprice": 1548,
     "ingredient1": "Wheat",
     "ingredient1qty": 4,
     "ingredient2": "Tomato",
@@ -2165,7 +2165,7 @@
     "ingredient3qty": 1,
     "ingredient4": "Cheese",
     "ingredient4qty": 4,
-    "moneyvalue": 1790,
+    "moneyvalue": 1823,
     "crafttime": 900
   },
   {
@@ -2212,11 +2212,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 408,
-    "maxprice": 583,
+    "minprice": 425,
+    "maxprice": 608,
     "ingredient1": "Apple",
     "ingredient1qty": 12,
-    "moneyvalue": 768,
+    "moneyvalue": 816,
     "crafttime": 172800
   },
   {
@@ -2238,13 +2238,13 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 934,
-    "maxprice": 1335,
+    "minprice": 986,
+    "maxprice": 1409,
     "ingredient1": "Grapes",
     "ingredient1qty": 10,
     "ingredient2": "Wood",
     "ingredient2qty": 1,
-    "moneyvalue": 602,
+    "moneyvalue": 642,
     "crafttime": 3600
   },
   {
@@ -2266,15 +2266,15 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 959,
-    "maxprice": 1371,
+    "minprice": 1000,
+    "maxprice": 1429,
     "ingredient1": "Grapes",
     "ingredient1qty": 10,
     "ingredient2": "Honey",
     "ingredient2qty": 1,
     "ingredient3": "Wood",
     "ingredient3qty": 1,
-    "moneyvalue": 1120,
+    "moneyvalue": 1160,
     "crafttime": 3600
   },
   {
@@ -2295,11 +2295,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 406,
-    "maxprice": 581,
+    "minprice": 427,
+    "maxprice": 611,
     "ingredient1": "Olive",
     "ingredient1qty": 5,
-    "moneyvalue": 355,
+    "moneyvalue": 375,
     "crafttime": 7200
   },
   {
@@ -2321,13 +2321,13 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 1073,
-    "maxprice": 1533,
+    "minprice": 1124,
+    "maxprice": 1606,
     "ingredient1": "Wine",
     "ingredient1qty": 6,
     "ingredient2": "Wood",
     "ingredient2qty": 1,
-    "moneyvalue": 5606,
+    "moneyvalue": 5918,
     "crafttime": 43200
   },
   {
@@ -2413,7 +2413,7 @@
     "ingredient3qty": 3,
     "ingredient4": "Tulip",
     "ingredient4qty": 1,
-    "moneyvalue": 3097,
+    "moneyvalue": 3101,
     "crafttime": 14400
   },
   {
@@ -2435,8 +2435,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 911,
-    "maxprice": 1302,
+    "minprice": 912,
+    "maxprice": 1303,
     "ingredient1": "Pottery",
     "ingredient1qty": 4,
     "ingredient2": "Clay",

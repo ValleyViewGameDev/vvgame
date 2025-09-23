@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import './ProgressModal.css';
 
-function ProgressModal({ isOpen, title, message, onComplete }) {
+function ProgressModal({ isOpen, title, message, onComplete, duration = 4000, minDuration = 5000 }) {
   const [progress, setProgress] = useState(0);
   
   useEffect(() => {
@@ -11,10 +11,10 @@ function ProgressModal({ isOpen, title, message, onComplete }) {
       return;
     }
     
-    // Animate progress bar over 4 seconds
-    const duration = 4000; // 4 seconds
+    // Use the longer of the provided duration or minDuration
+    const effectiveDuration = Math.max(duration, minDuration);
     const interval = 20; // Update every 20ms for smooth animation
-    const increment = 100 / (duration / interval);
+    const increment = 100 / (effectiveDuration / interval);
     
     const timer = setInterval(() => {
       setProgress(prev => {
@@ -32,7 +32,7 @@ function ProgressModal({ isOpen, title, message, onComplete }) {
     }, interval);
     
     return () => clearInterval(timer);
-  }, [isOpen, onComplete]);
+  }, [isOpen, onComplete, duration, minDuration]);
   
   if (!isOpen) return null;
   
