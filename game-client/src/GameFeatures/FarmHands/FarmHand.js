@@ -22,7 +22,7 @@ import { validateTileType } from '../../Utils/ResourceHelpers';
 import { useNPCOverlay } from '../../UI/NPCOverlayContext';
 import { useBulkOperation } from '../../UI/BulkOperationContext';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import { calculateBulkHarvestCapacity, buildBulkHarvestOperations, formatBulkHarvestResults } from './BulkHarvestUtils';
+import { calculateBulkHarvestCapacity, buildBulkHarvestOperations } from './BulkHarvestUtils';
 import { enrichResourceFromMaster } from '../../Utils/ResourceHelpers';
 import farmState from '../../FarmState';
 import { calculateSkillMultiplier } from '../../Utils/InventoryManagement';
@@ -814,8 +814,24 @@ const FarmHandPanel = ({
           }
         });
         
-        // Store success message to show after modal closes
-        pendingStatusMessage = formatBulkHarvestResults(results, harvestSkillsInfo, strings, getLocalizedString);
+        // Transform harvest results to simple format for shared formatter
+        const harvestResults = {};
+        if (results.harvested) {
+          Object.entries(results.harvested).forEach(([type, data]) => {
+            harvestResults[type] = data.quantity;
+          });
+        }
+        
+        // Transform replant info
+        const replantInfo = {};
+        if (results.replanted) {
+          Object.entries(results.replanted).forEach(([type, data]) => {
+            replantInfo[type] = data.count;
+          });
+        }
+        
+        // Store success message to show after modal closes using shared formatter
+        pendingStatusMessage = formatCollectionResults('harvest', harvestResults, harvestSkillsInfo, replantInfo, strings, getLocalizedString);
 
         // Track quest progress for harvested items
         Object.entries(results.harvested).forEach(([type, data]) => {
@@ -1313,7 +1329,15 @@ const FarmHandPanel = ({
       await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
       
       if (Object.keys(successfulCollects).length > 0) {
-        pendingStatusMessage = formatBulkCraftingResults(successfulCollects, successfulRestarts, appliedSkillsInfo, strings, getLocalizedString);
+        // Format collection and restart messages using shared formatters
+        const parts = [];
+        parts.push(formatCollectionResults('craft', successfulCollects, appliedSkillsInfo, null, strings, getLocalizedString));
+        
+        if (Object.keys(successfulRestarts).length > 0) {
+          parts.push(formatRestartResults(successfulRestarts, 'craft', strings, getLocalizedString));
+        }
+        
+        pendingStatusMessage = parts.join(' | ');
       } else {
         pendingStatusMessage = 'Failed to collect any crafted items.';
       }
@@ -1323,22 +1347,6 @@ const FarmHandPanel = ({
     }
   }
 
-  // Helper function to format bulk crafting results
-  function formatBulkCraftingResults(collects, restarts, appliedSkillsInfo, strings, getLocalizedString) {
-    const parts = [];
-    
-    // Use shared formatter for collected items
-    if (Object.keys(collects).length > 0) {
-      parts.push(formatCollectionResults('craft', collects, appliedSkillsInfo, null, strings, getLocalizedString));
-    }
-    
-    // Format restarts
-    if (Object.keys(restarts).length > 0) {
-      parts.push(formatRestartResults(restarts, 'craft', strings, getLocalizedString));
-    }
-    
-    return parts.join(' | ');
-  }
   
   // Helper function to restart crafting at a station
   async function restartCrafting(station, recipe, strings) {

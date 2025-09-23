@@ -1,5 +1,4 @@
 import { deriveWarehouseAndBackpackCapacity, calculateSkillMultiplier } from '../../Utils/InventoryManagement';
-import { formatCollectionResults } from '../../UI/StatusBar/CollectionFormatters';
 
 /**
  * Calculate total capacity needed for bulk harvest operation
@@ -169,30 +168,3 @@ export function buildBulkHarvestOperations(capacityCheck, selectedReplantTypes) 
   return operations;
 }
 
-/**
- * Format harvest results for display
- * @param {Object} results - Results from bulk harvest API
- * @param {Object} skillsInfo - Skills applied for each crop type
- * @param {Object} strings - Localized strings
- * @param {Function} getLocalizedString - String localization function
- * @returns {String} Formatted message
- */
-export function formatBulkHarvestResults(results, skillsInfo, strings, getLocalizedString) {
-  // Transform harvest results to simple format
-  const harvestResults = {};
-  if (results.harvested) {
-    Object.entries(results.harvested).forEach(([type, data]) => {
-      harvestResults[type] = data.quantity;
-    });
-  }
-  
-  // Transform replant info
-  const replantInfo = {};
-  if (results.replanted) {
-    Object.entries(results.replanted).forEach(([type, data]) => {
-      replantInfo[type] = data.count;
-    });
-  }
-  
-  return formatCollectionResults('harvest', harvestResults, skillsInfo, replantInfo, strings, getLocalizedString);
-}
