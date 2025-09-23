@@ -133,7 +133,13 @@ async function handleProtectedFarmAnimalCollection(
       await trackQuestProgress(currentPlayer, 'Collect', collectedItem, collectedQuantity, setCurrentPlayer);
 
       console.log(`Farm animal collection completed: ${collectedQuantity} ${collectedItem}`);
-      return { type: 'success', message: `Collected ${collectedQuantity} ${collectedItem}.` };
+      return { 
+        type: 'success', 
+        message: `Collected ${collectedQuantity} ${collectedItem}.`,
+        collectedItem,
+        collectedQuantity,
+        skillsApplied
+      };
     }
   } catch (error) {
     console.error('Error in protected farm animal collection:', error);

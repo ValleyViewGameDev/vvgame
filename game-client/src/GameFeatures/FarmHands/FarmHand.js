@@ -342,13 +342,16 @@ const FarmHandPanel = ({
 
       const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
       const successfulCollects = {};
+      const animalSkillsInfo = {};
 
+      // Process each animal
       for (const npc of animalsToCollect) {
-        await handleNPCClick(
+        const result = await handleNPCClick(
           npc,
           npc.position.y,
           npc.position.x,
           setInventory,
+          setBackpack,  // This was missing!
           setResources,
           currentPlayer,
           setCurrentPlayer,
@@ -364,13 +367,81 @@ const FarmHandPanel = ({
           strings
         );
 
-        successfulCollects[npc.type] = (successfulCollects[npc.type] || 0) + 1;
+        // Check if collection was successful
+        if (result && result.type === 'success' && result.collectedItem) {
+          const { collectedItem, collectedQuantity, skillsApplied } = result;
+          
+          console.log('🐮 [DEBUG] Animal collection result:', {
+            collectedItem,
+            collectedQuantity,
+            skillsApplied,
+            npcType: npc.type
+          });
+          
+          // Track successful collects
+          successfulCollects[collectedItem] = (successfulCollects[collectedItem] || 0) + collectedQuantity;
+          
+          // Track skill info for this item type - use what server provided
+          if (!animalSkillsInfo[collectedItem] && skillsApplied && skillsApplied.length > 0) {
+            // The server already tells us which skills were applied
+            // We need to calculate the multiplier from the quantity
+            // Each cow gives base 1, so multiplier = collectedQuantity / 1
+            const multiplier = collectedQuantity;
+            
+            console.log('🐮 [DEBUG] Setting skill info for', collectedItem, ':', {
+              skills: skillsApplied,
+              multiplier,
+              collectedQuantity
+            });
+            
+            animalSkillsInfo[collectedItem] = {
+              skills: skillsApplied,
+              multiplier: multiplier,
+              hasSkills: true
+            };
+          }
+        }
+        
         await wait(100); // avoid overloading server
       }
 
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+      // Small delay to ensure all state updates have propagated
+      await wait(100);
+      
+      // Debug inventory state before refresh
+      const milkBefore = currentPlayer.inventory?.find(item => item.type === 'Milk');
+      console.log('🐮 [DEBUG] Inventory BEFORE refresh:', {
+        milkItem: milkBefore,
+        milkQuantity: milkBefore?.quantity || 0,
+        totalCollected: Object.entries(successfulCollects).reduce((sum, [item, qty]) => sum + qty, 0)
+      });
+      
+      // Refresh player data to ensure inventory is synced
+      const refreshedPlayer = await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+      
+      // Debug inventory state after refresh
+      const milkAfter = refreshedPlayer?.inventory?.find(item => item.type === 'Milk') || 
+                       currentPlayer.inventory?.find(item => item.type === 'Milk');
+      console.log('🐮 [DEBUG] Inventory AFTER refresh:', {
+        milkItem: milkAfter,
+        milkQuantity: milkAfter?.quantity || 0,
+        refreshedPlayer: !!refreshedPlayer
+      });
 
-      updateStatus(`${strings[469]} ${Object.entries(successfulCollects).map(([t, q]) => `${q} ${getLocalizedString(t, strings)}`).join(', ')}`);
+      // Use shared formatter for status message
+      if (Object.keys(successfulCollects).length > 0) {
+        console.log('🐮 [DEBUG] Final collection summary:', {
+          successfulCollects,
+          animalSkillsInfo,
+          hasSkillInfo: Object.keys(animalSkillsInfo).length > 0
+        });
+        
+        const statusMessage = formatCollectionResults('animal', successfulCollects, animalSkillsInfo, null, strings, getLocalizedString);
+        console.log('🐮 [DEBUG] Status message:', statusMessage);
+        updateStatus(statusMessage);
+      } else {
+        updateStatus('Failed to collect from any animals.');
+      }
     } catch (error) {
       console.error('Selective animal collect failed:', error);
       setErrorMessage('Failed to collect selected animals.');
