@@ -1,7 +1,7 @@
 import API_BASE from '../../config';
 import axios from 'axios';
 import React, { useState, useEffect, useContext } from 'react';
-import { StatusBarContext } from '../../UI/StatusBar';
+import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import Modal from '../../UI/Modal';
 import TransactionButton from '../../UI/TransactionButton';
 import '../../UI/SharedButtons.css';

@@ -3,7 +3,7 @@ import ChangeIconModal from '../../UI/ChangeIconModal';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
-import { StatusBarContext } from '../../UI/StatusBar';
+import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { usePanelContext } from '../../UI/PanelContext';
 import { spendIngredients } from '../../Utils/InventoryManagement';
 import NPCsInGridManager from '../../GridState/GridStateNPCs.js';

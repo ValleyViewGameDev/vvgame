@@ -8,7 +8,7 @@ import Panel from '../UI/Panel';
 import { updatePlayerSettings } from '../settings';  
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
-import { StatusBarContext } from '../UI/StatusBar';
+import { StatusBarContext } from '../UI/StatusBar/StatusBar';
 import { usePanelContext } from '../UI/PanelContext';
 import LANGUAGE_OPTIONS from '../UI/Languages.json';
 import { useModalContext } from '../UI/ModalContext';

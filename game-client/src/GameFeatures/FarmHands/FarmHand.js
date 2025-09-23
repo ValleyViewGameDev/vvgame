@@ -25,7 +25,8 @@ import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTil
 import { calculateBulkHarvestCapacity, buildBulkHarvestOperations, formatBulkHarvestResults } from './BulkHarvestUtils';
 import { enrichResourceFromMaster } from '../../Utils/ResourceHelpers';
 import farmState from '../../FarmState';
-import { calculateSkillMultiplier } from './SkillCalculationUtils';
+import { calculateSkillMultiplier } from '../../Utils/InventoryManagement';
+import { formatCollectionResults, formatRestartResults } from '../../UI/StatusBar/CollectionFormatters';
 
 const FarmHandPanel = ({
   onClose,
@@ -1067,16 +1068,8 @@ const FarmHandPanel = ({
           // Process bulk response
           const results = response.data.results;
           
-          // Update inventory from server response if provided
-          if (response.data.inventory) {
-            setInventory(response.data.inventory.warehouse || response.data.inventory);
-            setBackpack(response.data.inventory.backpack || []);
-            setCurrentPlayer(prev => ({
-              ...prev,
-              inventory: response.data.inventory.warehouse || response.data.inventory,
-              backpack: response.data.inventory.backpack || []
-            }));
-          }
+          // Don't update inventory from server - server doesn't add collected items
+          // We'll add them ourselves with skill bonuses via gainIngredients
           
           for (const result of results) {
             if (result.success) {
@@ -1104,19 +1097,6 @@ const FarmHandPanel = ({
               const baseQtyCollected = 1;
               const finalQtyCollected = baseQtyCollected * skillMultiplier;
               
-              // Track successful collects and skills applied
-              successfulCollects[collectedItem] = (successfulCollects[collectedItem] || 0) + finalQtyCollected;
-              
-              // Track skills applied for this item type (only need to do once per item type)
-              if (!appliedSkillsInfo[collectedItem] && playerBuffs.length > 0) {
-                appliedSkillsInfo[collectedItem] = {
-                  skills: playerBuffs,
-                  multiplier: skillMultiplier
-                };
-              }
-              
-              // Don't show individual floating text for bulk operations
-              
               // Handle NPC spawning
               if (isNPC) {
                 const craftedResource = masterResources.find(res => res.type === collectedItem);
@@ -1126,15 +1106,14 @@ const FarmHandPanel = ({
               } else {
                 // Server doesn't add items - client handles with skill buffs
                 // Track successful collects with skill bonuses
-                const baseQtyCollected = 1;
-                const finalQtyCollected = baseQtyCollected * skillMultiplier;
                 successfulCollects[collectedItem] = (successfulCollects[collectedItem] || 0) + finalQtyCollected;
                 
                 // Track skills applied for this item type (only need to do once per item type)
                 if (!appliedSkillsInfo[collectedItem] && playerBuffs.length > 0) {
                   appliedSkillsInfo[collectedItem] = {
                     skills: playerBuffs,
-                    multiplier: skillMultiplier
+                    multiplier: skillMultiplier,
+                    hasSkills: true
                   };
                 }
               }
@@ -1286,7 +1265,8 @@ const FarmHandPanel = ({
             if (!appliedSkillsInfo[collectedItem] && playerBuffs.length > 0) {
               appliedSkillsInfo[collectedItem] = {
                 skills: playerBuffs,
-                multiplier: skillMultiplier
+                multiplier: skillMultiplier,
+                hasSkills: true
               };
             }
             
@@ -1347,23 +1327,14 @@ const FarmHandPanel = ({
   function formatBulkCraftingResults(collects, restarts, appliedSkillsInfo, strings, getLocalizedString) {
     const parts = [];
     
+    // Use shared formatter for collected items
     if (Object.keys(collects).length > 0) {
-      // Format collected items with skills info
-      const collectsStr = Object.entries(collects).map(([itemType, qty]) => {
-        const skillInfo = appliedSkillsInfo[itemType];
-        if (skillInfo && skillInfo.skills.length > 0) {
-          const skillsStr = skillInfo.skills.join(', ');
-          return `${qty} ${getLocalizedString(itemType, strings)} with ${skillsStr} applied (${skillInfo.multiplier}x)`;
-        } else {
-          return `${qty} ${getLocalizedString(itemType, strings)}`;
-        }
-      }).join(', ');
-      
-      parts.push(`Crafting complete: ${collectsStr}`);
+      parts.push(formatCollectionResults('craft', collects, appliedSkillsInfo, null, strings, getLocalizedString));
     }
     
+    // Format restarts
     if (Object.keys(restarts).length > 0) {
-      parts.push(`${Object.entries(restarts).map(([t, q]) => `${q} ${getLocalizedString(t, strings)}`).join(', ')} restarted`);
+      parts.push(formatRestartResults(restarts, 'craft', strings, getLocalizedString));
     }
     
     return parts.join(' | ');

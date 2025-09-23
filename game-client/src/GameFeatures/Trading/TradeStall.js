@@ -9,7 +9,7 @@ import './TradeStall.css';
 import '../../UI/Modal.css';
 import '../../UI/SharedButtons.css';
 import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
-import { StatusBarContext } from '../../UI/StatusBar';
+import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { incrementFTUEStep } from '../FTUE/FTUE';

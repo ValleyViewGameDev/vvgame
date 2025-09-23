@@ -8,7 +8,7 @@ import axios from 'axios';
 import './TradeStall.css';
 import '../../UI/Modal.css';
 import '../../UI/SharedButtons.css';
-import { StatusBarContext } from '../../UI/StatusBar';
+import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { isACrop } from '../../Utils/ResourceHelpers';

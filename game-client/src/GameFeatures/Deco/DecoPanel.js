@@ -4,7 +4,7 @@ import { gainIngredients } from '../../Utils/InventoryManagement';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import { updateGridResource } from '../../Utils/GridManagement';
-import { StatusBarContext } from '../../UI/StatusBar';
+import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { createCollectEffect } from '../../VFX/VFX';
 import '../../UI/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';

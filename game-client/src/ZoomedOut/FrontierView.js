@@ -2,7 +2,7 @@ import API_BASE from "../config";
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import "./FrontierView.css";
-import { StatusBarContext } from "../UI/StatusBar";
+import { StatusBarContext } from "../UI/StatusBar/StatusBar";
 import { changePlayerLocation } from "../Utils/GridManagement";
 import { fetchHomesteadSignpostPosition } from "../Utils/worldHelpers";
 import frontierTileData from './FrontierTile.json';

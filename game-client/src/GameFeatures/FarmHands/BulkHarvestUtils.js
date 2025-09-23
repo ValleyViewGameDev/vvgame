@@ -1,5 +1,5 @@
-import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
-import { calculateSkillMultiplier } from './SkillCalculationUtils';
+import { deriveWarehouseAndBackpackCapacity, calculateSkillMultiplier } from '../../Utils/InventoryManagement';
+import { formatCollectionResults } from '../../UI/StatusBar/CollectionFormatters';
 
 /**
  * Calculate total capacity needed for bulk harvest operation
@@ -178,31 +178,21 @@ export function buildBulkHarvestOperations(capacityCheck, selectedReplantTypes) 
  * @returns {String} Formatted message
  */
 export function formatBulkHarvestResults(results, skillsInfo, strings, getLocalizedString) {
-  const parts = [];
-  
-  // Format harvested items with skill info
-  if (results.harvested && Object.keys(results.harvested).length > 0) {
-    const harvestParts = Object.entries(results.harvested)
-      .map(([type, data]) => {
-        const skillInfo = skillsInfo[type];
-        if (skillInfo && skillInfo.skills.length > 0) {
-          const skillsStr = skillInfo.skills.join(', ');
-          return `${data.quantity} ${getLocalizedString(type, strings)} with ${skillsStr} applied (${skillInfo.multiplier}x)`;
-        } else {
-          return `${data.quantity} ${getLocalizedString(type, strings)}`;
-        }
-      })
-      .join(', ');
-    parts.push(`Harvest complete: ${harvestParts}`);
+  // Transform harvest results to simple format
+  const harvestResults = {};
+  if (results.harvested) {
+    Object.entries(results.harvested).forEach(([type, data]) => {
+      harvestResults[type] = data.quantity;
+    });
   }
   
-  // Format replanted items
-  if (results.replanted && Object.keys(results.replanted).length > 0) {
-    const replantParts = Object.entries(results.replanted)
-      .map(([type, data]) => `${data.count} ${getLocalizedString(type, strings)}`)
-      .join(', ');
-    parts.push(`${replantParts} replanted`);
+  // Transform replant info
+  const replantInfo = {};
+  if (results.replanted) {
+    Object.entries(results.replanted).forEach(([type, data]) => {
+      replantInfo[type] = data.count;
+    });
   }
   
-  return parts.join(' | ');
+  return formatCollectionResults('harvest', harvestResults, skillsInfo, replantInfo, strings, getLocalizedString);
 }

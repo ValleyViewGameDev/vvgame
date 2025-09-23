@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { StatusBarContext } from './StatusBar';
+import { StatusBarContext } from '../StatusBar/StatusBar';
 
 let updateStatusGlobal; // Define a global variable to store updateStatus
 

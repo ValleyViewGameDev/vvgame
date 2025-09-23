@@ -3,7 +3,7 @@ import { StringsProvider } from './UI/StringsContext';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { StatusBarProvider } from './UI/StatusBar';
+import { StatusBarProvider } from './UI/StatusBar/StatusBar';
 import { PanelProvider } from './UI/PanelContext'; 
 import { GridStateProvider } from './GridState/GridStateContext';
 import { GridStatePCProvider } from './GridState/GridStatePCContext';

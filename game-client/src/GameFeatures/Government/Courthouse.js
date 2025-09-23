@@ -4,7 +4,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import Modal from '../../UI/Modal';
 import axios from 'axios';
-import { StatusBarContext } from '../../UI/StatusBar';
+import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import './Courthouse.css';
 import '../../UI/Panel.css';
 import { useStrings } from '../../UI/StringsContext';

@@ -6,9 +6,9 @@ import '../../UI/ResourceButton.css';
 import ResourceButton from '../../UI/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
-import { canAfford } from '../../Utils/InventoryManagement';
+import { canAfford, calculateSkillMultiplier, applySkillMultiplier } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
-import { StatusBarContext } from '../../UI/StatusBar';
+import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
@@ -17,6 +17,7 @@ import { createCollectEffect } from '../../VFX/VFX';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
+import { formatSingleCollection } from '../../UI/StatusBar/CollectionFormatters';
 import '../../UI/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
@@ -279,33 +280,12 @@ const CraftingStation = ({
         console.log('MasterSkills:', masterSkills);
         console.log('Station Type:', stationType);
 
-        // Find skills that apply to this station
-        const applicableSkills = (currentPlayer.skills || [])
-          .filter((item) => {
-            const resourceDetails = allResources.find((res) => res.type === item.type);
-            const isSkill = resourceDetails?.category === 'skill' || resourceDetails?.category === 'upgrade';
-            const appliesToStation = masterSkills?.[item.type]?.[stationType] > 1;
-            return isSkill && appliesToStation;
-          });
-
-        // Calculate combined skill multiplier for this station
-        let skillMultiplier = 1;
-        let appliedSkillNames = [];
-        
-        if (applicableSkills.length > 0) {
-          // Multiply all applicable skill bonuses together
-          applicableSkills.forEach(skill => {
-            const multiplier = masterSkills?.[skill.type]?.[stationType] || 1;
-            if (multiplier > 1) {
-              skillMultiplier *= multiplier;
-              appliedSkillNames.push(skill.type);
-            }
-          });
-        }
+        // Use shared skill calculation utility
+        const skillInfo = calculateSkillMultiplier(stationType, currentPlayer.skills || [], masterSkills);
 
         // Apply multiplier to quantity (default to 1 if not provided by backend)
         const baseQtyCollected = 1;
-        const finalQtyCollected = baseQtyCollected * skillMultiplier;
+        const finalQtyCollected = applySkillMultiplier(baseQtyCollected, skillInfo.multiplier);
 
         console.log('[DEBUG] qtyCollected after multiplier:', finalQtyCollected);
 
@@ -368,13 +348,10 @@ const CraftingStation = ({
         // Refresh player data to ensure consistency
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-        if (skillMultiplier > 1 && appliedSkillNames.length > 0) {
-          const skillsText = appliedSkillNames.join(' & ');
-          const skillAppliedText = `${skillsText} skill${appliedSkillNames.length > 1 ? 's' : ''} applied (${skillMultiplier}x collected).`;
-          updateStatus(skillAppliedText);
-        } else {
-          updateStatus(`Collected: ${collectedItem}.`);
-        }
+        // Use shared formatter for status message
+        const statusMessage = formatSingleCollection('craft', collectedItem, finalQtyCollected, 
+          skillInfo.hasSkills ? skillInfo : null, strings, getLocalizedString);
+        updateStatus(statusMessage);
 
         console.log(`${recipe.type} collected successfully using protected endpoint.`);
       }

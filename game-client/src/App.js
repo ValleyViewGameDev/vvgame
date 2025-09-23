@@ -93,8 +93,8 @@ import { useModalContext } from './UI/ModalContext';
 import { checkDeveloperStatus, updateBadge, getBadgeState } from './Utils/appUtils';
 import { useBulkOperation } from './UI/BulkOperationContext';
 import FloatingTextManager from './UI/FloatingText';
-import StatusBar from './UI/StatusBar';
-import { StatusBarContext } from './UI/StatusBar';
+import StatusBar from './UI/StatusBar/StatusBar';
+import { StatusBarContext } from './UI/StatusBar/StatusBar';
 import { formatCountdown } from './UI/Timers';
 import CowboyAnimation from './UI/CowboyAnimation';
 

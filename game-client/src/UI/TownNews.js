@@ -3,7 +3,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import Modal from './Modal';
 import './TownNews.css';
-import { StatusBarContext } from './StatusBar';
+import { StatusBarContext } from './StatusBar/StatusBar';
 import { useStrings } from './StringsContext';
 import { formatCountdown } from './Timers';
 import { getMayorUsername } from '../GameFeatures/Government/GovUtils';

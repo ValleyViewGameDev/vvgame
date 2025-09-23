@@ -6,7 +6,7 @@ import Panel from '../../UI/Panel';
 import FloatingTextManager from '../../UI/FloatingText';
 import { updateGridResource } from '../../Utils/GridManagement';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
-import { StatusBarContext } from '../../UI/StatusBar';
+import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { createCollectEffect } from '../../VFX/VFX';
 import '../../UI/SharedButtons.css';
