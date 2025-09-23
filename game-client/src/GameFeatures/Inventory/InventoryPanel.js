@@ -280,7 +280,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     {backpack.filter(item => item.type !== 'Money' && item.type !== 'Gem').length > 0 ? (
                         backpack.filter(item => item.type !== 'Money' && item.type !== 'Gem').map((item, index) => (
                             <div className="inventory-row" key={index}>
-                                <div className="inventory-cell name-cell">{getLocalizedString(item.type, strings)}</div>
+                                <div className="inventory-cell name-cell">{masterResources.find(r => r.type === item.type)?.symbol || ''} {getLocalizedString(item.type, strings)}</div>
                                 <div className="inventory-cell quantity-cell">{item.quantity.toLocaleString()}</div>
                             </div>
                         ))
@@ -326,7 +326,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                 {inventory.filter(item => item.type !== 'Money' && item.type !== 'Gem').length > 0 ? (
                     inventory.filter(item => item.type !== 'Money' && item.type !== 'Gem').map((item, index) => (
                         <div className="inventory-row" key={index}>
-                            <div className="inventory-cell name-cell">{getLocalizedString(item.type, strings)}</div>
+                            <div className="inventory-cell name-cell">{masterResources.find(r => r.type === item.type)?.symbol || ''} {getLocalizedString(item.type, strings)}</div>
                             <div className="inventory-cell quantity-cell">{item.quantity.toLocaleString()}</div>
                         </div>
                     ))
@@ -364,7 +364,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
 
                                     return (
                                         <tr key={item.type}>
-                                            <td>{getLocalizedString(item.type, strings)}</td>
+                                            <td>{masterResources.find(r => r.type === item.type)?.symbol || ''} {getLocalizedString(item.type, strings)}</td>
                                             <td>{item.quantity.toLocaleString()}</td>
                                             <td>
                                                 <div className="amount-input">
@@ -446,7 +446,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                         <tbody>
                             {inventory.filter(item => item.type !== 'Money' && item.type !== 'Gem').map((item) => (
                                 <tr key={item.type}>
-                                    <td>{getLocalizedString(item.type, strings)}</td>
+                                    <td>{masterResources.find(r => r.type === item.type)?.symbol || ''} {getLocalizedString(item.type, strings)}</td>
                                     <td>{item.quantity.toLocaleString()}</td>
                                     <td>
                                         <div className="amount-input">

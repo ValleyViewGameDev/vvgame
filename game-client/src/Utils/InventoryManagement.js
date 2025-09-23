@@ -51,7 +51,7 @@ export function deriveWarehouseAndBackpackCapacity(currentPlayer, masterResource
   const baseBackpack = currentPlayer?.backpackCapacity || 0;
   const isGold = currentPlayer?.accountStatus === "Gold";
   const warehouseBonus = isGold ? 1000000 : 0;
-  const backpackBonus = isGold ? 1000000 : 0;
+  const backpackBonus = isGold ? 10000 : 0;
 
   return (currentPlayer?.skills || []).reduce(
     (acc, skill) => {

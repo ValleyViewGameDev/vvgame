@@ -13,7 +13,7 @@ function ShareModal({ onClose }) {
     <div className="modal-overlay">
       <div className="share-modal">
         <h2>📢 Share Valley View</h2>
-        <p>Invite others to help out and join the adventure!</p>
+        <p>{strings[95]}</p>
 
         <div className="share-buttons">
           <button className="facebook-btn" onClick={() => shareToNetwork('facebook', url)}>Facebook</button>
@@ -38,7 +38,7 @@ function ShareModal({ onClose }) {
 
 <br />
         <div className="standard-buttons">
-          <button className="btn-success" onClick={onClose}>Close</button>
+          <button className="btn-success" onClick={onClose}>{strings[796]}</button>
         </div>
 
       </div>

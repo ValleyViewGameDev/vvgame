@@ -72,7 +72,6 @@
     "130": "Select your language:",
     "131": "Confirm",
 
-    "150": "TRADE STALL STRINGS:",
 
     "151": "You cannot fill another player's trade stall.",
     "152": "You do not have enough money to buy this item.",
@@ -151,6 +150,8 @@
     "319": "Select Animals to Collect:",
     "320": "Cannot terraform here.",
     "340": "Not avilable unless you're on foot.",
+    "341": "Select Crafting Stations to Collect:",
+
 
     "350": "The Farm Hand will help you automate harvesting and planting of crops.",
     "351": "The Rancher will help you automate collecting from animals.",
@@ -1008,7 +1009,6 @@
     "1023": "Workers help you run your homestead. Hire them at the Farm House.",
     "4010": "Already have a profile?",
     "1008": "Buy and sell with other players. If no players buy your items before the timer expires, sell them to the game for a fraction of their base value.",
-    "467": "Bulk Crafting",
     "1001": "Resources collected at the homestead go into the warehouse. Resources collected in town or in the valley will go into the backpack. To buy a backpack, visit the Store in town. To empty the backpack or warehouse, use the Manage buttons.",
 
     "705": "Aspiration",
@@ -1127,12 +1127,33 @@
 "7009": "Keep checking your ✅ To-Do-List, and keep checking with 🤠 Kent and 👵🏻 the Shepherd.",
 "7015": "Click + and - at the top of the screen to zoom in and out.",
 
-    "469": "Animal Collect complete: ",
-    "472": "Harvest complete: ",
+    "467": "Bulk Crafting",
+    "469": "Animal Collect complete",
+    "472": "Harvest complete",
     "477": "Your farm workers are busy...",
     "478": "🚜 Working",
+    "479": "Logging complete",
+    "480": "Crafting complete",
+    "481": "with",
+    "482": "applied",
+    "483": "replanted",
+    "342": "Harvest?",
+    "343": "Replant?",
+    "344": "No crops ready to harvest.",
+    "345": "Ready to Collect:",
+    "346": "Collect?",
+    "347": "Buy 1 for: ",
 
-"11000": "ADDED STRINGS:"
+    "140": "TRADE STALL STRINGS:",
+    "141": "Sold",
+    "167": "Sell",
+    "168": "Yes, Sell All",
+    "169": "Buy",
+
+    "94": "📢 Share Valley View!",
+    "95": "Invite others to help out and join the adventure!",
+
+    "11000": "ADDED STRINGS:"
 
 
 

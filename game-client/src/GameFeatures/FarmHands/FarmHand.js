@@ -15,18 +15,12 @@ import { handleDooberClick, handleSourceConversion } from '../../ResourceClickin
 import FloatingTextManager from '../../UI/FloatingText';
 import NPCsInGridManager from "../../GridState/GridStateNPCs";
 import playersInGridManager from '../../GridState/PlayersInGrid';
-import { handleNPCClick } from '../NPCs/NPCUtils';
-import { updateGridResource } from '../../Utils/GridManagement';
-import { handleFarmPlotPlacement } from '../Farming/Farming';
-import { validateTileType } from '../../Utils/ResourceHelpers';
 import { useNPCOverlay } from '../../UI/NPCOverlayContext';
 import { useBulkOperation } from '../../UI/BulkOperationContext';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import { calculateBulkHarvestCapacity, buildBulkHarvestOperations } from './BulkHarvestUtils';
-import { enrichResourceFromMaster } from '../../Utils/ResourceHelpers';
-import farmState from '../../FarmState';
-import { calculateSkillMultiplier } from '../../Utils/InventoryManagement';
-import { formatCollectionResults, formatRestartResults } from '../../UI/StatusBar/CollectionFormatters';
+import { BulkHarvestModal, executeBulkHarvest, prepareBulkHarvestData } from './BulkHarvest';
+import { BulkAnimalModal, executeBulkAnimalCollect, prepareBulkAnimalData } from './BulkAnimalCollect';
+import { BulkCraftingModal, executeBulkCrafting, prepareBulkCraftingData } from './BulkCrafting';
 
 const FarmHandPanel = ({
   onClose,
@@ -56,8 +50,6 @@ const FarmHandPanel = ({
   const [workerSkills, setFarmhandSkills] = useState([]);
   const [workerUpgrades, setFarmhandUpgrades] = useState([]);
   const [isHarvestModalOpen, setIsHarvestModalOpen] = useState(false);
-  const [selectedCropTypes, setSelectedCropTypes] = useState({});
-  const [selectedReplantTypes, setSelectedReplantTypes] = useState({});
   const [availableCrops, setAvailableCrops] = useState([]);
   const [isAnimalModalOpen, setIsAnimalModalOpen] = useState(false);
   const [selectedAnimalTypes, setSelectedAnimalTypes] = useState({});
@@ -69,10 +61,38 @@ const FarmHandPanel = ({
   const skills = currentPlayer.skills || [];
   const hasBulkReplant = skills.some(skill => skill.type === 'Bulk Replant');
   const hasBulkRestartCraft = skills.some(skill => skill.type === 'Bulk Restart Craft');
-  const [isContentLoading, setIsContentLoading] = useState(false);
-  const [bulkProgressModal, setBulkProgressModal] = useState({ isOpen: false, message: '', onComplete: null });
+  const [bulkProgressModal, setBulkProgressModal] = useState({ isOpen: false, message: '' });
   const { setBusyOverlay, clearNPCOverlay } = useNPCOverlay();
   const { startBulkOperation, endBulkOperation } = useBulkOperation();
+  
+  // Shared function for executing bulk operations with progress modal
+  async function executeBulkOperation(operationName, operationId, workerNPC, asyncOperation) {
+    let pendingStatusMessage = null;
+    
+    // Show progress modal
+    setBulkProgressModal({ 
+      isOpen: true, 
+      message: strings[477] || 'Processing...'
+    });
+    
+    try {
+      // Run the async operation
+      pendingStatusMessage = await asyncOperation();
+    } catch (error) {
+      console.error(`${operationName} failed:`, error);
+      pendingStatusMessage = error.message || `Failed to complete ${operationName}.`;
+    } finally {
+      // Close modal and cleanup
+      setBulkProgressModal({ isOpen: false, message: '' });
+      if (workerNPC) clearNPCOverlay(workerNPC.id);
+      endBulkOperation(operationId);
+      
+      // Show the status message
+      if (pendingStatusMessage) {
+        updateStatus(pendingStatusMessage);
+      }
+    }
+  }
   
   // Determine which features to show based on NPC type
   const npcType = npc?.type || stationType; // Use NPC type from the npc object, fallback to stationType
@@ -80,7 +100,6 @@ const FarmHandPanel = ({
   const showBulkReplant = ['Farmer', 'Farm Hand'].includes(npcType) && hasBulkReplant;
   const showBulkAnimalCollect = ['Farmer', 'Rancher'].includes(npcType);
   const showLogging = ['Farmer', 'Lumberjack'].includes(npcType);
-  const showBetterLogging = ['Farmer', 'Lumberjack'].includes(npcType);
   const showCropPurchase = ['Farmer', 'Farm Hand'].includes(npcType);
   const showBulkCrafting = ['Farmer', 'Crafter'].includes(npcType);
   
@@ -254,21 +273,11 @@ const FarmHandPanel = ({
     updateStatus(`${resource.type} acquired.`);
   };
 
-
   function handleBulkAnimalCollect() {
-    console.log('🐮 Opening selective animal collect modal');
     
     const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
     const processingAnimals = npcs.filter(npc => npc.state === 'processing');
     
-    // Log animal states for debugging
-    console.log('🐮 Processing animals:', processingAnimals.map(npc => ({
-      id: npc.id,
-      type: npc.type,
-      state: npc.state,
-      grazeEnd: npc.grazeEnd,
-      position: npc.position
-    })));
 
     if (processingAnimals.length === 0) {
       updateStatus('No animals are ready to collect.');
@@ -310,7 +319,6 @@ const FarmHandPanel = ({
   }
 
   async function executeSelectiveAnimalCollect() {
-    console.log('🐮 Executing selective animal collect');
     setIsAnimalModalOpen(false);
     onClose();
     setErrorMessage('');
@@ -326,137 +334,27 @@ const FarmHandPanel = ({
     const operationId = `bulk-animal-collect-${Date.now()}`;
     startBulkOperation('bulk-animal-collect', operationId);
 
-    try {
-      // Get selected animal types
-      const selectedTypes = Object.keys(selectedAnimalTypes).filter(type => selectedAnimalTypes[type]);
-      
-      if (selectedTypes.length === 0) {
-        updateStatus('No animals selected for collection.');
-        return;
-      }
-
-      const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-      const animalsToCollect = npcs.filter(npc => 
-        npc.state === 'processing' && selectedTypes.includes(npc.type)
-      );
-
-      const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-      const successfulCollects = {};
-      const animalSkillsInfo = {};
-
-      // Process each animal
-      for (const npc of animalsToCollect) {
-        const result = await handleNPCClick(
-          npc,
-          npc.position.y,
-          npc.position.x,
-          setInventory,
-          setBackpack,  // This was missing!
-          setResources,
-          currentPlayer,
-          setCurrentPlayer,
-          TILE_SIZE,
-          masterResources,
-          masterSkills,
-          gridId,
-          () => {}, // setModalContent (not used here)
-          () => {}, // setIsModalOpen (not used here)
-          updateStatus,
-          () => {}, // openPanel (not used here)
-          () => {}, // setActiveStation (not used here)
-          strings
-        );
-
-        // Check if collection was successful
-        if (result && result.type === 'success' && result.collectedItem) {
-          const { collectedItem, collectedQuantity, skillsApplied } = result;
-          
-          console.log('🐮 [DEBUG] Animal collection result:', {
-            collectedItem,
-            collectedQuantity,
-            skillsApplied,
-            npcType: npc.type
-          });
-          
-          // Track successful collects
-          successfulCollects[collectedItem] = (successfulCollects[collectedItem] || 0) + collectedQuantity;
-          
-          // Track skill info for this item type - use what server provided
-          if (!animalSkillsInfo[collectedItem] && skillsApplied && skillsApplied.length > 0) {
-            // The server already tells us which skills were applied
-            // We need to calculate the multiplier from the quantity
-            // Each cow gives base 1, so multiplier = collectedQuantity / 1
-            const multiplier = collectedQuantity;
-            
-            console.log('🐮 [DEBUG] Setting skill info for', collectedItem, ':', {
-              skills: skillsApplied,
-              multiplier,
-              collectedQuantity
-            });
-            
-            animalSkillsInfo[collectedItem] = {
-              skills: skillsApplied,
-              multiplier: multiplier,
-              hasSkills: true
-            };
-          }
-        }
-        
-        await wait(100); // avoid overloading server
-      }
-
-      // Small delay to ensure all state updates have propagated
-      await wait(100);
-      
-      // Debug inventory state before refresh
-      const milkBefore = currentPlayer.inventory?.find(item => item.type === 'Milk');
-      console.log('🐮 [DEBUG] Inventory BEFORE refresh:', {
-        milkItem: milkBefore,
-        milkQuantity: milkBefore?.quantity || 0,
-        totalCollected: Object.entries(successfulCollects).reduce((sum, [item, qty]) => sum + qty, 0)
+    // Execute bulk operation with shared function
+    await executeBulkOperation('bulk-animal-collect', operationId, workerNPC, async () => {
+      return await executeBulkAnimalCollect({
+        selectedAnimalTypes,
+        gridId,
+        currentPlayer,
+        setCurrentPlayer,
+        setInventory,
+        setBackpack,
+        setResources,
+        updateStatus,
+        TILE_SIZE,
+        masterResources,
+        masterSkills,
+        strings
       });
-      
-      // Refresh player data to ensure inventory is synced
-      const refreshedPlayer = await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-      
-      // Debug inventory state after refresh
-      const milkAfter = refreshedPlayer?.inventory?.find(item => item.type === 'Milk') || 
-                       currentPlayer.inventory?.find(item => item.type === 'Milk');
-      console.log('🐮 [DEBUG] Inventory AFTER refresh:', {
-        milkItem: milkAfter,
-        milkQuantity: milkAfter?.quantity || 0,
-        refreshedPlayer: !!refreshedPlayer
-      });
-
-      // Use shared formatter for status message
-      if (Object.keys(successfulCollects).length > 0) {
-        console.log('🐮 [DEBUG] Final collection summary:', {
-          successfulCollects,
-          animalSkillsInfo,
-          hasSkillInfo: Object.keys(animalSkillsInfo).length > 0
-        });
-        
-        const statusMessage = formatCollectionResults('animal', successfulCollects, animalSkillsInfo, null, strings, getLocalizedString);
-        console.log('🐮 [DEBUG] Status message:', statusMessage);
-        updateStatus(statusMessage);
-      } else {
-        updateStatus('Failed to collect from any animals.');
-      }
-    } catch (error) {
-      console.error('Selective animal collect failed:', error);
-      setErrorMessage('Failed to collect selected animals.');
-    } finally {
-      // End bulk operation tracking
-      endBulkOperation(operationId);
-      
-      // Clear busy overlay when operation completes
-      const npcsCleanup = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-      const workerNPCCleanup = npcsCleanup.find(npc => npc.action === 'worker' && ['Farmer', 'Rancher'].includes(npc.type));
-      if (workerNPCCleanup) {
-        clearNPCOverlay(workerNPCCleanup.id);
-      }
-    }
+    });
+    
+    onClose();
   }
+
 
 
   async function handleLogging() {
@@ -535,7 +433,7 @@ const FarmHandPanel = ({
         .sort((a, b) => a.distance - b.distance); // Sort by distance from center
 
       if (treeResources.length === 0) {
-        updateStatus(437);
+        updateStatus(strings[437] || 'No trees available to chop.');
         return;
       }
 
@@ -644,74 +542,19 @@ const FarmHandPanel = ({
   function handleBulkHarvest() {
     console.log('🚜 Opening selective harvest modal');
     
-    // Get farmplot outputs (crop types)
-    const cropTypes = masterResources
-      .filter(res => res.category === 'farmplot')
-      .map(res => res.output)
-      .filter(Boolean);
+    const crops = prepareBulkHarvestData(resources, masterResources);
 
-    // Count how many of each crop is present in the current grid (excluding trees)
-    const resourceCounts = {};
-    resources?.forEach((res) => {
-      if (cropTypes.includes(res.type) && res.type !== "Oak Tree" && res.type !== "Pine Tree") {
-        resourceCounts[res.type] = (resourceCounts[res.type] || 0) + 1;
-      }
-    });
-
-    if (Object.keys(resourceCounts).length === 0) {
-      updateStatus(429); // No crops available
+    if (crops.length === 0) {
+      updateStatus(strings[344] || 'No crops ready for harvest.');
       return;
     }
     
-    // Find the Farmer NPC to apply busy overlay
-    const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-    const farmerNPC = npcs.find(npc => npc.action === 'worker');
-    if (farmerNPC) {
-      setBusyOverlay(farmerNPC.id);
-    }
-
-    // Create array of available crops with counts and symbols
-    const cropsWithDetails = Object.entries(resourceCounts).map(([cropType, count]) => {
-      const resourceDef = masterResources.find(res => res.type === cropType);
-      return {
-        type: cropType,
-        count,
-        symbol: resourceDef?.symbol || '🌾'
-      };
-    });
-
-    setAvailableCrops(cropsWithDetails);
-    
-    // Select all crops by default
-    const defaultSelection = {};
-    cropsWithDetails.forEach(crop => {
-      defaultSelection[crop.type] = true;
-    });
-    setSelectedCropTypes(defaultSelection);
-    
-    // Select all replant options by default (if bulk replant skill is available and player has required skills)
-    if (showBulkReplant) {
-      const defaultReplantSelection = {};
-      cropsWithDetails.forEach(crop => {
-        // Only default-select crops that the player has the skill to replant
-        const farmplotResource = masterResources.find(res => 
-          res.category === 'farmplot' && res.output === crop.type
-        );
-        if (hasRequiredSkill(farmplotResource?.requires)) {
-          defaultReplantSelection[crop.type] = true;
-        }
-      });
-      setSelectedReplantTypes(defaultReplantSelection);
-    }
-    
+    setAvailableCrops(crops);
     setIsHarvestModalOpen(true);
   }
  
-  async function executeSelectiveHarvest() {
-    console.log('🚜 Executing selective harvest');
+  async function executeSelectiveHarvest(selectedCropTypes, selectedReplantTypes) {
     setIsHarvestModalOpen(false);
-    // Don't close the panel immediately - keep it open for progress modal
-    // onClose();
     setErrorMessage('');
 
     // Find the Farmer NPC to apply busy overlay
@@ -724,270 +567,40 @@ const FarmHandPanel = ({
     // Start bulk operation tracking
     const operationId = `bulk-harvest-${Date.now()}`;
     startBulkOperation('bulk-harvest', operationId);
-    
-    // Store the status message to show after modal completes
-    let pendingStatusMessage = '';
-    
-    // Store cleanup function reference
-    let cleanupExecuted = false;
-    const cleanup = () => {
-      if (cleanupExecuted) return;
-      cleanupExecuted = true;
-      
-      setBulkProgressModal({ isOpen: false, message: '', onComplete: null });
-      if (farmerNPC) clearNPCOverlay(farmerNPC.id);
-      endBulkOperation(operationId);
-      
-      // Show the status message after modal closes
-      if (pendingStatusMessage) {
-        updateStatus(pendingStatusMessage);
-      }
-    };
-    
-    // Show progress modal with onComplete callback
-    setBulkProgressModal({ 
-      isOpen: true, 
-      message: strings[477],
-      onComplete: cleanup
-    });
 
-    try {
-      // Get selected crop types
-      const selectedTypes = Object.keys(selectedCropTypes).filter(type => selectedCropTypes[type]);
-      
-      if (selectedTypes.length === 0) {
-        pendingStatusMessage = strings[449] || 'No crops selected for harvest.';
-        // Progress modal will auto-close via onComplete
-        return;
-      }
-
-      // First, calculate capacity to check if we can harvest
-      const capacityCheck = await calculateBulkHarvestCapacity(
-        selectedTypes,
+    // Execute bulk operation with shared function
+    await executeBulkOperation('bulk-harvest', operationId, farmerNPC, async () => {
+      return await executeBulkHarvest({
+        selectedCropTypes,
+        selectedReplantTypes,
         resources,
         masterResources,
         masterSkills,
-        currentPlayer
-      );
-
-      // Check if we have enough space
-      if (!capacityCheck.canHarvest) {
-        const spaceNeeded = capacityCheck.totalCapacityNeeded;
-        const spaceAvailable = capacityCheck.availableSpace;
-        pendingStatusMessage = `${strings[447] || 'Not enough space'}: ${spaceNeeded} needed, ${spaceAvailable} available`;
-        // Progress modal will auto-close via onComplete
-        return;
-      }
-
-      // If replanting, check seeds
-      if (showBulkReplant && !capacityCheck.canReplantAll) {
-        const missingSeeds = Object.entries(capacityCheck.hasEnoughSeeds)
-          .filter(([_, data]) => !data.enough)
-          .map(([type, data]) => `${getLocalizedString(type, strings)}: ${data.needed - data.has} more needed`)
-          .join(', ');
-        
-        // Still proceed with harvest, but warn about replanting
-        console.log(`⚠️ Not enough seeds for replanting: ${missingSeeds}`);
-      }
-
-      // Build operations for API call
-      const operations = buildBulkHarvestOperations(capacityCheck, selectedReplantTypes);
-      
-      // Generate transaction ID for idempotency
-      const transactionId = `bulk-harvest-${currentPlayer._id}-${Date.now()}`;
-      const transactionKey = `bulk-harvest-${gridId}`;
-
-      // Make the bulk harvest API call
-      const response = await axios.post(`${API_BASE}/api/bulk-harvest`, {
-        playerId: currentPlayer._id,
-        gridId: gridId,
-        operations: operations,
-        transactionId: transactionId,
-        transactionKey: transactionKey
+        currentPlayer,
+        setCurrentPlayer,
+        setInventory,
+        setBackpack,
+        setResources,
+        gridId,
+        showBulkReplant,
+        strings,
+        refreshPlayerAfterInventoryUpdate
       });
-
-      if (response.data.success) {
-        const results = response.data.results;
-        
-        // Update local inventory state
-        setInventory(response.data.inventory.warehouse);
-        setBackpack(response.data.inventory.backpack);
-        
-        // Update player state with new inventory
-        setCurrentPlayer(prev => ({
-          ...prev,
-          inventory: response.data.inventory.warehouse,
-          backpack: response.data.inventory.backpack
-        }));
-
-        // Remove harvested resources from local state
-        const harvestedPositions = new Set();
-        Object.values(results.harvested).forEach(data => {
-          data.positions.forEach(pos => {
-            harvestedPositions.add(`${pos.x},${pos.y}`);
-          });
-        });
-
-        setResources(prev => prev.filter(res => !harvestedPositions.has(`${res.x},${res.y}`)));
-
-        // Add replanted resources to local state
-        if (results.replanted) {
-          const allNewResources = [];
-          
-          Object.values(results.replanted).forEach(data => {
-            const farmplotDef = masterResources.find(r => r.type === data.farmplotType);
-            if (farmplotDef) {
-              data.positions.forEach(pos => {
-                // Calculate growEnd time matching server logic
-                const growEndTime = Date.now() + (data.growtime || 0) * 1000;
-                
-                // Enrich the resource with master data, matching handleFarmPlotPlacement
-                const enrichedResource = enrichResourceFromMaster(
-                  {
-                    type: data.farmplotType,
-                    x: pos.x,
-                    y: pos.y,
-                    growEnd: growEndTime,
-                  },
-                  masterResources
-                );
-                
-                allNewResources.push(enrichedResource);
-                
-                // Add to farmState for crop conversion tracking
-                farmState.addSeed({
-                  type: data.farmplotType,
-                  x: pos.x,
-                  y: pos.y,
-                  growEnd: growEndTime,
-                  output: farmplotDef.output
-                });
-              });
-            }
-          });
-          
-          if (allNewResources.length > 0) {
-            // Update both global and local state, matching handleFarmPlotPlacement
-            const currentGlobalResources = GlobalGridStateTilesAndResources.getResources() || [];
-            const updatedGlobalResources = [...currentGlobalResources, ...allNewResources];
-            GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
-            
-            setResources(prev => [...prev, ...allNewResources]);
-          }
-        }
-
-        // Calculate which skills were applied for each harvested type using shared utility
-        const harvestSkillsInfo = {};
-        Object.entries(results.harvested).forEach(([cropType, data]) => {
-          const skillInfo = calculateSkillMultiplier(cropType, currentPlayer.skills || [], masterSkills);
-          if (skillInfo.hasSkills) {
-            harvestSkillsInfo[cropType] = skillInfo;
-          }
-        });
-        
-        // Transform harvest results to simple format for shared formatter
-        const harvestResults = {};
-        if (results.harvested) {
-          Object.entries(results.harvested).forEach(([type, data]) => {
-            harvestResults[type] = data.quantity;
-          });
-        }
-        
-        // Transform replant info
-        const replantInfo = {};
-        if (results.replanted) {
-          Object.entries(results.replanted).forEach(([type, data]) => {
-            replantInfo[type] = data.count;
-          });
-        }
-        
-        // Store success message to show after modal closes using shared formatter
-        pendingStatusMessage = formatCollectionResults('harvest', harvestResults, harvestSkillsInfo, replantInfo, strings, getLocalizedString);
-
-        // Track quest progress for harvested items
-        Object.entries(results.harvested).forEach(([type, data]) => {
-          trackQuestProgress({
-            questProgressCategory: 'collect',
-            itemName: type,
-            quantity: data.quantity,
-            currentPlayer,
-            setCurrentPlayer,
-            masterResources
-          });
-        });
-
-        // Track quest progress for seeds used in replanting
-        Object.entries(results.seedsUsed || {}).forEach(([type, quantity]) => {
-          trackQuestProgress({
-            questProgressCategory: 'spend',
-            itemName: type,
-            quantity: quantity,
-            currentPlayer,
-            setCurrentPlayer,
-            masterResources
-          });
-        });
-
-      } else {
-        pendingStatusMessage = strings[448] || 'Bulk harvest failed';
-      }
-
-    } catch (error) {
-      console.error('Bulk harvest error:', error);
-      pendingStatusMessage = error.response?.data?.error || strings[448] || 'Bulk harvest failed';
-    } finally {
-      // Cleanup handled by onComplete callback in ProgressModal
-      // No need for manual cleanup here
-    }
+    });
   }
+
 
   function handleBulkCrafting() {
     console.log('🛖 Opening selective crafting modal');
     
-    const now = Date.now();
-    const resources = GlobalGridStateTilesAndResources.getResources() || [];
+    const stationGroups = prepareBulkCraftingData(masterResources, inventory, backpack, currentPlayer, hasRequiredSkill);
     
-    // Find all crafting stations with completed crafts
-    const readyStations = resources.filter(res => {
-      // Check if this is a crafting station
-      const stationDef = masterResources.find(r => r.type === res.type);
-      if (!stationDef || stationDef.category !== 'crafting') return false;
-      
-      // Check if it has a completed craft
-      return res.craftEnd && res.craftEnd <= now && res.craftedItem;
-    });
-
-    if (readyStations.length === 0) {
-      updateStatus(466);
+    if (stationGroups.length === 0) {
+      updateStatus(strings[466] || 'No crafting stations ready to collect.');
       return;
     }
-
-    // Group stations by type and crafted item
-    const stationGroups = {};
-    readyStations.forEach(station => {
-      const key = `${station.type}-${station.craftedItem}`;
-      if (!stationGroups[key]) {
-        const stationResource = masterResources.find(r => r.type === station.type);
-        const craftedResource = masterResources.find(r => r.type === station.craftedItem);
-        // Find the recipe that produces this item from this station
-        const recipe = masterResources.find(r => 
-          r.source === station.type && r.type === station.craftedItem
-        );
-        stationGroups[key] = {
-          stationType: station.type,
-          stationSymbol: stationResource?.symbol || '🏭',
-          craftedItem: station.craftedItem,
-          craftedSymbol: craftedResource?.symbol || '🔨',
-          recipe: recipe,
-          stations: [],
-          count: 0
-        };
-      }
-      stationGroups[key].stations.push(station);
-      stationGroups[key].count++;
-    });
-
-    const stationsWithDetails = Object.values(stationGroups);
+    
+    const stationsWithDetails = stationGroups;
     setAvailableCraftingStations(stationsWithDetails);
     
     // Select all stations by default
@@ -1039,8 +652,7 @@ const FarmHandPanel = ({
     setIsCraftingModalOpen(true);
   }
 
-  async function executeSelectiveCrafting() {
-    console.log('🛖 Executing selective crafting');
+  async function executeSelectiveCrafting(selectedGroups, selectedRestartStations) {
     setIsCraftingModalOpen(false);
     setErrorMessage('');
     
@@ -1054,372 +666,31 @@ const FarmHandPanel = ({
     // Start bulk operation tracking
     const operationId = `bulk-crafting-${Date.now()}`;
     startBulkOperation('bulk-crafting', operationId);
-    
-    // Store the status message to show after modal completes
-    let pendingStatusMessage = '';
-    
-    // Store cleanup function reference
-    let cleanupExecuted = false;
-    const cleanup = () => {
-      if (cleanupExecuted) return;
-      cleanupExecuted = true;
-      
-      setBulkProgressModal({ isOpen: false, message: '', onComplete: null });
-      if (workerNPC) clearNPCOverlay(workerNPC.id);
-      endBulkOperation(operationId);
-      
-      // Show the status message after modal closes
-      if (pendingStatusMessage) {
-        updateStatus(pendingStatusMessage);
-      }
-      
-      // Close the panel after showing status
-      onClose();
-    };
-    
-    try {
-      // Get selected station groups
-      const selectedGroups = Object.keys(selectedCraftingStations)
-        .filter(key => selectedCraftingStations[key])
-        .map(key => availableCraftingStations.find(g => `${g.stationType}-${g.craftedItem}` === key))
-        .filter(Boolean);
-      
-      if (selectedGroups.length === 0) {
-        pendingStatusMessage = 'No crafting stations selected for collection.';
-        return;
-      }
 
-      // Flatten all selected stations
-      const stationsToCollect = selectedGroups.flatMap(group => group.stations);
-      
-      // Calculate estimated duration based on number of stations
-      // Minimum 5 seconds, plus 100ms per station for individual processing
-      const estimatedDuration = Math.max(5000, stationsToCollect.length * 100);
-      
-      // Show progress modal with onComplete callback
-      setBulkProgressModal({ 
-        isOpen: true, 
-        message: strings[477], // Same as bulk harvest - "Processing..."
-        onComplete: cleanup,
-        duration: estimatedDuration
+    // Execute bulk operation with shared function
+    await executeBulkOperation('bulk-crafting', operationId, workerNPC, async () => {
+      return await executeBulkCrafting({
+        selectedGroups,
+        selectedRestartStations,
+        hasBulkRestartCraft,
+        currentPlayer,
+        setCurrentPlayer,
+        inventory,
+        setInventory,
+        backpack,
+        setBackpack,
+        setResources,
+        gridId,
+        masterResources,
+        masterSkills,
+        strings,
+        updateStatus
       });
-
-      console.log(`🔨 Found ${stationsToCollect.length} crafting stations ready to collect`);
-      
-      // Prepare batch data for all stations
-      const batchStations = stationsToCollect.map(station => {
-        const key = `${station.type}-${station.craftedItem}`;
-        const shouldRestart = hasBulkRestartCraft && selectedRestartStations[key];
-        
-        // Find the recipe if we need to restart
-        let restartRecipe = null;
-        if (shouldRestart) {
-          const stationGroup = selectedGroups.find(g => 
-            g.stationType === station.type && g.craftedItem === station.craftedItem
-          );
-          if (stationGroup && stationGroup.recipe) {
-            restartRecipe = stationGroup.recipe;
-          }
-        }
-        
-        return {
-          x: station.x,
-          y: station.y,
-          type: station.type,
-          craftedItem: station.craftedItem,
-          transactionId: `bulk-craft-collect-${Date.now()}-${Math.random()}`,
-          shouldRestart,
-          restartRecipe
-        };
-      });
-      
-      const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-      const successfulCollects = {};
-      const successfulRestarts = {};
-      const appliedSkillsInfo = {}; // Track skills and multipliers for status message
-      
-      // Try bulk endpoint first, fallback to individual calls if it doesn't exist
-      let useBulkEndpoint = true;
-      try {
-        console.log('🔨 Attempting bulk crafting collection with stations:', batchStations);
-        const response = await axios.post(`${API_BASE}/api/crafting/collect-bulk`, {
-          playerId: currentPlayer.playerId,
-          gridId,
-          stations: batchStations
-        });
-        
-        console.log('🔨 Bulk crafting response:', response.data);
-        console.log('🔨 Number of results returned:', response.data.results?.length);
-        
-        if (response.data.success) {
-          // Process bulk response
-          const results = response.data.results;
-          
-          // Don't update inventory from server - server doesn't add collected items
-          // We'll add them ourselves with skill bonuses via gainIngredients
-          
-          for (const result of results) {
-            if (result.success) {
-              const { station, collectedItem, isNPC, restarted } = result;
-              
-              // Apply skill buffs to crafted collection (matching individual crafting)
-              // Skills apply to the station type, not the collected item
-              const stationType = station.stationType || station.type;
-              const playerBuffs = (currentPlayer.skills || [])
-                .filter((item) => {
-                  const resourceDetails = masterResources.find((res) => res.type === item.type);
-                  const isSkill = resourceDetails?.category === 'skill' || resourceDetails?.category === 'upgrade';
-                  const appliesToStation = (masterSkills?.[item.type]?.[stationType] || 1) > 1;
-                  return isSkill && appliesToStation;
-                })
-                .map((buffItem) => buffItem.type);
-              
-              // Calculate skill multiplier
-              const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
-                const buffValue = masterSkills?.[buff]?.[stationType] || 1;
-                return multiplier * buffValue;
-              }, 1);
-              
-              // Base quantity is 1 per crafting station (matching individual crafting)
-              const baseQtyCollected = 1;
-              const finalQtyCollected = baseQtyCollected * skillMultiplier;
-              
-              // Handle NPC spawning
-              if (isNPC) {
-                const craftedResource = masterResources.find(res => res.type === collectedItem);
-                if (craftedResource) {
-                  NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: station.x, y: station.y });
-                }
-              } else {
-                // Server doesn't add items - client handles with skill buffs
-                // Track successful collects with skill bonuses
-                successfulCollects[collectedItem] = (successfulCollects[collectedItem] || 0) + finalQtyCollected;
-                
-                // Track skills applied for this item type (only need to do once per item type)
-                if (!appliedSkillsInfo[collectedItem] && playerBuffs.length > 0) {
-                  appliedSkillsInfo[collectedItem] = {
-                    skills: playerBuffs,
-                    multiplier: skillMultiplier,
-                    hasSkills: true
-                  };
-                }
-              }
-              
-              // Don't track quest progress individually in bulk - will do it at the end
-              
-              // Track restarts
-              if (restarted && station.restartRecipe) {
-                successfulRestarts[station.restartRecipe.type] = 
-                  (successfulRestarts[station.restartRecipe.type] || 0) + 1;
-              }
-            }
-          }
-          
-          // Update local resources state based on successful results
-          const currentResources = GlobalGridStateTilesAndResources.getResources();
-          const updatedResources = currentResources.map(res => {
-            // Find if this resource was processed
-            const processedResult = results.find(r => 
-              r.success && r.station.x === res.x && r.station.y === res.y
-            );
-            
-            if (processedResult) {
-              // Clear crafting state
-              const updated = { ...res };
-              delete updated.craftEnd;
-              delete updated.craftedItem;
-              
-              // If restarted, add new crafting state
-              if (processedResult.restarted && processedResult.station.restartRecipe) {
-                // Get craft time from masterResources (in seconds)
-                const craftedResource = masterResources.find(r => r.type === processedResult.station.restartRecipe.type);
-                const craftTimeSeconds = craftedResource?.crafttime || processedResult.station.restartRecipe.crafttime || 60;
-                updated.craftEnd = Date.now() + (craftTimeSeconds * 1000);
-                updated.craftedItem = processedResult.station.restartRecipe.type;
-              }
-              
-              return updated;
-            }
-            
-            return res;
-          });
-          
-          GlobalGridStateTilesAndResources.setResources(updatedResources);
-          setResources(updatedResources);
-        }
-      } catch (bulkError) {
-        console.error('🔨 Bulk crafting error:', bulkError.response?.data || bulkError.message);
-        // If bulk endpoint doesn't exist, fall back to individual processing
-        if (bulkError.response?.status === 404) {
-          console.log('Bulk endpoint not found, falling back to individual processing');
-          useBulkEndpoint = false;
-        } else if (bulkError.response?.status === 500 || bulkError.response?.status === 400) {
-          console.log('Bulk endpoint returned error, falling back to individual processing');
-          useBulkEndpoint = false;
-        } else {
-          throw bulkError;
-        }
-      }
-      
-      // If bulk endpoint wasn't available, process individually
-      if (!useBulkEndpoint) {
-        for (const station of batchStations) {
-          try {
-            const craftedItem = station.craftedItem;
-            
-            console.log(`📦 Collecting ${craftedItem} from station at (${station.x}, ${station.y})`);
-            
-            // Call the server endpoint directly (similar to handleCollect in CraftingStation)
-            const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
-              playerId: currentPlayer.playerId,
-              gridId,
-              stationX: station.x,
-              stationY: station.y,
-              craftedItem,
-              transactionId: station.transactionId,
-              transactionKey: `crafting-collect-${craftedItem}-${station.x}-${station.y}`
-            });
-
-          if (response.data.success) {
-            const { collectedItem, isNPC } = response.data;
-            
-            // Apply skill buffs to crafted collection
-            // Skills apply to the station type, not the collected item
-            const stationType = station.type;
-            const playerBuffs = (currentPlayer.skills || [])
-              .filter((item) => {
-                const resourceDetails = masterResources.find((res) => res.type === item.type);
-                const isSkill = resourceDetails?.category === 'skill' || resourceDetails?.category === 'upgrade';
-                const appliesToStation = (masterSkills?.[item.type]?.[stationType] || 1) > 1;
-                return isSkill && appliesToStation;
-              })
-              .map((buffItem) => buffItem.type);
-
-            // Calculate skill multiplier
-            const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
-              const buffValue = masterSkills?.[buff]?.[stationType] || 1;
-              return multiplier * buffValue;
-            }, 1);
-
-            // Base quantity is 1 per crafting station (matching individual crafting)
-            const baseQtyCollected = 1;
-            const finalQtyCollected = baseQtyCollected * skillMultiplier;
-            
-            // Don't show individual floating text for bulk operations
-
-            // Handle NPC spawning client-side
-            if (isNPC) {
-              const craftedResource = masterResources.find(res => res.type === collectedItem);
-              if (craftedResource) {
-                NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: station.x, y: station.y });
-              }
-            } else {
-              // Add to inventory with buffs
-              const gained = await gainIngredients({
-                playerId: currentPlayer.playerId,
-                currentPlayer,
-                resource: collectedItem,
-                quantity: finalQtyCollected,
-                inventory: currentPlayer.inventory,
-                backpack: currentPlayer.backpack,
-                setInventory,
-                setBackpack,
-                setCurrentPlayer,
-                updateStatus,
-                masterResources,
-              });
-
-              if (!gained) {
-                console.error('❌ Failed to add crafted item to inventory.');
-              }
-            }
-
-            // Track quest progress
-            await trackQuestProgress(currentPlayer, 'Craft', collectedItem, finalQtyCollected, setCurrentPlayer);
-
-            // Update local resources to clear the crafting state
-            const updatedResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-              res.x === station.x && res.y === station.y
-                ? { ...res, craftEnd: undefined, craftedItem: undefined }
-                : res
-            );
-            GlobalGridStateTilesAndResources.setResources(updatedResources);
-            setResources(updatedResources);
-
-            successfulCollects[collectedItem] = (successfulCollects[collectedItem] || 0) + finalQtyCollected;
-            
-            // Track skills applied for this item type (only need to do once per item type)
-            if (!appliedSkillsInfo[collectedItem] && playerBuffs.length > 0) {
-              appliedSkillsInfo[collectedItem] = {
-                skills: playerBuffs,
-                multiplier: skillMultiplier,
-                hasSkills: true
-              };
-            }
-            
-            // Handle restart if this station should restart
-            if (station.shouldRestart && station.restartRecipe) {
-              const restarted = await restartCrafting(station, station.restartRecipe, strings);
-              if (restarted) {
-                successfulRestarts[station.restartRecipe.type] = (successfulRestarts[station.restartRecipe.type] || 0) + 1;
-                console.log(`✅ Restarted crafting at station (${station.x}, ${station.y})`);
-              }
-            }
-          }
-          
-            await wait(100); // Avoid overloading server
-          } catch (error) {
-            console.error(`Failed to collect from station at (${station.x}, ${station.y}):`, error);
-          }
-        }
-      }
-
-      // Add collected items to inventory
-      if (Object.keys(successfulCollects).length > 0) {
-        for (const [collectedItem, quantity] of Object.entries(successfulCollects)) {
-          // Add to inventory with skill-modified quantities
-          await gainIngredients({
-            playerId: currentPlayer.playerId,
-            currentPlayer,
-            resource: collectedItem,
-            quantity: quantity,
-            inventory: inventory,
-            backpack: backpack,
-            setInventory,
-            setBackpack,
-            setCurrentPlayer,
-            updateStatus: () => {}, // Don't show individual status messages
-            masterResources,
-          });
-          
-          // Track quest progress
-          await trackQuestProgress(currentPlayer, 'Craft', collectedItem, quantity, setCurrentPlayer);
-        }
-      }
-      
-      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-      
-      if (Object.keys(successfulCollects).length > 0) {
-        // Format collection and restart messages using shared formatters
-        const parts = [];
-        parts.push(formatCollectionResults('craft', successfulCollects, appliedSkillsInfo, null, strings, getLocalizedString));
-        
-        if (Object.keys(successfulRestarts).length > 0) {
-          parts.push(formatRestartResults(successfulRestarts, 'craft', strings, getLocalizedString));
-        }
-        
-        pendingStatusMessage = parts.join(' | ');
-      } else {
-        pendingStatusMessage = 'Failed to collect any crafted items.';
-      }
-    } catch (error) {
-      console.error('Bulk crafting failed:', error);
-      pendingStatusMessage = error.response?.data?.error || 'Failed to collect crafted items.';
-    }
+    });
+    
+    onClose();
   }
 
-  
-  // Helper function to restart crafting at a station
   async function restartCrafting(station, recipe, strings) {
     if (!recipe) {
       console.log(`No recipe found for restarting craft at station (${station.x}, ${station.y})`);
@@ -1520,7 +791,7 @@ const FarmHandPanel = ({
           <div>
             <ResourceButton
               symbol="🚜"
-              name="Bulk Harvest"
+              name={getLocalizedString('Bulk Harvest', strings)}
               className="resource-button bulk-skill"
               details={strings[428]}
               onClick={handleBulkHarvest}
@@ -1531,7 +802,7 @@ const FarmHandPanel = ({
           <div>
             <ResourceButton
               symbol="🐮"
-              name="Bulk Animal Collect"
+              name={getLocalizedString('Bulk Animal Collect', strings)}
               className="resource-button bulk-skill"
               details={strings[434]}
               onClick={handleBulkAnimalCollect}
@@ -1542,7 +813,7 @@ const FarmHandPanel = ({
           <div>
             <ResourceButton
               symbol="🪓"
-              name="Logging"
+              name={getLocalizedString('Logging', strings)}
               className="resource-button bulk-skill"
               details={strings[435]}
               onClick={handleLogging}
@@ -1553,7 +824,7 @@ const FarmHandPanel = ({
           <div>
             <ResourceButton
               symbol="🛖"
-              name="Bulk Crafting"
+              name={getLocalizedString('Bulk Crafting', strings)}
               className="resource-button bulk-skill"
               details={strings[465]}
               onClick={handleBulkCrafting}
@@ -1599,22 +870,13 @@ const FarmHandPanel = ({
         {showCropPurchase && (
           <>
             <h3>{strings[426]}</h3>
-            
             {recipes?.length > 0 ? (
               recipes.map((resource) => {
                 const cost = (resource.maxprice || 100) * 10;
                 const playerMoney = (inventory.find((item) => item.type === 'Money')?.quantity || 0) +
                                     (backpack.find((item) => item.type === 'Money')?.quantity || 0);
                 const affordable = playerMoney >= cost;
-
-                const details = `Buy 1 for: 💰 ${cost}`;
-
-                const info = (
-                  <div className="info-content">
-                    <div><strong>{strings[422]}</strong> 💰 {cost}</div>
-                  </div>
-                );
-
+                const details = `${strings[347]} 💰 ${cost}`;
                 return (
                   <ResourceButton
                     key={resource.type}
@@ -1631,462 +893,76 @@ const FarmHandPanel = ({
           </>
         )}
 
-
         {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       </div>
       
       {/* Selective Harvest Modal */}
-      {isHarvestModalOpen && (
-        <Modal
-          isOpen={isHarvestModalOpen}
-          onClose={() => {
-            setIsHarvestModalOpen(false);
-            // Clear busy overlay when modal is closed
-            const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-            const workerNPC = npcs.find(npc => npc.action === 'worker');
-            if (workerNPC) {
-              clearNPCOverlay(workerNPC.id);
-            }
-          }}
-          title={strings[315]}
-          size="medium"
-        >
-          <div style={{ padding: '20px', fontSize: '16px' }}>            
-            <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button 
-                  onClick={() => {
-                    const allSelected = {};
-                    availableCrops.forEach(crop => {
-                      allSelected[crop.type] = true;
-                    });
-                    setSelectedCropTypes(allSelected);
-                  }}
-                  style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
-                >
-                  {strings[316]}
-                </button>
-                <button 
-                  onClick={() => setSelectedCropTypes({})}
-                  style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#808080', color: 'white', border: 'none', borderRadius: '3px' }}
-                >
-                  {strings[317]}
-                </button>
-              </div>
-              
-              {showBulkReplant && (
-                <div style={{ display: 'flex', gap: '10px', marginLeft: '210px' }}>
-                  <button 
-                    onClick={() => {
-                      const allSelected = {};
-                      availableCrops.forEach(crop => {
-                        // Only select crops that the player has the skill to replant
-                        const farmplotResource = masterResources.find(res => 
-                          res.category === 'farmplot' && res.output === crop.type
-                        );
-                        if (hasRequiredSkill(farmplotResource?.requires)) {
-                          allSelected[crop.type] = true;
-                        }
-                      });
-                      setSelectedReplantTypes(allSelected);
-                    }}
-                    style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
-                  >
-                    {strings[316]}
-                  </button>
-                  <button 
-                    onClick={() => setSelectedReplantTypes({})}
-                    style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#808080', color: 'white', border: 'none', borderRadius: '3px' }}
-                  >
-                    {strings[317]}
-                  </button>
-                </div>
-              )}
-            </div>
-            
-            <div style={{ marginBottom: '20px' }}>
-              {/* Header row */}
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', fontWeight: 'bold', borderBottom: '1px solid #ccc', paddingBottom: '5px' }}>
-                <span style={{ marginRight: '10px', width: '20px' }}></span>
-                <span style={{ marginRight: '10px', width: '30px' }}></span>
-                <span style={{ marginRight: '10px', width: '100px' }}>Crop</span>
-                <span style={{ marginRight: '10px', width: '60px' }}>Count</span>
-                {showBulkReplant && (
-                  <>
-                    <span style={{ marginRight: '10px', width: '80px' }}></span>
-                    <span style={{ width: '80px' }}>Replant?</span>
-                  </>
-                )}
-              </div>
-              
-              {availableCrops.map((crop, index) => (
-                <div key={crop.type} style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  marginBottom: '10px',
-                  padding: '5px',
-                  backgroundColor: index % 2 === 0 ? 'transparent' : '#f0f0f0'
-                }}>
-                  <input
-                    type="checkbox"
-                    checked={selectedCropTypes[crop.type] || false}
-                    onChange={(e) => {
-                      setSelectedCropTypes(prev => ({
-                        ...prev,
-                        [crop.type]: e.target.checked
-                      }));
-                    }}
-                    style={{ marginRight: '10px', width: '20px' }}
-                  />
-                  <span style={{ marginRight: '10px', width: '30px' }}>{crop.symbol}</span>
-                  <span style={{ marginRight: '10px', width: '100px', fontWeight: 'bold' }}>{getLocalizedString(crop.type, strings)}</span>
-                  <span style={{ marginRight: '10px', width: '60px', color: '#666' }}>({crop.count})</span>
-                  
-                  {showBulkReplant && (() => {
-                    // Find the farmplot resource that produces this crop to check skill requirements
-                    const farmplotResource = masterResources.find(res => 
-                      res.category === 'farmplot' && res.output === crop.type
-                    );
-                    const canReplant = hasRequiredSkill(farmplotResource?.requires);
-                    
-                    return (
-                      <div style={{ marginLeft: '60px', width: '80px', display: 'flex', justifyContent: 'center' }}>
-                        <input
-                          type="checkbox"
-                          checked={selectedReplantTypes[crop.type] || false}
-                          onChange={(e) => {
-                            if (canReplant) {
-                              setSelectedReplantTypes(prev => ({
-                                ...prev,
-                                [crop.type]: e.target.checked
-                              }));
-                            }
-                          }}
-                          disabled={!canReplant}
-                          style={{ 
-                            width: '20px',
-                            opacity: canReplant ? 1 : 0.5,
-                            cursor: canReplant ? 'pointer' : 'not-allowed'
-                          }}
-                          title={canReplant ? '' : `Requires ${farmplotResource?.requires || 'unknown skill'} to replant ${crop.type}`}
-                        />
-                      </div>
-                    );
-                  })()}
-                </div>
-              ))}
-            </div>
-            
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <button 
-                onClick={executeSelectiveHarvest}
-                style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px' }}
-                disabled={Object.values(selectedCropTypes).every(selected => !selected)}
-              >
-                {strings[318]}
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
+
+      <BulkHarvestModal
+        isOpen={isHarvestModalOpen}
+        onClose={() => {
+          setIsHarvestModalOpen(false);
+          // Clear busy overlay when modal is closed
+          const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+          const workerNPC = npcs.find(npc => npc.action === 'worker');
+          if (workerNPC) {
+            clearNPCOverlay(workerNPC.id);
+          }
+        }}
+        crops={availableCrops}
+        onExecute={executeSelectiveHarvest}
+        showBulkReplant={showBulkReplant}
+        hasRequiredSkill={hasRequiredSkill}
+        strings={strings}
+      />
       
       {/* Selective Animal Collect Modal */}
-      {isAnimalModalOpen && (
-        <Modal
-          isOpen={isAnimalModalOpen}
-          onClose={() => {
-            setIsAnimalModalOpen(false);
-            // Clear busy overlay when modal is closed
-            const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-            const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Rancher'].includes(npc.type));
-            if (workerNPC) {
-              clearNPCOverlay(workerNPC.id);
-            }
-          }}
-          title={strings[319]}
-          size="medium"
-        >
-          <div style={{ padding: '20px', fontSize: '16px' }}>            
-            <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
-              <button 
-                onClick={() => {
-                  const allSelected = {};
-                  availableAnimals.forEach(animal => {
-                    allSelected[animal.type] = true;
-                  });
-                  setSelectedAnimalTypes(allSelected);
-                }}
-                style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
-              >
-                {strings[316]}
-              </button>
-              <button 
-                onClick={() => setSelectedAnimalTypes({})}
-                style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '3px' }}
-              >
-                {strings[317]}
-              </button>
-            </div>
-            
-            <div style={{ marginBottom: '20px' }}>
-              {availableAnimals.map((animal, index) => (
-                <div key={animal.type} style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  marginBottom: '10px',
-                  padding: '5px',
-                  backgroundColor: index % 2 === 0 ? 'transparent' : '#f0f0f0'
-                }}>
-                  <input
-                    type="checkbox"
-                    checked={selectedAnimalTypes[animal.type] || false}
-                    onChange={(e) => {
-                      setSelectedAnimalTypes(prev => ({
-                        ...prev,
-                        [animal.type]: e.target.checked
-                      }));
-                    }}
-                    style={{ marginRight: '10px' }}
-                  />
-                  <span style={{ marginRight: '10px' }}>{animal.symbol}</span>
-                  <span style={{ marginRight: '10px', fontWeight: 'bold' }}>{getLocalizedString(animal.type, strings)}</span>
-                  <span style={{ color: '#666' }}>({animal.count})</span>
-                </div>
-              ))}
-            </div>
-            
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <button 
-                onClick={executeSelectiveAnimalCollect}
-                style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px' }}
-                disabled={Object.values(selectedAnimalTypes).every(selected => !selected)}
-              >
-                {strings[318]}
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
+
+      <BulkAnimalModal
+        isOpen={isAnimalModalOpen}
+        onClose={() => {
+          setIsAnimalModalOpen(false);
+          // Clear busy overlay when modal is closed
+          const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+          const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Rancher'].includes(npc.type));
+          if (workerNPC) {
+            clearNPCOverlay(workerNPC.id);
+          }
+        }}
+        animals={availableAnimals}
+        onExecute={() => executeSelectiveAnimalCollect()}
+        strings={strings}
+      />
       
       {/* Selective Crafting Modal */}
-      {isCraftingModalOpen && (
-        <Modal
-          isOpen={isCraftingModalOpen}
-          onClose={() => {
-            setIsCraftingModalOpen(false);
-            // Clear busy overlay when modal is closed
-            const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-            const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Crafter'].includes(npc.type));
-            if (workerNPC) {
-              clearNPCOverlay(workerNPC.id);
-            }
-          }}
-          title={strings[467] || "Select Crafting Stations to Collect"}
-          size="medium"
-        >
-          <div style={{ padding: '20px', fontSize: '16px' }}>
-            <div style={{ marginBottom: '15px', display: 'flex', gap: '10px', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button 
-                  onClick={() => {
-                    const allSelected = {};
-                    availableCraftingStations.forEach(group => {
-                      allSelected[`${group.stationType}-${group.craftedItem}`] = true;
-                    });
-                    setSelectedCraftingStations(allSelected);
-                  }}
-                  style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
-                >
-                  {strings[316]}
-                </button>
-                <button 
-                  onClick={() => setSelectedCraftingStations({})}
-                  style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#808080', color: 'white', border: 'none', borderRadius: '3px' }}
-                >
-                  {strings[317]}
-                </button>
-              </div>
-              
-              {hasBulkRestartCraft && (
-                <div style={{ display: 'flex', gap: '10px', marginLeft: 'auto' }}>
-                  <button 
-                    onClick={() => {
-                      const allSelected = {};
-                      availableCraftingStations.forEach(group => {
-                        allSelected[`${group.stationType}-${group.craftedItem}`] = true;
-                      });
-                      setSelectedRestartStations(allSelected);
-                    }}
-                    style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
-                  >
-                    {strings[316]}
-                  </button>
-                  <button 
-                    onClick={() => setSelectedRestartStations({})}
-                    style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#808080', color: 'white', border: 'none', borderRadius: '3px' }}
-                  >
-                    {strings[317]}
-                  </button>
-                </div>
-              )}
-            </div>
-            
-            <div style={{ marginBottom: '20px' }}>
-              {/* Header row */}
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', fontWeight: 'bold', borderBottom: '1px solid #ccc', paddingBottom: '5px' }}>
-                <span style={{ marginRight: '10px', width: '20px' }}></span>
-                <span style={{ marginRight: '10px', width: '30px' }}></span>
-                <span style={{ marginRight: '10px', width: '120px' }}>{strings[476]}</span>
-                <span style={{ marginRight: '10px', width: '120px' }}>{strings[161]}</span>
-                <span style={{ marginRight: '10px', width: '40px' }}>{strings[164]}</span>
-                {hasBulkRestartCraft && (
-                  <>
-                    <span style={{ marginRight: '10px', width: '80px' }}></span>
-                    <span style={{ marginRight: '10px', width: '80px' }}>{strings[475]}</span>
-                    <span style={{ width: '200px' }}>{strings[177]}</span> {/* "Need" */}
-                  </>
-                )}
-              </div>
-              
-              {availableCraftingStations.map((group, index) => {
-                const key = `${group.stationType}-${group.craftedItem}`;
-                return (
-                  <div key={key} style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    marginBottom: '10px',
-                    padding: '5px',
-                    backgroundColor: index % 2 === 0 ? 'transparent' : '#f0f0f0'
-                  }}>
-                    <input
-                      type="checkbox"
-                      checked={selectedCraftingStations[key] || false}
-                      onChange={(e) => {
-                        setSelectedCraftingStations(prev => ({
-                          ...prev,
-                          [key]: e.target.checked
-                        }));
-                      }}
-                      style={{ marginRight: '10px', width: '20px' }}
-                    />
-                    <span style={{ marginRight: '10px', width: '30px' }}>{group.stationSymbol}</span>
-                    <span style={{ marginRight: '10px', width: '120px' }}>{getLocalizedString(group.stationType, strings)}</span>
-                    <span style={{ marginRight: '10px', width: '120px', fontWeight: 'bold' }}>{getLocalizedString(group.craftedItem, strings)}</span>
-                    <span style={{ marginRight: '10px', width: '60px', color: '#666' }}>({group.count})</span>
-                    
-                    {hasBulkRestartCraft && (() => {
-                      // Calculate if player has enough ingredients
-                      const craftedResource = masterResources.find(r => r.type === group.craftedItem);
-                      let hasAllIngredients = true;
-                      let ingredientElements = [];
-                      
-                      if (craftedResource) {
-                        const ingredients = [];
-                        for (let i = 1; i <= 5; i++) {
-                          const ingredientType = craftedResource[`ingredient${i}`];
-                          const ingredientQty = craftedResource[`ingredient${i}qty`];
-                          if (ingredientType) {
-                            ingredients.push({ type: ingredientType, quantity: ingredientQty || 1 });
-                          }
-                        }
-                        
-                        if (ingredients.length > 0) {
-                          const playerInventory = {};
-                          [...(inventory || []), ...(backpack || [])].forEach(item => {
-                            playerInventory[item.type] = (playerInventory[item.type] || 0) + item.quantity;
-                          });
-                          
-                          ingredientElements = ingredients.map((ing, idx) => {
-                            const needed = ing.quantity * group.count;
-                            const has = playerInventory[ing.type] || 0;
-                            const hasEnough = has >= needed;
-                            if (!hasEnough) hasAllIngredients = false;
-                            
-                            const ingredientResource = masterResources.find(r => r.type === ing.type);
-                            const symbol = ingredientResource?.symbol || '?';
-                            
-                            return (
-                              <div key={idx} style={{ 
-                                color: hasEnough ? '#666' : 'red'
-                              }}>
-                                {symbol} {needed} / {has}
-                              </div>
-                            );
-                          });
-                        } else {
-                          hasAllIngredients = false;
-                        }
-                      } else {
-                        hasAllIngredients = false;
-                      }
-                      
-                      return (
-                        <>
-                          <div style={{ marginLeft: '60px', width: '80px', display: 'flex', justifyContent: 'center' }}>
-                            <input
-                              type="checkbox"
-                              checked={hasAllIngredients ? (selectedRestartStations[key] || false) : false}
-                              onChange={(e) => {
-                                if (hasAllIngredients) {
-                                  setSelectedRestartStations(prev => ({
-                                    ...prev,
-                                    [key]: e.target.checked
-                                  }));
-                                }
-                              }}
-                              disabled={!hasAllIngredients}
-                              style={{ 
-                                width: '20px',
-                                cursor: hasAllIngredients ? 'pointer' : 'not-allowed',
-                                opacity: hasAllIngredients ? 1 : 0.5
-                              }}
-                              title={hasAllIngredients ? "Restart crafting after collection" : "Not enough ingredients to restart"}
-                            />
-                          </div>
-                          
-                          {/* Need column */}
-                          <div style={{ width: '200px' }}>
-                            {ingredientElements.length > 0 ? (
-                              <div style={{ 
-                                display: 'flex', 
-                                flexDirection: 'column',
-                                gap: '2px',
-                                color: hasAllIngredients ? '#666' : 'red'
-                              }}>
-                                {ingredientElements}
-                              </div>
-                            ) : (
-                              <span style={{ color: '#666' }}>-</span>
-                            )}
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
-                );
-              })}
-            </div>
-            
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <button 
-                onClick={executeSelectiveCrafting}
-                style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px' }}
-                disabled={Object.values(selectedCraftingStations).every(selected => !selected)}
-              >
-                {strings[318]}
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
+
+      <BulkCraftingModal
+        isOpen={isCraftingModalOpen}
+        onClose={() => {
+          setIsCraftingModalOpen(false);
+          // Clear busy overlay when modal is closed
+          const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
+          const workerNPC = npcs.find(npc => npc.action === 'worker' && ['Farmer', 'Crafter'].includes(npc.type));
+          if (workerNPC) {
+            clearNPCOverlay(workerNPC.id);
+          }
+        }}
+        stationGroups={availableCraftingStations}
+        onExecute={executeSelectiveCrafting}
+        hasBulkRestartCraft={hasBulkRestartCraft}
+        strings={strings}
+        masterResources={masterResources}
+        inventory={inventory}
+        backpack={backpack}
+      />
       
       {/* Bulk Operation Progress Modal */}
+
       <ProgressModal
         isOpen={bulkProgressModal.isOpen}
-        title={strings[478]}
+        title={strings[478] || "Processing..."}
         message={bulkProgressModal.message}
-        onComplete={bulkProgressModal.onComplete}
       />
     </Panel>
   );

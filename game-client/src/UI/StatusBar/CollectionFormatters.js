@@ -18,13 +18,13 @@ export function formatCollectionResults(operation, results, skillsInfo, replantI
   
   // Format the main collection based on operation type
   const operationLabels = {
-    'harvest': 'Harvest complete',
-    'craft': 'Crafting complete',
-    'animal': 'Collection complete',
-    'logging': 'Logging complete'
+    'harvest': strings[472] || 'Harvest complete',
+    'craft': strings[480] || 'Crafting complete',
+    'animal': strings[469] || 'Animal Collect complete',
+    'logging': strings[479] || 'Logging complete'
   };
   
-  const label = operationLabels[operation] || 'Collection complete';
+  const label = operationLabels[operation] || strings[472] || 'Complete';
   
   // Format collected items
   if (results && Object.keys(results).length > 0) {
@@ -34,7 +34,7 @@ export function formatCollectionResults(operation, results, skillsInfo, replantI
       
       if (skillInfo && skillInfo.hasSkills) {
         const skillsStr = skillInfo.skills.join(', ');
-        return `${quantity} ${localizedName} with ${skillsStr} applied (${skillInfo.multiplier}x)`;
+        return `${quantity} ${localizedName}, ${strings[481]} ${skillsStr} ${strings[482]} (${skillInfo.multiplier}x)`;
       } else {
         return `${quantity} ${localizedName}`;
       }
@@ -48,7 +48,7 @@ export function formatCollectionResults(operation, results, skillsInfo, replantI
     const replantParts = Object.entries(replantInfo)
       .map(([type, count]) => `${count} ${getLocalizedString(type, strings)}`)
       .join(', ');
-    parts.push(`${replantParts} replanted`);
+    parts.push(`${replantParts} ${strings[483] || 'replanted'}`);
   }
   
   return parts.join(' | ');

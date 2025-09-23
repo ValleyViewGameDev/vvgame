@@ -36,15 +36,6 @@ export async function calculateBulkHarvestCapacity(
   const currentTotalUsage = currentWarehouseUsage + currentBackpackUsage;
   const availableSpace = totalCapacity - currentTotalUsage;
   
-  console.log('Bulk harvest capacity check:', {
-    warehouseCapacity,
-    backpackCapacity,
-    totalCapacity,
-    currentWarehouseUsage,
-    currentBackpackUsage,
-    currentTotalUsage,
-    availableSpace
-  });
   
   // Calculate yield for each crop type
   for (const cropType of selectedTypes) {

@@ -2,37 +2,23 @@ import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 import './ProgressModal.css';
 
-function ProgressModal({ isOpen, title, message, onComplete, duration = 4000, minDuration = 5000 }) {
-  const [progress, setProgress] = useState(0);
+function ProgressModal({ isOpen, title, message }) {
+  const [frame, setFrame] = useState(0);
+  const hourglassFrames = ['⏳', '⌛'];
   
   useEffect(() => {
     if (!isOpen) {
-      setProgress(0);
+      setFrame(0);
       return;
     }
     
-    // Use the longer of the provided duration or minDuration
-    const effectiveDuration = Math.max(duration, minDuration);
-    const interval = 20; // Update every 20ms for smooth animation
-    const increment = 100 / (effectiveDuration / interval);
-    
+    // Animate hourglass every 500ms
     const timer = setInterval(() => {
-      setProgress(prev => {
-        const next = prev + increment;
-        if (next >= 100) {
-          clearInterval(timer);
-          // Call onComplete callback when animation finishes
-          if (onComplete) {
-            setTimeout(onComplete, 100); // Small delay to show 100% briefly
-          }
-          return 100;
-        }
-        return next;
-      });
-    }, interval);
+      setFrame(prev => (prev + 1) % hourglassFrames.length);
+    }, 500);
     
     return () => clearInterval(timer);
-  }, [isOpen, onComplete, duration, minDuration]);
+  }, [isOpen]);
   
   if (!isOpen) return null;
   
@@ -47,14 +33,9 @@ function ProgressModal({ isOpen, title, message, onComplete, duration = 4000, mi
       <div className="progress-modal-content">
         <div className="progress-message">{message}</div>
         
-        <div className="progress-bar-container">
-          <div 
-            className="progress-bar-fill" 
-            style={{ width: `${progress}%` }}
-          />
+        <div className="progress-hourglass">
+          {hourglassFrames[frame]}
         </div>
-        
-        <div className="progress-percentage">{Math.floor(progress)}%</div>
       </div>
     </Modal>
   );

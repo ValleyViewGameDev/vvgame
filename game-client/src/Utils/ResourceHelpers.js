@@ -151,6 +151,11 @@ export async function validateTileType(gridId, x, y) {
 }
 
 export function isACrop(itemType, masterResources) {
+  // Exclude trees from being considered crops
+  if (itemType === 'Oak Tree' || itemType === 'Pine Tree') {
+    return false;
+  }
+  
   // Check if this item is the output of any farmplot resource
   return masterResources.some(resource => 
     resource.category === 'farmplot' && resource.output === itemType

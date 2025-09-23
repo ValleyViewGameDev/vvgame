@@ -8,6 +8,8 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker.js';
 import AnimalPanel from '../FarmAnimals/FarmAnimals.js';
 import { calculateDistance } from '../../Utils/worldHelpers.js';
 import { getLocalizedString } from '../../Utils/stringLookup.js';
+import { formatSingleCollection } from '../../UI/StatusBar/CollectionFormatters.js';
+import { calculateSkillMultiplier } from '../../Utils/InventoryManagement.js';
 
 // Generate unique transaction ID
 function generateTransactionId() {
@@ -124,10 +126,15 @@ async function handleProtectedFarmAnimalCollection(
       // Visual feedback
       FloatingTextManager.addFloatingText(`+${collectedQuantity} ${getLocalizedString(collectedItem, strings)}`, col, row, TILE_SIZE);
       
-      const statusMessage = skillsApplied.length === 0
-        ? `Gained ${collectedQuantity} ${collectedItem}.`
-        : `Gained ${collectedQuantity} ${collectedItem} (${skillsApplied.join(', ')} skill applied).`;
-      // Note: updateStatus was already called by gainIngredients if needed
+      // Calculate skill info for formatting
+      const skillInfo = calculateSkillMultiplier(collectedItem, currentPlayer.skills || [], masterSkills);
+      
+      // Format status message using shared formatter
+      const statusMessage = formatSingleCollection('animal', collectedItem, collectedQuantity, 
+        skillInfo.hasSkills ? skillInfo : null, strings, getLocalizedString);
+      
+      // Update status with the formatted message
+      updateStatus(statusMessage);
 
       // ✅ Track quest progress for NPC graze collection
       await trackQuestProgress(currentPlayer, 'Collect', collectedItem, collectedQuantity, setCurrentPlayer);

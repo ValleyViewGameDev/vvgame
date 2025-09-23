@@ -1,7 +1,7 @@
 import API_BASE from './config.js'; 
 import axios from 'axios';
 import { fetchInventoryAndBackpack, refreshPlayerAfterInventoryUpdate } from './Utils/InventoryManagement';
-import { gainIngredients, spendIngredients } from './Utils/InventoryManagement';
+import { gainIngredients, spendIngredients, calculateSkillMultiplier } from './Utils/InventoryManagement';
 import { updateGridResource } from './Utils/GridManagement';
 import { loadMasterResources, loadMasterSkills } from './Utils/TuningManager'; // Centralized tuning manager
 import FloatingTextManager from './UI/FloatingText';
@@ -11,6 +11,7 @@ import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
 import { createCollectEffect, createSourceConversionEffect, calculateTileCenter } from './VFX/VFX';
 import { useStrings } from './UI/StringsContext';
 import { getLocalizedString } from './Utils/stringLookup';
+import { formatSingleCollection } from './UI/StatusBar/CollectionFormatters';
  
  // Handles resource click actions based on category. //
  export async function handleResourceClick(
@@ -267,11 +268,14 @@ export async function handleDooberClick(
     // Only show VFX and floating text after successful collection
     createCollectEffect(col, row, TILE_SIZE);
     FloatingTextManager.addFloatingText(`+${qtyCollected} ${getLocalizedString(resource.type, strings)}`, col, row, TILE_SIZE );
-    if (skillMultiplier != 1) {
-      const skillAppliedText =
-        `${playerBuffs.join(', ')} skill applied (${skillMultiplier}x collected).`;
-      updateStatus(skillAppliedText);
-    }
+    
+    // Calculate skill info for formatting
+    const skillInfo = calculateSkillMultiplier(resource.type, skills || [], masterSkills);
+    
+    // Format and show status message using shared formatter
+    const statusMessage = formatSingleCollection('harvest', resource.type, qtyCollected, 
+      skillInfo.hasSkills ? skillInfo : null, strings, getLocalizedString);
+    updateStatus(statusMessage);
 
     const gridUpdateResponse = await updateGridResource(
       gridId,

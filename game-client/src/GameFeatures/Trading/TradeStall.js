@@ -574,7 +574,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                 await performAddToSlot(transactionId, transactionKey, resource, amount);
               }}
             >
-              Yes, Sell All
+              {strings[168]}
             </button>
           </div>
         ),
@@ -686,7 +686,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
           await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
         }
         
-        updateStatus(`💰 Sold ${response.data.amount}x ${response.data.resource} for ${response.data.sold}.`);
+        updateStatus(`${strings[141]} ${response.data.amount}x ${getLocalizedString(response.data.resource, strings)} (💰 ${response.data.sold}).`);
         
         // Refresh trade stall data to ensure consistency
         await fetchDataForViewedPlayer(true); // Skip inventory fetch to preserve server state
@@ -990,7 +990,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                       onAction={(transactionId, transactionKey) => handleBuy(transactionId, transactionKey, index)}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {isPurchased ? 'Sold' : `Buy 💰${slot.amount * slot.price}`}
+                      {isPurchased ? strings[141] : `${strings[169]} 💰${slot.amount * slot.price}`}
                     </TransactionButton>
 
                     {/* 4. COLLECT BUTTON (right 50%) */}
@@ -1002,7 +1002,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                         onAction={(transactionId, transactionKey) => handleCollectPayment(transactionId, transactionKey, index)}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        Collect 💰{slot.boughtFor}
+                        {strings[318]} 💰{slot.boughtFor}
                       </TransactionButton>
                     ) : isReadyToSell ? (
                       <TransactionButton
@@ -1012,7 +1012,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                         onAction={(transactionId, transactionKey) => handleSellSingle(transactionId, transactionKey, index)}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        Sell 💰{Math.floor(slot.amount * slot.price * tradeStallHaircut)}
+                        {strings[167]} 💰{Math.floor(slot.amount * slot.price * tradeStallHaircut)}
                       </TransactionButton>
                     ) : (
                       <button
