@@ -11,6 +11,34 @@ let currentAnimationFrame = null;
 // Track currently pressed keys for diagonal movement
 const pressedKeys = new Set();
 
+// Define modifier keys that should be ignored for movement
+const MODIFIER_KEYS = ['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'NumLock', 'ScrollLock'];
+
+// Clear all pressed keys when window loses focus or visibility
+if (typeof window !== 'undefined') {
+  window.addEventListener('blur', () => {
+    pressedKeys.clear();
+  });
+  
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      pressedKeys.clear();
+    }
+  });
+  
+  // Debug function to check stuck keys (accessible from console)
+  window.debugMovementKeys = () => {
+    console.log('Currently pressed keys:', Array.from(pressedKeys));
+    return Array.from(pressedKeys);
+  };
+  
+  // Emergency reset function (accessible from console)
+  window.resetMovementKeys = () => {
+    pressedKeys.clear();
+    console.log('Movement keys reset');
+  };
+}
+
 // Helper function to handle key press events
 export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources, 
   setCurrentPlayer, 
@@ -23,6 +51,11 @@ export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources,
   localPlayerMoveTimestampRef,
   bulkOperationContext) 
 {
+  // Ignore modifier keys
+  if (MODIFIER_KEYS.includes(event.key)) {
+    return;
+  }
+  
   // Add the key to our set of pressed keys
   pressedKeys.add(event.key);
   
@@ -36,6 +69,11 @@ export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources,
 export function handleKeyUp(event) {
   // Remove the key from our set of pressed keys
   pressedKeys.delete(event.key);
+  
+  // Also clear all keys if a modifier is released (failsafe)
+  if (MODIFIER_KEYS.includes(event.key)) {
+    pressedKeys.clear();
+  }
 }
 
 // Main movement handler that processes diagonal movement
