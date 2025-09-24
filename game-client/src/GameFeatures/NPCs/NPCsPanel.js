@@ -291,7 +291,7 @@ const NPCPanel = ({
 const handleGetReward = async (quest) => {
     try {
       // Get relationship-based multiplier from RelationshipMatrix data
-      const { multiplier, bonusMessage } = getRelationshipMultiplier(npcData.type, currentPlayer);
+      const { multiplier, bonusMessage } = getRelationshipMultiplier(npcData.type, currentPlayer, strings);
       const rewardQuantity = Math.floor((quest.rewardqty || 1) * multiplier);
       
       // Ensure inventory and backpack are valid arrays
@@ -446,7 +446,7 @@ const handleHeal = async (recipe) => {
     let quantityToGive = recipe.tradeqty || 1;
     
     // Get relationship-based multiplier from RelationshipMatrix data
-    const { multiplier, bonusMessage } = getRelationshipMultiplier(npcData.type, currentPlayer);
+    const { multiplier, bonusMessage } = getRelationshipMultiplier(npcData.type, currentPlayer, strings);
     quantityToGive = Math.floor(quantityToGive * multiplier);
     
     // Check if we have room for the trade reward BEFORE spending ingredients

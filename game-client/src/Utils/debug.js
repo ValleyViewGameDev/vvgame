@@ -246,6 +246,7 @@ const handleGetRich = async () => {
       { type: 'Furniture', quantity: 100 },
       { type: 'Port', quantity: 100 },
       { type: 'Wool', quantity: 500 },
+      { type: 'Scroll', quantity: 100 },
       { type: 'Pottery', quantity: 100 },
       { type: 'Portrait', quantity: 10 },
       { type: 'Trident', quantity: 10 },

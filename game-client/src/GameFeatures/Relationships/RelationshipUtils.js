@@ -7,6 +7,7 @@ import RelationshipMatrix from './RelationshipMatrix.json';
  * Creates a new relationship if it doesn't exist, or updates existing one
  */
 export const updateRelationship = async (currentPlayer, targetName, delta) => {
+  
   try {
     const playerId = currentPlayer._id || currentPlayer.playerId;
     
@@ -325,12 +326,14 @@ export const generateRelationshipStatusMessage = (targetName, newStatus, success
  * Get resource multiplier based on relationship status with an NPC
  * @param {string} npcName - The name of the NPC
  * @param {Object} currentPlayer - The current player object with relationships
+ * @param {Object} strings - The localized strings object
  * @returns {Object} - { multiplier: number, bonusMessage: string }
  */
-export const getRelationshipMultiplier = (npcName, currentPlayer) => {
+export const getRelationshipMultiplier = (npcName, currentPlayer, strings) => {
+
   // Find the NPC in the RelationshipMatrix
   const npcEntry = RelationshipMatrix.find(entry => entry.type === npcName);
-  
+
   // If no NPC entry found or no buffs defined, return default
   if (!npcEntry || (!npcEntry.buff4friend && !npcEntry.buff4love && !npcEntry.buff4marriage)) {
     return { multiplier: 1, bonusMessage: '' };
@@ -347,17 +350,17 @@ export const getRelationshipMultiplier = (npcName, currentPlayer) => {
   if (relationship.married === true && npcEntry.buff4marriage) {
     return { 
       multiplier: npcEntry.buff4marriage, 
-      bonusMessage: ` ${npcEntry.buff4marriage}x for being married.` 
+      bonusMessage: ` ${npcEntry.buff4marriage}x ${strings[621]}.` 
     };
   } else if (relationship.love === true && npcEntry.buff4love) {
     return { 
       multiplier: npcEntry.buff4love, 
-      bonusMessage: ` ${npcEntry.buff4love}x for being in love.` 
+      bonusMessage: ` ${npcEntry.buff4love}x ${strings[623]}.` 
     };
   } else if (relationship.friend === true && npcEntry.buff4friend) {
     return { 
       multiplier: npcEntry.buff4friend, 
-      bonusMessage: ` ${npcEntry.buff4friend}x for being friends.` 
+      bonusMessage: ` ${npcEntry.buff4friend}x ${strings[622]}.` 
     };
   }
   

@@ -1037,12 +1037,9 @@
 "7009": "Sigue revisando tu ✅ Lista de Tareas, y sigue consultando con 🤠 Kent y 👵🏻 la Pastora.",
 "7015": "Haz clic en + y - en la parte superior de la pantalla para acercar y alejar el zoom.",
 
-"469": "Recolección de animales completada",
-"472": "Cosecha completada",
 "477": "Tus trabajadores agrícolas están ocupados...",
 "478": "🚜 Trabajando",
 "479": "Tala completada",
-"480": "Artesanía completada",
 "481": "con",
 "482": "aplicado",
 "483": "replantado",
@@ -1061,6 +1058,14 @@
 "169": "Comprar",
 
 "94": "📢 ¡Comparte Valley View!",
-"95": "¡Invita a otros a ayudar y unirse a la aventura!"
+"95": "¡Invita a otros a ayudar y unirse a la aventura!",
+
+"621": "por estar casados.",
+"622": "por ser amigos.",
+"623": "por estar enamorados.",
+
+"480": "Elaborado",
+"469": "Recolectado",
+"472": "Cosechado"
 
 }

@@ -246,6 +246,10 @@
     "616": "has changed.",
     "620": "You need to move closer to interact with this character.",
 
+    "621": "for being married.",
+    "622": "for being friends.",
+    "623": "for being in love.",
+
     "630": "Greet",
     "631": "Talk",
     "632": "Trade",
@@ -316,7 +320,6 @@
     "1032": "The Farm House is where you can hire people to help you run your homestead." ,
     "1033": "Terraform the land with these tools. Animals need grass for grazing, crops need dirt to grow on. Pavement can be useful for controlling movements of animals and characters.",
 
-
     "1101": "Inventory",
     "1102": "⚒️ Build",
     "1103": "🛒 Buy",
@@ -350,6 +353,7 @@
     "1131": "🪴 Decorations",
     "1132": "🏠 Farm House",
     "1133": "⛏️ Tools",
+
 
 
     "1200": "TRADER STORY STRINGS",
@@ -1128,12 +1132,12 @@
 "7015": "Click + and - at the top of the screen to zoom in and out.",
 
     "467": "Bulk Crafting",
-    "469": "Animal Collect complete",
-    "472": "Harvest complete",
+    "480": "Crafted",
+    "469": "Collected",
+    "472": "Harvested",
     "477": "Your farm workers are busy...",
     "478": "🚜 Working",
     "479": "Logging complete",
-    "480": "Crafting complete",
     "481": "with",
     "482": "applied",
     "483": "replanted",
@@ -1153,9 +1157,10 @@
     "94": "📢 Share Valley View!",
     "95": "Invite others to help out and join the adventure!",
 
-    "11000": "ADDED STRINGS:"
+    "11000": "ADDED STRINGS:",
 
-
+    "1036": "Reveal mysterious scrolls at this Ancient Temple.",
+    "1136": "🛕 Ancient Temple"
 
   }
 

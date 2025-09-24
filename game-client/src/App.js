@@ -72,6 +72,7 @@ import CraftingStation from './GameFeatures/Crafting/CraftingStation';
 import FarmHouse from './GameFeatures/Crafting/FarmHouse';
 import FarmHandPanel from './GameFeatures/FarmHands/FarmHand.js';
 import ShopStation from './GameFeatures/Crafting/ShopStation';
+import ScrollStation from './GameFeatures/Crafting/ScrollStation';
 import AnimalStall from './GameFeatures/FarmAnimals/AnimalStall';
 import AnimalPanel from './GameFeatures/FarmAnimals/FarmAnimals.js';
 import CropPanel from './GameFeatures/Farming/CropPanel.js';
@@ -1387,7 +1388,14 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
     }
     else if (resource.category === 'crafting') {
       setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
-      openPanel('CraftingStation');
+      switch (resource.type) {
+        case 'Ancient Temple':
+          openPanel('ScrollStation'); 
+          break;
+        default:
+          openPanel('CraftingStation');
+          break;
+      }
     } 
     else if (resource.category === 'farmhouse') {
       setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
@@ -2309,6 +2317,26 @@ return (
       )}
       {activePanel === 'ShopStation' && (
         <ShopStation
+          onClose={closePanel}
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          setResources={setResources}
+          stationType={activeStation?.type} 
+          currentStationPosition={activeStation?.position} 
+          gridId={activeStation?.gridId}
+          TILE_SIZE={activeTileSize}
+          updateStatus={updateStatus}
+          masterResources={masterResources}
+          masterTrophies={masterTrophies}
+          isDeveloper={isDeveloper}
+        />
+      )}
+      {activePanel === 'ScrollStation' && (
+        <ScrollStation
           onClose={closePanel}
           inventory={inventory}
           setInventory={setInventory}

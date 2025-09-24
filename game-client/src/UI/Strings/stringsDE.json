@@ -1076,12 +1076,9 @@
 "7009": "Überprüfe weiterhin deine ✅ Aufgabenliste und sprich weiterhin mit 🤠 Kent und 👵🏻 der Hirtin.",
 "7015": "Klicke auf + und - oben auf dem Bildschirm zum Hinein- und Herauszoomen.",
 
-"469": "Tiersammlung abgeschlossen",
-"472": "Ernte abgeschlossen",
 "477": "Deine Farmarbeiter sind beschäftigt...",
 "478": "🚜 Arbeitet",
 "479": "Holzfällen abgeschlossen",
-"480": "Handwerk abgeschlossen",
 "481": "mit",
 "482": "angewendet",
 "483": "neu gepflanzt",
@@ -1100,6 +1097,14 @@
 "169": "Kaufen",
 
 "94": "📢 Teile Valley View!",
-"95": "Lade andere ein zu helfen und am Abenteuer teilzunehmen!"
+"95": "Lade andere ein zu helfen und am Abenteuer teilzunehmen!",
+
+"621": "für das Verheiratetsein.",
+"622": "für die Freundschaft.",
+"623": "für das Verliebtsein.",
+
+"480": "Hergestellt",
+"469": "Gesammelt",
+"472": "Geerntet"
 
 }

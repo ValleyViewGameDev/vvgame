@@ -8,7 +8,6 @@ import { formatCollectionResults } from '../../UI/StatusBar/CollectionFormatters
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { isACrop } from '../../Utils/ResourceHelpers';
 import '../../UI/SharedButtons.css';
 

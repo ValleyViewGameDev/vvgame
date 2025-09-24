@@ -285,14 +285,14 @@ export async function gainIngredients({
   try {
     await axios.post(`${API_BASE}/api/update-inventory-delta`, deltaPayload);
     
-    setInventory(isMoney || isHomestead ? target : inventory);
-    setBackpack(!isMoney && !isHomestead ? target : backpack);
+    setInventory(isMoney || isGem || isHomestead ? target : inventory);
+    setBackpack(!isMoney && !isGem && !isHomestead ? target : backpack);
     
     // Update currentPlayer with new inventory to ensure UI updates properly
     setCurrentPlayer(prev => ({
       ...prev,
-      inventory: isMoney || isHomestead ? target : inventory,
-      backpack: !isMoney && !isHomestead ? target : backpack
+      inventory: isMoney || isGem || isHomestead ? target : inventory,
+      backpack: !isMoney && !isGem && !isHomestead ? target : backpack
     }));
     await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
     return true;
