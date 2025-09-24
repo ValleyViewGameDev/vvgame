@@ -309,6 +309,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
     // Only allow slot clicks for empty, unlocked slots on your own stall
     if (isOwnStall && isEmpty && slotUnlocked) {
       setSelectedSlotIndex(index); // Open inventory modal for your own empty slot
+      // Reset amounts when opening modal to prevent quantity persistence bug
+      setAmounts({});
     }
     // All other clicks do nothing
   };
@@ -536,12 +538,19 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   };
 
   const handleAddToSlot = async (transactionId, transactionKey, resource) => {
-    const amount = amounts[resource] || 0;
+    let amount = amounts[resource] || 0;
     const resourceInInventory = inventory.find((item) => item.type === resource);
 
     if (selectedSlotIndex === null || amount <= 0 || !resourceInInventory || amount > resourceInInventory.quantity) {
       console.warn('Invalid amount or resource exceeds available quantity.');
       return;
+    }
+    
+    // Get slot configuration and enforce max amount limit
+    const slotConfig = getSlotConfig(selectedSlotIndex);
+    if (amount > slotConfig.maxAmount) {
+      amount = slotConfig.maxAmount;
+      console.log(`Amount adjusted to slot limit: ${amount} (max: ${slotConfig.maxAmount})`);
     }
 
     // Check if selling all of a crop item
@@ -571,7 +580,10 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
               className="btn-danger"
               onClick={async () => {
                 setIsModalOpen(false);
-                await performAddToSlot(transactionId, transactionKey, resource, amount);
+                // Re-check slot limit in case it changed
+                const slotConfig = getSlotConfig(selectedSlotIndex);
+                const finalAmount = Math.min(amount, slotConfig.maxAmount);
+                await performAddToSlot(transactionId, transactionKey, resource, finalAmount);
               }}
             >
               {strings[168]}
