@@ -8,15 +8,8 @@ export const StatusBarContext = createContext();
 // Provider Component
 export const StatusBarProvider = ({ children }) => {
   const strings = useStrings(); // Get strings from context
-  const [messages, setMessages] = useState([]); // Array of messages
-  const [updateTrigger, setUpdateTrigger] = useState(0); // Force animation on duplicates
-  const maxMessages = 5; // Maximum number of messages to display
-
-  React.useEffect(() => {
-    const id = Math.floor(Math.random() * 10000);
-    console.log(`🧩 StatusBarProvider mounted. ID: ${id}`);
-    return () => console.warn(`🧨 StatusBarProvider unmounted. ID: ${id}`);
-  }, []);
+  const [messages, setMessages] = useState([]); // Array of message objects with id and text
+  const messageIdRef = React.useRef(0); // Counter for unique message IDs
 
   /**
    * Updates the status bar message.
@@ -42,18 +35,18 @@ export const StatusBarProvider = ({ children }) => {
       return;
     }
 
-    // Add new message to the beginning and keep only the last maxMessages
-    setMessages(prev => {
-      const newMessages = [newMessage, ...prev];
-      return newMessages.slice(0, maxMessages);
-    });
-    
-    // Trigger animation even for duplicate messages
-    setUpdateTrigger(prev => prev + 1);
+    // Create a new message object with unique ID
+    const messageObject = {
+      id: messageIdRef.current++,
+      text: newMessage
+    };
+
+    // Add new message to the beginning (no max limit for infinite scrolling)
+    setMessages(prev => [messageObject, ...prev]);
   };
 
   return (
-    <StatusBarContext.Provider value={{ messages, updateStatus, updateTrigger }}>
+    <StatusBarContext.Provider value={{ messages, updateStatus }}>
       {children}
     </StatusBarContext.Provider>
   );
@@ -61,34 +54,94 @@ export const StatusBarProvider = ({ children }) => {
 
 // StatusBar Component
 const StatusBar = () => {
-  const { messages, updateTrigger } = React.useContext(StatusBarContext);
-  const [isAnimating, setIsAnimating] = React.useState(false);
+  const { messages } = React.useContext(StatusBarContext);
+  const [displayMessages, setDisplayMessages] = React.useState([]);
+  const [slideOffset, setSlideOffset] = React.useState(0);
+  const prevFirstId = React.useRef(null);
+  const newMessageRef = React.useRef(null);
 
   React.useEffect(() => {
-    // Trigger animation whenever updateTrigger changes
-    if (updateTrigger > 0) {
-      setIsAnimating(true);
-      // Remove animation class after animation completes
-      const timer = setTimeout(() => {
-        setIsAnimating(false);
-      }, 500); // Match CSS animation duration
-      return () => clearTimeout(timer);
+    if (messages.length === 0) {
+      setDisplayMessages([]);
+      setSlideOffset(0);
+      return;
     }
-  }, [updateTrigger]);
+
+    const currentFirstId = messages[0]?.id;
+    
+    // First render or new message
+    if (prevFirstId.current === null) {
+      // Initial load - also animate the first message
+      if (newMessageRef.current) {
+        const width = newMessageRef.current.offsetWidth || 200; // fallback width
+        setSlideOffset(-width);
+        setDisplayMessages(messages);
+        
+        requestAnimationFrame(() => {
+          setSlideOffset(0);
+        });
+      } else {
+        // Fallback if ref not ready
+        setSlideOffset(-200);
+        setDisplayMessages(messages);
+        
+        requestAnimationFrame(() => {
+          setSlideOffset(0);
+        });
+      }
+    } else if (currentFirstId !== prevFirstId.current) {
+      // New message added - measure its width first
+      if (newMessageRef.current) {
+        const width = newMessageRef.current.offsetWidth;
+        // Start with new message off-screen
+        setSlideOffset(-width);
+        setDisplayMessages(messages);
+        
+        // Trigger slide animation
+        requestAnimationFrame(() => {
+          setSlideOffset(0);
+        });
+      }
+    } else {
+      // No change
+      setDisplayMessages(messages);
+    }
+    
+    prevFirstId.current = currentFirstId;
+  }, [messages]);
 
   return (
     <div className="status-bar">
-      <div className={`status-bar-messages ${isAnimating ? 'slide-all' : ''}`}>
-        {messages.map((msg, index) => (
-          <React.Fragment key={`${msg}-${index}-${updateTrigger}`}>
-            <span className="status-message">
-              {msg}
+      <div className="status-bar-viewport">
+        {/* Hidden measuring container */}
+        {messages.length > 0 && messages[0].id !== prevFirstId.current && (
+          <div style={{ position: 'absolute', visibility: 'hidden', whiteSpace: 'nowrap' }}>
+            <span ref={newMessageRef} className="status-message">
+              {messages[0].text}
             </span>
-            {index < messages.length - 1 && (
-              <span className="status-separator"> ⬥ </span>
-            )}
-          </React.Fragment>
-        ))}
+            <span className="status-separator">&nbsp;&nbsp;⬥&nbsp;&nbsp;</span>
+          </div>
+        )}
+        
+        {/* Actual messages container */}
+        <div 
+          className="status-bar-messages"
+          style={{
+            transform: `translateX(${slideOffset}px)`,
+            transition: slideOffset === 0 ? 'transform 0.5s ease-out' : 'none'
+          }}
+        >
+          {displayMessages.map((msg, index) => (
+            <React.Fragment key={msg.id}>
+              <span className="status-message">
+                {msg.text}
+              </span>
+              {index < displayMessages.length - 1 && (
+                <span className="status-separator">&nbsp;&nbsp;⬥&nbsp;&nbsp;</span>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
       </div>
     </div>
   );

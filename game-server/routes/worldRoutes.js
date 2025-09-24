@@ -1911,6 +1911,9 @@ router.post('/crafting/collect-bulk', async (req, res) => {
 
         // Handle restart if requested
         let restarted = false;
+        let newCraftEnd = null;
+        let newCraftedItem = null;
+        
         if (shouldRestart && restartRecipe && !isNPC) {
           // Check skill requirements first
           const hasRequiredSkill = !restartRecipe.requires || 
@@ -1930,11 +1933,12 @@ router.post('/crafting/collect-bulk', async (req, res) => {
                 // Get craft time from masterResources (in seconds)
                 const craftedResource = masterResources.find(r => r.type === restartRecipe.type);
                 const craftTimeSeconds = craftedResource?.crafttime || restartRecipe.crafttime || 60;
-                const craftEnd = Date.now() + (craftTimeSeconds * 1000);
+                newCraftEnd = Date.now() + (craftTimeSeconds * 1000);
+                newCraftedItem = restartRecipe.type;
                 
                 // Set new craft on station
-                grid.resources[resourceIndex].craftEnd = craftEnd;
-                grid.resources[resourceIndex].craftedItem = restartRecipe.type;
+                grid.resources[resourceIndex].craftEnd = newCraftEnd;
+                grid.resources[resourceIndex].craftedItem = newCraftedItem;
                 grid.markModified(`resources.${resourceIndex}`);
                 
                 restarted = true;
@@ -1948,7 +1952,9 @@ router.post('/crafting/collect-bulk', async (req, res) => {
           station,
           collectedItem: craftedItem,
           isNPC,
-          restarted
+          restarted,
+          newCraftEnd,
+          newCraftedItem
         });
         
       } catch (stationError) {

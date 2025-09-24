@@ -47,7 +47,6 @@ const ScrollStation = ({
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
   const [allResources, setAllResources] = useState([]);
-  const [errorMessage, setErrorMessage] = useState('');
   const [stationEmoji, setStationEmoji] = useState('🛖');
   const { updateStatus } = useContext(StatusBarContext);
   const [stationDetails, setStationDetails] = useState(null);
@@ -58,48 +57,65 @@ const ScrollStation = ({
   const [isReadyToCollect, setIsReadyToCollect] = useState(false);
   const [npcRefreshKey, setNpcRefreshKey] = useState(0);
   const [scrollCount, setScrollCount] = useState(0);
-  const [isRevealing, setIsRevealing] = useState(false);
-  const [revealCountdown, setRevealCountdown] = useState(null);
+  const [revealedItemQty, setRevealedItemQty] = useState(1);
+  const [isCollecting, setIsCollecting] = useState(false);
 
-   // ✅ Check for active crafting timers
+   // ✅ Check for active crafting timers or revealed items
    useEffect(() => {
     if (!stationType || !currentStationPosition) return;
 
-    console.log('🔄 Checking GlobalGridStateTilesAndResources for active crafting timers...');
-    
-    const station = GlobalGridStateTilesAndResources.getResources()?.find(
-      (res) => res.x === currentStationPosition.x && res.y === currentStationPosition.y
-    );
+    const checkStation = () => {
+      const station = GlobalGridStateTilesAndResources.getResources()?.find(
+        (res) => res.x === currentStationPosition.x && res.y === currentStationPosition.y
+      );
+      
 
-    if (station && station.craftEnd) {
-        
-        setCraftedItem(station.craftedItem);
-        setIsCrafting(true);
-        setActiveTimer(true);  // ✅ Ensure UI treats this as an active timer
-
-        const updateCountdown = () => {
-          const remainingTime = Math.max(0, Math.floor((station.craftEnd - Date.now()) / 1000));
-          setCraftingCountdown(remainingTime);
-
-          if (remainingTime === 0) {
-              console.log('✅ Crafting complete! Ready to collect.');
+      if (station && station.craftEnd && station.craftedItem) {
+          // Check if this is a revealed item (craftEnd in the past)
+          const now = Date.now();
+          const isRevealed = station.craftEnd < now;
+          
+          setCraftedItem(station.craftedItem);
+          setRevealedItemQty(station.qty || 1);
+          
+          if (isRevealed) {
               setIsCrafting(false);
               setIsReadyToCollect(true);
+              setCraftingCountdown(0);
+              setActiveTimer(false);
+          } else {
+              // Normal crafting timer
+              setIsCrafting(true);
+              setActiveTimer(true);
+              
+              const remainingTime = Math.max(0, Math.floor((station.craftEnd - now) / 1000));
+              setCraftingCountdown(remainingTime);
+              
+              if (remainingTime === 0) {
+                  setIsCrafting(false);
+                  setIsReadyToCollect(true);
+              }
           }
-      };
+      } else {
+          // Only reset if we actually had something before
+          if (craftedItem || isCrafting || isReadyToCollect) {
+            setCraftedItem(null);
+            setIsCrafting(false);
+            setIsReadyToCollect(false);
+            setCraftingCountdown(null);
+            setActiveTimer(false);
+            setRevealedItemQty(1);
+          }
+      }
+    };
 
-        updateCountdown();
-        const timer = setInterval(updateCountdown, 1000);
-        return () => clearInterval(timer);
-    } else {
-        console.log('❌ No active crafting timer found.');
-        setCraftedItem(null);
-        setIsCrafting(false);
-        setIsReadyToCollect(false);
-        setCraftingCountdown(null);
-        setActiveTimer(false);
-    }
-  }, [stationType, currentStationPosition, GlobalGridStateTilesAndResources.getResources(), craftingCountdown]); // ✅ Ensure state triggers re-render
+    // Initial check
+    checkStation();
+
+    // Set up interval to check for updates
+    const timer = setInterval(checkStation, 1000);
+    return () => clearInterval(timer);
+  }, [stationType, currentStationPosition, craftedItem, isCrafting, isReadyToCollect]); // Include state to ensure fresh closures
 
 
   // Sync inventory with local storage and server
@@ -191,192 +207,6 @@ const ScrollStation = ({
   };
 
 
-  // Protected function to start crafting using transaction system
-  const handleCraft = async (transactionId, transactionKey, recipe) => {
-    console.log(`🔒 [PROTECTED CRAFTING] Starting protected craft for ${recipe.type}`);
-    setErrorMessage('');
-    
-    if (!recipe) { 
-      setErrorMessage('Invalid recipe selected.'); 
-      return; 
-    }
-
-    try {
-      const response = await axios.post(`${API_BASE}/api/crafting/start-craft`, {
-        playerId: currentPlayer.playerId,
-        gridId,
-        stationX: currentStationPosition.x,
-        stationY: currentStationPosition.y,
-        recipe,
-        transactionId,
-        transactionKey
-      });
-
-      if (response.data.success) {
-        // Update local state with server response
-        const { craftEnd, craftedItem, inventory, backpack } = response.data;
-        
-        // Update inventory from server response
-        if (inventory) {
-          setInventory(inventory);
-          setCurrentPlayer(prev => ({ ...prev, inventory }));
-        }
-        if (backpack) {
-          setBackpack(backpack);
-          setCurrentPlayer(prev => ({ ...prev, backpack }));
-        }
-
-        // Update only the specific station resource in global state
-        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-          res.x === currentStationPosition.x && res.y === currentStationPosition.y
-            ? { ...res, craftEnd, craftedItem }
-            : res
-        );
-        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
-        setResources(updatedGlobalResources);
-
-        // Update UI state immediately
-        setCraftedItem(craftedItem);
-        setCraftingCountdown(Math.max(0, Math.floor((craftEnd - Date.now()) / 1000)));
-        setActiveTimer(true);
-        setIsCrafting(true);
-        setIsReadyToCollect(false);
-
-        // Refresh player data to ensure consistency
-        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-        FloatingTextManager.addFloatingText(404, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-        updateStatus(`${strings[440]} ${getLocalizedString(recipe.type, strings)}`);
-
-        console.log(`✅ ${recipe.type} crafting started using protected endpoint.`);
-      }
-    } catch (error) {
-      console.error('Error in protected crafting start:', error);
-      if (error.response?.status === 429) {
-        updateStatus(451);
-      } else if (error.response?.status === 400) {
-        updateStatus(450);
-      } else {
-        updateStatus(452);
-      }
-    }
-  };
-
-
-  // Protected function to collect crafted items using transaction system
-  const handleCollect = async (transactionId, transactionKey, recipe) => {
-    console.log(`🔒 [PROTECTED CRAFTING] Starting protected collection for ${recipe.type}`);
-    
-    if (!recipe) { 
-      console.error("❌ No valid crafted item to collect."); 
-      return; 
-    }
-
-    try {
-      const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
-        playerId: currentPlayer.playerId,
-        gridId,
-        stationX: currentStationPosition.x,
-        stationY: currentStationPosition.y,
-        craftedItem,
-        transactionId,
-        transactionKey
-      });
-
-      if (response.data.success) {
-        // Update local state with server response
-        const { collectedItem, isNPC, inventory, updatedStation } = response.data;
-
-        // ✅ Apply skill buffs to crafted collection (station-based)
-        console.log('MasterSkills:', masterSkills);
-        console.log('Station Type:', stationType);
-
-        // Use shared skill calculation utility
-        const skillInfo = calculateSkillMultiplier(stationType, currentPlayer.skills || [], masterSkills);
-
-        // Apply multiplier to quantity (default to 1 if not provided by backend)
-        const baseQtyCollected = 1;
-        const finalQtyCollected = applySkillMultiplier(baseQtyCollected, skillInfo.multiplier);
-
-        console.log('[DEBUG] qtyCollected after multiplier:', finalQtyCollected);
-
-        // Handle NPC spawning client-side
-        if (isNPC) {
-          const craftedResource = allResources.find(res => res.type === collectedItem);
-          if (craftedResource) {
-            NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
-            // Trigger refresh to update available recipes
-            setNpcRefreshKey(prev => prev + 1);
-          }
-          // Show floating text for NPCs immediately since they don't need inventory space
-          FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-        } else {
-          // Only add non-NPC items to inventory
-          // Update inventory with buffed quantity
-          const gained = await gainIngredients({
-            playerId: currentPlayer.playerId,
-            currentPlayer,
-            resource: collectedItem,
-            quantity: finalQtyCollected,
-            inventory: currentPlayer.inventory,
-            backpack: currentPlayer.backpack,
-            setInventory,
-            setBackpack,
-            setCurrentPlayer,
-            updateStatus,
-            masterResources,
-          });
-
-          if (!gained) {
-            console.error('❌ Failed to add buffed crafted item to inventory.');
-            return; // Exit early - don't clear crafting state if we couldn't collect
-          }
-          
-          // Show floating text only after successful collection
-          FloatingTextManager.addFloatingText(`+${finalQtyCollected} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-        }
-
-        // Only clear crafting state if we successfully collected (or it's an NPC)
-        
-        // Track quest progress for all crafted items (both NPCs and regular items)
-        await trackQuestProgress(currentPlayer, 'Craft', collectedItem, finalQtyCollected, setCurrentPlayer);
-
-        // Update grid resources to remove crafting state
-        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
-          res.x === currentStationPosition.x && res.y === currentStationPosition.y
-            ? { ...res, craftEnd: undefined, craftedItem: undefined }
-            : res
-        );
-        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
-        setResources(updatedGlobalResources);
-
-        // Reset UI state
-        setActiveTimer(false);
-        setCraftedItem(null);
-        setCraftingCountdown(null);
-        setIsReadyToCollect(false);
-
-        // Refresh player data to ensure consistency
-        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-
-        // Use shared formatter for status message
-        const statusMessage = formatSingleCollection('craft', collectedItem, finalQtyCollected, 
-          skillInfo.hasSkills ? skillInfo : null, strings, getLocalizedString);
-        updateStatus(statusMessage);
-
-        console.log(`${recipe.type} collected successfully using protected endpoint.`);
-      }
-    } catch (error) {
-      console.error('Error in protected crafting collection:', error);
-      if (error.response?.status === 429) {
-        updateStatus(471);
-      } else {
-        updateStatus('❌ Failed to collect item');
-      }
-    }
-  };
-
-
   const handleSellStation = async (transactionId, transactionKey) => {
     await handleProtectedSelling({
       currentPlayer,
@@ -447,39 +277,21 @@ const ScrollStation = ({
   const skillMessage = getSkillBonusMessage();
 
   // Handle scroll reveal
+  // Handle reveal scroll - spend scroll and start crafting random item
   const handleRevealScroll = async (transactionId, transactionKey) => {
+    
     if (scrollCount === 0) {
       updateStatus(strings[820] || 'You need at least 1 scroll to reveal');
       return;
     }
 
-    setIsRevealing(true);
-    setRevealCountdown(3); // 3 second reveal timer
-
-    // Start countdown
-    let countdown = 3;
-    const timer = setInterval(() => {
-      countdown--;
-      setRevealCountdown(countdown);
-      if (countdown === 0) {
-        clearInterval(timer);
-        completeReveal(transactionId, transactionKey);
-      }
-    }, 1000);
-  };
-
-  const completeReveal = async (transactionId, transactionKey) => {
     try {
-      // Generate random reward
-      const reward = getRandomScrollReveal(masterResources);
-      const rewardDisplay = getRevealDisplayString(reward, masterResources);
-
-      // Spend 1 scroll
+      // First, spend the scroll
       const spentSuccess = await spendIngredients({
         playerId: currentPlayer.playerId,
         currentPlayer,
         recipe: { ingredient1: 'Scroll', ingredient1qty: 1 },
-        inventory: currentPlayer.inventory,
+        inventory: currentPlayer.inventory,  
         backpack: currentPlayer.backpack,
         setInventory,
         setBackpack,
@@ -489,42 +301,174 @@ const ScrollStation = ({
       });
 
       if (!spentSuccess) {
-        setIsRevealing(false);
-        setRevealCountdown(null);
         updateStatus(strings[820] || 'Failed to spend scroll');
         return;
       }
 
-      // Create doober at station location
-      const doober = {
-        id: `scroll-reveal-${Date.now()}`,
-        type: reward.type,
-        quantity: reward.quantity,
-        x: currentStationPosition.x,
-        y: currentStationPosition.y,
-        gridId: gridId
-      };
+      // Generate random reward
+      const reward = getRandomScrollReveal(masterResources);
+      const rewardDisplay = getRevealDisplayString(reward, masterResources);
+      
+      // Get the Reveal Scroll resource to get crafttime
+      const revealScrollResource = masterResources.find(r => r.type === 'Reveal Scroll');
+      const craftTime = revealScrollResource?.crafttime || 30; // Default 30 seconds
 
-      // Add doober to global state
-      const updatedResources = [...GlobalGridStateTilesAndResources.getResources(), doober];
-      GlobalGridStateTilesAndResources.setResources(updatedResources);
-      setResources(updatedResources);
+      // Now start crafting the revealed item using standard craft API
+      const response = await axios.post(`${API_BASE}/api/crafting/start-craft`, {
+        playerId: currentPlayer.playerId,
+        gridId,
+        stationX: currentStationPosition.x,
+        stationY: currentStationPosition.y,
+        recipe: {
+          type: reward.type,
+          crafttime: craftTime,
+          // No ingredients since we already spent the scroll
+        },
+        qty: reward.quantity,
+        transactionId,
+        transactionKey
+      });
 
-      // Update status
-      updateStatus(`${strings[822] || 'Scroll revealed'}: ${rewardDisplay}`);
-      FloatingTextManager.addFloatingText(`${rewardDisplay}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+      if (response.data.success) {
+        // Update local state with server response
+        const { craftEnd, craftedItem, inventory, backpack } = response.data;
+        
+        // Update inventory from server response if provided
+        if (inventory) {
+          setInventory(inventory);
+          setCurrentPlayer(prev => ({ ...prev, inventory }));
+        }
+        if (backpack) {
+          setBackpack(backpack);
+          setCurrentPlayer(prev => ({ ...prev, backpack }));
+        }
 
-      // Reset reveal state
-      setIsRevealing(false);
-      setRevealCountdown(null);
+        // Update station resource in global state with qty
+        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+          res.x === currentStationPosition.x && res.y === currentStationPosition.y
+            ? { ...res, craftEnd, craftedItem, qty: reward.quantity }
+            : res
+        );
+        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
+        setResources(updatedGlobalResources);
 
-      // Track quest progress
-      await trackQuestProgress(currentPlayer, 'Spend', 'Scroll', 1, setCurrentPlayer);
+        // Update UI state
+        setCraftedItem(craftedItem);
+        setRevealedItemQty(reward.quantity);
+        setCraftingCountdown(Math.max(0, Math.floor((craftEnd - Date.now()) / 1000)));
+        setActiveTimer(true);
+        setIsCrafting(true);
+        setIsReadyToCollect(false);
+
+        // Refresh player data to ensure consistency
+        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+
+        // Update status
+        FloatingTextManager.addFloatingText(strings[822] || 'Scroll consumed!', currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+        updateStatus(`${strings[822] || 'Revealing'}: ${rewardDisplay}`);
+
+        // Track quest progress for scroll spending
+        await trackQuestProgress(currentPlayer, 'Spend', 'Scroll', 1, setCurrentPlayer);
+
+      }
     } catch (error) {
-      console.error('Error revealing scroll:', error);
-      setIsRevealing(false);
-      setRevealCountdown(null);
+      console.error('Error in scroll reveal process:', error);
       updateStatus(strings[821] || 'Failed to reveal scroll');
+    }
+  };
+
+  // Handle collection of revealed items (reuse standard collect logic)
+  const handleCollectReveal = async (transactionId, transactionKey) => {
+    
+    if (!craftedItem || isCollecting) { 
+      console.error("❌ No revealed item to collect or already collecting."); 
+      return; 
+    }
+
+    setIsCollecting(true);
+    
+    try {
+      const response = await axios.post(`${API_BASE}/api/crafting/collect-item`, {
+        playerId: currentPlayer.playerId,
+        gridId,
+        stationX: currentStationPosition.x,
+        stationY: currentStationPosition.y,
+        craftedItem,
+        transactionId,
+        transactionKey
+      });
+
+      if (response.data.success) {
+        const { collectedItem, isNPC } = response.data;
+        const collectedQty = revealedItemQty || 1;
+
+        // Handle collection
+        if (isNPC) {
+          const craftedResource = allResources.find(res => res.type === collectedItem);
+          if (craftedResource) {
+            NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
+          }
+          FloatingTextManager.addFloatingText(`+${collectedQty} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+        } else {
+          // Add to inventory
+          const gained = await gainIngredients({
+            playerId: currentPlayer.playerId,
+            currentPlayer,
+            resource: collectedItem,
+            quantity: collectedQty,
+            inventory: currentPlayer.inventory,
+            backpack: currentPlayer.backpack,
+            setInventory,
+            setBackpack,
+            setCurrentPlayer,
+            updateStatus,
+            masterResources,
+          });
+
+          if (!gained) {
+            console.error('❌ Failed to add revealed item to inventory.');
+            return;
+          }
+          
+          FloatingTextManager.addFloatingText(`+${collectedQty} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+        }
+
+        // Track quest progress
+        await trackQuestProgress(currentPlayer, 'Collect', collectedItem, collectedQty, setCurrentPlayer);
+
+        // Clear station state
+        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+          res.x === currentStationPosition.x && res.y === currentStationPosition.y
+            ? { ...res, craftEnd: undefined, craftedItem: undefined, qty: 1 }
+            : res
+        );
+        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
+        setResources(updatedGlobalResources);
+
+        // Reset UI state
+        setActiveTimer(false);
+        setCraftedItem(null);
+        setCraftingCountdown(null);
+        setIsReadyToCollect(false);
+        setRevealedItemQty(1);
+
+        // Update status
+        updateStatus(`${strings[823] || 'Collected'}: ${collectedQty}x ${getLocalizedString(collectedItem, strings)}`);
+
+        // Refresh player data
+        await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+
+        // Clear collecting state after a brief delay
+        setTimeout(() => {
+          setIsCollecting(false);
+        }, 100);
+      } else {
+        setIsCollecting(false);
+      }
+    } catch (error) {
+      console.error('Error collecting revealed item:', error);
+      updateStatus('❌ Failed to collect item');
+      setIsCollecting(false);
     }
   };
 
@@ -535,12 +479,10 @@ const ScrollStation = ({
         <div style={{
           marginBottom: '15px',
           padding: '10px',
-          backgroundColor: '#e8f0ff',
-          borderRadius: '5px',
           textAlign: 'center',
-          fontSize: '18px'
+          fontSize: '14px'
         }}>
-          📜 {strings[823] || 'Scrolls'}: {scrollCount}
+          {strings[825]}: {scrollCount} 📜 {scrollCount > 1 ? strings[826] : strings[827]}
         </div>
 
         {skillMessage && (
@@ -555,115 +497,55 @@ const ScrollStation = ({
           </div>
         )}
 
-        {/* Reveal Scroll button */}
-        {scrollCount > 0 && (
+        {/* Show crafting item if active, otherwise show Reveal Scroll button */}
+        {craftedItem && (isCrafting || isReadyToCollect) ? (
+          // Show the crafting/ready item
           <ResourceButton
-            symbol={isRevealing ? '⏳' : '📜'}
-            name={strings[824] || 'Reveal Scroll'}
-            className={`resource-button ${isRevealing ? 'in-progress' : ''}`}
+            symbol={masterResources.find(r => r.type === craftedItem)?.symbol || '📦'}
+            name={`${getLocalizedString(craftedItem, strings)}${revealedItemQty > 1 ? ` (${revealedItemQty})` : ''}`}
+            className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''}`}
             details={
-              isRevealing 
-                ? `${strings[825] || 'Revealing'}: ${revealCountdown}s`
-                : `${strings[826] || 'Cost'}: 1x 📜 ${strings[827] || 'Scroll'}`
+              isCrafting 
+                ? `${strings[441] || 'Crafting'}: ${formatCountdown(Date.now() + craftingCountdown * 1000, Date.now())}`
+                : strings[457] || 'Ready to collect!'
             }
+            info={
+              <div className="info-content">
+                <div>{isCrafting ? (strings[834] || 'The scroll is revealing your reward...') : (strings[831] || 'Your revealed item is ready to collect!')}</div>
+                <div>{`${strings[833] || 'Quantity'}: ${revealedItemQty}`}</div>
+              </div>
+            }
+            disabled={!isReadyToCollect}
+            isTransactionMode={isReadyToCollect}
+            transactionKey={isReadyToCollect ? `scroll-collect-${craftedItem}-${currentStationPosition.x}-${currentStationPosition.y}` : undefined}
+            onTransactionAction={isReadyToCollect ? handleCollectReveal : undefined}
+          />
+        ) : scrollCount > 0 && !isCollecting ? (
+          // Show reveal scroll button when not crafting and not collecting
+          <ResourceButton
+            symbol={'📜'}
+            name={strings[824] || 'Reveal Scroll'}
+            className="resource-button"
+            details={`${strings[461] || 'Cost'}: 1x 📜 ${strings[827] || 'Scroll'}`}
             info={
               <div className="info-content">
                 <div>{strings[828] || 'Reveal a scroll to discover random rewards!'}</div>
                 <div>{strings[829] || 'Possible rewards include resources and materials.'}</div>
               </div>
             }
-            disabled={isRevealing || scrollCount === 0}
+            disabled={false}
             isTransactionMode={true}
             transactionKey={`scroll-reveal-${currentStationPosition.x}-${currentStationPosition.y}`}
             onTransactionAction={handleRevealScroll}
           />
-        )}
+        ) : null}
         
-          {recipes?.length > 0 ? (
-            recipes.map((recipe) => {
-              const ingredients = getIngredientDetails(recipe, allResources || []);
-              const affordable = canAfford(recipe, inventory, Array.isArray(backpack) ? backpack : [], 1);
-              const requirementsMet = hasRequiredSkill(recipe.requires);
-              const skillColor = requirementsMet ? 'green' : 'red';
-              const isCrafting = craftedItem === recipe.type && craftingCountdown > 0;
-              const isReadyToCollect = craftedItem === recipe.type && craftingCountdown === 0;
-
-              
-              const craftTimeText = isCrafting
-              ? `${strings[441]} ${formatCountdown(Date.now() + craftingCountdown * 1000, Date.now())}`
-              : isReadyToCollect
-              ? strings[457] 
-              : recipe.crafttime
-              ? `${strings[458]} ${formatDuration(recipe.crafttime)}`
-              : strings[459];
-              
-              const info = (
-                <div className="info-content">
-                  <div>
-                    <strong>{strings[421]}</strong>{' '}
-                    {allResources
-                      .filter((res) =>
-                        [res.ingredient1, res.ingredient2, res.ingredient3, res.ingredient4].includes(recipe.type)
-                      )
-                      .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
-                      .join(', ') || 'None'}
-                  </div>
-                  <div><strong>{strings[422]}</strong> 💰 {recipe.minprice || 'n/a'}</div>
-                </div>
-              );
-              
-              // Format costs with color per ingredient (now using display: block and no <br>)
-              const formattedCosts = [1, 2, 3, 4].map((i) => {
-                const type = recipe[`ingredient${i}`];
-                const qty = recipe[`ingredient${i}qty`];
-                if (!type || !qty) return '';
-
-                const inventoryQty = inventory?.find(item => item.type === type)?.quantity || 0;
-                const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
-                const playerQty = inventoryQty + backpackQty;
-                const color = playerQty >= qty ? 'green' : 'red';
-                const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
-              }).join('');
-
-              return (
-                <ResourceButton
-                  key={recipe.type}
-                  symbol={recipe.symbol}
-                  name={getLocalizedString(recipe.type, strings)}
-                  className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''}`}
-                  details={
-                    isCrafting ? craftTimeText :
-                    (
-                      (recipe.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span><br>` : '') +
-                      `${craftTimeText}<br>` +
-                      (isReadyToCollect ? '' : `${strings[461]}<div>${formattedCosts}</div>`)
-                    )
-                  }
-                  info={info}
-                  disabled={!isReadyToCollect && (craftedItem !== null || !affordable || !requirementsMet)}
-                  onClick={undefined} // Remove direct onClick since we're using transaction mode
-                  // Transaction mode props for both craft start and collect
-                  isTransactionMode={true}
-                  transactionKey={isReadyToCollect ? 
-                    `crafting-collect-${recipe.type}-${currentStationPosition.x}-${currentStationPosition.y}` : 
-                    `crafting-start-${recipe.type}-${currentStationPosition.x}-${currentStationPosition.y}`}
-                  onTransactionAction={isReadyToCollect ? 
-                    (transactionId, transactionKey) => handleCollect(transactionId, transactionKey, recipe) :
-                    (transactionId, transactionKey) => handleCraft(transactionId, transactionKey, recipe)}
-                >
-                </ResourceButton>
-              );
-            })
-          ) : (
-            scrollCount === 0 ? (
-              <p>{strings[830] || 'You need scrolls to use the Ancient Temple. Find scrolls by exploring the world!'}</p>
-            ) : (
-              <p>{strings[424]}</p>
-            )
-          )}
-
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
+        {/* Show message when no scrolls */}
+        {scrollCount === 0 && !craftedItem && (
+          <p style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+            {strings[830] || 'You need scrolls to use the Ancient Temple. Find scrolls by exploring the world!'}
+          </p>
+        )}
 
         {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
           <>

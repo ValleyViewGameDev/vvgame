@@ -1001,6 +1001,16 @@
   "200286": "Unerring",
   "200287": "Titan",
 
+"200288": "Miller",
+"200289": "Artisan",
+"200290": "Cuisinier",
+"200291": "Weaver",
+"200292": "Fowler",
+"200293": "Fromager",
+"200294": "Virtuose Culinaire",
+"200295": "Apiarch",
+"200296": "Vintner",
+
   "30000": "TROPHIES:",
 
   "30001": "First Farm Worker",
@@ -1037,6 +1047,10 @@
 
     "820": "Makes: ",
     "821": "Base Amount: ",
+
+    "825": "You have ",
+    "826": "Scrolls.",
+    "827": "Scroll",
 
     "3009": "Only the Mayor can build Schools, Hospitals and Libraries in the Town.",
     "3012": "🏤 Libraries are a source of Books, which are vital to Adventurers looking to learn new skills.",

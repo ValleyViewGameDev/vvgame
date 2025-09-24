@@ -39,8 +39,6 @@
       "Mill": 2,
       "Loom": 2
     },
-
-
     "Miller": {
       "Mill": 3
     },
@@ -48,13 +46,13 @@
       "Dairy": 3
     },
     "Cuisinier": {
+      "Oven": 3
+    },
+    "Virtuose Culinaire": {
       "Kitchen": 3
     },
     "Artisan": {
       "Studio": 3
-    },
-    "Couturier": {
-      "Oven": 3
     },
     "Weaver": {
       "Loom": 2

@@ -104,29 +104,98 @@ export function BulkCraftingModal({
 
   if (!isOpen) return null;
 
+  const getRestartLabel = (group) => {
+    if (!hasBulkRestartCraft) {
+      return strings[345] || 'Requires skill';
+    }
+    if (!group.canRestart) {
+      return strings[346] || 'Locked';
+    }
+    if (!group.affordable) {
+      return null;  // Don't show text for insufficient ingredients
+    }
+    return null;
+  };
+
+  const isRestartDisabled = (group) => {
+    return !hasBulkRestartCraft || !group.canRestart || !group.affordable;
+  };
+
+  // Calculate total ingredient needs for a group
+  const calculateGroupNeeds = (group) => {
+    if (!group.recipe || !group.stationCount) return null;
+    
+    const needs = {};
+    
+    // Calculate needs for each ingredient
+    for (let i = 1; i <= 4; i++) {
+      const ingredientType = group.recipe[`ingredient${i}`];
+      const ingredientQty = group.recipe[`ingredient${i}qty`];
+      
+      if (ingredientType && ingredientQty) {
+        const totalNeeded = ingredientQty * group.stationCount;
+        const inventoryQty = inventory?.find(item => item.type === ingredientType)?.quantity || 0;
+        const backpackQty = backpack?.find(item => item.type === ingredientType)?.quantity || 0;
+        const totalAvailable = inventoryQty + backpackQty;
+        
+        needs[ingredientType] = {
+          needed: totalNeeded,
+          available: totalAvailable,
+          symbol: masterResources.find(r => r.type === ingredientType)?.symbol || ''
+        };
+      }
+    }
+    
+    return needs;
+  };
+
+  const selectAll = () => {
+    setSelectedGroups(stationGroups);
+  };
+
+  const selectNone = () => {
+    setSelectedGroups([]);
+    // When deselecting all collections, also deselect all restarts
+    setSelectedRestartStations({});
+  };
+
+  const selectAllRestarts = () => {
+    const allRestartSelection = {};
+    const groupsToSelect = [];
+    stationGroups.forEach(group => {
+      if (group.canRestart && group.affordable) {
+        const key = `${group.stationType}-${group.craftedItem}`;
+        allRestartSelection[key] = true;
+        // Also select the group for collection
+        if (!isGroupSelected(group)) {
+          groupsToSelect.push(group);
+        }
+      }
+    });
+    setSelectedRestartStations(prev => ({
+      ...prev,
+      ...allRestartSelection
+    }));
+    setSelectedGroups(prev => [...prev, ...groupsToSelect]);
+  };
+
+  const selectNoneRestarts = () => {
+    setSelectedRestartStations({});
+  };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={strings[341] || "Select Crafting Stations to Collect"} size="medium">
+    <Modal isOpen={isOpen} onClose={onClose} title={strings[341] || "Select Crafting Stations to Collect:"} size="large">
       <div style={{ padding: '20px', fontSize: '16px' }}>
-        <div style={{ marginBottom: '15px', display: 'flex', gap: '10px', justifyContent: 'space-between' }}>
+        <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
           <div style={{ display: 'flex', gap: '10px' }}>
             <button 
-              onClick={() => {
-                const allSelected = [];
-                stationGroups.forEach(group => {
-                  allSelected.push(group);
-                });
-                setSelectedGroups(allSelected);
-              }}
+              onClick={selectAll}
               style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
             >
               {strings[316] || 'Select All'}
             </button>
             <button 
-              onClick={() => {
-                setSelectedGroups([]);
-                // When deselecting all collect, also deselect all restart
-                setSelectedRestartStations({});
-              }}
+              onClick={selectNone}
               style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#808080', color: 'white', border: 'none', borderRadius: '3px' }}
             >
               {strings[317] || 'Deselect All'}
@@ -134,39 +203,15 @@ export function BulkCraftingModal({
           </div>
           
           {hasBulkRestartCraft && (
-            <div style={{ display: 'flex', gap: '10px', marginLeft: 'auto' }}>
+            <div style={{ display: 'flex', gap: '10px', marginLeft: 'auto', marginRight: '50px' }}>
               <button 
-                onClick={() => {
-                  const allSelected = {};
-                  const collectGroups = [];
-                  stationGroups.forEach(group => {
-                    if (group.canRestart && group.affordable) {
-                      allSelected[`${group.stationType}-${group.craftedItem}`] = true;
-                      // When selecting restart, also select collect
-                      collectGroups.push(group);
-                    }
-                  });
-                  setSelectedRestartStations(allSelected);
-                  // Ensure all groups with restart selected are also selected for collect
-                  setSelectedGroups(prev => {
-                    const newGroups = [...prev];
-                    collectGroups.forEach(group => {
-                      const isAlreadySelected = newGroups.some(g => 
-                        g.stationType === group.stationType && g.craftedItem === group.craftedItem
-                      );
-                      if (!isAlreadySelected) {
-                        newGroups.push(group);
-                      }
-                    });
-                    return newGroups;
-                  });
-                }}
+                onClick={selectAllRestarts}
                 style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
               >
                 {strings[316] || 'Select All'}
               </button>
               <button 
-                onClick={() => setSelectedRestartStations({})  }
+                onClick={selectNoneRestarts}
                 style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#808080', color: 'white', border: 'none', borderRadius: '3px' }}
               >
                 {strings[317] || 'Deselect All'}
@@ -175,122 +220,71 @@ export function BulkCraftingModal({
           )}
         </div>
         
-        <div style={{ marginBottom: '20px' }}>
-          {/* Header row */}
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold', borderBottom: '1px solid #ccc', paddingBottom: '5px' }}>
-            <span style={{ marginRight: '10px', width: '20px' }}>{strings[346] || 'Collect?'}</span>
-            <span style={{ marginRight: '10px', width: '30px' }}></span>
-            <span style={{ marginRight: '10px', width: '120px' }}>{strings[476] || 'Collect'}</span>
-            <span style={{ marginRight: '10px', width: '120px' }}>{strings[161] || 'From'}</span>
-            <span style={{ marginRight: '10px', width: '40px' }}>{strings[164] || 'Qty'}</span>
-            {hasBulkRestartCraft && (
-              <>
-                <span style={{ marginRight: '10px', width: '80px' }}></span>
-                <span style={{ marginRight: '10px', width: '80px' }}>{strings[475] || 'Restart?'}</span>
-                <span style={{ width: '200px' }}>{strings[177] || 'Need'}</span>
-              </>
-            )}
-          </div>
-          
+        <div style={{ display: 'flex', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
+          <div style={{ width: '60px', textAlign: 'center' }}>{strings[346] || 'Collect?'}</div>
+          <div style={{ width: '200px', textAlign: 'left', paddingLeft: '10px' }}>{strings[476] || 'Station'}</div>
+          <div style={{ width: '270px', textAlign: 'left' }}>{strings[161] || 'Item'}</div>
+          {hasBulkRestartCraft && (
+            <div style={{ width: '80px', textAlign: 'center' }}>{strings[475]}</div>
+          )}
+          <div style={{ width: '150px', textAlign: 'center' }}>{strings[177]}</div>
+        </div>
+        
+        <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
           {stationGroups.map((group, index) => {
             const key = `${group.stationType}-${group.craftedItem}`;
+            const needs = calculateGroupNeeds(group);
             return (
-              <div key={key} style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                marginBottom: '10px',
-                padding: '5px',
-                backgroundColor: index % 2 === 0 ? 'transparent' : '#f0f0f0'
-              }}>
-                <input
-                  type="checkbox"
-                  checked={isGroupSelected(group)}
-                  onChange={(e) => handleToggleGroup(group)}
-                  style={{ marginRight: '10px', width: '20px' }}
-                />
-                <span style={{ marginRight: '10px', width: '30px' }}>{group.stationSymbol}</span>
-                <span style={{ marginRight: '10px', width: '120px' }}>{getLocalizedString(group.stationType, strings)}</span>
-                <span style={{ marginRight: '10px', width: '120px', fontWeight: 'bold' }}>{getLocalizedString(group.craftedItem, strings)}</span>
-                <span style={{ marginRight: '10px', width: '60px', color: '#666' }}>({group.stationCount})</span>
-                
-                {hasBulkRestartCraft && (() => {
-                  // Calculate if player has enough ingredients
-                  const craftedResource = group.recipe;
-                  let hasAllIngredients = group.affordable;
-                  let ingredientElements = [];
-                  
-                  if (craftedResource) {
-                    const ingredients = [];
-                    for (let i = 1; i <= 5; i++) {
-                      const ingredientType = craftedResource[`ingredient${i}`];
-                      const ingredientQty = craftedResource[`ingredient${i}qty`];
-                      if (ingredientType) {
-                        ingredients.push({ type: ingredientType, quantity: ingredientQty || 1 });
-                      }
-                    }
-                    
-                    if (ingredients.length > 0) {
-                      const playerInventory = {};
-                      [...(inventory || []), ...(backpack || [])].forEach(item => {
-                        playerInventory[item.type] = (playerInventory[item.type] || 0) + item.quantity;
-                      });
-                      
-                      ingredientElements = ingredients.map((ing, idx) => {
-                        const stationCount = group.stationCount || 1;
-                        const needed = ing.quantity * stationCount;
-                        const has = playerInventory[ing.type] || 0;
-                        const hasEnough = has >= needed;
-                        if (!hasEnough) hasAllIngredients = false;
-                        
-                        const ingredientResource = masterResources.find(r => r.type === ing.type);
-                        const symbol = ingredientResource?.symbol || '?';
-                        
-                        return (
-                          <div key={idx} style={{ 
-                            color: hasEnough ? '#666' : 'red'
-                          }}>
-                            {symbol} {needed} / {has}
-                          </div>
-                        );
-                      });
-                    }
-                  }
-                  
+              <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', padding: '5px', borderBottom: '1px solid #eee' }}>
+                <div style={{ width: '60px', textAlign: 'center' }}>
+                  <input
+                    type="checkbox"
+                    checked={isGroupSelected(group)}
+                    onChange={() => handleToggleGroup(group)}
+                    style={{ width: '20px' }}
+                  />
+                </div>
+                <div style={{ width: '200px', textAlign: 'left', fontWeight: 'bold', paddingLeft: '10px' }}>
+                  {group.stationSymbol} {getLocalizedString(group.stationType, strings)}
+                </div>
+                <div style={{ width: '270px', textAlign: 'left' }}>
+                  {group.craftedSymbol} {getLocalizedString(group.craftedItem, strings)} ({group.stationCount})
+                </div>
+                {hasBulkRestartCraft ? (() => {
+                  const restartLabel = getRestartLabel(group);
                   return (
-                    <>
-                      <div style={{ marginLeft: '60px', width: '80px', display: 'flex', justifyContent: 'center' }}>
-                        <input
-                          type="checkbox"
-                          checked={hasAllIngredients ? (selectedRestartStations[key] || false) : false}
-                          onChange={() => hasAllIngredients && handleToggleRestart(group)}
-                          disabled={!hasAllIngredients}
-                          style={{ 
-                            width: '20px',
-                            cursor: hasAllIngredients ? 'pointer' : 'not-allowed',
-                            opacity: hasAllIngredients ? 1 : 0.5
-                          }}
-                          title={hasAllIngredients ? "Restart crafting after collection" : "Not enough ingredients to restart"}
-                        />
-                      </div>
-                      
-                      {/* Need column */}
-                      <div style={{ width: '200px' }}>
-                        {ingredientElements.length > 0 ? (
-                          <div style={{ 
-                            display: 'flex', 
-                            flexDirection: 'column',
-                            gap: '2px',
-                            color: hasAllIngredients ? '#666' : 'red'
-                          }}>
-                            {ingredientElements}
-                          </div>
-                        ) : (
-                          <span style={{ color: '#666' }}>-</span>
-                        )}
-                      </div>
-                    </>
+                    <div style={{ marginLeft: '0px', width: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedRestartStations[key] || false}
+                        onChange={() => !isRestartDisabled(group) && handleToggleRestart(group)}
+                        disabled={isRestartDisabled(group)}
+                        style={{ 
+                          width: '20px',
+                          opacity: isRestartDisabled(group) ? 0.5 : 1,
+                          cursor: isRestartDisabled(group) ? 'not-allowed' : 'pointer'
+                        }}
+                        title={restartLabel || ''}
+                      />
+                      {restartLabel && (
+                        <span style={{ fontSize: '11px', color: 'red', marginTop: '2px' }}>
+                          {restartLabel}
+                        </span>
+                      )}
+                    </div>
                   );
-                })()}
+                })() : null}
+                {/* Needs column */}
+                <div style={{ width: '150px', textAlign: 'center', fontSize: '12px' }}>
+                  {needs && Object.entries(needs).map(([type, data], idx) => {
+                    const color = data.available >= data.needed ? 'green' : 'red';
+                    return (
+                      <div key={idx} style={{ color }}>
+                        {data.symbol} {data.needed}/{data.available}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             );
           })}
@@ -302,58 +296,12 @@ export function BulkCraftingModal({
             style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px' }}
             disabled={selectedGroups.length === 0}
           >
-            {strings[318] || 'Collect Selected'}
+            {strings[318] || 'Collect'}
           </button>
         </div>
       </div>
     </Modal>
   );
-}
-
-// Helper function to restart crafting at a station
-async function restartCrafting(station, recipe, strings, currentPlayer, gridId, inventory, backpack) {
-  if (!recipe) {
-    console.log(`No recipe found for restarting craft at station (${station.x}, ${station.y})`);
-    return false;
-  }
-
-  // Check affordability using the same logic as CraftingStation
-  const affordable = canAfford(recipe, inventory, Array.isArray(backpack) ? backpack : [], 1);
-  if (!affordable) {
-    console.log(`Cannot afford to restart ${recipe.type} at station (${station.x}, ${station.y})`);
-    return false;
-  }
-
-  // Check skill requirements
-  const hasRequiredSkill = !recipe.requires || currentPlayer.skills?.some((owned) => owned.type === recipe.requires);
-  if (!hasRequiredSkill) {
-    console.log(`Missing required skill for ${recipe.type}`);
-    return false;
-  }
-
-  try {
-    // Generate transaction ID for this specific restart
-    const transactionId = `craft-restart-${station.x}-${station.y}-${Date.now()}`;
-    const transactionKey = `crafting-start-${recipe.type}-${station.x}-${station.y}`;
-    
-    const response = await axios.post(`${API_BASE}/api/crafting/start-craft`, {
-      playerId: currentPlayer.playerId,
-      gridId,
-      stationX: station.x,
-      stationY: station.y,
-      recipe,
-      transactionId,
-      transactionKey
-    });
-
-    if (response.data.success) {
-        return true;
-    }
-  } catch (error) {
-    console.error(`Failed to restart crafting at (${station.x}, ${station.y}):`, error);
-  }
-  
-  return false;
 }
 
 // Main function to execute bulk crafting collection
@@ -381,7 +329,6 @@ export async function executeBulkCrafting({
   // Flatten all selected stations
   const stationsToCollect = selectedGroups.flatMap(group => group.stations);
   
-  
   // Prepare batch data for all stations
   const batchStations = stationsToCollect.map(station => {
     const key = `${station.type}-${station.craftedItem}`;
@@ -393,7 +340,7 @@ export async function executeBulkCrafting({
       const stationGroup = selectedGroups.find(g => 
         g.stationType === station.type && g.craftedItem === station.craftedItem
       );
-      if (stationGroup && stationGroup.recipe) {
+      if (stationGroup && stationGroup.recipe && stationGroup.affordable) {
         restartRecipe = stationGroup.recipe;
       }
     }
@@ -404,230 +351,195 @@ export async function executeBulkCrafting({
       type: station.type,
       craftedItem: station.craftedItem,
       transactionId: `bulk-craft-collect-${Date.now()}-${Math.random()}`,
-      shouldRestart: false, // We'll handle restart after collection
-      restartRecipe: null // Not needed in the API call
+      shouldRestart: shouldRestart && restartRecipe !== null,
+      restartRecipe: restartRecipe
     };
   });
-  
-  const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-  
   
   const transactionId = `bulk-craft-collect-${currentPlayer._id}-${Date.now()}`;
   const transactionKey = `bulk-craft-collect-${gridId}`;
   
-  const response = await axios.post(`${API_BASE}/api/crafting/collect-bulk`, {
-    playerId: currentPlayer.playerId || currentPlayer._id,
-    gridId,
-    stations: batchStations,
-    transactionId,
-    transactionKey
-  });
+  // Make single API call for both collection and restart
   
-  
-  if (response.data.success && response.data.results) {
-    const results = response.data.results;
-    const updatedResources = GlobalGridStateTilesAndResources.getResources();
+  try {
+    const response = await axios.post(`${API_BASE}/api/crafting/collect-bulk`, {
+      playerId: currentPlayer.playerId || currentPlayer._id,
+      gridId,
+      stations: batchStations,
+      transactionId,
+      transactionKey
+    });
     
-    // Track successful collections and applied skills
-    const successfulCollects = {};
-    const successfulRestarts = {};
-    const appliedSkillsInfo = {};
-    
-    // Process each result
-    for (const result of results) {
-      if (result.collected || result.success) {
-        const { station, collectedItem, craftedItem, isNPC } = result;
-        const itemCollected = collectedItem || craftedItem;
-        
-        // Update the station in global resources to clear craft state
-        const resourceIndex = updatedResources.findIndex(res => 
-          res.x === station.x && res.y === station.y
-        );
-        if (resourceIndex !== -1) {
-          updatedResources[resourceIndex].craftEnd = undefined;
-          updatedResources[resourceIndex].craftedItem = undefined;
-        }
-        
-        // Calculate skill info
-        const stationType = station.stationType || station.type;
-        const playerBuffs = (currentPlayer.skills || [])
-          .filter((item) => {
-            const resourceDetails = masterResources.find((res) => res.type === item.type);
-            const isSkill = resourceDetails?.category === 'skill' || resourceDetails?.category === 'upgrade';
-            const appliesToStation = (masterSkills?.[item.type]?.[stationType] || 1) > 1;
-            return isSkill && appliesToStation;
-          })
-          .map((buffItem) => buffItem.type);
-        
-        // Calculate skill multiplier
-        const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
-          const buffValue = masterSkills?.[buff]?.[stationType] || 1;
-          return multiplier * buffValue;
-        }, 1);
-        
-        // Base quantity is 1 per crafting station (matching individual crafting)
-        const baseQtyCollected = 1;
-        const finalQtyCollected = baseQtyCollected * skillMultiplier;
-        
-        // Handle NPC spawning
-        if (isNPC) {
-          const craftedResource = masterResources.find(res => res.type === itemCollected);
-          if (craftedResource) {
-            NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: station.x, y: station.y });
-          }
-        } else {
-          // Server doesn't add items - client handles with skill buffs
-          // Track successful collects with skill bonuses
-          successfulCollects[itemCollected] = (successfulCollects[itemCollected] || 0) + finalQtyCollected;
-          
-          // Track skills applied for this item type (only need to do once per item type)
-          if (!appliedSkillsInfo[itemCollected] && playerBuffs.length > 0) {
-            appliedSkillsInfo[itemCollected] = {
-              skills: playerBuffs,
-              multiplier: skillMultiplier,
-              hasSkills: true
-            };
-          }
-        }
-      }
+    if (response.data.success && response.data.results) {
+      const results = response.data.results;
+      let updatedResources = [...GlobalGridStateTilesAndResources.getResources()];
       
-      // Don't track quest progress individually in bulk - will do it at the end
+      // Track successful collections and applied skills
+      const successfulCollects = {};
+      const successfulRestarts = {};
+      const appliedSkillsInfo = {};
       
-      // Track restarts
-      if (result.restarted) {
-        const craftType = result.station.craftedItem || result.craftType;
-        successfulRestarts[craftType] = (successfulRestarts[craftType] || 0) + 1;
-        
-        // Update the resource with new craft state
-        const resourceIndex = updatedResources.findIndex(res => 
-          res.x === result.station.x && res.y === result.station.y
-        );
-        if (resourceIndex !== -1) {
-          updatedResources[resourceIndex].craftEnd = result.newCraftEnd;
-          updatedResources[resourceIndex].craftedItem = result.newCraftedItem;
-        }
-      }
-    }
-    
-    // Update inventory from server response if provided
-    if (response.data.inventory) {
-      // Don't update inventory from server - server doesn't add collected items
-      // We'll add them ourselves with skill bonuses via gainIngredients
-      
-      // The server response includes spent ingredients for restarts
-      // Update local inventory with what server says we have after spending
-      setInventory(response.data.inventory.warehouse);
-      setBackpack(response.data.inventory.backpack);
-      setCurrentPlayer(prev => ({
-        ...prev,
-        inventory: response.data.inventory.warehouse,
-        backpack: response.data.inventory.backpack
-      }));
-    }
-    
-    // Update global resources with all changes
-    GlobalGridStateTilesAndResources.setResources(updatedResources);
-    setResources(updatedResources);
-    
-    // Add collected items to inventory with skills applied
-    for (const [collectedItem, quantity] of Object.entries(successfulCollects)) {
-      await gainIngredients({
-        playerId: currentPlayer.playerId,
-        currentPlayer,
-        resource: collectedItem,
-        quantity: quantity,
-        inventory: currentPlayer.inventory,
-        backpack: currentPlayer.backpack,
-        setInventory,
-        setBackpack,
-        setCurrentPlayer,
-        updateStatus,
-        masterResources,
-      });
-      
-      // Track quest progress
-      await trackQuestProgress(currentPlayer, 'Craft', collectedItem, quantity, setCurrentPlayer);
-    }
-    
-    await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer, false);
-    
-    // Handle restarts after bulk collection is complete
-    if (hasBulkRestartCraft) {
+      // Process each result and build a map of station updates
+      const stationUpdates = {};
       
       for (const result of results) {
-        if ((result.collected || result.success) && !result.isNPC) {
-          const { station, collectedItem, craftedItem } = result;
+        if (result.collected || result.success) {
+          const { station, collectedItem, craftedItem, isNPC } = result;
           const itemCollected = collectedItem || craftedItem;
-          const key = `${station.type || station.stationType}-${itemCollected}`;
+          const key = `${station.x}-${station.y}`;
           
-          if (selectedRestartStations[key]) {
-            // Find the recipe
-            const stationGroup = selectedGroups.find(g => 
-              g.stationType === (station.type || station.stationType) && 
-              g.craftedItem === (station.craftedItem || result.collectedItem)
-            );
+          if (result.restarted && result.newCraftEnd) {
+            // Restarted - update with new craft state
+            stationUpdates[key] = { 
+              craftEnd: result.newCraftEnd, 
+              craftedItem: result.newCraftedItem || itemCollected 
+            };
+          } else {
+            // Just collected - clear craft state
+            stationUpdates[key] = { 
+              craftEnd: undefined, 
+              craftedItem: undefined 
+            };
+          }
+          
+          // Calculate skill info
+          const stationType = station.stationType || station.type;
+          const playerBuffs = (currentPlayer.skills || [])
+            .filter((item) => {
+              const resourceDetails = masterResources.find((res) => res.type === item.type);
+              const isSkill = resourceDetails?.category === 'skill' || resourceDetails?.category === 'upgrade';
+              const appliesToStation = (masterSkills?.[item.type]?.[stationType] || 1) > 1;
+              return isSkill && appliesToStation;
+            })
+            .map((buffItem) => buffItem.type);
+          
+          // Calculate skill multiplier
+          const skillMultiplier = playerBuffs.reduce((multiplier, buff) => {
+            const buffValue = masterSkills?.[buff]?.[stationType] || 1;
+            return multiplier * buffValue;
+          }, 1);
+          
+          // Base quantity is 1 per crafting station (matching individual crafting)
+          const baseQtyCollected = 1;
+          const finalQtyCollected = baseQtyCollected * skillMultiplier;
+          
+          // Handle NPC spawning
+          if (isNPC) {
+            const craftedResource = masterResources.find(res => res.type === itemCollected);
+            if (craftedResource) {
+              NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: station.x, y: station.y });
+            }
+          } else {
+            // Server doesn't add items - client handles with skill buffs
+            // Track successful collects with skill bonuses
+            successfulCollects[itemCollected] = (successfulCollects[itemCollected] || 0) + finalQtyCollected;
             
-            if (stationGroup && stationGroup.recipe && stationGroup.affordable) {
-              const restartSuccess = await restartCrafting(
-                station,
-                stationGroup.recipe,
-                strings,
-                currentPlayer,
-                gridId,
-                inventory,
-                backpack
-              );
-              
-              if (restartSuccess) {
-                successfulRestarts[itemCollected] = (successfulRestarts[itemCollected] || 0) + 1;
-                
-                // Update local resource state
-                const resourceIndex = updatedResources.findIndex(res => 
-                  res.x === station.x && res.y === station.y
-                );
-                if (resourceIndex !== -1) {
-                  updatedResources[resourceIndex].craftEnd = Date.now() + (stationGroup.recipe.crafttime || 60) * 1000;
-                  updatedResources[resourceIndex].craftedItem = itemCollected;
-                }
-              }
-              
-              await wait(100); // Small delay between restarts
+            // Track skills applied for this item type (only need to do once per item type)
+            if (!appliedSkillsInfo[itemCollected] && playerBuffs.length > 0) {
+              appliedSkillsInfo[itemCollected] = {
+                skills: playerBuffs,
+                multiplier: skillMultiplier,
+                hasSkills: true
+              };
+            }
+          }
+          
+          // Track restart info
+          if (result.restarted) {
+            const restartedItem = result.newCraftedItem || result.restartedItem || itemCollected;
+            if (restartedItem) {
+              successfulRestarts[restartedItem] = (successfulRestarts[restartedItem] || 0) + 1;
             }
           }
         }
       }
       
-      // Update resources again after restarts
+      // Now apply all station updates in one pass using map pattern (like single crafting)
+      updatedResources = updatedResources.map(res => {
+        const key = `${res.x}-${res.y}`;
+        if (stationUpdates[key]) {
+          return { ...res, ...stationUpdates[key] };
+        }
+        return res;
+      });
+      
+      // Update inventory from server response if provided
+      if (response.data.inventory) {
+        // Update local inventory with what server says we have after spending for restarts
+        setInventory(response.data.inventory.warehouse || response.data.inventory);
+        setBackpack(response.data.inventory.backpack || []);
+        setCurrentPlayer(prev => ({
+          ...prev,
+          inventory: response.data.inventory.warehouse || response.data.inventory,
+          backpack: response.data.inventory.backpack || []
+        }));
+      }
+      
+      // NOW update global resources with all changes (collections + restarts) - ONLY ONCE
+      // Just like single crafting does it - simple and clean
       GlobalGridStateTilesAndResources.setResources(updatedResources);
       setResources(updatedResources);
-    }
-    
-    // Check if we have any successful operations
-    const hasCollections = Object.keys(successfulCollects).length > 0;
-    const hasRestarts = Object.keys(successfulRestarts).length > 0;
-    const totalProcessed = results.filter(r => r.collected || r.success).length;
-    
-    
-    if (hasCollections || hasRestarts) {
-      const parts = [];
       
-      if (hasCollections) {
-        parts.push(formatCollectionResults('craft', successfulCollects, appliedSkillsInfo, null, strings, getLocalizedString));
+      // Use fresh inventory state from server response
+      const currentInventory = response.data.inventory?.warehouse || inventory;
+      const currentBackpack = response.data.inventory?.backpack || backpack;
+      
+      // Add collected items to inventory with skills applied
+      for (const [collectedItem, quantity] of Object.entries(successfulCollects)) {
+        await gainIngredients({
+          playerId: currentPlayer.playerId,
+          currentPlayer: {
+            ...currentPlayer,
+            inventory: currentInventory,
+            backpack: currentBackpack
+          },
+          resource: collectedItem,
+          quantity: quantity,
+          inventory: currentInventory,
+          backpack: currentBackpack,
+          setInventory,
+          setBackpack,
+          setCurrentPlayer,
+          updateStatus,
+          masterResources,
+        });
+        
+        // Track quest progress
+        await trackQuestProgress(currentPlayer, 'Craft', collectedItem, quantity, setCurrentPlayer);
       }
       
-      if (hasRestarts) {
-        parts.push(formatRestartResults(successfulRestarts, 'craft', strings, getLocalizedString));
-      }
+      // Refresh player state to ensure everything is in sync
+      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer, false);
       
-      return parts.join(' | ');
-    } else if (totalProcessed > 0) {
-      // Items were processed but maybe all were NPCs
-      return `Collected from ${totalProcessed} crafting station${totalProcessed > 1 ? 's' : ''}.`;
+      // Check if we have any successful operations
+      const hasCollections = Object.keys(successfulCollects).length > 0;
+      const hasRestarts = Object.keys(successfulRestarts).length > 0;
+      const totalProcessed = results.filter(r => r.collected || r.success).length;
+      
+      if (hasCollections || hasRestarts) {
+        const parts = [];
+        
+        if (hasCollections) {
+          parts.push(formatCollectionResults('craft', successfulCollects, appliedSkillsInfo, null, strings, getLocalizedString));
+        }
+        
+        if (hasRestarts) {
+          parts.push(formatRestartResults(successfulRestarts, 'craft', strings, getLocalizedString));
+        }
+        
+        return parts.join(' | ');
+      } else if (totalProcessed > 0) {
+        // Items were processed but maybe all were NPCs
+        return `Collected from ${totalProcessed} crafting station${totalProcessed > 1 ? 's' : ''}.`;
+      } else {
+        return 'Failed to collect any crafted items.';
+      }
     } else {
-      return 'Failed to collect any crafted items.';
+      return 'Failed to collect crafted items.';
     }
-  } else {
-    return 'Failed to collect crafted items.';
+  } catch (error) {
+    console.error('🏭 Bulk crafting error:', error);
+    return error.response?.data?.message || error.message || 'Bulk crafting failed';
   }
 }
 

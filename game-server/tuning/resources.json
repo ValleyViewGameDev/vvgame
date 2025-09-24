@@ -3023,7 +3023,7 @@
     "ingredient2": "Potion A",
     "ingredient2qty": 1,
     "moneyvalue": 16,
-    "crafttime": 1
+    "crafttime": 3
   },
   {
     "type": "Prospero's Orb",
@@ -5376,7 +5376,7 @@
     "moneyvalue": 5205
   },
   {
-    "type": "Couturier",
+    "type": "Cuisinier",
     "symbol": "🛖",
     "category": "skill",
     "source": "Guild",
@@ -5452,7 +5452,7 @@
     "moneyvalue": 5295
   },
   {
-    "type": "Cuisinier",
+    "type": "Virtuose Culinaire",
     "symbol": "🛖",
     "category": "skill",
     "source": "Guild",
