@@ -5,7 +5,7 @@
       "body": "Thanks for joining the world of Valley View. Here's a little something to get you started. Don't forget to check out our Discord server for some help and community. The link is in the side panel of the game.",
       "rewards": [
         { "item": "Money", "qty": 500 }, 
-        { "item": "Gems", "qty": 75 }, 
+        { "item": "Gem", "qty": 75 }, 
         { "item": "Wood", "qty": 5 }, 
         { "item": "Wheat", "qty": 10 }, 
         { "item": "Carrot", "qty": 10 }, 
@@ -42,7 +42,7 @@
       "id": 301,
       "title": "🗓️ Season Reward!",
       "body": "For the top 3 players across the Frontier last season.",
-      "rewards": [{ "item": "Money", "qty": 10000 }, { "item": "Gems", "qty": 500 }],
+      "rewards": [{ "item": "Money", "qty": 10000 }, { "item": "Gem", "qty": 500 }],
       "everyoneRewards": false,
       "neverPurge": true
     },
@@ -50,7 +50,7 @@
       "id": 302,
       "title": "🗓️ Season Reward!",
       "body": "For all players in the top Settlement last season.",
-      "rewards": [{ "item": "Money", "qty": 5000 }, { "item": "Gems", "qty": 100 }],
+      "rewards": [{ "item": "Money", "qty": 5000 }, { "item": "Gem", "qty": 100 }],
       "everyoneRewards": false,
       "neverPurge": true
     },
@@ -58,7 +58,7 @@
       "id": 303,
       "title": "🗓️ Season Reward!",
       "body": "CONGRATULATIONS! You were the top player across the Frontier last season!",
-      "rewards": [{ "item": "Money", "qty": 10000 }, { "item": "Gems", "qty": 1000 }],
+      "rewards": [{ "item": "Money", "qty": 10000 }, { "item": "Gem", "qty": 1000 }],
       "everyoneRewards": false,
       "neverPurge": true
     },
@@ -76,7 +76,7 @@
       "id": 1001,
       "title": "😢 Our bad!",
       "body": "We recently had some technical issues. Thanks for your patience.",
-      "rewards": [{ "item": "Money", "qty": 1000 }, { "item": "Gems", "qty": 3 }, { "item": "Wood", "qty": 100 }, { "item": "Wool", "qty": 10 }],
+      "rewards": [{ "item": "Money", "qty": 1000 }, { "item": "Gem", "qty": 3 }, { "item": "Wood", "qty": 100 }, { "item": "Wool", "qty": 10 }],
       "everyoneRewards": true,
       "neverPurge": false
     }
