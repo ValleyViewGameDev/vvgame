@@ -236,6 +236,18 @@ export async function executeBulkHarvest({
   if (selectedTypes.length === 0) {
     return strings[449] || 'No crops selected for harvest.';
   }
+  
+  // Sync FarmState before proceeding to ensure client/server consistency
+  const farmState = await import('../../FarmState').then(m => m.default);
+  console.log('🔄 Syncing FarmState before bulk harvest...');
+  const syncSuccess = await farmState.forceProcessPendingSeeds({ gridId, setResources, masterResources });
+  
+  if (!syncSuccess) {
+    console.error('❌ Failed to sync FarmState, proceeding anyway...');
+  }
+  
+  // Small delay to ensure any in-flight operations complete
+  await new Promise(resolve => setTimeout(resolve, 100));
 
   // First, calculate capacity to check if we can harvest
   const capacityCheck = await calculateBulkHarvestCapacity(
@@ -336,7 +348,9 @@ export async function executeBulkHarvest({
               y: pos.y,
               type: farmplot.type, // This will be "Wheat Plot", not "Wheat"
               growEnd: growEnd,
-              stage: 1
+              stage: 1,
+              category: 'farmplot', // Ensure category is set
+              output: farmplot.output // Ensure output is set for crop conversion
             });
           });
         }
@@ -345,6 +359,9 @@ export async function executeBulkHarvest({
     
     GlobalGridStateTilesAndResources.setResources(updatedResources);
     setResources(updatedResources);
+    
+    // Re-initialize FarmState with the updated resources
+    farmState.initializeFarmState(updatedResources);
 
     // Calculate which skills were applied for each harvested type using shared utility
     const harvestSkillsInfo = {};

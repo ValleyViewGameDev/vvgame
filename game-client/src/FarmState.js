@@ -62,6 +62,17 @@ class FarmState {
   
         // Process all completed seeds in parallel instead of sequentially
         const updatePromises = completedSeeds.map(async (seed) => {
+          // First check if this seed still exists in current farmState
+          // (it might have been removed by bulk harvest)
+          const stillExists = this.farmState.some(s => 
+            s.x === seed.x && s.y === seed.y && s.type === seed.type
+          );
+          
+          if (!stillExists) {
+            console.log(`Seed at (${seed.x}, ${seed.y}) no longer exists in farmState, skipping conversion.`);
+            return null;
+          }
+          
           console.log('Processing seed:', seed);
           const newCrop = masterResources.find((res) => res.type === seed.output);
           console.log('Target output (crop) found for seed:', newCrop);
@@ -133,11 +144,89 @@ class FarmState {
 
   
   /**
+   * Force process any seeds that are ready to convert
+   * This ensures client/server sync before operations like bulk harvest
+   */
+  async forceProcessPendingSeeds({ gridId, setResources, masterResources }) {
+    console.log('🔄 Force processing pending seeds for sync...');
+    
+    const now = Date.now();
+    const completedSeeds = this.farmState.filter((seed) => seed.growEnd <= now);
+    
+    if (completedSeeds.length === 0) {
+      console.log('✅ No pending seeds to process');
+      return true;
+    }
+    
+    console.log(`⏳ Processing ${completedSeeds.length} completed seeds before bulk operation...`);
+    
+    try {
+      // Process all completed seeds
+      const updatePromises = completedSeeds.map(async (seed) => {
+        const newCrop = masterResources.find((res) => res.type === seed.output);
+        
+        if (!newCrop) {
+          console.warn(`No target resource found for seed output: ${seed.output}`);
+          return null;
+        }
+
+        try {
+          const response = await updateGridResource(
+            gridId, 
+            { 
+              type: newCrop.type,
+              x: seed.x,
+              y: seed.y,
+            },
+            true
+          );
+
+          if (response?.success) {
+            console.log(`✅ Seed at (${seed.x}, ${seed.y}) synced to server as ${newCrop.type}`);
+            return { seed, enriched: { ...newCrop, x: seed.x, y: seed.y } };
+          }
+          return null;
+        } catch (error) {
+          console.error(`Error syncing seed at (${seed.x}, ${seed.y}):`, error);
+          return null;
+        }
+      });
+
+      // Wait for all updates
+      const results = await Promise.all(updatePromises);
+      const successfulUpdates = results.filter(result => result !== null);
+      
+      // Update local state
+      if (successfulUpdates.length > 0) {
+        setResources(prev => {
+          const seedPositions = successfulUpdates.map(({ seed }) => `${seed.x},${seed.y}`);
+          const filtered = prev.filter(r => !seedPositions.includes(`${r.x},${r.y}`));
+          const newCrops = successfulUpdates.map(({ enriched }) => enriched);
+          return [...filtered, ...newCrops];
+        });
+        
+        // Remove from farmState
+        const processedSeeds = successfulUpdates.map(({ seed }) => seed);
+        this.farmState = this.farmState.filter(s => !processedSeeds.includes(s));
+      }
+      
+      console.log(`✅ Sync complete: ${successfulUpdates.length}/${completedSeeds.length} seeds processed`);
+      return true;
+    } catch (error) {
+      console.error('❌ Error during force sync:', error);
+      return false;
+    }
+  }
+  
+  /**
    * Stop the seed timer.
    */
   stopSeedTimer() {
     if (farmTimer) clearInterval(farmTimer);
     farmTimer = null;
+    // Clear farmState when stopping to prevent stale data
+    this.farmState = [];
+    console.log('🛑 FarmState timer stopped and state cleared');
   }
 }
 
