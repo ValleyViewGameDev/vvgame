@@ -309,7 +309,6 @@ router.patch('/update-grid/:gridId', (req, res) => {
 
           } else {
             // ✅ Preserve existing resource & append attributes if needed
-            console.log(`🔄 Updating resource at (${x}, ${y}) with: ${type}`);
             
             // Load master resources to check resource categories
             const fs = require('fs');
@@ -321,9 +320,6 @@ router.patch('/update-grid/:gridId', (req, res) => {
             if (newResourceDef && newResourceDef.category === 'doober') {
               // This is a crop - remove any farmplot-specific fields
               const { growEnd: oldGrowEnd, ...cleanResource } = grid.resources[resourceIndex];
-              if (oldGrowEnd) {
-                console.log(`🌾 Converting farmplot to crop at (${x}, ${y}) - removing growEnd`);
-              }
               grid.resources[resourceIndex] = {
                 ...cleanResource,
                 type,
@@ -369,18 +365,8 @@ router.patch('/update-grid/:gridId', (req, res) => {
         }
       }
       
-      // Log BEFORE saving
-      console.log(`🔍 Before saving - Resource at (${x}, ${y}):`, JSON.stringify(grid.resources[resourceIndex], null, 2));
-      
       // Save changes to the database
       await grid.save();
-      
-      // Log AFTER saving
-      const updatedGrid = await Grid.findById(gridId); // **Refetch the grid from MongoDB**
-      const updatedResource = updatedGrid.resources.find((res) => res.x === x && res.y === y);
-      
-      console.log(`✅ After saving - Resource at (${x}, ${y}):`, JSON.stringify(updatedResource, null, 2));
-      console.log(`Grid updated successfully for _id: ${gridId}`);
     } catch (error) {
       console.error('Error updating grid:', error);
     }
@@ -1736,14 +1722,11 @@ router.post('/bulk-harvest', async (req, res) => {
               
               // Check if it's ready to harvest (growEnd in the past)
               if (resource.growEnd && new Date(resource.growEnd) <= new Date()) {
-                console.log(`🔄 Bulk harvest: Converting ${farmplot.type} to ${cropType} at (${pos.x},${pos.y}) during harvest`);
                 // The farmplot is ready - we can harvest it
               } else if (!resource.growEnd) {
                 // No growEnd means it might be a crop already (data inconsistency)
-                console.log(`⚠️ Bulk harvest: Found ${farmplot.type} without growEnd at (${pos.x},${pos.y}), treating as harvestable`);
               } else {
                 // Not ready yet
-                console.log(`⏳ Bulk harvest: ${farmplot.type} at (${pos.x},${pos.y}) not ready (growEnd: ${resource.growEnd})`);
                 resourceIndex = -1; // Reset to skip this one
               }
             }

@@ -540,24 +540,18 @@ const FarmHandPanel = ({
 
 
   async function handleBulkHarvest() {
-    console.log('🚜 Opening selective harvest modal');
-    
     // First, force FarmState to process any pending seeds
     const farmState = await import('../../FarmState').then(m => m.default);
-    console.log('🔄 Syncing FarmState before opening modal...');
     await farmState.forceProcessPendingSeeds({ gridId, setResources, masterResources });
     
     // Stop FarmState timer to prevent conversions during modal
     farmState.stopSeedTimer();
-    console.log('⏸️ Paused FarmState timer for bulk harvest modal');
     
     // Wait a moment for state updates to propagate
     await new Promise(resolve => setTimeout(resolve, 200));
     
     // Now get fresh resources from global state
     const freshResources = GlobalGridStateTilesAndResources.getResources();
-    console.log(`📊 Using fresh resources for bulk harvest. Prop count: ${resources.length}, Fresh count: ${freshResources.length}`);
-    
     const crops = prepareBulkHarvestData(freshResources, masterResources);
 
     if (crops.length === 0) {
@@ -624,7 +618,6 @@ const FarmHandPanel = ({
       const currentResources = GlobalGridStateTilesAndResources.getResources();
       farmState.initializeFarmState(currentResources);
       farmState.startSeedTimer({ gridId, setResources, masterResources });
-      console.log('▶️ Restarted FarmState timer after bulk harvest');
     }
   }
 
@@ -954,7 +947,6 @@ const FarmHandPanel = ({
           const currentResources = GlobalGridStateTilesAndResources.getResources();
           farmState.initializeFarmState(currentResources);
           farmState.startSeedTimer({ gridId, setResources, masterResources });
-          console.log('▶️ Restarted FarmState timer after modal close');
         }}
         crops={availableCrops}
         getFreshCrops={getFreshCropData}
