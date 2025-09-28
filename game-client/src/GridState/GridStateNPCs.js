@@ -267,7 +267,7 @@ class GridStateManager {
         gridId: npc.gridId
       };
       
-      console.log(`🐮 Saving NPC ${npcId} to server with state: ${npcData.state}`);
+      //console.log(`🐮 Saving NPC ${npcId} to server with state: ${npcData.state}`);
       
       await axios.post(`${API_BASE}/api/save-single-npc`, {
         gridId,
@@ -275,7 +275,7 @@ class GridStateManager {
         npc: npcData,
         lastUpdated: now,
       });
-      console.log(`🐮✅ Saved single NPC ${npcId} to server with state: ${npcData.state}`);
+      //console.log(`🐮✅ Saved single NPC ${npcId} to server with state: ${npcData.state}`);
     } catch (error) {
       console.error(`❌ Failed to save single NPC ${npcId}:`, error);
     }
@@ -335,7 +335,7 @@ class GridStateManager {
    * This version dehydrates live NPC instances into plain objects and matches the PC saving structure.
    */
   async saveGridStateNPCs(gridId) {
-    console.log('💾 saveGridStateNPCs called with gridId:', gridId);
+    //console.log('💾 saveGridStateNPCs called with gridId:', gridId);
     try {
       const NPCsInGrid = this.NPCsInGrid[gridId];
       if (!NPCsInGrid || !NPCsInGrid.npcs) {
@@ -368,11 +368,11 @@ class GridStateManager {
         NPCsInGridLastUpdated: now,
       };
 
-      console.log('💾 Payload for saving NPCs:', payload);
+      //console.log('💾 Payload for saving NPCs:', payload);
 
       // Save to server
       await axios.post(`${API_BASE}/api/save-grid-state-npcs`, payload);
-      console.log(`✅ 💾 Saved NPCs for grid ${gridId}`);
+      //console.log(`✅ 💾 Saved NPCs for grid ${gridId}`);
 
       // Emit updated NPCs to other clients
       if (socket && socket.emit) {

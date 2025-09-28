@@ -247,7 +247,7 @@ router.post('/save-single-npc', async (req, res) => {
 
     await grid.save();
 
-    console.log(`✅ Single NPC ${npcId} saved for gridId: ${gridId}`);
+    //console.log(`✅ Single NPC ${npcId} saved for gridId: ${gridId}`);
     res.status(200).json({ success: true });
   } catch (error) {
     console.error('❌ Error saving single NPC:', error);

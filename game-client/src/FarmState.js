@@ -10,9 +10,26 @@ class FarmState {
     }
   
     initializeFarmState(resources = []) {
-      // Log incoming farmplot resources
-      console.log('🧪 initializeFarmState input:', resources.filter(r => r.category === 'farmplot'));
       this.farmState = resources.filter((res) => res.category === 'farmplot' && res.growEnd);
+      
+      // Also check for crops that incorrectly have growEnd (server sync issue)
+      const cropsWithGrowEnd = resources.filter((res) => {
+        if (res.growEnd && res.category !== 'farmplot') {
+          // Check if this is actually a crop by seeing if it's an output of a farmplot
+          const farmplotForCrop = resources.find(r => 
+            r.category === 'farmplot' && r.output === res.type
+          );
+          // If no farmplot found in master resources, this is likely a crop with invalid growEnd
+          return !farmplotForCrop;
+        }
+        return false;
+      });
+      
+      if (cropsWithGrowEnd.length > 0) {
+        console.warn(`⚠️ Found ${cropsWithGrowEnd.length} crops with growEnd that need cleanup:`, 
+          cropsWithGrowEnd.map(c => `${c.type} at (${c.x},${c.y})`));
+      }
+      
       // Log growEnd values and time remaining
       console.log('🌱 Farm state initialized with growEnd values:', this.farmState.map(r => ({
         type: r.type,
@@ -60,8 +77,11 @@ class FarmState {
         // Update the Seeds to become Crops
         console.log('Using provided masterResources');
   
-        // Process all completed seeds in parallel instead of sequentially
-        const updatePromises = completedSeeds.map(async (seed) => {
+        // Process seeds sequentially to match server processing speed
+        let successfulCount = 0;
+        const startTime = Date.now();
+        
+        for (const seed of completedSeeds) {
           // First check if this seed still exists in current farmState
           // (it might have been removed by bulk harvest)
           const stillExists = this.farmState.some(s => 
@@ -70,7 +90,7 @@ class FarmState {
           
           if (!stillExists) {
             console.log(`Seed at (${seed.x}, ${seed.y}) no longer exists in farmState, skipping conversion.`);
-            return null;
+            continue;
           }
           
           console.log('Processing seed:', seed);
@@ -79,11 +99,12 @@ class FarmState {
           
           if (!newCrop) {
             console.warn(`No target resource found for seed output: ${seed.output}`);
-            return null;
+            continue;
           }
 
           try {
             console.log(`Updating grid resource for seed at (${seed.x}, ${seed.y}).`);
+            const requestStart = Date.now();
             const response = await updateGridResource(
               currentGridId, 
               { 
@@ -104,39 +125,33 @@ class FarmState {
                 y: seed.y
               };
 
-              return { seed, enriched };
+              // Update UI only after server confirms the update
+              setResources(prev => {
+                const filtered = prev.filter(r => !(r.x === seed.x && r.y === seed.y));
+                return [...filtered, enriched];
+              });
+              
+              // Remove from farmState after successful conversion
+              this.farmState = this.farmState.filter(s => !(s.x === seed.x && s.y === seed.y && s.type === seed.type));
+              
+              successfulCount++;
+              
+              // Add a small delay between conversions to make them visually distinct
+              // This also helps prevent overwhelming the server and keeps us in sync
+              // Using 120ms to match observed server processing time
+              await new Promise(resolve => setTimeout(resolve, 120));
             } else {
               console.warn(`Failed to update grid resource for seed at (${seed.x}, ${seed.y}).`);
-              return null;
             }
           } catch (error) {
             console.error(`Error updating grid resource for seed at (${seed.x}, ${seed.y}):`, error);
-            return null;
           }
-        });
-
-        // Wait for all updates to complete
-        const results = await Promise.all(updatePromises);
+        }
         
-        // Filter out failed updates
-        const successfulUpdates = results.filter(result => result !== null);
-        
-        // Update the UI state all at once
-        if (successfulUpdates.length > 0) {
-          setResources(prev => {
-            // Remove all successfully updated seeds
-            const seedPositions = successfulUpdates.map(({ seed }) => `${seed.x},${seed.y}`);
-            const filtered = prev.filter(r => !seedPositions.includes(`${r.x},${r.y}`));
-            
-            // Add all new crops
-            const newCrops = successfulUpdates.map(({ enriched }) => enriched);
-            return [...filtered, ...newCrops];
-          });
-          
-          // Remove processed seeds from farmState
-          const processedSeeds = successfulUpdates.map(({ seed }) => seed);
-          this.farmState = this.farmState.filter(s => !processedSeeds.includes(s));
-          console.log('Updated farmState after removing processed seeds:', this.farmState);
+        if (successfulCount > 0) {
+          const totalTime = Date.now() - startTime;
+          console.log(`✅ Completed conversion of ${successfulCount} seeds to crops in ${totalTime}ms (${Math.round(totalTime/successfulCount)}ms avg per seed)`);
+          console.log('Updated farmState:', this.farmState);
         }
       }
     }, 1000);

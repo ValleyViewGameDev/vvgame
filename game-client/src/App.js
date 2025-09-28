@@ -296,10 +296,41 @@ useEffect(() => {
 useEffect(() => {
   // Always update, even if resources is empty array (important for grid transitions!)
   if (resources !== undefined && resources !== null) {
-    GlobalGridStateTilesAndResources.setResources(resources);
-    console.log('GlobalGridStateTilesAndResources resources updated:', resources);
+    // Defensive cleanup: Check for crops with invalid growEnd fields
+    let cleanedResources = resources;
+    const invalidCrops = resources.filter(res => {
+      // Check if this is a crop (output of a farmplot) with growEnd
+      if (res.growEnd && masterResources) {
+        const isCrop = masterResources.some(mr => 
+          mr.category === 'farmplot' && mr.output === res.type
+        );
+        return isCrop;
+      }
+      return false;
+    });
+    
+    if (invalidCrops.length > 0) {
+      console.warn(`🧹 Found ${invalidCrops.length} crops with invalid growEnd fields, cleaning up...`);
+      invalidCrops.forEach(crop => {
+        console.log(`  - ${crop.type} at (${crop.x}, ${crop.y}) has growEnd=${crop.growEnd}`);
+      });
+      cleanedResources = resources.map(res => {
+        // If this is one of the invalid crops, remove growEnd
+        const needsCleanup = invalidCrops.some(ic => ic.x === res.x && ic.y === res.y);
+        if (needsCleanup) {
+          const { growEnd, ...cleanedRes } = res;
+          console.log(`🌾 Cleaned crop ${res.type} at (${res.x}, ${res.y})`);
+          return cleanedRes;
+        }
+        return res;
+      });
+      setResources(cleanedResources);
+    }
+    
+    GlobalGridStateTilesAndResources.setResources(cleanedResources);
+    console.log('GlobalGridStateTilesAndResources resources updated:', cleanedResources);
   }
-}, [resources]);
+}, [resources, masterResources]);
 
 const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
 const TILE_SIZES = globalTuning?.closerZoom ? {

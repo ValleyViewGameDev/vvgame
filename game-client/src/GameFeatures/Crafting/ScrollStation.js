@@ -25,6 +25,7 @@ import { handleConstruction } from '../BuildAndBuy';
 import { incrementFTUEStep } from '../FTUE/FTUE';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { getRandomScrollReveal, getRevealDisplayString, canAffordReveal } from './ScrollReveal';
+import { gainSkillOrPower } from '../../Utils/SkillPowerManagement';
 
 const ScrollStation = ({
   onClose,
@@ -402,15 +403,42 @@ const ScrollStation = ({
         const { collectedItem, isNPC } = response.data;
         const collectedQty = revealedItemQty || 1;
 
-        // Handle collection
+        // Find the revealed item in master resources to check its category
+        const revealedResource = allResources.find(res => res.type === collectedItem);
+        
+        // Handle collection based on item category
         if (isNPC) {
+          // Spawn NPC
           const craftedResource = allResources.find(res => res.type === collectedItem);
           if (craftedResource) {
             NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
           }
           FloatingTextManager.addFloatingText(`+${collectedQty} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+        } else if (revealedResource && (revealedResource.category === 'skill' || revealedResource.category === 'power' || revealedResource.category === 'upgrade')) {
+          // Handle skills, powers, and upgrades
+          const success = await gainSkillOrPower({
+            item: revealedResource,
+            currentPlayer,
+            setCurrentPlayer,
+            updateStatus,
+            strings,
+            gridId,
+            quantity: collectedQty
+          });
+          
+          if (!success) {
+            console.error('❌ Failed to add skill/power to player.');
+            setIsCollecting(false);
+            return;
+          }
+          
+          // Create floating text
+          const displayName = getLocalizedString(collectedItem, strings);
+          const categoryEmoji = revealedResource.category === 'skill' ? '💪' : 
+                              revealedResource.category === 'power' ? '⚡' : '🔧';
+          FloatingTextManager.addFloatingText(`${categoryEmoji} ${displayName}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
         } else {
-          // Add to inventory
+          // Handle regular doobers - add to inventory
           const gained = await gainIngredients({
             playerId: currentPlayer.playerId,
             currentPlayer,
@@ -427,6 +455,7 @@ const ScrollStation = ({
 
           if (!gained) {
             console.error('❌ Failed to add revealed item to inventory.');
+            setIsCollecting(false);
             return;
           }
           

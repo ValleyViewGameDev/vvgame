@@ -539,19 +539,49 @@ const FarmHandPanel = ({
   }
 
 
-  function handleBulkHarvest() {
+  async function handleBulkHarvest() {
     console.log('🚜 Opening selective harvest modal');
     
-    const crops = prepareBulkHarvestData(resources, masterResources);
+    // First, force FarmState to process any pending seeds
+    const farmState = await import('../../FarmState').then(m => m.default);
+    console.log('🔄 Syncing FarmState before opening modal...');
+    await farmState.forceProcessPendingSeeds({ gridId, setResources, masterResources });
+    
+    // Stop FarmState timer to prevent conversions during modal
+    farmState.stopSeedTimer();
+    console.log('⏸️ Paused FarmState timer for bulk harvest modal');
+    
+    // Wait a moment for state updates to propagate
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    // Now get fresh resources from global state
+    const freshResources = GlobalGridStateTilesAndResources.getResources();
+    console.log(`📊 Using fresh resources for bulk harvest. Prop count: ${resources.length}, Fresh count: ${freshResources.length}`);
+    
+    const crops = prepareBulkHarvestData(freshResources, masterResources);
 
     if (crops.length === 0) {
       updateStatus(strings[344] || 'No crops ready for harvest.');
+      // Restart FarmState timer if no crops
+      farmState.initializeFarmState(freshResources);
+      farmState.startSeedTimer({ gridId, setResources, masterResources });
       return;
     }
     
     setAvailableCrops(crops);
     setIsHarvestModalOpen(true);
   }
+  
+  // Function to get fresh crop data at any time
+  const getFreshCropData = React.useCallback(async () => {
+    // Force sync before getting data
+    const farmState = await import('../../FarmState').then(m => m.default);
+    await farmState.forceProcessPendingSeeds({ gridId, setResources, masterResources });
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    const freshResources = GlobalGridStateTilesAndResources.getResources();
+    return prepareBulkHarvestData(freshResources, masterResources);
+  }, [gridId, setResources, masterResources]);
  
   async function executeSelectiveHarvest(selectedCropTypes, selectedReplantTypes) {
     setIsHarvestModalOpen(false);
@@ -568,25 +598,34 @@ const FarmHandPanel = ({
     const operationId = `bulk-harvest-${Date.now()}`;
     startBulkOperation('bulk-harvest', operationId);
 
-    // Execute bulk operation with shared function
-    await executeBulkOperation('bulk-harvest', operationId, farmerNPC, async () => {
-      return await executeBulkHarvest({
-        selectedCropTypes,
-        selectedReplantTypes,
-        resources,
-        masterResources,
-        masterSkills,
-        currentPlayer,
-        setCurrentPlayer,
-        setInventory,
-        setBackpack,
-        setResources,
-        gridId,
-        showBulkReplant,
-        strings,
-        refreshPlayerAfterInventoryUpdate
+    try {
+      // Execute bulk operation with shared function
+      await executeBulkOperation('bulk-harvest', operationId, farmerNPC, async () => {
+        return await executeBulkHarvest({
+          selectedCropTypes,
+          selectedReplantTypes,
+          resources: GlobalGridStateTilesAndResources.getResources(),  // Always use fresh resources
+          masterResources,
+          masterSkills,
+          currentPlayer,
+          setCurrentPlayer,
+          setInventory,
+          setBackpack,
+          setResources,
+          gridId,
+          showBulkReplant,
+          strings,
+          refreshPlayerAfterInventoryUpdate
+        });
       });
-    });
+    } finally {
+      // Always restart FarmState timer after harvest
+      const farmState = await import('../../FarmState').then(m => m.default);
+      const currentResources = GlobalGridStateTilesAndResources.getResources();
+      farmState.initializeFarmState(currentResources);
+      farmState.startSeedTimer({ gridId, setResources, masterResources });
+      console.log('▶️ Restarted FarmState timer after bulk harvest');
+    }
   }
 
 
@@ -901,7 +940,7 @@ const FarmHandPanel = ({
 
       <BulkHarvestModal
         isOpen={isHarvestModalOpen}
-        onClose={() => {
+        onClose={async () => {
           setIsHarvestModalOpen(false);
           // Clear busy overlay when modal is closed
           const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
@@ -909,8 +948,16 @@ const FarmHandPanel = ({
           if (workerNPC) {
             clearNPCOverlay(workerNPC.id);
           }
+          
+          // Restart FarmState timer
+          const farmState = await import('../../FarmState').then(m => m.default);
+          const currentResources = GlobalGridStateTilesAndResources.getResources();
+          farmState.initializeFarmState(currentResources);
+          farmState.startSeedTimer({ gridId, setResources, masterResources });
+          console.log('▶️ Restarted FarmState timer after modal close');
         }}
         crops={availableCrops}
+        getFreshCrops={getFreshCropData}
         onExecute={executeSelectiveHarvest}
         showBulkReplant={showBulkReplant}
         hasRequiredSkill={hasRequiredSkill}

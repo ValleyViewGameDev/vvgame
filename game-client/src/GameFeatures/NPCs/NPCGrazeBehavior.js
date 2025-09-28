@@ -7,7 +7,7 @@ import { calculateDistance } from '../../Utils/worldHelpers';
 async function handleFarmAnimalBehavior(gridId) {
     // Helper for updating just this NPC
     const updateThisNPC = async () => {
-        console.log(`[SAVE] NPC ${this.id}: Updating state to '${this.state}' at position (${this.position.x}, ${this.position.y})`);
+        // console.log(`[SAVE] NPC ${this.id}: Updating state to '${this.state}' at position (${this.position.x}, ${this.position.y})`);
         await NPCsInGridManager.updateNPC(gridId, this.id, {
             state: this.state,
             grazeEnd: this.grazeEnd,
@@ -31,7 +31,7 @@ async function handleFarmAnimalBehavior(gridId) {
     if (this.state === 'processing') {
         // Only log periodically to avoid spam
         if (!this.lastProcessingLog || Date.now() - this.lastProcessingLog > 5000) {
-            console.log(`🐮 NPC ${this.id} is in processing state, waiting for collection. GrazeEnd: ${this.grazeEnd}`);
+            //console.log(`🐮 NPC ${this.id} is in processing state, waiting for collection. GrazeEnd: ${this.grazeEnd}`);
             this.lastProcessingLog = Date.now();
         }
         return; // Exit early, don't process any state transitions

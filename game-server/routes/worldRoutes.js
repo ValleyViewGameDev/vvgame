@@ -310,15 +310,40 @@ router.patch('/update-grid/:gridId', (req, res) => {
           } else {
             // ✅ Preserve existing resource & append attributes if needed
             console.log(`🔄 Updating resource at (${x}, ${y}) with: ${type}`);
-            grid.resources[resourceIndex] = {
-              ...grid.resources[resourceIndex], // Preserve everything
-              type,
-              x,
-              y,
-              ...(growEnd !== undefined && { growEnd }),
-              ...(craftEnd !== undefined && { craftEnd }),
-              ...(craftedItem !== undefined && { craftedItem }),
-            };
+            
+            // Load master resources to check resource categories
+            const fs = require('fs');
+            const path = require('path');
+            const masterResources = JSON.parse(fs.readFileSync(path.join(__dirname, '../tuning/resources.json'), 'utf-8'));
+            const newResourceDef = masterResources.find(r => r.type === type);
+            
+            // When converting from farmplot to crop (doober), remove farmplot-specific fields
+            if (newResourceDef && newResourceDef.category === 'doober') {
+              // This is a crop - remove any farmplot-specific fields
+              const { growEnd: oldGrowEnd, ...cleanResource } = grid.resources[resourceIndex];
+              if (oldGrowEnd) {
+                console.log(`🌾 Converting farmplot to crop at (${x}, ${y}) - removing growEnd`);
+              }
+              grid.resources[resourceIndex] = {
+                ...cleanResource,
+                type,
+                x,
+                y,
+                ...(craftEnd !== undefined && { craftEnd }),
+                ...(craftedItem !== undefined && { craftedItem }),
+              };
+            } else {
+              // Not a crop, preserve everything
+              grid.resources[resourceIndex] = {
+                ...grid.resources[resourceIndex], // Preserve everything
+                type,
+                x,
+                y,
+                ...(growEnd !== undefined && { growEnd }),
+                ...(craftEnd !== undefined && { craftEnd }),
+                ...(craftedItem !== undefined && { craftedItem }),
+              };
+            }
             grid.markModified(`resources.${resourceIndex}`);
           }
 
@@ -434,23 +459,52 @@ router.get('/load-grid/:gridId', async (req, res) => {
 
     console.log(`Grid found for ID: ${gridId}`);
 
-    // 2) Enrich resources with masterResources data
-    const enrichedResources = gridDocument.resources.map((resource) => {
+    // 2) Check if we need to clean up any corrupted crops
+    let needsSave = false;
+    const cleanedResources = gridDocument.resources.map((resource) => {
       const resourceTemplate = masterResources.find((res) => res.type === resource.type);
 
       if (!resourceTemplate) {
         console.warn(`Resource template not found for type: ${resource.type}`);
-        return { ...resource }; // Return the resource as-is if no template
+        return resource; // Return the resource as-is if no template
+      }
+
+      // If this is a crop (doober) with growEnd, it needs cleanup
+      if (resourceTemplate.category === 'doober' && resource.growEnd) {
+        console.log(`🧹 Found corrupted crop ${resource.type} at (${resource.x}, ${resource.y}) - removing growEnd permanently`);
+        needsSave = true;
+        // Create a new object without growEnd
+        const { growEnd, ...cleanedResource } = resource.toObject ? resource.toObject() : resource;
+        return cleanedResource;
+      }
+
+      return resource;
+    });
+
+    // If we found corrupted crops, save the cleanup to database
+    if (needsSave) {
+      console.log(`💾 Saving ${cleanedResources.filter((r, i) => r !== gridDocument.resources[i]).length} cleaned crops to database`);
+      gridDocument.resources = cleanedResources;
+      gridDocument.markModified('resources');
+      await gridDocument.save();
+    }
+
+    // 3) Enrich resources with masterResources data for response
+    const enrichedResources = cleanedResources.map((resource) => {
+      const resourceTemplate = masterResources.find((res) => res.type === resource.type);
+
+      if (!resourceTemplate) {
+        return { ...resource };
       }
 
       // Merge attributes from the resource template with instance-specific attributes
       return {
         ...resourceTemplate, // All static attributes
-        ...resource,         // Instance-specific (growEnd, x, y)
+        ...resource,         // Instance-specific (x, y, etc)
       };
     });
 
-    // 3) Construct the enriched grid data structure
+    // 4) Construct the enriched grid data structure
     const enrichedGrid = {
       ...gridDocument.toObject(),
       resources: enrichedResources,        // Replace resources with enriched
@@ -1661,7 +1715,41 @@ router.post('/bulk-harvest', async (req, res) => {
       // Harvest each position
       const harvestedPositions = [];
       for (const pos of positions) {
-        const resourceIndex = grid.resources.findIndex(r => r.x === pos.x && r.y === pos.y && r.type === cropType);
+        // First try to find the crop
+        let resourceIndex = grid.resources.findIndex(r => r.x === pos.x && r.y === pos.y && r.type === cropType);
+        
+        // If not found, check if there's a farmplot that produces this crop (race condition handling)
+        if (resourceIndex === -1) {
+          // Find the farmplot type that produces this crop
+          const farmplot = masterResources.find(r => 
+            r.category === 'farmplot' && r.output === cropType
+          );
+          
+          if (farmplot) {
+            // Look for the farmplot at this position
+            resourceIndex = grid.resources.findIndex(r => 
+              r.x === pos.x && r.y === pos.y && r.type === farmplot.type
+            );
+            
+            if (resourceIndex !== -1) {
+              const resource = grid.resources[resourceIndex];
+              
+              // Check if it's ready to harvest (growEnd in the past)
+              if (resource.growEnd && new Date(resource.growEnd) <= new Date()) {
+                console.log(`🔄 Bulk harvest: Converting ${farmplot.type} to ${cropType} at (${pos.x},${pos.y}) during harvest`);
+                // The farmplot is ready - we can harvest it
+              } else if (!resource.growEnd) {
+                // No growEnd means it might be a crop already (data inconsistency)
+                console.log(`⚠️ Bulk harvest: Found ${farmplot.type} without growEnd at (${pos.x},${pos.y}), treating as harvestable`);
+              } else {
+                // Not ready yet
+                console.log(`⏳ Bulk harvest: ${farmplot.type} at (${pos.x},${pos.y}) not ready (growEnd: ${resource.growEnd})`);
+                resourceIndex = -1; // Reset to skip this one
+              }
+            }
+          }
+        }
+        
         if (resourceIndex !== -1) {
           grid.resources.splice(resourceIndex, 1);
           harvestedPositions.push(pos);

@@ -684,6 +684,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
+    "ingredient1": "Wheat",
+    "ingredient1qty": 1,
     "growtime": 10,
     "crafttime": 10
   },

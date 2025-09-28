@@ -16,6 +16,7 @@ export function BulkHarvestModal({
   isOpen, 
   onClose, 
   crops, 
+  getFreshCrops,
   onExecute,
   showBulkReplant,
   hasRequiredSkill,
@@ -23,6 +24,7 @@ export function BulkHarvestModal({
 }) {
   const [selectedCropTypes, setSelectedCropTypes] = useState({});
   const [selectedReplantTypes, setSelectedReplantTypes] = useState({});
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Initialize selections when modal opens
   React.useEffect(() => {
@@ -81,8 +83,45 @@ export function BulkHarvestModal({
     });
   };
 
-  const handleExecute = () => {
-    onExecute(selectedCropTypes, selectedReplantTypes);
+  const handleExecute = async () => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
+    try {
+      // If getFreshCrops is provided, validate selections against fresh data
+      if (getFreshCrops) {
+        const freshCrops = await getFreshCrops();
+        console.log('🌾 Validating selections against fresh crop data');
+        
+        // Filter selections to only include crops that still exist
+        const validCropTypes = {};
+        const validReplantTypes = {};
+        
+        freshCrops.forEach(crop => {
+          if (selectedCropTypes[crop.type]) {
+            validCropTypes[crop.type] = true;
+          }
+          if (selectedReplantTypes[crop.type]) {
+            validReplantTypes[crop.type] = true;
+          }
+        });
+        
+        // Log any crops that were selected but no longer exist
+        const removedCrops = Object.keys(selectedCropTypes).filter(
+          type => selectedCropTypes[type] && !validCropTypes[type]
+        );
+        
+        if (removedCrops.length > 0) {
+          console.warn(`⚠️ ${removedCrops.length} selected crops no longer exist:`, removedCrops);
+        }
+        
+        onExecute(validCropTypes, validReplantTypes);
+      } else {
+        onExecute(selectedCropTypes, selectedReplantTypes);
+      }
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (!isOpen) return null;
@@ -202,10 +241,17 @@ export function BulkHarvestModal({
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <button 
             onClick={handleExecute}
-            style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px' }}
-            disabled={Object.values(selectedCropTypes).every(selected => !selected)}
+            style={{ 
+              padding: '10px 20px', 
+              backgroundColor: isProcessing ? '#808080' : '#4CAF50', 
+              color: 'white', 
+              border: 'none', 
+              borderRadius: '4px',
+              cursor: isProcessing ? 'not-allowed' : 'pointer'
+            }}
+            disabled={isProcessing || Object.values(selectedCropTypes).every(selected => !selected)}
           >
-            {strings[318] || 'Harvest Selected'}
+            {isProcessing ? 'Processing...' : (strings[318] || 'Harvest Selected')}
           </button>
         </div>
       </div>
@@ -239,6 +285,7 @@ export async function executeBulkHarvest({
   
   // Sync FarmState before proceeding to ensure client/server consistency
   const farmState = await import('../../FarmState').then(m => m.default);
+  
   console.log('🔄 Syncing FarmState before bulk harvest...');
   const syncSuccess = await farmState.forceProcessPendingSeeds({ gridId, setResources, masterResources });
   
@@ -246,17 +293,138 @@ export async function executeBulkHarvest({
     console.error('❌ Failed to sync FarmState, proceeding anyway...');
   }
   
-  // Small delay to ensure any in-flight operations complete
+  // Get fresh resources after initial sync
+  const GlobalGridStateTilesAndResources = await import('../../GridState/GlobalGridStateTilesAndResources').then(m => m.default);
+  let currentResources = GlobalGridStateTilesAndResources.getResources();
+  
+  // Find all farmplots that might still be converting to crops
+  // Also find any "crops" that incorrectly have growEnd (conversion issue)
+  const pendingFarmplots = currentResources.filter(res => {
+    if (res.category === 'farmplot' && res.growEnd) {
+      const now = Date.now();
+      return res.growEnd <= now; // Should have converted but might not be synced yet
+    }
+    // Also check for crops that still have growEnd (shouldn't happen)
+    if (res.growEnd && res.category !== 'farmplot') {
+      // Check if this is actually a crop by seeing if it's an output of a farmplot
+      const isCrop = masterResources.some(r => r.category === 'farmplot' && r.output === res.type);
+      if (isCrop) {
+        console.warn(`⚠️ Found crop ${res.type} at (${res.x},${res.y}) with growEnd=${res.growEnd} - server sync issue`);
+        return true;
+      }
+    }
+    return false;
+  });
+  
+  if (pendingFarmplots.length > 0) {
+    console.log(`🌱 Waiting for ${pendingFarmplots.length} farmplot conversions...`);
+    
+    // Check every 100ms for up to 5 seconds
+    let attempts = 0;
+    const maxAttempts = 50;
+    let lastPendingCount = pendingFarmplots.length;
+    
+    while (attempts < maxAttempts) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      attempts++;
+      
+      // Get fresh resources
+      currentResources = GlobalGridStateTilesAndResources.getResources();
+      
+      // Check if all pending farmplots have been converted
+      const stillPending = pendingFarmplots.filter(farmplot => {
+        const resourceAtPosition = currentResources.find(res => 
+          res.x === farmplot.x && res.y === farmplot.y
+        );
+        
+        // Still pending if:
+        // 1. It's still a farmplot with growEnd
+        // 2. It's a crop with growEnd (shouldn't happen but does)
+        if (!resourceAtPosition) return false;
+        
+        if (resourceAtPosition.category === 'farmplot' && resourceAtPosition.growEnd) {
+          return true; // Still a farmplot waiting to convert
+        }
+        
+        if (resourceAtPosition.growEnd && resourceAtPosition.category !== 'farmplot') {
+          // Check if this is a crop that shouldn't have growEnd
+          const isCrop = masterResources.some(r => 
+            r.category === 'farmplot' && r.output === resourceAtPosition.type
+          );
+          return isCrop; // Still needs cleanup
+        }
+        
+        return false;
+      });
+      
+      if (stillPending.length === 0) {
+        console.log(`✅ All converted (${attempts * 100}ms)`);
+        break;
+      }
+      
+      // Only log if count changed
+      if (stillPending.length < lastPendingCount) {
+        console.log(`🔄 ${stillPending.length} still pending...`);
+        lastPendingCount = stillPending.length;
+      }
+    }
+    
+    if (attempts === maxAttempts) {
+      console.error('⚠️ Conversion timeout, forcing final sync');
+      // One more force sync attempt
+      await farmState.forceProcessPendingSeeds({ gridId, setResources, masterResources });
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
+  }
+  
+  // Final sync to catch any last-minute conversions
+  console.log('🔄 Final sync before harvest...');
+  await farmState.forceProcessPendingSeeds({ gridId, setResources, masterResources });
   await new Promise(resolve => setTimeout(resolve, 100));
+  
+  // Final resource fetch
+  const freshResources = GlobalGridStateTilesAndResources.getResources();
+  console.log(`📊 Fresh resources count after sync: ${freshResources.length}`);
+  
+  // Log any remaining crops with growEnd
+  const cropsWithGrowEnd = freshResources.filter(res => {
+    if (res.growEnd && res.category !== 'farmplot') {
+      const isCrop = masterResources.some(r => r.category === 'farmplot' && r.output === res.type);
+      return isCrop;
+    }
+    return false;
+  });
+  
+  if (cropsWithGrowEnd.length > 0) {
+    console.warn(`⚠️ Still have ${cropsWithGrowEnd.length} crops with growEnd:`, 
+      cropsWithGrowEnd.map(c => `${c.type} at (${c.x},${c.y})`)
+    );
+  }
 
   // First, calculate capacity to check if we can harvest
   const capacityCheck = await calculateBulkHarvestCapacity(
     selectedTypes,
-    resources,
+    freshResources,  // Use the fresh resources we just validated
     masterResources,
     masterSkills,
     currentPlayer
   );
+  
+  console.log(`🌾 Bulk harvest capacity check:`, {
+    selectedTypes,
+    totalCropsFound: capacityCheck.harvestDetails.reduce((sum, data) => sum + data.count, 0),
+    cropBreakdown: capacityCheck.harvestDetails.map(data => 
+      `${data.type}: ${data.count} crops at positions ${data.positions.slice(0, 3).map(p => `(${p.x},${p.y})`).join(', ')}${data.positions.length > 3 ? '...' : ''}`
+    )
+  });
+  
+  // Log all carrot positions that will be harvested
+  const carrotData = capacityCheck.harvestDetails.find(d => d.type === 'Carrot');
+  if (carrotData) {
+    console.log(`🥕 Carrot positions to harvest (${carrotData.positions.length} total):`, 
+      carrotData.positions.map(p => `(${p.x},${p.y})`).sort().join(', ')
+    );
+  }
 
   // Check if we have enough space
   if (!capacityCheck.canHarvest) {
@@ -320,7 +488,11 @@ export async function executeBulkHarvest({
       });
     }
     
-    const updatedResources = resources.filter(res => 
+    console.log(`🌾 Server reported harvested positions (${harvestedPositions.size} total):`, 
+      Array.from(harvestedPositions).sort().join(', ')
+    );
+    
+    const updatedResources = freshResources.filter(res => 
       !harvestedPositions.has(`${res.x},${res.y}`)
     );
     
@@ -441,10 +613,16 @@ export function prepareBulkHarvestData(resources, masterResources) {
   // Group crops by type
   const cropCounts = {};
   
-  
   const readyCrops = resources.filter(res => {
-    // Simply check if this resource is a crop
-    return isACrop(res.type, masterResources);
+    // Check if this resource is a crop
+    const isCrop = isACrop(res.type, masterResources);
+    
+    // Log a warning if we find a crop with growEnd (shouldn't happen but does)
+    if (isCrop && res.growEnd) {
+      console.warn(`⚠️ Found crop ${res.type} at (${res.x},${res.y}) with growEnd=${res.growEnd} - will still harvest`);
+    }
+    
+    return isCrop;
   });
 
   readyCrops.forEach((crop) => {

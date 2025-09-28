@@ -42,7 +42,7 @@ async function handleQuestGiverBehavior(gridId) {
           }
 
           case 'roam': {
-            console.log(`NPC ${this.id} is roaming.`);
+            //console.log(`NPC ${this.id} is roaming.`);
             const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
                 calculateDistance(pc.position, this.position) <= this.range
             );

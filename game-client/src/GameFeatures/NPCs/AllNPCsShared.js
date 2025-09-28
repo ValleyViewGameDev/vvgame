@@ -131,7 +131,7 @@ async handleIdleState(tiles, resources, npcs, idleDuration, onTransition = () =>
     if (validDirections.length > 0) {
       const randomDirection = validDirections[Math.floor(Math.random() * validDirections.length)];
       const moved = await this.moveOneTile(randomDirection, tiles, resources, npcs);
-      if (moved) console.log(`🚶 NPC ${this.id} moved in idle to (${this.position.x}, ${this.position.y})`);
+      // if (moved) console.log(`🚶 NPC ${this.id} moved in idle to (${this.position.x}, ${this.position.y})`);
     }
     onTransition(); // callback to re-evaluate state
     return true; // idle completed
@@ -174,7 +174,7 @@ async handleRoamState(tiles, resources, npcs, onTransition = () => {}) {  // Ini
     this.roamSteps++;
   } else {
     this.currentDirection = null;
-    console.warn(`🐄 NPC ${this.id} found no valid roam directions this step.`);
+    // console.warn(`🐄 NPC ${this.id} found no valid roam directions this step.`);
   }
 
   // Check if the NPC has completed the roam range
@@ -380,7 +380,7 @@ isValidTile(x, y, tiles, resources, npcs) {
   // Check if another NPC is occupying the tile
   const npcInTile = npcs.some(npc => Math.floor(npc.position.x) === x && Math.floor(npc.position.y) === y);
   if (npcInTile) {
-    console.warn(`Tile (${x}, ${y}) is already occupied by another NPC.`);
+    //console.warn(`Tile (${x}, ${y}) is already occupied by another NPC.`);
     return false;
   }
 
