@@ -4,7 +4,7 @@
       "range": 3,
       "baseHp": 1000,
       "baseMaxhp": 1000,
-      "baseAttackrange": 4,
+      "baseAttackrange": 1,
       "baseArmorclass": 10,
       "baseAttackbonus": 10,
       "baseDamage": 15,

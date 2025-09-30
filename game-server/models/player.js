@@ -122,6 +122,8 @@ const playerSchema = new mongoose.Schema({
     toggleVFX: { type: Boolean, default: true },
     hasDied: { type: Boolean, default: false },
     rangeOn: { type: Boolean, default: true },
+    equippedWeapon: { type: String, default: null },
+    equippedArmor: { type: String, default: null },
   },
 
   relocations: { type: Number },
