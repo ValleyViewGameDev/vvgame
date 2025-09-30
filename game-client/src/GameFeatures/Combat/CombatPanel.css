@@ -2,18 +2,80 @@
 .combat-stats h4,
 .combat-powers p {
   margin: 4px 0;
-  font-size: 12px;
+  font-size: 13px;
+}
+
+.combat-stats {
+  margin-bottom: 0.8rem;
+}
+
+.combat-equip {
+  margin-top: 0.5rem;
 }
 
 .combat-powers {
   margin-top: 1rem;
 }
 
-.combat-stats {
-  margin-bottom: 1rem;
-}
-
 .blue-text {
   color: #3399ff;
   font-weight: bold;
+}
+
+/* Equipment item container */
+.equipment-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+/* Equipment checkbox styling */
+.equipment-checkbox {
+  margin-right: 8px;
+  margin-top: 2px;
+}
+
+.equipment-checkbox:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.equipment-checkbox:disabled:checked {
+  opacity: 1;
+  background-color: #2c5aa0;
+  border-color: #2c5aa0;
+}
+
+/* Equipment content (name + stats) */
+.equipment-content {
+  color: #3399ff;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Individual stat lines */
+.equipment-stat {
+  font-size: 12px;
+  margin-left: 5px;
+}
+
+/* Magic enhancement container */
+.magic-enhancement-item {
+  margin-bottom: 8px;
+}
+
+/* Magic enhancement content styling - more specific to override inherited styles */
+.magic-enhancement-item .equipment-content {
+  font-size: 14px;
+}
+
+.magic-enhancement-item .equipment-stat {
+  font-size: 12px;
+}
+
+/* No effects styling */
+.no-combat-effects {
+  font-size: 12px;
+  margin-left: 8px;
+  font-style: italic;
 }

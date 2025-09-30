@@ -15,6 +15,104 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
   const { updateStatus } = useContext(StatusBarContext);
   const [fetchTrigger, setFetchTrigger] = useState(0);
   const [playerStats, setPlayerStats] = useState({});
+  
+  // Equipment state
+  const getEquippedWeapon = () => currentPlayer.settings?.equippedWeapon || null;
+  const getEquippedArmor = () => currentPlayer.settings?.equippedArmor || null;
+  
+  // Helper functions to categorize powers
+  const isWeapon = (resource) => resource.passable === true && typeof resource.damage === 'number' && resource.damage > 0;
+  const isArmor = (resource) => resource.passable === true && typeof resource.armorclass === 'number' && resource.armorclass > 0;
+  const isMagicEnhancement = (resource) => !isWeapon(resource) && !isArmor(resource);
+  
+  // Check if player is in a valid location for equipment changes
+  const canChangeEquipment = () => {
+    const gridType = currentPlayer.location.gtype;
+    return gridType === 'homestead' || gridType === 'town';
+  };
+
+  // Equipment change handlers
+  const handleEquipWeapon = async (weaponType) => {
+    if (!canChangeEquipment()) {
+      updateStatus(strings[520] || 'Cannot change equipment in this location');
+      return;
+    }
+
+    try {
+      const updatedSettings = {
+        ...currentPlayer.settings,
+        equippedWeapon: weaponType
+      };
+      
+      await axios.post(`${API_BASE}/api/update-profile`, {
+        playerId: currentPlayer.playerId,
+        updates: { settings: updatedSettings }
+      });
+      
+      // Update player state first
+      const updatedPlayer = {
+        ...currentPlayer,
+        settings: updatedSettings
+      };
+      setCurrentPlayer(updatedPlayer);
+      
+      // Wait a moment for state to settle, then refresh with updated player data
+      setTimeout(() => {
+        refreshCombatStatsWithPlayer(updatedPlayer);
+        // Also force immediate update of displayed stats
+        const stats = playersInGridManager.getAllPCs(currentPlayer.location.g)?.[currentPlayer._id];
+        if (stats) {
+          setPlayerStats(stats);
+        }
+      }, 100);
+      
+      updateStatus(weaponType ? `Equipped ${weaponType}` : 'Unequipped weapon');
+    } catch (error) {
+      console.error('Error equipping weapon:', error);
+      updateStatus('Failed to equip weapon');
+    }
+  };
+  
+  const handleEquipArmor = async (armorType) => {
+    if (!canChangeEquipment()) {
+      updateStatus(strings[520] || 'Cannot change equipment in this location');
+      return;
+    }
+
+    try {
+      const updatedSettings = {
+        ...currentPlayer.settings,
+        equippedArmor: armorType
+      };
+      
+      await axios.post(`${API_BASE}/api/update-profile`, {
+        playerId: currentPlayer.playerId,
+        updates: { settings: updatedSettings }
+      });
+      
+      // Update player state first
+      const updatedPlayer = {
+        ...currentPlayer,
+        settings: updatedSettings
+      };
+      setCurrentPlayer(updatedPlayer);
+      
+      // Wait a moment for state to settle, then refresh with updated player data
+      setTimeout(() => {
+        refreshCombatStatsWithPlayer(updatedPlayer);
+        // Also force immediate update of displayed stats
+        const stats = playersInGridManager.getAllPCs(currentPlayer.location.g)?.[currentPlayer._id];
+        if (stats) {
+          setPlayerStats(stats);
+        }
+      }, 100);
+      
+      updateStatus(armorType ? `Equipped ${armorType}` : 'Unequipped armor');
+    } catch (error) {
+      console.error('Error equipping armor:', error);
+      updateStatus('Failed to equip armor');
+    }
+  };
 
 
   useEffect(() => {
@@ -60,29 +158,52 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
 
 
 
+  // Refresh function that uses current player data (for button)
   const handleRefreshCombatStats = () => {
-    const gridId = currentPlayer.location.g;
-    const playerId = currentPlayer._id;
+    refreshCombatStatsWithPlayer(currentPlayer);
+  };
+
+  // Core refresh function that accepts player data parameter (to avoid race conditions)
+  const refreshCombatStatsWithPlayer = (playerData) => {
+    const gridId = playerData.location.g;
+    const playerId = playerData._id;
 
     const baseStats = {
-      hp: currentPlayer.baseHp || 0,  // Add hp calculation
-      maxhp: currentPlayer.baseMaxhp || 0,
-      damage: currentPlayer.baseDamage || 0,
-      armorclass: currentPlayer.baseArmorclass || 0,
-      attackbonus: currentPlayer.baseAttackbonus || 0,
-      attackrange: currentPlayer.baseAttackrange || 0,
-      speed: currentPlayer.baseSpeed || 0,
+      hp: playerData.baseHp || 0,  // Add hp calculation
+      maxhp: playerData.baseMaxhp || 0,
+      damage: playerData.baseDamage || 0,
+      armorclass: playerData.baseArmorclass || 0,
+      attackbonus: playerData.baseAttackbonus || 0,
+      attackrange: playerData.baseAttackrange || 0,
+      speed: playerData.baseSpeed || 0,
     };
 
-    const powers = currentPlayer.powers || [];
+    const powers = playerData.powers || [];
     const powerBonuses = {
       hp: 0, maxhp: 0, damage: 0, armorclass: 0, attackbonus: 0, attackrange: 0, speed: 0,
     };
 
+    const equippedWeapon = playerData.settings?.equippedWeapon || null;
+    const equippedArmor = playerData.settings?.equippedArmor || null;
+
     powers.forEach(power => {
       const res = masterResources.find(r => r.type === power.type);
-      if (res && res.output && powerBonuses.hasOwnProperty(res.output)) {
-        powerBonuses[res.output] += (power.quantity || 0) * (res.qtycollected || 1);
+      if (res && res.category === 'power') {
+        const powerQty = power.quantity || 0;
+        
+        // Only count equipped weapons and armor, or all magic enhancements
+        const shouldCount = isMagicEnhancement(res) || 
+                           (isWeapon(res) && power.type === equippedWeapon) ||
+                           (isArmor(res) && power.type === equippedArmor);
+        
+        if (shouldCount) {
+          // Check for multiple combat attributes on the power
+          Object.keys(powerBonuses).forEach(stat => {
+            if (typeof res[stat] === 'number') {
+              powerBonuses[stat] += powerQty * res[stat];
+            }
+          });
+        }
       }
     });
 
@@ -100,11 +221,11 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
     }
 
     finalStats.playerId = playerId;
-    finalStats.username = currentPlayer.username;
-    finalStats.position = currentPlayer.position || {};
-    finalStats.icon = currentPlayer.icon || "😀";
-    finalStats.iscamping = currentPlayer.iscamping || false;
-    finalStats.isinboat = currentPlayer.isinboat || false;
+    finalStats.username = playerData.username;
+    finalStats.position = playerData.position || {};
+    finalStats.icon = playerData.icon || "😀";
+    finalStats.iscamping = playerData.iscamping || false;
+    finalStats.isinboat = playerData.isinboat || false;
     finalStats.lastUpdated = new Date().toISOString();
 
     const pc = getPlayerStats();
@@ -113,7 +234,6 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
       ? pcPosition : { x: 0, y: 0 }; // Fallback
       
     playersInGridManager.updatePC(gridId, playerId, finalStats);
-    updateStatus("✅ Combat stats refreshed from base stats + powers.");
   };
 
   return (
@@ -124,74 +244,185 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
         ) : (
           <>
             <div className="combat-stats">
-              <h3>Your Stats:</h3>
-              <br />
-              <h3>❤️‍🩹 Health: <span className="stat-total">{hp.total}</span></h3>
-              <br />
-              <h4>
-                ❤️‍🩹 Max Health:<br></br> <span className="stat-total blue-text">{maxhp.modifier !== 0 ? maxhp.total : maxhp.base}</span>
-                {"  ("} {maxhp.base} + <span className="stat-total blue-text">{maxhp.modifier}</span> {")"}
-               
-              </h4>
-              <h4>
-                🛡️ Armor Class: <br></br><span className="stat-total blue-text">{armorclass.modifier !== 0 ? armorclass.total : armorclass.base}</span>
-                {"  ("} {armorclass.base} + <span className="stat-total blue-text">{armorclass.modifier}</span> {")"}
-              </h4>
-              <br />
-              <h4>
-                ⚔️ Attack Bonus: <br></br><span className="stat-total blue-text">{attackbonus.modifier !== 0 ? attackbonus.total : attackbonus.base}</span>
-                {"  ("} {attackbonus.base} + <span className="stat-total blue-text">{attackbonus.modifier}</span> {")"}
-              </h4>
-              <h4>
-                ⚔️ Damage: <br></br><span className="stat-total blue-text">{damage.modifier !== 0 ? damage.total : damage.base}</span>
-                {"  ("} {damage.base} + <span className="stat-total blue-text">{damage.modifier}</span> {")"}
-              </h4>
-              <h4>
-                🔭 Attack Range: <br></br><span className="stat-total blue-text">{attackrange.modifier !== 0 ? attackrange.total : attackrange.base}</span>
-                {"  ("} {attackrange.base} + <span className="stat-total blue-text">{attackrange.modifier}</span> {")"}              
-              </h4>
-              <h4>
-                🎯 Speed: <br></br><span className="stat-total blue-text">{speed.modifier !== 0 ? speed.total : speed.base}</span>
-                {"  ("} {speed.base} + <span className="stat-total blue-text">{speed.modifier}</span> {")"}
-              </h4>
-              <br></br>
-
-              <h4>⛺️ Is Camping: {currentPlayer.iscamping ? "Yes" : "No"}</h4>
-              <h4>🛶 In Boat: {currentPlayer.isinboat ? "Yes" : "No"}</h4>
+              <h3>{strings[10112]} <span className="stat-total">{hp.total}</span></h3><br/>
+              <h4>{strings[550]}: <span className="stat-total blue-text">{maxhp.modifier !== 0 ? maxhp.total : maxhp.base}</span><br></br>
+                {"  ("} {maxhp.base} + <span className="stat-total blue-text">{maxhp.modifier}</span> {")"} </h4>
+              <h4>{strings[551]}: <span className="stat-total blue-text">{armorclass.modifier !== 0 ? armorclass.total : armorclass.base}</span><br></br>
+                {"  ("} {armorclass.base} + <span className="stat-total blue-text">{armorclass.modifier}</span> {")"}</h4>
+              <h4>{strings[552]}: <span className="stat-total blue-text">{attackbonus.modifier !== 0 ? attackbonus.total : attackbonus.base}</span><br></br>
+                {"  ("} {attackbonus.base} + <span className="stat-total blue-text">{attackbonus.modifier}</span> {")"}</h4>
+              <h4>{strings[553]}: <span className="stat-total blue-text">{damage.modifier !== 0 ? damage.total : damage.base}</span><br></br>
+                {"  ("} {damage.base} + <span className="stat-total blue-text">{damage.modifier}</span> {")"}</h4>
+              <h4>{strings[555]}: <span className="stat-total blue-text">{attackrange.modifier !== 0 ? attackrange.total : attackrange.base}</span><br></br>
+                {"  ("} {attackrange.base} + <span className="stat-total blue-text">{attackrange.modifier}</span> {")"} </h4>
+              <h4>{strings[554]}: <span className="stat-total blue-text">{speed.modifier !== 0 ? speed.total : speed.base}</span><br></br>
+                {"  ("} {speed.base} + <span className="stat-total blue-text">{speed.modifier}</span> {")"}</h4>
             </div>
-
+            <button className="resource-button" onClick={handleRefreshCombatStats}>🔄 Fix Combat Stats</button>
             <br></br>
 
-            <div className="combat-powers">
-              <h3>Weapons & Abilities:</h3>
+            <div className="combat-equip">
+              <h3>{strings[522]}</h3>
               <br></br>
-              {currentPlayer.powers?.length ? (
-                currentPlayer.powers.map((power, index) => {
-                  const resource = masterResources.find(r => r.type === power.type);
-                  if (!resource) return null;
-
-                  const value = (resource.qtycollected || 1) * (power.quantity || 0);
-                  const outputLabel = resource.output ? (strings[resource.output] || resource.output) : 'Unknown';
-                  return (
-                    <h4 key={index}>
-                      <span className="stat-total blue-text">
-                      <strong>{resource.type}</strong> <br></br> ({value > 0 ? '+' : ''}{value} for {outputLabel})
-                      </span>
-                    </h4>
-                  );
-                })
+              {currentPlayer.powers?.filter(power => {
+                const resource = masterResources.find(r => r.type === power.type);
+                return resource && isArmor(resource);
+              }).length > 0 ? (
+                currentPlayer.powers
+                  .filter(power => {
+                    const resource = masterResources.find(r => r.type === power.type);
+                    return resource && isArmor(resource);
+                  })
+                  .map((power, index) => {
+                    const resource = masterResources.find(r => r.type === power.type);
+                    const isEquipped = power.type === getEquippedArmor();
+                    const stats = [];
+                    
+                    const combatAttributes = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
+                    combatAttributes.forEach(attr => {
+                      if (typeof resource[attr] === 'number') {
+                        const value = (power.quantity || 0) * resource[attr];
+                        const label = strings[attr] || attr;
+                        stats.push(`${value > 0 ? '+' : ''}${value} ${label}`);
+                      }
+                    });
+                    
+                    return (
+                      <div key={`armor-${index}`} className="equipment-item">
+                        <input
+                          type="checkbox"
+                          checked={isEquipped}
+                          onChange={() => handleEquipArmor(isEquipped ? null : power.type)}
+                          className="equipment-checkbox"
+                          disabled={!canChangeEquipment()}
+                        />
+                        <div className="equipment-content">
+                          <strong>{resource.type}</strong><br/>
+                          {stats.map((stat, statIndex) => (
+                            <div key={statIndex} className="equipment-stat">
+                              {stat}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })
               ) : (
-                <p>No extra weapons or abilities.</p>
+                <p>{strings[523]}</p>
               )}
+              
+              <br></br>
+              <h3>{strings[524]}</h3>
+              <br></br>
+              {currentPlayer.powers?.filter(power => {
+                const resource = masterResources.find(r => r.type === power.type);
+                return resource && isWeapon(resource);
+              }).length > 0 ? (
+                currentPlayer.powers
+                  .filter(power => {
+                    const resource = masterResources.find(r => r.type === power.type);
+                    return resource && isWeapon(resource);
+                  })
+                  .map((power, index) => {
+                    const resource = masterResources.find(r => r.type === power.type);
+                    const isEquipped = power.type === getEquippedWeapon();
+                    const stats = [];
+                    
+                    const combatAttributes = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
+                    combatAttributes.forEach(attr => {
+                      if (typeof resource[attr] === 'number') {
+                        const value = (power.quantity || 0) * resource[attr];
+                        const label = strings[attr] || attr;
+                        stats.push(`${value > 0 ? '+' : ''}${value} ${label}`);
+                      }
+                    });
+                    
+                    return (
+                      <div key={`weapon-${index}`} className="equipment-item">
+                        <input
+                          type="checkbox"
+                          checked={isEquipped}
+                          onChange={() => handleEquipWeapon(isEquipped ? null : power.type)}
+                          className="equipment-checkbox"
+                          disabled={!canChangeEquipment()}
+                        />
+                        <div className="equipment-content">
+                          <strong>{resource.type}</strong><br/>
+                          {stats.map((stat, statIndex) => (
+                            <div key={statIndex} className="equipment-stat">
+                              {stat}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })
+              ) : (
+                <p>{strings[525]}</p>
+              )}
+            </div>
+
+            <div className="combat-powers">
+              <h3>{strings[526]}</h3>
+              <br></br>
+              {currentPlayer.powers?.filter(power => {
+                const resource = masterResources.find(r => r.type === power.type);
+                return resource && isMagicEnhancement(resource);
+              }).length > 0 ? (
+                currentPlayer.powers
+                  .filter(power => {
+                    const resource = masterResources.find(r => r.type === power.type);
+                    return resource && isMagicEnhancement(resource);
+                  })
+                  .map((power, index) => {
+                    const resource = masterResources.find(r => r.type === power.type);
+                    if (!resource) return null;
+
+                    const powerQty = power.quantity || 0;
+                    const combatAttributes = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
+                    
+                    // Collect all combat stats this power provides
+                    const stats = [];
+                    combatAttributes.forEach(attr => {
+                      if (typeof resource[attr] === 'number') {
+                        const value = powerQty * resource[attr];
+                        const label = strings[attr] || attr;
+                        stats.push(`${value > 0 ? '+' : ''}${value} ${label}`);
+                      }
+                    });
+                    
+                    
+                    return (
+                      <div key={`magic-${index}`} className="magic-enhancement-item">
+                        <div className="equipment-content">
+                          <strong>{resource.type}</strong><br />
+                          {stats.length > 0 ? (
+                            stats.map((stat, statIndex) => (
+                              <div key={statIndex} className="equipment-stat">
+                                {stat}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="no-combat-effects">
+                              (No combat effects)
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+              ) : (
+                <p>{strings[527]}</p>
+              )}
+              <br></br>
+              <h3>{strings[528]}</h3>
+              <h4>{strings[556]}: {currentPlayer.iscamping ? strings[558] : strings[559]}</h4>
+              <h4>{strings[557]}: {currentPlayer.isinboat ? strings[558] : strings[559]}</h4>
             </div>
           </>
         )}
       </div>
       <br />
-      <br />
-      <button className="resource-button" onClick={handleRefreshCombatStats}>
-        🔄 Fix Combat Stats
-      </button>
     </Panel>
   );
 };

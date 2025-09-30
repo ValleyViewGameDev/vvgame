@@ -18,13 +18,13 @@ export function formatCollectionResults(operation, results, skillsInfo, replantI
   
   // Format the main collection based on operation type
   const operationLabels = {
-    'harvest': strings[472] || 'Harvest complete',
+    'harvest': strings[469] || 'Harvest complete',
     'craft': strings[480] || 'Crafting complete',
     'animal': strings[469] || 'Animal Collect complete',
     'logging': strings[479] || 'Logging complete'
   };
   
-  const label = operationLabels[operation] || strings[472] || 'Complete';
+  const label = operationLabels[operation] || strings[469] || 'Complete';
   
   // Format collected items
   if (results && Object.keys(results).length > 0) {
@@ -40,7 +40,7 @@ export function formatCollectionResults(operation, results, skillsInfo, replantI
       }
     }).join(', ');
     
-    parts.push(`${label}: ${itemParts}`);
+    parts.push(`${label} ${itemParts}`);
   }
   
   // Add replanting info if provided

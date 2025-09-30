@@ -126,37 +126,36 @@ const ShopStation = ({
         ...prev,
         powers: updatedPowers,
       }));
-      if (recipe.output && typeof recipe.qtycollected === 'number') {
-        if (recipe.output === "range") {
-          // ✅ Range is stored on the player document, not playersInGrid
-          const updatedRange = (currentPlayer.range || 0) + recipe.qtycollected;
-          await axios.post(`${API_BASE}/api/update-profile`, {
-            playerId: currentPlayer.playerId,
-            updates: { range: updatedRange }
+      // Helper functions to categorize powers
+      const isWeapon = (resource) => resource.passable === true && typeof resource.damage === 'number' && resource.damage > 0;
+      const isArmor = (resource) => resource.passable === true && typeof resource.armorclass === 'number' && resource.armorclass > 0;
+      const isMagicEnhancement = (resource) => !isWeapon(resource) && !isArmor(resource);
+      
+      // Only update combat stats for magic enhancements (not weapons/armor)
+      if (isMagicEnhancement(recipe)) {
+        const gridPlayer = playersInGridManager.getAllPCs(gridId)?.[currentPlayer.playerId];
+        if (gridPlayer) {
+          const combatAttributes = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
+          const statUpdates = {};
+          
+          // Check for combat attributes on this power
+          combatAttributes.forEach(attr => {
+            if (typeof recipe[attr] === 'number') {
+              const oldValue = gridPlayer[attr] || 0;
+              const newValue = oldValue + recipe[attr];
+              statUpdates[attr] = newValue;
+              console.log(`🧠 Updated ${attr} for player ${currentPlayer.playerId}: ${oldValue} -> ${newValue}`);
+            }
           });
-
-          // Update local player state and localStorage
-          const updatedPlayer = {
-            ...currentPlayer,
-            range: updatedRange
-          };
-          setCurrentPlayer(updatedPlayer);
-          localStorage.setItem('player', JSON.stringify(updatedPlayer));
-
-          console.log(`🎯 Updated range on player document: ${updatedRange}`);
-        } else {
-          // Other combat stats updated in playersInGrid
-          const gridPlayer = playersInGridManager.getAllPCs(gridId)?.[currentPlayer.playerId];
-          if (gridPlayer) {
-            const oldValue = gridPlayer[recipe.output] || 0;
-            const newValue = oldValue + recipe.qtycollected;
-
-            await playersInGridManager.updatePC(gridId, currentPlayer.playerId, {
-              [recipe.output]: newValue
-            });
-            console.log(`🧠 Updated ${recipe.output} for player ${currentPlayer.playerId}: ${oldValue} -> ${newValue}`);
+          
+          // Update all modified stats at once
+          if (Object.keys(statUpdates).length > 0) {
+            await playersInGridManager.updatePC(gridId, currentPlayer.playerId, statUpdates);
           }
         }
+      } else {
+        // Weapons and armor don't update combat stats until equipped
+        console.log(`${recipe.type} added to inventory - equip in Combat Panel to apply stats`);
       }
     }
     else {
@@ -228,9 +227,25 @@ const ShopStation = ({
             recipes.map((recipe) => {
               const affordable = canAfford(recipe, inventory, backpack, 1);
               const meetsRequirement = hasRequirement(recipe.requires);
-              const outputLabel = recipe.output ? (strings[recipe.output] || recipe.output) : '';
-              const outputSummary = recipe.output && typeof recipe.qtycollected === 'number'
-                ? <span style={{ color: 'blue' }}>{recipe.qtycollected > 0 ? '+' : ''}{recipe.qtycollected} for {outputLabel}</span>                : null;
+              
+              // Handle multiple combat attributes for powers
+              let outputSummary = null;
+              if (recipe.category === 'power') {
+                const combatAttributes = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
+                const effects = [];
+                
+                combatAttributes.forEach(attr => {
+                  if (typeof recipe[attr] === 'number') {
+                    const label = strings[attr] || attr;
+                    effects.push(`${recipe[attr] > 0 ? '+' : ''}${recipe[attr]} ${label}`);
+                  }
+                });
+                
+                
+                if (effects.length > 0) {
+                  outputSummary = <span style={{ color: 'blue' }}>{effects.join(', ')}</span>;
+                }
+              }
 
               // Format costs in UI standard style
               const formattedCosts = [1, 2, 3, 4].map((i) => {
@@ -247,8 +262,27 @@ const ShopStation = ({
 
               const skillColor = meetsRequirement ? 'green' : 'red';
 
+              // Build details string with multiple combat attributes for powers
+              let effectsHtml = '';
+              if (recipe.category === 'power') {
+                const combatAttributes = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
+                const effects = [];
+                
+                combatAttributes.forEach(attr => {
+                  if (typeof recipe[attr] === 'number') {
+                    const label = strings[attr] || attr;
+                    effects.push(`${recipe[attr] > 0 ? '+' : ''}${recipe[attr]} ${label}`);
+                  }
+                });
+                
+                
+                if (effects.length > 0) {
+                  effectsHtml = `<span style="color: blue;">${effects.join(', ')}</span><br>`;
+                }
+              }
+
               const details =
-                `${recipe.output && typeof recipe.qtycollected === 'number' ? `<span style="color: blue;">${recipe.qtycollected > 0 ? '+' : ''}${recipe.qtycollected} for ${strings[recipe.output] || recipe.output}</span><br>` : ''}` +
+                effectsHtml +
                 (recipe.requires ? `<span style="color: ${skillColor};">Requires: ${recipe.requires}</span><br>` : '') +
                 `Costs:<div>${formattedCosts}</div>`;
 

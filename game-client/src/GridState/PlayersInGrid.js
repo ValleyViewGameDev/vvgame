@@ -200,13 +200,39 @@ class GridStatePCManager {
       const now = Date.now();
       const masterResources = await loadMasterResources();
 
-      // Compute modifiers from powers
+      // Compute modifiers from powers - support multiple attributes per power
+      // Only count equipped weapons/armor + all magic enhancements
       const modifiers = {};
+      const equippedWeapon = pcData.settings?.equippedWeapon || null;
+      const equippedArmor = pcData.settings?.equippedArmor || null;
+      
+      // Helper functions to categorize powers
+      const isWeapon = (resource) => resource.passable === true && typeof resource.damage === 'number' && resource.damage > 0;
+      const isArmor = (resource) => resource.passable === true && typeof resource.armorclass === 'number' && resource.armorclass > 0;
+      const isMagicEnhancement = (resource) => !isWeapon(resource) && !isArmor(resource);
+      
       (pcData.powers || []).forEach(power => {
         const resource = masterResources.find(r => r.type === power.type);
-        if (resource?.output && typeof resource.qtycollected === 'number') {
-          const value = (power.quantity || 0) * resource.qtycollected;
-          modifiers[resource.output] = (modifiers[resource.output] || 0) + value;
+        if (resource && resource.category === 'power') {
+          const powerQty = power.quantity || 0;
+          
+          // Only count equipped weapons and armor, or all magic enhancements
+          const shouldCount = isMagicEnhancement(resource) || 
+                             (isWeapon(resource) && power.type === equippedWeapon) ||
+                             (isArmor(resource) && power.type === equippedArmor);
+          
+          if (shouldCount) {
+            // Combat stat attributes to check for
+            const combatAttributes = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
+            
+            combatAttributes.forEach(attr => {
+              if (typeof resource[attr] === 'number') {
+                const value = powerQty * resource[attr];
+                modifiers[attr] = (modifiers[attr] || 0) + value;
+              }
+            });
+            
+          }
         }
       });
 
