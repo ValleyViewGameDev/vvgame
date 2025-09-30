@@ -6237,7 +6237,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "ingredient4": "Book",
-    "ingredient4qty": 6,
+    "ingredient4qty": 20,
     "gemcost": 35,
     "moneyvalue": 542
   },
@@ -6253,7 +6253,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "ingredient4": "Book",
-    "ingredient4qty": 10,
+    "ingredient4qty": 125,
     "gemcost": 60,
     "moneyvalue": 1070
   },
