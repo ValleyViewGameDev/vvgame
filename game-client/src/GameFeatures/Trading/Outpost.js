@@ -106,6 +106,8 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
     // Only allow adding items to empty slots
     if (isEmpty) {
       setSelectedSlotIndex(index);
+      // Reset amounts when opening modal to prevent quantity persistence bug
+      setAmounts({});
     }
   };
 
@@ -122,12 +124,19 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
   };
 
   const handleAddToSlot = async (transactionId, transactionKey, resource) => {
-    const amount = amounts[resource] || 0;
+    let amount = amounts[resource] || 0;
     const resourceInBackpack = backpack.find((item) => item.type === resource);
 
     if (selectedSlotIndex === null || amount <= 0 || !resourceInBackpack || amount > resourceInBackpack.quantity) {
       console.warn('Invalid amount or resource exceeds available quantity.');
       return;
+    }
+    
+    // Get slot configuration and enforce max amount limit
+    const slotConfig = getSlotConfig(selectedSlotIndex);
+    if (amount > slotConfig.maxAmount) {
+      amount = slotConfig.maxAmount;
+      console.log(`Amount adjusted to slot limit: ${amount} (max: ${slotConfig.maxAmount})`);
     }
 
     // Check if selling all of a crop item

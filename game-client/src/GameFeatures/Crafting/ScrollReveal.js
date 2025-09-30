@@ -3,7 +3,6 @@
  * Helper functions for determining random scroll reveal outcomes
  */
 
-import { loadMasterResources } from '../../Utils/TuningManager';
 
 /**
  * Determines the random doober reward from revealing a scroll

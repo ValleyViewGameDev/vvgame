@@ -8468,7 +8468,8 @@
     "Tulip": 8,
     "Mushroom": 50,
     "Feverfew": 30,
-    "Diamond Ring": 1
+    "Diamond Ring": 1,
+    "Scroll": 1
   },
   "enemiesDistribution": {
     "Ogre": 12

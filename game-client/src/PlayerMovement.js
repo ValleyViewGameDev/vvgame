@@ -275,7 +275,7 @@ export function centerCameraOnPlayer(position, TILE_SIZE) {
     behavior: "smooth",
   });
 
-  console.log(`📷 Camera centered on player at (${position.x}, ${position.y})`);
+  //console.log(`📷 Camera centered on player at (${position.x}, ${position.y})`);
 }
 
 

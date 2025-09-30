@@ -3,10 +3,9 @@ import axios from 'axios';
 import { fetchGridData } from './Utils/GridManagement'; // Utility for fetching grid data
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 
-//import { syncPlayerAndGridState } from './Utils/playerManagement';
-
 /**
- * Main App Initialization (Runs on Refresh or Login)
+ * Grid Initialization (Runs on Refresh or Login)
+ * This is for TILES and RESOURCES (not players)
  */
 export const initializeGrid = async (
   TILE_SIZE,
