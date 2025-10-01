@@ -30,11 +30,9 @@
 .scroll-reveal-animation {
   text-align: center;
   padding: 40px 20px;
-  background: linear-gradient(135deg, #2c3e50, #34495e);
+  background-color: rgb(255, 251, 179);
   border-radius: 20px;
-  margin: 20px 0;
-  border: 4px solid #f39c12;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  margin: 10px 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -51,17 +49,16 @@
 /* Revealing text styling */
 .scroll-revealing-text {
   font-size: 20px;
-  color: #ecf0f1;
+  color: #7b6900;
   font-weight: bold;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  font-style: italic;
   margin-bottom: 8px;
 }
 
 /* Countdown text styling */
 .scroll-countdown-text {
   font-size: 16px;
-  color: #bdc3c7;
-  font-style: italic;
+  color: #7b6900;
 }
 
 /* Dramatic collect interface */
