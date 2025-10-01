@@ -26,6 +26,7 @@ import { incrementFTUEStep } from '../FTUE/FTUE';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { getRandomScrollReveal, getRevealDisplayString, canAffordReveal } from './ScrollReveal';
 import { gainSkillOrPower } from '../../Utils/SkillPowerManagement';
+import { showNotification } from '../../UI/Notifications/Notifications';
 
 const ScrollStation = ({
   onClose,
@@ -277,7 +278,7 @@ const ScrollStation = ({
 
   const skillMessage = getSkillBonusMessage();
 
-  // Handle scroll reveal
+
   // Handle reveal scroll - spend scroll and start crafting random item
   const handleRevealScroll = async (transactionId, transactionKey) => {
     
@@ -365,8 +366,7 @@ const ScrollStation = ({
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
         // Update status
-        FloatingTextManager.addFloatingText(strings[822] || 'Scroll consumed!', currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-        updateStatus(`${strings[822] || 'Revealing'}: ${rewardDisplay}`);
+        FloatingTextManager.addFloatingText(strings[829], currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
 
         // Track quest progress for scroll spending
         await trackQuestProgress(currentPlayer, 'Spend', 'Scroll', 1, setCurrentPlayer);
@@ -374,7 +374,7 @@ const ScrollStation = ({
       }
     } catch (error) {
       console.error('Error in scroll reveal process:', error);
-      updateStatus(strings[821] || 'Failed to reveal scroll');
+      updateStatus(strings[830]);
     }
   };
 
@@ -452,6 +452,44 @@ const ScrollStation = ({
             const categoryEmoji = revealedResource.category === 'skill' ? '💪' : 
                                 revealedResource.category === 'power' ? '⚡' : '🔧';
             FloatingTextManager.addFloatingText(`${categoryEmoji} ${displayName}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+            
+            // Handle combat stats updates for powers (mimic ShopStation logic)
+            if (revealedResource.category === 'power') {
+              // Helper functions to categorize powers
+              const isWeapon = (resource) => resource.passable === true && typeof resource.damage === 'number' && resource.damage > 0;
+              const isArmor = (resource) => resource.passable === true && typeof resource.armorclass === 'number' && resource.armorclass > 0;
+              const isMagicEnhancement = (resource) => !isWeapon(resource) && !isArmor(resource);
+              
+              if (isMagicEnhancement(revealedResource)) {
+                // Update combat stats for magic enhancements
+                const gridPlayer = playersInGridManager.getAllPCs(gridId)?.[currentPlayer._id];
+                if (gridPlayer) {
+                  const combatAttributes = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
+                  const statUpdates = {};
+                  
+                  // Check for combat attributes on this power
+                  combatAttributes.forEach(attr => {
+                    if (typeof revealedResource[attr] === 'number') {
+                      const oldValue = gridPlayer[attr] || 0;
+                      const newValue = oldValue + revealedResource[attr];
+                      statUpdates[attr] = newValue;
+                      console.log(`🧠 Updated ${attr} for player ${currentPlayer._id}: ${oldValue} -> ${newValue}`);
+                    }
+                  });
+                  
+                  // Update all modified stats at once
+                  if (Object.keys(statUpdates).length > 0) {
+                    await playersInGridManager.updatePC(gridId, currentPlayer._id, statUpdates);
+                  }
+                }
+              } else {
+                // Weapons and armor require equipping - send notification
+                showNotification('Message', {
+                  title: strings[7001] || 'Tip',
+                  message: strings[7017] || 'Equip in Combat Panel to use'
+                });
+              }
+            }
           }
         } else {
           // Handle regular doobers - add to inventory
@@ -527,12 +565,12 @@ const ScrollStation = ({
       <div className="standard-panel">
         {/* Scroll count display */}
         <div style={{
-          marginBottom: '15px',
           padding: '10px',
           textAlign: 'center',
-          fontSize: '14px'
-        }}>
-          {strings[825]}: {scrollCount} 📜 {scrollCount > 1 ? strings[826] : strings[827]}
+          fontSize: '16px',
+          fontWeight: 'bold',
+         }}>
+          {strings[825]}: <br></br>{scrollCount} 📜 {scrollCount > 1 ? strings[826] : strings[827]}
         </div>
 
         {skillMessage && (
@@ -556,13 +594,13 @@ const ScrollStation = ({
             className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''}`}
             details={
               isCrafting 
-                ? `${strings[441] || 'Crafting'}: ${formatCountdown(Date.now() + craftingCountdown * 1000, Date.now())}`
+                ? `${strings[441]}: ${formatCountdown(Date.now() + craftingCountdown * 1000, Date.now())}`
                 : strings[457] || 'Ready to collect!'
             }
             info={
               <div className="info-content">
                 <div>{isCrafting ? (strings[834] || 'The scroll is revealing your reward...') : (strings[831] || 'Your revealed item is ready to collect!')}</div>
-                <div>{`${strings[833] || 'Quantity'}: ${revealedItemQty}`}</div>
+                <div>{`${strings[185]}: ${revealedItemQty}`}</div>
               </div>
             }
             disabled={!isReadyToCollect}
@@ -574,15 +612,9 @@ const ScrollStation = ({
           // Show reveal scroll button when not crafting and not collecting
           <ResourceButton
             symbol={'📜'}
-            name={strings[824] || 'Reveal Scroll'}
+            name={strings[831]}
             className="resource-button"
-            details={`${strings[461] || 'Cost'}: 1x 📜 ${strings[827] || 'Scroll'}`}
-            info={
-              <div className="info-content">
-                <div>{strings[828] || 'Reveal a scroll to discover random rewards!'}</div>
-                <div>{strings[829] || 'Possible rewards include resources and materials.'}</div>
-              </div>
-            }
+            details={`${strings[461]} 1x 📜 ${strings[827]}`}
             disabled={false}
             isTransactionMode={true}
             transactionKey={`scroll-reveal-${currentStationPosition.x}-${currentStationPosition.y}`}
@@ -593,7 +625,7 @@ const ScrollStation = ({
         {/* Show message when no scrolls */}
         {scrollCount === 0 && !craftedItem && (
           <p style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
-            {strings[830] || 'You need scrolls to use the Ancient Temple. Find scrolls by exploring the world!'}
+            {strings[832]}
           </p>
         )}
 

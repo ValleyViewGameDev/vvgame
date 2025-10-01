@@ -3,6 +3,28 @@
  * Helper functions for determining random scroll reveal outcomes
  */
 
+/**
+ * Convert rarity string to numeric chance value for weighted selection
+ * @param {string} rarity - Rarity tier: 'common', 'uncommon', 'rare', 'epic', 'legendary'
+ * @returns {number} Chance weight (higher = more common)
+ */
+export function getRarityChance(rarity) {
+  // Handle backward compatibility with old numeric values
+  if (typeof rarity === 'number') {
+    return rarity;
+  }
+  
+  // Handle new string-based rarity system
+  const rarityTable = {
+    'common': 100,     // Very common items
+    'uncommon': 50,    // Somewhat common
+    'rare': 20,        // Rare items
+    'epic': 5,         // Very rare items
+    'legendary': 1     // Extremely rare items
+  };
+  
+  return rarityTable[rarity] || rarityTable['common']; // Default to common if unknown rarity
+}
 
 /**
  * Determines the random doober reward from revealing a scroll
@@ -12,13 +34,8 @@
  * @returns {Object} { type: string, quantity: number }
  */
 export function getRandomScrollReveal(masterResources, playerStats = null, rollCount = 3) {
-  // Filter resources that can be obtained from scrolls
-  const scrollableItems = masterResources.filter(item => {
-    const chance = item.scrollchance;
-    return chance && chance > 0 && 
-           (item.category === 'doober' || item.category === 'skill' || 
-            item.category === 'power' || item.category === 'upgrade');
-  });
+  // Filter resources that can be obtained from scrolls - any item with scrollchance defined
+  const scrollableItems = masterResources.filter(item => item.scrollchance);
 
   if (scrollableItems.length === 0) {
     console.warn('No scrollable items found in masterResources, using fallback');
@@ -29,11 +46,14 @@ export function getRandomScrollReveal(masterResources, playerStats = null, rollC
   
   // Make multiple internal rolls for variety
   for (let i = 0; i < rollCount; i++) {
-    // Add variance to each item's chance (±30% randomness)
-    const variedPool = scrollableItems.map(item => ({
-      ...item,
-      currentChance: item.scrollchance * (0.7 + Math.random() * 0.6)
-    }));
+    // Convert rarity strings to numeric chances and add variance (±30% randomness)
+    const variedPool = scrollableItems.map(item => {
+      const baseChance = getRarityChance(item.scrollchance);
+      return {
+        ...item,
+        currentChance: baseChance * (0.7 + Math.random() * 0.6)
+      };
+    });
     
     // Calculate total weight with varied chances
     const totalWeight = variedPool.reduce((sum, item) => sum + item.currentChance, 0);
@@ -57,14 +77,14 @@ export function getRandomScrollReveal(masterResources, playerStats = null, rollC
     results.push(scrollableItems[0]);
   }
   
-  // Select the rarest item found (lowest scrollchance = rarer)
-  results.sort((a, b) => a.scrollchance - b.scrollchance);
+  // Select the rarest item found (lowest numeric chance = rarer)
+  results.sort((a, b) => getRarityChance(a.scrollchance) - getRarityChance(b.scrollchance));
   const selectedItem = results[0];
   
   // Use the item's defined scrollqty, or default to 1
   const quantity = selectedItem.scrollqty || 1;
 
-  console.log(`🎲 Scroll reveal: ${selectedItem.type} x${quantity} (chance: ${selectedItem.scrollchance})`);
+  console.log(`🎲 Scroll reveal: ${selectedItem.type} x${quantity} (rarity: ${selectedItem.scrollchance})`);
 
   return {
     type: selectedItem.type,

@@ -209,7 +209,6 @@
     "454": "❌ Failed to hire worker.",
     "455": " has arrived!",
     "456": "No more workers available.",
-    "457": "Ready!",
     "458": "Time: ",
     "459": "Instant",
     "460": "Requires: ",
@@ -1194,7 +1193,14 @@
     "1136": "🛕 Ancient Temple",
     "7017": "You have acquired an equippable item. Visit the ⚔️ Combat panel to equip it.",
     
-    "828": "You already have this."
+        "457": "Ready to collect!",
+
+        
+    "828": "You already have this.",
+    "829": "Revealing scroll...",
+    "830": "Failed to reveal scroll",
+    "831": "Reveal",
+    "832": "You need scrolls to use the Ancient Temple. Find scrolls by exploring the world."
 
 
 
