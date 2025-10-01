@@ -19,6 +19,12 @@
         "reward": 1
     },
     {
+        "name": "Scroll Revealer",
+        "tooltip": "Reveal scrolls at the Ancient Temple.",
+        "type": "Progress",
+        "progress": [ 1, 5, 10, 50, 100, 500, 1000 ],
+        "reward": 1
+    },    {
         "name": "Season Winner",
         "tooltip": "Finish in the top 3 players across the Frontier at the end of a season.",
         "type": "Count",

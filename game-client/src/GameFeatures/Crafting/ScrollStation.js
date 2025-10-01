@@ -21,6 +21,7 @@ import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { getRandomScrollReveal, getRevealDisplayString, canAffordReveal } from './ScrollReveal';
 import { gainSkillOrPower } from '../../Utils/SkillPowerManagement';
 import { showNotification } from '../../UI/Notifications/Notifications';
+import { earnTrophy } from '../Trophies/TrophyUtils';
 import './ScrollStation.css';
 
 const ScrollStation = ({
@@ -37,6 +38,7 @@ const ScrollStation = ({
   gridId,
   masterResources,
   masterSkills,
+  masterTrophies,
   TILE_SIZE,
   isDeveloper,
   currentSeason,
@@ -535,6 +537,11 @@ const ScrollStation = ({
 
         // Refresh player data
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+
+        // Award Scroll Revealer trophy for successful scroll reveals
+        if (currentPlayer?.playerId) {
+          earnTrophy(currentPlayer.playerId, 'Scroll Revealer', 1, currentPlayer, masterTrophies);
+        }
 
         // Clear collecting state after a brief delay
         setTimeout(() => {
