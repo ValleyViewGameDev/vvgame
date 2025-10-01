@@ -84,8 +84,6 @@ export async function gainSkillOrPower({
         await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
       }
 
-      updateStatus(`💪 ${getLocalizedString(item.type, strings)} ${item.category} acquired!`);
-
     } else if (item.category === 'power') {
       // Powers are stored separately
       const currentPowers = currentPlayer.powers || [];
@@ -149,8 +147,6 @@ export async function gainSkillOrPower({
           }
         }
       }
-
-      updateStatus(`⚡ ${getLocalizedString(item.type, strings)} power acquired!`);
 
     } else {
       console.error('Unknown item category:', item.category);

@@ -3512,9 +3512,9 @@
     "ingredient2": "Potion A",
     "ingredient2qty": 1,
     "moneyvalue": 16,
-    "crafttime": 3,
+    "crafttime": 4,
     "totalnestedtime": 360013,
-    "seconds": 3,
+    "seconds": 4,
     "logvalue": 5.556318183340422,
     "TotalRecipies": 0
   },

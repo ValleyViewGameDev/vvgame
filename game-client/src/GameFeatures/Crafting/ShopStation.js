@@ -14,6 +14,7 @@ import TransactionButton from '../../UI/TransactionButton';
 import '../../UI/SharedButtons.css';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { showNotification } from '../../UI/Notifications/Notifications';
+import './ScrollStation.css'; // Import for shared station panel styles
 
 const ShopStation = ({
   onClose,
@@ -223,7 +224,8 @@ const ShopStation = ({
 
   return (
     <Panel onClose={onClose} descriptionKey="1025" title={`${stationEmoji} ${stationType}`} panelName="ShopStation">
-      <div className="standard-panel">
+      <div className="station-panel-container">
+        <div className="station-panel-content">
           {/* ✅ Conditional TENT text for the Store */}
           {stationType === "Store" && (
             <p style={{ fontWeight: "bold", color: "#4CAF50" }}>
@@ -328,11 +330,11 @@ const ShopStation = ({
             })
           ) : <p>{strings[423]}</p>}
 
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
+        </div>
+        
         {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
-          <>
-            <hr />
+          <div className="station-panel-footer">
             <div className="standard-buttons">
               <TransactionButton 
                 className="btn-danger" 
@@ -342,9 +344,8 @@ const ShopStation = ({
                 {strings[490]}
               </TransactionButton>
             </div>
-          </>
+          </div>
         )}
-
       </div>
     </Panel>
   );

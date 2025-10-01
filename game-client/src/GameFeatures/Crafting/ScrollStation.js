@@ -5,28 +5,23 @@ import axios from 'axios';
 import '../../UI/ResourceButton.css'; 
 import ResourceButton from '../../UI/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
-import { getIngredientDetails } from '../../Utils/ResourceHelpers';
-import { canAfford, calculateSkillMultiplier, applySkillMultiplier } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
-import { createCollectEffect } from '../../VFX/VFX';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
-import { formatSingleCollection } from '../../UI/StatusBar/CollectionFormatters';
 import '../../UI/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
-import { handleConstruction } from '../BuildAndBuy';
-import { incrementFTUEStep } from '../FTUE/FTUE';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { getRandomScrollReveal, getRevealDisplayString, canAffordReveal } from './ScrollReveal';
 import { gainSkillOrPower } from '../../Utils/SkillPowerManagement';
 import { showNotification } from '../../UI/Notifications/Notifications';
+import './ScrollStation.css';
 
 const ScrollStation = ({
   onClose,
@@ -202,11 +197,6 @@ const ScrollStation = ({
     
     return () => clearInterval(interval);
   }, []);
-
-
-  const hasRequiredSkill = (requiredSkill) => {
-    return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
-  };
 
 
   const handleSellStation = async (transactionId, transactionKey) => {
@@ -562,8 +552,11 @@ const ScrollStation = ({
 
   return (
     <Panel onClose={onClose} descriptionKey="1036" title={strings[1136] || 'Ancient Temple'} panelName="ScrollStation">
-      <div className="standard-panel">
+      <div className="station-panel-container">
+        <div className="station-panel-content">
+
         {/* Scroll count display */}
+
         <div style={{
           padding: '10px',
           textAlign: 'center',
@@ -572,6 +565,7 @@ const ScrollStation = ({
          }}>
           {strings[825]}: <br></br>{scrollCount} 📜 {scrollCount > 1 ? strings[826] : strings[827]}
         </div>
+
 
         {skillMessage && (
           <div style={{ 
@@ -586,32 +580,40 @@ const ScrollStation = ({
         )}
 
         {/* Show crafting item if active, otherwise show Reveal Scroll button */}
+
         {craftedItem && (isCrafting || isReadyToCollect) ? (
-          // Show the crafting/ready item
-          <ResourceButton
-            symbol={masterResources.find(r => r.type === craftedItem)?.symbol || '📦'}
-            name={`${getLocalizedString(craftedItem, strings)}${revealedItemQty > 1 ? ` (${revealedItemQty})` : ''}`}
-            className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''}`}
-            details={
-              isCrafting 
-                ? `${strings[441]}: ${formatCountdown(Date.now() + craftingCountdown * 1000, Date.now())}`
-                : strings[457] || 'Ready to collect!'
-            }
-            info={
-              <div className="info-content">
-                <div>{isCrafting ? (strings[834] || 'The scroll is revealing your reward...') : (strings[831] || 'Your revealed item is ready to collect!')}</div>
-                <div>{`${strings[185]}: ${revealedItemQty}`}</div>
-              </div>
-            }
-            disabled={!isReadyToCollect}
-            isTransactionMode={isReadyToCollect}
-            transactionKey={isReadyToCollect ? `scroll-collect-${craftedItem}-${currentStationPosition.x}-${currentStationPosition.y}` : undefined}
-            onTransactionAction={isReadyToCollect ? handleCollectReveal : undefined}
-          />
+          // Show animated scroll reveal or dramatic collect interface
+          isCrafting ? (
+            // Animated scroll emoji during crafting
+            <div className="scroll-reveal-animation">
+              <div className="scroll-emoji">📜</div>
+              <div className="scroll-revealing-text">Revealing Scroll...</div>
+              <div className="scroll-countdown-text">{formatCountdown(Date.now() + craftingCountdown * 1000, Date.now())}</div>
+            </div>
+          ) : (
+            // Use standard ResourceButton for collect state
+            (() => {
+              const revealedResource = masterResources.find(r => r.type === craftedItem);
+              const rarity = revealedResource?.scrollchance || 'common';
+              const rarityText = typeof rarity === 'string' ? rarity.toUpperCase() : 'COMMON';
+              
+              return (
+                <ResourceButton
+                  symbol={revealedResource?.symbol || '📦'}
+                  name={`\n${getLocalizedString(craftedItem, strings)}${revealedItemQty > 1 ? ` (${revealedItemQty})` : ''}`}
+                  className={`resource-button scroll-collect-button rarity-${typeof rarity === 'string' ? rarity : 'common'} ${isCollecting ? 'collecting' : 'ready'}`}
+                  details={rarityText} 
+                  disabled={!isReadyToCollect || isCollecting}
+                  isTransactionMode={isReadyToCollect && !isCollecting}
+                  transactionKey={isReadyToCollect ? `scroll-collect-${craftedItem}-${currentStationPosition.x}-${currentStationPosition.y}` : undefined}
+                  onTransactionAction={isReadyToCollect ? handleCollectReveal : undefined}
+                />
+              );
+            })()
+          )
         ) : scrollCount > 0 && !isCollecting ? (
           // Show reveal scroll button when not crafting and not collecting
           <ResourceButton
-            symbol={'📜'}
             name={strings[831]}
             className="resource-button"
             details={`${strings[461]} 1x 📜 ${strings[827]}`}
@@ -629,20 +631,20 @@ const ScrollStation = ({
           </p>
         )}
 
+        </div>
+        
         {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
-          <>
-            <hr />
-              <div className="standard-buttons">
-                <TransactionButton 
-                  className="btn-success" 
-                  onAction={handleSellStation}
-                  transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
-                >
-                  {strings[425]}
-                </TransactionButton>
-              </div>
-
-          </>
+          <div className="station-panel-footer">
+            <div className="standard-buttons">
+              <TransactionButton 
+                className="btn-success" 
+                onAction={handleSellStation}
+                transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
+              >
+                {strings[425]}
+              </TransactionButton>
+            </div>
+          </div>
         )}
       </div>
     </Panel>

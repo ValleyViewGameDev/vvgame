@@ -24,6 +24,7 @@ import TransactionButton from '../../UI/TransactionButton';
 import { handleConstruction } from '../BuildAndBuy';
 import { incrementFTUEStep } from '../FTUE/FTUE';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
+import './ScrollStation.css'; // Import for shared station panel styles
 
 const CraftingStation = ({
   onClose,
@@ -437,18 +438,19 @@ const CraftingStation = ({
 
   return (
     <Panel onClose={onClose} descriptionKey="1009" title={`${stationEmoji} ${getLocalizedString(stationType, strings)}`} panelName="CraftingStation">
-      <div className="standard-panel">
+      <div className="station-panel-container">
         {skillMessage && (
-          <div style={{ 
-            marginBottom: '15px', 
+          <div className="station-panel-header" style={{ 
             padding: '10px', 
             backgroundColor: '#f0f0f0', 
             borderRadius: '5px',
-            fontStyle: 'italic'
+            fontStyle: 'italic',
+            marginBottom: '10px'
           }}>
             {skillMessage}
           </div>
         )}
+        <div className="station-panel-content">
         
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
@@ -528,22 +530,21 @@ const CraftingStation = ({
             })
           ) : <p>{strings[424]}</p>}
 
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
+        </div>
+        
         {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
-          <>
-            <hr />
-              <div className="standard-buttons">
-                <TransactionButton 
-                  className="btn-success" 
-                  onAction={handleSellStation}
-                  transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
-                >
-                  {strings[425]}
-                </TransactionButton>
-              </div>
-
-          </>
+          <div className="station-panel-footer">
+            <div className="standard-buttons">
+              <TransactionButton 
+                className="btn-success" 
+                onAction={handleSellStation}
+                transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
+              >
+                {strings[425]}
+              </TransactionButton>
+            </div>
+          </div>
         )}
       </div>
     </Panel>
