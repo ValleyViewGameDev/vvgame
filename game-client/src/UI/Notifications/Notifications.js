@@ -16,28 +16,21 @@ function Notification({ type, data, onDismiss, onClick }) {
     
     // Add unmount detection
     React.useEffect(() => {
-        console.log(`[Notification] Component mounted for type: ${type}`);
         return () => {
-            console.log(`[Notification] Component unmounting for type: ${type}`);
         };
     }, []);
     
     React.useEffect(() => {
-        console.log(`[Notification] Type: ${type}, Setting up auto-dismiss logic`);
         // Auto-dismiss after 5 seconds (except for 'To Do' and 'Message' notifications)
         if (type !== 'To Do' && type !== 'Message') {
-            console.log(`[Notification] Type ${type} will auto-dismiss in 5 seconds`);
             const timer = setTimeout(() => {
-                console.log(`[Notification] Auto-dismissing ${type} notification`);
                 onDismiss();
             }, 5000);
             
             return () => {
-                console.log(`[Notification] Clearing timer for ${type} notification`);
                 clearTimeout(timer);
             };
         } else {
-            console.log(`[Notification] Type ${type} will NOT auto-dismiss`);
         }
         // Remove onDismiss from dependencies to prevent re-running effect
     }, [type]);

@@ -13,6 +13,7 @@ import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
 import '../../UI/SharedButtons.css';
 import { earnTrophy } from '../Trophies/TrophyUtils';
+import { showNotification } from '../../UI/Notifications/Notifications';
 
 const ShopStation = ({
   onClose,
@@ -156,6 +157,12 @@ const ShopStation = ({
       } else {
         // Weapons and armor don't update combat stats until equipped
         console.log(`${recipe.type} added to inventory - equip in Combat Panel to apply stats`);
+        
+        // Send notification for newly purchased equipment
+        showNotification('Message', {
+          title: strings[7001] || 'Tip',
+          message: strings[7017] || 'Equip in Combat Panel to use'
+        });
       }
     }
     else {
