@@ -415,28 +415,44 @@ const ScrollStation = ({
           }
           FloatingTextManager.addFloatingText(`+${collectedQty} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
         } else if (revealedResource && (revealedResource.category === 'skill' || revealedResource.category === 'power' || revealedResource.category === 'upgrade')) {
-          // Handle skills, powers, and upgrades
-          const success = await gainSkillOrPower({
-            item: revealedResource,
-            currentPlayer,
-            setCurrentPlayer,
-            updateStatus,
-            strings,
-            gridId,
-            quantity: collectedQty
-          });
+          // Check if player already has this skill/power/upgrade
+          const alreadyOwned = revealedResource.category === 'skill' 
+            ? currentPlayer.skills?.some(skill => skill.type === collectedItem)
+            : currentPlayer.powers?.some(power => power.type === collectedItem);
           
-          if (!success) {
-            console.error('❌ Failed to add skill/power to player.');
-            setIsCollecting(false);
-            return;
+          if (alreadyOwned) {
+            // Player already has this item - show special message
+            updateStatus(strings[828] || 'You already have this');
+            
+            // Still create floating text to show what was attempted
+            const displayName = getLocalizedString(collectedItem, strings);
+            const categoryEmoji = revealedResource.category === 'skill' ? '💪' : 
+                                revealedResource.category === 'power' ? '⚡' : '🔧';
+            FloatingTextManager.addFloatingText(`${categoryEmoji} ${displayName} (Already Owned)`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+          } else {
+            // Handle skills, powers, and upgrades
+            const success = await gainSkillOrPower({
+              item: revealedResource,
+              currentPlayer,
+              setCurrentPlayer,
+              updateStatus,
+              strings,
+              gridId,
+              quantity: collectedQty
+            });
+            
+            if (!success) {
+              console.error('❌ Failed to add skill/power to player.');
+              setIsCollecting(false);
+              return;
+            }
+            
+            // Create floating text
+            const displayName = getLocalizedString(collectedItem, strings);
+            const categoryEmoji = revealedResource.category === 'skill' ? '💪' : 
+                                revealedResource.category === 'power' ? '⚡' : '🔧';
+            FloatingTextManager.addFloatingText(`${categoryEmoji} ${displayName}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
           }
-          
-          // Create floating text
-          const displayName = getLocalizedString(collectedItem, strings);
-          const categoryEmoji = revealedResource.category === 'skill' ? '💪' : 
-                              revealedResource.category === 'power' ? '⚡' : '🔧';
-          FloatingTextManager.addFloatingText(`${categoryEmoji} ${displayName}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
         } else {
           // Handle regular doobers - add to inventory
           const gained = await gainIngredients({
@@ -481,8 +497,13 @@ const ScrollStation = ({
         setIsReadyToCollect(false);
         setRevealedItemQty(1);
 
-        // Update status
-        updateStatus(`${strings[823] || 'Collected'}: ${collectedQty}x ${getLocalizedString(collectedItem, strings)}`);
+        // Update status - only if we're not dealing with already owned skills/powers
+        if (!(revealedResource && (revealedResource.category === 'skill' || revealedResource.category === 'power' || revealedResource.category === 'upgrade') && 
+            (revealedResource.category === 'skill' 
+              ? currentPlayer.skills?.some(skill => skill.type === collectedItem)
+              : currentPlayer.powers?.some(power => power.type === collectedItem)))) {
+          updateStatus(`${strings[469] || 'Collected'} ${collectedQty}x ${getLocalizedString(collectedItem, strings)}`);
+        }
 
         // Refresh player data
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
