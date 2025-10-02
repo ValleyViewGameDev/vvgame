@@ -57,13 +57,18 @@ const StatusBar = () => {
   const { messages } = React.useContext(StatusBarContext);
   const [displayMessages, setDisplayMessages] = React.useState([]);
   const [slideOffset, setSlideOffset] = React.useState(0);
+  const [scrollPosition, setScrollPosition] = React.useState(0);
+  const [canScrollRight, setCanScrollRight] = React.useState(false);
   const prevFirstId = React.useRef(null);
   const newMessageRef = React.useRef(null);
+  const messagesContainerRef = React.useRef(null);
+  const viewportRef = React.useRef(null);
 
   React.useEffect(() => {
     if (messages.length === 0) {
       setDisplayMessages([]);
       setSlideOffset(0);
+      setScrollPosition(0);
       return;
     }
 
@@ -72,6 +77,7 @@ const StatusBar = () => {
     // First render or new message
     if (prevFirstId.current === null) {
       // Initial load - also animate the first message
+      setScrollPosition(0); // Reset scroll position
       if (newMessageRef.current) {
         const width = newMessageRef.current.offsetWidth || 200; // fallback width
         setSlideOffset(-width);
@@ -90,7 +96,10 @@ const StatusBar = () => {
         });
       }
     } else if (currentFirstId !== prevFirstId.current) {
-      // New message added - measure its width first
+      // New message added - reset scroll position first
+      setScrollPosition(0); // Reset to left before showing new message
+      
+      // Then measure and animate the new message
       if (newMessageRef.current) {
         const width = newMessageRef.current.offsetWidth;
         // Start with new message off-screen
@@ -110,9 +119,52 @@ const StatusBar = () => {
     prevFirstId.current = currentFirstId;
   }, [messages]);
 
+  // Check if we can scroll right
+  React.useEffect(() => {
+    if (messagesContainerRef.current && viewportRef.current) {
+      const containerWidth = messagesContainerRef.current.scrollWidth;
+      const viewportWidth = viewportRef.current.offsetWidth;
+      const maxScroll = containerWidth - viewportWidth;
+      
+      // Can scroll right if we haven't reached the max scroll position
+      setCanScrollRight(scrollPosition < maxScroll && containerWidth > viewportWidth);
+    }
+  }, [scrollPosition, displayMessages]);
+
+  // Handle scrolling
+  const handleScrollRight = () => {
+    if (messagesContainerRef.current && viewportRef.current) {
+      const containerWidth = messagesContainerRef.current.scrollWidth;
+      const viewportWidth = viewportRef.current.offsetWidth;
+      const maxScroll = containerWidth - viewportWidth;
+      
+      // Scroll right by viewport width or to the end
+      const newPosition = Math.min(scrollPosition + viewportWidth, maxScroll);
+      setScrollPosition(newPosition);
+    }
+  };
+
+  const handleScrollLeft = () => {
+    // Scroll left by viewport width or to the beginning
+    const viewportWidth = viewportRef.current?.offsetWidth || window.innerWidth;
+    const newPosition = Math.max(scrollPosition - viewportWidth, 0);
+    setScrollPosition(newPosition);
+  };
+
   return (
     <div className="status-bar">
-      <div className="status-bar-viewport">
+      {/* Left scroll arrow - only show when scrolled */}
+      {scrollPosition > 0 && (
+        <button
+          className="status-bar-arrow status-bar-arrow-left"
+          onClick={handleScrollLeft}
+          aria-label="Scroll left"
+        >
+          ◀
+        </button>
+      )}
+      
+      <div className="status-bar-viewport" ref={viewportRef}>
         {/* Hidden measuring container */}
         {messages.length > 0 && messages[0].id !== prevFirstId.current && (
           <div style={{ position: 'absolute', visibility: 'hidden', whiteSpace: 'nowrap' }}>
@@ -125,10 +177,12 @@ const StatusBar = () => {
         
         {/* Actual messages container */}
         <div 
+          ref={messagesContainerRef}
           className="status-bar-messages"
           style={{
-            transform: `translateX(${slideOffset}px)`,
-            transition: slideOffset === 0 ? 'transform 0.5s ease-out' : 'none'
+            transform: `translateX(${slideOffset - scrollPosition}px)`,
+            transition: slideOffset === 0 && scrollPosition === 0 ? 'transform 0.5s ease-out' : 
+                       scrollPosition !== 0 ? 'transform 0.3s ease-out' : 'none'
           }}
         >
           {displayMessages.map((msg, index) => (
@@ -143,6 +197,17 @@ const StatusBar = () => {
           ))}
         </div>
       </div>
+      
+      {/* Right scroll arrow - only show when can scroll right */}
+      {canScrollRight && (
+        <button
+          className="status-bar-arrow status-bar-arrow-right"
+          onClick={handleScrollRight}
+          aria-label="Scroll right"
+        >
+          ▶
+        </button>
+      )}
     </div>
   );
 };

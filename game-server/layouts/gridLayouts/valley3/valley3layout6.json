@@ -8468,7 +8468,9 @@
     "Tulip": 8,
     "Mushroom": 50,
     "Feverfew": 26,
-    "Garlic": 8
+    "Garlic": 8,
+    "Scroll": 2
+
   },
   "enemiesDistribution": {
     "Spider Spawner": 6,

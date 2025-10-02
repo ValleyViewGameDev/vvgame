@@ -8468,7 +8468,8 @@
     "Tulip": 7,
     "Mushroom": 20,
     "Feverfew": 16,
-    "Gold": 1
+    "Gold": 1,
+    "Scroll": 1
   },
   "enemiesDistribution": {
     "Bear": 12,

@@ -8468,7 +8468,8 @@
     "Tulip": 4,
     "Mushroom": 80,
     "Feverfew": 22,
-    "Gem": 1
+    "Gem": 1,
+    "Scroll": 1
   },
   "enemiesDistribution": {
     "Zombie": 8,

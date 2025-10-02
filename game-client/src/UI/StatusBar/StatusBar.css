@@ -61,3 +61,36 @@
   font-weight: bold;
   margin: 0 5px;
 }
+
+/* Status bar arrow buttons */
+.status-bar-arrow {
+  height: 24px;
+  width: 30px;
+  background-color: rgb(255, 251, 179);
+  border: none;
+  color: #333;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.status-bar-arrow:hover {
+  background-color: rgb(255, 251, 179);
+}
+
+.status-bar-arrow-right {
+  border-left: 1px solid rgba(150, 146, 70, 0.5);
+  margin-left: auto;
+  margin-right: 4px;
+}
+ 
+.status-bar-arrow-left {
+  border-right: 1px solid rgba(150, 146, 70, 0.5);
+  margin-right: 5px;
+  margin-left: -14px; /* Compensate for status bar padding */
+}
