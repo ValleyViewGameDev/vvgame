@@ -12,7 +12,7 @@
       "inventory": [{ "type": "Money", "quantity": 6000 },{ "type": "Wheat", "quantity": 20 }],
       "backpack": [],
       "skills": [{ "type": "Walking" }],
-      "powers": [],
+      "powers": [{ "type": "Knife" }],
       "warehouseCapacity": 1000,
       "backpackCapacity": 20,
       "accountStatus": "Free",

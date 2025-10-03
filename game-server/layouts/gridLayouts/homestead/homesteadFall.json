@@ -8465,18 +8465,18 @@
     "Oak Tree": 1700,
     "Rocks": 100,
     "Stone": 10,
-    "Tulip": 2,
-    "Apple": 10,
-    "Grapes": 10,
+
     "Money": 10,
-    "Wheat": 5,
-    "Carrot": 5,
-    "Corn": 5,
-    "Sugarcane": 5,
-    "Strawberry": 5,
-    "Lemon": 5,
-    "Garlic": 5,
-    "Olive": 10,
-    "Tomato": 5
+    "Tulip": 2,
+
+    "Wheat": 3,
+    "Carrot": 3,
+    "Corn": 3,
+    "Sugarcane": 3,
+    "Pumpkin": 15,
+    "Lemon": 3,
+    "Grapes": 8,
+    "Garlic": 3,
+    "Olive": 8
   }
 }
