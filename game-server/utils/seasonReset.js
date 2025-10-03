@@ -96,11 +96,22 @@ async function seasonReset(frontierId) {
         if (moneyItem) {
           moneyItem.quantity = Math.floor(moneyItem.quantity * (1 - nerf));
         }
+
+        // Wipe inventory except for Money, Gems, and certain high value quest items
         player.inventory = player.inventory.filter(i =>
           ["Money", "Gem", "Prospero's Orb", "Portrait", "King's Crown", "Golden Key", "Skeleton Key", "Trident"].includes(i.type)
         );
         console.log(`Player ${player.username} inventory wiped, keeping Money, Gems, and certain high value quest items.`) ;
         console.log('Player inventory after wipe:', player.inventory);
+
+        // Wipe backpack except for Money, Gems, and certain high value quest items
+        player.backpack = player.backpack.filter(i =>
+          ["Money", "Gem", "Prospero's Orb", "Portrait", "King's Crown", "Golden Key", "Skeleton Key", "Trident"].includes(i.type)
+        );
+        console.log(`Player ${player.username} backpack wiped, keeping Money, Gems, and certain high value quest items.`) ;
+        console.log('Player backpack after wipe:', player.backpack);
+
+        // Reset netWorth to null 
         player.netWorth = null;
         
         // Reset Gold status to Free
