@@ -371,6 +371,20 @@
     "moneyvalue": 1
   },
   {
+    "type": "Repair",
+    "symbol": "🏠",
+    "layoutkey": "rr",
+    "source": "Abandoned House",
+    "repeatable": false,
+    "qtycollected": 1,
+    "ingredient1": "Money",
+    "ingredient1qty": 200,
+    "ingredient2": "Wood",
+    "ingredient2qty": 10,
+    "moneyvalue": 240,
+    "crafttime": 3
+  },
+  {
     "type": "Farm House",
     "symbol": "🏠",
     "layoutkey": "FH",
@@ -390,20 +404,6 @@
     "ingredient1": "Money",
     "ingredient1qty": 1,
     "moneyvalue": 1
-  },
-  {
-    "type": "Repair",
-    "symbol": "🏠",
-    "layoutkey": "rr",
-    "source": "Abandoned House",
-    "repeatable": false,
-    "qtycollected": 1,
-    "ingredient1": "Money",
-    "ingredient1qty": 200,
-    "ingredient2": "Wood",
-    "ingredient2qty": 10,
-    "moneyvalue": 240,
-    "crafttime": 3
   },
   {
     "type": "Worker Slot",
@@ -452,6 +452,14 @@
     "validonl": true,
     "validonn": true,
     "validono": true
+  },
+  {
+    "type": "Volcano",
+    "symbol": "🌋",
+    "layoutkey": "vo",
+    "category": "editor",
+    "passable": false,
+    "range": 8
   },
   {
     "type": "Mailbox",
@@ -3275,23 +3283,6 @@
     "ingredient1qty": 1
   },
   {
-    "type": "Ancient Temple",
-    "symbol": "🛕",
-    "layoutkey": "At",
-    "category": "crafting",
-    "action": "openUI",
-    "passable": false,
-    "range": 3,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true
-  },
-  {
     "type": "General Store",
     "symbol": "🏪",
     "layoutkey": "sT",
@@ -3426,6 +3417,35 @@
     "crafttime": 0
   },
   {
+    "type": "Animal Stall",
+    "symbol": "🟫",
+    "layoutkey": "AS",
+    "category": "stall",
+    "action": "openUI",
+    "source": "Build",
+    "passable": true,
+    "requires": "Husbandry",
+    "qtycollected": 1,
+    "level": 11,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "minprice": 872,
+    "maxprice": 1246,
+    "ingredient1": "Money",
+    "ingredient1qty": 25,
+    "ingredient2": "Wood",
+    "ingredient2qty": 20,
+    "gemcost": 1,
+    "moneyvalue": 65,
+    "crafttime": 0
+  },
+  {
     "type": "Library",
     "symbol": "🏤",
     "layoutkey": "Li",
@@ -3495,16 +3515,13 @@
     "crafttime": 0
   },
   {
-    "type": "Animal Stall",
-    "symbol": "🟫",
-    "layoutkey": "AS",
-    "category": "stall",
+    "type": "Ancient Temple",
+    "symbol": "🛕",
+    "layoutkey": "At",
+    "category": "crafting",
     "action": "openUI",
-    "source": "Build",
-    "passable": true,
-    "requires": "Husbandry",
-    "qtycollected": 1,
-    "level": 11,
+    "passable": false,
+    "range": 3,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -3512,16 +3529,7 @@
     "validonw": false,
     "validonl": false,
     "validonn": true,
-    "validono": true,
-    "minprice": 872,
-    "maxprice": 1246,
-    "ingredient1": "Money",
-    "ingredient1qty": 25,
-    "ingredient2": "Wood",
-    "ingredient2qty": 20,
-    "gemcost": 1,
-    "moneyvalue": 65,
-    "crafttime": 0
+    "validono": true
   },
   {
     "type": "Loom",
