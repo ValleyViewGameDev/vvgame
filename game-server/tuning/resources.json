@@ -454,6 +454,14 @@
     "validono": true
   },
   {
+    "type": "Big Dead Tree",
+    "symbol": "🪾",
+    "layoutkey": "dt2",
+    "category": "editor",
+    "passable": false,
+    "range": 2
+  },
+  {
     "type": "Volcano",
     "symbol": "🌋",
     "layoutkey": "vo",
@@ -550,6 +558,16 @@
     "validonl": false,
     "validonn": false,
     "validono": true
+  },
+  {
+    "type": "Dead Tree",
+    "symbol": "🪾",
+    "layoutkey": "dt",
+    "category": "source",
+    "action": "convertTo",
+    "output": "Wood",
+    "passable": false,
+    "requires": "Axe"
   },
   {
     "type": "Snowman",
