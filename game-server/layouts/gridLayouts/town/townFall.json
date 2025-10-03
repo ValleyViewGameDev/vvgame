@@ -8464,13 +8464,17 @@
   "resourceDistribution": {
     "Oak Tree": 300,
     "Rosemary": 50,
-    "Corn": 50,
+    "Corn": 30,
     "Grapes": 50,
-    "Wheat": 50,
-    "Clay": 20,
+    "Wheat": 20,
+    "Clay": 30,
     "Mushroom": 10,
     "Pink Flower": 2,
     "Money": 20,
-    "Lemon": 3
+    "Lemon": 3,
+    "Pumpkin": 30,
+    "Carrot": 30,
+    "Sugarcane": 30,
+    "Olive": 30
   }
 }
