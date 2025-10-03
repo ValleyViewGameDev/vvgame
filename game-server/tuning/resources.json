@@ -5693,7 +5693,6 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
-    "requires": "Combat",
     "armorclass": 5,
     "ingredient1": "Money",
     "ingredient1qty": 7000,
@@ -5847,6 +5846,7 @@
     "source": "Warrior's Den",
     "passable": true,
     "damage": 7,
+    "attackrange": 1,
     "ingredient1": "Money",
     "ingredient1qty": 8000,
     "gemcost": 80,
@@ -5859,7 +5859,7 @@
     "source": "Warrior's Den",
     "passable": true,
     "damage": 15,
-    "attackrange": 1,
+    "attackrange": 2,
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "ingredient4": "Book",
@@ -5874,7 +5874,7 @@
     "source": "Warrior's Den",
     "passable": true,
     "damage": 18,
-    "attackrange": 1,
+    "attackrange": 2,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "ingredient4": "Book",
@@ -5904,8 +5904,9 @@
     "passable": true,
     "scrollqty": 1,
     "scrollchance": "legendary",
+    "armorclass": 2,
     "damage": 22,
-    "attackrange": 1
+    "attackrange": 2
   },
   {
     "type": "Magic Halberd",
@@ -5926,7 +5927,7 @@
     "scrollchance": "legendary",
     "damage": 25,
     "attackbonus": 2,
-    "attackrange": 1
+    "attackrange": 2
   },
   {
     "type": "Giant Axe",
@@ -5948,7 +5949,7 @@
     "scrollchance": "legendary",
     "damage": 32,
     "attackbonus": 2,
-    "attackrange": 1
+    "attackrange": 2
   },
   {
     "type": "Dragonslayer",
@@ -5959,7 +5960,7 @@
     "scrollchance": "legendary",
     "damage": 38,
     "attackbonus": 6,
-    "attackrange": 2
+    "attackrange": 3
   },
   {
     "type": "Darts",
@@ -5968,7 +5969,7 @@
     "source": "Warrior's Den",
     "passable": true,
     "damage": 4,
-    "attackrange": 3,
+    "attackrange": 4,
     "ingredient1": "Money",
     "ingredient1qty": 250,
     "gemcost": 3,
@@ -6012,7 +6013,7 @@
     "passable": true,
     "damage": 6,
     "attackbonus": 1,
-    "attackrange": 11,
+    "attackrange": 10,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "ingredient4": "Book",
@@ -6045,7 +6046,7 @@
     "scrollchance": "legendary",
     "damage": 10,
     "attackbonus": 1,
-    "attackrange": 12
+    "attackrange": 11
   },
   {
     "type": "Magic Crossbow",
@@ -6065,9 +6066,10 @@
     "passable": true,
     "scrollqty": 1,
     "scrollchance": "legendary",
+    "armorclass": 1,
     "damage": 14,
     "attackbonus": 2,
-    "attackrange": 10
+    "attackrange": 12
   },
   {
     "type": "Legendary Crossbow",
