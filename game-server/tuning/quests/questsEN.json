@@ -1193,5 +1193,18 @@
     "goal1action": "Craft",
     "goal1item": "Doctor",
     "goal1qty": 5
+  },
+  {
+    "index": 87,
+    "title": "Zombies, die",
+    "textbody": "I just can't with these zombies.",
+    "symbol": "🧛🏻‍♂️",
+    "repeatable": true,
+    "giver": "Vampire",
+    "reward": "Scroll",
+    "rewardqty": 1,
+    "goal1action": "Kill",
+    "goal1item": "Zombie",
+    "goal1qty": 25
   }
 ]
