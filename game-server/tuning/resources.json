@@ -459,7 +459,15 @@
     "layoutkey": "dt2",
     "category": "editor",
     "passable": false,
-    "range": 2
+    "range": 2,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": true,
+    "validonn": true,
+    "validono": true
   },
   {
     "type": "Volcano",
@@ -467,7 +475,15 @@
     "layoutkey": "vo",
     "category": "editor",
     "passable": false,
-    "range": 8
+    "range": 8,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": true,
+    "validonl": true,
+    "validonn": true,
+    "validono": true
   },
   {
     "type": "Mailbox",
@@ -567,7 +583,15 @@
     "action": "convertTo",
     "output": "Wood",
     "passable": false,
-    "requires": "Axe"
+    "requires": "Axe",
+    "validong": true,
+    "validond": true,
+    "validons": false,
+    "validonp": false,
+    "validonw": false,
+    "validonl": false,
+    "validonn": false,
+    "validono": true
   },
   {
     "type": "Snowman",
