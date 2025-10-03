@@ -102,6 +102,13 @@ async function seasonReset(frontierId) {
         console.log(`Player ${player.username} inventory wiped, keeping Money, Gems, and certain high value quest items.`) ;
         console.log('Player inventory after wipe:', player.inventory);
         player.netWorth = null;
+        
+        // Reset Gold status to Free
+        if (player.accountStatus === "Gold") {
+          player.accountStatus = "Free";
+          console.log(`🔄 Reset player ${player.username} account status from Gold to Free`);
+        }
+        
         await player.save({ overwrite: true });
       }
 
