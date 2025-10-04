@@ -57,16 +57,16 @@ const FarmingPanel = ({
 
       const farmPlotItems = allResourcesData.filter((resource) => {
         // Check if resource is a farm plot
-        if (resource.category !== 'farmplot') return false;
-        
-        // Check seasonal restriction
-        if (resource.season && currentSeason && resource.season !== currentSeason) {
-          return false;
-        }
-        
-        return true;
+        return resource.category === 'farmplot';
       });
-      setFarmPlots(farmPlotItems);
+      
+      // Add isOffSeason flag to each farmplot
+      const farmPlotsWithSeasonInfo = farmPlotItems.map(item => ({
+        ...item,
+        isOffSeason: item.season && currentSeason && item.season !== currentSeason
+      }));
+      
+      setFarmPlots(farmPlotsWithSeasonInfo);
     } catch (error) {
       console.error('Error fetching farming panel data:', error);
     } finally {
@@ -137,9 +137,26 @@ const FarmingPanel = ({
               const ingredients = getIngredientDetails(item, allResources);
               const affordable = canAfford(item, inventory, 1);
               const requirementsMet = hasRequiredSkill(item.requires);
+              const isOffSeason = item.isOffSeason;
 
               const symbol = item.symbol || '';
 
+              // For off-season items, show simplified information
+              if (isOffSeason) {
+                return (
+                  <ResourceButton
+                    key={item.type}
+                    symbol={symbol}
+                    name={getLocalizedString(item.type, strings)}
+                    details="Off season"
+                    info={null}
+                    disabled={true}
+                    onClick={() => {}}
+                  />
+                );
+              }
+
+              // Regular (in-season) item display
               const formattedCosts = [1, 2, 3, 4].map((i) => {
                 const type = item[`ingredient${i}`];
                 const qty = item[`ingredient${i}qty`];

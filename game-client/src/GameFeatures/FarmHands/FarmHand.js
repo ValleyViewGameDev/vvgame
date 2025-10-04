@@ -954,6 +954,8 @@ const FarmHandPanel = ({
         showBulkReplant={showBulkReplant}
         hasRequiredSkill={hasRequiredSkill}
         strings={strings}
+        currentSeason={currentSeason}
+        masterResources={masterResources}
       />
       
       {/* Selective Animal Collect Modal */}

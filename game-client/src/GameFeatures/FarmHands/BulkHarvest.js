@@ -20,7 +20,9 @@ export function BulkHarvestModal({
   onExecute,
   showBulkReplant,
   hasRequiredSkill,
-  strings 
+  strings,
+  currentSeason,
+  masterResources
 }) {
   const [selectedCropTypes, setSelectedCropTypes] = useState({});
   const [selectedReplantTypes, setSelectedReplantTypes] = useState({});
@@ -40,14 +42,28 @@ export function BulkHarvestModal({
       if (showBulkReplant) {
         const defaultReplantSelection = {};
         crops.forEach(crop => {
-          if (hasRequiredSkill(crop.replantRequires)) {
+          // Check if player has required skill
+          const hasSkill = hasRequiredSkill(crop.replantRequires);
+          
+          // Check if crop is in season
+          let isInSeason = true;
+          if (currentSeason && masterResources) {
+            const farmplot = masterResources.find(r => 
+              r.category === 'farmplot' && r.output === crop.type
+            );
+            if (farmplot && farmplot.season) {
+              isInSeason = farmplot.season === currentSeason;
+            }
+          }
+          
+          if (hasSkill && isInSeason) {
             defaultReplantSelection[crop.type] = true;
           }
         });
         setSelectedReplantTypes(defaultReplantSelection);
       }
     }
-  }, [isOpen, crops, showBulkReplant, hasRequiredSkill]);
+  }, [isOpen, crops, showBulkReplant, hasRequiredSkill, currentSeason, masterResources]);
 
   const handleToggleCrop = (cropType) => {
     setSelectedCropTypes(prev => {
@@ -152,7 +168,21 @@ export function BulkHarvestModal({
                   const allReplantSelected = {};
                   const allHarvestSelected = {};
                   crops.forEach(crop => {
-                    if (hasRequiredSkill(crop.replantRequires)) {
+                    // Check if player has required skill
+                    const hasSkill = hasRequiredSkill(crop.replantRequires);
+                    
+                    // Check if crop is in season
+                    let isInSeason = true;
+                    if (currentSeason && masterResources) {
+                      const farmplot = masterResources.find(r => 
+                        r.category === 'farmplot' && r.output === crop.type
+                      );
+                      if (farmplot && farmplot.season) {
+                        isInSeason = farmplot.season === currentSeason;
+                      }
+                    }
+                    
+                    if (hasSkill && isInSeason) {
                       allReplantSelected[crop.type] = true;
                       // When selecting replant, also select harvest
                       allHarvestSelected[crop.type] = true;
@@ -185,13 +215,28 @@ export function BulkHarvestModal({
           <div style={{ display: 'flex', marginBottom: '10px', fontSize: '14px', fontWeight: 'bold' }}>
             <div style={{ width: '30px', paddingLeft: '5px' }}>{strings[342] || 'Harvest?'}</div>
             <div style={{ flex: 1 }}></div>
-            <div style={{ width: '120px', textAlign: 'center' }}>{strings[343] || 'Replant?'}</div>
+            <div style={{ width: '140px', textAlign: 'center' }}>{strings[343] || 'Replant?'}</div>
           </div>
         )}
         
         <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
           {crops.map(crop => {
-            const canReplant = hasRequiredSkill(crop.replantRequires);
+            // Check if player has required skill
+            const hasSkill = hasRequiredSkill(crop.replantRequires);
+            
+            // Check if crop is in season
+            let isInSeason = true;
+            if (currentSeason && masterResources) {
+              // Find the farmplot that produces this crop to check its season
+              const farmplot = masterResources.find(r => 
+                r.category === 'farmplot' && r.output === crop.type
+              );
+              if (farmplot && farmplot.season) {
+                isInSeason = farmplot.season === currentSeason;
+              }
+            }
+            
+            const canReplant = hasSkill && isInSeason;
             return (
               <div key={crop.type} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', padding: '5px', borderBottom: '1px solid #eee' }}>
                 <div style={{ width: '30px' }}>
@@ -207,7 +252,10 @@ export function BulkHarvestModal({
                 </div>
                 {showBulkReplant && (() => {
                   return (
-                    <div style={{ marginLeft: '60px', width: '80px', display: 'flex', justifyContent: 'center' }}>
+                    <div style={{ marginLeft: '60px', width: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {!isInSeason && (
+                        <span style={{ fontSize: '12px', color: '#888', marginRight: '5px' }}>off season</span>
+                      )}
                       <input
                         type="checkbox"
                         checked={selectedReplantTypes[crop.type] || false}
@@ -218,7 +266,7 @@ export function BulkHarvestModal({
                           opacity: canReplant ? 1 : 0.5,
                           cursor: canReplant ? 'pointer' : 'not-allowed'
                         }}
-                        title={canReplant ? '' : `Requires ${crop.replantRequires || 'unknown skill'} to replant ${crop.type}`}
+                        title={canReplant ? '' : (!isInSeason ? `${crop.type} is not available in current season` : `Requires ${crop.replantRequires || 'unknown skill'} to replant ${crop.type}`)}
                       />
                     </div>
                   );
