@@ -884,23 +884,9 @@ useEffect(() => {
     if (playersInGrid && gridId && currentPlayer?._id) {
       const playerId = String(currentPlayer._id);
       const playerPC = playersInGrid?.[gridId]?.pcs?.[playerId];
-      // 🔥 Check for lava tile
       const col = playerPC?.position?.x;
       const row = playerPC?.position?.y;
       const onTileType = tileTypes?.[row]?.[col];
-      // 🪧 Check for Signpost resource (including multi-tile resources)
-      const onResource = resources?.flat().find(r => {
-        const range = r?.range || 1;
-        return col >= r?.x && col < r?.x + range &&
-               row <= r?.y && row > r?.y - range;
-      });
-      const onResourceType = onResource?.type;
-
-      // if (playerPC?.hp <= (currentPlayer.baseMaxhp/4) && currentPlayer.location.gtype === 'homestead') {
-      //     const healing = 2;
-      //     playersInGrid[gridId].pcs[playerId].hp += healing;
-      //     FloatingTextManager.addFloatingText(`+ ${healing} ❤️‍🩹 HP`, col, row, activeTileSize);
-      //   }
 
       if (playerPC?.hp <= 0 && currentPlayer) {
         console.log("💀 Player is dead. Handling death...");
@@ -926,6 +912,7 @@ useEffect(() => {
         setIsModalOpen(true);
 
       } else {
+        // 🔥 Check for lava tile
         if (onTileType === "l") {
           const lavaDamage = 2;
           playersInGrid[gridId].pcs[playerId].hp -= lavaDamage;
@@ -965,7 +952,7 @@ useEffect(() => {
         const col = playerPC?.position?.x;
         const row = playerPC?.position?.y;
 
-      if (playerPC?.hp <= (currentPlayer.baseMaxhp/4) && currentPlayer.location.gtype === 'homestead') {
+      if (playerPC?.hp <= (currentPlayer.baseMaxhp/2) && currentPlayer.location.gtype === 'homestead') {
           const healing = 2;
           playersInGrid[gridId].pcs[playerId].hp += healing;
           FloatingTextManager.addFloatingText(`+ ${healing} ❤️‍🩹 HP`, col, row, activeTileSize);
