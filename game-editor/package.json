@@ -11,7 +11,7 @@
     "preview": "vite preview",
     "electron": "electron .",
     "electron-dev": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
-    "package-mac": "electron-packager . GridEditor --platform=darwin --arch=arm64 --out=dist --overwrite"
+    "package-mac": "electron-packager . GridEditor --platform=darwin --arch=arm64 --out=dist --overwrite --icon=build/icon"
   },
   "dependencies": {
     "@electron/remote": "^2.0.9",

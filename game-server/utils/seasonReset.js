@@ -42,10 +42,11 @@ async function seasonReset(frontierId) {
         console.warn("⚠️ Current season number missing; cannot update playersrelocated in log.");
       }
 
-      // ✅ STEP 2: Reset All Grids (including towns, valley)
+// ✅ STEP 2: Reset All Grids (including towns, valley)
+
       console.log("🏠 STEP 2: Resetting grids: towns and valleys");
-      const publicGrids = await Grid.find({ frontierId }); // ✅ Check ALL grids
-      console.log(`🔁 Found ${publicGrids.length} public grids to reset...`);
+      const totalGrids = await Grid.find({ frontierId }); // ✅ Check ALL grids
+      console.log(`🔁 Found ${totalGrids.length} grids to consider ...`);
 
       const gridIdToCoordMap = {};
       settlements.forEach(settlement => {
@@ -55,7 +56,7 @@ async function seasonReset(frontierId) {
           }
         });
       });
-      for (const grid of publicGrids) {
+      for (const grid of totalGrids) {
         const isPublic = grid.gridType === "town" || grid.gridType.startsWith("valley");
         if (!isPublic) continue;
 
@@ -68,9 +69,10 @@ async function seasonReset(frontierId) {
           console.error(`❌ Error resetting grid ${grid._id}:`, err.message);
         }
       }
+
       // 🔁 Update the seasonlog
       console.log("Updating seasonlog...");
-      const gridsResetCount = publicGrids.filter(g => g.gridType === "town" || g.gridType.startsWith("valley")).length;
+      const gridsResetCount = totalGrids.filter(g => g.gridType === "town" || g.gridType.startsWith("valley")).length;
       if (currentSeasonNumber !== undefined) {
         const logIndex = frontier.seasonlog?.findIndex(log => log.seasonnumber === currentSeasonNumber);
         if (logIndex !== -1) {
@@ -86,7 +88,8 @@ async function seasonReset(frontierId) {
       }
 
  
-     // ✅ STEP 3: Apply money nerfs + wipe inventory
+// ✅ STEP 3: Apply money nerfs + wipe inventory & backpack & Gold status
+
       console.log("🔁 STEP 3: Applying money nerfs and wiping inventories...");
       for (const player of allPlayers) {
         const isGold = player.accountStatus?.includes("Gold");
@@ -123,7 +126,8 @@ async function seasonReset(frontierId) {
         await player.save({ overwrite: true });
       }
 
-      // ✅ STEP 4: Wipe active and completed quests
+// ✅ STEP 4: Wipe active and completed quests
+
       console.log("🔁 STEP 4: Wiping quests...");
       for (const player of allPlayers) {
         player.activeQuests = [];
