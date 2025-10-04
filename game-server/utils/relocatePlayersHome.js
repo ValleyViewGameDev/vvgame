@@ -70,12 +70,21 @@ async function relocatePlayersHome(frontierId) {
       if (isHome) {
         // 🩹 Restore HP and reset position for players already at home
         if (typeof pcData === 'object' && player.baseMaxhp) {
+          // Find Train coordinates
+          let trainX = 0, trainY = 0;
+          if (grid.resources && Array.isArray(grid.resources)) {
+            const trainResource = grid.resources.find(res => res.type === 'Train');
+            if (trainResource && typeof trainResource.x === 'number' && typeof trainResource.y === 'number') {
+              trainX = trainResource.x;
+              trainY = trainResource.y;
+            }
+          }
           pcData.hp = player.baseMaxhp;
-          pcData.position = { x: 0, y: 0 };
+          pcData.position = { x: trainX, y: trainY };
           grid.playersInGrid.set(playerId, pcData);
           grid.playersInGridLastUpdated = new Date();
           await grid.save();
-          console.log(`🩺 Restored HP and position for player ${player.username} at home grid ${gridIdStr}`);
+          console.log(`🩺 Restored HP and position for player ${player.username} at home grid ${gridIdStr} at (${trainX}, ${trainY})`);
         }
         console.log(`✅ Player ${player.username} already at home grid, skipping.`);
         continue;
@@ -91,16 +100,29 @@ async function relocatePlayersHome(frontierId) {
         continue;
       }
 
+      // Find Train coordinates in home grid
+      let trainX = 0, trainY = 0;
+      if (homeGrid.resources && Array.isArray(homeGrid.resources)) {
+        const trainResource = homeGrid.resources.find(res => res.type === 'Train');
+        if (trainResource && typeof trainResource.x === 'number' && typeof trainResource.y === 'number') {
+          trainX = trainResource.x;
+          trainY = trainResource.y;
+          console.log(`🚂 Found Train at (${trainX}, ${trainY}) in home grid`);
+        } else {
+          console.log(`🚂 No Train found in home grid, using default (0, 0)`);
+        }
+      }
+
       // Add to home grid's playersInGrid
       homeGrid.playersInGrid = homeGrid.playersInGrid || new Map();
       homeGrid.playersInGrid.set(playerId, pcData);
       if (typeof pcData === 'object' && player.baseMaxhp) {
         pcData.hp = player.baseMaxhp;
-        pcData.position = { x: 0, y: 0 };
+        pcData.position = { x: trainX, y: trainY };
       }
       homeGrid.playersInGridLastUpdated = new Date();
       await homeGrid.save();
-      console.log(`💾 Saved updated home grid ${homeGridIdStr} with player ${player.username}`);
+      console.log(`💾 Saved updated home grid ${homeGridIdStr} with player ${player.username} at position (${trainX}, ${trainY})`);
 
       // Remove from current grid
       grid.playersInGrid.delete(playerId);
@@ -116,8 +138,8 @@ async function relocatePlayersHome(frontierId) {
         f: player.frontierId,
         gridCoord: info.gridCoord || "0,0,0",
         gtype: info.gridType || "valley",
-        x: 1,
-        y: 1
+        x: trainX,
+        y: trainY
       };
       await player.save();
       relocatedCount++;
@@ -171,6 +193,19 @@ async function relocateOnePlayerHome(playerId) {
     if (currentGridIdStr === homeGridIdStr) {
       console.log(`✅ Player already at home grid, restoring HP and position`);
       
+      // Find Train coordinates
+      let trainX = 0, trainY = 0;
+      if (currentGrid.resources && Array.isArray(currentGrid.resources)) {
+        const trainResource = currentGrid.resources.find(res => res.type === 'Train');
+        if (trainResource && typeof trainResource.x === 'number' && typeof trainResource.y === 'number') {
+          trainX = trainResource.x;
+          trainY = trainResource.y;
+          console.log(`🚂 Found Train at (${trainX}, ${trainY})`);
+        } else {
+          console.log(`🚂 No Train found, using default (0, 0)`);
+        }
+      }
+      
       const playersInGrid = currentGrid.playersInGrid instanceof Map
         ? currentGrid.playersInGrid
         : new Map(Object.entries(currentGrid.playersInGrid?.pcs || currentGrid.playersInGrid || {}));
@@ -178,7 +213,7 @@ async function relocateOnePlayerHome(playerId) {
       const pcData = playersInGrid.get(playerIdStr);
       if (pcData) {
         pcData.hp = player.baseMaxhp || pcData.maxhp || 1000;
-        pcData.position = { x: 0, y: 0 };
+        pcData.position = { x: trainX, y: trainY };
         
         if (currentGrid.playersInGrid instanceof Map) {
           currentGrid.playersInGrid.set(playerIdStr, pcData);
@@ -193,8 +228,8 @@ async function relocateOnePlayerHome(playerId) {
       }
       
       // Update player location
-      player.location.x = 0;
-      player.location.y = 0;
+      player.location.x = trainX;
+      player.location.y = trainY;
       await player.save();
       
       return true;
@@ -234,11 +269,24 @@ async function relocateOnePlayerHome(playerId) {
     await currentGrid.save();
     console.log(`✅ Removed player from grid ${currentGridIdStr}`);
 
+    // Find Train coordinates in home grid
+    let trainX = 0, trainY = 0;
+    if (homeGrid.resources && Array.isArray(homeGrid.resources)) {
+      const trainResource = homeGrid.resources.find(res => res.type === 'Train');
+      if (trainResource && typeof trainResource.x === 'number' && typeof trainResource.y === 'number') {
+        trainX = trainResource.x;
+        trainY = trainResource.y;
+        console.log(`🚂 Found Train at (${trainX}, ${trainY}) in home grid`);
+      } else {
+        console.log(`🚂 No Train found in home grid, using default (0, 0)`);
+      }
+    }
+
     // Add to home grid with restored HP and reset position
     const restoredPcData = {
       ...pcData,
       hp: player.baseMaxhp || pcData.maxhp || 1000,
-      position: { x: 0, y: 0 }
+      position: { x: trainX, y: trainY }
     };
 
     if (!homeGrid.playersInGrid) {
@@ -278,8 +326,8 @@ async function relocateOnePlayerHome(playerId) {
       f: player.frontierId,
       gridCoord: info.gridCoord,
       gtype: info.gridType,
-      x: 0,
-      y: 0
+      x: trainX,
+      y: trainY
     };
     await player.save();
     console.log(`✅ Updated player location to home grid`);

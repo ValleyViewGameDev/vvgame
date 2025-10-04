@@ -536,7 +536,7 @@ function renderPlayerRange() {
         attackRangeRing = document.createElement('div');
         attackRangeRing.id = 'player-attackrange-ring';
         attackRangeRing.style.position = 'absolute';
-        attackRangeRing.style.border = '2px dotted rgba(255, 0, 0, 0.4)';
+        attackRangeRing.style.border = '3px dotted rgba(255, 0, 0, 0.59)';
         attackRangeRing.style.borderRadius = '50%';
         attackRangeRing.style.pointerEvents = 'none';
         attackRangeRing.style.zIndex = 11;
