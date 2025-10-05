@@ -12,6 +12,9 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
   const strings = useStrings();
   const [currentStepData, setCurrentStepData] = useState(null);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [positiveReasons, setPositiveReasons] = useState([]);
+  const [negativeReasons, setNegativeReasons] = useState([]);
   
   // Load the current step data based on player's ftuestep
   useEffect(() => {
@@ -29,6 +32,16 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       if (step1Data) {
         setCurrentStepData(step1Data);
       }
+      return;
+    }
+    
+    // Check if we're at step 4 and need to show feedback modal
+    // Only show if no feedback has been collected yet (either positive OR negative feedback exists)
+    const hasFeedback = currentPlayer?.ftueFeedback && 
+      (currentPlayer.ftueFeedback.positive?.length > 0 || currentPlayer.ftueFeedback.negative?.length > 0);
+    
+    if (currentPlayer?.ftuestep === 4 && !hasFeedback) {
+      setShowFeedbackModal(true);
       return;
     }
     
@@ -59,6 +72,48 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       };
     }
   }, [currentStepData]);
+
+  // Handle feedback submission
+  const handleFeedbackSubmit = async (isPositive) => {
+    try {
+      // Save feedback to database
+      const response = await axios.post(`${API_BASE}/api/update-profile`, {
+        playerId: currentPlayer.playerId,
+        updates: { 
+          ftueFeedback: {
+            positive: isPositive ? positiveReasons : [],
+            negative: !isPositive ? negativeReasons : []
+          }
+        }
+      });
+      
+      if (response.data.success) {
+        // Update local state
+        setCurrentPlayer(prev => ({
+          ...prev,
+          ftueFeedback: {
+            positive: isPositive ? positiveReasons : [],
+            negative: !isPositive ? negativeReasons : []
+          }
+        }));
+        
+        // Hide feedback modal and show step 4
+        setShowFeedbackModal(false);
+        const step4Data = FTUEstepsData.find(step => step.step === 4);
+        if (step4Data) {
+          setCurrentStepData(step4Data);
+        }
+      }
+    } catch (error) {
+      console.error('Error saving FTUE feedback:', error);
+      // Continue anyway to not block the user
+      setShowFeedbackModal(false);
+      const step4Data = FTUEstepsData.find(step => step.step === 4);
+      if (step4Data) {
+        setCurrentStepData(step4Data);
+      }
+    }
+  };
 
   const handleOK = async () => {
     try {
@@ -340,9 +395,134 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
     }
   };
 
+  // Handle checkbox toggle
+  const toggleReason = (reasonIndex, isPositive) => {
+    if (isPositive) {
+      setPositiveReasons(prev => 
+        prev.includes(reasonIndex) 
+          ? prev.filter(r => r !== reasonIndex)
+          : [...prev, reasonIndex]
+      );
+    } else {
+      setNegativeReasons(prev => 
+        prev.includes(reasonIndex) 
+          ? prev.filter(r => r !== reasonIndex)
+          : [...prev, reasonIndex]
+      );
+    }
+  };
+
   // Don't render if no step data or (image not loaded for non-step-2)
   if (!currentStepData || (currentPlayer?.ftuestep !== 2 && !imageLoaded)) {
-    return null;
+    // But DO render if we're showing the feedback modal
+    if (!showFeedbackModal) {
+      return null;
+    }
+  }
+
+  // Render feedback modal if showing
+  if (showFeedbackModal) {
+    return (
+      <div className="ftue-overlay">
+        <div className="ftue-modal">
+          <div className="ftue-header">
+            <h2>{strings[780]}</h2>
+          </div>
+          
+          <div className="ftue-feedback-content">
+            {/* Positive feedback section */}
+            <div className="ftue-feedback-section">
+              <h3>{strings[781]}</h3>
+              <div className="ftue-feedback-options">
+                <label className="ftue-checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={positiveReasons.includes(784)}
+                    onChange={() => toggleReason(784, true)}
+                  />
+                  {strings[784]}
+                </label>
+                <label className="ftue-checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={positiveReasons.includes(785)}
+                    onChange={() => toggleReason(785, true)}
+                  />
+                  {strings[785]}
+                </label>
+                <label className="ftue-checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={positiveReasons.includes(786)}
+                    onChange={() => toggleReason(786, true)}
+                  />
+                  {strings[786]}
+                </label>
+                <label className="ftue-checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={positiveReasons.includes(787)}
+                    onChange={() => toggleReason(787, true)}
+                  />
+                  {strings[787]}
+                </label>
+              </div>
+              <button 
+                className="ftue-button ftue-button-primary" 
+                onClick={() => handleFeedbackSubmit(true)}
+              >
+                {strings[783]}
+              </button>
+            </div>
+            
+            {/* Negative feedback section */}
+            <div className="ftue-feedback-section">
+              <h3>{strings[782]}</h3>
+              <div className="ftue-feedback-options">
+                <label className="ftue-checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={negativeReasons.includes(790)}
+                    onChange={() => toggleReason(790, false)}
+                  />
+                  {strings[790]}
+                </label>
+                <label className="ftue-checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={negativeReasons.includes(791)}
+                    onChange={() => toggleReason(791, false)}
+                  />
+                  {strings[791]}
+                </label>
+                <label className="ftue-checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={negativeReasons.includes(792)}
+                    onChange={() => toggleReason(792, false)}
+                  />
+                  {strings[792]}
+                </label>
+                <label className="ftue-checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={negativeReasons.includes(793)}
+                    onChange={() => toggleReason(793, false)}
+                  />
+                  {strings[793]}
+                </label>
+              </div>
+              <button 
+                className="ftue-button ftue-button-primary" 
+                onClick={() => handleFeedbackSubmit(false)}
+              >
+                {strings[794]}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   // Custom render for step 2 - Aspiration choice

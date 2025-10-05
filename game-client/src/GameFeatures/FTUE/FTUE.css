@@ -234,6 +234,57 @@
   font-family: 'Arial', sans-serif;
 }
 
+/* Feedback Modal Styles */
+.ftue-feedback-content {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 30px;
+}
+
+.ftue-feedback-section {
+  background-color: #f8f8f8;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.ftue-feedback-section h3 {
+  color: rgb(0, 0, 0);
+  font-size: 18px;
+  margin: 0 0 10px 0;
+  font-weight: bold;
+}
+
+.ftue-feedback-options {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.ftue-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+  padding: 1px 0;
+  transition: background-color 0.2s;
+  font-family: 'Arial', sans-serif;
+}
+
+.ftue-checkbox-label:hover {
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.ftue-checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .ftue-modal {
