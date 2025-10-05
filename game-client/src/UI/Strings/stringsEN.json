@@ -1166,9 +1166,6 @@
     "200520": "Fountain Large",
     "200521": "Large Decorative Palm Tree",
 
-
-    "11000": "ADDED STRINGS:",
-
     "520": "You must be in town or at home to equip weapons and armor.",
     "522": "🛡️ Equipped Armor:",
     "523": "No armor available",
@@ -1198,9 +1195,22 @@
     "829": "Revealing scroll...",
     "830": "Failed to reveal scroll",
     "831": "Reveal",
-    "832": "You need scrolls to use the Ancient Temple. Find scrolls by exploring the world."
+    "832": "You need scrolls to use the Ancient Temple. Find scrolls by exploring the world.",
 
+    "11000": "ADDED STRINGS:",
 
+"780": "Let us know what you think of Valley View",
+"781": "I'll keep playing, and where's why:",
+"782": "I doubt I'll return, and here's why:",
+"783": "Play",
+"784": "Looks fun",
+"785": "I like the visuals",
+"786": "I like farming",
+"787": "I look forward to collaborating with others",
+"790": "I couldn't figure it out",
+"791": "I don't like the visuals",
+"792": "It's just not for me",
+"794": "Play"
 
   }
 

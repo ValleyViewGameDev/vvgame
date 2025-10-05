@@ -8,6 +8,10 @@ const playerSchema = new mongoose.Schema({
   firsttimeuser: { type: Boolean, default: true },
   ftuestep: { type: Number, default: 0 }, // e.g., 1 for first step
   aspiration: { type: Number, default: null }, // Player's chosen aspiration (1, 2, or 3)
+  ftueFeedback: { 
+    positive: { type: [Number], default: [] }, // Array of string indexes for positive feedback (784-787)
+    negative: { type: [Number], default: [] }  // Array of string indexes for negative feedback (790-792)
+  },
   icon: {
     type: String,
     required: true, // This might cause issues if `icon` is missing
