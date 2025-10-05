@@ -7,6 +7,7 @@ import FrontierView from './FrontierView';
 import Players from './Players';
 import AtlasView from './AtlasView';
 import Analytics from './Analytics';
+import Feedback from './Feedback';
 import './App.css';
 
 const App = () => {
@@ -114,6 +115,7 @@ useEffect(() => {
         <button title="Atlas View" onClick={() => setActivePanel('atlas')}>🗺️</button>
         <button title="Players" onClick={() => setActivePanel('players')}>😀</button>
         <button title="Analytics" onClick={() => setActivePanel('analytics')}>📊</button>
+        <button title="Feedback" onClick={() => setActivePanel('feedback')}>✅</button>
       </div>
 
       {/* ✅ Base Panels Container with conditional visibility */}
@@ -158,6 +160,11 @@ useEffect(() => {
         </div>
         <div className={activePanel === 'analytics' ? 'panel-visible' : 'panel-hidden'}>
           <Analytics 
+            activePanel={activePanel}
+            />
+        </div>
+        <div className={activePanel === 'feedback' ? 'panel-visible' : 'panel-hidden'}>
+          <Feedback 
             activePanel={activePanel}
             />
         </div>

@@ -1356,6 +1356,21 @@ router.get('/players', async (req, res) => {
   }
 });
 
+// GET /api/feedback-data - Get FTUE feedback data for editor
+router.get('/feedback-data', async (req, res) => {
+  try {
+    const players = await Player.find({ ftueFeedback: { $exists: true } })
+      .select('ftueFeedback')
+      .lean(); // Use lean() for better performance when we only need data
+    
+    console.log(`📋 Editor: Found ${players.length} players with feedback data`);
+    res.json(players);
+  } catch (error) {
+    console.error('Error fetching feedback data:', error);
+    res.status(500).json({ error: 'Failed to fetch feedback data' });
+  }
+});
+
 // GET /api/players-by-frontier-with-dev-status/:frontierId - Get all players in a frontier with developer status
 router.get('/players-by-frontier-with-dev-status/:frontierId', async (req, res) => {
   try {
