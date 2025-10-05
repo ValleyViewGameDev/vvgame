@@ -280,6 +280,13 @@ h4, h5, h6 {
   text-align: center;
 }
 
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 .refresh-button {
   background-color: #4CAF50;
   color: white;
@@ -293,6 +300,55 @@ h4, h5, h6 {
 
 .refresh-button:hover {
   background-color: #45a049;
+}
+
+.players-table-container {
+  margin-top: 30px;
+}
+
+.players-table-container h3 {
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.players-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.players-table th,
+.players-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.players-table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  color: #555;
+  position: sticky;
+  top: 0;
+}
+
+.players-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.players-table tr:last-child td {
+  border-bottom: none;
+}
+
+.players-table td:nth-child(5),
+.players-table td:nth-child(6) {
+  max-width: 200px;
+  word-wrap: break-word;
+  font-size: 12px;
 }
 
 .error {

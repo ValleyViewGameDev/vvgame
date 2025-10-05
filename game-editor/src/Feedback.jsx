@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE from './config';
 
 const Feedback = ({ activePanel }) => {
   const [players, setPlayers] = useState([]);
@@ -15,8 +16,8 @@ const Feedback = ({ activePanel }) => {
     787: "I look forward to collaborating with others",
     790: "I couldn't figure it out",
     791: "I don't like the visuals",
-    792: "It's just not for me",
-    793: "Other" // Added the missing string 793
+    792: "I had a technical issue",
+    793: "It's just not for me"
   };
 
   // Aspiration mappings
@@ -38,7 +39,7 @@ const Feedback = ({ activePanel }) => {
       setError(null);
       
       // Fetch feedback data from the dedicated endpoint
-      const response = await axios.get('/api/feedback-data');
+      const response = await axios.get(`${API_BASE}/api/feedback-data`);
       const playersData = response.data;
       
       setPlayers(playersData);
@@ -199,7 +200,15 @@ const Feedback = ({ activePanel }) => {
             </tr>
           </thead>
           <tbody>
-            {players.map(player => (
+            {players
+              .filter(player => 
+                player.ftueFeedback && 
+                (
+                  (player.ftueFeedback.positive && player.ftueFeedback.positive.length > 0) ||
+                  (player.ftueFeedback.negative && player.ftueFeedback.negative.length > 0)
+                )
+              )
+              .map(player => (
               <tr key={player._id}>
                 <td>{player.username}</td>
                 <td>{formatLastActive(player.lastActive)}</td>
