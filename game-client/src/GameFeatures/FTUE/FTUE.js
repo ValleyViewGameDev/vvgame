@@ -76,13 +76,27 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
   // Handle feedback submission
   const handleFeedbackSubmit = async (isPositive) => {
     try {
+      // Detect browser type
+      const getBrowserType = () => {
+        const userAgent = navigator.userAgent;
+        if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) return 'Chrome';
+        if (userAgent.includes('Firefox')) return 'Firefox';
+        if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) return 'Safari';
+        if (userAgent.includes('Edg')) return 'Edge';
+        if (userAgent.includes('Opera') || userAgent.includes('OPR')) return 'Opera';
+        return 'Unknown';
+      };
+
+      const browserType = getBrowserType();
+
       // Save feedback to database
       const response = await axios.post(`${API_BASE}/api/update-profile`, {
         playerId: currentPlayer.playerId,
         updates: { 
           ftueFeedback: {
             positive: isPositive ? positiveReasons : [],
-            negative: !isPositive ? negativeReasons : []
+            negative: !isPositive ? negativeReasons : [],
+            browser: browserType
           }
         }
       });
@@ -93,7 +107,8 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
           ...prev,
           ftueFeedback: {
             positive: isPositive ? positiveReasons : [],
-            negative: !isPositive ? negativeReasons : []
+            negative: !isPositive ? negativeReasons : [],
+            browser: browserType
           }
         }));
         

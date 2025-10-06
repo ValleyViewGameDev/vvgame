@@ -344,8 +344,8 @@ h4, h5, h6 {
   border-bottom: none;
 }
 
-.players-table td:nth-child(5),
-.players-table td:nth-child(6) {
+.players-table td:nth-child(6),
+.players-table td:nth-child(7) {
   max-width: 200px;
   word-wrap: break-word;
   font-size: 12px;

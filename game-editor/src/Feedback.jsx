@@ -20,11 +20,11 @@ const Feedback = ({ activePanel }) => {
     793: "It's just not for me"
   };
 
-  // Aspiration mappings
+  // Aspiration mappings with emojis
   const aspirationStrings = {
-    1: "Entrepreneur",
-    2: "Collaborator", 
-    3: "Explorer"
+    1: "🚜 Farming",
+    2: "⚔️ Adventurer", 
+    3: "🏛️ Politician"
   };
 
   useEffect(() => {
@@ -195,6 +195,7 @@ const Feedback = ({ activePanel }) => {
               <th>Last Played</th>
               <th>Aspiration</th>
               <th>FTUE Step</th>
+              <th>Browser</th>
               <th>Positive Feedback</th>
               <th>Negative Feedback</th>
             </tr>
@@ -214,6 +215,7 @@ const Feedback = ({ activePanel }) => {
                 <td>{formatLastActive(player.lastActive)}</td>
                 <td>{aspirationStrings[player.aspiration] || 'Not set'}</td>
                 <td>{player.ftuestep || 'Completed'}</td>
+                <td>{player.ftueFeedback?.browser || 'Unknown'}</td>
                 <td>
                   {player.ftueFeedback?.positive?.map(index => feedbackStrings[index]).join(', ') || 'None'}
                 </td>

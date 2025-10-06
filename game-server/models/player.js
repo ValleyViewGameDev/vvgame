@@ -10,7 +10,8 @@ const playerSchema = new mongoose.Schema({
   aspiration: { type: Number, default: null }, // Player's chosen aspiration (1, 2, or 3)
   ftueFeedback: { 
     positive: { type: [Number], default: [] }, // Array of string indexes for positive feedback (784-787)
-    negative: { type: [Number], default: [] }  // Array of string indexes for negative feedback (790-792)
+    negative: { type: [Number], default: [] }, // Array of string indexes for negative feedback (790-792)
+    browser: { type: String, default: null }   // Browser type when feedback was submitted
   },
   icon: {
     type: String,
