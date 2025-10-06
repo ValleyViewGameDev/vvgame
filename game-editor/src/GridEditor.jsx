@@ -26,6 +26,8 @@ const GridEditor = ({ activePanel }) => {
   );
   const [tileSize, setTileSize] = useState(20); // Default size of 20px
   const [brushSize, setBrushSize] = useState(1); // New brush size state
+  const [brushShape, setBrushShape] = useState('square'); // Brush shape: 'square', 'circle', 'scatter'
+  const [scatterPercentage, setScatterPercentage] = useState(20); // Percentage for scatter brush
   const [masterResources, setMasterResources] = useState([]); // ✅ Store all resources
   const [selectedTile, setSelectedTile] = useState(null);
   const [tileTypes, setTileTypes] = useState([]); // ✅ Add missing state
@@ -110,6 +112,87 @@ const GridEditor = ({ activePanel }) => {
     }
   }, [activePanel, masterResources]);
 
+  // Function to get tiles affected by the brush based on shape
+  const getBrushTiles = (centerX, centerY, brushSize, brushShape) => {
+    const tiles = [];
+    
+    for (let dx = -brushSize + 1; dx < brushSize; dx++) {
+      for (let dy = -brushSize + 1; dy < brushSize; dy++) {
+        const x = centerX + dx;
+        const y = centerY + dy;
+        
+        // Check if tile is within grid bounds
+        if (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
+          let includeTile = false;
+          
+          switch (brushShape) {
+            case 'square':
+              // Square shape: include all tiles within the square
+              includeTile = Math.abs(dx) < brushSize && Math.abs(dy) < brushSize;
+              break;
+              
+            case 'circle':
+              // Circle shape: use euclidean distance with better small size handling
+              const distance = Math.sqrt(dx * dx + dy * dy);
+              // For small brush sizes, be more selective to maintain circle appearance
+              if (brushSize <= 2) {
+                // At size 1: only center
+                // At size 2: center + cardinal directions (N,S,E,W)
+                if (brushSize === 1) {
+                  includeTile = (dx === 0 && dy === 0);
+                } else {
+                  includeTile = (dx === 0 && dy === 0) || 
+                               (Math.abs(dx) + Math.abs(dy) === 1);
+                }
+              } else if (brushSize === 3) {
+                // At size 3: create a small circle pattern
+                includeTile = distance < 2.5;
+              } else {
+                // For larger sizes, use standard circle formula
+                includeTile = distance < brushSize;
+              }
+              break;
+              
+            case 'scatter':
+              // Scatter shape: circle with random selection
+              const scatterDistance = Math.sqrt(dx * dx + dy * dy);
+              let inCircle = false;
+              
+              // Use same circle logic as circle brush
+              if (brushSize <= 2) {
+                if (brushSize === 1) {
+                  inCircle = (dx === 0 && dy === 0);
+                } else {
+                  inCircle = (dx === 0 && dy === 0) || 
+                            (Math.abs(dx) + Math.abs(dy) === 1);
+                }
+              } else if (brushSize === 3) {
+                inCircle = scatterDistance < 2.5;
+              } else {
+                inCircle = scatterDistance < brushSize;
+              }
+              
+              if (inCircle) {
+                // Only include tile based on scatter percentage
+                includeTile = Math.random() * 100 < scatterPercentage;
+              }
+              break;
+              
+            default:
+              // Default to square
+              includeTile = Math.abs(dx) < brushSize && Math.abs(dy) < brushSize;
+          }
+          
+          if (includeTile) {
+            tiles.push({ x, y });
+          }
+        }
+      }
+    }
+    
+    return tiles;
+  };
+
   useEffect(() => {
     const handleKeyPress = (event) => {
       if (!selectedTile) return;
@@ -143,30 +226,21 @@ const GridEditor = ({ activePanel }) => {
 
       // ✅ DELETE or BACKSPACE now removes resource if present, else resets tile type
       if (key === "backspace" || key === "delete") {
-        console.log(`❌ Deleting with brush size ${brushSize}`);
-        // Apply delete in a diamond shape based on brushSize
-        for (let dx = -brushSize + 1; dx < brushSize; dx++) {
-          for (let dy = -brushSize + 1; dy < brushSize; dy++) {
-            const x = selectedTile.x + dx;
-            const y = selectedTile.y + dy;
-            if (
-              x >= 0 &&
-              x < GRID_SIZE &&
-              y >= 0 &&
-              y < GRID_SIZE &&
-              Math.abs(dx) + Math.abs(dy) < brushSize
-            ) {
-              const currentTile = grid[x][y];
-              if (currentTile.resource) {
-                console.log(`❌ Removing resource at (${x}, ${y})`);
-                updateTileResource(x, y, "");
-              } else {
-                console.log(`❌ Resetting tile at (${x}, ${y}) to "None (**)"`);
-                updateTileType(x, y, "**");
-              }
-            }
+        console.log(`❌ Deleting with brush size ${brushSize} and shape ${brushShape}`);
+        // Get tiles affected by brush
+        const tilesToDelete = getBrushTiles(selectedTile.x, selectedTile.y, brushSize, brushShape);
+        
+        tilesToDelete.forEach(({ x, y }) => {
+          const currentTile = grid[x][y];
+          if (currentTile.resource) {
+            console.log(`❌ Removing resource at (${x}, ${y})`);
+            updateTileResource(x, y, "");
+          } else {
+            console.log(`❌ Resetting tile at (${x}, ${y}) to "None (**)"`);
+            updateTileType(x, y, "**");
           }
-        }
+        });
+        
         // Ensure selectedTile state is refreshed so user can DEL again
         setSelectedTile({ x: selectedTile.x, y: selectedTile.y });
         return;
@@ -176,23 +250,13 @@ const GridEditor = ({ activePanel }) => {
       const matchingTile = masterResources.find(res => res.category === "tile" && res.type.toLowerCase() === key);
 
       if (matchingTile) {
-        console.log(`✅ Setting tile type to: ${matchingTile.layoutkey}`);
-        // --- Brush logic: apply in a diamond shape based on brushSize ---
-        for (let dx = -brushSize + 1; dx < brushSize; dx++) {
-          for (let dy = -brushSize + 1; dy < brushSize; dy++) {
-            const x = selectedTile.x + dx;
-            const y = selectedTile.y + dy;
-            if (
-              x >= 0 &&
-              x < GRID_SIZE &&
-              y >= 0 &&
-              y < GRID_SIZE &&
-              Math.abs(dx) + Math.abs(dy) < brushSize
-            ) {
-              updateTileType(x, y, matchingTile.layoutkey);
-            }
-          }
-        }
+        console.log(`✅ Setting tile type to: ${matchingTile.layoutkey} with brush shape ${brushShape}`);
+        // Get tiles affected by brush
+        const tilesToUpdate = getBrushTiles(selectedTile.x, selectedTile.y, brushSize, brushShape);
+        
+        tilesToUpdate.forEach(({ x, y }) => {
+          updateTileType(x, y, matchingTile.layoutkey);
+        });
       }
     };
 
@@ -200,7 +264,7 @@ const GridEditor = ({ activePanel }) => {
     return () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
-  }, [selectedTile, masterResources, brushSize]);
+  }, [selectedTile, masterResources, brushSize, brushShape, scatterPercentage]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -962,11 +1026,59 @@ if (typeof window !== "undefined") {
           <input
             type="range"
             min="1"
-            max="10"
+            max="13"
             value={brushSize}
             onChange={(e) => setBrushSize(Number(e.target.value))}
-            style={{ width: '100%' }}
+            style={{ width: '100%', marginBottom: '10px' }}
           />
+          
+          <h4 style={{ margin: '10px 0 5px 0' }}>Brush Shape:</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <label>
+              <input
+                type="radio"
+                name="brushShape"
+                value="square"
+                checked={brushShape === 'square'}
+                onChange={(e) => setBrushShape(e.target.value)}
+              />
+              Square
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="brushShape"
+                value="circle"
+                checked={brushShape === 'circle'}
+                onChange={(e) => setBrushShape(e.target.value)}
+              />
+              Circle
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="brushShape"
+                value="scatter"
+                checked={brushShape === 'scatter'}
+                onChange={(e) => setBrushShape(e.target.value)}
+              />
+              Scatter
+            </label>
+          </div>
+          
+          {brushShape === 'scatter' && (
+            <div style={{ marginTop: '10px' }}>
+              <h4 style={{ margin: '0 0 5px 0' }}>Scatter Percentage: {scatterPercentage}%</h4>
+              <input
+                type="range"
+                min="1"
+                max="100"
+                value={scatterPercentage}
+                onChange={(e) => setScatterPercentage(Number(e.target.value))}
+                style={{ width: '100%' }}
+              />
+            </div>
+          )}
         </div>
   
         {/* Selected Tile Container */}

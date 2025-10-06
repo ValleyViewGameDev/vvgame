@@ -470,6 +470,22 @@
     "validono": true
   },
   {
+    "type": "Big Statue",
+    "symbol": "🗿",
+    "layoutkey": "st2",
+    "category": "editor",
+    "passable": false,
+    "range": 7,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": true,
+    "validonn": true,
+    "validono": true
+  },
+  {
     "type": "Volcano",
     "symbol": "🌋",
     "layoutkey": "vo",
