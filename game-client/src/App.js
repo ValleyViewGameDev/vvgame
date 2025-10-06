@@ -1939,6 +1939,7 @@ return (
           currentPlayer={currentPlayer}
           strings={strings}
           badgeState={badgeState}
+          electionPhase={timers.elections.phase}
         />
         <DynamicRenderer
           TILE_SIZE={activeTileSize}

@@ -807,6 +807,10 @@ export const getOverlayContent = (overlayType) => {
       return { emoji: '✅', color: 'green' };
     case 'inprogress':
       return { emoji: '🕑', color: 'orange' };
+    case 'campaign':
+      return { emoji: '🕐', color: '#FFD700' };
+    case 'voting':
+      return { emoji: '✅', color: 'green' };
     default:
       // For trade NPCs, the overlayType is the actual trade item symbol
       if (overlayType && overlayType.length <= 3) {

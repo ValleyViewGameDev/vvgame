@@ -62,7 +62,7 @@ export function generateResourceTooltip(resource, strings) {
 }
 
 export const RenderGrid = memo(
-  ({ grid, tileTypes, resources, handleTileClick, TILE_SIZE, setHoverTooltip, currentPlayer, strings, badgeState }) => {
+  ({ grid, tileTypes, resources, handleTileClick, TILE_SIZE, setHoverTooltip, currentPlayer, strings, badgeState, electionPhase }) => {
 
     const [, forceTick] = useState(0);
       useEffect(() => {
@@ -257,6 +257,32 @@ export const RenderGrid = memo(
               >
                 {getOverlayContent('ready').emoji}
               </div>
+            )}
+            
+            {/* ✅ Add Clock/Checkmark for Courthouse based on election phase */}
+            {resource && resource.type === 'Courthouse' && resource.x === colIndex && resource.y === rowIndex && (
+              <>
+                {electionPhase === 'Campaigning' && (
+                  <div
+                    className="game-overlay"
+                    style={{
+                      color: getOverlayContent('campaign').color,
+                    }}
+                  >
+                    {getOverlayContent('campaign').emoji}
+                  </div>
+                )}
+                {electionPhase === 'Voting' && (
+                  <div
+                    className="game-overlay"
+                    style={{
+                      color: getOverlayContent('voting').color,
+                    }}
+                  >
+                    {getOverlayContent('voting').emoji}
+                  </div>
+                )}
+              </>
             )}
           </div>
         );
