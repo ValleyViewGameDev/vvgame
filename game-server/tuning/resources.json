@@ -65,6 +65,7 @@
     "symbol": "💰",
     "layoutkey": "$$",
     "category": "doober",
+    "output": "Do Not Offer",
     "action": "collect",
     "passable": true,
     "qtycollected": 10,
