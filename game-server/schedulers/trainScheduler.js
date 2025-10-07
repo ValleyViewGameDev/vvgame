@@ -7,6 +7,7 @@ const sendMailboxMessage = require("../utils/messageUtils.js");
 const seasonsConfig = require("../tuning/seasons.json");
 const { getSeasonLevel } = require("../utils/scheduleHelpers");
 const { awardTrophy } = require("../utils/trophyUtils");
+const { isACrop } = require("../utils/worldUtils");
 
 async function trainScheduler(frontierId, phase, frontier = null) {
   try {
@@ -382,16 +383,6 @@ function weightedRandomByCraftEffort(items, seasonLevel = 1) {
   return items[items.length - 1];
 }
 
-// Helper function to determine if a resource is a crop
-function isACrop(resourceType) {
-  const resource = masterResources.find(r => r.type === resourceType);
-  if (!resource || !resource.source) return false;
-  
-  // Check if source contains Plot, Tree, or Vine
-  return resource.source.includes('Plot') || 
-         resource.source.includes('Tree') || 
-         resource.source.includes('Vine');
-}
 
 // Helper function to determine if a resource is a dead-end (not used as ingredient in any doober)
 function isDeadEnd(resourceType) {

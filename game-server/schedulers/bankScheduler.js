@@ -3,6 +3,7 @@ const Settlement = require("../models/settlement");
 const globalTuning = require("../tuning/globalTuning.json");
 const masterResources = require("../tuning/resources.json");
 const { getSeasonLevel } = require("../utils/scheduleHelpers");
+const { isACrop } = require("../utils/worldUtils");
 
 // **Bank Scheduler**
 async function bankScheduler(frontierId, phase, frontier = null) {
@@ -97,8 +98,26 @@ function generateBankOffers(seasonLevel) {
         // ✅ Pick a random resource
         const selectedItem = validResources[Math.floor(Math.random() * validResources.length)];
 
-        // ✅ Generate random quantity between 1-10
-        const qtyBought = Math.floor(Math.random() * 10) + 1; 
+        // ✅ Generate quantity based on whether it's a crop and its grow time
+        let qtyBought;
+        if (isACrop(selectedItem.type)) {
+            const growTime = selectedItem.crafttime || 0; // grow time in seconds
+            const growTimeHours = growTime / 3600; // convert to hours
+            
+            if (growTimeHours < 2) {
+                // Under 2 hours: 20-50
+                qtyBought = Math.floor(Math.random() * (50 - 20 + 1)) + 20;
+            } else if (growTimeHours < 24) {
+                // Under 1 day: 10-20
+                qtyBought = Math.floor(Math.random() * (20 - 10 + 1)) + 10;
+            } else {
+                // 1 day or more: 5-15
+                qtyBought = Math.floor(Math.random() * (15 - 5 + 1)) + 5;
+            }
+        } else {
+            // Non-crops: 1-10 (existing logic)
+            qtyBought = Math.floor(Math.random() * 10) + 1;
+        } 
 
         // ✅ Always give Money
         const itemGiven = "Money";
@@ -107,7 +126,7 @@ function generateBankOffers(seasonLevel) {
         const minprice = selectedItem.minprice || 50;  // Default to 50 if missing
         const maxprice = selectedItem.maxprice || 150; // Default to 150 if missing
         const pricePerUnit = Math.floor(Math.random() * (maxprice - minprice + 1)) + minprice;
-        const qtyGiven = pricePerUnit * qtyBought; // Total payout
+        const qtyGiven = Math.floor(pricePerUnit * qtyBought * 0.9); // Total payout with 0.9 multiplier
 
         console.log(`📌 Bank Offer: Buying ${qtyBought}x ${selectedItem.type} → Paying ${qtyGiven} Money`);
 
@@ -135,7 +154,7 @@ function generateBankOffers(seasonLevel) {
             const minprice = resourceData?.minprice || 500;  
             const maxprice = resourceData?.maxprice || 2000;  
             const pricePerUnit = Math.floor(Math.random() * (maxprice - minprice + 1)) + minprice;
-            const qtyGiven = pricePerUnit * offer.qtyBought;
+            const qtyGiven = Math.floor(pricePerUnit * offer.qtyBought * 0.9);
 
             console.log(`📌 Permanent Offer: Buying ${offer.qtyBought}x ${offer.itemBought} → Paying ${qtyGiven} Money`);
 

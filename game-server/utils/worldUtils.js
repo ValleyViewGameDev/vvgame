@@ -286,6 +286,19 @@ const isNPC = (resource) => {
   return npcEntry?.category === 'npc';
 };
 
+// Helper function to determine if a resource is a crop
+function isACrop(resourceType) {
+  // Exclude trees from being considered crops
+  if (resourceType === 'Oak Tree' || resourceType === 'Pine Tree') {
+    return false;
+  }
+  
+  // Check if this item is the output of any farmplot resource
+  return masterResources.some(resource => 
+    resource.category === 'farmplot' && resource.output === resourceType
+  );
+}
+
 // Utility to shuffle an array (Fisher-Yates shuffle)
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -302,6 +315,7 @@ module.exports = {
   generateEnemies,
 //  lookupLayoutKey,
   isNPC,
+  isACrop,
   generateFixedGrid,
   generateFixedResources,
 };
