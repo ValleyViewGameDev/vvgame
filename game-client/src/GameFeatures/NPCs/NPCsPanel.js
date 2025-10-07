@@ -642,6 +642,21 @@ const handleHeal = async (recipe) => {
             }}
           />
           
+          {/* Show message if quest interaction is not available due to relationship */}
+          {!canQuest && (
+            <div style={{ 
+              padding: '10px', 
+              backgroundColor: '#f5f5f5', 
+              borderRadius: '5px', 
+              marginTop: '10px',
+              textAlign: 'center',
+              fontStyle: 'italic',
+              color: '#666'
+            }}>
+              {strings[625]}
+            </div>
+          )}
+          
           {canQuest && (
             <>
               {questList.length > 0 ? (
@@ -846,9 +861,22 @@ const handleHeal = async (recipe) => {
             }}
           />
           
-          {!canTrade ? (
-            <div></div>
-          ) : (
+          {/* Show message if trade interaction is not available due to relationship */}
+          {!canTrade && (
+            <div style={{ 
+              padding: '10px', 
+              backgroundColor: '#f5f5f5', 
+              borderRadius: '5px', 
+              marginTop: '10px',
+              textAlign: 'center',
+              fontStyle: 'italic',
+              color: '#666'
+            }}>
+              {strings[626]}
+            </div>
+          )}
+          
+          {canTrade && (
             <>
               <h3>{strings[420]}</h3>
               {tradeRecipes.length > 0 ? (
