@@ -199,7 +199,20 @@ function TrainPanel({
                 <td style={{ padding: "6px 12px" }}>
                   {entry.status === 'Next Train' || entry.status === 'Current Train' ? 'n/a' : entry.totalwinners}
                 </td>
-                <td style={{ padding: "6px 12px" }}>{(entry.rewards || []).map(r => `${r.qty} ${r.item}`).join(', ')}</td>
+                <td style={{ padding: "6px 12px" }}>
+                  {(() => {
+                    // Combine rewards of the same type for display
+                    const combinedRewards = {};
+                    (entry.rewards || []).forEach((reward) => {
+                      if (combinedRewards[reward.item]) {
+                        combinedRewards[reward.item] += reward.qty;
+                      } else {
+                        combinedRewards[reward.item] = reward.qty;
+                      }
+                    });
+                    return Object.entries(combinedRewards).map(([item, totalQty]) => `${totalQty} ${item}`).join(', ');
+                  })()}
+                </td>
                 <td style={{ padding: "6px 12px" }}>
                   {entry.logic ? (
                     <button 
@@ -396,21 +409,23 @@ function TrainPanel({
   const renderRewardSection = () => {
     if (!trainRewards.length || trainPhase !== "loading") return null;
   
-    // ✅ Deduplicate by reward.item
-    const seen = new Set();
-    const uniqueRewards = trainRewards.filter((reward) => {
-      if (seen.has(reward.item)) return false;
-      seen.add(reward.item);
-      return true;
+    // ✅ Combine rewards of the same type
+    const combinedRewards = {};
+    trainRewards.forEach((reward) => {
+      if (combinedRewards[reward.item]) {
+        combinedRewards[reward.item] += reward.qty;
+      } else {
+        combinedRewards[reward.item] = reward.qty;
+      }
     });
   
     return (
       <div className="reward-section">
         <h4>{strings[2004]}</h4>
         <div className="train-rewards-container">
-          {uniqueRewards.map((reward, index) => (
+          {Object.entries(combinedRewards).map(([item, totalQty], index) => (
             <div key={index} className="train-reward-item">
-              {getSymbol(reward.item)} {reward.qty} {reward.item}
+              {getSymbol(item)} {totalQty} {item}
             </div>
           ))}
         </div>
