@@ -84,6 +84,9 @@ function generateBankOffers(seasonLevel) {
         // Must be a doober and not Money
         if (res.category !== "doober" || res.type === "Money") return false;
         
+        // Exclude any doobers where output === 'noBank'
+        if (res.output === "noBank") return false;
+        
         // Must be within ±1 of current season level
         const resourceLevel = res.level || 1; // Default to level 1 if not specified
         return Math.abs(resourceLevel - seasonLevel) <= 1;
@@ -144,7 +147,7 @@ function generateBankOffers(seasonLevel) {
     const permanentOffers = [
         { itemBought: "Silver", qtyBought: 10 },
         { itemBought: "Diamond Ring", qtyBought: 1 },
-        { itemBought: "Gold", qtyBought: 1 }
+        { itemBought: "Gold", qtyBought: 2 }
     ];
 
     // ✅ Ensure we don't add duplicate permanent offers
