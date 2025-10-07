@@ -62,7 +62,12 @@ const Feedback = ({ activePanel }) => {
       negative: {},
       totalResponses: 0,
       positiveResponses: 0,
-      negativeResponses: 0
+      negativeResponses: 0,
+      aspirations: {
+        1: 0, // Farming
+        2: 0, // Adventurer
+        3: 0  // Politician
+      }
     };
 
     // Initialize counts for all possible feedback options
