@@ -82,6 +82,15 @@ const Feedback = ({ activePanel }) => {
 
     // Count feedback from all players
     playersData.forEach(player => {
+      // Count aspirations for players who gave feedback
+      if (player.ftueFeedback && 
+          ((player.ftueFeedback.positive && player.ftueFeedback.positive.length > 0) ||
+           (player.ftueFeedback.negative && player.ftueFeedback.negative.length > 0))) {
+        if (player.aspiration && aggregatedFeedback.aspirations[player.aspiration] !== undefined) {
+          aggregatedFeedback.aspirations[player.aspiration]++;
+        }
+      }
+      
       if (player.ftueFeedback) {
         let hasPositive = false;
         let hasNegative = false;
@@ -161,15 +170,15 @@ const Feedback = ({ activePanel }) => {
       </div>
       
       {aggregatedData && (
-        <div className="feedback-summary">
-          <h3>Summary</h3>
-          <p><strong>Total Players with Feedback:</strong> {aggregatedData.totalResponses}</p>
-          <p><strong>Positive Responses:</strong> {aggregatedData.positiveResponses}</p>
-          <p><strong>Negative Responses:</strong> {aggregatedData.negativeResponses}</p>
+        <div className="feedback-summary" style={{ padding: '10px' }}>
+          <h3 style={{ fontSize: '16px', marginBottom: '8px' }}>Summary</h3>
+          <p style={{ fontSize: '14px', margin: '3px 0' }}><strong>Total Players with Feedback:</strong> {aggregatedData.totalResponses}</p>
+          <p style={{ fontSize: '14px', margin: '3px 0' }}><strong>Positive Responses:</strong> {aggregatedData.positiveResponses}</p>
+          <p style={{ fontSize: '14px', margin: '3px 0' }}><strong>Negative Responses:</strong> {aggregatedData.negativeResponses}</p>
         </div>
       )}
 
-      <div className="feedback-sections">
+      <div className="feedback-sections" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
         <div className="feedback-section positive">
           <h3>Positive Feedback Counts</h3>
           {aggregatedData && Object.entries(aggregatedData.positive).map(([index, count]) => (
@@ -189,6 +198,16 @@ const Feedback = ({ activePanel }) => {
             </div>
           ))}
         </div>
+
+        <div className="feedback-section" style={{ borderLeft: '4px solid #2196F3' }}>
+          <h3>Aspiration</h3>
+          {aggregatedData && Object.entries(aggregatedData.aspirations).map(([aspiration, count]) => (
+            <div key={aspiration} className="feedback-item">
+              <span className="feedback-text">{aspirationStrings[aspiration]}</span>
+              <span className="feedback-count">{count}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="players-table-container">
@@ -199,6 +218,7 @@ const Feedback = ({ activePanel }) => {
               <th>Username</th>
               <th>Last Played</th>
               <th>Aspiration</th>
+              <th>Language</th>
               <th>FTUE Step</th>
               <th>Browser</th>
               <th>Positive Feedback</th>
@@ -219,6 +239,7 @@ const Feedback = ({ activePanel }) => {
                 <td>{player.username}</td>
                 <td>{formatLastActive(player.lastActive)}</td>
                 <td>{aspirationStrings[player.aspiration] || 'Not set'}</td>
+                <td>{player.language || 'en'}</td>
                 <td>{player.ftuestep || 'Completed'}</td>
                 <td>{player.ftueFeedback?.browser || 'Unknown'}</td>
                 <td>
