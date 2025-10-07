@@ -4,7 +4,7 @@ import Panel from '../../UI/Panel';
 import axios from 'axios';
 import '../../UI/ResourceButton.css';
 import ResourceButton from '../../UI/ResourceButton';
-import { canAfford } from '../../Utils/InventoryManagement';
+import { canAfford, hasRoomFor } from '../../Utils/InventoryManagement';
 import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import playersInGridManager from '../../GridState/PlayersInGrid';
@@ -95,6 +95,39 @@ const ShopStation = ({
       setErrorMessage('Invalid recipe selected.');
       return;
     }
+
+    // For non-power items, check if there's room before spending money
+    if (recipe.category !== "power") {
+      const quantity = recipe.qtycollected || 1;
+      const hasRoom = hasRoomFor({
+        resource: recipe.type,
+        quantity: quantity,
+        currentPlayer,
+        inventory: inventory,
+        backpack: backpack,
+        masterResources
+      });
+      
+      if (!hasRoom) {
+        const isHomestead = currentPlayer?.location?.gtype === 'homestead';
+        const isMoney = recipe.type === "Money";
+        const isGem = recipe.type === "Gem";
+        
+        if (!isMoney && !isGem && !isHomestead) {
+          // Check if player has backpack skill
+          const hasBackpackSkill = currentPlayer?.skills?.some((item) => item.type === 'Backpack' && item.quantity > 0);
+          if (!hasBackpackSkill) {
+            updateStatus(19); // Missing backpack
+          } else {
+            updateStatus(21); // Backpack full
+          }
+        } else {
+          updateStatus(20); // Warehouse full
+        }
+        return;
+      }
+    }
+
     const success = await spendIngredients({
       playerId: currentPlayer.playerId,
       recipe,
