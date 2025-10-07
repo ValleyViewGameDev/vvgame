@@ -44,6 +44,8 @@
     "76": "Votre entrepôt est vide.",
     "77": "Votre sac à dos est vide.",
     "78": "Gérer le sac à dos",
+"81": "Monter une tente en Ville ou dans la Vallée vous empêche d'être attaqué.",
+"82": "Un bateau vous permettra de voyager sur l'eau.",
     "90": "🚫 Ce n'est pas votre domaine.",
   
     "99": "⚠️ Une erreur s'est produite.",
@@ -1084,6 +1086,8 @@
 "2017": "Cette commande a déjà été réclamée.",
 
 "80": "Acquis ",
+
+
 "511": "❤️‍🩹 Votre Santé : ",
 "512": "Votre Santé Indisponible",
 

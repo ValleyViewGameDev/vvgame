@@ -295,16 +295,31 @@ const ShopStation = ({
                 (recipe.requires ? `<span style="color: ${skillColor};">Requires: ${recipe.requires}</span><br>` : '') +
                 `Costs:<div>${formattedCosts}</div>`;
 
-              const info = (
+              let infoContent = null;
+              
+              // Special tooltip content for Tent and Boat at General Store
+              if (stationType === "Store" || stationType === "General Store") {
+                if (recipe.type === "Tent") {
+                  infoContent = <div>{strings[81]}</div>; // "Pitching a tent in Town or the Valley prevents you from being attacked."
+                } else if (recipe.type === "Boat") {
+                  infoContent = <div>{strings[82]}</div>; // "A boat will allow you to travel by water."
+                }
+              }
+              
+              // For other items (like powers), show combat attributes
+              if (!infoContent && outputSummary) {
+                infoContent = (
+                  <div style={{ marginBottom: '4px' }}>
+                    <strong>{outputSummary}</strong>
+                  </div>
+                );
+              }
+              
+              const info = infoContent ? (
                 <div className="info-content">
-                  {outputSummary && (
-                    <div style={{ marginBottom: '4px' }}>
-                      <strong>{outputSummary}</strong>
-                    </div>
-                  )}
-                  <div><strong>{strings[422]}</strong> 💰 {recipe.minprice || 'n/a'}</div>
+                  {infoContent}
                 </div>
-              );
+              ) : null;
               
               return (
                 <ResourceButton
