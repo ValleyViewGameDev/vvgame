@@ -46,7 +46,7 @@
     "title": "Grower",
     "textbody": "There is virtue in the soil, friend, and wisdom in the roots. Master the Grower’s craft, and let the seeds thou plant today bring bounty and sustenance upon the morrow.",
     "symbol": "🤠",
-    "ftuestep": 5,
+    "ftuestep": 4,
     "repeatable": false,
     "giver": "Kent",
     "reward": "Money",
