@@ -271,7 +271,7 @@
     "giver": "The Shepherd",
     "reward": "Money",
     "rewardqty": 50,
-    "goal1action": "Collect",
+    "goal1action": "Craft",
     "goal1item": "Rancher",
     "goal1qty": 1
   },
