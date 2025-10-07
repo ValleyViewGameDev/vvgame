@@ -125,7 +125,8 @@ function generateBankOffers(seasonLevel) {
         // ✅ Calculate the amount of Money given
         const minprice = selectedItem.minprice || 50;  // Default to 50 if missing
         const maxprice = selectedItem.maxprice || 150; // Default to 150 if missing
-        const pricePerUnit = Math.floor(Math.random() * (maxprice - minprice + 1)) + minprice;
+        const midpoint = Math.floor((minprice + maxprice) / 2);
+        const pricePerUnit = Math.floor(Math.random() * (midpoint - minprice + 1)) + minprice;
         const qtyGiven = Math.floor(pricePerUnit * qtyBought * 0.9); // Total payout with 0.9 multiplier
 
         console.log(`📌 Bank Offer: Buying ${qtyBought}x ${selectedItem.type} → Paying ${qtyGiven} Money`);
@@ -153,7 +154,8 @@ function generateBankOffers(seasonLevel) {
             const resourceData = masterResources.find(res => res.type === offer.itemBought);
             const minprice = resourceData?.minprice || 500;  
             const maxprice = resourceData?.maxprice || 2000;  
-            const pricePerUnit = Math.floor(Math.random() * (maxprice - minprice + 1)) + minprice;
+            const midpoint = Math.floor((minprice + maxprice) / 2);
+            const pricePerUnit = Math.floor(Math.random() * (midpoint - minprice + 1)) + minprice;
             const qtyGiven = Math.floor(pricePerUnit * offer.qtyBought * 0.9);
 
             console.log(`📌 Permanent Offer: Buying ${offer.qtyBought}x ${offer.itemBought} → Paying ${qtyGiven} Money`);
