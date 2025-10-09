@@ -158,12 +158,7 @@ router.get('/ftue-analytics', async (req, res) => {
       }
     });
 
-    // Calculate retention by registration date
-    const last30Days = ftueData.filter(player => {
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      return new Date(player.createdAt) >= thirtyDaysAgo;
-    });
+    // All users are already filtered by the selected date range
 
     // Calculate funnel progression (cumulative: users who reached AT LEAST each step)
     const stepProgression = [];
@@ -237,7 +232,6 @@ router.get('/ftue-analytics', async (req, res) => {
       totalUsers,
       stepCounts,
       stepProgression,
-      last30DaysUsers: last30Days.length,
       dateRangeUsersCount: recentUsers.length,
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
