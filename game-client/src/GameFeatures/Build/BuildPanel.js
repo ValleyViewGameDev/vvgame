@@ -10,6 +10,7 @@ import { usePanelContext } from '../../UI/PanelContext';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
+import { getMayorUsername } from '../Government/GovUtils';
 
 const BuildPanel = ({
   TILE_SIZE,
@@ -32,13 +33,32 @@ const BuildPanel = ({
   const [buildOptions, setBuildOptions] = useState([]);
   const [allResources, setAllResources] = useState([]);
   const [isContentLoading, setIsContentLoading] = useState(false);
+  const [isMayor, setIsMayor] = useState(false);
   const strings = useStrings();
 
   // Fetch inventory and build options when the panel initializes
   useEffect(() => {
+    console.log('🏗️ BuildPanel opened with currentPlayer:', {
+      username: currentPlayer?.username,
+      role: currentPlayer?.role,
+      homeSettlementId: currentPlayer?.settlementId,
+      currentLocation: currentPlayer?.location,
+      isDeveloper
+    });
+    
     const fetchData = async () => {
       //setIsContentLoading(true);
       try {
+        // Check if player is mayor ONLY if we're in a town
+        let isPlayerMayor = false;
+        if (currentPlayer.location.gtype === 'town' && currentPlayer.location.s) {
+          console.log('🏛️ In town, checking if player is mayor...');
+          const mayorUsername = await getMayorUsername(currentPlayer.location.s);
+          isPlayerMayor = mayorUsername === currentPlayer.username;
+          console.log('🏛️ Mayor check:', { mayorUsername, playerUsername: currentPlayer.username, isPlayerMayor });
+        }
+        setIsMayor(isPlayerMayor);
+        
         // Fetch inventory
         const inventoryResponse = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
         setInventory(inventoryResponse.data.inventory || []);
@@ -46,11 +66,35 @@ const BuildPanel = ({
         const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
         const allResourcesData = resourcesResponse.data;
         setAllResources(allResourcesData);
+        
+        // Debug: Show all BuildTown resources
+        const buildTownResources = allResourcesData.filter(r => r.source === 'BuildTown');
+        console.log('🏢 BuildTown resources found:', buildTownResources.map(r => r.type));
         // ✅ Filter build options based on the player's location
         const validBuildOptions = allResourcesData.filter(resource => {
           // Check if resource is a valid build option based on source and location
+          // Convert to strings for comparison to handle ObjectId vs string issues
+          const currentSettlementStr = String(currentPlayer.location.s || '');
+          const homeSettlementStr = String(currentPlayer.settlementId || '');
+          const settlementsMatch = currentSettlementStr === homeSettlementStr;
+          
+          if (resource.source === 'BuildTown') {
+            console.log(`BuildPanel: Checking ${resource.type}:`, {
+              source: resource.source,
+              gtype: currentPlayer.location.gtype,
+              isPlayerMayor,
+              currentSettlement: currentPlayer.location.s,
+              homeSettlement: currentPlayer.settlementId,
+              currentSettlementStr,
+              homeSettlementStr,
+              settlementsMatch,
+              isDeveloper
+            });
+          }
+          
           const isValidSource = resource.source === 'Build' || 
-            (resource.source === 'BuildTown' && currentPlayer.location.gtype === 'town' && (currentPlayer.role === 'Mayor' || isDeveloper)) ||
+            (resource.source === 'BuildTown' && currentPlayer.location.gtype === 'town' && (isPlayerMayor || isDeveloper) && 
+             (settlementsMatch || isDeveloper)) ||
             (resource.source === 'BuildValley' && currentPlayer.location.gtype != 'homestead');
           
           if (!isValidSource) return false;
@@ -62,6 +106,17 @@ const BuildPanel = ({
           
           return true;
         });
+        
+        // Debug: Show what will be displayed
+        const buildTownInFinal = validBuildOptions.filter(r => r.source === 'BuildTown');
+        console.log('🏗️ Final BuildPanel options:', {
+          totalOptions: validBuildOptions.length,
+          buildTownIncluded: buildTownInFinal.map(r => r.type),
+          shouldHaveBuildTown: currentPlayer.location.gtype === 'town' && 
+                               (isPlayerMayor || isDeveloper) && 
+                               (String(currentPlayer.location.s) === String(currentPlayer.settlementId) || isDeveloper)
+        });
+        
         setBuildOptions(validBuildOptions); 
       } catch (error) {
         console.error('Error fetching build panel data:', error);
@@ -71,7 +126,7 @@ const BuildPanel = ({
     };
 
     fetchData();
-  }, [currentPlayer]);
+  }, [currentPlayer, currentPlayer?.location?.s, currentPlayer?.location?.gtype, currentPlayer?.settlementId, isDeveloper, currentSeason]);
 
   const hasRequiredSkill = (requiredSkill) => {
     return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);

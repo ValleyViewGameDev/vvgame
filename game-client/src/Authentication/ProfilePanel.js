@@ -330,6 +330,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           </button>
         </div>
         <p>{strings[4058]} {currentPlayer?.playerId || 'N/A'}</p>
+        <p>Home Settlement ID: {currentPlayer?.settlementId || 'N/A'}</p>
 
         <br/>
 
