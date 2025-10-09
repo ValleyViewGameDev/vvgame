@@ -412,6 +412,7 @@ const SocialPanel = ({
         )}
 
         {/* Show RelationshipCard only for other players */}
+        {/* TODO: Relationship feature is in progress - temporarily commented out
         {displayedPCData.username !== currentPlayer.username && (
           <RelationshipCard
             currentPlayer={currentPlayer}
@@ -427,6 +428,7 @@ const SocialPanel = ({
             }}
           />
         )}
+        */}
 
         {/* Debug button for developers to remove player from grid state */}
         {isDeveloper && displayedPCData.username !== currentPlayer.username && (
