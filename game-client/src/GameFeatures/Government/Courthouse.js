@@ -312,12 +312,29 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
     console.log("hasVoted:", hasVoted);
     console.log("electionPhase:", electionPhase);
 
+
+
+
     return (
         <Panel onClose={onClose} descriptionKey="1012" titleKey="1112" panelName="Courthouse">
-            <div className="panel-content courthouse-panel">       
-
-            {isMayor && <h2>{strings[2080]}</h2>}
-            
+            <div className="panel-content courthouse-panel">
+            {/* Check if player is in their home settlement */}
+            {(() => {
+                const isInHomeSettlement = String(currentPlayer.location.s) === String(currentPlayer.settlementId);
+                console.log('🏛️ Courthouse access check:', {
+                    currentSettlement: currentPlayer.location.s,
+                    homeSettlement: currentPlayer.settlementId,
+                    isInHomeSettlement
+                });
+                return !isInHomeSettlement;
+            })() ? (
+                <div style={{ textAlign: 'center', padding: '20px' }}>
+                    <h2>{strings[2050] || "This is not your home settlement."}</h2>
+                </div>
+            ) : (
+                <>
+                {isMayor && <h2>{strings[2080]}</h2>}
+                
                 <div className="debug-buttons">
 
 
@@ -503,6 +520,8 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
                         </div>
                     )}
                 </div>
+                </>
+            )}
             </div>
             {isModalOpen && (
                 <Modal
