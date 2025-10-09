@@ -1,10 +1,22 @@
 const express = require('express');
 const router = express.Router();
 const Player = require('../models/player');
+const fs = require('fs');
+const path = require('path');
 
 // Get daily active users for the last N days
 router.get('/daily-active-users', async (req, res) => {
   try {
+    // Load developer usernames from JSON file
+    let developerUsernames = [];
+    try {
+      const developerUsernamesPath = path.join(__dirname, '../tuning/developerUsernames.json');
+      const developerData = fs.readFileSync(developerUsernamesPath, 'utf8');
+      developerUsernames = JSON.parse(developerData);
+    } catch (error) {
+      console.warn('Could not load developer usernames:', error.message);
+    }
+
     const days = parseInt(req.query.days) || 30;
     const endDate = new Date();
     endDate.setHours(23, 59, 59, 999);
@@ -21,7 +33,10 @@ router.get('/daily-active-users', async (req, res) => {
             $gte: startDate,
             $lte: endDate 
           },
-          isDeveloper: { $ne: true } // Exclude players where isDeveloper is true
+          $and: [
+            { isDeveloper: { $ne: true } }, // Exclude players marked as developers
+            { username: { $nin: developerUsernames } } // Exclude developer usernames
+          ]
         }
       },
       {
@@ -83,11 +98,24 @@ router.get('/daily-active-users', async (req, res) => {
 // Get FTUE progression analytics
 router.get('/ftue-analytics', async (req, res) => {
   try {
+    // Load developer usernames from JSON file
+    let developerUsernames = [];
+    try {
+      const developerUsernamesPath = path.join(__dirname, '../tuning/developerUsernames.json');
+      const developerData = fs.readFileSync(developerUsernamesPath, 'utf8');
+      developerUsernames = JSON.parse(developerData);
+    } catch (error) {
+      console.warn('Could not load developer usernames:', error.message);
+    }
+
     // Get all players with FTUE data (excluding developers)
     const ftueData = await Player.aggregate([
       {
         $match: {
-          isDeveloper: { $ne: true } // Exclude developers
+          $and: [
+            { isDeveloper: { $ne: true } }, // Exclude players marked as developers
+            { username: { $nin: developerUsernames } } // Exclude developer usernames
+          ]
         }
       },
       {
@@ -129,38 +157,82 @@ router.get('/ftue-analytics', async (req, res) => {
       return new Date(player.createdAt) >= thirtyDaysAgo;
     });
 
-    // Calculate step progression percentages
+    // Calculate funnel progression (cumulative: users who reached AT LEAST each step)
     const stepProgression = [];
     const maxStep = 10; // Based on FTUE having 10 steps
+    const completedUsers = stepCounts['completed'] || 0;
     
     for (let i = 0; i <= maxStep; i++) {
-      const stepKey = `step_${i}`;
-      const count = stepCounts[stepKey] || 0;
-      const percentage = totalUsers > 0 ? ((count / totalUsers) * 100).toFixed(1) : 0;
+      // Count users who reached AT LEAST this step
+      // This includes users currently at this step + users at any higher step + completed users
+      let cumulativeCount = 0;
+      
+      if (i === 0) {
+        // Step 0: All users (everyone starts here)
+        cumulativeCount = totalUsers;
+      } else {
+        // For step X: count users at step X and all higher steps + completed
+        for (let j = i; j <= maxStep; j++) {
+          const stepKey = `step_${j}`;
+          cumulativeCount += stepCounts[stepKey] || 0;
+        }
+        cumulativeCount += completedUsers; // Add completed users
+      }
+      
+      const percentage = totalUsers > 0 ? ((cumulativeCount / totalUsers) * 100).toFixed(1) : 0;
       
       stepProgression.push({
         step: i,
-        count: count,
+        count: cumulativeCount,
         percentage: parseFloat(percentage),
-        label: i === 0 ? 'Not Started' : `Step ${i}`
+        label: i === 0 ? 'Started FTUE' : `Reached Step ${i}`,
+        currentlyAt: stepCounts[`step_${i}`] || 0 // Also include count of users currently stuck at this step
       });
     }
     
-    // Add completed users
-    const completedUsers = stepCounts['completed'] || 0;
+    // Add completed users as final step
     stepProgression.push({
       step: 'completed',
       count: completedUsers,
       percentage: totalUsers > 0 ? ((completedUsers / totalUsers) * 100).toFixed(1) : 0,
-      label: 'Completed'
+      label: 'Completed FTUE',
+      currentlyAt: completedUsers
     });
+
+    // Get the most recent 50 users (sorted by creation date, descending)
+    const recentUsers = await Player.aggregate([
+      {
+        $match: {
+          $and: [
+            { isDeveloper: { $ne: true } }, // Exclude players marked as developers
+            { username: { $nin: developerUsernames } } // Exclude developer usernames
+          ]
+        }
+      },
+      {
+        $project: {
+          playerId: 1,
+          firsttimeuser: 1,
+          ftuestep: 1,
+          createdAt: 1,
+          lastActive: 1,
+          username: 1
+        }
+      },
+      {
+        $sort: { createdAt: -1 } // Sort by creation date, newest first
+      },
+      {
+        $limit: 50 // Get the 50 most recent users
+      }
+    ]);
 
     res.json({
       totalUsers,
       stepCounts,
       stepProgression,
       last30DaysUsers: last30Days.length,
-      rawData: ftueData.slice(0, 50) // Return last 50 users for detailed analysis
+      rawData: recentUsers // Return filtered recent users
     });
 
   } catch (error) {

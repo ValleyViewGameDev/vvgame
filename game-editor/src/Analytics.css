@@ -189,6 +189,12 @@
   text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
 }
 
+.currently-at {
+  font-size: 11px;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
 .recent-users {
   margin-top: 30px;
 }

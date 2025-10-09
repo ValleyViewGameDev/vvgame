@@ -151,7 +151,12 @@ const Analytics = ({ activePanel }) => {
                                          step.step === 0 ? '#dc3545' : '#007bff'
                         }}
                       ></div>
-                      <span className="step-stats">{step.count} users ({step.percentage}%)</span>
+                      <span className="step-stats">
+                        {step.count} reached ({step.percentage}%)
+                        {step.currentlyAt !== undefined && step.currentlyAt !== step.count && (
+                          <span className="currently-at"> • {step.currentlyAt} currently here</span>
+                        )}
+                      </span>
                     </div>
                   </div>
                 ))}
