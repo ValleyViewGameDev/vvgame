@@ -5,12 +5,15 @@ import './Analytics.css';
 
 const Analytics = ({ activePanel }) => {
   const [dailyActiveUsers, setDailyActiveUsers] = useState([]);
+  const [ftueAnalytics, setFtueAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [ftueLoading, setFtueLoading] = useState(true);
   const [dateRange, setDateRange] = useState(30); // Default to last 30 days
 
   useEffect(() => {
     if (activePanel === 'analytics') {
       fetchAnalytics();
+      fetchFtueAnalytics();
     }
   }, [activePanel, dateRange]);
 
@@ -25,6 +28,18 @@ const Analytics = ({ activePanel }) => {
       console.error('Error fetching analytics:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchFtueAnalytics = async () => {
+    setFtueLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE}/api/analytics/ftue-analytics`);
+      setFtueAnalytics(response.data);
+    } catch (error) {
+      console.error('Error fetching FTUE analytics:', error);
+    } finally {
+      setFtueLoading(false);
     }
   };
 
@@ -94,6 +109,96 @@ const Analytics = ({ activePanel }) => {
               </div>
             </div>
           </>
+        )}
+      </div>
+
+      <div className="metric-card">
+        <h3>FTUE Drop-off Analysis</h3>
+        {ftueLoading ? (
+          <p>Loading FTUE data...</p>
+        ) : ftueAnalytics ? (
+          <>
+            <div className="ftue-summary">
+              <div className="stat">
+                <span className="stat-label">Total Users:</span>
+                <span className="stat-value">{ftueAnalytics.totalUsers}</span>
+              </div>
+              <div className="stat">
+                <span className="stat-label">Completed FTUE:</span>
+                <span className="stat-value">
+                  {ftueAnalytics.stepProgression.find(s => s.step === 'completed')?.count || 0} 
+                  ({ftueAnalytics.stepProgression.find(s => s.step === 'completed')?.percentage || 0}%)
+                </span>
+              </div>
+              <div className="stat">
+                <span className="stat-label">Last 30 Days:</span>
+                <span className="stat-value">{ftueAnalytics.last30DaysUsers} new users</span>
+              </div>
+            </div>
+
+            <div className="ftue-progression">
+              <h4>Step Progression:</h4>
+              <div className="progression-chart">
+                {ftueAnalytics.stepProgression.map((step, index) => (
+                  <div key={index} className="progression-step">
+                    <div className="step-label">{step.label}</div>
+                    <div className="step-bar-container">
+                      <div 
+                        className="step-bar" 
+                        style={{ 
+                          width: `${step.percentage}%`,
+                          backgroundColor: step.step === 'completed' ? '#28a745' : 
+                                         step.step === 0 ? '#dc3545' : '#007bff'
+                        }}
+                      ></div>
+                      <span className="step-stats">{step.count} users ({step.percentage}%)</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="recent-users">
+              <h4>Recent Users (Last 50):</h4>
+              <div className="users-table">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Username</th>
+                      <th>FTUE Status</th>
+                      <th>Current Step</th>
+                      <th>Registered</th>
+                      <th>Last Active</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ftueAnalytics.rawData.map((user, index) => (
+                      <tr key={index}>
+                        <td>{user.username || user.playerId.substring(0, 8)}</td>
+                        <td>
+                          <span className={`status ${
+                            user.firsttimeuser === false || user.firsttimeuser === undefined ? 'completed' : 'in-progress'
+                          }`}>
+                            {user.firsttimeuser === false || user.firsttimeuser === undefined ? 'Completed' : 'In Progress'}
+                          </span>
+                        </td>
+                        <td>
+                          {user.firsttimeuser === false || user.firsttimeuser === undefined ? 
+                            'Done' : 
+                            `Step ${user.ftuestep || 0}`
+                          }
+                        </td>
+                        <td>{new Date(user.createdAt).toLocaleDateString()}</td>
+                        <td>{new Date(user.lastActive).toLocaleDateString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        ) : (
+          <p>No FTUE data available</p>
         )}
       </div>
     </div>
