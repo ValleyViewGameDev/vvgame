@@ -98,6 +98,13 @@ router.get('/daily-active-users', async (req, res) => {
 // Get FTUE progression analytics
 router.get('/ftue-analytics', async (req, res) => {
   try {
+    // Get date range from query parameters
+    const startDate = req.query.startDate ? new Date(req.query.startDate) : new Date('2025-10-01T00:00:00.000Z');
+    const endDate = req.query.endDate ? new Date(req.query.endDate) : new Date();
+    
+    // Set time to start and end of day
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
     // Load developer usernames from JSON file
     let developerUsernames = [];
     try {
@@ -108,13 +115,14 @@ router.get('/ftue-analytics', async (req, res) => {
       console.warn('Could not load developer usernames:', error.message);
     }
 
-    // Get all players with FTUE data (excluding developers)
+    // Get all players with FTUE data within date range (excluding developers)
     const ftueData = await Player.aggregate([
       {
         $match: {
           $and: [
             { isDeveloper: { $ne: true } }, // Exclude players marked as developers
-            { username: { $nin: developerUsernames } } // Exclude developer usernames
+            { username: { $nin: developerUsernames } }, // Exclude developer usernames
+            { createdAt: { $gte: startDate, $lte: endDate } } // Only users within date range
           ]
         }
       },
@@ -199,13 +207,14 @@ router.get('/ftue-analytics', async (req, res) => {
       currentlyAt: completedUsers
     });
 
-    // Get the most recent 50 users (sorted by creation date, descending)
+    // Get users within the specified date range
     const recentUsers = await Player.aggregate([
       {
         $match: {
           $and: [
             { isDeveloper: { $ne: true } }, // Exclude players marked as developers
-            { username: { $nin: developerUsernames } } // Exclude developer usernames
+            { username: { $nin: developerUsernames } }, // Exclude developer usernames
+            { createdAt: { $gte: startDate, $lte: endDate } } // Only users within date range
           ]
         }
       },
@@ -221,9 +230,6 @@ router.get('/ftue-analytics', async (req, res) => {
       },
       {
         $sort: { createdAt: -1 } // Sort by creation date, newest first
-      },
-      {
-        $limit: 50 // Get the 50 most recent users
       }
     ]);
 
@@ -232,7 +238,10 @@ router.get('/ftue-analytics', async (req, res) => {
       stepCounts,
       stepProgression,
       last30DaysUsers: last30Days.length,
-      rawData: recentUsers // Return filtered recent users
+      dateRangeUsersCount: recentUsers.length,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+      rawData: recentUsers // Return all users within date range
     });
 
   } catch (error) {

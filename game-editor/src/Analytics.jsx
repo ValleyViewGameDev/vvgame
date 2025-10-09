@@ -9,13 +9,20 @@ const Analytics = ({ activePanel }) => {
   const [loading, setLoading] = useState(true);
   const [ftueLoading, setFtueLoading] = useState(true);
   const [dateRange, setDateRange] = useState(30); // Default to last 30 days
+  const [ftueStartDate, setFtueStartDate] = useState(new Date('2025-10-01').toISOString().split('T')[0]);
+  const [ftueEndDate, setFtueEndDate] = useState(new Date().toISOString().split('T')[0]);
 
   useEffect(() => {
     if (activePanel === 'analytics') {
       fetchAnalytics();
-      fetchFtueAnalytics();
     }
   }, [activePanel, dateRange]);
+
+  useEffect(() => {
+    if (activePanel === 'analytics') {
+      fetchFtueAnalytics();
+    }
+  }, [activePanel, ftueStartDate, ftueEndDate]);
 
   const fetchAnalytics = async () => {
     setLoading(true);
@@ -34,7 +41,12 @@ const Analytics = ({ activePanel }) => {
   const fetchFtueAnalytics = async () => {
     setFtueLoading(true);
     try {
-      const response = await axios.get(`${API_BASE}/api/analytics/ftue-analytics`);
+      const response = await axios.get(`${API_BASE}/api/analytics/ftue-analytics`, {
+        params: { 
+          startDate: ftueStartDate,
+          endDate: ftueEndDate 
+        }
+      });
       setFtueAnalytics(response.data);
     } catch (error) {
       console.error('Error fetching FTUE analytics:', error);
@@ -114,6 +126,23 @@ const Analytics = ({ activePanel }) => {
 
       <div className="metric-card">
         <h3>FTUE Drop-off Analysis</h3>
+        <div className="date-range-picker">
+          <label>Start Date: </label>
+          <input 
+            type="date" 
+            value={ftueStartDate} 
+            onChange={(e) => setFtueStartDate(e.target.value)}
+            max={ftueEndDate}
+          />
+          <label style={{ marginLeft: '20px' }}>End Date: </label>
+          <input 
+            type="date" 
+            value={ftueEndDate} 
+            onChange={(e) => setFtueEndDate(e.target.value)}
+            min={ftueStartDate}
+            max={new Date().toISOString().split('T')[0]}
+          />
+        </div>
         {ftueLoading ? (
           <p>Loading FTUE data...</p>
         ) : ftueAnalytics ? (
@@ -133,6 +162,10 @@ const Analytics = ({ activePanel }) => {
               <div className="stat">
                 <span className="stat-label">Last 30 Days:</span>
                 <span className="stat-value">{ftueAnalytics.last30DaysUsers} new users</span>
+              </div>
+              <div className="stat">
+                <span className="stat-label">Date Range Users:</span>
+                <span className="stat-value">{ftueAnalytics.dateRangeUsersCount} users</span>
               </div>
             </div>
 
@@ -164,7 +197,7 @@ const Analytics = ({ activePanel }) => {
             </div>
 
             <div className="recent-users">
-              <h4>Recent Users (Last 50):</h4>
+              <h4>Users in Selected Period ({ftueAnalytics.dateRangeUsersCount} total):</h4>
               <div className="users-table">
                 <table>
                   <thead>

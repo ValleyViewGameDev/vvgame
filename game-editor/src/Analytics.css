@@ -24,6 +24,28 @@
   cursor: pointer;
 }
 
+.date-range-picker {
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.date-range-picker label {
+  font-weight: 500;
+  color: #555;
+}
+
+.date-range-picker input[type="date"] {
+  margin-left: 8px;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+}
+
 .metric-card {
   background-color: #f9f9f9;
   border: 1px solid #e0e0e0;
