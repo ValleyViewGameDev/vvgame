@@ -12,8 +12,6 @@ import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
-import playersInGridManager from '../../GridState/PlayersInGrid';
-import { createCollectEffect } from '../../VFX/VFX';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
@@ -21,8 +19,6 @@ import { formatSingleCollection } from '../../UI/StatusBar/CollectionFormatters'
 import '../../UI/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
-import { handleConstruction } from '../BuildAndBuy';
-import { incrementFTUEStep } from '../FTUE/FTUE';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import './ScrollStation.css'; // Import for shared station panel styles
 
@@ -439,18 +435,26 @@ const CraftingStation = ({
   return (
     <Panel onClose={onClose} descriptionKey="1009" title={`${stationEmoji} ${getLocalizedString(stationType, strings)}`} panelName="CraftingStation">
       <div className="station-panel-container">
-        {skillMessage && (
-          <div className="station-panel-header" style={{ 
-            padding: '10px', 
-            backgroundColor: '#f0f0f0', 
-            borderRadius: '5px',
-            fontStyle: 'italic',
-            marginBottom: '10px'
-          }}>
-            {skillMessage}
+        {/* Check if Library or Hospital requires home settlement */}
+        {(stationType === 'Library' || stationType === 'Hospital') && 
+         String(currentPlayer.location.s) !== String(currentPlayer.settlementId) ? (
+          <div style={{ textAlign: 'center', padding: '20px' }}>
+            <h2>{strings[2050] || "This is not your home settlement. You cannot access community services in any settlement but your own."}</h2>
           </div>
-        )}
-        <div className="station-panel-content">
+        ) : (
+          <>
+            {skillMessage && (
+              <div className="station-panel-header" style={{ 
+                padding: '10px', 
+                backgroundColor: '#f0f0f0', 
+                borderRadius: '5px',
+                fontStyle: 'italic',
+                marginBottom: '10px'
+              }}>
+                {skillMessage}
+              </div>
+            )}
+            <div className="station-panel-content">
         
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
@@ -533,18 +537,20 @@ const CraftingStation = ({
           {errorMessage && <p className="error-message">{errorMessage}</p>}
         </div>
         
-        {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
-          <div className="station-panel-footer">
-            <div className="standard-buttons">
-              <TransactionButton 
-                className="btn-success" 
-                onAction={handleSellStation}
-                transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
-              >
-                {strings[425]}
-              </TransactionButton>
-            </div>
-          </div>
+            {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
+              <div className="station-panel-footer">
+                <div className="standard-buttons">
+                  <TransactionButton 
+                    className="btn-success" 
+                    onAction={handleSellStation}
+                    transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
+                  >
+                    {strings[425]}
+                  </TransactionButton>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </Panel>

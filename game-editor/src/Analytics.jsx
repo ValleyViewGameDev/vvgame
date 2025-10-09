@@ -149,7 +149,7 @@ const Analytics = ({ activePanel }) => {
           <>
             <div className="ftue-summary">
               <div className="stat">
-                <span className="stat-label">Total Users:</span>
+                <span className="stat-label">Total Users in Range:</span>
                 <span className="stat-value">{ftueAnalytics.totalUsers}</span>
               </div>
               <div className="stat">
@@ -158,14 +158,6 @@ const Analytics = ({ activePanel }) => {
                   {ftueAnalytics.stepProgression.find(s => s.step === 'completed')?.count || 0} 
                   ({ftueAnalytics.stepProgression.find(s => s.step === 'completed')?.percentage || 0}%)
                 </span>
-              </div>
-              <div className="stat">
-                <span className="stat-label">Last 30 Days:</span>
-                <span className="stat-value">{ftueAnalytics.last30DaysUsers} new users</span>
-              </div>
-              <div className="stat">
-                <span className="stat-label">Date Range Users:</span>
-                <span className="stat-value">{ftueAnalytics.dateRangeUsersCount} users</span>
               </div>
             </div>
 

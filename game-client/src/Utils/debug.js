@@ -990,6 +990,7 @@ const handleGetRich = async () => {
       gridId={currentGridId}
       gridCoord={currentPlayer?.location?.gridCoord}
       gridType={currentPlayer?.location?.gtype}
+      settlementId={currentPlayer?.location?.s}
       NPCsInGrid={{ [currentGridId]: NPCsInGridManager.getNPCsInGrid(currentGridId) }}
       playersInGrid={{ [currentGridId]: playersInGridManager.getPlayersInGrid(currentGridId) }}
     />

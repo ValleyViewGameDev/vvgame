@@ -2,7 +2,7 @@
 import React from 'react';
 import './GridStateDebug.css';
 
-const GridStateDebugPanel = ({ gridId, gridCoord, gridType, NPCsInGrid, playersInGrid }) => {
+const GridStateDebugPanel = ({ gridId, gridCoord, gridType, settlementId, NPCsInGrid, playersInGrid }) => {
   const formatJSON = (obj) => {
     try {
       return JSON.stringify(obj, null, 2);
@@ -22,6 +22,7 @@ const GridStateDebugPanel = ({ gridId, gridCoord, gridType, NPCsInGrid, playersI
       <pre>{formatJSON(gridId)}</pre>
       <h5>gridCoord: {formatJSON(gridCoord)}</h5>
       <h5>gridType: {formatJSON(gridType)}</h5>
+      <h5>settlementId: {formatJSON(settlementId)}</h5>
       <br></br>
       <h5>🐮 NPCsInGrid?[gridId]</h5>
       <pre>{formatJSON(currentNPCs)}</pre>
