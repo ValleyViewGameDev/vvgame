@@ -504,7 +504,20 @@ function TrainPanel({
   return (
     <>
     <Panel onClose={onClose} descriptionKey="1022" titleKey="1122" panelName="TrainPanel">
-      {isContentLoading ? (
+      {/* Check if player is in their home settlement */}
+      {(() => {
+        const isInHomeSettlement = String(currentPlayer.location.s) === String(currentPlayer.settlementId);
+        console.log('🚂 Train access check:', {
+          currentSettlement: currentPlayer.location.s,
+          homeSettlement: currentPlayer.settlementId,
+          isInHomeSettlement
+        });
+        return !isInHomeSettlement;
+      })() ? (
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <h2>{strings[2050] || "This is not your home settlement."}</h2>
+        </div>
+      ) : isContentLoading ? (
         <p>{strings[98]}</p>
       ) : (
         <>

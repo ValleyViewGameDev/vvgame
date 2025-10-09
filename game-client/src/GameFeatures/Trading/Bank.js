@@ -132,7 +132,20 @@ function BankPanel({
 
     return (
       <Panel onClose={onClose} descriptionKey="1017" titleKey="1117" panelName="BankPanel">
-        {isContentLoading ? (
+        {/* Check if player is in their home settlement */}
+        {(() => {
+          const isInHomeSettlement = String(currentPlayer.location.s) === String(currentPlayer.settlementId);
+          console.log('🏦 Bank access check:', {
+            currentSettlement: currentPlayer.location.s,
+            homeSettlement: currentPlayer.settlementId,
+            isInHomeSettlement
+          });
+          return !isInHomeSettlement;
+        })() ? (
+          <div style={{ textAlign: 'center', padding: '20px' }}>
+            <h2>{strings[2050] || "This is not your home settlement. You cannot access banking services in any settlement but your own."}</h2>
+          </div>
+        ) : isContentLoading ? (
           <p>{strings[98]}</p>
         ) : (
           <>
