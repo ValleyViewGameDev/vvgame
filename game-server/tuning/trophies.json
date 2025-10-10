@@ -82,28 +82,32 @@
     {
         "name": "Skeleton Key",
         "tooltip": "Collect the Skeleton Key from Cassio.",
-        "type": "Count",
+        "type": "Progress",
+        "progress": [ 1, 5, 10, 20, 50 ],
         "visible": true,
         "reward": 1
     },
     {
         "name": "Golden Key",
         "tooltip": "Collect the Golden Key from Helena.",
-        "type": "Count",
+        "type": "Progress",
+        "progress": [ 1, 5, 10, 20, 50 ],
         "visible": true,
         "reward": 1
     },
     {
         "name": "King's Crown",
         "tooltip": "Recover the crown of King Leontes from its secret location in the Valley.",
-        "type": "Count",
+        "type": "Progress",
+        "progress": [ 1, 5, 10, 20, 50 ],
         "visible": true,
         "reward": 1
     },
     {
         "name": "Trident",
         "tooltip": "Collect the Trident from its secret location in the Valley.",
-        "type": "Count",
+        "type": "Progress",
+        "progress": [ 1, 5, 10, 20, 50 ],
         "visible": true,
         "reward": 1
     },

@@ -9,6 +9,7 @@ import { lockResource, unlockResource } from './Utils/ResourceLockManager';
 import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
 import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
 import { createCollectEffect, createSourceConversionEffect, calculateTileCenter } from './VFX/VFX';
+import { earnTrophy } from './GameFeatures/Trophies/TrophyUtils';
 import { useStrings } from './UI/StringsContext';
 import { getLocalizedString } from './Utils/stringLookup';
 import { formatSingleCollection } from './UI/StatusBar/CollectionFormatters';
@@ -41,7 +42,8 @@ import { formatSingleCollection } from './UI/StatusBar/CollectionFormatters';
   closeAllPanels,
   strings,
   bulkOperationContext,
-  openPanel
+  openPanel,
+  masterTrophies = null
 ) {
   console.log(`Resource Clicked:  (${row}, ${col}):`, { resource, tileType: tileTypes[row]?.[col] });
   if (!resource || !resource.category) { console.error(`Invalid resource at (${col}, ${row}):`, resource); return; }
@@ -89,7 +91,8 @@ import { formatSingleCollection } from './UI/StatusBar/CollectionFormatters';
           masterResources,
           masterSkills, // Pass tuning data
           strings,
-          openPanel
+          openPanel,
+          masterTrophies
         );
         break;
 
@@ -196,7 +199,8 @@ export async function handleDooberClick(
   masterResources,
   masterSkills,
   strings = {},
-  openPanel = null
+  openPanel = null,
+  masterTrophies = null
 ) {
   console.log('handleDooberClick: Current Player:', currentPlayer);
   console.log('handleDooberClick: Current backpack:', backpack);
@@ -295,6 +299,34 @@ export async function handleDooberClick(
         // Track quest progress for "Collect" actions
     // trackQuestProgress expects: (player, action, item, quantity, setCurrentPlayer)
     await trackQuestProgress(currentPlayer, 'Collect', resource.type, qtyCollected, setCurrentPlayer);
+
+    // Award trophies for specific collected items
+    if (masterTrophies && currentPlayer?.playerId) {
+      try {
+        if (resource.type === "King's Crown") {
+          console.log(`🏆 Awarding King's Crown trophy for collecting ${qtyCollected} crown(s)`);
+          
+          // Award the Count-type trophy for each crown collected
+          for (let i = 0; i < qtyCollected; i++) {
+            await earnTrophy(currentPlayer.playerId, "King's Crown", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+          }
+          
+          console.log(`✅ Successfully awarded ${qtyCollected} King's Crown trophy instance(s)`);
+        } else if (resource.type === "Trident") {
+          console.log(`🏆 Awarding Trident trophy for collecting ${qtyCollected} trident(s)`);
+          
+          // Award the Count-type trophy for each trident collected
+          for (let i = 0; i < qtyCollected; i++) {
+            await earnTrophy(currentPlayer.playerId, "Trident", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+          }
+          
+          console.log(`✅ Successfully awarded ${qtyCollected} Trident trophy instance(s)`);
+        }
+      } catch (error) {
+        console.error('❌ Error awarding collection trophy:', error);
+        // Don't fail the collection if trophy awarding fails
+      }
+    }
 
     // Update currentPlayer state locally
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
