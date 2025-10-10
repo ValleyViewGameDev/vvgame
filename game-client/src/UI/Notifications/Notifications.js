@@ -96,6 +96,19 @@ function Notification({ type, data, onDismiss, onClick }) {
                     </>
                 );
 
+            case 'Tip':
+                return (
+                    <>
+                        <div className="notification-icon-wrapper">
+                            <div className="notification-icon">ℹ️</div>
+                        </div>
+                        <div className="notification-text">
+                            <div className="notification-title">{data.title || strings[7001]}</div>
+                            <div className="notification-name">{data.message}</div>
+                        </div>
+                    </>
+                );
+
             default:
                 return (
                     <>

@@ -8,6 +8,8 @@ import { fetchHomesteadSignpostPosition } from "../Utils/worldHelpers";
 import frontierTileData from './FrontierTile.json';
 import { useBulkOperation } from "../UI/BulkOperationContext";
 import { getGridBackgroundColor } from './ZoomedOut';
+import { showNotification } from '../UI/Notifications/Notifications';
+import { useStrings } from '../UI/StringsContext';
 
 
 const FrontierView = ({ 
@@ -33,6 +35,7 @@ const FrontierView = ({
   const [error, setError] = useState(null);
   const { updateStatus } = useContext(StatusBarContext);
   const bulkOperationContext = useBulkOperation();
+  const strings = useStrings();
  
   // Fetch Frontier Grid and Settlement Grids together
   useEffect(() => {
@@ -56,6 +59,14 @@ const FrontierView = ({
       updateStatus(125);
     }
   }, [isRelocating]);
+
+  // Show notification when zooming out to Frontier view
+  useEffect(() => {
+    showNotification('Tip', {
+      title: strings[7001],
+      message: strings[7020]
+    });
+  }, []); // Empty dependency array means this runs once when component mounts
 
   const handleTileClick = async (tile) => {
     console.log('🎯 Tile clicked:', tile);

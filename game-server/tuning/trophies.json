@@ -66,6 +66,12 @@
         "tooltip": "Slay Duke Angelo to avenge the lover of Juliet.",
         "type": "Count",
         "reward": 1
+    },
+    {
+        "name": "Prospero's Orb",
+        "tooltip": "Collect the orb from the Wizard Prospero, hidden in the Valley.",
+        "type": "Count",
+        "reward": 1
     }
     
 ]
