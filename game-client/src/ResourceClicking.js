@@ -359,8 +359,8 @@ export async function handleUseKey(resource,requirement,col,row,TILE_SIZE,curren
       const spent = await spendIngredients({
         playerId: currentPlayer.playerId,
         recipe: { 
-          item: requirement,
-          quantity: 1,
+          ingredient1: requirement,
+          ingredient1qty: 1,
         },
         inventory,
         backpack,

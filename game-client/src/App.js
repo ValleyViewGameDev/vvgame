@@ -1512,7 +1512,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         closeAllPanels,
         strings,
         bulkOperationContext,
-        openPanel
+        openPanel,
+        masterTrophies
       ).finally(() => {
         isProcessing = false; // Reset flag after processing
       });
