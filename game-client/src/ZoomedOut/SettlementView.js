@@ -273,6 +273,7 @@ const SettlementView = ({
         s: currentPlayer.location.s,
         f: currentPlayer.location.f,
         gtype: tile.gridType || "unknown", 
+        gridCoord: tile.gridCoord || 0,
       };
   
       console.log("Built toLocation object:", toLocation);

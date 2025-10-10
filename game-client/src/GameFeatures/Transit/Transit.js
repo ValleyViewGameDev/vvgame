@@ -77,7 +77,7 @@ export async function handleTransitSignpost(
           s: currentPlayer.settlementId,
           f: currentPlayer.location.f,
           gtype: "homestead",
-          gridCoord: currentPlayer.gridCoord,
+          gridCoord: currentPlayer.location?.gridCoord || currentPlayer.gridCoord || 0,
         };
         
         updateStatus(101);
