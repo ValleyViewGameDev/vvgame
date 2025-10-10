@@ -10,7 +10,7 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { getCurrentTileCoordinates } from '../../Utils/ResourceHelpers';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 
-export const handleFarmPlotPlacement = async ({
+export const handleFarmPlotPlacement = async ({ 
   selectedItem,
   TILE_SIZE,
   resources,
@@ -106,9 +106,14 @@ export const handleFarmPlotPlacement = async ({
 
       FloatingTextManager.addFloatingText(302, tileX, tileY, TILE_SIZE); // "Planted!"
       
-      // Check for FTUE step 4 advancement when ANY farm plot is placed
-      if (currentPlayer.firsttimeuser === true && currentPlayer.ftuestep === 4) {
-        console.log('🎓 Player placed a farm plot at FTUE step 4, incrementing step');
+      // Track quest progress for "Plant" actions
+      // Use the output (crop) name instead of the plot name for quest tracking
+      const cropName = selectedItem.output || selectedItem.type;
+      await trackQuestProgress(currentPlayer, 'Plant', cropName, 1, setCurrentPlayer);
+      
+      // Check for FTUE step advancement when ANY farm plot is placed
+      if (currentPlayer.firsttimeuser === true && currentPlayer.ftuestep === 6) {
+        console.log('🎓 Player placed a farm plot at FTUE step 6, incrementing step');
         const { incrementFTUEStep } = await import('../FTUE/FTUE');
         await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
       }

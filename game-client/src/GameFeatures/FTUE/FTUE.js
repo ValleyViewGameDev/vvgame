@@ -35,14 +35,37 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       return;
     }
     
-    // Check if we're at step 4 and need to show feedback modal
+    // Check if we're at step 5 and need to show feedback modal
     // Only show if no feedback has been collected yet (either positive OR negative feedback exists)
     const hasFeedback = currentPlayer?.ftueFeedback && 
       (currentPlayer.ftueFeedback.positive?.length > 0 || currentPlayer.ftueFeedback.negative?.length > 0);
     
-    if (currentPlayer?.ftuestep === 4 && !hasFeedback) {
-      setShowFeedbackModal(true);
-      return;
+    if (currentPlayer?.ftuestep === 5) {
+      if (!hasFeedback) {
+        setShowFeedbackModal(true);
+        return;
+      } else {
+        // User already has feedback but is stuck at step 5 - advance them to step 6
+        console.log('🎓 User at step 5 already has feedback, advancing to step 6');
+        const advanceToStep6 = async () => {
+          try {
+            const response = await axios.post(`${API_BASE}/api/update-profile`, {
+              playerId: currentPlayer.playerId,
+              updates: { ftuestep: 6 }
+            });
+            if (response.data.success) {
+              setCurrentPlayer(prev => ({
+                ...prev,
+                ftuestep: 6
+              }));
+            }
+          } catch (error) {
+            console.error('Error advancing step 5 user to step 6:', error);
+          }
+        };
+        advanceToStep6();
+        return;
+      }
     }
     
     if (currentPlayer?.ftuestep) {
@@ -89,7 +112,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
 
       const browserType = getBrowserType();
 
-      // Save feedback to database
+      // Save feedback to database and advance to step 5
       const response = await axios.post(`${API_BASE}/api/update-profile`, {
         playerId: currentPlayer.playerId,
         updates: { 
@@ -97,7 +120,8 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
             positive: isPositive ? positiveReasons : [],
             negative: !isPositive ? negativeReasons : [],
             browser: browserType
-          }
+          },
+          ftuestep: 6 // Advance to step 6 after feedback
         }
       });
       
@@ -109,24 +133,19 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
             positive: isPositive ? positiveReasons : [],
             negative: !isPositive ? negativeReasons : [],
             browser: browserType
-          }
+          },
+          ftuestep: 6 // Update local state to step 6
         }));
         
-        // Hide feedback modal and show step 4
+        // Hide feedback modal and close FTUE (player is now at step 6)
         setShowFeedbackModal(false);
-        const step4Data = FTUEstepsData.find(step => step.step === 4);
-        if (step4Data) {
-          setCurrentStepData(step4Data);
-        }
+        onClose(); // Close the entire FTUE modal since player advanced to step 6
       }
     } catch (error) {
       console.error('Error saving FTUE feedback:', error);
       // Continue anyway to not block the user
       setShowFeedbackModal(false);
-      const step4Data = FTUEstepsData.find(step => step.step === 4);
-      if (step4Data) {
-        setCurrentStepData(step4Data);
-      }
+      onClose(); // Close the entire FTUE modal
     }
   };
 
@@ -139,141 +158,114 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       // Check if there's a next step in the data
       const hasNextStep = FTUEstepsData.some(step => step.step === nextStep);
       
-//////////// FTUE STEP 3 /////////////
-
-      if (currentStep === 3 && openPanel && setActiveQuestGiver && gridId) {
-        console.log(`🎓 Step 3: Opening Kent panel to guide player`);
-        
-        // Show notification for step 3
+      // Get current step data to check for notification
+      const stepData = FTUEstepsData.find(step => step.step === currentStep);
+      if (stepData?.notificationKey) {
         showNotification('To Do', {
           title: strings[7001],
-          message: strings[7005]
+          message: strings[stepData.notificationKey]
         });
+      }
+      
+//////////// FTUE STEP 3 /////////////
+
+      if (currentStep === 3 && openPanel) {
+        console.log(`🎓 Step 3: Auto-accepting quests and opening QuestPanel`);
         
-        // Find Kent NPC and open NPCPanel
-        const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
-        if (npcsInGrid) {
-          const kentNPC = Object.values(npcsInGrid).find(npc => npc.type === 'Kent');
-          if (kentNPC) {
-            console.log(`🎓 Found Kent, opening NPCPanel`);
-            onClose(); // Close FTUE modal first
-            setActiveQuestGiver(kentNPC); // Set Kent as the active quest giver
-            openPanel('NPCPanel'); // Open the quest giver panel
-          } else {
-            console.log(`⚠️ Kent NPC not found in grid`);
-            onClose(); // Still close FTUE modal
-          }
-        }
+        
+        // Auto-accept quest 5 (Harvest Wheat) and quest 6 (Learn to Sell)
+        const playerAfterQuest5 = await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 5);
+        await addAcceptedQuest(currentPlayer.playerId, playerAfterQuest5, setCurrentPlayer, 6);
+        
+        console.log(`🎓 Added quests 5 and 6, opening QuestPanel`);
+        
+        onClose(); // Close FTUE modal first
+        openPanel('QuestPanel'); // Open the quest panel
 
 //////////// FTUE STEP 4 /////////////
 
       } else if (currentStep === 4) {
-        console.log(`🎓 Processing FTUE step 4 - Adding Grower quest`);
+        console.log(`🎓 Processing FTUE step 4 - Grower skill`);
         
-        // Show notification for step 4
-        showNotification('To Do', {
-          title: strings[7001],
-          message: strings[7006]
-        });
-        
-        // Add the Grower quest
+        // Add the Grower quest (quest 7)
         await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 7);
         
         onClose(); // Close FTUE modal
         
-        // Auto-open the Farming panel
+        // Auto-open the Skills panel
         if (openPanel) {
-          console.log(`🎓 Step 4: Auto-opening Farming panel`);
-          openPanel('FarmingPanel');
+          console.log(`🎓 Step 4: Opening Skills panel`);
+          setActiveStation(null); // Clear active station to prevent Trading Post from re-opening
+          openPanel('SkillsAndUpgradesPanel');
         }
 
 //////////// FTUE STEP 5 /////////////
 
       } else if (currentStep === 5) {
-        console.log(`🎓 Processing FTUE step 5 - Adding Hire the Shepherd quest`);
+        console.log(`🎓 Processing FTUE step 5 - Feedback modal`);
         
-        // Add the "Hire the Shepherd" quest
-        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 9);
-        
-        onClose(); // Close FTUE modal
-        
-        // Auto-open the FarmHouse panel
-        if (openPanel && setActiveStation && masterResources) {
-          console.log(`🎓 Step 5: Auto-opening FarmHouse panel`);
-          
-          // Find the FarmHouse resource to set as active station
-          const farmHouseResource = masterResources.find(res => res.type === 'Farm House');
-          if (farmHouseResource) {
-            setActiveStation({ 
-              type: 'Farm House',
-              position: {
-                x: 30, // Default farmhouse position
-                y: 30
-              },
-              gridId: gridId
-            });
-            openPanel('FarmHouse');
-          }
-        }
+        // Step 5 is now handled by the feedback modal logic
+        // This shouldn't be reached if feedback modal is working correctly
+        onClose();
 
 //////////// FTUE STEP 6 /////////////
 
-      } else if (currentStep === 6 && openPanel && setActiveQuestGiver && gridId) {
-        console.log(`🎓 Processing FTUE step 6 - cow purchased`);
+      } else if (currentStep === 6) {
+        console.log(`🎓 Processing FTUE step 6 - Plant quest`);
         
-        // Show notification for step 6
-        showNotification('To Do', {
-          title: strings[7001],
-          message: strings[7007]
-        });
+        // Add the Plant quest (quest 4)
+        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 4);
         
-        // Add the Get Axe quest (quest 10) at step 6 so it's ready for step 7
-        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 10);
+        onClose(); // Close FTUE modal
         
-        // Find The Shepherd NPC and open NPCPanel
-        const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
-        if (npcsInGrid) {
-          const shepherdNPC = Object.values(npcsInGrid).find(npc => npc.type === 'The Shepherd');
-          if (shepherdNPC) {
-            console.log(`🎓 Found The Shepherd, opening NPCPanel`);
-            onClose(); // Close FTUE modal first
-            setActiveQuestGiver(shepherdNPC); // Set The Shepherd as the active quest giver
-            openPanel('NPCPanel'); // Open the quest giver panel
-          } else {
-            console.log(`⚠️ The Shepherd NPC not found in grid`);
-            onClose(); // Still close FTUE modal
-          }
+        // Auto-open the Farming panel
+        if (openPanel) {
+          console.log(`🎓 Step 6: Auto-opening Farming panel`);
+          openPanel('FarmingPanel');
         }
 
 //////////// FTUE STEP 7 /////////////
 
       } else if (currentStep === 7 && openPanel) {
-        console.log(`🎓 Processing FTUE step 7 - Adding shepherd quest`);
+        console.log(`🎓 Processing FTUE step 7 - Adding quests 18 and 19`);
         
-        // Show notification for step 7
-        showNotification('To Do', {
-          title: strings[7001],
-          message: strings[7009]
-        });
+        // Auto-accept quests 18 and 19
+        const playerAfterQuest18 = await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 18);
+        await addAcceptedQuest(currentPlayer.playerId, playerAfterQuest18, setCurrentPlayer, 19);
         
-        // Add the shepherd quest (quest 8)
+        onClose(); // Close FTUE modal first
+        
+        // Auto-open the Skills panel
+        if (openPanel) {
+          console.log(`🎓 Step 7: Opening Skills panel`);
+          setActiveStation(null); // Clear active station to prevent other panels from re-opening
+          openPanel('SkillsAndUpgradesPanel');
+        }
+
+//////////// FTUE STEP 8 /////////////
+
+      } else if (currentStep === 8 && openPanel) {
+        console.log(`🎓 Processing FTUE step 8 - Adding shepherd and axe quests`);
+        
+        // Add the shepherd quest (quest 8) and Get Axe quest (quest 10)
         await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 8);
+        await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 10);
          
         onClose(); // Close FTUE modal first
         openPanel('QuestPanel');
 
-//////////// FTUE STEP 8 /////////////
-
-      } else if (currentStep === 8) {
-        console.log(`🎓 Processing FTUE step 8 - axe acquired`);
-        
-        // No quest to add here since Get Axe quest was already added at step 6
-        
-        onClose(); // Close FTUE modal
-
 //////////// FTUE STEP 9 /////////////
 
       } else if (currentStep === 9) {
+        console.log(`🎓 Processing FTUE step 9 - axe acquired`);
+        
+        // No quest to add here since Get Axe quest was already added at step 8
+        
+        onClose(); // Close FTUE modal
+
+//////////// FTUE STEP 10 /////////////
+
+      } else if (currentStep === 10) {
         console.log(`🎓 Adding Wizard quest after FTUE step ${currentStep}`);
         
         // Add the Axe quest
@@ -346,11 +338,6 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         console.log('🎓 Wizard quest already exists, skipping addition');
       }
       
-      // Show completion notification
-      showNotification('To Do', {
-        title: strings[7001],
-        message: strings[7015]
-      });
       
       // Update the player's firsttimeuser flag to false and remove ftuestep
       const response = await axios.post(`${API_BASE}/api/update-profile`, {
@@ -744,7 +731,7 @@ export const addAcceptedQuest = async (playerId, currentPlayer, setCurrentPlayer
       };
       setCurrentPlayer(updatedPlayer);
       
-      console.log(`✅ Quest "${questTemplate.title}" (index: ${questIndex}) added to active quests`);
+      console.log(`✅ Quest "${questTemplate.title}" added to active quests`);
       return updatedPlayer;
     }
     

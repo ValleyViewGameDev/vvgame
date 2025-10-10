@@ -796,6 +796,9 @@ useEffect(() => {
       
       if (gridLoaded) {
         console.log('🎓 FTUE step changed to:', currentPlayer.ftuestep, ', showing FTUE (grid loaded)');
+        // Close any open panels before showing FTUE modal to ensure clean state
+        closePanel();
+        setActiveStation(null); // Clear active station to prevent panels from re-opening
         setShowFTUE(true);
         setLastShownFTUEStep(currentPlayer.ftuestep);
       } else {
@@ -803,7 +806,7 @@ useEffect(() => {
       }
     }
   }
-}, [currentPlayer?.ftuestep, lastShownFTUEStep, isAppInitialized, tileTypes.length, resources.length]);
+}, [currentPlayer?.ftuestep, lastShownFTUEStep, isAppInitialized, tileTypes.length, resources.length, closePanel]);
 
 // Also check when grid loads to show pending FTUE
 useEffect(() => {
@@ -818,11 +821,14 @@ useEffect(() => {
     // If we have a pending FTUE step that hasn't been shown yet
     if (currentPlayer.ftuestep !== lastShownFTUEStep) {
       console.log('🎓 Grid loaded, showing pending FTUE step:', currentPlayer.ftuestep);
+      // Close any open panels before showing FTUE modal to ensure clean state
+      closePanel();
+      setActiveStation(null); // Clear active station to prevent panels from re-opening
       setShowFTUE(true);
       setLastShownFTUEStep(currentPlayer.ftuestep);
     }
   }
-}, [isAppInitialized, tileTypes.length, resources.length, currentPlayer, lastShownFTUEStep, showFTUE]);
+}, [isAppInitialized, tileTypes.length, resources.length, currentPlayer, lastShownFTUEStep, showFTUE, closePanel]);
 
 
 // FARM STATE - Farming Seed Timer Management //////////////////////////////////////////////////////

@@ -21,8 +21,6 @@ import '../../UI/SharedButtons.css';
 import workerPlacementData from './WorkerPlacement.json';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
-import { handleConstruction } from '../BuildAndBuy';
-import { incrementFTUEStep } from '../FTUE/FTUE';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 
@@ -260,7 +258,6 @@ const FarmHouse = ({
   const handleCollect = async (transactionId, transactionKey, recipe) => {
     
     if (!recipe) { console.error("❌ No valid crafted item to collect."); return; }
-    // Special handling for Repair type recipes
 
     console.log('🔍 [COLLECT DEBUG] Starting collection:', {
       craftedItem,
@@ -366,21 +363,6 @@ const FarmHouse = ({
 
         // Track quest progress for all crafted items (both NPCs and regular items)
         await trackQuestProgress(currentPlayer, 'Craft', collectedItem, finalQtyCollected, setCurrentPlayer);
-
-        console.log('🔍 [SHEPHERD DEBUG] Checking for FTUE advancement:', {
-          collectedItem,
-          isTheShepherd: collectedItem === 'The Shepherd',
-          ftuestep: currentPlayer.ftuestep,
-          firsttimeuser: currentPlayer.firsttimeuser,
-          shouldAdvance: collectedItem === 'The Shepherd' && currentPlayer.firsttimeuser === true && currentPlayer.ftuestep === 5
-        });
-
-        if (collectedItem === 'The Shepherd') {
-          console.log('🎓 Player hired The Shepherd at FarmHouse, incrementing FTUE step');
-          console.log('🔍 [SHEPHERD DEBUG] About to call incrementFTUEStep');
-          await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-          console.log('🔍 [SHEPHERD DEBUG] incrementFTUEStep completed');
-        }
         // Update grid resources to remove crafting state
         const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
           res.x === currentStationPosition.x && res.y === currentStationPosition.y
@@ -427,7 +409,7 @@ const FarmHouse = ({
     });
   };
   
-  // Handle repair of Abandoned House to Farm House
+  // Handle gem purchase
   const handleGemPurchase = async (modifiedRecipe) => {
     console.log('🔍 [GEM DEBUG] handleGemPurchase called with:', modifiedRecipe);
     
@@ -475,15 +457,6 @@ const FarmHouse = ({
       // Track quest progress
       await trackQuestProgress(currentPlayer, 'Craft', modifiedRecipe.type, 1, setCurrentPlayer);
       
-      // Check FTUE progress
-      if (stationType === 'Farm House' && modifiedRecipe.type === 'Kent') {
-        console.log('🎓 Player hired Kent at FarmHouse, incrementing FTUE step');
-        await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-      }
-      if (stationType === 'Farm House' && modifiedRecipe.type === 'The Shepherd') {
-        console.log('🎓 Player hired The Shepherd at FarmHouse, incrementing FTUE step');
-        await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-      }
       
       // Update status and effects
       updateStatus(`💎 ${getLocalizedString(modifiedRecipe.type, strings)} hired instantly!`);
@@ -497,89 +470,6 @@ const FarmHouse = ({
     } else {
       // For non-NPC items, we would need different handling
       updateStatus('Gem purchase not supported for this item type');
-    }
-  };
-
-  const handleRepairHouse = async (transactionId, transactionKey, recipe) => {
-    
-    try {
-      // Save the current position before selling
-      const repairX = currentStationPosition.x;
-      const repairY = currentStationPosition.y;
-            
-      // First, sell/remove the Abandoned House using existing selling logic
-      await handleProtectedSelling({
-        currentPlayer,
-        setInventory,
-        setBackpack,
-        setCurrentPlayer,
-        setResources,
-        stationType,
-        currentStationPosition,
-        gridId,
-        TILE_SIZE,
-        updateStatus,
-        onClose: () => {} // Don't close the panel yet
-      });
-      
-      // Wait a bit to ensure the sell completes
-      await new Promise(resolve => setTimeout(resolve, 500));
-            
-      // Create a mock current player position at the repair location
-      // This is needed because handleConstruction uses player position
-      const mockPlayersInGrid = {
-        [currentPlayer.playerId]: {
-          position: { x: repairX, y: repairY }
-        }
-      };
-      
-      // Temporarily override the playersInGridManager to return our position
-      const originalGetPlayersInGrid = playersInGridManager.getPlayersInGrid;
-      playersInGridManager.getPlayersInGrid = () => mockPlayersInGrid;
-      
-      try {
-        // Now place the Farm House using existing construction logic
-        await handleConstruction({
-          TILE_SIZE,
-          selectedItem: "Farm House",
-          buildOptions: masterResources, // This contains all resources including Farm House
-          inventory,
-          setInventory,
-          backpack,
-          setBackpack,
-          resources: GlobalGridStateTilesAndResources.getResources(),
-          setResources,
-          currentPlayer,
-          setCurrentPlayer,
-          gridId,
-          updateStatus
-        });
-      } finally {
-        // Restore the original function
-        playersInGridManager.getPlayersInGrid = originalGetPlayersInGrid;
-      }
-      
-      // Track quest progress for Repair type
-      await trackQuestProgress(currentPlayer, 'Repair', 'Farm House', 1, setCurrentPlayer);
-      
-      // Advance FTUE step when repair is completed
-      if (currentPlayer?.ftuestep && currentPlayer.ftuestep > 0) {
-        const { incrementFTUEStep } = await import('../FTUE/FTUE');
-        await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-        console.log("📚 Advanced FTUE step after house repair");
-      }
-      
-      // Success message
-      updateStatus(442);
-      
-      // Close the panel after successful repair
-      setTimeout(() => {
-        onClose();
-      }, 1000);
-      
-    } catch (error) {
-      console.error('❌ Error in handleRepairHouse:', error);
-      updateStatus(453);
     }
   };
 

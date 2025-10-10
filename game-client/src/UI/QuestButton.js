@@ -1,33 +1,16 @@
-import React, { useState, useRef } from 'react';
-import ReactDOM from 'react-dom'; // ✅ Add this
+import React from 'react';
 import './ResourceButton.css';
 import './QuestButton.css';
 import { useStrings } from './StringsContext';
 
 const QuestButton = ({ quest, state, onClick }) => {
   const strings = useStrings();
-  const { symbol, title, completed, goals = [], textbody, reward, rewardqty } = quest;
-  const [isHovered, setIsHovered] = useState(false);
-  const timeoutRef = useRef(null);
-
-  const handleMouseEnter = () => {
-    clearTimeout(timeoutRef.current);
-    setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setIsHovered(false);
-    }, 100);
-  };
+  const { symbol, title, completed, goals = [], reward, rewardqty } = quest;
 
   return (
     <div
       className={`quest-item ${state}`}
       onClick={onClick}
-      style={{ position: 'relative' }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       <div className="quest-header">
         <h2>{symbol}</h2>
@@ -45,33 +28,18 @@ const QuestButton = ({ quest, state, onClick }) => {
       {reward && rewardqty && (
         <p>Reward: {rewardqty} {reward}</p>
       )}
-      {isHovered && textbody && (
-        <div style={{ marginTop: '8px' }}>
-          <div className="quest-info-expanded">
-            {textbody}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
 const QuestGiverButton = ({ quest, state, onClick }) => {
   const strings = useStrings();
-  const { symbol, title, textbody, reward, rewardqty, goals = [] } = quest;
+  const { symbol, title, reward, rewardqty, goals = [] } = quest;
   const buttonText = state === 'reward' ? strings[208] : strings[209];
-  const [isHovered, setIsHovered] = useState(false);
-
-  const handleMouseEnter = () => setIsHovered(true);
-  const handleMouseLeave = () => setIsHovered(false);
-
   return (
     <div
       className={`quest-item ${state}`}
       onClick={onClick}
-      style={{ position: 'relative' }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       <div className="quest-header">
         <h2>{symbol}</h2>
@@ -87,13 +55,6 @@ const QuestGiverButton = ({ quest, state, onClick }) => {
       </div>
       <p>Reward: {rewardqty} {reward}</p>
       <button className="quest-giver-button">{buttonText}</button>
-      {isHovered && textbody && (
-        <div style={{ marginTop: '8px' }}>
-          <div className="quest-info-expanded">
-            {textbody}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

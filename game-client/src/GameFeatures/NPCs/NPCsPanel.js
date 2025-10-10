@@ -562,8 +562,17 @@ const handleHeal = async (recipe) => {
       {npcData.action === 'quest' && (
         <div className="quest-options">
           
-          {/* Relationship Card */}
-          <RelationshipCard
+          {/* Relationship Card - only show if NPC doesn't have output='noRel' */}
+          {(() => {
+            const npcResource = masterResources.find(r => r.type === npcData.type && r.category === 'npc');
+            const shouldHideRelationship = npcResource?.output === 'noRel';
+            
+            if (shouldHideRelationship) {
+              return null;
+            }
+            
+            return (
+              <RelationshipCard
             currentPlayer={currentPlayer}
             setCurrentPlayer={setCurrentPlayer}
             targetName={npcData.type}
@@ -641,6 +650,8 @@ const handleHeal = async (recipe) => {
               // Additional handling if needed after interaction completes
             }}
           />
+            );
+          })()}
           
           {/* Show message if quest interaction is not available due to relationship */}
           {!canQuest && (
@@ -781,8 +792,17 @@ const handleHeal = async (recipe) => {
       {npcData.action === 'trade' && (
         <div className="trade-options">
           
-          {/* Relationship Card */}
-          <RelationshipCard
+          {/* Relationship Card - only show if NPC doesn't have output='noRel' */}
+          {(() => {
+            const npcResource = masterResources.find(r => r.type === npcData.type && r.category === 'npc');
+            const shouldHideRelationship = npcResource?.output === 'noRel';
+            
+            if (shouldHideRelationship) {
+              return null;
+            }
+            
+            return (
+              <RelationshipCard
             currentPlayer={currentPlayer}
             setCurrentPlayer={setCurrentPlayer}
             targetName={npcData.type}
@@ -860,6 +880,8 @@ const handleHeal = async (recipe) => {
               // Additional handling if needed after interaction completes
             }}
           />
+            );
+          })()}
           
           {/* Show message if trade interaction is not available due to relationship */}
           {!canTrade && (

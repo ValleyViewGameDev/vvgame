@@ -209,6 +209,100 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
     }
   };
 
+  // Handle FTUE migration
+  const handleMigrateFTUE = async (player) => {
+    if (!player) return;
+    
+    const currentStep = player.ftuestep;
+    if (!currentStep || currentStep < 4) {
+      alert(`"${player.username}" is at FTUE step ${currentStep || 'none'} - no migration needed (only steps 4 and 8 need migration).`);
+      return;
+    }
+    
+    let migrationPlan = '';
+    let newStep = currentStep;
+    
+    if (currentStep === 4) {
+      // Check if player has Grower skill/NPC - need to check both skills and inventory
+      const hasGrowerSkill = player.skills?.some(skill => 
+        skill.type === "Grower" || skill.name === "Grower"
+      );
+      
+      const hasGrowerInInventory = player.inventory?.some(item => 
+        item.type === "Grower"
+      );
+      
+      const hasGrowerQuest = player.activeQuests?.some(quest => 
+        quest.questId === "Grower" || 
+        (quest.questId && quest.questId.includes("Grower"))
+      );
+      
+      console.log(`🔍 Grower detection for ${player.username}:`, {
+        hasGrowerSkill,
+        hasGrowerInInventory, 
+        hasGrowerQuest,
+        skills: player.skills,
+        inventory: player.inventory,
+        activeQuests: player.activeQuests
+      });
+      
+      const hasGrowerNPC = hasGrowerSkill || hasGrowerInInventory;
+      
+      if (hasGrowerNPC) {
+        newStep = 5;
+        migrationPlan = `Step 4 → 5 (has Grower NPC, can advance to feedback step)`;
+      } else {
+        migrationPlan = `Step 4 → no change (needs to get Grower NPC first)`;
+        alert(`"${player.username}" is at step 4 but doesn't have Grower NPC - no migration needed.\n\nDebug info:\n• Grower skill: ${hasGrowerSkill}\n• Grower in inventory: ${hasGrowerInInventory}\n• Grower quest: ${hasGrowerQuest}`);
+        return;
+      }
+    } else if (currentStep === 8) {
+      newStep = 9;
+      migrationPlan = `Step 8 → 9 (simple renumbering)`;
+    } else {
+      alert(`"${player.username}" is at step ${currentStep} - no migration rule defined for this step.`);
+      return;
+    }
+    
+    const confirmed = window.confirm(
+      `Migrate FTUE for "${player.username}"?\n\n` +
+      `Current Step: ${currentStep}\n` +
+      `Migration: ${migrationPlan}\n\n` +
+      `This will update their FTUE step in the database.\n\n` +
+      `Continue?`
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+      console.log(`🎓 Migrating FTUE for player: ${player.username} (ID: ${player._id})`);
+      console.log(`Migration plan: ${migrationPlan}`);
+      
+      const response = await axios.post(`${API_BASE}/api/update-profile`, {
+        playerId: player._id,
+        updates: { ftuestep: newStep }
+      });
+      
+      if (response.data.success) {
+        alert(`✅ FTUE migrated for "${player.username}": ${migrationPlan}`);
+        console.log(`✅ FTUE migrated: ${player.username} from step ${currentStep} to ${newStep}`);
+        
+        // Update the local player data
+        const updatedPlayer = { ...player, ftuestep: newStep };
+        setSelectedPlayer(updatedPlayer);
+        
+        // Update the player in the players list
+        setPlayers(players.map(p => p._id === player._id ? updatedPlayer : p));
+      } else {
+        alert("❌ Failed to migrate FTUE. See console for details.");
+        console.error("FTUE migration failed:", response.data);
+      }
+    } catch (error) {
+      console.error("❌ Error migrating FTUE:", error);
+      alert(`❌ Error migrating FTUE: ${error.message}`);
+    }
+  };
+
   // Handle column sorting
   const handleSort = (columnKey) => {
     let direction = 'asc';
@@ -314,6 +408,13 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                 style={{ backgroundColor: '#ff9800', color: 'white' }}
               >
                 🔑 Reset Password
+              </button>
+              <button 
+                className="action-btn" 
+                onClick={() => handleMigrateFTUE(selectedPlayer)}
+                style={{ backgroundColor: '#6f42c1', color: 'white' }}
+              >
+                🎓 Migrate FTUE
               </button>
               <button className="action-btn" disabled>
                 Modify Account

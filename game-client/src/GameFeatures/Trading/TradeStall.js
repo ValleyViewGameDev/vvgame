@@ -900,8 +900,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
           const config = getSlotConfig(index);
           
           return (
-            <>
-              <div key={index} className="trade-slot-container">
+            <React.Fragment key={index}>
+              <div className="trade-slot-container">
                 {/* 1. SLOT DISPLAY */}
                 <div
                   className={`trade-slot ${isEmpty ? 'empty' : 'filled'} ${isPurchased ? 'purchased' : ''} ${!slotUnlocked ? 'locked' : ''} ${index >= 4 ? 'gold-slot' : ''}`}
@@ -1040,7 +1040,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                   </div>
                 )}
               </div>
-            </>
+            </React.Fragment>
           );
         })}
       </div>

@@ -138,7 +138,7 @@ const SkillsAndUpgradesPanel = ({
     };
 
     fetchResourcesAndInventory();
-  }, [entryPoint]); // ✅ Re-fetch when `entryPoint` changes
+  }, [entryPoint, currentPlayer?.ftuestep, currentPlayer?.playerId]); // ✅ Re-fetch when `entryPoint` changes, FTUE step changes, or player changes
 
 
   const hasRequiredSkill = (requiredSkill) => {
@@ -198,6 +198,12 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
     // Check if the player is a first-time user and just acquired the Axe skill
     if (currentPlayer.firsttimeuser === true && resource.type === 'Axe') {
       console.log('🎓 First-time user acquired Axe skill, advancing FTUE step');
+      await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+    }
+    
+    // Check if the player is a first-time user and just acquired the Grower skill
+    if (currentPlayer.firsttimeuser === true && resource.type === 'Grower') {
+      console.log('🎓 First-time user acquired Grower skill, advancing FTUE step');
       await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
     }
 

@@ -264,20 +264,6 @@
     "652": "Necken",
     "653": "Ehe beenden",
 
-    "700": "EINFÜHRUNGS-STRINGS:",
-
-    "705": "Bestreben",
-    "706": "Valley View ist eine große Welt. Es liegt an dir, wie du deine Zeit verbringen möchtest. Welches dieser Bestreben passt am besten zu deinem Spielstil? (Diese Wahl wird deine Optionen in keiner Weise einschränken.)",
-    "709": "🏚️ Dein Gehöft",
-    "710": "Du hast ein Gehöft in einer Siedlung mit anderen Spielern geerbt. Beginne damit, dieses verlassene Bauernhaus zu reparieren. Überprüfe deine ✅ Aufgabenliste. Du musst zuerst etwas Holz sammeln.", 
-    "715": "🤠 Kent einstellen",
-    "716": "Ausgezeichnet! Jetzt musst du anfangen, 💰 Geld zu verdienen. Du brauchst einen Farmmanager, der hier Vollzeit leben und dir helfen kann, den Betrieb auszubauen. Öffne das 🏠 Bauernhaus, um Leute einzustellen.",
-    "750": "🚜 Bauer",
-    "751": "Bewirtschafte dein Gehöft, baue Feldfrüchte an, kümmere dich um Tiere und stelle Waren her, um sie zu verkaufen und mit anderen Spielern zu handeln. Investiere in Landwirtschafts- und Handwerksfähigkeiten, um deine Gewinne zu steigern.",
-    "752": "⚔️ Abenteurer",
-    "753": "Wage dich ins Tal für Ressourcen und seltene Gegenstände. Kämpfe gegen Tiere und Kreaturen, entdecke versteckte Orte und triff magische Charaktere. Investiere in Kampffähigkeiten, um ein beeindruckender Kämpfer zu werden.",
-    "754": "🏛️ Politiker",
-    "755": "Kandidiere als Bürgermeister, lege den Steuersatz fest und verdiene Steuereinnahmen für dich selbst. Investiere in Gemeinschaftsgebäude für die ganze Stadt, wie Krankenhäuser, Schulen und Bibliotheken, und hilf deiner Siedlung zu gedeihen.",
 
     "800": "WEITERE HANDWERKSSTATIONS-STRINGS:",
 
@@ -1108,13 +1094,7 @@
 "6003": "Trophäe Erhalten!",
 "15": "🐴 Du brauchst ein Pferd, um hierhin zu reisen. Besuche das Abenteuerlager in der Stadt.",
 "91": "🐴 Pferd erforderlich.",
-"7000": "BENACHRICHTIGUNGSTEXTE:",
-"7001": "Tipp:",
-"7005": "Verwende A-W-S-D oder die Pfeiltasten zum Bewegen.",
-"7006": "Suche nach dem 💪 Symbol, um das Fähigkeiten-Panel zu öffnen.",
-"7007": "Stehe auf Gras und finde dann das 🐮 Kaufen-Panel, um eine Kuh zu kaufen. Du brauchst zuerst die Tierhaltungs-Fähigkeit.",
-"7009": "Überprüfe weiterhin deine ✅ Aufgabenliste und sprich weiterhin mit 🤠 Kent und 👵🏻 der Hirtin.",
-"7015": "Klicke auf + und - oben auf dem Bildschirm zum Hinein- und Herauszoomen.",
+
 
 "477": "Deine Farmarbeiter sind beschäftigt...",
 "478": "🚜 Arbeitet",
@@ -1175,8 +1155,44 @@
 "831": "Enthüllen",
 "832": "Du brauchst Schriftrollen, um den Alten Tempel zu benutzen. Finde Schriftrollen, indem du die Welt erkundest.",
 
-    "11000": "ADDED STRINGS:"
+    "11000": "ADDED STRINGS:",
 
+        "700": "EINFÜHRUNGS-STRINGS:",
+
+    "780": "Lass uns wissen, was du von Valley View hältst",
+"781": "Ich werde weiterspielen; hier ist warum (alle zutreffenden ankreuzen):",
+"782": "Ich bezweifle, dass ich zurückkehre; hier ist warum (alle zutreffenden ankreuzen):",
+"783": "Spielen",
+"784": "Sieht spaßig aus",
+"785": "Mir gefallen die Grafiken",
+"786": "Ich mag Landwirtschaft",
+"787": "Ich freue mich auf die Zusammenarbeit mit anderen",
+"790": "Ich konnte es nicht herausfinden",
+"791": "Mir gefallen die Grafiken nicht",
+"792": "Ich hatte ein technisches Problem",
+"793": "Es ist einfach nichts für mich",
+"794": "Spielen",
+
+    "705": "Bestreben",
+    "706": "Valley View ist eine große Welt. Es liegt an dir, wie du deine Zeit verbringen möchtest. Welches dieser Bestreben passt am besten zu deinem Spielstil? (Diese Wahl wird deine Optionen in keiner Weise einschränken.)",
+    "709": "🏚️ Dein Gehöft",
+    "710": "Du hast ein Gehöft in einer Siedlung mit anderen Spielern geerbt. Beginne damit, dieses verlassene Bauernhaus zu reparieren. Überprüfe deine ✅ Aufgabenliste. Du musst zuerst etwas Holz sammeln.", 
+    "715": "🤠 Kent einstellen",
+    "716": "Ausgezeichnet! Jetzt musst du anfangen, 💰 Geld zu verdienen. Du brauchst einen Farmmanager, der hier Vollzeit leben und dir helfen kann, den Betrieb auszubauen. Öffne das 🏠 Bauernhaus, um Leute einzustellen.",
+    "750": "🚜 Bauer",
+    "751": "Bewirtschafte dein Gehöft, baue Feldfrüchte an, kümmere dich um Tiere und stelle Waren her, um sie zu verkaufen und mit anderen Spielern zu handeln. Investiere in Landwirtschafts- und Handwerksfähigkeiten, um deine Gewinne zu steigern.",
+    "752": "⚔️ Abenteurer",
+    "753": "Wage dich ins Tal für Ressourcen und seltene Gegenstände. Kämpfe gegen Tiere und Kreaturen, entdecke versteckte Orte und triff magische Charaktere. Investiere in Kampffähigkeiten, um ein beeindruckender Kämpfer zu werden.",
+    "754": "🏛️ Politiker",
+    "755": "Kandidiere als Bürgermeister, lege den Steuersatz fest und verdiene Steuereinnahmen für dich selbst. Investiere in Gemeinschaftsgebäude für die ganze Stadt, wie Krankenhäuser, Schulen und Bibliotheken, und hilf deiner Siedlung zu gedeihen.",
+
+"7000": "BENACHRICHTIGUNGSTEXTE:",
+"7001": "Tipp:",
+"7005": "Verwende A-W-S-D oder die Pfeiltasten zum Bewegen.",
+"7006": "Suche nach dem 💪 Symbol, um das Fähigkeiten-Panel zu öffnen.",
+"7007": "Stehe auf Gras und finde dann das 🐮 Kaufen-Panel, um eine Kuh zu kaufen. Du brauchst zuerst die Tierhaltungs-Fähigkeit.",
+"7009": "Überprüfe weiterhin deine ✅ Aufgabenliste und sprich weiterhin mit 🤠 Kent und 👵🏻 der Hirtin.",
+"7015": "Klicke auf + und - oben auf dem Bildschirm zum Hinein- und Herauszoomen."
 
 
 }
