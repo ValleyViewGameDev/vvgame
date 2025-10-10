@@ -528,12 +528,13 @@
     "level": 5,
     "repeatable": true,
     "giver": "Mistress Quickly",
-    "rel": "love",
+    "rel": "friend",
+    "relscore": 90,
     "reward": "Sunflower",
     "rewardqty": 3,
     "goal1action": "Craft",
     "goal1item": "Omelette",
-    "goal1qty": 12
+    "goal1qty": 24
   },
   {
     "index": 40,
