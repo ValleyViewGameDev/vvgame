@@ -1181,9 +1181,6 @@
     "832": "You need scrolls to use the Ancient Temple. Find scrolls by exploring the world.",
 
 
-    "11000": "ADDED STRINGS:",
-
-
     "750": "🚜 Farmer",
     "751": "Cultivate your homestead, grow crops, tend animals, and craft goods to sell and trade with other players. Invest in farming and crafting skills to grow your profits.",
     "752": "⚔️ Adventurer",
@@ -1226,7 +1223,10 @@
     "7009": "Keep checking your ✅ To-Do-List, and keep checking with 🤠 Kent and 👵🏻 the Shepherd.",
     "7015": "Click + and - at the top of the screen to zoom in and out.",    
 
-    "7008": "Crops need dirt. Cows and sheep need 🟩 grass. Pavement can help contain the movements of people and animals. Use the ⛏️ Tools to shape the land to your liking."
+    "7008": "Crops need dirt. Cows and sheep need 🟩 grass. Pavement can help contain the movements of people and animals. Use the ⛏️ Tools to shape the land to your liking.",
+
+
+    "11000": "ADDED STRINGS:"
 
   }
 
