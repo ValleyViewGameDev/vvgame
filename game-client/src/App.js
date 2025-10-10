@@ -2504,6 +2504,7 @@ return (
           masterResources={masterResources}
           masterInteractions={masterInteractions}
           masterTraders={masterTraders}
+          masterTrophies={masterTrophies}
           zoomLevel={zoomLevel}
           setZoomLevel={setZoomLevel}
           centerCameraOnPlayer={centerCameraOnPlayer}

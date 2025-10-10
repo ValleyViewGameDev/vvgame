@@ -21,6 +21,7 @@ import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { checkDeveloperStatus } from '../../Utils/appUtils';
 import questCache from '../../Utils/QuestCache';
 import { calculateDistance, getDerivedRange } from '../../Utils/worldHelpers';
+import { earnTrophy } from '../Trophies/TrophyUtils';
 
 const NPCPanel = ({
   onClose,
@@ -37,6 +38,7 @@ const NPCPanel = ({
   masterResources,
   masterInteractions,
   masterTraders,
+  masterTrophies,
   zoomLevel,
   setZoomLevel,
   centerCameraOnPlayer,
@@ -312,6 +314,30 @@ const handleGetReward = async (quest) => {
         masterResources,
       });
       if (!success) return;
+
+      // Award trophies for specific quest rewards
+      try {
+        if (quest.reward === "Prospero's Orb") {
+          console.log(`🏆 Awarding Prospero's Orb trophy for collecting ${rewardQuantity} orb(s)`);
+          
+          // Award the Count-type trophy for each orb collected
+          for (let i = 0; i < rewardQuantity; i++) {
+            await earnTrophy(currentPlayer.playerId, "Prospero's Orb", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+          }
+          
+          console.log(`✅ Successfully awarded ${rewardQuantity} Prospero's Orb trophy instance(s)`);
+        }
+        
+        // TODO: Add other quest reward trophies here as needed
+        // Example:
+        // if (quest.reward === "Some Other Special Item") {
+        //   await earnTrophy(currentPlayer.playerId, "Some Other Trophy", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+        // }
+        
+      } catch (error) {
+        console.error('❌ Error awarding quest reward trophy:', error);
+        // Don't fail the quest completion if trophy awarding fails
+      }
 
       // Track quest progress for "Collect" type quests (use multiplied quantity)
       await trackQuestProgress(currentPlayer, 'Collect', quest.reward, rewardQuantity, setCurrentPlayer);

@@ -79,7 +79,35 @@
         "visible": true,
         "reward": 1
     },
-        {
+    {
+        "name": "Skeleton Key",
+        "tooltip": "Collect the Skeleton Key from Cassio.",
+        "type": "Count",
+        "visible": true,
+        "reward": 1
+    },
+    {
+        "name": "Golden Key",
+        "tooltip": "Collect the Golden Key from Helena.",
+        "type": "Count",
+        "visible": true,
+        "reward": 1
+    },
+    {
+        "name": "King's Crown",
+        "tooltip": "Recover the crown of King Leontes from its secret location in the Valley.",
+        "type": "Count",
+        "visible": true,
+        "reward": 1
+    },
+    {
+        "name": "Trident",
+        "tooltip": "Collect the Trident from its secret location in the Valley.",
+        "type": "Count",
+        "visible": true,
+        "reward": 1
+    },
+    {
         "name": "Season Winner",
         "tooltip": "Finish in the top 3 players across the Frontier at the end of a season.",
         "type": "Count",
