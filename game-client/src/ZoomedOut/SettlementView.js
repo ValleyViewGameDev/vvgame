@@ -292,7 +292,10 @@ const SettlementView = ({
         TILE_SIZE,
         closeAllPanels,
         updateStatus,
-        bulkOperationContext
+        bulkOperationContext,
+        masterResources,
+        null, // strings not available in SettlementView
+        null  // masterTrophies not available in SettlementView
       );
       // Zoom into grid view after movement
       setZoomLevel("far"); 

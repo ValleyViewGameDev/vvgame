@@ -152,7 +152,10 @@ import { formatSingleCollection } from './UI/StatusBar/CollectionFormatters';
             TILE_SIZE,
             skills,
             closeAllPanels,
-            bulkOperationContext
+            bulkOperationContext,
+            null, // masterResources not available
+            null, // strings not available in ResourceClicking
+            null  // masterTrophies not available in ResourceClicking
           );
         } catch (error) {
           console.error("Error handling travel signpost:", error.message || error);

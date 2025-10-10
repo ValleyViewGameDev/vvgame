@@ -155,7 +155,7 @@ const SocialPanel = ({
       
       // Award Adventurer trophy for first time camping
       if (currentPlayer?.playerId) {
-        earnTrophy(currentPlayer.playerId, 'Adventurer', 1, currentPlayer, masterTrophies);
+        earnTrophy(currentPlayer.playerId, 'Adventurer', 1, currentPlayer, masterTrophies, setCurrentPlayer);
       }
       
       // Update PlayersInGrid directly

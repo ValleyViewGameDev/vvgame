@@ -21,7 +21,9 @@ export async function handleTransitSignpost(
   skills,
   closeAllPanels,
   bulkOperationContext,
-  masterResources
+  masterResources,
+  strings = null,
+  masterTrophies = null
 ) {
   try {
     if (typeof updateStatus !== "function") {
@@ -94,7 +96,9 @@ export async function handleTransitSignpost(
           closeAllPanels,
           updateStatus,
           bulkOperationContext,
-          masterResources
+          masterResources,
+          strings,
+          masterTrophies
         );
         
       } catch (error) {
@@ -166,7 +170,9 @@ export async function handleTransitSignpost(
           closeAllPanels,
           updateStatus,
           bulkOperationContext,
-          masterResources
+          masterResources,
+          strings,
+          masterTrophies
         );
         
       } catch (error) {
@@ -321,7 +327,9 @@ export async function handleTransitSignpost(
       closeAllPanels,
       updateStatus,
       bulkOperationContext,
-      masterResources
+      masterResources,
+      strings,
+      masterTrophies
     );
 
     console.log(`Player moved to grid ID: ${targetGrid.gridId}`);

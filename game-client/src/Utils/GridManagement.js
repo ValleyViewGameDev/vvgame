@@ -9,6 +9,8 @@ import { mergeResources, mergeTiles } from './ResourceHelpers';
 import { centerCameraOnPlayer } from '../PlayerMovement';
 import { closePanel } from '../UI/PanelContext';
 import { fetchHomesteadOwner } from './worldHelpers';
+import { earnTrophy } from '../GameFeatures/Trophies/TrophyUtils';
+import { showNotification } from '../UI/Notifications/Notifications';
 
 export const updateGridResource = async (
   gridId,
@@ -104,7 +106,9 @@ export const changePlayerLocation = async (
   closeAllPanels, // ✅ Add this prop
   updateStatus,
   bulkOperationContext, // ✅ Add bulk operation context
-  masterResources = null // ✅ Add masterResources for combat stat calculations
+  masterResources = null, // ✅ Add masterResources for combat stat calculations
+  strings = null, // ✅ Add strings for notifications
+  masterTrophies = null // ✅ Add masterTrophies for trophy visibility checks
 ) => {
 
   // console.log("🔁 changePlayerLocation invoked. closeAllPanels =", !!closeAllPanels);
@@ -262,6 +266,35 @@ export const changePlayerLocation = async (
       throw new Error(locationResponse.data.error);
     }
     //console.log('✅ Player location updated in DB');
+
+    // ✅ CHECK: First time visiting valley - award trophy and show notification
+    if (toLocation.gtype && toLocation.gtype.startsWith('valley') && strings) {
+      // Check if player has "Explore the Valley" trophy
+      const hasValleyTrophy = currentPlayer.trophies?.some(trophy => trophy.name === "Explore the Valley");
+      
+      if (!hasValleyTrophy) {
+        console.log('🏆 First time visiting valley - awarding "Explore the Valley" trophy');
+        
+        try {
+          // Award the trophy
+          const trophyResult = await earnTrophy(currentPlayer.playerId, "Explore the Valley", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+          
+          if (trophyResult.success) {
+            // Show notification
+            showNotification('Message', {
+              title: strings[7002],
+              message: strings[7021]
+            });
+            
+            console.log('✅ Valley trophy awarded and notification shown');
+          } else {
+            console.warn('⚠️ Failed to award valley trophy:', trophyResult.error);
+          }
+        } catch (error) {
+          console.error('❌ Error awarding valley trophy:', error);
+        }
+      }
+    }
 
     // ✅ STEP 8: Update local state
     //console.log('4️⃣ Updating local Player Document...');

@@ -133,7 +133,7 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                     <div className="loading">Loading trophies...</div>
                 ) : (
                     <div className="trophy-grid">
-                        {masterTrophies?.sort((a, b) => {
+                        {masterTrophies?.filter(trophy => trophy.visible !== false).sort((a, b) => {
                             // Sort trophies by status:
                             // 1. Earned but not collected (highest priority)
                             // 2. Earned and collected

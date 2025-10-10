@@ -10,6 +10,7 @@ import { useBulkOperation } from "../UI/BulkOperationContext";
 import { getGridBackgroundColor } from './ZoomedOut';
 import { showNotification } from '../UI/Notifications/Notifications';
 import { useStrings } from '../UI/StringsContext';
+import { earnTrophy } from '../GameFeatures/Trophies/TrophyUtils';
 
 
 const FrontierView = ({ 
@@ -28,6 +29,7 @@ const FrontierView = ({
   visibleSettlementId,
   setVisibleSettlementId,
   masterResources,          // ✅ Add masterResources prop
+  masterTrophies,           // ✅ Add masterTrophies prop
 }) => {
 
   const [frontierGrid, setFrontierGrid] = useState([]);
@@ -60,13 +62,43 @@ const FrontierView = ({
     }
   }, [isRelocating]);
 
-  // Show notification when zooming out to Frontier view
+  // Show notification when zooming out to Frontier view (first time only)
   useEffect(() => {
-    showNotification('Tip', {
-      title: strings[7001],
-      message: strings[7020]
-    });
-  }, []); // Empty dependency array means this runs once when component mounts
+    const checkAndShowFrontierTip = async () => {
+      // Check if player has already seen the frontier tip
+      const hasSawFrontierTip = currentPlayer.trophies?.some(trophy => trophy.name === "SawFrontierTip");
+      
+      if (!hasSawFrontierTip) {
+        console.log('🏆 First time in Frontier view - awarding "SawFrontierTip" trophy');
+        
+        try {
+          // Award the invisible trophy to mark they've seen the tip
+          await earnTrophy(currentPlayer.playerId, "SawFrontierTip", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+          
+          // Show the notification
+          showNotification('Tip', {
+            title: strings[7001],
+            message: strings[7020]
+          });
+          
+          console.log('✅ Frontier tip shown and trophy awarded');
+        } catch (error) {
+          console.error('❌ Error awarding SawFrontierTip trophy:', error);
+          // Still show notification even if trophy award fails
+          showNotification('Tip', {
+            title: strings[7001],
+            message: strings[7020]
+          });
+        }
+      } else {
+        console.log('🔇 Player already has SawFrontierTip trophy - skipping notification');
+      }
+    };
+    
+    if (currentPlayer?.playerId && strings && masterTrophies) {
+      checkAndShowFrontierTip();
+    }
+  }, [currentPlayer?.playerId, strings, masterTrophies]); // Re-run if these dependencies change
 
   const handleTileClick = async (tile) => {
     console.log('🎯 Tile clicked:', tile);
@@ -139,7 +171,9 @@ const FrontierView = ({
               closeAllPanels,
               updateStatus,
               bulkOperationContext,
-              masterResources           // ✅ Pass masterResources
+              masterResources,          // ✅ Pass masterResources
+              strings,                  // ✅ Pass strings for valley trophy check
+              null                      // ✅ masterTrophies not available in FrontierView
             ); 
             setZoomLevel("far");
             return;

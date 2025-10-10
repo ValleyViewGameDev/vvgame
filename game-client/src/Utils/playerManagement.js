@@ -175,8 +175,12 @@ export const handlePlayerDeath = async (
       setTileTypes,
       setResources,
       TILE_SIZE,
-      updateStatus,
       closeAllPanels,
+      updateStatus,
+      null, // bulkOperationContext not available
+      null, // masterResources not available
+      null, // strings not available
+      null  // masterTrophies not available
     );
 
 

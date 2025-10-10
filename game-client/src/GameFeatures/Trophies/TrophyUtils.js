@@ -9,9 +9,10 @@ import { showNotification } from '../../UI/Notifications/Notifications';
  * @param {number} progressIncrement - For Progress trophies, the amount to increment (default 1)
  * @param {Object} currentPlayer - The current player object (optional, for Event trophy checking)
  * @param {Array} masterTrophies - The master trophies list (optional, for Event trophy checking)
+ * @param {Function} setCurrentPlayer - Function to update local player state (optional)
  * @returns {Promise<Object>} The result of the API call
  */
-export async function earnTrophy(playerId, trophyName, progressIncrement = 1, currentPlayer = null, masterTrophies = null) {
+export async function earnTrophy(playerId, trophyName, progressIncrement = 1, currentPlayer = null, masterTrophies = null, setCurrentPlayer = null) {
     try {
         // If we have currentPlayer and masterTrophies, check if this is an Event trophy that's already earned
         if (currentPlayer && masterTrophies) {
@@ -35,10 +36,59 @@ export async function earnTrophy(playerId, trophyName, progressIncrement = 1, cu
         if (response.data.success) {
             const { trophy, isNewMilestone } = response.data;
             
+            // Update local player state with the new trophy
+            if (setCurrentPlayer && currentPlayer && isNewMilestone) {
+                setCurrentPlayer(prevPlayer => {
+                    const updatedTrophies = [...(prevPlayer.trophies || [])];
+                    
+                    // Check if trophy already exists (for Progress trophies)
+                    const existingTrophyIndex = updatedTrophies.findIndex(t => t.name === trophyName);
+                    
+                    if (existingTrophyIndex !== -1) {
+                        // Update existing trophy
+                        updatedTrophies[existingTrophyIndex] = {
+                            ...updatedTrophies[existingTrophyIndex],
+                            progress: trophy.progress,
+                            qty: trophy.qty,
+                            collected: false, // Reset collected status for new milestone
+                            timestamp: new Date()
+                        };
+                    } else {
+                        // Add new trophy
+                        updatedTrophies.push({
+                            name: trophyName,
+                            progress: trophy.progress,
+                            qty: trophy.qty,
+                            collected: false,
+                            timestamp: new Date()
+                        });
+                    }
+                    
+                    console.log(`🔄 Local player state updated with trophy: ${trophyName}`);
+                    return {
+                        ...prevPlayer,
+                        trophies: updatedTrophies
+                    };
+                });
+            }
+            
             if (isNewMilestone) {
                 console.log(`🏆 Trophy milestone earned: ${trophyName}`, trophy);
-                // Show trophy notification only for new milestones
-                showNotification('Trophy', trophy);
+                
+                // Check if trophy is visible before showing notification
+                let shouldShowNotification = true;
+                if (masterTrophies) {
+                    const trophyDef = masterTrophies.find(t => t.name === trophyName);
+                    if (trophyDef && trophyDef.visible === false) {
+                        shouldShowNotification = false;
+                        console.log(`🔇 Trophy notification suppressed for hidden trophy: ${trophyName}`);
+                    }
+                }
+                
+                // Show trophy notification only for new milestones and visible trophies
+                if (shouldShowNotification) {
+                    showNotification('Trophy', trophy);
+                }
             } else {
                 console.log(`📈 Trophy progress: ${trophyName} - ${trophy.progress}/${trophy.nextMilestone}`);
             }

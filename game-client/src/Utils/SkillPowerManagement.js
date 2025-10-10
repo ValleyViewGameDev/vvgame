@@ -75,7 +75,7 @@ export async function gainSkillOrPower({
       
       // Earn trophy for skills
       if (item.category === 'skill') {
-        await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1);
+        await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);
       }
 
       // Check for FTUE progress (Axe skill)

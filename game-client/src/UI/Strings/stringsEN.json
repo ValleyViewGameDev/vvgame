@@ -1222,12 +1222,22 @@
     "7007": "After aquiring Husbandry, move onto a 🟩 grass tile, then find the 🐮 Buy panel to purchase a 🐮 Cow.",
     "7009": "Keep checking your ✅ To-Do-List, and keep checking with 🤠 Kent and 👵🏻 the Shepherd.",
     "7015": "Click + and - at the top of the screen to zoom in and out.",    
-
     "7008": "Crops need dirt. Cows and sheep need 🟩 grass. Pavement can help contain the movements of people and animals. Use the ⛏️ Tools to shape the land to your liking.",
 
-
     "11000": "ADDED STRINGS:",
-    "7020": "To instantly travel home, click the Settlement where your Homestead is located."
+
+    "7020": "To instantly travel home, click the Settlement where your Homestead is located.",
+    "7021": "You made it to the Valley! Be sure to zoom out (+ and -) to keep track of your location. If you get lost, zoom out to the Frontier view to travel back home.",
+    "7002": "Congratulations!",
+    
+    "30006": "Meet the Cast",
+    "30007": "Explore the Valley",
+    "30008": "Fighter",
+    "30009": "Scroll Revealer",
+    "30010": "Adventurer",
+    "30011": "Mariner",
+    "30012": "Kill the Duke",
+    "30013": "Prospero's Orb"
 
   }
 

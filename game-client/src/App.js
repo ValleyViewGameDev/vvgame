@@ -1302,7 +1302,8 @@ useEffect(() => {
         updateStatus, 
         closeAllPanels,
         localPlayerMoveTimestampRef,
-        bulkOperationContext
+        bulkOperationContext,
+        strings
     );
   };
   
@@ -1403,7 +1404,9 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         currentPlayer.skills,
         closeAllPanels,
         bulkOperationContext,
-        masterResources
+        masterResources,
+        strings,
+        masterTrophies
       );
     }
     else if (resource.category === 'training') {
@@ -2010,7 +2013,8 @@ return (
         setGrid={setGrid}            
         setResources={setResources}  
         setTileTypes={setTileTypes}
-        masterResources={masterResources}     
+        masterResources={masterResources}
+        masterTrophies={masterTrophies}
         TILE_SIZE={activeTileSize}
         closeAllPanels={closeAllPanels}
         visibleSettlementId={visibleSettlementId}

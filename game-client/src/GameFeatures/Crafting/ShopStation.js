@@ -226,7 +226,7 @@ const ShopStation = ({
     
     // Award Mariner trophy if purchased a Boat
     if (recipe.type === 'Boat' && currentPlayer?.playerId) {
-      earnTrophy(currentPlayer.playerId, 'Mariner', 1, currentPlayer, masterTrophies);
+      earnTrophy(currentPlayer.playerId, 'Mariner', 1, currentPlayer, masterTrophies, setCurrentPlayer);
     }
     
     setFetchTrigger(prev => prev + 1);

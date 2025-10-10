@@ -540,7 +540,7 @@ const ScrollStation = ({
 
         // Award Scroll Revealer trophy for successful scroll reveals
         if (currentPlayer?.playerId) {
-          earnTrophy(currentPlayer.playerId, 'Scroll Revealer', 1, currentPlayer, masterTrophies);
+          earnTrophy(currentPlayer.playerId, 'Scroll Revealer', 1, currentPlayer, masterTrophies, setCurrentPlayer);
         }
 
         // Clear collecting state after a brief delay

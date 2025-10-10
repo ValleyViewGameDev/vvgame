@@ -730,8 +730,12 @@ const handleGetRich = async () => {
         setTileTypes,
         setResources,
         TILE_SIZE,
+        closeAllPanels,
         updateStatus,
-        closeAllPanels
+        null, // bulkOperationContext not available
+        null, // masterResources not available
+        null, // strings not available
+        null  // masterTrophies not available
       );
     } catch (error) {
       console.error('Error during teleport:', error);

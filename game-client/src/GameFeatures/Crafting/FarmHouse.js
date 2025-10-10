@@ -333,7 +333,7 @@ const FarmHouse = ({
             
             // Check for First Farm Worker trophy
             if (craftedResource.action === 'worker') {
-              await earnTrophy(currentPlayer.playerId, 'First Farm Worker', 1, currentPlayer, masterTrophies);
+              await earnTrophy(currentPlayer.playerId, 'First Farm Worker', 1, currentPlayer, masterTrophies, setCurrentPlayer);
             }
             
             // Trigger refresh to update available recipes
@@ -451,7 +451,7 @@ const FarmHouse = ({
       
       // Check for First Farm Worker trophy
       if (craftedResource.action === 'worker') {
-        await earnTrophy(currentPlayer.playerId, 'First Farm Worker', 1, currentPlayer, masterTrophies);
+        await earnTrophy(currentPlayer.playerId, 'First Farm Worker', 1, currentPlayer, masterTrophies, setCurrentPlayer);
       }
       
       // Track quest progress

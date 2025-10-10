@@ -192,7 +192,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
       skills: [...updatedSkills, ...updatedUpgrades], // ✅ Ensure all are sent to the server
     });
     await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
-    await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1);    
+    await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);    
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
     
     // Check if the player is a first-time user and just acquired the Axe skill

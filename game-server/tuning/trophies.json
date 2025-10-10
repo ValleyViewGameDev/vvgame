@@ -3,6 +3,7 @@
         "name": "First Farm Worker",
         "tooltip": "Hire your first farm worker.",
         "type": "Event",
+        "visible": true,
         "reward": 1
     },
     {
@@ -10,36 +11,28 @@
         "tooltip": "Keep aquiring skills.",
         "type": "Progress",
         "progress": [ 3, 5, 10, 50, 100 ],
+        "visible": true,
         "reward": 1
     },
     {
         "name": "Trains Completed",
         "tooltip": "Tracks the number of times you participated in Train with all orders filled.",
         "type": "Count",
-        "reward": 1
-    },
-    {
-        "name": "Scroll Revealer",
-        "tooltip": "Reveal scrolls at the Ancient Temple.",
-        "type": "Progress",
-        "progress": [ 1, 5, 10, 50, 100, 500, 1000 ],
-        "reward": 1
-    },    {
-        "name": "Season Winner",
-        "tooltip": "Finish in the top 3 players across the Frontier at the end of a season.",
-        "type": "Count",
-        "reward": 1
-    },
-    {
-        "name": "Season Champion",
-        "tooltip": "Be the top player across the Frontier at the end of a season.",
-        "type": "Count",
+        "visible": true,
         "reward": 1
     },
     {
         "name": "Meet the Cast",
         "tooltip": "Greet all of the non-player characters in Valley View.",
         "type": "Event",
+        "visible": true,
+        "reward": 1
+    },
+    {
+        "name": "Explore the Valley",
+        "tooltip": "Leave your Settlement and venture into the Valley.",
+        "type": "Event",
+        "visible": true,
         "reward": 1
     },
     {
@@ -47,30 +40,64 @@
         "tooltip": "Defeat the enemies of Valley View.",
         "type": "Progress",
         "progress": [ 1, 10, 50, 100, 1000, 5000, 10000, 20000 ],
+        "visible": true,
         "reward": 1
     },
+    {
+        "name": "Scroll Revealer",
+        "tooltip": "Reveal scrolls at the Ancient Temple.",
+        "type": "Progress",
+        "progress": [ 1, 5, 10, 50, 100, 500, 1000 ],
+        "visible": true,
+        "reward": 1
+    },    
     {
         "name": "Adventurer",
         "tooltip": "Camp in a tent for the first time. Click on the player avatar to pitch a tent.",
         "type": "Event",
+        "visible": true,
         "reward": 1
     },
     {
         "name": "Mariner",
         "tooltip": "Obtain the means to travel by water. Purchase a boat at the General Store.",
         "type": "Event",
+        "visible": true,
         "reward": 1
     },
     {
         "name": "Kill the Duke",
         "tooltip": "Slay Duke Angelo to avenge the lover of Juliet.",
         "type": "Count",
+        "visible": true,
         "reward": 1
     },
     {
         "name": "Prospero's Orb",
         "tooltip": "Collect the orb from the Wizard Prospero, hidden in the Valley.",
         "type": "Count",
+        "visible": true,
+        "reward": 1
+    },
+        {
+        "name": "Season Winner",
+        "tooltip": "Finish in the top 3 players across the Frontier at the end of a season.",
+        "type": "Count",
+        "visible": true,
+        "reward": 1
+    },
+    {
+        "name": "Season Champion",
+        "tooltip": "Be the top player across the Frontier at the end of a season.",
+        "type": "Count",
+        "visible": true,
+        "reward": 1
+    },
+    {
+        "name": "SawFrontierTip",
+        "tooltip": "[player has seen the frontier view tooltip]",
+        "type": "Event",
+        "visible": false,
         "reward": 1
     }
     
