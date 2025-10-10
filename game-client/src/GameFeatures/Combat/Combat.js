@@ -9,6 +9,7 @@ import { updateGridResource } from "../../Utils/GridManagement";
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { createCollectEffect } from "../../VFX/VFX";
+import { earnTrophy } from '../Trophies/TrophyUtils';
 
 /** Helper to check if target is in range and validate positions **/
 function checkRange(player, target, TILE_SIZE) {
@@ -63,7 +64,7 @@ function calculateDamage(player) {
 }
 
 /** handle attack on NPC **/
-export async function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZE, setResources, masterResources) {
+export async function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TILE_SIZE, setResources, masterResources, masterTrophies = null) {
     console.log(`Handling attack on NPC ${npc.id}.`);
 
     // Translate currentPlayer to pc from playersInGridManager
@@ -146,6 +147,17 @@ export async function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TI
         
         // Special case for Duke Angelo - auto-accept quest if not active
         if (freshNPC.type === 'Duke Angelo') {
+            // Award "Kill the Duke" trophy when Duke Angelo is defeated
+            if (masterTrophies && currentPlayer?.playerId) {
+                try {
+                    console.log('🏆 Awarding Kill the Duke trophy for defeating Duke Angelo');
+                    await earnTrophy(currentPlayer.playerId, "Kill the Duke", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+                    console.log('✅ Successfully awarded Kill the Duke trophy');
+                } catch (error) {
+                    console.error('❌ Error awarding Kill the Duke trophy:', error);
+                }
+            }
+            
             const bloodForJulietQuest = currentPlayer.activeQuests?.find(q => q.questId === 'Blood for Juliet');
             
             if (!bloodForJulietQuest) {

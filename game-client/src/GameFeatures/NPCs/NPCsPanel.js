@@ -326,13 +326,25 @@ const handleGetReward = async (quest) => {
           }
           
           console.log(`✅ Successfully awarded ${rewardQuantity} Prospero's Orb trophy instance(s)`);
+        } else if (quest.reward === "Skeleton Key") {
+          console.log(`🏆 Awarding Skeleton Key trophy for collecting ${rewardQuantity} key(s)`);
+          
+          // Award the Count-type trophy for each key collected
+          for (let i = 0; i < rewardQuantity; i++) {
+            await earnTrophy(currentPlayer.playerId, "Skeleton Key", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+          }
+          
+          console.log(`✅ Successfully awarded ${rewardQuantity} Skeleton Key trophy instance(s)`);
+        } else if (quest.reward === "Golden Key") {
+          console.log(`🏆 Awarding Golden Key trophy for collecting ${rewardQuantity} key(s)`);
+          
+          // Award the Count-type trophy for each key collected
+          for (let i = 0; i < rewardQuantity; i++) {
+            await earnTrophy(currentPlayer.playerId, "Golden Key", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+          }
+          
+          console.log(`✅ Successfully awarded ${rewardQuantity} Golden Key trophy instance(s)`);
         }
-        
-        // TODO: Add other quest reward trophies here as needed
-        // Example:
-        // if (quest.reward === "Some Other Special Item") {
-        //   await earnTrophy(currentPlayer.playerId, "Some Other Trophy", 1, currentPlayer, masterTrophies, setCurrentPlayer);
-        // }
         
       } catch (error) {
         console.error('❌ Error awarding quest reward trophy:', error);
