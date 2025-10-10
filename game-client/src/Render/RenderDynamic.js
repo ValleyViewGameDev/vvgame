@@ -34,6 +34,7 @@ const DynamicRenderer = ({
   onPCClick,  // This is needed for the Social Panel
   masterResources,
   masterSkills,
+  masterTrophies,
   setHoverTooltip, 
   setModalContent,
   setIsModalOpen,
@@ -223,7 +224,8 @@ const DynamicRenderer = ({
               updateStatus,
               openPanel,
               setActiveStation,
-              strings
+              strings,
+              masterTrophies
             );
           }
         });

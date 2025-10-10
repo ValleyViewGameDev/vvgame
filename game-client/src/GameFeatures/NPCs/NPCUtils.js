@@ -269,7 +269,8 @@ export async function handleNPCClick(
   updateStatus,
   openPanel,
   setActiveStation,
-  strings = {}
+  strings = {},
+  masterTrophies = null
 ) {
   if (!npc) {
     console.warn("handleNPCClick was called with an undefined NPC.");
@@ -379,7 +380,7 @@ export async function handleNPCClick(
 
     case 'attack': 
     case 'spawn':
-      handleAttackOnNPC(npc,currentPlayer,setCurrentPlayer,TILE_SIZE,setResources,masterResources);
+      handleAttackOnNPC(npc,currentPlayer,setCurrentPlayer,TILE_SIZE,setResources,masterResources,masterTrophies);
       
     break;
   

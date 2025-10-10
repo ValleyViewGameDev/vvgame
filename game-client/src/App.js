@@ -1963,6 +1963,7 @@ return (
           onPCClick={handlePCClick}  // Pass the callback
           masterResources={masterResources}
           masterSkills={masterSkills}
+          masterTrophies={masterTrophies}
           setHoverTooltip={setHoverTooltip}
           setModalContent={setModalContent}
           setIsModalOpen={setIsModalOpen} 

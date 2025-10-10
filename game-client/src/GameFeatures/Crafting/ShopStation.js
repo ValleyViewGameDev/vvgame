@@ -194,7 +194,7 @@ const ShopStation = ({
         
         // Send notification for newly purchased equipment
         showNotification('Message', {
-          title: strings[7001] || 'Tip',
+          title: strings[7004] || 'Note:',
           message: strings[7017] || 'Equip in Combat Panel to use'
         });
       }
