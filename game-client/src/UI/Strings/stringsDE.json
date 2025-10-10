@@ -1071,22 +1071,6 @@
 "15021": "🚂 Zugbestellungen werden von den Saisons beeinflusst.",
 "15022": "🏆 Neue Belohnungen und Trophäen können verdient werden.",
 
-"701": "😀 Willkommen in Valley View",
-"702": "Willkommen, Reisender! Du bist in Valley View angekommen, einem Grenzland voller Möglichkeiten, Geheimnisse und Abenteuer.",
-"721": "🤠 Triff Kent den Farmmanager",
-"722": "Zuerst das Wichtigste! Ernte etwas 🌾 Weizen und verkaufe ihn am 📥 Handelsposten für 💰 Geld.",
-"723": "🚜 Fang an zu Farmen",
-"724": "Gut gemacht, du verdienst jetzt Geld, also fang an zu farmen! Pflanze Feldfrüchte mit dem 🚜 Landwirtschafts-Panel, ernte sie und verkaufe.",
-"730": "Willkommen 👵🏻 Hirtin! Besuche jetzt das 🐮 Tier-Panel, um eine Kuh zu erwerben. Kühe brauchen 🟩 Gras zum Grasen, also platziere sie sorgfältig. Und du hast bereits deinen ersten 🟫 Tierstall; hier kannst du Milch produzieren, sobald die Kuh satt ist.",
-"727": "👵🏻 Stelle die Hirtin ein",
-"728": "Gute Arbeit! Stelle jetzt die 👵🏻 Hirtin vom 🏠 Farmhaus ein, und sie wird helfen, etwas 🐮 tierisches Leben auf die Farm zu bringen, damit du dein Geschäft weiter ausbauen kannst.",
-"729": "🐮 Tierhaltung",
-"731": "⛏️ Forme das Land",
-"732": "Feldfrüchte brauchen Erde. Kühe und Schafe brauchen 🟩 Gras. Pflaster kann helfen, die Bewegungen von Menschen und Tieren einzugrenzen. Benutze die ⛏️ Werkzeuge, um das Land nach deinem Geschmack zu pflastern, und erlerne die 🪓 Axt-Fähigkeit, um Bäume für Holz zu fällen.",
-"733": "⚒️ Baumeister",
-"734": "Du beherrschst die 🪓 Axt -- ausgezeichnet! Holz ist für viele Dinge nützlich, einschließlich dem Bau von Handwerksstationen. Du kannst dir auch den Weg zum 🚂 Bahnhof am Rand deines Heimstätts freischlagen, wo du schließlich in die Stadt reisen kannst.",
-"737": "Zeit zu Erkunden",
-"738": "Dein Heimstätt ist Teil einer größeren Siedlung mit anderen Spielern, die sich eine große Grenze teilen. Zoome heraus (+ und -), um die ganze Siedlung und Grenze zu sehen. Benutze ➡️ Wegweiser zum Reisen oder gehe zum Rand einer beliebigen Karte. VIEL SPASS BEIM SPIELEN VON VALLEY VIEW!",
 "795": "Tutorial Überspringen",
 "796": "OK",
 "797": "Zurück",
@@ -1186,13 +1170,37 @@
     "754": "🏛️ Politiker",
     "755": "Kandidiere als Bürgermeister, lege den Steuersatz fest und verdiene Steuereinnahmen für dich selbst. Investiere in Gemeinschaftsgebäude für die ganze Stadt, wie Krankenhäuser, Schulen und Bibliotheken, und hilf deiner Siedlung zu gedeihen.",
 
-"7000": "BENACHRICHTIGUNGSTEXTE:",
-"7001": "Tipp:",
-"7005": "Verwende A-W-S-D oder die Pfeiltasten zum Bewegen.",
-"7006": "Suche nach dem 💪 Symbol, um das Fähigkeiten-Panel zu öffnen.",
-"7007": "Stehe auf Gras und finde dann das 🐮 Kaufen-Panel, um eine Kuh zu kaufen. Du brauchst zuerst die Tierhaltungs-Fähigkeit.",
-"7009": "Überprüfe weiterhin deine ✅ Aufgabenliste und sprich weiterhin mit 🤠 Kent und 👵🏻 der Hirtin.",
-"7015": "Klicke auf + und - oben auf dem Bildschirm zum Hinein- und Herauszoomen."
+
+    "2050": "Dies ist nicht deine Heimatsiedlung.",
+
+    "701": "😀 Willkommen in Valley View",
+    "702": "Willkommen, Reisender! Du bist in Valley View angekommen, einem Grenzland voller Möglichkeiten, Geheimnisse und Abenteuer.",
+    "721": "🤠 Ernte und verkaufe Feldfrüchte",
+    "722": "Du solltest sofort anfangen, 💰 Geld zu verdienen. Ernte etwas 🌾 Weizen und verkaufe ihn dann am 📥 Handelsposten.",
+    "723": "💪 Anbau-Fähigkeit",
+    "724": "Kaching! Um mehr aus deiner Farm herauszuholen, erwirb jetzt die 💪 Anbau-Fähigkeit.",
+    "727": "🚜 Pflanzen",
+    "728": "Großartig, jetzt beginne mit der Landwirtschaft! Du kannst neue Feldfrüchte über das 🚜 Landwirtschafts-Panel pflanzen.",
+    "729": "🐮 Tierleben",
+    "730": "Ausgezeichnet! Während das wächst, bringen wir Leben auf die Farm. Erwirb zuerst die 💪 Viehzucht-Fähigkeit. Besuche dann das 🐮 Tier-Panel, um eine Kuh zu kaufen.",
+    "731": "🌳 Holz",
+    "732": "Wunderbar! Valley View ist reich an Wäldern. Holz ist eine wichtige Ressource für Handwerk und Bauen. Um Bäume zu fällen, musst du die 💪 Axt-Fähigkeit erwerben.",
+    "733": "⚒️ Baumeister",
+    "734": "Gut, du hast die 🪓 Axt erhalten! Neben dem Bau von Handwerksstationen kannst du dir auch einen Weg zum 🚂 Bahnhof am Rand deines Homesteads bahnen. Benutze den ➡️ Wegweiser, um in die Stadt zu reisen.",
+    "737": "Zeit zu erkunden",
+    "738": "Dein Homestead ist Teil einer größeren Siedlung mit anderen Spielern, die sich eine große Grenze teilen. Benutze ⏪ Wegweiser zum Reisen oder laufe zum Rand jeder Karte. VIEL SPASS BEIM SPIELEN VON VALLEY VIEW!",
+
+    "7000": "BENACHRICHTIGUNGSTEXTE:",
+
+    "7001": "Tipp:",
+    "7003": "Öffne den 📥 Handelsposten, um Waren zu verkaufen.",
+    "7005": "Benutze A-W-S-D oder die Pfeiltasten zum Bewegen. Gehe auf Erde und wähle dann 🌱 Weizenfeld.",
+    "7006": "Suche nach dem 💪 Symbol, um das Fähigkeiten-Panel zu öffnen.",
+    "7007": "Nach dem Erwerb von Viehzucht, gehe auf eine 🟩 Graskachel, dann finde das 🐮 Kauf-Panel, um eine 🐮 Kuh zu kaufen.",
+    "7009": "Überprüfe weiterhin deine ✅ Aufgabenliste und sprich weiterhin mit 🤠 Kent und 👵🏻 der Hirtin.",
+    "7015": "Klicke + und - oben auf dem Bildschirm zum Hinein- und Herauszoomen.",
+
+    "7008": "Feldfrüchte brauchen Erde. Kühe und Schafe brauchen 🟩 Gras. Pflaster kann helfen, die Bewegungen von Menschen und Tieren zu begrenzen. Benutze die ⛏️ Werkzeuge, um das Land nach deinen Wünschen zu formen."
 
 
 }

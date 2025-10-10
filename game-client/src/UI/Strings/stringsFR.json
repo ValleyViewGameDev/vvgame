@@ -1183,22 +1183,6 @@
 
       "700": "CHAÎNES FTUE :",
 
-"701": "😀 Bienvenue à Valley View",
-"702": "Bienvenue, voyageur ! Vous êtes arrivé à Valley View, une terre frontalière pleine d'opportunités, de mystères et d'aventures.",
-"721": "🤠 Rencontrez Kent le Gestionnaire de Ferme",
-"722": "Commençons par le début ! Récoltez du 🌾 Blé et vendez-le au 📥 Comptoir Commercial pour gagner de l'💰 Argent.",
-"723": "🚜 Commencez à Cultiver",
-"724": "Bien joué, vous gagnez de l'argent maintenant, alors commencez à cultiver ! Plantez des cultures en utilisant le panneau 🚜 Agriculture, récoltez-les et vendez.",
-"730": "Bienvenue 👵🏻 Bergère ! Maintenant visitez le panneau 🐮 Animaux pour acquérir une vache. Les vaches ont besoin d'🟩 herbe pour paître, alors placez-les soigneusement. Et vous avez déjà votre première 🟫 Étable ; c'est là que vous pourrez produire du lait une fois la vache rassasiée.",
-"727": "👵🏻 Engagez la Bergère",
-"728": "Bon travail ! Maintenant engagez la 👵🏻 Bergère depuis la 🏠 Ferme, et elle aidera à apporter de la 🐮 vie animale à la ferme, pour que vous puissiez continuer à développer votre entreprise.",
-"729": "🐮 Élevage d'Animaux",
-"731": "⛏️ Façonnez le Terrain",
-"732": "Les cultures ont besoin de terre. Les vaches et moutons ont besoin d'🟩 herbe. Le pavage peut aider à contenir les mouvements des gens et des animaux. Utilisez les ⛏️ Outils pour paver le terrain à votre goût, et apprenez la compétence 🪓 hache pour couper des arbres pour du bois.",
-"733": "⚒️ Constructeur",
-"734": "Vous maîtrisez la 🪓 hache -- excellent ! Le bois est utile pour plusieurs choses, notamment construire des stations d'artisanat. Vous pouvez aussi vous frayer un chemin jusqu'à la 🚂 Gare au bord de votre Propriété, où vous pourrez éventuellement voyager en Ville.",
-"737": "Temps d'Explorer",
-"738": "Votre Propriété fait partie d'une Colonie plus grande avec d'autres joueurs partageant une grande Frontière. Dézoomez (+ et -) pour voir toute la Colonie et la Frontière. Utilisez les ➡️ Panneaux pour voyager, ou marchez jusqu'au bord de n'importe quelle carte. AMUSEZ-VOUS À JOUER À VALLEY VIEW !",
 "795": "Passer le Tutoriel",
 "796": "OK",
 "797": "Retour",
@@ -1217,13 +1201,37 @@
 "793": "Ce n'est tout simplement pas pour moi",
 "794": "Jouer",
 
-"7000": "TEXTES DE NOTIFICATION :",
-"7001": "Conseil :",
-"7005": "Utilisez A-W-S-D ou les Touches Fléchées pour vous Déplacer.",
-"7006": "Cherchez l'icône 💪 pour ouvrir le panneau des Compétences.",
-"7007": "Tenez-vous sur l'herbe, puis trouvez le panneau 🐮 Acheter pour acheter une vache. Vous aurez d'abord besoin de la compétence Élevage.",
-"7009": "Continuez à vérifier votre ✅ Liste de Tâches, et continuez à consulter 🤠 Kent et 👵🏻 la Bergère.",
-"7015": "Cliquez sur + et - en haut de l'écran pour zoomer et dézoomer."
+
+    "2050": "Ce n'est pas votre colonie d'origine.",
+
+    "701": "😀 Bienvenue à Valley View",
+    "702": "Bienvenue, voyageur ! Vous êtes arrivé à Valley View, une terre frontalière pleine d'opportunités, de mystères et d'aventures.",
+    "721": "🤠 Récolter et vendre des cultures",
+    "722": "Vous voudrez commencer à gagner de l'💰 Argent tout de suite. Récoltez du 🌾 Blé, puis vendez-le au 📥 Comptoir commercial.",
+    "723": "💪 Compétence de cultivateur",
+    "724": "Cha-ching ! Maintenant, pour tirer le meilleur parti de votre ferme, acquérez la compétence 💪 Cultivateur.",
+    "727": "🚜 Plantation",
+    "728": "Super, maintenant commencez à cultiver ! Vous pouvez planter de nouvelles cultures en utilisant le panneau 🚜 Agriculture.",
+    "729": "🐮 Vie animale",
+    "730": "Excellent ! Pendant que ça pousse, apportons de la vie à la ferme. D'abord, acquérez la compétence 💪 Élevage. Ensuite, visitez le panneau 🐮 Animaux pour acheter une vache.",
+    "731": "🌳 Bois",
+    "732": "Merveilleux ! Valley View est riche en forêts. Le bois est une ressource vitale pour l'artisanat et la construction. Pour couper des arbres, vous devrez acquérir la compétence 💪 Hache.",
+    "733": "⚒️ Constructeur",
+    "734": "Bien, vous avez obtenu la 🪓 Hache ! En plus de construire des stations d'artisanat, vous pouvez aussi vous frayer un chemin jusqu'à la 🚂 Gare au bout de votre Homestead. Utilisez le ➡️ Poteau indicateur pour voyager en ville.",
+    "737": "Il est temps d'explorer",
+    "738": "Votre Homestead fait partie d'une colonie plus grande avec d'autres joueurs partageant une vaste Frontière. Utilisez les ⏪ Poteaux indicateurs pour voyager, ou marchez jusqu'au bord de n'importe quelle carte. AMUSEZ-VOUS À JOUER À VALLEY VIEW !",
+
+    "7000": "CHAÎNES DE NOTIFICATION :",
+
+    "7001": "Conseil :",
+    "7003": "Ouvrez le 📥 Comptoir commercial pour vendre des marchandises.",
+    "7005": "Utilisez A-W-S-D ou les touches fléchées pour vous déplacer. Allez sur la terre, puis sélectionnez 🌱 Parcelle de blé.",
+    "7006": "Cherchez l'icône 💪 pour ouvrir le panneau Compétences.",
+    "7007": "Après avoir acquis Élevage, allez sur une tuile d'🟩 herbe, puis trouvez le panneau 🐮 Acheter pour acheter une 🐮 Vache.",
+    "7009": "Continuez à vérifier votre ✅ Liste de tâches, et continuez à consulter 🤠 Kent et 👵🏻 la Bergère.",
+    "7015": "Cliquez sur + et - en haut de l'écran pour zoomer et dézoomer.",
+
+    "7008": "Les cultures ont besoin de terre. Les vaches et moutons ont besoin d'🟩 herbe. Le pavage peut aider à contenir les mouvements des personnes et des animaux. Utilisez les ⛏️ Outils pour façonner le terrain à votre goût."
 
 }
 

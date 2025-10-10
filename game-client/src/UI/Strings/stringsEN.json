@@ -1183,6 +1183,18 @@
 
     "11000": "ADDED STRINGS:",
 
+
+    "750": "🚜 Farmer",
+    "751": "Cultivate your homestead, grow crops, tend animals, and craft goods to sell and trade with other players. Invest in farming and crafting skills to grow your profits.",
+    "752": "⚔️ Adventurer",
+    "753": "Venture into the Valley for resources and rare items. Fight animals and creatures, uncover hidden locations, and meet magical characters. Invest in combat skills to become a formidable fighter.",
+    "754": "🏛️ Politician",
+    "755": "Run for Mayor, set the tax rate, and earn tax revenue for your self. Invest in community buildings for the whole Town, like Hospitals, Schools, and Libraries, and help your settlement thrive.",
+    "795": "Skip Tutorial",
+    "796": "OK",
+    "797": "Back",
+    "798": "Play",
+
     "2050": "This is not your home settlement.",
 
     "701": "😀 Welcome to Valley View",
@@ -1197,24 +1209,12 @@
     "728": "Great, now start Farming! You can plant new crops using the 🚜 Farming panel.",   
     "729": "🐮 Animal Life",
     "730": "Excellent! While we let that grow, let's bring some life to the farm. First, acquire the 💪 Husbandry skill. Then visit the 🐮 Animal Panel to buy a cow.",
-    
     "731": "🌳 Wood",
     "732": "Marvelous! Now, Valley View is rich with forests. Wood is a vital resource for crafting and building. To chop trees, you'll need to acquire the 💪 Axe skill.",
     "733": "⚒️ Builder",
     "734": "Nice, you've gained the 🪓 Axe! In addition to building crafting stations, you can also chop your way to the 🚂 Train Station at the edge of your Homestead. Use the ➡️ Signpost to travel into Town.",
     "737": "Time to Explore",
     "738": "Your Homestead is part of a larger Settlement of other players sharing a large Frontier. Use ⏪ Signposts to travel, or walk to the edge of any map. ENJOY PLAYING VALLEY VIEW!",
-
-    "750": "🚜 Farmer",
-    "751": "Cultivate your homestead, grow crops, tend animals, and craft goods to sell and trade with other players. Invest in farming and crafting skills to grow your profits.",
-    "752": "⚔️ Adventurer",
-    "753": "Venture into the Valley for resources and rare items. Fight animals and creatures, uncover hidden locations, and meet magical characters. Invest in combat skills to become a formidable fighter.",
-    "754": "🏛️ Politician",
-    "755": "Run for Mayor, set the tax rate, and earn tax revenue for your self. Invest in community buildings for the whole Town, like Hospitals, Schools, and Libraries, and help your settlement thrive.",
-    "795": "Skip Tutorial",
-    "796": "OK",
-    "797": "Back",
-    "798": "Play",
 
     "7000": "NOTIFICAITION STRINGS:",
 
