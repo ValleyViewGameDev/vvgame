@@ -50,6 +50,7 @@ const NPCPanel = ({
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [canQuest, setCanQuest] = useState(false);
+  const [hasHiddenQuests, setHasHiddenQuests] = useState(false);
   const [questThreshold, setQuestThreshold] = useState(0);
   const [canTrade, setCanTrade] = useState(false);
   const [tradeThreshold, setTradeThreshold] = useState(0);
@@ -189,8 +190,22 @@ const NPCPanel = ({
           return shouldShow;
         });
 
-      // Filter by relationship requirements
+      // Check if any quests exist that are hidden due to relationship requirements
       const relationship = currentPlayer.relationships?.find(rel => rel.name === npcData.type);
+      const questsHiddenByRelationship = npcQuests.some((quest) => {
+        // Check if quest has relationship requirements that aren't met
+        if (quest.rel || quest.relscore) {
+          // If no relationship exists with this NPC, quest is hidden
+          if (!relationship) return true;
+          // Check relationship status requirement
+          if (quest.rel && relationship[quest.rel] !== true) return true;
+          // Check relationship score requirement
+          if (quest.relscore && (relationship.relscore || 0) < quest.relscore) return true;
+        }
+        return false;
+      });
+
+      // Filter by relationship requirements (existing logic)
       npcQuests = npcQuests.filter((quest) => {
         // Check if quest has relationship requirements
         if (quest.rel || quest.relscore) {
@@ -226,6 +241,7 @@ const NPCPanel = ({
         });
       }
       setQuestList(npcQuests);
+      setHasHiddenQuests(questsHiddenByRelationship);
     } catch (error) {
       console.error('Error fetching quests:', error);
     }
@@ -705,13 +721,39 @@ const handleHeal = async (recipe) => {
               {strings[625]}
             </div>
           )}
+
+          {canQuest && hasHiddenQuests && (
+            <div style={{ 
+              padding: '10px', 
+              backgroundColor: '#f5f5f5', 
+              borderRadius: '5px', 
+              marginTop: '10px',
+              textAlign: 'center',
+              fontStyle: 'italic',
+              color: '#666'
+            }}>
+              {strings[627]}
+            </div>
+          )}
           
+          {canQuest && questList.length === 0 && !hasHiddenQuests && (
+            <div style={{ 
+              padding: '10px', 
+              backgroundColor: '#f5f5f5', 
+              borderRadius: '5px', 
+              marginTop: '10px',
+              textAlign: 'center',
+              fontStyle: 'italic',
+              color: '#666'
+            }}>
+              {strings[205]}
+            </div>
+          )}
+
           {canQuest && (
             <>
-              {questList.length > 0 ? (
+              {questList.length > 0 && (
                 <h3>{strings[204]}</h3>
-              ) : (
-                <h3>{strings[205]}</h3>
               )}
               {questList.map((quest) => {
             const isRewardable = currentPlayer.activeQuests.some(

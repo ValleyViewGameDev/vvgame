@@ -820,14 +820,6 @@
     "15021": "🚂 Train orders are affected by the seasons.",
     "15022": "🏆 New rewards and trophies can be earned.",
 
-    "30000": "TROPHIES:",
-
-    "30001": "First Farm Worker",
-    "30002": "Skill Builder",
-    "30003": "Trains Completed",
-    "30004": "Season Winner",
-    "30005": "Season Champion",
-
     "200000": "RESOURCES",
 
     "200009": "Gold Account",
@@ -1148,6 +1140,22 @@
     "200519": "Fountain",
     "200520": "Fountain Large",
     "200521": "Large Decorative Palm Tree",
+    
+    "30000": "TROPHIES:",
+
+    "30001": "First Farm Worker",
+    "30002": "Skill Builder",
+    "30003": "Trains Completed",
+    "30004": "Season Winner",
+    "30005": "Season Champion",
+    "30006": "Meet the Cast",
+    "30007": "Explore the Valley",
+    "30008": "Fighter",
+    "30009": "Scroll Revealer",
+    "30010": "Adventurer",
+    "30011": "Mariner",
+    "30012": "Kill the Duke",
+    "30013": "Prospero's Orb",
 
     "520": "You must be in town or at home to equip weapons and armor.",
     "522": "🛡️ Equipped Armor:",
@@ -1223,22 +1231,15 @@
     "7009": "Keep checking your ✅ To-Do-List, and keep checking with 🤠 Kent and 👵🏻 the Shepherd.",
     "7015": "Click + and - at the top of the screen to zoom in and out.",    
     "7008": "Crops need dirt. Cows and sheep need 🟩 grass. Pavement can help contain the movements of people and animals. Use the ⛏️ Tools to shape the land to your liking.",
-
-    "11000": "ADDED STRINGS:",
-
     "7020": "To instantly travel home, click the Settlement where your Homestead is located.",
     "7021": "You made it to the Valley! Be sure to zoom out (+ and -) to keep track of your location. If you get lost, zoom out to the Frontier view to travel back home.",
     "7002": "Congratulations!",
     "7004": "Note:",
-    
-    "30006": "Meet the Cast",
-    "30007": "Explore the Valley",
-    "30008": "Fighter",
-    "30009": "Scroll Revealer",
-    "30010": "Adventurer",
-    "30011": "Mariner",
-    "30012": "Kill the Duke",
-    "30013": "Prospero's Orb"
+
+
+    "11000": "ADDED STRINGS:",
+
+    "627": "With a a better relationship, this characcter may have additional tasks for you."
 
   }
 
