@@ -161,3 +161,24 @@ export function isACrop(itemType, masterResources) {
     resource.category === 'farmplot' && resource.output === itemType
   );
 }
+
+/**
+ * Calculate gem cost for speeding up crafting based on remaining time
+ * @param {number} remainingTimeMs - Remaining time in milliseconds
+ * @returns {number} - Number of gems required
+ */
+export function calculateGemSpeedupCost(remainingTimeMs) {
+  if (remainingTimeMs <= 0) return 0;
+  
+  const remainingMinutes = remainingTimeMs / (1000 * 60);
+  
+  if (remainingMinutes <= 2) return 1;
+  if (remainingMinutes <= 10) return 5;
+  if (remainingMinutes <= 30) return 8;
+  if (remainingMinutes <= 60) return 10;
+  if (remainingMinutes <= 360) return 15; // 6 hours
+  if (remainingMinutes <= 1440) return 20; // 24 hours
+  if (remainingMinutes <= 2880) return 30; // 48 hours
+  
+  return 40; // Max cost for anything over 2 days 
+}

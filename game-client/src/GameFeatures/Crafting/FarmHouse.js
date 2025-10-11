@@ -5,7 +5,8 @@ import axios from 'axios';
 import '../../UI/ResourceButton.css'; 
 import ResourceButton from '../../UI/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
-import { getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { getIngredientDetails, calculateGemSpeedupCost } from '../../Utils/ResourceHelpers';
+import { updateGridResource } from '../../Utils/GridManagement';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
@@ -408,6 +409,87 @@ const FarmHouse = ({
       onClose
     });
   };
+
+  // Handle gem speedup for crafting
+  const handleGemSpeedup = async (recipe) => {
+    if (!isCrafting || !craftingCountdown) {
+      console.error('❌ No active crafting to speed up');
+      return;
+    }
+
+    const remainingTimeMs = craftingCountdown * 1000;
+    const gemCost = calculateGemSpeedupCost(remainingTimeMs);
+    
+    // Check if player has enough gems
+    const currentGems = (currentPlayer.inventory?.find(item => item.type === 'Gem')?.quantity || 0) +
+                       (currentPlayer.backpack?.find(item => item.type === 'Gem')?.quantity || 0);
+    
+    if (currentGems < gemCost) {
+      updateStatus(`Need ${gemCost} gems to speed up crafting`);
+      return;
+    }
+
+    try {
+      // Spend gems to complete crafting instantly
+      const spentResult = await spendIngredients({
+        playerId: currentPlayer.playerId,
+        recipe: { 
+          ingredient1: 'Gem',
+          ingredient1qty: gemCost,
+        },
+        inventory,
+        backpack,
+        setInventory,
+        setBackpack,
+        setCurrentPlayer,
+        updateStatus,
+      });
+
+      if (!spentResult) {
+        console.error('❌ Failed to spend gems for speedup');
+        return;
+      }
+
+      // Update the station in the database to mark crafting as complete
+      const updateResponse = await updateGridResource(
+        gridId,
+        {
+          type: stationType,
+          x: currentStationPosition.x,
+          y: currentStationPosition.y,
+          craftEnd: Date.now(), // Set to current time to complete immediately
+          craftedItem
+        },
+        true
+      );
+
+      if (updateResponse?.success) {
+        // Update global state to reflect the database change
+        const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
+          res.x === currentStationPosition.x && res.y === currentStationPosition.y
+            ? { ...res, craftEnd: Date.now(), craftedItem }
+            : res
+        );
+        GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
+        setResources(updatedGlobalResources);
+
+        // Update UI state
+        setCraftingCountdown(0);
+        setIsCrafting(false);
+        setIsReadyToCollect(true);
+
+        updateStatus(`Used ${gemCost} gems to complete crafting instantly`);
+        FloatingTextManager.addFloatingText(`-${gemCost} 💎`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+        
+        console.log(`✅ Crafting completed instantly using ${gemCost} gems`);
+      } else {
+        throw new Error('Failed to update crafting station in database');
+      }
+    } catch (error) {
+      console.error('❌ Error in gem speedup:', error);
+      updateStatus('❌ Failed to speed up crafting');
+    }
+  };
   
   // Handle gem purchase
   const handleGemPurchase = async (modifiedRecipe) => {
@@ -485,6 +567,10 @@ const FarmHouse = ({
               const skillColor = requirementsMet ? 'green' : 'red';
               const isCrafting = craftedItem === recipe.type && craftingCountdown > 0;
               const isReadyToCollect = craftedItem === recipe.type && craftingCountdown === 0;
+              
+              // Calculate gem speedup cost for this crafting item
+              const remainingTimeMs = isCrafting ? craftingCountdown * 1000 : 0;
+              const gemSpeedupCost = isCrafting ? calculateGemSpeedupCost(remainingTimeMs) : 0;
 
               
               const craftTimeText = isCrafting
@@ -590,16 +676,28 @@ const FarmHouse = ({
                   onTransactionAction={isReadyToCollect ? 
                     (transactionId, transactionKey) => handleCollect(transactionId, transactionKey, recipe) :
                     (transactionId, transactionKey) => handleCraft(transactionId, transactionKey, recipe)}
-                  // Gem purchase props
-                  gemCost={recipe.gemcost || null}
-                  onGemPurchase={(recipe.gemcost && (!affordable || !requirementsMet || craftedItem !== null)) ? handleGemPurchase : null}
-                  resource={recipe}
+                  // Gem purchase props (for instant purchase) or speedup props (for active crafting)
+                  gemCost={isCrafting ? gemSpeedupCost : null}
+                  onGemPurchase={isCrafting ? 
+                    () => handleGemSpeedup(recipe) : 
+                    ((recipe.gemcost && (!affordable || !requirementsMet) && craftedItem === null) ? handleGemPurchase : null)}
+                  resource={isCrafting ? { 
+                    type: 'CraftingSpeedup', 
+                    gemcost: gemSpeedupCost // Main gem cost, no ingredients
+                  } : recipe}
                   inventory={inventory}
                   backpack={backpack}
                   masterResources={masterResources || allResources}
                   currentPlayer={currentPlayer}
-                  // Hide gem button if crafting or ready to collect
-                  hideGem={isCrafting || isReadyToCollect || !recipe.gemcost}
+                  // Hide gem button logic:
+                  // - If ready to collect: hide
+                  // - If this item is crafting: show speedup button
+                  // - If another item is crafting: hide
+                  // - If nothing is crafting and no gem cost: hide
+                  // - If nothing is crafting and has gem cost: show purchase button
+                  hideGem={isReadyToCollect || 
+                           (!isCrafting && craftedItem !== null) || 
+                           (!isCrafting && !recipe.gemcost)}
                 >
                 </ResourceButton>
               );

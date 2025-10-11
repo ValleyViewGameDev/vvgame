@@ -41,7 +41,7 @@ const ResourceButton = ({
   const buttonRef = useRef(null);
   
   // Only create gem calculation when we have gem functionality enabled
-  const shouldCalculateGem = !!(resource && inventory && backpack && masterResources && currentPlayer && gemCost && onGemPurchase);
+  const shouldCalculateGem = !!(resource && inventory && backpack && masterResources && currentPlayer && onGemPurchase && (gemCost || resource?.gemcost));
   
   const gemCalculation = useMemo(() => {
     if (!shouldCalculateGem) {

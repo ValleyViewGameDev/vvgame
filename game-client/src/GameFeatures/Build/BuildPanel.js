@@ -221,7 +221,6 @@ const BuildPanel = ({
                       updateStatus,
                     })
                   }
-                  gemCost={item.gemcost || null}
                   onGemPurchase={(item.gemcost && (!affordable || !requirementsMet)) ? handleGemPurchase : null}
                   resource={item}
                   inventory={inventory}

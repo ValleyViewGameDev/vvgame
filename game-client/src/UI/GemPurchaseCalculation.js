@@ -1,5 +1,6 @@
 import React from 'react';
 import { getLocalizedString } from '../Utils/stringLookup';
+import { calculateGemSpeedupCost } from '../Utils/ResourceHelpers';
 import './GemPurchaseCalculation.css';
 
 // Pure function that doesn't use hooks
@@ -79,9 +80,80 @@ export const calculateGemPurchase = ({
         }
     }
     
-    // Calculate ratios and gem cost
-    const hasRatio = totalValueCalc > 0 ? totalHasCalc / totalValueCalc : 0;
-    const gemCost = Math.ceil(resource.gemcost * (1 - hasRatio));
+    // Calculate gem cost based on context
+    let gemCost;
+    
+    if (resource.crafttime && resource.source !== 'Buy' && resource.source !== 'Build' && resource.source !== 'BuildTown' && resource.source !== 'BuildValley') {
+        // For crafting items: base cost is time + missing ingredient costs
+        const craftTimeMs = resource.crafttime * 60 * 1000; // Convert minutes to milliseconds
+        const timeCost = calculateGemSpeedupCost(craftTimeMs);
+        
+        // Calculate missing ingredient costs
+        let missingIngredientCost = 0;
+        for (let i = 1; i <= 4; i++) {
+            const ingredientType = resource[`ingredient${i}`];
+            const ingredientQty = resource[`ingredient${i}qty`];
+            
+            if (ingredientType && ingredientQty) {
+                const inventoryQty = safeInventory.find(inv => inv.type === ingredientType)?.quantity || 0;
+                const backpackQty = safeBackpack.find(item => item.type === ingredientType)?.quantity || 0;
+                const playerQty = inventoryQty + backpackQty;
+                const missingQty = Math.max(0, ingredientQty - playerQty);
+                
+                if (missingQty > 0) {
+                    const resourceData = safeMasterResources.find(r => r.type === ingredientType);
+                    const ingredientGemCost = resourceData?.gemcost || 1;
+                    missingIngredientCost += ingredientGemCost * missingQty;
+                }
+            }
+        }
+        
+        // Check missing skill cost
+        if (resource.requires) {
+            const hasSkill = ownedSkills.some(skill => skill.type === resource.requires);
+            if (!hasSkill) {
+                const requiredSkill = safeMasterResources.find(r => r.type === resource.requires);
+                const skillGemCost = requiredSkill?.gemcost || 1;
+                missingIngredientCost += skillGemCost;
+            }
+        }
+        
+        gemCost = timeCost + missingIngredientCost;
+    } else {
+        // For non-crafting items: calculate cost based on missing ingredients
+        let missingIngredientCost = 0;
+        
+        for (let i = 1; i <= 4; i++) {
+            const ingredientType = resource[`ingredient${i}`];
+            const ingredientQty = resource[`ingredient${i}qty`];
+            
+            if (ingredientType && ingredientQty) {
+                const inventoryQty = safeInventory.find(inv => inv.type === ingredientType)?.quantity || 0;
+                const backpackQty = safeBackpack.find(item => item.type === ingredientType)?.quantity || 0;
+                const playerQty = inventoryQty + backpackQty;
+                const missingQty = Math.max(0, ingredientQty - playerQty);
+                
+                if (missingQty > 0) {
+                    const resourceData = safeMasterResources.find(r => r.type === ingredientType);
+                    const ingredientGemCost = resourceData?.gemcost || 1;
+                    missingIngredientCost += Math.ceil(ingredientGemCost * missingQty);
+                }
+            }
+        }
+        
+        // Check missing skill cost
+        if (resource.requires) {
+            const hasSkill = ownedSkills.some(skill => skill.type === resource.requires);
+            if (!hasSkill) {
+                const requiredSkill = safeMasterResources.find(r => r.type === resource.requires);
+                const skillGemCost = requiredSkill?.gemcost || 1;
+                missingIngredientCost += skillGemCost;
+            }
+        }
+        
+        // Use missing ingredient cost, with minimum of 1 gem if there are missing ingredients
+        gemCost = missingIngredientCost > 0 ? Math.max(1, missingIngredientCost) : 0;
+    }
     
     // Create a modified recipe for purchase
     const getModifiedRecipe = () => {
