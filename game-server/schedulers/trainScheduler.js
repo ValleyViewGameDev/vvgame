@@ -331,7 +331,7 @@ async function generateTrainOffersAndRewards(settlement, frontier, seasonConfig)
 
   for (let i = 0; i < numRewards; i++) {
     const item = rewardItems[Math.floor(Math.random() * rewardItems.length)];
-    const baseQty = Math.ceil((population / 10) * seasonLevel);
+    const baseQty = Math.ceil((population / 10) * seasonLevel * 3); // Tripled base reward amount
     
     // Add +/- 15% randomness to the quantity
     const variation = 0.15; // 15% variation
@@ -360,7 +360,7 @@ async function generateTrainOffersAndRewards(settlement, frontier, seasonConfig)
 ${detailedOfferExplanations}.
 🚂 FINAL TOTAL EFFORT: ${actualTotalEffort}s.
 🚂 REWARDS: 
-[${rewardDescriptions}] (random set of 3 rewards chosen from Book/PotionC/Gem, quantity=(activePopulation/10)*seasonLevel, with ±15% variation per item).`;
+[${rewardDescriptions}] (random set of 3 rewards chosen from Book/PotionC/Gem, quantity=(activePopulation/10)*seasonLevel*3, with ±15% variation per item).`;
 
   return { offers, rewards, logicString };
 }

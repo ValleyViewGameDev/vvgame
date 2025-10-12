@@ -199,8 +199,8 @@
   width: 100%;
   border-collapse: collapse;
   margin-top: 15px;
-  table-layout: auto; /* Allow table to size based on content */
-  min-width: 700px; /* Ensure minimum width for all columns */
+  table-layout: fixed; /* Fixed layout for controlled column widths */
+  min-width: 600px; /* Reduced minimum width */
 }
 
 .inventory-modal th,
@@ -213,6 +213,33 @@
 .inventory-modal th {
   background: #f9f9f9;
   font-weight: bold;
+}
+
+/* Column width controls for inventory modal table */
+.inventory-modal table th:nth-child(1),
+.inventory-modal table td:nth-child(1) {
+  width: 28%; /* Item name - reduced from 35% to 28% (80% of original) */
+  text-align: left; /* Left-justify item names */
+}
+
+.inventory-modal table th:nth-child(2),
+.inventory-modal table td:nth-child(2) {
+  width: 15%; /* Quantity - medium column */
+}
+
+.inventory-modal table th:nth-child(3),
+.inventory-modal table td:nth-child(3) {
+  width: 12%; /* Price Each - narrower column (was too wide) */
+}
+
+.inventory-modal table th:nth-child(4),
+.inventory-modal table td:nth-child(4) {
+  width: 25%; /* Amount controls - medium-large column */
+}
+
+.inventory-modal table th:nth-child(5),
+.inventory-modal table td:nth-child(5) {
+  width: 13%; /* Add button - small column */
 }
 
 .inventory-modal table th,
@@ -280,7 +307,7 @@
 
 /* CONFIGURABLE WIDTH */
 .inventory-modal.wider {
-  width: 900px; /* Adjust this value for overall modal width */
+  width: 750px; /* Further reduced from 800px for more compact modal */
   max-width: 90%; /* Prevents overflowing viewport */
 }
 

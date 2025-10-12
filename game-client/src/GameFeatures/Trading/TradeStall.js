@@ -1056,7 +1056,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
           >
             ✖
           </button>
-          <h3>{strings[160]}</h3>
+          <h2>{strings[160]}</h2>
           <p style={{ textAlign: 'center', margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>
             {getSlotConfig(selectedSlotIndex).maxAmount} {strings[158]}
           </p>
@@ -1087,7 +1087,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
                       <tr key={item.type}>
                         <td>{resourceDetails?.symbol} {getLocalizedString(item.type, strings)}</td>
                         <td>{item.quantity}</td>
-                        <td>{price}</td>
+                        <td>💰 {price}</td>
                         <td>
                           <div className="amount-input">
                             <button

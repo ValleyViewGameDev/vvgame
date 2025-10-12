@@ -89,11 +89,7 @@
     "159": "Ready to sell",
     "155": "Transaction failed. This item has already been sold.",
     "158": " limit per order.",
-    "160": "Items to Sell",
     "161": "Item",
-    "162": "Available",
-    "163": "Price",
-    "164": "Amount",
     "165": "All",
     "166": "Add",
     "167": "Sell",
@@ -1140,7 +1136,7 @@
     "200519": "Fountain",
     "200520": "Fountain Large",
     "200521": "Large Decorative Palm Tree",
-    
+
     "30000": "TROPHIES:",
 
     "30001": "First Farm Worker",
@@ -1238,6 +1234,12 @@
 
 
     "11000": "ADDED STRINGS:",
+
+    "160": "📥 Trading Post: Add Items to Sell",
+    "162": "You Have",
+    "163": "Price Each",
+    "164": "Amount to Add",
+
 
     "627": "With a a better relationship, this characcter may have additional tasks for you."
 
