@@ -13,6 +13,7 @@ import { earnTrophy } from './GameFeatures/Trophies/TrophyUtils';
 import { useStrings } from './UI/StringsContext';
 import { getLocalizedString } from './Utils/stringLookup';
 import { formatSingleCollection } from './UI/StatusBar/CollectionFormatters';
+import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
  
  // Handles resource click actions based on category. //
  export async function handleResourceClick(
@@ -464,44 +465,127 @@ export async function handleSourceConversion(
     const usedKey = await handleUseKey(resource,requirement,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,inventory,setInventory,backpack,setBackpack,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus,);
     if (!usedKey) return;
   }
-  // Build the new resource object to replace the one we just clicked
-  const x = col;
-  const y = row;
-  const enrichedNewResource = {
-    ...targetResource,
-    x,
-    y,
-    symbol: targetResource.symbol,
-    qtycollected: targetResource.qtycollected || 1,
-    category: targetResource.category || 'doober',
-    growEnd: targetResource.growEnd || null,
-  };
-  console.log('Enriched newResource for local state: ', enrichedNewResource);
-
-    setResources((prevResources) => {
-    const filtered = prevResources.filter(r => !(r.x === col && r.y === row));
-    return [...filtered, enrichedNewResource];
-  });
-
-  // Perform server update
-    try {
-    const gridUpdateResponse = await updateGridResource(
-      gridId, 
-      { type: targetResource.type, x: col, y: row }, 
-      true
+  // Check if the object should disappear (output is null/empty) or transform
+  const shouldDisappear = !resource.output || resource.output === 'null' || !targetResource;
+  
+  if (shouldDisappear) {
+    console.log(`🗑️ Object at (${col}, ${row}) should disappear after key usage`);
+    
+    // Find the original resource to check for shadows - use global state like ProtectedSelling does
+    const originalResource = GlobalGridStateTilesAndResources.getResources().find(
+      r => r.x === col && r.y === row
     );
-    if (gridUpdateResponse?.success) {
-      // VFX
-      createSourceConversionEffect(col, row, TILE_SIZE, requirement);
-      console.log('✅ Source conversion completed successfully on the server.');
-    } else {
-      throw new Error('Server failed to confirm the source conversion.');
+    
+    // Update local state to reflect removal of resource and shadows
+    const filteredResources = GlobalGridStateTilesAndResources.getResources().filter(
+      (res) => {
+        // Remove the main resource
+        if (res.x === col && res.y === row) return false;
+        
+        // Remove any shadows belonging to this resource if it was multi-tile
+        if (originalResource && originalResource.range && originalResource.range > 1 && res.type === 'shadow') {
+          const anchorKey = originalResource.anchorKey || `${originalResource.type}-${originalResource.x}-${originalResource.y}`;
+          if (res.parentAnchorKey === anchorKey) {
+            console.log(`🗑️ Removing shadow at (${res.x}, ${res.y}) belonging to ${anchorKey}`);
+            return false;
+          }
+        }
+        return true;
+      }
+    );
+    
+    // Update both global and local state with the same filtered array - exactly like ProtectedSelling does
+    GlobalGridStateTilesAndResources.setResources(filteredResources);
+    setResources(filteredResources);
+
+    // Perform server update to remove the main resource
+    try {
+      const gridUpdateResponse = await updateGridResource(
+        gridId, 
+        { type: null, x: col, y: row }, 
+        true
+      );
+      if (gridUpdateResponse?.success) {
+        // VFX
+        createSourceConversionEffect(col, row, TILE_SIZE, requirement);
+        console.log('✅ Resource removal completed successfully on the server.');
+      } else {
+        throw new Error('Server failed to confirm the resource removal.');
+      }
+    } catch (error) {
+      console.error('❌ Error during resource removal:', error);
+      console.warn('Server update failed. The client may become out of sync.');
     }
-  } catch (error) {
-    console.error('❌ Error during source conversion:', error);
-    console.warn('Server update failed. The client may become out of sync.');
-  } finally {
+  } else {
+    // Build the new resource object to replace the one we just clicked
+    const x = col;
+    const y = row;
+    const enrichedNewResource = {
+      ...targetResource,
+      x,
+      y,
+      symbol: targetResource.symbol,
+      qtycollected: targetResource.qtycollected || 1,
+      category: targetResource.category || 'doober',
+      growEnd: targetResource.growEnd || null,
+    };
+    console.log('Enriched newResource for local state: ', enrichedNewResource);
+
+    // Find the original resource to check for shadows - use global state like ProtectedSelling does
+    const originalResource = GlobalGridStateTilesAndResources.getResources().find(
+      r => r.x === col && r.y === row
+    );
+    
+    // Filter out the main resource AND any shadows, then add the new resource
+    const filteredResources = GlobalGridStateTilesAndResources.getResources().filter(
+      (res) => {
+        // Remove the main resource
+        if (res.x === col && res.y === row) return false;
+        
+        // Remove any shadows belonging to this resource if it was multi-tile
+        if (originalResource && originalResource.range && originalResource.range > 1 && res.type === 'shadow') {
+          const anchorKey = originalResource.anchorKey || `${originalResource.type}-${originalResource.x}-${originalResource.y}`;
+          if (res.parentAnchorKey === anchorKey) {
+            console.log(`🗑️ Removing shadow at (${res.x}, ${res.y}) belonging to ${anchorKey} during transformation`);
+            return false;
+          }
+        }
+        return true;
+      }
+    );
+    
+    // Add the new resource to the filtered list
+    const finalResources = [...filteredResources, enrichedNewResource];
+    
+    // Update both global and local state with the same filtered array - exactly like ProtectedSelling does
+    GlobalGridStateTilesAndResources.setResources(finalResources);
+    setResources(finalResources);
+
+    // Perform server update
+    try {
+      const gridUpdateResponse = await updateGridResource(
+        gridId, 
+        { type: targetResource.type, x: col, y: row }, 
+        true
+      );
+      if (gridUpdateResponse?.success) {
+        // VFX
+        createSourceConversionEffect(col, row, TILE_SIZE, requirement);
+        console.log('✅ Source conversion completed successfully on the server.');
+      } else {
+        throw new Error('Server failed to confirm the source conversion.');
+      }
+    } catch (error) {
+      console.error('❌ Error during source conversion:', error);
+      console.warn('Server update failed. The client may become out of sync.');
+    }
+  }
+  
+  // Shared cleanup regardless of disappear/transform
+  try {
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-    unlockResource(x, y);
+    unlockResource(col, row);
+  } catch (error) {
+    console.error('❌ Error during cleanup:', error);
   }
 }
