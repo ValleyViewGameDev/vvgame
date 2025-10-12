@@ -685,7 +685,7 @@
     "action": "collect",
     "source": "Clay Pit",
     "passable": true,
-    "qtycollected": 2,
+    "qtycollected": 3,
     "level": 1,
     "scrollqty": 50,
     "scrollchance": "rare",
