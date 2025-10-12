@@ -32,6 +32,7 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   const [playerTradeStalls, setPlayerTradeStalls] = useState({}); // Cache of all players' trade stalls
   const [showPlayerDropdown, setShowPlayerDropdown] = useState(false); // Show/hide player dropdown
   const [isLoadingPlayers, setIsLoadingPlayers] = useState(false); // Loading state for dropdown
+  const [isLoadingInitial, setIsLoadingInitial] = useState(true); // Loading state for initial data fetch
 
   const tradeStallHaircut = globalTuning?.tradeStallHaircut || 0.25;
   const tradeStallSlotConfig = globalTuning?.tradeStallSlots || [];
@@ -158,6 +159,9 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
   // Lift fetchDataForViewedPlayer out of useEffect for reuse
   const fetchDataForViewedPlayer = async (skipInventoryFetch = false) => {
     try {
+      if (!skipInventoryFetch) {
+        setIsLoadingInitial(true);
+      }
       // Fetch resource data (e.g., for prices)
       const resourcesResponse = await axios.get(`${API_BASE}/api/resources`);
       setResourceData(resourcesResponse.data);
@@ -213,6 +217,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
       }
     } catch (error) {
       console.error('Error fetching TradeStall data:', error);
+    } finally {
+      setIsLoadingInitial(false);
     }
   };
 
@@ -882,10 +888,15 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
         <button className="arrow-button" onClick={handleNextPlayer}>👉</button>
       </div>
 
-
-      {/* TRADE STALL SLOTS */}
-
-      <div className="trade-stall-slots">
+      {/* LOADING INDICATOR */}
+      {isLoadingInitial ? (
+        <div style={{ textAlign: 'center', padding: '40px', fontSize: '1.2rem' }}>
+          {strings[98]}
+        </div>
+      ) : (
+        <>
+          {/* TRADE STALL SLOTS */}
+          <div className="trade-stall-slots">
         {tradeSlots.map((slot, index) => {
           // Check if we should hide this slot for FTUE users
           if (currentPlayer.firsttimeuser === true && currentPlayer.ftuestep <= 3 && index > 0) {
@@ -1044,7 +1055,8 @@ function TradeStall({ onClose, inventory, setInventory, currentPlayer, setCurren
           );
         })}
       </div>
-
+        </>
+      )}
 
 {/* //////////////////  INVENTORY MODAL  ///////////////////*/}
 
