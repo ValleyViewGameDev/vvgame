@@ -469,8 +469,6 @@ export async function handleSourceConversion(
   const shouldDisappear = !resource.output || resource.output === 'null' || !targetResource;
   
   if (shouldDisappear) {
-    console.log(`🗑️ Object at (${col}, ${row}) should disappear after key usage`);
-    
     // Find the original resource to check for shadows - use global state like ProtectedSelling does
     const originalResource = GlobalGridStateTilesAndResources.getResources().find(
       r => r.x === col && r.y === row
@@ -486,7 +484,6 @@ export async function handleSourceConversion(
         if (originalResource && originalResource.range && originalResource.range > 1 && res.type === 'shadow') {
           const anchorKey = originalResource.anchorKey || `${originalResource.type}-${originalResource.x}-${originalResource.y}`;
           if (res.parentAnchorKey === anchorKey) {
-            console.log(`🗑️ Removing shadow at (${res.x}, ${res.y}) belonging to ${anchorKey}`);
             return false;
           }
         }
@@ -546,7 +543,6 @@ export async function handleSourceConversion(
         if (originalResource && originalResource.range && originalResource.range > 1 && res.type === 'shadow') {
           const anchorKey = originalResource.anchorKey || `${originalResource.type}-${originalResource.x}-${originalResource.y}`;
           if (res.parentAnchorKey === anchorKey) {
-            console.log(`🗑️ Removing shadow at (${res.x}, ${res.y}) belonging to ${anchorKey} during transformation`);
             return false;
           }
         }

@@ -3236,6 +3236,12 @@
     "crafttime": 4
   },
   {
+    "type": "Only Found in Scrolls",
+    "symbol": "📜",
+    "layoutkey": "OF",
+    "category": "special"
+  },
+  {
     "type": "Prospero's Orb",
     "symbol": "🔮",
     "layoutkey": "Mo",
@@ -5934,20 +5940,26 @@
     "type": "Mystic Armor",
     "symbol": "🛡️",
     "category": "power",
+    "source": "Warrior's Den",
     "passable": true,
     "scrollqty": 1,
     "scrollchance": "legendary",
-    "armorclass": 16
+    "armorclass": 16,
+    "ingredient1": "Only Found in Scrolls",
+    "ingredient1qty": 1
   },
   {
     "type": "Caliban's Breastplate",
     "symbol": "🛡️",
     "category": "power",
+    "source": "Warrior's Den",
     "passable": true,
     "scrollqty": 1,
     "scrollchance": "legendary",
     "maxhp": 20,
-    "armorclass": 18
+    "armorclass": 18,
+    "ingredient1": "Only Found in Scrolls",
+    "ingredient1qty": 1
   },
   {
     "type": "Blessed Veil",
@@ -5972,25 +5984,34 @@
     "type": "Magic Helmet",
     "symbol": "🛡️",
     "category": "power",
+    "source": "Magic Shop",
     "scrollqty": 1,
     "scrollchance": "legendary",
-    "armorclass": 2
+    "armorclass": 2,
+    "ingredient1": "Only Found in Scrolls",
+    "ingredient1qty": 1
   },
   {
     "type": "Magic Gloves",
     "symbol": "🛡️",
     "category": "power",
+    "source": "Magic Shop",
     "scrollqty": 1,
     "scrollchance": "legendary",
-    "armorclass": 2
+    "armorclass": 2,
+    "ingredient1": "Only Found in Scrolls",
+    "ingredient1qty": 1
   },
   {
     "type": "Boots of Protection",
     "symbol": "🛡️",
     "category": "power",
+    "source": "Magic Shop",
     "scrollqty": 1,
     "scrollchance": "legendary",
-    "armorclass": 2
+    "armorclass": 2,
+    "ingredient1": "Only Found in Scrolls",
+    "ingredient1qty": 1
   },
   {
     "type": "Knife",
@@ -6066,66 +6087,84 @@
     "type": "Sword of Song",
     "symbol": "🗡️",
     "category": "power",
+    "source": "Warrior's Den",
     "passable": true,
     "scrollqty": 1,
     "scrollchance": "legendary",
     "armorclass": 2,
     "damage": 22,
-    "attackrange": 2
+    "attackrange": 2,
+    "ingredient1": "Only Found in Scrolls",
+    "ingredient1qty": 1
   },
   {
     "type": "Magic Halberd",
     "symbol": "⚔️",
     "category": "power",
+    "source": "Warrior's Den",
     "passable": true,
     "scrollqty": 1,
     "scrollchance": "legendary",
     "damage": 20,
-    "attackrange": 4
+    "attackrange": 4,
+    "ingredient1": "Only Found in Scrolls",
+    "ingredient1qty": 1
   },
   {
     "type": "Glowing Sword",
     "symbol": "🗡️",
     "category": "power",
+    "source": "Warrior's Den",
     "passable": true,
     "scrollqty": 1,
     "scrollchance": "legendary",
     "damage": 25,
     "attackbonus": 2,
-    "attackrange": 2
+    "attackrange": 2,
+    "ingredient1": "Only Found in Scrolls",
+    "ingredient1qty": 1
   },
   {
     "type": "Giant Axe",
     "symbol": "⚔️",
     "category": "power",
+    "source": "Warrior's Den",
     "passable": true,
     "scrollqty": 1,
     "scrollchance": "legendary",
     "damage": 28,
     "attackbonus": 2,
-    "attackrange": 1
+    "attackrange": 1,
+    "ingredient1": "Only Found in Scrolls",
+    "ingredient1qty": 1
   },
   {
     "type": "Legendary Sword",
     "symbol": "⚔️",
     "category": "power",
+    "source": "Warrior's Den",
     "passable": true,
     "scrollqty": 1,
     "scrollchance": "legendary",
     "damage": 32,
     "attackbonus": 2,
-    "attackrange": 2
+    "attackrange": 2,
+    "ingredient1": "Only Found in Scrolls",
+    "ingredient1qty": 1
   },
   {
     "type": "Dragonslayer",
     "symbol": "⚔️",
     "category": "power",
+    "source": "Warrior's Den",
     "passable": true,
     "scrollqty": 1,
     "scrollchance": "legendary",
     "damage": 38,
     "attackbonus": 6,
-    "attackrange": 3
+    "attackrange": 3,
+    "ingredient1": "Only Found in Scrolls",
+    "ingredient1qty": 1
   },
   {
     "type": "Darts",
@@ -6206,46 +6245,58 @@
     "type": "Magic Spear",
     "symbol": "⚔️",
     "category": "power",
+    "source": "Warrior's Den",
     "passable": true,
     "scrollqty": 1,
     "scrollchance": "legendary",
     "damage": 10,
     "attackbonus": 1,
-    "attackrange": 11
+    "attackrange": 11,
+    "ingredient1": "Only Found in Scrolls",
+    "ingredient1qty": 1
   },
   {
     "type": "Magic Crossbow",
     "symbol": "🏹",
     "category": "power",
+    "source": "Warrior's Den",
     "passable": true,
     "scrollqty": 1,
     "scrollchance": "legendary",
     "damage": 12,
     "attackbonus": 6,
-    "attackrange": 5
+    "attackrange": 5,
+    "ingredient1": "Only Found in Scrolls",
+    "ingredient1qty": 1
   },
   {
     "type": "Titania's Bow",
     "symbol": "🏹",
     "category": "power",
+    "source": "Warrior's Den",
     "passable": true,
     "scrollqty": 1,
     "scrollchance": "legendary",
     "armorclass": 1,
     "damage": 14,
     "attackbonus": 2,
-    "attackrange": 12
+    "attackrange": 12,
+    "ingredient1": "Only Found in Scrolls",
+    "ingredient1qty": 1
   },
   {
     "type": "Legendary Crossbow",
     "symbol": "🏹",
     "category": "power",
+    "source": "Warrior's Den",
     "passable": true,
     "scrollqty": 1,
     "scrollchance": "legendary",
     "damage": 22,
     "attackbonus": 2,
-    "attackrange": 12
+    "attackrange": 12,
+    "ingredient1": "Only Found in Scrolls",
+    "ingredient1qty": 1
   },
   {
     "type": "Tempest",
