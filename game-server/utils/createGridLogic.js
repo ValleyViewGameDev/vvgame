@@ -6,7 +6,7 @@ const Settlement = require('../models/settlement');
 const Frontier = require('../models/frontier');
 const Grid = require('../models/grid');
 const { readJSON } = require('./fileUtils');
-const { getTemplate, getHomesteadLayoutFile, getTownLayoutFile } = require('./templateUtils');
+const { getTemplate, getHomesteadLayoutFile, getTownLayoutFile, getPositionFromSettlementType } = require('./templateUtils');
 const masterResources = require('../tuning/resources.json');
 const { generateGrid, generateResources, generateFixedGrid, generateFixedResources, generateEnemies } = require('./worldUtils');
 
@@ -41,8 +41,11 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
     layoutFileName = getHomesteadLayoutFile(seasonType);
     layout = readJSON(path.join(__dirname, '../layouts/gridLayouts/homestead', layoutFileName));
   } else if (gridType === 'town') {
-    layoutFileName = getTownLayoutFile(seasonType);
+    // Get settlement position from settlementType for town layout selection
+    const position = getPositionFromSettlementType(settlement.settlementType);
+    layoutFileName = getTownLayoutFile(seasonType, position);
     layout = readJSON(path.join(__dirname, '../layouts/gridLayouts/town', layoutFileName));
+    console.log(`🏘️ Creating town with position: ${position || 'default'}, season: ${seasonType}, layout: ${layoutFileName}`);
   } else {
     const fixedPath = path.join(__dirname, `../layouts/gridLayouts/valleyFixedCoord/${gridCoord}.json`);
     if (fs.existsSync(fixedPath)) {

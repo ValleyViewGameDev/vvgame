@@ -63,10 +63,29 @@ function getHomesteadLayoutFile(seasonType) {
   const layoutPath = path.join(__dirname, '../layouts/gridLayouts/homestead', layoutFileName);
   return fs.existsSync(layoutPath) ? layoutFileName : 'homestead_default.json';
 }
-function getTownLayoutFile(seasonType) {
+// Extract position suffix from settlementType (e.g., "homesteadNW" -> "NW")
+function getPositionFromSettlementType(settlementType) {
+  if (!settlementType) return '';
+  
+  // Match pattern like "homesteadNW", "homesteadN", etc.
+  const match = settlementType.match(/homestead([NSEW]+)$/);
+  return match ? match[1] : '';
+}
+
+function getTownLayoutFile(seasonType, position = '') {
+  // If position is provided, try position+season combination first
+  if (position) {
+    const positionSeasonFileName = `town${position}${seasonType}.json`;
+    const positionSeasonPath = path.join(__dirname, '../layouts/gridLayouts/town', positionSeasonFileName);
+    if (fs.existsSync(positionSeasonPath)) {
+      return positionSeasonFileName;
+    }
+  }
+  
+  // Fall back to season-only layout
   const layoutFileName = `town${seasonType}.json`;
   const layoutPath = path.join(__dirname, '../layouts/gridLayouts/town', layoutFileName);
   return fs.existsSync(layoutPath) ? layoutFileName : 'town_default.json';
 }
 
-module.exports = { getTemplate, getHomesteadLayoutFile, getTownLayoutFile };
+module.exports = { getTemplate, getHomesteadLayoutFile, getTownLayoutFile, getPositionFromSettlementType };

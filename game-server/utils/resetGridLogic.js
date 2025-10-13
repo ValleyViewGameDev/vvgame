@@ -6,7 +6,8 @@ const fs = require('fs');
 const { generateGrid, generateResources, generateFixedGrid, generateFixedResources, generateEnemies } = require('./worldUtils');
 const { readJSON } = require('./fileUtils');const { ObjectId } = require('mongodb');
 const masterResources = require('../tuning/resources.json');
-const { getTemplate, getHomesteadLayoutFile, getTownLayoutFile } = require('./templateUtils');
+const { getTemplate, getHomesteadLayoutFile, getTownLayoutFile, getPositionFromSettlementType } = require('./templateUtils');
+const Settlement = require('../models/settlement');
 
 async function performGridReset(gridId, gridType, gridCoord) {
   const grid = await Grid.findById(gridId);
@@ -25,11 +26,15 @@ async function performGridReset(gridId, gridType, gridCoord) {
     console.log(`🗓️ Using seasonal homestead layout for reset: ${layoutFile}`);
 
   } else if (gridType === 'town') {
-    const layoutFile = getTownLayoutFile(seasonType);
+    // Look up the settlement to get its position
+    const settlement = await Settlement.findById(grid.settlementId);
+    const position = settlement ? getPositionFromSettlementType(settlement.settlementType) : '';
+    
+    const layoutFile = getTownLayoutFile(seasonType, position);
     const seasonalPath = path.join(__dirname, '../layouts/gridLayouts/town', layoutFile);
     layout = readJSON(seasonalPath);
     layoutFileName = layoutFile;
-    console.log(`🗓️ Using seasonal town layout for reset: ${layoutFile}`);
+    console.log(`🗓️ Using town layout for reset - position: ${position || 'default'}, season: ${seasonType}, layout: ${layoutFile}`);
 
   } else {
     console.log(`🔍 Fetching layout for gridType: ${gridType}, gridCoord: ${gridCoord}`);
