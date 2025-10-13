@@ -73,19 +73,17 @@ function getPositionFromSettlementType(settlementType) {
 }
 
 function getTownLayoutFile(seasonType, position = '') {
-  // If position is provided, try position+season combination first
+  // If position is provided, try position-specific layout first
   if (position) {
-    const positionSeasonFileName = `town${position}${seasonType}.json`;
-    const positionSeasonPath = path.join(__dirname, '../layouts/gridLayouts/town', positionSeasonFileName);
-    if (fs.existsSync(positionSeasonPath)) {
-      return positionSeasonFileName;
+    const positionFileName = `town${position}.json`;
+    const positionPath = path.join(__dirname, '../layouts/gridLayouts/town', positionFileName);
+    if (fs.existsSync(positionPath)) {
+      return positionFileName;
     }
   }
   
-  // Fall back to season-only layout
-  const layoutFileName = `town${seasonType}.json`;
-  const layoutPath = path.join(__dirname, '../layouts/gridLayouts/town', layoutFileName);
-  return fs.existsSync(layoutPath) ? layoutFileName : 'town_default.json';
+  // Fall back to default town layout
+  return 'town_default.json';
 }
 
 module.exports = { getTemplate, getHomesteadLayoutFile, getTownLayoutFile, getPositionFromSettlementType };
