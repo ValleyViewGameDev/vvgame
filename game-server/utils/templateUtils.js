@@ -63,12 +63,12 @@ function getHomesteadLayoutFile(seasonType) {
   const layoutPath = path.join(__dirname, '../layouts/gridLayouts/homestead', layoutFileName);
   return fs.existsSync(layoutPath) ? layoutFileName : 'homestead_default.json';
 }
-// Extract position suffix from settlementType (e.g., "homesteadNW" -> "NW")
+// Extract position suffix from settlementType (e.g., "homesteadSetNW" -> "NW")
 function getPositionFromSettlementType(settlementType) {
   if (!settlementType) return '';
   
-  // Match pattern like "homesteadNW", "homesteadN", etc.
-  const match = settlementType.match(/homestead([NSEW]+)$/);
+  // Match pattern like "homesteadSetNW", "homesteadSetN", etc.
+  const match = settlementType.match(/homesteadSet([NSEW]+)$/);
   return match ? match[1] : '';
 }
 
