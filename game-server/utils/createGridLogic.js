@@ -41,8 +41,21 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
     layoutFileName = getHomesteadLayoutFile(seasonType);
     layout = readJSON(path.join(__dirname, '../layouts/gridLayouts/homestead', layoutFileName));
   } else if (gridType === 'town') {
-    // Get settlement position from settlementType for town layout selection
-    const position = getPositionFromSettlementType(settlement.settlementType);
+    // Get settlement position from settlementType in the Frontier document
+    let position = '';
+    
+    // Find the settlement in frontier.settlements array
+    if (frontier.settlements) {
+      for (const row of frontier.settlements) {
+        const settlementEntry = row.find(s => s.settlementId.toString() === settlementId.toString());
+        if (settlementEntry) {
+          position = getPositionFromSettlementType(settlementEntry.settlementType);
+          console.log(`🔍 Found settlement in frontier: settlementType=${settlementEntry.settlementType}, position=${position}`);
+          break;
+        }
+      }
+    }
+    
     layoutFileName = getTownLayoutFile(seasonType, position);
     layout = readJSON(path.join(__dirname, '../layouts/gridLayouts/town', layoutFileName));
     console.log(`🏘️ Creating town with position: ${position || 'default'}, season: ${seasonType}, layout: ${layoutFileName}`);

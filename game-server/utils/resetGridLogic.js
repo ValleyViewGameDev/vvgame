@@ -26,9 +26,20 @@ async function performGridReset(gridId, gridType, gridCoord) {
     console.log(`🗓️ Using seasonal homestead layout for reset: ${layoutFile}`);
 
   } else if (gridType === 'town') {
-    // Look up the settlement to get its position
-    const settlement = await Settlement.findById(grid.settlementId);
-    const position = settlement ? getPositionFromSettlementType(settlement.settlementType) : '';
+    // Get settlement position from settlementType in the Frontier document
+    let position = '';
+    
+    // Find the settlement in frontier.settlements array
+    if (frontier && frontier.settlements) {
+      for (const row of frontier.settlements) {
+        const settlementEntry = row.find(s => s.settlementId.toString() === grid.settlementId.toString());
+        if (settlementEntry) {
+          position = getPositionFromSettlementType(settlementEntry.settlementType);
+          console.log(`🔍 Found settlement in frontier: settlementType=${settlementEntry.settlementType}, position=${position}`);
+          break;
+        }
+      }
+    }
     
     const layoutFile = getTownLayoutFile(seasonType, position);
     const seasonalPath = path.join(__dirname, '../layouts/gridLayouts/town', layoutFile);
