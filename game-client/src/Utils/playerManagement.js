@@ -158,10 +158,10 @@ export const handlePlayerDeath = async (
     setCurrentPlayer(player);
     localStorage.setItem('player', JSON.stringify(player));
 
-    // ✅ Immediately update PlayersInGrid with restored HP
-    await playersInGridManager.updatePC(currentGridId, player._id, { hp: restoredHp });
+    // REMOVED: Don't update PlayersInGrid here - let changePlayerLocation handle the cleanup
+    // The player is dead and about to be moved, so we shouldn't update their HP in the current grid
 
-    console.log(`Player ${player.username} teleported to home grid with ${restoredHp} HP.`);
+    console.log(`Player ${player.username} will be teleported to home grid with ${restoredHp} HP.`);
     console.log('📦 Player before changePlayerLocation:', JSON.stringify(player, null, 2));
 
     // 4. **Load New Grid & Add Player to GridState**

@@ -311,6 +311,21 @@ export const changePlayerLocation = async (
     setGridId(toLocation.g);
     // WHAT does this ^^ do?
 
+    // ✅ STEP 8.5: Final cleanup verification - ensure dead player is removed from old grid
+    if (currentPlayer.hp <= 0) {
+      console.log('⚰️ Player was dead - verifying cleanup from old grid');
+      try {
+        // Double-check removal with another API call to ensure cleanup
+        await axios.post(`${API_BASE}/api/remove-single-pc`, {
+          gridId: fromLocation.g,
+          playerId: currentPlayer.playerId,
+        });
+        console.log('✅ Dead player cleanup verified');
+      } catch (cleanupError) {
+        console.warn('⚠️ Cleanup verification failed, but continuing:', cleanupError);
+      }
+    }
+
     // ✅ STEP 9: Initialize the new grid, PCs and NPCs
     //console.log('!! Running initializeGridState and setGridState');
     await Promise.all([

@@ -4,7 +4,8 @@
     { "label": "Crying Face", "value": "😭" },
     { "label": "Heart Eyes", "value": "😍" },
     { "label": "Face with Hand Over Mouth", "value": "🤭" },
-    { "label": "Nerd Face", "value": "🤓" }
+    { "label": "Nerd Face", "value": "🤓" },
+    { "label": "Sunglasses Face", "value": "😎" }
   ],
   "paid": [
     { "label": "Clown Face", "value": "🤡" },
@@ -14,10 +15,18 @@
     { "label": "Space Invader", "value": "👾" },
     { "label": "Innocent Face", "value": "😇" },
     { "label": "Screaming Face", "value": "😱" },
-    { "label": "Octopus Face", "value": "🐙" },
-    { "label": "Sunglasses Face", "value": "😎" },
-    { "label": "Monkey Face", "value": "🐵" },
-    { "label": "Panda Face", "value": "🐼" },
-    { "label": "Cat Face", "value": "🐱" }
+    { "label": "Octopus", "value": "🐙" },
+    { "label": "Monkey", "value": "🐵" },
+    { "label": "Panda", "value": "🐼" },
+    { "label": "Cat", "value": "🐱" },
+    { "label": "Mask", "value": "👺" },
+    { "label": "Puppy Dog", "value": "🐶" },
+    { "label": "Fox", "value": "🦊" },
+    { "label": "Mouse", "value": "🐭" },
+    { "label": "Frog", "value": "🐸" },
+    { "label": "Bunny", "value": "🐰" }
+  ],
+  "platinum": [
+    { "label": "Unicorn", "value": "🦄" }
   ]
 }

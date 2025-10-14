@@ -201,6 +201,47 @@
     ]
   },
   {
+    "trader": "Oracle",
+    "trades": [
+      {
+        "gives": {
+          "type": "Hope",
+          "quantity": 1
+        },
+        "requires": [
+          {
+            "type": "Prospero's Orb",
+            "quantity": 1
+          },
+          {
+            "type": "King's Crown",
+            "quantity": 1
+          },
+          {
+            "type": "Trident",
+            "quantity": 1
+          },
+          {
+            "type": "Brass Bell",
+            "quantity": 1
+          },
+          {
+            "type": "Phoenix Feather",
+            "quantity": 1
+          },
+          {
+            "type": "Vampire's Blood",
+            "quantity": 10
+          },
+          {
+            "type": "Scroll",
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
     "trader": "Mermaid",
     "trades": [
       {
