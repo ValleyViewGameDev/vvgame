@@ -116,18 +116,32 @@
         "tooltip": "Finish in the top 3 players across the Frontier at the end of a season.",
         "type": "Count",
         "visible": true,
-        "reward": 1
+        "reward": 5
     },
     {
         "name": "Season Champion",
         "tooltip": "Be the top player across the Frontier at the end of a season.",
         "type": "Count",
         "visible": true,
-        "reward": 1
+        "reward": 10
+    },
+    {
+        "name": "Hope",
+        "tooltip": "Deliver the seven secrets to the Oracle and receive the blessing of Hope. Hope will bestow Platinum Status (Gold for life).",
+        "type": "Count",
+        "visible": true,
+        "reward": 1000
     },
     {
         "name": "SawFrontierTip",
         "tooltip": "[player has seen the frontier view tooltip]",
+        "type": "Event",
+        "visible": false,
+        "reward": 1
+    },
+    {
+        "name": "SawMOTD",
+        "tooltip": "[player has seen the message of the day]",
         "type": "Event",
         "visible": false,
         "reward": 1

@@ -103,6 +103,57 @@ const GridEditor = ({ activePanel }) => {
     return () => window.removeEventListener('editor-load-grid', handleEditorLoadGrid);
   }, []);
 
+  // Handler for clearing the grid
+  useEffect(() => {
+    const handleEditorClearGrid = () => {
+      console.log("🧹 Clearing grid for new layout");
+      // Reset grid to empty state
+      setGrid(
+        Array.from({ length: GRID_SIZE }, () => 
+          Array.from({ length: GRID_SIZE }, () => ({ type: '', resource: '', npc: '' }))
+        )
+      );
+      // Reset distributions
+      setTileDistribution({ g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0 });
+      setResourceDistribution({});
+      
+      // Initialize enemy distribution for available enemy NPCs
+      const enemies = availableNpcs.filter(npc => npc.action === 'attack' || npc.action === 'spawn');
+      const initialEnemyDist = {};
+      enemies.forEach(enemy => {
+        initialEnemyDist[enemy.type] = 0;
+      });
+      setEnemyDistribution(initialEnemyDist);
+      
+      // Clear current grid type - will be set by create-grid event
+      setCurrentGridType('');
+    };
+    window.addEventListener('editor-clear-grid', handleEditorClearGrid);
+    return () => window.removeEventListener('editor-clear-grid', handleEditorClearGrid);
+  }, [availableNpcs]);
+
+  // Handler for creating a new grid with specific type
+  useEffect(() => {
+    const handleEditorCreateGrid = (event) => {
+      const { gridCoord, gridType } = event.detail || {};
+      console.log("🆕 Creating new grid - coord:", gridCoord, "type:", gridType);
+      
+      // Set the grid type from the Frontier view selection
+      if (gridType) {
+        setCurrentGridType(gridType);
+        console.log("✅ Set currentGridType to:", gridType);
+      }
+      
+      // Set file context
+      if (gridCoord) {
+        setFileName(String(gridCoord));
+        setDirectory("valleyFixedCoord/");
+      }
+    };
+    window.addEventListener('editor-create-grid', handleEditorCreateGrid);
+    return () => window.removeEventListener('editor-create-grid', handleEditorCreateGrid);
+  }, [setFileName, setDirectory]);
+
   useEffect(() => {
     if (activePanel === 'grid' && pendingLoad.current && masterResources.length > 0) {
       const { fileName, directory } = pendingLoad.current;
@@ -655,15 +706,26 @@ const handleEnemyDistributionChange = (enemyType, value) => {
   if (choice.toLowerCase() === "regenerate") {
     newGrid = newGrid.map(row => row.map(cell => ({ ...cell, resource: "" })));
   }
-  let resourcePool = Object.entries(resourceDistribution).flatMap(([type, count]) => {
+  
+  // Build resource pool - but don't shuffle yet
+  let resourcesByType = {};
+  Object.entries(resourceDistribution).forEach(([type, count]) => {
     const res = masterResources.find(r => r.type === type);
-    return res ? Array(count).fill(res) : [];
+    if (res && count > 0) {
+      resourcesByType[type] = {
+        resource: res,
+        remaining: parseInt(count)
+      };
+    }
   });
-  if (resourcePool.length === 0) {
+  
+  const totalResources = Object.values(resourcesByType).reduce((sum, r) => sum + r.remaining, 0);
+  if (totalResources === 0) {
     console.warn("⚠️ No valid resource distribution found.");
     return;
   }
-  resourcePool = resourcePool.sort(() => Math.random() - 0.5); // Shuffle
+  
+  // Find all valid cells
   let validCells = [];
   newGrid.forEach((row, x) =>
     row.forEach((cell, y) => {
@@ -673,15 +735,48 @@ const handleEnemyDistributionChange = (enemyType, value) => {
       }
     })
   );
-  validCells = validCells.sort(() => Math.random() - 0.5); // Shuffle again
-  resourcePool.forEach((res, i) => {
-    const cell = validCells[i];
-    if (cell && res[`validon${cell.tileType}`]) {
-      newGrid[cell.x][cell.y].resource = res.type;
+  
+  // Place resources using true random selection
+  let resourcesPlaced = 0;
+  const maxAttempts = totalResources * 3; // Prevent infinite loops
+  let attempts = 0;
+  
+  while (resourcesPlaced < totalResources && attempts < maxAttempts && validCells.length > 0) {
+    attempts++;
+    
+    // Pick a random valid cell
+    const cellIndex = Math.floor(Math.random() * validCells.length);
+    const cell = validCells[cellIndex];
+    
+    // Pick a random resource type that still has remaining count
+    const availableTypes = Object.entries(resourcesByType)
+      .filter(([type, data]) => data.remaining > 0)
+      .map(([type, data]) => ({ type, resource: data.resource }));
+    
+    if (availableTypes.length === 0) break;
+    
+    const randomTypeIndex = Math.floor(Math.random() * availableTypes.length);
+    const selectedType = availableTypes[randomTypeIndex];
+    
+    // Check if this resource can be placed on this tile type
+    if (selectedType.resource[`validon${cell.tileType}`]) {
+      newGrid[cell.x][cell.y].resource = selectedType.type;
+      resourcesByType[selectedType.type].remaining--;
+      resourcesPlaced++;
+      
+      // Remove this cell from valid cells
+      validCells.splice(cellIndex, 1);
     }
-  });
+  }
+  
   setGrid(newGrid);
-  console.log("✅ Resources successfully generated!");
+  console.log(`✅ Resources successfully generated! Placed ${resourcesPlaced} resources.`);
+  
+  // Warn if we couldn't place all resources
+  const unplacedCount = totalResources - resourcesPlaced;
+  if (unplacedCount > 0) {
+    console.warn(`⚠️ Could not place ${unplacedCount} resources due to tile type restrictions.`);
+  }
 };
 
 // 🔹 Populate Random Enemies Function

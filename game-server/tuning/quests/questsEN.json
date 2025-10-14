@@ -578,7 +578,7 @@
     "rewardqty": 1000,
     "goal1action": "Collect",
     "goal1item": "Rosemary",
-    "goal1qty": 100
+    "goal1qty": 75
   },
   {
     "index": 43,
@@ -1192,7 +1192,7 @@
     "symbol": "🧛🏻‍♂️",
     "repeatable": true,
     "giver": "Vampire",
-    "reward": "Scroll",
+    "reward": "Vampire's Blood",
     "rewardqty": 1,
     "goal1action": "Kill",
     "goal1item": "Zombie",

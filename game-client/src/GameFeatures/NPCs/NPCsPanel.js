@@ -141,22 +141,23 @@ const NPCPanel = ({
           // Get the symbol from masterResources
           const resourceDef = masterResources.find(r => r.type === trade.gives.type);
           
-          return {
+          const recipe = {
             type: trade.gives.type,
             symbol: resourceDef?.symbol || '?',
             tradeqty: trade.gives.quantity,
-            ingredient1: trade.requires[0]?.type,
-            ingredient1qty: trade.requires[0]?.quantity,
-            ingredient2: trade.requires[1]?.type,
-            ingredient2qty: trade.requires[1]?.quantity,
-            ingredient3: trade.requires[2]?.type,
-            ingredient3qty: trade.requires[2]?.quantity,
-            ingredient4: trade.requires[3]?.type,
-            ingredient4qty: trade.requires[3]?.quantity,
-            requires: trade.requiresSkill,
+            requiresArray: trade.requires, // Store the full requires array for dynamic ingredients
+            requires: trade.requiresSkill || null, // Keep 'requires' for skill requirements
             source: npcData.type,
             gemcost: resourceDef?.gemcost || null
           };
+          
+          // Also add legacy format for backward compatibility
+          trade.requires.forEach((req, index) => {
+            recipe[`ingredient${index + 1}`] = req.type;
+            recipe[`ingredient${index + 1}qty`] = req.quantity;
+          });
+          
+          return recipe;
         });
         
         setTradeRecipes(filteredRecipes);
@@ -577,11 +578,22 @@ const handleHeal = async (recipe) => {
     
     // Build ingredient list for status message
     const ingredientList = [];
-    for (let i = 1; i <= 4; i++) {
-      const ingredientType = recipe[`ingredient${i}`];
-      const ingredientQty = recipe[`ingredient${i}qty`];
-      if (ingredientType && ingredientQty) {
-        ingredientList.push(`${ingredientQty} ${ingredientType}`);
+    
+    // Check if using new format with requiresArray
+    if (recipe.requiresArray && Array.isArray(recipe.requiresArray)) {
+      recipe.requiresArray.forEach(req => {
+        if (req.type && req.quantity) {
+          ingredientList.push(`${req.quantity} ${req.type}`);
+        }
+      });
+    } else {
+      // Legacy format - check all numbered ingredients
+      for (let i = 1; i <= 10; i++) {
+        const ingredientType = recipe[`ingredient${i}`];
+        const ingredientQty = recipe[`ingredient${i}qty`];
+        if (ingredientType && ingredientQty) {
+          ingredientList.push(`${ingredientQty} ${ingredientType}`);
+        }
       }
     }
     const ingredientString = ingredientList.join(', ');
@@ -987,24 +999,47 @@ const handleHeal = async (recipe) => {
                   const quantityToGive = recipe.tradeqty || 1;
 
                   // Format costs with color per ingredient (matching CraftingStation.js style)
-                  const formattedCosts = [1, 2, 3, 4].map((i) => {
-                    const type = recipe[`ingredient${i}`];
-                    const qty = recipe[`ingredient${i}qty`];
-                    if (!type || !qty) return '';
-                    
-                    const inventoryQty = inventory?.find(item => item.type === type)?.quantity || 0;
-                    const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
-                    const playerQty = inventoryQty + backpackQty;
-                    const color = playerQty >= qty ? 'green' : 'red';
-                    const symbol = masterResources.find(r => r.type === type)?.symbol || '';
-                    return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
-                  }).join('');
+                  // Support dynamic number of ingredients based on whether data comes from masterTraders or legacy format
+                  let formattedCosts = '';
+                  
+                  // Check if this recipe has a 'requiresArray' array (from masterTraders)
+                  if (recipe.requiresArray && Array.isArray(recipe.requiresArray)) {
+                    // New format from masterTraders - dynamic number of ingredients
+                    formattedCosts = recipe.requiresArray.map((req) => {
+                      const type = req.type;
+                      const qty = req.quantity;
+                      if (!type || !qty) return '';
+                      
+                      const inventoryQty = inventory?.find(item => item.type === type)?.quantity || 0;
+                      const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
+                      const playerQty = inventoryQty + backpackQty;
+                      const color = playerQty >= qty ? 'green' : 'red';
+                      const symbol = masterResources.find(r => r.type === type)?.symbol || '';
+                      return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                    }).join('');
+                  } else {
+                    // Legacy format - check ingredient1 through ingredientN
+                    const ingredientsList = [];
+                    for (let i = 1; i <= 10; i++) { // Check up to 10 ingredients for safety
+                      const type = recipe[`ingredient${i}`];
+                      const qty = recipe[`ingredient${i}qty`];
+                      if (!type || !qty) continue;
+                      
+                      const inventoryQty = inventory?.find(item => item.type === type)?.quantity || 0;
+                      const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
+                      const playerQty = inventoryQty + backpackQty;
+                      const color = playerQty >= qty ? 'green' : 'red';
+                      const symbol = masterResources.find(r => r.type === type)?.symbol || '';
+                      ingredientsList.push(`<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`);
+                    }
+                    formattedCosts = ingredientsList.join('');
+                  }
 
                   return (
                     <ResourceButton
                       key={recipe.type}
                       symbol={recipe.symbol}
-                      name={getLocalizedString(recipe.type, strings)}
+                      name={`${getLocalizedString(recipe.type, strings)} ${quantityToGive}x`}
                       details={`${strings[461]}<div>${formattedCosts}</div>`}
                       disabled={!affordable}
                       onClick={() => handleTrade(recipe)}
