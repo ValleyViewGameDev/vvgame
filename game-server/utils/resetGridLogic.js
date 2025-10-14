@@ -136,9 +136,18 @@ async function performGridReset(gridId, gridType, gridCoord) {
 
   grid.tiles = newTiles;
   grid.resources = filteredResources;  // Use filtered resources without Stubs
-  grid.NPCsInGrid = new Map(); // Clear existing NPCs explicitly before resetting
-  grid.NPCsInGrid = new Map(Object.entries(newNPCs));
+  
+  // Properly clear NPCs to avoid duplicates
+  grid.NPCsInGrid.clear(); // Clear the existing map
+  grid.markModified('NPCsInGrid'); // Mark as modified to ensure MongoDB saves the change
+  
+  // Now add the new NPCs
+  Object.entries(newNPCs).forEach(([key, npc]) => {
+    grid.NPCsInGrid.set(key, npc);
+  });
+  
   grid.NPCsInGridLastUpdated = Date.now();
+  grid.markModified('NPCsInGrid'); // Mark as modified again after adding new NPCs
 
   await grid.save();
   console.log(`✅ Grid ${gridId} reset successfully (${gridType})`);
