@@ -99,16 +99,33 @@ router.post('/remove-single-pc', async (req, res) => {
     
     // Try both string and potential ObjectId formats
     let removed = false;
-    if (pcs.has(playerId)) {
-      pcs.delete(playerId);
-      removed = true;
-    } else {
-      // Try converting to string if it's not found
-      const playerIdStr = playerId.toString();
-      if (pcs.has(playerIdStr)) {
-        pcs.delete(playerIdStr);
-        removed = true;
+    
+    // Check for dead player data with any format of playerId
+    const keysToRemove = [];
+    for (const [key, playerData] of pcs.entries()) {
+      // Match by various ID formats
+      if (key === playerId || 
+          key === playerId.toString() || 
+          key.toString() === playerId || 
+          key.toString() === playerId.toString()) {
+        keysToRemove.push(key);
       }
+      // Also check if this is a dead player that should be cleaned up
+      else if (playerData && playerData.playerId && 
+               (playerData.playerId === playerId || 
+                playerData.playerId === playerId.toString() ||
+                playerData.playerId.toString() === playerId ||
+                playerData.playerId.toString() === playerId.toString())) {
+        console.log(`🧹 Found dead player data with mismatched key: ${key} vs ${playerId}`);
+        keysToRemove.push(key);
+      }
+    }
+    
+    // Remove all matching entries
+    for (const key of keysToRemove) {
+      pcs.delete(key);
+      removed = true;
+      console.log(`🗑️ Removed player entry with key: ${key}`);
     }
     
     const afterSize = pcs.size;
