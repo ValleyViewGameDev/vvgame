@@ -437,6 +437,22 @@
     "validono": true
   },
   {
+    "type": "Huge Dead Tree",
+    "symbol": "🪾",
+    "layoutkey": "dt3",
+    "category": "editor",
+    "passable": false,
+    "range": 4,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": true,
+    "validonn": true,
+    "validono": true
+  },
+  {
     "type": "Big Statue",
     "symbol": "🗿",
     "layoutkey": "st2",
