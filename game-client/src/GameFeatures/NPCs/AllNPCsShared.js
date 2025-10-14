@@ -205,20 +205,37 @@ async handlePursueState(playerPosition, tiles, resources, npcs, pcs, onAttackTra
     else if (dx < 0 && dy < 0) direction = 'NW';
   } 
   
+  // Check if already in attack range BEFORE attempting to move
+  const distanceToPlayer = calculateDistance(this.position, playerPosition);
+  console.log(`🎯 NPC ${this.id} distance to player: ${distanceToPlayer} | range: ${this.attackrange}`);
+  if (distanceToPlayer <= this.attackrange) {
+    this.state = 'attack';
+    await onAttackTransition();
+    return;
+  }
+  
   if (!direction) return;
 
   const moved = await this.moveOneTile(direction, tiles, resources, npcs);
   if (!moved) {
-    console.warn(`🚫 NPC ${this.id} couldn't move toward target. Stuck? Returning to idle.`);
-    this.state = 'idle';
-    this.pursueTimerStart = null;
-    this.targetPC = null;
+    // If can't move but already in attack range, attack!
+    if (distanceToPlayer <= this.attackrange) {
+      console.log(`🎯 NPC ${this.id} blocked but in attack range! Transitioning to attack.`);
+      this.state = 'attack';
+      await onAttackTransition();
+    } else {
+      console.warn(`🚫 NPC ${this.id} couldn't move toward target. Stuck? Returning to idle.`);
+      this.state = 'idle';
+      this.pursueTimerStart = null;
+      this.targetPC = null;
+    }
     return;
   }
 
-  const distanceToPlayer = calculateDistance(this.position, playerPosition);
-  console.log(`🎯 NPC ${this.id} distance to player: ${distanceToPlayer} | range: ${this.attackrange}`);
-  if (distanceToPlayer <= this.attackrange) {
+  // Check again after moving
+  const newDistanceToPlayer = calculateDistance(this.position, playerPosition);
+  console.log(`🎯 NPC ${this.id} NEW distance to player: ${newDistanceToPlayer} | range: ${this.attackrange}`);
+  if (newDistanceToPlayer <= this.attackrange) {
     this.state = 'attack';
     await onAttackTransition();
   }

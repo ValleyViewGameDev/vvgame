@@ -46,12 +46,20 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
 
     case 'pursue': {
       this.targetPC = pcs.find(pc => pc.playerId === this.targetPC?.playerId); // Refresh position from latest state
-      this.targetPC = pcs.find(pc => pc.playerId === this.targetPC?.playerId);
       if (!this.targetPC) {
         //console.warn(`NPC ${this.id} lost its target. Returning to idle state.`);
         this.state = 'idle';
         this.pursueTimerStart = null;
         await updateThisNPC.call(this, gridId); // Save after transition
+        break;
+      }
+      
+      // Check if already in attack range before pursuing
+      const currentDistance = getDistance(this.position, this.targetPC.position);
+      if (currentDistance <= this.attackrange) {
+        console.log(`NPC ${this.id} is already in attack range (${currentDistance} <= ${this.attackrange}). Switching to attack!`);
+        this.state = 'attack';
+        await updateThisNPC.call(this, gridId);
         break;
       }
       if (!this.pursueTimerStart) this.pursueTimerStart = Date.now();

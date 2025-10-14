@@ -573,12 +573,60 @@ function renderPlayerRange() {
     }
   }
 
+  function renderNPCAttackRanges() {
+    if (currentPlayer?.settings?.rangeOn === false) return;
+    const gridId = currentPlayer?.location?.g;
+    if (!gridId) return;
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const npcs = Object.values(NPCsInGrid?.[gridId]?.npcs || {});
+    
+    // Remove existing NPC range circles that no longer have NPCs
+    const existingRanges = container.querySelectorAll('.npc-attack-range');
+    existingRanges.forEach(rangeElement => {
+      const npcId = rangeElement.getAttribute('data-npc-id');
+      if (!npcs.some(npc => npc.id === npcId)) {
+        rangeElement.remove();
+      }
+    });
+    
+    // Add or update range circles for enemy NPCs
+    npcs.forEach((npc) => {
+      if ((npc.action === 'attack' || npc.action === 'spawn') && npc.attackrange && npc.attackrange > 0) {
+        let rangeCircle = container.querySelector(`.npc-attack-range[data-npc-id="${npc.id}"]`);
+        
+        if (!rangeCircle) {
+          rangeCircle = document.createElement('div');
+          rangeCircle.className = 'npc-attack-range';
+          rangeCircle.setAttribute('data-npc-id', npc.id);
+          rangeCircle.style.position = 'absolute';
+          rangeCircle.style.border = '2px dashed rgba(255, 100, 100, 0.3)';
+          rangeCircle.style.borderRadius = '50%';
+          rangeCircle.style.pointerEvents = 'none';
+          rangeCircle.style.zIndex = 9;
+          container.appendChild(rangeCircle);
+        }
+        
+        const pixelX = npc.position.x * TILE_SIZE;
+        const pixelY = npc.position.y * TILE_SIZE;
+        const radius = npc.attackrange * TILE_SIZE;
+        
+        rangeCircle.style.width = `${radius * 2}px`;
+        rangeCircle.style.height = `${radius * 2}px`;
+        rangeCircle.style.left = `${pixelX - radius + TILE_SIZE / 2}px`;
+        rangeCircle.style.top = `${pixelY - radius + TILE_SIZE / 2}px`;
+      }
+    });
+  }
+
   // Animation loop to update positions smoothly if needed
 function startRenderingLoop() {
   if (!containerRef.current) return;
   renderNPCs();
   renderPCs();
   renderPlayerRange();
+  renderNPCAttackRanges();
   
   animationFrameId.current = requestAnimationFrame(startRenderingLoop);
 }
@@ -619,6 +667,9 @@ function startRenderingLoop() {
       if (existingRangeCircle) existingRangeCircle.remove();
       const existingAttackRing = document.getElementById('player-attackrange-ring');
       if (existingAttackRing) existingAttackRing.remove();
+      // Clean up NPC attack range circles
+      const npcRangeCircles = document.querySelectorAll('.npc-attack-range');
+      npcRangeCircles.forEach(circle => circle.remove());
     };
   }, [NPCsInGrid, playersInGrid, currentPlayer, TILE_SIZE, setInventory, setBackpack, setResources, onNPCClick, onPCClick, masterResourcesRef.current]);
 
@@ -712,6 +763,10 @@ function handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverToolt
     case 'attack':
     case 'spawn':
       tooltipContent = `<p>${localizedNPCType}</p><p>HP: ${npc.hp}/${npc.maxhp}</p>`;
+      // Add state info for enemy NPCs
+      if (npc.state) {
+        tooltipContent += `<p>State: ${npc.state}</p>`;
+      }
       break;
     default:
       tooltipContent = `<p>${npc.type}</p>`;
