@@ -601,7 +601,7 @@ function renderPlayerRange() {
           rangeCircle.className = 'npc-attack-range';
           rangeCircle.setAttribute('data-npc-id', npc.id);
           rangeCircle.style.position = 'absolute';
-          rangeCircle.style.border = '2px dashed rgba(255, 100, 100, 0.3)';
+          rangeCircle.style.border = '2px dashed rgba(255, 255, 100, 0.3)'; // Yellow for enemies
           rangeCircle.style.borderRadius = '50%';
           rangeCircle.style.pointerEvents = 'none';
           rangeCircle.style.zIndex = 9;
