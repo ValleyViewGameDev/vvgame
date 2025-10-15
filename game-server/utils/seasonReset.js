@@ -4,6 +4,7 @@ const Settlement = require("../models/settlement");
 const Grid = require("../models/grid");
 const Player = require("../models/player");
 const globalTuning = require("../tuning/globalTuning.json");
+const masterResources = require("../tuning/resources.json");
 const fs = require("fs");
 const shuffle = (array) => array.sort(() => Math.random() - 0.5);
 const { relocatePlayersHome } = require('./relocatePlayersHome');
@@ -100,18 +101,26 @@ async function seasonReset(frontierId) {
           moneyItem.quantity = Math.floor(moneyItem.quantity * (1 - nerf));
         }
 
-        // Wipe inventory except for Money, Gems, and certain high value quest items
-        player.inventory = player.inventory.filter(i =>
-          ["Money", "Gem", "Prospero's Orb", "Portrait", "King's Crown", "Golden Key", "Skeleton Key", "Trident"].includes(i.type)
-        );
-        console.log(`Player ${player.username} inventory wiped, keeping Money, Gems, and certain high value quest items.`) ;
+        // Build list of resources to keep based on dynamic criteria
+        const resourcesToKeep = new Set();
+        
+        // Keep resources where output==='noBank' AND repeatable===false
+        masterResources.forEach(resource => {
+          if (resource.output === 'noBank' && resource.repeatable === false) {
+            resourcesToKeep.add(resource.type);
+          }
+        });
+        
+        console.log(`Resources to keep during season reset:`, Array.from(resourcesToKeep));
+        
+        // Wipe inventory except for protected resources
+        player.inventory = player.inventory.filter(i => resourcesToKeep.has(i.type));
+        console.log(`Player ${player.username} inventory wiped, keeping protected resources.`);
         console.log('Player inventory after wipe:', player.inventory);
 
-        // Wipe backpack except for Money, Gems, and certain high value quest items
-        player.backpack = player.backpack.filter(i =>
-          ["Money", "Gem", "Prospero's Orb", "Portrait", "King's Crown", "Golden Key", "Skeleton Key", "Trident"].includes(i.type)
-        );
-        console.log(`Player ${player.username} backpack wiped, keeping Money, Gems, and certain high value quest items.`) ;
+        // Wipe backpack except for protected resources
+        player.backpack = player.backpack.filter(i => resourcesToKeep.has(i.type));
+        console.log(`Player ${player.username} backpack wiped, keeping protected resources.`);
         console.log('Player backpack after wipe:', player.backpack);
 
         // Reset netWorth to null 
