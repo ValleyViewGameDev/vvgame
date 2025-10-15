@@ -267,26 +267,26 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     <div className="currency-column">
                         <div className="currency-item">
                             <span className="currency-emoji">💰</span>
-                            <span className="currency-amount">{(inventory.find(item => item.type === 'Money')?.quantity || 0).toLocaleString()}</span>
+                            <span className="currency-amount">{(inventory.find(item => item.type === 'Money')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
                         <div className="currency-item">
                             <span className="currency-emoji">💎</span>
-                            <span className="currency-amount">{(inventory.find(item => item.type === 'Gem')?.quantity || 0).toLocaleString()}</span>
+                            <span className="currency-amount">{(inventory.find(item => item.type === 'Gem')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
                     </div>
                     {/* Column 2: Hearts */}
                     <div className="currency-column">
                         <div className="currency-item">
                             <span className="currency-emoji">💛</span>
-                            <span className="currency-amount">{(inventory.find(item => item.type === 'Yellow Heart')?.quantity || 0).toLocaleString()}</span>
+                            <span className="currency-amount">{(inventory.find(item => item.type === 'Yellow Heart')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
                         <div className="currency-item">
                             <span className="currency-emoji">💚</span>
-                            <span className="currency-amount">{(inventory.find(item => item.type === 'Green Heart')?.quantity || 0).toLocaleString()}</span>
+                            <span className="currency-amount">{(inventory.find(item => item.type === 'Green Heart')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
                         <div className="currency-item">
                             <span className="currency-emoji">💜</span>
-                            <span className="currency-amount">{(inventory.find(item => item.type === 'Purple Heart')?.quantity || 0).toLocaleString()}</span>
+                            <span className="currency-amount">{(inventory.find(item => item.type === 'Purple Heart')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
                     </div>
                 </div>

@@ -24,11 +24,11 @@
 /* Pet searching animation - reuse scroll reveal animation but simpler */
 .pet-searching {
   text-align: center;
-  padding: 20px;
+  padding: 10px;
 }
 
 .pet-searching-countdown {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
   color: #666;
   margin-top: 10px;
