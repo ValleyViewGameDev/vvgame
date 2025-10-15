@@ -11,6 +11,63 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { createCollectEffect } from "../../VFX/VFX";
 import { earnTrophy } from '../Trophies/TrophyUtils';
 
+/** Helper to get tiles in line of sight between two points using Bresenham's algorithm **/
+function getLineOfSightTiles(start, end) {
+    const tiles = [];
+    let x0 = Math.floor(start.x);
+    let y0 = Math.floor(start.y);
+    const x1 = Math.floor(end.x);
+    const y1 = Math.floor(end.y);
+    
+    const dx = Math.abs(x1 - x0);
+    const dy = Math.abs(y1 - y0);
+    const sx = x0 < x1 ? 1 : -1;
+    const sy = y0 < y1 ? 1 : -1;
+    let err = dx - dy;
+    
+    while (true) {
+        // Don't include the start or end positions
+        if ((x0 !== Math.floor(start.x) || y0 !== Math.floor(start.y)) && 
+            (x0 !== x1 || y0 !== y1)) {
+            tiles.push({ x: x0, y: y0 });
+        }
+        
+        if (x0 === x1 && y0 === y1) break;
+        
+        const e2 = 2 * err;
+        if (e2 > -dy) {
+            err -= dy;
+            x0 += sx;
+        }
+        if (e2 < dx) {
+            err += dx;
+            y0 += sy;
+        }
+    }
+    
+    return tiles;
+}
+
+/** Helper to check if there's a wall blocking line of sight **/
+function isWallBlocking(start, end) {
+    const resources = GlobalGridStateTilesAndResources.getResources();
+    const lineOfSightTiles = getLineOfSightTiles(start, end);
+    
+    // Check each tile in the line of sight for walls
+    for (const tile of lineOfSightTiles) {
+        const wall = resources.find(res => 
+            res.x === tile.x && 
+            res.y === tile.y && 
+            res.action === 'wall'
+        );
+        if (wall) {
+            return true; // Wall found blocking the path
+        }
+    }
+    
+    return false; // No walls blocking
+}
+
 /** Helper to check if target is in range and validate positions **/
 function checkRange(player, target, TILE_SIZE) {
 
@@ -34,7 +91,15 @@ function checkRange(player, target, TILE_SIZE) {
         console.log('target out of range: targetPos.x = ',targetPos.x,' targetPos.y= ',targetPos.y);
         return false;
     }
-    return true;  // Target is in range
+    
+    // Check for walls blocking line of sight
+    if (isWallBlocking(playerPos, targetPos)) {
+        FloatingTextManager.addFloatingText(40, targetPos.x, targetPos.y, TILE_SIZE); // string[40] for wall blocking
+        console.log('Wall blocking attack from player to target');
+        return false;
+    }
+    
+    return true;  // Target is in range and no walls blocking
 }
 
 /** Helper to determine if the attack hits **/

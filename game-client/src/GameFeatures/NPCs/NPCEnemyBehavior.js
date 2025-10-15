@@ -3,6 +3,63 @@ import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import FloatingTextManager from "../../UI/FloatingText";
 
+/** Helper to get tiles in line of sight between two points using Bresenham's algorithm **/
+function getLineOfSightTiles(start, end) {
+    const tiles = [];
+    let x0 = Math.floor(start.x);
+    let y0 = Math.floor(start.y);
+    const x1 = Math.floor(end.x);
+    const y1 = Math.floor(end.y);
+    
+    const dx = Math.abs(x1 - x0);
+    const dy = Math.abs(y1 - y0);
+    const sx = x0 < x1 ? 1 : -1;
+    const sy = y0 < y1 ? 1 : -1;
+    let err = dx - dy;
+    
+    while (true) {
+        // Don't include the start or end positions
+        if ((x0 !== Math.floor(start.x) || y0 !== Math.floor(start.y)) && 
+            (x0 !== x1 || y0 !== y1)) {
+            tiles.push({ x: x0, y: y0 });
+        }
+        
+        if (x0 === x1 && y0 === y1) break;
+        
+        const e2 = 2 * err;
+        if (e2 > -dy) {
+            err -= dy;
+            x0 += sx;
+        }
+        if (e2 < dx) {
+            err += dx;
+            y0 += sy;
+        }
+    }
+    
+    return tiles;
+}
+
+/** Helper to check if NPC can see the target (no walls blocking) **/
+function canSeeTarget(npcPosition, targetPosition) {
+    const resources = GlobalGridStateTilesAndResources.getResources();
+    const lineOfSightTiles = getLineOfSightTiles(npcPosition, targetPosition);
+    
+    // Check each tile in the line of sight for walls
+    for (const tile of lineOfSightTiles) {
+        const wall = resources.find(res => 
+            res.x === tile.x && 
+            res.y === tile.y && 
+            res.action === 'wall'
+        );
+        if (wall) {
+            return false; // Wall found blocking the view
+        }
+    }
+    
+    return true; // Clear line of sight
+}
+
 const updateThisNPC = async function(gridId) {
   await NPCsInGridManager.updateNPC(gridId, this.id, {
     state: this.state,
@@ -27,7 +84,9 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         const pcsInRange = pcs.filter(pc => {
           if (pc.hp <= 0) return false;
           const dist = getDistance(this.position, pc.position);
-          return dist <= this.range;
+          if (dist > this.range) return false;
+          // Check if NPC can see the PC (no walls blocking)
+          return canSeeTarget(this.position, pc.position);
         });
         const targetPC = pcsInRange[Math.floor(Math.random() * pcsInRange.length)];
         if (targetPC) {
@@ -54,10 +113,10 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         break;
       }
       
-      // Check if already in attack range before pursuing
+      // Check if already in attack range AND can see target before pursuing
       const currentDistance = getDistance(this.position, this.targetPC.position);
-      if (currentDistance <= this.attackrange) {
-        console.log(`NPC ${this.id} is already in attack range (${currentDistance} <= ${this.attackrange}). Switching to attack!`);
+      if (currentDistance <= this.attackrange && canSeeTarget(this.position, this.targetPC.position)) {
+        console.log(`NPC ${this.id} is already in attack range (${currentDistance} <= ${this.attackrange}) and can see target. Switching to attack!`);
         this.state = 'attack';
         await updateThisNPC.call(this, gridId);
         break;
@@ -65,14 +124,14 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       if (!this.pursueTimerStart) this.pursueTimerStart = Date.now();
       const timeSincePursueStart = Date.now() - this.pursueTimerStart;
       const distance = getDistance(this.position, this.targetPC?.position);
-      // Check if there's a closer PC to switch to
-      const closestPC = findClosestPC(this.position, pcs);
-      if (closestPC && closestPC.playerId !== this.targetPC.playerId) {
+      // Check if there's a closer PC to switch to (that can be seen)
+      const closestVisiblePC = findClosestVisiblePC(this.position, pcs);
+      if (closestVisiblePC && closestVisiblePC.playerId !== this.targetPC.playerId) {
         const distToCurrent = distance;
-        const distToClosest = getDistance(this.position, closestPC.position);
+        const distToClosest = getDistance(this.position, closestVisiblePC.position);
         if (distToCurrent - distToClosest >= 2) {
-          console.log(`🔄 NPC ${this.id} switching target from ${this.targetPC.username} to much closer PC ${closestPC.username}.`);
-          this.targetPC = closestPC;
+          console.log(`🔄 NPC ${this.id} switching target from ${this.targetPC.username} to much closer PC ${closestVisiblePC.username}.`);
+          this.targetPC = closestVisiblePC;
         }
       }
       if (distance > this.range * 2 && timeSincePursueStart > 5000) {
@@ -84,11 +143,50 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         break;
       }
       console.log(`NPC ${this.id} is pursuing PC ${this.targetPC.username}.`);
-      await this.handlePursueState(this.targetPC.position, tiles, resources, npcs, pcs, async () => {
-        //console.log(`NPC ${this.id} transitioned to ATTACK state targeting ${this.targetPC.username}.`);
-        this.state = 'attack';
-        await updateThisNPC.call(this, gridId); // Save after transition
-      });
+      
+      // Use a custom pursue handler that checks line of sight
+      const handlePursueWithLineOfSight = async () => {
+        const dx = this.targetPC.position.x - this.position.x;
+        const dy = this.targetPC.position.y - this.position.y;
+
+        let direction = null;
+        if (Math.abs(dx) > Math.abs(dy)) {
+          direction = dx > 0 ? 'E' : 'W';
+        } else if (dy !== 0) {
+          direction = dy > 0 ? 'S' : 'N';
+        }
+        // Add diagonal movement if applicable
+        if (Math.abs(dx) === Math.abs(dy)) {
+          if (dx > 0 && dy > 0) direction = 'SE';
+          else if (dx > 0 && dy < 0) direction = 'NE';
+          else if (dx < 0 && dy > 0) direction = 'SW';
+          else if (dx < 0 && dy < 0) direction = 'NW';
+        } 
+        
+        // Check if already in attack range AND can see target BEFORE attempting to move
+        const distanceToPlayer = getDistance(this.position, this.targetPC.position);
+        console.log(`🎯 NPC ${this.id} distance to player: ${distanceToPlayer} | range: ${this.attackrange}`);
+        
+        if (distanceToPlayer <= this.attackrange) {
+          if (canSeeTarget(this.position, this.targetPC.position)) {
+            console.log(`NPC ${this.id} can see and attack ${this.targetPC.username}. Transitioning to attack!`);
+            this.state = 'attack';
+            await updateThisNPC.call(this, gridId);
+            return;
+          } else {
+            console.log(`NPC ${this.id} is in range but can't see ${this.targetPC.username} due to walls. Continuing pursuit.`);
+          }
+        }
+        
+        if (!direction) return;
+
+        const moved = await this.moveOneTile(direction, tiles, resources, npcs);
+        if (!moved) {
+          console.log(`NPC ${this.id} could not move in direction ${direction}. Trying alternate route.`);
+        }
+      };
+      
+      await handlePursueWithLineOfSight();
       break;
     }
 
@@ -113,6 +211,14 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         //console.log(`PC ${this.targetPC.username} moved out of attack range. Returning to 'pursue' state.`);
         this.state = 'pursue';
         await updateThisNPC.call(this, gridId); // Save after transition
+        break;
+      }
+      
+      // Check line of sight before attacking
+      if (!canSeeTarget(this.position, this.targetPC.position)) {
+        console.log(`NPC ${this.id} lost sight of ${this.targetPC.username} due to walls. Returning to 'pursue' state.`);
+        this.state = 'pursue';
+        await updateThisNPC.call(this, gridId);
         break;
       }
  
@@ -182,6 +288,25 @@ function findClosestPC(npcPosition, pcs) {
     if (pc.hp <= 0) return; // ✅ Skip PCs that are dead
     const distance = getDistance(npcPosition, pc.position);
     if (distance < minDistance) {
+      minDistance = distance;
+      closestPC = pc;
+    }
+  });
+
+  return closestPC;
+}
+
+/**
+ * Helper to find the closest VISIBLE PC to an NPC (no walls blocking)
+ */
+function findClosestVisiblePC(npcPosition, pcs) {
+  let closestPC = null;
+  let minDistance = Infinity;
+
+  pcs.forEach((pc) => {
+    if (pc.hp <= 0) return; // Skip PCs that are dead
+    const distance = getDistance(npcPosition, pc.position);
+    if (distance < minDistance && canSeeTarget(npcPosition, pc.position)) {
       minDistance = distance;
       closestPC = pc;
     }
