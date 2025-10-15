@@ -73,11 +73,15 @@ async function handleFarmAnimalBehavior(gridId) {
             if (!this.targetGrassTile) {
                 //console.log(`NPC ${this.id} finding nearest grass tile.`);
                 
-                // Find all grass tiles within range
-                const grassTiles = await this.findTileInRange('g', tiles, resources);
+                // Determine which tile type to look for based on NPC type
+                const targetTileType = this.type === 'Pig' ? 'd' : 'g'; // Pigs graze on dirt, others on grass
+                
+                // Find all grass/dirt tiles within range
+                const grassTiles = await this.findTileInRange(targetTileType, tiles, resources);
         
                 if (!Array.isArray(grassTiles) || grassTiles.length === 0) {
-                    console.warn(`No grass tiles found for NPC ${this.id}. Transitioning to idle.`);
+                    const tileTypeName = targetTileType === 'd' ? 'dirt' : 'grass';
+                    console.warn(`No ${tileTypeName} tiles found for NPC ${this.id}. Transitioning to idle.`);
                     this.state = 'idle'; // Fallback to idle if no valid tiles
                     break;
                 }
@@ -88,7 +92,8 @@ async function handleFarmAnimalBehavior(gridId) {
                 );
         
                 if (unoccupiedGrassTiles.length === 0) {
-                    console.warn(`No unoccupied grass tiles found for NPC ${this.id}. Transitioning to idle.`);
+                    const tileTypeName = targetTileType === 'd' ? 'dirt' : 'grass';
+                    console.warn(`No unoccupied ${tileTypeName} tiles found for NPC ${this.id}. Transitioning to idle.`);
                     this.state = 'idle'; // Fallback to idle if no valid tiles
                     break;
                 }
@@ -114,7 +119,7 @@ async function handleFarmAnimalBehavior(gridId) {
         
                 // Explicitly handle when dx and dy are both 0 (already at the target)
                 if (dx === 0 && dy === 0) {
-                   // console.log(`NPC ${this.id} is already at the target grass tile. Transitioning to grazing.`);
+                   // console.log(`NPC ${this.id} is already at the target grazing tile. Transitioning to grazing.`);
                     this.state = 'grazing'; // Transition to grazing
                     this.targetGrassTile = null; // Clear the target
                     await updateThisNPC(); // Save after transition

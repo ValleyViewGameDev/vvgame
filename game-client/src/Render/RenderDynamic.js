@@ -728,9 +728,11 @@ function handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverToolt
         case 'processing':
           tooltipContent = `<p>${localizedNPCType}</p><p>is ready.</p>`;
           break;
-        case 'hungry':
-          tooltipContent = `<p>${localizedNPCType}</p><p>is hungry and</p><p>looking for grass.</p>`;
+        case 'hungry': {
+          const lookingFor = npc.type === 'Pig' ? 'dirt' : 'grass';
+          tooltipContent = `<p>${localizedNPCType}</p><p>is hungry and</p><p>looking for ${lookingFor}.</p>`;
           break;
+        }
         case 'grazing': {
           let countdownText = "";
           if (npc.grazeEnd) {

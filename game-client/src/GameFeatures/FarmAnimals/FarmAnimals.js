@@ -75,12 +75,13 @@ const AnimalPanel = ({
       case 'processing':
         return "is ready.";
       case 'hungry':
-        return "is hungry and looking for grass.";
+        const lookingFor = npc.type === 'Pig' ? 'dirt' : 'grass';
+        return `is hungry and looking for ${lookingFor}.`;
       case 'grazing':
         if (npc.grazeEnd) {
-          const timeLeft = Math.max(0, npc.grazeEnd - currentTime);
-          const minutes = Math.floor(timeLeft / 60000);
-          const seconds = Math.floor((timeLeft % 60000) / 1000);
+          const remainingTime = Math.max(0, npc.grazeEnd - currentTime);
+          const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
           return `is grazing. ${minutes}m ${seconds}s`;
         }
         return "is grazing.";
