@@ -133,9 +133,20 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         break;
       }
       
+      // First check if we can still see the target at all
+      const canStillSeeTarget = canSeeTarget(this.position, this.targetPC.position);
+      if (!canStillSeeTarget) {
+        console.log(`👁️ NPC ${this.id} lost sight of ${this.targetPC?.username} during pursuit. Returning to idle.`);
+        this.state = 'idle';
+        this.pursueTimerStart = null;
+        this.targetPC = null;
+        await updateThisNPC.call(this, gridId);
+        break;
+      }
+      
       // Check if already in attack range AND can see target before pursuing
       const currentDistance = getDistance(this.position, this.targetPC.position);
-      if (currentDistance <= this.attackrange && canSeeTarget(this.position, this.targetPC.position)) {
+      if (currentDistance <= this.attackrange) {
         console.log(`NPC ${this.id} is already in attack range (${currentDistance} <= ${this.attackrange}) and can see target. Switching to attack!`);
         this.state = 'attack';
         await updateThisNPC.call(this, gridId);
@@ -154,8 +165,17 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
           this.targetPC = closestVisiblePC;
         }
       }
-      if (distance > this.range * 2 && timeSincePursueStart > 5000) {
-        console.log(`🐺 NPC ${this.id} gave up chasing ${this.targetPC?.username}.`);
+      // Give up if: 
+      // 1. Target is too far AND we've been chasing for a while, OR
+      // 2. We can't see the target anymore (behind wall)
+      const canSeeTargetNow = canSeeTarget(this.position, this.targetPC.position);
+      
+      if ((distance > this.range * 2 && timeSincePursueStart > 5000) || !canSeeTargetNow) {
+        if (!canSeeTargetNow) {
+          console.log(`👁️ NPC ${this.id} lost sight of ${this.targetPC?.username} (wall blocking). Giving up pursuit.`);
+        } else {
+          console.log(`🐺 NPC ${this.id} gave up chasing ${this.targetPC?.username} (too far).`);
+        }
         this.state = 'idle';
         this.pursueTimerStart = null;
         this.targetPC = null;
