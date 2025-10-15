@@ -77,3 +77,28 @@
   padding: 10px;
   overflow-y: auto;
 }
+
+/* Footer section for sell button */
+.pet-panel-footer {
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.pet-panel-footer hr {
+  display: none; /* Hide the hr since we have border-top */
+}
+
+/* Center the button container */
+.pet-panel-footer .standard-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+/* Ensure button text is centered */
+.pet-panel-footer .standard-buttons button {
+  text-align: center;
+  min-width: 150px; /* Give it a minimum width for better appearance */
+}

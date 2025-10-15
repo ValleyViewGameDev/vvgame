@@ -13,6 +13,7 @@ import '../../UI/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
+import './AnimalStall.css';
 
 const AnimalStall = ({
   onClose,
@@ -81,25 +82,26 @@ const AnimalStall = ({
 
   return (
     <Panel onClose={onClose} descriptionKey="1011" titleKey="1111" panelName="AnimalStall" >
-      <div className="standard-panel">
-        <h2>
-            {stallDetails?.symbol || '🛖'} {stationType}
-        </h2>
-
+      <div className="animalstall-panel-container">
+        <div className="animalstall-panel-content">
+          <h2>
+              {stallDetails?.symbol || '🛖'} {stationType}
+          </h2>
+        </div>
 
         {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
-          <>
+          <div className="animalstall-panel-footer">
             <hr />
-              <div className="standard-buttons">
-                <TransactionButton 
-                  className="btn-success" 
-                  onAction={handleSellStation}
-                  transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
-                >
-                  {strings[425]}
-                </TransactionButton>
-              </div>
-          </>
+            <div className="standard-buttons">
+              <TransactionButton 
+                className="btn-success" 
+                onAction={handleSellStation}
+                transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
+              >
+                {strings[425]}
+              </TransactionButton>
+            </div>
+          </div>
         )}
       </div>
     </Panel>

@@ -11,6 +11,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import TransactionButton from '../../UI/TransactionButton';
+import './AnimalPanel.css';
 
 const AnimalPanel = ({
   onClose,
@@ -179,32 +180,34 @@ const AnimalPanel = ({
   
 
   return (
-    <Panel onClose={onClose} descriptionKey="1029" titleKey="1129" panelName="AnimalPanel" >
-      <div className="standard-panel">
-        <h2>
-            {stallDetails?.symbol || '🛖'} {getLocalizedString(stationType, strings)}
-        </h2>
+    <Panel onClose={onClose} titleKey="1129" panelName="AnimalPanel" >
+      <div className="animal-panel-container">
+        <div className="animal-panel-content">
+          <h2>
+              {stallDetails?.symbol || '🛖'} {getLocalizedString(stationType, strings)}
+          </h2>
 
-        {/* Show current NPC status */}
-        {currentNPC && (
-          <p>
-            <strong>{getLocalizedString(currentNPC.type, strings)}</strong> {getNPCStatusText(currentNPC)}
-          </p>
-        )}
-
+          {/* Show current NPC status */}
+          {currentNPC && (
+            <p>
+              <strong>{getLocalizedString(currentNPC.type, strings)}</strong> {getNPCStatusText(currentNPC)}
+            </p>
+          )}
+        </div>
+        
         {currentPlayer.location.gtype === 'homestead' && (
-          <>
+          <div className="animal-panel-footer">
             <hr />
-              <div className="standard-buttons">
-                <TransactionButton 
-                  className="btn-success" 
-                  onAction={handleSellStation}
-                  transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
-                >
-                  {strings[425]}
-                </TransactionButton>
-              </div>
-          </>
+            <div className="standard-buttons">
+              <TransactionButton 
+                className="btn-success" 
+                onAction={handleSellStation}
+                transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
+              >
+                {strings[425]}
+              </TransactionButton>
+            </div>
+          </div>
         )}
       </div>
     </Panel>

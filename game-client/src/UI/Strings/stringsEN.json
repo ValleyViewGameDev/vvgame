@@ -1135,7 +1135,8 @@
     "200518": "Slide",
     "200519": "Fountain",
     "200520": "Fountain Large",
-    "200521": "Large Decorative Palm Tree",
+    "200521": "Large Decorative Palm Tree",    
+
     "200800": "Only Found in Scrolls",
 
     "30000": "TROPHIES:",
@@ -1237,7 +1238,6 @@
     "11000": "ADDED STRINGS:",
 
     "40": "Can't attack through walls.",
-
     "160": "📥 Trading Post: Add Items to Sell",
     "162": "You Have",
     "163": "Price Each",
@@ -1256,6 +1256,43 @@
     "8014": " is searching for treasures ...",
     "8015": "Check back in:",
     "8016": " has found something!",
+
+    "200600": "Potato",
+    "200601": "Lettuce",
+    "200602": "Pepper",
+    "200603": "Orange",
+    "200604": "Mixed Salad",
+    "200605": "Sandwich",
+    "200606": "Potato Bake",
+    "200607": "Brandy",
+    "200608": "Saw",
+    "200609": "Shovel",
+    "200610": "Screwdriver",
+    "200611": "Hammer",
+    "200612": "Bolt",
+    "200613": "Phoenix",
+    "200614": "Phoenix Feather",
+    "200615": "Brass Bell",
+    "200616": "Vampire's Blood",
+    "200617": "Hope",
+    "200618": "Yellow Heart",
+    "200619": "Green Heart",
+    "200620": "Purple Heart",
+    "200621": "Carnival",
+    "200622": "Guild",
+    
+    "21000": "Cat",
+    "21001": "Poodle",
+    "21002": "Monkey",
+    "21003": "Duck",
+    "21004": "Donkey",
+    "21005": "Owl",
+    "21006": "Parrot",
+    "21007": "Eagle",
+    "21008": "Zebra",
+    "21009": "Giraffe",
+    "21010": "Orangutan",
+    "21011": "Dodo Bird",
 
     "627": "With a a better relationship, this characcter may have additional tasks for you."
 

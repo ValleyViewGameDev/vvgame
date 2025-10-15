@@ -1,0 +1,39 @@
+/* Animal Stall Panel Styles */
+
+/* Container for flex layout */
+.animalstall-panel-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.animalstall-panel-content {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+/* Footer section for sell button */
+.animalstall-panel-footer {
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.animalstall-panel-footer hr {
+  display: none; /* Hide the hr since we have border-top */
+}
+
+/* Center the button container */
+.animalstall-panel-footer .standard-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+}
+
+/* Ensure button text is centered */
+.animalstall-panel-footer .standard-buttons button {
+  text-align: center;
+  min-width: 150px; /* Give it a minimum width for better appearance */
+}

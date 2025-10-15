@@ -11,6 +11,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
+import './DecoPanel.css';
 
 const DecoPanel = ({
   onClose,
@@ -80,26 +81,27 @@ const DecoPanel = ({
   
 
   return (
-    <Panel onClose={onClose} descriptionKey="1028" titleKey="1128" panelName="DecoPanel" >
-      <div className="standard-panel">
-        <h2>
-            {resourceDetails?.symbol || '🛖'} {getLocalizedString(stationType, strings)}
-        </h2>
-
+    <Panel onClose={onClose} titleKey="1128" panelName="DecoPanel" >
+      <div className="deco-panel-container">
+        <div className="deco-panel-content">
+          <h2>
+              {resourceDetails?.symbol || '🛖'} {getLocalizedString(stationType, strings)}
+          </h2>
+        </div>
 
         {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
-          <>
+          <div className="deco-panel-footer">
             <hr />
-              <div className="standard-buttons">
-                <TransactionButton 
-                  className="btn-success" 
-                  onAction={handleSellStation}
-                  transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
-                >
-                  {strings[425]}
-                </TransactionButton>
-              </div>
-          </>
+            <div className="standard-buttons">
+              <TransactionButton 
+                className="btn-success" 
+                onAction={handleSellStation}
+                transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
+              >
+                {strings[425]}
+              </TransactionButton>
+            </div>
+          </div>
         )}
       </div>
     </Panel>

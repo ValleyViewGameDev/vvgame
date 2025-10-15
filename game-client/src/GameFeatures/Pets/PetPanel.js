@@ -78,6 +78,7 @@ const PetPanel = ({
   const [revealedRewardRarity, setRevealedRewardRarity] = useState('common');
   const [isCollecting, setIsCollecting] = useState(false);
   const [canAffordFeeding, setCanAffordFeeding] = useState(false);
+  const [isSelling, setIsSelling] = useState(false);
 
   // Get pet details from the resource
   const petName = petResource?.type || 'Pet';
@@ -354,6 +355,85 @@ const PetPanel = ({
     }
   };
 
+  // Handle selling the pet for a refund
+  const handleSellPet = async (transactionId, transactionKey) => {
+    if (isSelling) return;
+    
+    setIsSelling(true);
+    
+    try {
+      // Get ingredients from pet resource configuration
+      const ingredients = [];
+      for (let i = 1; i <= 4; i++) {
+        const ingredientType = petResource[`ingredient${i}`];
+        const ingredientQty = petResource[`ingredient${i}qty`];
+        if (ingredientType && ingredientQty) {
+          ingredients.push({ type: ingredientType, quantity: ingredientQty });
+        }
+      }
+      
+      if (!ingredients.length) {
+        console.error('No ingredients found for refund.');
+        setIsSelling(false);
+        return;
+      }
+
+      // Give back the ingredients
+      for (const { type, quantity } of ingredients) {
+        const success = await gainIngredients({
+          playerId: currentPlayer.playerId,
+          currentPlayer,
+          resource: type,
+          quantity,
+          inventory,
+          backpack,
+          setInventory,
+          setBackpack,
+          setCurrentPlayer,
+          updateStatus,
+          masterResources,
+        });
+        if (!success) {
+          setIsSelling(false);
+          return;
+        }
+      }
+
+      // Remove the pet from the grid
+      try {
+        const response = await axios.post(`${API_BASE}/api/remove-resource`, {
+          playerId: currentPlayer.playerId,
+          gridId,
+          x: currentPetPosition.x,
+          y: currentPetPosition.y,
+        });
+
+        if (response.data.success) {
+          // Update local resources
+          const updatedResources = GlobalGridStateTilesAndResources.getResources().filter(
+            res => !(res.x === currentPetPosition.x && res.y === currentPetPosition.y)
+          );
+          GlobalGridStateTilesAndResources.setResources(updatedResources);
+          setResources(updatedResources);
+          
+          // Calculate total refund for display
+          const totalRefund = ingredients
+            .filter((item) => item.type === "Money")
+            .reduce((sum, item) => sum + item.quantity, 0);
+
+          updateStatus(`Sold ${getLocalizedString(petName, strings)} for ${totalRefund} ${getLocalizedString('Money', strings)}.`);
+          onClose();
+        }
+      } catch (error) {
+        console.error('Error removing pet:', error);
+        setIsSelling(false);
+      }
+    } catch (error) {
+      console.error('Error selling pet:', error);
+      setIsSelling(false);
+    }
+  };
+
   return (
     <Panel onClose={onClose} title={getLocalizedString(petName, strings)} panelName="PetPanel">
       <div className="pet-panel-container">
@@ -424,6 +504,23 @@ const PetPanel = ({
           ) : null}
 
         </div>
+        
+        {/* Sell/refund button - only on homesteads */}
+        {currentPlayer.location.gtype === 'homestead' && (
+          <div className="pet-panel-footer">
+            <hr />
+            <div className="standard-buttons">
+              <TransactionButton 
+                className="btn-success" 
+                onAction={handleSellPet}
+                transactionKey={`sell-refund-${petName}-${currentPetPosition.x}-${currentPetPosition.y}-${gridId}`}
+                disabled={isSelling}
+              >
+                {strings[425] || 'Sell for refund'}
+              </TransactionButton>
+            </div>
+          </div>
+        )}
       </div>
     </Panel>
   );
