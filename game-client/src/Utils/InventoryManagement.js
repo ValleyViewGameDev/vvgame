@@ -2,6 +2,15 @@ import API_BASE from '../config';
 import axios from 'axios';
 import playersInGridManager from '../GridState/PlayersInGrid';
 
+// Helper function to check if an item is a currency (doesn't count against inventory)
+export const isCurrency = (resourceType) => {
+  return resourceType === 'Money' || 
+         resourceType === 'Gem' || 
+         resourceType === 'Yellow Heart' ||
+         resourceType === 'Green Heart' ||
+         resourceType === 'Purple Heart';
+};
+
 /**
  * Calculate skill multiplier for a specific resource type
  * @param {String} resourceType - The resource type to check skills for
@@ -103,14 +112,13 @@ export const hasRoomFor = ({
   backpack,
   masterResources
 }) => {
-  const isMoney = resource === "Money";
-  const isGem = resource === "Gem";
+  const isCurrencyItem = isCurrency(resource);
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
-  const storingInBackpack = !isMoney && !isGem && !isHomestead;
+  const storingInBackpack = !isCurrencyItem && !isHomestead;
   
   
-  // Money and Gems always have room
-  if (isMoney || isGem) return true;
+  // Currencies always have room
+  if (isCurrencyItem) return true;
   
   // Check backpack skill if storing in backpack
   if (storingInBackpack) {
@@ -127,7 +135,7 @@ export const hasRoomFor = ({
   const capacity = isHomestead ? warehouse : maxBackpack;
   
   const totalItems = target
-    .filter(item => item && item.type !== 'Money' && item.type !== 'Gem' && typeof item.quantity === 'number')
+    .filter(item => item && !isCurrency(item.type) && typeof item.quantity === 'number')
     .reduce((acc, item) => acc + item.quantity, 0);
     
   return totalItems + quantity <= capacity;
@@ -235,12 +243,11 @@ export async function gainIngredients({
   updateStatus,
   masterResources,
 }) {
-  const isMoney = resource === "Money";
-  const isGem = resource === "Gem";
+  const isCurrencyItem = isCurrency(resource);
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
-  const storingInBackpack = !isMoney && !isGem && !isHomestead;
+  const storingInBackpack = !isCurrencyItem && !isHomestead;
 
-  const target = isMoney || isGem || isHomestead ? [...inventory] : [...backpack];
+  const target = isCurrencyItem || isHomestead ? [...inventory] : [...backpack];
 
   // ✅ Backpack skill check if storing in backpack
   if (storingInBackpack) {
@@ -252,7 +259,7 @@ export async function gainIngredients({
   }
     
   // ✅ Capacity check
-  if (!isMoney && !isGem) {
+  if (!isCurrencyItem) {
     const { warehouse, backpack: maxBackpack } = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources || []);
     const capacity = isHomestead ? warehouse : maxBackpack;
     const totalItems = target
@@ -285,14 +292,14 @@ export async function gainIngredients({
   try {
     await axios.post(`${API_BASE}/api/update-inventory-delta`, deltaPayload);
     
-    setInventory(isMoney || isGem || isHomestead ? target : inventory);
-    setBackpack(!isMoney && !isGem && !isHomestead ? target : backpack);
+    setInventory(isCurrencyItem || isHomestead ? target : inventory);
+    setBackpack(!isCurrencyItem && !isHomestead ? target : backpack);
     
     // Update currentPlayer with new inventory to ensure UI updates properly
     setCurrentPlayer(prev => ({
       ...prev,
-      inventory: isMoney || isGem || isHomestead ? target : inventory,
-      backpack: !isMoney && !isGem && !isHomestead ? target : backpack
+      inventory: isCurrencyItem || isHomestead ? target : inventory,
+      backpack: !isCurrencyItem && !isHomestead ? target : backpack
     }));
     await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
     return true;

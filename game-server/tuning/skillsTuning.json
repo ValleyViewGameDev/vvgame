@@ -11,7 +11,11 @@
       "Tomato": 2,
       "Garlic": 2,
       "Pumpkin": 2,
-      "Grapes": 2
+      "Grapes": 2,
+      "Potato": 2,
+      "Lettuce": 2,
+      "Orange": 2,
+      "Pepper": 2
     },
     "Green Thumb": {
       "Wheat": 2,
@@ -25,7 +29,11 @@
       "Tomato": 2,
       "Garlic": 2,
       "Pumpkin": 2,
-      "Grapes": 2
+      "Grapes": 2,
+      "Potato": 2,
+      "Lettuce": 2,
+      "Orange": 2,
+      "Pepper": 2
     },
     "Cooking": {
       "Kitchen": 2
@@ -79,7 +87,8 @@
     },
     "Husbandry": {
       "Milk": 3,
-      "Wool": 2
+      "Wool": 2,
+      "Bacon": 2
     }     
   }
   

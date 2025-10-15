@@ -1,0 +1,79 @@
+/* Pet Panel Styles */
+
+/* Pet emoji display */
+.pet-display {
+  font-size: 48px;
+  text-align: center;
+}
+
+/* Pet info section */
+.pet-info {
+  text-align: center;
+}
+
+.pet-info .pet-name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.pet-info .pet-status {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Pet searching animation - reuse scroll reveal animation but simpler */
+.pet-searching {
+  text-align: center;
+  padding: 20px;
+}
+
+.pet-searching-countdown {
+  font-size: 24px;
+  font-weight: bold;
+  color: #666;
+  margin-top: 10px;
+}
+
+/* Pet collect button styling - override scroll-collect-button styles */
+.pet-collect-button.scroll-collect-button {
+  height: 80px !important;
+  min-height: 80px !important;
+  padding: 10px 10px !important; /* Much smaller than 40px */
+  animation: none !important; /* Remove dramatic animations */
+}
+
+/* Override the large title font size from scroll-collect-button */
+.pet-collect-button.scroll-collect-button .resource-title {
+  font-size: 18px !important;
+  margin-bottom: 5px !important;
+}
+
+/* Override the details text if present */
+.pet-collect-button.scroll-collect-button .resource-details {
+  font-size: 18px !important;
+  letter-spacing: normal !important;
+  display: none !important; /* Hide rarity text */
+}
+
+/* Processing state - override any text that appears */
+.pet-collect-button.collecting {
+  font-size: 18px !important;
+}
+
+/* Any text that appears during processing */
+.pet-collect-button.collecting * {
+  font-size: 18px !important;
+}
+
+/* Reuse station panel container styles */
+.pet-panel-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.pet-panel-content {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}

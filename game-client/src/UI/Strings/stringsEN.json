@@ -672,7 +672,7 @@
     "6002": "You have no trophies yet. Earn trophies for achievements throughout the game.",
     "6003": "Trophy Earned!",
 
-
+    
     "8999": "HOW TO PLAY STRINGS:",
 
     "9000": "Welcome to Valley View!",
@@ -1241,6 +1241,19 @@
     "163": "Price Each",
     "164": "Amount to Add",
 
+    "8000": "PET & TEMPLE STRINGS:",
+
+    "8001": "COMMON",
+    "8002": "UNCOMMON",
+    "8003": "RARE",
+    "8004": "EPIC",
+    "8005": "LEGENDARY",
+    "8010": "This pet is hungry.",
+    "8011": "Feed",
+    "8012": " to send it searching for treasures.",
+    "8014": " is searching for treasures ...",
+    "8015": "Check back in:",
+    "8016": " has found something!",
 
     "627": "With a a better relationship, this characcter may have additional tasks for you."
 

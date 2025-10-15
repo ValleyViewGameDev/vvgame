@@ -3,28 +3,7 @@
  * Helper functions for determining random scroll reveal outcomes
  */
 
-/**
- * Convert rarity string to numeric chance value for weighted selection
- * @param {string} rarity - Rarity tier: 'common', 'uncommon', 'rare', 'epic', 'legendary'
- * @returns {number} Chance weight (higher = more common)
- */
-export function getRarityChance(rarity) {
-  // Handle backward compatibility with old numeric values
-  if (typeof rarity === 'number') {
-    return rarity;
-  }
-  
-  // Handle new string-based rarity system
-  const rarityTable = {
-    'common': 100,     // Very common items
-    'uncommon': 50,    // Somewhat common
-    'rare': 20,        // Rare items
-    'epic': 5,         // Very rare items
-    'legendary': 1     // Extremely rare items
-  };
-  
-  return rarityTable[rarity] || rarityTable['common']; // Default to common if unknown rarity
-}
+import { selectWeightedRandomItem } from '../../Utils/DropRates';
 
 /**
  * Determines the random doober reward from revealing a scroll
@@ -42,27 +21,18 @@ export function getRandomScrollReveal(masterResources, playerStats = null, rollC
     return { type: 'Wood', quantity: 10 };
   }
 
-  // Calculate total weight based on rarity chances
-  const totalWeight = scrollableItems.reduce((sum, item) => 
-    sum + getRarityChance(item.scrollchance), 0
-  );
+  // Use the shared utility to select a weighted random item
+  // Scrolls are always level 1 for now (no level multiplier)
+  const selectedItem = selectWeightedRandomItem(scrollableItems, 1);
   
-  // Generate single weighted random selection
-  const roll = Math.random() * totalWeight;
-  let cumulative = 0;
-  
-  // Find the selected item based on weighted probability
-  for (const item of scrollableItems) {
-    cumulative += getRarityChance(item.scrollchance);
-    if (roll <= cumulative) {
-      const quantity = item.scrollqty || 1;
-      console.log(`🎲 Scroll reveal: ${item.type} x${quantity} (rarity: ${item.scrollchance})`);
-      
-      return {
-        type: item.type,
-        quantity: quantity
-      };
-    }
+  if (selectedItem) {
+    const quantity = selectedItem.scrollqty || 1;
+    console.log(`🎲 Scroll reveal: ${selectedItem.type} x${quantity} (rarity: ${selectedItem.scrollchance})`);
+    
+    return {
+      type: selectedItem.type,
+      quantity: quantity
+    };
   }
   
   // Fallback (shouldn't reach here)

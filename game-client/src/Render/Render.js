@@ -92,6 +92,25 @@ export const RenderGrid = memo(
       return acc;
     }, { ready: [], inProgress: [] });
 
+    // Check for pet status
+    const petStatus = resources.reduce((acc, res) => {
+      if (res.category === 'pet') {
+        const key = `${res.x}-${res.y}`;
+        if (res.craftEnd && res.craftedItem) {
+          // Pet has a reward
+          if (res.craftEnd < currentTime) {
+            acc.ready.push(key);
+          } else {
+            acc.searching.push(key);
+          }
+        } else {
+          // Pet is hungry
+          acc.hungry.push(key);
+        }
+      }
+      return acc;
+    }, { ready: [], searching: [], hungry: [] });
+
     // Check for completed trades at Trading Post
     const tradingStatus = resources.reduce((acc, res) => {
       if (res.type === 'Trading Post' && currentPlayer?.tradeStall) {
@@ -127,6 +146,9 @@ export const RenderGrid = memo(
         let isCraftReady = false;
         let isCraftInProgress = false;
         let isTradingReady = false;
+        let isPetReady = false;
+        let isPetSearching = false;
+        let isPetHungry = false;
         
         if (resource && (resource.category === 'crafting' || resource.category === 'farmhouse')) {
           const resourceKey = `${resource.x}-${resource.y}`;
@@ -135,6 +157,11 @@ export const RenderGrid = memo(
         } else if (resource && resource.type === 'Trading Post') {
           const resourceKey = `${resource.x}-${resource.y}`;
           isTradingReady = tradingStatus.ready.includes(resourceKey);
+        } else if (resource && resource.category === 'pet') {
+          const resourceKey = `${resource.x}-${resource.y}`;
+          isPetReady = petStatus.ready.includes(resourceKey);
+          isPetSearching = petStatus.searching.includes(resourceKey);
+          isPetHungry = petStatus.hungry.includes(resourceKey);
         } else {
           // For regular tiles, use current tile coordinates
           isCraftReady = craftingStatus.ready.includes(key);
@@ -283,6 +310,28 @@ export const RenderGrid = memo(
                   </div>
                 )}
               </>
+            )}
+            
+            {/* ✅ Add overlays for Pets */}
+            {isPetReady && resource && resource.category === 'pet' && resource.x === colIndex && resource.y === rowIndex && (
+              <div
+                className="game-overlay"
+                style={{
+                  color: getOverlayContent('ready').color,
+                }}
+              >
+                {getOverlayContent('ready').emoji}
+              </div>
+            )}
+            {isPetSearching && resource && resource.category === 'pet' && resource.x === colIndex && resource.y === rowIndex && (
+              <div
+                className="game-overlay"
+                style={{
+                  color: getOverlayContent('inprogress').color,
+                }}
+              >
+                {getOverlayContent('inprogress').emoji}
+              </div>
             )}
           </div>
         );

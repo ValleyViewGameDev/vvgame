@@ -230,10 +230,11 @@ const handleGetRich = async () => {
       { type: 'Sugar', quantity: 500 },
       { type: 'Cream', quantity: 500 },
       { type: 'Lemon', quantity: 500 },
+      { type: 'Orange', quantity: 500 },
       { type: 'Cloth', quantity: 500 },
       { type: 'Lumber', quantity: 500 },
       { type: 'Thread', quantity: 500 },
-      { type: 'Metal', quantity: 500 },
+      { type: 'Milk', quantity: 500 },
       { type: 'Aged Wine', quantity: 500 },
       { type: 'Sweater', quantity: 500 },
       { type: 'Cheese', quantity: 500 },
@@ -250,6 +251,9 @@ const handleGetRich = async () => {
       { type: 'Pottery', quantity: 100 },
       { type: 'Portrait', quantity: 10 },
       { type: 'Trident', quantity: 10 },
+      { type: 'Yellow Heart', quantity: 1000 },
+      { type: 'Green Heart', quantity: 500 },
+      { type: 'Purple Heart', quantity: 500 },
     ];
 
     // Use delta endpoint for batched update, adding target: 'inventory' to each resource

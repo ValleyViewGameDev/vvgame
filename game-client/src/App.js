@@ -73,6 +73,7 @@ import FarmHouse from './GameFeatures/Crafting/FarmHouse';
 import FarmHandPanel from './GameFeatures/FarmHands/FarmHand.js';
 import ShopStation from './GameFeatures/Crafting/ShopStation';
 import ScrollStation from './GameFeatures/Crafting/ScrollStation';
+import PetPanel from './GameFeatures/Pets/PetPanel';
 import AnimalStall from './GameFeatures/FarmAnimals/AnimalStall';
 import AnimalPanel from './GameFeatures/FarmAnimals/FarmAnimals.js';
 import CropPanel from './GameFeatures/Farming/CropPanel.js';
@@ -1444,6 +1445,10 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, });
       openPanel('DecoPanel');
     } 
+    else if (resource.category === 'pet') {
+      setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, });
+      openPanel('PetPanel');
+    } 
     else if (resource.category === 'station') {
       setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, });
       switch (resource.type) {
@@ -2625,6 +2630,26 @@ return (
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}
+          isDeveloper={isDeveloper}
+        />
+      )}
+      {activePanel === 'PetPanel' && (
+        <PetPanel
+          onClose={closePanel}
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          setResources={setResources}
+          petResource={resources.find(r => r.x === activeStation?.position?.x && r.y === activeStation?.position?.y)}
+          currentPetPosition={activeStation?.position}
+          gridId={activeStation?.gridId}
+          masterResources={masterResources}
+          masterSkills={masterSkills}
+          masterTrophies={masterTrophies}
+          TILE_SIZE={activeTileSize}
           isDeveloper={isDeveloper}
         />
       )}
