@@ -76,11 +76,31 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
 
   if (!this.state) this.state = 'idle';
  
+  // Check for visible PCs at the start of any state (immediate reaction)
+  const visiblePCsInRange = pcs.filter(pc => {
+    if (pc.hp <= 0) return false;
+    const dist = getDistance(this.position, pc.position);
+    if (dist > this.range) return false;
+    return canSeeTarget(this.position, pc.position);
+  });
+  
+  // If we see a PC and we're not already pursuing/attacking, immediately react
+  if (visiblePCsInRange.length > 0 && this.state !== 'pursue' && this.state !== 'attack') {
+    const targetPC = visiblePCsInRange[Math.floor(Math.random() * visiblePCsInRange.length)];
+    console.log(`⚡ NPC ${this.id} spotted PC ${targetPC.username}! Immediately entering pursue state.`);
+    this.targetPC = targetPC;
+    this.state = 'pursue';
+    this.pursueTimerStart = null;
+    await updateThisNPC.call(this, gridId);
+    return; // Skip the rest of the state processing
+  }
+ 
   switch (this.state) {
 
     case 'idle': {
       this.pursueTimerStart = null; // Clear pursuit timer
-      await this.handleIdleState(tiles, resources, npcs, 5, async () => {
+      // Reduced idle duration from 5 to 2 for more responsive enemies
+      await this.handleIdleState(tiles, resources, npcs, 2, async () => {
         const pcsInRange = pcs.filter(pc => {
           if (pc.hp <= 0) return false;
           const dist = getDistance(this.position, pc.position);
