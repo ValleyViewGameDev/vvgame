@@ -7307,8 +7307,8 @@
     "level": 1,
     "range": 1,
     "ingredient1": "Yellow Heart",
-    "ingredient1qty": 1,
-    "gemcost": 100,
+    "ingredient1qty": 8,
+    "gemcost": 800,
     "crafttime": 28800
   },
   {
@@ -7324,8 +7324,8 @@
     "level": 1,
     "range": 1,
     "ingredient1": "Yellow Heart",
-    "ingredient1qty": 5,
-    "gemcost": 500,
+    "ingredient1qty": 9,
+    "gemcost": 900,
     "crafttime": 43200
   },
   {
@@ -7341,8 +7341,8 @@
     "level": 1,
     "range": 1,
     "ingredient1": "Yellow Heart",
-    "ingredient1qty": 8,
-    "gemcost": 800,
+    "ingredient1qty": 12,
+    "gemcost": 1200,
     "crafttime": 43200
   },
   {
@@ -7358,8 +7358,8 @@
     "level": 1,
     "range": 1,
     "ingredient1": "Yellow Heart",
-    "ingredient1qty": 10,
-    "gemcost": 1000,
+    "ingredient1qty": 14,
+    "gemcost": 1400,
     "crafttime": 50400
   },
   {
@@ -7377,8 +7377,8 @@
     "ingredient1": "Yellow Heart",
     "ingredient1qty": 5,
     "ingredient2": "Green Heart",
-    "ingredient2qty": 1,
-    "gemcost": 700,
+    "ingredient2qty": 4,
+    "gemcost": 1300,
     "crafttime": 57600
   },
   {
@@ -7396,8 +7396,8 @@
     "ingredient1": "Yellow Heart",
     "ingredient1qty": 8,
     "ingredient2": "Green Heart",
-    "ingredient2qty": 3,
-    "gemcost": 1400,
+    "ingredient2qty": 6,
+    "gemcost": 2000,
     "crafttime": 57600
   },
   {
@@ -7415,8 +7415,8 @@
     "ingredient1": "Yellow Heart",
     "ingredient1qty": 10,
     "ingredient2": "Green Heart",
-    "ingredient2qty": 5,
-    "gemcost": 2000,
+    "ingredient2qty": 8,
+    "gemcost": 2600,
     "crafttime": 64800
   },
   {
@@ -7434,8 +7434,8 @@
     "ingredient1": "Yellow Heart",
     "ingredient1qty": 12,
     "ingredient2": "Green Heart",
-    "ingredient2qty": 9,
-    "gemcost": 3000,
+    "ingredient2qty": 10,
+    "gemcost": 3200,
     "crafttime": 64800
   },
   {

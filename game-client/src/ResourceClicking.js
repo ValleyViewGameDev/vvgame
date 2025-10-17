@@ -263,12 +263,8 @@ export async function handleDooberClick(
       // Restore the doober visually
       setResources((prevResources) => [...prevResources, resource]);
       
-      // Open InventoryPanel if capacity is full
-      if (openPanel && typeof openPanel === 'function') {
-        // Note: gainIngredients calls updateStatus with 20 (warehouse full) or 21 (backpack full)
-        // when capacity check fails, so the user will see the appropriate message
-        openPanel('InventoryPanel');
-      }
+      // Don't automatically open inventory panel - let the status message handle it
+      // The gainIngredients function already calls updateStatus with appropriate messages
       
       return;
     }

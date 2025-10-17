@@ -304,7 +304,15 @@ export async function gainIngredients({
     await refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlayer);
     return true;
   } catch (err) {
-    console.error("❌ Error gaining ingredient", err);
+    console.error("❌ Error gaining ingredient:", err);
+    console.error("Error details:", {
+      status: err.response?.status,
+      data: err.response?.data,
+      message: err.message,
+      resource,
+      quantity,
+      target: storingInBackpack ? 'backpack' : 'inventory'
+    });
     return false;
   }
 }

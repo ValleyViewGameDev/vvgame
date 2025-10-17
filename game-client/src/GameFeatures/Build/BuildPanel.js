@@ -106,20 +106,26 @@ const BuildPanel = ({
           
           // Pet-specific filtering
           if (resource.category === 'pet') {
+            console.log(`🐾 Checking pet ${resource.type}...`);
+            
             // Only allow pets on homesteads (unless isDeveloper)
             if (currentPlayer.location.gtype !== 'homestead' && !isDeveloper) {
+              console.log(`🐾 Filtering out pet ${resource.type} - not on homestead`);
               return false;
             }
             
             // Check if player already has this pet type on their homestead
+            // Resources on the grid use layoutkey to identify their type
             const existingPetOfType = resources.find(r => 
-              r.type === resource.type && 
-              r.category === 'pet'
+              r.layoutkey === resource.type || r.type === resource.type
             );
             
             if (existingPetOfType && !isDeveloper) {
+              console.log(`🐾 Filtering out pet ${resource.type} - already exists on grid (layoutkey: ${existingPetOfType.layoutkey}, type: ${existingPetOfType.type})`);
               return false; // Already have one of this pet type
             }
+            
+            console.log(`🐾 Pet ${resource.type} is available to build`);
           }
           
           return true;

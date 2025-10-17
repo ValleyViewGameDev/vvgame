@@ -575,7 +575,7 @@ const CraftingStation = ({
   const skillMessage = getSkillBonusMessage();
 
   return (
-    <Panel onClose={onClose} descriptionKey="1009" title={`${stationEmoji} ${getLocalizedString(stationType, strings)}`} panelName="CraftingStation">
+    <Panel onClose={onClose} title={`${stationEmoji} ${getLocalizedString(stationType, strings)}`} panelName="CraftingStation">
       <div className="station-panel-container">
         {/* Check if Library or Hospital requires home settlement */}
         {(stationType === 'Library' || stationType === 'Hospital') && 
