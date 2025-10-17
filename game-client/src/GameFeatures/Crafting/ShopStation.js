@@ -364,8 +364,8 @@ const ShopStation = ({
                   info={info} 
                   disabled={!affordable || !meetsRequirement}
                   onClick={() => handlePurchase(recipe)}
-                  // Gem purchase props
-                  gemCost={recipe.gemcost || null}
+                  // Gem purchase props - don't pass gemCost to allow dynamic calculation
+                  gemCost={null}
                   onGemPurchase={(recipe.gemcost && (!affordable || !meetsRequirement)) ? handleGemPurchase : null}
                   resource={recipe}
                   inventory={inventory}

@@ -122,7 +122,7 @@ export const calculateGemPurchase = ({
             }
         }
         
-        gemCost = timeCost + missingIngredientCost;
+        gemCost = Math.ceil(timeCost + missingIngredientCost);
     } else {
         // For non-crafting items: calculate cost based on missing ingredients
         let missingIngredientCost = 0;
@@ -140,7 +140,14 @@ export const calculateGemPurchase = ({
                 if (missingQty > 0) {
                     const resourceData = safeMasterResources.find(r => r.type === ingredientType);
                     const ingredientGemCost = resourceData?.gemcost || 1;
-                    missingIngredientCost += Math.ceil(ingredientGemCost * missingQty);
+                    const calculatedCost = ingredientGemCost * missingQty;
+                    
+                    // Debug logging for Money calculations
+                    if (ingredientType === 'Money') {
+                        console.log(`[GEM DEBUG] Money calculation: missing ${missingQty}, gemcost ${ingredientGemCost}, calculated ${calculatedCost}`);
+                    }
+                    
+                    missingIngredientCost += Math.ceil(calculatedCost);
                 }
             }
         }
@@ -156,8 +163,11 @@ export const calculateGemPurchase = ({
         }
         
         // Use missing ingredient cost, with minimum of 1 gem if there are missing ingredients
-        gemCost = missingIngredientCost > 0 ? Math.max(1, missingIngredientCost) : 0;
+        gemCost = missingIngredientCost > 0 ? Math.max(1, Math.ceil(missingIngredientCost)) : 0;
     }
+    
+    // Final safety check: ensure gemCost is always an integer
+    gemCost = Math.ceil(gemCost);
     
     // Create a modified recipe for purchase
     const getModifiedRecipe = () => {
