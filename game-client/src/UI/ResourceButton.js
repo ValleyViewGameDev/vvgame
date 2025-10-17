@@ -55,7 +55,8 @@ const ResourceButton = ({
         backpack,
         masterResources,
         currentPlayer,
-        strings
+        strings,
+        overrideGemCost: gemCost // Pass the explicit gem cost if provided
       });
     } catch (error) {
       console.error('Error creating gem calculation:', error);

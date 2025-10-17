@@ -10,7 +10,8 @@ export const calculateGemPurchase = ({
     backpack, 
     masterResources,
     currentPlayer,
-    strings
+    strings,
+    overrideGemCost = null
 }) => {
     // Ensure arrays are defined
     const safeInventory = inventory || [];
@@ -83,7 +84,10 @@ export const calculateGemPurchase = ({
     // Calculate gem cost based on context
     let gemCost;
     
-    if (resource.crafttime && resource.source !== 'Buy' && resource.source !== 'Build' && resource.source !== 'BuildTown' && resource.source !== 'BuildValley') {
+    // If an override gem cost is provided (like for speedups), use it directly
+    if (overrideGemCost !== null && overrideGemCost !== undefined) {
+        gemCost = overrideGemCost;
+    } else if (resource.crafttime && resource.source !== 'Buy' && resource.source !== 'Build' && resource.source !== 'BuildTown' && resource.source !== 'BuildValley') {
         // For crafting items: base cost is time + missing ingredient costs
         const craftTimeMs = resource.crafttime * 60 * 1000; // Convert minutes to milliseconds
         const timeCost = calculateGemSpeedupCost(craftTimeMs);

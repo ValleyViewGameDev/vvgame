@@ -54,6 +54,7 @@ const CraftingStation = ({
   const [isCrafting, setIsCrafting] = useState(false);
   const [isReadyToCollect, setIsReadyToCollect] = useState(false);
   const [npcRefreshKey, setNpcRefreshKey] = useState(0);
+  const [stationRefreshKey, setStationRefreshKey] = useState(0);
 
    // ✅ Check for active crafting timers
    useEffect(() => {
@@ -181,6 +182,7 @@ const CraftingStation = ({
   // Protected function to start crafting using transaction system
   const handleCraft = async (transactionId, transactionKey, recipe) => {
     console.log(`🔒 [PROTECTED CRAFTING] Starting protected craft for ${recipe.type}`);
+    console.log('Current station state:', { craftedItem, isCrafting, isReadyToCollect, craftingCountdown });
     setErrorMessage('');
     
     if (!recipe) { 
@@ -342,6 +344,9 @@ const CraftingStation = ({
         setCraftedItem(null);
         setCraftingCountdown(null);
         setIsReadyToCollect(false);
+
+        // Force a refresh of the station state
+        setStationRefreshKey(prev => prev + 1);
 
         // Refresh player data to ensure consistency
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
@@ -608,8 +613,8 @@ const CraftingStation = ({
               const isReadyToCollect = craftedItem === recipe.type && craftingCountdown === 0;
               
               // Calculate gem speedup cost for this crafting item
-              const remainingTimeMs = isCrafting ? craftingCountdown * 1000 : 0;
-              const gemSpeedupCost = isCrafting ? calculateGemSpeedupCost(remainingTimeMs) : 0;
+              // craftingCountdown is already in seconds, so we don't multiply by 1000
+              const gemSpeedupCost = isCrafting ? calculateGemSpeedupCost(craftingCountdown * 1000) : 0;
 
               
               const craftTimeText = isCrafting
