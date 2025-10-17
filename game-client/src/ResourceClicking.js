@@ -1,7 +1,7 @@
 import API_BASE from './config.js'; 
 import axios from 'axios';
 import { fetchInventoryAndBackpack, refreshPlayerAfterInventoryUpdate } from './Utils/InventoryManagement';
-import { gainIngredients, spendIngredients, calculateSkillMultiplier } from './Utils/InventoryManagement';
+import { gainIngredients, spendIngredients, calculateSkillMultiplier, hasRoomFor } from './Utils/InventoryManagement';
 import { updateGridResource } from './Utils/GridManagement';
 import { loadMasterResources, loadMasterSkills } from './Utils/TuningManager'; // Centralized tuning manager
 import FloatingTextManager from './UI/FloatingText';
@@ -213,6 +213,21 @@ export async function handleDooberClick(
     return;
   }
 
+  // Create a unique ID for this doober to prevent double-processing
+  const dooberId = `${resource.type}-${col}-${row}`;
+  
+  // Check if we're already processing this doober (prevent double-clicks)
+  if (window._processingDoobers && window._processingDoobers.has(dooberId)) {
+    console.log("Already processing this doober, ignoring duplicate click");
+    return;
+  }
+  
+  // Mark this doober as being processed
+  if (!window._processingDoobers) {
+    window._processingDoobers = new Set();
+  }
+  window._processingDoobers.add(dooberId);
+
   console.log('MasterSkills:', masterSkills);
   // Extract player skills and upgrades from inventory
   const playerBuffs = skills
@@ -234,17 +249,45 @@ export async function handleDooberClick(
   const qtyCollected = baseQtyCollected * skillMultiplier;
   console.log('[DEBUG] qtyCollected after multiplier:', qtyCollected);
   
-  // Optimistically remove the resource from display
+  // Pre-check capacity before optimistic update
+  const hasRoom = hasRoomFor({
+    resource: resource.type,
+    quantity: qtyCollected,
+    currentPlayer,
+    inventory,
+    backpack,
+    masterResources
+  });
+  
+  if (!hasRoom) {
+    // Don't do optimistic update if we know it will fail
+    console.warn("Pre-check: No room for resource. Showing error immediately.");
+    FloatingTextManager.addFloatingText(strings["41"] || "Not enough room", col, row, TILE_SIZE);
+    if (openPanel) {
+      openPanel('InventoryPanel');
+    }
+    // Clear processing flag
+    if (window._processingDoobers) {
+      window._processingDoobers.delete(dooberId);
+    }
+    return;
+  }
+  
+  // Optimistically remove the resource from display AND show effects
   setResources((prevResources) =>
     prevResources.filter((res) => !(res.x === col && res.y === row))
   );
+  
+  // Show VFX and floating text immediately for responsiveness
+  createCollectEffect(col, row, TILE_SIZE);
+  FloatingTextManager.addFloatingText(`+${qtyCollected} ${getLocalizedString(resource.type, strings)}`, col, row, TILE_SIZE);
 
   // Perform server validation
   try {
     // Use gainIngredients to handle inventory/backpack update, sync, and capacity check
     console.log("Calling gainIngredients with: ",resource.type);
     
-    const gainSuccess = await gainIngredients({
+    const gainResult = await gainIngredients({
       playerId: currentPlayer.playerId,
       currentPlayer,
       resource: resource.type,
@@ -258,20 +301,44 @@ export async function handleDooberClick(
       masterResources,
     });
 
-    if (!gainSuccess) {
-      console.warn("❌ Failed to gain doober ingredient. Rolling back.");
-      // Restore the doober visually
-      setResources((prevResources) => [...prevResources, resource]);
-      
-      // Don't automatically open inventory panel - let the status message handle it
-      // The gainIngredients function already calls updateStatus with appropriate messages
-      
-      return;
+    // Handle the result based on error type
+    if (gainResult === true) {
+      // Success - continue with normal flow
+    } else if (gainResult && gainResult.success === false) {
+      // Check if we should rollback based on error type
+      if (gainResult.isCapacityError) {
+        // Real conflict - rollback the doober
+        console.warn("❌ Capacity limit reached. Rolling back doober.");
+        setResources((prevResources) => [...prevResources, resource]);
+        // Show floating text for capacity error
+        FloatingTextManager.addFloatingText(strings["41"] || "Not enough room", col, row, TILE_SIZE);
+        // Auto-open inventory panel when truly at capacity
+        console.log("Opening inventory panel. openPanel function:", openPanel);
+        if (openPanel) {
+          openPanel('InventoryPanel');
+        } else {
+          console.warn("openPanel function not available!");
+        }
+        // Clear processing flag
+        if (window._processingDoobers) {
+          window._processingDoobers.delete(dooberId);
+        }
+        return;
+      } else if (gainResult.isNetworkError) {
+        // Network/server error - don't rollback, the server might have queued it
+        console.warn("⚠️ Network error during collection, but server may have queued the operation. Not rolling back.");
+        // Still show success effects since server likely processed it
+      } else {
+        // Other client-side errors - rollback
+        console.warn("❌ Client error during collection. Rolling back.");
+        setResources((prevResources) => [...prevResources, resource]);
+        // Clear processing flag
+        if (window._processingDoobers) {
+          window._processingDoobers.delete(dooberId);
+        }
+        return;
+      }
     }
-    
-    // Only show VFX and floating text after successful collection
-    createCollectEffect(col, row, TILE_SIZE);
-    FloatingTextManager.addFloatingText(`+${qtyCollected} ${getLocalizedString(resource.type, strings)}`, col, row, TILE_SIZE );
     
     // Calculate skill info for formatting
     const skillInfo = calculateSkillMultiplier(resource.type, skills || [], masterSkills);
@@ -334,6 +401,10 @@ export async function handleDooberClick(
     setResources((prevResources) => [...prevResources, resource]);
   } finally {
     unlockResource(col, row); // Always unlock the resource
+    // Clear the processing flag for this doober
+    if (window._processingDoobers) {
+      window._processingDoobers.delete(dooberId);
+    }
   }
 }
 

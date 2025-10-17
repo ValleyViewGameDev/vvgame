@@ -254,7 +254,12 @@ export async function gainIngredients({
     const hasBackpackSkill = currentPlayer?.skills?.some((item) => item.type === 'Backpack' && item.quantity > 0);
     if (!hasBackpackSkill) {
       if (updateStatus) updateStatus(19); // Missing backpack
-      return false;
+      return {
+        success: false,
+        isCapacityError: true, // Treat missing backpack as a capacity issue
+        isNetworkError: false,
+        error: new Error('Missing backpack skill')
+      };
     }
   }
     
@@ -267,7 +272,12 @@ export async function gainIngredients({
       .reduce((acc, item) => acc + item.quantity, 0);
     if (totalItems + quantity > capacity) {
       if (updateStatus) updateStatus(isHomestead ? 20 : 21); // 20 = warehouse full, 21 = backpack full
-      return false;
+      return {
+        success: false,
+        isCapacityError: true,
+        isNetworkError: false,
+        error: new Error(isHomestead ? 'Warehouse full' : 'Backpack full')
+      };
     }
   }
 
@@ -313,7 +323,21 @@ export async function gainIngredients({
       quantity,
       target: storingInBackpack ? 'backpack' : 'inventory'
     });
-    return false;
+    
+    // Check if this is a real conflict vs a temporary error
+    const isCapacityError = err.response?.status === 400 && 
+      (err.response?.data?.error?.includes('capacity') || 
+       err.response?.data?.error?.includes('full'));
+    
+    const isNetworkError = !err.response || err.response?.status >= 500;
+    
+    // Return error details so caller can decide whether to rollback
+    return {
+      success: false,
+      isCapacityError,
+      isNetworkError,
+      error: err
+    };
   }
 }
 
