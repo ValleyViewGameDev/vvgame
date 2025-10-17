@@ -139,34 +139,41 @@ export const handlePlayerDeath = async (
       restoredHp = Math.floor(player.baseMaxhp / 2); // use baseMaxhp or maxHp as appropriate
     }
     console.log(`Restored HP for ${player.username}: ${restoredHp}`);
-    // Update player object in place
-    player.hp = restoredHp;
-    player.backpack = [];
+    
+    // Keep only Tent and Boat items in backpack, discard everything else
+    const filteredBackpack = player.backpack.filter((item) => item.type === "Tent" || item.type === "Boat");
     const originalLocation = { ...player.location }; // ✅ preserve the correct fromLocation
-    player.location = updatedLocation;
+    
+    // Create updated player object with restored HP
+    const updatedPlayer = {
+      ...player,
+      hp: restoredHp,
+      backpack: filteredBackpack,
+      location: updatedLocation
+    };
 
     // 1. **Update Player Data in the Database**
     await axios.post(`${API_BASE}/api/update-profile`, {
       playerId: player._id,
       updates: {
-        backpack: [],  // Empty the backpack
+        backpack: filteredBackpack,  // Backpack now only contains Tent and Boat
         hp: restoredHp,  // Use restored HP value
         location: updatedLocation,  // Update location
         settings: player.settings,
       },
     });
-    setCurrentPlayer(player);
-    localStorage.setItem('player', JSON.stringify(player));
+    setCurrentPlayer(updatedPlayer);
+    localStorage.setItem('player', JSON.stringify(updatedPlayer));
 
     // REMOVED: Don't update PlayersInGrid here - let changePlayerLocation handle the cleanup
     // The player is dead and about to be moved, so we shouldn't update their HP in the current grid
 
     console.log(`Player ${player.username} will be teleported to home grid with ${restoredHp} HP.`);
-    console.log('📦 Player before changePlayerLocation:', JSON.stringify(player, null, 2));
+    console.log('📦 Player before changePlayerLocation:', JSON.stringify(updatedPlayer, null, 2));
 
     // 4. **Load New Grid & Add Player to GridState**
     await changePlayerLocation(
-      player,
+      updatedPlayer,
       originalLocation,   // fromLocation
       updatedLocation,   // toLocation
       setCurrentPlayer,
@@ -183,6 +190,16 @@ export const handlePlayerDeath = async (
       null  // masterTrophies not available
     );
 
+    // 5. **Ensure HP is properly set in the grid state after teleportation**
+    console.log(`🏥 Ensuring player HP is set to ${restoredHp} in grid state`);
+    const playersInGridManager = await import('../GridState/PlayersInGrid').then(m => m.default);
+    await playersInGridManager.updatePC(updatedPlayer.gridId, updatedPlayer._id, { hp: restoredHp });
+    
+    // Also ensure the currentPlayer state reflects the restored HP
+    setCurrentPlayer(prevPlayer => ({
+      ...prevPlayer,
+      hp: restoredHp
+    }));
 
   } catch (error) {
     console.error('Error during player death handling and teleportation:', error);
