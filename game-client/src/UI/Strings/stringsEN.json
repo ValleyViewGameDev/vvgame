@@ -348,7 +348,6 @@
     "1002": "Build crafting stations on your Homestead using resources from your warehouse.",
     "1003": "Purchased animals will appear at your player icon, and immediately begin life on the homestead.",
     "1004": "Till land to dirt in order to plant crops. Plant grass to give farm animals something to graze on.",
-    "1005": "Acquire Skills and Upgrades to improve various attributes. Make sure to explore the Town to find additional places and ways to gain Skills and Upgrades.",
     "1006": "Manage your ongoing To Do list here. Look for quest-giving characters on your homestead as well as Town, or even the Valley.",
     "1007": "Governments in Valley View are formed at the settlement level. The elected mayor implements policies and builds buildings to help the community thrive.",
     "1008": "Buy and sell with other players. If no players buy your items before the timer expires, sell them to the game for a fraction of their base value.",
@@ -1295,7 +1294,8 @@
     "21010": "Orangutan",
     "21011": "Dodo Bird",
 
-    "627": "With a a better relationship, this characcter may have additional tasks for you."
+    "627": "With a a better relationship, this characcter may have additional tasks for you.",
+    "1005": "Acquire Skills to improve various attributes. Make sure to explore the Town to find additional places and ways to gain Skills."
 
   }
 

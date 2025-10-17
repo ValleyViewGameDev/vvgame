@@ -37,8 +37,8 @@ const FarmingPanel = ({
   const [farmPlots, setFarmPlots] = useState([]);
   const [allResources, setAllResources] = useState([]);
   const [isContentLoading, setIsContentLoading] = useState(false);
-  const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
-  const COOLDOWN_DURATION = 500;
+  const [coolingDownItems, setCoolingDownItems] = useState(new Set());
+  const COOLDOWN_DURATION = 450;
 
  
   useEffect(() => {
@@ -79,33 +79,25 @@ const FarmingPanel = ({
   };
 
 
-  // Wrap for Terraform Actions
-  const handleTerraformWithCooldown = async (actionType) => {
-    if (isActionCoolingDown) return;
-    setIsActionCoolingDown(true);
-    setTimeout(() => {
-      setIsActionCoolingDown(false);
-    }, COOLDOWN_DURATION);
-
-    await handleTerraform({
-      TILE_SIZE,
-      actionType,
-      gridId,
-      currentPlayer,
-      tileTypes,
-      setTileTypes,
-    });
-  };
-
   // Wrap for Farm Plot Placement
   const handleFarmPlacementWithCooldown = async (item) => {
-    if (isActionCoolingDown) return;
-    setIsActionCoolingDown(true);
-    setTimeout(() => {
-      setIsActionCoolingDown(false);
+    const itemKey = `plot-${item.type}`;
+    if (coolingDownItems.has(itemKey)) return;
+    
+    // Apply cooldown immediately for instant response
+    setCoolingDownItems(prev => new Set(prev).add(itemKey));
+    
+    // Set timeout immediately (like Bank does) for proper sync
+    const cooldownTimer = setTimeout(() => {
+      setCoolingDownItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(itemKey);
+        return newSet;
+      });
     }, COOLDOWN_DURATION);
-
-    await handleFarmPlotPlacement({
+    
+    // Attempt the placement
+    const result = await handleFarmPlotPlacement({
       selectedItem: item,
       TILE_SIZE,
       resources,
@@ -121,6 +113,16 @@ const FarmingPanel = ({
       masterSkills,
       updateStatus,
     });
+    
+    // If placement failed, immediately remove cooldown and cancel timer
+    if (result !== true) {
+      clearTimeout(cooldownTimer);
+      setCoolingDownItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(itemKey);
+        return newSet;
+      });
+    }
   };
 
 
@@ -185,14 +187,19 @@ const FarmingPanel = ({
                     .join(', ') || 'None'
                 }`;
 
+              const itemKey = `plot-${item.type}`;
+              const isCoolingDown = coolingDownItems.has(itemKey);
+              
               return (
                 <ResourceButton
                   key={item.type}
                   symbol={symbol}
                   name={getLocalizedString(item.type, strings)}
+                  className={isCoolingDown ? 'cooldown' : ''}
+                  style={isCoolingDown ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
                   details={details}
                   info={info}
-                  disabled={isActionCoolingDown || !affordable || !requirementsMet}
+                  disabled={isCoolingDown || !affordable || !requirementsMet}
                   onClick={() =>
                     affordable &&
                     requirementsMet &&

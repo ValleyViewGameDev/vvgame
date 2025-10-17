@@ -196,7 +196,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         if (openPanel) {
           console.log(`🎓 Step 4: Opening Skills panel`);
           setActiveStation(null); // Clear active station to prevent Trading Post from re-opening
-          openPanel('SkillsAndUpgradesPanel');
+          openPanel('SkillsPanel');
         }
 
 //////////// FTUE STEP 5 /////////////
@@ -239,7 +239,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         if (openPanel) {
           console.log(`🎓 Step 7: Opening Skills panel`);
           setActiveStation(null); // Clear active station to prevent other panels from re-opening
-          openPanel('SkillsAndUpgradesPanel');
+          openPanel('SkillsPanel');
         }
 
 //////////// FTUE STEP 8 /////////////

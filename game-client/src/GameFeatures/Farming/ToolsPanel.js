@@ -36,7 +36,7 @@ const ToolsPanel = ({
   const [farmPlots, setFarmPlots] = useState([]);
   const [allResources, setAllResources] = useState([]);
   const [isContentLoading, setIsContentLoading] = useState(false);
-  const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
+  const [coolingDownItems, setCoolingDownItems] = useState(new Set());
   const COOLDOWN_DURATION = 500;
 
  
@@ -70,10 +70,19 @@ const ToolsPanel = ({
 
   // Wrap for Terraform Actions
   const handleTerraformWithCooldown = async (actionType) => {
-    if (isActionCoolingDown) return;
-    setIsActionCoolingDown(true);
+    const itemKey = `terraform-${actionType}`;
+    if (coolingDownItems.has(itemKey)) return;
+    
+    // Apply cooldown immediately for instant response
+    setCoolingDownItems(prev => new Set(prev).add(itemKey));
+    
+    // Set timeout immediately for proper sync with CSS animation
     setTimeout(() => {
-      setIsActionCoolingDown(false);
+      setCoolingDownItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(itemKey);
+        return newSet;
+      });
     }, COOLDOWN_DURATION);
 
     await handleTerraform({
@@ -83,32 +92,6 @@ const ToolsPanel = ({
       currentPlayer,
       tileTypes,
       setTileTypes,
-    });
-  };
-
-  // Wrap for Farm Plot Placement
-  const handleFarmPlacementWithCooldown = async (item) => {
-    if (isActionCoolingDown) return;
-    setIsActionCoolingDown(true);
-    setTimeout(() => {
-      setIsActionCoolingDown(false);
-    }, COOLDOWN_DURATION);
-
-    await handleFarmPlotPlacement({
-      selectedItem: item,
-      TILE_SIZE,
-      resources,
-      setResources,
-      currentPlayer,
-      setCurrentPlayer,
-      inventory,
-      setInventory,
-      backpack,
-      setBackpack,
-      gridId,
-      masterResources,
-      masterSkills,
-      updateStatus,
     });
   };
 
@@ -124,8 +107,10 @@ const ToolsPanel = ({
             <ResourceButton
               symbol="⛏️"
               name={getLocalizedString("Till Land", strings)}
+              className={coolingDownItems.has('terraform-till') ? 'cooldown' : ''}
+              style={coolingDownItems.has('terraform-till') ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
               details={`${strings[461]} None`}
-              disabled={isActionCoolingDown}
+              disabled={coolingDownItems.has('terraform-till')}
               info={strings[310]}
               onClick={() => handleTerraformWithCooldown("till")}
             />
@@ -134,8 +119,10 @@ const ToolsPanel = ({
             <ResourceButton
               symbol="🟩"
               name={getLocalizedString("Plant Grass", strings)}
+              className={coolingDownItems.has('terraform-plantGrass') ? 'cooldown' : ''}
+              style={coolingDownItems.has('terraform-plantGrass') ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
               details={`${strings[461]} None<br>${strings[460]}${getLocalizedString('Grower', strings)}`}
-              disabled={isActionCoolingDown || !hasRequiredSkill('Grower')}
+              disabled={coolingDownItems.has('terraform-plantGrass') || !hasRequiredSkill('Grower')}
               info={strings[311]}
               onClick={() => handleTerraformWithCooldown("plantGrass")}
             />
@@ -144,8 +131,10 @@ const ToolsPanel = ({
             <ResourceButton
               symbol="🟨"
               name={getLocalizedString("Lay Pavement", strings)}
+              className={coolingDownItems.has('terraform-pave') ? 'cooldown' : ''}
+              style={coolingDownItems.has('terraform-pave') ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
               details={`${strings[461]} None<br>${strings[460]}${getLocalizedString('Pickaxe', strings)}`}
-              disabled={isActionCoolingDown || !hasRequiredSkill('Pickaxe')}
+              disabled={coolingDownItems.has('terraform-pave') || !hasRequiredSkill('Pickaxe')}
               info={strings[312]}
               onClick={() => handleTerraformWithCooldown("pave")}
             />
@@ -154,8 +143,10 @@ const ToolsPanel = ({
             <ResourceButton
               symbol="⬜️"
               name={getLocalizedString("Lay Stone", strings)}
+              className={coolingDownItems.has('terraform-stone') ? 'cooldown' : ''}
+              style={coolingDownItems.has('terraform-stone') ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
               details={`${strings[461]} None<br>${strings[460]}${getLocalizedString('Pickaxe', strings)}`}
-              disabled={isActionCoolingDown || !hasRequiredSkill('Pickaxe')}
+              disabled={coolingDownItems.has('terraform-stone') || !hasRequiredSkill('Pickaxe')}
               info={strings[312]}
               onClick={() => handleTerraformWithCooldown("stone")}
             />
@@ -165,8 +156,10 @@ const ToolsPanel = ({
               <ResourceButton
                 symbol="💧"
                 name={getLocalizedString("Create Water", strings)}
+                className={coolingDownItems.has('terraform-water') ? 'cooldown' : ''}
+                style={coolingDownItems.has('terraform-water') ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
                 details={`${strings[461]} None<br>Developer Only`}
-                disabled={isActionCoolingDown}
+                disabled={coolingDownItems.has('terraform-water')}
                 info="Creates a water tile (Developer only)"
                 onClick={() => handleTerraformWithCooldown("water")}
               />

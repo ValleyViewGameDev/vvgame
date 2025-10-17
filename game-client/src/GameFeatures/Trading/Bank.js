@@ -25,6 +25,8 @@ function BankPanel({
     const [bankOffers, setBankOffers] = useState([]);
     const [bankTimer, setBankTimer] = useState("");
     const [bankPhase, setBankPhase] = useState("");
+    const [coolingDownButtons, setCoolingDownButtons] = useState(new Set());
+    const COOLDOWN_DURATION = 1500; // 3x longer for bank transactions
 
     // Fetch data - separated from timer logic
     const fetchBankOffers = async () => {
@@ -111,6 +113,28 @@ function BankPanel({
         updateStatus(`✅ Exchanged ${offer.qtyBought} ${offer.itemBought} for ${offer.qtyGiven} ${offer.itemGiven}.`);
     };
 
+    // Wrap handleTrade with cooldown to prevent spam clicking
+    const handleTradeWithCooldown = async (offer, buttonIndex) => {
+        if (coolingDownButtons.has(buttonIndex)) return;
+        
+        console.log(`Starting cooldown for button ${buttonIndex}, duration: ${COOLDOWN_DURATION}ms (${COOLDOWN_DURATION / 1000}s)`);
+        
+        // Add this button to cooling down set
+        setCoolingDownButtons(prev => new Set(prev).add(buttonIndex));
+        
+        setTimeout(() => {
+            console.log(`Ending cooldown for button ${buttonIndex}`);
+            // Remove this button from cooling down set
+            setCoolingDownButtons(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(buttonIndex);
+                return newSet;
+            });
+        }, COOLDOWN_DURATION);
+
+        await handleTrade(offer);
+    };
+
     // ✅ Lookup function for symbols from `masterResources`
     const getSymbol = (resourceType) => {
         const resource = masterResources.find(res => res.type === resourceType);
@@ -164,9 +188,10 @@ function BankPanel({
                     return (
                       <ResourceButton
                         key={index}
-                        className="resource-button"
-                        onClick={() => handleTrade(offer)}
-                        disabled={!canAfford({
+                        className={coolingDownButtons.has(index) ? 'cooldown' : ''}
+                        style={coolingDownButtons.has(index) ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
+                        onClick={() => handleTradeWithCooldown(offer, index)}
+                        disabled={coolingDownButtons.has(index) || !canAfford({
                           ingredient1: offer.itemBought,
                           ingredient1qty: offer.qtyBought
                         }, inventory, backpack, 1)}

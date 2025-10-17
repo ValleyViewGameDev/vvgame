@@ -63,7 +63,7 @@ import BuyPanel from './GameFeatures/Buy/BuyPanel';
 import BuyDecoPanel from './GameFeatures/Deco/BuyDecoPanel';
 import FarmingPanel from './GameFeatures/Farming/FarmingPanel';
 import ToolsPanel from './GameFeatures/Farming/ToolsPanel';
-import SkillsAndUpgradesPanel from './GameFeatures/Skills/SkillsPanel';
+import SkillsPanel from './GameFeatures/Skills/SkillsPanel';
 import GovPanel from './GameFeatures/Government/GovPanel';
 import BankPanel from './GameFeatures/Trading/Bank';
 import TrainPanel from './GameFeatures/Trading/Train';
@@ -1412,7 +1412,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
     }
     else if (resource.category === 'training') {
       setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, });
-      openPanel('SkillsAndUpgradesPanel'); 
+      openPanel('SkillsPanel'); 
     }
     else if (resource.category === 'crafting') {
       setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
@@ -1781,9 +1781,9 @@ return (
           openPanel('BuildPanel');
         }}
       >⚒️</button>
-      <button className={`nav-button ${activePanel === 'SkillsAndUpgradesPanel' ? 'selected' : ''}`} title={strings[12005]} disabled={!currentPlayer} onClick={() => {
+      <button className={`nav-button ${activePanel === 'SkillsPanel' ? 'selected' : ''}`} title={strings[12005]} disabled={!currentPlayer} onClick={() => {
           setActiveStation(null); // ✅ Reset activeStation
-          openPanel("SkillsAndUpgradesPanel"); // ✅ Open the panel normally
+          openPanel("SkillsPanel"); // ✅ Open the panel normally
         }}>💪</button>
 
       {!currentPlayer?.firsttimeuser && (
@@ -2277,8 +2277,8 @@ return (
           setCurrentPlayer={setCurrentPlayer}
         />
       )}
-      {activePanel === 'SkillsAndUpgradesPanel' && (
-        <SkillsAndUpgradesPanel
+      {activePanel === 'SkillsPanel' && (
+        <SkillsPanel
           onClose={closePanel}
           inventory={inventory}
           setInventory={setInventory}

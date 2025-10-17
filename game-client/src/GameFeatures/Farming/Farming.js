@@ -30,19 +30,21 @@ export const handleFarmPlotPlacement = async ({
     console.log(masterResources);
     
     const coords = getCurrentTileCoordinates(gridId, currentPlayer);
-    if (!coords) return;
+    if (!coords) return false;
     const { tileX, tileY } = coords;
 
-    const tileType = await validateTileType(gridId, tileX, tileY);
-    if (tileType !== 'd') {
+    // Use local tile data instead of async server call for instant response
+    const tiles = GlobalGridStateTilesAndResources.getTiles();
+    const tileType = tiles?.[tileY]?.[tileX];
+    if (!tileType || tileType !== 'd') {
       FloatingTextManager.addFloatingText(303, tileX, tileY, TILE_SIZE); // "Must be dirt"
-      return;
+      return false;
     }
 
     const tileOccupied = resources.find((res) => res.x === tileX && res.y === tileY);
     if (tileOccupied) {
       FloatingTextManager.addFloatingText(304, tileX, tileY, TILE_SIZE); // "Occupied"
-      return;
+      return false;
     }
 
     const didSpend = await spendIngredients({
@@ -57,7 +59,7 @@ export const handleFarmPlotPlacement = async ({
     });
     if (!didSpend) {
       FloatingTextManager.addFloatingText(305, tileX, tileY, TILE_SIZE); // "Missing ingredients"
-      return;
+      return false;
     }
 
     // Timer setup
@@ -117,11 +119,13 @@ export const handleFarmPlotPlacement = async ({
         const { incrementFTUEStep } = await import('../FTUE/FTUE');
         await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
       }
+      return true; // Success!
     } else {
       throw new Error('Server update failed.');
     }
   } catch (error) {
     console.error('❌ Error in handleFarmPlotPlacement:', error);
+    return false;
   }
 };
 

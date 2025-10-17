@@ -11,7 +11,8 @@ const ResourceButton = ({
   details, 
   info, 
   disabled, 
-  className, 
+  className,
+  style, 
   onClick, 
   hideInfo = false, 
   children,
@@ -137,7 +138,8 @@ const ResourceButton = ({
           disabled={disabled || isProcessing}
           style={{
             opacity: (disabled || isProcessing) ? 0.6 : 1,
-            cursor: (disabled || isProcessing) ? 'not-allowed' : 'pointer'
+            cursor: (disabled || isProcessing) ? 'not-allowed' : 'pointer',
+            ...style
           }}
         >
 

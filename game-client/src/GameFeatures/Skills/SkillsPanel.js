@@ -15,7 +15,7 @@ import TransactionButton from '../../UI/TransactionButton';
 import { incrementFTUEStep } from '../FTUE/FTUE';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 
-const SkillsAndUpgradesPanel = ({ 
+const SkillsPanel = ({ 
     onClose,
     inventory,
     setInventory,
@@ -37,9 +37,7 @@ const SkillsAndUpgradesPanel = ({
   const [entryPoint, setEntryPoint] = useState(stationType || "Skills Panel"); 
   const [allResources, setAllResources] = useState([]);
   const [skillsToAcquire, setSkillsToAcquire] = useState([]);
-  const [upgradesToAcquire, setUpgradesToAcquire] = useState([]);
   const [ownedSkills, setOwnedSkills] = useState([]);
-  const [ownedUpgrades, setOwnedUpgrades] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
   const [isContentLoading, setIsContentLoading] = useState(false);
   const [stationEmoji, setStationEmoji] = useState('📘'); // Default emoji for Skills Panel
@@ -79,28 +77,17 @@ const SkillsAndUpgradesPanel = ({
         const stationResource = allResourcesData.find((resource) => resource.type === stationType);
         setStationEmoji(stationResource?.symbol || '💪');
 
-        // ✅ Separate skills and upgrades
+        // ✅ Filter owned skills
         const ownedSkills = serverSkills.filter(skill =>
-          allResourcesData.some(res => res.type === skill.type && res.category === 'skill')
+          allResourcesData.some(res => res.type === skill.type && (res.category === 'skill' || res.category === 'upgrade'))
         );
         setOwnedSkills(ownedSkills);
 
-        const ownedUpgrades = serverSkills.filter(skill =>
-          allResourcesData.some(res => res.type === skill.type && res.category === 'upgrade')
-        );
-        setOwnedUpgrades(ownedUpgrades);
-
-        // ✅ Filter skills & upgrades based on `entryPoint`
+        // ✅ Filter available skills based on `entryPoint`
         let availableSkills = allResourcesData.filter(
-          res => res.category === 'skill' &&
+          res => (res.category === 'skill' || res.category === 'upgrade') &&
           res.source === entryPoint && 
           !ownedSkills.some(owned => owned.type === res.type)
-        );
-
-        let availableUpgrades = allResourcesData.filter(
-          res => res.category === 'upgrade' &&
-          res.source === entryPoint && 
-          !ownedUpgrades.some(owned => owned.type === res.type)
         );
 
         // ✅ Additional filter for first-time users
@@ -110,8 +97,7 @@ const SkillsAndUpgradesPanel = ({
             // Check if skill has requirements
             if (skill.requires) {
               // Check if the player owns the required skill
-              const hasRequirement = ownedSkills.some(owned => owned.type === skill.requires) ||
-                                   ownedUpgrades.some(owned => owned.type === skill.requires);
+              const hasRequirement = ownedSkills.some(owned => owned.type === skill.requires);
               if (!hasRequirement) return false;
             }
             
@@ -125,11 +111,9 @@ const SkillsAndUpgradesPanel = ({
           };
 
           availableSkills = availableSkills.filter(canAcquireSkill);
-          availableUpgrades = availableUpgrades.filter(canAcquireSkill);
         }
 
         setSkillsToAcquire(availableSkills);
-        setUpgradesToAcquire(availableUpgrades);
       } catch (error) {
         console.error('Error fetching resources, inventory, or skills:', error);
       } finally {
@@ -143,8 +127,7 @@ const SkillsAndUpgradesPanel = ({
 
   const hasRequiredSkill = (requiredSkill) => {
     return !requiredSkill || 
-        ownedSkills.some((owned) => owned.type === requiredSkill) || 
-        ownedUpgrades.some((owned) => owned.type === requiredSkill); // ✅ Now checks upgrades too
+        ownedSkills.some((owned) => owned.type === requiredSkill);
   };
 
 
@@ -154,7 +137,7 @@ const handleGemPurchase = async (modifiedRecipe) => {
 };
 
 const handlePurchase = async (resourceType, customRecipe = null) => {
-  const resource = [...skillsToAcquire, ...upgradesToAcquire].find((item) => item.type === resourceType);
+  const resource = skillsToAcquire.find((item) => item.type === resourceType);
   const recipeToUse = customRecipe || resource;
   
   const spendSuccess = await spendIngredients({
@@ -174,22 +157,15 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
   }
 
   const updatedSkills = [...ownedSkills];
-  const updatedUpgrades = [...ownedUpgrades];
-
-  // ✅ Check category before adding
-  if (resource.category === "skill") {
-    updatedSkills.push({ type: resource.type, category: resource.category, quantity: 1 });
-  } else if (resource.category === "upgrade") {
-    updatedUpgrades.push({ type: resource.type, category: resource.category, quantity: 1 });
-  }
+  // Add the new skill regardless of whether it's skill or upgrade category
+  updatedSkills.push({ type: resource.type, category: resource.category, quantity: 1 });
   setOwnedSkills(updatedSkills);
-  setOwnedUpgrades(updatedUpgrades);
   updateStatus(`💪 ${getLocalizedString(resource.type, strings)} skill acquired.`);
   
   try { 
     await axios.post(`${API_BASE}/api/update-skills`, {
       playerId: currentPlayer.playerId,
-      skills: [...updatedSkills, ...updatedUpgrades], // ✅ Ensure all are sent to the server
+      skills: updatedSkills,
     });
     await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
     await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);    
@@ -207,12 +183,8 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
       await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
     }
 
-    // Instead of re-fetching, update the acquire lists locally
-    if (resource.category === "skill") {
-      setSkillsToAcquire(prev => prev.filter(skill => skill.type !== resource.type));
-    } else if (resource.category === "upgrade") {
-      setUpgradesToAcquire(prev => prev.filter(upg => upg.type !== resource.type));
-    }
+    // Instead of re-fetching, update the acquire list locally
+    setSkillsToAcquire(prev => prev.filter(skill => skill.type !== resource.type));
 
   } catch (error) {
     console.error('Error updating player on server:', error);
@@ -249,7 +221,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
     currentStationPosition && gridId;
 
   return (
-    <Panel onClose={onClose} descriptionKey="1005" title={`${stationEmoji} ${entryPoint}`} panelName="SkillsAndUpgradesPanel">
+    <Panel onClose={onClose} descriptionKey="1005" title={`${stationEmoji} ${entryPoint}`} panelName="SkillsPanel">
       <div className="standard-panel">
       
       {showSellButton && (
@@ -283,27 +255,13 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
               </div>
             )}
 
-            {!["Warehouse", "Adventure Camp", "Laboratory", "School", "Guild"].includes(entryPoint) && (
-              <div className="upgrades-owned">
-                <h3>{strings[1304]}</h3>
-                {ownedUpgrades.length > 0 ? (
-                  ownedUpgrades.map((upgrade, index) => (
-                    <div key={index}>
-                      {upgrade.type} 
-                    </div>
-                  ))
-                ) : (
-                  <p>{strings[1306]}</p>
-                )}
-              </div>
-            )}
 
             <div className="skills-to-acquire">
               {skillsToAcquire.length > 0 && <h3>{strings[1301]}</h3>}
               <div className="skills-options">
                 {skillsToAcquire.map((resource) => {
                   const affordable = canAfford(resource, inventory, backpack, 1);
-                  const meetsRequirement = hasRequiredSkill(resource.requires, ownedSkills);
+                  const meetsRequirement = hasRequiredSkill(resource.requires);
 
                   const formattedCosts = [1, 2, 3, 4].map((i) => {
                     const type = resource[`ingredient${i}`];
@@ -378,86 +336,6 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
               </div>
             </div>
 
-            <div className="upgrades-to-acquire">
-              {upgradesToAcquire.length > 0 && <h3>{strings[1302]}</h3>}
-              <div className="skills-options">
-                {upgradesToAcquire.map((resource) => {
-                  const affordable = canAfford(resource, inventory, backpack, 1);
-                  const meetsRequirement = hasRequiredSkill(resource.requires, ownedSkills);
-
-                  const formattedCosts = [1, 2, 3, 4].map((i) => {
-                    const type = resource[`ingredient${i}`];
-                    const qty = resource[`ingredient${i}qty`];
-                    if (!type || !qty) return '';
-
-                    const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
-                    const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
-                    const playerQty = inventoryQty + backpackQty;
-                    const color = playerQty >= qty ? 'green' : 'red';
-                    const symbol = allResources.find(r => r.type === type)?.symbol || '';
-                    return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
-                  }).join('');
-
-                  const skillColor = meetsRequirement ? 'green' : 'red';
-                  const details =
-                    (resource.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(resource.requires, strings)}</span><br>` : '') +
-                    `${strings[461]}<div>${formattedCosts}</div>`;
-
-                  // ✅ Check for attribute modifiers
-                  const attributeModifier = resource.output
-                    ? `+${resource.qtycollected || 1} to ${strings[resource.output] || resource.output}`
-                    : null;
-
-                  // ✅ Check if this upgrade provides a collection buff
-                  let buffText = '';
-                  const buffedItems = masterSkills[resource.type];
-                  if (buffedItems && typeof buffedItems === 'object') {
-                    const items = Object.keys(buffedItems);
-                    if (items.length > 0) {
-                      const prettyList = items.slice(0, 10).join(', ');
-                      const plural = items.length > 1 ? 'resources' : 'resource';
-                      buffText = `Collection multiplied on ${items.length} ${plural} (${prettyList}${items.length > 10 ? ', ...' : ''}).`;
-                    }
-                  }
-
-                  const unlocks = allResources
-                    .filter((res) => res.requires === resource.type)
-                    .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
-                    .join(', ') || 'None';
-
-                    const info = (
-                      <div className="info-content">
-                        {attributeModifier && <div>{attributeModifier}</div>}
-                        {unlocks !== 'None' && (
-                          <div style={{ display: 'block', marginBottom: '3px' }}>
-                            <strong>Unlocks:</strong> {unlocks}
-                          </div>
-                        )}
-                        {buffText && <div style={{ color: 'blue' }}>{buffText}</div>}
-                      </div>
-                    );
-
-                  return (
-                    <ResourceButton
-                      key={resource.type}
-                      symbol={resource.symbol}
-                      name={getLocalizedString(resource.type, strings)}
-                      details={details}
-                      info={info}
-                      disabled={!affordable || !meetsRequirement}
-                      onClick={() => handlePurchase(resource.type)}
-                      gemCost={resource.gemcost || null}
-                      onGemPurchase={(resource.gemcost && (!affordable || !meetsRequirement)) ? handleGemPurchase : null}
-                      resource={resource}
-                      inventory={inventory}
-                      backpack={backpack}
-                      masterResources={masterResources || allResources}
-                      currentPlayer={currentPlayer}
-                    />
-                  );
-                })}
-              </div>
-            </div>
           </>
         )}
         {errorMessage && <p className="error-message">{errorMessage}</p>}
@@ -466,4 +344,4 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
   );
 };
 
-export default React.memo(SkillsAndUpgradesPanel);
+export default React.memo(SkillsPanel);

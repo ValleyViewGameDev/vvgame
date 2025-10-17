@@ -340,7 +340,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     setActiveStation({ type: 'Warehouse' });
                     onClose();
                     setTimeout(() => {
-                        openPanel('SkillsAndUpgradesPanel');
+                        openPanel('SkillsPanel');
                     }, 0);
                 }}>
                 {strings[194]}

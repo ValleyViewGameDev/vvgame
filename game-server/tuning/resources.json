@@ -6010,7 +6010,7 @@
   {
     "type": "Better Axe",
     "symbol": "🪓",
-    "category": "upgrade",
+    "category": "skill",
     "output": "Pine Tree",
     "source": "Basic Skills",
     "requires": "Axe",
@@ -6024,7 +6024,7 @@
   {
     "type": "Better Pickaxe",
     "symbol": "⛏️",
-    "category": "upgrade",
+    "category": "skill",
     "output": "Clay Pit",
     "source": "Basic Skills",
     "requires": "Pickaxe",
@@ -6038,7 +6038,7 @@
   {
     "type": "Storehouse",
     "symbol": "📦",
-    "category": "upgrade",
+    "category": "skill",
     "output": "warehouseCapacity",
     "source": "Warehouse",
     "requires": "Masonry",
@@ -6059,7 +6059,7 @@
   {
     "type": "Depot",
     "symbol": "📦",
-    "category": "upgrade",
+    "category": "skill",
     "output": "warehouseCapacity",
     "source": "Warehouse",
     "requires": "Storehouse",
@@ -6079,7 +6079,7 @@
   {
     "type": "TBD Storage 3",
     "symbol": "📦",
-    "category": "upgrade",
+    "category": "skill",
     "output": "warehouseCapacity",
     "source": "Warehouse",
     "requires": "Storehouse",
@@ -6099,7 +6099,7 @@
   {
     "type": "TBD Storage 4",
     "symbol": "📦",
-    "category": "upgrade",
+    "category": "skill",
     "output": "warehouseCapacity",
     "source": "Warehouse",
     "requires": "Storehouse",
@@ -6553,7 +6553,7 @@
   {
     "type": "Rucksack",
     "symbol": "🎒",
-    "category": "upgrade",
+    "category": "skill",
     "output": "backpackCapacity",
     "source": "Adventure Camp",
     "requires": "Backpack",
@@ -6571,7 +6571,7 @@
   {
     "type": "Enchanted Pack",
     "symbol": "🎒",
-    "category": "upgrade",
+    "category": "skill",
     "output": "backpackCapacity",
     "source": "Adventure Camp",
     "requires": "Rucksack",
