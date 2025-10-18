@@ -4,10 +4,10 @@
         "seasonResources": 
             [ 
                 "Strawberry", 
-
+                "Orange",
                 "Garlic", 
                 "Carrot", 
-                "Milk", 
+
                 "Egg", 
                 "Honey", 
                 "Flour", 
@@ -15,13 +15,14 @@
 
                 "Strawberry Pie", 
                 "Carrot Soup", 
-                "Furniture" 
+                "Furniture",
+                "Brandy"
             ],
         "seasonMultiplier": 1,
         "SeasonMoneyNerf": 0.25,
         "pricePoints": 25,
         "trainOffersQtyMultiplier": 1,
-        "trainRewards": [ "Gem", "Potion C", "Book" ],
+        "trainRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
         "seasonTiles": {
             "g": 80,
             "s": 0,
@@ -59,24 +60,28 @@
         "seasonResources": 
             [ 
                 "Tomato", 
-
+                "Lettuce",
                 "Corn", 
                 "Lemon", 
-                "Milk", 
+
+                "Bacon",
+                "Egg",
+
                 "Bread", 
                 "Cornbread", 
                 "Lemon Cookie", 
-                "Lumber",
 
                 "Tomato Soup", 
                 "Omelette", 
-                "Pizza"
+                "Pizza",
+                "Sandwich",
+                "Mixed Salad"
             ],
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
         "trainOffersQtyMultiplier": 1,
-        "trainRewards": [ "Gem", "Potion C", "Book" ],
+        "trainRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
         "seasonTiles": {
             "g": 20,
             "s": 0,
@@ -115,24 +120,25 @@
         "seasonResources": 
             [ 
                 "Pumpkin", 
-
+                "Pepper",
                 "Grapes", 
                 "Olive", 
-                "Wool", 
+
                 "Cheese", 
+                "Bacon",
                 "Thread", 
                 "Olive Oil", 
-                "Wine", 
 
                 "Pumpkin Pie", 
                 "Pumpkin Soup", 
-                "Runic Tunic" 
+                "Runic Tunic",
+                "Pepper Cheese"
             ],
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
         "trainOffersQtyMultiplier": 1,
-        "trainRewards": [ "Gem", "Potion C", "Book" ],
+        "trainRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
         "seasonTiles": {
             "g": 100,
             "s": 0,
@@ -171,10 +177,10 @@
         "seasonResources": 
             [ 
                 "Apple", 
-
+                "Potato",
                 "Wheat", 
                 "Sugarcane", 
-                "Wool", 
+
                 "Butter", 
                 "Cream",
                 "Sweater", 
@@ -182,13 +188,14 @@
 
                 "Apple Pie", 
                 "Apple Cider", 
-                "Heavy Jacket"
+                "Heavy Jacket",
+                "Potato Bake"
             ],
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
         "trainOffersQtyMultiplier": 1,
-        "trainRewards": [ "Gem", "Potion C", "Book" ],
+        "trainRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
         "seasonTiles": {
             "g": 0,
             "s": 0,

@@ -27,7 +27,6 @@
     "interest1": "School",
     "interest2": "Hospital",
     "interest3": "Library",
-    "Cassio": "love",
     "Iago": "rival"
   },
   {
@@ -69,6 +68,7 @@
     "buff4marriage": 5,
     "buff4friend": 2,
     "interest1": "Portrait",
+    "interest2": "Ink",
     "Caliban": "friend"
   },
   {
@@ -162,6 +162,8 @@
     "buff4marriage": 5,
     "buff4friend": 2,
     "interest1": "Tulip",
+    "interest2": "Sunflower",
+    "interest3": "Rosemary",
     "Cassio": "friend"
   },
   {

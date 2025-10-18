@@ -325,13 +325,19 @@ async function generateTrainOffersAndRewards(settlement, frontier, seasonConfig)
     return `${o.qtyBought} ${o.itemBought} @ ${timePerUnit}s ea = ${qtyEffort}s effort `;
   }).join(" | ");
 
-  const rewardItems = seasonConfig.trainRewards || [];
+
+  // Calculate rewards
+
+  const rewardItems = seasonConfig.trainRewards || [];  // Yellow, Green, and Purple Heart
   const rewards = [];
   const numRewards = Math.min(rewardItems.length, 3);
 
   for (let i = 0; i < numRewards; i++) {
+    // first pick an item at random from among the possible rewards in the tuning doc
     const item = rewardItems[Math.floor(Math.random() * rewardItems.length)];
-    const baseQty = Math.ceil((population / 10) * seasonLevel * 3); // Tripled base reward amount
+    // then, pick a quantity for this item; more rewards for later in the season
+    // here, though, we need to consider that Yellow Heart should be more frequent, Purple less
+    const baseQty = Math.ceil((population / 10) * seasonLevel * 3);
     
     // Add +/- 15% randomness to the quantity
     const variation = 0.15; // 15% variation

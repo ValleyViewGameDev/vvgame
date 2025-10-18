@@ -13,6 +13,18 @@
             "quantity": 1
           }
         ]
+      },
+      {
+        "gives": {
+          "type": "Secret",
+          "quantity": 1
+        },
+        "requires": [
+          {
+            "type": "Sunflower",
+            "quantity": 48
+          }
+        ]
       }
     ]
   },
@@ -105,18 +117,6 @@
           }
         ],
         "requiresSkill": "Chemistry"
-      },
-      {
-        "gives": {
-          "type": "Gold",
-          "quantity": 1
-        },
-        "requires": [
-          {
-            "type": "Magic Mushroom",
-            "quantity": 1
-          }
-        ]
       }
     ]
   },
@@ -125,24 +125,12 @@
     "trades": [
       {
         "gives": {
-          "type": "Gem",
+          "type": "Brass Bell",
           "quantity": 1
         },
         "requires": [
           {
-            "type": "Olive Bread",
-            "quantity": 120
-          }
-        ]
-      },
-      {
-        "gives": {
-          "type": "Gem",
-          "quantity": 1
-        },
-        "requires": [
-          {
-            "type": "Magic Mushroom",
+            "type": "Secret",
             "quantity": 1
           }
         ]
@@ -163,7 +151,19 @@
             "quantity": 10
           }
         ]
-      }
+      },
+      {
+        "gives": {
+          "type": "Silver",
+          "quantity": 5
+        },
+        "requires": [
+          {
+            "type": "Magic Mushroom",
+            "quantity": 25
+          }
+        ]
+      }    
     ]
   },
   {

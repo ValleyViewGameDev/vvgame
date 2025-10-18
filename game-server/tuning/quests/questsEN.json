@@ -943,7 +943,7 @@
     "reward": "Book",
     "rewardqty": 1,
     "goal1action": "Kill",
-    "goal1item": "Spiders",
+    "goal1item": "Spider",
     "goal1qty": 15
   },
   {
@@ -953,23 +953,23 @@
     "symbol": "🧝‍♀️",
     "repeatable": true,
     "giver": "Titania",
-    "reward": "Gem",
-    "rewardqty": 2,
+    "reward": "Book",
+    "rewardqty": 1,
     "goal1action": "Kill",
     "goal1item": "Ghost",
     "goal1qty": 5
   },
   {
     "index": 70,
-    "title": "Foul Things Stir",
-    "textbody": "Ten times ten I warned the mortals not to tamper with life’s end, yet still they rise. Zombies now litter the glades. Slay ten, and I’ll grant you gems, for peace comes not but through steel.",
+    "title": "Death to Ogres",
+    "textbody": "Bring down the evil Ogres that plague this valley.",
     "symbol": "🧝‍♀️",
     "repeatable": true,
     "giver": "Titania",
-    "reward": "Gem",
-    "rewardqty": 3,
+    "reward": "Book",
+    "rewardqty": 1,
     "goal1action": "Kill",
-    "goal1item": "Zombie",
+    "goal1item": "Ogre",
     "goal1qty": 10
   },
   {
@@ -981,7 +981,7 @@
     "giver": "Titania",
     "rel": "married",
     "reward": "Gem",
-    "rewardqty": 1,
+    "rewardqty": 50,
     "goal1action": "Collect",
     "goal1item": "Golden Key",
     "goal1qty": 1
@@ -995,7 +995,7 @@
     "giver": "Titania",
     "rel": "friend",
     "reward": "Gem",
-    "rewardqty": 2,
+    "rewardqty": 15,
     "goal1action": "Buy",
     "goal1item": "Unbreakable",
     "goal1qty": 1
@@ -1009,7 +1009,7 @@
     "giver": "Titania",
     "rel": "friend",
     "reward": "Gem",
-    "rewardqty": 3,
+    "rewardqty": 5,
     "goal1action": "Buy",
     "goal1item": "Pinpoint",
     "goal1qty": 1
@@ -1022,8 +1022,8 @@
     "repeatable": true,
     "giver": "Titania",
     "rel": "love",
-    "reward": "Gem",
-    "rewardqty": 4,
+    "reward": "Book",
+    "rewardqty": 3,
     "goal1action": "Kill",
     "goal1item": "Demon",
     "goal1qty": 10
@@ -1036,27 +1036,14 @@
     "repeatable": true,
     "giver": "Titania",
     "rel": "love",
-    "reward": "Gem",
-    "rewardqty": 6,
+    "reward": "Book",
+    "rewardqty": 1,
     "goal1action": "Kill",
     "goal1item": "Dragon",
     "goal1qty": 1
   },
   {
     "index": 76,
-    "title": "Golden Trident",
-    "textbody": "Recover the golded trident of Poseidon, which the wicked Caliban desires. I shall reward you greatly, but you must promise not to give it to him.",
-    "symbol": "🧝‍♀️",
-    "repeatable": false,
-    "giver": "Titania",
-    "reward": "Gold",
-    "rewardqty": 30,
-    "goal1action": "Collect",
-    "goal1item": "Trident",
-    "goal1qty": 1
-  },
-  {
-    "index": 77,
     "title": "A Mind for the Realm",
     "textbody": "The first duty of citizenship is wisdom. Gain the skill of Politics, and thou mayst shape the world with words, not war. ‘The quality of mercy is not strained,’ but policy must be learned.",
     "symbol": "👩🏻‍⚖️",
@@ -1069,7 +1056,7 @@
     "goal1qty": 1
   },
   {
-    "index": 78,
+    "index": 77,
     "title": "Raise Thy Voice",
     "textbody": "Vote, and thou art no longer a whisper in the wind but a force upon the stage. The ballot is mightier than the blade -- use it well, and justice shall follow.",
     "symbol": "👩🏻‍⚖️",
@@ -1082,7 +1069,7 @@
     "goal1qty": 1
   },
   {
-    "index": 79,
+    "index": 78,
     "title": "Enlighten the Path",
     "textbody": "Seek Education, and find not only facts, but understanding. For what is a judge without learning? ‘Ignorance is the curse of God; knowledge the wing wherewith we fly to heaven.",
     "symbol": "👩🏻‍⚖️",
@@ -1095,7 +1082,7 @@
     "goal1qty": 1
   },
   {
-    "index": 80,
+    "index": 79,
     "title": "By Letter of Law",
     "textbody": "Master the Law, for with it comes the power to defend the meek and challenge the mighty. Libraries shall open to thee, and wisdom pour forth like verdicts in rhyme.",
     "symbol": "👩🏻‍⚖️",
@@ -1108,7 +1095,7 @@
     "goal1qty": 1
   },
   {
-    "index": 81,
+    "index": 80,
     "title": "A Tonic for the State",
     "textbody": "There is no justice without health, no law without life. Learn the skill of Medicine, and be the healer this town needs. ‘Give me leave to speak my bosom freely.’ So too must thou open hearts and mend them.",
     "symbol": "👩🏻‍⚖️",
@@ -1121,7 +1108,7 @@
     "goal1qty": 1
   },
   {
-    "index": 82,
+    "index": 81,
     "title": "The Knife’s Mercy",
     "textbody": "Surgery demands a steadier hand and a surer heart. Learn it, and thy touch may yet restore the fallen. Let the blade be a tool of grace, not grimness",
     "symbol": "👩🏻‍⚖️",
@@ -1134,20 +1121,20 @@
     "goal1qty": 1
   },
   {
-    "index": 83,
+    "index": 82,
     "title": "Let School Begin",
-    "textbody": "Build a School, and teach the children well. Within its walls lies the future of every vote, every verdict. ‘It is a wise father that knows his own child’ -- let thy wisdom echo through these halls.",
+    "textbody": "Build a School, and I will tell you a secret.",
     "symbol": "👩🏻‍⚖️",
     "repeatable": false,
     "giver": "Portia",
-    "reward": "Money",
-    "rewardqty": 1000,
+    "reward": "Portia's Secret",
+    "rewardqty": 1,
     "goal1action": "Build",
     "goal1item": "School",
     "goal1qty": 1
   },
   {
-    "index": 84,
+    "index": 83,
     "title": "Stacks of Power",
     "textbody": "Construct three Libraries. Knowledge must be accessible to all, not locked in towers. The adventurers hunger for books -- let us sate their noble minds.",
     "symbol": "👩🏻‍⚖️",
@@ -1160,7 +1147,7 @@
     "goal1qty": 3
   },
   {
-    "index": 85,
+    "index": 84,
     "title": "In Sickness and in Health",
     "textbody": "A Hospital must rise, its halls bright with healing. Without it, our town limps toward ruin. Build it, and let mercy dwell in mortar and brick.",
     "symbol": "👩🏻‍⚖️",
@@ -1173,7 +1160,7 @@
     "goal1qty": 1
   },
   {
-    "index": 86,
+    "index": 85,
     "title": "Summon the Healers",
     "textbody": "Craft the Doctors we need, fifty strong. They are balm and blade both. ‘He jests at scars that never felt a wound’ -- but thou shalt tend them, and in so doing, be noble indeed.",
     "symbol": "👩🏻‍⚖️",
@@ -1186,9 +1173,24 @@
     "goal1qty": 5
   },
   {
+    "index": 86,
+    "title": "My Secret",
+    "textbody": "Build enough furniture for the town, and I'll tell you a secret.",
+    "symbol": "👩🏻‍⚖️",
+    "repeatable": false,
+    "giver": "Portia",
+    "rel": "married",
+    "relscore": 95,
+    "reward": "Portia's Secret",
+    "rewardqty": 1,
+    "goal1action": "Craft",
+    "goal1item": "Furniture",
+    "goal1qty": 200
+  },
+  {
     "index": 87,
     "title": "Zombies, die",
-    "textbody": "I just can't with these zombies.",
+    "textbody": "Ten times ten I warned the mortals not to tamper with life’s end, yet still they rise. Zombies now litter the glades. Slay them, and I’ll grant you a drop of my sacred blood, for peace comes not but through steel.",
     "symbol": "🧛🏻‍♂️",
     "repeatable": true,
     "giver": "Vampire",
