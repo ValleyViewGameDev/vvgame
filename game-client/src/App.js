@@ -1,6 +1,7 @@
 import './App.css';
 import './GameFeatures/Chat/Chat.css';
 import './VFX/VFX.css';
+import './UI/SharedButtons.css';
 import axios from 'axios';
 import API_BASE from './config.js';
 import Chat from './GameFeatures/Chat/Chat';
@@ -52,6 +53,7 @@ import ProfilePanel from './Authentication/ProfilePanel';
 import LoginPanel from './Authentication/LoginPanel';
 import DebugPanel from './Utils/debug';
 import InventoryPanel from './GameFeatures/Inventory/InventoryPanel';
+import WarehousePanel from './GameFeatures/Inventory/WarehousePanel';
 import TrophyPanel from './GameFeatures/Trophies/TrophyPanel.js';
 import HowToPanel from './UI/HowToPanel';
 import HowToMoneyPanel from './UI/HowToMoneyPanel';
@@ -1464,6 +1466,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
           break;
         case 'Mailbox':
           openModal('Mailbox'); break;
+        case 'Warehouse':
+          openPanel('WarehousePanel'); break;
         case 'Train':
           openPanel('TrainPanel'); break;
         case 'Bank':
@@ -1598,15 +1602,17 @@ const handleLoginSuccess = async (player) => {
           onClose: () => setIsModalOpen(false),
           children: (
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px' }}>
-              <button
-                className="btn-success"
-                onClick={() => {
-                  setIsModalOpen(false);
-                  window.location.reload();
-                }}
-              >
-                {strings["73"]}
-              </button>
+              <div className="shared-buttons">
+                <button
+                  className="btn-panel btn-success"
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    window.location.reload();
+                  }}
+                >
+                  {strings["73"]}
+                </button>
+              </div>
             </div>
           ),
         });
@@ -1674,56 +1680,72 @@ return (
 {/* //////////////////////  Header  //////////////////////// */}
 
     <header className="app-header">
-      <div className="header-controls-left">
-        
-        <h1>{strings[0]}</h1>  
+            
+        <div className="header-controls-left">
+
+  <h1 style={{ transform: 'translateX(40px)', marginRight: '20px' }}>{strings[0]}</h1>
 
         {currentPlayer?.accountStatus === 'Gold' && (
-          <button className="gold-button" onClick={() => openPanel('ProfilePanel')}>{currentPlayer.icon} {currentPlayer.username}</button>
+          <div className="shared-buttons">
+            <button className="btn-basic btn-header btn-gold" onClick={() => openPanel('ProfilePanel')}>{currentPlayer.icon} {currentPlayer.username}</button>
+          </div>
         )}
         {currentPlayer?.accountStatus === 'Free' && (
-          <button className="shared-button" onClick={() => openPanel('ProfilePanel')}>{currentPlayer.icon} {currentPlayer.username}</button>
+          <div className="shared-buttons">
+            <button className="btn-basic btn-header" onClick={() => openPanel('ProfilePanel')}>{currentPlayer.icon} {currentPlayer.username}</button>
+          </div>
         )}
 
-        <div className="zoom-controls">
-          <button className="zoom-button" disabled={!currentPlayer} onClick={zoomOut}>−</button>
-          <button className="zoom-button" disabled={!currentPlayer} onClick={zoomIn}>+</button>
+        <div className="shared-buttons">
+          <button className="btn-basic btn-header" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}>{strings[10103]} </button>
         </div>
-
-        <button className="shared-button" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}>{strings[10103]} </button>
-        <button className="shared-button"
-          onClick={() => openPanel('HowToMoneyPanel')}
-        >
-          💰 {Array.isArray(currentPlayer?.inventory)
-            ? (currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0).toLocaleString()
-            : "..."}
-        </button>
-        <button className="shared-button"
-          onClick={() => openPanel('HowToGemsPanel')}
-        >
-          💎 {Array.isArray(currentPlayer?.inventory)
-            ? (currentPlayer.inventory.find((item) => item.type === "Gem")?.quantity || 0).toLocaleString()
-            : "..."}
-        </button>
+        <div className="shared-buttons">
+          <button className="btn-basic btn-header"
+            onClick={() => openPanel('HowToMoneyPanel')}
+          >
+            💰 {Array.isArray(currentPlayer?.inventory)
+              ? (currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0).toLocaleString()
+              : "..."}
+          </button>
+        </div>
+        <div className="shared-buttons">
+          <button className="btn-basic btn-header"
+            onClick={() => openPanel('HowToGemsPanel')}
+          >
+            💎 {Array.isArray(currentPlayer?.inventory)
+              ? (currentPlayer.inventory.find((item) => item.type === "Gem")?.quantity || 0).toLocaleString()
+              : "..."}
+          </button>
+        </div>
         <div className="nav-button-wrapper">
-          <button className="shared-button" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>{strings[10105]}</button>
+          <div className="shared-buttons">
+            <button className="btn-basic btn-header" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>{strings[10105]}</button>
+          </div>
           {badgeState.mailbox && <div className="badge-dot" />}
         </div>
         <div className="nav-button-wrapper">
-          <button className="shared-button gold-button" disabled={!currentPlayer} onClick={() => setActiveModal("Store")}>{strings[10104]}</button>
+          <div className="shared-buttons">
+            <button className="btn-basic btn-header btn-gold" disabled={!currentPlayer} onClick={() => setActiveModal("Store")}>{strings[10104]}</button>
+          </div>
           {badgeState.store && <div className="badge-dot" />}
         </div>
 
       </div>
         <div className="header-controls-right">
             <div className="nav-button-wrapper">
-              <button className="shared-button" disabled={!currentPlayer} onClick={() => setIsChatOpen(prev => !prev)}>{strings[10107]}</button>
+              <div className="shared-buttons">
+                <button className="btn-basic btn-header" disabled={!currentPlayer} onClick={() => setIsChatOpen(prev => !prev)}>{strings[10107]}</button>
+              </div>
               {badgeState.chat && <div className="badge-dot" />}
             </div>
-            <button className="shared-button" onClick={() => setShowShareModal(true)}>{strings[10106]}</button>
-            <button className="shared-button" disabled={!currentPlayer} onClick={() => setActiveModal('LanguagePicker')}>
-              🌎 {LANGUAGE_OPTIONS.find(l => l.code === currentPlayer?.language)?.label || 'Language'}
-            </button>
+            <div className="shared-buttons">
+              <button className="btn-basic btn-header" onClick={() => setShowShareModal(true)}>{strings[10106]}</button>
+            </div>
+            <div className="shared-buttons">
+              <button className="btn-basic btn-header" disabled={!currentPlayer} onClick={() => setActiveModal('LanguagePicker')}>
+                🌎 {LANGUAGE_OPTIONS.find(l => l.code === currentPlayer?.language)?.label || 'Language'}
+              </button>
+            </div>
         </div>
     </header>
     
@@ -1746,6 +1768,14 @@ return (
 {/* //////////////// Left Side Navigation Column ///////////////// */}
 
     <div className="nav-column">
+
+        <div className="zoom-controls">
+          <div className="zoom-button-container">
+            <button className="zoom-button zoom-in" disabled={!currentPlayer} onClick={zoomIn}><span>+</span></button>
+            <button className="zoom-button zoom-out" disabled={!currentPlayer} onClick={zoomOut}><span>−</span></button>
+          </div>
+        </div>
+
       <button className={`nav-button ${!activePanel ? 'selected' : ''}`} title={strings[12009]} onClick={() => closePanel()}>🏡</button>
       <button className={`nav-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}>✅</button>
 
@@ -1820,9 +1850,13 @@ return (
 {/* ///////////////////  Base Panel  ///////////////////// */}
 
     <div className="base-panel">
-
-      <button className="shared-button" onClick={() => openPanel('HowToPanel')}>{strings[10109]} AWSD</button>
-      <button className="shared-button" onClick={() => openPanel('HowToPanel')}>{strings[10110]}</button>
+ 
+      <div className="shared-buttons">
+        <button className="btn-basic" onClick={() => openPanel('HowToPanel')}>{strings[10109]} AWSD</button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic" onClick={() => openPanel('HowToPanel')}>{strings[10110]}</button>
+      </div>
       <br/>
 
       {/* Add Role display if player has one */}
@@ -1833,19 +1867,25 @@ return (
       )}
 
       {/* Hit Points */}
-      <button className="shared-button" onClick={() => openPanel('CombatPanel')}>{strings[10112]} <strong>{currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.hp ?? "?" : "?"} / {currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.maxhp ?? "?" : "?"}</strong></button>
+      <div className="shared-buttons">
+        <button className="btn-basic" onClick={() => openPanel('CombatPanel')}>{strings[10112]} <strong>{currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.hp ?? "?" : "?"} / {currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.maxhp ?? "?" : "?"}</strong></button>
+      </div>
       <br />
 
       {/* Season */}
       {timers.seasons.phase === "onSeason" ? (
         <>
           <h2>{strings[10113]} {seasonData?.type || "[Season unknown]"}</h2>
-          <button className="shared-button" onClick={() => openPanel('SeasonPanel')}>{strings[10114]}<br /><strong>{countdowns.seasons}</strong></button>
+          <div className="shared-buttons">
+            <button className="btn-basic" onClick={() => openPanel('SeasonPanel')}>{strings[10114]}<br /><strong>{countdowns.seasons}</strong></button>
+          </div>
         </>
       ) : (
         <>
           <h2>{strings[10113]} {seasonData?.type || "[Season unknown]"}</h2>
-          <button className="shared-button" onClick={() => openPanel('SeasonPanel')}>{strings[10115]}<br /><strong>{countdowns.seasons}</strong></button>
+          <div className="shared-buttons">
+            <button className="btn-basic" onClick={() => openPanel('SeasonPanel')}>{strings[10115]}<br /><strong>{countdowns.seasons}</strong></button>
+          </div>
         </>
       )}
       <br />
@@ -1880,25 +1920,31 @@ return (
           <p>{strings[10121]}{countdowns.train}</p>
           <h3>{strings[10123]}{timers.bank.phase}</h3>
           <p>{strings[10124]}{countdowns.bank}</p>
-          <button className="shared-button" onClick={() => openModal('TownNews')}>{strings[10125]}</button>
+          <div className="shared-buttons">
+            <button className="btn-basic" onClick={() => openModal('TownNews')}>{strings[10125]}</button>
+          </div>
         </div>
       )}
       <br />
 
       <h2>{strings[96]}</h2>
-      <button
-        className="shared-button"
-        onClick={() => window.open('https://discord.gg/SZMw4vpUJV', '_blank')}
-      >
-        Join Discord Server
-      </button>
+      <div className="shared-buttons">
+        <button
+          className="btn-basic"
+          onClick={() => window.open('https://discord.gg/SZMw4vpUJV', '_blank')}
+        >
+          Join Discord Server
+        </button>
+      </div>
       
-      <button
-        className="shared-button"
-        onClick={() => window.location.href = 'mailto:valleyviewgamedev@gmail.com'}
-      >
-        {strings[97]}
-      </button>
+      <div className="shared-buttons">
+        <button
+          className="btn-basic"
+          onClick={() => window.location.href = 'mailto:valleyviewgamedev@gmail.com'}
+        >
+          {strings[97]}
+        </button>
+      </div>
 
       <br />
       <h3>{strings[10126]}</h3>
@@ -2180,6 +2226,18 @@ return (
           setActiveStation={setActiveStation}
           setModalContent={setModalContent}
           setIsModalOpen={setIsModalOpen}
+        />
+      )}
+      {activePanel === 'WarehousePanel' && (
+        <WarehousePanel
+          onClose={closePanel} 
+          masterResources={masterResources}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          setInventory={setInventory}
+          stationType={activeStation?.type} 
+          globalTuning={globalTuning}
+          updateStatus={updateStatus}
         />
       )}
       {activePanel === 'TrophyPanel' && (

@@ -152,15 +152,15 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
           size: 'small',
           onClose: () => setIsModalOpen(false),
           children: (
-            <div className="standard-buttons" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px' }}>
+            <div className="shared-buttons" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px' }}>
               <button
-                className="btn-neutral"
+                className="btn-basic btn-neutral"
                 onClick={() => setIsModalOpen(false)}
               >
                 Cancel
               </button>
               <button
-                className="btn-success"
+                className="btn-basic btn-success"
                 onClick={() => {
                   setIsModalOpen(false);
                   performAddToSlot(transactionId, transactionKey, resource, amount);
@@ -559,9 +559,9 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
       {isDeveloper && (
         <>
           <br />
-          <div className="standard-buttons">
+          <div className="shared-buttons">
             <TransactionButton 
-              className="btn-success" 
+              className="btn-basic btn-success" 
               onAction={handleSellStation}
               transactionKey={`sell-refund-${stationType}-${currentStationPosition?.x}-${currentStationPosition?.y}-${gridId}`}
             >

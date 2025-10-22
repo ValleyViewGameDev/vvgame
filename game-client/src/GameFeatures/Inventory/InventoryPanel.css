@@ -14,8 +14,8 @@
 .inventory-table {
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Space between rows */
-  font-size: 12px;
+  gap: 6px; /* Space between rows */
+  font-size: 13px;
 }
 
 .inventory-row {
@@ -25,7 +25,7 @@
 }
 
 .inventory-cell {
-  padding: 2px 5px;
+  padding: 2px 2px;
   text-align: left;
 }
 
@@ -102,14 +102,14 @@
 
 /* Currency section styling */
 .currency-section {
-  margin-bottom: 10px;
+  margin-bottom: 5px;
 }
 
 .currency-display {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
   gap: 10px;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .currency-column {
@@ -130,6 +130,6 @@
 }
 
 .currency-amount {
-  font-size: 12px;
+  font-size: 13px;
   color: #333;
 }

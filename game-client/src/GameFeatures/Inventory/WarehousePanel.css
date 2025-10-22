@@ -1,0 +1,39 @@
+/* Use standard panel styling from other panels */
+.standard-panel {
+  /* Inherits from Panel.css */
+}
+
+/* Warehouse-specific capacity display to avoid conflicts */
+.warehouse-capacity-display {
+  margin-bottom: 10px;
+}
+
+.warehouse-capacity-display h3 {
+  font-size: 16px;
+  font-weight: normal;
+  color: #333;
+  margin: 0;
+}
+
+/* Simple text for upgrade info */
+.upgrade-info {
+  font-size: 14px;
+  margin: 10px 0 20px 0;
+  color: #333;
+}
+
+.max-level {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.max-level h3 {
+  color: #4CAF50;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.max-level p {
+  color: #666;
+  font-size: 16px;
+}

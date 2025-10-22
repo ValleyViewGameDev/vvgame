@@ -1,61 +1,122 @@
-/* General button styling */
-.standard-buttons button {
-  padding: 8px 12px;
+/* Container styling with vertical buffer */
+.shared-buttons {
+  margin: 8px 0;
+}
+
+/* Base button styling - fallback only */
+.shared-buttons button {
+  /* Just the colors as a fallback */
+  background-color: #74ee66;
+  color: #358337;
+}
+
+/* btn-basic - the foundation that all buttons should use */
+.shared-buttons .btn-basic {
+  /* Core appearance */
+  background-color: #74ee66;
+  color: #358337;
   border: none;
-  border-radius: 5px;
-  font-size: 12px;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
+  text-align: center;
+  width: 100%;
+  box-shadow: 0 5px 0 rgba(92, 91, 91, 0.5);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  line-height: normal;
+}
+
+.shared-buttons .btn-basic:hover {
+  background-color: #f1f1f1;
+}
+
+.shared-buttons .btn-basic:active {
+  background-color: #e0e0e0;
+}
+
+/* LAYOUT MODIFIERS - only override what's different */
+
+/* btn-header - when combined with btn-basic, only override specific properties */
+.shared-buttons .btn-basic.btn-header {
+  width: auto;
+  line-height: 15px;
+  display: flex;
+  align-items: center;
+}
+
+/* btn-modal - when combined with btn-basic */
+.shared-buttons .btn-basic.btn-modal {
+  width: 120px;
+}
+
+/* btn-modal-small - when combined with btn-basic */
+.shared-buttons .btn-basic.btn-modal-small {
+  width: 80px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+/* COLOR MODIFIERS - only override colors */
+
+/* Success buttons (green) */
+.shared-buttons .btn-success {}
+
+.shared-buttons .btn-success:hover {
+  background-color: #f1f1f1;
 }
 
 /* Success buttons (green) */
-.standard-buttons .btn-success {
-  background-color: #4caf50;
-  color: white;
+.shared-buttons .btn-sell {
+  background-color: #30b02c;
+  color: #ffffff;
 }
 
-.standard-buttons .btn-success:hover {
-  background-color: #45a049;
-  transform: scale(1.05);
+.shared-buttons .btn-sell:hover {
+  background-color: #70c976;
+}
+
+/* Success buttons (green) */
+.shared-buttons .btn-collect {
+  background-color: #30b02c;
+  color: #ffffff;
+}
+
+.shared-buttons .btn-collect:hover {
+  background-color: #70c976;
 }
 
 /* Danger buttons (red) */
-.standard-buttons .btn-danger {
-  background-color: #d32f2f;
-  color: white;
+.shared-buttons .btn-danger {
+  background-color: #ffc8c8;
 }
 
-.standard-buttons .btn-danger:hover {
-  background-color: #c62828;
-  transform: scale(1.05);
+.shared-buttons .btn-danger:hover {
+  background-color: #f1f1f1;
 }
 
-/* Neutral buttons (default gray) */
-.standard-buttons .btn-neutral {
-  background-color: #9e9e9e;
-  color: white;
+/* Neutral buttons (gray) */
+.shared-buttons .btn-neutral {
+  background-color: #e0e0e0;
 }
 
-.standard-buttons .btn-neutral:hover {
-  background-color: #757575;
-  transform: scale(1.05);
+.shared-buttons .btn-neutral:hover {
+  background-color: #f1f1f1;
 }
 
-.standard-buttons .btn-gold {
+/* Gold buttons (special animated gradient) */
+.shared-buttons .btn-gold {
   background: linear-gradient(135deg, #fff176 0%, #ffea00 50%, #fdd835 100%);
   color: rgb(0, 0, 0);
   font-weight: bold;
-  box-shadow: 
-    0 2px 4px rgba(0, 0, 0, 0.2),
-    0 1px 2px rgba(255, 234, 0, 0.4) inset,
-    0 -1px 2px rgba(253, 216, 53, 0.3) inset;
-  border: 1px solid rgba(253, 216, 53, 0.6);
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
-  position: relative;
-  overflow: hidden;
+  border: 1px solid rgba(253, 216, 53, 0.6);
 }
 
-.standard-buttons .btn-gold::before {
+.shared-buttons .btn-gold::before {
   content: '';
   position: absolute;
   top: -50%;
@@ -72,17 +133,44 @@
   transition: transform 0.6s ease;
 }
 
-.standard-buttons .btn-gold:hover {
-  background: linear-gradient(135deg, #fdd835 0%, #d3b700 50%, #fbc02d 100%);
-  transform: scale(1.05);
-  box-shadow: 
-    0 4px 8px rgba(0, 0, 0, 0.3),
-    0 2px 4px rgba(255, 234, 0, 0.5) inset,
-    0 -2px 4px rgba(253, 216, 53, 0.4) inset;
+.shared-buttons .btn-gold:hover {
+  background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 50%, #ff9800 100%);
 }
 
-.standard-buttons .btn-gold:hover::before {
+.shared-buttons .btn-gold:hover::before {
   transform: rotate(45deg) translateY(100%);
 }
 
+/* Social button colors */
+.shared-buttons .facebook-btn {
+  background-color: #3b5998;
+  color: white;
+}
 
+.shared-buttons .twitter-btn {
+  background-color: #000000;
+  color: white;
+}
+
+.shared-buttons .reddit-btn {
+  background-color: #ff4500;
+  color: white;
+}
+
+.shared-buttons .discord-btn {
+  background-color: #7289da;
+  color: white;
+}
+
+/* Social button hover states */
+.shared-buttons .facebook-btn:hover,
+.shared-buttons .twitter-btn:hover,
+.shared-buttons .reddit-btn:hover,
+.shared-buttons .discord-btn:hover {
+  opacity: 0.85;
+}
+
+/* Context-specific adjustments */
+.app-header .shared-buttons {
+  margin: 2px 0;
+}

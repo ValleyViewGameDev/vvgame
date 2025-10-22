@@ -600,6 +600,20 @@ router.get('/trophies', (req, res) => {
   }
 });
 
+router.get('/warehouse', (req, res) => {
+  try {
+    const warehouseData = readJSON(path.join(__dirname, '../tuning/warehouse.json'));
+    if (!warehouseData) {
+      console.error('No warehouse data found');
+      return res.status(404).json({ error: 'Warehouse data not found' });
+    }
+    res.json(warehouseData);
+  } catch (error) {
+    console.error('Error fetching warehouse data:', error);
+    res.status(500).json({ error: 'Error fetching warehouse data' });
+  }
+});
+
 // Endpoint to fetch a specific resource at (x, y) in the grid
 router.get('/get-resource/:gridId/:col/:row', async (req, res) => {
   const { gridId, col, row } = req.params;

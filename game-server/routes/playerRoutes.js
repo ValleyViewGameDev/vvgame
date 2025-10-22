@@ -1394,4 +1394,56 @@ router.get('/players-by-frontier-with-dev-status/:frontierId', async (req, res) 
   }
 });
 
+// POST /api/migrate-warehouse-levels - Migrate warehouse levels for all players
+router.post('/migrate-warehouse-levels', async (req, res) => {
+  try {
+    console.log('🏗️ Starting warehouse level migration for all players...');
+    
+    // Find all players who don't have warehouseLevel set
+    const playersToMigrate = await Player.find({ 
+      warehouseLevel: { $exists: false }
+    });
+    
+    console.log(`Found ${playersToMigrate.length} players needing warehouse level migration`);
+    
+    let migratedCount = 0;
+    let errorCount = 0;
+    
+    // Process each player
+    for (const player of playersToMigrate) {
+      try {
+        // All existing players without warehouseLevel start at level 0
+        // Their current capacity is preserved as-is
+        const level = 0;
+        
+        // Update the player with their warehouse level
+        await Player.updateOne(
+          { _id: player._id },
+          { $set: { warehouseLevel: level } }
+        );
+        
+        migratedCount++;
+        console.log(`✅ Migrated ${player.username}: set to level ${level}`);
+      } catch (error) {
+        errorCount++;
+        console.error(`❌ Error migrating player ${player.username}:`, error);
+      }
+    }
+    
+    res.json({
+      success: true,
+      message: `Migration complete. Migrated: ${migratedCount}, Errors: ${errorCount}`,
+      migratedCount,
+      errorCount
+    });
+    
+  } catch (error) {
+    console.error('❌ Error during warehouse level migration:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to migrate warehouse levels' 
+    });
+  }
+});
+
 module.exports = router;

@@ -10,6 +10,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { playConversation, calculateModifiedChance } from './Conversation';
 import ConversationManager from './ConversationManager';
+import '../../UI/SharedButtons.css';
 
 const RelationshipCard = ({ 
   currentPlayer,
@@ -490,11 +491,11 @@ const RelationshipCard = ({
         </div>
 
         {showActions && availableInteractions.length > 0 && (
-          <div className="relationship-actions">
+          <div className="relationship-actions shared-buttons">
             {availableInteractions.map((interaction) => (
               <button
                 key={interaction.interaction} 
-                className="panel-button"
+                className="btn-basic"
                 onClick={() => handleInteraction(interaction)}
                 disabled={isProcessing}
               >

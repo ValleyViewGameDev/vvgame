@@ -41,6 +41,7 @@ const DynamicRenderer = ({
   setIsModalOpen,
   updateStatus,
   strings,
+  globalTuning,
 }) => {
   const NPCsInGrid = useGridState(); // Use the updated NPCsInGrid from context
   const playersInGrid = usePlayersInGrid(); // Access PCs via modern PC-specific context
@@ -241,7 +242,8 @@ const DynamicRenderer = ({
               openPanel,
               setActiveStation,
               strings,
-              masterTrophies
+              masterTrophies,
+              globalTuning
             );
           }
         });

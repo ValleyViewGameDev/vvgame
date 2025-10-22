@@ -9,6 +9,7 @@ import './Courthouse.css';
 import '../../UI/Panel.css';
 import { useStrings } from '../../UI/StringsContext';
 import '../../UI/Modal.css';
+import '../../UI/SharedButtons.css';
 import { getMayorUsername } from './GovUtils';
 import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 import { formatCountdown } from '../../UI/Timers';
@@ -348,13 +349,16 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
                                 onChange={(e) => setTempSettlementName(e.target.value)}
                                 placeholder={strings[2081]}
                             />
-                            <button 
-                                className="btn-success" 
-                                onClick={handleSaveSettlementName}
-                                disabled={!tempSettlementName.trim()}
-                            >
-                                {strings[2083]}
-                            </button>
+                            <div className="shared-buttons" style={{ display: 'inline-block', marginLeft: '8px' }}>
+                                <button 
+                                    className="btn-basic btn-success btn-modal-small" 
+                                    onClick={handleSaveSettlementName}
+                                    disabled={!tempSettlementName.trim()}
+                                    style={{ width: 'auto' }}
+                                >
+                                    {strings[2083]}
+                                </button>
+                            </div>
                         </div>
                     ) : (
                         <h3 style={{ color: 'rgb(154, 106, 22)' }}><strong>{settlement?.displayName || 'Unnamed'}</strong></h3>
@@ -375,13 +379,11 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
                             <span style={{ flex: 1 }}>{strings[2042]} {tempTaxRate}%</span>
                             <button
-                                className="btn-success"
+                                className="btn-basic btn-success btn-modal-small"
                                 onClick={handleSaveTaxRate}
                                 style={{
                                 width: 'auto',
                                 maxWidth: '100px',
-                                padding: '6px 10px',
-                                fontSize: '12px',
                                 flexShrink: 0
                                 }}
                             >
@@ -408,7 +410,9 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
 
                     <br></br> 
                     <h2>{strings[2045]}</h2>
-                    <button className="btn-success" onClick={handleViewElectionLog}>Recent Election Results</button>
+                    <div className="shared-buttons">
+                        <button className="btn-basic btn-success" onClick={handleViewElectionLog}>Recent Election Results</button>
+                    </div>
                     <p><strong>
                         {electionPhase === "Counting" && strings["2062"]}
                         {electionPhase === "Voting" && strings["2061"]}
@@ -444,7 +448,9 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
                                         onChange={(e) => setNewPromise(e.target.value)}
                                         placeholder={strings[2072]}
                                     />
-                                    <button className="btn-success" onClick={handleAddCampaignPromise}>Submit Campaign Promise</button>
+                                    <div className="shared-buttons">
+                                        <button className="btn-basic btn-success" onClick={handleAddCampaignPromise}>Submit Campaign Promise</button>
+                                    </div>
                                 </>
                             )}
                         </>
@@ -485,13 +491,15 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
                                             {candidate.username}
                                         </div>
                                     ))}
-                                    <button 
-                                        className="btn-success"
-                                        onClick={handleVote} 
-                                        disabled={!selectedCandidate}
-                                    >
-                                        {strings[2074]}
-                                    </button>
+                                    <div className="shared-buttons">
+                                        <button 
+                                            className="btn-basic btn-success"
+                                            onClick={handleVote} 
+                                            disabled={!selectedCandidate}
+                                        >
+                                            {strings[2074]}
+                                        </button>
+                                    </div>
 
                                     {/* Tooltip */}
                                     {hoveredCandidate && (

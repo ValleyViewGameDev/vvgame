@@ -14,6 +14,8 @@ import { useStrings } from './UI/StringsContext';
 import { getLocalizedString } from './Utils/stringLookup';
 import { formatSingleCollection } from './UI/StatusBar/CollectionFormatters';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
+import { checkAndDropWarehouseIngredient } from './Utils/ResourceHelpers';
+import { selectWeightedRandomItem, getDropQuantity } from './Utils/DropRates';
  
  // Handles resource click actions based on category. //
  export async function handleResourceClick(
@@ -44,7 +46,8 @@ import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAn
   strings,
   bulkOperationContext,
   openPanel,
-  masterTrophies = null
+  masterTrophies = null,
+  globalTuning = null
 ) {
   console.log(`Resource Clicked:  (${row}, ${col}):`, { resource, tileType: tileTypes[row]?.[col] });
   if (!resource || !resource.category) { console.error(`Invalid resource at (${col}, ${row}):`, resource); return; }
@@ -93,6 +96,7 @@ import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAn
           masterSkills, // Pass tuning data
           strings,
           openPanel,
+          globalTuning,
           masterTrophies
         );
         break;
@@ -201,6 +205,7 @@ export async function handleDooberClick(
   masterSkills,
   strings = {},
   openPanel = null,
+  globalTuning = null,
   masterTrophies = null
 ) {
   console.log('handleDooberClick: Current Player:', currentPlayer);
@@ -256,7 +261,8 @@ export async function handleDooberClick(
     currentPlayer,
     inventory,
     backpack,
-    masterResources
+    masterResources,
+    globalTuning
   });
   
   if (!hasRoom) {
@@ -299,6 +305,7 @@ export async function handleDooberClick(
       setCurrentPlayer,
       updateStatus,
       masterResources,
+      globalTuning,
     });
 
     // Handle the result based on error type
@@ -358,11 +365,34 @@ export async function handleDooberClick(
       return;
     }
 
-
-
-        // Track quest progress for "Collect" actions
+    // Track quest progress for "Collect" actions
     // trackQuestProgress expects: (player, action, item, quantity, setCurrentPlayer)
     await trackQuestProgress(currentPlayer, 'Collect', resource.type, qtyCollected, setCurrentPlayer);
+
+    // Check for warehouse ingredient drops when collecting crops
+    await checkAndDropWarehouseIngredient(
+      resource.type,
+      col,
+      row,
+      TILE_SIZE,
+      {
+        currentPlayer,
+        inventory,
+        backpack,
+        setInventory,
+        setBackpack,
+        setCurrentPlayer,
+        updateStatus,
+        masterResources,
+        globalTuning,
+        strings,
+        FloatingTextManager,
+        gainIngredients,
+        trackQuestProgress,
+        getLocalizedString,
+        selectWeightedRandomItem,
+      }
+    );
 
     // Award trophies for specific collected items
     if (masterTrophies && currentPlayer?.playerId) {

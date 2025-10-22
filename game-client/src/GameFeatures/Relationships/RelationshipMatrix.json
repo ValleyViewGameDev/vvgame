@@ -43,6 +43,9 @@
   {
     "type": "Cassio",
     "symbol": "🧝",
+    "buff4love": 1,
+    "buff4marriage": 1,
+    "buff4friend": 1,
     "interest1": "Duke Angelo",
     "interest2": "Juliet",
     "interest3": "Shrine",
@@ -69,12 +72,18 @@
     "buff4friend": 2,
     "interest1": "Portrait",
     "interest2": "Ink",
+    "interest3": "Caliban",
     "Caliban": "friend"
   },
   {
     "type": "Helena",
     "symbol": "🧑‍🎤",
+    "buff4love": 1,
+    "buff4marriage": 1,
+    "buff4friend": 1,
     "interest1": "Rosesmary",
+    "interest2": "Feverfew",
+    "interest3": "Gertrude",
     "Gertrude": "love"
   },
   {
@@ -89,11 +98,22 @@
   },
   {
     "type": "Vampire",
-    "symbol": "🧛🏻‍♂️"
+    "symbol": "🧛🏻‍♂️",
+    "buff4love": 1,
+    "buff4marriage": 1,
+    "buff4friend": 1,
+    "interest1": "Zombie",
+    "interest2": "Garlic"
   },
   {
     "type": "Prospero",
     "symbol": "🧙🏻",
+    "buff4love": 1,
+    "buff4marriage": 1,
+    "buff4friend": 1,
+    "interest1": "Leontes",
+    "interest2": "Titania",
+    "interest3": "Caliban",
     "Titania": "friend",
     "Leontes": "friend"
   },
@@ -104,6 +124,7 @@
     "buff4marriage": 5,
     "buff4friend": 2,
     "interest1": "Port",
+    "interest2": "Mistress Quickly",
     "Mistress_Quickley": "love"
   },
   {
@@ -120,7 +141,8 @@
     "buff4love": 3,
     "buff4marriage": 10,
     "buff4friend": 2,
-    "interest1": "Gem",
+    "interest1": "Portia",
+    "interest2": "Portia's Secret",
     "Portia": "rival",
     "Cassio": "rival"
   },
@@ -131,6 +153,7 @@
     "buff4marriage": 5,
     "buff4friend": 2,
     "interest1": "Queen's Cake",
+    "interest2": "Helena",
     "Helena": "love"
   },
   {
@@ -140,6 +163,8 @@
     "buff4marriage": 5,
     "buff4friend": 2,
     "interest1": "King's Crown",
+    "interest2": "Gertrude",
+    "interest3": "Prospero",
     "Prospero": "friend",
     "Iago": "rival",
     "Gertrude": "love"
@@ -151,6 +176,8 @@
     "buff4marriage": 5,
     "buff4friend": 2,
     "interest1": "Bones",
+    "interest2": "Titania",
+    "interest3": "Magic Mushroom",
     "Feste": "friend",
     "Titania": "love",
     "Prospero": "rival"

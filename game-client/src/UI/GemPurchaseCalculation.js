@@ -30,7 +30,7 @@ export const calculateGemPurchase = ({
     const spendingItems = [];
     
     // Calculate for ingredient requirements
-    for (let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= 10; i++) {
         const ingredientType = resource[`ingredient${i}`];
         const ingredientQty = resource[`ingredient${i}qty`];
         
@@ -94,7 +94,7 @@ export const calculateGemPurchase = ({
         
         // Calculate missing ingredient costs
         let missingIngredientCost = 0;
-        for (let i = 1; i <= 4; i++) {
+        for (let i = 1; i <= 10; i++) {
             const ingredientType = resource[`ingredient${i}`];
             const ingredientQty = resource[`ingredient${i}qty`];
             
@@ -127,7 +127,7 @@ export const calculateGemPurchase = ({
         // For non-crafting items: calculate cost based on missing ingredients
         let missingIngredientCost = 0;
         
-        for (let i = 1; i <= 4; i++) {
+        for (let i = 1; i <= 10; i++) {
             const ingredientType = resource[`ingredient${i}`];
             const ingredientQty = resource[`ingredient${i}qty`];
             
@@ -174,7 +174,7 @@ export const calculateGemPurchase = ({
         const modifiedRecipe = { ...resource };
         
         // Adjust ingredient quantities to what player actually has
-        for (let i = 1; i <= 4; i++) {
+        for (let i = 1; i <= 10; i++) {
             const ingredientType = resource[`ingredient${i}`];
             const ingredientQty = resource[`ingredient${i}qty`];
             
@@ -188,9 +188,18 @@ export const calculateGemPurchase = ({
             }
         }
         
-        // Add gems as ingredient5
-        modifiedRecipe.ingredient5 = 'Gem';
-        modifiedRecipe.ingredient5qty = gemCost;
+        // Add gems as the next available ingredient slot
+        // Find the first empty slot after existing ingredients
+        let gemSlot = 1;
+        for (let i = 1; i <= 10; i++) {
+            if (!resource[`ingredient${i}`]) {
+                gemSlot = i;
+                break;
+            }
+        }
+        
+        modifiedRecipe[`ingredient${gemSlot}`] = 'Gem';
+        modifiedRecipe[`ingredient${gemSlot}qty`] = gemCost;
         
         return modifiedRecipe;
     };

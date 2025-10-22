@@ -40,6 +40,7 @@ const CraftingStation = ({
   TILE_SIZE,
   isDeveloper,
   currentSeason,
+  globalTuning,
 }) => {
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
@@ -314,6 +315,7 @@ const CraftingStation = ({
             setCurrentPlayer,
             updateStatus,
             masterResources,
+            globalTuning,
           });
 
           if (!gained) {
@@ -506,6 +508,7 @@ const CraftingStation = ({
         setCurrentPlayer,
         updateStatus,
         masterResources,
+        globalTuning,
       });
 
       if (gained) {
@@ -659,7 +662,7 @@ const CraftingStation = ({
                   key={recipe.type}
                   symbol={recipe.symbol}
                   name={getLocalizedString(recipe.type, strings)}
-                  className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''}`}
+                  className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready btn-sell' : ''}`}
                   details={
                     isCrafting ? craftTimeText :
                     (
@@ -712,9 +715,9 @@ const CraftingStation = ({
         
             {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
               <div className="station-panel-footer">
-                <div className="standard-buttons">
+                <div className="shared-buttons">
                   <TransactionButton 
-                    className="btn-success" 
+                    className="btn-basic btn-success" 
                     onAction={handleSellStation}
                     transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
                   >

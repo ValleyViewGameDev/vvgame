@@ -58,11 +58,11 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
           <form onSubmit={handleLogin} className="panel-form">
             <div className="form-group">
 
-            <div className="panel-buttons">
+            <div className="shared-buttons">
             <h3>{strings[4001]}</h3>
               <button
                 type="button"
-                className="btn-success"
+                className="btn-basic btn-success"
                 onClick={() => setShowCreateAccount(true)}
               >
                 {strings[4002]}
@@ -96,8 +96,8 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
             </div>
             {error && <p className="error-message">{error}</p>}
 
-            <div className="panel-buttons">
-              <button type="submit" className="btn-neutral">
+            <div className="shared-buttons">
+              <button type="submit" className="btn-basic btn-neutral">
                 {strings[4007]}
               </button>
             </div>
@@ -105,9 +105,9 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
           <div className="panel-buffer-space" />
           <div className="panel-buffer-space" />
 
-          <div className="panel-buttons">
+          <div className="shared-buttons">
             <button
-              className="btn-success"
+              className="btn-basic btn-success"
               onClick={() => window.location.href = 'mailto:valleyviewgamedev@gmail.com'}
             >
               {strings[97]}

@@ -18,7 +18,8 @@ function BankPanel({
     currentPlayer, 
     setCurrentPlayer, 
     updateStatus,
-    masterResources, }) 
+    masterResources,
+    globalTuning, }) 
 {
     const strings = useStrings();
     const [isContentLoading, setIsContentLoading] = useState(false);
@@ -104,6 +105,7 @@ function BankPanel({
           setCurrentPlayer,
           updateStatus,
           masterResources,
+          globalTuning,
         });
 
         if (!gainSuccess) return;

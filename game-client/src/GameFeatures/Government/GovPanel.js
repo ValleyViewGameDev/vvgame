@@ -5,6 +5,7 @@ import Panel from '../../UI/Panel';
 import { getMayorUsername } from './GovUtils';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import '../../UI/Modal.css';
+import '../../UI/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
 import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 
@@ -141,8 +142,8 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
 
             {/* Taxes Section */}
             <h3>{strings["3003"]} {taxRate}%</h3>
-            <div className="panel-buttons">
-              <button className="btn-success" onClick={handleShowTaxLog}>{strings[3020]}</button>            
+            <div className="shared-buttons">
+              <button className="btn-basic btn-success" onClick={handleShowTaxLog}>{strings[3020]}</button>            
             </div>
             <p>{strings["3004"]}</p>
             

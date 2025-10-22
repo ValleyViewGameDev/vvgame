@@ -92,9 +92,9 @@ const AnimalStall = ({
         {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
           <div className="animalstall-panel-footer">
             <hr />
-            <div className="standard-buttons">
+            <div className="shared-buttons">
               <TransactionButton 
-                className="btn-success" 
+                className="btn-basic btn-success" 
                 onAction={handleSellStation}
                 transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
               >

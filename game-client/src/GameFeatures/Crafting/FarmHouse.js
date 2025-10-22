@@ -42,6 +42,7 @@ const FarmHouse = ({
   masterTrophies,
   TILE_SIZE,
   isDeveloper,
+  globalTuning,
 }) => {
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
@@ -355,6 +356,7 @@ const FarmHouse = ({
             setCurrentPlayer,
             updateStatus,
             masterResources,
+            globalTuning,
           });
 
           if (!gained) {
@@ -656,7 +658,7 @@ const FarmHouse = ({
                   key={recipe.type}
                   symbol={recipe.symbol}
                   name={getLocalizedString(recipe.type, strings)}
-                  className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready' : ''}`}
+                  className={`resource-button ${isCrafting ? 'in-progress' : isReadyToCollect ? 'ready btn-sell' : ''}`}
                   details={
                     isCrafting ? craftTimeText :
                     (
@@ -709,7 +711,7 @@ const FarmHouse = ({
         {(isDeveloper) && (
           <>
             <hr />
-              <div className="standard-buttons">
+              <div className="shared-buttons">
                 <TransactionButton 
                   className="btn-danger" 
                   onAction={handleSellStation}

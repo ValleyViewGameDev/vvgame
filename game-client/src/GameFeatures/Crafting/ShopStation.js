@@ -33,6 +33,7 @@ const ShopStation = ({
   masterResources,
   masterTrophies,
   isDeveloper,
+  globalTuning,
 }) => {
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
@@ -105,7 +106,8 @@ const ShopStation = ({
         currentPlayer,
         inventory: inventory,
         backpack: backpack,
-        masterResources
+        masterResources,
+        globalTuning
       });
       
       if (!hasRoom) {
@@ -212,6 +214,7 @@ const ShopStation = ({
         setCurrentPlayer,
         updateStatus,
         masterResources,
+        globalTuning,
       });
 
       if (!gainSuccess) {
@@ -383,9 +386,9 @@ const ShopStation = ({
         
         {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
           <div className="station-panel-footer">
-            <div className="standard-buttons">
+            <div className="shared-buttons">
               <TransactionButton 
-                className="btn-danger" 
+                className="btn-basic btn-danger" 
                 onAction={handleSellStation}
                 transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
               >

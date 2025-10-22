@@ -1,6 +1,7 @@
 // src/UI/Modal.js
 import React from 'react';
 import './Modal.css';
+import './SharedButtons.css';
 
 function Modal({ isOpen = true, onClose, title, children, custom, message, message2, size = "standard", className }) {
   if (!isOpen) return null;

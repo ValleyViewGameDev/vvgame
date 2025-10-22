@@ -8,7 +8,9 @@ import { formatCollectionResults } from '../../UI/StatusBar/CollectionFormatters
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import { isACrop } from '../../Utils/ResourceHelpers';
+import { isACrop, calculateBulkWarehouseDrops, aggregateWarehouseDrops } from '../../Utils/ResourceHelpers';
+import { gainIngredients } from '../../Utils/InventoryManagement';
+import { selectWeightedRandomItem } from '../../Utils/DropRates';
 import '../../UI/SharedButtons.css';
 
 // Component for the bulk harvest selection modal
@@ -136,8 +138,9 @@ export function BulkHarvestModal({
     <Modal isOpen={isOpen} onClose={onClose} title={strings[315] || "Select Crops to Harvest"} size="medium">
       <div style={{ padding: '20px', fontSize: '16px' }}>
         <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div className="shared-buttons" style={{ display: 'flex', gap: '10px' }}>
             <button 
+              className="btn-basic btn-success btn-modal-small"
               onClick={() => {
                 const allSelected = {};
                 crops.forEach(crop => {
@@ -145,25 +148,25 @@ export function BulkHarvestModal({
                 });
                 setSelectedCropTypes(allSelected);
               }}
-              style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
             >
               {strings[316] || 'Select All'}
             </button>
             <button 
+              className="btn-basic btn-neutral btn-modal-small"
               onClick={() => {
                 setSelectedCropTypes({});
                 // When deselecting all harvest, also deselect all replant
                 setSelectedReplantTypes({});
               }}
-              style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#808080', color: 'white', border: 'none', borderRadius: '3px' }}
             >
               {strings[317] || 'Deselect All'}
             </button>
           </div>
           
           {showBulkReplant && (
-            <div style={{ display: 'flex', gap: '10px', marginLeft: 'auto' }}>
+            <div className="shared-buttons" style={{ display: 'flex', gap: '10px', marginLeft: 'auto' }}>
               <button 
+                className="btn-basic btn-success btn-modal-small"
                 onClick={() => {
                   const allReplantSelected = {};
                   const allHarvestSelected = {};
@@ -197,13 +200,12 @@ export function BulkHarvestModal({
                     ...allHarvestSelected
                   }));
                 }}
-                style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
               >
                 {strings[316] || 'Select All'}
               </button>
               <button 
+                className="btn-basic btn-neutral btn-modal-small"
                 onClick={() => setSelectedReplantTypes({})}
-                style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#808080', color: 'white', border: 'none', borderRadius: '3px' }}
               >
                 {strings[317] || 'Deselect All'}
               </button>
@@ -276,17 +278,10 @@ export function BulkHarvestModal({
           })}
         </div>
         
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center' }}>
           <button 
+            className={`btn-basic ${isProcessing ? 'btn-neutral' : 'btn-success'} btn-modal`}
             onClick={handleExecute}
-            style={{ 
-              padding: '10px 20px', 
-              backgroundColor: isProcessing ? '#808080' : '#4CAF50', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '4px',
-              cursor: isProcessing ? 'not-allowed' : 'pointer'
-            }}
             disabled={isProcessing || Object.values(selectedCropTypes).every(selected => !selected)}
           >
             {isProcessing ? 'Processing...' : (strings[318] || 'Harvest Selected')}
@@ -312,13 +307,14 @@ export async function executeBulkHarvest({
   gridId,
   showBulkReplant,
   strings,
-  refreshPlayerAfterInventoryUpdate
+  refreshPlayerAfterInventoryUpdate,
+  globalTuning
 }) {
   // Get selected crop types
   const selectedTypes = Object.keys(selectedCropTypes).filter(type => selectedCropTypes[type]);
   
   if (selectedTypes.length === 0) {
-    return strings[449] || 'No crops selected for harvest.';
+    return { success: false, error: strings[449] || 'No crops selected for harvest.' };
   }
   
   // Sync FarmState before proceeding to ensure client/server consistency
@@ -400,7 +396,10 @@ export async function executeBulkHarvest({
   if (!capacityCheck.canHarvest) {
     const spaceNeeded = capacityCheck.totalCapacityNeeded;
     const spaceAvailable = capacityCheck.availableSpace;
-    return `${strings[447] || 'Not enough space'}: ${spaceNeeded} needed, ${spaceAvailable} available`;
+    return { 
+      success: false, 
+      error: `${strings[447] || 'Not enough space'}: ${spaceNeeded} needed, ${spaceAvailable} available` 
+    };
   }
 
   // If replanting, check seeds
@@ -533,9 +532,53 @@ export async function executeBulkHarvest({
         replantInfo[type] = data.count;
       });
     }
+
+    // Calculate warehouse ingredient drops based on number of plots harvested (not skill-modified quantities)
+    const numPlotsHarvested = harvestedPositions.size;
+    console.log('🎁 Calculating warehouse drops for', numPlotsHarvested, 'plots harvested');
+    const warehouseDropsArray = calculateBulkWarehouseDrops(numPlotsHarvested, {
+      masterResources,
+      globalTuning,
+      selectWeightedRandomItem,
+      playerId: currentPlayer.playerId
+    });
     
-    // Return success message using shared formatter
-    const statusMessage = formatCollectionResults('harvest', harvestResults, harvestSkillsInfo, replantInfo, strings, getLocalizedString);
+    // Aggregate warehouse drops by type
+    const aggregatedWarehouseDrops = aggregateWarehouseDrops(warehouseDropsArray);
+    console.log('🎁 Aggregated warehouse drops:', aggregatedWarehouseDrops);
+
+    // Add warehouse ingredients to inventory if any were found
+    if (warehouseDropsArray.length > 0) {
+      try {
+        for (const drop of warehouseDropsArray) {
+          const warehouseGained = await gainIngredients({
+            playerId: currentPlayer.playerId,
+            currentPlayer,
+            resource: drop.type,
+            quantity: drop.quantity,
+            inventory: response.data.inventory?.warehouse || [],
+            backpack: response.data.inventory?.backpack || [],
+            setInventory,
+            setBackpack,
+            setCurrentPlayer,
+            updateStatus: () => {}, // No status updates during bulk operation
+            masterResources,
+            globalTuning,
+          });
+
+          if (warehouseGained) {
+            console.log(`✅ Added warehouse ingredient: ${drop.type} x${drop.quantity}`);
+            
+            // Track quest progress for warehouse ingredients
+            await trackQuestProgress(currentPlayer, 'Collect', drop.type, drop.quantity, setCurrentPlayer);
+          } else {
+            console.warn(`⚠️ Failed to add warehouse ingredient: ${drop.type} x${drop.quantity} (inventory full?)`);
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error adding warehouse ingredients to inventory:', error);
+      }
+    }
 
     // Track quest progress for harvested items
     if (results.harvested && typeof results.harvested === 'object') {
@@ -565,13 +608,25 @@ export async function executeBulkHarvest({
       });
     });
     
-    return statusMessage;
+    // Return results object for modal display instead of status message
+    return {
+      success: true,
+      harvestResults,
+      replantInfo,
+      harvestSkillsInfo,
+      warehouseDrops: aggregatedWarehouseDrops,
+      seedsUsed: results.seedsUsed || {},
+      statusMessage: formatCollectionResults('harvest', harvestResults, harvestSkillsInfo, replantInfo, strings, getLocalizedString)
+    };
   } else {
-    return strings[448] || 'Bulk harvest failed';
+    return { success: false, error: strings[448] || 'Bulk harvest failed' };
   }
   } catch (error) {
     console.error('🌾 Bulk harvest error:', error);
-    return error.response?.data?.message || error.message || 'Bulk harvest failed';
+    return { 
+      success: false, 
+      error: error.response?.data?.message || error.message || 'Bulk harvest failed' 
+    };
   }
 }
 

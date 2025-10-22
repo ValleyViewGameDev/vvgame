@@ -147,8 +147,8 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
                       </div>
                       <div className="store-offer-right">
                         <div className="store-price">USD ${offer3.price.toFixed(2)}</div>
-                        <div className="standard-buttons">
-                          <button className="btn-gold" onClick={() => handlePurchase(offer3.id, currentPlayer, updateStatus)}>Buy</button>
+                        <div className="shared-buttons">
+                          <button className="btn-basic btn-gold" onClick={() => handlePurchase(offer3.id, currentPlayer, updateStatus)}>Buy</button>
                         </div>
                       </div>
                     </div>
@@ -167,8 +167,8 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
                       </div>
                       <div className="store-offer-right">
                         <div className="store-price">USD ${offer4.price.toFixed(2)}</div>
-                        <div className="standard-buttons">
-                          <button className="btn-gold" onClick={() => handlePurchase(offer4.id, currentPlayer, updateStatus)}>Buy</button>
+                        <div className="shared-buttons">
+                          <button className="btn-basic btn-gold" onClick={() => handlePurchase(offer4.id, currentPlayer, updateStatus)}>Buy</button>
                         </div>
                       </div>
                     </div>
@@ -203,8 +203,8 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
                       </div>
                       <div className="store-offer-right">
                         <div className="store-price">USD ${offer6.price.toFixed(2)}</div>
-                        <div className="standard-buttons">
-                          <button className="btn-gold" onClick={() => handlePurchase(offer6.id, currentPlayer, updateStatus)}>Buy</button>
+                        <div className="shared-buttons">
+                          <button className="btn-basic btn-gold" onClick={() => handlePurchase(offer6.id, currentPlayer, updateStatus)}>Buy</button>
                         </div>
                       </div>
                     </div>
@@ -223,8 +223,8 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
                       </div>
                       <div className="store-offer-right">
                         <div className="store-price">USD ${offer7.price.toFixed(2)}</div>
-                        <div className="standard-buttons">
-                          <button className="btn-gold" onClick={() => handlePurchase(offer7.id, currentPlayer, updateStatus)}>Buy</button>
+                        <div className="shared-buttons">
+                          <button className="btn-basic btn-gold" onClick={() => handlePurchase(offer7.id, currentPlayer, updateStatus)}>Buy</button>
                         </div>
                       </div>
                     </div>
@@ -243,8 +243,8 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
                       </div>
                       <div className="store-offer-right">
                         <div className="store-price">USD ${offer8.price.toFixed(2)}</div>
-                        <div className="standard-buttons">
-                          <button className="btn-gold" onClick={() => handlePurchase(offer8.id, currentPlayer, updateStatus)}>Buy</button>
+                        <div className="shared-buttons">
+                          <button className="btn-basic btn-gold" onClick={() => handlePurchase(offer8.id, currentPlayer, updateStatus)}>Buy</button>
                         </div>
                       </div>
                     </div>
@@ -270,8 +270,8 @@ function Store({ onClose, currentPlayer, setCurrentPlayer, resources, openMailbo
                 </div>
                 <div className="store-offer-right">
                   <div className="store-price">USD ${offer.price.toFixed(2)}</div>
-                  <div className="standard-buttons">
-                    <button className="btn-gold" onClick={() => handlePurchase(offer.id, currentPlayer, updateStatus)}>Buy</button>
+                  <div className="shared-buttons">
+                    <button className="btn-basic btn-gold" onClick={() => handlePurchase(offer.id, currentPlayer, updateStatus)}>Buy</button>
                   </div>
                 </div>
               </div>

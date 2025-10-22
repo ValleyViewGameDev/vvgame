@@ -31,7 +31,8 @@ async function handleProtectedFarmAnimalCollection(
   masterSkills,
   currentGridId,
   updateStatus,
-  strings = {}
+  strings = {},
+  globalTuning = null
 ) {
   console.log(`🔒 [PROTECTED FARM ANIMAL] Starting protected collection for NPC ${npc.id}`);
   
@@ -78,6 +79,7 @@ async function handleProtectedFarmAnimalCollection(
         setCurrentPlayer,
         updateStatus,
         masterResources,
+        globalTuning,
       });
       
       if (!gained) {
@@ -213,7 +215,8 @@ async function handleProtectedFarmAnimalCollection(
               masterSkills,
               currentGridId,
               updateStatus,
-              strings
+              strings,
+              globalTuning
             );
           }
           
@@ -270,7 +273,8 @@ export async function handleNPCClick(
   openPanel,
   setActiveStation,
   strings = {},
-  masterTrophies = null
+  masterTrophies = null,
+  globalTuning = null
 ) {
   if (!npc) {
     console.warn("handleNPCClick was called with an undefined NPC.");
@@ -374,7 +378,8 @@ export async function handleNPCClick(
         masterSkills,
         currentGridId,
         updateStatus,
-        strings
+        strings,
+        globalTuning
       );
     }
 

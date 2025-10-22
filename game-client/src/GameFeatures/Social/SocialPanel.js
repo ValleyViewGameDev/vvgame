@@ -385,20 +385,21 @@ const SocialPanel = ({
   return (
     <Panel onClose={onClose} descriptionKey="1014" titleKey="1114" panelName="SocialPanel">
         <div className="panel-content">
-        <div className="debug-buttons">
         <h2>{displayedPCData.username}{displayedPCData.username === currentPlayer.username && " (You)"}</h2>
-
-        {displayedPCData.username === currentPlayer.username && (
-          <button 
-            className="btn-success" 
-            onClick={() => setShowChangeIconModal(true)}
-          >
-            {currentPlayer.icon || '🙂'} Change Avatar
-          </button>
-        )}
-        
         <h3>❤️‍🩹 HP: {displayedPCData.hp}</h3>
 
+<br/>
+        {displayedPCData.username === currentPlayer.username && (
+          <div className="shared-buttons">
+            <button 
+              className="btn-basic btn-success" 
+              onClick={() => setShowChangeIconModal(true)}
+            >
+              {currentPlayer.icon || '🙂'} Change Avatar
+            </button>
+          </div>
+        )}
+        
         {/* Show camping/boat status for other players */}
         {displayedPCData.username !== currentPlayer.username && (
           <>
@@ -432,9 +433,9 @@ const SocialPanel = ({
 
         {/* Debug button for developers to remove player from grid state */}
         {isDeveloper && displayedPCData.username !== currentPlayer.username && (
-          <div className="standard-buttons">
+          <div className="shared-buttons">
             <button 
-              className="btn-danger" 
+              className="btn-basic btn-danger" 
               onClick={handleRemoveFromGridState}
             >
               🗑️ Remove from GridState (dev only)
@@ -451,59 +452,66 @@ const SocialPanel = ({
             {isCamping ? (
               <h3 style={{ fontWeight: "bold", color: "#4CAF50" }}>🏕️ Camping.</h3>
             ) : (
-              <p>You have <strong>{tentCount}</strong> tents.</p>
+              <p>⛺️ You have <strong>{tentCount}</strong> tents.</p>
             )}
             
             {isCamping ? (
-              <button className="btn-success" onClick={handlePutAwayTent}>⛺ Put Away Tent</button>
+              <div className="shared-buttons">
+                <button className="btn-basic btn-success" onClick={handlePutAwayTent}>⛺ Put Away Tent</button>
+              </div>
             ) : (
-              <button 
-                className="btn-success" 
-                disabled={isInBoat}
-                onClick={() => {
-                  if (tentCount <= 0) {
-                    console.warn("🚫 No tents found. Button press ignored.");
-                    updateStatus(27); // "You don't have a tent."
-                  } else {
-                    handlePitchTent();
-                  }
-                }}
-              >
-                🏕️ Pitch Tent
-              </button>
+              <div className="shared-buttons">
+                <button 
+                  className="btn-basic btn-success" 
+                  disabled={isInBoat}
+                  onClick={() => {
+                    if (tentCount <= 0) {
+                      console.warn("🚫 No tents found. Button press ignored.");
+                      updateStatus(27); // "You don't have a tent."
+                    } else {
+                      handlePitchTent();
+                    }
+                  }}
+                >
+                  🏕️ Pitch Tent
+                </button>
+              </div>
             )}
-
+<br />
 
             {/* Boat functionality */}
             {isInBoat ? (
               <h3 style={{ fontWeight: "bold", color: "#2196F3" }}>🛶 In a boat.</h3>
             ) : (
-              <p>You have <strong>{boatCount}</strong> boats.</p>
+              <p>🛶 You have <strong>{boatCount}</strong> boats.</p>
             )}
             
             {isInBoat ? (
-              <button className="btn-success" onClick={handleGetOutOfBoat}>🛶 Get Out of Boat</button>
+              <div className="shared-buttons">
+                <button className="btn-basic btn-success" onClick={handleGetOutOfBoat}>🛶 Get Out of Boat</button>
+              </div>
             ) : (
-              <button 
-                className="btn-success" 
-                disabled={isCamping}
-                onClick={() => {
-                  if (boatCount <= 0) {
-                    console.warn("🚫 No boats found. Button press ignored.");
-                    updateStatus("You don't have a boat."); // TODO: Add proper string ID
-                  } else {
-                    handleGetInBoat();
-                  }
-                }}
-              >
-                🛶 Get in Boat
-              </button>
+              <div className="shared-buttons">
+                <button 
+                  className="btn-basic btn-success" 
+                  disabled={isCamping}
+                  onClick={() => {
+                    if (boatCount <= 0) {
+                      console.warn("🚫 No boats found. Button press ignored.");
+                      updateStatus("You don't have a boat."); // TODO: Add proper string ID
+                    } else {
+                      handleGetInBoat();
+                    }
+                  }}
+                >
+                  🛶 Get in Boat
+                </button>
+              </div>
             )}
 
           </>
         )}
 
-        </div>
         </div>
       {showChangeIconModal && (
         <ChangeIconModal

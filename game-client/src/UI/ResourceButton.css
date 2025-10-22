@@ -10,20 +10,22 @@
 .resource-button
 {
   width: 100%; /* ✅ Match resource buttons */
-  padding: 6px 8px; /* ✅ Reduce excessive padding */
+  padding: 6px 20px; /* ✅ Reduce excessive padding */
   margin: 4px 0; /* ✅ Reduce excessive spacing */
   font-size: 14px;
   text-align: left;
   white-space: normal;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  background-color: #67c257; /* Default green */
+  border: none;
+  border-radius: 12px;
+  background-color: #74ee66;
+  color: #358337;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
-  transition: background-color 0.2s ease-in-out;
+  gap: 3px;
+  box-shadow: 0 6px 0 rgba(92, 91, 91, 0.5);
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
   box-sizing: border-box; /* ✅ Prevent overflow */
   max-width: 100%; /* ✅ Ensure buttons do not overflow */
 }
@@ -55,20 +57,37 @@
 /* ✅ Ready-to-Collect State (Brighter Green) */
 .resource-button.ready {
   background-color: #00e639; /* Brighter Green */
-  border: 1px solid #249b40;
+}
+
+/* When using shared button styles for ready state */
+.resource-button.ready.btn-sell {
+  background-color: #30b02c !important; /* Use btn-sell green */
+  color: #ffffff !important;
+  border-radius: 12px !important;
+  box-shadow: 0 5px 0 rgba(92, 91, 91, 0.5) !important;
+}
+
+.resource-button.ready.btn-sell:hover {
+  background-color: #70c976 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 rgba(92, 91, 91, 0.5) !important;
+}
+
+/* Make sure text inside is also white */
+.resource-button.ready.btn-sell .resource-title,
+.resource-button.ready.btn-sell .resource-details {
+  color: #ffffff !important;
 }
 
 /* ✅ Reward State (Green) */
 .resource-button.reward {
   background-color: #4caf50; /* ✅ Green */
-  border: 1px solid #2e7d32;
   color: white;
 }
 
 /* ✅ Special styling for bulk skills (light purple) */
 .resource-button.bulk-skill {
   background-color: #e6ccff; /* Light purple */
-  border: 1px solid #b499d4;
   color: #333;
 }
 

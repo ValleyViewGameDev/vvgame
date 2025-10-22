@@ -9,7 +9,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import { deriveWarehouseAndBackpackCapacity, isCurrency } from '../../Utils/InventoryManagement';
 import { handlePurchase } from '../../Store/Store';
 
-function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, openPanel, setActiveStation, setModalContent, setIsModalOpen }) {
+function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, openPanel, setActiveStation, setModalContent, setIsModalOpen }) {
 
     const strings = useStrings();
     const inventory = currentPlayer?.inventory || [];
@@ -21,7 +21,12 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
     const [backpackAmounts, setBackpackAmounts] = useState({}); // Store amounts per resource for backpack
     const [warehouseAmounts, setWarehouseAmounts] = useState({}); // Store amounts per resource for warehouse
     const hasBackpackSkill = currentPlayer?.skills?.some(item => item.type === 'Backpack');
-    const finalCapacities = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources);
+    const finalCapacities = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources, globalTuning);
+    
+    // Get Gold bonuses from globalTuning prop
+    const warehouseGoldBonus = globalTuning?.warehouseCapacityGold || 100000;
+    const backpackGoldBonus = globalTuning?.backpackCapacityGold || 5000;
+    
     const calculateTotalQuantity = (inventory) =>
         inventory.filter((item) => !isCurrency(item.type)).reduce((total, item) => total + item.quantity, 0);
     
@@ -248,10 +253,9 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                     <div className="gold-pass-info">
                         {strings[199]}
                     </div>
-                    <div className="standard-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: '20px' }}>
+                    <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: '20px' }}>
                         <button 
-                            className="btn-gold"
-                            style={{ width: '100%' }}
+                            className="btn-basic btn-panel btn-gold"
                             onClick={() => handlePurchase(1, currentPlayer, updateStatus)}
                         >
                             {strings[9061]}
@@ -300,11 +304,21 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
 
             {hasBackpackSkill ? (
               <>
-                <div className="capacity-display">{strings[183]} {calculateTotalQuantity(backpack)}/{finalCapacities.backpack}</div>
+                <div className="capacity-display">
+                    {strings[183]} {calculateTotalQuantity(backpack)}/
+                    <span style={currentPlayer?.accountStatus === "Gold" ? {color: "#B8860B"} : {}}>
+                        {finalCapacities.backpack}
+                    </span>
+                    {currentPlayer?.accountStatus === "Gold" && (
+                        <div style={{fontSize: "12px", color: "#666", marginTop: "2px"}}>
+                            (+{backpackGoldBonus.toLocaleString()} {strings[89] || "additional capacity for Gold Pass"})
+                        </div>
+                    )}
+                </div>
 
                 {backpack.length > 0 && (
-                <div className="panel-buttons">
-                    <button className="btn-success" onClick={() => setShowBackpackModal(true)}>
+                <div className="shared-buttons">
+                    <button className="btn-basic btn-panel btn-neutral" onClick={() => setShowBackpackModal(true)}>
                     {strings[78]}
                     </button>
                 </div>
@@ -333,14 +347,23 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
 
             <h3>{strings[181]}</h3>
 
-            <div className="capacity-display">{strings[183]} {calculateTotalQuantity(inventory)}/{finalCapacities.warehouse}</div>
+            <div className="capacity-display">
+                {strings[183]} {calculateTotalQuantity(inventory)}/
+                <span style={currentPlayer?.accountStatus === "Gold" ? {color: "#B8860B"} : {}}>
+                    {finalCapacities.warehouse}
+                </span>
+                {currentPlayer?.accountStatus === "Gold" && (
+                    <div style={{fontSize: "12px", color: "#666", marginTop: "2px"}}>
+                        (+{warehouseGoldBonus.toLocaleString()} {strings[89] || "additional capacity for Gold Pass"})
+                    </div>
+                )}
+            </div>
 
-            <div className="panel-buttons">
-                <button className="btn-success" onClick={() => {
-                    setActiveStation({ type: 'Warehouse' });
+            <div className="shared-buttons">
+                <button className="btn-basic btn-panel btn-success" onClick={() => {
                     onClose();
                     setTimeout(() => {
-                        openPanel('SkillsPanel');
+                        openPanel('WarehousePanel');
                     }, 0);
                 }}>
                 {strings[194]}
@@ -348,8 +371,8 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
             </div>
 
             {inventory.length > 0 && (
-            <div className="panel-buttons">
-                <button className="btn-success" onClick={() => setShowWarehouseModal(true)}>
+            <div className="shared-buttons">
+                <button className="btn-basic btn-panel btn-neutral" onClick={() => setShowWarehouseModal(true)}>
                 {strings[184]}
                 </button>
             </div>
@@ -539,9 +562,9 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                                 message: "This will permanently discard ALL items in your warehouse!",
                                 message2: "This action cannot be undone.",
                                 custom: (
-                                    <div className="standard-buttons" style={{ marginTop: '20px' }}>
+                                    <div className="shared-buttons" style={{ marginTop: '20px' }}>
                                         <button 
-                                            className="btn-danger" 
+                                            className="btn-modal btn-danger" 
                                             onClick={() => {
                                                 handleDiscardAllWarehouse();
                                                 setIsModalOpen(false);
@@ -550,7 +573,7 @@ function InventoryPanel({ onClose, masterResources, currentPlayer, setCurrentPla
                                             Yes, Discard All
                                         </button>
                                         <button 
-                                            className="btn-success" 
+                                            className="btn-modal btn-success" 
                                             onClick={() => setIsModalOpen(false)}
                                             style={{ marginLeft: '10px' }}
                                         >

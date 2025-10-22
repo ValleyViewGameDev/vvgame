@@ -4,6 +4,7 @@ import axios from 'axios';
 import Panel from '../../UI/Panel';
 import { formatCountdown } from '../../UI/Timers';
 import '../../UI/Modal.css';
+import '../../UI/SharedButtons.css';
 import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 import { useStrings } from '../../UI/StringsContext';
 
@@ -265,10 +266,9 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
         </>
       )}
 
-      <div className="panel-buttons">
-        <button className="btn-success"
-          onClick={handleShowSeasonRules} 
-          style={{ marginTop: "20px", padding: "10px", fontWeight: "bold" }}
+      <div className="shared-buttons">
+        <button className="btn-panel btn-success"
+          onClick={handleShowSeasonRules}
         >
           {strings[15000]}
         </button>
@@ -301,10 +301,9 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
         <p>{strings[3063]}</p>
       )}
 
-      <div className="panel-buttons">
-        <button className="btn-success"
-          onClick={handleShowSeasonLog} 
-          style={{ marginTop: "20px", padding: "10px", fontWeight: "bold" }}
+      <div className="shared-buttons">
+        <button className="btn-panel btn-success"
+          onClick={handleShowSeasonLog}
         >
           {strings[3064]}
         </button>

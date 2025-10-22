@@ -1,0 +1,1009 @@
+[
+  {
+    "Level": 0,
+    "add": 1000,
+    "ingredient1qty": 5050,
+    "ingredient2qty": 5050,
+    "ingredient3qty": 5050
+  },
+  {
+    "Level": 1,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 1,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 1,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 1
+  },
+  {
+    "Level": 2,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 2,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 2,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 2
+  },
+  {
+    "Level": 3,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 3,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 3,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 3
+  },
+  {
+    "Level": 4,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 4,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 4,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 4
+  },
+  {
+    "Level": 5,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 5,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 5,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 5
+  },
+  {
+    "Level": 6,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 6,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 6,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 6
+  },
+  {
+    "Level": 7,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 7,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 7,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 7
+  },
+  {
+    "Level": 8,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 8,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 8,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 8
+  },
+  {
+    "Level": 9,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 9,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 9,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 9
+  },
+  {
+    "Level": 10,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 10,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 10,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 10
+  },
+  {
+    "Level": 11,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 11,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 11,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 11
+  },
+  {
+    "Level": 12,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 12,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 12,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 12
+  },
+  {
+    "Level": 13,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 13,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 13,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 13
+  },
+  {
+    "Level": 14,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 14,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 14,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 14
+  },
+  {
+    "Level": 15,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 15,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 15,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 15
+  },
+  {
+    "Level": 16,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 16,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 16,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 16
+  },
+  {
+    "Level": 17,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 17,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 17,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 17
+  },
+  {
+    "Level": 18,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 18,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 18,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 18
+  },
+  {
+    "Level": 19,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 19,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 19,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 19
+  },
+  {
+    "Level": 20,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 20,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 20,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 20
+  },
+  {
+    "Level": 21,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 21,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 21,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 21
+  },
+  {
+    "Level": 22,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 22,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 22,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 22
+  },
+  {
+    "Level": 23,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 23,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 23,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 23
+  },
+  {
+    "Level": 24,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 24,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 24,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 24
+  },
+  {
+    "Level": 25,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 25,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 25,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 25
+  },
+  {
+    "Level": 26,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 26,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 26,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 26
+  },
+  {
+    "Level": 27,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 27,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 27,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 27
+  },
+  {
+    "Level": 28,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 28,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 28,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 28
+  },
+  {
+    "Level": 29,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 29,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 29,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 29
+  },
+  {
+    "Level": 30,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 30,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 30,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 30
+  },
+  {
+    "Level": 31,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 31,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 31,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 31
+  },
+  {
+    "Level": 32,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 32,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 32,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 32
+  },
+  {
+    "Level": 33,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 33,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 33,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 33
+  },
+  {
+    "Level": 34,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 34,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 34,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 34
+  },
+  {
+    "Level": 35,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 35,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 35,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 35
+  },
+  {
+    "Level": 36,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 36,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 36,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 36
+  },
+  {
+    "Level": 37,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 37,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 37,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 37
+  },
+  {
+    "Level": 38,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 38,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 38,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 38
+  },
+  {
+    "Level": 39,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 39,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 39,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 39
+  },
+  {
+    "Level": 40,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 40,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 40,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 40
+  },
+  {
+    "Level": 41,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 41,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 41,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 41
+  },
+  {
+    "Level": 42,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 42,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 42,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 42
+  },
+  {
+    "Level": 43,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 43,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 43,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 43
+  },
+  {
+    "Level": 44,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 44,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 44,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 44
+  },
+  {
+    "Level": 45,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 45,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 45,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 45
+  },
+  {
+    "Level": 46,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 46,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 46,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 46
+  },
+  {
+    "Level": 47,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 47,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 47,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 47
+  },
+  {
+    "Level": 48,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 48,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 48,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 48
+  },
+  {
+    "Level": 49,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 49,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 49,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 49
+  },
+  {
+    "Level": 50,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 50,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 50,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 50
+  },
+  {
+    "Level": 51,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 51,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 51,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 51
+  },
+  {
+    "Level": 52,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 52,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 52,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 52
+  },
+  {
+    "Level": 53,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 53,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 53,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 53
+  },
+  {
+    "Level": 54,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 54,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 54,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 54
+  },
+  {
+    "Level": 55,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 55,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 55,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 55
+  },
+  {
+    "Level": 56,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 56,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 56,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 56
+  },
+  {
+    "Level": 57,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 57,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 57,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 57
+  },
+  {
+    "Level": 58,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 58,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 58,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 58
+  },
+  {
+    "Level": 59,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 59,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 59,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 59
+  },
+  {
+    "Level": 60,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 60,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 60,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 60
+  },
+  {
+    "Level": 61,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 61,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 61,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 61
+  },
+  {
+    "Level": 62,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 62,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 62,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 62
+  },
+  {
+    "Level": 63,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 63,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 63,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 63
+  },
+  {
+    "Level": 64,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 64,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 64,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 64
+  },
+  {
+    "Level": 65,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 65,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 65,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 65
+  },
+  {
+    "Level": 66,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 66,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 66,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 66
+  },
+  {
+    "Level": 67,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 67,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 67,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 67
+  },
+  {
+    "Level": 68,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 68,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 68,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 68
+  },
+  {
+    "Level": 69,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 69,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 69,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 69
+  },
+  {
+    "Level": 70,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 70,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 70,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 70
+  },
+  {
+    "Level": 71,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 71,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 71,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 71
+  },
+  {
+    "Level": 72,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 72,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 72,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 72
+  },
+  {
+    "Level": 73,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 73,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 73,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 73
+  },
+  {
+    "Level": 74,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 74,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 74,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 74
+  },
+  {
+    "Level": 75,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 75,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 75,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 75
+  },
+  {
+    "Level": 76,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 76,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 76,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 76
+  },
+  {
+    "Level": 77,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 77,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 77,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 77
+  },
+  {
+    "Level": 78,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 78,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 78,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 78
+  },
+  {
+    "Level": 79,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 79,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 79,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 79
+  },
+  {
+    "Level": 80,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 80,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 80,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 80
+  },
+  {
+    "Level": 81,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 81,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 81,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 81
+  },
+  {
+    "Level": 82,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 82,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 82,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 82
+  },
+  {
+    "Level": 83,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 83,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 83,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 83
+  },
+  {
+    "Level": 84,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 84,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 84,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 84
+  },
+  {
+    "Level": 85,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 85,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 85,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 85
+  },
+  {
+    "Level": 86,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 86,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 86,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 86
+  },
+  {
+    "Level": 87,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 87,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 87,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 87
+  },
+  {
+    "Level": 88,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 88,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 88,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 88
+  },
+  {
+    "Level": 89,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 89,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 89,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 89
+  },
+  {
+    "Level": 90,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 90,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 90,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 90
+  },
+  {
+    "Level": 91,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 91,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 91,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 91
+  },
+  {
+    "Level": 92,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 92,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 92,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 92
+  },
+  {
+    "Level": 93,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 93,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 93,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 93
+  },
+  {
+    "Level": 94,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 94,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 94,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 94
+  },
+  {
+    "Level": 95,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 95,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 95,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 95
+  },
+  {
+    "Level": 96,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 96,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 96,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 96
+  },
+  {
+    "Level": 97,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 97,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 97,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 97
+  },
+  {
+    "Level": 98,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 98,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 98,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 98
+  },
+  {
+    "Level": 99,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 99,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 99,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 99
+  },
+  {
+    "Level": 100,
+    "add": 50,
+    "ingredient1": "Saw",
+    "ingredient1qty": 100,
+    "ingredient2": "Shovel",
+    "ingredient2qty": 100,
+    "ingredient3": "Screwdriver",
+    "ingredient3qty": 100
+  }
+]

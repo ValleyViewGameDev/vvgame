@@ -19,6 +19,7 @@ import { useNPCOverlay } from '../../UI/NPCOverlayContext';
 import { useBulkOperation } from '../../UI/BulkOperationContext';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { BulkHarvestModal, executeBulkHarvest, prepareBulkHarvestData } from './BulkHarvest';
+import BulkHarvestResultsModal from './BulkHarvestResultsModal';
 import { BulkAnimalModal, executeBulkAnimalCollect, prepareBulkAnimalData } from './BulkAnimalCollect';
 import { BulkCraftingModal, executeBulkCrafting, prepareBulkCraftingData } from './BulkCrafting';
 
@@ -41,6 +42,7 @@ const FarmHandPanel = ({
   masterResources,
   masterSkills, // Added as prop
   currentSeason,
+  globalTuning,
 }) => {
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
@@ -51,6 +53,8 @@ const FarmHandPanel = ({
   const [workerUpgrades, setFarmhandUpgrades] = useState([]);
   const [isHarvestModalOpen, setIsHarvestModalOpen] = useState(false);
   const [availableCrops, setAvailableCrops] = useState([]);
+  const [bulkHarvestResults, setBulkHarvestResults] = useState(null);
+  const [isResultsModalOpen, setIsResultsModalOpen] = useState(false);
   const [isAnimalModalOpen, setIsAnimalModalOpen] = useState(false);
   const [selectedAnimalTypes, setSelectedAnimalTypes] = useState({});
   const [availableAnimals, setAvailableAnimals] = useState([]);
@@ -231,6 +235,7 @@ const FarmHandPanel = ({
       setCurrentPlayer,
       updateStatus,
       masterResources,
+      globalTuning,
     });
 
     if (!gained) {
@@ -511,7 +516,9 @@ const FarmHandPanel = ({
               updateStatus,
               masterResources,
               masterSkills,
-              strings
+              strings,
+              null, // openPanel
+              globalTuning
             );
             await wait(100);
           } else {
@@ -595,7 +602,7 @@ const FarmHandPanel = ({
     try {
       // Execute bulk operation with shared function
       await executeBulkOperation('bulk-harvest', operationId, farmerNPC, async () => {
-        return await executeBulkHarvest({
+        const result = await executeBulkHarvest({
           selectedCropTypes,
           selectedReplantTypes,
           resources: GlobalGridStateTilesAndResources.getResources(),  // Always use fresh resources
@@ -609,8 +616,24 @@ const FarmHandPanel = ({
           gridId,
           showBulkReplant,
           strings,
-          refreshPlayerAfterInventoryUpdate
+          refreshPlayerAfterInventoryUpdate,
+          globalTuning
         });
+
+        // Handle the new results format
+        if (result.success) {
+          // Store results for modal display
+          setBulkHarvestResults(result);
+          // Show results modal after a brief delay
+          setTimeout(() => {
+            setIsResultsModalOpen(true);
+          }, 500);
+          // Return status message for any fallback displays
+          return result.statusMessage;
+        } else {
+          // Return error message
+          return result.error;
+        }
       });
     } finally {
       // Always restart FarmState timer after harvest
@@ -716,7 +739,8 @@ const FarmHandPanel = ({
         masterResources,
         masterSkills,
         strings,
-        updateStatus
+        updateStatus,
+        globalTuning
       });
     });
     
@@ -1004,6 +1028,18 @@ const FarmHandPanel = ({
         isOpen={bulkProgressModal.isOpen}
         title={strings[478] || "Processing..."}
         message={bulkProgressModal.message}
+      />
+
+      {/* Bulk Harvest Results Modal */}
+      <BulkHarvestResultsModal
+        isOpen={isResultsModalOpen}
+        onClose={() => {
+          setIsResultsModalOpen(false);
+          setBulkHarvestResults(null);
+        }}
+        results={bulkHarvestResults}
+        strings={strings}
+        masterResources={masterResources}
       />
     </Panel>
   );

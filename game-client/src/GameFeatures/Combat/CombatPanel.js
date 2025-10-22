@@ -6,6 +6,7 @@ import axios from 'axios';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
+import '../../UI/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
 
 const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources, masterSkills, TILE_SIZE }) => {
@@ -258,7 +259,9 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
               <h4>{strings[554]}: <span className="stat-total blue-text">{speed.modifier !== 0 ? speed.total : speed.base}</span><br></br>
                 {"  ("} {speed.base} + <span className="stat-total blue-text">{speed.modifier}</span> {")"}</h4>
             </div>
-            <button className="resource-button" onClick={handleRefreshCombatStats}>🔄 Fix Combat Stats</button>
+            <div className="shared-buttons">
+              <button className="btn-basic btn-success" onClick={handleRefreshCombatStats}>🔄 Fix Combat Stats</button>
+            </div>
             <br></br>
 
             <div className="combat-equip">

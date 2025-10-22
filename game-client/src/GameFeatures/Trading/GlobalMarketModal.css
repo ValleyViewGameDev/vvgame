@@ -1,0 +1,132 @@
+/* Global Market Modal - Bespoke styling only */
+/* Uses shared styles from Modal.css and SharedButtons.css */
+
+.global-market-modal .modal-container {
+  max-width: 800px;
+  min-width: 600px;
+}
+
+.global-market-content {
+  padding: 6px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* Loading and empty states */
+.loading-container, .no-items-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.loading-text, .no-items-text {
+  font-size: 16px;
+  color: #666;
+}
+
+/* Players list */
+.players-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Individual player row */
+.player-row {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 5px;
+  background-color: #f9f9f9;
+}
+
+.player-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid #eee;
+}
+
+.player-username {
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+}
+
+.player-items-count {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Player's available slots */
+.player-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 6px;
+}
+
+/* Individual slot item */
+.slot-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+}
+
+.slot-info {
+  flex: 1;
+}
+
+.slot-item-name {
+  font-weight: bold;
+  font-size: 14px;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+
+
+.slot-button {
+  margin-left: 8px;
+}
+
+
+/* Footer */
+.global-market-footer {
+  padding: 10px 20px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .global-market-modal .modal-container {
+    min-width: 90vw;
+    max-width: 90vw;
+  }
+  
+  .player-slots {
+    grid-template-columns: 1fr;
+  }
+  
+  .slot-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .slot-button {
+    margin-left: 0;
+    align-self: stretch;
+  }
+  
+  .global-market-buy-btn {
+    width: 100%;
+  }
+}

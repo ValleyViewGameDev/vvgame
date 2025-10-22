@@ -29,6 +29,7 @@ const AnimalPanel = ({
   TILE_SIZE,
   updateStatus,
   masterResources,
+  globalTuning,
 }) => {
 
   const [stallDetails, setStallDetails] = useState(null);
@@ -139,6 +140,7 @@ const AnimalPanel = ({
           setCurrentPlayer,
           updateStatus,
           masterResources,
+          globalTuning,
         });
         if (!success) return;
       }
@@ -198,9 +200,9 @@ const AnimalPanel = ({
         {currentPlayer.location.gtype === 'homestead' && (
           <div className="animal-panel-footer">
             <hr />
-            <div className="standard-buttons">
+            <div className="shared-buttons">
               <TransactionButton 
-                className="btn-success" 
+                className="btn-basic btn-success" 
                 onAction={handleSellStation}
                 transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
               >

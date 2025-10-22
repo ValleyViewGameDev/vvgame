@@ -46,8 +46,9 @@ export function BulkAnimalModal({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={strings[319] || "Select Animals to Collect"} size="medium">
       <div style={{ padding: '20px', fontSize: '16px' }}>           
-        <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
+        <div className="shared-buttons" style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
           <button 
+            className="btn-basic btn-success btn-modal-small"
             onClick={() => {
               const allSelected = {};
               animals.forEach(animal => {
@@ -55,13 +56,12 @@ export function BulkAnimalModal({
               });
               setSelectedAnimalTypes(allSelected);
             }}
-            style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
           >
             {strings[316] || 'Select All'}
           </button>
           <button 
+            className="btn-basic btn-danger btn-modal-small"
             onClick={() => setSelectedAnimalTypes({})}
-            style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '3px' }}
           >
             {strings[317] || 'Deselect All'}
           </button>
@@ -92,10 +92,10 @@ export function BulkAnimalModal({
           ))}
         </div>
         
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center' }}>
           <button 
+            className="btn-basic btn-success btn-modal"
             onClick={handleExecute}
-            style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px' }}
             disabled={Object.values(selectedAnimalTypes).every(selected => !selected)}
           >
             {strings[318] || 'Collect Selected'}

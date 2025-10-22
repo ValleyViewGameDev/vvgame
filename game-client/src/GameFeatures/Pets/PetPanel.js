@@ -18,12 +18,13 @@ import { showNotification } from '../../UI/Notifications/Notifications';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { selectWeightedRandomItem, getDropQuantity } from '../../Utils/DropRates';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
+import { getPersonalizedPetRewards } from '../../Utils/ResourceHelpers';
 import '../../UI/SharedButtons.css';
 import '../../UI/ResourceButton.css'; 
 import './PetPanel.css';
 
 // Helper function to get a random reward from pets source with rarity weighting
-const getRandomPetReward = (masterResources, petLevel = 1) => {
+const getRandomPetReward = (masterResources, petLevel = 1, playerId) => {
   // Get all resources with source === 'pets'
   const petRewards = masterResources.filter(res => res.source === 'pets');
   
@@ -32,9 +33,12 @@ const getRandomPetReward = (masterResources, petLevel = 1) => {
     return null;
   }
   
+  // Apply personalized rarity to warehouse ingredients
+  const personalizedRewards = getPersonalizedPetRewards(petRewards, playerId);
+  
   // Use the shared drop rate utility with pet level multiplier
   // Higher level pets have better drop rates (level 2 = 2x rates, level 5 = 5x rates)
-  const selectedReward = selectWeightedRandomItem(petRewards, petLevel);
+  const selectedReward = selectWeightedRandomItem(personalizedRewards, petLevel);
   
   if (!selectedReward) {
     return null;
@@ -67,6 +71,7 @@ const PetPanel = ({
   masterTrophies,
   TILE_SIZE,
   isDeveloper,
+  globalTuning,
 }) => {
   const strings = useStrings();
   const { updateStatus } = useContext(StatusBarContext);
@@ -187,7 +192,7 @@ const PetPanel = ({
 
       // Generate random reward using pet's level for better drop rates
       const petLevel = petResource?.level || 1; // Default to level 1 if not specified
-      const reward = getRandomPetReward(masterResources, petLevel);
+      const reward = getRandomPetReward(masterResources, petLevel, currentPlayer.playerId);
       
       if (!reward) {
         console.error('Failed to generate pet reward');
@@ -300,6 +305,7 @@ const PetPanel = ({
             setCurrentPlayer,
             updateStatus,
             masterResources,
+            globalTuning,
         });
 
         if (!gained) {
@@ -447,9 +453,9 @@ const PetPanel = ({
         {currentPlayer.location.gtype === 'homestead' && (
           <div className="pet-panel-footer">
             <hr />
-            <div className="standard-buttons">
+            <div className="shared-buttons">
               <TransactionButton 
-                className="btn-success" 
+                className="btn-basic btn-success" 
                 onAction={handleSellPet}
                 transactionKey={`sell-refund-${petName}-${currentPetPosition.x}-${currentPetPosition.y}-${gridId}`}
               >

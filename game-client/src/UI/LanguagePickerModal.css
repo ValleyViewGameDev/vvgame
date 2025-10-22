@@ -1,5 +1,18 @@
 
 
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
 .language-modal {
   background: white;
   border-radius: 8px;
@@ -7,13 +20,14 @@
   width: 320px;
   max-width: 90%;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  margin: 40px auto;
   text-align: center;
+  position: relative;
 }
 
-.language-modal h2 {
+.language-modal h1 {
   margin-bottom: 16px;
-  font-size: 1.2em;
+  font-size: 1.8em;
+  font-family: 'Chewy', serif;
 }
 
 .language-list {
@@ -34,6 +48,7 @@
   align-items: center;
   justify-content: center;
   font-size: 1.0em;
+  font-family: Arial, sans-serif;
   transition: border-color 0.2s ease;
 }
 

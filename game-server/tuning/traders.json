@@ -130,7 +130,7 @@
         },
         "requires": [
           {
-            "type": "Secret",
+            "type": "Portia's Secret",
             "quantity": 1
           }
         ]

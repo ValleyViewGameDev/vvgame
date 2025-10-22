@@ -1,5 +1,8 @@
 {
   "maxCrops": 1000,
+  "warehouseCapacityGold": 100000,
+  "backpackCapacityGold": 5000,
+  "harvestDropRate": 0.08,
   "closerZoom": 50,
   "closeZoom": 34,
   "farZoom": 16,

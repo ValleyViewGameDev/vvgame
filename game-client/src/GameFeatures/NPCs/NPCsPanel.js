@@ -42,6 +42,7 @@ const NPCPanel = ({
   zoomLevel,
   setZoomLevel,
   centerCameraOnPlayer,
+  globalTuning,
 }) => {
   const strings = useStrings();
   const [questList, setQuestList] = useState([]);
@@ -329,6 +330,7 @@ const handleGetReward = async (quest) => {
         setCurrentPlayer,
         updateStatus,
         masterResources,
+        globalTuning,
       });
       if (!success) return;
 
@@ -511,7 +513,8 @@ const handleHeal = async (recipe) => {
       currentPlayer,
       inventory: inventory,  // Use current prop
       backpack: backpack,    // Use current prop
-      masterResources
+      masterResources,
+      globalTuning
     });
     
     // Create safe copies after the capacity check
@@ -566,6 +569,7 @@ const handleHeal = async (recipe) => {
       setCurrentPlayer,
       updateStatus,
       masterResources,
+      globalTuning,
     });
     
     if (!gained) {
@@ -802,11 +806,10 @@ const handleHeal = async (recipe) => {
           
           {/* Developer option to sell NPC */}
           {isDeveloper && (
-              <div className="standard-buttons">
+              <div className="shared-buttons">
               <button 
-                className="btn-danger" 
+                className="btn-basic btn-danger" 
                 onClick={handleSellNPC}
-                style={{ width: '100%', padding: '10px' }}
               >
                 {strings[490]}
               </button>
@@ -866,9 +869,9 @@ const handleHeal = async (recipe) => {
           
           {/* Developer option to sell NPC */}
           {isDeveloper && (
-              <div className="standard-buttons">
+              <div className="shared-buttons">
               <button 
-                className="btn-danger" 
+                className="btn-basic btn-danger" 
                 onClick={handleSellNPC}
                 style={{ width: '100%', padding: '10px' }}
               >
@@ -1039,7 +1042,7 @@ const handleHeal = async (recipe) => {
                     <ResourceButton
                       key={recipe.type}
                       symbol={recipe.symbol}
-                      name={`${getLocalizedString(recipe.type, strings)} ${quantityToGive}x`}
+                      name={`${getLocalizedString(recipe.type, strings)} (${quantityToGive}x)`}
                       details={`${strings[461]}<div>${formattedCosts}</div>`}
                       disabled={!affordable}
                       onClick={() => handleTrade(recipe)}
@@ -1084,12 +1087,10 @@ const handleHeal = async (recipe) => {
           
           {/* Developer option to sell NPC */}
           {isDeveloper && (
-            <div className="standard-buttons">
+            <div className="shared-buttons">
               <button 
-                className="btn-danger" 
-                onClick={handleSellNPC}
-                style={{ width: '100%', padding: '10px' }}
-              >
+                className="btn-basic btn-danger" 
+                onClick={handleSellNPC}>
                 {strings[490]}
               </button>
             </div>

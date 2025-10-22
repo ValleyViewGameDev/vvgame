@@ -1,0 +1,169 @@
+/* Bulk Harvest Results Modal - Bespoke styling only */
+
+/* Results content spacing */
+.bulk-harvest-results-content {
+  padding: 20px;
+  font-size: 16px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* Section styling */
+.results-section {
+  margin-bottom: 20px;
+}
+
+.results-section-header {
+  margin: 0 0 10px 0;
+  padding-bottom: 5px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+/* Grid layout for result items */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+/* Special 3-column grid for warehouse ingredients */
+.results-grid-warehouse {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+/* Individual result item styling */
+.result-item {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.result-item.crops {
+  background-color: #f0f8ff;
+}
+
+.result-item.warehouse {
+  background-color: #fff3e0;
+  border: 2px solid #FF9800;
+}
+
+.result-item.replanting {
+  background-color: #f1f8e9;
+}
+
+/* Item content styling */
+.result-item-label {
+  display: flex;
+  flex-direction: column;
+}
+
+.result-item-name {
+  font-weight: bold;
+}
+
+.result-item-metadata {
+  font-size: 12px;
+  color: #666;
+  text-transform: capitalize;
+}
+
+.skill-bonus {
+  color: #2196F3;
+  font-size: 12px;
+  margin-left: 4px;
+}
+
+.result-item-quantity {
+  font-weight: bold;
+}
+
+.result-item-quantity.crops {
+  color: #4CAF50;
+}
+
+.result-item-quantity.warehouse {
+  color: #FF9800;
+}
+
+.result-item-quantity.replanting {
+  color: #8BC34A;
+}
+
+/* Skills applied section */
+.skills-applied-list {
+  font-size: 14px;
+  color: #666;
+}
+
+.skills-applied-item {
+  margin-bottom: 4px;
+}
+
+/* Summary message styling */
+.results-summary {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+}
+
+/* Row-based layouts for simplified sections */
+.crop-rows, .replant-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.crop-row, .replant-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.crop-symbol, .replant-symbol {
+  font-size: 18px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.crop-name, .replant-name {
+  font-weight: bold;
+  min-width: 80px;
+}
+
+.crop-quantity, .replant-quantity {
+  font-weight: bold;
+  color: #4CAF50;
+  min-width: 60px;
+}
+
+.crop-skills {
+  color: #2196F3;
+  font-size: 14px;
+  font-style: italic;
+}
+
+.replant-seeds-used {
+  color: #2196F3;
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* Modal container adjustments for better sizing */
+.bulk-harvest-results-modal .modal-container {
+  max-width: 600px;
+  min-width: 500px;
+}

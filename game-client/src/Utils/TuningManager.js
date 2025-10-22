@@ -7,6 +7,7 @@ let globalTuning = null;
 let masterInteractions = null;
 let masterTraders = null;
 let masterTrophies = null;
+let masterWarehouse = null;
 /**
  * Fetch and cache skillsTuning.json
  */
@@ -111,6 +112,23 @@ export async function loadMasterTrophies() {
 }
 
 /**
+ * Fetch and cache warehouse.json
+ */
+export async function loadMasterWarehouse() {
+  if (!masterWarehouse) {
+    try {
+      const response = await axios.get(`${API_BASE}/api/warehouse`);
+      masterWarehouse = response.data;
+      console.log('Master warehouse loaded:', masterWarehouse);
+    } catch (error) {
+      console.error('Error fetching master warehouse:', error);
+      masterWarehouse = [];
+    }
+  }
+  return masterWarehouse;
+}
+
+/**
  * Clear cached data (optional, for debugging or forced reloads).
  */
 export function clearTuningCache() {
@@ -118,4 +136,5 @@ export function clearTuningCache() {
   masterResources = null;
   masterTraders = null;
   masterTrophies = null;
+  masterWarehouse = null;
 }

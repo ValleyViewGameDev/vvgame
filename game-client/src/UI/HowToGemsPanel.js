@@ -4,6 +4,7 @@ import { handlePurchase } from '../Store/Store';
 import { useStrings } from './StringsContext';
 import axios from 'axios';
 import API_BASE from '../config';
+import './SharedButtons.css';
 
 const HowToGemsPanel = memo(({ currentPlayer, updateStatus, onClose }) => {
 
@@ -35,13 +36,13 @@ const HowToGemsPanel = memo(({ currentPlayer, updateStatus, onClose }) => {
         <p>{strings[9031]}</p>
         <p>{strings[9032]}</p>
 
-        <div className="standard-buttons" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '10px' }}>
+        <div className="shared-buttons" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', gap: '10px' }}>
         <p style={{ marginBottom: '0px', fontWeight: 'bold' }}>{strings[9040]}</p>
-            <button className="btn-gold" style={{ width: '100%' }} onClick={() => handlePurchase(6, currentPlayer, updateStatus)}>{strings[9041]}{offers[6] ? ` $${offers[6].price.toFixed(2)}` : ''}</button>
+            <button className="btn-basic btn-gold" style={{ width: '100%' }} onClick={() => handlePurchase(6, currentPlayer, updateStatus)}>{strings[9041]}{offers[6] ? ` $${offers[6].price.toFixed(2)}` : ''}</button>
         <p style={{ marginBottom: '0px', marginTop: '6px', fontWeight: 'bold' }}>{strings[9042]}</p>
-            <button className="btn-gold" style={{ width: '100%' }} onClick={() => handlePurchase(7, currentPlayer, updateStatus)}>{strings[9043]}{offers[7] ? ` $${offers[7].price.toFixed(2)}` : ''}</button>
+            <button className="btn-basic btn-gold" style={{ width: '100%' }} onClick={() => handlePurchase(7, currentPlayer, updateStatus)}>{strings[9043]}{offers[7] ? ` $${offers[7].price.toFixed(2)}` : ''}</button>
         <p style={{ marginBottom: '0px', marginTop: '6px', fontWeight: 'bold' }}>{strings[9044]}</p>
-            <button className="btn-gold" style={{ width: '100%' }} onClick={() => handlePurchase(8, currentPlayer, updateStatus)}>{strings[9045]}{offers[8] ? ` $${offers[8].price.toFixed(2)}` : ''}</button>
+            <button className="btn-basic btn-gold" style={{ width: '100%' }} onClick={() => handlePurchase(8, currentPlayer, updateStatus)}>{strings[9045]}{offers[8] ? ` $${offers[8].price.toFixed(2)}` : ''}</button>
         </div>
 
         <p>{strings[9033]}</p>

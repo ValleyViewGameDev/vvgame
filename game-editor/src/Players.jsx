@@ -9,6 +9,11 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
   const [error, setError] = useState(null);
   const [selectedPlayer, setSelectedPlayer] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [deletionModal, setDeletionModal] = useState({
+    isOpen: false,
+    type: null, // 'unstarted' or 'inactive'
+    profiles: []
+  });
 
   // Function to get settlement name by ID
   const getSettlementName = (settlementId) => {
@@ -303,6 +308,140 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
     }
   };
 
+  // Handle bulk deletion of unstarted profiles
+  const handleDeleteUnstartedProfiles = async () => {
+    const now = new Date();
+    const tenDaysAgo = new Date(now.getTime() - (10 * 24 * 60 * 60 * 1000));
+    
+    // Filter profiles that meet deletion criteria
+    const profilesToDelete = players.filter(player => {
+      const lastActive = player.lastActive ? new Date(player.lastActive) : null;
+      const ftueStep = player.ftuestep || 0;
+      const isFirstTimeUser = player.firsttimeuser === true;
+      
+      // Check if last active is 10+ days ago (or never active) AND ftue step is 3 or less AND still a first-time user
+      return (!lastActive || lastActive <= tenDaysAgo) && ftueStep <= 3 && isFirstTimeUser;
+    });
+    
+    if (profilesToDelete.length === 0) {
+      alert("No profiles found matching the criteria for deletion.");
+      return;
+    }
+    
+    // Sort profiles by last active date (oldest first)
+    profilesToDelete.sort((a, b) => {
+      const aDate = a.lastActive ? new Date(a.lastActive) : new Date(0);
+      const bDate = b.lastActive ? new Date(b.lastActive) : new Date(0);
+      return aDate - bDate;
+    });
+    
+    // Show preview modal
+    setDeletionModal({
+      isOpen: true,
+      type: 'unstarted',
+      profiles: profilesToDelete
+    });
+  };
+
+  // Handle bulk deletion of inactive profiles
+  const handleDeleteInactiveProfiles = async () => {
+    const now = new Date();
+    const twentyOneDaysAgo = new Date(now.getTime() - (21 * 24 * 60 * 60 * 1000));
+    
+    // Filter profiles that meet deletion criteria
+    const profilesToDelete = players.filter(player => {
+      const lastActive = player.lastActive ? new Date(player.lastActive) : null;
+      const ftueStep = player.ftuestep || 0;
+      const isFirstTimeUser = player.firsttimeuser === true;
+      
+      // Check if last active is 21+ days ago (or never active) AND ftue step is 6 or less AND still a first-time user
+      return (!lastActive || lastActive <= twentyOneDaysAgo) && ftueStep <= 6 && isFirstTimeUser;
+    });
+    
+    if (profilesToDelete.length === 0) {
+      alert("No profiles found matching the criteria for deletion.");
+      return;
+    }
+    
+    // Sort profiles by last active date (oldest first)
+    profilesToDelete.sort((a, b) => {
+      const aDate = a.lastActive ? new Date(a.lastActive) : new Date(0);
+      const bDate = b.lastActive ? new Date(b.lastActive) : new Date(0);
+      return aDate - bDate;
+    });
+    
+    // Show preview modal
+    setDeletionModal({
+      isOpen: true,
+      type: 'inactive',
+      profiles: profilesToDelete
+    });
+  };
+
+  // Confirm and execute bulk deletion
+  const confirmBulkDeletion = async () => {
+    const { profiles, type } = deletionModal;
+    
+    // Final confirmation
+    const confirmed = window.confirm(
+      `⚠️ FINAL CONFIRMATION ⚠️\n\n` +
+      `You are about to permanently delete ${profiles.length} player accounts.\n\n` +
+      `This action cannot be undone!\n\n` +
+      `Are you absolutely sure?`
+    );
+    
+    if (!confirmed) return;
+    
+    // Close modal
+    setDeletionModal({ isOpen: false, type: null, profiles: [] });
+    
+    try {
+      console.log(`🗑️ Starting bulk deletion of ${profiles.length} ${type} profiles...`);
+      
+      let successCount = 0;
+      let failCount = 0;
+      
+      // Delete each profile using the existing delete endpoint
+      for (const player of profiles) {
+        try {
+          const response = await axios.post(`${API_BASE}/api/delete-player`, {
+            playerId: player._id,
+          });
+          
+          if (response.data.success) {
+            successCount++;
+            console.log(`✅ Deleted: ${player.username}`);
+          } else {
+            failCount++;
+            console.error(`❌ Failed to delete: ${player.username}`);
+          }
+        } catch (error) {
+          failCount++;
+          console.error(`❌ Error deleting ${player.username}:`, error);
+        }
+      }
+      
+      // Update the players list to remove deleted profiles
+      const deletedIds = profiles.map(p => p._id);
+      setPlayers(players.filter(p => !deletedIds.includes(p._id)));
+      
+      // Clear selected player if it was deleted
+      if (selectedPlayer && deletedIds.includes(selectedPlayer._id)) {
+        setSelectedPlayer(null);
+      }
+      
+      alert(
+        `Bulk deletion completed:\n\n` +
+        `✅ Successfully deleted: ${successCount} profiles\n` +
+        `❌ Failed to delete: ${failCount} profiles`
+      );
+      
+    } catch (error) {
+      console.error("❌ Error during bulk deletion:", error);
+      alert(`Error during bulk deletion: ${error.message}`);
+    }
+  };
+
   // Handle column sorting
   const handleSort = (columnKey) => {
     let direction = 'asc';
@@ -381,6 +520,31 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
         <button onClick={fetchPlayers} className="refresh-btn">
           🔄 Refresh Data
         </button>
+
+        {/* Bulk Deletion Buttons */}
+        <div className="bulk-actions">
+          <button 
+            onClick={handleDeleteUnstartedProfiles} 
+            className="action-btn"
+            style={{ backgroundColor: '#ff6b6b', color: 'white', marginTop: '10px' }}
+          >
+            🗑️ Delete Unstarted Profiles
+          </button>
+          <p style={{ fontSize: '12px', margin: '5px 0', color: '#666' }}>
+            (Will delete first-time users where Last Active is 10 days or more, and FTUE Step is 3 or less)
+          </p>
+          
+          <button 
+            onClick={handleDeleteInactiveProfiles} 
+            className="action-btn"
+            style={{ backgroundColor: '#dc3545', color: 'white', marginTop: '10px' }}
+          >
+            🗑️ Delete Inactive Profiles
+          </button>
+          <p style={{ fontSize: '12px', margin: '5px 0 20px', color: '#666' }}>
+            (Will delete first-time users where Last Active is 21 days or more, and FTUE step is 6 or less)
+          </p>
+        </div>
 
         {/* Selected Player Info */}
         {selectedPlayer && (
@@ -650,6 +814,85 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
           </div>
         )}
       </div>
+
+      {/* Deletion Preview Modal */}
+      {deletionModal.isOpen && (
+        <div className="modal-overlay" onClick={() => setDeletionModal({ isOpen: false, type: null, profiles: [] })}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            <h2>
+              🗑️ {deletionModal.type === 'unstarted' ? 'Delete Unstarted Profiles' : 'Delete Inactive Profiles'}
+            </h2>
+            
+            <div className="modal-info">
+              <p><strong>Total profiles to delete:</strong> {deletionModal.profiles.length}</p>
+              <p className="criteria">
+                {deletionModal.type === 'unstarted' ? 
+                  '(First-time users only: Last Active ≥ 10 days, FTUE Step ≤ 3)' : 
+                  '(First-time users only: Last Active ≥ 21 days, FTUE Step ≤ 6)'
+                }
+              </p>
+            </div>
+
+            <div className="profiles-preview">
+              <table className="preview-table">
+                <thead>
+                  <tr>
+                    <th>Username</th>
+                    <th>Last Active</th>
+                    <th>FTUE Step</th>
+                    <th>Created</th>
+                    <th>Settlement</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {deletionModal.profiles.slice(0, 50).map((player) => (
+                    <tr key={player._id}>
+                      <td>{player.icon || '😀'} {player.username}</td>
+                      <td>
+                        {player.lastActive ? (
+                          <span style={{ color: '#dc3545' }}>
+                            {(() => {
+                              const now = new Date();
+                              const lastActive = new Date(player.lastActive);
+                              const diffDays = Math.floor((now - lastActive) / (1000 * 60 * 60 * 24));
+                              return `${diffDays} days ago`;
+                            })()}
+                          </span>
+                        ) : (
+                          <span style={{ color: '#dc3545' }}>Never</span>
+                        )}
+                      </td>
+                      <td>{player.ftuestep || '0'}</td>
+                      <td>{player.created ? new Date(player.created).toLocaleDateString() : 'Unknown'}</td>
+                      <td>{getSettlementName(player.settlementId)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              
+              {deletionModal.profiles.length > 50 && (
+                <p className="more-profiles">...and {deletionModal.profiles.length - 50} more profiles</p>
+              )}
+            </div>
+
+            <div className="modal-actions">
+              <button 
+                className="cancel-btn"
+                onClick={() => setDeletionModal({ isOpen: false, type: null, profiles: [] })}
+              >
+                Cancel
+              </button>
+              <button 
+                className="delete-btn"
+                onClick={() => confirmBulkDeletion()}
+                style={{ backgroundColor: '#dc3545', color: 'white' }}
+              >
+                🗑️ Delete {deletionModal.profiles.length} Profiles
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

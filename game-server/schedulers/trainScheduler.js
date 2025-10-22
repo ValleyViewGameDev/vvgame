@@ -337,7 +337,7 @@ async function generateTrainOffersAndRewards(settlement, frontier, seasonConfig)
     const item = rewardItems[Math.floor(Math.random() * rewardItems.length)];
     // then, pick a quantity for this item; more rewards for later in the season
     // here, though, we need to consider that Yellow Heart should be more frequent, Purple less
-    const baseQty = Math.ceil((population / 10) * seasonLevel * 3);
+    const baseQty = Math.ceil((population / 10) * seasonLevel);
     
     // Add +/- 15% randomness to the quantity
     const variation = 0.15; // 15% variation

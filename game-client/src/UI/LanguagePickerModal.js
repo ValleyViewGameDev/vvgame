@@ -38,9 +38,10 @@ const handleSave = async () => {
 };
 
   return (
-    <Modal onClose={onClose} className="modal-LanguagePicker" size="standard">
-      <div className="language-modal">
-        <h2>{strings[130]}</h2>
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="language-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="modal-close-btn" onClick={onClose}>×</button>
+        <h1>{strings[130]}</h1>
         <ul className="language-list">
           {LANGUAGE_OPTIONS.map(({ code, label, flag }) => (
             <li
@@ -52,10 +53,10 @@ const handleSave = async () => {
             </li>
           ))}
         </ul>
-        <div className="modal-buttons">
-          <button className="shared-button" onClick={handleSave}>{strings[131]}</button>
+        <div className="modal-buttons shared-buttons">
+          <button className="btn-basic btn-modal btn-success" onClick={handleSave}>{strings[131]}</button>
         </div>
       </div>
-    </Modal>
+    </div>
   );
 }

@@ -51,8 +51,8 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
         <h3>Premium Avatars</h3>
 
         {!isGold && (
-          <div className="standard-buttons">
-            <button className="btn-gold" onClick={() => handlePurchase(1, currentPlayer, updateStatus)}>Unlock Premium Avatars</button>
+          <div className="shared-buttons">
+            <button className="btn-basic btn-gold" onClick={() => handlePurchase(1, currentPlayer, updateStatus)}>Unlock Premium Avatars</button>
           </div>
         )}
 
@@ -75,8 +75,8 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
         </div>
 
 
-        <div className="standard-buttons">
-          <button className="btn-success" onClick={handleSave}>Save</button>
+        <div className="shared-buttons">
+          <button className="btn-basic btn-success" onClick={handleSave}>Save</button>
         </div>
       </div>
     </div>

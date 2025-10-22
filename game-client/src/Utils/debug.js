@@ -3,6 +3,7 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import Panel from '../UI/Panel';
 import '../UI/Panel.css'; // Specific styles for Debug Panel
+import '../UI/SharedButtons.css'; // Specific styles for Debug Panel
 import { fetchInventory, refreshPlayerAfterInventoryUpdate } from './InventoryManagement';
 import { fetchGridData, changePlayerLocation } from './GridManagement';
 import NPCsInGridManager from '../GridState/GridStateNPCs'; // Use default export for NPCsInGridManager
@@ -254,6 +255,11 @@ const handleGetRich = async () => {
       { type: 'Yellow Heart', quantity: 1000 },
       { type: 'Green Heart', quantity: 500 },
       { type: 'Purple Heart', quantity: 500 },
+      { type: 'Saw', quantity: 10 },
+      { type: 'Shovel', quantity: 20 },
+      { type: 'Screwdriver', quantity: 30 },
+      { type: 'Hammer', quantity: 40 },
+      { type: 'Bolt', quantity: 50 },
     ];
 
     // Use delta endpoint for batched update, adding target: 'inventory' to each resource
@@ -840,28 +846,69 @@ const handleGetRich = async () => {
 
   return (
     <Panel onClose={onClose} titleKey="1120" panelName="DebugPanel">
-      <div className="debug-buttons">
-        <button className="btn-danger" onClick={handleCreateNewFrontier}> Create New Frontier </button>
-        <button className="btn-danger" onClick={handleResetGrid}> Reset This Grid </button>
-        <button className="btn-danger" onClick={handleRemoveHomestead}> Remove Homestead </button>
-        <button className="btn-danger" onClick={handleGenerateTown}> Generate Town </button>
-        <button className="btn-danger" onClick={() => handleGenerateValley(0)}> Generate Valley 0 </button>
-        <button className="btn-danger" onClick={() => handleGenerateValley(1)}> Generate Valley 1 </button>
-        <button className="btn-danger" onClick={() => handleGenerateValley(2)}> Generate Valley 2 </button>
-        <button className="btn-danger" onClick={() => handleGenerateValley(3)}> Generate Valley 3 </button>
-        <button className="btn-neutral" onClick={handleClearInventory}> Clear Inventory </button>
-        <button className="btn-neutral" onClick={handleClearSkillsAndPowers}> Clear Skills & Powers </button>
-        <button className="btn-neutral" onClick={handleResetCombatStats}> Reset Combat Stats </button>
-        <button className="btn-neutral" onClick={handleClearQuestHistory}> Clear Quest History </button>
-        <button className="btn-neutral" onClick={handleClearGridState}> Clear Grid State </button>
-        <button className="btn-neutral" onClick={handleClearTradeStall}> Clear Trade Stall </button>
-        <button className="btn-neutral" onClick={handleClearTrophies}> Clear Trophies </button>
-        <button className="btn-success" onClick={handleResetFTUE}> Reset FTUE </button>
-        <button className="btn-success" onClick={handleWelcomeMessage}> Resend Welcome Message </button>
-        <button className="btn-success" onClick={handleRewardMessage}> Resend Reward Message </button>
-        <button className="btn-success" onClick={handleAddMoney}> Add Money </button>
-        <button className="btn-success" onClick={handleGetRich}> Get Rich </button>
-        <button className="btn-success" onClick={handleGetSkills}> Get Skills </button>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-danger" onClick={handleCreateNewFrontier}> Create New Frontier </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-danger" onClick={handleResetGrid}> Reset This Grid </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-danger" onClick={handleRemoveHomestead}> Remove Homestead </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-danger" onClick={handleGenerateTown}> Generate Town </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-danger" onClick={() => handleGenerateValley(0)}> Generate Valley 0 </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-danger" onClick={() => handleGenerateValley(1)}> Generate Valley 1 </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-danger" onClick={() => handleGenerateValley(2)}> Generate Valley 2 </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-danger" onClick={() => handleGenerateValley(3)}> Generate Valley 3 </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-neutral" onClick={handleClearInventory}> Clear Inventory </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-neutral" onClick={handleClearSkillsAndPowers}> Clear Skills & Powers </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-neutral" onClick={handleResetCombatStats}> Reset Combat Stats </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-neutral" onClick={handleClearQuestHistory}> Clear Quest History </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-neutral" onClick={handleClearGridState}> Clear Grid State </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-neutral" onClick={handleClearTradeStall}> Clear Trade Stall </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-neutral" onClick={handleClearTrophies}> Clear Trophies </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success" onClick={handleResetFTUE}> Reset FTUE </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success" onClick={handleWelcomeMessage}> Resend Welcome Message </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success" onClick={handleRewardMessage}> Resend Reward Message </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success" onClick={handleAddMoney}> Add Money </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success" onClick={handleGetRich}> Get Rich </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success" onClick={handleGetSkills}> Get Skills </button>
+      </div>
 
         <h3>Create Single Valley Grid</h3>
         <input
@@ -870,28 +917,30 @@ const handleGetRich = async () => {
           value={singleGridCoord}
           onChange={(e) => setSingleGridCoord(e.target.value)}
         />
-        <button
-          className="btn-danger"
-          onClick={async () => {
-            const settlementId = currentPlayer?.location?.s;
-            const frontierId = currentPlayer?.location?.f;
-            const gridType = currentPlayer?.location?.gtype || 'valley0';
-            if (!singleGridCoord || !settlementId || !frontierId) {
-              alert("Missing gridCoord, settlementId, or frontierId.");
-              return;
-            }
-            try {
-              await createSingleValleyGrid({
-                gridCoord: singleGridCoord,
-              });
-            } catch (error) {
-              console.error("Error creating single valley grid:", error);
-              alert("Failed to create valley grid. See console for details.");
-            }
-          }}
-        >
-          Create Grid
-        </button>
+        <div className="shared-buttons">
+          <button
+            className="btn-basic btn-danger"
+            onClick={async () => {
+              const settlementId = currentPlayer?.location?.s;
+              const frontierId = currentPlayer?.location?.f;
+              const gridType = currentPlayer?.location?.gtype || 'valley0';
+              if (!singleGridCoord || !settlementId || !frontierId) {
+                alert("Missing gridCoord, settlementId, or frontierId.");
+                return;
+              }
+              try {
+                await createSingleValleyGrid({
+                  gridCoord: singleGridCoord,
+                });
+              } catch (error) {
+                console.error("Error creating single valley grid:", error);
+                alert("Failed to create valley grid. See console for details.");
+              }
+            }}
+          >
+            Create Grid
+          </button>
+        </div>
 
         <h3>Teleport to Another Grid</h3>
         <input
@@ -900,24 +949,26 @@ const handleGetRich = async () => {
           value={toGridCoord}
           onChange={(e) => setToGridCoord(e.target.value)}
         />
-        <button
-          className="btn-danger"
-          onClick={async () => {
-            try {
-              const parsedCoord = parseInt(toGridCoord, 10);
-              if (isNaN(parsedCoord)) {
-                alert("Invalid gridCoord (not a number).");
-                return;
+        <div className="shared-buttons">
+          <button
+            className="btn-basic btn-danger"
+            onClick={async () => {
+              try {
+                const parsedCoord = parseInt(toGridCoord, 10);
+                if (isNaN(parsedCoord)) {
+                  alert("Invalid gridCoord (not a number).");
+                  return;
+                }
+                await handleTeleport(parsedCoord);
+              } catch (error) {
+                console.error("Error teleporting:", error);
+                alert("Failed to teleport.");
               }
-              await handleTeleport(parsedCoord);
-            } catch (error) {
-              console.error("Error teleporting:", error);
-              alert("Failed to teleport.");
-            }
-          }}
-        >
-          Teleport
-        </button>
+            }}
+          >
+            Teleport
+          </button>
+        </div>
         
 
         <h3>Delete User Account</h3>
@@ -927,24 +978,26 @@ const handleGetRich = async () => {
           value={usernameToDelete}
           onChange={(e) => setUsernameToDelete(e.target.value)}
         />
-        <button
-          className="btn-danger"
-          onClick={async () => {
-            const confirmed = window.confirm(`⚠️ Are you absolutely sure you want to permanently delete the account for "${usernameToDelete}"? This cannot be undone.`);
-            if (!confirmed) return;
+        <div className="shared-buttons">
+          <button
+            className="btn-basic btn-danger"
+            onClick={async () => {
+              const confirmed = window.confirm(`⚠️ Are you absolutely sure you want to permanently delete the account for "${usernameToDelete}"? This cannot be undone.`);
+              if (!confirmed) return;
 
-            try {
-              await handleDeleteAccount({
-                username: usernameToDelete,
-              });
-            } catch (error) {
-              console.error("Error deleting user account:", error);
-              alert("Failed to delete user account. See console for details.");
-            }
-          }}
-        >
-          Delete
-        </button>
+              try {
+                await handleDeleteAccount({
+                  username: usernameToDelete,
+                });
+              } catch (error) {
+                console.error("Error deleting user account:", error);
+                alert("Failed to delete user account. See console for details.");
+              }
+            }}
+          >
+            Delete
+          </button>
+        </div>
         
 
         <h3>Send Message to All Users</h3>
@@ -954,27 +1007,29 @@ const handleGetRich = async () => {
           value={messageIdentifier}
           onChange={(e) => setMessageIdentifier(e.target.value)}
         />
-        <button
-          className="btn-danger"
-          onClick={async () => {
-            if (!messageIdentifier) {
-              alert("Please enter a message ID.");
-              return;
-            }
-            try {
-              await sendMessageToAll(Number(messageIdentifier));
-            } catch (error) {
-              console.error("Error sending message to all users:", error);
-              alert("Failed to send message. See console for details.");
-            }
-          }}
-        >
-          Send Message
-        </button>
-      </div>
+        <div className="shared-buttons">
+          <button
+            className="btn-basic btn-danger"
+            onClick={async () => {
+              if (!messageIdentifier) {
+                alert("Please enter a message ID.");
+                return;
+              }
+              try {
+                await sendMessageToAll(Number(messageIdentifier));
+              } catch (error) {
+                console.error("Error sending message to all users:", error);
+                alert("Failed to send message. See console for details.");
+              }
+            }}
+          >
+            Send Message
+          </button>
+        </div>
 
     <br />
     <h3>FTUE Step: {currentPlayer?.ftuestep || "Not set"}</h3>
+    <h3>Warehouse Level: {currentPlayer?.warehouseLevel ?? 0}</h3>
 
       <div className="debug-timers">
         <h3>⏳ Active Timers:</h3>

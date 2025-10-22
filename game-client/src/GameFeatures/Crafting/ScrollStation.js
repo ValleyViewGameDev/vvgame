@@ -42,6 +42,7 @@ const ScrollStation = ({
   TILE_SIZE,
   isDeveloper,
   currentSeason,
+  globalTuning,
 }) => {
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
@@ -497,6 +498,7 @@ const ScrollStation = ({
             setCurrentPlayer,
             updateStatus,
             masterResources,
+            globalTuning,
           });
 
           if (!gained) {
@@ -642,9 +644,9 @@ const ScrollStation = ({
         
         {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
           <div className="station-panel-footer">
-            <div className="standard-buttons">
+            <div className="shared-buttons">
               <TransactionButton 
-                className="btn-success" 
+                className="btn-basic btn-danger" 
                 onAction={handleSellStation}
                 transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
               >

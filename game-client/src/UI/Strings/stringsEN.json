@@ -50,6 +50,7 @@
     "81": "Pitching a tent in Town or the Valley prevents you being attacked.",
     "82": "A boat will allow you to travel by water.",
 
+    
     "90": "🚫 This is not your homestead.",
     "91": "🐴 Horse required.",
     "94": "📢 Share Valley View!",
@@ -329,7 +330,6 @@
     "825": "You have ",
     "826": "Scrolls.",
     "827": "Scroll",
-
 
     "899": "DEBUG STRINGS:",
 
@@ -1233,9 +1233,6 @@
     "7002": "Congratulations!",
     "7004": "Note:",
 
-
-    "11000": "ADDED STRINGS:",
-
     "40": "Can't attack through walls.",
     "41": "You're full",
     "160": "📥 Trading Post: Add Items to Sell",
@@ -1294,8 +1291,29 @@
     "21010": "Orangutan",
     "21011": "Dodo Bird",
 
+    "196": "Add ",
+    "197": "Warehouse upgraded",
+    "198": " to Warehouse capacity.",
+    "88": "Your warehouse is at maximum capacity.",
+    "89": " additional capacity for Gold Pass",
+
+    "356": "Bulk Harvest Results",
+    "357": "Crops Harvested", 
+    "358": "Crops Replanted",
+    "359": "Items Found!",
+    "360": "Continue",
+    "361": "Seeds used",
+    "362": "Global Market",
+    "363": "No items currently available for purchase",
+    "364": "items available", 
+    "365": "Buy",
+    "366": "Close",
+    "367": "Your Trade Slots:",
+
     "627": "With a a better relationship, this characcter may have additional tasks for you.",
-    "1005": "Acquire Skills to improve various attributes. Make sure to explore the Town to find additional places and ways to gain Skills."
+    "1005": "Acquire Skills to improve various attributes. Make sure to explore the Town to find additional places and ways to gain Skills.",
+
+    "11000": "ADDED STRINGS:"
 
   }
 

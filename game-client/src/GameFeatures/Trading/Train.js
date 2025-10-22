@@ -20,7 +20,8 @@ function TrainPanel({
   updateStatus,
   masterResources,
   setModalContent,
-  setIsModalOpen
+  setIsModalOpen,
+  globalTuning
   }) 
 {
   const strings = useStrings();
@@ -356,6 +357,7 @@ function TrainPanel({
       setCurrentPlayer,
       updateStatus,
       masterResources,
+      globalTuning,
     });
 
       // Update local state in correct order

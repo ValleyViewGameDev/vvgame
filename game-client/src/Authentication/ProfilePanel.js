@@ -222,6 +222,11 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
     openPanel('GoldBenefitsPanel');
   };
 
+
+
+
+
+  
   return (
     <Panel
       onClose={() => {
@@ -232,7 +237,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         }
         onClose();
       }}
-      descriptionKey="1019"
       titleKey="1119"
       panelName="ProfilePanel"
     >
@@ -240,8 +244,10 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
         <h2>{strings[4051]} {currentPlayer.username} {currentPlayer.icon}</h2>
 
-        <div className="panel-buttons">
-          <button className="btn-success" onClick={() => setShowChangeIconModal(true)}>{strings[4065]}</button>
+        <div className="shared-buttons">
+          <button className="btn-basic btn-success" onClick={() => setShowChangeIconModal(true)}>
+            {strings[4065]}
+          </button>
         </div>
 
         <br />
@@ -268,8 +274,8 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           />
         </div>
 
-        <div className="panel-buttons">
-          <button className="btn-success" onClick={handleSave} disabled={isSaving}>
+        <div className="shared-buttons">
+          <button className="btn-basic btn-success" onClick={handleSave} disabled={isSaving}>
             {isSaving ? 'Saving...' : strings[10128]}
           </button>
         </div>
@@ -291,19 +297,19 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           </div>
         )}
 
-        <div className="panel-buttons">
-          <button className="btn-gold" onClick={handleGoldPanelSwitch}>
+        <div className="shared-buttons">
+          <button className="btn-basic btn-gold" onClick={handleGoldPanelSwitch}>
             {formData.accountStatus === 'Gold' ? strings[10130] : strings[10131]}
           </button>
         </div>
-        <div className="panel-buttons">
-          <button className="btn-danger" onClick={handleLogout}>
+        <div className="shared-buttons">
+          <button className="btn-basic btn-danger" onClick={handleLogout}>
             {strings[4056]}
           </button>
         </div>
-        <div className="panel-buttons">
+        <div className="shared-buttons">
           <button
-            className="btn-danger"
+            className="btn-basic btn-danger"
             onClick={async () => {
               const confirmed = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
               if (!confirmed) return;
@@ -339,42 +345,46 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
 
         <h3>{strings[4059]}</h3>
         <p>{strings[4060]} <strong>{currentPlayer.relocations}</strong></p>
-        <div className="panel-buttons">
-          <button className="btn-success" onClick={handleRelocation} disabled={!currentPlayer.relocations}>
+        <div className="shared-buttons">
+          <button className="btn-basic btn-success" onClick={handleRelocation} disabled={!currentPlayer.relocations}>
             {isRelocating ? strings[10132] : strings[10133]}
           </button>
-        <p>{strings[4061]}</p>
         </div>
+        <p>{strings[4061]}</p>
 
 
         {/* Settings Toggles */}
 
         <h3>{strings[4062]}</h3>
-        <div className="panel-buttons">
-          <button className="btn-success" onClick={handleLanguage}>
+        <div className="shared-buttons">
+          <button className="btn-basic btn-success" onClick={handleLanguage}>
             🌎 {LANGUAGE_OPTIONS.find(l => l.code === currentPlayer.language)?.label || 'Language'}
           </button>
         </div>
 
-        <div className="panel-buttons">
+        <div className="shared-buttons">
           <button
-            className={localSettings.rangeOn ? 'btn-success' : 'btn-neutral'}
+            className={`btn-basic ${localSettings.rangeOn ? 'btn-success' : 'btn-neutral'}`}
             onClick={() => handleToggleChange('rangeOn')}
           >
             {strings[4064]}{localSettings.rangeOn ? 'is ON' : 'is OFF'}
           </button>
+        </div>
 
-          {isDeveloper && (
+        {isDeveloper && (
+          <div className="shared-buttons">
             <button
-              className={localSettings.isTeleportEnabled ? 'btn-success' : 'btn-neutral'}
+              className={`btn-basic ${localSettings.isTeleportEnabled ? 'btn-success' : 'btn-neutral'}`}
               onClick={() => handleToggleChange('isTeleportEnabled')}
             >
               Teleport: {localSettings.isTeleportEnabled ? 'is ON' : 'is OFF'}
             </button>
-          )}
+          </div>
+        )}
 
+        <div className="shared-buttons">
           <button
-            className={localSettings.toggleVFX ? 'btn-success' : 'btn-neutral'}
+            className={`btn-basic ${localSettings.toggleVFX ? 'btn-success' : 'btn-neutral'}`}
             onClick={() => handleToggleChange('toggleVFX')}
           >
             VFX: {localSettings.toggleVFX ? 'is ON' : 'is OFF'}

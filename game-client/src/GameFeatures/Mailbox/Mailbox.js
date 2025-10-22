@@ -228,10 +228,10 @@ const renderRewards = (rewards) => {
               <div className="message-actions">
                 {rewards?.length > 0 && renderRewards(rewards)}
 
-                <div className="standard-buttons">
+                <div className="shared-buttons" style={{ display: 'flex', gap: '8px' }}>
                   {rewards?.length > 0 && (
                     <TransactionButton
-                      className="btn-success"
+                      className="btn-basic btn-success btn-modal-small"
                       transactionKey={`mailbox-collect-${msg.messageId}-${visibleMessages.length - 1 - index}`}
                       onAction={(transactionId, transactionKey) => handleCollect(transactionId, transactionKey, visibleMessages.length - 1 - index)}
                     >
@@ -239,7 +239,8 @@ const renderRewards = (rewards) => {
                     </TransactionButton>
                   )}
                   <button
-                    className="delete-btn"
+                    className="btn-basic btn-neutral btn-modal-small"
+                    style={{ width: '40px', backgroundColor: '#e0e0e0' }}
                     title="Delete"
                     onClick={() => {
                       if (window.confirm("Are you sure you want to delete this message?")) {

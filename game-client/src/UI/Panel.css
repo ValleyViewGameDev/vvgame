@@ -10,7 +10,6 @@
   font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
 }
 
-
 .panel-container {
     position: fixed;
     top: 60px;
@@ -105,116 +104,8 @@
   margin-top: 10px;
 }
 
-/* General button styling */
-.panel-buttons button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 5px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-}
+/* See SahredButtons.css for button styles */
 
-/* Success buttons (green) */
-.panel-buttons .btn-success {
-  background-color: #4caf50;
-  color: white;
-}
-
-.panel-buttons .btn-success:hover {
-  background-color: #45a049;
-  transform: scale(1.05);
-}
-
-.panel-buttons .btn-success:disabled {
-  background-color: #cccccc;
-  color: #666666;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.panel-buttons .btn-success:disabled:hover {
-  background-color: #cccccc;
-  transform: none;
-}
-
-/* Danger buttons (red) */
-.panel-buttons .btn-danger {
-  background-color: #d32f2f;
-  color: white;
-}
-
-.panel-buttons .btn-danger:hover {
-  background-color: #c62828;
-  transform: scale(1.05);
-}
-
-/* Neutral buttons (default gray) */
-.panel-buttons .btn-neutral {
-  background-color: #9e9e9e;
-  color: white;
-}
-
-.panel-buttons .btn-neutral:hover {
-  background-color: #757575;
-  transform: scale(1.05);
-}
-
-.panel-buttons .btn-gold {
-  background: linear-gradient(135deg, #fff176 0%, #ffea00 50%, #fdd835 100%);
-  color: rgb(0, 0, 0);
-  font-weight: bold;
-  box-shadow: 
-    0 2px 4px rgba(0, 0, 0, 0.2),
-    0 1px 2px rgba(255, 234, 0, 0.4) inset,
-    0 -1px 2px rgba(253, 216, 53, 0.3) inset;
-  border: 1px solid rgba(253, 216, 53, 0.6);
-  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.panel-buttons .btn-gold::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    45deg,
-    rgba(255, 255, 255, 0) 30%,
-    rgba(255, 255, 255, 0.3) 50%,
-    rgba(255, 255, 255, 0) 70%
-  );
-  transform: rotate(45deg) translateY(-100%);
-  transition: transform 0.6s ease;
-}
-
-.panel-buttons .btn-gold:hover {
-  background: linear-gradient(135deg, #fdd835 0%, #d3b700 50%, #fbc02d 100%);
-  transform: scale(1.05);
-  box-shadow: 
-    0 4px 8px rgba(0, 0, 0, 0.3),
-    0 2px 4px rgba(255, 234, 0, 0.5) inset,
-    0 -2px 4px rgba(253, 216, 53, 0.4) inset;
-}
-
-.panel-buttons .btn-gold:hover::before {
-  transform: rotate(45deg) translateY(100%);
-}
-
-/* Half-width button (used for inline button rows) */
-.panel-buttons button.btn-half {
-  width: 40% !important;
-  max-width: 120px;
-  flex-shrink: 0;
-}
-
-.panel-buttons .btn-half:hover {
-  background-color: #45a049;
-  transform: scale(1.05);
-}
 
 
 /* Panel Description */
@@ -244,68 +135,7 @@
 
 /* General panel content styling */
 
-/* Button list layout */
-.debug-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 10px;
-}
 
-/* General button styling */
-.debug-buttons button {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 5px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-/* Success buttons (green) */
-.debug-buttons .btn-success {
-  background-color: #4caf50;
-  color: white;
-}
-
-.debug-buttons .btn-success:hover {
-  background-color: #45a049;
-  transform: scale(1.05);
-}
-
-.debug-buttons .btn-success:disabled {
-  background-color: #cccccc;
-  color: #666666;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.debug-buttons .btn-success:disabled:hover {
-  background-color: #cccccc;
-  transform: none;
-}
-
-/* Danger buttons (red) */
-.debug-buttons .btn-danger {
-  background-color: #d32f2f;
-  color: white;
-}
-
-.debug-buttons .btn-danger:hover {
-  background-color: #c62828;
-  transform: scale(1.05);
-}
-
-/* Neutral buttons (default gray) */
-.debug-buttons .btn-neutral {
-  background-color: #9e9e9e;
-  color: white;
-}
-
-.debug-buttons .btn-neutral:hover {
-  background-color: #757575;
-  transform: scale(1.05);
-}
 
 /* Player location section styling */
 
@@ -330,37 +160,6 @@
 .debug-timers li {
   margin: 5px 0;
   font-size: 14px;
-}
-
-.debug-toggles {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 5px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-}
-
-
-.btn-toggle {
-  margin: 5px;
-  padding: 5px 5px;
-  font-size: 10px;
-  width: 120px;
-  height: 30px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.btn-enabled {
-  background-color: #28a745;
-  color: white;
-}
-
-.btn-disabled {
-  background-color: #dc3545;
-  color: white;
 }
 
 /* Trader story text styling */

@@ -9,6 +9,11 @@
   text-align: left;
 }
 
+/* Center the mailbox modal title */
+.mailbox-modal .modal-title {
+  text-align: center;
+}
+
 /* Each message row */
 .mailbox-message {
   display: flex;

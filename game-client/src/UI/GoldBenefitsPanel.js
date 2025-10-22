@@ -14,7 +14,7 @@ const GoldBenefitsPanel = memo(({ currentPlayer, updateStatus, onClose }) => {
     <Panel onClose={onClose} descriptionKey="1027" titleKey="1127" panelName="GoldBenefitsPanel">
       <div className="panel-content">
 
-        <div className="standard-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+        <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
           {isGold ? (
             <p>{strings[9060]}</p>
           ) : (

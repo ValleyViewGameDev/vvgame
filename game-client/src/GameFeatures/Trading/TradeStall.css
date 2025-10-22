@@ -111,24 +111,7 @@
   padding: 5px 0;
 }
 
-.trade-slot {
-  width: 150px;
-  height: 85px; /* Increased height to allow space for limit and time */
-  background: #f4f4f4;
-  border: 1px solid #ccc;
-  display: flex;
-  flex-direction: column; /* Stack content vertically */
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  border-radius: 8px;
-  padding: 4px;
-  font-size: 1.0rem;
-}
-
-.trade-slot.filled {
-  background: #d9ffd9;
-}
+/* Old trade slot styles removed - using shared button styles */
 
 .trade-slot .sell-button {
   font-size: 1.1rem;
@@ -319,34 +302,53 @@
   gap: 8px;
 }
 
-.trade-slot.empty {
-  background-color: #f9f9f9;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  padding: 8px;
+/* Base trade slot styling - overrides for div elements using button classes */
+.shared-buttons .trade-slot {
+  width: 150px;
   min-height: 85px;
-  cursor: pointer;
+  padding: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  font-size: 1.0rem;
+  position: relative;
+  text-align: center;
+  line-height: normal;
 }
 
-.trade-slot.filled {
+/* Override width for trade slot buttons - inherit all other styles */
+.shared-buttons .trade-slot.btn-basic,
+.shared-buttons .trade-slot.btn-success,
+.shared-buttons .trade-slot.btn-sell,
+.shared-buttons .trade-slot.btn-collect {
+  width: 150px;
+}
+
+/* Make sure text inside slots inherits the button color */
+.shared-buttons .trade-slot.btn-basic .trade-slot-empty-text,
+.shared-buttons .trade-slot.btn-success .trade-slot-empty-text {
+  color: inherit;
+}
+
+.shared-buttons .trade-slot.btn-sell .trade-slot-content,
+.shared-buttons .trade-slot.btn-sell .trade-slot-status {
+  color: inherit;
+}
+
+.shared-buttons .trade-slot.btn-collect .trade-slot-content,
+.shared-buttons .trade-slot.btn-collect .trade-slot-status {
+  color: inherit;
+}
+
+/* When filled but not using button styling (timer state) */
+.shared-buttons .trade-slot.filled:not(.btn-sell):not(.btn-collect) {
+  width: 150px;
   background-color: #fff;
   border: 2px solid #ccc;
-  border-radius: 8px;
-  padding: 8px;
-  min-height: 85px;
+  border-radius: 12px;
   cursor: default;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.trade-slot.purchased {
-  background-color: #fff4e6;
-  border: 2px solid #ffb366;
-  border-radius: 8px;
+  box-shadow: 0 5px 0 rgba(92, 91, 91, 0.5);
 }
 
 .trade-slot-empty-text {
@@ -440,25 +442,16 @@
   min-height: 85px;
 }
 
-/* GOLD PASS SLOT STYLING (slots 5-6) */
-.trade-slot.gold-slot {
-  background-color: #ffec43; /* Light yellow */
-  border-color: #f0e68c;
+/* GOLD PASS SLOT STYLING (slots 5-6) - inherits from btn-gold when locked */
+.shared-buttons .trade-slot.gold-slot.locked {
+  width: 150px;
 }
 
-.trade-slot.gold-slot.locked {
-  background-color: #ffec43; /* Light yellow even when locked */
-  border-color: #dad420;
-}
-
-.trade-slot.gold-slot.filled {
-  background-color: #ffec43; /* Slightly darker yellow when filled */
-  border-color: #dad420;
-}
-
-.trade-slot.gold-slot.purchased {
-  background-color: #ffec43; /* Cornsilk for purchased gold slots */
-  border-color: #dad420;
+/* Override gold slot text color for locked state */
+.shared-buttons .trade-slot.gold-slot.locked .trade-slot-lock-icon,
+.shared-buttons .trade-slot.gold-slot.locked .trade-slot-lock-text,
+.shared-buttons .trade-slot.gold-slot.locked div {
+  color: inherit; /* Use btn-gold's black text */
 }
 
 .trade-slot-locked {
@@ -477,12 +470,12 @@
 .trade-slot-lock-icon {
   font-size: 1.5rem;
   margin-bottom: 4px;
-  color: #999;
 }
 
 .trade-slot-lock-text {
   font-size: 0.85rem;
   font-weight: bold;
-  color: #999;
 }
+
+/* Remove clickable slot states - using shared button classes instead */
 

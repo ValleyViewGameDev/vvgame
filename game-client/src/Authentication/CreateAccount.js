@@ -4,6 +4,7 @@ import axios from 'axios';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import { useStrings } from '../UI/StringsContext';
 import LANGUAGE_OPTIONS from '../UI/Languages.json';
+import '../UI/SharedButtons.css';
 
 const CreateAccount = ({ setCurrentPlayer, zoomLevel, setZoomLevel, setIsLoggedIn, closeModal }) => {
   const strings = useStrings();
@@ -163,15 +164,15 @@ return (
           </option>
         ))}
       </select>
-      <div className="panel-buttons">
-        <button className="btn-success" type="submit" disabled={isSubmitting}>
+      <div className="shared-buttons">
+        <button className="btn-panel btn-success" type="submit" disabled={isSubmitting}>
           {strings[4002]}
         </button>
       </div>
     </form>
 
-    <div className="panel-buttons">
-      <button className="btn-neutral"
+    <div className="shared-buttons">
+      <button className="btn-panel btn-neutral"
         type="button"
         onClick={() => setIsLoggedIn(false)}
       >

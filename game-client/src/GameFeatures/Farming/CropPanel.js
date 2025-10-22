@@ -25,6 +25,7 @@ const CropPanel = ({
   TILE_SIZE,
   updateStatus,
   masterResources,
+  globalTuning,
 }) => {
   const [isActionCoolingDown, setIsActionCoolingDown] = useState(false);
   const COOLDOWN_DURATION = 2000;
@@ -122,6 +123,7 @@ const CropPanel = ({
           setCurrentPlayer,
           updateStatus,
           masterResources,
+          globalTuning,
         });
         if (!success) return;
       }
@@ -166,7 +168,7 @@ const CropPanel = ({
         {currentPlayer.location.gtype === 'homestead' && (
           <>
             <hr />
-              <div className="standard-buttons">
+              <div className="shared-buttons">
                 <button className="btn-success" onClick={handleSellStation} disabled={isActionCoolingDown}>
                   {strings[438]}
                 </button>

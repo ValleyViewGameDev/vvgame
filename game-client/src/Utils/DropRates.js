@@ -144,9 +144,9 @@ export function selectWeightedRandomItem(items, level = 1) {
  */
 export function getDropQuantity(rarity) {
   const quantityRanges = {
-    'common': { min: 1, max: 3 },
-    'uncommon': { min: 1, max: 2 },
-    'rare': { min: 1, max: 1 },
+    'common': { min: 2, max: 3 },
+    'uncommon': { min: 2, max: 3 },
+    'rare': { min: 2, max: 3 },
     'epic': { min: 1, max: 1 },
     'legendary': { min: 1, max: 1 }
   };

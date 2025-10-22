@@ -187,32 +187,32 @@ export function BulkCraftingModal({
     <Modal isOpen={isOpen} onClose={onClose} title={strings[341] || "Select Crafting Stations to Collect:"} size="large">
       <div style={{ padding: '20px', fontSize: '16px' }}>
         <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div className="shared-buttons" style={{ display: 'flex', gap: '10px' }}>
             <button 
+              className="btn-basic btn-success btn-modal-small"
               onClick={selectAll}
-              style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
             >
               {strings[316] || 'Select All'}
             </button>
             <button 
+              className="btn-basic btn-neutral btn-modal-small"
               onClick={selectNone}
-              style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#808080', color: 'white', border: 'none', borderRadius: '3px' }}
             >
               {strings[317] || 'Deselect All'}
             </button>
           </div>
           
           {hasBulkRestartCraft && (
-            <div style={{ display: 'flex', gap: '10px', marginLeft: 'auto', marginRight: '50px' }}>
+            <div className="shared-buttons" style={{ display: 'flex', gap: '10px', marginLeft: 'auto', marginRight: '20px' }}>
               <button 
+                className="btn-basic btn-success btn-modal-small"
                 onClick={selectAllRestarts}
-                style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '3px' }}
               >
                 {strings[316] || 'Select All'}
               </button>
               <button 
+                className="btn-basic btn-neutral btn-modal-small"
                 onClick={selectNoneRestarts}
-                style={{ padding: '5px 10px', fontSize: '12px', backgroundColor: '#808080', color: 'white', border: 'none', borderRadius: '3px' }}
               >
                 {strings[317] || 'Deselect All'}
               </button>
@@ -290,10 +290,10 @@ export function BulkCraftingModal({
           })}
         </div>
         
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center' }}>
           <button 
+            className="btn-basic btn-success btn-modal"
             onClick={handleExecute}
-            style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px' }}
             disabled={selectedGroups.length === 0}
           >
             {strings[318] || 'Collect'}
@@ -320,7 +320,8 @@ export async function executeBulkCrafting({
   masterResources,
   masterSkills,
   strings,
-  updateStatus
+  updateStatus,
+  globalTuning
 }) {
   if (selectedGroups.length === 0) {
     return 'No crafting stations selected for collection.';
@@ -502,6 +503,7 @@ export async function executeBulkCrafting({
           setCurrentPlayer,
           updateStatus,
           masterResources,
+          globalTuning,
         });
         
         // Track quest progress

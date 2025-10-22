@@ -1127,8 +1127,8 @@
     "symbol": "👩🏻‍⚖️",
     "repeatable": false,
     "giver": "Portia",
-    "reward": "Portia's Secret",
-    "rewardqty": 1,
+    "reward": "Money",
+    "rewardqty": 1000,
     "goal1action": "Build",
     "goal1item": "School",
     "goal1qty": 1

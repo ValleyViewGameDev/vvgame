@@ -52,15 +52,18 @@ export function applySkillMultiplier(baseQuantity, multiplier) {
  * Derives the total warehouse and backpack capacity based on player skills and master resources.
  * @param {object} currentPlayer - The player object including skills and base capacities.
  * @param {Array} masterResources - Array of all master resource definitions.
+ * @param {object} globalTuning - Global tuning configuration object.
  * @returns {object} - { warehouse: number, backpack: number }
  */
 
-export function deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources) {
+export function deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources, globalTuning) {
   const baseWarehouse = currentPlayer?.warehouseCapacity || 0;
   const baseBackpack = currentPlayer?.backpackCapacity || 0;
   const isGold = currentPlayer?.accountStatus === "Gold";
-  const warehouseBonus = isGold ? 1000000 : 0;
-  const backpackBonus = isGold ? 10000 : 0;
+  
+  // Get Gold bonuses from globalTuning parameter
+  const warehouseBonus = isGold ? (globalTuning?.warehouseCapacityGold || 100000) : 0;
+  const backpackBonus = isGold ? (globalTuning?.backpackCapacityGold || 5000) : 0;
 
   return (currentPlayer?.skills || []).reduce(
     (acc, skill) => {
@@ -85,8 +88,8 @@ export const canAfford = (recipe, inventory = [], backpack = [], amount = 1) => 
   if (!recipe) return false;
   const inv = Array.isArray(inventory) ? inventory : [];
   const bp = Array.isArray(backpack) ? backpack : [];
-  // Check up to 5 ingredients to support gem purchases
-  for (let i = 1; i <= 5; i++) {
+  // Check up to 10 ingredients to support all recipes
+  for (let i = 1; i <= 10; i++) {
     const ingredientType = recipe[`ingredient${i}`];
     const ingredientQty = recipe[`ingredient${i}qty`] * amount;
     if (ingredientType && ingredientQty >= 0) {
@@ -110,7 +113,8 @@ export const hasRoomFor = ({
   currentPlayer,
   inventory,
   backpack,
-  masterResources
+  masterResources,
+  globalTuning
 }) => {
   const isCurrencyItem = isCurrency(resource);
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
@@ -131,7 +135,7 @@ export const hasRoomFor = ({
   // Check capacity
   const target = isHomestead ? inventory : backpack;
   
-  const { warehouse, backpack: maxBackpack } = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources || []);
+  const { warehouse, backpack: maxBackpack } = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources || [], globalTuning);
   const capacity = isHomestead ? warehouse : maxBackpack;
   
   const totalItems = target
@@ -242,6 +246,7 @@ export async function gainIngredients({
   setCurrentPlayer,
   updateStatus,
   masterResources,
+  globalTuning,
 }) {
   const isCurrencyItem = isCurrency(resource);
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
@@ -265,7 +270,7 @@ export async function gainIngredients({
     
   // ✅ Capacity check
   if (!isCurrencyItem) {
-    const { warehouse, backpack: maxBackpack } = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources || []);
+    const { warehouse, backpack: maxBackpack } = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources || [], globalTuning);
     const capacity = isHomestead ? warehouse : maxBackpack;
     const totalItems = target
       .filter(item => item && item.type !== 'Money' && item.type !== 'Gem' && typeof item.quantity === 'number')
@@ -361,8 +366,8 @@ export async function spendIngredients({
   // Build delta changes array
   const deltaChanges = [];
   
-  // Deduct ingredients with new logic (support up to 5 for gems)
-  for (let i = 1; i <= 5; i++) {
+  // Deduct ingredients with new logic (support up to 10 ingredients)
+  for (let i = 1; i <= 10; i++) {
     const type = recipe?.[`ingredient${i}`];
     const qty = recipe?.[`ingredient${i}qty`];
     if (type && qty) {
