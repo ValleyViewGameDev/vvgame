@@ -36,6 +36,12 @@
   background-color: #95da89;
 }
 
+/* Active state - button push effect */
+.resource-button:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 rgba(92, 91, 91, 0.5);
+}
+
 /* Disabled button state */
 .resource-button.disabled {
   background-color: #ccc;
@@ -71,6 +77,12 @@
   background-color: #70c976 !important;
   transform: translateY(-2px);
   box-shadow: 0 6px 0 rgba(92, 91, 91, 0.5) !important;
+}
+
+.resource-button.ready.btn-sell:active {
+  background-color: #30b02c !important;
+  transform: translateY(3px) !important;
+  box-shadow: 0 2px 0 rgba(92, 91, 91, 0.5) !important;
 }
 
 /* Make sure text inside is also white */

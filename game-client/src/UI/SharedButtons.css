@@ -36,6 +36,8 @@
 
 .shared-buttons .btn-basic:active {
   background-color: #e0e0e0;
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 rgba(92, 91, 91, 0.5);
 }
 
 /* LAYOUT MODIFIERS - only override what's different */
@@ -79,6 +81,11 @@
   background-color: #70c976;
 }
 
+.shared-buttons .btn-sell:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 rgba(92, 91, 91, 0.5);
+}
+
 /* Success buttons (green) */
 .shared-buttons .btn-collect {
   background-color: #30b02c;
@@ -87,6 +94,11 @@
 
 .shared-buttons .btn-collect:hover {
   background-color: #70c976;
+}
+
+.shared-buttons .btn-collect:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 rgba(92, 91, 91, 0.5);
 }
 
 /* Danger buttons (red) */
@@ -98,6 +110,11 @@
   background-color: #f1f1f1;
 }
 
+.shared-buttons .btn-danger:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 rgba(92, 91, 91, 0.5);
+}
+
 /* Neutral buttons (gray) */
 .shared-buttons .btn-neutral {
   background-color: #e0e0e0;
@@ -105,6 +122,11 @@
 
 .shared-buttons .btn-neutral:hover {
   background-color: #f1f1f1;
+}
+
+.shared-buttons .btn-neutral:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 rgba(92, 91, 91, 0.5);
 }
 
 /* Gold buttons (special animated gradient) */
@@ -139,6 +161,11 @@
 
 .shared-buttons .btn-gold:hover::before {
   transform: rotate(45deg) translateY(100%);
+}
+
+.shared-buttons .btn-gold:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 rgba(92, 91, 91, 0.5);
 }
 
 /* Social button colors */

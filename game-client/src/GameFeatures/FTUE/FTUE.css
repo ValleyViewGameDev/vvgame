@@ -144,13 +144,25 @@
 
 /* Primary button - matches Panel.css button styling */
 .ftue-button-primary {
-  background-color: #4CAF50;
-  color: white;
+  background-color: #74ee66;
+  color: #358337;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+  width: 50%;
+  box-shadow: 0 5px 0 rgba(92, 91, 91, 0.5);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  line-height: normal;
 }
 
 .ftue-button-primary:hover:not(:disabled) {
-  background-color: #45a049;
-  transform: translateY(-1px);
+  background-color: #f1f1f1;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 

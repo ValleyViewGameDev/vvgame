@@ -250,8 +250,8 @@ export async function checkAndDropWarehouseIngredient(
     selectWeightedRandomItem,
   }
 ) {
-  // Check if this is a crop
-  if (!isACrop(collectedItemType, masterResources)) {
+  // Check if this is a crop (excluding Wheat to prevent exploit)
+  if (!isACrop(collectedItemType, masterResources) || collectedItemType === 'Wheat') {
     return { dropped: false };
   }
   

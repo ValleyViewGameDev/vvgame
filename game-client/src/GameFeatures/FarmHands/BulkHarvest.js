@@ -533,10 +533,19 @@ export async function executeBulkHarvest({
       });
     }
 
-    // Calculate warehouse ingredient drops based on number of plots harvested (not skill-modified quantities)
-    const numPlotsHarvested = harvestedPositions.size;
-    console.log('🎁 Calculating warehouse drops for', numPlotsHarvested, 'plots harvested');
-    const warehouseDropsArray = calculateBulkWarehouseDrops(numPlotsHarvested, {
+    // Calculate warehouse ingredient drops based on number of non-Wheat plots harvested (not skill-modified quantities)
+    // Exclude Wheat to prevent exploit
+    let numPlotsHarvestedExcludingWheat = 0;
+    if (results.harvested) {
+      Object.entries(results.harvested).forEach(([type, data]) => {
+        if (type !== 'Wheat' && data && data.positions && Array.isArray(data.positions)) {
+          numPlotsHarvestedExcludingWheat += data.positions.length;
+        }
+      });
+    }
+    
+    console.log('🎁 Calculating warehouse drops for', numPlotsHarvestedExcludingWheat, 'non-Wheat plots harvested');
+    const warehouseDropsArray = calculateBulkWarehouseDrops(numPlotsHarvestedExcludingWheat, {
       masterResources,
       globalTuning,
       selectWeightedRandomItem,

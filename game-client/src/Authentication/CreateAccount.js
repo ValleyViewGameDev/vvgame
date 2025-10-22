@@ -165,14 +165,14 @@ return (
         ))}
       </select>
       <div className="shared-buttons">
-        <button className="btn-panel btn-success" type="submit" disabled={isSubmitting}>
+        <button className="btn-basic btn-success" type="submit" disabled={isSubmitting}>
           {strings[4002]}
         </button>
       </div>
     </form>
 
     <div className="shared-buttons">
-      <button className="btn-panel btn-neutral"
+      <button className="btn-basic btn-neutral"
         type="button"
         onClick={() => setIsLoggedIn(false)}
       >

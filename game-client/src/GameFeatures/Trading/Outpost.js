@@ -372,7 +372,7 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
       </div>
 
       {/* Trade slots */}
-      <div className="trade-stall-slots">
+      <div className="trade-stall-slots shared-buttons">
         {tradeSlots.slice(0, OUTPOST_SLOTS).map((slot, index) => {
           const isEmpty = !slot?.resource;
           const isPurchased = slot?.boughtBy;
@@ -383,9 +383,18 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
           return (
             <div key={index} className="trade-slot-container">
               <div
-                className={`trade-slot ${isEmpty ? 'empty' : 'filled'} ${isPurchased ? 'purchased' : ''}`}
-                onClick={() => handleSlotClick(index)}
-                style={{ cursor: isEmpty ? 'pointer' : 'default' }}
+                className={`trade-slot btn-basic ${isEmpty ? 'btn-neutral' : ''} ${!isEmpty && !isPurchased && !isReadyToSell ? 'filled' : ''} ${isPurchased && isOwnItem ? 'btn-collect' : ''} ${isReadyToSell && isOwnItem ? 'btn-sell' : ''}`}
+                onClick={() => {
+                  if (isEmpty) {
+                    handleSlotClick(index);
+                  } else if (isPurchased && isOwnItem) {
+                    // Handle collect payment
+                    handleCollectPayment(`collect-${Date.now()}`, 'collect-payment', index);
+                  } else if (isReadyToSell && isOwnItem) {
+                    // Handle sell to game
+                    handleSellToGame(`sell-${Date.now()}`, 'sell-to-game', index);
+                  }
+                }}
               >
                 {isEmpty ? (
                   <div className="trade-slot-empty-text">
@@ -408,9 +417,16 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
                       </div>
                     )}
                     {isPurchased && (
-                      <div className="trade-slot-status">
-                        {strings[157]} {slot.boughtBy}
-                      </div>
+                      <>
+                        <div className="trade-slot-status">
+                          {strings[157]} {slot.boughtBy}
+                        </div>
+                        {isOwnItem && (
+                          <div className="trade-slot-status">
+                            {strings[318]} 💰{slot.boughtFor}
+                          </div>
+                        )}
+                      </>
                     )}
                     {hasTimer && !isPurchased && (
                       <div className="trade-slot-status timer">
@@ -419,45 +435,26 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
                     )}
                     {isReadyToSell && !isPurchased && (
                       <div className="trade-slot-status ready">
-                        {strings[159]}
+                        {strings[167]} 💰{Math.floor(slot.amount * slot.price * OUTPOST_HAIRCUT)}
                       </div>
                     )}
                   </div>
                 )}
               </div>
 
-              {/* Action buttons */}
-              {!isEmpty && (
+              {/* Action buttons - only show for buy actions and non-own items */}
+              {!isEmpty && !isOwnItem && !isPurchased && (
                 <div className="trade-button-container">
-                  {isPurchased && isOwnItem ? (
+                  <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
                     <TransactionButton
-                      className="trade-collect-button collect-payment"
-                      onAction={(transactionId, transactionKey) => handleCollectPayment(transactionId, transactionKey, index)}
-                      transactionKey={`outpost-collect-${index}`}
-                    >
-                      Collect 💰{slot.boughtFor}
-                    </TransactionButton>
-                  ) : !isPurchased && !isOwnItem ? (
-                    <TransactionButton
-                      className="trade-buy-button enabled"
+                      className="btn-basic btn-success"
+                      style={{ width: '100%' }}
                       onAction={(transactionId, transactionKey) => handleBuyItem(transactionId, transactionKey, index)}
                       transactionKey={`outpost-buy-${index}`}
                     >
                       Buy 💰{slot.amount * slot.price}
                     </TransactionButton>
-                  ) : isReadyToSell && isOwnItem ? (
-                    <TransactionButton
-                      className="trade-collect-button sell-to-game"
-                      onAction={(transactionId, transactionKey) => handleSellToGame(transactionId, transactionKey, index)}
-                      transactionKey={`outpost-sell-${index}`}
-                    >
-                      Sell 💰{Math.floor(slot.amount * slot.price * OUTPOST_HAIRCUT)}
-                    </TransactionButton>
-                  ) : (
-                    <button className="trade-collect-button disabled" disabled>
-                      {hasTimer ? 'Wait...' : 'No Action'}
-                    </button>
-                  )}
+                  </div>
                 </div>
               )}
             </div>
