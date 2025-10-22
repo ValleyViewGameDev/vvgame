@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panel';
 import '../../UI/Panel.css';
+import '../../UI/SharedButtons.css';
 import './InventoryPanel.css'; 
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
@@ -378,6 +379,8 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
             </div>
             )}
 
+            {/* INGREDIENT TABLES FOR MANAGING CONTENTS */}
+
             <br></br>
             <div className="inventory-table">
                 {inventory.filter(item => !isCurrency(item.type)).length > 0 ? (
@@ -460,7 +463,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                                             </td>
                                             <td>
                                                 <button
-                                                    className="add-button"
+                                                    className="btn-basic add-button"
                                                     onClick={() => handleMoveItem(item)}
                                                     disabled={isTentAtHome || isBoatAtHome || isTentOrBoatNotHome || !(backpackAmounts[item.type] > 0 && backpackAmounts[item.type] <= item.quantity)}
                                                 >
@@ -474,7 +477,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                         </table>
 
                         <button 
-                            className="sell-button" 
+                            className="btn-basic sell-button" 
                             onClick={handleMoveAll} 
                             disabled={isAddAllDisabled}
                         >
@@ -564,7 +567,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                                 custom: (
                                     <div className="shared-buttons" style={{ marginTop: '20px' }}>
                                         <button 
-                                            className="btn-modal btn-danger" 
+                                            className="btn-basic btn-danger" 
                                             onClick={() => {
                                                 handleDiscardAllWarehouse();
                                                 setIsModalOpen(false);
@@ -573,7 +576,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                                             Yes, Discard All
                                         </button>
                                         <button 
-                                            className="btn-modal btn-success" 
+                                            className="btn-basic btn-success" 
                                             onClick={() => setIsModalOpen(false)}
                                             style={{ marginLeft: '10px' }}
                                         >

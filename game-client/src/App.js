@@ -1683,7 +1683,7 @@ return (
             
         <div className="header-controls-left">
 
-  <h1 style={{ transform: 'translateX(40px)', marginRight: '20px' }}>{strings[0]}</h1>
+  <h1 style={{ transform: 'translateX(30px)', marginRight: '20px' }}>{strings[0]}</h1>
 
         {currentPlayer?.accountStatus === 'Gold' && (
           <div className="shared-buttons">

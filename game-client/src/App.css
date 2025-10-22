@@ -51,6 +51,7 @@ body {
   font-size: 1.9em;
   color: white;
   text-align: left;
+
 }
 
 .base-panel h2 {
@@ -59,6 +60,7 @@ body {
   font-size: 1.4em;
   color: white;
   text-align: left;
+
 }
 
 .base-panel h3 {
@@ -246,10 +248,12 @@ body {
 }
 .app-header h1 {
   margin: 0;
-  padding-right: 45px;
-  font-size: 1.9em;
+  padding-right: 40px;
+  font-size: 2em;
   color: rgb(255, 255, 255);
   text-align: left;
+  text-shadow: #3b3b3b 2px 2px 3px;
+
 }
 .app-header h3 {
   margin: 0;
