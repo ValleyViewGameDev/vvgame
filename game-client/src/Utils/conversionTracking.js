@@ -16,13 +16,8 @@ export const trackGoogleAccountCreation = (username, userId) => {
       }
     });
     
-    // Also send a conversion event for Google Ads
-    window.gtag('event', 'conversion', {
-      'send_to': 'AW-XXXXXXXXX/XXXXXXXXX', // Replace with your Google Ads conversion ID
-      'value': 1.0,
-      'currency': 'USD',
-      'transaction_id': userId
-    });
+    // Google Ads will automatically import this conversion from GA4
+    // No need for separate Google Ads conversion tracking when using GA4
   }
 };
 

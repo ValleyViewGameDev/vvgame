@@ -44,7 +44,7 @@
   
   
   <title>Valley View</title>
-  <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+  
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-DP5412GZPD"></script>
   <script>
@@ -54,6 +54,16 @@
 
     gtag('config', 'G-DP5412GZPD');
   </script>
+
+<!-- Reddit Pixel -->
+  <script>
+    !function(w,d){if(!w.rdt){var p=w.rdt=function(){p.sendEvent?p.sendEvent.apply(p,arguments):p.callQueue.push(arguments)};p.callQueue=[];var t=d.createElement("script");t.src="https://www.redditstatic.com/ads/pixel.js",t.async=!0;var s=d.getElementsByTagName("script")[0];s.parentNode.insertBefore(t,s)}}(window,document);
+    rdt('init','a2_hl69apackdzj'); // Replace with your Reddit Pixel ID
+    rdt('track', 'PageVisit');
+  </script>
+
+<!-- Ko-fi overlay -->
+  <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
   <script>
     window.onload = function() {
       if (window.kofiWidgetOverlay) {
@@ -66,7 +76,8 @@
       }
     };
   </script>
-  </head>
+
+</head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
