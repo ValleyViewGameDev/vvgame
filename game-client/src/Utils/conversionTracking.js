@@ -26,9 +26,9 @@ export const trackRedditAccountCreation = (userId) => {
   if (typeof window.rdt !== 'undefined') {
     window.rdt('track', 'SignUp', {
       customEventName: 'AccountCreated',
-      value: 1.00,
-      currency: 'USD',
-      transactionId: userId
+      Value: 1.00,
+      Currency: 'USD',
+      ConversionID: userId
     });
   }
 };
