@@ -1888,43 +1888,13 @@ return (
           </div>
         </>
       )}
-      <br />
-      
-      <h2>{strings[10116]}
-        <span 
-          onClick={() => setShowTimers(!showTimers)} 
-          style={{ cursor: "pointer", fontSize: "16px", marginLeft: "5px" }}
-        >
-          {showTimers ? "▼" : "▶"}
-        </span>
-      </h2>
 
-      {showTimers && (
-        <div className="timers-panel">
+      <div className="shared-buttons">
+        <button className="btn-basic" onClick={() => openModal('TownNews')}>{strings[10125]}</button>
+      </div>
 
       <br />
-
-          {timers.taxes.phase === "waiting" ? (
-        <>
-          <h3>{strings[10117]}</h3> 
-          <p>{strings[10118]}{countdowns.taxes}</p>
-        </>
-      ) : (
-        <>
-          <h4>{strings[10119]}</h4>
-        </>
-      )}
-          <h3>{strings[10120]}{timers.elections.phase}</h3>
-          <p>{strings[10121]}{countdowns.elections}</p>
-          <h3>{strings[10122]}{timers.train.phase}</h3>
-          <p>{strings[10121]}{countdowns.train}</p>
-          <h3>{strings[10123]}{timers.bank.phase}</h3>
-          <p>{strings[10124]}{countdowns.bank}</p>
-          <div className="shared-buttons">
-            <button className="btn-basic" onClick={() => openModal('TownNews')}>{strings[10125]}</button>
-          </div>
-        </div>
-      )}
+      <br />
       <br />
 
       <h2>{strings[96]}</h2>

@@ -107,7 +107,8 @@ function TownNews({ onClose, currentPlayer, setCurrentPlayer }) {
                 <p>{strings["1505"]}</p>
             )}
             {electionPhase === "Voting" && (
-                <p>{strings["1506"]}</p>
+                <p>{strings["1506"]} {strings["10121"]} {electionTimer}</p>
+
             )}
             {electionPhase === "Counting" && (
                 <p>{strings["1518"]} {electionTimer}.</p>
@@ -128,7 +129,7 @@ function TownNews({ onClose, currentPlayer, setCurrentPlayer }) {
 
             {/* Bank Updates */}
             {bankPhase === "active" && (
-                <p>{strings["1516"]} {formatOffers(bankOffers)}.</p>
+                <p>{strings["1516"]} {formatOffers(bankOffers)}. {strings[10124]}{bankTimer}</p>
             )}
             {bankPhase === "refreshing" && (
                 <p>{strings["1511"]}</p>

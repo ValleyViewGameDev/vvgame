@@ -753,8 +753,8 @@
     "10111": "You are the Mayor",
     "10112": "❤️‍🩹 Health: ",
     "10113": "🗓️ It's",
-    "10115": "🗓️ Next Season:",
     "10114": "Next Season starts in:",
+    "10115": "🗓️ Next Season:",
     "10116": "⏪ Happening Now in Town:",
     "10117": "💰 Next Tax Collection:",
     "10118": "In: ",
@@ -764,7 +764,6 @@
     "10122": "🚂 Train: ",
     "10123": "🏦 Bank: ",
     "10124": "New Offers: ",
-    "10125": "Read the News!",
     "10126": "Who's here:",
     "10127": "No PCs present in the grid.",
     "10128": "Save Changes",
@@ -1313,7 +1312,9 @@
     "627": "With a a better relationship, this characcter may have additional tasks for you.",
     "1005": "Acquire Skills to improve various attributes. Make sure to explore the Town to find additional places and ways to gain Skills.",
 
-    "11000": "ADDED STRINGS:"
+    "11000": "ADDED STRINGS:",
+
+        "10125": "Read the Town News!"
 
   }
 

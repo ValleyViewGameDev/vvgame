@@ -267,7 +267,7 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
       )}
 
       <div className="shared-buttons">
-        <button className="btn-panel btn-success"
+        <button className="btn-basic btn-success"
           onClick={handleShowSeasonRules}
         >
           {strings[15000]}
@@ -302,7 +302,7 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
       )}
 
       <div className="shared-buttons">
-        <button className="btn-panel btn-success"
+        <button className="btn-basic btn-success"
           onClick={handleShowSeasonLog}
         >
           {strings[3064]}
