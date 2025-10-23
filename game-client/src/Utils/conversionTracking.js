@@ -28,7 +28,6 @@ export const trackRedditAccountCreation = (userId) => {
       customEventName: 'AccountCreated',
       Value: 1.00,
       Currency: 'USD',
-      ConversionID: userId
     });
   }
 };
