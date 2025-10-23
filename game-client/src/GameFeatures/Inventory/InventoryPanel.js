@@ -256,7 +256,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                     </div>
                     <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: '20px' }}>
                         <button 
-                            className="btn-basic btn-panel btn-gold"
+                            className="btn-basic btn-gold"
                             onClick={() => handlePurchase(1, currentPlayer, updateStatus)}
                         >
                             {strings[9061]}
@@ -319,7 +319,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
 
                 {backpack.length > 0 && (
                 <div className="shared-buttons">
-                    <button className="btn-basic btn-panel btn-neutral" onClick={() => setShowBackpackModal(true)}>
+                    <button className="btn-basic btn-neutral" onClick={() => setShowBackpackModal(true)}>
                     {strings[78]}
                     </button>
                 </div>
@@ -361,7 +361,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
             </div>
 
             <div className="shared-buttons">
-                <button className="btn-basic btn-panel btn-success" onClick={() => {
+                <button className="btn-basic btn-success" onClick={() => {
                     onClose();
                     setTimeout(() => {
                         openPanel('WarehousePanel');
@@ -373,7 +373,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
 
             {inventory.length > 0 && (
             <div className="shared-buttons">
-                <button className="btn-basic btn-panel btn-neutral" onClick={() => setShowWarehouseModal(true)}>
+                <button className="btn-basic btn-neutral" onClick={() => setShowWarehouseModal(true)}>
                 {strings[184]}
                 </button>
             </div>

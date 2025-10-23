@@ -135,7 +135,6 @@
   color: rgb(0, 0, 0);
   font-weight: bold;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
-  border: 1px solid rgba(253, 216, 53, 0.6);
 }
 
 .shared-buttons .btn-gold::before {

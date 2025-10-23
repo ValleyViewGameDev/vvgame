@@ -1604,7 +1604,7 @@ const handleLoginSuccess = async (player) => {
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px' }}>
               <div className="shared-buttons">
                 <button
-                  className="btn-panel btn-success"
+                  className="btn-basic btn-success"
                   onClick={() => {
                     setIsModalOpen(false);
                     window.location.reload();

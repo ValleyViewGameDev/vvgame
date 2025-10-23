@@ -1,4 +1,5 @@
 /* General button wrapper */
+
 /* ✅ Ensure the wrapper doesn't clip the tooltip */
 .resource-button-wrapper {
   position: relative;
@@ -10,7 +11,7 @@
 .resource-button
 {
   width: 100%; /* ✅ Match resource buttons */
-  padding: 6px 20px; /* ✅ Reduce excessive padding */
+  padding: 6px 8px; /* ✅ Reduce excessive padding */
   margin: 4px 0; /* ✅ Reduce excessive spacing */
   font-size: 14px;
   text-align: left;
@@ -33,7 +34,7 @@
 
 /* Hover state for all buttons */
 .resource-button:hover {
-  background-color: #95da89;
+  background-color: #ebffe7;
 }
 
 /* Active state - button push effect */

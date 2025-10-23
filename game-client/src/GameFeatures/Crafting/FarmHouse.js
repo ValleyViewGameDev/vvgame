@@ -713,7 +713,7 @@ const FarmHouse = ({
             <hr />
               <div className="shared-buttons">
                 <TransactionButton 
-                  className="btn-danger" 
+                  className="btn-basic btn-danger" 
                   onAction={handleSellStation}
                   transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
                 >

@@ -13,7 +13,6 @@ import './WarehousePanel.css';
 
 const WarehousePanel = ({
   onClose,
-  inventory,
   setInventory,
   currentPlayer,
   setCurrentPlayer,
@@ -23,6 +22,7 @@ const WarehousePanel = ({
   updateStatus,
 }) => {
   const strings = useStrings();
+  const inventory = currentPlayer?.inventory || [];
   const [currentLevel, setCurrentLevel] = useState(0);
   const [nextLevel, setNextLevel] = useState(null);
   const [needsLevelMigration, setNeedsLevelMigration] = useState(false);

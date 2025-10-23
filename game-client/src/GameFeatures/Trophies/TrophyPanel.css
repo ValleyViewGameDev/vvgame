@@ -33,8 +33,6 @@
 
 .trophy-card:hover {
     background: linear-gradient(135deg, #ffe838, #d4cb36);
-    transform: translateY(1px);
-    box-shadow: 0 4px 0 rgba(92, 91, 91, 0.5);
 }
 
 /* Unearned trophies are grayed out */
@@ -45,8 +43,6 @@
 
 .trophy-card.unearned:hover {
     background: linear-gradient(135deg, #f0f0f0, #d8d8d8);
-    transform: translateY(1px);
-    box-shadow: 0 4px 0 rgba(92, 91, 91, 0.5);
 }
 
 /* Gray out trophy emoji for unearned trophies */
@@ -117,8 +113,6 @@
 
 .trophy-card.trophy-progress:not(.unearned):hover {
     background: linear-gradient(135deg, #dff2e1, #b8deba);
-    transform: translateY(1px);
-    box-shadow: 0 4px 0 rgba(92, 91, 91, 0.5);
 }
 
 /* Count trophy styling */
@@ -132,8 +126,6 @@
 
 .trophy-card.trophy-count:not(.unearned):hover {
     background: linear-gradient(135deg, #d1e9fc, #a5d2fa);
-    transform: translateY(1px);
-    box-shadow: 0 4px 0 rgba(92, 91, 91, 0.5);
 }
 
 /* Progress bar styling */

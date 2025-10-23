@@ -5,6 +5,7 @@ import NPCsInGridManager from '../GridState/GridStateNPCs';
 import { useStrings } from '../UI/StringsContext';
 import LANGUAGE_OPTIONS from '../UI/Languages.json';
 import '../UI/SharedButtons.css';
+import { trackAccountCreation } from '../Utils/conversionTracking';
 
 const CreateAccount = ({ setCurrentPlayer, zoomLevel, setZoomLevel, setIsLoggedIn, closeModal }) => {
   const strings = useStrings();
@@ -80,6 +81,9 @@ const handleCreateAccount = async (e) => {
     const assignedGridId = location?.g;
 
     console.log('✅ Player registered:', player);
+
+    // Track the successful account creation for ad platforms
+    trackAccountCreation(player.username, player._id || player.playerId);
 
     // 4. Finalize account setup
     setCurrentPlayer(player);

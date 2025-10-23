@@ -19,12 +19,13 @@
   border: none;
   border-radius: 12px;
   background-color: #7ff3f1; /* QUEST GIVER PANEL -- "ACCEPT QUEST" */
+
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 2px;
-  box-shadow: 0 5px 0 rgba(92, 91, 91, 0.5);
+  gap: 3px;
+  box-shadow: 0 6px 0 rgba(92, 91, 91, 0.5);
   transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
   box-sizing: border-box; /* ✅ Prevent overflow */
   max-width: 100%; /* ✅ Ensure buttons do not overflow */
@@ -32,34 +33,32 @@
 
 /* ////////////// QUEST BUTTONS /////////////// */
 
+/* Mouse down (push effect) state for all buttons */
+.quest-item:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 rgba(92, 91, 91, 0.5);
+}
+
 /* Hover state for all buttons */
 .quest-item:hover,
 .quest-giver-item:hover {
-  background-color: #95da89;
-  transform: translateY(1px);
-  box-shadow: 0 4px 0 rgba(92, 91, 91, 0.5);
+  background-color: #e4fbff;
 }
 
 .quest-item.in-progress {
   background-color: #f0cd4e;  /* PLAYER QUEST PANEL -- "In progress" */
 }
-
 .quest-item.in-progress:hover {
-  background-color: #f5dc6e;
-  transform: translateY(1px);
-  box-shadow: 0 4px 0 rgba(92, 91, 91, 0.5);
+  background-color: #fffbe9;
 }
 
 .quest-item.reward {
   background-color: #6fd151; /* PLAYER QUEST PANEL -- "Return to Collect" */
-                               /* AND QUEST GIVER PANEL -- "Get Reward" */
+}
+.quest-item.reward:hover {
+  background-color: #e5ffdc;
 }
 
-.quest-item.reward:hover {
-  background-color: #85da6a;
-  transform: translateY(1px);
-  box-shadow: 0 4px 0 rgba(92, 91, 91, 0.5);
-}
 
 
 /* ////////////// TEXT /////////////// */
