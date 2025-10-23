@@ -25,9 +25,9 @@ export const trackGoogleAccountCreation = (username, userId) => {
 export const trackRedditAccountCreation = (userId) => {
   if (typeof window.rdt !== 'undefined') {
     window.rdt('track', 'SignUp', {
-      customEventName: 'AccountCreated',
-      Value: 1.00,
-      Currency: 'USD',
+      value: 1.00,
+      currency: 'USD',
+      transactionId: userId
     });
   }
 };
