@@ -8,7 +8,7 @@ import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, useLayoutEffect, memo, useMemo, useCallback, useRef, act } from 'react';
 import { registerNotificationClickHandler } from './UI/Notifications/Notifications';
 import { initializeGrid } from './AppInit';
-import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies } from './Utils/TuningManager';
+import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies, loadMasterWarehouse } from './Utils/TuningManager';
 import { RenderGrid } from './Render/Render';
 import DynamicRenderer from './Render/RenderDynamic.js';
 import { handleResourceClick } from './ResourceClicking';
@@ -282,6 +282,7 @@ useEffect(() => {
   const [masterResources, setMasterResources] = useState([]);
   const [isMasterResourcesReady, setIsMasterResourcesReady] = useState([]);
   const [masterSkills, setMasterSkills] = useState([]);
+  const [masterWarehouse, setMasterWarehouse] = useState([]);
   const [globalTuning, setGlobalTuning] = useState(null);
   const [masterInteractions, setMasterInteractions] = useState([]);
   const [masterTraders, setMasterTraders] = useState([]);
@@ -511,13 +512,14 @@ useEffect(() => {
     try {
       // Step 1. Load tuning data
       console.log('🏁✅ 1 InitAppWrapper; Merging player data and initializing inventory...');
-      const [skills, resources, globalTuningData, interactions, traders, trophies] = await Promise.all([loadMasterSkills(), loadMasterResources(), loadGlobalTuning(), loadMasterInteractions(), loadMasterTraders(), loadMasterTrophies()]);
+      const [skills, resources, globalTuningData, interactions, traders, trophies, warehouse] = await Promise.all([loadMasterSkills(), loadMasterResources(), loadGlobalTuning(), loadMasterInteractions(), loadMasterTraders(), loadMasterTrophies(), loadMasterWarehouse()]);
       setMasterResources(resources);
       setMasterSkills(skills);
       setGlobalTuning(globalTuningData);
       setMasterInteractions(interactions);
       setMasterTraders(traders);
       setMasterTrophies(trophies);
+      setMasterWarehouse(warehouse);
       setIsMasterResourcesReady(true); // ✅ Mark ready
 
       // Step 2. Fetch stored player from localStorage
@@ -2207,6 +2209,7 @@ return (
           setInventory={setInventory}
           stationType={activeStation?.type} 
           globalTuning={globalTuning}
+          masterWarehouse={masterWarehouse}
           updateStatus={updateStatus}
         />
       )}
