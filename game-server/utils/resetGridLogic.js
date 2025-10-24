@@ -8,6 +8,7 @@ const { readJSON } = require('./fileUtils');const { ObjectId } = require('mongod
 const masterResources = require('../tuning/resources.json');
 const { getTemplate, getHomesteadLayoutFile, getTownLayoutFile, getPositionFromSettlementType } = require('./templateUtils');
 const Settlement = require('../models/settlement');
+const seasonsConfig = require('../tuning/seasons.json');
 
 async function performGridReset(gridId, gridType, gridCoord) {
   const grid = await Grid.findById(gridId);
@@ -68,6 +69,18 @@ async function performGridReset(gridId, gridType, gridCoord) {
     throw new Error(`Invalid layout for gridType: ${gridType}`);
   }
 
+  // For town grids, apply seasonTownCrops from seasons.json
+  let resourceDistribution = layout.resourceDistribution || {};
+  if (gridType === 'town') {
+    const seasonData = seasonsConfig.find(s => s.seasonType === seasonType);
+    if (seasonData && seasonData.seasonTownCrops) {
+      resourceDistribution = seasonData.seasonTownCrops;
+      console.log(`🌻 Applying seasonTownCrops for ${seasonType} town: ${Object.keys(resourceDistribution).length} resource types`);
+    } else {
+      console.warn(`⚠️ No seasonTownCrops found for season: ${seasonType}`);
+    }
+  }
+
   const newTiles = isFixedLayout
     ? generateFixedGrid(layout)
     : generateGrid(layout, layout.tileDistribution).map(row =>
@@ -79,7 +92,7 @@ async function performGridReset(gridId, gridType, gridCoord) {
 
   const newResources = isFixedLayout
     ? generateFixedResources(layout)
-    : generateResources(layout, newTiles, layout.resourceDistribution);
+    : generateResources(layout, newTiles, resourceDistribution);
   
   // Enrich multi-tile resources with anchorKey and passable properties
   // Note: Shadow tiles are created on the client side only, not stored in DB

@@ -9,6 +9,7 @@ const { readJSON } = require('./fileUtils');
 const { getTemplate, getHomesteadLayoutFile, getTownLayoutFile, getPositionFromSettlementType } = require('./templateUtils');
 const masterResources = require('../tuning/resources.json');
 const { generateGrid, generateResources, generateFixedGrid, generateFixedResources, generateEnemies } = require('./worldUtils');
+const seasonsConfig = require('../tuning/seasons.json');
 
 async function performGridCreation({ gridCoord, gridType, settlementId, frontierId }) {
   if (!gridCoord || !gridType || !settlementId || !frontierId) {
@@ -76,6 +77,18 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
     throw new Error(`Invalid layout: ${layoutFileName}`);
   }
 
+  // For town grids, apply seasonTownCrops from seasons.json
+  let resourceDistribution = layout.resourceDistribution || {};
+  if (gridType === 'town') {
+    const seasonData = seasonsConfig.find(s => s.seasonType === seasonType);
+    if (seasonData && seasonData.seasonTownCrops) {
+      resourceDistribution = seasonData.seasonTownCrops;
+      console.log(`🌻 Applying seasonTownCrops for ${seasonType} town: ${Object.keys(resourceDistribution).length} resource types`);
+    } else {
+      console.warn(`⚠️ No seasonTownCrops found for season: ${seasonType}`);
+    }
+  }
+
   const newTiles = isFixedLayout
     ? generateFixedGrid(layout)
     : generateGrid(layout, layout.tileDistribution).map(row =>
@@ -86,7 +99,7 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
 
   const newResources = isFixedLayout
     ? generateFixedResources(layout)
-    : generateResources(layout, newTiles, layout.resourceDistribution);
+    : generateResources(layout, newTiles, resourceDistribution);
   
   // Enrich multi-tile resources with anchorKey and passable properties
   // Note: Shadow tiles are created on the client side only, not stored in DB

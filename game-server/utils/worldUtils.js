@@ -56,14 +56,15 @@ function generateGrid(layout) {
   );
 }
 
-function generateResources(layout, tiles) {
+function generateResources(layout, tiles, resourceDistribution = null) {
   if (!layout.resources) {
     throw new Error('Invalid layout: Missing "resources".');
   }
 
   console.log("📌 Generating resources with new validation...");
-  // ✅ Use the new resourceDistribution from the template
-  const resourceDistribution = layout.resourceDistribution || {};
+  // ✅ Use the provided resourceDistribution or fall back to the template's
+  resourceDistribution = resourceDistribution || layout.resourceDistribution || {};
+  console.log(`📊 Resource distribution has ${Object.keys(resourceDistribution).length} types:`, Object.keys(resourceDistribution).slice(0, 5));
   const resources = [];
   const availableCells = [];
 
@@ -105,6 +106,7 @@ function generateResources(layout, tiles) {
 
   // ✅ Step 2: Randomly Place Distributed Resources
   shuffleArray(availableCells); // Randomize available placement locations
+  console.log(`📍 Found ${availableCells.length} available cells for random resource placement`);
 
   Object.entries(resourceDistribution).forEach(([resourceType, quantity]) => {
     const alreadyPlaced = alreadyPlacedCounts[resourceType] || 0;
