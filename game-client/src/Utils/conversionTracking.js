@@ -24,11 +24,8 @@ export const trackGoogleAccountCreation = (username, userId) => {
 // Reddit Pixel Event
 export const trackRedditAccountCreation = (userId) => {
   if (typeof window.rdt !== 'undefined') {
-    window.rdt('track', 'SignUp', {
-      value: 1.00,
-      currency: 'USD',
-      transactionId: userId
-    });
+    // Reddit's SignUp event doesn't accept custom parameters
+    window.rdt('track', 'SignUp');
   }
 };
 
