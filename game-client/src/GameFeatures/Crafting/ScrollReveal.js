@@ -3,7 +3,7 @@
  * Helper functions for determining random scroll reveal outcomes
  */
 
-import { selectWeightedRandomItem } from '../../Utils/DropRates';
+import { selectWeightedRandomItem } from '../../Economy/DropRates';
 
 /**
  * Determines the random doober reward from revealing a scroll

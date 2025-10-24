@@ -14,8 +14,8 @@ import { useStrings } from './UI/StringsContext';
 import { getLocalizedString } from './Utils/stringLookup';
 import { formatSingleCollection } from './UI/StatusBar/CollectionFormatters';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
-import { checkAndDropWarehouseIngredient } from './Utils/ResourceHelpers';
-import { selectWeightedRandomItem, getDropQuantity } from './Utils/DropRates';
+import { checkAndDropWarehouseIngredient } from './Utils/WarehouseMaterials';
+import { selectWeightedRandomItem, getDropQuantity } from './Economy/DropRates';
  
  // Handles resource click actions based on category. //
  export async function handleResourceClick(

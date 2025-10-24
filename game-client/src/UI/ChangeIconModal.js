@@ -76,7 +76,7 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
 
 
         <div className="shared-buttons">
-          <button className="btn-basic btn-success" onClick={handleSave}>Save</button>
+          <button className="btn-basic" onClick={handleSave}>Save</button>
         </div>
       </div>
     </div>

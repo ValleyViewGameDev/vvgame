@@ -129,7 +129,6 @@
     "193": "Discard Items",
     "194": "Expand Warehouse",
     "195": "Expand Backpack at the Adventure Camp in Town.",
-    "199": "Near unlimited capacity with Gold Pass (among other benefits).",
     "196": "Add ",
     "197": "Warehouse upgraded",
     "198": " to Warehouse capacity.",
@@ -812,8 +811,7 @@
     "9051": "A Gold Pass gives you access to premium features and benefits in Valley View for the duration of a season.",
     "9052": "With a Gold Pass, you can enjoy the following benefits:",
     "9053": "✅ Premium avatars: 🐱🤡👽🤖💩👾",
-    "9054": "✅ Near unlimited Warehouse capacity",
-    "9055": "✅ Near unlimited Backpack capacity",
+
     "9056": "✅ 2 additional Trade Stall slots",
     "9057": "✅ Lower Tax rate",
     "9058": "✅ Half your MaxHP restored on death",
@@ -1296,7 +1294,11 @@
 
     "11000": "ADDED STRINGS:",
 
-        "10125": "Read the Town News!"
+        "10125": "Read the Town News!",
+    "9054": "✅ +100,000 Warehouse capacity",
+    "9055": "✅ +5,000 Backpack capacity",
+            "199": "Significantly more capacity with Gold Pass (among other benefits)."
+
 
   }
 

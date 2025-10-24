@@ -1,7 +1,7 @@
 import React from 'react';
 import { getLocalizedString } from '../Utils/stringLookup';
-import { calculateGemSpeedupCost } from '../Utils/ResourceHelpers';
-import './GemPurchaseCalculation.css';
+import { calculateGemSpeedupCost } from './EconomyUtils';
+import './GemCosts.css';
 
 // Pure function that doesn't use hooks
 export const calculateGemPurchase = ({ 

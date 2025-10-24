@@ -8,9 +8,10 @@ import { formatCollectionResults } from '../../UI/StatusBar/CollectionFormatters
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import { isACrop, calculateBulkWarehouseDrops, aggregateWarehouseDrops } from '../../Utils/ResourceHelpers';
+import { isACrop } from '../../Utils/ResourceHelpers';
+import { calculateBulkWarehouseDrops, aggregateWarehouseDrops } from '../../Utils/WarehouseMaterials';
 import { gainIngredients } from '../../Utils/InventoryManagement';
-import { selectWeightedRandomItem } from '../../Utils/DropRates';
+import { selectWeightedRandomItem } from '../../Economy/DropRates';
 import '../../UI/SharedButtons.css';
 
 // Component for the bulk harvest selection modal

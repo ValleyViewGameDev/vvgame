@@ -160,6 +160,7 @@
   max-width: 90%; /* Prevents overflow on small screens */
   max-height: 70vh; /* Prevents it from being too tall */
   overflow-y: auto; /* Scrollable if content exceeds height */
+    box-shadow: inset 0 -7px 0 rgba(92, 91, 91, 0.5);
 }
 
 .inventory-modal .close-button {

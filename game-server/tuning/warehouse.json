@@ -8,7 +8,7 @@
   },
   {
     "Level": 1,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 1,
     "ingredient2": "Shovel",
@@ -18,7 +18,7 @@
   },
   {
     "Level": 2,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 2,
     "ingredient2": "Shovel",
@@ -28,7 +28,7 @@
   },
   {
     "Level": 3,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 3,
     "ingredient2": "Shovel",
@@ -38,7 +38,7 @@
   },
   {
     "Level": 4,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 4,
     "ingredient2": "Shovel",
@@ -48,7 +48,7 @@
   },
   {
     "Level": 5,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 5,
     "ingredient2": "Shovel",
@@ -58,7 +58,7 @@
   },
   {
     "Level": 6,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 6,
     "ingredient2": "Shovel",
@@ -68,7 +68,7 @@
   },
   {
     "Level": 7,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 7,
     "ingredient2": "Shovel",
@@ -78,7 +78,7 @@
   },
   {
     "Level": 8,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 8,
     "ingredient2": "Shovel",
@@ -88,7 +88,7 @@
   },
   {
     "Level": 9,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 9,
     "ingredient2": "Shovel",
@@ -98,7 +98,7 @@
   },
   {
     "Level": 10,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 10,
     "ingredient2": "Shovel",
@@ -108,7 +108,7 @@
   },
   {
     "Level": 11,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 11,
     "ingredient2": "Shovel",
@@ -118,7 +118,7 @@
   },
   {
     "Level": 12,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 12,
     "ingredient2": "Shovel",
@@ -128,7 +128,7 @@
   },
   {
     "Level": 13,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 13,
     "ingredient2": "Shovel",
@@ -138,7 +138,7 @@
   },
   {
     "Level": 14,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 14,
     "ingredient2": "Shovel",
@@ -148,7 +148,7 @@
   },
   {
     "Level": 15,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 15,
     "ingredient2": "Shovel",
@@ -158,7 +158,7 @@
   },
   {
     "Level": 16,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 16,
     "ingredient2": "Shovel",
@@ -168,7 +168,7 @@
   },
   {
     "Level": 17,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 17,
     "ingredient2": "Shovel",
@@ -178,7 +178,7 @@
   },
   {
     "Level": 18,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 18,
     "ingredient2": "Shovel",
@@ -188,7 +188,7 @@
   },
   {
     "Level": 19,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 19,
     "ingredient2": "Shovel",
@@ -198,7 +198,7 @@
   },
   {
     "Level": 20,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 20,
     "ingredient2": "Shovel",
@@ -208,7 +208,7 @@
   },
   {
     "Level": 21,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 21,
     "ingredient2": "Shovel",
@@ -218,7 +218,7 @@
   },
   {
     "Level": 22,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 22,
     "ingredient2": "Shovel",
@@ -228,7 +228,7 @@
   },
   {
     "Level": 23,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 23,
     "ingredient2": "Shovel",
@@ -238,7 +238,7 @@
   },
   {
     "Level": 24,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 24,
     "ingredient2": "Shovel",
@@ -248,7 +248,7 @@
   },
   {
     "Level": 25,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 25,
     "ingredient2": "Shovel",
@@ -258,7 +258,7 @@
   },
   {
     "Level": 26,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 26,
     "ingredient2": "Shovel",
@@ -268,7 +268,7 @@
   },
   {
     "Level": 27,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 27,
     "ingredient2": "Shovel",
@@ -278,7 +278,7 @@
   },
   {
     "Level": 28,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 28,
     "ingredient2": "Shovel",
@@ -288,7 +288,7 @@
   },
   {
     "Level": 29,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 29,
     "ingredient2": "Shovel",
@@ -298,7 +298,7 @@
   },
   {
     "Level": 30,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 30,
     "ingredient2": "Shovel",
@@ -308,7 +308,7 @@
   },
   {
     "Level": 31,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 31,
     "ingredient2": "Shovel",
@@ -318,7 +318,7 @@
   },
   {
     "Level": 32,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 32,
     "ingredient2": "Shovel",
@@ -328,7 +328,7 @@
   },
   {
     "Level": 33,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 33,
     "ingredient2": "Shovel",
@@ -338,7 +338,7 @@
   },
   {
     "Level": 34,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 34,
     "ingredient2": "Shovel",
@@ -348,7 +348,7 @@
   },
   {
     "Level": 35,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 35,
     "ingredient2": "Shovel",
@@ -358,7 +358,7 @@
   },
   {
     "Level": 36,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 36,
     "ingredient2": "Shovel",
@@ -368,7 +368,7 @@
   },
   {
     "Level": 37,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 37,
     "ingredient2": "Shovel",
@@ -378,7 +378,7 @@
   },
   {
     "Level": 38,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 38,
     "ingredient2": "Shovel",
@@ -388,7 +388,7 @@
   },
   {
     "Level": 39,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 39,
     "ingredient2": "Shovel",
@@ -398,7 +398,7 @@
   },
   {
     "Level": 40,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 40,
     "ingredient2": "Shovel",
@@ -408,7 +408,7 @@
   },
   {
     "Level": 41,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 41,
     "ingredient2": "Shovel",
@@ -418,7 +418,7 @@
   },
   {
     "Level": 42,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 42,
     "ingredient2": "Shovel",
@@ -428,7 +428,7 @@
   },
   {
     "Level": 43,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 43,
     "ingredient2": "Shovel",
@@ -438,7 +438,7 @@
   },
   {
     "Level": 44,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 44,
     "ingredient2": "Shovel",
@@ -448,7 +448,7 @@
   },
   {
     "Level": 45,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 45,
     "ingredient2": "Shovel",
@@ -458,7 +458,7 @@
   },
   {
     "Level": 46,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 46,
     "ingredient2": "Shovel",
@@ -468,7 +468,7 @@
   },
   {
     "Level": 47,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 47,
     "ingredient2": "Shovel",
@@ -478,7 +478,7 @@
   },
   {
     "Level": 48,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 48,
     "ingredient2": "Shovel",
@@ -488,7 +488,7 @@
   },
   {
     "Level": 49,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 49,
     "ingredient2": "Shovel",
@@ -498,7 +498,7 @@
   },
   {
     "Level": 50,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 50,
     "ingredient2": "Shovel",
@@ -508,7 +508,7 @@
   },
   {
     "Level": 51,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 51,
     "ingredient2": "Shovel",
@@ -518,7 +518,7 @@
   },
   {
     "Level": 52,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 52,
     "ingredient2": "Shovel",
@@ -528,7 +528,7 @@
   },
   {
     "Level": 53,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 53,
     "ingredient2": "Shovel",
@@ -538,7 +538,7 @@
   },
   {
     "Level": 54,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 54,
     "ingredient2": "Shovel",
@@ -548,7 +548,7 @@
   },
   {
     "Level": 55,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 55,
     "ingredient2": "Shovel",
@@ -558,7 +558,7 @@
   },
   {
     "Level": 56,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 56,
     "ingredient2": "Shovel",
@@ -568,7 +568,7 @@
   },
   {
     "Level": 57,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 57,
     "ingredient2": "Shovel",
@@ -578,7 +578,7 @@
   },
   {
     "Level": 58,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 58,
     "ingredient2": "Shovel",
@@ -588,7 +588,7 @@
   },
   {
     "Level": 59,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 59,
     "ingredient2": "Shovel",
@@ -598,7 +598,7 @@
   },
   {
     "Level": 60,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 60,
     "ingredient2": "Shovel",
@@ -608,7 +608,7 @@
   },
   {
     "Level": 61,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 61,
     "ingredient2": "Shovel",
@@ -618,7 +618,7 @@
   },
   {
     "Level": 62,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 62,
     "ingredient2": "Shovel",
@@ -628,7 +628,7 @@
   },
   {
     "Level": 63,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 63,
     "ingredient2": "Shovel",
@@ -638,7 +638,7 @@
   },
   {
     "Level": 64,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 64,
     "ingredient2": "Shovel",
@@ -648,7 +648,7 @@
   },
   {
     "Level": 65,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 65,
     "ingredient2": "Shovel",
@@ -658,7 +658,7 @@
   },
   {
     "Level": 66,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 66,
     "ingredient2": "Shovel",
@@ -668,7 +668,7 @@
   },
   {
     "Level": 67,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 67,
     "ingredient2": "Shovel",
@@ -678,7 +678,7 @@
   },
   {
     "Level": 68,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 68,
     "ingredient2": "Shovel",
@@ -688,7 +688,7 @@
   },
   {
     "Level": 69,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 69,
     "ingredient2": "Shovel",
@@ -698,7 +698,7 @@
   },
   {
     "Level": 70,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 70,
     "ingredient2": "Shovel",
@@ -708,7 +708,7 @@
   },
   {
     "Level": 71,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 71,
     "ingredient2": "Shovel",
@@ -718,7 +718,7 @@
   },
   {
     "Level": 72,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 72,
     "ingredient2": "Shovel",
@@ -728,7 +728,7 @@
   },
   {
     "Level": 73,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 73,
     "ingredient2": "Shovel",
@@ -738,7 +738,7 @@
   },
   {
     "Level": 74,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 74,
     "ingredient2": "Shovel",
@@ -748,7 +748,7 @@
   },
   {
     "Level": 75,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 75,
     "ingredient2": "Shovel",
@@ -758,7 +758,7 @@
   },
   {
     "Level": 76,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 76,
     "ingredient2": "Shovel",
@@ -768,7 +768,7 @@
   },
   {
     "Level": 77,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 77,
     "ingredient2": "Shovel",
@@ -778,7 +778,7 @@
   },
   {
     "Level": 78,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 78,
     "ingredient2": "Shovel",
@@ -788,7 +788,7 @@
   },
   {
     "Level": 79,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 79,
     "ingredient2": "Shovel",
@@ -798,7 +798,7 @@
   },
   {
     "Level": 80,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 80,
     "ingredient2": "Shovel",
@@ -808,7 +808,7 @@
   },
   {
     "Level": 81,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 81,
     "ingredient2": "Shovel",
@@ -818,7 +818,7 @@
   },
   {
     "Level": 82,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 82,
     "ingredient2": "Shovel",
@@ -828,7 +828,7 @@
   },
   {
     "Level": 83,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 83,
     "ingredient2": "Shovel",
@@ -838,7 +838,7 @@
   },
   {
     "Level": 84,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 84,
     "ingredient2": "Shovel",
@@ -848,7 +848,7 @@
   },
   {
     "Level": 85,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 85,
     "ingredient2": "Shovel",
@@ -858,7 +858,7 @@
   },
   {
     "Level": 86,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 86,
     "ingredient2": "Shovel",
@@ -868,7 +868,7 @@
   },
   {
     "Level": 87,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 87,
     "ingredient2": "Shovel",
@@ -878,7 +878,7 @@
   },
   {
     "Level": 88,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 88,
     "ingredient2": "Shovel",
@@ -888,7 +888,7 @@
   },
   {
     "Level": 89,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 89,
     "ingredient2": "Shovel",
@@ -898,7 +898,7 @@
   },
   {
     "Level": 90,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 90,
     "ingredient2": "Shovel",
@@ -908,7 +908,7 @@
   },
   {
     "Level": 91,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 91,
     "ingredient2": "Shovel",
@@ -918,7 +918,7 @@
   },
   {
     "Level": 92,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 92,
     "ingredient2": "Shovel",
@@ -928,7 +928,7 @@
   },
   {
     "Level": 93,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 93,
     "ingredient2": "Shovel",
@@ -938,7 +938,7 @@
   },
   {
     "Level": 94,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 94,
     "ingredient2": "Shovel",
@@ -948,7 +948,7 @@
   },
   {
     "Level": 95,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 95,
     "ingredient2": "Shovel",
@@ -958,7 +958,7 @@
   },
   {
     "Level": 96,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 96,
     "ingredient2": "Shovel",
@@ -968,7 +968,7 @@
   },
   {
     "Level": 97,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 97,
     "ingredient2": "Shovel",
@@ -978,7 +978,7 @@
   },
   {
     "Level": 98,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 98,
     "ingredient2": "Shovel",
@@ -988,7 +988,7 @@
   },
   {
     "Level": 99,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 99,
     "ingredient2": "Shovel",
@@ -998,7 +998,7 @@
   },
   {
     "Level": 100,
-    "add": 50,
+    "add": 100,
     "ingredient1": "Saw",
     "ingredient1qty": 100,
     "ingredient2": "Shovel",

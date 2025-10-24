@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { calculateGemPurchase } from './GemPurchaseCalculation';
+import { calculateGemPurchase } from '../Economy/GemCosts';
 import { useStrings } from './StringsContext';
 import { usePanelContext } from './PanelContext';
 import './ResourceButton.css';
