@@ -133,3 +133,116 @@
   font-size: 13px;
   color: #333;
 }
+
+/* Inventory table with sticky header styles */
+.inventory-table-container {
+  width: 100%;
+  margin-top: 0px;
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+}
+
+.inventory-table-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.inventory-table-header table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+.inventory-table-header th {
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.inventory-table-header th:hover {
+  background-color: #e9ecef;
+}
+
+.inventory-table-scroll {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.inventory-table-scroll table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+.inventory-table-scroll td {
+  padding: 6px 12px;
+  vertical-align: middle;
+}
+
+
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+/* Backpack table with contained sticky header */
+.backpack-table-container {
+  width: 100%;
+  margin-top: 0px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.backpack-table-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  flex-shrink: 0;
+}
+
+.backpack-table-header table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+.backpack-table-header th {
+  padding: 8px 12px;
+  text-align: left;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.backpack-table-header th:hover {
+  background-color: #e9ecef;
+}
+
+.backpack-table-scroll {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.backpack-table-scroll table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+.backpack-table-scroll td {
+  padding: 6px 12px;
+  vertical-align: middle;
+}

@@ -206,7 +206,7 @@ export function calculateBulkWarehouseDrops(numPlotsHarvested, {
   const personalizedIngredients = warehouseIngredients.map(ingredient => ({
     ...ingredient,
     scrollchance: getPersonalizedWarehouseRarity(ingredient.type, playerId)
-  }));
+  })); 
   
   // Get drop rate from globalTuning
   const dropRate = globalTuning?.harvestDropRate || 0.1; // Default to 10%

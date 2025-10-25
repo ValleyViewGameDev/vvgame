@@ -9,6 +9,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { deriveWarehouseAndBackpackCapacity, isCurrency } from '../../Utils/InventoryManagement';
 import { handlePurchase } from '../../Store/Store';
+import ManageContentsModal from './ManageContentsModal';
 
 function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, openPanel, setActiveStation, setModalContent, setIsModalOpen }) {
 
@@ -19,6 +20,10 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
     const baseBackpackCapacity = currentPlayer?.backpackCapacity || 0;
     const [showBackpackModal, setShowBackpackModal] = useState(false);
     const [showWarehouseModal, setShowWarehouseModal] = useState(false);
+    const [inventorySortField, setInventorySortField] = useState('name');
+    const [inventorySortDirection, setInventorySortDirection] = useState('asc');
+    const [backpackSortField, setBackpackSortField] = useState('name');
+    const [backpackSortDirection, setBackpackSortDirection] = useState('asc');
     const [backpackAmounts, setBackpackAmounts] = useState({}); // Store amounts per resource for backpack
     const [warehouseAmounts, setWarehouseAmounts] = useState({}); // Store amounts per resource for warehouse
     const hasBackpackSkill = currentPlayer?.skills?.some(item => item.type === 'Backpack');
@@ -31,6 +36,86 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
     const calculateTotalQuantity = (inventory) =>
         inventory.filter((item) => !isCurrency(item.type)).reduce((total, item) => total + item.quantity, 0);
     
+    // Inventory sorting functions
+    const handleInventorySort = (field) => {
+        if (inventorySortField === field) {
+            setInventorySortDirection(inventorySortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setInventorySortField(field);
+            setInventorySortDirection('asc');
+        }
+    };
+
+    const getInventorySortIcon = (field) => {
+        if (inventorySortField !== field) return '↕️';
+        return inventorySortDirection === 'asc' ? '⬆️' : '⬇️';
+    };
+
+    const getSortedInventory = () => {
+        const filtered = inventory.filter(item => !isCurrency(item.type));
+        
+        return filtered.sort((a, b) => {
+            let aValue, bValue;
+            
+            switch (inventorySortField) {
+                case 'name':
+                    aValue = getLocalizedString(a.type, strings).toLowerCase();
+                    bValue = getLocalizedString(b.type, strings).toLowerCase();
+                    break;
+                case 'quantity':
+                    aValue = a.quantity;
+                    bValue = b.quantity;
+                    break;
+                default:
+                    return 0;
+            }
+            
+            if (aValue < bValue) return inventorySortDirection === 'asc' ? -1 : 1;
+            if (aValue > bValue) return inventorySortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+    };
+
+    // Backpack sorting functions
+    const handleBackpackSort = (field) => {
+        if (backpackSortField === field) {
+            setBackpackSortDirection(backpackSortDirection === 'asc' ? 'desc' : 'asc');
+        } else {
+            setBackpackSortField(field);
+            setBackpackSortDirection('asc');
+        }
+    };
+
+    const getBackpackSortIcon = (field) => {
+        if (backpackSortField !== field) return '↕️';
+        return backpackSortDirection === 'asc' ? '⬆️' : '⬇️';
+    };
+
+    const getSortedBackpack = () => {
+        const filtered = backpack.filter(item => !isCurrency(item.type));
+        
+        return filtered.sort((a, b) => {
+            let aValue, bValue;
+            
+            switch (backpackSortField) {
+                case 'name':
+                    aValue = getLocalizedString(a.type, strings).toLowerCase();
+                    bValue = getLocalizedString(b.type, strings).toLowerCase();
+                    break;
+                case 'quantity':
+                    aValue = a.quantity;
+                    bValue = b.quantity;
+                    break;
+                default:
+                    return 0;
+            }
+            
+            if (aValue < bValue) return backpackSortDirection === 'asc' ? -1 : 1;
+            if (aValue > bValue) return backpackSortDirection === 'asc' ? 1 : -1;
+            return 0;
+        });
+    };
+
     const handleAmountChange = (amounts, setAmounts, type, value, maxValue) => {
         const clampedValue = Math.min(Math.max(0, value), maxValue);
         setAmounts((prev) => ({
@@ -38,6 +123,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
             [type]: clampedValue,
         }));
     };
+
 
     const handleMoveItem = async (item) => {
         const isAtHome = currentPlayer.location.g === currentPlayer.gridId;
@@ -247,23 +333,6 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
     return (
         <Panel onClose={onClose} descriptionKey="1001" titleKey="1101" panelName="InventoryPanel">
             
-            {/* Gold Pass info for non-Gold users */}
-            
-            {currentPlayer.accountStatus !== 'Gold' && (
-                <>
-                    <div className="gold-pass-info">
-                        {strings[199]}
-                    </div>
-                    <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: '20px' }}>
-                        <button 
-                            className="btn-basic btn-gold"
-                            onClick={() => handlePurchase(1, currentPlayer, updateStatus)}
-                        >
-                            {strings[9061]}
-                        </button>
-                    </div>
-                </>
-            )}
 
             {/* CURRENCIES */}
             <div className="currency-section">
@@ -299,6 +368,24 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
 
             <hr className="inventory-divider" />
 
+            {/* Gold Pass info for non-Gold users */}
+            {currentPlayer.accountStatus !== 'Gold' && (
+                <>
+                    <div className="gold-pass-info">
+                        {strings[199]}
+                    </div>
+                    <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: '20px' }}>
+                        <button 
+                            className="btn-basic btn-gold"
+                            onClick={() => handlePurchase(1, currentPlayer, updateStatus)}
+                        >
+                            {strings[9061]}
+                        </button>
+                    </div>
+                </>
+            )}
+
+
             {/* BACKPACK */}
 
             <h3>{strings[182]}</h3>
@@ -324,15 +411,36 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                     </button>
                 </div>
                 )}
-                <br></br>
-                <div className="inventory-table">
+                <div className="backpack-table-container" style={{height: 'auto', maxHeight: '300px'}}>
                     {backpack.filter(item => !isCurrency(item.type)).length > 0 ? (
-                        backpack.filter(item => !isCurrency(item.type)).map((item, index) => (
-                            <div className="inventory-row" key={index}>
-                                <div className="inventory-cell name-cell">{masterResources.find(r => r.type === item.type)?.symbol || ''} {getLocalizedString(item.type, strings)}</div>
-                                <div className="inventory-cell quantity-cell">{item.quantity.toLocaleString()}</div>
+                        <>
+                            <div className="backpack-table-header">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th onClick={() => handleBackpackSort('name')} className="sortable-header">
+                                                {strings[191] || "Item"} {getBackpackSortIcon('name')}
+                                            </th>
+                                            <th onClick={() => handleBackpackSort('quantity')} className="sortable-header">
+                                                {strings[185] || "Quantity"} {getBackpackSortIcon('quantity')}
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                </table>
                             </div>
-                        ))
+                            <div className="backpack-table-scroll">
+                                <table>
+                                    <tbody>
+                                        {getSortedBackpack().map((item, index) => (
+                                            <tr key={index}>
+                                                <td>{masterResources.find(r => r.type === item.type)?.symbol || ''} {getLocalizedString(item.type, strings)}</td>
+                                                <td>{item.quantity.toLocaleString()}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </>
                     ) : (
                         <p>{strings[77]}</p>
                     )}
@@ -379,17 +487,38 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
             </div>
             )}
 
-            {/* INGREDIENT TABLES FOR MANAGING CONTENTS */}
+            {/* INGREDIENT LIST */}
 
-            <br></br>
-            <div className="inventory-table">
+            <div className="inventory-table-container">
                 {inventory.filter(item => !isCurrency(item.type)).length > 0 ? (
-                    inventory.filter(item => !isCurrency(item.type)).map((item, index) => (
-                        <div className="inventory-row" key={index}>
-                            <div className="inventory-cell name-cell">{masterResources.find(r => r.type === item.type)?.symbol || ''} {getLocalizedString(item.type, strings)}</div>
-                            <div className="inventory-cell quantity-cell">{item.quantity.toLocaleString()}</div>
+                    <>
+                        <div className="inventory-table-header">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th onClick={() => handleInventorySort('name')} className="sortable-header">
+                                            {strings[191] || "Item"} {getInventorySortIcon('name')}
+                                        </th>
+                                        <th onClick={() => handleInventorySort('quantity')} className="sortable-header">
+                                            {strings[185] || "Quantity"} {getInventorySortIcon('quantity')}
+                                        </th>
+                                    </tr>
+                                </thead>
+                            </table>
                         </div>
-                    ))
+                        <div className="inventory-table-scroll">
+                            <table>
+                                <tbody>
+                                    {getSortedInventory().map((item, index) => (
+                                        <tr key={index}>
+                                            <td>{masterResources.find(r => r.type === item.type)?.symbol || ''} {getLocalizedString(item.type, strings)}</td>
+                                            <td>{item.quantity.toLocaleString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </>
                 ) : (
                     <p>{strings[76]}</p>
                 )}
@@ -493,69 +622,16 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                     <button className="close-button" onClick={() => setShowWarehouseModal(false)}>✖</button>
                     <h2>{strings[193]}</h2>
 
-                    <div className="inventory-modal-scroll">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>{strings[191]}</th>
-                                <th>{strings[185]}</th>
-                                <th>{strings[186]}</th>
-                                <th>{strings[192]}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {inventory.filter(item => item.type !== 'Money' && item.type !== 'Gem').map((item) => (
-                                <tr key={item.type}>
-                                    <td>{masterResources.find(r => r.type === item.type)?.symbol || ''} {getLocalizedString(item.type, strings)}</td>
-                                    <td>{item.quantity.toLocaleString()}</td>
-                                    <td>
-                                        <div className="amount-input">
-                                            <button
-                                                onClick={() =>
-                                                    handleAmountChange(warehouseAmounts, setWarehouseAmounts, item.type, (warehouseAmounts[item.type] || 0) - 1, item.quantity)
-                                                }
-                                                disabled={(warehouseAmounts[item.type] || 0) <= 0}
-                                            >
-                                                -
-                                            </button>
-                                            <input
-                                                type="number"
-                                                value={warehouseAmounts[item.type] || 0}
-                                                onChange={(e) =>
-                                                    handleAmountChange(warehouseAmounts, setWarehouseAmounts, item.type, parseInt(e.target.value, 10) || 0, item.quantity)
-                                                }
-                                            />
-                                            <button
-                                                onClick={() =>
-                                                    handleAmountChange(warehouseAmounts, setWarehouseAmounts, item.type, (warehouseAmounts[item.type] || 0) + 1, item.quantity)
-                                                }
-                                                disabled={(warehouseAmounts[item.type] || 0) >= item.quantity}
-                                            >
-                                                +
-                                            </button>
-                                            <button
-                                                onClick={() =>
-                                                    handleAmountChange(warehouseAmounts, setWarehouseAmounts, item.type, item.quantity, item.quantity)
-                                                }
-                                                style={{ marginLeft: '4px' }}
-                                            >
-                                                {strings[165]}
-                                            </button>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <button
-                                            className="add-button"
-                                            onClick={() => handleDiscardWarehouseItem(item)}
-                                            disabled={!(warehouseAmounts[item.type] > 0 && warehouseAmounts[item.type] <= item.quantity)}
-                                        >
-                                            {strings[188]}
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                    <ManageContentsModal
+                        inventory={inventory}
+                        masterResources={masterResources}
+                        showActions={true}
+                        warehouseAmounts={warehouseAmounts}
+                        setWarehouseAmounts={setWarehouseAmounts}
+                        handleAmountChange={handleAmountChange}
+                        handleDiscardWarehouseItem={handleDiscardWarehouseItem}
+                        strings={strings}
+                    />
 
                     <button 
                         className="sell-button" 
@@ -590,7 +666,6 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                     >
                         {strings[190]}
                     </button>
-                    </div>
                 </div>
             )}
         </Panel>

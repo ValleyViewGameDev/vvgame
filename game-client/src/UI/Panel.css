@@ -18,10 +18,15 @@
     width: 200px; /* Fixed width for panels; overlaps base panel */
     background-color: rgb(255, 251, 179);
     box-shadow: 4px 0 8px rgba(106, 106, 106, 0.253);
-    z-index: 1000;
+    z-index: 999;
     display: flex;
     flex-direction: column;
     overflow: hidden; /* Prevent container overflow, let content handle it */
+  }
+
+/* When modal is open, reduce panel z-index */
+.panel-container.modal-open {
+    z-index: 100;
   }
 
 /* Fixed Panel Header (Title + Close Button) */

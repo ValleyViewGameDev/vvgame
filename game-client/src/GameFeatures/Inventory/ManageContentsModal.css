@@ -1,0 +1,132 @@
+/* Manage Contents Modal Styles */
+.manage-contents-container {
+  width: 100%;
+  height: 300px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+/* Sticky header container */
+.manage-contents-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  flex-shrink: 0;
+}
+
+.manage-contents-header table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+.manage-contents-header th {
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.manage-contents-header th:hover {
+  background-color: #e9ecef;
+}
+
+/* Sortable header styles */
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.sortable-header:hover {
+  background-color: #e9ecef !important;
+}
+
+/* Scrollable content area */
+.manage-contents-scroll {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.manage-contents-scroll table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+.manage-contents-scroll td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+
+.manage-contents-scroll tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.manage-contents-scroll tr:hover {
+  background-color: #f0f8ff;
+}
+
+/* Amount input styling for actions */
+.amount-input {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.amount-input input {
+  width: 40px;
+  padding: 2px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  font-size: 12px;
+}
+
+.amount-input button {
+  width: 25px;
+  height: 25px;
+  font-size: 12px;
+  padding: 2px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  background: white;
+  cursor: pointer;
+}
+
+.amount-input button:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.amount-input button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Add button styling */
+.add-button {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  background: #dc3545;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.add-button:hover:not(:disabled) {
+  background: #c82333;
+}
+
+.add-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}

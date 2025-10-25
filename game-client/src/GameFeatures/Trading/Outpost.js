@@ -4,6 +4,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import TransactionButton from '../../UI/TransactionButton';
+import TradingInventoryModal from '../../UI/TradingInventoryModal';
 import axios from 'axios';
 import './TradeStall.css';
 import '../../UI/Modal.css';
@@ -27,7 +28,6 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
 
   // Use Trading Post configuration from globalTuning
   const OUTPOST_SLOTS = 4;
-  const OUTPOST_HAIRCUT = globalTuning?.tradeStallHaircut || 0.25;
   
   // Get slot-specific configuration
   const getSlotConfig = (slotIndex) => {
@@ -435,7 +435,7 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
                     )}
                     {isReadyToSell && !isPurchased && (
                       <div className="trade-slot-status ready">
-                        {strings[167]} 💰{Math.floor(slot.amount * slot.price * OUTPOST_HAIRCUT)}
+                        {strings[167]} 💰{slot.amount * slot.price}
                       </div>
                     )}
                   </div>
@@ -462,95 +462,19 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
         })}
       </div>
 
-      {/* Inventory modal for adding items */}
-      {selectedSlotIndex !== null && (
-        <div className="inventory-modal wider">
-          <button
-            className="close-button"
-            onClick={() => setSelectedSlotIndex(null)}
-          >
-            ✖
-          </button>
-          <h3>{strings[160]}</h3>
-          <p style={{ textAlign: 'center', margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>
-            {getSlotConfig(selectedSlotIndex).maxAmount} {strings[158]}
-          </p>
-          <div className="inventory-modal-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>{strings[161]}</th>
-                  <th>{strings[162]}</th>
-                  <th>{strings[163]}</th>
-                  <th>{strings[164]}</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {(backpack || [])
-                  .filter(item => item.type !== 'Money' && item.type !== 'Gem')
-                  .map((item) => {
-                    const resourceDetails = resourceData.find((res) => res.type === item.type);
-                    const price = resourceDetails?.minprice || 'N/A';
-
-                    return (
-                      <tr key={item.type}>
-                        <td>{resourceDetails?.symbol} {getLocalizedString(item.type, strings)}</td>
-                        <td>{item.quantity}</td>
-                        <td>{price}</td>
-                        <td>
-                          <div className="amount-input">
-                            <button
-                              onClick={() =>
-                                handleAmountChange(item.type, (amounts[item.type] || 0) - 1)
-                              }
-                              disabled={(amounts[item.type] || 0) <= 0}
-                            >
-                              -
-                            </button>
-                            <input
-                              type="number"
-                              value={amounts[item.type] || 0}
-                              onChange={(e) =>
-                                handleAmountChange(item.type, parseInt(e.target.value, 10) || 0)
-                              }
-                            />
-                            <button
-                              onClick={() =>
-                                handleAmountChange(item.type, (amounts[item.type] || 0) + 1)
-                              }
-                              disabled={(amounts[item.type] || 0) >= Math.min(item.quantity, getSlotConfig(selectedSlotIndex).maxAmount)}
-                            >
-                              +
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleAmountChange(item.type, Math.min(item.quantity, getSlotConfig(selectedSlotIndex).maxAmount))
-                              }
-                              style={{ marginLeft: '5px' }}
-                            >
-                              {strings[165]}
-                            </button>
-                          </div>
-                        </td>
-                        <td>
-                          <TransactionButton
-                            className="add-button"
-                            onAction={(transactionId, transactionKey) => handleAddToSlot(transactionId, transactionKey, item.type)}
-                            transactionKey={`outpost-add-${item.type}`}
-                            disabled={!(amounts[item.type] > 0 && amounts[item.type] <= item.quantity)}
-                          >
-                            {strings[166]}
-                          </TransactionButton>
-                        </td>
-                      </tr>
-                    );
-                  })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      {/* TRADING INVENTORY MODAL */}
+      <TradingInventoryModal
+        isOpen={selectedSlotIndex !== null}
+        onClose={() => setSelectedSlotIndex(null)}
+        inventory={backpack || []}
+        resourceData={resourceData}
+        amounts={amounts}
+        handleAmountChange={handleAmountChange}
+        handleAddToSlot={handleAddToSlot}
+        getSlotConfig={getSlotConfig}
+        selectedSlotIndex={selectedSlotIndex}
+        transactionKeyPrefix="outpost-add"
+      />
       
       {/* Sell for Refund button - only visible for developers */}
       {isDeveloper && (

@@ -34,7 +34,7 @@
       {
         "gives": {
           "type": "Feverfew",
-          "quantity": 1
+          "quantity": 3
         },
         "requires": [
           {

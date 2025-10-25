@@ -4,6 +4,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel'; // Use Panel instead of Modal
 import TransactionButton from '../../UI/TransactionButton';
+import TradingInventoryModal from '../../UI/TradingInventoryModal';
 import axios from 'axios';
 import './TradeStall.css';
 import '../../UI/Modal.css';
@@ -29,7 +30,6 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   const [isLoadingInitial, setIsLoadingInitial] = useState(true); // Loading state for initial data fetch
   const [isGlobalMarketOpen, setIsGlobalMarketOpen] = useState(false); // Global Market modal state
 
-  const tradeStallHaircut = globalTuning?.tradeStallHaircut || 0.25;
   const tradeStallSlotConfig = globalTuning?.tradeStallSlots || [];
   
   // Get slot-specific configuration
@@ -420,7 +420,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
   const performAddToSlot = async (transactionId, transactionKey, resource, amount) => {
     const resourceDetails = resourceData.find((item) => item.type === resource);
-    const price = resourceDetails?.minprice || 0;
+    const price = resourceDetails?.maxprice || 0;
     const slotConfig = getSlotConfig(selectedSlotIndex);
 
     const updatedSlots = [...tradeSlots];
@@ -707,7 +707,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                       )}
                       {isReadyToSell && !isPurchased && (
                         <div className="trade-slot-status ready">
-                          {strings[167]} 💰{Math.floor(slot.amount * slot.price * tradeStallHaircut)}
+                          {strings[167]} 💰{slot.amount * slot.price}
                         </div>
                       )}
                     </div>
@@ -750,104 +750,19 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         </>
       )}
 
-{/* //////////////////  INVENTORY MODAL  ///////////////////*/}
-
-      {selectedSlotIndex !== null && (
-        <div className="inventory-modal wider">
-          <button
-            className="close-button"
-            onClick={() => setSelectedSlotIndex(null)}
-          >
-            ✖
-          </button>
-          <h2>{strings[160]}</h2>
-          <p style={{ textAlign: 'center', margin: '0 0 10px 0', fontSize: '14px', color: '#666' }}>
-            {getSlotConfig(selectedSlotIndex).maxAmount} {strings[158]}
-          </p>
-          <div className="inventory-modal-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>{strings[161]}</th>
-                  <th>{strings[162]}</th>
-                  <th>{strings[163]}</th>
-                  <th>{strings[164]}</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {inventory
-                  .filter((item) => {
-                    const resourceDetails = resourceData.find((res) => res.type === item.type);
-                    return (
-                      item.type !== 'Money' && item.type !== 'Gem'
-                    );
-                  })
-                  .map((item) => {
-                    const resourceDetails = resourceData.find((res) => res.type === item.type);
-                    const price = resourceDetails?.minprice || 'N/A';
-
-                    return (
-                      <tr key={item.type}>
-                        <td>{resourceDetails?.symbol} {getLocalizedString(item.type, strings)}</td>
-                        <td>{item.quantity}</td>
-                        <td>💰 {price}</td>
-                        <td>
-                          <div className="amount-input">
-                            <button
-                              onClick={() =>
-                                handleAmountChange(item.type, (amounts[item.type] || 0) - 1)
-                              }
-                              disabled={(amounts[item.type] || 0) <= 0}
-                            >
-                              -
-                            </button>
-                            <input
-                              type="number"
-                              value={amounts[item.type] || 0}
-                              onChange={(e) =>
-                                handleAmountChange(item.type, parseInt(e.target.value, 10) || 0)
-                              }
-                            />
-                            <button
-                              onClick={() =>
-                                handleAmountChange(item.type, (amounts[item.type] || 0) + 1)
-                              }
-                              disabled={(amounts[item.type] || 0) >= Math.min(item.quantity, getSlotConfig(selectedSlotIndex).maxAmount)}
-                            >
-                              +
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleAmountChange(item.type, Math.min(item.quantity, getSlotConfig(selectedSlotIndex).maxAmount))
-                              }
-                              style={{ marginLeft: '4px' }}
-                            >
-                              {strings[165]}
-                            </button>
-                          </div>
-                        </td>
-                        <td>
-                          <TransactionButton
-                            className="add-button"
-                            onAction={(transactionId, transactionKey) => handleAddToSlot(transactionId, transactionKey, item.type)}
-                            transactionKey={`add-to-trade-slot-${item.type}`}
-                            disabled={
-                              !(amounts[item.type] > 0 && amounts[item.type] <= item.quantity) // Validate amount
-                            }
-                          >
-                            {strings[166]}
-                          </TransactionButton>
-                        </td>
-                      </tr>
-                    );
-                  })}
-              </tbody>
-
-            </table>
-          </div>
-        </div>
-      )}
+{/* TRADING INVENTORY MODAL */}
+      <TradingInventoryModal
+        isOpen={selectedSlotIndex !== null}
+        onClose={() => setSelectedSlotIndex(null)}
+        inventory={inventory}
+        resourceData={resourceData}
+        amounts={amounts}
+        handleAmountChange={handleAmountChange}
+        handleAddToSlot={handleAddToSlot}
+        getSlotConfig={getSlotConfig}
+        selectedSlotIndex={selectedSlotIndex}
+        transactionKeyPrefix="add-to-trade-slot"
+      />
 
       {/* GLOBAL MARKET MODAL */}
       <GlobalMarketModal

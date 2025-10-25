@@ -181,9 +181,8 @@ router.post('/trade-stall/sell-to-game', async (req, res) => {
       return res.status(400).json({ error: 'Slot not ready to sell or already sold' });
     }
 
-    // Calculate sell value (with haircut)
-    const tradeStallHaircut = 0.25;
-    const sellValue = Math.floor(slot.amount * slot.price * tradeStallHaircut);
+    // Calculate sell value (full price)
+    const sellValue = slot.amount * slot.price;
 
     // Add money to inventory
     const moneyItem = player.inventory.find(item => item.type === 'Money');
@@ -724,9 +723,8 @@ router.post('/outpost/sell-to-game', async (req, res) => {
       return res.status(400).json({ error: 'Slot not ready to sell or invalid seller' });
     }
 
-    // Calculate sell value (with haircut)
-    const outpostHaircut = 0.25;
-    const sellValue = Math.floor(slot.amount * slot.price * outpostHaircut);
+    // Calculate sell value (full price)
+    const sellValue = slot.amount * slot.price;
 
     // Add money to player's inventory
     const moneyItem = player.inventory.find(item => item.type === 'Money');

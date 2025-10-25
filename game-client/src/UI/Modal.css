@@ -9,7 +9,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 100000; /* Ensure modals appear above all other elements */
+    z-index: 10001; /* Just above panel z-index of 1000 */
+    transform: translate3d(0, 0, 0); /* Force new stacking context */
+    will-change: transform; /* Optimize for layer creation */
 }
 
 /* Modal Container */
@@ -21,6 +23,7 @@
     max-height: 80vh;
     text-align: center;
     box-shadow: inset 0 -7px 0 rgba(92, 91, 91, 0.5);
+    z-index: 10002;
   
     display: flex;
     flex-direction: column;
