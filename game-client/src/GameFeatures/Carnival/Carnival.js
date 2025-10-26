@@ -92,11 +92,11 @@ function CarnivalPanel({
   const fetchCarnivalOffers = async () => {
     try {
       const response = await axios.get(`${API_BASE}/api/get-settlement/${currentPlayer.settlementId}`);
-      const offers = response.data?.currentoffers || [];
+      const offers = response.data?.carnival?.currentoffers || [];
       setCarnivalOffers(offers);
-      setNextOffers(response.data?.nextoffers || []);
+      setNextOffers(response.data?.carnival?.nextoffers || []);
       // Get current carnival info from carnivallog
-      const carnivallog = response.data?.carnivallog || [];
+      const carnivallog = response.data?.carnival?.carnivallog || [];
       const currentCarnival = carnivallog.find(log => log.status === "Current Carnival");
       if (currentCarnival) {
         // Use rewards from the current carnival log entry
@@ -545,7 +545,7 @@ function CarnivalPanel({
           {(carnivalPhase === "loading" || carnivalPhase === "departing") && renderNextShipment()}
 
         <div className="shared-buttons" style={{ margin: '2px 0' }}>
-            <button className="btn-basic" onClick={() => handleShowCarnivalLog()}>
+            <button className="btn-basic btn-neutral" onClick={() => handleShowCarnivalLog()}>
                 {strings[1351]}
             </button>
         </div>

@@ -366,7 +366,7 @@ async function generateTrainOffersAndRewards(settlement, frontier, seasonConfig)
 ${detailedOfferExplanations}.
 🚂 FINAL TOTAL EFFORT: ${actualTotalEffort}s.
 🚂 REWARDS: 
-[${rewardDescriptions}] (random set of 3 rewards chosen from Book/PotionC/Gem, quantity=(activePopulation/10)*seasonLevel*3, with ±15% variation per item).`;
+[${rewardDescriptions}] (random set of 3 rewards chosen from seasonConfig, quantity=(activePopulation/10)*seasonLevel*3, with ±15% variation per item).`;
 
   return { offers, rewards, logicString };
 }

@@ -17,7 +17,7 @@ async function carnivalScheduler(frontierId, phase, frontier = null) {
       return;
     }
 
-    console.log(`🚂 CARNIVAL LOGIC for Frontier ${frontierId}; phase =`, phase);
+    console.log(`🎡 CARNIVAL LOGIC for Frontier ${frontierId}; phase =`, phase);
 
     const settlements = await Settlement.find({ population: { $gt: 0 }, frontierId });
 
@@ -27,7 +27,7 @@ async function carnivalScheduler(frontierId, phase, frontier = null) {
 
       if (phase === "arriving") {
         try {
-          console.log(`🚂 Arriving phase for settlement ${settlement.name}. Generating offer & rewards...`);
+          console.log(`🎡 Arriving phase for settlement ${settlement.name}. Generating offer & rewards...`);
           
           // First, ensure any existing Current Carnival is properly finalized
           const settlementToUpdate = await Settlement.findById(settlement._id);
@@ -313,7 +313,7 @@ async function generateCarnivalOffersAndRewards(settlement, frontier, seasonConf
     });
   }
   
-  console.log(`🚂 Final offer composition - Crops: ${cropsAdded}/${totalOffers}, Dead-ends: ${deadEndsAdded}/${totalOffers}`);
+  console.log(`🎡 Final offer composition - Crops: ${cropsAdded}/${totalOffers}, Dead-ends: ${deadEndsAdded}/${totalOffers}`);
 
   const actualTotalEffort = offers.reduce((sum, o) => {
     const itemData = masterResources.find(r => r.type === o.itemBought) || {};
@@ -358,18 +358,18 @@ async function generateCarnivalOffersAndRewards(settlement, frontier, seasonConf
   
   const logicString =
 `NUMBER OF OFFERS: ${offers?.length || 0}; determined by active population (=${population}, excluding first-time users) @ 1 per 4 people (rounded up).
-🚂 OFFER SELECTION: Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in seasons tuning. 
+🎡 OFFER SELECTION: Limit possible offers to the ${frontier?.seasons?.seasonType || 'Unknown'} season as defined in seasons tuning. 
 (a) Max ${cropPercentage}% Crops; Min ${deadEndPercentage}% Dead-end Crafts.
-🚂 OFFER DIFFICULTY: 
+🎡 OFFER DIFFICULTY: 
 (a) Adjusted by seasonLevel (current = ${seasonLevel} of 6). Higher seasonLevel > more complex crafts (longer totalnestedtime): weight = 1 / (craft time ^ (seasonLevel / 6)).
 (b) Total player effort is calculated as: ${population} active population × (${basePlayerHours} hours or ${Math.floor(basePlayerSeconds)} seconds). 
 (c) Total effort multiplied by seasonLevel (${seasonLevel}); final total effort pool target = ${Math.floor(totalEffort)}s.
 (d) Each offer targets this approx. effort: ${Math.floor(totalEffort)}s / ${offers?.length || 0} = ${targetEffortPerOffer}. 
-🚂 FINAL OFFERS: 
+🎡 FINAL OFFERS: 
 ${detailedOfferExplanations}.
-🚂 FINAL TOTAL EFFORT: ${actualTotalEffort}s.
-🚂 REWARDS: 
-[${rewardDescriptions}] (random set of 3 rewards chosen from Book/PotionC/Gem, quantity=(activePopulation/10)*seasonLevel*3, with ±15% variation per item).`;
+🎡 FINAL TOTAL EFFORT: ${actualTotalEffort}s.
+🎡 REWARDS: 
+[${rewardDescriptions}] (random set of 3 rewards chosen from seasonConfig, quantity=(activePopulation/10)*seasonLevel*3, with ±15% variation per item).`;
 
   return { offers, rewards, logicString };
 }

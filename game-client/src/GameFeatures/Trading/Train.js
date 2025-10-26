@@ -546,7 +546,7 @@ function TrainPanel({
 
 
         <div className="shared-buttons" style={{ margin: '2px 0' }}>
-          <button className="btn-basic" onClick={() => handleShowTrainLog()}>
+          <button className="btn-basic btn-neutral" onClick={() => handleShowTrainLog()}>
             {strings[2015]}
           </button>
         </div>
