@@ -500,6 +500,8 @@
     "1305": "You have no skills yet.",
     "1306": "You have no upgrades yet.",
 
+    
+
     "1400": "MODAL STRINGS",
 
     "1401": "BANK MODAL",
@@ -1294,12 +1296,18 @@
     "163": "Price Ea.",
     "158": " LIMIT PER ORDER",
     "1008": "Buy and sell with other players. If no players buy your items before the timer expires, sell them to the game.",
+    "1037": "Participate in the Carnival with others in your Settlement. Complete all orders as a team to win prizes.",
+    "1137": "🎡 Carnival",
     "9023": "Different slots at the 📥 TRADING POST have different timers. During the timer, you can only sell the goods if another player buys them. After the timer, you can sell the goods to the game. Try trading with other players. They will have things you need, and vice versa.",
-        "10125": "Read the Town News!",
+    "10125": "Read the Town News!",
     "9054": "✅ +100,000 Warehouse capacity",
     "9055": "✅ +5,000 Backpack capacity",
-            "199": "Significantly more capacity with Gold Pass (among other benefits)."
+    "199": "Significantly more capacity with Gold Pass (among other benefits).",
 
+    "1350": "CARNIVAL STRINGS",
+
+    "1351": "Show Carnival Log",
+    "1352": "Carnival is"
 
   }
 

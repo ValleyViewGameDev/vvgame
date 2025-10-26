@@ -71,6 +71,7 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
     taxes: activeFrontier.taxes || {},
     elections: activeFrontier.elections || {},
     train: activeFrontier.train || {},
+    carnival: activeFrontier.carnival || {},
     bank: activeFrontier.bank || {},
     messages: activeFrontier.messages || {},
     networth: activeFrontier.networth || {},
@@ -80,6 +81,7 @@ const Events = ({ selectedFrontier, selectedSettlement, frontiers, settlements, 
     taxes: '',
     elections: '',
     train: '',
+    carnival: '',
     bank: '',
     messages: '',
     networth: '',
@@ -122,7 +124,7 @@ const updateCountdowns = () => {
   const now = Date.now();
   const newCountdowns = {};
   let needsRefresh = false;
-  ['seasons', 'taxes', 'elections', 'train', 'bank', 'messages', 'networth'].forEach((key) => {
+  ['seasons', 'taxes', 'elections', 'train', 'carnival', 'bank', 'messages', 'networth'].forEach((key) => {
     const end = timers[key]?.endTime ? new Date(timers[key].endTime).getTime() : 0;
     const diff = end - now;
     if (diff <= 0) {
@@ -229,7 +231,7 @@ useEffect(() => {
 
     <div className="events-columns">
       <div className="events-main-container">
-        {['seasons', 'taxes', 'elections', 'train', 'bank', 'messages', 'networth'].map((key) => (
+        {['seasons', 'taxes', 'elections', 'train', 'carnival', 'bank', 'messages', 'networth'].map((key) => (
           <div key={key} className="event-row">
             <div
               className={`event-dashboard event-dashboard-frontier ${selectedDashboard === key ? 'selected' : ''}`}
@@ -297,6 +299,19 @@ useEffect(() => {
                       <p>No train rewards.</p>
                     )}
                     <button className="small-button" onClick={() => window.showLogHandlers?.handleShowTrainLog()}>View Train Log</button>
+                  </>
+                ) : key === 'carnival' ? (
+                  <>
+                    {Array.isArray(activeSettlement?.carnival?.currentoffers) && activeSettlement.carnival.currentoffers.length > 0 ? (
+                      <p>
+                        {activeSettlement.carnival.currentoffers.map((offer, idx) =>
+                          `${offer.qtyBought}× ${offer.itemBought} → ${offer.qtyGiven}× ${offer.itemGiven}`
+                        ).join(',  ')}
+                      </p>
+                    ) : (
+                      <p>No current carnival offers.</p>
+                    )}
+                    <button className="small-button" onClick={() => window.showLogHandlers?.handleShowCarnivalLog()}>View Carnival Log</button>
                   </>
                 ) : key === 'bank' ? (
                   <>

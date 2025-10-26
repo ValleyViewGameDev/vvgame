@@ -69,6 +69,7 @@ import SkillsPanel from './GameFeatures/Skills/SkillsPanel';
 import GovPanel from './GameFeatures/Government/GovPanel';
 import BankPanel from './GameFeatures/Trading/Bank';
 import TrainPanel from './GameFeatures/Trading/Train';
+import CarnivalPanel from './GameFeatures/Carnival/Carnival';
 import CourthousePanel from './GameFeatures/Government/Courthouse';
 import CraftingStation from './GameFeatures/Crafting/CraftingStation';
 import FarmHouse from './GameFeatures/Crafting/FarmHouse';
@@ -997,11 +998,12 @@ const [timers, setTimers] = useState(() => {
     seasons: { phase: "", endTime: null, type: "" },
     elections: { phase: "", endTime: null },
     train: { phase: "", endTime: null },
+    carnival: { phase: "", endTime: null },
     taxes: { phase: "", endTime: null },  
     bank: { phase: "", endTime: null },  
   }; 
 });
-const [countdowns, setCountdowns] = useState({ seasons: "", elections: "", train: "", taxes: "", bank: "" });
+const [countdowns, setCountdowns] = useState({ seasons: "", elections: "", train: "", carnival: "", taxes: "", bank: "" });
 
 // TIMERS Step 2: Initialize Timers on app start/refresh; run once
 useEffect(() => {
@@ -1041,6 +1043,10 @@ const fetchTimersData = async () => {
         phase: frontierData.train?.phase || "Unknown",
         endTime: frontierData.train?.endTime ? new Date(frontierData.train.endTime).getTime() : null,
       },
+      carnival: {
+        phase: frontierData.carnival?.phase || "Unknown",
+        endTime: frontierData.carnival?.endTime ? new Date(frontierData.carnival.endTime).getTime() : null,
+      },
       taxes: {
         phase: frontierData.taxes?.phase || "Unknown",
         endTime: frontierData.taxes?.endTime ? new Date(frontierData.taxes.endTime).getTime() : null,
@@ -1069,6 +1075,7 @@ useEffect(() => {
       seasons: formatCountdown(timers.seasons.endTime, now),
       elections: formatCountdown(timers.elections.endTime, now),
       train: formatCountdown(timers.train.endTime, now),
+      carnival: formatCountdown(timers.carnival.endTime, now),
       taxes: formatCountdown(timers.taxes.endTime, now),
       bank: formatCountdown(timers.bank.endTime, now),
     });
@@ -1100,6 +1107,10 @@ useEffect(() => {
     }
     if (timers.train.endTime && now >= timers.train.endTime) {
       console.log("🚂 Train cycle ended. Fetching new train data...");
+      shouldFetchNewTimers = true;
+    }
+    if (timers.carnival.endTime && now >= timers.carnival.endTime) {
+      console.log("🎡 Carnival cycle ended. Fetching new carnival data...");
       shouldFetchNewTimers = true;
     }
     if (timers.taxes.endTime && now >= timers.taxes.endTime) {
@@ -1472,6 +1483,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
           openPanel('WarehousePanel'); break;
         case 'Train':
           openPanel('TrainPanel'); break;
+        case 'Carnival':
+          openPanel('CarnivalPanel'); break;
         case 'Bank':
           openPanel('BankPanel'); break;
         case 'Worker Slot':
@@ -2244,6 +2257,21 @@ return (
       )}
       {activePanel === 'TrainPanel' && (
         <TrainPanel
+          onClose={closePanel} 
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          updateStatus={updateStatus}
+          masterResources={masterResources}
+          setModalContent={setModalContent}
+          setIsModalOpen={setIsModalOpen}
+        />
+      )}
+      {activePanel === 'CarnivalPanel' && (
+        <CarnivalPanel
           onClose={closePanel} 
           inventory={inventory}
           setInventory={setInventory}

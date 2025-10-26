@@ -1,0 +1,150 @@
+/* Only override unclaimed offers - everything else uses ResourceButton defaults */
+.resource-button.unclaimed {
+    background: linear-gradient(to bottom, #ffd700, #b8860b);
+    border: 1px solid #daa520;
+}
+
+.resource-button.unclaimed:hover {
+    background: linear-gradient(to bottom, #b8860b, #ffd700);
+    transform: scale(1.02);
+}
+
+.resource-button.unclaimed:active {
+    background: linear-gradient(to bottom, #b8860b, #b8860b);
+    transform: scale(0.98);
+}
+
+/* Keep other carnival-specific styles */
+.carnival-rewards-banner {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.next-shipment-preview {
+    margin: 15px 0;
+}
+
+.next-shipment-preview h4 {
+    margin-bottom: 8px;
+    color: #333;
+}
+
+/* Next shipment container styling */
+.next-shipment-container {
+    border: 2px solid #9e9e9e;
+    background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+    box-shadow: 0 0 8px rgba(158, 158, 158, 0.4);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-top: 8px;
+}
+
+.next-shipment-item {
+    font-size: 14px;
+    color: #424242;
+    font-weight: 500;
+    padding: 4px 0;
+}
+
+/* Logic Modal Overlay */
+.carnival-logic-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200000; /* Higher than Modal.css z-index of 100000 */
+}
+
+.carnival-logic-modal {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 80%;
+    max-height: 80%;
+    overflow: auto;
+    position: relative;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.carnival-logic-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    line-height: 1;
+}
+
+.carnival-logic-modal-close:hover {
+    color: #999;
+}
+
+.carnival-logic-modal h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.carnival-logic-modal pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 12px;
+    line-height: 1.5;
+    font-family: monospace;
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 0;
+}
+
+/* Logic button in carnival log table */
+.carnival-logic-button {
+    padding: 4px 8px;
+    font-size: 12px;
+    background-color: #67c257;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.carnival-logic-button:hover {
+    background-color: #5ab048;
+}
+
+/* Carnival rewards container styling */
+.carnival-rewards-container {
+    border: 2px solid #1e88e5;
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    box-shadow: 0 0 8px rgba(30, 136, 229, 0.4);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-top: 8px;
+}
+
+.carnival-reward-item {
+    font-size: 14px;
+    color: #0d47a1;
+    font-weight: 500;
+    padding: 4px 0;
+}
+
+.reward-section {
+    margin-bottom: 16px;
+}
+
+.reward-section h4 {
+    margin-bottom: 8px;
+    color: #333;
+}

@@ -4,6 +4,7 @@ const globalTuning = require("../tuning/globalTuning.json");
 const taxScheduler = require("./taxScheduler");
 const seasonScheduler = require("./seasonScheduler");
 const trainScheduler = require("./trainScheduler");
+const carnivalScheduler = require("./carnivalScheduler");
 const bankScheduler = require("./bankScheduler"); 
 const electionScheduler = require("./electionScheduler");
 const messageScheduler = require("./messageScheduler");
@@ -31,6 +32,7 @@ async function initializeTimers() {
     scheduleTimedFeature(frontier, "taxes", globalTuning.taxes);
     scheduleTimedFeature(frontier, "seasons", globalTuning.seasons);
     scheduleTimedFeature(frontier, "train", globalTuning.train);
+    scheduleTimedFeature(frontier, "carnival", globalTuning.carnival);
     scheduleTimedFeature(frontier, "bank", globalTuning.bank);
     scheduleTimedFeature(frontier, "elections", globalTuning.elections);
     scheduleTimedFeature(frontier, "messages", globalTuning.messages);
@@ -124,6 +126,10 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
           case "train":
             console.log("🚂 Triggering trainScheduler...");
             extraPayload = await trainScheduler(frontierId, nextPhase, frontier);
+            break;
+          case "carnival":
+            console.log("🎡 Triggering carnivalScheduler...");
+            extraPayload = await carnivalScheduler(frontierId, nextPhase, frontier);
             break;
           case "bank":
             console.log("🏦 Triggering bankScheduler...");

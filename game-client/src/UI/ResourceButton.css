@@ -29,6 +29,7 @@
   transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
   box-sizing: border-box; /* ✅ Prevent overflow */
   max-width: 100%; /* ✅ Ensure buttons do not overflow */
+  outline: none; /* Remove blue outline on click/focus */
 }
 
 

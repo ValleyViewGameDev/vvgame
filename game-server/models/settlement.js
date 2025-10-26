@@ -103,6 +103,45 @@ const SettlementSchema = new mongoose.Schema({
     }
   ],
   nextTrainNumber: { type: Number, default: 1 },
+  carnival: {
+    currentoffers: [
+      {
+        itemBought: { type: String, required: true },
+        qtyBought: { type: Number, required: true },
+        itemGiven: { type: String, required: true },
+        qtyGiven: { type: Number, required: true },
+        claimedBy: { type: mongoose.Schema.Types.ObjectId },
+        filled: { type: Boolean, default: false },
+      }
+    ],
+    nextoffers: [
+      {
+        itemBought: { type: String, required: true },
+        qtyBought: { type: Number, required: true },
+        itemGiven: { type: String, required: true },
+        qtyGiven: { type: Number, required: true },
+        claimedBy: { type: mongoose.Schema.Types.ObjectId },
+        filled: { type: Boolean, default: false },
+      }
+    ],
+    carnivallog: [
+      {
+        date: { type: Date, required: true },
+        status: { type: String, required: true },
+        alloffersfilled: { type: Boolean, default: false },
+        totalwinners: { type: Number, required: true },
+        carnivalnumber: { type: Number, required: true },
+        rewards: [
+          {
+            item: { type: String, required: true },
+            qty: { type: Number, required: true },
+          }
+        ],
+        logic: { type: String, required: false } 
+      }
+    ],
+    nextCarnivalNumber: { type: Number, default: 1 },
+  },
   electionlog: [
     {
       date: { type: Date, required: true },

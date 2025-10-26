@@ -4,12 +4,12 @@ import axios from 'axios';
 import Panel from '../../UI/Panel';
 import ResourceButton from '../../UI/ResourceButton';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
-import './Train.css';
+import './Carnival.css';
 import FloatingTextManager from '../../UI/FloatingText';
 import { formatCountdown } from '../../UI/Timers';
 import { useStrings } from '../../UI/StringsContext';
 
-function TrainPanel({ 
+function CarnivalPanel({ 
   onClose, 
   inventory,
   setInventory,
@@ -25,15 +25,15 @@ function TrainPanel({
   }) 
 {
   const strings = useStrings();
-  const [trainOffers, setTrainOffers] = useState([]);
-  const [trainPhase, setTrainPhase] = useState("loading");
-  const [trainTimer, setTrainTimer] = useState("⏳");
+  const [carnivalOffers, setCarnivalOffers] = useState([]);
+  const [carnivalPhase, setCarnivalPhase] = useState("loading");
+  const [carnivalTimer, setCarnivalTimer] = useState("⏳");
   const [nextOffers, setNextOffers] = useState([]);
-  const [trainRewards, setTrainRewards] = useState([]);
+  const [carnivalRewards, setCarnivalRewards] = useState([]);
   const [latestInventory, setLatestInventory] = useState([]);
   const [playerUsernames, setPlayerUsernames] = useState({}); // Map of playerId -> username
   const [isContentLoading, setIsContentLoading] = useState(false);
-  const [currentTrainNumber, setCurrentTrainNumber] = useState(null);
+  const [currentCarnivalNumber, setCurrentCarnivalNumber] = useState(null);
 
   // 1. Initial load for the player
   useEffect(() => {
@@ -52,17 +52,17 @@ function TrainPanel({
     fetchInventory();
 
     if (currentPlayer?.settlementId) {
-      fetchTrainOffers();
+      fetchCarnivalOffers();
     }
   }, [currentPlayer?.playerId, currentPlayer?.settlementId]);
 
 
-  // 2. Fetch fresh train offers on *every* phase change
+  // 2. Fetch fresh carnival offers on *every* phase change
   useEffect(() => {
     if (currentPlayer?.settlementId) {
-      fetchTrainOffers(); // ✅ fixes stale data after phase transitions
+      fetchCarnivalOffers(); // ✅ fixes stale data after phase transitions
     }
-  }, [trainPhase]);
+  }, [carnivalPhase]);
 
 
   useEffect(() => {
@@ -70,17 +70,17 @@ function TrainPanel({
       const now = Date.now();
 
       const storedTimers = JSON.parse(localStorage.getItem("timers")) || {};
-      const trainTimerData = storedTimers.train || {};
+      const carnivalTimerData = storedTimers.carnival || {};
 
-      const phase = trainTimerData.phase;
-      setTrainPhase(phase || "unknown");
+      const phase = carnivalTimerData.phase;
+      setCarnivalPhase(phase || "unknown");
 
-      const endTime = trainTimerData.endTime;
+      const endTime = carnivalTimerData.endTime;
       if (!endTime || isNaN(endTime)) {
-        setTrainTimer("N/A");
+        setCarnivalTimer("N/A");
         return;
       } else {
-        setTrainTimer(formatCountdown(endTime, now));
+        setCarnivalTimer(formatCountdown(endTime, now));
       }
     };
 
@@ -89,30 +89,30 @@ function TrainPanel({
     return () => clearInterval(interval);
   }, []);
 
-  const fetchTrainOffers = async () => {
+  const fetchCarnivalOffers = async () => {
     try {
       const response = await axios.get(`${API_BASE}/api/get-settlement/${currentPlayer.settlementId}`);
       const offers = response.data?.currentoffers || [];
-      setTrainOffers(offers);
+      setCarnivalOffers(offers);
       setNextOffers(response.data?.nextoffers || []);
-      // Get current train info from trainlog
-      const trainlog = response.data?.trainlog || [];
-      const currentTrain = trainlog.find(log => log.status === "Current Train");
-      if (currentTrain) {
-        // Use rewards from the current train log entry
-        setTrainRewards(currentTrain.rewards || []);
-        if (currentTrain.trainnumber) {
-          setCurrentTrainNumber(currentTrain.trainnumber);
+      // Get current carnival info from carnivallog
+      const carnivallog = response.data?.carnivallog || [];
+      const currentCarnival = carnivallog.find(log => log.status === "Current Carnival");
+      if (currentCarnival) {
+        // Use rewards from the current carnival log entry
+        setCarnivalRewards(currentCarnival.rewards || []);
+        if (currentCarnival.carnivalnumber) {
+          setCurrentCarnivalNumber(currentCarnival.carnivalnumber);
         }
       } else {
-        // No current train, clear rewards
-        setTrainRewards([]);
+        // No current carnival, clear rewards
+        setCarnivalRewards([]);
       }
       
       // Fetch usernames for claimed/completed offers
       await fetchUsernames(offers);
     } catch (error) {
-      console.error("❌ Error fetching train offers:", error);
+      console.error("❌ Error fetching carnival offers:", error);
     }
   };
 
@@ -153,33 +153,33 @@ function TrainPanel({
   };
 
   const [showLogicModal, setShowLogicModal] = useState(false);
-  const [logicModalData, setLogicModalData] = useState({ logic: '', trainNumber: null });
+  const [logicModalData, setLogicModalData] = useState({ logic: '', carnivalNumber: null });
 
-  const handleShowLogic = (logicText, trainNumber) => {
-    setLogicModalData({ logic: logicText, trainNumber });
+  const handleShowLogic = (logicText, carnivalNumber) => {
+    setLogicModalData({ logic: logicText, carnivalNumber });
     setShowLogicModal(true);
   };
 
-  const handleShowTrainLog = async () => {
+  const handleShowCarnivalLog = async () => {
     if (!setModalContent || !setIsModalOpen) {
       console.warn("Modal context functions not available.");
       return;
     }
 
     if (!currentPlayer?.settlementId) {
-      console.warn("⚠️ Cannot show train log: settlementId missing.");
+      console.warn("⚠️ Cannot show carnival log: settlementId missing.");
       return;
     }
 
     try {
-      const response = await axios.get(`${API_BASE}/api/settlement/${currentPlayer.settlementId}/trainlog`);
-      const trainlog = response.data.trainlog || [];
+      const response = await axios.get(`${API_BASE}/api/settlement/${currentPlayer.settlementId}/carnivallog`);
+      const carnivallog = response.data.carnivallog || [];
 
-      const trainLogTable = (
-        <table className="train-log-table" style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
+      const carnivalLogTable = (
+        <table className="carnival-log-table" style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
           <thead>
             <tr>
-              <th style={{ padding: "6px 12px" }}>Train #</th>
+              <th style={{ padding: "6px 12px" }}>Carnival #</th>
               <th style={{ padding: "6px 12px" }}>Date</th>
               <th style={{ padding: "6px 12px" }}>Status</th>
               <th style={{ padding: "6px 12px" }}>Offers Filled</th>
@@ -189,16 +189,16 @@ function TrainPanel({
             </tr>
           </thead>
           <tbody>
-            {[...trainlog].reverse().map((entry, i) => (
+            {[...carnivallog].reverse().map((entry, i) => (
               <tr key={i}>
-                <td style={{ padding: "6px 12px" }}>{entry.trainnumber || '-'}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.carnivalnumber || '-'}</td>
                 <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
                 <td style={{ padding: "6px 12px" }}>{entry.status || ''}</td>
                 <td style={{ padding: "6px 12px" }}>
-                  {entry.status === 'Next Train' || entry.status === 'Current Train' ? 'n/a' : entry.alloffersfilled ? '✅' : '❌'}
+                  {entry.status === 'Next Carnival' || entry.status === 'Current Carnival' ? 'n/a' : entry.alloffersfilled ? '✅' : '❌'}
                 </td>
                 <td style={{ padding: "6px 12px" }}>
-                  {entry.status === 'Next Train' || entry.status === 'Current Train' ? 'n/a' : entry.totalwinners}
+                  {entry.status === 'Next Carnival' || entry.status === 'Current Carnival' ? 'n/a' : entry.totalwinners}
                 </td>
                 <td style={{ padding: "6px 12px" }}>
                   {(() => {
@@ -217,8 +217,8 @@ function TrainPanel({
                 <td style={{ padding: "6px 12px" }}>
                   {entry.logic ? (
                     <button 
-                      onClick={() => handleShowLogic(entry.logic, entry.trainnumber)}
-                      className="train-logic-button"
+                      onClick={() => handleShowLogic(entry.logic, entry.carnivalnumber)}
+                      className="carnival-logic-button"
                     >
                       Logic
                     </button>
@@ -233,17 +233,17 @@ function TrainPanel({
       );
 
       setModalContent({
-        title: "Train Log",
+        title: "Carnival Log",
         size: "large",
-        message: trainlog.length === 0 ? "No recent train activity." : undefined,
-        custom: trainLogTable,
+        message: carnivallog.length === 0 ? "No recent carnival activity." : undefined,
+        custom: carnivalLogTable,
       });
       setIsModalOpen(true);
     } catch (error) {
-      console.error("❌ Failed to fetch train log:", error);
+      console.error("❌ Failed to fetch carnival log:", error);
       setModalContent({
         title: "Error",
-        message: "Failed to load train log.",
+        message: "Failed to load carnival log.",
         size: "small",
       });
       setIsModalOpen(true);
@@ -258,7 +258,7 @@ function TrainPanel({
     if (!offer || offer.claimedBy) return;
 
     // ⛔️ Check if player already has a claimed offer
-    const alreadyClaimed = trainOffers.some(
+    const alreadyClaimed = carnivalOffers.some(
       (o) => o.claimedBy === currentPlayer.playerId && !o.filled
     );
     if (alreadyClaimed) {
@@ -268,7 +268,7 @@ function TrainPanel({
 
     try {
       // Find the exact index of the offer to ensure uniqueness
-      const offerIndex = trainOffers.findIndex(
+      const offerIndex = carnivalOffers.findIndex(
         (o) => o.itemBought === offer.itemBought &&
               o.qtyBought === offer.qtyBought &&
               !o.claimedBy &&
@@ -280,16 +280,16 @@ function TrainPanel({
       }
 
       const updatedOffer = {
-        ...trainOffers[offerIndex],
+        ...carnivalOffers[offerIndex],
         claimedBy: currentPlayer.playerId,
       };
 
-      const response = await axios.post(`${API_BASE}/api/update-train-offer/${currentPlayer.settlementId}`, {
+      const response = await axios.post(`${API_BASE}/api/update-carnival-offer/${currentPlayer.settlementId}`, {
         updateOffer: updatedOffer,
       });
 
       if (response.status === 200) {
-        setTrainOffers(prev => {
+        setCarnivalOffers(prev => {
           const newOffers = [...prev];
           newOffers[offerIndex] = updatedOffer;
           return newOffers;
@@ -302,13 +302,13 @@ function TrainPanel({
         }));
       }
     } catch (err) {
-      console.error("❌ Error claiming train offer:", err);
+      console.error("❌ Error claiming carnival offer:", err);
       
       // Handle case where offer was already claimed
       if (err.response?.status === 409) {
         updateStatus(2017); // This order has already been claimed.
         // Refresh offers to get latest state
-        fetchTrainOffers();
+        fetchCarnivalOffers();
       } else {
         updateStatus(505); // Generic error
       }
@@ -336,8 +336,8 @@ function TrainPanel({
     if (!success) return;
 
     try {
-      // First update the train offer
-      await axios.post(`${API_BASE}/api/update-train-offer/${currentPlayer.settlementId}`, {
+      // First update the carnival offer
+      await axios.post(`${API_BASE}/api/update-carnival-offer/${currentPlayer.settlementId}`, {
         updateOffer: {
           ...offer,
           filled: true,
@@ -361,7 +361,7 @@ function TrainPanel({
     });
 
       // Update local state in correct order
-      setTrainOffers(prev => {
+      setCarnivalOffers(prev => {
         const index = prev.findIndex(o =>
           o.itemBought === offer.itemBought &&
           o.qtyBought === offer.qtyBought &&
@@ -378,12 +378,12 @@ function TrainPanel({
 
     } catch (error) {
       console.error("❌ Error fulfilling offer:", error);
-      fetchTrainOffers(); // Refresh offers on error to ensure sync
+      fetchCarnivalOffers(); // Refresh offers on error to ensure sync
     }
   };
 
   const renderNextShipment = () => {
-    if (!["loading", "departing"].includes(trainPhase)) return null;
+    if (!["loading", "departing"].includes(carnivalPhase)) return null;
     if (!nextOffers.length) return null;
   
     // ✅ Deduplicate by itemBought
@@ -409,11 +409,11 @@ function TrainPanel({
   };
 
   const renderRewardSection = () => {
-    if (!trainRewards.length || trainPhase !== "loading") return null;
+    if (!carnivalRewards.length || carnivalPhase !== "loading") return null;
   
     // ✅ Combine rewards of the same type
     const combinedRewards = {};
-    trainRewards.forEach((reward) => {
+    carnivalRewards.forEach((reward) => {
       if (combinedRewards[reward.item]) {
         combinedRewards[reward.item] += reward.qty;
       } else {
@@ -424,9 +424,9 @@ function TrainPanel({
     return (
       <div className="reward-section">
         <h4>{strings[2004]}</h4>
-        <div className="train-rewards-container">
+        <div className="carnival-rewards-container">
           {Object.entries(combinedRewards).map(([item, totalQty], index) => (
-            <div key={index} className="train-reward-item">
+            <div key={index} className="carnival-reward-item">
               {getSymbol(item)} {totalQty} {item}
             </div>
           ))}
@@ -472,7 +472,7 @@ function TrainPanel({
             <ResourceButton
               key={index}
               name={isCompleted || offer.claimedBy ? (playerUsernames[offer.claimedBy] || 'Unknown') : ''}
-              className={`train-offer-card ${
+              className={`carnival-offer-card ${
                 !offer.claimedBy ? 'unclaimed' : 
                 'resource-button'
               }`}
@@ -493,23 +493,23 @@ function TrainPanel({
     );
   };
 
-  const claimedByYou = trainOffers.filter(o => o.claimedBy === currentPlayer.playerId && !o.filled);
-  const available = trainOffers.filter(o => !o.claimedBy);
-  const claimedByOthers = trainOffers.filter(o => o.claimedBy && o.claimedBy !== currentPlayer.playerId && !o.filled);
-  const completed = trainOffers.filter(o => o.filled);
+  const claimedByYou = carnivalOffers.filter(o => o.claimedBy === currentPlayer.playerId && !o.filled);
+  const available = carnivalOffers.filter(o => !o.claimedBy);
+  const claimedByOthers = carnivalOffers.filter(o => o.claimedBy && o.claimedBy !== currentPlayer.playerId && !o.filled);
+  const completed = carnivalOffers.filter(o => o.filled);
 
-  const allOrdersFilled = trainPhase === 'departing' || trainPhase === 'arriving'
-  ? trainOffers.length > 0 && trainOffers.every(o => o.filled)
+  const allOrdersFilled = carnivalPhase === 'departing' || carnivalPhase === 'arriving'
+  ? carnivalOffers.length > 0 && carnivalOffers.every(o => o.filled)
   : false;
 
 
   return (
     <>
-    <Panel onClose={onClose} descriptionKey="1022" titleKey="1122" panelName="TrainPanel">
+    <Panel onClose={onClose} descriptionKey="1037" titleKey="1137" panelName="CarnivalPanel">
       {/* Check if player is in their home settlement */}
       {(() => {
         const isInHomeSettlement = String(currentPlayer.location.s) === String(currentPlayer.settlementId);
-        console.log('🚂 Train access check:', {
+        console.log('🎡 Carnival access check:', {
           currentSettlement: currentPlayer.location.s,
           homeSettlement: currentPlayer.settlementId,
           isInHomeSettlement
@@ -517,16 +517,16 @@ function TrainPanel({
         return !isInHomeSettlement;
       })() ? (
         <div style={{ textAlign: 'center', padding: '20px' }}>
-          <h2>{strings[2050] || "This is not your home settlement."}</h2>
+          <h2>{strings[1352] || "This is not your home settlement."}</h2>
         </div>
       ) : isContentLoading ? (
         <p>{strings[98]}</p>
       ) : (
         <>
-          <h3>{strings[2020]} {trainPhase} {currentTrainNumber ? `(Train #${currentTrainNumber})` : ''}</h3>
-          <h2>⏳ {trainTimer}</h2>
+          <h3>{strings[1352]} {carnivalPhase} {currentCarnivalNumber ? `(Carnival #${currentCarnivalNumber})` : ''}</h3>
+          <h2>⏳ {carnivalTimer}</h2>
 
-          {trainPhase === "loading" && (
+          {carnivalPhase === "loading" && (
             <>
               {renderRewardSection()}
               {renderOfferSection(strings[2009], claimedByYou)}
@@ -537,36 +537,33 @@ function TrainPanel({
           )}
 
           {allOrdersFilled && (
-            <div className="train-rewards-banner">
+            <div className="carnival-rewards-banner">
               {strings[2016]}
             </div>
           )}
 
-          {(trainPhase === "loading" || trainPhase === "departing") && renderNextShipment()}
-
+          {(carnivalPhase === "loading" || carnivalPhase === "departing") && renderNextShipment()}
 
         <div className="shared-buttons" style={{ margin: '2px 0' }}>
-          <button className="btn-basic" onClick={() => handleShowTrainLog()}>
-            {strings[2015]}
-          </button>
+            <button className="btn-basic" onClick={() => handleShowCarnivalLog()}>
+                {strings[1351]}
+            </button>
         </div>
-
-
         </>
       )}
     </Panel>
     
     {showLogicModal && (
-      <div className="train-logic-modal-overlay">
-        <div className="train-logic-modal">
+      <div className="carnival-logic-modal-overlay">
+        <div className="carnival-logic-modal">
           <button 
             onClick={() => setShowLogicModal(false)}
-            className="train-logic-modal-close"
+            className="carnival-logic-modal-close"
           >
             ×
           </button>
           <h3>
-            Train #{logicModalData.trainNumber || '?'} Logic
+            Carnival #{logicModalData.carnivalNumber || '?'} Logic
           </h3>
           <pre>
             {logicModalData.logic || 'No logic information available'}
@@ -578,4 +575,4 @@ function TrainPanel({
   );
 }
 
-export default TrainPanel;
+export default CarnivalPanel;

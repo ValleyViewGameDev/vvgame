@@ -594,10 +594,9 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
       {/* GLOBAL MARKET BUTTON */}
 
-        <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%', margin: '4px 0' }}>
+        <div className="shared-buttons" style={{ margin: '2px 0' }}>
           <button 
             className="btn-basic btn-success"
-            style={{ width: '100%' }}
             onClick={() => setIsGlobalMarketOpen(true)}
           >
             🌍 {strings[362] || "Global Market"}

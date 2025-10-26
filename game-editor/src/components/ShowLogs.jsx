@@ -278,12 +278,65 @@ const ShowLogs = ({ selectedSettlement, selectedFrontier }) => {
     }
   };
 
+  const handleShowCarnivalLog = async () => {
+    if (!selectedSettlement) {
+      console.warn("⚠️ No settlement selected.");
+      return;
+    }
+
+    console.log("🎪 Show Carnival Log clicked");
+    console.log("📤 Fetching carnival log for settlement:", selectedSettlement);
+
+    try {
+      const response = await axios.get(`${API_BASE}/api/settlement/${selectedSettlement}/carnivallog`);
+      console.log("📥 Carnival log API response:", response.data);
+
+      const carnivallog = response.data.carnivallog || [];
+
+      const carnivalLogTable = (
+        <table className="carnival-log-table" style={{ width: "100%", textAlign: "left", borderCollapse: "collapse" }}>
+          <thead>
+            <tr>
+              <th style={{ padding: "6px 12px" }}>Date</th>
+              <th style={{ padding: "6px 12px" }}>All Offers Filled</th>
+              <th style={{ padding: "6px 12px" }}>Total Winners</th>
+              <th style={{ padding: "6px 12px" }}>Rewards</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...carnivallog].reverse().map((entry, i) => (
+              <tr key={i}>
+                <td style={{ padding: "6px 12px" }}>{new Date(entry.date).toLocaleDateString()}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.alloffersfilled ? 'Yes' : 'No'}</td>
+                <td style={{ padding: "6px 12px" }}>{entry.totalwinners}</td>
+                <td style={{ padding: "6px 12px" }}>
+                  {entry.rewards.map((reward, j) => (
+                    <div key={j}>{reward.qty} × {reward.item}</div>
+                  ))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+
+      setTaxLogContent(carnivalLogTable);
+      setIsModalOpen(true);
+      console.log("✅ Modal opened with carnival log content.");
+    } catch (error) {
+      console.error("❌ Failed to fetch carnival log:", error);
+      setTaxLogContent(<p>Failed to load carnival log.</p>);
+      setIsModalOpen(true);
+    }
+  };
+
   window.showLogHandlers = {
     handleShowTaxLog,
     handleShowSeasonLog,
     handleShowBankLog,
     handleShowElectionLog,
     handleShowTrainLog,
+    handleShowCarnivalLog,
   };
 
   return (
