@@ -12,7 +12,7 @@
   "seasonMoneyNerf": 0.9,
   "seasonMoneyNerfGold": 0.75,
   "baseHoursForTrain": 16,
-  "kentRefreshTimerSeconds": 5,
+  "kentRefreshTimerSeconds": 30,
   "maxKentOffers": 5,
   "tradeStallSlots": [
     {

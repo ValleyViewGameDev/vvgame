@@ -11,6 +11,7 @@ import './Kent.css'; // Kent-specific styles
 import { formatCountdown } from '../../UI/Timers.js';
 import { useStrings } from '../../UI/StringsContext';
 import { incrementFTUEStep } from '../FTUE/FTUE';
+import { getLocalizedString } from '../../Utils/stringLookup';
 
 function KentPanel({ 
     onClose, 
@@ -300,7 +301,7 @@ function KentPanel({
                               <div className="kent-offer-details">
                                 <div className="kent-offer-requirement">
                                   <span className={`kent-offer-item ${playerQty < convertedOffer.qtyBought ? 'insufficient' : 'sufficient'}`}>
-                                    {convertedOffer.itemBought} x{convertedOffer.qtyBought} / {playerQty}
+                                    {getLocalizedString(convertedOffer.itemBought, strings)} x{convertedOffer.qtyBought} / {playerQty}
                                   </span>
                                 </div>
                                 <div className="kent-offer-reward">

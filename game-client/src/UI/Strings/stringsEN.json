@@ -1287,10 +1287,8 @@
     "200620": "Purple Heart",
     "200621": "Carnival",
     "200622": "Guild",
+    "200623": "Pig",
     
-
-    "11000": "ADDED STRINGS:",
-
     "163": "Price Ea.",
     "158": " LIMIT PER ORDER",
     "1008": "Buy and sell with other players. If no players buy your items before the timer expires, sell them to the game.",
@@ -1311,7 +1309,9 @@
     "1350": "CARNIVAL STRINGS",
 
     "1351": "Show Carnival Log",
-    "1352": "Carnival is"
+    "1352": "Carnival is",
+
+        "11000": "ADDED STRINGS:"
 
   }
 
