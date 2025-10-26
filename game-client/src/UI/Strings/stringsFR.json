@@ -481,7 +481,7 @@
     "9020": "Comment gagner de l'argent",
     "9021": "Il existe plusieurs façons de gagner de l'💰 ARGENT.",
     "9022": "Au début, ouvrez l'📥 ÉTAL COMMERCIAL, en haut à gauche de votre domaine. Vous pourrez y vendre des biens, cultures et objets fabriqués.",
-    "9023": "L'📥 ÉTAL COMMERCIAL rachète vos biens à 25% de leur valeur. Pour maximiser vos gains, échangez avec d'autres joueurs. Ils auront ce dont vous avez besoin, et inversement.",
+
     "9024": "En progressant, vous pourrez voyager en VILLE via le ⏪ PANNEAU. Là, vous trouverez la BANQUE, qui achètera certains objets à un meilleur prix.",
     "9025": "Dépenser son argent",
     "9026": "Sans surprise, la plupart des choses coûtent de l'argent. Au début, dépensez-le pour 💪 des COMPÉTENCES, 🐮 des ANIMAUX et ⚒️ des ATELIERS. Explorez les panneaux à gauche de l'écran pour générer plus de ressources et donc plus d'argent.",
@@ -491,8 +491,7 @@
     "9051": "Un compte Or est un abonnement mensuel qui donne accès à des fonctionnalités et avantages premium dans Valley View.",
     "9052": "Avec un compte Or, vous bénéficiez des avantages suivants :",
     "9053": "✅ Avatars premium : 🐱🤡👽🤖💩👾",
-    "9054": "✅ Capacité d'entrepôt quasi illimitée",
-    "9055": "✅ Capacité de sac à dos quasi illimitée",
+
     "9056": "✅ 2 emplacements d'étal supplémentaires",
     "9057": "✅ Taux d'imposition réduit",
     "9058": "✅ La moitié de vos PV max restaurée à la mort",
@@ -541,7 +540,7 @@
     "10122": "🚂 Train : ",
     "10123": "🏦 Banque : ",
     "10124": "Nouvelles offres : ",
-    "10125": "Lisez les nouvelles !",
+
     "10126": "Présents :",
     "10127": "Aucun joueur présent sur cette grille.",
     "10128": "Enregistrer les modifications",
@@ -648,7 +647,7 @@
 "620": "Vous devez vous rapprocher pour interagir avec ce personnage.",
 "470": "Impossible de voyager maintenant, des actions agricoles sont en cours.",
 "471": "⚠️ Déjà en cours.",
-"158": " limite par commande.",
+
 "96": "Vous avez des commentaires ?",
 "97": "@ Nous contacter par e-mail",
 
@@ -1028,7 +1027,6 @@
 "10114": "La prochaine saison commence dans :",
 "1023": "Les ouvriers vous aident à gérer votre ferme. Embauchez-les à la Ferme.",
 "4010": "Vous avez déjà un profil ?",
-"1008": "Achetez et vendez avec d'autres joueurs. Si aucun joueur n'achète vos articles avant l'expiration du minuteur, vendez-les au jeu pour une fraction de leur valeur de base.",
 "467": "Fabrication en masse",
 "1001": "Les ressources collectées à la ferme vont dans l'entrepôt. Les ressources collectées en ville ou dans la vallée iront dans le sac à dos. Pour acheter un sac à dos, visitez le Magasin en ville.",
 "705": "Aspiration",
@@ -1073,7 +1071,6 @@
 
 "194": "Agrandir l'Entrepôt",
 "195": "Agrandir le Sac à dos au Camp d'Aventure en Ville.",
-"199": "Capacité quasi illimitée avec le Pass Or (entre autres avantages).",
 
 "1035": "Ceci est votre collection de Trophées à vie.",
 "1135": "🏆 Trophées",
@@ -1204,7 +1201,7 @@
     "701": "😀 Bienvenue à Valley View",
     "702": "Bienvenue, voyageur ! Vous êtes arrivé à Valley View, une terre frontalière pleine d'opportunités, de mystères et d'aventures.",
     "721": "🤠 Récolter et vendre des cultures",
-    "722": "Vous voudrez commencer à gagner de l'💰 Argent tout de suite. Récoltez du 🌾 Blé, puis vendez-le au 📥 Comptoir commercial.",
+
     "723": "💪 Compétence de cultivateur",
     "724": "Cha-ching ! Maintenant, pour tirer le meilleur parti de votre ferme, acquérez la compétence 💪 Cultivateur.",
     "727": "🚜 Plantation",
@@ -1221,7 +1218,7 @@
     "7000": "CHAÎNES DE NOTIFICATION :",
 
     "7001": "Conseil :",
-    "7003": "Ouvrez le 📥 Comptoir commercial pour vendre des marchandises.",
+
     "7005": "Utilisez A-W-S-D ou les touches fléchées pour vous déplacer. Allez sur la terre, puis sélectionnez 🌱 Parcelle de blé.",
     "7006": "Cherchez l'icône 💪 pour ouvrir le panneau Compétences.",
     "7007": "Après avoir acquis Élevage, allez sur une tuile d'🟩 herbe, puis trouvez le panneau 🐮 Acheter pour acheter une 🐮 Vache.",
@@ -1248,7 +1245,7 @@
       "41": "Vous êtes rassasié",
       "160": "📥 Comptoir Commercial : Ajouter des Objets à Vendre",
       "162": "Vous Avez",
-      "163": "Prix Unitaire",
+
       "164": "Quantité à Ajouter",
       "8000": "CHAÎNES ANIMAUX & TEMPLE :",
       "8001": "COMMUN",
@@ -1308,7 +1305,29 @@
       "359": "Objets Trouvés !",
       "360": "Continuer",
       "361": "Graines utilisées",
-      "627": "Avec une meilleure relation, ce personnage pourrait avoir des tâches supplémentaires pour vous."
+      "627": "Avec une meilleure relation, ce personnage pourrait avoir des tâches supplémentaires pour vous.",
+
+
+  "163": "Prix unit.",
+  "158": " LIMITE PAR COMMANDE",
+  "1008": "Achetez et vendez avec d'autres joueurs. Si personne n'achète vos articles avant la fin du minuteur, vendez-les au jeu.",
+  "1037": "Participez au Carnaval avec d'autres dans votre Village. Complétez toutes les commandes en équipe pour gagner des prix.",
+  "1137": "🎡 Carnaval",
+  "9023": "Différents emplacements au 📥 COMPTOIR COMMERCIAL ont différents minuteurs. Pendant le minuteur, vous ne pouvez vendre les marchandises que si un autre joueur les achète. Après le minuteur, vous pouvez vendre les marchandises au jeu. Essayez de commercer avec d'autres joueurs. Ils auront des choses dont vous avez besoin, et vice versa.",
+  "10125": "Lisez les Nouvelles du Village !",
+  "9054": "✅ +100 000 capacité d'Entrepôt",
+  "9055": "✅ +5 000 capacité de Sac à dos",
+  "199": "Capacité considérablement augmentée avec le Pass Or (parmi d'autres avantages).",
+  "1038": "Continuez à vérifier avec Kent pour vendre vos marchandises.",
+  "1138": "🤠 Kent",
+  "45": "Kent achètera ces marchandises :",
+  "46": "Kent revient dans :",
+  "722": "Vous voudrez commencer à gagner de l'💰 Argent tout de suite. Récoltez du 🌾 Blé, puis vendez-le à 🤠 Kent.",
+  "7003": "Cliquez sur 🤠 Kent pour vendre des marchandises.",
+  "1350": "TEXTES CARNAVAL",
+  "1351": "Afficher Journal du Carnaval",
+  "1352": "Le Carnaval est"
+
 
 }
 

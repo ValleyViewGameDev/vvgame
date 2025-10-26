@@ -83,11 +83,11 @@
     "155": "Transaktion fehlgeschlagen. Dieser Artikel wurde bereits verkauft.",
     "156": "Leer (Gegenstände hinzufügen)",
     "157": "Gekauft von",
-    "158": " Limit pro Bestellung.",
+
     "159": "Bereit zum Verkauf",
     "160": "📥 Handelsposten: Artikel zum Verkauf hinzufügen",
     "162": "Du Hast",
-    "163": "Preis pro Stück",
+
     "164": "Hinzuzufügende Menge",    "161": "Gegenstand",
     "165": "Alle",
     "166": "Hinzufügen",
@@ -118,7 +118,7 @@
     "193": "Gegenstände verwerfen",
     "194": "Lagerhaus erweitern",
     "195": "Erweitere den Rucksack im Abenteuerlager in der Stadt.",
-    "199": "Nahezu unbegrenzte Kapazität mit Gold Pass (neben anderen Vorteilen).",
+
 
     "200": "QUESTS",
 
@@ -295,7 +295,7 @@
     "1005": "Erwerbe Fähigkeiten, um verschiedene Attribute zu verbessern. Erkunde unbedingt die Stadt, um weitere Orte und Möglichkeiten zum Erwerb von Fähigkeiten zu finden.",
     "1006": "Verwalte hier deine laufende Aufgabenliste. Suche nach questgebenden Charakteren auf deinem Gehöft sowie in der Stadt oder sogar im Tal.",
     "1007": "Regierungen in Valley View werden auf Siedlungsebene gebildet. Der gewählte Bürgermeister setzt Richtlinien um und baut Gebäude, um der Gemeinschaft zu helfen, zu gedeihen.",
-    "1008": "Kaufe und verkaufe mit anderen Spielern. Wenn keine Spieler deine Artikel vor Ablauf des Timers kaufen, verkaufe sie an das Spiel für einen Bruchteil ihres Basiswerts.",
+
     "1009": "[Handwerksbeschreibung]",
     "1010": "[Briefkastenbeschreibung]",
     "1011": "Dieser Tierstall ist leer. Stelle sicher, dass Tiere Gras zum Fressen haben, und sie werden schließlich zum Stall zum Ernten kommen.",
@@ -619,7 +619,7 @@
     "9020": "Wie man Geld verdient",
     "9021": "Es gibt ein paar Möglichkeiten, 💰 GELD zu verdienen.",
     "9022": "Wenn du anfängst, öffne den 📥 HANDELSPOSTEN, den du in der oberen linken Ecke deines Gehöfts findest. Hier kannst du Waren verkaufen, einschließlich Pflanzen und Handwerk.",
-    "9023": "Der 📥 HANDELSPOSTEN kauft Waren von dir zu 25% ihres Wertes. Um deine Einnahmen zu maximieren, solltest du mit anderen Spielern handeln. Sie werden Dinge haben, die du brauchst, und umgekehrt.",
+
     "9024": "Wenn du fortschreitest, kannst du mit dem ⏪ WEGWEISER neben dem ZUG in die STADT reisen. Dort findest du Orte wie die BANK, die bestimmte Gegenstände von dir zu einem Premium kauft.",
     "9025": "Geld ausgeben",
     "9026": "Überraschung, die meisten Dinge kosten Geld. Anfangs möchtest du Geld für 💪 FÄHIGKEITEN, 🐮 NUTZTIERE und ⚒️ HANDWERKSSTATIONEN ausgeben. Erkunde die Panels auf der linken Seite des Bildschirms. Diese helfen dir, mehr Ressourcen zu generieren, die dir wiederum helfen, mehr Geld zu verdienen.",
@@ -638,8 +638,8 @@
     "9051": "Ein Gold-Pass gibt dir Zugang zu Premium-Funktionen und Vorteilen in Valley View für die Dauer einer Saison.",
     "9052": "Mit einem Gold-Pass kannst du folgende Vorteile genießen:",
     "9053": "✅ Premium-Avatare: 🐱🤡👽🤖💩👾",
-    "9054": "✅ Nahezu unbegrenzte Lagerhauskapazität",
-    "9055": "✅ Nahezu unbegrenzte Rucksackkapazität",
+
+
     "9056": "✅ 2 zusätzliche Handelsstand-Plätze",
     "9057": "✅ Niedrigerer Steuersatz",
     "9058": "✅ Die Hälfte deiner MaxHP beim Tod wiederhergestellt",
@@ -689,7 +689,7 @@
     "10122": "🚂 Zug: ",
     "10123": "🏦 Bank: ",
     "10124": "Neue Angebote: ",
-    "10125": "Lies die Nachrichten!",
+
     "10126": "Wer ist hier:",
     "10127": "Keine PCs im Raster vorhanden.",
     "10128": "Änderungen speichern",
@@ -1175,7 +1175,7 @@
 "701": "😀 Willkommen in Valley View",
 "702": "Willkommen, Reisender! Du bist in Valley View angekommen, einem Grenzland voller Möglichkeiten, Geheimnisse und Abenteuer.",
 "721": "🤠 Ernte und verkaufe Feldfrüchte",
-"722": "Du solltest sofort anfangen, 💰 Geld zu verdienen. Ernte etwas 🌾 Weizen und verkaufe ihn dann am 📥 Handelsposten.",
+
 "723": "💪 Anbau-Fähigkeit",
 "724": "Kaching! Um mehr aus deiner Farm herauszuholen, erwirb jetzt die 💪 Anbau-Fähigkeit.",
 "727": "🚜 Pflanzen",
@@ -1192,7 +1192,7 @@
 "7000": "BENACHRICHTIGUNGSTEXTE:",
 
 "7001": "Tipp:",
-"7003": "Öffne den 📥 Handelsposten, um Waren zu verkaufen.",
+
 "7005": "Benutze A-W-S-D oder die Pfeiltasten zum Bewegen. Gehe auf Erde und wähle dann 🌱 Weizenfeld.",
 "7006": "Suche nach dem 💪 Symbol, um das Fähigkeiten-Panel zu öffnen.",
 "7007": "Nach dem Erwerb von Viehzucht, gehe auf eine 🟩 Graskachel, dann finde das 🐮 Kauf-Panel, um eine 🐮 Kuh zu kaufen.",
@@ -1275,6 +1275,28 @@
 "359": "Gegenstände Gefunden!",
 "360": "Weiter",
 "361": "Verwendete Samen",
-"627": "Mit einer besseren Beziehung könnte dieser Charakter zusätzliche Aufgaben für dich haben."
+"627": "Mit einer besseren Beziehung könnte dieser Charakter zusätzliche Aufgaben für dich haben.",
+
+
+  "163": "Stückpreis",
+  "158": " LIMIT PRO BESTELLUNG",
+  "1008": "Kaufe und verkaufe mit anderen Spielern. Wenn niemand deine Artikel vor Ablauf des Timers kauft, verkaufe sie an das Spiel.",
+  "1037": "Nimm am Karneval mit anderen in deiner Siedlung teil. Erfüllt alle Aufträge als Team, um Preise zu gewinnen.",
+  "1137": "🎡 Karneval",
+  "9023": "Verschiedene Slots am 📥 HANDELSPOSTEN haben unterschiedliche Timer. Während des Timers kannst du die Waren nur verkaufen, wenn ein anderer Spieler sie kauft. Nach dem Timer kannst du die Waren an das Spiel verkaufen. Versuche mit anderen Spielern zu handeln. Sie haben Dinge, die du brauchst, und umgekehrt.",
+  "10125": "Lies die Stadtnachrichten!",
+  "9054": "✅ +100.000 Lagerkapazität",
+  "9055": "✅ +5.000 Rucksackkapazität",
+  "199": "Deutlich mehr Kapazität mit Gold Pass (neben anderen Vorteilen).",
+  "1038": "Schau regelmäßig bei Kent vorbei, um deine Waren zu verkaufen.",
+  "1138": "🤠 Kent",
+  "45": "Kent kauft diese Waren von dir:",
+  "46": "Kent kehrt zurück in:",
+  "722": "Du solltest sofort anfangen, 💰 Geld zu verdienen. Ernte etwas 🌾 Weizen und verkaufe es an 🤠 Kent.",
+  "7003": "Klicke auf 🤠 Kent, um Waren zu verkaufen.",
+  "1350": "KARNEVAL TEXTE",
+  "1351": "Karneval-Protokoll anzeigen",
+  "1352": "Karneval ist"
+
 
 }

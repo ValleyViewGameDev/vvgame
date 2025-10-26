@@ -72,7 +72,6 @@
   "155": "La transacción falló. Este artículo ya ha sido vendido.",
   "160": "📥 Puesto Comercial: Añadir Artículos para Vender",
   "162": "Tienes",
-  "163": "Precio por Unidad",
   "164": "Cantidad a Añadir",
       
   "161": "Artículo",
@@ -459,7 +458,6 @@
   "9020": "Hay algunas formas de ganar 💰 DINERO.",
   "9021": "Al comenzar, abre el 📥 PUESTO DE COMERCIO, que encontrarás en la esquina superior izquierda de tu Hacienda. Aquí, puedes vender bienes, incluyendo cultivos y artesanías.",
   "9022": "El 📥 PUESTO DE COMERCIO te comprará bienes al 25% de su valor. Para maximizar tus ganancias, deberías comerciar con otros jugadores. Ellos tendrán cosas que necesitas, y viceversa.",
-  "9023": "A medida que progresas, podrás viajar a la CIUDAD usando el ⏪ POSTE DE SEÑALES. Allí, encontrarás lugares como el BANCO, que comprará artículos específicos de ti a un precio premium.",
   "9024": "Gastar Dinero",
   "9025": "Sorpresa, la mayoría de las cosas cuestan Dinero. Inicialmente, querrás gastar dinero en 💪 HABILIDADES, 🐮 ANIMALES DE GRANJA y ⚒️ ESTACIONES DE ARTESANÍA. Explora los paneles en el lado izquierdo de la pantalla. Estos te ayudarán a generar más recursos, lo que a su vez te ayudará a ganar más Dinero.",
   "9026": "En la CIUDAD descubrirás más Tiendas y Comerciantes.",
@@ -468,8 +466,7 @@
   "9051": "Con un Pase de Oro, puedes disfrutar de los siguientes beneficios:",
   "9052": "✅ Avatares premium: 🐱🤡👽🤖💩👾",
   "9053": "✅ Capacidad de Almacén casi ilimitada",
-  "9054": "✅ Capacidad de Mochila casi ilimitada",
-  "9055": "✅ 2 espacios adicionales de Puesto de Comercio",
+
   "9056": "✅ Tasa de Impuesto más baja",
   "9057": "✅ La mitad de tu MaxHP se restaura al morir",
   "9058": "✅ Puedes postularte para un cargo",
@@ -503,7 +500,7 @@
   "10122": "🏦 Banco: ",
   "10123": "Nuevas Ofertas: ",
   "10124": "¡Lee las noticias!",
-  "10125": "¿Quién está aquí:",
+
   "10126": "No hay PCs presentes en la cuadrícula.",
   "10127": "Guardar Cambios",
   "10128": "",
@@ -593,7 +590,7 @@
 "620": "Necesitas acercarte más para interactuar con este personaje.",
 "470": "No puedes viajar ahora, hay acciones agrícolas en progreso.",
 "471": "⚠️ Ya en progreso.",
-"158": " límite por pedido.",
+
 "96": "¿Tienes comentarios?",
 "97": "@ Envíanos un correo",
 
@@ -843,7 +840,7 @@
 "10114": "La próxima temporada comienza en:",
 "1023": "Los trabajadores te ayudan a administrar tu granja. Contrátalos en la Casa de la Granja.",
 "4010": "¿Ya tienes un perfil?",
-"1008": "Compra y vende con otros jugadores. Si ningún jugador compra tus artículos antes de que expire el temporizador, véndelos al juego por una fracción de su valor base.",
+
 "1001": "Los recursos recolectados en la granja van al almacén. Los recursos recolectados en la ciudad o en el valle irán a la mochila. Para comprar una mochila, visita la Tienda en la ciudad.",
 
 "705": "Aspiración",
@@ -888,7 +885,6 @@
 
 "194": "Expandir Almacén",
 "195": "Expande la Mochila en el Campamento de Aventuras en la Ciudad.",
-"199": "Capacidad casi ilimitada con Pase Dorado (entre otros beneficios).",
 
 "1035": "Esta es tu colección de Trofeos de por vida.",
 "1135": "🏆 Trofeos",
@@ -1020,7 +1016,7 @@
     "701": "😀 Bienvenido a Valley View",
     "702": "¡Bienvenido, viajero! Has llegado a Valley View, una tierra fronteriza llena de oportunidades, misterios y aventuras.",
     "721": "🤠 Cosechar y vender cultivos",
-    "722": "Querrás empezar a ganar 💰 Dinero de inmediato. Cosecha algo de 🌾 Trigo y luego véndelo en el 📥 Puesto de comercio.",
+
     "723": "💪 Habilidad de cultivador",
     "724": "¡Cha-ching! Ahora, para sacar más provecho de tu granja, adquiere la habilidad 💪 Cultivador.",
     "727": "🚜 Plantar",
@@ -1037,7 +1033,7 @@
     "7000": "CADENAS DE NOTIFICACIÓN:",
 
     "7001": "Consejo:",
-    "7003": "Abre el 📥 Puesto de comercio para vender mercancías.",
+
     "7005": "Usa A-W-S-D o las teclas de flecha para moverte. Ve a la tierra y luego selecciona 🌱 Parcela de trigo.",
     "7006": "Busca el icono 💪 para abrir el panel de Habilidades.",
     "7007": "Después de adquirir Ganadería, ve a una casilla de 🟩 hierba, luego encuentra el panel de 🐮 Comprar para comprar una 🐮 Vaca.",
@@ -1122,6 +1118,27 @@
       "358": "Cultivos Replantados",
       "359": "¡Objetos Encontrados!",
       "360": "Continuar",
-      "361": "Semillas utilizadas"
+      "361": "Semillas utilizadas",
+
+
+  "163": "Precio ud.",
+  "158": " LÍMITE POR PEDIDO",
+  "1008": "Compra y vende con otros jugadores. Si nadie compra tus artículos antes de que expire el temporizador, véndelos al juego.",
+  "1037": "Participa en el Carnaval con otros en tu Asentamiento. Completa todos los pedidos en equipo para ganar premios.",
+  "1137": "🎡 Carnaval",
+  "9023": "Diferentes espacios en el 📥 PUESTO COMERCIAL tienen diferentes temporizadores. Durante el temporizador, solo puedes vender los productos si otro jugador los compra. Después del temporizador, puedes vender los productos al juego. Intenta comerciar con otros jugadores. Ellos tendrán cosas que necesitas, y viceversa.",
+  "10125": "¡Lee las Noticias del Pueblo!",
+  "9054": "✅ +100.000 capacidad de Almacén",
+  "9055": "✅ +5.000 capacidad de Mochila",
+  "199": "Capacidad significativamente mayor con el Pase Oro (entre otros beneficios).",
+  "1038": "Sigue consultando con Kent para vender tus productos.",
+  "1138": "🤠 Kent",
+  "45": "Kent comprará estos productos:",
+  "46": "Kent regresa en:",
+  "722": "Querrás empezar a ganar 💰 Dinero de inmediato. Cosecha algo de 🌾 Trigo y véndelo a 🤠 Kent.",
+  "7003": "Haz clic en 🤠 Kent para vender productos.",
+  "1350": "TEXTOS CARNAVAL",
+  "1351": "Mostrar Registro del Carnaval",
+  "1352": "El Carnaval está"
 
 }
