@@ -1077,12 +1077,12 @@ useEffect(() => {
     const now = Date.now(); // Get current timestamp
 
     setCountdowns({
-      seasons: formatCountdown(timers.seasons.endTime, now),
-      elections: formatCountdown(timers.elections.endTime, now),
-      train: formatCountdown(timers.train.endTime, now),
-      carnival: formatCountdown(timers.carnival.endTime, now),
-      taxes: formatCountdown(timers.taxes.endTime, now),
-      bank: formatCountdown(timers.bank.endTime, now),
+      seasons: timers.seasons.endTime ? formatCountdown(timers.seasons.endTime, now) : "--:--:--",
+      elections: timers.elections.endTime ? formatCountdown(timers.elections.endTime, now) : "--:--:--",
+      train: timers.train.endTime ? formatCountdown(timers.train.endTime, now) : "--:--:--",
+      carnival: timers.carnival.endTime ? formatCountdown(timers.carnival.endTime, now) : "--:--:--",
+      taxes: timers.taxes.endTime ? formatCountdown(timers.taxes.endTime, now) : "--:--:--",
+      bank: timers.bank.endTime ? formatCountdown(timers.bank.endTime, now) : "--:--:--",
     });
   };
 

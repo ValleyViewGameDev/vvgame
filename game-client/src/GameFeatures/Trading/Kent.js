@@ -247,20 +247,22 @@ function KentPanel({
     };
 
     return (
-      <Panel onClose={onClose} descriptionKey="1038" titleKey="1138" panelName="KentPanel">
+      <Panel onClose={onClose}  titleKey="1138" panelName="KentPanel">
         {isContentLoading ? (
           <p>{strings[98]}</p>
         ) : (
           <>
-            {/* Show timer at top */}
-            {kentPhase === 'locked' ? (
-              <>
-                <h2>{strings[46]}</h2>
+            {/* Show timer at top with fixed height */}
+            <div className="kent-header-area">
+              {kentPhase === 'locked' ? (
+                <>
+                  <h2>{strings[46]}</h2>
+                  <h2>{kentTimer}</h2>
+                </>
+              ) : (
                 <h2>{kentTimer}</h2>
-              </>
-            ) : (
-              <h2>{kentTimer}</h2>
-            )}
+              )}
+            </div>
             
             {/* Always show offers, but disable during cooldown */}
             <>
