@@ -23,6 +23,7 @@
         "pricePoints": 25,
         "trainOffersQtyMultiplier": 1,
         "trainRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
+        "carnivalRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
         "seasonTiles": {
             "g": 80,
             "s": 0,
@@ -82,6 +83,7 @@
         "pricePoints": 25,
         "trainOffersQtyMultiplier": 1,
         "trainRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
+        "carnivalRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
         "seasonTiles": {
             "g": 20,
             "s": 0,
@@ -139,6 +141,7 @@
         "pricePoints": 25,
         "trainOffersQtyMultiplier": 1,
         "trainRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
+        "carnivalRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
         "seasonTiles": {
             "g": 100,
             "s": 0,
@@ -196,6 +199,7 @@
         "pricePoints": 25,
         "trainOffersQtyMultiplier": 1,
         "trainRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
+        "carnivalRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
         "seasonTiles": {
             "g": 0,
             "s": 0,

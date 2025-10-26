@@ -26,7 +26,7 @@ function CarnivalPanel({
 {
   const strings = useStrings();
   const [carnivalOffers, setCarnivalOffers] = useState([]);
-  const [carnivalPhase, setCarnivalPhase] = useState("loading");
+  const [carnivalPhase, setCarnivalPhase] = useState("here");
   const [carnivalTimer, setCarnivalTimer] = useState("⏳");
   const [nextOffers, setNextOffers] = useState([]);
   const [carnivalRewards, setCarnivalRewards] = useState([]);
@@ -383,7 +383,7 @@ function CarnivalPanel({
   };
 
   const renderNextShipment = () => {
-    if (!["loading", "departing"].includes(carnivalPhase)) return null;
+    if (!["here", "departing"].includes(carnivalPhase)) return null;
     if (!nextOffers.length) return null;
   
     // ✅ Deduplicate by itemBought
@@ -409,7 +409,7 @@ function CarnivalPanel({
   };
 
   const renderRewardSection = () => {
-    if (!carnivalRewards.length || carnivalPhase !== "loading") return null;
+    if (!carnivalRewards.length || carnivalPhase !== "here") return null;
   
     // ✅ Combine rewards of the same type
     const combinedRewards = {};
@@ -526,7 +526,7 @@ function CarnivalPanel({
           <h3>{strings[1352]} {carnivalPhase} {currentCarnivalNumber ? `(Carnival #${currentCarnivalNumber})` : ''}</h3>
           <h2>⏳ {carnivalTimer}</h2>
 
-          {carnivalPhase === "loading" && (
+          {carnivalPhase === "here" && (
             <>
               {renderRewardSection()}
               {renderOfferSection(strings[2009], claimedByYou)}
@@ -542,7 +542,7 @@ function CarnivalPanel({
             </div>
           )}
 
-          {(carnivalPhase === "loading" || carnivalPhase === "departing") && renderNextShipment()}
+          {(carnivalPhase === "here" || carnivalPhase === "departing") && renderNextShipment()}
 
         <div className="shared-buttons" style={{ margin: '2px 0' }}>
             <button className="btn-basic btn-neutral" onClick={() => handleShowCarnivalLog()}>

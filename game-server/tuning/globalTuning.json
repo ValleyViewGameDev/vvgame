@@ -96,7 +96,7 @@
   "carnival": {
     "phases": {
       "arriving": 0.6,
-      "loading": 2880,
+      "here": 2880,
       "departing": 0.6
     },
     "startPhase": "arriving"
