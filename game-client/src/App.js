@@ -68,6 +68,7 @@ import ToolsPanel from './GameFeatures/Farming/ToolsPanel';
 import SkillsPanel from './GameFeatures/Skills/SkillsPanel';
 import GovPanel from './GameFeatures/Government/GovPanel';
 import BankPanel from './GameFeatures/Trading/Bank';
+import KentPanel from './GameFeatures/Trading/Kent';
 import TrainPanel from './GameFeatures/Trading/Train';
 import CarnivalPanel from './GameFeatures/Carnival/Carnival';
 import CourthousePanel from './GameFeatures/Government/Courthouse';
@@ -428,7 +429,11 @@ const handleNPCPanel = (npc) => {
     case 'trade':
     case 'heal': {
       setActiveQuestGiver(npc);  // Set the active quest giver globally
-      openPanel('NPCPanel');  
+      if (npc.type==='Kent') {
+        openPanel('KentPanel');  
+      } else {
+        openPanel('NPCPanel');  
+      }
       break;
     }
     case 'worker': {
@@ -2253,6 +2258,21 @@ return (
           setCurrentPlayer={setCurrentPlayer}
           updateStatus={updateStatus}
           masterResources={masterResources}
+        />
+      )}
+      {activePanel === 'KentPanel' && (
+        <KentPanel
+          onClose={closePanel} 
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          updateStatus={updateStatus}
+          masterResources={masterResources}
+          globalTuning={globalTuning}
+          currentSeason={timers.seasons?.type || "Unknown"}
         />
       )}
       {activePanel === 'TrainPanel' && (

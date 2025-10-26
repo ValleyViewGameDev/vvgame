@@ -341,7 +341,6 @@
     "705": "Aspiration",
     "706": "Valley View is a big world. It's up to you how you want to spend your time. Which of these aspirations best suits your style of play? (This choice will not limit your options in any way.)",  
     "721": "🤠 Harvest and Sell Crops",
-    "722": "You'll want to start earning 💰 Money right away. Harvest some 🌾 Wheat, and then sell it at the 📥 Trading Post.",
     "723": "💪 Grower Skill",
     "724": "Cha-ching! Now to get more out of your farm, acquire the 💪 Grower skill.",
     "727": "🚜 Planting",
@@ -746,7 +745,6 @@
 
     "7001": "Tip:",
     "7002": "Congratulations!",
-    "7003": "Open the 📥 Trading Post to sell goods.",
     "7004": "Note:",
     "7005": "Use A-W-S-D or the Arrow Keys to move. Move onto dirt, and then select 🌱 Wheat Plot.",
     "7006": "Look for the 💪 icon to open the Skills panel.",
@@ -1303,6 +1301,12 @@
     "9054": "✅ +100,000 Warehouse capacity",
     "9055": "✅ +5,000 Backpack capacity",
     "199": "Significantly more capacity with Gold Pass (among other benefits).",
+    "1038": "Keep checking with Kent to sell your goods.",
+    "1138": "🤠 Kent",
+    "45": "Kent will buy these goods from you:",
+    "46": "Kent returns in:",
+    "722": "You'll want to start earning 💰 Money right away. Harvest some 🌾 Wheat, and then sell it to 🤠 Kent.",
+    "7003": "Click on 🤠 Kent to sell goods.",
 
     "1350": "CARNIVAL STRINGS",
 

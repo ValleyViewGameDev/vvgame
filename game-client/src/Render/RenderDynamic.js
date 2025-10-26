@@ -145,6 +145,30 @@ const DynamicRenderer = ({
     }
   }
 
+  // Check Kent NPC status - returns 'completed' if player can afford any offers
+  function checkKentNPCStatus(npc) {
+    if (npc.type !== 'Kent') return null;
+    
+    try {
+      const kentOffers = currentPlayer?.kentOffers?.offers || [];
+      
+      // Check if player can afford any of Kent's offers
+      const canAffordAny = kentOffers.some(offer => {
+        // Calculate player's total quantity from inventory and backpack
+        const inventoryQty = currentPlayer?.inventory?.find(item => item.type === offer.item)?.quantity || 0;
+        const backpackQty = currentPlayer?.backpack?.find(item => item.type === offer.item)?.quantity || 0;
+        const playerQty = inventoryQty + backpackQty;
+        
+        return playerQty >= offer.quantity;
+      });
+      
+      return canAffordAny ? 'completed' : null;
+    } catch (error) {
+      console.error('Error checking Kent NPC status:', error);
+      return null;
+    }
+  }
+
   // Function to create or update NPC divs
   function renderNPCs() {
     const gridId = currentPlayer?.location?.g;
@@ -160,6 +184,7 @@ const DynamicRenderer = ({
         console.warn('NPC missing position data:', npc);
         return;
       }
+      
       
       existingIds.add(npc.id);
       let npcDiv = npcElements.current.get(npc.id);
@@ -270,6 +295,12 @@ const DynamicRenderer = ({
         const overlayData = getNPCOverlay(npc.id);
         if (overlayData) {
           renderOverlay(npcDiv, overlayData.overlay);
+        } else if (npc.type === 'Kent') {
+          // Check Kent NPC for affordable offers (Kent is a special quest NPC)
+          const kentStatus = checkKentNPCStatus(npc);
+          if (kentStatus) {
+            renderOverlay(npcDiv, kentStatus);
+          }
         } else if (npc.action === 'quest') {
           // Check quest NPC status only if not already cached
           const cachedStatus = questNPCStatusRef.current.get(npc.id);
@@ -322,8 +353,19 @@ const DynamicRenderer = ({
         if (overlayData && !existingOverlay) {
           renderOverlay(npcDiv, overlayData.overlay);
         } else if (!overlayData && existingOverlay) {
-          // Check if this is a quest NPC that might need overlay
-          if (npc.action === 'quest') {
+          // Check if this is Kent that might need overlay
+          if (npc.type === 'Kent') {
+            const kentStatus = checkKentNPCStatus(npc);
+            if (kentStatus) {
+              const currentType = existingOverlay.getAttribute('data-overlay-type');
+              if (currentType !== kentStatus) {
+                existingOverlay.remove();
+                renderOverlay(npcDiv, kentStatus);
+              }
+            } else {
+              existingOverlay.remove();
+            }
+          } else if (npc.action === 'quest') {
             // Check cached status first
             const cachedStatus = questNPCStatusRef.current.get(npc.id);
             if (cachedStatus) {
@@ -360,6 +402,18 @@ const DynamicRenderer = ({
             } else {
               existingOverlay.remove();
             }
+          } else if (npc.type === 'Kent') {
+            // Check if Kent still has affordable offers
+            const kentStatus = checkKentNPCStatus(npc);
+            if (kentStatus) {
+              const currentType = existingOverlay.getAttribute('data-overlay-type');
+              if (currentType !== kentStatus) {
+                existingOverlay.remove();
+                renderOverlay(npcDiv, kentStatus);
+              }
+            } else {
+              existingOverlay.remove();
+            }
           } else {
             existingOverlay.remove();
           }
@@ -369,6 +423,12 @@ const DynamicRenderer = ({
           if (currentType !== overlayData.overlay) {
             existingOverlay.remove();
             renderOverlay(npcDiv, overlayData.overlay);
+          }
+        } else if (!overlayData && npc.type === 'Kent' && !existingOverlay) {
+          // Kent NPC without overlay - check if it needs one
+          const kentStatus = checkKentNPCStatus(npc);
+          if (kentStatus) {
+            renderOverlay(npcDiv, kentStatus);
           }
         } else if (!overlayData && npc.action === 'quest' && !existingOverlay) {
           // Quest NPC without overlay - check if it needs one

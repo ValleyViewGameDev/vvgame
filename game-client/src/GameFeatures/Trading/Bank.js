@@ -143,19 +143,6 @@ function BankPanel({
         return resource?.symbol || "❓"; // Default to question mark if no symbol found
     };
 
-    const handleRefreshOffers = async () => {
-        try {
-            const response = await axios.post(
-                `${API_BASE}/api/debug/refresh-bank-offers/${currentPlayer.location.f}`
-            );
-            if (response.data.success) {
-                fetchBankOffers();
-            }
-        } catch (error) {
-            console.error('Failed to refresh bank offers:', error);
-        }
-    };
-
     return (
       <Panel onClose={onClose} descriptionKey="1017" titleKey="1117" panelName="BankPanel">
         {/* Check if player is in their home settlement */}

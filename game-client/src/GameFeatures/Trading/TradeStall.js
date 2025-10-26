@@ -13,7 +13,6 @@ import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } 
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
-import { incrementFTUEStep } from '../FTUE/FTUE';
 import { isACrop } from '../../Utils/ResourceHelpers';
 import { handlePurchase } from '../../Store/Store';
 import GlobalMarketModal from './GlobalMarketModal';
@@ -140,16 +139,6 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     }
   };
 
-  const calculateTotalSlots = (player) => {
-    // Base slots are now 4 for Free, Gold gets +2 (total 6)
-    const accountStatusSlots = {
-      Free: 4,
-      Bronze: 4, 
-      Silver: 4,
-      Gold: 6,
-    };
-    return accountStatusSlots[player.accountStatus] || 4;
-  };
 
   // Lift fetchDataForViewedPlayer out of useEffect for reuse
   const fetchDataForViewedPlayer = async (skipInventoryFetch = false) => {
@@ -499,12 +488,6 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         // Track quest progress for selling this item
         await trackQuestProgress(currentPlayer, 'Sell', response.data.resource, response.data.amount, setCurrentPlayer);
         
-        // Check if we should increment FTUE step after selling
-        if (currentPlayer.ftuestep === 3) {
-          console.log('🎓 Player at FTUE step 3 sold wheat, incrementing FTUE step');
-          await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-        }
-        
         updateStatus(`${strings[141]} ${response.data.amount}x ${getLocalizedString(response.data.resource, strings)} (💰 ${response.data.sold}).`);
         
         // Refresh trade stall data to ensure consistency
@@ -567,12 +550,6 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
         // Track quest progress for selling this item
         await trackQuestProgress(currentPlayer, 'Sell', response.data.resource, response.data.amount, setCurrentPlayer);
-        
-        // Check if we should increment FTUE step after selling
-        if (currentPlayer.ftuestep === 3) {
-          console.log('🎓 Player at FTUE step 3 sold wheat, incrementing FTUE step');
-          await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-        }
         
         updateStatus(`💰 Collected ${response.data.collected}.`);
         

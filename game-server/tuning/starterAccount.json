@@ -11,8 +11,8 @@
       "baseSpeed": 5,
       "inventory": [{ "type": "Money", "quantity": 6000 },{ "type": "Wheat", "quantity": 20 }],
       "backpack": [],
-      "skills": [{ "type": "Walking" }],
-      "powers": [{ "type": "Knife" }],
+      "skills": [{ "type": "Walking", "quantity": 1 }],
+      "powers": [{ "type": "Knife", "quantity": 1 }],
       "warehouseCapacity": 1000,
       "warehouseLevel": 0,
       "backpackCapacity": 20,
@@ -107,7 +107,22 @@
           "boughtBy": null,
           "boughtFor": null
         }
-      ]
+      ],
+      "kentOffers": {
+        "endTime": 0,
+        "offers": [
+          {
+            "item": "Wheat",
+            "quantity": 4,
+            "rewards": [
+              {
+                "item": "Money",
+                "quantity": 32
+              }
+            ]
+          }
+        ]
+      }
     },
     "tradeStallSlots": {
       "Free": 6,

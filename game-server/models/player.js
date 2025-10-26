@@ -179,6 +179,24 @@ const playerSchema = new mongoose.Schema({
     }
   ],
 
+  kentOffers: {
+    endTime: { type: Number, default: 0 }, // Timestamp when offers become available
+    offers: [
+      {
+        item: { type: String, required: true },
+        quantity: { type: Number, required: true },
+        rewards: [
+          {
+            item: { type: String, required: true },
+            quantity: { type: Number, required: true },
+            _id: false
+          }
+        ],
+        _id: false
+      }
+    ]
+  },
+
 created: { type: Date, default: Date.now },
 
 
