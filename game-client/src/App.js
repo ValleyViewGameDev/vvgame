@@ -1074,15 +1074,21 @@ const fetchTimersData = async () => {
 // TIMERS Step 4: Update countdown timers
 useEffect(() => {
   const updateCountdowns = () => {
+    // Guard against uninitialized timers
+    if (!timers || !timers.carnival) {
+      console.log("Timers not yet initialized, skipping countdown update");
+      return;
+    }
+    
     const now = Date.now(); // Get current timestamp
 
     setCountdowns({
-      seasons: timers.seasons.endTime ? formatCountdown(timers.seasons.endTime, now) : "--:--:--",
-      elections: timers.elections.endTime ? formatCountdown(timers.elections.endTime, now) : "--:--:--",
-      train: timers.train.endTime ? formatCountdown(timers.train.endTime, now) : "--:--:--",
-      carnival: timers.carnival.endTime ? formatCountdown(timers.carnival.endTime, now) : "--:--:--",
-      taxes: timers.taxes.endTime ? formatCountdown(timers.taxes.endTime, now) : "--:--:--",
-      bank: timers.bank.endTime ? formatCountdown(timers.bank.endTime, now) : "--:--:--",
+      seasons: timers.seasons?.endTime ? formatCountdown(timers.seasons.endTime, now) : "--:--:--",
+      elections: timers.elections?.endTime ? formatCountdown(timers.elections.endTime, now) : "--:--:--",
+      train: timers.train?.endTime ? formatCountdown(timers.train.endTime, now) : "--:--:--",
+      carnival: timers.carnival?.endTime ? formatCountdown(timers.carnival.endTime, now) : "--:--:--",
+      taxes: timers.taxes?.endTime ? formatCountdown(timers.taxes.endTime, now) : "--:--:--",
+      bank: timers.bank?.endTime ? formatCountdown(timers.bank.endTime, now) : "--:--:--",
     });
   };
 
