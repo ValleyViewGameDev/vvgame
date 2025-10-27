@@ -197,6 +197,39 @@ const playerSchema = new mongoose.Schema({
     ]
   },
 
+  train: {
+    currentTrainNumber: { type: Number, default: 0 }, // Current train number player is on
+    currentTrainOffers: [
+      {
+        item: { type: String, required: true },
+        quantity: { type: Number, required: true },
+        completed: { type: Boolean, default: false },
+        _id: false
+      }
+    ],
+    currentTrainRewards: [
+      {
+        item: { type: String, required: true },
+        quantity: { type: Number, required: true },
+        _id: false
+      }
+    ],
+    nextTrainOffers: [
+      {
+        item: { type: String, required: true },
+        quantity: { type: Number, required: true },
+        _id: false
+      }
+    ],
+    nextTrainRewards: [
+      {
+        item: { type: String, required: true },
+        quantity: { type: Number, required: true },
+        _id: false
+      }
+    ]
+  },
+
 created: { type: Date, default: Date.now },
 
 
