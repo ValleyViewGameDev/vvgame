@@ -133,7 +133,7 @@ async function carnivalScheduler(frontierId, phase, frontier = null) {
               const consolidated = consolidateRewards(currentLog.rewards);
               console.log(`DEBUG: Sending consolidated rewards to ${playerId}:`, consolidated);
               try {
-                await sendMailboxMessage(playerId, 101, consolidated);
+                await sendMailboxMessage(playerId, 102, consolidated);
                 console.log(`✅ Rewards sent to player ${playerId}`);
                 
                 // Award Carnivals Completed trophy

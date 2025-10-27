@@ -123,5 +123,12 @@
       "calculating": 0.5
     },
     "startPhase": "waiting"
+  },
+  "trainRewards": {
+    "spring": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
+    "summer": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
+    "fall": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
+    "winter": [ "Yellow Heart", "Green Heart", "Purple Heart" ]
   }
+
 }

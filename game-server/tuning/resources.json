@@ -3582,6 +3582,7 @@
     "category": "doober",
     "action": "collect",
     "output": "noBank",
+    "source": "pets",
     "passable": true,
     "qtycollected": 1,
     "level": 0.2,

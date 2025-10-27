@@ -22,6 +22,13 @@
         "reward": 1
     },
     {
+        "name": "Carnivals Completed",
+        "tooltip": "Tracks the number of times you participated in the Carnival with all orders filled.",
+        "type": "Count",
+        "visible": true,
+        "reward": 1
+    },
+    {
         "name": "Meet the Cast",
         "tooltip": "Greet all of the non-player characters in Valley View.",
         "type": "Event",

@@ -31,6 +31,14 @@
       "neverPurge": false
     },
     {
+      "id": 102,
+      "title": "🎡 Carnival Complete!",
+      "body": "Your settlement filled all Carnival orders. Great teamwork! Here's your reward.",
+      "rewards": [],
+      "everyoneRewards": false,
+      "neverPurge": false
+    },
+    {
       "id": 201,
       "title": "🙏 Thank You for Your Purchase!",
       "body": "Here are the items you purchased from the Store.",
