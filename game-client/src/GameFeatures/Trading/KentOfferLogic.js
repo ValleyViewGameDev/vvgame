@@ -1,4 +1,5 @@
 import { isACrop } from '../../Utils/ResourceHelpers';
+import { selectWeightedRandomItem } from '../../Economy/DropRates';
 
 /**
  * Generates new Kent offers based on player skills and available resources
@@ -153,18 +154,81 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
             quantity = Math.floor(Math.random() * 10) + 1; // Random from 1 to 10
         }
         
-        // Calculate reward (Money = maxprice * quantity)
+        // Calculate primary reward (Money = maxprice * quantity)
         const rewardAmount = (randomResource.maxprice || 100) * quantity;
+        
+        const rewards = [
+            {
+                item: 'Money',
+                quantity: rewardAmount
+            }
+        ];
+
+        // Check for bonus valley resource reward (same method as warehouse ingredients)
+        const dropRate = globalTuning?.harvestDropRate || 0.1; // Use same drop rate as warehouse ingredients
+        const bonusRoll = Math.random();
+        
+        console.log(`🤠 Kent bonus reward check for ${randomResource.type}:`);
+        console.log(`   globalTuning.harvestDropRate: ${globalTuning?.harvestDropRate}`);
+        console.log(`   Resolved drop rate: ${dropRate} (${(dropRate * 100).toFixed(1)}%)`);
+        console.log(`   Roll: ${bonusRoll.toFixed(3)}`);
+        console.log(`   Success: ${bonusRoll <= dropRate ? 'YES' : 'NO'}`);
+        
+        if (bonusRoll <= dropRate) {
+            console.log(`🎉 Kent bonus reward roll succeeded!`);
+            
+            // Get all valley resources from masterResources
+            const valleyResources = masterResources.filter(res => res.source === 'valley' && res.scrollchance);
+            
+            console.log(`   Found ${valleyResources.length} valley resources with scrollchance:`);
+            valleyResources.forEach(res => {
+                console.log(`     - ${res.type} (${res.scrollchance})`);
+            });
+            
+            if (valleyResources.length > 0) {
+                // Use weighted random selection based on scrollchance rarity
+                const selectedValleyResource = selectWeightedRandomItem(valleyResources, 1);
+                
+                console.log(`   Selected valley resource: ${selectedValleyResource?.type || 'NONE'}`);
+                
+                if (selectedValleyResource) {
+                    // Valley resources drop 1-3 quantity based on rarity
+                    let bonusQuantity = 1;
+                    switch(selectedValleyResource.scrollchance) {
+                        case 'legendary':
+                        case 'epic':
+                            bonusQuantity = 1;
+                            break;
+                        case 'rare':
+                            bonusQuantity = Math.floor(Math.random() * 2) + 1; // 1-2
+                            break;
+                        case 'uncommon':
+                        case 'common':
+                        default:
+                            bonusQuantity = Math.floor(Math.random() * 3) + 1; // 1-3
+                            break;
+                    }
+                    
+                    rewards.push({
+                        item: selectedValleyResource.type,
+                        quantity: bonusQuantity
+                    });
+                    
+                    console.log(`🎁 ADDED valley bonus reward: ${selectedValleyResource.type} x${bonusQuantity} (${selectedValleyResource.scrollchance})`);
+                } else {
+                    console.log(`❌ selectWeightedRandomItem returned null`);
+                }
+            } else {
+                console.log(`❌ No valley resources found with scrollchance`);
+            }
+        } else {
+            console.log(`❌ Kent bonus reward roll failed: ${bonusRoll.toFixed(3)} > ${dropRate}`);
+        }
         
         const newOffer = {
             item: randomResource.type,
             quantity: quantity,
-            rewards: [
-                {
-                    item: 'Money',
-                    quantity: rewardAmount
-                }
-            ]
+            rewards: rewards
         };
         
         newOffers.push(newOffer);

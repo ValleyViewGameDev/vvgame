@@ -451,7 +451,7 @@ function CarnivalPanel({
           const costColor = playerQty >= offer.qtyBought ? 'green' : 'red';
           const costDisplay = `<span style="color: ${costColor};">${getSymbol(offer.itemBought)} ${offer.itemBought} ${offer.qtyBought} / ${playerQty}</span>`;
           const rewardDisplay = `${getSymbol(offer.itemGiven)} ${offer.qtyGiven.toLocaleString()}`;
-          const details = `<div>${costDisplay}</div><br>Earn: ${rewardDisplay}`;
+          const details = `<div>${costDisplay}</div><br>${strings[42]}: ${rewardDisplay}`;
 
           let buttonText = '';
           if (isCompleted) {

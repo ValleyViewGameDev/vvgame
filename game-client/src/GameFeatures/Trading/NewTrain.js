@@ -687,7 +687,7 @@ function NewTrainPanel({
             const costColor = affordable ? 'green' : 'red';
             costDisplay = `<span style="color: ${costColor};">${getSymbol(offer.item)} ${offer.item} ${offer.quantity} / ${totalQty}</span>`;
             const rewardDisplay = `${getSymbol('Money')} ${moneyReward.toLocaleString()}`;
-            details = `<div>${costDisplay}</div>Earn: ${rewardDisplay}`;
+            details = `<div>${costDisplay}</div>${strings[42]} ${rewardDisplay}`;
             buttonText = '';
           }
 

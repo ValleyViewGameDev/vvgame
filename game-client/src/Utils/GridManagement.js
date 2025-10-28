@@ -151,7 +151,7 @@ export const changePlayerLocation = async (
       //console.log("🧹 Closed all panels before location change.");
     }
 
-    // ✅ STEP 2: Update FROM grid's state (remove player)
+    // ✅ STEP 2: Update FROM grid's state (remove player using batch system)
     //console.log(`1️⃣ Removing player from grid ${fromLocation.g}`);
 
     //console.log('loading PCS gridstates from memory...');
@@ -163,28 +163,9 @@ export const changePlayerLocation = async (
     //console.log('Extracted fromPCs from what we just loaded; fromPCs = ', fromPCs);
     const fromPlayerState = inMemoryFromPlayerState || fromPCs[currentPlayer.playerId] || {};
     //console.log('fromPlayerState (prioritize what was in memory) = ', fromPlayerState);
-    //console.log('Removing player from the fromPCs.');
-    if (fromPCs[currentPlayer.playerId]) {
-      delete fromPCs[currentPlayer.playerId];
-    }
-
-    //console.log('📤 Calling /remove-single-pc route to remove player from grid...');
-    try {
-      const removeResponse = await axios.post(`${API_BASE}/api/remove-single-pc`, {
-        gridId: fromLocation.g,
-        playerId: currentPlayer.playerId,
-      });
-      
-      if (!removeResponse.data.success) {
-        console.error('❌ Remove-single-pc returned unsuccessful');
-      } else if (removeResponse.data.removed === false) {
-        console.warn('⚠️ Player was not found in the from grid - might already be removed');
-      }
-    } catch (removeError) {
-      console.error('❌ CRITICAL: Failed to remove player from previous grid:', removeError);
-      // Throw error to stop the location change
-      throw new Error('Failed to remove player from previous grid. Aborting travel to prevent ghost player.');
-    }
+    
+    // Use robust removal system with immediate DB persistence to prevent ghost PCs
+    await playersInGridManager.removePC(fromLocation.g, currentPlayer.playerId);
 
     // ✅ STEP 3: Emit AFTER saving to DB
     socket.emit('player-left-grid', {
@@ -233,18 +214,11 @@ export const changePlayerLocation = async (
       lastUpdated: now,
     };
 
-    // Construct the payload
-    const toPayload = {
-      gridId: toLocation.g,
-      playerId: currentPlayer.playerId,
-      pc: playerData,
-      lastUpdated: now,
-    };
-    //console.log('📤 Constructed Payload for adding player:', toPayload);
+    //console.log('📤 Constructed player data for adding:', playerData);
 
-    // ✅ STEP 6: Save only this PC to DB
-    //console.log('📤 Saving single PC to grid...');
-    await axios.post(`${API_BASE}/api/save-single-pc`, toPayload);
+    // ✅ STEP 6: Add player to new grid with immediate DB persistence
+    //console.log('📤 Adding player to new grid with immediate DB persistence...');
+    await playersInGridManager.addPC(toLocation.g, currentPlayer.playerId, playerData);
 
     socket.emit('player-joined-grid', {
       gridId: toLocation.g,

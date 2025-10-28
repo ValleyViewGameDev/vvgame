@@ -135,6 +135,19 @@
   text-align: center;
 }
 
+/* Override ResourceButton.css with more specific selectors */
+.kent-offer-button .resource-details .kent-offer-details {
+  font-size: 16px !important; /* Or whatever size you want */
+}
+
+.kent-offer-button .kent-offer-details .kent-offer-item {
+  font-size: 14px !important; /* Override the 17px with your desired size */
+}
+
+.kent-offer-button .kent-offer-details .kent-offer-reward {
+  font-size: 14px !important; /* Override the 14px with your desired size */
+}
+
 /* Item Name and Quantity - Second Row */
 .kent-offer-requirement {
   display: flex;
@@ -157,7 +170,7 @@
 
 /* Reward Section - Third Row */
 .kent-offer-reward {
-  font-size: 15px;
+  font-size: 14px;
   color: #2c3e50;
   font-weight: normal;
 }

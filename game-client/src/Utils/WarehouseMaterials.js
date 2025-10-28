@@ -211,6 +211,8 @@ export function calculateBulkWarehouseDrops(numPlotsHarvested, {
   // Get drop rate from globalTuning
   const dropRate = globalTuning?.harvestDropRate || 0.1; // Default to 10%
   
+  console.log(`<🎲 Bulk warehouse calculation: globalTuning.harvestDropRate = ${globalTuning?.harvestDropRate}, resolved dropRate = ${dropRate}`);
+  
   // Roll for drops once per farm plot harvested (ignoring skill multipliers)
   for (let i = 0; i < numPlotsHarvested; i++) {
     const roll = Math.random();

@@ -155,25 +155,61 @@ function KentPanel({
 
             if (!success) return;
 
-            // Gain the given item (usually Money)
-            const gainSuccess = await gainIngredients({
-              playerId: currentPlayer.playerId,
-              currentPlayer,
-              resource: offer.itemGiven,
-              quantity: offer.qtyGiven,
-              inventory,
-              backpack,
-              setInventory,
-              setBackpack,
-              setCurrentPlayer,
-              updateStatus,
-              masterResources,
-              globalTuning,
-            });
+            // Gain all rewards
+            let allRewardsSuccess = true;
+            const originalOffer = kentOffers.find(kentOffer => 
+              kentOffer.item === offer.itemBought && kentOffer.quantity === offer.qtyBought
+            );
+            
+            if (originalOffer && originalOffer.rewards) {
+              for (const reward of originalOffer.rewards) {
+                const gainSuccess = await gainIngredients({
+                  playerId: currentPlayer.playerId,
+                  currentPlayer,
+                  resource: reward.item,
+                  quantity: reward.quantity,
+                  inventory,
+                  backpack,
+                  setInventory,
+                  setBackpack,
+                  setCurrentPlayer,
+                  updateStatus,
+                  masterResources,
+                  globalTuning,
+                });
+                
+                if (!gainSuccess) {
+                  allRewardsSuccess = false;
+                  break;
+                }
+              }
+            } else {
+              // Fallback to old single reward system
+              const gainSuccess = await gainIngredients({
+                playerId: currentPlayer.playerId,
+                currentPlayer,
+                resource: offer.itemGiven,
+                quantity: offer.qtyGiven,
+                inventory,
+                backpack,
+                setInventory,
+                setBackpack,
+                setCurrentPlayer,
+                updateStatus,
+                masterResources,
+                globalTuning,
+              });
+              allRewardsSuccess = gainSuccess;
+            }
 
-            if (!gainSuccess) return;
+            if (!allRewardsSuccess) return;
 
-            await refreshOffersAndSetTimer(offer, `✅ Exchanged ${offer.qtyBought} ${offer.itemBought} for ${offer.qtyGiven} ${offer.itemGiven}.`);
+            // Create status message for multiple rewards
+            const rewardText = originalOffer && originalOffer.rewards 
+              ? originalOffer.rewards.map(reward => `${reward.quantity} ${reward.item}`).join(', ')
+              : `${offer.qtyGiven} ${offer.itemGiven}`;
+
+            await refreshOffersAndSetTimer(offer, `✅ Exchanged ${offer.qtyBought} ${offer.itemBought} for ${rewardText}.`);
             await trackQuestProgress(currentPlayer,'Sell',offer.itemBought,offer.qtyBought,setCurrentPlayer);
             // Check if we should increment FTUE step after selling
             if (currentPlayer.ftuestep === 3) {
@@ -329,7 +365,9 @@ function KentPanel({
                                   </span>
                                 </div>
                                 <div className="kent-offer-reward">
-                                  Will pay: {getSymbol(convertedOffer.itemGiven)} {convertedOffer.qtyGiven}
+                                  {strings[42]} {offer.rewards.map((reward, rewardIndex) => 
+                                    `${getSymbol(reward.item)} ${reward.quantity.toLocaleString()}${rewardIndex < offer.rewards.length - 1 ? ', ' : ''}`
+                                  ).join('')}
                                 </div>
                               </div>
                             </div>
