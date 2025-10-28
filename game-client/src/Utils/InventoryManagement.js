@@ -273,7 +273,7 @@ export async function gainIngredients({
     const { warehouse, backpack: maxBackpack } = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources || [], globalTuning);
     const capacity = isHomestead ? warehouse : maxBackpack;
     const totalItems = target
-      .filter(item => item && item.type !== 'Money' && item.type !== 'Gem' && typeof item.quantity === 'number')
+      .filter(item => item && !isCurrency(item.type) && typeof item.quantity === 'number')
       .reduce((acc, item) => acc + item.quantity, 0);
     if (totalItems + quantity > capacity) {
       if (updateStatus) updateStatus(isHomestead ? 20 : 21); // 20 = warehouse full, 21 = backpack full

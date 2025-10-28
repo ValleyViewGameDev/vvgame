@@ -39,7 +39,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
   const getWalletItems = (inventory) => {
     if (!inventory || !Array.isArray(inventory)) return [];
     
-    const walletTypes = ['Money', 'Gems', 'Green Heart', 'Yellow Heart', 'Purple Heart'];
+    const walletTypes = ['Money', 'Gem', 'Green Heart', 'Yellow Heart', 'Purple Heart'];
     return inventory
       .filter(item => walletTypes.includes(item.type))
       .filter(item => item.quantity > 0)
@@ -50,7 +50,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
   const getNonWalletInventory = (inventory) => {
     if (!inventory || !Array.isArray(inventory)) return [];
     
-    const walletTypes = ['Money', 'Gems', 'Green Heart', 'Yellow Heart', 'Purple Heart'];
+    const walletTypes = ['Money', 'Gem', 'Green Heart', 'Yellow Heart', 'Purple Heart'];
     return inventory
       .filter(item => !walletTypes.includes(item.type))
       .sort((a, b) => a.type.localeCompare(b.type));
@@ -76,6 +76,16 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
       const nameB = b.name || b.type || 'Unknown Power';
       return nameA.localeCompare(nameB);
     });
+  };
+
+  // Helper function to calculate warehouse usage (excluding currencies)
+  const getWarehouseUsage = (inventory) => {
+    if (!inventory || !Array.isArray(inventory)) return 0;
+    
+    const currencyTypes = ['Money', 'Gem', 'Green Heart', 'Yellow Heart', 'Purple Heart'];
+    return inventory
+      .filter(item => !currencyTypes.includes(item.type))
+      .reduce((total, item) => total + (item.quantity || 0), 0);
   };
 
   // Fetch players from the database
@@ -647,7 +657,11 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
               <p><strong>First time user?:</strong> {selectedPlayer.firsttimeuser === true ? 'true' : 'false'}</p>
               <p><strong>Active Quests:</strong> {selectedPlayer.activeQuests?.length || 0}</p>
               <p><strong>Completed Quests:</strong> {selectedPlayer.completedQuests?.length || 0}</p>
-              <p><strong>Warehouse Capacity:</strong> {selectedPlayer.warehouseCapacity?.toLocaleString() || 'N/A'}</p>
+              <p><strong>Warehouse Capacity:</strong> {
+                selectedPlayer.warehouseCapacity 
+                  ? `${selectedPlayer.warehouseCapacity.toLocaleString()} (${getWarehouseUsage(selectedPlayer.inventory).toLocaleString()} used)`
+                  : 'N/A'
+              }</p>
               <p><strong>Backpack Capacity:</strong> {selectedPlayer.backpackCapacity?.toLocaleString() || 'N/A'}</p>
               
               {/* Wallet Section */}

@@ -319,7 +319,8 @@ const CraftingStation = ({
             globalTuning,
           });
 
-          if (!gained) {
+          // Check if gainIngredients failed (returns object with success: false, or falsy value)
+          if (gained !== true && (!gained || gained.success === false)) {
             console.error('❌ Failed to add buffed crafted item to inventory.');
             return; // Exit early - don't clear crafting state if we couldn't collect
           }
@@ -512,7 +513,8 @@ const CraftingStation = ({
         globalTuning,
       });
 
-      if (gained) {
+      // Check if gainIngredients succeeded (returns true on success, object with success: false on failure)
+      if (gained === true || (gained && gained.success === true)) {
         // Track quest progress
         await trackQuestProgress(currentPlayer, 'Craft', modifiedRecipe.type, 1, setCurrentPlayer);
         

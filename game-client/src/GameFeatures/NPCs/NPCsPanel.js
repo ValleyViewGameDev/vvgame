@@ -332,7 +332,8 @@ const handleGetReward = async (quest) => {
         masterResources,
         globalTuning,
       });
-      if (!success) return;
+      // Check if gainIngredients failed (returns object with success: false, or falsy value)
+      if (success !== true && (!success || success.success === false)) return;
 
       // Award trophies for specific quest rewards
       try {
