@@ -14,11 +14,68 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
     type: null, // 'unstarted' or 'inactive'
     profiles: []
   });
+  const [collapsedSections, setCollapsedSections] = useState({
+    wallet: false,
+    inventory: false,
+    skills: false,
+    powers: false
+  });
 
   // Function to get settlement name by ID
   const getSettlementName = (settlementId) => {
     const settlement = settlements.find(s => s._id === settlementId);
     return settlement ? settlement.name : 'Unknown Settlement';
+  };
+
+  // Function to toggle collapsible sections
+  const toggleSection = (sectionName) => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [sectionName]: !prev[sectionName]
+    }));
+  };
+
+  // Helper function to extract wallet items from inventory
+  const getWalletItems = (inventory) => {
+    if (!inventory || !Array.isArray(inventory)) return [];
+    
+    const walletTypes = ['Money', 'Gems', 'Green Heart', 'Yellow Heart', 'Purple Heart'];
+    return inventory
+      .filter(item => walletTypes.includes(item.type))
+      .filter(item => item.quantity > 0)
+      .sort((a, b) => a.type.localeCompare(b.type));
+  };
+
+  // Helper function to get non-wallet inventory items
+  const getNonWalletInventory = (inventory) => {
+    if (!inventory || !Array.isArray(inventory)) return [];
+    
+    const walletTypes = ['Money', 'Gems', 'Green Heart', 'Yellow Heart', 'Purple Heart'];
+    return inventory
+      .filter(item => !walletTypes.includes(item.type))
+      .sort((a, b) => a.type.localeCompare(b.type));
+  };
+
+  // Helper function to sort skills alphabetically
+  const getSortedSkills = (skills) => {
+    if (!skills || !Array.isArray(skills)) return [];
+    
+    return [...skills].sort((a, b) => {
+      const nameA = a.name || a.type || 'Unknown Skill';
+      const nameB = b.name || b.type || 'Unknown Skill';
+      return nameA.localeCompare(nameB);
+    });
+  };
+
+  // Helper function to sort powers alphabetically
+  const getSortedPowers = (powers) => {
+    if (!powers || !Array.isArray(powers)) return [];
+    
+    return [...powers].sort((a, b) => {
+      const nameA = a.name || a.type || 'Unknown Power';
+      const nameB = b.name || b.type || 'Unknown Power';
+      return nameA.localeCompare(nameB);
+    });
   };
 
   // Fetch players from the database
@@ -506,9 +563,6 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
         
         <div className="players-stats">
           <p><strong>Total Players:</strong> {players.length}</p>
-          {(selectedFrontier || selectedSettlement) && (
-            <p><strong>Filtered Players:</strong> {sortedAndFilteredPlayers.length}</p>
-          )}
           {selectedFrontier && !selectedSettlement && (
             <p><strong>In Current Frontier:</strong> {sortedAndFilteredPlayers.length}</p>
           )}
@@ -527,23 +581,19 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
             onClick={handleDeleteUnstartedProfiles} 
             className="action-btn"
             style={{ backgroundColor: '#ff6b6b', color: 'white', marginTop: '10px' }}
+            title="Will delete first-time users where Last Active is 10 days or more, and FTUE Step is 3 or less"
           >
             🗑️ Delete Unstarted Profiles
           </button>
-          <p style={{ fontSize: '12px', margin: '5px 0', color: '#666' }}>
-            (Will delete first-time users where Last Active is 10 days or more, and FTUE Step is 3 or less)
-          </p>
           
           <button 
             onClick={handleDeleteInactiveProfiles} 
             className="action-btn"
             style={{ backgroundColor: '#dc3545', color: 'white', marginTop: '10px' }}
+            title="Will delete first-time users where Last Active is 21 days or more, and FTUE step is 6 or less"
           >
             🗑️ Delete Inactive Profiles
           </button>
-          <p style={{ fontSize: '12px', margin: '5px 0 20px', color: '#666' }}>
-            (Will delete first-time users where Last Active is 21 days or more, and FTUE step is 6 or less)
-          </p>
         </div>
 
         {/* Selected Player Info */}
@@ -590,7 +640,6 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
               >
                 🗑️ Delete Account
               </button>
-              <p className="coming-soon">Some functions coming soon...</p>
             </div>
 
             {/* Player Stats */}
@@ -598,58 +647,114 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
               <p><strong>First time user?:</strong> {selectedPlayer.firsttimeuser === true ? 'true' : 'false'}</p>
               <p><strong>Active Quests:</strong> {selectedPlayer.activeQuests?.length || 0}</p>
               <p><strong>Completed Quests:</strong> {selectedPlayer.completedQuests?.length || 0}</p>
+              <p><strong>Warehouse Capacity:</strong> {selectedPlayer.warehouseCapacity?.toLocaleString() || 'N/A'}</p>
+              <p><strong>Backpack Capacity:</strong> {selectedPlayer.backpackCapacity?.toLocaleString() || 'N/A'}</p>
               
-              {selectedPlayer.skills && selectedPlayer.skills.length > 0 && (
-                <div className="skills-section">
-                  <p><strong>Skills:</strong></p>
-                  <ul className="skills-list">
-                    {selectedPlayer.skills.map((skill, index) => {
-                      // Handle different skill data formats
-                      if (typeof skill === 'string') {
-                        return <li key={index}>{skill}</li>;
-                      } else if (skill && typeof skill === 'object') {
-                        const name = skill.name || skill.type || 'Unknown Skill';
-                        const level = skill.level || skill.quantity || '';
-                        return <li key={index}>{name}{level ? `: ${level}` : ''}</li>;
-                      }
-                      return <li key={index}>Invalid skill data</li>;
-                    })}
-                  </ul>
-                </div>
-              )}
+              {/* Wallet Section */}
+              {(() => {
+                const walletItems = getWalletItems(selectedPlayer.inventory);
+                return walletItems.length > 0 && (
+                  <div className="wallet-section">
+                    <p 
+                      style={{ cursor: 'pointer', fontWeight: 'bold' }}
+                      onClick={() => toggleSection('wallet')}
+                    >
+                      💰 Wallet: {collapsedSections.wallet ? '▶' : '▼'}
+                    </p>
+                    {!collapsedSections.wallet && (
+                      <ul className="skills-list" style={{ marginLeft: '20px' }}>
+                        {walletItems.map((item, index) => (
+                          <li key={index}>{item.type}: {item.quantity.toLocaleString()}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })()}
               
-              {selectedPlayer.powers && selectedPlayer.powers.length > 0 && (
-                <div className="powers-section">
-                  <p><strong>Powers:</strong></p>
-                  <ul className="powers-list">
-                    {selectedPlayer.powers.map((power, index) => {
-                      // Handle different power data formats
-                      if (typeof power === 'string') {
-                        return <li key={index}>{power}</li>;
-                      } else if (power && typeof power === 'object') {
-                        const name = power.name || power.type || 'Unknown Power';
-                        return <li key={index}>{name}</li>;
-                      }
-                      return <li key={index}>Invalid power data</li>;
-                    })}
-                  </ul>
-                </div>
-              )}
+              {/* Inventory Section */}
+              {(() => {
+                const inventoryItems = getNonWalletInventory(selectedPlayer.inventory);
+                return inventoryItems.length > 0 && (
+                  <div className="inventory-section">
+                    <p 
+                      style={{ cursor: 'pointer', fontWeight: 'bold' }}
+                      onClick={() => toggleSection('inventory')}
+                    >
+                      📦 Inventory: {collapsedSections.inventory ? '▶' : '▼'}
+                    </p>
+                    {!collapsedSections.inventory && (
+                      <ul className="skills-list" style={{ marginLeft: '20px' }}>
+                        {inventoryItems.map((item, index) => {
+                          if (item && typeof item === 'object' && item.type && item.quantity !== undefined) {
+                            return <li key={index}>{item.type}: {item.quantity.toLocaleString()}</li>;
+                          }
+                          return <li key={index}>Invalid inventory item</li>;
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })()}
               
-              {selectedPlayer.inventory && selectedPlayer.inventory.length > 0 && (
-                <div className="inventory-section">
-                  <p><strong>Inventory:</strong></p>
-                  <ul className="skills-list">
-                    {selectedPlayer.inventory.map((item, index) => {
-                      // Handle different inventory item formats
-                      if (item && typeof item === 'object' && item.type && item.quantity !== undefined) {
-                        return <li key={index}>{item.type}: {item.quantity}</li>;
-                      }
-                      return <li key={index}>Invalid inventory item</li>;
-                    })}
-                  </ul>
-                </div>
-              )}
+              {/* Skills Section */}
+              {(() => {
+                const sortedSkills = getSortedSkills(selectedPlayer.skills);
+                return sortedSkills.length > 0 && (
+                  <div className="skills-section">
+                    <p 
+                      style={{ cursor: 'pointer', fontWeight: 'bold' }}
+                      onClick={() => toggleSection('skills')}
+                    >
+                      🔧 Skills: {collapsedSections.skills ? '▶' : '▼'}
+                    </p>
+                    {!collapsedSections.skills && (
+                      <ul className="skills-list" style={{ marginLeft: '20px' }}>
+                        {sortedSkills.map((skill, index) => {
+                          // Handle different skill data formats
+                          if (typeof skill === 'string') {
+                            return <li key={index}>{skill}</li>;
+                          } else if (skill && typeof skill === 'object') {
+                            const name = skill.name || skill.type || 'Unknown Skill';
+                            const level = skill.level || skill.quantity || '';
+                            return <li key={index}>{name}{level ? `: ${level}` : ''}</li>;
+                          }
+                          return <li key={index}>Invalid skill data</li>;
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })()}
+              
+              {/* Powers Section */}
+              {(() => {
+                const sortedPowers = getSortedPowers(selectedPlayer.powers);
+                return sortedPowers.length > 0 && (
+                  <div className="powers-section">
+                    <p 
+                      style={{ cursor: 'pointer', fontWeight: 'bold' }}
+                      onClick={() => toggleSection('powers')}
+                    >
+                      ⚡ Powers: {collapsedSections.powers ? '▶' : '▼'}
+                    </p>
+                    {!collapsedSections.powers && (
+                      <ul className="powers-list" style={{ marginLeft: '20px' }}>
+                        {sortedPowers.map((power, index) => {
+                          // Handle different power data formats
+                          if (typeof power === 'string') {
+                            return <li key={index}>{power}</li>;
+                          } else if (power && typeof power === 'object') {
+                            const name = power.name || power.type || 'Unknown Power';
+                            return <li key={index}>{name}</li>;
+                          }
+                          return <li key={index}>Invalid power data</li>;
+                        })}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         )}
