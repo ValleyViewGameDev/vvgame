@@ -450,8 +450,8 @@ function CarnivalPanel({
           const playerQty = latestInventory?.find(inv => inv.type === offer.itemBought)?.quantity || 0;
           const costColor = playerQty >= offer.qtyBought ? 'green' : 'red';
           const costDisplay = `<span style="color: ${costColor};">${getSymbol(offer.itemBought)} ${offer.itemBought} ${offer.qtyBought} / ${playerQty}</span>`;
-          const rewardDisplay = `+${getSymbol(offer.itemGiven)} ${offer.itemGiven} ${offer.qtyGiven.toLocaleString()}`;
-          const details = `Offer:<div>${costDisplay}</div><br>Reward:<div>${rewardDisplay}</div>`;
+          const rewardDisplay = `${getSymbol(offer.itemGiven)} ${offer.qtyGiven.toLocaleString()}`;
+          const details = `<div>${costDisplay}</div><br>Earn: ${rewardDisplay}`;
 
           let buttonText = '';
           if (isCompleted) {
@@ -484,8 +484,8 @@ function CarnivalPanel({
               disabled={isCompleted || (!isYours && offer.claimedBy) || (isYours && !affordable)}
               details={details}
             >
-              {!isCompleted && !offer.claimedBy ? buttonText : 
-               !isCompleted && offer.claimedBy ? strings[2007] : ''}
+              <strong>{!isCompleted && !offer.claimedBy ? buttonText : 
+               !isCompleted && offer.claimedBy ? strings[2007] : ''}</strong>
             </ResourceButton>
           );
         })}

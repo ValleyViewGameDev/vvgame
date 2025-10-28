@@ -1,16 +1,16 @@
 /* Only override unclaimed offers - everything else uses ResourceButton defaults */
 .resource-button.unclaimed {
-    background: linear-gradient(to bottom, #ffd700, #b8860b);
+    background: linear-gradient(to bottom, #f8cfed, #ffa8e5);
     border: 1px solid #daa520;
 }
 
 .resource-button.unclaimed:hover {
-    background: linear-gradient(to bottom, #b8860b, #ffd700);
+    background: linear-gradient(to bottom, #ffffff, #ffa8e5);
     transform: scale(1.02);
 }
 
 .resource-button.unclaimed:active {
-    background: linear-gradient(to bottom, #b8860b, #b8860b);
+    background: linear-gradient(to bottom, #f8cfed, #ffa8e5);
     transform: scale(0.98);
 }
 
