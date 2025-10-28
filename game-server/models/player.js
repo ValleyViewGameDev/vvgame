@@ -199,6 +199,7 @@ const playerSchema = new mongoose.Schema({
 
   train: {
     currentTrainNumber: { type: Number, default: 0 }, // Current train number player is on
+    lastRewardDeliveryTrainNumber: { type: Number, default: 0 }, // Last train number for which rewards were delivered
     currentTrainOffers: [
       {
         item: { type: String, required: true },
