@@ -1838,7 +1838,7 @@ return (
           if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
           openPanel('BuildPanel');
         }}
-      >⚒️</button>
+      >🛖</button>
       <button className={`nav-button ${activePanel === 'SkillsPanel' ? 'selected' : ''}`} title={strings[12005]} disabled={!currentPlayer} onClick={() => {
           setActiveStation(null); // ✅ Reset activeStation
           openPanel("SkillsPanel"); // ✅ Open the panel normally
