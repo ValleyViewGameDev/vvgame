@@ -21,9 +21,7 @@
         "seasonMultiplier": 1,
         "SeasonMoneyNerf": 0.25,
         "pricePoints": 25,
-        "trainOffersQtyMultiplier": 1,
-        "trainRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
-        "carnivalRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
+        "carnivalRewards": [ "Gem", "Scroll", "Gold", "Blueberry", "Purple Heart" ],
         "seasonTiles": {
             "g": 80,
             "s": 0,
@@ -81,9 +79,7 @@
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
-        "trainOffersQtyMultiplier": 1,
-        "trainRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
-        "carnivalRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
+        "carnivalRewards": [ "Gem", "Scroll", "Gold", "Blueberry", "Purple Heart" ],
         "seasonTiles": {
             "g": 20,
             "s": 0,
@@ -139,9 +135,7 @@
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
-        "trainOffersQtyMultiplier": 1,
-        "trainRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
-        "carnivalRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
+        "carnivalRewards": [ "Gem", "Scroll", "Gold", "Blueberry", "Purple Heart" ],
         "seasonTiles": {
             "g": 100,
             "s": 0,
@@ -197,9 +191,7 @@
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
-        "trainOffersQtyMultiplier": 1,
-        "trainRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
-        "carnivalRewards": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
+        "carnivalRewards": [ "Gem", "Scroll", "Gold", "Blueberry", "Purple Heart" ],
         "seasonTiles": {
             "g": 0,
             "s": 0,
