@@ -15,6 +15,7 @@ const { performGridCreation } = require('../utils/createGridLogic');
 const { performGridReset } = require('../utils/resetGridLogic');
 const { generateGrid, generateResources } = require('../utils/worldUtils');
 const masterResources = require('../tuning/resources.json'); // Import resources.json directly
+const globalTuning = require('../tuning/globalTuning.json'); // Import globalTuning.json
 const { getTemplate, getHomesteadLayoutFile } = require('../utils/templateUtils');
 const queue = require('../queue'); // Import the in-memory queue
 const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
@@ -1643,8 +1644,8 @@ router.post('/bulk-harvest', async (req, res) => {
     const baseWarehouse = player.warehouseCapacity || 0;
     const baseBackpack = player.backpackCapacity || 0;
     const isGold = player.accountStatus === "Gold";
-    const warehouseBonus = isGold ? 1000000 : 0;
-    const backpackBonus = isGold ? 1000000 : 0;
+    const warehouseBonus = isGold ? (globalTuning?.warehouseCapacityGold || 100000) : 0;
+    const backpackBonus = isGold ? (globalTuning?.backpackCapacityGold || 5000) : 0;
 
     let warehouseCapacity = baseWarehouse + warehouseBonus;
     let backpackCapacity = baseBackpack + backpackBonus;
@@ -1662,12 +1663,21 @@ router.post('/bulk-harvest', async (req, res) => {
       }
     });
 
-    // Calculate current usage (exclude Money and Gem)
+    // Helper function to check if an item is a currency (doesn't count against inventory)
+    const isCurrency = (resourceType) => {
+      return resourceType === 'Money' || 
+             resourceType === 'Gem' || 
+             resourceType === 'Yellow Heart' ||
+             resourceType === 'Green Heart' ||
+             resourceType === 'Purple Heart';
+    };
+
+    // Calculate current usage (exclude currencies)
     const currentWarehouseUsage = (player.inventory || [])
-      .filter(item => item.type !== 'Money' && item.type !== 'Gem')
+      .filter(item => !isCurrency(item.type))
       .reduce((sum, item) => sum + (item.quantity || 0), 0);
     const currentBackpackUsage = (player.backpack || [])
-      .filter(item => item.type !== 'Money' && item.type !== 'Gem')
+      .filter(item => !isCurrency(item.type))
       .reduce((sum, item) => sum + (item.quantity || 0), 0);
     const totalCapacity = warehouseCapacity + backpackCapacity;
     const currentTotalUsage = currentWarehouseUsage + currentBackpackUsage;

@@ -1,4 +1,4 @@
-import { deriveWarehouseAndBackpackCapacity, calculateSkillMultiplier } from '../../Utils/InventoryManagement';
+import { deriveWarehouseAndBackpackCapacity, calculateSkillMultiplier, isCurrency } from '../../Utils/InventoryManagement';
 
 /**
  * Calculate total capacity needed for bulk harvest operation
@@ -7,6 +7,7 @@ import { deriveWarehouseAndBackpackCapacity, calculateSkillMultiplier } from '..
  * @param {Array} masterResources - Master resource definitions
  * @param {Object} masterSkills - Master skill definitions
  * @param {Object} currentPlayer - Current player data
+ * @param {Object} globalTuning - Global tuning configuration
  * @returns {Object} Capacity check results
  */
 export async function calculateBulkHarvestCapacity(
@@ -14,21 +15,22 @@ export async function calculateBulkHarvestCapacity(
   resources, 
   masterResources, 
   masterSkills, 
-  currentPlayer
+  currentPlayer,
+  globalTuning
 ) {
   let totalCapacityNeeded = 0;
   const harvestDetails = [];
   
-  // Get player's current inventory usage (exclude Money and Gem from capacity calculations)
+  // Get player's current inventory usage (exclude currencies from capacity calculations)
   const currentWarehouseUsage = (currentPlayer.inventory || [])
-    .filter(item => item.type !== 'Money' && item.type !== 'Gem')
+    .filter(item => !isCurrency(item.type))
     .reduce((sum, item) => sum + (item.quantity || 0), 0);
   const currentBackpackUsage = (currentPlayer.backpack || [])
-    .filter(item => item.type !== 'Money' && item.type !== 'Gem')
+    .filter(item => !isCurrency(item.type))
     .reduce((sum, item) => sum + (item.quantity || 0), 0);
   
   // Get total capacities with skills using the existing function
-  const capacities = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources);
+  const capacities = deriveWarehouseAndBackpackCapacity(currentPlayer, masterResources, globalTuning);
   const warehouseCapacity = capacities.warehouse || 0;
   const backpackCapacity = capacities.backpack || 0;
   

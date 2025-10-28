@@ -389,7 +389,8 @@ export async function executeBulkHarvest({
     freshResources,  // Use the fresh resources we just validated
     masterResources,
     masterSkills,
-    currentPlayer
+    currentPlayer,
+    globalTuning
   );
   
 
