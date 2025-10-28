@@ -24,7 +24,7 @@ import '../../UI/ResourceButton.css';
 import './PetPanel.css';
 
 // Helper function to get a random reward from pets source with rarity weighting
-const getRandomPetReward = (masterResources, petLevel = 1, playerId) => {
+const getRandomPetReward = (masterResources, petRewardRarity = 1, playerId) => {
   // Get all resources with source === 'pets'
   const petRewards = masterResources.filter(res => res.source === 'pets');
   
@@ -36,9 +36,9 @@ const getRandomPetReward = (masterResources, petLevel = 1, playerId) => {
   // Apply personalized rarity to warehouse ingredients
   const personalizedRewards = getPersonalizedPetRewards(petRewards, playerId);
   
-  // Use the shared drop rate utility with pet level multiplier
-  // Higher level pets have better drop rates (level 2 = 2x rates, level 5 = 5x rates)
-  const selectedReward = selectWeightedRandomItem(personalizedRewards, petLevel);
+  // Use the shared drop rate utility with pet reward rarity multiplier
+  // Higher rarity pets have better drop rates (rarity 2 = 2x rates, rarity 5 = 5x rates)
+  const selectedReward = selectWeightedRandomItem(personalizedRewards, petRewardRarity);
   
   if (!selectedReward) {
     return null;
@@ -190,9 +190,9 @@ const PetPanel = ({
         return;
       }
 
-      // Generate random reward using pet's level for better drop rates
-      const petLevel = petResource?.level || 1; // Default to level 1 if not specified
-      const reward = getRandomPetReward(masterResources, petLevel, currentPlayer.playerId);
+      // Generate random reward using pet's qtycollected for better drop rates
+      const petRewardRarity = petResource?.qtycollected || 1; // Default to rarity 1 if not specified
+      const reward = getRandomPetReward(masterResources, petRewardRarity, currentPlayer.playerId);
       
       if (!reward) {
         console.error('Failed to generate pet reward');

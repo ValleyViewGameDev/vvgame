@@ -57,6 +57,14 @@ const BuyPanel = ({
               return false;
             }
             
+            // FTUE level filtering for first-time users
+            if (currentPlayer?.firsttimeuser === true && resource.level) {
+              const playerFTUEStep = currentPlayer?.ftuestep || 0;
+              if (resource.level > playerFTUEStep) {
+                return false;
+              }
+            }
+            
             return true;
           }
         );
