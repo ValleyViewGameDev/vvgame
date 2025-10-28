@@ -126,6 +126,13 @@ function KentPanel({
     const handleTrade = async (offer) => {
         if (!offer || !currentPlayer || isTrading) return;
         
+        // ✅ EXPLOIT FIX: Check Kent timer before allowing any trade
+        if (isKentOnCooldown()) {
+            console.log('🚫 Kent trade blocked: Timer still active');
+            updateStatus('❌ Kent is not available yet. Please wait for the timer to expire.');
+            return;
+        }
+        
         // Set trading flag to prevent spam clicks
         setIsTrading(true);
         
@@ -187,6 +194,13 @@ function KentPanel({
     const handleDismiss = async (offer) => {
         if (!offer || !currentPlayer || isTrading) return;
         
+        // ✅ EXPLOIT FIX: Check Kent timer before allowing any dismiss
+        if (isKentOnCooldown()) {
+            console.log('🚫 Kent dismiss blocked: Timer still active');
+            updateStatus('❌ Kent is not available yet. Please wait for the timer to expire.');
+            return;
+        }
+        
         // Set trading flag to prevent spam clicks
         setIsTrading(true);
         
@@ -240,6 +254,14 @@ function KentPanel({
     };
 
 
+    // ✅ Helper function to check if Kent is currently on cooldown
+    const isKentOnCooldown = () => {
+        const now = Date.now();
+        const kentData = currentPlayer?.kentOffers;
+        const endTime = kentData?.endTime || 0;
+        return endTime > now;
+    };
+
     // ✅ Lookup function for symbols from `masterResources`
     const getSymbol = (resourceType) => {
         const resource = masterResources.find(res => res.type === resourceType);
@@ -281,8 +303,8 @@ function KentPanel({
                         qtyGiven: offer.rewards[0]?.quantity || 0
                     };
                     
-                    // Check if Kent panel is locked
-                    const isLocked = kentPhase === 'locked';
+                    // Check if Kent panel is locked (use both phase state and real-time check)
+                    const isLocked = kentPhase === 'locked' || isKentOnCooldown();
                     
                     return (
                       <div key={index} className="kent-offer-wrapper">
