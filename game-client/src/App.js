@@ -70,6 +70,7 @@ import GovPanel from './GameFeatures/Government/GovPanel';
 import BankPanel from './GameFeatures/Trading/Bank';
 import KentPanel from './GameFeatures/Trading/Kent';
 import TrainPanel from './GameFeatures/Trading/Train';
+import NewTrainPanel from './GameFeatures/Trading/NewTrain';
 import CarnivalPanel from './GameFeatures/Carnival/Carnival';
 import CourthousePanel from './GameFeatures/Government/Courthouse';
 import CraftingStation from './GameFeatures/Crafting/CraftingStation';
@@ -1493,7 +1494,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         case 'Warehouse':
           openPanel('WarehousePanel'); break;
         case 'Train':
-          openPanel('TrainPanel'); break;
+//          openPanel('TrainPanel'); break;
+          openPanel('NewTrainPanel'); break;
         case 'Carnival':
           openPanel('CarnivalPanel'); break;
         case 'Bank':
@@ -2226,7 +2228,7 @@ return (
       )}
       {activePanel === 'WarehousePanel' && (
         <WarehousePanel
-          onClose={closePanel} 
+          onClose={() => openPanel('InventoryPanel')} 
           masterResources={masterResources}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
@@ -2294,6 +2296,23 @@ return (
           masterResources={masterResources}
           setModalContent={setModalContent}
           setIsModalOpen={setIsModalOpen}
+        />
+      )}
+      {activePanel === 'NewTrainPanel' && (
+        <NewTrainPanel
+          onClose={closePanel} 
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          updateStatus={updateStatus}
+          masterResources={masterResources}
+          setModalContent={setModalContent}
+          setIsModalOpen={setIsModalOpen}
+          globalTuning={globalTuning}
+          currentSeason={timers.seasons?.type || "Unknown"}
         />
       )}
       {activePanel === 'CarnivalPanel' && (

@@ -822,7 +822,11 @@ function handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverToolt
       break;
     }
     case 'quest':
-      tooltipContent = `<p>${localizedNPCType}</p><p>"Need some advice?"</p>`;
+      if (npc.type === 'Kent') {
+        tooltipContent = `<p>${localizedNPCType}</p><p>"${strings[47]}"</p>`;
+      } else {
+        tooltipContent = `<p>${localizedNPCType}</p><p>"${strings[48]}"</p>`;
+      }
       break;
     case 'attack':
     case 'spawn':
