@@ -169,7 +169,7 @@ const CropPanel = ({
           <>
             <hr />
               <div className="shared-buttons">
-                <button className="btn-success" onClick={handleSellStation} disabled={isActionCoolingDown}>
+                <button className="btn-basic btn-success" onClick={handleSellStation} disabled={isActionCoolingDown}>
                   {strings[438]}
                 </button>
               </div>

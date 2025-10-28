@@ -801,16 +801,7 @@ function NewTrainPanel({
           {(trainPhase === "loading" || trainPhase === "departing") && renderNextTrain()}
         </>
       )}
-        <div className="shared-buttons">
-          <button 
-            className="btn-basic btn-danger" 
-            onClick={handleGenerateOffers}
-            disabled={isTrading}
-            style={{ margin: '10px 0' }}
-          >
-            🚂 Generate Offers (Debug)
-          </button>
-        </div>
+
     </Panel>
   );
 }
