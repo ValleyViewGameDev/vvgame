@@ -11,6 +11,7 @@ import { closePanel } from '../UI/PanelContext';
 import { fetchHomesteadOwner } from './worldHelpers';
 import { earnTrophy } from '../GameFeatures/Trophies/TrophyUtils';
 import { showNotification } from '../UI/Notifications/Notifications';
+import locationChangeManager from './LocationChangeManager';
 
 export const updateGridResource = async (
   gridId,
@@ -121,6 +122,23 @@ export const changePlayerLocation = async (
     // console.log('🚫 Travel blocked: Bulk operation in progress', activeOps);
     if (updateStatus) {
       updateStatus(470); // "Bulk operation in progress"
+    }
+    return false;
+  }
+
+  // ✅ NEW: Check if location change is already in progress
+  const changeRequest = {
+    from: fromLocation,
+    to: toLocation,
+    playerId: currentPlayer.playerId,
+    timestamp: Date.now()
+  };
+
+  const canProceed = await locationChangeManager.requestLocationChange(changeRequest);
+  if (!canProceed) {
+    console.log('🚫 Location change blocked - another change in progress');
+    if (updateStatus) {
+      updateStatus('Location change in progress, please wait...');
     }
     return false;
   }
@@ -407,8 +425,22 @@ export const changePlayerLocation = async (
     }
 
     console.log('✅ Location change complete');
+    
+    // ✅ NEW: Mark location change as completed
+    locationChangeManager.completeLocationChange({
+      from: fromLocation,
+      to: toLocation,
+      playerId: currentPlayer.playerId,
+      success: true
+    });
+    
+    return true;
   } catch (error) {
     console.error('❌ Location change error:', error);
+    
+    // ✅ NEW: Mark location change as failed
+    locationChangeManager.failLocationChange(error);
+    
     throw error;
   } 
 };

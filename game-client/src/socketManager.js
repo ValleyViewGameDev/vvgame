@@ -100,24 +100,25 @@ const handlePlayerJoinedGrid = ({ playerId, username, playerData, emitterId }) =
       console.log('  pcData.maxhp:', pcData.maxhp);
     });
     
-    // Only update if this is for our current grid
-    if (receivedGridId !== gridId) {
-      console.log(`🔄 Ignoring PC list for different grid ${receivedGridId} (current: ${gridId})`);
-      return;
-    }
+    // Always process PC updates during transitions
+    // The state management will handle which grid is current
+    console.log(`📦 Processing PC list for grid ${receivedGridId} (current grid: ${gridId})`);
+    
+    // If this update is for a different grid, it might be a transition in progress
+    const targetGridId = receivedGridId;
     
     // Replace the entire pcs object with server's authoritative list
     setPlayersInGrid(prev => ({
       ...prev,
-      [gridId]: {
-        ...prev[gridId],
+      [targetGridId]: {
+        ...prev[targetGridId],
         pcs: pcs || {}, // Complete replacement, not a merge
       },
     }));
     
     // Also update the memory manager with the complete list
     if (playersInGridManager.setAllPCs) {
-      playersInGridManager.setAllPCs(gridId, pcs || {});
+      playersInGridManager.setAllPCs(targetGridId, pcs || {});
     }
     
     // Check if the current controller is in the player list
