@@ -2801,7 +2801,7 @@ return (
         />
       )}
 
-      {hoverTooltip && (!hoverTooltip.gridId || hoverTooltip.gridId === gridId) && (
+      {hoverTooltip && (
         <div
           className="HoverTooltip"
           style={{

@@ -73,6 +73,22 @@ export const RenderGrid = memo(
       }, []);
 
     const hoverTimersRef = useRef({}); // ✅ Must be before any early return
+    
+    // Clean up all tooltip timers when component unmounts or resources change
+    useEffect(() => {
+      // Clean up any existing timers when resources change
+      Object.keys(hoverTimersRef.current).forEach(key => {
+        clearInterval(hoverTimersRef.current[key]);
+      });
+      hoverTimersRef.current = {};
+      
+      return () => {
+        Object.keys(hoverTimersRef.current).forEach(key => {
+          clearInterval(hoverTimersRef.current[key]);
+        });
+        hoverTimersRef.current = {};
+      };
+    }, [resources]); // Re-run when resources change
 
     // Validation
     if (!grid || !Array.isArray(grid) || !tileTypes) { console.error('Invalid grid or tileTypes:', grid, tileTypes); return null; }
