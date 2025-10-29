@@ -138,16 +138,25 @@ export const handlePlayerDeath = async (
     if (player.accountStatus === "Gold") {
       restoredHp = Math.floor(player.baseMaxhp / 2); // use baseMaxhp or maxHp as appropriate
     }
-    console.log(`Restored HP for ${player.username}: ${restoredHp}`);
+    
+    // Calculate proper maxHP from base stats and equipment (don't let it get corrupted)
+    const properMaxHp = (player.baseMaxhp || 25) + (player.maxhpModifier || 0);
+    
+    console.log(`🚨 [HP DEBUG] Death recovery for ${player.username}:`);
+    console.log('  player.baseMaxhp:', player.baseMaxhp);
+    console.log('  player.maxhp (before):', player.maxhp);
+    console.log('  properMaxHp (calculated):', properMaxHp);
+    console.log('  restoredHp:', restoredHp);
     
     // Keep only Tent and Boat items in backpack, discard everything else
     const filteredBackpack = player.backpack.filter((item) => item.type === "Tent" || item.type === "Boat");
     const originalLocation = { ...player.location }; // ✅ preserve the correct fromLocation
     
-    // Create updated player object with restored HP
+    // Create updated player object with restored HP and proper maxHP
     const updatedPlayer = {
       ...player,
       hp: restoredHp,
+      maxhp: properMaxHp,  // Ensure maxHP is not corrupted
       backpack: filteredBackpack,
       location: updatedLocation
     };
@@ -158,6 +167,7 @@ export const handlePlayerDeath = async (
       updates: {
         backpack: filteredBackpack,  // Backpack now only contains Tent and Boat
         hp: restoredHp,  // Use restored HP value
+        maxhp: properMaxHp,  // Ensure maxHP is preserved in database
         location: updatedLocation,  // Update location
         settings: player.settings,
       },
