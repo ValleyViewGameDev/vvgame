@@ -277,7 +277,7 @@ const DynamicRenderer = ({
           if (suppressTooltipRef.current) return;
           hoveredEntityIdRef.current = npc.id;
           hoveredNPCDivRef.current = npcDiv;
-          handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverTooltip, strings);
+          handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverTooltip, strings, currentPlayer);
         };
 
         npcDiv.onmouseleave = () => {
@@ -525,7 +525,7 @@ const DynamicRenderer = ({
 
         pcDiv.onmouseenter = (event) => {
           if (suppressTooltipRef.current) return;
-          handlePCHover(event, pc, TILE_SIZE, setHoverTooltip);
+          handlePCHover(event, pc, TILE_SIZE, setHoverTooltip, currentPlayer);
         };
 
         pcDiv.onmouseleave = () => {
@@ -709,6 +709,7 @@ function startRenderingLoop() {
     return unsubscribe;
   }, []);
 
+
   useEffect(() => {
     startRenderingLoop();
     return () => {
@@ -776,7 +777,7 @@ function handlePCClick(pc, currentPlayer, gridId, TILE_SIZE) {
 // CUSTOM TOOLTIP CODE FOR NPCS AND PCS
 
 // React-friendly tooltip handler for NPC hover
-function handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverTooltip, strings) {
+function handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverTooltip, strings, currentPlayer) {
   const rect = event.target.getBoundingClientRect();
   const x = rect.left + TILE_SIZE / 2;
   const y = rect.top;
@@ -842,7 +843,8 @@ function handleNPCHover(event, npc, TILE_SIZE, hoveredEntityIdRef, setHoverToolt
   }
 
   hoveredEntityIdRef.current = npc.id;
-  setHoverTooltip({ x, y, content: tooltipContent });
+  const gridId = currentPlayer?.location?.g;
+  setHoverTooltip({ x, y, content: tooltipContent, gridId });
 }
 
 function handleNPCHoverLeave(npc, hoveredEntityIdRef, setHoverTooltip) {
@@ -852,7 +854,7 @@ function handleNPCHoverLeave(npc, hoveredEntityIdRef, setHoverTooltip) {
   }
 }
 
-function handlePCHover(event, pc, TILE_SIZE, setHoverTooltip) {
+function handlePCHover(event, pc, TILE_SIZE, setHoverTooltip, currentPlayer) {
   const rect = event.target.getBoundingClientRect();
   const x = rect.left + TILE_SIZE / 2;
   const y = rect.top;
@@ -862,7 +864,8 @@ function handlePCHover(event, pc, TILE_SIZE, setHoverTooltip) {
   if (pc.iscamping) content += `<p>🏕️ Camping</p>`;
   if (pc.isinboat) content += `<p>🛶 In a boat</p>`;
   
-  setHoverTooltip({ x, y, content });
+  const gridId = currentPlayer?.location?.g;
+  setHoverTooltip({ x, y, content, gridId });
 }
 
 function handlePCHoverLeave(setHoverTooltip) {

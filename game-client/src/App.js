@@ -469,6 +469,7 @@ const [badgeState, setBadgeState] = useState({ chat: false, store: false, mailbo
 //Forgot why we did this:
 const memoizedGrid = useMemo(() => grid, [grid]);
 const memoizedTileTypes = useMemo(() => tileTypes, [tileTypes]);
+
 const memoizedResources = useMemo(() => resources, [resources]);
 
 const [showKeyArt, setShowKeyArt] = useState(false);
@@ -2800,7 +2801,7 @@ return (
         />
       )}
 
-      {hoverTooltip && (
+      {hoverTooltip && (!hoverTooltip.gridId || hoverTooltip.gridId === gridId) && (
         <div
           className="HoverTooltip"
           style={{
