@@ -4,6 +4,30 @@ import { calculateGemPurchase } from '../Economy/GemCosts';
 import { useStrings } from './StringsContext';
 import { usePanelContext } from './PanelContext';
 import './ResourceButton.css';
+
+// Utility function to format numbers with locale-specific comma separators
+const formatNumber = (number) => {
+  if (typeof number === 'number') {
+    return number.toLocaleString();
+  }
+  if (typeof number === 'string' && !isNaN(Number(number))) {
+    return Number(number).toLocaleString();
+  }
+  return number; // Return as-is if it's not a number
+};
+
+// Function to format numbers in HTML details strings
+const formatDetailsForDisplay = (details) => {
+  if (!details || typeof details !== 'string') {
+    return details;
+  }
+  
+  // Replace standalone numbers (not part of words) with formatted versions
+  // This regex finds numbers that are either at word boundaries or surrounded by non-alphanumeric characters
+  return details.replace(/\b(\d{4,})\b/g, (match, number) => {
+    return formatNumber(parseInt(number, 10));
+  });
+};
  
 const ResourceButton = ({ 
   symbol, 
@@ -148,7 +172,7 @@ const ResourceButton = ({
             {isProcessing ? '⏳' : symbol} {isProcessing ? 'Processing...' : name}
           </span>
           <span className="resource-details" dangerouslySetInnerHTML={{ 
-            __html: isProcessing ? 'Processing...' : details 
+            __html: isProcessing ? 'Processing...' : (details ? formatDetailsForDisplay(details) : details)
           }} />
 
 
