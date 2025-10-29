@@ -127,10 +127,13 @@ export const changePlayerLocation = async (
   }
 
   // ✅ NEW: Check if location change is already in progress
+  // Use consistent player ID format
+  const playerId = currentPlayer._id?.toString() || currentPlayer.playerId;
+  
   const changeRequest = {
     from: fromLocation,
     to: toLocation,
-    playerId: currentPlayer.playerId,
+    playerId: playerId,
     timestamp: Date.now()
   };
 
@@ -173,22 +176,22 @@ export const changePlayerLocation = async (
     //console.log(`1️⃣ Removing player from grid ${fromLocation.g}`);
 
     //console.log('loading PCS gridstates from memory...');
-    const inMemoryFromPlayerState = playersInGridManager.getPlayersInGrid(fromLocation.g)?.[currentPlayer.playerId];
+    const inMemoryFromPlayerState = playersInGridManager.getPlayersInGrid(fromLocation.g)?.[playerId];
     //console.log('loading NPCS and PCS gridstates from db...');
     const fromGridResponse = await axios.get(`${API_BASE}/api/load-grid-state/${fromLocation.g}`);
     //console.log('fromGridResponse.data: ', fromGridResponse.data);
     const fromPCs = fromGridResponse.data?.playersInGrid?.pcs || {};
     //console.log('Extracted fromPCs from what we just loaded; fromPCs = ', fromPCs);
-    const fromPlayerState = inMemoryFromPlayerState || fromPCs[currentPlayer.playerId] || {};
+    const fromPlayerState = inMemoryFromPlayerState || fromPCs[playerId] || {};
     //console.log('fromPlayerState (prioritize what was in memory) = ', fromPlayerState);
     
     // Use robust removal system with immediate DB persistence to prevent ghost PCs
-    await playersInGridManager.removePC(fromLocation.g, currentPlayer.playerId);
+    await playersInGridManager.removePC(fromLocation.g, playerId);
 
     // ✅ STEP 3: Emit AFTER saving to DB
     socket.emit('player-left-grid', {
       gridId: fromLocation.g,
-      playerId: currentPlayer.playerId,
+      playerId: playerId,
       username: currentPlayer.username,
     });
     //console.log(`📢 Emitted [player-left-grid] for ${fromLocation.g}`);
@@ -228,7 +231,7 @@ export const changePlayerLocation = async (
     console.log('  Final MaxHP:', finalMaxHp, '(fallback triggered:', finalMaxHp === 25, ')');
     
     const playerData = {
-      playerId: currentPlayer.playerId,
+      playerId: playerId,
       type: 'pc',
       username: currentPlayer.username,
       position: { x: toLocation.x, y: toLocation.y },
@@ -247,23 +250,27 @@ export const changePlayerLocation = async (
 
     //console.log('📤 Constructed player data for adding:', playerData);
 
-    // ✅ STEP 6: Add player to new grid with immediate DB persistence
+    // ✅ STEP 6: Join the socket room FIRST before any grid operations
+    socket.emit('join-grid', { gridId: toLocation.g, playerId: playerId });
+    //console.log(`📡 Emitted join-grid for grid: ${toLocation.g}`);
+    
+    // ✅ STEP 7: Add player to new grid with immediate DB persistence
     //console.log('📤 Adding player to new grid with immediate DB persistence...');
-    await playersInGridManager.addPC(toLocation.g, currentPlayer.playerId, playerData);
+    await playersInGridManager.addPC(toLocation.g, playerId, playerData);
 
     socket.emit('player-joined-grid', {
       gridId: toLocation.g,
-      playerId: currentPlayer.playerId,
+      playerId: playerId,
       username: currentPlayer.username,
       playerData,
     });
     //console.log(`📢 Emitted player-joined-grid for ${toLocation.g}`);
   
 
-    // ✅ STEP 7: Update player location in player record on the DB
+    // ✅ STEP 8: Update player location in player record on the DB
     //console.log('3️⃣ Updating player location...');
     const locationResponse = await axios.post(`${API_BASE}/api/update-player-location`, {
-      playerId: currentPlayer.playerId,
+      playerId: playerId,
       location: toLocation,
     });
 
@@ -282,7 +289,7 @@ export const changePlayerLocation = async (
         
         try {
           // Award the trophy
-          const trophyResult = await earnTrophy(currentPlayer.playerId, "Explore the Valley", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+          const trophyResult = await earnTrophy(playerId, "Explore the Valley", 1, currentPlayer, masterTrophies, setCurrentPlayer);
           
           if (trophyResult.success) {
             // Show notification
@@ -301,7 +308,7 @@ export const changePlayerLocation = async (
       }
     }
 
-    // ✅ STEP 8: Update local state
+    // ✅ STEP 9: Update local state
     //console.log('4️⃣ Updating local Player Document...');
     const updatedPlayer = {
       ...currentPlayer,
@@ -316,14 +323,14 @@ export const changePlayerLocation = async (
     setGridId(toLocation.g);
     // WHAT does this ^^ do?
 
-    // ✅ STEP 8.5: Final cleanup verification - ensure dead player is removed from old grid
+    // ✅ STEP 9.5: Final cleanup verification - ensure dead player is removed from old grid
     if (currentPlayer.hp <= 0) {
       console.log('⚰️ Player was dead - verifying cleanup from old grid');
       try {
         // Double-check removal with another API call to ensure cleanup
         await axios.post(`${API_BASE}/api/remove-single-pc`, {
           gridId: fromLocation.g,
-          playerId: currentPlayer.playerId,
+          playerId: playerId,
         });
         console.log('✅ Dead player cleanup verified');
       } catch (cleanupError) {
@@ -331,7 +338,7 @@ export const changePlayerLocation = async (
       }
     }
 
-    // ✅ STEP 9: Initialize the new grid, PCs and NPCs
+    // ✅ STEP 10: Initialize the new grid, PCs and NPCs
     //console.log('!! Running initializeGridState and setGridState');
     await Promise.all([
       initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus, currentPlayer),
@@ -358,16 +365,14 @@ export const changePlayerLocation = async (
     ]);
     //console.log('✅ New grid fully initialized');
 
-    // ✅ STEP 10: Ensure the client joins the new grid room
-    socket.emit('join-grid', { gridId: toLocation.g, playerId: currentPlayer.playerId });
-    //console.log(`📡 Emitted join-grid for grid: ${toLocation.g}`);
+    // ✅ STEP 11: Set username for the socket
     socket.emit('set-username', { username: currentPlayer.username });
     
     // Request current NPCController status to clear any stale controller data
     //console.log(`🎮 Requesting current NPCController for grid: ${toLocation.g}`);
     socket.emit('request-npc-controller', { gridId: toLocation.g });
     
-    // ✅ STEP 11: Check if we need to find a signpost location
+    // ✅ STEP 12: Check if we need to find a signpost location
     let finalX = toLocation.x;
     let finalY = toLocation.y;
     
@@ -393,12 +398,12 @@ export const changePlayerLocation = async (
         };
         
         // Update local state
-        playersInGridManager.updatePC(toLocation.g, currentPlayer.playerId, updatedPlayerData);
+        playersInGridManager.updatePC(toLocation.g, playerId, updatedPlayerData);
         
         // Update database
         await axios.post(`${API_BASE}/api/save-single-pc`, {
           gridId: toLocation.g,
-          playerId: currentPlayer.playerId,
+          playerId: playerId,
           pc: updatedPlayerData,
           lastUpdated: Date.now(),
         });
@@ -406,7 +411,7 @@ export const changePlayerLocation = async (
         // Emit updated position
         socket.emit('player-moved', {
           gridId: toLocation.g,
-          playerId: currentPlayer.playerId,
+          playerId: playerId,
           position: { x: finalX, y: finalY },
           username: currentPlayer.username,
         });
@@ -415,11 +420,11 @@ export const changePlayerLocation = async (
       }
     }
     
-    // ✅ STEP 12: Center view on player
+    // ✅ STEP 13: Center view on player
 
     centerCameraOnPlayer({ x: finalX, y: finalY }, TILE_SIZE);
 
-    // ✅ STEP 13: Update status bar with new grid info
+    // ✅ STEP 14: Update status bar with new grid info
     if (updateStatus && toLocation.gtype) {
       await updateGridStatus(toLocation.gtype, null, updateStatus, currentPlayer, toLocation.g);
     }
@@ -430,7 +435,7 @@ export const changePlayerLocation = async (
     locationChangeManager.completeLocationChange({
       from: fromLocation,
       to: toLocation,
-      playerId: currentPlayer.playerId,
+      playerId: playerId,
       success: true
     });
     

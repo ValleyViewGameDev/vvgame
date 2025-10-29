@@ -18,14 +18,21 @@ export function socketListenForPCJoinAndLeave(gridId, currentPlayer, isMasterRes
 
   if (!gridId || !currentPlayer || !isMasterResourcesReady) return;
 
-const handlePlayerJoinedGrid = ({ playerId, username, playerData, emitterId }) => {
+const handlePlayerJoinedGrid = ({ gridId: joinedGridId, playerId, username, playerData, emitterId }) => {
   if (emitterId === socket.id) {
     console.log('😀 Ignoring player-joined event from self.');
     return; // Ignore updates emitted by this client
   }
-  console.log(`👋 Player ${username} joined grid with data:`, playerData);
+  
+  // Only process if the player joined the current grid
+  if (joinedGridId !== gridId) {
+    console.log(`👋 Player ${username} joined grid ${joinedGridId} (not current grid ${gridId})`);
+    return;
+  }
+  
+  console.log(`👋 Player ${username} joined current grid ${gridId} with data:`, playerData);
   setPlayersInGrid(prevState => {
-    const existing = prevState[gridId]?.pcs?.[playerId];
+    const existing = prevState[joinedGridId]?.pcs?.[playerId];
     const incomingTime = new Date(playerData?.lastUpdated).getTime() || 0;
     const localTime = new Date(existing?.lastUpdated).getTime() || 0;
 
@@ -34,17 +41,17 @@ const handlePlayerJoinedGrid = ({ playerId, username, playerData, emitterId }) =
 
       // ✅ Update memory manager too
       if (playersInGridManager.addPC) {
-        playersInGridManager.addPC(gridId, playerId, playerData);
+        playersInGridManager.addPC(joinedGridId, playerId, playerData);
       } else {
         console.warn('🛑 playersInGridManager.addPC is not defined.');
       }
 
       return {
         ...prevState,
-        [gridId]: {
-          ...prevState[gridId],
+        [joinedGridId]: {
+          ...prevState[joinedGridId],
           pcs: {
-            ...(prevState[gridId]?.pcs || {}),
+            ...(prevState[joinedGridId]?.pcs || {}),
             [playerId]: playerData,
           },
         },
@@ -56,22 +63,29 @@ const handlePlayerJoinedGrid = ({ playerId, username, playerData, emitterId }) =
   });
 };
 
-  const handlePlayerLeftGrid = ({ playerId, username, emitterId }) => {
+  const handlePlayerLeftGrid = ({ gridId: leftGridId, playerId, username, emitterId }) => {
     if (emitterId === socket.id) {
       console.log('😀 Ignoring player-left event from self.');
       return; // Ignore updates emitted by this client
     }
-    console.log(`👋 Player ${username} left grid`);
+    
+    // Only process if the player left the current grid
+    if (leftGridId !== gridId) {
+      console.log(`👋 Player ${username} left grid ${leftGridId} (not current grid ${gridId})`);
+      return;
+    }
+    
+    console.log(`👋 Player ${username} left current grid ${gridId}`);
     // ✅ Remove from memory manager
     if (playersInGridManager.removePC) {
-      playersInGridManager.removePC(gridId, playerId);
+      playersInGridManager.removePC(leftGridId, playerId);
     } else {
       console.warn('🛑 playersInGridManager.removePC is not defined.');
     }
 
     setPlayersInGrid(prevState => {
-      if (!prevState[gridId]?.pcs) return prevState;
-      const updatedGrid = { ...prevState[gridId]?.pcs };
+      if (!prevState[leftGridId]?.pcs) return prevState;
+      const updatedGrid = { ...prevState[leftGridId]?.pcs };
       delete updatedGrid[playerId];
       
       // Check if removed player was the controller
@@ -82,8 +96,8 @@ const handlePlayerJoinedGrid = ({ playerId, username, playerData, emitterId }) =
       
       return {
         ...prevState,
-        [gridId]: {
-          ...prevState[gridId],
+        [leftGridId]: {
+          ...prevState[leftGridId],
           pcs: updatedGrid,
         },
       };
