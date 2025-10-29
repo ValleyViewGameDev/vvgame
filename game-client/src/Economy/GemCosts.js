@@ -75,9 +75,7 @@ export const calculateGemPurchase = ({
     if (overrideGemCost !== null && overrideGemCost !== undefined) {
         gemCost = overrideGemCost;
     } else {
-        // Start with base gem cost from resource data (includes ^0.45 time calculation)
-        const baseGemCost = resource.gemcost || 0;
-        
+        // Only charge for missing ingredients - resource.gemcost is the total if you had nothing
         // Calculate missing ingredient costs
         let missingIngredientCost = 0;
         for (let i = 1; i <= 10; i++) {
@@ -108,11 +106,11 @@ export const calculateGemPurchase = ({
             }
         }
         
-        // Total gem cost = base cost + missing ingredients cost
-        gemCost = Math.ceil(baseGemCost + missingIngredientCost);
+        // Gem cost is ONLY the cost of missing ingredients
+        gemCost = Math.ceil(missingIngredientCost);
         
-        // Minimum of 1 gem if there are any missing ingredients or base cost
-        if (gemCost === 0 && (missingIngredientCost > 0 || baseGemCost > 0)) {
+        // Minimum of 1 gem if there are any missing ingredients
+        if (gemCost === 0 && missingIngredientCost > 0) {
             gemCost = 1;
         }
     }

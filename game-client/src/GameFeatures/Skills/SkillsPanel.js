@@ -323,7 +323,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                       info={info}
                       disabled={!affordable || !meetsRequirement}
                       onClick={() => handlePurchase(resource.type)}
-                      gemCost={resource.gemcost || null}
+                      // Don't pass gemCost - let ResourceButton calculate it based on missing ingredients
                       onGemPurchase={(resource.gemcost && (!affordable || !meetsRequirement)) ? handleGemPurchase : null}
                       resource={resource}
                       inventory={inventory}
