@@ -93,6 +93,13 @@ const handlePlayerJoinedGrid = ({ playerId, username, playerData, emitterId }) =
   const handleCurrentGridPlayers = ({ gridId: receivedGridId, pcs }) => {
     console.log(`📦 Received current PCs for grid ${receivedGridId}:`, pcs);
     
+    // HP Debug logging for server data
+    Object.entries(pcs || {}).forEach(([playerId, pcData]) => {
+      console.log(`🚨 [HP DEBUG] handleCurrentGridPlayers - Server data for ${playerId}:`);
+      console.log('  pcData.hp:', pcData.hp);
+      console.log('  pcData.maxhp:', pcData.maxhp);
+    });
+    
     // Only update if this is for our current grid
     if (receivedGridId !== gridId) {
       console.log(`🔄 Ignoring PC list for different grid ${receivedGridId} (current: ${gridId})`);

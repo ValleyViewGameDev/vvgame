@@ -196,14 +196,27 @@ export const changePlayerLocation = async (
     //console.log('🚨🚨🚨🚨currentPlayer = ', currentPlayer);
 
     // REVERT: The issue is in how data is stored/loaded, not in changePlayerLocation
+    console.log('🚨 [HP DEBUG] changePlayerLocation - HP calculation sources:');
+    console.log('  fromPlayerState.hp:', fromPlayerState.hp);
+    console.log('  currentPlayer.hp:', currentPlayer.hp);
+    console.log('  fromPlayerState.maxhp:', fromPlayerState.maxhp);
+    console.log('  currentPlayer.maxhp:', currentPlayer.maxhp);
+    
+    const finalHp = fromPlayerState.hp ?? currentPlayer.hp ?? 25;
+    const finalMaxHp = fromPlayerState.maxhp ?? currentPlayer.maxhp ?? 25;
+    
+    console.log('🚨 [HP DEBUG] changePlayerLocation - Final HP values:');
+    console.log('  Final HP:', finalHp, '(fallback triggered:', finalHp === 25, ')');
+    console.log('  Final MaxHP:', finalMaxHp, '(fallback triggered:', finalMaxHp === 25, ')');
+    
     const playerData = {
       playerId: currentPlayer.playerId,
       type: 'pc',
       username: currentPlayer.username,
       position: { x: toLocation.x, y: toLocation.y },
       icon: currentPlayer.icon || '😀',
-      hp: fromPlayerState.hp ?? currentPlayer.hp ?? 25,
-      maxhp: fromPlayerState.maxhp ?? currentPlayer.maxhp ?? 25,
+      hp: finalHp,
+      maxhp: finalMaxHp,
       armorclass: fromPlayerState.armorclass ?? currentPlayer.armorclass ?? 10,
       attackbonus: fromPlayerState.attackbonus ?? currentPlayer.attackbonus ?? 0,
       damage: fromPlayerState.damage ?? currentPlayer.damage ?? 1,

@@ -192,6 +192,12 @@ export async function refreshPlayerAfterInventoryUpdate(playerId, setCurrentPlay
     const response = await axios.get(`${API_BASE}/api/player/${playerId}`);
     const updatedPlayerData = response.data;
     
+    console.log('🚨 [HP DEBUG] refreshPlayerAfterInventoryUpdate - Server player data:');
+    console.log('  updatedPlayerData.hp:', updatedPlayerData.hp);
+    console.log('  updatedPlayerData.maxhp:', updatedPlayerData.maxhp);
+    console.log('  updatedPlayerData.baseHp:', updatedPlayerData.baseHp);
+    console.log('  updatedPlayerData.baseMaxhp:', updatedPlayerData.baseMaxhp);
+    
     // If preserveInventory is true, keep the current inventory and backpack
     if (preserveInventory) {
       setCurrentPlayer(currentPlayer => {

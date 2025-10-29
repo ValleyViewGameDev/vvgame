@@ -238,6 +238,14 @@ class GridStatePCManager {
 
       const getStat = (baseKey, modKey) => (pcData[baseKey] || 0) + (modifiers[modKey] || 0);
 
+      console.log('🚨 [HP DEBUG] addPlayer - Base stat calculation:');
+      console.log('  pcData.baseHp:', pcData.baseHp);
+      console.log('  pcData.baseMaxhp:', pcData.baseMaxhp);
+      console.log('  modifiers.hp:', modifiers.hp);
+      console.log('  modifiers.maxhp:', modifiers.maxhp);
+      console.log('  getStat("baseHp", "hp"):', getStat('baseHp', 'hp'));
+      console.log('  getStat("baseMaxhp", "maxhp"):', getStat('baseMaxhp', 'maxhp'));
+
       const newPC = {
         playerId,
         username: pcData.username,
@@ -294,6 +302,12 @@ class GridStatePCManager {
       }
 
       const now = Date.now();
+      
+      console.log('🚨 [HP DEBUG] addPC - Incoming PC data:');
+      console.log('  pcData.hp:', pcData.hp);
+      console.log('  pcData.maxhp:', pcData.maxhp);
+      console.log('  playerId:', playerId);
+      
       const newPC = {
         playerId: pcData.playerId,
         username: pcData.username,
