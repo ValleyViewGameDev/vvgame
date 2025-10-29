@@ -4603,7 +4603,7 @@
     "validonn": true,
     "validono": true,
     "ingredient1": "Money",
-    "ingredient1qty": 250,
+    "ingredient1qty": 75,
     "gemcost": 32,
     "crafttime": 28800
   },
@@ -4629,7 +4629,7 @@
     "validonn": true,
     "validono": true,
     "ingredient1": "Money",
-    "ingredient1qty": 1000,
+    "ingredient1qty": 300,
     "gemcost": 125,
     "crafttime": 43200
   },

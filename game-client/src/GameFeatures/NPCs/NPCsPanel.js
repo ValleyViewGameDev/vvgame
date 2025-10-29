@@ -56,6 +56,7 @@ const NPCPanel = ({
   const [canTrade, setCanTrade] = useState(false);
   const [tradeThreshold, setTradeThreshold] = useState(0);
   const [isDeveloper, setIsDeveloper] = useState(false);
+  const [isHealing, setIsHealing] = useState(false); // Prevent spam-clicking heal button
 
 
   // Ensure npcData has default values
@@ -439,16 +440,20 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 const handleHeal = async (recipe) => {
     setErrorMessage('');
 
-    if (!recipe) {
-      setErrorMessage('Invalid healing recipe selected.');
+    if (!recipe || isHealing) {
+      if (!recipe) setErrorMessage('Invalid healing recipe selected.');
       return;
     }
+    
+    // Set healing flag to prevent spam clicks
+    setIsHealing(true);
     // Fetch current HP and Max HP from playersInGridManager
     const gridId = currentPlayer?.location?.g;
     const playerId = currentPlayer._id?.toString();
     const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
     if (!playerInGridState) {
       console.error(`Player ${currentPlayer.username} not found in NPCsInGrid.`);
+      setIsHealing(false);
       return;
     }
     const currentHp = playerInGridState.hp;
@@ -458,6 +463,7 @@ const handleHeal = async (recipe) => {
     if (npcData.output === 'hp') {
       if (currentHp >= maxHp) {
         updateStatus(401);  // Player is already at full HP
+        setIsHealing(false);
         return;
       }
     }
@@ -471,7 +477,10 @@ const handleHeal = async (recipe) => {
       setCurrentPlayer,
       updateStatus,
     });
-    if (!spendResult) return;
+    if (!spendResult) {
+      setIsHealing(false);
+      return;
+    }
     
     // Refresh player to update money display
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
@@ -490,6 +499,9 @@ const handleHeal = async (recipe) => {
 
     } catch (error) {
       console.error('Error applying healing:', error);
+    } finally {
+      // Always clear the healing flag
+      setIsHealing(false);
     }
 
   };
@@ -853,11 +865,11 @@ const handleHeal = async (recipe) => {
                 symbol={recipe.symbol}
                 name={getLocalizedString(recipe.type, strings)}
                 details={`${strings[463]} ❤️‍🩹 +${healAmount}<br>${strings[461]} ${ingredients.join(', ') || 'None'}`}
-                disabled={!affordable}
+                disabled={!affordable || isHealing}
                 onClick={() => handleHeal(recipe)}
                 // Gem purchase props
                 gemCost={recipe.gemcost || null}
-                onGemPurchase={(recipe.gemcost && !affordable) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'heal') : null}
+                onGemPurchase={(recipe.gemcost && !affordable && !isHealing) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'heal') : null}
                 resource={recipe}
                 inventory={inventory}
                 backpack={backpack}
