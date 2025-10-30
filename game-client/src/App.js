@@ -1847,7 +1847,7 @@ return (
           openPanel("SkillsPanel"); // ✅ Open the panel normally
         }}>💪</button>
 
-      {!currentPlayer?.firsttimeuser && (
+      {!currentPlayer?.firsttimeuser && isOnOwnHomestead && (
         <button 
           className={`nav-button ${activePanel === 'PetsPanel' ? 'selected' : ''}`} title={strings[12014]} disabled={!currentPlayer} 
           onClick={() => {
