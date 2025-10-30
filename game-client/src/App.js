@@ -62,6 +62,7 @@ import QuestPanel from './GameFeatures/Quests/QuestPanel';
 import NPCPanel from './GameFeatures/NPCs/NPCsPanel.js';
 import BuildPanel from './GameFeatures/Build/BuildPanel';
 import BuyPanel from './GameFeatures/Buy/BuyPanel';
+import PetsPanel from './GameFeatures/Pets/PetsPanel';
 import BuyDecoPanel from './GameFeatures/Deco/BuyDecoPanel';
 import FarmingPanel from './GameFeatures/Farming/FarmingPanel';
 import ToolsPanel from './GameFeatures/Farming/ToolsPanel';
@@ -1848,6 +1849,17 @@ return (
 
       {!currentPlayer?.firsttimeuser && (
         <button 
+          className={`nav-button ${activePanel === 'PetsPanel' ? 'selected' : ''}`} title={strings[12014]} disabled={!currentPlayer} 
+          onClick={() => {
+            if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
+            if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
+            openPanel('PetsPanel');
+          }}
+        >🐒</button>
+      )}
+
+      {!currentPlayer?.firsttimeuser && (
+        <button 
           className={`nav-button ${activePanel === 'BuyDecoPanel' ? 'selected' : ''}`} title={strings[12011]} disabled={!currentPlayer} 
           onClick={() => {
             if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
@@ -2563,6 +2575,26 @@ return (
       )}
       {activePanel === 'BuyPanel' && (
         <BuyPanel
+          onClose={closePanel}
+          TILE_SIZE={activeTileSize}
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          resources={resources}
+          setResources={setResources}
+          currentPlayer={currentPlayer}
+          setCurrentPlayer={setCurrentPlayer}
+          gridId={gridId}
+          masterResources={masterResources} 
+          masterSkills={masterSkills} 
+          updateStatus={updateStatus}
+          isDeveloper={isDeveloper}
+          currentSeason={seasonData?.type}
+        />
+      )}
+      {activePanel === 'PetsPanel' && (
+        <PetsPanel
           onClose={closePanel}
           TILE_SIZE={activeTileSize}
           inventory={inventory}

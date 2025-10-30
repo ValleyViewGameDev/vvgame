@@ -2956,10 +2956,10 @@
     "validonl": false,
     "validonn": true,
     "validono": true,
-    "minprice": 246,
-    "maxprice": 352,
-    "gemcost": 44,
-    "crafttime": 259200
+    "minprice": 151,
+    "maxprice": 216,
+    "gemcost": 27,
+    "crafttime": 86400
   },
   {
     "type": "Saw",
@@ -3154,8 +3154,8 @@
     "validonl": false,
     "validonn": true,
     "validono": true,
-    "minprice": 462,
-    "maxprice": 661,
+    "minprice": 405,
+    "maxprice": 579,
     "ingredient1": "Potion B",
     "ingredient1qty": 1,
     "ingredient2": "Sunflower",
@@ -3164,7 +3164,7 @@
     "ingredient3qty": 2,
     "ingredient4": "Feverfew",
     "ingredient4qty": 1,
-    "gemcost": 1653,
+    "gemcost": 1449,
     "crafttime": 129600
   },
   {
@@ -4607,7 +4607,7 @@
     "growtime": 28800,
     "ingredient1": "Potion C",
     "ingredient1qty": 3,
-    "gemcost": 4959,
+    "gemcost": 4347,
     "crafttime": 86400
   },
   {
@@ -5931,7 +5931,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
     "ingredient4qty": 20,
-    "gemcost": 33123
+    "gemcost": 29043
   },
   {
     "type": "Tailor",
@@ -5945,7 +5945,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
     "ingredient4qty": 100,
-    "gemcost": 165363
+    "gemcost": 144963
   },
   {
     "type": "Politics",
@@ -6055,7 +6055,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
     "ingredient4qty": 5,
-    "gemcost": 8328
+    "gemcost": 7308
   },
   {
     "type": "Miller",
@@ -6073,7 +6073,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 21265
+    "gemcost": 19225
   },
   {
     "type": "Artisan",
@@ -6091,7 +6091,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 21265
+    "gemcost": 19225
   },
   {
     "type": "Cuisinier",
@@ -6109,7 +6109,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 22595
+    "gemcost": 20555
   },
   {
     "type": "Weaver",
@@ -6127,7 +6127,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 21265
+    "gemcost": 19225
   },
   {
     "type": "Fowler",
@@ -6145,7 +6145,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 21265
+    "gemcost": 19225
   },
   {
     "type": "Fromager",
@@ -6163,7 +6163,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 23925
+    "gemcost": 21885
   },
   {
     "type": "Virtuose Culinaire",
@@ -6181,7 +6181,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
     "ingredient4qty": 15,
-    "gemcost": 32935
+    "gemcost": 29875
   },
   {
     "type": "Apiarch",
@@ -6199,7 +6199,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
     "ingredient4qty": 20,
-    "gemcost": 41200
+    "gemcost": 37120
   },
   {
     "type": "Vintner",
@@ -6217,7 +6217,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
     "ingredient4qty": 25,
-    "gemcost": 52045
+    "gemcost": 46945
   },
   {
     "type": "Law",
@@ -6460,7 +6460,7 @@
     "ingredient3qty": 1,
     "ingredient4": "Book",
     "ingredient4qty": 50,
-    "gemcost": 8508
+    "gemcost": 8304
   },
   {
     "type": "Magic Helmet",
@@ -6989,7 +6989,7 @@
     "category": "pet",
     "action": "feed",
     "output": "Milk",
-    "source": "Buy",
+    "source": "Zoo",
     "repeatable": false,
     "requires": "Zookeeper",
     "qtycollected": 1,
@@ -7007,7 +7007,7 @@
     "category": "pet",
     "action": "feed",
     "output": "Bacon",
-    "source": "Buy",
+    "source": "Zoo",
     "repeatable": false,
     "requires": "Zookeeper",
     "qtycollected": 1,
@@ -7025,7 +7025,7 @@
     "category": "pet",
     "action": "feed",
     "output": "Apple",
-    "source": "Buy",
+    "source": "Zoo",
     "repeatable": false,
     "requires": "Zookeeper",
     "qtycollected": 1,
@@ -7043,7 +7043,7 @@
     "category": "pet",
     "action": "feed",
     "output": "Corn",
-    "source": "Buy",
+    "source": "Zoo",
     "repeatable": false,
     "requires": "Zookeeper",
     "qtycollected": 1,
@@ -7061,7 +7061,7 @@
     "category": "pet",
     "action": "feed",
     "output": "Carrot",
-    "source": "Buy",
+    "source": "Zoo",
     "repeatable": false,
     "requires": "Zookeeper",
     "qtycollected": 3,
@@ -7081,7 +7081,7 @@
     "category": "pet",
     "action": "feed",
     "output": "Egg",
-    "source": "Buy",
+    "source": "Zoo",
     "repeatable": false,
     "requires": "Zookeeper",
     "qtycollected": 3,
@@ -7101,7 +7101,7 @@
     "category": "pet",
     "action": "feed",
     "output": "Apple",
-    "source": "Buy",
+    "source": "Zoo",
     "repeatable": false,
     "requires": "Zookeeper",
     "qtycollected": 3,
@@ -7121,7 +7121,7 @@
     "category": "pet",
     "action": "feed",
     "output": "Bacon",
-    "source": "Buy",
+    "source": "Zoo",
     "repeatable": false,
     "requires": "Zookeeper",
     "qtycollected": 3,
@@ -7141,7 +7141,7 @@
     "category": "pet",
     "action": "feed",
     "output": "Wheat",
-    "source": "Buy",
+    "source": "Zoo",
     "repeatable": false,
     "requires": "Zookeeper",
     "qtycollected": 5,
@@ -7163,7 +7163,7 @@
     "category": "pet",
     "action": "feed",
     "output": "Apple",
-    "source": "Buy",
+    "source": "Zoo",
     "repeatable": false,
     "requires": "Zookeeper",
     "qtycollected": 5,
@@ -7185,7 +7185,7 @@
     "category": "pet",
     "action": "feed",
     "output": "Orange",
-    "source": "Buy",
+    "source": "Zoo",
     "repeatable": false,
     "requires": "Zookeeper",
     "qtycollected": 5,
@@ -7207,7 +7207,7 @@
     "category": "pet",
     "action": "feed",
     "output": "Corn",
-    "source": "Buy",
+    "source": "Zoo",
     "repeatable": false,
     "requires": "Zookeeper",
     "qtycollected": 5,
