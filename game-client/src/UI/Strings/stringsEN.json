@@ -241,7 +241,6 @@
     "466": "You have no crafting stations ready to collect from.",
     "467": "Bulk Crafting",
     "468": "Restarted: ",
-    "469": "Collected",
     "470": "Cannot travel right now, farming actions in progress.",
     "471": "⚠️ Already in progress.",
     "472": "Harvested",
@@ -249,7 +248,6 @@
     "476": "Station",
     "477": "Your farm workers are busy...",
     "478": "🚜 Working",
-    "479": "Logging complete",
     "480": "Crafted",
     "481": "with",
     "482": "applied",
@@ -1313,17 +1311,19 @@
 
         "11000": "ADDED STRINGS:",
 
-    "407": "Maximum reached for this location.",
     "42": "Earns: ",
     "44": "No backpack",
+    "47": "I can buy goods fom you.",
+    "48": "Need some advice?",
+    "407": "Maximum reached for this location.",
+    "469": "+",
+    "479": "Logging",
     "30014": "Carnivals Completed",
     "2018": "🎡 Next Carnival Preview:",
     "2019": "Rewards for filling all orders:",
-    "47": "I can buy goods fom you.",
     "1139": "🐒 Zoo Animals",
     "1039": "Acquire these zoo animals to populate your homestead, and dig up rare items.",
-    "12014": "Zoo Animals",
-    "48": "Need some advice?"
+    "12014": "Zoo Animals"
 
 
   }
