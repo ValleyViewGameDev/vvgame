@@ -370,7 +370,8 @@ const getTooltip = (tile) => {
               if (rowIndex === 7 && colIndex < 6) {
                 if (owner && Array.isArray(owner.tradeStall)) {
                   const stall = owner.tradeStall[colIndex];
-                  if (stall?.resource) {
+                  // Only show the item if it hasn't been bought
+                  if (stall?.resource && !stall?.boughtBy) {
                     const template = masterResources.find(r => r.type === stall.resource);
                     if (template?.symbol) content = template.symbol;
                   }
