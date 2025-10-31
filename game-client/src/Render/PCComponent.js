@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { handleAttackOnPC } from '../GameFeatures/Combat/Combat';
 import ConversationManager from '../GameFeatures/Relationships/ConversationManager';
+import { getDerivedRange } from '../Utils/worldHelpers';
 import './PCComponent.css';
 
 const PCComponent = ({ 
@@ -115,11 +116,57 @@ const PCComponent = ({
   // Health calculations removed - using tooltips
   const isCamping = pc.iscamping;
   const isInBoat = pc.isinboat;
+  
+  // Check if range indicators should be shown (only for current player)
+  const showRangeIndicators = isCurrentPlayer && currentPlayer?.settings?.rangeOn !== false;
+  const derivedRange = showRangeIndicators ? getDerivedRange(currentPlayer, masterResources) : 0;
+  const attackRange = showRangeIndicators ? pc.attackrange : 0;
+  const isInHomestead = currentPlayer?.location?.gtype === "homestead";
 
   return (
-    <div
-      ref={elementRef}
-      className={`pc ${isCurrentPlayer ? 'current-player' : 'other-player'} ${isHovered ? 'hovered' : ''}`}
+    <>
+      {/* Regular range indicator (gray circle) */}
+      {showRangeIndicators && derivedRange > 1 && (
+        <div
+          className="attack-range player-range"
+          style={{
+            position: 'absolute',
+            left: `${position.x * TILE_SIZE - derivedRange * TILE_SIZE + TILE_SIZE / 2}px`,
+            top: `${position.y * TILE_SIZE - derivedRange * TILE_SIZE + TILE_SIZE / 2}px`,
+            width: `${derivedRange * 2 * TILE_SIZE}px`,
+            height: `${derivedRange * 2 * TILE_SIZE}px`,
+            backgroundColor: 'rgba(128, 128, 128, 0.2)',
+            borderRadius: '50%',
+            pointerEvents: 'none',
+            zIndex: 10,
+            transition: tileSizeChanged ? 'none' : 'left 0.2s ease-out, top 0.2s ease-out',
+          }}
+        />
+      )}
+      
+      {/* Attack range indicator (red dotted ring) */}
+      {showRangeIndicators && attackRange > 0 && !isInHomestead && (
+        <div
+          className="attack-range player-attackrange"
+          style={{
+            position: 'absolute',
+            left: `${position.x * TILE_SIZE - attackRange * TILE_SIZE + TILE_SIZE / 2}px`,
+            top: `${position.y * TILE_SIZE - attackRange * TILE_SIZE + TILE_SIZE / 2}px`,
+            width: `${attackRange * 2 * TILE_SIZE}px`,
+            height: `${attackRange * 2 * TILE_SIZE}px`,
+            border: '3px dotted rgba(255, 0, 0, 0.4)',
+            borderRadius: '50%',
+            pointerEvents: 'none',
+            zIndex: 11,
+            transition: tileSizeChanged ? 'none' : 'left 0.2s ease-out, top 0.2s ease-out',
+          }}
+        />
+      )}
+      
+      {/* PC character */}
+      <div
+        ref={elementRef}
+        className={`pc ${isCurrentPlayer ? 'current-player' : 'other-player'} ${isHovered ? 'hovered' : ''}`}
       style={{
         position: 'absolute',
         left: `${position.x * TILE_SIZE}px`,
@@ -192,7 +239,8 @@ const PCComponent = ({
       {/* Health bar - removed to avoid duplicate UI */}
 
       {/* Player name - now in tooltip */}
-    </div>
+      </div>
+    </>
   );
 };
 

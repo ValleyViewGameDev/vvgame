@@ -211,69 +211,9 @@ const DynamicRendererNew = ({
   
   // Helper function to render attack ranges
   const renderAttackRanges = () => {
-    // Check if range indicators are disabled in settings
-    if (currentPlayer?.settings?.rangeOn === false) return [];
-    
-    const ranges = [];
-    
-    // Player range
-    if (currentPlayer) {
-      const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id));
-      if (playerPos) {
-        // Regular range (gray circle)
-        const derivedRange = getDerivedRange(currentPlayer, masterResources);
-        if (derivedRange > 1) {
-          const radius = derivedRange * TILE_SIZE;
-          ranges.push(
-            <div
-              key="player-range"
-              id="player-range-circle"
-              className="attack-range player-range"
-              style={{
-                position: 'absolute',
-                left: `${playerPos.x * TILE_SIZE - radius + TILE_SIZE / 2}px`,
-                top: `${playerPos.y * TILE_SIZE - radius + TILE_SIZE / 2}px`,
-                width: `${radius * 2}px`,
-                height: `${radius * 2}px`,
-                backgroundColor: 'rgba(128, 128, 128, 0.2)',
-                borderRadius: '50%',
-                pointerEvents: 'none',
-                zIndex: 10,
-              }}
-            />
-          );
-        }
-        
-        // Attack range (red dotted ring) - check playersInGrid for attackrange
-        const pcData = playersInGrid?.[gridId]?.pcs?.[currentPlayer._id];
-        const attackRange = pcData?.attackrange;
-        if (attackRange && attackRange > 0 && currentPlayer?.location?.gtype !== "homestead") {
-          const attackRadius = attackRange * TILE_SIZE;
-          ranges.push(
-            <div
-              key="player-attackrange"
-              id="player-attackrange-ring"
-              className="attack-range player-attackrange"
-              style={{
-                position: 'absolute',
-                left: `${playerPos.x * TILE_SIZE - attackRadius + TILE_SIZE / 2}px`,
-                top: `${playerPos.y * TILE_SIZE - attackRadius + TILE_SIZE / 2}px`,
-                width: `${attackRadius * 2}px`,
-                height: `${attackRadius * 2}px`,
-                border: '3px dotted rgba(255, 0, 0, 0.4)',
-                borderRadius: '50%',
-                pointerEvents: 'none',
-                zIndex: 11,
-              }}
-            />
-          );
-        }
-      }
-    }
-    
-    // NPC attack ranges are now rendered in NPCComponent for smooth transitions
-    
-    return ranges;
+    // All range indicators are now rendered in their respective components (PCComponent and NPCComponent)
+    // for smooth transitions that follow the character movements
+    return [];
   };
 
   return (
