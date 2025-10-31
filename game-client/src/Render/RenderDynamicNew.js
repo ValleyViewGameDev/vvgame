@@ -271,30 +271,7 @@ const DynamicRendererNew = ({
       }
     }
     
-    // NPC attack ranges
-    npcs.forEach((npc) => {
-      if ((npc.action === 'attack' || npc.action === 'spawn') && npc.attackrange && npc.attackrange > 0) {
-        const radius = npc.attackrange * TILE_SIZE;
-        ranges.push(
-          <div
-            key={`npc-range-${npc.id}`}
-            className="attack-range npc-attack-range"
-            data-npc-id={npc.id}
-            style={{
-              position: 'absolute',
-              left: `${npc.position.x * TILE_SIZE - radius + TILE_SIZE / 2}px`,
-              top: `${npc.position.y * TILE_SIZE - radius + TILE_SIZE / 2}px`,
-              width: `${radius * 2}px`,
-              height: `${radius * 2}px`,
-              border: '2px dashed rgba(255, 100, 100, 0.5)',
-              borderRadius: '50%',
-              pointerEvents: 'none',
-              zIndex: 9,
-            }}
-          />
-        );
-      }
-    });
+    // NPC attack ranges are now rendered in NPCComponent for smooth transitions
     
     return ranges;
   };

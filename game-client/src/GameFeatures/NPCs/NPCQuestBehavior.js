@@ -46,7 +46,7 @@ async function handleQuestGiverBehavior(gridId) {
             const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
                 calculateDistance(pc.position, this.position) <= this.range
             );
-            if (pcsInRange) { this.state = 'idle'; await updateThisNPC(); break; }
+            if (pcsInRange) { this.state = 'idle'; await updateThisNPC(this, gridId); break; }
             
             await this.handleRoamState(tiles, resources, npcs, () => {
                 //console.log(`NPC ${this.id} transitioning back to idle.`);

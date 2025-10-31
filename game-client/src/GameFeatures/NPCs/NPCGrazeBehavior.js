@@ -197,6 +197,7 @@ async function handleFarmAnimalBehavior(gridId) {
         
                 // Check if NPC has reached the grass tile
                 if (
+                    this.targetGrassTile &&
                     Math.floor(this.position.x) === this.targetGrassTile.x &&
                     Math.floor(this.position.y) === this.targetGrassTile.y
                 ) {
@@ -421,6 +422,14 @@ async function handleFarmAnimalBehavior(gridId) {
             // IMPORTANT: Don't transition out of processing state unless explicitly collected
             if (this.grazeEnd && Date.now() >= this.grazeEnd) {
                 console.log(`🐮 NPC ${this.id} is in processing state and ready for collection. GrazeEnd: ${this.grazeEnd}`);
+                
+                // Check if the animal has been stuck in processing for too long (e.g., over 1 hour past grazeEnd)
+                const timeSinceGrazeEnd = Date.now() - this.grazeEnd;
+                if (timeSinceGrazeEnd > 3600000) { // 1 hour in milliseconds
+                    console.warn(`⚠️ NPC ${this.id} has been in processing state for ${Math.floor(timeSinceGrazeEnd / 1000)} seconds. Resetting to emptystall.`);
+                    this.state = 'emptystall';
+                    await updateThisNPC();
+                }
             }
         break;
         }

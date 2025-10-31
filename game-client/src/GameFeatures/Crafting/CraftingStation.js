@@ -141,10 +141,7 @@ const CraftingStation = ({
         // NPCs are stored directly under NPCsInGrid with their ID as the key
         const existingNPCTypes = Object.values(npcsInGrid)
           .filter(npc => npc && npc.type) // Filter out any null/undefined entries
-          .map(npc => npc.type);
-        
-        console.log('Existing NPC types on grid:', existingNPCTypes);
-        
+          .map(npc => npc.type);        
         // Filter out non-repeatable recipes that already exist
         filteredRecipes = filteredRecipes.filter(recipe => {
           // If it's not repeatable and already exists, filter it out

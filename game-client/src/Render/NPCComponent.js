@@ -293,28 +293,56 @@ const NPCComponent = ({
     cursorClass = currentTime < globalAttackCooldown ? 'cursor-wait' : 'cursor-crosshair';
   }
 
+  // Check if range indicators should be shown
+  const showRangeIndicator = currentPlayer?.settings?.rangeOn !== false && 
+                             (npc.action === 'attack' || npc.action === 'spawn') && 
+                             npc.attackrange && 
+                             npc.attackrange > 0;
+
   return (
-    <div
-      ref={elementRef}
-      className={`npc ${updateCursor()} ${isHovered ? 'hovered' : ''}`}
-      style={{
-        position: 'absolute',
-        left: `${position.x * TILE_SIZE}px`,
-        top: `${position.y * TILE_SIZE}px`,
-        width: `${TILE_SIZE}px`,
-        height: `${TILE_SIZE}px`,
-        fontSize: `${TILE_SIZE * 0.7}px`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 15,
-        pointerEvents: 'auto',
-        transition: tileSizeChanged ? 'none' : 'left 1.2s linear, top 1.2s linear', // Linear for consistent speed
-      }}
-      onMouseDown={handleClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <>
+      {/* Attack range indicator - renders behind NPC */}
+      {showRangeIndicator && (
+        <div
+          className="attack-range npc-attack-range"
+          data-npc-id={npc.id}
+          style={{
+            position: 'absolute',
+            left: `${position.x * TILE_SIZE - (npc.attackrange * TILE_SIZE) + TILE_SIZE / 2}px`,
+            top: `${position.y * TILE_SIZE - (npc.attackrange * TILE_SIZE) + TILE_SIZE / 2}px`,
+            width: `${npc.attackrange * 2 * TILE_SIZE}px`,
+            height: `${npc.attackrange * 2 * TILE_SIZE}px`,
+            border: '2px dashed rgba(255, 100, 100, 0.5)',
+            borderRadius: '50%',
+            pointerEvents: 'none',
+            zIndex: 5,
+            transition: tileSizeChanged ? 'none' : 'left 1.2s linear, top 1.2s linear',
+          }}
+        />
+      )}
+      
+      {/* NPC character */}
+      <div
+        ref={elementRef}
+        className={`npc ${updateCursor()} ${isHovered ? 'hovered' : ''}`}
+        style={{
+          position: 'absolute',
+          left: `${position.x * TILE_SIZE}px`,
+          top: `${position.y * TILE_SIZE}px`,
+          width: `${TILE_SIZE}px`,
+          height: `${TILE_SIZE}px`,
+          fontSize: `${TILE_SIZE * 0.7}px`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 15,
+          pointerEvents: 'auto',
+          transition: tileSizeChanged ? 'none' : 'left 1.2s linear, top 1.2s linear', // Linear for consistent speed
+        }}
+        onMouseDown={handleClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
       {npc.symbol}
       
       {/* Overlay visual from status checking */}
@@ -403,7 +431,8 @@ const NPCComponent = ({
       {hasKentOffers && (
         <div className="affordable-indicator">!</div>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 

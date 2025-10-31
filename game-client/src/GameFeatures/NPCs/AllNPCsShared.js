@@ -33,7 +33,7 @@ class NPC {
     this.maxhp = properties.maxhp || 0;
     this.range = properties.range;
     this.action = properties.action; // High-level behavioral category (e.g., "graze")
-    this.state = 'idle'; // Default state
+    this.state = properties.state || 'idle'; // Use stored state or default to idle
     this.speed = properties.speed; // Keep speed for combat stats, but do not use for movement animation
     this.growTime = properties.growtime || 0; // Time to fully graze
     this.processingStartTime = undefined;

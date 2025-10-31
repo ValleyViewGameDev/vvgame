@@ -3,7 +3,7 @@ import axios from "axios";
 import FloatingTextManager from "../../UI/FloatingText.js";
 import NPCsInGridManager from "../../GridState/GridStateNPCs.js";
 import { handleAttackOnNPC } from "../Combat/Combat.js";
-import { gainIngredients } from "../../Utils/InventoryManagement.js";
+import { gainIngredients, hasRoomFor } from "../../Utils/InventoryManagement.js";
 import { trackQuestProgress } from '../Quests/QuestGoalTracker.js';
 import AnimalPanel from '../FarmAnimals/FarmAnimals.js';
 import { calculateDistance } from '../../Utils/worldHelpers.js';
@@ -51,6 +51,26 @@ async function handleProtectedFarmAnimalCollection(
       return { type: 'error', message: `Animal not in processing state (${currentNPCState.state})` };
     }
     
+    // Check warehouse capacity BEFORE calling server
+    const hasRoom = hasRoomFor({
+      resource: npc.output,
+      quantity: 1,
+      currentPlayer,
+      inventory: currentPlayer.inventory,
+      backpack: currentPlayer.backpack,
+      masterResources,
+      globalTuning
+    });
+    
+    if (!hasRoom) {
+      console.log(`❌ No room in warehouse for ${npc.output}`);
+      // Show "You're full" floating text (string 41)
+      FloatingTextManager.addFloatingText(41, col, row, TILE_SIZE);
+      // Don't update status bar - the floating text is enough feedback
+      // Leave the animal in processing state
+      return { type: 'error', message: 'Warehouse full' };
+    }
+    
     const response = await axios.post(`${API_BASE}/api/farm-animal/collect`, {
       playerId: currentPlayer.playerId,
       gridId: currentGridId,
@@ -82,13 +102,16 @@ async function handleProtectedFarmAnimalCollection(
         globalTuning,
       });
       
-      if (!gained) {
+      if (!gained || !gained.success) {
         console.error('❌ Failed to add animal product to inventory - warehouse may be full');
-        // Note: gainIngredients will have already shown the appropriate status message
-        return { type: 'error', message: 'Warehouse full' };
+        // The server already changed the NPC state, but we couldn't add the item
+        // This is a critical error - the item is lost
+        // Show the "You're full" floating text instead of success
+        FloatingTextManager.addFloatingText(41, col, row, TILE_SIZE);
+        return { type: 'error', message: 'Warehouse full - item lost' };
       }
 
-      // Update NPC state
+      // Only update NPC state and show success if we successfully added to inventory
       if (updatedNPC) {
         await NPCsInGridManager.updateNPC(currentGridId, npc.id, updatedNPC);
         
@@ -125,18 +148,21 @@ async function handleProtectedFarmAnimalCollection(
         }
       }
 
-      // Visual feedback
-      FloatingTextManager.addFloatingText(`+${collectedQuantity} ${getLocalizedString(collectedItem, strings)}`, col, row, TILE_SIZE);
-      
-      // Calculate skill info for formatting
-      const skillInfo = calculateSkillMultiplier(collectedItem, currentPlayer.skills || [], masterSkills);
-      
-      // Format status message using shared formatter
-      const statusMessage = formatSingleCollection('animal', collectedItem, collectedQuantity, 
-        skillInfo.hasSkills ? skillInfo : null, strings, getLocalizedString);
-      
-      // Update status with the formatted message
-      updateStatus(statusMessage);
+      // Only show success feedback if item was added to inventory
+      if (gained && gained.success) {
+        // Visual feedback
+        FloatingTextManager.addFloatingText(`+${collectedQuantity} ${getLocalizedString(collectedItem, strings)}`, col, row, TILE_SIZE);
+        
+        // Calculate skill info for formatting
+        const skillInfo = calculateSkillMultiplier(collectedItem, currentPlayer.skills || [], masterSkills);
+        
+        // Format status message using shared formatter
+        const statusMessage = formatSingleCollection('animal', collectedItem, collectedQuantity, 
+          skillInfo.hasSkills ? skillInfo : null, strings, getLocalizedString);
+        
+        // Update status with the formatted message
+        updateStatus(statusMessage);
+      }
 
       // ✅ Track quest progress for NPC graze collection
       await trackQuestProgress(currentPlayer, 'Collect', collectedItem, collectedQuantity, setCurrentPlayer);
