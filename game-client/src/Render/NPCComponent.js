@@ -9,6 +9,9 @@ import { getLocalizedString } from '../Utils/stringLookup';
 import ConversationManager from '../GameFeatures/Relationships/ConversationManager';
 import './NPCComponent.css';
 
+// Global attack cooldown shared across all NPCs
+let globalAttackCooldown = 0;
+
 const NPCComponent = ({ 
   npc, 
   TILE_SIZE,
@@ -47,7 +50,6 @@ const NPCComponent = ({
   const [speechBubble, setSpeechBubble] = useState(null);
   const [relationshipOutcome, setRelationshipOutcome] = useState(null);
   const suppressTooltipRef = useRef(false);
-  const reloadRef = useRef(0);
   const elementRef = useRef(null);
   const prevTileSizeRef = useRef(TILE_SIZE);
 
@@ -106,7 +108,7 @@ const NPCComponent = ({
   // Update cursor dynamically based on reload time
   const updateCursor = () => {
     const currentTime = Date.now();
-    if ((npc.action === 'attack' || npc.action === 'spawn') && currentTime < reloadRef.current) {
+    if ((npc.action === 'attack' || npc.action === 'spawn') && currentTime < globalAttackCooldown) {
       return 'cursor-wait';
     }
     return cursorClass;
@@ -130,8 +132,8 @@ const NPCComponent = ({
     if (npc.action === 'attack' || npc.action === 'spawn') {
       const pcState = playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)];
       const speed = pcState?.speed ?? currentPlayer.baseSpeed ?? 5;
-      if (currentTime < reloadRef.current) return;
-      reloadRef.current = currentTime + (speed * 1000);
+      if (currentTime < globalAttackCooldown) return;
+      globalAttackCooldown = currentTime + (speed * 1000);
     }
 
     if (npc.action === 'quest' || npc.action === 'heal' || npc.action === 'worker' || npc.action === 'trade') {
@@ -183,7 +185,7 @@ const NPCComponent = ({
     if (npc.action === 'attack' || npc.action === 'spawn') {
       const interval = setInterval(() => {
         const currentTime = Date.now();
-        if (currentTime >= reloadRef.current) {
+        if (currentTime >= globalAttackCooldown) {
           clearInterval(interval);
           forceUpdate({}); // Force re-render to update cursor
         }
@@ -288,7 +290,7 @@ const NPCComponent = ({
   } else if (npc.action === 'attack' || npc.action === 'spawn') {
     // For attack NPCs, check reload status
     const currentTime = Date.now();
-    cursorClass = currentTime < reloadRef.current ? 'cursor-wait' : 'cursor-crosshair';
+    cursorClass = currentTime < globalAttackCooldown ? 'cursor-wait' : 'cursor-crosshair';
   }
 
   return (
