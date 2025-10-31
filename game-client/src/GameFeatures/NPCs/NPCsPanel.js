@@ -22,6 +22,7 @@ import { checkDeveloperStatus } from '../../Utils/appUtils';
 import questCache from '../../Utils/QuestCache';
 import { calculateDistance, getDerivedRange } from '../../Utils/worldHelpers';
 import { earnTrophy } from '../Trophies/TrophyUtils';
+import HealerInteraction from './HealerInteraction';
 
 const NPCPanel = ({
   onClose,
@@ -57,6 +58,8 @@ const NPCPanel = ({
   const [tradeThreshold, setTradeThreshold] = useState(0);
   const [isDeveloper, setIsDeveloper] = useState(false);
   const [isHealing, setIsHealing] = useState(false); // Prevent spam-clicking heal button
+  const [coolingDownItems, setCoolingDownItems] = useState(new Set());
+  const COOLDOWN_DURATION = 1500; // 1500ms cooldown (3x longer than terraform)
 
 
   // Ensure npcData has default values
@@ -440,20 +443,33 @@ const handleGemPurchase = async (modifiedRecipe, actionType) => {
 const handleHeal = async (recipe) => {
     setErrorMessage('');
 
-    if (!recipe || isHealing) {
+    const itemKey = `heal-${recipe.type}`;
+    if (!recipe || isHealing || coolingDownItems.has(itemKey)) {
       if (!recipe) setErrorMessage('Invalid healing recipe selected.');
       return;
     }
     
-    // Set healing flag to prevent spam clicks
+    // Set healing flag and cooldown to prevent spam clicks
     setIsHealing(true);
+    setCoolingDownItems(prev => new Set(prev).add(itemKey));
+    
+    // Set timeout for cooldown removal
+    setTimeout(() => {
+      setCoolingDownItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(itemKey);
+        return newSet;
+      });
+    }, COOLDOWN_DURATION);
     // Fetch current HP and Max HP from playersInGridManager
     const gridId = currentPlayer?.location?.g;
     const playerId = currentPlayer._id?.toString();
     const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
     if (!playerInGridState) {
       console.error(`Player ${currentPlayer.username} not found in NPCsInGrid.`);
-      setIsHealing(false);
+      setTimeout(() => {
+        setIsHealing(false);
+      }, COOLDOWN_DURATION);
       return;
     }
     const currentHp = playerInGridState.hp;
@@ -463,7 +479,9 @@ const handleHeal = async (recipe) => {
     if (npcData.output === 'hp') {
       if (currentHp >= maxHp) {
         updateStatus(401);  // Player is already at full HP
-        setIsHealing(false);
+        setTimeout(() => {
+          setIsHealing(false);
+        }, COOLDOWN_DURATION);
         return;
       }
     }
@@ -478,7 +496,9 @@ const handleHeal = async (recipe) => {
       updateStatus,
     });
     if (!spendResult) {
-      setIsHealing(false);
+      setTimeout(() => {
+        setIsHealing(false);
+      }, COOLDOWN_DURATION);
       return;
     }
     
@@ -500,8 +520,10 @@ const handleHeal = async (recipe) => {
     } catch (error) {
       console.error('Error applying healing:', error);
     } finally {
-      // Always clear the healing flag
-      setIsHealing(false);
+      // Clear the healing flag after cooldown duration to sync with animation
+      setTimeout(() => {
+        setIsHealing(false);
+      }, COOLDOWN_DURATION);
     }
 
   };
@@ -836,6 +858,14 @@ const handleHeal = async (recipe) => {
 
       {npcData.action === 'heal' && healRecipes.length > 0 && (
         <div className="heal-options">
+          {/* Render healer interaction animation when healing */}
+          <HealerInteraction
+            isHealing={isHealing}
+            currentPlayer={currentPlayer}
+            TILE_SIZE={TILE_SIZE}
+            healAmount={npcData.qtycollected}
+            onHealingComplete={() => setIsHealing(false)}
+          />
 <br />
           {/* Fetch and display player's HP from playersInGridManager */}
           {(() => {
@@ -859,17 +889,22 @@ const handleHeal = async (recipe) => {
             const affordable = canAfford(recipe, inventory, 1);
             const healAmount = recipe.qtycollected; // Healing value
 
+            const itemKey = `heal-${recipe.type}`;
+            const isCoolingDown = coolingDownItems.has(itemKey);
+            
             return (
               <ResourceButton
                 key={recipe.type}
                 symbol={recipe.symbol}
                 name={getLocalizedString(recipe.type, strings)}
                 details={`${strings[463]} ❤️‍🩹 +${healAmount}<br>${strings[461]} ${ingredients.join(', ') || 'None'}`}
-                disabled={!affordable || isHealing}
+                disabled={!affordable || isHealing || isCoolingDown}
                 onClick={() => handleHeal(recipe)}
+                className={isCoolingDown ? 'cooldown' : ''}
+                style={isCoolingDown ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
                 // Gem purchase props
                 gemCost={recipe.gemcost || null}
-                onGemPurchase={(recipe.gemcost && !affordable && !isHealing) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'heal') : null}
+                onGemPurchase={(recipe.gemcost && !affordable && !isHealing && !isCoolingDown) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'heal') : null}
                 resource={recipe}
                 inventory={inventory}
                 backpack={backpack}
