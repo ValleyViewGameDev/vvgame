@@ -254,6 +254,29 @@ export async function handleDooberClick(
   const qtyCollected = baseQtyCollected * skillMultiplier;
   console.log('[DEBUG] qtyCollected after multiplier:', qtyCollected);
   
+  // Check for missing backpack FIRST before any optimistic updates
+  const isHomestead = currentPlayer?.location?.gtype === 'homestead';
+  const isCurrencyItem = resource.type === 'Money' || 
+                        resource.type === 'Gem' || 
+                        resource.type === 'Yellow Heart' ||
+                        resource.type === 'Green Heart' ||
+                        resource.type === 'Purple Heart';
+  const storingInBackpack = !isCurrencyItem && !isHomestead;
+  
+  if (storingInBackpack) {
+    const hasBackpackSkill = currentPlayer?.skills?.some((item) => item.type === 'Backpack' && item.quantity > 0);
+    if (!hasBackpackSkill) {
+      // Missing backpack - show status message and floating text
+      updateStatus(19); // Missing backpack message
+      FloatingTextManager.addFloatingText(strings["44"] || "No backpack", col, row, TILE_SIZE);
+      // Clear processing flag
+      if (window._processingDoobers) {
+        window._processingDoobers.delete(dooberId);
+      }
+      return;
+    }
+  }
+  
   // Pre-check capacity before optimistic update
   const hasRoom = hasRoomFor({
     resource: resource.type,
@@ -266,7 +289,7 @@ export async function handleDooberClick(
   });
   
   if (!hasRoom) {
-    // Don't do optimistic update if we know it will fail
+    // At this point we know they have a backpack if needed, so this is a real capacity issue
     console.warn("Pre-check: No room for resource. Showing error immediately.");
     FloatingTextManager.addFloatingText(strings["41"] || "Not enough room", col, row, TILE_SIZE);
     if (openPanel) {
@@ -317,14 +340,21 @@ export async function handleDooberClick(
         // Real conflict - rollback the doober
         console.warn("❌ Capacity limit reached. Rolling back doober.");
         setResources((prevResources) => [...prevResources, resource]);
-        // Show floating text for capacity error
-        FloatingTextManager.addFloatingText(strings["41"] || "Not enough room", col, row, TILE_SIZE);
-        // Auto-open inventory panel when truly at capacity
-        console.log("Opening inventory panel. openPanel function:", openPanel);
-        if (openPanel) {
-          openPanel('InventoryPanel');
+        
+        // Check if the error is specifically about missing backpack
+        if (gainResult.isMissingBackpack) {
+          // Don't show floating text - status message (19) already set by gainIngredients
+          // Don't open inventory panel for missing backpack
         } else {
-          console.warn("openPanel function not available!");
+          // Show floating text for actual capacity error
+          FloatingTextManager.addFloatingText(strings["41"] || "Not enough room", col, row, TILE_SIZE);
+          // Auto-open inventory panel when truly at capacity
+          console.log("Opening inventory panel. openPanel function:", openPanel);
+          if (openPanel) {
+            openPanel('InventoryPanel');
+          } else {
+            console.warn("openPanel function not available!");
+          }
         }
         // Clear processing flag
         if (window._processingDoobers) {

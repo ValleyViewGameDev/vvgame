@@ -267,7 +267,8 @@ export async function gainIngredients({
       if (updateStatus) updateStatus(19); // Missing backpack
       return {
         success: false,
-        isCapacityError: true, // Treat missing backpack as a capacity issue
+        isCapacityError: true, // Treat missing backpack as a capacity issue for rollback purposes
+        isMissingBackpack: true, // Specific flag for missing backpack
         isNetworkError: false,
         error: new Error('Missing backpack skill')
       };
