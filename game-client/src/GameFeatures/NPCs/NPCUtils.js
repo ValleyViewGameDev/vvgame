@@ -32,7 +32,9 @@ async function handleProtectedFarmAnimalCollection(
   currentGridId,
   updateStatus,
   strings = {},
-  globalTuning = null
+  globalTuning = null,
+  inventory = null,
+  backpack = null
 ) {
   console.log(`🔒 [PROTECTED FARM ANIMAL] Starting protected collection for NPC ${npc.id}`);
   
@@ -51,25 +53,8 @@ async function handleProtectedFarmAnimalCollection(
       return { type: 'error', message: `Animal not in processing state (${currentNPCState.state})` };
     }
     
-    // Check warehouse capacity BEFORE calling server
-    const hasRoom = hasRoomFor({
-      resource: npc.output,
-      quantity: 1,
-      currentPlayer,
-      inventory: currentPlayer.inventory,
-      backpack: currentPlayer.backpack,
-      masterResources,
-      globalTuning
-    });
-    
-    if (!hasRoom) {
-      console.log(`❌ No room in warehouse for ${npc.output}`);
-      // Show "You're full" floating text (string 41)
-      FloatingTextManager.addFloatingText(41, col, row, TILE_SIZE);
-      // Don't update status bar - the floating text is enough feedback
-      // Leave the animal in processing state
-      return { type: 'error', message: 'Warehouse full' };
-    }
+    // Skip pre-check for warehouse capacity - let server handle it with fresh data
+    // The pre-check was using potentially stale inventory data from currentPlayer
     
     const response = await axios.post(`${API_BASE}/api/farm-animal/collect`, {
       playerId: currentPlayer.playerId,
@@ -92,8 +77,8 @@ async function handleProtectedFarmAnimalCollection(
         currentPlayer,
         resource: collectedItem,
         quantity: collectedQuantity,
-        inventory: currentPlayer.inventory,
-        backpack: currentPlayer.backpack,
+        inventory: inventory || currentPlayer.inventory,
+        backpack: backpack || currentPlayer.backpack,
         setInventory,
         setBackpack,
         setCurrentPlayer,
@@ -102,12 +87,14 @@ async function handleProtectedFarmAnimalCollection(
         globalTuning,
       });
       
-      if (!gained || !gained.success) {
+      // Check if gainIngredients succeeded - it returns true on success or an error object on failure
+      if (gained !== true && (!gained || gained.success === false)) {
         console.error('❌ Failed to add animal product to inventory - warehouse may be full');
+        console.error('❌ gainIngredients result:', gained);
         // The server already changed the NPC state, but we couldn't add the item
         // This is a critical error - the item is lost
         // Show the "You're full" floating text instead of success
-        FloatingTextManager.addFloatingText(41, col, row, TILE_SIZE);
+        FloatingTextManager.addFloatingText(strings["41"] || "You're full", col, row, TILE_SIZE);
         return { type: 'error', message: 'Warehouse full - item lost' };
       }
 
@@ -149,7 +136,7 @@ async function handleProtectedFarmAnimalCollection(
       }
 
       // Only show success feedback if item was added to inventory
-      if (gained && gained.success) {
+      if (gained === true) {
         // Visual feedback
         FloatingTextManager.addFloatingText(`+${collectedQuantity} ${getLocalizedString(collectedItem, strings)}`, col, row, TILE_SIZE);
         
@@ -188,9 +175,11 @@ async function handleProtectedFarmAnimalCollection(
       console.error(`❌ 400 Error details:`, errorDetails);
       
       // Handle warehouse full error
-      if (errorMessage === 'Warehouse full') {
-        console.error(`❌ Cannot collect: Warehouse is full (${errorDetails.currentUsage}/${errorDetails.capacity})`);
-        updateStatus(20); // Warehouse full status message
+      if (errorMessage === 'Warehouse full' || errorMessage.includes('Warehouse full')) {
+        console.error(`❌ Cannot collect: Warehouse is full (${errorDetails?.currentUsage}/${errorDetails?.capacity})`);
+        // Show "You're full" floating text
+        FloatingTextManager.addFloatingText(strings["41"] || "You're full", col, row, TILE_SIZE);
+        // Don't show status message - floating text is enough
         return { type: 'error', message: 'Warehouse is full' };
       }
       
@@ -359,6 +348,7 @@ export async function handleNPCClick(
             row,
             col,
             setInventory,
+            setBackpack,
             setResources,
             currentPlayer,
             setCurrentPlayer,
@@ -371,7 +361,9 @@ export async function handleNPCClick(
             updateStatus,
             openPanel,
             setActiveStation,
-            strings
+            strings,
+            masterTrophies,
+            globalTuning
           );
         }
 
