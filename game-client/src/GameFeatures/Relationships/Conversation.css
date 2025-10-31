@@ -4,9 +4,8 @@
   background-color: white;
   border: 3px solid #333;
   border-radius: 50%;
-  padding: 15px;
-  width: 80px;
-  height: 80px;
+  padding: 10%;
+  /* Remove fixed width/height - let inline styles control size */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,7 +47,7 @@
 
 /* Emoji styles */
 .speech-emoji {
-  font-size: 32px;
+  /* Font size controlled by inline styles based on TILE_SIZE */
   position: relative;
   z-index: 1;
 }
@@ -57,7 +56,7 @@
 /* Different styles for player vs NPC */
 .conversation-speech-bubble.player {
   background-color: #e3f2fd;
-  border-color: #ffffff;
+  border-color: #2196F3;
 }
 
 .conversation-speech-bubble.player::after {
@@ -65,12 +64,25 @@
 }
 
 .conversation-speech-bubble.player::before {
-  border-top-color: #ffffff;
+  border-top-color: #2196F3;
+}
+
+.conversation-speech-bubble.pc {
+  background-color: #e3f2fd;
+  border-color: #2196F3;
+}
+
+.conversation-speech-bubble.pc::after {
+  border-top-color: #e3f2fd;
+}
+
+.conversation-speech-bubble.pc::before {
+  border-top-color: #2196F3;
 }
 
 .conversation-speech-bubble.npc {
   background-color: #f3e5f5;
-  border-color: #ffffff;
+  border-color: #9C27B0;
 }
 
 .conversation-speech-bubble.npc::after {
@@ -78,7 +90,7 @@
 }
 
 .conversation-speech-bubble.npc::before {
-  border-top-color: #ffffff;
+  border-top-color: #9C27B0;
 }
 
 /* Fade in animation */

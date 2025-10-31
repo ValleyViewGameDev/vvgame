@@ -323,16 +323,25 @@ const animateCharacter = async (characterType, position, TILE_SIZE) => {
   let characterElement;
   
   if (characterType === 'player') {
-    // Find player element
+    // Find player element - new React components use left/top positioning
     const playerElements = document.querySelectorAll('.pc');
     characterElement = Array.from(playerElements).find(el => {
+      // Check both transform (old) and left/top (new) positioning
       const transform = el.style.transform;
-      if (transform) {
+      const left = parseFloat(el.style.left);
+      const top = parseFloat(el.style.top);
+      
+      if (!isNaN(left) && !isNaN(top)) {
+        // New positioning system
+        const expectedX = position.x * TILE_SIZE;
+        const expectedY = position.y * TILE_SIZE;
+        return Math.abs(left - expectedX) < TILE_SIZE/2 && Math.abs(top - expectedY) < TILE_SIZE/2;
+      } else if (transform) {
+        // Old positioning system fallback
         const match = transform.match(/translate\((-?\d+(?:\.\d+)?)px,\s*(-?\d+(?:\.\d+)?)px\)/);
         if (match) {
           const x = parseFloat(match[1]);
           const y = parseFloat(match[2]);
-          // Check if position matches (with some tolerance)
           const expectedX = position.x * TILE_SIZE;
           const expectedY = position.y * TILE_SIZE;
           return Math.abs(x - expectedX) < TILE_SIZE/2 && Math.abs(y - expectedY) < TILE_SIZE/2;
@@ -341,16 +350,25 @@ const animateCharacter = async (characterType, position, TILE_SIZE) => {
       return false;
     });
   } else {
-    // Find NPC element
+    // Find NPC element - new React components use left/top positioning
     const npcElements = document.querySelectorAll('.npc');
     characterElement = Array.from(npcElements).find(el => {
+      // Check both transform (old) and left/top (new) positioning
       const transform = el.style.transform;
-      if (transform) {
+      const left = parseFloat(el.style.left);
+      const top = parseFloat(el.style.top);
+      
+      if (!isNaN(left) && !isNaN(top)) {
+        // New positioning system
+        const expectedX = position.x * TILE_SIZE;
+        const expectedY = position.y * TILE_SIZE;
+        return Math.abs(left - expectedX) < TILE_SIZE/2 && Math.abs(top - expectedY) < TILE_SIZE/2;
+      } else if (transform) {
+        // Old positioning system fallback
         const match = transform.match(/translate\((-?\d+(?:\.\d+)?)px,\s*(-?\d+(?:\.\d+)?)px\)/);
         if (match) {
           const x = parseFloat(match[1]);
           const y = parseFloat(match[2]);
-          // Check if position matches (with some tolerance)
           const expectedX = position.x * TILE_SIZE;
           const expectedY = position.y * TILE_SIZE;
           return Math.abs(x - expectedX) < TILE_SIZE/2 && Math.abs(y - expectedY) < TILE_SIZE/2;

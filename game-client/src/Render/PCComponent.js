@@ -200,10 +200,10 @@ const PCComponent = ({
             left: '50%',
             bottom: '100%',
             transform: 'translateX(-50%)',
-            marginBottom: '10px',
-            width: `${TILE_SIZE * 2.5}px`,
-            height: `${TILE_SIZE * 2.5}px`,
-            fontSize: `${TILE_SIZE}px`,
+            marginBottom: `${TILE_SIZE * 0.2}px`,
+            width: `${TILE_SIZE * 1.5}px`,
+            height: `${TILE_SIZE * 1.5}px`,
+            fontSize: `${TILE_SIZE * 0.6}px`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -211,7 +211,7 @@ const PCComponent = ({
             zIndex: 17,
           }}
         >
-          <div className="speech-emoji" style={{ fontSize: `${TILE_SIZE * 1.6}px` }}>
+          <div className="speech-emoji" style={{ fontSize: `${TILE_SIZE * 0.9}px` }}>
             {speechBubble.topic || speechBubble.emoji}
           </div>
         </div>
@@ -226,10 +226,10 @@ const PCComponent = ({
             left: '50%',
             bottom: '100%',
             transform: 'translateX(-50%)',
-            marginBottom: '10px',
+            marginBottom: `${TILE_SIZE * 0.2}px`,
             pointerEvents: 'none',
             zIndex: 18,
-            fontSize: `${TILE_SIZE * 1.5}px`,
+            fontSize: `${TILE_SIZE * 0.8}px`,
           }}
         >
           {relationshipOutcome.type === 'positive' ? '👍' : '❌'}

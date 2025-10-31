@@ -68,17 +68,19 @@ const NPCComponent = ({
   // Subscribe to conversation changes
   useEffect(() => {
     const updateConversation = () => {
-      const speech = ConversationManager.getSpeech(npc.id);
+      // For conversation, use NPC type (name) as the identifier, not numeric ID
+      const speechId = npc.type; // e.g., "Kent", "Farmer", etc.
+      const speech = ConversationManager.getSpeech(speechId);
       setSpeechBubble(speech);
       
-      const outcome = ConversationManager.getOutcome(npc.id);
+      const outcome = ConversationManager.getOutcome(speechId);
       setRelationshipOutcome(outcome);
     };
     
     updateConversation();
     const unsubscribe = ConversationManager.subscribe(updateConversation);
     return unsubscribe;
-  }, [npc.id]);
+  }, [npc.type]);
 
   // Handle NPC overlay status
   useEffect(() => {
@@ -391,10 +393,10 @@ const NPCComponent = ({
             left: '50%',
             bottom: '100%',
             transform: 'translateX(-50%)',
-            marginBottom: '10px',
-            width: `${TILE_SIZE * 2.5}px`,
-            height: `${TILE_SIZE * 2.5}px`,
-            fontSize: `${TILE_SIZE}px`,
+            marginBottom: `${TILE_SIZE * 0.2}px`,
+            width: `${TILE_SIZE * 1.5}px`,
+            height: `${TILE_SIZE * 1.5}px`,
+            fontSize: `${TILE_SIZE * 0.6}px`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -402,7 +404,7 @@ const NPCComponent = ({
             zIndex: 17,
           }}
         >
-          <div className="speech-emoji" style={{ fontSize: `${TILE_SIZE * 1.6}px` }}>
+          <div className="speech-emoji" style={{ fontSize: `${TILE_SIZE * 0.9}px` }}>
             {speechBubble.topic || speechBubble.emoji}
           </div>
         </div>
@@ -417,10 +419,10 @@ const NPCComponent = ({
             left: '50%',
             bottom: '100%',
             transform: 'translateX(-50%)',
-            marginBottom: '10px',
+            marginBottom: `${TILE_SIZE * 0.2}px`,
             pointerEvents: 'none',
             zIndex: 18,
-            fontSize: `${TILE_SIZE * 1.5}px`,
+            fontSize: `${TILE_SIZE * 0.8}px`,
           }}
         >
           {relationshipOutcome.type === 'positive' ? '👍' : '❌'}
