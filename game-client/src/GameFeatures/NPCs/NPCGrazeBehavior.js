@@ -41,8 +41,13 @@ async function handleFarmAnimalBehavior(gridId) {
         case 'idle': {
 //            console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state}`);
             const idleCompleted = await this.handleIdleState(tiles, resources, npcs, 4, async () => {
-//              console.log(`🔁 Retrying stall for NPC ${this.id}`);
-              this.state = 'stall';
+//              console.log(`🔁 Retrying after idle for NPC ${this.id}`);
+              // Check if we have grazeEnd to determine next state
+              if (this.grazeEnd && Date.now() >= this.grazeEnd) {
+                this.state = 'stall';
+              } else {
+                this.state = 'hungry';
+              }
               await updateThisNPC();
             });
           
@@ -86,10 +91,25 @@ async function handleFarmAnimalBehavior(gridId) {
                     break;
                 }
         
-                // Filter out occupied grass tiles
-                const unoccupiedGrassTiles = grassTiles.filter(
-                    (tile) => !resources.some((res) => res.x === tile.x && res.y === tile.y)
-                );
+                // Filter out occupied grass tiles (by resources or other grazing animals)
+                const unoccupiedGrassTiles = grassTiles.filter((tile) => {
+                    // Check if occupied by a resource
+                    if (resources.some((res) => res.x === tile.x && res.y === tile.y)) {
+                        return false;
+                    }
+                    // Check if occupied by another grazing animal
+                    const otherAnimalOnTile = npcs.some(npc => 
+                        npc.id !== this.id &&
+                        npc.action === 'graze' &&
+                        Math.floor(npc.position?.x) === tile.x &&
+                        Math.floor(npc.position?.y) === tile.y
+                    );
+                    if (otherAnimalOnTile) {
+                        console.log(`Grass tile at (${tile.x}, ${tile.y}) is occupied by another animal, skipping`);
+                        return false;
+                    }
+                    return true;
+                });
         
                 if (unoccupiedGrassTiles.length === 0) {
                     const tileTypeName = targetTileType === 'd' ? 'dirt' : 'grass';
@@ -119,6 +139,18 @@ async function handleFarmAnimalBehavior(gridId) {
         
                 // Explicitly handle when dx and dy are both 0 (already at the target)
                 if (dx === 0 && dy === 0) {
+                    // Before transitioning to grazing, check if another animal has moved onto our target
+                    const otherAnimalOnTile = npcs.some(npc => 
+                        npc.id !== this.id &&
+                        npc.action === 'graze' &&
+                        Math.floor(npc.position?.x) === this.targetGrassTile.x &&
+                        Math.floor(npc.position?.y) === this.targetGrassTile.y
+                    );
+                    if (otherAnimalOnTile) {
+                        console.warn(`Another animal took our target grass tile! Finding new one.`);
+                        this.targetGrassTile = null;
+                        break; // Stay in hungry state and find new tile next update
+                    }
                    // console.log(`NPC ${this.id} is already at the target grazing tile. Transitioning to grazing.`);
                     this.state = 'grazing'; // Transition to grazing
                     this.targetGrassTile = null; // Clear the target
@@ -168,10 +200,23 @@ async function handleFarmAnimalBehavior(gridId) {
                     Math.floor(this.position.x) === this.targetGrassTile.x &&
                     Math.floor(this.position.y) === this.targetGrassTile.y
                 ) {
-                    //console.log(`NPC ${this.id} has reached the grass tile at (${this.targetGrassTile.x}, ${this.targetGrassTile.y}). Transitioning to grazing.`);
-                    this.state = 'grazing'; // Transition to grazing
-                    this.targetGrassTile = null; // Clear the target
-                    await updateThisNPC(); // Save after transition
+                    // Before transitioning to grazing, check if another animal has moved onto our target
+                    const otherAnimalOnTile = npcs.some(npc => 
+                        npc.id !== this.id &&
+                        npc.action === 'graze' &&
+                        Math.floor(npc.position?.x) === this.targetGrassTile.x &&
+                        Math.floor(npc.position?.y) === this.targetGrassTile.y
+                    );
+                    if (otherAnimalOnTile) {
+                        console.warn(`Another animal took our target grass tile! Finding new one.`);
+                        this.targetGrassTile = null;
+                        // Don't transition to grazing, stay hungry and find new tile
+                    } else {
+                        //console.log(`NPC ${this.id} has reached the grass tile at (${this.targetGrassTile.x}, ${this.targetGrassTile.y}). Transitioning to grazing.`);
+                        this.state = 'grazing'; // Transition to grazing
+                        this.targetGrassTile = null; // Clear the target
+                        await updateThisNPC(); // Save after transition
+                    }
                 }
             }
             else {
@@ -211,14 +256,20 @@ async function handleFarmAnimalBehavior(gridId) {
         case 'stall': {
             //console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state} grazeEnd: ${this.grazeEnd}`);
             const fullGridState = NPCsInGridManager.getNPCsInGrid(gridId);
+            
+            // Initialize retry counter and failed stalls list
+            if (!this.stallRetries) this.stallRetries = 0;
+            if (!this.failedStalls) this.failedStalls = [];
     
             // Step 1: If no stall is currently assigned, find the nearest available stall
             if (!this.targetStall) {
                 //console.log(`NPC ${this.id} finding nearest stall.`);
-                this.targetStall = this.findNearestResource('stall', tiles, resources);
+                this.targetStall = this.findNearestResource('stall', tiles, resources, this.failedStalls);
                 if (!this.targetStall) {
                     console.log('No availalbe stall, returning to idle.');
                     this.state = 'idle';
+                    this.stallRetries = 0;
+                    this.failedStalls = [];
                     break;
                 }
             }
@@ -271,11 +322,29 @@ async function handleFarmAnimalBehavior(gridId) {
                 this.isMoving = false;
                 
                 if (!moved) {
-                    console.warn(`NPC ${this.id} is stuck and cannot move toward the stall. Switching to idle.`);
-                    this.targetStall = null;
-                    this.state = 'idle';
-                    this.triedStall = true;
-                    await updateThisNPC(); // ✅ Save failure state
+                    this.stallRetries++;
+                    
+                    if (this.stallRetries < 5) {
+                        // Try a different direction or wait
+                        console.log(`NPC ${this.id} blocked, retry ${this.stallRetries}/5`);
+                    } else {
+                        // Add this stall to failed list and try another
+                        console.warn(`NPC ${this.id} cannot reach stall at (${this.targetStall.x}, ${this.targetStall.y}). Trying alternative.`);
+                        if (!this.failedStalls) this.failedStalls = [];
+                        this.failedStalls.push({ x: this.targetStall.x, y: this.targetStall.y });
+                        this.targetStall = null;
+                        this.stallRetries = 0;
+                        
+                        // Try to find another stall
+                        const alternativeStall = this.findNearestResource('stall', tiles, resources, this.failedStalls);
+                        if (!alternativeStall) {
+                            console.log('No alternative stalls available, returning to idle.');
+                            this.state = 'idle';
+                            this.failedStalls = [];
+                            this.triedStall = true;
+                        }
+                    }
+                    await updateThisNPC(); // ✅ Save state
                     break;
                 }
                 
@@ -283,8 +352,13 @@ async function handleFarmAnimalBehavior(gridId) {
                 }
         
             // Step 9: If NPC reaches the stall, transition to processing state
-            if (Math.floor(this.position.x) === this.targetStall.x &&
-                Math.floor(this.position.y) === this.targetStall.y) {
+            const atStall = Math.floor(this.position.x) === this.targetStall.x &&
+                           Math.floor(this.position.y) === this.targetStall.y;
+            const nearStall = Math.abs(Math.floor(this.position.x) - this.targetStall.x) <= 1 &&
+                             Math.abs(Math.floor(this.position.y) - this.targetStall.y) <= 1;
+            
+            // Accept being adjacent to stall if we've tried multiple times
+            if (atStall || (nearStall && this.stallRetries > 2)) {
             
                 // Check if another animal is already at this position
                 const otherNPCsAtStall = Object.values(fullGridState || {}).filter(otherNpc => 
@@ -297,12 +371,14 @@ async function handleFarmAnimalBehavior(gridId) {
                 console.log(`🐮 NPC ${this.id} reached stall at (${this.targetStall.x}, ${this.targetStall.y}). Other animals at same position: ${otherNPCsAtStall.length}`);
                 
                 if (otherNPCsAtStall.length > 0) {
-                    console.log(`🐮 Multiple animals at stall - allowing all to process. Other animals:`, otherNPCsAtStall.map(n => ({
-                        id: n.id,
-                        type: n.type,
-                        state: n.state,
-                        grazeEnd: n.grazeEnd
-                    })));
+                    console.log(`🐮 Stall is occupied! Adding to failed list and trying another.`);
+                    if (!this.failedStalls) this.failedStalls = [];
+                    this.failedStalls.push({ x: this.targetStall.x, y: this.targetStall.y });
+                    this.targetStall = null;
+                    this.stallRetries = 0;
+                    // Don't transition to processing - stay in stall state to find another
+                    await updateThisNPC();
+                    break;
                 }
                 
                 // ✅ Keep grazeEnd for server validation - it will be cleared after successful collection

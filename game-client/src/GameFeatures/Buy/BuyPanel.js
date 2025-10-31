@@ -1,5 +1,5 @@
 import API_BASE from '../../config'; 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Panel from '../../UI/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/ResourceButton';
@@ -27,6 +27,8 @@ const BuyPanel = ({
   updateStatus,
   isDeveloper,
   currentSeason,
+  NPCsInGrid,
+  globalTuning,
 }) => {
   const { closePanel } = usePanelContext();
   const [buyOptions, setBuyOptions] = useState([]);
@@ -103,6 +105,15 @@ const BuyPanel = ({
     });
   };
 
+  // Count current farm animals on the grid
+  const countFarmAnimals = () => {
+    if (!NPCsInGrid?.[gridId]?.npcs) return 0;
+    return Object.values(NPCsInGrid[gridId].npcs).filter(npc => npc.action === 'graze').length;
+  };
+  
+  const maxFarmAnimals = globalTuning?.maxFarmAnimals || 10; // Default to 10 if not set
+  const currentFarmAnimals = countFarmAnimals();
+
   return ( 
     <Panel onClose={closePanel} descriptionKey="1003" titleKey="1103" panelName="BuyPanel">
       <div className="standard-panel">
@@ -114,6 +125,11 @@ const BuyPanel = ({
               const ingredients = getIngredientDetails(item, allResources);
               const affordable = canAfford(item, inventory);
               const requirementsMet = hasRequiredSkill(item.requires);
+              
+              // Check if this is a farm animal and if we've hit the limit
+              const isFarmAnimal = item.passable && item.action === 'graze';
+              const farmAnimalLimitReached = isFarmAnimal && currentFarmAnimals >= maxFarmAnimals;
+              const isDisabled = !affordable || !requirementsMet || farmAnimalLimitReached;
 
               const formattedCosts = [1, 2, 3, 4].map((i) => {
                 const type = item[`ingredient${i}`];
@@ -130,6 +146,7 @@ const BuyPanel = ({
 
               const skillColor = requirementsMet ? 'green' : 'red';
               const details =
+                (farmAnimalLimitReached ? `<span style="color: red;">${strings[407]}</span><br>` : '') +
                 (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span><br>` : '') +
                 `${strings[461]}<div>${formattedCosts}</div>`;
 
@@ -148,10 +165,11 @@ const BuyPanel = ({
                   name={getLocalizedString(item.type, strings)}
                   details={details}
                   info={info}
-                  disabled={!affordable || !requirementsMet}
+                  disabled={isDisabled}
                   onClick={() =>
                     affordable &&
                     requirementsMet &&
+                    !farmAnimalLimitReached &&
                     handleConstruction({
                       TILE_SIZE,
                       selectedItem: item.type,

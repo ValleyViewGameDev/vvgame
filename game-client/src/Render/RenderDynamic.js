@@ -853,6 +853,9 @@ function handleNPCHoverLeave(npc, hoveredEntityIdRef, setHoverTooltip) {
   }
 }
 
+// Export hover functions for use in React components
+export { handleNPCHover, handleNPCHoverLeave };
+
 function handlePCHover(event, pc, TILE_SIZE, setHoverTooltip) {
   const rect = event.target.getBoundingClientRect();
   const x = rect.left + TILE_SIZE / 2;

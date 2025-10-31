@@ -277,42 +277,28 @@ async moveOneTile(direction, tiles, resources, npcs) {
   }
   //console.log('Tile was valid.');
   const moveDuration = 1200; // Standard movement speed for all NPCs
-  const startTime = performance.now(); // Get the start time
-  const startX = this.position.x;
-  const startY = this.position.y;
-
+  
+  // Set the target position immediately - CSS transition will handle the animation
+  this.position.x = targetX;
+  this.position.y = targetY;
+  
+  // Trigger state update immediately so React component updates
+  NPCsInGridManager.updateNPC(this.gridId, this.id, { position: { x: targetX, y: targetY } });
+  
   return new Promise((resolve) => {
-      const step = () => {
-          const currentTime = performance.now();
-          const elapsedTime = currentTime - startTime;
-          
-          if (elapsedTime >= moveDuration) {
-              // Snap to the final position and resolve
-              this.position.x = targetX;
-              this.position.y = targetY;
-              if (socket && socket.connected) {
-                socket.emit('npc-moved', {
-                  gridId: this.gridId,
-                  npcId: this.id,
-                  newPosition: { x: targetX, y: targetY },
-                  emitterId: socket.id
-                });
-                //console.log(`📡 Emitting npc-moved for NPC ${this.id} to (${targetX}, ${targetY}) from ${socket.id}`);
-              }
-              resolve(true);
-              return;
+      // Wait for CSS transition to complete before emitting socket event
+      setTimeout(() => {
+          if (socket && socket.connected) {
+            socket.emit('npc-moved', {
+              gridId: this.gridId,
+              npcId: this.id,
+              newPosition: { x: targetX, y: targetY },
+              emitterId: socket.id
+            });
+            //console.log(`📡 Emitting npc-moved for NPC ${this.id} to (${targetX}, ${targetY}) from ${socket.id}`);
           }
-
-          // Calculate the fractional progress
-          const progress = elapsedTime / moveDuration;
-          this.position.x = startX + progress * (targetX - startX);
-          this.position.y = startY + progress * (targetY - startY);
-
-          // Request the next frame
-          requestAnimationFrame(step);
-      };
-
-      requestAnimationFrame(step);
+          resolve(true);
+      }, moveDuration);
   });
 }
 
@@ -395,10 +381,14 @@ isValidTile(x, y, tiles, resources, npcs) {
   }
 
   // Check if another NPC is occupying the tile
-  const npcInTile = npcs.some(npc => Math.floor(npc.position.x) === x && Math.floor(npc.position.y) === y);
+  const npcInTile = npcs.find(npc => Math.floor(npc.position.x) === x && Math.floor(npc.position.y) === y && npc.id !== this.id);
   if (npcInTile) {
-    //console.warn(`Tile (${x}, ${y}) is already occupied by another NPC.`);
-    return false;
+    // Allow farm animals to move through other farm animals
+    const bothGrazingAnimals = this.action === 'graze' && npcInTile.action === 'graze';
+    if (!bothGrazingAnimals) {
+      //console.warn(`Tile (${x}, ${y}) is already occupied by another NPC.`);
+      return false;
+    }
   }
 
   //console.log(`Tile (${x}, ${y}) is valid for movement.`);
@@ -436,7 +426,7 @@ async findTileInRange(tileType, tiles, resources) {
 }
 
 
-findNearestResource(targetResource, tiles, resources) {
+findNearestResource(targetResource, tiles, resources, excludePositions = []) {
   //console.log(`Finding nearest ${targetResource} for NPC ${this.id}.`);
 
   if (!resources || !Array.isArray(resources) || resources.length === 0) {
@@ -447,8 +437,33 @@ findNearestResource(targetResource, tiles, resources) {
     x: Math.floor(this.position.x),
     y: Math.floor(this.position.y),
   };
+  
+  // Get all NPCs for checking stall occupancy
+  const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(this.gridId) || {});
+  
   const availableResources = resources.filter((res) => {
-    return res.category === targetResource && typeof res.x === 'number' && typeof res.y === 'number';
+    if (res.category !== targetResource || typeof res.x !== 'number' || typeof res.y !== 'number') {
+      return false;
+    }
+    // Exclude positions that have been tried and failed
+    const isExcluded = excludePositions.some(pos => pos.x === res.x && pos.y === res.y);
+    if (isExcluded) return false;
+    
+    // For stalls, check if another grazing animal is already there
+    if (targetResource === 'stall') {
+      const otherAnimalAtStall = npcs.some(npc => 
+        npc.id !== this.id &&
+        npc.action === 'graze' &&
+        Math.floor(npc.position?.x) === res.x &&
+        Math.floor(npc.position?.y) === res.y
+      );
+      if (otherAnimalAtStall) {
+        console.log(`Stall at (${res.x}, ${res.y}) is occupied, skipping`);
+        return false;
+      }
+    }
+    
+    return true;
   });
   if (availableResources.length === 0) {
     //console.warn(`No available ${targetResource} found for NPC ${this.id}.`);
@@ -462,6 +477,26 @@ findNearestResource(targetResource, tiles, resources) {
   const closestResource = availableResources[0];
   //console.log(`NPC ${this.id} selected nearest ${targetResource}:`, closestResource);
   return closestResource;
+}
+
+// Find all resources of a type sorted by distance
+findAllResources(targetResource, tiles, resources) {
+  if (!resources || !Array.isArray(resources) || resources.length === 0) {
+    return [];
+  }
+  const npcPosition = {
+    x: Math.floor(this.position.x),
+    y: Math.floor(this.position.y),
+  };
+  const availableResources = resources.filter((res) => {
+    return res.category === targetResource && typeof res.x === 'number' && typeof res.y === 'number';
+  });
+  availableResources.sort((a, b) => {
+    const aPos = { x: Math.floor(a.x), y: Math.floor(a.y) };
+    const bPos = { x: Math.floor(b.x), y: Math.floor(b.y) };
+    return calculateDistance(npcPosition, aPos) - calculateDistance(npcPosition, bPos);
+  });
+  return availableResources;
 }
 
 

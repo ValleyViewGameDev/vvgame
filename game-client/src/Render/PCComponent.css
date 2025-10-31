@@ -1,0 +1,68 @@
+.pc {
+  position: relative;
+  user-select: none;
+}
+
+.pc.current-player {
+  filter: drop-shadow(0 0 4px rgba(255, 255, 0, 0.5));
+}
+
+.pc.other-player:hover {
+  filter: brightness(1.2);
+}
+
+.pc-icon {
+  position: relative;
+  z-index: 2;
+}
+
+.conversation-indicator {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 14px;
+  z-index: 3;
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.health-bar-container {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 4px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
+  overflow: hidden;
+  z-index: 3;
+}
+
+.health-bar {
+  height: 100%;
+  background-color: #4CAF50;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.health-bar.low-health {
+  background-color: #f44336;
+}
+
+.player-name {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 3;
+}

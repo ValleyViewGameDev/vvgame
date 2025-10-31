@@ -197,6 +197,7 @@
     "403": "⚠️ Youre inventory is full.",
     "404": "Working...",
     "405": "❤️‍🩹 Hit Points healed by +",
+    "406": "Maximum reached for this location.",
     "410": "🏕️ To use a purchased tent, click on your own player icon.",
     "420": "will trade you:",
     "421": "Used In:",
@@ -1312,6 +1313,7 @@
 
         "11000": "ADDED STRINGS:",
 
+    "407": "Maximum reached for this location.",
     "42": "Earns: ",
     "30014": "Carnivals Completed",
     "2018": "🎡 Next Carnival Preview:",

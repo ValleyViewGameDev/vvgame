@@ -10,7 +10,7 @@ import { registerNotificationClickHandler } from './UI/Notifications/Notificatio
 import { initializeGrid } from './AppInit';
 import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies, loadMasterWarehouse } from './Utils/TuningManager';
 import { RenderGrid } from './Render/Render';
-import DynamicRenderer from './Render/RenderDynamic.js';
+import DynamicRenderer from './Render/RenderDynamicNew.js';
 import { handleResourceClick } from './ResourceClicking';
 import { isMobile } from './Utils/appUtils';
 import { useUILock } from './UI/UILockContext';
@@ -2591,6 +2591,8 @@ return (
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
           currentSeason={seasonData?.type}
+          NPCsInGrid={NPCsInGrid}
+          globalTuning={globalTuning}
         />
       )}
       {activePanel === 'PetsPanel' && (
