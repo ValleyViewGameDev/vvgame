@@ -586,8 +586,20 @@ export function prepareBulkCraftingData(masterResources, inventory, backpack, cu
   });
 
   // Convert to array and add counts
-  return Object.values(stationGroups).map(group => ({
+  const groupsArray = Object.values(stationGroups).map(group => ({
     ...group,
     stationCount: group.stations.length
   }));
+  
+  // Sort by station type first (alphabetically), then by crafted item (alphabetically)
+  groupsArray.sort((a, b) => {
+    // First compare station types
+    const stationCompare = a.stationType.localeCompare(b.stationType);
+    if (stationCompare !== 0) return stationCompare;
+    
+    // If same station type, compare crafted items
+    return a.craftedItem.localeCompare(b.craftedItem);
+  });
+  
+  return groupsArray;
 }
