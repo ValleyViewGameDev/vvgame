@@ -193,6 +193,22 @@ async function handleProtectedFarmAnimalCollection(
           const serverState = serverStateMatch[1];
           console.error(`❌ Server reports NPC ${npc.id} in state '${serverState}' but client has '${npc.state}'`);
           
+          // Special handling for processing -> stall mismatch (animal was already collected)
+          if (npc.state === 'processing' && serverState === 'stall') {
+            console.log(`🐮 Animal ${npc.id} was already collected (now looking for stall)`);
+            updateStatus(strings["815"] || "This animal was already collected");
+            
+            // Clear stale grazeEnd and update state
+            await NPCsInGridManager.updateNPC(currentGridId, npc.id, {
+              state: serverState,
+              grazeEnd: null,
+              targetStall: null
+            });
+            
+            // Don't try other animals - this was the expected animal
+            return { type: 'error', message: 'Animal already collected' };
+          }
+          
           // Force refresh the NPC from server
           console.log(`🔄 Attempting to resync NPC ${npc.id} state with server...`);
           
