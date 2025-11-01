@@ -188,7 +188,18 @@ export const changePlayerLocation = async (
     // Use robust removal system with immediate DB persistence to prevent ghost PCs
     await playersInGridManager.removePC(fromLocation.g, playerId);
 
-    // ✅ STEP 3: Emit AFTER saving to DB
+    // ✅ STEP 3: Flush pending position updates before leaving grid
+    if (fromLocation && fromLocation.g) {
+      // Flush NPC position updates
+      await NPCsInGridManager.flushGridPositionUpdates(fromLocation.g);
+      console.log(`💾 Flushed pending NPC position updates for grid ${fromLocation.g}`);
+      
+      // Flush PC position updates
+      await playersInGridManager.flushGridPositionUpdates(fromLocation.g);
+      console.log(`💾 Flushed pending PC position updates for grid ${fromLocation.g}`);
+    }
+
+    // ✅ STEP 4: Emit AFTER saving to DB
     socket.emit('player-left-grid', {
       gridId: fromLocation.g,
       playerId: playerId,
@@ -199,7 +210,7 @@ export const changePlayerLocation = async (
     socket.emit('leave-grid', fromLocation.g);
     //console.log(`📢 Emitted [leave-grid] for grid: ${fromLocation.g}`);
       
-    // ✅ STEP 4: Update TO grid's state (add player)
+    // ✅ STEP 5: Update TO grid's state (add player)
 
     //console.log(`2️⃣ Adding player to grid ${toLocation.g}`);
     //console.log('loading NPCsInGrid from db...');
@@ -210,7 +221,7 @@ export const changePlayerLocation = async (
 
     const now = Date.now();
 
-    // ✅ STEP 5: Add the player to the `pcs` object`
+    // ✅ STEP 6: Add the player to the `pcs` object`
     //console.log('IN CHANGE PLAYER LOCATION:  Adding player to the toPCs object')
     // Use combat stats from the fromGrid state if available, fallback to currentPlayer
     //console.log('🚨🚨🚨🚨fromPlayerState = ', fromPlayerState);
@@ -250,11 +261,11 @@ export const changePlayerLocation = async (
 
     //console.log('📤 Constructed player data for adding:', playerData);
 
-    // ✅ STEP 6: Join the socket room FIRST before any grid operations
+    // ✅ STEP 7: Join the socket room FIRST before any grid operations
     socket.emit('join-grid', { gridId: toLocation.g, playerId: playerId });
     //console.log(`📡 Emitted join-grid for grid: ${toLocation.g}`);
     
-    // ✅ STEP 7: Add player to new grid with immediate DB persistence
+    // ✅ STEP 8: Add player to new grid with immediate DB persistence
     //console.log('📤 Adding player to new grid with immediate DB persistence...');
     await playersInGridManager.addPC(toLocation.g, playerId, playerData);
 
@@ -267,7 +278,7 @@ export const changePlayerLocation = async (
     //console.log(`📢 Emitted player-joined-grid for ${toLocation.g}`);
   
 
-    // ✅ STEP 8: Update player location in player record on the DB
+    // ✅ STEP 9: Update player location in player record on the DB
     //console.log('3️⃣ Updating player location...');
     const locationResponse = await axios.post(`${API_BASE}/api/update-player-location`, {
       playerId: playerId,
@@ -308,7 +319,7 @@ export const changePlayerLocation = async (
       }
     }
 
-    // ✅ STEP 9: Update local state
+    // ✅ STEP 10: Update local state
     //console.log('4️⃣ Updating local Player Document...');
     const updatedPlayer = {
       ...currentPlayer,
@@ -323,7 +334,7 @@ export const changePlayerLocation = async (
     setGridId(toLocation.g);
     // WHAT does this ^^ do?
 
-    // ✅ STEP 9.5: Final cleanup verification - ensure dead player is removed from old grid
+    // ✅ STEP 10.5: Final cleanup verification - ensure dead player is removed from old grid
     if (currentPlayer.hp <= 0) {
       console.log('⚰️ Player was dead - verifying cleanup from old grid');
       try {
@@ -338,7 +349,7 @@ export const changePlayerLocation = async (
       }
     }
 
-    // ✅ STEP 10: Initialize the new grid, PCs and NPCs
+    // ✅ STEP 11: Initialize the new grid, PCs and NPCs
     //console.log('!! Running initializeGridState and setGridState');
     await Promise.all([
       initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus, currentPlayer),
@@ -365,14 +376,14 @@ export const changePlayerLocation = async (
     ]);
     //console.log('✅ New grid fully initialized');
 
-    // ✅ STEP 11: Set username for the socket
+    // ✅ STEP 12: Set username for the socket
     socket.emit('set-username', { username: currentPlayer.username });
     
     // Request current NPCController status to clear any stale controller data
     //console.log(`🎮 Requesting current NPCController for grid: ${toLocation.g}`);
     socket.emit('request-npc-controller', { gridId: toLocation.g });
     
-    // ✅ STEP 12: Check if we need to find a signpost location
+    // ✅ STEP 13: Check if we need to find a signpost location
     let finalX = toLocation.x;
     let finalY = toLocation.y;
     
@@ -420,11 +431,11 @@ export const changePlayerLocation = async (
       }
     }
     
-    // ✅ STEP 13: Center view on player
+    // ✅ STEP 14: Center view on player
 
     centerCameraOnPlayer({ x: finalX, y: finalY }, TILE_SIZE);
 
-    // ✅ STEP 14: Update status bar with new grid info
+    // ✅ STEP 15: Update status bar with new grid info
     if (updateStatus && toLocation.gtype) {
       await updateGridStatus(toLocation.gtype, null, updateStatus, currentPlayer, toLocation.g);
     }

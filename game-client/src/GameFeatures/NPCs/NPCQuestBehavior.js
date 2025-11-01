@@ -4,18 +4,10 @@ import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { calculateDistance } from '../../Utils/worldHelpers';
 
-const updateThisNPC = async (npcInstance, gridId) => {
-  await NPCsInGridManager.updateNPC(gridId, npcInstance.id, {
-    state: npcInstance.state,
-    position: npcInstance.position,
-  });
-};
-
 async function handleQuestGiverBehavior(gridId) {
     const tiles = GlobalGridStateTilesAndResources.getTiles();
     const resources = GlobalGridStateTilesAndResources.getResources();
     const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
-    //console.log('🐉 handleQuestGiver:  npcs = ', npcs);
 
     gridId = gridId || this.gridId; // Fallback to npc.gridId if not provided
 
@@ -26,40 +18,31 @@ async function handleQuestGiverBehavior(gridId) {
         return;
     }
 
-    switch (this.state) {
-        case 'idle': {
-            const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
-                calculateDistance(pc.position, this.position) <= this.range && pc.hp>0
-            );
-            if (pcsInRange) { break; }
-            
-            await this.handleIdleState(tiles, resources, npcs, 10, async () => {
-                this.state = 'roam';
-                await updateThisNPC(this, gridId); // Save after transition
-            });
-
-            break;
-          }
-
-          case 'roam': {
-            //console.log(`NPC ${this.id} is roaming.`);
-            const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
-                calculateDistance(pc.position, this.position) <= this.range
-            );
-            if (pcsInRange) { this.state = 'idle'; await updateThisNPC(this, gridId); break; }
-            
-            await this.handleRoamState(tiles, resources, npcs, () => {
-                //console.log(`NPC ${this.id} transitioning back to idle.`);
-                this.state = 'idle'; // Transition to the idle state
-
-              });
-            break;
-          }
-
-        default:
-            console.warn(`NPC ${this.id} is in an unhandled state: ${this.state}`);
-            break;
+    // Force state to roam if it's not already (one-time update)
+    if (this.state !== 'roam') {
+        this.state = 'roam';
+        await NPCsInGridManager.updateNPC(gridId, this.id, {
+            state: this.state,
+            position: this.position,
+        });
     }
+
+    // Check if this NPC is within any PC's range
+    const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
+        calculateDistance(pc.position, this.position) <= (pc.range || 3) && pc.hp > 0
+    );
+    
+    if (pcsInRange) {
+        // If players are in range, don't move (but stay in roam state)
+        // This creates the effect of the NPC stopping when players approach
+        return;
+    }
+    
+    // Always handle roam state - no more switching
+    await this.handleRoamState(tiles, resources, npcs, () => {
+        // Don't change state - stay in roam
+        // This callback is called after roam completes, but we just continue roaming
+    });
 }
 
 // Attach the quest-giver behavior to the NPC class

@@ -53,6 +53,40 @@ async function handleProtectedFarmAnimalCollection(
       return { type: 'error', message: `Animal not in processing state (${currentNPCState.state})` };
     }
     
+    // Check if grazeEnd has expired while offline (indicates stale client state)
+    if (currentNPCState && currentNPCState.grazeEnd) {
+      const timeSinceGrazeEnd = Date.now() - currentNPCState.grazeEnd;
+      if (timeSinceGrazeEnd > 3600000) { // 1 hour past grazeEnd
+        console.warn(`⚠️ NPC ${npc.id} has expired grazeEnd - ${Math.floor(timeSinceGrazeEnd / 60000)} minutes overdue`);
+        console.warn(`⚠️ GrazeEnd was: ${new Date(currentNPCState.grazeEnd).toISOString()}, Now: ${new Date().toISOString()}`);
+        updateStatus("Animal state expired - syncing...");
+        
+        // Force sync with server before attempting collection
+        try {
+          await NPCsInGridManager.syncNPCsFromServer(currentGridId);
+          
+          // Re-check NPC state after sync
+          const syncedNPC = NPCsInGridManager.getNPCsInGrid(currentGridId)?.[npc.id];
+          if (!syncedNPC) {
+            console.error(`❌ NPC ${npc.id} not found after sync`);
+            return { type: 'error', message: 'Animal not found after sync' };
+          }
+          
+          if (syncedNPC.state !== 'processing') {
+            console.log(`🐮 After sync: NPC ${npc.id} is actually in state '${syncedNPC.state}'`);
+            updateStatus(strings["813"] || "This animal is not ready for collection");
+            return { type: 'error', message: 'Animal already cycled through states' };
+          }
+          
+          // Update local reference to use synced data
+          npc = syncedNPC;
+        } catch (syncError) {
+          console.error('Failed to sync NPC state:', syncError);
+          // Continue anyway - let server decide
+        }
+      }
+    }
+    
     // Skip pre-check for warehouse capacity - let server handle it with fresh data
     // The pre-check was using potentially stale inventory data from currentPlayer
     

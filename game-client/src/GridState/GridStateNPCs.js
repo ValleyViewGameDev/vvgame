@@ -18,7 +18,170 @@ export const getLastGridStateTimestamp = () => lastGridStateTimestamp;
 class GridStateManager {
   constructor() {
     this.NPCsInGrid = {}; // Store grid states in memory
+    this.pendingPositionUpdates = new Map(); // Map<gridId, Map<npcId, {position, timestamp}>>
+    this.batchSaveInterval = null;
+    this.BATCH_SAVE_DELAY = 10000; // 10 seconds
     console.log('GridStateManager instance created.');
+    
+    // Start batch save timer
+    this.startBatchSaveTimer();
+  }
+
+  /**
+   * Start the batch save timer
+   */
+  startBatchSaveTimer() {
+    if (this.batchSaveInterval) return; // Already running
+    
+    this.batchSaveInterval = setInterval(() => {
+      this.flushPendingPositionUpdates();
+    }, this.BATCH_SAVE_DELAY);
+    
+    console.log('✅ Batch save timer started (10s interval)');
+  }
+
+  /**
+   * Stop the batch save timer
+   */
+  stopBatchSaveTimer() {
+    if (this.batchSaveInterval) {
+      clearInterval(this.batchSaveInterval);
+      this.batchSaveInterval = null;
+      console.log('❌ Batch save timer stopped');
+    }
+  }
+
+  /**
+   * Queue a position update for batch saving
+   */
+  queuePositionUpdate(gridId, npcId, position) {
+    if (!this.pendingPositionUpdates.has(gridId)) {
+      this.pendingPositionUpdates.set(gridId, new Map());
+    }
+    
+    const gridUpdates = this.pendingPositionUpdates.get(gridId);
+    gridUpdates.set(npcId, {
+      position: { x: position.x, y: position.y },
+      timestamp: Date.now()
+    });
+    
+    //console.log(`📍 Queued position update for NPC ${npcId} at (${position.x}, ${position.y})`);
+  }
+
+  /**
+   * Flush all pending position updates to the database
+   */
+  async flushPendingPositionUpdates() {
+    if (this.pendingPositionUpdates.size === 0) return;
+    
+    console.log(`💾 Flushing batch position updates for ${this.pendingPositionUpdates.size} grids`);
+    
+    // Process each grid's updates
+    for (const [gridId, npcUpdates] of this.pendingPositionUpdates) {
+      if (npcUpdates.size === 0) continue;
+      
+      try {
+        // Convert Map to object for API
+        const updates = {};
+        for (const [npcId, update] of npcUpdates) {
+          updates[npcId] = update.position;
+        }
+        
+        // Send batch update to server
+        await axios.post(`${API_BASE}/api/batch-update-npc-positions`, {
+          gridId,
+          updates,
+          timestamp: Date.now()
+        });
+        
+        console.log(`✅ Batch saved ${npcUpdates.size} NPC positions for grid ${gridId}`);
+        
+        // Clear the updates for this grid
+        npcUpdates.clear();
+      } catch (error) {
+        console.error(`❌ Failed to batch save positions for grid ${gridId}:`, error);
+        // Keep the updates to retry next time
+      }
+    }
+    
+    // Clean up empty grid entries
+    for (const [gridId, npcUpdates] of this.pendingPositionUpdates) {
+      if (npcUpdates.size === 0) {
+        this.pendingPositionUpdates.delete(gridId);
+      }
+    }
+  }
+
+  /**
+   * Force flush position updates for a specific grid
+   * Used when player leaves a grid to ensure all updates are saved
+   */
+  async flushGridPositionUpdates(gridId) {
+    const npcUpdates = this.pendingPositionUpdates.get(gridId);
+    if (!npcUpdates || npcUpdates.size === 0) return;
+    
+    try {
+      // Convert Map to object for API
+      const updates = {};
+      for (const [npcId, update] of npcUpdates) {
+        updates[npcId] = update.position;
+      }
+      
+      // Send batch update to server
+      await axios.post(`${API_BASE}/api/batch-update-npc-positions`, {
+        gridId,
+        updates,
+        timestamp: Date.now()
+      });
+      
+      console.log(`✅ Force batch saved ${npcUpdates.size} NPC positions for grid ${gridId}`);
+      
+      // Clear the updates for this grid
+      npcUpdates.clear();
+      this.pendingPositionUpdates.delete(gridId);
+    } catch (error) {
+      console.error(`❌ Failed to force batch save positions for grid ${gridId}:`, error);
+    }
+  }
+
+  /**
+   * Update ONLY the position of an NPC without saving to database
+   * Used for movement to reduce server load
+   */
+  async updateNPCPosition(gridId, npcId, position) {
+    //console.log(`🐮 Updating position for NPC ${npcId} to (${position.x}, ${position.y})`);
+    
+    const NPCsInGrid = this.NPCsInGrid[gridId];
+    if (!NPCsInGrid || !NPCsInGrid.npcs?.[npcId]) {
+      console.error(`Cannot update position for NPC ${npcId}. Not found in grid ${gridId}`);
+      return;
+    }
+    
+    const npc = NPCsInGrid.npcs[npcId];
+    const now = Date.now();
+    
+    // Update position in memory
+    npc.position = { x: position.x, y: position.y };
+    npc.lastUpdated = now;
+    
+    // Queue for batch save instead of immediate save
+    this.queuePositionUpdate(gridId, npcId, position);
+    
+    // Still emit socket for real-time sync with other players
+    if (socket && socket.emit) {
+      const payload = {
+        [gridId]: {
+          npcs: { [npcId]: { ...npc, position } },
+          NPCsInGridLastUpdated: now,
+        },
+        emitterId: socket.id,
+      };
+      socket.emit('update-NPCsInGrid-NPCs', payload);
+    }
+    
+    // Update React state
+    const updatedGridState = this.getNPCsInGrid(gridId);
+    this.setAllNPCs(gridId, updatedGridState);
   }
 
   registerSetGridState(setterFunction) {
@@ -429,7 +592,15 @@ class GridStateManager {
       this.updateInterval = null;
       //console.log('Grid state updates stopped.');
     }
+    
+    // Flush any pending position updates before clearing
+    this.flushPendingPositionUpdates();
+    
+    // Stop the batch save timer
+    this.stopBatchSaveTimer();
+    
     this.NPCsInGrid = {}; // Clear in-memory grid states
+    this.pendingPositionUpdates.clear(); // Clear pending updates
   }
 
   registerSetGridState(setter) {
@@ -471,10 +642,13 @@ export const {
   getNPCsInGrid,
   addNPC,
   updateNPC,
+  updateNPCPosition,
   removeNPC, 
   saveGridStateNPCs,
   registerSetGridState,
   setAllNPCs,
+  flushPendingPositionUpdates,
+  flushGridPositionUpdates,
 } = NPCsInGridManager;
 
 // Default export for the entire manager

@@ -374,5 +374,72 @@ router.post('/batch-update-npc-positions', async (req, res) => {
   }
 });
 
+// Batch update route: Update multiple PC positions in one request
+router.post('/batch-update-pc-positions', async (req, res) => {
+  const { gridId, updates, timestamp } = req.body;
+
+  try {
+    // Validate input
+    if (!gridId || !updates || typeof updates !== 'object') {
+      return res.status(400).json({ error: 'gridId and updates object are required.' });
+    }
+
+    // Check if there are actually updates to process
+    const updateEntries = Object.entries(updates);
+    if (updateEntries.length === 0) {
+      return res.status(400).json({ error: 'No updates provided.' });
+    }
+
+    // Load the grid
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found.' });
+    }
+
+    // Get current PCs
+    const pcs = new Map(grid.playersInGrid || []);
+    let updatedCount = 0;
+    const errors = [];
+
+    // Process each position update
+    for (const [playerId, pcData] of updateEntries) {
+      // Check if PC exists
+      const pc = pcs.get(playerId);
+      if (!pc) {
+        errors.push(`PC ${playerId} not found in grid`);
+        continue;
+      }
+
+      // Update PC data (position and any other changed properties)
+      Object.assign(pc, pcData, {
+        lastUpdated: new Date(timestamp || Date.now())
+      });
+      
+      pcs.set(playerId, pc);
+      updatedCount++;
+    }
+
+    // Only save if we had successful updates
+    if (updatedCount > 0) {
+      grid.playersInGrid = pcs;
+      grid.playersInGridLastUpdated = new Date(timestamp || Date.now());
+      await grid.save();
+      console.log(`💾 Batch updated ${updatedCount} PC positions for grid ${gridId}`);
+    }
+
+    // Return result with any errors
+    res.status(200).json({ 
+      success: true, 
+      updated: updatedCount,
+      total: updateEntries.length,
+      errors: errors.length > 0 ? errors : undefined
+    });
+
+  } catch (error) {
+    console.error('❌ Error in batch PC position update:', error);
+    res.status(500).json({ error: 'Failed to batch update PC positions.' });
+  }
+});
+
 
 module.exports = router;

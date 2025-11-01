@@ -282,8 +282,8 @@ async moveOneTile(direction, tiles, resources, npcs) {
   this.position.x = targetX;
   this.position.y = targetY;
   
-  // Trigger state update immediately so React component updates
-  NPCsInGridManager.updateNPC(this.gridId, this.id, { position: { x: targetX, y: targetY } });
+  // Use updateNPCPosition for movement-only updates (doesn't save to DB immediately)
+  NPCsInGridManager.updateNPCPosition(this.gridId, this.id, { x: targetX, y: targetY });
   
   return new Promise((resolve) => {
       // Wait for CSS transition to complete before emitting socket event

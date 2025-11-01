@@ -1666,7 +1666,23 @@ const handleLoginSuccess = async (player) => {
     window.addEventListener('mousemove', updateActivity);
     window.addEventListener('keydown', updateActivity);
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') updateActivity();
+      if (document.visibilityState === 'visible') {
+        // When tab becomes visible, check if we've been inactive too long BEFORE updating activity
+        const now = Date.now();
+        const inactiveTime = now - lastActivity;
+        console.log(`👀 Tab became visible. Inactive for ${Math.floor(inactiveTime / 60000)} minutes`);
+        
+        // Check staleness FIRST before updating activity
+        if (inactiveTime >= REFRESH_TIMEOUT) {
+          console.warn('🔁 Was inactive too long while tab was hidden. Showing refresh modal.');
+          checkStaleness();
+          // Don't update activity - let the modal show
+          return;
+        }
+        
+        // Only update activity if we haven't exceeded timeout
+        updateActivity();
+      }
     });
 
     const interval = setInterval(checkStaleness, 60000); // check every minute

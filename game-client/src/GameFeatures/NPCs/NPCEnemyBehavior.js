@@ -74,7 +74,11 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
   const npcs = Object.values(NPCsInGridManager.getNPCsInGrid(gridId) || {});
   const pcs = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}); // Get all PCs on the grid
 
-  if (!this.state) this.state = 'idle';
+  // Force initial state to roam if not set
+  if (!this.state || this.state === 'idle') {
+    this.state = 'roam';
+    await updateThisNPC.call(this, gridId);
+  }
  
   // Check for visible PCs at the start of any state (immediate reaction)
   const visiblePCsInRange = pcs.filter(pc => {
@@ -85,9 +89,9 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
   });
   
   // If we see a PC and we're not already pursuing/attacking, immediately react
-  if (visiblePCsInRange.length > 0 && this.state !== 'pursue' && this.state !== 'attack') {
+  if (visiblePCsInRange.length > 0 && this.state === 'roam') {
     const targetPC = visiblePCsInRange[Math.floor(Math.random() * visiblePCsInRange.length)];
-    console.log(`⚡ NPC ${this.id} spotted PC ${targetPC.username}! Immediately entering pursue state.`);
+    console.log(`⚡ NPC ${this.id} spotted PC ${targetPC.username}! Entering pursue state.`);
     this.targetPC = targetPC;
     this.state = 'pursue';
     this.pursueTimerStart = null;
@@ -98,27 +102,13 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
   switch (this.state) {
 
     case 'idle': {
+      // Idle is ONLY used to get unstuck - always transitions to roam, never back to idle
       this.pursueTimerStart = null; // Clear pursuit timer
-      // Reduced idle duration from 5 to 2 for more responsive enemies
       await this.handleIdleState(tiles, resources, npcs, 2, async () => {
-        const pcsInRange = pcs.filter(pc => {
-          if (pc.hp <= 0) return false;
-          const dist = getDistance(this.position, pc.position);
-          if (dist > this.range) return false;
-          // Check if NPC can see the PC (no walls blocking)
-          return canSeeTarget(this.position, pc.position);
-        });
-        const targetPC = pcsInRange[Math.floor(Math.random() * pcsInRange.length)];
-        if (targetPC) {
-          console.log(`NPC ${this.id} randomly chose PC ${targetPC.username} within range. Entering 'pursue' state.`);
-          this.targetPC = targetPC;
-          this.state = 'pursue';
-          await updateThisNPC.call(this, gridId);
-        } else {
-          console.log(`NPC ${this.id} did not detect any PCs within range. Entering 'roam' state.`);
-          this.state = 'roam';
-          await updateThisNPC.call(this, gridId);
-        }
+        // After idle, always go to roam (never back to idle)
+        this.state = 'roam';
+        this.targetPC = null;
+        await updateThisNPC.call(this, gridId);
       });
       break;
     }
@@ -126,8 +116,8 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
     case 'pursue': {
       this.targetPC = pcs.find(pc => pc.playerId === this.targetPC?.playerId); // Refresh position from latest state
       if (!this.targetPC) {
-        //console.warn(`NPC ${this.id} lost its target. Returning to idle state.`);
-        this.state = 'idle';
+        //console.warn(`NPC ${this.id} lost its target. Returning to roam state.`);
+        this.state = 'roam';
         this.pursueTimerStart = null;
         await updateThisNPC.call(this, gridId); // Save after transition
         break;
@@ -136,8 +126,8 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       // First check if we can still see the target at all
       const canStillSeeTarget = canSeeTarget(this.position, this.targetPC.position);
       if (!canStillSeeTarget) {
-        console.log(`👁️ NPC ${this.id} lost sight of ${this.targetPC?.username} during pursuit. Returning to idle.`);
-        this.state = 'idle';
+        console.log(`👁️ NPC ${this.id} lost sight of ${this.targetPC?.username} during pursuit. Returning to roam.`);
+        this.state = 'roam';
         this.pursueTimerStart = null;
         this.targetPC = null;
         await updateThisNPC.call(this, gridId);
@@ -176,7 +166,7 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
         } else {
           console.log(`🐺 NPC ${this.id} gave up chasing ${this.targetPC?.username} (too far).`);
         }
-        this.state = 'idle';
+        this.state = 'roam';
         this.pursueTimerStart = null;
         this.targetPC = null;
         await updateThisNPC.call(this, gridId);
@@ -222,7 +212,21 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
 
         const moved = await this.moveOneTile(direction, tiles, resources, npcs);
         if (!moved) {
-          console.log(`NPC ${this.id} could not move in direction ${direction}. Trying alternate route.`);
+          console.log(`NPC ${this.id} could not move in direction ${direction}.`);
+          
+          // If we're stuck, use idle state to pick a random direction
+          if (!this.stuckCounter) this.stuckCounter = 0;
+          this.stuckCounter++;
+          
+          if (this.stuckCounter >= 3) {
+            console.log(`NPC ${this.id} appears stuck after ${this.stuckCounter} failed moves. Using idle to unstick.`);
+            this.state = 'idle';
+            this.stuckCounter = 0;
+            await updateThisNPC.call(this, gridId);
+          }
+        } else {
+          // Reset stuck counter on successful move
+          this.stuckCounter = 0;
         }
       };
       
@@ -235,14 +239,14 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       this.targetPC = pcs.find(pc => pc.playerId === this.targetPC?.playerId);
 
       if (!this.targetPC) {
-        //console.warn(`NPC ${this.id} lost its target. Returning to idle state.`);
+        //console.warn(`NPC ${this.id} lost its target. Returning to roam state.`);
         this.pursueTimerStart = null;
-        this.state = 'idle';
+        this.state = 'roam';
         await updateThisNPC.call(gridId); // Save after transition
         break;
       }
       if (this.targetPC.hp <= 0 || this.targetPC.iscamping) {
-        this.state = 'idle';
+        this.state = 'roam';
         await updateThisNPC.call(this, gridId);
         break; // ✅ Skip PCs that are dead or camping
       }
@@ -302,10 +306,9 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
 
     case 'roam': {
       this.pursueTimerStart = null;
-      await this.handleRoamState(tiles, resources, npcs, async () => {
-        //console.log(`NPC ${this.id} transitioning to IDLE state after roaming.`);
-        this.state = 'idle';
-        await updateThisNPC.call(this, gridId); // Save after transition
+      await this.handleRoamState(tiles, resources, npcs, () => {
+        // Don't change state - stay in roam
+        // This callback is called after roam completes, but we just continue roaming
       });
       break;
     }
