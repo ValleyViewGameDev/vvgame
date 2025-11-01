@@ -26,7 +26,11 @@ async function handleSpawnBehavior(gridId) {
             if (pcsInRange) {
                 console.log(`[Spawner] ${this.type} detected PCs nearby. Transitioning to spawn state.`);
                 this.state = 'spawn';
-                await NPCsInGridManager.saveGridStateNPCs(gridId);
+                await NPCsInGridManager.updateNPC(gridId, this.id, {
+                    state: this.state,
+                    position: this.position,
+                    nextspawn: this.nextspawn
+                });
             }
             break;
         }
@@ -36,7 +40,11 @@ async function handleSpawnBehavior(gridId) {
             if (existingNPCs.length >= this.qtycollected) {
                 console.log(`[Spawner] Max ${this.requires} reached (${this.qtycollected}). Returning to idle.`);
                 this.state = 'idle';
-                await NPCsInGridManager.saveGridStateNPCs(gridId);
+                await NPCsInGridManager.updateNPC(gridId, this.id, {
+                    state: this.state,
+                    position: this.position,
+                    nextspawn: this.nextspawn
+                });
                 return;
             }
 
@@ -48,7 +56,11 @@ async function handleSpawnBehavior(gridId) {
                 await NPCsInGridManager.spawnNPC(gridId, { type: this.requires }, npcPosition);
 
                 this.nextspawn = Date.now() + this.speed * 1000;
-                await NPCsInGridManager.saveGridStateNPCs(gridId);
+                await NPCsInGridManager.updateNPC(gridId, this.id, {
+                    state: this.state,
+                    position: this.position,
+                    nextspawn: this.nextspawn
+                });
             } else {
                 console.log(`[Spawner] Waiting for next spawn cycle.`);
             }
@@ -57,7 +69,11 @@ async function handleSpawnBehavior(gridId) {
             if (!pcsStillInRange) {
                 console.log(`[Spawner] No PCs nearby. Returning to idle.`);
                 this.state = 'idle';
-                await NPCsInGridManager.saveGridStateNPCs(gridId);
+                await NPCsInGridManager.updateNPC(gridId, this.id, {
+                    state: this.state,
+                    position: this.position,
+                    nextspawn: this.nextspawn
+                });
             }
             break;
         }
