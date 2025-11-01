@@ -52,6 +52,12 @@ const Feedback = ({ activePanel }) => {
       });
       const playersData = response.data;
       
+      // Debug logging for created date field
+      console.log('🐛 Debug: First player data:', playersData[0]);
+      console.log('🐛 Debug: Available fields:', Object.keys(playersData[0] || {}));
+      console.log('🐛 Debug: created field:', playersData[0]?.created);
+      console.log('🐛 Debug: createdAt field:', playersData[0]?.createdAt);
+      
       setPlayers(playersData);
       
       // Calculate aggregated data
@@ -199,8 +205,8 @@ const Feedback = ({ activePanel }) => {
             bVal = b.ftueFeedback?.browser || 'Unknown';
             break;
           case 'created':
-            aVal = new Date(a.createdAt || 0);
-            bVal = new Date(b.createdAt || 0);
+            aVal = new Date(a.created || 0);
+            bVal = new Date(b.created || 0);
             break;
           default:
             aVal = a[sortField] || '';
@@ -344,7 +350,7 @@ const Feedback = ({ activePanel }) => {
                 <td>{player.language || 'en'}</td>
                 <td>{player.ftuestep || 'Completed'}</td>
                 <td>{player.ftueFeedback?.browser || 'Unknown'}</td>
-                <td>{new Date(player.createdAt).toLocaleDateString()}</td>
+                <td>{player.created ? new Date(player.created).toLocaleDateString() : 'Unknown'}</td>
                 <td>
                   {player.ftueFeedback?.positive?.map(index => feedbackStrings[index]).join(', ') || 'None'}
                 </td>

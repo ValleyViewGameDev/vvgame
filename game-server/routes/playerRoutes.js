@@ -1359,7 +1359,30 @@ router.get('/players', async (req, res) => {
 // GET /api/feedback-data - Get FTUE feedback data for editor
 router.get('/feedback-data', async (req, res) => {
   try {
-    const players = await Player.find({ ftueFeedback: { $exists: true } })
+    const { createdStartDate, createdEndDate } = req.query;
+    
+    // Build the query object
+    let query = { ftueFeedback: { $exists: true } };
+    
+    // Add date range filtering if provided
+    if (createdStartDate || createdEndDate) {
+      query.created = {};
+      
+      if (createdStartDate) {
+        query.created.$gte = new Date(createdStartDate);
+      }
+      
+      if (createdEndDate) {
+        // Add 23:59:59 to end date to include the entire end date
+        const endDate = new Date(createdEndDate);
+        endDate.setHours(23, 59, 59, 999);
+        query.created.$lte = endDate;
+      }
+      
+      console.log(`📅 Filtering feedback data by created date: ${createdStartDate} to ${createdEndDate}`);
+    }
+    
+    const players = await Player.find(query)
       .select('username lastActive aspiration ftuestep ftueFeedback language created')
       .sort({ lastActive: -1 }) // Sort by most recently active first
       .lean(); // Use lean() for better performance when we only need data
