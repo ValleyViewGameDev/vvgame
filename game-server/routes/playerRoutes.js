@@ -1360,7 +1360,7 @@ router.get('/players', async (req, res) => {
 router.get('/feedback-data', async (req, res) => {
   try {
     const players = await Player.find({ ftueFeedback: { $exists: true } })
-      .select('username lastActive aspiration ftuestep ftueFeedback language')
+      .select('username lastActive aspiration ftuestep ftueFeedback language created')
       .sort({ lastActive: -1 }) // Sort by most recently active first
       .lean(); // Use lean() for better performance when we only need data
     
