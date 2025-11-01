@@ -303,5 +303,76 @@ router.post('/remove-single-npc', async (req, res) => {
   }
 });
 
+// Batch update route: Update multiple NPC positions in one request
+router.post('/batch-update-npc-positions', async (req, res) => {
+  const { gridId, updates, timestamp } = req.body;
+
+  try {
+    // Validate input
+    if (!gridId || !updates || typeof updates !== 'object') {
+      return res.status(400).json({ error: 'gridId and updates object are required.' });
+    }
+
+    // Check if there are actually updates to process
+    const updateEntries = Object.entries(updates);
+    if (updateEntries.length === 0) {
+      return res.status(400).json({ error: 'No updates provided.' });
+    }
+
+    // Load the grid
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found.' });
+    }
+
+    // Get current NPCs
+    const npcs = new Map(grid.NPCsInGrid || []);
+    let updatedCount = 0;
+    const errors = [];
+
+    // Process each position update
+    for (const [npcId, position] of updateEntries) {
+      // Validate position has x and y
+      if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
+        errors.push(`Invalid position for NPC ${npcId}`);
+        continue;
+      }
+
+      // Check if NPC exists
+      const npc = npcs.get(npcId);
+      if (!npc) {
+        errors.push(`NPC ${npcId} not found in grid`);
+        continue;
+      }
+
+      // Update only the position and lastUpdated
+      npc.position = { x: position.x, y: position.y };
+      npc.lastUpdated = new Date(timestamp || Date.now());
+      npcs.set(npcId, npc);
+      updatedCount++;
+    }
+
+    // Only save if we had successful updates
+    if (updatedCount > 0) {
+      grid.NPCsInGrid = npcs;
+      grid.NPCsInGridLastUpdated = new Date(timestamp || Date.now());
+      await grid.save();
+      console.log(`💾 Batch updated ${updatedCount} NPC positions for grid ${gridId}`);
+    }
+
+    // Return result with any errors
+    res.status(200).json({ 
+      success: true, 
+      updated: updatedCount,
+      total: updateEntries.length,
+      errors: errors.length > 0 ? errors : undefined
+    });
+
+  } catch (error) {
+    console.error('❌ Error in batch NPC position update:', error);
+    res.status(500).json({ error: 'Failed to batch update NPC positions.' });
+  }
+});
+
 
 module.exports = router;
