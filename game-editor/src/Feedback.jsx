@@ -90,8 +90,8 @@ const Feedback = ({ activePanel }) => {
       }
     });
 
-    // Count feedback from all players
-    playersData.forEach(player => {
+    // Count feedback from all players (excluding developers)
+    playersData.filter(player => !developerUsernames.includes(player.username)).forEach(player => {
       // Count aspirations for players who gave feedback
       if (player.ftueFeedback && 
           ((player.ftueFeedback.positive && player.ftueFeedback.positive.length > 0) ||
@@ -310,26 +310,33 @@ const Feedback = ({ activePanel }) => {
         <table className="players-table">
           <thead>
             <tr>
-              <th>Username</th>
-              <th>Last Played</th>
-              <th>Aspiration</th>
-              <th>Language</th>
-              <th>FTUE Step</th>
-              <th>Browser</th>
+              <th onClick={() => handleSort('username')} style={{ cursor: 'pointer' }}>
+                Username{getSortIcon('username')}
+              </th>
+              <th onClick={() => handleSort('lastActive')} style={{ cursor: 'pointer' }}>
+                Last Played{getSortIcon('lastActive')}
+              </th>
+              <th onClick={() => handleSort('aspiration')} style={{ cursor: 'pointer' }}>
+                Aspiration{getSortIcon('aspiration')}
+              </th>
+              <th onClick={() => handleSort('language')} style={{ cursor: 'pointer' }}>
+                Language{getSortIcon('language')}
+              </th>
+              <th onClick={() => handleSort('ftuestep')} style={{ cursor: 'pointer' }}>
+                FTUE Step{getSortIcon('ftuestep')}
+              </th>
+              <th onClick={() => handleSort('browser')} style={{ cursor: 'pointer' }}>
+                Browser{getSortIcon('browser')}
+              </th>
+              <th onClick={() => handleSort('created')} style={{ cursor: 'pointer' }}>
+                Created{getSortIcon('created')}
+              </th>
               <th>Positive Feedback</th>
               <th>Negative Feedback</th>
             </tr>
           </thead>
           <tbody>
-            {players
-              .filter(player => 
-                player.ftueFeedback && 
-                (
-                  (player.ftueFeedback.positive && player.ftueFeedback.positive.length > 0) ||
-                  (player.ftueFeedback.negative && player.ftueFeedback.negative.length > 0)
-                )
-              )
-              .map(player => (
+            {getSortedAndFilteredPlayers().map(player => (
               <tr key={player._id}>
                 <td>{player.username}</td>
                 <td>{formatLastActive(player.lastActive)}</td>
@@ -337,6 +344,7 @@ const Feedback = ({ activePanel }) => {
                 <td>{player.language || 'en'}</td>
                 <td>{player.ftuestep || 'Completed'}</td>
                 <td>{player.ftueFeedback?.browser || 'Unknown'}</td>
+                <td>{new Date(player.createdAt).toLocaleDateString()}</td>
                 <td>
                   {player.ftueFeedback?.positive?.map(index => feedbackStrings[index]).join(', ') || 'None'}
                 </td>
