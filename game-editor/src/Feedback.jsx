@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE from './config';
+import developerUsernames from '../../game-server/tuning/developerUsernames.json';
 
 const Feedback = ({ activePanel }) => {
   const [players, setPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [aggregatedData, setAggregatedData] = useState(null);
+  const [startDate, setStartDate] = useState(new Date('2025-10-01').toISOString().split('T')[0]);
+  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const [sortField, setSortField] = useState('username');
+  const [sortDirection, setSortDirection] = useState('asc');
 
   // String mappings for feedback options
   const feedbackStrings = {
@@ -31,15 +36,20 @@ const Feedback = ({ activePanel }) => {
     if (activePanel === 'feedback') {
       fetchFeedbackData();
     }
-  }, [activePanel]);
+  }, [activePanel, startDate, endDate]);
 
   const fetchFeedbackData = async () => {
     try {
       setLoading(true);
       setError(null);
       
-      // Fetch feedback data from the dedicated endpoint
-      const response = await axios.get(`${API_BASE}/api/feedback-data`);
+      // Fetch feedback data from the dedicated endpoint with user creation date range
+      const response = await axios.get(`${API_BASE}/api/feedback-data`, {
+        params: { 
+          createdStartDate: startDate,
+          createdEndDate: endDate 
+        }
+      });
       const playersData = response.data;
       
       setPlayers(playersData);
@@ -141,6 +151,73 @@ const Feedback = ({ activePanel }) => {
     return `${Math.floor(diffDays / 30)} months ago`;
   };
 
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortedAndFilteredPlayers = () => {
+    return players
+      .filter(player => 
+        player.ftueFeedback && 
+        (
+          (player.ftueFeedback.positive && player.ftueFeedback.positive.length > 0) ||
+          (player.ftueFeedback.negative && player.ftueFeedback.negative.length > 0)
+        ) &&
+        !developerUsernames.includes(player.username)
+      )
+      .sort((a, b) => {
+        let aVal, bVal;
+        
+        switch (sortField) {
+          case 'username':
+            aVal = a.username || '';
+            bVal = b.username || '';
+            break;
+          case 'lastActive':
+            aVal = new Date(a.lastActive || 0);
+            bVal = new Date(b.lastActive || 0);
+            break;
+          case 'aspiration':
+            aVal = aspirationStrings[a.aspiration] || 'Not set';
+            bVal = aspirationStrings[b.aspiration] || 'Not set';
+            break;
+          case 'language':
+            aVal = a.language || 'en';
+            bVal = b.language || 'en';
+            break;
+          case 'ftuestep':
+            aVal = a.ftuestep || 999;
+            bVal = b.ftuestep || 999;
+            break;
+          case 'browser':
+            aVal = a.ftueFeedback?.browser || 'Unknown';
+            bVal = b.ftueFeedback?.browser || 'Unknown';
+            break;
+          case 'created':
+            aVal = new Date(a.createdAt || 0);
+            bVal = new Date(b.createdAt || 0);
+            break;
+          default:
+            aVal = a[sortField] || '';
+            bVal = b[sortField] || '';
+        }
+        
+        if (aVal < bVal) return sortDirection === 'asc' ? -1 : 1;
+        if (aVal > bVal) return sortDirection === 'asc' ? 1 : -1;
+        return 0;
+      });
+  };
+
+  const getSortIcon = (field) => {
+    if (sortField !== field) return ' ↕️';
+    return sortDirection === 'asc' ? ' ↑' : ' ↓';
+  };
+
   if (loading) {
     return (
       <div className="feedback-container">
@@ -167,6 +244,24 @@ const Feedback = ({ activePanel }) => {
         <button onClick={fetchFeedbackData} className="refresh-button">
           🔄 Refresh Players
         </button>
+      </div>
+      
+      <div className="date-range-picker">
+        <label>User Registration Start Date: </label>
+        <input 
+          type="date" 
+          value={startDate} 
+          onChange={(e) => setStartDate(e.target.value)}
+          max={endDate}
+        />
+        <label style={{ marginLeft: '20px' }}>User Registration End Date: </label>
+        <input 
+          type="date" 
+          value={endDate} 
+          onChange={(e) => setEndDate(e.target.value)}
+          min={startDate}
+          max={new Date().toISOString().split('T')[0]}
+        />
       </div>
       
       {aggregatedData && (
