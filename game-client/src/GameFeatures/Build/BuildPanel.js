@@ -28,6 +28,7 @@ const BuildPanel = ({
   updateStatus,
   isDeveloper,
   currentSeason,
+  globalTuning,
 }) => {
   const { closePanel } = usePanelContext(); // Use closePanel from context
   const [buildOptions, setBuildOptions] = useState([]);
@@ -156,6 +157,20 @@ const BuildPanel = ({
     return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
   };
 
+  // Count BuildTown buildings on the current grid
+  const countTownBuildings = () => {
+    if (!resources || !allResources) return 0;
+    
+    return resources.filter(resource => {
+      // Find the master resource to check if it's a BuildTown source
+      const masterResource = allResources.find(mr => mr.type === resource.type);
+      return masterResource && masterResource.source === 'BuildTown';
+    }).length;
+  };
+
+  const maxTownBuildings = globalTuning?.maxTownBuildings || 50; // Default to 50 if not set
+  const currentTownBuildings = countTownBuildings();
+
   const handleGemPurchase = async (modifiedRecipe) => {
     // This is called by the gem button with a recipe modified to include gems
     return handleConstructionWithGems({
@@ -189,6 +204,11 @@ const BuildPanel = ({
               const ingredients = getIngredientDetails(item, allResources);
               const affordable = canAfford(item, inventory, backpack);
               const requirementsMet = hasRequiredSkill(item.requires);
+              
+              // Check if this is a BuildTown building and if we've hit the limit
+              const isTownBuilding = item.source === 'BuildTown' && currentPlayer.location.gtype !== 'homestead';
+              const townBuildingLimitReached = isTownBuilding && currentTownBuildings >= maxTownBuildings;
+              const isDisabled = !affordable || !requirementsMet || townBuildingLimitReached;
 
               const formattedCosts = [1, 2, 3, 4].map((i) => {
                 const type = item[`ingredient${i}`];
@@ -205,6 +225,7 @@ const BuildPanel = ({
 
               const skillColor = requirementsMet ? 'green' : 'red';
               const details =
+                (townBuildingLimitReached ? `<span style="color: red;">${strings[407]}</span><br>` : '') +
                 (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span><br>` : '') +
                 `${strings[461]}<div>${formattedCosts}</div>`;
 
@@ -224,10 +245,9 @@ const BuildPanel = ({
                   name={getLocalizedString(item.type, strings)}
                   details={details}
                   info={info}
-                  disabled={!affordable || !requirementsMet}
+                  disabled={isDisabled}
                   onClick={() =>
-                    affordable &&
-                    requirementsMet &&
+                    !isDisabled &&
                     handleConstruction({
                       TILE_SIZE,
                       selectedItem: item.type,
@@ -245,7 +265,7 @@ const BuildPanel = ({
                       updateStatus,
                     })
                   }
-                  onGemPurchase={(item.gemcost && (!affordable || !requirementsMet)) ? handleGemPurchase : null}
+                  onGemPurchase={(item.gemcost && (!affordable || !requirementsMet) && !townBuildingLimitReached) ? handleGemPurchase : null}
                   resource={item}
                   inventory={inventory}
                   backpack={backpack}

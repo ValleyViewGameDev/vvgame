@@ -22,6 +22,7 @@ import '../../UI/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
+import { getMayorUsername } from '../Government/GovUtils';
 import './ScrollStation.css'; // Import for shared station panel styles
 
 const CraftingStation = ({
@@ -57,6 +58,7 @@ const CraftingStation = ({
   const [isReadyToCollect, setIsReadyToCollect] = useState(false);
   const [npcRefreshKey, setNpcRefreshKey] = useState(0);
   const [stationRefreshKey, setStationRefreshKey] = useState(0);
+  const [isMayor, setIsMayor] = useState(false);
 
    // ✅ Check for active crafting timers
    useEffect(() => {
@@ -172,6 +174,23 @@ const CraftingStation = ({
     return () => clearInterval(interval);
   }, []);
 
+  // Check if player is mayor for town building selling permissions
+  useEffect(() => {
+    const checkMayorStatus = async () => {
+      let isPlayerMayor = false;
+      if (currentPlayer.location.gtype === 'town' && currentPlayer.location.s) {
+        try {
+          const mayorUsername = await getMayorUsername(currentPlayer.location.s);
+          isPlayerMayor = mayorUsername === currentPlayer.username;
+        } catch (error) {
+          console.error('Error checking mayor status:', error);
+        }
+      }
+      setIsMayor(isPlayerMayor);
+    };
+
+    checkMayorStatus();
+  }, [currentPlayer.location.s, currentPlayer.username]);
 
   const hasRequiredSkill = (requiredSkill) => {
     return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
@@ -640,6 +659,10 @@ const CraftingStation = ({
                       .join(', ') || 'None'}
                   </div>
                   <div><strong>{strings[422]}</strong> 💰 {recipe.minprice || 'n/a'}</div>
+                  {/* Show healer maxhp info for Hospital buildings with healer NPCs */}
+                  {stationType === 'Hospital' && recipe.action === 'heal' && (
+                    <div><strong>{strings[51]}</strong> {recipe.maxhp || 'n/a'}</div>
+                  )}
                 </div>
               );
               
@@ -713,7 +736,9 @@ const CraftingStation = ({
           {errorMessage && <p className="error-message">{errorMessage}</p>}
         </div>
         
-            {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
+            {(currentPlayer.location.gtype === 'homestead' || 
+              isDeveloper || 
+              (stationDetails?.source === 'BuildTown' && currentPlayer.location.gtype === 'town' && isMayor)) && (
               <div className="station-panel-footer">
                 <div className="shared-buttons">
                   <TransactionButton 

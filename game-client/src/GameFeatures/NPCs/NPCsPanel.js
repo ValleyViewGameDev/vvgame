@@ -2,6 +2,7 @@ import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panel';
 import '../../UI/SharedButtons.css';
+import '../Crafting/ScrollStation.css'; // Import for shared station panel styles
 import axios from 'axios';
 import ResourceButton from '../../UI/ResourceButton';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
@@ -475,6 +476,16 @@ const handleHeal = async (recipe) => {
     const currentHp = playerInGridState.hp;
     const maxHp = playerInGridState.maxhp;
   
+    // Check if healer has HP remaining
+    const healerInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
+    if (healerInGrid && healerInGrid.hp !== undefined && healerInGrid.hp <= 0) {
+      updateStatus(`${getLocalizedString(npcData.type, strings)} has no heals remaining.`);
+      setTimeout(() => {
+        setIsHealing(false);
+      }, COOLDOWN_DURATION);
+      return;
+    }
+    
     // Healing logic with NPCsInGrid HP
     if (npcData.output === 'hp') {
       if (currentHp >= maxHp) {
@@ -516,6 +527,22 @@ const handleHeal = async (recipe) => {
         hp: Math.min(prev.maxhp, prev.hp + amountToMod),
       }));  
       updateStatus(`${strings[405]}${amountToMod}.`);
+
+      // Deduct 1 HP from the healer NPC
+      const healerInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
+      if (healerInGrid && healerInGrid.hp !== undefined) {
+        const newHealerHP = healerInGrid.hp - 1;
+        
+        if (newHealerHP <= 0) {
+          // Remove the healer from the grid when HP reaches 0
+          await NPCsInGridManager.removeNPC(gridId, npcData.id);
+          updateStatus(`${getLocalizedString(npcData.type, strings)} has been exhausted and disappeared.`);
+          onClose(); // Close the panel since the NPC is gone
+        } else {
+          // Update the healer's HP in the grid
+          await NPCsInGridManager.updateNPC(gridId, npcData.id, { hp: newHealerHP });
+        }
+      }
 
     } catch (error) {
       console.error('Error applying healing:', error);
@@ -661,6 +688,8 @@ const handleHeal = async (recipe) => {
 
   return (
     <Panel onClose={onClose} descriptionKey="1013" title={`${npcData.symbol} ${getLocalizedString(npcData.type, strings)}`} panelName="NPCPanel">
+      <div className="station-panel-container">
+        <div className="station-panel-content">
 
 {/* //////////////////// QUESTS //////////////////////// */}
 
@@ -839,17 +868,6 @@ const handleHeal = async (recipe) => {
             </>
           )}
           
-          {/* Developer option to sell NPC */}
-          {isDeveloper && (
-              <div className="shared-buttons">
-              <button 
-                className="btn-basic btn-danger" 
-                onClick={handleSellNPC}
-              >
-                {strings[490]}
-              </button>
-            </div>
-          )}
         </div>
       )}
 
@@ -892,41 +910,45 @@ const handleHeal = async (recipe) => {
             const itemKey = `heal-${recipe.type}`;
             const isCoolingDown = coolingDownItems.has(itemKey);
             
+            // Check if healer has HP remaining
+            const gridId = currentPlayer?.location?.g;
+            const healerInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
+            const healerOutOfHP = healerInGrid && healerInGrid.hp !== undefined && healerInGrid.hp <= 0;
+            
+            // Get the NPC template from masterResources to find maxhp
+            const npcTemplate = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
+            const totalHeals = npcTemplate?.maxhp || 'Unknown';
+            
             return (
-              <ResourceButton
-                key={recipe.type}
-                symbol={recipe.symbol}
-                name={getLocalizedString(recipe.type, strings)}
-                details={`${strings[463]} ❤️‍🩹 +${healAmount}<br>${strings[461]} ${ingredients.join(', ') || 'None'}`}
-                disabled={!affordable || isHealing || isCoolingDown}
-                onClick={() => handleHeal(recipe)}
-                className={isCoolingDown ? 'cooldown' : ''}
-                style={isCoolingDown ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
-                // Gem purchase props
-                gemCost={recipe.gemcost || null}
-                onGemPurchase={(recipe.gemcost && !affordable && !isHealing && !isCoolingDown) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'heal') : null}
-                resource={recipe}
-                inventory={inventory}
-                backpack={backpack}
-                masterResources={masterResources}
-                currentPlayer={currentPlayer}
-              />
+              <div key={recipe.type}>
+                <ResourceButton
+                  symbol={recipe.symbol}
+                  name={getLocalizedString(recipe.type, strings)}
+                  details={`${strings[463]} ❤️‍🩹 +${healAmount}<br>${strings[461]} ${ingredients.join(', ') || 'None'}`}
+                  info={`${strings[51]}${totalHeals}`}
+                  disabled={!affordable || isHealing || isCoolingDown || healerOutOfHP}
+                  onClick={() => handleHeal(recipe)}
+                  className={isCoolingDown ? 'cooldown' : ''}
+                  style={isCoolingDown ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
+                  // Gem purchase props
+                  gemCost={recipe.gemcost || null}
+                  onGemPurchase={(recipe.gemcost && !affordable && !isHealing && !isCoolingDown && !healerOutOfHP) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'heal') : null}
+                  resource={recipe}
+                  inventory={inventory}
+                  backpack={backpack}
+                  masterResources={masterResources}
+                  currentPlayer={currentPlayer}
+                />
+                {/* Display healer's HP below the ResourceButton */}
+                {healerInGrid && healerInGrid.hp !== undefined && (
+                  <div style={{ textAlign: 'center', marginTop: '5px', fontStyle: 'italic', color: '#666' }}>
+                    {strings[49]} {healerInGrid.hp}
+                  </div>
+                )}
+              </div>
             );
           })}
           {errorMessage && <p className="error-message">{errorMessage}</p>}
-          
-          {/* Developer option to sell NPC */}
-          {isDeveloper && (
-              <div className="shared-buttons">
-              <button 
-                className="btn-basic btn-danger" 
-                onClick={handleSellNPC}
-                style={{ width: '100%', padding: '10px' }}
-              >
-                {strings[490]}
-              </button>
-            </div>
-          )}
         </div>
       )}
 
@@ -1132,20 +1154,25 @@ const handleHeal = async (recipe) => {
               })()}
             </>
           )}
-          
-          {/* Developer option to sell NPC */}
-          {isDeveloper && (
-            <div className="shared-buttons">
-              <button 
-                className="btn-basic btn-danger" 
-                onClick={handleSellNPC}>
-                {strings[490]}
-              </button>
-            </div>
-          )}
         </div>
       )}
 
+        </div>
+        
+        {/* Pinned footer with sell/refund button */}
+        {isDeveloper && (
+          <div className="station-panel-footer">
+            <div className="shared-buttons">
+              <button 
+                className="btn-basic btn-danger" 
+                onClick={handleSellNPC}
+              >
+                {strings[490]}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </Panel>
   );
 };

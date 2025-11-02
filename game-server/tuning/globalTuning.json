@@ -1,7 +1,7 @@
 {
   "maxCrops": 1000,
   "maxFarmAnimals": 100,
-  "maxTownBuildings": 50,
+  "maxTownBuildings": 30,
   "warehouseCapacityGold": 100000,
   "backpackCapacityGold": 5000,
   "harvestDropRate": 0.1,

@@ -187,7 +187,7 @@ const BuyPanel = ({
                       updateStatus,
                     })
                   }
-                  onGemPurchase={(item.gemcost && (!affordable || !requirementsMet)) ? handleGemPurchase : null}
+                  onGemPurchase={(item.gemcost && (!affordable || !requirementsMet) && !farmAnimalLimitReached) ? handleGemPurchase : null}
                   resource={item}
                   inventory={inventory}
                   backpack={backpack}
