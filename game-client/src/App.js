@@ -74,6 +74,7 @@ import TrainPanel from './GameFeatures/Trading/Train';
 import NewTrainPanel from './GameFeatures/Trading/NewTrain';
 import CarnivalPanel from './GameFeatures/Carnival/Carnival';
 import CourthousePanel from './GameFeatures/Government/Courthouse';
+import { getMayorUsername } from './GameFeatures/Government/GovUtils';
 import CraftingStation from './GameFeatures/Crafting/CraftingStation';
 import FarmHouse from './GameFeatures/Crafting/FarmHouse';
 import FarmHandPanel from './GameFeatures/FarmHands/FarmHand.js';
@@ -136,6 +137,7 @@ useEffect(() => {
   const strings = useStrings();
   const { uiLocked } = useUILock();
   const [isDeveloper, setIsDeveloper] = useState(false);
+  const [isMayor, setIsMayor] = useState(false);
   const { activeModal, setActiveModal, openModal, closeModal } = useModalContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
@@ -291,6 +293,26 @@ useEffect(() => {
   const [masterInteractions, setMasterInteractions] = useState([]);
   const [masterTraders, setMasterTraders] = useState([]);
   const [masterTrophies, setMasterTrophies] = useState([]);
+
+  // Check if player is mayor for authoritative mayor display
+  useEffect(() => {
+    const checkMayorStatus = async () => {
+      let isPlayerMayor = false;
+      if (currentPlayer?.location?.gtype === 'town' && currentPlayer?.location?.s) {
+        try {
+          const mayorUsername = await getMayorUsername(currentPlayer.location.s);
+          isPlayerMayor = mayorUsername === currentPlayer.username;
+        } catch (error) {
+          console.error('Error checking mayor status in App.js:', error);
+        }
+      }
+      setIsMayor(isPlayerMayor);
+    };
+
+    if (currentPlayer) {
+      checkMayorStatus();
+    }
+  }, [currentPlayer?.location?.s, currentPlayer?.username]);
 
 // Synchronize tiles with GlobalGridStateTilesAndResources -- i did this so NPCs have knowledge of tiles and resources as they change
 useEffect(() => {
@@ -1918,7 +1940,7 @@ return (
       <br/>
 
       {/* Add Role display if player has one */}
-      {currentPlayer?.role === "Mayor" && (
+      {isMayor && (
         <> <h2 className="player-role"> {strings[10111]} </h2>
           <br />
         </>
@@ -2452,6 +2474,7 @@ return (
           setBackpack={setBackpack}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
+          resources={resources}
           setResources={setResources}
           stationType={activeStation?.type} 
           currentStationPosition={activeStation?.position} 
@@ -2462,6 +2485,7 @@ return (
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
           currentSeason={seasonData?.type}
+          globalTuning={globalTuning}
         />
       )}
       {activePanel === 'FarmHouse' && (

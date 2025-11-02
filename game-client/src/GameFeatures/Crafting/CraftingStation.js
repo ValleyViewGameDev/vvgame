@@ -33,6 +33,7 @@ const CraftingStation = ({
   setBackpack,
   currentPlayer,
   setCurrentPlayer,
+  resources,
   setResources,
   stationType,
   currentStationPosition,
@@ -178,7 +179,7 @@ const CraftingStation = ({
   useEffect(() => {
     const checkMayorStatus = async () => {
       let isPlayerMayor = false;
-      if (currentPlayer.location.gtype === 'town' && currentPlayer.location.s) {
+      if (currentPlayer?.location?.gtype === 'town' && currentPlayer?.location?.s) {
         try {
           const mayorUsername = await getMayorUsername(currentPlayer.location.s);
           isPlayerMayor = mayorUsername === currentPlayer.username;
@@ -189,8 +190,10 @@ const CraftingStation = ({
       setIsMayor(isPlayerMayor);
     };
 
-    checkMayorStatus();
-  }, [currentPlayer.location.s, currentPlayer.username]);
+    if (currentPlayer) {
+      checkMayorStatus();
+    }
+  }, [currentPlayer?.location?.s, currentPlayer?.username]);
 
   const hasRequiredSkill = (requiredSkill) => {
     return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
@@ -601,6 +604,35 @@ const CraftingStation = ({
 
   const skillMessage = getSkillBonusMessage();
 
+  // Count hospitals on the current grid
+  const countHospitals = () => {
+    if (!resources || !allResources) return 0;
+    
+    return resources.filter(resource => {
+      // Find the master resource to check if it's a Hospital
+      const masterResource = allResources.find(mr => mr.type === resource.type);
+      return masterResource && masterResource.type === 'Hospital';
+    }).length;
+  };
+
+  // Count existing healers on the current grid
+  const countHealers = () => {
+    const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
+    if (!npcsInGrid) return 0;
+    
+    return Object.values(npcsInGrid).filter(npc => npc && npc.action === 'heal').length;
+  };
+
+  // Calculate maximum healers allowed based on hospitals and doctorsPerHospital setting
+  const getMaxHealersAllowed = () => {
+    const hospitalCount = countHospitals();
+    const doctorsPerHospital = globalTuning?.doctorsPerHospital || 1; // Default to 1 if not set
+    return hospitalCount * doctorsPerHospital;
+  };
+
+  const currentHealers = countHealers();
+  const maxHealersAllowed = getMaxHealersAllowed();
+
   return (
     <Panel onClose={onClose} title={`${stationEmoji} ${getLocalizedString(stationType, strings)}`} panelName="CraftingStation">
       <div className="station-panel-container">
@@ -633,6 +665,10 @@ const CraftingStation = ({
               const skillColor = requirementsMet ? 'green' : 'red';
               const isCrafting = craftedItem === recipe.type && craftingCountdown > 0;
               const isReadyToCollect = craftedItem === recipe.type && craftingCountdown === 0;
+              
+              // Check if this is a healer and if we've hit the hospital capacity limit
+              const isHealer = recipe.action === 'heal';
+              const healerLimitReached = isHealer && currentHealers >= maxHealersAllowed;
               
               // Calculate gem speedup cost for this crafting item
               // craftingCountdown is already in seconds, so we don't multiply by 1000
@@ -689,13 +725,14 @@ const CraftingStation = ({
                   details={
                     isCrafting ? craftTimeText :
                     (
+                      (healerLimitReached ? `<span style="color: red;">${strings[408]}</span><br>` : '') +
                       (recipe.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span><br>` : '') +
                       `${craftTimeText}<br>` +
                       (isReadyToCollect ? '' : `${strings[461]}<div>${formattedCosts}</div>`)
                     )
                   }
                   info={info}
-                  disabled={!isReadyToCollect && (craftedItem !== null || !affordable || !requirementsMet)}
+                  disabled={!isReadyToCollect && (craftedItem !== null || !affordable || !requirementsMet || healerLimitReached)}
                   onClick={undefined} // Remove direct onClick since we're using transaction mode
                   // Transaction mode props for both craft start and collect
                   isTransactionMode={true}
@@ -709,7 +746,7 @@ const CraftingStation = ({
                   gemCost={isCrafting ? gemSpeedupCost : null}
                   onGemPurchase={isCrafting ? 
                     () => handleGemSpeedup(recipe) : 
-                    ((recipe.gemcost && (!affordable || !requirementsMet) && craftedItem === null) ? handleGemPurchase : null)}
+                    ((recipe.gemcost && (!affordable || !requirementsMet) && craftedItem === null && !healerLimitReached) ? handleGemPurchase : null)}
                   resource={isCrafting ? { 
                     type: 'CraftingSpeedup', 
                     gemcost: gemSpeedupCost // Main gem cost, no ingredients
@@ -724,9 +761,11 @@ const CraftingStation = ({
                   // - If another item is crafting: hide
                   // - If nothing is crafting and no gem cost: hide
                   // - If nothing is crafting and has gem cost: show purchase button
+                  // - If healer limit reached: hide
                   hideGem={isReadyToCollect || 
                            (!isCrafting && craftedItem !== null) || 
-                           (!isCrafting && !recipe.gemcost)}
+                           (!isCrafting && !recipe.gemcost) ||
+                           healerLimitReached}
                 >
                 </ResourceButton>
               );
