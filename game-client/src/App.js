@@ -161,6 +161,27 @@ useEffect(() => {
       setIsModalOpen(true);
     }
   }, []);
+
+  // Check if player is mayor for authoritative mayor display
+  useEffect(() => {
+    const checkMayorStatus = async () => {
+      let isPlayerMayor = false;
+      if (currentPlayer?.location?.gtype === 'town' && currentPlayer?.location?.s) {
+        try {
+          const mayorUsername = await getMayorUsername(currentPlayer.location.s);
+          isPlayerMayor = mayorUsername === currentPlayer.username;
+        } catch (error) {
+          console.error('Error checking mayor status in App.js:', error);
+        }
+      }
+      setIsMayor(isPlayerMayor);
+    };
+
+    if (currentPlayer) {
+      checkMayorStatus();
+    }
+  }, [currentPlayer?.location?.s, currentPlayer?.username]);
+
   const openMailbox = () => openModal && openModal('Mailbox');
 
   // Store purchase fulfillment effect
@@ -293,26 +314,6 @@ useEffect(() => {
   const [masterInteractions, setMasterInteractions] = useState([]);
   const [masterTraders, setMasterTraders] = useState([]);
   const [masterTrophies, setMasterTrophies] = useState([]);
-
-  // Check if player is mayor for authoritative mayor display
-  useEffect(() => {
-    const checkMayorStatus = async () => {
-      let isPlayerMayor = false;
-      if (currentPlayer?.location?.gtype === 'town' && currentPlayer?.location?.s) {
-        try {
-          const mayorUsername = await getMayorUsername(currentPlayer.location.s);
-          isPlayerMayor = mayorUsername === currentPlayer.username;
-        } catch (error) {
-          console.error('Error checking mayor status in App.js:', error);
-        }
-      }
-      setIsMayor(isPlayerMayor);
-    };
-
-    if (currentPlayer) {
-      checkMayorStatus();
-    }
-  }, [currentPlayer?.location?.s, currentPlayer?.username]);
 
 // Synchronize tiles with GlobalGridStateTilesAndResources -- i did this so NPCs have knowledge of tiles and resources as they change
 useEffect(() => {
@@ -2474,7 +2475,6 @@ return (
           setBackpack={setBackpack}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
-          resources={resources}
           setResources={setResources}
           stationType={activeStation?.type} 
           currentStationPosition={activeStation?.position} 
@@ -2485,7 +2485,6 @@ return (
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
           currentSeason={seasonData?.type}
-          globalTuning={globalTuning}
         />
       )}
       {activePanel === 'FarmHouse' && (
@@ -2909,3 +2908,4 @@ return (
 
 export default App;
 
+1
