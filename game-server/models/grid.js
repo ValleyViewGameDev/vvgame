@@ -8,8 +8,8 @@ const GridSchema = new mongoose.Schema({
     required: true, // Make gridType mandatory
   },
   tiles: {
-    type: Array, // A 2D array representing the grid
-    required: true,
+    type: Array, // A 2D array representing the grid (optional in v2 schema)
+    required: false,
   },
   resources: {
     type: Array, // Resources in the grid (optional in v2 schema)
@@ -112,6 +112,19 @@ const GridSchema = new mongoose.Schema({
     enum: ['v1', 'v2'],
     default: 'v1' // All existing grids remain v1
   },
+  
+  // NEW FIELDS FOR COMPACT TILE STORAGE (additive only - no breaking changes)
+  tilesV2: {
+    type: String, // Base64 encoded compressed tile data
+    default: undefined, // Only exists for grids using new format
+    sparse: true
+  },
+  tilesSchemaVersion: {
+    type: String,
+    enum: ['v1', 'v2'],
+    default: 'v1' // All existing grids remain v1
+  },
+  
   lastOptimized: {
     type: Date,
     default: null // Only set when grid is optimized

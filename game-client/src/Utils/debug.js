@@ -843,7 +843,7 @@ const handleGetRich = async () => {
     }
   };
 
-  const handleGenerateCompactDB = async () => {
+  const handleGenerateCompactDBResources = async () => {
     if (!currentGridId) {
       console.error('❌ No grid ID available.');
       updateStatus('❌ No grid ID available.');
@@ -851,7 +851,7 @@ const handleGetRich = async () => {
     }
 
     try {
-      console.log('📦 Generating compact DB for grid:', currentGridId);
+      console.log('📦 Generating compact DB resources for grid:', currentGridId);
       updateStatus('📦 Converting grid resources to compact format...');
       
       const response = await axios.post(`${API_BASE}/api/generate-compact-db`, {
@@ -859,13 +859,13 @@ const handleGetRich = async () => {
       });
 
       if (response.data.success) {
-        console.log('✅ Compact DB generated successfully:', response.data.result);
-        updateStatus(`✅ Compact DB generated. Savings: ${response.data.result.savings}`);
+        console.log('✅ Compact DB resources generated successfully:', response.data.result);
+        updateStatus(`✅ Compact DB resources generated. Savings: ${response.data.result.savings}`);
         
         // Show detailed savings information
         const { originalSize, encodedSize, resourceCount, savings } = response.data.result;
         alert(
-          `📦 Compact DB Generation Complete!\n\n` +
+          `📦 Compact DB Resources Complete!\n\n` +
           `Resources processed: ${resourceCount}\n` +
           `Original size: ${originalSize} chars\n` +
           `Encoded size: ${encodedSize} chars\n` +
@@ -873,18 +873,18 @@ const handleGetRich = async () => {
           `Grid ${currentGridId} now has resourcesV2 field with compact data.`
         );
       } else {
-        console.error('❌ Failed to generate compact DB:', response.data);
-        updateStatus('❌ Failed to generate compact DB.');
-        alert(`Failed to generate compact DB: ${response.data.error || 'Unknown error'}`);
+        console.error('❌ Failed to generate compact DB resources:', response.data);
+        updateStatus('❌ Failed to generate compact DB resources.');
+        alert(`Failed to generate compact DB resources: ${response.data.error || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error('❌ Error generating compact DB:', error);
-      updateStatus('❌ Error generating compact DB.');
-      alert('Failed to generate compact DB. Check console for details.');
+      console.error('❌ Error generating compact DB resources:', error);
+      updateStatus('❌ Error generating compact DB resources.');
+      alert('Failed to generate compact DB resources. Check console for details.');
     }
   };
 
-  const handleDeleteOldDBSchema = async () => {
+  const handleDeleteOldDBResourcesSchema = async () => {
     if (!currentGridId) {
       console.error('❌ No grid ID available.');
       updateStatus('❌ No grid ID available.');
@@ -892,19 +892,19 @@ const handleGetRich = async () => {
     }
 
     const confirmed = window.confirm(
-      `⚠️ Are you sure you want to delete the old DB schema?\n\n` +
+      `⚠️ Are you sure you want to delete the old DB resources schema?\n\n` +
       `This will:\n` +
       `1. Remove the original "resources" field from the grid\n` +
       `2. Switch the grid to use only resourcesV2 format\n` +
-      `3. Mark schema version as v2\n\n` +
-      `Make sure the compact DB is working correctly first!\n` +
+      `3. Mark resource schema version as v2\n\n` +
+      `Make sure the compact DB resources are working correctly first!\n` +
       `This action CANNOT be undone!`
     );
 
     if (!confirmed) return;
 
     try {
-      console.log('🗑️ Deleting old DB schema for grid:', currentGridId);
+      console.log('🗑️ Deleting old DB resources schema for grid:', currentGridId);
       updateStatus('🗑️ Removing old resource format...');
       
       const response = await axios.post(`${API_BASE}/api/delete-old-schema`, {
@@ -912,23 +912,111 @@ const handleGetRich = async () => {
       });
 
       if (response.data.success) {
-        console.log('✅ Old DB schema deleted successfully');
-        updateStatus('✅ Old DB schema removed. Grid now uses v2 format only.');
+        console.log('✅ Old DB resources schema deleted successfully');
+        updateStatus('✅ Old DB resources schema removed. Grid now uses v2 format only.');
         alert(
-          `✅ Old DB Schema Removed!\n\n` +
+          `✅ Old DB Resources Schema Removed!\n\n` +
           `Grid ${currentGridId} now uses only the compact resourcesV2 format.\n` +
           `Schema version updated to v2.\n` +
           `Original "resources" field has been removed.`
         );
       } else {
-        console.error('❌ Failed to delete old schema:', response.data);
-        updateStatus('❌ Failed to delete old schema.');
-        alert(`Failed to delete old schema: ${response.data.error || 'Unknown error'}`);
+        console.error('❌ Failed to delete old resources schema:', response.data);
+        updateStatus('❌ Failed to delete old resources schema.');
+        alert(`Failed to delete old resources schema: ${response.data.error || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error('❌ Error deleting old schema:', error);
-      updateStatus('❌ Error deleting old schema.');
-      alert('Failed to delete old schema. Check console for details.');
+      console.error('❌ Error deleting old resources schema:', error);
+      updateStatus('❌ Error deleting old resources schema.');
+      alert('Failed to delete old resources schema. Check console for details.');
+    }
+  };
+
+  const handleGenerateCompactDBTiles = async () => {
+    if (!currentGridId) {
+      console.error('❌ No grid ID available.');
+      updateStatus('❌ No grid ID available.');
+      return;
+    }
+
+    try {
+      console.log('🗺️ Generating compact DB tiles for grid:', currentGridId);
+      updateStatus('🗺️ Converting grid tiles to compact format...');
+      
+      const response = await axios.post(`${API_BASE}/api/generate-compact-tiles`, {
+        gridId: currentGridId
+      });
+
+      if (response.data.success) {
+        console.log('✅ Compact DB tiles generated successfully:', response.data.result);
+        updateStatus(`✅ Compact DB tiles generated. Savings: ${response.data.result.savings}`);
+        
+        // Show detailed savings information
+        const { originalSize, encodedSize, savings } = response.data.result;
+        alert(
+          `🗺️ Compact DB Tiles Complete!\n\n` +
+          `Original size: ${originalSize} chars\n` +
+          `Encoded size: ${encodedSize} chars\n` +
+          `Storage savings: ${savings}\n\n` +
+          `Grid ${currentGridId} now has tilesV2 field with compact data.`
+        );
+      } else {
+        console.error('❌ Failed to generate compact DB tiles:', response.data);
+        updateStatus('❌ Failed to generate compact DB tiles.');
+        alert(`Failed to generate compact DB tiles: ${response.data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('❌ Error generating compact DB tiles:', error);
+      updateStatus('❌ Error generating compact DB tiles.');
+      alert('Failed to generate compact DB tiles. Check console for details.');
+    }
+  };
+
+  const handleDeleteOldDBTilesSchema = async () => {
+    if (!currentGridId) {
+      console.error('❌ No grid ID available.');
+      updateStatus('❌ No grid ID available.');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `⚠️ Are you sure you want to delete the old DB tiles schema?\n\n` +
+      `This will:\n` +
+      `1. Remove the original "tiles" field from the grid\n` +
+      `2. Switch the grid to use only tilesV2 format\n` +
+      `3. Mark tiles schema version as v2\n\n` +
+      `Make sure the compact DB tiles are working correctly first!\n` +
+      `This action CANNOT be undone!`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      console.log('🗑️ Deleting old DB tiles schema for grid:', currentGridId);
+      updateStatus('🗑️ Removing old tiles format...');
+      
+      const response = await axios.post(`${API_BASE}/api/delete-old-tiles-schema`, {
+        gridId: currentGridId
+      });
+
+      if (response.data.success) {
+        console.log('✅ Old DB tiles schema deleted successfully');
+        updateStatus('✅ Old DB tiles schema removed. Grid now uses v2 format only.');
+        alert(
+          `✅ Old DB Tiles Schema Removed!\n\n` +
+          `Grid ${currentGridId} now uses only the compact tilesV2 format.\n` +
+          `Tiles schema version updated to v2.\n` +
+          `Original "tiles" field has been removed.`
+        );
+      } else {
+        console.error('❌ Failed to delete old tiles schema:', response.data);
+        updateStatus('❌ Failed to delete old tiles schema.');
+        alert(`Failed to delete old tiles schema: ${response.data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('❌ Error deleting old tiles schema:', error);
+      updateStatus('❌ Error deleting old tiles schema.');
+      alert('Failed to delete old tiles schema. Check console for details.');
     }
   };
 
@@ -1000,11 +1088,19 @@ const handleGetRich = async () => {
       </div>
 
       <h3>📦 Database Optimization</h3>
+      <h4>Resources:</h4>
       <div className="shared-buttons">
-        <button className="btn-basic btn-warning" onClick={handleGenerateCompactDB}> Generate Compact DB for This Grid </button>
+        <button className="btn-basic btn-warning" onClick={handleGenerateCompactDBResources}> Generate Compact DB Resources for This Grid </button>
       </div>
       <div className="shared-buttons">
-        <button className="btn-basic btn-danger" onClick={handleDeleteOldDBSchema}> Delete Old DB Schema for This Grid </button>
+        <button className="btn-basic btn-danger" onClick={handleDeleteOldDBResourcesSchema}> Delete Old DB Resources Schema for This Grid </button>
+      </div>
+      <h4>Tiles:</h4>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-warning" onClick={handleGenerateCompactDBTiles}> Generate Compact DB Tiles for This Grid </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-danger" onClick={handleDeleteOldDBTilesSchema}> Delete Old DB Tiles Schema for This Grid </button>
       </div>
 
         <h3>Create Single Valley Grid</h3>

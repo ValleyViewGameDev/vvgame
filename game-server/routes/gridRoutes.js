@@ -8,6 +8,8 @@ const { readJSON } = require('../utils/fileUtils');
 const Grid = require('../models/grid'); // Assuming you have a Grid model
 const queue = require('../queue'); // Import the in-memory queue
 const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
+const TileEncoder = require('../utils/TileEncoder');
+const gridTileManager = require('../utils/GridTileManager');
 
 ///////////////////////////////////////////////////////////////
 // GRID STATE ROUTES 
@@ -618,6 +620,154 @@ router.post('/delete-old-schema', async (req, res) => {
   } catch (error) {
     console.error('❌ Error deleting old schema:', error);
     res.status(500).json({ error: 'Failed to delete old database schema.' });
+  }
+});
+
+///////////////////////////////////////////////////////////////
+// TILE OPTIMIZATION ROUTES 
+///////////////////////////////////////////////////////////////
+
+// Generate compact tile format for a specific grid
+router.post('/generate-compact-tiles', async (req, res) => {
+  const { gridId } = req.body;
+
+  try {
+    if (!gridId) {
+      return res.status(400).json({ error: 'gridId is required.' });
+    }
+
+    // Load the grid with current tiles
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found.' });
+    }
+
+    // Check if already has v2 format
+    if (grid.tilesSchemaVersion === 'v2') {
+      return res.status(400).json({ 
+        error: 'Grid already using v2 tiles schema. Use delete-old-tiles-schema to remove v1 data.' 
+      });
+    }
+
+    // Get current tiles
+    const currentTiles = grid.tiles;
+    
+    if (!currentTiles || !Array.isArray(currentTiles) || currentTiles.length === 0) {
+      return res.status(400).json({ error: 'No tiles to encode on this grid.' });
+    }
+
+    // Validate tile dimensions
+    if (currentTiles.length !== 64) {
+      return res.status(400).json({ error: `Invalid tile grid: expected 64 rows, got ${currentTiles.length}` });
+    }
+
+    // Encode tiles
+    try {
+      const encodedTiles = TileEncoder.encode(currentTiles);
+      
+      // Calculate size savings
+      const originalSize = JSON.stringify(currentTiles).length;
+      const encodedSize = encodedTiles.length;
+      const savingsPercent = ((originalSize - encodedSize) / originalSize * 100).toFixed(1);
+
+      // Update grid with encoded tiles (keeping original for safety)
+      grid.tilesV2 = encodedTiles;
+      grid.tilesSchemaVersion = 'v1'; // Still dual-format
+      grid.lastOptimized = new Date();
+
+      await grid.save();
+
+      const result = {
+        originalSize: originalSize,
+        encodedSize: encodedSize,
+        savings: `${savingsPercent}%`
+      };
+
+      console.log(`📦 Generated compact tiles for grid ${gridId}:`, result);
+
+      res.status(200).json({
+        success: true,
+        message: 'Compact tiles generated successfully',
+        result
+      });
+
+    } catch (encodeError) {
+      console.error(`❌ Failed to encode tiles:`, encodeError);
+      return res.status(500).json({ 
+        error: `Failed to encode tiles: ${encodeError.message}` 
+      });
+    }
+
+  } catch (error) {
+    console.error('❌ Error generating compact tiles:', error);
+    res.status(500).json({ error: 'Failed to generate compact tiles.' });
+  }
+});
+
+// Delete old tile schema and switch to v2 only
+router.post('/delete-old-tiles-schema', async (req, res) => {
+  const { gridId } = req.body;
+
+  try {
+    if (!gridId) {
+      return res.status(400).json({ error: 'gridId is required.' });
+    }
+
+    // Load the grid
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found.' });
+    }
+
+    // Check if grid has v2 tiles
+    if (!grid.tilesV2 || typeof grid.tilesV2 !== 'string') {
+      return res.status(400).json({ 
+        error: 'Grid does not have tilesV2 data. Generate compact tiles first.' 
+      });
+    }
+
+    // Verify v2 data integrity before deletion
+    try {
+      const testDecode = TileEncoder.decode(grid.tilesV2);
+      console.log(`🔍 Testing tile integrity: decoded ${testDecode.length} rows`);
+      
+      if (testDecode.length !== 64 || testDecode[0].length !== 64) {
+        throw new Error(`Invalid decoded dimensions: ${testDecode.length}x${testDecode[0].length}`);
+      }
+      console.log('✅ V2 tile data integrity verified');
+    } catch (verifyError) {
+      console.error('❌ V2 tile integrity check failed:', verifyError);
+      return res.status(400).json({ 
+        error: `V2 tile integrity check failed: ${verifyError.message}. Cannot safely delete old schema.` 
+      });
+    }
+
+    // Store old tile count for logging
+    const oldTileSize = grid.tiles ? JSON.stringify(grid.tiles).length : 0;
+    const newTileSize = grid.tilesV2.length;
+
+    // Remove old tiles field and update schema version
+    grid.tiles = undefined; // This removes the field
+    grid.tilesSchemaVersion = 'v2';
+    grid.lastOptimized = new Date();
+
+    await grid.save();
+
+    console.log(`🗑️ Deleted old tile schema for grid ${gridId}. Size: ${oldTileSize} → ${newTileSize} chars (v2)`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Old tile schema deleted successfully',
+      result: {
+        oldTileSize,
+        newTileSize,
+        tilesSchemaVersion: 'v2'
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error deleting old tile schema:', error);
+    res.status(500).json({ error: 'Failed to delete old tile schema.' });
   }
 });
 

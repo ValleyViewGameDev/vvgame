@@ -20,6 +20,7 @@ const { getTemplate, getHomesteadLayoutFile } = require('../utils/templateUtils'
 const queue = require('../queue'); // Import the in-memory queue
 const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
 const gridResourceManager = require('../utils/GridResourceManager');
+const gridTileManager = require('../utils/GridTileManager');
 
 // Initialize GridResourceManager
 (async () => {
@@ -401,27 +402,17 @@ router.patch('/update-tile/:gridId', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Grid not found.' });
     }
 
-    // Defensive initialization of tiles array
-    if (!Array.isArray(grid.tiles)) {
-      console.warn('⚠️ Grid.tiles is not an array — initializing as empty 64x64 grid.');
-      grid.tiles = Array.from({ length: 64 }, () => Array(64).fill('grass'));
-    }
-
-    if (!Array.isArray(grid.tiles[y])) {
-      console.warn(`⚠️ grid.tiles[${y}] was missing. Reinitializing row.`);
-      grid.tiles[y] = Array(64).fill('grass');
-    }
-
-    const before = grid.tiles[y][x];
+    // Get current tile using GridTileManager
+    const before = gridTileManager.getTile(grid, x, y);
     console.log(`🧩 Tile before: ${before}`);
 
-    grid.tiles[y][x] = newType;
-    grid.markModified('tiles');
+    // Update tile using GridTileManager
+    gridTileManager.updateTile(grid, x, y, newType);
 
     await grid.save();
 
-    const updatedGrid = await Grid.findById(gridId);
-    const after = updatedGrid.tiles?.[y]?.[x];
+    // Verify the update
+    const after = gridTileManager.getTile(grid, x, y);
     console.log(`✅ Confirmed saved tile: (${x}, ${y}) = ${after}`);
 
     return res.json({ success: true });
@@ -517,13 +508,25 @@ router.get('/load-grid/:gridId', async (req, res) => {
       };
     });
 
-    // 5) Construct the enriched grid data structure
+    // 5) Load tiles using GridTileManager (handles v1/v2 automatically)
+    let loadedTiles;
+    try {
+      loadedTiles = gridTileManager.getTiles(gridDocument);
+      console.log(`🗺️ Loaded tiles using ${gridDocument.tilesSchemaVersion || 'v1'} schema`);
+    } catch (tileError) {
+      console.error('❌ Failed to load tiles with GridTileManager, falling back to v1:', tileError);
+      // Fallback to v1 format
+      loadedTiles = gridDocument.tiles || gridTileManager.createEmptyTileGrid();
+    }
+
+    // 6) Construct the enriched grid data structure
     const enrichedGrid = {
       ...gridDocument.toObject(),
       resources: enrichedResources,        // Replace resources with enriched
+      tiles: loadedTiles,                 // Replace tiles with loaded (v1/v2 compatible)
     };
 
-    // 6) Respond with the enriched grid, which now includes ownerId.username if it's a homestead
+    // 7) Respond with the enriched grid, which now includes ownerId.username if it's a homestead
     res.status(200).json(enrichedGrid);
   } catch (error) {
     console.error(`Error loading grid with ID: ${gridId}:`, error);
@@ -689,13 +692,6 @@ router.get('/get-tile/:gridId/:x/:y', async (req, res) => {
       return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
     }
 
-    // Ensure the tiles array exists and is valid
-    const tiles = grid.tiles; // Assuming grid.tiles is your 2D array
-    if (!Array.isArray(tiles) || tiles.length !== 64 || !Array.isArray(tiles[0]) || tiles[0].length !== 64) {
-      console.error(`Tiles array is empty or invalid for grid ${gridId}`);
-      return res.status(500).json({ error: `Tiles data missing or invalid for grid ${gridId}` });
-    }
-
     // Validate coordinates
     const xInt = parseInt(x, 10);
     const yInt = parseInt(y, 10);
@@ -704,8 +700,8 @@ router.get('/get-tile/:gridId/:x/:y', async (req, res) => {
       return res.status(400).json({ error: `Invalid coordinates: (${x}, ${y})` });
     }
 
-    // Get the tile type from the 2D array
-    const tileType = tiles[yInt][xInt];
+    // Get the tile type using GridTileManager
+    const tileType = gridTileManager.getTile(grid, xInt, yInt);
     if (!tileType) {
       console.error(`Tile not found at (${x}, ${y})`);
       return res.status(404).json({ error: `Tile not found at (${x}, ${y})` });

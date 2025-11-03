@@ -1,0 +1,233 @@
+// TileEncoder.js
+// Bit-packed tile encoding for maximum storage efficiency
+// Compresses 64x64 tile grid from ~8KB to ~1.5KB (85% reduction)
+
+const TILE_TYPE_TO_BITS = {
+  'g': 0b000, // grass
+  's': 0b001, // slate  
+  'd': 0b010, // dirt
+  'w': 0b011, // water
+  'p': 0b100, // pavement
+  'l': 0b101, // lava
+  'n': 0b110, // sand
+  'o': 0b111  // snow
+};
+
+const BITS_TO_TILE_TYPE = {
+  0b000: 'g', // grass
+  0b001: 's', // slate
+  0b010: 'd', // dirt
+  0b011: 'w', // water
+  0b100: 'p', // pavement
+  0b101: 'l', // lava
+  0b110: 'n', // sand
+  0b111: 'o'  // snow
+};
+
+const BITS_PER_TILE = 3;
+const GRID_SIZE = 64;
+const TOTAL_TILES = GRID_SIZE * GRID_SIZE; // 4096 tiles
+
+class TileEncoder {
+  /**
+   * Encode a 2D tile array into a compressed format
+   * @param {Array<Array<string>>} tiles - 64x64 2D array of tile types
+   * @returns {string} - Base64 encoded compressed tile data
+   */
+  static encode(tiles) {
+    if (!Array.isArray(tiles) || tiles.length !== GRID_SIZE) {
+      throw new Error(`Invalid tiles array: expected ${GRID_SIZE}x${GRID_SIZE} array`);
+    }
+
+    // Validate dimensions and flatten tiles
+    const flatTiles = [];
+    for (let y = 0; y < GRID_SIZE; y++) {
+      if (!Array.isArray(tiles[y]) || tiles[y].length !== GRID_SIZE) {
+        throw new Error(`Invalid tile row ${y}: expected ${GRID_SIZE} columns`);
+      }
+      for (let x = 0; x < GRID_SIZE; x++) {
+        const tileType = tiles[y][x];
+        if (!(tileType in TILE_TYPE_TO_BITS)) {
+          throw new Error(`Unknown tile type: ${tileType} at (${x}, ${y})`);
+        }
+        flatTiles.push(tileType);
+      }
+    }
+
+    // Pack 3-bit values into bytes
+    const packedBytes = [];
+    let currentByte = 0;
+    let bitsInCurrentByte = 0;
+
+    for (let i = 0; i < flatTiles.length; i++) {
+      const tileType = flatTiles[i];
+      const tileBits = TILE_TYPE_TO_BITS[tileType];
+
+      // Add the 3 bits to current byte
+      currentByte = (currentByte << BITS_PER_TILE) | tileBits;
+      bitsInCurrentByte += BITS_PER_TILE;
+
+      // When we have 8 or more bits, extract a complete byte
+      if (bitsInCurrentByte >= 8) {
+        const extractedByte = (currentByte >> (bitsInCurrentByte - 8)) & 0xFF;
+        packedBytes.push(extractedByte);
+        
+        // Keep remaining bits
+        bitsInCurrentByte -= 8;
+        currentByte = currentByte & ((1 << bitsInCurrentByte) - 1);
+      }
+    }
+
+    // Handle any remaining bits
+    if (bitsInCurrentByte > 0) {
+      // Left-shift remaining bits to fill the byte
+      const finalByte = currentByte << (8 - bitsInCurrentByte);
+      packedBytes.push(finalByte);
+    }
+
+    // Convert to Base64 for storage
+    const buffer = Buffer.from(packedBytes);
+    const base64 = buffer.toString('base64');
+    
+    console.log(`📦 Tile encoding: ${TOTAL_TILES} tiles → ${packedBytes.length} bytes → ${base64.length} chars (${((1 - base64.length / (TOTAL_TILES * 2)) * 100).toFixed(1)}% savings)`);
+    
+    return base64;
+  }
+
+  /**
+   * Decode compressed tile data back to 2D array
+   * @param {string} encodedTiles - Base64 encoded compressed tile data
+   * @returns {Array<Array<string>>} - 64x64 2D array of tile types
+   */
+  static decode(encodedTiles) {
+    if (typeof encodedTiles !== 'string') {
+      throw new Error('Invalid encoded tiles: expected Base64 string');
+    }
+
+    // Decode from Base64
+    const buffer = Buffer.from(encodedTiles, 'base64');
+    const packedBytes = Array.from(buffer);
+
+    // Unpack bits to get tile types
+    const flatTiles = [];
+    let bitBuffer = 0;
+    let bitsInBuffer = 0;
+
+    for (const byte of packedBytes) {
+      // Add byte to bit buffer
+      bitBuffer = (bitBuffer << 8) | byte;
+      bitsInBuffer += 8;
+
+      // Extract 3-bit tile values while we have enough bits
+      while (bitsInBuffer >= BITS_PER_TILE && flatTiles.length < TOTAL_TILES) {
+        const tileBits = (bitBuffer >> (bitsInBuffer - BITS_PER_TILE)) & 0b111;
+        const tileType = BITS_TO_TILE_TYPE[tileBits];
+        
+        if (!tileType) {
+          throw new Error(`Invalid tile bits: ${tileBits}`);
+        }
+        
+        flatTiles.push(tileType);
+        bitsInBuffer -= BITS_PER_TILE;
+        bitBuffer = bitBuffer & ((1 << bitsInBuffer) - 1);
+      }
+    }
+
+    if (flatTiles.length !== TOTAL_TILES) {
+      throw new Error(`Decoded ${flatTiles.length} tiles, expected ${TOTAL_TILES}`);
+    }
+
+    // Convert flat array back to 2D
+    const tiles = [];
+    for (let y = 0; y < GRID_SIZE; y++) {
+      const row = [];
+      for (let x = 0; x < GRID_SIZE; x++) {
+        const index = y * GRID_SIZE + x;
+        row.push(flatTiles[index]);
+      }
+      tiles.push(row);
+    }
+
+    console.log(`📦 Tile decoding: ${encodedTiles.length} chars → ${packedBytes.length} bytes → ${TOTAL_TILES} tiles`);
+    
+    return tiles;
+  }
+
+  /**
+   * Calculate storage savings for given tiles
+   * @param {Array<Array<string>>} tiles - Original 2D tile array
+   * @param {string} encoded - Encoded tile string
+   * @returns {Object} - Storage statistics
+   */
+  static calculateSavings(tiles, encoded) {
+    const originalSize = JSON.stringify(tiles).length;
+    const encodedSize = encoded.length;
+    const savings = ((originalSize - encodedSize) / originalSize * 100).toFixed(1);
+    
+    return {
+      original: originalSize,
+      encoded: encodedSize,
+      savings: `${savings}%`,
+      ratio: (encodedSize / originalSize).toFixed(3)
+    };
+  }
+
+  /**
+   * Validate that decode(encode(tiles)) === tiles
+   * @param {Array<Array<string>>} tiles - Original tile array
+   * @returns {Object} - Validation result
+   */
+  static validateRoundTrip(tiles) {
+    try {
+      const encoded = this.encode(tiles);
+      const decoded = this.decode(encoded);
+      
+      // Deep compare arrays
+      if (tiles.length !== decoded.length) {
+        return { valid: false, error: 'Row count mismatch' };
+      }
+      
+      for (let y = 0; y < tiles.length; y++) {
+        if (tiles[y].length !== decoded[y].length) {
+          return { valid: false, error: `Column count mismatch at row ${y}` };
+        }
+        for (let x = 0; x < tiles[y].length; x++) {
+          if (tiles[y][x] !== decoded[y][x]) {
+            return { 
+              valid: false, 
+              error: `Tile mismatch at (${x}, ${y}): ${tiles[y][x]} !== ${decoded[y][x]}` 
+            };
+          }
+        }
+      }
+      
+      return { 
+        valid: true, 
+        encoded, 
+        decoded, 
+        savings: this.calculateSavings(tiles, encoded) 
+      };
+    } catch (error) {
+      return { valid: false, error: error.message };
+    }
+  }
+
+  /**
+   * Get supported tile types
+   * @returns {Array<string>} - Array of valid tile type characters
+   */
+  static getSupportedTileTypes() {
+    return Object.keys(TILE_TYPE_TO_BITS);
+  }
+
+  /**
+   * Check if a tile type is valid
+   * @param {string} tileType - Tile type to check
+   * @returns {boolean} - True if valid
+   */
+  static isValidTileType(tileType) {
+    return tileType in TILE_TYPE_TO_BITS;
+  }
+}
+
+module.exports = TileEncoder;
