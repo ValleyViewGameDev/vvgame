@@ -11,14 +11,12 @@ const GridSchema = new mongoose.Schema({
     type: Array, // A 2D array representing the grid (optional in v2 schema)
     required: false,
     default: undefined,
-    sparse: true,
     index: false // Explicitly prevent indexing of V1 data arrays
   },
   resources: {
     type: Array, // Resources in the grid (optional in v2 schema)
     required: false,
     default: undefined,
-    sparse: true,
     index: false // Explicitly prevent indexing of V1 data arrays
   },
   // NPCs map (data only)
