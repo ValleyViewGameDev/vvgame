@@ -11,19 +11,21 @@ const GridSchema = new mongoose.Schema({
     type: Array, // A 2D array representing the grid (optional in v2 schema)
     required: false,
     default: undefined,
-    sparse: true
+    sparse: true,
+    index: false // Explicitly prevent indexing of V1 data arrays
   },
   resources: {
     type: Array, // Resources in the grid (optional in v2 schema)
     required: false,
     default: undefined,
-    sparse: true
+    sparse: true,
+    index: false // Explicitly prevent indexing of V1 data arrays
   },
   // NPCs map (data only)
   NPCsInGrid: {
     type: Map,
     of: new mongoose.Schema({
-      id: { type: String, required: true, index: true },
+      id: { type: String, required: true },
       type: { type: String, required: true },
       position: { 
         x: { type: Number, required: true }, 
@@ -109,7 +111,7 @@ const GridSchema = new mongoose.Schema({
   resourcesV2: {
     type: [mongoose.Schema.Types.Mixed], // Array of encoded resource arrays
     default: undefined, // Only exists for grids using new format
-    sparse: true
+    index: false // Explicitly prevent indexing of compressed data
   },
   resourcesSchemaVersion: {
     type: String,
@@ -121,7 +123,7 @@ const GridSchema = new mongoose.Schema({
   tilesV2: {
     type: String, // Base64 encoded compressed tile data
     default: undefined, // Only exists for grids using new format
-    sparse: true
+    index: false // Explicitly prevent indexing of compressed data
   },
   tilesSchemaVersion: {
     type: String,

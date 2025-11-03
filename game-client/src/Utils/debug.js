@@ -1508,7 +1508,8 @@ const handleGetRich = async () => {
       });
 
       if (dryRunResponse.data.success) {
-        const { details, orphanedToDelete, orphanedSample } = dryRunResponse.data;
+        const { details, orphanedSample } = dryRunResponse.data;
+        const orphanedToDelete = details.orphanedToDelete;
         console.log('🧪 Dry run results:', dryRunResponse.data);
         
         // Show dry run results
