@@ -36,7 +36,7 @@ class GridResourceManager {
   }
 
   /**
-   * Load resources from a grid document (V2 format only)
+   * Load resources from a grid document (handles both V1 and V2 during transition)
    * @param {Object} grid - The grid document from MongoDB
    * @returns {Array} - Array of decoded resource objects
    */
@@ -49,9 +49,23 @@ class GridResourceManager {
       return [];
     }
 
-    // V2-only: All grids now use compressed resources field
     if (grid.resources && grid.resources.length > 0) {
-      return this.decodeResourcesV2(grid.resources);
+      const firstResource = grid.resources[0];
+      
+      // Check if this is V1 format (object with type) or V2 format (array)
+      if (Array.isArray(firstResource)) {
+        // V2 format - decode normally
+        try {
+          return this.decodeResourcesV2(grid.resources);
+        } catch (error) {
+          console.error('❌ Failed to decode V2 resources:', error);
+          throw error;
+        }
+      } else if (typeof firstResource === 'object' && firstResource.type) {
+        // V1 format - return raw resources
+        console.warn(`⚠️ Grid ${grid._id} still has V1 format resources - returning raw data`);
+        return grid.resources;
+      }
     }
     
     return [];

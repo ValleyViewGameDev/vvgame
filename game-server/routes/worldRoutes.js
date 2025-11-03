@@ -360,9 +360,14 @@ router.patch('/update-grid/:gridId', (req, res) => {
       } else {
         // ✅ CASE 3: Remove Resource (Delete it completely)
         if (resourceIndex !== -1) {
-          console.log(`❌ Removing resource at (${x}, ${y})`);
+          const beforeCount = currentResources.length;
+          console.log(`❌ Removing resource at (${x}, ${y}) - before: ${beforeCount} resources`);
           const removeResource = { type: null, x, y };
           gridResourceManager.updateResource(grid, removeResource);
+          
+          const afterResources = gridResourceManager.getResources(grid);
+          const afterCount = afterResources.length;
+          console.log(`❌ After removal: ${afterCount} resources (removed: ${beforeCount - afterCount})`);
         } else {
           console.warn(`⚠️ No resource found to remove at (${x}, ${y})`);
         }
@@ -439,18 +444,18 @@ router.get('/load-grid/:gridId', async (req, res) => {
       return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
     }
 
-    // Log schema version for debugging
-    const schemaVersion = gridDocument.resourcesSchemaVersion || 'v1';
-    console.log(`Grid found for ID: ${gridId} (schema: ${schemaVersion})`);
+    // V2-only: All grids now use compressed format
+    console.log(`Grid found for ID: ${gridId} (V2 schema)`);
 
-    // 2) Load resources using GridResourceManager (handles v1/v2 automatically)
+    // 2) Load resources using GridResourceManager (V2 format only)
     let loadedResources;
     try {
       loadedResources = gridResourceManager.getResources(gridDocument);
-      console.log(`📦 Loaded ${loadedResources.length} resources using ${schemaVersion} schema`);
+      console.log(`📦 Loaded ${loadedResources.length} resources using V2 schema`);
     } catch (resourceError) {
-      console.error('❌ Failed to load resources with GridResourceManager, falling back to v1:', resourceError);
-      // Fallback to v1 format
+      console.error('❌ Failed to load resources with GridResourceManager:', resourceError);
+      console.error('❌ This indicates the grid has corrupted or V1 format data that needs fixing');
+      // If GridResourceManager fails, try to use raw resources as fallback
       loadedResources = gridDocument.resources || [];
     }
 
@@ -508,15 +513,15 @@ router.get('/load-grid/:gridId', async (req, res) => {
       };
     });
 
-    // 5) Load tiles using GridTileManager (handles v1/v2 automatically)
+    // 5) Load tiles using GridTileManager (V2 format only)
     let loadedTiles;
     try {
       loadedTiles = gridTileManager.getTiles(gridDocument);
-      console.log(`🗺️ Loaded tiles using ${gridDocument.tilesSchemaVersion || 'v1'} schema`);
+      console.log(`🗺️ Loaded tiles using V2 schema`);
     } catch (tileError) {
-      console.error('❌ Failed to load tiles with GridTileManager, falling back to v1:', tileError);
-      // Fallback to v1 format
-      loadedTiles = gridDocument.tiles || gridTileManager.createEmptyTileGrid();
+      console.error('❌ Failed to load tiles with GridTileManager:', tileError);
+      // Generate empty tiles if needed
+      loadedTiles = gridTileManager.createEmptyTileGrid();
     }
 
     // 6) Construct the enriched grid data structure

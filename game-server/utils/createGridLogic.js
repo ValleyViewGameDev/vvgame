@@ -187,15 +187,13 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
     frontierId,
     settlementId,
     resources: encodedResources,
-    resourcesSchemaVersion_REMOVED: 'v2',
     tiles: encodedTiles,
-    tilesSchemaVersion_REMOVED: 'v2',
     NPCsInGrid: new Map(Object.entries(newGridState.npcs)),
     NPCsInGridLastUpdated: Date.now(),
     lastOptimized: new Date()
   });
 
-  console.log(`📦 Created v2 grid: ${encodedResources.length} resources, ${encodedTiles.length} chars tiles`);
+  console.log(`📦 Created grid: ${encodedResources.length} resources, ${encodedTiles.length} chars tiles`);
 
   await newGrid.save();
 

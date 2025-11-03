@@ -149,47 +149,31 @@ async function performGridReset(gridId, gridType, gridCoord) {
     console.log(`🎯 Generated ${Object.keys(newEnemies).length} enemies for grid reset ${gridCoord}`);
   }
 
-  // Handle tiles and resources based on existing schema version
-  const currentResourcesVersion = grid.resourcesSchemaVersion_REMOVED || 'v1';
-  const currentTilesVersion = grid.tilesSchemaVersion_REMOVED || 'v1';
+  // V2-only: All grids now use compressed format
+  const encoder = new UltraCompactResourceEncoder(masterResources);
+  const encodedResources = [];
   
-  if (currentResourcesVersion === 'v2') {
-    // Grid is already v2 - encode resources to v2 format
-    const encoder = new UltraCompactResourceEncoder(masterResources);
-    const encodedResources = [];
-    
-    for (const resource of filteredResources) {
-      try {
-        const encoded = encoder.encode(resource);
-        encodedResources.push(encoded);
-      } catch (error) {
-        console.error(`❌ Failed to encode resource during reset:`, resource, error);
-        throw new Error(`Failed to encode resource at (${resource.x}, ${resource.y}): ${error.message}`);
-      }
+  for (const resource of filteredResources) {
+    try {
+      const encoded = encoder.encode(resource);
+      encodedResources.push(encoded);
+    } catch (error) {
+      console.error(`❌ Failed to encode resource during reset:`, resource, error);
+      throw new Error(`Failed to encode resource at (${resource.x}, ${resource.y}): ${error.message}`);
     }
-    
-    grid.resources = encodedResources;
-    console.log(`📦 Reset v2 resources: ${encodedResources.length} encoded resources`);
-  } else {
-    // Grid is v1 - keep using v1 format for backwards compatibility
-    grid.resources = filteredResources;
-    console.log(`📦 Reset v1 resources: ${filteredResources.length} resources`);
   }
   
-  if (currentTilesVersion === 'v2') {
-    // Grid is already v2 - encode tiles to v2 format
-    try {
-      const encodedTiles = TileEncoder.encode(newTiles);
-      grid.tiles = encodedTiles;
-      console.log(`📦 Reset v2 tiles: ${encodedTiles.length} chars`);
-    } catch (error) {
-      console.error(`❌ Failed to encode tiles during reset:`, error);
-      throw new Error(`Failed to encode tiles: ${error.message}`);
-    }
-  } else {
-    // Grid is v1 - keep using v1 format for backwards compatibility
-    grid.tiles = newTiles;
-    console.log(`📦 Reset v1 tiles: 64x64 grid`);
+  grid.resources = encodedResources;
+  console.log(`📦 Reset resources: ${encodedResources.length} encoded resources`);
+  
+  // V2-only: All grids now use compressed tiles
+  try {
+    const encodedTiles = TileEncoder.encode(newTiles);
+    grid.tiles = encodedTiles;
+    console.log(`📦 Reset tiles: ${encodedTiles.length} chars`);
+  } catch (error) {
+    console.error(`❌ Failed to encode tiles during reset:`, error);
+    throw new Error(`Failed to encode tiles: ${error.message}`);
   }
   
   // Properly clear NPCs to avoid duplicates
