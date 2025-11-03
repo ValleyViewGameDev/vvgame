@@ -58,6 +58,7 @@
   {
     "type": "Gold Account",
     "symbol": "⭐",
+    "layoutkey": "gacct",
     "category": "special"
   },
   {
@@ -5628,6 +5629,7 @@
   {
     "type": "Grower",
     "symbol": "🌱",
+    "layoutkey": "sk01",
     "category": "skill",
     "source": "Basic Skills",
     "qtycollected": 1,
@@ -5639,6 +5641,7 @@
   {
     "type": "Green Thumb",
     "symbol": "🌱",
+    "layoutkey": "sk02",
     "category": "skill",
     "source": "Basic Skills",
     "requires": "Grower",
@@ -5651,6 +5654,7 @@
   {
     "type": "Husbandry",
     "symbol": "🐮",
+    "layoutkey": "sk03",
     "category": "skill",
     "source": "Basic Skills",
     "qtycollected": 1,
@@ -5662,6 +5666,7 @@
   {
     "type": "Bulk Animal Collect",
     "symbol": "🐮",
+    "layoutkey": "sk04",
     "category": "skill",
     "source": "Farm Hand",
     "qtycollected": 1,
@@ -5673,6 +5678,7 @@
   {
     "type": "Axe",
     "symbol": "🪓",
+    "layoutkey": "sk05",
     "category": "skill",
     "source": "Basic Skills",
     "qtycollected": 1,
@@ -5684,6 +5690,7 @@
   {
     "type": "Pickaxe",
     "symbol": "⛏️",
+    "layoutkey": "sk06",
     "category": "skill",
     "source": "Basic Skills",
     "qtycollected": 1,
@@ -5695,6 +5702,7 @@
   {
     "type": "Builder",
     "symbol": "⚒️",
+    "layoutkey": "sk07",
     "category": "skill",
     "source": "Basic Skills",
     "qtycollected": 1,
@@ -5706,6 +5714,7 @@
   {
     "type": "Bulk Harvest",
     "symbol": "🌱",
+    "layoutkey": "sk08",
     "category": "skill",
     "source": "Farm Hand",
     "qtycollected": 1,
@@ -5717,6 +5726,7 @@
   {
     "type": "Bulk Replant",
     "symbol": "🌱",
+    "layoutkey": "sk09",
     "category": "skill",
     "source": "Farm Hand",
     "requires": "Bulk Harvest",
@@ -5729,6 +5739,7 @@
   {
     "type": "Logging",
     "symbol": "🪓",
+    "layoutkey": "sk10",
     "category": "skill",
     "source": "Farm Hand",
     "requires": "Axe",
@@ -5741,6 +5752,7 @@
   {
     "type": "Better Logging",
     "symbol": "🪓",
+    "layoutkey": "sk11",
     "category": "skill",
     "source": "Farm Hand",
     "requires": "Logging",
@@ -5753,6 +5765,7 @@
   {
     "type": "Bulk Crafting",
     "symbol": "🛖",
+    "layoutkey": "sk12",
     "category": "skill",
     "source": "Crafter",
     "qtycollected": 1,
@@ -5764,6 +5777,7 @@
   {
     "type": "Bulk Restart Craft",
     "symbol": "🛖",
+    "layoutkey": "sk13",
     "category": "skill",
     "source": "Crafter",
     "qtycollected": 1,
@@ -5775,6 +5789,7 @@
   {
     "type": "Better Axe",
     "symbol": "🪓",
+    "layoutkey": "sk14",
     "category": "skill",
     "output": "Pine Tree",
     "source": "Basic Skills",
@@ -5788,6 +5803,7 @@
   {
     "type": "Better Pickaxe",
     "symbol": "⛏️",
+    "layoutkey": "sk15",
     "category": "skill",
     "output": "Clay Pit",
     "source": "Basic Skills",
@@ -5801,6 +5817,7 @@
   {
     "type": "Storehouse",
     "symbol": "📦",
+    "layoutkey": "sk16",
     "category": "skill",
     "output": "warehouseCapacity",
     "requires": "Masonry",
@@ -5820,6 +5837,7 @@
   {
     "type": "Depot",
     "symbol": "📦",
+    "layoutkey": "sk17",
     "category": "skill",
     "output": "warehouseCapacity",
     "requires": "Storehouse",
@@ -5838,6 +5856,7 @@
   {
     "type": "TBD Storage 3",
     "symbol": "📦",
+    "layoutkey": "sk18",
     "category": "skill",
     "output": "warehouseCapacity",
     "requires": "Storehouse",
@@ -5856,6 +5875,7 @@
   {
     "type": "TBD Storage 4",
     "symbol": "📦",
+    "layoutkey": "sk19",
     "category": "skill",
     "output": "warehouseCapacity",
     "requires": "Storehouse",
@@ -5874,6 +5894,7 @@
   {
     "type": "Masonry",
     "symbol": "🗿",
+    "layoutkey": "sk20",
     "category": "skill",
     "source": "Basic Skills",
     "requires": "Builder",
@@ -5886,6 +5907,7 @@
   {
     "type": "Mechanics",
     "symbol": "🛠️",
+    "layoutkey": "sk21",
     "category": "skill",
     "source": "Basic Skills",
     "qtycollected": 1,
@@ -5897,6 +5919,7 @@
   {
     "type": "Textiles",
     "symbol": "👕",
+    "layoutkey": "sk22",
     "category": "skill",
     "source": "Basic Skills",
     "requires": "Mechanics",
@@ -5911,6 +5934,7 @@
   {
     "type": "Artistry",
     "symbol": "🎨",
+    "layoutkey": "sk23",
     "category": "skill",
     "source": "Basic Skills",
     "requires": "Textiles",
@@ -5925,6 +5949,7 @@
   {
     "type": "Beekeeper",
     "symbol": "🐝",
+    "layoutkey": "sk24",
     "category": "skill",
     "source": "Basic Skills",
     "requires": "Chemistry",
@@ -5939,6 +5964,7 @@
   {
     "type": "Tailor",
     "symbol": "👕",
+    "layoutkey": "sk25",
     "category": "skill",
     "source": "Basic Skills",
     "requires": "Textiles",
@@ -5953,6 +5979,7 @@
   {
     "type": "Politics",
     "symbol": "🏛️",
+    "layoutkey": "sk26",
     "category": "skill",
     "source": "Basic Skills",
     "requires": "Husbandry",
@@ -5965,6 +5992,7 @@
   {
     "type": "Education",
     "symbol": "🏫",
+    "layoutkey": "sk27",
     "category": "skill",
     "source": "Basic Skills",
     "requires": "Politics",
@@ -5979,6 +6007,7 @@
   {
     "type": "Zookeeper",
     "symbol": "🐒",
+    "layoutkey": "sk28",
     "category": "skill",
     "source": "Basic Skills",
     "requires": "Husbandry",
@@ -5991,6 +6020,7 @@
   {
     "type": "Chemistry",
     "symbol": "🔬",
+    "layoutkey": "sk29",
     "category": "skill",
     "source": "Laboratory",
     "requires": "Mechanics",
@@ -6005,6 +6035,7 @@
   {
     "type": "Cooking",
     "symbol": "🍴",
+    "layoutkey": "sk30",
     "category": "skill",
     "source": "Laboratory",
     "requires": "Chemistry",
@@ -6019,6 +6050,7 @@
   {
     "type": "Creamery",
     "symbol": "🐮",
+    "layoutkey": "sk31",
     "category": "skill",
     "source": "Laboratory",
     "requires": "Husbandry",
@@ -6035,6 +6067,7 @@
   {
     "type": "Baker",
     "symbol": "🍞",
+    "layoutkey": "sk32",
     "category": "skill",
     "source": "Laboratory",
     "requires": "Cooking",
@@ -6049,6 +6082,7 @@
   {
     "type": "Winemaker",
     "symbol": "🍷",
+    "layoutkey": "sk33",
     "category": "skill",
     "source": "Laboratory",
     "requires": "Chemistry",
@@ -6063,6 +6097,7 @@
   {
     "type": "Miller",
     "symbol": "🛖",
+    "layoutkey": "sk34",
     "category": "skill",
     "source": "Guild",
     "requires": "Mechanics",
@@ -6081,6 +6116,7 @@
   {
     "type": "Artisan",
     "symbol": "🛖",
+    "layoutkey": "sk35",
     "category": "skill",
     "source": "Guild",
     "requires": "Artistry",
@@ -6099,6 +6135,7 @@
   {
     "type": "Cuisinier",
     "symbol": "🛖",
+    "layoutkey": "sk36",
     "category": "skill",
     "source": "Guild",
     "requires": "Textiles",
@@ -6117,6 +6154,7 @@
   {
     "type": "Weaver",
     "symbol": "🛖",
+    "layoutkey": "sk37",
     "category": "skill",
     "source": "Guild",
     "requires": "Textiles",
@@ -6135,6 +6173,7 @@
   {
     "type": "Fowler",
     "symbol": "🛖",
+    "layoutkey": "sk38",
     "category": "skill",
     "source": "Guild",
     "requires": "Husbandry",
@@ -6153,6 +6192,7 @@
   {
     "type": "Fromager",
     "symbol": "🛖",
+    "layoutkey": "sk39",
     "category": "skill",
     "source": "Guild",
     "requires": "Creamery",
@@ -6171,6 +6211,7 @@
   {
     "type": "Virtuose Culinaire",
     "symbol": "🛖",
+    "layoutkey": "sk40",
     "category": "skill",
     "source": "Guild",
     "requires": "Cooking",
@@ -6189,6 +6230,7 @@
   {
     "type": "Apiarch",
     "symbol": "🛖",
+    "layoutkey": "sk41",
     "category": "skill",
     "source": "Guild",
     "requires": "Husbandry",
@@ -6207,6 +6249,7 @@
   {
     "type": "Vintner",
     "symbol": "🛖",
+    "layoutkey": "sk42",
     "category": "skill",
     "source": "Guild",
     "requires": "Winemaker",
@@ -6225,6 +6268,7 @@
   {
     "type": "Law",
     "symbol": "📘",
+    "layoutkey": "sk43",
     "category": "skill",
     "source": "School",
     "requires": "Education",
@@ -6239,6 +6283,7 @@
   {
     "type": "Medicine",
     "symbol": "💊",
+    "layoutkey": "sk44",
     "category": "skill",
     "source": "School",
     "requires": "Chemistry",
@@ -6253,6 +6298,7 @@
   {
     "type": "Surgery",
     "symbol": "⚕️",
+    "layoutkey": "sk45",
     "category": "skill",
     "source": "School",
     "requires": "Medicine",
@@ -6267,6 +6313,7 @@
   {
     "type": "Backpack",
     "symbol": "🎒",
+    "layoutkey": "sk46",
     "category": "skill",
     "output": "backpackCapacity",
     "source": "Adventure Camp",
@@ -6281,6 +6328,7 @@
   {
     "type": "Rucksack",
     "symbol": "🎒",
+    "layoutkey": "sk47",
     "category": "skill",
     "output": "backpackCapacity",
     "source": "Adventure Camp",
@@ -6298,6 +6346,7 @@
   {
     "type": "Enchanted Pack",
     "symbol": "🎒",
+    "layoutkey": "sk48",
     "category": "skill",
     "output": "backpackCapacity",
     "source": "Adventure Camp",
@@ -6315,6 +6364,7 @@
   {
     "type": "Horse",
     "symbol": "🐴",
+    "layoutkey": "sk49",
     "category": "skill",
     "source": "Adventure Camp",
     "qtycollected": 1,
@@ -6326,6 +6376,7 @@
   {
     "type": "Tracking",
     "symbol": "🔎",
+    "layoutkey": "sk50",
     "category": "skill",
     "output": "range",
     "source": "Basic Skills",
@@ -6339,6 +6390,7 @@
   {
     "type": "Scout",
     "symbol": "🔭",
+    "layoutkey": "sk51",
     "category": "skill",
     "output": "range",
     "source": "Basic Skills",
@@ -6352,6 +6404,7 @@
   {
     "type": "Padding",
     "symbol": "🛡️",
+    "layoutkey": "pwr01",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6365,6 +6418,7 @@
   {
     "type": "Light Armor",
     "symbol": "🛡️",
+    "layoutkey": "pwr02",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6379,6 +6433,7 @@
   {
     "type": "Chainmail",
     "symbol": "🛡️",
+    "layoutkey": "pwr03",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6393,6 +6448,7 @@
   {
     "type": "Plate Armor",
     "symbol": "🛡️",
+    "layoutkey": "pwr04",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6409,6 +6465,7 @@
   {
     "type": "Heavy Armor",
     "symbol": "🛡️",
+    "layoutkey": "pwr05",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6425,6 +6482,7 @@
   {
     "type": "Mystic Armor",
     "symbol": "🛡️",
+    "layoutkey": "pwr06",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6437,6 +6495,7 @@
   {
     "type": "Caliban's Breastplate",
     "symbol": "🛡️",
+    "layoutkey": "pwr07",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6450,6 +6509,7 @@
   {
     "type": "Blessed Veil",
     "symbol": "🛡️",
+    "layoutkey": "pwr08",
     "category": "power",
     "source": "Magic Shop",
     "scrollqty": 1,
@@ -6468,6 +6528,7 @@
   {
     "type": "Magic Helmet",
     "symbol": "🛡️",
+    "layoutkey": "pwr09",
     "category": "power",
     "source": "Magic Shop",
     "scrollqty": 1,
@@ -6479,6 +6540,7 @@
   {
     "type": "Magic Gloves",
     "symbol": "🛡️",
+    "layoutkey": "pwr10",
     "category": "power",
     "source": "Magic Shop",
     "scrollqty": 1,
@@ -6490,6 +6552,7 @@
   {
     "type": "Boots of Protection",
     "symbol": "🛡️",
+    "layoutkey": "pwr11",
     "category": "power",
     "source": "Magic Shop",
     "scrollqty": 1,
@@ -6501,6 +6564,7 @@
   {
     "type": "Knife",
     "symbol": "🔪",
+    "layoutkey": "pwr12",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6512,6 +6576,7 @@
   {
     "type": "Short Sword",
     "symbol": "🗡️",
+    "layoutkey": "pwr13",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6524,6 +6589,7 @@
   {
     "type": "Long Sword",
     "symbol": "🗡️",
+    "layoutkey": "pwr14",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6538,6 +6604,7 @@
   {
     "type": "Great Sword",
     "symbol": "🗡️",
+    "layoutkey": "pwr15",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6552,6 +6619,7 @@
   {
     "type": "Halberd",
     "symbol": "⚔️",
+    "layoutkey": "pwr16",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6566,6 +6634,7 @@
   {
     "type": "Sword of Song",
     "symbol": "🗡️",
+    "layoutkey": "pwr17",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6580,6 +6649,7 @@
   {
     "type": "Magic Halberd",
     "symbol": "⚔️",
+    "layoutkey": "pwr18",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6593,6 +6663,7 @@
   {
     "type": "Glowing Sword",
     "symbol": "🗡️",
+    "layoutkey": "pwr19",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6607,6 +6678,7 @@
   {
     "type": "Giant Axe",
     "symbol": "⚔️",
+    "layoutkey": "pwr20",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6621,6 +6693,7 @@
   {
     "type": "Legendary Sword",
     "symbol": "⚔️",
+    "layoutkey": "pwr21",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6635,6 +6708,7 @@
   {
     "type": "Dragonslayer",
     "symbol": "⚔️",
+    "layoutkey": "pwr22",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6649,6 +6723,7 @@
   {
     "type": "Darts",
     "symbol": "⚔️",
+    "layoutkey": "pwr23",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6661,6 +6736,7 @@
   {
     "type": "Short Bow",
     "symbol": "🏹",
+    "layoutkey": "pwr24",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6674,6 +6750,7 @@
   {
     "type": "Long Bow",
     "symbol": "🏹",
+    "layoutkey": "pwr25",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6689,6 +6766,7 @@
   {
     "type": "Spear",
     "symbol": "⚔️",
+    "layoutkey": "pwr26",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6704,6 +6782,7 @@
   {
     "type": "Crossbow",
     "symbol": "🏹",
+    "layoutkey": "pwr27",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6719,6 +6798,7 @@
   {
     "type": "Magic Spear",
     "symbol": "⚔️",
+    "layoutkey": "pwr28",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6733,6 +6813,7 @@
   {
     "type": "Magic Crossbow",
     "symbol": "🏹",
+    "layoutkey": "pwr29",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6747,6 +6828,7 @@
   {
     "type": "Titania's Bow",
     "symbol": "🏹",
+    "layoutkey": "pwr30",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6762,6 +6844,7 @@
   {
     "type": "Legendary Crossbow",
     "symbol": "🏹",
+    "layoutkey": "pwr31",
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
@@ -6776,6 +6859,7 @@
   {
     "type": "Tempest",
     "symbol": "⚔️",
+    "layoutkey": "pwr32",
     "category": "power",
     "source": "Magic Shop",
     "scrollqty": 1,
@@ -6790,6 +6874,7 @@
   {
     "type": "Maelstrom",
     "symbol": "⚔️",
+    "layoutkey": "pwr33",
     "category": "power",
     "source": "Magic Shop",
     "requires": "Tempest",
@@ -6805,6 +6890,7 @@
   {
     "type": "Oblivion",
     "symbol": "⚔️",
+    "layoutkey": "pwr34",
     "category": "power",
     "source": "Magic Shop",
     "requires": "Maelstrom",
@@ -6820,6 +6906,7 @@
   {
     "type": "Titan",
     "symbol": "⚔️",
+    "layoutkey": "pwr35",
     "category": "power",
     "source": "Magic Shop",
     "requires": "Oblivion",
@@ -6835,6 +6922,7 @@
   {
     "type": "Jab",
     "symbol": "⚔️",
+    "layoutkey": "pwr36",
     "category": "power",
     "source": "Magic Shop",
     "speed": -2,
@@ -6845,6 +6933,7 @@
   {
     "type": "Flurry",
     "symbol": "⚔️",
+    "layoutkey": "pwr37",
     "category": "power",
     "source": "Magic Shop",
     "requires": "Jab",
@@ -6858,6 +6947,7 @@
   {
     "type": "Barrage",
     "symbol": "⚔️",
+    "layoutkey": "pwr38",
     "category": "power",
     "source": "Magic Shop",
     "requires": "Flurry",
@@ -6873,6 +6963,7 @@
   {
     "type": "Steady Hand",
     "symbol": "🎯",
+    "layoutkey": "pwr39",
     "category": "power",
     "source": "Magic Shop",
     "attackbonus": 4,
@@ -6883,6 +6974,7 @@
   {
     "type": "Pinpoint",
     "symbol": "🎯",
+    "layoutkey": "pwr40",
     "category": "power",
     "source": "Magic Shop",
     "requires": "Steady Hand",
@@ -6896,6 +6988,7 @@
   {
     "type": "Unerring",
     "symbol": "🎯",
+    "layoutkey": "pwr41",
     "category": "power",
     "source": "Magic Shop",
     "requires": "Pinpoint",
@@ -6911,6 +7004,7 @@
   {
     "type": "Focus",
     "symbol": "👁️",
+    "layoutkey": "pwr42",
     "category": "power",
     "source": "Magic Shop",
     "attackrange": 1,
@@ -6921,6 +7015,7 @@
   {
     "type": "Precision",
     "symbol": "👁️",
+    "layoutkey": "pwr43",
     "category": "power",
     "source": "Magic Shop",
     "requires": "Focus",
@@ -6934,6 +7029,7 @@
   {
     "type": "Horizon Eye",
     "symbol": "👁️",
+    "layoutkey": "pwr44",
     "category": "power",
     "source": "Magic Shop",
     "requires": "Precision",
@@ -6949,6 +7045,7 @@
   {
     "type": "Fortitude",
     "symbol": "🛡️",
+    "layoutkey": "pwr45",
     "category": "power",
     "source": "Magic Shop",
     "maxhp": 100,
@@ -6959,6 +7056,7 @@
   {
     "type": "Stoneheart",
     "symbol": "🛡️",
+    "layoutkey": "pwr46",
     "category": "power",
     "source": "Magic Shop",
     "requires": "Fortitude",
@@ -6975,6 +7073,7 @@
   {
     "type": "Unbreakable",
     "symbol": "🛡️",
+    "layoutkey": "pwr47",
     "category": "power",
     "source": "Magic Shop",
     "requires": "Stoneheart",
