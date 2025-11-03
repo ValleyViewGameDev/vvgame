@@ -56,9 +56,19 @@ class UltraCompactResourceEncoder {
     
     PROPERTY_ORDER.forEach((propName, index) => {
       const flagValue = 1 << index; // 2^index
-      const value = resourceObj[propName];
+      let value = resourceObj[propName];
       
       if (value !== undefined && value !== null) {
+        // Special handling for craftedItem: convert type to layoutKey
+        if (propName === 'craftedItem' && typeof value === 'string') {
+          const craftedItemLayoutKey = this.typeToLayoutKey.get(value);
+          if (craftedItemLayoutKey) {
+            value = craftedItemLayoutKey;
+          } else {
+            console.warn(`⚠️ No layoutKey found for craftedItem type: ${value}, using original value`);
+          }
+        }
+        
         flags |= flagValue; // Set the bit
         values.push(value);
       }
@@ -98,7 +108,19 @@ class UltraCompactResourceEncoder {
         const flagValue = 1 << index;
         if (flags & flagValue) { // Check if bit is set
           if (valueIndex < resourceArray.length) {
-            result[propName] = resourceArray[valueIndex++];
+            let value = resourceArray[valueIndex++];
+            
+            // Special handling for craftedItem: convert layoutKey back to type
+            if (propName === 'craftedItem' && typeof value === 'string') {
+              const craftedItemType = this.layoutKeyToType.get(value);
+              if (craftedItemType) {
+                value = craftedItemType;
+              } else {
+                console.warn(`⚠️ No type found for craftedItem layoutKey: ${value}, using original value`);
+              }
+            }
+            
+            result[propName] = value;
           }
         }
       });

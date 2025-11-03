@@ -1123,6 +1123,28 @@ router.post('/crafting/collect-item', async (req, res) => {
       grid.markModified(`resources.${resourceIndex}`);
     }
 
+    // ✅ DUAL-FORMAT SUPPORT: Update v2 format if it exists
+    try {
+      if (grid.resourcesV2 && grid.resourcesV2.length > 0) {
+        console.log(`🔄 Updating v2 format for crafting collection at (${stationX}, ${stationY})`);
+        
+        // Clear crafting state in v2 format by updating with null values
+        const resourceUpdate = {
+          type: grid.resources[resourceIndex]?.type, // Keep the station type
+          x: stationX,
+          y: stationY,
+          craftEnd: null,     // Remove craftEnd
+          craftedItem: null   // Remove craftedItem
+        };
+        
+        gridResourceManager.updateResource(grid, resourceUpdate);
+        console.log(`✅ Cleared crafting state in v2 format at (${stationX}, ${stationY})`);
+      }
+    } catch (v2Error) {
+      console.error(`❌ Failed to update v2 format for crafting collection:`, v2Error);
+      // Don't fail the entire operation, just log the error
+    }
+
     // Save changes
     await grid.save();
     await player.save();
@@ -1298,6 +1320,28 @@ router.post('/crafting/start-craft', async (req, res) => {
       grid.resources[resourceIndex].craftEnd = craftEnd;
       grid.resources[resourceIndex].craftedItem = recipe.type;
       grid.markModified(`resources.${resourceIndex}`);
+    }
+
+    // ✅ DUAL-FORMAT SUPPORT: Update v2 format if it exists
+    try {
+      if (grid.resourcesV2 && grid.resourcesV2.length > 0) {
+        console.log(`🔄 Updating v2 format for crafting start at (${stationX}, ${stationY})`);
+        
+        // Set crafting state in v2 format
+        const resourceUpdate = {
+          type: grid.resources[resourceIndex]?.type, // Keep the station type
+          x: stationX,
+          y: stationY,
+          craftEnd: craftEnd,
+          craftedItem: recipe.type
+        };
+        
+        gridResourceManager.updateResource(grid, resourceUpdate);
+        console.log(`✅ Set crafting state in v2 format at (${stationX}, ${stationY})`);
+      }
+    } catch (v2Error) {
+      console.error(`❌ Failed to update v2 format for crafting start:`, v2Error);
+      // Don't fail the entire operation, just log the error
     }
 
     // Save changes
@@ -1944,6 +1988,49 @@ router.post('/bulk-harvest', async (req, res) => {
       }
     }
 
+    // ✅ DUAL-FORMAT SUPPORT: Update v2 format for all modified positions
+    try {
+      if (grid.resourcesV2 && grid.resourcesV2.length > 0) {
+        console.log(`🔄 Updating v2 format for bulk harvest operations`);
+        
+        // Collect all modified positions from harvestResults
+        const allHarvestedPositions = [];
+        for (const cropType in harvestResults.harvested) {
+          const result = harvestResults.harvested[cropType];
+          if (result.positions) {
+            allHarvestedPositions.push(...result.positions);
+          }
+        }
+        
+        // Update removed resources (set type to null for removal)
+        for (const pos of allHarvestedPositions) {
+          const resourceUpdate = {
+            type: null, // Remove the resource
+            x: pos.x,
+            y: pos.y
+          };
+          gridResourceManager.updateResource(grid, resourceUpdate);
+        }
+        
+        // Update added farmplots (they were added to grid.resources, need to sync to v2)
+        // Find the recently added farmplots by checking the last few resources
+        const recentlyAddedCount = allHarvestedPositions.length;
+        if (recentlyAddedCount > 0) {
+          const recentResources = grid.resources.slice(-recentlyAddedCount);
+          for (const newFarmplot of recentResources) {
+            if (newFarmplot.type && newFarmplot.x !== undefined && newFarmplot.y !== undefined) {
+              gridResourceManager.updateResource(grid, newFarmplot);
+            }
+          }
+        }
+        
+        console.log(`✅ Updated v2 format for bulk harvest (${allHarvestedPositions.length} harvested, ${recentlyAddedCount} replanted)`);
+      }
+    } catch (v2Error) {
+      console.error(`❌ Failed to update v2 format for bulk harvest:`, v2Error);
+      // Don't fail the entire operation, just log the error
+    }
+
     // Save grid and player changes
     await grid.save();
     await player.save();
@@ -2117,6 +2204,39 @@ router.post('/crafting/collect-bulk', async (req, res) => {
           error: stationError.message 
         });
       }
+    }
+
+    // ✅ DUAL-FORMAT SUPPORT: Update v2 format for all modified crafting stations
+    try {
+      if (grid.resourcesV2 && grid.resourcesV2.length > 0) {
+        console.log(`🔄 Updating v2 format for bulk crafting collection (${results.length} stations)`);
+        
+        // Update each modified crafting station in v2 format
+        for (const result of results) {
+          if (result.success && result.station) {
+            const { x, y, craftedItem } = result.station;
+            
+            // Get the current station from grid.resources to get its type
+            const currentStation = grid.resources.find(res => res.x === x && res.y === y);
+            if (currentStation) {
+              const resourceUpdate = {
+                type: currentStation.type, // Keep the station type
+                x: x,
+                y: y,
+                craftEnd: result.restarted ? result.newCraftEnd : null,     // Remove or set craftEnd
+                craftedItem: result.restarted ? result.newCraftedItem : null // Remove or set craftedItem
+              };
+              
+              gridResourceManager.updateResource(grid, resourceUpdate);
+            }
+          }
+        }
+        
+        console.log(`✅ Updated v2 format for bulk crafting collection`);
+      }
+    } catch (v2Error) {
+      console.error(`❌ Failed to update v2 format for bulk crafting collection:`, v2Error);
+      // Don't fail the entire operation, just log the error
     }
 
     // Save grid changes only (inventory updates handled by client)
