@@ -44,7 +44,19 @@ class UltraCompactResourceEncoder {
   encode(resourceObj) {
     const layoutKey = this.typeToLayoutKey.get(resourceObj.type);
     if (layoutKey === undefined) {
-      throw new Error(`Unknown resource type: ${resourceObj.type}`);
+      console.warn(`⚠️ Unknown resource type: ${resourceObj.type} - creating fallback encoding`);
+      // Return a special encoding for unknown resources that preserves essential data
+      return {
+        x: resourceObj.x,
+        y: resourceObj.y,
+        type: resourceObj.type, // Preserve original type name
+        layoutKey: 'UNKNOWN',
+        // Preserve other properties that might be important
+        ...(resourceObj.anchorKey && { anchorKey: resourceObj.anchorKey }),
+        ...(resourceObj.passable !== undefined && { passable: resourceObj.passable }),
+        ...(resourceObj.growEnd && { growEnd: resourceObj.growEnd }),
+        ...(resourceObj.craftEnd && { craftEnd: resourceObj.craftEnd })
+      };
     }
     
     // Start with: [layoutKey, x, y]
@@ -84,7 +96,16 @@ class UltraCompactResourceEncoder {
   }
 
   decode(resourceArray) {
-    if (!Array.isArray(resourceArray) || resourceArray.length < 3) {
+    // Handle unknown resource fallback format (object instead of array)
+    if (!Array.isArray(resourceArray)) {
+      if (resourceArray && typeof resourceArray === 'object' && resourceArray.layoutKey === 'UNKNOWN') {
+        console.warn(`⚠️ Decoding unknown resource type: ${resourceArray.type}`);
+        return resourceArray; // Return the preserved object as-is
+      }
+      throw new Error('Invalid resource format - expected array or unknown resource object');
+    }
+
+    if (resourceArray.length < 3) {
       throw new Error('Invalid resource array format');
     }
 
@@ -94,7 +115,14 @@ class UltraCompactResourceEncoder {
     
     const type = this.layoutKeyToType.get(layoutKey);
     if (!type) {
-      throw new Error(`Unknown layoutKey: ${layoutKey}`);
+      console.warn(`⚠️ Unknown layoutKey during decode: ${layoutKey} - creating placeholder`);
+      return {
+        type: `UNKNOWN_${layoutKey}`,
+        x,
+        y,
+        layoutKey,
+        _isUnknown: true
+      };
     }
     
     const result = { type, x, y };

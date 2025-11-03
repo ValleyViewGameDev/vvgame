@@ -776,4 +776,936 @@ router.post('/delete-old-tiles-schema', async (req, res) => {
 });
 
 
+///////////////////////////////////////////////////////////////
+// BULK MIGRATION ROUTES FOR NON-HOMESTEAD GRIDS
+///////////////////////////////////////////////////////////////
+
+// Bulk migrate non-homestead grids to v2 schema
+router.post('/bulk-migrate-valleys-towns', async (req, res) => {
+  try {
+    // Find all non-homestead grids that are still v1
+    const gridsToMigrate = await Grid.find({
+      gridType: { $ne: 'homestead' },
+      $or: [
+        { resourcesSchemaVersion: { $ne: 'v2' } },
+        { tilesSchemaVersion: { $ne: 'v2' } },
+        { resourcesSchemaVersion: { $exists: false } },
+        { tilesSchemaVersion: { $exists: false } }
+      ]
+    });
+
+    console.log(`🔄 Found ${gridsToMigrate.length} non-homestead grids to migrate`);
+
+    if (gridsToMigrate.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: 'No non-homestead grids need migration',
+        result: { migrated: 0, skipped: 0, errors: 0 }
+      });
+    }
+
+    // Initialize encoders
+    const masterResourcesPath = path.join(__dirname, '../tuning/resources.json');
+    const masterResources = readJSON(masterResourcesPath);
+    const resourceEncoder = new UltraCompactResourceEncoder(masterResources);
+
+    let migrated = 0;
+    let skipped = 0;
+    let errors = 0;
+    const migrationResults = [];
+
+    for (const grid of gridsToMigrate) {
+      try {
+        const currentResourcesVersion = grid.resourcesSchemaVersion || 'v1';
+        const currentTilesVersion = grid.tilesSchemaVersion || 'v1';
+        let resourcesMigrated = false;
+        let tilesMigrated = false;
+
+        // Migrate resources if needed (including empty grids)
+        if (currentResourcesVersion !== 'v2') {
+          if (grid.resources && grid.resources.length > 0) {
+            // Grid has resources - encode them
+            const encodedResources = [];
+            for (const resource of grid.resources) {
+              try {
+                const encoded = resourceEncoder.encode(resource);
+                encodedResources.push(encoded);
+              } catch (error) {
+                console.error(`❌ Failed to encode resource in grid ${grid._id}:`, resource, error);
+                throw new Error(`Failed to encode resource at (${resource.x}, ${resource.y}): ${error.message}`);
+              }
+            }
+            
+            grid.resourcesV2 = encodedResources;
+            grid.resourcesSchemaVersion = 'v2';
+            resourcesMigrated = true;
+            console.log(`📦 Migrated ${encodedResources.length} resources for grid ${grid._id}`);
+          } else {
+            // Grid is empty - just set schema version to v2
+            grid.resourcesSchemaVersion = 'v2';
+            // Don't set resourcesV2 for empty grids - let it remain undefined
+            resourcesMigrated = true;
+            console.log(`📝 Set empty grid ${grid._id} to v2 resources schema`);
+          }
+        }
+
+        // Migrate tiles if needed
+        if (currentTilesVersion !== 'v2' && grid.tiles && Array.isArray(grid.tiles)) {
+          try {
+            const encodedTiles = TileEncoder.encode(grid.tiles);
+            grid.tilesV2 = encodedTiles;
+            grid.tilesSchemaVersion = 'v2';
+            tilesMigrated = true;
+            console.log(`📦 Migrated tiles for grid ${grid._id}: ${encodedTiles.length} chars`);
+          } catch (error) {
+            console.error(`❌ Failed to encode tiles for grid ${grid._id}:`, error);
+            throw new Error(`Failed to encode tiles: ${error.message}`);
+          }
+        }
+
+        if (resourcesMigrated || tilesMigrated) {
+          grid.lastOptimized = new Date();
+          await grid.save();
+          migrated++;
+          
+          migrationResults.push({
+            gridId: grid._id,
+            gridType: grid.gridType,
+            resourcesMigrated,
+            tilesMigrated,
+            status: 'success'
+          });
+        } else {
+          skipped++;
+          migrationResults.push({
+            gridId: grid._id,
+            gridType: grid.gridType,
+            resourcesMigrated: false,
+            tilesMigrated: false,
+            status: 'skipped - already v2 or no data'
+          });
+        }
+
+      } catch (error) {
+        errors++;
+        console.error(`❌ Error migrating grid ${grid._id}:`, error);
+        migrationResults.push({
+          gridId: grid._id,
+          gridType: grid.gridType,
+          status: 'error',
+          error: error.message
+        });
+      }
+    }
+
+    console.log(`✅ Bulk migration complete: ${migrated} migrated, ${skipped} skipped, ${errors} errors`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Bulk migration completed',
+      result: {
+        migrated,
+        skipped,
+        errors,
+        details: migrationResults
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error in bulk migration:', error);
+    res.status(500).json({ error: 'Failed to perform bulk migration.' });
+  }
+});
+
+// Bulk delete v1 schema from migrated non-homestead grids
+router.post('/bulk-delete-valleys-towns-v1', async (req, res) => {
+  try {
+    // Find all non-homestead grids that are v2 and still have v1 data
+    const gridsToCleanup = await Grid.find({
+      gridType: { $ne: 'homestead' },
+      $and: [
+        {
+          $or: [
+            { resourcesSchemaVersion: 'v2' },
+            { tilesSchemaVersion: 'v2' }
+          ]
+        },
+        {
+          $or: [
+            { resources: { $exists: true } },
+            { tiles: { $exists: true } }
+          ]
+        }
+      ]
+    });
+
+    console.log(`🗑️ Found ${gridsToCleanup.length} non-homestead grids with v1 data to cleanup`);
+
+    if (gridsToCleanup.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: 'No non-homestead grids need v1 cleanup',
+        result: { cleaned: 0, errors: 0 }
+      });
+    }
+
+    let cleaned = 0;
+    let errors = 0;
+    const cleanupResults = [];
+
+    for (const grid of gridsToCleanup) {
+      try {
+        const updateFields = {};
+        const unsetFields = {};
+        let needsUpdate = false;
+
+        // Remove resources field if grid is v2 for resources
+        if (grid.resourcesSchemaVersion === 'v2' && grid.resources) {
+          unsetFields.resources = 1;
+          needsUpdate = true;
+        }
+
+        // Remove tiles field if grid is v2 for tiles  
+        if (grid.tilesSchemaVersion === 'v2' && grid.tiles) {
+          unsetFields.tiles = 1;
+          needsUpdate = true;
+        }
+
+        if (needsUpdate) {
+          await Grid.findByIdAndUpdate(grid._id, {
+            $unset: unsetFields,
+            $set: { lastOptimized: new Date() }
+          });
+
+          cleaned++;
+          console.log(`🗑️ Cleaned v1 data from grid ${grid._id} (${grid.gridType})`);
+          
+          cleanupResults.push({
+            gridId: grid._id,
+            gridType: grid.gridType,
+            removedResources: !!unsetFields.resources,
+            removedTiles: !!unsetFields.tiles,
+            status: 'success'
+          });
+        }
+
+      } catch (error) {
+        errors++;
+        console.error(`❌ Error cleaning grid ${grid._id}:`, error);
+        cleanupResults.push({
+          gridId: grid._id,
+          gridType: grid.gridType,
+          status: 'error',
+          error: error.message
+        });
+      }
+    }
+
+    console.log(`✅ Bulk cleanup complete: ${cleaned} cleaned, ${errors} errors`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Bulk v1 cleanup completed',
+      result: {
+        cleaned,
+        errors,
+        details: cleanupResults
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error in bulk cleanup:', error);
+    res.status(500).json({ error: 'Failed to perform bulk cleanup.' });
+  }
+});
+
+// Check migration status of non-homestead grids
+router.get('/migration-status-valleys-towns', async (req, res) => {
+  try {
+    // Count grids by type and schema version
+    const statusCounts = await Grid.aggregate([
+      {
+        $match: { gridType: { $ne: 'homestead' } }
+      },
+      {
+        $group: {
+          _id: {
+            gridType: '$gridType',
+            resourcesSchemaVersion: { $ifNull: ['$resourcesSchemaVersion', 'v1'] },
+            tilesSchemaVersion: { $ifNull: ['$tilesSchemaVersion', 'v1'] }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { '_id.gridType': 1, '_id.resourcesSchemaVersion': 1 }
+      }
+    ]);
+
+    // Get total counts
+    const totals = await Grid.aggregate([
+      {
+        $match: { gridType: { $ne: 'homestead' } }
+      },
+      {
+        $group: {
+          _id: '$gridType',
+          total: { $sum: 1 },
+          v2Resources: {
+            $sum: { $cond: [{ $eq: ['$resourcesSchemaVersion', 'v2'] }, 1, 0] }
+          },
+          v2Tiles: {
+            $sum: { $cond: [{ $eq: ['$tilesSchemaVersion', 'v2'] }, 1, 0] }
+          },
+          hasV1Data: {
+            $sum: { 
+              $cond: [
+                { 
+                  $or: [
+                    { $gt: [{ $size: { $ifNull: ['$resources', []] } }, 0] },
+                    { $gt: [{ $size: { $ifNull: ['$tiles', []] } }, 0] }
+                  ]
+                }, 
+                1, 
+                0
+              ]
+            }
+          }
+        }
+      }
+    ]);
+
+    res.status(200).json({
+      success: true,
+      statusCounts,
+      totals,
+      summary: {
+        totalNonHomesteads: totals.reduce((sum, t) => sum + t.total, 0),
+        totalV2Resources: totals.reduce((sum, t) => sum + t.v2Resources, 0),
+        totalV2Tiles: totals.reduce((sum, t) => sum + t.v2Tiles, 0),
+        totalWithV1Data: totals.reduce((sum, t) => sum + t.hasV1Data, 0)
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error checking migration status:', error);
+    res.status(500).json({ error: 'Failed to check migration status.' });
+  }
+});
+
+// Debug: Get detailed info about unmigrated grids
+router.get('/debug-unmigrated-grids', async (req, res) => {
+  try {
+    // Find grids that appear to need migration but were skipped
+    const suspiciousGrids = await Grid.find({
+      gridType: { $ne: 'homestead' },
+      $or: [
+        // Has v1 resources but claims to be v2
+        {
+          resourcesSchemaVersion: 'v2',
+          resources: { $exists: true, $ne: [] },
+          resourcesV2: { $exists: false }
+        },
+        // Has v1 resources but no v2 version set
+        {
+          resourcesSchemaVersion: { $ne: 'v2' },
+          resources: { $exists: true, $ne: [] },
+          resourcesV2: { $exists: false }
+        },
+        // Missing schema version entirely but has resources
+        {
+          resourcesSchemaVersion: { $exists: false },
+          resources: { $exists: true, $ne: [] }
+        }
+      ]
+    }).select('_id gridType resourcesSchemaVersion tilesSchemaVersion resources resourcesV2 tiles tilesV2');
+
+    const analysis = suspiciousGrids.map(grid => ({
+      gridId: grid._id,
+      gridType: grid.gridType,
+      resourcesSchemaVersion: grid.resourcesSchemaVersion || 'missing',
+      tilesSchemaVersion: grid.tilesSchemaVersion || 'missing',
+      hasV1Resources: !!(grid.resources && grid.resources.length > 0),
+      hasV2Resources: !!(grid.resourcesV2 && grid.resourcesV2.length > 0),
+      hasV1Tiles: !!(grid.tiles && Array.isArray(grid.tiles) && grid.tiles.length > 0),
+      hasV2Tiles: !!(grid.tilesV2 && typeof grid.tilesV2 === 'string'),
+      v1ResourceCount: grid.resources ? grid.resources.length : 0,
+      v2ResourceCount: grid.resourcesV2 ? grid.resourcesV2.length : 0,
+      issue: determineIssue(grid)
+    }));
+
+    function determineIssue(grid) {
+      if (!grid.resources || grid.resources.length === 0) {
+        return 'No resources to migrate';
+      }
+      if (grid.resourcesSchemaVersion === 'v2' && (!grid.resourcesV2 || grid.resourcesV2.length === 0)) {
+        return 'Claims v2 but missing resourcesV2 data';
+      }
+      if (grid.resourcesSchemaVersion !== 'v2' && grid.resources && grid.resources.length > 0) {
+        return 'Has v1 resources but migration skipped';
+      }
+      return 'Unknown issue';
+    }
+
+    res.status(200).json({
+      success: true,
+      totalSuspicious: suspiciousGrids.length,
+      analysis,
+      summary: {
+        noResources: analysis.filter(a => a.issue === 'No resources to migrate').length,
+        claimsV2ButMissingData: analysis.filter(a => a.issue === 'Claims v2 but missing resourcesV2 data').length,
+        hasV1ButSkipped: analysis.filter(a => a.issue === 'Has v1 resources but migration skipped').length,
+        unknown: analysis.filter(a => a.issue === 'Unknown issue').length
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error debugging unmigrated grids:', error);
+    res.status(500).json({ error: 'Failed to debug unmigrated grids.' });
+  }
+});
+
+///////////////////////////////////////////////////////////////
+// BULK MIGRATION ROUTES FOR HOMESTEAD GRIDS
+///////////////////////////////////////////////////////////////
+
+// Bulk migrate homestead grids to v2 schema
+router.post('/bulk-migrate-homesteads', async (req, res) => {
+  try {
+    // Find all homestead grids that are still v1
+    const gridsToMigrate = await Grid.find({
+      gridType: 'homestead',
+      $or: [
+        { resourcesSchemaVersion: { $ne: 'v2' } },
+        { tilesSchemaVersion: { $ne: 'v2' } },
+        { resourcesSchemaVersion: { $exists: false } },
+        { tilesSchemaVersion: { $exists: false } }
+      ]
+    });
+
+    console.log(`🏠 Found ${gridsToMigrate.length} homestead grids to migrate`);
+
+    if (gridsToMigrate.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: 'No homestead grids need migration',
+        result: { migrated: 0, skipped: 0, errors: 0 }
+      });
+    }
+
+    // Initialize encoders
+    const masterResourcesPath = path.join(__dirname, '../tuning/resources.json');
+    const masterResources = readJSON(masterResourcesPath);
+    const resourceEncoder = new UltraCompactResourceEncoder(masterResources);
+
+    let migrated = 0;
+    let skipped = 0;
+    let errors = 0;
+    const migrationResults = [];
+
+    for (const grid of gridsToMigrate) {
+      try {
+        const currentResourcesVersion = grid.resourcesSchemaVersion || 'v1';
+        const currentTilesVersion = grid.tilesSchemaVersion || 'v1';
+        let resourcesMigrated = false;
+        let tilesMigrated = false;
+
+        // Migrate resources if needed (including empty grids)
+        if (currentResourcesVersion !== 'v2') {
+          if (grid.resources && grid.resources.length > 0) {
+            // Grid has resources - encode them
+            const encodedResources = [];
+            for (const resource of grid.resources) {
+              try {
+                const encoded = resourceEncoder.encode(resource);
+                encodedResources.push(encoded);
+              } catch (error) {
+                console.error(`❌ Failed to encode resource in homestead ${grid._id}:`, resource, error);
+                throw new Error(`Failed to encode resource at (${resource.x}, ${resource.y}): ${error.message}`);
+              }
+            }
+            
+            grid.resourcesV2 = encodedResources;
+            grid.resourcesSchemaVersion = 'v2';
+            resourcesMigrated = true;
+            console.log(`🏠 Migrated ${encodedResources.length} resources for homestead ${grid._id}`);
+          } else {
+            // Grid is empty - just set schema version to v2
+            grid.resourcesSchemaVersion = 'v2';
+            resourcesMigrated = true;
+            console.log(`🏠 Set empty homestead ${grid._id} to v2 resources schema`);
+          }
+        }
+
+        // Migrate tiles if needed
+        if (currentTilesVersion !== 'v2' && grid.tiles && Array.isArray(grid.tiles)) {
+          try {
+            const encodedTiles = TileEncoder.encode(grid.tiles);
+            grid.tilesV2 = encodedTiles;
+            grid.tilesSchemaVersion = 'v2';
+            tilesMigrated = true;
+            console.log(`🏠 Migrated tiles for homestead ${grid._id}: ${encodedTiles.length} chars`);
+          } catch (error) {
+            console.error(`❌ Failed to encode tiles for homestead ${grid._id}:`, error);
+            throw new Error(`Failed to encode tiles: ${error.message}`);
+          }
+        }
+
+        if (resourcesMigrated || tilesMigrated) {
+          grid.lastOptimized = new Date();
+          await grid.save();
+          migrated++;
+          
+          migrationResults.push({
+            gridId: grid._id,
+            gridType: grid.gridType,
+            resourcesMigrated,
+            tilesMigrated,
+            status: 'success'
+          });
+        } else {
+          skipped++;
+          migrationResults.push({
+            gridId: grid._id,
+            gridType: grid.gridType,
+            resourcesMigrated: false,
+            tilesMigrated: false,
+            status: 'skipped - already v2 or no data'
+          });
+        }
+
+      } catch (error) {
+        errors++;
+        console.error(`❌ Error migrating homestead ${grid._id}:`, error);
+        migrationResults.push({
+          gridId: grid._id,
+          gridType: grid.gridType,
+          status: 'error',
+          error: error.message
+        });
+      }
+    }
+
+    console.log(`✅ Homestead migration complete: ${migrated} migrated, ${skipped} skipped, ${errors} errors`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Homestead bulk migration completed',
+      result: {
+        migrated,
+        skipped,
+        errors,
+        details: migrationResults
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error in homestead bulk migration:', error);
+    res.status(500).json({ error: 'Failed to perform homestead bulk migration.' });
+  }
+});
+
+// Bulk delete v1 schema from migrated homestead grids
+router.post('/bulk-delete-homesteads-v1', async (req, res) => {
+  try {
+    // Find all homestead grids that are v2 and still have v1 data
+    const gridsToCleanup = await Grid.find({
+      gridType: 'homestead',
+      $and: [
+        {
+          $or: [
+            { resourcesSchemaVersion: 'v2' },
+            { tilesSchemaVersion: 'v2' }
+          ]
+        },
+        {
+          $or: [
+            { resources: { $exists: true } },
+            { tiles: { $exists: true } }
+          ]
+        }
+      ]
+    });
+
+    console.log(`🗑️ Found ${gridsToCleanup.length} homestead grids with v1 data to cleanup`);
+
+    if (gridsToCleanup.length === 0) {
+      return res.status(200).json({
+        success: true,
+        message: 'No homestead grids need v1 cleanup',
+        result: { cleaned: 0, errors: 0 }
+      });
+    }
+
+    let cleaned = 0;
+    let errors = 0;
+    const cleanupResults = [];
+
+    for (const grid of gridsToCleanup) {
+      try {
+        const updateFields = {};
+        const unsetFields = {};
+        let needsUpdate = false;
+
+        // Remove resources field if grid is v2 for resources
+        if (grid.resourcesSchemaVersion === 'v2' && grid.resources) {
+          unsetFields.resources = 1;
+          needsUpdate = true;
+        }
+
+        // Remove tiles field if grid is v2 for tiles  
+        if (grid.tilesSchemaVersion === 'v2' && grid.tiles) {
+          unsetFields.tiles = 1;
+          needsUpdate = true;
+        }
+
+        if (needsUpdate) {
+          await Grid.findByIdAndUpdate(grid._id, {
+            $unset: unsetFields,
+            $set: { lastOptimized: new Date() }
+          });
+
+          cleaned++;
+          console.log(`🗑️ Cleaned v1 data from homestead ${grid._id}`);
+          
+          cleanupResults.push({
+            gridId: grid._id,
+            gridType: grid.gridType,
+            removedResources: !!unsetFields.resources,
+            removedTiles: !!unsetFields.tiles,
+            status: 'success'
+          });
+        }
+
+      } catch (error) {
+        errors++;
+        console.error(`❌ Error cleaning homestead ${grid._id}:`, error);
+        cleanupResults.push({
+          gridId: grid._id,
+          gridType: grid.gridType,
+          status: 'error',
+          error: error.message
+        });
+      }
+    }
+
+    console.log(`✅ Homestead cleanup complete: ${cleaned} cleaned, ${errors} errors`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Homestead V1 cleanup completed',
+      result: {
+        cleaned,
+        errors,
+        details: cleanupResults
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error in homestead bulk cleanup:', error);
+    res.status(500).json({ error: 'Failed to perform homestead bulk cleanup.' });
+  }
+});
+
+// Check migration status of homestead grids
+router.get('/migration-status-homesteads', async (req, res) => {
+  try {
+    // Count homestead grids by schema version
+    const statusCounts = await Grid.aggregate([
+      {
+        $match: { gridType: 'homestead' }
+      },
+      {
+        $group: {
+          _id: {
+            resourcesSchemaVersion: { $ifNull: ['$resourcesSchemaVersion', 'v1'] },
+            tilesSchemaVersion: { $ifNull: ['$tilesSchemaVersion', 'v1'] }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { '_id.resourcesSchemaVersion': 1, '_id.tilesSchemaVersion': 1 }
+      }
+    ]);
+
+    // Get summary counts
+    const summary = await Grid.aggregate([
+      {
+        $match: { gridType: 'homestead' }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: 1 },
+          v2Resources: {
+            $sum: { $cond: [{ $eq: ['$resourcesSchemaVersion', 'v2'] }, 1, 0] }
+          },
+          v2Tiles: {
+            $sum: { $cond: [{ $eq: ['$tilesSchemaVersion', 'v2'] }, 1, 0] }
+          },
+          hasV1Data: {
+            $sum: { 
+              $cond: [
+                { 
+                  $or: [
+                    { $gt: [{ $size: { $ifNull: ['$resources', []] } }, 0] },
+                    { $gt: [{ $size: { $ifNull: ['$tiles', []] } }, 0] }
+                  ]
+                }, 
+                1, 
+                0
+              ]
+            }
+          }
+        }
+      }
+    ]);
+
+    const summaryData = summary[0] || { total: 0, v2Resources: 0, v2Tiles: 0, hasV1Data: 0 };
+
+    res.status(200).json({
+      success: true,
+      statusCounts,
+      summary: summaryData
+    });
+
+  } catch (error) {
+    console.error('❌ Error checking homestead migration status:', error);
+    res.status(500).json({ error: 'Failed to check homestead migration status.' });
+  }
+});
+
+// ORPHANED HOMESTEADS CLEANUP ENDPOINTS
+// Preview orphaned homesteads (GET for safety)
+router.get('/preview-orphaned-homesteads', async (req, res) => {
+  try {
+    // Find orphaned homesteads using aggregation
+    const orphanedHomesteads = await Grid.aggregate([
+      { $match: { gridType: 'homestead' } },
+      { 
+        $lookup: { 
+          from: 'players', 
+          localField: 'ownerId', 
+          foreignField: '_id', 
+          as: 'owner' 
+        }
+      },
+      { $match: { owner: { $size: 0 } } },
+      {
+        $project: {
+          _id: 1,
+          ownerId: 1,
+          gridType: 1,
+          createdAt: 1,
+          lastOptimized: 1,
+          resourcesSchemaVersion: { $ifNull: ['$resourcesSchemaVersion', 'v1'] },
+          tilesSchemaVersion: { $ifNull: ['$tilesSchemaVersion', 'v1'] },
+          hasResources: { $cond: { if: { $gt: [{ $size: { $ifNull: ['$resources', []] } }, 0] }, then: true, else: false } },
+          hasResourcesV2: { $cond: { if: { $ne: ['$resourcesV2', null] }, then: true, else: false } },
+          hasTiles: { $cond: { if: { $gt: [{ $size: { $ifNull: ['$tiles', []] } }, 0] }, then: true, else: false } },
+          hasTilesV2: { $cond: { if: { $ne: ['$tilesV2', null] }, then: true, else: false } }
+        }
+      },
+      { $sort: { createdAt: 1 } }
+    ]);
+
+    // Get summary statistics
+    const summary = {
+      totalOrphaned: orphanedHomesteads.length,
+      byResourcesVersion: {
+        v1: orphanedHomesteads.filter(g => g.resourcesSchemaVersion === 'v1').length,
+        v2: orphanedHomesteads.filter(g => g.resourcesSchemaVersion === 'v2').length
+      },
+      byTilesVersion: {
+        v1: orphanedHomesteads.filter(g => g.tilesSchemaVersion === 'v1').length,
+        v2: orphanedHomesteads.filter(g => g.tilesSchemaVersion === 'v2').length
+      },
+      withData: orphanedHomesteads.filter(g => g.hasResources || g.hasResourcesV2 || g.hasTiles || g.hasTilesV2).length,
+      withoutData: orphanedHomesteads.filter(g => !g.hasResources && !g.hasResourcesV2 && !g.hasTiles && !g.hasTilesV2).length
+    };
+
+    // Sample of orphaned homesteads for review
+    const sampleSize = 10;
+    const sample = orphanedHomesteads.slice(0, sampleSize);
+
+    console.log(`📊 Found ${orphanedHomesteads.length} orphaned homesteads`);
+    console.log(`📈 Summary:`, summary);
+
+    res.status(200).json({
+      success: true,
+      summary,
+      sample,
+      totalCount: orphanedHomesteads.length,
+      message: `Found ${orphanedHomesteads.length} orphaned homesteads. ${sample.length} shown in sample.`
+    });
+
+  } catch (error) {
+    console.error('❌ Error previewing orphaned homesteads:', error);
+    res.status(500).json({ error: 'Failed to preview orphaned homesteads.' });
+  }
+});
+
+// Delete orphaned homesteads (POST with confirmation)
+router.post('/delete-orphaned-homesteads', async (req, res) => {
+  const { confirm, dryRun = false } = req.body;
+  
+  if (!confirm) {
+    return res.status(400).json({ 
+      error: 'Confirmation required. Send { "confirm": true } to proceed.' 
+    });
+  }
+
+  try {
+    // Double-check we still have 170 valid players and count orphaned homesteads
+    const playerCount = await Player.countDocuments();
+    const totalHomesteads = await Grid.countDocuments({ gridType: 'homestead' });
+    
+    // Find orphaned homesteads with full safety checks
+    const orphanedHomesteads = await Grid.aggregate([
+      { $match: { gridType: 'homestead' } },
+      { 
+        $lookup: { 
+          from: 'players', 
+          localField: 'ownerId', 
+          foreignField: '_id', 
+          as: 'owner' 
+        }
+      },
+      { $match: { owner: { $size: 0 } } },
+      {
+        $project: {
+          _id: 1,
+          ownerId: 1,
+          gridType: 1,
+          createdAt: 1
+        }
+      }
+    ]);
+
+    // Safety check: ensure we have reasonable numbers
+    const expectedOrphaned = totalHomesteads - playerCount;
+    if (orphanedHomesteads.length !== expectedOrphaned) {
+      return res.status(400).json({
+        error: `Safety check failed: Expected ${expectedOrphaned} orphaned, found ${orphanedHomesteads.length}`,
+        details: {
+          totalHomesteads,
+          playerCount,
+          orphanedFound: orphanedHomesteads.length,
+          expectedOrphaned
+        }
+      });
+    }
+
+    // Safety check: don't proceed if numbers look wrong
+    if (playerCount < 150 || playerCount > 200) {
+      return res.status(400).json({
+        error: `Safety check failed: Player count ${playerCount} is outside expected range (150-200)`
+      });
+    }
+
+    if (orphanedHomesteads.length < 100 || orphanedHomesteads.length > 150) {
+      return res.status(400).json({
+        error: `Safety check failed: Orphaned count ${orphanedHomesteads.length} is outside expected range (100-150)`
+      });
+    }
+
+    if (dryRun) {
+      return res.status(200).json({
+        success: true,
+        dryRun: true,
+        message: `DRY RUN: Would delete ${orphanedHomesteads.length} orphaned homesteads`,
+        details: {
+          totalHomesteads,
+          playerCount,
+          orphanedToDelete: orphanedHomesteads.length,
+          validHomesteadsRemaining: totalHomesteads - orphanedHomesteads.length
+        },
+        orphanedSample: orphanedHomesteads.slice(0, 5)
+      });
+    }
+
+    // Perform the deletion with progress tracking
+    let deleted = 0;
+    let errors = 0;
+    const deleteResults = [];
+
+    console.log(`🗑️ Starting deletion of ${orphanedHomesteads.length} orphaned homesteads...`);
+
+    for (const homestead of orphanedHomesteads) {
+      try {
+        // Additional safety: double-check each homestead is still orphaned
+        const player = await Player.findById(homestead.ownerId);
+        if (player) {
+          console.warn(`⚠️ Skipping ${homestead._id} - owner ${homestead.ownerId} found during deletion`);
+          deleteResults.push({
+            gridId: homestead._id,
+            ownerId: homestead.ownerId,
+            status: 'skipped',
+            reason: 'Owner found during deletion'
+          });
+          continue;
+        }
+
+        // Safe to delete
+        await Grid.findByIdAndDelete(homestead._id);
+        deleted++;
+        
+        deleteResults.push({
+          gridId: homestead._id,
+          ownerId: homestead.ownerId,
+          status: 'deleted',
+          createdAt: homestead.createdAt
+        });
+
+        // Progress logging every 25 deletions
+        if (deleted % 25 === 0) {
+          console.log(`🗑️ Progress: ${deleted}/${orphanedHomesteads.length} deleted`);
+        }
+
+      } catch (error) {
+        errors++;
+        console.error(`❌ Error deleting homestead ${homestead._id}:`, error);
+        deleteResults.push({
+          gridId: homestead._id,
+          ownerId: homestead.ownerId,
+          status: 'error',
+          error: error.message
+        });
+      }
+    }
+
+    // Final verification
+    const finalHomesteadCount = await Grid.countDocuments({ gridType: 'homestead' });
+    const finalPlayerCount = await Player.countDocuments();
+
+    console.log(`✅ Cleanup complete: ${deleted} deleted, ${errors} errors`);
+    console.log(`📊 Final counts: ${finalHomesteadCount} homesteads, ${finalPlayerCount} players`);
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully deleted ${deleted} orphaned homesteads`,
+      details: {
+        deleted,
+        errors,
+        beforeCounts: {
+          homesteads: totalHomesteads,
+          players: playerCount,
+          orphaned: orphanedHomesteads.length
+        },
+        afterCounts: {
+          homesteads: finalHomesteadCount,
+          players: finalPlayerCount,
+          expectedMatch: finalHomesteadCount === finalPlayerCount
+        }
+      },
+      deleteResults: deleteResults.slice(0, 10) // Show first 10 results
+    });
+
+  } catch (error) {
+    console.error('❌ Error deleting orphaned homesteads:', error);
+    res.status(500).json({ error: 'Failed to delete orphaned homesteads.' });
+  }
+});
+
 module.exports = router;

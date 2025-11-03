@@ -894,9 +894,7 @@
     "15007": "Resetting Players and Locations",
     "15008": "🏠 You will be relocated back to your homestead if you are away from home when the season ends.",
     "15009": "🏠 Your homesteads will NOT reset – all layout, tiles and resources carry over.",
-    "15010": "🎒 Your inventory WILL be wiped, with the exception of rare items like Prospero’s Orb, King’s Crown, Golden & Skeleton Keys, Trident).",
     "15011": "💎 You will keep all Gems.",
-    "15012": "💰 Money will be nerfed to 10% of the current amount (25% for Gold Pass holders).",
     "15013": "✅ All quests will be wiped.",
     "15014": "💪 Your skills & powers carry over.",
     "15015": "❤️ Your relationships carry over.",
@@ -1326,7 +1324,11 @@
     "2019": "Rewards for filling all orders:",
     "1139": "🐒 Zoo Animals",
     "1039": "Acquire these zoo animals to populate your homestead, and dig up rare items.",
-    "12014": "Zoo Animals"
+    "12014": "Zoo Animals",
+
+    "15010": "🎒 Unlike prior seasons, your inventory NOT be wiped.",
+    "15012": "💰 Unlike prior seasons, Money will NOT be nerfed."
+
 
 
   }
