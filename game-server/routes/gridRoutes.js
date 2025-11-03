@@ -469,7 +469,7 @@ router.post('/generate-compact-db', async (req, res) => {
     }
 
     // Get master resources for encoding
-    const masterResourcesPath = path.join(__dirname, '../resources/resources.json');
+    const masterResourcesPath = path.join(__dirname, '../tuning/resources.json');
     const masterResources = readJSON(masterResourcesPath);
     
     if (!masterResources || !Array.isArray(masterResources)) {
@@ -565,7 +565,7 @@ router.post('/delete-old-schema', async (req, res) => {
     // Verify v2 data integrity before deletion
     try {
       // Get master resources for decoding verification
-      const masterResourcesPath = path.join(__dirname, '../resources/resources.json');
+      const masterResourcesPath = path.join(__dirname, '../tuning/resources.json');
       const masterResources = readJSON(masterResourcesPath);
       const encoder = new UltraCompactResourceEncoder(masterResources);
       

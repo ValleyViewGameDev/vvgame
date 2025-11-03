@@ -17,7 +17,7 @@ class GridResourceManager {
 
     try {
       // Load master resources
-      const masterResourcesPath = path.join(__dirname, '../resources/resources.json');
+      const masterResourcesPath = path.join(__dirname, '../tuning/resources.json');
       this.masterResources = readJSON(masterResourcesPath);
       
       if (!this.masterResources || !Array.isArray(this.masterResources)) {
