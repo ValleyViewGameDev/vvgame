@@ -7,6 +7,7 @@ const path = require('path');
 const { readJSON } = require('../utils/fileUtils');
 const Grid = require('../models/grid'); // Assuming you have a Grid model
 const queue = require('../queue'); // Import the in-memory queue
+const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
 
 ///////////////////////////////////////////////////////////////
 // GRID STATE ROUTES 
@@ -438,6 +439,173 @@ router.post('/batch-update-pc-positions', async (req, res) => {
   } catch (error) {
     console.error('❌ Error in batch PC position update:', error);
     res.status(500).json({ error: 'Failed to batch update PC positions.' });
+  }
+});
+
+///////////////////////////////////////////////////////////////
+// DATABASE OPTIMIZATION ROUTES 
+///////////////////////////////////////////////////////////////
+
+// Generate compact database format for a specific grid
+router.post('/generate-compact-db', async (req, res) => {
+  const { gridId } = req.body;
+
+  try {
+    if (!gridId) {
+      return res.status(400).json({ error: 'gridId is required.' });
+    }
+
+    // Load the grid with current resources
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found.' });
+    }
+
+    // Check if already has v2 format
+    if (grid.resourcesSchemaVersion === 'v2') {
+      return res.status(400).json({ 
+        error: 'Grid already using v2 schema. Use delete-old-schema to remove v1 data.' 
+      });
+    }
+
+    // Get master resources for encoding
+    const masterResourcesPath = path.join(__dirname, '../resources/resources.json');
+    const masterResources = readJSON(masterResourcesPath);
+    
+    if (!masterResources || !Array.isArray(masterResources)) {
+      return res.status(500).json({ error: 'Failed to load master resources.' });
+    }
+
+    // Initialize encoder with master resources
+    const encoder = new UltraCompactResourceEncoder(masterResources);
+
+    // Get current resources
+    const currentResources = grid.resources || [];
+    
+    if (currentResources.length === 0) {
+      return res.status(400).json({ error: 'No resources to encode on this grid.' });
+    }
+
+    // Encode all resources
+    const encodedResources = [];
+    let totalOriginalSize = 0;
+    let totalEncodedSize = 0;
+
+    for (const resource of currentResources) {
+      try {
+        const encoded = encoder.encode(resource);
+        encodedResources.push(encoded);
+        
+        // Calculate size savings
+        const originalSize = JSON.stringify(resource).length;
+        const encodedSize = JSON.stringify(encoded).length;
+        totalOriginalSize += originalSize;
+        totalEncodedSize += encodedSize;
+      } catch (encodeError) {
+        console.error(`❌ Failed to encode resource:`, resource, encodeError);
+        return res.status(500).json({ 
+          error: `Failed to encode resource at (${resource.x}, ${resource.y}): ${encodeError.message}` 
+        });
+      }
+    }
+
+    // Update grid with encoded resources (keeping original for safety)
+    grid.resourcesV2 = encodedResources;
+    grid.resourcesSchemaVersion = 'v1'; // Still dual-format
+    grid.lastOptimized = new Date();
+
+    await grid.save();
+
+    // Calculate savings
+    const savingsPercent = ((totalOriginalSize - totalEncodedSize) / totalOriginalSize * 100).toFixed(1);
+
+    const result = {
+      resourceCount: currentResources.length,
+      originalSize: totalOriginalSize,
+      encodedSize: totalEncodedSize,
+      savings: `${savingsPercent}%`
+    };
+
+    console.log(`📦 Generated compact DB for grid ${gridId}:`, result);
+
+    res.status(200).json({
+      success: true,
+      message: 'Compact database generated successfully',
+      result
+    });
+
+  } catch (error) {
+    console.error('❌ Error generating compact DB:', error);
+    res.status(500).json({ error: 'Failed to generate compact database.' });
+  }
+});
+
+// Delete old database schema and switch to v2 only
+router.post('/delete-old-schema', async (req, res) => {
+  const { gridId } = req.body;
+
+  try {
+    if (!gridId) {
+      return res.status(400).json({ error: 'gridId is required.' });
+    }
+
+    // Load the grid
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found.' });
+    }
+
+    // Check if grid has v2 resources
+    if (!grid.resourcesV2 || grid.resourcesV2.length === 0) {
+      return res.status(400).json({ 
+        error: 'Grid does not have resourcesV2 data. Generate compact DB first.' 
+      });
+    }
+
+    // Verify v2 data integrity before deletion
+    try {
+      // Get master resources for decoding verification
+      const masterResourcesPath = path.join(__dirname, '../resources/resources.json');
+      const masterResources = readJSON(masterResourcesPath);
+      const encoder = new UltraCompactResourceEncoder(masterResources);
+      
+      // Test decode a few resources to ensure integrity
+      const testDecodes = grid.resourcesV2.slice(0, Math.min(5, grid.resourcesV2.length));
+      for (const encoded of testDecodes) {
+        encoder.decode(encoded); // This will throw if invalid
+      }
+    } catch (verifyError) {
+      return res.status(400).json({ 
+        error: `V2 data integrity check failed: ${verifyError.message}. Cannot safely delete old schema.` 
+      });
+    }
+
+    // Store old resource count for logging
+    const oldResourceCount = grid.resources ? grid.resources.length : 0;
+    const newResourceCount = grid.resourcesV2.length;
+
+    // Remove old resources field and update schema version
+    grid.resources = undefined; // This removes the field
+    grid.resourcesSchemaVersion = 'v2';
+    grid.lastOptimized = new Date();
+
+    await grid.save();
+
+    console.log(`🗑️ Deleted old schema for grid ${gridId}. Resources: ${oldResourceCount} → ${newResourceCount} (v2)`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Old database schema deleted successfully',
+      result: {
+        oldResourceCount,
+        newResourceCount,
+        schemaVersion: 'v2'
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ Error deleting old schema:', error);
+    res.status(500).json({ error: 'Failed to delete old database schema.' });
   }
 });
 

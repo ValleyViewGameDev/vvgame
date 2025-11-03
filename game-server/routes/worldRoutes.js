@@ -19,6 +19,17 @@ const globalTuning = require('../tuning/globalTuning.json'); // Import globalTun
 const { getTemplate, getHomesteadLayoutFile } = require('../utils/templateUtils');
 const queue = require('../queue'); // Import the in-memory queue
 const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
+const gridResourceManager = require('../utils/GridResourceManager');
+
+// Initialize GridResourceManager
+(async () => {
+  try {
+    await gridResourceManager.initialize();
+    console.log('✅ GridResourceManager initialized successfully');
+  } catch (error) {
+    console.error('❌ Failed to initialize GridResourceManager:', error);
+  }
+})();
 
 // Cleanup old transaction IDs to prevent database bloat
 function cleanupTransactionIds(player, maxEntries = 100, maxAgeHours = 24) {
@@ -444,11 +455,24 @@ router.get('/load-grid/:gridId', async (req, res) => {
       return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
     }
 
-    console.log(`Grid found for ID: ${gridId}`);
+    // Log schema version for debugging
+    const schemaVersion = gridDocument.resourcesSchemaVersion || 'v1';
+    console.log(`Grid found for ID: ${gridId} (schema: ${schemaVersion})`);
 
-    // 2) Check if we need to clean up any corrupted crops
+    // 2) Load resources using GridResourceManager (handles v1/v2 automatically)
+    let loadedResources;
+    try {
+      loadedResources = gridResourceManager.getResources(gridDocument);
+      console.log(`📦 Loaded ${loadedResources.length} resources using ${schemaVersion} schema`);
+    } catch (resourceError) {
+      console.error('❌ Failed to load resources with GridResourceManager, falling back to v1:', resourceError);
+      // Fallback to v1 format
+      loadedResources = gridDocument.resources || [];
+    }
+
+    // 3) Check if we need to clean up any corrupted crops
     let needsSave = false;
-    const cleanedResources = gridDocument.resources.map((resource) => {
+    const cleanedResources = loadedResources.map((resource) => {
       const resourceTemplate = masterResources.find((res) => res.type === resource.type);
 
       if (!resourceTemplate) {
@@ -470,13 +494,22 @@ router.get('/load-grid/:gridId', async (req, res) => {
 
     // If we found corrupted crops, save the cleanup to database
     if (needsSave) {
-      console.log(`💾 Saving ${cleanedResources.filter((r, i) => r !== gridDocument.resources[i]).length} cleaned crops to database`);
-      gridDocument.resources = cleanedResources;
-      gridDocument.markModified('resources');
-      await gridDocument.save();
+      console.log(`💾 Saving ${cleanedResources.filter((r, i) => r !== loadedResources[i]).length} cleaned crops to database`);
+      // Update using appropriate format - for now, only update v1 format for crop cleanup to maintain compatibility
+      try {
+        if (schemaVersion === 'v1') {
+          gridDocument.resources = cleanedResources;
+          gridDocument.markModified('resources');
+          await gridDocument.save();
+        } else {
+          console.warn('⚠️ Crop cleanup needed but grid uses v2 schema - manual intervention required');
+        }
+      } catch (saveError) {
+        console.error('❌ Failed to save cleaned crops:', saveError);
+      }
     }
 
-    // 3) Enrich resources with masterResources data for response
+    // 4) Enrich resources with masterResources data for response
     const enrichedResources = cleanedResources.map((resource) => {
       const resourceTemplate = masterResources.find((res) => res.type === resource.type);
 
@@ -491,13 +524,13 @@ router.get('/load-grid/:gridId', async (req, res) => {
       };
     });
 
-    // 4) Construct the enriched grid data structure
+    // 5) Construct the enriched grid data structure
     const enrichedGrid = {
       ...gridDocument.toObject(),
       resources: enrichedResources,        // Replace resources with enriched
     };
 
-    // 4) Respond with the enriched grid, which now includes ownerId.username if it's a homestead
+    // 6) Respond with the enriched grid, which now includes ownerId.username if it's a homestead
     res.status(200).json(enrichedGrid);
   } catch (error) {
     console.error(`Error loading grid with ID: ${gridId}:`, error);

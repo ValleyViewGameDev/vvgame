@@ -99,6 +99,22 @@ const GridSchema = new mongoose.Schema({
     })],
     default: undefined, // Don't create this field unless explicitly set
     sparse: true // Optimize storage for grids without outposts
+  },
+
+  // NEW FIELDS FOR COMPACT RESOURCE STORAGE (additive only - no breaking changes)
+  resourcesV2: {
+    type: [mongoose.Schema.Types.Mixed], // Array of encoded resource arrays
+    default: undefined, // Only exists for grids using new format
+    sparse: true
+  },
+  resourcesSchemaVersion: {
+    type: String,
+    enum: ['v1', 'v2'],
+    default: 'v1' // All existing grids remain v1
+  },
+  lastOptimized: {
+    type: Date,
+    default: null // Only set when grid is optimized
   }
 });
 
