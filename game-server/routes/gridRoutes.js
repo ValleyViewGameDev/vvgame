@@ -6,6 +6,7 @@ const router = express.Router();
 const path = require('path');
 const { readJSON } = require('../utils/fileUtils');
 const Grid = require('../models/grid'); // Assuming you have a Grid model
+const Player = require('../models/player'); // Required for orphaned homesteads cleanup
 const queue = require('../queue'); // Import the in-memory queue
 const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
 const TileEncoder = require('../utils/TileEncoder');
@@ -1499,18 +1500,62 @@ router.get('/preview-orphaned-homesteads', async (req, res) => {
           gridType: 1,
           createdAt: 1,
           lastOptimized: 1,
+          updatedAt: 1,
+          playersInGridLastUpdated: 1,
+          NPCsInGridLastUpdated: 1,
           resourcesSchemaVersion: { $ifNull: ['$resourcesSchemaVersion', 'v1'] },
           tilesSchemaVersion: { $ifNull: ['$tilesSchemaVersion', 'v1'] },
-          hasResources: { $cond: { if: { $gt: [{ $size: { $ifNull: ['$resources', []] } }, 0] }, then: true, else: false } },
-          hasResourcesV2: { $cond: { if: { $ne: ['$resourcesV2', null] }, then: true, else: false } },
-          hasTiles: { $cond: { if: { $gt: [{ $size: { $ifNull: ['$tiles', []] } }, 0] }, then: true, else: false } },
-          hasTilesV2: { $cond: { if: { $ne: ['$tilesV2', null] }, then: true, else: false } }
+          resources: 1,
+          resourcesV2: 1,
+          tiles: 1,
+          tilesV2: 1,
+          playersInGrid: 1,
+          NPCsInGrid: 1,
+          __v: 1
         }
       },
       { $sort: { createdAt: 1 } }
     ]);
 
-    // Get summary statistics
+    // Get summary statistics with staleness analysis
+    const now = new Date();
+    const oneDayAgo = new Date(now.getTime() - (1 * 24 * 60 * 60 * 1000));
+    const threeDaysAgo = new Date(now.getTime() - (3 * 24 * 60 * 60 * 1000));
+    const oneWeekAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
+    const oneMonthAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+    const threeMonthsAgo = new Date(now.getTime() - (90 * 24 * 60 * 60 * 1000));
+    const sixMonthsAgo = new Date(now.getTime() - (180 * 24 * 60 * 60 * 1000));
+
+    // Helper functions to check data
+    const hasData = (g) => {
+      return (g.resources && Array.isArray(g.resources) && g.resources.length > 0) ||
+             (g.resourcesV2 && g.resourcesV2.length > 0) ||
+             (g.tiles && Array.isArray(g.tiles) && g.tiles.length > 0) ||
+             (g.tilesV2 && g.tilesV2.length > 0);
+    };
+
+    const hasActivity = (g) => {
+      const playersActive = (g.playersInGrid && (
+        (Array.isArray(g.playersInGrid) && g.playersInGrid.length > 0) ||
+        (typeof g.playersInGrid === 'object' && Object.keys(g.playersInGrid).length > 0)
+      ));
+      const npcsActive = (g.NPCsInGrid && (
+        (Array.isArray(g.NPCsInGrid) && g.NPCsInGrid.length > 0) ||
+        (typeof g.NPCsInGrid === 'object' && Object.keys(g.NPCsInGrid).length > 0)
+      ));
+      return playersActive || npcsActive;
+    };
+
+    const getLastActivity = (g) => {
+      // Only use meaningful timestamps - exclude createdAt as it's not "activity"
+      // Prioritize specific activity timestamps over general updatedAt
+      return g.playersInGridLastUpdated || g.NPCsInGridLastUpdated || g.lastOptimized || g.updatedAt;
+    };
+
+    const getCreationInfo = (g) => {
+      return g.createdAt ? new Date(g.createdAt) : null;
+    };
+
     const summary = {
       totalOrphaned: orphanedHomesteads.length,
       byResourcesVersion: {
@@ -1521,8 +1566,46 @@ router.get('/preview-orphaned-homesteads', async (req, res) => {
         v1: orphanedHomesteads.filter(g => g.tilesSchemaVersion === 'v1').length,
         v2: orphanedHomesteads.filter(g => g.tilesSchemaVersion === 'v2').length
       },
-      withData: orphanedHomesteads.filter(g => g.hasResources || g.hasResourcesV2 || g.hasTiles || g.hasTilesV2).length,
-      withoutData: orphanedHomesteads.filter(g => !g.hasResources && !g.hasResourcesV2 && !g.hasTiles && !g.hasTilesV2).length
+      withData: orphanedHomesteads.filter(hasData).length,
+      withoutData: orphanedHomesteads.filter(g => !hasData(g)).length,
+      withActivity: orphanedHomesteads.filter(hasActivity).length,
+      staleness: {
+        veryStale: orphanedHomesteads.filter(g => {
+          const lastActivity = getLastActivity(g);
+          return lastActivity && new Date(lastActivity) < sixMonthsAgo;
+        }).length,
+        stale: orphanedHomesteads.filter(g => {
+          const lastActivity = getLastActivity(g);
+          return lastActivity && new Date(lastActivity) < threeMonthsAgo && new Date(lastActivity) >= sixMonthsAgo;
+        }).length,
+        somewhatStale: orphanedHomesteads.filter(g => {
+          const lastActivity = getLastActivity(g);
+          return lastActivity && new Date(lastActivity) < oneMonthAgo && new Date(lastActivity) >= threeMonthsAgo;
+        }).length,
+        recentWeek: orphanedHomesteads.filter(g => {
+          const lastActivity = getLastActivity(g);
+          return lastActivity && new Date(lastActivity) < oneWeekAgo && new Date(lastActivity) >= oneMonthAgo;
+        }).length,
+        recentDays: orphanedHomesteads.filter(g => {
+          const lastActivity = getLastActivity(g);
+          return lastActivity && new Date(lastActivity) < threeDaysAgo && new Date(lastActivity) >= oneWeekAgo;
+        }).length,
+        veryRecent: orphanedHomesteads.filter(g => {
+          const lastActivity = getLastActivity(g);
+          return lastActivity && new Date(lastActivity) < oneDayAgo && new Date(lastActivity) >= threeDaysAgo;
+        }).length,
+        today: orphanedHomesteads.filter(g => {
+          const lastActivity = getLastActivity(g);
+          return lastActivity && new Date(lastActivity) >= oneDayAgo;
+        }).length,
+        noActivityTimestamp: orphanedHomesteads.filter(g => {
+          return !getLastActivity(g);
+        }).length
+      },
+      creationInfo: {
+        withCreatedAt: orphanedHomesteads.filter(g => g.createdAt).length,
+        withoutCreatedAt: orphanedHomesteads.filter(g => !g.createdAt).length
+      }
     };
 
     // Sample of orphaned homesteads for review
@@ -1578,7 +1661,20 @@ router.post('/delete-orphaned-homesteads', async (req, res) => {
           _id: 1,
           ownerId: 1,
           gridType: 1,
-          createdAt: 1
+          createdAt: 1,
+          lastOptimized: 1,
+          updatedAt: 1,
+          playersInGridLastUpdated: 1,
+          NPCsInGridLastUpdated: 1,
+          resourcesSchemaVersion: { $ifNull: ['$resourcesSchemaVersion', 'v1'] },
+          tilesSchemaVersion: { $ifNull: ['$tilesSchemaVersion', 'v1'] },
+          resources: 1,
+          resourcesV2: 1,
+          tiles: 1,
+          tilesV2: 1,
+          playersInGrid: 1,
+          NPCsInGrid: 1,
+          __v: 1
         }
       }
     ]);

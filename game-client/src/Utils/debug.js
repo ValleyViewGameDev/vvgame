@@ -1394,6 +1394,205 @@ const handleGetRich = async () => {
     }
   };
 
+  const handlePreviewOrphanedHomesteads = async () => {
+    try {
+      console.log('👁️ Previewing orphaned homesteads...');
+      updateStatus('👁️ Checking for orphaned homesteads...');
+      
+      const response = await axios.get(`${API_BASE}/api/preview-orphaned-homesteads`);
+
+      if (response.data.success) {
+        const { summary, sample, totalCount } = response.data;
+        console.log('👁️ Orphaned homesteads preview:', response.data);
+        
+        // Format results for display
+        let previewMessage = `👁️ Orphaned Homesteads Preview\n\n`;
+        previewMessage += `Total Orphaned: ${summary.totalOrphaned}\n`;
+        previewMessage += `Resources V1: ${summary.byResourcesVersion.v1}, V2: ${summary.byResourcesVersion.v2}\n`;
+        previewMessage += `Tiles V1: ${summary.byTilesVersion.v1}, V2: ${summary.byTilesVersion.v2}\n`;
+        previewMessage += `With Data: ${summary.withData}, Without Data: ${summary.withoutData}\n`;
+        previewMessage += `With Activity: ${summary.withActivity}\n\n`;
+        
+        // Staleness breakdown
+        if (summary.staleness) {
+          previewMessage += `📅 Last Activity Analysis:\n`;
+          previewMessage += `• Very Stale (6+ months): ${summary.staleness.veryStale}\n`;
+          previewMessage += `• Stale (3-6 months): ${summary.staleness.stale}\n`;
+          previewMessage += `• Somewhat Stale (1-3 months): ${summary.staleness.somewhatStale}\n`;
+          previewMessage += `• 1 week - 1 month: ${summary.staleness.recentWeek}\n`;
+          previewMessage += `• 3 days - 1 week: ${summary.staleness.recentDays}\n`;
+          previewMessage += `• 1-3 days: ${summary.staleness.veryRecent}\n`;
+          previewMessage += `• Today: ${summary.staleness.today}\n`;
+          previewMessage += `• No Activity Timestamp: ${summary.staleness.noActivityTimestamp}\n\n`;
+        }
+        
+        // Creation info
+        if (summary.creationInfo) {
+          previewMessage += `📆 Creation Info:\n`;
+          previewMessage += `• With CreatedAt: ${summary.creationInfo.withCreatedAt}\n`;
+          previewMessage += `• Missing CreatedAt: ${summary.creationInfo.withoutCreatedAt}\n\n`;
+        }
+        
+        if (sample.length > 0) {
+          previewMessage += `Sample (first ${sample.length}):\n`;
+          sample.forEach((homestead, index) => {
+            const createdDate = homestead.createdAt ? new Date(homestead.createdAt).toLocaleDateString() : 'Unknown';
+            
+            // Calculate staleness for this sample (excluding createdAt from activity)
+            const lastActivity = homestead.playersInGridLastUpdated || homestead.NPCsInGridLastUpdated || homestead.lastOptimized || homestead.updatedAt;
+            let stalenessText = 'No activity timestamp';
+            if (lastActivity) {
+              const daysSince = Math.floor((new Date() - new Date(lastActivity)) / (1000 * 60 * 60 * 24));
+              if (daysSince > 180) stalenessText = `${daysSince}d (Very Stale)`;
+              else if (daysSince > 90) stalenessText = `${daysSince}d (Stale)`;
+              else if (daysSince > 30) stalenessText = `${daysSince}d (Somewhat Stale)`;
+              else if (daysSince > 7) stalenessText = `${daysSince}d`;
+              else if (daysSince > 3) stalenessText = `${daysSince}d`;
+              else if (daysSince > 1) stalenessText = `${daysSince}d`;
+              else if (daysSince === 1) stalenessText = `1d`;
+              else stalenessText = `Today (${daysSince}d)`;
+            }
+            
+            // Check for data presence
+            const hasData = (homestead.resources && homestead.resources.length > 0) ||
+                           (homestead.resourcesV2 && homestead.resourcesV2.length > 0) ||
+                           (homestead.tiles && homestead.tiles.length > 0) ||
+                           (homestead.tilesV2 && homestead.tilesV2.length > 0);
+            const dataText = hasData ? '📦' : '📭';
+            
+            // Add grid version and creation info
+            const gridVersion = homestead.__v !== undefined ? `v${homestead.__v}` : 'v?';
+            const createdText = homestead.createdAt ? `Created: ${createdDate}` : 'Created: Unknown';
+            
+            previewMessage += `${index + 1}. ${dataText} Grid: ${homestead._id.substring(0, 8)}... (${gridVersion}), ${createdText}, Last Activity: ${stalenessText}\n`;
+          });
+        }
+        
+        alert(previewMessage);
+        updateStatus(`👁️ Found ${totalCount} orphaned homesteads`);
+      } else {
+        console.error('❌ Failed to preview orphaned homesteads:', response.data);
+        updateStatus('❌ Failed to preview orphaned homesteads.');
+        alert(`Failed to preview orphaned homesteads: ${response.data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('❌ Error previewing orphaned homesteads:', error);
+      updateStatus('❌ Error previewing orphaned homesteads.');
+      alert('Failed to preview orphaned homesteads. Check console for details.');
+    }
+  };
+
+  const handleDeleteOrphanedHomesteads = async () => {
+    // Initial confirmation
+    const confirmed = window.confirm(
+      `⚠️ DELETE ORPHANED HOMESTEADS ⚠️\n\n` +
+      `This will permanently delete all homestead grids that have no corresponding player.\n\n` +
+      `Based on your data:\n` +
+      `• 295 total homesteads\n` +
+      `• 170 valid players\n` +
+      `• ~125 orphaned homesteads to delete\n\n` +
+      `This action CANNOT be undone!\n\n` +
+      `Continue with dry run first?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      // First, do a dry run
+      console.log('🧪 Running dry run for orphaned homesteads deletion...');
+      updateStatus('🧪 Performing dry run...');
+      
+      const dryRunResponse = await axios.post(`${API_BASE}/api/delete-orphaned-homesteads`, {
+        confirm: true,
+        dryRun: true
+      });
+
+      if (dryRunResponse.data.success) {
+        const { details, orphanedToDelete, orphanedSample } = dryRunResponse.data;
+        console.log('🧪 Dry run results:', dryRunResponse.data);
+        
+        // Show dry run results
+        let dryRunMessage = `🧪 DRY RUN RESULTS\n\n`;
+        dryRunMessage += `Total Homesteads: ${details.totalHomesteads}\n`;
+        dryRunMessage += `Valid Players: ${details.playerCount}\n`;
+        dryRunMessage += `Orphaned to Delete: ${orphanedToDelete}\n`;
+        dryRunMessage += `Valid Remaining: ${details.validHomesteadsRemaining}\n\n`;
+        
+        if (orphanedSample.length > 0) {
+          dryRunMessage += `Sample orphaned (first 5):\n`;
+          orphanedSample.forEach((homestead, index) => {
+            const createdDate = homestead.createdAt ? new Date(homestead.createdAt).toLocaleDateString() : 'Unknown';
+            dryRunMessage += `${index + 1}. Grid: ${homestead._id.substring(0, 8)}..., Created: ${createdDate}\n`;
+          });
+        }
+        
+        dryRunMessage += `\nProceed with actual deletion?`;
+        
+        const proceedConfirmed = window.confirm(dryRunMessage);
+        if (!proceedConfirmed) return;
+
+        // Final confirmation for actual deletion
+        const finalConfirmed = window.confirm(
+          `⚠️ FINAL CONFIRMATION ⚠️\n\n` +
+          `You are about to PERMANENTLY DELETE ${orphanedToDelete} orphaned homesteads.\n\n` +
+          `This will free up database space and clean up orphaned data.\n` +
+          `The ${details.validHomesteadsRemaining} valid homesteads will remain untouched.\n\n` +
+          `Type "DELETE ORPHANED" in the next prompt to continue...`
+        );
+
+        if (!finalConfirmed) return;
+
+        const deleteConfirmation = window.prompt(
+          `Type "DELETE ORPHANED" to confirm deletion:`
+        );
+
+        if (deleteConfirmation !== "DELETE ORPHANED") {
+          alert("Deletion cancelled - confirmation text did not match.");
+          return;
+        }
+
+        // Perform actual deletion
+        console.log('🗑️ Starting orphaned homesteads deletion...');
+        updateStatus('🗑️ Deleting orphaned homesteads...');
+        
+        const deleteResponse = await axios.post(`${API_BASE}/api/delete-orphaned-homesteads`, {
+          confirm: true,
+          dryRun: false
+        });
+
+        if (deleteResponse.data.success) {
+          const { deleted, errors, details: finalDetails } = deleteResponse.data;
+          console.log('✅ Orphaned homesteads cleanup completed:', deleteResponse.data);
+          updateStatus(`✅ Cleanup complete: ${deleted} deleted, ${errors} errors`);
+          
+          // Show success results
+          const successMessage = 
+            `✅ Orphaned Homesteads Cleanup Complete!\n\n` +
+            `Deleted: ${deleted} orphaned homesteads\n` +
+            `Errors: ${errors}\n\n` +
+            `Before: ${finalDetails.beforeCounts.homesteads} homesteads, ${finalDetails.beforeCounts.players} players\n` +
+            `After: ${finalDetails.afterCounts.homesteads} homesteads, ${finalDetails.afterCounts.players} players\n\n` +
+            `Match Expected: ${finalDetails.afterCounts.expectedMatch ? 'YES' : 'NO'}\n\n` +
+            `Database space has been freed by removing orphaned data.`;
+          
+          alert(successMessage);
+        } else {
+          console.error('❌ Orphaned homesteads deletion failed:', deleteResponse.data);
+          updateStatus('❌ Orphaned homesteads deletion failed.');
+          alert(`Orphaned homesteads deletion failed: ${deleteResponse.data.error || 'Unknown error'}`);
+        }
+      } else {
+        console.error('❌ Dry run failed:', dryRunResponse.data);
+        updateStatus('❌ Dry run failed.');
+        alert(`Dry run failed: ${dryRunResponse.data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('❌ Error during orphaned homesteads cleanup:', error);
+      updateStatus('❌ Error during orphaned homesteads cleanup.');
+      alert('Orphaned homesteads cleanup failed. Check console for details.');
+    }
+  };
+
 
   return (
     <Panel onClose={onClose} titleKey="1120" panelName="DebugPanel">
@@ -1500,6 +1699,14 @@ const handleGetRich = async () => {
       </div>
       <div className="shared-buttons">
         <button className="btn-basic btn-info" onClick={handleCheckHomesteadMigrationStatus}> Check Homestead Migration Status </button>
+      </div>
+      
+      <h4>Orphaned Homesteads Cleanup:</h4>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-info" onClick={handlePreviewOrphanedHomesteads}> 👁️ Preview Orphaned Homesteads </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-danger" onClick={handleDeleteOrphanedHomesteads}> 🗑️ Delete Orphaned Homesteads </button>
       </div>
 
         <h3>Create Single Valley Grid</h3>
