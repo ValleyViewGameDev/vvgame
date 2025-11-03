@@ -287,39 +287,51 @@ router.patch('/update-grid/:gridId', (req, res) => {
         return; // Avoid sending a response here since it's already enqueued
       }
 
-      // **Find the resource at the specified location**
-      const resourceIndex = grid.resources.findIndex((res) => res.x === x && res.y === y);
+      // **Find the resource at the specified location using GridResourceManager**
+      const currentResources = gridResourceManager.getResources(grid);
+      const resourceIndex = currentResources.findIndex((res) => res.x === x && res.y === y);
       if (type) {
         if (resourceIndex !== -1) {
 
-          // ✅ CASE 1: Resource Exists - Determine if we're appending or replacing
-          if (growEnd !== undefined || craftEnd !== undefined || craftedItem !== undefined) {
+          // ✅ CASE 1: Resource Exists - Update with new attributes
+          // Get the existing resource
+          const existingResource = currentResources[resourceIndex];
+          
+          // Create the updated resource object
+          const updatedResource = {
+            ...existingResource,
+            type,
+            x,
+            y
+          };
+          
+          // Handle attribute updates/removals
+          if (growEnd !== undefined) {
+            if (growEnd === null) {
+              delete updatedResource.growEnd;
+            } else {
+              updatedResource.growEnd = growEnd;
+            }
+          }
+          if (craftEnd !== undefined) {
+            if (craftEnd === null) {
+              delete updatedResource.craftEnd;
+            } else {
+              updatedResource.craftEnd = craftEnd;
+            }
+          }
+          if (craftedItem !== undefined) {
+            if (craftedItem === null) {
+              delete updatedResource.craftedItem;
+            } else {
+              updatedResource.craftedItem = craftedItem;
+            }
+          }
+          
+          // Use GridResourceManager to update the resource
+          gridResourceManager.updateResource(grid, updatedResource);
 
-            if (growEnd !== undefined) {
-                if (growEnd === null) {
-                    delete grid.resources[resourceIndex].growEnd; // ✅ Remove attribute
-                } else {
-                    grid.resources[resourceIndex].growEnd = growEnd; // ✅ Append value
-                }
-            }
-            if (craftEnd !== undefined) {
-                if (craftEnd === null) {
-                    delete grid.resources[resourceIndex].craftEnd; // ✅ Remove attribute
-                } else {
-                    grid.resources[resourceIndex].craftEnd = craftEnd; // ✅ Append value
-                }
-            }
-            if (craftedItem !== undefined) {
-                if (craftedItem === null) {
-                    delete grid.resources[resourceIndex].craftedItem; // ✅ Remove attribute
-                } else {
-                    grid.resources[resourceIndex].craftedItem = craftedItem; // ✅ Append value
-                }
-            }
-            // ✅ Force Mongoose to track modifications in this nested array
-            grid.markModified(`resources.${resourceIndex}`);
-
-          } else {
+          if (false) { // Skip the old else block
             // ✅ Preserve existing resource & append attributes if needed
             
             // Load master resources to check resource categories
@@ -328,78 +340,35 @@ router.patch('/update-grid/:gridId', (req, res) => {
             const masterResources = JSON.parse(fs.readFileSync(path.join(__dirname, '../tuning/resources.json'), 'utf-8'));
             const newResourceDef = masterResources.find(r => r.type === type);
             
-            // When converting from farmplot to crop (doober), remove farmplot-specific fields
-            if (newResourceDef && newResourceDef.category === 'doober') {
-              // This is a crop - remove any farmplot-specific fields
-              const { growEnd: oldGrowEnd, ...cleanResource } = grid.resources[resourceIndex];
-              grid.resources[resourceIndex] = {
-                ...cleanResource,
-                type,
-                x,
-                y,
-                ...(craftEnd !== undefined && { craftEnd }),
-                ...(craftedItem !== undefined && { craftedItem }),
-              };
-            } else {
-              // Not a crop, preserve everything
-              grid.resources[resourceIndex] = {
-                ...grid.resources[resourceIndex], // Preserve everything
-                type,
-                x,
-                y,
-                ...(growEnd !== undefined && { growEnd }),
-                ...(craftEnd !== undefined && { craftEnd }),
-                ...(craftedItem !== undefined && { craftedItem }),
-              };
-            }
-            grid.markModified(`resources.${resourceIndex}`);
+            // This old logic is now handled by the updated resource logic above
           }
 
         } else {
           // ✅ CASE 2: No Existing Resource - Add New One
           console.log(`➕ Adding new resource at (${x}, ${y}): ${type}`);
-          grid.resources.push({
+          const newResource = {
             type: type,
             x,
             y,
             ...(growEnd !== undefined && { growEnd }),
             ...(craftEnd !== undefined && { craftEnd }),
             ...(craftedItem !== undefined && { craftedItem }),
-          });
+          };
+          gridResourceManager.updateResource(grid, newResource);
         }
       } else {
         // ✅ CASE 3: Remove Resource (Delete it completely)
         if (resourceIndex !== -1) {
           console.log(`❌ Removing resource at (${x}, ${y})`);
-          grid.resources.splice(resourceIndex, 1);
+          const removeResource = { type: null, x, y };
+          gridResourceManager.updateResource(grid, removeResource);
         } else {
           console.warn(`⚠️ No resource found to remove at (${x}, ${y})`);
         }
       }
       
-      // ✅ DUAL-FORMAT SUPPORT: Update v2 format if it exists
-      try {
-        if (grid.resourcesV2 && grid.resourcesV2.length > 0) {
-          console.log(`🔄 Updating v2 format for grid ${gridId} at (${x}, ${y})`);
-          
-          // Create the resource update object
-          const resourceUpdate = {
-            type,
-            x,
-            y,
-            ...(growEnd !== undefined && { growEnd }),
-            ...(craftEnd !== undefined && { craftEnd }),
-            ...(craftedItem !== undefined && { craftedItem }),
-          };
-          
-          // Use GridResourceManager to update v2 format
-          gridResourceManager.updateResource(grid, resourceUpdate);
-          console.log(`✅ Updated v2 format for resource at (${x}, ${y})`);
-        }
-      } catch (v2Error) {
-        console.error(`❌ Failed to update v2 format for grid ${gridId}:`, v2Error);
-        // Don't fail the entire operation, just log the error
-      }
+      // Resource updates are now handled by GridResourceManager above
+      console.log(`✅ Resource update completed for grid ${gridId} at (${x}, ${y})`);
       
       // Save changes to the database
       await grid.save();
@@ -679,16 +648,17 @@ router.get('/get-resource/:gridId/:col/:row', async (req, res) => {
   try {
     console.log(`Fetching resource at (${col}, ${row}) in grid ${gridId}`);
 
-    // Fetch only the 'resources' field from the grid by its MongoDB _id
-    const grid = await Grid.findOne({ _id: gridId }).select('resources');
+    // Fetch the grid (need full grid for GridResourceManager)
+    const grid = await Grid.findOne({ _id: gridId });
 
     if (!grid) {
       console.error(`Grid not found for ID: ${gridId}`);
       return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
     }
 
-    // Find the resource at the given coordinates
-    const resource = grid.resources.find(
+    // Find the resource at the given coordinates using GridResourceManager
+    const currentResources = gridResourceManager.getResources(grid);
+    const resource = currentResources.find(
       (res) => res.x === parseInt(col, 10) && res.y === parseInt(row, 10)
     );
 
@@ -1085,8 +1055,9 @@ router.post('/crafting/collect-item', async (req, res) => {
       return res.status(404).json({ error: 'Grid not found' });
     }
 
-    // Find the station resource
-    const stationResource = grid.resources.find(res => res.x === stationX && res.y === stationY);
+    // Find the station resource using GridResourceManager
+    const currentResources = gridResourceManager.getResources(grid);
+    const stationResource = currentResources.find(res => res.x === stationX && res.y === stationY);
     if (!stationResource || !stationResource.craftEnd || !stationResource.craftedItem) {
       player.activeTransactions.delete(transactionKey);
       await player.save();
@@ -1115,35 +1086,17 @@ router.post('/crafting/collect-item', async (req, res) => {
     }
     // Don't add items to inventory here - let client handle with skill buffs via gainIngredients
 
-    // Clear the crafting state from the station
-    const resourceIndex = grid.resources.findIndex(res => res.x === stationX && res.y === stationY);
-    if (resourceIndex !== -1) {
-      delete grid.resources[resourceIndex].craftEnd;
-      delete grid.resources[resourceIndex].craftedItem;
-      grid.markModified(`resources.${resourceIndex}`);
-    }
-
-    // ✅ DUAL-FORMAT SUPPORT: Update v2 format if it exists
-    try {
-      if (grid.resourcesV2 && grid.resourcesV2.length > 0) {
-        console.log(`🔄 Updating v2 format for crafting collection at (${stationX}, ${stationY})`);
-        
-        // Clear crafting state in v2 format by updating with null values
-        const resourceUpdate = {
-          type: grid.resources[resourceIndex]?.type, // Keep the station type
-          x: stationX,
-          y: stationY,
-          craftEnd: null,     // Remove craftEnd
-          craftedItem: null   // Remove craftedItem
-        };
-        
-        gridResourceManager.updateResource(grid, resourceUpdate);
-        console.log(`✅ Cleared crafting state in v2 format at (${stationX}, ${stationY})`);
-      }
-    } catch (v2Error) {
-      console.error(`❌ Failed to update v2 format for crafting collection:`, v2Error);
-      // Don't fail the entire operation, just log the error
-    }
+    // Clear the crafting state from the station using GridResourceManager
+    const resourceUpdate = {
+      type: stationResource.type, // Keep the station type
+      x: stationX,
+      y: stationY,
+      craftEnd: null,     // Remove craftEnd
+      craftedItem: null   // Remove craftedItem
+    };
+    
+    gridResourceManager.updateResource(grid, resourceUpdate);
+    console.log(`✅ Cleared crafting state at (${stationX}, ${stationY})`);
 
     // Save changes
     await grid.save();
@@ -1155,12 +1108,16 @@ router.post('/crafting/collect-item', async (req, res) => {
     player.activeTransactions.delete(transactionKey);
     await player.save();
 
+    // Get the updated station resource
+    const updatedResources = gridResourceManager.getResources(grid);
+    const updatedStation = updatedResources.find(res => res.x === stationX && res.y === stationY);
+    
     res.json({ 
       success: true, 
       collectedItem: craftedItem,
       isNPC: itemResource.category === 'npc',
       inventory: player.inventory,
-      updatedStation: grid.resources[resourceIndex]
+      updatedStation: updatedStation
     });
 
   } catch (error) {
@@ -1232,8 +1189,9 @@ router.post('/crafting/start-craft', async (req, res) => {
       return res.status(404).json({ error: 'Grid not found' });
     }
 
-    // Find the station resource
-    const stationResource = grid.resources.find(res => res.x === stationX && res.y === stationY);
+    // Find the station resource using GridResourceManager
+    const currentResources = gridResourceManager.getResources(grid);
+    const stationResource = currentResources.find(res => res.x === stationX && res.y === stationY);
     if (!stationResource) {
       player.activeTransactions.delete(transactionKey);
       await player.save();
@@ -1311,38 +1269,20 @@ router.post('/crafting/start-craft', async (req, res) => {
     player.inventory = inventory;
     player.backpack = backpack;
 
-    // Set up crafting on the station
+    // Set up crafting on the station using GridResourceManager
     const craftTime = recipe.crafttime || 60;
     const craftEnd = Date.now() + craftTime * 1000;
     
-    const resourceIndex = grid.resources.findIndex(res => res.x === stationX && res.y === stationY);
-    if (resourceIndex !== -1) {
-      grid.resources[resourceIndex].craftEnd = craftEnd;
-      grid.resources[resourceIndex].craftedItem = recipe.type;
-      grid.markModified(`resources.${resourceIndex}`);
-    }
-
-    // ✅ DUAL-FORMAT SUPPORT: Update v2 format if it exists
-    try {
-      if (grid.resourcesV2 && grid.resourcesV2.length > 0) {
-        console.log(`🔄 Updating v2 format for crafting start at (${stationX}, ${stationY})`);
-        
-        // Set crafting state in v2 format
-        const resourceUpdate = {
-          type: grid.resources[resourceIndex]?.type, // Keep the station type
-          x: stationX,
-          y: stationY,
-          craftEnd: craftEnd,
-          craftedItem: recipe.type
-        };
-        
-        gridResourceManager.updateResource(grid, resourceUpdate);
-        console.log(`✅ Set crafting state in v2 format at (${stationX}, ${stationY})`);
-      }
-    } catch (v2Error) {
-      console.error(`❌ Failed to update v2 format for crafting start:`, v2Error);
-      // Don't fail the entire operation, just log the error
-    }
+    const resourceUpdate = {
+      type: stationResource.type, // Keep the station type
+      x: stationX,
+      y: stationY,
+      craftEnd: craftEnd,
+      craftedItem: recipe.type
+    };
+    
+    gridResourceManager.updateResource(grid, resourceUpdate);
+    console.log(`✅ Set crafting state at (${stationX}, ${stationY})`);
 
     // Save changes
     await grid.save();
@@ -1354,11 +1294,14 @@ router.post('/crafting/start-craft', async (req, res) => {
     player.activeTransactions.delete(transactionKey);
     await player.save();
 
+    // Get updated resources
+    const updatedResources = gridResourceManager.getResources(grid);
+    
     res.json({ 
       success: true, 
       craftEnd,
       craftedItem: recipe.type,
-      updatedResources: grid.resources,
+      updatedResources: updatedResources,
       inventory: player.inventory,
       backpack: player.backpack
     });
@@ -1587,8 +1530,9 @@ router.post('/sell-for-refund', async (req, res) => {
       return res.status(404).json({ error: 'Grid not found' });
     }
 
-    // Find the station resource
-    const stationResource = grid.resources.find(res => res.x === stationX && res.y === stationY);
+    // Find the station resource using GridResourceManager
+    const currentResources = gridResourceManager.getResources(grid);
+    const stationResource = currentResources.find(res => res.x === stationX && res.y === stationY);
     if (!stationResource || stationResource.type !== stationType) {
       player.activeTransactions.delete(transactionKey);
       await player.save();
@@ -1823,14 +1767,16 @@ router.post('/bulk-harvest', async (req, res) => {
         continue;
       }
 
-      // Harvest each position
+      // Harvest each position using GridResourceManager
       const harvestedPositions = [];
+      const currentResources = gridResourceManager.getResources(grid);
+      
       for (const pos of positions) {
         // First try to find the crop
-        let resourceIndex = grid.resources.findIndex(r => r.x === pos.x && r.y === pos.y && r.type === cropType);
+        let resourceToRemove = currentResources.find(r => r.x === pos.x && r.y === pos.y && r.type === cropType);
         
         // If not found, check if there's a farmplot that produces this crop (race condition handling)
-        if (resourceIndex === -1) {
+        if (!resourceToRemove) {
           // Find the farmplot type that produces this crop
           const farmplot = masterResources.find(r => 
             r.category === 'farmplot' && r.output === cropType
@@ -1838,28 +1784,28 @@ router.post('/bulk-harvest', async (req, res) => {
           
           if (farmplot) {
             // Look for the farmplot at this position
-            resourceIndex = grid.resources.findIndex(r => 
+            resourceToRemove = currentResources.find(r => 
               r.x === pos.x && r.y === pos.y && r.type === farmplot.type
             );
             
-            if (resourceIndex !== -1) {
-              const resource = grid.resources[resourceIndex];
-              
+            if (resourceToRemove) {
               // Check if it's ready to harvest (growEnd in the past)
-              if (resource.growEnd && new Date(resource.growEnd) <= new Date()) {
+              if (resourceToRemove.growEnd && new Date(resourceToRemove.growEnd) <= new Date()) {
                 // The farmplot is ready - we can harvest it
-              } else if (!resource.growEnd) {
+              } else if (!resourceToRemove.growEnd) {
                 // No growEnd means it might be a crop already (data inconsistency)
               } else {
                 // Not ready yet
-                resourceIndex = -1; // Reset to skip this one
+                resourceToRemove = null; // Reset to skip this one
               }
             }
           }
         }
         
-        if (resourceIndex !== -1) {
-          grid.resources.splice(resourceIndex, 1);
+        if (resourceToRemove) {
+          // Remove the resource using GridResourceManager
+          const removeUpdate = { type: null, x: pos.x, y: pos.y };
+          gridResourceManager.updateResource(grid, removeUpdate);
           harvestedPositions.push(pos);
         }
       }
@@ -1956,7 +1902,7 @@ router.post('/bulk-harvest', async (req, res) => {
               harvestResults.seedsUsed[seedType] = (harvestResults.seedsUsed[seedType] || 0) + needed;
             }
 
-            // Add new farmplots
+            // Add new farmplots using GridResourceManager
             const seasonLevel = getSeasonLevel();
             const currentTime = Date.now();
             
@@ -1964,7 +1910,7 @@ router.post('/bulk-harvest', async (req, res) => {
               // Match the exact format from handleFarmPlotPlacement
               const growEndTime = currentTime + (farmplot.growtime || 0) * 1000;
               
-              grid.resources.push({
+              const newFarmplot = {
                 type: farmplot.type,
                 x: pos.x,
                 y: pos.y,
@@ -1974,7 +1920,9 @@ router.post('/bulk-harvest', async (req, res) => {
                 seasonLevel: seasonLevel,
                 // Include output for crop conversion (matching farmState.addSeed)
                 output: farmplot.output
-              });
+              };
+              
+              gridResourceManager.updateResource(grid, newFarmplot);
             }
 
             harvestResults.replanted[cropType] = {
@@ -1988,48 +1936,8 @@ router.post('/bulk-harvest', async (req, res) => {
       }
     }
 
-    // ✅ DUAL-FORMAT SUPPORT: Update v2 format for all modified positions
-    try {
-      if (grid.resourcesV2 && grid.resourcesV2.length > 0) {
-        console.log(`🔄 Updating v2 format for bulk harvest operations`);
-        
-        // Collect all modified positions from harvestResults
-        const allHarvestedPositions = [];
-        for (const cropType in harvestResults.harvested) {
-          const result = harvestResults.harvested[cropType];
-          if (result.positions) {
-            allHarvestedPositions.push(...result.positions);
-          }
-        }
-        
-        // Update removed resources (set type to null for removal)
-        for (const pos of allHarvestedPositions) {
-          const resourceUpdate = {
-            type: null, // Remove the resource
-            x: pos.x,
-            y: pos.y
-          };
-          gridResourceManager.updateResource(grid, resourceUpdate);
-        }
-        
-        // Update added farmplots (they were added to grid.resources, need to sync to v2)
-        // Find the recently added farmplots by checking the last few resources
-        const recentlyAddedCount = allHarvestedPositions.length;
-        if (recentlyAddedCount > 0) {
-          const recentResources = grid.resources.slice(-recentlyAddedCount);
-          for (const newFarmplot of recentResources) {
-            if (newFarmplot.type && newFarmplot.x !== undefined && newFarmplot.y !== undefined) {
-              gridResourceManager.updateResource(grid, newFarmplot);
-            }
-          }
-        }
-        
-        console.log(`✅ Updated v2 format for bulk harvest (${allHarvestedPositions.length} harvested, ${recentlyAddedCount} replanted)`);
-      }
-    } catch (v2Error) {
-      console.error(`❌ Failed to update v2 format for bulk harvest:`, v2Error);
-      // Don't fail the entire operation, just log the error
-    }
+    // All resource updates now handled by GridResourceManager above
+    console.log(`✅ Bulk harvest completed using GridResourceManager`);
 
     // Save grid and player changes
     await grid.save();
@@ -2102,8 +2010,9 @@ router.post('/crafting/collect-bulk', async (req, res) => {
       const { x, y, craftedItem, transactionId, shouldRestart, restartRecipe } = station;
       
       try {
-        // Find the station resource
-        const stationResource = grid.resources.find(res => res.x === x && res.y === y);
+        // Find the station resource using GridResourceManager
+        const currentResources = gridResourceManager.getResources(grid);
+        const stationResource = currentResources.find(res => res.x === x && res.y === y);
         if (!stationResource || !stationResource.craftEnd || !stationResource.craftedItem) {
           results.push({ 
             success: false, 
@@ -2140,13 +2049,15 @@ router.post('/crafting/collect-bulk', async (req, res) => {
         // Don't add items to inventory on server - let client handle with skill buffs
         // This matches how individual crafting collection works
 
-        // Clear the crafting state from the station
-        const resourceIndex = grid.resources.findIndex(res => res.x === x && res.y === y);
-        if (resourceIndex !== -1) {
-          delete grid.resources[resourceIndex].craftEnd;
-          delete grid.resources[resourceIndex].craftedItem;
-          grid.markModified(`resources.${resourceIndex}`);
-        }
+        // Clear the crafting state from the station using GridResourceManager
+        const clearCraftingUpdate = {
+          type: stationResource.type, // Keep the station type
+          x: x,
+          y: y,
+          craftEnd: null,     // Remove craftEnd
+          craftedItem: null   // Remove craftedItem
+        };
+        gridResourceManager.updateResource(grid, clearCraftingUpdate);
 
         // Handle restart if requested
         let restarted = false;
@@ -2175,10 +2086,15 @@ router.post('/crafting/collect-bulk', async (req, res) => {
                 newCraftEnd = Date.now() + (craftTimeSeconds * 1000);
                 newCraftedItem = restartRecipe.type;
                 
-                // Set new craft on station
-                grid.resources[resourceIndex].craftEnd = newCraftEnd;
-                grid.resources[resourceIndex].craftedItem = newCraftedItem;
-                grid.markModified(`resources.${resourceIndex}`);
+                // Set new craft on station using GridResourceManager
+                const restartCraftingUpdate = {
+                  type: stationResource.type, // Keep the station type
+                  x: x,
+                  y: y,
+                  craftEnd: newCraftEnd,
+                  craftedItem: newCraftedItem
+                };
+                gridResourceManager.updateResource(grid, restartCraftingUpdate);
                 
                 restarted = true;
               }
@@ -2206,38 +2122,12 @@ router.post('/crafting/collect-bulk', async (req, res) => {
       }
     }
 
-    // ✅ DUAL-FORMAT SUPPORT: Update v2 format for all modified crafting stations
-    try {
-      if (grid.resourcesV2 && grid.resourcesV2.length > 0) {
-        console.log(`🔄 Updating v2 format for bulk crafting collection (${results.length} stations)`);
-        
-        // Update each modified crafting station in v2 format
-        for (const result of results) {
-          if (result.success && result.station) {
-            const { x, y, craftedItem } = result.station;
-            
-            // Get the current station from grid.resources to get its type
-            const currentStation = grid.resources.find(res => res.x === x && res.y === y);
-            if (currentStation) {
-              const resourceUpdate = {
-                type: currentStation.type, // Keep the station type
-                x: x,
-                y: y,
-                craftEnd: result.restarted ? result.newCraftEnd : null,     // Remove or set craftEnd
-                craftedItem: result.restarted ? result.newCraftedItem : null // Remove or set craftedItem
-              };
-              
-              gridResourceManager.updateResource(grid, resourceUpdate);
-            }
-          }
-        }
-        
-        console.log(`✅ Updated v2 format for bulk crafting collection`);
-      }
-    } catch (v2Error) {
-      console.error(`❌ Failed to update v2 format for bulk crafting collection:`, v2Error);
-      // Don't fail the entire operation, just log the error
-    }
+    // All resource updates now handled by GridResourceManager above
+    console.log(`✅ Bulk crafting collection completed using GridResourceManager (${results.length} stations)`);
+    
+    // Update inventories for both formats
+    player.inventory = updatedInventory;
+    player.backpack = updatedBackpack;
 
     // Save grid changes only (inventory updates handled by client)
     await grid.save();

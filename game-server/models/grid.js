@@ -12,8 +12,8 @@ const GridSchema = new mongoose.Schema({
     required: true,
   },
   resources: {
-    type: Array, // Resources in the grid
-    required: true,
+    type: Array, // Resources in the grid (optional in v2 schema)
+    required: false,
   },
   // NPCs map (data only)
   NPCsInGrid: {

@@ -571,10 +571,22 @@ router.post('/delete-old-schema', async (req, res) => {
       
       // Test decode a few resources to ensure integrity
       const testDecodes = grid.resourcesV2.slice(0, Math.min(5, grid.resourcesV2.length));
-      for (const encoded of testDecodes) {
-        encoder.decode(encoded); // This will throw if invalid
+      console.log(`🔍 Testing ${testDecodes.length} resources for integrity check:`);
+      
+      for (let i = 0; i < testDecodes.length; i++) {
+        const encoded = testDecodes[i];
+        console.log(`  Resource ${i}: ${JSON.stringify(encoded)}`);
+        try {
+          const decoded = encoder.decode(encoded);
+          console.log(`  ✅ Decoded: ${JSON.stringify(decoded)}`);
+        } catch (decodeError) {
+          console.error(`  ❌ Failed to decode resource ${i}: ${decodeError.message}`);
+          throw decodeError;
+        }
       }
+      console.log('✅ All test resources decoded successfully');
     } catch (verifyError) {
+      console.error('❌ V2 data integrity check failed:', verifyError);
       return res.status(400).json({ 
         error: `V2 data integrity check failed: ${verifyError.message}. Cannot safely delete old schema.` 
       });
