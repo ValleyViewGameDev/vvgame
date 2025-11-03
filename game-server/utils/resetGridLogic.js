@@ -9,6 +9,8 @@ const masterResources = require('../tuning/resources.json');
 const { getTemplate, getHomesteadLayoutFile, getTownLayoutFile, getPositionFromSettlementType } = require('./templateUtils');
 const Settlement = require('../models/settlement');
 const seasonsConfig = require('../tuning/seasons.json');
+const UltraCompactResourceEncoder = require('./ResourceEncoder');
+const TileEncoder = require('./TileEncoder');
 
 async function performGridReset(gridId, gridType, gridCoord) {
   const grid = await Grid.findById(gridId);
@@ -147,8 +149,48 @@ async function performGridReset(gridId, gridType, gridCoord) {
     console.log(`🎯 Generated ${Object.keys(newEnemies).length} enemies for grid reset ${gridCoord}`);
   }
 
-  grid.tiles = newTiles;
-  grid.resources = filteredResources;  // Use filtered resources without Stubs
+  // Handle tiles and resources based on existing schema version
+  const currentResourcesVersion = grid.resourcesSchemaVersion || 'v1';
+  const currentTilesVersion = grid.tilesSchemaVersion || 'v1';
+  
+  if (currentResourcesVersion === 'v2') {
+    // Grid is already v2 - encode resources to v2 format
+    const encoder = new UltraCompactResourceEncoder(masterResources);
+    const encodedResources = [];
+    
+    for (const resource of filteredResources) {
+      try {
+        const encoded = encoder.encode(resource);
+        encodedResources.push(encoded);
+      } catch (error) {
+        console.error(`❌ Failed to encode resource during reset:`, resource, error);
+        throw new Error(`Failed to encode resource at (${resource.x}, ${resource.y}): ${error.message}`);
+      }
+    }
+    
+    grid.resourcesV2 = encodedResources;
+    console.log(`📦 Reset v2 resources: ${encodedResources.length} encoded resources`);
+  } else {
+    // Grid is v1 - keep using v1 format for backwards compatibility
+    grid.resources = filteredResources;
+    console.log(`📦 Reset v1 resources: ${filteredResources.length} resources`);
+  }
+  
+  if (currentTilesVersion === 'v2') {
+    // Grid is already v2 - encode tiles to v2 format
+    try {
+      const encodedTiles = TileEncoder.encode(newTiles);
+      grid.tilesV2 = encodedTiles;
+      console.log(`📦 Reset v2 tiles: ${encodedTiles.length} chars`);
+    } catch (error) {
+      console.error(`❌ Failed to encode tiles during reset:`, error);
+      throw new Error(`Failed to encode tiles: ${error.message}`);
+    }
+  } else {
+    // Grid is v1 - keep using v1 format for backwards compatibility
+    grid.tiles = newTiles;
+    console.log(`📦 Reset v1 tiles: 64x64 grid`);
+  }
   
   // Properly clear NPCs to avoid duplicates
   grid.NPCsInGrid.clear(); // Clear the existing map
@@ -161,6 +203,7 @@ async function performGridReset(gridId, gridType, gridCoord) {
   
   grid.NPCsInGridLastUpdated = Date.now();
   grid.markModified('NPCsInGrid'); // Mark as modified again after adding new NPCs
+  grid.lastOptimized = new Date(); // Update optimization timestamp
 
   await grid.save();
   console.log(`✅ Grid ${gridId} reset successfully (${gridType})`);

@@ -599,11 +599,13 @@ router.post('/delete-old-schema', async (req, res) => {
     const newResourceCount = grid.resourcesV2.length;
 
     // Remove old resources field and update schema version
-    grid.resources = undefined; // This removes the field
-    grid.resourcesSchemaVersion = 'v2';
-    grid.lastOptimized = new Date();
-
-    await grid.save();
+    await Grid.findByIdAndUpdate(gridId, {
+      $unset: { resources: 1 },
+      $set: {
+        resourcesSchemaVersion: 'v2',
+        lastOptimized: new Date()
+      }
+    });
 
     console.log(`🗑️ Deleted old schema for grid ${gridId}. Resources: ${oldResourceCount} → ${newResourceCount} (v2)`);
 
@@ -747,11 +749,13 @@ router.post('/delete-old-tiles-schema', async (req, res) => {
     const newTileSize = grid.tilesV2.length;
 
     // Remove old tiles field and update schema version
-    grid.tiles = undefined; // This removes the field
-    grid.tilesSchemaVersion = 'v2';
-    grid.lastOptimized = new Date();
-
-    await grid.save();
+    await Grid.findByIdAndUpdate(gridId, {
+      $unset: { tiles: 1 },
+      $set: {
+        tilesSchemaVersion: 'v2',
+        lastOptimized: new Date()
+      }
+    });
 
     console.log(`🗑️ Deleted old tile schema for grid ${gridId}. Size: ${oldTileSize} → ${newTileSize} chars (v2)`);
 

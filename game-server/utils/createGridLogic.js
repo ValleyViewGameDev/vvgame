@@ -10,6 +10,8 @@ const { getTemplate, getHomesteadLayoutFile, getTownLayoutFile, getPositionFromS
 const masterResources = require('../tuning/resources.json');
 const { generateGrid, generateResources, generateFixedGrid, generateFixedResources, generateEnemies } = require('./worldUtils');
 const seasonsConfig = require('../tuning/seasons.json');
+const UltraCompactResourceEncoder = require('./ResourceEncoder');
+const TileEncoder = require('./TileEncoder');
 
 async function performGridCreation({ gridCoord, gridType, settlementId, frontierId }) {
   if (!gridCoord || !gridType || !settlementId || !frontierId) {
@@ -155,15 +157,45 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
     console.log(`🧹 Removed ${newResources.length - filteredResources.length} Stub resource(s) from grid at ${gridCoord}`);
   }
 
+  // Encode resources and tiles to v2 format for new grids
+  const encoder = new UltraCompactResourceEncoder(masterResources);
+  
+  // Encode resources to v2 format
+  const encodedResources = [];
+  for (const resource of filteredResources) {
+    try {
+      const encoded = encoder.encode(resource);
+      encodedResources.push(encoded);
+    } catch (error) {
+      console.error(`❌ Failed to encode resource:`, resource, error);
+      throw new Error(`Failed to encode resource at (${resource.x}, ${resource.y}): ${error.message}`);
+    }
+  }
+
+  // Encode tiles to v2 format
+  let encodedTiles;
+  try {
+    encodedTiles = TileEncoder.encode(newTiles);
+  } catch (error) {
+    console.error(`❌ Failed to encode tiles:`, error);
+    throw new Error(`Failed to encode tiles: ${error.message}`);
+  }
+
+  // Create grid with v2 schema only (no v1 fields)
   const newGrid = new Grid({
     gridType,
     frontierId,
     settlementId,
-    tiles: newTiles,
-    resources: filteredResources,  // Use filtered resources without Stubs
+    resourcesV2: encodedResources,
+    resourcesSchemaVersion: 'v2',
+    tilesV2: encodedTiles,
+    tilesSchemaVersion: 'v2',
     NPCsInGrid: new Map(Object.entries(newGridState.npcs)),
     NPCsInGridLastUpdated: Date.now(),
+    lastOptimized: new Date()
   });
+
+  console.log(`📦 Created v2 grid: ${encodedResources.length} resources, ${encodedTiles.length} chars tiles`);
 
   await newGrid.save();
 
