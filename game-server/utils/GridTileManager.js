@@ -18,23 +18,23 @@ class GridTileManager {
       return this.createEmptyTileGrid();
     }
 
-    const schemaVersion = grid.tilesSchemaVersion || 'v1';
+    const schemaVersion = grid.tilesSchemaVersion_REMOVED || 'v1';
 
     switch (schemaVersion) {
       case 'v1':
         // Use original tiles field, fall back to v2 if tiles is empty/missing
         if (grid.tiles && Array.isArray(grid.tiles) && grid.tiles.length > 0) {
           return grid.tiles;
-        } else if (grid.tilesV2 && typeof grid.tilesV2 === 'string') {
+        } else if (grid.tiles && typeof grid.tiles === 'string') {
           // Decode v2 format as fallback
-          return this.decodeTilesV2(grid.tilesV2);
+          return this.decodeTilesV2(grid.tiles);
         }
         return this.createEmptyTileGrid();
 
       case 'v2':
         // Use only v2 format
-        if (grid.tilesV2 && typeof grid.tilesV2 === 'string') {
-          return this.decodeTilesV2(grid.tilesV2);
+        if (grid.tiles && typeof grid.tiles === 'string') {
+          return this.decodeTilesV2(grid.tiles);
         }
         return this.createEmptyTileGrid();
 
@@ -91,7 +91,7 @@ class GridTileManager {
       throw new Error(`Invalid tile type: ${newTileType}. Valid types: ${TileEncoder.getSupportedTileTypes().join(', ')}`);
     }
 
-    const schemaVersion = grid.tilesSchemaVersion || 'v1';
+    const schemaVersion = grid.tilesSchemaVersion_REMOVED || 'v1';
 
     switch (schemaVersion) {
       case 'v1':
@@ -105,11 +105,11 @@ class GridTileManager {
         grid.markModified(`tiles.${y}.${x}`);
 
         // Update v2 format if it exists
-        if (grid.tilesV2) {
+        if (grid.tiles) {
           try {
-            const decodedTiles = this.decodeTilesV2(grid.tilesV2);
+            const decodedTiles = this.decodeTilesV2(grid.tiles);
             decodedTiles[y][x] = newTileType;
-            grid.tilesV2 = this.encodeTilesV2(decodedTiles);
+            grid.tiles = this.encodeTilesV2(decodedTiles);
           } catch (error) {
             console.warn('⚠️ Failed to update v2 tiles, keeping v1 only:', error);
           }
@@ -118,16 +118,16 @@ class GridTileManager {
 
       case 'v2':
         // Update only v2 format
-        if (!grid.tilesV2) {
+        if (!grid.tiles) {
           // Create default grass grid if no tiles exist
           const defaultTiles = this.createEmptyTileGrid();
-          grid.tilesV2 = this.encodeTilesV2(defaultTiles);
+          grid.tiles = this.encodeTilesV2(defaultTiles);
         }
         
         try {
-          const decodedTiles = this.decodeTilesV2(grid.tilesV2);
+          const decodedTiles = this.decodeTilesV2(grid.tiles);
           decodedTiles[y][x] = newTileType;
-          grid.tilesV2 = this.encodeTilesV2(decodedTiles);
+          grid.tiles = this.encodeTilesV2(decodedTiles);
         } catch (error) {
           console.error('❌ Failed to update v2 tiles:', error);
           throw error;
@@ -183,9 +183,9 @@ class GridTileManager {
     if (!grid) return { error: 'No grid provided' };
 
     const stats = {
-      tilesSchemaVersion: grid.tilesSchemaVersion || 'v1',
+      tilesSchemaVersion_REMOVED: grid.tilesSchemaVersion_REMOVED || 'v1',
       hasV1Tiles: !!(grid.tiles && Array.isArray(grid.tiles)),
-      hasV2Tiles: !!(grid.tilesV2 && typeof grid.tilesV2 === 'string'),
+      hasV2Tiles: !!(grid.tiles && typeof grid.tiles === 'string'),
       lastOptimized: grid.lastOptimized || null
     };
 
@@ -194,8 +194,8 @@ class GridTileManager {
       stats.v1StorageSize = JSON.stringify(grid.tiles).length;
     }
     
-    if (grid.tilesV2) {
-      stats.v2StorageSize = grid.tilesV2.length;
+    if (grid.tiles) {
+      stats.v2StorageSize = grid.tiles.length;
     }
 
     // Calculate potential savings
@@ -266,14 +266,14 @@ class GridTileManager {
     }
 
     // Check v2 tiles
-    if (grid.tilesV2) {
+    if (grid.tiles) {
       try {
-        if (typeof grid.tilesV2 !== 'string') {
+        if (typeof grid.tiles !== 'string') {
           result.errors.push('v2 tiles is not a string');
           result.valid = false;
         } else {
           // Test decode v2 tiles
-          const decodedTiles = this.decodeTilesV2(grid.tilesV2);
+          const decodedTiles = this.decodeTilesV2(grid.tiles);
           
           // Validate dimensions
           if (decodedTiles.length !== 64) {
@@ -288,10 +288,10 @@ class GridTileManager {
     }
 
     // Check for consistency if both formats exist
-    if (grid.tiles && grid.tilesV2) {
+    if (grid.tiles && grid.tiles) {
       try {
         const v1Tiles = grid.tiles;
-        const v2Tiles = this.decodeTilesV2(grid.tilesV2);
+        const v2Tiles = this.decodeTilesV2(grid.tiles);
         
         // Compare dimensions
         if (v1Tiles.length !== v2Tiles.length) {

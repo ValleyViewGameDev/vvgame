@@ -465,7 +465,7 @@ router.post('/generate-compact-db', async (req, res) => {
     }
 
     // Check if already has v2 format
-    if (grid.resourcesSchemaVersion === 'v2') {
+    if (grid.resourcesSchemaVersion_REMOVED === 'v2') {
       return res.status(400).json({ 
         error: 'Grid already using v2 schema. Use delete-old-schema to remove v1 data.' 
       });
@@ -513,8 +513,8 @@ router.post('/generate-compact-db', async (req, res) => {
     }
 
     // Update grid with encoded resources (keeping original for safety)
-    grid.resourcesV2 = encodedResources;
-    grid.resourcesSchemaVersion = 'v1'; // Still dual-format
+    grid.resources = encodedResources;
+    grid.resourcesSchemaVersion_REMOVED = 'v1'; // Still dual-format
     grid.lastOptimized = new Date();
 
     await grid.save();
@@ -559,9 +559,9 @@ router.post('/delete-old-schema', async (req, res) => {
     }
 
     // Check if grid has v2 resources
-    if (!grid.resourcesV2 || grid.resourcesV2.length === 0) {
+    if (!grid.resources || grid.resources.length === 0) {
       return res.status(400).json({ 
-        error: 'Grid does not have resourcesV2 data. Generate compact DB first.' 
+        error: 'Grid does not have resources data. Generate compact DB first.' 
       });
     }
 
@@ -573,7 +573,7 @@ router.post('/delete-old-schema', async (req, res) => {
       const encoder = new UltraCompactResourceEncoder(masterResources);
       
       // Test decode a few resources to ensure integrity
-      const testDecodes = grid.resourcesV2.slice(0, Math.min(5, grid.resourcesV2.length));
+      const testDecodes = grid.resources.slice(0, Math.min(5, grid.resources.length));
       console.log(`🔍 Testing ${testDecodes.length} resources for integrity check:`);
       
       for (let i = 0; i < testDecodes.length; i++) {
@@ -597,13 +597,13 @@ router.post('/delete-old-schema', async (req, res) => {
 
     // Store old resource count for logging
     const oldResourceCount = grid.resources ? grid.resources.length : 0;
-    const newResourceCount = grid.resourcesV2.length;
+    const newResourceCount = grid.resources.length;
 
     // Remove old resources field and update schema version
     await Grid.findByIdAndUpdate(gridId, {
       $unset: { resources: 1 },
       $set: {
-        resourcesSchemaVersion: 'v2',
+        resourcesSchemaVersion_REMOVED: 'v2',
         lastOptimized: new Date()
       }
     });
@@ -646,7 +646,7 @@ router.post('/generate-compact-tiles', async (req, res) => {
     }
 
     // Check if already has v2 format
-    if (grid.tilesSchemaVersion === 'v2') {
+    if (grid.tilesSchemaVersion_REMOVED === 'v2') {
       return res.status(400).json({ 
         error: 'Grid already using v2 tiles schema. Use delete-old-tiles-schema to remove v1 data.' 
       });
@@ -674,8 +674,8 @@ router.post('/generate-compact-tiles', async (req, res) => {
       const savingsPercent = ((originalSize - encodedSize) / originalSize * 100).toFixed(1);
 
       // Update grid with encoded tiles (keeping original for safety)
-      grid.tilesV2 = encodedTiles;
-      grid.tilesSchemaVersion = 'v1'; // Still dual-format
+      grid.tiles = encodedTiles;
+      grid.tilesSchemaVersion_REMOVED = 'v1'; // Still dual-format
       grid.lastOptimized = new Date();
 
       await grid.save();
@@ -723,15 +723,15 @@ router.post('/delete-old-tiles-schema', async (req, res) => {
     }
 
     // Check if grid has v2 tiles
-    if (!grid.tilesV2 || typeof grid.tilesV2 !== 'string') {
+    if (!grid.tiles || typeof grid.tiles !== 'string') {
       return res.status(400).json({ 
-        error: 'Grid does not have tilesV2 data. Generate compact tiles first.' 
+        error: 'Grid does not have tiles data. Generate compact tiles first.' 
       });
     }
 
     // Verify v2 data integrity before deletion
     try {
-      const testDecode = TileEncoder.decode(grid.tilesV2);
+      const testDecode = TileEncoder.decode(grid.tiles);
       console.log(`🔍 Testing tile integrity: decoded ${testDecode.length} rows`);
       
       if (testDecode.length !== 64 || testDecode[0].length !== 64) {
@@ -747,13 +747,13 @@ router.post('/delete-old-tiles-schema', async (req, res) => {
 
     // Store old tile count for logging
     const oldTileSize = grid.tiles ? JSON.stringify(grid.tiles).length : 0;
-    const newTileSize = grid.tilesV2.length;
+    const newTileSize = grid.tiles.length;
 
     // Remove old tiles field and update schema version
     await Grid.findByIdAndUpdate(gridId, {
       $unset: { tiles: 1 },
       $set: {
-        tilesSchemaVersion: 'v2',
+        tilesSchemaVersion_REMOVED: 'v2',
         lastOptimized: new Date()
       }
     });
@@ -766,7 +766,7 @@ router.post('/delete-old-tiles-schema', async (req, res) => {
       result: {
         oldTileSize,
         newTileSize,
-        tilesSchemaVersion: 'v2'
+        tilesSchemaVersion_REMOVED: 'v2'
       }
     });
 
@@ -788,10 +788,10 @@ router.post('/bulk-migrate-valleys-towns', async (req, res) => {
     const gridsToMigrate = await Grid.find({
       gridType: { $ne: 'homestead' },
       $or: [
-        { resourcesSchemaVersion: { $ne: 'v2' } },
-        { tilesSchemaVersion: { $ne: 'v2' } },
-        { resourcesSchemaVersion: { $exists: false } },
-        { tilesSchemaVersion: { $exists: false } }
+        { resourcesSchemaVersion_REMOVED: { $ne: 'v2' } },
+        { tilesSchemaVersion_REMOVED: { $ne: 'v2' } },
+        { resourcesSchemaVersion_REMOVED: { $exists: false } },
+        { tilesSchemaVersion_REMOVED: { $exists: false } }
       ]
     });
 
@@ -817,8 +817,8 @@ router.post('/bulk-migrate-valleys-towns', async (req, res) => {
 
     for (const grid of gridsToMigrate) {
       try {
-        const currentResourcesVersion = grid.resourcesSchemaVersion || 'v1';
-        const currentTilesVersion = grid.tilesSchemaVersion || 'v1';
+        const currentResourcesVersion = grid.resourcesSchemaVersion_REMOVED || 'v1';
+        const currentTilesVersion = grid.tilesSchemaVersion_REMOVED || 'v1';
         let resourcesMigrated = false;
         let tilesMigrated = false;
 
@@ -837,14 +837,14 @@ router.post('/bulk-migrate-valleys-towns', async (req, res) => {
               }
             }
             
-            grid.resourcesV2 = encodedResources;
-            grid.resourcesSchemaVersion = 'v2';
+            grid.resources = encodedResources;
+            grid.resourcesSchemaVersion_REMOVED = 'v2';
             resourcesMigrated = true;
             console.log(`📦 Migrated ${encodedResources.length} resources for grid ${grid._id}`);
           } else {
             // Grid is empty - just set schema version to v2
-            grid.resourcesSchemaVersion = 'v2';
-            // Don't set resourcesV2 for empty grids - let it remain undefined
+            grid.resourcesSchemaVersion_REMOVED = 'v2';
+            // Don't set resources for empty grids - let it remain undefined
             resourcesMigrated = true;
             console.log(`📝 Set empty grid ${grid._id} to v2 resources schema`);
           }
@@ -854,8 +854,8 @@ router.post('/bulk-migrate-valleys-towns', async (req, res) => {
         if (currentTilesVersion !== 'v2' && grid.tiles && Array.isArray(grid.tiles)) {
           try {
             const encodedTiles = TileEncoder.encode(grid.tiles);
-            grid.tilesV2 = encodedTiles;
-            grid.tilesSchemaVersion = 'v2';
+            grid.tiles = encodedTiles;
+            grid.tilesSchemaVersion_REMOVED = 'v2';
             tilesMigrated = true;
             console.log(`📦 Migrated tiles for grid ${grid._id}: ${encodedTiles.length} chars`);
           } catch (error) {
@@ -927,8 +927,8 @@ router.post('/bulk-delete-valleys-towns-v1', async (req, res) => {
       $and: [
         {
           $or: [
-            { resourcesSchemaVersion: 'v2' },
-            { tilesSchemaVersion: 'v2' }
+            { resourcesSchemaVersion_REMOVED: 'v2' },
+            { tilesSchemaVersion_REMOVED: 'v2' }
           ]
         },
         {
@@ -961,13 +961,13 @@ router.post('/bulk-delete-valleys-towns-v1', async (req, res) => {
         let needsUpdate = false;
 
         // Remove resources field if grid is v2 for resources
-        if (grid.resourcesSchemaVersion === 'v2' && grid.resources) {
+        if (grid.resourcesSchemaVersion_REMOVED === 'v2' && grid.resources) {
           unsetFields.resources = 1;
           needsUpdate = true;
         }
 
         // Remove tiles field if grid is v2 for tiles  
-        if (grid.tilesSchemaVersion === 'v2' && grid.tiles) {
+        if (grid.tilesSchemaVersion_REMOVED === 'v2' && grid.tiles) {
           unsetFields.tiles = 1;
           needsUpdate = true;
         }
@@ -1032,14 +1032,14 @@ router.get('/migration-status-valleys-towns', async (req, res) => {
         $group: {
           _id: {
             gridType: '$gridType',
-            resourcesSchemaVersion: { $ifNull: ['$resourcesSchemaVersion', 'v1'] },
-            tilesSchemaVersion: { $ifNull: ['$tilesSchemaVersion', 'v1'] }
+            resourcesSchemaVersion_REMOVED: { $ifNull: ['$resourcesSchemaVersion_REMOVED', 'v1'] },
+            tilesSchemaVersion_REMOVED: { $ifNull: ['$tilesSchemaVersion_REMOVED', 'v1'] }
           },
           count: { $sum: 1 }
         }
       },
       {
-        $sort: { '_id.gridType': 1, '_id.resourcesSchemaVersion': 1 }
+        $sort: { '_id.gridType': 1, '_id.resourcesSchemaVersion_REMOVED': 1 }
       }
     ]);
 
@@ -1053,10 +1053,10 @@ router.get('/migration-status-valleys-towns', async (req, res) => {
           _id: '$gridType',
           total: { $sum: 1 },
           v2Resources: {
-            $sum: { $cond: [{ $eq: ['$resourcesSchemaVersion', 'v2'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ['$resourcesSchemaVersion_REMOVED', 'v2'] }, 1, 0] }
           },
           v2Tiles: {
-            $sum: { $cond: [{ $eq: ['$tilesSchemaVersion', 'v2'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ['$tilesSchemaVersion_REMOVED', 'v2'] }, 1, 0] }
           },
           hasV1Data: {
             $sum: { 
@@ -1103,35 +1103,35 @@ router.get('/debug-unmigrated-grids', async (req, res) => {
       $or: [
         // Has v1 resources but claims to be v2
         {
-          resourcesSchemaVersion: 'v2',
+          resourcesSchemaVersion_REMOVED: 'v2',
           resources: { $exists: true, $ne: [] },
-          resourcesV2: { $exists: false }
+          resources: { $exists: false }
         },
         // Has v1 resources but no v2 version set
         {
-          resourcesSchemaVersion: { $ne: 'v2' },
+          resourcesSchemaVersion_REMOVED: { $ne: 'v2' },
           resources: { $exists: true, $ne: [] },
-          resourcesV2: { $exists: false }
+          resources: { $exists: false }
         },
         // Missing schema version entirely but has resources
         {
-          resourcesSchemaVersion: { $exists: false },
+          resourcesSchemaVersion_REMOVED: { $exists: false },
           resources: { $exists: true, $ne: [] }
         }
       ]
-    }).select('_id gridType resourcesSchemaVersion tilesSchemaVersion resources resourcesV2 tiles tilesV2');
+    }).select('_id gridType resourcesSchemaVersion_REMOVED tilesSchemaVersion_REMOVED resources resources tiles tiles');
 
     const analysis = suspiciousGrids.map(grid => ({
       gridId: grid._id,
       gridType: grid.gridType,
-      resourcesSchemaVersion: grid.resourcesSchemaVersion || 'missing',
-      tilesSchemaVersion: grid.tilesSchemaVersion || 'missing',
+      resourcesSchemaVersion_REMOVED: grid.resourcesSchemaVersion_REMOVED || 'missing',
+      tilesSchemaVersion_REMOVED: grid.tilesSchemaVersion_REMOVED || 'missing',
       hasV1Resources: !!(grid.resources && grid.resources.length > 0),
-      hasV2Resources: !!(grid.resourcesV2 && grid.resourcesV2.length > 0),
+      hasV2Resources: !!(grid.resources && grid.resources.length > 0),
       hasV1Tiles: !!(grid.tiles && Array.isArray(grid.tiles) && grid.tiles.length > 0),
-      hasV2Tiles: !!(grid.tilesV2 && typeof grid.tilesV2 === 'string'),
+      hasV2Tiles: !!(grid.tiles && typeof grid.tiles === 'string'),
       v1ResourceCount: grid.resources ? grid.resources.length : 0,
-      v2ResourceCount: grid.resourcesV2 ? grid.resourcesV2.length : 0,
+      v2ResourceCount: grid.resources ? grid.resources.length : 0,
       issue: determineIssue(grid)
     }));
 
@@ -1139,10 +1139,10 @@ router.get('/debug-unmigrated-grids', async (req, res) => {
       if (!grid.resources || grid.resources.length === 0) {
         return 'No resources to migrate';
       }
-      if (grid.resourcesSchemaVersion === 'v2' && (!grid.resourcesV2 || grid.resourcesV2.length === 0)) {
-        return 'Claims v2 but missing resourcesV2 data';
+      if (grid.resourcesSchemaVersion_REMOVED === 'v2' && (!grid.resources || grid.resources.length === 0)) {
+        return 'Claims v2 but missing resources data';
       }
-      if (grid.resourcesSchemaVersion !== 'v2' && grid.resources && grid.resources.length > 0) {
+      if (grid.resourcesSchemaVersion_REMOVED !== 'v2' && grid.resources && grid.resources.length > 0) {
         return 'Has v1 resources but migration skipped';
       }
       return 'Unknown issue';
@@ -1154,7 +1154,7 @@ router.get('/debug-unmigrated-grids', async (req, res) => {
       analysis,
       summary: {
         noResources: analysis.filter(a => a.issue === 'No resources to migrate').length,
-        claimsV2ButMissingData: analysis.filter(a => a.issue === 'Claims v2 but missing resourcesV2 data').length,
+        claimsV2ButMissingData: analysis.filter(a => a.issue === 'Claims v2 but missing resources data').length,
         hasV1ButSkipped: analysis.filter(a => a.issue === 'Has v1 resources but migration skipped').length,
         unknown: analysis.filter(a => a.issue === 'Unknown issue').length
       }
@@ -1177,10 +1177,10 @@ router.post('/bulk-migrate-homesteads', async (req, res) => {
     const gridsToMigrate = await Grid.find({
       gridType: 'homestead',
       $or: [
-        { resourcesSchemaVersion: { $ne: 'v2' } },
-        { tilesSchemaVersion: { $ne: 'v2' } },
-        { resourcesSchemaVersion: { $exists: false } },
-        { tilesSchemaVersion: { $exists: false } }
+        { resourcesSchemaVersion_REMOVED: { $ne: 'v2' } },
+        { tilesSchemaVersion_REMOVED: { $ne: 'v2' } },
+        { resourcesSchemaVersion_REMOVED: { $exists: false } },
+        { tilesSchemaVersion_REMOVED: { $exists: false } }
       ]
     });
 
@@ -1206,8 +1206,8 @@ router.post('/bulk-migrate-homesteads', async (req, res) => {
 
     for (const grid of gridsToMigrate) {
       try {
-        const currentResourcesVersion = grid.resourcesSchemaVersion || 'v1';
-        const currentTilesVersion = grid.tilesSchemaVersion || 'v1';
+        const currentResourcesVersion = grid.resourcesSchemaVersion_REMOVED || 'v1';
+        const currentTilesVersion = grid.tilesSchemaVersion_REMOVED || 'v1';
         let resourcesMigrated = false;
         let tilesMigrated = false;
 
@@ -1226,13 +1226,13 @@ router.post('/bulk-migrate-homesteads', async (req, res) => {
               }
             }
             
-            grid.resourcesV2 = encodedResources;
-            grid.resourcesSchemaVersion = 'v2';
+            grid.resources = encodedResources;
+            grid.resourcesSchemaVersion_REMOVED = 'v2';
             resourcesMigrated = true;
             console.log(`🏠 Migrated ${encodedResources.length} resources for homestead ${grid._id}`);
           } else {
             // Grid is empty - just set schema version to v2
-            grid.resourcesSchemaVersion = 'v2';
+            grid.resourcesSchemaVersion_REMOVED = 'v2';
             resourcesMigrated = true;
             console.log(`🏠 Set empty homestead ${grid._id} to v2 resources schema`);
           }
@@ -1242,8 +1242,8 @@ router.post('/bulk-migrate-homesteads', async (req, res) => {
         if (currentTilesVersion !== 'v2' && grid.tiles && Array.isArray(grid.tiles)) {
           try {
             const encodedTiles = TileEncoder.encode(grid.tiles);
-            grid.tilesV2 = encodedTiles;
-            grid.tilesSchemaVersion = 'v2';
+            grid.tiles = encodedTiles;
+            grid.tilesSchemaVersion_REMOVED = 'v2';
             tilesMigrated = true;
             console.log(`🏠 Migrated tiles for homestead ${grid._id}: ${encodedTiles.length} chars`);
           } catch (error) {
@@ -1315,8 +1315,8 @@ router.post('/bulk-delete-homesteads-v1', async (req, res) => {
       $and: [
         {
           $or: [
-            { resourcesSchemaVersion: 'v2' },
-            { tilesSchemaVersion: 'v2' }
+            { resourcesSchemaVersion_REMOVED: 'v2' },
+            { tilesSchemaVersion_REMOVED: 'v2' }
           ]
         },
         {
@@ -1349,13 +1349,13 @@ router.post('/bulk-delete-homesteads-v1', async (req, res) => {
         let needsUpdate = false;
 
         // Remove resources field if grid is v2 for resources
-        if (grid.resourcesSchemaVersion === 'v2' && grid.resources) {
+        if (grid.resourcesSchemaVersion_REMOVED === 'v2' && grid.resources) {
           unsetFields.resources = 1;
           needsUpdate = true;
         }
 
         // Remove tiles field if grid is v2 for tiles  
-        if (grid.tilesSchemaVersion === 'v2' && grid.tiles) {
+        if (grid.tilesSchemaVersion_REMOVED === 'v2' && grid.tiles) {
           unsetFields.tiles = 1;
           needsUpdate = true;
         }
@@ -1419,14 +1419,14 @@ router.get('/migration-status-homesteads', async (req, res) => {
       {
         $group: {
           _id: {
-            resourcesSchemaVersion: { $ifNull: ['$resourcesSchemaVersion', 'v1'] },
-            tilesSchemaVersion: { $ifNull: ['$tilesSchemaVersion', 'v1'] }
+            resourcesSchemaVersion_REMOVED: { $ifNull: ['$resourcesSchemaVersion_REMOVED', 'v1'] },
+            tilesSchemaVersion_REMOVED: { $ifNull: ['$tilesSchemaVersion_REMOVED', 'v1'] }
           },
           count: { $sum: 1 }
         }
       },
       {
-        $sort: { '_id.resourcesSchemaVersion': 1, '_id.tilesSchemaVersion': 1 }
+        $sort: { '_id.resourcesSchemaVersion_REMOVED': 1, '_id.tilesSchemaVersion_REMOVED': 1 }
       }
     ]);
 
@@ -1440,10 +1440,10 @@ router.get('/migration-status-homesteads', async (req, res) => {
           _id: null,
           total: { $sum: 1 },
           v2Resources: {
-            $sum: { $cond: [{ $eq: ['$resourcesSchemaVersion', 'v2'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ['$resourcesSchemaVersion_REMOVED', 'v2'] }, 1, 0] }
           },
           v2Tiles: {
-            $sum: { $cond: [{ $eq: ['$tilesSchemaVersion', 'v2'] }, 1, 0] }
+            $sum: { $cond: [{ $eq: ['$tilesSchemaVersion_REMOVED', 'v2'] }, 1, 0] }
           },
           hasV1Data: {
             $sum: { 
@@ -1503,12 +1503,12 @@ router.get('/preview-orphaned-homesteads', async (req, res) => {
           updatedAt: 1,
           playersInGridLastUpdated: 1,
           NPCsInGridLastUpdated: 1,
-          resourcesSchemaVersion: { $ifNull: ['$resourcesSchemaVersion', 'v1'] },
-          tilesSchemaVersion: { $ifNull: ['$tilesSchemaVersion', 'v1'] },
+          resourcesSchemaVersion_REMOVED: { $ifNull: ['$resourcesSchemaVersion_REMOVED', 'v1'] },
+          tilesSchemaVersion_REMOVED: { $ifNull: ['$tilesSchemaVersion_REMOVED', 'v1'] },
           resources: 1,
-          resourcesV2: 1,
+          resources: 1,
           tiles: 1,
-          tilesV2: 1,
+          tiles: 1,
           playersInGrid: 1,
           NPCsInGrid: 1,
           __v: 1
@@ -1529,9 +1529,9 @@ router.get('/preview-orphaned-homesteads', async (req, res) => {
     // Helper functions to check data
     const hasData = (g) => {
       return (g.resources && Array.isArray(g.resources) && g.resources.length > 0) ||
-             (g.resourcesV2 && g.resourcesV2.length > 0) ||
+             (g.resources && g.resources.length > 0) ||
              (g.tiles && Array.isArray(g.tiles) && g.tiles.length > 0) ||
-             (g.tilesV2 && g.tilesV2.length > 0);
+             (g.tiles && g.tiles.length > 0);
     };
 
     const hasActivity = (g) => {
@@ -1559,12 +1559,12 @@ router.get('/preview-orphaned-homesteads', async (req, res) => {
     const summary = {
       totalOrphaned: orphanedHomesteads.length,
       byResourcesVersion: {
-        v1: orphanedHomesteads.filter(g => g.resourcesSchemaVersion === 'v1').length,
-        v2: orphanedHomesteads.filter(g => g.resourcesSchemaVersion === 'v2').length
+        v1: orphanedHomesteads.filter(g => g.resourcesSchemaVersion_REMOVED === 'v1').length,
+        v2: orphanedHomesteads.filter(g => g.resourcesSchemaVersion_REMOVED === 'v2').length
       },
       byTilesVersion: {
-        v1: orphanedHomesteads.filter(g => g.tilesSchemaVersion === 'v1').length,
-        v2: orphanedHomesteads.filter(g => g.tilesSchemaVersion === 'v2').length
+        v1: orphanedHomesteads.filter(g => g.tilesSchemaVersion_REMOVED === 'v1').length,
+        v2: orphanedHomesteads.filter(g => g.tilesSchemaVersion_REMOVED === 'v2').length
       },
       withData: orphanedHomesteads.filter(hasData).length,
       withoutData: orphanedHomesteads.filter(g => !hasData(g)).length,
@@ -1666,12 +1666,12 @@ router.post('/delete-orphaned-homesteads', async (req, res) => {
           updatedAt: 1,
           playersInGridLastUpdated: 1,
           NPCsInGridLastUpdated: 1,
-          resourcesSchemaVersion: { $ifNull: ['$resourcesSchemaVersion', 'v1'] },
-          tilesSchemaVersion: { $ifNull: ['$tilesSchemaVersion', 'v1'] },
+          resourcesSchemaVersion_REMOVED: { $ifNull: ['$resourcesSchemaVersion_REMOVED', 'v1'] },
+          tilesSchemaVersion_REMOVED: { $ifNull: ['$tilesSchemaVersion_REMOVED', 'v1'] },
           resources: 1,
-          resourcesV2: 1,
+          resources: 1,
           tiles: 1,
-          tilesV2: 1,
+          tiles: 1,
           playersInGrid: 1,
           NPCsInGrid: 1,
           __v: 1

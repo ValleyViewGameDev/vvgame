@@ -36,7 +36,7 @@ class GridResourceManager {
   }
 
   /**
-   * Load resources from a grid document, handling both v1 and v2 formats
+   * Load resources from a grid document (V2 format only)
    * @param {Object} grid - The grid document from MongoDB
    * @returns {Array} - Array of decoded resource objects
    */
@@ -49,30 +49,12 @@ class GridResourceManager {
       return [];
     }
 
-    const schemaVersion = grid.resourcesSchemaVersion || 'v1';
-
-    switch (schemaVersion) {
-      case 'v1':
-        // Use original resources field, fall back to v2 if resources is empty/missing
-        if (grid.resources && grid.resources.length > 0) {
-          return grid.resources;
-        } else if (grid.resourcesV2 && grid.resourcesV2.length > 0) {
-          // Decode v2 format as fallback
-          return this.decodeResourcesV2(grid.resourcesV2);
-        }
-        return [];
-
-      case 'v2':
-        // Use only v2 format
-        if (grid.resourcesV2 && grid.resourcesV2.length > 0) {
-          return this.decodeResourcesV2(grid.resourcesV2);
-        }
-        return [];
-
-      default:
-        console.warn(`Unknown schema version: ${schemaVersion}, falling back to v1`);
-        return grid.resources || [];
+    // V2-only: All grids now use compressed resources field
+    if (grid.resources && grid.resources.length > 0) {
+      return this.decodeResourcesV2(grid.resources);
     }
+    
+    return [];
   }
 
   /**
@@ -122,7 +104,7 @@ class GridResourceManager {
       throw new Error('GridResourceManager not initialized');
     }
 
-    const schemaVersion = grid.resourcesSchemaVersion || 'v1';
+    const schemaVersion = grid.resourcesSchemaVersion_REMOVED || 'v1';
 
     switch (schemaVersion) {
       case 'v1':
@@ -145,9 +127,9 @@ class GridResourceManager {
         }
 
         // Update v2 format if it exists
-        if (grid.resourcesV2) {
+        if (grid.resources) {
           try {
-            const decodedResources = this.decodeResourcesV2(grid.resourcesV2);
+            const decodedResources = this.decodeResourcesV2(grid.resources);
             const v2Index = decodedResources.findIndex(r => r.x === resourceUpdate.x && r.y === resourceUpdate.y);
             
             if (v2Index >= 0) {
@@ -160,7 +142,7 @@ class GridResourceManager {
               decodedResources.push(resourceUpdate);
             }
             
-            grid.resourcesV2 = this.encodeResourcesV2(decodedResources);
+            grid.resources = this.encodeResourcesV2(decodedResources);
           } catch (error) {
             console.warn('⚠️ Failed to update v2 resources, keeping v1 only:', error);
           }
@@ -169,10 +151,10 @@ class GridResourceManager {
 
       case 'v2':
         // Update only v2 format
-        if (!grid.resourcesV2) grid.resourcesV2 = [];
+        if (!grid.resources) grid.resources = [];
         
         try {
-          const decodedResources = grid.resourcesV2.length > 0 ? this.decodeResourcesV2(grid.resourcesV2) : [];
+          const decodedResources = grid.resources.length > 0 ? this.decodeResourcesV2(grid.resources) : [];
           const v2Index = decodedResources.findIndex(r => r.x === resourceUpdate.x && r.y === resourceUpdate.y);
           
           if (v2Index >= 0) {
@@ -185,7 +167,7 @@ class GridResourceManager {
             decodedResources.push(resourceUpdate);
           }
           
-          grid.resourcesV2 = this.encodeResourcesV2(decodedResources);
+          grid.resources = this.encodeResourcesV2(decodedResources);
         } catch (error) {
           console.error('❌ Failed to update v2 resources:', error);
           throw error;
@@ -208,9 +190,9 @@ class GridResourceManager {
     if (!grid) return { error: 'No grid provided' };
 
     const stats = {
-      schemaVersion: grid.resourcesSchemaVersion || 'v1',
+      schemaVersion: grid.resourcesSchemaVersion_REMOVED || 'v1',
       v1ResourceCount: grid.resources ? grid.resources.length : 0,
-      v2ResourceCount: grid.resourcesV2 ? grid.resourcesV2.length : 0,
+      v2ResourceCount: grid.resources ? grid.resources.length : 0,
       lastOptimized: grid.lastOptimized || null
     };
 
@@ -219,8 +201,8 @@ class GridResourceManager {
       stats.v1StorageSize = JSON.stringify(grid.resources).length;
     }
     
-    if (grid.resourcesV2) {
-      stats.v2StorageSize = JSON.stringify(grid.resourcesV2).length;
+    if (grid.resources) {
+      stats.v2StorageSize = JSON.stringify(grid.resources).length;
     }
 
     // Calculate potential savings
@@ -272,17 +254,17 @@ class GridResourceManager {
     }
 
     // Check v2 resources
-    if (grid.resourcesV2) {
+    if (grid.resources) {
       try {
-        if (!Array.isArray(grid.resourcesV2)) {
+        if (!Array.isArray(grid.resources)) {
           result.errors.push('v2 resources is not an array');
           result.valid = false;
         } else if (this.initialized) {
           // Test decode a sample of v2 resources
-          const sampleSize = Math.min(10, grid.resourcesV2.length);
+          const sampleSize = Math.min(10, grid.resources.length);
           for (let i = 0; i < sampleSize; i++) {
             try {
-              this.encoder.decode(grid.resourcesV2[i]);
+              this.encoder.decode(grid.resources[i]);
             } catch (decodeError) {
               result.errors.push(`Invalid v2 resource at index ${i}: ${decodeError.message}`);
               result.valid = false;
@@ -296,10 +278,10 @@ class GridResourceManager {
     }
 
     // Check for consistency if both formats exist
-    if (grid.resources && grid.resourcesV2 && this.initialized) {
+    if (grid.resources && grid.resources && this.initialized) {
       try {
         const v1Count = grid.resources.length;
-        const v2Count = grid.resourcesV2.length;
+        const v2Count = grid.resources.length;
         
         if (v1Count !== v2Count) {
           result.warnings.push(`Resource count mismatch: v1=${v1Count}, v2=${v2Count}`);

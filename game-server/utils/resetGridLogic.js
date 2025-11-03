@@ -150,8 +150,8 @@ async function performGridReset(gridId, gridType, gridCoord) {
   }
 
   // Handle tiles and resources based on existing schema version
-  const currentResourcesVersion = grid.resourcesSchemaVersion || 'v1';
-  const currentTilesVersion = grid.tilesSchemaVersion || 'v1';
+  const currentResourcesVersion = grid.resourcesSchemaVersion_REMOVED || 'v1';
+  const currentTilesVersion = grid.tilesSchemaVersion_REMOVED || 'v1';
   
   if (currentResourcesVersion === 'v2') {
     // Grid is already v2 - encode resources to v2 format
@@ -168,7 +168,7 @@ async function performGridReset(gridId, gridType, gridCoord) {
       }
     }
     
-    grid.resourcesV2 = encodedResources;
+    grid.resources = encodedResources;
     console.log(`📦 Reset v2 resources: ${encodedResources.length} encoded resources`);
   } else {
     // Grid is v1 - keep using v1 format for backwards compatibility
@@ -180,7 +180,7 @@ async function performGridReset(gridId, gridType, gridCoord) {
     // Grid is already v2 - encode tiles to v2 format
     try {
       const encodedTiles = TileEncoder.encode(newTiles);
-      grid.tilesV2 = encodedTiles;
+      grid.tiles = encodedTiles;
       console.log(`📦 Reset v2 tiles: ${encodedTiles.length} chars`);
     } catch (error) {
       console.error(`❌ Failed to encode tiles during reset:`, error);
