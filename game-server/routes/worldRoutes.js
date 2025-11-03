@@ -377,6 +377,30 @@ router.patch('/update-grid/:gridId', (req, res) => {
         }
       }
       
+      // ✅ DUAL-FORMAT SUPPORT: Update v2 format if it exists
+      try {
+        if (grid.resourcesV2 && grid.resourcesV2.length > 0) {
+          console.log(`🔄 Updating v2 format for grid ${gridId} at (${x}, ${y})`);
+          
+          // Create the resource update object
+          const resourceUpdate = {
+            type,
+            x,
+            y,
+            ...(growEnd !== undefined && { growEnd }),
+            ...(craftEnd !== undefined && { craftEnd }),
+            ...(craftedItem !== undefined && { craftedItem }),
+          };
+          
+          // Use GridResourceManager to update v2 format
+          gridResourceManager.updateResource(grid, resourceUpdate);
+          console.log(`✅ Updated v2 format for resource at (${x}, ${y})`);
+        }
+      } catch (v2Error) {
+        console.error(`❌ Failed to update v2 format for grid ${gridId}:`, v2Error);
+        // Don't fail the entire operation, just log the error
+      }
+      
       // Save changes to the database
       await grid.save();
     } catch (error) {
