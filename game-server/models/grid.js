@@ -7,18 +7,6 @@ const GridSchema = new mongoose.Schema({
     enum: ['homestead', 'town', 'valley', 'valley0', 'valley1', 'valley2', 'valley3', 'reserved'], // Match settlement schema
     required: true, // Make gridType mandatory
   },
-  tiles: {
-    type: Array, // A 2D array representing the grid (optional in v2 schema)
-    required: false,
-    default: undefined,
-    index: false // Explicitly prevent indexing of V1 data arrays
-  },
-  resources: {
-    type: Array, // Resources in the grid (optional in v2 schema)
-    required: false,
-    default: undefined,
-    index: false // Explicitly prevent indexing of V1 data arrays
-  },
   // NPCs map (data only)
   NPCsInGrid: {
     type: Map,
@@ -105,28 +93,17 @@ const GridSchema = new mongoose.Schema({
     sparse: true // Optimize storage for grids without outposts
   },
 
-  // NEW FIELDS FOR COMPACT RESOURCE STORAGE (additive only - no breaking changes)
-  resourcesV2: {
+  // COMPACT RESOURCE AND TILE STORAGE (V2 format)
+  resources: {
     type: [mongoose.Schema.Types.Mixed], // Array of encoded resource arrays
-    default: undefined, // Only exists for grids using new format
+    default: [], // Default to empty array for new grids
     index: false // Explicitly prevent indexing of compressed data
-  },
-  resourcesSchemaVersion: {
-    type: String,
-    enum: ['v1', 'v2'],
-    default: 'v1' // All existing grids remain v1
   },
   
-  // NEW FIELDS FOR COMPACT TILE STORAGE (additive only - no breaking changes)
-  tilesV2: {
+  tiles: {
     type: String, // Base64 encoded compressed tile data
-    default: undefined, // Only exists for grids using new format
+    default: '', // Default to empty string for new grids
     index: false // Explicitly prevent indexing of compressed data
-  },
-  tilesSchemaVersion: {
-    type: String,
-    enum: ['v1', 'v2'],
-    default: 'v1' // All existing grids remain v1
   },
   
   lastOptimized: {
