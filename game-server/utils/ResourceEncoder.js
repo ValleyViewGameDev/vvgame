@@ -23,28 +23,32 @@ const PROPERTY_ORDER = [
 
 class UltraCompactResourceEncoder {
   constructor(masterResources) {
-    this.typeToId = new Map();
-    this.idToType = new Map();
+    this.typeToLayoutKey = new Map();
+    this.layoutKeyToType = new Map();
     
     if (masterResources && Array.isArray(masterResources)) {
-      masterResources.forEach((resource, index) => {
-        this.typeToId.set(resource.type, index);
-        this.idToType.set(index, resource.type);
+      masterResources.forEach((resource) => {
+        if (resource.type && resource.layoutkey) {
+          this.typeToLayoutKey.set(resource.type, resource.layoutkey);
+          this.layoutKeyToType.set(resource.layoutkey, resource.type);
+        } else {
+          console.warn(`⚠️ Resource missing type or layoutkey:`, resource);
+        }
       });
-      console.log(`📦 ResourceEncoder initialized with ${masterResources.length} resource types`);
+      console.log(`📦 ResourceEncoder initialized with ${this.typeToLayoutKey.size} resource types using layoutKey`);
     } else {
       console.warn('⚠️ ResourceEncoder initialized without masterResources');
     }
   }
 
   encode(resourceObj) {
-    const typeId = this.typeToId.get(resourceObj.type);
-    if (typeId === undefined) {
+    const layoutKey = this.typeToLayoutKey.get(resourceObj.type);
+    if (layoutKey === undefined) {
       throw new Error(`Unknown resource type: ${resourceObj.type}`);
     }
     
-    // Start with: [typeId, x, y]
-    const result = [typeId, resourceObj.x, resourceObj.y];
+    // Start with: [layoutKey, x, y]
+    const result = [layoutKey, resourceObj.x, resourceObj.y];
     
     // Calculate property flags and collect values
     let flags = 0;
@@ -74,13 +78,13 @@ class UltraCompactResourceEncoder {
       throw new Error('Invalid resource array format');
     }
 
-    const typeId = resourceArray[0];
+    const layoutKey = resourceArray[0];
     const x = resourceArray[1];
     const y = resourceArray[2];
     
-    const type = this.idToType.get(typeId);
+    const type = this.layoutKeyToType.get(layoutKey);
     if (!type) {
-      throw new Error(`Unknown type ID: ${typeId}`);
+      throw new Error(`Unknown layoutKey: ${layoutKey}`);
     }
     
     const result = { type, x, y };
