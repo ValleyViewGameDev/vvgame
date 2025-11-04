@@ -327,7 +327,7 @@ async function handleFarmAnimalBehavior(gridId) {
                     
                     if (this.stallRetries < 5) {
                         // Try a different direction or wait
-                        console.log(`NPC ${this.id} blocked, retry ${this.stallRetries}/5`);
+                        //console.log(`NPC ${this.id} blocked, retry ${this.stallRetries}/5`);
                     } else {
                         // Add this stall to failed list and try another
                         console.warn(`NPC ${this.id} cannot reach stall at (${this.targetStall.x}, ${this.targetStall.y}). Trying alternative.`);
@@ -339,7 +339,7 @@ async function handleFarmAnimalBehavior(gridId) {
                         // Try to find another stall
                         const alternativeStall = this.findNearestResource('stall', tiles, resources, this.failedStalls);
                         if (!alternativeStall) {
-                            console.log('No alternative stalls available, returning to idle.');
+                            //console.log('No alternative stalls available, returning to idle.');
                             this.state = 'idle';
                             this.failedStalls = [];
                             this.triedStall = true;

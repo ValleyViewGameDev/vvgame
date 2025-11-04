@@ -444,17 +444,17 @@ router.get('/load-grid/:gridId', async (req, res) => {
       return res.status(404).json({ error: `Grid not found for ID: ${gridId}` });
     }
 
-    // V2-only: All grids now use compressed format
-    console.log(`Grid found for ID: ${gridId} (V2 schema)`);
+    // All grids now use compressed format
+    console.log(`Grid found for ID: ${gridId}`);
 
-    // 2) Load resources using GridResourceManager (V2 format only)
+    // 2) Load resources using GridResourceManager
     let loadedResources;
     try {
       loadedResources = gridResourceManager.getResources(gridDocument);
-      console.log(`📦 Loaded ${loadedResources.length} resources using V2 schema`);
+      console.log(`📦 Loaded ${loadedResources.length} resources`);
     } catch (resourceError) {
       console.error('❌ Failed to load resources with GridResourceManager:', resourceError);
-      console.error('❌ This indicates the grid has corrupted or V1 format data that needs fixing');
+      console.error('❌ This indicates the grid has corrupted data that needs fixing');
       // If GridResourceManager fails, try to use raw resources as fallback
       loadedResources = gridDocument.resources || [];
     }
@@ -484,13 +484,13 @@ router.get('/load-grid/:gridId', async (req, res) => {
     // If we found corrupted crops, save the cleanup to database
     if (needsSave) {
       console.log(`💾 Saving ${cleanedResources.filter((r, i) => r !== loadedResources[i]).length} cleaned crops to database`);
-      // V2-only: Update with cleaned resources by re-encoding
+      // Update with cleaned resources by re-encoding
       try {
         const encodedCleanedResources = gridResourceManager.encodeResourcesV2(cleanedResources);
         gridDocument.resources = encodedCleanedResources;
         gridDocument.markModified('resources');
         await gridDocument.save();
-        console.log(`✅ Saved cleaned crops in V2 format`);
+        console.log(`✅ Saved cleaned crops`);
       } catch (saveError) {
         console.error('❌ Failed to save cleaned crops:', saveError);
       }
@@ -511,11 +511,11 @@ router.get('/load-grid/:gridId', async (req, res) => {
       };
     });
 
-    // 5) Load tiles using GridTileManager (V2 format only)
+    // 5) Load tiles using GridTileManager
     let loadedTiles;
     try {
       loadedTiles = gridTileManager.getTiles(gridDocument);
-      console.log(`🗺️ Loaded tiles using V2 schema`);
+      console.log(`🗺️ Loaded tiles`);
     } catch (tileError) {
       console.error('❌ Failed to load tiles with GridTileManager:', tileError);
       // Generate empty tiles if needed
@@ -526,7 +526,7 @@ router.get('/load-grid/:gridId', async (req, res) => {
     const enrichedGrid = {
       ...gridDocument.toObject(),
       resources: enrichedResources,        // Replace resources with enriched
-      tiles: loadedTiles,                 // Replace tiles with loaded (v1/v2 compatible)
+      tiles: loadedTiles,                 // Replace tiles with loaded
     };
 
     // 7) Respond with the enriched grid, which now includes ownerId.username if it's a homestead

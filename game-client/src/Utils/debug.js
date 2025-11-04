@@ -11,7 +11,7 @@ import playersInGridManager from '../GridState/PlayersInGrid';
 import GridStateDebugPanel from './GridStateDebug';
 import { generateTownGrids, generateValleyGrids, createSingleValleyGrid } from './WorldGeneration';
 
-const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, setResources, currentGridId, updateStatus, TILE_SIZE, setGrid, setGridId, setTileTypes, closeAllPanels }) => {
+const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, setResources, currentGridId, updateStatus, TILE_SIZE, setGrid, setGridId, setTileTypes, closeAllPanels, useCanvasTiles, setUseCanvasTiles }) => {
   const [timers, setTimers] = useState([]);
   const [npcs, setNPCs] = useState([]);
   const [pcs, setPCs] = useState([]);
@@ -21,6 +21,14 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
   const [toGridCoord, setToGridCoord] = useState('');
   const [usernameToDelete, setUsernameToDelete] = useState('');
   const [messageIdentifier, setMessageIdentifier] = useState('');
+  
+  // Performance monitoring state
+  const [performanceMetrics, setPerformanceMetrics] = useState({
+    fps: 0,
+    domElementCount: 0,
+    memoryUsage: 0,
+    renderMode: 'Unknown'
+  });
   
   // Fetch resources with timers when the panel opens or gridId changes
   useEffect(() => {
@@ -95,6 +103,64 @@ const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, se
   useEffect(() => {
     setUpdatedNPCs(npcs);
   }, [npcs]);
+
+  // Performance monitoring useEffect
+  useEffect(() => {
+    let frameCount = 0;
+    let lastTime = performance.now();
+    let animationFrameId;
+
+    const measurePerformance = () => {
+      frameCount++;
+      const currentTime = performance.now();
+      
+      // Calculate FPS every second
+      if (currentTime - lastTime >= 1000) {
+        const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+        
+        // Count DOM elements
+        const domElementCount = document.querySelectorAll('*').length;
+        
+        // Detect render mode by checking for canvas vs DOM tiles
+        const hasCanvasTiles = document.querySelector('canvas[style*="position: absolute"]') !== null;
+        const hasDOMTiles = document.querySelector('.tile-g, .tile-s, .tile-d, .tile-w, .tile-l, .tile-p, .tile-n, .tile-o') !== null;
+        let renderMode = 'Unknown';
+        if (hasCanvasTiles && !hasDOMTiles) {
+          renderMode = 'Canvas';
+        } else if (!hasCanvasTiles && hasDOMTiles) {
+          renderMode = 'DOM';
+        } else if (hasCanvasTiles && hasDOMTiles) {
+          renderMode = 'Mixed';
+        }
+        
+        // Get memory usage if available
+        let memoryUsage = 0;
+        if (performance.memory) {
+          memoryUsage = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024); // MB
+        }
+        
+        setPerformanceMetrics({
+          fps,
+          domElementCount,
+          memoryUsage,
+          renderMode
+        });
+        
+        frameCount = 0;
+        lastTime = currentTime;
+      }
+      
+      animationFrameId = requestAnimationFrame(measurePerformance);
+    };
+    
+    animationFrameId = requestAnimationFrame(measurePerformance);
+    
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, []);
 
 
 
@@ -843,760 +909,53 @@ const handleGetRich = async () => {
     }
   };
 
-  const handleGenerateCompactDBResources = async () => {
-    if (!currentGridId) {
-      console.error('❌ No grid ID available.');
-      updateStatus('❌ No grid ID available.');
-      return;
-    }
-
-    try {
-      console.log('📦 Generating compact DB resources for grid:', currentGridId);
-      updateStatus('📦 Converting grid resources to compact format...');
-      
-      const response = await axios.post(`${API_BASE}/api/generate-compact-db`, {
-        gridId: currentGridId
-      });
-
-      if (response.data.success) {
-        console.log('✅ Compact DB resources generated successfully:', response.data.result);
-        updateStatus(`✅ Compact DB resources generated. Savings: ${response.data.result.savings}`);
-        
-        // Show detailed savings information
-        const { originalSize, encodedSize, resourceCount, savings } = response.data.result;
-        alert(
-          `📦 Compact DB Resources Complete!\n\n` +
-          `Resources processed: ${resourceCount}\n` +
-          `Original size: ${originalSize} chars\n` +
-          `Encoded size: ${encodedSize} chars\n` +
-          `Storage savings: ${savings}\n\n` +
-          `Grid ${currentGridId} now has resourcesV2 field with compact data.`
-        );
-      } else {
-        console.error('❌ Failed to generate compact DB resources:', response.data);
-        updateStatus('❌ Failed to generate compact DB resources.');
-        alert(`Failed to generate compact DB resources: ${response.data.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('❌ Error generating compact DB resources:', error);
-      updateStatus('❌ Error generating compact DB resources.');
-      alert('Failed to generate compact DB resources. Check console for details.');
-    }
-  };
-
-  const handleDeleteOldDBResourcesSchema = async () => {
-    if (!currentGridId) {
-      console.error('❌ No grid ID available.');
-      updateStatus('❌ No grid ID available.');
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `⚠️ Are you sure you want to delete the old DB resources schema?\n\n` +
-      `This will:\n` +
-      `1. Remove the original "resources" field from the grid\n` +
-      `2. Switch the grid to use only resourcesV2 format\n` +
-      `3. Mark resource schema version as v2\n\n` +
-      `Make sure the compact DB resources are working correctly first!\n` +
-      `This action CANNOT be undone!`
-    );
-
-    if (!confirmed) return;
-
-    try {
-      console.log('🗑️ Deleting old DB resources schema for grid:', currentGridId);
-      updateStatus('🗑️ Removing old resource format...');
-      
-      const response = await axios.post(`${API_BASE}/api/delete-old-schema`, {
-        gridId: currentGridId
-      });
-
-      if (response.data.success) {
-        console.log('✅ Old DB resources schema deleted successfully');
-        updateStatus('✅ Old DB resources schema removed. Grid now uses v2 format only.');
-        alert(
-          `✅ Old DB Resources Schema Removed!\n\n` +
-          `Grid ${currentGridId} now uses only the compact resourcesV2 format.\n` +
-          `Schema version updated to v2.\n` +
-          `Original "resources" field has been removed.`
-        );
-      } else {
-        console.error('❌ Failed to delete old resources schema:', response.data);
-        updateStatus('❌ Failed to delete old resources schema.');
-        alert(`Failed to delete old resources schema: ${response.data.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('❌ Error deleting old resources schema:', error);
-      updateStatus('❌ Error deleting old resources schema.');
-      alert('Failed to delete old resources schema. Check console for details.');
-    }
-  };
-
-  const handleGenerateCompactDBTiles = async () => {
-    if (!currentGridId) {
-      console.error('❌ No grid ID available.');
-      updateStatus('❌ No grid ID available.');
-      return;
-    }
-
-    try {
-      console.log('🗺️ Generating compact DB tiles for grid:', currentGridId);
-      updateStatus('🗺️ Converting grid tiles to compact format...');
-      
-      const response = await axios.post(`${API_BASE}/api/generate-compact-tiles`, {
-        gridId: currentGridId
-      });
-
-      if (response.data.success) {
-        console.log('✅ Compact DB tiles generated successfully:', response.data.result);
-        updateStatus(`✅ Compact DB tiles generated. Savings: ${response.data.result.savings}`);
-        
-        // Show detailed savings information
-        const { originalSize, encodedSize, savings } = response.data.result;
-        alert(
-          `🗺️ Compact DB Tiles Complete!\n\n` +
-          `Original size: ${originalSize} chars\n` +
-          `Encoded size: ${encodedSize} chars\n` +
-          `Storage savings: ${savings}\n\n` +
-          `Grid ${currentGridId} now has tilesV2 field with compact data.`
-        );
-      } else {
-        console.error('❌ Failed to generate compact DB tiles:', response.data);
-        updateStatus('❌ Failed to generate compact DB tiles.');
-        alert(`Failed to generate compact DB tiles: ${response.data.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('❌ Error generating compact DB tiles:', error);
-      updateStatus('❌ Error generating compact DB tiles.');
-      alert('Failed to generate compact DB tiles. Check console for details.');
-    }
-  };
-
-  const handleDeleteOldDBTilesSchema = async () => {
-    if (!currentGridId) {
-      console.error('❌ No grid ID available.');
-      updateStatus('❌ No grid ID available.');
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `⚠️ Are you sure you want to delete the old DB tiles schema?\n\n` +
-      `This will:\n` +
-      `1. Remove the original "tiles" field from the grid\n` +
-      `2. Switch the grid to use only tilesV2 format\n` +
-      `3. Mark tiles schema version as v2\n\n` +
-      `Make sure the compact DB tiles are working correctly first!\n` +
-      `This action CANNOT be undone!`
-    );
-
-    if (!confirmed) return;
-
-    try {
-      console.log('🗑️ Deleting old DB tiles schema for grid:', currentGridId);
-      updateStatus('🗑️ Removing old tiles format...');
-      
-      const response = await axios.post(`${API_BASE}/api/delete-old-tiles-schema`, {
-        gridId: currentGridId
-      });
-
-      if (response.data.success) {
-        console.log('✅ Old DB tiles schema deleted successfully');
-        updateStatus('✅ Old DB tiles schema removed. Grid now uses v2 format only.');
-        alert(
-          `✅ Old DB Tiles Schema Removed!\n\n` +
-          `Grid ${currentGridId} now uses only the compact tilesV2 format.\n` +
-          `Tiles schema version updated to v2.\n` +
-          `Original "tiles" field has been removed.`
-        );
-      } else {
-        console.error('❌ Failed to delete old tiles schema:', response.data);
-        updateStatus('❌ Failed to delete old tiles schema.');
-        alert(`Failed to delete old tiles schema: ${response.data.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('❌ Error deleting old tiles schema:', error);
-      updateStatus('❌ Error deleting old tiles schema.');
-      alert('Failed to delete old tiles schema. Check console for details.');
-    }
-  };
-
-  const handleBulkMigrateValleysTowns = async () => {
-    const confirmed = window.confirm(
-      `🔄 Bulk Migration: Valleys and Towns to V2\n\n` +
-      `This will:\n` +
-      `1. Find all valley and town grids (NOT homesteads)\n` +
-      `2. Encode their resources and tiles to V2 format\n` +
-      `3. Set both schema versions to V2\n` +
-      `4. Keep V1 data for safety (delete separately)\n\n` +
-      `This is safe to run and can be tested before removing V1 data.\n\n` +
-      `Continue with bulk migration?`
-    );
-
-    if (!confirmed) return;
-
-    try {
-      console.log('🔄 Starting bulk migration of valleys and towns...');
-      updateStatus('🔄 Bulk migrating non-homestead grids to V2...');
-      
-      const response = await axios.post(`${API_BASE}/api/bulk-migrate-valleys-towns`);
-
-      if (response.data.success) {
-        const { migrated, skipped, errors, details } = response.data.result;
-        console.log('✅ Bulk migration completed:', response.data.result);
-        updateStatus(`✅ Bulk migration complete: ${migrated} migrated, ${skipped} skipped, ${errors} errors`);
-        
-        // Show detailed results
-        const resultMessage = 
-          `✅ Bulk Migration Complete!\n\n` +
-          `Migrated: ${migrated} grids\n` +
-          `Skipped: ${skipped} grids (already V2 or no data)\n` +
-          `Errors: ${errors} grids\n\n` +
-          `V1 data is still present for safety.\n` +
-          `Test the migrated grids, then use "Delete V1 DB" to clean up.`;
-        
-        alert(resultMessage);
-        
-        if (details && details.length > 0) {
-          console.log('📋 Migration details:', details);
-        }
-      } else {
-        console.error('❌ Bulk migration failed:', response.data);
-        updateStatus('❌ Bulk migration failed.');
-        alert(`Bulk migration failed: ${response.data.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('❌ Error during bulk migration:', error);
-      updateStatus('❌ Error during bulk migration.');
-      alert('Bulk migration failed. Check console for details.');
-    }
-  };
-
-  const handleBulkDeleteValleysTownsV1 = async () => {
-    const confirmed = window.confirm(
-      `🗑️ Bulk Delete V1 Data: Valleys and Towns\n\n` +
-      `⚠️ WARNING: This will permanently remove V1 data!\n\n` +
-      `This will:\n` +
-      `1. Find all valley and town grids using V2 format\n` +
-      `2. Remove old "resources" and "tiles" fields\n` +
-      `3. Keep only resourcesV2 and tilesV2 data\n\n` +
-      `IMPORTANT: Only run this AFTER testing V2 migration!\n` +
-      `This action CANNOT be undone!\n\n` +
-      `Are you sure you want to delete all V1 data?`
-    );
-
-    if (!confirmed) return;
-
-    // Double confirmation for deletion
-    const doubleConfirmed = window.confirm(
-      `⚠️ FINAL CONFIRMATION ⚠️\n\n` +
-      `You are about to PERMANENTLY DELETE V1 data from all valleys and towns.\n\n` +
-      `This will free up significant database space but cannot be undone.\n\n` +
-      `Type "DELETE" in the next prompt to continue...`
-    );
-
-    if (!doubleConfirmed) return;
-
-    const deleteConfirmation = window.prompt(
-      `Type "DELETE" to confirm permanent deletion of V1 data:`
-    );
-
-    if (deleteConfirmation !== "DELETE") {
-      alert("Deletion cancelled - confirmation text did not match.");
-      return;
-    }
-
-    try {
-      console.log('🗑️ Starting bulk deletion of V1 data...');
-      updateStatus('🗑️ Bulk deleting V1 data from valleys and towns...');
-      
-      const response = await axios.post(`${API_BASE}/api/bulk-delete-valleys-towns-v1`);
-
-      if (response.data.success) {
-        const { cleaned, errors, details } = response.data.result;
-        console.log('✅ Bulk V1 cleanup completed:', response.data.result);
-        updateStatus(`✅ V1 cleanup complete: ${cleaned} cleaned, ${errors} errors`);
-        
-        // Show detailed results
-        const resultMessage = 
-          `✅ V1 Data Cleanup Complete!\n\n` +
-          `Cleaned: ${cleaned} grids\n` +
-          `Errors: ${errors} grids\n\n` +
-          `All valleys and towns now use only V2 format.\n` +
-          `Significant database space has been freed.`;
-        
-        alert(resultMessage);
-        
-        if (details && details.length > 0) {
-          console.log('📋 Cleanup details:', details);
-        }
-      } else {
-        console.error('❌ Bulk V1 cleanup failed:', response.data);
-        updateStatus('❌ Bulk V1 cleanup failed.');
-        alert(`Bulk V1 cleanup failed: ${response.data.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('❌ Error during bulk V1 cleanup:', error);
-      updateStatus('❌ Error during bulk V1 cleanup.');
-      alert('Bulk V1 cleanup failed. Check console for details.');
-    }
-  };
-
-  const handleCheckMigrationStatus = async () => {
-    try {
-      console.log('📊 Checking migration status...');
-      updateStatus('📊 Checking migration status...');
-      
-      const response = await axios.get(`${API_BASE}/api/migration-status-valleys-towns`);
-
-      if (response.data.success) {
-        const { statusCounts, totals, summary } = response.data;
-        console.log('📊 Migration status:', response.data);
-        
-        // Format results for display
-        let statusMessage = `📊 Migration Status Report\n\n`;
-        statusMessage += `Total Non-Homesteads: ${summary.totalNonHomesteads}\n`;
-        statusMessage += `V2 Resources: ${summary.totalV2Resources}\n`;
-        statusMessage += `V2 Tiles: ${summary.totalV2Tiles}\n`;
-        statusMessage += `Grids with V1 Data: ${summary.totalWithV1Data}\n\n`;
-        
-        statusMessage += `By Grid Type:\n`;
-        totals.forEach(type => {
-          statusMessage += `${type._id}: ${type.total} total, ${type.v2Resources} v2 resources, ${type.v2Tiles} v2 tiles, ${type.hasV1Data} with v1 data\n`;
-        });
-        
-        statusMessage += `\nDetailed Breakdown:\n`;
-        statusCounts.forEach(status => {
-          const { gridType, resourcesSchemaVersion, tilesSchemaVersion } = status._id;
-          statusMessage += `${gridType} (R:${resourcesSchemaVersion}, T:${tilesSchemaVersion}): ${status.count} grids\n`;
-        });
-        
-        alert(statusMessage);
-        updateStatus(`📊 Status: ${summary.totalV2Resources}/${summary.totalNonHomesteads} resources migrated, ${summary.totalV2Tiles}/${summary.totalNonHomesteads} tiles migrated`);
-      } else {
-        console.error('❌ Failed to check migration status:', response.data);
-        updateStatus('❌ Failed to check migration status.');
-        alert(`Failed to check migration status: ${response.data.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('❌ Error checking migration status:', error);
-      updateStatus('❌ Error checking migration status.');
-      alert('Failed to check migration status. Check console for details.');
-    }
-  };
-
-  const handleDebugUnmigratedGrids = async () => {
-    try {
-      console.log('🔍 Debugging unmigrated grids...');
-      updateStatus('🔍 Analyzing unmigrated grids...');
-      
-      const response = await axios.get(`${API_BASE}/api/debug-unmigrated-grids`);
-
-      if (response.data.success) {
-        const { totalSuspicious, analysis, summary } = response.data;
-        console.log('🔍 Unmigrated grids analysis:', response.data);
-        
-        // Format results for display
-        let debugMessage = `🔍 Unmigrated Grids Analysis\n\n`;
-        debugMessage += `Total Suspicious Grids: ${totalSuspicious}\n\n`;
-        
-        debugMessage += `Issue Summary:\n`;
-        debugMessage += `• No resources to migrate: ${summary.noResources}\n`;
-        debugMessage += `• Claims V2 but missing data: ${summary.claimsV2ButMissingData}\n`;
-        debugMessage += `• Has V1 but migration skipped: ${summary.hasV1ButSkipped}\n`;
-        debugMessage += `• Unknown issues: ${summary.unknown}\n\n`;
-        
-        if (analysis.length > 0) {
-          debugMessage += `First 10 Problem Grids:\n`;
-          analysis.slice(0, 10).forEach((grid, index) => {
-            debugMessage += `${index + 1}. ${grid.gridType} (${grid.gridId})\n`;
-            debugMessage += `   Schema: R:${grid.resourcesSchemaVersion}, T:${grid.tilesSchemaVersion}\n`;
-            debugMessage += `   Resources: V1:${grid.v1ResourceCount}, V2:${grid.v2ResourceCount}\n`;
-            debugMessage += `   Issue: ${grid.issue}\n\n`;
-          });
-          
-          if (analysis.length > 10) {
-            debugMessage += `... and ${analysis.length - 10} more grids\n`;
-          }
-        }
-        
-        alert(debugMessage);
-        updateStatus(`🔍 Found ${totalSuspicious} suspicious grids. Check console for full details.`);
-      } else {
-        console.error('❌ Failed to debug unmigrated grids:', response.data);
-        updateStatus('❌ Failed to debug unmigrated grids.');
-        alert(`Failed to debug unmigrated grids: ${response.data.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('❌ Error debugging unmigrated grids:', error);
-      updateStatus('❌ Error debugging unmigrated grids.');
-      alert('Failed to debug unmigrated grids. Check console for details.');
-    }
-  };
-
-  const handleBulkMigrateHomesteads = async () => {
-    const confirmed = window.confirm(
-      `🏠 Bulk Migration: Homesteads to V2\n\n` +
-      `This will:\n` +
-      `1. Find all homestead grids\n` +
-      `2. Encode their resources and tiles to V2 format\n` +
-      `3. Set both schema versions to V2\n` +
-      `4. Keep V1 data for safety (delete separately)\n\n` +
-      `⚠️ This affects player homesteads!\n` +
-      `Make sure the valley/town migration worked perfectly first.\n\n` +
-      `Continue with homestead migration?`
-    );
-
-    if (!confirmed) return;
-
-    try {
-      console.log('🏠 Starting bulk migration of homesteads...');
-      updateStatus('🏠 Bulk migrating homestead grids to V2...');
-      
-      const response = await axios.post(`${API_BASE}/api/bulk-migrate-homesteads`);
-
-      if (response.data.success) {
-        const { migrated, skipped, errors, details } = response.data.result;
-        console.log('✅ Homestead migration completed:', response.data.result);
-        updateStatus(`✅ Homestead migration complete: ${migrated} migrated, ${skipped} skipped, ${errors} errors`);
-        
-        // Show detailed results
-        const resultMessage = 
-          `✅ Homestead Migration Complete!\n\n` +
-          `Migrated: ${migrated} homesteads\n` +
-          `Skipped: ${skipped} homesteads (already V2 or no data)\n` +
-          `Errors: ${errors} homesteads\n\n` +
-          `V1 data is still present for safety.\n` +
-          `Test the migrated homesteads, then use "Delete V1 DB" to clean up.`;
-        
-        alert(resultMessage);
-        
-        if (details && details.length > 0) {
-          console.log('📋 Homestead migration details:', details);
-        }
-      } else {
-        console.error('❌ Homestead migration failed:', response.data);
-        updateStatus('❌ Homestead migration failed.');
-        alert(`Homestead migration failed: ${response.data.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('❌ Error during homestead migration:', error);
-      updateStatus('❌ Error during homestead migration.');
-      alert('Homestead migration failed. Check console for details.');
-    }
-  };
-
-  const handleBulkDeleteHomesteadsV1 = async () => {
-    const confirmed = window.confirm(
-      `🗑️ Bulk Delete V1 Data: Homesteads\n\n` +
-      `⚠️ WARNING: This affects PLAYER HOMESTEADS!\n\n` +
-      `This will:\n` +
-      `1. Find all homestead grids using V2 format\n` +
-      `2. Remove old "resources" and "tiles" fields\n` +
-      `3. Keep only resourcesV2 and tilesV2 data\n\n` +
-      `CRITICAL: Only run this AFTER thorough testing!\n` +
-      `This action CANNOT be undone!\n\n` +
-      `Are you absolutely sure?`
-    );
-
-    if (!confirmed) return;
-
-    // Double confirmation for homesteads
-    const doubleConfirmed = window.confirm(
-      `⚠️ FINAL CONFIRMATION - HOMESTEADS ⚠️\n\n` +
-      `You are about to PERMANENTLY DELETE V1 data from PLAYER HOMESTEADS.\n\n` +
-      `This could affect active player saves!\n` +
-      `Make sure homestead migration was thoroughly tested!\n\n` +
-      `Type "DELETE HOMESTEADS" in the next prompt to continue...`
-    );
-
-    if (!doubleConfirmed) return;
-
-    const deleteConfirmation = window.prompt(
-      `Type "DELETE HOMESTEADS" to confirm deletion of homestead V1 data:`
-    );
-
-    if (deleteConfirmation !== "DELETE HOMESTEADS") {
-      alert("Deletion cancelled - confirmation text did not match.");
-      return;
-    }
-
-    try {
-      console.log('🗑️ Starting bulk deletion of homestead V1 data...');
-      updateStatus('🗑️ Bulk deleting V1 data from homesteads...');
-      
-      const response = await axios.post(`${API_BASE}/api/bulk-delete-homesteads-v1`);
-
-      if (response.data.success) {
-        const { cleaned, errors, details } = response.data.result;
-        console.log('✅ Homestead V1 cleanup completed:', response.data.result);
-        updateStatus(`✅ Homestead cleanup complete: ${cleaned} cleaned, ${errors} errors`);
-        
-        // Show detailed results
-        const resultMessage = 
-          `✅ Homestead V1 Data Cleanup Complete!\n\n` +
-          `Cleaned: ${cleaned} homesteads\n` +
-          `Errors: ${errors} homesteads\n\n` +
-          `All homesteads now use only V2 format.\n` +
-          `Significant database space has been freed.`;
-        
-        alert(resultMessage);
-        
-        if (details && details.length > 0) {
-          console.log('📋 Homestead cleanup details:', details);
-        }
-      } else {
-        console.error('❌ Homestead V1 cleanup failed:', response.data);
-        updateStatus('❌ Homestead V1 cleanup failed.');
-        alert(`Homestead V1 cleanup failed: ${response.data.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('❌ Error during homestead V1 cleanup:', error);
-      updateStatus('❌ Error during homestead V1 cleanup.');
-      alert('Homestead V1 cleanup failed. Check console for details.');
-    }
-  };
-
-  const handleCheckHomesteadMigrationStatus = async () => {
-    try {
-      console.log('📊 Checking homestead migration status...');
-      updateStatus('📊 Checking homestead migration status...');
-      
-      const response = await axios.get(`${API_BASE}/api/migration-status-homesteads`);
-
-      if (response.data.success) {
-        const { statusCounts, summary } = response.data;
-        console.log('📊 Homestead migration status:', response.data);
-        
-        // Format results for display
-        let statusMessage = `📊 Homestead Migration Status\n\n`;
-        statusMessage += `Total Homesteads: ${summary.total}\n`;
-        statusMessage += `V2 Resources: ${summary.v2Resources}\n`;
-        statusMessage += `V2 Tiles: ${summary.v2Tiles}\n`;
-        statusMessage += `Grids with V1 Data: ${summary.hasV1Data}\n\n`;
-        
-        statusMessage += `Schema Combinations:\n`;
-        statusCounts.forEach(status => {
-          const { resourcesSchemaVersion, tilesSchemaVersion } = status._id;
-          statusMessage += `Resources:${resourcesSchemaVersion}, Tiles:${tilesSchemaVersion} - ${status.count} homesteads\n`;
-        });
-        
-        alert(statusMessage);
-        updateStatus(`📊 Homesteads: ${summary.v2Resources}/${summary.total} resources migrated, ${summary.v2Tiles}/${summary.total} tiles migrated`);
-      } else {
-        console.error('❌ Failed to check homestead migration status:', response.data);
-        updateStatus('❌ Failed to check homestead migration status.');
-        alert(`Failed to check homestead migration status: ${response.data.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('❌ Error checking homestead migration status:', error);
-      updateStatus('❌ Error checking homestead migration status.');
-      alert('Failed to check homestead migration status. Check console for details.');
-    }
-  };
-
-  const handlePreviewOrphanedHomesteads = async () => {
-    try {
-      console.log('👁️ Previewing orphaned homesteads...');
-      updateStatus('👁️ Checking for orphaned homesteads...');
-      
-      const response = await axios.get(`${API_BASE}/api/preview-orphaned-homesteads`);
-
-      if (response.data.success) {
-        const { summary, sample, totalCount } = response.data;
-        console.log('👁️ Orphaned homesteads preview:', response.data);
-        
-        // Format results for display
-        let previewMessage = `👁️ Orphaned Homesteads Preview\n\n`;
-        previewMessage += `Total Orphaned: ${summary.totalOrphaned}\n`;
-        previewMessage += `Resources V1: ${summary.byResourcesVersion.v1}, V2: ${summary.byResourcesVersion.v2}\n`;
-        previewMessage += `Tiles V1: ${summary.byTilesVersion.v1}, V2: ${summary.byTilesVersion.v2}\n`;
-        previewMessage += `With Data: ${summary.withData}, Without Data: ${summary.withoutData}\n`;
-        previewMessage += `With Activity: ${summary.withActivity}\n\n`;
-        
-        // Staleness breakdown
-        if (summary.staleness) {
-          previewMessage += `📅 Last Activity Analysis:\n`;
-          previewMessage += `• Very Stale (6+ months): ${summary.staleness.veryStale}\n`;
-          previewMessage += `• Stale (3-6 months): ${summary.staleness.stale}\n`;
-          previewMessage += `• Somewhat Stale (1-3 months): ${summary.staleness.somewhatStale}\n`;
-          previewMessage += `• 1 week - 1 month: ${summary.staleness.recentWeek}\n`;
-          previewMessage += `• 3 days - 1 week: ${summary.staleness.recentDays}\n`;
-          previewMessage += `• 1-3 days: ${summary.staleness.veryRecent}\n`;
-          previewMessage += `• Today: ${summary.staleness.today}\n`;
-          previewMessage += `• No Activity Timestamp: ${summary.staleness.noActivityTimestamp}\n\n`;
-        }
-        
-        // Creation info
-        if (summary.creationInfo) {
-          previewMessage += `📆 Creation Info:\n`;
-          previewMessage += `• With CreatedAt: ${summary.creationInfo.withCreatedAt}\n`;
-          previewMessage += `• Missing CreatedAt: ${summary.creationInfo.withoutCreatedAt}\n\n`;
-        }
-        
-        if (sample.length > 0) {
-          previewMessage += `Sample (first ${sample.length}):\n`;
-          sample.forEach((homestead, index) => {
-            const createdDate = homestead.createdAt ? new Date(homestead.createdAt).toLocaleDateString() : 'Unknown';
-            
-            // Calculate staleness for this sample (excluding createdAt from activity)
-            const lastActivity = homestead.playersInGridLastUpdated || homestead.NPCsInGridLastUpdated || homestead.lastOptimized || homestead.updatedAt;
-            let stalenessText = 'No activity timestamp';
-            if (lastActivity) {
-              const daysSince = Math.floor((new Date() - new Date(lastActivity)) / (1000 * 60 * 60 * 24));
-              if (daysSince > 180) stalenessText = `${daysSince}d (Very Stale)`;
-              else if (daysSince > 90) stalenessText = `${daysSince}d (Stale)`;
-              else if (daysSince > 30) stalenessText = `${daysSince}d (Somewhat Stale)`;
-              else if (daysSince > 7) stalenessText = `${daysSince}d`;
-              else if (daysSince > 3) stalenessText = `${daysSince}d`;
-              else if (daysSince > 1) stalenessText = `${daysSince}d`;
-              else if (daysSince === 1) stalenessText = `1d`;
-              else stalenessText = `Today (${daysSince}d)`;
-            }
-            
-            // Check for data presence
-            const hasData = (homestead.resources && homestead.resources.length > 0) ||
-                           (homestead.resourcesV2 && homestead.resourcesV2.length > 0) ||
-                           (homestead.tiles && homestead.tiles.length > 0) ||
-                           (homestead.tilesV2 && homestead.tilesV2.length > 0);
-            const dataText = hasData ? '📦' : '📭';
-            
-            // Add grid version and creation info
-            const gridVersion = homestead.__v !== undefined ? `v${homestead.__v}` : 'v?';
-            const createdText = homestead.createdAt ? `Created: ${createdDate}` : 'Created: Unknown';
-            
-            previewMessage += `${index + 1}. ${dataText} Grid: ${homestead._id.substring(0, 8)}... (${gridVersion}), ${createdText}, Last Activity: ${stalenessText}\n`;
-          });
-        }
-        
-        alert(previewMessage);
-        updateStatus(`👁️ Found ${totalCount} orphaned homesteads`);
-      } else {
-        console.error('❌ Failed to preview orphaned homesteads:', response.data);
-        updateStatus('❌ Failed to preview orphaned homesteads.');
-        alert(`Failed to preview orphaned homesteads: ${response.data.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('❌ Error previewing orphaned homesteads:', error);
-      updateStatus('❌ Error previewing orphaned homesteads.');
-      alert('Failed to preview orphaned homesteads. Check console for details.');
-    }
-  };
-
-  const handleDeleteOrphanedHomesteads = async () => {
-    // Initial confirmation
-    const confirmed = window.confirm(
-      `⚠️ DELETE ORPHANED HOMESTEADS ⚠️\n\n` +
-      `This will permanently delete all homestead grids that have no corresponding player.\n\n` +
-      `Based on your data:\n` +
-      `• 295 total homesteads\n` +
-      `• 170 valid players\n` +
-      `• ~125 orphaned homesteads to delete\n\n` +
-      `This action CANNOT be undone!\n\n` +
-      `Continue with dry run first?`
-    );
-
-    if (!confirmed) return;
-
-    try {
-      // First, do a dry run
-      console.log('🧪 Running dry run for orphaned homesteads deletion...');
-      updateStatus('🧪 Performing dry run...');
-      
-      const dryRunResponse = await axios.post(`${API_BASE}/api/delete-orphaned-homesteads`, {
-        confirm: true,
-        dryRun: true
-      });
-
-      if (dryRunResponse.data.success) {
-        const { details, orphanedSample } = dryRunResponse.data;
-        const orphanedToDelete = details.orphanedToDelete;
-        console.log('🧪 Dry run results:', dryRunResponse.data);
-        
-        // Show dry run results
-        let dryRunMessage = `🧪 DRY RUN RESULTS\n\n`;
-        dryRunMessage += `Total Homesteads: ${details.totalHomesteads}\n`;
-        dryRunMessage += `Valid Players: ${details.playerCount}\n`;
-        dryRunMessage += `Orphaned to Delete: ${orphanedToDelete}\n`;
-        dryRunMessage += `Valid Remaining: ${details.validHomesteadsRemaining}\n\n`;
-        
-        if (orphanedSample.length > 0) {
-          dryRunMessage += `Sample orphaned (first 5):\n`;
-          orphanedSample.forEach((homestead, index) => {
-            const createdDate = homestead.createdAt ? new Date(homestead.createdAt).toLocaleDateString() : 'Unknown';
-            dryRunMessage += `${index + 1}. Grid: ${homestead._id.substring(0, 8)}..., Created: ${createdDate}\n`;
-          });
-        }
-        
-        dryRunMessage += `\nProceed with actual deletion?`;
-        
-        const proceedConfirmed = window.confirm(dryRunMessage);
-        if (!proceedConfirmed) return;
-
-        // Final confirmation for actual deletion
-        const finalConfirmed = window.confirm(
-          `⚠️ FINAL CONFIRMATION ⚠️\n\n` +
-          `You are about to PERMANENTLY DELETE ${orphanedToDelete} orphaned homesteads.\n\n` +
-          `This will free up database space and clean up orphaned data.\n` +
-          `The ${details.validHomesteadsRemaining} valid homesteads will remain untouched.\n\n` +
-          `Type "DELETE ORPHANED" in the next prompt to continue...`
-        );
-
-        if (!finalConfirmed) return;
-
-        const deleteConfirmation = window.prompt(
-          `Type "DELETE ORPHANED" to confirm deletion:`
-        );
-
-        if (deleteConfirmation !== "DELETE ORPHANED") {
-          alert("Deletion cancelled - confirmation text did not match.");
-          return;
-        }
-
-        // Perform actual deletion
-        console.log('🗑️ Starting orphaned homesteads deletion...');
-        updateStatus('🗑️ Deleting orphaned homesteads...');
-        
-        const deleteResponse = await axios.post(`${API_BASE}/api/delete-orphaned-homesteads`, {
-          confirm: true,
-          dryRun: false
-        });
-
-        if (deleteResponse.data.success) {
-          const { deleted, errors, details: finalDetails } = deleteResponse.data;
-          console.log('✅ Orphaned homesteads cleanup completed:', deleteResponse.data);
-          updateStatus(`✅ Cleanup complete: ${deleted} deleted, ${errors} errors`);
-          
-          // Show success results
-          const successMessage = 
-            `✅ Orphaned Homesteads Cleanup Complete!\n\n` +
-            `Deleted: ${deleted} orphaned homesteads\n` +
-            `Errors: ${errors}\n\n` +
-            `Before: ${finalDetails.beforeCounts.homesteads} homesteads, ${finalDetails.beforeCounts.players} players\n` +
-            `After: ${finalDetails.afterCounts.homesteads} homesteads, ${finalDetails.afterCounts.players} players\n\n` +
-            `Match Expected: ${finalDetails.afterCounts.expectedMatch ? 'YES' : 'NO'}\n\n` +
-            `Database space has been freed by removing orphaned data.`;
-          
-          alert(successMessage);
-        } else {
-          console.error('❌ Orphaned homesteads deletion failed:', deleteResponse.data);
-          updateStatus('❌ Orphaned homesteads deletion failed.');
-          alert(`Orphaned homesteads deletion failed: ${deleteResponse.data.error || 'Unknown error'}`);
-        }
-      } else {
-        console.error('❌ Dry run failed:', dryRunResponse.data);
-        updateStatus('❌ Dry run failed.');
-        alert(`Dry run failed: ${dryRunResponse.data.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('❌ Error during orphaned homesteads cleanup:', error);
-      updateStatus('❌ Error during orphaned homesteads cleanup.');
-      alert('Orphaned homesteads cleanup failed. Check console for details.');
-    }
-  };
-
 
   return (
     <Panel onClose={onClose} titleKey="1120" panelName="DebugPanel">
+      {/* Performance Metrics Section */}
+      <div style={{ 
+        backgroundColor: '#f0f0f0', 
+        padding: '10px', 
+        marginBottom: '15px', 
+        borderRadius: '5px',
+        fontFamily: 'monospace',
+        fontSize: '12px'
+      }}>
+        <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>⚡ Performance Metrics</h3>
+        
+        {/* Canvas Toggle Button */}
+        <div style={{ marginBottom: '10px' }}>
+          <button 
+            className="btn-basic btn-neutral"
+            onClick={() => setUseCanvasTiles(!useCanvasTiles)}
+            style={{ fontSize: '12px', padding: '5px 10px' }}
+          >
+            {useCanvasTiles ? '🖼️ Switch to DOM Tiles' : '🎨 Switch to Canvas Tiles'}
+          </button>
+        </div>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+          <div>
+            <strong>FPS:</strong> <span style={{ color: performanceMetrics.fps >= 30 ? 'green' : performanceMetrics.fps >= 15 ? 'orange' : 'red' }}>
+              {performanceMetrics.fps}
+            </span>
+          </div>
+          <div>
+            <strong>Render Mode:</strong> <span style={{ color: performanceMetrics.renderMode === 'Canvas' ? 'green' : 'blue' }}>
+              {performanceMetrics.renderMode}
+            </span>
+          </div>
+          <div>
+            <strong>DOM Elements:</strong> {performanceMetrics.domElementCount.toLocaleString()}
+          </div>
+          {performanceMetrics.memoryUsage > 0 && (
+            <div>
+              <strong>Memory:</strong> {performanceMetrics.memoryUsage} MB
+            </div>
+          )}
+        </div>
+      </div>
+      
       <div className="shared-buttons">
         <button className="btn-basic btn-danger" onClick={handleCreateNewFrontier}> Create New Frontier </button>
       </div>
@@ -1659,55 +1018,6 @@ const handleGetRich = async () => {
       </div>
       <div className="shared-buttons">
         <button className="btn-basic btn-success" onClick={handleGetSkills}> Get Skills </button>
-      </div>
-
-      <h3>📦 Database Optimization</h3>
-      <h4>Resources:</h4>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-warning" onClick={handleGenerateCompactDBResources}> Generate Compact DB Resources for This Grid </button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-danger" onClick={handleDeleteOldDBResourcesSchema}> Delete Old DB Resources Schema for This Grid </button>
-      </div>
-      <h4>Tiles:</h4>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-warning" onClick={handleGenerateCompactDBTiles}> Generate Compact DB Tiles for This Grid </button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-danger" onClick={handleDeleteOldDBTilesSchema}> Delete Old DB Tiles Schema for This Grid </button>
-      </div>
-      
-      <h4>Bulk Migration (Non-Homesteads):</h4>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-warning" onClick={handleBulkMigrateValleysTowns}> Generate V2 DB for Valleys and Towns </button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-danger" onClick={handleBulkDeleteValleysTownsV1}> Delete V1 DB for Valleys and Towns </button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-info" onClick={handleCheckMigrationStatus}> Check Migration Status </button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-info" onClick={handleDebugUnmigratedGrids}> Debug Unmigrated Grids </button>
-      </div>
-      
-      <h4>Bulk Migration (Homesteads):</h4>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-warning" onClick={handleBulkMigrateHomesteads}> Generate V2 DB for Homesteads </button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-danger" onClick={handleBulkDeleteHomesteadsV1}> Delete V1 DB for Homesteads </button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-info" onClick={handleCheckHomesteadMigrationStatus}> Check Homestead Migration Status </button>
-      </div>
-      
-      <h4>Orphaned Homesteads Cleanup:</h4>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-info" onClick={handlePreviewOrphanedHomesteads}> 👁️ Preview Orphaned Homesteads </button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-danger" onClick={handleDeleteOrphanedHomesteads}> 🗑️ Delete Orphaned Homesteads </button>
       </div>
 
         <h3>Create Single Valley Grid</h3>

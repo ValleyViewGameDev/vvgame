@@ -1,6 +1,6 @@
 
 :root {
-  --settlement-background-color: #4CAF50; /* Configurable green */
+  --settlement-background-color: #c0834a; /* Dirt background for rounded corners */
   --settlement-gridline-color: #45a049; /* Slightly darker green for gridlines */
 }
 
@@ -9,7 +9,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Chewy', serif;
-  background-color: var(--settlement-gridline-color, #45a049); /* Use same green as grids */
+  background-color: var(--settlement-background-color, #c0834a); /* Use dirt background */
 }
 
 /* Shift base panel and others to the right */

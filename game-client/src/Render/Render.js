@@ -3,6 +3,8 @@ import { startAmbientVFX, stopAmbientVFX } from '../VFX/AmbientVFX';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { getOverlayContent } from './RenderDynamic';
 import { getLocalizedString } from '../Utils/stringLookup';
+import { RenderTiles } from './RenderTiles';
+import { RenderTilesCanvas } from './RenderTilesCanvas';
 import './Render.css';
 import '../App.css';
 
@@ -62,7 +64,7 @@ export function generateResourceTooltip(resource, strings) {
 }
 
 export const RenderGrid = memo(
-  ({ grid, tileTypes, resources, handleTileClick, TILE_SIZE, setHoverTooltip, currentPlayer, strings, badgeState, electionPhase }) => {
+  ({ grid, tileTypes, resources, handleTileClick, TILE_SIZE, setHoverTooltip, currentPlayer, strings, badgeState, electionPhase, useCanvasTiles = false }) => {
 
     const [, forceTick] = useState(0);
       useEffect(() => {
@@ -143,20 +145,42 @@ export const RenderGrid = memo(
       return acc;
     }, { ready: [] });
 
-    // Render tiles and resources
-    return grid.map((row, rowIndex) =>
-      row.map((tile, colIndex) => {
-        // Check if this tile is part of a multi-tile resource
-        const resource = resources.find((res) => {
-          const range = res.range || 1;
-          // Check if the current tile falls within the resource's range
-          // Resource is anchored at lower-left (res.x, res.y)
-          return colIndex >= res.x && colIndex < res.x + range &&
-                 rowIndex <= res.y && rowIndex > res.y - range;
-        });
-        const tileType = tileTypes[rowIndex]?.[colIndex] || 'unknown';
-        const tileClass = `tile-${tileType}`;
-        const key = `${colIndex}-${rowIndex}`;
+    // Render tiles and resources with proper layering
+    return (
+      <>
+        {/* Layer 1: Tiles with rounded corners (z-index 1-2) */}
+        {useCanvasTiles ? (
+          <RenderTilesCanvas 
+            grid={grid}
+            tileTypes={tileTypes}
+            TILE_SIZE={TILE_SIZE}
+            handleTileClick={handleTileClick}
+          />
+        ) : (
+          <RenderTiles 
+            grid={grid}
+            tileTypes={tileTypes}
+            TILE_SIZE={TILE_SIZE}
+            handleTileClick={handleTileClick}
+          />
+        )}
+        
+        {/* Layer 2: Resources and overlays (z-index 10+) */}
+        {grid.map((row, rowIndex) =>
+          row.map((tile, colIndex) => {
+            // Check if this tile is part of a multi-tile resource
+            const resource = resources.find((res) => {
+              const range = res.range || 1;
+              // Check if the current tile falls within the resource's range
+              // Resource is anchored at lower-left (res.x, res.y)
+              return colIndex >= res.x && colIndex < res.x + range &&
+                     rowIndex <= res.y && rowIndex > res.y - range;
+            });
+            
+            // Only render if there's a resource or overlay to show
+            if (!resource) return null;
+            
+            const key = `${colIndex}-${rowIndex}`;
         
         // For multi-tile resources, check crafting status against anchor coordinates
         let isCraftReady = false;
@@ -184,47 +208,42 @@ export const RenderGrid = memo(
           isCraftInProgress = craftingStatus.inProgress.includes(key);
         }
 
-        return (
-          <div
-            key={`${rowIndex}-${colIndex}-${resource?.symbol || ''}`}
-            onClick={() => handleTileClick(rowIndex, colIndex)}
-            onMouseEnter={(event) => {
-              if (resource && resource.category !== 'doober' && resource.category !== 'source') {
-                const rect = event.currentTarget.getBoundingClientRect();
-                const updateTooltip = () => {
-                  setHoverTooltip({
-                    x: rect.left + rect.width / 2,
-                    y: rect.top,
-                    content: generateResourceTooltip(resource, strings),
-                  });
-                };
-                updateTooltip(); // Immediate render
-                hoverTimersRef.current[key] = setInterval(updateTooltip, 1000); // Store interval ID
-              }
-            }}
-            onMouseLeave={() => {
-              if (hoverTimersRef.current[key]) {
-                clearInterval(hoverTimersRef.current[key]);
-                delete hoverTimersRef.current[key];
-              }
-              setHoverTooltip(null);
-            }}
-            className={tileClass}
-            style={{
-              position: 'absolute',
-              top: rowIndex * TILE_SIZE,
-              left: colIndex * TILE_SIZE,
-              width: TILE_SIZE,
-              height: TILE_SIZE,
-              fontSize: `${TILE_SIZE * 0.7}px`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: resource && resource.x === colIndex && resource.y === rowIndex && resource.range > 1 ? 10 : 1,
-              cursor: resource ? 'pointer' : 'default',
-              overflow: resource && resource.x === colIndex && resource.y === rowIndex && resource.range > 1 ? 'visible' : 'hidden',
-            }}
-          >
+            return (
+              <div
+                key={`resource-${rowIndex}-${colIndex}-${resource?.symbol || ''}`}
+                onClick={() => handleTileClick(rowIndex, colIndex)}
+                onMouseEnter={(event) => {
+                  if (resource.category !== 'doober' && resource.category !== 'source') {
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    const updateTooltip = () => {
+                      setHoverTooltip({
+                        x: rect.left + rect.width / 2,
+                        y: rect.top,
+                        content: generateResourceTooltip(resource, strings),
+                      });
+                    };
+                    updateTooltip(); // Immediate render
+                    hoverTimersRef.current[key] = setInterval(updateTooltip, 1000); // Store interval ID
+                  }
+                }}
+                onMouseLeave={() => {
+                  if (hoverTimersRef.current[key]) {
+                    clearInterval(hoverTimersRef.current[key]);
+                    delete hoverTimersRef.current[key];
+                  }
+                  setHoverTooltip(null);
+                }}
+                style={{
+                  position: 'absolute',
+                  top: rowIndex * TILE_SIZE,
+                  left: colIndex * TILE_SIZE,
+                  width: TILE_SIZE,
+                  height: TILE_SIZE,
+                  cursor: 'pointer',
+                  zIndex: 10, // Above tiles but below PCs (16) and NPCs (15)
+                  pointerEvents: resource && resource.x === colIndex && resource.y === rowIndex ? 'auto' : 'none',
+                }}
+              >
             {/* Resource Overlay - only render at anchor position for multi-tile resources */}
             {resource && resource.x === colIndex && resource.y === rowIndex && (
               <div
@@ -241,13 +260,18 @@ export const RenderGrid = memo(
                   height: resource.range > 1 ? `${TILE_SIZE * resource.range}px` : 'auto',
                   position: resource.range > 1 ? 'absolute' : 'static',
                   left: resource.range > 1 ? '0' : 'auto',
-                  top: resource.range > 1 ? `-${TILE_SIZE * (resource.range - 1)}px` : 'auto',
+                  top: resource.range > 1 
+                    ? resource.action === 'wall' 
+                      ? `${-TILE_SIZE * (resource.range - 1) + 5}px` // Multi-tile walls shifted down 2px
+                      : `-${TILE_SIZE * (resource.range - 1)}px` // Other multi-tile resources
+                    : 'auto',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  zIndex: resource.range > 1 ? 10 : 2, // Higher z-index for multi-tile
+                  zIndex: resource.range > 1 ? 12 : 11, // Above tiles but below NPCs and PCs
                   pointerEvents: 'none',
                   overflow: 'visible',
+                  lineHeight: resource.action === 'wall' ? '1' : 'normal',
                 }}
               >
                 {resource.symbol || ''}
@@ -349,9 +373,11 @@ export const RenderGrid = memo(
                 {getOverlayContent('inprogress').emoji}
               </div>
             )}
-          </div>
-        );
-      })
+              </div>
+            );
+          })
+        )}
+      </>
     );
   }
 );

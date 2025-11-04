@@ -36,7 +36,7 @@ class GridResourceManager {
   }
 
   /**
-   * Load resources from a grid document (handles both V1 and V2 during transition)
+   * Load resources from a grid document
    * @param {Object} grid - The grid document from MongoDB
    * @returns {Array} - Array of decoded resource objects
    */
@@ -52,18 +52,18 @@ class GridResourceManager {
     if (grid.resources && grid.resources.length > 0) {
       const firstResource = grid.resources[0];
       
-      // Check if this is V1 format (object with type) or V2 format (array)
+      // Check if this is legacy format (object with type) or encoded format (array)
       if (Array.isArray(firstResource)) {
-        // V2 format - decode normally
+        // Encoded format - decode normally
         try {
           return this.decodeResourcesV2(grid.resources);
         } catch (error) {
-          console.error('❌ Failed to decode V2 resources:', error);
+          console.error('❌ Failed to decode resources:', error);
           throw error;
         }
       } else if (typeof firstResource === 'object' && firstResource.type) {
-        // V1 format - return raw resources
-        console.warn(`⚠️ Grid ${grid._id} still has V1 format resources - returning raw data`);
+        // Legacy format - return raw resources
+        console.warn(`⚠️ Grid ${grid._id} has unexpected resource format`);
         return grid.resources;
       }
     }
@@ -72,7 +72,7 @@ class GridResourceManager {
   }
 
   /**
-   * Decode v2 format resources
+   * Decode encoded resources
    * @param {Array} encodedResources - Array of encoded resource arrays
    * @returns {Array} - Array of decoded resource objects
    */
@@ -84,13 +84,13 @@ class GridResourceManager {
     try {
       return this.encoder.decodeResources(encodedResources);
     } catch (error) {
-      console.error('❌ Failed to decode v2 resources:', error);
-      throw new Error(`Failed to decode v2 resources: ${error.message}`);
+      console.error('❌ Failed to decode resources:', error);
+      throw new Error(`Failed to decode resources: ${error.message}`);
     }
   }
 
   /**
-   * Encode resources to v2 format
+   * Encode resources
    * @param {Array} resources - Array of resource objects
    * @returns {Array} - Array of encoded resource arrays
    */
@@ -102,13 +102,13 @@ class GridResourceManager {
     try {
       return this.encoder.encodeResources(resources);
     } catch (error) {
-      console.error('❌ Failed to encode resources to v2:', error);
-      throw new Error(`Failed to encode resources to v2: ${error.message}`);
+      console.error('❌ Failed to encode resources:', error);
+      throw new Error(`Failed to encode resources: ${error.message}`);
     }
   }
 
   /**
-   * Update a single resource in the grid (V2 format only)
+   * Update a single resource in the grid
    * @param {Object} grid - The grid document
    * @param {Object} resourceUpdate - The resource to update/add
    * @returns {Object} - Updated grid document (not saved)
@@ -118,7 +118,7 @@ class GridResourceManager {
       throw new Error('GridResourceManager not initialized');
     }
 
-    // V2-only: All grids now use compressed resources
+    // All grids now use compressed resources
     if (!grid.resources) grid.resources = [];
     
     try {
@@ -148,7 +148,7 @@ class GridResourceManager {
   }
 
   /**
-   * Get statistics about resource storage (V2 format only)
+   * Get statistics about resource storage
    * @param {Object} grid - The grid document
    * @returns {Object} - Statistics about storage usage
    */
@@ -156,7 +156,6 @@ class GridResourceManager {
     if (!grid) return { error: 'No grid provided' };
 
     const stats = {
-      schemaVersion: 'v2',
       resourceCount: grid.resources ? grid.resources.length : 0,
       lastOptimized: grid.lastOptimized || null
     };
@@ -170,7 +169,7 @@ class GridResourceManager {
   }
 
   /**
-   * Validate resource data integrity (V2 format only)
+   * Validate resource data integrity
    * @param {Object} grid - The grid document
    * @returns {Object} - Validation result
    */
@@ -187,7 +186,7 @@ class GridResourceManager {
       return result;
     }
 
-    // Check V2 resources
+    // Check resources
     if (grid.resources) {
       try {
         if (!Array.isArray(grid.resources)) {

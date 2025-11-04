@@ -458,7 +458,7 @@ findNearestResource(targetResource, tiles, resources, excludePositions = []) {
         Math.floor(npc.position?.y) === res.y
       );
       if (otherAnimalAtStall) {
-        console.log(`Stall at (${res.x}, ${res.y}) is occupied, skipping`);
+        //console.log(`Stall at (${res.x}, ${res.y}) is occupied, skipping`);
         return false;
       }
     }

@@ -9,7 +9,7 @@ class GridTileManager {
   }
 
   /**
-   * Load tiles from a grid document (V2 format only)
+   * Load tiles from a grid document
    * @param {Object} grid - The grid document from MongoDB
    * @returns {Array<Array<string>>} - 64x64 2D array of tile types
    */
@@ -18,7 +18,7 @@ class GridTileManager {
       return this.createEmptyTileGrid();
     }
 
-    // V2-only: All grids now use compressed tiles field
+    // All grids now use compressed tiles field
     if (grid.tiles && typeof grid.tiles === 'string') {
       return this.decodeTilesV2(grid.tiles);
     }
@@ -27,7 +27,7 @@ class GridTileManager {
   }
 
   /**
-   * Decode v2 format tiles
+   * Decode tiles
    * @param {string} encodedTiles - Base64 encoded compressed tile data
    * @returns {Array<Array<string>>} - 64x64 2D array of tile types
    */
@@ -35,13 +35,13 @@ class GridTileManager {
     try {
       return TileEncoder.decode(encodedTiles);
     } catch (error) {
-      console.error('❌ Failed to decode v2 tiles:', error);
-      throw new Error(`Failed to decode v2 tiles: ${error.message}`);
+      console.error('❌ Failed to decode tiles:', error);
+      throw new Error(`Failed to decode tiles: ${error.message}`);
     }
   }
 
   /**
-   * Encode tiles to v2 format
+   * Encode tiles
    * @param {Array<Array<string>>} tiles - 64x64 2D array of tile types
    * @returns {string} - Base64 encoded compressed tile data
    */
@@ -49,13 +49,13 @@ class GridTileManager {
     try {
       return TileEncoder.encode(tiles);
     } catch (error) {
-      console.error('❌ Failed to encode tiles to v2:', error);
-      throw new Error(`Failed to encode tiles to v2: ${error.message}`);
+      console.error('❌ Failed to encode tiles:', error);
+      throw new Error(`Failed to encode tiles: ${error.message}`);
     }
   }
 
   /**
-   * Update a single tile in the grid (V2 format only)
+   * Update a single tile in the grid
    * @param {Object} grid - The grid document
    * @param {number} x - X coordinate (0-63)
    * @param {number} y - Y coordinate (0-63)  
@@ -73,7 +73,7 @@ class GridTileManager {
       throw new Error(`Invalid tile type: ${newTileType}. Valid types: ${TileEncoder.getSupportedTileTypes().join(', ')}`);
     }
 
-    // V2-only: All grids now use compressed tiles
+    // All grids now use compressed tiles
     if (!grid.tiles) {
       // Create default grass grid if no tiles exist
       const defaultTiles = this.createEmptyTileGrid();
@@ -126,7 +126,7 @@ class GridTileManager {
   }
 
   /**
-   * Get statistics about tile storage (V2 format only)
+   * Get statistics about tile storage
    * @param {Object} grid - The grid document
    * @returns {Object} - Statistics about storage usage
    */
@@ -134,7 +134,6 @@ class GridTileManager {
     if (!grid) return { error: 'No grid provided' };
 
     const stats = {
-      schemaVersion: 'v2',
       hasTiles: !!(grid.tiles && typeof grid.tiles === 'string'),
       lastOptimized: grid.lastOptimized || null
     };
@@ -148,7 +147,7 @@ class GridTileManager {
   }
 
   /**
-   * Validate tile data integrity (V2 format only)
+   * Validate tile data integrity
    * @param {Object} grid - The grid document
    * @returns {Object} - Validation result
    */

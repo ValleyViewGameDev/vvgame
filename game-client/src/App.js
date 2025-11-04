@@ -138,6 +138,7 @@ useEffect(() => {
   const { uiLocked } = useUILock();
   const [isDeveloper, setIsDeveloper] = useState(false);
   const [isMayor, setIsMayor] = useState(false);
+  const [useCanvasTiles, setUseCanvasTiles] = useState(true);
   const { activeModal, setActiveModal, openModal, closeModal } = useModalContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
@@ -358,7 +359,7 @@ useEffect(() => {
     }
     
     GlobalGridStateTilesAndResources.setResources(cleanedResources);
-    console.log('GlobalGridStateTilesAndResources resources updated:', cleanedResources);
+    //console.log('GlobalGridStateTilesAndResources resources updated:', cleanedResources);
   }
 }, [resources, masterResources]);
 
@@ -1343,6 +1344,8 @@ useEffect(() => {
     if (zoomLevel === 'frontier' || zoomLevel === 'settlement') { return; }  // Prevent input if zoomed out
     const activeElement = document.activeElement;
     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; } // Prevent movement if a text input is focused
+    
+    
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
 
     handleMovementKeyDown(event, currentPlayer, activeTileSize, masterResources,
@@ -2051,6 +2054,7 @@ return (
           strings={strings}
           badgeState={badgeState}
           electionPhase={timers.elections.phase}
+          useCanvasTiles={useCanvasTiles}
         />
         <DynamicRenderer
           TILE_SIZE={activeTileSize}
@@ -2261,6 +2265,8 @@ return (
           setGridId={setGridId}
           setTileTypes={setTileTypes}
           closeAllPanels={closeAllPanels}
+          useCanvasTiles={useCanvasTiles}
+          setUseCanvasTiles={setUseCanvasTiles}
         />
       )}
       {activePanel === 'InventoryPanel' && (
