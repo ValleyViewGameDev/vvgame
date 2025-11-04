@@ -58,6 +58,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
     isStateMachineEnabled: false,
     isTeleportEnabled: false,
     toggleVFX: true,
+    renderSVGResources: false,
   });
 
   // Initialize form fields and local settings
@@ -69,6 +70,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         isTeleportEnabled: settings?.isTeleportEnabled ?? false,
         toggleVFX: settings?.toggleVFX ?? true,
         rangeOn: settings?.rangeOn ?? true,
+        renderSVGResources: settings?.renderSVGResources ?? false,
       });
   
       setFormData({
@@ -359,6 +361,15 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         <div className="shared-buttons">
           <button className="btn-basic btn-success" onClick={handleLanguage}>
             🌎 {LANGUAGE_OPTIONS.find(l => l.code === currentPlayer.language)?.label || 'Language'}
+          </button>
+        </div>
+
+        <div className="shared-buttons">
+          <button
+            className={`btn-basic ${localSettings.renderSVGResources ? 'btn-success' : 'btn-neutral'}`}
+            onClick={() => handleToggleChange('renderSVGResources')}
+          >
+            🎨 Render SVG Resources: {localSettings.renderSVGResources ? 'is ON' : 'is OFF'}
           </button>
         </div>
 

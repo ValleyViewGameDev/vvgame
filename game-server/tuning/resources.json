@@ -105,8 +105,7 @@
     "minprice": 1,
     "maxprice": 1,
     "ingredient4qty": 1,
-    "gemcost": 0.125,
-    "money_gem_anchor": 8
+    "gemcost": 0.125
   },
   {
     "type": "Stub",
@@ -413,7 +412,8 @@
     "validonw": false,
     "validonl": false,
     "validonn": false,
-    "validono": true
+    "validono": true,
+    "filename": "oak-tree.svg"
   },
   {
     "type": "Pine Tree",
@@ -3927,7 +3927,8 @@
     "validonw": false,
     "validonl": false,
     "validonn": true,
-    "validono": true
+    "validono": true,
+    "filename": "farmhouse.svg"
   },
   {
     "type": "Restaurant",

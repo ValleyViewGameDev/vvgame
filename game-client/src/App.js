@@ -139,6 +139,7 @@ useEffect(() => {
   const [isDeveloper, setIsDeveloper] = useState(false);
   const [isMayor, setIsMayor] = useState(false);
   const [useCanvasTiles, setUseCanvasTiles] = useState(true);
+  const [useCanvasResources, setUseCanvasResources] = useState(false);
   const { activeModal, setActiveModal, openModal, closeModal } = useModalContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
@@ -277,6 +278,13 @@ useEffect(() => {
   };
   const seasonData = getSeasonData();
   const [currentPlayer, setCurrentPlayer] = useState(null); // Ensure this is defined
+
+  // Sync canvas resources setting with player data
+  useEffect(() => {
+    if (currentPlayer?.settings?.renderSVGResources !== undefined) {
+      setUseCanvasResources(currentPlayer.settings.renderSVGResources);
+    }
+  }, [currentPlayer?.settings?.renderSVGResources]);
 
   // Initialize gridId with localStorage (do not depend on currentPlayer here)
   const [gridId, setGridId] = useState(() => {
@@ -2047,6 +2055,8 @@ return (
           grid={memoizedGrid}
           tileTypes={memoizedTileTypes}
           resources={memoizedResources}
+          masterResources={masterResources}
+          globalTuning={globalTuning}
           handleTileClick={handleTileClick}
           TILE_SIZE={activeTileSize}
           setHoverTooltip={setHoverTooltip}
@@ -2055,6 +2065,7 @@ return (
           badgeState={badgeState}
           electionPhase={timers.elections.phase}
           useCanvasTiles={useCanvasTiles}
+          useCanvasResources={useCanvasResources}
         />
         <DynamicRenderer
           TILE_SIZE={activeTileSize}

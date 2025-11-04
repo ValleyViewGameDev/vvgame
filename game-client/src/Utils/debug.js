@@ -10,6 +10,7 @@ import NPCsInGridManager from '../GridState/GridStateNPCs'; // Use default expor
 import playersInGridManager from '../GridState/PlayersInGrid';
 import GridStateDebugPanel from './GridStateDebug';
 import { generateTownGrids, generateValleyGrids, createSingleValleyGrid } from './WorldGeneration';
+import { updatePlayerSettings } from '../settings';
 
 const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, setResources, currentGridId, updateStatus, TILE_SIZE, setGrid, setGridId, setTileTypes, closeAllPanels, useCanvasTiles, setUseCanvasTiles }) => {
   const [timers, setTimers] = useState([]);
@@ -923,7 +924,7 @@ const handleGetRich = async () => {
       }}>
         <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>⚡ Performance Metrics</h3>
         
-        {/* Canvas Toggle Button */}
+        {/* Canvas Tiles Toggle Button */}
         <div style={{ marginBottom: '10px' }}>
           <button 
             className="btn-basic btn-neutral"
@@ -931,6 +932,24 @@ const handleGetRich = async () => {
             style={{ fontSize: '12px', padding: '5px 10px' }}
           >
             {useCanvasTiles ? '🖼️ Switch to DOM Tiles' : '🎨 Switch to Canvas Tiles'}
+          </button>
+        </div>
+        
+        {/* SVG Resources Toggle Button */}
+        <div style={{ marginBottom: '10px' }}>
+          <button 
+            className={`btn-basic ${currentPlayer?.settings?.renderSVGResources ? 'btn-success' : 'btn-neutral'}`}
+            onClick={() => {
+              const newValue = !currentPlayer?.settings?.renderSVGResources;
+              const newSettings = {
+                ...currentPlayer?.settings,
+                renderSVGResources: newValue
+              };
+              updatePlayerSettings(newSettings, currentPlayer, setCurrentPlayer);
+            }}
+            style={{ fontSize: '12px', padding: '5px 10px' }}
+          >
+            {currentPlayer?.settings?.renderSVGResources ? '🎨 Switch to DOM Resources' : '🖼️ Switch to SVG Resources'}
           </button>
         </div>
         

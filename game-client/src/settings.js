@@ -18,10 +18,12 @@ export async function updatePlayerSettings(newSettings, currentPlayer, setCurren
 
     console.log('Updating settings on server:', newSettings);
 
-    // Send update to server
-    const response = await axios.post(`${API_BASE}/api/update-settings`, {
+    // Send update to server using update-profile API
+    const response = await axios.post(`${API_BASE}/api/update-profile`, {
       playerId: currentPlayer.playerId,
-      settings: newSettings,
+      updates: {
+        settings: newSettings
+      }
     });
 
     if (response.data.success) {

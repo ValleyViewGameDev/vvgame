@@ -5,6 +5,7 @@ import { getOverlayContent } from './RenderDynamic';
 import { getLocalizedString } from '../Utils/stringLookup';
 import { RenderTiles } from './RenderTiles';
 import { RenderTilesCanvas } from './RenderTilesCanvas';
+import { RenderResourcesCanvas } from './RenderResourcesCanvas';
 import './Render.css';
 import '../App.css';
 
@@ -64,7 +65,7 @@ export function generateResourceTooltip(resource, strings) {
 }
 
 export const RenderGrid = memo(
-  ({ grid, tileTypes, resources, handleTileClick, TILE_SIZE, setHoverTooltip, currentPlayer, strings, badgeState, electionPhase, useCanvasTiles = false }) => {
+  ({ grid, tileTypes, resources, masterResources, globalTuning, handleTileClick, TILE_SIZE, setHoverTooltip, currentPlayer, strings, badgeState, electionPhase, useCanvasTiles = false, useCanvasResources = false }) => {
 
     const [, forceTick] = useState(0);
       useEffect(() => {
@@ -165,8 +166,98 @@ export const RenderGrid = memo(
           />
         )}
         
-        {/* Layer 2: Resources and overlays (z-index 10+) */}
-        {grid.map((row, rowIndex) =>
+        {/* Layer 2a: Canvas Resources (only for resources with SVG files when enabled) */}
+        {useCanvasResources && (
+          <RenderResourcesCanvas
+            resources={resources}
+            masterResources={masterResources}
+            globalTuning={globalTuning}
+            TILE_SIZE={TILE_SIZE}
+            handleTileClick={handleTileClick}
+            onMouseEnter={(event, resource, rowIndex, colIndex) => {
+              const rect = event.currentTarget.getBoundingClientRect();
+              setHoverTooltip({
+                x: rect.left + rect.width / 2,
+                y: rect.top,
+                content: generateResourceTooltip(resource, strings),
+              });
+            }}
+            onMouseLeave={() => {
+              setHoverTooltip(null);
+            }}
+          />
+        )}
+        
+        {/* Layer 2a.5: SVG Resource Overlays (when canvas mode is on) */}
+        {useCanvasResources && 
+        resources.map((resource) => {
+          const CUSTOM_ART_MAPPING = {
+            'Farmhouse': 'farmhouse.svg',
+            'Oak Tree': 'oak-tree.svg',
+          };
+          
+          // Only render overlays for SVG resources at their anchor position
+          if (!CUSTOM_ART_MAPPING[resource.type]) return null;
+          
+          const key = `svg-overlay-${resource.x}-${resource.y}`;
+          
+          // Check crafting status
+          const resourceKey = `${resource.x}-${resource.y}`;
+          const isCraftReady = craftingStatus.ready.includes(resourceKey);
+          const isCraftInProgress = craftingStatus.inProgress.includes(resourceKey);
+          const isTradingReady = tradingStatus.ready.includes(resourceKey);
+          
+          return (
+            <div
+              key={key}
+              style={{
+                position: 'absolute',
+                top: resource.y * TILE_SIZE,
+                left: resource.x * TILE_SIZE,
+                width: TILE_SIZE,
+                height: TILE_SIZE,
+                zIndex: 12, // Above canvas resources
+                pointerEvents: 'none',
+              }}
+            >
+              {/* Overlays for SVG resources */}
+              {isCraftReady && (
+                <div
+                  className="game-overlay"
+                  style={{
+                    color: getOverlayContent('ready').color,
+                  }}
+                >
+                  {getOverlayContent('ready').emoji}
+                </div>
+              )}
+              {isCraftInProgress && (
+                <div
+                  className="game-overlay"
+                  style={{
+                    color: getOverlayContent('inprogress').color,
+                  }}
+                >
+                  {getOverlayContent('inprogress').emoji}
+                </div>
+              )}
+              {isTradingReady && resource.type === 'Trading Post' && (
+                <div
+                  className="game-overlay"
+                  style={{
+                    color: getOverlayContent('ready').color,
+                  }}
+                >
+                  {getOverlayContent('ready').emoji}
+                </div>
+              )}
+            </div>
+          );
+        })}
+        
+        {/* Layer 2b: DOM Resources and overlays (z-index 10+) - always render, but skip SVG resources when canvas mode is on */}
+        { 
+        grid.map((row, rowIndex) =>
           row.map((tile, colIndex) => {
             // Check if this tile is part of a multi-tile resource
             const resource = resources.find((res) => {
@@ -179,6 +270,15 @@ export const RenderGrid = memo(
             
             // Only render if there's a resource or overlay to show
             if (!resource) return null;
+            
+            // Skip creating DOM elements for SVG resources when canvas mode is enabled
+            const CUSTOM_ART_MAPPING = {
+              'Farmhouse': 'farmhouse.svg',
+              'Oak Tree': 'oak-tree.svg',
+            };
+            if (useCanvasResources && CUSTOM_ART_MAPPING[resource.type]) {
+              return null; // Let canvas handle completely - no DOM elements at all
+            }
             
             const key = `${colIndex}-${rowIndex}`;
         
@@ -251,7 +351,7 @@ export const RenderGrid = memo(
                 style={{
                   fontSize: resource.range > 1 
                     ? resource.action === 'wall'
-                      ? `${TILE_SIZE * 1.1 * resource.range}px` // Multi-tile walls
+                      ? `${TILE_SIZE * 1.2 * resource.range}px` // Multi-tile walls
                       : `${TILE_SIZE * 0.8 * resource.range}px` // Other multi-tile resources
                     : resource.action === 'wall'
                       ? `${TILE_SIZE * 1.1}px` // Single-tile walls
@@ -262,7 +362,7 @@ export const RenderGrid = memo(
                   left: resource.range > 1 ? '0' : 'auto',
                   top: resource.range > 1 
                     ? resource.action === 'wall' 
-                      ? `${-TILE_SIZE * (resource.range - 1) + 5}px` // Multi-tile walls shifted down 2px
+                      ? `${-TILE_SIZE * (resource.range - 1) + 3}px` // Multi-tile walls shifted down 2px
                       : `-${TILE_SIZE * (resource.range - 1)}px` // Other multi-tile resources
                     : 'auto',
                   display: 'flex',
