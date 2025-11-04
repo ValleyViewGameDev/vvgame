@@ -484,15 +484,13 @@ router.get('/load-grid/:gridId', async (req, res) => {
     // If we found corrupted crops, save the cleanup to database
     if (needsSave) {
       console.log(`💾 Saving ${cleanedResources.filter((r, i) => r !== loadedResources[i]).length} cleaned crops to database`);
-      // Update using appropriate format - for now, only update v1 format for crop cleanup to maintain compatibility
+      // V2-only: Update with cleaned resources by re-encoding
       try {
-        if (schemaVersion === 'v1') {
-          gridDocument.resources = cleanedResources;
-          gridDocument.markModified('resources');
-          await gridDocument.save();
-        } else {
-          console.warn('⚠️ Crop cleanup needed but grid uses v2 schema - manual intervention required');
-        }
+        const encodedCleanedResources = gridResourceManager.encodeResourcesV2(cleanedResources);
+        gridDocument.resources = encodedCleanedResources;
+        gridDocument.markModified('resources');
+        await gridDocument.save();
+        console.log(`✅ Saved cleaned crops in V2 format`);
       } catch (saveError) {
         console.error('❌ Failed to save cleaned crops:', saveError);
       }
