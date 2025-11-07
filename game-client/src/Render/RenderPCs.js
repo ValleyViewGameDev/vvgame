@@ -1,9 +1,9 @@
 import React from 'react';
-import { RenderPCsCanvas } from './RenderPCsCanvas';
+import { RenderPCsDOM } from './RenderPCsDOM';
 
 /**
- * Main PC (Player Character) rendering component - FORCED TO CANVAS MODE ONLY
- * Only handles the actual PC entities, not their overlays or tooltips
+ * Main PC (Player Character) rendering component - TEMPORARILY USING DOM MODE
+ * Canvas implementation not yet complete, using DOM for PCs only
  */
 export const RenderPCs = ({ 
   pcs,
@@ -15,11 +15,10 @@ export const RenderPCs = ({
   setBackpack,
   masterResources,
   strings,
-  // useCanvasPCs removed - always Canvas mode now
 }) => {
-  // FORCED TO CANVAS MODE - no decision tree
+  // TEMPORARILY USING DOM MODE - Canvas implementation not complete
   return (
-    <RenderPCsCanvas
+    <RenderPCsDOM
       pcs={pcs}
       TILE_SIZE={TILE_SIZE}
       currentPlayer={currentPlayer}
