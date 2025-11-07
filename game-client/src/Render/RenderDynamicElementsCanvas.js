@@ -29,6 +29,7 @@ export const RenderDynamicElementsCanvas = ({
   generatePCTooltip,
   handleTileClick,
   onNPCClick,
+  onPCClick,
   // Additional props needed for NPC interactions
   setInventory,
   setBackpack,
@@ -310,7 +311,19 @@ export const RenderDynamicElementsCanvas = ({
       return;
     }
     
-    // No NPC found, forward to tile/resource handler
+    // Check if there's a PC at this position
+    const pc = pcs?.find(p => 
+      p && p.position && 
+      Math.floor(p.position.x) === colIndex && 
+      Math.floor(p.position.y) === rowIndex
+    );
+    
+    if (pc && onPCClick) {
+      onPCClick(pc);
+      return;
+    }
+    
+    // No NPC or PC found, forward to tile/resource handler
     if (handleTileClick) {
       handleTileClick(rowIndex, colIndex);
     }

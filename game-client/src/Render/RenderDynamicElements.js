@@ -263,6 +263,7 @@ export const RenderDynamicElements = ({
   // Click handlers
   handleTileClick,
   onNPCClick,
+  onPCClick,
   
   // Configuration
   TILE_SIZE,
@@ -350,6 +351,7 @@ export const RenderDynamicElements = ({
         setHoverTooltip={setHoverTooltip}
         handleTileClick={handleTileClick}
         onNPCClick={onNPCClick}
+        onPCClick={onPCClick}
         TILE_SIZE={TILE_SIZE}
         strings={strings}
         generateResourceTooltip={generateResourceTooltip}
