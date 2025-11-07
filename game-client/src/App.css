@@ -428,14 +428,4 @@ body {
   position: absolute;
 }
 
-.tile-g { background-color: #67c257; }
-.tile-s { background-color: #8b989c; }
-.tile-d { background-color: #c0834a; }
-.tile-w { background-color: #58cad8; }
-.tile-l { background-color: #c4583d; }
-.tile-p { background-color: #c5a85d; }
-.tile-n { background-color: #fbde00; }
-.tile-o { background-color: #ffffff; }
-.tile-unknown {
-  background-color: #ff0000; /* A visible color for debugging */
-}
+

@@ -16,7 +16,7 @@ const TILE_ROUNDING_CONFIG = {
 function getTileColor(tileType) {
   const tileColors = {
     g: '#67c257', // grass
-    s: '#8b989c', // stone
+    s: '#9c9b8bff', // stone
     d: '#c0834a', // dirt
     w: '#58cad8', // water
     l: '#c4583d', // lava
@@ -356,6 +356,92 @@ function createTileTexture(tileType, TILE_SIZE, variation = 0, rowIndex, colInde
       ctx.beginPath();
       ctx.arc(lightX, lightY, lightSize/2, 0, Math.PI * 2);
       ctx.fill();
+    }
+  }
+  
+  if (tileType === 's') {
+    // Stone cracks - Y-shaped forking cracks on every 3rd tile
+    const seed = (rowIndex * 73 + colIndex * 137 + variation * 211) % 1000;
+    
+    // Only show cracks on every 3rd tile
+    if (seed % 3 === 0) {
+      const numCracks = 1 + (seed % 2); // 1-2 Y-shaped cracks per tile
+      
+      for (let i = 0; i < numCracks; i++) {
+        const crackSeed = (seed + i * 179) % 1000;
+        const startX = (20 + (crackSeed * 0.6) % 60) / 100 * TILE_SIZE;
+        const startY = (20 + (crackSeed * 1.1) % 60) / 100 * TILE_SIZE;
+        
+        ctx.save();
+        ctx.strokeStyle = `rgba(89, 93, 98, 0.7)`;
+        ctx.lineWidth = Math.max(1, TILE_SIZE * 0.008);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        
+        // Helper function to draw a wiggly line from start to end
+        const drawWigglyLine = (fromX, fromY, toX, toY, wiggleAmount = 0.3) => {
+          const distance = Math.sqrt((toX - fromX) ** 2 + (toY - fromY) ** 2);
+          const segments = Math.max(4, Math.floor(distance / (TILE_SIZE * 0.05))); // Segment every 5% of tile size
+          
+          ctx.moveTo(fromX, fromY);
+          
+          for (let j = 1; j <= segments; j++) {
+            const progress = j / segments;
+            const linearX = fromX + (toX - fromX) * progress;
+            const linearY = fromY + (toY - fromY) * progress;
+            
+            // Add perpendicular wiggle
+            const perpAngle = Math.atan2(toY - fromY, toX - fromX) + Math.PI / 2;
+            const wiggleSeed = (crackSeed + j * 23 + i * 67) % 1000;
+            const wiggleOffset = Math.sin(progress * Math.PI * 2) * wiggleAmount * TILE_SIZE * 0.02;
+            const randomWiggle = ((wiggleSeed * 0.1) % 1 - 0.5) * wiggleAmount * TILE_SIZE * 0.015;
+            
+            const wiggleX = linearX + Math.cos(perpAngle) * (wiggleOffset + randomWiggle);
+            const wiggleY = linearY + Math.sin(perpAngle) * (wiggleOffset + randomWiggle);
+            
+            ctx.lineTo(wiggleX, wiggleY);
+          }
+        };
+        
+        // Main crack stem
+        const mainLength = TILE_SIZE * 0.15 + (crackSeed * 0.01) % (TILE_SIZE * 0.1);
+        const mainAngle = (crackSeed * 0.8) % 360 * Math.PI / 180;
+        const stemEndX = startX + Math.cos(mainAngle) * mainLength;
+        const stemEndY = startY + Math.sin(mainAngle) * mainLength;
+        
+        ctx.beginPath();
+        drawWigglyLine(startX, startY, stemEndX, stemEndY);
+        ctx.stroke();
+        
+        // Fork point - slightly before the end of main stem
+        const forkProgress = 0.6 + (crackSeed * 0.01) % 0.3; // Fork at 60-90% along stem
+        const forkX = startX + Math.cos(mainAngle) * mainLength * forkProgress;
+        const forkY = startY + Math.sin(mainAngle) * mainLength * forkProgress;
+        
+        // Two fork branches
+        const forkLength = mainLength * (0.4 + (crackSeed * 0.01) % 0.3); // 40-70% of main length
+        const forkAngleSpread = 30 + (crackSeed % 40); // 30-70 degree spread
+        
+        // Left fork
+        const leftForkAngle = mainAngle - (forkAngleSpread * Math.PI / 180);
+        const leftEndX = forkX + Math.cos(leftForkAngle) * forkLength;
+        const leftEndY = forkY + Math.sin(leftForkAngle) * forkLength;
+        
+        ctx.beginPath();
+        drawWigglyLine(forkX, forkY, leftEndX, leftEndY, 0.2); // Less wiggle on forks
+        ctx.stroke();
+        
+        // Right fork
+        const rightForkAngle = mainAngle + (forkAngleSpread * Math.PI / 180);
+        const rightEndX = forkX + Math.cos(rightForkAngle) * forkLength;
+        const rightEndY = forkY + Math.sin(rightForkAngle) * forkLength;
+        
+        ctx.beginPath();
+        drawWigglyLine(forkX, forkY, rightEndX, rightEndY, 0.2); // Less wiggle on forks
+        ctx.stroke();
+        
+        ctx.restore();
+      }
     }
   }
   
