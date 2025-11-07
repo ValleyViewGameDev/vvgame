@@ -12,6 +12,7 @@ export const getResourceOverlayStatus = (
   if (!resource) return null;
 
   const resourceKey = `${resource.x}-${resource.y}`;
+  const currentTime = Date.now();
   
   // Check various status conditions
   const isCraftReady = craftingStatus?.ready?.includes(resourceKey);
@@ -39,8 +40,6 @@ export const getResourceOverlayStatus = (
     return { type: 'ready', priority: 1 };
   }
   
-  // Pet status (if we add pet logic later)
-  // TODO: Add pet status logic here
   
   // Courthouse/Election status
   if (resource.type === 'Courthouse') {

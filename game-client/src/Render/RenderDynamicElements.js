@@ -288,13 +288,15 @@ export const RenderDynamicElements = ({
   const currentTime = Date.now();
   
   const craftingStatus = React.useMemo(() => {
-    if (!resources) return { ready: [], searching: [], hungry: [] };
+    if (!resources) return { ready: [], searching: [], hungry: [], inProgress: [] };
     
     return resources.reduce((acc, res) => {
       if ((res.category === 'crafting' || res.category === 'farmhouse') && res.craftEnd) {
         const key = `${res.x}-${res.y}`;
         if (res.craftEnd < currentTime) {
           acc.ready.push(key);
+        } else {
+          acc.inProgress.push(key);
         }
       } else if (res.category === 'farmplot' && res.isSearching) {
         const key = `${res.x}-${res.y}`;
@@ -304,14 +306,18 @@ export const RenderDynamicElements = ({
         if (res.growEnd < currentTime) {
           acc.ready.push(key);
         }
-      } else if (res.category === 'pet' && res.needsFeeding) {
+      } else if (res.category === 'pet') {
         const key = `${res.x}-${res.y}`;
-        if (res.foodTimer < currentTime) {
-          acc.hungry.push(key);
+        if (res.craftEnd && res.craftedItem) {
+          if (res.craftEnd < currentTime) {
+            acc.ready.push(key); // Pet has a reward ready
+          } else {
+            acc.inProgress.push(key); // Pet is feeding
+          }
         }
       }
       return acc;
-    }, { ready: [], searching: [], hungry: [] });
+    }, { ready: [], searching: [], hungry: [], inProgress: [] });
   }, [resources, currentTime]);
 
   // Check for completed trades at Trading Post

@@ -1469,4 +1469,87 @@ router.post('/migrate-warehouse-levels', async (req, res) => {
   }
 });
 
+// POST /api/migrate-grid-resources - Migrate grid resources from legacy to encoded format
+router.post('/migrate-grid-resources', async (req, res) => {
+  try {
+    const { gridIds } = req.body; // Optional array of specific grid IDs to migrate
+    
+    console.log('📦 Starting grid resource migration...');
+    if (gridIds) {
+      console.log(`🎯 Targeting specific grids: ${gridIds.join(', ')}`);
+    }
+    
+    const Grid = require('../models/grid');
+    const fs = require('fs');
+    const path = require('path');
+    const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
+    
+    // Load master resources for encoding
+    const resourcesPath = path.join(__dirname, '../tuning/resources.json');
+    const masterResources = JSON.parse(fs.readFileSync(resourcesPath, 'utf-8'));
+    const encoder = new UltraCompactResourceEncoder(masterResources);
+    
+    // Build query - either specific grids or all legacy grids
+    let query = {
+      "resources.0": {
+        "$exists": true,
+        "$type": "object"
+      },
+      "resources.0.type": {
+        "$exists": true
+      }
+    };
+    
+    // If specific grid IDs provided, add that filter
+    if (gridIds && Array.isArray(gridIds) && gridIds.length > 0) {
+      query._id = { $in: gridIds };
+    }
+    
+    // Find grids with legacy resource format
+    const gridsToMigrate = await Grid.find(query);
+    
+    console.log(`Found ${gridsToMigrate.length} grids needing resource migration`);
+    
+    let migratedCount = 0;
+    let errorCount = 0;
+    
+    for (const grid of gridsToMigrate) {
+      try {
+        const legacyResources = grid.resources;
+        console.log(`🔄 Migrating grid ${grid._id} with ${legacyResources.length} legacy resources`);
+        
+        // Encode the legacy resources
+        const encodedResources = encoder.encodeResources(legacyResources);
+        
+        // Update the grid
+        await Grid.updateOne(
+          { _id: grid._id },
+          { $set: { resources: encodedResources } }
+        );
+        
+        migratedCount++;
+        console.log(`✅ Migrated grid ${grid._id}: ${legacyResources.length} resources encoded`);
+        
+      } catch (error) {
+        errorCount++;
+        console.error(`❌ Error migrating grid ${grid._id}:`, error);
+      }
+    }
+    
+    res.json({
+      success: true,
+      message: `Migration complete. Migrated: ${migratedCount}, Errors: ${errorCount}`,
+      migratedCount,
+      errorCount
+    });
+    
+  } catch (error) {
+    console.error('❌ Error during grid resource migration:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to migrate grid resources' 
+    });
+  }
+});
+
 module.exports = router;
