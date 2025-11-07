@@ -1,586 +1,442 @@
-import React, { memo, useState, useEffect, useRef } from 'react';
-import { startAmbientVFX, stopAmbientVFX } from '../VFX/AmbientVFX';
-import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
-import { getOverlayContent } from './RenderDynamic';
-import { getLocalizedString } from '../Utils/stringLookup';
-import { RenderTiles } from './RenderTiles';
-import { RenderTilesCanvas } from './RenderTilesCanvas';
-import { RenderResourcesCanvas } from './RenderResourcesCanvas';
-import './Render.css';
-import '../App.css';
+// import React, { memo, useState, useEffect, useRef } from 'react';
+// import { startAmbientVFX, stopAmbientVFX } from '../VFX/AmbientVFX';
+// import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
+// import { getOverlayContent } from './RenderDynamic';
+// import { getLocalizedString } from '../Utils/stringLookup';
+// import { RenderTiles } from './RenderTiles';
+// import { RenderTilesCanvas } from './RenderTilesCanvas';
+// import { RenderResourcesCanvas } from './RenderResourcesCanvas';
+// import { getResourceOverlayStatus, OVERLAY_EMOJI_MAPPING } from '../Utils/ResourceOverlayUtils';
+// import './Render.css';
+// import '../App.css';
 
-export function generateResourceTooltip(resource, strings) {
-  if (!resource || resource.category === 'doober' || resource.category === 'source') return '';
+// export function generateResourceTooltip(resource, strings) {
+//   if (!resource || resource.category === 'doober' || resource.category === 'source') return '';
 
-  const lines = [];
+//   const lines = [];
 
-  const currentTime = Date.now();
-  const localizedResourceType = getLocalizedString(resource.type, strings);
+//   const currentTime = Date.now();
+//   const localizedResourceType = getLocalizedString(resource.type, strings);
 
-  switch (resource.category) {
-    case 'farmplot':
-      lines.push(`<p>${localizedResourceType}</p>`);
-      if (resource.growEnd) {
-        const remainingTime = Math.max(0, resource.growEnd - currentTime);
-        const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-        if (remainingTime > 0) {
-          const parts = [];
-          if (days > 0) parts.push(`${days}d`);
-          if (hours > 0) parts.push(`${hours}h`);
-          if (minutes > 0) parts.push(`${minutes}m`);
-          if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
-          lines.push(`<p>🌱 ${parts.join(' ')} remaining</p>`);
-        }
-      }
-      break;
+//   switch (resource.category) {
+//     case 'farmplot':
+//       lines.push(`<p>${localizedResourceType}</p>`);
+//       if (resource.growEnd) {
+//         const remainingTime = Math.max(0, resource.growEnd - currentTime);
+//         const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+//         const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+//         const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+//         const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+//         if (remainingTime > 0) {
+//           const parts = [];
+//           if (days > 0) parts.push(`${days}d`);
+//           if (hours > 0) parts.push(`${hours}h`);
+//           if (minutes > 0) parts.push(`${minutes}m`);
+//           if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
+//           lines.push(`<p>🌱 ${parts.join(' ')} remaining</p>`);
+//         }
+//       }
+//       break;
 
-    case 'crafting':
-      lines.push(`<p>${localizedResourceType}</p>`);
-      if (resource.craftEnd) {
-        const remainingTime = Math.max(0, resource.craftEnd - currentTime);
-        const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-        if (remainingTime > 0) {
-          const parts = [];
-          if (days > 0) parts.push(`${days}d`);
-          if (hours > 0) parts.push(`${hours}h`);
-          if (minutes > 0) parts.push(`${minutes}m`);
-          if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
-          lines.push(`<p>⏳ ${parts.join(' ')} remaining</p>`);
-        }
-      }
-      break;
+//     case 'crafting':
+//       lines.push(`<p>${localizedResourceType}</p>`);
+//       if (resource.craftEnd) {
+//         const remainingTime = Math.max(0, resource.craftEnd - currentTime);
+//         const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+//         const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+//         const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+//         const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+//         if (remainingTime > 0) {
+//           const parts = [];
+//           if (days > 0) parts.push(`${days}d`);
+//           if (hours > 0) parts.push(`${hours}h`);
+//           if (minutes > 0) parts.push(`${minutes}m`);
+//           if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
+//           lines.push(`<p>⏳ ${parts.join(' ')} remaining</p>`);
+//         }
+//       }
+//       break;
 
-    default:
-      lines.push(`<p>${localizedResourceType}</p>`);
-      break;
-  }
+//     default:
+//       lines.push(`<p>${localizedResourceType}</p>`);
+//       break;
+//   }
 
-  return lines.join('');
-}
+//   return lines.join('');
+// }
 
-export const RenderGrid = memo(
-  ({ grid, tileTypes, resources, masterResources, globalTuning, handleTileClick, TILE_SIZE, setHoverTooltip, currentPlayer, strings, badgeState, electionPhase, useCanvasTiles = false, useCanvasResources = false }) => {
+// export const RenderGrid = memo(
+//   ({ grid, tileTypes, resources, masterResources, globalTuning, handleTileClick, TILE_SIZE, setHoverTooltip, currentPlayer, strings, badgeState, electionPhase, useCanvasTiles = false, useCanvasResources = false }) => {
 
-    const [, forceTick] = useState(0);
-      useEffect(() => {
-        const interval = setInterval(() => {
-          forceTick(t => t + 1);
-        }, 1000);
-        return () => clearInterval(interval);
-      }, []);
+//     const [, forceTick] = useState(0);
+//       useEffect(() => {
+//         const interval = setInterval(() => {
+//           forceTick(t => t + 1);
+//         }, 1000);
+//         return () => clearInterval(interval);
+//       }, []);
 
-    const hoverTimersRef = useRef({}); // ✅ Must be before any early return
+//     const hoverTimersRef = useRef({}); // ✅ Must be before any early return
     
-    // Clean up all tooltip timers when component unmounts or resources change
-    useEffect(() => {
-      // Clean up any existing timers when resources change
-      Object.keys(hoverTimersRef.current).forEach(key => {
-        clearInterval(hoverTimersRef.current[key]);
-      });
-      hoverTimersRef.current = {};
+//     // Clean up all tooltip timers when component unmounts or resources change
+//     useEffect(() => {
+//       // Clean up any existing timers when resources change
+//       Object.keys(hoverTimersRef.current).forEach(key => {
+//         clearInterval(hoverTimersRef.current[key]);
+//       });
+//       hoverTimersRef.current = {};
       
-      return () => {
-        Object.keys(hoverTimersRef.current).forEach(key => {
-          clearInterval(hoverTimersRef.current[key]);
-        });
-        hoverTimersRef.current = {};
-      };
-    }, [resources]); // Re-run when resources change
+//       return () => {
+//         Object.keys(hoverTimersRef.current).forEach(key => {
+//           clearInterval(hoverTimersRef.current[key]);
+//         });
+//         hoverTimersRef.current = {};
+//       };
+//     }, [resources]); // Re-run when resources change
 
-    // Validation
-    if (!grid || !Array.isArray(grid) || !tileTypes) { console.error('Invalid grid or tileTypes:', grid, tileTypes); return null; }
-    if (!TILE_SIZE || isNaN(TILE_SIZE)) { console.error('TILE_SIZE is invalid:', TILE_SIZE); return null; }
+//     // Validation
+//     if (!grid || !Array.isArray(grid) || !tileTypes) { console.error('Invalid grid or tileTypes:', grid, tileTypes); return null; }
+//     if (!TILE_SIZE || isNaN(TILE_SIZE)) { console.error('TILE_SIZE is invalid:', TILE_SIZE); return null; }
 
-    const currentTime = Date.now();
+//     const currentTime = Date.now();
 
-    const craftingStatus = resources.reduce((acc, res) => {
-      if ((res.category === 'crafting' || res.category === 'farmhouse') && res.craftEnd) {
-        const key = `${res.x}-${res.y}`;
-        if (res.craftEnd < currentTime) {
-          acc.ready.push(key);
-        } else {
-          acc.inProgress.push(key);
-        }
-      }
-      return acc;
-    }, { ready: [], inProgress: [] });
+//     const craftingStatus = resources.reduce((acc, res) => {
+//       if ((res.category === 'crafting' || res.category === 'farmhouse') && res.craftEnd) {
+//         const key = `${res.x}-${res.y}`;
+//         if (res.craftEnd < currentTime) {
+//           acc.ready.push(key);
+//         } else {
+//           acc.inProgress.push(key);
+//         }
+//       }
+//       return acc;
+//     }, { ready: [], inProgress: [] });
 
-    // Check for pet status
-    const petStatus = resources.reduce((acc, res) => {
-      if (res.category === 'pet') {
-        const key = `${res.x}-${res.y}`;
-        if (res.craftEnd && res.craftedItem) {
-          // Pet has a reward
-          if (res.craftEnd < currentTime) {
-            acc.ready.push(key);
-          } else {
-            acc.searching.push(key);
-          }
-        } else {
-          // Pet is hungry
-          acc.hungry.push(key);
-        }
-      }
-      return acc;
-    }, { ready: [], searching: [], hungry: [] });
+//     // Check for pet status
+//     const petStatus = resources.reduce((acc, res) => {
+//       if (res.category === 'pet') {
+//         const key = `${res.x}-${res.y}`;
+//         if (res.craftEnd && res.craftedItem) {
+//           // Pet has a reward
+//           if (res.craftEnd < currentTime) {
+//             acc.ready.push(key);
+//           } else {
+//             acc.searching.push(key);
+//           }
+//         } else {
+//           // Pet is hungry
+//           acc.hungry.push(key);
+//         }
+//       }
+//       return acc;
+//     }, { ready: [], searching: [], hungry: [] });
 
-    // Check for completed trades at Trading Post
-    const tradingStatus = resources.reduce((acc, res) => {
-      if (res.type === 'Trading Post' && currentPlayer?.tradeStall) {
-        const hasCompletedTrades = currentPlayer.tradeStall.some(trade => 
-          trade && (
-            (trade.sellTime && new Date(trade.sellTime) < currentTime) ||
-            (trade.boughtBy !== null && trade.boughtBy !== undefined)
-          )
-        );
-        if (hasCompletedTrades) {
-          acc.ready.push(`${res.x}-${res.y}`);
-        }
-      }
-      return acc;
-    }, { ready: [] });
+//     // Check for completed trades at Trading Post
+//     const tradingStatus = resources.reduce((acc, res) => {
+//       if (res.type === 'Trading Post' && currentPlayer?.tradeStall) {
+//         const hasCompletedTrades = currentPlayer.tradeStall.some(trade => 
+//           trade && (
+//             (trade.sellTime && new Date(trade.sellTime) < currentTime) ||
+//             (trade.boughtBy !== null && trade.boughtBy !== undefined)
+//           )
+//         );
+//         if (hasCompletedTrades) {
+//           acc.ready.push(`${res.x}-${res.y}`);
+//         }
+//       }
+//       return acc;
+//     }, { ready: [] });
 
-    // Render tiles and resources with proper layering
-    return (
-      <>
-        {/* Layer 1: Tiles with rounded corners (z-index 1-2) */}
-        {useCanvasTiles ? (
-          <RenderTilesCanvas 
-            grid={grid}
-            tileTypes={tileTypes}
-            TILE_SIZE={TILE_SIZE}
-            handleTileClick={handleTileClick}
-          />
-        ) : (
-          <RenderTiles 
-            grid={grid}
-            tileTypes={tileTypes}
-            TILE_SIZE={TILE_SIZE}
-            handleTileClick={handleTileClick}
-          />
-        )}
+//     // Render tiles and resources with proper layering
+//     return (
+//       <>
+//         {/* Layer 1: Tiles with rounded corners (z-index 1-2) */}
+//         {useCanvasTiles ? (
+//           <RenderTilesCanvas 
+//             grid={grid}
+//             tileTypes={tileTypes}
+//             TILE_SIZE={TILE_SIZE}
+//             handleTileClick={handleTileClick}
+//           />
+//         ) : (
+//           <RenderTiles 
+//             grid={grid}
+//             tileTypes={tileTypes}
+//             TILE_SIZE={TILE_SIZE}
+//             handleTileClick={handleTileClick}
+//           />
+//         )}
         
-        {/* Layer 2a: Canvas Resources (only for resources with SVG files when enabled) */}
-        {useCanvasResources && (
-          <RenderResourcesCanvas
-            resources={resources}
-            masterResources={masterResources}
-            globalTuning={globalTuning}
-            TILE_SIZE={TILE_SIZE}
-            handleTileClick={handleTileClick}
-            onMouseEnter={(event, resource, rowIndex, colIndex) => {
-              const rect = event.currentTarget.getBoundingClientRect();
-              setHoverTooltip({
-                x: rect.left + rect.width / 2,
-                y: rect.top,
-                content: generateResourceTooltip(resource, strings),
-              });
-            }}
-            onMouseLeave={() => {
-              setHoverTooltip(null);
-            }}
-          />
-        )}
+//         {/* Layer 2a: DOM Resources and overlays (z-index 10+) - always render, but skip SVG resources when canvas mode is on */}
+//         { 
+//         grid.map((row, rowIndex) =>
+//           row.map((tile, colIndex) => {
+//             // Check if this tile is part of a multi-tile resource
+//             const resource = resources.find((res) => {
+//               const range = res.range || 1;
+//               // Check if the current tile falls within the resource's range
+//               // Resource is anchored at lower-left (res.x, res.y)
+//               return colIndex >= res.x && colIndex < res.x + range &&
+//                      rowIndex <= res.y && rowIndex > res.y - range;
+//             });
+            
+//             // Only render if there's a resource or overlay to show
+//             if (!resource) return null;
+            
+//             // Skip creating DOM elements for SVG resources when canvas mode is enabled
+//             const CUSTOM_ART_MAPPING = {
+//               'Farmhouse': 'farmhouse.svg',
+//               'Oak Tree': 'oak-tree.svg',
+//               'Pine Tree': 'pine-tree.svg',
+//               'Farm House': 'farmhouse.svg',
+//               'Mailbox': 'farmhouse.svg',
+//             };
+            
+//             // Helper function to check if this resource should have canvas overlays instead of DOM
+//             const shouldUseCanvasOverlays = useCanvasResources && CUSTOM_ART_MAPPING[resource.type];
+            
+//             if (shouldUseCanvasOverlays) {
+//               return null; // Let canvas handle completely - no DOM elements at all
+//             }
+            
+//             const key = `${colIndex}-${rowIndex}`;
         
-        {/* Layer 2a.5: SVG Resource Overlays (when canvas mode is on) */}
-        {useCanvasResources && 
-        resources.map((resource) => {
-          const CUSTOM_ART_MAPPING = {
-            'Farmhouse': 'farmhouse.svg',
-            'Oak Tree': 'oak-tree.svg',
-          };
-          
-          // Only render overlays for SVG resources at their anchor position
-          if (!CUSTOM_ART_MAPPING[resource.type]) return null;
-          
-          const key = `svg-overlay-${resource.x}-${resource.y}`;
-          
-          // Check crafting status
-          const resourceKey = `${resource.x}-${resource.y}`;
-          const isCraftReady = craftingStatus.ready.includes(resourceKey);
-          const isCraftInProgress = craftingStatus.inProgress.includes(resourceKey);
-          const isTradingReady = tradingStatus.ready.includes(resourceKey);
-          
-          return (
-            <div
-              key={key}
-              style={{
-                position: 'absolute',
-                top: resource.y * TILE_SIZE,
-                left: resource.x * TILE_SIZE,
-                width: TILE_SIZE,
-                height: TILE_SIZE,
-                zIndex: 12, // Above canvas resources
-                pointerEvents: 'none',
-              }}
-            >
-              {/* Overlays for SVG resources */}
-              {isCraftReady && (
-                <div
-                  className="game-overlay"
-                  style={{
-                    color: getOverlayContent('ready').color,
-                  }}
-                >
-                  {getOverlayContent('ready').emoji}
-                </div>
-              )}
-              {isCraftInProgress && (
-                <div
-                  className="game-overlay"
-                  style={{
-                    color: getOverlayContent('inprogress').color,
-                  }}
-                >
-                  {getOverlayContent('inprogress').emoji}
-                </div>
-              )}
-              {isTradingReady && resource.type === 'Trading Post' && (
-                <div
-                  className="game-overlay"
-                  style={{
-                    color: getOverlayContent('ready').color,
-                  }}
-                >
-                  {getOverlayContent('ready').emoji}
-                </div>
-              )}
-            </div>
-          );
-        })}
+
+//             return (
+//               <div
+//                 key={`resource-${rowIndex}-${colIndex}-${resource?.symbol || ''}`}
+//                 onClick={() => handleTileClick(rowIndex, colIndex)}
+//                 onMouseEnter={(event) => {
+//                   if (resource.category !== 'doober' && resource.category !== 'source') {
+//                     const rect = event.currentTarget.getBoundingClientRect();
+//                     const tooltipContent = generateResourceTooltip(resource, strings);
+//                     const updateTooltip = () => {
+//                       setHoverTooltip({
+//                         x: rect.left + rect.width / 2,
+//                         y: rect.top,
+//                         content: tooltipContent,
+//                       });
+//                     };
+//                     updateTooltip(); // Immediate render
+//                     hoverTimersRef.current[key] = setInterval(updateTooltip, 1000); // Store interval ID
+//                   }
+//                 }}
+//                 onMouseLeave={() => {
+//                   if (hoverTimersRef.current[key]) {
+//                     clearInterval(hoverTimersRef.current[key]);
+//                     delete hoverTimersRef.current[key];
+//                   }
+//                   setHoverTooltip(null);
+//                 }}
+//                 style={{
+//                   position: 'absolute',
+//                   top: rowIndex * TILE_SIZE,
+//                   left: colIndex * TILE_SIZE,
+//                   width: TILE_SIZE,
+//                   height: TILE_SIZE,
+//                   cursor: 'pointer',
+//                   zIndex: 10, // Above tiles but below PCs (16) and NPCs (15)
+//                   pointerEvents: resource && resource.x === colIndex && resource.y === rowIndex ? 'auto' : 'none',
+//                 }}
+//               >
+//             {/* Resource Overlay - only render at anchor position for multi-tile resources */}
+//             {resource && resource.x === colIndex && resource.y === rowIndex && (
+//               <div
+//                 className="resource-overlay"
+//                 style={{
+//                   fontSize: resource.range > 1 
+//                     ? resource.action === 'wall'
+//                       ? `${TILE_SIZE * 1.2 * resource.range}px` // Multi-tile walls
+//                       : `${TILE_SIZE * 0.8 * resource.range}px` // Other multi-tile resources
+//                     : resource.action === 'wall'
+//                       ? `${TILE_SIZE * 1.1}px` // Single-tile walls
+//                       : `${TILE_SIZE * 0.7}px`, // Other single-tile resources
+//                   width: resource.range > 1 ? `${TILE_SIZE * resource.range}px` : 'auto',
+//                   height: resource.range > 1 ? `${TILE_SIZE * resource.range}px` : 'auto',
+//                   position: resource.range > 1 ? 'absolute' : 'static',
+//                   left: resource.range > 1 ? '0' : 'auto',
+//                   top: resource.range > 1 
+//                     ? resource.action === 'wall' 
+//                       ? `${-TILE_SIZE * (resource.range - 1) + 3}px` // Multi-tile walls shifted down 2px
+//                       : `-${TILE_SIZE * (resource.range - 1)}px` // Other multi-tile resources
+//                     : 'auto',
+//                   display: 'flex',
+//                   alignItems: 'center',
+//                   justifyContent: 'center',
+//                   zIndex: resource.range > 1 ? 12 : 11, // Above tiles but below NPCs and PCs
+//                   pointerEvents: 'none',
+//                   overflow: 'visible',
+//                   lineHeight: resource.action === 'wall' ? '1' : 'normal',
+//                 }}
+//               >
+//                 {resource.symbol || ''}
+//               </div>
+//             )}
+
+//             {/* ✅ Unified Resource Overlays - Only render in DOM when canvas mode is disabled */}
+//             {!useCanvasResources && resource && resource.x === colIndex && resource.y === rowIndex && (() => {
+//               // Use shared overlay logic to determine what overlay to show
+//               const overlayInfo = getResourceOverlayStatus(
+//                 resource, 
+//                 craftingStatus, 
+//                 tradingStatus, 
+//                 badgeState, 
+//                 electionPhase,
+//                 currentPlayer
+//               );
+              
+//               if (!overlayInfo) return null;
+              
+//               const emojiMapping = OVERLAY_EMOJI_MAPPING[overlayInfo.type];
+//               if (!emojiMapping) return null;
+              
+//               return (
+//                 <div
+//                   className="game-overlay"
+//                   style={{
+//                     color: emojiMapping.color,
+//                   }}
+//                 >
+//                   {emojiMapping.emoji}
+//                 </div>
+//               );
+//             })()}
+//               </div>
+//             );
+//           })
+//         )}
         
-        {/* Layer 2b: DOM Resources and overlays (z-index 10+) - always render, but skip SVG resources when canvas mode is on */}
-        { 
-        grid.map((row, rowIndex) =>
-          row.map((tile, colIndex) => {
-            // Check if this tile is part of a multi-tile resource
-            const resource = resources.find((res) => {
-              const range = res.range || 1;
-              // Check if the current tile falls within the resource's range
-              // Resource is anchored at lower-left (res.x, res.y)
-              return colIndex >= res.x && colIndex < res.x + range &&
-                     rowIndex <= res.y && rowIndex > res.y - range;
-            });
-            
-            // Only render if there's a resource or overlay to show
-            if (!resource) return null;
-            
-            // Skip creating DOM elements for SVG resources when canvas mode is enabled
-            const CUSTOM_ART_MAPPING = {
-              'Farmhouse': 'farmhouse.svg',
-              'Oak Tree': 'oak-tree.svg',
-            };
-            if (useCanvasResources && CUSTOM_ART_MAPPING[resource.type]) {
-              return null; // Let canvas handle completely - no DOM elements at all
-            }
-            
-            const key = `${colIndex}-${rowIndex}`;
-        
-        // For multi-tile resources, check crafting status against anchor coordinates
-        let isCraftReady = false;
-        let isCraftInProgress = false;
-        let isTradingReady = false;
-        let isPetReady = false;
-        let isPetSearching = false;
-        let isPetHungry = false;
-        
-        if (resource && (resource.category === 'crafting' || resource.category === 'farmhouse')) {
-          const resourceKey = `${resource.x}-${resource.y}`;
-          isCraftReady = craftingStatus.ready.includes(resourceKey);
-          isCraftInProgress = craftingStatus.inProgress.includes(resourceKey);
-        } else if (resource && resource.type === 'Trading Post') {
-          const resourceKey = `${resource.x}-${resource.y}`;
-          isTradingReady = tradingStatus.ready.includes(resourceKey);
-        } else if (resource && resource.category === 'pet') {
-          const resourceKey = `${resource.x}-${resource.y}`;
-          isPetReady = petStatus.ready.includes(resourceKey);
-          isPetSearching = petStatus.searching.includes(resourceKey);
-          isPetHungry = petStatus.hungry.includes(resourceKey);
-        } else {
-          // For regular tiles, use current tile coordinates
-          isCraftReady = craftingStatus.ready.includes(key);
-          isCraftInProgress = craftingStatus.inProgress.includes(key);
-        }
-
-            return (
-              <div
-                key={`resource-${rowIndex}-${colIndex}-${resource?.symbol || ''}`}
-                onClick={() => handleTileClick(rowIndex, colIndex)}
-                onMouseEnter={(event) => {
-                  if (resource.category !== 'doober' && resource.category !== 'source') {
-                    const rect = event.currentTarget.getBoundingClientRect();
-                    const updateTooltip = () => {
-                      setHoverTooltip({
-                        x: rect.left + rect.width / 2,
-                        y: rect.top,
-                        content: generateResourceTooltip(resource, strings),
-                      });
-                    };
-                    updateTooltip(); // Immediate render
-                    hoverTimersRef.current[key] = setInterval(updateTooltip, 1000); // Store interval ID
-                  }
-                }}
-                onMouseLeave={() => {
-                  if (hoverTimersRef.current[key]) {
-                    clearInterval(hoverTimersRef.current[key]);
-                    delete hoverTimersRef.current[key];
-                  }
-                  setHoverTooltip(null);
-                }}
-                style={{
-                  position: 'absolute',
-                  top: rowIndex * TILE_SIZE,
-                  left: colIndex * TILE_SIZE,
-                  width: TILE_SIZE,
-                  height: TILE_SIZE,
-                  cursor: 'pointer',
-                  zIndex: 10, // Above tiles but below PCs (16) and NPCs (15)
-                  pointerEvents: resource && resource.x === colIndex && resource.y === rowIndex ? 'auto' : 'none',
-                }}
-              >
-            {/* Resource Overlay - only render at anchor position for multi-tile resources */}
-            {resource && resource.x === colIndex && resource.y === rowIndex && (
-              <div
-                className="resource-overlay"
-                style={{
-                  fontSize: resource.range > 1 
-                    ? resource.action === 'wall'
-                      ? `${TILE_SIZE * 1.2 * resource.range}px` // Multi-tile walls
-                      : `${TILE_SIZE * 0.8 * resource.range}px` // Other multi-tile resources
-                    : resource.action === 'wall'
-                      ? `${TILE_SIZE * 1.1}px` // Single-tile walls
-                      : `${TILE_SIZE * 0.7}px`, // Other single-tile resources
-                  width: resource.range > 1 ? `${TILE_SIZE * resource.range}px` : 'auto',
-                  height: resource.range > 1 ? `${TILE_SIZE * resource.range}px` : 'auto',
-                  position: resource.range > 1 ? 'absolute' : 'static',
-                  left: resource.range > 1 ? '0' : 'auto',
-                  top: resource.range > 1 
-                    ? resource.action === 'wall' 
-                      ? `${-TILE_SIZE * (resource.range - 1) + 3}px` // Multi-tile walls shifted down 2px
-                      : `-${TILE_SIZE * (resource.range - 1)}px` // Other multi-tile resources
-                    : 'auto',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  zIndex: resource.range > 1 ? 12 : 11, // Above tiles but below NPCs and PCs
-                  pointerEvents: 'none',
-                  overflow: 'visible',
-                  lineHeight: resource.action === 'wall' ? '1' : 'normal',
-                }}
-              >
-                {resource.symbol || ''}
-              </div>
-            )}
-
-            {/* ✅ Add Checkmark for Ready Crafting Stations */}
-            {isCraftReady && (!resource || resource.range <= 1 || (resource.x === colIndex && resource.y === rowIndex)) && (
-              <div
-                className="game-overlay"
-                style={{
-                  color: getOverlayContent('ready').color,
-                }}
-              >
-                {getOverlayContent('ready').emoji}
-              </div>
-            )}
-
-            {/* ✅ Add Timer (⌛️) for Crafting Stations Still in Progress */}
-            {isCraftInProgress && (!resource || resource.range <= 1 || (resource.x === colIndex && resource.y === rowIndex)) && (
-              <div
-                className="game-overlay"
-                style={{
-                  color: getOverlayContent('inprogress').color,
-                }}
-              >
-                {getOverlayContent('inprogress').emoji}
-              </div>
-            )}
-
-            {/* ✅ Add Checkmark for Trading Post with completed trades */}
-            {isTradingReady && resource && resource.type === 'Trading Post' && resource.x === colIndex && resource.y === rowIndex && (
-              <div
-                className="game-overlay"
-                style={{
-                  color: getOverlayContent('ready').color,
-                }}
-              >
-                {getOverlayContent('ready').emoji}
-              </div>
-            )}
-
-            {/* ✅ Add Checkmark for Mailbox with unread messages */}
-            {badgeState?.mailbox && resource && resource.type === 'Mailbox' && resource.x === colIndex && resource.y === rowIndex && (
-              <div
-                className="game-overlay"
-                style={{
-                  color: getOverlayContent('ready').color,
-                }}
-              >
-                {getOverlayContent('ready').emoji}
-              </div>
-            )}
-            
-            {/* ✅ Add Clock/Checkmark for Courthouse based on election phase */}
-            {resource && resource.type === 'Courthouse' && resource.x === colIndex && resource.y === rowIndex && (
-              <>
-                {electionPhase === 'Campaigning' && (
-                  <div
-                    className="game-overlay"
-                    style={{
-                      color: getOverlayContent('campaign').color,
-                    }}
-                  >
-                    {getOverlayContent('campaign').emoji}
-                  </div>
-                )}
-                {electionPhase === 'Voting' && (
-                  <div
-                    className="game-overlay"
-                    style={{
-                      color: getOverlayContent('voting').color,
-                    }}
-                  >
-                    {getOverlayContent('voting').emoji}
-                  </div>
-                )}
-              </>
-            )}
-            
-            {/* ✅ Add overlays for Pets */}
-            {isPetReady && resource && resource.category === 'pet' && resource.x === colIndex && resource.y === rowIndex && (
-              <div
-                className="game-overlay"
-                style={{
-                  color: getOverlayContent('ready').color,
-                }}
-              >
-                {getOverlayContent('ready').emoji}
-              </div>
-            )}
-            {isPetSearching && resource && resource.category === 'pet' && resource.x === colIndex && resource.y === rowIndex && (
-              <div
-                className="game-overlay"
-                style={{
-                  color: getOverlayContent('inprogress').color,
-                }}
-              >
-                {getOverlayContent('inprogress').emoji}
-              </div>
-            )}
-              </div>
-            );
-          })
-        )}
-      </>
-    );
-  }
-);
+//         {/* Layer 2b: Canvas Resources (only for resources with SVG files when enabled) - AFTER DOM resources for proper event handling */}
+//         {useCanvasResources && (
+//           <RenderResourcesCanvas
+//             resources={resources}
+//             masterResources={masterResources}
+//             globalTuning={globalTuning}
+//             TILE_SIZE={TILE_SIZE}
+//             craftingStatus={craftingStatus}
+//             tradingStatus={tradingStatus}
+//             badgeState={badgeState}
+//             electionPhase={electionPhase}
+//             currentPlayer={currentPlayer}
+//             handleTileClick={handleTileClick}
+//             onMouseEnter={(event, resource, rowIndex, colIndex) => {
+//               // Use mouse position for Canvas mode instead of element center
+//               const tooltipContent = generateResourceTooltip(resource, strings);
+//               setHoverTooltip({
+//                 x: event.clientX,
+//                 y: event.clientY - 10,
+//                 content: tooltipContent,
+//               });
+//             }}
+//             onMouseLeave={() => {
+//               setHoverTooltip(null);
+//             }}
+//           />
+//         )}
+//       </>
+//     );
+//   }
+// );
 
 
-export const RenderVFX = ({ toggleVFX }) => {
-  // useEffect(() => {
-  //   if (toggleVFX) {
-  //     startAmbientVFX();
-  //   } else {
-  //     stopAmbientVFX();
-  //   }
-  //   return () => {
-  //     stopAmbientVFX(); // Clean up on unmount
-  //   };
-  // }, [toggleVFX]);
+// export const RenderVFX = ({ toggleVFX }) => {
+//   // useEffect(() => {
+//   //   if (toggleVFX) {
+//   //     startAmbientVFX();
+//   //   } else {
+//   //     stopAmbientVFX();
+//   //   }
+//   //   return () => {
+//   //     stopAmbientVFX(); // Clean up on unmount
+//   //   };
+//   // }, [toggleVFX]);
 
-  return null;
-};
+//   return null;
+// };
 
 
-export const RenderTooltip = memo(({ resource, npc, pc, tooltipPosition, isTooltipVisible }) => {
-  // ✅ Always define hooks at the top
-  const [craftingCountdown, setCraftingCountdown] = useState(null);
-  const [farmingCountdown, setFarmingCountdown] = useState(null);
+// export const RenderTooltip = memo(({ resource, npc, pc, tooltipPosition, isTooltipVisible }) => {
+//   // ✅ Always define hooks at the top
+//   const [craftingCountdown, setCraftingCountdown] = useState(null);
+//   const [farmingCountdown, setFarmingCountdown] = useState(null);
 
-  // ✅ Prevent the effect from running unnecessarily
-  useEffect(() => {
-    if (!resource) {
-      setCraftingCountdown(null);
-      setFarmingCountdown(null);
-      return;
-    }
+//   // ✅ Prevent the effect from running unnecessarily
+//   useEffect(() => {
+//     if (!resource) {
+//       setCraftingCountdown(null);
+//       setFarmingCountdown(null);
+//       return;
+//     }
 
-    const updateCountdowns = () => {
-      if (resource.craftEnd) {
-        const remainingTime = Math.max(0, resource.craftEnd - Date.now());
-        setCraftingCountdown(remainingTime);
-      }
+//     const updateCountdowns = () => {
+//       if (resource.craftEnd) {
+//         const remainingTime = Math.max(0, resource.craftEnd - Date.now());
+//         setCraftingCountdown(remainingTime);
+//       }
 
-      if (resource.growEnd) {
-        const remainingTime = Math.max(0, resource.growEnd - Date.now());
-        setFarmingCountdown(remainingTime);
-      }
-    };
+//       if (resource.growEnd) {
+//         const remainingTime = Math.max(0, resource.growEnd - Date.now());
+//         setFarmingCountdown(remainingTime);
+//       }
+//     };
 
-    updateCountdowns(); // Initial fetch
-    const timer = setInterval(updateCountdowns, 1000); // Update every second
+//     updateCountdowns(); // Initial fetch
+//     const timer = setInterval(updateCountdowns, 1000); // Update every second
 
-    return () => clearInterval(timer);
-  }, [resource]); // ✅ Depend on `resource` so it updates correctly
+//     return () => clearInterval(timer);
+//   }, [resource]); // ✅ Depend on `resource` so it updates correctly
 
-  // ✅ Prevent tooltip from rendering empty content
-  if (!isTooltipVisible || (!resource && !npc && !pc)) return null;
+//   // ✅ Prevent tooltip from rendering empty content
+//   if (!isTooltipVisible || (!resource && !npc && !pc)) return null;
 
-  const tooltipContent = [];
-  const entity = npc || pc || resource; // Prioritize NPCs > PCs > Resources
+//   const tooltipContent = [];
+//   const entity = npc || pc || resource; // Prioritize NPCs > PCs > Resources
 
-  // ✅ Tooltip content logic
-  switch (entity.category) {
+//   // ✅ Tooltip content logic
+//   switch (entity.category) {
 
-    case 'source':
-    case 'doober':
-      break;
+//     case 'source':
+//     case 'doober':
+//       break;
 
-    case 'farmplot':
-      tooltipContent.push(`${entity.type}`);
-      if (farmingCountdown !== null && farmingCountdown > 0) {
-        const minutes = Math.floor((farmingCountdown % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((farmingCountdown % (1000 * 60)) / 1000);
-        tooltipContent.push(`🌱 ${minutes}m ${seconds}s remaining`);
-      }
-      break;
+//     case 'farmplot':
+//       tooltipContent.push(`${entity.type}`);
+//       if (farmingCountdown !== null && farmingCountdown > 0) {
+//         const minutes = Math.floor((farmingCountdown % (1000 * 60 * 60)) / (1000 * 60));
+//         const seconds = Math.floor((farmingCountdown % (1000 * 60)) / 1000);
+//         tooltipContent.push(`🌱 ${minutes}m ${seconds}s remaining`);
+//       }
+//       break;
 
-    case 'crafting':
-      tooltipContent.push(`${entity.type}`);
-      if (craftingCountdown !== null && craftingCountdown > 0) {
-        const minutes = Math.floor((craftingCountdown % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((craftingCountdown % (1000 * 60)) / 1000);
-        tooltipContent.push(`⏳ ${minutes}m ${seconds}s remaining`);
-      }
-      break;
+//     case 'crafting':
+//       tooltipContent.push(`${entity.type}`);
+//       if (craftingCountdown !== null && craftingCountdown > 0) {
+//         const minutes = Math.floor((craftingCountdown % (1000 * 60 * 60)) / (1000 * 60));
+//         const seconds = Math.floor((craftingCountdown % (1000 * 60)) / 1000);
+//         tooltipContent.push(`⏳ ${minutes}m ${seconds}s remaining`);
+//       }
+//       break;
 
-    default:
-      tooltipContent.push(`${entity.type}`);
-      break;
-  }
+//     default:
+//       tooltipContent.push(`${entity.type}`);
+//       break;
+//   }
 
-  if (tooltipContent.length === 0) return null; // Avoid rendering empty tooltips
+//   if (tooltipContent.length === 0) return null; // Avoid rendering empty tooltips
 
-  return (
-    <div
-        className="HoverTooltip"
-        style={{
-        position: 'absolute',
-        top: tooltipPosition.y,
-        left: tooltipPosition.x,
-        zIndex: 20, // Above all
-      }}
-    >
-      {tooltipContent.map((line, index) => (
-        <p key={index}>{line}</p>
-      ))}
-    </div>
-  );
-});
+//   return (
+//     <div
+//         className="HoverTooltip"
+//         style={{
+//         position: 'absolute',
+//         top: tooltipPosition.y,
+//         left: tooltipPosition.x,
+//         zIndex: 20, // Above all
+//       }}
+//     >
+//       {tooltipContent.map((line, index) => (
+//         <p key={index}>{line}</p>
+//       ))}
+//     </div>
+//   );
+// });

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { handleAttackOnPC } from '../GameFeatures/Combat/Combat';
 import ConversationManager from '../GameFeatures/Relationships/ConversationManager';
 import { getDerivedRange } from '../Utils/worldHelpers';
+import { renderPositions } from '../PlayerMovement';
 import './PCComponent.css';
 
 const PCComponent = ({ 
@@ -17,7 +18,6 @@ const PCComponent = ({
   strings,
   setHoverTooltip
 }) => {
-  const [position, setPosition] = useState({ x: pc.position.x, y: pc.position.y });
   const [isHovered, setIsHovered] = useState(false);
   // Health bar removed - using tooltips instead
   const [conversationIcon, setConversationIcon] = useState(null);
@@ -27,10 +27,33 @@ const PCComponent = ({
   const hoverTimeoutRef = useRef(null);
   const prevTileSizeRef = useRef(TILE_SIZE);
 
-  // Update position when PC moves
+  // State to force re-renders during animation
+  const [, forceUpdate] = useState({});
+  
+  // Use renderPositions for interpolated movement, fallback to pc.position
+  const overridePos = renderPositions[pc.playerId];
+  const position = overridePos || pc.position;
+  
+  // Animation loop to update position from renderPositions
   useEffect(() => {
-    setPosition(pc.position);
-  }, [pc.position]);
+    let animationFrameId;
+    
+    const updatePosition = () => {
+      // Force re-render if we have an override position
+      if (renderPositions[pc.playerId]) {
+        forceUpdate({});
+      }
+      animationFrameId = requestAnimationFrame(updatePosition);
+    };
+    
+    animationFrameId = requestAnimationFrame(updatePosition);
+    
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [pc.playerId]);
   
   // Detect TILE_SIZE changes to disable transitions
   const tileSizeChanged = prevTileSizeRef.current !== TILE_SIZE;
@@ -139,7 +162,6 @@ const PCComponent = ({
             borderRadius: '50%',
             pointerEvents: 'none',
             zIndex: 10,
-            transition: tileSizeChanged ? 'none' : 'left 0.2s ease-out, top 0.2s ease-out',
           }}
         />
       )}
@@ -158,7 +180,6 @@ const PCComponent = ({
             borderRadius: '50%',
             pointerEvents: 'none',
             zIndex: 11,
-            transition: tileSizeChanged ? 'none' : 'left 0.2s ease-out, top 0.2s ease-out',
           }}
         />
       )}
@@ -180,7 +201,6 @@ const PCComponent = ({
         zIndex: 16,
         pointerEvents: 'auto',
         cursor: pc.hp > 25 ? 'crosshair' : 'pointer',
-        transition: tileSizeChanged ? 'none' : 'left 0.2s ease-out, top 0.2s ease-out',
       }}
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
@@ -191,50 +211,9 @@ const PCComponent = ({
         {pc.hp === 0 ? '💀' : pc.hp < 20 ? '🤢' : isCamping ? '🏕️' : isInBoat ? '🛶' : pc.icon}
       </span>
 
-      {/* Conversation speech bubble */}
-      {speechBubble && (
-        <div 
-          className={`conversation-speech-bubble pc${speechBubble.isMatch ? ' match' : ''}`}
-          style={{
-            position: 'absolute',
-            left: '50%',
-            bottom: '100%',
-            transform: 'translateX(-50%)',
-            marginBottom: `${TILE_SIZE * 0.2}px`,
-            width: `${TILE_SIZE * 1.5}px`,
-            height: `${TILE_SIZE * 1.5}px`,
-            fontSize: `${TILE_SIZE * 0.6}px`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            pointerEvents: 'none',
-            zIndex: 17,
-          }}
-        >
-          <div className="speech-emoji" style={{ fontSize: `${TILE_SIZE * 0.9}px` }}>
-            {speechBubble.topic || speechBubble.emoji}
-          </div>
-        </div>
-      )}
+      {/* Conversation speech bubble - Moved to RenderDynamicElements */}
       
-      {/* Relationship outcome VFX */}
-      {relationshipOutcome && (
-        <div 
-          className="relationship-outcome"
-          style={{
-            position: 'absolute',
-            left: '50%',
-            bottom: '100%',
-            transform: 'translateX(-50%)',
-            marginBottom: `${TILE_SIZE * 0.2}px`,
-            pointerEvents: 'none',
-            zIndex: 18,
-            fontSize: `${TILE_SIZE * 0.8}px`,
-          }}
-        >
-          {relationshipOutcome.type === 'positive' ? '👍' : '❌'}
-        </div>
-      )}
+      {/* Relationship outcome VFX - Moved to RenderDynamicElements */}
 
       {/* Health bar - removed to avoid duplicate UI */}
 

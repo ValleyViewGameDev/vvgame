@@ -125,7 +125,11 @@ const playerSchema = new mongoose.Schema({
   settings: {
     isStateMachineEnabled: { type: Boolean, default: false },
     isTeleportEnabled: { type: Boolean, default: false },
-    renderSVGResources: { type: Boolean, default: false },
+    renderCanvasResources: { type: Boolean, default: false },
+    renderCanvasTiles: { type: Boolean, default: false },
+    renderCanvasNPCs: { type: Boolean, default: false },
+    renderCanvasPCs: { type: Boolean, default: false },
+    renderCanvasDynamic: { type: Boolean, default: false },  
     toggleVFX: { type: Boolean, default: true },
     hasDied: { type: Boolean, default: false },
     rangeOn: { type: Boolean, default: true },

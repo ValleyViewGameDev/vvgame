@@ -2,6 +2,7 @@ import './App.css';
 import './GameFeatures/Chat/Chat.css';
 import './VFX/VFX.css';
 import './UI/SharedButtons.css';
+import './Render/Tooltip.css';
 import axios from 'axios';
 import API_BASE from './config.js';
 import Chat from './GameFeatures/Chat/Chat';
@@ -9,11 +10,15 @@ import React, { useContext, useState, useEffect, useLayoutEffect, memo, useMemo,
 import { registerNotificationClickHandler } from './UI/Notifications/Notifications';
 import { initializeGrid } from './AppInit';
 import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies, loadMasterWarehouse } from './Utils/TuningManager';
-import { RenderGrid } from './Render/Render';
-import DynamicRenderer from './Render/RenderDynamicNew.js';
+import { RenderTilesCanvas } from './Render/RenderTilesCanvas';
+import { RenderResources } from './Render/RenderResources';
+import { RenderNPCs } from './Render/RenderNPCs';
+import { RenderPCs } from './Render/RenderPCs';
+import { RenderDynamicElements, checkQuestNPCStatus, checkTradeNPCStatus, checkKentNPCStatus, generateResourceTooltip, generateNPCTooltip, generatePCTooltip } from './Render/RenderDynamicElements';
 import { handleResourceClick } from './ResourceClicking';
 import { isMobile } from './Utils/appUtils';
 import { useUILock } from './UI/UILockContext';
+import questCache from './Utils/QuestCache';
 
 import socket from './socketManager';
 import {
@@ -138,8 +143,9 @@ useEffect(() => {
   const { uiLocked } = useUILock();
   const [isDeveloper, setIsDeveloper] = useState(false);
   const [isMayor, setIsMayor] = useState(false);
-  const [useCanvasTiles, setUseCanvasTiles] = useState(true);
   const [useCanvasResources, setUseCanvasResources] = useState(false);
+  const [useCanvasNPCs, setUseCanvasNPCs] = useState(false);
+  const [useCanvasPCs, setUseCanvasPCs] = useState(false);
   const { activeModal, setActiveModal, openModal, closeModal } = useModalContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
@@ -279,12 +285,18 @@ useEffect(() => {
   const seasonData = getSeasonData();
   const [currentPlayer, setCurrentPlayer] = useState(null); // Ensure this is defined
 
-  // Sync canvas resources setting with player data
+  // Sync canvas settings with player data
   useEffect(() => {
-    if (currentPlayer?.settings?.renderSVGResources !== undefined) {
-      setUseCanvasResources(currentPlayer.settings.renderSVGResources);
+    if (currentPlayer?.settings?.renderCanvasResources !== undefined) {
+      setUseCanvasResources(currentPlayer.settings.renderCanvasResources);
     }
-  }, [currentPlayer?.settings?.renderSVGResources]);
+    if (currentPlayer?.settings?.renderCanvasNPCs !== undefined) {
+      setUseCanvasNPCs(currentPlayer.settings.renderCanvasNPCs);
+    }
+    if (currentPlayer?.settings?.renderCanvasPCs !== undefined) {
+      setUseCanvasPCs(currentPlayer.settings.renderCanvasPCs);
+    }
+  }, [currentPlayer?.settings]);
 
   // Initialize gridId with localStorage (do not depend on currentPlayer here)
   const [gridId, setGridId] = useState(() => {
@@ -491,6 +503,7 @@ const handlePCClick = (pc) => {
 };
 
 const [hoverTooltip, setHoverTooltip] = useState(null);
+
 
 const [controllerUsername, setControllerUsername] = useState(null); // Add state for controller username
 const [isSocketConnected, setIsSocketConnected] = useState(false);
@@ -899,7 +912,6 @@ useEffect(() => {
       return;
     }
     const isController = controllerUsername === currentPlayer?.username;
-    //console.log("🧑‍🌾 NPC Controller Username =", controllerUsername, "; currentPlayer =", currentPlayer?.username, "; isController =", isController);
 
     if (isController) {
       Object.values(currentGridNPCs).forEach((npc) => {
@@ -917,6 +929,19 @@ useEffect(() => {
         //console.log(`[🐮 NPC LOOP] Controller running update() for NPC ${npc.id}, state=${npc.state}`);
         npc.update(Date.now(), NPCsInGrid[gridId], gridId, activeTileSize);
       });
+      
+      // Trigger React state update after all NPCs have been updated
+      // This ensures Canvas mode re-renders with new positions
+      const updatedGridState = NPCsInGridManager.getNPCsInGrid(gridId);
+      if (updatedGridState?.npcs) {
+        NPCsInGridManager.setAllNPCs(gridId, updatedGridState.npcs);
+        console.log('🔄 NPC update loop: Triggered state update, sample NPC:', 
+          Object.values(updatedGridState.npcs)[0] ? {
+            id: Object.values(updatedGridState.npcs)[0].id,
+            pos: `${Object.values(updatedGridState.npcs)[0].position?.x},${Object.values(updatedGridState.npcs)[0].position?.y}`
+          } : 'none'
+        );
+      }
     } else {
       //console.log('🛑 Not the NPC controller. Skipping NPC updates.');
     }
@@ -1753,6 +1778,18 @@ const handleLoginSuccess = async (player) => {
   ///////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////
 
+  // Extract NPCs and PCs for the current grid (only when rendering game board)
+  const npcs = React.useMemo(() => {
+    if (zoomLevel === 'far' || zoomLevel === 'closer' || zoomLevel === 'close') {
+      const npcArray = Object.values(NPCsInGrid?.[gridId]?.npcs || {});
+      return npcArray;
+    }
+    return [];
+  }, [NPCsInGrid, gridId, zoomLevel]);
+  
+  const pcs = Object.values(playersInGrid?.[gridId]?.pcs || {});
+
+
 return (
     <>
     <FloatingTextManager />
@@ -2051,23 +2088,74 @@ return (
 
       {zoomLevel === 'far' || zoomLevel === 'closer' || zoomLevel === 'close' ? (
       <>
-        <RenderGrid
+        {/* Layer 1: Tiles */}
+        <RenderTilesCanvas
           grid={memoizedGrid}
           tileTypes={memoizedTileTypes}
+          TILE_SIZE={activeTileSize}
+          handleTileClick={handleTileClick}
+        />
+        
+        {/* Layer 2: Resources */}
+        <RenderResources
           resources={memoizedResources}
           masterResources={masterResources}
           globalTuning={globalTuning}
-          handleTileClick={handleTileClick}
           TILE_SIZE={activeTileSize}
-          setHoverTooltip={setHoverTooltip}
+          handleTileClick={handleTileClick}
           currentPlayer={currentPlayer}
           strings={strings}
           badgeState={badgeState}
           electionPhase={timers.elections.phase}
-          useCanvasTiles={useCanvasTiles}
           useCanvasResources={useCanvasResources}
+          setHoverTooltip={setHoverTooltip}
         />
-        <DynamicRenderer
+        
+        {/* Layer 3: NPCs */}
+        <RenderNPCs
+          npcs={npcs}
+          TILE_SIZE={activeTileSize}
+          currentPlayer={currentPlayer}
+          globalTuning={globalTuning}
+          gridId={currentPlayer?.location?.g}
+          onNPCClick={handleNPCPanel}
+          checkQuestNPCStatus={(npc) => checkQuestNPCStatus(npc, currentPlayer)}
+          checkTradeNPCStatus={(npc) => checkTradeNPCStatus(npc, masterResources)}
+          checkKentNPCStatus={(npc) => checkKentNPCStatus(npc, currentPlayer)}
+          strings={strings}
+          masterResources={masterResources}
+          playersInGrid={playersInGrid}
+          setInventory={setInventory}
+          setBackpack={setBackpack}
+          setResources={setResources}
+          setCurrentPlayer={setCurrentPlayer}
+          masterSkills={masterSkills}
+          setModalContent={setModalContent}
+          setIsModalOpen={setIsModalOpen}
+          updateStatus={updateStatus}
+          openPanel={openPanel}
+          setActiveStation={setActiveStation}
+          masterTrophies={masterTrophies}
+          setHoverTooltip={setHoverTooltip}
+          useCanvasNPCs={useCanvasNPCs}
+        />
+        
+        {/* Layer 4: PCs */}
+        <RenderPCs
+          pcs={pcs}
+          TILE_SIZE={activeTileSize}
+          currentPlayer={currentPlayer}
+          onPCClick={handlePCClick}
+          setCurrentPlayer={setCurrentPlayer}
+          setInventory={setInventory}
+          setBackpack={setBackpack}
+          masterResources={masterResources}
+          strings={strings}
+          useCanvasPCs={useCanvasPCs}
+        />
+        
+        {/* Layer 5: Dynamic Elements (tooltips, overlays, VFX) */}
+        <RenderDynamicElements
           TILE_SIZE={activeTileSize}
           openPanel={openPanel}
           setActiveStation={setActiveStation}
@@ -2078,15 +2166,39 @@ return (
           setCurrentPlayer={setCurrentPlayer}
           onNPCClick={handleNPCPanel}  // Pass the callback
           onPCClick={handlePCClick}  // Pass the callback
+          handleTileClick={handleTileClick}  // Pass tile click handler
           masterResources={masterResources}
           masterSkills={masterSkills}
           masterTrophies={masterTrophies}
+          hoverTooltip={hoverTooltip}
           setHoverTooltip={setHoverTooltip}
           setModalContent={setModalContent}
           setIsModalOpen={setIsModalOpen} 
           updateStatus={updateStatus}
           strings={strings}
-        /> 
+          gridId={gridId}
+          globalTuning={globalTuning}
+          useCanvasResources={useCanvasResources}
+          resources={memoizedResources}
+          npcs={npcs}
+          pcs={pcs}
+          grid={memoizedGrid}
+          tileTypes={memoizedTileTypes}
+        />
+        
+        {/* Hover Tooltip - render at top level */}
+        {hoverTooltip && (
+          <div
+            className="HoverTooltip"
+            style={{
+              bottom: `calc(100vh - ${hoverTooltip.y}px + 10px)`,
+              left: hoverTooltip.x,
+              transform: 'translateX(-50%)',
+            }}
+            dangerouslySetInnerHTML={{ __html: hoverTooltip.content }}
+          />
+        )}
+        
         {/* <RenderVFX 
           toggleVFX={currentPlayer?.settings?.toggleVFX}
           // Placeholder for VFX
@@ -2171,7 +2283,7 @@ return (
           } else {
             setIsModalOpen(false);
           }
-        }}
+        }} 
         title={modalContent.title} 
         message={modalContent.message} 
         message2={modalContent.message2} 
@@ -2180,7 +2292,7 @@ return (
         {modalContent.children}
         {modalContent.custom}
       </Modal>
-
+ 
       {activeModal === 'Mailbox' && (
         <Mailbox
           onClose={closeModal}  // ✅ This sets activeModal = null
@@ -2276,8 +2388,12 @@ return (
           setGridId={setGridId}
           setTileTypes={setTileTypes}
           closeAllPanels={closeAllPanels}
-          useCanvasTiles={useCanvasTiles}
-          setUseCanvasTiles={setUseCanvasTiles}
+          useCanvasResources={useCanvasResources}
+          setUseCanvasResources={setUseCanvasResources}
+          useCanvasNPCs={useCanvasNPCs}
+          setUseCanvasNPCs={setUseCanvasNPCs}
+          useCanvasPCs={useCanvasPCs}
+          setUseCanvasPCs={setUseCanvasPCs}
         />
       )}
       {activePanel === 'InventoryPanel' && (
@@ -2335,6 +2451,12 @@ return (
           setCurrentPlayer={setCurrentPlayer}
           updateStatus={updateStatus}
           masterResources={masterResources}
+          globalTuning={globalTuning}
+          setResources={setResources}
+          currentStationPosition={activeStation?.position}
+          gridId={gridId}
+          TILE_SIZE={activeTileSize}
+          isDeveloper={isDeveloper}
         />
       )}
       {activePanel === 'KentPanel' && (
@@ -2441,6 +2563,15 @@ return (
           onClose={closePanel}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
+          inventory={inventory}
+          setInventory={setInventory}
+          backpack={backpack}
+          setBackpack={setBackpack}
+          setResources={setResources}
+          currentStationPosition={activeStation?.position}
+          gridId={gridId}
+          TILE_SIZE={activeTileSize}
+          isDeveloper={isDeveloper}
         />
       )}
       {activePanel === 'QuestPanel' && (
@@ -2892,20 +3023,7 @@ return (
         />
       )}
 
-      {hoverTooltip && (
-        <div
-          className="HoverTooltip"
-          style={{
-            position: 'fixed',
-            zIndex: 9999,
-            top: hoverTooltip.y,
-            left: hoverTooltip.x,
-            transform: 'translate(-50%, -100%) translateY(-8px)', // ⬅️ Center horizontally and offset upward
-            pointerEvents: 'none',
-          }}
-          dangerouslySetInnerHTML={{ __html: hoverTooltip.content }}
-        />
-      )}
+      {/* Tooltip rendering is handled by RenderDynamicElements */}
       </div>
 
       {uiLocked && (

@@ -179,9 +179,18 @@ class GridStateManager {
       socket.emit('update-NPCsInGrid-NPCs', payload);
     }
     
-    // Update React state
-    const updatedGridState = this.getNPCsInGrid(gridId);
-    this.setAllNPCs(gridId, updatedGridState);
+    // Update React state - force timestamp update
+    NPCsInGrid.NPCsInGridLastUpdated = now;
+    if (this.setGridStateReact) {
+      this.setGridStateReact(prev => ({
+        ...prev,
+        [gridId]: {
+          ...(prev[gridId] || {}),
+          ...NPCsInGrid,
+          NPCsInGridLastUpdated: now,
+        },
+      }));
+    }
   }
 
   registerSetGridState(setterFunction) {
@@ -454,10 +463,21 @@ class GridStateManager {
       //console.log("📡 Emitting update-NPCsInGrid-NPCs with payload:", JSON.stringify(payload, null, 2));
       socket.emit('update-NPCsInGrid-NPCs', payload);
     }
-
-    const updatedGridState = this.getNPCsInGrid(gridId);
-    this.setAllNPCs(gridId, updatedGridState);
+    
+    // Update React state to trigger re-renders - force timestamp update
+    NPCsInGrid.NPCsInGridLastUpdated = now;
+    if (this.setGridStateReact) {
+      this.setGridStateReact(prev => ({
+        ...prev,
+        [gridId]: {
+          ...(prev[gridId] || {}),
+          ...NPCsInGrid,
+          NPCsInGridLastUpdated: now,
+        },
+      }));
+    }
   }
+
 
   /**
    * Remove an NPC from the NPCsInGrid using the per-NPC save model.
@@ -626,7 +646,7 @@ class GridStateManager {
         [gridId]: {
           ...(prev[gridId] || {}),
           npcs: npcsObject || {},
-          NPCsInGridLastUpdated: lastUpdated,
+          NPCsInGridLastUpdated: Date.now(), // Force update timestamp
         },
       }));
     }
@@ -644,7 +664,6 @@ export const {
   updateNPC,
   updateNPCPosition,
   removeNPC, 
-  saveGridStateNPCs,
   registerSetGridState,
   setAllNPCs,
   flushPendingPositionUpdates,

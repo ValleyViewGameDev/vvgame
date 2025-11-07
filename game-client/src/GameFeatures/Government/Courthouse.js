@@ -13,8 +13,23 @@ import '../../UI/SharedButtons.css';
 import { getMayorUsername } from './GovUtils';
 import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 import { formatCountdown } from '../../UI/Timers';
+import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
+import TransactionButton from '../../UI/TransactionButton';
 
-const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
+const CourthousePanel = ({ 
+  onClose, 
+  currentPlayer, 
+  setCurrentPlayer,
+  inventory,
+  setInventory,
+  backpack,
+  setBackpack,
+  setResources,
+  currentStationPosition,
+  gridId,
+  TILE_SIZE,
+  isDeveloper 
+}) => {
 
     const strings = useStrings();
     const [settlement, setSettlement] = useState(null);
@@ -310,6 +325,22 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
         )?.text || "No campaign promise made.";
     };
 
+    const handleSellStation = async (transactionId, transactionKey) => {
+        await handleProtectedSelling({
+            currentPlayer,
+            setInventory,
+            setBackpack,
+            setCurrentPlayer,
+            setResources,
+            stationType: 'Courthouse',
+            currentStationPosition,
+            gridId,
+            TILE_SIZE,
+            updateStatus,
+            onClose
+        });
+    };
+
     console.log("hasVoted:", hasVoted);
     console.log("electionPhase:", electionPhase);
 
@@ -529,6 +560,20 @@ const CourthousePanel = ({ onClose, currentPlayer, setCurrentPlayer }) => {
                     )}
                 </div>
                 </>
+            )}
+
+            {isDeveloper && (
+                <div className="station-panel-footer">
+                    <div className="shared-buttons">
+                        <TransactionButton 
+                            className="btn-basic btn-danger" 
+                            onAction={handleSellStation}
+                            transactionKey={`sell-refund-Courthouse-${currentStationPosition?.x}-${currentStationPosition?.y}-${gridId}`}
+                        >
+                            {strings[425] || "Sell for Refund"}
+                        </TransactionButton>
+                    </div>
+                </div>
             )}
             </div>
             {isModalOpen && (

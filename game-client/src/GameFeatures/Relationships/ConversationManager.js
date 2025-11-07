@@ -9,6 +9,7 @@ class ConversationManager {
   // Add a conversation bubble
   addSpeech(speakerId, emoji, topic, isMatch = false) {
     console.log('🗨️ ConversationManager.addSpeech:', { speakerId, emoji, topic, isMatch });
+    console.log('🗨️ Current active conversations:', Array.from(this.activeConversations.keys()));
     this.activeConversations.set(speakerId, {
       emoji,
       topic,
@@ -50,7 +51,6 @@ class ConversationManager {
   
   // Add relationship outcome VFX
   showOutcome(speakerId, isPositive) {
-    console.log('🎯 ConversationManager.showOutcome:', { speakerId, isPositive });
     this.relationshipOutcomes.set(speakerId, {
       type: isPositive ? 'positive' : 'negative',
       timestamp: Date.now()
@@ -61,12 +61,13 @@ class ConversationManager {
     setTimeout(() => {
       this.relationshipOutcomes.delete(speakerId);
       this.notifyListeners();
-    }, 2500); // 2.5 seconds to ensure animation completes
+    }, 2500); // 2.5 seconds for animation
   }
   
   // Get outcome for a speaker
   getOutcome(speakerId) {
-    return this.relationshipOutcomes.get(speakerId);
+    const outcome = this.relationshipOutcomes.get(speakerId);
+    return outcome;
   }
 }
 

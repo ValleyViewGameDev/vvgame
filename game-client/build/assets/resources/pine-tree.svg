@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200"
+     xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="titleDesc">
+  <title id="titleDesc">Dense pine tree icon</title>
+  <desc>Stylized pine tree with lush green layered foliage and a brown trunk.</desc>
+
+  <defs>
+    <linearGradient id="foliageGrad" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#2faf3d"/>
+      <stop offset="100%" stop-color="#0b6621"/>
+    </linearGradient>
+
+    <linearGradient id="trunkGrad" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#8b5a36"/>
+      <stop offset="100%" stop-color="#4b2e1b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- dense layered foliage -->
+  <!-- bottom layer -->
+  <path d="M25 135 Q100 70 175 135 Q140 125 100 135 Q60 125 25 135 Z"
+        fill="url(#foliageGrad)" stroke="#0b4e1a" stroke-opacity="0.15" stroke-width="1"/>
+
+  <!-- mid-lower layer -->
+  <path d="M35 115 Q100 60 165 115 Q135 105 100 115 Q65 105 35 115 Z"
+        fill="url(#foliageGrad)" stroke="#0b4e1a" stroke-opacity="0.15" stroke-width="1"/>
+
+  <!-- middle layer -->
+  <path d="M45 95 Q100 50 155 95 Q130 85 100 95 Q70 85 45 95 Z"
+        fill="url(#foliageGrad)" stroke="#0b4e1a" stroke-opacity="0.14" stroke-width="1"/>
+
+  <!-- upper-middle layer -->
+  <path d="M55 78 Q100 42 145 78 Q125 70 100 78 Q75 70 55 78 Z"
+        fill="url(#foliageGrad)" stroke="#0b4e1a" stroke-opacity="0.13" stroke-width="1"/>
+
+  <!-- top foliage -->
+  <path d="M70 60 Q100 30 130 60 Q118 55 100 60 Q82 55 70 60 Z"
+        fill="url(#foliageGrad)" stroke="#0b4e1a" stroke-opacity="0.12" stroke-width="1"/>
+
+  <!-- top tip -->
+  <path d="M95 48 L100 36 L105 48 Z" fill="#0e6a25"/>
+
+  <!-- highlights -->
+  <path d="M40 105 Q100 62 160 105" stroke="#89e687" stroke-opacity="0.2" stroke-width="4" fill="none"/>
+  <path d="M35 128 Q100 86 165 128" stroke="#7fdb74" stroke-opacity="0.12" stroke-width="5" fill="none"/>
+
+  <!-- trunk -->
+  <rect x="88" y="135" width="24" height="45" rx="6" fill="url(#trunkGrad)" stroke="#4a2814" stroke-opacity="0.15"/>
+
+  <!-- subtle rings -->
+  <path d="M88 148 Q100 152 112 148" stroke="#6b3f28" stroke-opacity="0.15" stroke-width="2" fill="none"/>
+  <path d="M88 160 Q100 164 112 160" stroke="#6b3f28" stroke-opacity="0.12" stroke-width="2" fill="none"/>
+
+  <!-- outline for clarity -->
+  <path d="M25 135 Q100 70 175 135 Q140 125 100 135 Q60 125 25 135 Z"
+        fill="none" stroke="#000" stroke-opacity="0.05" stroke-width="1"/>
+</svg>

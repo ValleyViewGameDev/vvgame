@@ -12,7 +12,26 @@ import GridStateDebugPanel from './GridStateDebug';
 import { generateTownGrids, generateValleyGrids, createSingleValleyGrid } from './WorldGeneration';
 import { updatePlayerSettings } from '../settings';
 
-const DebugPanel = ({ onClose, currentPlayer, setCurrentPlayer, setInventory, setResources, currentGridId, updateStatus, TILE_SIZE, setGrid, setGridId, setTileTypes, closeAllPanels, useCanvasTiles, setUseCanvasTiles }) => {
+const DebugPanel = ({ 
+  onClose, 
+  currentPlayer, 
+  setCurrentPlayer, 
+  setInventory, 
+  setResources, 
+  currentGridId, 
+  updateStatus, 
+  TILE_SIZE, 
+  setGrid, 
+  setGridId, 
+  setTileTypes, 
+  closeAllPanels, 
+  useCanvasResources,
+  setUseCanvasResources,
+  useCanvasNPCs,
+  setUseCanvasNPCs,
+  useCanvasPCs,
+  setUseCanvasPCs
+}) => {
   const [timers, setTimers] = useState([]);
   const [npcs, setNPCs] = useState([]);
   const [pcs, setPCs] = useState([]);
@@ -924,34 +943,60 @@ const handleGetRich = async () => {
       }}>
         <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>⚡ Performance Metrics</h3>
         
-        {/* Canvas Tiles Toggle Button */}
-        <div style={{ marginBottom: '10px' }}>
-          <button 
-            className="btn-basic btn-neutral"
-            onClick={() => setUseCanvasTiles(!useCanvasTiles)}
-            style={{ fontSize: '12px', padding: '5px 10px' }}
-          >
-            {useCanvasTiles ? '🖼️ Switch to DOM Tiles' : '🎨 Switch to Canvas Tiles'}
-          </button>
-        </div>
-        
         {/* SVG Resources Toggle Button */}
         <div style={{ marginBottom: '10px' }}>
           <button 
-            className={`btn-basic ${currentPlayer?.settings?.renderSVGResources ? 'btn-success' : 'btn-neutral'}`}
+            className={`btn-basic ${useCanvasResources ? 'btn-success' : 'btn-neutral'}`}
             onClick={() => {
-              const newValue = !currentPlayer?.settings?.renderSVGResources;
-              const newSettings = {
-                ...currentPlayer?.settings,
-                renderSVGResources: newValue
-              };
-              updatePlayerSettings(newSettings, currentPlayer, setCurrentPlayer);
+              const newValue = !useCanvasResources;
+              setUseCanvasResources(newValue);
+              updatePlayerSettings({
+                ...currentPlayer.settings,
+                renderCanvasResources: newValue
+              }, currentPlayer, setCurrentPlayer);
             }}
             style={{ fontSize: '12px', padding: '5px 10px' }}
           >
-            {currentPlayer?.settings?.renderSVGResources ? '🎨 Switch to DOM Resources' : '🖼️ Switch to SVG Resources'}
+            {useCanvasResources ? '🎨 Switch to DOM Resources' : '🖼️ Switch to Canvas Resources'}
           </button>
         </div>
+        
+        {/* Canvas NPCs Toggle Button */}
+        <div style={{ marginBottom: '10px' }}>
+          <button 
+            className={`btn-basic ${useCanvasNPCs ? 'btn-success' : 'btn-neutral'}`}
+            onClick={() => {
+              const newValue = !useCanvasNPCs;
+              setUseCanvasNPCs(newValue);
+              updatePlayerSettings({
+                ...currentPlayer.settings,
+                renderCanvasNPCs: newValue
+              }, currentPlayer, setCurrentPlayer);
+            }}
+            style={{ fontSize: '12px', padding: '5px 10px' }}
+          >
+            {useCanvasNPCs ? '👥 Switch to DOM NPCs' : '🎨 Switch to Canvas NPCs'}
+          </button>
+        </div>
+        
+        {/* Canvas PCs Toggle Button */}
+        <div style={{ marginBottom: '10px' }}>
+          <button 
+            className={`btn-basic ${useCanvasPCs ? 'btn-success' : 'btn-neutral'}`}
+            onClick={() => {
+              const newValue = !useCanvasPCs;
+              setUseCanvasPCs(newValue);
+              updatePlayerSettings({
+                ...currentPlayer.settings,
+                renderCanvasPCs: newValue
+              }, currentPlayer, setCurrentPlayer);
+            }}
+            style={{ fontSize: '12px', padding: '5px 10px' }}
+          >
+            {useCanvasPCs ? '👤 Switch to DOM PCs' : '🎨 Switch to Canvas PCs'}
+          </button>
+        </div>
+        
         
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
           <div>

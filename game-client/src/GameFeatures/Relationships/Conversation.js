@@ -386,6 +386,10 @@ const animateCharacter = async (characterType, position, TILE_SIZE) => {
     setTimeout(() => {
       characterElement.classList.remove('speaking-animation');
     }, 1500);
+  } else if (characterType === 'npc') {
+    // For Canvas NPCs, the bounce is handled by RenderNPCsCanvas listening to ConversationManager
+    // So we don't need to do anything special here - the speech bubble being added
+    // will trigger the bounce animation automatically
   }
 };
 

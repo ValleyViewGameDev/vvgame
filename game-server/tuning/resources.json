@@ -431,7 +431,8 @@
     "validonw": false,
     "validonl": false,
     "validonn": false,
-    "validono": true
+    "validono": true,
+    "filename": "pine-tree.svg"
   },
   {
     "type": "Palm Tree",
@@ -565,7 +566,7 @@
   },
   {
     "type": "Stone",
-    "symbol": "🗿",
+    "symbol": "🪨",
     "layoutkey": "st",
     "category": "doober",
     "action": "collect",
@@ -584,7 +585,8 @@
     "minprice": 5,
     "maxprice": 8,
     "gemcost": 1,
-    "crafttime": 5
+    "crafttime": 5,
+    "filename": "stone.svg"
   },
   {
     "type": "Clay",
@@ -609,7 +611,8 @@
     "minprice": 84,
     "maxprice": 120,
     "gemcost": 15,
-    "crafttime": 21600
+    "crafttime": 21600,
+    "filename": "clay.svg"
   },
   {
     "type": "Wheat Plot",
@@ -3842,7 +3845,8 @@
     "validonw": false,
     "validonl": false,
     "validonn": true,
-    "validono": true
+    "validono": true,
+    "filename": "train.svg"
   },
   {
     "type": "Carnival",
@@ -3927,8 +3931,7 @@
     "validonw": false,
     "validonl": false,
     "validonn": true,
-    "validono": true,
-    "filename": "farmhouse.svg"
+    "validono": true
   },
   {
     "type": "Restaurant",
@@ -4619,7 +4622,7 @@
     "category": "npc",
     "action": "heal",
     "output": "hp",
-    "source": "Hospital",
+    "source": "Buy",
     "passable": true,
     "requires": "Medicine",
     "qtycollected": 5,
@@ -4975,7 +4978,8 @@
     "validonw": false,
     "validonl": false,
     "validonn": true,
-    "validono": true
+    "validono": true,
+    "filename": "ninja.svg"
   },
   {
     "type": "Gertrude",

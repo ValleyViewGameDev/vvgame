@@ -143,3 +143,23 @@
   border-top-color: #4CAF50 !important;
 }
 
+/* Relationship outcome emoji */
+.relationship-outcome {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1001;
+  text-align: center;
+}
+
+/* Float up animation for outcome emoji */
+@keyframes floatUp {
+  0% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-40px);
+  }
+}
+

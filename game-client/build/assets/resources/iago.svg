@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200"
+     xmlns="http://www.w3.org/2000/svg"
+     role="img" aria-labelledby="titleDesc">
+  <title id="titleDesc">Ninja bust icon</title>
+  <desc>Stylized vector of a ninja bust with mask and hood.</desc>
+
+  <!-- gradients -->
+  <defs>
+    <radialGradient id="hoodGrad" cx="30%" cy="25%" r="100%">
+      <stop offset="0%" stop-color="#2b2d33"/>
+      <stop offset="100%" stop-color="#0b0b0d"/>
+    </radialGradient>
+
+    <radialGradient id="skinGrad" cx="40%" cy="30%" r="90%">
+      <stop offset="0%" stop-color="#f8d57a"/>
+      <stop offset="100%" stop-color="#e6b953"/>
+    </radialGradient>
+
+    <linearGradient id="bandGrad" x1="0" x2="1">
+      <stop offset="0%" stop-color="#6b8bff"/>
+      <stop offset="100%" stop-color="#456cff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- shoulders / torso -->
+  <path d="M30 160 Q100 130 170 160 L170 190 L30 190 Z"
+        fill="url(#hoodGrad)" />
+
+  <!-- hood (outer) -->
+  <path d="M30 110 Q30 40, 100 25 Q170 40, 170 110 Q160 90, 100 90 Q40 90, 30 110 Z"
+        fill="url(#hoodGrad)" />
+
+  <!-- face area -->
+  <ellipse cx="100" cy="95" rx="50" ry="35" fill="url(#skinGrad)" />
+
+  <!-- mask -->
+  <path d="M50 95 Q100 75, 150 95 Q100 115, 50 95 Z"
+        fill="#101113" />
+
+  <!-- lower mask fold -->
+  <path d="M55 100 Q100 115, 145 100 Q100 125, 55 100 Z"
+        fill="#0b0b0d" opacity="0.4"/>
+
+  <!-- headband -->
+  <rect x="55" y="55" width="90" height="10" rx="5" fill="url(#bandGrad)" transform="rotate(-3 100 60)"/>
+  <path d="M145 55 Q160 50, 175 60 Q160 65, 145 70 Z" fill="url(#bandGrad)" />
+
+  <!-- eyes -->
+  <g>
+    <!-- left eye -->
+    <ellipse cx="80" cy="93" rx="9" ry="6" fill="#fff"/>
+    <ellipse cx="81" cy="94" rx="4" ry="3" fill="#111"/>
+    <circle cx="79" cy="92" r="1.5" fill="#fff" opacity="0.9"/>
+
+    <!-- right eye -->
+    <ellipse cx="120" cy="93" rx="9" ry="6" fill="#fff"/>
+    <ellipse cx="119" cy="94" rx="4" ry="3" fill="#111"/>
+    <circle cx="121" cy="92" r="1.5" fill="#fff" opacity="0.9"/>
+  </g>
+
+  <!-- hood highlights -->
+  <path d="M50 50 Q100 30, 150 50" stroke="#ffffff" stroke-opacity="0.05" stroke-width="2" fill="none"/>
+  <path d="M45 125 Q100 100, 155 125" stroke="#ffffff" stroke-opacity="0.05" stroke-width="2" fill="none"/>
+
+  <!-- outline -->
+  <path d="M30 110 Q30 40, 100 25 Q170 40, 170 110 Q160 90, 100 90 Q40 90, 30 110 Z"
+        fill="none" stroke="#000" stroke-opacity="0.08" stroke-width="1"/>
+
+</svg>

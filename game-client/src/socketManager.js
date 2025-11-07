@@ -24,6 +24,13 @@ const handlePlayerJoinedGrid = ({ gridId: joinedGridId, playerId, username, play
     return; // Ignore updates emitted by this client
   }
   
+  // Handle case where server sends undefined gridId
+  if (!joinedGridId) {
+    console.warn(`⚠️ Received player-joined event with undefined gridId for ${username}. Assuming they joined current grid.`);
+    // If gridId is undefined, assume they joined the current grid
+    joinedGridId = gridId;
+  }
+  
   // Only process if the player joined the current grid
   if (joinedGridId !== gridId) {
     console.log(`👋 Player ${username} joined grid ${joinedGridId} (not current grid ${gridId})`);
@@ -69,6 +76,13 @@ const handlePlayerJoinedGrid = ({ gridId: joinedGridId, playerId, username, play
       return; // Ignore updates emitted by this client
     }
     
+    // Handle case where server sends undefined gridId
+    if (!leftGridId) {
+      console.warn(`⚠️ Received player-left event with undefined gridId for ${username}. Checking if they're in current grid.`);
+      // If gridId is undefined, check if the player is actually in our current grid and remove them
+      leftGridId = gridId; // Assume they left the current grid
+    }
+    
     // Only process if the player left the current grid
     if (leftGridId !== gridId) {
       console.log(`👋 Player ${username} left grid ${leftGridId} (not current grid ${gridId})`);
@@ -84,7 +98,17 @@ const handlePlayerJoinedGrid = ({ gridId: joinedGridId, playerId, username, play
     }
 
     setPlayersInGrid(prevState => {
-      if (!prevState[leftGridId]?.pcs) return prevState;
+      if (!prevState[leftGridId]?.pcs) {
+        console.warn(`⚠️ No players found in grid ${leftGridId} when trying to remove ${username}`);
+        return prevState;
+      }
+      
+      if (!prevState[leftGridId].pcs[playerId]) {
+        console.warn(`⚠️ Player ${username} (${playerId}) not found in grid ${leftGridId} when trying to remove`);
+        return prevState;
+      }
+      
+      console.log(`✅ Removing player ${username} (${playerId}) from grid ${leftGridId}`);
       const updatedGrid = { ...prevState[leftGridId]?.pcs };
       delete updatedGrid[playerId];
       
@@ -226,8 +250,35 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
         return prevState;
       }
 
+      // Safety check: Make sure the grid and player still exist locally before updating
+      if (!prevState[gridId]?.pcs?.[playerId]) {
+        console.log(`⚠️ Skipping update for PC ${playerId} - no longer in local grid ${gridId}`);
+        return prevState;
+      }
+
       console.log(`⏩ Updating PC ${playerId} from socket event.`);
-      playersInGridManager.updatePC(gridId, playerId, incomingPC);
+      
+      // Update React state directly (primary source of truth)
+      const updatedState = {
+        ...prevState,
+        [gridId]: {
+          ...prevState[gridId],
+          pcs: {
+            ...prevState[gridId].pcs,
+            [playerId]: {
+              ...prevState[gridId].pcs[playerId],
+              ...incomingPC
+            }
+          }
+        }
+      };
+      
+      // Also update memory manager for consistency (but don't rely on it)
+      try {
+        playersInGridManager.updatePC(gridId, playerId, incomingPC);
+      } catch (error) {
+        console.warn(`⚠️ Memory manager update failed for PC ${playerId}:`, error.message);
+      }
 
       const prevPosition = localPC?.position;
       const newPosition = incomingPC?.position;
@@ -239,26 +290,14 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
         animateRemotePC(playerId, prevPosition, newPosition, TILE_SIZE);
       }
 
-      const prevGridState = prevState[gridId] || {};
-      const prevPCs = prevGridState.pcs || {};
-
-      const setPayload = {
-        ...prevState,
-        [gridId]: {
-          ...prevGridState,
-          pcs: {
-            ...prevPCs,
-            [playerId]: incomingPC,
-          },
-          playersInGridLastUpdated: playersInGridLastUpdated || prevGridState.playersInGridLastUpdated,
-        },
-      };
+      // Add playersInGridLastUpdated to our updatedState
+      updatedState[gridId].playersInGridLastUpdated = playersInGridLastUpdated || prevState[gridId]?.playersInGridLastUpdated;
 
       // console.log("🧠 Pre-state before merge:", JSON.stringify(prevState, null, 2));
       // console.log("📥 Incoming update for:", playerId, "with data:", incomingPC);
-      // console.log("📦 setPlayersInGrid payload:", JSON.stringify(setPayload, null, 2));
+      // console.log("📦 setPlayersInGrid payload:", JSON.stringify(updatedState, null, 2));
 
-      return setPayload;
+      return updatedState;
     });
   };
 

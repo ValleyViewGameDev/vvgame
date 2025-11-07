@@ -357,20 +357,7 @@ body {
   color: #f44336;
 }
 
-/* Tooltips */
-
-.HoverTooltip {
-  background-color: rgba(117, 62, 0, 0.811);
-  color: white;
-  padding: 0.5px 8px;
-  font-size: 11px;
-  pointer-events: none;
-  z-index: 8999;
-  position: fixed;
-  min-width: 50px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
-  font-family: 'Arial', sans-serif;
-}
+/* Tooltips - moved to src/Render/Tooltip.css */
 
 
 

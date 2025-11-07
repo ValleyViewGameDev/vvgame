@@ -8,6 +8,9 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { formatCountdown } from '../../UI/Timers.js';
 import { useStrings } from '../../UI/StringsContext';
+import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
+import TransactionButton from '../../UI/TransactionButton';
+import '../../UI/SharedButtons.css';
 
 function BankPanel({ 
     onClose, 
@@ -19,7 +22,12 @@ function BankPanel({
     setCurrentPlayer, 
     updateStatus,
     masterResources,
-    globalTuning, }) 
+    globalTuning,
+    setResources,
+    currentStationPosition,
+    gridId,
+    TILE_SIZE,
+    isDeveloper }) 
 {
     const strings = useStrings();
     const [isContentLoading, setIsContentLoading] = useState(false);
@@ -143,6 +151,22 @@ function BankPanel({
         return resource?.symbol || "❓"; // Default to question mark if no symbol found
     };
 
+    const handleSellStation = async (transactionId, transactionKey) => {
+        await handleProtectedSelling({
+            currentPlayer,
+            setInventory,
+            setBackpack,
+            setCurrentPlayer,
+            setResources,
+            stationType: 'Bank',
+            currentStationPosition,
+            gridId,
+            TILE_SIZE,
+            updateStatus,
+            onClose
+        });
+    };
+
     return (
       <Panel onClose={onClose} descriptionKey="1017" titleKey="1117" panelName="BankPanel">
         {/* Check if player is in their home settlement */}
@@ -207,6 +231,20 @@ function BankPanel({
               </>
             )}
           </>
+        )}
+
+        {isDeveloper && (
+          <div className="station-panel-footer">
+            <div className="shared-buttons">
+              <TransactionButton 
+                className="btn-basic btn-danger" 
+                onAction={handleSellStation}
+                transactionKey={`sell-refund-Bank-${currentStationPosition?.x}-${currentStationPosition?.y}-${gridId}`}
+              >
+                {strings[425] || "Sell for Refund"}
+              </TransactionButton>
+            </div>
+          </div>
         )}
       </Panel>
     );

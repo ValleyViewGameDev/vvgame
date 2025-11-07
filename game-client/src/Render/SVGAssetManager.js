@@ -19,18 +19,21 @@ class SVGAssetManager {
     return this.ZOOM_TIERS.find(tier => tier >= adjustedSize) || this.ZOOM_TIERS[this.ZOOM_TIERS.length - 1];
   }
 
-  // Load SVG file (with caching)
-  async loadSVG(svgFileName) {
-    if (this.svgCache.has(svgFileName)) {
-      return this.svgCache.get(svgFileName);
+  // Load SVG file (with caching) - supports different directories
+  async loadSVG(svgFileName, isOverlay = false) {
+    const cacheKey = isOverlay ? `overlay-${svgFileName}` : svgFileName;
+    
+    if (this.svgCache.has(cacheKey)) {
+      return this.svgCache.get(cacheKey);
     }
 
     // Prevent duplicate loading
-    if (this.loadingPromises.has(svgFileName)) {
-      return this.loadingPromises.get(svgFileName);
+    if (this.loadingPromises.has(cacheKey)) {
+      return this.loadingPromises.get(cacheKey);
     }
 
-    const loadPromise = fetch(`/assets/resources/${svgFileName}`)
+    const directory = isOverlay ? '/assets/overlays/' : '/assets/resources/';
+    const loadPromise = fetch(`${directory}${svgFileName}`)
       .then(response => {
         if (!response.ok) {
           throw new Error(`Failed to load SVG: ${svgFileName}`);
@@ -38,17 +41,17 @@ class SVGAssetManager {
         return response.text();
       })
       .then(svgText => {
-        this.svgCache.set(svgFileName, svgText);
-        this.loadingPromises.delete(svgFileName);
+        this.svgCache.set(cacheKey, svgText);
+        this.loadingPromises.delete(cacheKey);
         return svgText;
       })
       .catch(error => {
         console.warn(`SVG asset not found: ${svgFileName}`, error);
-        this.loadingPromises.delete(svgFileName);
+        this.loadingPromises.delete(cacheKey);
         return null;
       });
 
-    this.loadingPromises.set(svgFileName, loadPromise);
+    this.loadingPromises.set(cacheKey, loadPromise);
     return loadPromise;
   }
 
@@ -87,9 +90,9 @@ class SVGAssetManager {
   }
 
   // Get or create cached texture for SVG asset
-  async getSVGTexture(svgFileName, targetSize) {
+  async getSVGTexture(svgFileName, targetSize, isOverlay = false) {
     const tier = this.getBestZoomTier(targetSize);
-    const cacheKey = `${svgFileName}-${tier}`;
+    const cacheKey = `${isOverlay ? 'overlay-' : ''}${svgFileName}-${tier}`;
 
     // Return cached texture if available
     if (this.textureCache.has(cacheKey)) {
@@ -98,7 +101,7 @@ class SVGAssetManager {
 
     try {
       // Load SVG and create texture
-      const svgText = await this.loadSVG(svgFileName);
+      const svgText = await this.loadSVG(svgFileName, isOverlay);
       if (!svgText) return null;
 
       const texture = await this.createSVGTexture(svgText, tier);
@@ -110,6 +113,11 @@ class SVGAssetManager {
       console.error(`Error creating SVG texture for ${svgFileName}:`, error);
       return null;
     }
+  }
+
+  // Get overlay texture (convenience method)
+  async getOverlayTexture(overlayFileName, targetSize) {
+    return this.getSVGTexture(overlayFileName, targetSize, true);
   }
 
   // Update zoom tiers from globalTuning
