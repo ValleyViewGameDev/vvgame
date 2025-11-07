@@ -204,7 +204,7 @@ export const RenderDynamicElementsCanvas = ({
     });
     
     // Check for tooltip-eligible resource (excluding doobers and sources)
-    const tooltipResource = anyResource && anyResource.category !== 'doober' && anyResource.category !== 'source' ? anyResource : null;
+    const tooltipResource = anyResource && anyResource.category !== 'doober' && anyResource.category !== 'deco' && anyResource.category !== 'source' ? anyResource : null;
     
     if (tooltipResource) {
       setHoverTooltip({
