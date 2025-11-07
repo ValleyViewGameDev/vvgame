@@ -585,8 +585,8 @@
     "minprice": 5,
     "maxprice": 8,
     "gemcost": 1,
-    "crafttime": 5,
-    "filename": "stone.svg"
+    "filename": "stone.svg",
+    "crafttime": 5
   },
   {
     "type": "Clay",
@@ -611,8 +611,8 @@
     "minprice": 84,
     "maxprice": 120,
     "gemcost": 15,
-    "crafttime": 21600,
-    "filename": "clay.svg"
+    "filename": "clay.svg",
+    "crafttime": 21600
   },
   {
     "type": "Wheat Plot",
@@ -3845,8 +3845,7 @@
     "validonw": false,
     "validonl": false,
     "validonn": true,
-    "validono": true,
-    "filename": "train.svg"
+    "validono": true
   },
   {
     "type": "Carnival",
@@ -4622,7 +4621,7 @@
     "category": "npc",
     "action": "heal",
     "output": "hp",
-    "source": "Buy",
+    "source": "Hospital",
     "passable": true,
     "requires": "Medicine",
     "qtycollected": 5,
@@ -6322,7 +6321,7 @@
     "category": "skill",
     "output": "backpackCapacity",
     "source": "Adventure Camp",
-    "qtycollected": 20,
+    "qtycollected": 30,
     "level": 10,
     "ingredient1": "Money",
     "ingredient1qty": 50,
@@ -6349,13 +6348,29 @@
     "gemcost": 2992
   },
   {
+    "type": "Side Pack",
+    "symbol": "🎒",
+    "layoutkey": "sk52",
+    "category": "skill",
+    "output": "backpackCapacity",
+    "source": "Adventure Camp",
+    "requires": "Rucksack",
+    "qtycollected": 25,
+    "level": 10,
+    "ingredient1": "Money",
+    "ingredient1qty": 15000,
+    "ingredient2": "Pelt",
+    "ingredient2qty": 8,
+    "gemcost": 2011
+  },
+  {
     "type": "Enchanted Pack",
     "symbol": "🎒",
     "layoutkey": "sk48",
     "category": "skill",
     "output": "backpackCapacity",
     "source": "Adventure Camp",
-    "requires": "Rucksack",
+    "requires": "Side Pack",
     "qtycollected": 100,
     "level": 10,
     "ingredient1": "Money",

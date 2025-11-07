@@ -349,31 +349,43 @@ export const changePlayerLocation = async (
       }
     }
 
-    // ✅ STEP 11: Initialize the new grid, PCs and NPCs
-    //console.log('!! Running initializeGridState and setGridState');
-    await Promise.all([
-      initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus, currentPlayer),
-      (async () => {
-        try {
-          await NPCsInGridManager.initializeGridState(toLocation.g);
-          await playersInGridManager.initializePlayersInGrid(toLocation.g);  
-          const freshGridState = NPCsInGridManager.getNPCsInGrid(toLocation.g);
-          const freshPCState = playersInGridManager.getPlayersInGrid(toLocation.g);
+    // ✅ STEP 11: Initialize the new grid - CLEAR STATE FIRST, THEN LOAD TILES AND RESOURCES
+    //console.log('!! Clearing old grid state, then loading new grid data sequentially to prevent race condition');
+    
+    // First: Clear any stale state to prevent mixed data from previous grid
+    console.log('🧹 Clearing stale grid state before loading new grid');
+    setGrid([]);
+    setResources([]);
+    setTileTypes([]);
+    GlobalGridStateTilesAndResources.setTiles([]);
+    GlobalGridStateTilesAndResources.setResources([]);
+    
+    // Small delay to ensure React state clearing has propagated
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    // Second: Load tiles and resources completely
+    await initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus, currentPlayer);
+    console.log('✅ Grid tiles and resources loaded, now initializing NPCs and PCs');
+    
+    // Second: Initialize NPCs and PCs after tiles/resources are ready
+    try {
+      await NPCsInGridManager.initializeGridState(toLocation.g);
+      await playersInGridManager.initializePlayersInGrid(toLocation.g);  
+      const freshGridState = NPCsInGridManager.getNPCsInGrid(toLocation.g);
+      const freshPCState = playersInGridManager.getPlayersInGrid(toLocation.g);
 
-          NPCsInGridManager.setGridStateReact({ [toLocation.g]: {
-            npcs: freshGridState,
-            NPCsInGridLastUpdated: Date.now(),
-          }});
-          playersInGridManager.setPlayersInGridReact({ [toLocation.g]: {
-            pcs: freshPCState,
-            playersInGridLastUpdated: Date.now(),
-          }});     
+      NPCsInGridManager.setGridStateReact({ [toLocation.g]: {
+        npcs: freshGridState,
+        NPCsInGridLastUpdated: Date.now(),
+      }});
+      playersInGridManager.setPlayersInGridReact({ [toLocation.g]: {
+        pcs: freshPCState,
+        playersInGridLastUpdated: Date.now(),
+      }});     
 
-        } catch (err) {
-          console.error('❌ Error initializing playersInGrid:', err);
-        }
-      })(),
-    ]);
+    } catch (err) {
+      console.error('❌ Error initializing playersInGrid:', err);
+    }
     //console.log('✅ New grid fully initialized');
 
     // ✅ STEP 12: Set username for the socket

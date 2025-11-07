@@ -60,7 +60,6 @@ export const playConversation = async (
   currentPlayer = null,
   masterResources = null
 ) => {
-  console.log('🗨️ playConversation started:', { playerPosition, npcPosition, playerEmoji, npcEmoji, playerId, npcId, interaction });
   
   // Reset conversation results
   conversationResults = {
@@ -136,14 +135,12 @@ export const playConversation = async (
     if (playerTopicKey === 'interest' && npcTopicKey === 'interest' && playerTopic === npcTopic) {
       conversationResults.matchingInterests++;
       isMatch = true;
-      console.log('🎯 Matching interests!', playerTopic, npcTopic, 'Total matches:', conversationResults.matchingInterests);
     }
     
     // Check if both topics are random and if they match
     if (playerTopicKey === 'random' && npcTopicKey === 'random' && playerTopic === npcTopic) {
       conversationResults.matchingRandom++;
       isMatch = true;
-      console.log('🎯 Matching random topics!', playerTopic, npcTopic, 'Total matches:', conversationResults.matchingRandom);
     }
     
     await showSpeech('npc', npcSpeakerId, npcEmoji, npcTopic, isMatch);
@@ -308,7 +305,6 @@ export const getTopicSymbol = (topicKey, context = {}, isPlayerTurn = false) => 
 
 // Show speech bubble for a character
 const showSpeech = async (speakerType, speakerId, emoji, topic, isMatch = false) => {
-  console.log('🗨️ showSpeech called:', { speakerType, speakerId, emoji, topic, isMatch });
   ConversationManager.addSpeech(speakerId, emoji, topic || emoji, isMatch);
 };
 
@@ -322,6 +318,17 @@ const animateCharacter = async (characterType, position, TILE_SIZE) => {
   // Find the character element based on type and position
   let characterElement;
   
+  // Get current tile size from DOM - look at an existing PC element to see what tile size is currently in use
+  const getCurrentTileSize = () => {
+    const anyPcElement = document.querySelector('.pc');
+    if (anyPcElement && anyPcElement.style.width) {
+      return parseInt(anyPcElement.style.width.replace('px', ''), 10);
+    }
+    return TILE_SIZE; // fallback to passed value
+  };
+  
+  const currentTileSize = getCurrentTileSize();
+  
   if (characterType === 'player') {
     // Find player element - new React components use left/top positioning
     const playerElements = document.querySelectorAll('.pc');
@@ -333,9 +340,14 @@ const animateCharacter = async (characterType, position, TILE_SIZE) => {
       
       if (!isNaN(left) && !isNaN(top)) {
         // New positioning system
-        const expectedX = position.x * TILE_SIZE;
-        const expectedY = position.y * TILE_SIZE;
-        return Math.abs(left - expectedX) < TILE_SIZE/2 && Math.abs(top - expectedY) < TILE_SIZE/2;
+        const expectedX = position.x * currentTileSize;
+        const expectedY = position.y * currentTileSize;
+        const deltaX = Math.abs(left - expectedX);
+        const deltaY = Math.abs(top - expectedY);
+        const threshold = currentTileSize; // More lenient matching with current tile size
+        const isMatch = deltaX < threshold && deltaY < threshold;
+        
+        return isMatch;
       } else if (transform) {
         // Old positioning system fallback
         const match = transform.match(/translate\((-?\d+(?:\.\d+)?)px,\s*(-?\d+(?:\.\d+)?)px\)/);
@@ -344,7 +356,12 @@ const animateCharacter = async (characterType, position, TILE_SIZE) => {
           const y = parseFloat(match[2]);
           const expectedX = position.x * TILE_SIZE;
           const expectedY = position.y * TILE_SIZE;
-          return Math.abs(x - expectedX) < TILE_SIZE/2 && Math.abs(y - expectedY) < TILE_SIZE/2;
+          const deltaX = Math.abs(x - expectedX);
+          const deltaY = Math.abs(y - expectedY);
+          const threshold = currentTileSize; // More lenient matching with current tile size
+          const isMatch = deltaX < threshold && deltaY < threshold;
+          
+          return isMatch;
         }
       }
       return false;
@@ -360,8 +377,8 @@ const animateCharacter = async (characterType, position, TILE_SIZE) => {
       
       if (!isNaN(left) && !isNaN(top)) {
         // New positioning system
-        const expectedX = position.x * TILE_SIZE;
-        const expectedY = position.y * TILE_SIZE;
+        const expectedX = position.x * currentTileSize;
+        const expectedY = position.y * currentTileSize;
         return Math.abs(left - expectedX) < TILE_SIZE/2 && Math.abs(top - expectedY) < TILE_SIZE/2;
       } else if (transform) {
         // Old positioning system fallback
@@ -386,10 +403,12 @@ const animateCharacter = async (characterType, position, TILE_SIZE) => {
     setTimeout(() => {
       characterElement.classList.remove('speaking-animation');
     }, 1500);
-  } else if (characterType === 'npc') {
-    // For Canvas NPCs, the bounce is handled by RenderNPCsCanvas listening to ConversationManager
-    // So we don't need to do anything special here - the speech bubble being added
-    // will trigger the bounce animation automatically
+  } else {
+    if (characterType === 'npc') {
+      // For Canvas NPCs, the bounce is handled by RenderNPCsCanvas listening to ConversationManager
+      // So we don't need to do anything special here - the speech bubble being added
+      // will trigger the bounce animation automatically
+    }
   }
 };
 

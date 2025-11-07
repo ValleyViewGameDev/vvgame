@@ -79,7 +79,8 @@ export const initializeGrid = async (
     setResources(processedResources);
     setTileTypes(tiles || []);
     
-    // Also update the global grid state
+    // Also update the global grid state with both tiles and resources
+    GlobalGridStateTilesAndResources.setTiles(tiles || []);
     GlobalGridStateTilesAndResources.setResources(processedResources);
     
 

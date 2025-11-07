@@ -359,6 +359,146 @@ function createTileTexture(tileType, TILE_SIZE, variation = 0, rowIndex, colInde
     }
   }
   
+  if (tileType === 'p') {
+    // App icon-style pavement tile with grass showing through rounded corners
+    const grassColor = '#67c257';
+    const cornerRadius = Math.max(4, TILE_SIZE * 0.15); // Nice visible rounded corners
+    
+    // Step 1: Fill entire tile with grass color (background)
+    ctx.fillStyle = grassColor;
+    ctx.globalAlpha = 0.4;
+    ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
+    ctx.globalAlpha = 1.0;
+    
+    // Step 2: Create rounded rectangle mask for the pavement stone
+    const drawRoundedRect = (x, y, width, height, radius) => {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    };
+    
+    // Step 3: Draw everything within the rounded rectangle shape
+    ctx.save();
+    drawRoundedRect(0, 0, TILE_SIZE, TILE_SIZE, cornerRadius);
+    ctx.clip(); // Clip everything to the rounded rectangle
+    
+    // Clear the grass background within the clipped area and draw stone
+    ctx.fillStyle = getTileColor(tileType);
+    ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
+    
+    // Add thin grass border inside the rounded shape
+    const grassWidth = Math.max(1, TILE_SIZE * 0.001);
+    ctx.fillStyle = grassColor;
+    ctx.globalAlpha = 0.6;
+    
+    // Top grass border
+    ctx.fillRect(0, 0, TILE_SIZE, grassWidth);
+    // Bottom grass border
+    ctx.fillRect(0, TILE_SIZE - grassWidth, TILE_SIZE, grassWidth);
+    // Left grass border
+    ctx.fillRect(0, 0, grassWidth, TILE_SIZE);
+    // Right grass border
+    ctx.fillRect(TILE_SIZE - grassWidth, 0, grassWidth, TILE_SIZE);
+    
+    ctx.globalAlpha = 1.0;
+    
+    // Add beveled effect within the rounded shape
+    const bevelSize = Math.max(1, TILE_SIZE * 0.01);
+    const inset = grassWidth;
+    
+    // Light highlights (top and left)
+    ctx.fillStyle = 'rgba(220, 215, 200, 0.7)';
+    ctx.fillRect(inset, inset, TILE_SIZE - inset * 2, bevelSize);
+    ctx.fillRect(inset, inset, bevelSize, TILE_SIZE - inset * 2);
+    
+    // Dark shadows (bottom and right)
+    ctx.fillStyle = 'rgba(80, 65, 45, 0.7)';
+    ctx.fillRect(inset, TILE_SIZE - inset - bevelSize, TILE_SIZE - inset * 2, bevelSize);
+    ctx.fillRect(TILE_SIZE - inset - bevelSize, inset, bevelSize, TILE_SIZE - inset * 2);
+    
+    ctx.restore(); // End clipping
+    
+    // Add stretched grass tufts along edges with random variation
+    // Use tile coordinates for consistent but varied seeding
+    const uniqueSeed = (rowIndex * 73 + colIndex * 137 + variation * 211) % 1000;
+    const numGrassTufts = 2 + (uniqueSeed % 3); // 2-4 tufts per tile
+    
+    for (let i = 0; i < numGrassTufts; i++) {
+      const grassSeed = (uniqueSeed + i * 179) % 1000;
+      
+      // Position grass tufts along edges
+      let x, y, isHorizontal;
+      const side = grassSeed % 4;
+      const extensionIntoStone = grassWidth * 2; // Allow tufts to extend into pavement area
+      
+      if (side === 0) { // Top edge - horizontal stretch
+        x = (grassSeed * 0.7) % (TILE_SIZE * 0.8) + TILE_SIZE * 0.1; // Stay away from corners
+        y = (grassSeed * 0.3) % (grassWidth + extensionIntoStone);
+        isHorizontal = true;
+      } else if (side === 1) { // Bottom edge - horizontal stretch
+        x = (grassSeed * 0.8) % (TILE_SIZE * 0.8) + TILE_SIZE * 0.1;
+        y = TILE_SIZE - grassWidth - extensionIntoStone + (grassSeed * 0.4) % (grassWidth + extensionIntoStone);
+        isHorizontal = true;
+      } else if (side === 2) { // Left edge - vertical stretch
+        x = (grassSeed * 0.5) % (grassWidth + extensionIntoStone);
+        y = (grassSeed * 0.9) % (TILE_SIZE * 0.8) + TILE_SIZE * 0.1;
+        isHorizontal = false;
+      } else { // Right edge - vertical stretch
+        x = TILE_SIZE - grassWidth - extensionIntoStone + (grassSeed * 0.6) % (grassWidth + extensionIntoStone);
+        y = (grassSeed * 1.1) % (TILE_SIZE * 0.8) + TILE_SIZE * 0.1;
+        isHorizontal = false;
+      }
+      
+      // Draw stretched grass along the edge (6 pixels long)
+      const stretchLength = Math.max(4, TILE_SIZE * 0.15); // About 6 pixels at normal size
+      const stretchWidth = Math.max(1, TILE_SIZE * 0.02);
+      
+      ctx.fillStyle = `rgba(27, 151, 27, 0.7)`;
+      ctx.save();
+      ctx.translate(x, y);
+      
+      // Random rotation for natural look
+      const baseRotation = (grassSeed * 0.01) % (Math.PI * 0.3) - Math.PI * 0.15; // ±27 degrees
+      ctx.rotate(baseRotation);
+      
+      if (isHorizontal) {
+        // Horizontal grass streak
+        ctx.fillRect(-stretchLength/2, -stretchWidth/2, stretchLength, stretchWidth);
+        
+        // Add some organic variation along the length
+        for (let k = 0; k < 3; k++) {
+          const offset = (k - 1) * stretchLength * 0.3;
+          const size = stretchWidth * (0.5 + (grassSeed + k * 23) % 100 / 200);
+          ctx.beginPath();
+          ctx.ellipse(offset, 0, size, size * 1.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else {
+        // Vertical grass streak
+        ctx.fillRect(-stretchWidth/2, -stretchLength/2, stretchWidth, stretchLength);
+        
+        // Add some organic variation along the length
+        for (let k = 0; k < 3; k++) {
+          const offset = (k - 1) * stretchLength * 0.3;
+          const size = stretchWidth * (0.5 + (grassSeed + k * 29) % 100 / 200);
+          ctx.beginPath();
+          ctx.ellipse(0, offset, size * 1.5, size, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      
+      ctx.restore();
+    }
+  }
+  
   return canvas;
 }
 
@@ -375,8 +515,8 @@ export const RenderTilesCanvas = ({ grid, tileTypes, TILE_SIZE, handleTileClick 
   
   // Get or create tile texture with variation
   const getTileTexture = useCallback((tileType, rowIndex, colIndex) => {
-    // Create 4 variations for grass and dirt, 1 for others
-    const numVariations = (tileType === 'g' || tileType === 'd') ? 4 : 1;
+    // Create 4 variations for grass, dirt, and stone; 1 for others
+    const numVariations = (tileType === 'g' || tileType === 'd' || tileType === 's') ? 4 : 1;
     const variation = (rowIndex * 73 + colIndex * 37) % numVariations;
     const cacheKey = `${tileType}-${TILE_SIZE}-${variation}-${rowIndex}-${colIndex}`;
     

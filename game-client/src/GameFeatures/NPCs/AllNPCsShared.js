@@ -11,9 +11,9 @@ import { attachTraderBehavior } from './NPCTraderBehavior';
  
 class NPC {
   constructor(id, type, position, properties, gridId) {
-    console.log('NPC constructor: properties:', properties);
-    console.log('NPC constructor: gridId:', gridId);
-    console.log(`NPC constructor: ID=${id}, type=${type}, grazeEnd=`, properties.grazeEnd);
+    //console.log('NPC constructor: properties:', properties);
+    //console.log('NPC constructor: gridId:', gridId);
+    //console.log(`NPC constructor: ID=${id}, type=${type}, grazeEnd=`, properties.grazeEnd);
 
     if (!properties || typeof properties !== 'object') {
       console.error(`Invalid properties passed to NPC constructor for type ${type}:`, properties);

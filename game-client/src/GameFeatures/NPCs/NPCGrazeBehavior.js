@@ -105,7 +105,7 @@ async function handleFarmAnimalBehavior(gridId) {
                         Math.floor(npc.position?.y) === tile.y
                     );
                     if (otherAnimalOnTile) {
-                        console.log(`Grass tile at (${tile.x}, ${tile.y}) is occupied by another animal, skipping`);
+                        //console.log(`Grass tile at (${tile.x}, ${tile.y}) is occupied by another animal, skipping`);
                         return false;
                     }
                     return true;
