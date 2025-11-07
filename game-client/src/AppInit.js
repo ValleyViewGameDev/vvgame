@@ -19,14 +19,24 @@ export const initializeGrid = async (
 ) => {
   try {
     if (!gridId) {
-      console.error('GridId is missing. Cannot initialize grid.');
+      console.error('🚨 [CRITICAL] GridId is missing. Cannot initialize grid.');
       return;
     }
 
-    console.log('Initializing grid for gridId:', gridId);
+    console.log('🔄 Initializing grid for gridId:', gridId);
 
     const gridData = await fetchGridData(gridId, updateStatus, DBPlayerData);
     const { tiles, resources } = gridData;
+    
+    console.log('🔍 [DEBUG] fetchGridData result:', {
+      gridDataKeys: Object.keys(gridData || {}),
+      tilesLength: tiles?.length || 0,
+      resourcesLength: resources?.length || 0,
+      tilesType: typeof tiles,
+      resourcesType: typeof resources,
+      firstTile: tiles?.[0],
+      firstResource: resources?.[0]
+    });
     
 
     // Process resources to add shadow tiles for multi-tile buildings
@@ -75,6 +85,14 @@ export const initializeGrid = async (
       }
     }
 
+    console.log('🔧 [DEBUG] Setting state:', {
+      tilesLength: (tiles || []).length,
+      processedResourcesLength: processedResources.length,
+      aboutToSetGrid: true,
+      aboutToSetResources: true,
+      aboutToSetTileTypes: true
+    });
+
     setGrid(tiles || []);
     setResources(processedResources);
     setTileTypes(tiles || []);
@@ -83,8 +101,11 @@ export const initializeGrid = async (
     GlobalGridStateTilesAndResources.setTiles(tiles || []);
     GlobalGridStateTilesAndResources.setResources(processedResources);
     
-
-    console.log('Grid, tiles, and resources initialized for gridId:', gridId);
+    console.log('✅ Grid, tiles, and resources initialized for gridId:', gridId);
+    console.log('🔍 [DEBUG] Final verification in AppInit:', {
+      globalTilesLength: GlobalGridStateTilesAndResources.getTiles().length,
+      globalResourcesLength: GlobalGridStateTilesAndResources.getResources().length
+    });
   } catch (error) {
     console.error('Error initializing grid:', error);
   }

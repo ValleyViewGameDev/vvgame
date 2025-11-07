@@ -615,11 +615,28 @@ export const RenderTilesCanvas = ({ grid, tileTypes, TILE_SIZE, handleTileClick 
   // Render tiles to canvas
   const renderTiles = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !grid || !tileTypes) return;
+    if (!canvas || !grid || !tileTypes) {
+      console.log('🔍 [CANVAS DEBUG] renderTiles early return:', {
+        hasCanvas: !!canvas,
+        hasGrid: !!grid,
+        hasTileTypes: !!tileTypes,
+        gridLength: grid?.length || 0,
+        tileTypesLength: tileTypes?.length || 0
+      });
+      return;
+    }
     
     const ctx = canvas.getContext('2d');
     const rows = grid.length;
     const cols = grid[0]?.length || 0;
+    
+    console.log('🎨 [CANVAS DEBUG] Starting tile render:', {
+      rows,
+      cols,
+      TILE_SIZE,
+      canvasWidth: cols * TILE_SIZE,
+      canvasHeight: rows * TILE_SIZE
+    });
     
     // Set canvas size
     canvas.width = cols * TILE_SIZE;
@@ -643,6 +660,11 @@ export const RenderTilesCanvas = ({ grid, tileTypes, TILE_SIZE, handleTileClick 
         );
       }
     }
+    
+    console.log('✅ [CANVAS DEBUG] Tile rendering completed:', {
+      totalTilesRendered: rows * cols,
+      canvasSize: `${canvas.width}x${canvas.height}`
+    });
   }, [grid, tileTypes, TILE_SIZE, getTileTexture]);
   
   // Re-render when dependencies change

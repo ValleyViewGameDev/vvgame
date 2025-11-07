@@ -364,8 +364,21 @@ export const changePlayerLocation = async (
     await new Promise(resolve => setTimeout(resolve, 50));
     
     // Second: Load tiles and resources completely
+    console.log('🔄 Starting initializeGrid...');
     await initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus, currentPlayer);
     console.log('✅ Grid tiles and resources loaded, now initializing NPCs and PCs');
+    
+    // DEBUG: Verify tiles and resources are actually loaded
+    const tilesAfterInit = GlobalGridStateTilesAndResources.getTiles();
+    const resourcesAfterInit = GlobalGridStateTilesAndResources.getResources();
+    console.log('🔍 [DEBUG] Post-init verification:', {
+      tilesCount: tilesAfterInit?.length || 0,
+      resourcesCount: resourcesAfterInit?.length || 0,
+      tilesType: typeof tilesAfterInit,
+      resourcesType: typeof resourcesAfterInit,
+      firstTile: tilesAfterInit?.[0],
+      firstResource: resourcesAfterInit?.[0]
+    });
     
     // Second: Initialize NPCs and PCs after tiles/resources are ready
     try {

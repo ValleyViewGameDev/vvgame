@@ -3,6 +3,7 @@ import { getResourceOverlayStatus, OVERLAY_SVG_MAPPING } from '../Utils/Resource
 import SVGAssetManager from './SVGAssetManager';
 import { getResourceCursorClass, getNPCCursorClass, setCanvasCursor } from '../Utils/CursorUtils';
 import { handleNPCClick } from '../GameFeatures/NPCs/NPCUtils';
+import { calculateTooltipPosition } from '../Utils/TooltipUtils';
 import ConversationManager from '../GameFeatures/Relationships/ConversationManager';
 import '../GameFeatures/Relationships/Conversation.css';
 import './Tooltip.css';
@@ -183,9 +184,10 @@ export const RenderDynamicElementsCanvas = ({
     );
     
     if (npc) {
+      const tooltipPosition = calculateTooltipPosition(event.clientX, event.clientY);
       setHoverTooltip({
-        x: event.clientX,
-        y: event.clientY,
+        x: tooltipPosition.x,
+        y: tooltipPosition.y,
         content: generateNPCTooltip(npc, strings),
       });
       // Set cursor for the NPC
@@ -207,9 +209,10 @@ export const RenderDynamicElementsCanvas = ({
     const tooltipResource = anyResource && anyResource.category !== 'doober' && anyResource.category !== 'deco' && anyResource.category !== 'source' ? anyResource : null;
     
     if (tooltipResource) {
+      const tooltipPosition = calculateTooltipPosition(event.clientX, event.clientY);
       setHoverTooltip({
-        x: event.clientX,
-        y: event.clientY,
+        x: tooltipPosition.x,
+        y: tooltipPosition.y,
         content: generateResourceTooltip(tooltipResource, strings),
       });
       // Set cursor for the resource
@@ -234,9 +237,10 @@ export const RenderDynamicElementsCanvas = ({
     );
     
     if (pc) {
+      const tooltipPosition = calculateTooltipPosition(event.clientX, event.clientY);
       setHoverTooltip({
-        x: event.clientX,
-        y: event.clientY,
+        x: tooltipPosition.x,
+        y: tooltipPosition.y,
         content: generatePCTooltip(pc),
       });
       // PCs are generally not interactive, so use default cursor

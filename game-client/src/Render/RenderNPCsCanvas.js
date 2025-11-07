@@ -3,6 +3,7 @@ import SVGAssetManager from './SVGAssetManager';
 import { OVERLAY_SVG_MAPPING } from '../Utils/ResourceOverlayUtils';
 import { generateNPCTooltipContent, handleNPCClickShared } from '../GameFeatures/NPCs/NPCInteractionUtils';
 import { getNPCCursorClass, setCanvasCursor } from '../Utils/CursorUtils';
+import { calculateTooltipPosition } from '../Utils/TooltipUtils';
 import ConversationManager from '../GameFeatures/Relationships/ConversationManager';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 
@@ -658,9 +659,10 @@ const RenderNPCsCanvasComponent = ({
       
       // Position tooltip at mouse position and track which NPC is being hovered
       if (setHoverTooltip) {
+        const tooltipPosition = calculateTooltipPosition(event.clientX, event.clientY);
         const tooltipData = {
-          x: event.clientX,
-          y: event.clientY,
+          x: tooltipPosition.x,
+          y: tooltipPosition.y,
           content: tooltipContent,
         };
         setHoverTooltip(tooltipData);

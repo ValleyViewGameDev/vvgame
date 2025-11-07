@@ -3,6 +3,7 @@ import SVGAssetManager from './SVGAssetManager';
 import { getResourceOverlayStatus, OVERLAY_SVG_MAPPING } from '../Utils/ResourceOverlayUtils';
 import { getResourceCursorClass, setCanvasCursor } from '../Utils/CursorUtils';
 import { generateResourceTooltip } from './RenderDynamicElements';
+import { calculateTooltipPosition } from '../Utils/TooltipUtils';
 
 // Helper function to get the filename for a resource type
 const getResourceFilename = (resourceType, masterResources) => {
@@ -258,9 +259,10 @@ export const RenderResourcesCanvas = ({
     });
     
     if (resource && resource.category !== 'doober' && resource.category !== 'source') {
+      const tooltipPosition = calculateTooltipPosition(event.clientX, event.clientY);
       setHoverTooltip({
-        x: event.clientX,
-        y: event.clientY,
+        x: tooltipPosition.x,
+        y: tooltipPosition.y,
         content: generateResourceTooltip(resource, strings),
       });
       const cursorClass = getResourceCursorClass(resource);
