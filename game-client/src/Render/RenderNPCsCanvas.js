@@ -4,6 +4,7 @@ import { OVERLAY_SVG_MAPPING } from '../Utils/ResourceOverlayUtils';
 import { generateNPCTooltipContent, handleNPCClickShared } from '../GameFeatures/NPCs/NPCInteractionUtils';
 import { getNPCCursorClass, setCanvasCursor } from '../Utils/CursorUtils';
 import ConversationManager from '../GameFeatures/Relationships/ConversationManager';
+import NPCsInGridManager from '../GridState/GridStateNPCs';
 
 // NPC art mapping - maps NPC types to SVG files
 // Start with a few NPCs for testing, can expand later
@@ -49,6 +50,7 @@ const RenderNPCsCanvasComponent = ({
   const canvasRef = useRef(null);
   const lastRenderData = useRef(null);
   const currentHoveredNPC = useRef(null); // Track which NPC is currently being hovered
+  const tooltipUpdateInterval = useRef(null); // Timer for updating time-based tooltips
   
   // Canvas-specific animation system (mimics DOM's CSS transitions)
   const canvasAnimations = useRef({});
@@ -258,16 +260,29 @@ const RenderNPCsCanvasComponent = ({
     return unsubscribe;
   }, [npcs, setBounceAnimation]);
 
+  // Stop tooltip update timer (defined first to avoid dependency issues)
+  const stopTooltipTimer = useCallback(() => {
+    if (tooltipUpdateInterval.current) {
+      clearInterval(tooltipUpdateInterval.current);
+      tooltipUpdateInterval.current = null;
+    }
+  }, []);
+
   // Function to update tooltip if currently hovering over an NPC
   const updateCurrentTooltip = useCallback(() => {
     if (!currentHoveredNPC.current || !setHoverTooltip) return;
     
-    // Find the current NPC being hovered
-    const npc = npcs?.find(n => n.id === currentHoveredNPC.current.id);
+    // Get fresh NPC data directly from NPCsInGridManager for most up-to-date info
+    const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
+    if (!npcsInGrid) return;
+    
+    // Find the current NPC being hovered in the fresh data
+    const npc = Object.values(npcsInGrid).find(n => n && n.id === currentHoveredNPC.current.id);
     if (!npc) {
       // NPC no longer exists, clear tooltip
       setHoverTooltip(null);
       currentHoveredNPC.current = null;
+      stopTooltipTimer();
       return;
     }
     
@@ -282,12 +297,58 @@ const RenderNPCsCanvasComponent = ({
         content: tooltipContent
       });
     }
-  }, [npcs, strings, setHoverTooltip]);
+  }, [gridId, strings, setHoverTooltip, stopTooltipTimer]);
+
+  // Start tooltip update timer for time-based data (graze countdowns, etc.)
+  const startTooltipTimer = useCallback(() => {
+    if (tooltipUpdateInterval.current) return; // Already running
+    
+    tooltipUpdateInterval.current = setInterval(() => {
+      // Call updateCurrentTooltip directly without dependencies to ensure fresh data
+      if (!currentHoveredNPC.current || !setHoverTooltip) return;
+      
+      // Get fresh NPC data directly from NPCsInGridManager for most up-to-date info
+      const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
+      if (!npcsInGrid) return;
+      
+      // Find the current NPC being hovered in the fresh data
+      const npc = Object.values(npcsInGrid).find(n => n && n.id === currentHoveredNPC.current.id);
+      if (!npc) {
+        // NPC no longer exists, clear tooltip
+        setHoverTooltip(null);
+        currentHoveredNPC.current = null;
+        if (tooltipUpdateInterval.current) {
+          clearInterval(tooltipUpdateInterval.current);
+          tooltipUpdateInterval.current = null;
+        }
+        return;
+      }
+      
+      // Generate fresh tooltip content with updated data
+      const tooltipContent = generateNPCTooltipContent(npc, strings);
+      
+      // Update tooltip with fresh content, keeping same position
+      if (currentHoveredNPC.current.tooltipData) {
+        setHoverTooltip({
+          x: currentHoveredNPC.current.tooltipData.x,
+          y: currentHoveredNPC.current.tooltipData.y,
+          content: tooltipContent
+        });
+      }
+    }, 1000); // Update every second
+  }, [gridId, strings, setHoverTooltip]); // Include direct dependencies instead of updateCurrentTooltip
 
   // Update tooltip when NPC data changes (making tooltips reactive)
   useEffect(() => {
     updateCurrentTooltip();
   }, [npcs, updateCurrentTooltip]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      stopTooltipTimer();
+    };
+  }, [stopTooltipTimer]);
   
   // Render NPCs to canvas
   const renderNPCs = useCallback(async () => {
@@ -609,6 +670,9 @@ const RenderNPCsCanvasComponent = ({
           id: npc.id,
           tooltipData: tooltipData
         };
+        
+        // Start timer for time-based tooltip updates (graze countdowns, etc.)
+        startTooltipTimer();
       }
     } else {
       // No NPC - show default cursor and clear tooltip
@@ -616,10 +680,11 @@ const RenderNPCsCanvasComponent = ({
       if (setHoverTooltip) {
         setHoverTooltip(null);
       }
-      // Clear tracked hovered NPC
+      // Clear tracked hovered NPC and stop timer
       currentHoveredNPC.current = null;
+      stopTooltipTimer();
     }
-  }, [onMouseEnter, setHoverTooltip, strings, npcs, TILE_SIZE, getNPCRenderPosition]);
+  }, [onMouseEnter, setHoverTooltip, strings, npcs, TILE_SIZE, getNPCRenderPosition, startTooltipTimer, stopTooltipTimer]);
 
   const handleCanvasMouseLeave = useCallback((event) => {
     // Clear tooltip when leaving canvas
@@ -627,13 +692,14 @@ const RenderNPCsCanvasComponent = ({
       setHoverTooltip(null);
     }
     
-    // Clear tracked hovered NPC
+    // Clear tracked hovered NPC and stop timer
     currentHoveredNPC.current = null;
+    stopTooltipTimer();
     
     if (onMouseLeave) {
       onMouseLeave(event);
     }
-  }, [onMouseLeave, setHoverTooltip]);
+  }, [onMouseLeave, setHoverTooltip, stopTooltipTimer]);
 
 
   return (

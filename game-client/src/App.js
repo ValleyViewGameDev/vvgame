@@ -143,9 +143,7 @@ useEffect(() => {
   const { uiLocked } = useUILock();
   const [isDeveloper, setIsDeveloper] = useState(false);
   const [isMayor, setIsMayor] = useState(false);
-  const [useCanvasResources, setUseCanvasResources] = useState(true); // Default to Canvas mode
-  const [useCanvasNPCs, setUseCanvasNPCs] = useState(true); // Default to Canvas mode
-  const [useCanvasPCs, setUseCanvasPCs] = useState(true); // Default to Canvas mode
+  // Canvas rendering mode variables removed - now forced to Canvas mode
   const { activeModal, setActiveModal, openModal, closeModal } = useModalContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
@@ -285,48 +283,7 @@ useEffect(() => {
   const seasonData = getSeasonData();
   const [currentPlayer, setCurrentPlayer] = useState(null); // Ensure this is defined
 
-  // Sync canvas settings with player data and migrate existing users to Canvas mode
-  useEffect(() => {
-    if (currentPlayer?.settings) {
-      // Check if this is an existing user without Canvas settings defined
-      const hasCanvasSettings = 
-        currentPlayer.settings.renderCanvasResources !== undefined ||
-        currentPlayer.settings.renderCanvasNPCs !== undefined ||
-        currentPlayer.settings.renderCanvasPCs !== undefined;
-
-      if (!hasCanvasSettings) {
-        // This is an existing user without Canvas settings - migrate them to Canvas mode
-        console.log('🔄 Migrating existing user to Canvas rendering mode');
-        const newSettings = {
-          ...currentPlayer.settings,
-          renderCanvasResources: true,
-          renderCanvasNPCs: true,
-          renderCanvasPCs: true
-        };
-        
-        // Update settings locally and on server
-        import('./settings').then(({ updatePlayerSettings }) => {
-          updatePlayerSettings(newSettings, currentPlayer, setCurrentPlayer);
-        });
-        
-        // Update local state immediately
-        setUseCanvasResources(true);
-        setUseCanvasNPCs(true);
-        setUseCanvasPCs(true);
-      } else {
-        // Use existing settings
-        if (currentPlayer.settings.renderCanvasResources !== undefined) {
-          setUseCanvasResources(currentPlayer.settings.renderCanvasResources);
-        }
-        if (currentPlayer.settings.renderCanvasNPCs !== undefined) {
-          setUseCanvasNPCs(currentPlayer.settings.renderCanvasNPCs);
-        }
-        if (currentPlayer.settings.renderCanvasPCs !== undefined) {
-          setUseCanvasPCs(currentPlayer.settings.renderCanvasPCs);
-        }
-      }
-    }
-  }, [currentPlayer?.settings, currentPlayer, setCurrentPlayer]);
+  // Canvas settings migration removed - now forced to Canvas mode always
 
   // Initialize gridId with localStorage (do not depend on currentPlayer here)
   const [gridId, setGridId] = useState(() => {
@@ -2137,7 +2094,6 @@ return (
           strings={strings}
           badgeState={badgeState}
           electionPhase={timers.elections.phase}
-          useCanvasResources={useCanvasResources}
           setHoverTooltip={setHoverTooltip}
         />
         
@@ -2167,7 +2123,6 @@ return (
           setActiveStation={setActiveStation}
           masterTrophies={masterTrophies}
           setHoverTooltip={setHoverTooltip}
-          useCanvasNPCs={useCanvasNPCs}
         />
         
         {/* Layer 4: PCs */}
@@ -2181,7 +2136,6 @@ return (
           setBackpack={setBackpack}
           masterResources={masterResources}
           strings={strings}
-          useCanvasPCs={useCanvasPCs}
         />
         
         {/* Layer 5: Dynamic Elements (tooltips, overlays, VFX) */}
@@ -2208,7 +2162,6 @@ return (
           strings={strings}
           gridId={gridId}
           globalTuning={globalTuning}
-          useCanvasResources={useCanvasResources}
           resources={memoizedResources}
           npcs={npcs}
           pcs={pcs}
@@ -2418,12 +2371,6 @@ return (
           setGridId={setGridId}
           setTileTypes={setTileTypes}
           closeAllPanels={closeAllPanels}
-          useCanvasResources={useCanvasResources}
-          setUseCanvasResources={setUseCanvasResources}
-          useCanvasNPCs={useCanvasNPCs}
-          setUseCanvasNPCs={setUseCanvasNPCs}
-          useCanvasPCs={useCanvasPCs}
-          setUseCanvasPCs={setUseCanvasPCs}
         />
       )}
       {activePanel === 'InventoryPanel' && (

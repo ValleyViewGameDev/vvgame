@@ -241,7 +241,7 @@ export const checkKentNPCStatus = (npc, currentPlayer) => {
 };
 
 /**
- * Main dynamic elements rendering component that decides between Canvas and DOM rendering
+ * Main dynamic elements rendering component - FORCED TO CANVAS MODE ONLY
  * Handles tooltips, overlays, badges, attack ranges, VFX, etc.
  */
 export const RenderDynamicElements = ({ 
@@ -334,7 +334,7 @@ export const RenderDynamicElements = ({
     }, { completed: [] });
   }, [resources, currentPlayer?.tradeStall, currentTime]);
 
-  // Always use Canvas mode
+  // FORCED TO CANVAS MODE - no decision tree
   return (
     <RenderDynamicElementsCanvas
         resources={resources}

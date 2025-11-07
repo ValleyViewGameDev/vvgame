@@ -24,13 +24,7 @@ const DebugPanel = ({
   setGrid, 
   setGridId, 
   setTileTypes, 
-  closeAllPanels, 
-  useCanvasResources,
-  setUseCanvasResources,
-  useCanvasNPCs,
-  setUseCanvasNPCs,
-  useCanvasPCs,
-  setUseCanvasPCs
+  closeAllPanels
 }) => {
   const [timers, setTimers] = useState([]);
   const [npcs, setNPCs] = useState([]);
@@ -943,58 +937,9 @@ const handleGetRich = async () => {
       }}>
         <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>⚡ Performance Metrics</h3>
         
-        {/* SVG Resources Toggle Button */}
-        <div style={{ marginBottom: '10px' }}>
-          <button 
-            className={`btn-basic ${useCanvasResources ? 'btn-success' : 'btn-neutral'}`}
-            onClick={() => {
-              const newValue = !useCanvasResources;
-              setUseCanvasResources(newValue);
-              updatePlayerSettings({
-                ...currentPlayer.settings,
-                renderCanvasResources: newValue
-              }, currentPlayer, setCurrentPlayer);
-            }}
-            style={{ fontSize: '12px', padding: '5px 10px' }}
-          >
-            {useCanvasResources ? '🎨 Switch to DOM Resources' : '🖼️ Switch to Canvas Resources'}
-          </button>
-        </div>
-        
-        {/* Canvas NPCs Toggle Button */}
-        <div style={{ marginBottom: '10px' }}>
-          <button 
-            className={`btn-basic ${useCanvasNPCs ? 'btn-success' : 'btn-neutral'}`}
-            onClick={() => {
-              const newValue = !useCanvasNPCs;
-              setUseCanvasNPCs(newValue);
-              updatePlayerSettings({
-                ...currentPlayer.settings,
-                renderCanvasNPCs: newValue
-              }, currentPlayer, setCurrentPlayer);
-            }}
-            style={{ fontSize: '12px', padding: '5px 10px' }}
-          >
-            {useCanvasNPCs ? '👥 Switch to DOM NPCs' : '🎨 Switch to Canvas NPCs'}
-          </button>
-        </div>
-        
-        {/* Canvas PCs Toggle Button */}
-        <div style={{ marginBottom: '10px' }}>
-          <button 
-            className={`btn-basic ${useCanvasPCs ? 'btn-success' : 'btn-neutral'}`}
-            onClick={() => {
-              const newValue = !useCanvasPCs;
-              setUseCanvasPCs(newValue);
-              updatePlayerSettings({
-                ...currentPlayer.settings,
-                renderCanvasPCs: newValue
-              }, currentPlayer, setCurrentPlayer);
-            }}
-            style={{ fontSize: '12px', padding: '5px 10px' }}
-          >
-            {useCanvasPCs ? '👤 Switch to DOM PCs' : '🎨 Switch to Canvas PCs'}
-          </button>
+        {/* Canvas mode is now forced - no toggle buttons needed */}
+        <div style={{ marginBottom: '10px', fontSize: '12px', color: '#666' }}>
+          🎨 Rendering Mode: <strong style={{ color: 'green' }}>Canvas (Forced)</strong>
         </div>
         
         
