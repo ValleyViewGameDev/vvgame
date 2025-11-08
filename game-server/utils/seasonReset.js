@@ -89,44 +89,48 @@ async function seasonReset(frontierId) {
       }
 
  
-// ✅ STEP 3: Apply money nerfs + wipe inventory & backpack & Gold status
+// ✅ STEP 3: Reset Gold status
 
-      console.log("🔁 STEP 3: Applying money nerfs and wiping inventories...");
+      console.log("🔁 STEP 3: Resetting Gold Status...");
       for (const player of allPlayers) {
-        const isGold = player.accountStatus?.includes("Gold");
-        const nerf = isGold ? globalTuning.seasonMoneyNerfGold : globalTuning.seasonMoneyNerf;
-        console.log(`💰 Nerfing player ${player.username} (${player._id}) by ${nerf * 100}%`);
-        const moneyItem = player.inventory.find((i) => i.type === "Money");
-        if (moneyItem) {
-          moneyItem.quantity = Math.floor(moneyItem.quantity * (1 - nerf));
-        }
 
-        // Build list of resources to keep based on dynamic criteria
-        const resourcesToKeep = new Set();
-        
-        // Keep resources where output==='noBank' AND repeatable===false
-        masterResources.forEach(resource => {
-          if (resource.output === 'noBank' && resource.repeatable === false) {
-            resourcesToKeep.add(resource.type);
-          }
-        });
-        
-        console.log(`Resources to keep during season reset:`, Array.from(resourcesToKeep));
-        
-        // Wipe inventory except for protected resources
-        player.inventory = player.inventory.filter(i => resourcesToKeep.has(i.type));
-        console.log(`Player ${player.username} inventory wiped, keeping protected resources.`);
-        console.log('Player inventory after wipe:', player.inventory);
+        // // NOTE: Inventory and Money nerfing has been disabled 
 
-        // Wipe backpack except for protected resources
-        player.backpack = player.backpack.filter(i => resourcesToKeep.has(i.type));
-        console.log(`Player ${player.username} backpack wiped, keeping protected resources.`);
-        console.log('Player backpack after wipe:', player.backpack);
+        // const isGold = player.accountStatus?.includes("Gold");
+        // const nerf = isGold ? globalTuning.seasonMoneyNerfGold : globalTuning.seasonMoneyNerf;
+        // console.log(`💰 Nerfing player ${player.username} (${player._id}) by ${nerf * 100}%`);
+        // const moneyItem = player.inventory.find((i) => i.type === "Money");
+        // if (moneyItem) {
+        //   moneyItem.quantity = Math.floor(moneyItem.quantity * (1 - nerf));
+        // }
 
-        // Reset netWorth to null 
-        player.netWorth = null;
+        // // Build list of resources to keep based on dynamic criteria
+        // const resourcesToKeep = new Set();
+        
+        // // Keep resources where output==='noBank' AND repeatable===false
+        // masterResources.forEach(resource => {
+        //   if (resource.output === 'noBank' && resource.repeatable === false) {
+        //     resourcesToKeep.add(resource.type);
+        //   }
+        // });
+        
+        // console.log(`Resources to keep during season reset:`, Array.from(resourcesToKeep));
+        
+        // // Wipe inventory except for protected resources
+        // player.inventory = player.inventory.filter(i => resourcesToKeep.has(i.type));
+        // console.log(`Player ${player.username} inventory wiped, keeping protected resources.`);
+        // console.log('Player inventory after wipe:', player.inventory);
+
+        // // Wipe backpack except for protected resources
+        // player.backpack = player.backpack.filter(i => resourcesToKeep.has(i.type));
+        // console.log(`Player ${player.username} backpack wiped, keeping protected resources.`);
+        // console.log('Player backpack after wipe:', player.backpack);
+
+        // // Reset netWorth to null 
+        // player.netWorth = null;
         
         // Reset Gold status to Free
+        
         if (player.accountStatus === "Gold") {
           player.accountStatus = "Free";
           console.log(`🔄 Reset player ${player.username} account status from Gold to Free`);

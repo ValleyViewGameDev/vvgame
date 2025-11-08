@@ -385,9 +385,28 @@ const getTooltip = (tile) => {
               }
             }
   
+            // Determine cell styling based on content type
+            let cellClasses = "mini-cell";
+            let contentClasses = "";
+            
+            // Check if this cell shows username
+            if (cell === "username" && content) {
+              contentClasses = "username-text";
+            }
+            
+            // Check if this cell shows role (Mayor)
+            if (cell === "role" && content === "Mayor") {
+              contentClasses = "mayor-text";
+            }
+            
+            // Check if this cell shows player icon on current grid
+            if (isPlayerHere && content === currentPlayer.icon) {
+              contentClasses = "player-icon-current";
+            }
+
             return (
-              <div key={`${rowIndex}-${colIndex}`} className="mini-cell">
-                <span>{content}</span>
+              <div key={`${rowIndex}-${colIndex}`} className={cellClasses}>
+                <span className={contentClasses}>{content}</span>
                 {tooltip && (
                   <div className="tooltip">
                     <p>Who's Here:</p>
