@@ -776,7 +776,6 @@
     "9004": "First, the basics:",
     "9005": "Use A-W-S-D keys to MOVE. Click to interact with things that are within your interaction radius.",
     "9006": "Explore 🚜 FARMING, ⚒️ BUILD, and 🐮 BUY to improve your Homestead and generate resources.",
-    "9007": "Generate 💰 MONEY at the 📥 TRADING POST. Post resources for sale to other players, or sell them to the game for partial value.",
     "9008": "More:",
     "9009": "As you create wealth, improve yourself with SKILLS and ABILITIES. For example, purchase the 🐴 HORSERIDING SKILL to venture into the Valley.",
     "9010": "Zoom out (- and +) to see how big the world is. Your Homestead is one of many in a SETTLEMENT. Each SETTLEMENT has a shared TOWN. Your Settlement is one of many in the FRONTIER.",
@@ -786,10 +785,9 @@
     "9014": "Farm, craft, trade, explore, fight, and enjoy!",
     "9020": "How to Earn Money",
     "9021": "There are a few ways to make 💰 MONEY.",
-    "9022": "As you are getting started, open the 📥 TRADING POST, which you will find in the upper left corner of your Homestead. Here, you can sell goods, including crops and crafts.",
     "9024": "As you advance, you'll be able to travel into TOWN using the ⏪ SIGNPOST next to the TRAIN. There, you will find places like the BANK, which will buy specific items from you at a premium.",
     "9025": "Spending Money",
-    "9026": "Surprise, most things cost Money. Initially, you will want to spend money on 💪 SKILLS, 🐮 FARM ANIMALS, and ⚒️ CRAFTING STATIONS. Explore the panels at the left side of the screen. These will help you generate more resources, which in turn will help you earn more Money.",
+    "9026": "Surprise, most things cost Money. Initially, you will want to spend money on 💪 SKILLS, 🐮 FARM ANIMALS, and 🛖 CRAFTING STATIONS. Explore the panels at the left side of the screen. These will help you generate more resources, which in turn will help you earn more Money.",
     "9027": "In TOWN you will disocver more Shops and Traders.",
     "9030": "How to Earn Gems",
     "9031": "Gems are a rare resource that can be used to purchase various things to help accelerate your play.",
@@ -1326,6 +1324,9 @@
     "12014": "Zoo Animals",
 
         "1201": "Ah, traveler, the woods are rife with whisper'd plots, and Portia keeps one clutched to her breast like a miser his coin. Bring me her secret, prithee, and I shall set in thy hand a Brass Bell most rare. Its voice rings truer than any oath she’s sworn. Do this, and I’ll breathe to thee murmurs of moonlit mischief, rivalries root-deep, and the turning of fortunes yet unseen.",
+
+            "9007": "Generate 💰 MONEY from 🤠 KENT or at the 📥 TRADING POST.",
+    "9022": "As you are getting started, check with 🤠 KENT. He will buy goods, including crops and crafts.",
 
     "15010": "🎒 Unlike prior seasons, your inventory NOT be wiped.",
     "15012": "💰 Unlike prior seasons, Money will NOT be nerfed."
