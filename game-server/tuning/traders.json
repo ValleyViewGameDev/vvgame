@@ -13,18 +13,6 @@
             "quantity": 1
           }
         ]
-      },
-      {
-        "gives": {
-          "type": "Secret",
-          "quantity": 1
-        },
-        "requires": [
-          {
-            "type": "Sunflower",
-            "quantity": 48
-          }
-        ]
       }
     ]
   },
