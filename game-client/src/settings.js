@@ -6,10 +6,10 @@ import axios from 'axios';
  */
 export async function updatePlayerSettings(newSettings, currentPlayer, setCurrentPlayer) {
   try {
-    // Prepare payload
+    // Prepare payload - merge with existing settings to preserve equippedWeapon/equippedArmor
     const updatedPlayer = {
       ...currentPlayer,
-      settings: { ...newSettings }, // Merge new settings
+      settings: { ...currentPlayer.settings, ...newSettings }, // Merge with existing settings
     };
 
     // Save to local storage first for immediate responsiveness
@@ -18,12 +18,15 @@ export async function updatePlayerSettings(newSettings, currentPlayer, setCurren
 
     console.log('Updating settings on server:', newSettings);
 
-    // Send update to server using update-profile API
+    // Send update to server using dot notation to preserve existing settings
+    const updates = {};
+    Object.keys(newSettings).forEach(key => {
+      updates[`settings.${key}`] = newSettings[key];
+    });
+
     const response = await axios.post(`${API_BASE}/api/update-profile`, {
       playerId: currentPlayer.playerId,
-      updates: {
-        settings: newSettings
-      }
+      updates
     });
 
     if (response.data.success) {
