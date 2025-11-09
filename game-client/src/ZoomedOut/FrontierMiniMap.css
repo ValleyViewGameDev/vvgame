@@ -1,0 +1,54 @@
+/* Frontier Mini Map Styles */
+
+.frontier-mini-map {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.mini-map-grid {
+  width: 128px;  /* 64 cells * 2px each = 128px */
+  height: 128px; /* 64 cells * 2px each = 128px */
+  margin: 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: #000;
+  image-rendering: pixelated; /* Keep crisp pixels */
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+.mini-map-row {
+  display: flex;
+  height: 2px; /* Each cell is 2px tall */
+  width: 128px;
+}
+
+.mini-map-cell {
+  width: 2px; /* Each cell is 2px wide */
+  height: 2px;
+  flex-shrink: 0;
+}
+
+.mini-map-cell.default-cell {
+  background-color: #2d5a2d; /* Dark green */
+}
+
+.mini-map-cell.player-cell {
+  background-color: #ffffff; /* White */
+  box-shadow: 0 0 2px #ffffff; /* Subtle white glow */
+}
+
+.mini-map-cell.homestead-cell {
+  background-color: #ff8c00; /* Orange */
+  box-shadow: 0 0 2px #ff8c00; /* Subtle orange glow */
+}
+
+.mini-map-info {
+  font-size: 12px;
+  color: white;
+  margin-top: 5px;
+  font-family: Arial, sans-serif; /* Standard Arial font */
+  font-weight: normal;
+}

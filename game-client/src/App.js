@@ -48,6 +48,7 @@ import npcController from './GridState/NPCController';
 
 import SettlementView from './ZoomedOut/SettlementView';
 import FrontierView from './ZoomedOut/FrontierView';
+import FrontierMiniMap from './ZoomedOut/FrontierMiniMap';
 
 import Modal from './UI/Modal';
 import LanguagePickerModal from './UI/LanguagePickerModal';
@@ -561,7 +562,6 @@ useEffect(() => {
       setMasterTrophies(trophies);
       setMasterWarehouse(warehouse);
       setIsMasterResourcesReady(true); // ✅ Mark ready
-
       // Step 2. Fetch stored player from localStorage
       console.log('🏁✅ 2 InitAppWrapper; getting local player...');
       const storedPlayer = localStorage.getItem('player');
@@ -731,6 +731,20 @@ useEffect(() => {
         },
       };
 
+      // Step 11a: Lookup homestead gridCoord if not already stored
+      if (updatedPlayerData.gridId && !updatedPlayerData.homesteadGridCoord) {
+        try {
+          console.log('🏠 Looking up homestead gridCoord for gridId:', updatedPlayerData.gridId);
+          const homesteadResponse = await axios.get(`${API_BASE}/api/homestead-gridcoord/${updatedPlayerData.gridId}`);
+          if (homesteadResponse.data.gridCoord) {
+            updatedPlayerData.homesteadGridCoord = homesteadResponse.data.gridCoord;
+            console.log('🏠✅ Homestead gridCoord found and stored:', homesteadResponse.data.gridCoord);
+          }
+        } catch (error) {
+          console.warn('🏠❌ Could not find homestead gridCoord:', error.response?.data?.error || error.message);
+        }
+      }
+
       setCurrentPlayer(updatedPlayerData);
       localStorage.setItem('player', JSON.stringify(updatedPlayerData));
       console.log(`✅ LocalStorage updated with combat stats:`, updatedPlayerData);
@@ -749,7 +763,7 @@ useEffect(() => {
         // Clear the flag in DB
         await axios.post(`${API_BASE}/api/update-profile`, {
           playerId: updatedPlayerData.playerId,
-          updates: { settings: { ...updatedPlayerData.settings, hasDied: false } },
+          updates: { "settings.hasDied": false },
         });
 
         // Clear the flag in localStorage
@@ -1965,6 +1979,9 @@ return (
 {/* ///////////////////  Base Panel  ///////////////////// */}
 
     <div className="base-panel">
+      
+      {/* Frontier Mini Map */}
+      <FrontierMiniMap currentPlayer={currentPlayer} strings={strings} />
  
       <div className="shared-buttons">
         <button className="btn-basic" onClick={() => openPanel('HowToPanel')}>{strings[10109]} AWSD</button>
@@ -2008,8 +2025,6 @@ return (
         <button className="btn-basic" onClick={() => openModal('TownNews')}>{strings[10125]}</button>
       </div>
 
-      <br />
-      <br />
       <br />
 
       <h2>{strings[96]}</h2>

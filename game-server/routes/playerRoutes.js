@@ -431,8 +431,8 @@ router.post('/update-settings', async (req, res) => {
       return res.status(404).json({ success: false, error: 'Player not found.' });
     }
 
-    // Update player settings
-    player.settings = { ...settings };
+    // Merge settings to preserve existing fields like equippedWeapon and equippedArmor
+    player.settings = { ...player.settings, ...settings };
     await player.save();
 
     res.json({ success: true, player });

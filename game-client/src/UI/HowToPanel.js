@@ -7,7 +7,6 @@ const HowToPanel = memo(({ onClose }) => {
   return (
     <Panel onClose={onClose} descriptionKey="1018" titleKey="1118" panelName="HowToPanel">
       <div className="panel-content">
-        <p>{strings[9000]}</p>
         <h2>{strings[9001]}</h2>
         <p>{strings[9002]}</p>
         <p>{strings[9003]}</p>

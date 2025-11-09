@@ -1,0 +1,146 @@
+import React, { useMemo } from 'react';
+import './FrontierMiniMap.css';
+
+/**
+ * Frontier Mini Map - 128x128 pixel representation (2x2 pixels per grid)
+ * 64x64 grid representing all grids in the frontier (8x8 settlements, each with 8x8 grids)
+ * Player location calculated from gridCoord, shown as yellow cell
+ */
+const FrontierMiniMap = ({ currentPlayer, strings }) => {
+  // Calculate player's position in the 64x64 grid from gridCoord
+  const playerGridPosition = useMemo(() => {
+    if (!currentPlayer?.location?.gridCoord) {
+      return null;
+    }
+
+    const gridCoord = currentPlayer.location.gridCoord;
+    console.log('🗺️ Calculating position from gridCoord:', gridCoord);
+    
+    // Convert gridCoord to string and pad to ensure consistent format
+    const gridCoordStr = gridCoord.toString().padStart(8, '0');
+    
+    // Parse gridCoord: TTIISSGG
+    // TT = tier (ignore)
+    // II = index (ignore) 
+    // SS = settlement row & col (positions 4-5)
+    // GG = grid row & col within settlement (positions 6-7)
+    
+    const settlementRow = parseInt(gridCoordStr[4], 10);
+    const settlementCol = parseInt(gridCoordStr[5], 10);
+    const gridRow = parseInt(gridCoordStr[6], 10);
+    const gridCol = parseInt(gridCoordStr[7], 10);
+    
+    // Calculate final position in 64x64 grid
+    const finalRow = settlementRow * 8 + gridRow;
+    const finalCol = settlementCol * 8 + gridCol;
+    
+    console.log('🗺️ Parsed gridCoord:', {
+      gridCoord: gridCoordStr,
+      settlementRow, settlementCol,
+      gridRow, gridCol,
+      finalRow, finalCol
+    });
+    
+    return { row: finalRow, col: finalCol };
+  }, [currentPlayer?.location?.gridCoord]);
+
+  // Calculate homestead position from homesteadGridCoord
+  const homesteadGridPosition = useMemo(() => {
+    if (!currentPlayer?.homesteadGridCoord) {
+      return null;
+    }
+
+    const gridCoord = currentPlayer.homesteadGridCoord;
+    console.log('🏠 Calculating homestead position from gridCoord:', gridCoord);
+    
+    // Convert gridCoord to string and pad to ensure consistent format
+    const gridCoordStr = gridCoord.toString().padStart(8, '0');
+    
+    // Parse gridCoord: TTIISSGG
+    const settlementRow = parseInt(gridCoordStr[4], 10);
+    const settlementCol = parseInt(gridCoordStr[5], 10);
+    const gridRow = parseInt(gridCoordStr[6], 10);
+    const gridCol = parseInt(gridCoordStr[7], 10);
+    
+    // Calculate final position in 64x64 grid
+    const finalRow = settlementRow * 8 + gridRow;
+    const finalCol = settlementCol * 8 + gridCol;
+    
+    console.log('🏠 Parsed homestead gridCoord:', {
+      gridCoord: gridCoordStr,
+      settlementRow, settlementCol,
+      gridRow, gridCol,
+      finalRow, finalCol
+    });
+    
+    return { row: finalRow, col: finalCol };
+  }, [currentPlayer?.homesteadGridCoord]);
+
+  // Generate the 64x64 grid (each cell represents one grid in the frontier)
+  const frontierGrid = useMemo(() => {
+    const grid = [];
+    
+    for (let row = 0; row < 64; row++) {
+      const gridRow = [];
+      for (let col = 0; col < 64; col++) {
+        // Check if this is the player's position
+        const isPlayerPosition = playerGridPosition && 
+          playerGridPosition.row === row && 
+          playerGridPosition.col === col;
+        
+        // Check if this is the homestead position
+        const isHomesteadPosition = homesteadGridPosition && 
+          homesteadGridPosition.row === row && 
+          homesteadGridPosition.col === col;
+
+        gridRow.push({
+          row,
+          col,
+          isPlayer: isPlayerPosition,
+          isHomestead: isHomesteadPosition,
+          key: `${row}-${col}`
+        });
+      }
+      grid.push(gridRow);
+    }
+    
+    return grid;
+  }, [playerGridPosition, homesteadGridPosition]);
+
+  return (
+    <div className="frontier-mini-map">
+      <div className="mini-map-grid">
+        {frontierGrid.map((row, rowIndex) => (
+          <div key={rowIndex} className="mini-map-row">
+            {row.map((cell) => {
+              // Determine cell type and class
+              let cellClass = 'default-cell';
+              let cellTitle = `Grid (${cell.row}, ${cell.col})`;
+              
+              if (cell.isPlayer) {
+                cellClass = 'player-cell';
+                cellTitle = `You are here (${cell.row}, ${cell.col})`;
+              } else if (cell.isHomestead) {
+                cellClass = 'homestead-cell';
+                cellTitle = `Your homestead (${cell.row}, ${cell.col})`;
+              }
+              
+              return (
+                <div
+                  key={cell.key}
+                  className={`mini-map-cell ${cellClass}`}
+                  title={cellTitle}
+                />
+              );
+            })}
+          </div>
+        ))}
+      </div>
+      <div className="mini-map-info">
+        {strings && strings[2] ? strings[2] : "Frontier Map"}
+      </div>
+    </div>
+  );
+};
+
+export default FrontierMiniMap;

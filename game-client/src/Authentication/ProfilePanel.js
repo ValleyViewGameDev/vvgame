@@ -129,7 +129,10 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         ...(formData.password && { password: formData.password }),
         accountStatus: formData.accountStatus,
         role: formData.role,
-        settings: { ...localSettings }, // Save settings as an object
+        // Use dot notation to update specific settings fields without replacing the entire object
+        "settings.isStateMachineEnabled": localSettings.isStateMachineEnabled,
+        "settings.isTeleportEnabled": localSettings.isTeleportEnabled,
+        "settings.toggleVFX": localSettings.toggleVFX,
       };
   
       console.log('Saving updates:', updates);
@@ -146,7 +149,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         // ✅ Update the React state
         const updatedPlayer = {
           ...currentPlayer,
-          settings: { ...localSettings },
+          settings: { ...currentPlayer.settings, ...localSettings },
           username: formData.username.trim(),
           icon: formData.icon.trim(),
           accountStatus: formData.accountStatus,

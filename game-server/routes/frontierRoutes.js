@@ -138,6 +138,7 @@ router.get('/get-frontier-grid/:frontierId', async (req, res) => {
   }
 });
 
+
 // ============================================
 // POST /create-frontier
 // Purpose: Creates a new Frontier with settlements & sub-grids
@@ -566,6 +567,58 @@ router.get('/frontier-bundle/:frontierId', async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Error in /frontier-bundle:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/homestead-gridcoord/:gridId - Find gridCoord for a specific gridId
+router.get('/homestead-gridcoord/:gridId', async (req, res) => {
+  try {
+    const { gridId } = req.params;
+    
+    if (!gridId) {
+      return res.status(400).json({ error: 'GridId is required' });
+    }
+
+    console.log('🏠 Searching for gridId:', gridId);
+
+    // Convert gridId to ObjectId for proper comparison
+    const { ObjectId } = require('mongodb');
+    const searchGridId = new ObjectId(gridId);
+
+    // Find all settlements and search their grids for the matching gridId
+    const settlements = await Settlement.find({}).lean();
+    console.log(`🏠 Found ${settlements.length} settlements to search`);
+    
+    for (const settlement of settlements) {
+      if (settlement.grids && Array.isArray(settlement.grids)) {
+        for (let row = 0; row < settlement.grids.length; row++) {
+          if (Array.isArray(settlement.grids[row])) {
+            for (let col = 0; col < settlement.grids[row].length; col++) {
+              const cell = settlement.grids[row][col];
+              if (cell && cell.gridId) {
+                // Compare ObjectIds properly
+                if (cell.gridId.toString() === gridId || cell.gridId.equals(searchGridId)) {
+                  console.log('🏠✅ Found matching gridId in settlement:', settlement._id);
+                  return res.status(200).json({
+                    gridCoord: cell.gridCoord,
+                    settlementId: settlement._id,
+                    position: { row, col }
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    // GridId not found
+    console.log('🏠❌ GridId not found in any settlement');
+    return res.status(404).json({ error: 'GridId not found in any settlement' });
+    
+  } catch (error) {
+    console.error('❌ Error finding gridCoord for gridId:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
