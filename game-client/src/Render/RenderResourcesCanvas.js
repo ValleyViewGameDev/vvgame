@@ -31,6 +31,7 @@ export const RenderResourcesCanvas = ({
 }) => {
   const canvasRef = useRef(null);
   const lastRenderData = useRef(null);
+  const renderingRef = useRef(false); // Track if rendering is in progress
   
   
   // Update SVGAssetManager zoom tiers when globalTuning changes
@@ -40,12 +41,26 @@ export const RenderResourcesCanvas = ({
     }
   }, [globalTuning]);
   
+  // Cleanup rendering flag on unmount
+  useEffect(() => {
+    return () => {
+      renderingRef.current = false;
+    };
+  }, []);
+  
   // Render resources to canvas
   const renderResources = useCallback(async () => {
     const canvas = canvasRef.current;
     if (!canvas || !resources) return;
     
-    const ctx = canvas.getContext('2d');
+    // Prevent concurrent renders
+    if (renderingRef.current) {
+      return;
+    }
+    renderingRef.current = true;
+    
+    try {
+      const ctx = canvas.getContext('2d');
     
     // Get device pixel ratio for high-DPI support
     const devicePixelRatio = window.devicePixelRatio || 1;
@@ -85,6 +100,9 @@ export const RenderResourcesCanvas = ({
     
     for (const resource of overlayResources) {
       await renderResourceOverlay(ctx, resource, TILE_SIZE);
+    }
+    } finally {
+      renderingRef.current = false;
     }
   }, [resources, TILE_SIZE, craftingStatus, tradingStatus, badgeState, electionPhase, masterResources]);
 
@@ -218,7 +236,10 @@ export const RenderResourcesCanvas = ({
     });
     
     if (currentData !== lastRenderData.current) {
-      renderResources();
+      renderResources().catch(error => {
+        console.error('Error rendering resources:', error);
+        renderingRef.current = false; // Reset flag on error
+      });
       lastRenderData.current = currentData;
     }
   }, [resources, TILE_SIZE, craftingStatus, tradingStatus, badgeState, electionPhase, currentPlayer]);
