@@ -72,6 +72,9 @@ export async function handleTransitSignpost(
       try {
         const signpostPosition = await fetchHomesteadSignpostPosition(currentPlayer.gridId);
         
+        // Get the homestead's actual gridCoord from the player's stored homesteadGridCoord
+        const homesteadGridCoord = currentPlayer.homesteadGridCoord;
+        
         const newPlayerPosition = {
           x: signpostPosition.x,
           y: signpostPosition.y,
@@ -79,7 +82,7 @@ export async function handleTransitSignpost(
           s: currentPlayer.settlementId,
           f: currentPlayer.location.f,
           gtype: "homestead",
-          gridCoord: currentPlayer.location?.gridCoord || currentPlayer.gridCoord || 0,
+          gridCoord: homesteadGridCoord,
         };
         
         updateStatus(101);

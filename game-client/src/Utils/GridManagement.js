@@ -319,11 +319,11 @@ export const changePlayerLocation = async (
       }
     }
 
-    // ✅ STEP 10: Update local state
+    // ✅ STEP 10: Update local state with server response to ensure gridCoord is preserved
     //console.log('4️⃣ Updating local Player Document...');
     const updatedPlayer = {
       ...currentPlayer,
-      location: toLocation,
+      location: locationResponse.data.player.location, // Use server response to ensure gridCoord is included
     };
 
     setCurrentPlayer(updatedPlayer);
