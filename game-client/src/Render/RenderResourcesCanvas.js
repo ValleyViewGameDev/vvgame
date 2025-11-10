@@ -55,9 +55,18 @@ export const RenderResourcesCanvas = ({
     
     // Prevent concurrent renders
     if (renderingRef.current) {
+      console.log('🚫 [RESOURCE RENDER] Skipping render - already in progress');
       return;
     }
     renderingRef.current = true;
+    
+    console.log(`🎨 [RESOURCE RENDER] Starting resource render for ${resources.length} resources at TILE_SIZE: ${TILE_SIZE}`);
+    
+    // Add timeout to prevent stuck renders
+    const renderTimeout = setTimeout(() => {
+      console.warn('⏰ [RESOURCE RENDER] Render timed out after 10 seconds, resetting lock');
+      renderingRef.current = false;
+    }, 10000);
     
     try {
       const ctx = canvas.getContext('2d');
@@ -101,7 +110,10 @@ export const RenderResourcesCanvas = ({
     for (const resource of overlayResources) {
       await renderResourceOverlay(ctx, resource, TILE_SIZE);
     }
+    
+    console.log(`✅ [RESOURCE RENDER] Resource rendering completed - ${resources.length} resources at TILE_SIZE: ${TILE_SIZE}`);
     } finally {
+      clearTimeout(renderTimeout);
       renderingRef.current = false;
     }
   }, [resources, TILE_SIZE, craftingStatus, tradingStatus, badgeState, electionPhase, masterResources]);
@@ -118,8 +130,10 @@ export const RenderResourcesCanvas = ({
     
     if (filename) {
       // Render custom SVG art
+      console.log(`🖼️ [SVG DEBUG] Loading SVG texture for ${resource.type}: ${filename} at size ${size}`);
       const texture = await SVGAssetManager.getSVGTexture(filename, size);
       if (texture) {
+        console.log(`✅ [SVG DEBUG] Successfully loaded SVG texture for ${resource.type}: ${filename}`);
         // For multi-tile resources, adjust Y position so bottom-left aligns with anchor
         let adjustedY = y;
         if (range > 1) {
@@ -127,7 +141,7 @@ export const RenderResourcesCanvas = ({
         }
         ctx.drawImage(texture, x, adjustedY, size, size);
       } else {
-        console.warn(`Failed to load SVG for ${resource.type}: ${filename}`);
+        console.warn(`❌ [SVG DEBUG] Failed to load SVG for ${resource.type}: ${filename}`);
         // Fall back to emoji if SVG fails to load
         renderResourceEmoji(ctx, resource, x, y, TILE_SIZE, range);
       }
@@ -218,6 +232,8 @@ export const RenderResourcesCanvas = ({
 
   // Re-render when dependencies change
   useEffect(() => {
+    console.log(`🔄 [RESOURCE USEEFFECT] useEffect triggered with TILE_SIZE: ${TILE_SIZE}, resources count: ${resources?.length || 0}`);
+    
     const currentData = JSON.stringify({ 
       resources: resources?.map(r => ({ 
         x: r.x, 
@@ -236,11 +252,14 @@ export const RenderResourcesCanvas = ({
     });
     
     if (currentData !== lastRenderData.current) {
+      console.log(`✅ [RESOURCE USEEFFECT] Data changed, triggering render with TILE_SIZE: ${TILE_SIZE}`);
       renderResources().catch(error => {
         console.error('Error rendering resources:', error);
         renderingRef.current = false; // Reset flag on error
       });
       lastRenderData.current = currentData;
+    } else {
+      console.log(`🔄 [RESOURCE USEEFFECT] Data unchanged, skipping render with TILE_SIZE: ${TILE_SIZE}`);
     }
   }, [resources, TILE_SIZE, craftingStatus, tradingStatus, badgeState, electionPhase, currentPlayer]);
 

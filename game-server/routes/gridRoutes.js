@@ -42,29 +42,52 @@ router.post('/save-single-pc', async (req, res) => {
 
   try {
     if (!gridId || !playerId || !pc || !lastUpdated) {
+      console.error('❌ save-single-pc: Missing required parameters', { gridId: !!gridId, playerId: !!playerId, pc: !!pc, lastUpdated: !!lastUpdated });
       return res.status(400).json({ error: 'gridId, playerId, pc, and lastUpdated are required.' });
     }
 
+    console.log(`🔍 save-single-pc: Attempting to save PC ${playerId} to grid ${gridId}`);
+    
     const grid = await Grid.findById(gridId);
     if (!grid) {
+      console.error(`❌ save-single-pc: Grid not found for gridId: ${gridId}`);
       return res.status(404).json({ error: 'Grid not found.' });
+    }
+
+    // Validate lastUpdated date format
+    let updatedDate;
+    try {
+      updatedDate = new Date(lastUpdated);
+      if (isNaN(updatedDate.getTime())) {
+        throw new Error('Invalid date format');
+      }
+    } catch (dateError) {
+      console.error('❌ save-single-pc: Invalid lastUpdated date format:', lastUpdated, dateError);
+      return res.status(400).json({ error: 'Invalid lastUpdated date format.' });
     }
 
     // Ensure playersInGrid is a Map
     const pcs = new Map(grid.playersInGrid || []);
-    pc.lastUpdated = new Date(lastUpdated); // ensures consistent format
+    pc.lastUpdated = updatedDate; // ensures consistent format
     pcs.set(playerId, pc);
     grid.playersInGrid = pcs;
 
     // Optionally update global PC timestamp
-    grid.playersInGridLastUpdated = new Date(lastUpdated);
+    grid.playersInGridLastUpdated = updatedDate;
 
     await grid.save();
 
     console.log(`✅ Single PC ${playerId} saved for gridId: ${gridId}`);
     res.status(200).json({ success: true });
   } catch (error) {
-    console.error('❌ Error saving single PC:', error);
+    console.error('❌ Error saving single PC:', {
+      error: error.message,
+      stack: error.stack,
+      gridId,
+      playerId,
+      pcData: pc ? Object.keys(pc) : 'undefined',
+      lastUpdated
+    });
     res.status(500).json({ error: 'Failed to save single PC.' });
   }
 });
