@@ -134,11 +134,16 @@ export const RenderResourcesCanvas = ({
       const texture = await SVGAssetManager.getSVGTexture(filename, size);
       if (texture) {
         console.log(`✅ [SVG DEBUG] Successfully loaded SVG texture for ${resource.type}: ${filename}`);
-        // For multi-tile resources, adjust Y position so bottom-left aligns with anchor
-        let adjustedY = y;
+        // For multi-tile resources, keep visual aligned with logical blocking tiles
+        // The visual should occupy the same tiles as the logical blocking area
+        let adjustedY = y; // No adjustment needed - render from anchor position
+        
         if (range > 1) {
-          adjustedY = y - (size - TILE_SIZE);
+          console.log(`🗻 [MULTI-TILE DEBUG] Rendering ${resource.type} (range ${range}) at anchor (${resource.x}, ${resource.y}) -> visual position (${x}, ${adjustedY}) size ${size}x${size}`);
+          console.log(`    Logical blocking tiles: (${resource.x}, ${resource.y}) to (${resource.x + range - 1}, ${resource.y + range - 1})`);
+          console.log(`    Visual rendering tiles: (${Math.floor(x/TILE_SIZE)}, ${Math.floor(adjustedY/TILE_SIZE)}) to (${Math.floor((x+size)/TILE_SIZE)-1}, ${Math.floor((adjustedY+size)/TILE_SIZE)-1})`);
         }
+        
         ctx.drawImage(texture, x, adjustedY, size, size);
       } else {
         console.warn(`❌ [SVG DEBUG] Failed to load SVG for ${resource.type}: ${filename}`);
@@ -160,9 +165,14 @@ export const RenderResourcesCanvas = ({
     // Calculate font size based on resource type and range
     let fontSize;
     if (range > 1) {
-      fontSize = resource.action === 'wall' 
-        ? TILE_SIZE * 1.2 * range  // Multi-tile walls
-        : TILE_SIZE * 0.8 * range; // Other multi-tile resources
+      if (resource.action === 'wall') {
+        fontSize = TILE_SIZE * 1.2 * range;  // Multi-tile walls
+      } else {
+        // Scale emoji font size more aggressively for larger multi-tile resources
+        // to better fill the visual space
+        const baseScale = range <= 2 ? 0.8 : (range === 3 ? 1.0 : 1.2);
+        fontSize = TILE_SIZE * baseScale * range;
+      }
     } else {
       fontSize = resource.action === 'wall'
         ? TILE_SIZE * 1.1  // Single-tile walls
@@ -179,10 +189,18 @@ export const RenderResourcesCanvas = ({
     // For multi-tile resources that grow upward, adjust the visual position
     let adjustedY = centerY;
     if (range > 1) {
-      // Multi-tile resources are anchored at bottom-left, position emoji in the lower portion
-      adjustedY = y + TILE_SIZE * 0.1;
       if (resource.action === 'wall') {
-        adjustedY += 3; // Multi-tile walls shifted down 3px
+        // Multi-tile walls positioned in lower portion
+        adjustedY = y + TILE_SIZE * 0.1 + 3;
+      } else {
+        // Adjust positioning based on size
+        if (range === 2) {
+          adjustedY = y + TILE_SIZE * 0.1; // 2x2: stays low (works well)
+        } else if (range === 3) {
+          adjustedY = y - TILE_SIZE * 0.3; // 3x3: move up a bit
+        } else { // range >= 4
+          adjustedY = y - TILE_SIZE ; // 4x4+: move up more
+        }
       }
     }
     

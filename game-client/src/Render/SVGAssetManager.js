@@ -94,16 +94,16 @@ class SVGAssetManager {
     const tier = this.getBestZoomTier(targetSize);
     const cacheKey = `${isOverlay ? 'overlay-' : ''}${svgFileName}-${tier}`;
 
-    console.log(`🔍 [SVG MANAGER] Requesting texture for ${svgFileName} at targetSize ${targetSize}, tier ${tier}, cacheKey: ${cacheKey}`);
+    //console.log(`🔍 [SVG MANAGER] Requesting texture for ${svgFileName} at targetSize ${targetSize}, tier ${tier}, cacheKey: ${cacheKey}`);
 
     // Return cached texture if available
     if (this.textureCache.has(cacheKey)) {
-      console.log(`✅ [SVG MANAGER] Found cached texture for ${cacheKey}`);
+      //console.log(`✅ [SVG MANAGER] Found cached texture for ${cacheKey}`);
       return this.textureCache.get(cacheKey);
     }
 
     try {
-      console.log(`🔄 [SVG MANAGER] Creating new texture for ${svgFileName}`);
+      //console.log(`🔄 [SVG MANAGER] Creating new texture for ${svgFileName}`);
       // Load SVG and create texture
       const svgText = await this.loadSVG(svgFileName, isOverlay);
       if (!svgText) {
@@ -114,7 +114,7 @@ class SVGAssetManager {
       const texture = await this.createSVGTexture(svgText, tier);
       if (texture) {
         this.textureCache.set(cacheKey, texture);
-        console.log(`✅ [SVG MANAGER] Successfully created and cached texture for ${cacheKey}`);
+        //console.log(`✅ [SVG MANAGER] Successfully created and cached texture for ${cacheKey}`);
       } else {
         console.warn(`❌ [SVG MANAGER] Failed to create texture for ${svgFileName}`);
       }

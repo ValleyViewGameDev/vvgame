@@ -291,6 +291,7 @@
     "category": "editor",
     "passable": false,
     "range": 3,
+    "source": "Buy",
     "validong": true,
     "validond": true,
     "validons": true,
@@ -3804,9 +3805,6 @@
     "action": "openUI",
     "passable": false,
     "range": 2,
-    "source": "Buy",
-    "ingredient1": "Money",
-    "ingredient1qty": 10000,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -3994,7 +3992,6 @@
     "action": "openUI",
     "passable": false,
     "range": 2,
-    "source": "Buy",
     "validong": true,
     "validond": true,
     "validons": true,
@@ -4002,10 +3999,7 @@
     "validonw": false,
     "validonl": false,
     "validonn": true,
-    "validono": true,
-        "ingredient1": "Money",
-    "ingredient1qty": 1000
-
+    "validono": true
   },
   {
     "type": "Armory",
@@ -4013,7 +4007,6 @@
     "layoutkey": "aR",
     "category": "shop",
     "action": "openUI",
-    "source": "Buy",
     "passable": false,
     "range": 2,
     "validong": true,
