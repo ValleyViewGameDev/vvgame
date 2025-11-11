@@ -135,11 +135,23 @@ export async function handleTransitSignpost(
 
       const settlementResponse = await axios.get(`${API_BASE}/api/get-settlement/${settlementId}`);
       const settlement = settlementResponse.data;
-      if (!settlement || !settlement.grids) { updateStatus(104); return; }
+      if (!settlement || !settlement.grids) { 
+        updateStatus(104); 
+        if (transitionFadeControl?.endTransition) {
+          transitionFadeControl.endTransition();
+        }
+        return; 
+      }
 
       // Find any sub-grid with gridType = town
       const townGrid = settlement.grids.flat().find((grid) => grid.gridType === "town" && grid.gridId);
-      if (!townGrid) { updateStatus(104); return; }
+      if (!townGrid) { 
+        updateStatus(104); 
+        if (transitionFadeControl?.endTransition) {
+          transitionFadeControl.endTransition();
+        }
+        return; 
+      }
 
       console.log("Found town grid:", townGrid);
       
@@ -222,12 +234,24 @@ export async function handleTransitSignpost(
     const settlementResponse = await axios.get(`${API_BASE}/api/get-settlement/${settlementId}`);
     const settlement = settlementResponse.data;
     if (!settlement || !settlement.grids) {
-      console.error("Settlement data is invalid or missing grids."); updateStatus(105); return; }
+      console.error("Settlement data is invalid or missing grids."); 
+      updateStatus(105); 
+      if (transitionFadeControl?.endTransition) {
+        transitionFadeControl.endTransition();
+      }
+      return; 
+    }
 
       // Find the sub-grid doc matching currentGridId
     const currentGrid = settlement.grids.flat().find((grid) => grid.gridId === currentGridId);
     if (!currentGrid) {
-      console.error("Current grid not found in settlement."); updateStatus(105); return; }
+      console.error("Current grid not found in settlement."); 
+      updateStatus(105); 
+      if (transitionFadeControl?.endTransition) {
+        transitionFadeControl.endTransition();
+      }
+      return; 
+    }
 
       // 5) Decode the current gridCoord to get gRow/gCol
     if (!currentGrid.gridCoord) {
@@ -287,7 +311,14 @@ export async function handleTransitSignpost(
     const targetGrid = targetSettlement.grids[newGRow][newGCol];
     console.log('targetGrid = ',targetGrid);
     if (!targetGrid?.gridId) {
+      console.log('❌ [TRAVEL FAILED] No valid grid found - ending fade transition');
       updateStatus(18);
+      
+      // End fade transition since travel failed
+      if (transitionFadeControl?.endTransition) {
+        transitionFadeControl.endTransition();
+      }
+      
       return;
     }
 
