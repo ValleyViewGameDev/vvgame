@@ -414,6 +414,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
   const handleDeleteInactiveProfiles = async () => {
     const now = new Date();
     const twentyOneDaysAgo = new Date(now.getTime() - (21 * 24 * 60 * 60 * 1000));
+    const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
     
     // Filter profiles that meet deletion criteria
     const profilesToDelete = players.filter(player => {
@@ -421,8 +422,13 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
       const ftueStep = player.ftuestep || 0;
       const isFirstTimeUser = player.firsttimeuser === true;
       
-      // Check if last active is 21+ days ago (or never active) AND ftue step is 6 or less AND still a first-time user
-      return (!lastActive || lastActive <= twentyOneDaysAgo) && ftueStep <= 6 && isFirstTimeUser;
+      // Condition 1: First-time users with 21+ days inactive AND FTUE step 6 or less
+      const condition1 = (!lastActive || lastActive <= twentyOneDaysAgo) && ftueStep <= 6 && isFirstTimeUser;
+      
+      // Condition 2: ANY profile with 30+ days inactive, regardless of FTUE status
+      const condition2 = !lastActive || lastActive <= thirtyDaysAgo;
+      
+      return condition1 || condition2;
     });
     
     if (profilesToDelete.length === 0) {
@@ -600,7 +606,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
             onClick={handleDeleteInactiveProfiles} 
             className="action-btn"
             style={{ backgroundColor: '#dc3545', color: 'white', marginTop: '10px' }}
-            title="Will delete first-time users where Last Active is 21 days or more, and FTUE step is 6 or less"
+            title="Will delete: (1) First-time users where Last Active is 21+ days and FTUE step is 6 or less, OR (2) ANY profile where Last Active is 30+ days, regardless of FTUE status"
           >
             🗑️ Delete Inactive Profiles
           </button>
@@ -947,7 +953,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
               <p className="criteria">
                 {deletionModal.type === 'unstarted' ? 
                   '(First-time users only: Last Active ≥ 10 days, FTUE Step ≤ 3)' : 
-                  '(First-time users only: Last Active ≥ 21 days, FTUE Step ≤ 6)'
+                  '(First-time users: Last Active ≥ 21 days + FTUE Step ≤ 6) OR (Any profile: Last Active ≥ 30 days)'
                 }
               </p>
             </div>

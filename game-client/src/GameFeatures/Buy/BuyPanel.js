@@ -146,7 +146,7 @@ const BuyPanel = ({
 
               const skillColor = requirementsMet ? 'green' : 'red';
               const details =
-                (farmAnimalLimitReached ? `<span style="color: red;">${strings[407]}</span><br>` : '') +
+                (farmAnimalLimitReached ? `<span style="color: red;">${strings[407]} (${maxFarmAnimals})</span><br>` : '') +
                 (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span><br>` : '') +
                 `${strings[461]}<div>${formattedCosts}</div>`;
 
