@@ -4,6 +4,13 @@ import React, { useState, useEffect } from 'react';
 const TransitionOverlay = ({ isTransitioning, onTransitionComplete }) => {
   const [opacity, setOpacity] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [homesteadElement, setHomesteadElement] = useState(null);
+
+  // Find the homestead container on mount
+  useEffect(() => {
+    const element = document.querySelector('.homestead');
+    setHomesteadElement(element);
+  }, []);
 
   useEffect(() => {
     if (isTransitioning) {
@@ -28,20 +35,23 @@ const TransitionOverlay = ({ isTransitioning, onTransitionComplete }) => {
     }
   }, [isTransitioning, onTransitionComplete]);
 
-  if (!isVisible) return null;
+  if (!isVisible || !homesteadElement) return null;
+
+  // Get the homestead container's position and dimensions
+  const rect = homesteadElement.getBoundingClientRect();
 
   return (
     <div
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
+        position: 'absolute',
+        top: rect.top + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+        height: rect.height,
         backgroundColor: '#000000',
         opacity: opacity,
         transition: 'opacity 0.3s ease-in-out',
-        zIndex: 9999, // High z-index to cover everything
+        zIndex: 1000, // High z-index to cover homestead content
         pointerEvents: isTransitioning ? 'all' : 'none', // Block interaction during transition
       }}
     />

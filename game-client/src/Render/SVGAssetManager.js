@@ -95,16 +95,16 @@ class SVGAssetManager {
     // Don't try to be smart with zoom tiers - trust the existing App.js zoom system
     const cacheKey = `${isOverlay ? 'overlay-' : ''}${svgFileName}-${targetSize}`;
 
-    console.log(`🔍 [SVG MANAGER] Requesting texture for ${svgFileName} at targetSize ${targetSize}, cacheKey: ${cacheKey}`);
+    //console.log(`🔍 [SVG MANAGER] Requesting texture for ${svgFileName} at targetSize ${targetSize}, cacheKey: ${cacheKey}`);
 
     // Return cached texture if available
     if (this.textureCache.has(cacheKey)) {
-      console.log(`✅ [SVG MANAGER] Found cached texture for ${cacheKey}`);
+      //console.log(`✅ [SVG MANAGER] Found cached texture for ${cacheKey}`);
       return this.textureCache.get(cacheKey);
     }
 
     try {
-      console.log(`🔄 [SVG MANAGER] Creating new texture for ${svgFileName}`);
+      //console.log(`🔄 [SVG MANAGER] Creating new texture for ${svgFileName}`);
       // Load SVG and create texture
       const svgText = await this.loadSVG(svgFileName, isOverlay);
       if (!svgText) {
@@ -115,7 +115,7 @@ class SVGAssetManager {
       const texture = await this.createSVGTexture(svgText, targetSize);
       if (texture) {
         this.textureCache.set(cacheKey, texture);
-        console.log(`✅ [SVG MANAGER] Successfully created and cached texture for ${cacheKey}`);
+        //console.log(`✅ [SVG MANAGER] Successfully created and cached texture for ${cacheKey}`);
       } else {
         console.warn(`❌ [SVG MANAGER] Failed to create texture for ${svgFileName}`);
       }
