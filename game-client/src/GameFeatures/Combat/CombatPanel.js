@@ -28,8 +28,9 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
   
   // Check if player is in a valid location for equipment changes
   const canChangeEquipment = () => {
-    const gridType = currentPlayer.location.gtype;
-    return gridType === 'homestead' || gridType === 'town';
+//    const gridType = currentPlayer.location.gtype;
+//    return gridType === 'homestead' || gridType === 'town';
+    return true; // CHANGED: Allow equipment changes anywhere
   };
 
   // Equipment change handlers
@@ -296,6 +297,10 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
                           type="checkbox"
                           checked={isEquipped}
                           onChange={() => handleEquipArmor(isEquipped ? null : power.type)}
+                          onMouseDown={(e) => {
+                            // Prevent focus from being taken away from game board
+                            setTimeout(() => e.target.blur(), 0);
+                          }}
                           className="equipment-checkbox"
                           disabled={!canChangeEquipment()}
                         />
@@ -346,6 +351,10 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
                           type="checkbox"
                           checked={isEquipped}
                           onChange={() => handleEquipWeapon(isEquipped ? null : power.type)}
+                          onMouseDown={(e) => {
+                            // Prevent focus from being taken away from game board
+                            setTimeout(() => e.target.blur(), 0);
+                          }}
                           className="equipment-checkbox"
                           disabled={!canChangeEquipment()}
                         />
