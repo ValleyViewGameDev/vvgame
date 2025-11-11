@@ -91,10 +91,11 @@ class SVGAssetManager {
 
   // Get or create cached texture for SVG asset
   async getSVGTexture(svgFileName, targetSize, isOverlay = false) {
-    const tier = this.getBestZoomTier(targetSize);
-    const cacheKey = `${isOverlay ? 'overlay-' : ''}${svgFileName}-${tier}`;
+    // Use exact targetSize for cache key to match existing zoom system (16, 34, 50)
+    // Don't try to be smart with zoom tiers - trust the existing App.js zoom system
+    const cacheKey = `${isOverlay ? 'overlay-' : ''}${svgFileName}-${targetSize}`;
 
-    console.log(`🔍 [SVG MANAGER] Requesting texture for ${svgFileName} at targetSize ${targetSize}, tier ${tier}, cacheKey: ${cacheKey}`);
+    console.log(`🔍 [SVG MANAGER] Requesting texture for ${svgFileName} at targetSize ${targetSize}, cacheKey: ${cacheKey}`);
 
     // Return cached texture if available
     if (this.textureCache.has(cacheKey)) {
@@ -111,7 +112,7 @@ class SVGAssetManager {
         return null;
       }
 
-      const texture = await this.createSVGTexture(svgText, tier);
+      const texture = await this.createSVGTexture(svgText, targetSize);
       if (texture) {
         this.textureCache.set(cacheKey, texture);
         console.log(`✅ [SVG MANAGER] Successfully created and cached texture for ${cacheKey}`);
