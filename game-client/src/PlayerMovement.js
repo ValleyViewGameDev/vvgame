@@ -263,6 +263,12 @@ function isValidMove(targetX, targetY, masterResources,
 export function centerCameraOnPlayer(position, TILE_SIZE) {
   const gameContainer = document.querySelector(".homestead");
   if (!gameContainer) return;
+  
+  // Guard against undefined position during network delays
+  if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
+    console.warn('⚠️ [CAMERA] Cannot center camera - invalid position:', position);
+    return;
+  }
 
   const LEFT_PANEL_WIDTH = 300;  // Scaled with zoom level
   const HEADER_HEIGHT = 200;     // Same
@@ -290,6 +296,12 @@ export function centerCameraOnPlayer(position, TILE_SIZE) {
 export function centerCameraOnPlayerFast(position, TILE_SIZE) {
   const gameContainer = document.querySelector(".homestead");
   if (!gameContainer) return;
+  
+  // Guard against undefined position during network delays
+  if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
+    console.warn('⚠️ [CAMERA FAST] Cannot center camera - invalid position:', position);
+    return;
+  }
 
   const LEFT_PANEL_WIDTH = 300;  // Scaled with zoom level
   const HEADER_HEIGHT = 200;     // Same

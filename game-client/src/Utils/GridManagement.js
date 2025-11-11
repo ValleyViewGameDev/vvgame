@@ -405,14 +405,33 @@ export const changePlayerLocation = async (
       const freshGridState = NPCsInGridManager.getNPCsInGrid(toLocation.g);
       const freshPCState = playersInGridManager.getPlayersInGrid(toLocation.g);
 
+      // Verify that our player exists in the fresh PC state
+      if (!freshPCState || !freshPCState[playerId]) {
+        console.warn('⚠️ [FINALIZATION] Player not found in fresh PC state, forcing re-add...');
+        
+        // Re-add the player to ensure they appear
+        await playersInGridManager.addPC(toLocation.g, playerId, playerData);
+        
+        // Get the updated state
+        const updatedPCState = playersInGridManager.getPlayersInGrid(toLocation.g);
+        
+        playersInGridManager.setPlayersInGridReact({ [toLocation.g]: {
+          pcs: updatedPCState,
+          playersInGridLastUpdated: Date.now(),
+        }});
+        
+        console.log('✅ [FINALIZATION] Player force-added to grid');
+      } else {
+        playersInGridManager.setPlayersInGridReact({ [toLocation.g]: {
+          pcs: freshPCState,
+          playersInGridLastUpdated: Date.now(),
+        }});
+      }
+
       NPCsInGridManager.setGridStateReact({ [toLocation.g]: {
         npcs: freshGridState,
         NPCsInGridLastUpdated: Date.now(),
       }});
-      playersInGridManager.setPlayersInGridReact({ [toLocation.g]: {
-        pcs: freshPCState,
-        playersInGridLastUpdated: Date.now(),
-      }});     
       
       console.log('✅ [FINALIZATION] NPCs and PCs initialized successfully');
     } catch (err) {
@@ -484,8 +503,32 @@ export const changePlayerLocation = async (
       }
     }
     
-    // Center camera and update status
-    centerCameraOnPlayer({ x: finalX, y: finalY }, TILE_SIZE);
+    // Center camera and update status with retry mechanism
+    const centerCameraWithRetry = async (position, attempts = 0) => {
+      if (typeof position.x !== 'number' || typeof position.y !== 'number') {
+        console.warn('⚠️ [GRID TRANSITION] Cannot center camera - invalid coordinates:', position);
+        return;
+      }
+      
+      try {
+        centerCameraOnPlayer(position, TILE_SIZE);
+        console.log(`📷 [GRID TRANSITION] Camera centered on (${position.x}, ${position.y})`);
+      } catch (error) {
+        if (attempts < 3) {
+          console.warn(`⚠️ [GRID TRANSITION] Camera centering failed, retrying in 100ms (attempt ${attempts + 1}/3):`, error);
+          setTimeout(() => centerCameraWithRetry(position, attempts + 1), 100);
+        } else {
+          console.error(`❌ [GRID TRANSITION] Camera centering failed after 3 attempts:`, error);
+        }
+      }
+    };
+    
+    // Ensure we have valid coordinates before centering camera
+    if (typeof finalX === 'number' && typeof finalY === 'number') {
+      await centerCameraWithRetry({ x: finalX, y: finalY });
+    } else {
+      console.warn('⚠️ [GRID TRANSITION] Cannot center camera - invalid final coordinates:', { finalX, finalY });
+    }
     
     if (updateStatus && toLocation.gtype) {
       await updateGridStatus(toLocation.gtype, null, updateStatus, currentPlayer, toLocation.g);
