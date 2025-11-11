@@ -23,7 +23,8 @@ export async function handleTransitSignpost(
   bulkOperationContext,
   masterResources,
   strings = null,
-  masterTrophies = null
+  masterTrophies = null,
+  transitionFadeControl = null
 ) {
   try {
     if (typeof updateStatus !== "function") {
@@ -101,7 +102,8 @@ export async function handleTransitSignpost(
           bulkOperationContext,
           masterResources,
           strings,
-          masterTrophies
+          masterTrophies,
+          transitionFadeControl
         );
         
       } catch (error) {
@@ -175,7 +177,8 @@ export async function handleTransitSignpost(
           bulkOperationContext,
           masterResources,
           strings,
-          masterTrophies
+          masterTrophies,
+          transitionFadeControl
         );
         
       } catch (error) {
@@ -332,7 +335,8 @@ export async function handleTransitSignpost(
       bulkOperationContext,
       masterResources,
       strings,
-      masterTrophies
+      masterTrophies,
+      transitionFadeControl
     );
 
     console.log(`Player moved to grid ID: ${targetGrid.gridId}`);

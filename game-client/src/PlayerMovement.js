@@ -50,7 +50,8 @@ export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources,
   closeAllPanels,
   localPlayerMoveTimestampRef,
   bulkOperationContext,
-  strings = null) 
+  strings = null,
+  transitionFadeControl = null) 
 {
   // Ignore modifier keys
   if (MODIFIER_KEYS.includes(event.key)) {
@@ -63,7 +64,7 @@ export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources,
   // Process movement immediately
   processMovement(currentPlayer, TILE_SIZE, masterResources, 
     setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources, 
-    updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext, strings);
+    updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext, strings, transitionFadeControl);
 }
 
 // Helper function to handle key release events
@@ -88,12 +89,13 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
   closeAllPanels,
   localPlayerMoveTimestampRef,
   bulkOperationContext,
-  strings = null) 
+  strings = null,
+  transitionFadeControl = null) 
 {
   // For backward compatibility, treat this as a key press
   handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources, 
     setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources, 
-    updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext, strings);
+    updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext, strings, transitionFadeControl);
 }
 
 // Process movement based on all currently pressed keys
@@ -107,7 +109,8 @@ function processMovement(currentPlayer, TILE_SIZE, masterResources,
   closeAllPanels,
   localPlayerMoveTimestampRef,
   bulkOperationContext,
-  strings = null)
+  strings = null,
+  transitionFadeControl = null)
 {
   const directions = {
     ArrowUp: { dx: 0, dy: -1 },
@@ -173,7 +176,8 @@ function processMovement(currentPlayer, TILE_SIZE, masterResources,
     TILE_SIZE,
     closeAllPanels,
     bulkOperationContext,
-    strings
+    strings,
+    transitionFadeControl
   )) {
     console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
     return;
@@ -206,7 +210,8 @@ function isValidMove(targetX, targetY, masterResources,
   TILE_SIZE,
   closeAllPanels,
   bulkOperationContext,
-  strings = null
+  strings = null,
+  transitionFadeControl = null
  ) {  // Function to check if movement is valid
   const tiles = GlobalGridStateTilesAndResources.getTiles();
   const resources = GlobalGridStateTilesAndResources.getResources();
@@ -246,7 +251,8 @@ function isValidMove(targetX, targetY, masterResources,
       bulkOperationContext,
       null, // masterResources not available
       strings,
-      null  // masterTrophies not available in PlayerMovement
+      null,  // masterTrophies not available in PlayerMovement
+      transitionFadeControl
     );
     return false; // Prevent normal movement handling
   };

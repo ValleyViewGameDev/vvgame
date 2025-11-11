@@ -413,6 +413,20 @@ class GridStatePCManager {
 
       // Save to database immediately for location changes to prevent inconsistency
       try {
+        console.log('📤 [DEBUG] Attempting to save PC to database:', {
+          gridId,
+          playerId,
+          pcData: {
+            ...newPC,
+            // Validate critical fields before sending
+            hasValidPosition: newPC.position && typeof newPC.position.x === 'number' && typeof newPC.position.y === 'number',
+            hasValidIcon: newPC.icon && typeof newPC.icon === 'string',
+            hasValidType: newPC.type === 'pc',
+            hasValidUsername: newPC.username && typeof newPC.username === 'string',
+            hasValidCombatStats: typeof newPC.hp === 'number' && typeof newPC.maxhp === 'number'
+          }
+        });
+        
         await axios.post(`${API_BASE}/api/save-single-pc`, {
           gridId,
           playerId,
@@ -421,7 +435,15 @@ class GridStatePCManager {
         });
         console.log(`✅ Added PC ${playerId} to grid ${gridId} and database`);
       } catch (error) {
-        console.error(`❌ Failed to save PC ${playerId} to database:`, error);
+        console.error(`❌ Failed to save PC ${playerId} to database:`, {
+          error: error.message,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          pcData: newPC,
+          gridId,
+          playerId
+        });
         // Remove from local state if database save fails
         delete this.playersInGrid[gridId].pcs[playerId];
         if (this.setPlayersInGridReact) {

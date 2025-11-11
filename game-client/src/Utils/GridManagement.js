@@ -110,10 +110,16 @@ export const changePlayerLocation = async (
   bulkOperationContext, // ✅ Add bulk operation context
   masterResources = null, // ✅ Add masterResources for combat stat calculations
   strings = null, // ✅ Add strings for notifications
-  masterTrophies = null // ✅ Add masterTrophies for trophy visibility checks
+  masterTrophies = null, // ✅ Add masterTrophies for trophy visibility checks
+  transitionFadeControl = null // ✅ Add transition fade control
 ) => {
 
   console.log('🚀 [GRID TRANSITION] Starting transactional grid change...');
+  
+  // Start fade to black immediately when location change is detected
+  if (transitionFadeControl?.startTransition) {
+    transitionFadeControl.startTransition();
+  }
   
   // Check if any bulk operation is active
   if (bulkOperationContext?.isAnyBulkOperationActive?.()) {
@@ -456,6 +462,20 @@ export const changePlayerLocation = async (
     // Emit socket events for new grid
     socket.emit('set-username', { username: currentPlayer.username });
     socket.emit('request-npc-controller', { gridId: toLocation.g });
+    
+    // 🚨 [DEBUG] Log playerData being emitted for socket debugging
+    console.log('🚨 [GRID MGMT DEBUG] Emitting player-joined-grid with data:', {
+      gridId: toLocation.g,
+      playerId: playerId,
+      username: currentPlayer.username,
+      playerDataKeys: playerData ? Object.keys(playerData) : 'undefined',
+      playerDataHP: playerData?.hp,
+      playerDataMaxHP: playerData?.maxhp,
+      playerDataArmorClass: playerData?.armorclass,
+      playerDataAttackBonus: playerData?.attackbonus,
+      fullPlayerData: playerData
+    });
+    
     socket.emit('player-joined-grid', {
       gridId: toLocation.g,
       playerId: playerId,
@@ -537,6 +557,11 @@ export const changePlayerLocation = async (
 
     console.log('🎉 [GRID TRANSITION] Transactional grid change completed successfully');
     
+    // End fade transition - fade back to normal view
+    if (transitionFadeControl?.endTransition) {
+      transitionFadeControl.endTransition();
+    }
+    
     // Mark location change as completed
     locationChangeManager.completeLocationChange({
       from: fromLocation,
@@ -548,6 +573,11 @@ export const changePlayerLocation = async (
     return true;
   } catch (error) {
     console.error('❌ Location change error:', error);
+    
+    // End fade transition even on error to restore visibility
+    if (transitionFadeControl?.endTransition) {
+      transitionFadeControl.endTransition();
+    }
     
     // ✅ NEW: Mark location change as failed
     locationChangeManager.failLocationChange(error);

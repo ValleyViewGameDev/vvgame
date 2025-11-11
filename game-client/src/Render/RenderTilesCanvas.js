@@ -180,14 +180,14 @@ function calculateCornerColor(tileType, corner, rowIndex, colIndex, tileTypes) {
 }
 
 // Pre-render organic textures for tile types with variation
-function createTileTexture(tileType, TILE_SIZE, variation = 0, rowIndex, colIndex, tileTypes) {
+function createTileTexture(tileType, TILE_SIZE, variation = 0, rowIndex, colIndex, tileTypes, zoomLevel) {
   const canvas = document.createElement('canvas');
   canvas.width = TILE_SIZE;
   canvas.height = TILE_SIZE;
   const ctx = canvas.getContext('2d');
   
-  // Calculate rounded corners for this tile
-  const roundedCorners = calculateRoundedCorners(tileType, rowIndex, colIndex, tileTypes);
+  // Calculate rounded corners for this tile (skip for far zoom to improve performance)
+  const roundedCorners = (zoomLevel === 'far') ? null : calculateRoundedCorners(tileType, rowIndex, colIndex, tileTypes);
   
   // Fill base color
   ctx.fillStyle = getTileColor(tileType);
@@ -589,28 +589,29 @@ function createTileTexture(tileType, TILE_SIZE, variation = 0, rowIndex, colInde
 }
 
 // Canvas-based tile renderer component
-export const RenderTilesCanvas = ({ grid, tileTypes, TILE_SIZE, handleTileClick }) => {
+export const RenderTilesCanvas = ({ grid, tileTypes, TILE_SIZE, zoomLevel, handleTileClick }) => {
   const canvasRef = useRef(null);
   const textureCache = useRef(new Map());
   const lastRenderData = useRef(null);
   
-  // Clear texture cache when TILE_SIZE changes
+  // Clear texture cache when TILE_SIZE or zoomLevel changes
   useEffect(() => {
     textureCache.current.clear();
-  }, [TILE_SIZE]);
+  }, [TILE_SIZE, zoomLevel]);
   
   // Get or create tile texture with variation
   const getTileTexture = useCallback((tileType, rowIndex, colIndex) => {
-    // Create 4 variations for grass, dirt, and stone; 1 for others
-    const numVariations = (tileType === 'g' || tileType === 'd' || tileType === 's') ? 4 : 1;
+    // Create 4 variations for grass, dirt, and stone; 1 for others (only for close zoom)
+    const numVariations = (zoomLevel === 'far') ? 1 : 
+                          ((tileType === 'g' || tileType === 'd' || tileType === 's') ? 4 : 1);
     const variation = (rowIndex * 73 + colIndex * 37) % numVariations;
-    const cacheKey = `${tileType}-${TILE_SIZE}-${variation}-${rowIndex}-${colIndex}`;
+    const cacheKey = `${tileType}-${TILE_SIZE}-${zoomLevel}-${variation}-${rowIndex}-${colIndex}`;
     
     if (!textureCache.current.has(cacheKey)) {
-      textureCache.current.set(cacheKey, createTileTexture(tileType, TILE_SIZE, variation, rowIndex, colIndex, tileTypes));
+      textureCache.current.set(cacheKey, createTileTexture(tileType, TILE_SIZE, variation, rowIndex, colIndex, tileTypes, zoomLevel));
     }
     return textureCache.current.get(cacheKey);
-  }, [TILE_SIZE, tileTypes]);
+  }, [TILE_SIZE, tileTypes, zoomLevel]);
   
   // Render tiles to canvas
   const renderTiles = useCallback(() => {
@@ -669,12 +670,12 @@ export const RenderTilesCanvas = ({ grid, tileTypes, TILE_SIZE, handleTileClick 
   
   // Re-render when dependencies change
   useEffect(() => {
-    const currentData = JSON.stringify({ grid, tileTypes, TILE_SIZE });
+    const currentData = JSON.stringify({ grid, tileTypes, TILE_SIZE, zoomLevel });
     if (currentData !== lastRenderData.current) {
       renderTiles();
       lastRenderData.current = currentData;
     }
-  }, [renderTiles, grid, tileTypes, TILE_SIZE]);
+  }, [renderTiles, grid, tileTypes, TILE_SIZE, zoomLevel]);
   
   // Handle tile clicks by converting canvas coordinates
   const handleCanvasClick = useCallback((event) => {

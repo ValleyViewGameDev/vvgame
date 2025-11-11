@@ -66,6 +66,21 @@ router.post('/save-single-pc', async (req, res) => {
       return res.status(400).json({ error: 'Invalid lastUpdated date format.' });
     }
 
+    // Validate PC data before saving
+    console.log('🔍 [SERVER DEBUG] Validating PC data before save:', {
+      playerId,
+      pcKeys: Object.keys(pc),
+      pcType: pc.type,
+      hasPosition: !!pc.position,
+      positionValid: pc.position && typeof pc.position.x === 'number' && typeof pc.position.y === 'number',
+      hasIcon: !!pc.icon,
+      iconType: typeof pc.icon,
+      hasUsername: !!pc.username,
+      usernameType: typeof pc.username,
+      hasValidCombatStats: typeof pc.hp === 'number' && typeof pc.maxhp === 'number' && typeof pc.attackbonus === 'number',
+      fullPC: pc
+    });
+
     // Ensure playersInGrid is a Map
     const pcs = new Map(grid.playersInGrid || []);
     pc.lastUpdated = updatedDate; // ensures consistent format
@@ -75,7 +90,19 @@ router.post('/save-single-pc', async (req, res) => {
     // Optionally update global PC timestamp
     grid.playersInGridLastUpdated = updatedDate;
 
-    await grid.save();
+    try {
+      await grid.save();
+      console.log(`✅ Successfully saved grid with PC ${playerId}`);
+    } catch (saveError) {
+      console.error('❌ [SERVER DEBUG] Grid save failed with validation error:', {
+        error: saveError.message,
+        name: saveError.name,
+        errors: saveError.errors,
+        code: saveError.code,
+        stack: saveError.stack
+      });
+      throw saveError; // Re-throw to be caught by outer try/catch
+    }
 
     console.log(`✅ Single PC ${playerId} saved for gridId: ${gridId}`);
     res.status(200).json({ success: true });

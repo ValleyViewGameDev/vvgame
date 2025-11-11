@@ -112,6 +112,8 @@ import StatusBar from './UI/StatusBar/StatusBar';
 import { StatusBarContext } from './UI/StatusBar/StatusBar';
 import { formatCountdown } from './UI/Timers';
 import CowboyAnimation from './UI/CowboyAnimation';
+import TransitionOverlay from './UI/TransitionOverlay';
+import { useTransitionFade } from './UI/useTransitionFade';
 
 import { fetchGridData, updateGridStatus } from './Utils/GridManagement';
 import { handleKeyMovement, handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, centerCameraOnPlayerFast } from './PlayerMovement';
@@ -150,6 +152,14 @@ useEffect(() => {
   const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
   const { updateStatus } = useContext(StatusBarContext);
   const bulkOperationContext = useBulkOperation();
+  
+  // Initialize transition fade functionality
+  const { isTransitioning, startTransition, endTransition } = useTransitionFade();
+  const transitionFadeControl = {
+    startTransition,
+    endTransition,
+    isTransitioning: () => isTransitioning
+  };
 
   // Mobile device detection: Show modal if on mobile
   useEffect(() => {
@@ -1392,7 +1402,8 @@ useEffect(() => {
         closeAllPanels,
         localPlayerMoveTimestampRef,
         bulkOperationContext,
-        strings
+        strings,
+        transitionFadeControl
     );
   };
   
@@ -2095,6 +2106,7 @@ return (
           grid={memoizedGrid}
           tileTypes={memoizedTileTypes}
           TILE_SIZE={activeTileSize}
+          zoomLevel={zoomLevel}
           handleTileClick={handleTileClick}
         />
         
@@ -3029,6 +3041,14 @@ return (
           }}
         />
       )}
+
+      {/* Location transition overlay */}
+      <TransitionOverlay 
+        isTransitioning={isTransitioning}
+        onTransitionComplete={() => {
+          console.log('🌟 [TRANSITION] Fade transition completed');
+        }}
+      />
 
     </>
   );

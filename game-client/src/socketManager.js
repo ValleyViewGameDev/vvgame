@@ -38,6 +38,19 @@ const handlePlayerJoinedGrid = ({ gridId: joinedGridId, playerId, username, play
   }
   
   console.log(`👋 Player ${username} joined current grid ${gridId} with data:`, playerData);
+  
+  // 🚨 [DEBUG] Log received playerData structure for debugging
+  console.log('🚨 [SOCKET DEBUG] Received player-joined-sync data:', {
+    playerId,
+    username,
+    playerDataKeys: playerData ? Object.keys(playerData) : 'undefined',
+    playerDataHP: playerData?.hp,
+    playerDataMaxHP: playerData?.maxhp,
+    playerDataArmorClass: playerData?.armorclass,
+    playerDataAttackBonus: playerData?.attackbonus,
+    fullPlayerData: playerData
+  });
+  
   setPlayersInGrid(prevState => {
     const existing = prevState[joinedGridId]?.pcs?.[playerId];
     const incomingTime = new Date(playerData?.lastUpdated).getTime() || 0;

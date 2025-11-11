@@ -1,0 +1,24 @@
+/* Transition overlay for location changes */
+.transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000000;
+  transition: opacity 0.3s ease-in-out;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.transition-overlay.active {
+  pointer-events: all;
+}
+
+.transition-overlay.fade-in {
+  opacity: 1;
+}
+
+.transition-overlay.fade-out {
+  opacity: 0;
+}

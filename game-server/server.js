@@ -261,6 +261,19 @@ mongoose.connect(process.env.MONGODB_URI, {
       socket.on('player-joined-grid', ({ gridId, playerId, username, playerData }) => {
         //console.log(`👋 Player ${username} joined grid ${gridId}`);
         //console.log('playerId = ', playerId, "; username = ", username, "; playerData = ", playerData);
+        
+        // 🚨 [DEBUG] Log received and re-emitted data for socket debugging
+        console.log('🚨 [SERVER DEBUG] Received player-joined-grid:', {
+          playerId,
+          username,
+          gridId,
+          playerDataKeys: playerData ? Object.keys(playerData) : 'undefined',
+          playerDataHP: playerData?.hp,
+          playerDataMaxHP: playerData?.maxhp,
+          playerDataArmorClass: playerData?.armorclass,
+          playerDataAttackBonus: playerData?.attackbonus,
+        });
+        
         // Emit a distinct event name to avoid confusion and include the emitter's socket ID
         socket.to(gridId).emit('player-joined-sync', { playerId, username, playerData, emitterId: socket.id });
       });
