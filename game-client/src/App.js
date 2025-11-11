@@ -1506,7 +1506,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         bulkOperationContext,
         masterResources,
         strings,
-        masterTrophies
+        masterTrophies,
+        transitionFadeControl
       );
     }
     else if (resource.category === 'training') {
@@ -1623,7 +1624,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         bulkOperationContext,
         openPanel,
         masterTrophies,
-        globalTuning
+        globalTuning,
+        transitionFadeControl
       ).finally(() => {
         isProcessing = false; // Reset flag after processing
       });
@@ -3045,9 +3047,9 @@ return (
       {/* Location transition overlay */}
       <TransitionOverlay 
         isTransitioning={isTransitioning}
-        onTransitionComplete={() => {
-          console.log('🌟 [TRANSITION] Fade transition completed');
-        }}
+        // onTransitionComplete={() => {
+        //   //console.log('🌟 [TRANSITION] Fade transition completed');
+        // }}
       />
 
     </>

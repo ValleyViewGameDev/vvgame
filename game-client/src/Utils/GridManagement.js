@@ -445,44 +445,6 @@ export const changePlayerLocation = async (
       throw new Error(`Failed to initialize grid entities: ${err.message}`);
     }
     
-    // Clean up dead player if needed
-    if (currentPlayer.hp <= 0) {
-      console.log('⚰️ [FINALIZATION] Verifying dead player cleanup...');
-      try {
-        await axios.post(`${API_BASE}/api/remove-single-pc`, {
-          gridId: fromLocation.g,
-          playerId: playerId,
-        });
-        console.log('✅ [FINALIZATION] Dead player cleanup verified');
-      } catch (cleanupError) {
-        console.warn('⚠️ [FINALIZATION] Cleanup verification failed:', cleanupError);
-      }
-    }
-
-    // Emit socket events for new grid
-    socket.emit('set-username', { username: currentPlayer.username });
-    socket.emit('request-npc-controller', { gridId: toLocation.g });
-    
-    // 🚨 [DEBUG] Log playerData being emitted for socket debugging
-    console.log('🚨 [GRID MGMT DEBUG] Emitting player-joined-grid with data:', {
-      gridId: toLocation.g,
-      playerId: playerId,
-      username: currentPlayer.username,
-      playerDataKeys: playerData ? Object.keys(playerData) : 'undefined',
-      playerDataHP: playerData?.hp,
-      playerDataMaxHP: playerData?.maxhp,
-      playerDataArmorClass: playerData?.armorclass,
-      playerDataAttackBonus: playerData?.attackbonus,
-      fullPlayerData: playerData
-    });
-    
-    socket.emit('player-joined-grid', {
-      gridId: toLocation.g,
-      playerId: playerId,
-      username: currentPlayer.username,
-      playerData,
-    });
-    
     // Handle signpost finding if needed
     let finalX = toLocation.x;
     let finalY = toLocation.y;
@@ -523,7 +485,7 @@ export const changePlayerLocation = async (
       }
     }
     
-    // Center camera and update status with retry mechanism
+    // Center camera immediately after grid initialization, before verification delays
     const centerCameraWithRetry = async (position, attempts = 0) => {
       if (typeof position.x !== 'number' || typeof position.y !== 'number') {
         console.warn('⚠️ [GRID TRANSITION] Cannot center camera - invalid coordinates:', position);
@@ -543,12 +505,52 @@ export const changePlayerLocation = async (
       }
     };
     
-    // Ensure we have valid coordinates before centering camera
+    // Center camera immediately
     if (typeof finalX === 'number' && typeof finalY === 'number') {
       await centerCameraWithRetry({ x: finalX, y: finalY });
     } else {
       console.warn('⚠️ [GRID TRANSITION] Cannot center camera - invalid final coordinates:', { finalX, finalY });
     }
+    
+    // Note: Server verification removed to improve transition performance
+    // The race condition was rare and fallback values now handle incomplete data
+    // Clean up dead player if needed
+    if (currentPlayer.hp <= 0) {
+      console.log('⚰️ [FINALIZATION] Verifying dead player cleanup...');
+      try {
+        await axios.post(`${API_BASE}/api/remove-single-pc`, {
+          gridId: fromLocation.g,
+          playerId: playerId,
+        });
+        console.log('✅ [FINALIZATION] Dead player cleanup verified');
+      } catch (cleanupError) {
+        console.warn('⚠️ [FINALIZATION] Cleanup verification failed:', cleanupError);
+      }
+    }
+
+    // Emit socket events for new grid
+    socket.emit('set-username', { username: currentPlayer.username });
+    socket.emit('request-npc-controller', { gridId: toLocation.g });
+    
+    // 🚨 [DEBUG] Log playerData being emitted for socket debugging
+    console.log('🚨 [GRID MGMT DEBUG] Emitting player-joined-grid with data:', {
+      gridId: toLocation.g,
+      playerId: playerId,
+      username: currentPlayer.username,
+      playerDataKeys: playerData ? Object.keys(playerData) : 'undefined',
+      playerDataHP: playerData?.hp,
+      playerDataMaxHP: playerData?.maxhp,
+      playerDataArmorClass: playerData?.armorclass,
+      playerDataAttackBonus: playerData?.attackbonus,
+      fullPlayerData: playerData
+    });
+    
+    socket.emit('player-joined-grid', {
+      gridId: toLocation.g,
+      playerId: playerId,
+      username: currentPlayer.username,
+      playerData,
+    });
     
     if (updateStatus && toLocation.gtype) {
       await updateGridStatus(toLocation.gtype, null, updateStatus, currentPlayer, toLocation.g);

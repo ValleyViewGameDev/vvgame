@@ -29,7 +29,7 @@ const TransitionOverlay = ({ isTransitioning, onTransitionComplete }) => {
         if (onTransitionComplete) {
           onTransitionComplete();
         }
-      }, 300); // Match CSS transition duration
+      }, 400); // Match CSS transition duration
       
       return () => clearTimeout(timer);
     }
@@ -50,7 +50,7 @@ const TransitionOverlay = ({ isTransitioning, onTransitionComplete }) => {
         height: rect.height,
         backgroundColor: '#000000',
         opacity: opacity,
-        transition: 'opacity 0.3s ease-in-out',
+        transition: 'opacity 0.4s ease-in-out',
         zIndex: 1000, // High z-index to cover homestead content
         pointerEvents: isTransitioning ? 'all' : 'none', // Block interaction during transition
       }}

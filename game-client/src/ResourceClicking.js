@@ -47,7 +47,8 @@ import { selectWeightedRandomItem, getDropQuantity } from './Economy/DropRates';
   bulkOperationContext,
   openPanel,
   masterTrophies = null,
-  globalTuning = null
+  globalTuning = null,
+  transitionFadeControl = null
 ) {
   console.log(`Resource Clicked:  (${row}, ${col}):`, { resource, tileType: tileTypes[row]?.[col] });
   if (!resource || !resource.category) { console.error(`Invalid resource at (${col}, ${row}):`, resource); return; }
@@ -148,6 +149,12 @@ import { selectWeightedRandomItem, getDropQuantity } from './Economy/DropRates';
         }
         
         try {
+          console.log('🚏 [DEBUG] About to call handleTransitSignpost with:', {
+            resourceType: resource.type,
+            transitionFadeControlAvailable: !!transitionFadeControl,
+            transitionFadeControlMethods: transitionFadeControl ? Object.keys(transitionFadeControl) : 'none'
+          });
+          
           await handleTransitSignpost(
             currentPlayer,
             resource.type,
@@ -163,7 +170,8 @@ import { selectWeightedRandomItem, getDropQuantity } from './Economy/DropRates';
             bulkOperationContext,
             null, // masterResources not available
             null, // strings not available in ResourceClicking
-            null  // masterTrophies not available in ResourceClicking
+            null, // masterTrophies not available in ResourceClicking
+            transitionFadeControl
           );
         } catch (error) {
           console.error("Error handling travel signpost:", error.message || error);

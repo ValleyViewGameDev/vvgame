@@ -31,6 +31,17 @@ export async function handleTransitSignpost(
       console.warn("⚠️ updateStatus is not a function:", updateStatus);
     }
     console.log("Handling transit for resource:", resourceType);
+    
+    // 🌑 Start fade transition IMMEDIATELY for responsive feel (both signpost and keyboard movement)
+    if (transitionFadeControl?.startTransition) {
+      console.log('🌑 [IMMEDIATE FADE] Starting fade transition for signpost travel');
+      console.log('🌑 [DEBUG] transitionFadeControl object:', transitionFadeControl);
+      transitionFadeControl.startTransition();
+    } else {
+      console.warn('🌑 [DEBUG] transitionFadeControl not available or missing startTransition method');
+      console.log('🌑 [DEBUG] transitionFadeControl value:', transitionFadeControl);
+    }
+    
     console.log("🔍 currentPlayer before checking skills:", currentPlayer);
     console.log("📜 currentPlayer.skills:", currentPlayer.skills);
 

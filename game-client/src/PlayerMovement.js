@@ -5,7 +5,7 @@ import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAn
 import FloatingTextManager from "./UI/FloatingText";
 import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
 // Temporary render-only animation state for interpolated player positions
-export const renderPositions = {};
+const renderPositions = {};
 let currentAnimationFrame = null;
 
 // Track currently pressed keys for diagonal movement
@@ -234,6 +234,13 @@ function isValidMove(targetX, targetY, masterResources,
     if (!direction) { console.warn(`⛔ Invalid movement direction from (${targetX}, ${targetY}).`); return false; }
 
     console.log(`📦 Attempting directional travel via: ${direction}`);
+    
+    // 🌑 Start fade transition IMMEDIATELY for responsive feel
+    if (transitionFadeControl?.startTransition) {
+      console.log('🌑 [IMMEDIATE FADE] Starting fade transition for boundary crossing');
+      transitionFadeControl.startTransition();
+    }
+    
     const skills = currentPlayer.skills;
 
     handleTransitSignpost(
@@ -376,3 +383,6 @@ export function isTileValidForPlayer(x, y, tiles, resources, masterResources, cu
   // ✅ If all checks pass, movement is allowed
   return true;
 }
+
+// Export renderPositions at the end to avoid initialization issues
+export { renderPositions };
