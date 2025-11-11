@@ -592,6 +592,9 @@ export async function handleSourceConversion(
     const usedKey = await handleUseKey(resource,requirement,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,inventory,setInventory,backpack,setBackpack,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus,);
     if (!usedKey) return;
   }
+
+    createSourceConversionEffect(col, row, TILE_SIZE, requirement);
+
   // Check if the object should disappear (output is null/empty) or transform
   const shouldDisappear = !resource.output || resource.output === 'null' || !targetResource;
   
@@ -600,7 +603,7 @@ export async function handleSourceConversion(
     const originalResource = GlobalGridStateTilesAndResources.getResources().find(
       r => r.x === col && r.y === row
     );
-    
+
     // Update local state to reflect removal of resource and shadows
     const filteredResources = GlobalGridStateTilesAndResources.getResources().filter(
       (res) => {
@@ -631,7 +634,7 @@ export async function handleSourceConversion(
       );
       if (gridUpdateResponse?.success) {
         // VFX
-        createSourceConversionEffect(col, row, TILE_SIZE, requirement);
+        // createSourceConversionEffect(col, row, TILE_SIZE, requirement);
         console.log('✅ Resource removal completed successfully on the server.');
       } else {
         throw new Error('Server failed to confirm the resource removal.');
@@ -693,7 +696,7 @@ export async function handleSourceConversion(
       );
       if (gridUpdateResponse?.success) {
         // VFX
-        createSourceConversionEffect(col, row, TILE_SIZE, requirement);
+        //createSourceConversionEffect(col, row, TILE_SIZE, requirement);
         console.log('✅ Source conversion completed successfully on the server.');
       } else {
         throw new Error('Server failed to confirm the source conversion.');
