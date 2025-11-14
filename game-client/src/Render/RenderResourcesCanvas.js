@@ -193,13 +193,18 @@ export const RenderResourcesCanvas = ({
         // Multi-tile walls positioned in lower portion
         adjustedY = y + TILE_SIZE * 0.1 + 3;
       } else {
-        // Adjust positioning based on size
-        if (range === 2) {
-          adjustedY = y + TILE_SIZE * 0.1; // 2x2: stays low (works well)
-        } else if (range === 3) {
+        // Adjust positioning based on size - handle fractional ranges properly
+        if (range >= 4) {
+          adjustedY = y - TILE_SIZE; // 4x4+: move up more
+        } else if (range >= 3) {
           adjustedY = y - TILE_SIZE * 0.3; // 3x3: move up a bit
-        } else { // range >= 4
-          adjustedY = y - TILE_SIZE ; // 4x4+: move up more
+        } else if (range >= 2) {
+          adjustedY = y + TILE_SIZE * 0.1; // 2x2: stays low (works well)
+        } else if (range > 1) {
+          // Handle fractional ranges between 1 and 2 (e.g., 1.5, 1.8)
+          // Interpolate adjustment between no adjustment and 2x2 adjustment
+          const fraction = range - 1; // 0.5 for 1.5, 0.8 for 1.8
+          adjustedY = y + TILE_SIZE * 0.1 * fraction; // Gradually apply 2x2 adjustment
         }
       }
     }
