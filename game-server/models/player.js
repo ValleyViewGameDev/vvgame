@@ -18,6 +18,7 @@ const playerSchema = new mongoose.Schema({
     required: true, // This might cause issues if `icon` is missing
     default: '😀', // Ensure a sensible default is provided
   },
+  xp: { type: Number, default: 0 },
   range: { type: Number, default: 0 },
   baseHp: { type: Number, default: 0 },
   baseMaxhp: { type: Number, default: 0 },
@@ -121,6 +122,7 @@ const playerSchema = new mongoose.Schema({
   frontierId: { type: mongoose.Schema.Types.ObjectId, ref: 'Frontier', required: true }, // Where the user's homestead is
   settlementId: { type: mongoose.Schema.Types.ObjectId, ref: 'Settlement', required: true }, // Where the user's homestead is
   gridId: { type: mongoose.Schema.Types.ObjectId, ref: 'Grid', required: true }, // THe ID of the homestead owned by the user
+  homesteadGridCoord: { type: Number, default: null }, // The gridCoord of the homestead for FrontierMiniMap display
 
   settings: {
     isStateMachineEnabled: { type: Boolean, default: false },
@@ -237,7 +239,6 @@ const playerSchema = new mongoose.Schema({
   },
 
 created: { type: Date, default: Date.now },
-
 
 });
 

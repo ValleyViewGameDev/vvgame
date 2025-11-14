@@ -2,6 +2,7 @@
     "defaultAttributes": {
       "icon": "😀",
       "range": 3,
+      "xp": 1,
       "baseHp": 1000,
       "baseMaxhp": 1000,
       "baseAttackrange": 1,

@@ -814,9 +814,51 @@ router.post('/update-player-location', async (req, res) => {
   }
 
   try {
+    // Fetch the gridCoord for the target grid to ensure FrontierMiniMap updates correctly
+    let gridCoord = location.gridCoord; // Use existing if provided
+    
+    // If gridCoord is not provided, look it up
+    if (!gridCoord) {
+      console.log('🔍 GridCoord not provided, looking up for gridId:', location.g);
+      
+      const searchGridId = new mongoose.Types.ObjectId(location.g);
+      const settlements = await Settlement.find({}).lean();
+      
+      // Search for the gridCoord in settlements
+      for (const settlement of settlements) {
+        if (settlement.grids && Array.isArray(settlement.grids)) {
+          for (const row of settlement.grids) {
+            if (Array.isArray(row)) {
+              for (const cell of row) {
+                if (cell && cell.gridId && (cell.gridId.toString() === location.g || cell.gridId.equals(searchGridId))) {
+                  gridCoord = cell.gridCoord;
+                  console.log('✅ Found gridCoord:', gridCoord);
+                  break;
+                }
+              }
+            }
+            if (gridCoord) break;
+          }
+        }
+        if (gridCoord) break;
+      }
+      
+      if (!gridCoord) {
+        console.warn('⚠️ Could not find gridCoord for gridId:', location.g);
+        // Don't fail the request, just log the warning
+        // Some legacy grids might not have gridCoord set
+      }
+    }
+
+    // Include gridCoord in the location update
+    const locationWithGridCoord = {
+      ...location,
+      ...(gridCoord && { gridCoord }) // Only include gridCoord if we found it
+    };
+
     const updatedPlayer = await Player.findByIdAndUpdate(
       playerId,
-      { $set: { location } },
+      { $set: { location: locationWithGridCoord } },
       { new: true }
     );
 

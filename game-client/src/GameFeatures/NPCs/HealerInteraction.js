@@ -24,8 +24,7 @@ const HealerInteraction = ({
       // Show prayer bubble over player
       ConversationManager.addSpeech(speakerId, '🙏', '🙏', false);
       
-      // Animate player bouncing
-      animatePlayer(playerInGridState.position, TILE_SIZE);
+      // Removed player bounce animation
       
       // Remove speech bubble after animation
       conversationTimeoutRef.current = setTimeout(() => {
@@ -47,45 +46,11 @@ const HealerInteraction = ({
       // Ensure speech bubble is removed
       ConversationManager.removeSpeech(speakerId);
       
-      // Ensure animation is removed
-      const playerElements = document.querySelectorAll('.pc');
-      playerElements.forEach(el => {
-        el.classList.remove('speaking-animation');
-      });
+      // Removed animation cleanup - no longer animating
     };
   }, [isHealing, currentPlayer, TILE_SIZE]);
   
-  // Animate player bouncing - similar to conversation
-  const animatePlayer = (position, TILE_SIZE) => {
-    // First remove any existing animation from all players
-    const allPlayerElements = document.querySelectorAll('.pc');
-    allPlayerElements.forEach(el => {
-      el.classList.remove('speaking-animation');
-    });
-    
-    // Find the specific player element
-    const playerElement = Array.from(allPlayerElements).find(el => {
-      const left = parseFloat(el.style.left);
-      const top = parseFloat(el.style.top);
-      
-      if (!isNaN(left) && !isNaN(top)) {
-        const expectedX = position.x * TILE_SIZE;
-        const expectedY = position.y * TILE_SIZE;
-        return Math.abs(left - expectedX) < TILE_SIZE/2 && Math.abs(top - expectedY) < TILE_SIZE/2;
-      }
-      return false;
-    });
-    
-    if (playerElement) {
-      // Add bounce animation class
-      playerElement.classList.add('speaking-animation');
-      
-      // Remove animation after duration
-      animationTimeoutRef.current = setTimeout(() => {
-        playerElement.classList.remove('speaking-animation');
-      }, 1500);
-    }
-  };
+  // Removed animatePlayer function - no longer bouncing
   
   // This component doesn't render anything visible - it just manages the animation
   return null;

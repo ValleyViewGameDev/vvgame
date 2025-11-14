@@ -49,7 +49,7 @@ export async function handleTransitSignpost(
     const { g: currentGridId, s: settlementId, f: frontierId } = currentPlayer.location;
     
     // Check if this is Signpost Town or Signpost Home (no Horse required)
-    const isSpecialSignpost = resourceType === "Signpost Town" || resourceType === "Signpost Home";
+    const isSpecialSignpost = resourceType === "Signpost Town" || resourceType === "Signpost Home" || resourceType === "Signpost Town Home";
     
     // 2) For non-special signposts, ensure the player has the Horse skill
     if (!isSpecialSignpost) {
@@ -129,11 +129,16 @@ export async function handleTransitSignpost(
       return;
     }
 
-    // Signpost Town
-    if (resourceType === "Signpost Town") {
-      console.log("Signpost Town clicked. Finding the first town grid in the settlement.");
+    // Signpost Town Home or Signpost Town
+    if (resourceType === "Signpost Town Home" || resourceType === "Signpost Town") {
+      const isPlayerOwnedTown = resourceType === "Signpost Town Home";
+      const targetSettlementId = isPlayerOwnedTown ? currentPlayer.settlementId : settlementId;
+      
+      console.log(isPlayerOwnedTown 
+        ? "Signpost Town Home clicked. Finding the first town grid in the player's owned settlement."
+        : "Signpost Town clicked. Finding the first town grid in the settlement.");
 
-      const settlementResponse = await axios.get(`${API_BASE}/api/get-settlement/${settlementId}`);
+      const settlementResponse = await axios.get(`${API_BASE}/api/get-settlement/${targetSettlementId}`);
       const settlement = settlementResponse.data;
       if (!settlement || !settlement.grids) { 
         updateStatus(104); 
@@ -163,7 +168,7 @@ export async function handleTransitSignpost(
           x: signpostPosition.x,
           y: signpostPosition.y,
           g: townGrid.gridId,
-          s: settlementId,
+          s: targetSettlementId,
           f: frontierId,
           gtype: "town",
           gridCoord: townGrid.gridCoord,
@@ -171,7 +176,7 @@ export async function handleTransitSignpost(
         
         updateStatus(102);
         
-        // Check if first-time user is using Signpost Town
+        // Check if first-time user is using Signpost Town (both types count)
         if (currentPlayer.firsttimeuser === true) {
           console.log('🎓 First-time user used Signpost Town, incrementing FTUE step');
           
@@ -205,7 +210,7 @@ export async function handleTransitSignpost(
         );
         
       } catch (error) {
-        console.error("❌ Error traveling to town:", error);
+        console.error(`❌ Error traveling to ${isPlayerOwnedTown ? "player's town" : "town"}:`, error);
         if (error.message && error.message.includes('Failed to remove player from previous grid')) {
           updateStatus("Failed to leave current location. Please try again.");
         } else {

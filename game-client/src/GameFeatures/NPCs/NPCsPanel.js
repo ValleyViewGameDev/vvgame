@@ -748,36 +748,16 @@ const handleHeal = async (recipe) => {
             }}
             onInteractionClick={() => {
               return new Promise((resolve) => {
-                const wasZoomedOut = zoomLevel !== 'closer';
+                // Removed zoom change - keep current zoom level during conversations
                 
-                // Zoom to closer if not already
-                if (wasZoomedOut) {
-                  setZoomLevel('closer');
-                  // Wait for zoom animation and re-render to complete
-                  setTimeout(() => {
-                    // Center camera on player after zoom
-                    const gridId = currentPlayer?.location?.g;
-                    const playerId = currentPlayer._id?.toString();
-                    const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
-                    if (playerInGridState?.position) {
-                      // Use a larger tile size for closer zoom (typically 50)
-                      const closerTileSize = masterResources?.find(r => r.type === 'globalTuning')?.closerZoom || 50;
-                      centerCameraOnPlayer(playerInGridState.position, closerTileSize);
-                    }
-                    // Give additional time for camera centering
-                    setTimeout(resolve, 300);
-                  }, 100);
-                } else {
-                  // Already zoomed in, just center camera
-                  const gridId = currentPlayer?.location?.g;
-                  const playerId = currentPlayer._id?.toString();
-                  const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
-                  if (playerInGridState?.position) {
-                    // Already at closer zoom, use current TILE_SIZE
-                    centerCameraOnPlayer(playerInGridState.position, TILE_SIZE);
-                  }
-                  resolve();
+                // Just center camera on player using current zoom level
+                const gridId = currentPlayer?.location?.g;
+                const playerId = currentPlayer._id?.toString();
+                const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+                if (playerInGridState?.position) {
+                  centerCameraOnPlayer(playerInGridState.position, TILE_SIZE);
                 }
+                resolve();
               });
             }}
             onRelationshipChange={(interaction, success) => {
@@ -1009,36 +989,16 @@ const handleHeal = async (recipe) => {
             }}
             onInteractionClick={() => {
               return new Promise((resolve) => {
-                const wasZoomedOut = zoomLevel !== 'closer';
+                // Removed zoom change - keep current zoom level during conversations
                 
-                // Zoom to closer if not already
-                if (wasZoomedOut) {
-                  setZoomLevel('closer');
-                  // Wait for zoom animation and re-render to complete
-                  setTimeout(() => {
-                    // Center camera on player after zoom
-                    const gridId = currentPlayer?.location?.g;
-                    const playerId = currentPlayer._id?.toString();
-                    const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
-                    if (playerInGridState?.position) {
-                      // Use a larger tile size for closer zoom (typically 50)
-                      const closerTileSize = masterResources?.find(r => r.type === 'globalTuning')?.closerZoom || 50;
-                      centerCameraOnPlayer(playerInGridState.position, closerTileSize);
-                    }
-                    // Give additional time for camera centering
-                    setTimeout(resolve, 300);
-                  }, 100);
-                } else {
-                  // Already zoomed in, just center camera
-                  const gridId = currentPlayer?.location?.g;
-                  const playerId = currentPlayer._id?.toString();
-                  const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
-                  if (playerInGridState?.position) {
-                    // Already at closer zoom, use current TILE_SIZE
-                    centerCameraOnPlayer(playerInGridState.position, TILE_SIZE);
-                  }
-                  resolve();
+                // Just center camera on player using current zoom level
+                const gridId = currentPlayer?.location?.g;
+                const playerId = currentPlayer._id?.toString();
+                const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
+                if (playerInGridState?.position) {
+                  centerCameraOnPlayer(playerInGridState.position, TILE_SIZE);
                 }
+                resolve();
               });
             }}
             onRelationshipChange={(interaction, success) => {

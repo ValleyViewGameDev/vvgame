@@ -57,7 +57,7 @@ const RenderNPCsCanvasComponent = ({
   const canvasAnimations = useRef({});
   const animationFrameId = useRef(null);
   const renderNPCsRef = useRef(null);
-  const bounceAnimations = useRef({}); // Track bounce animations separately
+  // Removed bounceAnimations - no longer bouncing
   
   // Use NPCs directly without memoization to ensure we see all position updates
   useEffect(() => {
@@ -104,11 +104,10 @@ const RenderNPCsCanvasComponent = ({
         renderNPCsRef.current();
       }
       
-      // Check for active bounce animations too
-      const hasActiveBounces = Object.keys(bounceAnimations.current).length > 0;
+      // Removed bounce animation checks - no longer bouncing
       
-      // Continue loop if there are active animations or bounces
-      if (hasActiveAnimations || hasActiveBounces) {
+      // Continue loop if there are active animations
+      if (hasActiveAnimations) {
         animationFrameId.current = requestAnimationFrame(animate);
       } else {
         animationFrameId.current = null;
@@ -189,77 +188,11 @@ const RenderNPCsCanvasComponent = ({
     return npc.position;
   }, []);
 
-  // Start/stop bounce animation for an NPC
-  const setBounceAnimation = useCallback((npcId, isActive) => {
-    if (isActive) {
-      bounceAnimations.current[npcId] = {
-        startTime: Date.now(),
-        active: true
-      };
-      // Start animation loop if not already running
-      if (!animationFrameId.current) {
-        startAnimationLoop();
-      }
-    } else {
-      delete bounceAnimations.current[npcId];
-    }
-  }, [startAnimationLoop]);
+  // Removed setBounceAnimation function - no longer bouncing
 
-  // Get bounce offset for rendering
-  const getBounceOffset = useCallback((npcId) => {
-    const bounce = bounceAnimations.current[npcId];
-    if (!bounce || !bounce.active) return 0;
-    
-    const elapsed = Date.now() - bounce.startTime;
-    const phase = (elapsed % 500) / 500; // 0.5 second cycle to match CSS animation
-    
-    // Mimic the CSS keyframes: 0%, 25% up 3px, 75% down 3px, 100%
-    if (phase < 0.25) {
-      // Rising to peak
-      return -(phase * 4) * 3; // 0 to -3px
-    } else if (phase < 0.5) {
-      // Falling from peak to center
-      return -((0.5 - phase) * 4) * 3; // -3px to 0
-    } else if (phase < 0.75) {
-      // Falling to trough
-      return ((phase - 0.5) * 4) * 3; // 0 to 3px
-    } else {
-      // Rising from trough
-      return ((1 - phase) * 4) * 3; // 3px to 0
-    }
-  }, []);
+  // Removed getBounceOffset function - no longer bouncing
 
-  // Listen for conversation updates to manage bounce animations
-  useEffect(() => {
-    const checkBounceAnimations = () => {
-      // Check each NPC to see if they should be bouncing
-      npcs?.forEach(npc => {
-        const speech = ConversationManager.getSpeech(npc.type) || ConversationManager.getSpeech(npc.id);
-        const outcome = ConversationManager.getOutcome(npc.type) || ConversationManager.getOutcome(npc.id);
-        
-        if (outcome) {
-          // If showing outcome, stop bouncing immediately
-          setBounceAnimation(npc.id, false);
-        } else if (speech) {
-          // NPC is speaking, should bounce
-          setBounceAnimation(npc.id, true);
-          
-          // Stop bouncing after 1.5s to match DOM animation
-          setTimeout(() => {
-            setBounceAnimation(npc.id, false);
-          }, 1500);
-        }
-      });
-    };
-
-    // Subscribe to conversation changes
-    const unsubscribe = ConversationManager.subscribe(checkBounceAnimations);
-    
-    // Check initial state
-    checkBounceAnimations();
-    
-    return unsubscribe;
-  }, [npcs, setBounceAnimation]);
+  // Removed bounce animation management - no longer bouncing
 
   // Stop tooltip update timer (defined first to avoid dependency issues)
   const stopTooltipTimer = useCallback(() => {
@@ -398,7 +331,7 @@ const RenderNPCsCanvasComponent = ({
       renderSingleNPC(ctx, npc, TILE_SIZE);
       await renderNPCOverlay(ctx, npc, TILE_SIZE);
     }
-  }, [npcs, TILE_SIZE, checkQuestNPCStatus, checkTradeNPCStatus, checkKentNPCStatus, getNPCRenderPosition, getBounceOffset, currentPlayer]);
+  }, [npcs, TILE_SIZE, checkQuestNPCStatus, checkTradeNPCStatus, checkKentNPCStatus, getNPCRenderPosition, currentPlayer]);
 
   // Store renderNPCs function in ref for animation loop access
   useEffect(() => {
@@ -415,11 +348,9 @@ const RenderNPCsCanvasComponent = ({
     // Use interpolated position for smooth movement
     const renderPos = getNPCRenderPosition(npc);
     const x = renderPos.x * TILE_SIZE;
-    let y = renderPos.y * TILE_SIZE;
+    const y = renderPos.y * TILE_SIZE;
     
-    // Apply bounce offset if active
-    const bounceOffset = getBounceOffset(npc.id);
-    y += bounceOffset;
+    // Removed bounce offset - no longer bouncing
     
     // Check if we have custom SVG art for this NPC type
     const customArt = NPC_ART_MAPPING[npc.type];
@@ -462,11 +393,9 @@ const RenderNPCsCanvasComponent = ({
     // Use interpolated position for smooth movement with range indicator
     const renderPos = getNPCRenderPosition(npc);
     const centerX = (renderPos.x + 0.5) * TILE_SIZE; // Center of the tile
-    let centerY = (renderPos.y + 0.5) * TILE_SIZE;
+    const centerY = (renderPos.y + 0.5) * TILE_SIZE;
     
-    // Apply bounce offset if active
-    const bounceOffset = getBounceOffset(npc.id);
-    centerY += bounceOffset;
+    // Removed bounce offset - no longer bouncing
     
     const radius = npc.attackrange * TILE_SIZE;
     
@@ -517,11 +446,9 @@ const RenderNPCsCanvasComponent = ({
       // Use interpolated position for overlays to match NPC movement  
       const interpolatedPos = getNPCRenderPosition(npc);
       const x = interpolatedPos.x * TILE_SIZE;
-      let y = interpolatedPos.y * TILE_SIZE;
+      const y = interpolatedPos.y * TILE_SIZE;
       
-      // Apply bounce offset to overlay too
-      const bounceOffset = getBounceOffset(npc.id);
-      y += bounceOffset;
+      // Removed bounce offset - no longer bouncing
       
       // Position overlay in lower-left corner of the NPC
       const overlaySize = Math.max(12, TILE_SIZE * 0.3);

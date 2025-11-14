@@ -34,6 +34,7 @@ const GridEditor = ({ activePanel }) => {
   const [availableResources, setAvailableResources] = useState([]);
   const [selectedResource, setSelectedResource] = useState(null);
   const [availableNpcs, setAvailableNpcs] = useState([]); // ✅ Store available NPCs
+  const [availableMiniTemplates, setAvailableMiniTemplates] = useState([]); // Store available mini templates
   const [tileDistribution, setTileDistribution] = useState({ g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0 });
   const [resourceDistribution, setResourceDistribution] = useState({});
   const [enemyDistribution, setEnemyDistribution] = useState({}); // Track enemy distribution
@@ -41,6 +42,12 @@ const GridEditor = ({ activePanel }) => {
   const [copiedResource, setCopiedResource] = useState(null); // Holds copied resource
   const [currentGridType, setCurrentGridType] = useState(''); // Track current grid's type
   const [selectedTileTypes, setSelectedTileTypes] = useState({ g: true, s: true, d: true, w: true, p: true, l: true, n: true }); // For selective tile deletion
+  
+  // Undo functionality - NEW APPROACH
+  const [undoStack, setUndoStack] = useState([]);
+  const [redoStack, setRedoStack] = useState([]);
+  const maxUndoSize = 50; // Limit history to prevent memory issues
+  
   // Removed currentFile, setCurrentFile, currentDirectory, setCurrentDirectory
   const pendingLoad = useRef(null);
 
@@ -49,6 +56,76 @@ const GridEditor = ({ activePanel }) => {
   
   // Computed list of enemy NPCs
   const enemyNpcs = availableNpcs.filter(npc => npc.action === 'attack' || npc.action === 'spawn');
+
+  // Function to initialize undo stack (used after loading)
+  const initializeUndoStack = () => {
+    setUndoStack([]);
+    setRedoStack([]);
+    console.log('📚 INIT UNDO - Undo stack cleared and ready');
+  };
+
+  // Function to push current state to undo stack before making changes
+  const pushToUndoStack = () => {
+    const currentState = {
+      grid: grid.map(row => row.map(cell => ({ ...cell }))), // Deep copy
+      tileDistribution: { ...tileDistribution },
+      resourceDistribution: { ...resourceDistribution },
+      enemyDistribution: { ...enemyDistribution }
+    };
+    
+    console.log('💾 PUSH UNDO - Pushing current state to undo stack');
+    console.log('💾 PUSH UNDO - Current undo stack size:', undoStack.length);
+
+    setUndoStack(prev => {
+      const newStack = [...prev, currentState];
+      // Limit stack size
+      if (newStack.length > maxUndoSize) {
+        newStack.shift();
+      }
+      console.log('💾 PUSH UNDO - New undo stack size:', newStack.length);
+      return newStack;
+    });
+    
+    // Clear redo stack when new change is made
+    setRedoStack([]);
+  };
+
+  // Function to undo last action
+  const handleUndo = () => {
+    console.log('⏪ UNDO - Called handleUndo');
+    console.log('⏪ UNDO - Undo stack size:', undoStack.length);
+    console.log('⏪ UNDO - Redo stack size:', redoStack.length);
+    
+    if (undoStack.length === 0) {
+      console.log("⏪ UNDO - No more actions to undo");
+      return;
+    }
+
+    // Pop the last state from undo stack
+    const stateToRestore = undoStack[undoStack.length - 1];
+    
+    // Save current state to redo stack
+    const currentState = {
+      grid: grid.map(row => row.map(cell => ({ ...cell }))),
+      tileDistribution: { ...tileDistribution },
+      resourceDistribution: { ...resourceDistribution },
+      enemyDistribution: { ...enemyDistribution }
+    };
+    
+    console.log('⏪ UNDO - Restoring state and moving current to redo stack');
+    
+    // Update stacks
+    setUndoStack(prev => prev.slice(0, -1)); // Remove last item
+    setRedoStack(prev => [...prev, currentState]); // Add current to redo
+    
+    // Restore the state
+    setGrid(stateToRestore.grid.map(row => row.map(cell => ({ ...cell }))));
+    setTileDistribution({ ...stateToRestore.tileDistribution });
+    setResourceDistribution({ ...stateToRestore.resourceDistribution });
+    setEnemyDistribution({ ...stateToRestore.enemyDistribution });
+    
+    console.log('⏪ UNDO - Successfully undid action. New undo size:', undoStack.length - 1);
+  };
 
   useEffect(() => {
     try {
@@ -76,6 +153,21 @@ const GridEditor = ({ activePanel }) => {
       const filteredNpcs = parsedResources.filter(res => res.category === "npc");
       setAvailableNpcs(filteredNpcs);
       
+      // Load mini templates
+      try {
+        const miniTemplatesDir = path.join(projectRoot, 'game-server', 'layouts', 'gridLayouts', 'miniTemplates');
+        const miniTemplateFiles = fs.readdirSync(miniTemplatesDir).filter(file => file.endsWith('.json'));
+        const miniTemplates = miniTemplateFiles.map(file => ({
+          name: file.replace('.json', ''),
+          filename: file
+        }));
+        setAvailableMiniTemplates(miniTemplates);
+        console.log('✅ Loaded mini templates:', miniTemplates);
+      } catch (error) {
+        console.warn('⚠️ Could not load mini templates:', error.message);
+        setAvailableMiniTemplates([]);
+      }
+      
       // Initialize enemy distribution for NPCs with attack or spawn actions
       const enemies = filteredNpcs.filter(npc => npc.action === 'attack' || npc.action === 'spawn');
       const initialEnemyDist = {};
@@ -87,6 +179,18 @@ const GridEditor = ({ activePanel }) => {
       console.error('Failed to load resources:', error);
     }
   }, []);
+  
+  // Initialize undo stack once when masterResources are loaded
+  useEffect(() => {
+    console.log('🚀 INIT EFFECT - masterResources.length:', masterResources.length);
+    console.log('🚀 INIT EFFECT - undoStack.length:', undoStack.length);
+    if (masterResources.length > 0 && undoStack.length === 0) {
+      console.log('🚀 INIT EFFECT - Calling initializeUndoStack in 100ms');
+      setTimeout(() => {
+        initializeUndoStack();
+      }, 100);
+    }
+  }, [masterResources.length]); // Only depend on masterResources, not gridHistory.length!
 
   // LISTENER for the custom event that triggers loading the Grid Editor (from FrontierView)
   useEffect(() => {
@@ -278,18 +382,29 @@ const GridEditor = ({ activePanel }) => {
       // ✅ DELETE or BACKSPACE now removes resource if present, else resets tile type
       if (key === "backspace" || key === "delete") {
         console.log(`❌ Deleting with brush size ${brushSize} and shape ${brushShape}`);
+        
+        // Push current state to undo stack BEFORE making changes
+        pushToUndoStack();
+        
         // Get tiles affected by brush
         const tilesToDelete = getBrushTiles(selectedTile.x, selectedTile.y, brushSize, brushShape);
         
-        tilesToDelete.forEach(({ x, y }) => {
-          const currentTile = grid[x][y];
-          if (currentTile.resource) {
-            console.log(`❌ Removing resource at (${x}, ${y})`);
-            updateTileResource(x, y, "");
-          } else {
-            console.log(`❌ Resetting tile at (${x}, ${y}) to "None (**)"`);
-            updateTileType(x, y, "**");
-          }
+        // Create new grid with all changes at once
+        setGrid(prevGrid => {
+          const newGrid = prevGrid.map(row => row.map(cell => ({ ...cell })));
+          
+          tilesToDelete.forEach(({ x, y }) => {
+            const currentTile = prevGrid[x][y];
+            if (currentTile.resource) {
+              console.log(`❌ Removing resource at (${x}, ${y})`);
+              newGrid[x][y] = { ...newGrid[x][y], resource: "" };
+            } else {
+              console.log(`❌ Resetting tile at (${x}, ${y}) to "None (**)"`);
+              newGrid[x][y] = { ...newGrid[x][y], type: "**" };
+            }
+          });
+          
+          return newGrid;
         });
         
         // Ensure selectedTile state is refreshed so user can DEL again
@@ -302,11 +417,23 @@ const GridEditor = ({ activePanel }) => {
 
       if (matchingTile) {
         console.log(`✅ Setting tile type to: ${matchingTile.layoutkey} with brush shape ${brushShape}`);
+        
+        // Push current state to undo stack BEFORE making changes
+        pushToUndoStack();
+        
         // Get tiles affected by brush
         const tilesToUpdate = getBrushTiles(selectedTile.x, selectedTile.y, brushSize, brushShape);
         
-        tilesToUpdate.forEach(({ x, y }) => {
-          updateTileType(x, y, matchingTile.layoutkey);
+        // Create new grid with all changes at once
+        setGrid(prevGrid => {
+          const newGrid = prevGrid.map(row => row.map(cell => ({ ...cell })));
+          
+          tilesToUpdate.forEach(({ x, y }) => {
+            console.log(`🔄 Changing tile type at (${x}, ${y}) to ${matchingTile.layoutkey}`);
+            newGrid[x][y] = { ...newGrid[x][y], type: matchingTile.layoutkey };
+          });
+          
+          return newGrid;
         });
       }
     };
@@ -321,10 +448,19 @@ const GridEditor = ({ activePanel }) => {
     const handleKeyDown = (event) => {
         console.log(`✅ Key down event: ${event.key}`);
 
-        if (event.metaKey && event.key === 'c') {
+        // Check if we're typing in an input field
+        const activeElement = document.activeElement;
+        if (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA" || activeElement.tagName === "SELECT") {
+          return;
+        }
+
+        if ((event.ctrlKey || event.metaKey) && event.key === 'z') {
+            event.preventDefault();
+            handleUndo();
+        } else if ((event.ctrlKey || event.metaKey) && event.key === 'c') {
             event.preventDefault();
             handleCopy();
-        } else if (event.metaKey && event.key === 'v') {
+        } else if ((event.ctrlKey || event.metaKey) && event.key === 'v') {
             event.preventDefault();
             handlePaste();
         }
@@ -332,7 +468,7 @@ const GridEditor = ({ activePanel }) => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-}, [selectedTile, copiedResource, grid]); // ✅ Include `grid`
+}, [selectedTile, copiedResource, grid, undoStack]); // ✅ Include undo dependencies
 
 
 const handleCopy = () => {
@@ -353,6 +489,9 @@ const handlePaste = () => {
   if (!selectedTile || !copiedResource || !grid) return;
 
   const { x, y } = selectedTile;
+  
+  // Push current state to undo stack BEFORE making changes
+  pushToUndoStack();
 
   setGrid(prevGrid => {
       const newGrid = prevGrid.map(row => [...row]); // Create a new grid copy
@@ -365,6 +504,9 @@ const handlePaste = () => {
 
 
   const updateTileType = (x, y, newType) => {
+    // Push current state to undo stack before making changes
+    pushToUndoStack();
+    
     setGrid(prevGrid => {
       return prevGrid.map((row, rowIndex) =>
         row.map((cell, colIndex) => {
@@ -388,8 +530,87 @@ const handlePaste = () => {
   updateTileResource(selectedTile.x, selectedTile.y, resourceType); // ✅ type only
     setSelectedResource(resourceType);
   };
+  
+  const handleMiniTemplateSelect = (templateName) => {
+    if (!selectedTile || !templateName) {
+      console.log("⚠️ No tile selected or template name, template placement ignored.");
+      return;
+    }
+    
+    try {
+      // Load the mini template file
+      const templatePath = path.join(projectRoot, 'game-server', 'layouts', 'gridLayouts', 'miniTemplates', `${templateName}.json`);
+      const templateData = JSON.parse(fs.readFileSync(templatePath, 'utf-8'));
+      
+      console.log(`🏰 Placing mini template: ${templateName} at (${selectedTile.x}, ${selectedTile.y})`);
+      
+      // Push current state to undo stack before making changes
+      pushToUndoStack();
+      
+      // Apply the template to the grid
+      setGrid(prevGrid => {
+        const newGrid = prevGrid.map(row => row.map(cell => ({ ...cell })));
+        
+        // Process tiles from template
+        if (templateData.tiles) {
+          templateData.tiles.forEach((row, templateY) => {
+            row.forEach((tileLayoutKey, templateX) => {
+              const gridX = selectedTile.x + templateY;
+              const gridY = selectedTile.y + templateX;
+              
+              // Check bounds
+              if (gridX >= 0 && gridX < GRID_SIZE && gridY >= 0 && gridY < GRID_SIZE) {
+                // Only place if not empty/blank
+                if (tileLayoutKey && tileLayoutKey !== '**') {
+                  const tileResource = masterResources.find(res => res.layoutkey === tileLayoutKey && res.category === "tile");
+                  if (tileResource) {
+                    newGrid[gridX][gridY] = { 
+                      ...newGrid[gridX][gridY], 
+                      type: tileResource.layoutkey,
+                      resource: "" // Clear any existing resource when placing a tile from template
+                    };
+                  }
+                }
+              }
+            });
+          });
+        }
+        
+        // Process resources from template
+        if (templateData.resources) {
+          templateData.resources.forEach((row, templateY) => {
+            row.forEach((resourceLayoutKey, templateX) => {
+              const gridX = selectedTile.x + templateY;
+              const gridY = selectedTile.y + templateX;
+              
+              // Check bounds
+              if (gridX >= 0 && gridX < GRID_SIZE && gridY >= 0 && gridY < GRID_SIZE) {
+                // Only place if not empty/blank
+                if (resourceLayoutKey && resourceLayoutKey !== '**') {
+                  const resourceItem = masterResources.find(res => res.layoutkey === resourceLayoutKey);
+                  if (resourceItem) {
+                    newGrid[gridX][gridY] = { ...newGrid[gridX][gridY], resource: resourceItem.type };
+                  }
+                }
+              }
+            });
+          });
+        }
+        
+        console.log(`✅ Mini template ${templateName} placed successfully`);
+        return newGrid;
+      });
+      
+    } catch (error) {
+      console.error(`❌ Error loading mini template ${templateName}:`, error);
+      alert(`Error loading mini template: ${error.message}`);
+    }
+  };
 
   const updateTileResource = (x, y, resourceType) => {
+    // Push current state to undo stack before making changes
+    pushToUndoStack();
+    
     setGrid(prevGrid => {
       const newGrid = prevGrid.map((row, rowIndex) =>
         row.map((cell, colIndex) => {
@@ -543,6 +764,11 @@ const handleEnemyDistributionChange = (enemyType, value) => {
       console.log("Current file name:", fileName);
       console.log("Current directory:", directory);
       console.log("✅ Grid successfully loaded from:", layoutPath);
+      
+      // Initialize undo stack with the loaded state - delay to ensure all state is set
+      setTimeout(() => {
+        initializeUndoStack();
+      }, 100);
     } catch (error) {
       console.error('❌ Failed to load layout:', error);
       alert('Error: Unable to load layout. Check the console for details.');
@@ -612,6 +838,9 @@ const handleEnemyDistributionChange = (enemyType, value) => {
  const handleGenerateTilesBlanksOnly = () => {
    if (!window.confirm("Generate tiles only on blank spaces?")) return;
    
+   // Push current state to undo stack before generating
+   pushToUndoStack();
+   
    console.log("🔄 Generating tiles on blank spaces...");
    if (!grid || !tileDistribution || !masterResources) {
      console.warn("⚠️ Missing grid or tile distribution data. Cannot generate tiles.");
@@ -651,6 +880,9 @@ const handleEnemyDistributionChange = (enemyType, value) => {
 
  const handleGenerateTilesOverwriteAll = () => {
    if (!window.confirm("Overwrite ALL tiles based on distribution?")) return;
+   
+   // Push current state to undo stack before overwriting
+   pushToUndoStack();
    
    console.log("🔄 Overwriting all tiles...");
    if (!grid || !tileDistribution || !masterResources) {
@@ -697,6 +929,10 @@ const handleEnemyDistributionChange = (enemyType, value) => {
      choice = 'additional';
    }
    if (!choice) return;
+   
+   // Push current state to undo stack before generating resources
+   pushToUndoStack();
+   
    console.log("🔄 Generating new resources...");
   if (!grid || !availableResources || !masterResources) {
     console.warn("⚠️ Missing grid or resource data. Cannot generate resources.");
@@ -786,6 +1022,9 @@ const handlePopulateRandomEnemies = () => {
     console.warn("⚠️ Missing grid or enemy distribution data.");
     return;
   }
+  
+  // Push current state to undo stack before populating enemies
+  pushToUndoStack();
   
   // Create enemy pool based on distribution
   let enemyPool = [];
@@ -902,6 +1141,9 @@ const handleClearAllEnemies = () => {
 
 // 🔹 Clear Grid Function
 const handleClearGrid = () => {
+  // Push current state to undo stack before clearing
+  pushToUndoStack();
+  
   const clearedGrid = grid.map(row =>
     row.map(() => ({ type: "", resource: "", npc: "" }))
   );
@@ -913,6 +1155,9 @@ const handleClearGrid = () => {
 // Delete all resources from the grid
 const handleDeleteAllResources = () => {
   if (!window.confirm("Are you sure you want to delete all resources from the grid?")) return;
+  
+  // Push current state to undo stack before deleting all resources
+  pushToUndoStack();
   
   const newGrid = grid.map(row =>
     row.map(cell => ({ ...cell, resource: "" }))
@@ -933,6 +1178,9 @@ const handleDeleteSelectedTiles = () => {
   }
   
   if (!window.confirm(`Are you sure you want to delete all tiles of types: ${selectedTypes.join(', ')}?`)) return;
+  
+  // Push current state to undo stack before deleting selected tiles
+  pushToUndoStack();
   
   // Map single-letter types to their layoutkey equivalents
   const typeMapping = {
@@ -1080,16 +1328,24 @@ if (typeof window !== "undefined") {
       <div className="editor-panel"> 
         <h2>Grid Editor</h2>
         
-        <div className="small-button" style={{ marginTop: '4px', marginBottom: '4px' }}>
-          <button onClick={handleClearGrid}>Clear Grid</button>
+        <div style={{ display: 'flex', gap: '8px', marginTop: '4px', marginBottom: '4px' }}>
+          <button className="small-button" onClick={handleClearGrid}>Clear Grid</button>
+          <button 
+            className="small-button" 
+            onClick={handleUndo}
+            disabled={undoStack.length === 0}
+            title={`Undo (Ctrl+Z) - ${undoStack.length > 0 ? `${undoStack.length} actions available` : 'No actions to undo'}`}
+          >
+            Undo
+          </button>
         </div>
 
         {/* File Management Container */}
         <div style={{ 
           backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-          padding: '10px', 
+          padding: '8px', 
           borderRadius: '5px', 
-          marginBottom: '15px',
+          marginBottom: '8px',
           border: '1px solid rgba(0,0,0,0.1)'
         }}>
           <FileManager
@@ -1106,16 +1362,16 @@ if (typeof window !== "undefined") {
         {/* Size Controls Container */}
         <div style={{ 
           backgroundColor: 'white', 
-          padding: '10px', 
+          padding: '8px', 
           borderRadius: '5px', 
-          marginBottom: '15px',
+          marginBottom: '8px',
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
         }}>
           <h4 style={{ margin: '0 0 5px 0' }}>Tile Size:</h4>
           <input 
             type="range" min="10" max="50" value={tileSize} 
             onChange={(e) => setTileSize(Number(e.target.value))}
-            style={{ width: '100%', marginBottom: '10px' }}
+            style={{ width: '100%', marginBottom: '8px' }}
           />
           <h4 style={{ margin: '0 0 5px 0' }}>Tile Brush Size:</h4>
           <input
@@ -1124,11 +1380,11 @@ if (typeof window !== "undefined") {
             max="13"
             value={brushSize}
             onChange={(e) => setBrushSize(Number(e.target.value))}
-            style={{ width: '100%', marginBottom: '10px' }}
+            style={{ width: '100%', marginBottom: '8px' }}
           />
           
-          <h4 style={{ margin: '10px 0 5px 0' }}>Brush Shape:</h4>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          <h4 style={{ margin: '8px 0 3px 0' }}>Brush Shape:</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
             <label>
               <input
                 type="radio"
@@ -1209,6 +1465,17 @@ if (typeof window !== "undefined") {
               {availableNpcs.map(npc => (
                 <option key={npc.type} value={npc.type}>
                   {npc.symbol} {npc.type}
+                </option>
+              ))}
+            </select>
+            
+            <p>Mini Templates: </p>
+
+            <select onChange={(e) => handleMiniTemplateSelect(e.target.value)} value="">
+              <option value="">None</option>
+              {availableMiniTemplates.map(template => (
+                <option key={template.name} value={template.name}>
+                  🏰 {template.name}
                 </option>
               ))}
             </select>

@@ -117,7 +117,7 @@ export const playConversation = async (
     const playerTopic = playerTopicKey ? getTopicSymbol(playerTopicKey, topicContext, true) : '💭';
     
     await showSpeech('player', playerSpeakerId, playerEmoji, playerTopic);
-    await animateCharacter('player', playerPosition, getCurrentTileSize());
+    // Removed character animation
     await delay(1500);
     await hideSpeech(playerSpeakerId);
     
@@ -144,7 +144,7 @@ export const playConversation = async (
     }
     
     await showSpeech('npc', npcSpeakerId, npcEmoji, npcTopic, isMatch);
-    await animateCharacter('npc', npcPosition, getCurrentTileSize());
+    // Removed character animation
     await delay(1500);
     await hideSpeech(npcSpeakerId);
     
@@ -395,19 +395,12 @@ const animateCharacter = async (characterType, position, TILE_SIZE) => {
     });
   }
   
+  // Removed character bounce animation - no longer animating characters
   if (characterElement) {
-    // Simply add the animation class
-    characterElement.classList.add('speaking-animation');
-    
-    // Remove animation class after duration
-    setTimeout(() => {
-      characterElement.classList.remove('speaking-animation');
-    }, 1500);
+    // Character found but no animation applied
   } else {
     if (characterType === 'npc') {
-      // For Canvas NPCs, the bounce is handled by RenderNPCsCanvas listening to ConversationManager
-      // So we don't need to do anything special here - the speech bubble being added
-      // will trigger the bounce animation automatically
+      // For Canvas NPCs, speech bubbles will appear without animation
     }
   }
 };

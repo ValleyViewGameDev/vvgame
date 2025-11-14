@@ -119,6 +119,21 @@ export const handlePlayerDeath = async (
     // Fetch the Signpost Town position from the homestead grid
     const signpostPosition = await fetchHomesteadSignpostPosition(player.gridId);
     
+    // Fetch the homestead's gridCoord to ensure proper MiniMap display
+    let homesteadGridCoord = player.homesteadGridCoord; // Use cached if available
+    if (!homesteadGridCoord && player.gridId) {
+      try {
+        console.log('🏠 Fetching homestead gridCoord for death teleportation...');
+        const homesteadResponse = await axios.get(`${API_BASE}/api/homestead-gridcoord/${player.gridId}`);
+        if (homesteadResponse.data.gridCoord) {
+          homesteadGridCoord = homesteadResponse.data.gridCoord;
+          console.log('🏠✅ Found homestead gridCoord:', homesteadGridCoord);
+        }
+      } catch (error) {
+        console.warn('⚠️ Could not fetch homestead gridCoord:', error);
+      }
+    }
+    
     // Determine respawn grid and coordinates
     const targetLocation = {
       x: signpostPosition.x,
@@ -126,6 +141,7 @@ export const handlePlayerDeath = async (
       g: player.gridId !== currentGridId ? player.gridId : currentGridId,
       s: player.settlementId,
       gtype: "homestead",
+      ...(homesteadGridCoord && { gridCoord: homesteadGridCoord }), // Include gridCoord for proper MiniMap display
     };
     // Preserve other location fields (frontier, settlement, gtype)
     const updatedLocation = {
@@ -158,7 +174,8 @@ export const handlePlayerDeath = async (
       hp: restoredHp,
       maxhp: properMaxHp,  // Ensure maxHP is not corrupted
       backpack: filteredBackpack,
-      location: updatedLocation
+      location: updatedLocation,
+      ...(homesteadGridCoord && { homesteadGridCoord }) // Ensure homestead dot appears on MiniMap
     };
 
     // 1. **Update Player Data in the Database**
@@ -170,6 +187,7 @@ export const handlePlayerDeath = async (
         maxhp: properMaxHp,  // Ensure maxHP is preserved in database
         location: updatedLocation,  // Update location
         settings: player.settings,
+        ...(homesteadGridCoord && { homesteadGridCoord }), // Save homesteadGridCoord for MiniMap
       },
     });
     setCurrentPlayer(updatedPlayer);

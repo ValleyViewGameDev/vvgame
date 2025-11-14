@@ -358,6 +358,8 @@ export const changePlayerLocation = async (
     const updatedPlayer = {
       ...currentPlayer,
       location: locationResponse.data.player.location,
+      // Preserve any other fields that may have been updated (e.g., homesteadGridCoord from handlePlayerDeath)
+      ...(locationResponse.data.player.homesteadGridCoord && { homesteadGridCoord: locationResponse.data.player.homesteadGridCoord }),
     };
     setCurrentPlayer(updatedPlayer);
     localStorage.setItem('player', JSON.stringify(updatedPlayer));

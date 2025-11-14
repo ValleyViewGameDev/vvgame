@@ -48,7 +48,40 @@
 .mini-map-info {
   font-size: 12px;
   color: white;
-  margin-top: 5px;
+  margin: 5px auto 0 auto; /* Center the info section under the map */
   font-family: Arial, sans-serif; /* Standard Arial font */
   font-weight: normal;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 128px; /* Match the width of the mini-map-grid */
+}
+
+.home-button {
+  flex: 0 0 auto;
+}
+
+.train-button {
+  flex: 0 0 auto;
+}
+
+.minimap-title {
+  flex: 1;
+  text-align: center;
+}
+
+.minimap-signpost-button {
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px;
+  transition: transform 0.1s ease;
+  user-select: none;
+}
+
+.minimap-signpost-button:hover {
+  transform: scale(1.1);
+}
+
+.minimap-signpost-button:active {
+  transform: scale(0.9);
 }

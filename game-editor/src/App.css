@@ -37,21 +37,21 @@
 }
 
 h1 {
-  margin: 8px 0;
-  padding: 4px 0;
-}
-h2 {
   margin: 6px 0;
   padding: 3px 0;
-  color: white;
 }
-h3 {
+h2 {
   margin: 5px 0;
   padding: 2px 0;
   color: white;
 }
-h4, h5, h6 {
+h3 {
   margin: 4px 0;
+  padding: 2px 0;
+  color: white;
+}
+h4, h5, h6 {
+  margin: 3px 0;
   padding: 2px 0;
 }
 

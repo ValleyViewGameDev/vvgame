@@ -1389,6 +1389,14 @@ useEffect(() => {
     const activeElement = document.activeElement;
     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; } // Prevent movement if a text input is focused
     
+    // Handle inventory shortcut
+    if (event.key === 'i' || event.key === 'I') {
+      if (currentPlayer) {
+        openPanel('InventoryPanel');
+        event.preventDefault();
+      }
+      return;
+    }
     
     if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) { event.preventDefault(); }  // Prevent the browser from scrolling when using arrow keys
 
@@ -1994,7 +2002,22 @@ return (
     <div className="base-panel">
       
       {/* Frontier Mini Map */}
-      <FrontierMiniMap currentPlayer={currentPlayer} strings={strings} />
+      <FrontierMiniMap 
+        currentPlayer={currentPlayer} 
+        strings={strings}
+        setCurrentPlayer={setCurrentPlayer}
+        setGridId={setGridId}
+        setGrid={setGrid}
+        setTileTypes={setTileTypes}
+        setResources={setResources}
+        updateStatus={updateStatus}
+        TILE_SIZE={activeTileSize}
+        closeAllPanels={closeAllPanels}
+        bulkOperationContext={bulkOperationContext}
+        masterResources={masterResources}
+        masterTrophies={masterTrophies}
+        transitionFadeControl={transitionFadeControl}
+      />
  
       <div className="shared-buttons">
         <button className="btn-basic" onClick={() => openPanel('HowToPanel')}>{strings[10109]} AWSD</button>

@@ -1,12 +1,28 @@
 import React, { useMemo } from 'react';
 import './FrontierMiniMap.css';
+import { handleTransitSignpost } from '../GameFeatures/Transit/Transit';
 
 /**
  * Frontier Mini Map - 128x128 pixel representation (2x2 pixels per grid)
  * 64x64 grid representing all grids in the frontier (8x8 settlements, each with 8x8 grids)
  * Player location calculated from gridCoord, shown as yellow cell
  */
-const FrontierMiniMap = ({ currentPlayer, strings }) => {
+const FrontierMiniMap = ({ 
+  currentPlayer, 
+  strings, 
+  setCurrentPlayer, 
+  setGridId, 
+  setGrid, 
+  setTileTypes, 
+  setResources, 
+  updateStatus, 
+  TILE_SIZE, 
+  closeAllPanels, 
+  bulkOperationContext, 
+  masterResources, 
+  masterTrophies, 
+  transitionFadeControl 
+}) => {
   // Calculate player's position in the 64x64 grid from gridCoord
   const playerGridPosition = useMemo(() => {
     if (!currentPlayer?.location?.gridCoord) {
@@ -137,7 +153,57 @@ const FrontierMiniMap = ({ currentPlayer, strings }) => {
         ))}
       </div>
       <div className="mini-map-info">
-        {strings && strings[2] ? strings[2] : "Frontier Map"}
+        <span 
+          className="minimap-signpost-button home-button"
+          onClick={() => handleTransitSignpost(
+            currentPlayer,
+            "Signpost Home",
+            setCurrentPlayer,
+            setGridId,
+            setGrid,
+            setTileTypes,
+            setResources,
+            updateStatus,
+            TILE_SIZE,
+            currentPlayer.skills,
+            closeAllPanels,
+            bulkOperationContext,
+            masterResources,
+            strings,
+            masterTrophies,
+            transitionFadeControl
+          )}
+          title={strings && strings[107] ? strings[107] : "Go Home"}
+        >
+          🏠
+        </span>
+        <span className="minimap-title">
+          {strings && strings[2] ? strings[2] : "Frontier Map"}
+        </span>
+        <span 
+          className="minimap-signpost-button train-button"
+          onClick={() => handleTransitSignpost(
+            currentPlayer,
+            "Signpost Town Home",
+            setCurrentPlayer,
+            setGridId,
+            setGrid,
+            setTileTypes,
+            setResources,
+            updateStatus,
+            TILE_SIZE,
+            currentPlayer.skills,
+            closeAllPanels,
+            bulkOperationContext,
+            masterResources,
+            strings,
+            masterTrophies,
+            transitionFadeControl
+          )}
+          title={strings && strings[108] ? strings[108] : "Go to Town"}
+        >
+          🚂
+        </span>
       </div>
     </div>
   );
