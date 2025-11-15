@@ -142,9 +142,13 @@ export function handleNPCClickShared(npc, {
     if (currentTime < globalAttackCooldown) {
       return false; // Still on cooldown
     }
-    const cooldownDuration = speed * 1000;
+    // New cooldown formula: speed 5 = 3.5s, speed 1 = 0.5s
+    // Formula: cooldown = 0.5 + (speed - 1) * 0.75
+    // This gives us: speed 1 = 0.5s, speed 2 = 1.25s, speed 3 = 2s, speed 4 = 2.75s, speed 5 = 3.5s
+    const cooldownSeconds = 0.5 + (speed - 1) * 0.75;
+    const cooldownDuration = cooldownSeconds * 1000;
     globalAttackCooldown = currentTime + cooldownDuration;
-    console.log(`⚔️ Setting new cooldown: ${cooldownDuration}ms (${speed} seconds)`);
+    console.log(`⚔️ Setting new cooldown: ${cooldownDuration}ms (${cooldownSeconds} seconds for speed ${speed})`);
     // Continue to handleNPCClick below for attack NPCs
   }
   
