@@ -1,8 +1,8 @@
-import React, { useRef, useEffect, useState, memo } from 'react';
+import React, { useRef, useEffect, useState, memo, useCallback } from 'react';
 import { getResourceOverlayStatus, OVERLAY_SVG_MAPPING } from '../Utils/ResourceOverlayUtils';
 import SVGAssetManager from './SVGAssetManager';
 import { getResourceCursorClass, getNPCCursorClass, setCanvasCursor } from '../Utils/CursorUtils';
-import { handleNPCClick } from '../GameFeatures/NPCs/NPCUtils';
+import { handleNPCClickShared, getAttackCooldownStatus } from '../GameFeatures/NPCs/NPCInteractionUtils';
 import { calculateTooltipPosition } from '../Utils/TooltipUtils';
 import ConversationManager from '../GameFeatures/Relationships/ConversationManager';
 import '../GameFeatures/Relationships/Conversation.css';
@@ -51,6 +51,8 @@ export const RenderDynamicElementsCanvas = ({
   const canvasRef = useRef(null);
   const lastRenderData = useRef(null);
   const [conversationVersion, setConversationVersion] = useState(0);
+  const currentHoveredNPC = useRef(null);
+  const cursorUpdateInterval = useRef(null);
 
   // Subscribe to conversation changes
   useEffect(() => {
@@ -152,6 +154,51 @@ export const RenderDynamicElementsCanvas = ({
     }
   }, [resources, TILE_SIZE, craftingStatus, tradingStatus, badgeState, electionPhase, currentPlayer]);
 
+  // Stop cursor update interval
+  const stopCursorUpdateInterval = useCallback(() => {
+    if (cursorUpdateInterval.current) {
+      clearInterval(cursorUpdateInterval.current);
+      cursorUpdateInterval.current = null;
+    }
+  }, []);
+
+  // Start cursor update interval for attack NPCs
+  const startCursorUpdateInterval = useCallback((npc, element) => {
+    // Only start for attack NPCs
+    if (npc.action !== 'attack' && npc.action !== 'spawn') return;
+    
+    
+    // Clear any existing interval
+    if (cursorUpdateInterval.current) {
+      clearInterval(cursorUpdateInterval.current);
+      cursorUpdateInterval.current = null;
+    }
+    
+    // Check cursor status every 100ms
+    cursorUpdateInterval.current = setInterval(() => {
+      // Make sure we're still hovering over the same NPC
+      if (!currentHoveredNPC.current || currentHoveredNPC.current.id !== npc.id) {
+        if (cursorUpdateInterval.current) {
+          clearInterval(cursorUpdateInterval.current);
+          cursorUpdateInterval.current = null;
+        }
+        return;
+      }
+      
+      // Update cursor based on current cooldown status
+      const cursorClass = getNPCCursorClass(npc);
+      const cooldownStatus = getAttackCooldownStatus();
+      setCanvasCursor(element, cursorClass);
+    }, 100);
+  }, []);
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      stopCursorUpdateInterval();
+    };
+  }, [stopCursorUpdateInterval]);
+
   // Handle mouse events for tooltips and cursors - check ALL entity types
   const handleCanvasMouseMove = (event) => {
     const canvas = canvasRef.current;
@@ -190,9 +237,17 @@ export const RenderDynamicElementsCanvas = ({
         y: tooltipPosition.y,
         content: generateNPCTooltip(npc, strings),
       });
+      
+      // Track current hovered NPC
+      currentHoveredNPC.current = { id: npc.id };
+      
       // Set cursor for the NPC
       const cursorClass = getNPCCursorClass(npc);
       setCanvasCursor(overlayDiv, cursorClass);
+      
+      // Start cursor update interval for attack NPCs
+      startCursorUpdateInterval(npc, overlayDiv);
+      
       return;
     }
     
@@ -251,6 +306,10 @@ export const RenderDynamicElementsCanvas = ({
     // No entity found - clear tooltip and reset cursor
     setHoverTooltip(null);
     setCanvasCursor(overlayDiv, null);
+    
+    // Clear tracked NPC and stop cursor update interval
+    currentHoveredNPC.current = null;
+    stopCursorUpdateInterval();
   };
 
   const handleCanvasMouseLeave = (event) => {
@@ -260,6 +319,10 @@ export const RenderDynamicElementsCanvas = ({
     if (overlayDiv) {
       setCanvasCursor(overlayDiv, null);
     }
+    
+    // Clear tracked NPC and stop cursor update interval
+    currentHoveredNPC.current = null;
+    stopCursorUpdateInterval();
   };
 
   // Handle clicks and forward to appropriate handlers
@@ -282,36 +345,30 @@ export const RenderDynamicElementsCanvas = ({
     );
     
     if (npc) {
-      // For quest/trade/heal/worker NPCs, use the onNPCClick handler
-      if (npc.action === 'quest' || npc.action === 'heal' || npc.action === 'worker' || npc.action === 'trade') {
-        if (onNPCClick) {
-          onNPCClick(npc);
-        }
-      } else {
-        // For other NPCs (attack, graze), use handleNPCClick
-        handleNPCClick(
-          npc,
-          Math.round(npc.position?.y || 0),
-          Math.round(npc.position?.x || 0),
-          setInventory,
-          setBackpack,
-          setResources,
-          currentPlayer,
-          setCurrentPlayer,
-          TILE_SIZE,
-          masterResources,
-          masterSkills,
-          gridId,
-          setModalContent,
-          setIsModalOpen,
-          updateStatus,
-          openPanel,
-          setActiveStation,
-          strings,
-          masterTrophies,
-          globalTuning
-        );
-      }
+      // Use the shared click handler that includes cooldown logic for attack NPCs
+      handleNPCClickShared(npc, {
+        currentPlayer,
+        playersInGrid,
+        gridId,
+        TILE_SIZE,
+        masterResources,
+        masterSkills,
+        masterTrophies,
+        globalTuning,
+        strings,
+        // Event handlers
+        onNPCClick,
+        setHoverTooltip,
+        setInventory,
+        setBackpack,
+        setResources,
+        setCurrentPlayer,
+        setModalContent,
+        setIsModalOpen,
+        updateStatus,
+        openPanel,
+        setActiveStation
+      });
       return;
     }
     

@@ -204,12 +204,32 @@ function KentPanel({
 
             if (!allRewardsSuccess) return;
 
+            // Award XP for the trade
+            const xpToAward = calculateKentXP(originalOffer);
+            try {
+              const xpResponse = await axios.post(`${API_BASE}/api/addXP`, {
+                playerId: currentPlayer.playerId,
+                xpAmount: xpToAward
+              });
+              
+              if (xpResponse.data.success) {
+                // Update current player's XP locally
+                setCurrentPlayer(prev => ({
+                  ...prev,
+                  xp: xpResponse.data.newXP
+                }));
+              }
+            } catch (error) {
+              console.error('❌ Error awarding XP for Kent trade:', error);
+              // Don't fail the trade if XP award fails, just log it
+            }
+
             // Create status message for multiple rewards
             const rewardText = originalOffer && originalOffer.rewards 
               ? originalOffer.rewards.map(reward => `${reward.quantity} ${reward.item}`).join(', ')
               : `${offer.qtyGiven} ${offer.itemGiven}`;
 
-            await refreshOffersAndSetTimer(offer, `✅ Exchanged ${offer.qtyBought} ${offer.itemBought} for ${rewardText}.`);
+            await refreshOffersAndSetTimer(offer, `✅ Exchanged ${offer.qtyBought} ${offer.itemBought} for ${rewardText} and +${xpToAward} XP.`);
             await trackQuestProgress(currentPlayer,'Sell',offer.itemBought,offer.qtyBought,setCurrentPlayer);
             // Check if we should increment FTUE step after selling
             if (currentPlayer.ftuestep === 3) {
@@ -304,6 +324,13 @@ function KentPanel({
         return resource?.symbol || "❓"; // Default to question mark if no symbol found
     };
 
+    // Calculate XP for Kent offer based on resource.xp value
+    const calculateKentXP = (offer) => {
+        // Find the resource being sold and get its XP value
+        const resource = masterResources.find(res => res.type === offer.item);
+        return resource?.xp || 1; // Default to 1 XP if no xp value defined
+    };
+
     return (
       <Panel onClose={onClose}  titleKey="1138" panelName="KentPanel">
         {isContentLoading ? (
@@ -367,7 +394,7 @@ function KentPanel({
                                 <div className="kent-offer-reward">
                                   {strings[42]} {offer.rewards.map((reward, rewardIndex) => 
                                     `${getSymbol(reward.item)} ${reward.quantity.toLocaleString()}${rewardIndex < offer.rewards.length - 1 ? ', ' : ''}`
-                                  ).join('')}
+                                  ).join('')}, 🔷 {calculateKentXP(offer)} 
                                 </div>
                               </div>
                             </div>

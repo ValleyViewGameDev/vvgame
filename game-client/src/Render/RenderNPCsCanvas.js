@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useCallback, useMemo } from 'react';
 import SVGAssetManager from './SVGAssetManager';
 import { OVERLAY_SVG_MAPPING } from '../Utils/ResourceOverlayUtils';
-import { generateNPCTooltipContent, handleNPCClickShared } from '../GameFeatures/NPCs/NPCInteractionUtils';
+import { generateNPCTooltipContent, handleNPCClickShared, getAttackCooldownStatus } from '../GameFeatures/NPCs/NPCInteractionUtils';
 import { getNPCCursorClass, setCanvasCursor } from '../Utils/CursorUtils';
 import { calculateTooltipPosition } from '../Utils/TooltipUtils';
 import ConversationManager from '../GameFeatures/Relationships/ConversationManager';
@@ -52,6 +52,7 @@ const RenderNPCsCanvasComponent = ({
   const lastRenderData = useRef(null);
   const currentHoveredNPC = useRef(null); // Track which NPC is currently being hovered
   const tooltipUpdateInterval = useRef(null); // Timer for updating time-based tooltips
+  const cursorUpdateInterval = useRef(null); // Timer for updating cursor when cooldown expires
   
   // Canvas-specific animation system (mimics DOM's CSS transitions)
   const canvasAnimations = useRef({});
@@ -202,6 +203,14 @@ const RenderNPCsCanvasComponent = ({
     }
   }, []);
 
+  // Stop cursor update interval
+  const stopCursorUpdateInterval = useCallback(() => {
+    if (cursorUpdateInterval.current) {
+      clearInterval(cursorUpdateInterval.current);
+      cursorUpdateInterval.current = null;
+    }
+  }, []);
+
   // Function to update tooltip if currently hovering over an NPC
   const updateCurrentTooltip = useCallback(() => {
     if (!currentHoveredNPC.current || !setHoverTooltip) return;
@@ -281,8 +290,9 @@ const RenderNPCsCanvasComponent = ({
   useEffect(() => {
     return () => {
       stopTooltipTimer();
+      stopCursorUpdateInterval();
     };
-  }, [stopTooltipTimer]);
+  }, [stopTooltipTimer, stopCursorUpdateInterval]);
   
   // Render NPCs to canvas
   const renderNPCs = useCallback(async () => {
@@ -499,36 +509,30 @@ const RenderNPCsCanvasComponent = ({
       event.preventDefault();
       event.stopPropagation();
       
-      // Handle different NPC types properly
-      if (npc.action === 'quest' || npc.action === 'heal' || npc.action === 'worker' || npc.action === 'trade') {
-        // These NPCs open panels/dialogs
-        onNPCClick(npc);
-      } else {
-        // These NPCs use the standard handleNPCClick (combat, grazing, etc.)
-        const { handleNPCClick } = require('../GameFeatures/NPCs/NPCUtils');
-        handleNPCClick(
-          npc,
-          Math.round(npc.position?.y || 0),
-          Math.round(npc.position?.x || 0),
-          setInventory,
-          setBackpack,
-          setResources,
-          currentPlayer,
-          setCurrentPlayer,
-          TILE_SIZE,
-          masterResources,
-          masterSkills,
-          currentPlayer?.location?.g,
-          setModalContent,
-          setIsModalOpen,
-          updateStatus,
-          openPanel,
-          setActiveStation,
-          strings,
-          masterTrophies,
-          globalTuning
-        );
-      }
+      // Use the shared click handler that includes cooldown logic for attack NPCs
+      handleNPCClickShared(npc, {
+        currentPlayer,
+        playersInGrid,
+        gridId,
+        TILE_SIZE,
+        masterResources,
+        masterSkills,
+        masterTrophies,
+        globalTuning,
+        strings,
+        // Event handlers
+        onNPCClick,
+        setHoverTooltip,
+        setInventory,
+        setBackpack,
+        setResources,
+        setCurrentPlayer,
+        setModalContent,
+        setIsModalOpen,
+        updateStatus,
+        openPanel,
+        setActiveStation
+      });
     } else {
       // No NPC found - forward this click to the grid by finding the underlying element
       const canvas = canvasRef.current;
@@ -557,6 +561,45 @@ const RenderNPCsCanvasComponent = ({
       }
     }
   }, [onNPCClick, npcs, TILE_SIZE, getNPCRenderPosition]);
+
+  // Start cursor update interval for attack NPCs
+  const startCursorUpdateInterval = useCallback((npc, canvas) => {
+    // Only start for attack NPCs
+    if (npc.action !== 'attack' && npc.action !== 'spawn') return;
+    
+    console.log('🎯 Starting cursor update interval for attack NPC:', npc.id);
+    
+    // Clear any existing interval
+    if (cursorUpdateInterval.current) {
+      clearInterval(cursorUpdateInterval.current);
+      cursorUpdateInterval.current = null;
+    }
+    
+    // Check cursor status every 100ms
+    cursorUpdateInterval.current = setInterval(() => {
+      // Make sure we're still hovering over the same NPC
+      if (!currentHoveredNPC.current || currentHoveredNPC.current.id !== npc.id) {
+        console.log('🎯 Stopping cursor update - no longer hovering');
+        if (cursorUpdateInterval.current) {
+          clearInterval(cursorUpdateInterval.current);
+          cursorUpdateInterval.current = null;
+        }
+        return;
+      }
+      
+      // Update cursor based on current cooldown status
+      const cursorClass = getNPCCursorClass(npc);
+      const currentTime = Date.now();
+      console.log('🎯 Cursor update check:', {
+        npc: npc.id,
+        cursorClass,
+        currentTime,
+        globalAttackCooldown: getAttackCooldownStatus().cooldownEnd,
+        isOnCooldown: getAttackCooldownStatus().isOnCooldown
+      });
+      setCanvasCursor(canvas, cursorClass);
+    }, 100);
+  }, []);
 
   // Handle mouse events for tooltips and dynamic cursor
   const handleCanvasMouseMove = useCallback((event) => {
@@ -602,6 +645,9 @@ const RenderNPCsCanvasComponent = ({
         
         // Start timer for time-based tooltip updates (graze countdowns, etc.)
         startTooltipTimer();
+        
+        // Start cursor update interval for attack NPCs
+        startCursorUpdateInterval(npc, canvas);
       }
     } else {
       // No NPC - show default cursor and clear tooltip
@@ -609,11 +655,12 @@ const RenderNPCsCanvasComponent = ({
       if (setHoverTooltip) {
         setHoverTooltip(null);
       }
-      // Clear tracked hovered NPC and stop timer
+      // Clear tracked hovered NPC and stop timers
       currentHoveredNPC.current = null;
       stopTooltipTimer();
+      stopCursorUpdateInterval();
     }
-  }, [onMouseEnter, setHoverTooltip, strings, npcs, TILE_SIZE, getNPCRenderPosition, startTooltipTimer, stopTooltipTimer]);
+  }, [onMouseEnter, setHoverTooltip, strings, npcs, TILE_SIZE, getNPCRenderPosition, startTooltipTimer, stopTooltipTimer, startCursorUpdateInterval, stopCursorUpdateInterval]);
 
   const handleCanvasMouseLeave = useCallback((event) => {
     // Clear tooltip when leaving canvas
@@ -621,9 +668,10 @@ const RenderNPCsCanvasComponent = ({
       setHoverTooltip(null);
     }
     
-    // Clear tracked hovered NPC and stop timer
+    // Clear tracked hovered NPC and stop timers
     currentHoveredNPC.current = null;
     stopTooltipTimer();
+    stopCursorUpdateInterval();
     
     if (onMouseLeave) {
       onMouseLeave(event);

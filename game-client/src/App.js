@@ -51,6 +51,7 @@ import FrontierView from './ZoomedOut/FrontierView';
 import FrontierMiniMap from './ZoomedOut/FrontierMiniMap';
 
 import Modal from './UI/Modal';
+import LevelUpModal from './UI/LevelUpModal';
 import LanguagePickerModal from './UI/LanguagePickerModal';
 import { useStrings } from './UI/StringsContext';
 import LANGUAGE_OPTIONS from './UI/Languages.json';
@@ -153,6 +154,11 @@ useEffect(() => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
   const { updateStatus } = useContext(StatusBarContext);
+  
+  // Level-up detection state
+  const [currentLevel, setCurrentLevel] = useState(null);
+  const [isLevelUpModalOpen, setIsLevelUpModalOpen] = useState(false);
+  const [levelUpData, setLevelUpData] = useState({ currentLevel: 0, previousLevel: 0 });
   const bulkOperationContext = useBulkOperation();
   
   // Initialize transition fade functionality
@@ -903,6 +909,24 @@ useEffect(() => {
   }
 }, [isAppInitialized, tileTypes.length, resources.length, currentPlayer, lastShownFTUEStep, showFTUE, closePanel]);
 
+// Level-up detection: Watch for XP changes and show level-up modal
+useEffect(() => {
+  if (currentPlayer?.xp !== undefined && masterXPLevels && masterXPLevels.length > 0) {
+    const newLevel = getDerivedLevel(currentPlayer, masterXPLevels);
+    
+    // If we have a previous level and the new level is higher, show level-up modal
+    if (currentLevel !== null && newLevel > currentLevel) {
+      setLevelUpData({
+        currentLevel: newLevel,
+        previousLevel: currentLevel
+      });
+      setIsLevelUpModalOpen(true);
+    }
+    
+    // Update the tracked level
+    setCurrentLevel(newLevel);
+  }
+}, [currentPlayer?.xp, masterXPLevels, currentLevel]);
 
 // FARM STATE - Farming Seed Timer Management //////////////////////////////////////////////////////
 useEffect(() => {
@@ -3132,6 +3156,15 @@ return (
         // onTransitionComplete={() => {
         //   //console.log('🌟 [TRANSITION] Fade transition completed');
         // }}
+      />
+
+      {/* Level Up Modal */}
+      <LevelUpModal 
+        isOpen={isLevelUpModalOpen}
+        onClose={() => setIsLevelUpModalOpen(false)}
+        currentLevel={levelUpData.currentLevel}
+        previousLevel={levelUpData.previousLevel}
+        updateStatus={updateStatus}
       />
 
     </>

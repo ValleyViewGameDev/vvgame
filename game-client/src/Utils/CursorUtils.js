@@ -2,25 +2,7 @@
  * Shared cursor logic for DOM and Canvas modes
  * Provides consistent cursor behavior across rendering modes
  */
-
-// Global attack cooldown tracking (shared across modes)
-let globalAttackCooldown = 0;
-
-/**
- * Updates the global attack cooldown
- * @param {number} cooldownEndTime - The timestamp when the cooldown ends
- */
-export function setGlobalAttackCooldown(cooldownEndTime) {
-  globalAttackCooldown = cooldownEndTime;
-}
-
-/**
- * Gets the current global attack cooldown end time
- * @returns {number} The timestamp when the cooldown ends
- */
-export function getGlobalAttackCooldown() {
-  return globalAttackCooldown;
-}
+import { getAttackCooldownStatus } from '../GameFeatures/NPCs/NPCInteractionUtils';
 
 /**
  * Determines the appropriate cursor style for an NPC
@@ -29,8 +11,6 @@ export function getGlobalAttackCooldown() {
  */
 export function getNPCCursorClass(npc) {
   if (!npc) return 'cursor-pointer';
-  
-  const currentTime = Date.now();
   
   // Handle different NPC types
   switch (npc.action) {
@@ -42,8 +22,9 @@ export function getNPCCursorClass(npc) {
       
     case 'attack':
     case 'spawn':
-      // For attack NPCs, check cooldown status
-      return currentTime < globalAttackCooldown ? 'cursor-wait' : 'cursor-crosshair';
+      // For attack NPCs, check cooldown status from shared state
+      const cooldownStatus = getAttackCooldownStatus();
+      return cooldownStatus.isOnCooldown ? 'cursor-wait' : 'cursor-crosshair';
       
     default:
       return 'cursor-pointer';

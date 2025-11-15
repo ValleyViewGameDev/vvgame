@@ -165,11 +165,39 @@ export async function handleAttackOnNPC(npc, currentPlayer, setCurrentPlayer, TI
 
     if (freshNPC.hp <= 0) {
         console.log(`NPC ${freshNPC.id} killed.`);
-        FloatingTextManager.addFloatingText(504, freshNPC.position.x, freshNPC.position.y-1, TILE_SIZE);
+        FloatingTextManager.addFloatingText(504, freshNPC.position.x, freshNPC.position.y-0.5, TILE_SIZE);
 
         try {
             await NPCsInGridManager.removeNPC(gridId, freshNPC.id);
             console.log(`NPC ${freshNPC.id} successfully removed from grid.`);
+
+            // Award XP for killing the NPC
+            const npcResource = masterResources.find(res => res.type === freshNPC.type && res.category === 'npc');
+            if (npcResource && npcResource.xp && currentPlayer.playerId) {
+                try {
+                    const xpResponse = await axios.post(`${API_BASE}/api/addXP`, {
+                        playerId: currentPlayer.playerId,
+                        xpAmount: npcResource.xp
+                    });
+                    
+                    if (xpResponse.data.success) {
+                        // Update currentPlayer with new XP
+                        setCurrentPlayer(prev => ({
+                            ...prev,
+                            xp: xpResponse.data.newXP
+                        }));
+                        
+                        // Show XP earned with a delay
+                        setTimeout(() => {
+                            FloatingTextManager.addFloatingText(`+${npcResource.xp} XP`, freshNPC.position.x, freshNPC.position.y-1.2, TILE_SIZE);
+                        }, 500);
+                        
+                        console.log(`🎯 Awarded ${npcResource.xp} XP for killing ${freshNPC.type}`);
+                    }
+                } catch (error) {
+                    console.error('Error awarding XP:', error);
+                }
+            }
 
             // Add the Dead NPC "output" to the grid:
             if (freshNPC.output) {

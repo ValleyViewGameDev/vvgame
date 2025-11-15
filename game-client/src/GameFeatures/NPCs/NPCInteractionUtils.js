@@ -132,12 +132,20 @@ export function handleNPCClickShared(npc, {
   
   // Handle attack NPCs with cooldown
   if (npc.action === 'attack' || npc.action === 'spawn') {
-    const pcState = playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)];
-    const speed = pcState?.speed ?? currentPlayer.baseSpeed ?? 5;
+    // Get player state from playersInGridManager like Combat.js does
+    const playersInGrid = playersInGridManager.getPlayersInGrid(gridId);
+    const pcState = playersInGrid?.[String(currentPlayer._id)];
+    const speed = pcState?.speed ?? 5;
+    console.log('⚔️ Attack cooldown check:');
+    console.log('  Speed being used:', speed);
+    console.log('  pcState?.speed:', pcState?.speed);
     if (currentTime < globalAttackCooldown) {
       return false; // Still on cooldown
     }
-    globalAttackCooldown = currentTime + (speed * 1000);
+    const cooldownDuration = speed * 1000;
+    globalAttackCooldown = currentTime + cooldownDuration;
+    console.log(`⚔️ Setting new cooldown: ${cooldownDuration}ms (${speed} seconds)`);
+    // Continue to handleNPCClick below for attack NPCs
   }
   
   // Handle quest/heal/worker/trade NPCs with range checking
@@ -162,9 +170,10 @@ export function handleNPCClickShared(npc, {
       onNPCClick(npc);
     }
     return true;
-  } else {
-    // Use handleNPCClick for regular NPCs (combat, grazing, etc.)
-    handleNPCClick(
+  }
+  
+  // Use handleNPCClick for all other NPCs (combat, grazing, etc.)
+  handleNPCClick(
       npc,
       Math.round(npc.position?.y || 0),
       Math.round(npc.position?.x || 0),
@@ -187,7 +196,6 @@ export function handleNPCClickShared(npc, {
       globalTuning
     );
     return true;
-  }
 }
 
 /**
