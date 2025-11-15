@@ -4,6 +4,49 @@ import playersInGridManager from '../GridState/PlayersInGrid';
 import { changePlayerLocation } from './GridManagement';
 import { fetchHomesteadSignpostPosition } from './worldHelpers';
 
+
+// Helper function to calculate derived level based on player XP
+// masterXPLevels is now an array of XP thresholds: [40, 100, 180, 270, ...]
+// Level 1 requires 40 XP, Level 2 requires 100 XP, etc.
+export const getDerivedLevel = (currentPlayer, masterXPLevels = []) => {
+  const playerXP = currentPlayer?.xp || 0;
+  
+  if (!masterXPLevels || masterXPLevels.length === 0) {
+    return 1; // Default level if no data available
+  }
+  
+  // Find the highest level the player has reached
+  let level = 1;
+  for (let i = 0; i < masterXPLevels.length; i++) {
+    if (playerXP >= masterXPLevels[i]) {
+      level = i + 2; // Level is index + 2 (Level 1 = index 0, Level 2 = index 1, etc.)
+    } else {
+      break;
+    }
+  }
+  
+  return level;
+};
+
+// Helper function to get XP required for next level
+export const getXpForNextLevel = (currentPlayer, masterXPLevels = []) => {
+  const playerXP = currentPlayer?.xp || 0;
+  
+  if (!masterXPLevels || masterXPLevels.length === 0) {
+    return 1000; // Default if no data available
+  }
+  
+  const currentLevel = getDerivedLevel(currentPlayer, masterXPLevels);
+  const nextLevelIndex = currentLevel - 1; // Convert level to index (Level 2 = index 1)
+  
+  // If at max level, return current XP (no more levels to gain)
+  if (nextLevelIndex >= masterXPLevels.length) {
+    return playerXP;
+  }
+  
+  return masterXPLevels[nextLevelIndex];
+};
+
 export const modifyPlayerStatsInGridState = async (statToMod, amountToMod, playerId, gridId) => {
   try {
     console.log('made it to modifyPlayerStatsInGridState');

@@ -1,0 +1,193 @@
+/* Eating Modal Specific Styles */
+.eating-modal-container {
+  max-width: 800px !important;
+  width: 90% !important;
+  max-height: 90% !important;
+  text-align: left !important;
+  position: relative !important;
+}
+
+/* Override modal title to use shared styling */
+.eating-modal-container .modal-title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* Section Styles */
+.eating-section {
+  margin-bottom: 30px;
+}
+
+.eating-section h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+  padding-bottom: 8px;
+}
+
+.eating-section:last-child {
+  margin-bottom: 0;
+}
+
+/* Table Container Styles (similar to ManageContentsModal) */
+.eating-container {
+  width: 100%;
+  max-height: 250px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Sticky header container */
+.eating-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  flex-shrink: 0;
+  padding-right: 17px; /* Compensate for scrollbar width */
+  box-sizing: border-box;
+}
+
+.eating-header table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.eating-header th {
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  font-weight: bold;
+  font-size: 14px;
+  color: #495057;
+}
+
+/* Column width definitions to match content */
+.eating-header th:nth-child(1) { width: 25%; } /* Item */
+.eating-header th:nth-child(2) { width: 12%; } /* Available */
+.eating-header th:nth-child(3) { width: 12%; } /* HP per Item */
+.eating-header th:nth-child(4) { width: 25%; } /* Amount to Eat */
+.eating-header th:nth-child(5) { width: 12%; } /* HP Gain */
+.eating-header th:nth-child(6) { width: 14%; } /* Action */
+
+/* Scrollable content area */
+.eating-scroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0; /* Allow flex child to shrink below its content size */
+}
+
+.eating-scroll table {
+  width: 100%;
+  margin: 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.eating-scroll td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+  font-size: 14px;
+}
+
+/* Matching column widths for content */
+.eating-scroll td:nth-child(1) { width: 25%; } /* Item */
+.eating-scroll td:nth-child(2) { width: 12%; } /* Available */
+.eating-scroll td:nth-child(3) { width: 12%; } /* HP per Item */
+.eating-scroll td:nth-child(4) { width: 25%; } /* Amount to Eat */
+.eating-scroll td:nth-child(5) { width: 12%; } /* HP Gain */
+.eating-scroll td:nth-child(6) { width: 14%; } /* Action */
+
+.eating-scroll tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.eating-scroll tr:hover {
+  background-color: #f0f8ff;
+}
+
+/* Amount input styling (reused from ManageContentsModal) */
+.amount-input {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: -10px; /* Shift controls slightly to the left */
+}
+
+.amount-input input {
+  width: 40px;
+  padding: 2px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  font-size: 12px;
+}
+
+.amount-input button {
+  width: 25px;
+  height: 25px;
+  font-size: 12px;
+  padding: 2px;
+  border: 1px solid #ccc;
+  border-radius: 2px;
+  background: white;
+  cursor: pointer;
+}
+
+/* Make Max button wider */
+.amount-input button[title="Max"] {
+  width: 50px;
+}
+
+.amount-input button:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.amount-input button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Eat button styling */
+.eat-button {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  background: #28a745;
+  color: white;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.eat-button:hover:not(:disabled) {
+  background: #218838;
+}
+
+.eat-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* No food message */
+.no-food-message {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.no-food-message p {
+  margin: 0;
+  font-size: 16px;
+}

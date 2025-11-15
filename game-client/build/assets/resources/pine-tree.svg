@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <svg width="200" height="200" viewBox="0 0 200 200"
      xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="titleDesc">
-  <title id="titleDesc">Dense pine tree icon</title>
-  <desc>Stylized pine tree with lush green layered foliage and a brown trunk.</desc>
+  <title id="titleDesc">Full-frame pine tree with slight bottom margin</title>
+  <desc>A dense pine tree scaled large with a small bottom margin under the trunk.</desc>
 
   <defs>
     <linearGradient id="foliageGrad" x1="0" x2="0" y1="0" y2="1">
-      <stop offset="0%" stop-color="#2faf3d"/>
-      <stop offset="100%" stop-color="#0b6621"/>
+      <stop offset="0%" stop-color="#27963d"/>
+      <stop offset="100%" stop-color="#0a5a1f"/>
     </linearGradient>
 
     <linearGradient id="trunkGrad" x1="0" x2="0" y1="0" y2="1">
@@ -16,42 +16,65 @@
     </linearGradient>
   </defs>
 
-  <!-- dense layered foliage -->
-  <!-- bottom layer -->
-  <path d="M25 135 Q100 70 175 135 Q140 125 100 135 Q60 125 25 135 Z"
-        fill="url(#foliageGrad)" stroke="#0b4e1a" stroke-opacity="0.15" stroke-width="1"/>
+  <!-- Bottom layer -->
+  <path d="M10 150
+           Q100 70 190 150
+           Q145 138 100 150
+           Q55 138 10 150 Z"
+        fill="url(#foliageGrad)"
+        stroke="#083f17" stroke-opacity="0.15" stroke-width="1"/>
 
-  <!-- mid-lower layer -->
-  <path d="M35 115 Q100 60 165 115 Q135 105 100 115 Q65 105 35 115 Z"
-        fill="url(#foliageGrad)" stroke="#0b4e1a" stroke-opacity="0.15" stroke-width="1"/>
+  <!-- Mid-lower -->
+  <path d="M22 125
+           Q100 58 178 125
+           Q138 114 100 125
+           Q62 114 22 125 Z"
+        fill="url(#foliageGrad)"
+        stroke="#083f17" stroke-opacity="0.15" stroke-width="1"/>
 
-  <!-- middle layer -->
-  <path d="M45 95 Q100 50 155 95 Q130 85 100 95 Q70 85 45 95 Z"
-        fill="url(#foliageGrad)" stroke="#0b4e1a" stroke-opacity="0.14" stroke-width="1"/>
+  <!-- Middle -->
+  <path d="M34 100
+           Q100 42 166 100
+           Q130 88 100 100
+           Q70 88 34 100 Z"
+        fill="url(#foliageGrad)"
+        stroke="#083f17" stroke-opacity="0.14" stroke-width="1"/>
 
-  <!-- upper-middle layer -->
-  <path d="M55 78 Q100 42 145 78 Q125 70 100 78 Q75 70 55 78 Z"
-        fill="url(#foliageGrad)" stroke="#0b4e1a" stroke-opacity="0.13" stroke-width="1"/>
+  <!-- Upper-middle -->
+  <path d="M48 75
+           Q100 30 152 75
+           Q122 64 100 75
+           Q78 64 48 75 Z"
+        fill="url(#foliageGrad)"
+        stroke="#083f17" stroke-opacity="0.13" stroke-width="1"/>
 
-  <!-- top foliage -->
-  <path d="M70 60 Q100 30 130 60 Q118 55 100 60 Q82 55 70 60 Z"
-        fill="url(#foliageGrad)" stroke="#0b4e1a" stroke-opacity="0.12" stroke-width="1"/>
+  <!-- Upper -->
+  <path d="M64 52
+           Q100 20 136 52
+           Q118 44 100 52
+           Q82 44 64 52 Z"
+        fill="url(#foliageGrad)"
+        stroke="#083f17" stroke-opacity="0.12" stroke-width="1"/>
 
-  <!-- top tip -->
-  <path d="M95 48 L100 36 L105 48 Z" fill="#0e6a25"/>
+  <!-- Tip -->
+  <path d="M95 36 L100 20 L105 36 Z" fill="#0d5b23"/>
 
-  <!-- highlights -->
-  <path d="M40 105 Q100 62 160 105" stroke="#89e687" stroke-opacity="0.2" stroke-width="4" fill="none"/>
-  <path d="M35 128 Q100 86 165 128" stroke="#7fdb74" stroke-opacity="0.12" stroke-width="5" fill="none"/>
+  <!-- Highlights -->
+  <path d="M30 115 Q100 55 170 115"
+        stroke="#7bd97a" stroke-opacity="0.16" stroke-width="5" fill="none"/>
 
-  <!-- trunk -->
-  <rect x="88" y="135" width="24" height="45" rx="6" fill="url(#trunkGrad)" stroke="#4a2814" stroke-opacity="0.15"/>
+  <path d="M18 145 Q100 90 182 145"
+        stroke="#6bcf6a" stroke-opacity="0.10" stroke-width="6" fill="none"/>
 
-  <!-- subtle rings -->
-  <path d="M88 148 Q100 152 112 148" stroke="#6b3f28" stroke-opacity="0.15" stroke-width="2" fill="none"/>
-  <path d="M88 160 Q100 164 112 160" stroke="#6b3f28" stroke-opacity="0.12" stroke-width="2" fill="none"/>
+  <!-- Trunk lifted slightly (bottom margin added) -->
+  <rect x="85" y="148" width="30" height="48" rx="6"
+        fill="url(#trunkGrad)"
+        stroke="#4a2814" stroke-opacity="0.18"/>
 
-  <!-- outline for clarity -->
-  <path d="M25 135 Q100 70 175 135 Q140 125 100 135 Q60 125 25 135 Z"
-        fill="none" stroke="#000" stroke-opacity="0.05" stroke-width="1"/>
+  <!-- Trunk rings -->
+  <path d="M85 162 Q100 167 115 162"
+        stroke="#6b3f28" stroke-opacity="0.15" stroke-width="2" fill="none"/>
+
+  <path d="M85 176 Q100 181 115 176"
+        stroke="#6b3f28" stroke-opacity="0.12" stroke-width="2" fill="none"/>
 </svg>

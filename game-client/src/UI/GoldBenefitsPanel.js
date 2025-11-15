@@ -18,8 +18,8 @@ const GoldBenefitsPanel = memo(({ currentPlayer, updateStatus, onClose }) => {
           {isGold ? (
             <p>{strings[9060]}</p>
           ) : (
-            <button className="btn-gold" style={{ width: '100%' }} onClick={() => handlePurchase(1, currentPlayer, updateStatus)}>{strings[9061]}</button>
-          )}
+            <button className="btn-basic btn-gold" style={{ width: '100%' }} onClick={() => handlePurchase(1, currentPlayer, updateStatus)}>{strings[9061]}</button>
+          )} 
         </div>
 <br />
         <h2>{strings[9050]}</h2>

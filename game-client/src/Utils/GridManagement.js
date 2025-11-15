@@ -152,11 +152,7 @@ export const changePlayerLocation = async (
   // PHASE 1: PREPARATION
   // ================================
   console.log('📋 [PHASE 1] PREPARATION - Disabling interaction and showing loading');
-  
-  // Disable user interaction and show loading screen
-  if (updateStatus) {
-    updateStatus('Traveling...');
-  }
+
   
   // Close all panels before transition
   if (closeAllPanels) {
@@ -184,7 +180,7 @@ export const changePlayerLocation = async (
     console.log('🧹 [PHASE 2] CLEANUP - Removing from old grid and flushing updates');
     
     if (updateStatus) {
-      updateStatus('Leaving current area...');
+      updateStatus('Leaving ...');
     }
 
     // Get player state before removal for stat preservation
@@ -230,7 +226,7 @@ export const changePlayerLocation = async (
     console.log('📦 [PHASE 3] LOAD - Loading new grid data completely');
     
     if (updateStatus) {
-      updateStatus('Loading new area...');
+      updateStatus('Loading ...');
     }
 
     // Load grid state data
@@ -279,7 +275,7 @@ export const changePlayerLocation = async (
     console.log('✅ [PHASE 4] VALIDATION - Verifying all data loaded successfully');
     
     if (updateStatus) {
-      updateStatus('Validating new area...');
+      updateStatus('Validating ...');
     }
     
     // Validate that all required data was loaded
@@ -315,7 +311,7 @@ export const changePlayerLocation = async (
     console.log('🔄 [PHASE 5] COMMIT - Atomically swapping to new grid state');
     
     if (updateStatus) {
-      updateStatus('Entering new area...');
+      updateStatus('Entering ...');
     }
     
     // Step 1: Join socket room first
@@ -556,7 +552,6 @@ export const changePlayerLocation = async (
     
     if (updateStatus && toLocation.gtype) {
       await updateGridStatus(toLocation.gtype, null, updateStatus, currentPlayer, toLocation.g);
-      updateStatus(''); // Clear loading message
     }
 
     console.log('🎉 [GRID TRANSITION] Transactional grid change completed successfully');

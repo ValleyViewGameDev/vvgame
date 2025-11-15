@@ -43,12 +43,15 @@
     "75": "Vous ne possédez pas de sac à dos. Vous pouvez en acheter un au Camp d'Aventure en ville.",
     "76": "Votre entrepôt est vide.",
     "77": "Votre sac à dos est vide.",
-    "78": "Gérer le sac à dos",
+    "78": "🍽️ Manger",
 "81": "Monter une tente en Ville ou dans la Vallée vous empêche d'être attaqué.",
 "82": "Un bateau vous permettra de voyager sur l'eau.",
     "90": "🚫 Ce n'est pas votre domaine.",
   
     "99": "⚠️ Une erreur s'est produite.",
+
+
+
 
     "100": "CHAÎNES DE VOYAGE :",
 
@@ -59,8 +62,8 @@
     "105": "⚠️ Un problème est survenu lors du voyage.",
     "106": "🚫 Vous ne pouvez pas voyager au-delà de la frontière.",
     "110": "➡️ Marchez sur les panneaux pour les utiliser",
-    "111": "Bienvenue en ville.",
-    "112": "Bienvenue à la maison.",
+    "111": "🚂 Bienvenue en ville.",
+    "112": "🏠 Bienvenue à la maison.",
 
     "120": "Vous n'avez plus de déplacements de domaine disponibles.",
     "121": "Vous avez déplacé votre domaine avec succès.",
@@ -79,8 +82,7 @@
     "165": "Tout",
     "166": "Ajouter",
 
-    "180": "INVENTORY STRINGS:",
-
+    "180": "Vers le Sac à Dos",
     "181": "📦 Entrepôt",
     "182": "🎒 Sac à dos",
     "183": "Capacité : ",
@@ -216,13 +218,14 @@
 
     "1200": "TRADER STORY STRINGS",
 
-    "1201": "Ah, the forest hides many secrets… and I? I’ve stolen a few. These Gems—they’re not mine, but Titania has more than she needs. You’ve something I crave: Olive Bread, warm and rich. Trade with me, and I might whisper tales of glowing eyes in the dark, wings that shimmer at moonrise, and dragons that speak in riddles. Keep an ear open, and a dagger close.",
-    "1202": "My bounty is as boundless as the sea, my love as deep—but he is gone, and all that remains is a portrait and pain. Angelo took both. Bring me Romeo’s likeness, torn from my chamber, and I’ll give you Tulips red as the blood spilt on Verona’s stones. Let this be our new balcony: you below, bearing justice.",
-    "1203": "Give me life, give me love, but most of all—give me Port! In exchange, a sprig of Feverfew, dearer than gold to some, especially that wide-eyed Helena. Says she’s after crowns and legends, poor girl. Me? I’m after a full belly and a gentle nap. ‘Thou art so fat-witted with drinking of old sack,’ they once told me. Ha! They were not wrong.",
-    "1204": "Here’s rosemary, for remembrance—and nightshade, for regrets. My potions are not for the faint of will. With the right leaf, I can mend your limbs or muddle your tongue. ‘I do remember an apothecary,’ said a boy once, and he paid the price. But you? You look wiser. Bring me rare roots and bitter seeds, and I’ll mix you something worth the danger.",
-    "1205": "Something is rotten, still. I feel it in the soil. I once ruled, loved, lost. Helena burned through me like summer lightning. And Leontes? He could not forgive the thaw. ‘The lady doth protest too much,’ they said—let them. If you see Helena, tell her the roses know her name. If you see Leontes, tell him I have not forgotten the winter.",
-    "1206": "My grief is a statue—silent, but never still. I buried my crown in snow the day Gertrude chose her garden over me. ‘Exit, pursued by a bear’? No, I fled myself. Now I wait, among stone and silence. Bring me what was once mine—the King’s Crown—and I’ll pay in Gold, more than the weight of memory. But beware: some thrones carry curses.",
-    "1207": "This bridge is mine, by Sycorax my mother.’ Prospero tried to steal it with spells and smiles. They called me beast, but I am of earth and storm, born to wild truth. I trade bones for Silver, tokens of the dead for coin of the living. Touch nothing lightly in these woods. Bring me what others fear, and I shall make you rich—or haunted.",
+    "1201": "Ah, voyageur, les bois bruissent de complots murmurés, et Portia en garde un serré contre son sein comme un avare sa bourse. Apportez-moi son secret, je vous prie, et je placerai dans votre main une Cloche de Cuivre des plus rares. Sa voix résonne plus vraie que tout serment qu'elle a prononcé. Faites ceci, et je vous soufflerai des murmures de méfaits au clair de lune, de rivalités profondément enracinées, et du tournant de fortunes encore invisibles.",
+    "1202": "Ma générosité est aussi illimitée que la mer, mon amour aussi profond—mais il est parti, et tout ce qui reste est un portrait et la douleur. Angelo a pris les deux. Apportez-moi la ressemblance de Roméo, arrachée de ma chambre, et je vous donnerai des Tulipes rouges comme le sang versé sur les pierres de Vérone. Que ceci soit notre nouveau balcon : vous en bas, portant la justice.",
+    "1203": "Donnez-moi la vie, donnez-moi l'amour, mais surtout—donnez-moi du Porto ! En échange, un brin de Grande Camomille, plus précieux que l'or pour certains, surtout cette Helena aux yeux écarquillés. Elle dit qu'elle cherche des couronnes et des légendes, pauvre fille. Moi ? Je cherche un ventre plein et une douce sieste. 'Tu as l'esprit si embrumé par la vieille piquette,' m'ont-ils dit autrefois. Ha ! Ils n'avaient pas tort.",
+    "1204": "Voici du romarin, pour le souvenir—et de la belladone, pour les regrets. Mes potions ne sont pas pour les âmes faibles. Avec la bonne feuille, je peux guérir vos membres ou embrouiller votre langue. 'Je me souviens d'un apothicaire,' dit un jeune homme jadis, et il en paya le prix. Mais vous ? Vous semblez plus sage. Apportez-moi des racines rares et des graines amères, et je vous préparerai quelque chose qui vaut le danger.",
+    "1205": "Quelque chose est encore pourri. Je le sens dans le sol. J'ai jadis régné, aimé, perdu. Helena m'a traversé comme un éclair d'été. Et Leontes ? Il ne put pardonner le dégel. 'La dame proteste trop,' disaient-ils—qu'ils le disent. Si vous voyez Helena, dites-lui que les roses connaissent son nom. Si vous voyez Leontes, dites-lui que je n'ai pas oublié l'hiver.",
+    "1206": "Mon chagrin est une statue—silencieuse, mais jamais immobile. J'ai enterré ma couronne dans la neige le jour où Gertrude choisit son jardin plutôt que moi. 'Sortie, poursuivi par un ours' ? Non, je me suis fui moi-même. Maintenant j'attends, parmi la pierre et le silence. Apportez-moi ce qui fut mien—la Couronne du Roi—et je paierai en Or, plus que le poids du souvenir. Mais attention : certains trônes portent des malédictions.",
+    "1207": "Ce pont est mien, par Sycorax ma mère. Prospero a tenté de le voler avec des sorts et des sourires. Ils m'ont appelé bête, mais je suis de terre et de tempête, né de la vérité sauvage. J'échange des os contre de l'Argent, des reliques des morts contre la monnaie des vivants. Ne touchez rien à la légère dans ces bois. Apportez-moi ce que les autres craignent, et je vous rendrai riche—ou hanté.",
+
     "1208": "",
     
     "1301": "Compétences à acheter :",
@@ -462,6 +465,7 @@
     
     "8999": "HOW TO PLAY STRINGS:",
 
+
     "9000": "Bienvenue à Valley View !",
     "9001": "De quoi s'agit-il ?",
     "9002": "Valley View est un jeu qui explore comment les gens peuvent s'organiser eux-mêmes et créer des micro-sociétés dans un monde aux ressources asymétriques et interdépendantes, avec des espaces privés et partagés.",
@@ -469,18 +473,18 @@
     "9004": "Pour commencer, les bases :",
     "9005": "Utilisez les touches A-W-S-D pour vous déplacer. Cliquez pour interagir avec les éléments à portée.",
     "9006": "Explorez 🚜 AGRICULTURE, ⚒️ CONSTRUCTION et 🐮 ACHATS pour améliorer votre domaine et générer des ressources.",
-    "9007": "Générez de l'💰 ARGENT à l'📥 ÉTAL COMMERCIAL. Proposez des ressources à la vente ou vendez-les au jeu pour une valeur partielle.",
+    "9007": "Générez de l'💰 ARGENT auprès de 🤠 KENT ou au 📥 COMPTOIR COMMERCIAL.",
     "9008": "En savoir plus :",
     "9009": "En créant de la richesse, améliorez-vous avec des COMPÉTENCES et des APTITUDES. Par exemple, achetez la compétence 🐴 ÉQUITATION pour voyager en ville.",
     "9010": "Dézoomez (- et +) pour voir la taille du monde. Votre domaine est l'un des nombreux d'une COLONIE. Chaque colonie partage une VILLE. Votre colonie fait partie de la FRONTIÈRE.",
     "9011": "Quand vous serez prêt, explorez la VALLÉE, pleine de dangers et de merveilles. Les secrets du magicien PROSPERO 🧙‍♂️ et du roi perdu LEONTES 🤴, entre autres, s'y trouvent.",
     "9012": "Vos objectifs :",
-    "9013": "Créez vos propres objectifs. À la fin de chaque 🗓️ SAISON (trois mois), joueurs et colonies seront classés et les meilleurs recevront des récompenses. Votre domaine, vos compétences et une partie de votre richesse seront conservés pour la saison suivante.",
+    "9013": "N'hésitez pas à créer vos propres objectifs. De plus, à la fin de chaque 🗓️ SAISON, qui dure trois mois, les individus et les colonies seront classés, et un meilleur classement génère des richesses supplémentaires. Votre propriété, toutes vos compétences et votre inventaire seront conservés pour la prochaine Saison.",
     "9014": "Cultivez, fabriquez, échangez, explorez, combattez et amusez-vous !",
 
     "9020": "Comment gagner de l'argent",
     "9021": "Il existe plusieurs façons de gagner de l'💰 ARGENT.",
-    "9022": "Au début, ouvrez l'📥 ÉTAL COMMERCIAL, en haut à gauche de votre domaine. Vous pourrez y vendre des biens, cultures et objets fabriqués.",
+    "9022": "Pour débuter, consultez 🤠 KENT. Il achètera des marchandises, y compris des récoltes et de l'artisanat.",
 
     "9024": "En progressant, vous pourrez voyager en VILLE via le ⏪ PANNEAU. Là, vous trouverez la BANQUE, qui achètera certains objets à un meilleur prix.",
     "9025": "Dépenser son argent",
@@ -525,7 +529,7 @@
     "10106": "📢 Partager",
     "10107": "💬 Chat",
     "10108": "Vous avez un compte Or",
-    "10109": "↔️ Touches de déplacement : ",
+    "10109": "Contrôles :",
     "10110": "🕹️ Comment jouer",
     "10111": "Vous êtes le Maire",
     "10112": "❤️‍🩹 Santé : ",
@@ -1006,13 +1010,13 @@
 "184": "Gérer l'entrepôt",
 "185": "Quantité",
 "186": "Montant",
-"187": "Ajouter à l'entrepôt",
+    "187": "🎒 Gestion du Sac à Dos",
 "188": "Jeter",
 "189": "Tout ajouter à l'entrepôt",
 "190": "Tout jeter",
 "191": "Article",
 "192": "Action",
-"193": "Jeter les articles",
+    "193": "📦 Gestion de l'Entrepôt",
 
 "170": "Emplacement de commerce déverrouillé",
 "171": "Pass Or Requis",
@@ -1094,8 +1098,6 @@
 "15007": "Réinitialisation des Joueurs et des Lieux",
 "15008": "🏠 Vous serez relocalisé à votre ferme si vous êtes loin de chez vous quand la saison se termine.",
 "15009": "🏠 Vos fermes ne seront PAS réinitialisées – toute la disposition, les tuiles et les ressources sont conservées.",
-"15010": "🎒 Contrairement aux saisons précédentes, votre inventaire NE sera PAS effacé.",
-"15012": "💰 Contrairement aux saisons précédentes, l'argent NE sera PAS réduit.",
 "15011": "💎 Vous garderez toutes les Gemmes.",
 "15013": "✅ Toutes les quêtes seront effacées.",
 "15014": "💪 Vos compétences & pouvoirs sont conservés.",
@@ -1116,7 +1118,7 @@
 
 "477": "Vos ouvriers agricoles sont occupés...",
 "478": "🚜 Au travail",
-"479": "Abattage terminé",
+"479": "Exploitation Forestière",
 "481": "avec",
 "482": "appliqué",
 "483": "replanté",
@@ -1142,7 +1144,7 @@
 "623": "pour être amoureux.",
 
 "480": "Fabriqué",
-"469": "Collecté",
+"469": "+",
 "472": "Récolté",
 
 "520": "Vous devez être en ville ou chez vous pour équiper des armes et armures.",
@@ -1327,7 +1329,46 @@
   "7003": "Cliquez sur 🤠 Kent pour vendre des marchandises.",
   "1350": "TEXTES CARNAVAL",
   "1351": "Afficher Journal du Carnaval",
-  "1352": "Le Carnaval est"
+  "1352": "Le Carnaval est",
+
+
+    "107": "Votre Propriété",
+    "108": "Votre Ville",
+    "2": "Carte de la Frontière",
+    "37": "🛶 Vous n'avez pas de bateau.",
+    "38": "Info Joueur :",
+    "42": "Rapporte : ",
+    "44": "Pas de sac à dos",
+    "47": "Je peux acheter des marchandises de vous.",
+    "48": "Besoin de conseils ?",
+    "49": "Soins restants :",
+    "51": "Total Soins : ",
+    "408": "Besoin de plus d'Hôpitaux.",
+    "407": "Maximum atteint pour cet emplacement.",
+    "30014": "Carnavals Terminés",
+    "2018": "🎡 Aperçu du Prochain Carnaval :",
+    "2019": "Récompenses pour avoir rempli toutes les commandes :",
+    "1139": "🐒 Animaux du Zoo",
+    "1039": "Acquérez ces animaux de zoo pour peupler votre propriété et déterrer des objets rares.",
+    "12014": "Animaux du Zoo",
+    "10135": "A-Z-S-D pour Se Déplacer",
+    "10136": "I pour Inventaire",
+    "10150": "⬆️ Niveau :",
+    "10151": "🔷 XP :",
+    "10152": "🛶 Monter dans le Bateau",
+    "10153": "🛶 Sortir du Bateau",
+    "10154": "🏕️ Monter la Tente",
+    "10155": "⛺ Ranger la Tente",
+    "10156": "Disponible",
+    "10157": "Santé",
+    "10158": "Quantité à Manger",
+    "10159": "Gain de Santé",
+    "10160": "Max",
+    "10161": "🍽️ Mangez de la Nourriture pour Restaurer la Santé",
+    "10162": "Vous n'avez aucun article comestible dans votre ",
+    "15010": "🎒 Contrairement aux saisons précédentes, votre inventaire NE sera PAS effacé.",
+    "15012": "💰 Contrairement aux saisons précédentes, l'Argent NE sera PAS réduit."
+
 
 
 }

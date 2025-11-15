@@ -7,7 +7,7 @@ import '../../UI/SharedButtons.css';
 import './InventoryPanel.css'; 
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import { deriveWarehouseAndBackpackCapacity, isCurrency } from '../../Utils/InventoryManagement';
+import { deriveWarehouseAndBackpackCapacity, isCurrency, hasRoomFor } from '../../Utils/InventoryManagement';
 import { handlePurchase } from '../../Store/Store';
 import ManageContentsModal from './ManageContentsModal';
 
@@ -330,6 +330,67 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
         }
     };
 
+    const handleTransferToBackpack = async (item) => {
+        try {
+            const amount = warehouseAmounts[item.type] || 0;
+            
+            if (amount <= 0) return;
+
+            // Check backpack capacity before transferring
+            const hasRoom = hasRoomFor({
+                resource: item.type,
+                quantity: amount,
+                currentPlayer,
+                inventory,
+                backpack,
+                masterResources,
+                globalTuning
+            });
+            
+            if (!hasRoom) {
+                const currentBackpackUsage = calculateTotalQuantity(backpack);
+                const spaceAvailable = finalCapacities.backpack - currentBackpackUsage;
+                updateStatus(`❌ Insufficient backpack capacity. Need ${amount - spaceAvailable} more slots.`);
+                return;
+            }
+
+            // Call the new transfer API
+            const response = await axios.post(`${API_BASE}/api/transfer-inventory`, {
+                playerId: currentPlayer.playerId,
+                transfers: [{ itemType: item.type, quantity: amount }],
+                direction: 'warehouse-to-backpack'
+            });
+
+            if (response.data.success) {
+                // Update local state with the response data
+                setCurrentPlayer({
+                    ...currentPlayer,
+                    inventory: response.data.inventory,
+                    backpack: response.data.backpack,
+                });
+                
+                // Also update parent component's state
+                setInventory(response.data.inventory);
+                setBackpack(response.data.backpack);
+
+                // Reset the amount for this item
+                setWarehouseAmounts(prev => ({
+                    ...prev,
+                    [item.type]: 0
+                }));
+
+                updateStatus(`✅ Moved ${amount}x ${getLocalizedString(item.type, strings)} to backpack`);
+            }
+        } catch (error) {
+            console.error('Error transferring to backpack:', error);
+            if (error.response?.data?.error) {
+                updateStatus(`❌ ${error.response.data.error}`);
+            } else {
+                updateStatus('❌ Transfer failed. Please try again.');
+            }
+        }
+    };
+
     return (
         <Panel onClose={onClose} descriptionKey="1001" titleKey="1101" panelName="InventoryPanel">
             
@@ -406,8 +467,8 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
 
                 {backpack.length > 0 && (
                 <div className="shared-buttons">
-                    <button className="btn-basic btn-neutral" onClick={() => setShowBackpackModal(true)}>
-                    {strings[78]}
+                    <button className="btn-basic" onClick={() => setShowBackpackModal(true)}>
+                    {strings[184]}
                     </button>
                 </div>
                 )}
@@ -481,7 +542,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
 
             {inventory.length > 0 && (
             <div className="shared-buttons">
-                <button className="btn-basic btn-neutral" onClick={() => setShowWarehouseModal(true)}>
+                <button className="btn-basic" onClick={() => setShowWarehouseModal(true)}>
                 {strings[184]}
                 </button>
             </div>
@@ -531,98 +592,54 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                 const isAddAllDisabled = isAtHome ? (backpack.length === 0 || nonTentBoatItems.length === 0) : 
                                         (backpack.length === 0 || nonTentBoatItems.length === 0);
                 return (
-                    <div className="inventory-modal">
-                        <button className="close-button" onClick={() => setShowBackpackModal(false)}>✖</button>
-                        <h2>{isAtHome ? strings[187] : strings[193]}</h2>
+                    <div className="modal-overlay">
+                        <div className="modal-container modal-large">
+                            <button className="modal-close-btn" onClick={() => setShowBackpackModal(false)}>×</button>
+                            <div className="modal-title">{strings[187]}</div>
 
-                        <div className="inventory-modal-scroll">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>{strings[191]}</th>
-                                    <th>{strings[185]}</th>
-                                    <th>{strings[186]}</th>
-                                    <th>{strings[192]}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {backpack.map((item) => {
-                                    const isTentAtHome = isAtHome && item.type === "Tent";
-                                    const isBoatAtHome = isAtHome && item.type === "Boat";
-                                    const isTentOrBoatNotHome = !isAtHome && (item.type === "Tent" || item.type === "Boat");
+                        <ManageContentsModal
+                            inventory={backpack}
+                            masterResources={masterResources}
+                            showActions={true}
+                            warehouseAmounts={backpackAmounts}
+                            setWarehouseAmounts={setBackpackAmounts}
+                            handleAmountChange={handleAmountChange}
+                            handleDiscardWarehouseItem={(item) => {
+                                const isTentAtHome = isAtHome && item.type === "Tent";
+                                const isBoatAtHome = isAtHome && item.type === "Boat";
+                                const isTentOrBoatNotHome = !isAtHome && (item.type === "Tent" || item.type === "Boat");
+                                
+                                if (isTentAtHome || isBoatAtHome || isTentOrBoatNotHome || !(backpackAmounts[item.type] > 0 && backpackAmounts[item.type] <= item.quantity)) {
+                                    return;
+                                }
+                                handleMoveItem(item);
+                            }}
+                            actionButtonText={isAtHome ? strings[196] : strings[188]}
+                            actionButtonClass="btn-success"
+                            strings={strings}
+                        />
 
-                                    return (
-                                        <tr key={item.type}>
-                                            <td>{masterResources.find(r => r.type === item.type)?.symbol || ''} {getLocalizedString(item.type, strings)}</td>
-                                            <td>{item.quantity.toLocaleString()}</td>
-                                            <td>
-                                                <div className="amount-input">
-                                                    <button
-                                                        onClick={() =>
-                                                            handleAmountChange(backpackAmounts, setBackpackAmounts, item.type, (backpackAmounts[item.type] || 0) - 1, item.quantity)
-                                                        }
-                                                        disabled={(backpackAmounts[item.type] || 0) <= 0}
-                                                    >
-                                                        -
-                                                    </button>
-                                                    <input
-                                                        type="number"
-                                                        value={backpackAmounts[item.type] || 0}
-                                                        onChange={(e) =>
-                                                            handleAmountChange(backpackAmounts, setBackpackAmounts, item.type, parseInt(e.target.value, 10) || 0, item.quantity)
-                                                        }
-                                                    />
-                                                    <button
-                                                        onClick={() =>
-                                                            handleAmountChange(backpackAmounts, setBackpackAmounts, item.type, (backpackAmounts[item.type] || 0) + 1, item.quantity)
-                                                        }
-                                                        disabled={(backpackAmounts[item.type] || 0) >= item.quantity}
-                                                    >
-                                                        +
-                                                    </button>
-                                                    <button
-                                                        onClick={() =>
-                                                            handleAmountChange(backpackAmounts, setBackpackAmounts, item.type, item.quantity, item.quantity)
-                                                        }
-                                                        style={{ marginLeft: '4px' }}
-                                                    >
-                                                        {strings[165]}
-                                                    </button>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <button
-                                                    className="btn-basic add-button"
-                                                    onClick={() => handleMoveItem(item)}
-                                                    disabled={isTentAtHome || isBoatAtHome || isTentOrBoatNotHome || !(backpackAmounts[item.type] > 0 && backpackAmounts[item.type] <= item.quantity)}
-                                                >
-                                                    {isAtHome ? strings[187] : strings[188]}
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-
-                        <button 
-                            className="btn-basic sell-button" 
-                            onClick={handleMoveAll} 
-                            disabled={isAddAllDisabled}
-                        >
-                            {isAtHome ? strings[189] : strings[190]}
-                        </button>
+                        <div className="modal-buttons shared-buttons">
+                            <button 
+                                className="btn-basic btn-modal btn-success" 
+                                onClick={handleMoveAll} 
+                                disabled={isAddAllDisabled}
+                            >
+                                {isAtHome ? strings[189] : strings[190]}
+                            </button>
                         </div>
                     </div>
+                </div>
                 );
             })()}
 
             {showWarehouseModal && (
-                <div className="inventory-modal">
-                    <button className="close-button" onClick={() => setShowWarehouseModal(false)}>✖</button>
-                    <h2>{strings[193]}</h2>
+                <div className="modal-overlay">
+                    <div className="modal-container modal-large">
+                        <button className="modal-close-btn" onClick={() => setShowWarehouseModal(false)}>×</button>
+                        <div className="modal-title">{strings[193]}</div>
 
-                    <ManageContentsModal
+                        <ManageContentsModal
                         inventory={inventory}
                         masterResources={masterResources}
                         showActions={true}
@@ -630,12 +647,16 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                         setWarehouseAmounts={setWarehouseAmounts}
                         handleAmountChange={handleAmountChange}
                         handleDiscardWarehouseItem={handleDiscardWarehouseItem}
+                        handleSecondAction={handleTransferToBackpack}
+                        secondActionButtonText={strings[180]}
+                        secondActionButtonClass="btn-success"
                         strings={strings}
                     />
 
-                    <button 
-                        className="sell-button" 
-                        onClick={() => {
+                    <div className="modal-buttons shared-buttons">
+                        <button 
+                            className="btn-basic btn-modal btn-danger" 
+                            onClick={() => {
                             setModalContent({
                                 title: "Are you sure?",
                                 message: "This will permanently discard ALL items in your warehouse!",
@@ -663,9 +684,11 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                             });
                             setIsModalOpen(true);
                         }}
-                    >
-                        {strings[190]}
-                    </button>
+                        >
+                            {strings[190]}
+                        </button>
+                    </div>
+                    </div>
                 </div>
             )}
         </Panel>

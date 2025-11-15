@@ -23,7 +23,7 @@ body {
 /* BASE PANEL /////////////////////////////////// */
 
 .base-panel {
-  width: 180px;
+  width: 220px;
   background-color: #67c257;
   padding: 10px;
   top: 50px;
@@ -206,7 +206,7 @@ body {
 .app-header {
   background-color: #67c257;
   color: white;
-  padding: 10px 50px; /* Add more horizontal padding */
+  padding: 10px 85px; /* Add more horizontal padding */
   position: fixed;
   top: 0;
   height: 40px; /* Adjust height to accommodate larger text */
@@ -289,13 +289,15 @@ body {
 
 .homestead {
   overflow: auto;
-  margin-left: 200px;
-  width: calc(100% - 260px);
+  margin-left: 240px; 
+  width: calc(100% - 300px); /* Account for total left margin */
   height: calc(100vh - 100px); /* Adjust for header and status bar */
   position: absolute;
   top: 85px;
   z-index: 100;
   background-color: var(--settlement-gridline-color, #45a049); /* Match settlement grid background */
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
+  overscroll-behavior: contain; /* Prevent scroll chaining and reduce bounce effect */
 }
 
 
@@ -401,7 +403,7 @@ body {
 .keyart-wrapper {
   position: fixed;
   top: 85px; /* Account for header height + small buffer */
-  left: 258px; /* Account for nav column (60px) + base panel (180px) + small buffer */
+  left: 298px; /* Account for nav column (60px) + base panel (220px) + small buffer (18px) */
   overflow: hidden;
 }
 

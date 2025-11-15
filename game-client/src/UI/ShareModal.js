@@ -12,8 +12,9 @@ function ShareModal({ onClose }) {
 
   return (
     <div className="modal-overlay">
-      <div className="share-modal">
-        <h2>📢 Share Valley View</h2>
+      <div className="modal-container modal-medium">
+        <button className="modal-close-btn" onClick={onClose}>×</button>
+        <div className="modal-title">📢 Share Valley View</div>
         <p>{strings[95]}</p>
         
 

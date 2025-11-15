@@ -8,6 +8,7 @@ let masterInteractions = null;
 let masterTraders = null;
 let masterTrophies = null;
 let masterWarehouse = null;
+let masterXPLevels = null;
 /**
  * Fetch and cache skillsTuning.json
  */
@@ -129,6 +130,23 @@ export async function loadMasterWarehouse() {
 }
 
 /**
+ * Fetch and cache xpLevels.json
+ */
+export async function loadMasterXPLevels() {
+  if (!masterXPLevels) {
+    try {
+      const response = await axios.get(`${API_BASE}/api/xp-levels`);
+      masterXPLevels = response.data;
+      console.log('Master XP levels loaded:', masterXPLevels);
+    } catch (error) {
+      console.error('Error fetching master XP levels:', error);
+      masterXPLevels = [];
+    }
+  }
+  return masterXPLevels;
+}
+
+/**
  * Clear cached data (optional, for debugging or forced reloads).
  */
 export function clearTuningCache() {
@@ -137,4 +155,5 @@ export function clearTuningCache() {
   masterTraders = null;
   masterTrophies = null;
   masterWarehouse = null;
+  masterXPLevels = null;
 }

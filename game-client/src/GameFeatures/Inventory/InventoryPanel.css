@@ -44,9 +44,25 @@
   text-align: right;
 }
 
-/* Inventory Modal Table Column Widths */
+/* Inventory Modal Table Styling */
 .inventory-modal table {
   table-layout: fixed;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Center align all headers and data in inventory modals */
+.inventory-modal th,
+.inventory-modal td {
+  text-align: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
+}
+
+.inventory-modal th {
+  background: #f8f9fa;
+  font-weight: bold;
 }
 
 .inventory-modal th:nth-child(1), /* Item column */
@@ -154,6 +170,7 @@
   width: 100%;
   margin: 0;
   border-collapse: collapse;
+  table-layout: fixed; /* Force consistent column widths */
 }
 
 .inventory-table-header th {
@@ -163,6 +180,24 @@
   cursor: pointer;
   user-select: none;
   transition: background-color 0.2s;
+}
+
+/* Warehouse table column widths */
+.inventory-table-header th:nth-child(1),
+.inventory-table-scroll td:nth-child(1) {
+  width: 50%; /* Item name column - reduced to give more space */
+  text-align: left;
+}
+
+.inventory-table-header th:nth-child(2) {
+  width: 50%; /* Quantity column header - increased to prevent wrapping */
+  text-align: right; /* Right-align to prevent wrapping */
+  white-space: nowrap; /* Prevent wrapping within the header */
+}
+
+.inventory-table-scroll td:nth-child(2) {
+  width: 50%; /* Quantity column data */
+  text-align: right; /* Right-align quantity numbers */
 }
 
 .inventory-table-header th:hover {
@@ -179,6 +214,7 @@
   width: 100%;
   margin: 0;
   border-collapse: collapse;
+  table-layout: fixed; /* Force consistent column widths */
 }
 
 .inventory-table-scroll td {
@@ -215,6 +251,7 @@
   width: 100%;
   margin: 0;
   border-collapse: collapse;
+  table-layout: fixed; /* Force consistent column widths */
 }
 
 .backpack-table-header th {
@@ -224,6 +261,24 @@
   cursor: pointer;
   user-select: none;
   transition: background-color 0.2s;
+}
+
+/* Backpack table column widths - match warehouse table */
+.backpack-table-header th:nth-child(1),
+.backpack-table-scroll td:nth-child(1) {
+  width: 50%; /* Item name column - reduced to give more space */
+  text-align: left;
+}
+
+.backpack-table-header th:nth-child(2) {
+  width: 50%; /* Quantity column header - increased to prevent wrapping */
+  text-align: right; /* Right-align to prevent wrapping */
+  white-space: nowrap; /* Prevent wrapping within the header */
+}
+
+.backpack-table-scroll td:nth-child(2) {
+  width: 50%; /* Quantity column data */
+  text-align: right; /* Right-align quantity numbers */
 }
 
 .backpack-table-header th:hover {
@@ -240,6 +295,7 @@
   width: 100%;
   margin: 0;
   border-collapse: collapse;
+  table-layout: fixed; /* Force consistent column widths */
 }
 
 .backpack-table-scroll td {

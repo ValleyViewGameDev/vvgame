@@ -39,9 +39,9 @@ const handleSave = async () => {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="language-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-container modal-medium" onClick={(e) => e.stopPropagation()}>
         <button className="modal-close-btn" onClick={onClose}>×</button>
-        <h1>{strings[130]}</h1>
+        <div className="modal-title">{strings[130]}</div>
         <ul className="language-list">
           {LANGUAGE_OPTIONS.map(({ code, label, flag }) => (
             <li

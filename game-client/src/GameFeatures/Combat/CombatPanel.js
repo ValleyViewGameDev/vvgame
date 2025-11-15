@@ -239,7 +239,7 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
   };
 
   return (
-    <Panel onClose={onClose} descriptionKey="1024" titleKey="1124" panelName="CombatPanel">
+    <Panel onClose={onClose} titleKey="1124" panelName="CombatPanel">
       <div className="standard-panel">
       {isContentLoading ? (
           <p>Loading...</p>
@@ -247,18 +247,34 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
           <>
             <div className="combat-stats">
               <h3>{strings[10112]} <span className="stat-total">{hp.total}</span></h3><br/>
-              <h4>{strings[550]}: <span className="stat-total blue-text">{maxhp.modifier !== 0 ? maxhp.total : maxhp.base}</span><br></br>
-                {"  ("} {maxhp.base} + <span className="stat-total blue-text">{maxhp.modifier}</span> {")"} </h4>
-              <h4>{strings[551]}: <span className="stat-total blue-text">{armorclass.modifier !== 0 ? armorclass.total : armorclass.base}</span><br></br>
-                {"  ("} {armorclass.base} + <span className="stat-total blue-text">{armorclass.modifier}</span> {")"}</h4>
-              <h4>{strings[552]}: <span className="stat-total blue-text">{attackbonus.modifier !== 0 ? attackbonus.total : attackbonus.base}</span><br></br>
-                {"  ("} {attackbonus.base} + <span className="stat-total blue-text">{attackbonus.modifier}</span> {")"}</h4>
-              <h4>{strings[553]}: <span className="stat-total blue-text">{damage.modifier !== 0 ? damage.total : damage.base}</span><br></br>
-                {"  ("} {damage.base} + <span className="stat-total blue-text">{damage.modifier}</span> {")"}</h4>
-              <h4>{strings[555]}: <span className="stat-total blue-text">{attackrange.modifier !== 0 ? attackrange.total : attackrange.base}</span><br></br>
-                {"  ("} {attackrange.base} + <span className="stat-total blue-text">{attackrange.modifier}</span> {")"} </h4>
-              <h4>{strings[554]}: <span className="stat-total blue-text">{speed.modifier !== 0 ? speed.total : speed.base}</span><br></br>
-                {"  ("} {speed.base} + <span className="stat-total blue-text">{speed.modifier}</span> {")"}</h4>
+              <table className="stats-table">
+                <tbody>
+                  <tr>
+                    <td>{strings[550]}: <span className="stat-total blue-text">{maxhp.modifier !== 0 ? maxhp.total : maxhp.base}</span></td>
+                    <td className="stat-breakdown">({maxhp.base} <span className="stat-total blue-text">+ {maxhp.modifier}</span>)</td>
+                  </tr>
+                  <tr>
+                    <td>{strings[551]}: <span className="stat-total blue-text">{armorclass.modifier !== 0 ? armorclass.total : armorclass.base}</span></td>
+                    <td className="stat-breakdown">({armorclass.base} <span className="stat-total blue-text">+ {armorclass.modifier}</span>)</td>
+                  </tr>
+                  <tr>
+                    <td>{strings[552]}: <span className="stat-total blue-text">{attackbonus.modifier !== 0 ? attackbonus.total : attackbonus.base}</span></td>
+                    <td className="stat-breakdown">({attackbonus.base} <span className="stat-total blue-text">+ {attackbonus.modifier}</span>)</td>
+                  </tr>
+                  <tr>
+                    <td>{strings[553]}: <span className="stat-total blue-text">{damage.modifier !== 0 ? damage.total : damage.base}</span></td>
+                    <td className="stat-breakdown">({damage.base} <span className="stat-total blue-text">+ {damage.modifier}</span>)</td>
+                  </tr>
+                  <tr>
+                    <td>{strings[555]}: <span className="stat-total blue-text">{attackrange.modifier !== 0 ? attackrange.total : attackrange.base}</span></td>
+                    <td className="stat-breakdown">({attackrange.base} <span className="stat-total blue-text">+ {attackrange.modifier}</span>)</td>
+                  </tr>
+                  <tr>
+                    <td>{strings[554]}: <span className="stat-total blue-text">{speed.modifier !== 0 ? speed.total : speed.base}</span></td>
+                    <td className="stat-breakdown">({speed.base} <span className="stat-total blue-text">+ {speed.modifier}</span>)</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
             <div className="shared-buttons">
               <button className="btn-basic btn-success" onClick={handleRefreshCombatStats}>🔄 Fix Combat Stats</button>
@@ -426,10 +442,6 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
               ) : (
                 <p>{strings[527]}</p>
               )}
-              <br></br>
-              <h3>{strings[528]}</h3>
-              <h4>{strings[556]}: {currentPlayer.iscamping ? strings[558] : strings[559]}</h4>
-              <h4>{strings[557]}: {currentPlayer.isinboat ? strings[558] : strings[559]}</h4>
             </div>
           </>
         )}

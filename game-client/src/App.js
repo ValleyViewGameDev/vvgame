@@ -9,7 +9,7 @@ import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, useLayoutEffect, memo, useMemo, useCallback, useRef, act } from 'react';
 import { registerNotificationClickHandler } from './UI/Notifications/Notifications';
 import { initializeGrid } from './AppInit';
-import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies, loadMasterWarehouse } from './Utils/TuningManager';
+import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies, loadMasterWarehouse, loadMasterXPLevels } from './Utils/TuningManager';
 import { RenderTilesCanvas } from './Render/RenderTilesCanvas';
 import { RenderResources } from './Render/RenderResources';
 import { RenderNPCs } from './Render/RenderNPCs';
@@ -54,6 +54,8 @@ import Modal from './UI/Modal';
 import LanguagePickerModal from './UI/LanguagePickerModal';
 import { useStrings } from './UI/StringsContext';
 import LANGUAGE_OPTIONS from './UI/Languages.json';
+import { getMayorUsername } from './GameFeatures/Government/GovUtils';
+import { getDerivedLevel } from './Utils/playerManagement';
 
 import ProfilePanel from './Authentication/ProfilePanel';
 import LoginPanel from './Authentication/LoginPanel';
@@ -80,7 +82,7 @@ import TrainPanel from './GameFeatures/Trading/Train';
 import NewTrainPanel from './GameFeatures/Trading/NewTrain';
 import CarnivalPanel from './GameFeatures/Carnival/Carnival';
 import CourthousePanel from './GameFeatures/Government/Courthouse';
-import { getMayorUsername } from './GameFeatures/Government/GovUtils';
+
 import CraftingStation from './GameFeatures/Crafting/CraftingStation';
 import FarmHouse from './GameFeatures/Crafting/FarmHouse';
 import FarmHandPanel from './GameFeatures/FarmHands/FarmHand.js';
@@ -312,6 +314,7 @@ useEffect(() => {
   const [masterInteractions, setMasterInteractions] = useState([]);
   const [masterTraders, setMasterTraders] = useState([]);
   const [masterTrophies, setMasterTrophies] = useState([]);
+  const [masterXPLevels, setMasterXPLevels] = useState([]);
 
   // Check if player is mayor for authoritative mayor display
   useEffect(() => {
@@ -563,7 +566,7 @@ useEffect(() => {
     try {
       // Step 1. Load tuning data
       console.log('🏁✅ 1 InitAppWrapper; Merging player data and initializing inventory...');
-      const [skills, resources, globalTuningData, interactions, traders, trophies, warehouse] = await Promise.all([loadMasterSkills(), loadMasterResources(), loadGlobalTuning(), loadMasterInteractions(), loadMasterTraders(), loadMasterTrophies(), loadMasterWarehouse()]);
+      const [skills, resources, globalTuningData, interactions, traders, trophies, warehouse, xpLevels] = await Promise.all([loadMasterSkills(), loadMasterResources(), loadGlobalTuning(), loadMasterInteractions(), loadMasterTraders(), loadMasterTrophies(), loadMasterWarehouse(), loadMasterXPLevels()]);
       setMasterResources(resources);
       setMasterSkills(skills);
       setGlobalTuning(globalTuningData);
@@ -571,6 +574,7 @@ useEffect(() => {
       setMasterTraders(traders);
       setMasterTrophies(trophies);
       setMasterWarehouse(warehouse);
+      setMasterXPLevels(xpLevels);
       setIsMasterResourcesReady(true); // ✅ Mark ready
       // Step 2. Fetch stored player from localStorage
       console.log('🏁✅ 2 InitAppWrapper; getting local player...');
@@ -1826,12 +1830,12 @@ return (
 
         {currentPlayer?.accountStatus === 'Gold' && (
           <div className="shared-buttons">
-            <button className="btn-basic btn-header btn-gold" onClick={() => openPanel('ProfilePanel')}>{currentPlayer.icon} {currentPlayer.username}</button>
+            <button className="btn-basic btn-header btn-gold" onClick={() => openPanel('ProfilePanel')}>{currentPlayer?.icon || '😊'} {currentPlayer?.username || 'Loading...'}</button>
           </div>
         )}
         {currentPlayer?.accountStatus === 'Free' && (
           <div className="shared-buttons">
-            <button className="btn-basic btn-header" onClick={() => openPanel('ProfilePanel')}>{currentPlayer.icon} {currentPlayer.username}</button>
+            <button className="btn-basic btn-header" onClick={() => openPanel('ProfilePanel')}>{currentPlayer?.icon || '😊'} {currentPlayer?.username || 'Loading...'}</button>
           </div>
         )}
 
@@ -1916,6 +1920,26 @@ return (
         </div>
 
       <button className={`nav-button ${!activePanel ? 'selected' : ''}`} title={strings[12009]} onClick={() => closePanel()}>🏡</button>
+      <button 
+        className={`nav-button ${activePanel === 'SocialPanel' ? 'selected' : ''}`} 
+        title="My Profile" 
+        disabled={!currentPlayer} 
+        onClick={() => {
+          if (currentPlayer) {
+            // Create PC data structure for current player to pass to SocialPanel
+            const currentPC = {
+              playerId: currentPlayer._id,
+              username: currentPlayer.username,
+              icon: currentPlayer.icon,
+              hp: currentPlayer.hp || 100,
+              position: { x: 0, y: 0 }, // Position not needed for own profile
+              iscamping: currentPlayer.iscamping,
+              isinboat: currentPlayer.isinboat
+            };
+            handlePCClick(currentPC);
+          }
+        }}
+      >{currentPlayer?.icon || '😊'}</button>
       <button className={`nav-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}>✅</button>
 
       <button 
@@ -2019,13 +2043,10 @@ return (
         transitionFadeControl={transitionFadeControl}
       />
  
-      <div className="shared-buttons">
-        <button className="btn-basic" onClick={() => openPanel('HowToPanel')}>{strings[10109]} AWSD</button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic" onClick={() => openPanel('HowToPanel')}>{strings[10110]}</button>
-      </div>
-      <br/>
+      <h3>{strings[10109]}</h3>
+      <h3>{strings[10135]}</h3>
+      <h3>{strings[10136]}</h3>
+
 
       {/* Add Role display if player has one */}
       {isMayor && (
@@ -2034,36 +2055,71 @@ return (
         </>
       )}
 
-      {/* Hit Points */}
+      {/* Level and Health */}
       <div className="shared-buttons">
-        <button className="btn-basic" onClick={() => openPanel('CombatPanel')}>{strings[10112]} <strong>{currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.hp ?? "?" : "?"} / {currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.maxhp ?? "?" : "?"}</strong></button>
+        <button 
+          className="btn-basic"
+          onClick={() => {
+            if (currentPlayer) {
+              // Create PC data structure for current player to pass to SocialPanel
+              const currentPC = {
+                playerId: currentPlayer._id,
+                username: currentPlayer.username,
+                icon: currentPlayer.icon,
+                hp: currentPlayer.hp || 100,
+                position: { x: 0, y: 0 }, // Position not needed for own profile
+                iscamping: currentPlayer.iscamping,
+                isinboat: currentPlayer.isinboat
+              };
+              handlePCClick(currentPC);
+            }
+          }}
+        >
+          <span style={{ fontFamily: 'Chewy', fontWeight: 'bold', color: '#358337', textAlign: 'center', display: 'block', fontSize: '18px' }}>
+            Hi, {currentPlayer?.icon || '😊'} {currentPlayer?.username || 'Loading...'}
+          </span>
+          Level: {getDerivedLevel(currentPlayer, masterXPLevels)}<br />
+          {strings[10112]} {currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.hp ?? "?" : "?"} / {currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.maxhp ?? "?" : "?"}
+        </button>
       </div>
-      <br />
 
       {/* Season */}
       {timers.seasons.phase === "onSeason" ? (
         <>
-          <h2>{strings[10113]} {seasonData?.type || "[Season unknown]"}</h2>
           <div className="shared-buttons">
-            <button className="btn-basic" onClick={() => openPanel('SeasonPanel')}>{strings[10114]}<br /><strong>{countdowns.seasons}</strong></button>
+            <button className="btn-basic" onClick={() => openPanel('SeasonPanel')}>
+              <span style={{ fontFamily: 'Chewy', fontWeight: 'bold', color: '#358337', textAlign: 'center', display: 'block', fontSize: '18px' }}>
+                {strings[10113]} {seasonData?.type || "[Season unknown]"}
+              </span>
+              {strings[10114]}<br /><strong>{countdowns.seasons}</strong>
+            </button>
           </div>
         </>
       ) : (
         <>
-          <h2>{strings[10113]} {seasonData?.type || "[Season unknown]"}</h2>
           <div className="shared-buttons">
-            <button className="btn-basic" onClick={() => openPanel('SeasonPanel')}>{strings[10115]}<br /><strong>{countdowns.seasons}</strong></button>
+            <button className="btn-basic" onClick={() => openPanel('SeasonPanel')}>
+              <span style={{ fontFamily: 'Chewy', fontWeight: 'bold', color: '#358337', textAlign: 'center', display: 'block', fontSize: '18px' }}>
+                {strings[10113]} {seasonData?.type || "[Season unknown]"}
+              </span>
+              {strings[10115]}<br /><strong>{countdowns.seasons}</strong>
+            </button>
           </div>
         </>
       )}
+
+      <br />
 
       <div className="shared-buttons">
         <button className="btn-basic" onClick={() => openModal('TownNews')}>{strings[10125]}</button>
       </div>
 
-      <br />
-
+      <div className="shared-buttons">
+        <button className="btn-basic" onClick={() => openPanel('HowToPanel')}>{strings[10110]}</button>
+      </div>
+      
       <h2>{strings[96]}</h2>
+      
       <div className="shared-buttons">
         <button
           className="btn-basic"
@@ -2909,9 +2965,12 @@ return (
           updateStatus={updateStatus}
           masterInteractions={masterInteractions}
           masterTrophies={masterTrophies}
+          masterResources={masterResources}
+          masterXPLevels={masterXPLevels}
           isDeveloper={isDeveloper}
           controllerUsername={controllerUsername}
           setControllerUsername={setControllerUsername}
+          openPanel={openPanel}
         />
       )}
       {activePanel === 'AnimalStall' && (

@@ -439,8 +439,7 @@
     "validonw": false,
     "validonl": false,
     "validonn": false,
-    "validono": true,
-    "filename": "oak-tree.svg"
+    "validono": true
   },
   {
     "type": "Pine Tree",
@@ -458,8 +457,7 @@
     "validonw": false,
     "validonl": false,
     "validonn": false,
-    "validono": true,
-    "filename": "pine-tree.svg"
+    "validono": true
   },
   {
     "type": "Palm Tree",

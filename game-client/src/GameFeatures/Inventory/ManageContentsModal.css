@@ -20,14 +20,16 @@
   width: 100%;
   margin: 0;
   border-collapse: collapse;
+  table-layout: fixed; /* Force consistent column widths */
 }
 
 .manage-contents-header th {
   padding: 8px 12px;
   background: #f8f9fa;
   border-bottom: 1px solid #ddd;
-  text-align: left;
+  text-align: center; /* Center align headers */
   font-weight: bold;
+  font-size: 15px; /* Increased from default for better readability */
   cursor: pointer;
   user-select: none;
   transition: background-color 0.2s;
@@ -59,12 +61,28 @@
   width: 100%;
   margin: 0;
   border-collapse: collapse;
+  table-layout: fixed; /* Force consistent column widths */
 }
 
 .manage-contents-scroll td {
   padding: 8px 12px;
   border-bottom: 1px solid #eee;
   vertical-align: middle;
+  text-align: center; /* Center align all table data */
+  font-size: 15px; /* Increased from default for better readability */
+}
+
+/* Center align the first column (food emoji + hp value) and make it narrow */
+.manage-contents-header th:nth-child(1), 
+.manage-contents-scroll td:nth-child(1) {
+  width: 10%; /* Wider to accommodate heart emoji + "+x" text */
+  text-align: center;
+  white-space: nowrap; /* Prevent wrapping of heart + number */
+}
+
+/* Left align the second column (item names) */
+.manage-contents-scroll td:nth-child(2) {
+  text-align: left;
 }
 
 .manage-contents-scroll tr:nth-child(even) {
@@ -79,6 +97,7 @@
 .amount-input {
   display: flex;
   align-items: center;
+  justify-content: center; /* Center the controls within the column */
   gap: 2px;
 }
 
@@ -111,22 +130,52 @@
   cursor: not-allowed;
 }
 
-/* Add button styling */
-.add-button {
-  padding: 4px 8px;
-  border: none;
-  border-radius: 4px;
-  background: #dc3545;
-  color: white;
-  cursor: pointer;
-  font-size: 12px;
+/* Column width definitions for consistent alignment - 5 columns (with emoji) */
+.manage-contents-header th:nth-child(2), 
+.manage-contents-scroll td:nth-child(2) {
+  width: 25%; /* Item name column - reduced from 28% to compensate for wider first column */
 }
 
-.add-button:hover:not(:disabled) {
-  background: #c82333;
+.manage-contents-header th:nth-child(3), 
+.manage-contents-scroll td:nth-child(3) {
+  width: 15%; /* Quantity column - reduced from 17% */
 }
 
-.add-button:disabled {
-  background: #6c757d;
-  cursor: not-allowed;
+.manage-contents-header th:nth-child(4), 
+.manage-contents-scroll td:nth-child(4) {
+  width: 30%; /* Amount controls column - kept same */
 }
+
+.manage-contents-header th:nth-child(5), 
+.manage-contents-scroll td:nth-child(5) {
+  width: 20%; /* First action button column - kept same */
+}
+
+/* Column width definitions for 6 columns (with emoji + second action button) */
+.manage-contents-header th:nth-child(6), 
+.manage-contents-scroll td:nth-child(6) {
+  width: 20%; /* Second action button column - wider for "To Backpack" text */
+}
+
+/* Adjust widths when 6 columns are present (emoji + both action buttons) */
+.manage-contents-container:has(.shared-buttons + .shared-buttons) .manage-contents-header th:nth-child(2),
+.manage-contents-container:has(.shared-buttons + .shared-buttons) .manage-contents-scroll td:nth-child(2) {
+  width: 22%; /* Slightly reduce item name column when 6 columns */
+}
+
+.manage-contents-container:has(.shared-buttons + .shared-buttons) .manage-contents-header th:nth-child(4),
+.manage-contents-container:has(.shared-buttons + .shared-buttons) .manage-contents-scroll td:nth-child(4) {
+  width: 23%; /* Slightly reduce amount controls column when 6 columns */
+}
+
+.manage-contents-container:has(.shared-buttons + .shared-buttons) .manage-contents-header th:nth-child(5),
+.manage-contents-container:has(.shared-buttons + .shared-buttons) .manage-contents-scroll td:nth-child(5) {
+  width: 15%; /* First action button stays same */
+}
+
+/* Action buttons in table rows - larger font size */
+.manage-contents-scroll .shared-buttons .btn-mini {
+  font-size: 13px; /* Increased from default 11px for better readability */
+}
+
+/* Old .add-button styling removed - now using shared-buttons system */

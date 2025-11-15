@@ -5,9 +5,9 @@
   font-weight: bold;
   color: #666;
   top: 60px; /* Positioned under header */
-  left: 260px; /* Start after the base panel */
+  left: 300px; /* Start after the base panel */
   height: 24px;
-  width: calc(100% - 260px); /* Adjust width to account for left position */
+  width: calc(100% - 300px); /* Adjust width to account for left position */
   background-color: rgb(255, 251, 179); /* Tan background */
   line-height: 20px; /* Match height for vertical centering */
   font-size: 13px; /* Adjust font size as needed */

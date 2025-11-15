@@ -29,9 +29,9 @@ export default function ChangeIconModal({ currentPlayer, setCurrentPlayer, updat
 
   return (
     <div className="modal-overlay">
-      <div className="icon-modal">
+      <div className="modal-container modal-medium">
         <button className="modal-close-btn" onClick={onClose}>×</button>
-        <h2>Choose Your Avatar</h2>
+        <div className="modal-title">Choose Your Avatar</div>
 
         <br />
 

@@ -3,6 +3,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import { useStrings } from '../../UI/StringsContext';
 import { isCurrency } from '../../Utils/InventoryManagement';
 import './ManageContentsModal.css';
+import '../../UI/SharedButtons.css';
 
 const ManageContentsModal = ({
   inventory,
@@ -12,6 +13,17 @@ const ManageContentsModal = ({
   setWarehouseAmounts,
   handleAmountChange,
   handleDiscardWarehouseItem,
+  // New props for backpack mode
+  amounts,
+  setAmounts,
+  handleActionItem,
+  actionButtonText,
+  actionButtonClass = "btn-danger",
+  isActionDisabled,
+  // Props for second action button (To Backpack)
+  handleSecondAction,
+  secondActionButtonText,
+  secondActionButtonClass = "btn-success",
   strings: passedStrings
 }) => {
   const contextStrings = useStrings();
@@ -34,6 +46,12 @@ const ManageContentsModal = ({
         case 'quantity':
           aValue = a.quantity;
           bValue = b.quantity;
+          break;
+        case 'food':
+          const aResource = masterResources.find(r => r.type === a.type);
+          const bResource = masterResources.find(r => r.type === b.type);
+          aValue = (aResource?.hp > 0) ? 1 : 0;
+          bValue = (bResource?.hp > 0) ? 1 : 0;
           break;
         default:
           return 0;
@@ -69,6 +87,9 @@ const ManageContentsModal = ({
         <table>
           <thead>
             <tr>
+              <th onClick={() => handleSort('food')} className="sortable-header">
+                {getSortIcon('food')}
+              </th>
               <th onClick={() => handleSort('name')} className="sortable-header">
                 {strings[191] || "Item"} {getSortIcon('name')}
               </th>
@@ -79,6 +100,7 @@ const ManageContentsModal = ({
                 <>
                   <th>{strings[186] || "Amount"}</th>
                   <th>{strings[192] || "Action"}</th>
+                  {handleSecondAction && <th>{strings[192] || "Action"}</th>}
                 </>
               )}
             </tr>
@@ -89,12 +111,19 @@ const ManageContentsModal = ({
       <div className="manage-contents-scroll">
         <table>
           <tbody>
-            {sortedInventory.map((item, index) => (
-              <tr key={index}>
-                <td>
-                  {masterResources.find(r => r.type === item.type)?.symbol || ''} {getLocalizedString(item.type, strings)}
-                </td>
-                <td>{item.quantity.toLocaleString()}</td>
+            {sortedInventory.map((item, index) => {
+              const resourceData = masterResources.find(r => r.type === item.type);
+              const isFood = resourceData?.hp > 0;
+              
+              return (
+                <tr key={index}>
+                  <td>
+                    {isFood ? `❤️‍🩹 +${resourceData.hp}` : ''}
+                  </td>
+                  <td>
+                    {resourceData?.symbol || ''} {getLocalizedString(item.type, strings)}
+                  </td>
+                  <td>{item.quantity.toLocaleString()}</td>
                 {showActions && (
                   <>
                     <td>
@@ -133,18 +162,34 @@ const ManageContentsModal = ({
                       </div>
                     </td>
                     <td>
-                      <button
-                        className="add-button"
-                        onClick={() => handleDiscardWarehouseItem(item)}
-                        disabled={!(warehouseAmounts[item.type] > 0 && warehouseAmounts[item.type] <= item.quantity)}
-                      >
-                        {strings[188]}
-                      </button>
+                      <div className="shared-buttons">
+                        <button
+                          className={`btn-basic ${actionButtonClass || "btn-danger"} btn-mini`}
+                          onClick={() => handleDiscardWarehouseItem(item)}
+                          disabled={!(warehouseAmounts[item.type] > 0 && warehouseAmounts[item.type] <= item.quantity)}
+                        >
+                          {actionButtonText || strings[188]}
+                        </button>
+                      </div>
                     </td>
+                    {handleSecondAction && (
+                      <td>
+                        <div className="shared-buttons">
+                          <button
+                            className={`btn-basic ${secondActionButtonClass} btn-mini`}
+                            onClick={() => handleSecondAction(item)}
+                            disabled={!((amounts || warehouseAmounts)[item.type] > 0 && (amounts || warehouseAmounts)[item.type] <= item.quantity)}
+                          >
+                            {secondActionButtonText || strings[180]}
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </>
                 )}
-              </tr>
-            ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

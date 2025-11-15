@@ -15,7 +15,7 @@
     top: 60px;
     left: 60px; /* Overlap with base panel */
     height: calc(100% - 60px); /* Subtract the top offset */
-    width: 200px; /* Fixed width for panels; overlaps base panel */
+    width: 240px; /* Fixed width for panels (20px wider); overlaps base panel */
     background-color: rgb(255, 251, 179);
     box-shadow: 4px 0 8px rgba(106, 106, 106, 0.253);
     z-index: 999;
@@ -46,7 +46,7 @@
   font-size: 22px;
   color: rgb(154, 106, 22);
   margin: 0;
-  padding: 0;
+  padding: 4px;
   padding-right: 10px; /* Add space between title and close button */
   flex-grow: 1; /* Allows title to expand while keeping the close button aligned */
   word-wrap: break-word; /* Allow long words to break */
@@ -67,7 +67,7 @@
   margin-bottom: 2px; /* Reduce space below */
   color:rgb(58, 58, 58);
 }
-.panel-content h2 {
+.panel-container .panel-content h2 {
   font-family: 'Chewy', serif;
   margin-top: 4px; /* Reduce space above */
   margin-bottom: 4px; /* Reduce space below */

@@ -926,6 +926,58 @@ router.get('/interactions', (req, res) => {
   }
 });
 
+// GET /api/xp-levels
+router.get('/xp-levels', (req, res) => {
+  try {
+    const filePath = path.join(__dirname, '../tuning/xpLevels.json');
+    const xpLevels = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+    
+    // Optimize: Return just array of XP thresholds instead of objects with "lvl" and "xp" keys
+    // This reduces memory usage significantly (no repeated strings)
+    const optimizedXPThresholds = xpLevels.map(level => level.xp);
+    
+    res.json(optimizedXPThresholds);
+  } catch (error) {
+    console.error('Error loading xpLevels.json:', error);
+    res.status(500).json({ error: 'Failed to load XP levels.' });
+  }
+});
+
+// POST /api/addXP - Efficiently add XP to player
+router.post('/addXP', async (req, res) => {
+  const { playerId, xpAmount } = req.body;
+  
+  if (!playerId || typeof xpAmount !== 'number') {
+    return res.status(400).json({ error: 'Player ID and valid XP amount are required.' });
+  }
+  
+  if (!mongoose.Types.ObjectId.isValid(playerId)) {
+    return res.status(400).json({ error: 'Invalid player ID format.' });
+  }
+  
+  try {
+    const player = await Player.findByIdAndUpdate(
+      playerId,
+      { $inc: { xp: xpAmount } }, // Atomic increment operation
+      { new: true, select: 'xp username' } // Only return xp and username for efficiency
+    );
+    
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+    
+    console.log(`✅ Added ${xpAmount} XP to ${player.username}. New total: ${player.xp}`);
+    res.json({ 
+      success: true, 
+      newXP: player.xp, 
+      xpGained: xpAmount 
+    });
+  } catch (error) {
+    console.error('Error adding XP:', error);
+    res.status(500).json({ error: 'Failed to add XP.' });
+  }
+});
+
 // Endpoint to update player skills
 router.post('/update-skills', async (req, res) => {
   const { playerId, skills } = req.body;
@@ -1591,6 +1643,147 @@ router.post('/migrate-grid-resources', async (req, res) => {
       success: false, 
       error: 'Failed to migrate grid resources' 
     });
+  }
+});
+
+// POST /api/transfer-inventory - Transfer items between warehouse and backpack
+router.post('/transfer-inventory', async (req, res) => {
+  const { playerId, transfers, direction } = req.body;
+  
+  // Validate input
+  if (!playerId || !Array.isArray(transfers) || !direction) {
+    return res.status(400).json({ error: 'Player ID, transfers array, and direction are required.' });
+  }
+  
+  if (!['warehouse-to-backpack', 'backpack-to-warehouse'].includes(direction)) {
+    return res.status(400).json({ error: 'Direction must be "warehouse-to-backpack" or "backpack-to-warehouse".' });
+  }
+
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+
+    // Calculate total quantities being transferred
+    let totalTransferQuantity = 0;
+    const processedTransfers = [];
+
+    for (const transfer of transfers) {
+      const { itemType, quantity } = transfer;
+      if (!itemType || !quantity || quantity <= 0) {
+        return res.status(400).json({ error: 'Each transfer must have itemType and positive quantity.' });
+      }
+      
+      totalTransferQuantity += quantity;
+      processedTransfers.push({ itemType, quantity });
+    }
+
+    const sourceArray = direction === 'warehouse-to-backpack' ? player.inventory : player.backpack;
+    const targetArray = direction === 'warehouse-to-backpack' ? player.backpack : player.inventory;
+    
+    // Load global tuning for capacity bonuses
+    const globalTuningPath = path.join(__dirname, '../tuning/globalTuning.json');
+    const globalTuning = JSON.parse(fs.readFileSync(globalTuningPath, 'utf8'));
+    
+    // Load master resources for skill bonuses
+    const resourcesPath = path.join(__dirname, '../tuning/resources.json');
+    const masterResources = JSON.parse(fs.readFileSync(resourcesPath, 'utf8'));
+    
+    // Helper function to check if an item is a currency (doesn't count against inventory)
+    const isCurrency = (resourceType) => {
+      return resourceType === 'Money' || 
+             resourceType === 'Gem' || 
+             resourceType === 'Yellow Heart' ||
+             resourceType === 'Green Heart' ||
+             resourceType === 'Purple Heart';
+    };
+    
+    // Calculate proper capacity with Gold bonuses and skill bonuses
+    const baseWarehouse = player.warehouseCapacity || 0;
+    const baseBackpack = player.backpackCapacity || 0;
+    const isGold = player.accountStatus === "Gold";
+    const warehouseBonus = isGold ? (globalTuning?.warehouseCapacityGold || 100000) : 0;
+    const backpackBonus = isGold ? (globalTuning?.backpackCapacityGold || 5000) : 0;
+
+    let warehouseCapacity = baseWarehouse + warehouseBonus;
+    let backpackCapacity = baseBackpack + backpackBonus;
+
+    // Add skill bonuses
+    (player.skills || []).forEach(skill => {
+      const skillDetails = masterResources.find(res => res.type === skill.type);
+      if (skillDetails) {
+        const bonus = skillDetails.qtycollected || 0;
+        if (skillDetails.output === 'warehouseCapacity') {
+          warehouseCapacity += bonus;
+        } else if (skillDetails.output === 'backpackCapacity') {
+          backpackCapacity += bonus;
+        }
+      }
+    });
+    
+    const maxTargetCapacity = direction === 'warehouse-to-backpack' ? backpackCapacity : warehouseCapacity;
+    
+    // Calculate current target capacity usage (exclude currencies)
+    const currentTargetQuantity = targetArray
+      .filter(item => !isCurrency(item.type))
+      .reduce((sum, item) => sum + item.quantity, 0);
+
+    // Check capacity
+    if (currentTargetQuantity + totalTransferQuantity > maxTargetCapacity) {
+      return res.status(400).json({ 
+        error: 'Insufficient capacity in target storage.',
+        currentQuantity: currentTargetQuantity,
+        maxCapacity: maxTargetCapacity,
+        transferQuantity: totalTransferQuantity
+      });
+    }
+
+    // Process each transfer
+    for (const transfer of processedTransfers) {
+      const { itemType, quantity } = transfer;
+
+      // Find source item
+      const sourceItemIndex = sourceArray.findIndex(item => item.type === itemType);
+      if (sourceItemIndex === -1) {
+        return res.status(400).json({ error: `Item ${itemType} not found in source storage.` });
+      }
+
+      const sourceItem = sourceArray[sourceItemIndex];
+      if (sourceItem.quantity < quantity) {
+        return res.status(400).json({ 
+          error: `Insufficient quantity of ${itemType}. Available: ${sourceItem.quantity}, Requested: ${quantity}` 
+        });
+      }
+
+      // Update source
+      if (sourceItem.quantity === quantity) {
+        sourceArray.splice(sourceItemIndex, 1);
+      } else {
+        sourceItem.quantity -= quantity;
+      }
+
+      // Update target
+      const targetItemIndex = targetArray.findIndex(item => item.type === itemType);
+      if (targetItemIndex >= 0) {
+        targetArray[targetItemIndex].quantity += quantity;
+      } else {
+        targetArray.push({ type: itemType, quantity });
+      }
+    }
+
+    await player.save();
+
+    res.json({
+      success: true,
+      message: `Successfully transferred items ${direction}.`,
+      inventory: player.inventory,
+      backpack: player.backpack
+    });
+
+  } catch (error) {
+    console.error('Error transferring inventory:', error);
+    res.status(500).json({ error: 'Failed to transfer items.' });
   }
 });
 
