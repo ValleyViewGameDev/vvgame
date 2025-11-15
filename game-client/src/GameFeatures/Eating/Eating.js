@@ -39,9 +39,9 @@ const EatingModal = ({
     return foods;
   }, [currentPlayer.backpack, edibleResources]);
 
-  // Get warehouse items (inventory) that are edible (only if in homestead or town)
+  // Get warehouse items (inventory) that are edible (only if in homestead)
   const warehouseFoods = useMemo(() => {
-    const isInSafeLocation = currentPlayer.location?.gtype === 'homestead' || currentPlayer.location?.gtype === 'town';
+    const isInSafeLocation = currentPlayer.location?.gtype === 'homestead';
     
     if (!isInSafeLocation) return [];
 
@@ -294,15 +294,15 @@ const EatingModal = ({
           {/* Backpack Food Section */}
           {renderFoodSection(backpackFoods, `${strings[182]}`, false)}
           
-          {/* Warehouse Food Section (only if in safe location) */}
-          {(currentPlayer.location?.gtype === 'homestead' || currentPlayer.location?.gtype === 'town') && (
+          {/* Warehouse Food Section (only if in homestead) */}
+          {currentPlayer.location?.gtype === 'homestead' && (
             renderFoodSection(warehouseFoods, `${strings[181]}`, true)
           )}
           
           {backpackFoods.length === 0 && warehouseFoods.length === 0 && (
             <div className="no-food-message">
               <p>{strings[10162]} {
-                currentPlayer.location?.gtype === 'homestead' || currentPlayer.location?.gtype === 'town' 
+                currentPlayer.location?.gtype === 'homestead' 
                   ? 'backpack or warehouse' 
                   : 'backpack'
               }.</p>
