@@ -378,7 +378,7 @@ const RenderNPCsCanvasComponent = ({
   // Render NPC as emoji symbol in canvas
   const renderNPCEmoji = (ctx, npc, x, y, TILE_SIZE) => {
     ctx.save();
-    ctx.font = `${TILE_SIZE * 0.7}px sans-serif`;
+    ctx.font = `${TILE_SIZE * 0.8}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     

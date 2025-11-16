@@ -179,7 +179,7 @@ export const RenderResourcesCanvas = ({
         : TILE_SIZE * 0.7; // Other single-tile resources
     }
     
-    ctx.font = `${fontSize}px Arial`;
+    ctx.font = `${fontSize}px sans-serif`;
     
     // Position text at center of resource
     const size = TILE_SIZE * range;
