@@ -3800,7 +3800,8 @@
     "layoutkey": "TKey",
     "category": "special",
     "action": "collect",
-    "output": "noBank"
+    "output": "noBank",
+    "repeatable": false
   },
   {
     "type": "Tent",
@@ -3855,11 +3856,28 @@
     "crafttime": 0
   },
   {
-    "type": "Door",
+    "type": "Town Door",
     "symbol": "🚪",
     "layoutkey": "Dor",
     "category": "door",
-    "passable": false
+    "passable": false,
+    "requires": "Town Access"
+  },
+  {
+    "type": "Mirror",
+    "symbol": "🪞",
+    "layoutkey": "Mr",
+    "category": "door",
+    "passable": false,
+    "requires": "Trident"
+  },
+  {
+    "type": "Locked Door",
+    "symbol": "🔒",
+    "layoutkey": "Lck",
+    "category": "door",
+    "passable": false,
+    "requires": "Skeleton Key"
   },
   {
     "type": "Shrine",
@@ -3898,6 +3916,14 @@
     "validonl": false,
     "validonn": true,
     "validono": true
+  },
+  {
+    "type": "Shiro",
+    "symbol": "🏯",
+    "layoutkey": "Jca",
+    "category": "source",
+    "action": "convertTo",
+    "passable": false
   },
   {
     "type": "Trade Stall",
@@ -5166,6 +5192,17 @@
     "validono": true
   },
   {
+    "type": "Constable Elbow",
+    "symbol": "🧔🏼‍♂️",
+    "layoutkey": "n12",
+    "category": "npc",
+    "action": "trade",
+    "passable": false,
+    "qtycollected": 1,
+    "xp": 3,
+    "level": 1
+  },
+  {
     "type": "Falstaff",
     "symbol": "👨🏻‍🏭",
     "layoutkey": "n4",
@@ -5173,7 +5210,7 @@
     "action": "trade",
     "passable": false,
     "qtycollected": 1,
-    "xp": 10,
+    "xp": 8,
     "level": 4,
     "validong": true,
     "validond": true,
@@ -5230,7 +5267,7 @@
     "action": "trade",
     "passable": false,
     "qtycollected": 1,
-    "xp": 10,
+    "xp": 8,
     "level": 4,
     "validong": true,
     "validond": true,
@@ -5249,7 +5286,7 @@
     "action": "trade",
     "passable": false,
     "qtycollected": 1,
-    "xp": 10,
+    "xp": 8,
     "level": 4,
     "validong": true,
     "validond": true,
@@ -5268,7 +5305,7 @@
     "action": "trade",
     "passable": false,
     "qtycollected": 1,
-    "xp": 10,
+    "xp": 8,
     "level": 4,
     "validong": true,
     "validond": true,
@@ -5287,7 +5324,7 @@
     "action": "trade",
     "passable": false,
     "qtycollected": 1,
-    "xp": 10,
+    "xp": 8,
     "level": 4,
     "validong": true,
     "validond": true,
@@ -5306,7 +5343,7 @@
     "action": "trade",
     "passable": false,
     "qtycollected": 1,
-    "xp": 10,
+    "xp": 8,
     "level": 4,
     "validong": false,
     "validond": false,
@@ -5325,7 +5362,7 @@
     "action": "trade",
     "passable": false,
     "qtycollected": 1,
-    "xp": 10,
+    "xp": 20000,
     "level": 5,
     "validong": true,
     "validond": true,
@@ -5494,6 +5531,7 @@
     "action": "attack",
     "output": "Bear Skin",
     "passable": false,
+    "source": "Buy",
     "xp": 8,
     "level": 2,
     "range": 20,
@@ -5572,7 +5610,7 @@
     "action": "attack",
     "output": "Portrait",
     "passable": false,
-    "xp": 300,
+    "xp": 800,
     "level": 3,
     "range": 30,
     "maxhp": 500,
@@ -5702,7 +5740,7 @@
     "action": "attack",
     "output": "Phoenix Feather",
     "passable": false,
-    "xp": 500,
+    "xp": 2000,
     "level": 5,
     "range": 20,
     "maxhp": 3000,
@@ -5880,7 +5918,7 @@
     "passable": false,
     "requires": "Dragon",
     "qtycollected": 3,
-    "xp": 75,
+    "xp": 100,
     "level": 5,
     "range": 30,
     "maxhp": 500,

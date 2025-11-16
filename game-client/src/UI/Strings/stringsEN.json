@@ -35,7 +35,6 @@
     "34": "🎒 Emptied backpack.",
     "35": "You need a ",
     "36": "You used a ",
-    "40": "Can't attack through walls.",
     "41": "You're full",
     "50": "🚫 That username is already taken.",
     "70": "Session Expired",
@@ -1298,8 +1297,6 @@
     "1351": "Show Carnival Log",
     "1352": "Carnival is",
 
-"11000": "ADDED STRINGS:",
-
     "107": "Your Homestead",
     "108": "Your Town",
 
@@ -1333,11 +1330,9 @@
     "9007": "Generate 💰 MONEY from 🤠 KENT or at the 📥 TRADING POST.",
     "9022": "As you are getting started, check with 🤠 KENT. He will buy goods, including crops and crafts.",
     "9013": "Feel free to create your own goals. Also, at the end of each 🗓️ SEASON, which runs three months, both individuals and settlements will be ranked, and top placement generates additional wealth. Your homsestead, all of your skills, and your inventory will carry over into the next Season.",
-
     "10109": "Controls:",
     "10135": "A-W-S-D to Move",
     "10136": "I for Inventory",
-
     "10150": "⬆️ Level:",
     "10151": "🔷 XP:",
     "10152": "🛶 Get in Boat",
@@ -1351,10 +1346,14 @@
     "10160": "Max",
     "10161": "🍽️ Eat Food to Restore Health",
     "10162": "You don't have any edible items in your ",
-
+    "10170": "The door is open to you.",
+    "10171": "You don't have access.",
     "15010": "🎒 Unlike prior seasons, your inventory NOT be wiped.",
-    "15012": "💰 Unlike prior seasons, Money will NOT be nerfed."
+    "15012": "💰 Unlike prior seasons, Money will NOT be nerfed.",
 
+    "11000": "ADDED STRINGS:",
+
+    "40": "Can't interact through walls."
 
 
   }

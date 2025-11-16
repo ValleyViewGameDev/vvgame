@@ -1027,7 +1027,31 @@ const handleHeal = async (recipe) => {
             <>
               <h3>{strings[420]}</h3>
               {tradeRecipes.length > 0 ? (
-                tradeRecipes.map((recipe) => {
+                (() => {
+                  const filteredRecipes = tradeRecipes.filter((recipe) => {
+                    // Find the resource definition to check repeatable property
+                    const resourceDef = masterResources.find(r => r.type === recipe.type);
+                    
+                    // If resource is not repeatable and player already has it, filter it out
+                    if (resourceDef && resourceDef.repeatable === false) {
+                      // Check if player has this item in inventory or backpack
+                      const hasInInventory = inventory?.some(item => item.type === recipe.type);
+                      const hasInBackpack = backpack?.some(item => item.type === recipe.type);
+                      
+                      if (hasInInventory || hasInBackpack) {
+                        return false; // Don't show this offer
+                      }
+                    }
+                    
+                    return true; // Show all other offers
+                  });
+                  
+                  // If all trades were filtered out, show a message
+                  if (filteredRecipes.length === 0) {
+                    return <p>{strings[423]}</p>;
+                  }
+                  
+                  return filteredRecipes.map((recipe) => {
                   const affordable = canAfford(recipe, inventory, backpack, 1);
                   const quantityToGive = recipe.tradeqty || 1;
 
@@ -1086,7 +1110,8 @@ const handleHeal = async (recipe) => {
                       currentPlayer={currentPlayer}
                     />
                   );
-                })
+                  });
+                })()
               ) : (
                 <p>{strings[423]}</p>
               )}

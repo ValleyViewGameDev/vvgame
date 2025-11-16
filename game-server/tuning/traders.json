@@ -1,5 +1,22 @@
 [
   {
+    "trader": "Constable Elbow",
+    "trades": [
+      {
+        "gives": {
+          "type": "Town Access",
+          "quantity": 1
+        },
+        "requires": [
+          {
+            "type": "Gem",
+            "quantity": 1
+          }
+        ]
+      }
+    ]
+  },
+  {
     "trader": "Juliet",
     "trades": [
       {

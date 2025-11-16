@@ -61,10 +61,12 @@ export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources,
   // Add the key to our set of pressed keys
   pressedKeys.add(event.key);
   
-  // Process movement immediately
+  // Process movement immediately (fire and forget - we don't await to keep input responsive)
   processMovement(currentPlayer, TILE_SIZE, masterResources, 
     setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources, 
-    updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext, strings, transitionFadeControl);
+    updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext, strings, transitionFadeControl).catch(err => {
+      console.error('Error processing movement:', err);
+    });
 }
 
 // Helper function to handle key release events
@@ -79,7 +81,7 @@ export function handleKeyUp(event) {
 }
 
 // Main movement handler that processes diagonal movement
-export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResources, 
+export async function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResources, 
   setCurrentPlayer, 
   setGridId, 
   setGrid, 
@@ -99,7 +101,7 @@ export function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResourc
 }
 
 // Process movement based on all currently pressed keys
-function processMovement(currentPlayer, TILE_SIZE, masterResources, 
+async function processMovement(currentPlayer, TILE_SIZE, masterResources, 
   setCurrentPlayer, 
   setGridId, 
   setGrid, 
@@ -165,7 +167,7 @@ function processMovement(currentPlayer, TILE_SIZE, masterResources,
     console.error('masterResources is not an array:', masterResources);
     return;
   }
-  if (!isValidMove(targetX, targetY, masterResources,
+  if (!(await isValidMove(targetX, targetY, masterResources,
     currentPlayer,
     setCurrentPlayer,
     setGridId,
@@ -178,7 +180,7 @@ function processMovement(currentPlayer, TILE_SIZE, masterResources,
     bulkOperationContext,
     strings,
     transitionFadeControl
-  )) {
+  ))) {
     console.warn(`⛔ Player blocked from moving to (${targetX}, ${targetY}).`);
     return;
   }
@@ -199,7 +201,7 @@ function processMovement(currentPlayer, TILE_SIZE, masterResources,
   centerCameraOnPlayer(finalPosition, TILE_SIZE);
 }
 
-function isValidMove(targetX, targetY, masterResources,
+async function isValidMove(targetX, targetY, masterResources,
   currentPlayer,
   setCurrentPlayer,
   setGridId,
@@ -265,7 +267,7 @@ function isValidMove(targetX, targetY, masterResources,
   };
 
   // 2️⃣ **Check if tile is valid for movement (using existing isValidTile function)**
-  const canMove = isTileValidForPlayer(targetX, targetY, tiles, resources, masterResources, currentPlayer);
+  const canMove = await isTileValidForPlayer(targetX, targetY, tiles, resources, masterResources, currentPlayer, updateStatus, strings, TILE_SIZE);
   if (!canMove) {
     console.warn(`⛔ Movement blocked: Tile (${targetX}, ${targetY}) is not passable.`);
   }
@@ -337,7 +339,7 @@ export function centerCameraOnPlayerFast(position, TILE_SIZE) {
   console.log(`📷 Camera centered on player at (${position.x}, ${position.y})`);
 }
 
-export function isTileValidForPlayer(x, y, tiles, resources, masterResources, currentPlayer = null) {
+export async function isTileValidForPlayer(x, y, tiles, resources, masterResources, currentPlayer = null, updateStatus = null, strings = null, TILE_SIZE = null) {
   x = Math.floor(x);
   y = Math.floor(y);
   // Check if tile is out of bounds
@@ -376,6 +378,18 @@ export function isTileValidForPlayer(x, y, tiles, resources, masterResources, cu
   if (resourceInTile) {
     // Check if passable is explicitly false (not just falsy)
     if (resourceInTile.passable === false) {
+      // Check if it's a door
+      if (resourceInTile.category === 'door') {
+        // Import the canPassThroughDoor function dynamically
+        const { canPassThroughDoor } = await import('./GameFeatures/Doors/Doors');
+        if (canPassThroughDoor(resourceInTile, currentPlayer, updateStatus, strings, TILE_SIZE)) {
+          console.log(`✅ Player has access - allowing passage through door at (${x}, ${y})`);
+          return true;
+        }
+        // If canPassThroughDoor returned false, it already showed the message
+        return false;
+      }
+      
       console.warn(`⛔ Tile (${x}, ${y}) contains an impassable resource (${resourceInTile.type}).`);
       return false;
     }

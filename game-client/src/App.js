@@ -1569,6 +1569,11 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
       openPanel('ShopStation');
     } 
+    else if (resource.category === 'door') {
+      // Handle door clicks
+      const { handleDoorClick } = await import('./GameFeatures/Doors/Doors');
+      handleDoorClick(resource, currentPlayer, activeTileSize, updateStatus, strings);
+    }
     else if (resource.category === 'stall') {
       setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, });
       openPanel('AnimalStall');
