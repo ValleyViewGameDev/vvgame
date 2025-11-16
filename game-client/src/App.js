@@ -2509,6 +2509,7 @@ return (
         <InventoryPanel
           onClose={closePanel} 
           masterResources={masterResources}
+          globalTuning={globalTuning}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setInventory={setInventory}
