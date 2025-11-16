@@ -185,18 +185,18 @@
 /* Warehouse table column widths */
 .inventory-table-header th:nth-child(1),
 .inventory-table-scroll td:nth-child(1) {
-  width: 50%; /* Item name column - reduced to give more space */
+  width: 70%; /* Item name column - increased to prevent wrapping */
   text-align: left;
 }
 
 .inventory-table-header th:nth-child(2) {
-  width: 50%; /* Quantity column header - increased to prevent wrapping */
+  width: 30%; /* Quantity column header - reduced */
   text-align: right; /* Right-align to prevent wrapping */
   white-space: nowrap; /* Prevent wrapping within the header */
 }
 
 .inventory-table-scroll td:nth-child(2) {
-  width: 50%; /* Quantity column data */
+  width: 30%; /* Quantity column data */
   text-align: right; /* Right-align quantity numbers */
 }
 
@@ -266,18 +266,18 @@
 /* Backpack table column widths - match warehouse table */
 .backpack-table-header th:nth-child(1),
 .backpack-table-scroll td:nth-child(1) {
-  width: 50%; /* Item name column - reduced to give more space */
+  width: 70%; /* Item name column - increased to prevent wrapping */
   text-align: left;
 }
 
 .backpack-table-header th:nth-child(2) {
-  width: 50%; /* Quantity column header - increased to prevent wrapping */
+  width: 30%; /* Quantity column header - reduced */
   text-align: right; /* Right-align to prevent wrapping */
   white-space: nowrap; /* Prevent wrapping within the header */
 }
 
 .backpack-table-scroll td:nth-child(2) {
-  width: 50%; /* Quantity column data */
+  width: 30%; /* Quantity column data */
   text-align: right; /* Right-align quantity numbers */
 }
 
