@@ -94,7 +94,7 @@ export function checkDoorAccess(door, currentPlayer, strings) {
  */
 export function canPassThroughDoor(resource, currentPlayer, updateStatus, strings, TILE_SIZE) {
   // Check if it's a door
-  if (resource.category !== 'door') return false;
+  if (resource.action !== 'door') return false;
   
   // Check door access
   const accessResult = checkDoorAccess(resource, currentPlayer, strings);

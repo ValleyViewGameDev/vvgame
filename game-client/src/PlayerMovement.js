@@ -379,7 +379,7 @@ export async function isTileValidForPlayer(x, y, tiles, resources, masterResourc
     // Check if passable is explicitly false (not just falsy)
     if (resourceInTile.passable === false) {
       // Check if it's a door
-      if (resourceInTile.category === 'door') {
+      if (resourceInTile.action === 'door') {
         // Import the canPassThroughDoor function dynamically
         const { canPassThroughDoor } = await import('./GameFeatures/Doors/Doors');
         if (canPassThroughDoor(resourceInTile, currentPlayer, updateStatus, strings, TILE_SIZE)) {

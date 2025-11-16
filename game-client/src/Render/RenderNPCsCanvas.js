@@ -461,7 +461,19 @@ const RenderNPCsCanvasComponent = ({
       // Removed bounce offset - no longer bouncing
       
       // Position overlay in lower-left corner of the NPC
-      const overlaySize = Math.max(12, TILE_SIZE * 0.3);
+      // Scale overlay more appropriately for different zoom levels
+      let overlaySize;
+      if (TILE_SIZE <= 16) {
+        // Far zoom: use smaller minimum and ratio
+        overlaySize = Math.max(6, TILE_SIZE * 0.35);
+      } else if (TILE_SIZE <= 30) {
+        // Close zoom: standard sizing
+        overlaySize = Math.max(10, TILE_SIZE * 0.35);
+      } else {
+        // Closer zoom: allow larger overlays
+        overlaySize = Math.max(14, TILE_SIZE * 0.35);
+      }
+      
       const overlayX = x + 2; // Small offset from left edge
       const overlayY = y + TILE_SIZE - overlaySize - 2; // Lower corner
       
