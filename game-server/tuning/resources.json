@@ -3795,11 +3795,20 @@
     "category": "special"
   },
   {
+    "type": "Town Access",
+    "symbol": "🗝️",
+    "layoutkey": "TKey",
+    "category": "special",
+    "action": "collect",
+    "output": "noBank"
+  },
+  {
     "type": "Tent",
     "symbol": "⛺",
     "layoutkey": "te",
     "category": "special",
     "action": "collect",
+    "output": "noBank",
     "source": "General Store",
     "passable": false,
     "qtycollected": 1,
@@ -3827,6 +3836,7 @@
     "layoutkey": "bt",
     "category": "special",
     "action": "collect",
+    "output": "noBank",
     "source": "General Store",
     "passable": false,
     "qtycollected": 1,
@@ -3843,6 +3853,13 @@
     "ingredient1qty": 1000000,
     "gemcost": 125000,
     "crafttime": 0
+  },
+  {
+    "type": "Door",
+    "symbol": "🚪",
+    "layoutkey": "Dor",
+    "category": "door",
+    "passable": false
   },
   {
     "type": "Shrine",
