@@ -4883,8 +4883,8 @@
     "validonn": true,
     "validono": true,
     "ingredient1": "Money",
-    "ingredient1qty": 75,
-    "gemcost": 10,
+    "ingredient1qty": 50,
+    "gemcost": 7,
     "crafttime": 28800
   },
   {
@@ -4911,8 +4911,8 @@
     "validonn": true,
     "validono": true,
     "ingredient1": "Money",
-    "ingredient1qty": 300,
-    "gemcost": 38,
+    "ingredient1qty": 150,
+    "gemcost": 19,
     "crafttime": 43200
   },
   {
@@ -4934,7 +4934,9 @@
     "validonw": false,
     "validonl": false,
     "validonn": true,
-    "validono": true
+    "validono": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 300
   },
   {
     "type": "Fairy",
