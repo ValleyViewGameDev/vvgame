@@ -177,12 +177,24 @@
       {
         "gives": {
           "type": "Gold",
-          "quantity": 50
+          "quantity": 20
         },
         "requires": [
           {
             "type": "King's Crown",
             "quantity": 1
+          }
+        ]
+      },
+      {
+        "gives": {
+          "type": "Mirror Key",
+          "quantity": 1
+        },
+        "requires": [
+          {
+            "type": "Aged Wine",
+            "quantity": 12
           }
         ]
       }

@@ -50,7 +50,7 @@ const PetsPanel = ({
             if (resource.source !== 'Zoo') return false;
             
             // Check passability based on location
-            if (!isDeveloper && !isHomestead && resource.passable === false) return false;
+            if (!isDeveloper && !isHomestead) return false;
             
             // Check seasonal restriction
             if (resource.season && currentSeason && resource.season !== currentSeason) {

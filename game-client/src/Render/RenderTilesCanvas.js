@@ -10,6 +10,9 @@ const TILE_ROUNDING_CONFIG = {
   o: true,  // other - rounded
   d: false, // dirt - no rounding (base layer)
   p: true,  // pavement - rounded
+  x: true,  // pavement - rounded
+  y: false,  // pavement - rounded
+  z: false  // pavement - rounded
 };
 
 // Get CSS color for a tile type
@@ -21,8 +24,11 @@ function getTileColor(tileType) {
     w: '#58cad8', // water
     l: '#c4583d', // lava
     p: '#c5a85d', // pavement
-    n: '#fbde00', // natural
-    o: '#ffffff', // other
+    n: '#fbde00', // sand
+    o: '#ffffff', // snow
+    x: '#797e85ff', // cobblestone
+    y: '#000000ff', // dungeon
+    z: '#ffffff', // TBD
     unknown: '#ff0000', // debug red
   };
   return tileColors[tileType] || tileColors.unknown;

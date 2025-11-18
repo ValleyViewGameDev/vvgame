@@ -22,6 +22,10 @@ const Tile = ({ x, y, tile, updateTile, isSelected, setSelectedTile, tileSize, m
           tile.type === "PA" ? "#dab965" :
           tile.type === "LV" ? "#c4583d" :
           tile.type === "SA" ? "#fbde00" :
+          tile.type === "CB" ? "#797e85ff" :
+          tile.type === "DU" ? "#000000ff" :
+          tile.type === "ZZ" ? "#ffffff" :
+
           "#fff", // Default for unknown types
         border: isSelected ? "3px solid red" : "1px solid black",
         display: "flex",

@@ -312,6 +312,41 @@
     "validono": true
   },
   {
+    "type": "Dungeon Entrance",
+    "symbol": "🕳️",
+    "layoutkey": "DIn",
+    "category": "travel",
+    "action": "travel",
+    "passable": false,
+    "qtycollected": 1,
+    "range": 2,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": true,
+    "validonl": true,
+    "validonn": true,
+    "validono": true
+  },
+  {
+    "type": "Dungeon Exit",
+    "symbol": "⬆️",
+    "layoutkey": "DOut",
+    "category": "travel",
+    "action": "travel",
+    "passable": false,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": true,
+    "validonl": true,
+    "validonn": true,
+    "validono": true
+  },
+  {
     "type": "Mountain",
     "symbol": "⛰️",
     "layoutkey": "m1",
@@ -1564,11 +1599,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 285,
-    "maxprice": 408,
+    "minprice": 263,
+    "maxprice": 376,
     "ingredient1": "Chicken Feed",
-    "ingredient1qty": 3,
-    "gemcost": 51,
+    "ingredient1qty": 2,
+    "gemcost": 47,
     "crafttime": 7200
   },
   {
@@ -1590,11 +1625,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 33,
-    "maxprice": 48,
+    "minprice": 50,
+    "maxprice": 72,
     "ingredient1": "Wheat",
     "ingredient1qty": 6,
-    "gemcost": 6,
+    "gemcost": 9,
     "crafttime": 300
   },
   {
@@ -1616,15 +1651,15 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 95,
-    "maxprice": 136,
+    "minprice": 106,
+    "maxprice": 152,
     "ingredient1": "Wheat",
     "ingredient1qty": 2,
     "ingredient2": "Corn",
     "ingredient2qty": 3,
     "ingredient3": "Carrot",
     "ingredient3qty": 2,
-    "gemcost": 17,
+    "gemcost": 19,
     "crafttime": 120
   },
   {
@@ -1646,11 +1681,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 89,
-    "maxprice": 128,
+    "minprice": 106,
+    "maxprice": 152,
     "ingredient1": "Sugarcane",
     "ingredient1qty": 4,
-    "gemcost": 16,
+    "gemcost": 19,
     "crafttime": 600
   },
   {
@@ -1672,11 +1707,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 100,
-    "maxprice": 144,
+    "minprice": 196,
+    "maxprice": 280,
     "ingredient1": "Corn",
     "ingredient1qty": 6,
-    "gemcost": 18,
+    "gemcost": 35,
     "crafttime": 28800
   },
   {
@@ -1699,11 +1734,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 112,
-    "maxprice": 160,
+    "minprice": 140,
+    "maxprice": 200,
     "ingredient1": "Wood",
     "ingredient1qty": 20,
-    "gemcost": 20,
+    "gemcost": 25,
     "crafttime": 1800
   },
   {
@@ -1717,7 +1752,7 @@
     "requires": "Husbandry",
     "qtycollected": 1,
     "xp": 2,
-    "level": 1.5,
+    "level": 1.1,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -1726,11 +1761,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 84,
-    "maxprice": 120,
+    "minprice": 79,
+    "maxprice": 114,
     "ingredient1": "Milk",
     "ingredient1qty": 2,
-    "gemcost": 10,
+    "gemcost": 13,
     "crafttime": 600
   },
   {
@@ -1744,7 +1779,7 @@
     "requires": "Husbandry",
     "qtycollected": 1,
     "xp": 2,
-    "level": 1.5,
+    "level": 1.1,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -1753,13 +1788,13 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 352,
-    "maxprice": 504,
+    "minprice": 319,
+    "maxprice": 457,
     "ingredient1": "Milk",
     "ingredient1qty": 2,
     "ingredient2": "Sugar",
     "ingredient2qty": 2,
-    "gemcost": 42,
+    "gemcost": 52,
     "crafttime": 900
   },
   {
@@ -1774,7 +1809,7 @@
     "qtycollected": 1,
     "hp": 3,
     "xp": 2,
-    "level": 1.5,
+    "level": 1.1,
     "scrollqty": 10,
     "scrollchance": "uncommon",
     "validong": true,
@@ -1785,11 +1820,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 168,
-    "maxprice": 240,
+    "minprice": 141,
+    "maxprice": 202,
     "ingredient1": "Milk",
     "ingredient1qty": 4,
-    "gemcost": 20,
+    "gemcost": 23,
     "crafttime": 600
   },
   {
@@ -1804,7 +1839,7 @@
     "qtycollected": 1,
     "hp": 5,
     "xp": 3,
-    "level": 1.5,
+    "level": 1.1,
     "scrollqty": 4,
     "scrollchance": "rare",
     "validong": true,
@@ -1815,15 +1850,15 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 1478,
-    "maxprice": 2112,
+    "minprice": 1188,
+    "maxprice": 1698,
     "ingredient1": "Milk",
     "ingredient1qty": 6,
     "ingredient2": "Pepper",
     "ingredient2qty": 8,
     "ingredient3": "Garlic",
     "ingredient3qty": 2,
-    "gemcost": 176,
+    "gemcost": 193,
     "crafttime": 28800
   },
   {
@@ -1845,11 +1880,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 67,
-    "maxprice": 96,
+    "minprice": 84,
+    "maxprice": 120,
     "ingredient1": "Wool",
     "ingredient1qty": 1,
-    "gemcost": 12,
+    "gemcost": 15,
     "crafttime": 300
   },
   {
@@ -1862,7 +1897,7 @@
     "passable": true,
     "qtycollected": 1,
     "xp": 2,
-    "level": 1.5,
+    "level": 1,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -1871,11 +1906,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 403,
-    "maxprice": 576,
+    "minprice": 285,
+    "maxprice": 408,
     "ingredient1": "Wool",
     "ingredient1qty": 4,
-    "gemcost": 48,
+    "gemcost": 51,
     "crafttime": 600
   },
   {
@@ -1889,7 +1924,7 @@
     "requires": "Textiles",
     "qtycollected": 1,
     "xp": 3,
-    "level": 1.5,
+    "level": 1.1,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -1898,15 +1933,15 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 1310,
-    "maxprice": 1872,
+    "minprice": 1078,
+    "maxprice": 1540,
     "ingredient1": "Cloth",
     "ingredient1qty": 2,
     "ingredient2": "Wool",
     "ingredient2qty": 3,
     "ingredient3": "Thread",
     "ingredient3qty": 2,
-    "gemcost": 156,
+    "gemcost": 175,
     "crafttime": 3600
   },
   {
@@ -1920,7 +1955,7 @@
     "requires": "Tailor",
     "qtycollected": 1,
     "xp": 3,
-    "level": 2,
+    "level": 1.3,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -1929,8 +1964,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 2128,
-    "maxprice": 3040,
+    "minprice": 1615,
+    "maxprice": 2308,
     "ingredient1": "Cloth",
     "ingredient1qty": 2,
     "ingredient2": "Wool",
@@ -1939,7 +1974,7 @@
     "ingredient3qty": 3,
     "ingredient4": "Pelt",
     "ingredient4qty": 2,
-    "gemcost": 190,
+    "gemcost": 222,
     "crafttime": 28800
   },
   {
@@ -1953,7 +1988,7 @@
     "requires": "Tailor",
     "qtycollected": 1,
     "xp": 3,
-    "level": 2.5,
+    "level": 1.5,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -1962,15 +1997,15 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 3682,
-    "maxprice": 5260,
+    "minprice": 2629,
+    "maxprice": 3756,
     "ingredient1": "Jacket",
     "ingredient1qty": 1,
     "ingredient2": "Thread",
     "ingredient2qty": 3,
     "ingredient3": "Bear Skin",
     "ingredient3qty": 1,
-    "gemcost": 263,
+    "gemcost": 313,
     "crafttime": 7200
   },
   {
@@ -1984,7 +2019,7 @@
     "requires": "Artistry",
     "qtycollected": 1,
     "xp": 4,
-    "level": 2.5,
+    "level": 1.5,
     "scrollqty": 1,
     "scrollchance": "rare",
     "validong": true,
@@ -1995,15 +2030,15 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 21224,
-    "maxprice": 30320,
+    "minprice": 8055,
+    "maxprice": 11508,
     "ingredient1": "Cloth",
-    "ingredient1qty": 6,
+    "ingredient1qty": 3,
     "ingredient2": "Thread",
-    "ingredient2qty": 12,
+    "ingredient2qty": 6,
     "ingredient3": "Ink",
-    "ingredient3qty": 4,
-    "gemcost": 1516,
+    "ingredient3qty": 2,
+    "gemcost": 959,
     "crafttime": 43200
   },
   {
@@ -2017,7 +2052,7 @@
     "qtycollected": 1,
     "hp": 3,
     "xp": 3,
-    "level": 1.5,
+    "level": 1.3,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2026,13 +2061,13 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 184,
-    "maxprice": 264,
+    "minprice": 291,
+    "maxprice": 416,
     "ingredient1": "Flour",
     "ingredient1qty": 2,
     "ingredient2": "Butter",
     "ingredient2qty": 1,
-    "gemcost": 22,
+    "gemcost": 40,
     "crafttime": 7200
   },
   {
@@ -2046,7 +2081,7 @@
     "qtycollected": 1,
     "hp": 5,
     "xp": 3,
-    "level": 1.5,
+    "level": 1.3,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2055,8 +2090,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 1293,
-    "maxprice": 1848,
+    "minprice": 1441,
+    "maxprice": 2059,
     "ingredient1": "Flour",
     "ingredient1qty": 1,
     "ingredient2": "Cornmeal",
@@ -2065,7 +2100,7 @@
     "ingredient3qty": 2,
     "ingredient4": "Butter",
     "ingredient4qty": 1,
-    "gemcost": 154,
+    "gemcost": 198,
     "crafttime": 14400
   },
   {
@@ -2079,7 +2114,7 @@
     "qtycollected": 1,
     "hp": 5,
     "xp": 2,
-    "level": 1.5,
+    "level": 1.3,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2088,8 +2123,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 756,
-    "maxprice": 1080,
+    "minprice": 771,
+    "maxprice": 1102,
     "ingredient1": "Apple",
     "ingredient1qty": 2,
     "ingredient2": "Flour",
@@ -2098,7 +2133,7 @@
     "ingredient3qty": 1,
     "ingredient4": "Butter",
     "ingredient4qty": 2,
-    "gemcost": 90,
+    "gemcost": 106,
     "crafttime": 1200
   },
   {
@@ -2112,7 +2147,7 @@
     "qtycollected": 1,
     "hp": 5,
     "xp": 2,
-    "level": 1.5,
+    "level": 1.3,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2121,8 +2156,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 1402,
-    "maxprice": 2004,
+    "minprice": 1456,
+    "maxprice": 2080,
     "ingredient1": "Strawberry",
     "ingredient1qty": 3,
     "ingredient2": "Flour",
@@ -2131,7 +2166,7 @@
     "ingredient3qty": 2,
     "ingredient4": "Cream",
     "ingredient4qty": 2,
-    "gemcost": 167,
+    "gemcost": 200,
     "crafttime": 1200
   },
   {
@@ -2145,7 +2180,7 @@
     "qtycollected": 1,
     "hp": 5,
     "xp": 2,
-    "level": 1.5,
+    "level": 1.3,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2154,8 +2189,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 495,
-    "maxprice": 708,
+    "minprice": 546,
+    "maxprice": 780,
     "ingredient1": "Pumpkin",
     "ingredient1qty": 1,
     "ingredient2": "Flour",
@@ -2164,7 +2199,7 @@
     "ingredient3qty": 1,
     "ingredient4": "Butter",
     "ingredient4qty": 2,
-    "gemcost": 59,
+    "gemcost": 75,
     "crafttime": 1200
   },
   {
@@ -2179,7 +2214,7 @@
     "qtycollected": 1,
     "hp": 7,
     "xp": 2,
-    "level": 1.5,
+    "level": 1.3,
     "scrollqty": 5,
     "scrollchance": "common",
     "validong": true,
@@ -2190,8 +2225,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 1898,
-    "maxprice": 2712,
+    "minprice": 1717,
+    "maxprice": 2454,
     "ingredient1": "Lemon",
     "ingredient1qty": 2,
     "ingredient2": "Flour",
@@ -2200,7 +2235,7 @@
     "ingredient3qty": 2,
     "ingredient4": "Sugar",
     "ingredient4qty": 4,
-    "gemcost": 226,
+    "gemcost": 236,
     "crafttime": 600
   },
   {
@@ -2215,7 +2250,7 @@
     "qtycollected": 1,
     "hp": 7,
     "xp": 3,
-    "level": 1.5,
+    "level": 1.3,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2224,8 +2259,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 4006,
-    "maxprice": 5724,
+    "minprice": 3523,
+    "maxprice": 5033,
     "ingredient1": "Flour",
     "ingredient1qty": 1,
     "ingredient2": "Egg",
@@ -2234,7 +2269,7 @@
     "ingredient3qty": 8,
     "ingredient4": "Rosemary",
     "ingredient4qty": 1,
-    "gemcost": 477,
+    "gemcost": 484,
     "crafttime": 14400
   },
   {
@@ -2249,7 +2284,7 @@
     "qtycollected": 1,
     "hp": 7,
     "xp": 3,
-    "level": 2.5,
+    "level": 1.5,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2258,13 +2293,13 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 1862,
-    "maxprice": 2660,
+    "minprice": 1327,
+    "maxprice": 1896,
     "ingredient1": "Bread",
     "ingredient1qty": 1,
     "ingredient2": "Garlic",
     "ingredient2qty": 3,
-    "gemcost": 133,
+    "gemcost": 158,
     "crafttime": 3600
   },
   {
@@ -2290,8 +2325,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 6305,
-    "maxprice": 9008,
+    "minprice": 6613,
+    "maxprice": 9448,
     "ingredient1": "Flour",
     "ingredient1qty": 2,
     "ingredient2": "Egg",
@@ -2300,7 +2335,7 @@
     "ingredient3qty": 4,
     "ingredient4": "Lemon Cookie",
     "ingredient4qty": 4,
-    "gemcost": 1126,
+    "gemcost": 1181,
     "crafttime": 28800
   },
   {
@@ -2314,7 +2349,7 @@
     "qtycollected": 1,
     "hp": 5,
     "xp": 2,
-    "level": 2,
+    "level": 1.1,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2323,15 +2358,15 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 492,
-    "maxprice": 704,
+    "minprice": 313,
+    "maxprice": 448,
     "ingredient1": "Corn",
     "ingredient1qty": 8,
     "ingredient2": "Milk",
     "ingredient2qty": 2,
     "ingredient3": "Butter",
     "ingredient3qty": 1,
-    "gemcost": 44,
+    "gemcost": 51,
     "crafttime": 1200
   },
   {
@@ -2345,7 +2380,7 @@
     "qtycollected": 1,
     "hp": 5,
     "xp": 2,
-    "level": 2.5,
+    "level": 1.5,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2354,8 +2389,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 4956,
-    "maxprice": 7080,
+    "minprice": 3183,
+    "maxprice": 4548,
     "ingredient1": "Carrot",
     "ingredient1qty": 6,
     "ingredient2": "Cream",
@@ -2364,7 +2399,7 @@
     "ingredient3qty": 2,
     "ingredient4": "Olive Oil",
     "ingredient4qty": 1,
-    "gemcost": 354,
+    "gemcost": 379,
     "crafttime": 2700
   },
   {
@@ -2378,7 +2413,7 @@
     "qtycollected": 1,
     "hp": 5,
     "xp": 2,
-    "level": 2.5,
+    "level": 1.5,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2387,8 +2422,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 7308,
-    "maxprice": 10440,
+    "minprice": 5056,
+    "maxprice": 7224,
     "ingredient1": "Tomato",
     "ingredient1qty": 6,
     "ingredient2": "Bread",
@@ -2397,7 +2432,7 @@
     "ingredient3qty": 1,
     "ingredient4": "Cream",
     "ingredient4qty": 3,
-    "gemcost": 522,
+    "gemcost": 602,
     "crafttime": 1800
   },
   {
@@ -2411,7 +2446,7 @@
     "qtycollected": 1,
     "hp": 5,
     "xp": 3,
-    "level": 1.5,
+    "level": 1.3,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2420,8 +2455,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 3292,
-    "maxprice": 4704,
+    "minprice": 3188,
+    "maxprice": 4555,
     "ingredient1": "Pumpkin",
     "ingredient1qty": 2,
     "ingredient2": "Carrot",
@@ -2430,7 +2465,7 @@
     "ingredient3qty": 1,
     "ingredient4": "Cream",
     "ingredient4qty": 3,
-    "gemcost": 392,
+    "gemcost": 438,
     "crafttime": 3600
   },
   {
@@ -2444,7 +2479,7 @@
     "qtycollected": 1,
     "hp": 5,
     "xp": 2,
-    "level": 1.5,
+    "level": 1.3,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2453,8 +2488,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 2864,
-    "maxprice": 4092,
+    "minprice": 2482,
+    "maxprice": 3546,
     "ingredient1": "Lettuce",
     "ingredient1qty": 4,
     "ingredient2": "Tomato",
@@ -2478,7 +2513,7 @@
     "qtycollected": 1,
     "hp": 10,
     "xp": 2,
-    "level": 2.5,
+    "level": 1.5,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2487,8 +2522,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 2520,
-    "maxprice": 3600,
+    "minprice": 1864,
+    "maxprice": 2664,
     "ingredient1": "Bacon",
     "ingredient1qty": 4,
     "ingredient2": "Lettuce",
@@ -2497,7 +2532,7 @@
     "ingredient3qty": 2,
     "ingredient4": "Bread",
     "ingredient4qty": 2,
-    "gemcost": 180,
+    "gemcost": 222,
     "crafttime": 2700
   },
   {
@@ -2512,7 +2547,7 @@
     "qtycollected": 1,
     "hp": 10,
     "xp": 2,
-    "level": 2.5,
+    "level": 1.5,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2521,8 +2556,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 7028,
-    "maxprice": 10040,
+    "minprice": 4292,
+    "maxprice": 6132,
     "ingredient1": "Egg",
     "ingredient1qty": 4,
     "ingredient2": "Cheese",
@@ -2531,7 +2566,7 @@
     "ingredient3qty": 4,
     "ingredient4": "Cream",
     "ingredient4qty": 1,
-    "gemcost": 502,
+    "gemcost": 511,
     "crafttime": 600
   },
   {
@@ -2546,7 +2581,7 @@
     "qtycollected": 1,
     "hp": 15,
     "xp": 2,
-    "level": 3,
+    "level": 1.3,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2555,8 +2590,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 6585,
-    "maxprice": 9408,
+    "minprice": 3035,
+    "maxprice": 4336,
     "ingredient1": "Wheat",
     "ingredient1qty": 4,
     "ingredient2": "Tomato",
@@ -2565,7 +2600,7 @@
     "ingredient3qty": 1,
     "ingredient4": "Cheese",
     "ingredient4qty": 4,
-    "gemcost": 392,
+    "gemcost": 417,
     "crafttime": 900
   },
   {
@@ -2580,7 +2615,7 @@
     "qtycollected": 1,
     "hp": 15,
     "xp": 3,
-    "level": 3,
+    "level": 1.3,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2589,8 +2624,8 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 4166,
-    "maxprice": 5952,
+    "minprice": 2169,
+    "maxprice": 3099,
     "ingredient1": "Potato",
     "ingredient1qty": 6,
     "ingredient2": "Butter",
@@ -2599,7 +2634,7 @@
     "ingredient3qty": 2,
     "ingredient4": "Garlic",
     "ingredient4qty": 2,
-    "gemcost": 248,
+    "gemcost": 298,
     "crafttime": 14400
   },
   {
@@ -2613,7 +2648,7 @@
     "requires": "Beekeeper",
     "qtycollected": 1,
     "xp": 5,
-    "level": 3,
+    "level": 1.3,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2622,11 +2657,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 168,
-    "maxprice": 240,
+    "minprice": 268,
+    "maxprice": 384,
     "ingredient1": "Money",
     "ingredient1qty": 75,
-    "gemcost": 10,
+    "gemcost": 37,
     "crafttime": 86400
   },
   {
@@ -2640,7 +2675,7 @@
     "requires": "Winemaker",
     "qtycollected": 1,
     "xp": 3,
-    "level": 2,
+    "level": 1.3,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -2649,13 +2684,13 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 2251,
-    "maxprice": 3216,
+    "minprice": 1586,
+    "maxprice": 2267,
     "ingredient1": "Grapes",
     "ingredient1qty": 10,
     "ingredient2": "Wood",
     "ingredient2qty": 1,
-    "gemcost": 201,
+    "gemcost": 218,
     "crafttime": 28800
   },
   {
@@ -2669,7 +2704,7 @@
     "requires": "Winemaker",
     "qtycollected": 1,
     "xp": 3,
-    "level": 2.5,
+    "level": 1.5,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2678,15 +2713,15 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 2954,
-    "maxprice": 4220,
+    "minprice": 2058,
+    "maxprice": 2940,
     "ingredient1": "Grapes",
     "ingredient1qty": 10,
     "ingredient2": "Honey",
     "ingredient2qty": 1,
     "ingredient3": "Wood",
     "ingredient3qty": 1,
-    "gemcost": 211,
+    "gemcost": 245,
     "crafttime": 3600
   },
   {
@@ -2699,7 +2734,7 @@
     "passable": true,
     "qtycollected": 1,
     "xp": 3,
-    "level": 1.5,
+    "level": 1.1,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2708,11 +2743,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 1848,
-    "maxprice": 2640,
+    "minprice": 1410,
+    "maxprice": 2015,
     "ingredient1": "Olive",
     "ingredient1qty": 5,
-    "gemcost": 220,
+    "gemcost": 229,
     "crafttime": 7200
   },
   {
@@ -2725,7 +2760,7 @@
     "passable": true,
     "qtycollected": 1,
     "xp": 5,
-    "level": 1.5,
+    "level": 1.1,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2734,11 +2769,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 2419,
-    "maxprice": 3456,
+    "minprice": 2002,
+    "maxprice": 2860,
     "ingredient1": "Apple",
     "ingredient1qty": 12,
-    "gemcost": 288,
+    "gemcost": 325,
     "crafttime": 172800
   },
   {
@@ -2752,7 +2787,7 @@
     "requires": "Winemaker",
     "qtycollected": 1,
     "xp": 4,
-    "level": 2,
+    "level": 1.3,
     "scrollqty": 12,
     "scrollchance": "uncommon",
     "validong": true,
@@ -2763,15 +2798,15 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 3864,
-    "maxprice": 5520,
+    "minprice": 3028,
+    "maxprice": 4326,
     "ingredient1": "Orange",
     "ingredient1qty": 12,
     "ingredient2": "Honey",
     "ingredient2qty": 2,
     "ingredient3": "Wood",
     "ingredient3qty": 1,
-    "gemcost": 345,
+    "gemcost": 416,
     "crafttime": 28800
   },
   {
@@ -2785,7 +2820,7 @@
     "requires": "Winemaker",
     "qtycollected": 6,
     "xp": 5,
-    "level": 2,
+    "level": 1.7,
     "scrollqty": 6,
     "scrollchance": "rare",
     "validong": true,
@@ -2796,13 +2831,13 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 13518,
-    "maxprice": 19312,
+    "minprice": 6426,
+    "maxprice": 9180,
     "ingredient1": "Wine",
-    "ingredient1qty": 6,
+    "ingredient1qty": 3,
     "ingredient2": "Wood",
     "ingredient2qty": 1,
-    "gemcost": 1207,
+    "gemcost": 675,
     "crafttime": 43200
   },
   {
@@ -2815,7 +2850,7 @@
     "passable": true,
     "qtycollected": 1,
     "xp": 2,
-    "level": 1.5,
+    "level": 1.1,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2824,11 +2859,11 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 378,
-    "maxprice": 540,
+    "minprice": 313,
+    "maxprice": 448,
     "ingredient1": "Clay",
     "ingredient1qty": 3,
-    "gemcost": 45,
+    "gemcost": 51,
     "crafttime": 2700
   },
   {
@@ -2842,7 +2877,7 @@
     "requires": "Artistry",
     "qtycollected": 1,
     "xp": 3,
-    "level": 2.5,
+    "level": 1.1,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2851,15 +2886,15 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 1568,
-    "maxprice": 2240,
+    "minprice": 929,
+    "maxprice": 1328,
     "ingredient1": "Lumber",
     "ingredient1qty": 2,
     "ingredient2": "Cloth",
     "ingredient2qty": 1,
     "ingredient3": "Thread",
     "ingredient3qty": 2,
-    "gemcost": 112,
+    "gemcost": 151,
     "crafttime": 43200
   },
   {
@@ -2872,7 +2907,7 @@
     "passable": true,
     "qtycollected": 1,
     "xp": 3,
-    "level": 2,
+    "level": 1,
     "scrollqty": 2,
     "scrollchance": "common",
     "validong": true,
@@ -2883,15 +2918,15 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 3035,
-    "maxprice": 4336,
+    "minprice": 1948,
+    "maxprice": 2784,
     "ingredient1": "Egg",
     "ingredient1qty": 4,
     "ingredient2": "Honey",
     "ingredient2qty": 3,
     "ingredient3": "Tulip",
     "ingredient3qty": 1,
-    "gemcost": 271,
+    "gemcost": 348,
     "crafttime": 14400
   },
   {
@@ -2905,7 +2940,7 @@
     "requires": "Artistry",
     "qtycollected": 1,
     "xp": 2,
-    "level": 2.5,
+    "level": 1.5,
     "validong": true,
     "validond": true,
     "validons": false,
@@ -2914,15 +2949,15 @@
     "validonl": false,
     "validonn": false,
     "validono": true,
-    "minprice": 7154,
-    "maxprice": 10220,
+    "minprice": 5216,
+    "maxprice": 7452,
     "ingredient1": "Pottery",
     "ingredient1qty": 4,
     "ingredient2": "Clay",
     "ingredient2qty": 4,
     "ingredient3": "Ink",
     "ingredient3qty": 1,
-    "gemcost": 511,
+    "gemcost": 621,
     "crafttime": 7200
   },
   {
@@ -3218,15 +3253,15 @@
     "validonl": false,
     "validonn": true,
     "validono": true,
-    "minprice": 74,
-    "maxprice": 106,
+    "minprice": 64,
+    "maxprice": 92,
     "ingredient1": "Rosemary",
-    "ingredient1qty": 6,
+    "ingredient1qty": 3,
     "ingredient2": "Daisy",
     "ingredient2qty": 2,
     "ingredient3": "Milk",
     "ingredient3qty": 24,
-    "gemcost": 266,
+    "gemcost": 232,
     "crafttime": 28800
   },
   {
@@ -3250,8 +3285,8 @@
     "validonl": false,
     "validonn": true,
     "validono": true,
-    "minprice": 155,
-    "maxprice": 222,
+    "minprice": 151,
+    "maxprice": 217,
     "ingredient1": "Potion A",
     "ingredient1qty": 1,
     "ingredient2": "Mushroom",
@@ -3260,7 +3295,7 @@
     "ingredient3qty": 4,
     "ingredient4": "Garlic",
     "ingredient4qty": 2,
-    "gemcost": 556,
+    "gemcost": 544,
     "crafttime": 57600
   },
   {
@@ -3284,8 +3319,8 @@
     "validonl": false,
     "validonn": true,
     "validono": true,
-    "minprice": 405,
-    "maxprice": 579,
+    "minprice": 454,
+    "maxprice": 649,
     "ingredient1": "Potion B",
     "ingredient1qty": 1,
     "ingredient2": "Sunflower",
@@ -3294,7 +3329,7 @@
     "ingredient3qty": 2,
     "ingredient4": "Feverfew",
     "ingredient4qty": 1,
-    "gemcost": 1449,
+    "gemcost": 1623,
     "crafttime": 129600
   },
   {
@@ -3319,11 +3354,11 @@
     "validonl": false,
     "validonn": true,
     "validono": true,
-    "minprice": 35,
-    "maxprice": 50,
+    "minprice": 40,
+    "maxprice": 58,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
-    "gemcost": 125,
+    "gemcost": 145,
     "crafttime": 43200
   },
   {
@@ -3394,9 +3429,11 @@
     "validonl": false,
     "validonn": true,
     "validono": true,
-    "minprice": 1260,
-    "maxprice": 1800,
-    "gemcost": 75,
+    "minprice": 3360,
+    "maxprice": 4800,
+    "ingredient1": "Money",
+    "ingredient1qty": 1000,
+    "gemcost": 200,
     "crafttime": 864000
   },
   {
@@ -3406,7 +3443,7 @@
     "category": "doober",
     "action": "collect",
     "passable": true,
-    "qtycollected": 5,
+    "qtycollected": 1,
     "xp": 5,
     "level": 3,
     "scrollqty": 15,
@@ -3419,10 +3456,12 @@
     "validonl": false,
     "validonn": true,
     "validono": true,
-    "minprice": 621,
-    "maxprice": 888,
-    "gemcost": 37,
-    "crafttime": 172800
+    "minprice": 3360,
+    "maxprice": 4800,
+    "ingredient1": "Money",
+    "ingredient1qty": 1000,
+    "gemcost": 200,
+    "crafttime": 864000
   },
   {
     "type": "Gold",
@@ -3444,9 +3483,11 @@
     "validonl": false,
     "validonn": true,
     "validono": true,
-    "minprice": 2016,
-    "maxprice": 2880,
-    "gemcost": 90,
+    "minprice": 4816,
+    "maxprice": 6880,
+    "ingredient1": "Money",
+    "ingredient1qty": 1000,
+    "gemcost": 215,
     "crafttime": 1296000
   },
   {
@@ -3469,9 +3510,11 @@
     "validonl": false,
     "validonn": true,
     "validono": true,
-    "minprice": 2856,
-    "maxprice": 4080,
-    "gemcost": 102,
+    "minprice": 6356,
+    "maxprice": 9080,
+    "ingredient1": "Money",
+    "ingredient1qty": 1000,
+    "gemcost": 227,
     "crafttime": 1728000
   },
   {
@@ -3506,6 +3549,7 @@
     "category": "doober",
     "action": "collect",
     "output": "noBank",
+    "source": "Duke Angelo",
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
@@ -3556,19 +3600,12 @@
     "category": "doober",
     "action": "collect",
     "output": "noBank",
+    "source": "Cassio",
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
     "xp": 5,
     "level": 0.5,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
     "minprice": 2,
     "maxprice": 4,
     "gemcost": 1,
@@ -3581,23 +3618,30 @@
     "category": "doober",
     "action": "collect",
     "output": "noBank",
+    "source": "Helena",
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
     "xp": 5,
     "level": 1,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
     "minprice": 5,
     "maxprice": 8,
     "gemcost": 1,
     "crafttime": 10
+  },
+  {
+    "type": "Mirror Key",
+    "symbol": "🪞",
+    "layoutkey": "Mky",
+    "category": "doober",
+    "action": "collect",
+    "output": "noBank",
+    "source": "Leontes",
+    "passable": true,
+    "repeatable": false,
+    "qtycollected": 1,
+    "xp": 5,
+    "level": 1
   },
   {
     "type": "Phoenix Feather",
@@ -3631,6 +3675,7 @@
     "category": "doober",
     "action": "collect",
     "output": "noBank",
+    "source": "Iago",
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
@@ -3656,6 +3701,7 @@
     "category": "doober",
     "action": "collect",
     "output": "noBank",
+    "source": "Prospero",
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
@@ -3673,6 +3719,7 @@
     "category": "doober",
     "action": "collect",
     "output": "noBank",
+    "source": "Vampire",
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
@@ -3690,6 +3737,7 @@
     "category": "special",
     "action": "collect",
     "output": "noBank",
+    "source": "Portia",
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
@@ -3702,6 +3750,7 @@
     "category": "special",
     "action": "collect",
     "output": "noBank",
+    "source": "Oracle",
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
@@ -3828,8 +3877,8 @@
     "ingredient1qty": 200,
     "ingredient2": "Cloth",
     "ingredient2qty": 2,
-    "gemcost": 121,
-    "crafttime": 0
+    "gemcost": 128,
+    "crafttime": 3
   },
   {
     "type": "Boat",
@@ -3852,8 +3901,8 @@
     "validono": true,
     "ingredient1": "Money",
     "ingredient1qty": 1000000,
-    "gemcost": 125000,
-    "crafttime": 0
+    "gemcost": 125001,
+    "crafttime": 3
   },
   {
     "type": "Town Door",
@@ -4377,7 +4426,7 @@
     "ingredient2qty": 10,
     "ingredient3": "Gem",
     "ingredient3qty": 3,
-    "gemcost": 1745,
+    "gemcost": 2135,
     "crafttime": 0
   },
   {
@@ -4408,7 +4457,7 @@
     "ingredient3qty": 50,
     "ingredient4": "Gem",
     "ingredient4qty": 3,
-    "gemcost": 2170,
+    "gemcost": 2560,
     "crafttime": 0
   },
   {
@@ -4440,7 +4489,7 @@
     "ingredient3qty": 50,
     "ingredient4": "Gem",
     "ingredient4qty": 3,
-    "gemcost": 2100,
+    "gemcost": 2300,
     "crafttime": 0
   },
   {
@@ -4686,7 +4735,7 @@
     "ingredient2qty": 40,
     "ingredient3": "Clay",
     "ingredient3qty": 80,
-    "gemcost": 2750,
+    "gemcost": 2950,
     "crafttime": 0
   },
   {
@@ -4716,7 +4765,7 @@
     "ingredient3qty": 60,
     "ingredient4": "Clay",
     "ingredient4qty": 120,
-    "gemcost": 4060,
+    "gemcost": 4360,
     "crafttime": 0
   },
   {
@@ -4744,7 +4793,7 @@
     "growtime": 1800,
     "ingredient1": "Money",
     "ingredient1qty": 500,
-    "gemcost": 63,
+    "gemcost": 68,
     "crafttime": 1800
   },
   {
@@ -4772,7 +4821,7 @@
     "growtime": 14400,
     "ingredient1": "Money",
     "ingredient1qty": 1500,
-    "gemcost": 188,
+    "gemcost": 200,
     "crafttime": 14400
   },
   {
@@ -4800,7 +4849,7 @@
     "growtime": 28800,
     "ingredient1": "Money",
     "ingredient1qty": 3000,
-    "gemcost": 375,
+    "gemcost": 392,
     "crafttime": 28800
   },
   {
@@ -4828,7 +4877,7 @@
     "growtime": 28800,
     "ingredient1": "Potion B",
     "ingredient1qty": 6,
-    "gemcost": 3336,
+    "gemcost": 3291,
     "crafttime": 86400
   },
   {
@@ -4856,7 +4905,7 @@
     "growtime": 28800,
     "ingredient1": "Potion C",
     "ingredient1qty": 3,
-    "gemcost": 4347,
+    "gemcost": 4896,
     "crafttime": 86400
   },
   {
@@ -4884,7 +4933,7 @@
     "validono": true,
     "ingredient1": "Money",
     "ingredient1qty": 50,
-    "gemcost": 7,
+    "gemcost": 24,
     "crafttime": 28800
   },
   {
@@ -4912,7 +4961,7 @@
     "validono": true,
     "ingredient1": "Money",
     "ingredient1qty": 150,
-    "gemcost": 19,
+    "gemcost": 39,
     "crafttime": 43200
   },
   {
@@ -4961,7 +5010,7 @@
     "validono": true,
     "ingredient1": "Feverfew",
     "ingredient1qty": 1,
-    "gemcost": 27,
+    "gemcost": 54,
     "crafttime": 86400
   },
   {
@@ -4987,7 +5036,7 @@
     "validono": false,
     "ingredient1": "Money",
     "ingredient1qty": 10,
-    "gemcost": 2,
+    "gemcost": 3,
     "crafttime": 3
   },
   {
@@ -5031,7 +5080,7 @@
     "validono": false,
     "ingredient1": "Money",
     "ingredient1qty": 300,
-    "gemcost": 38,
+    "gemcost": 39,
     "crafttime": 3
   },
   {
@@ -5205,7 +5254,15 @@
     "passable": false,
     "qtycollected": 1,
     "xp": 3,
-    "level": 1
+    "level": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true
   },
   {
     "type": "Falstaff",
@@ -5421,7 +5478,7 @@
     "validono": false,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
-    "gemcost": 1250,
+    "gemcost": 1255,
     "crafttime": 1800
   },
   {
@@ -5447,7 +5504,7 @@
     "validono": false,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
-    "gemcost": 1250,
+    "gemcost": 1262,
     "crafttime": 14400
   },
   {
@@ -5473,7 +5530,7 @@
     "validono": false,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
-    "gemcost": 1250,
+    "gemcost": 1267,
     "crafttime": 28800
   },
   {
@@ -5499,7 +5556,7 @@
     "validono": false,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
-    "gemcost": 1250,
+    "gemcost": 1272,
     "crafttime": 57600
   },
   {
@@ -6240,7 +6297,7 @@
     "ingredient1qty": 25000,
     "ingredient2": "Potion A",
     "ingredient2qty": 5,
-    "gemcost": 4455
+    "gemcost": 4285
   },
   {
     "type": "Artistry",
@@ -6255,7 +6312,7 @@
     "ingredient1qty": 40000,
     "ingredient3": "Potion B",
     "ingredient3qty": 5,
-    "gemcost": 7780
+    "gemcost": 7720
   },
   {
     "type": "Beekeeper",
@@ -6270,7 +6327,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
     "ingredient4qty": 20,
-    "gemcost": 29043
+    "gemcost": 32523
   },
   {
     "type": "Tailor",
@@ -6285,7 +6342,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
     "ingredient4qty": 100,
-    "gemcost": 144963
+    "gemcost": 162363
   },
   {
     "type": "Politics",
@@ -6341,7 +6398,7 @@
     "ingredient1qty": 12000,
     "ingredient2": "Potion A",
     "ingredient2qty": 1,
-    "gemcost": 1766
+    "gemcost": 1732
   },
   {
     "type": "Cooking",
@@ -6356,7 +6413,7 @@
     "ingredient1qty": 12000,
     "ingredient2": "Potion A",
     "ingredient2qty": 5,
-    "gemcost": 2830
+    "gemcost": 2660
   },
   {
     "type": "Creamery",
@@ -6373,7 +6430,7 @@
     "ingredient2qty": 5,
     "ingredient3": "Potion B",
     "ingredient3qty": 1,
-    "gemcost": 3386
+    "gemcost": 3204
   },
   {
     "type": "Baker",
@@ -6388,7 +6445,7 @@
     "ingredient1qty": 15000,
     "ingredient3": "Potion B",
     "ingredient3qty": 5,
-    "gemcost": 4655
+    "gemcost": 4595
   },
   {
     "type": "Winemaker",
@@ -6403,7 +6460,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
     "ingredient4qty": 5,
-    "gemcost": 7308
+    "gemcost": 8178
   },
   {
     "type": "Miller",
@@ -6422,7 +6479,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 19225
+    "gemcost": 20735
   },
   {
     "type": "Artisan",
@@ -6441,7 +6498,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 19225
+    "gemcost": 20735
   },
   {
     "type": "Cuisinier",
@@ -6460,7 +6517,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 20555
+    "gemcost": 21895
   },
   {
     "type": "Weaver",
@@ -6479,7 +6536,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 19225
+    "gemcost": 20735
   },
   {
     "type": "Fowler",
@@ -6498,7 +6555,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 19225
+    "gemcost": 20735
   },
   {
     "type": "Fromager",
@@ -6517,7 +6574,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 21885
+    "gemcost": 23055
   },
   {
     "type": "Virtuose Culinaire",
@@ -6536,7 +6593,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
     "ingredient4qty": 15,
-    "gemcost": 29875
+    "gemcost": 32195
   },
   {
     "type": "Apiarch",
@@ -6555,7 +6612,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
     "ingredient4qty": 20,
-    "gemcost": 37120
+    "gemcost": 40310
   },
   {
     "type": "Vintner",
@@ -6574,7 +6631,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
     "ingredient4qty": 25,
-    "gemcost": 46945
+    "gemcost": 50835
   },
   {
     "type": "Law",
@@ -6634,7 +6691,7 @@
     "ingredient1qty": 50,
     "ingredient2": "Cloth",
     "ingredient2qty": 1,
-    "gemcost": 55
+    "gemcost": 58
   },
   {
     "type": "Rucksack",
@@ -6652,7 +6709,7 @@
     "ingredient2qty": 10,
     "ingredient3": "Thread",
     "ingredient3qty": 1,
-    "gemcost": 2992
+    "gemcost": 3025
   },
   {
     "type": "Side Pack",
@@ -6686,7 +6743,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Book",
     "ingredient4qty": 5,
-    "gemcost": 6105
+    "gemcost": 6235
   },
   {
     "type": "Horse",
@@ -6741,7 +6798,7 @@
     "ingredient1qty": 7000,
     "ingredient2": "Cloth",
     "ingredient2qty": 10,
-    "gemcost": 1355
+    "gemcost": 1385
   },
   {
     "type": "Light Armor",
@@ -6773,7 +6830,7 @@
     "ingredient1qty": 5000,
     "ingredient4": "Book",
     "ingredient4qty": 6,
-    "gemcost": 1375
+    "gemcost": 1495
   },
   {
     "type": "Plate Armor",
@@ -6791,7 +6848,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Book",
     "ingredient4qty": 12,
-    "gemcost": 1933
+    "gemcost": 3803
   },
   {
     "type": "Heavy Armor",
@@ -6803,13 +6860,14 @@
     "requires": "Padding",
     "level": 25,
     "armorclass": 15,
+    "speed": 1,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "ingredient3": "Silver",
     "ingredient3qty": 10,
     "ingredient4": "Book",
     "ingredient4qty": 40,
-    "gemcost": 5495
+    "gemcost": 7925
   },
   {
     "type": "Mystic Armor",
@@ -6858,7 +6916,7 @@
     "ingredient3qty": 1,
     "ingredient4": "Book",
     "ingredient4qty": 50,
-    "gemcost": 8304
+    "gemcost": 9508
   },
   {
     "type": "Magic Helmet",
@@ -6883,6 +6941,7 @@
     "scrollqty": 1,
     "scrollchance": "legendary",
     "armorclass": 2,
+    "speed": -1,
     "ingredient1": "Only Found in Scrolls",
     "ingredient1qty": 1
   },
@@ -6906,6 +6965,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 1,
     "level": 1,
     "damage": 1,
     "ingredient1": "Money",
@@ -6919,6 +6979,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 1,
     "level": 10,
     "damage": 7,
     "attackrange": 1,
@@ -6933,6 +6994,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 1,
     "level": 15,
     "damage": 15,
     "attackrange": 2,
@@ -6940,7 +7002,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Book",
     "ingredient4qty": 1,
-    "gemcost": 188
+    "gemcost": 208
   },
   {
     "type": "Great Sword",
@@ -6949,6 +7011,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 2,
     "level": 20,
     "damage": 18,
     "attackrange": 2,
@@ -6956,7 +7019,7 @@
     "ingredient1qty": 1000,
     "ingredient4": "Book",
     "ingredient4qty": 10,
-    "gemcost": 1375
+    "gemcost": 1575
   },
   {
     "type": "Halberd",
@@ -6965,6 +7028,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 2,
     "level": 25,
     "damage": 15,
     "attackrange": 3,
@@ -6972,7 +7036,7 @@
     "ingredient1qty": 2000,
     "ingredient4": "Book",
     "ingredient4qty": 50,
-    "gemcost": 6500
+    "gemcost": 7500
   },
   {
     "type": "Sword of Song",
@@ -6981,6 +7045,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 2,
     "level": 50,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -6997,6 +7062,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 2,
     "level": 50,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -7012,6 +7078,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 2,
     "level": 75,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -7029,6 +7096,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 2,
     "level": 75,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -7046,6 +7114,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 2,
     "level": 100,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -7063,6 +7132,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 2,
     "level": 120,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -7080,6 +7150,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 1,
     "level": 10,
     "damage": 4,
     "attackrange": 4,
@@ -7094,6 +7165,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 2,
     "level": 15,
     "damage": 5,
     "attackbonus": 2,
@@ -7109,6 +7181,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 2,
     "level": 20,
     "damage": 6,
     "attackbonus": 1,
@@ -7117,7 +7190,7 @@
     "ingredient1qty": 9000,
     "ingredient4": "Book",
     "ingredient4qty": 3,
-    "gemcost": 1500
+    "gemcost": 1560
   },
   {
     "type": "Spear",
@@ -7126,6 +7199,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 1,
     "level": 25,
     "damage": 6,
     "attackbonus": 1,
@@ -7134,7 +7208,7 @@
     "ingredient1qty": 1000,
     "ingredient4": "Book",
     "ingredient4qty": 12,
-    "gemcost": 1625
+    "gemcost": 1865
   },
   {
     "type": "Crossbow",
@@ -7143,6 +7217,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 1,
     "level": 25,
     "damage": 10,
     "attackbonus": 3,
@@ -7151,7 +7226,7 @@
     "ingredient1qty": 2000,
     "ingredient4": "Book",
     "ingredient4qty": 50,
-    "gemcost": 6500
+    "gemcost": 7500
   },
   {
     "type": "Magic Spear",
@@ -7160,6 +7235,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 1,
     "level": 30,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -7176,6 +7252,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 2,
     "level": 40,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -7192,6 +7269,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 2,
     "level": 100,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -7209,6 +7287,7 @@
     "category": "power",
     "source": "Warrior's Den",
     "passable": true,
+    "hp": 2,
     "level": 150,
     "scrollqty": 1,
     "scrollchance": "legendary",
@@ -7232,7 +7311,7 @@
     "ingredient1qty": 1000,
     "ingredient4": "Book",
     "ingredient4qty": 12,
-    "gemcost": 1625
+    "gemcost": 1865
   },
   {
     "type": "Maelstrom",
@@ -7249,7 +7328,7 @@
     "ingredient1qty": 10000,
     "ingredient4": "Book",
     "ingredient4qty": 20,
-    "gemcost": 3750
+    "gemcost": 4150
   },
   {
     "type": "Oblivion",
@@ -7266,7 +7345,7 @@
     "ingredient1qty": 10000,
     "ingredient4": "Book",
     "ingredient4qty": 50,
-    "gemcost": 7500
+    "gemcost": 8500
   },
   {
     "type": "Titan",
@@ -7283,7 +7362,7 @@
     "ingredient1qty": 25000,
     "ingredient4": "Book",
     "ingredient4qty": 200,
-    "gemcost": 28125
+    "gemcost": 32125
   },
   {
     "type": "Jab",
@@ -7310,7 +7389,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Book",
     "ingredient4qty": 2,
-    "gemcost": 313
+    "gemcost": 353
   },
   {
     "type": "Barrage",
@@ -7327,7 +7406,7 @@
     "ingredient1qty": 10000,
     "ingredient4": "Book",
     "ingredient4qty": 15,
-    "gemcost": 3125
+    "gemcost": 3425
   },
   {
     "type": "Steady Hand",
@@ -7354,7 +7433,7 @@
     "ingredient1qty": 1000,
     "ingredient4": "Book",
     "ingredient4qty": 8,
-    "gemcost": 1125
+    "gemcost": 1285
   },
   {
     "type": "Unerring",
@@ -7371,7 +7450,7 @@
     "ingredient1qty": 10000,
     "ingredient4": "Book",
     "ingredient4qty": 15,
-    "gemcost": 3125
+    "gemcost": 3425
   },
   {
     "type": "Focus",
@@ -7398,7 +7477,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Book",
     "ingredient4qty": 20,
-    "gemcost": 2563
+    "gemcost": 2963
   },
   {
     "type": "Horizon Eye",
@@ -7415,7 +7494,7 @@
     "ingredient1qty": 1000,
     "ingredient4": "Book",
     "ingredient4qty": 125,
-    "gemcost": 15750
+    "gemcost": 18250
   },
   {
     "type": "Fortitude",
@@ -7445,7 +7524,7 @@
     "ingredient1qty": 2000,
     "ingredient4": "Book",
     "ingredient4qty": 12,
-    "gemcost": 1750
+    "gemcost": 1990
   },
   {
     "type": "Unbreakable",
@@ -7460,7 +7539,7 @@
     "ingredient1qty": 10000,
     "ingredient4": "Book",
     "ingredient4qty": 25,
-    "gemcost": 4375
+    "gemcost": 4875
   },
   {
     "type": "Cat",
@@ -7478,7 +7557,7 @@
     "range": 1,
     "ingredient1": "Yellow Heart",
     "ingredient1qty": 8,
-    "gemcost": 216,
+    "gemcost": 233,
     "crafttime": 28800
   },
   {
@@ -7497,7 +7576,7 @@
     "range": 1,
     "ingredient1": "Yellow Heart",
     "ingredient1qty": 12,
-    "gemcost": 324,
+    "gemcost": 344,
     "crafttime": 43200
   },
   {
@@ -7516,7 +7595,7 @@
     "range": 1,
     "ingredient1": "Yellow Heart",
     "ingredient1qty": 15,
-    "gemcost": 405,
+    "gemcost": 425,
     "crafttime": 43200
   },
   {
@@ -7535,7 +7614,7 @@
     "range": 1,
     "ingredient1": "Yellow Heart",
     "ingredient1qty": 18,
-    "gemcost": 486,
+    "gemcost": 507,
     "crafttime": 50400
   },
   {
@@ -7556,7 +7635,7 @@
     "ingredient1qty": 6,
     "ingredient2": "Green Heart",
     "ingredient2qty": 8,
-    "gemcost": 514,
+    "gemcost": 536,
     "crafttime": 57600
   },
   {
@@ -7577,7 +7656,7 @@
     "ingredient1qty": 8,
     "ingredient2": "Green Heart",
     "ingredient2qty": 12,
-    "gemcost": 744,
+    "gemcost": 766,
     "crafttime": 57600
   },
   {
@@ -7598,7 +7677,7 @@
     "ingredient1qty": 10,
     "ingredient2": "Green Heart",
     "ingredient2qty": 16,
-    "gemcost": 974,
+    "gemcost": 998,
     "crafttime": 64800
   },
   {
@@ -7619,7 +7698,7 @@
     "ingredient1qty": 12,
     "ingredient2": "Green Heart",
     "ingredient2qty": 20,
-    "gemcost": 1204,
+    "gemcost": 1228,
     "crafttime": 64800
   },
   {
@@ -7642,7 +7721,7 @@
     "ingredient2qty": 12,
     "ingredient3": "Purple Heart",
     "ingredient3qty": 11,
-    "gemcost": 1457,
+    "gemcost": 1484,
     "crafttime": 86400
   },
   {
@@ -7665,7 +7744,7 @@
     "ingredient2qty": 16,
     "ingredient3": "Purple Heart",
     "ingredient3qty": 21,
-    "gemcost": 2291,
+    "gemcost": 2318,
     "crafttime": 86400
   },
   {
@@ -7688,7 +7767,7 @@
     "ingredient2qty": 22,
     "ingredient3": "Purple Heart",
     "ingredient3qty": 28,
-    "gemcost": 3048,
+    "gemcost": 3075,
     "crafttime": 86400
   },
   {
@@ -7711,7 +7790,7 @@
     "ingredient2qty": 28,
     "ingredient3": "Purple Heart",
     "ingredient3qty": 40,
-    "gemcost": 4107,
+    "gemcost": 4144,
     "crafttime": 172800
   },
   {
@@ -7758,7 +7837,7 @@
     "ingredient2qty": 20,
     "ingredient3": "Ink",
     "ingredient3qty": 2,
-    "gemcost": 1407
+    "gemcost": 1621
   },
   {
     "type": "Stone Wall",

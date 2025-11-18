@@ -1,11 +1,11 @@
 [
-    ["homesteadSetNW", "homesteadSetN", "homesteadSetN", "homesteadSetN", "homesteadSetN", "homesteadSetN", "homesteadSetN", "homesteadSetNE"],
+    ["dungeonSet", "homesteadSetN", "homesteadSetN", "homesteadSetN", "homesteadSetN", "homesteadSetN", "homesteadSetN", "dungeonSet"],
     ["homesteadSetW", "valley0Set", "valley1Set", "valley1Set", "valley1Set", "valley1Set", "valley1Set", "homesteadSetE"],
     ["homesteadSetW", "valley1Set", "valley2Set", "valley2Set", "valley2Set", "valley2Set", "valley1Set", "homesteadSetE"],
     ["homesteadSetW", "valley1Set", "valley2Set", "valley3Set", "valley3Set", "valley2Set", "valley1Set", "homesteadSetE"],
     ["homesteadSetW", "valley1Set", "valley2Set", "valley3Set", "valley3Set", "valley2Set", "valley1Set", "homesteadSetE"],
     ["homesteadSetW", "valley1Set", "valley2Set", "valley2Set", "valley2Set", "valley2Set", "valley1Set", "homesteadSetE"],
     ["homesteadSetW", "valley1Set", "valley1Set", "valley1Set", "valley1Set", "valley1Set", "valley1Set", "homesteadSetE"],
-    ["homesteadSetSW", "homesteadSetS", "homesteadSetS", "homesteadSetS", "homesteadSetS", "homesteadSetS", "homesteadSetS", "homesteadSetSE"]
+    ["dungeonSet", "homesteadSetS", "homesteadSetS", "homesteadSetS", "homesteadSetS", "homesteadSetS", "homesteadSetS", "dungeonSet"]
   ]
   

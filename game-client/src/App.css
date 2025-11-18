@@ -422,12 +422,14 @@ body {
 .tile-w,  /* water */
 .tile-l,  /* lava */
 .tile.p,  /* pavement */
-.tile-n   /* sand */
-.tile-o   /* snow */
+.tile-n,   /* sand */
+.tile-o,  /* snow */
+.tile-x,  /* cobblestone */
+.tile-y,  /* dungeon */
+.tile-z  /* tbd */
 {
   width: 100%;
   height: 100%;
   position: absolute;
 }
-
 

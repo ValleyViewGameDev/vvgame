@@ -35,10 +35,11 @@ const GridEditor = ({ activePanel }) => {
   const [selectedResource, setSelectedResource] = useState(null);
   const [availableNpcs, setAvailableNpcs] = useState([]); // ✅ Store available NPCs
   const [availableMiniTemplates, setAvailableMiniTemplates] = useState([]); // Store available mini templates
-  const [tileDistribution, setTileDistribution] = useState({ g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0 });
+  const [tileDistribution, setTileDistribution] = useState({ g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, x: 0, y:0, z:0 }); // Track tile type distribution
   const [resourceDistribution, setResourceDistribution] = useState({});
   const [enemyDistribution, setEnemyDistribution] = useState({}); // Track enemy distribution
-  const tileColors = { g: "#3dc43d", s: "#8b989c", d: "#c0834a", w: "#58cad8", p: "#dab965", l: "#c4583d", n: "#f4e4bc" };
+  const tileColors = { g: "#3dc43d", s: "#8b989c", d: "#c0834a", w: "#58cad8", p: "#dab965", l: "#c4583d", n: "#f4e4bc", x: "#797e85ff", y: "#000000ff",  z: "#ffffff" };
+
   const [copiedResource, setCopiedResource] = useState(null); // Holds copied resource
   const [currentGridType, setCurrentGridType] = useState(''); // Track current grid's type
   const [selectedTileTypes, setSelectedTileTypes] = useState({ g: true, s: true, d: true, w: true, p: true, l: true, n: true }); // For selective tile deletion
@@ -1190,7 +1191,10 @@ const handleDeleteSelectedTiles = () => {
     'w': 'WA',  // water
     'p': 'PA',  // pavement
     'l': 'LV',  // lava
-    'n': 'SA'   // sand
+    'n': 'SA',  // sand
+    'x': 'CB',  // cobblestone
+    'y': 'DU',  // dungeon
+    'z': "ZZ"   // zzz (special)
   };
   
   const layoutKeysToDelete = selectedTypes.map(type => typeMapping[type] || type);
