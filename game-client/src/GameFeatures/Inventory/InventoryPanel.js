@@ -449,21 +449,25 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
 
             {/* BACKPACK */}
 
-            <h3>{strings[182]}</h3>
+            <div className="inventory-section-header">
+                <h3>{strings[182]}</h3>
+                {hasBackpackSkill && (
+                    <div className="capacity-info">
+                        {calculateTotalQuantity(backpack)} / {" "}
+                        <span style={currentPlayer?.accountStatus === "Gold" ? {color: "#B8860B"} : {}}>
+                            {finalCapacities.backpack}
+                        </span>
+                    </div>
+                )}
+            </div>
 
             {hasBackpackSkill ? (
               <>
-                <div className="capacity-display">
-                    {strings[183]} {calculateTotalQuantity(backpack)}/
-                    <span style={currentPlayer?.accountStatus === "Gold" ? {color: "#B8860B"} : {}}>
-                        {finalCapacities.backpack}
-                    </span>
-                    {currentPlayer?.accountStatus === "Gold" && (
-                        <div style={{fontSize: "12px", color: "#666", marginTop: "2px"}}>
-                            (+{backpackGoldBonus.toLocaleString()} {strings[89] || "additional capacity for Gold Pass"})
-                        </div>
-                    )}
-                </div>
+                {currentPlayer?.accountStatus === "Gold" && (
+                    <div style={{fontSize: "12px", color: "#666", marginTop: "-5px", marginBottom: "10px"}}>
+                        (+{backpackGoldBonus.toLocaleString()} {strings[89] || "additional capacity for Gold Pass"})
+                    </div>
+                )}
 
                 {backpack.length > 0 && (
                 <div className="shared-buttons">
@@ -515,19 +519,21 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
 
             {/* WAREHOUSE */}
 
-            <h3>{strings[181]}</h3>
-
-            <div className="capacity-display">
-                {strings[183]} {calculateTotalQuantity(inventory)}/
-                <span style={currentPlayer?.accountStatus === "Gold" ? {color: "#B8860B"} : {}}>
-                    {finalCapacities.warehouse}
-                </span>
-                {currentPlayer?.accountStatus === "Gold" && (
-                    <div style={{fontSize: "12px", color: "#666", marginTop: "2px"}}>
-                        (+{warehouseGoldBonus.toLocaleString()} {strings[89] || "additional capacity for Gold Pass"})
-                    </div>
-                )}
+            <div className="inventory-section-header">
+                <h3>{strings[181]}</h3>
+                <div className="capacity-info">
+                    {calculateTotalQuantity(inventory)} / {" "}
+                    <span style={currentPlayer?.accountStatus === "Gold" ? {color: "#B8860B"} : {}}>
+                        {finalCapacities.warehouse}
+                    </span>
+                </div>
             </div>
+
+            {currentPlayer?.accountStatus === "Gold" && (
+                <div style={{fontSize: "12px", color: "#666", marginTop: "-5px", marginBottom: "10px"}}>
+                    (+{warehouseGoldBonus.toLocaleString()} {strings[89] || "additional capacity for Gold Pass"})
+                </div>
+            )}
 
             <div className="shared-buttons">
                 <button className="btn-basic btn-success" onClick={() => {
@@ -542,7 +548,12 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
 
             {inventory.length > 0 && (
             <div className="shared-buttons">
-                <button className="btn-basic" onClick={() => setShowWarehouseModal(true)}>
+                <button 
+                    className="btn-basic" 
+                    onClick={() => setShowWarehouseModal(true)}
+                    disabled={currentPlayer.location.g !== currentPlayer.gridId}
+                    title={currentPlayer.location.g !== currentPlayer.gridId ? "Must be at homestead to manage warehouse" : ""}
+                >
                 {strings[184]}
                 </button>
             </div>

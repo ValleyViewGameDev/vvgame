@@ -118,7 +118,7 @@ import CowboyAnimation from './UI/CowboyAnimation';
 import TransitionOverlay from './UI/TransitionOverlay';
 import { useTransitionFade } from './UI/useTransitionFade';
 
-import { fetchGridData, updateGridStatus } from './Utils/GridManagement';
+import { fetchGridData, updateGridStatus, isWallBlocking, getLineOfSightTiles } from './Utils/GridManagement';
 import { handleKeyMovement, handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, centerCameraOnPlayerFast } from './PlayerMovement';
 import { mergeResources, mergeTiles, enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
@@ -1510,6 +1510,14 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
     const playerRange = getDerivedRange(currentPlayer, masterResources);    
     if (distance > playerRange) {
       FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
+      isProcessing = false;
+      return;
+    }
+    
+    // Check for walls blocking line of sight
+    if (isWallBlocking(playerPos, targetPos)) {
+      FloatingTextManager.addFloatingText(40, targetPos.x, targetPos.y, activeTileSize); // string[40] for wall blocking
+      console.log('Wall blocking interaction from player to resource');
       isProcessing = false;
       return;
     }

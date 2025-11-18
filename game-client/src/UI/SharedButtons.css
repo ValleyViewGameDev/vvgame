@@ -73,6 +73,24 @@
   margin-left: 8px;
 }
 
+/* Disabled state for all buttons */
+.shared-buttons .btn-basic:disabled {
+  background-color: #d3d3d3;
+  color: #999999;
+  cursor: not-allowed;
+  box-shadow: 0 2px 0 rgba(92, 91, 91, 0.3);
+}
+
+.shared-buttons .btn-basic:disabled:hover {
+  background-color: #d3d3d3;
+  transform: none;
+}
+
+.shared-buttons .btn-basic:disabled:active {
+  transform: none;
+  box-shadow: 0 2px 0 rgba(92, 91, 91, 0.3);
+}
+
 /* COLOR MODIFIERS - only override colors */
 
 /* Success buttons (green) */

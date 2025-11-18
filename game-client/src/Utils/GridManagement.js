@@ -654,3 +654,60 @@ export async function updateGridStatus(gridType, ownerUsername, updateStatus, cu
       break;
   }
 }
+
+/** Helper to get tiles in line of sight between two points using Bresenham's algorithm **/
+export function getLineOfSightTiles(start, end) {
+    const tiles = [];
+    let x0 = Math.floor(start.x);
+    let y0 = Math.floor(start.y);
+    const x1 = Math.floor(end.x);
+    const y1 = Math.floor(end.y);
+    
+    const dx = Math.abs(x1 - x0);
+    const dy = Math.abs(y1 - y0);
+    const sx = x0 < x1 ? 1 : -1;
+    const sy = y0 < y1 ? 1 : -1;
+    let err = dx - dy;
+    
+    while (true) {
+        // Don't include the start or end positions
+        if ((x0 !== Math.floor(start.x) || y0 !== Math.floor(start.y)) && 
+            (x0 !== x1 || y0 !== y1)) {
+            tiles.push({ x: x0, y: y0 });
+        }
+        
+        if (x0 === x1 && y0 === y1) break;
+        
+        const e2 = 2 * err;
+        if (e2 > -dy) {
+            err -= dy;
+            x0 += sx;
+        }
+        if (e2 < dx) {
+            err += dx;
+            y0 += sy;
+        }
+    }
+    
+    return tiles;
+}
+
+/** Helper to check if there's a wall blocking line of sight **/
+export function isWallBlocking(start, end) {
+    const resources = GlobalGridStateTilesAndResources.getResources();
+    const lineOfSightTiles = getLineOfSightTiles(start, end);
+    
+    // Check each tile in the line of sight for walls
+    for (const tile of lineOfSightTiles) {
+        const wall = resources.find(res => 
+            res.x === tile.x && 
+            res.y === tile.y && 
+            (res.action === 'wall' || res.action === 'door')
+        );
+        if (wall) {
+            return true; // Wall found blocking the path
+        }
+    }
+    
+    return false; // No walls blocking
+}

@@ -5,6 +5,22 @@
   background-color: #ccc;
 }
 
+.inventory-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.inventory-section-header h3 {
+  margin: 0;
+}
+
+.capacity-info {
+  font-size: 14px;
+  font-weight: bold;
+}
+
 .capacity-display {
   font-size: 14px;
   font-weight: bold;
@@ -174,7 +190,7 @@
 }
 
 .inventory-table-header th {
-  padding: 8px 12px;
+  padding: 8px 6px;
   text-align: left;
   font-weight: bold;
   cursor: pointer;
@@ -218,7 +234,7 @@
 }
 
 .inventory-table-scroll td {
-  padding: 6px 12px;
+  padding: 6px 8px;
   vertical-align: middle;
 }
 
@@ -255,7 +271,7 @@
 }
 
 .backpack-table-header th {
-  padding: 8px 12px;
+  padding: 8px 6px;
   text-align: left;
   font-weight: bold;
   cursor: pointer;
@@ -299,6 +315,6 @@
 }
 
 .backpack-table-scroll td {
-  padding: 6px 12px;
+  padding: 6px 8px;
   vertical-align: middle;
 }
