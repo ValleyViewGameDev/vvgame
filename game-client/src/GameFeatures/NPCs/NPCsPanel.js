@@ -138,30 +138,36 @@ const NPCPanel = ({
       const filteredRecipes = masterResources.filter((resource) => resource.type === npcData.type);
       setHealRecipes(filteredRecipes);
     } else if (npcData.action === 'trade') {
-      // Find this trader in masterTraders
-      const trader = masterTraders?.find(t => t.trader === npcData.type);
+      // Find all trades for this trader in masterTraders (new flat format)
+      const traderOffers = masterTraders?.filter(t => t.trader === npcData.type);
       
-      if (trader && trader.trades) {
-        // Transform trader.trades into the format expected by the rest of the component
-        const filteredRecipes = trader.trades.map(trade => {
+      if (traderOffers && traderOffers.length > 0) {
+        // Transform each offer into the format expected by the rest of the component
+        const filteredRecipes = traderOffers.map(offer => {
           // Get the symbol from masterResources
-          const resourceDef = masterResources.find(r => r.type === trade.gives.type);
+          const resourceDef = masterResources.find(r => r.type === offer.gives);
           
           const recipe = {
-            type: trade.gives.type,
+            type: offer.gives,
             symbol: resourceDef?.symbol || '?',
-            tradeqty: trade.gives.quantity,
-            requiresArray: trade.requires, // Store the full requires array for dynamic ingredients
-            requires: trade.requiresSkill || null, // Keep 'requires' for skill requirements
+            tradeqty: offer.givesqty || 1,
             source: npcData.type,
-            gemcost: resourceDef?.gemcost || null
+            gemcost: resourceDef?.gemcost || null,
+            index: offer.index // Keep track of which offer this is
           };
           
-          // Also add legacy format for backward compatibility
-          trade.requires.forEach((req, index) => {
-            recipe[`ingredient${index + 1}`] = req.type;
-            recipe[`ingredient${index + 1}qty`] = req.quantity;
-          });
+          // Collect all requires fields into ingredient format
+          let ingredientCount = 1;
+          for (let i = 1; i <= 7; i++) { // Support up to 7 ingredients like Oracle
+            const requiresField = `requires${i}`;
+            const requiresQtyField = `requires${i}qty`;
+            
+            if (offer[requiresField]) {
+              recipe[`ingredient${ingredientCount}`] = offer[requiresField];
+              recipe[`ingredient${ingredientCount}qty`] = offer[requiresQtyField] || 1;
+              ingredientCount++;
+            }
+          }
           
           return recipe;
         });

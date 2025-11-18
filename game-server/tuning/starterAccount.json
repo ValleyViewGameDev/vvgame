@@ -10,7 +10,7 @@
       "baseAttackbonus": 10,
       "baseDamage": 15,
       "baseSpeed": 5,
-      "inventory": [{ "type": "Money", "quantity": 6000 },{ "type": "Wheat", "quantity": 20 }],
+      "inventory": [{ "type": "Money", "quantity": 6000 },{ "type": "Wheat", "quantity": 20 },{ "type": "Cloth", "quantity": 1 }],
       "backpack": [],
       "skills": [{ "type": "Walking", "quantity": 1 }],
       "powers": [{ "type": "Knife", "quantity": 1 }],

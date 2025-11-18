@@ -1,278 +1,142 @@
 [
   {
     "trader": "Constable Elbow",
-    "trades": [
-      {
-        "gives": {
-          "type": "Town Access",
-          "quantity": 1
-        },
-        "requires": [
-          {
-            "type": "Gem",
-            "quantity": 1
-          }
-        ]
-      }
-    ]
+    "index": 1,
+    "gives": "Town Key",
+    "givesqty": 1,
+    "requires1": "Gem",
+    "requires1qty": 1
   },
   {
     "trader": "Juliet",
-    "trades": [
-      {
-        "gives": {
-          "type": "Tulip",
-          "quantity": 64
-        },
-        "requires": [
-          {
-            "type": "Portrait",
-            "quantity": 1
-          }
-        ]
-      }
-    ]
+    "index": 1,
+    "gives": "Tulip",
+    "givesqty": 64,
+    "requires1": "Portrait",
+    "requires1qty": 1
   },
   {
     "trader": "Falstaff",
-    "trades": [
-      {
-        "gives": {
-          "type": "Feverfew",
-          "quantity": 3
-        },
-        "requires": [
-          {
-            "type": "Port",
-            "quantity": 24
-          }
-        ]
-      }
-    ]
+    "index": 1,
+    "gives": "Feverfew",
+    "givesqty": 3,
+    "requires1": "Port",
+    "requires1qty": 24
   },
   {
     "trader": "Apothecary",
-    "trades": [
-      {
-        "gives": {
-          "type": "Potion A",
-          "quantity": 1
-        },
-        "requires": [
-          {
-            "type": "Rosemary",
-            "quantity": 6
-          },
-          {
-            "type": "Daisy",
-            "quantity": 2
-          },
-          {
-            "type": "Milk",
-            "quantity": 24
-          }
-        ]
-      },
-      {
-        "gives": {
-          "type": "Potion B",
-          "quantity": 1
-        },
-        "requires": [
-          {
-            "type": "Potion A",
-            "quantity": 1
-          },
-          {
-            "type": "Mushroom",
-            "quantity": 4
-          },
-          {
-            "type": "Tulip",
-            "quantity": 4
-          },
-          {
-            "type": "Garlic",
-            "quantity": 2
-          } 
-        ],
-        "requiresSkill": "Chemistry"
-      },
-      {
-        "gives": {
-          "type": "Potion C",
-          "quantity": 1
-        },
-        "requires": [
-          {
-            "type": "Potion B",
-            "quantity": 1
-          },
-          {
-            "type": "Sunflower",
-            "quantity": 12
-          },
-          {
-            "type": "Ink",
-            "quantity": 2
-          },
-          {
-            "type": "Feverfew",
-            "quantity": 1
-          }
-        ],
-        "requiresSkill": "Chemistry"
-      }
-    ]
+    "index": 1,
+    "gives": "Potion A",
+    "givesqty": 1,
+    "requires1": "Rosemary",
+    "requires1qty": 6,
+    "requires2": "Daisy",
+    "requires2qty": 2,
+    "requires3": "Milk",
+    "requires3qty": 24
+  },
+  {
+    "trader": "Apothecary",
+    "index": 2,
+    "gives": "Potion B",
+    "givesqty": 1,
+    "requires1": "Potion A",
+    "requires1qty": 1,
+    "requires2": "Mushroom",
+    "requires2qty": 4,
+    "requires3": "Tulip",
+    "requires3qty": 4,
+    "requires4": "Garlic",
+    "requires4qty": 2
+  },
+  {
+    "trader": "Apothecary",
+    "index": 3,
+    "gives": "Potion C",
+    "givesqty": 1,
+    "requires1": "Potion B",
+    "requires1qty": 1,
+    "requires2": "Sunflower",
+    "requires2qty": 12,
+    "requires3": "Ink",
+    "requires3qty": 2,
+    "requires4": "Feverfew",
+    "requires4qty": 1
   },
   {
     "trader": "Iago",
-    "trades": [
-      {
-        "gives": {
-          "type": "Brass Bell",
-          "quantity": 1
-        },
-        "requires": [
-          {
-            "type": "Portia's Secret",
-            "quantity": 1
-          }
-        ]
-      }
-    ]
+    "index": 1,
+    "gives": "Brass Bell",
+    "givesqty": 1,
+    "requires1": "Portia's Secret",
+    "requires1qty": 1
   },
   {
     "trader": "Caliban",
-    "trades": [
-      {
-        "gives": {
-          "type": "Silver",
-          "quantity": 3
-        },
-        "requires": [
-          {
-            "type": "Bones",
-            "quantity": 10
-          }
-        ]
-      },
-      {
-        "gives": {
-          "type": "Silver",
-          "quantity": 5
-        },
-        "requires": [
-          {
-            "type": "Magic Mushroom",
-            "quantity": 25
-          }
-        ]
-      }    
-    ]
+    "index": 1,
+    "gives": "Silver",
+    "givesqty": 3,
+    "requires1": "Bones",
+    "requires1qty": 10
+  },
+  {
+    "trader": "Caliban",
+    "index": 2,
+    "gives": "Silver",
+    "givesqty": 5,
+    "requires1": "Magic Mushroom",
+    "requires1qty": 25
   },
   {
     "trader": "Leontes",
-    "trades": [
-      {
-        "gives": {
-          "type": "Gold",
-          "quantity": 20
-        },
-        "requires": [
-          {
-            "type": "King's Crown",
-            "quantity": 1
-          }
-        ]
-      },
-      {
-        "gives": {
-          "type": "Mirror Key",
-          "quantity": 1
-        },
-        "requires": [
-          {
-            "type": "Aged Wine",
-            "quantity": 12
-          }
-        ]
-      }
-    ]
+    "index": 1,
+    "gives": "Gold",
+    "givesqty": 20,
+    "requires1": "King's Crown",
+    "requires1qty": 1
+  },
+  {
+    "trader": "Leontes",
+    "index": 2,
+    "gives": "Mirror Key",
+    "givesqty": 1,
+    "requires1": "Aged Wine",
+    "requires1qty": 12
   },
   {
     "trader": "Gertrude",
-    "trades": [
-      {
-        "gives": {
-          "type": "Diamond Ring",
-          "quantity": 1
-        },
-        "requires": [
-          {
-            "type": "Queen's Cake",
-            "quantity": 10
-          }
-        ]
-      }
-    ]
+    "index": 1,
+    "gives": "Diamond Ring",
+    "givesqty": 1,
+    "requires1": "Queen's Cake",
+    "requires1qty": 10
   },
   {
     "trader": "Oracle",
-    "trades": [
-      {
-        "gives": {
-          "type": "Hope",
-          "quantity": 1
-        },
-        "requires": [
-          {
-            "type": "Prospero's Orb",
-            "quantity": 1
-          },
-          {
-            "type": "King's Crown",
-            "quantity": 1
-          },
-          {
-            "type": "Trident",
-            "quantity": 1
-          },
-          {
-            "type": "Brass Bell",
-            "quantity": 1
-          },
-          {
-            "type": "Phoenix Feather",
-            "quantity": 1
-          },
-          {
-            "type": "Vampire's Blood",
-            "quantity": 10
-          },
-          {
-            "type": "Scroll",
-            "quantity": 1
-          }
-        ]
-      }
-    ]
+    "index": 1,
+    "gives": "Hope",
+    "givesqty": 1,
+    "requires1": "Prospero's Orb",
+    "requires1qty": 1,
+    "requires2": "King's Crown",
+    "requires2qty": 1,
+    "requires3": "Trident",
+    "requires3qty": 1,
+    "requires4": "Brass Bell",
+    "requires4qty": 1,
+    "requires5": "Phoenix Feather",
+    "requires5qty": 1,
+    "requires6": "Vampire's Blood",
+    "requires6qty": 10,
+    "requires7": "Scroll",
+    "requires7qty": 1
   },
   {
     "trader": "Mermaid",
-    "trades": [
-      {
-        "gives": {
-          "type": "Gold",
-          "quantity": 25
-        },
-        "requires": [
-          {
-            "type": "Trident",
-            "quantity": 1
-          }
-        ]
-      }
-    ]
+    "index": 1,
+    "gives": "Gold",
+    "givesqty": 25,
+    "requires1": "Trident",
+    "requires1qty": 1
   }
 ]
