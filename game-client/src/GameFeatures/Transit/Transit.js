@@ -68,6 +68,10 @@ export async function handleTransitSignpost(
                 const position = playersInGrid[currentPlayer.playerId].position;
                 FloatingTextManager.addFloatingText(91, position.x, position.y, TILE_SIZE);
             }
+            // End fade transition since travel failed due to missing Horse skill
+            if (transitionFadeControl?.endTransition) {
+                transitionFadeControl.endTransition();
+            }
             return; 
         }
     }

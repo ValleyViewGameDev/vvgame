@@ -20,7 +20,7 @@
     max-width: 400px;
     position: absolute;
     pointer-events: all;
-    left: 290px; /* Final position - Panel width (280px) + padding (10px) */
+    left: 310px; /* Final position - Panel width (280px) + padding (10px) */
     animation: slideInFromLeft 0.6s ease-out forwards, fadeOut 0.6s ease-out 4.4s forwards;
 }
 
@@ -34,18 +34,18 @@
         left: -400px; /* Start completely off-screen */
     }
     to {
-        left: 290px; /* Panel width (280px) + padding (10px) */
+        left: 310px; /* Panel width (280px) + padding (10px) */
     }
 }
 
 @keyframes fadeOut {
     from {
         opacity: 1;
-        left: 290px;
+        left:310px;
     }
     to {
         opacity: 0;
-        left: 290px;
+        left: 310px;
     }
 }
 
