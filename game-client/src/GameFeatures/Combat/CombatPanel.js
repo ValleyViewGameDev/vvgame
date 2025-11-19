@@ -298,7 +298,7 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
                     const isEquipped = power.type === getEquippedArmor();
                     const stats = [];
                     
-                    const combatAttributes = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
+                    const combatAttributes = ['maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
                     combatAttributes.forEach(attr => {
                       if (typeof resource[attr] === 'number') {
                         const value = (power.quantity || 0) * resource[attr];
@@ -352,7 +352,7 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
                     const isEquipped = power.type === getEquippedWeapon();
                     const stats = [];
                     
-                    const combatAttributes = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
+                    const combatAttributes = ['maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
                     combatAttributes.forEach(attr => {
                       if (typeof resource[attr] === 'number') {
                         const value = (power.quantity || 0) * resource[attr];
@@ -407,7 +407,7 @@ const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources
                     if (!resource) return null;
 
                     const powerQty = power.quantity || 0;
-                    const combatAttributes = ['hp', 'maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
+                    const combatAttributes = ['maxhp', 'damage', 'armorclass', 'attackbonus', 'attackrange', 'speed'];
                     
                     // Collect all combat stats this power provides
                     const stats = [];

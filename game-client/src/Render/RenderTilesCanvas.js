@@ -18,15 +18,15 @@ const TILE_ROUNDING_CONFIG = {
 // Get CSS color for a tile type
 function getTileColor(tileType) {
   const tileColors = {
-    g: '#67c257', // grass
-    s: '#9c9b8bff', // stone
+    g: '#67c257', // grass 
+    s: '#acab9bff', // stone
     d: '#c0834a', // dirt
     w: '#58cad8', // water
     l: '#c4583d', // lava
     p: '#c5a85d', // pavement
     n: '#fbde00', // sand
     o: '#ffffff', // snow
-    x: '#797e85ff', // cobblestone
+    x: '#959ba3ff', // cobblestone
     y: '#000000ff', // dungeon
     z: '#ffffff', // TBD
     unknown: '#ff0000', // debug red
@@ -327,9 +327,10 @@ function createTileTexture(tileType, TILE_SIZE, variation = 0, rowIndex, colInde
       ctx.restore();
     }
   }
-  
+
+  // Dirt cracks - using variation for different patterns
+
   if (tileType === 'd') {
-    // Dirt cracks - using variation for different patterns
     const seed = 600 + variation * 150;
     const numPatches = 4 + (seed % 4);
     
@@ -365,94 +366,11 @@ function createTileTexture(tileType, TILE_SIZE, variation = 0, rowIndex, colInde
     }
   }
   
-  if (tileType === 's') {
-    // Stone cracks - Y-shaped forking cracks on every 3rd tile
-    const seed = (rowIndex * 73 + colIndex * 137 + variation * 211) % 1000;
-    
-    // Only show cracks on every 3rd tile
-    if (seed % 3 === 0) {
-      const numCracks = 1 + (seed % 2); // 1-2 Y-shaped cracks per tile
-      
-      for (let i = 0; i < numCracks; i++) {
-        const crackSeed = (seed + i * 179) % 1000;
-        const startX = (20 + (crackSeed * 0.6) % 60) / 100 * TILE_SIZE;
-        const startY = (20 + (crackSeed * 1.1) % 60) / 100 * TILE_SIZE;
-        
-        ctx.save();
-        ctx.strokeStyle = `rgba(89, 93, 98, 0.7)`;
-        ctx.lineWidth = Math.max(1, TILE_SIZE * 0.008);
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        
-        // Helper function to draw a wiggly line from start to end
-        const drawWigglyLine = (fromX, fromY, toX, toY, wiggleAmount = 0.3) => {
-          const distance = Math.sqrt((toX - fromX) ** 2 + (toY - fromY) ** 2);
-          const segments = Math.max(4, Math.floor(distance / (TILE_SIZE * 0.05))); // Segment every 5% of tile size
-          
-          ctx.moveTo(fromX, fromY);
-          
-          for (let j = 1; j <= segments; j++) {
-            const progress = j / segments;
-            const linearX = fromX + (toX - fromX) * progress;
-            const linearY = fromY + (toY - fromY) * progress;
-            
-            // Add perpendicular wiggle
-            const perpAngle = Math.atan2(toY - fromY, toX - fromX) + Math.PI / 2;
-            const wiggleSeed = (crackSeed + j * 23 + i * 67) % 1000;
-            const wiggleOffset = Math.sin(progress * Math.PI * 2) * wiggleAmount * TILE_SIZE * 0.02;
-            const randomWiggle = ((wiggleSeed * 0.1) % 1 - 0.5) * wiggleAmount * TILE_SIZE * 0.015;
-            
-            const wiggleX = linearX + Math.cos(perpAngle) * (wiggleOffset + randomWiggle);
-            const wiggleY = linearY + Math.sin(perpAngle) * (wiggleOffset + randomWiggle);
-            
-            ctx.lineTo(wiggleX, wiggleY);
-          }
-        };
-        
-        // Main crack stem
-        const mainLength = TILE_SIZE * 0.15 + (crackSeed * 0.01) % (TILE_SIZE * 0.1);
-        const mainAngle = (crackSeed * 0.8) % 360 * Math.PI / 180;
-        const stemEndX = startX + Math.cos(mainAngle) * mainLength;
-        const stemEndY = startY + Math.sin(mainAngle) * mainLength;
-        
-        ctx.beginPath();
-        drawWigglyLine(startX, startY, stemEndX, stemEndY);
-        ctx.stroke();
-        
-        // Fork point - slightly before the end of main stem
-        const forkProgress = 0.6 + (crackSeed * 0.01) % 0.3; // Fork at 60-90% along stem
-        const forkX = startX + Math.cos(mainAngle) * mainLength * forkProgress;
-        const forkY = startY + Math.sin(mainAngle) * mainLength * forkProgress;
-        
-        // Two fork branches
-        const forkLength = mainLength * (0.4 + (crackSeed * 0.01) % 0.3); // 40-70% of main length
-        const forkAngleSpread = 30 + (crackSeed % 40); // 30-70 degree spread
-        
-        // Left fork
-        const leftForkAngle = mainAngle - (forkAngleSpread * Math.PI / 180);
-        const leftEndX = forkX + Math.cos(leftForkAngle) * forkLength;
-        const leftEndY = forkY + Math.sin(leftForkAngle) * forkLength;
-        
-        ctx.beginPath();
-        drawWigglyLine(forkX, forkY, leftEndX, leftEndY, 0.2); // Less wiggle on forks
-        ctx.stroke();
-        
-        // Right fork
-        const rightForkAngle = mainAngle + (forkAngleSpread * Math.PI / 180);
-        const rightEndX = forkX + Math.cos(rightForkAngle) * forkLength;
-        const rightEndY = forkY + Math.sin(rightForkAngle) * forkLength;
-        
-        ctx.beginPath();
-        drawWigglyLine(forkX, forkY, rightEndX, rightEndY, 0.2); // Less wiggle on forks
-        ctx.stroke();
-        
-        ctx.restore(); 
-      }
-    }
-  }
-  
-  if (tileType === 'p' || tileType === 'x') {
-    // App icon-style pavement tile with grass showing through rounded corners
+
+
+  // App icon-style PAVEMENT tile with grass showing through rounded corners
+
+  if (tileType === 'p') {
     const grassColor = '#67c257';
     const cornerRadius = Math.max(4, TILE_SIZE * 0.15); // Nice visible rounded corners
     
@@ -591,7 +509,235 @@ function createTileTexture(tileType, TILE_SIZE, variation = 0, rowIndex, colInde
     }
   }
   
-  return canvas;
+  // App icon-style COBBLESTONE tile with grass showing through rounded corners
+
+    if (tileType === 'x') {
+    const grassColor = '#67c257';
+    const cornerRadius = Math.max(4, TILE_SIZE * 0.15); // Nice visible rounded corners
+    
+    // Step 1: Fill entire tile with grass color (background)
+    ctx.fillStyle = grassColor;
+    ctx.globalAlpha = 0.4;
+    ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
+    ctx.globalAlpha = 1.0;
+    
+    // Step 2: Create rounded rectangle mask for the pavement stone
+    const drawRoundedRect = (x, y, width, height, radius) => {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    };
+    
+    // Step 3: Draw everything within the rounded rectangle shape
+    ctx.save();
+    drawRoundedRect(0, 0, TILE_SIZE, TILE_SIZE, cornerRadius);
+    ctx.clip(); // Clip everything to the rounded rectangle
+    
+    // Clear the grass background within the clipped area and draw stone
+    ctx.fillStyle = getTileColor(tileType);
+    ctx.fillRect(0, 0, TILE_SIZE, TILE_SIZE);
+    
+    // Add thin grass border inside the rounded shape
+    const grassWidth = Math.max(1, TILE_SIZE * 0.006);
+    ctx.fillStyle = grassColor;
+    ctx.globalAlpha = 0.6;
+    
+    // Top grass border
+    ctx.fillRect(0, 0, TILE_SIZE, grassWidth);
+    // Bottom grass border
+    ctx.fillRect(0, TILE_SIZE - grassWidth, TILE_SIZE, grassWidth);
+    // Left grass border
+    ctx.fillRect(0, 0, grassWidth, TILE_SIZE);
+    // Right grass border
+    ctx.fillRect(TILE_SIZE - grassWidth, 0, grassWidth, TILE_SIZE);
+    
+    ctx.globalAlpha = 1.0;
+    
+    // Add beveled effect within the rounded shape
+    const bevelSize = Math.max(1, TILE_SIZE * 0.05);
+    const inset = grassWidth;
+    
+    // Light highlights (top and left)
+    ctx.fillStyle = 'rgba(200, 212, 220, 0.7)';
+    ctx.fillRect(inset, inset, TILE_SIZE - inset * 2, bevelSize);
+    ctx.fillRect(inset, inset, bevelSize, TILE_SIZE - inset * 2);
+    
+    // Dark shadows (bottom and right)
+    ctx.fillStyle = 'rgba(45, 54, 80, 0.7)';
+    ctx.fillRect(inset, TILE_SIZE - inset - bevelSize, TILE_SIZE - inset * 2, bevelSize);
+    ctx.fillRect(TILE_SIZE - inset - bevelSize, inset, bevelSize, TILE_SIZE - inset * 2);
+    
+    ctx.restore(); // End clipping
+    
+    // Add stretched grass tufts along edges with random variation
+    // Use tile coordinates for consistent but varied seeding
+    const uniqueSeed = (rowIndex * 73 + colIndex * 137 + variation * 211) % 1000;
+    const numGrassTufts = 2 + (uniqueSeed % 3); // 2-4 tufts per tile
+    
+    for (let i = 0; i < numGrassTufts; i++) {
+      const grassSeed = (uniqueSeed + i * 179) % 1000;
+      
+      // Position grass tufts along edges
+      let x, y, isHorizontal;
+      const side = grassSeed % 4;
+      const extensionIntoStone = grassWidth * 2; // Allow tufts to extend into pavement area
+      
+      if (side === 0) { // Top edge - horizontal stretch
+        x = (grassSeed * 0.7) % (TILE_SIZE * 0.8) + TILE_SIZE * 0.1; // Stay away from corners
+        y = (grassSeed * 0.3) % (grassWidth + extensionIntoStone);
+        isHorizontal = true;
+      } else if (side === 1) { // Bottom edge - horizontal stretch
+        x = (grassSeed * 0.8) % (TILE_SIZE * 0.8) + TILE_SIZE * 0.1;
+        y = TILE_SIZE - grassWidth - extensionIntoStone + (grassSeed * 0.4) % (grassWidth + extensionIntoStone);
+        isHorizontal = true;
+      } else if (side === 2) { // Left edge - vertical stretch
+        x = (grassSeed * 0.5) % (grassWidth + extensionIntoStone);
+        y = (grassSeed * 0.9) % (TILE_SIZE * 0.8) + TILE_SIZE * 0.1;
+        isHorizontal = false;
+      } else { // Right edge - vertical stretch
+        x = TILE_SIZE - grassWidth - extensionIntoStone + (grassSeed * 0.6) % (grassWidth + extensionIntoStone);
+        y = (grassSeed * 1.1) % (TILE_SIZE * 0.8) + TILE_SIZE * 0.1;
+        isHorizontal = false;
+      }
+      
+      // Draw stretched grass along the edge (6 pixels long)
+      const stretchLength = Math.max(4, TILE_SIZE * 0.15); // About 6 pixels at normal size
+      const stretchWidth = Math.max(1, TILE_SIZE * 0.02);
+      
+      ctx.fillStyle = `rgba(27, 151, 27, 0.7)`;
+      ctx.save();
+      ctx.translate(x, y);
+      
+      // Random rotation for natural look
+      const baseRotation = (grassSeed * 0.01) % (Math.PI * 0.3) - Math.PI * 0.15; // ±27 degrees
+      ctx.rotate(baseRotation);
+      
+      if (isHorizontal) {
+        // Horizontal grass streak
+        ctx.fillRect(-stretchLength/2, -stretchWidth/2, stretchLength, stretchWidth);
+        
+        // Add some organic variation along the length
+        for (let k = 0; k < 3; k++) {
+          const offset = (k - 1) * stretchLength * 0.3;
+          const size = stretchWidth * (0.5 + (grassSeed + k * 23) % 100 / 200);
+          ctx.beginPath();
+          ctx.ellipse(offset, 0, size, size * 1.5, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      } else {
+        // Vertical grass streak
+        ctx.fillRect(-stretchWidth/2, -stretchLength/2, stretchWidth, stretchLength);
+        
+        // Add some organic variation along the length
+        for (let k = 0; k < 3; k++) {
+          const offset = (k - 1) * stretchLength * 0.3;
+          const size = stretchWidth * (0.5 + (grassSeed + k * 29) % 100 / 200);
+          ctx.beginPath();
+          ctx.ellipse(0, offset, size * 1.5, size, 0, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      
+      ctx.restore();
+    }
+  }
+
+
+    if (tileType === 's' || tileType === 'x') {
+    // Stone cracks - Y-shaped forking cracks on every 3rd tile
+    const seed = (rowIndex * 73 + colIndex * 137 + variation * 211) % 1000;
+    
+    // Only show cracks on every 3rd tile
+    if (seed % 3 === 0) {
+      const numCracks = 1 + (seed % 2); // 1-2 Y-shaped cracks per tile
+      
+      for (let i = 0; i < numCracks; i++) {
+        const crackSeed = (seed + i * 179) % 1000;
+        const startX = (20 + (crackSeed * 0.6) % 60) / 100 * TILE_SIZE;
+        const startY = (20 + (crackSeed * 1.1) % 60) / 100 * TILE_SIZE;
+        
+        ctx.save();
+        ctx.strokeStyle = `rgba(89, 93, 98, 0.7)`;
+        ctx.lineWidth = Math.max(1, TILE_SIZE * 0.008);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        
+        // Helper function to draw a wiggly line from start to end
+        const drawWigglyLine = (fromX, fromY, toX, toY, wiggleAmount = 0.3) => {
+          const distance = Math.sqrt((toX - fromX) ** 2 + (toY - fromY) ** 2);
+          const segments = Math.max(4, Math.floor(distance / (TILE_SIZE * 0.05))); // Segment every 5% of tile size
+          
+          ctx.moveTo(fromX, fromY);
+          
+          for (let j = 1; j <= segments; j++) {
+            const progress = j / segments;
+            const linearX = fromX + (toX - fromX) * progress;
+            const linearY = fromY + (toY - fromY) * progress;
+            
+            // Add perpendicular wiggle
+            const perpAngle = Math.atan2(toY - fromY, toX - fromX) + Math.PI / 2;
+            const wiggleSeed = (crackSeed + j * 23 + i * 67) % 1000;
+            const wiggleOffset = Math.sin(progress * Math.PI * 2) * wiggleAmount * TILE_SIZE * 0.02;
+            const randomWiggle = ((wiggleSeed * 0.1) % 1 - 0.5) * wiggleAmount * TILE_SIZE * 0.015;
+            
+            const wiggleX = linearX + Math.cos(perpAngle) * (wiggleOffset + randomWiggle);
+            const wiggleY = linearY + Math.sin(perpAngle) * (wiggleOffset + randomWiggle);
+            
+            ctx.lineTo(wiggleX, wiggleY);
+          }
+        };
+        
+        // Main crack stem
+        const mainLength = TILE_SIZE * 0.15 + (crackSeed * 0.01) % (TILE_SIZE * 0.1);
+        const mainAngle = (crackSeed * 0.8) % 360 * Math.PI / 180;
+        const stemEndX = startX + Math.cos(mainAngle) * mainLength;
+        const stemEndY = startY + Math.sin(mainAngle) * mainLength;
+        
+        ctx.beginPath();
+        drawWigglyLine(startX, startY, stemEndX, stemEndY);
+        ctx.stroke();
+        
+        // Fork point - slightly before the end of main stem
+        const forkProgress = 0.6 + (crackSeed * 0.01) % 0.3; // Fork at 60-90% along stem
+        const forkX = startX + Math.cos(mainAngle) * mainLength * forkProgress;
+        const forkY = startY + Math.sin(mainAngle) * mainLength * forkProgress;
+        
+        // Two fork branches
+        const forkLength = mainLength * (0.4 + (crackSeed * 0.01) % 0.3); // 40-70% of main length
+        const forkAngleSpread = 30 + (crackSeed % 40); // 30-70 degree spread
+        
+        // Left fork
+        const leftForkAngle = mainAngle - (forkAngleSpread * Math.PI / 180);
+        const leftEndX = forkX + Math.cos(leftForkAngle) * forkLength;
+        const leftEndY = forkY + Math.sin(leftForkAngle) * forkLength;
+        
+        ctx.beginPath();
+        drawWigglyLine(forkX, forkY, leftEndX, leftEndY, 0.2); // Less wiggle on forks
+        ctx.stroke();
+        
+        // Right fork
+        const rightForkAngle = mainAngle + (forkAngleSpread * Math.PI / 180);
+        const rightEndX = forkX + Math.cos(rightForkAngle) * forkLength;
+        const rightEndY = forkY + Math.sin(rightForkAngle) * forkLength;
+        
+        ctx.beginPath();
+        drawWigglyLine(forkX, forkY, rightEndX, rightEndY, 0.2); // Less wiggle on forks
+        ctx.stroke();
+        
+        ctx.restore(); 
+      }
+    }
+  }
+
+    return canvas;
 }
 
 // Canvas-based tile renderer component
