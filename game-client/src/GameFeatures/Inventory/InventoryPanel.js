@@ -464,7 +464,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
             {hasBackpackSkill ? (
               <>
                 {currentPlayer?.accountStatus === "Gold" && (
-                    <div style={{fontSize: "12px", color: "#666", marginTop: "-5px", marginBottom: "10px"}}>
+                    <div style={{fontSize: "12px", color: "#666", marginTop: "-5px", textAlign: "center", marginBottom: "8px"}}>
                         (+{backpackGoldBonus.toLocaleString()} {strings[89] || "additional capacity for Gold Pass"})
                     </div>
                 )}
@@ -530,7 +530,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
             </div>
 
             {currentPlayer?.accountStatus === "Gold" && (
-                <div style={{fontSize: "12px", color: "#666", marginTop: "-5px", marginBottom: "10px"}}>
+                <div style={{fontSize: "12px", color: "#666", marginTop: "-5px", textAlign: "center", marginBottom: "8px"}}>
                     (+{warehouseGoldBonus.toLocaleString()} {strings[89] || "additional capacity for Gold Pass"})
                 </div>
             )}

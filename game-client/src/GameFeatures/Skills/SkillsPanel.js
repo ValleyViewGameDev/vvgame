@@ -216,31 +216,17 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
   };
 
   // Check if we should show the sell button
-  const showSellButton = isDeveloper && 
-    ["Adventure Camp", "Laboratory", "School", "Guild"].includes(entryPoint) &&
-    currentStationPosition && gridId;
+  const showSellButton = isDeveloper && entryPoint !== "Basic Skills" && currentStationPosition && gridId;
 
   return (
     <Panel onClose={onClose} descriptionKey="1005" title={`${stationEmoji} ${entryPoint}`} panelName="SkillsPanel">
       <div className="standard-panel">
-      
-      {showSellButton && (
-        <div className="shared-buttons">
-          <TransactionButton 
-            className="btn-danger" 
-            onAction={handleSellStation}
-            transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
-          >
-            {strings[490]}
-          </TransactionButton>
-        </div>
-      )}
-      
+            
       {isContentLoading ? (
           <p>{strings[98]}</p>
         ) : (
           <>
-            {!["Adventure Camp", "Laboratory", "School", "Guild"].includes(entryPoint) && (
+            {(entryPoint === "Basic Skills") && (
               <div className="skills-owned">
                 <h3>{strings[1303]}</h3>
                 {ownedSkills.length > 0 ? (
@@ -335,6 +321,21 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                 })}
               </div>
             </div>
+
+          <br></br>
+          <h3>{strings[10175]}</h3>
+          
+      {showSellButton && (
+        <div className="shared-buttons">
+          <TransactionButton 
+            className="btn-basic btn-danger" 
+            onAction={handleSellStation}
+            transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
+          >
+            {strings[490]}
+          </TransactionButton>
+        </div>
+      )}
 
           </>
         )}

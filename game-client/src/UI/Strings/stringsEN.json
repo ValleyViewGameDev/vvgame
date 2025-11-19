@@ -15,7 +15,7 @@
     "14": "🚂 Welcome to town.",
     "15": "🐴 You need a Horse to travel here. Visit the Adventure Camp in Town.",
     "16": "You're in the valley.",
-    "17": "You do not own a hometead here.",
+    "17": "You do not own a homestead here.",
     "18": "🚫 You can't go that way.",
     "19": "🎒 You need a Backpack to collect resources away from your homestead. Buy one at the Adventure Camp.",
     "20": "🚫 Not enough room in the Warehouse.",
@@ -120,7 +120,7 @@
     "190": "Discard All",
     "191": "Item",
     "192": "Action",
-    "194": "Expand Warehouse",
+    "194": "Expand Capacity",
     "195": "Expand Backpack at the Adventure Camp in Town.",
     "196": "Add ",
     "197": "Warehouse upgraded",
@@ -147,10 +147,8 @@
     "304": "🚜 Can't plant here",
     "305": "⚠️ Not enough resources",
     "306": "⚠️ Can't build here",
-    "310": "You need to till the land for planting.",
     "311": "Your farm animals will need plenty of grass to graze on.",
     "312": "Pavement can be useful to control wandering animals.",
-    "313": "",
     "315": "Select Crops to Harvest:",
     "316": "Select All",
     "317": "Deselect All",
@@ -483,7 +481,7 @@
     "1207": "This bridge is mine, by Sycorax my mother.’ Prospero tried to steal it with spells and smiles. They called me beast, but I am of earth and storm, born to wild truth. I trade bones for Silver, tokens of the dead for coin of the living. Touch nothing lightly in these woods. Bring me what others fear, and I shall make you rich... or haunted.",
     "1208": "",
     
-    "1301": "Skills to purchase:",
+    "1301": "Available skills:",
     "1302": "Upgrades to purchase:",
     "1303": "Skills you have:",
     "1304": "Upgrades you have:",
@@ -1346,14 +1344,17 @@
     "10160": "Max",
     "10161": "🍽️ Eat Food to Restore Health",
     "10162": "You don't have any edible items in your ",
-    "10170": "The door is open to you.",
-    "10171": "You don't have access.",
     "15010": "🎒 Unlike prior seasons, your inventory NOT be wiped.",
     "15012": "💰 Unlike prior seasons, Money will NOT be nerfed.",
 
     "11000": "ADDED STRINGS:",
 
-    "40": "Can't interact through walls."
+    "10170": "The door is open to you.",
+    "10171": "You don't have access.",
+    "10175": "Acquire more skills at various locations in town.",
+    "40": "Can't interact through walls.",
+    "310": "You need to till the land for planting, as well as pigs.",
+    "313": "Cobblestone paths add decoration to your homestead."
 
 
   }

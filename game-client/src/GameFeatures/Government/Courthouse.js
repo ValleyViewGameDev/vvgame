@@ -15,6 +15,11 @@ import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 import { formatCountdown } from '../../UI/Timers';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
+import ResourceButton from '../../UI/ResourceButton';
+import { refreshPlayerAfterInventoryUpdate, canAfford, spendIngredients } from '../../Utils/InventoryManagement';
+import { getLocalizedString } from '../../Utils/stringLookup';
+import '../../UI/ResourceButton.css';
+import { earnTrophy } from '../Trophies/TrophyUtils';
 
 const CourthousePanel = ({ 
   onClose, 
@@ -28,7 +33,10 @@ const CourthousePanel = ({
   currentStationPosition,
   gridId,
   TILE_SIZE,
-  isDeveloper 
+  isDeveloper,
+  masterResources,
+  masterSkills,
+  updateStatus: updateStatusProp
 }) => {
 
     const strings = useStrings();
@@ -37,7 +45,8 @@ const CourthousePanel = ({
     const [isMayor, setIsMayor] = useState(false);
     const [electionPhase, setElectionPhase] = useState('');
     const [countdown, setCountdown] = useState('');
-    const { updateStatus } = useContext(StatusBarContext);
+    const { updateStatus: contextUpdateStatus } = useContext(StatusBarContext);
+    const updateStatus = updateStatusProp || contextUpdateStatus;
     const [campaignPromises, setCampaignPromises] = useState([]);
     const [newPromise, setNewPromise] = useState('');
     const [selectedCandidate, setSelectedCandidate] = useState(null);
@@ -52,6 +61,11 @@ const CourthousePanel = ({
     const [modalContent, setModalContent] = useState(null);
     const [mayor, setMayor] = useState("");
     const [population, setPopulation] = useState(0);
+    
+    // Skills-related state
+    const [courthouseSkills, setCourthouseSkills] = useState([]);
+    const [ownedSkills, setOwnedSkills] = useState([]);
+    const [isLoadingSkills, setIsLoadingSkills] = useState(false);
 
     
     const handleViewElectionLog = async () => {
@@ -162,6 +176,41 @@ const CourthousePanel = ({
         fetchElectionData();
     }, [electionPhase]);
 
+    // Effect to fetch skills for Courthouse
+    useEffect(() => {
+        const fetchSkills = async () => {
+            if (!masterResources || !currentPlayer) return;
+            
+            setIsLoadingSkills(true);
+            try {
+                // Fetch player's owned skills
+                const skillsResponse = await axios.get(`${API_BASE}/api/skills/${currentPlayer.playerId}`);
+                const serverSkills = skillsResponse.data.skills || [];
+                
+                // Filter for actual skills/upgrades owned
+                const owned = serverSkills.filter(skill =>
+                    masterResources.some(res => res.type === skill.type && (res.category === 'skill' || res.category === 'upgrade'))
+                );
+                setOwnedSkills(owned);
+                
+                // Filter for skills available at Courthouse
+                const availableSkills = masterResources.filter(
+                    res => (res.category === 'skill' || res.category === 'upgrade') &&
+                    res.source === 'Courthouse' && 
+                    !owned.some(o => o.type === res.type)
+                );
+                setCourthouseSkills(availableSkills);
+                
+            } catch (error) {
+                console.error('Error fetching skills:', error);
+            } finally {
+                setIsLoadingSkills(false);
+            }
+        };
+        
+        fetchSkills();
+    }, [masterResources, currentPlayer?.playerId]);
+
     const fetchElectionData = async () => {
         try {
             const settlementResponse = await axios.get(
@@ -213,6 +262,63 @@ const CourthousePanel = ({
             }
         } catch (error) {
             console.error('❌ Error fetching election data:', error);
+        }
+    };
+    
+    // Helper function to check if player has required skill
+    const hasRequiredSkill = (requiredType) => {
+        if (!requiredType) return true;
+        return ownedSkills.some(owned => owned.type === requiredType);
+    };
+    
+    // Handle skill purchase
+    const handlePurchaseSkill = async (resourceType) => {
+        const resource = masterResources.find(r => r.type === resourceType);
+        if (!resource) return;
+        
+        // Check if player meets requirements
+        if (resource.requires && !hasRequiredSkill(resource.requires)) {
+            updateStatus(strings[465] || 'You need the required skill first.');
+            return;
+        }
+        
+        // Spend ingredients
+        const spendSuccess = await spendIngredients({
+            playerId: currentPlayer.playerId,
+            recipe: resource,
+            inventory,
+            backpack,
+            setInventory,
+            setBackpack,
+            setCurrentPlayer,
+            updateStatus,
+        });
+        
+        if (!spendSuccess) {
+            console.warn('Failed to spend ingredients.');
+            return;
+        }
+        
+        // Add the new skill
+        const updatedSkills = [...ownedSkills];
+        updatedSkills.push({ type: resource.type, category: resource.category, quantity: 1 });
+        setOwnedSkills(updatedSkills);
+        updateStatus(`💪 ${getLocalizedString(resource.type, strings)} skill acquired.`);
+        
+        try { 
+            await axios.post(`${API_BASE}/api/update-skills`, {
+                playerId: currentPlayer.playerId,
+                skills: updatedSkills,
+            });
+            await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
+            await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);    
+            await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+            
+            // Update the skills list locally
+            setCourthouseSkills(prev => prev.filter(skill => skill.type !== resource.type));
+        } catch (error) {
+            console.error('Error updating player on server:', error);
+            updateStatus('Error updating player on server.');
         }
     };
 
@@ -365,6 +471,93 @@ const CourthousePanel = ({
                 </div>
             ) : (
                 <>
+
+                {/* Skills Section */}
+
+                {courthouseSkills.length > 0 && (
+                    <>
+                        <div className="skills-options">
+                            {isLoadingSkills ? (
+                                <p>{strings[98] || "Loading..."}</p>
+                            ) : (
+                                courthouseSkills.map((resource) => {
+                                    const affordable = canAfford(resource, inventory, backpack, 1);
+                                    const meetsRequirement = hasRequiredSkill(resource.requires);
+
+                                    const formattedCosts = [1, 2, 3, 4].map((i) => {
+                                        const type = resource[`ingredient${i}`];
+                                        const qty = resource[`ingredient${i}qty`];
+                                        if (!type || !qty) return '';
+
+                                        const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
+                                        const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
+                                        const playerQty = inventoryQty + backpackQty;
+                                        const color = playerQty >= qty ? 'green' : 'red';
+                                        const symbol = masterResources.find(r => r.type === type)?.symbol || '';
+                                        return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
+                                    }).join('');
+
+                                    const skillColor = meetsRequirement ? 'green' : 'red';
+                                    const details =
+                                        (resource.requires ? `<span style="color: ${skillColor};">${strings[460] || "Requires:"} ${getLocalizedString(resource.requires, strings)}</span><br>` : '') +
+                                        `${strings[461] || "Cost:"}<div>${formattedCosts}</div>`;
+
+                                    // Check if this skill modifies a player attribute
+                                    const attributeModifier = resource.output
+                                        ? `+${resource.qtycollected || 1} to ${strings[resource.output] || resource.output}`
+                                        : null;
+
+                                    // Check if this skill provides a collection buff
+                                    let buffText = '';
+                                    const buffedItems = masterSkills?.[resource.type];
+                                    if (buffedItems && typeof buffedItems === 'object') {
+                                        const items = Object.keys(buffedItems);
+                                        if (items.length > 0) {
+                                            const prettyList = items.join(', ');
+                                            buffText = `Collection multiplied: ${prettyList}`;
+                                        }
+                                    }
+
+                                    const unlocks = masterResources
+                                        .filter((res) => res.requires === resource.type)
+                                        .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
+                                        .join(', ') || 'None';
+
+                                    const info = (
+                                        <div className="info-content">
+                                            {attributeModifier && <div>{attributeModifier}</div>}
+                                            {unlocks !== 'None' && (
+                                                <div style={{ display: 'block', marginBottom: '3px' }}>
+                                                    <strong>Unlocks:</strong> {unlocks}
+                                                </div>
+                                            )}
+                                            {buffText && <div style={{ color: 'blue' }}>{buffText}</div>}
+                                        </div>
+                                    );
+
+                                    return (
+                                        <ResourceButton
+                                            key={resource.type}
+                                            symbol={resource.symbol}
+                                            name={getLocalizedString(resource.type, strings)}
+                                            details={details}
+                                            info={info}
+                                            disabled={!affordable || !meetsRequirement}
+                                            onClick={() => handlePurchaseSkill(resource.type)}
+                                            resource={resource}
+                                            inventory={inventory}
+                                            backpack={backpack}
+                                            masterResources={masterResources}
+                                            currentPlayer={currentPlayer}
+                                        />
+                                    );
+                                })
+                            )}
+                        </div>
+                        <hr className="inventory-divider" />
+                    </>
+                )}
+                
                 {isMayor && <h2>{strings[2080]}</h2>}
                 
                 <div className="debug-buttons">
@@ -439,19 +632,16 @@ const CourthousePanel = ({
 
 {/* ELECTIONS section */} 
 
-                    <br></br> 
                     <h2>{strings[2045]}</h2>
-                    <div className="shared-buttons">
-                        <button className="btn-basic btn-success" onClick={handleViewElectionLog}>Recent Election Results</button>
-                    </div>
-                    <p><strong>
+
+                    <h3><strong>
                         {electionPhase === "Counting" && strings["2062"]}
                         {electionPhase === "Voting" && strings["2061"]}
                         {electionPhase === "Campaigning" && strings["2060"]}
                         {electionPhase === "Administration" && strings["2063"]}
-                    </strong></p>
-                    <p>{countdown}</p>
-
+                    </strong> {"  "} {countdown}</h3>
+                    <br></br>
+                    
 {/* ✅ Campaigning Phase */}
 
                     {electionPhase === "Campaigning" && (
@@ -480,7 +670,7 @@ const CourthousePanel = ({
                                         placeholder={strings[2072]}
                                     />
                                     <div className="shared-buttons">
-                                        <button className="btn-basic btn-success" onClick={handleAddCampaignPromise}>Submit Campaign Promise</button>
+                                        <button className="btn-basic btn-success" onClick={handleAddCampaignPromise}>{strings[2073]}</button>
                                     </div>
                                 </>
                             )}
@@ -497,7 +687,7 @@ const CourthousePanel = ({
                                 <p>{strings[2077]}</p>
                             ) : candidateList.length > 0 ? (
                                 <>
-                                    <h3>Cast Your Vote</h3>
+                                    <h3>{strings[2074]}</h3>
                                     {candidateList.map((candidate, index) => (
                                         <div 
                                             key={candidate.playerId || index}
@@ -558,6 +748,7 @@ const CourthousePanel = ({
                             
                         </div>
                     )}
+        <div className="shared-buttons"><button className="btn-basic btn-success" onClick={handleViewElectionLog}>Recent Election Results</button></div>
                 </div>
                 </>
             )}

@@ -10,9 +10,9 @@ const TILE_ROUNDING_CONFIG = {
   o: true,  // other - rounded
   d: false, // dirt - no rounding (base layer)
   p: true,  // pavement - rounded
-  x: true,  // pavement - rounded
-  y: false,  // pavement - rounded
-  z: false  // pavement - rounded
+  x: true,  // cobblestone - rounded
+  y: false,  // dungeon - rounded
+  z: false  // tbd - rounded
 };
 
 // Get CSS color for a tile type
@@ -173,7 +173,7 @@ function calculateCornerColor(tileType, corner, rowIndex, colIndex, tileTypes) {
   }
   
   // If only one adjacent tile type, use priority system
-  const priorityOrder = ['w', 'l', 's', 'd', 'g', 'p', 'n', 'o'];
+  const priorityOrder = ['w', 'l', 's', 'd', 'g', 'p', 'n', 'o', 'x', 'y', 'z'];
   
   for (const priorityType of priorityOrder) {
     if (adjacentTiles.includes(priorityType)) {
@@ -446,12 +446,12 @@ function createTileTexture(tileType, TILE_SIZE, variation = 0, rowIndex, colInde
         drawWigglyLine(forkX, forkY, rightEndX, rightEndY, 0.2); // Less wiggle on forks
         ctx.stroke();
         
-        ctx.restore();
+        ctx.restore(); 
       }
     }
   }
   
-  if (tileType === 'p') {
+  if (tileType === 'p' || tileType === 'x') {
     // App icon-style pavement tile with grass showing through rounded corners
     const grassColor = '#67c257';
     const cornerRadius = Math.max(4, TILE_SIZE * 0.15); // Nice visible rounded corners

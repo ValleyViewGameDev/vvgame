@@ -174,6 +174,9 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, gridId, currentPl
     case "stone":
       newType = "s";
       break;
+    case "cobblestone":
+      newType = "x";
+      break;
     case "water":
       newType = "w";
       break;

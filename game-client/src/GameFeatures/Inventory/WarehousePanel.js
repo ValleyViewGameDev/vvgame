@@ -186,7 +186,7 @@ const WarehousePanel = ({
       <div className="standard-panel">
         <div className="warehouse-capacity-display">
           <h3>
-            {strings[183]} {currentUsage}/
+            {strings[183]} {currentUsage} / {" "}
             <span style={currentPlayer?.accountStatus === "Gold" ? {color: "#B8860B"} : {}}>
               {finalCapacities.warehouse}
             </span>
@@ -198,12 +198,9 @@ const WarehousePanel = ({
           )}
         </div>
 
+
         {nextLevel ? (
           <>
-            <p className="upgrade-info">
-              {strings[196] || "Add"} {nextLevel.add} {strings[198] || "to warehouse capacity"}
-            </p>
-
             <div className="skills-options">
               <ResourceButton
                 symbol="📦"
@@ -236,6 +233,9 @@ const WarehousePanel = ({
                 currentPlayer={currentPlayer}
               />
             </div>
+            <p className="upgrade-info">
+              {strings[196] || "Add"} {nextLevel.add} {strings[198] || "to warehouse capacity"}
+            </p>
           </>
         ) : (
           <div className="max-level">

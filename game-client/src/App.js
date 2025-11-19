@@ -2696,6 +2696,8 @@ return (
           gridId={gridId}
           TILE_SIZE={activeTileSize}
           isDeveloper={isDeveloper}
+          masterResources={masterResources}
+          masterSkills={masterSkills}
         />
       )}
       {activePanel === 'QuestPanel' && (

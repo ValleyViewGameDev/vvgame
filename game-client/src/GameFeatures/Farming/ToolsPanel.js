@@ -151,6 +151,18 @@ const ToolsPanel = ({
               onClick={() => handleTerraformWithCooldown("stone")}
             />
 
+            {/* Lay Cobble Button */}
+            <ResourceButton
+              symbol="⬜️"
+              name={getLocalizedString("Lay Cobblestone", strings)}
+              className={coolingDownItems.has('terraform-cobblestone') ? 'cooldown' : ''}
+              style={coolingDownItems.has('terraform-cobblestone') ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
+              details={`${strings[461]} None<br>${strings[460]}${getLocalizedString('Pickaxe', strings)}`}
+              disabled={coolingDownItems.has('terraform-cobblestone') || !hasRequiredSkill('Pickaxe')}
+              info={strings[313]}
+              onClick={() => handleTerraformWithCooldown("cobblestone")}
+            />
+
             {/* Create Water Button - Developer Only */}
             {isDeveloper && (
               <ResourceButton
