@@ -2212,6 +2212,108 @@ function spendIngredients(recipe, inventory, backpack) {
   return true;
 }
 
+// Make it snow - convert all grass tiles to snow tiles
+router.post('/make-it-snow/:gridId', async (req, res) => {
+  try {
+    const { gridId } = req.params;
+    console.log(`❄️ Making it snow on grid ${gridId}`);
+    
+    // Fetch the grid from database
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found' });
+    }
+    
+    // Import TileEncoder
+    const TileEncoder = require('../utils/TileEncoder');
+    
+    // Decode the current tiles
+    const tiles = TileEncoder.decode(grid.tiles);
+    
+    // Count tiles being converted
+    let convertedCount = 0;
+    
+    // Convert all grass ('g') tiles to snow ('o') tiles
+    for (let y = 0; y < tiles.length; y++) {
+      for (let x = 0; x < tiles[y].length; x++) {
+        if (tiles[y][x] === 'g') {
+          tiles[y][x] = 'o';
+          convertedCount++;
+        }
+      }
+    }
+    
+    // Encode the modified tiles back
+    const encodedTiles = TileEncoder.encode(tiles);
+    
+    // Update the grid in the database
+    grid.tiles = encodedTiles;
+    await grid.save();
+    
+    console.log(`✅ Converted ${convertedCount} grass tiles to snow on grid ${gridId}`);
+    res.json({ 
+      success: true, 
+      message: `Made it snow on grid ${gridId}`, 
+      tilesConverted: convertedCount 
+    });
+    
+  } catch (error) {
+    console.error('❌ Error making it snow:', error);
+    res.status(500).json({ error: 'Failed to make it snow' });
+  }
+});
+
+// Melt the snow - convert all snow tiles to grass tiles
+router.post('/melt-the-snow/:gridId', async (req, res) => {
+  try {
+    const { gridId } = req.params;
+    console.log(`☀️ Melting snow on grid ${gridId}`);
+    
+    // Fetch the grid from database
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found' });
+    }
+    
+    // Import TileEncoder
+    const TileEncoder = require('../utils/TileEncoder');
+    
+    // Decode the current tiles
+    const tiles = TileEncoder.decode(grid.tiles);
+    
+    // Count tiles being converted
+    let convertedCount = 0;
+    
+    // Convert all snow ('o') tiles to grass ('g') tiles
+    for (let y = 0; y < tiles.length; y++) {
+      for (let x = 0; x < tiles[y].length; x++) {
+        if (tiles[y][x] === 'o') {
+          tiles[y][x] = 'g';
+          convertedCount++;
+        }
+      }
+    }
+    
+    // Encode the modified tiles back
+    const encodedTiles = TileEncoder.encode(tiles);
+    
+    // Update the grid in the database
+    grid.tiles = encodedTiles;
+    await grid.save();
+    
+    console.log(`✅ Converted ${convertedCount} snow tiles to grass on grid ${gridId}`);
+    res.json({ 
+      success: true, 
+      message: `Melted snow on grid ${gridId}`, 
+      tilesConverted: convertedCount 
+    });
+    
+  } catch (error) {
+    console.error('❌ Error melting snow:', error);
+    res.status(500).json({ error: 'Failed to melt snow' });
+  }
+});
+
 module.exports = router;
 
 

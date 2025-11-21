@@ -93,6 +93,20 @@ const playerSchema = new mongoose.Schema({
       }));
     }
   },
+  tradeStallRequests: {
+    type: Array,
+    default: function() {
+      // Initialize with 3 request slots, first one unlocked by default
+      return Array.from({ length: 3 }, (_, index) => ({
+        slotIndex: index,
+        locked: index !== 0, // First slot (index 0) is unlocked
+        resource: null,
+        amount: 0,
+        price: 0,
+        moneyCommitted: 0
+      }));
+    }
+  },
 
   activeQuests: [
     {
@@ -125,6 +139,7 @@ const playerSchema = new mongoose.Schema({
   homesteadGridCoord: { type: Number, default: null }, // The gridCoord of the homestead for FrontierMiniMap display
 
   settings: {
+    seasonOverride: { type: String, default: null }, // "Spring", "Summer", "Fall", "Winter"
     isStateMachineEnabled: { type: Boolean, default: false },
     isTeleportEnabled: { type: Boolean, default: false },
     renderCanvasResources: { type: Boolean, default: false },

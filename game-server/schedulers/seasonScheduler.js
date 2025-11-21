@@ -28,7 +28,7 @@ async function seasonScheduler(frontierId, phase, frontier = null) {
             : "Spring";
 
             await seasonFinalizer(frontierId, currentSeasonType, currentSeasonNumber);
-            await seasonReset(frontierId);  
+            await seasonReset(frontierId, nextSeasonType);  
             
             console.log('🏁🏁🏁 FINISHED SEASON LOGIC (phase transition only)');
         }

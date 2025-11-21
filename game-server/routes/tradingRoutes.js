@@ -775,4 +775,219 @@ router.post('/outpost/sell-to-game', async (req, res) => {
   }
 });
 
+/**
+ * Trade Stall Request endpoints (buy orders)
+ */
+
+// Get player's trade stall requests
+router.get('/player-trade-stall-requests', async (req, res) => {
+  const { playerId } = req.query;
+
+  if (!playerId) {
+    return res.status(400).send('Missing required fields: playerId');
+  }
+
+  try {
+    const player = await Player.findOne({ playerId });
+    if (!player) {
+      return res.status(404).send('Player not found');
+    }
+
+    // Ensure player has proper tradeStallRequests structure
+    if (!player.tradeStallRequests || player.tradeStallRequests.length !== 3) {
+      player.tradeStallRequests = Array.from({ length: 3 }, (_, index) => ({
+        slotIndex: index,
+        locked: index !== 0, // First slot unlocked by default
+        resource: null,
+        amount: 0,
+        price: 0,
+        moneyCommitted: 0
+      }));
+      await player.save();
+    } else {
+      // Migration for existing players: add locked field if missing
+      let needsSave = false;
+      player.tradeStallRequests.forEach((slot, index) => {
+        if (slot && slot.locked === undefined) {
+          if (slot.resource && slot.amount > 0) {
+            slot.locked = false;
+          } else {
+            slot.locked = index !== 0;
+          }
+          needsSave = true;
+        }
+      });
+
+      if (needsSave) {
+        await player.save();
+      }
+    }
+
+    res.status(200).json({ tradeStallRequests: player.tradeStallRequests });
+  } catch (error) {
+    console.error('Error fetching trade stall requests:', error);
+    res.status(500).send('Server error fetching trade stall requests');
+  }
+});
+
+// Update player's trade stall requests
+router.post('/update-player-trade-stall-requests', async (req, res) => {
+  console.log('POST /update-player-trade-stall-requests route hit');
+  const { playerId, tradeStallRequests } = req.body;
+
+  if (!playerId || !tradeStallRequests) {
+    return res.status(400).send('Missing required fields: playerId or tradeStallRequests');
+  }
+
+  try {
+    const player = await Player.findOne({ playerId });
+    if (!player) {
+      return res.status(404).send('Player not found');
+    }
+
+    // Ensure player has proper tradeStallRequests structure
+    if (!player.tradeStallRequests || player.tradeStallRequests.length !== 3) {
+      player.tradeStallRequests = Array.from({ length: 3 }, (_, index) => ({
+        slotIndex: index,
+        locked: index !== 0,
+        resource: null,
+        amount: 0,
+        price: 0,
+        moneyCommitted: 0
+      }));
+    }
+
+    // Update only the specific slots that have changed
+    tradeStallRequests.forEach((slot, index) => {
+      if (slot && index < 3) {
+        player.tradeStallRequests[index] = {
+          ...player.tradeStallRequests[index],
+          slotIndex: index,
+          locked: slot.locked !== undefined ? slot.locked : player.tradeStallRequests[index].locked,
+          resource: slot.resource || null,
+          amount: slot.amount || 0,
+          price: slot.price || 0,
+          moneyCommitted: slot.moneyCommitted || 0
+        };
+      }
+    });
+
+    await player.save();
+
+    console.log('Trade Stall Requests updated successfully:', player.tradeStallRequests);
+    res.status(200).json({ success: true, tradeStallRequests: player.tradeStallRequests });
+  } catch (error) {
+    console.error('Error updating trade stall requests:', error);
+    res.status(500).send('Server error updating trade stall requests');
+  }
+});
+
+// Fulfill a player's request (sell to their buy order) - protected endpoint
+router.post('/trade-stall/fulfill-request', async (req, res) => {
+  const { sellerPlayerId, buyerPlayerId, slotIndex, transactionId, transactionKey } = req.body;
+
+  if (!sellerPlayerId || !buyerPlayerId || slotIndex === undefined || !transactionId || !transactionKey) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  try {
+    // Start transaction for the seller
+    const { success, message, player: seller } = await TransactionManager.startTransaction(
+      sellerPlayerId,
+      `${transactionKey}-${slotIndex}`,
+      transactionId
+    );
+
+    if (message === 'Already processed') {
+      return res.json({ success: true, message: 'Request already fulfilled' });
+    }
+
+    // Get buyer
+    const buyer = await Player.findOne({ playerId: buyerPlayerId });
+    if (!buyer) {
+      await TransactionManager.failTransaction(sellerPlayerId, `${transactionKey}-${slotIndex}`);
+      return res.status(404).json({ error: 'Buyer not found' });
+    }
+
+    // Validate the request slot
+    if (!buyer.tradeStallRequests || !buyer.tradeStallRequests[slotIndex]) {
+      await TransactionManager.failTransaction(sellerPlayerId, `${transactionKey}-${slotIndex}`);
+      return res.status(400).json({ error: 'Invalid request slot' });
+    }
+
+    const request = buyer.tradeStallRequests[slotIndex];
+    if (!request.resource || !request.amount || !request.moneyCommitted) {
+      await TransactionManager.failTransaction(sellerPlayerId, `${transactionKey}-${slotIndex}`);
+      return res.status(400).json({ error: 'Invalid or empty request' });
+    }
+
+    // Check if seller has the requested items in inventory
+    const sellerItem = seller.inventory.find(item => item.type === request.resource);
+    if (!sellerItem || sellerItem.quantity < request.amount) {
+      await TransactionManager.failTransaction(sellerPlayerId, `${transactionKey}-${slotIndex}`);
+      return res.status(400).json({ error: 'Seller does not have enough items' });
+    }
+
+    // Deduct items from seller's inventory
+    sellerItem.quantity -= request.amount;
+    if (sellerItem.quantity === 0) {
+      seller.inventory = seller.inventory.filter(item => item.type !== request.resource);
+    }
+
+    // Add money to seller's inventory
+    const sellerMoney = seller.inventory.find(item => item.type === 'Money');
+    if (sellerMoney) {
+      sellerMoney.quantity += request.moneyCommitted;
+    } else {
+      seller.inventory.push({ type: 'Money', quantity: request.moneyCommitted });
+    }
+
+    // Add items to buyer's inventory
+    const buyerItem = buyer.inventory.find(item => item.type === request.resource);
+    if (buyerItem) {
+      buyerItem.quantity += request.amount;
+    } else {
+      buyer.inventory.push({ type: request.resource, quantity: request.amount });
+    }
+
+    // Clear the request slot (money was already committed, no need to refund)
+    buyer.tradeStallRequests[slotIndex] = {
+      slotIndex: slotIndex,
+      locked: buyer.tradeStallRequests[slotIndex].locked || false,
+      resource: null,
+      amount: 0,
+      price: 0,
+      moneyCommitted: 0
+    };
+
+    await seller.save();
+    await buyer.save();
+
+    // Complete transaction
+    await TransactionManager.completeTransaction(
+      sellerPlayerId,
+      `${transactionKey}-${slotIndex}`,
+      transactionId
+    );
+
+    res.json({
+      success: true,
+      earned: request.moneyCommitted,
+      resource: request.resource,
+      amount: request.amount,
+      tradeStallRequests: buyer.tradeStallRequests,
+      sellerInventory: seller.inventory,
+      buyerInventory: buyer.inventory
+    });
+
+  } catch (error) {
+    await TransactionManager.failTransaction(sellerPlayerId, `${transactionKey}-${slotIndex}`);
+    if (error.message === 'Transaction in progress') {
+      return res.status(429).json({ error: 'Fulfillment already in progress' });
+    }
+    console.error('Error fulfilling request:', error);
+    res.status(500).json({ error: 'Failed to fulfill request' });
+  }
+});
+
 module.exports = router;

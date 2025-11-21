@@ -1,7 +1,7 @@
 {
   "maxCrops": 1000,
   "maxFarmAnimals": 100,
-  "maxTownBuildings": 30,
+  "maxTownBuildings": 800,
   "doctorsPerHospital": 10,
   "warehouseCapacityGold": 100000,
   "backpackCapacityGold": 4000,
@@ -67,6 +67,29 @@
       "requiresGoldPass": true
     }
   ],
+  "tradeStallRequests": [
+    {
+      "slotIndex": 0,
+      "maxAmount": 10,
+      "unlocked": true,
+      "unlockCost": 5,
+      "requiresGoldPass": false
+    },
+    {
+      "slotIndex": 1,
+      "maxAmount": 75,
+      "unlocked": false,
+      "unlockCost": 50,
+      "requiresGoldPass": true
+    },
+    {
+      "slotIndex": 2,
+      "maxAmount": 100,
+      "unlocked": false,
+      "unlockCost": 100,
+      "requiresGoldPass": true
+    }
+  ],
   "taxes": {
     "phases": {
       "waiting": 4319.25,
@@ -77,7 +100,7 @@
   "seasons": {
     "phases": {
       "onSeason": 129585,
-      "offSeason": 15
+      "offSeason": 25
     },
     "startPhase": "onSeason"
   },

@@ -11,7 +11,7 @@ const { relocatePlayersHome } = require('./relocatePlayersHome');
 const { performGridReset } = require('./resetGridLogic');
   
 
-async function seasonReset(frontierId) {
+async function seasonReset(frontierId, nextSeasonType = null) {
     try {
       const startTime = Date.now();
       console.group("↩️↩️↩️↩️↩️ STARTING seasonReset for frontier: ",frontierId);
@@ -86,6 +86,74 @@ async function seasonReset(frontierId) {
         }
       } else {
         console.warn("⚠️ Current season number missing; cannot update gridsreset in log.");
+      }
+
+      // ✅ STEP 2.5: Apply seasonal tile changes (snow/melt) based on new season
+      if (nextSeasonType) {
+        console.log(`🌨️ STEP 2.5: Applying seasonal tile changes for ${nextSeasonType}...`);
+        const TileEncoder = require('./TileEncoder');
+        
+        // Get ALL grids in the frontier (including homesteads)
+        const allGridsForSeasonalChange = await Grid.find({ frontierId });
+        console.log(`🌍 Found ${allGridsForSeasonalChange.length} total grids for seasonal tile changes`);
+        
+        let tilesModifiedCount = 0;
+        
+        // Process each grid sequentially to avoid race conditions
+        for (const grid of allGridsForSeasonalChange) {
+          try {
+            console.log(`Processing seasonal change for grid ${grid._id} (${grid.gridType})...`);
+            
+            // Decode tiles
+            const tiles = TileEncoder.decode(grid.tiles);
+            let modified = false;
+            
+            if (nextSeasonType === 'Winter' || nextSeasonType === 'winter') {
+              // Convert grass to snow
+              for (let y = 0; y < tiles.length; y++) {
+                for (let x = 0; x < tiles[y].length; x++) {
+                  if (tiles[y][x] === 'g') {
+                    tiles[y][x] = 'o';
+                    modified = true;
+                    tilesModifiedCount++;
+                  }
+                }
+              }
+              if (modified) {
+                console.log(`❄️ Made it snow on grid ${grid._id} (${grid.gridType})`);
+              }
+            } else if (nextSeasonType === 'Spring' || nextSeasonType === 'spring') {
+              // Convert snow to grass
+              for (let y = 0; y < tiles.length; y++) {
+                for (let x = 0; x < tiles[y].length; x++) {
+                  if (tiles[y][x] === 'o') {
+                    tiles[y][x] = 'g';
+                    modified = true;
+                    tilesModifiedCount++;
+                  }
+                }
+              }
+              if (modified) {
+                console.log(`🌱 Melted snow on grid ${grid._id} (${grid.gridType})`);
+              }
+            }
+            
+            // Save if modified
+            if (modified) {
+              const encodedTiles = TileEncoder.encode(tiles);
+              grid.tiles = encodedTiles;
+              await grid.save();
+            }
+            
+          } catch (err) {
+            console.error(`❌ Error applying seasonal change to grid ${grid._id}:`, err.message);
+          }
+          
+          // Add a small delay between grids to ensure sequential processing
+          await new Promise(resolve => setTimeout(resolve, 10));
+        }
+        
+        console.log(`✅ Seasonal tile changes complete. Modified ${tilesModifiedCount} tiles across ${allGridsForSeasonalChange.length} grids.`);
       }
 
  
