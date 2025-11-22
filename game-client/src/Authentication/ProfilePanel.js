@@ -58,6 +58,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
     isStateMachineEnabled: false,
     isTeleportEnabled: false,
     toggleVFX: true,
+    seasonOverride: 'None',
   });
 
   // Initialize form fields and local settings
@@ -69,6 +70,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         isTeleportEnabled: settings?.isTeleportEnabled ?? false,
         toggleVFX: settings?.toggleVFX ?? true,
         rangeOn: settings?.rangeOn ?? true,
+        seasonOverride: settings?.seasonOverride ?? 'None',
       });
   
       setFormData({
@@ -133,6 +135,8 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         "settings.isStateMachineEnabled": localSettings.isStateMachineEnabled,
         "settings.isTeleportEnabled": localSettings.isTeleportEnabled,
         "settings.toggleVFX": localSettings.toggleVFX,
+        "settings.seasonOverride": localSettings.seasonOverride,
+        "settings.rangeOn": localSettings.rangeOn,
       };
   
       console.log('Saving updates:', updates);
@@ -393,6 +397,98 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
             VFX: {localSettings.toggleVFX ? 'is ON' : 'is OFF'}
           </button>
         </div>
+
+        {isDeveloper && (
+          <>
+            <h4>Season Override</h4>
+            <div className="season-override-options">
+              <label style={{ display: 'block', marginBottom: '10px' }}>
+                <input
+                  type="radio"
+                  name="seasonOverride"
+                  value="None"
+                  checked={localSettings.seasonOverride === 'None'}
+                  onChange={() => {
+                    setLocalSettings(prev => ({
+                      ...prev,
+                      seasonOverride: 'None'
+                    }));
+                    updatePlayerSettings({ ...localSettings, seasonOverride: 'None' }, currentPlayer, setCurrentPlayer);
+                  }}
+                />
+                None (Use current season)
+              </label>
+              <label style={{ display: 'block', marginBottom: '10px' }}>
+                <input
+                  type="radio"
+                  name="seasonOverride"
+                  value="Spring"
+                  checked={localSettings.seasonOverride === 'Spring'}
+                  onChange={() => {
+                    setLocalSettings(prev => ({
+                      ...prev,
+                      seasonOverride: 'Spring'
+                    }));
+                    updatePlayerSettings({ ...localSettings, seasonOverride: 'Spring' }, currentPlayer, setCurrentPlayer);
+                    setTimeout(() => window.location.reload(), 500);
+                  }}
+                />
+                Spring 🌸
+              </label>
+              <label style={{ display: 'block', marginBottom: '10px' }}>
+                <input
+                  type="radio"
+                  name="seasonOverride"
+                  value="Summer"
+                  checked={localSettings.seasonOverride === 'Summer'}
+                  onChange={() => {
+                    setLocalSettings(prev => ({
+                      ...prev,
+                      seasonOverride: 'Summer'
+                    }));
+                    updatePlayerSettings({ ...localSettings, seasonOverride: 'Summer' }, currentPlayer, setCurrentPlayer);
+                    setTimeout(() => window.location.reload(), 500);
+                  }}
+                />
+                Summer ☀️
+              </label>
+              <label style={{ display: 'block', marginBottom: '10px' }}>
+                <input
+                  type="radio"
+                  name="seasonOverride"
+                  value="Fall"
+                  checked={localSettings.seasonOverride === 'Fall'}
+                  onChange={() => {
+                    setLocalSettings(prev => ({
+                      ...prev,
+                      seasonOverride: 'Fall'
+                    }));
+                    updatePlayerSettings({ ...localSettings, seasonOverride: 'Fall' }, currentPlayer, setCurrentPlayer);
+                    setTimeout(() => window.location.reload(), 500);
+                  }}
+                />
+                Fall 🍂
+              </label>
+              <label style={{ display: 'block', marginBottom: '10px' }}>
+                <input
+                  type="radio"
+                  name="seasonOverride"
+                  value="Winter"
+                  checked={localSettings.seasonOverride === 'Winter'}
+                  onChange={() => {
+                    setLocalSettings(prev => ({
+                      ...prev,
+                      seasonOverride: 'Winter'
+                    }));
+                    updatePlayerSettings({ ...localSettings, seasonOverride: 'Winter' }, currentPlayer, setCurrentPlayer);
+                    setTimeout(() => window.location.reload(), 500);
+                  }}
+                />
+                Winter ❄️
+              </label>
+            </div>
+          </>
+        )}
 
         {showChangeIconModal && (
           <ChangeIconModal

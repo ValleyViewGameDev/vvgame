@@ -54,6 +54,13 @@
   font-weight: bold;
   font-size: 16px;
   color: #333;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.player-icon {
+  font-size: 18px;
 }
 
 .player-items-count {
@@ -63,8 +70,8 @@
 
 /* Player's available slots */
 .player-slots {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
@@ -77,6 +84,16 @@
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 10px;
+  flex: 0 0 calc(30% - 4px);
+  min-width: 240px;
+  max-width: calc(30% - 4px);
+}
+
+/* Grayed out unfulfillable request */
+.slot-item.unfulfillable {
+  background-color: #f0f0f0;
+  opacity: 0.6;
+  border-color: #ccc;
 }
 
 .slot-info {

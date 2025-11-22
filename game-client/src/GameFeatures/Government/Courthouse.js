@@ -564,7 +564,7 @@ const CourthousePanel = ({
 
 
 {/* Settlement name section */}
-                    <h3>{strings[2082]}</h3>
+                    <h2>{strings[2082]}</h2>
                     {isMayor ? (
                         <div className="settlement-name-editor">
                             <input
@@ -585,7 +585,7 @@ const CourthousePanel = ({
                             </div>
                         </div>
                     ) : (
-                        <h3 style={{ color: 'rgb(154, 106, 22)' }}><strong>{settlement?.displayName || 'Unnamed'}</strong></h3>
+                        <h2 style={{ color: 'rgb(154, 106, 22)' }}><strong>{settlement?.displayName || 'Unnamed'}</strong></h2>
                     )}
  
 {/* POPULATION section */}
@@ -620,7 +620,7 @@ const CourthousePanel = ({
 {/* CURRENT MAYOR section - only show if player is not the mayor */}
                     {!isMayor && (
                         <>
-                            <h3>{strings[2085]}</h3>
+                            <h2>{strings[2085]}</h2>
                             <h2 style={{ color: 'rgb(154, 106, 22)' }}><strong>{mayor || "Vacant"}</strong></h2>
                         </>
                     )}
@@ -678,9 +678,6 @@ const CourthousePanel = ({
                     )}
 
 {/* Voting Phase UI */}
-
-                <div className="voting-section">
-                </div>
                     {electionPhase === 'Voting' && (
                         <div className="voting-section">
                             {hasVoted ? (
@@ -709,7 +706,12 @@ const CourthousePanel = ({
                                                     setSelectedCandidate(candidate.playerId);
                                                 }}
                                             />
-                                            {candidate.username}
+                                            <div style={{ marginLeft: '10px' }}>
+                                                <strong>{candidate.username}</strong>
+                                                <div style={{ fontSize: '0.9em', color: '#666', marginTop: '4px' }}>
+                                                    "{getCandidatePromise(candidate.playerId)}"
+                                                </div>
+                                            </div>
                                         </div>
                                     ))}
                                     <div className="shared-buttons">

@@ -170,3 +170,36 @@
   line-height: 1.2;
   font-family: 'Baskerville', serif;
 }
+
+/* Shared Tab Navigation */
+.tab-navigation {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #ddd;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 8px 12px;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.2s ease;
+  margin-bottom: -2px;
+}
+
+.tab-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+.tab-button.active {
+  border-bottom-color: rgb(154, 106, 22);
+  color: rgb(154, 106, 22);
+  font-weight: bold;
+}

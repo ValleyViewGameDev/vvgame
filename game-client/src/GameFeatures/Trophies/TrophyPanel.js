@@ -190,13 +190,13 @@ function TrophyPanel({ onClose, masterResources, masterTrophies, currentPlayer, 
                                             {getLocalizedString(trophyDef.name, strings)}
                                         </div>
                                         {trophyDef.type === 'Progress' && progressInfo && (
-                                            <div className="trophy-progress">
+                                            <div className="trophy-progress-container">
                                                 <div className="progress-text">
                                                     {progressInfo.displayText}
                                                 </div>
                                                 <div className="progress-bar">
-                                                    <div 
-                                                        className="progress-fill" 
+                                                    <div
+                                                        className="progress-fill"
                                                         style={{
                                                             width: `${Math.min(100, Math.max(0, progressInfo.percentage))}%`
                                                         }}

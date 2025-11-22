@@ -19,7 +19,7 @@ const TILE_ROUNDING_CONFIG = {
 function getTileColor(tileType) {
   const tileColors = {
     g: '#67c257', // grass 
-    s: '#acab9bff', // stone
+    s: '#8fa6bdff', // stone
     d: '#c0834a', // dirt
     w: '#58cad8', // water
     l: '#c4583d', // lava
@@ -512,7 +512,7 @@ function createTileTexture(tileType, TILE_SIZE, variation = 0, rowIndex, colInde
   // App icon-style COBBLESTONE tile with grass showing through rounded corners
 
     if (tileType === 'x') {
-    const grassColor = '#67c257';
+    const grassColor = '#307823ff';
     const cornerRadius = Math.max(4, TILE_SIZE * 0.15); // Nice visible rounded corners
     
     // Step 1: Fill entire tile with grass color (background)
@@ -562,7 +562,7 @@ function createTileTexture(tileType, TILE_SIZE, variation = 0, rowIndex, colInde
     ctx.globalAlpha = 1.0;
     
     // Add beveled effect within the rounded shape
-    const bevelSize = Math.max(1, TILE_SIZE * 0.05);
+    const bevelSize = Math.max(1, TILE_SIZE * 0.06);
     const inset = grassWidth;
     
     // Light highlights (top and left)
@@ -612,7 +612,7 @@ function createTileTexture(tileType, TILE_SIZE, variation = 0, rowIndex, colInde
       const stretchLength = Math.max(4, TILE_SIZE * 0.15); // About 6 pixels at normal size
       const stretchWidth = Math.max(1, TILE_SIZE * 0.02);
       
-      ctx.fillStyle = `rgba(27, 151, 27, 0.7)`;
+      ctx.fillStyle = `rgba(19, 100, 19, 0.7)`;
       ctx.save();
       ctx.translate(x, y);
       

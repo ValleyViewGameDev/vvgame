@@ -103,6 +103,20 @@
         "reward": 1
     },
     {
+        "name": "Brass Bell",
+        "tooltip": "Secure the Brass Bell from the thief called Iago.",
+        "type": "Count",
+        "visible": true,
+        "reward": 1
+    },
+    {
+        "name": "Phoenix Feather",
+        "tooltip": "Slay the legendary phoenix and collect its feather.",
+        "type": "Count",
+        "visible": true,
+        "reward": 1
+    },
+    {
         "name": "King's Crown",
         "tooltip": "Recover the crown of King Leontes from its secret location in the Valley.",
         "type": "Progress",

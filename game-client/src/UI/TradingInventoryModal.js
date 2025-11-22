@@ -14,7 +14,9 @@ const TradingInventoryModal = ({
   handleAddToSlot,
   getSlotConfig,
   selectedSlotIndex,
-  transactionKeyPrefix = 'add-to-trade-slot'
+  transactionKeyPrefix = 'add-to-trade-slot',
+  isRequestMode = false,
+  playerMoney = 0
 }) => {
   const strings = useStrings();
   const [sortField, setSortField] = useState('name');
@@ -77,11 +79,11 @@ const TradingInventoryModal = ({
   return (
     <div className="inventory-modal wider">
       <button className="close-button" onClick={onClose}>✖</button>
-      
-      <h2>{strings[160]}</h2>
-      
+
+      <h2>{isRequestMode ? strings[10180] : strings[160]}</h2>
+
       <p className="trading-modal-subtitle">
-        {slotConfig.maxAmount} {strings[158]}
+        {slotConfig.maxAmount} {isRequestMode ? strings[10181] : strings[158]}
       </p>
       
       <div className="inventory-modal-container">
@@ -99,7 +101,7 @@ const TradingInventoryModal = ({
                   {strings[163]} {getSortIcon('price')}
                 </th>
                 <th onClick={() => handleSort('amount')} className="sortable-header">
-                  {strings[164]} {getSortIcon('amount')}
+                  {isRequestMode ? 'Amount to Request' : strings[164]} {getSortIcon('amount')}
                 </th>
                 <th></th>
               </tr>
@@ -112,7 +114,13 @@ const TradingInventoryModal = ({
             <tbody>
               {sortedInventory.map((item) => {
                 const resourceDetails = resourceData.find((res) => res.type === item.type);
-                const price = resourceDetails?.maxprice || 'N/A';
+                const price = resourceDetails?.maxprice || 0;
+                const currentAmount = amounts[item.type] || 0;
+                const totalCost = currentAmount * price;
+
+                // Calculate max affordable amount in request mode
+                const maxAffordable = isRequestMode ? Math.floor(playerMoney / price) : item.quantity;
+                const maxAllowed = Math.min(isRequestMode ? maxAffordable : item.quantity, slotConfig.maxAmount);
 
                 return (
                   <tr key={item.type}>
@@ -123,30 +131,30 @@ const TradingInventoryModal = ({
                       <div className="amount-input">
                         <button
                           onClick={() =>
-                            handleAmountChange(item.type, (amounts[item.type] || 0) - 1)
+                            handleAmountChange(item.type, currentAmount - 1)
                           }
-                          disabled={(amounts[item.type] || 0) <= 0}
+                          disabled={currentAmount <= 0}
                         >
                           -
                         </button>
                         <input
                           type="number"
-                          value={amounts[item.type] || 0}
+                          value={currentAmount}
                           onChange={(e) =>
                             handleAmountChange(item.type, parseInt(e.target.value, 10) || 0)
                           }
                         />
                         <button
                           onClick={() =>
-                            handleAmountChange(item.type, (amounts[item.type] || 0) + 1)
+                            handleAmountChange(item.type, currentAmount + 1)
                           }
-                          disabled={(amounts[item.type] || 0) >= Math.min(item.quantity, slotConfig.maxAmount)}
+                          disabled={currentAmount >= maxAllowed}
                         >
                           +
                         </button>
                         <button
                           onClick={() =>
-                            handleAmountChange(item.type, Math.min(item.quantity, slotConfig.maxAmount))
+                            handleAmountChange(item.type, maxAllowed)
                           }
                           style={{ marginLeft: '4px' }}
                         >
@@ -157,15 +165,17 @@ const TradingInventoryModal = ({
                     <td>
                       <TransactionButton
                         className="add-button"
-                        onAction={(transactionId, transactionKey) => 
+                        onAction={(transactionId, transactionKey) =>
                           handleAddToSlot(transactionId, transactionKey, item.type)
                         }
                         transactionKey={`${transactionKeyPrefix}-${item.type}`}
                         disabled={
-                          !(amounts[item.type] > 0 && amounts[item.type] <= item.quantity)
+                          isRequestMode
+                            ? !(currentAmount > 0 && totalCost <= playerMoney)
+                            : !(currentAmount > 0 && currentAmount <= item.quantity)
                         }
                       >
-                        {strings[166]}
+                        {isRequestMode ? 'Request' : strings[166]}
                       </TransactionButton>
                     </td>
                   </tr>

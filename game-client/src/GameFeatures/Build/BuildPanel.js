@@ -168,7 +168,7 @@ const BuildPanel = ({
     }).length;
   };
 
-  const maxTownBuildings = globalTuning?.maxTownBuildings || 50; // Default to 50 if not set
+  const maxTownBuildings = globalTuning?.maxTownBuildings || 500; // Default to 50 if not set
   const currentTownBuildings = countTownBuildings();
 
   const handleGemPurchase = async (modifiedRecipe) => {

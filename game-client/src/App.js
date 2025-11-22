@@ -1132,9 +1132,17 @@ const fetchTimersData = async () => {
   try {
     const res = await axios.get(`${API_BASE}/api/get-frontier/${currentPlayer.frontierId}`);
     const frontierData = res.data;
+    
+    // Check for season override from player settings
+    let seasonType = frontierData.seasons?.seasonType || "Unknown";
+    if (currentPlayer?.settings?.seasonOverride && currentPlayer.settings.seasonOverride !== "None") {
+      console.log(`🌸 Applying season override: ${currentPlayer.settings.seasonOverride} (original: ${seasonType})`);
+      seasonType = currentPlayer.settings.seasonOverride;
+    }
+    
     const updatedTimers = {
       seasons: {
-        type: frontierData.seasons?.seasonType || "Unknown",
+        type: seasonType,
         phase: frontierData.seasons?.phase || "Unknown",
         endTime: frontierData.seasons?.endTime ? new Date(frontierData.seasons.endTime).getTime() : null,
       },

@@ -21,8 +21,12 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
   const strings = useStrings();
   const [tradeSlots, setTradeSlots] = useState([]);
+  const [requestSlots, setRequestSlots] = useState([]);
+  const [activeTab, setActiveTab] = useState('sell'); // 'sell' or 'request'
   const [selectedSlotIndex, setSelectedSlotIndex] = useState(null);
+  const [selectedRequestSlotIndex, setSelectedRequestSlotIndex] = useState(null);
   const [amounts, setAmounts] = useState({}); // Store amounts per resource
+  const [requestAmounts, setRequestAmounts] = useState({}); // Store amounts for request modal
   const [totalSellValue, setTotalSellValue] = useState(0);
   const [resourceData, setResourceData] = useState([]); // Store resource data
   const { updateStatus } = useContext(StatusBarContext);
@@ -30,6 +34,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   const [isGlobalMarketOpen, setIsGlobalMarketOpen] = useState(false); // Global Market modal state
 
   const tradeStallSlotConfig = globalTuning?.tradeStallSlots || [];
+  const tradeStallRequestConfig = globalTuning?.tradeStallRequests || [];
   
   // Get slot-specific configuration
   const getSlotConfig = (slotIndex) => {
@@ -41,6 +46,38 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
       unlockCost: 0,
       requiresGoldPass: false
     };
+  };
+
+  // Get request slot-specific configuration
+  const getRequestSlotConfig = (slotIndex) => {
+    const config = tradeStallRequestConfig.find(slot => slot.slotIndex === slotIndex);
+    return config || {
+      maxAmount: 10,
+      unlocked: slotIndex === 0,
+      unlockCost: 0,
+      requiresGoldPass: false
+    };
+  };
+
+  const isRequestSlotUnlocked = (slotIndex) => {
+    const slot = requestSlots[slotIndex];
+    const config = getRequestSlotConfig(slotIndex);
+
+    if (!slot) return false;
+
+    if (slot.locked === undefined) {
+      if (slot.resource && slot.amount > 0) return true;
+      return slotIndex === 0;
+    }
+
+    if (slot.locked === true) {
+      if (config.requiresGoldPass && currentPlayer.accountStatus === 'Gold') {
+        return true;
+      }
+      return false;
+    }
+
+    return true;
   };
   
   const isSlotUnlocked = (slotIndex) => {
@@ -163,7 +200,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
       // Always show all 6 slots
       const serverSlots = tradeStallResponse.data.tradeStall || [];
-      
+
       // Ensure we have exactly 6 slots from server, preserve existing slot data
       const allSlots = Array.from({ length: 6 }, (_, index) => {
         const existingSlot = serverSlots.find(slot => slot && slot.slotIndex === index);
@@ -183,8 +220,31 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
           boughtFor: null
         };
       });
-      
+
       setTradeSlots(allSlots);
+
+      // Fetch request slots data
+      const requestSlotsResponse = await axios.get(`${API_BASE}/api/player-trade-stall-requests`, {
+        params: { playerId: currentPlayer.playerId },
+      });
+
+      const serverRequestSlots = requestSlotsResponse.data.tradeStallRequests || [];
+      const allRequestSlots = Array.from({ length: 3 }, (_, index) => {
+        const existingSlot = serverRequestSlots.find(slot => slot && slot.slotIndex === index);
+        if (existingSlot) {
+          return existingSlot;
+        }
+        return {
+          slotIndex: index,
+          locked: true,
+          resource: null,
+          amount: 0,
+          price: 0,
+          moneyCommitted: 0
+        };
+      });
+
+      setRequestSlots(allRequestSlots);
 
       // Calculate total sell value for current player's stall
       const total = allSlots.reduce((sum, slot) => {
@@ -284,7 +344,39 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
       throw error;
     }
   };
-  
+
+  // Handle fulfilling a request from global market (selling to a player's request)
+  const handleGlobalMarketFulfillRequest = async (buyerPlayerId, slotIndex, transactionId, transactionKey) => {
+    try {
+      const response = await axios.post(`${API_BASE}/api/trade-stall/fulfill-request`, {
+        sellerPlayerId: currentPlayer.playerId,
+        buyerPlayerId,
+        slotIndex,
+        transactionId,
+        transactionKey: `${transactionKey}-${slotIndex}`
+      });
+
+      if (response.data.success) {
+        // Update seller's (current player's) inventory using the returned data
+        setInventory(response.data.sellerInventory);
+        setCurrentPlayer(prev => ({
+          ...prev,
+          inventory: response.data.sellerInventory
+        }));
+
+        updateStatus(`Sold ${response.data.amount}x ${getLocalizedString(response.data.resource, strings)} for 💰${response.data.earned}`);
+      }
+    } catch (error) {
+      console.error('Error fulfilling request:', error);
+      if (error.response?.status === 400) {
+        updateStatus(error.response.data.error || 'Failed to fulfill request');
+      } else {
+        updateStatus('❌ Failed to fulfill request');
+      }
+      throw error;
+    }
+  };
+
   // Auto-set max Wheat amount for FTUE users at step 3 or less
   useEffect(() => {
     if (selectedSlotIndex !== null && currentPlayer.firsttimeuser === true && currentPlayer.ftuestep <= 3) {
@@ -524,7 +616,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
   // Protected function to collect payment from a bought slot using transaction system
   const handleCollectPayment = async (transactionId, transactionKey, slotIndex) => {
     console.log(`🔒 [PROTECTED COLLECTION] Starting protected collection for slot ${slotIndex}`);
-    
+
     try {
       const response = await axios.post(`${API_BASE}/api/trade-stall/collect-payment`, {
         playerId: currentPlayer.playerId,
@@ -550,9 +642,9 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
         // Track quest progress for selling this item
         await trackQuestProgress(currentPlayer, 'Sell', response.data.resource, response.data.amount, setCurrentPlayer);
-        
+
         updateStatus(`💰 Collected ${response.data.collected}.`);
-        
+
         // Refresh trade stall data to ensure consistency
         await fetchDataForViewedPlayer(true); // Skip inventory fetch to preserve server state
       }
@@ -566,13 +658,224 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     }
   };
 
+  // Handle request slot click
+  const handleRequestSlotClick = (index) => {
+    const slot = requestSlots[index];
+    const isEmpty = !slot?.resource;
+    const slotUnlocked = isRequestSlotUnlocked(index);
+
+    if (isEmpty && slotUnlocked) {
+      setSelectedRequestSlotIndex(index);
+      setRequestAmounts({});
+    }
+  };
+
+  // Handle request amount change
+  const handleRequestAmountChange = (type, value) => {
+    const slotConfig = getRequestSlotConfig(selectedRequestSlotIndex);
+    const maxAmount = slotConfig.maxAmount;
+
+    setRequestAmounts((prev) => ({
+      ...prev,
+      [type]: Math.min(Math.max(0, value), maxAmount)
+    }));
+  };
+
+  // Handle creating a request (commits money)
+  const handleCreateRequest = async (transactionId, transactionKey, resource) => {
+    const amount = requestAmounts[resource] || 0;
+
+    if (selectedRequestSlotIndex === null || amount <= 0) {
+      console.warn('Invalid amount for request.');
+      return;
+    }
+
+    const resourceDetails = resourceData.find((item) => item.type === resource);
+    const price = resourceDetails?.maxprice || 0;
+    const totalCost = amount * price;
+
+    // Check if player has enough money
+    const currentMoney = inventory.find((item) => item.type === 'Money')?.quantity || 0;
+    if (totalCost > currentMoney) {
+      updateStatus("You don't have enough money");
+      return;
+    }
+
+    // Commit the money using spendIngredients
+    const tempRecipe = { ingredient1: 'Money', ingredient1qty: totalCost };
+
+    const success = await spendIngredients({
+      playerId: currentPlayer.playerId,
+      recipe: tempRecipe,
+      inventory: currentPlayer.inventory || inventory,
+      backpack: currentPlayer.backpack || [],
+      setInventory,
+      setBackpack: () => {},
+      setCurrentPlayer,
+      updateStatus,
+    });
+
+    if (!success) {
+      console.warn('Not enough Money to create request.');
+      updateStatus("You don't have enough money");
+      return;
+    }
+
+    // Update request slots
+    const updatedRequestSlots = [...requestSlots];
+    updatedRequestSlots[selectedRequestSlotIndex] = {
+      slotIndex: selectedRequestSlotIndex,
+      resource,
+      amount,
+      price,
+      moneyCommitted: totalCost
+    };
+
+    try {
+      await axios.post(`${API_BASE}/api/update-player-trade-stall-requests`, {
+        playerId: currentPlayer.playerId,
+        tradeStallRequests: updatedRequestSlots
+      });
+
+      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+
+      const refreshedInventory = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
+      setInventory(refreshedInventory.data.inventory);
+
+      setRequestSlots(updatedRequestSlots);
+      setSelectedRequestSlotIndex(null);
+      updateStatus(`Request posted for ${amount}x ${getLocalizedString(resource, strings)}`);
+    } catch (error) {
+      console.error('Error creating request:', error);
+      throw error;
+    }
+  };
+
+  // Handle canceling a request (refunds money)
+  const handleCancelRequest = async (transactionId, transactionKey, slotIndex) => {
+    const slot = requestSlots[slotIndex];
+
+    if (!slot?.resource || !slot?.moneyCommitted) {
+      console.warn('No request to cancel in this slot.');
+      return;
+    }
+
+    try {
+      // Refund the committed money
+      await gainIngredients({
+        playerId: currentPlayer.playerId,
+        currentPlayer,
+        resource: 'Money',
+        quantity: slot.moneyCommitted,
+        inventory: currentPlayer.inventory || inventory,
+        backpack: currentPlayer.backpack || [],
+        setInventory,
+        setBackpack: () => {},
+        setCurrentPlayer,
+        updateStatus,
+        masterResources,
+        globalTuning,
+      });
+
+      // Clear the request slot
+      const updatedRequestSlots = [...requestSlots];
+      updatedRequestSlots[slotIndex] = {
+        slotIndex,
+        locked: slot.locked,
+        resource: null,
+        amount: 0,
+        price: 0,
+        moneyCommitted: 0
+      };
+
+      await axios.post(`${API_BASE}/api/update-player-trade-stall-requests`, {
+        playerId: currentPlayer.playerId,
+        tradeStallRequests: updatedRequestSlots
+      });
+
+      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+
+      const refreshedInventory = await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`);
+      setInventory(refreshedInventory.data.inventory);
+
+      setRequestSlots(updatedRequestSlots);
+      updateStatus(`Request canceled. Refunded 💰${slot.moneyCommitted}`);
+    } catch (error) {
+      console.error('Error canceling request:', error);
+      if (error.response?.status === 429) {
+        updateStatus(471);
+      } else {
+        updateStatus('❌ Failed to cancel request');
+      }
+    }
+  };
+
+  // Handle unlocking a request slot
+  const handleUnlockRequestSlot = async (slotIndex) => {
+    const config = getRequestSlotConfig(slotIndex);
+    if (!config || config.requiresGoldPass) return;
+
+    try {
+      const tempRecipe = {
+        ingredient1: 'Wood',
+        ingredient1qty: config.unlockCost
+      };
+
+      const success = await spendIngredients({
+        playerId: currentPlayer.playerId,
+        recipe: tempRecipe,
+        inventory: currentPlayer.inventory || inventory,
+        backpack: currentPlayer.backpack || [],
+        setInventory,
+        setBackpack: () => {},
+        setCurrentPlayer,
+        updateStatus,
+      });
+
+      if (!success) {
+        console.warn('Not enough Wood to unlock this request slot.');
+        updateStatus(`${strings[177]} ${config.unlockCost} ${getSymbol('Wood')} ${strings[176]} ${strings[178]}`);
+        return;
+      }
+
+      const updatedSlots = requestSlots.map((slot, index) => {
+        if (index === slotIndex) {
+          return {
+            ...slot,
+            locked: false
+          };
+        }
+        return slot;
+      });
+
+      await axios.post(`${API_BASE}/api/update-player-trade-stall-requests`, {
+        playerId: currentPlayer.playerId,
+        tradeStallRequests: updatedSlots
+      });
+
+      setRequestSlots(updatedSlots);
+      setCurrentPlayer({
+        ...currentPlayer,
+        tradeStallRequests: updatedSlots
+      });
+
+      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+      await fetchDataForViewedPlayer(true);
+
+      updateStatus(`${strings[170]}`);
+    } catch (error) {
+      console.error('Error unlocking request slot:', error);
+      updateStatus('Failed to unlock slot');
+    }
+  };
+
   return (
     <Panel onClose={onClose} descriptionKey="1008" titleKey="1108" panelName="TradeStall">
 
       {/* GLOBAL MARKET BUTTON */}
 
         <div className="shared-buttons" style={{ margin: '2px 0' }}>
-          <button 
+          <button
             className="btn-basic btn-success"
             onClick={() => setIsGlobalMarketOpen(true)}
           >
@@ -582,10 +885,22 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
 
       {/* SEPARATOR AND HEADER */}
       <div style={{ margin: '16px 0' }}>
-        <hr style={{ border: 'none', borderTop: '1px solid #ddd', margin: '0 0 12px 0' }} />
-        <h3 style={{ textAlign: 'center', margin: '0', fontSize: '16px', fontWeight: 'bold', color: '#333' }}>
-          {strings[367] || "Your Trade Slots:"}
-        </h3>
+      </div>
+
+      {/* TAB NAVIGATION */}
+      <div className="tab-navigation">
+        <button
+          className={`tab-button ${activeTab === 'sell' ? 'active' : ''}`}
+          onClick={() => setActiveTab('sell')}
+        >
+          Sell
+        </button>
+        <button
+          className={`tab-button ${activeTab === 'request' ? 'active' : ''}`}
+          onClick={() => setActiveTab('request')}
+        >
+          Request
+        </button>
       </div>
 
       {/* LOADING INDICATOR */}
@@ -595,7 +910,8 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         </div>
       ) : (
         <>
-          {/* TRADE STALL SLOTS */}
+          {/* SELL TAB - TRADE STALL SLOTS */}
+          {activeTab === 'sell' && (
           <div className="trade-stall-slots shared-buttons">
         {tradeSlots.map((slot, index) => {
           // Check if we should hide this slot for FTUE users
@@ -672,7 +988,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                             {strings[157]} {slot.boughtBy}
                           </div>
                           <div className="trade-slot-status">
-                            {strings[318]} 💰{slot.boughtFor}
+                            {strings[318]} 💰{slot.boughtFor.toLocaleString()}
                           </div>
                         </>
                       )}
@@ -683,7 +999,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
                       )}
                       {isReadyToSell && !isPurchased && (
                         <div className="trade-slot-status ready">
-                          {strings[167]} 💰{slot.amount * slot.price}
+                          {strings[167]} 💰{(slot.amount * slot.price).toLocaleString()}
                         </div>
                       )}
                     </div>
@@ -723,6 +1039,112 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
           );
         })}
       </div>
+          )}
+
+          {/* REQUEST TAB - REQUEST SLOTS */}
+          {activeTab === 'request' && (
+          <div className="trade-stall-slots shared-buttons">
+        {requestSlots.map((slot, index) => {
+          const isEmpty = !slot?.resource;
+          const slotUnlocked = isRequestSlotUnlocked(index);
+          const config = getRequestSlotConfig(index);
+
+          return (
+            <React.Fragment key={index}>
+              <div className="trade-slot-container">
+                {/* 1. SLOT DISPLAY */}
+                <div
+                  className={`trade-slot btn-basic ${isEmpty && slotUnlocked ? 'btn-neutral' : ''} ${!isEmpty ? 'filled' : ''} ${!slotUnlocked && config.requiresGoldPass ? 'locked gold-slot btn-gold' : !slotUnlocked ? 'locked' : ''}`}
+                  onClick={() => {
+                    if (isEmpty && slotUnlocked) {
+                      handleRequestSlotClick(index);
+                    }
+                  }}
+                >
+                  {(config.requiresGoldPass && currentPlayer.accountStatus !== 'Gold') ? (
+                    // Gold Pass required
+                    <div className="trade-slot-locked">
+                      <div className="trade-slot-lock-icon">🔒</div>
+                      <div className="trade-slot-lock-text">{strings[171]}</div>
+                      <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>
+                        {strings[173]} {config.maxAmount}
+                      </div>
+                    </div>
+                  ) : (!slotUnlocked) ? (
+                    // Show unlock UI for locked slots
+                    <div className="trade-slot-locked">
+                      <div className="trade-slot-lock-icon">🔒</div>
+                      <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>
+                        {strings[173]} {config.maxAmount}
+                      </div>
+                    </div>
+                  ) : isEmpty ? (
+                    <div className="trade-slot-empty-text">
+                      <div>➕ Add Request</div>
+                      <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>
+                        {strings[173]} {config.maxAmount}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="trade-slot-content">
+                      <div className="trade-slot-item-name">
+                        {`${slot.amount}x ${getSymbol(slot.resource)} ${getLocalizedString(slot.resource, strings)}`}
+                      </div>
+                      <div className="trade-slot-status">
+                        You Pay: 💰{slot.moneyCommitted.toLocaleString()}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. BUTTON CONTAINER */}
+                {(config.requiresGoldPass && currentPlayer.accountStatus !== 'Gold') ? (
+                  // Show Gold Pass purchase button
+                  <div className="trade-button-container">
+                    <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                      <button
+                        className="btn-basic btn-gold"
+                        style={{ width: '100%' }}
+                        onClick={() => handlePurchase(1, currentPlayer, updateStatus)}
+                      >
+                        {strings[9061]}
+                      </button>
+                    </div>
+                  </div>
+                ) : (!slotUnlocked) ? (
+                  // Show unlock button for locked slots
+                  <div className="trade-button-container">
+                    <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                      <button
+                        className="btn-basic btn-neutral"
+                        style={{ width: '100%' }}
+                        onClick={() => handleUnlockRequestSlot(index)}
+                      >
+                        {strings[175]} {config.unlockCost} {getSymbol('Wood')} {strings[176]}
+                      </button>
+                    </div>
+                  </div>
+                ) : (!isEmpty) ? (
+                  // Show cancel button for active requests
+                  <div className="trade-button-container">
+                    <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+                      <TransactionButton
+                        className="btn-basic btn-danger"
+                        style={{ width: '100%' }}
+                        transactionKey={`cancel-request-${index}`}
+                        onAction={(transactionId, transactionKey) => handleCancelRequest(transactionId, transactionKey, index)}
+                      >
+                        Cancel Request
+                      </TransactionButton>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            </React.Fragment>
+          );
+        })}
+      </div>
+          )}
         </>
       )}
 
@@ -740,12 +1162,42 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         transactionKeyPrefix="add-to-trade-slot"
       />
 
+      {/* REQUEST INVENTORY MODAL */}
+      <TradingInventoryModal
+        isOpen={selectedRequestSlotIndex !== null}
+        onClose={() => setSelectedRequestSlotIndex(null)}
+        inventory={resourceData
+          .filter(res => res.category === 'doober')
+          .map(res => {
+            // Calculate actual quantity player has in inventory + backpack
+            const inventoryQty = currentPlayer.inventory?.find(item => item.type === res.type)?.quantity || 0;
+            const backpackQty = currentPlayer.backpack?.find(item => item.type === res.type)?.quantity || 0;
+            const totalQty = inventoryQty + backpackQty;
+
+            return {
+              type: res.type,
+              quantity: totalQty
+            };
+          })
+        }
+        resourceData={resourceData}
+        amounts={requestAmounts}
+        handleAmountChange={handleRequestAmountChange}
+        handleAddToSlot={handleCreateRequest}
+        getSlotConfig={getRequestSlotConfig}
+        selectedSlotIndex={selectedRequestSlotIndex}
+        transactionKeyPrefix="create-request"
+        isRequestMode={true}
+        playerMoney={inventory.find(item => item.type === 'Money')?.quantity || 0}
+      />
+
       {/* GLOBAL MARKET MODAL */}
       <GlobalMarketModal
         isOpen={isGlobalMarketOpen}
         onClose={() => setIsGlobalMarketOpen(false)}
         currentPlayer={currentPlayer}
         onBuyItem={handleGlobalMarketBuy}
+        onFulfillRequest={handleGlobalMarketFulfillRequest}
         masterResources={masterResources}
         globalTuning={globalTuning}
       />

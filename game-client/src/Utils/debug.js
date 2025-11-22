@@ -978,6 +978,42 @@ const handleGetRich = async () => {
         <button className="btn-basic btn-danger" onClick={handleGenerateTown}> Generate Town </button>
       </div>
       <div className="shared-buttons">
+        <button 
+          className="btn-basic btn-danger" 
+          onClick={async () => {
+            try {
+              const response = await axios.post(`${API_BASE}/api/make-it-snow/${currentGridId}`);
+              console.log('❄️ Make it snow response:', response.data);
+              updateStatus(`❄️ Made it snow! ${response.data.tilesConverted} tiles converted.`);
+              window.location.reload(); // Refresh to see the changes
+            } catch (error) {
+              console.error('❌ Error making it snow:', error);
+              updateStatus('❌ Failed to make it snow.');
+            }
+          }}
+        > 
+          ❄️ Make It Snow 
+        </button>
+      </div>
+      <div className="shared-buttons">
+        <button 
+          className="btn-basic btn-danger" 
+          onClick={async () => {
+            try {
+              const response = await axios.post(`${API_BASE}/api/melt-the-snow/${currentGridId}`);
+              console.log('☀️ Melt the snow response:', response.data);
+              updateStatus(`☀️ Snow melted! ${response.data.tilesConverted} tiles converted.`);
+              window.location.reload(); // Refresh to see the changes
+            } catch (error) {
+              console.error('❌ Error melting snow:', error);
+              updateStatus('❌ Failed to melt snow.');
+            }
+          }}
+        > 
+          ☀️ Melt The Snow 
+        </button>
+      </div>
+      <div className="shared-buttons">
         <button className="btn-basic btn-danger" onClick={() => handleGenerateValley(0)}> Generate Valley 0 </button>
       </div>
       <div className="shared-buttons">

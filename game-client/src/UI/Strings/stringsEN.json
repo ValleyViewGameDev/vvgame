@@ -188,7 +188,6 @@
     "402": "⚠️  resources.",
     "403": "⚠️ Youre inventory is full.",
     "404": "Working...",
-    "405": "❤️‍🩹 Hit Points healed by +",
     "406": "Maximum reached for this location.",
     "410": "🏕️ To use a purchased tent, click on your own player icon.",
     "420": "will trade you:",
@@ -1349,12 +1348,15 @@
 
     "11000": "ADDED STRINGS:",
 
+    "405": "❤️‍🩹 Health +",
     "10170": "The door is open to you.",
     "10171": "You don't have access.",
     "10175": "Acquire more skills at various locations in town.",
     "40": "Can't interact through walls.",
     "310": "You need to till the land for planting, as well as pigs.",
-    "313": "Cobblestone paths add decoration to your homestead."
+    "313": "Cobblestone paths add decoration to your homestead.",
+    "10180": "📥 Trading Post: Request Items to Buy",
+    "10181": " LIMIT PER REQUEST"
 
 
   }
