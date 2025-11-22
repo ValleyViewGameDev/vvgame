@@ -127,12 +127,11 @@
 /* Buttons */
 .ftue-buttons {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 10px;
 }
 
 .ftue-button {
-  flex: 1;
   padding: 10px 20px;
   border: none;
   border-radius: 8px;
@@ -152,7 +151,7 @@
   font-size: 14px;
   cursor: pointer;
   text-align: center;
-  width: 50%;
+  min-width: 120px;
   box-shadow: 0 5px 0 rgba(92, 91, 91, 0.5);
   transition: transform 0.2s, box-shadow 0.2s;
   position: relative;

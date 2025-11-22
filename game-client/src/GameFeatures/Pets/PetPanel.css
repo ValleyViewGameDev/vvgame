@@ -52,7 +52,8 @@
 .pet-collect-button.scroll-collect-button .resource-details {
   font-size: 18px !important;
   letter-spacing: normal !important;
-  display: none !important; /* Hide rarity text */
+  color: #ecf0f1 !important;
+  text-align: center !important;
 }
 
 /* Processing state - override any text that appears */

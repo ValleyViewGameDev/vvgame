@@ -57,9 +57,14 @@ function KentPanel({
                 playerId: currentPlayer.playerId,
                 updates: { kentOffers: fallbackKentOffers }
             });
-            
+
             if (response.data.success) {
                 console.log('✅ Generated fallback Kent offers:', fallbackKentOffers);
+                // Update parent currentPlayer state so canvas can see the new offers
+                setCurrentPlayer(prev => ({
+                    ...prev,
+                    kentOffers: fallbackKentOffers
+                }));
                 return fallbackKentOffers;
             }
         } catch (error) {
@@ -98,7 +103,7 @@ function KentPanel({
             const now = Date.now();
             const kentData = currentPlayer?.kentOffers;
             const endTime = kentData?.endTime || 0;
-            
+
             if (endTime > now) {
                 // Timer is active - panel locked
                 setKentTimer(formatCountdown(endTime, now));

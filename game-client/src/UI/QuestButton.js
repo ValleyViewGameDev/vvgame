@@ -32,7 +32,7 @@ const QuestButton = ({ quest, state, onClick }) => {
   );
 };
 
-const QuestGiverButton = ({ quest, state, onClick }) => {
+const QuestGiverButton = ({ quest, state, onClick, xpReward }) => {
   const strings = useStrings();
   const { symbol, title, reward, rewardqty, goals = [] } = quest;
   const buttonText = state === 'reward' ? strings[208] : strings[209];
@@ -54,6 +54,9 @@ const QuestGiverButton = ({ quest, state, onClick }) => {
         )}
       </div>
       <p>Reward: {rewardqty} {reward}</p>
+      {xpReward && state === 'reward' && (
+        <p style={{ color: '#4CAF50', marginTop: '5px' }}>🔷 +{xpReward} XP</p>
+      )}
       <button className="quest-giver-button">{buttonText}</button>
     </div>
   );

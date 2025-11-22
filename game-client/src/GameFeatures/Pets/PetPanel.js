@@ -316,6 +316,27 @@ const PetPanel = ({
         
         FloatingTextManager.addFloatingText(`+${collectedQty} ${getLocalizedString(collectedItem, strings)}`, currentPetPosition.x, currentPetPosition.y, TILE_SIZE);
 
+        // Award XP for collecting from pet
+        const petResourceForXP = masterResources.find(res => res.type === petName);
+        const xpToAward = petResourceForXP?.xp || 1;
+        try {
+          const xpResponse = await axios.post(`${API_BASE}/api/addXP`, {
+            playerId: currentPlayer.playerId,
+            xpAmount: xpToAward
+          });
+
+          if (xpResponse.data.success) {
+            // Update current player's XP locally
+            setCurrentPlayer(prev => ({
+              ...prev,
+              xp: xpResponse.data.newXP
+            }));
+          }
+        } catch (error) {
+          console.error('❌ Error awarding XP for pet collection:', error);
+          // Don't fail the collection if XP award fails, just log it
+        }
+
         // Track quest progress
         await trackQuestProgress(currentPlayer, 'Collect', collectedItem, collectedQty, setCurrentPlayer);
 
@@ -415,11 +436,14 @@ const PetPanel = ({
               // Use standard ResourceButton for collect state
               (() => {
                 const rewardResource = masterResources.find(r => r.type === rewardItem);
-                
+                const petResourceForXP = masterResources.find(res => res.type === petName);
+                const xpToAward = petResourceForXP?.xp || 1;
+
                 return (
                   <ResourceButton
                     symbol={rewardResource?.symbol || '📦'}
                     name={`${getLocalizedString(rewardItem, strings)}${revealedRewardQty > 1 ? ` (${revealedRewardQty})` : ''}`}
+                    details={`(🔷 ${xpToAward})`}
                     className={`resource-button pet-collect-button scroll-collect-button rarity-${revealedRewardRarity} ${isCollecting ? 'collecting' : 'ready'}`}
                     disabled={!isReadyToCollect || isCollecting}
                     isTransactionMode={isReadyToCollect && !isCollecting}

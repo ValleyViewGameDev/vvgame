@@ -499,78 +499,6 @@ export async function handleDooberClick(
     }
   }
 }
-
-
-// Helper: Handles use of required key/item for a resource
-// Returns a Promise<boolean>: true if item used, false otherwise
-let pendingKeyResolve = null; // Module-level temporary resolve callback
-
-export async function handleUseKey(resource,requirement,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,inventory,setInventory,backpack,setBackpack,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus) {
-  console.log('handleUseKey: resource:', resource);
-  if (!requirement) return true;
-  if (pendingKeyResolve) {return false;}   // Only allow one modal pending at a time
-  const hasRequirement = currentPlayer.inventory.find((item) => item.type === requirement);
-  if (!hasRequirement) { updateStatus(`${strings["35"]}${requirement}`); return false; }
-
-  return new Promise((resolve) => {
-    pendingKeyResolve = resolve;
-
-    const handleYes = async () => {
-      const spent = await spendIngredients({
-        playerId: currentPlayer.playerId,
-        recipe: { 
-          ingredient1: requirement,
-          ingredient1qty: 1,
-        },
-        inventory,
-        backpack,
-        setInventory,
-        setBackpack,
-        setCurrentPlayer,
-        updateStatus,
-      });
-
-      if (!spent) {
-        console.warn('❌ Failed to spend key item.');
-        return;
-      }
-
-      updateStatus(`${strings["36"]}${requirement}`);
-
-      setIsModalOpen(false);
-      if (pendingKeyResolve) {
-        pendingKeyResolve(true);
-        pendingKeyResolve = null;
-      }
-    };
-    const handleNo = () => {
-      setIsModalOpen(false);
-      if (pendingKeyResolve) {
-        pendingKeyResolve(false);
-        pendingKeyResolve = null;
-      }
-    };
-
-    const totalOwned =
-      (currentPlayer.inventory.find(item => item.type === requirement)?.quantity || 0) +
-      (currentPlayer.backpack?.find(item => item.type === requirement)?.quantity || 0);
-      
-    setModalContent({
-      title: `${strings["5045"]} ${requirement}?`,
-      message: `${strings["5046"]} ${requirement}?`,
-      message2: `${strings["5047"]} ${totalOwned}.`,
-      size: 'small',
-      onClose: handleNo,  // 🔁 Close button acts like "No"
-      children: (
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginTop: '10px' }}>
-          <button onClick={handleYes}>Yes</button>
-          <button onClick={handleNo}>No</button>
-        </div>
-      ),
-    });
-    setIsModalOpen(true);
-  });
-}
  
 // HANDLE SOURCE CONVERSIONS //
 //
@@ -607,9 +535,6 @@ export async function handleSourceConversion(
   const isSkillOrUpgrade = masterResources.some(
     res => res.type === requirement && (res.category === "skill" || res.category === "upgrade")
   );
-  const isKey = masterResources.some(
-    res => res.type === requirement && (res.category === "doober")
-  );
 
   // Required Skill Missing
   if (isSkillOrUpgrade) {
@@ -618,11 +543,6 @@ export async function handleSourceConversion(
       addFloatingText(`${requirement} Required`, col, row, TILE_SIZE);
       return;
     }
-  }
-  // 🔑 Handle Key Requirement
-  if (isKey) {
-    const usedKey = await handleUseKey(resource,requirement,col,row,TILE_SIZE,currentPlayer,setCurrentPlayer,inventory,setInventory,backpack,setBackpack,addFloatingText,strings,setModalContent,setIsModalOpen,updateStatus,);
-    if (!usedKey) return;
   }
 
     createSourceConversionEffect(col, row, TILE_SIZE, requirement);

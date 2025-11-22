@@ -385,6 +385,27 @@ const handleGetReward = async (quest) => {
       // Track quest progress for "Collect" type quests (use multiplied quantity)
       await trackQuestProgress(currentPlayer, 'Collect', quest.reward, rewardQuantity, setCurrentPlayer);
 
+      // Award XP for completing quest with NPC
+      const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
+      const xpToAward = npcResourceForXP?.xp || 1;
+      try {
+        const xpResponse = await axios.post(`${API_BASE}/api/addXP`, {
+          playerId: currentPlayer.playerId,
+          xpAmount: xpToAward
+        });
+
+        if (xpResponse.data.success) {
+          // Update current player's XP locally
+          setCurrentPlayer(prev => ({
+            ...prev,
+            xp: xpResponse.data.newXP
+          }));
+        }
+      } catch (error) {
+        console.error('❌ Error awarding XP for quest completion:', error);
+        // Don't fail the quest completion if XP award fails, just log it
+      }
+
       let updatedCompletedQuests = currentPlayer.completedQuests.map((q) =>
         q.questId === quest.title ? { ...q, rewardCollected: true } : q
       );
@@ -647,7 +668,28 @@ const handleHeal = async (recipe) => {
 
     // Track quest progress for trading (using 'Collect' action to match quest system)
     await trackQuestProgress(currentPlayer, 'Collect', recipe.type, quantityToGive, setCurrentPlayer);
-    
+
+    // Award XP for trading with NPC
+    const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
+    const xpToAward = npcResourceForXP?.xp || 1;
+    try {
+      const xpResponse = await axios.post(`${API_BASE}/api/addXP`, {
+        playerId: currentPlayer.playerId,
+        xpAmount: xpToAward
+      });
+
+      if (xpResponse.data.success) {
+        // Update current player's XP locally
+        setCurrentPlayer(prev => ({
+          ...prev,
+          xp: xpResponse.data.newXP
+        }));
+      }
+    } catch (error) {
+      console.error('❌ Error awarding XP for NPC trade:', error);
+      // Don't fail the trade if XP award fails, just log it
+    }
+
     // Build ingredient list for status message
     const ingredientList = [];
     
@@ -831,6 +873,10 @@ const handleHeal = async (recipe) => {
               ? () => handleGetReward(quest)
               : () => handleAcceptQuest(quest.title);
 
+            // Get XP for this NPC
+            const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
+            const xpToAward = npcResourceForXP?.xp || 1;
+
             return (
               <QuestGiverButton
                 key={quest.title}
@@ -848,6 +894,7 @@ const handleHeal = async (recipe) => {
                 }}
                 state={state}
                 onClick={onClick}
+                xpReward={xpToAward}
               />
             );
               })}
@@ -1098,12 +1145,16 @@ const handleHeal = async (recipe) => {
                     formattedCosts = ingredientsList.join('');
                   }
 
+                  // Get XP for this NPC
+                  const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
+                  const xpToAward = npcResourceForXP?.xp || 1;
+
                   return (
                     <ResourceButton
                       key={recipe.type}
                       symbol={recipe.symbol}
                       name={`${getLocalizedString(recipe.type, strings)} (${quantityToGive}x)`}
-                      details={`${strings[461]}<div>${formattedCosts}</div>`}
+                      details={`${strings[461]}<div>${formattedCosts}</div><div style="margin-top: 8px; color: #4CAF50;">🔷 +${xpToAward} XP</div>`}
                       disabled={!affordable}
                       onClick={() => handleTrade(recipe)}
                       // Gem purchase props

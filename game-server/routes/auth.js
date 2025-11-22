@@ -76,6 +76,7 @@ router.post('/register-new-player', async (req, res) => {
       settings,
       relationships,
       tradeStall,
+      kentOffers,
     } = starterAccount.defaultAttributes;
 
     // Step 4: Create the new player
@@ -105,6 +106,7 @@ router.post('/register-new-player', async (req, res) => {
       role,
       relationships: [...relationships],
       tradeStall: [...tradeStall],
+      kentOffers: kentOffers ? { ...kentOffers, offers: [...kentOffers.offers] } : undefined,
       location: {
         g: gridId,
         s: location.settlementId,
