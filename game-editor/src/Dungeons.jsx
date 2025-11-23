@@ -17,7 +17,6 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
   const [dungeonGrids, setDungeonGrids] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState('');
-  const [newGridName, setNewGridName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -97,26 +96,18 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
       return;
     }
 
-    if (!newGridName.trim()) {
-      setError('Please enter a grid name');
-      return;
-    }
-
-    // Validate grid name format
-    if (!/^dungeon_[a-z0-9_]+$/.test(newGridName)) {
-      setError('Grid name must start with "dungeon_" and contain only lowercase letters, numbers, and underscores');
-      return;
-    }
-
     setLoading(true);
     setError('');
 
     try {
       const nextCoord = getNextDungeonCoord();
       
+      // Generate a gridId based on coordinates (similar to how normal grids work)
+      const gridId = `dungeon_${Math.abs(nextCoord.x)}_${Math.abs(nextCoord.y)}`;
+      
       const response = await axios.post(`${API_BASE}/api/create-dungeon`, {
         gridCoord: nextCoord,
-        gridId: newGridName,
+        gridId: gridId,
         templateFilename: selectedTemplate,
         settlementId: selectedFrontier || 'global',
         frontierId: selectedFrontier || 'global'
@@ -127,11 +118,8 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
       // Refresh the list
       await loadDungeonGrids();
       
-      // Clear the form
-      setNewGridName('');
-      
       // Success message
-      alert(`Dungeon grid "${newGridName}" created successfully!`);
+      alert(`Dungeon grid created successfully at (${nextCoord.x}, ${nextCoord.y})`);
       
     } catch (error) {
       console.error('Error creating dungeon grid:', error);
@@ -195,20 +183,6 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
       {/* Create New Dungeon */}
       <div className="create-dungeon-section">
         <h3>Create New Dungeon Grid</h3>
-        <div className="form-row">
-          <label>
-            Grid Name:
-            <input
-              type="text"
-              value={newGridName}
-              onChange={(e) => setNewGridName(e.target.value)}
-              placeholder="dungeon_crypt_1"
-              pattern="^dungeon_[a-z0-9_]+$"
-              disabled={loading}
-            />
-            <small>Must start with "dungeon_" (e.g., dungeon_crypt_1)</small>
-          </label>
-        </div>
         
         <div className="form-row">
           <label>
@@ -230,7 +204,7 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
 
         <button
           onClick={createDungeonGrid}
-          disabled={loading || !selectedTemplate || !newGridName}
+          disabled={loading || !selectedTemplate}
           className="create-button"
         >
           {loading ? 'Creating...' : 'Create Dungeon Grid'}

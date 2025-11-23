@@ -2322,23 +2322,9 @@ router.post('/create-dungeon', async (req, res) => {
     console.log('Creating dungeon grid:', { gridCoord, gridId, templateFilename });
     
     // Validate required fields
-    if (!gridCoord || !gridId || !templateFilename) {
+    if (!templateFilename) {
       return res.status(400).json({ 
-        error: 'gridCoord, gridId, and templateFilename are required.' 
-      });
-    }
-    
-    // Check if grid already exists
-    const existingGrid = await Grid.findOne({ 
-      $or: [
-        { gridId: gridId },
-        { 'gridCoord.x': gridCoord.x, 'gridCoord.y': gridCoord.y }
-      ]
-    });
-    
-    if (existingGrid) {
-      return res.status(409).json({ 
-        error: `Grid already exists: ${existingGrid.gridId}` 
+        error: 'templateFilename is required.' 
       });
     }
     
@@ -2358,35 +2344,95 @@ router.post('/create-dungeon', async (req, res) => {
     // Import encoders
     const TileEncoder = require('../utils/TileEncoder');
     const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
+    const mongoose = require('mongoose');
+    
+    // Import world generation utilities
+    const { generateFixedGrid, generateFixedResources } = require('../utils/worldUtils');
+    const masterResources = require('../tuning/resources.json');
+    
+    // Generate tiles from template
+    const tiles = generateFixedGrid(template);
+    
+    // Generate resources from template
+    const resources = generateFixedResources(template);
+    
+    // Handle NPCs from template
+    const npcsMap = new Map();
+    if (template.resources) {
+      template.resources.forEach((row, y) => {
+        row.forEach((cell, x) => {
+          if (cell && cell !== '.' && cell !== '**') {
+            const resourceDef = masterResources.find(r => r.layoutkey === cell && r.category === 'npc');
+            if (resourceDef) {
+              const npcId = new mongoose.Types.ObjectId().toString();
+              npcsMap.set(npcId, {
+                id: npcId,
+                type: resourceDef.type,
+                position: { x, y },
+                state: resourceDef.defaultState || 'idle',
+                hp: resourceDef.maxhp || 10,
+                maxhp: resourceDef.maxhp || 10,
+                armorclass: resourceDef.armorclass || 10,
+                attackbonus: resourceDef.attackbonus || 0,
+                damage: resourceDef.damage || 1,
+                attackrange: resourceDef.attackrange || 1,
+                speed: resourceDef.speed || 1,
+                lastUpdated: new Date()
+              });
+            }
+          }
+        });
+      });
+    }
+    
+    // Enrich multi-tile resources
+    resources.forEach(resource => {
+      const resourceDef = masterResources.find(r => r.type === resource.type);
+      if (resourceDef && resourceDef.range > 1) {
+        resource.anchorKey = `${resource.type}_${resource.x}_${resource.y}`;
+        if (resourceDef.passable !== undefined) {
+          resource.passable = resourceDef.passable;
+        }
+      }
+    });
+    
+    // Encode resources
+    const encoder = new UltraCompactResourceEncoder(masterResources);
+    const encodedResources = [];
+    for (const resource of resources) {
+      try {
+        const encoded = encoder.encode(resource);
+        encodedResources.push(encoded);
+      } catch (error) {
+        console.error(`❌ Failed to encode resource:`, resource, error);
+        throw new Error(`Failed to encode resource at (${resource.x}, ${resource.y}): ${error.message}`);
+      }
+    }
     
     // Create the dungeon grid
     const newGrid = new Grid({
-      gridId: gridId,
-      gridCoord: gridCoord,
       gridType: 'dungeon',
-      templateUsed: templateFilename,
       frontierId: frontierId || 'global',
       settlementId: settlementId || 'global',
-      tiles: TileEncoder.encode(template.tiles),
-      resources: UltraCompactResourceEncoder.encode(template.resources || []),
-      NPCsInGrid: new Map(),
+      tiles: TileEncoder.encode(tiles),
+      resources: encodedResources,
+      NPCsInGrid: npcsMap,
+      NPCsInGridLastUpdated: new Date(),
       playersInGrid: new Map(),
-      createdAt: new Date(),
-      updatedAt: new Date()
+      lastOptimized: new Date()
     });
     
     await newGrid.save();
     
-    console.log(`✅ Created dungeon grid: ${gridId} at (${gridCoord.x}, ${gridCoord.y})`);
+    console.log(`✅ Created dungeon grid: ${newGrid._id} with template ${templateFilename}`);
     
     res.status(201).json({
       success: true,
       grid: {
         _id: newGrid._id,
-        gridId: newGrid.gridId,
-        gridCoord: newGrid.gridCoord,
-        gridType: newGrid.gridType,
-        templateUsed: newGrid.templateUsed
+        gridId: newGrid._id, // Use MongoDB _id as gridId
+        gridType: 'dungeon', // Return as 'dungeon' for client
+        templateUsed: templateFilename
       }
     });
     
@@ -2410,9 +2456,19 @@ router.get('/grids', async (req, res) => {
     if (settlementId) query.settlementId = settlementId;
     
     // Find grids with the specified criteria
-    const grids = await Grid.find(query).select('gridId gridCoord gridType templateUsed frontierId settlementId createdAt');
+    const grids = await Grid.find(query).select('_id gridType frontierId settlementId createdAt');
     
-    res.json(grids);
+    // Transform the response to include gridId
+    const transformedGrids = grids.map(grid => ({
+      _id: grid._id,
+      gridId: grid._id, // Use _id as gridId
+      gridType: grid.gridType,
+      frontierId: grid.frontierId,
+      settlementId: grid.settlementId,
+      createdAt: grid.createdAt
+    }));
+    
+    res.json(transformedGrids);
   } catch (error) {
     console.error('Error fetching grids:', error);
     res.status(500).json({ error: 'Failed to fetch grids' });
