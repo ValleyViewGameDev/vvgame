@@ -331,23 +331,35 @@ async function generateCarnivalOffersAndRewards(settlement, frontier, seasonConf
 
   // Calculate rewards
 
-  const rewardItems = seasonConfig.carnivalRewards || [];  // Yellow, Green, and Purple Heart
+  const rewardItems = seasonConfig.carnivalRewards || [];  // Yellow, Green, and Purple Heart, possibly XP
   const rewards = [];
-  const numRewards = Math.min(rewardItems.length, 3);
+
+  // Special case: If XP is in the reward items, ALWAYS include it
+  const hasXP = rewardItems.includes('XP');
+  if (hasXP) {
+    // XP calculation: 10-20 base XP
+    const xpQuantity = Math.floor(Math.random() * 11) + 10; // 10 to 20 XP
+    rewards.push({ item: 'XP', qty: xpQuantity });
+    console.log('🎡 XP reward always included:', xpQuantity);
+  }
+
+  // Filter out XP from the random selection pool
+  const rewardsForRandomSelection = rewardItems.filter(reward => reward !== 'XP');
+  const numRewards = Math.min(rewardsForRandomSelection.length, 3);
 
   for (let i = 0; i < numRewards; i++) {
     // first pick an item at random from among the possible rewards in the tuning doc
-    const item = rewardItems[Math.floor(Math.random() * rewardItems.length)];
+    const item = rewardsForRandomSelection[Math.floor(Math.random() * rewardsForRandomSelection.length)];
     // then, pick a quantity for this item; more rewards for later in the season
     // here, though, we need to consider that Yellow Heart should be more frequent, Purple less
     const baseQty = Math.ceil((population / 10) * seasonLevel);
-    
+
     // Add +/- 15% randomness to the quantity
     const variation = 0.15; // 15% variation
     const minQty = Math.floor(baseQty * (1 - variation));
     const maxQty = Math.ceil(baseQty * (1 + variation));
     const qty = Math.floor(Math.random() * (maxQty - minQty + 1)) + minQty;
-    
+
     rewards.push({ item, qty });
   }
 

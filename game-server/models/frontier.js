@@ -78,6 +78,12 @@ const FrontierSchema = new mongoose.Schema({
     startTime: { type: Date, default: Date.now },
     endTime: { type: Date, required: true },
   },
+  // ✅ Dungeon Opening Timing (Controlled Per Frontier, logic Per Player)
+  dungeon: {
+    phase: { type: String }, 
+    startTime: { type: Date, default: Date.now },
+    endTime: { type: Date, required: true },
+  },
 
 
   seasonlog: [

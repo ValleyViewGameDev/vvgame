@@ -21,7 +21,7 @@
         "seasonMultiplier": 1,
         "SeasonMoneyNerf": 0.25,
         "pricePoints": 25,
-        "carnivalRewards": [ "Gem", "Scroll", "Gold", "Honey", "Purple Heart", "Tulip", "Sunflower" ],
+        "carnivalRewards": [ "Gem", "Scroll", "Gold", "Honey", "Purple Heart", "Tulip", "Sunflower", "XP" ],
         "seasonTiles": {
             "g": 80,
             "s": 0,
@@ -79,7 +79,7 @@
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
-        "carnivalRewards": [ "Gem", "Scroll", "Gold", "Blueberry", "Purple Heart", "Tulip", "Feverfew" ],
+        "carnivalRewards": [ "Gem", "Scroll", "Gold", "Blueberry", "Purple Heart", "Tulip", "Feverfew", "XP" ],
         "seasonTiles": {
             "g": 20,
             "s": 0,
@@ -135,7 +135,7 @@
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
-        "carnivalRewards": [ "Gem", "Scroll", "Gold", "Blueberry", "Purple Heart", "Tulip", "Sunflower" ],
+        "carnivalRewards": [ "Gem", "Scroll", "Gold", "Blueberry", "Purple Heart", "Tulip", "Sunflower", "XP" ],
         "seasonTiles": {
             "g": 100,
             "s": 0,
@@ -191,7 +191,7 @@
         "seasonMultiplier": 1,
         "seasonMoneyNerf": 0.25,
         "pricePoints": 25,
-        "carnivalRewards": [ "Gem", "Scroll", "Gold", "Blueberry", "Purple Heart", "Tulip", "Mushroom" ],
+        "carnivalRewards": [ "Gem", "Scroll", "Gold", "Blueberry", "Purple Heart", "Tulip", "Mushroom", "XP" ],
         "seasonTiles": {
             "g": 0,
             "s": 0,

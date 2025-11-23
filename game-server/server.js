@@ -17,6 +17,7 @@ if (process.env.NODE_ENV === 'production') {
   require('./schedulers/taxScheduler');
   require('./schedulers/bankScheduler');
   require('./schedulers/networthScheduler');
+  require('./schedulers/dungeonScheduler');
 } else {
   console.log('🏠 Running in DEVELOPMENT mode - Schedulers DISABLED to prevent conflicts with production');
 }

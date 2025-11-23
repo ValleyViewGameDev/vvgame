@@ -1314,12 +1314,17 @@ router.post('/mailbox/collect-rewards', async (req, res) => {
 
     // Process rewards server-side
     let collectedItems = [];
+    let totalXP = 0;
 
     for (const reward of rewards) {
       const { item, qty } = reward;
 
       // Handle different reward types
-      if (item === 'Relocation') {
+      if (item === 'XP') {
+        // Special handling for XP - accumulate for atomic update
+        totalXP += qty;
+        collectedItems.push(`${qty} ${item}`);
+      } else if (item === 'Relocation') {
         const currentRelocations = player.relocations || 0;
         player.relocations = currentRelocations + qty;
         collectedItems.push(`${qty} ${item}`);
@@ -1327,14 +1332,14 @@ router.post('/mailbox/collect-rewards', async (req, res) => {
         // Handle inventory items (Money, Tent, and other regular items)
         const targetContainer = item === 'Tent' ? 'backpack' : 'inventory';
         const container = player[targetContainer] || [];
-        
+
         const existingItem = container.find(i => i.type === item);
         if (existingItem) {
           existingItem.quantity += qty;
         } else {
           container.push({ type: item, quantity: qty });
         }
-        
+
         player[targetContainer] = container;
         collectedItems.push(`${qty} ${item}`);
       } else {
@@ -1342,7 +1347,7 @@ router.post('/mailbox/collect-rewards', async (req, res) => {
         const isSkill = ['skill', 'upgrade'].includes(item);
         const targetArray = isSkill ? 'skills' : 'powers';
         const currentArray = player[targetArray] || [];
-        
+
         const alreadyHas = currentArray.some(s => s.type === item);
         if (!alreadyHas) {
           currentArray.push({ type: item, quantity: qty });
@@ -1350,6 +1355,12 @@ router.post('/mailbox/collect-rewards', async (req, res) => {
           collectedItems.push(`${qty} ${item}`);
         }
       }
+    }
+
+    // Award XP if any XP rewards were collected
+    if (totalXP > 0) {
+      player.xp = (player.xp || 0) + totalXP;
+      console.log(`✅ Added ${totalXP} XP from mailbox to ${player.username}. New total: ${player.xp}`);
     }
 
     // Remove the message
@@ -1363,15 +1374,16 @@ router.post('/mailbox/collect-rewards', async (req, res) => {
     player.activeTransactions.delete(transactionKey);
     await player.save();
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       collectedItems,
       messages: player.messages,
       inventory: player.inventory,
       backpack: player.backpack,
       skills: player.skills,
       powers: player.powers,
-      relocations: player.relocations
+      relocations: player.relocations,
+      xp: player.xp
     });
 
   } catch (error) {

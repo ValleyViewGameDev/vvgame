@@ -9,6 +9,7 @@ const bankScheduler = require("./bankScheduler");
 const electionScheduler = require("./electionScheduler");
 const messageScheduler = require("./messageScheduler");
 const networthScheduler = require("./networthScheduler");
+const dungeonScheduler = require("./networthScheduler");
 // Add more logic-only schedulers as needed...
 
 // Helper: Advance to the next phase for a given system
@@ -37,6 +38,7 @@ async function initializeTimers() {
     scheduleTimedFeature(frontier, "elections", globalTuning.elections);
     scheduleTimedFeature(frontier, "messages", globalTuning.messages);
     scheduleTimedFeature(frontier, "networth", globalTuning.networth);
+    scheduleTimedFeature(frontier, "dungeon", globalTuning.dungeon);
     // Add others 
   }
 }
@@ -142,6 +144,10 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
           case "networth":
             console.log("💰 Triggering networthScheduler...");
             extraPayload = await networthScheduler(frontierId, nextPhase, frontier);
+            break;
+          case "dungeon":
+            console.log("⚔️ Triggering dungeonScheduler...");
+            extraPayload = await dungeonScheduler(frontierId, nextPhase, frontier);
             break;
           default:
             console.warn(`⚠️ No scheduler found for ${featureKey}. Skipping...`);
