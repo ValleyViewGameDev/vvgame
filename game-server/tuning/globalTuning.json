@@ -1,4 +1,7 @@
 {
+  "costToRevive": 50,
+  "countdownToRevive:": 10,
+  "percentageToRevive": 0.25,
   "maxCrops": 1000,
   "maxFarmAnimals": 100,
   "maxTownBuildings": 800,
@@ -150,11 +153,18 @@
     },
     "startPhase": "waiting"
   },
+  "dungeon": {
+    "phases": {
+      "open": 2880,
+      "resetting": 0.5
+    },
+    "startPhase": "open"
+  },
   "trainRewards": {
-    "spring": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
-    "summer": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
-    "fall": [ "Yellow Heart", "Green Heart", "Purple Heart" ],
-    "winter": [ "Yellow Heart", "Green Heart", "Purple Heart" ]
+    "spring": [ "Yellow Heart", "Green Heart", "Purple Heart", "XP" ],
+    "summer": [ "Yellow Heart", "Green Heart", "Purple Heart", "XP" ],
+    "fall": [ "Yellow Heart", "Green Heart", "Purple Heart", "XP" ],
+    "winter": [ "Yellow Heart", "Green Heart", "Purple Heart", "XP" ]
   }
 
 }
