@@ -25,6 +25,7 @@ export const RenderDynamicElementsCanvas = ({
   setHoverTooltip,
   TILE_SIZE,
   strings,
+  timers,
   generateResourceTooltip,
   generateNPCTooltip,
   generatePCTooltip,
@@ -53,6 +54,8 @@ export const RenderDynamicElementsCanvas = ({
   const [conversationVersion, setConversationVersion] = useState(0);
   const currentHoveredNPC = useRef(null);
   const cursorUpdateInterval = useRef(null);
+  const tooltipUpdateInterval = useRef(null);
+  const currentTooltipData = useRef(null);
 
   // Subscribe to conversation changes
   useEffect(() => {
@@ -204,12 +207,68 @@ export const RenderDynamicElementsCanvas = ({
     }, 100);
   }, []);
 
-  // Cleanup interval on unmount
+  // Function to stop tooltip update interval
+  const stopTooltipUpdateInterval = useCallback(() => {
+    if (tooltipUpdateInterval.current) {
+      clearInterval(tooltipUpdateInterval.current);
+      tooltipUpdateInterval.current = null;
+      currentTooltipData.current = null;
+    }
+  }, []);
+  
+  // Function to start tooltip update interval for time-sensitive tooltips
+  const startTooltipUpdateInterval = useCallback((entity, entityType, position) => {
+    // Clear any existing interval
+    stopTooltipUpdateInterval();
+    
+    // Store current tooltip data
+    currentTooltipData.current = { entity, entityType, position };
+    
+    // Determine if this entity needs real-time updates
+    const needsRealtimeUpdate = (
+      (entityType === 'resource' && (
+        entity.type === 'Dungeon Entrance' ||
+        (entity.category === 'farmplot' && entity.growEnd) ||
+        (entity.category === 'crafting' && entity.craftEnd) ||
+        (entity.category === 'pet' && entity.craftEnd)
+      )) ||
+      (entityType === 'npc' && entity.action === 'graze' && entity.grazeEnd)
+    );
+    
+    if (!needsRealtimeUpdate) return;
+    
+    // Update tooltip every 100ms
+    tooltipUpdateInterval.current = setInterval(() => {
+      if (!currentTooltipData.current) {
+        stopTooltipUpdateInterval();
+        return;
+      }
+      
+      // Regenerate tooltip content
+      let content = '';
+      if (entityType === 'resource') {
+        content = generateResourceTooltip(entity, strings, timers);
+      } else if (entityType === 'npc') {
+        content = generateNPCTooltip(entity, strings);
+      }
+      
+      if (content) {
+        setHoverTooltip({
+          x: position.x,
+          y: position.y,
+          content: content
+        });
+      }
+    }, 100);
+  }, [strings, timers, stopTooltipUpdateInterval, setHoverTooltip]);
+
+  // Cleanup intervals on unmount
   useEffect(() => {
     return () => {
       stopCursorUpdateInterval();
+      stopTooltipUpdateInterval();
     };
-  }, [stopCursorUpdateInterval]);
+  }, [stopCursorUpdateInterval, stopTooltipUpdateInterval]);
 
   // Handle mouse events for tooltips and cursors - check ALL entity types
   const handleCanvasMouseMove = (event) => {
@@ -250,6 +309,9 @@ export const RenderDynamicElementsCanvas = ({
         content: generateNPCTooltip(npc, strings),
       });
       
+      // Start tooltip update interval for NPCs with timers
+      startTooltipUpdateInterval(npc, 'npc', tooltipPosition);
+      
       // Track current hovered NPC
       currentHoveredNPC.current = { id: npc.id };
       
@@ -280,8 +342,10 @@ export const RenderDynamicElementsCanvas = ({
       setHoverTooltip({
         x: tooltipPosition.x,
         y: tooltipPosition.y,
-        content: generateResourceTooltip(tooltipResource, strings),
+        content: generateResourceTooltip(tooltipResource, strings, timers),
       });
+      // Start tooltip update interval for time-sensitive resources
+      startTooltipUpdateInterval(tooltipResource, 'resource', tooltipPosition);
       // Set cursor for the resource
       const cursorClass = getResourceCursorClass(tooltipResource);
       setCanvasCursor(overlayDiv, cursorClass);
@@ -289,6 +353,7 @@ export const RenderDynamicElementsCanvas = ({
     } else if (anyResource) {
       // Resource exists but no tooltip (doober or source)
       setHoverTooltip(null);
+      stopTooltipUpdateInterval();
       // Doobers should show pointer cursor
       const cursorClass = anyResource.category === 'doober' ? 'cursor-pointer' : getResourceCursorClass(anyResource);
       setCanvasCursor(overlayDiv, cursorClass);
@@ -322,6 +387,7 @@ export const RenderDynamicElementsCanvas = ({
     // Clear tracked NPC and stop cursor update interval
     currentHoveredNPC.current = null;
     stopCursorUpdateInterval();
+    stopTooltipUpdateInterval();
   };
 
   const handleCanvasMouseLeave = (event) => {
@@ -335,6 +401,9 @@ export const RenderDynamicElementsCanvas = ({
     // Clear tracked NPC and stop cursor update interval
     currentHoveredNPC.current = null;
     stopCursorUpdateInterval();
+    
+    // Stop tooltip update interval
+    stopTooltipUpdateInterval();
   };
 
   // Handle clicks and forward to appropriate handlers

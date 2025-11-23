@@ -155,38 +155,52 @@ export function generateNewTrainOffers(currentPlayer, masterResources, globalTun
  */
 export function generateTrainRewards(trainOffers, currentPlayer, masterResources, globalTuning, currentSeason) {
     const rewards = [];
-    
+
     console.log('🚂 Train reward generation for season:', currentSeason);
-    
+
     // Convert season to lowercase to match globalTuning format
     const seasonKey = currentSeason ? currentSeason.toLowerCase() : 'spring';
     console.log('🚂 Looking for season key:', seasonKey);
-    
+
     // Get train rewards from globalTuning based on current season
     const seasonalRewards = globalTuning?.trainRewards?.[seasonKey];
     console.log('🚂 Seasonal rewards found:', seasonalRewards);
-    
+
     if (!seasonalRewards || !Array.isArray(seasonalRewards)) {
         console.warn('🚂 No train rewards found for season:', seasonKey, 'in globalTuning');
         console.warn('🚂 Available keys:', Object.keys(globalTuning?.trainRewards || {}));
         return rewards;
     }
-    
+
     console.log('🚂 Available seasonal rewards:', seasonalRewards);
-    
+
+    // Special case: If XP is in the seasonal rewards, ALWAYS include it
+    const hasXP = seasonalRewards.includes('XP');
+    if (hasXP) {
+        const xpQuantity = Math.floor(Math.random() * 3) + 1; // 1 to 3 XP
+        rewards.push({
+            item: 'XP',
+            quantity: xpQuantity
+        });
+        console.log('🚂 XP reward always included:', xpQuantity);
+    }
+
+    // Filter out XP from the random selection pool since we've already handled it
+    const rewardsForRandomSelection = seasonalRewards.filter(reward => reward !== 'XP');
+
     // Generate seasonal resource rewards (1-3 different rewards from the season's trainRewards)
-    const numSeasonalRewards = Math.floor(Math.random() * Math.min(3, seasonalRewards.length)) + 1; // 1 to 3 or max available
+    const numSeasonalRewards = Math.floor(Math.random() * Math.min(3, rewardsForRandomSelection.length)) + 1; // 1 to 3 or max available
     const usedRewards = new Set();
-    
+
     for (let i = 0; i < numSeasonalRewards; i++) {
         // Filter out already used rewards
-        const availableRewards = seasonalRewards.filter(reward => !usedRewards.has(reward));
-        
+        const availableRewards = rewardsForRandomSelection.filter(reward => !usedRewards.has(reward));
+
         if (availableRewards.length === 0) break;
-        
+
         const randomReward = availableRewards[Math.floor(Math.random() * availableRewards.length)];
         usedRewards.add(randomReward);
-        
+
         // Determine reward quantity (typically smaller quantities for special items)
         let quantity;
         if (isACrop(randomReward, masterResources)) {
@@ -194,13 +208,13 @@ export function generateTrainRewards(trainOffers, currentPlayer, masterResources
         } else {
             quantity = Math.floor(Math.random() * 3) + 1; // 1 to 3 for special items like hearts
         }
-        
+
         rewards.push({
             item: randomReward,
             quantity: quantity
         });
     }
-    
+
     console.log(`Generated ${rewards.length} train rewards:`, rewards);
     return rewards;
 }

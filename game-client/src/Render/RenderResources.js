@@ -13,6 +13,7 @@ export const RenderResources = ({
   handleTileClick,
   setHoverTooltip,
   strings,
+  timers,
   // useCanvasResources removed - always Canvas mode now
 }) => {
   // FORCED TO CANVAS MODE - no decision tree
@@ -25,6 +26,7 @@ export const RenderResources = ({
       handleTileClick={handleTileClick}
       setHoverTooltip={setHoverTooltip}
       strings={strings}
+      timers={timers}
     />
   );
 };

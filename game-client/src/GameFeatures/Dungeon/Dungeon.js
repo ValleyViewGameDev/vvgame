@@ -1,0 +1,102 @@
+import API_BASE from "../../config";
+import axios from "axios";
+import { changePlayerLocation } from "../../Utils/GridManagement";
+import FloatingTextManager from "../../UI/FloatingText";
+import { getLocalizedString } from "../../Utils/stringLookup";
+
+export async function handleDungeonEntrance(
+  currentPlayer,
+  dungeonPhase,
+  setCurrentPlayer,
+  setGridId,
+  setGrid,
+  setTileTypes,
+  setResources,
+  updateStatus,
+  TILE_SIZE,
+  closeAllPanels,
+  bulkOperationContext,
+  masterResources,
+  strings = null,
+  masterTrophies = null,
+  transitionFadeControl = null,
+  resourcePosition = { x: 0, y: 0 }
+) {
+  try {
+    console.log("🚪 Handling dungeon entrance click, phase:", dungeonPhase);
+    
+    // Check if dungeon is open
+    if (dungeonPhase !== 'open') {
+      console.log("🔒 Dungeon is closed (phase: " + dungeonPhase + ")");
+      
+      // Show floating text at resource position
+      const message = strings?.["10201"] || "The dungeon is currently closed";
+      FloatingTextManager.addFloatingText(message, resourcePosition.x, resourcePosition.y, TILE_SIZE);
+      updateStatus(message);
+      return;
+    }
+    
+    // Start fade transition for immersive teleportation
+    if (transitionFadeControl?.startTransition) {
+      console.log('🌑 [DUNGEON] Starting fade transition');
+      transitionFadeControl.startTransition();
+    }
+    
+    console.log("✅ Dungeon is open, preparing teleportation...");
+    
+    // TODO: Get the actual dungeon grid ID and entry position
+    // For now, we'll use placeholder values
+    const dungeonGridId = "dungeon_1"; // This should come from server/config
+    const dungeonEntryPosition = { x: 5, y: 5 }; // Entry position in dungeon
+    
+    const fromLocation = { ...currentPlayer.location };
+    const toLocation = {
+      x: dungeonEntryPosition.x,
+      y: dungeonEntryPosition.y,
+      g: dungeonGridId,
+      s: currentPlayer.settlementId,
+      f: currentPlayer.frontierId,
+      gtype: "dungeon",
+      gridCoord: null // Dungeons don't appear on the minimap
+    };
+    
+    console.log("📍 Teleporting to dungeon:", toLocation);
+    
+    // Perform the teleportation
+    await changePlayerLocation(
+      currentPlayer,
+      fromLocation,
+      toLocation,
+      setCurrentPlayer,
+      setGridId,
+      setGrid,
+      setTileTypes,
+      setResources,
+      TILE_SIZE,
+      closeAllPanels,
+      updateStatus,
+      bulkOperationContext,
+      masterResources,
+      strings,
+      masterTrophies
+    );
+    
+    // Show success message
+    const successMessage = strings?.["10202"] || "You have entered the dungeon!";
+    updateStatus(successMessage);
+    
+    // End fade transition
+    if (transitionFadeControl?.endTransition) {
+      transitionFadeControl.endTransition();
+    }
+    
+  } catch (error) {
+    console.error("❌ Error entering dungeon:", error);
+    updateStatus("Failed to enter dungeon");
+    
+    // End fade transition on error
+    if (transitionFadeControl?.endTransition) {
+      transitionFadeControl.endTransition();
+    }
+  }
+}

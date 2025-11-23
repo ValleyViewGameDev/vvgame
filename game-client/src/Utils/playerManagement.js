@@ -151,7 +151,8 @@ export const handlePlayerDeath = async (
   updateStatus,
   setModalContent,
   setIsModalOpen,
-  closeAllPanels
+  closeAllPanels,
+  offerRevival = true
 
 ) => {
   console.log('⚰️ Handling player death for', player.username);

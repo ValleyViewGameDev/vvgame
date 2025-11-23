@@ -27,7 +27,8 @@ export const RenderResourcesCanvas = ({
   currentPlayer,
   handleTileClick,
   setHoverTooltip,
-  strings
+  strings,
+  timers
 }) => {
   const canvasRef = useRef(null);
   const lastRenderData = useRef(null);
@@ -338,7 +339,7 @@ export const RenderResourcesCanvas = ({
       setHoverTooltip({
         x: tooltipPosition.x,
         y: tooltipPosition.y,
-        content: generateResourceTooltip(resource, strings),
+        content: generateResourceTooltip(resource, strings, timers),
       });
       const cursorClass = getResourceCursorClass(resource);
       setCanvasCursor(canvas, cursorClass);

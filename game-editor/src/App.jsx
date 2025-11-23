@@ -8,6 +8,7 @@ import Players from './Players';
 import AtlasView from './AtlasView';
 import Analytics from './Analytics';
 import Feedback from './Feedback';
+import Dungeons from './Dungeons';
 import './App.css';
 
 const App = () => {
@@ -113,6 +114,7 @@ useEffect(() => {
         <button title="Grid Editor" onClick={() => setActivePanel('grid')}>✍️</button>
         <button title="Frontier View" onClick={() => setActivePanel('frontier')}>🔎</button>
         <button title="Atlas View" onClick={() => setActivePanel('atlas')}>🗺️</button>
+        <button title="Dungeons" onClick={() => setActivePanel('dungeons')}>🏰</button>
         <button title="Players" onClick={() => setActivePanel('players')}>😀</button>
         <button title="Analytics" onClick={() => setActivePanel('analytics')}>📊</button>
         <button title="Feedback" onClick={() => setActivePanel('feedback')}>✅</button>
@@ -165,6 +167,12 @@ useEffect(() => {
         </div>
         <div className={activePanel === 'feedback' ? 'panel-visible' : 'panel-hidden'}>
           <Feedback 
+            activePanel={activePanel}
+            />
+        </div>
+        <div className={activePanel === 'dungeons' ? 'panel-visible' : 'panel-hidden'}>
+          <Dungeons 
+            selectedFrontier={selectedFrontier}
             activePanel={activePanel}
             />
         </div>

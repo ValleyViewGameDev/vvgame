@@ -6,12 +6,44 @@ import questCache from '../Utils/QuestCache';
 /**
  * Generate tooltip content for a resource - shared between Canvas and DOM
  */
-export function generateResourceTooltip(resource, strings) {
+export function generateResourceTooltip(resource, strings, timers = null) {
   if (!resource || resource.category === 'doober' || resource.category === 'source') return '';
 
   const lines = [];
   const currentTime = Date.now();
   const localizedResourceType = getLocalizedString(resource.type, strings);
+
+  // Special handling for Dungeon Entrance
+  if (resource.type === 'Dungeon Entrance' && timers?.dungeon) {
+    lines.push(`<p>${localizedResourceType}</p>`);
+    
+    const dungeonPhase = timers.dungeon.phase;
+    const dungeonEndTime = timers.dungeon.endTime;
+    
+    if (dungeonEndTime) {
+      const remainingTime = Math.max(0, dungeonEndTime - currentTime);
+      const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+      
+      const parts = [];
+      if (hours > 0) parts.push(`${hours}h`);
+      if (minutes > 0) parts.push(`${minutes}m`);
+      if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
+      const timeString = parts.join(' ');
+      
+      if (dungeonPhase === 'open') {
+        lines.push(`<p>Open - Resets in ${timeString}</p>`);
+      } else if (dungeonPhase === 'resetting') {
+        lines.push(`<p>Closed - Opens in ${timeString}</p>`);
+      }
+    } else {
+      // Fallback if no timer data
+      lines.push(`<p>${dungeonPhase === 'open' ? 'Open' : 'Closed'}</p>`);
+    }
+    
+    return lines.join('');
+  }
 
   switch (resource.category) {
     case 'farmplot':
@@ -268,6 +300,7 @@ export const RenderDynamicElements = ({
   // Configuration
   TILE_SIZE,
   strings,
+  timers,
   
   // Additional props for NPC interactions
   setInventory,
@@ -360,6 +393,7 @@ export const RenderDynamicElements = ({
         onPCClick={onPCClick}
         TILE_SIZE={TILE_SIZE}
         strings={strings}
+        timers={timers}
         generateResourceTooltip={generateResourceTooltip}
         generateNPCTooltip={generateNPCTooltip}
         generatePCTooltip={generatePCTooltip}

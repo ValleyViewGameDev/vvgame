@@ -51,6 +51,7 @@ import FrontierView from './ZoomedOut/FrontierView';
 import FrontierMiniMap from './ZoomedOut/FrontierMiniMap';
 
 import Modal from './UI/Modal';
+import RevivalModal from './UI/RevivalModal';
 import LevelUpModal from './UI/LevelUpModal';
 import LanguagePickerModal from './UI/LanguagePickerModal';
 import { useStrings } from './UI/StringsContext';
@@ -79,7 +80,6 @@ import SkillsPanel from './GameFeatures/Skills/SkillsPanel';
 import GovPanel from './GameFeatures/Government/GovPanel';
 import BankPanel from './GameFeatures/Trading/Bank';
 import KentPanel from './GameFeatures/Trading/Kent';
-import TrainPanel from './GameFeatures/Trading/Train';
 import NewTrainPanel from './GameFeatures/Trading/NewTrain';
 import CarnivalPanel from './GameFeatures/Carnival/Carnival';
 import CourthousePanel from './GameFeatures/Government/Courthouse';
@@ -153,6 +153,8 @@ useEffect(() => {
   const { activeModal, setActiveModal, openModal, closeModal } = useModalContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState({ title: '', message: '', message2: '' });
+  const [isRevivalModalOpen, setIsRevivalModalOpen] = useState(false);
+  const [revivalPending, setRevivalPending] = useState(false);
   const { updateStatus } = useContext(StatusBarContext);
   
   // Level-up detection state
@@ -845,6 +847,131 @@ useEffect(() => {
   };
 }, []);  // Only run once when the component mounts
 
+// Revival state handlers
+const handleAcceptDeath = async () => {
+  console.log("☠️ Player accepted death");
+  setIsRevivalModalOpen(false);
+  setRevivalPending(false);
+  localStorage.removeItem('revivalState');
+  
+  // Execute normal death flow
+  await handlePlayerDeath(
+    currentPlayer,
+    setCurrentPlayer,
+    setGridId,
+    setGrid,
+    setResources,
+    setTileTypes,
+    activeTileSize,
+    updateStatus,
+    setModalContent,
+    setIsModalOpen,
+    closeAllPanels,
+    false // offerRevival = false
+  );
+  
+  // Show normal death modal
+  setModalContent({
+    title: strings["5001"],
+    message: strings["5002"],
+    message2: strings["5003"],
+    size: "small",
+  });
+  setIsModalOpen(true);
+};
+
+const handleRevive = async () => {
+  console.log("💎 Player attempting to revive");
+  const reviveCost = globalTuning?.costToRevive || 50;
+  
+  // Get player's gem count from inventory
+  const playerGems = inventory.find(item => item.type === 'Gem')?.quantity || 0;
+  console.log(`Player has ${playerGems} gems, needs ${reviveCost}`);
+  
+  // Check if player has enough gems
+  if (playerGems >= reviveCost) {
+    console.log("✅ Player has enough gems, reviving...");
+    
+    // Calculate HP to restore
+    const percentageToRevive = globalTuning?.percentageToRevive || 0.25;
+    // Calculate proper maxHP from base stats and equipment (don't let it get corrupted)
+    const properMaxHp = (currentPlayer.baseMaxhp || 25) + (currentPlayer.maxhpModifier || 0);
+    const restoredHp = Math.floor(properMaxHp * percentageToRevive);
+    
+    try {
+      // Update inventory to deduct gems
+      const updatedInventory = inventory.map(item => {
+        if (item.type === 'Gem') {
+          return { ...item, quantity: item.quantity - reviveCost };
+        }
+        return item;
+      });
+      
+      // Update player stats in database (only inventory, not HP which belongs in grid state)
+      const response = await axios.post(`${API_BASE}/api/update-profile`, {
+        playerId: currentPlayer._id,
+        updates: {
+          inventory: updatedInventory
+        }
+      });
+      
+      // Update local player state (HP doesn't belong here, it's in grid state)
+      const updatedPlayer = {
+        ...currentPlayer,
+        inventory: updatedInventory
+      };
+      setCurrentPlayer(updatedPlayer);
+      localStorage.setItem('player', JSON.stringify(updatedPlayer));
+      setInventory(updatedInventory);
+      
+      // Update grid state - this is the critical part for HP to show correctly
+      const playerId = String(currentPlayer._id);
+      console.log(`🏥 Updating player ${playerId} HP to ${restoredHp} in grid ${gridId}`);
+      playersInGridManager.updatePC(gridId, playerId, { hp: restoredHp });
+      
+      // Force update the players in grid state to trigger re-render
+      const updatedPCs = playersInGridManager.getPlayersInGrid(gridId);
+      console.log(`✅ Player HP in grid state:`, updatedPCs[playerId]?.hp);
+      
+      // Clear revival state
+      setIsRevivalModalOpen(false);
+      setRevivalPending(false);
+      localStorage.removeItem('revivalState');
+      
+      console.log(`✅ Player revived with ${restoredHp} HP`);
+      updateStatus(`Revived with ${restoredHp} HP! 💎 -${reviveCost} Gems`);
+      
+    } catch (error) {
+      console.error("❌ Error during revival:", error);
+      updateStatus("Revival failed - please try again");
+    }
+  } else {
+    console.log("❌ Insufficient gems, opening gem purchase panel");
+    setIsRevivalModalOpen(false);
+    openPanel('HowToGemsPanel');
+  }
+};
+
+// Check for saved revival state on mount
+useEffect(() => {
+  const savedRevivalState = localStorage.getItem('revivalState');
+  if (savedRevivalState && currentPlayer) {
+    try {
+      const revivalData = JSON.parse(savedRevivalState);
+      // Check if it's for the current player
+      if (revivalData.playerId === currentPlayer._id && revivalData.isRevivalPending) {
+        console.log("🔄 Restoring revival state after refresh");
+        setRevivalPending(true);
+        setIsRevivalModalOpen(true);
+      } else {
+        localStorage.removeItem('revivalState');
+      }
+    } catch (error) {
+      console.error("Error parsing revival state:", error);
+      localStorage.removeItem('revivalState');
+    }
+  }
+}, [currentPlayer]);
 
 // Establish UI BADGING (Chat, Mailbox, Store) //////////////////////////////////////////////////////
 useEffect(() => {
@@ -1003,28 +1130,20 @@ useEffect(() => {
       const row = playerPC?.position?.y;
       const onTileType = tileTypes?.[row]?.[col];
 
-      if (playerPC?.hp <= 0 && currentPlayer) {
-        console.log("💀 Player is dead. Handling death...");
-        await handlePlayerDeath(
-          currentPlayer,
-          setCurrentPlayer,
-          setGridId,
-          setGrid,
-          setResources,
-          setTileTypes,
-          activeTileSize,
-          updateStatus,
-          setModalContent,
-          setIsModalOpen,
-          closeAllPanels
-        );
-        setModalContent({
-          title: strings["5001"],
-          message: strings["5002"],
-          message2: strings["5003"],
-          size: "small",
-        });
-        setIsModalOpen(true);
+      if (playerPC?.hp <= 0 && currentPlayer && !revivalPending) {
+        console.log("💀 Player is dead. Showing revival option...");
+        
+        // Set revival pending state and show revival modal
+        setRevivalPending(true);
+        setIsRevivalModalOpen(true);
+        
+        // Store revival state in localStorage for refresh handling
+        const revivalState = {
+          isRevivalPending: true,
+          deathTimestamp: Date.now(),
+          playerId: currentPlayer._id
+        };
+        localStorage.setItem('revivalState', JSON.stringify(revivalState));
 
       } else {
         // 🔥 Check for lava tile
@@ -1104,9 +1223,10 @@ const [timers, setTimers] = useState(() => {
     carnival: { phase: "", endTime: null },
     taxes: { phase: "", endTime: null },  
     bank: { phase: "", endTime: null },  
+    dungeon: { phase: "", endTime: null },  
   }; 
 });
-const [countdowns, setCountdowns] = useState({ seasons: "", elections: "", train: "", carnival: "", taxes: "", bank: "" });
+const [countdowns, setCountdowns] = useState({ seasons: "", elections: "", train: "", carnival: "", taxes: "", bank: "", dungeon: "" });
 
 // TIMERS Step 2: Initialize Timers on app start/refresh; run once
 useEffect(() => {
@@ -1165,6 +1285,10 @@ const fetchTimersData = async () => {
       bank: {
         phase: frontierData.bank?.phase || "Unknown",
         endTime: frontierData.bank?.endTime ? new Date(frontierData.bank.endTime).getTime() : null,
+      },
+      dungeon: {
+        phase: frontierData.dungeon?.phase || "Unknown",
+        endTime: frontierData.dungeon?.endTime ? new Date(frontierData.dungeon.endTime).getTime() : null,
       }
     };
 
@@ -1195,6 +1319,7 @@ useEffect(() => {
       carnival: timers.carnival?.endTime ? formatCountdown(timers.carnival.endTime, now) : "--:--:--",
       taxes: timers.taxes?.endTime ? formatCountdown(timers.taxes.endTime, now) : "--:--:--",
       bank: timers.bank?.endTime ? formatCountdown(timers.bank.endTime, now) : "--:--:--",
+      dungeon: timers.dungeon?.endTime ? formatCountdown(timers.dungeon.endTime, now) : "--:--:--",
     });
   };
 
@@ -1236,6 +1361,10 @@ useEffect(() => {
     }
     if (timers.bank.endTime && now >= timers.bank.endTime) {
       console.log("💰 Bank cycle ended. Fetching new bank timer...");
+      shouldFetchNewTimers = true;
+    }
+    if (timers.dungeon.endTime && now >= timers.dungeon.endTime) {
+      console.log("⚔️ Dungeon cycle ended. Fetching new bank timer...");
       shouldFetchNewTimers = true;
     }
     if (shouldFetchNewTimers) {
@@ -1683,7 +1812,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         openPanel,
         masterTrophies,
         globalTuning,
-        transitionFadeControl
+        transitionFadeControl,
+        timers
       ).finally(() => {
         isProcessing = false; // Reset flag after processing
       });
@@ -2249,6 +2379,7 @@ return (
           badgeState={badgeState}
           electionPhase={timers.elections.phase}
           setHoverTooltip={setHoverTooltip}
+          timers={timers}
         />
         
         {/* Layer 3: NPCs */}
@@ -2316,6 +2447,7 @@ return (
           strings={strings}
           gridId={gridId}
           globalTuning={globalTuning}
+          timers={timers}
           resources={memoizedResources}
           npcs={npcs}
           pcs={pcs}
@@ -2429,6 +2561,14 @@ return (
         {modalContent.children}
         {modalContent.custom}
       </Modal>
+ 
+      <RevivalModal
+        isOpen={isRevivalModalOpen}
+        onAcceptDeath={handleAcceptDeath}
+        onRevive={handleRevive}
+        reviveCost={globalTuning?.costToRevive || 50}
+        strings={strings}
+      />
  
       {activeModal === 'Mailbox' && (
         <Mailbox
@@ -2606,22 +2746,7 @@ return (
           currentSeason={timers.seasons?.type || "Unknown"}
         />
       )}
-      {activePanel === 'TrainPanel' && (
-        <TrainPanel
-          onClose={closePanel} 
-          inventory={inventory}
-          setInventory={setInventory}
-          backpack={backpack}
-          setBackpack={setBackpack}
-          currentPlayer={currentPlayer}
-          setCurrentPlayer={setCurrentPlayer}
-          updateStatus={updateStatus}
-          masterResources={masterResources}
-          setModalContent={setModalContent}
-          setIsModalOpen={setIsModalOpen}
-        />
-      )}
-      {activePanel === 'NewTrainPanel' && (
+     {activePanel === 'NewTrainPanel' && (
         <NewTrainPanel
           onClose={closePanel} 
           inventory={inventory}

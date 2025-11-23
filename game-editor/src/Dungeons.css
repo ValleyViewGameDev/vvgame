@@ -1,0 +1,170 @@
+.dungeons-container {
+  padding: 20px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.dungeons-container h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+.dungeons-container h3 {
+  color: #555;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+}
+
+.error-message {
+  background-color: #fee;
+  color: #c00;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border: 1px solid #fcc;
+}
+
+/* Create Dungeon Section */
+.create-dungeon-section {
+  background-color: #f8f8f8;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  border: 1px solid #ddd;
+}
+
+.form-row {
+  margin-bottom: 15px;
+}
+
+.form-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-weight: 500;
+}
+
+.form-row input,
+.form-row select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.form-row input:focus,
+.form-row select:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+.form-row small {
+  color: #666;
+  font-size: 12px;
+}
+
+.create-button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.create-button:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.create-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Dungeons List Section */
+.dungeons-list-section {
+  margin-bottom: 30px;
+}
+
+.no-dungeons {
+  color: #666;
+  font-style: italic;
+}
+
+.dungeons-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dungeons-table th {
+  background-color: #f0f0f0;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #ddd;
+}
+
+.dungeons-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.dungeons-table tr:hover {
+  background-color: #f8f8f8;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.action-button.edit {
+  background-color: #2196F3;
+}
+
+.action-button.edit:hover {
+  background-color: #1976D2;
+  transform: scale(1.1);
+}
+
+.action-button.delete {
+  background-color: #f44336;
+}
+
+.action-button.delete:hover:not(:disabled) {
+  background-color: #d32f2f;
+  transform: scale(1.1);
+}
+
+.action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Template Info Section */
+.template-info-section {
+  background-color: #e3f2fd;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #90caf9;
+}
+
+.template-info-section p {
+  margin: 5px 0;
+  color: #1565c0;
+}

@@ -7,6 +7,7 @@ import { loadMasterResources, loadMasterSkills } from './Utils/TuningManager'; /
 import FloatingTextManager from './UI/FloatingText';
 import { lockResource, unlockResource } from './Utils/ResourceLockManager';
 import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
+import { handleDungeonEntrance } from './GameFeatures/Dungeon/Dungeon';
 import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
 import { createCollectEffect, createSourceConversionEffect, calculateTileCenter } from './VFX/VFX';
 import { earnTrophy } from './GameFeatures/Trophies/TrophyUtils';
@@ -51,7 +52,8 @@ import { getDerivedRange } from './Utils/worldHelpers';
   openPanel,
   masterTrophies = null,
   globalTuning = null,
-  transitionFadeControl = null
+  transitionFadeControl = null,
+  timers = null
 ) {
   console.log(`Resource Clicked:  (${row}, ${col}):`, { resource, tileType: tileTypes[row]?.[col] });
   if (!resource || !resource.category) { console.error(`Invalid resource at (${col}, ${row}):`, resource); return; }
@@ -199,6 +201,48 @@ import { getDerivedRange } from './Utils/worldHelpers';
           );
         } catch (error) {
           console.error("Error handling travel signpost:", error.message || error);
+        }
+        break;
+        
+      case 'dungeon':
+        console.log('🚪 Dungeon entrance clicked');
+        
+        // Check if we have dungeon phase data
+        if (!timers?.dungeon) {
+          console.warn('No dungeon phase data available');
+          updateStatus("Unable to access dungeon information");
+          return;
+        }
+        
+        // Check if any bulk operation is active
+        if (bulkOperationContext?.isAnyBulkOperationActive?.()) {
+          const activeOps = bulkOperationContext.getActiveBulkOperations();
+          console.log('🚫 Dungeon entry blocked: Bulk operation in progress', activeOps);
+          updateStatus(470);
+          return;
+        }
+        
+        try {
+          await handleDungeonEntrance(
+            currentPlayer,
+            timers.dungeon.phase,
+            setCurrentPlayer,
+            setGridId,
+            setGrid,
+            setTileTypes,
+            setResources,
+            updateStatus,
+            TILE_SIZE,
+            closeAllPanels,
+            bulkOperationContext,
+            masterResources,
+            strings,
+            masterTrophies,
+            transitionFadeControl,
+            { x: col, y: row } // Pass resource position for floating text
+          );
+        } catch (error) {
+          console.error("Error handling dungeon entrance:", error.message || error);
         }
         break;
         

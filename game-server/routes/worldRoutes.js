@@ -2314,6 +2314,56 @@ router.post('/melt-the-snow/:gridId', async (req, res) => {
   }
 });
 
+// List grids with optional filters
+router.get('/grids', async (req, res) => {
+  try {
+    const { gridType, frontierId, settlementId } = req.query;
+    
+    // Build query
+    const query = {};
+    if (gridType) query.gridType = gridType;
+    if (frontierId) query.frontierId = frontierId;
+    if (settlementId) query.settlementId = settlementId;
+    
+    // Find grids with the specified criteria
+    const grids = await Grid.find(query).select('gridId gridCoord gridType templateUsed frontierId settlementId createdAt');
+    
+    res.json(grids);
+  } catch (error) {
+    console.error('Error fetching grids:', error);
+    res.status(500).json({ error: 'Failed to fetch grids' });
+  }
+});
+
+// Delete a dungeon grid by ID (only for dungeon type grids)
+router.delete('/delete-dungeon/:gridId', async (req, res) => {
+  try {
+    const { gridId } = req.params;
+    
+    // Find the grid first to verify it's a dungeon
+    const grid = await Grid.findById(gridId);
+    
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found' });
+    }
+    
+    // Only allow deletion of dungeon type grids
+    if (grid.gridType !== 'dungeon') {
+      return res.status(403).json({ error: 'Only dungeon grids can be deleted through this endpoint' });
+    }
+    
+    // Delete the dungeon grid
+    await Grid.findByIdAndDelete(gridId);
+    
+    console.log(`✅ Deleted dungeon grid: ${grid.gridId} (${gridId})`);
+    res.json({ success: true, message: `Dungeon grid ${grid.gridId} deleted successfully` });
+    
+  } catch (error) {
+    console.error('Error deleting dungeon grid:', error);
+    res.status(500).json({ error: 'Failed to delete dungeon grid' });
+  }
+});
+
 module.exports = router;
 
 

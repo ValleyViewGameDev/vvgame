@@ -88,8 +88,8 @@ function Mailbox({
 
       if (response.data.success) {
         // Update local state with server response
-        const { messages, inventory, backpack, skills, powers, relocations, collectedItems } = response.data;
-        
+        const { messages, inventory, backpack, skills, powers, relocations, xp, collectedItems } = response.data;
+
         // Update all player data from server response
         setCurrentPlayer(prev => ({
           ...prev,
@@ -98,7 +98,8 @@ function Mailbox({
           backpack: backpack || prev.backpack,
           skills: skills || prev.skills,
           powers: powers || prev.powers,
-          relocations: relocations !== undefined ? relocations : prev.relocations
+          relocations: relocations !== undefined ? relocations : prev.relocations,
+          xp: xp !== undefined ? xp : prev.xp
         }));
 
         // Update local state
