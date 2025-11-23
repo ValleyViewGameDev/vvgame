@@ -6,19 +6,11 @@ import './Dungeons.css';
 
 const fs = window.require('fs');
 const path = window.require('path');
-
-// Determine project root based on environment
-let projectRoot;
-try {
-  const { app } = window.require('electron').remote;
-  const isDev = !app.isPackaged;
-  projectRoot = isDev
-    ? path.join(__dirname, '..', '..')
-    : path.join(app.getAppPath(), '..', '..', '..', '..', '..', '..', '..');
-} catch (e) {
-  // Fallback if electron remote is not available
-  projectRoot = path.join(__dirname, '..', '..');
-}
+const app = window.require('@electron/remote').app;
+const isDev = !app.isPackaged;
+const projectRoot = isDev
+  ? path.join(__dirname, '..', '..')
+  : path.join(app.getAppPath(), '..', '..', '..', '..', '..', '..', '..');
 
 const Dungeons = ({ selectedFrontier, activePanel }) => {
   const { setFileName, setDirectory } = useFileContext();
@@ -122,9 +114,8 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
     try {
       const nextCoord = getNextDungeonCoord();
       
-      const response = await axios.post(`${API_BASE}/api/create-grid`, {
+      const response = await axios.post(`${API_BASE}/api/create-dungeon`, {
         gridCoord: nextCoord,
-        gridType: 'dungeon',
         gridId: newGridName,
         templateFilename: selectedTemplate,
         settlementId: selectedFrontier || 'global',

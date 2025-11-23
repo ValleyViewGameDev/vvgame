@@ -2314,6 +2314,90 @@ router.post('/melt-the-snow/:gridId', async (req, res) => {
   }
 });
 
+// Create a dungeon grid with template
+router.post('/create-dungeon', async (req, res) => {
+  try {
+    const { gridCoord, gridId, templateFilename, settlementId, frontierId } = req.body;
+    
+    console.log('Creating dungeon grid:', { gridCoord, gridId, templateFilename });
+    
+    // Validate required fields
+    if (!gridCoord || !gridId || !templateFilename) {
+      return res.status(400).json({ 
+        error: 'gridCoord, gridId, and templateFilename are required.' 
+      });
+    }
+    
+    // Check if grid already exists
+    const existingGrid = await Grid.findOne({ 
+      $or: [
+        { gridId: gridId },
+        { 'gridCoord.x': gridCoord.x, 'gridCoord.y': gridCoord.y }
+      ]
+    });
+    
+    if (existingGrid) {
+      return res.status(409).json({ 
+        error: `Grid already exists: ${existingGrid.gridId}` 
+      });
+    }
+    
+    // Load the dungeon template
+    const fs = require('fs');
+    const path = require('path');
+    const templatePath = path.join(__dirname, '../layouts/gridLayouts/dungeon', `${templateFilename}.json`);
+    
+    if (!fs.existsSync(templatePath)) {
+      return res.status(404).json({ 
+        error: `Template not found: ${templateFilename}` 
+      });
+    }
+    
+    const template = JSON.parse(fs.readFileSync(templatePath, 'utf-8'));
+    
+    // Import encoders
+    const TileEncoder = require('../utils/TileEncoder');
+    const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
+    
+    // Create the dungeon grid
+    const newGrid = new Grid({
+      gridId: gridId,
+      gridCoord: gridCoord,
+      gridType: 'dungeon',
+      templateUsed: templateFilename,
+      frontierId: frontierId || 'global',
+      settlementId: settlementId || 'global',
+      tiles: TileEncoder.encode(template.tiles),
+      resources: UltraCompactResourceEncoder.encode(template.resources || []),
+      NPCsInGrid: new Map(),
+      playersInGrid: new Map(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    
+    await newGrid.save();
+    
+    console.log(`✅ Created dungeon grid: ${gridId} at (${gridCoord.x}, ${gridCoord.y})`);
+    
+    res.status(201).json({
+      success: true,
+      grid: {
+        _id: newGrid._id,
+        gridId: newGrid.gridId,
+        gridCoord: newGrid.gridCoord,
+        gridType: newGrid.gridType,
+        templateUsed: newGrid.templateUsed
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error creating dungeon grid:', error);
+    res.status(500).json({ 
+      error: error.message || 'Failed to create dungeon grid' 
+    });
+  }
+});
+
 // List grids with optional filters
 router.get('/grids', async (req, res) => {
   try {
