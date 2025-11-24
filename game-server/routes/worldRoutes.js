@@ -2317,9 +2317,9 @@ router.post('/melt-the-snow/:gridId', async (req, res) => {
 // Create a dungeon grid with template
 router.post('/create-dungeon', async (req, res) => {
   try {
-    const { gridCoord, gridId, templateFilename, settlementId, frontierId } = req.body;
+    const { templateFilename, settlementId, frontierId } = req.body;
     
-    console.log('Creating dungeon grid:', { gridCoord, gridId, templateFilename });
+    console.log('Creating dungeon grid:', { templateFilename, settlementId, frontierId });
     
     // Validate required fields
     if (!templateFilename) {
@@ -2429,16 +2429,35 @@ router.post('/create-dungeon', async (req, res) => {
     let dungeonLog = { dungeons: {} };
     
     try {
+      // Ensure the directory exists
+      const dungeonDir = path.join(__dirname, '../layouts/gridLayouts/dungeon');
+      if (!fs.existsSync(dungeonDir)) {
+        console.log('📁 Creating dungeon directory:', dungeonDir);
+        fs.mkdirSync(dungeonDir, { recursive: true });
+      }
+      
+      // Read existing log if it exists
       if (fs.existsSync(dungeonLogPath)) {
-        dungeonLog = JSON.parse(fs.readFileSync(dungeonLogPath, 'utf-8'));
+        const logContent = fs.readFileSync(dungeonLogPath, 'utf-8');
+        dungeonLog = JSON.parse(logContent);
+        console.log('📖 Read existing dungeonLog with', Object.keys(dungeonLog.dungeons || {}).length, 'entries');
+      } else {
+        console.log('📝 Creating new dungeonLog.json');
       }
     } catch (error) {
-      console.warn('⚠️ Could not read dungeonLog.json, creating new one');
+      console.error('❌ Error reading dungeonLog.json:', error);
+      console.warn('⚠️ Creating new dungeonLog');
+    }
+    
+    // Ensure dungeons object exists
+    if (!dungeonLog.dungeons) {
+      dungeonLog.dungeons = {};
     }
     
     // Add this dungeon to the log
-    dungeonLog.dungeons[newGrid._id.toString()] = {
-      gridId: newGrid._id.toString(),
+    const dungeonId = newGrid._id.toString();
+    dungeonLog.dungeons[dungeonId] = {
+      gridId: dungeonId,
       templateUsed: templateFilename,
       createdAt: new Date().toISOString(),
       needsReset: false,
@@ -2449,7 +2468,15 @@ router.post('/create-dungeon', async (req, res) => {
     };
     
     // Save the updated log
-    fs.writeFileSync(dungeonLogPath, JSON.stringify(dungeonLog, null, 2));
+    try {
+      fs.writeFileSync(dungeonLogPath, JSON.stringify(dungeonLog, null, 2));
+      console.log('✅ Updated dungeonLog.json with new entry for', dungeonId);
+    } catch (writeError) {
+      console.error('❌ Failed to write dungeonLog.json:', writeError);
+      console.error('Path:', dungeonLogPath);
+      console.error('Directory exists:', fs.existsSync(path.dirname(dungeonLogPath)));
+      console.error('File permissions:', fs.statSync(path.dirname(dungeonLogPath)));
+    }
     
     console.log(`✅ Created dungeon grid: ${newGrid._id} with template ${templateFilename}`);
     
