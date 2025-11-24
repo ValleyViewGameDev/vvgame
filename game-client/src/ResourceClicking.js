@@ -6,8 +6,6 @@ import { updateGridResource } from './Utils/GridManagement';
 import { loadMasterResources, loadMasterSkills } from './Utils/TuningManager'; // Centralized tuning manager
 import FloatingTextManager from './UI/FloatingText';
 import { lockResource, unlockResource } from './Utils/ResourceLockManager';
-import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
-import { handleDungeonEntrance, handleDungeonExit } from './GameFeatures/Dungeon/Dungeon';
 import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
 import { createCollectEffect, createSourceConversionEffect, calculateTileCenter } from './VFX/VFX';
 import { earnTrophy } from './GameFeatures/Trophies/TrophyUtils';
@@ -159,100 +157,6 @@ import { getDerivedRange } from './Utils/worldHelpers';
 
       case 'deco':
         console.log('Deco clicked; placeholder for future functionality');
-        break;
-
-      case 'travel':
-        console.log('Travel sign clicked');
-        console.log('bulkOperationContext:', bulkOperationContext);
-        console.log('isAnyBulkOperationActive:', bulkOperationContext?.isAnyBulkOperationActive?.());
-        
-        // Check if any bulk operation is active
-        if (bulkOperationContext?.isAnyBulkOperationActive?.()) {
-          const activeOps = bulkOperationContext.getActiveBulkOperations();
-          console.log('🚫 Travel blocked: Bulk operation in progress', activeOps);
-          updateStatus(470);
-          return;
-        }
-        
-        try {
-          // Check if this is a dungeon-related signpost
-          if (resource.type === 'Dungeon Entrance') {
-            console.log('🚪 Dungeon entrance clicked');
-            
-            // Check if we have dungeon phase data
-            if (!timers?.dungeon) {
-              console.warn('No dungeon phase data available');
-              updateStatus("Unable to access dungeon information");
-              return;
-            }
-            
-            await handleDungeonEntrance(
-              currentPlayer,
-              timers.dungeon.phase,
-              setCurrentPlayer,
-              setGridId,
-              setGrid,
-              setTileTypes,
-              setResources,
-              updateStatus,
-              TILE_SIZE,
-              closeAllPanels,
-              bulkOperationContext,
-              masterResources,
-              null, // strings not available in ResourceClicking
-              null, // masterTrophies not available in ResourceClicking
-              transitionFadeControl,
-              { x: resource.x * TILE_SIZE, y: resource.y * TILE_SIZE }
-            );
-          } else if (resource.type === 'Dungeon Exit') {
-            console.log('🚪 Dungeon exit clicked');
-            
-            await handleDungeonExit(
-              currentPlayer,
-              setCurrentPlayer,
-              setGridId,
-              setGrid,
-              setTileTypes,
-              setResources,
-              updateStatus,
-              TILE_SIZE,
-              closeAllPanels,
-              bulkOperationContext,
-              masterResources,
-              null, // strings not available in ResourceClicking
-              null, // masterTrophies not available in ResourceClicking
-              transitionFadeControl
-            );
-          } else {
-            // Regular transit signpost
-            console.log('🚏 [DEBUG] About to call handleTransitSignpost with:', {
-              resourceType: resource.type,
-              transitionFadeControlAvailable: !!transitionFadeControl,
-              transitionFadeControlMethods: transitionFadeControl ? Object.keys(transitionFadeControl) : 'none'
-            });
-            
-            await handleTransitSignpost(
-              currentPlayer,
-              resource.type,
-              setCurrentPlayer,
-              setGridId, 
-              setGrid,
-              setTileTypes, 
-              setResources,
-              updateStatus,
-              TILE_SIZE,
-              skills,
-              closeAllPanels,
-              bulkOperationContext,
-              null, // masterResources not available
-              null, // strings not available in ResourceClicking
-              null, // masterTrophies not available in ResourceClicking
-              transitionFadeControl
-            );
-          }
-        } catch (error) {
-          console.error("Error handling travel:", error.message || error);
-        }
         break;
         
         

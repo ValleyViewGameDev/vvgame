@@ -443,7 +443,7 @@ const PetPanel = ({
                   <ResourceButton
                     symbol={rewardResource?.symbol || '📦'}
                     name={`${getLocalizedString(rewardItem, strings)}${revealedRewardQty > 1 ? ` (${revealedRewardQty})` : ''}`}
-                    details={`(🔷 ${xpToAward})`}
+                    details={`(+ 🔷${xpToAward})`}
                     className={`resource-button pet-collect-button scroll-collect-button rarity-${revealedRewardRarity} ${isCollecting ? 'collecting' : 'ready'}`}
                     disabled={!isReadyToCollect || isCollecting}
                     isTransactionMode={isReadyToCollect && !isCollecting}

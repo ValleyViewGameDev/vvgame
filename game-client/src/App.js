@@ -1670,26 +1670,78 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         return;
       }
       
-      // Handle clickable signposts
-      const { handleTransitSignpost } = await import('./GameFeatures/Transit/Transit');
-      await handleTransitSignpost(
-        currentPlayer,
-        resource.type,
-        setCurrentPlayer,
-        setGridId,
-        setGrid,
-        setTileTypes,
-        setResources,
-        updateStatus,
-        activeTileSize,
-        currentPlayer.skills,
-        closeAllPanels,
-        bulkOperationContext,
-        masterResources,
-        strings,
-        masterTrophies,
-        transitionFadeControl
-      );
+      // Handle dungeon-related signposts specially
+      if (resource.type === 'Dungeon Entrance') {
+        console.log('🚪 Dungeon entrance clicked in App.js');
+        
+        // Check if we have dungeon phase data
+        if (!timers?.dungeon) {
+          console.warn('No dungeon phase data available');
+          updateStatus("Unable to access dungeon information");
+          return;
+        }
+        
+        const { handleDungeonEntrance } = await import('./GameFeatures/Dungeon/Dungeon');
+        await handleDungeonEntrance(
+          currentPlayer,
+          timers.dungeon.phase,
+          setCurrentPlayer,
+          setGridId,
+          setGrid,
+          setTileTypes,
+          setResources,
+          updateStatus,
+          activeTileSize,
+          closeAllPanels,
+          bulkOperationContext,
+          masterResources,
+          strings,
+          masterTrophies,
+          transitionFadeControl,
+          { x: resource.x * activeTileSize, y: resource.y * activeTileSize }
+        );
+      } else if (resource.type === 'Dungeon Exit') {
+        console.log('🚪 Dungeon exit clicked in App.js');
+        
+        const { handleDungeonExit } = await import('./GameFeatures/Dungeon/Dungeon');
+        await handleDungeonExit(
+          currentPlayer,
+          setCurrentPlayer,
+          setGridId,
+          setGrid,
+          setTileTypes,
+          setResources,
+          updateStatus,
+          activeTileSize,
+          closeAllPanels,
+          bulkOperationContext,
+          masterResources,
+          strings,
+          masterTrophies,
+          transitionFadeControl
+        );
+      } else {
+        // Handle regular signposts
+        const { handleTransitSignpost } = await import('./GameFeatures/Transit/Transit');
+        await handleTransitSignpost(
+          currentPlayer,
+          resource.type,
+          setCurrentPlayer,
+          setGridId,
+          setGrid,
+          setTileTypes,
+          setResources,
+          updateStatus,
+          activeTileSize,
+          currentPlayer.skills,
+          closeAllPanels,
+          bulkOperationContext,
+          masterResources,
+          strings,
+          masterTrophies,
+          transitionFadeControl
+        );
+      }
     }
     else if (resource.category === 'training') {
       setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, });

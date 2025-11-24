@@ -137,6 +137,7 @@ const playerSchema = new mongoose.Schema({
   settlementId: { type: mongoose.Schema.Types.ObjectId, ref: 'Settlement', required: true }, // Where the user's homestead is
   gridId: { type: mongoose.Schema.Types.ObjectId, ref: 'Grid', required: true }, // THe ID of the homestead owned by the user
   homesteadGridCoord: { type: Number, default: null }, // The gridCoord of the homestead for FrontierMiniMap display
+  sourceGridBeforeDungeon: { type: String, default: null }, // Stores the grid ID where player was before entering dungeon
 
   settings: {
     seasonOverride: { type: String, default: null }, // "Spring", "Summer", "Fall", "Winter"

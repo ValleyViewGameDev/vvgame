@@ -202,6 +202,14 @@ export async function handleDungeonExit(
     
   } catch (error) {
     console.error("❌ Error exiting dungeon:", error);
+    
+    // Log more details about the error
+    if (error.response) {
+      console.error("Error response data:", error.response.data);
+      console.error("Error response status:", error.response.status);
+      console.error("Error response headers:", error.response.headers);
+    }
+    
     updateStatus("Failed to exit dungeon");
     
     // End fade transition on error
