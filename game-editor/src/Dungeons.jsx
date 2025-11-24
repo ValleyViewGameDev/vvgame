@@ -36,10 +36,9 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
           gridType: 'dungeon'
         }
       });
+      // Sort by creation date (newest first)
       setDungeonGrids(response.data.sort((a, b) => {
-        // Sort by gridCoord.y then gridCoord.x (both negative, so higher absolute value = newer)
-        if (a.gridCoord.y !== b.gridCoord.y) return a.gridCoord.y - b.gridCoord.y;
-        return a.gridCoord.x - b.gridCoord.x;
+        return new Date(b.createdAt) - new Date(a.createdAt);
       }));
     } catch (error) {
       console.error('Error loading dungeon grids:', error);
@@ -76,20 +75,6 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
     }
   };
 
-  const getNextDungeonCoord = () => {
-    // Find the lowest (most negative) coordinates used
-    if (dungeonGrids.length === 0) {
-      return { x: -10000, y: -10000 };
-    }
-    
-    // Get the most negative coordinates
-    const lowestX = Math.min(...dungeonGrids.map(g => g.gridCoord.x));
-    const lowestY = Math.min(...dungeonGrids.map(g => g.gridCoord.y));
-    
-    // Return next sequential position
-    return { x: lowestX - 1, y: lowestY - 1 };
-  };
-
   const createDungeonGrid = async () => {
     if (!selectedTemplate) {
       setError('Please select a template');
@@ -100,14 +85,7 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
     setError('');
 
     try {
-      const nextCoord = getNextDungeonCoord();
-      
-      // Generate a gridId based on coordinates (similar to how normal grids work)
-      const gridId = `dungeon_${Math.abs(nextCoord.x)}_${Math.abs(nextCoord.y)}`;
-      
       const response = await axios.post(`${API_BASE}/api/create-dungeon`, {
-        gridCoord: nextCoord,
-        gridId: gridId,
         templateFilename: selectedTemplate,
         settlementId: selectedFrontier || 'global',
         frontierId: selectedFrontier || 'global'
@@ -119,7 +97,7 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
       await loadDungeonGrids();
       
       // Success message
-      alert(`Dungeon grid created successfully at (${nextCoord.x}, ${nextCoord.y})`);
+      alert(`Dungeon grid created successfully!`);
       
     } catch (error) {
       console.error('Error creating dungeon grid:', error);
@@ -150,24 +128,26 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
     }
   };
 
-  const openInEditor = (dungeon) => {
-    // Use the template that was used to create this dungeon
-    const templateName = dungeon.templateUsed || dungeon.gridId;
-    
-    // Set the file context for the editor
-    setFileName(templateName);
-    setDirectory('dungeon/');
-    
-    // Switch to grid editor and load the dungeon template
-    window.dispatchEvent(new CustomEvent('switch-to-editor'));
-    window.dispatchEvent(new CustomEvent('editor-load-grid', { 
-      detail: { 
-        gridId: dungeon.gridId,
-        gridType: 'dungeon',
-        directory: 'dungeon/',
-        fileName: templateName
-      } 
-    }));
+  const resetDungeonGrid = async (dungeon) => {
+    if (!window.confirm(`Are you sure you want to reset dungeon grid "${dungeon.gridId}"? This will reset all resources and NPCs using the template stored in dungeonLog.`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await axios.post(`${API_BASE}/api/reset-dungeon`, {
+        gridId: dungeon._id
+      });
+      console.log(`Reset dungeon grid: ${dungeon.gridId}`);
+      
+      alert(`Dungeon grid reset successfully!`);
+      
+    } catch (error) {
+      console.error('Error resetting dungeon grid:', error);
+      setError(error.response?.data?.error || 'Failed to reset dungeon grid');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -223,7 +203,6 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
               <tr>
                 <th>Grid ID</th>
                 <th>Template</th>
-                <th>Coordinates</th>
                 <th>Created</th>
                 <th>Actions</th>
               </tr>
@@ -233,15 +212,14 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
                 <tr key={dungeon._id}>
                   <td>{dungeon.gridId}</td>
                   <td>{dungeon.templateUsed || 'Unknown'}</td>
-                  <td>({dungeon.gridCoord.x}, {dungeon.gridCoord.y})</td>
                   <td>{new Date(dungeon.createdAt).toLocaleDateString()}</td>
                   <td className="actions">
                     <button
-                      onClick={() => openInEditor(dungeon)}
+                      onClick={() => resetDungeonGrid(dungeon)}
                       className="action-button edit"
-                      title="Edit in Grid Editor"
+                      title="Reset Grid with Template"
                     >
-                      ✏️
+                      🔄
                     </button>
                     <button
                       onClick={() => deleteDungeonGrid(dungeon._id)}

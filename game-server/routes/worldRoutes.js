@@ -2424,14 +2424,41 @@ router.post('/create-dungeon', async (req, res) => {
     
     await newGrid.save();
     
+    // Update dungeonLog.json
+    const dungeonLogPath = path.join(__dirname, '../layouts/gridLayouts/dungeon/dungeonLog.json');
+    let dungeonLog = { dungeons: {} };
+    
+    try {
+      if (fs.existsSync(dungeonLogPath)) {
+        dungeonLog = JSON.parse(fs.readFileSync(dungeonLogPath, 'utf-8'));
+      }
+    } catch (error) {
+      console.warn('⚠️ Could not read dungeonLog.json, creating new one');
+    }
+    
+    // Add this dungeon to the log
+    dungeonLog.dungeons[newGrid._id.toString()] = {
+      gridId: newGrid._id.toString(),
+      templateUsed: templateFilename,
+      createdAt: new Date().toISOString(),
+      needsReset: false,
+      lastReset: new Date().toISOString(),
+      sourceValleyGrid: null, // Will be set when we implement entrance logic
+      frontierId: frontierId || 'global',
+      settlementId: settlementId || 'global'
+    };
+    
+    // Save the updated log
+    fs.writeFileSync(dungeonLogPath, JSON.stringify(dungeonLog, null, 2));
+    
     console.log(`✅ Created dungeon grid: ${newGrid._id} with template ${templateFilename}`);
     
     res.status(201).json({
       success: true,
       grid: {
         _id: newGrid._id,
-        gridId: newGrid._id, // Use MongoDB _id as gridId
-        gridType: 'dungeon', // Return as 'dungeon' for client
+        gridId: newGrid._id,
+        gridType: 'dungeon',
         templateUsed: templateFilename
       }
     });
@@ -2458,20 +2485,204 @@ router.get('/grids', async (req, res) => {
     // Find grids with the specified criteria
     const grids = await Grid.find(query).select('_id gridType frontierId settlementId createdAt');
     
-    // Transform the response to include gridId
-    const transformedGrids = grids.map(grid => ({
-      _id: grid._id,
-      gridId: grid._id, // Use _id as gridId
-      gridType: grid.gridType,
-      frontierId: grid.frontierId,
-      settlementId: grid.settlementId,
-      createdAt: grid.createdAt
-    }));
+    // If fetching dungeons, add templateUsed from dungeonLog
+    let dungeonLog;
+    if (gridType === 'dungeon') {
+      const fs = require('fs');
+      const path = require('path');
+      const dungeonLogPath = path.join(__dirname, '../layouts/gridLayouts/dungeon/dungeonLog.json');
+      
+      try {
+        if (fs.existsSync(dungeonLogPath)) {
+          dungeonLog = JSON.parse(fs.readFileSync(dungeonLogPath, 'utf-8'));
+        }
+      } catch (error) {
+        console.warn('⚠️ Could not read dungeonLog.json:', error);
+      }
+    }
+    
+    // Transform the response to include gridId and templateUsed for dungeons
+    const transformedGrids = grids.map(grid => {
+      const transformed = {
+        _id: grid._id,
+        gridId: grid._id, // Use _id as gridId
+        gridType: grid.gridType,
+        frontierId: grid.frontierId,
+        settlementId: grid.settlementId,
+        createdAt: grid.createdAt
+      };
+      
+      // Add templateUsed for dungeons from the log
+      if (grid.gridType === 'dungeon' && dungeonLog && dungeonLog.dungeons[grid._id.toString()]) {
+        transformed.templateUsed = dungeonLog.dungeons[grid._id.toString()].templateUsed;
+      }
+      
+      return transformed;
+    });
     
     res.json(transformedGrids);
   } catch (error) {
     console.error('Error fetching grids:', error);
     res.status(500).json({ error: 'Failed to fetch grids' });
+  }
+});
+
+// Reset a dungeon grid with its template
+router.post('/reset-dungeon', async (req, res) => {
+  try {
+    const { gridId } = req.body;
+    
+    if (!gridId) {
+      return res.status(400).json({ 
+        error: 'gridId is required.' 
+      });
+    }
+    
+    // Find the grid to verify it's a dungeon
+    const grid = await Grid.findById(gridId);
+    
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found' });
+    }
+    
+    if (grid.gridType !== 'dungeon') {
+      return res.status(403).json({ 
+        error: 'Only dungeon grids can be reset through this endpoint' 
+      });
+    }
+    
+    // Read dungeonLog to get the template
+    const fs = require('fs');
+    const path = require('path');
+    const dungeonLogPath = path.join(__dirname, '../layouts/gridLayouts/dungeon/dungeonLog.json');
+    
+    let dungeonLog;
+    let dungeonEntry;
+    
+    try {
+      dungeonLog = JSON.parse(fs.readFileSync(dungeonLogPath, 'utf-8'));
+      dungeonEntry = dungeonLog.dungeons[gridId];
+      
+      if (!dungeonEntry) {
+        return res.status(404).json({ 
+          error: 'Dungeon not found in dungeonLog' 
+        });
+      }
+    } catch (error) {
+      return res.status(500).json({ 
+        error: 'Failed to read dungeonLog' 
+      });
+    }
+    
+    const templateFilename = dungeonEntry.templateUsed;
+    
+    // Load the dungeon template
+    const templatePath = path.join(__dirname, '../layouts/gridLayouts/dungeon', `${templateFilename}.json`);
+    
+    if (!fs.existsSync(templatePath)) {
+      return res.status(404).json({ 
+        error: `Template not found: ${templateFilename}` 
+      });
+    }
+    
+    const template = JSON.parse(fs.readFileSync(templatePath, 'utf-8'));
+    
+    // Import world generation utilities
+    const { generateFixedGrid, generateFixedResources } = require('../utils/worldUtils');
+    const masterResources = require('../tuning/resources.json');
+    const mongoose = require('mongoose');
+    
+    // Generate tiles and resources from template
+    const tiles = generateFixedGrid(template);
+    const resources = generateFixedResources(template);
+    
+    // Handle NPCs from template
+    const npcsMap = new Map();
+    if (template.resources) {
+      template.resources.forEach((row, y) => {
+        row.forEach((cell, x) => {
+          if (cell && cell !== '.' && cell !== '**') {
+            const resourceDef = masterResources.find(r => r.layoutkey === cell && r.category === 'npc');
+            if (resourceDef) {
+              const npcId = new mongoose.Types.ObjectId().toString();
+              npcsMap.set(npcId, {
+                id: npcId,
+                type: resourceDef.type,
+                position: { x, y },
+                state: resourceDef.defaultState || 'idle',
+                hp: resourceDef.maxhp || 10,
+                maxhp: resourceDef.maxhp || 10,
+                armorclass: resourceDef.armorclass || 10,
+                attackbonus: resourceDef.attackbonus || 0,
+                damage: resourceDef.damage || 1,
+                attackrange: resourceDef.attackrange || 1,
+                speed: resourceDef.speed || 1,
+                lastUpdated: new Date()
+              });
+            }
+          }
+        });
+      });
+    }
+    
+    // Enrich multi-tile resources
+    resources.forEach(resource => {
+      const resourceDef = masterResources.find(r => r.type === resource.type);
+      if (resourceDef && resourceDef.range > 1) {
+        resource.anchorKey = `${resource.type}_${resource.x}_${resource.y}`;
+        if (resourceDef.passable !== undefined) {
+          resource.passable = resourceDef.passable;
+        }
+      }
+    });
+    
+    // Encode resources
+    const TileEncoder = require('../utils/TileEncoder');
+    const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
+    const encoder = new UltraCompactResourceEncoder(masterResources);
+    const encodedResources = [];
+    for (const resource of resources) {
+      try {
+        const encoded = encoder.encode(resource);
+        encodedResources.push(encoded);
+      } catch (error) {
+        console.error(`❌ Failed to encode resource:`, resource, error);
+        throw new Error(`Failed to encode resource at (${resource.x}, ${resource.y}): ${error.message}`);
+      }
+    }
+    
+    // Update the grid
+    grid.tiles = TileEncoder.encode(tiles);
+    grid.resources = encodedResources;
+    grid.NPCsInGrid = npcsMap;
+    grid.NPCsInGridLastUpdated = new Date();
+    grid.playersInGrid = new Map(); // Clear players
+    grid.lastOptimized = new Date();
+    
+    await grid.save();
+    
+    // Update dungeonLog with reset information
+    dungeonEntry.lastReset = new Date().toISOString();
+    dungeonEntry.needsReset = false;
+    
+    try {
+      fs.writeFileSync(dungeonLogPath, JSON.stringify(dungeonLog, null, 2));
+    } catch (error) {
+      console.warn('⚠️ Could not update dungeonLog.json:', error);
+    }
+    
+    console.log(`✅ Reset dungeon grid: ${gridId} with template ${templateFilename}`);
+    
+    res.json({ 
+      success: true, 
+      message: `Dungeon grid reset successfully with template ${templateFilename}` 
+    });
+    
+  } catch (error) {
+    console.error('Error resetting dungeon grid:', error);
+    res.status(500).json({ 
+      error: error.message || 'Failed to reset dungeon grid' 
+    });
   }
 });
 
@@ -2495,8 +2706,23 @@ router.delete('/delete-dungeon/:gridId', async (req, res) => {
     // Delete the dungeon grid
     await Grid.findByIdAndDelete(gridId);
     
-    console.log(`✅ Deleted dungeon grid: ${grid.gridId} (${gridId})`);
-    res.json({ success: true, message: `Dungeon grid ${grid.gridId} deleted successfully` });
+    // Update dungeonLog.json
+    const fs = require('fs');
+    const path = require('path');
+    const dungeonLogPath = path.join(__dirname, '../layouts/gridLayouts/dungeon/dungeonLog.json');
+    
+    try {
+      if (fs.existsSync(dungeonLogPath)) {
+        const dungeonLog = JSON.parse(fs.readFileSync(dungeonLogPath, 'utf-8'));
+        delete dungeonLog.dungeons[gridId];
+        fs.writeFileSync(dungeonLogPath, JSON.stringify(dungeonLog, null, 2));
+      }
+    } catch (error) {
+      console.warn('⚠️ Could not update dungeonLog.json:', error);
+    }
+    
+    console.log(`✅ Deleted dungeon grid: ${gridId}`);
+    res.json({ success: true, message: `Dungeon grid deleted successfully` });
     
   } catch (error) {
     console.error('Error deleting dungeon grid:', error);
