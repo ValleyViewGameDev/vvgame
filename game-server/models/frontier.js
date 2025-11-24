@@ -103,6 +103,20 @@ const FrontierSchema = new mongoose.Schema({
       playersrelocated: { type: Number, required: true },
     }
   ],
+  
+  // Dungeons registry for this frontier
+  dungeons: {
+    type: Map,
+    of: {
+      gridId: { type: String, required: true },
+      templateUsed: { type: String, required: true },
+      createdAt: { type: Date, default: Date.now },
+      needsReset: { type: Boolean, default: false },
+      lastReset: { type: Date, default: Date.now },
+      sourceValleyGrid: { type: String, default: null }
+    },
+    default: {}
+  }
     
 });
 

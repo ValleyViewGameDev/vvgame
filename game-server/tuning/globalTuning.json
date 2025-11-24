@@ -1,6 +1,5 @@
 {
   "costToRevive": 50,
-  "countdownToRevive:": 10,
   "percentageToRevive": 0.25,
   "maxCrops": 1000,
   "maxFarmAnimals": 100,

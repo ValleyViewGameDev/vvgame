@@ -2424,58 +2424,31 @@ router.post('/create-dungeon', async (req, res) => {
     
     await newGrid.save();
     
-    // Update dungeonLog.json
-    const dungeonLogPath = path.join(__dirname, '../layouts/gridLayouts/dungeon/dungeonLog.json');
-    let dungeonLog = { dungeons: {} };
+    // Update the frontier's dungeons registry
+    const Frontier = require('../models/frontier');
+    const frontier = await Frontier.findById(newGrid.frontierId);
     
-    try {
-      // Ensure the directory exists
-      const dungeonDir = path.join(__dirname, '../layouts/gridLayouts/dungeon');
-      if (!fs.existsSync(dungeonDir)) {
-        console.log('📁 Creating dungeon directory:', dungeonDir);
-        fs.mkdirSync(dungeonDir, { recursive: true });
+    if (frontier) {
+      const dungeonId = newGrid._id.toString();
+      
+      // Add dungeon to the frontier's registry
+      if (!frontier.dungeons) {
+        frontier.dungeons = new Map();
       }
       
-      // Read existing log if it exists
-      if (fs.existsSync(dungeonLogPath)) {
-        const logContent = fs.readFileSync(dungeonLogPath, 'utf-8');
-        dungeonLog = JSON.parse(logContent);
-        console.log('📖 Read existing dungeonLog with', Object.keys(dungeonLog.dungeons || {}).length, 'entries');
-      } else {
-        console.log('📝 Creating new dungeonLog.json');
-      }
-    } catch (error) {
-      console.error('❌ Error reading dungeonLog.json:', error);
-      console.warn('⚠️ Creating new dungeonLog');
-    }
-    
-    // Ensure dungeons object exists
-    if (!dungeonLog.dungeons) {
-      dungeonLog.dungeons = {};
-    }
-    
-    // Add this dungeon to the log
-    const dungeonId = newGrid._id.toString();
-    dungeonLog.dungeons[dungeonId] = {
-      gridId: dungeonId,
-      templateUsed: templateFilename,
-      createdAt: new Date().toISOString(),
-      needsReset: false,
-      lastReset: new Date().toISOString(),
-      sourceValleyGrid: null, // Will be set when we implement entrance logic
-      frontierId: frontierId || 'global',
-      settlementId: settlementId || 'global'
-    };
-    
-    // Save the updated log
-    try {
-      fs.writeFileSync(dungeonLogPath, JSON.stringify(dungeonLog, null, 2));
-      console.log('✅ Updated dungeonLog.json with new entry for', dungeonId);
-    } catch (writeError) {
-      console.error('❌ Failed to write dungeonLog.json:', writeError);
-      console.error('Path:', dungeonLogPath);
-      console.error('Directory exists:', fs.existsSync(path.dirname(dungeonLogPath)));
-      console.error('File permissions:', fs.statSync(path.dirname(dungeonLogPath)));
+      frontier.dungeons.set(dungeonId, {
+        gridId: dungeonId,
+        templateUsed: templateFilename,
+        createdAt: new Date(),
+        needsReset: false,
+        lastReset: new Date(),
+        sourceValleyGrid: null
+      });
+      
+      await frontier.save();
+      console.log('✅ Added dungeon to frontier registry:', dungeonId);
+    } else {
+      console.warn('⚠️ Frontier not found for dungeon registration');
     }
     
     console.log(`✅ Created dungeon grid: ${newGrid._id} with template ${templateFilename}`);
@@ -2512,19 +2485,24 @@ router.get('/grids', async (req, res) => {
     // Find grids with the specified criteria
     const grids = await Grid.find(query).select('_id gridType frontierId settlementId createdAt');
     
-    // If fetching dungeons, add templateUsed from dungeonLog
-    let dungeonLog;
-    if (gridType === 'dungeon') {
-      const fs = require('fs');
-      const path = require('path');
-      const dungeonLogPath = path.join(__dirname, '../layouts/gridLayouts/dungeon/dungeonLog.json');
+    // If fetching dungeons, get templateUsed from Frontier documents
+    let dungeonTemplates = {};
+    if (gridType === 'dungeon' && grids.length > 0) {
+      const Frontier = require('../models/frontier');
       
-      try {
-        if (fs.existsSync(dungeonLogPath)) {
-          dungeonLog = JSON.parse(fs.readFileSync(dungeonLogPath, 'utf-8'));
+      // Get unique frontier IDs
+      const frontierIds = [...new Set(grids.map(g => g.frontierId))];
+      
+      // Fetch all relevant frontiers
+      const frontiers = await Frontier.find({ _id: { $in: frontierIds } }).select('dungeons');
+      
+      // Build a map of dungeon templates
+      for (const frontier of frontiers) {
+        if (frontier.dungeons) {
+          for (const [dungeonId, dungeonData] of frontier.dungeons.entries()) {
+            dungeonTemplates[dungeonId] = dungeonData.templateUsed;
+          }
         }
-      } catch (error) {
-        console.warn('⚠️ Could not read dungeonLog.json:', error);
       }
     }
     
@@ -2539,9 +2517,9 @@ router.get('/grids', async (req, res) => {
         createdAt: grid.createdAt
       };
       
-      // Add templateUsed for dungeons from the log
-      if (grid.gridType === 'dungeon' && dungeonLog && dungeonLog.dungeons[grid._id.toString()]) {
-        transformed.templateUsed = dungeonLog.dungeons[grid._id.toString()].templateUsed;
+      // Add templateUsed for dungeons from the frontier data
+      if (grid.gridType === 'dungeon' && dungeonTemplates[grid._id.toString()]) {
+        transformed.templateUsed = dungeonTemplates[grid._id.toString()];
       }
       
       return transformed;
@@ -2578,32 +2556,29 @@ router.post('/reset-dungeon', async (req, res) => {
       });
     }
     
-    // Read dungeonLog to get the template
-    const fs = require('fs');
-    const path = require('path');
-    const dungeonLogPath = path.join(__dirname, '../layouts/gridLayouts/dungeon/dungeonLog.json');
+    // Get the template from frontier's dungeons registry
+    const Frontier = require('../models/frontier');
+    const frontier = await Frontier.findById(grid.frontierId);
     
-    let dungeonLog;
-    let dungeonEntry;
+    if (!frontier || !frontier.dungeons) {
+      return res.status(404).json({ 
+        error: 'Frontier or dungeon registry not found' 
+      });
+    }
     
-    try {
-      dungeonLog = JSON.parse(fs.readFileSync(dungeonLogPath, 'utf-8'));
-      dungeonEntry = dungeonLog.dungeons[gridId];
-      
-      if (!dungeonEntry) {
-        return res.status(404).json({ 
-          error: 'Dungeon not found in dungeonLog' 
-        });
-      }
-    } catch (error) {
-      return res.status(500).json({ 
-        error: 'Failed to read dungeonLog' 
+    const dungeonEntry = frontier.dungeons.get(gridId);
+    
+    if (!dungeonEntry) {
+      return res.status(404).json({ 
+        error: 'Dungeon not found in frontier registry' 
       });
     }
     
     const templateFilename = dungeonEntry.templateUsed;
     
     // Load the dungeon template
+    const fs = require('fs');
+    const path = require('path');
     const templatePath = path.join(__dirname, '../layouts/gridLayouts/dungeon', `${templateFilename}.json`);
     
     if (!fs.existsSync(templatePath)) {
@@ -2688,15 +2663,11 @@ router.post('/reset-dungeon', async (req, res) => {
     
     await grid.save();
     
-    // Update dungeonLog with reset information
-    dungeonEntry.lastReset = new Date().toISOString();
+    // Update frontier registry with reset information
+    dungeonEntry.lastReset = new Date();
     dungeonEntry.needsReset = false;
-    
-    try {
-      fs.writeFileSync(dungeonLogPath, JSON.stringify(dungeonLog, null, 2));
-    } catch (error) {
-      console.warn('⚠️ Could not update dungeonLog.json:', error);
-    }
+    frontier.dungeons.set(gridId, dungeonEntry);
+    await frontier.save();
     
     console.log(`✅ Reset dungeon grid: ${gridId} with template ${templateFilename}`);
     
@@ -2733,19 +2704,14 @@ router.delete('/delete-dungeon/:gridId', async (req, res) => {
     // Delete the dungeon grid
     await Grid.findByIdAndDelete(gridId);
     
-    // Update dungeonLog.json
-    const fs = require('fs');
-    const path = require('path');
-    const dungeonLogPath = path.join(__dirname, '../layouts/gridLayouts/dungeon/dungeonLog.json');
+    // Remove from frontier's dungeons registry
+    const Frontier = require('../models/frontier');
+    const frontier = await Frontier.findById(grid.frontierId);
     
-    try {
-      if (fs.existsSync(dungeonLogPath)) {
-        const dungeonLog = JSON.parse(fs.readFileSync(dungeonLogPath, 'utf-8'));
-        delete dungeonLog.dungeons[gridId];
-        fs.writeFileSync(dungeonLogPath, JSON.stringify(dungeonLog, null, 2));
-      }
-    } catch (error) {
-      console.warn('⚠️ Could not update dungeonLog.json:', error);
+    if (frontier && frontier.dungeons) {
+      frontier.dungeons.delete(gridId);
+      await frontier.save();
+      console.log('✅ Removed dungeon from frontier registry');
     }
     
     console.log(`✅ Deleted dungeon grid: ${gridId}`);
