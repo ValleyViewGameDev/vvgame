@@ -2723,6 +2723,151 @@ router.delete('/delete-dungeon/:gridId', async (req, res) => {
   }
 });
 
+// Exit from dungeon back to source grid
+router.post('/exit-dungeon', async (req, res) => {
+  try {
+    const { playerId } = req.body;
+    
+    if (!playerId) {
+      return res.status(400).json({ 
+        error: 'playerId is required.' 
+      });
+    }
+    
+    // Get player document
+    const Player = require('../models/player');
+    const player = await Player.findById(playerId);
+    
+    if (!player || !player.sourceGridBeforeDungeon) {
+      return res.status(404).json({ 
+        error: 'No source grid found - cannot exit dungeon' 
+      });
+    }
+    
+    const sourceGridId = player.sourceGridBeforeDungeon;
+    
+    // Get the source grid
+    const sourceGrid = await Grid.findById(sourceGridId);
+    if (!sourceGrid) {
+      return res.status(404).json({ 
+        error: 'Source grid no longer exists' 
+      });
+    }
+    
+    // Find the Dungeon Entrance resource position
+    const resources = gridResourceManager.getResources(sourceGrid);
+    const dungeonEntrance = resources.find(r => r.type === 'Dungeon Entrance');
+    
+    if (!dungeonEntrance) {
+      console.error('❌ No Dungeon Entrance found in source grid:', sourceGridId);
+      // Default to center of grid if entrance not found
+      return res.json({
+        success: true,
+        sourceGridId: sourceGridId,
+        exitPosition: { x: 32, y: 32 },
+        gridType: sourceGrid.gridType,
+        gridCoord: null // Will be determined by client
+      });
+    }
+    
+    // Clear the source grid from player document
+    await Player.findByIdAndUpdate(playerId, {
+      $unset: { sourceGridBeforeDungeon: "" }
+    });
+    
+    console.log(`✅ Player ${playerId} exiting dungeon to ${sourceGridId}`);
+    
+    res.json({
+      success: true,
+      sourceGridId: sourceGridId,
+      exitPosition: {
+        x: dungeonEntrance.x,
+        y: dungeonEntrance.y
+      },
+      gridType: sourceGrid.gridType,
+      gridCoord: null // Will be determined by client based on settlement data
+    });
+    
+  } catch (error) {
+    console.error('Error exiting dungeon:', error);
+    res.status(500).json({ 
+      error: error.message || 'Failed to exit dungeon' 
+    });
+  }
+});
+
+// Enter a random dungeon
+router.post('/enter-dungeon', async (req, res) => {
+  try {
+    const { playerId, sourceGridId, frontierId } = req.body;
+    
+    if (!playerId || !sourceGridId || !frontierId) {
+      return res.status(400).json({ 
+        error: 'playerId, sourceGridId, and frontierId are required.' 
+      });
+    }
+    
+    // Get the frontier to access dungeons
+    const Frontier = require('../models/frontier');
+    const frontier = await Frontier.findById(frontierId);
+    
+    if (!frontier || !frontier.dungeons || frontier.dungeons.size === 0) {
+      return res.status(404).json({ 
+        error: 'No dungeons available in this frontier' 
+      });
+    }
+    
+    // Get a random dungeon
+    const dungeonEntries = Array.from(frontier.dungeons.entries());
+    const randomIndex = Math.floor(Math.random() * dungeonEntries.length);
+    const [dungeonGridId, dungeonData] = dungeonEntries[randomIndex];
+    
+    console.log(`🎲 Selected random dungeon: ${dungeonGridId} (${dungeonData.templateUsed})`);
+    
+    // Get the dungeon grid to find Dungeon Exit resource
+    const dungeonGrid = await Grid.findById(dungeonGridId);
+    if (!dungeonGrid) {
+      return res.status(404).json({ 
+        error: 'Dungeon grid not found' 
+      });
+    }
+    
+    // Find the Dungeon Exit resource position
+    const resources = gridResourceManager.getResources(dungeonGrid);
+    const dungeonExit = resources.find(r => r.type === 'Dungeon Exit');
+    
+    if (!dungeonExit) {
+      console.error('❌ No Dungeon Exit found in dungeon:', dungeonGridId);
+      return res.status(500).json({ 
+        error: 'Dungeon is missing exit point' 
+      });
+    }
+    
+    // Update player document with source grid
+    const Player = require('../models/player');
+    await Player.findByIdAndUpdate(playerId, {
+      sourceGridBeforeDungeon: sourceGridId
+    });
+    
+    console.log(`✅ Player ${playerId} entering dungeon ${dungeonGridId} from ${sourceGridId}`);
+    
+    res.json({
+      success: true,
+      dungeonGridId: dungeonGridId,
+      entryPosition: {
+        x: dungeonExit.x,
+        y: dungeonExit.y
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error entering dungeon:', error);
+    res.status(500).json({ 
+      error: error.message || 'Failed to enter dungeon' 
+    });
+  }
+});
+
 module.exports = router;
 
 
