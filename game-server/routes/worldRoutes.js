@@ -2836,40 +2836,53 @@ router.post('/enter-dungeon', async (req, res) => {
     if (dungeonData.needsReset) {
       console.log(`🔄 Dungeon ${dungeonGridId} needs reset - performing automatic reset`);
       
-      // Perform the reset
-      const templateFilename = dungeonData.templateUsed;
-      const fs = require('fs');
-      const path = require('path');
-      const templatePath = path.join(__dirname, '../layouts/gridLayouts/dungeon', `${templateFilename}.json`);
-      
-      if (!fs.existsSync(templatePath)) {
+      try {
+        // Perform the reset
+        const templateFilename = dungeonData.templateUsed;
+        const fs = require('fs');
+        const path = require('path');
+        const templatePath = path.join(__dirname, '../layouts/gridLayouts/dungeon', `${templateFilename}.json`);
+        
+        if (!fs.existsSync(templatePath)) {
+          console.error(`❌ Template file not found: ${templatePath}`);
+          return res.status(500).json({ 
+            error: `Template not found for automatic reset: ${templateFilename}` 
+          });
+        }
+        
+        // Load and apply the template
+        const templateData = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
+        console.log(`📄 Loaded template with ${templateData.resources?.length || 0} resources, ${templateData.npcs?.length || 0} NPCs`);
+        
+        // Reset the dungeon grid with template data
+        const resetResult = await Grid.findByIdAndUpdate(dungeonGridId, {
+          tiles: templateData.tiles,
+          resources: templateData.resources || [],
+          npcs: templateData.npcs || [],
+          gridType: 'dungeon',
+          updatedAt: new Date()
+        }, { new: true });
+        
+        if (!resetResult) {
+          throw new Error('Failed to update grid during reset');
+        }
+        
+        // Update the dungeon registry to clear needsReset flag
+        frontier.dungeons.set(dungeonGridId, {
+          ...dungeonData,
+          needsReset: false,
+          lastReset: new Date()
+        });
+        
+        await frontier.save();
+        
+        console.log(`✅ Automatic reset completed for dungeon ${dungeonGridId}`);
+      } catch (resetError) {
+        console.error(`❌ Error during automatic dungeon reset:`, resetError);
         return res.status(500).json({ 
-          error: `Template not found for automatic reset: ${templateFilename}` 
+          error: 'Failed to reset dungeon: ' + resetError.message 
         });
       }
-      
-      // Load and apply the template
-      const templateData = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
-      
-      // Reset the dungeon grid with template data
-      await Grid.findByIdAndUpdate(dungeonGridId, {
-        tiles: templateData.tiles,
-        resources: templateData.resources || [],
-        npcs: templateData.npcs || [],
-        gridType: 'dungeon',
-        updatedAt: new Date()
-      });
-      
-      // Update the dungeon registry to clear needsReset flag
-      frontier.dungeons.set(dungeonGridId, {
-        ...dungeonData,
-        needsReset: false,
-        lastReset: new Date()
-      });
-      
-      await frontier.save();
-      
-      console.log(`✅ Automatic reset completed for dungeon ${dungeonGridId}`);
     }
     
     // Get the dungeon grid to find Dungeon Exit resource
@@ -2881,8 +2894,19 @@ router.post('/enter-dungeon', async (req, res) => {
     }
     
     // Find the Dungeon Exit resource position
-    const resources = gridResourceManager.getResources(dungeonGrid);
+    let resources;
+    try {
+      resources = gridResourceManager.getResources(dungeonGrid);
+      console.log(`📦 Found ${resources.length} resources in dungeon grid`);
+    } catch (resourceError) {
+      console.error('❌ Error getting resources from grid:', resourceError);
+      return res.status(500).json({ 
+        error: 'Failed to get dungeon resources' 
+      });
+    }
+    
     const dungeonExit = resources.find(r => r.type === 'Dungeon Exit');
+    console.log(`🚪 Dungeon Exit found:`, dungeonExit ? `at (${dungeonExit.x}, ${dungeonExit.y})` : 'NOT FOUND');
     
     if (!dungeonExit) {
       console.error('❌ No Dungeon Exit found in dungeon:', dungeonGridId);

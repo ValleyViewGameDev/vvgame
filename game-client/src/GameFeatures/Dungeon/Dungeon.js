@@ -111,7 +111,15 @@ export async function handleDungeonEntrance(
     
   } catch (error) {
     console.error("❌ Error entering dungeon:", error);
-    updateStatus("Failed to enter dungeon");
+    
+    // Log more details about the error
+    if (error.response) {
+      console.error("Error response data:", error.response.data);
+      console.error("Error response status:", error.response.status);
+    }
+    
+    const errorMessage = error.response?.data?.error || "Failed to enter dungeon";
+    updateStatus(errorMessage);
     
     // End fade transition on error
     if (transitionFadeControl?.endTransition) {
