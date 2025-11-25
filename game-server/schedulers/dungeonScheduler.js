@@ -1,51 +1,65 @@
 const Frontier = require("../models/frontier");
-const Settlement = require("../models/settlement");
-const globalTuning = require("../tuning/globalTuning.json");
-const masterResources = require("../tuning/resources.json");
 
 async function dungeonScheduler(frontierId, phase, frontier = null) {
     try {
-        if (!frontierId) { console.warn("⚠️ No frontierId provided to dungeonScheduler."); return {}; }
-        if (!phase) { console.warn("⚠️ No phase provided to dungeonScheduler."); return {}; }
+        if (!frontierId || !phase) {
+            console.warn("⚠️ Missing frontierId or phase in dungeonScheduler");
+            return {};
+        }
 
-        console.group(`\n💰 DUNGEON LOGIC for Frontier ${frontierId} — Phase: ${phase}`);
+        console.log(`\n⚔️ DUNGEON SCHEDULER - Frontier: ${frontierId}, Phase: ${phase}`);
  
         switch (phase) {
             case "open":
-                console.log("💤 Open phase — no actions required.");
+                console.log("🟢 Dungeons are now OPEN - no action needed");
                 break;
 
             case "resetting":
-                console.log("🔄 Dungeon resetting phase — marking all dungeons for reset");
+                console.log("🔄 Dungeons are now RESETTING - marking all for reset");
                 
-                // Get the frontier if not already provided
-                if (!frontier) {
-                    frontier = await Frontier.findById(frontierId);
-                }
-                
-                if (frontier && frontier.dungeons && frontier.dungeons.size > 0) {
+                // Use findByIdAndUpdate to directly update the dungeons in the database
+                try {
+                    if (!frontier) {
+                        frontier = await Frontier.findById(frontierId);
+                    }
+                    
+                    if (!frontier || !frontier.dungeons || frontier.dungeons.size === 0) {
+                        console.log("ℹ️ No dungeons found for this frontier");
+                        return {};
+                    }
+                    
                     console.log(`📋 Found ${frontier.dungeons.size} dungeons to mark for reset`);
                     
-                    // Mark all dungeons in this frontier as needing reset
+                    // Create updated dungeons map
+                    const updatedDungeons = new Map();
                     for (const [dungeonGridId, dungeonData] of frontier.dungeons.entries()) {
-                        console.log(`  - Marking dungeon ${dungeonGridId} for reset`);
-                        frontier.dungeons.set(dungeonGridId, {
+                        updatedDungeons.set(dungeonGridId, {
                             ...dungeonData,
                             needsReset: true
                         });
+                        console.log(`  ✓ Marked dungeon ${dungeonGridId} for reset`);
                     }
                     
-                    // Save the frontier with updated dungeon flags
-                    await frontier.save();
-                    console.log(`✅ Successfully marked ${frontier.dungeons.size} dungeons for reset`);
-                } else {
-                    console.log("ℹ️ No dungeons found for this frontier");
+                    // Update the frontier document
+                    const updateResult = await Frontier.findByIdAndUpdate(
+                        frontierId,
+                        { dungeons: updatedDungeons },
+                        { new: true }
+                    );
+                    
+                    if (updateResult) {
+                        console.log(`✅ Successfully marked ${updatedDungeons.size} dungeons for reset`);
+                    } else {
+                        console.error("❌ Failed to update frontier document");
+                    }
+                } catch (error) {
+                    console.error("❌ Error marking dungeons for reset:", error);
                 }
                 break;
 
             default:
                 console.warn(`⚠️ Unknown dungeon phase: ${phase}`);
-            }
+        }
 
         return {}; // Default return if no update is needed
 

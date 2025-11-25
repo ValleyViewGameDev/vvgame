@@ -2667,6 +2667,7 @@ router.post('/reset-dungeon', async (req, res) => {
     dungeonEntry.lastReset = new Date();
     dungeonEntry.needsReset = false;
     frontier.dungeons.set(gridId, dungeonEntry);
+    
     await frontier.save();
     
     console.log(`✅ Reset dungeon grid: ${gridId} with template ${templateFilename}`);
@@ -2710,6 +2711,7 @@ router.delete('/delete-dungeon/:gridId', async (req, res) => {
     
     if (frontier && frontier.dungeons) {
       frontier.dungeons.delete(gridId);
+      
       await frontier.save();
       console.log('✅ Removed dungeon from frontier registry');
     }
@@ -2825,6 +2827,12 @@ router.post('/enter-dungeon', async (req, res) => {
     console.log(`🎲 Selected random dungeon: ${dungeonGridId} (${dungeonData.templateUsed})`);
     
     // Check if dungeon needs reset (first entry after reset phase)
+    console.log(`🔍 Checking dungeon ${dungeonGridId} reset status:`, {
+      needsReset: dungeonData.needsReset,
+      lastReset: dungeonData.lastReset,
+      currentPhase: frontier.dungeon?.phase
+    });
+    
     if (dungeonData.needsReset) {
       console.log(`🔄 Dungeon ${dungeonGridId} needs reset - performing automatic reset`);
       
@@ -2858,6 +2866,7 @@ router.post('/enter-dungeon', async (req, res) => {
         needsReset: false,
         lastReset: new Date()
       });
+      
       await frontier.save();
       
       console.log(`✅ Automatic reset completed for dungeon ${dungeonGridId}`);

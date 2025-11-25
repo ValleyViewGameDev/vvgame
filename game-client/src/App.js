@@ -2335,6 +2335,8 @@ return (
         masterResources={masterResources}
         masterTrophies={masterTrophies}
         transitionFadeControl={transitionFadeControl}
+        timers={timers}
+        countdowns={countdowns}
       />
  
       <h3>{strings[10109]}</h3>

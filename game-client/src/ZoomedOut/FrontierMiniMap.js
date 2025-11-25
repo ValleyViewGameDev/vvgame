@@ -21,7 +21,9 @@ const FrontierMiniMap = ({
   bulkOperationContext, 
   masterResources, 
   masterTrophies, 
-  transitionFadeControl 
+  transitionFadeControl,
+  timers,
+  countdowns
 }) => {
   // Calculate player's position in the 64x64 grid from gridCoord
   const playerGridPosition = useMemo(() => {
@@ -92,6 +94,9 @@ const FrontierMiniMap = ({
     return { row: finalRow, col: finalCol };
   }, [currentPlayer?.homesteadGridCoord]);
 
+  // Check if player is in a dungeon
+  const isInDungeon = currentPlayer?.location?.gtype === 'dungeon';
+
   // Generate the 64x64 grid (each cell represents one grid in the frontier)
   const frontierGrid = useMemo(() => {
     const grid = [];
@@ -153,57 +158,69 @@ const FrontierMiniMap = ({
         ))}
       </div>
       <div className="mini-map-info">
-        <span 
-          className="minimap-signpost-button home-button"
-          onClick={() => handleTransitSignpost(
-            currentPlayer,
-            "Signpost Home",
-            setCurrentPlayer,
-            setGridId,
-            setGrid,
-            setTileTypes,
-            setResources,
-            updateStatus,
-            TILE_SIZE,
-            currentPlayer.skills,
-            closeAllPanels,
-            bulkOperationContext,
-            masterResources,
-            strings,
-            masterTrophies,
-            transitionFadeControl
-          )}
-          title={strings && strings[107] ? strings[107] : "Go Home"}
-        >
-          🏠
-        </span>
+        {!isInDungeon && (
+          <span 
+            className="minimap-signpost-button home-button"
+            onClick={() => handleTransitSignpost(
+              currentPlayer,
+              "Signpost Home",
+              setCurrentPlayer,
+              setGridId,
+              setGrid,
+              setTileTypes,
+              setResources,
+              updateStatus,
+              TILE_SIZE,
+              currentPlayer.skills,
+              closeAllPanels,
+              bulkOperationContext,
+              masterResources,
+              strings,
+              masterTrophies,
+              transitionFadeControl
+            )}
+            title={strings && strings[107] ? strings[107] : "Go Home"}
+          >
+            🏠
+          </span>
+        )}
         <span className="minimap-title">
-          {strings && strings[2] ? strings[2] : "Frontier Map"}
+          {isInDungeon 
+            ? (
+              <>
+                Dungeon closes in<br />
+                {countdowns?.dungeon || '--:--:--'}
+              </>
+            )
+            : (strings && strings[2] ? strings[2] : "Frontier Map")
+          }
         </span>
-        <span 
-          className="minimap-signpost-button train-button"
-          onClick={() => handleTransitSignpost(
-            currentPlayer,
-            "Signpost Town Home",
-            setCurrentPlayer,
-            setGridId,
-            setGrid,
-            setTileTypes,
-            setResources,
-            updateStatus,
-            TILE_SIZE,
-            currentPlayer.skills,
-            closeAllPanels,
-            bulkOperationContext,
-            masterResources,
-            strings,
-            masterTrophies,
-            transitionFadeControl
-          )}
-          title={strings && strings[108] ? strings[108] : "Go to Town"}
-        >
-          🚂
-        </span>
+        {!isInDungeon && (
+          <span 
+            className="minimap-signpost-button train-button"
+            onClick={() => handleTransitSignpost(
+              currentPlayer,
+              "Signpost Town Home",
+              setCurrentPlayer,
+              setGridId,
+              setGrid,
+              setTileTypes,
+              setResources,
+              updateStatus,
+              TILE_SIZE,
+              currentPlayer.skills,
+              closeAllPanels,
+              bulkOperationContext,
+              masterResources,
+              strings,
+              masterTrophies,
+              transitionFadeControl
+            )}
+            title={strings && strings[108] ? strings[108] : "Go to Town"}
+          >
+            🚂
+          </span>
+        )}
       </div>
     </div>
   );
