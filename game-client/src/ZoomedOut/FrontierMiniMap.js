@@ -189,7 +189,20 @@ const FrontierMiniMap = ({
             ? (
               <>
                 Dungeon closes in<br />
-                {countdowns?.dungeon || '--:--:--'}
+                {(() => {
+                  const countdown = countdowns?.dungeon || '--:--:--';
+                  // Check if less than 1 minute (format is mm:ss or hh:mm:ss)
+                  const parts = countdown.split(':');
+                  const isLessThanOneMinute = parts.length >= 2 && 
+                    (parts.length === 2 || (parts.length === 3 && parts[0] === '00')) &&
+                    parseInt(parts[parts.length - 2]) === 0;
+                  
+                  return (
+                    <span style={{ color: isLessThanOneMinute ? 'red' : 'inherit' }}>
+                      {countdown}
+                    </span>
+                  );
+                })()}
               </>
             )
             : (strings && strings[2] ? strings[2] : "Frontier Map")

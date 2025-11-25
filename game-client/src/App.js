@@ -960,10 +960,37 @@ const handleDungeonAutoExit = async () => {
     // Show warning message
     updateStatus("Dungeon is resetting! Teleporting you to safety...");
     
-    // Use the dungeon exit logic
-    const { handleDungeonExit } = await import('./GameFeatures/Dungeon/Dungeon');
-    await handleDungeonExit(
+    // First attempt: Try normal dungeon exit
+    try {
+      const { handleDungeonExit } = await import('./GameFeatures/Dungeon/Dungeon');
+      await handleDungeonExit(
+        currentPlayer,
+        setCurrentPlayer,
+        setGridId,
+        setGrid,
+        setTileTypes,
+        setResources,
+        updateStatus,
+        activeTileSize,
+        closeAllPanels,
+        bulkOperationContext,
+        masterResources,
+        strings,
+        masterTrophies,
+        transitionFadeControl
+      );
+      updateStatus("You have been safely returned to the surface as the dungeon resets.");
+      return; // Success, exit early
+    } catch (exitError) {
+      console.warn("⚠️ Normal dungeon exit failed, attempting fallback...", exitError);
+    }
+    
+    // Fallback: If no source grid found, teleport to homestead
+    console.log("📍 Fallback: Teleporting to player's homestead");
+    const { handleTransitSignpost } = await import('./GameFeatures/Transit/Transit');
+    await handleTransitSignpost(
       currentPlayer,
+      "Signpost Home",
       setCurrentPlayer,
       setGridId,
       setGrid,
@@ -971,6 +998,7 @@ const handleDungeonAutoExit = async () => {
       setResources,
       updateStatus,
       activeTileSize,
+      currentPlayer.skills,
       closeAllPanels,
       bulkOperationContext,
       masterResources,
@@ -979,10 +1007,10 @@ const handleDungeonAutoExit = async () => {
       transitionFadeControl
     );
     
-    updateStatus("You have been safely returned to the surface as the dungeon resets.");
+    updateStatus("Dungeon reset - you've been returned to your homestead.");
   } catch (error) {
     console.error("❌ Error auto-exiting dungeon:", error);
-    updateStatus("Error returning to surface. Please try exiting manually.");
+    updateStatus("Error returning to surface. The dungeon will reset when you manually exit.");
   }
 };
 

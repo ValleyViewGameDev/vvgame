@@ -2851,30 +2851,101 @@ router.post('/enter-dungeon', async (req, res) => {
         }
         
         // Load and apply the template
-        const templateData = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
-        console.log(`📄 Loaded template with ${templateData.resources?.length || 0} resources, ${templateData.npcs?.length || 0} NPCs`);
+        const template = JSON.parse(fs.readFileSync(templatePath, 'utf-8'));
+        console.log(`📄 Loaded template for automatic reset`);
         
-        // Reset the dungeon grid with template data
-        const resetResult = await Grid.findByIdAndUpdate(dungeonGridId, {
-          tiles: templateData.tiles,
-          resources: templateData.resources || [],
-          npcs: templateData.npcs || [],
-          gridType: 'dungeon',
-          updatedAt: new Date()
-        }, { new: true });
+        // Import world generation utilities (same as reset-dungeon)
+        const { generateFixedGrid, generateFixedResources } = require('../utils/worldUtils');
+        const masterResources = require('../tuning/resources.json');
+        const mongoose = require('mongoose');
         
-        if (!resetResult) {
-          throw new Error('Failed to update grid during reset');
+        // Generate tiles and resources from template
+        const tiles = generateFixedGrid(template);
+        const resources = generateFixedResources(template);
+        
+        // Handle NPCs from template
+        const npcsMap = new Map();
+        if (template.resources) {
+          template.resources.forEach((row, y) => {
+            row.forEach((cell, x) => {
+              if (cell && cell !== '.' && cell !== '**') {
+                const resourceDef = masterResources.find(r => r.layoutkey === cell && r.category === 'npc');
+                if (resourceDef) {
+                  const npcId = new mongoose.Types.ObjectId().toString();
+                  npcsMap.set(npcId, {
+                    id: npcId,
+                    type: resourceDef.type,
+                    position: { x, y },
+                    state: resourceDef.defaultState || 'idle',
+                    hp: resourceDef.maxhp || 10,
+                    maxhp: resourceDef.maxhp || 10,
+                    armorclass: resourceDef.armorclass || 10,
+                    attackbonus: resourceDef.attackbonus || 0,
+                    damage: resourceDef.damage || 1,
+                    attackrange: resourceDef.attackrange || 1,
+                    speed: resourceDef.speed || 1,
+                    lastUpdated: new Date()
+                  });
+                }
+              }
+            });
+          });
         }
         
-        // Update the dungeon registry to clear needsReset flag
-        frontier.dungeons.set(dungeonGridId, {
-          ...dungeonData,
-          needsReset: false,
-          lastReset: new Date()
+        // Enrich multi-tile resources
+        resources.forEach(resource => {
+          const resourceDef = masterResources.find(r => r.type === resource.type);
+          if (resourceDef && resourceDef.range > 1) {
+            resource.anchorKey = `${resource.type}_${resource.x}_${resource.y}`;
+            if (resourceDef.passable !== undefined) {
+              resource.passable = resourceDef.passable;
+            }
+          }
         });
         
-        await frontier.save();
+        // Encode resources
+        const TileEncoder = require('../utils/TileEncoder');
+        const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
+        const encoder = new UltraCompactResourceEncoder(masterResources);
+        const encodedResources = [];
+        for (const resource of resources) {
+          try {
+            const encoded = encoder.encode(resource);
+            encodedResources.push(encoded);
+          } catch (error) {
+            console.error(`❌ Failed to encode resource:`, resource, error);
+            throw new Error(`Failed to encode resource at (${resource.x}, ${resource.y}): ${error.message}`);
+          }
+        }
+        
+        // Get the grid document and update it
+        const dungeonGridDoc = await Grid.findById(dungeonGridId);
+        if (!dungeonGridDoc) {
+          throw new Error('Dungeon grid not found for reset');
+        }
+        
+        // Update the grid (same as reset-dungeon)
+        dungeonGridDoc.tiles = TileEncoder.encode(tiles);
+        dungeonGridDoc.resources = encodedResources;
+        dungeonGridDoc.NPCsInGrid = npcsMap;
+        dungeonGridDoc.NPCsInGridLastUpdated = new Date();
+        dungeonGridDoc.playersInGrid = new Map(); // Clear players
+        dungeonGridDoc.lastOptimized = new Date();
+        
+        await dungeonGridDoc.save();
+        
+        // Update the dungeon registry to clear needsReset flag using dot notation
+        await Frontier.findByIdAndUpdate(
+          frontier._id,
+          {
+            $set: {
+              [`dungeons.${dungeonGridId}.needsReset`]: false,
+              [`dungeons.${dungeonGridId}.lastReset`]: new Date()
+            }
+          }
+        );
+        
+        console.log(`📝 Updated dungeon ${dungeonGridId}: needsReset = false`);
         
         console.log(`✅ Automatic reset completed for dungeon ${dungeonGridId}`);
       } catch (resetError) {
