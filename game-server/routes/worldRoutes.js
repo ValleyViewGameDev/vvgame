@@ -2824,6 +2824,45 @@ router.post('/enter-dungeon', async (req, res) => {
     
     console.log(`🎲 Selected random dungeon: ${dungeonGridId} (${dungeonData.templateUsed})`);
     
+    // Check if dungeon needs reset (first entry after reset phase)
+    if (dungeonData.needsReset) {
+      console.log(`🔄 Dungeon ${dungeonGridId} needs reset - performing automatic reset`);
+      
+      // Perform the reset
+      const templateFilename = dungeonData.templateUsed;
+      const fs = require('fs');
+      const path = require('path');
+      const templatePath = path.join(__dirname, '../layouts/gridLayouts/dungeon', `${templateFilename}.json`);
+      
+      if (!fs.existsSync(templatePath)) {
+        return res.status(500).json({ 
+          error: `Template not found for automatic reset: ${templateFilename}` 
+        });
+      }
+      
+      // Load and apply the template
+      const templateData = JSON.parse(fs.readFileSync(templatePath, 'utf8'));
+      
+      // Reset the dungeon grid with template data
+      await Grid.findByIdAndUpdate(dungeonGridId, {
+        tiles: templateData.tiles,
+        resources: templateData.resources || [],
+        npcs: templateData.npcs || [],
+        gridType: 'dungeon',
+        updatedAt: new Date()
+      });
+      
+      // Update the dungeon registry to clear needsReset flag
+      frontier.dungeons.set(dungeonGridId, {
+        ...dungeonData,
+        needsReset: false,
+        lastReset: new Date()
+      });
+      await frontier.save();
+      
+      console.log(`✅ Automatic reset completed for dungeon ${dungeonGridId}`);
+    }
+    
     // Get the dungeon grid to find Dungeon Exit resource
     const dungeonGrid = await Grid.findById(dungeonGridId);
     if (!dungeonGrid) {

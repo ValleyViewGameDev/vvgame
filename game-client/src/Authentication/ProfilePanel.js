@@ -14,7 +14,7 @@ import LANGUAGE_OPTIONS from '../UI/Languages.json';
 import { useModalContext } from '../UI/ModalContext';
 import { useStrings } from '../UI/StringsContext';
 
-const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel }) => {
+const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick }) => {
   const strings = useStrings();
   const { openPanel } = usePanelContext();
 
@@ -252,12 +252,29 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         <h2>{strings[4051]} {currentPlayer.username} {currentPlayer.icon}</h2>
 
         <div className="shared-buttons">
-          <button className="btn-basic btn-success" onClick={() => setShowChangeIconModal(true)}>
-            {strings[4065]}
+          <button className="btn-basic btn-success" onClick={() => {
+            onClose();
+            setTimeout(() => {
+              // Create PC data structure for current player to pass to SocialPanel
+              const currentPC = {
+                playerId: currentPlayer._id,
+                username: currentPlayer.username,
+                icon: currentPlayer.icon,
+                hp: currentPlayer.hp || 100,
+                position: { x: 0, y: 0 }, // Position not needed for own profile
+                iscamping: currentPlayer.iscamping,
+                isinboat: currentPlayer.isinboat
+              };
+              handlePCClick(currentPC);
+            }, 0);
+          }}>
+            Go to Player Character
           </button>
         </div>
 
         <br />
+
+        <h3>{strings[4054]}</h3>
 
         {/* User Details Form */}
         <div className="form-group">
@@ -281,16 +298,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
           />
         </div>
 
-        <div className="shared-buttons">
-          <button className="btn-basic btn-success" onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Saving...' : strings[10128]}
-          </button>
-        </div>
-
         <br />
-        <br />
-
-        <h3>{strings[4054]}</h3>
 
         {isDeveloper && (
           <div className="form-group">
@@ -303,6 +311,14 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
             </select>
           </div>
         )}
+        
+        <div className="shared-buttons">
+          <button className="btn-basic btn-success" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? 'Saving...' : strings[10128]}
+          </button>
+        </div>
+
+        <br />
 
         <div className="shared-buttons">
           <button className="btn-basic btn-gold" onClick={handleGoldPanelSwitch}>

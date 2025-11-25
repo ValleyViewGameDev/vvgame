@@ -16,7 +16,31 @@ async function dungeonScheduler(frontierId, phase, frontier = null) {
                 break;
 
             case "resetting":
-                console.log("💤 Dungeon resetting phase — no actions required.");
+                console.log("🔄 Dungeon resetting phase — marking all dungeons for reset");
+                
+                // Get the frontier if not already provided
+                if (!frontier) {
+                    frontier = await Frontier.findById(frontierId);
+                }
+                
+                if (frontier && frontier.dungeons && frontier.dungeons.size > 0) {
+                    console.log(`📋 Found ${frontier.dungeons.size} dungeons to mark for reset`);
+                    
+                    // Mark all dungeons in this frontier as needing reset
+                    for (const [dungeonGridId, dungeonData] of frontier.dungeons.entries()) {
+                        console.log(`  - Marking dungeon ${dungeonGridId} for reset`);
+                        frontier.dungeons.set(dungeonGridId, {
+                            ...dungeonData,
+                            needsReset: true
+                        });
+                    }
+                    
+                    // Save the frontier with updated dungeon flags
+                    await frontier.save();
+                    console.log(`✅ Successfully marked ${frontier.dungeons.size} dungeons for reset`);
+                } else {
+                    console.log("ℹ️ No dungeons found for this frontier");
+                }
                 break;
 
             default:

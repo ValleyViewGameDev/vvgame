@@ -952,6 +952,40 @@ const handleRevive = async () => {
   }
 };
 
+// Auto-exit from dungeon when phase changes to resetting
+const handleDungeonAutoExit = async () => {
+  try {
+    console.log("🚨 Auto-exiting dungeon due to reset phase");
+    
+    // Show warning message
+    updateStatus("Dungeon is resetting! Teleporting you to safety...");
+    
+    // Use the dungeon exit logic
+    const { handleDungeonExit } = await import('./GameFeatures/Dungeon/Dungeon');
+    await handleDungeonExit(
+      currentPlayer,
+      setCurrentPlayer,
+      setGridId,
+      setGrid,
+      setTileTypes,
+      setResources,
+      updateStatus,
+      activeTileSize,
+      closeAllPanels,
+      bulkOperationContext,
+      masterResources,
+      strings,
+      masterTrophies,
+      transitionFadeControl
+    );
+    
+    updateStatus("You have been safely returned to the surface as the dungeon resets.");
+  } catch (error) {
+    console.error("❌ Error auto-exiting dungeon:", error);
+    updateStatus("Error returning to surface. Please try exiting manually.");
+  }
+};
+
 // Check for saved revival state on mount
 useEffect(() => {
   const savedRevivalState = localStorage.getItem('revivalState');
@@ -1364,7 +1398,25 @@ useEffect(() => {
       shouldFetchNewTimers = true;
     }
     if (timers.dungeon.endTime && now >= timers.dungeon.endTime) {
-      console.log("⚔️ Dungeon cycle ended. Fetching new bank timer...");
+      console.log("⚔️ Dungeon phase ended. Transitioning phase...");
+      
+      // Toggle dungeon phase locally for immediate UI update
+      const newDungeonPhase = timers.dungeon.phase === "open" ? "resetting" : "open";
+      setTimers(prev => ({
+        ...prev,
+        dungeon: {
+          ...prev.dungeon,
+          phase: newDungeonPhase,
+          endTime: null // Will be updated by fetchTimersData
+        }
+      }));
+      
+      // Check if player is in a dungeon and needs to be teleported out
+      if (newDungeonPhase === "resetting" && currentPlayer?.location?.gtype === "dungeon") {
+        console.log("🚨 Player is in dungeon during reset phase - teleporting out!");
+        handleDungeonAutoExit();
+      }
+      
       shouldFetchNewTimers = true;
     }
     if (shouldFetchNewTimers) {
@@ -1681,10 +1733,24 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
           return;
         }
         
+        // Determine actual phase based on whether timer has expired
+        let actualPhase = timers.dungeon.phase;
+        if (timers.dungeon.endTime) {
+          const now = Date.now();
+          const endTime = timers.dungeon.endTime;
+          
+          // If current time is past the end time, phase has switched
+          if (now >= endTime) {
+            // Timer expired - phase should switch
+            actualPhase = timers.dungeon.phase === 'open' ? 'resetting' : 'open';
+            console.log(`⏰ Timer expired - actual phase is ${actualPhase} (server still shows ${timers.dungeon.phase})`);
+          }
+        }
+        
         const { handleDungeonEntrance } = await import('./GameFeatures/Dungeon/Dungeon');
         await handleDungeonEntrance(
           currentPlayer,
-          timers.dungeon.phase,
+          actualPhase,
           setCurrentPlayer,
           setGridId,
           setGrid,
@@ -2686,7 +2752,8 @@ return (
         isRelocating={isRelocating}
         setIsRelocating={setIsRelocating}
         zoomLevel={zoomLevel}
-        setZoomLevel={setZoomLevel} 
+        setZoomLevel={setZoomLevel}
+        handlePCClick={handlePCClick}
        />
       )}
       {activePanel === 'LoginPanel' && (
@@ -3185,9 +3252,9 @@ return (
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           inventory={inventory}
-          setInventory={setInventory}  
+          setInventory={setInventory}
           backpack={backpack}
-          setBackpack={setBackpack} 
+          setBackpack={setBackpack}
           updateStatus={updateStatus}
           masterInteractions={masterInteractions}
           masterTrophies={masterTrophies}

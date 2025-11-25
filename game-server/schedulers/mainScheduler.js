@@ -9,7 +9,7 @@ const bankScheduler = require("./bankScheduler");
 const electionScheduler = require("./electionScheduler");
 const messageScheduler = require("./messageScheduler");
 const networthScheduler = require("./networthScheduler");
-const dungeonScheduler = require("./networthScheduler");
+const dungeonScheduler = require("./dungeonScheduler");
 // Add more logic-only schedulers as needed...
 
 // Helper: Advance to the next phase for a given system

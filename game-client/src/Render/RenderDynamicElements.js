@@ -17,11 +17,18 @@ export function generateResourceTooltip(resource, strings, timers = null) {
   if (resource.type === 'Dungeon Entrance' && timers?.dungeon) {
     lines.push(`<p>${localizedResourceType}</p>`);
     
-    const dungeonPhase = timers.dungeon.phase;
     const dungeonEndTime = timers.dungeon.endTime;
     
     if (dungeonEndTime) {
       const remainingTime = Math.max(0, dungeonEndTime - currentTime);
+      
+      // Determine actual phase based on whether timer has expired
+      let actualPhase = timers.dungeon.phase;
+      if (currentTime >= dungeonEndTime) {
+        // Timer expired - phase should switch
+        actualPhase = timers.dungeon.phase === 'open' ? 'resetting' : 'open';
+      }
+      
       const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
@@ -32,14 +39,14 @@ export function generateResourceTooltip(resource, strings, timers = null) {
       if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
       const timeString = parts.join(' ');
       
-      if (dungeonPhase === 'open') {
+      if (actualPhase === 'open') {
         lines.push(`<p>Open - Resets in ${timeString}</p>`);
-      } else if (dungeonPhase === 'resetting') {
+      } else if (actualPhase === 'resetting') {
         lines.push(`<p>Closed - Opens in ${timeString}</p>`);
       }
     } else {
       // Fallback if no timer data
-      lines.push(`<p>${dungeonPhase === 'open' ? 'Open' : 'Closed'}</p>`);
+      lines.push(`<p>${timers.dungeon.phase === 'open' ? 'Open' : 'Closed'}</p>`);
     }
     
     return lines.join('');

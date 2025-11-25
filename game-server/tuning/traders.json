@@ -4,14 +4,27 @@
     "index": 1,
     "gives": "Town Key",
     "givesqty": 1,
+    "repeat": false,
     "requires1": "Gem",
     "requires1qty": 1
+  },
+  {
+    "trader": "Constable Elbow",
+    "index": 2,
+    "gives": "Dungeon Key",
+    "givesqty": 1,
+    "repeat": false,
+    "requires1": "Yellow Heart",
+    "requires1qty": 10,
+    "requires2": "Green Heart",
+    "requires2qty": 2
   },
   {
     "trader": "Juliet",
     "index": 1,
     "gives": "Tulip",
     "givesqty": 64,
+    "repeat": true,
     "requires1": "Portrait",
     "requires1qty": 1
   },
@@ -20,6 +33,7 @@
     "index": 1,
     "gives": "Feverfew",
     "givesqty": 3,
+    "repeat": true,
     "requires1": "Port",
     "requires1qty": 24
   },
@@ -28,6 +42,7 @@
     "index": 1,
     "gives": "Potion A",
     "givesqty": 1,
+    "repeat": true,
     "requires1": "Rosemary",
     "requires1qty": 6,
     "requires2": "Daisy",
@@ -40,6 +55,7 @@
     "index": 2,
     "gives": "Potion B",
     "givesqty": 1,
+    "repeat": true,
     "requires1": "Potion A",
     "requires1qty": 1,
     "requires2": "Mushroom",
@@ -54,6 +70,7 @@
     "index": 3,
     "gives": "Potion C",
     "givesqty": 1,
+    "repeat": true,
     "requires1": "Potion B",
     "requires1qty": 1,
     "requires2": "Sunflower",
@@ -68,6 +85,7 @@
     "index": 1,
     "gives": "Brass Bell",
     "givesqty": 1,
+    "repeat": false,
     "requires1": "Portia's Secret",
     "requires1qty": 1
   },
@@ -76,6 +94,7 @@
     "index": 1,
     "gives": "Silver",
     "givesqty": 3,
+    "repeat": true,
     "requires1": "Bones",
     "requires1qty": 10
   },
@@ -83,7 +102,8 @@
     "trader": "Caliban",
     "index": 2,
     "gives": "Silver",
-    "givesqty": 5,
+    "givesqty": 10,
+    "repeat": true,
     "requires1": "Magic Mushroom",
     "requires1qty": 25
   },
@@ -92,6 +112,7 @@
     "index": 1,
     "gives": "Gold",
     "givesqty": 20,
+    "repeat": true,
     "requires1": "King's Crown",
     "requires1qty": 1
   },
@@ -100,6 +121,7 @@
     "index": 2,
     "gives": "Mirror Key",
     "givesqty": 1,
+    "repeat": true,
     "requires1": "Aged Wine",
     "requires1qty": 12
   },
@@ -108,7 +130,26 @@
     "index": 1,
     "gives": "Diamond Ring",
     "givesqty": 1,
+    "repeat": true,
     "requires1": "Queen's Cake",
+    "requires1qty": 10
+  },
+  {
+    "trader": "Mermaid",
+    "index": 1,
+    "gives": "Gold",
+    "givesqty": 25,
+    "repeat": true,
+    "requires1": "Trident",
+    "requires1qty": 1
+  },
+  {
+    "trader": "Shiro",
+    "index": 1,
+    "gives": "Scroll",
+    "givesqty": 1,
+    "repeat": true,
+    "requires1": "Gem",
     "requires1qty": 10
   },
   {
@@ -116,6 +157,7 @@
     "index": 1,
     "gives": "Hope",
     "givesqty": 1,
+    "repeat": false,
     "requires1": "Prospero's Orb",
     "requires1qty": 1,
     "requires2": "King's Crown",
@@ -130,13 +172,5 @@
     "requires6qty": 10,
     "requires7": "Scroll",
     "requires7qty": 1
-  },
-  {
-    "trader": "Mermaid",
-    "index": 1,
-    "gives": "Gold",
-    "givesqty": 25,
-    "requires1": "Trident",
-    "requires1qty": 1
   }
 ]

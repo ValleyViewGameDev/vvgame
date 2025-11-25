@@ -10,22 +10,35 @@ function getLineOfSightTiles(start, end) {
     let y0 = Math.floor(start.y);
     const x1 = Math.floor(end.x);
     const y1 = Math.floor(end.y);
-    
+
     const dx = Math.abs(x1 - x0);
     const dy = Math.abs(y1 - y0);
     const sx = x0 < x1 ? 1 : -1;
     const sy = y0 < y1 ? 1 : -1;
     let err = dx - dy;
-    
+
+    let prevX = x0;
+    let prevY = y0;
+
     while (true) {
         // Don't include the start or end positions
-        if ((x0 !== Math.floor(start.x) || y0 !== Math.floor(start.y)) && 
+        if ((x0 !== Math.floor(start.x) || y0 !== Math.floor(start.y)) &&
             (x0 !== x1 || y0 !== y1)) {
             tiles.push({ x: x0, y: y0 });
+
+            // Check if we moved diagonally - if so, add the two adjacent tiles
+            // to prevent line of sight going through corners
+            if (prevX !== x0 && prevY !== y0) {
+                tiles.push({ x: prevX, y: y0 }); // Vertical neighbor of previous position
+                tiles.push({ x: x0, y: prevY }); // Horizontal neighbor of current position
+            }
         }
-        
+
         if (x0 === x1 && y0 === y1) break;
-        
+
+        prevX = x0;
+        prevY = y0;
+
         const e2 = 2 * err;
         if (e2 > -dy) {
             err -= dy;
@@ -36,27 +49,40 @@ function getLineOfSightTiles(start, end) {
             y0 += sy;
         }
     }
-    
+
     return tiles;
+}
+
+/** Helper to check if a position falls within a wall's footprint **/
+function isWithinWallFootprint(x, y, wall) {
+    const range = wall.range || 1;
+    // For walls with range > 1, check if (x, y) falls within the footprint
+    // Wall footprint extends from anchor (wall.x, wall.y) down and right
+    return (
+        x >= wall.x &&
+        x < wall.x + range &&
+        y >= wall.y &&
+        y < wall.y + range
+    );
 }
 
 /** Helper to check if NPC can see the target (no walls blocking) **/
 function canSeeTarget(npcPosition, targetPosition) {
     const resources = GlobalGridStateTilesAndResources.getResources();
     const lineOfSightTiles = getLineOfSightTiles(npcPosition, targetPosition);
-    
-    // Check each tile in the line of sight for walls
+
+    // Check each tile in the line of sight for walls or doors
     for (const tile of lineOfSightTiles) {
-        const wall = resources.find(res => 
-            res.x === tile.x && 
-            res.y === tile.y && 
-            res.action === 'wall'
+        // Check if this tile is blocked by any wall (including large walls)
+        const wall = resources.find(res =>
+            (res.action === 'wall' || res.action === 'door') &&
+            isWithinWallFootprint(tile.x, tile.y, res)
         );
         if (wall) {
-            return false; // Wall found blocking the view
+            return false; // Wall or door found blocking the view
         }
     }
-    
+
     return true; // Clear line of sight
 }
 
@@ -137,10 +163,15 @@ async function handleEnemyBehavior(gridId, TILE_SIZE) {
       // Check if already in attack range AND can see target before pursuing
       const currentDistance = getDistance(this.position, this.targetPC.position);
       if (currentDistance <= this.attackrange) {
-        console.log(`NPC ${this.id} is already in attack range (${currentDistance} <= ${this.attackrange}) and can see target. Switching to attack!`);
-        this.state = 'attack';
-        await updateThisNPC.call(this, gridId);
-        break;
+        // Verify line of sight before switching to attack
+        if (canSeeTarget(this.position, this.targetPC.position)) {
+          console.log(`NPC ${this.id} is already in attack range (${currentDistance} <= ${this.attackrange}) and can see target. Switching to attack!`);
+          this.state = 'attack';
+          await updateThisNPC.call(this, gridId);
+          break;
+        } else {
+          console.log(`NPC ${this.id} is in range but can't see ${this.targetPC.username} due to walls. Continuing pursuit.`);
+        }
       }
       if (!this.pursueTimerStart) this.pursueTimerStart = Date.now();
       const timeSincePursueStart = Date.now() - this.pursueTimerStart;
