@@ -3050,7 +3050,13 @@ router.post('/update-dungeon-config', async (req, res) => {
       const encoder = new UltraCompactResourceEncoder(masterResources);
       
       for (const entranceGridId of entranceGrids) {
-        const grid = await Grid.findById(entranceGridId);
+        const grid = await Grid.findOne({ 
+          $or: [
+            { _id: entranceGridId },
+            { gridId: entranceGridId }
+          ]
+        });
+        
         if (!grid) {
           return res.status(400).json({ 
             error: `Grid ${entranceGridId} not found` 
@@ -3058,17 +3064,19 @@ router.post('/update-dungeon-config', async (req, res) => {
         }
         
         // Decode resources to check for Dungeon Entrance
-        const decodedResources = [];
-        for (const encodedResource of grid.resources) {
+        let hasDungeonEntrance = false;
+        for (const encodedResource of grid.resources || []) {
           try {
             const decoded = encoder.decode(encodedResource);
-            decodedResources.push(decoded);
+            if (decoded.type === 'Dungeon Entrance') {
+              hasDungeonEntrance = true;
+              break;
+            }
           } catch (error) {
             console.error(`Failed to decode resource:`, error);
           }
         }
         
-        const hasDungeonEntrance = decodedResources.some(r => r.type === 'Dungeon Entrance');
         if (!hasDungeonEntrance) {
           return res.status(400).json({ 
             error: `Grid ${entranceGridId} does not have a Dungeon Entrance resource` 

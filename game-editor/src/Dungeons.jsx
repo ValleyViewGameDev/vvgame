@@ -204,14 +204,14 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
     
     // Check if this grid has a Dungeon Entrance resource
     try {
-      const response = await axios.get(`${API_BASE}/api/grids-with-resource`, {
+      const response = await axios.get(`${API_BASE}/api/grid-has-resource`, {
         params: {
+          gridId: gridId.trim(),
           resourceType: 'Dungeon Entrance'
         }
       });
       
-      const hasEntrance = response.data.some(grid => grid._id === gridId || grid.gridId === gridId);
-      if (!hasEntrance) {
+      if (!response.data.hasResource) {
         alert(`Grid ${gridId} does not have a Dungeon Entrance resource`);
         return;
       }
