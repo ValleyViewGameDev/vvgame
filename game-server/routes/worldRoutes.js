@@ -2735,17 +2735,12 @@ router.post('/enter-dungeon', async (req, res) => {
       }
     }
     
-    // If no specific dungeon is mapped to this entrance, fall back to random selection
+    // If no specific dungeon is mapped to this entrance, return error
     if (!dungeonGridId) {
-      console.log(`⚠️ No dungeon mapped to entrance grid ${sourceGridId}, selecting random dungeon`);
-      const dungeonEntries = Array.from(frontier.dungeons.entries());
-      if (dungeonEntries.length === 0) {
-        return res.status(404).json({ 
-          error: 'No dungeons available in this frontier' 
-        });
-      }
-      const randomIndex = Math.floor(Math.random() * dungeonEntries.length);
-      [dungeonGridId, dungeonData] = dungeonEntries[randomIndex];
+      console.log(`⚠️ No dungeon mapped to entrance grid ${sourceGridId}`);
+      return res.status(404).json({ 
+        error: 'No dungeon found for this entrance location. Please contact an administrator to map this entrance.' 
+      });
     }
     
     console.log(`🎯 Selected dungeon: ${dungeonGridId} (${dungeonData.templateUsed}) for entrance grid ${sourceGridId}`);
