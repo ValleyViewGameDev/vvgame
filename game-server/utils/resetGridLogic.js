@@ -13,6 +13,8 @@ const UltraCompactResourceEncoder = require('./ResourceEncoder');
 const TileEncoder = require('./TileEncoder');
 
 async function performGridReset(gridId, gridType, gridCoord) {
+  console.log(`🔄 performGridReset called with: gridId=${gridId}, gridType=${gridType}, gridCoord=${gridCoord}`);
+  
   const grid = await Grid.findById(gridId);
   if (!grid) throw new Error(`Grid not found: ${gridId}`);
 
@@ -49,6 +51,29 @@ async function performGridReset(gridId, gridType, gridCoord) {
     layout = readJSON(seasonalPath);
     layoutFileName = layoutFile;
     console.log(`🗓️ Using town layout for reset - position: ${position || 'default'}, season: ${seasonType}, layout: ${layoutFile}`);
+
+  } else if (gridType === 'dungeon') {
+    // Get the template from frontier's dungeons registry
+    if (!frontier || !frontier.dungeons) {
+      throw new Error('Frontier or dungeon registry not found');
+    }
+    
+    const dungeonEntry = frontier.dungeons.get(gridId);
+    if (!dungeonEntry) {
+      throw new Error('Dungeon not found in frontier registry');
+    }
+    
+    const templateFilename = dungeonEntry.templateUsed;
+    const templatePath = path.join(__dirname, '../layouts/gridLayouts/dungeon', `${templateFilename}.json`);
+    
+    if (!fs.existsSync(templatePath)) {
+      throw new Error(`Template not found: ${templateFilename}`);
+    }
+    
+    layout = readJSON(templatePath);
+    layoutFileName = templateFilename;
+    isFixedLayout = true; // Dungeons always use fixed layouts
+    console.log(`⚔️ Using dungeon template for reset: ${templateFilename}`);
 
   } else {
     console.log(`🔍 Fetching layout for gridType: ${gridType}, gridCoord: ${gridCoord}`);
