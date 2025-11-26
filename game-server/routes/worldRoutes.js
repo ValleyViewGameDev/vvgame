@@ -2819,12 +2819,32 @@ router.post('/enter-dungeon', async (req, res) => {
       });
     }
     
-    // Get a random dungeon
-    const dungeonEntries = Array.from(frontier.dungeons.entries());
-    const randomIndex = Math.floor(Math.random() * dungeonEntries.length);
-    const [dungeonGridId, dungeonData] = dungeonEntries[randomIndex];
+    // Find the dungeon that has this sourceGridId in its entranceGrids array
+    let dungeonGridId = null;
+    let dungeonData = null;
     
-    console.log(`🎲 Selected random dungeon: ${dungeonGridId} (${dungeonData.templateUsed})`);
+    for (const [id, data] of frontier.dungeons.entries()) {
+      if (data.entranceGrids && data.entranceGrids.includes(sourceGridId)) {
+        dungeonGridId = id;
+        dungeonData = data;
+        break;
+      }
+    }
+    
+    // If no specific dungeon is mapped to this entrance, fall back to random selection
+    if (!dungeonGridId) {
+      console.log(`⚠️ No dungeon mapped to entrance grid ${sourceGridId}, selecting random dungeon`);
+      const dungeonEntries = Array.from(frontier.dungeons.entries());
+      if (dungeonEntries.length === 0) {
+        return res.status(404).json({ 
+          error: 'No dungeons available in this frontier' 
+        });
+      }
+      const randomIndex = Math.floor(Math.random() * dungeonEntries.length);
+      [dungeonGridId, dungeonData] = dungeonEntries[randomIndex];
+    }
+    
+    console.log(`🎯 Selected dungeon: ${dungeonGridId} (${dungeonData.templateUsed}) for entrance grid ${sourceGridId}`);
     
     // Check if dungeon needs reset (first entry after reset phase)
     console.log(`🔍 Checking dungeon ${dungeonGridId} reset status:`, {
@@ -3008,6 +3028,87 @@ router.post('/enter-dungeon', async (req, res) => {
     console.error('Error entering dungeon:', error);
     res.status(500).json({ 
       error: error.message || 'Failed to enter dungeon' 
+    });
+  }
+});
+
+// Update dungeon configuration (template, entrance mappings)
+router.post('/update-dungeon-config', async (req, res) => {
+  try {
+    const { frontierId, dungeonGridId, templateUsed, entranceGrids } = req.body;
+    
+    if (!frontierId || !dungeonGridId) {
+      return res.status(400).json({ 
+        error: 'frontierId and dungeonGridId are required.' 
+      });
+    }
+    
+    // Validate entrance grids have Dungeon Entrance resources
+    if (entranceGrids && entranceGrids.length > 0) {
+      const masterResources = require('../tuning/resources.json');
+      const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
+      const encoder = new UltraCompactResourceEncoder(masterResources);
+      
+      for (const entranceGridId of entranceGrids) {
+        const grid = await Grid.findById(entranceGridId);
+        if (!grid) {
+          return res.status(400).json({ 
+            error: `Grid ${entranceGridId} not found` 
+          });
+        }
+        
+        // Decode resources to check for Dungeon Entrance
+        const decodedResources = [];
+        for (const encodedResource of grid.resources) {
+          try {
+            const decoded = encoder.decode(encodedResource);
+            decodedResources.push(decoded);
+          } catch (error) {
+            console.error(`Failed to decode resource:`, error);
+          }
+        }
+        
+        const hasDungeonEntrance = decodedResources.some(r => r.type === 'Dungeon Entrance');
+        if (!hasDungeonEntrance) {
+          return res.status(400).json({ 
+            error: `Grid ${entranceGridId} does not have a Dungeon Entrance resource` 
+          });
+        }
+      }
+    }
+    
+    // Update the dungeon configuration using dot notation
+    const updateOperations = {};
+    if (templateUsed !== undefined) {
+      updateOperations[`dungeons.${dungeonGridId}.templateUsed`] = templateUsed;
+    }
+    if (entranceGrids !== undefined) {
+      updateOperations[`dungeons.${dungeonGridId}.entranceGrids`] = entranceGrids;
+    }
+    
+    const updatedFrontier = await Frontier.findByIdAndUpdate(
+      frontierId,
+      { $set: updateOperations },
+      { new: true }
+    );
+    
+    if (!updatedFrontier) {
+      return res.status(404).json({ 
+        error: 'Frontier not found' 
+      });
+    }
+    
+    console.log(`✅ Updated dungeon ${dungeonGridId} configuration`);
+    
+    res.json({
+      success: true,
+      dungeon: updatedFrontier.dungeons.get(dungeonGridId)
+    });
+    
+  } catch (error) {
+    console.error('Error updating dungeon configuration:', error);
+    res.status(500).json({ 
+      error: error.message || 'Failed to update dungeon configuration' 
     });
   }
 });

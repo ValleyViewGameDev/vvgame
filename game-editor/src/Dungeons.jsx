@@ -15,18 +15,24 @@ const projectRoot = isDev
 const Dungeons = ({ selectedFrontier, activePanel }) => {
   const { setFileName, setDirectory } = useFileContext();
   const [dungeonGrids, setDungeonGrids] = useState([]);
+  const [dungeonData, setDungeonData] = useState({}); // Frontier dungeon data
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [editingDungeon, setEditingDungeon] = useState({}); // Track which dungeons are being edited
+  const [availableGridsWithEntrances, setAvailableGridsWithEntrances] = useState([]); // Grids that have Dungeon Entrance resources
+  const [newEntranceGridInput, setNewEntranceGridInput] = useState({}); // Track input values for adding entrance grids
 
   // Load dungeon grids when panel becomes active
   useEffect(() => {
-    if (activePanel === 'dungeons') {
+    if (activePanel === 'dungeons' && selectedFrontier) {
       loadDungeonGrids();
+      loadDungeonData();
       loadTemplates();
+      loadAvailableEntranceGrids();
     }
-  }, [activePanel]);
+  }, [activePanel, selectedFrontier]);
 
   const loadDungeonGrids = async () => {
     try {
@@ -43,6 +49,47 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
     } catch (error) {
       console.error('Error loading dungeon grids:', error);
       setError('Failed to load dungeon grids');
+    }
+  };
+
+  const loadDungeonData = async () => {
+    if (!selectedFrontier) return;
+    
+    try {
+      const response = await axios.get(`${API_BASE}/api/get-frontier/${selectedFrontier}`);
+      if (response.data.dungeons) {
+        // Convert Map to object for easier access
+        const dungeonMap = {};
+        Object.entries(response.data.dungeons).forEach(([key, value]) => {
+          dungeonMap[key] = value;
+          // Initialize editing state for this dungeon
+          setEditingDungeon(prev => ({
+            ...prev,
+            [key]: {
+              templateUsed: value.templateUsed,
+              entranceGrids: value.entranceGrids || [],
+              hasChanges: false
+            }
+          }));
+        });
+        setDungeonData(dungeonMap);
+      }
+    } catch (error) {
+      console.error('Error loading dungeon data from frontier:', error);
+    }
+  };
+
+  const loadAvailableEntranceGrids = async () => {
+    try {
+      // Get all grids with Dungeon Entrance resources
+      const response = await axios.get(`${API_BASE}/api/grids-with-resource`, {
+        params: {
+          resourceType: 'Dungeon Entrance'
+        }
+      });
+      setAvailableGridsWithEntrances(response.data);
+    } catch (error) {
+      console.error('Error loading grids with entrances:', error);
     }
   };
 
@@ -150,6 +197,102 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
     }
   };
 
+  const handleTemplateChange = (dungeonId, newTemplate) => {
+    setEditingDungeon(prev => ({
+      ...prev,
+      [dungeonId]: {
+        ...prev[dungeonId],
+        templateUsed: newTemplate,
+        hasChanges: true
+      }
+    }));
+  };
+
+  const handleEntranceGridAdd = async (dungeonId, gridId) => {
+    if (!gridId || !gridId.trim()) return;
+    
+    // Check if this grid has a Dungeon Entrance resource
+    try {
+      const response = await axios.get(`${API_BASE}/api/grids-with-resource`, {
+        params: {
+          resourceType: 'Dungeon Entrance'
+        }
+      });
+      
+      const hasEntrance = response.data.some(grid => grid._id === gridId || grid.gridId === gridId);
+      if (!hasEntrance) {
+        alert(`Grid ${gridId} does not have a Dungeon Entrance resource`);
+        return;
+      }
+    } catch (error) {
+      console.error('Error validating grid:', error);
+      alert('Failed to validate grid');
+      return;
+    }
+    
+    setEditingDungeon(prev => {
+      const currentEntrances = prev[dungeonId]?.entranceGrids || [];
+      if (currentEntrances.includes(gridId)) {
+        alert('This grid is already linked to this dungeon');
+        return prev;
+      }
+      
+      return {
+        ...prev,
+        [dungeonId]: {
+          ...prev[dungeonId],
+          entranceGrids: [...currentEntrances, gridId],
+          hasChanges: true
+        }
+      };
+    });
+  };
+
+  const handleEntranceGridRemove = (dungeonId, gridId) => {
+    setEditingDungeon(prev => ({
+      ...prev,
+      [dungeonId]: {
+        ...prev[dungeonId],
+        entranceGrids: prev[dungeonId].entranceGrids.filter(g => g !== gridId),
+        hasChanges: true
+      }
+    }));
+  };
+
+  const saveDungeonChanges = async (dungeonId) => {
+    const editing = editingDungeon[dungeonId];
+    if (!editing || !editing.hasChanges) return;
+    
+    setLoading(true);
+    try {
+      await axios.post(`${API_BASE}/api/update-dungeon-config`, {
+        frontierId: selectedFrontier,
+        dungeonGridId: dungeonId,
+        templateUsed: editing.templateUsed,
+        entranceGrids: editing.entranceGrids
+      });
+      
+      // Refresh data
+      await loadDungeonData();
+      
+      // Reset editing state for this dungeon
+      setEditingDungeon(prev => ({
+        ...prev,
+        [dungeonId]: {
+          ...prev[dungeonId],
+          hasChanges: false
+        }
+      }));
+      
+      alert('Dungeon configuration saved successfully!');
+    } catch (error) {
+      console.error('Error saving dungeon configuration:', error);
+      setError(error.response?.data?.error || 'Failed to save dungeon configuration');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="dungeons-container">
       <h2>Dungeon Grid Management</h2>
@@ -201,37 +344,116 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
           <table className="dungeons-table">
             <thead>
               <tr>
-                <th>Grid ID</th>
-                <th>Template</th>
-                <th>Created</th>
+                <th style={{width: '120px'}}>Grid ID</th>
+                <th style={{width: '150px'}}>Template</th>
+                <th style={{width: '200px'}}>Source Grids</th>
+                <th style={{width: '200px'}}>Add Source Grid</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {dungeonGrids.map(dungeon => (
-                <tr key={dungeon._id}>
-                  <td>{dungeon.gridId}</td>
-                  <td>{dungeon.templateUsed || 'Unknown'}</td>
-                  <td>{new Date(dungeon.createdAt).toLocaleDateString()}</td>
-                  <td className="actions">
-                    <button
-                      onClick={() => resetDungeonGrid(dungeon)}
-                      className="action-button edit"
-                      title="Reset Grid with Template"
-                    >
-                      🔄
-                    </button>
-                    <button
-                      onClick={() => deleteDungeonGrid(dungeon._id)}
-                      className="action-button delete"
-                      disabled={loading}
-                      title="Delete Dungeon"
-                    >
-                      🗑️
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {dungeonGrids.map(dungeon => {
+                const dungeonId = dungeon._id;
+                const frontierData = dungeonData[dungeonId] || {};
+                const editing = editingDungeon[dungeonId] || {};
+                const entranceGrids = editing.entranceGrids || frontierData.entranceGrids || [];
+                
+                return (
+                  <tr key={dungeonId}>
+                    <td className="grid-id-cell">{dungeon.gridId}</td>
+                    <td className="template-cell">
+                      <select
+                        value={editing.templateUsed || frontierData.templateUsed || dungeon.templateUsed || ''}
+                        onChange={(e) => handleTemplateChange(dungeonId, e.target.value)}
+                        disabled={loading}
+                        className="template-select"
+                      >
+                        <option value="">-- Select --</option>
+                        {templates.map(template => (
+                          <option key={template.filename} value={template.filename}>
+                            {template.filename}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="source-grids-cell">
+                      <div className="source-grids-list">
+                        {entranceGrids.length === 0 ? (
+                          <span className="no-sources">None</span>
+                        ) : (
+                          entranceGrids.map((gridId, index) => (
+                            <div key={index} className="source-grid-item">
+                              <span>{gridId}</span>
+                              <button
+                                onClick={() => handleEntranceGridRemove(dungeonId, gridId)}
+                                className="remove-button-mini"
+                                title={`Remove ${gridId}`}
+                              >
+                                ×
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </td>
+                    <td className="add-grid-cell">
+                      <div className="add-grid-container">
+                        <input
+                          type="text"
+                          placeholder="Grid ID"
+                          value={newEntranceGridInput[dungeonId] || ''}
+                          onChange={(e) => setNewEntranceGridInput(prev => ({
+                            ...prev,
+                            [dungeonId]: e.target.value
+                          }))}
+                          className="add-grid-input"
+                          disabled={loading}
+                        />
+                        <button
+                          onClick={() => {
+                            handleEntranceGridAdd(dungeonId, newEntranceGridInput[dungeonId]);
+                            setNewEntranceGridInput(prev => ({
+                              ...prev,
+                              [dungeonId]: ''
+                            }));
+                          }}
+                          className="add-grid-button"
+                          disabled={loading || !newEntranceGridInput[dungeonId]}
+                        >
+                          Add
+                        </button>
+                      </div>
+                    </td>
+                    <td className="actions">
+                      {editing.hasChanges && (
+                        <button
+                          onClick={() => saveDungeonChanges(dungeonId)}
+                          className="action-button save"
+                          disabled={loading}
+                          title="Save Changes"
+                        >
+                          💾
+                        </button>
+                      )}
+                      <button
+                        onClick={() => resetDungeonGrid(dungeon)}
+                        className="action-button edit"
+                        title="Reset Grid with Template"
+                      >
+                        🔄
+                      </button>
+                      <button
+                        onClick={() => deleteDungeonGrid(dungeonId)}
+                        className="action-button delete"
+                        disabled={loading}
+                        title="Delete Dungeon"
+                      >
+                        🗑️
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

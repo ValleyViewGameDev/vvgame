@@ -485,4 +485,59 @@ router.post('/batch-update-pc-positions', async (req, res) => {
   }
 });
 
+// Get all grids that contain a specific resource type
+router.get('/grids-with-resource', async (req, res) => {
+  try {
+    const { resourceType } = req.query;
+    
+    if (!resourceType) {
+      return res.status(400).json({ 
+        error: 'resourceType query parameter is required' 
+      });
+    }
+    
+    // Get all grids
+    const grids = await Grid.find({}, 'gridId gridType resources').lean();
+    
+    // Decode resources to find grids with the specified resource type
+    const masterResources = require('../tuning/resources.json');
+    const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
+    const encoder = new UltraCompactResourceEncoder(masterResources);
+    
+    const gridsWithResource = [];
+    
+    for (const grid of grids) {
+      let hasResource = false;
+      
+      for (const encodedResource of grid.resources || []) {
+        try {
+          const decoded = encoder.decode(encodedResource);
+          if (decoded.type === resourceType) {
+            hasResource = true;
+            break;
+          }
+        } catch (error) {
+          console.error(`Failed to decode resource in grid ${grid.gridId}:`, error);
+        }
+      }
+      
+      if (hasResource) {
+        gridsWithResource.push({
+          _id: grid._id,
+          gridId: grid.gridId,
+          gridType: grid.gridType
+        });
+      }
+    }
+    
+    res.json(gridsWithResource);
+    
+  } catch (error) {
+    console.error('Error finding grids with resource:', error);
+    res.status(500).json({ 
+      error: error.message || 'Failed to find grids with resource' 
+    });
+  }
+});
+
 module.exports = router;

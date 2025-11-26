@@ -168,3 +168,116 @@
   margin: 5px 0;
   color: #1565c0;
 }
+
+/* Table cell specific styling */
+.grid-id-cell {
+  font-family: monospace;
+  font-size: 13px;
+}
+
+.template-cell {
+  padding: 8px 4px !important;
+}
+
+.template-select {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.source-grids-cell {
+  padding: 8px 4px !important;
+}
+
+.source-grids-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.source-grid-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.no-sources {
+  color: #999;
+  font-style: italic;
+  font-size: 13px;
+}
+
+.remove-button-mini {
+  background: none;
+  border: none;
+  color: #f44336;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.remove-button-mini:hover {
+  opacity: 1;
+  font-weight: bold;
+}
+
+.add-grid-cell {
+  padding: 8px 4px !important;
+}
+
+.add-grid-container {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.add-grid-input {
+  flex: 1;
+  padding: 4px 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.add-grid-button {
+  padding: 4px 10px;
+  border: 1px solid #4CAF50;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.add-grid-button:hover:not(:disabled) {
+  background-color: #45a049;
+}
+
+.add-grid-button:disabled {
+  background-color: #ccc;
+  border-color: #ccc;
+  cursor: not-allowed;
+}
+
+.action-button.save {
+  background-color: #4CAF50;
+}
+
+.action-button.save:hover {
+  background-color: #45a049;
+  transform: scale(1.1);
+}

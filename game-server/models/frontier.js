@@ -113,7 +113,8 @@ const FrontierSchema = new mongoose.Schema({
       createdAt: { type: Date, default: Date.now },
       needsReset: { type: Boolean, default: false },
       lastReset: { type: Date, default: Date.now },
-      sourceValleyGrid: { type: String, default: null }
+      sourceValleyGrid: { type: String, default: null },
+      entranceGrids: [{ type: String }] // Array of gridIds that have entrances to this dungeon
     },
     default: {}
   }
