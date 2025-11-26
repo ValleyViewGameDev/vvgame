@@ -485,57 +485,58 @@ router.post('/batch-update-pc-positions', async (req, res) => {
   }
 });
 
-// Get all grids that contain a specific resource type
-router.get('/grids-with-resource', async (req, res) => {
+// Check if a specific grid has a specific resource type
+router.get('/grid-has-resource', async (req, res) => {
   try {
-    const { resourceType } = req.query;
+    const { gridId, resourceType } = req.query;
     
-    if (!resourceType) {
+    if (!gridId || !resourceType) {
       return res.status(400).json({ 
-        error: 'resourceType query parameter is required' 
+        error: 'gridId and resourceType query parameters are required' 
       });
     }
     
-    // Get all grids
-    const grids = await Grid.find({}, 'gridId gridType resources').lean();
+    // Find the specific grid
+    const grid = await Grid.findOne({ 
+      $or: [
+        { _id: gridId },
+        { gridId: gridId }
+      ]
+    }, 'gridId gridType resources').lean();
     
-    // Decode resources to find grids with the specified resource type
+    if (!grid) {
+      return res.json({ hasResource: false, error: 'Grid not found' });
+    }
+    
+    // Decode resources to check for the specified resource type
     const masterResources = require('../tuning/resources.json');
     const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
     const encoder = new UltraCompactResourceEncoder(masterResources);
     
-    const gridsWithResource = [];
+    let hasResource = false;
     
-    for (const grid of grids) {
-      let hasResource = false;
-      
-      for (const encodedResource of grid.resources || []) {
-        try {
-          const decoded = encoder.decode(encodedResource);
-          if (decoded.type === resourceType) {
-            hasResource = true;
-            break;
-          }
-        } catch (error) {
-          console.error(`Failed to decode resource in grid ${grid.gridId}:`, error);
+    for (const encodedResource of grid.resources || []) {
+      try {
+        const decoded = encoder.decode(encodedResource);
+        if (decoded.type === resourceType) {
+          hasResource = true;
+          break;
         }
-      }
-      
-      if (hasResource) {
-        gridsWithResource.push({
-          _id: grid._id,
-          gridId: grid.gridId,
-          gridType: grid.gridType
-        });
+      } catch (error) {
+        console.error(`Failed to decode resource:`, error);
       }
     }
     
-    res.json(gridsWithResource);
+    res.json({ 
+      hasResource, 
+      gridId: grid.gridId,
+      gridType: grid.gridType
+    });
     
   } catch (error) {
-    console.error('Error finding grids with resource:', error);
+    console.error('Error checking grid resource:', error);
     res.status(500).json({ 
-      error: error.message || 'Failed to find grids with resource' 
+      error: error.message || 'Failed to check grid resource' 
     });
   }
 });

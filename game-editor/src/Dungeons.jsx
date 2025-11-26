@@ -80,17 +80,8 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
   };
 
   const loadAvailableEntranceGrids = async () => {
-    try {
-      // Get all grids with Dungeon Entrance resources
-      const response = await axios.get(`${API_BASE}/api/grids-with-resource`, {
-        params: {
-          resourceType: 'Dungeon Entrance'
-        }
-      });
-      setAvailableGridsWithEntrances(response.data);
-    } catch (error) {
-      console.error('Error loading grids with entrances:', error);
-    }
+    // This function is no longer needed since we validate individually
+    setAvailableGridsWithEntrances([]);
   };
 
   const loadTemplates = () => {
