@@ -61,8 +61,17 @@ export async function handleDungeonEntrance(
       
       const dungeonGridId = response.data.dungeonGridId;
       const dungeonEntryPosition = response.data.entryPosition; // Position of Dungeon Exit resource
+      const sourceGrid = response.data.sourceGridId; // Source grid returned from server
       
-      console.log("🎲 Entering dungeon:", dungeonGridId, "at position:", dungeonEntryPosition);
+      console.log("🎲 Entering dungeon:", dungeonGridId, "at position:", dungeonEntryPosition, "from source:", sourceGrid);
+      
+      // Update the current player with the source grid
+      if (setCurrentPlayer) {
+        setCurrentPlayer(prev => ({
+          ...prev,
+          sourceGridBeforeDungeon: sourceGrid
+        }));
+      }
       
       const fromLocation = { ...currentPlayer.location };
       const toLocation = {
@@ -198,6 +207,14 @@ export async function handleDungeonExit(
       strings,
       masterTrophies
     );
+    
+    // Clear the source grid from current player state
+    if (setCurrentPlayer) {
+      setCurrentPlayer(prev => ({
+        ...prev,
+        sourceGridBeforeDungeon: null
+      }));
+    }
     
     // Show success message
     const successMessage = strings?.["10203"] || "You have exited the dungeon";

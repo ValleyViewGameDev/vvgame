@@ -185,26 +185,33 @@ const FrontierMiniMap = ({
           </span>
         )}
         <span className="minimap-title">
-          {isInDungeon 
-            ? (
-              <>
-                Dungeon closes in<br />
-                {(() => {
-                  const countdown = countdowns?.dungeon || '--:--:--';
-                  // Check if less than 1 minute (format is mm:ss or hh:mm:ss)
-                  const parts = countdown.split(':');
-                  const isLessThanOneMinute = parts.length >= 2 && 
-                    (parts.length === 2 || (parts.length === 3 && parts[0] === '00')) &&
-                    parseInt(parts[parts.length - 2]) === 0;
-                  
-                  return (
-                    <span style={{ color: isLessThanOneMinute ? 'red' : 'inherit' }}>
-                      {countdown}
-                    </span>
-                  );
-                })()}
-              </>
-            )
+          {isInDungeon
+            ? (() => {
+                const countdown = countdowns?.dungeon || '--:--:--';
+                let isLessThanOneMinute = false;
+
+                // Parse format: "1d 23h 53m 43s" or "23h 53m 43s" or "53m 43s" or "43s"
+                const days = countdown.match(/(\d+)d/)?.[1] || '0';
+                const hours = countdown.match(/(\d+)h/)?.[1] || '0';
+                const minutes = countdown.match(/(\d+)m/)?.[1] || '0';
+
+                const daysNum = parseInt(days, 10);
+                const hoursNum = parseInt(hours, 10);
+                const minutesNum = parseInt(minutes, 10);
+
+                // Less than 1 minute means: 0 days, 0 hours, 0 minutes
+                isLessThanOneMinute = daysNum === 0 && hoursNum === 0 && minutesNum === 0;
+
+                return (
+                  <span style={{
+                    color: isLessThanOneMinute ? '#a71616ff' : 'inherit',
+                    fontWeight: isLessThanOneMinute ? 'bold' : 'normal'
+                  }}>
+                    Dungeon closes in<br />
+                    {countdown}
+                  </span>
+                );
+              })()
             : (strings && strings[2] ? strings[2] : "Frontier Map")
           }
         </span>

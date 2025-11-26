@@ -954,6 +954,14 @@ const handleRevive = async () => {
 
 // Auto-exit from dungeon when phase changes to resetting
 const handleDungeonAutoExit = async () => {
+  // Prevent multiple simultaneous exit attempts
+  if (isDungeonExitInProgress.current) {
+    console.log("⏸️ Dungeon exit already in progress, skipping duplicate attempt");
+    return;
+  }
+  
+  isDungeonExitInProgress.current = true;
+  
   try {
     console.log("🚨 Auto-exiting dungeon due to reset phase");
     
@@ -964,7 +972,7 @@ const handleDungeonAutoExit = async () => {
     try {
       const { handleDungeonExit } = await import('./GameFeatures/Dungeon/Dungeon');
       await handleDungeonExit(
-        currentPlayer,
+        currentPlayerRef.current,
         setCurrentPlayer,
         setGridId,
         setGrid,
@@ -980,6 +988,7 @@ const handleDungeonAutoExit = async () => {
         transitionFadeControl
       );
       updateStatus("You have been safely returned to the surface as the dungeon resets.");
+      isDungeonExitInProgress.current = false; // Reset flag on success
       return; // Success, exit early
     } catch (exitError) {
       console.warn("⚠️ Normal dungeon exit failed, attempting fallback...", exitError);
@@ -989,7 +998,7 @@ const handleDungeonAutoExit = async () => {
     console.log("📍 Fallback: Teleporting to player's homestead");
     const { handleTransitSignpost } = await import('./GameFeatures/Transit/Transit');
     await handleTransitSignpost(
-      currentPlayer,
+      currentPlayerRef.current,
       "Signpost Home",
       setCurrentPlayer,
       setGridId,
@@ -998,7 +1007,7 @@ const handleDungeonAutoExit = async () => {
       setResources,
       updateStatus,
       activeTileSize,
-      currentPlayer.skills,
+      currentPlayerRef.current.skills,
       closeAllPanels,
       bulkOperationContext,
       masterResources,
@@ -1011,6 +1020,9 @@ const handleDungeonAutoExit = async () => {
   } catch (error) {
     console.error("❌ Error auto-exiting dungeon:", error);
     updateStatus("Error returning to surface. The dungeon will reset when you manually exit.");
+  } finally {
+    // Reset the flag after completion
+    isDungeonExitInProgress.current = false;
   }
 };
 
@@ -1440,8 +1452,12 @@ useEffect(() => {
       }));
       
       // Check if player is in a dungeon and needs to be teleported out
-      if (newDungeonPhase === "resetting" && currentPlayer?.location?.gtype === "dungeon") {
-        console.log("🚨 Player is in dungeon during reset phase - teleporting out!");
+      if (newDungeonPhase === "resetting" && currentPlayerRef.current?.location?.gtype === "dungeon") {
+        console.log("🚨 Player is in dungeon during reset phase - teleporting out!", {
+          timestamp: Date.now(),
+          playerId: currentPlayerRef.current._id,
+          sourceGrid: currentPlayerRef.current.sourceGridBeforeDungeon
+        });
         handleDungeonAutoExit();
       }
       
@@ -1625,6 +1641,16 @@ const zoomOut = () => {
 /////////// HANDLE KEY MOVEMENT /////////////////////////
 
 const localPlayerMoveTimestampRef = useRef(0);
+const currentPlayerRef = useRef(currentPlayer);
+const isDungeonExitInProgress = useRef(false);
+
+// Keep currentPlayerRef updated
+useEffect(() => {
+  currentPlayerRef.current = currentPlayer;
+  if (currentPlayer?.sourceGridBeforeDungeon) {
+    console.log("📍 Player sourceGridBeforeDungeon updated:", currentPlayer.sourceGridBeforeDungeon);
+  }
+}, [currentPlayer]);
 
 useEffect(() => {
   const handleKeyDown = (event) => {

@@ -3000,7 +3000,8 @@ router.post('/enter-dungeon', async (req, res) => {
       entryPosition: {
         x: dungeonExit.x,
         y: dungeonExit.y
-      }
+      },
+      sourceGridId: sourceGridId // Return this so client can update its state
     });
     
   } catch (error) {
