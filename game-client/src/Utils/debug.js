@@ -341,8 +341,6 @@ const handleGetRich = async () => {
       { type: 'Saw', quantity: 10 },
       { type: 'Shovel', quantity: 20 },
       { type: 'Screwdriver', quantity: 30 },
-      { type: 'Hammer', quantity: 40 },
-      { type: 'Bolt', quantity: 50 },
     ];
 
     // Use delta endpoint for batched update, adding target: 'inventory' to each resource
