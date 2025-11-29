@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { handleAttackOnPC } from '../GameFeatures/Combat/Combat';
 import ConversationManager from '../GameFeatures/Relationships/ConversationManager';
 import { getDerivedRange } from '../Utils/worldHelpers';
 import { renderPositions } from '../PlayerMovement';
@@ -79,24 +78,9 @@ const PCComponent = ({
   const handleClick = async (e) => {
     e.stopPropagation();
 
-    // Always call onPCClick to open social panel
+    // Only open social panel - no combat
     if (onPCClick) {
       onPCClick(pc);
-    }
-    
-    // Check if we should also trigger combat
-    const isNotSelf = String(pc.playerId) !== String(currentPlayer._id);
-    const isAttackable = pc.hp > 0 && !pc.iscamping;
-    const isHomestead = currentPlayer?.location?.gtype === 'homestead';
-    const isTown = currentPlayer?.location?.gtype === 'town';
-    
-    if (isNotSelf && isAttackable && !isHomestead && !isTown) {
-      await handleAttackOnPC(
-        pc, // target PC
-        currentPlayer, // attacking player
-        currentPlayer?.location?.g, // gridId
-        TILE_SIZE
-      );
     }
   };
 
@@ -166,23 +150,6 @@ const PCComponent = ({
         />
       )}
       
-      {/* Attack range indicator (red dotted ring) */}
-      {showRangeIndicators && attackRange > 0 && !isInHomestead && (
-        <div
-          className="attack-range player-attackrange"
-          style={{
-            position: 'absolute',
-            left: `${position.x * TILE_SIZE - attackRange * TILE_SIZE + TILE_SIZE / 2}px`,
-            top: `${position.y * TILE_SIZE - attackRange * TILE_SIZE + TILE_SIZE / 2}px`,
-            width: `${attackRange * 2 * TILE_SIZE}px`,
-            height: `${attackRange * 2 * TILE_SIZE}px`,
-            border: '3px dotted rgba(255, 0, 0, 0.4)',
-            borderRadius: '50%',
-            pointerEvents: 'none',
-            zIndex: 11,
-          }}
-        />
-      )}
       
       {/* PC character */}
       <div
@@ -200,7 +167,7 @@ const PCComponent = ({
         justifyContent: 'center',
         zIndex: 16,
         pointerEvents: 'auto',
-        cursor: pc.hp > 25 ? 'crosshair' : 'pointer',
+        cursor: 'pointer',
       }}
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
