@@ -162,15 +162,17 @@ const ManageContentsModal = ({
                       </div>
                     </td>
                     <td>
-                      <div className="shared-buttons">
-                        <button
-                          className={`btn-basic ${actionButtonClass || "btn-danger"} btn-mini`}
-                          onClick={() => handleDiscardWarehouseItem(item)}
-                          disabled={!(warehouseAmounts[item.type] > 0 && warehouseAmounts[item.type] <= item.quantity)}
-                        >
-                          {actionButtonText || strings[188]}
-                        </button>
-                      </div>
+                      {resourceData?.category !== 'special' && (
+                        <div className="shared-buttons">
+                          <button
+                            className={`btn-basic ${actionButtonClass || "btn-danger"} btn-mini`}
+                            onClick={() => handleDiscardWarehouseItem(item)}
+                            disabled={!(warehouseAmounts[item.type] > 0 && warehouseAmounts[item.type] <= item.quantity)}
+                          >
+                            {actionButtonText || strings[188]}
+                          </button>
+                        </div>
+                      )}
                     </td>
                     {handleSecondAction && (
                       <td>

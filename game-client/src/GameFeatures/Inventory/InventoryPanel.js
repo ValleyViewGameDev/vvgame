@@ -209,7 +209,11 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
 
         try {
             if (isAtHome) {
-                const itemsToMove = backpack.filter((item) => item.type !== "Tent" && item.type !== "Boat");
+                // Filter out items with special category
+                const itemsToMove = backpack.filter((item) => {
+                    const resource = masterResources.find(r => r.type === item.type);
+                    return resource?.category !== 'special';
+                });
                 
                 // Calculate total quantity to move
                 const totalToMove = itemsToMove.reduce((sum, item) => sum + item.quantity, 0);
@@ -232,7 +236,11 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                     }
                 });
 
-                const updatedBackpack = backpack.filter((item) => item.type === "Tent" || item.type === "Boat");
+                // Keep items with special category in backpack
+                const updatedBackpack = backpack.filter((item) => {
+                    const resource = masterResources.find(r => r.type === item.type);
+                    return resource?.category === 'special';
+                });
 
                 await axios.post(`${API_BASE}/api/update-inventory`, {
                     playerId: currentPlayer.playerId,
@@ -252,8 +260,11 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
 
                 updateStatus(`Moved all items to warehouse`);
             } else {
-                // When not at home, discard all items except Tent and Boat
-                const itemsToKeep = backpack.filter((item) => item.type === "Tent" || item.type === "Boat");
+                // When not at home, discard all items except those with special category
+                const itemsToKeep = backpack.filter((item) => {
+                    const resource = masterResources.find(r => r.type === item.type);
+                    return resource?.category === 'special';
+                });
                 
                 await axios.post(`${API_BASE}/api/update-inventory`, {
                     playerId: currentPlayer.playerId,
@@ -268,7 +279,7 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                 // Also update parent component's state
                 setBackpack(itemsToKeep);
 
-                updateStatus(`❌ Discarded all items except Tent and Boat`);
+                updateStatus(`❌ Discarded all items except special items`);
             }
         } catch (error) {
             console.error('Error updating inventory:', error);
@@ -599,9 +610,12 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
 
             {showBackpackModal && (() => {
                 const isAtHome = currentPlayer.location.g === currentPlayer.gridId;
-                const nonTentBoatItems = backpack.filter( (item) => item.type !== "Tent" && item.type !== "Boat" );
-                const isAddAllDisabled = isAtHome ? (backpack.length === 0 || nonTentBoatItems.length === 0) : 
-                                        (backpack.length === 0 || nonTentBoatItems.length === 0);
+                const nonSpecialItems = backpack.filter((item) => {
+                    const resource = masterResources.find(r => r.type === item.type);
+                    return resource?.category !== 'special';
+                });
+                const isAddAllDisabled = isAtHome ? (backpack.length === 0 || nonSpecialItems.length === 0) : 
+                                        (backpack.length === 0 || nonSpecialItems.length === 0);
                 return (
                     <div className="modal-overlay">
                         <div className="modal-container modal-large">
@@ -616,11 +630,10 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                             setWarehouseAmounts={setBackpackAmounts}
                             handleAmountChange={handleAmountChange}
                             handleDiscardWarehouseItem={(item) => {
-                                const isTentAtHome = isAtHome && item.type === "Tent";
-                                const isBoatAtHome = isAtHome && item.type === "Boat";
-                                const isTentOrBoatNotHome = !isAtHome && (item.type === "Tent" || item.type === "Boat");
+                                const resource = masterResources.find(r => r.type === item.type);
+                                const isSpecialItem = resource?.category === 'special';
                                 
-                                if (isTentAtHome || isBoatAtHome || isTentOrBoatNotHome || !(backpackAmounts[item.type] > 0 && backpackAmounts[item.type] <= item.quantity)) {
+                                if (isSpecialItem || !(backpackAmounts[item.type] > 0 && backpackAmounts[item.type] <= item.quantity)) {
                                     return;
                                 }
                                 handleMoveItem(item);
