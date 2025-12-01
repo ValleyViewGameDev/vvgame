@@ -7,9 +7,9 @@
         { "item": "Money", "qty": 500 }, 
         { "item": "Gem", "qty": 75 }, 
         { "item": "Wood", "qty": 5 }, 
-        { "item": "Wheat", "qty": 10 }, 
-        { "item": "Carrot", "qty": 10 }, 
-        { "item": "Corn", "qty": 10 }
+        { "item": "Wheat", "qty": 12 }, 
+        { "item": "Carrot", "qty": 12 }, 
+        { "item": "Corn", "qty": 12 }
       ],
       "everyoneRewards": true,
       "neverPurge": true
