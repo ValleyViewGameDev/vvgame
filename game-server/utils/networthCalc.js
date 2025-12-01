@@ -52,6 +52,9 @@ async function calculateNetWorth(player) {
     //console.log(`📦 Adding inventory items to net worth`);
     let inventoryValue = 0; // Track total inventory value separately
     [...(player.inventory || []), ...(player.backpack || [])].forEach(item => {
+        // Skip items with undefined or missing type
+        if (!item.type) return;
+
         const resourceData = masterResources.find(res => res.type === item.type);
         const minPrice = resourceData?.minprice || 0;
         const itemValue = (item.quantity || 0) * minPrice; // Value per item type
@@ -78,6 +81,9 @@ async function calculateNetWorth(player) {
     //console.log(`🎓 Adding skills to net worth`);
     let skillsValue = 0; // Track total skill value separately
     (player.skills || []).forEach(skill => {
+        // Skip skills with undefined or missing type
+        if (!skill.type) return;
+
         const resourceData = masterResources.find(res => res.type === skill.type);
         const minPrice = resourceData?.minprice || 0;
         skillsValue += minPrice; // Increase skillsValue, not totalWorth
@@ -109,19 +115,23 @@ async function getGridStructures(gridId) {
         // ✅ Log full resource details before filtering
         //console.log(`📦 Found ${gridResources.length} resources in grid ${gridId}.`);
 
-        // ✅ Check which resources are failing lookup in masterResources
-        gridResources.forEach(resource => {
-            const resourceData = masterResources.find(res => res.type === resource.type);
-            if (!resourceData) {
-                console.warn(`⚠️ No matching resource data for type: ${resource.type}`);
-            }
-        });
-
-        // ✅ Filter for crafting stations and deco items
+        // ✅ Filter for crafting stations and deco items (skip undefined types)
+        let skippedCount = 0;
         const validStructures = gridResources.filter(resource => {
+            // Skip resources with undefined or missing type
+            if (!resource.type) {
+                skippedCount++;
+                return false;
+            }
+
             const resourceData = masterResources.find(res => res.type === resource.type);
             return resourceData && (resourceData.category === "crafting" || resourceData.category === "deco");
         });
+
+        // Only log once if we skipped any undefined resources
+        if (skippedCount > 0) {
+            console.warn(`⚠️ Skipped ${skippedCount} grid resources with undefined type in grid ${gridId}`);
+        }
 
         // ✅ Log which structures passed the filter
         if (validStructures.length > 0) {
