@@ -4,7 +4,8 @@
   "description": "A basic game server for resource management game",
   "main": "server.js",
   "scripts": {
-    "start": "npx nodemon server.js"
+    "start": "node --max-old-space-size=2048 server.js",
+    "dev": "npx nodemon server.js"
   },
   "dependencies": {
     "axios": "^1.8.1",

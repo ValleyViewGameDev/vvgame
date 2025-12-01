@@ -7,6 +7,11 @@ console.log('📧 Email environment variables at startup:');
 console.log('  ALERT_EMAIL_USERNAME:', process.env.ALERT_EMAIL_USERNAME);
 console.log('  ALERT_EMAIL_RECEIVER:', process.env.ALERT_EMAIL_RECEIVER);
 
+// Memory management
+const { setupMemoryMonitoring, setupMemoryWarnings, cleanupMemoryMaps } = require('./utils/memoryManagement');
+setupMemoryMonitoring();
+setupMemoryWarnings();
+
 // Only run schedulers in production to avoid conflicts with local development
 if (process.env.NODE_ENV === 'production') {
   console.log('🚀 Running in PRODUCTION mode - Schedulers ENABLED');
@@ -86,9 +91,12 @@ app.use((req, res, next) => {
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  maxPoolSize: 50,
+  maxPoolSize: 10, // Reduced from 50 to save memory
   serverSelectionTimeoutMS: 10000,
   socketTimeoutMS: 30000,
+  // Additional memory optimization options
+  bufferCommands: false,
+  autoIndex: false, // Don't build indexes automatically in production
 })
 
 .then(() => {
@@ -109,6 +117,11 @@ mongoose.connect(process.env.MONGODB_URI, {
     });
     app.set('socketio', io); // ✅ Attach io to app so it's accessible in route handlers
     setSocketIO(io);         // ✅ Register globally for non-route modules
+    
+    // Set up periodic memory cleanup for socket.io Maps
+    setInterval(() => {
+      cleanupMemoryMaps(io);
+    }, 10 * 60 * 1000); // Every 10 minutes
     
 ///////// SOCKET EVENTS //////////
 
