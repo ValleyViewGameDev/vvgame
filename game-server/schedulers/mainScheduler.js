@@ -193,5 +193,7 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
   }
 }
 
-// Initialize timers when the server starts
-initializeTimers();
+// ✅ Don't initialize timers immediately - let server.js call this after MongoDB connects
+// initializeTimers();
+
+module.exports = { initializeTimers };

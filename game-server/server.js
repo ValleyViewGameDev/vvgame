@@ -12,10 +12,10 @@ const { setupMemoryMonitoring, setupMemoryWarnings, cleanupMemoryMaps } = requir
 setupMemoryMonitoring();
 setupMemoryWarnings();
 
-// Only run schedulers in production to avoid conflicts with local development
+// Load scheduler modules but don't initialize timers yet (wait for MongoDB connection)
 if (process.env.NODE_ENV === 'production') {
   console.log('🚀 Running in PRODUCTION mode - Schedulers ENABLED');
-  require('./schedulers/mainScheduler');
+  // Schedulers will be initialized after MongoDB connects
   require('./schedulers/electionScheduler');
   require('./schedulers/seasonScheduler');
   require('./schedulers/trainScheduler');
@@ -101,6 +101,13 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 .then(() => {
     console.log("✅ Connected to MongoDB");
+
+    // ✅ Initialize timers after MongoDB connection is established
+    if (process.env.NODE_ENV === 'production') {
+      const { initializeTimers } = require('./schedulers/mainScheduler');
+      initializeTimers();
+      console.log("✅ Timers initialized after MongoDB connection");
+    }
 
     // Create HTTP server and bind it to Express app
     const httpServer = http.createServer(app);
