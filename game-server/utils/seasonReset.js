@@ -15,6 +15,13 @@ async function seasonReset(frontierId, nextSeasonType = null) {
     try {
       const startTime = Date.now();
       console.group("↩️↩️↩️↩️↩️ STARTING seasonReset for frontier: ",frontierId);
+
+      // EMERGENCY BYPASS: Skip season reset to prevent OOM crash
+      // Remove this after fixing the underlying memory issues
+      console.log("⚠️ EMERGENCY: Skipping season reset to prevent OOM crash");
+      console.groupEnd();
+      return;
+
       const frontier = await Frontier.findById(frontierId);
       if (!frontier) return console.error("❌ Frontier not found");
       const settlements = await Settlement.find({ frontierId });
