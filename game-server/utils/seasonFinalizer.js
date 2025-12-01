@@ -10,10 +10,12 @@ const { awardTrophy } = require('./trophyUtils');
 
 async function seasonFinalizer(frontierId, seasonType, seasonNumber) {
   console.group("🗓️🗓️🗓️🗓️🗓️ Starting SEASON FINALIZER for Frontier", frontierId);
- 
+
   try {
-    console.log("📊 Recalculating final net worth...");
-    await updateNetWorthForFrontier(frontierId);
+    // EMERGENCY BYPASS: Skip net worth calculation to prevent server crash
+    // Remove this after deploying the networthCalc.js fix
+    console.log("⚠️ EMERGENCY: Skipping net worth calculation to prevent crash");
+    // await updateNetWorthForFrontier(frontierId);
 
     console.log("📊 Fetching top 3 players by net worth (excluding developers)...");
     // Get all players, then filter out developers
