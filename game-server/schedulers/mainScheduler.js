@@ -44,18 +44,16 @@ async function initializeTimers() {
 }
 
 // 🔁 For each timed feature
-async function scheduleTimedFeature(frontier, featureKey, tuningData) {
+async function scheduleTimedFeature(frontierOrId, featureKey, tuningData) {
   try {
-    // Refresh frontier document to get latest state
-        // Already passed in; no need to re-fetch yet
-    frontier = await Frontier.findById(frontier._id);
-    
+    // Extract frontierId and fetch fresh frontier document
+    const frontierId = frontierOrId._id || frontierOrId;
+    const frontier = await Frontier.findById(frontierId);
+
     if (!frontier || !frontier._id) {
-      console.error(`❌ scheduleTimedFeature: Invalid frontier passed in for ${featureKey}:`, frontier);
+      console.error(`❌ scheduleTimedFeature: Invalid frontier for ${featureKey}:`, frontierId);
       return;
     }
-
-    const frontierId = frontier._id;
     const state = frontier[featureKey] || {};
     const phase = state.phase || tuningData.startPhase;
 
@@ -75,8 +73,8 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
           }
         }
       );
-      // Reschedule with initialized state
-      setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), 30000);
+      // Reschedule with initialized state - pass only ID to avoid memory leak
+      setTimeout(() => scheduleTimedFeature(frontierId, featureKey, tuningData), 30000);
       return;
     }
     const endTime = new Date(state.endTime).getTime();
@@ -100,7 +98,7 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
       
       if (!claimResult) {
         console.log(`⚠️ Another process is already handling ${featureKey} for frontier ${frontierId}`);
-        setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), 30000);
+        setTimeout(() => scheduleTimedFeature(frontierId, featureKey, tuningData), 30000);
         return;
       }
       
@@ -169,8 +167,8 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
         );
         console.log(`   💾 DB Update result: ${JSON.stringify(updateResult)}`);
 
-        // Schedule next check with fresh duration
-        setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), 15000);
+        // Schedule next check - pass only ID to avoid memory leak
+        setTimeout(() => scheduleTimedFeature(frontierId, featureKey, tuningData), 15000);
       } catch (error) {
         // If error occurs, clear the processing flag
         const processingKey = `${featureKey}Processing`;
@@ -184,12 +182,12 @@ async function scheduleTimedFeature(frontier, featureKey, tuningData) {
       // When continuing an existing phase, use remaining time until end
       const delayMs = Math.max(endTime - now, 1000); // Minimum 1 second delay
       console.log(`⏳ Next ${featureKey} check in ${Math.floor(delayMs / 1000)}s`);
-      setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), 15000);
+      setTimeout(() => scheduleTimedFeature(frontierId, featureKey, tuningData), 15000);
     }
   } catch (error) {
     console.error(`❌ Error in scheduleTimedFeature for ${featureKey}:`, error);
-    // Retry after 1 minute on error
-    setTimeout(() => scheduleTimedFeature(frontier, featureKey, tuningData), 60000);
+    // Retry after 1 minute on error - pass only ID to avoid memory leak
+    setTimeout(() => scheduleTimedFeature(frontierId, featureKey, tuningData), 60000);
   }
 }
 
