@@ -364,53 +364,41 @@ router.post('/batch-update-npc-positions', async (req, res) => {
       return res.status(400).json({ error: 'No updates provided.' });
     }
 
-    // Load the grid
-    const grid = await Grid.findById(gridId);
-    if (!grid) {
-      return res.status(404).json({ error: 'Grid not found.' });
-    }
+    // ✅ OPTIMIZED: Build update operations for multiple NPC positions without loading grid
+    const updateOps = {};
+    const lastUpdated = new Date(timestamp || Date.now());
 
-    // Get current NPCs
-    const npcs = new Map(grid.NPCsInGrid || []);
-    let updatedCount = 0;
-    const errors = [];
-
-    // Process each position update
     for (const [npcId, position] of updateEntries) {
       // Validate position has x and y
       if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
-        errors.push(`Invalid position for NPC ${npcId}`);
-        continue;
+        continue; // Skip invalid positions
       }
 
-      // Check if NPC exists
-      const npc = npcs.get(npcId);
-      if (!npc) {
-        errors.push(`NPC ${npcId} not found in grid`);
-        continue;
-      }
-
-      // Update only the position and lastUpdated
-      npc.position = { x: position.x, y: position.y };
-      npc.lastUpdated = new Date(timestamp || Date.now());
-      npcs.set(npcId, npc);
-      updatedCount++;
+      // Build dot-notation path for each NPC's position
+      updateOps[`NPCsInGrid.${npcId}.position`] = { x: position.x, y: position.y };
+      updateOps[`NPCsInGrid.${npcId}.lastUpdated`] = lastUpdated;
     }
 
-    // Only save if we had successful updates
-    if (updatedCount > 0) {
-      grid.NPCsInGrid = npcs;
-      grid.NPCsInGridLastUpdated = new Date(timestamp || Date.now());
-      await grid.save();
-      console.log(`💾 Batch updated ${updatedCount} NPC positions for grid ${gridId}`);
+    // Update grid's global timestamp
+    updateOps.NPCsInGridLastUpdated = lastUpdated;
+
+    // Execute single atomic update for all NPCs
+    const result = await Grid.updateOne(
+      { _id: gridId },
+      { $set: updateOps }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Grid not found.' });
     }
 
-    // Return result with any errors
-    res.status(200).json({ 
-      success: true, 
+    const updatedCount = updateEntries.length;
+    console.log(`💾 Batch updated ${updatedCount} NPC positions for grid ${gridId}`);
+
+    res.status(200).json({
+      success: true,
       updated: updatedCount,
-      total: updateEntries.length,
-      errors: errors.length > 0 ? errors : undefined
+      total: updateEntries.length
     });
 
   } catch (error) {
