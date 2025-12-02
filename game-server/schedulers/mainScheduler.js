@@ -107,7 +107,22 @@ async function scheduleTimedFeature(frontierOrId, featureKey, tuningData) {
         const startTime = new Date();
         const nextEndTime = new Date(Date.now() + durationMs);
 
-        
+        // ✅ For seasons: Update phase to "offSeason" IMMEDIATELY so clients see the modal
+        if (featureKey === "seasons" && nextPhase === "offSeason") {
+          console.log("🕓 Updating phase to offSeason BEFORE running season logic (for client modal)...");
+          await Frontier.updateOne(
+            { _id: frontierId },
+            {
+              $set: {
+                "seasons.phase": "offSeason",
+                "seasons.startTime": startTime,
+                "seasons.endTime": nextEndTime
+              }
+            }
+          );
+          console.log("✅ Phase updated to offSeason - clients should now see modal");
+        }
+
         // Run feature-specific logic
         let extraPayload = {};
         switch (featureKey) {
