@@ -332,6 +332,7 @@ export async function handleTransitSignpost(
     }
 
     // 11) Get the entry position based on the direction traveled
+    // First, try to find the opposite signpost in the destination grid
     let entryPosition;
     const playerId = currentPlayer._id?.toString();
     const gridId = currentPlayer.location?.g;
@@ -341,23 +342,59 @@ export async function handleTransitSignpost(
     console.log("Current player position:", { x: fromX, y: fromY });
     console.log("Direction:", direction);
 
-    if (["E", "W"].includes(direction)) {
-      // Preserve row (Y) when moving left/right
-      entryPosition = {
-        x: direction === "E" ? 0 : 63,
-        y: fromY
-      };
-      console.log("Preserving row (Y) for E/W direction:", entryPosition);
-    } else if (["N", "S"].includes(direction)) {
-      // Preserve column (X) when moving up/down
-      entryPosition = {
-        x: fromX,
-        y: direction === "N" ? 63 : 0
-      };
-      console.log("Preserving column (X) for N/S direction:", entryPosition);
-    } else {
-      // Fallback to existing logic for diagonals and non-cardinal directions
-      entryPosition = getEntryPosition(direction);
+    // Map of opposite directions
+    const oppositeDirections = {
+      NE: 'SW', SW: 'NE',
+      E: 'W', W: 'E',
+      SE: 'NW', NW: 'SE',
+      S: 'N', N: 'S'
+    };
+
+    const oppositeDirection = oppositeDirections[direction];
+    const oppositeSignpostType = `Signpost ${oppositeDirection}`;
+
+    // Try to fetch the opposite signpost position from the destination grid
+    let oppositeSignpostFound = false;
+    try {
+      const gridResourcesResponse = await axios.get(`${API_BASE}/api/load-grid/${targetGrid.gridId}`);
+      const gridResources = gridResourcesResponse.data.resources || [];
+
+      // Look for the opposite signpost in the destination grid
+      const oppositeSignpost = gridResources.find(res => res.type === oppositeSignpostType);
+
+      if (oppositeSignpost && oppositeSignpost.x !== undefined && oppositeSignpost.y !== undefined) {
+        entryPosition = {
+          x: oppositeSignpost.x,
+          y: oppositeSignpost.y
+        };
+        oppositeSignpostFound = true;
+        console.log(`✅ Found opposite signpost ${oppositeSignpostType} at (${entryPosition.x}, ${entryPosition.y})`);
+      }
+    } catch (error) {
+      console.warn("Could not fetch opposite signpost position:", error);
+    }
+
+    // If no opposite signpost found, use position-based logic
+    if (!oppositeSignpostFound) {
+      if (["E", "W"].includes(direction)) {
+        // Preserve row (Y) when moving left/right
+        entryPosition = {
+          x: direction === "E" ? 0 : 63,
+          y: fromY
+        };
+        console.log("No opposite signpost found. Preserving row (Y) for E/W direction:", entryPosition);
+      } else if (["N", "S"].includes(direction)) {
+        // Preserve column (X) when moving up/down
+        entryPosition = {
+          x: fromX,
+          y: direction === "N" ? 63 : 0
+        };
+        console.log("No opposite signpost found. Preserving column (X) for N/S direction:", entryPosition);
+      } else {
+        // Fallback to existing logic for diagonals and non-cardinal directions
+        entryPosition = getEntryPosition(direction);
+        console.log("No opposite signpost found. Using default entry position for diagonal:", entryPosition);
+      }
     }
 
     // 12) Finally, update the player location
