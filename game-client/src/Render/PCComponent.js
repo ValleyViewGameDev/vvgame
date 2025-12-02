@@ -156,8 +156,8 @@ const PCComponent = ({
           className="attack-range player-attack-range"
           style={{
             position: 'absolute',
-            left: `${position.x * TILE_SIZE - attackRange * TILE_SIZE + TILE_SIZE / 2}px`,
-            top: `${position.y * TILE_SIZE - attackRange * TILE_SIZE + TILE_SIZE / 2}px`,
+            left: `${position.x * TILE_SIZE - attackRange * TILE_SIZE + TILE_SIZE / 2 - 3}px`,
+            top: `${position.y * TILE_SIZE - attackRange * TILE_SIZE + TILE_SIZE / 2 - 3}px`,
             width: `${attackRange * 2 * TILE_SIZE}px`,
             height: `${attackRange * 2 * TILE_SIZE}px`,
             border: '3px dotted rgba(255, 0, 0, 0.4)',
