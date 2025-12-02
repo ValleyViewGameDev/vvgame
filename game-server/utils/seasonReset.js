@@ -47,9 +47,18 @@ async function seasonReset(frontierId, nextSeasonType = null) {
 // ✅ STEP 2: Reset All Grids (including towns, valley)
 
       console.log("🏠 STEP 2: Resetting grids: towns and valleys");
-      const totalGrids = await Grid.find({ frontierId }); // ✅ Check ALL grids
-      console.log(`🔁 Found ${totalGrids.length} grids to consider ...`);
+      // ✅ Query ONLY town and valley grids instead of loading all 882 grids
+      const publicGrids = await Grid.find({
+        frontierId,
+        $or: [
+          { gridType: "town" },
+          { gridType: /^valley/ } // Regex for valley*
+        ]
+      }, { _id: 1, gridType: 1 }); // Only load _id and gridType fields
 
+      console.log(`🔁 Found ${publicGrids.length} public grids to reset (towns/valleys only)`);
+
+      // Build gridCoord lookup map from settlements
       const gridIdToCoordMap = {};
       settlements.forEach(settlement => {
         settlement.grids?.flat().forEach(g => {
@@ -58,10 +67,9 @@ async function seasonReset(frontierId, nextSeasonType = null) {
           }
         });
       });
-      for (const grid of totalGrids) {
-        const isPublic = grid.gridType === "town" || grid.gridType.startsWith("valley");
-        if (!isPublic) continue;
 
+      // Reset each public grid
+      for (const grid of publicGrids) {
         try {
           const gridCoord = gridIdToCoordMap[grid._id.toString()];
           console.log(`🔁 Resetting ${grid.gridType} grid (${grid._id}) with gridCoord = (${gridCoord})`);
@@ -74,7 +82,7 @@ async function seasonReset(frontierId, nextSeasonType = null) {
 
       // 🔁 Update the seasonlog
       console.log("Updating seasonlog...");
-      const gridsResetCount = totalGrids.filter(g => g.gridType === "town" || g.gridType.startsWith("valley")).length;
+      const gridsResetCount = publicGrids.length;
       if (currentSeasonNumber !== undefined) {
         const logIndex = frontier.seasonlog?.findIndex(log => log.seasonnumber === currentSeasonNumber);
         if (logIndex !== -1) {
@@ -95,7 +103,11 @@ async function seasonReset(frontierId, nextSeasonType = null) {
         const TileEncoder = require('./TileEncoder');
 
         // Get ALL grids in the frontier (including homesteads, valleys, towns)
-        const allGridsForSeasonalChange = await Grid.find({ frontierId });
+        // ✅ Use projection to only load tiles and gridType fields (not resources, playersInGrid, etc.)
+        const allGridsForSeasonalChange = await Grid.find(
+          { frontierId },
+          { _id: 1, tiles: 1, gridType: 1 }
+        );
         console.log(`🌍 Found ${allGridsForSeasonalChange.length} total grids for seasonal tile changes`);
 
         let tilesModifiedCount = 0;
