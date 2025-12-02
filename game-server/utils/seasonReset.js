@@ -16,12 +16,6 @@ async function seasonReset(frontierId, nextSeasonType = null) {
       const startTime = Date.now();
       console.group("↩️↩️↩️↩️↩️ STARTING seasonReset for frontier: ",frontierId);
 
-      // EMERGENCY BYPASS: Skip season reset to prevent OOM crash
-      // Remove this after fixing the underlying memory issues
-      console.log("⚠️ EMERGENCY: Skipping season reset to prevent OOM crash");
-      console.groupEnd();
-      return;
-
       const frontier = await Frontier.findById(frontierId);
       if (!frontier) return console.error("❌ Frontier not found");
       const settlements = await Settlement.find({ frontierId });
@@ -99,129 +93,129 @@ async function seasonReset(frontierId, nextSeasonType = null) {
       if (nextSeasonType) {
         console.log(`🌨️ STEP 2.5: Applying seasonal tile changes for ${nextSeasonType}...`);
         const TileEncoder = require('./TileEncoder');
-        
-        // Get ALL grids in the frontier (including homesteads)
+
+        // Get ALL grids in the frontier (including homesteads, valleys, towns)
         const allGridsForSeasonalChange = await Grid.find({ frontierId });
         console.log(`🌍 Found ${allGridsForSeasonalChange.length} total grids for seasonal tile changes`);
-        
+
         let tilesModifiedCount = 0;
-        
-        // Process each grid sequentially to avoid race conditions
-        for (const grid of allGridsForSeasonalChange) {
-          try {
-            console.log(`Processing seasonal change for grid ${grid._id} (${grid.gridType})...`);
-            
-            // Decode tiles
-            const tiles = TileEncoder.decode(grid.tiles);
-            let modified = false;
-            
-            if (nextSeasonType === 'Winter' || nextSeasonType === 'winter') {
-              // Convert grass to snow
-              for (let y = 0; y < tiles.length; y++) {
-                for (let x = 0; x < tiles[y].length; x++) {
-                  if (tiles[y][x] === 'g') {
-                    tiles[y][x] = 'o';
-                    modified = true;
-                    tilesModifiedCount++;
+        let gridsModifiedCount = 0;
+        const BATCH_SIZE = 5; // Process 5 grids at a time
+        const BATCH_DELAY_MS = 100; // 100ms delay between batches
+
+        // Determine which tile conversion to apply
+        const isWinter = nextSeasonType === 'Winter' || nextSeasonType === 'winter';
+        const isSpring = nextSeasonType === 'Spring' || nextSeasonType === 'spring';
+        const fromTile = isWinter ? 'g' : isSpring ? 'o' : null;
+        const toTile = isWinter ? 'o' : isSpring ? 'g' : null;
+
+        // Skip if not winter or spring (no tile changes needed)
+        if (!fromTile || !toTile) {
+          console.log(`ℹ️ No tile changes needed for ${nextSeasonType}`);
+        } else {
+          // Process grids in batches to avoid CPU overload
+          for (let i = 0; i < allGridsForSeasonalChange.length; i += BATCH_SIZE) {
+            const batch = allGridsForSeasonalChange.slice(i, i + BATCH_SIZE);
+            const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
+            const totalBatches = Math.ceil(allGridsForSeasonalChange.length / BATCH_SIZE);
+
+            console.log(`🔄 Processing batch ${batchNumber}/${totalBatches} (${batch.length} grids)...`);
+
+            // Process each grid in the batch
+            await Promise.all(batch.map(async (grid) => {
+              try {
+                // Decode tiles
+                const tiles = TileEncoder.decode(grid.tiles);
+                let gridModified = false;
+                let gridTileCount = 0;
+
+                // Optimized: single loop with early termination check
+                for (let y = 0; y < tiles.length; y++) {
+                  for (let x = 0; x < tiles[y].length; x++) {
+                    if (tiles[y][x] === fromTile) {
+                      tiles[y][x] = toTile;
+                      gridModified = true;
+                      gridTileCount++;
+                    }
                   }
                 }
-              }
-              if (modified) {
-                console.log(`❄️ Made it snow on grid ${grid._id} (${grid.gridType})`);
-              }
-            } else if (nextSeasonType === 'Spring' || nextSeasonType === 'spring') {
-              // Convert snow to grass
-              for (let y = 0; y < tiles.length; y++) {
-                for (let x = 0; x < tiles[y].length; x++) {
-                  if (tiles[y][x] === 'o') {
-                    tiles[y][x] = 'g';
-                    modified = true;
-                    tilesModifiedCount++;
-                  }
+
+                // Save if modified
+                if (gridModified) {
+                  const encodedTiles = TileEncoder.encode(tiles);
+                  grid.tiles = encodedTiles;
+                  await grid.save();
+
+                  tilesModifiedCount += gridTileCount;
+                  gridsModifiedCount++;
+
+                  const emoji = isWinter ? '❄️' : '🌱';
+                  const action = isWinter ? 'snow' : 'melt';
+                  console.log(`${emoji} Applied ${action} to grid ${grid._id} (${grid.gridType}): ${gridTileCount} tiles`);
                 }
+              } catch (err) {
+                console.error(`❌ Error applying seasonal change to grid ${grid._id}:`, err.message);
               }
-              if (modified) {
-                console.log(`🌱 Melted snow on grid ${grid._id} (${grid.gridType})`);
-              }
+            }));
+
+            // Delay between batches to prevent CPU overload
+            if (i + BATCH_SIZE < allGridsForSeasonalChange.length) {
+              await new Promise(resolve => setTimeout(resolve, BATCH_DELAY_MS));
             }
-            
-            // Save if modified
-            if (modified) {
-              const encodedTiles = TileEncoder.encode(tiles);
-              grid.tiles = encodedTiles;
-              await grid.save();
-            }
-            
-          } catch (err) {
-            console.error(`❌ Error applying seasonal change to grid ${grid._id}:`, err.message);
           }
-          
-          // Add a small delay between grids to ensure sequential processing
-          await new Promise(resolve => setTimeout(resolve, 10));
+
+          console.log(`✅ Seasonal tile changes complete. Modified ${tilesModifiedCount} tiles across ${gridsModifiedCount}/${allGridsForSeasonalChange.length} grids.`);
         }
-        
-        console.log(`✅ Seasonal tile changes complete. Modified ${tilesModifiedCount} tiles across ${allGridsForSeasonalChange.length} grids.`);
       }
 
  
 // ✅ STEP 3: Reset Gold status
 
       console.log("🔁 STEP 3: Resetting Gold Status...");
-      for (const player of allPlayers) {
+      const goldPlayersResetCount = allPlayers.filter(p => p.accountStatus === "Gold").length;
 
-        // // NOTE: Inventory and Money nerfing has been disabled 
+      if (goldPlayersResetCount > 0) {
+        console.log(`🔄 Resetting ${goldPlayersResetCount} Gold players to Free...`);
 
-        // const isGold = player.accountStatus?.includes("Gold");
-        // const nerf = isGold ? globalTuning.seasonMoneyNerfGold : globalTuning.seasonMoneyNerf;
-        // console.log(`💰 Nerfing player ${player.username} (${player._id}) by ${nerf * 100}%`);
-        // const moneyItem = player.inventory.find((i) => i.type === "Money");
-        // if (moneyItem) {
-        //   moneyItem.quantity = Math.floor(moneyItem.quantity * (1 - nerf));
-        // }
+        // Batch update all Gold players at once
+        const bulkOps = allPlayers
+          .filter(player => player.accountStatus === "Gold")
+          .map(player => ({
+            updateOne: {
+              filter: { _id: player._id },
+              update: { $set: { accountStatus: "Free" } }
+            }
+          }));
 
-        // // Build list of resources to keep based on dynamic criteria
-        // const resourcesToKeep = new Set();
-        
-        // // Keep resources where output==='noBank' AND repeatable===false
-        // masterResources.forEach(resource => {
-        //   if (resource.output === 'noBank' && resource.repeatable === false) {
-        //     resourcesToKeep.add(resource.type);
-        //   }
-        // });
-        
-        // console.log(`Resources to keep during season reset:`, Array.from(resourcesToKeep));
-        
-        // // Wipe inventory except for protected resources
-        // player.inventory = player.inventory.filter(i => resourcesToKeep.has(i.type));
-        // console.log(`Player ${player.username} inventory wiped, keeping protected resources.`);
-        // console.log('Player inventory after wipe:', player.inventory);
-
-        // // Wipe backpack except for protected resources
-        // player.backpack = player.backpack.filter(i => resourcesToKeep.has(i.type));
-        // console.log(`Player ${player.username} backpack wiped, keeping protected resources.`);
-        // console.log('Player backpack after wipe:', player.backpack);
-
-        // // Reset netWorth to null 
-        // player.netWorth = null;
-        
-        // Reset Gold status to Free
-        
-        if (player.accountStatus === "Gold") {
-          player.accountStatus = "Free";
-          console.log(`🔄 Reset player ${player.username} account status from Gold to Free`);
+        if (bulkOps.length > 0) {
+          const result = await Player.bulkWrite(bulkOps);
+          console.log(`✅ Reset ${result.modifiedCount} players from Gold to Free`);
         }
-        
-        await player.save({ overwrite: true });
+      } else {
+        console.log("ℹ️ No Gold players to reset");
       }
 
 // ✅ STEP 4: Wipe active and completed quests
 
       console.log("🔁 STEP 4: Wiping quests...");
-      for (const player of allPlayers) {
-        player.activeQuests = [];
-        player.completedQuests = [];
-        console.log(`🧹 Wiped quests for player ${player.username}`);
-        await player.save();
+      console.log(`🧹 Wiping quests for ${allPlayers.length} players...`);
+
+      // Batch update all players' quests at once
+      const questBulkOps = allPlayers.map(player => ({
+        updateOne: {
+          filter: { _id: player._id },
+          update: {
+            $set: {
+              activeQuests: [],
+              completedQuests: []
+            }
+          }
+        }
+      }));
+
+      if (questBulkOps.length > 0) {
+        const questResult = await Player.bulkWrite(questBulkOps);
+        console.log(`✅ Wiped quests for ${questResult.modifiedCount} players`);
       }
 
       console.log(`⏱️ Total seasonReset (including STEP 7) took ${Date.now() - startTime}ms`);
