@@ -12,10 +12,10 @@ async function seasonFinalizer(frontierId, seasonType, seasonNumber) {
   console.group("🗓️🗓️🗓️🗓️🗓️ Starting SEASON FINALIZER for Frontier", frontierId);
 
   try {
-    // EMERGENCY BYPASS: Skip net worth calculation to prevent server crash
-    // Remove this after deploying the networthCalc.js fix
-    console.log("⚠️ EMERGENCY: Skipping net worth calculation to prevent crash");
-    // await updateNetWorthForFrontier(frontierId);
+    // Calculate net worth for all players before determining winners
+    console.log("💰 Calculating net worth for all players...");
+    await updateNetWorthForFrontier(frontierId);
+    console.log("✅ Net worth calculation complete");
 
     console.log("📊 Fetching top 3 players by net worth (excluding developers)...");
     // Get all players, then filter out developers
