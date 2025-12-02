@@ -110,17 +110,29 @@ async function scheduleTimedFeature(frontierOrId, featureKey, tuningData) {
         // ✅ For seasons: Update phase to "offSeason" IMMEDIATELY so clients see the modal
         if (featureKey === "seasons" && nextPhase === "offSeason") {
           console.log("🕓 Updating phase to offSeason BEFORE running season logic (for client modal)...");
+
+          // Calculate next season type for accurate modal display
+          const seasons = require('../tuning/seasons.json');
+          const currentSeasonType = frontier.seasons?.seasonType || "Spring";
+          const currentIndex = seasons.findIndex(s => s.seasonType === currentSeasonType);
+          const nextSeasonType = currentIndex !== -1
+            ? seasons[(currentIndex + 1) % seasons.length].seasonType
+            : "Spring";
+
+          console.log(`🌸 Transitioning from ${currentSeasonType} to ${nextSeasonType}`);
+
           await Frontier.updateOne(
             { _id: frontierId },
             {
               $set: {
                 "seasons.phase": "offSeason",
                 "seasons.startTime": startTime,
-                "seasons.endTime": nextEndTime
+                "seasons.endTime": nextEndTime,
+                "seasons.seasonType": nextSeasonType // ✅ Update seasonType immediately
               }
             }
           );
-          console.log("✅ Phase updated to offSeason - clients should now see modal");
+          console.log("✅ Phase and seasonType updated - clients should now see correct transition");
         }
 
         // Run feature-specific logic
