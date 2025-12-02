@@ -12,22 +12,14 @@ const seasonsConfig = require('../tuning/seasons.json');
 const UltraCompactResourceEncoder = require('./ResourceEncoder');
 const TileEncoder = require('./TileEncoder');
 
-async function performGridReset(gridId, gridType, gridCoord, seasonTypeOverride = null) {
-  console.log(`🔄 performGridReset called with: gridId=${gridId}, gridType=${gridType}, gridCoord=${gridCoord}, seasonTypeOverride=${seasonTypeOverride}`);
+async function performGridReset(gridId, gridType, gridCoord) {
+  console.log(`🔄 performGridReset called with: gridId=${gridId}, gridType=${gridType}, gridCoord=${gridCoord}`);
 
   const grid = await Grid.findById(gridId);
   if (!grid) throw new Error(`Grid not found: ${gridId}`);
 
-  // Use the explicit seasonTypeOverride if provided, otherwise fetch from DB
-  let seasonType;
-  if (seasonTypeOverride) {
-    seasonType = seasonTypeOverride;
-    console.log(`✅ Using explicit seasonType: ${seasonType}`);
-  } else {
-    const frontier = await Frontier.findById(grid.frontierId);
-    seasonType = frontier?.seasons?.seasonType || 'default';
-    console.log(`📥 Fetched seasonType from DB: ${seasonType}`);
-  }
+  const frontier = await Frontier.findById(grid.frontierId);
+  const seasonType = frontier?.seasons?.seasonType || 'default';
 
   // Load layout
   let layout, layoutFileName, isFixedLayout = false;
