@@ -137,7 +137,7 @@ const FarmingPanel = ({
             {/* Farm Plot Options */}
             {farmPlots.map((item) => {
               const ingredients = getIngredientDetails(item, allResources);
-              const affordable = canAfford(item, inventory, 1);
+              const affordable = canAfford(item, inventory, backpack, 1);
               const requirementsMet = hasRequiredSkill(item.requires);
               const isOffSeason = item.isOffSeason;
 

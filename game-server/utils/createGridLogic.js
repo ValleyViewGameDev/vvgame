@@ -79,15 +79,22 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
     throw new Error(`Invalid layout: ${layoutFileName}`);
   }
 
-  // For town grids, apply seasonTownCrops from seasons.json
+  // For town and homestead grids, apply seasonal crops from seasons.json
   let resourceDistribution = layout.resourceDistribution || {};
-  if (gridType === 'town') {
+  if (gridType === 'town' || gridType === 'homestead') {
     const seasonData = seasonsConfig.find(s => s.seasonType === seasonType);
-    if (seasonData && seasonData.seasonTownCrops) {
-      resourceDistribution = seasonData.seasonTownCrops;
-      console.log(`🌻 Applying seasonTownCrops for ${seasonType} town: ${Object.keys(resourceDistribution).length} resource types`);
+    if (seasonData) {
+      if (gridType === 'town' && seasonData.seasonTownCrops) {
+        resourceDistribution = seasonData.seasonTownCrops;
+        console.log(`🌻 Applying seasonTownCrops for ${seasonType} town: ${Object.keys(resourceDistribution).length} resource types`);
+      } else if (gridType === 'homestead' && seasonData.seasonHomesteadCrops) {
+        resourceDistribution = seasonData.seasonHomesteadCrops;
+        console.log(`🏡 Applying seasonHomesteadCrops for ${seasonType} homestead: ${Object.keys(resourceDistribution).length} resource types`);
+      } else {
+        console.warn(`⚠️ No seasonal crops found for ${gridType} in season: ${seasonType}`);
+      }
     } else {
-      console.warn(`⚠️ No seasonTownCrops found for season: ${seasonType}`);
+      console.warn(`⚠️ No season data found for: ${seasonType}`);
     }
   }
 
@@ -98,6 +105,20 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
           const tile = masterResources.find(r => r.layoutkey === k && r.category === 'tile');
           return tile?.type || 'g';
         }));
+
+  // Apply snow tiles for Winter (convert grass 'g' to snow 'o')
+  if ((gridType === 'homestead' || gridType === 'town') && (seasonType === 'Winter' || seasonType === 'winter')) {
+    let snowTileCount = 0;
+    for (let y = 0; y < newTiles.length; y++) {
+      for (let x = 0; x < newTiles[y].length; x++) {
+        if (newTiles[y][x] === 'g') {
+          newTiles[y][x] = 'o';
+          snowTileCount++;
+        }
+      }
+    }
+    console.log(`❄️ Applied snow to ${snowTileCount} tiles for Winter ${gridType} at ${gridCoord}`);
+  }
 
   const newResources = isFixedLayout
     ? generateFixedResources(layout)

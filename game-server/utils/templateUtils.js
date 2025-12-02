@@ -56,12 +56,12 @@ const getTemplate = (baseDir, type, gridCoord) => {
 
 
 /////////////////////////////////////////////////////////////
-// HOMESTEAD & TOWN LAYOUTS -- always the same 4, based on the season
+// HOMESTEAD & TOWN LAYOUTS
 //
 function getHomesteadLayoutFile(seasonType) {
-  const layoutFileName = `homestead${seasonType}.json`;
-  const layoutPath = path.join(__dirname, '../layouts/gridLayouts/homestead', layoutFileName);
-  return fs.existsSync(layoutPath) ? layoutFileName : 'homestead_default.json';
+  // Always use the single homestead.json template
+  // Seasonal crops and snow tiles are applied dynamically in createGridLogic.js
+  return 'homestead.json';
 }
 // Extract position suffix from settlementType (e.g., "homesteadSetNW" -> "NW")
 function getPositionFromSettlementType(settlementType) {
