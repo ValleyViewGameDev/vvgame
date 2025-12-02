@@ -2663,7 +2663,44 @@ router.post('/exit-dungeon', async (req, res) => {
     // Find the Dungeon Entrance resource position
     const resources = gridResourceManager.getResources(sourceGrid);
     const dungeonEntrance = resources.find(r => r.type === 'Dungeon Entrance');
-    
+
+    // Look up gridCoord from settlement
+    let gridCoord = null;
+    console.log(`🔍 [EXIT-DUNGEON DEBUG] Looking up gridCoord for source grid: ${sourceGridId}`);
+    console.log(`🔍 [EXIT-DUNGEON DEBUG] Source grid settlementId: ${sourceGrid.settlementId}`);
+
+    if (sourceGrid.settlementId) {
+      const Settlement = require('../models/settlement');
+      const settlement = await Settlement.findById(sourceGrid.settlementId);
+      console.log(`🔍 [EXIT-DUNGEON DEBUG] Settlement found: ${settlement ? 'YES' : 'NO'}`);
+      console.log(`🔍 [EXIT-DUNGEON DEBUG] Settlement has grids: ${settlement?.grids ? 'YES' : 'NO'}`);
+
+      if (settlement && settlement.grids) {
+        const flatGrids = settlement.grids.flat();
+        console.log(`🔍 [EXIT-DUNGEON DEBUG] Total grids in settlement: ${flatGrids.length}`);
+
+        const subGrid = flatGrids.find(g => g.gridId?.toString() === sourceGridId.toString());
+        console.log(`🔍 [EXIT-DUNGEON DEBUG] SubGrid found: ${subGrid ? 'YES' : 'NO'}`);
+
+        if (subGrid) {
+          console.log(`🔍 [EXIT-DUNGEON DEBUG] SubGrid data:`, JSON.stringify(subGrid, null, 2));
+          console.log(`🔍 [EXIT-DUNGEON DEBUG] SubGrid.gridCoord: ${subGrid.gridCoord}`);
+          console.log(`🔍 [EXIT-DUNGEON DEBUG] SubGrid.gridCoord type: ${typeof subGrid.gridCoord}`);
+          console.log(`🔍 [EXIT-DUNGEON DEBUG] SubGrid.gridCoord !== undefined: ${subGrid.gridCoord !== undefined}`);
+        }
+
+        if (subGrid && subGrid.gridCoord !== undefined) {
+          gridCoord = subGrid.gridCoord;
+          console.log(`📍 Found gridCoord for source grid: ${gridCoord}`);
+        } else {
+          console.warn(`⚠️ Could not find gridCoord for grid ${sourceGridId} in settlement`);
+          console.warn(`⚠️ SubGrid exists: ${!!subGrid}, has gridCoord: ${subGrid?.gridCoord !== undefined}`);
+        }
+      }
+    } else {
+      console.warn(`⚠️ Source grid has no settlementId!`);
+    }
+
     if (!dungeonEntrance) {
       console.error('❌ No Dungeon Entrance found in source grid:', sourceGridId);
       // Default to center of grid if entrance not found
@@ -2672,17 +2709,18 @@ router.post('/exit-dungeon', async (req, res) => {
         sourceGridId: sourceGridId,
         exitPosition: { x: 32, y: 32 },
         gridType: sourceGrid.gridType,
-        gridCoord: null // Will be determined by client
+        gridCoord: gridCoord,
+        settlementId: sourceGrid.settlementId  // Return the grid's actual settlement
       });
     }
-    
+
     // Clear the source grid from player document
     await Player.findByIdAndUpdate(playerId, {
       $unset: { sourceGridBeforeDungeon: "" }
     });
-    
+
     console.log(`✅ Player ${playerId} exiting dungeon to ${sourceGridId}`);
-    
+
     res.json({
       success: true,
       sourceGridId: sourceGridId,
@@ -2691,7 +2729,8 @@ router.post('/exit-dungeon', async (req, res) => {
         y: dungeonEntrance.y
       },
       gridType: sourceGrid.gridType,
-      gridCoord: null // Will be determined by client based on settlement data
+      gridCoord: gridCoord,
+      settlementId: sourceGrid.settlementId  // Return the grid's actual settlement
     });
     
   } catch (error) {
@@ -2927,6 +2966,69 @@ router.post('/update-dungeon-config', async (req, res) => {
     console.error('Error updating dungeon configuration:', error);
     res.status(500).json({ 
       error: error.message || 'Failed to update dungeon configuration' 
+    });
+  }
+});
+
+// Manual grid reset endpoint (for fixing corrupted grids)
+router.post('/manual-grid-reset', async (req, res) => {
+  try {
+    const { gridId } = req.body;
+
+    if (!gridId) {
+      return res.status(400).json({
+        error: 'gridId is required.'
+      });
+    }
+
+    console.log(`🔧 [MANUAL RESET] Starting manual reset for grid: ${gridId}`);
+
+    // Load the grid
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({
+        error: `Grid ${gridId} not found`
+      });
+    }
+
+    console.log(`📍 [MANUAL RESET] Grid found: type=${grid.gridType}, settlementId=${grid.settlementId}`);
+
+    // Get gridCoord from settlement
+    let gridCoord = null;
+    if (grid.settlementId) {
+      const Settlement = require('../models/settlement');
+      const settlement = await Settlement.findById(grid.settlementId);
+      if (settlement && settlement.grids) {
+        const subGrid = settlement.grids.flat().find(g => g.gridId?.toString() === gridId.toString());
+        if (subGrid) {
+          gridCoord = subGrid.gridCoord;
+          console.log(`📍 [MANUAL RESET] Found gridCoord: ${gridCoord}`);
+        }
+      }
+    }
+
+    if (!gridCoord) {
+      console.warn(`⚠️ [MANUAL RESET] No gridCoord found for grid ${gridId}`);
+    }
+
+    // Use the shared reset logic
+    const { performGridReset } = require('../utils/resetGridLogic');
+    await performGridReset(gridId, grid.gridType, gridCoord);
+
+    console.log(`✅ [MANUAL RESET] Grid ${gridId} reset successfully`);
+
+    res.json({
+      success: true,
+      message: `Grid ${gridId} (${grid.gridType}) has been reset`,
+      gridId: gridId,
+      gridType: grid.gridType,
+      gridCoord: gridCoord
+    });
+
+  } catch (error) {
+    console.error('❌ [MANUAL RESET] Error resetting grid:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to reset grid'
     });
   }
 });

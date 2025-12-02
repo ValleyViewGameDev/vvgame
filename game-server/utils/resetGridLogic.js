@@ -201,20 +201,13 @@ async function performGridReset(gridId, gridType, gridCoord) {
     throw new Error(`Failed to encode tiles: ${error.message}`);
   }
   
-  // Properly clear NPCs to avoid duplicates
-  grid.NPCsInGrid.clear(); // Clear the existing map
-  grid.markModified('NPCsInGrid'); // Mark as modified to ensure MongoDB saves the change
-  
-  // Now add the new NPCs
-  Object.entries(newNPCs).forEach(([key, npc]) => {
-    grid.NPCsInGrid.set(key, npc);
-  });
-  
+  // Replace the entire NPCsInGrid Map to avoid ghost entries from .clear()
+  grid.NPCsInGrid = new Map(Object.entries(newNPCs));
   grid.NPCsInGridLastUpdated = Date.now();
-  grid.markModified('NPCsInGrid'); // Mark as modified again after adding new NPCs
   grid.lastOptimized = new Date(); // Update optimization timestamp
 
-  await grid.save();
+  // Skip validation to handle any pre-existing corrupted NPCs
+  await grid.save({ validateBeforeSave: false });
   console.log(`✅ Grid ${gridId} reset successfully (${gridType})`);
 }
 

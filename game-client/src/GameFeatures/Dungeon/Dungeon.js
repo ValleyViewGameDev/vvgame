@@ -173,15 +173,17 @@ export async function handleDungeonExit(
     
     const sourceGridId = response.data.sourceGridId;
     const exitPosition = response.data.exitPosition; // Position of Dungeon Entrance resource
-    
+    const settlementId = response.data.settlementId; // The settlement that contains the source grid
+
     console.log("🏠 Returning to grid:", sourceGridId, "at position:", exitPosition);
-    
+    console.log("🏠 Using settlementId from server:", settlementId);
+
     const fromLocation = { ...currentPlayer.location };
     const toLocation = {
       x: exitPosition.x,
       y: exitPosition.y,
       g: sourceGridId,
-      s: currentPlayer.settlementId,
+      s: settlementId,  // Use the grid's actual settlement, not player's home settlement
       f: currentPlayer.frontierId,
       gtype: response.data.gridType || "valley",
       gridCoord: response.data.gridCoord // Restore minimap position

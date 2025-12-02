@@ -338,7 +338,8 @@ router.post('/remove-single-npc', async (req, res) => {
     // Optionally update the NPCs lastUpdated timestamp
     grid.NPCsInGridLastUpdated = new Date();
 
-    await grid.save();
+    // Skip validation to allow removal even if other NPCs have invalid data
+    await grid.save({ validateBeforeSave: false });
 
     console.log(`🗑️ Removed NPC ${npcId} from gridId: ${gridId}`);
     res.status(200).json({ success: true });

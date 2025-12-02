@@ -252,15 +252,32 @@ export async function handleTransitSignpost(
     }
 
       // Find the sub-grid doc matching currentGridId
+    console.log(`🔍 [TRANSIT DEBUG] Looking for currentGridId: ${currentGridId} in settlement`);
+    console.log(`🔍 [TRANSIT DEBUG] Settlement has ${settlement.grids.length} rows`);
+    console.log(`🔍 [TRANSIT DEBUG] Total grids in settlement: ${settlement.grids.flat().length}`);
+
     const currentGrid = settlement.grids.flat().find((grid) => grid.gridId === currentGridId);
+
     if (!currentGrid) {
-      console.error("Current grid not found in settlement."); 
-      updateStatus(105); 
+      console.error("❌ Current grid not found in settlement.");
+      console.error(`❌ currentGridId type: ${typeof currentGridId}`);
+      console.error(`❌ currentGridId value: ${currentGridId}`);
+      console.error(`❌ Sample gridIds from settlement:`, settlement.grids.flat().slice(0, 5).map(g => ({
+        gridId: g.gridId,
+        type: typeof g.gridId,
+        match: g.gridId === currentGridId,
+        toString: g.gridId?.toString(),
+        stringMatch: g.gridId?.toString() === currentGridId.toString()
+      })));
+
+      updateStatus(105);
       if (transitionFadeControl?.endTransition) {
         transitionFadeControl.endTransition();
       }
-      return; 
+      return;
     }
+
+    console.log(`✅ [TRANSIT DEBUG] Found current grid in settlement: ${currentGrid.gridId}, type: ${currentGrid.gridType}, gridCoord: ${currentGrid.gridCoord}`);
 
       // 5) Decode the current gridCoord to get gRow/gCol
     if (!currentGrid.gridCoord) {
