@@ -72,8 +72,8 @@ async function seasonReset(frontierId, nextSeasonType = null) {
       for (const grid of publicGrids) {
         try {
           const gridCoord = gridIdToCoordMap[grid._id.toString()];
-          console.log(`🔁 Resetting ${grid.gridType} grid (${grid._id}) with gridCoord = (${gridCoord})`);
-          await performGridReset(grid._id, grid.gridType, gridCoord);
+          console.log(`🔁 Resetting ${grid.gridType} grid (${grid._id}) with gridCoord = (${gridCoord}) for season: ${nextSeasonType}`);
+          await performGridReset(grid._id, grid.gridType, gridCoord, nextSeasonType);
           console.log(`✅ Grid ${grid._id} reset successfully (${grid.gridType})`);
         } catch (err) {
           console.error(`❌ Error resetting grid ${grid._id}:`, err.message);
