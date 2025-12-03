@@ -149,7 +149,7 @@ async function performGridReset(gridId, gridType, gridCoord) {
       const res = masterResources.find(r => r.layoutkey === cell && r.category === 'npc');
       if (!res) return;
       const npcId = new ObjectId();
-      newNPCs[npcId.toString()] = {
+      const npcData = {
         id: npcId.toString(),
         type: res.type,
         position: { x, y },
@@ -163,6 +163,16 @@ async function performGridReset(gridId, gridType, gridCoord) {
         speed: res.speed || 1,
         lastUpdated: 0
       };
+
+      // For spawner NPCs, include essential spawner-specific properties
+      if (res.action === 'spawn') {
+        npcData.action = res.action;
+        npcData.requires = res.requires;
+        npcData.qtycollected = res.qtycollected;
+        npcData.range = res.range;
+      }
+
+      newNPCs[npcId.toString()] = npcData;
     });
   });
 

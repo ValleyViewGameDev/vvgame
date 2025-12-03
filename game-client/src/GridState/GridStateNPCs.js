@@ -438,7 +438,15 @@ class GridStateManager {
         action: npc.action,
         gridId: npc.gridId
       };
-      
+
+      // For spawner NPCs, include spawner-specific properties
+      if (npc.action === 'spawn') {
+        npcData.requires = npc.requires;
+        npcData.qtycollected = npc.qtycollected;
+        npcData.range = npc.range;
+        npcData.nextspawn = npc.nextspawn;
+      }
+
       //console.log(`🐮 Saving NPC ${npcId} to server with state: ${npcData.state}`);
       
       await axios.post(`${API_BASE}/api/save-single-npc`, {
@@ -488,6 +496,13 @@ class GridStateManager {
     if (!NPCsInGrid || !NPCsInGrid.npcs) {
       console.error(`Cannot remove NPC. No NPCsInGrid or NPCs found for gridId: ${gridId}`);
       return;
+    }
+
+    // Clear any pending position updates for this NPC to prevent race condition
+    const gridUpdates = this.pendingPositionUpdates.get(gridId);
+    if (gridUpdates) {
+      gridUpdates.delete(npcId);
+      console.log(`🧹 Cleared pending position update for removed NPC ${npcId}`);
     }
 
     delete NPCsInGrid.npcs[npcId];

@@ -41,8 +41,12 @@ class NPC {
     this.grazeEnd = properties.grazeEnd || null; // this is preserved from NPCsInGrid
     this.lastUpdated = Date.now(); // Initialize lastUpdated
     this.gridId = properties.gridId || gridId; // Use the passed gridId or default to the one in properties
-    // Assign additional properties
-    Object.assign(this, properties);
+
+    // Assign additional properties BUT preserve critical fields that were already set
+    // Remove type, id from properties to prevent overwriting with undefined
+    const { type: _type, id: _id, ...safeProperties } = properties;
+    Object.assign(this, safeProperties);
+
     console.log(`✅ NPC ${this.id} constructed at position (${this.position.x}, ${this.position.y}) with state: ${this.state}`);
   }
 
