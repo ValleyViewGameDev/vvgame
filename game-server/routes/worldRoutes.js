@@ -2970,6 +2970,102 @@ router.post('/update-dungeon-config', async (req, res) => {
   }
 });
 
+// Diagnostic endpoint to find grids with undefined/unknown resources
+router.get('/diagnose-undefined-resources', async (req, res) => {
+  try {
+    console.log('🔍 Starting diagnostic scan for undefined resources...');
+
+    const masterResources = require('../tuning/resources.json');
+    const UltraCompactResourceEncoder = require('../utils/ResourceEncoder');
+    const encoder = new UltraCompactResourceEncoder(masterResources);
+
+    // Get all grids
+    const grids = await Grid.find({}, { _id: 1, gridType: 1, resources: 1, settlementId: 1 }).lean();
+    console.log(`📊 Scanning ${grids.length} grids...`);
+
+    const problematicGrids = [];
+    let totalUndefined = 0;
+    let totalUnknown = 0;
+
+    for (const grid of grids) {
+      if (!grid.resources || !Array.isArray(grid.resources) || grid.resources.length === 0) {
+        continue;
+      }
+
+      const gridProblems = {
+        gridId: grid._id.toString(),
+        gridType: grid.gridType,
+        settlementId: grid.settlementId?.toString(),
+        undefinedResources: [],
+        unknownResources: []
+      };
+
+      for (let i = 0; i < grid.resources.length; i++) {
+        const encodedResource = grid.resources[i];
+
+        try {
+          const decoded = encoder.decode(encodedResource);
+
+          // Check for undefined type
+          if (decoded.type === undefined || decoded.type === null) {
+            gridProblems.undefinedResources.push({
+              index: i,
+              x: decoded.x,
+              y: decoded.y,
+              encoded: encodedResource
+            });
+            totalUndefined++;
+          }
+          // Check for UNKNOWN types
+          else if (decoded.type && decoded.type.startsWith('UNKNOWN_')) {
+            gridProblems.unknownResources.push({
+              index: i,
+              type: decoded.type,
+              x: decoded.x,
+              y: decoded.y,
+              layoutKey: decoded.layoutKey,
+              encoded: encodedResource
+            });
+            totalUnknown++;
+          }
+        } catch (error) {
+          gridProblems.undefinedResources.push({
+            index: i,
+            error: error.message,
+            encoded: encodedResource
+          });
+          totalUndefined++;
+        }
+      }
+
+      if (gridProblems.undefinedResources.length > 0 || gridProblems.unknownResources.length > 0) {
+        problematicGrids.push(gridProblems);
+      }
+    }
+
+    console.log(`✅ Scan complete. Found ${problematicGrids.length} grids with issues.`);
+    console.log(`📊 Total undefined resources: ${totalUndefined}`);
+    console.log(`📊 Total unknown resources: ${totalUnknown}`);
+
+    res.json({
+      success: true,
+      summary: {
+        totalGridsScanned: grids.length,
+        gridsWithProblems: problematicGrids.length,
+        totalUndefinedResources: totalUndefined,
+        totalUnknownResources: totalUnknown
+      },
+      problematicGrids: problematicGrids.slice(0, 50) // Limit to first 50 for response size
+    });
+
+  } catch (error) {
+    console.error('❌ Error during diagnostic scan:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to run diagnostic scan'
+    });
+  }
+});
+
 // Manual grid reset endpoint (for fixing corrupted grids)
 router.post('/manual-grid-reset', async (req, res) => {
   try {
