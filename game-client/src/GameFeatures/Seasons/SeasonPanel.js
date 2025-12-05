@@ -7,9 +7,11 @@ import '../../UI/Modal.css';
 import '../../UI/SharedButtons.css';
 import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 import { useStrings } from '../../UI/StringsContext';
+import { usePanelContext } from '../../UI/PanelContext';
 
 function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
   const strings = useStrings();
+  const { openPanel } = usePanelContext();
   const [countdown, setCountdown] = useState("");
   const [topCitizens, setTopCitizens] = useState([]);
   const [topSettlementName, setTopSettlementName] = useState("");
@@ -300,6 +302,17 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
       ) : (
         <p>{strings[3063]}</p>
       )}
+
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success"
+          onClick={() => openPanel && openPanel('LeaderboardPanel')}
+        >
+          {strings[1140]}
+        </button>
+      </div>
+
+<br></br>
+<br></br>
 
       <div className="shared-buttons">
         <button className="btn-basic btn-success"

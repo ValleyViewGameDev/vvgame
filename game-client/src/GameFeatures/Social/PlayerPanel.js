@@ -8,6 +8,7 @@ import API_BASE from '../../config.js';
 import axios from 'axios';
 import { useStrings } from '../../UI/StringsContext';
 import { getDerivedLevel, getXpForNextLevel } from '../../Utils/playerManagement';
+import HopeQuest from './HopeQuest';
 
 const PlayerPanel = ({
   currentPlayer,
@@ -299,8 +300,6 @@ const PlayerPanel = ({
       )}
 
       <br />
-      <h2>{strings[38]}</h2>
-      <br />
 
       {/* Level Display */}
       <h2>{strings[10150]} {getDerivedLevel(currentPlayer, masterXPLevels)}</h2>
@@ -344,84 +343,14 @@ const PlayerPanel = ({
       </div>
 
       {/* Hope Quest */}
-      <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>{strings[200801]}</h2>
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        gap: '4px',
-        marginBottom: '16px',
-        width: '100%'
-      }}>
-        {(() => {
-          // Dynamically load Oracle recipe items from masterTraders
-          const oracleRecipe = masterTraders?.find(trader => trader.trader === 'Oracle');
-          const oracleItems = [];
-
-          if (oracleRecipe) {
-            // Extract all requires fields from the Oracle recipe
-            for (let i = 1; i <= 7; i++) {
-              const requiresKey = `requires${i}`;
-              const qtyKey = `requires${i}qty`;
-              if (oracleRecipe[requiresKey]) {
-                oracleItems.push({
-                  name: oracleRecipe[requiresKey],
-                  qty: oracleRecipe[qtyKey] || 1
-                });
-              }
-            }
-          }
-
-          // Helper to check if player has enough of the item
-          const hasEnoughItems = (itemName, requiredQty) => {
-            const invItem = inventory?.find(item => item?.type === itemName);
-            const bpItem = backpack?.find(item => item?.type === itemName);
-
-            // Try both 'qty' and 'quantity' for both inventory and backpack
-            const invQty = invItem?.qty || invItem?.quantity || 0;
-            const bpQty = bpItem?.qty || bpItem?.quantity || 0;
-            const totalQty = invQty + bpQty;
-
-            return totalQty >= requiredQty;
-          };
-
-          // Helper to get resource symbol
-          const getSymbol = (itemName) => {
-            const resource = masterResources?.find(r => r.type === itemName);
-            return resource?.symbol || '?';
-          };
-
-          return oracleItems.map((item, index) => {
-            const playerHasItem = hasEnoughItems(item.name, item.qty);
-            const symbol = getSymbol(item.name);
-
-            return (
-              <div key={index} style={{
-                flex: 1,
-                aspectRatio: '1',
-                borderRadius: '4px',
-                backgroundColor: playerHasItem ? '#74ee66' : 'rgb(154, 106, 22)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                position: 'relative',
-                fontSize: '20px'
-              }}>
-                {playerHasItem ? symbol : ''}
-                <div style={{
-                  position: 'absolute',
-                  bottom: '2px',
-                  right: '4px',
-                  fontSize: '10px',
-                  color: 'white',
-                  fontWeight: 'bold'
-                }}>
-                  {item.qty}
-                </div>
-              </div>
-            );
-          });
-        })()}
-      </div>
+      <HopeQuest
+        inventory={inventory}
+        backpack={backpack}
+        masterResources={masterResources}
+        masterTraders={masterTraders}
+        showTitle={true}
+        size="normal"
+      />
 
 
 <br />

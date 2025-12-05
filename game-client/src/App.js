@@ -2226,6 +2226,11 @@ return (
         <div className="header-controls-right">
             <div className="nav-button-wrapper">
               <div className="shared-buttons">
+                <button className="btn-basic btn-header" disabled={!currentPlayer} onClick={() => openPanel('LeaderboardPanel')}>{strings[1140]}</button>
+              </div>
+            </div>
+            <div className="nav-button-wrapper">
+              <div className="shared-buttons">
                 <button className="btn-basic btn-header" disabled={!currentPlayer} onClick={() => setIsChatOpen(prev => !prev)}>{strings[10107]}</button>
               </div>
               {badgeState.chat && <div className="badge-dot" />}
@@ -2429,7 +2434,7 @@ return (
           <span style={{ fontFamily: 'Chewy', fontWeight: 'bold', color: '#358337', textAlign: 'center', display: 'block', fontSize: '18px' }}>
             Hi, {currentPlayer?.icon || '😊'} {currentPlayer?.username || 'Loading...'}
           </span>
-          Level: {getDerivedLevel(currentPlayer, masterXPLevels)}<br />
+          {strings[10150]} {" "} {getDerivedLevel(currentPlayer, masterXPLevels)}<br />
           {strings[10112]} {currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.hp ?? "?" : "?"} / {currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.maxhp ?? "?" : "?"}
         </button>
       </div>
@@ -2989,6 +2994,17 @@ return (
           setCurrentPlayer={setCurrentPlayer}
           setModalContent={setModalContent}
           setIsModalOpen={setIsModalOpen}
+        />
+      )}
+      {activePanel === 'LeaderboardPanel' && (
+        <LeaderboardPanel
+          onClose={closePanel}
+          currentPlayer={currentPlayer}
+          setModalContent={setModalContent}
+          setIsModalOpen={setIsModalOpen}
+          masterResources={masterResources}
+          masterTraders={masterTraders}
+          masterXPLevels={masterXPLevels}
         />
       )}
       {activePanel === 'Courthouse' && (

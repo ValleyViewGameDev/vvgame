@@ -1,0 +1,65 @@
+.leaderboard-title {
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+.leaderboard-container {
+  margin-top: 10px;
+}
+
+.player-card {
+  margin-bottom: 12px;
+  padding: 12px;
+  cursor: default;
+  background-color: #fffbea;
+  border: 4px solid #C9A034;
+  border-radius: 8px;
+}
+
+.player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.player-rank {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.player-info {
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.player-info strong {
+  text-decoration: none;
+  border-bottom: none;
+  margin-left: 6px;
+}
+
+.player-networth {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.player-stats {
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.xp-bar-container {
+  width: 100%;
+  height: 6px;
+  background-color: #2d5a2f;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.xp-bar-fill {
+  height: 100%;
+  background-color: #74ee66;
+  transition: width 0.3s ease;
+}
