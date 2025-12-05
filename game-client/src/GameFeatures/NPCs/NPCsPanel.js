@@ -282,9 +282,10 @@ const NPCPanel = ({
       totalGoals++; // Count valid goals
 
       if (goalAction === "Gain skill with") {
-          // Check if player already has the required skill
+          // Check if player already has the required skill or power
           const playerHasSkill = currentPlayer.skills?.some(skill => skill.type === goalItem);
-          if (playerHasSkill) {
+          const playerHasPower = currentPlayer.powers?.some(power => power.type === goalItem);
+          if (playerHasSkill || playerHasPower) {
               initialProgress[`goal${i}`] = 1; // Pre-mark as completed
               goalsCompleted++;
           } else {

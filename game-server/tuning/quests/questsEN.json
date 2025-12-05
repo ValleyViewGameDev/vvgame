@@ -875,22 +875,8 @@
     "reward": "Cloth",
     "rewardqty": 12,
     "xp": 10,
-    "goal1action": "Buy",
+    "goal1action": "Gain skill with",
     "goal1item": "Scout",
-    "goal1qty": 1
-  },
-  {
-    "index": 60,
-    "title": "Power Begets Glory",
-    "textbody": "What use is a sword if it swings like a reed? Buy Power. Grip it. Wield it. ‘I am the Prince of Wales; and think not, Percy, to share with me in glory any more.’",
-    "symbol": "💂",
-    "repeatable": false,
-    "giver": "Hotspur",
-    "reward": "Daisy",
-    "rewardqty": 15,
-    "xp": 10,
-    "goal1action": "Buy",
-    "goal1item": "Force",
     "goal1qty": 1
   },
   {
@@ -903,7 +889,7 @@
     "reward": "Mushroom",
     "rewardqty": 12,
     "xp": 20,
-    "goal1action": "Buy",
+    "goal1action": "Gain skill with",
     "goal1item": "Flurry",
     "goal1qty": 1
   },
@@ -917,7 +903,7 @@
     "reward": "Sunflower",
     "rewardqty": 10,
     "xp": 30,
-    "goal1action": "Buy",
+    "goal1action": "Gain skill with",
     "goal1item": "Focus",
     "goal1qty": 1
   },
@@ -931,7 +917,7 @@
     "reward": "Scroll",
     "rewardqty": 3,
     "xp": 40,
-    "goal1action": "Buy",
+    "goal1action": "Gain skill with",
     "goal1item": "Fortitude",
     "goal1qty": 1
   },
