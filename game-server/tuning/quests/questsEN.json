@@ -4,7 +4,7 @@
     "title": "Find the Wizard in the Valley",
     "textbody": "“Seek ye out the orb I crafted, now lost within the misty vales. This enchanted sphere holds power immense -- ‘We are such stuff as dreams are made on.’ Bring it swiftly, my magic wanes without its light.”",
     "symbol": "🧙🏻",
-    "ftuestep": 8,
+    "ftuestep": 9,
     "repeatable": false,
     "giver": "Prospero",
     "reward": "Prospero's Orb",
@@ -65,6 +65,7 @@
     "giver": "The Shepherd",
     "reward": "Carrot",
     "rewardqty": 20,
+    "xp": 10,
     "goal1action": "Gain skill with",
     "goal1item": "Grower",
     "goal1qty": 1
@@ -79,6 +80,7 @@
     "giver": "The Shepherd",
     "reward": "Money",
     "rewardqty": 75,
+    "xp": 2,
     "goal1action": "Collect",
     "goal1item": "Wheat",
     "goal1qty": 8,
@@ -94,11 +96,12 @@
     "title": "Wood Master",
     "textbody": "A sturdy axe is friend indeed, and master of the woodland realm thou shalt be. Earn the Axe skill, for ‘nothing will come of nothing’ without knowing the art of the blade. Prove thyself, and fortune follows.",
     "symbol": "👵🏻",
-    "ftuestep": 8,
+    "ftuestep": 7,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Wood",
     "rewardqty": 10,
+    "xp": 10,
     "goal1action": "Gain skill with",
     "goal1item": "Axe",
     "goal1qty": 1
@@ -108,11 +111,12 @@
     "title": "Saw You Not That?",
     "textbody": "Wood, my friend! Logs and branches for hearth and home. Collect wood from the trees, and plenty of it. ‘To business that we love we rise betime, and go to it with delight.’ Bring me two dozen sturdy logs, and you’ll find your purse heavier for your trouble.",
     "symbol": "👵🏻",
-    "ftuestep": 8,
+    "ftuestep": 7,
     "repeatable": true,
     "giver": "The Shepherd",
     "reward": "Money",
     "rewardqty": 50,
+    "xp": 2,
     "goal1action": "Collect",
     "goal1item": "Wood",
     "goal1qty": 24
@@ -122,11 +126,12 @@
     "title": "Mechanics",
     "textbody": "To build or not to build, that is the question -- but without the skill of mechanics, there’s no question at all! Unlock the intricate dance of gears and wheels, and open pathways to wonders untold.",
     "symbol": "👵🏻",
-    "ftuestep": 10,
+    "ftuestep": 9,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Olive",
     "rewardqty": 4,
+    "xp": 15,
     "goal1action": "Gain skill with",
     "goal1item": "Mechanics",
     "goal1qty": 1
@@ -136,11 +141,12 @@
     "title": "Horse Training",
     "textbody": "A steed awaits thy command, but first, mastery is needed. Earn both the Horse and Husbandry skills to care for and ride thy noble mount. ‘A horse! A horse! My kingdom for a horse!’ And yet, you’ll not lose kingdoms, but gain knowledge and reward aplenty.",
     "symbol": "👵🏻",
-    "ftuestep": 10,
+    "ftuestep": 9,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Rosemary",
     "rewardqty": 1,
+    "xp": 5,
     "goal1action": "Gain skill with",
     "goal1item": "Horse",
     "goal1qty": 1
@@ -150,11 +156,12 @@
     "title": "Backpack",
     "textbody": "If adventure calls thee forth, thou shalt need to shoulder thine own burdens with grace. Master the skill of crafting a sturdy backpack, and wherever thy path may lead, it shall enable the ferry of goods from there to here.",
     "symbol": "👵🏻",
-    "ftuestep": 10,
+    "ftuestep": 9,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Money",
     "rewardqty": 150,
+    "xp": 5,
     "goal1action": "Gain skill with",
     "goal1item": "Backpack",
     "goal1qty": 1
@@ -168,6 +175,7 @@
     "giver": "The Shepherd",
     "reward": "Lumber",
     "rewardqty": 10,
+    "xp": 10,
     "goal1action": "Build",
     "goal1item": "Lumber Yard",
     "goal1qty": 1
@@ -181,6 +189,7 @@
     "giver": "The Shepherd",
     "reward": "Money",
     "rewardqty": 100,
+    "xp": 15,
     "goal1action": "Gain skill with",
     "goal1item": "Masonry",
     "goal1qty": 1
@@ -194,6 +203,7 @@
     "giver": "The Shepherd",
     "reward": "Money",
     "rewardqty": 500,
+    "xp": 3,
     "goal1action": "Collect",
     "goal1item": "Strawberry",
     "goal1qty": 20,
@@ -209,11 +219,12 @@
     "title": "The Gentle Art",
     "textbody": "A good shepherd knows his flock. Study well the skill of Husbandry, for to nurture life is to weave harmony betwixt land and creature.",
     "symbol": "👵🏻",
-    "ftuestep": 7,
+    "ftuestep": 9,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Sugarcane",
     "rewardqty": 6,
+    "xp": 5,
     "goal1action": "Gain skill with",
     "goal1item": "Husbandry",
     "goal1qty": 1
@@ -223,7 +234,7 @@
     "title": "Bovine Bliss",
     "textbody": "I prithee, find me a cow of gentle temperament, whose milk will flow as plentifully as kindness. A well-kept cow shall be both friend and feast.",
     "symbol": "👵🏻",
-    "ftuestep": 7,
+    "ftuestep": 9,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Milk",
@@ -256,6 +267,7 @@
     "giver": "The Shepherd",
     "reward": "Money",
     "rewardqty": 20,
+    "xp": 2,
     "goal1action": "Collect",
     "goal1item": "Milk",
     "goal1qty": 30
@@ -265,11 +277,12 @@
     "title": "Hire Rancher",
     "textbody": "Hire the rancher to help harvest your animals faster.",
     "symbol": "👵🏻",
-    "ftuestep": 10,
+    "ftuestep": 9,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Apple",
     "rewardqty": 6,
+    "xp": 10,
     "goal1action": "Craft",
     "goal1item": "Rancher",
     "goal1qty": 1
@@ -280,11 +293,12 @@
     "textbody": "Build a sturdy mill, for from grain comes bread, and from bread comes strength. And as the millstone turns, so do the wheels of fortune. Construct it, friend, and prosper.",
     "symbol": "👵🏻",
     "level": 1,
-    "ftuestep": 10,
+    "ftuestep": 9,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Flour",
     "rewardqty": 8,
+    "xp": 10,
     "goal1action": "Build",
     "goal1item": "Mill",
     "goal1qty": 1
@@ -295,11 +309,12 @@
     "textbody": "This blessed plot, this earth, this realm -- needs chickens! Construct a coop to shelter feathered friends who greet the dawn with golden eggs.",
     "symbol": "👵🏻",
     "level": 2,
-    "ftuestep": 10,
+    "ftuestep": 9,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Chicken Feed",
     "rewardqty": 6,
+    "xp": 15,
     "goal1action": "Build",
     "goal1item": "Chicken Coop",
     "goal1qty": 1
@@ -310,11 +325,12 @@
     "textbody": "Houses built upon sand crumble swiftly; learn the ways of the Builder. ‘Upon what ground may one build greatness if not stone?'",
     "symbol": "👵🏻",
     "level": 2,
-    "ftuestep": 10,
+    "ftuestep": 9,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Honey",
     "rewardqty": 6,
+    "xp": 15,
     "goal1action": "Gain skill with",
     "goal1item": "Builder",
     "goal1qty": 1
@@ -325,11 +341,12 @@
     "textbody": "They say the mason shapes the earth’s very bones. Master Masonry, and you shall carve your legacy from the silent strength of stone itself.",
     "symbol": "👵🏻",
     "level": 2,
-    "ftuestep": 10,
+    "ftuestep": 9,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Tulip",
     "rewardqty": 2,
+    "xp": 20,
     "goal1action": "Gain skill with",
     "goal1item": "Masonry",
     "goal1qty": 1
@@ -340,11 +357,12 @@
     "textbody": "The vine knows not why it ferments, yet still it yields wine. If you seek the secrets of fermentation and the transformation of fruit to spirit, learn the ways of Chemistry. It is the root of Winemaking and many wonders besides.",
     "symbol": "👵🏻",
     "level": 2,
-    "ftuestep": 10,
+    "ftuestep": 9,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Scroll",
     "rewardqty": 2,
+    "xp": 20,
     "goal1action": "Gain skill with",
     "goal1item": "Chemistry",
     "goal1qty": 1
@@ -355,11 +373,12 @@
     "textbody": "They say good wine is a symphony of time and care. If your hands are steady and your vats clean, take up the skill of Winemaker. The first bottle you craft should be shared with friends… the second, perhaps with a Queen.",
     "symbol": "👵🏻",
     "level": 5,
-    "ftuestep": 10,
+    "ftuestep": 9,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Grapes",
     "rewardqty": 24,
+    "xp": 30,
     "goal1action": "Gain skill with",
     "goal1item": "Winemaker",
     "goal1qty": 1
@@ -370,7 +389,7 @@
     "textbody": "If your hens are to lay, their bellies must be full. Grind the wheat, mix the mash, and make Chicken Feed. You’ll find the rhythm of a farm in the smallest of chores.",
     "symbol": "👵🏻",
     "level": 2,
-    "ftuestep": 10,
+    "ftuestep": 9,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Money",
@@ -384,11 +403,12 @@
     "title": "Dairy to Dream",
     "textbody": "Every village needs its cream, its butter, its cheese. Build a Dairy, and let the churn begin. In milk, there is promise. In butter, celebration.",
     "symbol": "🧑🏻‍🍳",
-    "ftuestep": 6,
+    "ftuestep": 9,
     "repeatable": false,
     "giver": "Mistress Quickly",
     "reward": "Butter",
     "rewardqty": 6,
+    "xp": 15,
     "goal1action": "Build",
     "goal1item": "Dairy",
     "goal1qty": 1
@@ -398,11 +418,12 @@
     "title": "Dairy Delights",
     "textbody": "“My kingdom for a cheese!” Bring forth Butter, Cream, and Cheese in abundance. I shall teach you their ways -- and with them, the path to richer fare. Let no curdle be wasted!",
     "symbol": "🧑🏻‍🍳",
-    "ftuestep": 6,
-    "repeatable": false,
+    "ftuestep": 9,
+    "repeatable": true,
     "giver": "Mistress Quickly",
     "reward": "Money",
-    "rewardqty": 1000,
+    "rewardqty": 150,
+    "xp": 15,
     "goal1action": "Craft",
     "goal1item": "Butter",
     "goal1qty": 8,
@@ -422,7 +443,7 @@
     "repeatable": false,
     "giver": "Mistress Quickly",
     "reward": "Bread",
-    "rewardqty": 4,
+    "rewardqty": 15,
     "goal1action": "Build",
     "goal1item": "Oven",
     "goal1qty": 1
@@ -438,7 +459,8 @@
     "rel": "friend",
     "relscore": 50,
     "reward": "Money",
-    "rewardqty": 1000,
+    "rewardqty": 200,
+    "xp": 10,
     "goal1action": "Craft",
     "goal1item": "Bread",
     "goal1qty": 12,
@@ -452,12 +474,13 @@
     "textbody": "I’ve promised Hotspur some pies, and I cannot go back on my word. Apple for his wife, strawberry for his son -- bake them well and bake them proud. A flaky crust opens many doors.",
     "symbol": "🧑🏻‍🍳",
     "level": 2,
-    "repeatable": false,
+    "repeatable": true,
     "giver": "Mistress Quickly",
     "rel": "friend",
     "relscore": 50,
     "reward": "Money",
-    "rewardqty": 1000,
+    "rewardqty": 200,
+    "xp": 10,
     "goal1action": "Craft",
     "goal1item": "Applie Pie",
     "goal1qty": 10,
@@ -477,6 +500,7 @@
     "relscore": 50,
     "reward": "Rosemary",
     "rewardqty": 1,
+    "xp": 2,
     "goal1action": "Craft",
     "goal1item": "Cheese",
     "goal1qty": 30
@@ -493,6 +517,7 @@
     "relscore": 70,
     "reward": "Blueberry",
     "rewardqty": 10,
+    "xp": 5,
     "goal1action": "Craft",
     "goal1item": "Lemon Cookie",
     "goal1qty": 24
@@ -507,6 +532,7 @@
     "giver": "Mistress Quickly",
     "reward": "Daisy",
     "rewardqty": 6,
+    "xp": 20,
     "goal1action": "Build",
     "goal1item": "Kitchen",
     "goal1qty": 1
@@ -521,6 +547,7 @@
     "giver": "Mistress Quickly",
     "reward": "Money",
     "rewardqty": 100,
+    "xp": 15,
     "goal1action": "Gain skill with",
     "goal1item": "Cooking",
     "goal1qty": 1
@@ -537,6 +564,7 @@
     "relscore": 90,
     "reward": "Sunflower",
     "rewardqty": 3,
+    "xp": 3,
     "goal1action": "Craft",
     "goal1item": "Omelette",
     "goal1qty": 24
@@ -551,6 +579,7 @@
     "giver": "Mistress Quickly",
     "reward": "Money",
     "rewardqty": 1000,
+    "xp": 30,
     "goal1action": "Craft",
     "goal1item": "Pizza",
     "goal1qty": 8,
@@ -570,6 +599,7 @@
     "giver": "Helena",
     "reward": "Ink",
     "rewardqty": 1,
+    "xp": 15,
     "goal1action": "Build",
     "goal1item": "Beehive",
     "goal1qty": 1
@@ -583,6 +613,7 @@
     "giver": "Helena",
     "reward": "Money",
     "rewardqty": 1000,
+    "xp": 3,
     "goal1action": "Collect",
     "goal1item": "Rosemary",
     "goal1qty": 75
@@ -597,6 +628,7 @@
     "giver": "Helena",
     "reward": "Golden Key",
     "rewardqty": 1,
+    "xp": 15,
     "goal1action": "Collect",
     "goal1item": "Feverfew",
     "goal1qty": 50
@@ -611,6 +643,7 @@
     "giver": "Helena",
     "reward": "Money",
     "rewardqty": 1000,
+    "xp": 2,
     "goal1action": "Collect",
     "goal1item": "Tulip",
     "goal1qty": 50
@@ -625,6 +658,7 @@
     "giver": "Helena",
     "reward": "Money",
     "rewardqty": 1000,
+    "xp": 2,
     "goal1action": "Collect",
     "goal1item": "Mushroom",
     "goal1qty": 50
@@ -638,6 +672,7 @@
     "giver": "Feste",
     "reward": "Thread",
     "rewardqty": 6,
+    "xp": 15,
     "goal1action": "Build",
     "goal1item": "Loom",
     "goal1qty": 1
@@ -651,6 +686,7 @@
     "giver": "Feste",
     "reward": "Money",
     "rewardqty": 1000,
+    "xp": 20,
     "goal1action": "Build",
     "goal1item": "Studio",
     "goal1qty": 1
@@ -665,6 +701,7 @@
     "giver": "Feste",
     "reward": "Money",
     "rewardqty": 1000,
+    "xp": 3,
     "goal1action": "Craft",
     "goal1item": "Cloth",
     "goal1qty": 12
@@ -679,6 +716,7 @@
     "giver": "Feste",
     "reward": "Money",
     "rewardqty": 10000,
+    "xp": 3,
     "goal1action": "Craft",
     "goal1item": "Ink",
     "goal1qty": 30
@@ -693,6 +731,7 @@
     "giver": "Feste",
     "reward": "Ink",
     "rewardqty": 12,
+    "xp": 25,
     "goal1action": "Gain skill with",
     "goal1item": "Textiles",
     "goal1qty": 1
@@ -708,6 +747,7 @@
     "rel": "friend",
     "reward": "Mushroom",
     "rewardqty": 1,
+    "xp": 2,
     "goal1action": "Craft",
     "goal1item": "Pottery",
     "goal1qty": 30
@@ -722,6 +762,7 @@
     "giver": "Feste",
     "reward": "Wood",
     "rewardqty": 20,
+    "xp": 3,
     "goal1action": "Craft",
     "goal1item": "Carved Statue",
     "goal1qty": 10
@@ -738,6 +779,7 @@
     "relscore": 70,
     "reward": "Money",
     "rewardqty": 1000,
+    "xp": 25,
     "goal1action": "Gain skill with",
     "goal1item": "Artistry",
     "goal1qty": 1
@@ -752,6 +794,7 @@
     "giver": "Feste",
     "reward": "Lumber",
     "rewardqty": 6,
+    "xp": 3,
     "goal1action": "Craft",
     "goal1item": "Jacket",
     "goal1qty": 6,
@@ -769,6 +812,7 @@
     "giver": "Feste",
     "reward": "Money",
     "rewardqty": 1000,
+    "xp": 25,
     "goal1action": "Gain skill with",
     "goal1item": "Tailor",
     "goal1qty": 1
@@ -783,7 +827,8 @@
     "giver": "Feste",
     "rel": "love",
     "reward": "Money",
-    "rewardqty": 10000,
+    "rewardqty": 5000,
+    "xp": 3,
     "goal1action": "Craft",
     "goal1item": "Sweater",
     "goal1qty": 12,
@@ -801,6 +846,7 @@
     "giver": "Feste",
     "reward": "Money",
     "rewardqty": 10000,
+    "xp": 10,
     "goal1action": "Craft",
     "goal1item": "Urns",
     "goal1qty": 20
@@ -814,6 +860,7 @@
     "giver": "Hotspur",
     "reward": "Pelt",
     "rewardqty": 15,
+    "xp": 10,
     "goal1action": "Gain skill with",
     "goal1item": "Combat",
     "goal1qty": 1
@@ -827,6 +874,7 @@
     "giver": "Hotspur",
     "reward": "Cloth",
     "rewardqty": 12,
+    "xp": 10,
     "goal1action": "Buy",
     "goal1item": "Scout",
     "goal1qty": 1
@@ -840,6 +888,7 @@
     "giver": "Hotspur",
     "reward": "Daisy",
     "rewardqty": 15,
+    "xp": 10,
     "goal1action": "Buy",
     "goal1item": "Force",
     "goal1qty": 1
@@ -853,6 +902,7 @@
     "giver": "Hotspur",
     "reward": "Mushroom",
     "rewardqty": 12,
+    "xp": 20,
     "goal1action": "Buy",
     "goal1item": "Flurry",
     "goal1qty": 1
@@ -866,6 +916,7 @@
     "giver": "Hotspur",
     "reward": "Sunflower",
     "rewardqty": 10,
+    "xp": 30,
     "goal1action": "Buy",
     "goal1item": "Focus",
     "goal1qty": 1
@@ -879,6 +930,7 @@
     "giver": "Hotspur",
     "reward": "Scroll",
     "rewardqty": 3,
+    "xp": 40,
     "goal1action": "Buy",
     "goal1item": "Fortitude",
     "goal1qty": 1
@@ -892,6 +944,7 @@
     "giver": "Cassio",
     "reward": "Rosemary",
     "rewardqty": 5,
+    "xp": 1,
     "goal1action": "Kill",
     "goal1item": "Coyote",
     "goal1qty": 10
@@ -906,6 +959,7 @@
     "rel": "friend",
     "reward": "Mushroom",
     "rewardqty": 5,
+    "xp": 1,
     "goal1action": "Sell",
     "goal1item": "Pelts",
     "goal1qty": 5
@@ -920,6 +974,7 @@
     "rel": "friend",
     "reward": "Book",
     "rewardqty": 1,
+    "xp": 2,
     "goal1action": "Kill",
     "goal1item": "Bear",
     "goal1qty": 10
@@ -935,6 +990,7 @@
     "relscore": 70,
     "reward": "Skeleton Key",
     "rewardqty": 1,
+    "xp": 40,
     "goal1action": "Kill",
     "goal1item": "Duke Angelo",
     "goal1qty": 1
@@ -949,6 +1005,7 @@
     "rel": "friend",
     "reward": "Book",
     "rewardqty": 1,
+    "xp": 2,
     "goal1action": "Kill",
     "goal1item": "Spider",
     "goal1qty": 15
@@ -962,6 +1019,7 @@
     "giver": "Titania",
     "reward": "Book",
     "rewardqty": 1,
+    "xp": 2,
     "goal1action": "Kill",
     "goal1item": "Ghost",
     "goal1qty": 5
@@ -975,6 +1033,7 @@
     "giver": "Titania",
     "reward": "Book",
     "rewardqty": 1,
+    "xp": 3,
     "goal1action": "Kill",
     "goal1item": "Ogre",
     "goal1qty": 10
@@ -989,6 +1048,7 @@
     "rel": "married",
     "reward": "Gem",
     "rewardqty": 50,
+    "xp": 20,
     "goal1action": "Collect",
     "goal1item": "Golden Key",
     "goal1qty": 1
@@ -1003,6 +1063,7 @@
     "rel": "friend",
     "reward": "Gem",
     "rewardqty": 15,
+    "xp": 20,
     "goal1action": "Buy",
     "goal1item": "Unbreakable",
     "goal1qty": 1
@@ -1017,6 +1078,7 @@
     "rel": "friend",
     "reward": "Gem",
     "rewardqty": 5,
+    "xp": 20,
     "goal1action": "Buy",
     "goal1item": "Pinpoint",
     "goal1qty": 1
@@ -1031,6 +1093,7 @@
     "rel": "love",
     "reward": "Book",
     "rewardqty": 3,
+    "xp": 3,
     "goal1action": "Kill",
     "goal1item": "Demon",
     "goal1qty": 10
@@ -1045,6 +1108,7 @@
     "rel": "love",
     "reward": "Book",
     "rewardqty": 1,
+    "xp": 5,
     "goal1action": "Kill",
     "goal1item": "Dragon",
     "goal1qty": 1
@@ -1058,6 +1122,7 @@
     "giver": "Portia",
     "reward": "Gem",
     "rewardqty": 1,
+    "xp": 10,
     "goal1action": "Gain skill with",
     "goal1item": "Politics",
     "goal1qty": 1
@@ -1071,6 +1136,7 @@
     "giver": "Portia",
     "reward": "Money",
     "rewardqty": 10000,
+    "xp": 40,
     "goal1action": "Vote",
     "goal1item": "Election",
     "goal1qty": 1
@@ -1084,6 +1150,7 @@
     "giver": "Portia",
     "reward": "Gem",
     "rewardqty": 2,
+    "xp": 20,
     "goal1action": "Gain skill with",
     "goal1item": "Education",
     "goal1qty": 1
@@ -1097,6 +1164,7 @@
     "giver": "Portia",
     "reward": "Gem",
     "rewardqty": 3,
+    "xp": 30,
     "goal1action": "Gain skill with",
     "goal1item": "Law",
     "goal1qty": 1
@@ -1110,6 +1178,7 @@
     "giver": "Portia",
     "reward": "Gem",
     "rewardqty": 2,
+    "xp": 40,
     "goal1action": "Gain skill with",
     "goal1item": "Medicine",
     "goal1qty": 1
@@ -1123,6 +1192,7 @@
     "giver": "Portia",
     "reward": "Gem",
     "rewardqty": 3,
+    "xp": 50,
     "goal1action": "Gain skill with",
     "goal1item": "Surgery",
     "goal1qty": 1
@@ -1136,6 +1206,7 @@
     "giver": "Portia",
     "reward": "Gem",
     "rewardqty": 2,
+    "xp": 25,
     "goal1action": "Build",
     "goal1item": "School",
     "goal1qty": 1
@@ -1149,6 +1220,7 @@
     "giver": "Portia",
     "reward": "Book",
     "rewardqty": 2,
+    "xp": 25,
     "goal1action": "Build",
     "goal1item": "Library",
     "goal1qty": 3
@@ -1162,6 +1234,7 @@
     "giver": "Portia",
     "reward": "Gem",
     "rewardqty": 2,
+    "xp": 25,
     "goal1action": "Build",
     "goal1item": "Hospital",
     "goal1qty": 1
@@ -1175,6 +1248,7 @@
     "giver": "Portia",
     "reward": "Feverfew",
     "rewardqty": 10,
+    "xp": 20,
     "goal1action": "Craft",
     "goal1item": "Doctor",
     "goal1qty": 5
@@ -1190,6 +1264,7 @@
     "relscore": 95,
     "reward": "Portia's Secret",
     "rewardqty": 1,
+    "xp": 50,
     "goal1action": "Craft",
     "goal1item": "Furniture",
     "goal1qty": 200
@@ -1203,6 +1278,7 @@
     "giver": "Vampire",
     "reward": "Vampire's Blood",
     "rewardqty": 1,
+    "xp": 5,
     "goal1action": "Kill",
     "goal1item": "Zombie",
     "goal1qty": 25

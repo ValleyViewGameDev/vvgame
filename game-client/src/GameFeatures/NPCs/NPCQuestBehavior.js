@@ -28,8 +28,8 @@ async function handleQuestGiverBehavior(gridId) {
     }
 
     // Check if this NPC is within any PC's range
-    const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
-        calculateDistance(pc.position, this.position) <= (pc.range || 3) && pc.hp > 0
+    const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc =>
+        calculateDistance(pc.position, this.position) <= (this.range || 3) && pc.hp > 0
     );
     
     if (pcsInRange) {

@@ -46,29 +46,21 @@
     },
     {
       "step": 7,
-      "titleKey": 729,
-      "bodyKey": 730,
-      "image": "ftue-cow.png",
-      "continue": false,
-      "notificationKey": 7007
-    },
-    {
-      "step": 8,
       "titleKey": 731,
       "bodyKey": 732,
       "image": "ftue-tools.png",
+      "continue": false
+    },
+    {
+      "step": 8,
+      "titleKey": 733,
+      "bodyKey": 734,
+      "image": "ftue-axe.png",
       "continue": false,
       "notificationKey": 7009
     },
     {
       "step": 9,
-      "titleKey": 733,
-      "bodyKey": 734,
-      "image": "ftue-axe.png",
-      "continue": false
-    },
-    {
-      "step": 10,
       "titleKey": 737,
       "bodyKey": 738,
       "image": "ftue-exploring.png",

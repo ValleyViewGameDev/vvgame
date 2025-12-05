@@ -227,45 +227,31 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
 //////////// FTUE STEP 7 /////////////
 
       } else if (currentStep === 7 && openPanel) {
-        console.log(`🎓 Processing FTUE step 7 - Adding quests 18 and 19`);
+        console.log(`🎓 Processing FTUE step 7 - Adding shepherd and axe quests`);
         
         // Auto-accept quests 18 and 19
         const playerAfterQuest18 = await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 18);
         await addAcceptedQuest(currentPlayer.playerId, playerAfterQuest18, setCurrentPlayer, 19);
-        
-        onClose(); // Close FTUE modal first
-        
-        // Auto-open the Skills panel
-        if (openPanel) {
-          console.log(`🎓 Step 7: Opening Skills panel`);
-          setActiveStation(null); // Clear active station to prevent other panels from re-opening
-          openPanel('SkillsPanel');
-        }
 
-//////////// FTUE STEP 8 /////////////
-
-      } else if (currentStep === 8 && openPanel) {
-        console.log(`🎓 Processing FTUE step 8 - Adding shepherd and axe quests`);
-        
         // Add the shepherd quest (quest 8) and Get Axe quest (quest 10)
         await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 8);
         await addAcceptedQuest(currentPlayer.playerId, currentPlayer, setCurrentPlayer, 10);
          
         onClose(); // Close FTUE modal first
-        openPanel('QuestPanel');
+        openPanel('SkillsPanel');
 
-//////////// FTUE STEP 9 /////////////
+//////////// FTUE STEP 8 /////////////
 
-      } else if (currentStep === 9) {
-        console.log(`🎓 Processing FTUE step 9 - axe acquired`);
+      } else if (currentStep === 8) {
+        console.log(`🎓 Processing FTUE step 8 - axe acquired`);
         
         // No quest to add here since Get Axe quest was already added at step 8
         
         onClose(); // Close FTUE modal
 
-//////////// FTUE STEP 10 /////////////
+//////////// FTUE STEP 9 /////////////
 
-      } else if (currentStep === 10) {
+      } else if (currentStep === 9) {
         console.log(`🎓 Adding Wizard quest after FTUE step ${currentStep}`);
         
         // Add the Axe quest
