@@ -20,6 +20,24 @@
     "requires2qty": 2
   },
   {
+    "trader": "Snug",
+    "index": 1,
+    "gives": "Money",
+    "givesqty": 2000,
+    "repeat": true,
+    "requires1": "Pelt",
+    "requires1qty": 10
+  },
+  {
+    "trader": "Snug",
+    "index": 2,
+    "gives": "Money",
+    "givesqty": 4000,
+    "repeat": true,
+    "requires1": "Bear Skin",
+    "requires1qty": 10
+  },
+  {
     "trader": "Juliet",
     "index": 1,
     "gives": "Tulip",

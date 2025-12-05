@@ -350,17 +350,17 @@ export const getRelationshipMultiplier = (npcName, currentPlayer, strings) => {
   if (relationship.married === true && npcEntry.buff4marriage) {
     return { 
       multiplier: npcEntry.buff4marriage, 
-      bonusMessage: ` ${npcEntry.buff4marriage}x ${strings[621]}.` 
+      bonusMessage: ` ${npcEntry.buff4marriage}x ${strings[621]}` 
     };
   } else if (relationship.love === true && npcEntry.buff4love) {
     return { 
       multiplier: npcEntry.buff4love, 
-      bonusMessage: ` ${npcEntry.buff4love}x ${strings[623]}.` 
+      bonusMessage: ` ${npcEntry.buff4love}x ${strings[623]}` 
     };
   } else if (relationship.friend === true && npcEntry.buff4friend) {
     return { 
       multiplier: npcEntry.buff4friend, 
-      bonusMessage: ` ${npcEntry.buff4friend}x ${strings[622]}.` 
+      bonusMessage: ` ${npcEntry.buff4friend}x ${strings[622]}` 
     };
   }
   

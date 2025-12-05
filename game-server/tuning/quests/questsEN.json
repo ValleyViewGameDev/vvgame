@@ -1050,7 +1050,7 @@
     "reward": "Gem",
     "rewardqty": 15,
     "xp": 20,
-    "goal1action": "Buy",
+    "goal1action": "Gain skill with",
     "goal1item": "Unbreakable",
     "goal1qty": 1
   },
@@ -1065,7 +1065,7 @@
     "reward": "Gem",
     "rewardqty": 5,
     "xp": 20,
-    "goal1action": "Buy",
+    "goal1action": "Gain skill with",
     "goal1item": "Pinpoint",
     "goal1qty": 1
   },

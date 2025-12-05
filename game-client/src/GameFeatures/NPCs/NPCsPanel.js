@@ -146,14 +146,15 @@ const NPCPanel = ({
         const filteredRecipes = traderOffers.map(offer => {
           // Get the symbol from masterResources
           const resourceDef = masterResources.find(r => r.type === offer.gives);
-          
+
           const recipe = {
             type: offer.gives,
             symbol: resourceDef?.symbol || '?',
             tradeqty: offer.givesqty || 1,
             source: npcData.type,
             gemcost: resourceDef?.gemcost || null,
-            index: offer.index // Keep track of which offer this is
+            index: offer.index, // Keep track of which offer this is
+            repeat: offer.repeat // Store the repeat flag from trader offer
           };
           
           // Collect all requires fields into ingredient format
@@ -1083,20 +1084,18 @@ const handleHeal = async (recipe) => {
               {tradeRecipes.length > 0 ? (
                 (() => {
                   const filteredRecipes = tradeRecipes.filter((recipe) => {
-                    // Find the resource definition to check repeatable property
-                    const resourceDef = masterResources.find(r => r.type === recipe.type);
-                    
-                    // If resource is not repeatable and player already has it, filter it out
-                    if (resourceDef && resourceDef.repeatable === false) {
+                    // Check the trader offer's repeat flag (from traders.json)
+                    // If repeat is false and player already has it, filter it out
+                    if (recipe.repeat === false) {
                       // Check if player has this item in inventory or backpack
                       const hasInInventory = inventory?.some(item => item.type === recipe.type);
                       const hasInBackpack = backpack?.some(item => item.type === recipe.type);
-                      
+
                       if (hasInInventory || hasInBackpack) {
                         return false; // Don't show this offer
                       }
                     }
-                    
+
                     return true; // Show all other offers
                   });
                   
@@ -1152,9 +1151,9 @@ const handleHeal = async (recipe) => {
 
                   return (
                     <ResourceButton
-                      key={recipe.type}
+                      key={`${recipe.source}-${recipe.index}`}
                       symbol={recipe.symbol}
-                      name={`${getLocalizedString(recipe.type, strings)} (${quantityToGive}x)`}
+                      name={`${getLocalizedString(recipe.type, strings)} (x  ${quantityToGive})`}
                       details={`${strings[461]}<div>${formattedCosts}</div><div style="margin-top: 8px; color: #4CAF50;">🔷 +${xpToAward} XP</div>`}
                       disabled={!affordable}
                       onClick={() => handleTrade(recipe)}
@@ -1184,6 +1183,7 @@ const handleHeal = async (recipe) => {
                   Gertrude: 1205,
                   Leontes: 1206,
                   Caliban: 1207,
+                  Snug: 1209,
                 };
                 
                 if (storyStringMap[npcData.type]) {
