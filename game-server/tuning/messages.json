@@ -5,7 +5,7 @@
       "body": "Thanks for joining the world of Valley View. Here's a little something to get you started. Don't forget to check out our Discord server for some help and community. The link is in the side panel of the game.",
       "rewards": [
         { "item": "Money", "qty": 500 }, 
-        { "item": "Gem", "qty": 75 }, 
+        { "item": "Gem", "qty": 25 }, 
         { "item": "Wood", "qty": 5 }, 
         { "item": "Wheat", "qty": 12 }, 
         { "item": "Carrot", "qty": 12 }, 

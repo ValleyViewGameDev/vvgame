@@ -4931,6 +4931,7 @@
     "layoutkey": "aR",
     "category": "shop",
     "action": "openUI",
+    "source": "BuildTown",
     "passable": false,
     "range": 2,
     "validong": true,
@@ -6122,7 +6123,6 @@
     "action": "trade",
     "passable": false,
     "qtycollected": 1,
-    "source": "Build",
     "xp": 2,
     "level": 1,
     "validong": true,
@@ -7465,8 +7465,8 @@
     "ingredient2": "Potion A",
     "ingredient2qty": 5,
     "ingredient3": "Potion B",
-    "ingredient3qty": 1,
-    "gemcost": 3204
+    "ingredient3qty": 2,
+    "gemcost": 3748
   },
   {
     "type": "Beekeeper",
@@ -7495,8 +7495,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 15000,
     "ingredient3": "Potion B",
-    "ingredient3qty": 5,
-    "gemcost": 4595
+    "ingredient3qty": 8,
+    "gemcost": 6227
   },
   {
     "type": "Winemaker",
@@ -7510,8 +7510,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
-    "ingredient4qty": 5,
-    "gemcost": 8178
+    "ingredient4qty": 8,
+    "gemcost": 13047
   },
   {
     "type": "Textiles",
@@ -7525,8 +7525,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 25000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 5,
-    "gemcost": 4285
+    "ingredient2qty": 10,
+    "gemcost": 5445
   },
   {
     "type": "Artistry",
@@ -7570,12 +7570,12 @@
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 5,
+    "ingredient2qty": 10,
     "ingredient3": "Potion B",
-    "ingredient3qty": 5,
+    "ingredient3qty": 8,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 20735
+    "gemcost": 23527
   },
   {
     "type": "Artisan",
@@ -7589,12 +7589,12 @@
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 5,
+    "ingredient2qty": 10,
     "ingredient3": "Potion B",
-    "ingredient3qty": 5,
+    "ingredient3qty": 8,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 20735
+    "gemcost": 23527
   },
   {
     "type": "Cuisinier",
@@ -7608,12 +7608,12 @@
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 10,
+    "ingredient2qty": 15,
     "ingredient3": "Potion B",
-    "ingredient3qty": 5,
+    "ingredient3qty": 10,
     "ingredient4": "Potion C",
-    "ingredient4qty": 10,
-    "gemcost": 21895
+    "ingredient4qty": 12,
+    "gemcost": 29021
   },
   {
     "type": "Weaver",
@@ -7627,12 +7627,12 @@
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 5,
+    "ingredient2qty": 10,
     "ingredient3": "Potion B",
-    "ingredient3qty": 5,
+    "ingredient3qty": 8,
     "ingredient4": "Potion C",
-    "ingredient4qty": 10,
-    "gemcost": 20735
+    "ingredient4qty": 12,
+    "gemcost": 26773
   },
   {
     "type": "Zookeeper",
@@ -7659,12 +7659,12 @@
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 5,
+    "ingredient2qty": 10,
     "ingredient3": "Potion B",
-    "ingredient3qty": 5,
+    "ingredient3qty": 8,
     "ingredient4": "Potion C",
-    "ingredient4qty": 10,
-    "gemcost": 20735
+    "ingredient4qty": 16,
+    "gemcost": 33265
   },
   {
     "type": "Fromager",
@@ -7678,12 +7678,12 @@
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 15,
+    "ingredient2qty": 18,
     "ingredient3": "Potion B",
-    "ingredient3qty": 5,
+    "ingredient3qty": 10,
     "ingredient4": "Potion C",
-    "ingredient4qty": 10,
-    "gemcost": 23055
+    "ingredient4qty": 25,
+    "gemcost": 50816
   },
   {
     "type": "Virtuose Culinaire",
@@ -7697,12 +7697,12 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 5,
+    "ingredient2qty": 10,
     "ingredient3": "Potion B",
-    "ingredient3qty": 10,
+    "ingredient3qty": 12,
     "ingredient4": "Potion C",
-    "ingredient4qty": 15,
-    "gemcost": 32195
+    "ingredient4qty": 20,
+    "gemcost": 42558
   },
   {
     "type": "Apiarch",
@@ -7716,12 +7716,12 @@
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 5,
+    "ingredient2qty": 10,
     "ingredient3": "Potion B",
-    "ingredient3qty": 10,
+    "ingredient3qty": 12,
     "ingredient4": "Potion C",
-    "ingredient4qty": 20,
-    "gemcost": 40310
+    "ingredient4qty": 25,
+    "gemcost": 50673
   },
   {
     "type": "Vintner",
@@ -7735,12 +7735,12 @@
     "ingredient1": "Money",
     "ingredient1qty": 20000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 10,
+    "ingredient2qty": 12,
     "ingredient3": "Potion B",
-    "ingredient3qty": 10,
+    "ingredient3qty": 20,
     "ingredient4": "Potion C",
-    "ingredient4qty": 25,
-    "gemcost": 50835
+    "ingredient4qty": 40,
+    "gemcost": 81084
   },
   {
     "type": "Law",
@@ -7831,8 +7831,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "ingredient4": "Book",
-    "ingredient4qty": 6,
-    "gemcost": 1495
+    "ingredient4qty": 3,
+    "gemcost": 1060
   },
   {
     "type": "Plate Armor",
@@ -7847,10 +7847,10 @@
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "ingredient3": "Silver",
-    "ingredient3qty": 10,
+    "ingredient3qty": 12,
     "ingredient4": "Book",
-    "ingredient4qty": 12,
-    "gemcost": 3803
+    "ingredient4qty": 20,
+    "gemcost": 5363
   },
   {
     "type": "Heavy Armor",
@@ -7866,10 +7866,10 @@
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "ingredient3": "Silver",
-    "ingredient3qty": 10,
+    "ingredient3qty": 12,
     "ingredient4": "Book",
-    "ingredient4qty": 40,
-    "gemcost": 7925
+    "ingredient4qty": 50,
+    "gemcost": 9775
   },
   {
     "type": "Mystic Armor",
@@ -7915,10 +7915,10 @@
     "ingredient2": "Cloth",
     "ingredient2qty": 10,
     "ingredient3": "Potion C",
-    "ingredient3qty": 1,
+    "ingredient3qty": 5,
     "ingredient4": "Book",
-    "ingredient4qty": 50,
-    "gemcost": 9508
+    "ingredient4qty": 65,
+    "gemcost": 18175
   },
   {
     "type": "Magic Helmet",
@@ -8003,8 +8003,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "ingredient4": "Book",
-    "ingredient4qty": 1,
-    "gemcost": 208
+    "ingredient4qty": 3,
+    "gemcost": 498
   },
   {
     "type": "Great Sword",
@@ -8020,8 +8020,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "ingredient4": "Book",
-    "ingredient4qty": 10,
-    "gemcost": 1575
+    "ingredient4qty": 12,
+    "gemcost": 1865
   },
   {
     "type": "Halberd",
@@ -8037,8 +8037,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 2000,
     "ingredient4": "Book",
-    "ingredient4qty": 50,
-    "gemcost": 7500
+    "ingredient4qty": 70,
+    "gemcost": 10400
   },
   {
     "type": "Sword of Song",
@@ -8191,8 +8191,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 9000,
     "ingredient4": "Book",
-    "ingredient4qty": 3,
-    "gemcost": 1560
+    "ingredient4qty": 6,
+    "gemcost": 1995
   },
   {
     "type": "Spear",
@@ -8209,8 +8209,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "ingredient4": "Book",
-    "ingredient4qty": 12,
-    "gemcost": 1865
+    "ingredient4qty": 24,
+    "gemcost": 3605
   },
   {
     "type": "Crossbow",
@@ -8227,8 +8227,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 2000,
     "ingredient4": "Book",
-    "ingredient4qty": 50,
-    "gemcost": 7500
+    "ingredient4qty": 70,
+    "gemcost": 10400
   },
   {
     "type": "Magic Spear",
@@ -8312,8 +8312,8 @@
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "ingredient4": "Book",
-    "ingredient4qty": 12,
-    "gemcost": 1865
+    "ingredient4qty": 24,
+    "gemcost": 3605
   },
   {
     "type": "Maelstrom",
@@ -8328,9 +8328,11 @@
     "damage": 4,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
+    "ingredient2": "Gem",
+    "ingredient2qty": 1,
     "ingredient4": "Book",
-    "ingredient4qty": 20,
-    "gemcost": 4150
+    "ingredient4qty": 40,
+    "gemcost": 7050
   },
   {
     "type": "Oblivion",
@@ -8345,9 +8347,11 @@
     "damage": 5,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
+    "ingredient2": "Gem",
+    "ingredient2qty": 3,
     "ingredient4": "Book",
-    "ingredient4qty": 50,
-    "gemcost": 8500
+    "ingredient4qty": 75,
+    "gemcost": 12125
   },
   {
     "type": "Titan",
@@ -8362,9 +8366,11 @@
     "damage": 8,
     "ingredient1": "Money",
     "ingredient1qty": 25000,
+    "ingredient2": "Gem",
+    "ingredient2qty": 10,
     "ingredient4": "Book",
-    "ingredient4qty": 200,
-    "gemcost": 32125
+    "ingredient4qty": 300,
+    "gemcost": 46625
   },
   {
     "type": "Jab",
@@ -8389,9 +8395,11 @@
     "speed": -1,
     "ingredient1": "Money",
     "ingredient1qty": 500,
+    "ingredient2": "Gem",
+    "ingredient2qty": 1,
     "ingredient4": "Book",
-    "ingredient4qty": 2,
-    "gemcost": 353
+    "ingredient4qty": 8,
+    "gemcost": 1223
   },
   {
     "type": "Barrage",
@@ -8406,9 +8414,11 @@
     "speed": -1,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
+    "ingredient2": "Gem",
+    "ingredient2qty": 10,
     "ingredient4": "Book",
-    "ingredient4qty": 15,
-    "gemcost": 3425
+    "ingredient4qty": 30,
+    "gemcost": 5600
   },
   {
     "type": "Steady Hand",
@@ -8433,9 +8443,11 @@
     "attackbonus": 4,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
+    "ingredient2": "Gem",
+    "ingredient2qty": 3,
     "ingredient4": "Book",
-    "ingredient4qty": 8,
-    "gemcost": 1285
+    "ingredient4qty": 16,
+    "gemcost": 2445
   },
   {
     "type": "Unerring",
@@ -8450,9 +8462,11 @@
     "attackbonus": 4,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
+    "ingredient2": "Gem",
+    "ingredient2qty": 15,
     "ingredient4": "Book",
-    "ingredient4qty": 15,
-    "gemcost": 3425
+    "ingredient4qty": 30,
+    "gemcost": 5600
   },
   {
     "type": "Focus",
@@ -8477,9 +8491,11 @@
     "attackrange": 1,
     "ingredient1": "Money",
     "ingredient1qty": 500,
+    "ingredient2": "Gem",
+    "ingredient2qty": 3,
     "ingredient4": "Book",
-    "ingredient4qty": 20,
-    "gemcost": 2963
+    "ingredient4qty": 40,
+    "gemcost": 5863
   },
   {
     "type": "Horizon Eye",
@@ -8494,9 +8510,11 @@
     "attackrange": 2,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
+    "ingredient2": "Gem",
+    "ingredient2qty": 15,
     "ingredient4": "Book",
-    "ingredient4qty": 125,
-    "gemcost": 18250
+    "ingredient4qty": 150,
+    "gemcost": 21875
   },
   {
     "type": "Fortitude",
@@ -8524,9 +8542,11 @@
     "armorclass": 5,
     "ingredient1": "Money",
     "ingredient1qty": 2000,
+    "ingredient2": "Gem",
+    "ingredient2qty": 3,
     "ingredient4": "Book",
-    "ingredient4qty": 12,
-    "gemcost": 1990
+    "ingredient4qty": 25,
+    "gemcost": 3875
   },
   {
     "type": "Unbreakable",
@@ -8539,9 +8559,11 @@
     "maxhp": 500,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
+    "ingredient2": "Gem",
+    "ingredient2qty": 15,
     "ingredient4": "Book",
-    "ingredient4qty": 25,
-    "gemcost": 4875
+    "ingredient4qty": 50,
+    "gemcost": 8500
   },
   {
     "type": "Cat",
