@@ -1153,7 +1153,7 @@ const handleHeal = async (recipe) => {
                     <ResourceButton
                       key={`${recipe.source}-${recipe.index}`}
                       symbol={recipe.symbol}
-                      name={`${getLocalizedString(recipe.type, strings)} (x  ${quantityToGive})`}
+                      name={`${quantityToGive} ${getLocalizedString(recipe.type, strings)}`}
                       details={`${strings[461]}<div>${formattedCosts}</div><div style="margin-top: 8px; color: #4CAF50;">🔷 +${xpToAward} XP</div>`}
                       disabled={!affordable}
                       onClick={() => handleTrade(recipe)}

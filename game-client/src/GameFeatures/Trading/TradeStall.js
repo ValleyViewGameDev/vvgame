@@ -309,7 +309,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         return;
       }
 
-      await gainIngredients({
+      const gainResult = await gainIngredients({
         playerId: currentPlayer.playerId,
         currentPlayer,
         resource: currentSlot.resource,
@@ -323,6 +323,31 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
         masterResources,
         globalTuning,
       });
+
+      // Check if gaining items failed (e.g., warehouse full)
+      if (gainResult && gainResult.success === false) {
+        console.warn('Failed to add items to inventory:', gainResult.error?.message);
+
+        // Rollback the money that was spent
+        await gainIngredients({
+          playerId: currentPlayer.playerId,
+          currentPlayer,
+          resource: 'Money',
+          quantity: totalCost,
+          inventory: currentPlayer.inventory || inventory,
+          backpack: currentPlayer.backpack || [],
+          setInventory,
+          setBackpack: () => {},
+          setCurrentPlayer,
+          updateStatus: () => {}, // Don't show status for refund
+          masterResources,
+          globalTuning,
+        });
+
+        // Don't mark the item as sold, just return
+        // Note: updateStatus was already called by gainIngredients to show warehouse full
+        return;
+      }
 
       // Update the seller's TradeStall to mark the slot as purchased
       const updatedSlots = [...latestSlots];

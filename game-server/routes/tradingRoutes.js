@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Player = require('../models/player'); // Ensure the player schema includes tradeStall
 const Grid = require('../models/grid'); // For Outpost trade stalls
+const fs = require('fs');
+const path = require('path');
 
 /**
  * Transaction management helper functions
@@ -65,6 +67,71 @@ const TransactionManager = {
       console.error('Error cleaning up failed transaction:', error);
     }
   }
+};
+
+/**
+ * Helper function to check warehouse capacity
+ */
+const checkWarehouseCapacity = async (player, itemType, itemQuantity) => {
+  // Load tuning files
+  const resourcesPath = path.join(__dirname, '../tuning/resources.json');
+  const globalTuningPath = path.join(__dirname, '../tuning/globalTuning.json');
+  const masterResources = JSON.parse(fs.readFileSync(resourcesPath, 'utf-8'));
+  const globalTuning = JSON.parse(fs.readFileSync(globalTuningPath, 'utf-8'));
+
+  // Calculate warehouse and backpack capacities with skills
+  const baseWarehouse = player.warehouseCapacity || 0;
+  const baseBackpack = player.backpackCapacity || 0;
+  const isGold = player.accountStatus === "Gold";
+  const warehouseBonus = isGold ? (globalTuning?.warehouseCapacityGold || 100000) : 0;
+  const backpackBonus = isGold ? (globalTuning?.backpackCapacityGold || 5000) : 0;
+
+  let warehouseCapacity = baseWarehouse + warehouseBonus;
+  let backpackCapacity = baseBackpack + backpackBonus;
+
+  // Add skill bonuses
+  (player.skills || []).forEach(skill => {
+    const skillDetails = masterResources.find(res => res.type === skill.type);
+    if (skillDetails) {
+      const bonus = skillDetails.qtycollected || 0;
+      if (skillDetails.output === 'warehouseCapacity') {
+        warehouseCapacity += bonus;
+      } else if (skillDetails.output === 'backpackCapacity') {
+        backpackCapacity += bonus;
+      }
+    }
+  });
+
+  // Helper function to check if an item is a currency (doesn't count against inventory)
+  const isCurrency = (resourceType) => {
+    return resourceType === 'Money' ||
+           resourceType === 'Gem' ||
+           resourceType === 'Yellow Heart' ||
+           resourceType === 'Green Heart' ||
+           resourceType === 'Purple Heart';
+  };
+
+  // If the item being added is currency, it doesn't need capacity check
+  if (isCurrency(itemType)) {
+    return { hasSpace: true, availableSpace: Infinity };
+  }
+
+  // Calculate current usage (exclude currencies)
+  const currentWarehouseUsage = (player.inventory || [])
+    .filter(item => !isCurrency(item.type))
+    .reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const currentBackpackUsage = (player.backpack || [])
+    .filter(item => !isCurrency(item.type))
+    .reduce((sum, item) => sum + (item.quantity || 0), 0);
+  const totalCapacity = warehouseCapacity + backpackCapacity;
+  const currentTotalUsage = currentWarehouseUsage + currentBackpackUsage;
+  const availableSpace = totalCapacity - currentTotalUsage;
+
+  return {
+    hasSpace: availableSpace >= itemQuantity,
+    availableSpace,
+    needed: itemQuantity
+  };
 };
 
 /**
@@ -576,6 +643,17 @@ router.post('/outpost/buy-item', async (req, res) => {
       return res.status(400).json({ error: 'Insufficient funds' });
     }
 
+    // Check warehouse capacity before purchasing
+    const capacityCheck = await checkWarehouseCapacity(player, slot.resource, slot.amount);
+    if (!capacityCheck.hasSpace) {
+      await TransactionManager.failTransaction(buyerId, `${transactionKey}-${slotIndex}`);
+      return res.status(400).json({
+        error: 'Not enough warehouse space',
+        needed: capacityCheck.needed,
+        available: capacityCheck.availableSpace
+      });
+    }
+
     // Deduct money from buyer
     if (moneyItem) {
       moneyItem.quantity -= totalCost;
@@ -926,6 +1004,17 @@ router.post('/trade-stall/fulfill-request', async (req, res) => {
     if (!sellerItem || sellerItem.quantity < request.amount) {
       await TransactionManager.failTransaction(sellerPlayerId, `${transactionKey}-${slotIndex}`);
       return res.status(400).json({ error: 'Seller does not have enough items' });
+    }
+
+    // Check buyer's warehouse capacity before fulfilling request
+    const capacityCheck = await checkWarehouseCapacity(buyer, request.resource, request.amount);
+    if (!capacityCheck.hasSpace) {
+      await TransactionManager.failTransaction(sellerPlayerId, `${transactionKey}-${slotIndex}`);
+      return res.status(400).json({
+        error: 'Buyer does not have enough warehouse space',
+        needed: capacityCheck.needed,
+        available: capacityCheck.availableSpace
+      });
     }
 
     // Deduct items from seller's inventory
