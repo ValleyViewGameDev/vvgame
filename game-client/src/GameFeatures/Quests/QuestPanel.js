@@ -12,12 +12,82 @@ function QuestPanel({ onClose, currentPlayer }) {
   const [playerQuests, setPlayerQuests] = useState([]);
   const [questTemplates, setQuestTemplates] = useState([]);
 
+  // Re-evaluate quest progress for "Gain skill with" quests
+  const reevaluateQuestProgress = async (quests) => {
+    if (!quests || quests.length === 0) return quests;
+    
+    let questsUpdated = false;
+    const updatedQuests = quests.map(quest => {
+      if (quest.completed || quest.rewardCollected) return quest;
+      
+      const updatedQuest = { ...quest };
+      const progress = { ...quest.progress };
+      let goalsCompleted = 0;
+      let totalGoals = 0;
+      
+      // Check each goal
+      for (let i = 1; i <= 3; i++) {
+        const goalAction = quest[`goal${i}action`];
+        const goalItem = quest[`goal${i}item`];
+        const goalQty = quest[`goal${i}qty`];
+        
+        if (!goalAction || !goalItem || !goalQty) continue;
+        totalGoals++;
+        
+        // Special handling for "Gain skill with" goals
+        if (goalAction === "Gain skill with") {
+          const playerHasSkill = currentPlayer.skills?.some(skill => skill.type === goalItem);
+          const playerHasPower = currentPlayer.powers?.some(power => power.type === goalItem);
+          
+          if (playerHasSkill || playerHasPower) {
+            // Mark this goal as completed if not already
+            if (progress[`goal${i}`] < goalQty) {
+              progress[`goal${i}`] = goalQty;
+              questsUpdated = true;
+            }
+          }
+        }
+        
+        // Check if goal is completed
+        if (progress[`goal${i}`] >= goalQty) {
+          goalsCompleted++;
+        }
+      }
+      
+      // Update quest completion status
+      if (goalsCompleted === totalGoals && totalGoals > 0 && !updatedQuest.completed) {
+        updatedQuest.completed = true;
+        questsUpdated = true;
+      }
+      
+      updatedQuest.progress = progress;
+      return updatedQuest;
+    });
+    
+    // If quests were updated, save to server
+    if (questsUpdated) {
+      try {
+        await axios.post(`${API_BASE}/api/update-player-quests`, {
+          playerId: currentPlayer.playerId,
+          activeQuests: updatedQuests,
+        });
+      } catch (error) {
+        console.error('Error updating quest progress:', error);
+      }
+    }
+    
+    return updatedQuests;
+  };
+
   // Load active player quests
   useEffect(() => {
     if (currentPlayer?.activeQuests) {
-      setPlayerQuests(currentPlayer.activeQuests);
+      // Re-evaluate quest progress before displaying
+      reevaluateQuestProgress(currentPlayer.activeQuests).then(updatedQuests => {
+        setPlayerQuests(updatedQuests);
+      });
     }
-  }, [currentPlayer]);
+  }, [currentPlayer?.activeQuests, currentPlayer?.skills, currentPlayer?.powers, currentPlayer?.playerId]);
 
   // Load all quest templates from tuning file
   useEffect(() => {
