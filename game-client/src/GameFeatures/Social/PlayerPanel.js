@@ -20,6 +20,7 @@ const PlayerPanel = ({
   masterTrophies,
   masterResources,
   masterXPLevels,
+  masterTraders,
   tentCount,
   setTentCount,
   boatCount,
@@ -292,7 +293,7 @@ const PlayerPanel = ({
               }
             }}
           >
-            {strings[10152]} ({boatCount})
+            {strings[10152]}
           </button>
         </div>
       )}
@@ -302,10 +303,10 @@ const PlayerPanel = ({
       <br />
 
       {/* Level Display */}
-      <h3>{strings[10150]} {getDerivedLevel(currentPlayer, masterXPLevels)}</h3>
+      <h2>{strings[10150]} {getDerivedLevel(currentPlayer, masterXPLevels)}</h2>
 
       {/* XP Display */}
-      <h3>{strings[10151]} {currentPlayer.xp || 0} / {getXpForNextLevel(currentPlayer, masterXPLevels)}</h3>
+      <h2>{strings[10151]} {currentPlayer.xp || 0} / {getXpForNextLevel(currentPlayer, masterXPLevels)}</h2>
       
       {/* XP Progress Bar */}
       <div style={{
@@ -342,8 +343,91 @@ const PlayerPanel = ({
         </div>
       </div>
 
+      {/* Hope Quest */}
+      <h2 style={{ textAlign: 'center', marginBottom: '10px' }}>{strings[200801]}</h2>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '4px',
+        marginBottom: '16px',
+        width: '100%'
+      }}>
+        {(() => {
+          // Dynamically load Oracle recipe items from masterTraders
+          const oracleRecipe = masterTraders?.find(trader => trader.trader === 'Oracle');
+          const oracleItems = [];
+
+          if (oracleRecipe) {
+            // Extract all requires fields from the Oracle recipe
+            for (let i = 1; i <= 7; i++) {
+              const requiresKey = `requires${i}`;
+              const qtyKey = `requires${i}qty`;
+              if (oracleRecipe[requiresKey]) {
+                oracleItems.push({
+                  name: oracleRecipe[requiresKey],
+                  qty: oracleRecipe[qtyKey] || 1
+                });
+              }
+            }
+          }
+
+          // Helper to check if player has enough of the item
+          const hasEnoughItems = (itemName, requiredQty) => {
+            const invItem = inventory?.find(item => item?.type === itemName);
+            const bpItem = backpack?.find(item => item?.type === itemName);
+
+            // Try both 'qty' and 'quantity' for both inventory and backpack
+            const invQty = invItem?.qty || invItem?.quantity || 0;
+            const bpQty = bpItem?.qty || bpItem?.quantity || 0;
+            const totalQty = invQty + bpQty;
+
+            return totalQty >= requiredQty;
+          };
+
+          // Helper to get resource symbol
+          const getSymbol = (itemName) => {
+            const resource = masterResources?.find(r => r.type === itemName);
+            return resource?.symbol || '?';
+          };
+
+          return oracleItems.map((item, index) => {
+            const playerHasItem = hasEnoughItems(item.name, item.qty);
+            const symbol = getSymbol(item.name);
+
+            return (
+              <div key={index} style={{
+                flex: 1,
+                aspectRatio: '1',
+                borderRadius: '4px',
+                backgroundColor: playerHasItem ? '#74ee66' : 'rgb(154, 106, 22)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'relative',
+                fontSize: '20px'
+              }}>
+                {playerHasItem ? symbol : ''}
+                <div style={{
+                  position: 'absolute',
+                  bottom: '2px',
+                  right: '4px',
+                  fontSize: '10px',
+                  color: 'white',
+                  fontWeight: 'bold'
+                }}>
+                  {item.qty}
+                </div>
+              </div>
+            );
+          });
+        })()}
+      </div>
+
+
+<br />
+
       {/* HP Display */}
-      <h3>{strings[10112]} {currentPlayer?._id ? playersInGridManager.getPlayersInGrid(currentPlayer?.location?.g)?.[String(currentPlayer._id)]?.hp ?? "?" : "?"} / {currentPlayer?._id ? playersInGridManager.getPlayersInGrid(currentPlayer?.location?.g)?.[String(currentPlayer._id)]?.maxhp ?? "?" : "?"}</h3>
+      <h2>{strings[10112]} {currentPlayer?._id ? playersInGridManager.getPlayersInGrid(currentPlayer?.location?.g)?.[String(currentPlayer._id)]?.hp ?? "?" : "?"} / {currentPlayer?._id ? playersInGridManager.getPlayersInGrid(currentPlayer?.location?.g)?.[String(currentPlayer._id)]?.maxhp ?? "?" : "?"}</h2>
       
       {/* HP Progress Bar */}
       <div style={{
@@ -385,21 +469,23 @@ const PlayerPanel = ({
         </button>
       </div>
 
+<br />
+
       {/* Skills - Clickable H3 */}
-      <h3 
+      <h2 
         onClick={() => openPanel('SkillsPanel')}
         style={{ cursor: 'pointer', textDecoration: 'underline' }}
       >
         {strings[1105]} ({currentPlayer.skills?.length || 0})
-      </h3>
+      </h2>
 
       {/* Combat Stats - Clickable H3 */}
-      <h3 
+      <h2 
         onClick={() => openPanel('CombatPanel')}
         style={{ cursor: 'pointer', textDecoration: 'underline' }}
       >
         {strings[1124]}
-      </h3>
+      </h2>
 
 
       {/* Change Icon Modal */}

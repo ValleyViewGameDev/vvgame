@@ -78,6 +78,7 @@ import FarmingPanel from './GameFeatures/Farming/FarmingPanel';
 import ToolsPanel from './GameFeatures/Farming/ToolsPanel';
 import SkillsPanel from './GameFeatures/Skills/SkillsPanel';
 import GovPanel from './GameFeatures/Government/GovPanel';
+import LeaderboardPanel from './GameFeatures/Leaderboard/Leaderboard';
 import BankPanel from './GameFeatures/Trading/Bank';
 import KentPanel from './GameFeatures/Trading/Kent';
 import NewTrainPanel from './GameFeatures/Trading/NewTrain';
@@ -3316,6 +3317,7 @@ return (
           masterTrophies={masterTrophies}
           masterResources={masterResources}
           masterXPLevels={masterXPLevels}
+          masterTraders={masterTraders}
           isDeveloper={isDeveloper}
           controllerUsername={controllerUsername}
           setControllerUsername={setControllerUsername}

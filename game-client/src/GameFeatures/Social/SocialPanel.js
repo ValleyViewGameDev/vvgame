@@ -23,6 +23,7 @@ const SocialPanel = ({
   masterTrophies,
   masterResources,
   masterXPLevels,
+  masterTraders,
   isDeveloper,
   controllerUsername,
   setControllerUsername,
@@ -215,6 +216,7 @@ return (
             masterTrophies={masterTrophies}
             masterResources={masterResources}
             masterXPLevels={masterXPLevels}
+            masterTraders={masterTraders}
             tentCount={tentCount}
             setTentCount={setTentCount}
             boatCount={boatCount}
