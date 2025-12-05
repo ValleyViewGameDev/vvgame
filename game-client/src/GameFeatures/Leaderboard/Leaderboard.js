@@ -123,9 +123,14 @@ function LeaderboardPanel({ onClose, currentPlayer, setModalContent, setIsModalO
                       💰 {player.netWorth.toLocaleString()}
                     </div>
 
-                    {/* Level and XP Display */}
+                    {/* Level Display */}
                     <div className="player-stats">
-                      {strings[10150]} {playerLevel} | {strings[10151]} {player.xp} / {xpForNextLevel}
+                      {strings[10150]} {playerLevel}
+                    </div>
+
+                    {/* XP Display */}
+                    <div className="player-stats">
+                      {strings[10151]} {player.xp} / {xpForNextLevel}
                     </div>
 
                     {/* XP Progress Bar */}

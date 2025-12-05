@@ -7,7 +7,10 @@ import RelationshipCard from '../Relationships/RelationshipCard';
 import '../Relationships/Relationships.css';
 import socket from '../../socketManager';
 import PlayerPanel from './PlayerPanel';
+import HopeQuest from './HopeQuest';
+import { getDerivedLevel, getXpForNextLevel } from '../../Utils/playerManagement';
 import { useStrings } from '../../UI/StringsContext';
+import '../Leaderboard/Leaderboard.css';
 
 const SocialPanel = ({
   onClose,
@@ -34,18 +37,21 @@ const SocialPanel = ({
   const [isCamping, setIsCamping] = useState(false);
   const [isInBoat, setIsInBoat] = useState(false);
   const [displayedPCData, setDisplayedPCData] = useState(pcData);
+  const [fullPlayerData, setFullPlayerData] = useState(null);
+  const [isLoadingPlayerData, setIsLoadingPlayerData] = useState(false);
   const strings = useStrings();
 
   console.log('made it to SocialPanel; pc = ', pcData);
 
+  // Fetch full player data for other players
   useEffect(() => {
     if (!pcData) return;
-    
+
     // ✅ Update displayed data when viewing other players
     if (pcData.username !== currentPlayer.username) {
       const gridId = currentPlayer?.location?.g;
       if (!gridId) return;
-      
+
       const NPCsInGrid = playersInGridManager.getPlayersInGrid(gridId);
       const latestData = NPCsInGrid[pcData.playerId];
       if (latestData) {
@@ -59,6 +65,36 @@ const SocialPanel = ({
             username: latestData.username,
           }));
       }
+
+      // Fetch full player data (xp, inventory, backpack) for display
+      const fetchFullPlayerData = async () => {
+        if (!pcData.playerId) return;
+
+        setIsLoadingPlayerData(true);
+        try {
+          console.log(`📊 Fetching full data for ${pcData.username}`);
+          const response = await axios.get(`${API_BASE}/api/player/${pcData.playerId}`);
+          setFullPlayerData({
+            xp: response.data.xp || 0,
+            inventory: response.data.inventory || [],
+            backpack: response.data.backpack || []
+          });
+        } catch (error) {
+          console.error(`❌ Error fetching full data for ${pcData.username}:`, error);
+          setFullPlayerData({
+            xp: 0,
+            inventory: [],
+            backpack: []
+          });
+        } finally {
+          setIsLoadingPlayerData(false);
+        }
+      };
+
+      fetchFullPlayerData();
+    } else {
+      // Reset when viewing yourself
+      setFullPlayerData(null);
     }
 }, [pcData, currentPlayer]);
 
@@ -182,20 +218,72 @@ const SocialPanel = ({
 
 return (
     <Panel onClose={onClose} descriptionKey="1014" titleKey="1114" panelName="SocialPanel">
-        <h2>
-          {displayedPCData.iscamping ? '🏕️ ' : 
-           displayedPCData.isinboat ? '🛶 ' : 
-           (displayedPCData.username === currentPlayer.username ? 
-             (currentPlayer.icon || '😊') : 
-             (displayedPCData.icon || '😊')) + ' '
-          }{displayedPCData.username}{displayedPCData.username === currentPlayer.username && " (You)"}
-        </h2>
+
+        {/* Show loading state for other players */}
+        {displayedPCData.username !== currentPlayer.username && isLoadingPlayerData && (
+          <p>Loading player data...</p>
+        )}
+
+        {/* Show stats for other players */}
+        {displayedPCData.username !== currentPlayer.username && fullPlayerData && !isLoadingPlayerData && (
+          <div className="player-card" style={{ marginBottom: '20px' }}>
+            {/* Player Name Header */}
+            <div className="player-header">
+              <div className="player-info">
+                {displayedPCData.iscamping ? '🏕️ ' :
+                 displayedPCData.isinboat ? '🛶 ' :
+                 (displayedPCData.icon || '😊') + ' '
+                }
+                <strong>{displayedPCData.username}</strong>
+              </div>
+            </div>
+
+            {/* Level Display */}
+            <div className="player-stats">
+              {strings[10150]} {getDerivedLevel(fullPlayerData, masterXPLevels)}
+            </div>
+
+            {/* XP Display */}
+            <div className="player-stats">
+              {strings[10151]} {fullPlayerData.xp} / {getXpForNextLevel(fullPlayerData, masterXPLevels)}
+            </div>
+
+            {/* XP Progress Bar */}
+            {(() => {
+              const playerLevel = getDerivedLevel(fullPlayerData, masterXPLevels);
+              const currentLevelData = masterXPLevels?.find(lvl => lvl.level === playerLevel);
+              const nextLevelData = masterXPLevels?.find(lvl => lvl.level === playerLevel + 1);
+              const xpIntoLevel = fullPlayerData.xp - (currentLevelData?.xp || 0);
+              const xpRangeForLevel = (nextLevelData?.xp || fullPlayerData.xp) - (currentLevelData?.xp || 0);
+              const xpProgress = Math.min(100, Math.max(0, (xpIntoLevel / xpRangeForLevel) * 100));
+
+              return (
+                <div className="xp-bar-container">
+                  <div className="xp-bar-fill" style={{
+                    width: `${xpProgress}%`
+                  }}>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Hope Quest Progress */}
+            <HopeQuest
+              inventory={fullPlayerData.inventory}
+              backpack={fullPlayerData.backpack}
+              masterResources={masterResources}
+              masterTraders={masterTraders}
+              showTitle={false}
+              size="medium"
+            />
+          </div>
+        )}
 
         {/* Debug button for developers to remove player from grid state */}
         {isDeveloper && displayedPCData.username !== currentPlayer.username && (
           <div className="shared-buttons">
-            <button 
-              className="btn-basic btn-danger" 
+            <button
+              className="btn-basic btn-danger"
               onClick={handleRemoveFromGridState}
             >
               🗑️ Remove from GridState (dev only)
