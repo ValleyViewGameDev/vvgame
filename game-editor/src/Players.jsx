@@ -21,6 +21,13 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
     powers: false
   });
 
+  // State for pending edits
+  const [pendingWalletEdits, setPendingWalletEdits] = useState({});
+  const [pendingInventoryEdits, setPendingInventoryEdits] = useState({});
+  const [pendingSkillDeletions, setPendingSkillDeletions] = useState(new Set());
+  const [pendingPowerDeletions, setPendingPowerDeletions] = useState(new Set());
+  const [editingItem, setEditingItem] = useState(null); // { section: 'wallet'/'inventory', type: 'itemType' }
+
   // Function to get settlement name by ID
   const getSettlementName = (settlementId) => {
     const settlement = settlements.find(s => s._id === settlementId);
@@ -142,7 +149,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
     console.log('🎯 Selected player:', player.username);
     console.log('📊 Player skills:', player.skills);
     console.log('⚡ Player powers:', player.powers);
-    
+
     // Validate skills data
     if (player.skills && Array.isArray(player.skills)) {
       player.skills.forEach((skill, index) => {
@@ -151,7 +158,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
         }
       });
     }
-    
+
     // Validate powers data
     if (player.powers && Array.isArray(player.powers)) {
       player.powers.forEach((power, index) => {
@@ -160,8 +167,172 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
         }
       });
     }
-    
+
+    // Clear pending changes when switching players
+    setPendingWalletEdits({});
+    setPendingInventoryEdits({});
+    setPendingSkillDeletions(new Set());
+    setPendingPowerDeletions(new Set());
+    setEditingItem(null);
+
     setSelectedPlayer(player);
+  };
+
+  // Check if there are any pending changes
+  const hasPendingChanges = () => {
+    return Object.keys(pendingWalletEdits).length > 0 ||
+           Object.keys(pendingInventoryEdits).length > 0 ||
+           pendingSkillDeletions.size > 0 ||
+           pendingPowerDeletions.size > 0;
+  };
+
+  // Handle saving all pending changes
+  const handleSaveChanges = async () => {
+    if (!selectedPlayer || !hasPendingChanges()) return;
+
+    const confirmed = window.confirm(
+      `Save all changes for "${selectedPlayer.username}"?\n\n` +
+      `This will update:\n` +
+      `• Wallet items: ${Object.keys(pendingWalletEdits).length} changes\n` +
+      `• Inventory items: ${Object.keys(pendingInventoryEdits).length} changes\n` +
+      `• Skills deletions: ${pendingSkillDeletions.size} deletions\n` +
+      `• Powers deletions: ${pendingPowerDeletions.size} deletions\n\n` +
+      `Continue?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      console.log(`💾 Saving changes for player: ${selectedPlayer.username}`);
+
+      // Build the updates object
+      const updates = {};
+
+      // Update inventory (wallet + inventory items)
+      if (Object.keys(pendingWalletEdits).length > 0 || Object.keys(pendingInventoryEdits).length > 0) {
+        const updatedInventory = [...(selectedPlayer.inventory || [])];
+
+        // Apply wallet edits
+        Object.entries(pendingWalletEdits).forEach(([itemType, newQuantity]) => {
+          const itemIndex = updatedInventory.findIndex(item => item.type === itemType);
+          if (itemIndex >= 0) {
+            updatedInventory[itemIndex] = { ...updatedInventory[itemIndex], quantity: Number(newQuantity) };
+          }
+        });
+
+        // Apply inventory edits
+        Object.entries(pendingInventoryEdits).forEach(([itemType, newQuantity]) => {
+          const itemIndex = updatedInventory.findIndex(item => item.type === itemType);
+          if (itemIndex >= 0) {
+            updatedInventory[itemIndex] = { ...updatedInventory[itemIndex], quantity: Number(newQuantity) };
+          }
+        });
+
+        updates.inventory = updatedInventory;
+      }
+
+      // Update skills (apply deletions)
+      if (pendingSkillDeletions.size > 0) {
+        const updatedSkills = (selectedPlayer.skills || []).filter((_, index) =>
+          !pendingSkillDeletions.has(index)
+        );
+        updates.skills = updatedSkills;
+      }
+
+      // Update powers (apply deletions)
+      if (pendingPowerDeletions.size > 0) {
+        const updatedPowers = (selectedPlayer.powers || []).filter((_, index) =>
+          !pendingPowerDeletions.has(index)
+        );
+        updates.powers = updatedPowers;
+      }
+
+      const response = await axios.post(`${API_BASE}/api/update-profile`, {
+        playerId: selectedPlayer._id,
+        updates
+      });
+
+      if (response.data.success) {
+        alert(`✅ Changes saved for "${selectedPlayer.username}".`);
+        console.log(`✅ Changes saved for: ${selectedPlayer.username}`);
+
+        // Update the local player data
+        const updatedPlayer = { ...selectedPlayer, ...updates };
+        setSelectedPlayer(updatedPlayer);
+
+        // Update the player in the players list
+        setPlayers(players.map(p => p._id === selectedPlayer._id ? updatedPlayer : p));
+
+        // Clear pending changes
+        setPendingWalletEdits({});
+        setPendingInventoryEdits({});
+        setPendingSkillDeletions(new Set());
+        setPendingPowerDeletions(new Set());
+        setEditingItem(null);
+      } else {
+        alert("❌ Failed to save changes. See console for details.");
+        console.error("Save failed:", response.data);
+      }
+    } catch (error) {
+      console.error("❌ Error saving changes:", error);
+      alert(`❌ Error saving changes: ${error.message}`);
+    }
+  };
+
+  // Handle edit button click for wallet/inventory items
+  const handleEditItem = (section, itemType, currentQuantity) => {
+    setEditingItem({ section, type: itemType, value: currentQuantity });
+  };
+
+  // Handle save edit for a specific item
+  const handleSaveEdit = (section, itemType) => {
+    if (!editingItem || editingItem.section !== section || editingItem.type !== itemType) return;
+
+    const newQuantity = Number(editingItem.value);
+
+    if (isNaN(newQuantity) || newQuantity < 0) {
+      alert('Please enter a valid non-negative number');
+      return;
+    }
+
+    if (section === 'wallet') {
+      setPendingWalletEdits(prev => ({ ...prev, [itemType]: newQuantity }));
+    } else if (section === 'inventory') {
+      setPendingInventoryEdits(prev => ({ ...prev, [itemType]: newQuantity }));
+    }
+
+    setEditingItem(null);
+  };
+
+  // Handle cancel edit
+  const handleCancelEdit = () => {
+    setEditingItem(null);
+  };
+
+  // Handle delete skill
+  const handleDeleteSkill = (skillIndex) => {
+    setPendingSkillDeletions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(skillIndex)) {
+        newSet.delete(skillIndex);
+      } else {
+        newSet.add(skillIndex);
+      }
+      return newSet;
+    });
+  };
+
+  // Handle delete power
+  const handleDeletePower = (powerIndex) => {
+    setPendingPowerDeletions(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(powerIndex)) {
+        newSet.delete(powerIndex);
+      } else {
+        newSet.add(powerIndex);
+      }
+      return newSet;
+    });
   };
 
   // Handle account deletion
@@ -625,32 +796,41 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
               <button className="action-btn" disabled>
                 Send Message
               </button>
-              <button 
-                className="action-btn" 
+              <button
+                className="action-btn"
                 onClick={() => handleSendHome(selectedPlayer)}
                 style={{ backgroundColor: '#28a745', color: 'white' }}
               >
                 🏠 Send Home
               </button>
-              <button 
-                className="action-btn" 
+              <button
+                className="action-btn"
                 onClick={() => handleResetPassword(selectedPlayer)}
                 style={{ backgroundColor: '#ff9800', color: 'white' }}
               >
                 🔑 Reset Password
               </button>
-              <button 
-                className="action-btn" 
+              <button
+                className="action-btn"
                 onClick={() => handleMigrateFTUE(selectedPlayer)}
                 style={{ backgroundColor: '#6f42c1', color: 'white' }}
               >
                 🎓 Migrate FTUE
               </button>
-              <button className="action-btn" disabled>
-                Modify Account
+              <button
+                className="action-btn"
+                onClick={handleSaveChanges}
+                disabled={!hasPendingChanges()}
+                style={{
+                  backgroundColor: hasPendingChanges() ? '#007bff' : '#ccc',
+                  color: 'white',
+                  cursor: hasPendingChanges() ? 'pointer' : 'not-allowed'
+                }}
+              >
+                💾 Save Changes
               </button>
-              <button 
-                className="action-btn delete-btn" 
+              <button
+                className="action-btn delete-btn"
                 onClick={() => handleDeleteAccount(selectedPlayer)}
                 style={{ backgroundColor: '#dc3545', color: 'white' }}
               >
@@ -675,7 +855,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                 const walletItems = getWalletItems(selectedPlayer.inventory);
                 return walletItems.length > 0 && (
                   <div className="wallet-section">
-                    <p 
+                    <p
                       style={{ cursor: 'pointer', fontWeight: 'bold' }}
                       onClick={() => toggleSection('wallet')}
                     >
@@ -683,9 +863,57 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                     </p>
                     {!collapsedSections.wallet && (
                       <ul className="skills-list" style={{ marginLeft: '20px' }}>
-                        {walletItems.map((item, index) => (
-                          <li key={index}>{item.type}: {item.quantity.toLocaleString()}</li>
-                        ))}
+                        {walletItems.map((item, index) => {
+                          const isEditing = editingItem?.section === 'wallet' && editingItem?.type === item.type;
+                          const displayQuantity = pendingWalletEdits[item.type] !== undefined
+                            ? pendingWalletEdits[item.type]
+                            : item.quantity;
+
+                          return (
+                            <li key={index} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              {isEditing ? (
+                                <>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <span>{item.type}:</span>
+                                    <input
+                                      type="number"
+                                      value={editingItem.value}
+                                      onChange={(e) => setEditingItem({ ...editingItem, value: e.target.value })}
+                                      style={{ width: '100px', padding: '2px 4px' }}
+                                      autoFocus
+                                    />
+                                  </div>
+                                  <div style={{ display: 'flex', gap: '4px' }}>
+                                    <button
+                                      onClick={() => handleSaveEdit('wallet', item.type)}
+                                      style={{ padding: '1px 6px', cursor: 'pointer', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', fontSize: '11px' }}
+                                    >
+                                      ✓
+                                    </button>
+                                    <button
+                                      onClick={handleCancelEdit}
+                                      style={{ padding: '1px 6px', cursor: 'pointer', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', fontSize: '11px' }}
+                                    >
+                                      ✗
+                                    </button>
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <span style={{ color: pendingWalletEdits[item.type] !== undefined ? '#007bff' : 'inherit' }}>
+                                    {item.type}: {displayQuantity.toLocaleString()}
+                                  </span>
+                                  <button
+                                    onClick={() => handleEditItem('wallet', item.type, item.quantity)}
+                                    style={{ padding: '1px 6px', cursor: 'pointer', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', fontSize: '10px' }}
+                                  >
+                                    ✏️
+                                  </button>
+                                </>
+                              )}
+                            </li>
+                          );
+                        })}
                       </ul>
                     )}
                   </div>
@@ -697,7 +925,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                 const inventoryItems = getNonWalletInventory(selectedPlayer.inventory);
                 return inventoryItems.length > 0 && (
                   <div className="inventory-section">
-                    <p 
+                    <p
                       style={{ cursor: 'pointer', fontWeight: 'bold' }}
                       onClick={() => toggleSection('inventory')}
                     >
@@ -707,7 +935,55 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                       <ul className="skills-list" style={{ marginLeft: '20px' }}>
                         {inventoryItems.map((item, index) => {
                           if (item && typeof item === 'object' && item.type && item.quantity !== undefined) {
-                            return <li key={index}>{item.type}: {item.quantity.toLocaleString()}</li>;
+                            const isEditing = editingItem?.section === 'inventory' && editingItem?.type === item.type;
+                            const displayQuantity = pendingInventoryEdits[item.type] !== undefined
+                              ? pendingInventoryEdits[item.type]
+                              : item.quantity;
+
+                            return (
+                              <li key={index} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                {isEditing ? (
+                                  <>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                      <span>{item.type}:</span>
+                                      <input
+                                        type="number"
+                                        value={editingItem.value}
+                                        onChange={(e) => setEditingItem({ ...editingItem, value: e.target.value })}
+                                        style={{ width: '100px', padding: '2px 4px' }}
+                                        autoFocus
+                                      />
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '4px' }}>
+                                      <button
+                                        onClick={() => handleSaveEdit('inventory', item.type)}
+                                        style={{ padding: '1px 6px', cursor: 'pointer', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '3px', fontSize: '11px' }}
+                                      >
+                                        ✓
+                                      </button>
+                                      <button
+                                        onClick={handleCancelEdit}
+                                        style={{ padding: '1px 6px', cursor: 'pointer', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '3px', fontSize: '11px' }}
+                                      >
+                                        ✗
+                                      </button>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    <span style={{ color: pendingInventoryEdits[item.type] !== undefined ? '#007bff' : 'inherit' }}>
+                                      {item.type}: {displayQuantity.toLocaleString()}
+                                    </span>
+                                    <button
+                                      onClick={() => handleEditItem('inventory', item.type, item.quantity)}
+                                      style={{ padding: '1px 6px', cursor: 'pointer', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '3px', fontSize: '10px' }}
+                                    >
+                                      ✏️
+                                    </button>
+                                  </>
+                                )}
+                              </li>
+                            );
                           }
                           return <li key={index}>Invalid inventory item</li>;
                         })}
@@ -722,7 +998,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                 const sortedSkills = getSortedSkills(selectedPlayer.skills);
                 return sortedSkills.length > 0 && (
                   <div className="skills-section">
-                    <p 
+                    <p
                       style={{ cursor: 'pointer', fontWeight: 'bold' }}
                       onClick={() => toggleSection('skills')}
                     >
@@ -731,15 +1007,47 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                     {!collapsedSections.skills && (
                       <ul className="skills-list" style={{ marginLeft: '20px' }}>
                         {sortedSkills.map((skill, index) => {
+                          // Find the original index in the unsorted skills array
+                          const originalIndex = selectedPlayer.skills?.findIndex(s => s === skill);
+                          const isMarkedForDeletion = pendingSkillDeletions.has(originalIndex);
+
                           // Handle different skill data formats
+                          let displayText = '';
                           if (typeof skill === 'string') {
-                            return <li key={index}>{skill}</li>;
+                            displayText = skill;
                           } else if (skill && typeof skill === 'object') {
                             const name = skill.name || skill.type || 'Unknown Skill';
                             const level = skill.level || skill.quantity || '';
-                            return <li key={index}>{name}{level ? `: ${level}` : ''}</li>;
+                            displayText = `${name}${level ? `: ${level}` : ''}`;
+                          } else {
+                            displayText = 'Invalid skill data';
                           }
-                          return <li key={index}>Invalid skill data</li>;
+
+                          return (
+                            <li key={index} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <span style={{
+                                textDecoration: isMarkedForDeletion ? 'line-through' : 'none',
+                                color: isMarkedForDeletion ? '#dc3545' : 'inherit'
+                              }}>
+                                {displayText}
+                              </span>
+                              <button
+                                onClick={() => handleDeleteSkill(originalIndex)}
+                                style={{
+                                  padding: '1px 6px',
+                                  cursor: 'pointer',
+                                  backgroundColor: isMarkedForDeletion ? '#6c757d' : '#dc3545',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '3px',
+                                  fontSize: '10px'
+                                }}
+                                title={isMarkedForDeletion ? 'Undo deletion' : 'Mark for deletion'}
+                              >
+                                {isMarkedForDeletion ? '↶' : '🗑️'}
+                              </button>
+                            </li>
+                          );
                         })}
                       </ul>
                     )}
@@ -752,7 +1060,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                 const sortedPowers = getSortedPowers(selectedPlayer.powers);
                 return sortedPowers.length > 0 && (
                   <div className="powers-section">
-                    <p 
+                    <p
                       style={{ cursor: 'pointer', fontWeight: 'bold' }}
                       onClick={() => toggleSection('powers')}
                     >
@@ -761,14 +1069,46 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                     {!collapsedSections.powers && (
                       <ul className="powers-list" style={{ marginLeft: '20px' }}>
                         {sortedPowers.map((power, index) => {
+                          // Find the original index in the unsorted powers array
+                          const originalIndex = selectedPlayer.powers?.findIndex(p => p === power);
+                          const isMarkedForDeletion = pendingPowerDeletions.has(originalIndex);
+
                           // Handle different power data formats
+                          let displayText = '';
                           if (typeof power === 'string') {
-                            return <li key={index}>{power}</li>;
+                            displayText = power;
                           } else if (power && typeof power === 'object') {
                             const name = power.name || power.type || 'Unknown Power';
-                            return <li key={index}>{name}</li>;
+                            displayText = name;
+                          } else {
+                            displayText = 'Invalid power data';
                           }
-                          return <li key={index}>Invalid power data</li>;
+
+                          return (
+                            <li key={index} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                              <span style={{
+                                textDecoration: isMarkedForDeletion ? 'line-through' : 'none',
+                                color: isMarkedForDeletion ? '#dc3545' : 'inherit'
+                              }}>
+                                {displayText}
+                              </span>
+                              <button
+                                onClick={() => handleDeletePower(originalIndex)}
+                                style={{
+                                  padding: '1px 6px',
+                                  cursor: 'pointer',
+                                  backgroundColor: isMarkedForDeletion ? '#6c757d' : '#dc3545',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '3px',
+                                  fontSize: '10px'
+                                }}
+                                title={isMarkedForDeletion ? 'Undo deletion' : 'Mark for deletion'}
+                              >
+                                {isMarkedForDeletion ? '↶' : '🗑️'}
+                              </button>
+                            </li>
+                          );
                         })}
                       </ul>
                     )}
