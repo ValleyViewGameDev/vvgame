@@ -828,7 +828,7 @@ const handleHeal = async (recipe) => {
               fontStyle: 'italic',
               color: '#666'
             }}>
-              {strings[625]}
+              {strings[625]}{npcData.type}.
             </div>
           )}
 
@@ -1074,10 +1074,10 @@ const handleHeal = async (recipe) => {
               fontStyle: 'italic',
               color: '#666'
             }}>
-              {strings[626]}
+              {strings[626]}{npcData.type}.
             </div>
           )}
-          
+
           {canTrade && (
             <>
               <h3>{strings[420]}</h3>

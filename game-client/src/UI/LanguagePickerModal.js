@@ -11,8 +11,13 @@ export default function LanguagePickerModal({ currentPlayer, setCurrentPlayer, u
   const strings = useStrings();
   const [selectedLanguage, setSelectedLanguage] = useState(currentPlayer.language || '');
 
+  // Only these languages have been localized
+  const enabledLanguages = ['en', 'es', 'fr', 'de'];
+
   const handleLanguageClick = (langCode) => {
-    setSelectedLanguage(langCode);
+    if (enabledLanguages.includes(langCode)) {
+      setSelectedLanguage(langCode);
+    }
   };
 
 const handleSave = async () => {
@@ -43,15 +48,22 @@ const handleSave = async () => {
         <button className="modal-close-btn" onClick={onClose}>×</button>
         <div className="modal-title">{strings[130]}</div>
         <ul className="language-list">
-          {LANGUAGE_OPTIONS.map(({ code, label, flag }) => (
-            <li
-              key={code}
-              className={`language-item ${selectedLanguage === code ? 'selected' : ''}`}
-              onClick={() => handleLanguageClick(code)}
-            >
-              <span className="flag">{flag}</span> {label}
-            </li>
-          ))}
+          {LANGUAGE_OPTIONS.map(({ code, label, flag }) => {
+            const isEnabled = enabledLanguages.includes(code);
+            return (
+              <li
+                key={code}
+                className={`language-item ${selectedLanguage === code ? 'selected' : ''} ${!isEnabled ? 'disabled' : ''}`}
+                onClick={() => handleLanguageClick(code)}
+                style={{
+                  opacity: isEnabled ? 1 : 0.4,
+                  cursor: isEnabled ? 'pointer' : 'not-allowed'
+                }}
+              >
+                <span className="flag">{flag}</span> {label}
+              </li>
+            );
+          })}
         </ul>
         <div className="modal-buttons shared-buttons">
           <button className="btn-basic btn-modal btn-success" onClick={handleSave}>{strings[131]}</button>
