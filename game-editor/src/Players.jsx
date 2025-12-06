@@ -793,6 +793,18 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
             
             {/* Player management buttons */}
             <div className="player-actions">
+              <button
+                className="action-btn"
+                onClick={handleSaveChanges}
+                disabled={!hasPendingChanges()}
+                style={{
+                  backgroundColor: hasPendingChanges() ? '#007bff' : '#ccc',
+                  color: 'white',
+                  cursor: hasPendingChanges() ? 'pointer' : 'not-allowed'
+                }}
+              >
+                💾 Save Changes
+              </button>
               <button className="action-btn" disabled>
                 Send Message
               </button>
@@ -816,18 +828,6 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                 style={{ backgroundColor: '#6f42c1', color: 'white' }}
               >
                 🎓 Migrate FTUE
-              </button>
-              <button
-                className="action-btn"
-                onClick={handleSaveChanges}
-                disabled={!hasPendingChanges()}
-                style={{
-                  backgroundColor: hasPendingChanges() ? '#007bff' : '#ccc',
-                  color: 'white',
-                  cursor: hasPendingChanges() ? 'pointer' : 'not-allowed'
-                }}
-              >
-                💾 Save Changes
               </button>
               <button
                 className="action-btn delete-btn"
@@ -862,7 +862,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                       💰 Wallet: {collapsedSections.wallet ? '▶' : '▼'}
                     </p>
                     {!collapsedSections.wallet && (
-                      <ul className="skills-list" style={{ marginLeft: '20px' }}>
+                      <ul className="skills-list" style={{ marginLeft: '0px' }}>
                         {walletItems.map((item, index) => {
                           const isEditing = editingItem?.section === 'wallet' && editingItem?.type === item.type;
                           const displayQuantity = pendingWalletEdits[item.type] !== undefined
@@ -879,7 +879,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                                       type="number"
                                       value={editingItem.value}
                                       onChange={(e) => setEditingItem({ ...editingItem, value: e.target.value })}
-                                      style={{ width: '100px', padding: '2px 4px' }}
+                                      style={{ width: '60px', padding: '2px 4px' }}
                                       autoFocus
                                     />
                                   </div>
@@ -932,7 +932,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                       📦 Inventory: {collapsedSections.inventory ? '▶' : '▼'}
                     </p>
                     {!collapsedSections.inventory && (
-                      <ul className="skills-list" style={{ marginLeft: '20px' }}>
+                      <ul className="skills-list" style={{ marginLeft: '0px' }}>
                         {inventoryItems.map((item, index) => {
                           if (item && typeof item === 'object' && item.type && item.quantity !== undefined) {
                             const isEditing = editingItem?.section === 'inventory' && editingItem?.type === item.type;
@@ -950,7 +950,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                                         type="number"
                                         value={editingItem.value}
                                         onChange={(e) => setEditingItem({ ...editingItem, value: e.target.value })}
-                                        style={{ width: '100px', padding: '2px 4px' }}
+                                        style={{ width: '60px', padding: '2px 4px' }}
                                         autoFocus
                                       />
                                     </div>
@@ -1005,7 +1005,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                       🔧 Skills: {collapsedSections.skills ? '▶' : '▼'}
                     </p>
                     {!collapsedSections.skills && (
-                      <ul className="skills-list" style={{ marginLeft: '20px' }}>
+                      <ul className="skills-list" style={{ marginLeft: '0px' }}>
                         {sortedSkills.map((skill, index) => {
                           // Find the original index in the unsorted skills array
                           const originalIndex = selectedPlayer.skills?.findIndex(s => s === skill);
@@ -1067,7 +1067,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                       ⚡ Powers: {collapsedSections.powers ? '▶' : '▼'}
                     </p>
                     {!collapsedSections.powers && (
-                      <ul className="powers-list" style={{ marginLeft: '20px' }}>
+                      <ul className="powers-list" style={{ marginLeft: '0px' }}>
                         {sortedPowers.map((power, index) => {
                           // Find the original index in the unsorted powers array
                           const originalIndex = selectedPlayer.powers?.findIndex(p => p === power);
