@@ -12,6 +12,7 @@
       "baseSpeed": 5,
       "inventory": [{ "type": "Money", "quantity": 6000 },{ "type": "Wheat", "quantity": 20 },{ "type": "Cloth", "quantity": 1 },{ "type": "Gem", "quantity": 1 }],
       "backpack": [],
+      "skills": [],
       "powers": [{ "type": "Knife", "quantity": 1 }],
       "warehouseCapacity": 1000,
       "warehouseLevel": 0,

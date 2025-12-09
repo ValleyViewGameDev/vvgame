@@ -443,7 +443,8 @@ const CourthousePanel = ({
             gridId,
             TILE_SIZE,
             updateStatus,
-            onClose
+            onClose,
+            devOnly: true,
         });
     };
 

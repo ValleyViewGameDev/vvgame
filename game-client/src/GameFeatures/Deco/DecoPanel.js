@@ -75,7 +75,8 @@ const DecoPanel = ({
       gridId,
       TILE_SIZE,
       updateStatus,
-      onClose
+      onClose,
+      devOnly: !isHomestead, // Only verify developer status when NOT on homestead
     });
   };
   

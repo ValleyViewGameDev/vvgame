@@ -3,6 +3,7 @@ import axios from 'axios';
 import { createCollectEffect } from '../VFX/VFX';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { updateGridResource } from './GridManagement';
+import { checkDeveloperStatus } from './appUtils';
 
 // Generate unique transaction ID
 function generateTransactionId() {
@@ -10,6 +11,7 @@ function generateTransactionId() {
 }
 
 // Protected selling function for all panels
+// devOnly: if true, verifies developer status before proceeding
 export async function handleProtectedSelling({
   currentPlayer,
   setInventory,
@@ -21,8 +23,17 @@ export async function handleProtectedSelling({
   gridId,
   TILE_SIZE,
   updateStatus,
-  onClose
+  onClose,
+  devOnly = false
 }) {
+  // If devOnly is true, verify developer status before proceeding
+  if (devOnly) {
+    const isStillDeveloper = await checkDeveloperStatus(currentPlayer?.username);
+    if (!isStillDeveloper) {
+      updateStatus('❌ Developer access required.');
+      return { success: false, error: 'Developer access required' };
+    }
+  }
   console.log(`🔒 [PROTECTED SELLING] Starting protected sale for ${stationType} at (${currentStationPosition.x}, ${currentStationPosition.y})`);
   
   // Debug: Check what resources exist at this position

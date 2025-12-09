@@ -32,7 +32,7 @@ const AnimalStall = ({
   masterResources,
   isDeveloper,
 }) => {
-
+  const isHomestead = currentPlayer?.location?.gtype === 'homestead';
   const [stallDetails, setStallDetails] = useState(null);
   const [outputDetails, setOutputDetails] = useState(null);
   const strings = useStrings();
@@ -75,7 +75,8 @@ const AnimalStall = ({
       gridId,
       TILE_SIZE,
       updateStatus,
-      onClose
+      onClose,
+      devOnly: !isHomestead, // Only verify developer status when NOT on homestead
     });
   };
   

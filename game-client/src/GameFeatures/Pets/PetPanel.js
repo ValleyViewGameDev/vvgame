@@ -73,6 +73,7 @@ const PetPanel = ({
   isDeveloper,
   globalTuning,
 }) => {
+  const isHomestead = currentPlayer?.location?.gtype === 'homestead';
   const strings = useStrings();
   const { updateStatus } = useContext(StatusBarContext);
   const [activeTimer, setActiveTimer] = useState(false);
@@ -395,7 +396,8 @@ const PetPanel = ({
       gridId,
       TILE_SIZE,
       updateStatus,
-      onClose
+      onClose,
+      devOnly: !isHomestead, // Only verify developer status when NOT on homestead
     });
   };
 
@@ -473,8 +475,8 @@ const PetPanel = ({
 
         </div>
         
-        {/* Sell/refund button - only on homesteads */}
-        {currentPlayer.location.gtype === 'homestead' && (
+        {/* Sell/refund button - homesteads or developers */}
+        {(isHomestead || isDeveloper) && (
           <div className="pet-panel-footer">
             <hr />
             <div className="shared-buttons">

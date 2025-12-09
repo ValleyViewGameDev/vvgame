@@ -247,6 +247,7 @@ const ShopStation = ({
         setCurrentPlayer,
         updateStatus,
         onClose,
+        devOnly: true,
       });
       
       if (success) {
@@ -384,11 +385,11 @@ const ShopStation = ({
           {errorMessage && <p className="error-message">{errorMessage}</p>}
         </div>
         
-        {(currentPlayer.location.gtype === 'homestead' || isDeveloper) && (
+        {isDeveloper && (
           <div className="station-panel-footer">
             <div className="shared-buttons">
-              <TransactionButton 
-                className="btn-basic btn-danger" 
+              <TransactionButton
+                className="btn-basic btn-danger"
                 onAction={handleSellStation}
                 transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
               >

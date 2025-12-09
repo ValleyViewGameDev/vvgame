@@ -315,7 +315,8 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
       gridId,
       TILE_SIZE,
       updateStatus,
-      onClose
+      onClose,
+      devOnly: true,
     });
   };
 

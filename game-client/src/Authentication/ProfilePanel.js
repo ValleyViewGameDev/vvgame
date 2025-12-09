@@ -1,5 +1,5 @@
 import API_BASE from '../config';
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import ChangeIconModal from '../UI/ChangeIconModal';
 import axios from 'axios';
 import '../UI/Panel.css'; // Use the standardized styles
@@ -14,32 +14,11 @@ import LANGUAGE_OPTIONS from '../UI/Languages.json';
 import { useModalContext } from '../UI/ModalContext';
 import { useStrings } from '../UI/StringsContext';
 
-const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick }) => {
+const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick, isDeveloper }) => {
   const strings = useStrings();
   const { openPanel } = usePanelContext();
 
-  const [isDeveloper, setIsDeveloper] = useState(false);
-  const hasCheckedDeveloperStatus = useRef(false);
   const [showChangeIconModal, setShowChangeIconModal] = useState(false);
-
-  useEffect(() => {
-    const checkDevStatus = async () => {
-      try {
-        if (!hasCheckedDeveloperStatus.current && currentPlayer?.username) {
-          const res = await axios.get(`${API_BASE}/api/check-developer-status/${currentPlayer.username}`);
-          if (res.data?.isDeveloper) {
-            setIsDeveloper(true);
-          }
-          hasCheckedDeveloperStatus.current = true;
-          console.log('🔍 Developer check complete. isDeveloper:', res.data?.isDeveloper);
-        }
-      } catch (err) {
-        console.warn('⚠️ Failed to check developer status:', err);
-      }
-    };
-
-    checkDevStatus();
-  }, [currentPlayer]);
 
   const [formData, setFormData] = useState({
     username: '',

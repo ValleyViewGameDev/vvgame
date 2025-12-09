@@ -163,7 +163,8 @@ function BankPanel({
             gridId,
             TILE_SIZE,
             updateStatus,
-            onClose
+            onClose,
+            devOnly: true,
         });
     };
 

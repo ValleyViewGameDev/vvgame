@@ -44,6 +44,7 @@ const ScrollStation = ({
   currentSeason,
   globalTuning,
 }) => {
+  const isHomestead = currentPlayer?.location?.gtype === 'homestead';
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
   const [allResources, setAllResources] = useState([]);
@@ -214,7 +215,8 @@ const ScrollStation = ({
       gridId,
       TILE_SIZE,
       updateStatus,
-      onClose
+      onClose,
+      devOnly: !isHomestead, // Only verify developer status when NOT on homestead
     });
   };
   

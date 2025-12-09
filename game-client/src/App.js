@@ -2816,6 +2816,7 @@ return (
         zoomLevel={zoomLevel}
         setZoomLevel={setZoomLevel}
         handlePCClick={handlePCClick}
+        isDeveloper={isDeveloper}
        />
       )}
       {activePanel === 'LoginPanel' && (
@@ -3294,6 +3295,8 @@ return (
           zoomLevel={zoomLevel}
           setZoomLevel={setZoomLevel}
           centerCameraOnPlayer={centerCameraOnPlayer}
+          globalTuning={globalTuning}
+          isDeveloper={isDeveloper}
         />
       )}
       {activePanel === 'FarmHandPanel' && (

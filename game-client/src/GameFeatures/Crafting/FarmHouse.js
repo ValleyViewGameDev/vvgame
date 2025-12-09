@@ -409,7 +409,8 @@ const FarmHouse = ({
       gridId,
       TILE_SIZE,
       updateStatus,
-      onClose
+      onClose,
+      devOnly: true, // Developer-only action
     });
   };
 

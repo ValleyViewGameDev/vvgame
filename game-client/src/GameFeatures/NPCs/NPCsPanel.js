@@ -46,6 +46,7 @@ const NPCPanel = ({
   setZoomLevel,
   centerCameraOnPlayer,
   globalTuning,
+  isDeveloper,
 }) => {
   const strings = useStrings();
   const [questList, setQuestList] = useState([]);
@@ -58,7 +59,6 @@ const NPCPanel = ({
   const [questThreshold, setQuestThreshold] = useState(0);
   const [canTrade, setCanTrade] = useState(false);
   const [tradeThreshold, setTradeThreshold] = useState(0);
-  const [isDeveloper, setIsDeveloper] = useState(false);
   const [isHealing, setIsHealing] = useState(false); // Prevent spam-clicking heal button
   const [coolingDownItems, setCoolingDownItems] = useState(new Set());
   const COOLDOWN_DURATION = 1500; // 1500ms cooldown (3x longer than terraform)
@@ -69,17 +69,6 @@ const NPCPanel = ({
     console.warn("NPCPanel was opened with missing npcData.");
     npcData = { type: "Unknown NPC", symbol: "❓" }; // Provide default fallback values
   }
-
-  // Check developer status
-  useEffect(() => {
-    const checkStatus = async () => {
-      if (currentPlayer?.username) {
-        const devStatus = await checkDeveloperStatus(currentPlayer.username);
-        setIsDeveloper(devStatus);
-      }
-    };
-    checkStatus();
-  }, [currentPlayer]);
 
   // Check if player can quest based on relationship
   useEffect(() => {
@@ -720,6 +709,13 @@ const handleHeal = async (recipe) => {
   };
 
   const handleSellNPC = async () => {
+    // Verify developer status before executing
+    const isStillDeveloper = await checkDeveloperStatus(currentPlayer?.username);
+    if (!isStillDeveloper) {
+      updateStatus('❌ Developer access required.');
+      return;
+    }
+
     if (!npcData || !npcData.id) {
       console.error('Cannot sell NPC: Missing NPC data or ID');
       return;

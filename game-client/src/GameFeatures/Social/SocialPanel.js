@@ -9,6 +9,7 @@ import socket from '../../socketManager';
 import PlayerPanel from './PlayerPanel';
 import HopeQuest from './HopeQuest';
 import { getDerivedLevel, getXpForNextLevel } from '../../Utils/playerManagement';
+import { checkDeveloperStatus } from '../../Utils/appUtils';
 import { useStrings } from '../../UI/StringsContext';
 import '../Leaderboard/Leaderboard.css';
 
@@ -134,6 +135,13 @@ const SocialPanel = ({
 
   // ✅ Handle Remove from GridState (Debug)
   const handleRemoveFromGridState = async () => {
+    // Verify developer status before executing
+    const isStillDeveloper = await checkDeveloperStatus(currentPlayer?.username);
+    if (!isStillDeveloper) {
+      updateStatus('❌ Developer access required.');
+      return;
+    }
+
     if (!pcData || !pcData.playerId) {
       console.error("❌ Cannot remove: No player data");
       updateStatus("Failed to remove player from grid state");

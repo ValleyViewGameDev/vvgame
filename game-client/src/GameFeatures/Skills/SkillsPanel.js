@@ -204,6 +204,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
         setCurrentPlayer,
         updateStatus,
         onClose,
+        devOnly: true,
       });
       
       if (success) {
