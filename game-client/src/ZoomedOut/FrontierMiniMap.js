@@ -238,7 +238,7 @@ const FrontierMiniMap = ({
             )}
             title={strings && strings[108] ? strings[108] : "Go to Town"}
           >
-            🚂
+            🏛️
           </span>
         )}
       </div>

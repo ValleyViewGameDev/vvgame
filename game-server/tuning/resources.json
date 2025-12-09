@@ -7558,19 +7558,6 @@
     "gemcost": 26773
   },
   {
-    "type": "Zookeeper",
-    "symbol": "🐒",
-    "layoutkey": "sk28",
-    "category": "skill",
-    "source": "Guild",
-    "requires": "Husbandry",
-    "qtycollected": 1,
-    "level": 9,
-    "ingredient1": "Money",
-    "ingredient1qty": 5000,
-    "gemcost": 625
-  },
-  {
     "type": "Fowler",
     "symbol": "🐓",
     "layoutkey": "sk38",
@@ -7664,6 +7651,19 @@
     "ingredient4": "Potion C",
     "ingredient4qty": 40,
     "gemcost": 81084
+  },
+  {
+    "type": "Zookeeper",
+    "symbol": "🐒",
+    "layoutkey": "sk28",
+    "category": "skill",
+    "source": "Guild",
+    "requires": "Husbandry",
+    "qtycollected": 1,
+    "level": 9,
+    "ingredient1": "Money",
+    "ingredient1qty": 5000,
+    "gemcost": 625
   },
   {
     "type": "Law",

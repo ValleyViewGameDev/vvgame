@@ -219,6 +219,86 @@ router.post('/remove-homestead', async (req, res) => {
   }
 });
 
+// Delete orphaned grid (grids without ownerIds from failed account registrations)
+router.post('/delete-orphaned-grid', async (req, res) => {
+  const { gridId } = req.body;
+  console.log('🗑️ Deleting orphaned grid:', gridId);
+
+  if (!gridId) {
+    return res.status(400).json({ error: 'gridId is required.' });
+  }
+
+  try {
+    // 1. Find the grid to get its settlement info
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: 'Grid not found.' });
+    }
+
+    // 2. Verify this is actually an orphaned grid (no ownerId)
+    if (grid.ownerId) {
+      return res.status(400).json({
+        error: 'This grid has an owner. Use Remove Homestead instead.',
+        ownerId: grid.ownerId
+      });
+    }
+
+    const settlementId = grid.settlementId;
+
+    // 3. Delete the grid from the grids collection
+    await Grid.findByIdAndDelete(gridId);
+    console.log('✅ Orphaned grid deleted from database');
+
+    // 4. Update the settlement to mark this grid location as available
+    if (settlementId) {
+      const settlement = await Settlement.findById(settlementId);
+      if (settlement && settlement.grids) {
+        let updated = false;
+        for (let row = 0; row < settlement.grids.length; row++) {
+          for (let col = 0; col < settlement.grids[row].length; col++) {
+            const cell = settlement.grids[row][col];
+            if (cell.gridId && cell.gridId.toString() === gridId) {
+              // Mark this cell as available with no gridId
+              settlement.grids[row][col] = {
+                gridCoord: cell.gridCoord,
+                gridType: cell.gridType,
+                gridId: null,
+                available: true
+              };
+              updated = true;
+              console.log(`✅ Updated settlement grid at [${row}][${col}] to available`);
+              break;
+            }
+          }
+          if (updated) break;
+        }
+
+        if (updated) {
+          await settlement.save();
+          console.log('✅ Settlement updated successfully');
+        } else {
+          console.warn('⚠️ Grid not found in settlement grids array');
+        }
+      } else {
+        console.warn('⚠️ Settlement not found or has no grids array');
+      }
+    } else {
+      console.warn('⚠️ Grid had no settlementId');
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Orphaned grid deleted successfully.',
+      deletedGridId: gridId,
+      settlementId: settlementId
+    });
+
+  } catch (error) {
+    console.error('❌ Error deleting orphaned grid:', error);
+    res.status(500).json({ error: 'Failed to delete orphaned grid.' });
+  }
+});
+
 
 router.post('/claim-homestead/:gridId', async (req, res) => {
   const { gridId } = req.params;

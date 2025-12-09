@@ -35,6 +35,7 @@ const DebugPanel = ({
   const [toGridCoord, setToGridCoord] = useState('');
   const [usernameToDelete, setUsernameToDelete] = useState('');
   const [messageIdentifier, setMessageIdentifier] = useState('');
+  const [orphanedGridId, setOrphanedGridId] = useState('');
   
   // Performance monitoring state
   const [performanceMetrics, setPerformanceMetrics] = useState({
@@ -924,6 +925,45 @@ const handleGetRich = async () => {
     }
   };
 
+  const handleDeleteOrphanedGrid = async (gridId) => {
+    if (!gridId) {
+      alert("Please enter a Grid ID.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `⚠️ Are you sure you want to delete orphaned grid?\n\n` +
+      `Grid ID: ${gridId}\n\n` +
+      `This will:\n` +
+      `1. Delete this grid from the database\n` +
+      `2. Mark this location as available in the settlement\n\n` +
+      `This action CANNOT be undone!`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      console.log('🗑️ Deleting orphaned grid:', gridId);
+
+      const response = await axios.post(`${API_BASE}/api/delete-orphaned-grid`, {
+        gridId
+      });
+
+      if (response.data.success) {
+        console.log('✅ Orphaned grid deleted successfully');
+        updateStatus('✅ Orphaned grid deleted and settlement updated.');
+        setOrphanedGridId(''); // Clear the input
+      } else {
+        console.error('❌ Failed to delete orphaned grid:', response.data);
+        updateStatus(`❌ ${response.data.error || 'Failed to delete orphaned grid.'}`);
+      }
+    } catch (error) {
+      console.error('❌ Error deleting orphaned grid:', error);
+      updateStatus('❌ Error deleting orphaned grid.');
+      alert('Failed to delete orphaned grid. Check console for details.');
+    }
+  };
+
 
   return (
     <Panel onClose={onClose} titleKey="1120" panelName="DebugPanel">
@@ -1154,7 +1194,23 @@ const handleGetRich = async () => {
             Delete
           </button>
         </div>
-        
+
+        <h3>Delete Orphaned Grid</h3>
+        <input
+          type="text"
+          placeholder="Enter Grid ID"
+          value={orphanedGridId}
+          onChange={(e) => setOrphanedGridId(e.target.value)}
+        />
+        <div className="shared-buttons">
+          <button
+            className="btn-basic btn-danger"
+            onClick={() => handleDeleteOrphanedGrid(orphanedGridId)}
+          >
+            Delete
+          </button>
+        </div>
+
 
         <h3>Send Message to All Users</h3>
         <input
