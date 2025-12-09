@@ -119,7 +119,7 @@ export const RenderDynamicElementsDOM = ({
       bubbles.push(
         <div
           key={`speech-npc-${npc.id}`}
-          className={`conversation-speech-bubble npc${speech.isMatch ? ' match' : ''}`}
+          className={`conversation-speech-bubble npc${speech.matchState === 'match' ? ' match' : speech.matchState === 'rival' ? ' rival' : ''}`}
           style={{
             position: 'absolute',
             left: position.x * TILE_SIZE + TILE_SIZE / 2,
@@ -173,7 +173,7 @@ export const RenderDynamicElementsDOM = ({
       bubbles.push(
         <div
           key={`speech-pc-${pc.playerId}`}
-          className={`conversation-speech-bubble pc${speech.isMatch ? ' match' : ''}`}
+          className={`conversation-speech-bubble pc${speech.matchState === 'match' ? ' match' : speech.matchState === 'rival' ? ' rival' : ''}`}
           style={{
             position: 'absolute',
             left: position.x * TILE_SIZE + TILE_SIZE / 2,

@@ -12,7 +12,7 @@ import { playConversation, calculateModifiedChance } from './Conversation';
 import ConversationManager from './ConversationManager';
 import '../../UI/SharedButtons.css';
 
-const RelationshipCard = ({ 
+const RelationshipCard = ({
   currentPlayer,
   setCurrentPlayer,
   targetName,
@@ -28,7 +28,8 @@ const RelationshipCard = ({
   playerPosition = null, // Player's grid position for conversation
   targetPosition = null, // Target's grid position for conversation
   TILE_SIZE = 30, // Tile size for positioning speech bubbles
-  masterResources = [] // Master resources for topic resolution
+  masterResources = [], // Master resources for topic resolution
+  isDeveloper = false // Show debug info for chance calculations
 }) => {
   const [relationship, setRelationship] = useState(null);
   const [isInitializing, setIsInitializing] = useState(false);
@@ -128,27 +129,66 @@ const RelationshipCard = ({
       
       // Calculate modified chance based on conversation results
       const baseChance = interaction.chance || 1.0;
-      const modifiedChance = conversationResults 
+      const modifiedChance = conversationResults
         ? calculateModifiedChance(baseChance, interaction, conversationResults, currentPlayer, targetName)
         : baseChance;
-      
+
       console.log('🎲 Chance calculation:', {
         baseChance,
         conversationResults,
         modifiedChance
       });
-      
+
       // Roll for success based on modified chance
       const randomRoll = Math.random();
       const success = randomRoll <= modifiedChance;
-      
+
+      // Show debug info for developers
+      if (isDeveloper && updateStatus) {
+        const matchBonus = conversationResults?.matchingTopics ? conversationResults.matchingTopics * 0.1 : 0;
+        const rivalPenalty = conversationResults?.rivalTopics ? conversationResults.rivalTopics * 0.15 : 0;
+
+        // Calculate relbuff for debug display
+        // Note: Statuses are stored as boolean properties on relationship (e.g., rel.friend = true)
+        let relBuffBonus = 0;
+        if (currentPlayer?.relationships) {
+          const rel = currentPlayer.relationships.find(r => r.name === targetName);
+          if (rel) {
+            for (let i = 1; i <= 3; i++) {
+              const buffField = interaction[`relbuff${i}`];
+              if (buffField && rel[buffField] === true) {
+                relBuffBonus = interaction.relbuff || 0.2;
+                break;
+              }
+            }
+          }
+        }
+
+        // On failure, score change is negative of relscoreresult
+        const scoreChange = success ? (interaction.relscoreresult || 0) : -(interaction.relscoreresult || 0);
+        const scoreStr = scoreChange >= 0 ? `+${scoreChange}` : `${scoreChange}`;
+        const relBuffStr = relBuffBonus > 0 ? ` + RelBuff ${relBuffBonus.toFixed(2)}` : '';
+        const debugStr = `🎲 ${interaction.interaction}: Base ${baseChance.toFixed(2)} + Match ${matchBonus.toFixed(2)} - Rival ${rivalPenalty.toFixed(2)}${relBuffStr} = Threshold ${modifiedChance.toFixed(2)} | Roll ${randomRoll.toFixed(2)} ≤ ${modifiedChance.toFixed(2)}? → ${success ? '✅' : '❌'} (${scoreStr})`;
+        updateStatus(debugStr);
+      }
+
       // Continue with success/failure handling
       await handleInteractionOutcome(success, interaction);
     } else {
       // No conversation - use base chance
+      const baseChance = interaction.chance || 1.0;
       const randomRoll = Math.random();
-      const success = randomRoll <= (interaction.chance || 1.0);
-      
+      const success = randomRoll <= baseChance;
+
+      // Show debug info for developers
+      if (isDeveloper && updateStatus) {
+        // On failure, score change is negative of relscoreresult
+        const scoreChange = success ? (interaction.relscoreresult || 0) : -(interaction.relscoreresult || 0);
+        const scoreStr = scoreChange >= 0 ? `+${scoreChange}` : `${scoreChange}`;
+        const debugStr = `🎲 ${interaction.interaction}: Threshold ${baseChance.toFixed(2)} | Roll ${randomRoll.toFixed(2)} ≤ ${baseChance.toFixed(2)}? → ${success ? '✅' : '❌'} (${scoreStr})`;
+        updateStatus(debugStr);
+      }
+
       // Continue with success/failure handling
       await handleInteractionOutcome(success, interaction);
     }

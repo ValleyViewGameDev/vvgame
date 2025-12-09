@@ -81,16 +81,16 @@
 }
 
 .conversation-speech-bubble.npc {
-  background-color: #f3e5f5;
-  border-color: #9C27B0;
+  background-color: #e3f2fd;
+  border-color: #2196F3;
 }
 
 .conversation-speech-bubble.npc::after {
-  border-top-color: #f3e5f5;
+  border-top-color: #e3f2fd;
 }
 
 .conversation-speech-bubble.npc::before {
-  border-top-color: #9C27B0;
+  border-top-color: #2196F3;
 }
 
 /* Removed fadeInBubble keyframes - no longer used */
@@ -119,6 +119,16 @@
 
 .conversation-speech-bubble.match::before {
   border-top-color: #4CAF50 !important;
+}
+
+/* Red outline for rival relationships */
+.conversation-speech-bubble.rival {
+  border-color: #f44336 !important;
+  box-shadow: 0 6px 12px rgba(244, 67, 54, 0.4), 0 0 20px rgba(244, 67, 54, 0.3);
+}
+
+.conversation-speech-bubble.rival::before {
+  border-top-color: #f44336 !important;
 }
 
 /* Relationship outcome emoji */

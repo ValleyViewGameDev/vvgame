@@ -1,13 +1,13 @@
 [
   {
     "type": "Kent",
-    "symbol": "👨🏽",
+    "symbol": "🤠",
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
-    "interest1": "Wood",
-    "interest2": "Wood",
-    "interest3": "Wood"
+    "interest1": "Money",
+    "interest2": "Money",
+    "interest3": "Money"
   },
   {
     "type": "The Shepherd",
@@ -16,7 +16,8 @@
     "buff4marriage": 5,
     "buff4friend": 2,
     "interest1": "Cow",
-    "interest2": "Sheep"
+    "interest2": "Sheep",
+    "interest3": "Mill"
   },
   {
     "type": "Portia",
@@ -26,7 +27,6 @@
     "buff4friend": 2,
     "interest1": "School",
     "interest2": "Hospital",
-    "interest3": "Library",
     "Iago": "rival"
   },
   {
@@ -38,8 +38,7 @@
     "buff4marriage": 5,
     "buff4friend": 2,
     "interest1": "Zombie",
-    "interest2": "Ghost",
-    "interest3": "Spider",
+    "interest2": "Spider",
     "Cassio": "rival"
   },
   {
@@ -50,8 +49,8 @@
     "buff4marriage": 1,
     "buff4friend": 1,
     "interest1": "Duke Angelo",
-    "interest2": "Juliet",
-    "interest3": "Shrine",
+    "interest2": "Shrine",
+    "interest3": "Juliet",
     "Hotspur": "rival",
     "Iago": "rival",
     "Juliet": "friend"
@@ -65,7 +64,7 @@
     "buff4friend": 2,
     "interest1": "Apple Pie",
     "interest2": "Strawberry Pie",
-    "interest3": "Lemon",
+    "interest3": "Hotspur",
     "Hotspur": "love"
   },
   {
@@ -75,8 +74,8 @@
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
-    "interest1": "Portrait",
-    "interest2": "Ink",
+    "interest1": "Ink",
+    "interest2": "Portrait",
     "interest3": "Caliban",
     "Caliban": "friend"
   },
@@ -87,8 +86,8 @@
     "buff4love": 1,
     "buff4marriage": 1,
     "buff4friend": 1,
-    "interest1": "Rosesmary",
-    "interest2": "Feverfew",
+    "interest1": "Feverfew",
+    "interest2": "Rosesmary",
     "interest3": "Gertrude",
     "Gertrude": "love"
   },
@@ -99,8 +98,9 @@
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
-    "interest1": "Dragon",
-    "interest2": "Trident",
+    "interest1": "Trident",
+    "interest2": "Dragon",
+    "interest3": "Prospero",
     "Prospero": "friend"
   },
   {
@@ -110,7 +110,8 @@
     "buff4marriage": 1,
     "buff4friend": 1,
     "interest1": "Zombie",
-    "interest2": "Garlic"
+    "interest2": "Garlic",
+    "interest3": "Vampire's Blood"
   },
   {
     "type": "Prospero",
@@ -119,9 +120,9 @@
     "buff4love": 1,
     "buff4marriage": 1,
     "buff4friend": 1,
-    "interest1": "Leontes",
+    "interest1": "Prospero's Orb",
     "interest2": "Titania",
-    "interest3": "Caliban",
+    "interest3": "Leontes",
     "Titania": "friend",
     "Leontes": "friend"
   },
@@ -132,7 +133,8 @@
     "buff4marriage": 5,
     "buff4friend": 2,
     "interest1": "Port",
-    "interest2": "Mistress Quickly",
+    "interest2": "Port",
+    "interest3": "Mistress Quickly",
     "Mistress_Quickley": "love"
   },
   {
@@ -141,7 +143,8 @@
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
-    "interest1": "Potion A"
+    "interest1": "Potion A",
+    "interest2": "Potion B"
   },
   {
     "type": "Iago",
@@ -149,7 +152,7 @@
     "buff4love": 3,
     "buff4marriage": 10,
     "buff4friend": 2,
-    "interest1": "Portia",
+    "interest1": "Brass Bell",
     "interest2": "Portia's Secret",
     "Portia": "rival",
     "Cassio": "rival"
@@ -161,7 +164,8 @@
     "buff4marriage": 5,
     "buff4friend": 2,
     "interest1": "Queen's Cake",
-    "interest2": "Helena",
+    "interest2": "Diamond Ring",
+    "interest3": "Helena",
     "Helena": "love"
   },
   {
@@ -171,7 +175,7 @@
     "buff4marriage": 5,
     "buff4friend": 2,
     "interest1": "King's Crown",
-    "interest2": "Gertrude",
+    "interest2": "Gold",
     "interest3": "Prospero",
     "Prospero": "friend",
     "Iago": "rival",
@@ -184,8 +188,8 @@
     "buff4marriage": 5,
     "buff4friend": 2,
     "interest1": "Bones",
-    "interest2": "Titania",
-    "interest3": "Magic Mushroom",
+    "interest2": "Magic Mushroom",
+    "interest3": "Titania",
     "Feste": "friend",
     "Titania": "love",
     "Prospero": "rival"
@@ -198,7 +202,7 @@
     "buff4friend": 2,
     "interest1": "Tulip",
     "interest2": "Sunflower",
-    "interest3": "Rosemary",
+    "interest3": "Cassio",
     "Cassio": "friend"
   },
   {
@@ -226,13 +230,12 @@
   {
     "type": "Constable Elbow",
     "symbol": "🧔🏼‍♂️",
-    "dialogOnMet": "Greetings traveler! For centuries the kindn people of this land have lived in harmony, ruled by the great King Leontes. But of late, an evil scourge threatens our peaceful ways. But it is said that a great adventurer will restore Leontes and push back the evil. Seek the Oracle in the valley, and bring us Hope!",
+    "dialogOnMet": "Greetings traveler! For centuries, the kind people of this land lived in harmony, ruled by the benevolent King Leontes. But of late an evil scourge grows in the Valley, and threatens our peaceful ways. Now ... it is said that a single Quest can restore Hope to the land, and push back the darkness. Seek the Oracle in the Valley, adventurer, and bring us Hope!",
     "buff4love": 1,
     "buff4marriage": 1,
     "buff4friend": 1,
-    "interest1": "Town Door",
-    "interest2": "Train",
-    "interest3": "Horse"
+    "interest1": "Town Key",
+    "interest3": "Kent"
   },
   {
     "type": "Snug",
@@ -242,6 +245,7 @@
     "buff4friend": 2,
     "interest1": "Bear",
     "interest2": "Coyote",
-    "interest3": "Pelt"
+    "interest3": "Hotspur",
+    "Hotspur": "friend"
   }
 ]

@@ -501,7 +501,7 @@ export const RenderDynamicElementsCanvas = ({
             }}
           >
             <div
-              className={`conversation-speech-bubble npc${speech.isMatch ? ' match' : ''}`}
+              className={`conversation-speech-bubble npc${speech.matchState === 'match' ? ' match' : speech.matchState === 'rival' ? ' rival' : ''}`}
               style={{
                 position: 'absolute',
                 left: '50%',
@@ -522,7 +522,7 @@ export const RenderDynamicElementsCanvas = ({
           </div>
         );
       }
-      
+
       // Render relationship outcome if present (already checked above)
       if (outcome) {
         // Render outcome as a simple emoji "speech bubble" without the bubble container
@@ -583,7 +583,7 @@ export const RenderDynamicElementsCanvas = ({
             }}
           >
             <div
-              className={`conversation-speech-bubble pc${speech.isMatch ? ' match' : ''}`}
+              className={`conversation-speech-bubble pc${speech.matchState === 'match' ? ' match' : speech.matchState === 'rival' ? ' rival' : ''}`}
               style={{
                 position: 'absolute',
                 left: '50%',

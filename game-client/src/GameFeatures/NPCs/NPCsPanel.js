@@ -16,6 +16,7 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import RelationshipCard from '../Relationships/RelationshipCard';
+import RelationshipMatrix from '../Relationships/RelationshipMatrix.json';
 import { getRelationshipStatus, getRelationshipMultiplier } from '../Relationships/RelationshipUtils';
 import '../Relationships/Relationships.css';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
@@ -745,16 +746,45 @@ const handleHeal = async (recipe) => {
 
       {npcData.action === 'quest' && (
         <div className="quest-options">
-          
+
+          {/* NPC Interests Section */}
+          {(() => {
+            const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
+            if (!npcMatrix) return null;
+
+            const interests = [npcMatrix.interest1, npcMatrix.interest2, npcMatrix.interest3].filter(Boolean);
+            const uniqueInterests = [...new Set(interests)];
+
+            if (uniqueInterests.length === 0) return null;
+
+            const interestSymbols = uniqueInterests.map(interest => {
+              const resource = masterResources.find(r => r.type === interest);
+              return resource ? { type: interest, symbol: resource.symbol } : null;
+            }).filter(Boolean);
+
+            if (interestSymbols.length === 0) return null;
+
+            return (
+              <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h3 style={{ margin: 0 }}>{strings[619]}</h3>
+                {interestSymbols.map((item, index) => (
+                  <span key={index} title={item.type} style={{ fontSize: '1.5em' }}>
+                    {item.symbol}
+                  </span>
+                ))}
+              </div>
+            );
+          })()}
+
           {/* Relationship Card - only show if NPC doesn't have output='noRel' */}
           {(() => {
             const npcResource = masterResources.find(r => r.type === npcData.type && r.category === 'npc');
             const shouldHideRelationship = npcResource?.output === 'noRel';
-            
+
             if (shouldHideRelationship) {
               return null;
             }
-            
+
             return (
               <RelationshipCard
             currentPlayer={currentPlayer}
@@ -813,10 +843,11 @@ const handleHeal = async (recipe) => {
             onRelationshipChange={(interaction, success) => {
               // Additional handling if needed after interaction completes
             }}
+            isDeveloper={isDeveloper}
           />
             );
           })()}
-          
+
           {/* Show message if quest interaction is not available due to relationship */}
           {!canQuest && (
             <div style={{ 
@@ -991,16 +1022,45 @@ const handleHeal = async (recipe) => {
 
       {npcData.action === 'trade' && (
         <div className="trade-options">
-          
+
+          {/* NPC Interests Section */}
+          {(() => {
+            const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
+            if (!npcMatrix) return null;
+
+            const interests = [npcMatrix.interest1, npcMatrix.interest2, npcMatrix.interest3].filter(Boolean);
+            const uniqueInterests = [...new Set(interests)];
+
+            if (uniqueInterests.length === 0) return null;
+
+            const interestSymbols = uniqueInterests.map(interest => {
+              const resource = masterResources.find(r => r.type === interest);
+              return resource ? { type: interest, symbol: resource.symbol } : null;
+            }).filter(Boolean);
+
+            if (interestSymbols.length === 0) return null;
+
+            return (
+              <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h3 style={{ margin: 0 }}>{strings[619]}</h3>
+                {interestSymbols.map((item, index) => (
+                  <span key={index} title={item.type} style={{ fontSize: '1.5em' }}>
+                    {item.symbol}
+                  </span>
+                ))}
+              </div>
+            );
+          })()}
+
           {/* Relationship Card - only show if NPC doesn't have output='noRel' */}
           {(() => {
             const npcResource = masterResources.find(r => r.type === npcData.type && r.category === 'npc');
             const shouldHideRelationship = npcResource?.output === 'noRel';
-            
+
             if (shouldHideRelationship) {
               return null;
             }
-            
+
             return (
               <RelationshipCard
             currentPlayer={currentPlayer}
@@ -1059,10 +1119,11 @@ const handleHeal = async (recipe) => {
             onRelationshipChange={(interaction, success) => {
               // Additional handling if needed after interaction completes
             }}
+            isDeveloper={isDeveloper}
           />
             );
           })()}
-          
+
           {/* Show message if trade interaction is not available due to relationship */}
           {!canTrade && (
             <div style={{ 
