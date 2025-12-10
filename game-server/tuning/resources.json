@@ -4345,6 +4345,24 @@
     "crafttime": 1728000
   },
   {
+    "type": "Home Deed",
+    "symbol": "📃",
+    "layoutkey": "HD",
+    "category": "special",
+    "action": "collect",
+    "output": "noBank",
+    "source": "Constable Elbow",
+    "passable": true,
+    "repeatable": false,
+    "qtycollected": 1,
+    "xp": 5,
+    "level": 0.5,
+    "minprice": 2,
+    "maxprice": 4,
+    "gemcost": 1,
+    "crafttime": 10
+  },
+  {
     "type": "Skeleton Key",
     "symbol": "🗝️",
     "layoutkey": "KY",

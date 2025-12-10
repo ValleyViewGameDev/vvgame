@@ -63,7 +63,6 @@ function HopeQuest({
 
   // Size-based styling
   const fontSize = size === 'small' ? '14px' : '20px';
-  const qtyFontSize = size === 'small' ? '8px' : '10px';
   const gap = size === 'small' ? '2px' : '4px';
   const marginBottom = size === 'small' ? '8px' : '16px';
 
@@ -94,20 +93,9 @@ function HopeQuest({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              position: 'relative',
               fontSize: fontSize
             }}>
               {playerHasItem ? symbol : ''}
-              <div style={{
-                position: 'absolute',
-                bottom: '2px',
-                right: '4px',
-                fontSize: qtyFontSize,
-                color: 'white',
-                fontWeight: 'bold'
-              }}>
-                {item.qty}
-              </div>
             </div>
           );
         })}

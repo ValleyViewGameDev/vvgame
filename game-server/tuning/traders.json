@@ -2,6 +2,15 @@
   {
     "trader": "Constable Elbow",
     "index": 1,
+    "gives": "Home Deed",
+    "givesqty": 1,
+    "repeat": false,
+    "requires1": "Money",
+    "requires1qty": 1000
+  },
+  {
+    "trader": "Constable Elbow",
+    "index": 2,
     "gives": "Town Key",
     "givesqty": 1,
     "repeat": false,
@@ -10,7 +19,7 @@
   },
   {
     "trader": "Constable Elbow",
-    "index": 2,
+    "index": 3,
     "gives": "Dungeon Key",
     "givesqty": 1,
     "repeat": false,
@@ -187,7 +196,7 @@
     "requires5": "Phoenix Feather",
     "requires5qty": 1,
     "requires6": "Vampire's Blood",
-    "requires6qty": 10,
+    "requires6qty": 1,
     "requires7": "Scroll",
     "requires7qty": 1
   }
