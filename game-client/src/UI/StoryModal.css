@@ -1,0 +1,49 @@
+/* ===========================================
+   STORY MODAL STYLES
+
+   Used for displaying NPC dialog when relationship
+   milestones are reached (met, friend, etc.)
+   =========================================== */
+
+/* Override modal-small sizing for story modal */
+.story-modal.modal-small {
+  width: 340px;
+  min-width: 280px;
+  max-width: 90vw;
+  max-height: 400px;
+  padding: 20px;
+}
+
+/* NPC Symbol display - large and centered */
+.story-modal-symbol {
+  font-size: 64px;
+  text-align: center;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+
+/* Dialog content area - fixed height to prevent expansion during animation */
+.story-modal-content {
+  padding: 8px 0;
+  margin-bottom: 8px;
+  min-height: 100px;
+}
+
+/* Quoted dialog text */
+.story-modal-text {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333;
+  font-style: italic;
+  text-align: center;
+  margin: 0;
+  padding: 0 8px;
+}
+
+/* Page indicator for multi-page dialogs */
+.story-modal-page-indicator {
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+  margin-bottom: 12px;
+}

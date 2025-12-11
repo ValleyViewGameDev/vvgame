@@ -558,10 +558,10 @@ const handleGetRich = async () => {
         await axios.post(`${API_BASE}/api/clear-quest-history`, { playerId });
 
         // Update the `currentPlayer` state to reflect changes
-        const updatedPlayer = { 
-            ...currentPlayer, 
-            activeQuests: [], 
-            completedQuests: [] 
+        const updatedPlayer = {
+            ...currentPlayer,
+            activeQuests: [],
+            completedQuests: []
         };
         setCurrentPlayer(updatedPlayer);
 
@@ -570,6 +570,43 @@ const handleGetRich = async () => {
 
     } catch (error) {
         console.error('Error clearing quest history:', error);
+    }
+  };
+
+  const handleClearRelationships = async () => {
+    try {
+      const playerId = currentPlayer?.playerId;
+      if (!playerId) {
+        console.error('No player logged in. Cannot clear relationships.');
+        return;
+      }
+
+      // Keep only Kent and The Shepherd relationships
+      const protectedNPCs = ['Kent', 'The Shepherd'];
+      const filteredRelationships = (currentPlayer.relationships || []).filter(
+        (rel) => protectedNPCs.includes(rel.name)
+      );
+
+      // Update relationships on the server
+      await axios.post(`${API_BASE}/api/update-profile`, {
+        playerId,
+        updates: {
+          relationships: filteredRelationships
+        }
+      });
+
+      // Update local state
+      const updatedPlayer = {
+        ...currentPlayer,
+        relationships: filteredRelationships
+      };
+      setCurrentPlayer(updatedPlayer);
+      localStorage.setItem('player', JSON.stringify(updatedPlayer));
+
+      console.log('Relationships cleared successfully (kept Kent and The Shepherd).');
+      updateStatus('✅ Relationships cleared (kept Kent and The Shepherd).');
+    } catch (error) {
+      console.error('Error clearing relationships:', error);
     }
   };
 
@@ -1077,6 +1114,9 @@ const handleGetRich = async () => {
       </div>
       <div className="shared-buttons">
         <button className="btn-basic btn-neutral" onClick={handleClearQuestHistory}> Clear Quest History </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-neutral" onClick={handleClearRelationships}> Clear Relationships </button>
       </div>
       <div className="shared-buttons">
         <button className="btn-basic btn-neutral" onClick={handleClearGridState}> Clear Grid State </button>

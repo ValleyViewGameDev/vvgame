@@ -1,5 +1,5 @@
 import API_BASE from '../../config';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import Panel from '../../UI/Panel';
 import '../../UI/SharedButtons.css';
 import '../Crafting/ScrollStation.css'; // Import for shared station panel styles
@@ -25,6 +25,7 @@ import questCache from '../../Utils/QuestCache';
 import { calculateDistance, getDerivedRange } from '../../Utils/worldHelpers';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import HealerInteraction from './HealerInteraction';
+import StoryModal from '../../UI/StoryModal';
 
 const NPCPanel = ({
   onClose,
@@ -62,6 +63,13 @@ const NPCPanel = ({
   const [isHealing, setIsHealing] = useState(false); // Prevent spam-clicking heal button
   const [coolingDownItems, setCoolingDownItems] = useState(new Set());
   const COOLDOWN_DURATION = 1500; // 1500ms cooldown (3x longer than terraform)
+
+  // StoryModal state for relationship milestone dialogs
+  const [storyModalOpen, setStoryModalOpen] = useState(false);
+  const [storyRelationshipType, setStoryRelationshipType] = useState(null);
+
+  // Ref to track relationship status before an interaction
+  const preInteractionRelationshipRef = useRef(null);
 
 
   // Ensure npcData has default values
@@ -277,6 +285,16 @@ const NPCPanel = ({
           const playerHasSkill = currentPlayer.skills?.some(skill => skill.type === goalItem);
           const playerHasPower = currentPlayer.powers?.some(power => power.type === goalItem);
           if (playerHasSkill || playerHasPower) {
+              initialProgress[`goal${i}`] = 1; // Pre-mark as completed
+              goalsCompleted++;
+          } else {
+              initialProgress[`goal${i}`] = 0; // Start at 0
+          }
+      } else if (goalAction === "Craft") {
+          // Check if crafted item already exists as an NPC on the homestead (e.g., Rancher, Farmer)
+          const homesteadNPCs = Object.values(NPCsInGridManager.getNPCsInGrid(currentPlayer.gridId) || {});
+          const itemExistsOnHomestead = homesteadNPCs.some(npc => npc.type === goalItem);
+          if (itemExistsOnHomestead) {
               initialProgress[`goal${i}`] = 1; // Pre-mark as completed
               goalsCompleted++;
           } else {
@@ -824,8 +842,10 @@ const handleHeal = async (recipe) => {
             }}
             onInteractionClick={() => {
               return new Promise((resolve) => {
-                // Removed zoom change - keep current zoom level during conversations
-                
+                // Capture relationship state before interaction for StoryModal check
+                const rel = currentPlayer.relationships?.find(r => r.name === npcData.type);
+                preInteractionRelationshipRef.current = rel ? { ...rel } : null;
+
                 // Just center camera on player using current zoom level
                 const gridId = currentPlayer?.location?.g;
                 const playerId = currentPlayer._id?.toString();
@@ -837,7 +857,30 @@ const handleHeal = async (recipe) => {
               });
             }}
             onRelationshipChange={(interaction, success) => {
-              // Additional handling if needed after interaction completes
+              // Check if a new relationship status was added
+              if (success && interaction.relbitadd) {
+                const statusKey = interaction.relbitadd.toLowerCase();
+                const preRel = preInteractionRelationshipRef.current;
+
+                // If status wasn't present before, show StoryModal
+                if (!preRel || !preRel[statusKey]) {
+                  // Check if this NPC has dialog for this relationship type
+                  const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
+                  const dialogKeyMap = {
+                    met: 'dialogOnMet',
+                    friend: 'dialogOnFriend',
+                    married: 'dialogOnMarried',
+                    love: 'dialogOnLove',
+                    rival: 'dialogOnRival',
+                  };
+                  const dialogKey = dialogKeyMap[statusKey];
+
+                  if (npcMatrix && dialogKey && npcMatrix[dialogKey]) {
+                    setStoryRelationshipType(statusKey);
+                    setStoryModalOpen(true);
+                  }
+                }
+              }
             }}
             isDeveloper={isDeveloper}
           />
@@ -1100,8 +1143,10 @@ const handleHeal = async (recipe) => {
             }}
             onInteractionClick={() => {
               return new Promise((resolve) => {
-                // Removed zoom change - keep current zoom level during conversations
-                
+                // Capture relationship state before interaction for StoryModal check
+                const rel = currentPlayer.relationships?.find(r => r.name === npcData.type);
+                preInteractionRelationshipRef.current = rel ? { ...rel } : null;
+
                 // Just center camera on player using current zoom level
                 const gridId = currentPlayer?.location?.g;
                 const playerId = currentPlayer._id?.toString();
@@ -1113,7 +1158,30 @@ const handleHeal = async (recipe) => {
               });
             }}
             onRelationshipChange={(interaction, success) => {
-              // Additional handling if needed after interaction completes
+              // Check if a new relationship status was added
+              if (success && interaction.relbitadd) {
+                const statusKey = interaction.relbitadd.toLowerCase();
+                const preRel = preInteractionRelationshipRef.current;
+
+                // If status wasn't present before, show StoryModal
+                if (!preRel || !preRel[statusKey]) {
+                  // Check if this NPC has dialog for this relationship type
+                  const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
+                  const dialogKeyMap = {
+                    met: 'dialogOnMet',
+                    friend: 'dialogOnFriend',
+                    married: 'dialogOnMarried',
+                    love: 'dialogOnLove',
+                    rival: 'dialogOnRival',
+                  };
+                  const dialogKey = dialogKeyMap[statusKey];
+
+                  if (npcMatrix && dialogKey && npcMatrix[dialogKey]) {
+                    setStoryRelationshipType(statusKey);
+                    setStoryModalOpen(true);
+                  }
+                }
+              }
             }}
             isDeveloper={isDeveloper}
           />
@@ -1230,30 +1298,29 @@ const handleHeal = async (recipe) => {
                 <p>{strings[423]}</p>
               )}
               
-              {/* Trader story text */}
-              {(() => {
-                const storyStringMap = {
-                  Iago: 1201,
-                  Juliet: 1202,
-                  Falstaff: 1203,
-                  Apothecary: 1204,
-                  Gertrude: 1205,
-                  Leontes: 1206,
-                  Caliban: 1207,
-                  Snug: 1209,
-                };
-                
-                if (storyStringMap[npcData.type]) {
-                  return (
-                    <div className="trader-story">
-                      <p>{strings[storyStringMap[npcData.type]]}</p>
-                    </div>
-                  );
-                }
-                return null;
-              })()}
             </>
           )}
+
+          {/* Trader story text - only shown if player has met this NPC */}
+          {(() => {
+            // Check if player has met this NPC
+            const relationship = currentPlayer.relationships?.find(r => r.name === npcData.type);
+            if (!relationship?.met) return null;
+
+            const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
+            const dialogStringId = npcMatrix?.dialogOnMet;
+
+            if (dialogStringId && strings[dialogStringId]) {
+              // Replace {username} placeholder with actual player username
+              const storyText = strings[dialogStringId].replace(/\{username\}/gi, currentPlayer?.username || 'Adventurer');
+              return (
+                <div className="trader-story">
+                  <p>{storyText}</p>
+                </div>
+              );
+            }
+            return null;
+          })()}
         </div>
       )}
 
@@ -1273,6 +1340,15 @@ const handleHeal = async (recipe) => {
           </div>
         )}
       </div>
+
+      {/* Story Modal for relationship milestone dialogs */}
+      <StoryModal
+        isOpen={storyModalOpen}
+        onClose={() => setStoryModalOpen(false)}
+        npcName={npcData?.type}
+        relationshipType={storyRelationshipType}
+        username={currentPlayer?.username}
+      />
     </Panel>
   );
 };

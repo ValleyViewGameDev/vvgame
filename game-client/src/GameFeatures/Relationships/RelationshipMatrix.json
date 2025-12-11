@@ -22,6 +22,8 @@
   {
     "type": "Portia",
     "symbol": "👩🏻‍⚖️",
+    "dialogOnMet": 16001,
+    "dialogOnFriend": 16101,
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
@@ -32,8 +34,8 @@
   {
     "type": "Hotspur",
     "symbol": "💂",
-    "dialogOnMet": "Hail, soldier! I am glad of thee, for these lands need more fighters, to beat back the evil we face. Visit the Warrior's Den and the Armory, and ready thyself for battle!",
-    "dialogOnFriend": "I am glad to know your better, [username]. I will reward you for brave deeds, but only if you avoid that repugnant Cassio, whom I shall not forgive for past deeds.",
+    "dialogOnMet": 16002,
+    "dialogOnFriend": 16102,
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
@@ -44,7 +46,8 @@
   {
     "type": "Cassio",
     "symbol": "🧝",
-    "dialogOnMet": "Good to make your acquaintance [username]. Cassio is my name, and I stand for the honor of my sister Juliet, and seek the head of that coward Duke Angelo. He hides himself in the Valley. And make friends not with that thief Iago, or I shall not do business with you.",
+    "dialogOnMet": 16003,
+    "dialogOnFriend": 16013,
     "buff4love": 1,
     "buff4marriage": 1,
     "buff4friend": 1,
@@ -58,7 +61,8 @@
   {
     "type": "Mistress Quickly",
     "symbol": "🧑🏼‍🍳",
-    "dialogOnMet": "Well aren't you a peach? I'm Mistress Quickly, and I specialize in the culinary arts. I'll gladly help you build your skills with food, we need more kitchen magicians in these lands!",
+    "dialogOnMet": 16004,
+    "dialogOnFriend": 16014,
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
@@ -70,7 +74,8 @@
   {
     "type": "Feste",
     "symbol": "👨🏽‍🎨",
-    "dialogOnMet": "Most pleased to make your acquatince, [username]. My name is Feste, and I'm the local artisan in these parts. I can help you build up your creative skills, for there is good money to be made crafting fine things for the people.",
+    "dialogOnMet": 16005,
+    "dialogOnFriend": 16015,
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
@@ -82,7 +87,8 @@
   {
     "type": "Helena",
     "symbol": "🧑‍🎤",
-    "dialogOnMet": "Why hello, kind traveler. I am Helena, and I live here among the fields of Mother Nature. As you explore these lands, know that I alone possess the Golden Key to the castle where King Leontes lost his crown. Though I pine for his queen's love, I would sacrifice my dreams to see Leontes returned to her and to his former glory.",
+    "dialogOnMet": 16006,
+    "dialogOnFriend": 16016,
     "buff4love": 1,
     "buff4marriage": 1,
     "buff4friend": 1,
@@ -94,7 +100,8 @@
   {
     "type": "Titania",
     "symbol": "🧝‍♀️",
-    "dialogOnMet": "You have traveled far [usernmae]. I am Titania, Queen of the Fairies. You have now come to the place beyond which the dangers will but grow. If you meet Propero, make not an enemy of him, or you will get nothing from me.",
+    "dialogOnMet": 16007,
+    "dialogOnFriend": 16017,
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
@@ -106,6 +113,8 @@
   {
     "type": "Vampire",
     "symbol": "🧛🏻‍♂️",
+    "dialogOnMet": 16008,
+    "dialogOnFriend": 16108,
     "buff4love": 1,
     "buff4marriage": 1,
     "buff4friend": 1,
@@ -116,7 +125,8 @@
   {
     "type": "Prospero",
     "symbol": "🧙🏻",
-    "dialogOnMet": "Well, you've done it. I never dreamed there would be such a one as to defeat my dragons and reach me in this place. The Orb of Merlin is yours. Perhaps the Oracle can bring us Hope after all. Seek her deep within the Valley.",
+    "dialogOnMet": 16009,
+    "dialogOnFriend": 16109,
     "buff4love": 1,
     "buff4marriage": 1,
     "buff4friend": 1,
@@ -129,6 +139,8 @@
   {
     "type": "Falstaff",
     "symbol": "👨🏻‍🏭",
+    "dialogOnMet": 16010,
+    "dialogOnFriend": 16110,
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
@@ -140,6 +152,8 @@
   {
     "type": "Apothecary",
     "symbol": "🧕",
+    "dialogOnMet": 16011,
+    "dialogOnFriend": 16111,
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
@@ -149,6 +163,8 @@
   {
     "type": "Iago",
     "symbol": "🥷",
+    "dialogOnMet": 16012,
+    "dialogOnFriend": 16112,
     "buff4love": 3,
     "buff4marriage": 10,
     "buff4friend": 2,
@@ -160,6 +176,8 @@
   {
     "type": "Gertrude",
     "symbol": "👸",
+    "dialogOnMet": 16013,
+    "dialogOnFriend": 16113,
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
@@ -171,6 +189,8 @@
   {
     "type": "Leontes",
     "symbol": "🫅",
+    "dialogOnMet": 16014,
+    "dialogOnFriend": 16114,
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
@@ -184,6 +204,8 @@
   {
     "type": "Caliban",
     "symbol": "🧌",
+    "dialogOnMet": 16015,
+    "dialogOnFriend": 16115,
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
@@ -197,6 +219,8 @@
   {
     "type": "Juliet",
     "symbol": "👩‍🦰",
+    "dialogOnMet": 16016,
+    "dialogOnFriend": 16116,
     "buff4love": 3,
     "buff4marriage": 5,
     "buff4friend": 2,
@@ -208,7 +232,8 @@
   {
     "type": "Mermaid",
     "symbol": "🧜‍♀️",
-    "dialogOnMet": "Hello, friend. Do you seek the Trident of of the old gods? It is one of the seven artifacts needed ot satisfy the Oracle. I require much gold to part with it.",
+    "dialogOnMet": 16017,
+    "dialogOnFriend": 16117,
     "buff4love": 1,
     "buff4marriage": 5,
     "buff4friend": 1,
@@ -219,7 +244,8 @@
   {
     "type": "Oracle",
     "symbol": "🧞‍♀️",
-    "dialogOnMet": "Welcome [username]. Congratulations, for you have come a great distance. I sense the heroism in you. Bring me the seven artifacts that bind these peoples, and I will give you the Hope to restore the Golden Age!",
+    "dialogOnMet": 16018,
+    "dialogOnFriend": 16118,
     "buff4love": 1,
     "buff4marriage": 1,
     "buff4friend": 1,
@@ -230,7 +256,8 @@
   {
     "type": "Constable Elbow",
     "symbol": "🧔🏼‍♂️",
-    "dialogOnMet": "Greetings traveler! For centuries, the kind people of this land lived in harmony, ruled by the benevolent King Leontes. But of late an evil scourge grows in the Valley, and threatens our peaceful ways. Now ... it is said that a single Quest can restore Hope to the land, and push back the darkness. Seek the Oracle in the Valley, adventurer, and bring us Hope!",
+    "dialogOnMet": 16019,
+    "dialogOnFriend": 16119,
     "buff4love": 1,
     "buff4marriage": 1,
     "buff4friend": 1,
@@ -240,6 +267,8 @@
   {
     "type": "Snug",
     "symbol": "🧔🏽",
+    "dialogOnMet": 16020,
+    "dialogOnFriend": 16120,
     "buff4love": 1,
     "buff4marriage": 1,
     "buff4friend": 2,
