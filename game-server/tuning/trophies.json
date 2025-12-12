@@ -1,5 +1,12 @@
 [
     {
+        "name": "Homesteader",
+        "tooltip": "Acquire a deed to your own homestead.",
+        "type": "Event",
+        "visible": true,
+        "reward": 1
+    },
+    {
         "name": "First Farm Worker",
         "tooltip": "Hire your first farm worker.",
         "type": "Event",
@@ -80,13 +87,6 @@
         "reward": 1
     },
     {
-        "name": "Prospero's Orb",
-        "tooltip": "Collect the orb from the Wizard Prospero, hidden in the Valley.",
-        "type": "Count",
-        "visible": true,
-        "reward": 1
-    },
-    {
         "name": "Skeleton Key",
         "tooltip": "Collect the Skeleton Key from Cassio.",
         "type": "Progress",
@@ -99,6 +99,13 @@
         "tooltip": "Collect the Golden Key from Helena.",
         "type": "Progress",
         "progress": [ 1, 5, 10, 20, 50 ],
+        "visible": true,
+        "reward": 1
+    },
+    {
+        "name": "Prospero's Orb",
+        "tooltip": "Collect the orb from the Wizard Prospero, hidden in the Valley.",
+        "type": "Count",
         "visible": true,
         "reward": 1
     },
@@ -125,12 +132,27 @@
         "reward": 1
     },
     {
+        "name": "Vampire's Blood",
+        "tooltip": "Obtain Vampire's Blood from the Vampire hidden in the Valley.",
+        "type": "Progress",
+        "progress": [ 1, 5, 10, 20, 50 ],
+        "visible": true,
+        "reward": 1
+    },
+    {
         "name": "Trident",
         "tooltip": "Collect the Trident from its secret location in the Valley.",
         "type": "Progress",
         "progress": [ 1, 5, 10, 20, 50 ],
         "visible": true,
         "reward": 1
+    },
+    {
+        "name": "Hope",
+        "tooltip": "Deliver the seven secrets to the Oracle and receive the blessing of Hope. Hope will bestow Platinum Status (Gold for life).",
+        "type": "Count",
+        "visible": true,
+        "reward": 1000
     },
     {
         "name": "Season Winner",
@@ -147,11 +169,11 @@
         "reward": 10
     },
     {
-        "name": "Hope",
-        "tooltip": "Deliver the seven secrets to the Oracle and receive the blessing of Hope. Hope will bestow Platinum Status (Gold for life).",
-        "type": "Count",
-        "visible": true,
-        "reward": 1000
+        "name": "TraveledToHomestead",
+        "tooltip": "[player has traveled to their homestead once]",
+        "type": "Event",
+        "visible": false,
+        "reward": 1
     },
     {
         "name": "SawFrontierTip",
