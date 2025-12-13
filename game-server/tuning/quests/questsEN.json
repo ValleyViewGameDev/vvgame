@@ -2,9 +2,8 @@
   {
     "index": 1,
     "title": "Find the Wizard in the Valley",
-    "textbody": "“Seek ye out the orb I crafted, now lost within the misty vales. This enchanted sphere holds power immense -- ‘We are such stuff as dreams are made on.’ Bring it swiftly, my magic wanes without its light.”",
     "symbol": "🧙🏻",
-    "ftuestep": 9,
+    "ftuestep": 7,
     "repeatable": false,
     "giver": "Prospero",
     "reward": "Prospero's Orb",
@@ -14,9 +13,22 @@
     "goal1qty": 1
   },
   {
+    "index": 2,
+    "title": "Buy a Home Deed",
+    "symbol": "👵🏻",
+    "ftuestep": 3,
+    "repeatable": false,
+    "giver": "The Shepherd",
+    "reward": "Money",
+    "rewardqty": 100,
+    "xp": 3,
+    "goal1action": "Collect",
+    "goal1item": "Home Deed",
+    "goal1qty": 1
+  },
+  {
     "index": 4,
     "title": "Plant Wheat",
-    "textbody": "Find some dirt, and plant a wheat plot using the Farming Panel.",
     "symbol": "👵🏻",
     "ftuestep": 5,
     "repeatable": false,
@@ -30,7 +42,6 @@
   {
     "index": 5,
     "title": "Harvest Wheat",
-    "textbody": "Gather thee the golden wheat, that it may be sold and turn to coin in thy purse.",
     "symbol": "👵🏻",
     "ftuestep": 3,
     "repeatable": false,
@@ -44,7 +55,6 @@
   {
     "index": 6,
     "title": "Learn to sell",
-    "textbody": "Wheat grows plentiful in your fields, but wealth is born at market. Sell ten bushels at the Trade Stall -- ‘Who buys my corn buys sustenance and life.’ Learn this art, and your coffers will never run empty.",
     "symbol": "👵🏻",
     "ftuestep": 3,
     "repeatable": false,
@@ -58,7 +68,6 @@
   {
     "index": 7,
     "title": "Grower",
-    "textbody": "There is virtue in the soil, friend, and wisdom in the roots. Master the Grower’s craft, and let the seeds thou plant today bring bounty and sustenance upon the morrow.",
     "symbol": "👵🏻",
     "ftuestep": 5,
     "repeatable": false,
@@ -73,7 +82,6 @@
   {
     "index": 8,
     "title": "Earth's Bounty",
-    "textbody": "The earth hath bounty, golden and green! Bring me corn to crown the harvest, wheat to grace the loaf, and carrots (aye, humble carrots) for even the lowly root may bear the grace of kings.",
     "symbol": "👵🏻",
     "ftuestep": 7,
     "repeatable": true,
@@ -94,7 +102,6 @@
   {
     "index": 10,
     "title": "Wood Master",
-    "textbody": "A sturdy axe is friend indeed, and master of the woodland realm thou shalt be. Earn the Axe skill, for ‘nothing will come of nothing’ without knowing the art of the blade. Prove thyself, and fortune follows.",
     "symbol": "👵🏻",
     "ftuestep": 7,
     "repeatable": false,
@@ -109,7 +116,6 @@
   {
     "index": 11,
     "title": "Saw You Not That?",
-    "textbody": "Wood, my friend! Logs and branches for hearth and home. Collect wood from the trees, and plenty of it. ‘To business that we love we rise betime, and go to it with delight.’ Bring me two dozen sturdy logs, and you’ll find your purse heavier for your trouble.",
     "symbol": "👵🏻",
     "ftuestep": 7,
     "repeatable": true,
@@ -124,7 +130,6 @@
   {
     "index": 12,
     "title": "Mechanics",
-    "textbody": "To build or not to build, that is the question -- but without the skill of mechanics, there’s no question at all! Unlock the intricate dance of gears and wheels, and open pathways to wonders untold.",
     "symbol": "👵🏻",
     "ftuestep": 9,
     "repeatable": false,
@@ -137,24 +142,8 @@
     "goal1qty": 1
   },
   {
-    "index": 13,
-    "title": "Horse Training",
-    "textbody": "A steed awaits thy command, but first, mastery is needed. Earn both the Horse and Husbandry skills to care for and ride thy noble mount. ‘A horse! A horse! My kingdom for a horse!’ And yet, you’ll not lose kingdoms, but gain knowledge and reward aplenty.",
-    "symbol": "👵🏻",
-    "ftuestep": 9,
-    "repeatable": false,
-    "giver": "The Shepherd",
-    "reward": "Rosemary",
-    "rewardqty": 1,
-    "xp": 5,
-    "goal1action": "Gain skill with",
-    "goal1item": "Horse",
-    "goal1qty": 1
-  },
-  {
     "index": 14,
     "title": "Backpack",
-    "textbody": "If adventure calls thee forth, thou shalt need to shoulder thine own burdens with grace. Master the skill of crafting a sturdy backpack, and wherever thy path may lead, it shall enable the ferry of goods from there to here.",
     "symbol": "👵🏻",
     "ftuestep": 9,
     "repeatable": false,
@@ -169,7 +158,6 @@
   {
     "index": 15,
     "title": "Lumber Yard",
-    "textbody": "If ambition drives thee toward grander dwellings, thou must first establish a sturdy lumber yard. Let its timbers frame thy dreams, strong as the very forest from whence they came.",
     "symbol": "👵🏻",
     "repeatable": false,
     "giver": "The Shepherd",
@@ -183,7 +171,6 @@
   {
     "index": 16,
     "title": "Masonry",
-    "textbody": "I met a mason once who spoke of stones as poets do of love -- building not just walls, but legacies. Learn the ancient art of masonry, for without it, thy creations shall lack the enduring beauty of stone.",
     "symbol": "👵🏻",
     "repeatable": false,
     "giver": "The Shepherd",
@@ -197,7 +184,6 @@
   {
     "index": 17,
     "title": "Fruitful Harvest",
-    "textbody": "The earth hath bubbles, sweet in plenty! Bring me ripe strawberries, crisp apples, and yes, even tomatoes -- for a tomato doth wear the mask of fruit, not vegetable.",
     "symbol": "👵🏻",
     "repeatable": true,
     "giver": "The Shepherd",
@@ -217,7 +203,6 @@
   {
     "index": 18,
     "title": "The Gentle Art",
-    "textbody": "A good shepherd knows his flock. Study well the skill of Husbandry, for to nurture life is to weave harmony betwixt land and creature.",
     "symbol": "👵🏻",
     "ftuestep": 9,
     "repeatable": false,
@@ -232,7 +217,6 @@
   {
     "index": 19,
     "title": "Bovine Bliss",
-    "textbody": "I prithee, find me a cow of gentle temperament, whose milk will flow as plentifully as kindness. A well-kept cow shall be both friend and feast.",
     "symbol": "👵🏻",
     "ftuestep": 9,
     "repeatable": false,
@@ -246,7 +230,6 @@
   {
     "index": 20,
     "title": "Fleecy Fellowship",
-    "textbody": "There’s wool and wool, yet all’s not wool that glitters. Fetch me a sheep, fluffy and gentle, and she’ll warm our winters and lighten our hearts.",
     "symbol": "👵🏻",
     "ftuestep": 9,
     "repeatable": false,
@@ -260,7 +243,6 @@
   {
     "index": 21,
     "title": "Cream of the Crop",
-    "textbody": "Good dairy is the soul of a wholesome table. Milk your cows and bring me 20 buckets, for I have promises to keep, and dairy to churn before I sleep.",
     "symbol": "👵🏻",
     "ftuestep": 9,
     "repeatable": true,
@@ -275,7 +257,6 @@
   {
     "index": 22,
     "title": "Hire Rancher",
-    "textbody": "Hire the rancher to help harvest your animals faster.",
     "symbol": "👵🏻",
     "ftuestep": 9,
     "repeatable": false,
@@ -290,7 +271,6 @@
   {
     "index": 23,
     "title": "Mill by Moonlight",
-    "textbody": "Build a sturdy mill, for from grain comes bread, and from bread comes strength. And as the millstone turns, so do the wheels of fortune. Construct it, friend, and prosper.",
     "symbol": "👵🏻",
     "level": 1,
     "ftuestep": 9,
@@ -306,7 +286,6 @@
   {
     "index": 24,
     "title": "Coop Dreams",
-    "textbody": "This blessed plot, this earth, this realm -- needs chickens! Construct a coop to shelter feathered friends who greet the dawn with golden eggs.",
     "symbol": "👵🏻",
     "level": 2,
     "ftuestep": 9,
@@ -322,7 +301,6 @@
   {
     "index": 25,
     "title": "Foundations of Stone",
-    "textbody": "Houses built upon sand crumble swiftly; learn the ways of the Builder. ‘Upon what ground may one build greatness if not stone?'",
     "symbol": "👵🏻",
     "level": 2,
     "ftuestep": 9,
@@ -338,7 +316,6 @@
   {
     "index": 26,
     "title": "Master Mason",
-    "textbody": "They say the mason shapes the earth’s very bones. Master Masonry, and you shall carve your legacy from the silent strength of stone itself.",
     "symbol": "👵🏻",
     "level": 2,
     "ftuestep": 9,
@@ -354,7 +331,6 @@
   {
     "index": 27,
     "title": "The Spark Within",
-    "textbody": "The vine knows not why it ferments, yet still it yields wine. If you seek the secrets of fermentation and the transformation of fruit to spirit, learn the ways of Chemistry. It is the root of Winemaking and many wonders besides.",
     "symbol": "👵🏻",
     "level": 2,
     "ftuestep": 9,
@@ -370,7 +346,6 @@
   {
     "index": 28,
     "title": "Nectar of the Valley",
-    "textbody": "They say good wine is a symphony of time and care. If your hands are steady and your vats clean, take up the skill of Winemaker. The first bottle you craft should be shared with friends… the second, perhaps with a Queen.",
     "symbol": "👵🏻",
     "level": 5,
     "ftuestep": 9,
@@ -386,7 +361,6 @@
   {
     "index": 29,
     "title": "Grain to Beak",
-    "textbody": "If your hens are to lay, their bellies must be full. Grind the wheat, mix the mash, and make Chicken Feed. You’ll find the rhythm of a farm in the smallest of chores.",
     "symbol": "👵🏻",
     "level": 2,
     "ftuestep": 9,
@@ -401,7 +375,6 @@
   {
     "index": 30,
     "title": "Dairy to Dream",
-    "textbody": "Every village needs its cream, its butter, its cheese. Build a Dairy, and let the churn begin. In milk, there is promise. In butter, celebration.",
     "symbol": "🧑🏻‍🍳",
     "ftuestep": 9,
     "repeatable": false,
@@ -416,7 +389,6 @@
   {
     "index": 31,
     "title": "Dairy Delights",
-    "textbody": "“My kingdom for a cheese!” Bring forth Butter, Cream, and Cheese in abundance. I shall teach you their ways -- and with them, the path to richer fare. Let no curdle be wasted!",
     "symbol": "🧑🏻‍🍳",
     "ftuestep": 9,
     "repeatable": true,
@@ -437,7 +409,6 @@
   {
     "index": 32,
     "title": "Hearth of the Matter",
-    "textbody": "No great pie was ever born in the cold. Build yourself an Oven, and with it, the first taste of true warmth. A kitchen without one is but a hollow promise.",
     "symbol": "🧑🏻‍🍳",
     "level": 1,
     "repeatable": false,
@@ -451,13 +422,11 @@
   {
     "index": 33,
     "title": "Yeast of Burden",
-    "textbody": "Rise, ye loaves of valor! Craft for me Bread and Cornbread, and show you’ve earned your crust. Even the humblest flour may become a feast, if the fire is kind and the dough true.",
     "symbol": "🧑🏻‍🍳",
     "level": 2,
     "repeatable": true,
     "giver": "Mistress Quickly",
     "rel": "friend",
-    "relscore": 50,
     "reward": "Money",
     "rewardqty": 200,
     "xp": 10,
@@ -471,13 +440,11 @@
   {
     "index": 34,
     "title": "Pie for the Sky",
-    "textbody": "I’ve promised Hotspur some pies, and I cannot go back on my word. Apple for his wife, strawberry for his son -- bake them well and bake them proud. A flaky crust opens many doors.",
     "symbol": "🧑🏻‍🍳",
     "level": 2,
     "repeatable": true,
     "giver": "Mistress Quickly",
     "rel": "friend",
-    "relscore": 50,
     "reward": "Money",
     "rewardqty": 200,
     "xp": 10,
@@ -491,13 +458,12 @@
   {
     "index": 35,
     "title": "Cheddar Ambitions",
-    "textbody": "Bring me cheese, and plenty of it. Not a wheel or a wedge but an army of rounds. There are dishes yet untasted, and I have a recipe that calls for thirty. Yes, thirty.",
     "symbol": "🧑🏻‍🍳",
     "level": 3,
     "repeatable": true,
     "giver": "Mistress Quickly",
     "rel": "friend",
-    "relscore": 50,
+    "relscore": 60,
     "reward": "Rosemary",
     "rewardqty": 1,
     "xp": 2,
@@ -508,13 +474,11 @@
   {
     "index": 36,
     "title": "Sweet Words, Soft Crumbs",
-    "textbody": "A noble feast requires a noble end. Bake me Lemon Cookies -- light as a sonnet, golden as a summer’s day. There is someone who needs cheering up, and dessert always helps. If you master the art of these delectibles, I shall share a reward that will set you on the path to the Queen.",
     "symbol": "🧑🏻‍🍳",
     "level": 4,
     "repeatable": true,
     "giver": "Mistress Quickly",
-    "rel": "friend",
-    "relscore": 70,
+    "rel": "love",
     "reward": "Blueberry",
     "rewardqty": 10,
     "xp": 5,
@@ -525,7 +489,6 @@
   {
     "index": 37,
     "title": "Kitchen Confidential",
-    "textbody": "A kitchen built is a kingdom begun! Set thy stones and raise a hearth -- ‘for a man may fish with the worm that hath eat of a king, and cook him yet a finer feast.’",
     "symbol": "🧑🏻‍🍳",
     "level": 4,
     "repeatable": false,
@@ -540,7 +503,6 @@
   {
     "index": 38,
     "title": "The Cook's Flame",
-    "textbody": "Thou wouldst be a chef? Then earn thy stripes in the town laboratory -- fire, flour, and fate await. Learn the cooking skill, and let no crust be underbaked.",
     "symbol": "🧑🏻‍🍳",
     "level": 4,
     "repeatable": false,
@@ -555,7 +517,6 @@
   {
     "index": 39,
     "title": "Omelette, Sweet Omelette",
-    "textbody": "Twelve omelettes I require, no fewer. A breakfast fit for kings, jesters, and lovers alike. ‘We are but scrambled shadows, and morning makes us whole.’",
     "symbol": "🧑🏻‍🍳",
     "level": 5,
     "repeatable": true,
@@ -572,7 +533,6 @@
   {
     "index": 40,
     "title": "Banquet of Fools",
-    "textbody": "Tonight we feast! Prepare a pizza party most prodigious: pies, soups, and crusty bread. Hotspur's coming and he’s famished -- ‘Let every mouth be stuffed, and every heart full!’",
     "symbol": "🧑🏻‍🍳",
     "level": 5,
     "repeatable": false,
@@ -593,7 +553,6 @@
   {
     "index": 41,
     "title": "Where Honey Dwells",
-    "textbody": "Build a beehive, sweet and sound, where golden bees may labor long. ‘For what’s in a hive? That which we call nectar by any other name would taste as sweet.’",
     "symbol": "🧑‍🎤",
     "repeatable": false,
     "giver": "Helena",
@@ -607,7 +566,6 @@
   {
     "index": 42,
     "title": "Herb Most Wondrous",
-    "textbody": "Seek the sprigs of rosemary, brave and bold. Let memory be the scent that guides your hands -- ‘There’s rosemary, that’s for remembrance; pray, love, remember.’",
     "symbol": "🧑‍🎤",
     "repeatable": true,
     "giver": "Helena",
@@ -621,11 +579,11 @@
   {
     "index": 43,
     "title": "Feverfew's Favor",
-    "textbody": "Feverfew -- bitter and bold. The apothecary whispers that it holds the power to banish fevered dreams. Collect it, and let no malaise linger.",
     "symbol": "🧑‍🎤",
     "level": 4,
     "repeatable": false,
     "giver": "Helena",
+    "rel": "friend",
     "reward": "Golden Key",
     "rewardqty": 1,
     "xp": 15,
@@ -636,13 +594,13 @@
   {
     "index": 44,
     "title": "Tulip Mania",
-    "textbody": "Pluck the tulips, fair and frail. These blushing beauties fetch a pretty price in potions and poems alike. ‘Painted by nature’s brush, and worth their weight in song.’",
     "symbol": "🧑‍🎤",
     "level": 4,
     "repeatable": true,
     "giver": "Helena",
+    "rel": "friend",
     "reward": "Money",
-    "rewardqty": 1000,
+    "rewardqty": 5000,
     "xp": 2,
     "goal1action": "Collect",
     "goal1item": "Tulip",
@@ -651,13 +609,13 @@
   {
     "index": 45,
     "title": "Mushroom Mystery",
-    "textbody": "Find me mushrooms, plucked from shaded glens. They carry both feast and fear -- ‘double, double, toil and trouble,’ for in them lies both supper and spell.",
     "symbol": "🧑‍🎤",
     "level": 5,
     "repeatable": true,
     "giver": "Helena",
+    "rel": "friend",
     "reward": "Money",
-    "rewardqty": 1000,
+    "rewardqty": 5000,
     "xp": 2,
     "goal1action": "Collect",
     "goal1item": "Mushroom",
@@ -666,7 +624,6 @@
   {
     "index": 46,
     "title": "Threads of Destiny",
-    "textbody": "Build a Loom, and weave thy tale in thread. From flax to finery, a hero’s garb begins with humble spools. ‘The web of our life is of a mingled yarn, good and ill together.’",
     "symbol": "👨🏽‍🎨",
     "repeatable": false,
     "giver": "Feste",
@@ -680,7 +637,6 @@
   {
     "index": 47,
     "title": "A Room of One’s Art",
-    "textbody": "Every muse must have her chambers! Raise for me a Studio, well-lit and blessed with silence. No art is born from clutter and noise -- save, perhaps, Falstaff’s poetry.",
     "symbol": "👨🏽‍🎨",
     "repeatable": false,
     "giver": "Feste",
@@ -694,7 +650,6 @@
   {
     "index": 48,
     "title": "Spun and Done",
-    "textbody": "Cloth! The blank parchment of fashion, the seed from which beauty springs. Bring me bolts and bolts of it -- twelve at least! Or must I dress in burlap and woe?",
     "symbol": "👨🏽‍🎨",
     "level": 2,
     "repeatable": true,
@@ -709,7 +664,6 @@
   {
     "index": 49,
     "title": "Ink and Incantation",
-    "textbody": "Thirty vials of ink, dark as ambition and just as messy. My quill cries for sustenance, and no, I shan’t borrow Falstaff’s -- his runs with port.",
     "symbol": "👨🏽‍🎨",
     "level": 3,
     "repeatable": true,
@@ -724,7 +678,6 @@
   {
     "index": 50,
     "title": "A Thread Most Fine",
-    "textbody": "The skill of Textiles, dear pupil, is not learned by chance but by devotion. Take it up, and perhaps someday, you’ll weave tapestries that even queens dare not step upon.",
     "symbol": "👨🏽‍🎨",
     "level": 3,
     "repeatable": false,
@@ -739,7 +692,6 @@
   {
     "index": 51,
     "title": "Throwing Shade",
-    "textbody": "Thirty pots, shaped with care. Clay beneath the fingers speaks volumes -- unless it’s Falstaff’s mug you’re shaping, in which case it only groans.",
     "symbol": "👨🏽‍🎨",
     "level": 2,
     "repeatable": true,
@@ -755,7 +707,6 @@
   {
     "index": 52,
     "title": "Idols of the Self",
-    "textbody": "Ten carved statues, if you please. Let them capture the noble posture of a poet mid-rhyme -- or the slouch of Falstaff, mid-snore.",
     "symbol": "👨🏽‍🎨",
     "level": 3,
     "repeatable": true,
@@ -770,7 +721,6 @@
   {
     "index": 53,
     "title": "Art for Artistry’s Sake",
-    "textbody": "The Artistry skill is no trifle. Learn it, and the world becomes a canvas. Ignore it, and you’re merely smearing jam on toast and calling it profound.",
     "symbol": "👨🏽‍🎨",
     "level": 4,
     "repeatable": false,
@@ -778,7 +728,7 @@
     "rel": "friend",
     "relscore": 70,
     "reward": "Money",
-    "rewardqty": 1000,
+    "rewardqty": 10000,
     "xp": 25,
     "goal1action": "Gain skill with",
     "goal1item": "Artistry",
@@ -787,7 +737,6 @@
   {
     "index": 54,
     "title": "The Fine Cut",
-    "textbody": "A jacket, a tunic -- let them be bold! Make six and three, respectively. One to wear, one to flaunt, and one to shame poor Falstaff at the Harvest Ball.",
     "symbol": "👨🏽‍🎨",
     "level": 4,
     "repeatable": true,
@@ -805,7 +754,6 @@
   {
     "index": 55,
     "title": "Needle and Nobility",
-    "textbody": "The Tailor’s craft awaits you. Stitch not just garments, but reputation. One well-sewn cuff can open more doors than a thousand sonnets.",
     "symbol": "👨🏽‍🎨",
     "level": 4,
     "repeatable": false,
@@ -820,7 +768,6 @@
   {
     "index": 56,
     "title": "Winter’s Tale",
-    "textbody": "Twelve sweaters and three heavy jackets -- enough to clothe a chorus or warm the heart of a frostbit critic. Make them sing of winter’s chill and your defiant reply.",
     "symbol": "👨🏽‍🎨",
     "level": 5,
     "repeatable": true,
@@ -839,7 +786,6 @@
   {
     "index": 57,
     "title": "Ashes to Art",
-    "textbody": "Craft me twenty urns, simple and elegant. They are not merely vessels, but poems in clay -- unless you inscribe Falstaff’s face on one, which is comedy, not elegy.",
     "symbol": "👨🏽‍🎨",
     "level": 5,
     "repeatable": false,
@@ -854,7 +800,6 @@
   {
     "index": 58,
     "title": "Steel Thy Spirit",
-    "textbody": "Earn thy place among the bold -- learn the art of Combat, and let not cowardice stay thy blade. ‘When the blast of war blows in our ears, then imitate the action of the tiger.",
     "symbol": "💂",
     "repeatable": false,
     "giver": "Hotspur",
@@ -868,7 +813,6 @@
   {
     "index": 59,
     "title": "Eyes Like a Falcon",
-    "textbody": "The Scout’s trade is vision and speed. Buy it, wear it, become it. The enemy lurks beyond the trees -- see him before he sees thee. ‘The better part of valour is discretion… but not today.’",
     "symbol": "💂",
     "repeatable": false,
     "giver": "Hotspur",
@@ -882,7 +826,6 @@
   {
     "index": 61,
     "title": "Rapid Is the Arrow",
-    "textbody": "Learn the power of Flurry, and let fly thy arrows like lightning upon the moor. Speed is dominion on the battlefield. ‘The world is not thy friend nor the world’s law.’",
     "symbol": "💂",
     "repeatable": false,
     "giver": "Hotspur",
@@ -896,7 +839,6 @@
   {
     "index": 62,
     "title": "Focus the Hunt",
-    "textbody": "Purchase the power of Focus, and let no beast escape thy gaze. Precision is the soul of the strike. ‘You have witchcraft in your lips, and magic in your aim.’",
     "symbol": "💂",
     "repeatable": false,
     "giver": "Hotspur",
@@ -910,7 +852,6 @@
   {
     "index": 63,
     "title": "Hide Like Iron",
-    "textbody": "Acquire Fortitude, for arrows bite less when thy armor bites first. Stand firm and mock the fates. ‘Give me my armor!’ cried King Richard -- he had the right of it.",
     "symbol": "💂",
     "repeatable": false,
     "giver": "Hotspur",
@@ -924,7 +865,6 @@
   {
     "index": 64,
     "title": "The Howl and the Fury",
-    "textbody": "Ten coyotes I ask of you, slain swift and without pity. Each howl echoes with the memory of Juliet’s tears. ‘Cry havoc, and let slip the dogs of war’ -- but let thy blade answer their cry.",
     "symbol": "🧝",
     "repeatable": true,
     "giver": "Cassio",
@@ -938,7 +878,6 @@
   {
     "index": 65,
     "title": "Pelts for Pain",
-    "textbody": "Skin them, sell them, let the market taste their fur. The coin is yours, the vengeance mine. For each pelt you sell, I see a debt to my sister repaid.",
     "symbol": "🧝",
     "repeatable": true,
     "giver": "Cassio",
@@ -953,7 +892,6 @@
   {
     "index": 66,
     "title": "Grim Bears Grimmer Still",
-    "textbody": "Bears roam with claws red as the crimes of Angelo. Kill ten, and show the beasts that justice wears steel. ‘There’s daggers in men’s smiles,’ but in yours, I hope for swords.",
     "symbol": "🧝",
     "repeatable": true,
     "giver": "Cassio",
@@ -968,7 +906,6 @@
   {
     "index": 67,
     "title": "Blood for Juliet",
-    "textbody": "Angelo’s life is the price for my sister’s peace. Slay him, and I will call thee brother in arms, and give thee the key to the Shrine. ‘Revenge is a dish best served cold,’ and tonight, we dine in vengeance.",
     "symbol": "🧝",
     "repeatable": false,
     "giver": "Cassio",
@@ -984,7 +921,6 @@
   {
     "index": 68,
     "title": "Eight-Legged Wretches",
-    "textbody": "I cannot abide spiders -- their creeping legs remind me of the poison that crept through my family. Stomp out fifteen, and I shall sleep easier, if only a little.",
     "symbol": "🧝",
     "repeatable": true,
     "giver": "Cassio",
@@ -999,7 +935,6 @@
   {
     "index": 69,
     "title": "What Dreams May Haunt",
-    "textbody": "Five spirits wander these woods, unbidden and unshriven. Put them to rest, and I shall reward thee. ‘The moon, methinks, looks with a watery eye’ -- as do I, when I see these shades unbanished.",
     "symbol": "🧝‍♀️",
     "repeatable": true,
     "giver": "Titania",
@@ -1013,7 +948,6 @@
   {
     "index": 70,
     "title": "Death to Ogres",
-    "textbody": "Bring down the evil Ogres that plague this valley.",
     "symbol": "🧝‍♀️",
     "repeatable": true,
     "giver": "Titania",
@@ -1027,7 +961,6 @@
   {
     "index": 71,
     "title": "The Golden Latch",
-    "textbody": "A key forged in dreams, stolen once by that silver-tongued Iago, now lost. Find it, mortal, and I shall unlock for thee secrets ancient and rewards rare. ‘I know a bank where the wild thyme blows’ -- and the key lies not far hence.",
     "symbol": "🧝‍♀️",
     "repeatable": false,
     "giver": "Titania",
@@ -1042,7 +975,6 @@
   {
     "index": 72,
     "title": "Raiment of Stars",
-    "textbody": "Buy thyself a suit of magic armor knowns a Unbreakable, as no mortal frame shall long endure the curses that plague my forest. ‘I do wander everywhere’ -- but I need brave souls clad in runes to cleanse what I cannot touch.",
     "symbol": "🧝‍♀️",
     "repeatable": false,
     "giver": "Titania",
@@ -1057,7 +989,6 @@
   {
     "index": 73,
     "title": "Strike True",
-    "textbody": "There was a time I loved a man who never missed his mark. He is gone now. I would see thee shoot as he once did. Buy this blessing of clarity, and your aim shall ‘with love’s light wings did I o’er-perch these walls.’",
     "symbol": "🧝‍♀️",
     "repeatable": false,
     "giver": "Titania",
@@ -1072,7 +1003,6 @@
   {
     "index": 74,
     "title": "Let Hell Gape Wide",
-    "textbody": "The ground cracks. Demons rise. My glade burns beneath their sulfur stench. Slay them -- ten at least -- and I shall reward thee richly. ‘Though she be but little, she is fierce’ -- and so must you be now.",
     "symbol": "🧝‍♀️",
     "repeatable": true,
     "giver": "Titania",
@@ -1087,7 +1017,6 @@
   {
     "index": 75,
     "title": "End the Tyrant Flame",
-    "textbody": "This dragon, this beast of smoke and ember, hoards what once was mine. End him, and gold shall spill from my hand to thine. ‘I am that merry wanderer of the night,’ yet even I must flee his fire.",
     "symbol": "🧝‍♀️",
     "repeatable": true,
     "giver": "Titania",
@@ -1102,7 +1031,6 @@
   {
     "index": 76,
     "title": "A Mind for the Realm",
-    "textbody": "The first duty of citizenship is wisdom. Gain the skill of Politics, and thou mayst shape the world with words, not war. ‘The quality of mercy is not strained,’ but policy must be learned.",
     "symbol": "👩🏻‍⚖️",
     "repeatable": false,
     "giver": "Portia",
@@ -1116,7 +1044,6 @@
   {
     "index": 77,
     "title": "Raise Thy Voice",
-    "textbody": "Vote, and thou art no longer a whisper in the wind but a force upon the stage. The ballot is mightier than the blade -- use it well, and justice shall follow.",
     "symbol": "👩🏻‍⚖️",
     "repeatable": false,
     "giver": "Portia",
@@ -1130,7 +1057,6 @@
   {
     "index": 78,
     "title": "Enlighten the Path",
-    "textbody": "Seek Education, and find not only facts, but understanding. For what is a judge without learning? ‘Ignorance is the curse of God; knowledge the wing wherewith we fly to heaven.",
     "symbol": "👩🏻‍⚖️",
     "repeatable": false,
     "giver": "Portia",
@@ -1144,7 +1070,6 @@
   {
     "index": 79,
     "title": "By Letter of Law",
-    "textbody": "Master the Law, for with it comes the power to defend the meek and challenge the mighty. Libraries shall open to thee, and wisdom pour forth like verdicts in rhyme.",
     "symbol": "👩🏻‍⚖️",
     "repeatable": false,
     "giver": "Portia",
@@ -1158,7 +1083,6 @@
   {
     "index": 80,
     "title": "A Tonic for the State",
-    "textbody": "There is no justice without health, no law without life. Learn the skill of Medicine, and be the healer this town needs. ‘Give me leave to speak my bosom freely.’ So too must thou open hearts and mend them.",
     "symbol": "👩🏻‍⚖️",
     "repeatable": false,
     "giver": "Portia",
@@ -1172,7 +1096,6 @@
   {
     "index": 81,
     "title": "The Knife’s Mercy",
-    "textbody": "Surgery demands a steadier hand and a surer heart. Learn it, and thy touch may yet restore the fallen. Let the blade be a tool of grace, not grimness",
     "symbol": "👩🏻‍⚖️",
     "repeatable": false,
     "giver": "Portia",
@@ -1186,7 +1109,6 @@
   {
     "index": 82,
     "title": "Let School Begin",
-    "textbody": "Build a School, and I will tell you a secret.",
     "symbol": "👩🏻‍⚖️",
     "repeatable": false,
     "giver": "Portia",
@@ -1200,7 +1122,6 @@
   {
     "index": 83,
     "title": "Stacks of Power",
-    "textbody": "Construct three Libraries. Knowledge must be accessible to all, not locked in towers. The adventurers hunger for books -- let us sate their noble minds.",
     "symbol": "👩🏻‍⚖️",
     "repeatable": false,
     "giver": "Portia",
@@ -1214,7 +1135,6 @@
   {
     "index": 84,
     "title": "In Sickness and in Health",
-    "textbody": "A Hospital must rise, its halls bright with healing. Without it, our town limps toward ruin. Build it, and let mercy dwell in mortar and brick.",
     "symbol": "👩🏻‍⚖️",
     "repeatable": false,
     "giver": "Portia",
@@ -1228,7 +1148,6 @@
   {
     "index": 85,
     "title": "Summon the Healers",
-    "textbody": "Craft the Doctors we need, fifty strong. They are balm and blade both. ‘He jests at scars that never felt a wound’ -- but thou shalt tend them, and in so doing, be noble indeed.",
     "symbol": "👩🏻‍⚖️",
     "repeatable": false,
     "giver": "Portia",
@@ -1242,7 +1161,6 @@
   {
     "index": 86,
     "title": "My Secret",
-    "textbody": "Build enough furniture for the town, and I'll tell you a secret.",
     "symbol": "👩🏻‍⚖️",
     "repeatable": false,
     "giver": "Portia",
@@ -1258,9 +1176,8 @@
   {
     "index": 87,
     "title": "Zombies, die",
-    "textbody": "Ten times ten I warned the mortals not to tamper with life’s end, yet still they rise. Zombies now litter the glades. Slay them, and I’ll grant you a drop of my sacred blood, for peace comes not but through steel.",
     "symbol": "🧛🏻‍♂️",
-    "repeatable": true,
+    "repeatable": false,
     "giver": "Vampire",
     "reward": "Vampire's Blood",
     "rewardqty": 1,

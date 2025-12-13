@@ -6,11 +6,11 @@ import ResourceButton from '../../UI/ResourceButton';
 import { refreshPlayerAfterInventoryUpdate, spendIngredients, gainIngredients, canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { updateKentOffersAfterTrade } from './KentOfferLogic';
+import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import './Kent.css'; // Kent-specific styles
 import { formatCountdown } from '../../UI/Timers.js';
 import { useStrings } from '../../UI/StringsContext';
-import { incrementFTUEStep } from '../FTUE/FTUE';
 import { getLocalizedString } from '../../Utils/stringLookup';
 
 function KentPanel({ 
@@ -236,12 +236,10 @@ function KentPanel({
 
             await refreshOffersAndSetTimer(offer, `✅ Exchanged ${offer.qtyBought} ${offer.itemBought} for ${rewardText} and +${xpToAward} XP.`);
             await trackQuestProgress(currentPlayer,'Sell',offer.itemBought,offer.qtyBought,setCurrentPlayer);
-            // Check if we should increment FTUE step after selling
-            if (currentPlayer.ftuestep === 3) {
-                console.log('🎓 Player at FTUE step 3 sold wheat, incrementing FTUE step');
-                await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-            }
-            
+
+            // Try to advance FTUE if this is the player's first sale to Kent
+            await tryAdvanceFTUEByTrigger('SoldToKent', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+
         } catch (error) {
             console.error('❌ Error in Kent trade:', error);
             updateStatus('❌ Trade failed. Please try again.');

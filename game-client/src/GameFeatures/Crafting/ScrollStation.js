@@ -409,8 +409,8 @@ const ScrollStation = ({
             NPCsInGridManager.spawnNPC(gridId, craftedResource, { x: currentStationPosition.x, y: currentStationPosition.y });
           }
           FloatingTextManager.addFloatingText(`+${collectedQty} ${getLocalizedString(collectedItem, strings)}`, currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-        } else if (revealedResource && (revealedResource.category === 'skill' || revealedResource.category === 'power' || revealedResource.category === 'upgrade')) {
-          // Check if player already has this skill/power/upgrade
+        } else if (revealedResource && (revealedResource.category === 'skill' || revealedResource.category === 'power')) {
+          // Check if player already has this skill/power
           const alreadyOwned = revealedResource.category === 'skill' 
             ? currentPlayer.skills?.some(skill => skill.type === collectedItem)
             : currentPlayer.powers?.some(power => power.type === collectedItem);
@@ -532,8 +532,8 @@ const ScrollStation = ({
         setRevealedItemQty(1);
 
         // Update status - only if we're not dealing with already owned skills/powers
-        if (!(revealedResource && (revealedResource.category === 'skill' || revealedResource.category === 'power' || revealedResource.category === 'upgrade') && 
-            (revealedResource.category === 'skill' 
+        if (!(revealedResource && (revealedResource.category === 'skill' || revealedResource.category === 'power') &&
+            (revealedResource.category === 'skill'
               ? currentPlayer.skills?.some(skill => skill.type === collectedItem)
               : currentPlayer.powers?.some(power => power.type === collectedItem)))) {
           updateStatus(`${strings[469] || 'Collected'} ${collectedQty}x ${getLocalizedString(collectedItem, strings)}`);

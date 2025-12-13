@@ -187,16 +187,16 @@ const CourthousePanel = ({
                 const skillsResponse = await axios.get(`${API_BASE}/api/skills/${currentPlayer.playerId}`);
                 const serverSkills = skillsResponse.data.skills || [];
                 
-                // Filter for actual skills/upgrades owned
+                // Filter for actual skills owned
                 const owned = serverSkills.filter(skill =>
-                    masterResources.some(res => res.type === skill.type && (res.category === 'skill' || res.category === 'upgrade'))
+                    masterResources.some(res => res.type === skill.type && res.category === 'skill')
                 );
                 setOwnedSkills(owned);
-                
+
                 // Filter for skills available at Courthouse
                 const availableSkills = masterResources.filter(
-                    res => (res.category === 'skill' || res.category === 'upgrade') &&
-                    res.source === 'Courthouse' && 
+                    res => res.category === 'skill' &&
+                    res.source === 'Courthouse' &&
                     !owned.some(o => o.type === res.type)
                 );
                 setCourthouseSkills(availableSkills);

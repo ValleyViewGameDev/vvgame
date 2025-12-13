@@ -10,7 +10,7 @@ import { canAfford, hasRoomFor } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
 import { QuestGiverButton } from '../../UI/QuestButton';
-import { modifyPlayerStatsInPlayer, modifyPlayerStatsInGridState } from '../../Utils/playerManagement';
+import { modifyPlayerStatsInPlayer, modifyPlayerStatsInGridState, getDerivedLevel } from '../../Utils/playerManagement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
@@ -26,6 +26,7 @@ import { calculateDistance, getDerivedRange } from '../../Utils/worldHelpers';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import HealerInteraction from './HealerInteraction';
 import StoryModal from '../../UI/StoryModal';
+import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 
 const NPCPanel = ({
   onClose,
@@ -43,6 +44,7 @@ const NPCPanel = ({
   masterInteractions,
   masterTraders,
   masterTrophies,
+  masterXPLevels,
   zoomLevel,
   setZoomLevel,
   centerCameraOnPlayer,
@@ -77,6 +79,18 @@ const NPCPanel = ({
     console.warn("NPCPanel was opened with missing npcData.");
     npcData = { type: "Unknown NPC", symbol: "❓" }; // Provide default fallback values
   }
+
+  // Check if player has required skill for a trade recipe
+  const hasRequiredSkill = (requiredSkill) => {
+    return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
+  };
+
+  // Check if player meets the level requirement for a trade recipe
+  const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
+  const meetsLevelRequirement = (resourceLevel) => {
+    if (!resourceLevel) return true; // No level requirement
+    return playerLevel >= resourceLevel;
+  };
 
   // Check if player can quest based on relationship
   useEffect(() => {
@@ -152,7 +166,9 @@ const NPCPanel = ({
             source: npcData.type,
             gemcost: resourceDef?.gemcost || null,
             index: offer.index, // Keep track of which offer this is
-            repeat: offer.repeat // Store the repeat flag from trader offer
+            repeat: offer.repeat, // Store the repeat flag from trader offer
+            level: resourceDef?.level, // Level requirement from resource definition
+            requires: resourceDef?.requires // Skill requirement from resource definition
           };
           
           // Collect all requires fields into ingredient format
@@ -679,6 +695,28 @@ const handleHeal = async (recipe) => {
     // Track quest progress for trading (using 'Collect' action to match quest system)
     await trackQuestProgress(currentPlayer, 'Collect', recipe.type, quantityToGive, setCurrentPlayer);
 
+    // Award trophies for specific trade rewards
+    try {
+      if (recipe.type === "Home Deed") {
+        console.log(`🏆 Awarding Homesteader trophy for trading Home Deed`);
+        await earnTrophy(currentPlayer.playerId, "Homesteader", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+        // Try to advance FTUE if this is the player's first Home Deed purchase
+        await tryAdvanceFTUEByTrigger('BoughtHomeDeed', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+      } else if (recipe.type === "Brass Bell") {
+        console.log(`🏆 Awarding Brass Bell trophy for trading Brass Bell`);
+        await earnTrophy(currentPlayer.playerId, "Brass Bell", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+      } else if (recipe.type === "Hope") {
+        console.log(`🏆 Awarding Hope trophy for trading Hope`);
+        await earnTrophy(currentPlayer.playerId, "Hope", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+      } else if (recipe.type === "Town Key") {
+        // Try to advance FTUE when acquiring Town Key from Constable Elbow
+        await tryAdvanceFTUEByTrigger('AcquiredTownKey', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+      }
+    } catch (error) {
+      console.error('❌ Error awarding trade trophy:', error);
+      // Don't fail the trade if trophy awarding fails
+    }
+
     // Award XP for trading with NPC
     const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
     const xpToAward = npcResourceForXP?.xp || 1;
@@ -912,7 +950,7 @@ const handleHeal = async (recipe) => {
               fontStyle: 'italic',
               color: '#666'
             }}>
-              {strings[627]}
+              {strings[627]?.replace('{npc}', npcData?.type || '')}
             </div>
           )}
           
@@ -1231,12 +1269,15 @@ const handleHeal = async (recipe) => {
                   
                   return filteredRecipes.map((recipe) => {
                   const affordable = canAfford(recipe, inventory, backpack, 1);
+                  const meetsSkillRequirement = hasRequiredSkill(recipe.requires);
+                  const meetsLevel = meetsLevelRequirement(recipe.level);
+                  const requirementsMet = meetsSkillRequirement && meetsLevel;
                   const quantityToGive = recipe.tradeqty || 1;
 
                   // Format costs with color per ingredient (matching CraftingStation.js style)
                   // Support dynamic number of ingredients based on whether data comes from masterTraders or legacy format
                   let formattedCosts = '';
-                  
+
                   // Check if this recipe has a 'requiresArray' array (from masterTraders)
                   if (recipe.requiresArray && Array.isArray(recipe.requiresArray)) {
                     // New format from masterTraders - dynamic number of ingredients
@@ -1244,7 +1285,7 @@ const handleHeal = async (recipe) => {
                       const type = req.type;
                       const qty = req.quantity;
                       if (!type || !qty) return '';
-                      
+
                       const inventoryQty = inventory?.find(item => item.type === type)?.quantity || 0;
                       const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
                       const playerQty = inventoryQty + backpackQty;
@@ -1259,7 +1300,7 @@ const handleHeal = async (recipe) => {
                       const type = recipe[`ingredient${i}`];
                       const qty = recipe[`ingredient${i}qty`];
                       if (!type || !qty) continue;
-                      
+
                       const inventoryQty = inventory?.find(item => item.type === type)?.quantity || 0;
                       const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
                       const playerQty = inventoryQty + backpackQty;
@@ -1274,17 +1315,27 @@ const handleHeal = async (recipe) => {
                   const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
                   const xpToAward = npcResourceForXP?.xp || 1;
 
+                  const skillColor = meetsSkillRequirement ? 'green' : 'red';
+                  const levelColor = meetsLevel ? 'green' : 'red';
+                  const details =
+                    (recipe.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span>` : '') +
+                    (recipe.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span>` : '') +
+                    `${strings[461]}<div>${formattedCosts}</div><div style="margin-top: 8px; color: #4CAF50;">🔷 +${xpToAward} XP</div>`;
+
+                  const isDisabled = !affordable || !requirementsMet;
+
                   return (
                     <ResourceButton
                       key={`${recipe.source}-${recipe.index}`}
                       symbol={recipe.symbol}
                       name={`${quantityToGive} ${getLocalizedString(recipe.type, strings)}`}
-                      details={`${strings[461]}<div>${formattedCosts}</div><div style="margin-top: 8px; color: #4CAF50;">🔷 +${xpToAward} XP</div>`}
-                      disabled={!affordable}
+                      details={details}
+                      disabled={isDisabled}
                       onClick={() => handleTrade(recipe)}
                       // Gem purchase props
                       gemCost={recipe.gemcost || null}
-                      onGemPurchase={(recipe.gemcost && !affordable) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'trade') : null}
+                      onGemPurchase={(recipe.gemcost && (!affordable || !requirementsMet)) ? (modifiedRecipe) => handleGemPurchase(modifiedRecipe, 'trade') : null}
+                      meetsLevelRequirement={meetsLevel}
                       resource={recipe}
                       inventory={inventory}
                       backpack={backpack}
@@ -1344,7 +1395,13 @@ const handleHeal = async (recipe) => {
       {/* Story Modal for relationship milestone dialogs */}
       <StoryModal
         isOpen={storyModalOpen}
-        onClose={() => setStoryModalOpen(false)}
+        onClose={() => {
+          setStoryModalOpen(false);
+          // Advance FTUE when first meeting Constable Elbow
+          if (npcData?.type === 'Constable Elbow' && storyRelationshipType === 'met') {
+            tryAdvanceFTUEByTrigger('MetConstableElbow', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+          }
+        }}
         npcName={npcData?.type}
         relationshipType={storyRelationshipType}
         username={currentPlayer?.username}

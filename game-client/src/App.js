@@ -39,6 +39,7 @@ import {
 import farmState from './FarmState';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FTUE from './GameFeatures/FTUE/FTUE';
+import FTUEstepsData from './GameFeatures/FTUE/FTUEsteps.json';
 
 import playersInGridManager from './GridState/PlayersInGrid';
 import { usePlayersInGrid, useGridStatePCUpdate } from './GridState/GridStatePCContext';
@@ -1077,9 +1078,13 @@ useEffect(() => {
       
       if (gridLoaded) {
         console.log('🎓 FTUE step changed to:', currentPlayer.ftuestep, ', showing FTUE (grid loaded)');
-        // Close any open panels before showing FTUE modal to ensure clean state
-        closePanel();
-        setActiveStation(null); // Clear active station to prevent panels from re-opening
+        // Only close panels if the FTUE step will actually show a modal
+        const stepData = FTUEstepsData.find(step => step.step === currentPlayer.ftuestep);
+        if (stepData?.showModal !== false) {
+          // Close any open panels before showing FTUE modal to ensure clean state
+          closePanel();
+          setActiveStation(null); // Clear active station to prevent panels from re-opening
+        }
         setShowFTUE(true);
         setLastShownFTUEStep(currentPlayer.ftuestep);
       } else {
@@ -1102,9 +1107,13 @@ useEffect(() => {
     // If we have a pending FTUE step that hasn't been shown yet
     if (currentPlayer.ftuestep !== lastShownFTUEStep) {
       console.log('🎓 Grid loaded, showing pending FTUE step:', currentPlayer.ftuestep);
-      // Close any open panels before showing FTUE modal to ensure clean state
-      closePanel();
-      setActiveStation(null); // Clear active station to prevent panels from re-opening
+      // Only close panels if the FTUE step will actually show a modal
+      const stepData = FTUEstepsData.find(step => step.step === currentPlayer.ftuestep);
+      if (stepData?.showModal !== false) {
+        // Close any open panels before showing FTUE modal to ensure clean state
+        closePanel();
+        setActiveStation(null); // Clear active station to prevent panels from re-opening
+      }
       setShowFTUE(true);
       setLastShownFTUEStep(currentPlayer.ftuestep);
     }
@@ -1864,9 +1873,9 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
         );
       }
     }
-    else if (resource.category === 'training') {
-      setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, });
-      openPanel('SkillsPanel'); 
+    else if (resource.category === 'training' || resource.category === 'trainingAndShop') {
+      setActiveStation({type: resource.type, position: { x: resource.x, y: resource.y }, gridId: gridId, category: resource.category });
+      openPanel('SkillsPanel');
     }
     else if (resource.category === 'crafting') {
       setActiveStation({type: resource.type,position: { x: resource.x, y: resource.y }, gridId: gridId, });
@@ -3039,10 +3048,11 @@ return (
           inventory={inventory}
           setInventory={setInventory}
           backpack={backpack}
-          setBackpack={setBackpack} 
+          setBackpack={setBackpack}
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
-          stationType={activeStation?.type} 
+          stationType={activeStation?.type}
+          stationCategory={activeStation?.category}
           currentStationPosition={activeStation?.position}
           gridId={activeStation?.gridId}
           isDeveloper={isDeveloper}
@@ -3050,6 +3060,8 @@ return (
           updateStatus={updateStatus}
           masterSkills={masterSkills}
           setResources={setResources}
+          masterResources={masterResources}
+          masterXPLevels={masterXPLevels}
         />
       )}
       {activePanel === 'CombatPanel' && (
@@ -3119,14 +3131,16 @@ return (
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           setResources={setResources}
-          stationType={activeStation?.type} 
-          currentStationPosition={activeStation?.position} 
+          stationType={activeStation?.type}
+          currentStationPosition={activeStation?.position}
           gridId={activeStation?.gridId}
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}
           masterTrophies={masterTrophies}
           isDeveloper={isDeveloper}
+          globalTuning={globalTuning}
+          masterXPLevels={masterXPLevels}
         />
       )}
       {activePanel === 'ScrollStation' && (
@@ -3206,11 +3220,13 @@ return (
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           gridId={gridId}
-          masterResources={masterResources} 
-          masterSkills={masterSkills} 
+          masterResources={masterResources}
+          masterSkills={masterSkills}
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
           currentSeason={seasonData?.type}
+          globalTuning={globalTuning}
+          masterXPLevels={masterXPLevels}
         />
       )}
       {activePanel === 'BuyPanel' && (
@@ -3226,13 +3242,14 @@ return (
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           gridId={gridId}
-          masterResources={masterResources} 
-          masterSkills={masterSkills} 
+          masterResources={masterResources}
+          masterSkills={masterSkills}
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
           currentSeason={seasonData?.type}
           NPCsInGrid={NPCsInGrid}
           globalTuning={globalTuning}
+          masterXPLevels={masterXPLevels}
         />
       )}
       {activePanel === 'PetsPanel' && (
@@ -3292,6 +3309,7 @@ return (
           masterInteractions={masterInteractions}
           masterTraders={masterTraders}
           masterTrophies={masterTrophies}
+          masterXPLevels={masterXPLevels}
           zoomLevel={zoomLevel}
           setZoomLevel={setZoomLevel}
           centerCameraOnPlayer={centerCameraOnPlayer}

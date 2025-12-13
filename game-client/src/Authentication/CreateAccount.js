@@ -4,6 +4,7 @@ import axios from 'axios';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import { useStrings } from '../UI/StringsContext';
 import LANGUAGE_OPTIONS from '../UI/Languages.json';
+import { enabledLanguages } from '../UI/LanguagePickerModal';
 import '../UI/SharedButtons.css';
 import { trackAccountCreation } from '../Utils/conversionTracking';
 
@@ -28,10 +29,10 @@ const handleCreateAccount = async (e) => {
     if (!frontierResponse.data || frontierResponse.data.length === 0) throw new Error('Frontier not found');
     const frontier = frontierResponse.data[0];
 
-    // 2. Locate an available sub-grid in a settlement
+    // 2. Locate an available homestead and town grid in a settlement
     let assignedSettlementId = null;
-    let assignedGridCoord = null;
-    let gridType = null;
+    let homesteadGridCoord = null;
+    let townGridId = null;
 
     for (const settlementRow of frontier.settlements || []) {
       for (const settlement of settlementRow) {
@@ -40,34 +41,61 @@ const handleCreateAccount = async (e) => {
         const settlementResponse = await axios.get(`${API_BASE}/api/get-settlement/${settlement.settlementId}`);
         const settlementData = settlementResponse.data;
 
-        const availableGrid = settlementData.grids.flat().find((grid) => grid.available === true);
-        if (availableGrid) {
+        const flatGrids = settlementData.grids.flat();
+        const availableHomestead = flatGrids.find((grid) => grid.available === true && grid.gridType === 'homestead');
+        const townGrid = flatGrids.find((grid) => grid.gridType === 'town');
+
+        if (availableHomestead && townGrid) {
           assignedSettlementId = settlement.settlementId;
-          assignedGridCoord = availableGrid.gridCoord;
-          gridType = availableGrid.gridType;
+          homesteadGridCoord = availableHomestead.gridCoord;
+          townGridId = townGrid.gridId;
           break;
         }
       }
-      if (assignedGridCoord) break;
+      if (homesteadGridCoord) break;
     }
 
-    if (!assignedSettlementId || !assignedGridCoord) {
+    if (!assignedSettlementId || !homesteadGridCoord || !townGridId) {
       throw new Error('No available sub-grids in the Frontier.');
     }
 
-    // 3. Register player using unified endpoint (server will create the grid)
+    // 3. Find the Signpost Home position in the town grid
+    let startX = 30;
+    let startY = 33;
+    try {
+      const townGridResponse = await axios.get(`${API_BASE}/api/load-grid/${townGridId}`);
+      const townGridData = townGridResponse.data;
+
+      if (townGridData.resources && Array.isArray(townGridData.resources)) {
+        const signpostHome = townGridData.resources.find(res => res.type === "Signpost Home");
+        if (signpostHome) {
+          startX = signpostHome.x;
+          startY = signpostHome.y + 1; // One tile down from the signpost
+          console.log(`✅ Found Signpost Home at (${signpostHome.x}, ${signpostHome.y}), placing new player at (${startX}, ${startY})`);
+        } else {
+          console.warn('⚠️ Signpost Home not found in town grid, using default position');
+        }
+      }
+    } catch (err) {
+      console.warn('⚠️ Could not load town grid for spawn position, using default:', err.message);
+    }
+
+    // 4. Register player using unified endpoint (server will create the homestead grid)
     const registerPayload = {
       username,
       password,
       language,
       location: {
-        x: 30,
-        y: 33,
-        gridCoord: assignedGridCoord,
+        x: startX,
+        y: startY,
+        gridCoord: homesteadGridCoord,
         settlementId: assignedSettlementId,
         frontierId: frontier._id,
-        gtype: gridType,
+        gtype: 'homestead',
       },
+      // Tell server the player should start in town
+      startInTown: true,
+      townGridId: townGridId,
     };
 
     console.log('Calling /api/register-new-player with payload:', registerPayload);
@@ -77,8 +105,15 @@ const handleCreateAccount = async (e) => {
     }
 
     const player = response.data.player;
-    const location = player.location;
-    const assignedGridId = location?.g;
+
+    // Update player location to be in town (server may have already done this)
+    player.location = {
+      ...player.location,
+      g: townGridId,
+      x: startX,
+      y: startY,
+      gtype: 'town',
+    };
 
     console.log('✅ Player registered:', player);
 
@@ -90,13 +125,13 @@ const handleCreateAccount = async (e) => {
     localStorage.removeItem('player');
     localStorage.setItem('player', JSON.stringify(player));
 
-    // 5. Save PC to grid
+    // 5. Save PC to town grid (where player starts)
     const now = Date.now();
     const newPC = {
       playerId: player._id,
       type: 'pc',
       username: player.username,
-      position: { x: 30, y: 33 },
+      position: { x: startX, y: startY },
       icon: player.icon || '😀',
       hp: player.baseHp || 25,
       maxhp: player.baseMaxhp || 25,
@@ -111,7 +146,7 @@ const handleCreateAccount = async (e) => {
     };
 
     const payload = {
-      gridId: assignedGridId,
+      gridId: townGridId,
       playerId: player._id,
       pc: newPC,
       lastUpdated: now,
@@ -119,7 +154,13 @@ const handleCreateAccount = async (e) => {
 
     await axios.post(`${API_BASE}/api/save-single-pc`, payload);
 
-    // 6. Send welcome message
+    // 6. Update player location on server to be in town
+    await axios.post(`${API_BASE}/api/update-player-location`, {
+      playerId: player._id,
+      location: player.location,
+    });
+
+    // 7. Send welcome message
     try {
       await axios.post(`${API_BASE}/api/send-mailbox-message`, {
         playerId: player._id,
@@ -129,7 +170,7 @@ const handleCreateAccount = async (e) => {
       console.error("❌ Failed to send welcome message:", mailError);
     }
 
-    // 7. Close modal and reload
+    // 8. Close modal and reload
     if (closeModal) closeModal();
     localStorage.setItem("initialZoomLevel", "close");
     window.location.reload();
@@ -162,11 +203,13 @@ return (
         onChange={(e) => setLanguage(e.target.value)}
       >
         <option value="">{strings[4067]}</option>
-        {LANGUAGE_OPTIONS.map(({ code, label }) => (
-          <option key={code} value={code}>
-            {label}
-          </option>
-        ))}
+        {LANGUAGE_OPTIONS
+          .filter(({ code }) => enabledLanguages.includes(code))
+          .map(({ code, label }) => (
+            <option key={code} value={code}>
+              {label}
+            </option>
+          ))}
       </select>
       <div className="shared-buttons">
         <button className="btn-basic btn-success" type="submit" disabled={isSubmitting}>

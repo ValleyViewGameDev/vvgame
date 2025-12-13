@@ -12,10 +12,10 @@ import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { spendIngredients } from '../../Utils/InventoryManagement';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/TransactionButton';
-import { incrementFTUEStep } from '../FTUE/FTUE';
 import { earnTrophy } from '../Trophies/TrophyUtils';
+import { getDerivedLevel } from '../../Utils/playerManagement';
 
-const SkillsPanel = ({ 
+const SkillsPanel = ({
     onClose,
     inventory,
     setInventory,
@@ -23,7 +23,8 @@ const SkillsPanel = ({
     setBackpack,
     currentPlayer,
     setCurrentPlayer,
-    stationType, 
+    stationType,
+    stationCategory,
     currentStationPosition,
     gridId,
     isDeveloper,
@@ -32,6 +33,7 @@ const SkillsPanel = ({
     masterSkills,
     setResources,
     masterResources,
+    masterXPLevels,
 }) => {
   const strings = useStrings();
   const [entryPoint, setEntryPoint] = useState(stationType || "Skills Panel"); 
@@ -79,39 +81,20 @@ const SkillsPanel = ({
 
         // ✅ Filter owned skills
         const ownedSkills = serverSkills.filter(skill =>
-          allResourcesData.some(res => res.type === skill.type && (res.category === 'skill' || res.category === 'upgrade'))
+          allResourcesData.some(res => res.type === skill.type && res.category === 'skill')
         );
         setOwnedSkills(ownedSkills);
 
         // ✅ Filter available skills based on `entryPoint`
-        let availableSkills = allResourcesData.filter(
-          res => (res.category === 'skill' || res.category === 'upgrade') &&
-          res.source === entryPoint && 
+        // For trainingAndShop stations, also include 'special' category items (like Tent, Boat)
+        const validCategories = stationCategory === 'trainingAndShop'
+          ? ['skill', 'special']
+          : ['skill'];
+        const availableSkills = allResourcesData.filter(
+          res => validCategories.includes(res.category) &&
+          res.source === entryPoint &&
           !ownedSkills.some(owned => owned.type === res.type)
         );
-
-        // ✅ Additional filter for first-time users
-        if (currentPlayer?.firsttimeuser === true) {
-          // Helper function to check if skill can be acquired
-          const canAcquireSkill = (skill) => {
-            // Check if skill has requirements
-            if (skill.requires) {
-              // Check if the player owns the required skill
-              const hasRequirement = ownedSkills.some(owned => owned.type === skill.requires);
-              if (!hasRequirement) return false;
-            }
-            
-            // Check if skill level is appropriate for FTUE step
-            if (currentPlayer.ftuestep != null && skill.level != null) {
-              return skill.level <= currentPlayer.ftuestep;
-            }
-            
-            // If no FTUE step or skill level, can acquire
-            return true;
-          };
-
-          availableSkills = availableSkills.filter(canAcquireSkill);
-        }
 
         setSkillsToAcquire(availableSkills);
       } catch (error) {
@@ -122,12 +105,19 @@ const SkillsPanel = ({
     };
 
     fetchResourcesAndInventory();
-  }, [entryPoint, currentPlayer?.ftuestep, currentPlayer?.playerId]); // ✅ Re-fetch when `entryPoint` changes, FTUE step changes, or player changes
+  }, [entryPoint, currentPlayer?.playerId, stationCategory]); // ✅ Re-fetch when `entryPoint`, player, or category changes
 
 
   const hasRequiredSkill = (requiredSkill) => {
-    return !requiredSkill || 
+    return !requiredSkill ||
         ownedSkills.some((owned) => owned.type === requiredSkill);
+  };
+
+  // Check if player meets the level requirement for a resource
+  const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
+  const meetsLevelRequirement = (resourceLevel) => {
+    if (!resourceLevel) return true; // No level requirement
+    return playerLevel >= resourceLevel;
   };
 
 
@@ -157,7 +147,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
   }
 
   const updatedSkills = [...ownedSkills];
-  // Add the new skill regardless of whether it's skill or upgrade category
+  // Add the new skill
   updatedSkills.push({ type: resource.type, category: resource.category, quantity: 1 });
   setOwnedSkills(updatedSkills);
   updateStatus(`💪 ${getLocalizedString(resource.type, strings)} skill acquired.`);
@@ -168,20 +158,8 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
       skills: updatedSkills,
     });
     await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
-    await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);    
+    await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
-    
-    // Check if the player is a first-time user and just acquired the Axe skill
-    if (currentPlayer.firsttimeuser === true && resource.type === 'Axe') {
-      console.log('🎓 First-time user acquired Axe skill, advancing FTUE step');
-      await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-    }
-    
-    // Check if the player is a first-time user and just acquired the Grower skill
-    if (currentPlayer.firsttimeuser === true && resource.type === 'Grower') {
-      console.log('🎓 First-time user acquired Grower skill, advancing FTUE step');
-      await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-    }
 
     // Instead of re-fetching, update the acquire list locally
     setSkillsToAcquire(prev => prev.filter(skill => skill.type !== resource.type));
@@ -244,11 +222,12 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
 
 
             <div className="skills-to-acquire">
-              {skillsToAcquire.length > 0 && <h3>{strings[1301]}</h3>}
               <div className="skills-options">
                 {skillsToAcquire.map((resource) => {
                   const affordable = canAfford(resource, inventory, backpack, 1);
-                  const meetsRequirement = hasRequiredSkill(resource.requires);
+                  const meetsSkillRequirement = hasRequiredSkill(resource.requires);
+                  const meetsLevel = meetsLevelRequirement(resource.level);
+                  const requirementsMet = meetsSkillRequirement && meetsLevel;
 
                   const formattedCosts = [1, 2, 3, 4].map((i) => {
                     const type = resource[`ingredient${i}`];
@@ -263,9 +242,11 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                     return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
                   }).join('');
 
-                  const skillColor = meetsRequirement ? 'green' : 'red';
+                  const skillColor = meetsSkillRequirement ? 'green' : 'red';
+                  const levelColor = meetsLevel ? 'green' : 'red';
                   const details =
-                    (resource.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(resource.requires, strings)}</span><br>` : '') +
+                    (resource.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${resource.level}</span>` : '') +
+                    (resource.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(resource.requires, strings)}</span>` : '') +
                     `${strings[461]}<div>${formattedCosts}</div>`;
 
                   // ✅ **Check if this skill modifies a player attribute**
@@ -308,10 +289,11 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                       name={getLocalizedString(resource.type, strings)}
                       details={details}
                       info={info}
-                      disabled={!affordable || !meetsRequirement}
+                      disabled={!affordable || !requirementsMet}
                       onClick={() => handlePurchase(resource.type)}
                       // Don't pass gemCost - let ResourceButton calculate it based on missing ingredients
-                      onGemPurchase={(resource.gemcost && (!affordable || !meetsRequirement)) ? handleGemPurchase : null}
+                      onGemPurchase={(resource.gemcost && (!affordable || !requirementsMet)) ? handleGemPurchase : null}
+                      meetsLevelRequirement={meetsLevel}
                       resource={resource}
                       inventory={inventory}
                       backpack={backpack}

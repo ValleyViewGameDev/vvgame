@@ -10,25 +10,27 @@ import { usePanelContext } from '../../UI/PanelContext';
 import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
+import { getDerivedLevel } from '../../Utils/playerManagement';
 
 const BuyPanel = ({
   TILE_SIZE,
   resources,
   setResources,
   inventory,
-  setInventory, 
+  setInventory,
   backpack,
   setBackpack,
   currentPlayer,
   setCurrentPlayer,
   gridId,
-  masterResources, 
-  masterSkills, 
+  masterResources,
+  masterSkills,
   updateStatus,
   isDeveloper,
   currentSeason,
   NPCsInGrid,
   globalTuning,
+  masterXPLevels,
 }) => {
   const { closePanel } = usePanelContext();
   const [buyOptions, setBuyOptions] = useState([]);
@@ -58,15 +60,7 @@ const BuyPanel = ({
             if (resource.season && currentSeason && resource.season !== currentSeason) {
               return false;
             }
-            
-            // FTUE level filtering for first-time users
-            if (currentPlayer?.firsttimeuser === true && resource.level) {
-              const playerFTUEStep = currentPlayer?.ftuestep || 0;
-              if (resource.level > playerFTUEStep) {
-                return false;
-              }
-            }
-            
+
             return true;
           }
         );
@@ -83,6 +77,13 @@ const BuyPanel = ({
 
   const hasRequiredSkill = (requiredSkill) => {
     return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
+  };
+
+  // Check if player meets the level requirement for a resource
+  const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
+  const meetsLevelRequirement = (resourceLevel) => {
+    if (!resourceLevel) return true; // No level requirement
+    return playerLevel >= resourceLevel;
   };
 
   const handleGemPurchase = async (modifiedRecipe) => {
@@ -124,8 +125,10 @@ const BuyPanel = ({
             {buyOptions.map((item) => {
               const ingredients = getIngredientDetails(item, allResources);
               const affordable = canAfford(item, inventory);
-              const requirementsMet = hasRequiredSkill(item.requires);
-              
+              const meetsSkillRequirement = hasRequiredSkill(item.requires);
+              const meetsLevel = meetsLevelRequirement(item.level);
+              const requirementsMet = meetsSkillRequirement && meetsLevel;
+
               // Check if this is a farm animal and if we've hit the limit
               const isFarmAnimal = item.passable && item.action === 'graze';
               const farmAnimalLimitReached = isFarmAnimal && currentFarmAnimals >= maxFarmAnimals;
@@ -137,17 +140,19 @@ const BuyPanel = ({
                 if (!type || !qty) return '';
 
                 const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
-                const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
+                const backpackQty = backpack?.find(bpItem => bpItem.type === type)?.quantity || 0;
                 const playerQty = inventoryQty + backpackQty;
                 const color = playerQty >= qty ? 'green' : 'red';
                 const symbol = allResources.find(r => r.type === type)?.symbol || '';
                 return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
-              const skillColor = requirementsMet ? 'green' : 'red';
+              const skillColor = meetsSkillRequirement ? 'green' : 'red';
+              const levelColor = meetsLevel ? 'green' : 'red';
               const details =
-                (farmAnimalLimitReached ? `<span style="color: red;">${strings[407]} (${maxFarmAnimals})</span><br>` : '') +
-                (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span><br>` : '') +
+                (farmAnimalLimitReached ? `<span style="color: red;">${strings[407]} (${maxFarmAnimals})</span>` : '') +
+                (item.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${item.level}</span>` : '') +
+                (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '') +
                 `${strings[461]}<div>${formattedCosts}</div>`;
 
               // Create info tooltip content
@@ -188,6 +193,7 @@ const BuyPanel = ({
                     })
                   }
                   onGemPurchase={(item.gemcost && (!affordable || !requirementsMet) && !farmAnimalLimitReached) ? handleGemPurchase : null}
+                  meetsLevelRequirement={meetsLevel}
                   resource={item}
                   inventory={inventory}
                   backpack={backpack}

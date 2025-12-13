@@ -41,7 +41,7 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
     const config = tradeStallSlotConfig.find(slot => slot.slotIndex === slotIndex);
     return config || {
       maxAmount: 50,
-      sellWaitTime: currentPlayer.firsttimeuser ? 5000 : 300000,
+      sellWaitTime: 300000,
       unlocked: slotIndex === 0,
       unlockCost: 0,
       requiresGoldPass: false
@@ -401,22 +401,6 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
       throw error;
     }
   };
-
-  // Auto-set max Wheat amount for FTUE users at step 3 or less
-  useEffect(() => {
-    if (selectedSlotIndex !== null && currentPlayer.firsttimeuser === true && currentPlayer.ftuestep <= 3) {
-      // Find wheat in inventory
-      const wheatItem = inventory.find(item => item.type === 'Wheat');
-      if (wheatItem) {
-        const slotConfig = getSlotConfig(selectedSlotIndex);
-        const maxAmount = Math.min(wheatItem.quantity, slotConfig.maxAmount);
-        setAmounts(prev => ({
-          ...prev,
-          'Wheat': maxAmount
-        }));
-      }
-    }
-  }, [selectedSlotIndex, currentPlayer.firsttimeuser, currentPlayer.ftuestep, inventory]);
 
   const handleSlotClick = (index) => {
     const slot = tradeSlots[index];
@@ -939,10 +923,6 @@ function TradeStall({ onClose, inventory, setInventory, backpack, setBackpack, c
           {activeTab === 'sell' && (
           <div className="trade-stall-slots shared-buttons">
         {tradeSlots.map((slot, index) => {
-          // Check if we should hide this slot for FTUE users
-          if (currentPlayer.firsttimeuser === true && currentPlayer.ftuestep <= 3 && index > 0) {
-            return null; // Don't render slots after the first one for new players at step 3 or less
-          }
           const isOwnStall = true; // Always viewing own stall now
           const isEmpty = !slot?.resource;
           const isPurchased = slot?.boughtBy;

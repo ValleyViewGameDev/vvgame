@@ -11,6 +11,7 @@ import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { getMayorUsername } from '../Government/GovUtils';
+import { getDerivedLevel } from '../../Utils/playerManagement';
 
 const BuildPanel = ({
   TILE_SIZE,
@@ -29,6 +30,7 @@ const BuildPanel = ({
   isDeveloper,
   currentSeason,
   globalTuning,
+  masterXPLevels,
 }) => {
   const { closePanel } = usePanelContext(); // Use closePanel from context
   const [buildOptions, setBuildOptions] = useState([]);
@@ -157,6 +159,13 @@ const BuildPanel = ({
     return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
   };
 
+  // Check if player meets the level requirement for a resource
+  const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
+  const meetsLevelRequirement = (resourceLevel) => {
+    if (!resourceLevel) return true; // No level requirement
+    return playerLevel >= resourceLevel;
+  };
+
   // Count BuildTown buildings on the current grid
   const countTownBuildings = () => {
     if (!resources || !allResources) return 0;
@@ -203,8 +212,10 @@ const BuildPanel = ({
             {buildOptions.map((item) => {
               const ingredients = getIngredientDetails(item, allResources);
               const affordable = canAfford(item, inventory, backpack);
-              const requirementsMet = hasRequiredSkill(item.requires);
-              
+              const meetsSkillRequirement = hasRequiredSkill(item.requires);
+              const meetsLevel = meetsLevelRequirement(item.level);
+              const requirementsMet = meetsSkillRequirement && meetsLevel;
+
               // Check if this is a BuildTown building and if we've hit the limit
               const isTownBuilding = item.source === 'BuildTown' && currentPlayer.location.gtype !== 'homestead';
               const townBuildingLimitReached = isTownBuilding && currentTownBuildings >= maxTownBuildings;
@@ -216,17 +227,19 @@ const BuildPanel = ({
                 if (!type || !qty) return '';
 
                 const inventoryQty = inventory?.find(inv => inv.type === type)?.quantity || 0;
-                const backpackQty = backpack?.find(item => item.type === type)?.quantity || 0;
+                const backpackQty = backpack?.find(bpItem => bpItem.type === type)?.quantity || 0;
                 const playerQty = inventoryQty + backpackQty;
                 const color = playerQty >= qty ? 'green' : 'red';
                 const symbol = allResources.find(r => r.type === type)?.symbol || '';
                 return `<span style="color: ${color}; display: block;">${symbol} ${getLocalizedString(type, strings)} ${qty} / ${playerQty}</span>`;
               }).join('');
 
-              const skillColor = requirementsMet ? 'green' : 'red';
+              const skillColor = meetsSkillRequirement ? 'green' : 'red';
+              const levelColor = meetsLevel ? 'green' : 'red';
               const details =
-                (townBuildingLimitReached ? `<span style="color: red;">${strings[407]}</span><br>` : '') +
-                (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span><br>` : '') +
+                (townBuildingLimitReached ? `<span style="color: red;">${strings[407]}</span>` : '') +
+                (item.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${item.level}</span>` : '') +
+                (item.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(item.requires, strings)}</span>` : '') +
                 `${strings[461]}<div>${formattedCosts}</div>`;
 
               const info = `
@@ -266,6 +279,7 @@ const BuildPanel = ({
                     })
                   }
                   onGemPurchase={(item.gemcost && (!affordable || !requirementsMet) && !townBuildingLimitReached) ? handleGemPurchase : null}
+                  meetsLevelRequirement={meetsLevel}
                   resource={item}
                   inventory={inventory}
                   backpack={backpack}

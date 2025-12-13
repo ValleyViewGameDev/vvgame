@@ -15,6 +15,7 @@ import '../../UI/SharedButtons.css';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import './ScrollStation.css'; // Import for shared station panel styles
+import { getDerivedLevel } from '../../Utils/playerManagement';
 
 const ShopStation = ({
   onClose,
@@ -34,6 +35,7 @@ const ShopStation = ({
   masterTrophies,
   isDeveloper,
   globalTuning,
+  masterXPLevels,
 }) => {
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
@@ -48,6 +50,13 @@ const ShopStation = ({
       currentPlayer.skills?.some(skill => skill.type === requirement) ||
       currentPlayer.powers?.some(power => power.type === requirement)
     );
+  };
+
+  // Check if player meets the level requirement for a resource
+  const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
+  const meetsLevelRequirement = (resourceLevel) => {
+    if (!resourceLevel) return true; // No level requirement
+    return playerLevel >= resourceLevel;
   };
 
   // Sync inventory with local storage and server
@@ -231,7 +240,17 @@ const ShopStation = ({
     if (recipe.type === 'Boat' && currentPlayer?.playerId) {
       earnTrophy(currentPlayer.playerId, 'Mariner', 1, currentPlayer, masterTrophies, setCurrentPlayer);
     }
-    
+
+    // Award King's Crown trophy if purchased King's Crown
+    if (recipe.type === "King's Crown" && currentPlayer?.playerId) {
+      earnTrophy(currentPlayer.playerId, "King's Crown", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+    }
+
+    // Award Trident trophy if purchased Trident
+    if (recipe.type === "Trident" && currentPlayer?.playerId) {
+      earnTrophy(currentPlayer.playerId, "Trident", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+    }
+
     setFetchTrigger(prev => prev + 1);
   };
 
@@ -272,8 +291,10 @@ const ShopStation = ({
           {recipes?.length > 0 ? (
             recipes.map((recipe) => {
               const affordable = canAfford(recipe, inventory, backpack, 1);
-              const meetsRequirement = hasRequirement(recipe.requires);
-              
+              const meetsSkillRequirement = hasRequirement(recipe.requires);
+              const meetsLevel = meetsLevelRequirement(recipe.level);
+              const requirementsMet = meetsSkillRequirement && meetsLevel;
+
               // Handle multiple combat attributes for powers
               let outputSummary = null;
               if (recipe.category === 'power') {
@@ -306,7 +327,8 @@ const ShopStation = ({
                 return `<span style="color: ${color}; display: block;">${symbol} ${type} ${qty} / ${playerQty}</span>`;
               }).join('');
 
-              const skillColor = meetsRequirement ? 'green' : 'red';
+              const skillColor = meetsSkillRequirement ? 'green' : 'red';
+              const levelColor = meetsLevel ? 'green' : 'red';
 
               // Build details string with multiple combat attributes for powers
               let effectsHtml = '';
@@ -329,8 +351,9 @@ const ShopStation = ({
 
               const details =
                 effectsHtml +
-                (recipe.requires ? `<span style="color: ${skillColor};">Requires: ${recipe.requires}</span><br>` : '') +
-                `Costs:<div>${formattedCosts}</div>`;
+                (recipe.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span>` : '') +
+                (recipe.requires ? `<span style="color: ${skillColor};">${strings[460] || 'Requires:'} ${recipe.requires}</span>` : '') +
+                `${strings[461] || 'Costs:'}<div>${formattedCosts}</div>`;
 
               let infoContent = null;
               
@@ -365,12 +388,13 @@ const ShopStation = ({
                   name={recipe.type}
                   className="resource-button"
                   details={details}
-                  info={info} 
-                  disabled={!affordable || !meetsRequirement}
+                  info={info}
+                  disabled={!affordable || !requirementsMet}
                   onClick={() => handlePurchase(recipe)}
                   // Gem purchase props - don't pass gemCost to allow dynamic calculation
                   gemCost={null}
-                  onGemPurchase={(recipe.gemcost && (!affordable || !meetsRequirement)) ? handleGemPurchase : null}
+                  onGemPurchase={(recipe.gemcost && (!affordable || !requirementsMet)) ? handleGemPurchase : null}
+                  meetsLevelRequirement={meetsLevel}
                   resource={recipe}
                   inventory={inventory}
                   backpack={backpack}

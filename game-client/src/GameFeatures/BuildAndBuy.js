@@ -9,7 +9,6 @@ import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { getCurrentTileCoordinates, enrichResourceFromMaster } from '../Utils/ResourceHelpers';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
-import { incrementFTUEStep } from './FTUE/FTUE';
 
 export const handleConstructionWithGems = async (params) => {
   // Wrapper function that uses a modified recipe if provided
@@ -143,12 +142,6 @@ export const handleConstruction = async ({
     
     // Track quest progress for "Buy" actions
     await trackQuestProgress(currentPlayer, 'Buy', selectedResource.type, 1, setCurrentPlayer);
-    
-    // Check if first-time user bought a cow
-    if (currentPlayer.firsttimeuser === true && selectedResource.type === 'Cow') {
-      console.log('🎓 First-time user purchased first Cow, advancing FTUE step');
-      await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-    }
 
   } else {
     console.log('Placing resource on the grid:', selectedItem);

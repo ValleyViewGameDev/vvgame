@@ -29,16 +29,16 @@ const formatDetailsForDisplay = (details) => {
   });
 };
  
-const ResourceButton = ({ 
-  symbol, 
-  name, 
-  details, 
-  info, 
-  disabled, 
+const ResourceButton = ({
+  symbol,
+  name,
+  details,
+  info,
+  disabled,
   className,
-  style, 
-  onClick, 
-  hideInfo = false, 
+  style,
+  onClick,
+  hideInfo = false,
   children,
   // Transaction support props
   transactionKey,
@@ -48,6 +48,8 @@ const ResourceButton = ({
   gemCost = null,
   onGemPurchase = null,
   hideGem = false,
+  // Level requirement - if false, gem button is hidden (cannot bypass level with gems)
+  meetsLevelRequirement = true,
   // For gem calculation
   resource = null,
   inventory = null,
@@ -197,7 +199,8 @@ const ResourceButton = ({
         </button>
 
         {/* ✅ Gem button for gem purchases - moved outside button so it's always clickable */}
-        {!hideGem && shouldCalculateGem && gemCalculation && !isProcessing && (
+        {/* Hidden when level requirement not met - cannot bypass level requirements with gems */}
+        {!hideGem && meetsLevelRequirement && shouldCalculateGem && gemCalculation && !isProcessing && (
           <span
             className="gem-button"
             onClick={handleGemClick}

@@ -8,6 +8,9 @@ let notificationRoot = null;
 let notificationTimer = null;
 let globalClickHandlers = {};
 
+// Notification types that should persist until manually dismissed
+const PERSISTENT_NOTIFICATION_TYPES = ['To Do', 'FTUE', 'Message'];
+
 /**
  * Generic notification component
  */
@@ -21,8 +24,8 @@ function Notification({ type, data, onDismiss, onClick }) {
     }, []);
     
     React.useEffect(() => {
-        // Auto-dismiss after 5 seconds (except for 'To Do' and 'Message' notifications)
-        if (type !== 'To Do' && type !== 'Message') {
+        // Auto-dismiss after 5 seconds (except for persistent notification types)
+        if (!PERSISTENT_NOTIFICATION_TYPES.includes(type)) {
             const timer = setTimeout(() => {
                 onDismiss();
             }, 5000);
@@ -42,7 +45,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                 return (
                     <>
                         <div className="notification-icon-wrapper">
-                            <div className="notification-icon">🏆</div>
+                            <div className="notification-icon">{data.icon || '🏆'}</div>
                             {data.type === 'Progress' && data.progress && (
                                 <div className="notification-milestone">{data.progress}</div>
                             )}
@@ -61,7 +64,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                 return (
                     <>
                         <div className="notification-icon-wrapper">
-                            <div className="notification-icon">🌙</div>
+                            <div className="notification-icon">{data.icon || '🌙'}</div>
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">Phase Change</div>
@@ -74,7 +77,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                 return (
                     <>
                         <div className="notification-icon-wrapper">
-                            <div className="notification-icon">📨</div>
+                            <div className="notification-icon">{data.icon || '📨'}</div>
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">{data.title || 'New Message'}</div>
@@ -87,7 +90,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                 return (
                     <>
                         <div className="notification-icon-wrapper">
-                            <div className="notification-icon">✅</div>
+                            <div className="notification-icon">{data.icon || '✅'}</div>
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">{data.title || strings[204]}</div>
@@ -100,10 +103,23 @@ function Notification({ type, data, onDismiss, onClick }) {
                 return (
                     <>
                         <div className="notification-icon-wrapper">
-                            <div className="notification-icon">ℹ️</div>
+                            <div className="notification-icon">{data.icon || 'ℹ️'}</div>
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">{data.title || strings[7001]}</div>
+                            <div className="notification-name">{data.message}</div>
+                        </div>
+                    </>
+                );
+
+            case 'FTUE':
+                return (
+                    <>
+                        <div className="notification-icon-wrapper">
+                            <div className="notification-icon">{data.icon || 'ℹ️'}</div>
+                        </div>
+                        <div className="notification-text">
+                            <div className="notification-title">{data.title || strings[7049]}</div>
                             <div className="notification-name">{data.message}</div>
                         </div>
                     </>
@@ -113,7 +129,7 @@ function Notification({ type, data, onDismiss, onClick }) {
                 return (
                     <>
                         <div className="notification-icon-wrapper">
-                            <div className="notification-icon">ℹ️</div>
+                            <div className="notification-icon">{data.icon || 'ℹ️'}</div>
                         </div>
                         <div className="notification-text">
                             <div className="notification-title">Notification</div>
@@ -125,7 +141,7 @@ function Notification({ type, data, onDismiss, onClick }) {
     };
     
     // Add persistent class for notifications that shouldn't auto-dismiss
-    const isPersistent = type === 'To Do' || type === 'Message';
+    const isPersistent = PERSISTENT_NOTIFICATION_TYPES.includes(type);
     const className = `notification ${isPersistent ? 'notification-persistent' : ''}`;
     
     return (
@@ -145,6 +161,7 @@ function Notification({ type, data, onDismiss, onClick }) {
  * Shows a notification
  * @param {string} type - The type of notification ('Trophy', 'Phase Change', 'Message', etc.)
  * @param {Object} data - The data to display in the notification
+ * @param {string} [data.icon] - Optional emoji to override the default notification icon
  * @param {Function} onClick - Optional click handler for the notification
  */
 /**

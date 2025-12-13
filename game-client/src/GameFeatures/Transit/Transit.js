@@ -5,8 +5,9 @@ import { getEntryPosition } from './transitConfig';
 import playersInGridManager from "../../GridState/PlayersInGrid";
 import { fetchHomesteadOwner, fetchHomesteadSignpostPosition, fetchTownSignpostPosition } from "../../Utils/worldHelpers";
 import { updateGridStatus } from "../../Utils/GridManagement";
-import { incrementFTUEStep } from "../FTUE/FTUE";
 import FloatingTextManager from "../../UI/FloatingText";
+import { earnTrophy } from "../Trophies/TrophyUtils";
+import { tryAdvanceFTUEByTrigger } from "../FTUE/FTUEutils";
 
 export async function handleTransitSignpost(
   currentPlayer,
@@ -78,21 +79,54 @@ export async function handleTransitSignpost(
 
     // Signpost Home
     if (resourceType === "Signpost Home") {
+      // First check if player has Home Deed in backpack or inventory (warehouse)
+      const hasHomeDeedInBackpack = currentPlayer.backpack?.some(item => item.type === "Home Deed" && item.quantity > 0);
+      const hasHomeDeedInInventory = currentPlayer.inventory?.some(item => item.type === "Home Deed" && item.quantity > 0);
+
+      if (!hasHomeDeedInBackpack && !hasHomeDeedInInventory) {
+        updateStatus(109);
+        // End fade transition since travel failed
+        if (transitionFadeControl?.endTransition) {
+          transitionFadeControl.endTransition();
+        }
+        return;
+      }
+
+      // Then check if player has Horse skill (required to travel home)
+      const playerSkills = currentPlayer.skills?.length ? currentPlayer.skills : await axios.get(`${API_BASE}/api/inventory/${currentPlayer.playerId}`).then(res => res.data.skills || []);
+      const hasHorse = playerSkills.some((item) => item.type === "Horse" && item.quantity > 0);
+
+      if (!hasHorse) {
+        updateStatus(15);
+        // Add floating text at player's current position
+        const playersInGrid = playersInGridManager.getPlayersInGrid(currentGridId);
+        if (playersInGrid && playersInGrid[currentPlayer.playerId]) {
+          const position = playersInGrid[currentPlayer.playerId].position;
+          FloatingTextManager.addFloatingText(91, position.x, position.y, TILE_SIZE);
+        }
+        // End fade transition since travel failed due to missing Horse skill
+        if (transitionFadeControl?.endTransition) {
+          transitionFadeControl.endTransition();
+        }
+        return;
+      }
+
       console.log("🏠 Traveling to homestead:", {
         gridId: currentPlayer.gridId,
         settlementId: currentPlayer.settlementId,
         gridCoord: currentPlayer.gridCoord,
       });
-      
+
       // Fetch the homestead grid data to find Signpost Town location
       try {
         const signpostPosition = await fetchHomesteadSignpostPosition(currentPlayer.gridId);
-        
+
         // Get the homestead's actual gridCoord from the player's stored homesteadGridCoord
         const homesteadGridCoord = currentPlayer.homesteadGridCoord;
-        
+
+        // Place player at x+1 offset from Signpost Town
         const newPlayerPosition = {
-          x: signpostPosition.x,
+          x: signpostPosition.x + 1,
           y: signpostPosition.y,
           g: currentPlayer.gridId,      // The player's homestead grid
           s: currentPlayer.settlementId,
@@ -120,7 +154,18 @@ export async function handleTransitSignpost(
           masterTrophies,
           transitionFadeControl
         );
-        
+
+        // Check if this is the player's first time traveling to homestead
+        const hasTraveledToHomesteadTrophy = currentPlayer.trophies?.some(
+          t => t.type === "TraveledToHomestead" && t.progress > 0
+        );
+        if (!hasTraveledToHomesteadTrophy && currentPlayer?.playerId) {
+          console.log("🏠 First time traveling to homestead - awarding trophy and advancing FTUE");
+          await earnTrophy(currentPlayer.playerId, "TraveledToHomestead", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+          // Try to advance FTUE if player is at the correct step for FirstHomesteadVisit
+          await tryAdvanceFTUEByTrigger('FirstHomesteadVisit', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+        }
+
       } catch (error) {
         console.error("❌ Error traveling home:", error);
         if (error.message && error.message.includes('Failed to remove player from previous grid')) {
@@ -163,8 +208,8 @@ export async function handleTransitSignpost(
       }
 
       console.log("Found town grid:", townGrid);
-      
-      // Fetch the town grid data to find Train location
+
+      // Fetch the town grid data to find Signpost Home location
       try {
         const signpostPosition = await fetchTownSignpostPosition(townGrid.gridId);
         
@@ -179,20 +224,6 @@ export async function handleTransitSignpost(
         };
         
         updateStatus(102);
-        
-        // Check if first-time user is using Signpost Town (both types count)
-        if (currentPlayer.firsttimeuser === true) {
-          console.log('🎓 First-time user used Signpost Town, incrementing FTUE step');
-          
-          // Increment the FTUE step and wait for it to fully complete
-          const newFtueStep = await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-          
-          // Add a small delay to ensure the server has processed the update
-          await new Promise(resolve => setTimeout(resolve, 500));
-          
-          // Update the currentPlayer object with the new ftuestep to pass through location change
-          currentPlayer = { ...currentPlayer, ftuestep: newFtueStep };
-        }
         
         await changePlayerLocation(
           currentPlayer,

@@ -1,70 +1,81 @@
 [
    {
       "step": 1,
+      "showModal": true,
       "titleKey": 701,
       "bodyKey": 702,
       "image": "ftue-welcome.png",
-      "continue": true
+      "continue": true,
+      "addQuests": []
     },
     {
       "step": 2,
+      "trigger": "Continued from prior modal",
+      "showModal": true,
       "titleKey": 705,
       "bodyKey": 706,
       "image": "ftue-aspiration.png",
-      "continue": false
+      "continue": false,
+      "notificationKey": 7050,
+      "notificationIcon": "🧔🏼‍♂️",
+      "addQuests": []
     },
     {
       "step": 3,
-      "titleKey": 721,
-      "bodyKey": 722,
-      "image": "ftue-todo.png",
+      "trigger": "MetConstableElbow",
+      "showModal": false,
       "continue": false,
-      "notificationKey": 7003
+      "notificationKey": 7051,
+      "notificationIcon": "🏠",
+      "addQuests": [2, 14]
     },
     {
       "step": 4,
-      "titleKey": 723,
-      "bodyKey": 724,
-      "image": "ftue-grower.png",
+      "trigger": "BoughtHomeDeed",
+      "showModal": false,
       "continue": false,
-      "notificationKey": 7006
+      "notificationKey": 7052,
+      "notificationIcon": "↪️",
+      "openPanel": "QuestPanel"
     },
     {
       "step": 5,
-      "titleKey": 780,
-      "bodyKey": 780,
-      "image": "ftue-feedback.png",
-      "continue": false
+      "trigger": "FirstHomesteadVisit",
+      "showModal": false,
+      "continue": false,
+      "notificationKey": 7053,
+      "notificationIcon": "🤠",
+      "addQuests": [5, 6],
+      "openPanel": "QuestPanel"
     },
     {
       "step": 6,
-      "titleKey": 727,
-      "bodyKey": 728,
-      "image": "ftue-farming.png",
+      "trigger": "SoldToKent",
+      "showFeedbackModalAfter": true,
+      "showModal": false,
       "continue": false,
-      "notificationKey": 7005
+      "notificationKey": 7054,
+      "notificationIcon": "🚜",
+      "addQuests": [4],
+      "openPanel": "FarmingPanel"
     },
     {
       "step": 7,
-      "titleKey": 731,
-      "bodyKey": 732,
-      "image": "ftue-tools.png",
-      "continue": false
+      "trigger": "PlantedFirstCrop",
+      "showModal": false,
+      "continue": false,
+      "notificationKey": 7055,
+      "notificationIcon": "🌾",
+      "addQuests": [7],
+      "openPanel": "SkillsPanel"    
     },
     {
       "step": 8,
-      "titleKey": 733,
-      "bodyKey": 734,
-      "image": "ftue-axe.png",
+      "trigger": "AcquiredTownKey",
+      "showModal": false,
       "continue": false,
-      "notificationKey": 7009
-    },
-    {
-      "step": 9,
-      "titleKey": 737,
-      "bodyKey": 738,
-      "image": "ftue-exploring.png",
-      "continue": false,
-      "notificationKey": 7015
+      "notificationKey": 7056,
+      "notificationIcon": "🗝️",
+      "addQuests": []
     }
 ]

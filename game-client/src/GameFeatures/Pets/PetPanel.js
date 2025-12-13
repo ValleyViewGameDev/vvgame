@@ -359,8 +359,8 @@ const PetPanel = ({
         setRevealedRewardRarity('common');
 
         // Update status - only if we're not dealing with already owned skills/powers
-        if (!(rewardResource && (rewardResource.category === 'skill' || rewardResource.category === 'power' || rewardResource.category === 'upgrade') && 
-            (rewardResource.category === 'skill' 
+        if (!(rewardResource && (rewardResource.category === 'skill' || rewardResource.category === 'power') &&
+            (rewardResource.category === 'skill'
               ? currentPlayer.skills?.some(skill => skill.type === collectedItem)
               : currentPlayer.powers?.some(power => power.type === collectedItem)))) {
           updateStatus(`${getLocalizedString(petName, strings)} found ${collectedQty}x ${getLocalizedString(collectedItem, strings)}!`);

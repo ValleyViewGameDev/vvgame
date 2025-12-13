@@ -11,6 +11,7 @@ const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
 const queue = require('../queue'); // Import the in-memory queue
 const sendMailboxMessage = require('../utils/messageUtils');
 const { awardTrophy } = require('../utils/trophyUtils');
+const { isCurrency } = require('../utils/inventoryUtils');
  
 ///////// PLAYER MANAGEMENT ROUTES ////////////
 
@@ -1701,15 +1702,6 @@ router.post('/transfer-inventory', async (req, res) => {
     // Load master resources for skill bonuses
     const resourcesPath = path.join(__dirname, '../tuning/resources.json');
     const masterResources = JSON.parse(fs.readFileSync(resourcesPath, 'utf8'));
-    
-    // Helper function to check if an item is a currency (doesn't count against inventory)
-    const isCurrency = (resourceType) => {
-      return resourceType === 'Money' || 
-             resourceType === 'Gem' || 
-             resourceType === 'Yellow Heart' ||
-             resourceType === 'Green Heart' ||
-             resourceType === 'Purple Heart';
-    };
     
     // Calculate proper capacity with Gold bonuses and skill bonuses
     const baseWarehouse = player.warehouseCapacity || 0;

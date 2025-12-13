@@ -3,7 +3,6 @@ import API_BASE from '../config';
 import { refreshPlayerAfterInventoryUpdate } from './InventoryManagement';
 import { trackQuestProgress } from '../GameFeatures/Quests/QuestGoalTracker';
 import { earnTrophy } from '../GameFeatures/Trophies/TrophyUtils';
-import { incrementFTUEStep } from '../GameFeatures/FTUE/FTUE';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { getLocalizedString } from './stringLookup';
 
@@ -39,8 +38,8 @@ export async function gainSkillOrPower({
     console.log(`🎯 Adding ${item.category}: ${item.type} x${quantity}`);
 
     // Handle different categories
-    if (item.category === 'skill' || item.category === 'upgrade') {
-      // Skills and upgrades are stored together in the skills array
+    if (item.category === 'skill') {
+      // Skills are stored in the skills array
       const currentSkills = currentPlayer.skills || [];
       const updatedSkills = [...currentSkills];
       
@@ -78,11 +77,6 @@ export async function gainSkillOrPower({
         await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);
       }
 
-      // Check for FTUE progress (Axe skill)
-      if (currentPlayer.firsttimeuser === true && item.type === 'Axe') {
-        console.log('🎓 First-time user acquired Axe skill, advancing FTUE step');
-        await incrementFTUEStep(currentPlayer.playerId, currentPlayer, setCurrentPlayer);
-      }
 
     } else if (item.category === 'power') {
       // Powers are stored separately

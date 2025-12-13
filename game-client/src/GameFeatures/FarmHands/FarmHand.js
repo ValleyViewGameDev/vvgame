@@ -173,11 +173,11 @@ const FarmHandPanel = ({
     }
     
     let skills = masterResources.filter(res =>
-      (res.category === 'skill' || res.category === 'upgrade') &&
+      res.category === 'skill' &&
       validSources.includes(res.source) &&
       !ownedTypes.includes(res.type)
     );
-    
+
     // Filter skills based on NPC type
     if (npcType === 'Farm Hand') {
       skills = skills.filter(res => ['Bulk Harvest', 'Bulk Replant'].includes(res.type));
@@ -189,9 +189,8 @@ const FarmHandPanel = ({
       skills = skills.filter(res => ['Bulk Crafting', 'Bulk Restart Craft'].includes(res.type));
     }
     // For 'Farmer', show all skills from all valid sources
-    
-    setFarmhandSkills(skills.filter(res => res.category === 'skill'));
-    setFarmhandUpgrades(skills.filter(res => res.category === 'upgrade'));
+
+    setFarmhandSkills(skills);
   }, [masterResources, currentPlayer, npcType]);
 
   const handleTrade = async (resource) => {

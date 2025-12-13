@@ -6,6 +6,12 @@ import playersInGridManager from '../GridState/PlayersInGrid';
 export const isCurrency = (resourceType) => {
   return resourceType === 'Money' || 
          resourceType === 'Gem' || 
+         resourceType === 'Home Deed' ||
+         resourceType === 'Town Key' ||
+         resourceType === 'Skeleton Key' ||
+         resourceType === 'Golden Key' ||
+         resourceType === 'Dungeon Key' ||
+         resourceType === 'Mirror Key' ||
          resourceType === 'Yellow Heart' ||
          resourceType === 'Green Heart' ||
          resourceType === 'Purple Heart';

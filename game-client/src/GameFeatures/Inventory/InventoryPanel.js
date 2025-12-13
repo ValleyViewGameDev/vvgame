@@ -409,32 +409,56 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
             {/* CURRENCIES */}
             <div className="currency-section">
                 <div className="currency-display">
-                    {/* Column 1: Money and Gems */}
+                    {/* Column 1: Money, Gems, and Home Deed */}
                     <div className="currency-column">
-                        <div className="currency-item">
+                        <div className="currency-item" title={getLocalizedString('Money', strings)} style={{ cursor: 'help' }}>
                             <span className="currency-emoji">💰</span>
                             <span className="currency-amount">{(inventory.find(item => item.type === 'Money')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
-                        <div className="currency-item">
+                        <div className="currency-item" title={getLocalizedString('Gem', strings)} style={{ cursor: 'help' }}>
                             <span className="currency-emoji">💎</span>
                             <span className="currency-amount">{(inventory.find(item => item.type === 'Gem')?.quantity || 0).toLocaleString('en-US')}</span>
+                        </div>
+                        <div className="currency-item" title={getLocalizedString('Home Deed', strings)} style={{ cursor: 'help' }}>
+                            <span className="currency-emoji">🏠</span>
+                            <span className="currency-amount">{(inventory.find(item => item.type === 'Home Deed')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
                     </div>
                     {/* Column 2: Hearts */}
                     <div className="currency-column">
-                        <div className="currency-item">
+                        <div className="currency-item" title={getLocalizedString('Yellow Heart', strings)} style={{ cursor: 'help' }}>
                             <span className="currency-emoji">💛</span>
                             <span className="currency-amount">{(inventory.find(item => item.type === 'Yellow Heart')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
-                        <div className="currency-item">
+                        <div className="currency-item" title={getLocalizedString('Green Heart', strings)} style={{ cursor: 'help' }}>
                             <span className="currency-emoji">💚</span>
                             <span className="currency-amount">{(inventory.find(item => item.type === 'Green Heart')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
-                        <div className="currency-item">
+                        <div className="currency-item" title={getLocalizedString('Purple Heart', strings)} style={{ cursor: 'help' }}>
                             <span className="currency-emoji">💜</span>
                             <span className="currency-amount">{(inventory.find(item => item.type === 'Purple Heart')?.quantity || 0).toLocaleString('en-US')}</span>
                         </div>
                     </div>
+                </div>
+                {/* Row 3: Keys */}
+                <div className="currency-keys-row" style={{ display: 'flex', justifyContent: 'flex-start', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>
+                    {masterResources
+                        .filter(r => isCurrency(r.type) && r.type.includes('Key'))
+                        .map(resourceDef => {
+                            const quantity = inventory.find(item => item.type === resourceDef.type)?.quantity || 0;
+                            return (
+                                <div
+                                    key={resourceDef.type}
+                                    className="currency-item"
+                                    title={getLocalizedString(resourceDef.type, strings)}
+                                    style={{ cursor: 'help' }}
+                                >
+                                    <span className="currency-emoji">{resourceDef.symbol || '🔑'}</span>
+                                    <span className="currency-amount">{quantity}</span>
+                                </div>
+                            );
+                        })
+                    }
                 </div>
             </div>
 
@@ -443,9 +467,6 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
             {/* Gold Pass info for non-Gold users */}
             {currentPlayer.accountStatus !== 'Gold' && (
                 <>
-                    <div className="gold-pass-info">
-                        {strings[199]}
-                    </div>
                     <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: '20px' }}>
                         <button 
                             className="btn-basic btn-gold"
@@ -454,9 +475,13 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                             {strings[9061]}
                         </button>
                     </div>
+                    <div className="gold-pass-info">
+                        {strings[199]}
+                    </div>
                 </>
             )}
 
+            <hr className="inventory-divider" />
 
             {/* BACKPACK */}
 
@@ -481,10 +506,11 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                 )}
 
                 {backpack.length > 0 && (
-                <div className="shared-buttons">
-                    <button className="btn-basic" onClick={() => setShowBackpackModal(true)}>
+                <div className="shared-buttons" style={{ display: 'flex', gap: '8px' }}>
+                    <button className="btn-basic" style={{ flex: 1 }} onClick={() => setShowBackpackModal(true)}>
                     {strings[184]}
                     </button>
+                    <div style={{ flex: 1 }}></div>
                 </div>
                 )}
                 <div className="backpack-table-container" style={{height: 'auto', maxHeight: '300px'}}>
@@ -546,8 +572,19 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                 </div>
             )}
 
-            <div className="shared-buttons">
-                <button className="btn-basic btn-success" onClick={() => {
+            <div className="shared-buttons" style={{ display: 'flex', gap: '8px' }}>
+                {inventory.length > 0 && (
+                <button
+                    className="btn-basic"
+                    style={{ flex: 1 }}
+                    onClick={() => setShowWarehouseModal(true)}
+                    disabled={currentPlayer.location.g !== currentPlayer.gridId}
+                    title={currentPlayer.location.g !== currentPlayer.gridId ? "Must be at homestead to manage warehouse" : ""}
+                >
+                {strings[184]}
+                </button>
+                )}
+                <button className="btn-basic btn-success" style={{ flex: 1 }} onClick={() => {
                     onClose();
                     setTimeout(() => {
                         openPanel('WarehousePanel');
@@ -556,19 +593,6 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                 {strings[194]}
                 </button>
             </div>
-
-            {inventory.length > 0 && (
-            <div className="shared-buttons">
-                <button 
-                    className="btn-basic" 
-                    onClick={() => setShowWarehouseModal(true)}
-                    disabled={currentPlayer.location.g !== currentPlayer.gridId}
-                    title={currentPlayer.location.g !== currentPlayer.gridId ? "Must be at homestead to manage warehouse" : ""}
-                >
-                {strings[184]}
-                </button>
-            </div>
-            )}
 
             {/* INGREDIENT LIST */}
 

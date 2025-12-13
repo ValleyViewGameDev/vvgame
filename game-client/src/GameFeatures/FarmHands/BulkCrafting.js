@@ -408,7 +408,7 @@ export async function executeBulkCrafting({
           const playerBuffs = (currentPlayer.skills || [])
             .filter((item) => {
               const resourceDetails = masterResources.find((res) => res.type === item.type);
-              const isSkill = resourceDetails?.category === 'skill' || resourceDetails?.category === 'upgrade';
+              const isSkill = resourceDetails?.category === 'skill';
               const appliesToStation = (masterSkills?.[item.type]?.[stationType] || 1) > 1;
               return isSkill && appliesToStation;
             })

@@ -122,16 +122,7 @@ const FarmHouse = ({
   useEffect(() => {
     try {
       let filteredRecipes = masterResources.filter((resource) => resource.source === stationType);
-      
-      // Filter by FTUE step only if player is a first-time user
-      if (currentPlayer.firsttimeuser === true && currentPlayer.ftuestep != null) {
-        console.log(`🎓 Filtering FarmHouse recipes by FTUE step: ${currentPlayer.ftuestep}`);
-        filteredRecipes = filteredRecipes.filter((recipe) => {
-          // Only show recipes with level <= current FTUE step
-          return recipe.level == null || recipe.level <= currentPlayer.ftuestep;
-        });
-      }
-      
+
       // Filter out non-repeatable resources that already exist on the grid
       const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
       if (npcsInGrid) {
@@ -294,11 +285,11 @@ const FarmHouse = ({
         // ✅ Apply skill buffs to crafted collection
         console.log('MasterSkills:', masterSkills);
 
-        // Extract player skills and upgrades
+        // Extract player skills
         const playerBuffs = (currentPlayer.skills || [])
           .filter((item) => {
             const resourceDetails = allResources.find((res) => res.type === item.type);
-            const isSkill = resourceDetails?.category === 'skill' || resourceDetails?.category === 'upgrade';
+            const isSkill = resourceDetails?.category === 'skill';
             const appliesToResource = (masterSkills?.[item.type]?.[collectedItem] || 1) > 1;
             return isSkill && appliesToResource;
           })

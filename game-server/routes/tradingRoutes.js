@@ -4,6 +4,7 @@ const Player = require('../models/player'); // Ensure the player schema includes
 const Grid = require('../models/grid'); // For Outpost trade stalls
 const fs = require('fs');
 const path = require('path');
+const { isCurrency } = require('../utils/inventoryUtils');
 
 /**
  * Transaction management helper functions
@@ -101,15 +102,6 @@ const checkWarehouseCapacity = async (player, itemType, itemQuantity) => {
       }
     }
   });
-
-  // Helper function to check if an item is a currency (doesn't count against inventory)
-  const isCurrency = (resourceType) => {
-    return resourceType === 'Money' ||
-           resourceType === 'Gem' ||
-           resourceType === 'Yellow Heart' ||
-           resourceType === 'Green Heart' ||
-           resourceType === 'Purple Heart';
-  };
 
   // If the item being added is currency, it doesn't need capacity check
   if (isCurrency(itemType)) {

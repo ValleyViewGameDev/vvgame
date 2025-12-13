@@ -246,6 +246,12 @@ const SettlementView = ({
       return;
     }
 
+    // Clicking on an unoccupied homestead tile
+    if (tile.gridType === "homestead" && tile.available === true) {
+      updateStatus(126); // "This homestead is unoccupied."
+      return;
+    }
+
     try {
       // Default position
       let arrivalX = 0;

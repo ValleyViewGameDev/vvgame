@@ -1,12 +1,13 @@
 import API_BASE from './config.js'; 
 import axios from 'axios';
 import { fetchInventoryAndBackpack, refreshPlayerAfterInventoryUpdate } from './Utils/InventoryManagement';
-import { gainIngredients, spendIngredients, calculateSkillMultiplier, hasRoomFor } from './Utils/InventoryManagement';
+import { gainIngredients, spendIngredients, calculateSkillMultiplier, hasRoomFor, isCurrency } from './Utils/InventoryManagement';
 import { updateGridResource } from './Utils/GridManagement';
 import { loadMasterResources, loadMasterSkills } from './Utils/TuningManager'; // Centralized tuning manager
 import FloatingTextManager from './UI/FloatingText';
 import { lockResource, unlockResource } from './Utils/ResourceLockManager';
 import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
+import { showNotification } from './UI/Notifications/Notifications';
 import { createCollectEffect, createSourceConversionEffect, calculateTileCenter } from './VFX/VFX';
 import { earnTrophy } from './GameFeatures/Trophies/TrophyUtils';
 import { useStrings } from './UI/StringsContext';
@@ -224,11 +225,11 @@ export async function handleDooberClick(
   window._processingDoobers.add(dooberId);
 
   console.log('MasterSkills:', masterSkills);
-  // Extract player skills and upgrades from inventory
+  // Extract player skills from inventory
   const playerBuffs = skills
     .filter((item) => {
       const resourceDetails = masterResources.find((res) => res.type === item.type);
-      const isSkill = resourceDetails?.category === 'skill' || resourceDetails?.category === 'upgrade';
+      const isSkill = resourceDetails?.category === 'skill';
       const appliesToResource = (masterSkills?.[item.type]?.[resource.type] || 1) > 1;
       return isSkill && appliesToResource;
     })
@@ -246,11 +247,7 @@ export async function handleDooberClick(
   
   // Check for missing backpack FIRST before any optimistic updates
   const isHomestead = currentPlayer?.location?.gtype === 'homestead';
-  const isCurrencyItem = resource.type === 'Money' || 
-                        resource.type === 'Gem' || 
-                        resource.type === 'Yellow Heart' ||
-                        resource.type === 'Green Heart' ||
-                        resource.type === 'Purple Heart';
+  const isCurrencyItem = isCurrency(resource.type);
   const storingInBackpack = !isCurrencyItem && !isHomestead;
   
   if (storingInBackpack) {
@@ -490,15 +487,24 @@ export async function handleSourceConversion(
 
   // Get required skill
   const requirement = resource.requires;
-  const isSkillOrUpgrade = masterResources.some(
-    res => res.type === requirement && (res.category === "skill" || res.category === "upgrade")
+  const isSkill = masterResources.some(
+    res => res.type === requirement && res.category === "skill"
   );
 
   // Required Skill Missing
-  if (isSkillOrUpgrade) {
+  if (isSkill) {
     const hasSkill = currentPlayer.skills?.some(skill => skill.type === requirement);
     if (!hasSkill) {
       addFloatingText(`${requirement} Required`, col, row, TILE_SIZE);
+      // Show notification about missing skill (different message for Axe vs Pickaxe)
+      const messageKey = requirement === 'Axe' ? 7057 : requirement === 'Pickaxe' ? 7058 : null;
+      if (messageKey) {
+        showNotification('FTUE', {
+          title: strings[7049],
+          message: strings[messageKey],
+          icon: '💪'
+        });
+      }
       return;
     }
   }

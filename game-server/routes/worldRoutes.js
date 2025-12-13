@@ -21,6 +21,7 @@ const queue = require('../queue'); // Import the in-memory queue
 const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
 const gridResourceManager = require('../utils/GridResourceManager');
 const gridTileManager = require('../utils/GridTileManager');
+const { isCurrency } = require('../utils/inventoryUtils');
 
 // Initialize GridResourceManager
 (async () => {
@@ -1786,15 +1787,6 @@ router.post('/bulk-harvest', async (req, res) => {
         }
       }
     });
-
-    // Helper function to check if an item is a currency (doesn't count against inventory)
-    const isCurrency = (resourceType) => {
-      return resourceType === 'Money' || 
-             resourceType === 'Gem' || 
-             resourceType === 'Yellow Heart' ||
-             resourceType === 'Green Heart' ||
-             resourceType === 'Purple Heart';
-    };
 
     // Calculate current usage (exclude currencies)
     const currentWarehouseUsage = (player.inventory || [])

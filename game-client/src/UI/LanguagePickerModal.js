@@ -7,12 +7,12 @@ import LANGUAGE_OPTIONS from './Languages.json';
 import axios from 'axios';
 import { useStrings } from './StringsContext';
 
+// Only these languages have been localized - exported for use in CreateAccount
+export const enabledLanguages = ['en', 'es', 'fr', 'de'];
+
 export default function LanguagePickerModal({ currentPlayer, setCurrentPlayer, updateStatus, onClose, onSave }) {
   const strings = useStrings();
   const [selectedLanguage, setSelectedLanguage] = useState(currentPlayer.language || '');
-
-  // Only these languages have been localized
-  const enabledLanguages = ['en', 'es', 'fr', 'de'];
 
   const handleLanguageClick = (langCode) => {
     if (enabledLanguages.includes(langCode)) {
