@@ -1800,14 +1800,9 @@ router.post('/mark-grid-visited', async (req, res) => {
 
   console.log(`📍 [GRIDS_VISITED] API called with playerId=${playerId}, gridCoord=${gridCoord}, type=${typeof gridCoord}`);
 
-  if (!playerId || typeof gridCoord !== 'number') {
-    console.log(`📍 [GRIDS_VISITED] Validation failed: playerId=${!!playerId}, gridCoord type=${typeof gridCoord}`);
-    return res.status(400).json({ error: 'Player ID and gridCoord are required.' });
-  }
-
-  if (gridCoord < 0 || gridCoord > 4095) {
-    console.log(`📍 [GRIDS_VISITED] gridCoord out of range: ${gridCoord}`);
-    return res.status(400).json({ error: 'gridCoord must be between 0 and 4095.' });
+  if (!playerId || typeof gridCoord !== 'number' || gridCoord < 0) {
+    console.log(`📍 [GRIDS_VISITED] Validation failed: playerId=${!!playerId}, gridCoord=${gridCoord}, type=${typeof gridCoord}`);
+    return res.status(400).json({ error: 'Player ID and valid gridCoord are required.' });
   }
 
   try {
