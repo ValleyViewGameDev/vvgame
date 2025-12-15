@@ -11,6 +11,7 @@ import { getGridBackgroundColor } from './ZoomedOut';
 import { showNotification } from '../UI/Notifications/Notifications';
 import { useStrings } from '../UI/StringsContext';
 import { earnTrophy } from '../GameFeatures/Trophies/TrophyUtils';
+import { isGridVisited } from "../Utils/gridsVisitedUtils";
 
 
 const FrontierView = ({ 
@@ -218,9 +219,22 @@ const FrontierView = ({
 
             // Default content from tile data
             let content = cell;
+            let cellStyle = {};
 
-            // Player's icon always overrides other content
-            if (gridData?.gridId && gridData.gridId === currentPlayer.location.g) {
+            // Check if this is a visited valley grid
+            const isValleyType = gridData?.gridType && ['valley0', 'valley1', 'valley2', 'valley3'].includes(gridData.gridType);
+            const hasBeenVisited = gridData?.gridCoord !== undefined &&
+                                   isGridVisited(currentPlayer.gridsVisited, gridData.gridCoord);
+            const isPlayerHere = gridData?.gridId && gridData.gridId === currentPlayer.location.g;
+
+            // Apply visited styling first (green background for visited valley grids)
+            if (isValleyType && hasBeenVisited) {
+              cellStyle = { backgroundColor: 'var(--valley-visited-color, #8fd67f)' };
+              content = ''; // Remove tree emoji for visited grids
+            }
+
+            // Then apply content overlays
+            if (isPlayerHere) {
               content = currentPlayer.icon;
             } else if (gridData?.gridType === 'homestead' && !gridData.available) {
               content = '🏠';
@@ -229,7 +243,7 @@ const FrontierView = ({
             }
 
             return (
-              <div key={`${rowIndex}-${colIndex}`} className="mini-cell">
+              <div key={`${rowIndex}-${colIndex}`} className="mini-cell" style={cellStyle}>
                 <span>{content}</span>
               </div>
             );

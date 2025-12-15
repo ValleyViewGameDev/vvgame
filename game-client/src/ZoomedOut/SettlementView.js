@@ -13,6 +13,8 @@ import playersInGridManager from "../GridState/PlayersInGrid";
 import { fetchHomesteadOwner } from "../Utils/worldHelpers";
 import { updateGridStatus } from "../Utils/GridManagement";
 import { processRelocation } from "../Utils/Relocation";
+import { getVisitedGridCoords } from "../Utils/gridsVisitedUtils";
+import RenderVisitedGrid from "./RenderVisitedGrid";
 
 // Center camera on player's current grid in settlement view
 export function centerCameraOnPlayerGrid(currentPlayer, settlementGrid) {
@@ -115,6 +117,7 @@ const SettlementView = ({
   const [error, setError] = useState(null);
   const [NPCsInGrids, setGridStates] = useState({});  // Add new state for grid states
   const [playersInGridMap, setPlayersInGrid] = useState({});
+  const [visitedGridTiles, setVisitedGridTiles] = useState({}); // Map gridCoord -> encoded tiles
   const { updateStatus } = useContext(StatusBarContext);
   const bulkOperationContext = useBulkOperation();
 
@@ -172,6 +175,44 @@ const SettlementView = ({
       updateStatus(125);
     }
   }, [isRelocating]);
+
+  // Fetch tiles for visited grids
+  useEffect(() => {
+    const fetchVisitedGridTiles = async () => {
+      if (!settlementGrid.length || !currentPlayer?.gridsVisited || !visibleSettlementId) return;
+
+      // Get all visited coords in SSGG format (from bit buffer)
+      const visitedSSGG = getVisitedGridCoords(currentPlayer.gridsVisited);
+
+      // Get settlement tiles with their full gridCoords
+      const settlementTiles = settlementGrid.flat()
+        .filter(tile => tile.gridCoord !== undefined && tile.gridId);
+
+      // Find intersection - compare SSGG parts (last 4 digits) of full gridCoords
+      // with the SSGG values from the visited buffer
+      const coordsToFetch = settlementTiles
+        .filter(tile => visitedSSGG.includes(tile.gridCoord % 10000))
+        .map(tile => tile.gridCoord);
+
+      if (coordsToFetch.length === 0) return;
+
+      try {
+        const response = await axios.post(`${API_BASE}/api/grids-tiles`, {
+          settlementId: visibleSettlementId,
+          gridCoords: coordsToFetch
+        });
+
+        if (response.data.success && response.data.tilesMap) {
+          setVisitedGridTiles(response.data.tilesMap);
+          console.log(`📍 Fetched tiles for ${Object.keys(response.data.tilesMap).length} visited grids`);
+        }
+      } catch (err) {
+        console.error('Error fetching visited grid tiles:', err);
+      }
+    };
+
+    fetchVisitedGridTiles();
+  }, [settlementGrid, currentPlayer?.gridsVisited, visibleSettlementId]);
 
   // Center camera on player's grid when settlement view loads
   useEffect(() => {
@@ -326,24 +367,26 @@ const getTooltip = (tile) => {
     if (gridType === "homestead") {
       gridType = tile.available ? "homesteadEmpty" : "homesteadOccupied";
     }
-  
+
     const tileData = settlementTileData[gridType] || Array(8).fill(Array(8).fill(""));
     const isPlayerHere = tile.gridId === currentPlayer.location.g;
-  
+
     let owner = null;
     if (tile.ownerId && players) {
       const ownerIdStr = typeof tile.ownerId === 'object' ? tile.ownerId._id : tile.ownerId;
       owner = players.get(ownerIdStr);
     }
-  
+
     if (tile.ownerId && !owner) {
     }
-  
+
     const tooltip = getTooltip(tile);
-  
+
     let miniX = 0;
     let miniY = 0;
     const isValleyGrid = ["valley0", "valley1", "valley2", "valley3"].includes(gridType);
+    const isTownGrid = gridType === "town";
+    const usePixelRendering = isValleyGrid || isTownGrid; // Valley and Town use pixel rendering, Homestead does not
     let playerPCs = null;
     let playerPC = null;
 
@@ -355,7 +398,40 @@ const getTooltip = (tile) => {
         miniY = Math.floor(playerPC.position.y / 8);
       }
     }
-  
+
+    // Check if this is a visited valley/town grid - render actual tiles instead of tree pattern
+    // Homestead grids keep their current emoji-based rendering
+    const hasVisitedTiles = tile.gridCoord !== undefined && visitedGridTiles[tile.gridCoord];
+    if (usePixelRendering && hasVisitedTiles) {
+      // Render pixel tiles, with player icon overlay at correct miniX,miniY position if player is here
+      return (
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+          <RenderVisitedGrid
+            encodedTiles={visitedGridTiles[tile.gridCoord]}
+            size={64}
+            className="visited-grid-canvas"
+            style={{ width: '100%', height: '100%', display: 'block' }}
+          />
+          {isPlayerHere && (
+            <div style={{
+              position: 'absolute',
+              top: `${(miniY / 8) * 100}%`,
+              left: `${(miniX / 8) * 100}%`,
+              width: '12.5%',
+              height: '12.5%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '0.6em',
+              zIndex: 1
+            }}>
+              {currentPlayer.icon}
+            </div>
+          )}
+        </div>
+      );
+    }
+
     return (
       <div className="mini-grid">
         {tileData.map((row, rowIndex) =>

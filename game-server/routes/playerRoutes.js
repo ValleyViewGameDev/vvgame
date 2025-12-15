@@ -1829,6 +1829,8 @@ router.post('/mark-grid-visited', async (req, res) => {
     player.gridsVisited = markGridVisited(player.gridsVisited, gridCoord);
     console.log(`📍 [GRIDS_VISITED] Marking grid ${gridCoord} - old buffer exists: ${!!oldBuffer}, new buffer exists: ${!!player.gridsVisited}`);
 
+    // Tell Mongoose the buffer was modified (it doesn't detect in-place Buffer mutations)
+    player.markModified('gridsVisited');
     await player.save();
     console.log(`📍 [GRIDS_VISITED] ✅ Player ${player.username} visited grid ${gridCoord} - saved successfully`);
 

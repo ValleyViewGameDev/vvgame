@@ -13,6 +13,7 @@ import { earnTrophy } from '../GameFeatures/Trophies/TrophyUtils';
 import { showNotification } from '../UI/Notifications/Notifications';
 import locationChangeManager from './LocationChangeManager';
 import SVGAssetManager from '../Render/SVGAssetManager';
+import { isGridVisited } from './gridsVisitedUtils';
 
 export const updateGridResource = async (
   gridId,
@@ -568,7 +569,41 @@ export const changePlayerLocation = async (
       playerId: playerId,
       success: true
     });
-    
+
+    // Track visited grid (only make API call if not already visited)
+    console.log(`📍 [GRIDS_VISITED] Checking visit tracking - gridCoord: ${toLocation.gridCoord}, type: ${typeof toLocation.gridCoord}`);
+    if (typeof toLocation.gridCoord === 'number' && toLocation.gridCoord >= 0) {
+      const alreadyVisited = isGridVisited(currentPlayer.gridsVisited, toLocation.gridCoord);
+      console.log(`📍 [GRIDS_VISITED] Grid ${toLocation.gridCoord} alreadyVisited: ${alreadyVisited}, hasGridsVisited: ${!!currentPlayer.gridsVisited}`);
+      if (!alreadyVisited) {
+        console.log(`📍 [GRIDS_VISITED] Making API call to mark grid ${toLocation.gridCoord} as visited for player ${playerId}`);
+        try {
+          const visitResponse = await axios.post(`${API_BASE}/api/mark-grid-visited`, {
+            playerId: playerId,
+            gridCoord: toLocation.gridCoord
+          });
+          console.log(`📍 [GRIDS_VISITED] API response:`, visitResponse.data);
+          if (visitResponse.data.success && visitResponse.data.gridsVisited) {
+            // Update local player state with new gridsVisited data
+            const playerWithVisited = {
+              ...updatedPlayer,
+              gridsVisited: visitResponse.data.gridsVisited
+            };
+            setCurrentPlayer(playerWithVisited);
+            localStorage.setItem('player', JSON.stringify(playerWithVisited));
+            console.log(`📍 [GRIDS_VISITED] ✅ Marked grid ${toLocation.gridCoord} as visited`);
+          }
+        } catch (visitError) {
+          console.warn('📍 [GRIDS_VISITED] ⚠️ Failed to mark grid as visited:', visitError);
+          // Non-critical error, don't fail the location change
+        }
+      } else {
+        console.log(`📍 [GRIDS_VISITED] Grid ${toLocation.gridCoord} was already visited, skipping API call`);
+      }
+    } else {
+      console.log(`📍 [GRIDS_VISITED] Skipping visit tracking - gridCoord invalid`);
+    }
+
     return true;
   } catch (error) {
     console.error('❌ Location change error:', error);

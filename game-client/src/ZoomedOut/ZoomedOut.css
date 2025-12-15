@@ -2,6 +2,7 @@
   /* Grid tile colors - referencing theme.css variables */
   --homestead-color: var(--color-primary-green);    /* Light green */
   --valley-color: var(--color-primary-green-dark);  /* Dark green */
+  --valley-visited-color: #8fd67f;                  /* Lighter green for visited valleys */
   --reserved-color: #8b0000;     /* Dark red */
   --town-color: #deb887;         /* Beige */
   --unknown-color: #d3d3d3;      /* Light gray */

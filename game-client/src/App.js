@@ -774,6 +774,29 @@ useEffect(() => {
       localStorage.setItem('player', JSON.stringify(updatedPlayerData));
       console.log(`✅ LocalStorage updated with combat stats:`, updatedPlayerData);
 
+      // Step 11b: Mark current grid as visited (initial load)
+      const currentGridCoord = updatedPlayerData.location?.gridCoord;
+      if (typeof currentGridCoord === 'number' && currentGridCoord >= 0) {
+        try {
+          const { isGridVisited } = await import('./Utils/gridsVisitedUtils');
+          if (!isGridVisited(updatedPlayerData.gridsVisited, currentGridCoord)) {
+            console.log(`📍 [GRIDS_VISITED] Marking initial grid ${currentGridCoord} as visited`);
+            const visitResponse = await axios.post(`${API_BASE}/api/mark-grid-visited`, {
+              playerId: updatedPlayerData.playerId,
+              gridCoord: currentGridCoord
+            });
+            if (visitResponse.data.success && visitResponse.data.gridsVisited) {
+              updatedPlayerData.gridsVisited = visitResponse.data.gridsVisited;
+              setCurrentPlayer({ ...updatedPlayerData });
+              localStorage.setItem('player', JSON.stringify(updatedPlayerData));
+              console.log(`📍 [GRIDS_VISITED] ✅ Initial grid marked as visited`);
+            }
+          }
+        } catch (err) {
+          console.warn('📍 [GRIDS_VISITED] Could not mark initial grid as visited:', err);
+        }
+      }
+
       // Step 12: Check for death flag and show modal if needed
       if (updatedPlayerData.settings?.hasDied) {
         console.log("☠️ Player died last session. Showing death modal.");
