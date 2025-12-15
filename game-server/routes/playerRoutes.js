@@ -12,6 +12,7 @@ const queue = require('../queue'); // Import the in-memory queue
 const sendMailboxMessage = require('../utils/messageUtils');
 const { awardTrophy } = require('../utils/trophyUtils');
 const { isCurrency } = require('../utils/inventoryUtils');
+const { isGridVisited, markGridVisited } = require('../utils/gridsVisitedUtils');
  
 ///////// PLAYER MANAGEMENT ROUTES ////////////
 
@@ -1788,6 +1789,99 @@ router.post('/transfer-inventory', async (req, res) => {
   } catch (error) {
     console.error('Error transferring inventory:', error);
     res.status(500).json({ error: 'Failed to transfer items.' });
+  }
+});
+
+////////// GRIDS VISITED ROUTES ///////////
+
+// POST /api/mark-grid-visited - Mark a grid as visited for a player
+router.post('/mark-grid-visited', async (req, res) => {
+  const { playerId, gridCoord } = req.body;
+
+  if (!playerId || typeof gridCoord !== 'number') {
+    return res.status(400).json({ error: 'Player ID and gridCoord are required.' });
+  }
+
+  if (gridCoord < 0 || gridCoord > 4095) {
+    return res.status(400).json({ error: 'gridCoord must be between 0 and 4095.' });
+  }
+
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+
+    // Check if already visited
+    if (isGridVisited(player.gridsVisited, gridCoord)) {
+      return res.json({
+        success: true,
+        alreadyVisited: true,
+        gridsVisited: player.gridsVisited
+      });
+    }
+
+    // Mark as visited
+    player.gridsVisited = markGridVisited(player.gridsVisited, gridCoord);
+    await player.save();
+
+    console.log(`📍 Player ${player.username} visited grid ${gridCoord}`);
+
+    res.json({
+      success: true,
+      alreadyVisited: false,
+      gridsVisited: player.gridsVisited
+    });
+
+  } catch (error) {
+    console.error('Error marking grid as visited:', error);
+    res.status(500).json({ error: 'Failed to mark grid as visited.' });
+  }
+});
+
+// POST /api/grids-tiles - Fetch tiles for multiple grids by gridCoord
+router.post('/grids-tiles', async (req, res) => {
+  const { settlementId, gridCoords } = req.body;
+
+  if (!settlementId || !Array.isArray(gridCoords)) {
+    return res.status(400).json({ error: 'settlementId and gridCoords array are required.' });
+  }
+
+  try {
+    // Find the settlement to get gridId mappings
+    const settlement = await Settlement.findById(settlementId);
+    if (!settlement) {
+      return res.status(404).json({ error: 'Settlement not found.' });
+    }
+
+    // Build a map of gridCoord -> gridId
+    const gridCoordToIdMap = {};
+    for (const row of settlement.grids) {
+      for (const cell of row) {
+        if (cell && cell.gridId && gridCoords.includes(cell.gridCoord)) {
+          gridCoordToIdMap[cell.gridCoord] = cell.gridId;
+        }
+      }
+    }
+
+    // Fetch all grids in a single query
+    const gridIds = Object.values(gridCoordToIdMap);
+    const grids = await Grid.find({ _id: { $in: gridIds } }).select('tiles');
+
+    // Build response map of gridCoord -> tiles
+    const tilesMap = {};
+    for (const [gridCoord, gridId] of Object.entries(gridCoordToIdMap)) {
+      const grid = grids.find(g => g._id.toString() === gridId.toString());
+      if (grid) {
+        tilesMap[gridCoord] = grid.tiles;
+      }
+    }
+
+    res.json({ success: true, tilesMap });
+
+  } catch (error) {
+    console.error('Error fetching grid tiles:', error);
+    res.status(500).json({ error: 'Failed to fetch grid tiles.' });
   }
 });
 

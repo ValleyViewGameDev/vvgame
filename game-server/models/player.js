@@ -138,6 +138,7 @@ const playerSchema = new mongoose.Schema({
   gridId: { type: mongoose.Schema.Types.ObjectId, ref: 'Grid', required: true }, // THe ID of the homestead owned by the user
   homesteadGridCoord: { type: Number, default: null }, // The gridCoord of the homestead for FrontierMiniMap display
   sourceGridBeforeDungeon: { type: String, default: null }, // Stores the grid ID where player was before entering dungeon
+  gridsVisited: { type: Buffer, default: () => Buffer.alloc(512) }, // 512-byte bit-packed buffer for 4096 grid visit flags
 
   settings: {
     seasonOverride: { type: String, default: null }, // "Spring", "Summer", "Fall", "Winter"
