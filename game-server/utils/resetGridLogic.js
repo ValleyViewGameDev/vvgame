@@ -124,6 +124,20 @@ async function performGridReset(gridId, gridType, gridCoord) {
         })
       );
 
+  // Apply snow tiles for Winter (convert grass 'g' to snow 'o')
+  if (seasonType === 'Winter' || seasonType === 'winter') {
+    let snowTileCount = 0;
+    for (let y = 0; y < newTiles.length; y++) {
+      for (let x = 0; x < newTiles[y].length; x++) {
+        if (newTiles[y][x] === 'g') {
+          newTiles[y][x] = 'o';
+          snowTileCount++;
+        }
+      }
+    }
+    console.log(`❄️ Applied snow to ${snowTileCount} tiles for Winter ${gridType} reset at ${gridCoord}`);
+  }
+
   const newResources = isFixedLayout
     ? generateFixedResources(layout)
     : generateResources(layout, newTiles, resourceDistribution);

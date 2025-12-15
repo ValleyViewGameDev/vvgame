@@ -107,7 +107,7 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
         }));
 
   // Apply snow tiles for Winter (convert grass 'g' to snow 'o')
-  if ((gridType === 'homestead' || gridType === 'town') && (seasonType === 'Winter' || seasonType === 'winter')) {
+  if (seasonType === 'Winter' || seasonType === 'winter') {
     let snowTileCount = 0;
     for (let y = 0; y < newTiles.length; y++) {
       for (let x = 0; x < newTiles[y].length; x++) {
