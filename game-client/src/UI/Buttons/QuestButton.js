@@ -31,20 +31,34 @@ const QuestButton = ({ quest, state, onClick }) => {
   );
 };
 
-const QuestGiverButton = ({ quest, state, onClick, xpReward }) => {
+const QuestGiverButton = ({ quest, state, onClick, xpReward, level, meetsLevelRequirement = true }) => {
   const strings = useStrings();
   const { symbol, title, reward, rewardqty, goals = [] } = quest;
   const buttonText = state === 'reward' ? strings[208] : strings[209];
+  const isDisabled = !meetsLevelRequirement;
+
+  const handleClick = () => {
+    if (!isDisabled && onClick) {
+      onClick();
+    }
+  };
+
   return (
     <div
-      className={`quest-item ${state}`}
-      onClick={onClick}
+      className={`quest-item ${state}${isDisabled ? ' disabled' : ''}`}
+      onClick={handleClick}
+      style={isDisabled ? { opacity: 0.6, cursor: 'not-allowed' } : {}}
     >
       <div className="quest-header">
         <h2>{symbol}</h2>
         {state === 'reward' && <span className="quest-checkmark">✅</span>}
       </div>
       <h2>{title}</h2>
+      {level && (
+        <p style={{ color: meetsLevelRequirement ? 'green' : 'red', margin: '2px 0', fontWeight: 'bold' }}>
+          {strings[10149] || 'Level'} {level}
+        </p>
+      )}
       <div className="quest-goals">
         {goals.map((goal, index) =>
           goal.action && goal.item && goal.qty ? (

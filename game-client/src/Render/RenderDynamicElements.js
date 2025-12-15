@@ -199,24 +199,6 @@ export const checkQuestNPCStatus = async (npc, currentPlayer) => {
         return (quest.repeatable === true || quest.repeatable === 'true') || !currentPlayer.completedQuests?.some(q => q.questId === quest.title);
       });
 
-    // Apply FTUE filtering for first-time users
-    if (currentPlayer.firsttimeuser === true) {
-      npcQuests = npcQuests.filter((quest) => {
-        const hasFtuestep = quest.ftuestep != null && 
-                           quest.ftuestep !== undefined && 
-                           quest.ftuestep !== '' && 
-                           quest.ftuestep !== 0;
-        
-        if (!hasFtuestep) {
-          return false;
-        } else if (quest.ftuestep > (currentPlayer.ftuestep || 0)) {
-          return false;
-        } else {
-          return true;
-        }
-      });
-    }
-
     // Check if any quests have completed rewards to collect
     const hasCompletedQuests = npcQuests.some(quest => {
       const activeQuest = currentPlayer.activeQuests?.find(q => q.questId === quest.title);

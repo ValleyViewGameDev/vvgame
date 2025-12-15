@@ -194,7 +194,7 @@ const NPCPanel = ({
         setTradeRecipes(filteredRecipes);
       }
     }
-  }, [npcData, currentPlayer?.activeQuests, currentPlayer?.completedQuests, currentPlayer?.ftuestep, masterResources, masterTraders]);
+  }, [npcData, currentPlayer?.activeQuests, currentPlayer?.completedQuests, masterResources, masterTraders]);
 
   
   ////////////////////////////////////////////////////////////
@@ -247,27 +247,6 @@ const NPCPanel = ({
         return true;
       });
 
-      // Filter by FTUE step only if player is a first-time user
-      if (currentPlayer.firsttimeuser === true) {
-        // Apply FTUE filtering to the already-filtered npcQuests, not the original response.data
-        npcQuests = npcQuests.filter((quest) => {
-          // For first-time users:
-          // 1. Quest must have ftuestep defined (not null, undefined, or empty string)
-          // 2. Quest ftuestep must be <= current player ftuestep
-          const hasFtuestep = quest.ftuestep != null && 
-                             quest.ftuestep !== undefined && 
-                             quest.ftuestep !== '' && 
-                             quest.ftuestep !== 0;
-          
-          if (!hasFtuestep) {
-            return false;
-          } else if (quest.ftuestep > (currentPlayer.ftuestep || 0)) {
-            return false;
-          } else {
-            return true;
-          }
-        });
-      }
       setQuestList(npcQuests);
       setHasHiddenQuests(questsHiddenByRelationship);
     } catch (error) {
@@ -979,6 +958,7 @@ const handleHeal = async (recipe) => {
             );
 
             const state = isRewardable ? 'reward' : 'accept';
+            const questMeetsLevel = meetsLevelRequirement(quest.level);
             const onClick = state === 'reward'
               ? () => handleGetReward(quest)
               : () => handleAcceptQuest(quest.title);
@@ -1005,6 +985,8 @@ const handleHeal = async (recipe) => {
                 state={state}
                 onClick={onClick}
                 xpReward={xpToAward}
+                level={quest.level}
+                meetsLevelRequirement={questMeetsLevel}
               />
             );
               })}

@@ -59,6 +59,20 @@
   background-color: var(--color-quest-reward-hover);
 }
 
+/* Disabled state for quests that don't meet level requirement */
+.quest-item.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.quest-item.disabled:hover {
+  background-color: var(--color-quest); /* No hover effect when disabled */
+  transform: none;
+}
+.quest-item.disabled:active {
+  transform: none;
+  box-shadow: 0 6px 0 var(--color-shadow-button);
+}
+
 /* ////////////// TEXT /////////////// */
 
 /* Title styling for all buttons - high specificity to override Panel.css */

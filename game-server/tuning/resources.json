@@ -5901,7 +5901,6 @@
     "layoutkey": "n6",
     "category": "npc",
     "action": "quest",
-    "output": "noRel",
     "source": "Farm House",
     "passable": false,
     "repeatable": false,

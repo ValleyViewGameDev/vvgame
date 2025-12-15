@@ -75,8 +75,8 @@
   --color-quest-hover: #e4fbff;             /* Quest button hover */
   --color-quest-progress: #f0cd4e;          /* Quest in-progress yellow */
   --color-quest-progress-hover: #fffbe9;    /* Quest in-progress hover */
-  --color-quest-reward: #6fd151;            /* Quest reward green */
-  --color-quest-reward-hover: #e5ffdc;      /* Quest reward hover */
+  --color-quest-reward: var(--color-btn-primary);      /* Quest reward green - matches ResourceButton */
+  --color-quest-reward-hover: var(--color-btn-primary-hover);  /* Quest reward hover */
   --color-quest-action: #009322;            /* Quest action button */
   --color-quest-action-hover: #14550d;      /* Quest action hover */
 

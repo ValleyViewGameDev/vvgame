@@ -451,6 +451,7 @@ const PetPanel = ({
                     isTransactionMode={isReadyToCollect && !isCollecting}
                     transactionKey={isReadyToCollect ? `pet-collect-${rewardItem}-${currentPetPosition.x}-${currentPetPosition.y}` : undefined}
                     onTransactionAction={isReadyToCollect ? handleCollectReward : undefined}
+                    hideInfo={true}
                   />
                 );
               })()
@@ -470,6 +471,7 @@ const PetPanel = ({
               isTransactionMode={canAffordFeeding}
               transactionKey={canAffordFeeding ? `pet-feed-${petName}-${currentPetPosition.x}-${currentPetPosition.y}` : undefined}
               onTransactionAction={canAffordFeeding ? handleFeedPet : undefined}
+              hideInfo={true}
             />
           ) : null}
 
