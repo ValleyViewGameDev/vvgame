@@ -468,7 +468,7 @@ const CourthousePanel = ({
                 return !isInHomeSettlement;
             })() ? (
                 <div style={{ textAlign: 'center', padding: '20px' }}>
-                    <h2>{strings[2050] || "This is not your home settlement."}</h2>
+                    <h3>{strings[2050] || "This is not your home settlement."}</h3>
                 </div>
             ) : (
                 <>
@@ -565,7 +565,7 @@ const CourthousePanel = ({
 
 
 {/* Settlement name section */}
-                    <h2>{strings[2082]}</h2>
+                    <h3>{strings[2082]}</h3>
                     {isMayor ? (
                         <div className="settlement-name-editor">
                             <input
@@ -595,6 +595,9 @@ const CourthousePanel = ({
 {/* TAX RATE section */} 
  
                     <h3>{strings[2041]} {taxRate}%</h3>
+
+{/* MAYOR Tax section */} 
+
                     {isMayor && (
                         <div className="tax-rate-editor">
                             <input
@@ -619,9 +622,11 @@ const CourthousePanel = ({
                     )}
 
 {/* CURRENT MAYOR section - only show if player is not the mayor */}
+
+<br></br>
                     {!isMayor && (
                         <>
-                            <h2>{strings[2085]}</h2>
+                            <h3>{strings[2085]}</h3>
                             <h2 style={{ color: 'rgb(154, 106, 22)' }}><strong>{mayor || "Vacant"}</strong></h2>
                         </>
                     )}
@@ -633,7 +638,8 @@ const CourthousePanel = ({
 
 {/* ELECTIONS section */} 
 
-                    <h2>{strings[2045]}</h2>
+<br></br>
+                    <h3>{strings[2045]}</h3>
 
                     <h3><strong>
                         {electionPhase === "Counting" && strings["2062"]}

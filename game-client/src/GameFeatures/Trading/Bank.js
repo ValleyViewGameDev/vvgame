@@ -226,8 +226,8 @@ function BankPanel({
               </>
             ) : (
               <>
-                <h3>{strings["1406"]}</h3> {/* "New offers in" */}
-                <h2>{bankTimer}</h2>
+                <h3>{strings["1406"]}</h3> {/* "New offers" */}
+                <h3>{bankTimer}</h3>
                 <p>{strings["1407"]}</p> {/* "Generating new orders. Thank you for your patience." */}
               </>
             )}
