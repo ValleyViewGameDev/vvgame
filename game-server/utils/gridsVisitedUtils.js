@@ -1,15 +1,80 @@
 // gridsVisitedUtils.js
 // Bit manipulation utilities for tracking visited grids
-// Uses a 512-byte buffer to store 4096 bits (one per gridCoord 0-4095)
+// Uses a 512-byte buffer to store 4096 bits (64 settlements × 64 grids = 4096)
+
+/**
+ * Convert a gridCoord to a 0-4095 bit index
+ * gridCoord format: TFFSSGG where:
+ *   T = Frontier tier (ignored for bit storage)
+ *   FF = Frontier index (ignored for bit storage)
+ *   SS = Settlement row (0-7) & col (0-7) within frontier's 8x8 grid
+ *   GG = Grid row (0-7) & col (0-7) within settlement's 8x8 grid
+ *
+ * @param {number} gridCoord - The full gridCoord value (e.g., 1011100)
+ * @returns {number} - Bit index 0-4095, or -1 if invalid
+ */
+function gridCoordToBitIndex(gridCoord) {
+  if (typeof gridCoord !== 'number' || gridCoord < 0) {
+    return -1;
+  }
+
+  // Extract the last 4 digits (SSGG)
+  const relevantPart = gridCoord % 10000;
+
+  // Extract settlement and grid positions (each digit is 0-7)
+  const settlementRow = Math.floor(relevantPart / 1000) % 10;
+  const settlementCol = Math.floor(relevantPart / 100) % 10;
+  const gridRow = Math.floor(relevantPart / 10) % 10;
+  const gridCol = relevantPart % 10;
+
+  // Validate ranges (each should be 0-7)
+  if (settlementRow > 7 || settlementCol > 7 || gridRow > 7 || gridCol > 7) {
+    return -1;
+  }
+
+  // Calculate bit index: settlement position (0-63) * 64 + grid position (0-63)
+  const settlementIndex = settlementRow * 8 + settlementCol;  // 0-63
+  const gridIndex = gridRow * 8 + gridCol;                     // 0-63
+  const bitIndex = settlementIndex * 64 + gridIndex;           // 0-4095
+
+  return bitIndex;
+}
+
+/**
+ * Convert a bit index (0-4095) back to the SSGG portion of a gridCoord
+ * @param {number} bitIndex - Bit index 0-4095
+ * @returns {number} - The SSGG portion (e.g., 1100 for settlement 1,1 grid 0,0)
+ */
+function bitIndexToGridCoordPart(bitIndex) {
+  if (bitIndex < 0 || bitIndex > 4095) {
+    return -1;
+  }
+
+  const settlementIndex = Math.floor(bitIndex / 64);  // 0-63
+  const gridIndex = bitIndex % 64;                     // 0-63
+
+  const settlementRow = Math.floor(settlementIndex / 8);  // 0-7
+  const settlementCol = settlementIndex % 8;               // 0-7
+  const gridRow = Math.floor(gridIndex / 8);               // 0-7
+  const gridCol = gridIndex % 8;                           // 0-7
+
+  return settlementRow * 1000 + settlementCol * 100 + gridRow * 10 + gridCol;
+}
 
 /**
  * Check if a grid has been visited
  * @param {Buffer|Array} gridsVisited - The buffer or array from player.gridsVisited
- * @param {number} gridCoord - The grid coordinate (0-4095)
+ * @param {number} gridCoord - The full gridCoord value (e.g., 1011100)
  * @returns {boolean} - True if the grid has been visited
  */
 function isGridVisited(gridsVisited, gridCoord) {
-  if (!gridsVisited || gridCoord < 0 || gridCoord > 4095) {
+  if (!gridsVisited) {
+    return false;
+  }
+
+  // Convert gridCoord to bit index
+  const bitIndex = gridCoordToBitIndex(gridCoord);
+  if (bitIndex < 0) {
     return false;
   }
 
@@ -18,24 +83,26 @@ function isGridVisited(gridsVisited, gridCoord) {
     ? gridsVisited
     : Buffer.from(gridsVisited);
 
-  const byteIndex = Math.floor(gridCoord / 8);
-  const bitIndex = gridCoord % 8;
+  const byteIndex = Math.floor(bitIndex / 8);
+  const bitPosition = bitIndex % 8;
 
   if (byteIndex >= buffer.length) {
     return false;
   }
 
-  return (buffer[byteIndex] & (1 << bitIndex)) !== 0;
+  return (buffer[byteIndex] & (1 << bitPosition)) !== 0;
 }
 
 /**
  * Mark a grid as visited (mutates the buffer)
  * @param {Buffer} gridsVisited - The buffer from player.gridsVisited
- * @param {number} gridCoord - The grid coordinate (0-4095)
+ * @param {number} gridCoord - The full gridCoord value (e.g., 1011100)
  * @returns {Buffer} - The modified buffer
  */
 function markGridVisited(gridsVisited, gridCoord) {
-  if (gridCoord < 0 || gridCoord > 4095) {
+  // Convert gridCoord to bit index
+  const bitIndex = gridCoordToBitIndex(gridCoord);
+  if (bitIndex < 0) {
     return gridsVisited;
   }
 
@@ -52,10 +119,10 @@ function markGridVisited(gridsVisited, gridCoord) {
     buffer = newBuffer;
   }
 
-  const byteIndex = Math.floor(gridCoord / 8);
-  const bitIndex = gridCoord % 8;
+  const byteIndex = Math.floor(bitIndex / 8);
+  const bitPosition = bitIndex % 8;
 
-  buffer[byteIndex] |= (1 << bitIndex);
+  buffer[byteIndex] |= (1 << bitPosition);
 
   return buffer;
 }
@@ -81,11 +148,15 @@ function getVisitedGridCoords(gridsVisited) {
     const byte = buffer[byteIndex];
     if (byte === 0) continue; // Skip empty bytes for efficiency
 
-    for (let bitIndex = 0; bitIndex < 8; bitIndex++) {
-      if (byte & (1 << bitIndex)) {
-        const gridCoord = byteIndex * 8 + bitIndex;
-        if (gridCoord <= 4095) {
-          visited.push(gridCoord);
+    for (let bitPos = 0; bitPos < 8; bitPos++) {
+      if (byte & (1 << bitPos)) {
+        const bitIndex = byteIndex * 8 + bitPos;
+        if (bitIndex <= 4095) {
+          // Convert bit index back to SSGG gridCoord format
+          const gridCoordPart = bitIndexToGridCoordPart(bitIndex);
+          if (gridCoordPart >= 0) {
+            visited.push(gridCoordPart);
+          }
         }
       }
     }
@@ -124,6 +195,8 @@ function countVisitedGrids(gridsVisited) {
 }
 
 module.exports = {
+  gridCoordToBitIndex,
+  bitIndexToGridCoordPart,
   isGridVisited,
   markGridVisited,
   getVisitedGridCoords,
