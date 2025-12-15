@@ -1798,22 +1798,30 @@ router.post('/transfer-inventory', async (req, res) => {
 router.post('/mark-grid-visited', async (req, res) => {
   const { playerId, gridCoord } = req.body;
 
+  console.log(`📍 [GRIDS_VISITED] API called with playerId=${playerId}, gridCoord=${gridCoord}, type=${typeof gridCoord}`);
+
   if (!playerId || typeof gridCoord !== 'number') {
+    console.log(`📍 [GRIDS_VISITED] Validation failed: playerId=${!!playerId}, gridCoord type=${typeof gridCoord}`);
     return res.status(400).json({ error: 'Player ID and gridCoord are required.' });
   }
 
   if (gridCoord < 0 || gridCoord > 4095) {
+    console.log(`📍 [GRIDS_VISITED] gridCoord out of range: ${gridCoord}`);
     return res.status(400).json({ error: 'gridCoord must be between 0 and 4095.' });
   }
 
   try {
     const player = await Player.findById(playerId);
     if (!player) {
+      console.log(`📍 [GRIDS_VISITED] Player not found: ${playerId}`);
       return res.status(404).json({ error: 'Player not found.' });
     }
 
+    console.log(`📍 [GRIDS_VISITED] Found player ${player.username}, existing gridsVisited: ${player.gridsVisited ? 'exists' : 'null/undefined'}`);
+
     // Check if already visited
     if (isGridVisited(player.gridsVisited, gridCoord)) {
+      console.log(`📍 [GRIDS_VISITED] Grid ${gridCoord} already visited by ${player.username}`);
       return res.json({
         success: true,
         alreadyVisited: true,
@@ -1822,10 +1830,12 @@ router.post('/mark-grid-visited', async (req, res) => {
     }
 
     // Mark as visited
+    const oldBuffer = player.gridsVisited;
     player.gridsVisited = markGridVisited(player.gridsVisited, gridCoord);
-    await player.save();
+    console.log(`📍 [GRIDS_VISITED] Marking grid ${gridCoord} - old buffer exists: ${!!oldBuffer}, new buffer exists: ${!!player.gridsVisited}`);
 
-    console.log(`📍 Player ${player.username} visited grid ${gridCoord}`);
+    await player.save();
+    console.log(`📍 [GRIDS_VISITED] ✅ Player ${player.username} visited grid ${gridCoord} - saved successfully`);
 
     res.json({
       success: true,
@@ -1834,7 +1844,7 @@ router.post('/mark-grid-visited', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error marking grid as visited:', error);
+    console.error('📍 [GRIDS_VISITED] ❌ Error marking grid as visited:', error);
     res.status(500).json({ error: 'Failed to mark grid as visited.' });
   }
 });
