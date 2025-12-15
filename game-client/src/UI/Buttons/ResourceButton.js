@@ -173,9 +173,11 @@ const ResourceButton = ({
           <span className="resource-title">
             {isProcessing ? '⏳' : symbol} {isProcessing ? 'Processing...' : name}
           </span>
-          <span className="resource-details" dangerouslySetInnerHTML={{ 
-            __html: isProcessing ? 'Processing...' : (details ? formatDetailsForDisplay(details) : details)
-          }} />
+          {!isProcessing && (
+            <span className="resource-details" dangerouslySetInnerHTML={{
+              __html: details ? formatDetailsForDisplay(details) : details
+            }} />
+          )}
 
 
           {/* ✅ Render children properly (fixes missing text issue) */}
