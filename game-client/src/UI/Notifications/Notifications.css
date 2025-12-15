@@ -1,3 +1,5 @@
+/* Note: Theme variables are defined in /UI/Styles/theme.css */
+
 /* Generic Notification Styles */
 #notification-container {
     position: absolute; /* Changed to absolute to position within game container */
@@ -9,8 +11,8 @@
 }
 
 .notification {
-    background-color: rgb(255, 251, 179);
-    border: 2px solid #ffb74d;
+    background-color: var(--color-bg-panel);
+    border: 2px solid var(--color-warning);
     border-radius: 8px;
     padding: 15px 20px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -57,7 +59,7 @@
     border: none;
     font-size: 20px;
     cursor: pointer;
-    color: #666;
+    color: var(--color-text-muted);
     padding: 0;
     width: 20px;
     height: 20px;
@@ -68,7 +70,7 @@
 }
 
 .notification-dismiss:hover {
-    color: #333;
+    color: var(--color-text-primary);
 }
 
 .notification-content {
@@ -95,7 +97,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     background: rgba(255, 255, 255, 0.9);
-    color: #333;
+    color: var(--color-text-primary);
     font-size: 14px;
     font-weight: bold;
     padding: 1px 4px;
@@ -108,19 +110,19 @@
 }
 
 .notification-title {
-    font-family: 'Chewy', cursive;
-    font-size: 18px;
-    color: #666;
+    font-family: var(--font-title-2-family);
+    font-size: var(--font-title-3-size);
+    color: var(--color-text-muted);
     text-transform: none;
     letter-spacing: normal;
     margin-bottom: 4px;
 }
 
 .notification-name {
-    font-size: 14px;
+    font-size: var(--font-text-1-size);
     font-weight: normal;
-    color: #333;
+    color: var(--color-text-primary);
     margin-bottom: 4px;
-    font-family: Arial, sans-serif;
+    font-family: var(--font-text-1-family);
 }
 

@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import Modal from '../../UI/Modal';
+import Modal from '../../UI/Modals/Modal';
 import { handleNPCClick } from '../NPCs/NPCUtils';
 import { calculateSkillMultiplier } from '../../Utils/InventoryManagement';
 import { formatCollectionResults } from '../../UI/StatusBar/CollectionFormatters';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
-import '../../UI/SharedButtons.css';
+import '../../UI/Buttons/SharedButtons.css';
 
 // Component for the bulk animal collection selection modal
 export function BulkAnimalModal({ 
@@ -69,12 +69,12 @@ export function BulkAnimalModal({
         
         <div style={{ marginBottom: '20px' }}>
           {animals.map((animal, index) => (
-            <div key={animal.type} style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
+            <div key={animal.type} style={{
+              display: 'flex',
+              alignItems: 'center',
               marginBottom: '10px',
               padding: '5px',
-              backgroundColor: index % 2 === 0 ? 'transparent' : '#f0f0f0'
+              backgroundColor: index % 2 === 0 ? 'transparent' : 'var(--color-bg-light)'
             }}>
               <input
                 type="checkbox"

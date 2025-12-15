@@ -1,9 +1,9 @@
 import API_BASE from '../config';
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
-import Modal from '../UI/Modal';
+import Modal from '../UI/Modals/Modal';
 import './Store.css';
-import '../UI/SharedButtons.css';
+import '../UI/Buttons/SharedButtons.css';
 import { StatusBarContext } from '../UI/StatusBar/StatusBar';
 import { loadStripe } from '@stripe/stripe-js';
 import { updateBadge } from '../Utils/appUtils';

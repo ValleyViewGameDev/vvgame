@@ -1,9 +1,9 @@
 import API_BASE from '../../config';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import Panel from '../../UI/Panel';
-import '../../UI/Panel.css';
-import '../../UI/SharedButtons.css';
+import Panel from '../../UI/Panels/Panel';
+import '../../UI/Panels/Panel.css';
+import '../../UI/Buttons/SharedButtons.css';
 import './InventoryPanel.css'; 
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';

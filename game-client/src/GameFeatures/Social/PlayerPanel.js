@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ChangeIconModal from '../../UI/ChangeIconModal';
+import ChangeIconModal from '../../UI/Modals/ChangeIconModal';
 import EatingModal from '../Eating/Eating';
 import { spendIngredients } from '../../Utils/InventoryManagement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
@@ -302,16 +302,16 @@ const PlayerPanel = ({
       <br />
 
       {/* Level Display */}
-      <h2>{strings[10150]} {getDerivedLevel(currentPlayer, masterXPLevels)}</h2>
+      <h3>{strings[10150]} {getDerivedLevel(currentPlayer, masterXPLevels)}</h3>
 
       {/* XP Display */}
-      <h2>{strings[10151]} {currentPlayer.xp || 0} / {getXpForNextLevel(currentPlayer, masterXPLevels)}</h2>
+      <h3>{strings[10151]} {currentPlayer.xp || 0} / {getXpForNextLevel(currentPlayer, masterXPLevels)}</h3>
       
       {/* XP Progress Bar */}
       <div style={{
         width: '100%',
         height: '8px',
-        backgroundColor: '#2d5a2f',
+        backgroundColor: 'var(--color-button-hover)',
         borderRadius: '2px',
         overflow: 'hidden',
         marginTop: '4px',
@@ -319,7 +319,7 @@ const PlayerPanel = ({
       }}>
         <div style={{
           height: '100%',
-          backgroundColor: '#74ee66',
+          backgroundColor: 'var(--color-btn-primary)',
           width: `${(() => {
             const playerXP = currentPlayer?.xp || 0;
             const currentLevel = getDerivedLevel(currentPlayer, masterXPLevels);
@@ -356,13 +356,13 @@ const PlayerPanel = ({
 <br />
 
       {/* HP Display */}
-      <h2>{strings[10112]} {currentPlayer?._id ? playersInGridManager.getPlayersInGrid(currentPlayer?.location?.g)?.[String(currentPlayer._id)]?.hp ?? "?" : "?"} / {currentPlayer?._id ? playersInGridManager.getPlayersInGrid(currentPlayer?.location?.g)?.[String(currentPlayer._id)]?.maxhp ?? "?" : "?"}</h2>
+      <h3>{strings[10112]} {currentPlayer?._id ? playersInGridManager.getPlayersInGrid(currentPlayer?.location?.g)?.[String(currentPlayer._id)]?.hp ?? "?" : "?"} / {currentPlayer?._id ? playersInGridManager.getPlayersInGrid(currentPlayer?.location?.g)?.[String(currentPlayer._id)]?.maxhp ?? "?" : "?"}</h3>
       
       {/* HP Progress Bar */}
       <div style={{
         width: '100%',
         height: '8px',
-        backgroundColor: '#2d5a2f',
+        backgroundColor: 'var(--color-button-hover)',
         borderRadius: '2px',
         overflow: 'hidden',
         marginTop: '4px',
@@ -401,20 +401,20 @@ const PlayerPanel = ({
 <br />
 
       {/* Skills - Clickable H3 */}
-      <h2 
+      <h3 
         onClick={() => openPanel('SkillsPanel')}
         style={{ cursor: 'pointer', textDecoration: 'underline' }}
       >
         {strings[1105]} ({currentPlayer.skills?.length || 0})
-      </h2>
+      </h3>
 
       {/* Combat Stats - Clickable H3 */}
-      <h2 
+      <h3 
         onClick={() => openPanel('CombatPanel')}
         style={{ cursor: 'pointer', textDecoration: 'underline' }}
       >
         {strings[1124]}
-      </h2>
+      </h3>
 
 
       {/* Change Icon Modal */}

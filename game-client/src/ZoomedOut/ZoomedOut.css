@@ -1,7 +1,7 @@
 :root {
-  /* Grid tile colors */
-  --homestead-color: #49b93e;    /* Light green */
-  --valley-color: #00851f;       /* Dark green */
+  /* Grid tile colors - referencing theme.css variables */
+  --homestead-color: var(--color-primary-green);    /* Light green */
+  --valley-color: var(--color-primary-green-dark);  /* Dark green */
   --reserved-color: #8b0000;     /* Dark red */
   --town-color: #deb887;         /* Beige */
   --unknown-color: #d3d3d3;      /* Light gray */

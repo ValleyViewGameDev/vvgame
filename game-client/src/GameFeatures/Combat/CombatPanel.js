@@ -1,12 +1,12 @@
 import './CombatPanel.css';
 import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
-import Panel from '../../UI/Panel';
+import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import playersInGridManager from '../../GridState/PlayersInGrid';
-import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
-import '../../UI/SharedButtons.css';
+import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
+import '../../UI/Buttons/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
 
 const CombatPanel = ({ onClose, currentPlayer, setCurrentPlayer, masterResources, masterSkills, TILE_SIZE }) => {

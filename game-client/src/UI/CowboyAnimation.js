@@ -57,13 +57,13 @@ const CowboyAnimation = () => {
         position: 'absolute',
         left: `${targetPosition.x}px`,
         top: `${targetPosition.y}px`,
-        fontSize: '28px',
+        fontSize: '30px',
         transition: duration > 0 ? `all ${duration}s linear` : 'none',
         zIndex: 10,
         userSelect: 'none'
       }}
     >
-      🤠
+      👸
     </div>
   );
 };

@@ -1,16 +1,16 @@
 import API_BASE from '../../config';
-import React, { useState, useEffect, useContext, useRef } from 'react';
-import Panel from '../../UI/Panel';
-import '../../UI/SharedButtons.css';
+import React, { useState, useEffect, useRef } from 'react';
+import Panel from '../../UI/Panels/Panel';
+import '../../UI/Buttons/SharedButtons.css';
 import '../Crafting/ScrollStation.css'; // Import for shared station panel styles
 import axios from 'axios';
-import ResourceButton from '../../UI/ResourceButton';
+import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford, hasRoomFor } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
-import { QuestGiverButton } from '../../UI/QuestButton';
-import { modifyPlayerStatsInPlayer, modifyPlayerStatsInGridState, getDerivedLevel } from '../../Utils/playerManagement';
+import { QuestGiverButton } from '../../UI/Buttons/QuestButton';
+import { modifyPlayerStatsInGridState, getDerivedLevel } from '../../Utils/playerManagement';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
@@ -25,7 +25,7 @@ import questCache from '../../Utils/QuestCache';
 import { calculateDistance, getDerivedRange } from '../../Utils/worldHelpers';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import HealerInteraction from './HealerInteraction';
-import StoryModal from '../../UI/StoryModal';
+import StoryModal from '../../UI/Modals/StoryModal';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 
 const NPCPanel = ({
@@ -296,7 +296,7 @@ const NPCPanel = ({
       if (!goalAction || !goalItem || !goalQty) continue; // Skip undefined goals
       totalGoals++; // Count valid goals
 
-      if (goalAction === "Gain skill with") {
+      if (goalAction === "Acquire") {
           // Check if player already has the required skill or power
           const playerHasSkill = currentPlayer.skills?.some(skill => skill.type === goalItem);
           const playerHasPower = currentPlayer.powers?.some(power => power.type === goalItem);
@@ -927,42 +927,42 @@ const handleHeal = async (recipe) => {
 
           {/* Show message if quest interaction is not available due to relationship */}
           {!canQuest && (
-            <div style={{ 
-              padding: '10px', 
-              backgroundColor: '#f5f5f5', 
-              borderRadius: '5px', 
+            <div style={{
+              padding: '10px',
+              backgroundColor: 'var(--color-bg-light)',
+              borderRadius: '5px',
               marginTop: '10px',
               textAlign: 'center',
               fontStyle: 'italic',
-              color: '#666'
+              color: 'var(--color-text-muted)'
             }}>
               {strings[625]}{npcData.type}.
             </div>
           )}
 
           {canQuest && hasHiddenQuests && (
-            <div style={{ 
-              padding: '10px', 
-              backgroundColor: '#f5f5f5', 
-              borderRadius: '5px', 
+            <div style={{
+              padding: '10px',
+              backgroundColor: 'var(--color-bg-light)',
+              borderRadius: '5px',
               marginTop: '10px',
               textAlign: 'center',
               fontStyle: 'italic',
-              color: '#666'
+              color: 'var(--color-text-muted)'
             }}>
               {strings[627]?.replace('{npc}', npcData?.type || '')}
             </div>
           )}
-          
+
           {canQuest && questList.length === 0 && !hasHiddenQuests && (
-            <div style={{ 
-              padding: '10px', 
-              backgroundColor: '#f5f5f5', 
-              borderRadius: '5px', 
+            <div style={{
+              padding: '10px',
+              backgroundColor: 'var(--color-bg-light)',
+              borderRadius: '5px',
               marginTop: '10px',
               textAlign: 'center',
               fontStyle: 'italic',
-              color: '#666'
+              color: 'var(--color-text-muted)'
             }}>
               {strings[205]}
             </div>
@@ -1228,14 +1228,14 @@ const handleHeal = async (recipe) => {
 
           {/* Show message if trade interaction is not available due to relationship */}
           {!canTrade && (
-            <div style={{ 
-              padding: '10px', 
-              backgroundColor: '#f5f5f5', 
-              borderRadius: '5px', 
+            <div style={{
+              padding: '10px',
+              backgroundColor: 'var(--color-bg-light)',
+              borderRadius: '5px',
               marginTop: '10px',
               textAlign: 'center',
               fontStyle: 'italic',
-              color: '#666'
+              color: 'var(--color-text-muted)'
             }}>
               {strings[626]}{npcData.type}.
             </div>

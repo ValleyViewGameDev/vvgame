@@ -1,0 +1,236 @@
+/* ===========================================
+   STANDARDIZED MODAL SYSTEM
+   Note: Theme variables are defined in /UI/Styles/theme.css
+
+   Usage Instructions:
+   1. Use .modal-overlay as the outer container
+   2. Use .modal-container with size variant for the modal box:
+      - .modal-small (280px width)
+      - .modal-medium (400px width)
+      - .modal-large (600px width)
+      - .modal-xlarge (800px width)
+   3. Always include .modal-close-btn for the X button
+   4. Use .modal-title for the heading 
+   5. Wrap content in .modal-content for scrollable areas
+
+   Example:
+   <div className="modal-overlay">
+     <div className="modal-container modal-medium">
+       <button className="modal-close-btn" onClick={onClose}>×</button>
+       <div className="modal-title">Your Title Here</div>
+       <div className="modal-content">
+         Your content here
+       </div>
+     </div>
+   </div>
+   =========================================== */
+
+/* Fullscreen overlay - STANDARDIZED for ALL modals */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-modal-overlay);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+}
+
+/* STANDARDIZED Modal Container - Use this for ALL modals */
+.modal-container {
+    background: var(--color-bg-white);
+    padding: 20px;
+    border-radius: 8px;
+    width: 80vw;
+    max-width: 1000px;
+    min-width: 400px;
+    max-height: 85vh;
+    text-align: center;
+    box-shadow: inset 0 -7px 0 var(--color-shadow-button);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Small modal variant - overrides default responsive behavior */
+.modal-container.modal-small {
+    width: 320px; /* Slightly larger for modern displays */
+    min-width: 280px;
+    max-width: 90vw;
+    max-height: 300px;
+    padding: 16px;
+}
+
+/* Medium modal variant - good for forms and simple content */
+.modal-container.modal-medium {
+    width: 50vw;
+    min-width: 400px;
+    max-width: 600px;
+    max-height: 80vh;
+}
+
+/* Large modal variant - inherits default responsive behavior */
+.modal-container.modal-large {
+    width: 80vw; /* Same as default for consistency */
+    min-width: 600px;
+    max-width: 800px;
+    max-height: 90vh;
+}
+
+/* Extra large modal variant for complex content */
+.modal-container.modal-xlarge {
+    width: 90vw;
+    min-width: 800px;
+    max-width: 1400px;
+    max-height: 95vh;
+}
+
+/* STANDARDIZED Modal Title - Larger font, Panel header color for ALL modals */
+.modal-title {
+    font-family: var(--font-title-1-family);
+    font-size: var(--font-title-1-size);
+    font-weight: normal;
+    margin-bottom: 16px;
+    margin-top: 8px;
+    color: var(--font-title-1-color);
+}
+
+/* Ensure h2.modal-title has the correct color and font size with higher specificity */
+h2.modal-title {
+    color: var(--font-title-1-color) !important;
+    font-size: var(--font-title-1-size) !important;
+    font-family: var(--font-title-1-family) !important;
+    font-weight: normal !important;
+}
+
+/* STANDARDIZED Close Button - Bold style for ALL modals */
+.modal-close-btn {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    color: var(--color-text-primary);
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: var(--color-error);
+    transform: scale(1.1);
+}
+
+/* Modal content area */
+.modal-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 0;
+    margin-bottom: 10px;
+    font-family: var(--font-text-1-family);
+}
+  
+/* Modal message text */
+.modal-message {
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* Modal image styling */
+.modal-image {
+    max-width: 100px;
+    margin-bottom: 10px;
+}
+
+/* STANDARDIZED Modal Buttons Container */
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* ===========================================
+   LEGACY SUPPORT - Deprecated classes
+   Use .modal-container instead of these
+   =========================================== */
+
+/* Legacy support - these will be phased out */
+.icon-modal,
+.share-modal,
+.eating-modal-container {
+    /* Inherit from standardized modal-container */
+    background: var(--color-bg-white);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    box-shadow: inset 0 -7px 0 var(--color-shadow-button);
+}
+
+.icon-modal {
+    max-width: 400px;
+    margin: 60px auto;
+}
+
+.share-modal {
+    max-width: 400px;
+    margin: 60px auto;
+}
+
+/* Legacy close button support */
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--color-text-primary);
+}
+
+.close-button:hover {
+    color: var(--color-error);
+}
+
+
+/* Shared styling for log tables */
+.tax-log-table,
+.season-log-table,
+.election-log-table {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.tax-log-table th,
+.season-log-table th,
+.election-log-table th,
+.tax-log-table td,
+.season-log-table td,
+.election-log-table td {
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tax-log-table tbody tr:nth-child(even),
+.season-log-table tbody tr:nth-child(even),
+.election-log-table tbody tr:nth-child(even) {
+  background-color: var(--color-table-alt-row);
+}

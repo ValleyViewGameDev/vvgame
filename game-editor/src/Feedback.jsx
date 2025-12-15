@@ -27,7 +27,7 @@ const Feedback = ({ activePanel }) => {
 
   // Aspiration mappings with emojis
   const aspirationStrings = {
-    1: "🚜 Farming",
+    1: "🌱 Farming",
     2: "⚔️ Adventurer", 
     3: "🏛️ Politician"
   };

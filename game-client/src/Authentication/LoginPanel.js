@@ -1,10 +1,10 @@
 import API_BASE from '../config';
 import React, { useState } from 'react';
 import axios from 'axios';
-import Panel from '../UI/Panel';
+import Panel from '../UI/Panels/Panel';
 import CreateAccount from './CreateAccount';
-import '../UI/Panel.css'; 
-import '../UI/SharedButtons.css'; 
+import '../UI/Panels/Panel.css'; 
+import '../UI/Buttons/SharedButtons.css'; 
 
 import { useStrings } from '../UI/StringsContext';
 

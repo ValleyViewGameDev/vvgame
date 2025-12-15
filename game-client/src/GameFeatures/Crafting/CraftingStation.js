@@ -1,9 +1,9 @@
 import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
-import Panel from '../../UI/Panel';
+import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
-import '../../UI/ResourceButton.css'; 
-import ResourceButton from '../../UI/ResourceButton';
+import '../../UI/Buttons/ResourceButton.css';
+import ResourceButton from '../../UI/Buttons/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { calculateGemSpeedupCost } from '../../Economy/EconomyUtils';
@@ -18,9 +18,9 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import { formatSingleCollection } from '../../UI/StatusBar/CollectionFormatters';
-import '../../UI/SharedButtons.css';
+import '../../UI/Buttons/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import TransactionButton from '../../UI/TransactionButton';
+import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { getMayorUsername } from '../Government/GovUtils';
 import './ScrollStation.css'; // Import for shared station panel styles
@@ -649,9 +649,9 @@ const CraftingStation = ({
         ) : (
           <>
             {skillMessage && (
-              <div className="station-panel-header" style={{ 
-                padding: '10px', 
-                backgroundColor: '#f0f0f0', 
+              <div className="station-panel-header" style={{
+                padding: '10px',
+                backgroundColor: 'var(--color-bg-light)',
                 borderRadius: '5px',
                 fontStyle: 'italic',
                 marginBottom: '10px'

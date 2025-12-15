@@ -1,9 +1,9 @@
 import API_BASE from '../config'; 
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import Panel from '../UI/Panel';
-import '../UI/Panel.css'; // Specific styles for Debug Panel
-import '../UI/SharedButtons.css'; // Specific styles for Debug Panel
+import Panel from '../UI/Panels/Panel';
+import '../UI/Panels/Panel.css'; // Specific styles for Debug Panel
+import '../UI/Buttons/SharedButtons.css'; // Specific styles for Debug Panel
 import { fetchInventory, refreshPlayerAfterInventoryUpdate } from './InventoryManagement';
 import { fetchGridData, changePlayerLocation } from './GridManagement';
 import NPCsInGridManager from '../GridState/GridStateNPCs'; // Use default export for NPCsInGridManager

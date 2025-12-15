@@ -64,7 +64,8 @@ const corsOptions = {
     const allowedOrigins = [
       'http://localhost:3000',
       'https://vvgame.onrender.com',
-      'https://www.valleyviewgame.com'
+      'https://www.valleyviewgame.com',
+      'https://www.secretsofelsinore.com'
     ];
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -117,7 +118,8 @@ mongoose.connect(process.env.MONGODB_URI, {
       cors: {
         origin: [
           'https://vvgame.onrender.com',
-          'https://www.valleyviewgame.com'
+          'https://www.valleyviewgame.com',
+          'https://www.secretsofelsinore.com'
         ],
         methods: ['GET', 'POST'],
       }

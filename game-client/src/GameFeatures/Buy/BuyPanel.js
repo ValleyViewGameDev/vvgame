@@ -1,13 +1,13 @@
 import API_BASE from '../../config'; 
 import React, { useState, useEffect, useMemo } from 'react';
-import Panel from '../../UI/Panel';
+import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
-import ResourceButton from '../../UI/ResourceButton';
+import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { handleConstruction, handleConstructionWithGems } from '../BuildAndBuy';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford } from '../../Utils/InventoryManagement';
-import { usePanelContext } from '../../UI/PanelContext';
-import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
+import { usePanelContext } from '../../UI/Panels/PanelContext';
+import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { getDerivedLevel } from '../../Utils/playerManagement';

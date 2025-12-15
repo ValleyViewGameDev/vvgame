@@ -1,7 +1,7 @@
 import React from 'react';
-import Modal from '../../UI/Modal';
+import Modal from '../../UI/Modals/Modal';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import '../../UI/SharedButtons.css';
+import '../../UI/Buttons/SharedButtons.css';
 import './BulkHarvestResultsModal.css';
 
 /**
@@ -45,7 +45,7 @@ export function BulkHarvestResultsModal({
         {hasHarvestResults && (
           <div className="results-section">
             <h3 className="results-section-header crops">
-              🚜 {strings[357] || "Crops Harvested"}
+              🌱 {strings[357] || "Crops Harvested"}
             </h3>
             <div className="crop-rows">
               {Object.entries(harvestResults).map(([cropType, quantity]) => {

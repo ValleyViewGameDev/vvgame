@@ -7,7 +7,7 @@ import socket from '../socketManager'; // ⚠️ At top of file if not already p
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
 import { mergeResources, mergeTiles } from './ResourceHelpers';
 import { centerCameraOnPlayer } from '../PlayerMovement';
-import { closePanel } from '../UI/PanelContext';
+import { closePanel } from '../UI/Panels/PanelContext';
 import { fetchHomesteadOwner } from './worldHelpers';
 import { earnTrophy } from '../GameFeatures/Trophies/TrophyUtils';
 import { showNotification } from '../UI/Notifications/Notifications';
@@ -641,7 +641,7 @@ export async function updateGridStatus(gridType, ownerUsername, updateStatus, cu
     case 'valley1':
     case 'valley2':
     case 'valley3':
-      updateStatus(16); // Valley view
+      updateStatus(16);
       break;
     case 'settlement':
       updateStatus(12); // Settlement view

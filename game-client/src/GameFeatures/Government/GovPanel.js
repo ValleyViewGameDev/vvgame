@@ -1,11 +1,11 @@
 import API_BASE from '../../config';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Panel from '../../UI/Panel';
+import Panel from '../../UI/Panels/Panel';
 import { getMayorUsername } from './GovUtils';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
-import '../../UI/Modal.css';
-import '../../UI/SharedButtons.css';
+import '../../UI/Modals/Modal.css';
+import '../../UI/Buttons/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
 import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 
@@ -135,7 +135,7 @@ function GovPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
             {settlementData && (
               <>
                 <h3><strong>{strings["3001"]}</strong></h3>  
-                <h3 style={{ color: 'rgb(154, 106, 22)' }}><strong>{settlementData.displayName || settlementData.name || 'Unnamed Settlement'}</strong></h3>
+                <h2 style={{ color: 'rgb(154, 106, 22)' }}><strong>{settlementData.displayName || settlementData.name || 'Unnamed Settlement'}</strong></h2>
                 <h3>{strings["3002"]} <strong>{population}</strong></h3>
               </>
             )}

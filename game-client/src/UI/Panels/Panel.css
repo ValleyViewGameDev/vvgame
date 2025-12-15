@@ -1,0 +1,207 @@
+/* Panels */
+/* Note: Theme variables are defined in /UI/Styles/theme.css */
+
+/* Font options for panel content */
+/* You can set a custom font-family here for all panel content */
+.panel-container, .panel-header, .panel-title, .panel-content {
+  font-family: var(--font-text-1-family);
+}
+
+/* Example: To use a monospace font for debugging panels, you could add: */
+.debug-panel, .debug-panel * {
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
+}
+
+.panel-container {
+    position: fixed;
+    top: 60px;
+    left: 60px; /* Overlap with base panel */
+    height: calc(100% - 60px); /* Subtract the top offset */
+    width: 240px; /* Fixed width for panels (20px wider); overlaps base panel */
+    background-color: var(--color-bg-panel);
+    box-shadow: 4px 0 8px var(--color-panel-shadow);
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Prevent container overflow, let content handle it */
+  }
+
+
+/* Fixed Panel Header (Title + Close Button) */
+.panel-header {
+  position: sticky;
+  font-family: var(--font-title-2-family);
+  top: 0;
+  background-color: var(--color-bg-panel);
+  padding: 5px;
+  z-index: 101;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-border);
+  min-height: 35px; /* Changed from fixed height to min-height to allow expansion */
+}
+
+/* Panel Title */
+.panel-title {
+  font-family: var(--font-title-2-family);
+  font-size: var(--font-title-2-size);
+  color: var(--font-title-2-color);
+  margin: 0;
+  padding: 4px;
+  padding-right: 10px; /* Add space between title and close button */
+  flex-grow: 1; /* Allows title to expand while keeping the close button aligned */
+  word-wrap: break-word; /* Allow long words to break */
+  line-height: 1.2; /* Improve line spacing for wrapped text */
+}
+/* Scrollable Panel Content */
+.panel-content {
+  padding: 12px;
+  margin: 0;
+  font-size: 12px;
+  flex: 1;
+  overflow-y: auto; /* Allows scrolling */
+}
+
+/* Reduce vertical spacing for headings and paragraphs inside the Courthouse panel */
+.panel-content h1 {
+  margin-top: 0px; /* Reduce space above */
+  margin-bottom: 2px; /* Reduce space below */
+  color: var(--color-heading);
+}
+.panel-container .panel-content h2 {
+  font-family: var(--font-title-2-family);
+  margin-top: 4px; /* Reduce space above */
+  margin-bottom: 4px; /* Reduce space below */
+  color: var(--font-title-2-color);
+}
+.panel-content h3 {
+  font-family: var(--font-title-3-family);
+  font-weight: var(--font-title-3-weight);
+  margin-top: 4px; /* Reduce space above */
+  margin-bottom: 4px; /* Reduce space below */
+  font-size: var(--font-title-3-size);
+  color: var(--font-title-3-color);
+}
+
+  
+/* Panel Close Button */
+.panel-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-primary);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.panel-close-btn:hover {
+  transform: scale(1.05);
+  color: var(--color-error);
+}
+
+/* Button list layout */
+.panel-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+/* See SharedButtons.css for button styles */
+
+/* Panel Description */
+
+  .panel-description {
+    margin-top: auto; /* Push to bottom */
+    padding: 1px 10px; /* Reduced top/bottom padding from 10px to 5px */
+    border-top: 1px solid var(--color-border-dark);
+    font-size: 12px;
+    color: var(--color-text-muted);
+    text-align: left;
+    font-style: italic;
+    background-color: var(--color-bg-panel); /* Match panel background */
+    min-height: fit-content; /* Ensure it expands to fit content */
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+
+  /* Buffer space for Ko-fi widget */
+  .panel-buffer-space {
+    height: 60px;
+    background-color: var(--color-bg-panel); /* Match panel background */
+    flex-shrink: 0; /* Prevent shrinking */
+  }
+
+
+/* Debug Panel */
+
+/* General panel content styling */
+
+
+
+/* Player location section styling */
+
+.debug-player-location {
+  margin-top: 20px;
+  border-top: 1px solid var(--color-border-dark);
+  padding-top: 10px;
+}
+
+/* Timer section styling */
+.debug-timers {
+  margin-top: 20px;
+  border-top: 1px solid var(--color-border-dark);
+  padding-top: 10px;
+}
+
+.debug-timers ul {
+  list-style: none;
+  padding: 0;
+}
+
+.debug-timers li {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+/* Trader story text styling */
+.trader-story {
+  margin-top: 16px;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--color-text-secondary);
+  line-height: 1.2;
+  font-family: var(--font-text-2-family);
+}
+
+/* Shared Tab Navigation */
+.tab-navigation {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.tab-button {
+  flex: 1;
+  padding: 8px 12px;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  transition: all 0.2s ease;
+  margin-bottom: -2px;
+}
+
+.tab-button:hover {
+  background-color: var(--color-tab-hover-bg);
+  color: var(--color-text-primary);
+}
+
+.tab-button.active {
+  border-bottom-color: var(--color-modal-title);
+  color: var(--color-modal-title);
+  font-weight: bold;
+}

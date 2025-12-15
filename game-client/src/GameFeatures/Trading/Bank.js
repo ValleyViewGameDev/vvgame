@@ -1,16 +1,16 @@
 import API_BASE from '../../config.js';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Panel from '../../UI/Panel';
-import ResourceButton from '../../UI/ResourceButton';
-import { refreshPlayerAfterInventoryUpdate, spendIngredients, gainIngredients, canAfford } from '../../Utils/InventoryManagement';
+import Panel from '../../UI/Panels/Panel';
+import ResourceButton from '../../UI/Buttons/ResourceButton';
+import { spendIngredients, gainIngredients, canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
+import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 import { formatCountdown } from '../../UI/Timers.js';
 import { useStrings } from '../../UI/StringsContext';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import TransactionButton from '../../UI/TransactionButton';
-import '../../UI/SharedButtons.css';
+import TransactionButton from '../../UI/Buttons/TransactionButton';
+import '../../UI/Buttons/SharedButtons.css';
 
 function BankPanel({ 
     onClose, 

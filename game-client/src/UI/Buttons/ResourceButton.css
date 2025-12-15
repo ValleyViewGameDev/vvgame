@@ -1,0 +1,273 @@
+/* Note: Theme variables are defined in /UI/Styles/theme.css */
+
+/* General button wrapper */
+
+/* ✅ Ensure the wrapper doesn't clip the tooltip */
+.resource-button-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+/* Base button styling */
+.resource-button
+{
+  width: 100%;
+  padding: 6px 8px;
+  margin: 4px 0;
+  font-size: 14px;
+  text-align: left;
+  white-space: normal;
+  border: none;
+  border-radius: 12px;
+  background-color: var(--color-btn-primary);
+  color: var(--color-btn-primary-text);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  box-shadow: 0 6px 0 var(--color-shadow-button);
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+  box-sizing: border-box;
+  max-width: 100%;
+  outline: none;
+}
+
+
+/* Hover state for all buttons */
+.resource-button:hover {
+  background-color: var(--color-btn-primary-hover);
+}
+
+/* Active state - button push effect */
+.resource-button:active {
+  transform: translateY(3px);
+  box-shadow: 0 3px 0 var(--color-shadow-button);
+}
+
+/* Disabled button state */
+.resource-button.disabled {
+  background-color: var(--color-btn-disabled);
+  cursor: not-allowed;
+}
+
+/* ✅ In-progress (Yellow) */
+.resource-button.in-progress {
+  background-color: var(--color-button-gold);
+  cursor: not-allowed;
+}
+
+/* ✅ Processing State (Yellow) */
+.resource-button.processing {
+  background-color: var(--color-button-gold);
+  cursor: not-allowed;
+}
+
+/* ✅ Ready-to-Collect State (Brighter Green) */
+.resource-button.ready {
+  background-color: var(--color-btn-ready);
+}
+
+/* When using shared button styles for ready state */
+.resource-button.ready.btn-sell {
+  background-color: var(--color-btn-sell) !important;
+  color: var(--color-text-white) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 5px 0 var(--color-shadow-button) !important;
+}
+
+.resource-button.ready.btn-sell:hover {
+  background-color: var(--color-btn-sell-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 var(--color-shadow-button) !important;
+}
+
+.resource-button.ready.btn-sell:active {
+  background-color: var(--color-btn-sell) !important;
+  transform: translateY(3px) !important;
+  box-shadow: 0 2px 0 var(--color-shadow-button) !important;
+}
+
+/* Make sure text inside is also white */
+.resource-button.ready.btn-sell .resource-title,
+.resource-button.ready.btn-sell .resource-details {
+  color: var(--color-text-white) !important;
+}
+
+/* ✅ Reward State (Green) */
+.resource-button.reward {
+  background-color: var(--color-success);
+  color: var(--color-text-white);
+}
+
+/* ✅ Special styling for bulk skills (light purple) */
+.resource-button.bulk-skill {
+  background-color: var(--color-btn-bulk-skill);
+  color: var(--color-text-primary);
+}
+
+
+/* Title styling for all buttons */
+.resource-title {
+  font-family: var(--font-title-4-family);
+  margin: 0;
+  font-size: var(--font-title-4-size);
+  color: var(--font-title-4-color);
+}
+
+/* Details or subtitle styling */
+.resource-details {
+  margin: 2px 0;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  white-space: pre-line;
+}
+
+/* Paragraph styling for lists or descriptions */
+.resource-details span {
+  display: block;
+  margin: 2px 0;
+  font-size: 0.8rem;
+}
+
+
+
+/* INFO TOOLTIP
+
+
+/* Tooltip or info button */
+.info-button {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  cursor: help;
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+/* Gem purchase button */
+.gem-button {
+  position: absolute;
+  top: 29px;
+  right: 10px;
+  cursor: pointer;
+  font-size: 12px;
+  background-color: var(--color-btn-gem);
+  color: var(--color-text-white);
+  border-radius: 3px;
+  padding: 2px 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px var(--color-shadow);
+  pointer-events: all;
+  z-index: 10;
+}
+
+.gem-button:hover:not(.disabled) {
+  background-color: var(--color-btn-gem-hover);
+  box-shadow: 0 2px 4px var(--color-shadow);
+}
+
+.gem-button.disabled {
+  background-color: var(--color-text-muted);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.gem-button.disabled:hover {
+  background-color: var(--color-text-muted);
+  box-shadow: 0 1px 3px var(--color-shadow);
+}
+
+/* ✅ Floating Info Toaster - Renders on top of everything */
+.info-toaster {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--color-border-dark);
+  border-radius: 5px;
+  padding: 8px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  z-index: 99999;
+  box-shadow: 4px 6px 10px var(--color-shadow);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
+  font-family: var(--font-text-1-family) !important;
+}
+
+/* ✅ Ensure all text inside info-toaster uses UI font */
+.info-toaster * {
+  font-family: var(--font-text-1-family) !important;
+}
+
+/* ✅ Adjust position dynamically */
+.info-toaster {
+  transform: translateY(-50%);
+  max-width: 200px;
+}
+
+/* ✅ Gem tooltip styling */
+.gem-toaster {
+  position: absolute;
+  background: rgba(30, 136, 229, 0.95);
+  border: 1px solid var(--color-btn-gem-hover);
+  border-radius: 5px;
+  padding: 6px 10px;
+  font-size: 13px;
+  color: var(--color-text-white);
+  z-index: 99999;
+  box-shadow: 4px 6px 10px var(--color-shadow);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
+  font-family: var(--font-text-1-family) !important;
+  white-space: nowrap;
+}
+
+.gem-toaster * {
+  font-family: var(--font-text-1-family) !important;
+}
+
+.gem-toaster p {
+  margin: 0;
+  padding: 0;
+}
+
+/* Cooldown animation with configurable duration */
+.resource-button.cooldown {
+  position: relative;
+  overflow: hidden;
+  /* Default duration can be overridden with inline style */
+  --cooldown-duration: 0.5s;
+}
+
+.resource-button.cooldown::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    rgba(128, 128, 128, 0.3) 20%,
+    rgba(128, 128, 128, 0.5) 50%,
+    rgba(128, 128, 128, 0.3) 80%,
+    transparent 100%
+  );
+  animation: cooldown-wave var(--cooldown-duration) linear forwards;
+  pointer-events: none;
+}
+
+@keyframes cooldown-wave {
+  from {
+    left: -100%;
+  }
+  to {
+    left: 100%;
+  }
+}

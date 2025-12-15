@@ -1,6 +1,6 @@
 // src/GameFeatures/Seasons/OffSeasonModal.js
 import React, { useState, useEffect } from 'react';
-import Modal from '../../UI/Modal';
+import Modal from '../../UI/Modals/Modal';
 import { useStrings } from '../../UI/StringsContext';
 import { formatCountdown } from '../../UI/Timers';
 import axios from 'axios';
@@ -104,7 +104,7 @@ function OffSeasonModal({ onClose, currentPlayer }) {
     
   const title = `🗓️ ${previousSeason.seasonType} → ${seasonData.type}`;
   const message = strings["5035"];   // "We are between seasons!"
-  const message2 = strings["5036"]; // "Valley View is temporarily unavailable while we reset the season."
+  const message2 = strings["5036"]; // "Temporarily unavailable while we reset the season."
 
   return (
     <Modal

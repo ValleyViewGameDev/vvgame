@@ -1,24 +1,24 @@
 import API_BASE from '../../config';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import React, { useState, useEffect, useContext } from 'react';
-import Panel from '../../UI/Panel';
-import Modal from '../../UI/Modal';
+import Panel from '../../UI/Panels/Panel';
+import Modal from '../../UI/Modals/Modal';
 import axios from 'axios';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import './Courthouse.css';
-import '../../UI/Panel.css';
+import '../../UI/Panels/Panel.css';
 import { useStrings } from '../../UI/StringsContext';
-import '../../UI/Modal.css';
-import '../../UI/SharedButtons.css';
+import '../../UI/Modals/Modal.css';
+import '../../UI/Buttons/SharedButtons.css';
 import { getMayorUsername } from './GovUtils';
 import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 import { formatCountdown } from '../../UI/Timers';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import TransactionButton from '../../UI/TransactionButton';
-import ResourceButton from '../../UI/ResourceButton';
+import TransactionButton from '../../UI/Buttons/TransactionButton';
+import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { refreshPlayerAfterInventoryUpdate, canAfford, spendIngredients } from '../../Utils/InventoryManagement';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import '../../UI/ResourceButton.css';
+import '../../UI/Buttons/ResourceButton.css';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 
 const CourthousePanel = ({ 
@@ -310,7 +310,7 @@ const CourthousePanel = ({
                 playerId: currentPlayer.playerId,
                 skills: updatedSkills,
             });
-            await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
+            await trackQuestProgress(currentPlayer, 'Acquire', resource.type, 1, setCurrentPlayer);
             await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);    
             await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
             

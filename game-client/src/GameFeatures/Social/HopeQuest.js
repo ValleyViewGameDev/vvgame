@@ -89,7 +89,7 @@ function HopeQuest({
               flex: 1,
               aspectRatio: '1',
               borderRadius: '4px',
-              backgroundColor: playerHasItem ? '#74ee66' : 'rgb(154, 106, 22)',
+              backgroundColor: playerHasItem ? 'var(--color-btn-primary)' : 'rgb(154, 106, 22)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

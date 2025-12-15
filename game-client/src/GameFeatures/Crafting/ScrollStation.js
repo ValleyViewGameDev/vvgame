@@ -1,9 +1,9 @@
 import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
-import Panel from '../../UI/Panel';
+import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
-import '../../UI/ResourceButton.css'; 
-import ResourceButton from '../../UI/ResourceButton';
+import '../../UI/Buttons/ResourceButton.css';
+import ResourceButton from '../../UI/Buttons/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
@@ -14,9 +14,9 @@ import playersInGridManager from '../../GridState/PlayersInGrid';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
-import '../../UI/SharedButtons.css';
+import '../../UI/Buttons/SharedButtons.css';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import TransactionButton from '../../UI/TransactionButton';
+import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { formatCountdown, formatDuration } from '../../UI/Timers';
 import { getRandomScrollReveal, getRevealDisplayString, canAffordReveal } from './ScrollReveal';
 import { gainSkillOrPower } from '../../Utils/SkillPowerManagement';
@@ -579,10 +579,10 @@ const ScrollStation = ({
 
 
         {skillMessage && (
-          <div style={{ 
-            marginBottom: '15px', 
-            padding: '10px', 
-            backgroundColor: '#f0f0f0', 
+          <div style={{
+            marginBottom: '15px',
+            padding: '10px',
+            backgroundColor: 'var(--color-bg-light)',
             borderRadius: '5px',
             fontStyle: 'italic'
           }}>

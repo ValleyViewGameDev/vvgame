@@ -1,17 +1,17 @@
 import API_BASE from '../../config';
-import React, { useState, useEffect, useContext } from 'react';
-import Panel from '../../UI/Panel';
+import React, { useState, useEffect } from 'react';
+import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
-import ResourceButton from '../../UI/ResourceButton';
+import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
+import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 import { spendIngredients } from '../../Utils/InventoryManagement';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import TransactionButton from '../../UI/TransactionButton';
+import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { getDerivedLevel } from '../../Utils/playerManagement';
 
@@ -157,7 +157,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
       playerId: currentPlayer.playerId,
       skills: updatedSkills,
     });
-    await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
+    await trackQuestProgress(currentPlayer, 'Acquire', resource.type, 1, setCurrentPlayer);
     await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 

@@ -2,13 +2,13 @@ import API_BASE from '../../config';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import React, { useState, useEffect, useContext } from 'react';
-import Panel from '../../UI/Panel'; // Use Panel instead of Modal
-import TransactionButton from '../../UI/TransactionButton';
-import TradingInventoryModal from '../../UI/TradingInventoryModal';
+import Panel from '../../UI/Panels/Panel'; // Use Panel instead of Modal
+import TransactionButton from '../../UI/Buttons/TransactionButton';
+import TradingInventoryModal from '../../UI/Modals/TradingInventoryModal';
 import axios from 'axios';
 import './TradeStall.css';
-import '../../UI/Modal.css';
-import '../../UI/SharedButtons.css';
+import '../../UI/Modals/Modal.css';
+import '../../UI/Buttons/SharedButtons.css';
 import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';

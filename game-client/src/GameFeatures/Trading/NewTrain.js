@@ -1,8 +1,8 @@
 import API_BASE from '../../config';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Panel from '../../UI/Panel';
-import ResourceButton from '../../UI/ResourceButton';
+import Panel from '../../UI/Panels/Panel';
+import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import { generateCompleteTrainData } from './TrainOfferLogic';
 import './Train.css';
@@ -778,11 +778,11 @@ function NewTrainPanel({
           <h2>⏳ {trainTimer}</h2>
 
           {rewardsDeliveredMessage && (trainPhase === "departing" || trainPhase === "arriving") && (
-            <div style={{ 
-              backgroundColor: '#4CAF50', 
-              color: 'white', 
-              padding: '10px', 
-              margin: '10px 0', 
+            <div style={{
+              backgroundColor: 'var(--color-success)',
+              color: 'var(--color-text-white)',
+              padding: '10px',
+              margin: '10px 0',
               borderRadius: '5px',
               textAlign: 'center',
               fontWeight: 'bold'

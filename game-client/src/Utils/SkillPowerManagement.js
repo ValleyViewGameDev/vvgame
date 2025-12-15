@@ -70,7 +70,7 @@ export async function gainSkillOrPower({
       }));
 
       // Track quest progress
-      await trackQuestProgress(currentPlayer, 'Gain skill with', item.type, quantity, setCurrentPlayer);
+      await trackQuestProgress(currentPlayer, 'Acquire', item.type, quantity, setCurrentPlayer);
       
       // Earn trophy for skills
       if (item.category === 'skill') {

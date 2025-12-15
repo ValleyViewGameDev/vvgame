@@ -1,10 +1,10 @@
 import API_BASE from '../../config';
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import Panel from '../../UI/Panel';
-import { QuestButton } from '../../UI/QuestButton';
-import '../../UI/ResourceButton.css';
-import '../../UI/QuestButton.css';
+import Panel from '../../UI/Panels/Panel';
+import { QuestButton } from '../../UI/Buttons/QuestButton';
+import '../../UI/Buttons/ResourceButton.css';
+import '../../UI/Buttons/QuestButton.css';
 import { useStrings } from '../../UI/StringsContext';
 
 function QuestPanel({ onClose, currentPlayer }) {
@@ -12,7 +12,7 @@ function QuestPanel({ onClose, currentPlayer }) {
   const [playerQuests, setPlayerQuests] = useState([]);
   const [questTemplates, setQuestTemplates] = useState([]);
 
-  // Re-evaluate quest progress for "Gain skill with" quests
+  // Re-evaluate quest progress for "Acquire" quests
   const reevaluateQuestProgress = async (quests) => {
     if (!quests || quests.length === 0) return quests;
     
@@ -34,8 +34,8 @@ function QuestPanel({ onClose, currentPlayer }) {
         if (!goalAction || !goalItem || !goalQty) continue;
         totalGoals++;
         
-        // Special handling for "Gain skill with" goals
-        if (goalAction === "Gain skill with") {
+        // Special handling for "Acquire" goals
+        if (goalAction === "Acquire") {
           const playerHasSkill = currentPlayer.skills?.some(skill => skill.type === goalItem);
           const playerHasPower = currentPlayer.powers?.some(power => power.type === goalItem);
           

@@ -4,7 +4,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { StatusBarProvider } from './UI/StatusBar/StatusBar';
-import { PanelProvider } from './UI/PanelContext'; 
+import { PanelProvider } from './UI/Panels/PanelContext'; 
 import { GridStateProvider } from './GridState/GridStateContext';
 import { GridStatePCProvider } from './GridState/GridStatePCContext';
 import { ModalProvider } from './UI/ModalContext';

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE from '../../config';
-import Panel from '../../UI/Panel';
+import Panel from '../../UI/Panels/Panel';
 import { useStrings } from '../../UI/StringsContext';
 import './Relationships.css';
 

@@ -4,8 +4,8 @@ import axios from 'axios';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import { useStrings } from '../UI/StringsContext';
 import LANGUAGE_OPTIONS from '../UI/Languages.json';
-import { enabledLanguages } from '../UI/LanguagePickerModal';
-import '../UI/SharedButtons.css';
+import { enabledLanguages } from '../UI/Modals/LanguagePickerModal';
+import '../UI/Buttons/SharedButtons.css';
 import { trackAccountCreation } from '../Utils/conversionTracking';
 
 const CreateAccount = ({ setCurrentPlayer, zoomLevel, setZoomLevel, setIsLoggedIn, closeModal }) => {

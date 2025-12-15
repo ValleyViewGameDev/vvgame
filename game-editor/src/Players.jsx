@@ -1256,7 +1256,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                     </td>
                     <td>{player.ftuestep || ''}</td>
                     <td>
-                      {player.aspiration === 1 ? '🚜' : 
+                      {player.aspiration === 1 ? '🌱' : 
                        player.aspiration === 2 ? '⚔️' : 
                        player.aspiration === 3 ? '🏛️' : 
                        ''}

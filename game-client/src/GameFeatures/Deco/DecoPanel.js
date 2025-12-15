@@ -1,16 +1,12 @@
 import API_BASE from '../../config';
 import axios from 'axios';
-import { gainIngredients } from '../../Utils/InventoryManagement';
-import React, { useState, useEffect, useContext } from 'react';
-import Panel from '../../UI/Panel';
-import { updateGridResource } from '../../Utils/GridManagement';
-import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
-import { createCollectEffect } from '../../VFX/VFX';
-import '../../UI/SharedButtons.css';
+import React, { useState, useEffect } from 'react';
+import Panel from '../../UI/Panels/Panel';
+import '../../UI/Buttons/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import TransactionButton from '../../UI/TransactionButton';
+import TransactionButton from '../../UI/Buttons/TransactionButton';
 import './DecoPanel.css';
 
 const DecoPanel = ({

@@ -1,16 +1,15 @@
 import API_BASE from '../../config';
-import React, { useState, useEffect, useContext } from 'react';
-import Panel from '../../UI/Panel';
+import React, { useState, useEffect } from 'react';
+import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
-import ResourceButton from '../../UI/ResourceButton';
+import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
 import { canAfford } from '../../Utils/InventoryManagement';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import { handleFarmPlotPlacement, handleTerraform } from './Farming';
+import { handleFarmPlotPlacement } from './Farming';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { formatDuration } from '../../UI/Timers';
-import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
+import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 
 const FarmingPanel = ({
   onClose,

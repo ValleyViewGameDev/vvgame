@@ -1,5 +1,5 @@
 // import '../App.css';
-// import '../UI/Panel.css';
+// import '../UI/Panels/Panel.css';
 // import '../UI/Cursor.css';
 // import './Render.css';
 

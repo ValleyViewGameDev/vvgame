@@ -1,8 +1,8 @@
 // import API_BASE from '../../config';
 // import React, { useEffect, useState } from 'react';
 // import axios from 'axios';
-// import Panel from '../../UI/Panel';
-// import ResourceButton from '../../UI/ResourceButton';
+// import Panel from '../../UI/Panels/Panel';
+// import ResourceButton from '../../UI/Buttons/ResourceButton';
 // import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 // import './Train.css';
 // import FloatingTextManager from '../../UI/FloatingText';

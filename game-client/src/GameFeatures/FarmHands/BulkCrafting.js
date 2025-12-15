@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import API_BASE from '../../config';
-import Modal from '../../UI/Modal';
+import Modal from '../../UI/Modals/Modal';
 import { canAfford, spendIngredients, gainIngredients, calculateSkillMultiplier } from '../../Utils/InventoryManagement';
 import { formatCollectionResults, formatRestartResults } from '../../UI/StatusBar/CollectionFormatters';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
@@ -9,7 +9,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
-import '../../UI/SharedButtons.css';
+import '../../UI/Buttons/SharedButtons.css';
 
 // Component for the bulk crafting selection modal
 export function BulkCraftingModal({ 

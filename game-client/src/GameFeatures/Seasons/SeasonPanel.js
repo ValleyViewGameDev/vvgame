@@ -1,13 +1,13 @@
 import API_BASE from '../../config';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Panel from '../../UI/Panel';
+import Panel from '../../UI/Panels/Panel';
 import { formatCountdown } from '../../UI/Timers';
-import '../../UI/Modal.css';
-import '../../UI/SharedButtons.css';
+import '../../UI/Modals/Modal.css';
+import '../../UI/Buttons/SharedButtons.css';
 import { calculateSettlementPopulation } from '../../Utils/PopulationUtils';
 import { useStrings } from '../../UI/StringsContext';
-import { usePanelContext } from '../../UI/PanelContext';
+import { usePanelContext } from '../../UI/Panels/PanelContext';
 
 function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }) {
   const strings = useStrings();

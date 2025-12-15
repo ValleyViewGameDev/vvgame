@@ -1,9 +1,9 @@
 import API_BASE from '../../config';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Panel from '../../UI/Panel';
-import '../../UI/Modal.css';
-import '../../UI/SharedButtons.css';
+import Panel from '../../UI/Panels/Panel';
+import '../../UI/Modals/Modal.css';
+import '../../UI/Buttons/SharedButtons.css';
 import './Leaderboard.css';
 import HopeQuest from '../Social/HopeQuest';
 import { getDerivedLevel, getXpForNextLevel } from '../../Utils/playerManagement';
@@ -103,11 +103,12 @@ function LeaderboardPanel({ onClose, currentPlayer, setModalContent, setIsModalO
                 const xpForNextLevel = getXpForNextLevel(player, masterXPLevels);
 
                 // Calculate XP progress percentage (same logic as PlayerPanel)
-                const currentLevelData = masterXPLevels?.find(lvl => lvl.level === playerLevel);
-                const nextLevelData = masterXPLevels?.find(lvl => lvl.level === playerLevel + 1);
-                const xpIntoLevel = player.xp - (currentLevelData?.xp || 0);
-                const xpRangeForLevel = (nextLevelData?.xp || player.xp) - (currentLevelData?.xp || 0);
-                const xpProgress = Math.min(100, Math.max(0, (xpIntoLevel / xpRangeForLevel) * 100));
+                // masterXPLevels is an array of XP thresholds: [40, 100, 180, ...]
+                const currentLevelIndex = playerLevel - 2; // Level 1 = no threshold, Level 2 = index 0
+                const currentLevelXP = currentLevelIndex >= 0 ? (masterXPLevels?.[currentLevelIndex] || 0) : 0;
+                const xpIntoLevel = player.xp - currentLevelXP;
+                const xpRangeForLevel = xpForNextLevel - currentLevelXP;
+                const xpProgress = xpRangeForLevel <= 0 ? 100 : Math.min(100, Math.max(0, (xpIntoLevel / xpRangeForLevel) * 100));
 
                 return (
                   <div key={index} className="player-card">

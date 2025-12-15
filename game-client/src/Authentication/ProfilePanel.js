@@ -1,15 +1,15 @@
 import API_BASE from '../config';
 import React, { useState, useEffect, useContext } from 'react';
-import ChangeIconModal from '../UI/ChangeIconModal';
+import ChangeIconModal from '../UI/Modals/ChangeIconModal';
 import axios from 'axios';
-import '../UI/Panel.css'; // Use the standardized styles
-import '../UI/SharedButtons.css'; // Use the standardized buttons
-import Panel from '../UI/Panel';
+import '../UI/Panels/Panel.css'; // Use the standardized styles
+import '../UI/Buttons/SharedButtons.css'; // Use the standardized buttons
+import Panel from '../UI/Panels/Panel';
 import { updatePlayerSettings } from '../settings';  
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { StatusBarContext } from '../UI/StatusBar/StatusBar';
-import { usePanelContext } from '../UI/PanelContext';
+import { usePanelContext } from '../UI/Panels/PanelContext';
 import LANGUAGE_OPTIONS from '../UI/Languages.json';
 import { useModalContext } from '../UI/ModalContext';
 import { useStrings } from '../UI/StringsContext';

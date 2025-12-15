@@ -1,18 +1,11 @@
 import API_BASE from '../../config';
 import axios from 'axios';
-import { gainIngredients } from '../../Utils/InventoryManagement';
-import React, { useState, useEffect, useContext } from 'react';
-import Panel from '../../UI/Panel';
-import FloatingTextManager from '../../UI/FloatingText';
-import { updateGridResource } from '../../Utils/GridManagement';
-import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
-import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
-import { trackQuestProgress } from '../Quests/QuestGoalTracker';
-import { createCollectEffect } from '../../VFX/VFX';
-import '../../UI/SharedButtons.css';
+import React, { useState, useEffect } from 'react';
+import Panel from '../../UI/Panels/Panel';
+import '../../UI/Buttons/SharedButtons.css';
 import { useStrings } from '../../UI/StringsContext';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import TransactionButton from '../../UI/TransactionButton';
+import TransactionButton from '../../UI/Buttons/TransactionButton';
 import './AnimalStall.css';
 
 const AnimalStall = ({

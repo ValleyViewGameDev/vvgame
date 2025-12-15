@@ -1,11 +1,10 @@
 import API_BASE from '../../config';
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Panel from '../../UI/Panel';
-import Modal from '../../UI/Modal';
-import ProgressModal from '../../UI/ProgressModal';
-import '../../UI/ResourceButton.css';
-import ResourceButton from '../../UI/ResourceButton';
+import Panel from '../../UI/Panels/Panel';
+import ProgressModal from '../../UI/Modals/ProgressModal';
+import '../../UI/Buttons/ResourceButton.css';
+import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { refreshPlayerAfterInventoryUpdate, gainIngredients, spendIngredients } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
@@ -20,7 +19,7 @@ import { useBulkOperation } from '../../UI/BulkOperationContext';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { BulkHarvestModal, executeBulkHarvest, prepareBulkHarvestData } from './BulkHarvest';
 import BulkHarvestResultsModal from './BulkHarvestResultsModal';
-import { BulkAnimalModal, executeBulkAnimalCollect, prepareBulkAnimalData } from './BulkAnimalCollect';
+import { BulkAnimalModal, executeBulkAnimalCollect } from './BulkAnimalCollect';
 import { BulkCraftingModal, executeBulkCrafting, prepareBulkCraftingData } from './BulkCrafting';
 
 const FarmHandPanel = ({
@@ -272,7 +271,7 @@ const FarmHandPanel = ({
       skills: updatedSkills,
     });
 
-    await trackQuestProgress(currentPlayer, 'Gain skill with', resource.type, 1, setCurrentPlayer);
+    await trackQuestProgress(currentPlayer, 'Acquire', resource.type, 1, setCurrentPlayer);
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
     updateStatus(`${resource.type} acquired.`);
   };
@@ -845,7 +844,7 @@ const FarmHandPanel = ({
         {showBulkHarvest && skills?.some(item => item.type === 'Bulk Harvest') && (
           <div>
             <ResourceButton
-              symbol="🚜"
+              symbol="🌱"
               name={getLocalizedString('Bulk Harvest', strings)}
               className="resource-button bulk-skill"
               details={strings[428]}

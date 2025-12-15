@@ -1,0 +1,144 @@
+/* ===========================================
+   THEME VARIABLES
+
+   Central location for all colors, fonts, and
+   common styling values used throughout the app.
+
+   Import this file in App.js to make variables
+   available everywhere.
+   =========================================== */
+
+:root {
+  /* ========== PRIMARY COLORS ========== */
+  --color-primary-green: #67c257;        /* Main UI green (header, base panel, nav) */
+  --color-primary-green-dark: #2f8133;   /* Darker green for gridlines, hover states */
+  --color-primary-green-light: #74ee66;  /* Lighter green for buttons and nav column background */
+
+  /* ========== BACKGROUND COLORS ========== */
+  --color-bg-dirt: #c0834a;              /* Dirt/brown background */
+  --color-bg-white: #ffffff;
+  --color-bg-light: #f5f5f5;
+  --color-bg-overlay: rgba(0, 0, 0, 0.5); /* Modal overlays */
+
+  /* ========== TEXT COLORS ========== */
+  --color-text-primary: #333333;
+  --color-text-secondary: #555555;
+  --color-text-muted: #888888;
+  --color-text-white: #ffffff;
+  --color-text-black: #000000;
+  --color-text-green: rgb(0, 104, 12);   /* Dark green text on panels */
+
+  /* ========== UI ELEMENT COLORS ========== */
+  --color-button-hover: #2d7030;
+  --color-button-gold: #ffd700;
+  --color-border: #ddd;
+  --color-border-dark: #ccc;
+  --color-shadow: rgba(0, 0, 0, 0.4);
+  --color-shadow-button: rgba(92, 91, 91, 0.5);
+
+  /* ========== BUTTON COLORS ========== */
+  --color-btn-primary: #74ee66;           /* Light green button background */
+  --color-btn-primary-text: #358337;      /* Dark green button text */
+  --color-btn-primary-hover: #ebffe7;     /* Light green hover */
+  --color-btn-hover-light: #f1f1f1;       /* Generic light hover */
+  --color-btn-active: #e0e0e0;            /* Active/pressed state */
+  --color-btn-disabled: #d3d3d3;          /* Disabled background */
+  --color-btn-disabled-text: #999999;     /* Disabled text */
+  --color-btn-sell: #30b02c;              /* Sell/collect button */
+  --color-btn-sell-hover: #70c976;        /* Sell/collect hover */
+  --color-btn-danger: #ffc8c8;            /* Danger button (light red) */
+  --color-btn-ready: #00e639;             /* Ready state (bright green) */
+  --color-btn-bulk-skill: #e6ccff;        /* Bulk skill (light purple) */
+  --color-btn-gem: #e0f7ff;               /* Gem button background */
+  --color-btn-gem-hover: #1565c0;         /* Gem button hover */
+
+  /* ========== STATUS/FEEDBACK COLORS ========== */
+  --color-error: #f44336;
+  --color-success: #4caf50;
+  --color-warning: #ff9800;
+  --color-info: #2196f3;
+  --color-badge: red;
+
+  /* ========== MODAL COLORS ========== */
+  --color-modal-title: rgb(154, 106, 22);  /* Brown/gold panel header color */
+  --color-modal-overlay: rgba(0, 0, 0, 0.6);
+  --color-table-alt-row: #f9f9f9;          /* Alternating table row background */
+
+  /* ========== PANEL COLORS ========== */
+  --color-bg-panel: rgb(255, 251, 179);    /* Yellow panel background */
+  --color-panel-shadow: rgba(106, 106, 106, 0.253);  /* Panel box shadow */
+  --color-heading: rgb(58, 58, 58);        /* Heading text color */
+  --color-tab-hover-bg: rgba(0, 0, 0, 0.05);  /* Tab hover background */
+
+  /* ========== QUEST COLORS ========== */
+  --color-quest: #7ff3f1;                   /* Quest button cyan/teal */
+  --color-quest-hover: #e4fbff;             /* Quest button hover */
+  --color-quest-progress: #f0cd4e;          /* Quest in-progress yellow */
+  --color-quest-progress-hover: #fffbe9;    /* Quest in-progress hover */
+  --color-quest-reward: #6fd151;            /* Quest reward green */
+  --color-quest-reward-hover: #e5ffdc;      /* Quest reward hover */
+  --color-quest-action: #009322;            /* Quest action button */
+  --color-quest-action-hover: #14550d;      /* Quest action hover */
+
+  /* ========== FONT SYSTEM ========== */
+  /*
+   * Font Hierarchy:
+   * - title-1: Main decorative titles (largest)
+   * - title-2: Section headings, panel titles
+   * - title-3: Sub-headings, smaller titles
+   * - title-4: Button titles (decorative, smaller, dark)
+   * - text-1: Primary body text
+   * - text-2: Secondary/smaller text, captions
+   *
+   * Each font style includes: font-family, font-size, and default color
+   * Colors can be overridden in specific CSS files as needed
+   */
+
+  /* Title 1 - Main decorative titles */
+  --font-title-1-family: 'Berkshire Swash', serif;
+  --font-title-1-size: 28px;
+  --font-title-1-color: var(--color-modal-title);
+
+  /* Title 2 - Section headings, panel titles */
+  --font-title-2-family: 'Berkshire Swash', serif;
+  --font-title-2-size: 22px;
+  --font-title-2-color: var(--color-modal-title);
+
+  /* Title 3 - Sub-headings, smaller titles (always bold) */
+  --font-title-3-family: 'Lora', serif;
+  --font-title-3-size: 16px;
+  --font-title-3-weight: bold;
+  --font-title-3-color: var(--color-heading);
+
+  /* Title 4 - Button titles (decorative but smaller, dark text) */
+  --font-title-4-family: 'Berkshire Swash', serif;
+  --font-title-4-size: 18px;
+  --font-title-4-color: var(--color-text-black);
+
+  /* Text 1 - Primary body text */
+  --font-text-1-family: 'Arial', sans-serif;
+  --font-text-1-size: 14px;
+  --font-text-1-color: var(--color-text-primary);
+
+  /* Text 2 - Secondary/smaller text, captions */
+  --font-text-2-family: 'Arial', sans-serif;
+  --font-text-2-size: 12px;
+  --font-text-2-color: var(--color-text-secondary);
+
+  /* Legacy font aliases (for backwards compatibility during migration) */
+  --font-display: var(--font-title-1-family);
+  --font-body: var(--font-title-2-family);
+  --font-ui: var(--font-text-1-family);
+  --font-dialog: var(--font-text-1-family);
+
+  /* ========== SPACING ========== */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 10px;
+  --spacing-lg: 20px;
+
+  /* ========== LAYOUT ========== */
+  --nav-column-width: 60px;
+  --base-panel-width: 220px;
+  --header-height: 40px;
+}

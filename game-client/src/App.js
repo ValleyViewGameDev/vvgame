@@ -1,7 +1,8 @@
+import './UI/Styles/theme.css';  /* Import theme variables first */
 import './App.css';
 import './GameFeatures/Chat/Chat.css';
 import './VFX/VFX.css';
-import './UI/SharedButtons.css';
+import './UI/Buttons/SharedButtons.css';
 import './Render/Tooltip.css';
 import axios from 'axios';
 import API_BASE from './config.js';
@@ -51,10 +52,10 @@ import SettlementView from './ZoomedOut/SettlementView';
 import FrontierView from './ZoomedOut/FrontierView';
 import FrontierMiniMap from './ZoomedOut/FrontierMiniMap';
 
-import Modal from './UI/Modal';
-import RevivalModal from './UI/RevivalModal';
-import LevelUpModal from './UI/LevelUpModal';
-import LanguagePickerModal from './UI/LanguagePickerModal';
+import Modal from './UI/Modals/Modal';
+import RevivalModal from './UI/Modals/RevivalModal';
+import LevelUpModal from './UI/Modals/LevelUpModal';
+import LanguagePickerModal from './UI/Modals/LanguagePickerModal';
 import { useStrings } from './UI/StringsContext';
 import LANGUAGE_OPTIONS from './UI/Languages.json';
 import { getMayorUsername } from './GameFeatures/Government/GovUtils';
@@ -66,9 +67,9 @@ import DebugPanel from './Utils/debug';
 import InventoryPanel from './GameFeatures/Inventory/InventoryPanel';
 import WarehousePanel from './GameFeatures/Inventory/WarehousePanel';
 import TrophyPanel from './GameFeatures/Trophies/TrophyPanel.js';
-import HowToPanel from './UI/HowToPanel';
-import HowToMoneyPanel from './UI/HowToMoneyPanel';
-import HowToGemsPanel from './UI/HowToGemsPanel';
+import HowToPanel from './UI/Panels/HowToPanel';
+import HowToMoneyPanel from './UI/Panels/HowToMoneyPanel';
+import HowToGemsPanel from './UI/Panels/HowToGemsPanel';
 import QuestPanel from './GameFeatures/Quests/QuestPanel';
 import NPCPanel from './GameFeatures/NPCs/NPCsPanel.js';
 import BuildPanel from './GameFeatures/Build/BuildPanel';
@@ -101,14 +102,14 @@ import Outpost from './GameFeatures/Trading/Outpost';
 import Mailbox from './GameFeatures/Mailbox/Mailbox';
 import Store from './Store/Store';
 import OffSeasonModal from './GameFeatures/Seasons/OffSeasonModal.js';
-import TownNews from './UI/TownNews.js';
+import TownNews from './UI/Modals/TownNews.js';
 import SeasonPanel from './GameFeatures/Seasons/SeasonPanel';
 import SocialPanel from './GameFeatures/Social/SocialPanel';
 import CombatPanel from './GameFeatures/Combat/CombatPanel';
-import GoldBenefitsPanel from './UI/GoldBenefitsPanel';
-import ShareModal from './UI/ShareModal';
+import GoldBenefitsPanel from './UI/Panels/GoldBenefitsPanel';
+import ShareModal from './UI/Modals/ShareModal';
 
-import { usePanelContext } from './UI/PanelContext';
+import { usePanelContext } from './UI/Panels/PanelContext';
 import { useModalContext } from './UI/ModalContext';
 import { checkDeveloperStatus, updateBadge, getBadgeState } from './Utils/appUtils';
 import { useBulkOperation } from './UI/BulkOperationContext';
@@ -2181,10 +2182,12 @@ return (
 {/* //////////////////////  Header  //////////////////////// */}
 
     <header className="app-header">
-            
-        <div className="header-controls-left">
 
-  <h1 style={{ transform: 'translateX(30px)', marginRight: '20px' }}>{strings[0]}</h1>
+        <div className="header-title">
+          <h1>{strings[0]}</h1>
+        </div>
+
+        <div className="header-controls-left">
 
         {currentPlayer?.accountStatus === 'Gold' && (
           <div className="shared-buttons">
@@ -2312,7 +2315,7 @@ return (
           if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
           openPanel('FarmingPanel');
         }}
-      >🚜</button>
+      >🌱</button>
       <button 
         className={`nav-button ${activePanel === 'ToolsPanel' ? 'selected' : ''}`} title={strings[12012]} disabled={!currentPlayer} 
         onClick={() => {
@@ -2387,7 +2390,7 @@ return (
 {/* ///////////////////  Base Panel  ///////////////////// */}
 
     <div className="base-panel">
-      
+
       {/* Frontier Mini Map */}
       <FrontierMiniMap 
         currentPlayer={currentPlayer} 
@@ -2440,7 +2443,7 @@ return (
             }
           }}
         >
-          <span style={{ fontFamily: 'Chewy', fontWeight: 'bold', color: '#358337', textAlign: 'center', display: 'block', fontSize: '18px' }}>
+          <span style={{ fontFamily: 'Berkshire Swash', fontWeight: 'bold', color: '#358337', textAlign: 'center', display: 'block', fontSize: '18px' }}>
             Hi, {currentPlayer?.icon || '😊'} {currentPlayer?.username || 'Loading...'}
           </span>
           {strings[10150]} {" "} {getDerivedLevel(currentPlayer, masterXPLevels)}<br />
@@ -2453,7 +2456,7 @@ return (
         <>
           <div className="shared-buttons">
             <button className="btn-basic" onClick={() => openPanel('SeasonPanel')}>
-              <span style={{ fontFamily: 'Chewy', fontWeight: 'bold', color: '#358337', textAlign: 'center', display: 'block', fontSize: '18px' }}>
+              <span style={{ fontFamily: 'Berkshire Swash', fontWeight: 'bold', color: '#358337', textAlign: 'center', display: 'block', fontSize: '18px' }}>
                 {strings[10113]} {seasonData?.type || "[Season unknown]"}
               </span>
               {strings[10114]}<br /><strong>{countdowns.seasons}</strong>
@@ -2464,7 +2467,7 @@ return (
         <>
           <div className="shared-buttons">
             <button className="btn-basic" onClick={() => openPanel('SeasonPanel')}>
-              <span style={{ fontFamily: 'Chewy', fontWeight: 'bold', color: '#358337', textAlign: 'center', display: 'block', fontSize: '18px' }}>
+              <span style={{ fontFamily: 'Berkshire Swash', fontWeight: 'bold', color: '#358337', textAlign: 'center', display: 'block', fontSize: '18px' }}>
                 {strings[10113]} {seasonData?.type || "[Season unknown]"}
               </span>
               {strings[10115]}<br /><strong>{countdowns.seasons}</strong>

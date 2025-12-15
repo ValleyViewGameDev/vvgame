@@ -1,17 +1,17 @@
 import API_BASE from '../../config';
-import React, { useState, useEffect, useContext } from 'react';
-import Panel from '../../UI/Panel';
+import React, { useState, useEffect } from 'react';
+import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
-import '../../UI/ResourceButton.css';
-import ResourceButton from '../../UI/ResourceButton';
+import '../../UI/Buttons/ResourceButton.css';
+import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { canAfford, hasRoomFor } from '../../Utils/InventoryManagement';
 import { spendIngredients, gainIngredients, refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { useStrings } from '../../UI/StringsContext';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
-import TransactionButton from '../../UI/TransactionButton';
-import '../../UI/SharedButtons.css';
+import TransactionButton from '../../UI/Buttons/TransactionButton';
+import '../../UI/Buttons/SharedButtons.css';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import './ScrollStation.css'; // Import for shared station panel styles

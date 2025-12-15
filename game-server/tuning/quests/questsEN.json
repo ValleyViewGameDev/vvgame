@@ -75,7 +75,7 @@
     "reward": "Carrot",
     "rewardqty": 20,
     "xp": 10,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Grower",
     "goal1qty": 1
   },
@@ -109,7 +109,7 @@
     "reward": "Wood",
     "rewardqty": 10,
     "xp": 10,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Axe",
     "goal1qty": 1
   },
@@ -137,7 +137,7 @@
     "reward": "Olive",
     "rewardqty": 4,
     "xp": 15,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Mechanics",
     "goal1qty": 1
   },
@@ -151,7 +151,7 @@
     "reward": "Money",
     "rewardqty": 150,
     "xp": 5,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Backpack",
     "goal1qty": 1
   },
@@ -177,7 +177,7 @@
     "reward": "Money",
     "rewardqty": 100,
     "xp": 15,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Masonry",
     "goal1qty": 1
   },
@@ -210,7 +210,7 @@
     "reward": "Sugarcane",
     "rewardqty": 6,
     "xp": 5,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Husbandry",
     "goal1qty": 1
   },
@@ -309,7 +309,7 @@
     "reward": "Honey",
     "rewardqty": 6,
     "xp": 15,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Builder",
     "goal1qty": 1
   },
@@ -324,7 +324,7 @@
     "reward": "Tulip",
     "rewardqty": 2,
     "xp": 20,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Masonry",
     "goal1qty": 1
   },
@@ -339,7 +339,7 @@
     "reward": "Scroll",
     "rewardqty": 2,
     "xp": 20,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Chemistry",
     "goal1qty": 1
   },
@@ -354,7 +354,7 @@
     "reward": "Grapes",
     "rewardqty": 24,
     "xp": 30,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Winemaker",
     "goal1qty": 1
   },
@@ -510,7 +510,7 @@
     "reward": "Money",
     "rewardqty": 100,
     "xp": 15,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Cooking",
     "goal1qty": 1
   },
@@ -685,7 +685,7 @@
     "reward": "Ink",
     "rewardqty": 12,
     "xp": 25,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Textiles",
     "goal1qty": 1
   },
@@ -730,7 +730,7 @@
     "reward": "Money",
     "rewardqty": 10000,
     "xp": 25,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Artistry",
     "goal1qty": 1
   },
@@ -761,7 +761,7 @@
     "reward": "Money",
     "rewardqty": 1000,
     "xp": 25,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Tailor",
     "goal1qty": 1
   },
@@ -806,7 +806,7 @@
     "reward": "Pelt",
     "rewardqty": 15,
     "xp": 10,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Combat",
     "goal1qty": 1
   },
@@ -819,7 +819,7 @@
     "reward": "Cloth",
     "rewardqty": 12,
     "xp": 10,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Scout",
     "goal1qty": 1
   },
@@ -832,7 +832,7 @@
     "reward": "Mushroom",
     "rewardqty": 12,
     "xp": 20,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Flurry",
     "goal1qty": 1
   },
@@ -845,7 +845,7 @@
     "reward": "Sunflower",
     "rewardqty": 10,
     "xp": 30,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Focus",
     "goal1qty": 1
   },
@@ -858,7 +858,7 @@
     "reward": "Scroll",
     "rewardqty": 3,
     "xp": 40,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Fortitude",
     "goal1qty": 1
   },
@@ -982,7 +982,7 @@
     "reward": "Gem",
     "rewardqty": 15,
     "xp": 20,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Unbreakable",
     "goal1qty": 1
   },
@@ -996,7 +996,7 @@
     "reward": "Gem",
     "rewardqty": 5,
     "xp": 20,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Pinpoint",
     "goal1qty": 1
   },
@@ -1037,7 +1037,7 @@
     "reward": "Gem",
     "rewardqty": 1,
     "xp": 10,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Politics",
     "goal1qty": 1
   },
@@ -1063,7 +1063,7 @@
     "reward": "Gem",
     "rewardqty": 2,
     "xp": 20,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Education",
     "goal1qty": 1
   },
@@ -1076,7 +1076,7 @@
     "reward": "Gem",
     "rewardqty": 3,
     "xp": 30,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Law",
     "goal1qty": 1
   },
@@ -1089,7 +1089,7 @@
     "reward": "Gem",
     "rewardqty": 2,
     "xp": 40,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Medicine",
     "goal1qty": 1
   },
@@ -1102,7 +1102,7 @@
     "reward": "Gem",
     "rewardqty": 3,
     "xp": 50,
-    "goal1action": "Gain skill with",
+    "goal1action": "Acquire",
     "goal1item": "Surgery",
     "goal1qty": 1
   },

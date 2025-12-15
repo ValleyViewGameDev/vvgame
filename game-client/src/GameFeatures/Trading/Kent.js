@@ -1,13 +1,13 @@
 import API_BASE from '../../config.js';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Panel from '../../UI/Panel';
-import ResourceButton from '../../UI/ResourceButton';
-import { refreshPlayerAfterInventoryUpdate, spendIngredients, gainIngredients, canAfford } from '../../Utils/InventoryManagement';
+import Panel from '../../UI/Panels/Panel';
+import ResourceButton from '../../UI/Buttons/ResourceButton';
+import { spendIngredients, gainIngredients, canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { updateKentOffersAfterTrade } from './KentOfferLogic';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
-import '../../UI/ResourceButton.css'; // ✅ Ensure the correct path
+import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 import './Kent.css'; // Kent-specific styles
 import { formatCountdown } from '../../UI/Timers.js';
 import { useStrings } from '../../UI/StringsContext';

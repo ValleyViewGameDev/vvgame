@@ -2,9 +2,9 @@ import API_BASE from '../../config';
 import axios from 'axios';
 import React, { useState, useEffect, useContext } from 'react';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
-import Modal from '../../UI/Modal';
-import TransactionButton from '../../UI/TransactionButton';
-import '../../UI/SharedButtons.css';
+import Modal from '../../UI/Modals/Modal';
+import TransactionButton from '../../UI/Buttons/TransactionButton';
+import '../../UI/Buttons/SharedButtons.css';
 import './Mailbox.css';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
@@ -114,7 +114,7 @@ function Mailbox({
             if (match) {
               const [, qty, skillType] = match;
               if (skills.some(s => s.type === skillType)) {
-                await trackQuestProgress(currentPlayer, 'Gain skill with', skillType, parseInt(qty), setCurrentPlayer);
+                await trackQuestProgress(currentPlayer, 'Acquire', skillType, parseInt(qty), setCurrentPlayer);
               }
             }
           }
@@ -241,7 +241,7 @@ const renderRewards = (rewards) => {
                   )}
                   <button
                     className="btn-basic btn-neutral btn-modal-small"
-                    style={{ width: '40px', backgroundColor: '#e0e0e0' }}
+                    style={{ width: '40px', backgroundColor: 'var(--color-btn-active)' }}
                     title="Delete"
                     onClick={() => {
                       if (window.confirm("Are you sure you want to delete this message?")) {

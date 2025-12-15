@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import Modal from '../../UI/Modal';
-import TransactionButton from '../../UI/TransactionButton';
+import Modal from '../../UI/Modals/Modal';
+import TransactionButton from '../../UI/Buttons/TransactionButton';
 import axios from 'axios';
 import API_BASE from '../../config';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
-import '../../UI/SharedButtons.css';
+import '../../UI/Buttons/SharedButtons.css';
 import './GlobalMarketModal.css';
 
 /**

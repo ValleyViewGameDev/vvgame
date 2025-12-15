@@ -1,8 +1,8 @@
 import API_BASE from '../../config';
 import React, { useState, useEffect, useContext } from 'react';
-import Panel from '../../UI/Panel';
+import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
-import ResourceButton from '../../UI/ResourceButton';
+import ResourceButton from '../../UI/Buttons/ResourceButton';
 import FloatingTextManager from '../../UI/FloatingText';
 import { refreshPlayerAfterInventoryUpdate } from '../../Utils/InventoryManagement';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
@@ -12,15 +12,15 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { spendIngredients, gainIngredients, canAfford } from '../../Utils/InventoryManagement';
 import { getIngredientDetails } from '../../Utils/ResourceHelpers';
-import TransactionButton from '../../UI/TransactionButton';
+import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { formatCountdown } from '../../UI/Timers';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { selectWeightedRandomItem, getDropQuantity } from '../../Economy/DropRates';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import { getPersonalizedPetRewards } from '../../Utils/WarehouseMaterials';
-import '../../UI/SharedButtons.css';
-import '../../UI/ResourceButton.css'; 
+import '../../UI/Buttons/SharedButtons.css';
+import '../../UI/Buttons/ResourceButton.css'; 
 import './PetPanel.css';
 
 // Helper function to get a random reward from pets source with rarity weighting

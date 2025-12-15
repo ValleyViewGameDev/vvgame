@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import API_BASE from '../../config';
-import Modal from '../../UI/Modal';
+import Modal from '../../UI/Modals/Modal';
 import { calculateBulkHarvestCapacity, buildBulkHarvestOperations } from './BulkHarvestUtils';
 import { calculateSkillMultiplier } from '../../Utils/InventoryManagement';
 import { formatCollectionResults } from '../../UI/StatusBar/CollectionFormatters';
@@ -12,7 +12,7 @@ import { isACrop } from '../../Utils/ResourceHelpers';
 import { calculateBulkWarehouseDrops, aggregateWarehouseDrops } from '../../Utils/WarehouseMaterials';
 import { gainIngredients } from '../../Utils/InventoryManagement';
 import { selectWeightedRandomItem } from '../../Economy/DropRates';
-import '../../UI/SharedButtons.css';
+import '../../UI/Buttons/SharedButtons.css';
 
 // Component for the bulk harvest selection modal
 export function BulkHarvestModal({ 

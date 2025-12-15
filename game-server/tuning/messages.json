@@ -1,8 +1,8 @@
 [
     {
       "id": 1,
-      "title": "🤠 Welcome to Valley View!",
-      "body": "Thanks for joining the world of Valley View. Here's a little something to get you started. Don't forget to check out our Discord server for some help and community. The link is in the side panel of the game.",
+      "title": "👸 Welcome to Secrets of Elsinore!",
+      "body": "Thanks for joining the world of Elsinore. Here's a little something to get you started. Don't forget to check out our Discord server for some help and community. The link is in the side panel of the game.",
       "rewards": [
         { "item": "Money", "qty": 500 }, 
         { "item": "Gem", "qty": 25 }, 
@@ -16,7 +16,7 @@
     },
     {
       "id": 5,
-      "title": "🤠 Just another day in Valley View!",
+      "title": "👸 Just another day in Elsinore!",
       "body": "Don't forget to enjoy the day :)",
       "rewards": [{ "item": "Money", "qty": 50 }, { "item": "Wood", "qty": 5 }],
       "everyoneRewards": true,
@@ -73,7 +73,7 @@
 
     {
       "id": 1000,
-      "title": "🤠 Thanks for playing Valley View!",
+      "title": "👸 Thanks for playing Secrets of Elsinore!",
       "body": "We're so glad you're spending time with us. Here are some sweets to show our appreciation.",
       "rewards": [{ "item": "Money", "qty": 1000 }, { "item": "Honey", "qty": 5 }, { "item": "Sugarcane", "qty": 15 }],
       "everyoneRewards": true,

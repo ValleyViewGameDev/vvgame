@@ -1,0 +1,235 @@
+/* Note: Theme variables are defined in /UI/Styles/theme.css */
+
+/* Container styling with vertical buffer */
+.shared-buttons {
+  margin: 8px 0;
+}
+
+/* Base button styling - fallback only */
+.shared-buttons button {
+  /* Just the colors as a fallback */
+  background-color: var(--color-btn-primary);
+  color: var(--color-btn-primary-text);
+}
+
+/* btn-basic - the foundation that all buttons should use */
+.shared-buttons .btn-basic {
+  /* Core appearance */
+  background-color: var(--color-btn-primary);
+  color: var(--color-btn-primary-text);
+  border: none;
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-family: var(--font-title-3-family);
+  font-size: 14px;
+  font-weight: var(--font-title-3-weight, bold);
+  cursor: pointer;
+  text-align: center;
+  width: 100%;
+  box-shadow: 0 5px 0 var(--color-shadow-button);
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  line-height: normal;
+}
+
+.shared-buttons .btn-basic:hover {
+  background-color: var(--color-btn-hover-light);
+}
+
+.shared-buttons .btn-basic:active {
+  background-color: var(--color-btn-active);
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--color-shadow-button);
+}
+
+/* LAYOUT MODIFIERS - only override what's different */
+
+/* btn-header - when combined with btn-basic, only override specific properties */
+.shared-buttons .btn-basic.btn-header {
+  width: auto;
+  line-height: 15px;
+  display: flex;
+  align-items: center;
+}
+
+/* btn-modal - when combined with btn-basic */
+.shared-buttons .btn-basic.btn-modal {
+  width: 120px;
+}
+
+/* btn-modal-small - when combined with btn-basic */
+.shared-buttons .btn-basic.btn-modal-small {
+  width: 80px;
+  padding: 6px 8px;
+  font-size: 12px;
+}
+
+/* btn-mini - when combined with btn-basic, for very small inline buttons */
+.shared-buttons .btn-basic.btn-mini {
+  width: auto;
+  padding: 4px 8px;
+  font-size: 11px;
+  border-radius: 6px;
+  box-shadow: 0 2px 0 var(--color-shadow-button);
+  display: inline-block;
+  margin-left: 8px;
+}
+
+/* Disabled state for all buttons */
+.shared-buttons .btn-basic:disabled {
+  background-color: var(--color-btn-disabled);
+  color: var(--color-btn-disabled-text);
+  cursor: not-allowed;
+  box-shadow: 0 2px 0 rgba(92, 91, 91, 0.3);
+}
+
+.shared-buttons .btn-basic:disabled:hover {
+  background-color: var(--color-btn-disabled);
+  transform: none;
+}
+
+.shared-buttons .btn-basic:disabled:active {
+  transform: none;
+  box-shadow: 0 2px 0 rgba(92, 91, 91, 0.3);
+}
+
+/* COLOR MODIFIERS - only override colors */
+
+/* Success buttons (green) */
+.shared-buttons .btn-success {}
+
+.shared-buttons .btn-success:hover {
+  background-color: var(--color-btn-hover-light);
+}
+
+/* Sell buttons (darker green) */
+.shared-buttons .btn-sell {
+  background-color: var(--color-btn-sell);
+  color: var(--color-text-white);
+}
+
+.shared-buttons .btn-sell:hover {
+  background-color: var(--color-btn-sell-hover);
+}
+
+.shared-buttons .btn-sell:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--color-shadow-button);
+}
+
+/* Collect buttons (same as sell) */
+.shared-buttons .btn-collect {
+  background-color: var(--color-btn-sell);
+  color: var(--color-text-white);
+}
+
+.shared-buttons .btn-collect:hover {
+  background-color: var(--color-btn-sell-hover);
+}
+
+.shared-buttons .btn-collect:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--color-shadow-button);
+}
+
+/* Danger buttons (red) */
+.shared-buttons .btn-danger {
+  background-color: var(--color-btn-danger);
+}
+
+.shared-buttons .btn-danger:hover {
+  background-color: var(--color-btn-hover-light);
+}
+
+.shared-buttons .btn-danger:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--color-shadow-button);
+}
+
+/* Neutral buttons (gray) */
+.shared-buttons .btn-neutral {
+  background-color: var(--color-btn-active);
+}
+
+.shared-buttons .btn-neutral:hover {
+  background-color: var(--color-btn-hover-light);
+}
+
+.shared-buttons .btn-neutral:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--color-shadow-button);
+}
+
+/* Gold buttons (special animated gradient) */
+.shared-buttons .btn-gold {
+  background: linear-gradient(135deg, #fff176 0%, #ffea00 50%, #fdd835 100%);
+  color: rgb(0, 0, 0);
+  font-weight: bold;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
+}
+
+.shared-buttons .btn-gold::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0) 30%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  transform: rotate(45deg) translateY(-100%);
+  transition: transform 0.6s ease;
+}
+
+.shared-buttons .btn-gold:hover {
+  background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 50%, #ff9800 100%);
+}
+
+.shared-buttons .btn-gold:hover::before {
+  transform: rotate(45deg) translateY(100%);
+}
+
+.shared-buttons .btn-gold:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--color-shadow-button);
+}
+
+/* Social button colors - using brand-specific colors */
+.shared-buttons .facebook-btn {
+  background-color: #3b5998;
+  color: var(--color-text-white);
+}
+
+.shared-buttons .twitter-btn {
+  background-color: #000000;
+  color: var(--color-text-white);
+}
+
+.shared-buttons .reddit-btn {
+  background-color: #ff4500;
+  color: var(--color-text-white);
+}
+
+.shared-buttons .discord-btn {
+  background-color: #7289da;
+  color: var(--color-text-white);
+}
+
+/* Social button hover states */
+.shared-buttons .facebook-btn:hover,
+.shared-buttons .twitter-btn:hover,
+.shared-buttons .reddit-btn:hover,
+.shared-buttons .discord-btn:hover {
+  opacity: 0.85;
+}
+
+/* Context-specific adjustments */
+.app-header .shared-buttons {
+  margin: 2px 0;
+}

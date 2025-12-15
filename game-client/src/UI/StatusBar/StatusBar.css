@@ -1,22 +1,25 @@
+/* Note: Theme variables are defined in /UI/Styles/theme.css */
+
 /* Status Bar */
 .status-bar {
   position: fixed;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-text-1-family);
   font-weight: bold;
-  color: #666;
+  color: var(--color-text-muted);
   top: 60px; /* Positioned under header */
   left: 300px; /* Start after the base panel */
   height: 24px;
   width: calc(100% - 300px); /* Adjust width to account for left position */
-  background-color: rgb(255, 251, 179); /* Tan background */
+  background-color: var(--color-bg-panel);
   line-height: 20px; /* Match height for vertical centering */
-  font-size: 13px; /* Adjust font size as needed */
+  font-size: var(--font-text-2-size); /* Use text-2 size for status bar */
   padding: 0px 10px; /* Add some padding for aesthetics */
   text-align: left; /* Left align text */
   z-index: 150; /* High enough to prevent conflicts */
   white-space: nowrap; /* Prevent text wrapping */
   display: flex;
   align-items: center; /* Vertically center content */
+  border-bottom: 1px solid #ddc8a9; /* Subtle separator from grid - darker yellow to match panel */
 }
 
 .status-bar-viewport {
@@ -57,7 +60,7 @@
 
 .status-separator {
   display: inline-block;
-  color: #666;
+  color: var(--color-text-muted);
   font-weight: bold;
   margin: 0 5px;
 }
@@ -66,9 +69,9 @@
 .status-bar-arrow {
   height: 24px;
   width: 30px;
-  background-color: rgb(255, 251, 179);
+  background-color: var(--color-bg-panel);
   border: none;
-  color: #333;
+  color: var(--color-text-primary);
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
@@ -80,7 +83,7 @@
 }
 
 .status-bar-arrow:hover {
-  background-color: rgb(255, 251, 179);
+  background-color: var(--color-bg-panel);
 }
 
 .status-bar-arrow-right {

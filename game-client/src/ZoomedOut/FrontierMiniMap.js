@@ -130,6 +130,59 @@ const FrontierMiniMap = ({
 
   return (
     <div className="frontier-mini-map">
+      {/* Transit buttons in outer container corners */}
+      {!isInDungeon && (
+        <span
+          className="minimap-signpost-button home-button"
+          onClick={() => handleTransitSignpost(
+            currentPlayer,
+            "Signpost Home",
+            setCurrentPlayer,
+            setGridId,
+            setGrid,
+            setTileTypes,
+            setResources,
+            updateStatus,
+            TILE_SIZE,
+            currentPlayer.skills,
+            closeAllPanels,
+            bulkOperationContext,
+            masterResources,
+            strings,
+            masterTrophies,
+            transitionFadeControl
+          )}
+          title={strings && strings[107] ? strings[107] : "Go Home"}
+        >
+          🏠
+        </span>
+      )}
+      {!isInDungeon && (
+        <span
+          className="minimap-signpost-button town-button"
+          onClick={() => handleTransitSignpost(
+            currentPlayer,
+            "Signpost Town Home",
+            setCurrentPlayer,
+            setGridId,
+            setGrid,
+            setTileTypes,
+            setResources,
+            updateStatus,
+            TILE_SIZE,
+            currentPlayer.skills,
+            closeAllPanels,
+            bulkOperationContext,
+            masterResources,
+            strings,
+            masterTrophies,
+            transitionFadeControl
+          )}
+          title={strings && strings[108] ? strings[108] : "Go to Town"}
+        >
+          🏛️
+        </span>
+      )}
       <div className="mini-map-grid">
         {frontierGrid.map((row, rowIndex) => (
           <div key={rowIndex} className="mini-map-row">
@@ -137,7 +190,7 @@ const FrontierMiniMap = ({
               // Determine cell type and class
               let cellClass = 'default-cell';
               let cellTitle = `Grid (${cell.row}, ${cell.col})`;
-              
+
               if (cell.isPlayer) {
                 cellClass = 'player-cell';
                 cellTitle = `You are here (${cell.row}, ${cell.col})`;
@@ -145,7 +198,7 @@ const FrontierMiniMap = ({
                 cellClass = 'homestead-cell';
                 cellTitle = `Your homestead (${cell.row}, ${cell.col})`;
               }
-              
+
               return (
                 <div
                   key={cell.key}
@@ -157,91 +210,27 @@ const FrontierMiniMap = ({
           </div>
         ))}
       </div>
-      <div className="mini-map-info">
-        {!isInDungeon && (
-          <span 
-            className="minimap-signpost-button home-button"
-            onClick={() => handleTransitSignpost(
-              currentPlayer,
-              "Signpost Home",
-              setCurrentPlayer,
-              setGridId,
-              setGrid,
-              setTileTypes,
-              setResources,
-              updateStatus,
-              TILE_SIZE,
-              currentPlayer.skills,
-              closeAllPanels,
-              bulkOperationContext,
-              masterResources,
-              strings,
-              masterTrophies,
-              transitionFadeControl
-            )}
-            title={strings && strings[107] ? strings[107] : "Go Home"}
-          >
-            🏠
-          </span>
-        )}
-        <span className="minimap-title">
-          {isInDungeon
-            ? (() => {
-                const countdown = countdowns?.dungeon || '--:--:--';
-                let isLessThanOneMinute = false;
+      {/* Only show dungeon timer when in dungeon */}
+      {isInDungeon && (
+        <div className="mini-map-dungeon-info">
+          {(() => {
+            const countdown = countdowns?.dungeon || '--:--:--';
+            const days = countdown.match(/(\d+)d/)?.[1] || '0';
+            const hours = countdown.match(/(\d+)h/)?.[1] || '0';
+            const minutes = countdown.match(/(\d+)m/)?.[1] || '0';
+            const isLessThanOneMinute = parseInt(days, 10) === 0 && parseInt(hours, 10) === 0 && parseInt(minutes, 10) === 0;
 
-                // Parse format: "1d 23h 53m 43s" or "23h 53m 43s" or "53m 43s" or "43s"
-                const days = countdown.match(/(\d+)d/)?.[1] || '0';
-                const hours = countdown.match(/(\d+)h/)?.[1] || '0';
-                const minutes = countdown.match(/(\d+)m/)?.[1] || '0';
-
-                const daysNum = parseInt(days, 10);
-                const hoursNum = parseInt(hours, 10);
-                const minutesNum = parseInt(minutes, 10);
-
-                // Less than 1 minute means: 0 days, 0 hours, 0 minutes
-                isLessThanOneMinute = daysNum === 0 && hoursNum === 0 && minutesNum === 0;
-
-                return (
-                  <span style={{
-                    color: isLessThanOneMinute ? '#a71616ff' : 'inherit',
-                    fontWeight: isLessThanOneMinute ? 'bold' : 'normal'
-                  }}>
-                    Dungeon closes in<br />
-                    {countdown}
-                  </span>
-                );
-              })()
-            : (strings && strings[2] ? strings[2] : "Frontier Map")
-          }
-        </span>
-        {!isInDungeon && (
-          <span 
-            className="minimap-signpost-button train-button"
-            onClick={() => handleTransitSignpost(
-              currentPlayer,
-              "Signpost Town Home",
-              setCurrentPlayer,
-              setGridId,
-              setGrid,
-              setTileTypes,
-              setResources,
-              updateStatus,
-              TILE_SIZE,
-              currentPlayer.skills,
-              closeAllPanels,
-              bulkOperationContext,
-              masterResources,
-              strings,
-              masterTrophies,
-              transitionFadeControl
-            )}
-            title={strings && strings[108] ? strings[108] : "Go to Town"}
-          >
-            🏛️
-          </span>
-        )}
-      </div>
+            return (
+              <span style={{
+                color: isLessThanOneMinute ? '#a71616ff' : 'inherit',
+                fontWeight: isLessThanOneMinute ? 'bold' : 'normal'
+              }}>
+                Dungeon closes in {countdown}
+              </span>
+            );
+          })()}
+        </div>
+      )}
     </div>
   );
 };

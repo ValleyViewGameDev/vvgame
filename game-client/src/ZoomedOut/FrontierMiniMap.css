@@ -1,17 +1,26 @@
 /* Frontier Mini Map Styles */
 
 .frontier-mini-map {
+  position: relative; /* For absolute positioning of corner buttons */
   background: rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   padding: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   text-align: center;
+}
+
+/* Container for map and overlayed buttons */
+.mini-map-container {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  margin: 0 auto;
 }
 
 .mini-map-grid {
   width: 128px;  /* 64 cells * 2px each = 128px */
   height: 128px; /* 64 cells * 2px each = 128px */
-  margin: 0 auto;
+  margin: 0 auto; /* Center the grid horizontally */
   border: 1px solid rgba(255, 255, 255, 0.3);
   background: #000;
   image-rendering: pixelated; /* Keep crisp pixels */
@@ -45,43 +54,44 @@
   box-shadow: 0 0 2px #ff8c00; /* Subtle orange glow */
 }
 
-.mini-map-info {
-  font-size: 12px;
+/* Dungeon timer info (only shown when in dungeon) */
+.mini-map-dungeon-info {
+  font-size: 11px;
   color: white;
-  margin: 5px auto 0 auto; /* Center the info section under the map */
-  font-family: Arial, sans-serif; /* Standard Arial font */
-  font-weight: normal;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 128px; /* Match the width of the mini-map-grid */
-}
-
-.home-button {
-  flex: 0 0 auto;
-}
-
-.train-button {
-  flex: 0 0 auto;
-}
-
-.minimap-title {
-  flex: 1;
+  margin-top: 4px;
+  font-family: Arial, sans-serif;
   text-align: center;
 }
 
+/* Transit buttons positioned in corners */
 .minimap-signpost-button {
+  position: absolute;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 16px;
   padding: 2px;
   transition: transform 0.1s ease;
   user-select: none;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  line-height: 1;
 }
 
 .minimap-signpost-button:hover {
-  transform: scale(1.1);
+  transform: scale(1.15);
+  background: rgba(0, 0, 0, 0.7);
 }
 
 .minimap-signpost-button:active {
-  transform: scale(0.9);
+  transform: scale(0.95);
+}
+
+.home-button {
+  top: 2px;
+  left: 2px;
+}
+
+.town-button {
+  top: 2px;
+  right: 2px;
 }

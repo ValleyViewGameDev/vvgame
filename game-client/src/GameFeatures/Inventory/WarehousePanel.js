@@ -1,13 +1,12 @@
 import API_BASE from '../../config';
-import React, { useState, useEffect, useContext } from 'react';
-import Panel from '../../UI/Panel';
+import React, { useState, useEffect } from 'react';
+import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
-import ResourceButton from '../../UI/ResourceButton';
+import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { canAfford, isCurrency } from '../../Utils/InventoryManagement';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
-import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
 import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
 import './WarehousePanel.css';
 

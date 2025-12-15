@@ -10,7 +10,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { playConversation, calculateModifiedChance } from './Conversation';
 import ConversationManager from './ConversationManager';
-import '../../UI/SharedButtons.css';
+import '../../UI/Buttons/SharedButtons.css';
 
 const RelationshipCard = ({
   currentPlayer,

@@ -3,7 +3,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import { useStrings } from '../../UI/StringsContext';
 import { isCurrency } from '../../Utils/InventoryManagement';
 import './ManageContentsModal.css';
-import '../../UI/SharedButtons.css';
+import '../../UI/Buttons/SharedButtons.css';
 
 const ManageContentsModal = ({
   inventory,

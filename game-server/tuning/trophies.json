@@ -37,7 +37,7 @@
     },
     {
         "name": "Meet the Cast",
-        "tooltip": "Greet all of the non-player characters in Valley View.",
+        "tooltip": "Greet all of the non-player characters in Elsinore.",
         "type": "Event",
         "visible": true,
         "reward": 1
@@ -51,7 +51,7 @@
     },
     {
         "name": "Fighter",
-        "tooltip": "Defeat the enemies of Valley View.",
+        "tooltip": "Defeat the enemies of Elsinore.",
         "type": "Progress",
         "progress": [ 1, 10, 50, 100, 1000, 5000, 10000, 20000 ],
         "visible": true,
