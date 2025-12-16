@@ -1690,6 +1690,19 @@ useEffect(() => {
   const handleKeyDown = (event) => {
     if (activeModal) { return; } // Keyboard input disabled while modal is open
     if (isOffSeason) { return; } // Keyboard input disabled while offseason
+
+    // Handle zoom shortcuts (work at any zoom level)
+    if (event.key === '-' || event.key === '_') {
+      zoomOut();
+      event.preventDefault();
+      return;
+    }
+    if (event.key === '=' || event.key === '+') {
+      zoomIn();
+      event.preventDefault();
+      return;
+    }
+
     if (zoomLevel === 'frontier' || zoomLevel === 'settlement') { return; }  // Prevent input if zoomed out
     const activeElement = document.activeElement;
     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; } // Prevent movement if a text input is focused
