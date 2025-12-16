@@ -1892,4 +1892,39 @@ router.post('/grids-tiles', async (req, res) => {
   }
 });
 
+// POST /api/set-all-grids-visited - Debug: Mark all 4096 grids as visited
+router.post('/set-all-grids-visited', async (req, res) => {
+  const { playerId } = req.body;
+
+  if (!playerId) {
+    return res.status(400).json({ error: 'Player ID is required.' });
+  }
+
+  try {
+    const player = await Player.findById(playerId);
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
+    }
+
+    // Create a buffer with all 4096 bits set to 1
+    // 4096 bits = 512 bytes, all set to 0xFF (255)
+    const allVisitedBuffer = Buffer.alloc(512, 0xFF);
+
+    player.gridsVisited = allVisitedBuffer;
+    player.markModified('gridsVisited');
+    await player.save();
+
+    console.log(`📍 [DEBUG] Set all grids visited for player ${player.username}`);
+
+    res.json({
+      success: true,
+      gridsVisited: player.gridsVisited
+    });
+
+  } catch (error) {
+    console.error('Error setting all grids visited:', error);
+    res.status(500).json({ error: 'Failed to set all grids visited.' });
+  }
+});
+
 module.exports = router;

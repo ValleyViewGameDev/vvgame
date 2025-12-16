@@ -962,6 +962,37 @@ const handleGetRich = async () => {
     }
   };
 
+  const handleSetAllGridsVisited = async () => {
+    try {
+      const playerId = currentPlayer?.playerId;
+      if (!playerId) {
+        console.error('No player ID found. Cannot set all grids visited.');
+        return;
+      }
+
+      const response = await axios.post(`${API_BASE}/api/set-all-grids-visited`, {
+        playerId
+      });
+
+      if (response.data.success) {
+        // Update local player state with the new gridsVisited buffer
+        setCurrentPlayer(prev => ({
+          ...prev,
+          gridsVisited: response.data.gridsVisited
+        }));
+
+        console.log('✅ All grids marked as visited');
+        updateStatus('✅ All 4096 grids marked as visited.');
+      } else {
+        console.error('❌ Failed to set all grids visited:', response.data);
+        updateStatus('❌ Failed to set all grids visited.');
+      }
+    } catch (error) {
+      console.error('❌ Error setting all grids visited:', error);
+      updateStatus('❌ Error setting all grids visited.');
+    }
+  };
+
   const handleDeleteOrphanedGrid = async (gridId) => {
     if (!gridId) {
       alert("Please enter a Grid ID.");
@@ -1126,6 +1157,9 @@ const handleGetRich = async () => {
       </div>
       <div className="shared-buttons">
         <button className="btn-basic btn-neutral" onClick={handleClearTrophies}> Clear Trophies </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success" onClick={handleSetAllGridsVisited}> Set All Grids Visited </button>
       </div>
       <div className="shared-buttons">
         <button className="btn-basic btn-success" onClick={handleResetFTUE}> Reset FTUE </button>

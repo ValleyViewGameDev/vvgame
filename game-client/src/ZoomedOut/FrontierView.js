@@ -205,10 +205,13 @@ const FrontierView = ({
     }
   };
 
-  const renderMiniGrid = (tile) => {
+  const renderMiniGrid = (tile, settlementRow, settlementCol) => {
     const tileData = frontierTileData[tile.settlementType] || Array(8).fill(Array(8).fill(""));
     const settlementGrid = settlementGrids[tile.settlementId]?.grid || [];
     const flatSettlementGrid = settlementGrid.flat();
+
+    // Check if this is a pure valley settlement (all grids are valleys)
+    const isPureValleySettlement = ['valley0Set', 'valley1Set', 'valley2Set', 'valley3Set'].includes(tile.settlementType);
 
     return (
       <div className="mini-grid">
@@ -221,10 +224,21 @@ const FrontierView = ({
             let content = cell;
             let cellStyle = {};
 
-            // Check if this is a visited valley grid
-            const isValleyType = gridData?.gridType && ['valley0', 'valley1', 'valley2', 'valley3'].includes(gridData.gridType);
-            const hasBeenVisited = gridData?.gridCoord !== undefined &&
-                                   isGridVisited(currentPlayer.gridsVisited, gridData.gridCoord);
+            // Determine if this is a valley grid
+            // Use API data if available, otherwise infer from settlement type
+            let isValleyType = false;
+            if (gridData?.gridType) {
+              isValleyType = ['valley0', 'valley1', 'valley2', 'valley3'].includes(gridData.gridType);
+            } else if (isPureValleySettlement) {
+              // All grids in pure valley settlements are valley type
+              isValleyType = true;
+            }
+
+            // Calculate gridCoord (SSGG portion) from position
+            // This allows visited check to work even without API data
+            const calculatedSSGG = settlementRow * 1000 + settlementCol * 100 + rowIndex * 10 + colIndex;
+            const hasBeenVisited = isGridVisited(currentPlayer.gridsVisited, calculatedSSGG);
+
             const isPlayerHere = gridData?.gridId && gridData.gridId === currentPlayer.location.g;
 
             // Apply visited styling first (green background for visited valley grids)
@@ -268,7 +282,7 @@ const FrontierView = ({
             }}
             onClick={() => handleTileClick(tile)}
           >
-            {renderMiniGrid(tile)}
+            {renderMiniGrid(tile, rowIndex, colIndex)}
           </div>
         ))
       )}
