@@ -344,8 +344,8 @@ const SettlementView = ({
         null, // strings not available in SettlementView
         null  // masterTrophies not available in SettlementView
       );
-      // Zoom into grid view after movement
-      setZoomLevel("far"); 
+      // Stay zoomed out for developer grid navigation
+      // setZoomLevel("far"); 
 
     } catch (error) {
       console.error("Error changing player location:", error);

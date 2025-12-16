@@ -971,11 +971,8 @@ const handleRevive = async () => {
       console.error("❌ Error during revival:", error);
       updateStatus("Revival failed - please try again");
     }
-  } else {
-    console.log("❌ Insufficient gems, opening gem purchase panel");
-    setIsRevivalModalOpen(false);
-    openPanel('HowToGemsPanel');
   }
+  // Note: Insufficient gems case is now handled directly in RevivalModal with embedded purchase buttons
 };
 
 // Auto-exit from dungeon when phase changes to resetting
@@ -2797,6 +2794,9 @@ return (
         onRevive={handleRevive}
         reviveCost={globalTuning?.costToRevive || 50}
         strings={strings}
+        currentPlayer={currentPlayer}
+        inventory={inventory}
+        updateStatus={updateStatus}
       />
  
       {activeModal === 'Mailbox' && (
