@@ -38,6 +38,7 @@ function Redirect() {
           Please visit the new site and log in there with your username and password:
         </p>
         <p style={{
+          fontFamily: "'Lora', serif",
           fontSize: '18px',
           fontWeight: 'bold',
           color: '#2563eb',
@@ -48,7 +49,7 @@ function Redirect() {
         <button
           onClick={handleGo}
           style={{
-            backgroundColor: '#2563eb',
+            backgroundColor: '#4caf50',
             color: '#fff',
             border: 'none',
             padding: '12px 40px',
