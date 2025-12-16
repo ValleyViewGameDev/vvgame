@@ -3,7 +3,7 @@
  * Delete this file once migration is complete.
  */
 
-const NEW_DOMAIN = 'https://www.secretsofelsinor.com';
+const NEW_DOMAIN = 'https://www.secretsofelsinore.com';
 
 function Redirect() {
   const handleGo = () => {
