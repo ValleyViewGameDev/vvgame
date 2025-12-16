@@ -3563,12 +3563,13 @@ return (
       />
 
       {/* Level Up Modal */}
-      <LevelUpModal 
+      <LevelUpModal
         isOpen={isLevelUpModalOpen}
         onClose={() => setIsLevelUpModalOpen(false)}
         currentLevel={levelUpData.currentLevel}
         previousLevel={levelUpData.previousLevel}
         updateStatus={updateStatus}
+        masterResources={masterResources}
       />
 
     </>

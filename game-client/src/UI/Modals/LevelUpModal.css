@@ -56,6 +56,35 @@
   font-style: italic;
 }
 
+/* Unlocked resources section */
+.unlocked-resources {
+  margin: 15px 0;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(211, 84, 0, 0.3);
+}
+
+.unlocked-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #d35400;
+  margin-bottom: 8px;
+}
+
+.unlocked-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+}
+
+.unlocked-list li {
+  font-size: 15px;
+  color: #8b4513;
+  padding: 4px 0;
+}
+
 /* Continue button now uses shared-buttons styling */
 
 /* Remove close button overrides - use standard modal close button */
