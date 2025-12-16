@@ -2450,6 +2450,7 @@ return (
       <h3>{strings[10109]}</h3>
       <h3>{strings[10135]}</h3>
       <h3>{strings[10136]}</h3>
+      <h3>{strings[10137]}</h3>
 
 
       {/* Add Role display if player has one */}
