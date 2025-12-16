@@ -212,6 +212,8 @@ const FrontierView = ({
 
     // Check if this is a pure valley settlement (all grids are valleys)
     const isPureValleySettlement = ['valley0Set', 'valley1Set', 'valley2Set', 'valley3Set'].includes(tile.settlementType);
+    // Check if this is a homestead settlement (mixed grids with dirt background)
+    const isHomesteadSettlement = tile.settlementType?.startsWith('homesteadSet');
 
     return (
       <div className="mini-grid">
@@ -222,7 +224,8 @@ const FrontierView = ({
 
             // Default content from tile data
             let content = cell;
-            let cellStyle = {};
+            // Homestead settlements use dirt background as base color
+            let cellStyle = isHomesteadSettlement ? { backgroundColor: 'var(--color-bg-dirt)' } : {};
 
             // Determine if this is a valley grid
             // Use API data if available, otherwise infer from settlement type
@@ -241,9 +244,9 @@ const FrontierView = ({
 
             const isPlayerHere = gridData?.gridId && gridData.gridId === currentPlayer.location.g;
 
-            // Apply visited styling first (green background for visited valley grids)
+            // Apply visited styling for valley grids (overrides dirt background if applicable)
             if (isValleyType && hasBeenVisited) {
-              cellStyle = { backgroundColor: 'var(--valley-visited-color, #8fd67f)' };
+              cellStyle = { backgroundColor: 'var(--valley-visited-color)' };
               content = ''; // Remove tree emoji for visited grids
             }
 

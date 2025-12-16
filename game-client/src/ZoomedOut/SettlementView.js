@@ -13,7 +13,7 @@ import playersInGridManager from "../GridState/PlayersInGrid";
 import { fetchHomesteadOwner } from "../Utils/worldHelpers";
 import { updateGridStatus } from "../Utils/GridManagement";
 import { processRelocation } from "../Utils/Relocation";
-import { getVisitedGridCoords } from "../Utils/gridsVisitedUtils";
+import { getVisitedGridCoords, isGridVisited } from "../Utils/gridsVisitedUtils";
 import RenderVisitedGrid from "./RenderVisitedGrid";
 
 // Center camera on player's current grid in settlement view
@@ -402,6 +402,8 @@ const getTooltip = (tile) => {
     // Check if this is a visited valley/town grid - render actual tiles instead of tree pattern
     // Homestead grids keep their current emoji-based rendering
     const hasVisitedTiles = tile.gridCoord !== undefined && visitedGridTiles[tile.gridCoord];
+    const isMarkedVisited = tile.gridCoord !== undefined && isGridVisited(currentPlayer.gridsVisited, tile.gridCoord);
+
     if (usePixelRendering && hasVisitedTiles) {
       // Render pixel tiles, with player icon overlay at correct miniX,miniY position if player is here
       return (
@@ -412,6 +414,36 @@ const getTooltip = (tile) => {
             className="visited-grid-canvas"
             style={{ width: '100%', height: '100%', display: 'block' }}
           />
+          {isPlayerHere && (
+            <div style={{
+              position: 'absolute',
+              top: `${(miniY / 8) * 100}%`,
+              left: `${(miniX / 8) * 100}%`,
+              width: '12.5%',
+              height: '12.5%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '0.6em',
+              zIndex: 1
+            }}>
+              {currentPlayer.icon}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Fallback: Grid is marked as visited but tile data not available (grid may not exist yet)
+    // Show a simple green background instead of tree pattern to indicate visited status
+    if (usePixelRendering && isMarkedVisited && !hasVisitedTiles) {
+      return (
+        <div style={{
+          position: 'relative',
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'var(--valley-visited-color)'
+        }}>
           {isPlayerHere && (
             <div style={{
               position: 'absolute',
