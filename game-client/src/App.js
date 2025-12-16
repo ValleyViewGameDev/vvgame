@@ -127,8 +127,11 @@ import { mergeResources, mergeTiles, enrichResourceFromMaster } from './Utils/Re
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
+import Redirect, { shouldRedirect } from './Redirect';
 
 function App() {
+  // Check if we should redirect (must be before hooks for consistent evaluation)
+  const showRedirect = shouldRedirect();
 
   const appInstanceId = Math.floor(Math.random() * 10000);
 //console.log(`🧩 App mounted. Instance ID: ${appInstanceId}`);
@@ -2210,6 +2213,7 @@ const handleLoginSuccess = async (player) => {
 
 return (
     <>
+    {showRedirect && <Redirect />}
     <FloatingTextManager />
 
 {/* //////////////////////  Header  //////////////////////// */}
