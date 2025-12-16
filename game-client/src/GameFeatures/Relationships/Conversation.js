@@ -203,10 +203,10 @@ export const playConversation = async (
     
     await showSpeech('player', playerSpeakerId, playerEmoji, playerTopic);
     // Removed character animation
-    await delay(1500);
+    await delay(1200);
     await hideSpeech(playerSpeakerId);
-    
-    await delay(500); // Brief pause between speakers
+
+    await delay(400); // Brief pause between speakers
 
     // NPC responds - use provided ID or position-based ID
     const npcSpeakerId = npcId || `npc_${Math.floor(npcPosition.x)}_${Math.floor(npcPosition.y)}`;
@@ -236,10 +236,10 @@ export const playConversation = async (
 
     await showSpeech('npc', npcSpeakerId, npcEmoji, npcTopic, matchState);
     // Removed character animation
-    await delay(1500);
+    await delay(1200);
     await hideSpeech(npcSpeakerId);
-    
-    await delay(500); // Brief pause before next exchange
+
+    await delay(400); // Brief pause before next exchange
   }
   
   // Conversation complete - trigger callback with results
