@@ -193,7 +193,7 @@ const PCComponent = ({
     >
       {/* Player icon with modifiers */}
       <span className="pc-icon">
-        {pc.hp === 0 ? '💀' : pc.hp < 20 ? '🤢' : isCamping ? '🏕️' : isInBoat ? '🛶' : pc.icon}
+        {pc.hp === 0 ? '💀' : pc.hp < 100 ? '🤢' : isCamping ? '🏕️' : isInBoat ? '🛶' : pc.icon}
       </span>
 
       {/* Conversation speech bubble - Moved to RenderDynamicElements */}
