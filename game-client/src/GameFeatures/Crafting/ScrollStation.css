@@ -324,3 +324,13 @@
     padding: 12px 30px;
   }
 }
+
+/* Healer HP display text */
+.healer-hp-text {
+  text-align: center;
+  margin-top: 5px;
+  font-family: var(--font-text-1-family);
+  font-size: var(--font-text-1-size);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}

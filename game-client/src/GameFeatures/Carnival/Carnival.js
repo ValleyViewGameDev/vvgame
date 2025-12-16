@@ -524,7 +524,7 @@ function CarnivalPanel({
       ) : (
         <>
           <h3>{strings[1352]} {carnivalPhase} {currentCarnivalNumber ? `(#${currentCarnivalNumber})` : ''}</h3>
-          <h2>⏳ {carnivalTimer}</h2>
+          <h2 className="countdown-timer">⏳ {carnivalTimer}</h2>
 
           {carnivalPhase === "here" && (
             <>

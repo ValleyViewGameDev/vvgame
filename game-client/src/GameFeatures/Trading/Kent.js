@@ -345,10 +345,10 @@ function KentPanel({
               {kentPhase === 'locked' ? (
                 <>
                   <h2>{strings[46]}</h2>
-                  <h2>{kentTimer}</h2>
+                  <h2 className="countdown-timer">{kentTimer}</h2>
                 </>
               ) : (
-                <h2>{kentTimer}</h2>
+                <h2 className="countdown-timer">{kentTimer}</h2>
               )}
             </div>
             

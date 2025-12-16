@@ -115,7 +115,7 @@ function OffSeasonModal({ onClose, currentPlayer }) {
       message2={message2}
       size="standard"
     >
-      <h2><strong>{seasonData.type} begins in:</strong> {countdown}</h2>
+      <h2 className="countdown-timer"><strong>{seasonData.type} begins in:</strong> {countdown}</h2>
 
         <h3>💰 Results from {previousSeason.seasonType}</h3>
         {richestCitizens.length > 0 ? (

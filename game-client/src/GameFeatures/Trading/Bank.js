@@ -191,7 +191,7 @@ function BankPanel({
             {bankPhase === "active" ? (
               <>
                 <h3>{strings["1402"]}</h3> {/* "These offers good for" */}
-                <h2>{bankTimer}</h2>
+                <h2 className="countdown-timer">{bankTimer}</h2>
                 {bankOffers.length > 0 ? (
                   bankOffers.map((offer, index) => {
                     // Calculate player's total quantity from inventory and backpack

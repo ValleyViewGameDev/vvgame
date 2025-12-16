@@ -260,7 +260,7 @@ function SeasonPanel({ onClose, currentPlayer, setModalContent, setIsModalOpen }
         <>
           <h2>{strings[3053]} {seasonData?.type || strings[3054]}</h2>
           <p>{strings[3055]}</p> 
-          <h2>{countdown}</h2>
+          <h2 className="countdown-timer">{countdown}</h2>
         </>
       ) : (
         <>

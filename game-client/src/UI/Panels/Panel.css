@@ -84,6 +84,12 @@
   color: var(--font-title-3-color);
 }
 
+/* Countdown timers should use Lora (title-3) for better number readability */
+.countdown-timer {
+  font-family: var(--font-title-3-family) !important;
+  font-weight: var(--font-title-3-weight);
+}
+
   
 /* Panel Close Button */
 .panel-close-btn {

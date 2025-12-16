@@ -558,7 +558,7 @@ const handleHeal = async (recipe) => {
         ...prev,
         hp: Math.min(prev.maxhp, prev.hp + amountToMod),
       }));  
-      updateStatus(`${strings[405]}${amountToMod}.`);
+      updateStatus(`${strings[405]}${amountToMod}`);
 
       // Deduct 1 HP from the healer NPC
       const healerInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
@@ -1019,7 +1019,7 @@ const handleHeal = async (recipe) => {
             if (playerInGridState) {
               return (
                 <>
-                  <h2>{strings[511]} <br />{playerInGridState.hp} / {playerInGridState.maxhp}</h2>
+                  <h3>{strings[511]} <br />{playerInGridState.hp} / {playerInGridState.maxhp}</h3>
                 </>
               );
             } else {
@@ -1066,7 +1066,7 @@ const handleHeal = async (recipe) => {
                 />
                 {/* Display healer's HP below the ResourceButton */}
                 {healerInGrid && healerInGrid.hp !== undefined && (
-                  <div style={{ textAlign: 'center', marginTop: '5px', fontStyle: 'italic', color: '#666' }}>
+                  <div className="healer-hp-text">
                     {strings[49]} {healerInGrid.hp}
                   </div>
                 )}
