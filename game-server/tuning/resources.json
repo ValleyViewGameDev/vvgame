@@ -4593,7 +4593,7 @@
     "category": "deco",
     "action": "door",
     "passable": false,
-    "requires": "Trident",
+    "requires": "Mirror Key",
     "validong": true,
     "validond": true,
     "validons": true,
