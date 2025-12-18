@@ -224,6 +224,7 @@ body {
   width: 230px;
   flex-shrink: 0;
   display: flex;
+  font-size: 17px;
   align-items: center;
 }
 

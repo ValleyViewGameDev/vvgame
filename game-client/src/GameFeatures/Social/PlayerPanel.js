@@ -415,6 +415,7 @@ const PlayerPanel = ({
       >
         {strings[1124]}
       </h3>
+<br />
 
       {/* Settings - Clickable H3 */}
       <h3

@@ -5,7 +5,9 @@
     { "label": "Heart Eyes", "value": "😍" },
     { "label": "Face with Hand Over Mouth", "value": "🤭" },
     { "label": "Nerd Face", "value": "🤓" },
-    { "label": "Sunglasses Face", "value": "😎" }
+    { "label": "Sunglasses Face", "value": "😎" },
+    { "label": "Unamused Face", "value": "😒" },
+    { "label": "Party Face", "value": "🥳" }
   ],
   "paid": [
     { "label": "Clown Face", "value": "🤡" },
