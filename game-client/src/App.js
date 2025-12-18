@@ -2469,7 +2469,8 @@ return (
       <h2 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>
         {timers.seasons.phase === "onSeason" ? strings[10114] : strings[10115]} 
       </h2>
-      <h3 style={{ textAlign: 'center' }}><strong>{countdowns.seasons}</strong></h3>
+      <h2 className="countdown-timer" style={{ textAlign: 'center' }}>{countdowns.seasons}</h2>
+
       <div className="shared-buttons">
         <button className="btn-basic btn-success" onClick={() => openPanel('SeasonPanel')}>
           {strings[15030]}
