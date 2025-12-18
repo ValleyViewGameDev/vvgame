@@ -2227,9 +2227,11 @@ return (
         <div className="header-controls-left header-grid">
           {/* Grid layout: 3 columns x 2 rows */}
           {/* Row 1 */}
-          <span className="header-link" style={{ textDecoration: 'none', cursor: 'default' }}>
+          <button className="header-link" onClick={() => openPanel('ProfilePanel')}>
             {currentPlayer?.icon || '😊'} {currentPlayer?.username || 'Loading...'}
-          </span>
+          </button>
+
+
           <span className="header-link" style={{ textDecoration: 'none', cursor: 'default' }}>
             {strings[10150]} {getDerivedLevel(currentPlayer, masterXPLevels)}
           </span>

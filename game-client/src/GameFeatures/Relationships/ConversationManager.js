@@ -51,13 +51,18 @@ class ConversationManager {
   }
   
   // Add relationship outcome VFX
-  showOutcome(speakerId, isPositive) {
+  // emoji parameter is optional - if not provided, uses default based on isPositive
+  showOutcome(speakerId, isPositive, emoji = null) {
+    const defaultEmoji = isPositive ? '👍' : '👎';
+    const finalEmoji = emoji || defaultEmoji;
+    console.log('🎭 showOutcome called:', { speakerId, isPositive, emoji, defaultEmoji, finalEmoji });
     this.relationshipOutcomes.set(speakerId, {
       type: isPositive ? 'positive' : 'negative',
+      emoji: finalEmoji,
       timestamp: Date.now()
     });
     this.notifyListeners();
-    
+
     // Auto-remove after animation duration
     setTimeout(() => {
       this.relationshipOutcomes.delete(speakerId);

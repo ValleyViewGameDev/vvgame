@@ -550,13 +550,13 @@ export const RenderDynamicElementsCanvas = ({
                 textAlign: 'center',
               }}
             >
-              {outcome.type === 'positive' ? '👍' : '❌'}
+              {outcome.emoji}
             </div>
           </div>
         );
       }
     });
-    
+
     // Render PC speech bubbles
     pcs?.forEach(pc => {
       const speech = ConversationManager.getSpeech(pc.playerId);
@@ -632,13 +632,13 @@ export const RenderDynamicElementsCanvas = ({
                 textAlign: 'center',
               }}
             >
-              {outcome.type === 'positive' ? '👍' : '❌'}
+              {outcome.emoji}
             </div>
           </div>
         );
       }
     });
-    
+
     return bubbles;
   };
 

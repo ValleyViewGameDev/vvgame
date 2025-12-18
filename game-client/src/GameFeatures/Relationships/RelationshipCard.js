@@ -1,16 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  updateRelationship, 
-  updateRelationshipStatus, 
-  getNPCReactions, 
+import {
+  updateRelationship,
+  updateRelationshipStatus,
+  getNPCReactions,
   checkOtherRelationships,
-  generateRelationshipStatusMessage 
+  generateRelationshipStatusMessage
 } from './RelationshipUtils';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { playConversation, calculateModifiedChance } from './Conversation';
 import ConversationManager from './ConversationManager';
 import '../../UI/Buttons/SharedButtons.css';
+
+// Mapping of interaction names (lowercase) to their success/failure reaction emojis
+const INTERACTION_EMOJIS = {
+  'talk': { success: '😄', failure: '❌' },
+  'make friends': { success: '👫', failure: '❌' },
+  'profess love': { success: '❤️', failure: '❌' },
+  'propose': { success: '💍', failure: '❌' },
+  'divorce': { success: '💔', failure: '😠' },
+  'end friendship': { success: '👋', failure: '😤' },
+  'end marriage': { success: '💔', failure: '😠' },
+  'insult': { success: '😈', failure: '😡' },
+  'compliment': { success: '🙏', failure: '❌' },
+  'flatter': { success: '🙏', failure: '❌' },
+  'give gift': { success: '🎁', failure: '❌' },
+  'apologize': { success: '🤝', failure: '😡' },
+  'flirt': { success: '😘', failure: '❌' },
+  'kiss': { success: '😘', failure: '❌' },
+  'hug': { success: '🤗', failure: '❌' },
+  'joke': { success: '🤣', failure: '❌' },
+  'gossip': { success: '😳', failure: '❌' },
+  'greet': { success: '👋', failure: '❌' },
+  'taunt': { success: '😡', failure: '😡' },
+  'tease': { success: '🤨', failure: '😡' },
+  // Default fallback for any interaction not specifically mapped
+  'default': { success: '👍', failure: '❌' }
+};
+
+// Helper function to get emoji for an interaction outcome
+// Uses case-insensitive lookup with trimmed whitespace
+const getInteractionEmoji = (interactionName, isSuccess) => {
+  const normalizedName = (interactionName || '').toLowerCase().trim();
+  const emojis = INTERACTION_EMOJIS[normalizedName] || INTERACTION_EMOJIS['default'];
+  const result = isSuccess ? emojis.success : emojis.failure;
+  console.log('🎭 getInteractionEmoji:', { interactionName, normalizedName, isSuccess, emojis, result });
+  return result;
+};
 
 const RelationshipCard = ({
   currentPlayer,
@@ -359,10 +395,12 @@ const RelationshipCard = ({
           }
         }
       
-        // Show relationship outcome VFX
-        if (scoreChange !== 0) {
+        // Show relationship outcome VFX with interaction-specific emoji
+        // Show for any score change OR when a relationship status is added (e.g., Make Friends adds "friend" status with 0 score change)
+        if (scoreChange !== 0 || interaction.relbitadd) {
           const targetId = targetType === 'npc' ? targetName : targetName; // For NPCs, use name as ID
-          ConversationManager.showOutcome(targetId, scoreChange > 0);
+          const emoji = getInteractionEmoji(interaction.interaction, true);
+          ConversationManager.showOutcome(targetId, true, emoji);
         }
         
       }
@@ -407,10 +445,12 @@ const RelationshipCard = ({
         }
       }
       
-      // Show relationship outcome VFX for failed interaction
-      if (scoreChange < 0) {
+      // Show relationship outcome VFX for failed interaction with interaction-specific emoji
+      // Show for any score penalty OR when interaction would have added a status (e.g., failed Make Friends)
+      if (scoreChange < 0 || interaction.relbitadd) {
         const targetId = targetType === 'npc' ? targetName : targetName; // For NPCs, use name as ID
-        ConversationManager.showOutcome(targetId, false);
+        const emoji = getInteractionEmoji(interaction.interaction, false);
+        ConversationManager.showOutcome(targetId, false, emoji);
       }
     }
     
