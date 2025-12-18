@@ -1,7 +1,6 @@
 /* Frontier Mini Map Styles */
 
 .frontier-mini-map {
-  position: relative; /* For absolute positioning of corner buttons */
   background: rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   padding: 8px;
@@ -63,35 +62,44 @@
   text-align: center;
 }
 
-/* Transit buttons positioned in corners */
+/* Row container for Home button, Map, and Town button */
+.mini-map-row-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+/* Button columns on either side of the map */
+.minimap-button-column {
+  width: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.minimap-button-column.home-column {
+  justify-content: flex-end; /* Right align home button */
+}
+
+.minimap-button-column.town-column {
+  justify-content: flex-start; /* Left align town button */
+}
+
+/* Transit buttons - just emoji icons */
 .minimap-signpost-button {
-  position: absolute;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 18px;
   padding: 2px;
   transition: transform 0.1s ease;
   user-select: none;
-  z-index: 10;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 4px;
+  background: none;
   line-height: 1;
 }
 
 .minimap-signpost-button:hover {
-  transform: scale(1.15);
-  background: rgba(0, 0, 0, 0.7);
+  transform: scale(1.2);
 }
 
 .minimap-signpost-button:active {
   transform: scale(0.95);
-}
-
-.home-button {
-  top: 2px;
-  left: 2px;
-}
-
-.town-button {
-  top: 2px;
-  right: 2px;
 }

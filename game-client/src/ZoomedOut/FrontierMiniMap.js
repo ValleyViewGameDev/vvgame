@@ -130,60 +130,43 @@ const FrontierMiniMap = ({
 
   return (
     <div className="frontier-mini-map">
-      {/* Transit buttons in outer container corners */}
-      {!isInDungeon && (
-        <span
-          className="minimap-signpost-button home-button"
-          onClick={() => handleTransitSignpost(
-            currentPlayer,
-            "Signpost Home",
-            setCurrentPlayer,
-            setGridId,
-            setGrid,
-            setTileTypes,
-            setResources,
-            updateStatus,
-            TILE_SIZE,
-            currentPlayer.skills,
-            closeAllPanels,
-            bulkOperationContext,
-            masterResources,
-            strings,
-            masterTrophies,
-            transitionFadeControl
+      {/* Title row */}
+      <h3 style={{ textAlign: 'center', fontFamily: 'Berkshire Swash', margin: '0 0 8px 0' }}>{strings[2]}</h3>
+
+      {/* Map row with Home and Town buttons on sides */}
+      <div className="mini-map-row-container">
+        {/* Home button column - right aligned */}
+        <div className="minimap-button-column home-column">
+          {!isInDungeon && (
+            <span
+              className="minimap-signpost-button"
+              onClick={() => handleTransitSignpost(
+                currentPlayer,
+                "Signpost Home",
+                setCurrentPlayer,
+                setGridId,
+                setGrid,
+                setTileTypes,
+                setResources,
+                updateStatus,
+                TILE_SIZE,
+                currentPlayer.skills,
+                closeAllPanels,
+                bulkOperationContext,
+                masterResources,
+                strings,
+                masterTrophies,
+                transitionFadeControl
+              )}
+              title={strings && strings[107] ? strings[107] : "Go Home"}
+            >
+              🏠
+            </span>
           )}
-          title={strings && strings[107] ? strings[107] : "Go Home"}
-        >
-          🏠
-        </span>
-      )}
-      {!isInDungeon && (
-        <span
-          className="minimap-signpost-button town-button"
-          onClick={() => handleTransitSignpost(
-            currentPlayer,
-            "Signpost Town Home",
-            setCurrentPlayer,
-            setGridId,
-            setGrid,
-            setTileTypes,
-            setResources,
-            updateStatus,
-            TILE_SIZE,
-            currentPlayer.skills,
-            closeAllPanels,
-            bulkOperationContext,
-            masterResources,
-            strings,
-            masterTrophies,
-            transitionFadeControl
-          )}
-          title={strings && strings[108] ? strings[108] : "Go to Town"}
-        >
-          🏛️
-        </span>
-      )}
-      <div className="mini-map-grid">
+        </div>
+
+        {/* Map in center */}
+        <div className="mini-map-grid">
         {frontierGrid.map((row, rowIndex) => (
           <div key={rowIndex} className="mini-map-row">
             {row.map((cell) => {
@@ -209,7 +192,39 @@ const FrontierMiniMap = ({
             })}
           </div>
         ))}
+        </div>
+
+        {/* Town button column - left aligned */}
+        <div className="minimap-button-column town-column">
+          {!isInDungeon && (
+            <span
+              className="minimap-signpost-button"
+              onClick={() => handleTransitSignpost(
+                currentPlayer,
+                "Signpost Town Home",
+                setCurrentPlayer,
+                setGridId,
+                setGrid,
+                setTileTypes,
+                setResources,
+                updateStatus,
+                TILE_SIZE,
+                currentPlayer.skills,
+                closeAllPanels,
+                bulkOperationContext,
+                masterResources,
+                strings,
+                masterTrophies,
+                transitionFadeControl
+              )}
+              title={strings && strings[108] ? strings[108] : "Go to Town"}
+            >
+              🏛️
+            </span>
+          )}
+        </div>
       </div>
+
       {/* Only show dungeon timer when in dungeon */}
       {isInDungeon && (
         <div className="mini-map-dungeon-info">

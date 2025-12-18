@@ -2224,74 +2224,81 @@ return (
           <h1>{strings[0]}</h1>
         </div>
 
-        <div className="header-controls-left">
-
-        {currentPlayer?.accountStatus === 'Gold' && (
-          <div className="shared-buttons">
-            <button className="btn-basic btn-header btn-gold" onClick={() => openPanel('ProfilePanel')}>{currentPlayer?.icon || '😊'} {currentPlayer?.username || 'Loading...'}</button>
-          </div>
-        )}
-        {currentPlayer?.accountStatus === 'Free' && (
-          <div className="shared-buttons">
-            <button className="btn-basic btn-header" onClick={() => openPanel('ProfilePanel')}>{currentPlayer?.icon || '😊'} {currentPlayer?.username || 'Loading...'}</button>
-          </div>
-        )}
-
-        <div className="shared-buttons">
-          <button className="btn-basic btn-header" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}>{strings[10103]} </button>
-        </div>
-        <div className="shared-buttons">
-          <button className="btn-basic btn-header"
-            onClick={() => openPanel('HowToMoneyPanel')}
-          >
-            💰 {Array.isArray(currentPlayer?.inventory)
-              ? (currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0).toLocaleString()
-              : "..."}
+        <div className="header-controls-left header-grid">
+          {/* Grid layout: 3 columns x 2 rows */}
+          {/* Row 1 */}
+          <span className="header-link" style={{ textDecoration: 'none', cursor: 'default' }}>
+            {currentPlayer?.icon || '😊'} {currentPlayer?.username || 'Loading...'}
+          </span>
+          <span className="header-link" style={{ textDecoration: 'none', cursor: 'default' }}>
+            {strings[10150]} {getDerivedLevel(currentPlayer, masterXPLevels)}
+          </span>
+          <button className="header-link" disabled={!currentPlayer} onClick={() => openPanel('InventoryPanel')}>
+            {strings[10103]}
           </button>
-        </div>
-        <div className="shared-buttons">
-          <button className="btn-basic btn-header"
-            onClick={() => openPanel('HowToGemsPanel')}
-          >
-            💎 {Array.isArray(currentPlayer?.inventory)
-              ? (currentPlayer.inventory.find((item) => item.type === "Gem")?.quantity || 0).toLocaleString()
-              : "..."}
-          </button>
-        </div>
-        <div className="nav-button-wrapper">
-          <div className="shared-buttons">
-            <button className="btn-basic btn-header" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>{strings[10105]}</button>
+          {/* Row 2 */}
+          <span></span>
+          <span className="header-link" style={{ textDecoration: 'none', cursor: 'default' }}>
+            {strings[10112]} {currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.hp ?? "?" : "?"}/{currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.maxhp ?? "?" : "?"}
+          </span>
+          <div className="header-currency-group">
+            <button className="header-link" onClick={() => openPanel('HowToGemsPanel')}>
+              💎 {Array.isArray(currentPlayer?.inventory)
+                ? (currentPlayer.inventory.find((item) => item.type === "Gem")?.quantity || 0).toLocaleString()
+                : "..."}
+            </button>
+            <button className="header-link" onClick={() => openPanel('HowToMoneyPanel')}>
+              💰 {Array.isArray(currentPlayer?.inventory)
+                ? (currentPlayer.inventory.find((item) => item.type === "Money")?.quantity || 0).toLocaleString()
+                : "..."}
+            </button>
           </div>
-          {badgeState.mailbox && <div className="badge-dot" />}
-        </div>
-        <div className="nav-button-wrapper">
-          <div className="shared-buttons">
-            <button className="btn-basic btn-header btn-gold" disabled={!currentPlayer} onClick={() => setActiveModal("Store")}>{strings[10104]}</button>
-          </div>
-          {badgeState.store && <div className="badge-dot" />}
         </div>
 
-      </div>
-        <div className="header-controls-right">
-            <div className="nav-button-wrapper">
-              <div className="shared-buttons">
-                <button className="btn-basic btn-header" disabled={!currentPlayer} onClick={() => openPanel('LeaderboardPanel')}>{strings[1140]}</button>
-              </div>
+        <div className="header-controls-center">
+          {/* Row 1: Store */}
+          <div className="header-row">
+            <div className="header-link-wrapper">
+              <button className="header-link" disabled={!currentPlayer} onClick={() => setActiveModal("Store")}>
+                {strings[10104]}
+              </button>
+              {badgeState.store && <div className="badge-dot" />}
             </div>
-            <div className="nav-button-wrapper">
-              <div className="shared-buttons">
-                <button className="btn-basic btn-header" disabled={!currentPlayer} onClick={() => setIsChatOpen(prev => !prev)}>{strings[10107]}</button>
-              </div>
-              {badgeState.chat && <div className="badge-dot" />}
-            </div>
-            <div className="shared-buttons">
-              <button className="btn-basic btn-header" onClick={() => setShowShareModal(true)}>{strings[10106]}</button>
-            </div>
-            <div className="shared-buttons">
-              <button className="btn-basic btn-header" disabled={!currentPlayer} onClick={() => setActiveModal('LanguagePicker')}>
-                🌎 {LANGUAGE_OPTIONS.find(l => l.code === currentPlayer?.language)?.label || 'Language'}
+          </div>
+          {/* Row 2: Inbox */}
+          <div className="header-row">
+            <div className="header-link-wrapper">
+              {badgeState.mailbox && <div className="badge-dot badge-dot-left" />}
+              <button className="header-link" disabled={!currentPlayer} onClick={() => openModal('Mailbox')}>
+                {strings[10105]}
               </button>
             </div>
+          </div>
+        </div>
+
+        <div className="header-controls-right header-grid-right">
+          {/* Grid layout: 3 columns x 2 rows */}
+          {/* Row 1: Settings, Chat, (empty) */}
+          <button className="header-link" onClick={() => openPanel('ProfilePanel')}>
+            {strings[1190]}
+          </button>
+          <div className="header-link-wrapper">
+            <button className="header-link" disabled={!currentPlayer} onClick={() => setIsChatOpen(prev => !prev)}>
+              {strings[10107]}
+            </button>
+            {badgeState.chat && <div className="badge-dot" />}
+          </div>
+          <span></span>
+          {/* Row 2: Leaders, Language, Share */}
+          <button className="header-link" disabled={!currentPlayer} onClick={() => openPanel('LeaderboardPanel')}>
+            {strings[1140]}
+          </button>
+          <button className="header-link" disabled={!currentPlayer} onClick={() => setActiveModal('LanguagePicker')}>
+            🌐 {LANGUAGE_OPTIONS.find(l => l.code === currentPlayer?.language)?.label || 'Language'}
+          </button>
+          <button className="header-link" onClick={() => setShowShareModal(true)}>
+            {strings[10106]}
+          </button>
         </div>
     </header>
     
@@ -2322,7 +2329,7 @@ return (
           </div>
         </div>
 
-      <button className={`nav-button ${!activePanel ? 'selected' : ''}`} title={strings[12009]} onClick={() => closePanel()}>🏡</button>
+      <button className={`nav-button ${!activePanel ? 'selected' : ''}`} title={strings[12009]} onClick={() => closePanel()}>👸</button>
       <button 
         className={`nav-button ${activePanel === 'SocialPanel' ? 'selected' : ''}`} 
         title="My Profile" 
@@ -2352,7 +2359,7 @@ return (
           if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
           openPanel('FarmingPanel');
         }}
-      >🌱</button>
+      >🌽</button>
       <button 
         className={`nav-button ${activePanel === 'ToolsPanel' ? 'selected' : ''}`} title={strings[12012]} disabled={!currentPlayer} 
         onClick={() => {
@@ -2448,71 +2455,26 @@ return (
         countdowns={countdowns}
       />
  
-      <h3>{strings[10109]}</h3>
-      <h3>{strings[10135]}</h3>
-      <h3>{strings[10136]}</h3>
-      <h3>{strings[10137]}</h3>
+      <h2 style={{ textAlign: 'center' }}>{strings[10109]}</h2>
+      <h3 style={{ textAlign: 'center' }}>{strings[10135]}</h3>
+      <h3 style={{ textAlign: 'center' }}>{strings[10136]}</h3>
+      <h3 style={{ textAlign: 'center' }}>{strings[10137]}</h3>
 
-
-      {/* Add Role display if player has one */}
-      {isMayor && (
-        <> <h2 className="player-role"> {strings[10111]} </h2>
-          <br />
-        </>
-      )}
-
-      {/* Level and Health */}
-      <div className="shared-buttons">
-        <button 
-          className="btn-basic"
-          onClick={() => {
-            if (currentPlayer) {
-              // Create PC data structure for current player to pass to SocialPanel
-              const currentPC = {
-                playerId: currentPlayer._id,
-                username: currentPlayer.username,
-                icon: currentPlayer.icon,
-                hp: currentPlayer.hp || 100,
-                position: { x: 0, y: 0 }, // Position not needed for own profile
-                iscamping: currentPlayer.iscamping,
-                isinboat: currentPlayer.isinboat
-              };
-              handlePCClick(currentPC);
-            }
-          }}
-        >
-          <span style={{ fontFamily: 'Berkshire Swash', fontWeight: 'bold', color: '#358337', textAlign: 'center', display: 'block', fontSize: '18px' }}>
-            Hi, {currentPlayer?.icon || '😊'} {currentPlayer?.username || 'Loading...'}
-          </span>
-          {strings[10150]} {" "} {getDerivedLevel(currentPlayer, masterXPLevels)}<br />
-          {strings[10112]} {currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.hp ?? "?" : "?"} / {currentPlayer?._id ? playersInGrid?.[gridId]?.pcs?.[String(currentPlayer._id)]?.maxhp ?? "?" : "?"}
-        </button>
-      </div>
+      <br />
 
       {/* Season */}
-      {timers.seasons.phase === "onSeason" ? (
-        <>
-          <div className="shared-buttons">
-            <button className="btn-basic" onClick={() => openPanel('SeasonPanel')}>
-              <span style={{ fontFamily: 'Berkshire Swash', fontWeight: 'bold', color: '#358337', textAlign: 'center', display: 'block', fontSize: '18px' }}>
-                {strings[10113]} {seasonData?.type || "[Season unknown]"}
-              </span>
-              {strings[10114]}<br /><strong>{countdowns.seasons}</strong>
-            </button>
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="shared-buttons">
-            <button className="btn-basic" onClick={() => openPanel('SeasonPanel')}>
-              <span style={{ fontFamily: 'Berkshire Swash', fontWeight: 'bold', color: '#358337', textAlign: 'center', display: 'block', fontSize: '18px' }}>
-                {strings[10113]} {seasonData?.type || "[Season unknown]"}
-              </span>
-              {strings[10115]}<br /><strong>{countdowns.seasons}</strong>
-            </button>
-          </div>
-        </>
-      )}
+      <h2 style={{ textAlign: 'center', fontFamily: 'Berkshire Swash', color: 'var(--color-primary-green-dark)', margin: '0 0 4px 0' }}>
+        {strings[10113]} {seasonData?.type || "[Season unknown]"}
+      </h2>
+      <h2 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>
+        {timers.seasons.phase === "onSeason" ? strings[10114] : strings[10115]} 
+      </h2>
+      <h3 style={{ textAlign: 'center' }}><strong>{countdowns.seasons}</strong></h3>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-success" onClick={() => openPanel('SeasonPanel')}>
+          {strings[15030]}
+        </button>
+      </div>
 
       <br />
 
@@ -2524,8 +2486,9 @@ return (
         <button className="btn-basic" onClick={() => openPanel('HowToPanel')}>{strings[10110]}</button>
       </div>
       
-      <h2>{strings[96]}</h2>
-      
+      <br />
+      <h2 style={{ textAlign: 'center' }}>{strings[96]}</h2>
+
       <div className="shared-buttons">
         <button
           className="btn-basic"
@@ -2549,21 +2512,21 @@ return (
       <div>
       {playersInGrid?.[gridId]?.pcs && typeof playersInGrid[gridId].pcs === 'object' ? (
           Object.entries(playersInGrid[gridId].pcs).length === 0 ? (
-            <h4 style={{ color: "white" }}>{strings[10127]}</h4>
+            <h4>{strings[10127]}</h4>
           ) : (
             Object.entries(playersInGrid[gridId].pcs).map(([playerId, pc]) => (
-              <p key={playerId} style={{ color: "white" }}>
+              <p key={playerId}>
                 {connectedPlayers.has(playerId) && '📡 '}
                 <strong>{pc.username}</strong>
               </p>
             ))
           )
         ) : (
-          <h4 style={{ color: "white" }}>{strings[10127]}</h4>
+          <h4>{strings[10127]}</h4>
         )}
-        <h4 style={{ color: "white" }}>
-          {controllerUsername 
-            ? `🐮 ${controllerUsername}` 
+        <h4>
+          {controllerUsername
+            ? `🐮 ${controllerUsername}`
             : "There is no NPCController"}
         </h4>
       </div>

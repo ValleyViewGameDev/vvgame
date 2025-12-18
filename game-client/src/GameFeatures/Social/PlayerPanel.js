@@ -401,7 +401,7 @@ const PlayerPanel = ({
 <br />
 
       {/* Skills - Clickable H3 */}
-      <h3 
+      <h3
         onClick={() => openPanel('SkillsPanel')}
         style={{ cursor: 'pointer', textDecoration: 'underline' }}
       >
@@ -409,13 +409,20 @@ const PlayerPanel = ({
       </h3>
 
       {/* Combat Stats - Clickable H3 */}
-      <h3 
+      <h3
         onClick={() => openPanel('CombatPanel')}
         style={{ cursor: 'pointer', textDecoration: 'underline' }}
       >
         {strings[1124]}
       </h3>
 
+      {/* Settings - Clickable H3 */}
+      <h3
+        onClick={() => openPanel('ProfilePanel')}
+        style={{ cursor: 'pointer', textDecoration: 'underline' }}
+      >
+        {strings[1190]}
+      </h3>
 
       {/* Change Icon Modal */}
       {showChangeIconModal && (

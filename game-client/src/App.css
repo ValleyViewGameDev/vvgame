@@ -25,9 +25,9 @@ body {
 
 .base-panel {
   width: var(--base-panel-width);
-  background-color: var(--color-primary-green);
+  background-color: var(--color-bg-panel);
   padding: var(--spacing-md);
-  top: 50px;
+  top: 60px;
   font-size: 14px;
   box-shadow: 4px 0 4px var(--color-shadow);
   display: flex;
@@ -50,7 +50,7 @@ body {
   margin: 0;
   padding: 0;
   font-size: 1.9em;
-  color: var(--color-text-white);
+  color: var(--color-modal-title);
   text-align: left;
 
 }
@@ -59,7 +59,7 @@ body {
   margin: 0;
   padding: 0;
   font-size: 1.4em;
-  color: var(--color-text-white);
+  color: var(--color-modal-title);
   text-align: left;
 
 }
@@ -77,7 +77,7 @@ body {
   margin: 0;
   padding: 0;
   font-size: 0.9em;
-  color: var(--color-text-white);
+  color: var(--color-modal-title);
   text-align: left;
   font-family: var(--font-text-1-family);
 }
@@ -92,7 +92,7 @@ body {
   padding-top: 60px;
   width: var(--nav-column-width);
   height: 100%;
-  background-color: var(--color-primary-green-light);
+  background-color: var(--color-primary-green);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -116,7 +116,7 @@ body {
 }
 
 .nav-button.selected {
-  background-color: var(--color-primary-green);
+  background-color: var(--color-bg-panel);
 }
 
 
@@ -202,59 +202,117 @@ body {
   display: none;
 }
 
-/* HEADER BUTTONS /////////////////////////////////// */
+/* HEADER /////////////////////////////////// */
 
 .app-header {
   background-color: var(--color-primary-green);
   color: var(--color-text-white);
-  padding: 10px 10px 10px 70px; /* top right bottom left - aligns with base panel content (60px nav + 10px padding) */
+  padding: 4px 10px 4px 70px; /* top right bottom left - aligns with base panel content (60px nav + 10px padding) */
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   height: var(--header-height);
+  box-sizing: border-box; /* Include padding in height */
   z-index: 800;
-  white-space: nowrap; /* Prevent text from wrapping */
   display: flex;
   align-items: center;
 }
 
 .header-title {
-  /* Fixed width - buttons start at end of base panel (70px + 230px = 300px) */
+  /* Fixed width for game title */
   width: 230px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
 }
 
-.header-controls {
+.header-controls-center,
+.header-controls-right {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
+  gap: 8px; /* <-- TUNE THIS VALUE to adjust spacing between row 1 and row 2 */
 }
 
-.header-controls-left {
-  display: flex;
-  gap: 8px;
+/* Left header uses CSS Grid for precise column alignment */
+.header-controls-left.header-grid {
+  display: grid;
+  grid-template-columns: auto auto auto; /* 3 columns: Username, Level/Health, Inventory+Currency */
+  column-gap: 30px; /* <-- TUNE THIS VALUE to adjust spacing between columns */
+  row-gap: 8px; /* <-- TUNE THIS VALUE to adjust spacing between rows */
+  align-items: center;
+  justify-content: start; /* Pack columns to left, don't spread across container */
   flex: 1;
 }
 
-.money-display {
+/* Gems and Money grouped together - expand together dynamically */
+.header-currency-group {
   display: flex;
-  align-items: center;
+  gap: 20px; /* <-- TUNE THIS VALUE to adjust spacing between gems and money */
 }
-.money-value {
-  color: var(--color-text-white);
-  font-size: 1.1em;
-  font-weight: bold;
+
+.header-controls-center {
+  align-items: center;
 }
 
 .header-controls-right {
-  /* Right section - pushed to far right */
+  flex: 1;
+  align-items: flex-end;
+}
+
+/* Right header uses CSS Grid for column alignment, right-aligned overall */
+.header-controls-right.header-grid-right {
+  display: grid;
+  grid-template-columns: auto auto auto; /* 3 columns */
+  column-gap: 40px; /* <-- TUNE THIS VALUE to adjust spacing between columns */
+  row-gap: 8px; /* <-- TUNE THIS VALUE to adjust spacing between rows */
+  align-items: center;
+  justify-items: start; /* Left-align items within each column */
+  justify-content: end; /* Right-align the grid itself */
+}
+
+.header-row {
   display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.header-controls-right .header-row {
   justify-content: flex-end;
-  gap: 8px;
-  margin-left: auto; /* Push to far right of header */
+  gap: 32px;
+}
+
+/* Link-style header items */
+.header-link {
+  background: none;
+  border: none;
+  color: var(--color-text-white);
+  font-family: var(--font-title-3-family);
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.header-link:hover {
+  opacity: 0.8;
+}
+
+.header-link:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.header-link-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
 .app-header h1 {
@@ -264,29 +322,27 @@ body {
   color: var(--color-text-white);
   text-align: left;
   text-shadow: var(--color-shadow) 2px 2px 3px;
-
-}
-.app-header h3 {
-  margin: 0;
-  padding: 0;
-  font-size: 16px;
-  font-weight: normal;
-  display: flex;
-  align-items: center;
 }
 
 .badge-dot {
   position: absolute;
-  top: 2px;
-  right: 0px;
-  height: 10px;
-  width: 10px;
+  top: -2px;
+  right: -8px;
+  height: 8px;
+  width: 8px;
   background-color: var(--color-badge);
   border-radius: 50%;
 }
+
+.badge-dot.badge-dot-left {
+  right: auto;
+  left: -12px;
+}
+
 .nav-button {
   position: relative;
 }
+
 .nav-button-wrapper {
   position: relative;
   display: inline-block;
