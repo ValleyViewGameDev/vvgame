@@ -241,6 +241,8 @@ const PlayerPanel = ({
 
   return (
     <>
+     <h2>{strings[4051]} {currentPlayer.username} </h2>
+
       {/* Change Avatar Button */}
       <div className="shared-buttons">
         <button 

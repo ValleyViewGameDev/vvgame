@@ -228,8 +228,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
     >
       <div className="standard-panel">
 
-        <h2>{strings[4051]} {currentPlayer.username} {currentPlayer.icon}</h2>
-
         <div className="shared-buttons">
           <button className="btn-basic btn-success" onClick={() => {
             onClose();
