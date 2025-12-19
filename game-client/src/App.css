@@ -27,14 +27,29 @@ body {
   width: var(--base-panel-width);
   background-color: var(--color-bg-panel);
   padding: var(--spacing-md);
+  padding-bottom: 0; /* Content wrapper handles bottom spacing */
   top: 60px;
   font-size: 14px;
   box-shadow: 4px 0 4px var(--color-shadow);
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: calc(100vh - 60px); /* Subtract header height so panel fits viewport */
   position: fixed;
   z-index: 150;
+  overflow: hidden; /* Prevent panel itself from scrolling */
+}
+
+/* Scrollable content area within base panel */
+.base-panel-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Buffer space for Ko-fi widget - does not scroll */
+.base-panel-buffer {
+  height: 60px;
+  flex-shrink: 0;
+  background-color: var(--color-bg-panel);
 }
 .base-panel p {
   margin: 0;
@@ -224,7 +239,7 @@ body {
   width: 230px;
   flex-shrink: 0;
   display: flex;
-  font-size: 17px;
+  font-size: 16px;
   align-items: center;
 }
 
@@ -233,7 +248,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 8px; /* <-- TUNE THIS VALUE to adjust spacing between row 1 and row 2 */
+  gap: 5px; /* <-- TUNE THIS VALUE to adjust spacing between row 1 and row 2 */
 }
 
 /* Left header uses CSS Grid for precise column alignment */
@@ -241,7 +256,7 @@ body {
   display: grid;
   grid-template-columns: auto auto auto; /* 3 columns: Username, Level/Health, Inventory+Currency */
   column-gap: 30px; /* <-- TUNE THIS VALUE to adjust spacing between columns */
-  row-gap: 8px; /* <-- TUNE THIS VALUE to adjust spacing between rows */
+  row-gap: 5px; /* <-- TUNE THIS VALUE to adjust spacing between rows */
   align-items: center;
   justify-content: start; /* Pack columns to left, don't spread across container */
   flex: 1;
@@ -267,7 +282,7 @@ body {
   display: grid;
   grid-template-columns: auto auto auto; /* 3 columns */
   column-gap: 40px; /* <-- TUNE THIS VALUE to adjust spacing between columns */
-  row-gap: 8px; /* <-- TUNE THIS VALUE to adjust spacing between rows */
+  row-gap: 5px; /* <-- TUNE THIS VALUE to adjust spacing between rows */
   align-items: center;
   justify-items: start; /* Left-align items within each column */
   justify-content: end; /* Right-align the grid itself */
@@ -327,7 +342,7 @@ body {
 
 .badge-dot {
   position: absolute;
-  top: -2px;
+  top: 1px;
   right: -8px;
   height: 8px;
   width: 8px;
@@ -337,7 +352,7 @@ body {
 
 .badge-dot.badge-dot-left {
   right: auto;
-  left: -12px;
+  left: -6px;
 }
 
 .nav-button {
