@@ -3,10 +3,16 @@ const Player = require("../models/player");
 const Grid = require("../models/grid");
 const Settlement = require("../models/settlement");
 const ObjectId = require("mongoose").Types.ObjectId;
+const gridResourceManager = require('./GridResourceManager');
 
 async function relocatePlayersHome(frontierId) {
   console.group("🏠 Relocating players to home grids (modernized schema)...");
   let relocatedCount = 0;
+
+  // Initialize GridResourceManager if needed
+  if (!gridResourceManager.initialized) {
+    await gridResourceManager.initialize();
+  }
 
   // ✅ Load players and settlements (small datasets)
   const players = await Player.find({ frontierId });
@@ -95,12 +101,15 @@ async function relocatePlayersHome(frontierId) {
           if (typeof pcData === 'object' && player.baseMaxhp) {
             // Find Signpost Town coordinates and place player at x+1
             let spawnX = 0, spawnY = 0;
-            if (grid.resources && Array.isArray(grid.resources)) {
-              const signpostTown = grid.resources.find(res => res.type === 'Signpost Town');
+            try {
+              const decodedResources = gridResourceManager.getResources(grid);
+              const signpostTown = decodedResources.find(res => res.type === 'Signpost Town');
               if (signpostTown && typeof signpostTown.x === 'number' && typeof signpostTown.y === 'number') {
                 spawnX = signpostTown.x + 1; // Place player 1 tile to the right
                 spawnY = signpostTown.y;
               }
+            } catch (err) {
+              console.warn(`⚠️ Could not decode resources for grid ${gridIdStr}:`, err.message);
             }
             pcData.hp = player.baseMaxhp;
             pcData.position = { x: spawnX, y: spawnY };
@@ -132,12 +141,15 @@ async function relocatePlayersHome(frontierId) {
 
         // Find Signpost Town coordinates in home grid and place player at x+1
         let spawnX = 0, spawnY = 0;
-        if (homeGrid.resources && Array.isArray(homeGrid.resources)) {
-          const signpostTown = homeGrid.resources.find(res => res.type === 'Signpost Town');
+        try {
+          const decodedResources = gridResourceManager.getResources(homeGrid);
+          const signpostTown = decodedResources.find(res => res.type === 'Signpost Town');
           if (signpostTown && typeof signpostTown.x === 'number' && typeof signpostTown.y === 'number') {
             spawnX = signpostTown.x + 1; // Place player 1 tile to the right
             spawnY = signpostTown.y;
           }
+        } catch (err) {
+          console.warn(`⚠️ Could not decode resources for home grid ${homeGridIdStr}:`, err.message);
         }
 
         // Add to home grid's playersInGrid
@@ -182,6 +194,11 @@ async function relocatePlayersHome(frontierId) {
 
 async function relocateOnePlayerHome(playerId) {
   try {
+    // Initialize GridResourceManager if needed
+    if (!gridResourceManager.initialized) {
+      await gridResourceManager.initialize();
+    }
+
     console.log(`🔍 Looking up player with ID: ${playerId}`);
     const player = await Player.findById(playerId);
     if (!player) {
@@ -222,8 +239,9 @@ async function relocateOnePlayerHome(playerId) {
 
       // Find Signpost Town coordinates and place player at x+1
       let spawnX = 0, spawnY = 0;
-      if (currentGrid.resources && Array.isArray(currentGrid.resources)) {
-        const signpostTown = currentGrid.resources.find(res => res.type === 'Signpost Town');
+      try {
+        const decodedResources = gridResourceManager.getResources(currentGrid);
+        const signpostTown = decodedResources.find(res => res.type === 'Signpost Town');
         if (signpostTown && typeof signpostTown.x === 'number' && typeof signpostTown.y === 'number') {
           spawnX = signpostTown.x + 1; // Place player 1 tile to the right
           spawnY = signpostTown.y;
@@ -231,6 +249,8 @@ async function relocateOnePlayerHome(playerId) {
         } else {
           console.log(`🏠 No Signpost Town found, using default (0, 0)`);
         }
+      } catch (err) {
+        console.warn(`⚠️ Could not decode resources for grid ${currentGridIdStr}:`, err.message);
       }
 
       const playersInGrid = currentGrid.playersInGrid instanceof Map
@@ -298,8 +318,9 @@ async function relocateOnePlayerHome(playerId) {
 
     // Find Signpost Town coordinates in home grid and place player at x+1
     let spawnX = 0, spawnY = 0;
-    if (homeGrid.resources && Array.isArray(homeGrid.resources)) {
-      const signpostTown = homeGrid.resources.find(res => res.type === 'Signpost Town');
+    try {
+      const decodedResources = gridResourceManager.getResources(homeGrid);
+      const signpostTown = decodedResources.find(res => res.type === 'Signpost Town');
       if (signpostTown && typeof signpostTown.x === 'number' && typeof signpostTown.y === 'number') {
         spawnX = signpostTown.x + 1; // Place player 1 tile to the right
         spawnY = signpostTown.y;
@@ -307,6 +328,8 @@ async function relocateOnePlayerHome(playerId) {
       } else {
         console.log(`🏠 No Signpost Town found in home grid, using default (0, 0)`);
       }
+    } catch (err) {
+      console.warn(`⚠️ Could not decode resources for home grid ${homeGridIdStr}:`, err.message);
     }
 
     // Add to home grid with restored HP and reset position
