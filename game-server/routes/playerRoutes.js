@@ -8,6 +8,7 @@ const Player = require('../models/player'); // Import the Player model
 const Grid = require('../models/grid');
 const Settlement = require('../models/settlement');
 const { relocateOnePlayerHome } = require('../utils/relocatePlayersHome');
+const { getSocketIO } = require('../socketInstance');
 const queue = require('../queue'); // Import the in-memory queue
 const sendMailboxMessage = require('../utils/messageUtils');
 const { awardTrophy } = require('../utils/trophyUtils');
@@ -18,19 +19,42 @@ const { isGridVisited, markGridVisited } = require('../utils/gridsVisitedUtils')
 
 // POST /api/send-player-home
 router.post('/send-player-home', async (req, res) => {
-  const { playerId } = req.body;
-  
+  const { playerId, fromGridId } = req.body;
+
   if (!playerId) {
     return res.status(400).json({ error: 'Player ID is required' });
   }
-  
+
   try {
-    console.log(`🏠 Sending player ${playerId} home...`);
-    
+    // Get the player's username and current grid before relocating
+    const player = await Player.findById(playerId);
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found' });
+    }
+
+    const currentGridId = fromGridId || (player.location?.g?.toString());
+    const username = player.username;
+
+    console.log(`🏠 Sending player ${username} (${playerId}) home from grid ${currentGridId}...`);
+
     const success = await relocateOnePlayerHome(playerId);
-    
+
     if (success) {
-      console.log(`✅ Successfully sent player ${playerId} home`);
+      console.log(`✅ Successfully sent player ${username} home`);
+
+      // Broadcast socket message to notify other players in the grid
+      if (currentGridId) {
+        const io = getSocketIO();
+        if (io) {
+          console.log(`📡 Broadcasting player-left-sync for ${username} to grid ${currentGridId}`);
+          io.to(currentGridId).emit('player-left-sync', {
+            playerId,
+            username,
+            emitterId: null // Server-initiated, no emitter socket
+          });
+        }
+      }
+
       res.json({ success: true, message: 'Player sent home successfully' });
     } else {
       console.error(`❌ Failed to send player ${playerId} home`);

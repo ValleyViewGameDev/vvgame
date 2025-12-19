@@ -222,6 +222,72 @@ const SocialPanel = ({
     }
   };
 
+  // ✅ Handle Send Home (Debug) - Relocates player to their homestead
+  const handleSendHome = async () => {
+    // Verify developer status before executing
+    const isStillDeveloper = await checkDeveloperStatus(currentPlayer?.username);
+    if (!isStillDeveloper) {
+      updateStatus('❌ Developer access required.');
+      return;
+    }
+
+    if (!pcData || !pcData.playerId) {
+      console.error("❌ Cannot send home: No player data");
+      updateStatus("Failed to send player home");
+      return;
+    }
+
+    const playerId = pcData.playerId;
+    const gridId = currentPlayer?.location?.g;
+
+    console.log(`🏠 Sending player ${pcData.username} (${playerId}) home`);
+
+    try {
+      // Pass fromGridId so server can broadcast player-left-sync to the right room
+      const response = await axios.post(`${API_BASE}/api/send-player-home`, {
+        playerId: playerId,
+        fromGridId: gridId,
+      });
+
+      if (!response.data.success) {
+        throw new Error('Failed to send player home');
+      }
+
+      console.log(`✅ Successfully sent player ${pcData.username} home`);
+
+      // Remove from local grid state since they're no longer in this grid
+      // (Server broadcasts player-left-sync which will also trigger removal on other clients)
+      if (gridId) {
+        playersInGridManager.removePC(gridId, playerId);
+        console.log(`✅ Removed ${pcData.username} from local grid state`);
+      }
+
+      // Handle NPCController transfer if needed
+      if (controllerUsername === pcData.username) {
+        console.log(`🎮 Sent player ${pcData.username} was the NPCController, clearing controller`);
+        if (setControllerUsername) {
+          setControllerUsername(null);
+        }
+        // Request controller reassignment
+        if (socket) {
+          setTimeout(() => {
+            socket.emit('request-npc-controller', { gridId: gridId });
+          }, 100);
+        }
+      }
+
+      updateStatus(`Sent ${pcData.username} home`);
+
+      // Close the panel since the player is no longer in this grid
+      if (pcData.username !== currentPlayer.username) {
+        onClose();
+      }
+    } catch (error) {
+      console.error("❌ Error sending player home:", error);
+      updateStatus("Failed to send player home");
+    }
+  };
+
 
 return (
     <Panel onClose={onClose} descriptionKey="1014" titleKey="1114" panelName="SocialPanel">
@@ -288,7 +354,7 @@ return (
           </div>
         )}
 
-        {/* Debug button for developers to remove player from grid state */}
+        {/* Debug buttons for developers */}
         {isDeveloper && displayedPCData.username !== currentPlayer.username && (
           <div className="shared-buttons">
             <button
@@ -296,6 +362,14 @@ return (
               onClick={handleRemoveFromGridState}
             >
               🗑️ Remove from GridState (dev only)
+            </button>
+            <br />
+            <br />
+            <button
+              className="btn-basic btn-danger"
+              onClick={handleSendHome}
+            >
+              🏠 Send Home (dev only)
             </button>
           </div>
         )}
