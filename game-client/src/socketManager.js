@@ -196,7 +196,7 @@ const handlePlayerJoinedGrid = ({ gridId: joinedGridId, playerId, username, play
 };
 
 // 🔄 SOCKET LISTENER: PCs: Real-time updates for GridState (PC sync)
-export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, setPlayersInGrid, localPlayerMoveTimestampRef) {
+export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, setPlayersInGrid, localPlayerMoveTimestampRef, setConnectedPlayers) {
 
   console.log("🌐🌐🌐🌐🌐🌐 useEffect for PC & NPC grid-state-sync running. gridId:", gridId, "socket:", !!socket);
 
@@ -270,7 +270,18 @@ export function socketListenForPCstateChanges(TILE_SIZE, gridId, currentPlayer, 
       }
 
       console.log(`⏩ Updating PC ${playerId} from socket event.`);
-      
+
+      // Mark this player as connected since they're actively sending updates
+      if (setConnectedPlayers) {
+        setConnectedPlayers(prev => {
+          if (!prev.has(playerId)) {
+            console.log(`📡 Marking player ${playerId} as connected (received state update)`);
+            return new Set(prev).add(playerId);
+          }
+          return prev;
+        });
+      }
+
       // Update React state directly (primary source of truth)
       const updatedState = {
         ...prevState,

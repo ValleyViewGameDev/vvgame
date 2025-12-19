@@ -4,8 +4,8 @@ import { getDerivedRange } from '../Utils/worldHelpers';
 import { renderPositions } from '../PlayerMovement';
 import './PCComponent.css';
 
-const PCComponent = ({ 
-  pc, 
+const PCComponent = ({
+  pc,
   TILE_SIZE,
   currentPlayer,
   isCurrentPlayer,
@@ -15,7 +15,8 @@ const PCComponent = ({
   setBackpack,
   masterResources,
   strings,
-  setHoverTooltip
+  setHoverTooltip,
+  connectedPlayers
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   // Health bar removed - using tooltips instead
@@ -130,6 +131,9 @@ const PCComponent = ({
   const attackRange = showRangeIndicators ? pc.attackrange : 0;
   const isInHomestead = currentPlayer?.location?.gtype === "homestead";
 
+  // Check if this player is currently connected (online)
+  const isConnected = isCurrentPlayer || connectedPlayers?.has(pc.playerId);
+
   return (
     <>
       {/* Regular range indicator (gray circle) */}
@@ -186,6 +190,7 @@ const PCComponent = ({
         zIndex: 16,
         pointerEvents: 'auto',
         cursor: 'pointer',
+        opacity: isConnected ? 1 : 0.4,
       }}
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}

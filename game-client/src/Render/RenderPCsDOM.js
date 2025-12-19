@@ -13,7 +13,8 @@ export const RenderPCsDOM = ({
   setInventory,
   setBackpack,
   masterResources,
-  strings
+  strings,
+  connectedPlayers
 }) => {
   return (
     <div
@@ -57,6 +58,7 @@ export const RenderPCsDOM = ({
               masterResources={masterResources}
               strings={strings}
               setHoverTooltip={() => {}} // TODO: Add hover tooltip support
+              connectedPlayers={connectedPlayers}
             />
           </div>
         );

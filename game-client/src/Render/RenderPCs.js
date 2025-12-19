@@ -5,7 +5,7 @@ import { RenderPCsDOM } from './RenderPCsDOM';
  * Main PC (Player Character) rendering component - TEMPORARILY USING DOM MODE
  * Canvas implementation not yet complete, using DOM for PCs only
  */
-export const RenderPCs = ({ 
+export const RenderPCs = ({
   pcs,
   TILE_SIZE,
   currentPlayer,
@@ -15,6 +15,7 @@ export const RenderPCs = ({
   setBackpack,
   masterResources,
   strings,
+  connectedPlayers,
 }) => {
   // TEMPORARILY USING DOM MODE - Canvas implementation not complete
   return (
@@ -28,6 +29,7 @@ export const RenderPCs = ({
       setBackpack={setBackpack}
       masterResources={masterResources}
       strings={strings}
+      connectedPlayers={connectedPlayers}
     />
   );
 };

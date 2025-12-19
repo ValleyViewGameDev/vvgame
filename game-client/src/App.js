@@ -1545,8 +1545,8 @@ useEffect(() => {
 
 // 🔄 SOCKET LISTENER: PCs: Real-time updates for GridState (PC sync)
 useEffect(() => {
-  if (!isAppInitialized) { console.log('App not initialized. Skipping PC socket changes.'); return; }  
-  socketListenForPCstateChanges(activeTileSize, gridId, currentPlayer, setPlayersInGrid, localPlayerMoveTimestampRef);
+  if (!isAppInitialized) { console.log('App not initialized. Skipping PC socket changes.'); return; }
+  socketListenForPCstateChanges(activeTileSize, gridId, currentPlayer, setPlayersInGrid, localPlayerMoveTimestampRef, setConnectedPlayers);
 }, [socket, gridId, currentPlayer]);
 
 // 🔄 SOCKET LISTENER: NPCs:  Real-time updates for GridStateNPC snc
@@ -2436,6 +2436,7 @@ return (
 {/* ///////////////////  Base Panel  ///////////////////// */}
 
     <div className="base-panel">
+      <div className="base-panel-content">
 
       {/* Frontier Mini Map */}
       <FrontierMiniMap 
@@ -2534,9 +2535,11 @@ return (
         </h4>
       </div>
       <br />
+      </div>
+      <div className="base-panel-buffer"></div>
     </div>
 
-      
+
 {/* //////////////////// Game Board //////////////////// */}
 
     <div className="homestead">
@@ -2617,6 +2620,7 @@ return (
           setBackpack={setBackpack}
           masterResources={masterResources}
           strings={strings}
+          connectedPlayers={connectedPlayers}
         />
         
         {/* Layer 5: Dynamic Elements (tooltips, overlays, VFX) */}
