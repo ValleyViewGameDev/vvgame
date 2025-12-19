@@ -180,6 +180,24 @@
     "requires1qty": 10
   },
   {
+    "trader": "Castle",
+    "index": 1,
+    "gives": "King's Crown",
+    "givesqty": 1,
+    "repeat": true,
+    "requires1": "Golden Key",
+    "requires1qty": 1
+  },
+  {
+    "trader": "Shrine",
+    "index": 1,
+    "gives": "Trident",
+    "givesqty": 1,
+    "repeat": true,
+    "requires1": "Skeleton Key",
+    "requires1qty": 1
+  },
+  {
     "trader": "Oracle",
     "index": 1,
     "gives": "Hope",

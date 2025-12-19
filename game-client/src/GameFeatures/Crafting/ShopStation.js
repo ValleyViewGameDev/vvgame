@@ -32,6 +32,7 @@ const ShopStation = ({
   TILE_SIZE,
   updateStatus,
   masterResources,
+  masterTraders,
   masterTrophies,
   isDeveloper,
   globalTuning,
@@ -82,16 +83,63 @@ const ShopStation = ({
   useEffect(() => {
     if (!masterResources || !stationType) return;
 
-    const filteredRecipes = masterResources.filter((resource) =>
-      resource.source === stationType &&
-      (!currentPlayer.powers || !currentPlayer.powers.some(p => p.type === resource.type))
-    );
-    setRecipes(filteredRecipes);
+    // First check if this shop has trades defined in masterTraders
+    const traderOffers = masterTraders?.filter(t => t.trader === stationType);
+
+    if (traderOffers && traderOffers.length > 0) {
+      // Transform each trader offer into the recipe format expected by the component
+      const filteredRecipes = traderOffers.map(offer => {
+        const resourceDef = masterResources.find(r => r.type === offer.gives);
+
+        const recipe = {
+          type: offer.gives,
+          symbol: resourceDef?.symbol || '?',
+          qtycollected: offer.givesqty || 1,
+          source: stationType,
+          gemcost: resourceDef?.gemcost || null,
+          index: offer.index,
+          repeat: offer.repeat,
+          level: resourceDef?.level,
+          requires: resourceDef?.requires,
+          category: resourceDef?.category
+        };
+
+        // Collect all requires fields into ingredient format
+        let ingredientCount = 1;
+        for (let i = 1; i <= 7; i++) {
+          const requiresField = `requires${i}`;
+          const requiresQtyField = `requires${i}qty`;
+
+          if (offer[requiresField]) {
+            recipe[`ingredient${ingredientCount}`] = offer[requiresField];
+            recipe[`ingredient${ingredientCount}qty`] = offer[requiresQtyField] || 1;
+            ingredientCount++;
+          }
+        }
+
+        return recipe;
+      });
+
+      // Filter out powers the player already has
+      const finalRecipes = filteredRecipes.filter(recipe =>
+        recipe.category !== 'power' ||
+        !currentPlayer.powers?.some(p => p.type === recipe.type)
+      );
+
+      setRecipes(finalRecipes);
+    } else {
+      // Fallback to old method using masterResources.source
+      const filteredRecipes = masterResources.filter((resource) =>
+        resource.source === stationType &&
+        (!currentPlayer.powers || !currentPlayer.powers.some(p => p.type === resource.type))
+      );
+      setRecipes(filteredRecipes);
+    }
 
     const stationResource = masterResources.find((resource) => resource.type === stationType);
     setStationEmoji(stationResource?.symbol || '🛖');
     setStationDetails(stationResource);
-  }, [stationType, fetchTrigger, masterResources]);
+  }, [stationType, fetchTrigger, masterResources, masterTraders, currentPlayer.powers]);
 
 
   const handleGemPurchase = async (modifiedRecipe) => {
@@ -289,7 +337,25 @@ const ShopStation = ({
             </p>
           )}
           {recipes?.length > 0 ? (
-            recipes.map((recipe) => {
+            (() => {
+              // Filter out non-repeatable items the player already has
+              const filteredRecipes = recipes.filter((recipe) => {
+                if (recipe.repeat === false) {
+                  const hasInInventory = inventory?.some(item => item.type === recipe.type);
+                  const hasInBackpack = backpack?.some(item => item.type === recipe.type);
+                  if (hasInInventory || hasInBackpack) {
+                    return false;
+                  }
+                }
+                return true;
+              });
+
+              // If all trades were filtered out, show a message
+              if (filteredRecipes.length === 0) {
+                return <p>{strings[423]}</p>;
+              }
+
+              return filteredRecipes.map((recipe) => {
               const affordable = canAfford(recipe, inventory, backpack, 1);
               const meetsSkillRequirement = hasRequirement(recipe.requires);
               const meetsLevel = meetsLevelRequirement(recipe.level);
@@ -403,7 +469,8 @@ const ShopStation = ({
                 >
                 </ResourceButton>
               );
-            })
+            });
+            })()
           ) : <p>{strings[423]}</p>}
 
           {errorMessage && <p className="error-message">{errorMessage}</p>}

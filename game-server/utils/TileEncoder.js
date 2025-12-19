@@ -13,7 +13,7 @@ const TILE_TYPE_TO_BITS = {
   'o': 0b0111, // snow
   'x': 0b1000, // cobblestone 
   'y': 0b1001, // dungeon 
-  'z': 0b1010  // tbd 
+  'z': 0b1010  // moss 
 };
 
 const BITS_TO_TILE_TYPE = {
@@ -27,7 +27,7 @@ const BITS_TO_TILE_TYPE = {
   0b0111: 'o', // snow
   0b1000: 'x', // cobblestone
   0b1001: 'y', // dungeon
-  0b1010: 'z'  // tbd
+  0b1010: 'z'  // moss
 };
 
 const BITS_PER_TILE = 4;

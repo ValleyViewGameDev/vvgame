@@ -12,7 +12,7 @@ const TILE_ROUNDING_CONFIG = {
   p: true,  // pavement - rounded
   x: true,  // cobblestone - rounded
   y: false,  // dungeon - rounded
-  z: false  // tbd - rounded
+  z: false  // moss - rounded
 };
 
 // Get CSS color for a tile type
@@ -28,7 +28,7 @@ function getTileColor(tileType) {
     o: '#ffffff', // snow
     x: '#959ba3ff', // cobblestone
     y: '#000000ff', // dungeon
-    z: '#ffffff', // TBD
+    z: '#0f521cff', // TBD
     unknown: '#ff0000', // debug red
   };
   return tileColors[tileType] || tileColors.unknown;

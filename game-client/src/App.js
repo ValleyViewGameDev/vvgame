@@ -3165,6 +3165,7 @@ return (
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}
+          masterTraders={masterTraders}
           masterTrophies={masterTrophies}
           isDeveloper={isDeveloper}
           globalTuning={globalTuning}

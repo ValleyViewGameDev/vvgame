@@ -1194,7 +1194,7 @@ const handleDeleteSelectedTiles = () => {
     'n': 'SA',  // sand
     'x': 'CB',  // cobblestone
     'y': 'DU',  // dungeon
-    'z': "ZZ"   // zzz (special)
+    'z': "ZZ"   // moss
   };
   
   const layoutKeysToDelete = selectedTypes.map(type => typeMapping[type] || type);
