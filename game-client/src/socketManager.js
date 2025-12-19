@@ -700,8 +700,19 @@ export function socketListenForSeasonReset() {
 // 🔄 SOCKET LISTENER: Player Connect and Disconnect
 export function socketListenForConnectAndDisconnect(gridId, currentPlayer, setIsSocketConnected) {
   const handleConnect = () => {
-    console.log('📡 Socket connected!');
+    console.log('📡 Socket connected/reconnected!');
     setIsSocketConnected(true);
+
+    // CRITICAL: Re-join grid room on reconnection (socket loses room membership on disconnect)
+    if (gridId && currentPlayer?._id) {
+      console.log(`📡 Re-joining grid room: ${gridId}`);
+      socket.emit('join-grid', { gridId, playerId: currentPlayer._id });
+      socket.emit('join-player-room', { playerId: currentPlayer._id });
+      if (currentPlayer?.username) {
+        socket.emit('set-username', { username: currentPlayer.username });
+      }
+    }
+
     // Emit presence info
     socket.emit('player-connected', { playerId: currentPlayer._id, gridId });
   };
