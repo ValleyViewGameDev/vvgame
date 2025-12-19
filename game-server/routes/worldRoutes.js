@@ -1810,7 +1810,7 @@ router.post('/bulk-harvest', async (req, res) => {
 
     // Process each operation
     for (const operation of operations) {
-      const { cropType, positions, replant, expectedYield } = operation;
+      const { cropType, positions, replant, freeReplant, expectedYield } = operation;
       
       if (!cropType || !positions || !Array.isArray(positions) || positions.length === 0) {
         harvestResults.failed.push({ cropType, reason: 'Invalid operation data' });
@@ -1903,43 +1903,48 @@ router.post('/bulk-harvest', async (req, res) => {
       // Handle replanting if requested
       if (replant && harvestedPositions.length > 0) {
         // Find the farmplot that produces this crop
-        const farmplot = masterResources.find(r => 
+        const farmplot = masterResources.find(r =>
           r.category === 'farmplot' && r.output === cropType
         );
 
         if (farmplot) {
-          // Check and consume seeds
-          const seedsNeeded = {};
-          for (let i = 1; i <= 4; i++) {
-            const ingredientType = farmplot[`ingredient${i}`];
-            const ingredientQty = farmplot[`ingredient${i}qty`];
-            
-            if (ingredientType && ingredientQty) {
-              const totalNeeded = ingredientQty * harvestedPositions.length;
-              seedsNeeded[ingredientType] = totalNeeded;
-            }
-          }
-
-          // Check if player has enough seeds
+          // For freeReplant (repeatable crops), skip seed consumption
           let canReplant = true;
           const seedsToConsume = {};
-          
-          for (const [seedType, needed] of Object.entries(seedsNeeded)) {
-            const inInventory = player.inventory?.find(item => item.type === seedType)?.quantity || 0;
-            const inBackpack = player.backpack?.find(item => item.type === seedType)?.quantity || 0;
-            const totalHas = inInventory + inBackpack;
-            
-            if (totalHas < needed) {
-              canReplant = false;
-              harvestResults.failed.push({
-                cropType,
-                reason: `Not enough ${seedType} for replanting`,
-                needed,
-                has: totalHas
-              });
-              break;
+
+          if (!freeReplant) {
+            // Check and consume seeds (only for non-repeatable crops)
+            const seedsNeeded = {};
+            for (let i = 1; i <= 4; i++) {
+              const ingredientType = farmplot[`ingredient${i}`];
+              const ingredientQty = farmplot[`ingredient${i}qty`];
+
+              if (ingredientType && ingredientQty) {
+                const totalNeeded = ingredientQty * harvestedPositions.length;
+                seedsNeeded[ingredientType] = totalNeeded;
+              }
             }
-            seedsToConsume[seedType] = needed;
+
+            // Check if player has enough seeds
+            for (const [seedType, needed] of Object.entries(seedsNeeded)) {
+              const inInventory = player.inventory?.find(item => item.type === seedType)?.quantity || 0;
+              const inBackpack = player.backpack?.find(item => item.type === seedType)?.quantity || 0;
+              const totalHas = inInventory + inBackpack;
+
+              if (totalHas < needed) {
+                canReplant = false;
+                harvestResults.failed.push({
+                  cropType,
+                  reason: `Not enough ${seedType} for replanting`,
+                  needed,
+                  has: totalHas
+                });
+                break;
+              }
+              seedsToConsume[seedType] = needed;
+            }
+          } else {
+            console.log(`🌱 Free replant for repeatable crop: ${cropType}`);
           }
 
           if (canReplant) {

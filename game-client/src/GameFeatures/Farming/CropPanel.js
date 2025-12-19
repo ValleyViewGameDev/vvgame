@@ -163,16 +163,12 @@ const CropPanel = ({
           {getCropStatusText()}
         </p>
 
-        {currentPlayer.location.gtype === 'homestead' && (
-          <>
-            <hr />
-              <div className="shared-buttons">
-                <button className="btn-basic btn-success" onClick={handleSellStation} disabled={isActionCoolingDown}>
-                  {strings[438]}
-                </button>
-              </div>
-          </>
-        )}
+        <hr />
+        <div className="shared-buttons">
+          <button className="btn-basic btn-success" onClick={handleSellStation} disabled={isActionCoolingDown}>
+            {strings[438]}
+          </button>
+        </div>
       </div>
     </Panel>
   );

@@ -135,7 +135,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 ///////// SOCKET EVENTS //////////
 
     io.on('connection', (socket) => {
-      //console.log(`🟢 New client connected: ${socket.id}`);
+      console.log(`🟢 New client connected: ${socket.id}`);
 
       // Track controller assignments (move this OUTSIDE the connection handler)
       const gridControllers = io.gridControllers = io.gridControllers || new Map();

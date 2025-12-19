@@ -141,23 +141,33 @@ export async function calculateBulkHarvestCapacity(
  * Build operations array for bulk harvest API call
  * @param {Object} capacityCheck - Results from calculateBulkHarvestCapacity
  * @param {Object} selectedReplantTypes - Which crops to replant
+ * @param {Array} masterResources - Master resource definitions (optional, for checking repeatable)
  * @returns {Array} Operations array for API
  */
-export function buildBulkHarvestOperations(capacityCheck, selectedReplantTypes) {
+export function buildBulkHarvestOperations(capacityCheck, selectedReplantTypes, masterResources = []) {
   const operations = [];
-  
+
   // Group by crop type for efficiency
   capacityCheck.harvestDetails.forEach(detail => {
     const shouldReplant = selectedReplantTypes[detail.type] || false;
-    
+
+    // Check if this crop has repeatable=true (replants for free)
+    let freeReplant = false;
+    if (shouldReplant && masterResources.length > 0) {
+      // The repeatable property is on the crop resource, not the farmplot
+      const cropResource = masterResources.find(r => r.type === detail.type);
+      freeReplant = cropResource?.repeatable === true;
+    }
+
     operations.push({
       cropType: detail.type,
       positions: detail.positions,
       replant: shouldReplant,
+      freeReplant: freeReplant, // Server should not charge seeds for this
       expectedYield: detail.totalYield
     });
   });
-  
+
   return operations;
 }
 

@@ -161,10 +161,38 @@ export function isACrop(itemType, masterResources) {
   if (itemType === 'Oak Tree' || itemType === 'Pine Tree') {
     return false;
   }
-  
+
   // Check if this item is the output of any farmplot resource
-  return masterResources.some(resource => 
+  return masterResources.some(resource =>
     resource.category === 'farmplot' && resource.output === itemType
   );
+}
+
+/**
+ * Check if a player has the required skill for a resource/item
+ * 'devonly' is a visibility filter, not a skill requirement - always passes
+ * @param {string} requiredSkill - The skill requirement (e.g., 'Farming', 'devonly', etc.)
+ * @param {Object} currentPlayer - The current player object with skills array
+ * @returns {boolean} True if the skill requirement is met
+ */
+export function hasRequiredSkill(requiredSkill, currentPlayer) {
+  // 'devonly' is a visibility filter, not a skill requirement - always passes skill check
+  if (requiredSkill === 'devonly') return true;
+  // No requirement means it's always available
+  if (!requiredSkill) return true;
+  // Check if player has the required skill
+  return currentPlayer?.skills?.some((owned) => owned.type === requiredSkill) ?? false;
+}
+
+/**
+ * Check if a resource should be visible based on 'devonly' requirement
+ * @param {Object} resource - The resource object with optional 'requires' field
+ * @param {boolean} isDeveloper - Whether the current player is a developer
+ * @returns {boolean} True if the resource should be visible
+ */
+export function isVisibleToPlayer(resource, isDeveloper) {
+  // If requires is 'devonly', only show to developers
+  if (resource.requires === 'devonly') return isDeveloper;
+  return true;
 }
 

@@ -3207,10 +3207,11 @@ return (
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           gridId={gridId}
-          masterResources={masterResources} 
-          masterSkills={masterSkills} 
+          masterResources={masterResources}
+          masterSkills={masterSkills}
           updateStatus={updateStatus}
           currentSeason={seasonData?.type}
+          isDeveloper={isDeveloper}
         />
       )}
       {activePanel === 'ToolsPanel' && (

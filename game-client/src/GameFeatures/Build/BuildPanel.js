@@ -4,7 +4,7 @@ import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { handleConstruction, handleConstructionWithGems } from '../BuildAndBuy';
-import { getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { getIngredientDetails, hasRequiredSkill as checkRequiredSkill, isVisibleToPlayer } from '../../Utils/ResourceHelpers';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { usePanelContext } from '../../UI/Panels/PanelContext';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
@@ -75,6 +75,9 @@ const BuildPanel = ({
         console.log('🏢 BuildTown resources found:', buildTownResources.map(r => r.type));
         // ✅ Filter build options based on the player's location
         const validBuildOptions = allResourcesData.filter(resource => {
+          // Filter out devonly resources unless player is a developer
+          if (!isVisibleToPlayer(resource, isDeveloper)) return false;
+
           // Check if resource is a valid build option based on source and location
           // Convert to strings for comparison to handle ObjectId vs string issues
           const currentSettlementStr = String(currentPlayer.location.s || '');
@@ -155,9 +158,8 @@ const BuildPanel = ({
     fetchData();
   }, [currentPlayer, currentPlayer?.location?.s, currentPlayer?.location?.gtype, currentPlayer?.settlementId, isDeveloper, currentSeason]);
 
-  const hasRequiredSkill = (requiredSkill) => {
-    return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
-  };
+  // Local wrapper for the utility function
+  const hasRequiredSkill = (requiredSkill) => checkRequiredSkill(requiredSkill, currentPlayer);
 
   // Check if player meets the level requirement for a resource
   const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);

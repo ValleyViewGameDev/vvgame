@@ -18,6 +18,7 @@ import { checkAndDropWarehouseIngredient } from './Utils/WarehouseMaterials';
 import { selectWeightedRandomItem, getDropQuantity } from './Economy/DropRates';
 import playersInGridManager from './GridState/PlayersInGrid';
 import { getDerivedRange } from './Utils/worldHelpers';
+import { enrichResourceFromMaster } from './Utils/ResourceHelpers';
 
  
  // Handles resource click actions based on category. //
@@ -442,6 +443,18 @@ export async function handleDooberClick(
     // Update currentPlayer state locally
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
     console.log('[DEBUG] Player state refreshed after inventory update.');
+
+    // Handle replanting if resource is repeatable
+    if (resource.repeatable === true) {
+      await handleReplant(
+        resource,
+        row,
+        col,
+        setResources,
+        gridId,
+        masterResources
+      );
+    }
   } catch (error) {
     console.error('Error during doober collection:', error);
     // Rollback local resource state on server failure
@@ -454,7 +467,86 @@ export async function handleDooberClick(
     }
   }
 }
- 
+
+// HANDLE REPLANT - Called when a repeatable doober is collected
+// Finds the farmplot that outputs this resource and plants it in the same location
+// Mirrors handleFarmPlotPlacement logic from Farming.js
+async function handleReplant(
+  collectedResource,
+  row,
+  col,
+  setResources,
+  gridId,
+  masterResources
+) {
+  console.log(`🌱 handleReplant: Looking for farmplot that outputs ${collectedResource.type}`);
+
+  // Find the farmplot resource that outputs this collected resource
+  const farmplotResource = masterResources.find(
+    (res) => res.category === 'farmplot' && res.output === collectedResource.type
+  );
+
+  if (!farmplotResource) {
+    console.warn(`⚠️ handleReplant: No farmplot found that outputs ${collectedResource.type}`);
+    return;
+  }
+
+  console.log(`🌱 handleReplant: Found farmplot ${farmplotResource.type}, planting at (${col}, ${row})`);
+
+  // Calculate growEnd based on farmplot's growtime (growtime is in seconds, convert to ms)
+  // This matches Farming.js line 67: Date.now() + (selectedItem.growtime || 0) * 1000
+  const growEndTime = Date.now() + (farmplotResource.growtime || 0) * 1000;
+  console.log(`⏱️ handleReplant: growtime = ${farmplotResource.growtime}, growEndTime = ${growEndTime}, secondsFromNow = ${(growEndTime - Date.now()) / 1000}`);
+
+  // Use enrichResourceFromMaster like Farming.js does for proper enrichment
+  const enrichedNewResource = enrichResourceFromMaster(
+    {
+      type: farmplotResource.type,
+      x: col,
+      y: row,
+      growEnd: growEndTime,
+    },
+    masterResources
+  );
+
+  console.log('🌱 handleReplant: Enriched farmplot resource:', enrichedNewResource);
+
+  // Update local state - add the new farmplot resource
+  const currentResources = GlobalGridStateTilesAndResources.getResources();
+  const finalResources = [...currentResources, enrichedNewResource];
+
+  GlobalGridStateTilesAndResources.setResources(finalResources);
+  setResources(finalResources);
+
+  // Perform server update to add the farmplot
+  try {
+    const gridUpdateResponse = await updateGridResource(
+      gridId,
+      {
+        type: farmplotResource.type,
+        x: col,
+        y: row,
+        growEnd: growEndTime
+      },
+      true
+    );
+
+    if (gridUpdateResponse?.success) {
+      console.log(`✅ handleReplant: Successfully planted ${farmplotResource.type} at (${col}, ${row})`);
+    } else {
+      throw new Error('Server failed to confirm the replant.');
+    }
+  } catch (error) {
+    console.error('❌ handleReplant: Error during replanting:', error);
+    // Rollback local state on failure
+    const rolledBackResources = GlobalGridStateTilesAndResources.getResources().filter(
+      (res) => !(res.x === col && res.y === row && res.type === farmplotResource.type)
+    );
+    GlobalGridStateTilesAndResources.setResources(rolledBackResources);
+    setResources(rolledBackResources);
+  }
+}
+
 // HANDLE SOURCE CONVERSIONS //
 //
 export async function handleSourceConversion(

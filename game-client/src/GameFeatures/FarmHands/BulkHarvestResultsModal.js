@@ -90,7 +90,7 @@ export function BulkHarvestResultsModal({
                   <div key={cropType} className="replant-row">
                     <span className="replant-symbol">{cropSymbol}</span>
                     <span className="replant-name">{getLocalizedString(cropType, strings)}</span>
-                    <span className="replant-quantity">{count} plots</span>
+                    <span className="replant-quantity">{count}</span>
                     {seedsUsedForCrop && (
                       <span className="replant-seeds-used">
                         {strings[361] || "Seeds used"}: -{seedsUsedForCrop}

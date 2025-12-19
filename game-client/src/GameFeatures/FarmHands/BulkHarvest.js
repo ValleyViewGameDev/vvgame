@@ -45,20 +45,26 @@ export function BulkHarvestModal({
       if (showBulkReplant) {
         const defaultReplantSelection = {};
         crops.forEach(crop => {
+          // Repeatable crops are always selected for replant (auto-replant for free)
+          if (crop.repeatable) {
+            defaultReplantSelection[crop.type] = true;
+            return;
+          }
+
           // Check if player has required skill
           const hasSkill = hasRequiredSkill(crop.replantRequires);
-          
+
           // Check if crop is in season
           let isInSeason = true;
           if (currentSeason && masterResources) {
-            const farmplot = masterResources.find(r => 
+            const farmplot = masterResources.find(r =>
               r.category === 'farmplot' && r.output === crop.type
             );
             if (farmplot && farmplot.season) {
               isInSeason = farmplot.season === currentSeason;
             }
           }
-          
+
           if (hasSkill && isInSeason) {
             defaultReplantSelection[crop.type] = true;
           }
@@ -69,6 +75,10 @@ export function BulkHarvestModal({
   }, [isOpen, crops, showBulkReplant, hasRequiredSkill, currentSeason, masterResources]);
 
   const handleToggleCrop = (cropType) => {
+    // Find if this crop is repeatable
+    const crop = crops.find(c => c.type === cropType);
+    const isRepeatable = crop?.repeatable === true;
+
     setSelectedCropTypes(prev => {
       const newValue = !prev[cropType];
       // If unchecking harvest, also uncheck replant
@@ -76,6 +86,12 @@ export function BulkHarvestModal({
         setSelectedReplantTypes(replantPrev => ({
           ...replantPrev,
           [cropType]: false
+        }));
+      } else if (isRepeatable) {
+        // If checking harvest for repeatable crop, auto-check replant
+        setSelectedReplantTypes(replantPrev => ({
+          ...replantPrev,
+          [cropType]: true
         }));
       }
       return {
@@ -86,6 +102,12 @@ export function BulkHarvestModal({
   };
 
   const handleToggleReplant = (cropType) => {
+    // Find if this crop is repeatable - repeatable crops cannot be toggled
+    const crop = crops.find(c => c.type === cropType);
+    if (crop?.repeatable === true) {
+      return; // Cannot toggle repeatable crops
+    }
+
     setSelectedReplantTypes(prev => {
       const newValue = !prev[cropType];
       // If checking replant, also check harvest
@@ -104,29 +126,39 @@ export function BulkHarvestModal({
 
   const handleExecute = async () => {
     if (isProcessing) return;
-    
+
     setIsProcessing(true);
     try {
       // If getFreshCrops is provided, validate selections against fresh data
       if (getFreshCrops) {
         const freshCrops = await getFreshCrops();
-        
+
         // Filter selections to only include crops that still exist
         const validCropTypes = {};
         const validReplantTypes = {};
-        
+
         freshCrops.forEach(crop => {
           if (selectedCropTypes[crop.type]) {
             validCropTypes[crop.type] = true;
-          }
-          if (selectedReplantTypes[crop.type]) {
-            validReplantTypes[crop.type] = true;
+            // For repeatable crops, include in replant if being harvested
+            if (crop.repeatable) {
+              validReplantTypes[crop.type] = true;
+            } else if (selectedReplantTypes[crop.type]) {
+              validReplantTypes[crop.type] = true;
+            }
           }
         });
-        
+
         onExecute(validCropTypes, validReplantTypes);
       } else {
-        onExecute(selectedCropTypes, selectedReplantTypes);
+        // For repeatable crops, include in replant only if being harvested
+        const finalReplantTypes = { ...selectedReplantTypes };
+        crops.forEach(crop => {
+          if (crop.repeatable && selectedCropTypes[crop.type]) {
+            finalReplantTypes[crop.type] = true;
+          }
+        });
+        onExecute(selectedCropTypes, finalReplantTypes);
       }
     } finally {
       setIsProcessing(false);
@@ -140,23 +172,29 @@ export function BulkHarvestModal({
       <div style={{ padding: '20px', fontSize: '16px' }}>
         <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
           <div className="shared-buttons" style={{ display: 'flex', gap: '10px' }}>
-            <button 
+            <button
               className="btn-basic btn-success btn-modal-small"
               onClick={() => {
                 const allSelected = {};
+                const repeatableReplants = {};
                 crops.forEach(crop => {
                   allSelected[crop.type] = true;
+                  // Auto-check replant for repeatable crops when selecting all harvests
+                  if (crop.repeatable) {
+                    repeatableReplants[crop.type] = true;
+                  }
                 });
                 setSelectedCropTypes(allSelected);
+                setSelectedReplantTypes(prev => ({ ...prev, ...repeatableReplants }));
               }}
             >
               {strings[316] || 'Select All'}
             </button>
-            <button 
+            <button
               className="btn-basic btn-neutral btn-modal-small"
               onClick={() => {
                 setSelectedCropTypes({});
-                // When deselecting all harvest, also deselect all replant
+                // When deselecting all harvest, also deselect all replant (including repeatable)
                 setSelectedReplantTypes({});
               }}
             >
@@ -166,26 +204,35 @@ export function BulkHarvestModal({
           
           {showBulkReplant && (
             <div className="shared-buttons" style={{ display: 'flex', gap: '10px', marginLeft: 'auto' }}>
-              <button 
+              <button
                 className="btn-basic btn-success btn-modal-small"
                 onClick={() => {
                   const allReplantSelected = {};
                   const allHarvestSelected = {};
                   crops.forEach(crop => {
+                    // Repeatable crops: keep replant checked if harvest is checked
+                    if (crop.repeatable) {
+                      if (selectedCropTypes[crop.type]) {
+                        allReplantSelected[crop.type] = true;
+                      }
+                      allHarvestSelected[crop.type] = selectedCropTypes[crop.type] || false;
+                      return;
+                    }
+
                     // Check if player has required skill
                     const hasSkill = hasRequiredSkill(crop.replantRequires);
-                    
+
                     // Check if crop is in season
                     let isInSeason = true;
                     if (currentSeason && masterResources) {
-                      const farmplot = masterResources.find(r => 
+                      const farmplot = masterResources.find(r =>
                         r.category === 'farmplot' && r.output === crop.type
                       );
                       if (farmplot && farmplot.season) {
                         isInSeason = farmplot.season === currentSeason;
                       }
                     }
-                    
+
                     if (hasSkill && isInSeason) {
                       allReplantSelected[crop.type] = true;
                       // When selecting replant, also select harvest
@@ -204,9 +251,18 @@ export function BulkHarvestModal({
               >
                 {strings[316] || 'Select All'}
               </button>
-              <button 
+              <button
                 className="btn-basic btn-neutral btn-modal-small"
-                onClick={() => setSelectedReplantTypes({})}
+                onClick={() => {
+                  // Keep repeatable crops selected only if they're being harvested
+                  const keepRepeatable = {};
+                  crops.forEach(crop => {
+                    if (crop.repeatable && selectedCropTypes[crop.type]) {
+                      keepRepeatable[crop.type] = true;
+                    }
+                  });
+                  setSelectedReplantTypes(keepRepeatable);
+                }}
               >
                 {strings[317] || 'Deselect All'}
               </button>
@@ -240,6 +296,11 @@ export function BulkHarvestModal({
             }
             
             const canReplant = hasSkill && isInSeason;
+            const isRepeatable = crop.repeatable === true;
+            // Repeatable crops follow harvest state and cannot be manually toggled
+            const replantChecked = selectedReplantTypes[crop.type] || false;
+            const replantDisabled = isRepeatable || !canReplant;
+
             return (
               <div key={crop.type} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', padding: '5px', borderBottom: '1px solid #eee' }}>
                 <div style={{ width: '30px' }}>
@@ -256,20 +317,20 @@ export function BulkHarvestModal({
                 {showBulkReplant && (() => {
                   return (
                     <div style={{ marginLeft: '60px', width: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      {!isInSeason && (
+                      {!isRepeatable && !isInSeason && (
                         <span style={{ fontSize: '12px', color: '#888', marginRight: '5px' }}>off season</span>
                       )}
                       <input
                         type="checkbox"
-                        checked={selectedReplantTypes[crop.type] || false}
-                        onChange={() => canReplant && handleToggleReplant(crop.type)}
-                        disabled={!canReplant}
-                        style={{ 
+                        checked={replantChecked}
+                        onChange={() => !isRepeatable && canReplant && handleToggleReplant(crop.type)}
+                        disabled={replantDisabled}
+                        style={{
                           width: '20px',
                           opacity: canReplant ? 1 : 0.5,
-                          cursor: canReplant ? 'pointer' : 'not-allowed'
+                          cursor: replantDisabled ? 'not-allowed' : 'pointer'
                         }}
-                        title={canReplant ? '' : (!isInSeason ? `${crop.type} is not available in current season` : `Requires ${crop.replantRequires || 'unknown skill'} to replant ${crop.type}`)}
+                        title={isRepeatable ? 'Auto-replants for free' : (canReplant ? '' : (!isInSeason ? `${crop.type} is not available in current season` : `Requires ${crop.replantRequires || 'unknown skill'} to replant ${crop.type}`))}
                       />
                     </div>
                   );
@@ -415,8 +476,8 @@ export async function executeBulkHarvest({
     console.log(`⚠️ Not enough seeds for replanting: ${missingSeeds}`);
   }
 
-  // Build operations for API call
-  const operations = buildBulkHarvestOperations(capacityCheck, selectedReplantTypes);
+  // Build operations for API call (pass masterResources to detect repeatable crops for free replant)
+  const operations = buildBulkHarvestOperations(capacityCheck, selectedReplantTypes, masterResources);
   
   // Generate transaction ID for idempotency
   const transactionId = `bulk-harvest-${currentPlayer._id}-${Date.now()}`;
@@ -657,13 +718,15 @@ export function prepareBulkHarvestData(resources, masterResources) {
   readyCrops.forEach((crop) => {
     if (!cropCounts[crop.type]) {
       const baseCrop = masterResources.find(r => r.type === crop.type);
-      const farmplot = masterResources.find(r => 
+      const farmplot = masterResources.find(r =>
         r.category === 'farmplot' && r.output === crop.type
       );
       cropCounts[crop.type] = {
         count: 0,
         symbol: baseCrop?.symbol || '🌾',
-        replantRequires: farmplot?.requires
+        replantRequires: farmplot?.requires,
+        // Check repeatable on the crop itself (from grid resource or master definition)
+        repeatable: crop.repeatable === true || baseCrop?.repeatable === true
       };
     }
     cropCounts[crop.type].count++;
@@ -674,7 +737,8 @@ export function prepareBulkHarvestData(resources, masterResources) {
     type,
     count: data.count,
     symbol: data.symbol,
-    replantRequires: data.replantRequires
+    replantRequires: data.replantRequires,
+    repeatable: data.repeatable // Include repeatable in output
   }));
   
   return result;

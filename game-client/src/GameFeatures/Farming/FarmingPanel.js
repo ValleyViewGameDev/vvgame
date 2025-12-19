@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import axios from 'axios';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
-import { getIngredientDetails } from '../../Utils/ResourceHelpers';
+import { getIngredientDetails, hasRequiredSkill as checkRequiredSkill, isVisibleToPlayer } from '../../Utils/ResourceHelpers';
 import { canAfford } from '../../Utils/InventoryManagement';
 import { handleFarmPlotPlacement } from './Farming';
 import { useStrings } from '../../UI/StringsContext';
@@ -29,7 +29,8 @@ const FarmingPanel = ({
   masterResources,
   masterSkills,
   updateStatus,
-  currentSeason
+  currentSeason,
+  isDeveloper
 }) => {
 
   const strings = useStrings();
@@ -56,7 +57,10 @@ const FarmingPanel = ({
 
       const farmPlotItems = allResourcesData.filter((resource) => {
         // Check if resource is a farm plot
-        return resource.category === 'farmplot';
+        if (resource.category !== 'farmplot') return false;
+        // Filter out devonly resources unless player is a developer
+        if (!isVisibleToPlayer(resource, isDeveloper)) return false;
+        return true;
       });
       
       // Add isOffSeason flag to each farmplot
@@ -73,9 +77,8 @@ const FarmingPanel = ({
     }
   };
 
-  const hasRequiredSkill = (requiredSkill) => {
-    return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
-  };
+  // Local wrapper for the utility function
+  const hasRequiredSkill = (requiredSkill) => checkRequiredSkill(requiredSkill, currentPlayer);
 
 
   // Wrap for Farm Plot Placement

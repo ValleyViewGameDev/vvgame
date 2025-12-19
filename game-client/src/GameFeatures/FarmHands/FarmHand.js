@@ -139,14 +139,17 @@ const FarmHandPanel = ({
         .filter(Boolean);
 
       const filteredRecipes = masterResources.filter((res) => {
+        // Filter out devonly resources
+        if (res.requires === 'devonly') return false;
+
         // Check if resource is in farmOutputs and not Oak Tree
         if (!farmOutputs.includes(res.type) || res.type === 'Oak Tree') return false;
-        
+
         // Check seasonal restriction
         if (res.season && currentSeason && res.season !== currentSeason) {
           return false;
         }
-        
+
         return true;
       });
       setRecipes(filteredRecipes);
@@ -157,7 +160,7 @@ const FarmHandPanel = ({
     } catch (error) {
       console.error('Error loading worker offers:', error);
     }
-  }, [stationType, masterResources]);
+  }, [stationType, masterResources, currentSeason]);
 
   useEffect(() => {
     const ownedTypes = currentPlayer.skills?.map(skill => skill.type) || [];

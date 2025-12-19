@@ -6,6 +6,9 @@ import { io } from 'socket.io-client';
 import { animateRemotePC } from './Render/RenderAnimatePosition';
 import { createCollectEffect } from './VFX/VFX';
 
+// VERSION MARKER - If you see this log, the new socket code is loaded
+console.log('🔌 socketManager.js loaded - VERSION 2 with join-grid fix');
+
 const socket = io('https://vvgame-server.onrender.com', {
   transports: ['websocket'],
   autoConnect: false, // Don't connect until explicitly told to

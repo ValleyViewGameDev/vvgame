@@ -2,7 +2,7 @@ const { readJSON, writeJSON } = require('./fileUtils');
 const path = require('path');
 
 const inventoryFilePath = path.join(__dirname, '../playerInventory.json');
-const resourcesFilePath = path.join(__dirname, '../resources.json');
+const resourcesFilePath = path.join(__dirname, '../tuning/resources.json');
 
 // Load resources data from resources.json
 const resourcesData = readJSON(resourcesFilePath);
