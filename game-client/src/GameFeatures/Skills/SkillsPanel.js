@@ -9,7 +9,7 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
-import { spendIngredients } from '../../Utils/InventoryManagement';
+import { spendIngredients, gainIngredients, hasRoomFor } from '../../Utils/InventoryManagement';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { earnTrophy } from '../Trophies/TrophyUtils';
@@ -129,7 +129,39 @@ const handleGemPurchase = async (modifiedRecipe) => {
 const handlePurchase = async (resourceType, customRecipe = null) => {
   const resource = skillsToAcquire.find((item) => item.type === resourceType);
   const recipeToUse = customRecipe || resource;
-  
+
+  // Check if this is an item (special category) vs a skill
+  const isItem = resource.category === 'special';
+
+  // For items, check if there's room before spending money
+  if (isItem) {
+    const quantity = resource.qtycollected || 1;
+    const hasRoom = hasRoomFor({
+      resource: resource.type,
+      quantity: quantity,
+      currentPlayer,
+      inventory: inventory,
+      backpack: backpack,
+      masterResources: allResources,
+      globalTuning: null
+    });
+
+    if (!hasRoom) {
+      const isHomestead = currentPlayer?.location?.gtype === 'homestead';
+      if (!isHomestead) {
+        const hasBackpackSkill = currentPlayer?.skills?.some((item) => item.type === 'Backpack' && item.quantity > 0);
+        if (!hasBackpackSkill) {
+          updateStatus(19); // Missing backpack
+        } else {
+          updateStatus(21); // Backpack full
+        }
+      } else {
+        updateStatus(20); // Warehouse full
+      }
+      return;
+    }
+  }
+
   const spendSuccess = await spendIngredients({
     playerId: currentPlayer.playerId,
     recipe: recipeToUse,
@@ -146,27 +178,55 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
     return;
   }
 
-  const updatedSkills = [...ownedSkills];
-  // Add the new skill
-  updatedSkills.push({ type: resource.type, category: resource.category, quantity: 1 });
-  setOwnedSkills(updatedSkills);
-  updateStatus(`💪 ${getLocalizedString(resource.type, strings)} skill acquired.`);
-  
-  try { 
-    await axios.post(`${API_BASE}/api/update-skills`, {
+  if (isItem) {
+    // Handle as an item - add to inventory
+    const gainSuccess = await gainIngredients({
       playerId: currentPlayer.playerId,
-      skills: updatedSkills,
+      currentPlayer,
+      resource: resource.type,
+      quantity: resource.qtycollected || 1,
+      inventory,
+      backpack,
+      setInventory,
+      setBackpack,
+      setCurrentPlayer,
+      updateStatus,
+      masterResources: allResources,
+      globalTuning: null,
     });
-    await trackQuestProgress(currentPlayer, 'Acquire', resource.type, 1, setCurrentPlayer);
-    await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);
+
+    if (!gainSuccess) {
+      console.warn(`Failed to gain ${resource.type}`);
+      return;
+    }
+
+    await trackQuestProgress(currentPlayer, 'Buy', resource.type, 1, setCurrentPlayer);
+    updateStatus(`${strings[80]} ${getLocalizedString(resource.type, strings)}.`);
     await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
+  } else {
+    // Handle as a skill
+    const updatedSkills = [...ownedSkills];
+    // Add the new skill
+    updatedSkills.push({ type: resource.type, category: resource.category, quantity: 1 });
+    setOwnedSkills(updatedSkills);
+    updateStatus(`💪 ${getLocalizedString(resource.type, strings)} skill acquired.`);
 
-    // Instead of re-fetching, update the acquire list locally
-    setSkillsToAcquire(prev => prev.filter(skill => skill.type !== resource.type));
+    try {
+      await axios.post(`${API_BASE}/api/update-skills`, {
+        playerId: currentPlayer.playerId,
+        skills: updatedSkills,
+      });
+      await trackQuestProgress(currentPlayer, 'Acquire', resource.type, 1, setCurrentPlayer);
+      await earnTrophy(currentPlayer.playerId, 'Skill Builder', 1, currentPlayer, null, setCurrentPlayer);
+      await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);
 
-  } catch (error) {
-    console.error('Error updating player on server:', error);
-    setErrorMessage('Error updating player on server.');
+      // Instead of re-fetching, update the acquire list locally
+      setSkillsToAcquire(prev => prev.filter(skill => skill.type !== resource.type));
+
+    } catch (error) {
+      console.error('Error updating player on server:', error);
+      setErrorMessage('Error updating player on server.');
+    }
   }
 };
 
