@@ -315,8 +315,20 @@ export const changePlayerLocation = async (
       updateStatus('Entering ...');
     }
     
-    // Step 1: Join socket room first
-    socket.emit('join-grid', { gridId: toLocation.g, playerId: playerId });
+    // Step 1: Join socket room first (ensure socket is connected)
+    if (socket.connected) {
+      socket.emit('join-grid', { gridId: toLocation.g, playerId: playerId });
+      console.log('📡 Emitted join-grid for grid transition:', toLocation.g);
+    } else {
+      console.warn('⚠️ Socket not connected during grid transition, waiting...');
+      await new Promise((resolve) => {
+        socket.once('connect', () => {
+          socket.emit('join-grid', { gridId: toLocation.g, playerId: playerId });
+          console.log('📡 Emitted join-grid after reconnect:', toLocation.g);
+          resolve();
+        });
+      });
+    }
     
     // Step 2: Add player to new grid database
     console.log('📤 [COMMIT] Adding player to new grid database...');

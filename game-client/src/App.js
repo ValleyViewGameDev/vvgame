@@ -656,11 +656,24 @@ useEffect(() => {
       setGridId(initialGridId);
       localStorage.setItem('gridId', initialGridId); // Save to local storage
 
-      // 4.5. Open the socket
+      // 4.5. Open the socket and wait for connection before emitting
       socket.connect();
+
+      // Wait for socket to be connected before emitting join events
+      const waitForConnection = () => new Promise((resolve) => {
+        if (socket.connected) {
+          resolve();
+        } else {
+          socket.once('connect', resolve);
+        }
+      });
+
+      await waitForConnection();
+      console.log("📡 Socket connected, now joining rooms...");
+
       // Join the grid for grid-based updates
       socket.emit('join-grid', { gridId: initialGridId, playerId: DBPlayerData.playerId });
-      console.log("📡 Connected to socket and joined grid:", initialGridId);
+      console.log("📡 Emitted join-grid for grid:", initialGridId);
       socket.emit('player-joined-grid', {
         gridId: initialGridId,
         playerId: DBPlayerData.playerId,
@@ -671,7 +684,7 @@ useEffect(() => {
       socket.emit('join-player-room', { playerId: DBPlayerData.playerId });
       console.log(`📡 Joined socket room for playerId: ${DBPlayerData.playerId}`);
       socket.emit('set-username', { username: DBPlayerData.username });
-      
+
       // Request current NPCController status to clear any stale controller data
       console.log(`🎮 Requesting current NPCController for grid: ${initialGridId}`);
       socket.emit('request-npc-controller', { gridId: initialGridId });
