@@ -48,6 +48,7 @@ router.post('/send-player-home', async (req, res) => {
         if (io) {
           console.log(`📡 Broadcasting player-left-sync for ${username} to grid ${currentGridId}`);
           io.to(currentGridId).emit('player-left-sync', {
+            gridId: currentGridId,
             playerId,
             username,
             emitterId: null // Server-initiated, no emitter socket

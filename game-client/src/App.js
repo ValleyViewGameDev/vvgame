@@ -646,8 +646,9 @@ useEffect(() => {
       setBackpack(DBPlayerData.backpack || []);
 
       // Step 4. Determine initial gridId from player or storage
+      // Use fresh server data (resolvedGridId) first, then fall back to cached data
       console.log('🏁✅ 4. Determining local gridId...');
-      const initialGridId = parsedPlayer?.location?.g || localStorage.getItem('gridId');
+      const initialGridId = resolvedGridId || parsedPlayer?.location?.g || localStorage.getItem('gridId');
       if (!initialGridId) {
         console.error('No gridId found. Unable to initialize grid.');
         return;

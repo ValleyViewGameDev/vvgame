@@ -320,11 +320,15 @@ async function relocateOnePlayerHome(playerId) {
     let spawnX = 0, spawnY = 0;
     try {
       const decodedResources = gridResourceManager.getResources(homeGrid);
+      console.log(`🔍 DEBUG: Decoded ${decodedResources.length} resources for home grid`);
       const signpostTown = decodedResources.find(res => res.type === 'Signpost Town');
+      if (signpostTown) {
+        console.log(`🔍 DEBUG: Signpost Town found:`, JSON.stringify(signpostTown));
+      }
       if (signpostTown && typeof signpostTown.x === 'number' && typeof signpostTown.y === 'number') {
         spawnX = signpostTown.x + 1; // Place player 1 tile to the right
         spawnY = signpostTown.y;
-        console.log(`🏠 Found Signpost Town, placing player at (${spawnX}, ${spawnY}) in home grid`);
+        console.log(`🏠 Found Signpost Town at (${signpostTown.x}, ${signpostTown.y}), placing player at (${spawnX}, ${spawnY}) in home grid`);
       } else {
         console.log(`🏠 No Signpost Town found in home grid, using default (0, 0)`);
       }
@@ -333,11 +337,25 @@ async function relocateOnePlayerHome(playerId) {
     }
 
     // Add to home grid with restored HP and reset position
+    // Explicitly construct the PC data (don't spread Mongoose subdocuments)
     const restoredPcData = {
-      ...pcData,
+      playerId: playerIdStr,
+      username: pcData.username || player.username,
+      type: 'pc',
+      position: { x: spawnX, y: spawnY },  // New position at Signpost Town
+      icon: pcData.icon || player.icon || '😀',
       hp: player.baseMaxhp || pcData.maxhp || 1000,
-      position: { x: spawnX, y: spawnY }
+      maxhp: player.baseMaxhp || pcData.maxhp || 1000,
+      armorclass: pcData.armorclass ?? 10,
+      attackbonus: pcData.attackbonus ?? 0,
+      damage: pcData.damage ?? 1,
+      attackrange: pcData.attackrange ?? 1,
+      speed: pcData.speed ?? 1,
+      iscamping: false,
+      isinboat: false,
+      lastUpdated: new Date()
     };
+    console.log(`🔍 DEBUG: restoredPcData position = (${restoredPcData.position.x}, ${restoredPcData.position.y})`);
 
     if (!homeGrid.playersInGrid) {
       homeGrid.playersInGrid = {};
