@@ -46,14 +46,29 @@ router.post('/send-player-home', async (req, res) => {
       if (currentGridId) {
         const io = getSocketIO();
         if (io) {
-          console.log(`📡 Broadcasting player-left-sync for ${username} to grid ${currentGridId}`);
+          // Debug: Check how many sockets are in this room
+          const room = io.sockets.adapter.rooms.get(currentGridId);
+          const socketsInRoom = room ? room.size : 0;
+          console.log(`📡 Broadcasting player-left-sync for ${username} to grid "${currentGridId}" (type: ${typeof currentGridId}) (${socketsInRoom} sockets in room)`);
+
+          // Debug: Show all rooms that look like grid IDs (24 char hex strings)
+          const allRooms = Array.from(io.sockets.adapter.rooms.keys());
+          const gridRooms = allRooms.filter(r => r.length === 24 && /^[a-f0-9]+$/.test(r));
+          console.log(`📡 Available grid rooms: ${gridRooms.join(', ') || '(none)'}`);
+          console.log(`📡 Looking for exact match: "${currentGridId}" in rooms? ${gridRooms.includes(currentGridId)}`);
+
           io.to(currentGridId).emit('player-left-sync', {
             gridId: currentGridId,
             playerId,
             username,
             emitterId: null // Server-initiated, no emitter socket
           });
+          console.log(`📡 Broadcast sent successfully`);
+        } else {
+          console.error(`❌ Socket.IO instance not available`);
         }
+      } else {
+        console.error(`❌ No currentGridId available for broadcast`);
       }
 
       res.json({ success: true, message: 'Player sent home successfully' });

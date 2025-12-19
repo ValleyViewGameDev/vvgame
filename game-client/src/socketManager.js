@@ -84,18 +84,20 @@ const handlePlayerJoinedGrid = ({ gridId: joinedGridId, playerId, username, play
 };
 
   const handlePlayerLeftGrid = ({ gridId: leftGridId, playerId, username, emitterId }) => {
+    console.log(`📥 [SOCKET] Received player-left-sync event:`, { leftGridId, playerId, username, emitterId, currentGrid: gridId });
+
     if (emitterId === socket.id) {
       console.log('😀 Ignoring player-left event from self.');
       return; // Ignore updates emitted by this client
     }
-    
+
     // Handle case where server sends undefined gridId
     if (!leftGridId) {
       console.warn(`⚠️ Received player-left event with undefined gridId for ${username}. Checking if they're in current grid.`);
       // If gridId is undefined, check if the player is actually in our current grid and remove them
       leftGridId = gridId; // Assume they left the current grid
     }
-    
+
     // Only process if the player left the current grid
     if (leftGridId !== gridId) {
       console.log(`👋 Player ${username} left grid ${leftGridId} (not current grid ${gridId})`);

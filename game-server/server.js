@@ -205,8 +205,8 @@ mongoose.connect(process.env.MONGODB_URI, {
       });
       
       socket.on('join-grid', async ({ gridId, playerId }) => {
-        //console.log(`📡 Socket ${socket.id} joined grid room: ${gridId}`);
-        socket.join(gridId);      
+        console.log(`📡 Socket ${socket.id} joining grid room: "${gridId}" (type: ${typeof gridId})`);
+        socket.join(gridId);
         socket.gridId = gridId;
         socket.playerId = playerId; // Store playerId on the socket
         // Track player in connectedPlayersByGrid and broadcast update
