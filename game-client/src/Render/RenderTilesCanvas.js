@@ -28,7 +28,7 @@ function getTileColor(tileType) {
     o: '#ffffff', // snow
     x: '#959ba3ff', // cobblestone
     y: '#000000ff', // dungeon
-    z: '#0f521cff', // TBD
+    z: '#1b712cff', // moss
     unknown: '#ff0000', // debug red
   };
   return tileColors[tileType] || tileColors.unknown;

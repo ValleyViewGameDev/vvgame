@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import './FrontierView.css';
 import Modal from './components/Modal.jsx';
 import { useFileContext } from './FileContext';
@@ -18,6 +18,106 @@ console.log("📜 settlements.length:", settlements?.length);
   const [showModal, setShowModal] = useState(false);
   const [layoutCache, setLayoutCache] = useState(new Set());
 
+  // Region editing state
+  const [regionOptions, setRegionOptions] = useState([]); // Available regions from resources
+  const [selectedRegion, setSelectedRegion] = useState(''); // Currently selected region in dropdown
+  const [originalRegion, setOriginalRegion] = useState(''); // Original region for comparison
+  const [isRegionDirty, setIsRegionDirty] = useState(false); // Has region been changed?
+
+  // Multi-select state
+  const [selectedCells, setSelectedCells] = useState([]); // Array of selected gridCoords
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState(null);
+  const containerRef = useRef(null);
+
+  // Fetch region options from masterResources
+  useEffect(() => {
+    const fetchRegions = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/api/resources`);
+        const regions = response.data.filter(r => r.category === 'region');
+        setRegionOptions(regions);
+        console.log('🗺️ Loaded region options:', regions.map(r => r.type));
+      } catch (error) {
+        console.error('Failed to fetch region options:', error);
+      }
+    };
+    fetchRegions();
+  }, []);
+
+  // Handle region dropdown change
+  const handleRegionChange = (e) => {
+    const newRegion = e.target.value;
+    setSelectedRegion(newRegion);
+    setIsRegionDirty(newRegion !== originalRegion);
+  };
+
+  // Save region for single grid
+  const handleSaveRegion = async () => {
+    if (!selectedCell?.coord) return;
+
+    const foundGrid = gridMap.get(Number(selectedCell.coord));
+    if (!foundGrid?.gridId) {
+      alert('This grid has not been created in the live game yet. Create it first.');
+      return;
+    }
+
+    try {
+      const response = await axios.post(`${API_BASE}/api/update-grid-region`, {
+        gridId: foundGrid.gridId,
+        region: selectedRegion || null
+      });
+
+      if (response.data.success) {
+        setOriginalRegion(selectedRegion);
+        setIsRegionDirty(false);
+        setModalMessage(`Region updated to "${selectedRegion || 'none'}" for grid ${selectedCell.coord}`);
+        setShowModal(true);
+        handleRefreshData();
+      }
+    } catch (error) {
+      console.error('Failed to save region:', error);
+      alert('Failed to save region. Check console for details.');
+    }
+  };
+
+  // Save region for multiple grids (bulk update)
+  const handleBulkSaveRegion = async () => {
+    if (selectedCells.length === 0) return;
+
+    // Get gridIds for all selected cells that have been created
+    const gridIds = selectedCells
+      .map(coord => gridMap.get(Number(coord)))
+      .filter(grid => grid?.gridId)
+      .map(grid => grid.gridId);
+
+    if (gridIds.length === 0) {
+      alert('None of the selected grids have been created in the live game yet.');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Update region to "${selectedRegion || 'none'}" for ${gridIds.length} grids?`
+    );
+    if (!confirmed) return;
+
+    try {
+      const response = await axios.post(`${API_BASE}/api/bulk-update-grid-regions`, {
+        gridIds,
+        region: selectedRegion || null
+      });
+
+      if (response.data.success) {
+        setIsRegionDirty(false);
+        setModalMessage(`Region updated for ${response.data.modifiedCount} grids`);
+        setShowModal(true);
+        handleRefreshData();
+      }
+    } catch (error) {
+      console.error('Failed to bulk save regions:', error);
+      alert('Failed to save regions. Check console for details.');
+    }
+  };
 
   useEffect(() => {
 
@@ -86,6 +186,17 @@ if (settlements.length > 0) {
     return map;
   }, [settlements, selectedFrontier]);
 
+  // Update region when selected cell changes (single selection)
+  useEffect(() => {
+    if (selectedCell?.coord && selectedCells.length <= 1) {
+      const foundGrid = gridMap.get(Number(selectedCell.coord));
+      const currentRegion = foundGrid?.region || '';
+      setSelectedRegion(currentRegion);
+      setOriginalRegion(currentRegion);
+      setIsRegionDirty(false);
+    }
+  }, [selectedCell, gridMap, selectedCells.length]);
+
   const renderValleyIcon = () => '✅';
 
   const allGrids = settlements
@@ -99,10 +210,84 @@ if (settlements.length > 0) {
 
 
 
-const handleGridClick = async (gridCoord) => {
+const handleGridClick = (gridCoord, event) => {
     const foundGrid = gridMap.get(Number(gridCoord));
     const type = foundGrid?.gridType;
-    setSelectedCell({ coord: gridCoord, type });
+
+    if (event?.shiftKey) {
+      // Shift+click: toggle this cell in the multi-selection
+      setSelectedCells(prev => {
+        if (prev.includes(gridCoord)) {
+          return prev.filter(c => c !== gridCoord);
+        } else {
+          return [...prev, gridCoord];
+        }
+      });
+      // Also update the main selected cell for display purposes
+      setSelectedCell({ coord: gridCoord, type });
+    } else {
+      // Normal click: single selection, clear multi-selection
+      setSelectedCell({ coord: gridCoord, type });
+      setSelectedCells([gridCoord]);
+    }
+  };
+
+  // Mouse handlers for drag selection
+  const handleMouseDown = (gridCoord, event) => {
+    if (!event.shiftKey) {
+      setIsDragging(true);
+      setDragStart(gridCoord);
+      setSelectedCells([gridCoord]);
+    }
+  };
+
+  const handleMouseEnter = (gridCoord) => {
+    if (isDragging && dragStart) {
+      // Calculate rectangular selection between dragStart and current cell
+      const startCoord = Number(dragStart);
+      const endCoord = Number(gridCoord);
+
+      // Extract row/col from gridCoord (format: 101SSGG)
+      const getRowCol = (coord) => {
+        const adjusted = coord - 1010000;
+        const settlementPart = Math.floor(adjusted / 100);
+        const gridPart = adjusted % 100;
+        const row = Math.floor(settlementPart / 10) * 8 + Math.floor(gridPart / 10);
+        const col = (settlementPart % 10) * 8 + (gridPart % 10);
+        return { row, col };
+      };
+
+      const start = getRowCol(startCoord);
+      const end = getRowCol(endCoord);
+
+      const minRow = Math.min(start.row, end.row);
+      const maxRow = Math.max(start.row, end.row);
+      const minCol = Math.min(start.col, end.col);
+      const maxCol = Math.max(start.col, end.col);
+
+      // Build selection of all cells in the rectangle
+      const newSelection = [];
+      for (let row = minRow; row <= maxRow; row++) {
+        for (let col = minCol; col <= maxCol; col++) {
+          const settlementRow = Math.floor(row / 8);
+          const settlementCol = Math.floor(col / 8);
+          const gridRowWithinSettlement = row % 8;
+          const gridColWithinSettlement = col % 8;
+          const settlementPart = settlementRow * 10 + settlementCol;
+          const gridPart = gridRowWithinSettlement * 10 + gridColWithinSettlement;
+          const coord = 1010000 + (settlementPart * 100) + gridPart;
+          if (gridMap.has(coord)) {
+            newSelection.push(coord);
+          }
+        }
+      }
+      setSelectedCells(newSelection);
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setDragStart(null);
   };
 
 const handleCreateGrid = () => {
@@ -314,7 +499,48 @@ const handleResetGridLive = async () => {
         </button>
 
         <div className="selected-cell-info">
-          {selectedCell && (
+          {/* Multi-select UI */}
+          {selectedCells.length > 1 && (
+            <div className="multi-select-info" style={{ marginBottom: '15px', padding: '10px', backgroundColor: '#e3f2fd', borderRadius: '4px' }}>
+              <p><strong>{selectedCells.length} cells selected</strong></p>
+              <p style={{ fontSize: '12px', color: '#666' }}>
+                (Shift+click to toggle, drag to select range)
+              </p>
+
+              {/* Bulk region editing */}
+              <div style={{ marginTop: '10px' }}>
+                <strong>Set Region for all:</strong>
+                <div style={{ marginTop: '5px' }}>
+                  <select
+                    value={selectedRegion}
+                    onChange={handleRegionChange}
+                    style={{ padding: '4px 8px', marginRight: '8px' }}
+                  >
+                    <option value="">(none)</option>
+                    {regionOptions.map(r => (
+                      <option key={r.type} value={r.type}>{r.symbol || ''} {r.type}</option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={handleBulkSaveRegion}
+                    style={{ padding: '4px 12px', backgroundColor: '#2196F3', color: 'white', border: 'none', cursor: 'pointer' }}
+                  >
+                    Save Region ({selectedCells.length} grids)
+                  </button>
+                </div>
+              </div>
+
+              <button
+                onClick={() => { setSelectedCells([]); }}
+                style={{ marginTop: '10px', padding: '4px 12px', backgroundColor: '#f44336', color: 'white', border: 'none', cursor: 'pointer' }}
+              >
+                Clear Selection
+              </button>
+            </div>
+          )}
+
+          {/* Single cell UI */}
+          {selectedCell && selectedCells.length <= 1 && (
             <>
               <p>
                 <strong>Selected Cell:</strong> {selectedCell.coord}<br />
@@ -327,8 +553,8 @@ const handleResetGridLive = async () => {
                 <>
                   <button className="load-grid-button" onClick={handleLoadGrid}>Load Layout</button>
                   {/* Show Create Grid button for valleyFixedCoord templates */}
-                  {layoutCache.has(Number(selectedCell.coord)) && 
-                   !['homestead', 'town'].includes(selectedCell.type) && 
+                  {layoutCache.has(Number(selectedCell.coord)) &&
+                   !['homestead', 'town'].includes(selectedCell.type) &&
                    !gridMap.get(Number(selectedCell.coord))?.gridId && (
                     <button className="create-grid-button" onClick={handleCreateGridLive}>Create Grid (Live Game)</button>
                   )}
@@ -345,12 +571,46 @@ const handleResetGridLive = async () => {
               {gridMap.get(Number(selectedCell.coord))?.gridId && (
                 <button className="create-grid-button" onClick={handleResetGridLive}>Reset Grid (Live Game)</button>
               )}
+
+              {/* Region editing section */}
+              {selectedCells.length <= 1 && (
+                <div className="region-section" style={{ marginTop: '15px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
+                  <strong>Region:</strong>{' '}
+                  <span style={{ color: gridMap.get(Number(selectedCell.coord))?.region ? '#2196F3' : '#999' }}>
+                    {gridMap.get(Number(selectedCell.coord))?.region || '(none)'}
+                  </span>
+
+                  {gridMap.get(Number(selectedCell.coord))?.gridId && (
+                    <div style={{ marginTop: '8px' }}>
+                      <select
+                        value={selectedRegion}
+                        onChange={handleRegionChange}
+                        style={{ padding: '4px 8px', marginRight: '8px' }}
+                      >
+                        <option value="">(none)</option>
+                        {regionOptions.map(r => (
+                          <option key={r.type} value={r.type}>{r.symbol || ''} {r.type}</option>
+                        ))}
+                      </select>
+                      {isRegionDirty && (
+                        <button
+                          className="save-region-button"
+                          onClick={handleSaveRegion}
+                          style={{ padding: '4px 12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer' }}
+                        >
+                          Save Region
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </>
           )}
         </div>
       </div>
 
-      <div className="frontier-grid-container">
+      <div className="frontier-grid-container" ref={containerRef} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
         <div className="frontier-grid">
           {Array.from({ length: GRID_DIMENSION }).map((_, row) => (
             <div className="frontier-row" key={row}>
@@ -397,7 +657,10 @@ const handleResetGridLive = async () => {
                   }
                 }
 
-                if (selectedCell?.coord === gridCoord) {
+                // Check for selection (single or multi)
+                if (selectedCells.includes(gridCoord)) {
+                  cellClass += ' selected';
+                } else if (selectedCell?.coord === gridCoord && selectedCells.length === 0) {
                   cellClass += ' selected';
                 }
 
@@ -405,7 +668,9 @@ const handleResetGridLive = async () => {
                   <div
                     key={col}
                     className={cellClass}
-                    onClick={() => handleGridClick(gridCoord)}
+                    onClick={(e) => handleGridClick(gridCoord, e)}
+                    onMouseDown={(e) => handleMouseDown(gridCoord, e)}
+                    onMouseEnter={() => handleMouseEnter(gridCoord)}
                   >
                     {cellContent}
                   </div>

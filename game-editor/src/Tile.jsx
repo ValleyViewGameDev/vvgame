@@ -1,4 +1,5 @@
 import React from 'react';
+import { layoutKeyColors, defaultTileColor } from './tileConfig';
 
 const Tile = ({ x, y, tile, updateTile, isSelected, setSelectedTile, tileSize, masterResources, multiTileResource }) => {
   const resourceSymbol = (() => {
@@ -8,25 +9,12 @@ const Tile = ({ x, y, tile, updateTile, isSelected, setSelectedTile, tileSize, m
   })();
 
   return (
-    <div 
-      onClick={() => updateTile(x, y)} 
+    <div
+      onClick={() => updateTile(x, y)}
       style={{
         width: `${tileSize}px`,
         height: `${tileSize}px`,
-        background: 
-          tile.type === "**" ? "#fff" : // Ensure "None" tiles reset to white
-          tile.type === "GR" ? "#3dc43d" :
-          tile.type === "SL" ? "#8b989c" :
-          tile.type === "DI" ? "#c0834a" :
-          tile.type === "WA" ? "#58cad8" :
-          tile.type === "PA" ? "#dab965" :
-          tile.type === "LV" ? "#c4583d" :
-          tile.type === "SA" ? "#fbde00" :
-          tile.type === "CB" ? "#53575cff" :
-          tile.type === "DU" ? "#000000ff" :
-          tile.type === "ZZ" ? "#ffffff" :
-
-          "#fff", // Default for unknown types
+        background: layoutKeyColors[tile.type] || defaultTileColor,
         border: isSelected ? "3px solid red" : "1px solid black",
         display: "flex",
         alignItems: "center",

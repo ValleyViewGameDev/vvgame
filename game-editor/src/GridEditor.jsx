@@ -14,6 +14,7 @@ import Tile from './Tile';
 import FileManager from './FileManager';
 import './App.css';
 import { useFileContext } from './FileContext';
+import { tileColors } from './tileConfig';
 
 const GRID_SIZE = 64; // 64x64 grid
 
@@ -38,11 +39,10 @@ const GridEditor = ({ activePanel }) => {
   const [tileDistribution, setTileDistribution] = useState({ g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, x: 0, y:0, z:0 }); // Track tile type distribution
   const [resourceDistribution, setResourceDistribution] = useState({});
   const [enemyDistribution, setEnemyDistribution] = useState({}); // Track enemy distribution
-  const tileColors = { g: "#3dc43d", s: "#8b989c", d: "#c0834a", w: "#58cad8", p: "#dab965", l: "#c4583d", n: "#f4e4bc", x: "#797e85ff", y: "#000000ff",  z: "#ffffff" };
 
   const [copiedResource, setCopiedResource] = useState(null); // Holds copied resource
   const [currentGridType, setCurrentGridType] = useState(''); // Track current grid's type
-  const [selectedTileTypes, setSelectedTileTypes] = useState({ g: true, s: true, d: true, w: true, p: true, l: true, n: true }); // For selective tile deletion
+  const [selectedTileTypes, setSelectedTileTypes] = useState({ g: true, s: true, d: true, w: true, p: true, l: true, n: true, x: true, y: true, z: true }); // For selective tile deletion
   
   // Undo functionality - NEW APPROACH
   const [undoStack, setUndoStack] = useState([]);
@@ -219,7 +219,7 @@ const GridEditor = ({ activePanel }) => {
         )
       );
       // Reset distributions
-      setTileDistribution({ g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0 });
+      setTileDistribution({ g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, x: 0, y: 0, z: 0 });
       setResourceDistribution({});
       
       // Initialize enemy distribution for available enemy NPCs
@@ -735,7 +735,7 @@ const handleEnemyDistributionChange = (enemyType, value) => {
 
       setSelectedTile(null); // Force deselection to reset render state
       // Ensure all tile types are included, even if not in the loaded grid
-      const defaultDistribution = { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0 };
+      const defaultDistribution = { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, x: 0, y: 0, z: 0 };
       const loadedDistribution = loadedGrid.tileDistribution || {};
       setTileDistribution({ ...defaultDistribution, ...loadedDistribution });
       setResourceDistribution({ ...loadedGrid.resourceDistribution } || {});
@@ -1301,7 +1301,7 @@ const handlePopulateTileDistribution = () => {
     
     if (templateData.tileDistribution) {
       // Ensure all tile types are included, even if not in the template
-      const defaultDistribution = { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0 };
+      const defaultDistribution = { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, x: 0, y: 0, z: 0 };
       setTileDistribution({ ...defaultDistribution, ...templateData.tileDistribution });
       console.log(`✅ Populated tile distribution from template: ${randomFile}`);
       alert(`Tile distribution populated from template: ${randomFile}`);

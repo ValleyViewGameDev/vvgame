@@ -17,7 +17,43 @@ const tuningConfig = require('../tuning/globalTuning.json');
 router.get('/settlements', async (req, res) => {
   try {
     const settlements = await Settlement.find({}).lean();
-    res.status(200).json(settlements);
+
+    // Collect all gridIds from all settlements
+    const allGridIds = [];
+    settlements.forEach(settlement => {
+      if (settlement.grids) {
+        settlement.grids.flat().forEach(cell => {
+          if (cell.gridId) {
+            allGridIds.push(cell.gridId);
+          }
+        });
+      }
+    });
+
+    // Fetch region data for all grids in one query
+    const gridRegions = await Grid.find(
+      { _id: { $in: allGridIds } },
+      { _id: 1, region: 1 }
+    ).lean();
+
+    // Create a map of gridId to region
+    const regionMap = {};
+    gridRegions.forEach(grid => {
+      regionMap[grid._id.toString()] = grid.region;
+    });
+
+    // Enrich settlements with region data
+    const enrichedSettlements = settlements.map(settlement => ({
+      ...settlement,
+      grids: settlement.grids?.map(row =>
+        row.map(cell => ({
+          ...cell,
+          region: cell.gridId ? regionMap[cell.gridId.toString()] || null : null
+        }))
+      )
+    }));
+
+    res.status(200).json(enrichedSettlements);
   } catch (error) {
     console.error('❌ Error fetching settlements:', error);
     res.status(500).json({ error: 'Internal server error.' });
