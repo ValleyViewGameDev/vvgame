@@ -271,3 +271,18 @@
     left: 100%;
   }
 }
+
+/* ✅ Cursor-selected state (for plant with cursor mode) */
+.resource-button.cursor-selected {
+  background-color: var(--color-btn-ready);
+  box-shadow: 0 6px 0 var(--color-shadow-button), 0 0 0 3px var(--color-success);
+}
+
+.resource-button.cursor-selected:hover {
+  background-color: var(--color-btn-ready);
+}
+
+.resource-button.cursor-selected .resource-title::after {
+  content: ' ✓';
+  color: var(--color-success);
+}

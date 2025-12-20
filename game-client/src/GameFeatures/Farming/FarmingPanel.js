@@ -9,6 +9,7 @@ import { handleFarmPlotPlacement } from './Farming';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { formatDuration } from '../../UI/Timers';
+import { updatePlayerSettings } from '../../settings';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 
 const FarmingPanel = ({
@@ -30,7 +31,9 @@ const FarmingPanel = ({
   masterSkills,
   updateStatus,
   currentSeason,
-  isDeveloper
+  isDeveloper,
+  cursorMode,
+  setCursorMode
 }) => {
 
   const strings = useStrings();
@@ -38,7 +41,33 @@ const FarmingPanel = ({
   const [allResources, setAllResources] = useState([]);
   const [isContentLoading, setIsContentLoading] = useState(false);
   const [coolingDownItems, setCoolingDownItems] = useState(new Set());
+  const [plantWithCursor, setPlantWithCursor] = useState(
+    currentPlayer?.settings?.plantWithCursor ?? false
+  );
   const COOLDOWN_DURATION = 450;
+
+  // Toggle handler - persists to player settings
+  const handleToggleChange = (checked) => {
+    setPlantWithCursor(checked);
+    if (!checked) {
+      setCursorMode(null);
+    }
+    // Persist to player settings
+    updatePlayerSettings({ plantWithCursor: checked }, currentPlayer, setCurrentPlayer);
+  };
+
+  // Handle selecting a crop for cursor mode
+  const handleCursorModeSelect = (item) => {
+    // Find the output crop symbol (what grows from this plot)
+    const outputCrop = allResources.find((res) => res.source === item.type);
+    const outputSymbol = outputCrop?.symbol || item.symbol || '🌱';
+
+    setCursorMode({
+      type: 'plant',
+      item: item,
+      emoji: outputSymbol
+    });
+  };
 
  
   useEffect(() => {
@@ -131,6 +160,27 @@ const FarmingPanel = ({
   return (
     <Panel onClose={onClose} descriptionKey="1004" titleKey="1104" panelName="FarmingPanel">
       <div className="standard-panel">
+        {/* Plant with cursor toggle */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '8px 12px',
+          marginBottom: '12px',
+          backgroundColor: 'var(--color-bg-tertiary)',
+          borderRadius: '8px'
+        }}>
+          <label style={{ fontFamily: 'var(--font-title-4-family)', fontSize: 'var(--font-title-4-size)', cursor: 'pointer' }}>
+            {strings[10187] || 'Plant with cursor'}
+          </label>
+          <input
+            type="checkbox"
+            checked={plantWithCursor}
+            onChange={(e) => handleToggleChange(e.target.checked)}
+            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+          />
+        </div>
+
         {isContentLoading ? (
           <p>{strings[98]}</p>
         ) : (
@@ -191,22 +241,33 @@ const FarmingPanel = ({
 
               const itemKey = `plot-${item.type}`;
               const isCoolingDown = coolingDownItems.has(itemKey);
-              
+              const isSelectedForCursor = cursorMode?.type === 'plant' && cursorMode?.item?.type === item.type;
+
+              // Build className based on state
+              let buttonClassName = '';
+              if (isCoolingDown) buttonClassName += 'cooldown ';
+              if (isSelectedForCursor) buttonClassName += 'cursor-selected ';
+
               return (
                 <ResourceButton
                   key={item.type}
                   symbol={symbol}
                   name={getLocalizedString(item.type, strings)}
-                  className={isCoolingDown ? 'cooldown' : ''}
+                  className={buttonClassName.trim()}
                   style={isCoolingDown ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
                   details={details}
                   info={info}
                   disabled={isCoolingDown || !affordable || !requirementsMet}
-                  onClick={() =>
-                    affordable &&
-                    requirementsMet &&
-                    handleFarmPlacementWithCooldown(item)
-                  }
+                  onClick={() => {
+                    if (!affordable || !requirementsMet) return;
+                    if (plantWithCursor) {
+                      // In cursor mode: select this crop for planting via clicks
+                      handleCursorModeSelect(item);
+                    } else {
+                      // Normal mode: plant at player position immediately
+                      handleFarmPlacementWithCooldown(item);
+                    }
+                  }}
                 />
               );
             })}

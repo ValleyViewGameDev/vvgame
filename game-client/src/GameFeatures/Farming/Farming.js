@@ -11,7 +11,7 @@ import { getCurrentTileCoordinates } from '../../Utils/ResourceHelpers';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 
-export const handleFarmPlotPlacement = async ({ 
+export const handleFarmPlotPlacement = async ({
   selectedItem,
   TILE_SIZE,
   resources,
@@ -26,13 +26,23 @@ export const handleFarmPlotPlacement = async ({
   masterResources,
   masterSkills,
   updateStatus,
+  overridePosition, // Optional: { x, y } to plant at a specific tile instead of player position
 }) => {
   try {
     console.log(masterResources);
-    
-    const coords = getCurrentTileCoordinates(gridId, currentPlayer);
-    if (!coords) return false;
-    const { tileX, tileY } = coords;
+
+    let tileX, tileY;
+    if (overridePosition) {
+      // Use the override position (from cursor mode click)
+      tileX = overridePosition.x;
+      tileY = overridePosition.y;
+    } else {
+      // Use player's current position
+      const coords = getCurrentTileCoordinates(gridId, currentPlayer);
+      if (!coords) return false;
+      tileX = coords.tileX;
+      tileY = coords.tileY;
+    }
 
     // Use local tile data instead of async server call for instant response
     const tiles = GlobalGridStateTilesAndResources.getTiles();

@@ -460,6 +460,52 @@ const [activeSocialPC, setActiveSocialPC] = useState(null);
 const [activeStation, setActiveStation] = useState(null);
 const [showShareModal, setShowShareModal] = useState(false);
 const [showFTUE, setShowFTUE] = useState(false);
+const [cursorMode, setCursorMode] = useState(null); // { type: 'plant', item: {...}, emoji: '🌾' }
+
+// Clear cursor mode when panel changes (except when staying on FarmingPanel)
+useEffect(() => {
+  if (activePanel !== 'FarmingPanel') {
+    setCursorMode(null);
+  }
+}, [activePanel]);
+
+// Apply emoji cursor when in cursor mode
+useEffect(() => {
+  if (cursorMode?.emoji) {
+    // Create a canvas to render the emoji as a cursor image
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 32;
+    const ctx = canvas.getContext('2d');
+    ctx.font = '24px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(cursorMode.emoji, 16, 16);
+    const cursorUrl = canvas.toDataURL();
+
+    // Create a style element to force cursor on all elements (including canvas)
+    const styleEl = document.createElement('style');
+    styleEl.id = 'cursor-mode-style';
+    styleEl.textContent = `
+      body.cursor-mode-active,
+      body.cursor-mode-active * {
+        cursor: url(${cursorUrl}) 16 16, crosshair !important;
+      }
+    `;
+    document.head.appendChild(styleEl);
+    document.body.classList.add('cursor-mode-active');
+
+    return () => {
+      document.body.classList.remove('cursor-mode-active');
+      const existingStyle = document.getElementById('cursor-mode-style');
+      if (existingStyle) existingStyle.remove();
+    };
+  } else {
+    document.body.classList.remove('cursor-mode-active');
+    const existingStyle = document.getElementById('cursor-mode-style');
+    if (existingStyle) existingStyle.remove();
+  }
+}, [cursorMode]);
 
 // Register notification click handlers
 useEffect(() => {
@@ -1770,6 +1816,45 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   if (isProcessing) return; // Skip if still processing
   isProcessing = true;
 
+  // Handle cursor mode (e.g., planting with cursor)
+  if (cursorMode?.type === 'plant' && cursorMode.item) {
+    // Range check for cursor mode planting
+    if (currentPlayer?._id && gridId) {
+      const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id));
+      const targetPos = { x: colIndex, y: rowIndex };
+      if (playerPos && typeof playerPos.x !== 'undefined') {
+        const distance = calculateDistance(playerPos, targetPos);
+        const playerRange = getDerivedRange(currentPlayer, masterResources);
+        if (distance > playerRange) {
+          FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
+          isProcessing = false;
+          return;
+        }
+      }
+    }
+
+    const { handleFarmPlotPlacement } = await import('./GameFeatures/Farming/Farming');
+    await handleFarmPlotPlacement({
+      selectedItem: cursorMode.item,
+      TILE_SIZE: activeTileSize,
+      resources,
+      setResources,
+      currentPlayer,
+      setCurrentPlayer,
+      inventory,
+      setInventory,
+      backpack,
+      setBackpack,
+      gridId,
+      masterResources,
+      masterSkills,
+      updateStatus,
+      overridePosition: { x: colIndex, y: rowIndex }, // Plant at clicked tile, not player position
+    });
+    isProcessing = false;
+    return;
+  }
+
   // Find resource including multi-tile resources
   const resource = resources.find((res) => {
     const range = res.range || 1;
@@ -2076,7 +2161,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   }
   isProcessing = false; // Reset flag here
 
-}, [resources, gridId, inventory, currentPlayer, playerPosition, activeTileSize]);
+}, [resources, gridId, inventory, currentPlayer, playerPosition, activeTileSize, cursorMode]);
   
 
   
@@ -3213,6 +3298,8 @@ return (
           updateStatus={updateStatus}
           currentSeason={seasonData?.type}
           isDeveloper={isDeveloper}
+          cursorMode={cursorMode}
+          setCursorMode={setCursorMode}
         />
       )}
       {activePanel === 'ToolsPanel' && (
