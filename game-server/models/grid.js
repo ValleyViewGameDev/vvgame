@@ -7,6 +7,10 @@ const GridSchema = new mongoose.Schema({
     enum: ['homestead', 'town', 'valley', 'valley0', 'valley1', 'valley2', 'valley3', 'dungeon', 'reserved'], // Match settlement schema
     required: true, // Make gridType mandatory
   },
+  region: {
+    type: String,
+    default: null, // Optional - grids may not belong to a region
+  },
   // NPCs map (data only)
   NPCsInGrid: {
     type: Map,

@@ -892,15 +892,28 @@ router.post('/update-player-location', async (req, res) => {
       }
     }
 
-    // Include gridCoord in the location update
-    const locationWithGridCoord = {
+    // Fetch the target grid to get its region
+    let region = null;
+    try {
+      const targetGrid = await Grid.findById(location.g).select('region').lean();
+      if (targetGrid) {
+        region = targetGrid.region || null;
+        console.log(`🗺️ Target grid region: ${region || 'none'}`);
+      }
+    } catch (gridError) {
+      console.warn('⚠️ Could not fetch grid region:', gridError.message);
+    }
+
+    // Include gridCoord and region in the location update
+    const locationWithExtras = {
       ...location,
-      ...(gridCoord && { gridCoord }) // Only include gridCoord if we found it
+      ...(gridCoord && { gridCoord }), // Only include gridCoord if we found it
+      region // Include region (can be null)
     };
 
     const updatedPlayer = await Player.findByIdAndUpdate(
       playerId,
-      { $set: { location: locationWithGridCoord } },
+      { $set: { location: locationWithExtras } },
       { new: true }
     );
 

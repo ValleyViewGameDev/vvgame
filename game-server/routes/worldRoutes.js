@@ -3206,6 +3206,66 @@ router.post('/manual-grid-reset', async (req, res) => {
   }
 });
 
+// Update region for a single grid
+router.post('/update-grid-region', async (req, res) => {
+  const { gridId, region } = req.body;
+  console.log(`🗺️ [UPDATE REGION] Updating grid ${gridId} to region: ${region || 'none'}`);
+
+  if (!gridId) {
+    return res.status(400).json({ error: 'gridId is required.' });
+  }
+
+  try {
+    const grid = await Grid.findById(gridId);
+    if (!grid) {
+      return res.status(404).json({ error: `Grid ${gridId} not found` });
+    }
+
+    // Update the region (null to remove region assignment)
+    grid.region = region || null;
+    await grid.save();
+
+    console.log(`✅ [UPDATE REGION] Grid ${gridId} region updated to: ${region || 'none'}`);
+    res.json({
+      success: true,
+      gridId: gridId,
+      region: grid.region
+    });
+
+  } catch (error) {
+    console.error('❌ [UPDATE REGION] Error updating grid region:', error);
+    res.status(500).json({ error: error.message || 'Failed to update grid region' });
+  }
+});
+
+// Bulk update region for multiple grids
+router.post('/bulk-update-grid-regions', async (req, res) => {
+  const { gridIds, region } = req.body;
+  console.log(`🗺️ [BULK UPDATE REGION] Updating ${gridIds?.length || 0} grids to region: ${region || 'none'}`);
+
+  if (!gridIds || !Array.isArray(gridIds) || gridIds.length === 0) {
+    return res.status(400).json({ error: 'gridIds array is required.' });
+  }
+
+  try {
+    const result = await Grid.updateMany(
+      { _id: { $in: gridIds } },
+      { $set: { region: region || null } }
+    );
+
+    console.log(`✅ [BULK UPDATE REGION] Updated ${result.modifiedCount} grids to region: ${region || 'none'}`);
+    res.json({
+      success: true,
+      modifiedCount: result.modifiedCount,
+      region: region || null
+    });
+
+  } catch (error) {
+    console.error('❌ [BULK UPDATE REGION] Error updating grid regions:', error);
+    res.status(500).json({ error: error.message || 'Failed to update grid regions' });
+  }
+});
+
 module.exports = router;
 
 

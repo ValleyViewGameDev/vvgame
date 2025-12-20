@@ -35,6 +35,7 @@ const playerSchema = new mongoose.Schema({
     f: { type: mongoose.Schema.Types.ObjectId, ref: 'Frontier' }, // The current frontier where the player is located
     gridCoord: { type: Number, default: 0 },
     gtype: { type: String, required: true },
+    region: { type: String, default: null }, // Current region name (cached from grid)
   },
   inventory: [  // AKA warehouse
     {
