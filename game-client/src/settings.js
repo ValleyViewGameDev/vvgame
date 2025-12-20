@@ -16,16 +16,17 @@ export async function updatePlayerSettings(newSettings, currentPlayer, setCurren
     localStorage.setItem('player', JSON.stringify(updatedPlayer));
     setCurrentPlayer(updatedPlayer);
 
-    console.log('Updating settings on server:', newSettings);
-
     // Send update to server using dot notation to preserve existing settings
     const updates = {};
     Object.keys(newSettings).forEach(key => {
       updates[`settings.${key}`] = newSettings[key];
     });
 
+    // Use _id for findByIdAndUpdate, fall back to playerId for compatibility
+    const playerIdForServer = currentPlayer._id || currentPlayer.playerId;
+
     const response = await axios.post(`${API_BASE}/api/update-profile`, {
-      playerId: currentPlayer.playerId,
+      playerId: playerIdForServer,
       updates
     });
 
