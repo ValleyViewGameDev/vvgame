@@ -424,7 +424,7 @@ const getTooltip = (tile) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '0.6em',
+              fontSize: '0.9em',
               zIndex: 1
             }}>
               {currentPlayer.icon}

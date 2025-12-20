@@ -275,14 +275,15 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
                   {strings[787]}
                 </label>
               </div>
-              <button 
-                className="ftue-button ftue-button-primary" 
+              <button
+                className="ftue-button ftue-button-primary"
                 onClick={() => onFeedbackSubmit(true)}
+                disabled={positiveReasons.length === 0}
               >
                 {strings[783]}
               </button>
             </div>
-            
+
             {/* Negative feedback section */}
             <div className="ftue-feedback-section">
               <h3>{strings[782]}</h3>
@@ -320,9 +321,10 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
                   {strings[793]}
                 </label>
               </div>
-              <button 
-                className="ftue-button ftue-button-primary" 
+              <button
+                className="ftue-button ftue-button-primary"
                 onClick={() => onFeedbackSubmit(false)}
+                disabled={negativeReasons.length === 0}
               >
                 {strings[794]}
               </button>

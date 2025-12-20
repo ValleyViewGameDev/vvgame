@@ -133,12 +133,17 @@ const FrontierMiniMap = ({
 
   // Compute the display title based on location
   const displayTitle = useMemo(() => {
-    // 1. If there's a region name, show that (takes precedence)
+    // 1. If in a dungeon, show "In a Dungeon"
+    if (isInDungeon) {
+      return strings[10186] || 'In a Dungeon';
+    }
+
+    // 2. If there's a region name, show that (takes precedence)
     if (currentRegion) {
       return currentRegion;
     }
 
-    // 2. If at home grid (location.g matches player's homestead gridId)
+    // 3. If at home grid (location.g matches player's homestead gridId)
     if (currentPlayer?.location?.g && currentPlayer?.gridId) {
       const currentGridId = currentPlayer.location.g.toString();
       const homeGridId = currentPlayer.gridId.toString();
@@ -147,7 +152,7 @@ const FrontierMiniMap = ({
       }
     }
 
-    // 3. If in a town grid that belongs to home settlement
+    // 4. If in a town grid that belongs to home settlement
     if (currentPlayer?.location?.gtype === 'town' &&
         currentPlayer?.location?.s &&
         currentPlayer?.settlementId) {
@@ -158,15 +163,15 @@ const FrontierMiniMap = ({
       }
     }
 
-    // 4. If in a valley grid (valley0-3) with no region
+    // 5. If in a valley grid (valley0-3) with no region
     const gtype = currentPlayer?.location?.gtype;
     if (['valley0', 'valley1', 'valley2', 'valley3'].includes(gtype)) {
       return strings[10184] || 'The Valley';
     }
 
-    // 5. Default to "Map"
+    // 6. Default to "Map"
     return strings[2] || 'Map';
-  }, [currentRegion, currentPlayer?.location?.g, currentPlayer?.gridId,
+  }, [isInDungeon, currentRegion, currentPlayer?.location?.g, currentPlayer?.gridId,
       currentPlayer?.location?.gtype, currentPlayer?.location?.s,
       currentPlayer?.settlementId, strings]);
 
