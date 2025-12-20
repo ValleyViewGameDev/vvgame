@@ -155,6 +155,7 @@ const playerSchema = new mongoose.Schema({
     rangeOn: { type: Boolean, default: true },
     equippedWeapon: { type: String, default: null },
     equippedArmor: { type: String, default: null },
+    plantWithCursor: { type: Boolean, default: true },
   },
 
   relocations: { type: Number },
