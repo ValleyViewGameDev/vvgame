@@ -9768,5 +9768,13 @@
   {
     "type": "Setebos Rise",
     "category": "region"
+  },
+  {
+    "type": "Hope Mountain",
+    "category": "region"
+  },
+  {
+    "type": "Angelo's Keep",
+    "category": "region"
   }
 ]

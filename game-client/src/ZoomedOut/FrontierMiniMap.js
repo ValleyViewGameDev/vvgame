@@ -128,10 +128,54 @@ const FrontierMiniMap = ({
     return grid;
   }, [playerGridPosition, homesteadGridPosition]);
 
+  // Get the current region name from player location
+  const currentRegion = currentPlayer?.location?.region;
+
+  // Compute the display title based on location
+  const displayTitle = useMemo(() => {
+    // 1. If there's a region name, show that (takes precedence)
+    if (currentRegion) {
+      return currentRegion;
+    }
+
+    // 2. If at home grid (location.g matches player's homestead gridId)
+    if (currentPlayer?.location?.g && currentPlayer?.gridId) {
+      const currentGridId = currentPlayer.location.g.toString();
+      const homeGridId = currentPlayer.gridId.toString();
+      if (currentGridId === homeGridId) {
+        return strings[107] || 'Your Homestead';
+      }
+    }
+
+    // 3. If in a town grid that belongs to home settlement
+    if (currentPlayer?.location?.gtype === 'town' &&
+        currentPlayer?.location?.s &&
+        currentPlayer?.settlementId) {
+      const currentSettlementId = currentPlayer.location.s.toString();
+      const homeSettlementId = currentPlayer.settlementId.toString();
+      if (currentSettlementId === homeSettlementId) {
+        return strings[108] || 'Your Town';
+      }
+    }
+
+    // 4. If in a valley grid (valley0-3) with no region
+    const gtype = currentPlayer?.location?.gtype;
+    if (['valley0', 'valley1', 'valley2', 'valley3'].includes(gtype)) {
+      return strings[10184] || 'The Valley';
+    }
+
+    // 5. Default to "Map"
+    return strings[2] || 'Map';
+  }, [currentRegion, currentPlayer?.location?.g, currentPlayer?.gridId,
+      currentPlayer?.location?.gtype, currentPlayer?.location?.s,
+      currentPlayer?.settlementId, strings]);
+
   return (
     <div className="frontier-mini-map">
-      {/* Title row */}
-      <h3 style={{ textAlign: 'center', fontFamily: 'Berkshire Swash', margin: '0 0 8px 0' }}>{strings[2]}</h3>
+      {/* Title row - show computed display title */}
+      <h3 style={{ textAlign: 'center', fontFamily: 'Berkshire Swash', margin: '0 0 8px 0' }}>
+        {displayTitle}
+      </h3>
 
       {/* Map row with Home and Town buttons on sides */}
       <div className="mini-map-row-container">

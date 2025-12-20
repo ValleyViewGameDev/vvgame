@@ -239,7 +239,12 @@ export const changePlayerLocation = async (
     const gridDataResponse = await axios.get(`${API_BASE}/api/load-grid/${toLocation.g}`);
     const newTilesData = gridDataResponse.data?.tiles || [];
     const newResourcesData = gridDataResponse.data?.resources || [];
-    
+
+    // Extract region from the new grid for region transition notifications
+    const toRegion = gridDataResponse.data?.region || null;
+    const fromRegion = currentPlayer.location?.region || null;
+    console.log(`🗺️ [LOAD] Region transition check: from "${fromRegion || 'none'}" to "${toRegion || 'none'}"`);
+
     const toPCs = toGridResponse.data?.playersInGrid?.pcs || {};
     
     // Prepare player data with preserved combat stats
@@ -405,6 +410,26 @@ export const changePlayerLocation = async (
         } catch (error) {
           console.error('❌ Error awarding valley trophy:', error);
         }
+      }
+    }
+
+    // ✅ CHECK: Region transition notification
+    if (strings && fromRegion !== toRegion) {
+      // Regions are different - show a notification
+      if (toRegion) {
+        // Entering a new region
+        console.log(`🗺️ Player entering region: ${toRegion}`);
+        showNotification('Travel', {
+          title: strings[10185] || 'Elsinore',
+          message: `${strings[10182] || 'You are entering '}${toRegion}.`
+        });
+      } else if (fromRegion) {
+        // Leaving a region (toRegion is null/undefined)
+        console.log(`🗺️ Player leaving region: ${fromRegion}`);
+        showNotification('Travel', {
+          title: strings[10185] || 'Elsinore',
+          message: `${strings[10183] || 'You are leaving '}${fromRegion}.`
+        });
       }
     }
 

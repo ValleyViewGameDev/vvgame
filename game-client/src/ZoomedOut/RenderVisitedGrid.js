@@ -27,7 +27,7 @@ const TILE_COLORS = {
   o: '#ffffff', // snow
   x: '#959ba3', // cobblestone
   y: '#000000', // dungeon
-  z: '#ffffff', // TBD
+  z: '#1b712c', // moss
   unknown: '#808080', // gray fallback
 };
 

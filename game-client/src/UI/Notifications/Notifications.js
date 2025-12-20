@@ -112,6 +112,19 @@ function Notification({ type, data, onDismiss, onClick }) {
                     </>
                 );
 
+            case 'Travel':
+                return (
+                    <>
+                        <div className="notification-icon-wrapper">
+                            <div className="notification-icon">{data.icon || '👸'}</div>
+                        </div>
+                        <div className="notification-text">
+                            <div className="notification-title">{data.title || strings[7001]}</div>
+                            <div className="notification-name">{data.message}</div>
+                        </div>
+                    </>
+                );
+
             case 'FTUE':
                 return (
                     <>
