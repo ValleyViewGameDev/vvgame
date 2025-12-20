@@ -165,8 +165,8 @@ const FarmingPanel = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '8px 12px',
-          marginBottom: '12px',
+          padding: '2px 12px',
+          marginBottom: '6px',
           backgroundColor: 'var(--color-bg-tertiary)',
           borderRadius: '8px'
         }}>

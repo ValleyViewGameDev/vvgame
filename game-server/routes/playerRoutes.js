@@ -434,7 +434,6 @@ router.get('/get-player-by-username/:username', async (req, res) => {
 // Endpoint to update the player's profile
 router.post('/update-profile', async (req, res) => {
   const { playerId, updates } = req.body;
-  console.log('📝 update-profile received:', { playerId, updates });
 
   try {
     // ✅ Check if the username is already taken (excluding the current player)
