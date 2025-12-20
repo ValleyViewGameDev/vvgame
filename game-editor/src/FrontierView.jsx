@@ -30,6 +30,11 @@ console.log("📜 settlements.length:", settlements?.length);
   const [dragStart, setDragStart] = useState(null);
   const containerRef = useRef(null);
 
+  // Filter toggles
+  const [showSavedLayouts, setShowSavedLayouts] = useState(true);
+  const [showDatabaseGrids, setShowDatabaseGrids] = useState(true);
+  const [showRegions, setShowRegions] = useState(true);
+
   // Fetch region options from masterResources
   useEffect(() => {
     const fetchRegions = async () => {
@@ -576,7 +581,7 @@ const handleResetGridLive = async () => {
               {selectedCells.length <= 1 && (
                 <div className="region-section" style={{ marginTop: '15px', borderTop: '1px solid #ccc', paddingTop: '10px' }}>
                   <strong>Region:</strong>{' '}
-                  <span style={{ color: gridMap.get(Number(selectedCell.coord))?.region ? '#2196F3' : '#999' }}>
+                  <span style={{ color: gridMap.get(Number(selectedCell.coord))?.region ? '#0c1d2bff' : '#0c1d2bff' }}>
                     {gridMap.get(Number(selectedCell.coord))?.region || '(none)'}
                   </span>
 
@@ -607,6 +612,38 @@ const handleResetGridLive = async () => {
               )}
             </>
           )}
+        </div>
+
+        {/* Filter checkboxes */}
+        <div className="filter-section" style={{ marginTop: '20px', borderTop: '1px solid #555', paddingTop: '15px' }}>
+          <strong style={{ display: 'block', marginBottom: '10px' }}>Grid Filters:</strong>
+          <label style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={showSavedLayouts}
+              onChange={(e) => setShowSavedLayouts(e.target.checked)}
+              style={{ marginRight: '8px' }}
+            />
+            Show saved layouts
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={showDatabaseGrids}
+              onChange={(e) => setShowDatabaseGrids(e.target.checked)}
+              style={{ marginRight: '8px' }}
+            />
+            Show database grids
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={showRegions}
+              onChange={(e) => setShowRegions(e.target.checked)}
+              style={{ marginRight: '8px' }}
+            />
+            Show regions
+          </label>
         </div>
       </div>
 
@@ -640,9 +677,10 @@ const handleResetGridLive = async () => {
 
                 let cellClass = 'frontier-cell';
                 let cellContent = '';
+                const hasRegion = foundGrid?.region;
 
                 // Check if this grid has a gridId (meaning it's been created in the database)
-                if (foundGrid?.gridId) {
+                if (showDatabaseGrids && foundGrid?.gridId) {
                   cellClass += ' has-grid-id'; // Light yellow background
                 }
 
@@ -652,7 +690,7 @@ const handleResetGridLive = async () => {
                   cellClass += ' type-homestead'; // same beige base
                   cellContent = '🚂';
                 } else if (['valley0', 'valley1', 'valley2', 'valley3'].includes(type)) {
-                  if (layoutCache.has(gridCoord)) {
+                  if (showSavedLayouts && layoutCache.has(gridCoord)) {
                     cellContent = renderValleyIcon(); // ✅
                   }
                 }
@@ -671,8 +709,21 @@ const handleResetGridLive = async () => {
                     onClick={(e) => handleGridClick(gridCoord, e)}
                     onMouseDown={(e) => handleMouseDown(gridCoord, e)}
                     onMouseEnter={() => handleMouseEnter(gridCoord)}
+                    style={{ position: 'relative' }}
                   >
                     {cellContent}
+                    {/* Region overlay */}
+                    {showRegions && hasRegion && (
+                      <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(255, 0, 0, 0.3)',
+                        pointerEvents: 'none'
+                      }} />
+                    )}
                   </div>
                 );
               })}
