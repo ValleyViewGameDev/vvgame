@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE from './config';
 import './Analytics.css';
+import FTUEsteps from './FTUEsteps.json';
 
 const Analytics = ({ activePanel }) => {
   const [dailyActiveUsers, setDailyActiveUsers] = useState([]);
@@ -164,9 +165,18 @@ const Analytics = ({ activePanel }) => {
             <div className="ftue-progression">
               <h4>Step Progression:</h4>
               <div className="progression-chart">
-                {ftueAnalytics.stepProgression.map((step, index) => (
+                {ftueAnalytics.stepProgression.map((step, index) => {
+                  // Use trigger from server response, fallback to FTUEsteps.json lookup
+                  const triggerName = step.trigger
+                    || FTUEsteps.find(s => s.step === step.step)?.trigger
+                    || (step.step === 0 ? 'Started FTUE' : step.label);
+                  const displayLabel = step.step === 'completed'
+                    ? 'Completed FTUE'
+                    : `Step ${step.step}: ${triggerName}`;
+
+                  return (
                   <div key={index} className="progression-step">
-                    <div className="step-label">{step.label}</div>
+                    <div className="step-label">{displayLabel}</div>
                     <div className="step-bar-container">
                       <div 
                         className="step-bar" 
@@ -184,7 +194,8 @@ const Analytics = ({ activePanel }) => {
                       </span>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 

@@ -2364,7 +2364,20 @@ return (
         <div className="header-controls-left header-grid">
           {/* Grid layout: 3 columns x 2 rows */}
           {/* Row 1 */}
-          <button className="header-link" onClick={() => openPanel('ProfilePanel')}>
+          <button className="header-link" onClick={() => {
+            if (currentPlayer) {
+              const currentPC = {
+                playerId: currentPlayer._id,
+                username: currentPlayer.username,
+                icon: currentPlayer.icon,
+                hp: currentPlayer.hp || 100,
+                position: { x: 0, y: 0 },
+                iscamping: currentPlayer.iscamping,
+                isinboat: currentPlayer.isinboat
+              };
+              handlePCClick(currentPC);
+            }
+          }}>
             {currentPlayer?.icon || '😊'} {currentPlayer?.username || 'Loading...'}
           </button>
 

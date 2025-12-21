@@ -1076,7 +1076,7 @@ const handleGetRich = async () => {
         <h3>Teleport to Another Grid</h3>
         <input
           type="text"
-          placeholder="Enter Username"
+          placeholder="Enter GridCoord"
           value={toGridCoord}
           onChange={(e) => setToGridCoord(e.target.value)}
         />

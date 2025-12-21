@@ -4,6 +4,9 @@ const Player = require('../models/player');
 const fs = require('fs');
 const path = require('path');
 
+// Load FTUE steps configuration
+const FTUEsteps = require('../tuning/FTUEsteps.json');
+
 // Get daily active users for the last N days
 router.get('/daily-active-users', async (req, res) => {
   try {
@@ -146,7 +149,7 @@ router.get('/ftue-analytics', async (req, res) => {
     // Count users at each step
     ftueData.forEach(player => {
       if (player.firsttimeuser === false || player.firsttimeuser === undefined) {
-        // FTUE completed
+        // FTUE completed (firsttimeuser is false or undefined)
         stepCounts['completed'] = (stepCounts['completed'] || 0) + 1;
       } else if (player.ftuestep !== undefined && player.ftuestep !== null) {
         // Still in FTUE
@@ -162,7 +165,7 @@ router.get('/ftue-analytics', async (req, res) => {
 
     // Calculate funnel progression (cumulative: users who reached AT LEAST each step)
     const stepProgression = [];
-    const maxStep = 10; // Based on FTUE having 10 steps
+    const maxStep = Math.max(...FTUEsteps.map(s => s.step)); // Dynamically get max step from FTUEsteps.json
     const completedUsers = stepCounts['completed'] || 0;
     
     for (let i = 0; i <= maxStep; i++) {
@@ -183,12 +186,17 @@ router.get('/ftue-analytics', async (req, res) => {
       }
       
       const percentage = totalUsers > 0 ? ((cumulativeCount / totalUsers) * 100).toFixed(1) : 0;
-      
+
+      // Get trigger name from FTUEsteps.json
+      const ftueStep = FTUEsteps.find(s => s.step === i);
+      const triggerName = ftueStep?.trigger || (i === 0 ? 'Started FTUE' : null);
+
       stepProgression.push({
         step: i,
         count: cumulativeCount,
         percentage: parseFloat(percentage),
         label: i === 0 ? 'Started FTUE' : `Reached Step ${i}`,
+        trigger: triggerName,
         currentlyAt: stepCounts[`step_${i}`] || 0 // Also include count of users currently stuck at this step
       });
     }

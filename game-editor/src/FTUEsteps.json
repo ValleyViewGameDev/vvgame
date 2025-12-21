@@ -1,0 +1,81 @@
+[
+   {
+      "step": 1,
+      "showModal": true,
+      "titleKey": 701,
+      "bodyKey": 702,
+      "image": "ftue-welcome.png",
+      "continue": true,
+      "addQuests": []
+    },
+    {
+      "step": 2,
+      "trigger": "Continued from prior modal",
+      "showModal": true,
+      "titleKey": 705,
+      "bodyKey": 706,
+      "image": "ftue-aspiration.png",
+      "continue": false,
+      "notificationKey": 7050,
+      "notificationIcon": "🧔🏼‍♂️",
+      "addQuests": []
+    },
+    {
+      "step": 3,
+      "trigger": "MetConstableElbow",
+      "showModal": false,
+      "continue": false,
+      "notificationKey": 7051,
+      "notificationIcon": "🏠",
+      "addQuests": [2, 14]
+    },
+    {
+      "step": 4,
+      "trigger": "BoughtHomeDeed",
+      "showModal": false,
+      "continue": false,
+      "notificationKey": 7052,
+      "notificationIcon": "↪️",
+      "openPanel": "QuestPanel"
+    },
+    {
+      "step": 5,
+      "trigger": "FirstHomesteadVisit",
+      "showModal": false,
+      "continue": false,
+      "notificationKey": 7053,
+      "notificationIcon": "🤠",
+      "addQuests": [5, 6],
+      "openPanel": "QuestPanel"
+    },
+    {
+      "step": 6,
+      "trigger": "SoldToKent",
+      "showFeedbackModalAfter": true,
+      "showModal": false,
+      "continue": false,
+      "notificationKey": 7054,
+      "notificationIcon": "🌱",
+      "addQuests": [4],
+      "openPanel": "FarmingPanel"
+    },
+    {
+      "step": 7,
+      "trigger": "PlantedFirstCrop",
+      "showModal": false,
+      "continue": false,
+      "notificationKey": 7055,
+      "notificationIcon": "🌾",
+      "addQuests": [7],
+      "openPanel": "SkillsPanel"    
+    },
+    {
+      "step": 8,
+      "trigger": "AcquiredTownKey",
+      "showModal": false,
+      "continue": false,
+      "notificationKey": 7056,
+      "notificationIcon": "🗝️",
+      "addQuests": []
+    }
+]
