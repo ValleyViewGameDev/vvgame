@@ -87,13 +87,13 @@ const SkillsPanel = ({
 
         // ✅ Filter available skills based on `entryPoint`
         // For trainingAndShop stations, also include 'special' category items (like Tent, Boat)
+        // Include ALL skills from this station (owned ones will be shown differently)
         const validCategories = stationCategory === 'trainingAndShop'
           ? ['skill', 'special']
           : ['skill'];
         const availableSkills = allResourcesData.filter(
           res => validCategories.includes(res.category) &&
-          res.source === entryPoint &&
-          !ownedSkills.some(owned => owned.type === res.type)
+          res.source === entryPoint
         );
 
         setSkillsToAcquire(availableSkills);
@@ -265,25 +265,60 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
           <p>{strings[98]}</p>
         ) : (
           <>
-            {(entryPoint === "Basic Skills") && (
-              <div className="skills-owned">
-                <h3>{strings[1303]}</h3>
-                {ownedSkills.length > 0 ? (
-                  ownedSkills.map((skill, index) => (
-                    <div key={index}>
-                      {getLocalizedString(skill.type, strings)} 
-                    </div>
-                  ))
-                ) : (
-                  <p>{strings[1305]}</p>
-                )}
-              </div>
-            )}
-
-
             <div className="skills-to-acquire">
               <div className="skills-options">
                 {skillsToAcquire.map((resource) => {
+                  // Check if this skill is already owned
+                  const isOwned = ownedSkills.some(owned => owned.type === resource.type);
+
+                  // Build info tooltip (used for both owned and unowned)
+                  const attributeModifier = resource.output
+                    ? `+${resource.qtycollected || 1} to ${strings[resource.output] || resource.output}`
+                    : null;
+
+                  let buffText = '';
+                  const buffedItems = masterSkills[resource.type];
+                  if (buffedItems && typeof buffedItems === 'object') {
+                    const items = Object.keys(buffedItems);
+                    if (items.length > 0) {
+                      const prettyList = items.join(', ');
+                      buffText = `Collection multiplied: ${prettyList}`;
+                    }
+                  }
+
+                  const unlocks = allResources
+                    .filter((res) => res.requires === resource.type)
+                    .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
+                    .join(', ') || 'None';
+
+                  const info = (
+                    <div className="info-content">
+                      {attributeModifier && <div>{attributeModifier}</div>}
+                      {unlocks !== 'None' && (
+                        <div style={{ display: 'block', marginBottom: '3px' }}>
+                          <strong>Unlocks:</strong> {unlocks}
+                        </div>
+                      )}
+                      {buffText && <div style={{ color: 'blue' }}>{buffText}</div>}
+                    </div>
+                  );
+
+                  // If already owned, show as mini disabled button
+                  if (isOwned) {
+                    return (
+                      <ResourceButton
+                        key={resource.type}
+                        symbol={resource.symbol}
+                        name={getLocalizedString(resource.type, strings)}
+                        className="mini"
+                        info={info}
+                        disabled={true}
+                        hideGem={true}
+                      />
+                    );
+                  }
+
+                  // Not owned - show full ResourceButton for purchase
                   const affordable = canAfford(resource, inventory, backpack, 1);
                   const meetsSkillRequirement = hasRequiredSkill(resource.requires);
                   const meetsLevel = meetsLevelRequirement(resource.level);
@@ -309,39 +344,6 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                     (resource.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(resource.requires, strings)}</span>` : '') +
                     `${strings[461]}<div>${formattedCosts}</div>`;
 
-                  // ✅ **Check if this skill modifies a player attribute**
-                  const attributeModifier = resource.output
-                    ? `+${resource.qtycollected || 1} to ${strings[resource.output] || resource.output}`
-                    : null;
-
-                  // ✅ Check if this skill provides a collection buff
-                  let buffText = '';
-                  const buffedItems = masterSkills[resource.type];
-                  if (buffedItems && typeof buffedItems === 'object') {
-                    const items = Object.keys(buffedItems);
-                    if (items.length > 0) {
-                      const prettyList = items.join(', ');
-                      buffText = `Collection multiplied: ${prettyList}`;
-                    }
-                  }
-
-                  const unlocks = allResources
-                    .filter((res) => res.requires === resource.type)
-                    .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
-                    .join(', ') || 'None';
-
-                    const info = (
-                      <div className="info-content">
-                        {attributeModifier && <div>{attributeModifier}</div>}
-                        {unlocks !== 'None' && (
-                          <div style={{ display: 'block', marginBottom: '3px' }}>
-                            <strong>Unlocks:</strong> {unlocks}
-                          </div>
-                        )}
-                        {buffText && <div style={{ color: 'blue' }}>{buffText}</div>}
-                      </div>
-                    );
-
                   return (
                     <ResourceButton
                       key={resource.type}
@@ -365,9 +367,68 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
               </div>
             </div>
 
-          <br></br>
           <h3>{strings[10175]}</h3>
-          
+
+            {(entryPoint === "Basic Skills") && (
+              <div className="skills-owned">
+                <br></br>
+                <h2>{strings[1303]}</h2>
+                {ownedSkills.length > 0 ? (
+                  ownedSkills.map((skill) => {
+                    // Look up full resource data for this skill
+                    const resource = allResources.find(r => r.type === skill.type);
+                    if (!resource) return null;
+
+                    // Build info tooltip (same logic as skills to acquire)
+                    const attributeModifier = resource.output
+                      ? `+${resource.qtycollected || 1} to ${strings[resource.output] || resource.output}`
+                      : null;
+
+                    let buffText = '';
+                    const buffedItems = masterSkills[resource.type];
+                    if (buffedItems && typeof buffedItems === 'object') {
+                      const items = Object.keys(buffedItems);
+                      if (items.length > 0) {
+                        const prettyList = items.join(', ');
+                        buffText = `Collection multiplied: ${prettyList}`;
+                      }
+                    }
+
+                    const unlocks = allResources
+                      .filter((res) => res.requires === resource.type)
+                      .map((res) => `${res.symbol || ''} ${getLocalizedString(res.type, strings)}`)
+                      .join(', ') || 'None';
+
+                    const info = (
+                      <div className="info-content">
+                        {attributeModifier && <div>{attributeModifier}</div>}
+                        {unlocks !== 'None' && (
+                          <div style={{ display: 'block', marginBottom: '3px' }}>
+                            <strong>Unlocks:</strong> {unlocks}
+                          </div>
+                        )}
+                        {buffText && <div style={{ color: 'blue' }}>{buffText}</div>}
+                      </div>
+                    );
+
+                    return (
+                      <ResourceButton
+                        key={skill.type}
+                        symbol={resource.symbol}
+                        name={getLocalizedString(skill.type, strings)}
+                        className="mini"
+                        info={info}
+                        disabled={true}
+                        hideGem={true}
+                      />
+                    );
+                  })
+                ) : (
+                  <p>{strings[1305]}</p>
+                )}
+              </div>
+            )}
+
       {showSellButton && (
         <div className="shared-buttons">
           <TransactionButton 
