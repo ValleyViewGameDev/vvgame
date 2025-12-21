@@ -462,9 +462,9 @@ const [showShareModal, setShowShareModal] = useState(false);
 const [showFTUE, setShowFTUE] = useState(false);
 const [cursorMode, setCursorMode] = useState(null); // { type: 'plant', item: {...}, emoji: '🌾' }
 
-// Clear cursor mode when panel changes (except when staying on FarmingPanel)
+// Clear cursor mode when panel changes (except when staying on FarmingPanel or ToolsPanel)
 useEffect(() => {
-  if (activePanel !== 'FarmingPanel') {
+  if (activePanel !== 'FarmingPanel' && activePanel !== 'ToolsPanel') {
     setCursorMode(null);
   }
 }, [activePanel]);
@@ -1763,6 +1763,13 @@ useEffect(() => {
       return;
     }
 
+    // Handle Escape key to clear cursor mode (plant/terraform with cursor)
+    if (event.key === 'Escape') {
+      setCursorMode(null);
+      event.preventDefault();
+      return;
+    }
+
     if (zoomLevel === 'frontier' || zoomLevel === 'settlement') { return; }  // Prevent input if zoomed out
     const activeElement = document.activeElement;
     if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) { return; } // Prevent movement if a text input is focused
@@ -1850,6 +1857,37 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       masterSkills,
       updateStatus,
       overridePosition: { x: colIndex, y: rowIndex }, // Plant at clicked tile, not player position
+    });
+    isProcessing = false;
+    return;
+  }
+
+  // Handle terraform cursor mode
+  if (cursorMode?.type === 'terraform' && cursorMode.actionType) {
+    // Range check for cursor mode terraforming
+    if (currentPlayer?._id && gridId) {
+      const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id));
+      const targetPos = { x: colIndex, y: rowIndex };
+      if (playerPos && typeof playerPos.x !== 'undefined') {
+        const distance = calculateDistance(playerPos, targetPos);
+        const playerRange = getDerivedRange(currentPlayer, masterResources);
+        if (distance > playerRange) {
+          FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
+          isProcessing = false;
+          return;
+        }
+      }
+    }
+
+    const { handleTerraform } = await import('./GameFeatures/Farming/Farming');
+    await handleTerraform({
+      TILE_SIZE: activeTileSize,
+      actionType: cursorMode.actionType,
+      gridId,
+      currentPlayer,
+      tileTypes,
+      setTileTypes,
+      overridePosition: { x: colIndex, y: rowIndex }, // Terraform at clicked tile
     });
     isProcessing = false;
     return;
@@ -3318,10 +3356,12 @@ return (
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           gridId={gridId}
-          masterResources={masterResources} 
-          masterSkills={masterSkills} 
+          masterResources={masterResources}
+          masterSkills={masterSkills}
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
+          cursorMode={cursorMode}
+          setCursorMode={setCursorMode}
         />
       )}
       {activePanel === 'BuildPanel' && (

@@ -139,18 +139,27 @@ export const handleFarmPlotPlacement = async ({
 
 
 
-export const handleTerraform = async ({ TILE_SIZE, actionType, gridId, currentPlayer, tileTypes, setTileTypes }) => {
+export const handleTerraform = async ({ TILE_SIZE, actionType, gridId, currentPlayer, tileTypes, setTileTypes, overridePosition }) => {
 
   console.log("handleTerraform;  currentPlayer = ",currentPlayer);
-  
+
   if (!currentPlayer?.location) {
     console.error("❌ handleTerraform: Missing currentPlayer location.");
     return;
   }
 
-  const coords = getCurrentTileCoordinates(gridId, currentPlayer);
-  if (!coords) return;
-  const { tileX, tileY } = coords;
+  // Use override position if provided (cursor mode), otherwise use player position
+  let tileX, tileY;
+  if (overridePosition) {
+    tileX = overridePosition.x;
+    tileY = overridePosition.y;
+  } else {
+    const coords = getCurrentTileCoordinates(gridId, currentPlayer);
+    if (!coords) return;
+    tileX = coords.tileX;
+    tileY = coords.tileY;
+  }
+
   const tile = tileTypes?.[tileY]?.[tileX];
   console.log("tile at ",tileY,", ",tileX," = ",tile);
 
