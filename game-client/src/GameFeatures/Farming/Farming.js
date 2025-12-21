@@ -11,6 +11,44 @@ import { getCurrentTileCoordinates } from '../../Utils/ResourceHelpers';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
 
+/**
+ * Determines the appropriate error string for an invalid planting attempt.
+ * Checks all validon[x] fields to find which tile types ARE valid.
+ * - If exactly 1 tile type is valid, returns the specific error string for that tile.
+ * - If multiple or zero valid tile types, returns the default "Can't plant here" (304).
+ *
+ * Tile type to string mapping:
+ * - d (dirt) → 303 "Must plant on dirt"
+ * - z (moss) → 307 "Must plant on moss"
+ * - n (sand) → 308 "Must plant on sand"
+ * - fallback → 304 "Can't plant here"
+ */
+const getPlantingErrorString = (farmplotItem) => {
+  // Map of tile type codes to their specific error strings
+  const tileTypeToString = {
+    'd': 303, // dirt
+    'z': 307, // moss
+    'n': 308, // sand
+  };
+
+  // All possible validon fields to check
+  const validonFields = ['g', 'd', 's', 'p', 'w', 'l', 'n', 'o', 'x', 'y', 'z'];
+
+  // Find all tile types that are valid for this farmplot
+  const validTileTypes = validonFields.filter(tileCode => {
+    const fieldName = `validon${tileCode}`;
+    return farmplotItem[fieldName] === true;
+  });
+
+  // If exactly one valid tile type and we have a specific string for it
+  if (validTileTypes.length === 1 && tileTypeToString[validTileTypes[0]]) {
+    return tileTypeToString[validTileTypes[0]];
+  }
+
+  // Otherwise return default "Can't plant here"
+  return 304;
+};
+
 export const handleFarmPlotPlacement = async ({
   selectedItem,
   TILE_SIZE,
@@ -44,17 +82,24 @@ export const handleFarmPlotPlacement = async ({
       tileY = coords.tileY;
     }
 
-    // Use local tile data instead of async server call for instant response
-    const tiles = GlobalGridStateTilesAndResources.getTiles();
-    const tileType = tiles?.[tileY]?.[tileX];
-    if (!tileType || tileType !== 'd') {
-      FloatingTextManager.addFloatingText(303, tileX, tileY, TILE_SIZE); // "Must be dirt"
-      return false;
-    }
-
     const tileOccupied = resources.find((res) => res.x === tileX && res.y === tileY);
     if (tileOccupied) {
       FloatingTextManager.addFloatingText(304, tileX, tileY, TILE_SIZE); // "Occupied"
+      return false;
+    }
+
+    // Use local tile data instead of async server call for instant response
+    const tiles = GlobalGridStateTilesAndResources.getTiles();
+    const tileType = tiles?.[tileY]?.[tileX];
+
+    // Check if the tile type is valid for this farmplot using validon[x] fields
+    const validonField = `validon${tileType}`;
+    const isValidTile = selectedItem[validonField] === true;
+
+    if (!tileType || !isValidTile) {
+      // Determine appropriate error message based on valid tile types for this farmplot
+      const errorStringId = getPlantingErrorString(selectedItem);
+      FloatingTextManager.addFloatingText(errorStringId, tileX, tileY, TILE_SIZE);
       return false;
     }
 

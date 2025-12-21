@@ -1036,56 +1036,74 @@ const handleGetRich = async () => {
   return (
     <Panel onClose={onClose} titleKey="1120" panelName="DebugPanel">
       {/* Performance Metrics Section */}
-      <div style={{ 
-        backgroundColor: '#f0f0f0', 
-        padding: '10px', 
-        marginBottom: '15px', 
+      <div style={{
+        backgroundColor: '#f0f0f0',
+        padding: '10px',
+        marginBottom: '15px',
         borderRadius: '5px',
         fontFamily: 'monospace',
-        fontSize: '12px'
+        fontSize: '11px'
       }}>
-        <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>⚡ Performance Metrics</h3>
-        
-        {/* Canvas mode is now forced - no toggle buttons needed */}
-        <div style={{ marginBottom: '10px', fontSize: '12px', color: '#666' }}>
-          🎨 Rendering Mode: <strong style={{ color: 'green' }}>Canvas (Forced)</strong>
+        <h3 style={{ margin: '0 0 8px 0', color: '#333', fontSize: '12px' }}>⚡ Performance Metrics</h3>
+
+        {/* Rendering Mode - label and value on separate lines */}
+        <div style={{ marginBottom: '8px', color: '#666' }}>
+          <div>🎨 Rendering Mode:</div>
+          <div><strong style={{ color: 'green' }}>Canvas (Forced)</strong></div>
         </div>
-        
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-          <div>
-            <strong>FPS:</strong> <span style={{ color: performanceMetrics.fps >= 30 ? 'green' : performanceMetrics.fps >= 15 ? 'orange' : 'red' }}>
-              {performanceMetrics.fps}
-            </span>
+
+        {/* Two-column grid with labels and values on separate rows */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 10px' }}>
+          {/* Row 1: Labels */}
+          <div><strong>FPS:</strong></div>
+          <div><strong>Render Mode:</strong></div>
+          {/* Row 2: Values */}
+          <div style={{ color: performanceMetrics.fps >= 30 ? 'green' : performanceMetrics.fps >= 15 ? 'orange' : 'red', marginBottom: '6px' }}>
+            {performanceMetrics.fps}
           </div>
-          <div>
-            <strong>Render Mode:</strong> <span style={{ color: performanceMetrics.renderMode === 'Canvas' ? 'green' : 'blue' }}>
-              {performanceMetrics.renderMode}
-            </span>
+          <div style={{ color: performanceMetrics.renderMode === 'Canvas' ? 'green' : 'blue', marginBottom: '6px' }}>
+            {performanceMetrics.renderMode}
           </div>
-          <div>
-            <strong>DOM Elements:</strong> {performanceMetrics.domElementCount.toLocaleString()}
-          </div>
-          {performanceMetrics.memoryUsage > 0 && (
-            <div>
-              <strong>Memory:</strong> {performanceMetrics.memoryUsage} MB
-            </div>
-          )}
+          {/* Row 3: Labels */}
+          <div><strong>DOM Elements:</strong></div>
+          <div><strong>Memory:</strong></div>
+          {/* Row 4: Values */}
+          <div>{performanceMetrics.domElementCount.toLocaleString()}</div>
+          <div>{performanceMetrics.memoryUsage > 0 ? `${performanceMetrics.memoryUsage} MB` : 'N/A'}</div>
         </div>
       </div>
       
-      <div className="shared-buttons">
-        <button className="btn-basic btn-danger" onClick={handleCreateNewFrontier}> Create New Frontier </button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-danger" onClick={handleResetGrid}> Reset This Grid </button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-danger" onClick={handleRemoveHomestead}> Remove Homestead </button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-danger" onClick={handleGenerateTown}> Generate Town </button>
-      </div>
+        <h3>Teleport to Another Grid</h3>
+        <input
+          type="text"
+          placeholder="Enter Username"
+          value={toGridCoord}
+          onChange={(e) => setToGridCoord(e.target.value)}
+        />
+        <div className="shared-buttons">
+          <button
+            className="btn-basic btn-danger"
+            onClick={async () => {
+              try {
+                const parsedCoord = parseInt(toGridCoord, 10);
+                if (isNaN(parsedCoord)) {
+                  alert("Invalid gridCoord (not a number).");
+                  return;
+                }
+                await handleTeleport(parsedCoord);
+              } catch (error) {
+                console.error("Error teleporting:", error);
+                alert("Failed to teleport.");
+              }
+            }}
+          >
+            Teleport
+          </button>
+        </div>
+
+    <h3>FTUE Step: {currentPlayer?.ftuestep || "Not set"}</h3>
+    <h3>Warehouse Level: {currentPlayer?.warehouseLevel ?? 0}</h3>
+
       <div className="shared-buttons">
         <button 
           className="btn-basic btn-danger" 
@@ -1121,6 +1139,21 @@ const handleGetRich = async () => {
         > 
           ☀️ Melt The Snow 
         </button>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-danger" onClick={handleResetGrid}> Reset This Grid </button>
+      </div>
+
+    <br />
+
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-danger" onClick={handleCreateNewFrontier}> Create New Frontier </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-danger" onClick={handleRemoveHomestead}> Remove Homestead </button>
+      </div>
+      <div className="shared-buttons">
+        <button className="btn-basic btn-danger" onClick={handleGenerateTown}> Generate Town </button>
       </div>
       <div className="shared-buttons">
         <button className="btn-basic btn-danger" onClick={() => handleGenerateValley(0)}> Generate Valley 0 </button>
@@ -1212,35 +1245,6 @@ const handleGetRich = async () => {
           </button>
         </div>
 
-        <h3>Teleport to Another Grid</h3>
-        <input
-          type="text"
-          placeholder="Enter Username"
-          value={toGridCoord}
-          onChange={(e) => setToGridCoord(e.target.value)}
-        />
-        <div className="shared-buttons">
-          <button
-            className="btn-basic btn-danger"
-            onClick={async () => {
-              try {
-                const parsedCoord = parseInt(toGridCoord, 10);
-                if (isNaN(parsedCoord)) {
-                  alert("Invalid gridCoord (not a number).");
-                  return;
-                }
-                await handleTeleport(parsedCoord);
-              } catch (error) {
-                console.error("Error teleporting:", error);
-                alert("Failed to teleport.");
-              }
-            }}
-          >
-            Teleport
-          </button>
-        </div>
-        
-
         <h3>Delete User Account</h3>
         <input
           type="text"
@@ -1313,9 +1317,6 @@ const handleGetRich = async () => {
           </button>
         </div>
 
-    <br />
-    <h3>FTUE Step: {currentPlayer?.ftuestep || "Not set"}</h3>
-    <h3>Warehouse Level: {currentPlayer?.warehouseLevel ?? 0}</h3>
 
       <div className="debug-timers">
         <h3>⏳ Active Timers:</h3>
