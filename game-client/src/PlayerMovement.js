@@ -275,10 +275,16 @@ async function isValidMove(targetX, targetY, masterResources,
 }
 
 
-export function centerCameraOnPlayer(position, TILE_SIZE) {
+export function centerCameraOnPlayer(position, TILE_SIZE, retryCount = 0) {
   const gameContainer = document.querySelector(".homestead");
-  if (!gameContainer) return;
-  
+  if (!gameContainer) {
+    // Container not ready yet, retry after a short delay (Safari fix)
+    if (retryCount < 5) {
+      requestAnimationFrame(() => centerCameraOnPlayer(position, TILE_SIZE, retryCount + 1));
+    }
+    return;
+  }
+
   // Guard against undefined position during network delays
   if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
     console.warn('⚠️ [CAMERA] Cannot center camera - invalid position:', position);
@@ -295,6 +301,13 @@ export function centerCameraOnPlayer(position, TILE_SIZE) {
   const maxScrollLeft = gameContainer.scrollWidth - gameContainer.clientWidth;
   const maxScrollTop = gameContainer.scrollHeight - gameContainer.clientHeight;
 
+  // Safari fix: If container hasn't laid out yet (scroll dimensions are 0), retry
+  if (maxScrollLeft <= 0 && maxScrollTop <= 0 && centerX > 0 && retryCount < 10) {
+    console.log(`📷 [CAMERA] Container not ready, retrying... (attempt ${retryCount + 1})`);
+    requestAnimationFrame(() => centerCameraOnPlayer(position, TILE_SIZE, retryCount + 1));
+    return;
+  }
+
   const clampedX = Math.max(0, Math.min(centerX, maxScrollLeft));
   const clampedY = Math.max(0, Math.min(centerY, maxScrollTop));
 
@@ -308,10 +321,16 @@ export function centerCameraOnPlayer(position, TILE_SIZE) {
 }
 
 
-export function centerCameraOnPlayerFast(position, TILE_SIZE) {
+export function centerCameraOnPlayerFast(position, TILE_SIZE, retryCount = 0) {
   const gameContainer = document.querySelector(".homestead");
-  if (!gameContainer) return;
-  
+  if (!gameContainer) {
+    // Container not ready yet, retry after a short delay (Safari fix)
+    if (retryCount < 5) {
+      requestAnimationFrame(() => centerCameraOnPlayerFast(position, TILE_SIZE, retryCount + 1));
+    }
+    return;
+  }
+
   // Guard against undefined position during network delays
   if (!position || typeof position.x !== 'number' || typeof position.y !== 'number') {
     console.warn('⚠️ [CAMERA FAST] Cannot center camera - invalid position:', position);
@@ -327,6 +346,13 @@ export function centerCameraOnPlayerFast(position, TILE_SIZE) {
   // Clamp scroll positions so we don't scroll beyond the container's bounds
   const maxScrollLeft = gameContainer.scrollWidth - gameContainer.clientWidth;
   const maxScrollTop = gameContainer.scrollHeight - gameContainer.clientHeight;
+
+  // Safari fix: If container hasn't laid out yet (scroll dimensions are 0), retry
+  if (maxScrollLeft <= 0 && maxScrollTop <= 0 && centerX > 0 && retryCount < 10) {
+    console.log(`📷 [CAMERA FAST] Container not ready, retrying... (attempt ${retryCount + 1})`);
+    requestAnimationFrame(() => centerCameraOnPlayerFast(position, TILE_SIZE, retryCount + 1));
+    return;
+  }
 
   const clampedX = Math.max(0, Math.min(centerX, maxScrollLeft));
   const clampedY = Math.max(0, Math.min(centerY, maxScrollTop));

@@ -722,6 +722,10 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
           // Extract browser from ftueFeedback for sorting
           aValue = (a.ftueFeedback?.browser || '').toLowerCase();
           bValue = (b.ftueFeedback?.browser || '').toLowerCase();
+        } else if (sortConfig.key === 'os') {
+          // Extract OS from ftueFeedback for sorting
+          aValue = (a.ftueFeedback?.os || '').toLowerCase();
+          bValue = (b.ftueFeedback?.os || '').toLowerCase();
         } else if (typeof aValue === 'string') {
           aValue = aValue.toLowerCase();
           bValue = (bValue || '').toLowerCase();
@@ -1181,6 +1185,12 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                     Browser {sortConfig.key === 'browser' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </th>
                   <th
+                    onClick={() => handleSort('os')}
+                    className={`sortable ${sortConfig.key === 'os' ? `sort-${sortConfig.direction}` : ''}`}
+                  >
+                    OS {sortConfig.key === 'os' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </th>
+                  <th
                     onClick={() => handleSort('created')}
                     className={`sortable ${sortConfig.key === 'created' ? `sort-${sortConfig.direction}` : ''}`}
                   >
@@ -1234,6 +1244,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                       </span>
                     </td>
                     <td>{player.ftueFeedback?.browser || ''}</td>
+                    <td>{player.ftueFeedback?.os || ''}</td>
                     <td>{player.created ? new Date(player.created).toLocaleDateString() : 'Unknown'}</td>
                     <td>
                       {player.lastActive ? (

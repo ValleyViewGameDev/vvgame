@@ -204,6 +204,10 @@ const Feedback = ({ activePanel }) => {
             aVal = a.ftueFeedback?.browser || 'Unknown';
             bVal = b.ftueFeedback?.browser || 'Unknown';
             break;
+          case 'os':
+            aVal = a.ftueFeedback?.os || 'Unknown';
+            bVal = b.ftueFeedback?.os || 'Unknown';
+            break;
           case 'created':
             aVal = new Date(a.created || 0);
             bVal = new Date(b.created || 0);
@@ -334,6 +338,9 @@ const Feedback = ({ activePanel }) => {
               <th onClick={() => handleSort('browser')} style={{ cursor: 'pointer' }}>
                 Browser{getSortIcon('browser')}
               </th>
+              <th onClick={() => handleSort('os')} style={{ cursor: 'pointer' }}>
+                OS{getSortIcon('os')}
+              </th>
               <th onClick={() => handleSort('created')} style={{ cursor: 'pointer' }}>
                 Created{getSortIcon('created')}
               </th>
@@ -350,6 +357,7 @@ const Feedback = ({ activePanel }) => {
                 <td>{player.language || 'en'}</td>
                 <td>{player.ftuestep || 'Completed'}</td>
                 <td>{player.ftueFeedback?.browser || 'Unknown'}</td>
+                <td>{player.ftueFeedback?.os || 'Unknown'}</td>
                 <td>{player.created ? new Date(player.created).toLocaleDateString() : 'Unknown'}</td>
                 <td>
                   {player.ftueFeedback?.positive?.map(index => feedbackStrings[index]).join(', ') || 'None'}
