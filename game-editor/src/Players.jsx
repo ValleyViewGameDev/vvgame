@@ -27,6 +27,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
   const [pendingSkillDeletions, setPendingSkillDeletions] = useState(new Set());
   const [pendingPowerDeletions, setPendingPowerDeletions] = useState(new Set());
   const [editingItem, setEditingItem] = useState(null); // { section: 'wallet'/'inventory', type: 'itemType' }
+  const [hoveredDiagnostics, setHoveredDiagnostics] = useState(null); // Player ID for diagnostics tooltip
 
   // Function to get settlement name by ID
   const getSettlementName = (settlementId) => {
@@ -726,6 +727,10 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
           // Extract OS from ftueFeedback for sorting
           aValue = (a.ftueFeedback?.os || '').toLowerCase();
           bValue = (b.ftueFeedback?.os || '').toLowerCase();
+        } else if (sortConfig.key === 'latency') {
+          // Extract latency from ftueFeedback for sorting
+          aValue = a.ftueFeedback?.latency ?? 99999;
+          bValue = b.ftueFeedback?.latency ?? 99999;
         } else if (typeof aValue === 'string') {
           aValue = aValue.toLowerCase();
           bValue = (bValue || '').toLowerCase();
@@ -1191,6 +1196,12 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                     OS {sortConfig.key === 'os' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </th>
                   <th
+                    onClick={() => handleSort('latency')}
+                    className={`sortable ${sortConfig.key === 'latency' ? `sort-${sortConfig.direction}` : ''}`}
+                  >
+                    Latency {sortConfig.key === 'latency' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </th>
+                  <th
                     onClick={() => handleSort('created')}
                     className={`sortable ${sortConfig.key === 'created' ? `sort-${sortConfig.direction}` : ''}`}
                   >
@@ -1209,12 +1220,13 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                   >
                     FTUE Step {sortConfig.key === 'ftuestep' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </th>
-                  <th 
+                  <th
                     onClick={() => handleSort('aspiration')}
                     className={`sortable ${sortConfig.key === 'aspiration' ? `sort-${sortConfig.direction}` : ''}`}
                   >
                     Aspiration {sortConfig.key === 'aspiration' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </th>
+                  <th>Diagnostics</th>
                 </tr>
               </thead>
               <tbody>
@@ -1245,6 +1257,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                     </td>
                     <td>{player.ftueFeedback?.browser || ''}</td>
                     <td>{player.ftueFeedback?.os || ''}</td>
+                    <td>{player.ftueFeedback?.latency != null ? `${player.ftueFeedback.latency}ms` : ''}</td>
                     <td>{player.created ? new Date(player.created).toLocaleDateString() : 'Unknown'}</td>
                     <td>
                       {player.lastActive ? (
@@ -1278,10 +1291,41 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                     </td>
                     <td>{player.ftuestep || ''}</td>
                     <td>
-                      {player.aspiration === 1 ? '🌱' : 
-                       player.aspiration === 2 ? '⚔️' : 
-                       player.aspiration === 3 ? '🏛️' : 
+                      {player.aspiration === 1 ? '🌱' :
+                       player.aspiration === 2 ? '⚔️' :
+                       player.aspiration === 3 ? '🏛️' :
                        ''}
+                    </td>
+                    <td className="diagnostics-cell">
+                      <button
+                        className="diagnostics-info-btn"
+                        onMouseEnter={() => setHoveredDiagnostics(player._id)}
+                        onMouseLeave={() => setHoveredDiagnostics(null)}
+                      >
+                        i
+                      </button>
+                      {hoveredDiagnostics === player._id && player.ftueFeedback && (
+                        <div className="diagnostics-tooltip">
+                          <table>
+                            <tbody>
+                              <tr><td>Browser</td><td>{player.ftueFeedback.browser || '-'}</td></tr>
+                              <tr><td>OS</td><td>{player.ftueFeedback.os || '-'}</td></tr>
+                              <tr><td>Latency</td><td>{player.ftueFeedback.latency != null ? `${player.ftueFeedback.latency}ms` : '-'}</td></tr>
+                              <tr><td>Connection</td><td>{player.ftueFeedback.connectionType || '-'}</td></tr>
+                              <tr><td>Downlink</td><td>{player.ftueFeedback.downlink != null ? `${player.ftueFeedback.downlink} Mbps` : '-'}</td></tr>
+                              <tr><td>Screen</td><td>{player.ftueFeedback.screenWidth && player.ftueFeedback.screenHeight ? `${player.ftueFeedback.screenWidth}x${player.ftueFeedback.screenHeight}` : '-'}</td></tr>
+                              <tr><td>Viewport</td><td>{player.ftueFeedback.viewportWidth && player.ftueFeedback.viewportHeight ? `${player.ftueFeedback.viewportWidth}x${player.ftueFeedback.viewportHeight}` : '-'}</td></tr>
+                              <tr><td>Pixel Ratio</td><td>{player.ftueFeedback.devicePixelRatio || '-'}</td></tr>
+                              <tr><td>Memory</td><td>{player.ftueFeedback.deviceMemory != null ? `${player.ftueFeedback.deviceMemory} GB` : '-'}</td></tr>
+                              <tr><td>CPU Cores</td><td>{player.ftueFeedback.hardwareConcurrency || '-'}</td></tr>
+                              <tr><td>Mobile</td><td>{player.ftueFeedback.isMobile != null ? (player.ftueFeedback.isMobile ? 'Yes' : 'No') : '-'}</td></tr>
+                              <tr><td>Touch</td><td>{player.ftueFeedback.isTouchDevice != null ? (player.ftueFeedback.isTouchDevice ? 'Yes' : 'No') : '-'}</td></tr>
+                              <tr><td>WebGL</td><td>{player.ftueFeedback.webglSupported != null ? (player.ftueFeedback.webglSupported ? 'Yes' : 'No') : '-'}</td></tr>
+                              <tr><td>Timezone</td><td>{player.ftueFeedback.timezone || '-'}</td></tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
