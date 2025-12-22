@@ -19,8 +19,8 @@ const { performGridCreation, claimHomestead } = require('../utils/createGridLogi
 // POST /register-new-player (Atomic registration + grid creation)
 
 router.post('/register-new-player', async (req, res) => {
-  const { username, password, language, location } = req.body;
-  console.log('POST /register-new-player:', { username, location });
+  const { username, password, language, location, browser, os } = req.body;
+  console.log('POST /register-new-player:', { username, location, browser, os });
 
   if (!username || !password || !language || !location || !location.gridCoord || !location.settlementId || !location.frontierId || !location.gtype) {
     return res.status(400).json({ error: 'Missing required fields for registration.' });
@@ -88,6 +88,12 @@ router.post('/register-new-player', async (req, res) => {
       language,
       firsttimeuser,
       ftuestep,
+      ftueFeedback: {
+        positive: [],
+        negative: [],
+        browser: browser || null,
+        os: os || null,
+      },
       range,
       baseHp,
       baseMaxhp,

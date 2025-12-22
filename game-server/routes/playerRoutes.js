@@ -1506,7 +1506,7 @@ router.post('/update-last-active', async (req, res) => {
 router.get('/players', async (req, res) => {
   try {
     const players = await Player.find({})
-      .select('username settlementId accountStatus role created location icon language netWorth activeQuests completedQuests skills powers lastActive inventory ftuestep firsttimeuser aspiration warehouseCapacity backpackCapacity')
+      .select('username settlementId accountStatus role created location icon language netWorth activeQuests completedQuests skills powers lastActive inventory ftuestep firsttimeuser aspiration warehouseCapacity backpackCapacity ftueFeedback')
       .sort({ lastActive: -1 }); // Sort by most recently active first
     
     console.log(`📋 Editor: Found ${players.length} players`);

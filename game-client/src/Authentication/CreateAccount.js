@@ -8,6 +8,28 @@ import { enabledLanguages } from '../UI/Modals/LanguagePickerModal';
 import '../UI/Buttons/SharedButtons.css';
 import { trackAccountCreation } from '../Utils/conversionTracking';
 
+// Detect browser type from userAgent
+const getBrowserType = () => {
+  const userAgent = navigator.userAgent;
+  if (userAgent.includes('Chrome') && !userAgent.includes('Edg')) return 'Chrome';
+  if (userAgent.includes('Firefox')) return 'Firefox';
+  if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) return 'Safari';
+  if (userAgent.includes('Edg')) return 'Edge';
+  if (userAgent.includes('Opera') || userAgent.includes('OPR')) return 'Opera';
+  return 'Unknown';
+};
+
+// Detect OS type from userAgent
+const getOSType = () => {
+  const userAgent = navigator.userAgent;
+  if (userAgent.includes('Windows')) return 'Windows';
+  if (userAgent.includes('Macintosh') || userAgent.includes('Mac OS')) return 'MacOS';
+  if (userAgent.includes('iPhone') || userAgent.includes('iPad') || userAgent.includes('iPod')) return 'iOS';
+  if (userAgent.includes('Android')) return 'Android';
+  if (userAgent.includes('Linux')) return 'Linux';
+  return 'Unknown';
+};
+
 const CreateAccount = ({ setCurrentPlayer, zoomLevel, setZoomLevel, setIsLoggedIn, closeModal }) => {
   const strings = useStrings();
   const [username, setUsername] = useState('');
@@ -96,6 +118,9 @@ const handleCreateAccount = async (e) => {
       // Tell server the player should start in town
       startInTown: true,
       townGridId: townGridId,
+      // Browser and OS detection for analytics
+      browser: getBrowserType(),
+      os: getOSType(),
     };
 
     console.log('Calling /api/register-new-player with payload:', registerPayload);
