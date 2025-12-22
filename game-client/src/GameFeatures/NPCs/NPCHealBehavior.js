@@ -3,6 +3,7 @@ import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTil
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import playersInGridManager from '../../GridState/PlayersInGrid';
 import { calculateDistance } from '../../Utils/worldHelpers';
+import { isWallBlocking } from '../../Utils/GridManagement';
 
 async function handleHealBehavior(gridId) {
     const tiles = GlobalGridStateTilesAndResources.getTiles();
@@ -27,9 +28,11 @@ async function handleHealBehavior(gridId) {
         });
     }
 
-    // Check if this NPC is within any PC's range
-    const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc => 
-        calculateDistance(pc.position, this.position) <= (pc.range || 3) && pc.hp > 0
+    // Check if this NPC is within any PC's range (respecting walls/doors)
+    const pcsInRange = Object.values(playersInGridManager.getPlayersInGrid(gridId) || {}).some(pc =>
+        calculateDistance(pc.position, this.position) <= (pc.range || 3) &&
+        pc.hp > 0 &&
+        !isWallBlocking(this.position, pc.position)
     );
     
     if (pcsInRange) {

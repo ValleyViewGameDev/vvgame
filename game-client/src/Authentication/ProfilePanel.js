@@ -1,6 +1,7 @@
 import API_BASE from '../config';
 import React, { useState, useEffect, useContext } from 'react';
 import ChangeIconModal from '../UI/Modals/ChangeIconModal';
+import GoldPassBenefitsModal from '../UI/Modals/GoldPassBenefitsModal';
 import axios from 'axios';
 import '../UI/Panels/Panel.css'; // Use the standardized styles
 import '../UI/Buttons/SharedButtons.css'; // Use the standardized buttons
@@ -9,16 +10,15 @@ import { updatePlayerSettings } from '../settings';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { StatusBarContext } from '../UI/StatusBar/StatusBar';
-import { usePanelContext } from '../UI/Panels/PanelContext';
 import LANGUAGE_OPTIONS from '../UI/Languages.json';
 import { useModalContext } from '../UI/ModalContext';
 import { useStrings } from '../UI/StringsContext';
 
 const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, isRelocating, setIsRelocating, zoomLevel, setZoomLevel, handlePCClick, isDeveloper }) => {
   const strings = useStrings();
-  const { openPanel } = usePanelContext();
 
   const [showChangeIconModal, setShowChangeIconModal] = useState(false);
+  const [showGoldBenefitsModal, setShowGoldBenefitsModal] = useState(false);
 
   const [formData, setFormData] = useState({
     username: '',
@@ -204,9 +204,6 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
     }
   };
 
-  const handleGoldPanelSwitch = () => {
-    openPanel('GoldBenefitsPanel');
-  };
 
 
 
@@ -298,7 +295,7 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
         <br />
 
         <div className="shared-buttons">
-          <button className="btn-basic btn-gold" onClick={handleGoldPanelSwitch}>
+          <button className="btn-basic btn-gold" onClick={() => setShowGoldBenefitsModal(true)}>
             {formData.accountStatus === 'Gold' ? strings[10130] : strings[10131]}
           </button>
         </div>
@@ -497,6 +494,11 @@ const ProfilePanel = ({ onClose, currentPlayer, setCurrentPlayer, handleLogout, 
             }}
           />
         )}
+
+        <GoldPassBenefitsModal
+          isOpen={showGoldBenefitsModal}
+          onClose={() => setShowGoldBenefitsModal(false)}
+        />
       </div>
     </Panel>
     

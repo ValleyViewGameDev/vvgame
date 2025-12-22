@@ -8,6 +8,8 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import { canAfford, isCurrency } from '../../Utils/InventoryManagement';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import { deriveWarehouseAndBackpackCapacity } from '../../Utils/InventoryManagement';
+import { handlePurchase } from '../../Store/Store';
+import GoldPassBenefitsModal from '../../UI/Modals/GoldPassBenefitsModal';
 import './WarehousePanel.css';
 
 const WarehousePanel = ({
@@ -25,6 +27,7 @@ const WarehousePanel = ({
   const [currentLevel, setCurrentLevel] = useState(0);
   const [nextLevel, setNextLevel] = useState(null);
   const [needsLevelMigration, setNeedsLevelMigration] = useState(false);
+  const [showBenefitsModal, setShowBenefitsModal] = useState(false);
 
   // Calculate current warehouse level and handle backward compatibility
   useEffect(() => {
@@ -198,6 +201,7 @@ const WarehousePanel = ({
         </div>
 
 
+
         {nextLevel ? (
           <>
             <div className="skills-options">
@@ -241,7 +245,48 @@ const WarehousePanel = ({
             <p>{strings[88] || "Your warehouse is at maximum capacity."}</p>
           </div>
         )}
+
+        {/* Gold Pass promotion for non-Gold users */}
+        {currentPlayer?.accountStatus !== 'Gold' && (
+          <>
+            <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%', margin: '20px 0' }}>
+              <button
+                className="btn-basic btn-gold"
+                onClick={() => handlePurchase(1, currentPlayer, updateStatus)}
+              >
+                {strings[9061]}
+              </button>
+            </div>
+            <div className="gold-pass-info" style={{ textAlign: 'center', marginBottom: '20px', fontSize: '14px', color: '#666' }}>
+              {strings[199]}
+            </div>
+          </>
+        )}
+
+        {/* Link to view Gold Pass benefits */}
+        <div style={{ textAlign: 'center', marginTop: '10px' }}>
+          <button
+            onClick={() => setShowBenefitsModal(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#B8860B',
+              textDecoration: 'underline',
+              cursor: 'pointer',
+              fontSize: '14px',
+            }}
+          >
+            {strings[10131] || "Gold Pass Benefits"}
+          </button>
+        </div>
+
       </div>
+
+      {/* Gold Pass Benefits Modal */}
+      <GoldPassBenefitsModal
+        isOpen={showBenefitsModal}
+        onClose={() => setShowBenefitsModal(false)}
+      />
     </Panel>
   );
 };

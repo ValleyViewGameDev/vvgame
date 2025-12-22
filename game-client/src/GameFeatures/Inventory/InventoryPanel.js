@@ -8,7 +8,6 @@ import './InventoryPanel.css';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { deriveWarehouseAndBackpackCapacity, isCurrency, hasRoomFor } from '../../Utils/InventoryManagement';
-import { handlePurchase } from '../../Store/Store';
 import ManageContentsModal from './ManageContentsModal';
 
 function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, openPanel, setActiveStation, setModalContent, setIsModalOpen }) {
@@ -461,25 +460,6 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                     }
                 </div>
             </div>
-
-            <hr className="inventory-divider" />
-
-            {/* Gold Pass info for non-Gold users */}
-            {currentPlayer.accountStatus !== 'Gold' && (
-                <>
-                    <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', width: '100%', marginBottom: '20px' }}>
-                        <button 
-                            className="btn-basic btn-gold"
-                            onClick={() => handlePurchase(1, currentPlayer, updateStatus)}
-                        >
-                            {strings[9061]}
-                        </button>
-                    </div>
-                    <div className="gold-pass-info">
-                        {strings[199]}
-                    </div>
-                </>
-            )}
 
             <hr className="inventory-divider" />
 
