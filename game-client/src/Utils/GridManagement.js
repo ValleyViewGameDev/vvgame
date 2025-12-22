@@ -484,16 +484,38 @@ export const changePlayerLocation = async (
     // Handle signpost finding if needed
     let finalX = toLocation.x;
     let finalY = toLocation.y;
-    
+
     if (toLocation.findSignpost) {
       console.log(`🔍 [FINALIZATION] Looking for ${toLocation.findSignpost}...`);
       const currentResources = GlobalGridStateTilesAndResources.getResources();
       const signpost = currentResources.find(res => res.type === toLocation.findSignpost);
-      
+
       if (signpost) {
         finalX = signpost.x;
         finalY = signpost.y;
-        
+
+        // Apply directional offset so player doesn't spawn on top of the signpost
+        // The offset moves the player one tile away from the signpost in the appropriate direction
+        const signpostType = toLocation.findSignpost;
+        const signpostOffsets = {
+          'Signpost NE': { x: -1, y: 1 },
+          'Signpost E':  { x: -1, y: 0 },
+          'Signpost SE': { x: -1, y: -1 },
+          'Signpost S':  { x: 0,  y: -1 },
+          'Signpost SW': { x: 1,  y: -1 },
+          'Signpost W':  { x: 1,  y: 0 },
+          'Signpost NW': { x: 1,  y: 1 },
+          'Signpost N':  { x: 0,  y: 1 },
+          'Signpost Home': { x: 0, y: 1 }, // Keep existing behavior for town signpost
+        };
+
+        const offset = signpostOffsets[signpostType];
+        if (offset) {
+          finalX += offset.x;
+          finalY += offset.y;
+          console.log(`📍 [FINALIZATION] Applied offset for ${signpostType}: (${offset.x}, ${offset.y}) -> final position (${finalX}, ${finalY})`);
+        }
+
         const updatedPlayerData = {
           ...playerData,
           position: { x: finalX, y: finalY }

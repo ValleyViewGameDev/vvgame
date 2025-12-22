@@ -411,12 +411,26 @@ export async function handleTransitSignpost(
       const oppositeSignpost = gridResources.find(res => res.type === oppositeSignpostType);
 
       if (oppositeSignpost && oppositeSignpost.x !== undefined && oppositeSignpost.y !== undefined) {
+        // Apply directional offset so player spawns next to signpost, not on top of it
+        // The offset moves the player one tile away from the signpost in the appropriate direction
+        const signpostOffsets = {
+          'Signpost NE': { x: -1, y: 1 },
+          'Signpost E':  { x: -1, y: 0 },
+          'Signpost SE': { x: -1, y: -1 },
+          'Signpost S':  { x: 0,  y: -1 },
+          'Signpost SW': { x: 1,  y: -1 },
+          'Signpost W':  { x: 1,  y: 0 },
+          'Signpost NW': { x: 1,  y: 1 },
+          'Signpost N':  { x: 0,  y: 1 },
+        };
+        const offset = signpostOffsets[oppositeSignpostType] || { x: 0, y: 0 };
+
         entryPosition = {
-          x: oppositeSignpost.x,
-          y: oppositeSignpost.y
+          x: oppositeSignpost.x + offset.x,
+          y: oppositeSignpost.y + offset.y
         };
         oppositeSignpostFound = true;
-        console.log(`✅ Found opposite signpost ${oppositeSignpostType} at (${entryPosition.x}, ${entryPosition.y})`);
+        console.log(`✅ Found opposite signpost ${oppositeSignpostType} at (${oppositeSignpost.x}, ${oppositeSignpost.y}), applying offset (${offset.x}, ${offset.y}) -> entry position (${entryPosition.x}, ${entryPosition.y})`);
       }
     } catch (error) {
       console.warn("Could not fetch opposite signpost position:", error);

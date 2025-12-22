@@ -380,7 +380,7 @@ class GridStatePCManager {
       const newPC = {
         playerId: pcData.playerId,
         username: pcData.username,
-        type: pcData.type,
+        type: 'pc', // Always set type to 'pc' - pcData may be a Player document without this field
         icon: pcData.icon,
         position: pcData.position || { x: 0, y: 0 },
         hp: pcData.hp ?? 25, // Fallback for undefined combat stats from socket sync

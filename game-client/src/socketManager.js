@@ -151,9 +151,9 @@ const handlePlayerJoinedGrid = ({ gridId: joinedGridId, playerId, username, play
     
     // HP Debug logging for server data
     Object.entries(pcs || {}).forEach(([playerId, pcData]) => {
-      console.log(`🚨 [HP DEBUG] handleCurrentGridPlayers - Server data for ${playerId}:`);
-      console.log('  pcData.hp:', pcData.hp);
-      console.log('  pcData.maxhp:', pcData.maxhp);
+      // console.log(`🚨 [HP DEBUG] handleCurrentGridPlayers - Server data for ${playerId}:`);
+      // console.log('  pcData.hp:', pcData.hp);
+      // console.log('  pcData.maxhp:', pcData.maxhp);
     });
     
     // Always process PC updates during transitions
