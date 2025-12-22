@@ -249,22 +249,22 @@ export const handleFeedbackSubmit = async (isPositive, playerId, currentPlayer, 
     const browserType = getBrowserType();
 
     // Save feedback to database (do not advance step - let caller handle that)
+    // Use dot notation to preserve existing ftueFeedback fields (like diagnostics from account creation)
     const response = await axios.post(`${API_BASE}/api/update-profile`, {
       playerId: playerId,
       updates: {
-        ftueFeedback: {
-          positive: isPositive ? positiveReasons : [],
-          negative: !isPositive ? negativeReasons : [],
-          browser: browserType
-        }
+        'ftueFeedback.positive': isPositive ? positiveReasons : [],
+        'ftueFeedback.negative': !isPositive ? negativeReasons : [],
+        'ftueFeedback.browser': browserType
       }
     });
 
     if (response.data.success) {
-      // Update local state with feedback only
+      // Update local state with feedback only, preserving existing ftueFeedback fields
       setCurrentPlayer(prev => ({
         ...prev,
         ftueFeedback: {
+          ...prev.ftueFeedback,
           positive: isPositive ? positiveReasons : [],
           negative: !isPositive ? negativeReasons : [],
           browser: browserType
