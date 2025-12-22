@@ -8,11 +8,26 @@ const playerSchema = new mongoose.Schema({
   firsttimeuser: { type: Boolean, default: true },
   ftuestep: { type: Number, default: 0 }, // e.g., 1 for first step
   aspiration: { type: Number, default: null }, // Player's chosen aspiration (1, 2, or 3)
-  ftueFeedback: { 
+  ftueFeedback: {
     positive: { type: [Number], default: [] }, // Array of string indexes for positive feedback (784-787)
     negative: { type: [Number], default: [] }, // Array of string indexes for negative feedback (790-792)
-    browser: { type: String, default: null },   // Browser type 
-    os: { type: String, default: null }   // OS type 
+    browser: { type: String, default: null },   // Browser type
+    os: { type: String, default: null },   // OS type
+    // Diagnostics captured at account creation
+    latency: { type: Number, default: null },   // Round-trip ping time in ms
+    connectionType: { type: String, default: null }, // Network quality (4g, 3g, slow-2g)
+    downlink: { type: Number, default: null },  // Estimated bandwidth in Mbps
+    screenWidth: { type: Number, default: null },
+    screenHeight: { type: Number, default: null },
+    viewportWidth: { type: Number, default: null },
+    viewportHeight: { type: Number, default: null },
+    devicePixelRatio: { type: Number, default: null },
+    deviceMemory: { type: Number, default: null }, // RAM in GB (Chrome only)
+    hardwareConcurrency: { type: Number, default: null }, // CPU cores
+    isMobile: { type: Boolean, default: null },
+    isTouchDevice: { type: Boolean, default: null },
+    webglSupported: { type: Boolean, default: null },
+    timezone: { type: String, default: null },
   },
   icon: {
     type: String,

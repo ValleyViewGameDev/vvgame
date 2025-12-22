@@ -30,6 +30,56 @@ const getOSType = () => {
   return 'Unknown';
 };
 
+// Gather device and network diagnostics for analytics
+const getDiagnostics = async () => {
+  // Measure latency with a ping
+  let latency = null;
+  try {
+    const pingStart = performance.now();
+    await axios.get(`${API_BASE}/api/ping`);
+    latency = Math.round(performance.now() - pingStart);
+  } catch {
+    latency = -1; // Failed to measure
+  }
+
+  // Check WebGL support
+  let webglSupported = false;
+  try {
+    const canvas = document.createElement('canvas');
+    webglSupported = !!(canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+  } catch {
+    webglSupported = false;
+  }
+
+  return {
+    // Network
+    latency,
+    connectionType: navigator.connection?.effectiveType || null, // '4g', '3g', '2g', 'slow-2g'
+    downlink: navigator.connection?.downlink || null, // Mbps
+
+    // Screen and viewport
+    screenWidth: window.screen?.width || null,
+    screenHeight: window.screen?.height || null,
+    viewportWidth: window.innerWidth || null,
+    viewportHeight: window.innerHeight || null,
+    devicePixelRatio: window.devicePixelRatio || null,
+
+    // Device capabilities
+    deviceMemory: navigator.deviceMemory || null, // GB (Chrome only)
+    hardwareConcurrency: navigator.hardwareConcurrency || null, // CPU cores
+
+    // Platform detection
+    isMobile: /Mobile|Android|iPhone|iPad|iPod/i.test(navigator.userAgent),
+    isTouchDevice: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
+
+    // Rendering capability
+    webglSupported,
+
+    // Timezone
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || null,
+  };
+};
+
 const CreateAccount = ({ setCurrentPlayer, zoomLevel, setZoomLevel, setIsLoggedIn, closeModal }) => {
   const strings = useStrings();
   const [username, setUsername] = useState('');
@@ -102,7 +152,10 @@ const handleCreateAccount = async (e) => {
       console.warn('⚠️ Could not load town grid for spawn position, using default:', err.message);
     }
 
-    // 4. Register player using unified endpoint (server will create the homestead grid)
+    // 4. Gather diagnostics (includes latency ping)
+    const diagnostics = await getDiagnostics();
+
+    // 5. Register player using unified endpoint (server will create the homestead grid)
     const registerPayload = {
       username,
       password,
@@ -121,6 +174,8 @@ const handleCreateAccount = async (e) => {
       // Browser and OS detection for analytics
       browser: getBrowserType(),
       os: getOSType(),
+      // Device and network diagnostics
+      diagnostics,
     };
 
     console.log('Calling /api/register-new-player with payload:', registerPayload);
