@@ -718,6 +718,10 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
           const bMoneyItem = b.inventory?.find(item => item.type === 'Money');
           aValue = Number(aMoneyItem?.quantity) || 0;
           bValue = Number(bMoneyItem?.quantity) || 0;
+        } else if (sortConfig.key === 'browser') {
+          // Extract browser from ftueFeedback for sorting
+          aValue = (a.ftueFeedback?.browser || '').toLowerCase();
+          bValue = (b.ftueFeedback?.browser || '').toLowerCase();
         } else if (typeof aValue === 'string') {
           aValue = aValue.toLowerCase();
           bValue = (bValue || '').toLowerCase();
@@ -1164,13 +1168,19 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                   >
                     Account Status {sortConfig.key === 'accountStatus' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </th>
-                  <th 
+                  <th
                     onClick={() => handleSort('role')}
                     className={`sortable ${sortConfig.key === 'role' ? `sort-${sortConfig.direction}` : ''}`}
                   >
                     Role {sortConfig.key === 'role' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </th>
-                  <th 
+                  <th
+                    onClick={() => handleSort('browser')}
+                    className={`sortable ${sortConfig.key === 'browser' ? `sort-${sortConfig.direction}` : ''}`}
+                  >
+                    Browser {sortConfig.key === 'browser' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </th>
+                  <th
                     onClick={() => handleSort('created')}
                     className={`sortable ${sortConfig.key === 'created' ? `sort-${sortConfig.direction}` : ''}`}
                   >
@@ -1223,6 +1233,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
                         {player.role || 'Citizen'}
                       </span>
                     </td>
+                    <td>{player.ftueFeedback?.browser || ''}</td>
                     <td>{player.created ? new Date(player.created).toLocaleDateString() : 'Unknown'}</td>
                     <td>
                       {player.lastActive ? (

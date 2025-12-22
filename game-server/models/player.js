@@ -11,7 +11,8 @@ const playerSchema = new mongoose.Schema({
   ftueFeedback: { 
     positive: { type: [Number], default: [] }, // Array of string indexes for positive feedback (784-787)
     negative: { type: [Number], default: [] }, // Array of string indexes for negative feedback (790-792)
-    browser: { type: String, default: null }   // Browser type when feedback was submitted
+    browser: { type: String, default: null },   // Browser type 
+    os: { type: String, default: null }   // OS type 
   },
   icon: {
     type: String,
