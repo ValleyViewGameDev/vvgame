@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { animateRemotePC } from './Render/RenderAnimatePosition';
-import playersInGridManager from './GridState/PlayersInGrid'; // Correctly use NPCsInGridManager
+import playersInGridManager from './GridState/PlayersInGrid';
+import NPCsInGridManager from './GridState/GridStateNPCs';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FloatingTextManager from "./UI/FloatingText";
 import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
@@ -415,11 +416,26 @@ export async function isTileValidForPlayer(x, y, tiles, resources, masterResourc
         // If canPassThroughDoor returned false, it already showed the message
         return false;
       }
-      
+
       console.warn(`⛔ Tile (${x}, ${y}) contains an impassable resource (${resourceInTile.type}).`);
       return false;
     }
   }
+
+  // **Step 3: Check if there's an impassable NPC in this tile**
+  if (currentPlayer?.location?.g) {
+    const npcsInGrid = NPCsInGridManager.getNPCsInGrid(currentPlayer.location.g);
+    if (npcsInGrid) {
+      const npcInTile = Object.values(npcsInGrid).find(npc =>
+        Math.floor(npc.position?.x) === x && Math.floor(npc.position?.y) === y
+      );
+      if (npcInTile && npcInTile.passable === false) {
+        console.warn(`⛔ Tile (${x}, ${y}) contains an impassable NPC (${npcInTile.type}).`);
+        return false;
+      }
+    }
+  }
+
   // ✅ If all checks pass, movement is allowed
   return true;
 }
