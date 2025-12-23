@@ -331,7 +331,8 @@ function KentPanel({
     const calculateKentXP = (offer) => {
         // Find the resource being sold and get its XP value
         const resource = masterResources.find(res => res.type === offer.item);
-        return resource?.xp || 1; // Default to 1 XP if no xp value defined
+        const baseXP = resource?.xp || 1; // Default to 1 XP if no xp value defined
+        return baseXP * 2; // 2x Kent multiplier
     };
 
     return (

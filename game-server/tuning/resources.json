@@ -7616,7 +7616,7 @@
     "source": "General Store",
     "requires": "Axe",
     "qtycollected": 1,
-    "level": 5,
+    "level": 4,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "gemcost": 625
@@ -7630,7 +7630,7 @@
     "source": "General Store",
     "requires": "Pickaxe",
     "qtycollected": 1,
-    "level": 8,
+    "level": 6,
     "ingredient1": "Money",
     "ingredient1qty": 6000,
     "gemcost": 750
