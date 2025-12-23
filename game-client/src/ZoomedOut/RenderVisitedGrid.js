@@ -1,35 +1,8 @@
 import React, { useRef, useEffect, memo } from 'react';
+import { tileColors, BITS_TO_TILE_TYPE } from '../UI/Styles/tileColors';
 
-// Tile type bit mappings (same as server-side TileEncoder)
-const BITS_TO_TILE_TYPE = {
-  0b0000: 'g', // grass
-  0b0001: 's', // slate
-  0b0010: 'd', // dirt
-  0b0011: 'w', // water
-  0b0100: 'p', // pavement
-  0b0101: 'l', // lava
-  0b0110: 'n', // sand
-  0b0111: 'o', // snow
-  0b1000: 'x', // cobblestone
-  0b1001: 'y', // dungeon
-  0b1010: 'z'  // tbd
-};
-
-// Tile colors (same as RenderTilesCanvas)
-const TILE_COLORS = {
-  g: '#67c257', // grass
-  s: '#8fa6bd', // stone
-  d: '#c0834a', // dirt
-  w: '#58cad8', // water
-  l: '#c4583d', // lava
-  p: '#c5a85d', // pavement
-  n: '#fbde00', // sand
-  o: '#ffffff', // snow
-  x: '#959ba3', // cobblestone
-  y: '#000000', // dungeon
-  z: '#1b712c', // moss
-  unknown: '#808080', // gray fallback
-};
+// Use centralized tile colors with fallback for unknown
+const TILE_COLORS = { ...tileColors, unknown: '#808080' };
 
 const BITS_PER_TILE = 4;
 const GRID_SIZE = 64;

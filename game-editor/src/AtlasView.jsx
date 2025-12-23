@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import API_BASE from './config';
+import { tileColors as defaultTileColors } from './tileConfig';
 
 const fs = window.require('fs');
 const path = window.require('path');
@@ -37,24 +38,9 @@ const AtlasView = ({ selectedFrontier, settlements, activePanel }) => {
       const parsedResources = JSON.parse(fileContents);
       setMasterResources(parsedResources);
       
-      // Build tile color map
-      const colors = {};
-      parsedResources.forEach(res => {
-        if (res.category === 'tile') {
-          // Map tile types to colors
-          switch(res.type) {
-            case 'g': colors.g = '#3dc43d'; break; // grass
-            case 's': colors.s = '#8b989c'; break; // slate
-            case 'd': colors.d = '#c0834a'; break; // dirt
-            case 'w': colors.w = '#58cad8'; break; // water
-            case 'p': colors.p = '#dab965'; break; // pavement
-            case 'l': colors.l = '#c4583d'; break; // lava
-            case 'n': colors.n = '#f4e4bc'; break; // sand
-            default: colors[res.type] = '#333333';
-          }
-        }
-      });
-      setTileColors(colors);
+      // Use centralized tile colors from tileConfig
+      // This ensures consistency with game-client and other editor components
+      setTileColors(defaultTileColors);
     } catch (error) {
       console.error('Failed to load resources:', error);
     }

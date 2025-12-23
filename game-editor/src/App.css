@@ -363,3 +363,32 @@ h4, h5, h6 {
     gap: 20px;
   }
 }
+
+/* Tile slider with square thumb */
+.tile-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 4px;
+  background: #ddd;
+  outline: none;
+}
+
+.tile-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: currentColor;
+  cursor: pointer;
+}
+
+.tile-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: currentColor;
+  cursor: pointer;
+  border: none;
+}

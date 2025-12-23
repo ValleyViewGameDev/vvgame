@@ -36,13 +36,13 @@ const GridEditor = ({ activePanel }) => {
   const [selectedResource, setSelectedResource] = useState(null);
   const [availableNpcs, setAvailableNpcs] = useState([]); // ✅ Store available NPCs
   const [availableMiniTemplates, setAvailableMiniTemplates] = useState([]); // Store available mini templates
-  const [tileDistribution, setTileDistribution] = useState({ g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, x: 0, y:0, z:0 }); // Track tile type distribution
+  const [tileDistribution, setTileDistribution] = useState({ g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, o: 0, x: 0, y: 0, z: 0, c: 0, v: 0, u: 0 }); // Track tile type distribution
   const [resourceDistribution, setResourceDistribution] = useState({});
   const [enemyDistribution, setEnemyDistribution] = useState({}); // Track enemy distribution
 
   const [copiedResource, setCopiedResource] = useState(null); // Holds copied resource
   const [currentGridType, setCurrentGridType] = useState(''); // Track current grid's type
-  const [selectedTileTypes, setSelectedTileTypes] = useState({ g: true, s: true, d: true, w: true, p: true, l: true, n: true, x: true, y: true, z: true }); // For selective tile deletion
+  const [selectedTileTypes, setSelectedTileTypes] = useState({ g: true, s: true, d: true, w: true, p: true, l: true, n: true, o: true, x: true, y: true, z: true, c: true, v: true, u: true }); // For selective tile deletion
   
   // Undo functionality - NEW APPROACH
   const [undoStack, setUndoStack] = useState([]);
@@ -219,7 +219,7 @@ const GridEditor = ({ activePanel }) => {
         )
       );
       // Reset distributions
-      setTileDistribution({ g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, x: 0, y: 0, z: 0 });
+      setTileDistribution({ g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, o: 0, x: 0, y: 0, z: 0, c: 0, v: 0, u: 0 });
       setResourceDistribution({});
       
       // Initialize enemy distribution for available enemy NPCs
@@ -735,7 +735,7 @@ const handleEnemyDistributionChange = (enemyType, value) => {
 
       setSelectedTile(null); // Force deselection to reset render state
       // Ensure all tile types are included, even if not in the loaded grid
-      const defaultDistribution = { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, x: 0, y: 0, z: 0 };
+      const defaultDistribution = { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, o: 0, x: 0, y: 0, z: 0, c: 0, v: 0, u: 0 };
       const loadedDistribution = loadedGrid.tileDistribution || {};
       setTileDistribution({ ...defaultDistribution, ...loadedDistribution });
       setResourceDistribution({ ...loadedGrid.resourceDistribution } || {});
@@ -1192,9 +1192,13 @@ const handleDeleteSelectedTiles = () => {
     'p': 'PA',  // pavement
     'l': 'LV',  // lava
     'n': 'SA',  // sand
+    'o': 'SN',  // snow
     'x': 'CB',  // cobblestone
     'y': 'DU',  // dungeon
-    'z': "ZZ"   // moss
+    'z': 'ZZ',  // moss
+    'c': 'CL',  // clay
+    'v': 'V1',  // tbdTile1
+    'u': 'U2',  // tbdTile2
   };
   
   const layoutKeysToDelete = selectedTypes.map(type => typeMapping[type] || type);
@@ -1301,7 +1305,7 @@ const handlePopulateTileDistribution = () => {
     
     if (templateData.tileDistribution) {
       // Ensure all tile types are included, even if not in the template
-      const defaultDistribution = { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, x: 0, y: 0, z: 0 };
+      const defaultDistribution = { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, o: 0, x: 0, y: 0, z: 0, c: 0, v: 0, u: 0 };
       setTileDistribution({ ...defaultDistribution, ...templateData.tileDistribution });
       console.log(`✅ Populated tile distribution from template: ${randomFile}`);
       alert(`Tile distribution populated from template: ${randomFile}`);
@@ -1526,9 +1530,9 @@ if (typeof window !== "undefined") {
         </div>
 
         {Object.keys(tileDistribution).map(type => (
-          <div key={type} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
+          <div key={type} style={{ display: 'flex', alignItems: 'center', marginBottom: '3px' }}>
             <label style={{
-              fontSize: '12px', width: '30px',
+              fontSize: '11px', width: '24px',
               fontWeight: 'bold'
             }}>
               {type.toLowerCase()}:
@@ -1539,12 +1543,13 @@ if (typeof window !== "undefined") {
               max="100"
               value={tileDistribution[type]}
               onChange={(e) => adjustSliders(type, parseInt(e.target.value))}
+              className="tile-slider"
               style={{
                 width: '300px',
-                accentColor: tileColors[type]
+                color: tileColors[type]
               }}
             />
-            <span style={{ marginLeft: '5px' }}>{tileDistribution[type]}%</span>
+            <span style={{ marginLeft: '4px', fontSize: '11px', minWidth: '32px' }}>{tileDistribution[type]}%</span>
           </div>
         ))}
 

@@ -1,38 +1,8 @@
 import React, { useRef, useEffect, useCallback } from 'react';
+import { tileRoundingConfig, getTileColor, tilePriorityOrder } from '../UI/Styles/tileColors';
 
-// Configuration for which tile types should have rounded corners
-const TILE_ROUNDING_CONFIG = {
-  g: true,  // grass - rounded
-  s: true,  // stone - rounded  
-  w: true,  // water - rounded
-  l: true,  // lava - rounded
-  n: true,  // natural - rounded
-  o: true,  // other - rounded
-  d: false, // dirt - no rounding (base layer)
-  p: true,  // pavement - rounded
-  x: true,  // cobblestone - rounded
-  y: false,  // dungeon - rounded
-  z: false  // moss - rounded
-};
-
-// Get CSS color for a tile type
-function getTileColor(tileType) {
-  const tileColors = {
-    g: '#67c257', // grass 
-    s: '#8fa6bdff', // stone
-    d: '#c0834a', // dirt
-    w: '#58cad8', // water
-    l: '#c4583d', // lava
-    p: '#c5a85d', // pavement
-    n: '#fbde00', // sand
-    o: '#ffffff', // snow
-    x: '#959ba3ff', // cobblestone
-    y: '#000000ff', // dungeon
-    z: '#1b712cff', // moss
-    unknown: '#ff0000', // debug red
-  };
-  return tileColors[tileType] || tileColors.unknown;
-}
+// Use centralized tile rounding configuration
+const TILE_ROUNDING_CONFIG = tileRoundingConfig;
 
 // Helper function to draw a single grass tuft
 function drawGrassTuft(ctx, x, y, tuftSeed, TILE_SIZE) {
@@ -173,9 +143,7 @@ function calculateCornerColor(tileType, corner, rowIndex, colIndex, tileTypes) {
   }
   
   // If only one adjacent tile type, use priority system
-  const priorityOrder = ['w', 'l', 's', 'd', 'g', 'p', 'n', 'o', 'x', 'y', 'z'];
-  
-  for (const priorityType of priorityOrder) {
+  for (const priorityType of tilePriorityOrder) {
     if (adjacentTiles.includes(priorityType)) {
       return getTileColor(priorityType);
     }
