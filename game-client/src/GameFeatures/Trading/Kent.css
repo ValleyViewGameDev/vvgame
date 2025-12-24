@@ -2,7 +2,7 @@
 
 /* Fixed height header area to prevent card shifting */
 .kent-header-area {
-  min-height: 60px; /* Tighter fixed height */
+  min-height: 40px; /* Compact height - timer on same line */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -175,16 +175,35 @@
   font-weight: normal;
 }
 
+/* Dismiss All Link */
+.kent-dismiss-all-link {
+  text-align: center;
+  margin-top: 10px;
+  color: #e74c3c;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.kent-dismiss-all-link:hover:not(.disabled) {
+  color: #c0392b;
+}
+
+.kent-dismiss-all-link.disabled {
+  color: #95a5a6;
+  cursor: not-allowed;
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .kent-offer-symbol {
     font-size: 24px !important;
   }
-  
+
   .kent-offer-item {
     font-size: 15px;
   }
-  
+
   .kent-offer-reward {
     font-size: 14px;
   }
