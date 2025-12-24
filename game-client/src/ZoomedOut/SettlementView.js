@@ -407,7 +407,7 @@ const getTooltip = (tile) => {
     if (usePixelRendering && hasVisitedTiles) {
       // Render pixel tiles, with player icon overlay at correct miniX,miniY position if player is here
       return (
-        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        <div className="mini-cell" style={{ position: 'relative', width: '100%', height: '100%' }}>
           <RenderVisitedGrid
             encodedTiles={visitedGridTiles[tile.gridCoord]}
             size={64}
@@ -430,6 +430,12 @@ const getTooltip = (tile) => {
               {currentPlayer.icon}
             </div>
           )}
+          {tooltip && (
+            <div className="tooltip">
+              <p>Who's Here:</p>
+              {tooltip}
+            </div>
+          )}
         </div>
       );
     }
@@ -438,7 +444,7 @@ const getTooltip = (tile) => {
     // Show a simple green background instead of tree pattern to indicate visited status
     if (usePixelRendering && isMarkedVisited && !hasVisitedTiles) {
       return (
-        <div style={{
+        <div className="mini-cell" style={{
           position: 'relative',
           width: '100%',
           height: '100%',
@@ -458,6 +464,12 @@ const getTooltip = (tile) => {
               zIndex: 1
             }}>
               {currentPlayer.icon}
+            </div>
+          )}
+          {tooltip && (
+            <div className="tooltip">
+              <p>Who's Here:</p>
+              {tooltip}
             </div>
           )}
         </div>

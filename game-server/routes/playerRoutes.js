@@ -584,49 +584,82 @@ router.post('/update-inventory', (req, res) => {
   });
 });
 
-// ✅ Delta-based inventory update (safer for concurrent actions)
-router.post('/update-inventory-delta', (req, res) => {
+// ✅ Delta-based inventory update using atomic MongoDB operations
+router.post('/update-inventory-delta', async (req, res) => {
   const { playerId, delta } = req.body;
   console.log(`POST /api/update-inventory-delta - Applying delta to playerId: ${playerId}`);
   console.log('Delta Payload:', delta);
+
   if (!playerId || !delta) {
     return res.status(400).json({ error: 'playerId and delta are required.' });
   }
 
-  queue.enqueueByKey(playerId, async () => {
-    try {
-      const player = await Player.findById(playerId);
-      if (!player) {
-        return res.status(404).json({ error: 'Player not found.' });
-      }
-      const updates = Array.isArray(delta) ? delta : [delta];
-      player.inventory = player.inventory || [];
-      player.backpack = player.backpack || [];
+  try {
+    const updates = Array.isArray(delta) ? delta : [delta];
 
-      for (const change of updates) {
-        const { type, quantity, target = 'inventory' } = change;
-        if (!type || typeof quantity !== 'number') continue;
+    // Build atomic operations for each change
+    const bulkOps = [];
 
-        const container = target === 'backpack' ? player.backpack : player.inventory;
-        const existing = container.find(item => item.type === type);
-        if (existing) {
-          existing.quantity += quantity;
-          if (existing.quantity <= 0) {
-            const index = container.findIndex(i => i.type === type);
-            container.splice(index, 1);
+    for (const change of updates) {
+      const { type, quantity, target = 'inventory' } = change;
+      if (!type || typeof quantity !== 'number') continue;
+
+      const field = target === 'backpack' ? 'backpack' : 'inventory';
+
+      if (quantity > 0) {
+        // For additions: try to increment existing item
+        bulkOps.push({
+          updateOne: {
+            filter: { _id: playerId, [`${field}.type`]: type },
+            update: { $inc: { [`${field}.$.quantity`]: quantity } }
           }
-        } else if (quantity > 0) {
-          container.push({ type, quantity });
+        });
+        // If item doesn't exist, add it
+        bulkOps.push({
+          updateOne: {
+            filter: { _id: playerId, [`${field}.type`]: { $ne: type } },
+            update: { $push: { [field]: { type, quantity } } }
+          }
+        });
+      } else if (quantity < 0) {
+        // For subtractions: only decrement if item exists (never create with negative)
+        bulkOps.push({
+          updateOne: {
+            filter: { _id: playerId, [`${field}.type`]: type },
+            update: { $inc: { [`${field}.$.quantity`]: quantity } }
+          }
+        });
+      }
+    }
+
+    // Execute all increment/add operations atomically
+    if (bulkOps.length > 0) {
+      await Player.bulkWrite(bulkOps);
+    }
+
+    // Clean up items with quantity <= 0
+    await Player.updateOne(
+      { _id: playerId },
+      {
+        $pull: {
+          inventory: { quantity: { $lte: 0 } },
+          backpack: { quantity: { $lte: 0 } }
         }
       }
+    );
 
-      await player.save();
-      res.json({ success: true, player });
-    } catch (error) {
-      console.error('❌ Error in update-inventory-delta:', error);
-      res.status(500).json({ error: 'Failed to apply inventory delta.' });
+    // Fetch the updated player to return
+    const player = await Player.findById(playerId);
+
+    if (!player) {
+      return res.status(404).json({ error: 'Player not found.' });
     }
-  });
+
+    res.json({ success: true, player });
+  } catch (error) {
+    console.error('❌ Error in update-inventory-delta:', error);
+    res.status(500).json({ error: 'Failed to apply inventory delta.' });
+  }
 });
 
 
