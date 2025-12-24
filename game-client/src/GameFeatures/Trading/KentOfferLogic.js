@@ -119,28 +119,53 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         offersToGenerate = Math.max(0, maxOffers - currentOfferCount);
     }
     
+    // For players under level 10, ensure half the offers are crops
+    const playerLevel = currentPlayer?.level || 1;
+    const requireCropBalance = playerLevel < 10;
+    const cropOffersNeeded = requireCropBalance ? Math.ceil(offersToGenerate / 2) : 0;
+    let cropOffersGenerated = 0;
+
     for (let i = 0; i < offersToGenerate; i++) {
         // Get all existing Kent offers to check for duplicates
         const allExistingOffers = [...(currentPlayer?.kentOffers?.offers || []), ...newOffers];
-        
+
         // Count how many offers already exist for each resource type
         const resourceCounts = {};
         allExistingOffers.forEach(offer => {
             resourceCounts[offer.item] = (resourceCounts[offer.item] || 0) + 1;
         });
-        
+
         // Filter out resources that already have 2 or more offers
-        const availableResources = eligibleResources.filter(resource => 
+        let availableResources = eligibleResources.filter(resource =>
             (resourceCounts[resource.type] || 0) < 2
         );
-        
+
+        // If player is under level 10, enforce crop balance
+        if (requireCropBalance) {
+            const remainingOffers = offersToGenerate - i;
+            const cropOffersStillNeeded = cropOffersNeeded - cropOffersGenerated;
+
+            // If we still need crop offers and this is one of the slots for crops, filter to crops only
+            if (cropOffersStillNeeded > 0 && cropOffersStillNeeded >= remainingOffers - (remainingOffers - cropOffersStillNeeded)) {
+                const cropResources = availableResources.filter(r => isACrop(r.type, masterResources));
+                if (cropResources.length > 0) {
+                    availableResources = cropResources;
+                }
+            }
+        }
+
         // If no resources available (all have 2+ offers), break out of loop
         if (availableResources.length === 0) {
             console.log('🤠 No more unique resources available (all have 2+ offers)');
             break;
         }
-        
+
         const randomResource = availableResources[Math.floor(Math.random() * availableResources.length)];
+
+        // Track crop offers generated
+        if (isACrop(randomResource.type, masterResources)) {
+            cropOffersGenerated++;
+        }
         
         // Determine quantity based on crop status and first-time user status
         let quantity;
