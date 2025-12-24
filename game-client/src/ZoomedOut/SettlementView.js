@@ -273,6 +273,13 @@ const SettlementView = ({
     
     // Check if player has Horse skill before allowing teleportation to another grid
     if (tile.gridId && tile.gridId !== currentPlayer.location.g) {
+      // TEMPORARY: Disable SettlementView travel for non-developers to investigate multi-grid bug
+      if (!isDeveloper) {
+        console.log("🚫 SettlementView travel disabled for non-developers (investigating multi-grid bug)");
+        updateStatus(15); // "You need to travel via signposts"
+        return;
+      }
+
       const hasHorse = currentPlayer.skills?.some((skill) => skill.type === "Horse" && skill.quantity > 0);
       if (!hasHorse) {
         console.log("🐴 Player lacks Horse skill for teleportation");

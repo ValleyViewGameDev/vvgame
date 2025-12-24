@@ -720,11 +720,35 @@ useEffect(() => {
       // Join the grid for grid-based updates
       socket.emit('join-grid', { gridId: initialGridId, playerId: DBPlayerData.playerId });
       console.log("📡 Emitted join-grid for grid:", initialGridId);
+
+      // Format playerData correctly for socket sync (matching PlayersInGrid schema)
+      // DBPlayerData uses different field names (baseHp, location.x) than PC schema (hp, position.x)
+      const formattedPlayerData = {
+        playerId: DBPlayerData.playerId || DBPlayerData._id?.toString(),
+        username: DBPlayerData.username,
+        type: 'pc',
+        icon: DBPlayerData.icon || '😀',
+        position: {
+          x: DBPlayerData.location?.x ?? 0,
+          y: DBPlayerData.location?.y ?? 0
+        },
+        hp: DBPlayerData.baseHp ?? 25,
+        maxhp: DBPlayerData.baseMaxhp ?? 25,
+        armorclass: DBPlayerData.baseArmorclass ?? 10,
+        attackbonus: DBPlayerData.baseAttackbonus ?? 0,
+        damage: DBPlayerData.baseDamage ?? 1,
+        attackrange: DBPlayerData.baseAttackrange ?? 1,
+        speed: DBPlayerData.baseSpeed ?? 1,
+        iscamping: DBPlayerData.iscamping ?? false,
+        isinboat: DBPlayerData.isinboat ?? false,
+        lastUpdated: Date.now(),
+      };
+
       socket.emit('player-joined-grid', {
         gridId: initialGridId,
         playerId: DBPlayerData.playerId,
         username: DBPlayerData.username,
-        playerData: DBPlayerData,
+        playerData: formattedPlayerData,
       });
       // Join the player room for personal updates
       socket.emit('join-player-room', { playerId: DBPlayerData.playerId });

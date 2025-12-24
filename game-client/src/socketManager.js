@@ -62,11 +62,12 @@ const handlePlayerJoinedGrid = ({ gridId: joinedGridId, playerId, username, play
     if (!existing || incomingTime > localTime) {
       console.log(`⏩ Inserting or updating PC ${playerId} from player-joined-sync.`);
 
-      // ✅ Update memory manager too
-      if (playersInGridManager.addPC) {
-        playersInGridManager.addPC(joinedGridId, playerId, playerData);
+      // ✅ Update memory manager locally only - NO database call
+      // The sender already saved to DB, we just need to sync local state
+      if (playersInGridManager.updatePCLocal) {
+        playersInGridManager.updatePCLocal(joinedGridId, playerId, playerData);
       } else {
-        console.warn('🛑 playersInGridManager.addPC is not defined.');
+        console.warn('🛑 playersInGridManager.updatePCLocal is not defined.');
       }
 
       return {

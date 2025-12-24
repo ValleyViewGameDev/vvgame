@@ -463,6 +463,56 @@ class GridStatePCManager {
       }
     }
 
+    // Update local state only - NO database call
+    // Use this for socket sync events where the sender already saved to DB
+    updatePCLocal(gridId, playerId, pcData) {
+      if (!this.playersInGrid[gridId]) {
+        this.playersInGrid[gridId] = {
+          pcs: {},
+          playersInGridLastUpdated: Date.now(),
+        };
+      }
+
+      const now = Date.now();
+
+      const newPC = {
+        playerId: pcData.playerId || playerId,
+        username: pcData.username,
+        type: 'pc',
+        icon: pcData.icon,
+        position: pcData.position || { x: 0, y: 0 },
+        hp: pcData.hp ?? 25,
+        maxhp: pcData.maxhp ?? 25,
+        armorclass: pcData.armorclass ?? 10,
+        attackbonus: pcData.attackbonus ?? 0,
+        damage: pcData.damage ?? 1,
+        attackrange: pcData.attackrange ?? 1,
+        speed: pcData.speed ?? 1,
+        iscamping: pcData.iscamping || false,
+        isinboat: pcData.isinboat || false,
+        lastUpdated: pcData.lastUpdated || now,
+      };
+
+      this.playersInGrid[gridId].pcs[playerId] = newPC;
+
+      // Also update React state if setter is registered
+      if (this.setPlayersInGridReact) {
+        this.setPlayersInGridReact(prev => ({
+          ...prev,
+          [gridId]: {
+            ...(prev[gridId] || {}),
+            pcs: {
+              ...(prev[gridId]?.pcs || {}),
+              [playerId]: newPC,
+            },
+          },
+        }));
+      }
+
+      console.log(`✅ Updated PC ${playerId} locally (no DB call)`);
+      return newPC;
+    }
+
 
     // Update an existing PC in the playersInGrid for a given gridId and playerId.
     async updatePC(gridId, playerId, newProperties) {

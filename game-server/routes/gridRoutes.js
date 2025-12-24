@@ -36,7 +36,7 @@ router.post('/save-grid-state-pcs', async (req, res) => {
   }
 });
 
-// Dedicated route: save a single PC to playersInGrid
+// Dedicated route: save a single PC to playersInGrid (using atomic operations)
 router.post('/save-single-pc', async (req, res) => {
   const { gridId, playerId, pc, lastUpdated } = req.body;
 
@@ -47,12 +47,6 @@ router.post('/save-single-pc', async (req, res) => {
     }
 
     console.log(`🔍 save-single-pc: Attempting to save PC ${playerId} to grid ${gridId}`);
-    
-    const grid = await Grid.findById(gridId);
-    if (!grid) {
-      console.error(`❌ save-single-pc: Grid not found for gridId: ${gridId}`);
-      return res.status(404).json({ error: 'Grid not found.' });
-    }
 
     // Validate lastUpdated date format
     let updatedDate;
@@ -66,45 +60,27 @@ router.post('/save-single-pc', async (req, res) => {
       return res.status(400).json({ error: 'Invalid lastUpdated date format.' });
     }
 
-    // Validate PC data before saving
-    console.log('🔍 [SERVER DEBUG] Validating PC data before save:', {
-      playerId,
-      pcKeys: Object.keys(pc),
-      pcType: pc.type,
-      hasPosition: !!pc.position,
-      positionValid: pc.position && typeof pc.position.x === 'number' && typeof pc.position.y === 'number',
-      hasIcon: !!pc.icon,
-      iconType: typeof pc.icon,
-      hasUsername: !!pc.username,
-      usernameType: typeof pc.username,
-      hasValidCombatStats: typeof pc.hp === 'number' && typeof pc.maxhp === 'number' && typeof pc.attackbonus === 'number',
-      fullPC: pc
-    });
+    // Add lastUpdated to pc object
+    pc.lastUpdated = updatedDate;
 
-    // Ensure playersInGrid is a Map
-    const pcs = new Map(grid.playersInGrid || []);
-    pc.lastUpdated = updatedDate; // ensures consistent format
-    pcs.set(playerId, pc);
-    grid.playersInGrid = pcs;
+    // Use atomic update to avoid VersionError race conditions
+    const result = await Grid.findByIdAndUpdate(
+      gridId,
+      {
+        $set: {
+          [`playersInGrid.${playerId}`]: pc,
+          playersInGridLastUpdated: updatedDate
+        }
+      },
+      { new: true }
+    );
 
-    // Optionally update global PC timestamp
-    grid.playersInGridLastUpdated = updatedDate;
-
-    try {
-      await grid.save();
-      console.log(`✅ Successfully saved grid with PC ${playerId}`);
-    } catch (saveError) {
-      console.error('❌ [SERVER DEBUG] Grid save failed with validation error:', {
-        error: saveError.message,
-        name: saveError.name,
-        errors: saveError.errors,
-        code: saveError.code,
-        stack: saveError.stack
-      });
-      throw saveError; // Re-throw to be caught by outer try/catch
+    if (!result) {
+      console.error(`❌ save-single-pc: Grid not found for gridId: ${gridId}`);
+      return res.status(404).json({ error: 'Grid not found.' });
     }
 
-    console.log(`✅ Single PC ${playerId} saved for gridId: ${gridId}`);
+    console.log(`✅ Single PC ${playerId} saved atomically for gridId: ${gridId}`);
     res.status(200).json({ success: true });
   } catch (error) {
     console.error('❌ Error saving single PC:', {
@@ -119,7 +95,7 @@ router.post('/save-single-pc', async (req, res) => {
   }
 });
 
-// Dedicated route: remove a single PC from playersInGrid
+// Dedicated route: remove a single PC from playersInGrid (using atomic operations)
 router.post('/remove-single-pc', async (req, res) => {
   const { gridId, playerId } = req.body;
 
@@ -128,63 +104,29 @@ router.post('/remove-single-pc', async (req, res) => {
       return res.status(400).json({ error: 'gridId and playerId are required.' });
     }
 
-    const grid = await Grid.findById(gridId);
-    if (!grid) {
+    console.log(`🔍 remove-single-pc: Attempting to remove player ${playerId} from grid ${gridId}`);
+
+    // Use atomic update to avoid VersionError race conditions
+    const result = await Grid.findByIdAndUpdate(
+      gridId,
+      {
+        $unset: {
+          [`playersInGrid.${playerId}`]: 1
+        },
+        $set: {
+          playersInGridLastUpdated: new Date()
+        }
+      },
+      { new: true }
+    );
+
+    if (!result) {
       console.log(`⚠️ Grid not found for removal: ${gridId}`);
       return res.status(404).json({ error: 'Grid not found.' });
     }
 
-    const pcs = new Map(grid.playersInGrid || []);
-    const beforeSize = pcs.size;
-    
-    // Log all player IDs in the grid before removal
-    console.log(`📋 Players in grid ${gridId} before removal:`, Array.from(pcs.keys()));
-    console.log(`🔍 Attempting to remove player: ${playerId} (type: ${typeof playerId})`);
-    
-    // Try both string and potential ObjectId formats
-    let removed = false;
-    
-    // Check for dead player data with any format of playerId
-    const keysToRemove = [];
-    for (const [key, playerData] of pcs.entries()) {
-      // Match by various ID formats
-      if (key === playerId || 
-          key === playerId.toString() || 
-          key.toString() === playerId || 
-          key.toString() === playerId.toString()) {
-        keysToRemove.push(key);
-      }
-      // Also check if this is a dead player that should be cleaned up
-      else if (playerData && playerData.playerId && 
-               (playerData.playerId === playerId || 
-                playerData.playerId === playerId.toString() ||
-                playerData.playerId.toString() === playerId ||
-                playerData.playerId.toString() === playerId.toString())) {
-        console.log(`🧹 Found dead player data with mismatched key: ${key} vs ${playerId}`);
-        keysToRemove.push(key);
-      }
-    }
-    
-    // Remove all matching entries
-    for (const key of keysToRemove) {
-      pcs.delete(key);
-      removed = true;
-      console.log(`🗑️ Removed player entry with key: ${key}`);
-    }
-    
-    const afterSize = pcs.size;
-    console.log(`📊 Grid ${gridId} players: ${beforeSize} → ${afterSize} (removed: ${removed})`);
-    
-    if (!removed) {
-      console.warn(`⚠️ Player ${playerId} was not found in grid ${gridId}`);
-    }
-    
-    grid.playersInGrid = pcs;
-    grid.playersInGridLastUpdated = new Date();
-    await grid.save();
-
     console.log(`✅ Completed remove-single-pc for player ${playerId} from grid ${gridId}`);
-    res.status(200).json({ success: true, removed });
+    res.status(200).json({ success: true, removed: true });
   } catch (error) {
     console.error('❌ Error removing single PC:', error);
     res.status(500).json({ error: 'Failed to remove single PC.' });
