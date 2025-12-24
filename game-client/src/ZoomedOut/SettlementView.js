@@ -118,6 +118,7 @@ const SettlementView = ({
   const [NPCsInGrids, setGridStates] = useState({});  // Add new state for grid states
   const [playersInGridMap, setPlayersInGrid] = useState({});
   const [visitedGridTiles, setVisitedGridTiles] = useState({}); // Map gridCoord -> encoded tiles
+  const [tooltipData, setTooltipData] = useState({ visible: false, content: '', x: 0, y: 0 });
   const { updateStatus } = useContext(StatusBarContext);
   const bulkOperationContext = useBulkOperation();
 
@@ -369,6 +370,23 @@ const getTooltip = (tile) => {
       .join('\n');
   };
 
+  // Handle mouse movement over settlement tiles for cursor-following tooltip
+  const handleTileMouseMove = (e, tile) => {
+    const content = getTooltip(tile);
+    if (content) {
+      setTooltipData({
+        visible: true,
+        content,
+        x: e.clientX,
+        y: e.clientY
+      });
+    }
+  };
+
+  const handleTileMouseLeave = () => {
+    setTooltipData(prev => ({ ...prev, visible: false }));
+  };
+
   const renderMiniGrid = (tile) => {
     let gridType = tile.gridType;
     if (gridType === "homestead") {
@@ -386,8 +404,6 @@ const getTooltip = (tile) => {
 
     if (tile.ownerId && !owner) {
     }
-
-    const tooltip = getTooltip(tile);
 
     let miniX = 0;
     let miniY = 0;
@@ -437,12 +453,6 @@ const getTooltip = (tile) => {
               {currentPlayer.icon}
             </div>
           )}
-          {tooltip && (
-            <div className="tooltip">
-              <p>Who's Here:</p>
-              {tooltip}
-            </div>
-          )}
         </div>
       );
     }
@@ -471,12 +481,6 @@ const getTooltip = (tile) => {
               zIndex: 1
             }}>
               {currentPlayer.icon}
-            </div>
-          )}
-          {tooltip && (
-            <div className="tooltip">
-              <p>Who's Here:</p>
-              {tooltip}
             </div>
           )}
         </div>
@@ -540,12 +544,6 @@ const getTooltip = (tile) => {
             return (
               <div key={`${rowIndex}-${colIndex}`} className={cellClasses}>
                 <span className={contentClasses}>{content}</span>
-                {tooltip && (
-                  <div className="tooltip">
-                    <p>Who's Here:</p>
-                    {tooltip}
-                  </div>
-                )}
               </div>
             );
           })
@@ -558,22 +556,42 @@ const getTooltip = (tile) => {
   if (!settlementGrid.length) return <div>Loading Settlement Grid...</div>;
 
   return (
-    <div className="settlement-grid">
-      {settlementGrid.map((row, rowIndex) =>
-        row.map((tile, colIndex) => (
-          <div
-            key={`${rowIndex}-${colIndex}`}
-            className="settlement-tile"
-            style={{
-              backgroundColor: getGridBackgroundColor(tile.gridType),
-            }}
-            onClick={() => handleTileClick(tile,TILE_SIZE)}
-          >
-            {renderMiniGrid(tile)}
-          </div>
-        ))
+    <>
+      <div className="settlement-grid">
+        {settlementGrid.map((row, rowIndex) =>
+          row.map((tile, colIndex) => (
+            <div
+              key={`${rowIndex}-${colIndex}`}
+              className="settlement-tile"
+              style={{
+                backgroundColor: getGridBackgroundColor(tile.gridType),
+              }}
+              onClick={() => handleTileClick(tile, TILE_SIZE)}
+              onMouseMove={(e) => handleTileMouseMove(e, tile)}
+              onMouseLeave={handleTileMouseLeave}
+            >
+              {renderMiniGrid(tile)}
+            </div>
+          ))
+        )}
+      </div>
+      {/* Cursor-following tooltip */}
+      {tooltipData.visible && tooltipData.content && (
+        <div
+          className="settlement-tooltip"
+          style={{
+            position: 'fixed',
+            left: tooltipData.x + 12,
+            top: tooltipData.y - 10,
+            transform: 'translateY(-100%)',
+            pointerEvents: 'none',
+          }}
+        >
+          <p>Who's Here:</p>
+          {tooltipData.content}
+        </div>
       )}
-    </div>
+    </>
   );
 };
 

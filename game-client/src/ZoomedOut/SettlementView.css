@@ -133,3 +133,24 @@
 .mini-tile.tree {
   font-size: 12px;
 }
+
+/* Cursor-following tooltip for settlement tiles */
+.settlement-tooltip {
+  background: rgba(0, 0, 0, 0.85);
+  color: white;
+  font-family: var(--font-text-2-family);
+  font-size: 11px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  z-index: 10000;
+  white-space: pre-line;
+  min-width: 120px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.settlement-tooltip p {
+  margin: 0 0 4px 0;
+  font-weight: bold;
+  font-size: 10px;
+  color: #aaa;
+}
