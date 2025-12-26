@@ -833,8 +833,8 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "crafttime": 8,
-    "totalnestedtime": 8
+    "crafttime": 12,
+    "totalnestedtime": 12
   },
   {
     "type": "Wood",
@@ -929,6 +929,7 @@
     "gemcost": 15,
     "filename": "clay.svg",
     "crafttime": 21600,
+    "growtime": 21600,
     "totalnestedtime": 21600
   },
   {
