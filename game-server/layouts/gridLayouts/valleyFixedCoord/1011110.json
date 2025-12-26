@@ -2136,7 +2136,7 @@
       "DI",
       "GR",
       "DI",
-      "GR",
+      "DI",
       "GR",
       "DI",
       "GR",
@@ -8471,9 +8471,9 @@
     "Oak Tree": 1500,
     "Pine Tree": 300,
     "Rocks": 100,
-    "Clay Pit": 8,
-    "Honey": 1,
-    "Rosemary": 15
+    "Clay Pit": 18,
+    "Daisy": 3,
+    "Rosemary": 5
   },
   "enemiesDistribution": {
     "Coyote": 6
