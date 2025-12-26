@@ -2,7 +2,7 @@ import API_BASE from '../config';
 import axios from 'axios';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { changePlayerLocation } from './GridManagement';
-import { fetchHomesteadSignpostPosition } from './worldHelpers';
+import { fetchTownSignpostPosition } from './worldHelpers';
 
 
 // Helper function to calculate derived level based on player XP
@@ -158,34 +158,37 @@ export const handlePlayerDeath = async (
   console.log('⚰️ Handling player death for', player.username);
 
   try {
-    const currentGridId = player.location.g;
-    
-    // Fetch the Signpost Town position from the homestead grid
-    const signpostPosition = await fetchHomesteadSignpostPosition(player.gridId);
-    
-    // Fetch the homestead's gridCoord to ensure proper MiniMap display
-    let homesteadGridCoord = player.homesteadGridCoord; // Use cached if available
-    if (!homesteadGridCoord && player.gridId) {
-      try {
-        console.log('🏠 Fetching homestead gridCoord for death teleportation...');
-        const homesteadResponse = await axios.get(`${API_BASE}/api/homestead-gridcoord/${player.gridId}`);
-        if (homesteadResponse.data.gridCoord) {
-          homesteadGridCoord = homesteadResponse.data.gridCoord;
-          console.log('🏠✅ Found homestead gridCoord:', homesteadGridCoord);
-        }
-      } catch (error) {
-        console.warn('⚠️ Could not fetch homestead gridCoord:', error);
-      }
+    // Find the town grid in the player's home settlement
+    console.log('🏛️ Finding town grid for death respawn in settlement:', player.settlementId);
+    const settlementResponse = await axios.get(`${API_BASE}/api/get-settlement/${player.settlementId}`);
+    const settlement = settlementResponse.data;
+
+    if (!settlement || !settlement.grids) {
+      console.error('❌ Could not find settlement for death respawn');
+      return;
     }
-    
-    // Determine respawn grid and coordinates
+
+    // Find the town grid in this settlement
+    const townGrid = settlement.grids.flat().find((grid) => grid.gridType === "town" && grid.gridId);
+    if (!townGrid) {
+      console.error('❌ Could not find town grid in settlement for death respawn');
+      return;
+    }
+
+    console.log('🏛️ Found town grid for respawn:', townGrid.gridId);
+
+    // Fetch the Signpost Home position from the town grid (same as Town button logic)
+    const signpostPosition = await fetchTownSignpostPosition(townGrid.gridId);
+
+    // Determine respawn grid and coordinates - respawn at town, not homestead
     const targetLocation = {
       x: signpostPosition.x,
       y: signpostPosition.y,
-      g: player.gridId !== currentGridId ? player.gridId : currentGridId,
+      g: townGrid.gridId,
       s: player.settlementId,
-      gtype: "homestead",
-      ...(homesteadGridCoord && { gridCoord: homesteadGridCoord }), // Include gridCoord for proper MiniMap display
+      f: player.location.f, // Preserve frontier
+      gtype: "town",
+      gridCoord: townGrid.gridCoord,
     };
     // Preserve other location fields (frontier, settlement, gtype)
     const updatedLocation = {
@@ -219,7 +222,6 @@ export const handlePlayerDeath = async (
       maxhp: properMaxHp,  // Ensure maxHP is not corrupted
       backpack: filteredBackpack,
       location: updatedLocation,
-      ...(homesteadGridCoord && { homesteadGridCoord }) // Ensure homestead dot appears on MiniMap
     };
 
     // 1. **Update Player Data in the Database**
@@ -231,7 +233,6 @@ export const handlePlayerDeath = async (
         maxhp: properMaxHp,  // Ensure maxHP is preserved in database
         location: updatedLocation,  // Update location
         settings: player.settings,
-        ...(homesteadGridCoord && { homesteadGridCoord }), // Save homesteadGridCoord for MiniMap
       },
     });
     setCurrentPlayer(updatedPlayer);
@@ -240,7 +241,7 @@ export const handlePlayerDeath = async (
     // REMOVED: Don't update PlayersInGrid here - let changePlayerLocation handle the cleanup
     // The player is dead and about to be moved, so we shouldn't update their HP in the current grid
 
-    console.log(`Player ${player.username} will be teleported to home grid with ${restoredHp} HP.`);
+    console.log(`Player ${player.username} will be teleported to town grid with ${restoredHp} HP.`);
     console.log('📦 Player before changePlayerLocation:', JSON.stringify(updatedPlayer, null, 2));
 
     // 4. **Load New Grid & Add Player to GridState**
@@ -265,7 +266,7 @@ export const handlePlayerDeath = async (
     // 5. **Ensure HP is properly set in the grid state after teleportation**
     console.log(`🏥 Ensuring player HP is set to ${restoredHp} in grid state`);
     const playersInGridManager = await import('../GridState/PlayersInGrid').then(m => m.default);
-    await playersInGridManager.updatePC(updatedPlayer.gridId, updatedPlayer._id, { hp: restoredHp });
+    await playersInGridManager.updatePC(townGrid.gridId, updatedPlayer._id, { hp: restoredHp });
     
     // Also ensure the currentPlayer state reflects the restored HP
     setCurrentPlayer(prevPlayer => ({
