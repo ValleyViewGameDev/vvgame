@@ -67,7 +67,7 @@ export function generateResourceTooltip(resource, strings, timers = null) {
           if (hours > 0) parts.push(`${hours}h`);
           if (minutes > 0) parts.push(`${minutes}m`);
           if (seconds > 0 || parts.length === 0) parts.push(`${seconds}s`);
-          lines.push(`<p>🌱 ${parts.join(' ')} remaining</p>`);
+          lines.push(`<p>${parts.join(' ')} remaining</p>`);
         }
       }
       break;

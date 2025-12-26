@@ -813,6 +813,7 @@
   },
   {
     "type": "Mud Pit",
+    "symbol": "🧱",
     "layoutkey": "mp",
     "category": "farmplot",
     "action": "convertTo",
@@ -833,8 +834,9 @@
     "validonc": true,
     "validonv": false,
     "validonu": false,
-    "crafttime": 12,
-    "totalnestedtime": 12
+    "growtime": 86400,
+    "crafttime": 86400,
+    "totalnestedtime": 86400
   },
   {
     "type": "Wood",
@@ -929,7 +931,6 @@
     "gemcost": 15,
     "filename": "clay.svg",
     "crafttime": 21600,
-    "growtime": 21600,
     "totalnestedtime": 21600
   },
   {
