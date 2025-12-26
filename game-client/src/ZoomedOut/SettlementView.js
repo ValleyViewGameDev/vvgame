@@ -253,7 +253,7 @@ const SettlementView = ({
       return;
     }
 
-    // Clicking on the tile where the player already is
+    // Clicking on the tile where the player already is - zoom in (works for everyone)
     if (tile.gridId === currentPlayer.location.g) {
       setZoomLevel("far");
       if (["valley0", "valley1", "valley2", "valley3"].includes(tile.gridType)) {
@@ -271,35 +271,15 @@ const SettlementView = ({
       centerCameraOnPlayer(pc.position, TILE_SIZE);
       return;
     }
-    
-    // Check if player has Horse skill before allowing teleportation to another grid
-    if (tile.gridId && tile.gridId !== currentPlayer.location.g) {
-      // TEMPORARY: Disable SettlementView travel for non-developers to investigate multi-grid bug
-      if (!isDeveloper) {
-        console.log("🚫 SettlementView travel disabled for non-developers (investigating multi-grid bug)");
-        updateStatus(15); // "You need to travel via signposts"
-        return;
-      }
 
-      const hasHorse = currentPlayer.skills?.some((skill) => skill.type === "Horse" && skill.quantity > 0);
-      if (!hasHorse) {
-        console.log("🐴 Player lacks Horse skill for teleportation");
-        updateStatus(15); // "You need Horse skill to travel"
-        return;
-      }
-    }
-  
-    // Clicking on any other valley tile
-    if (["valley0", "valley1", "valley2", "valley3"].includes(tile.gridType) && !isDeveloper) {
-      updateStatus(9);
+    // TEMPORARY: Non-developers cannot travel via SettlementView (investigating multi-grid bug)
+    // Silently ignore clicks - no message, no action
+    if (!isDeveloper) {
+      console.log("🚫 SettlementView travel disabled for non-developers");
       return;
     }
 
-    // Clicking on an unoccupied homestead tile
-    if (tile.gridType === "homestead" && tile.available === true) {
-      updateStatus(126); // "This homestead is unoccupied."
-      return;
-    }
+    // Developers can travel anywhere - skip Horse skill check
 
     try {
       // Default position

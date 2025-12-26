@@ -19,14 +19,39 @@ const getBrowserType = () => {
   return 'Unknown';
 };
 
-// Detect OS type from userAgent
+// Detect OS type and version from userAgent
 const getOSType = () => {
   const userAgent = navigator.userAgent;
-  if (userAgent.includes('Windows')) return 'Windows';
-  if (userAgent.includes('Macintosh') || userAgent.includes('Mac OS')) return 'MacOS';
-  if (userAgent.includes('iPhone') || userAgent.includes('iPad') || userAgent.includes('iPod')) return 'iOS';
-  if (userAgent.includes('Android')) return 'Android';
+
+  // Windows: "Windows NT 10.0" -> "Windows 10" (NT 10.0 = Win 10/11, 6.3 = 8.1, 6.1 = 7)
+  const windowsMatch = userAgent.match(/Windows NT (\d+\.\d+)/);
+  if (windowsMatch) {
+    const ntVersion = windowsMatch[1];
+    const versionMap = { '10.0': '10/11', '6.3': '8.1', '6.2': '8', '6.1': '7', '6.0': 'Vista', '5.1': 'XP' };
+    return `Windows ${versionMap[ntVersion] || ntVersion}`;
+  }
+
+  // macOS: "Mac OS X 10_15_7" or "Mac OS X 10.15.7"
+  const macMatch = userAgent.match(/Mac OS X (\d+[._]\d+(?:[._]\d+)?)/);
+  if (macMatch) {
+    return `MacOS ${macMatch[1].replace(/_/g, '.')}`;
+  }
+
+  // iOS: "iPhone OS 15_0" or "CPU OS 15_0"
+  const iosMatch = userAgent.match(/(?:iPhone|iPad|iPod).*?OS (\d+[._]\d+)/);
+  if (iosMatch) {
+    return `iOS ${iosMatch[1].replace(/_/g, '.')}`;
+  }
+
+  // Android: "Android 12"
+  const androidMatch = userAgent.match(/Android (\d+(?:\.\d+)?)/);
+  if (androidMatch) {
+    return `Android ${androidMatch[1]}`;
+  }
+
+  // Linux (no version typically available)
   if (userAgent.includes('Linux')) return 'Linux';
+
   return 'Unknown';
 };
 
