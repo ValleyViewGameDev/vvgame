@@ -194,13 +194,13 @@ export const handlePlayerDeath = async (
     };
 
     // Determine restored HP based on account status
-    let restoredHp = 25;
+    let restoredHp = 40;
     if (player.accountStatus === "Gold") {
       restoredHp = Math.floor(player.baseMaxhp / 2); // use baseMaxhp or maxHp as appropriate
     }
     
     // Calculate proper maxHP from base stats and equipment (don't let it get corrupted)
-    const properMaxHp = (player.baseMaxhp || 25) + (player.maxhpModifier || 0);
+    const properMaxHp = (player.baseMaxhp || 990) + (player.maxhpModifier || 0);
     
     console.log(`🚨 [HP DEBUG] Death recovery for ${player.username}:`);
     console.log('  player.baseMaxhp:', player.baseMaxhp);

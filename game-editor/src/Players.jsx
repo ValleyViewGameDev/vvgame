@@ -385,7 +385,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
       `Send "${player.username}" back to their home grid?\n\n` +
       `This will:\n` +
       `• Move them to their home grid\n` +
-      `• Reset their position to (0, 0)\n` +
+      `• Reset their position to the Signpost\n` +
       `• Restore their HP to full\n\n` +
       `Continue?`
     );
