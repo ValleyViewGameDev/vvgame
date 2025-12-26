@@ -4,16 +4,19 @@
 
 const TILE_TYPE_TO_BITS = {
   'g': 0b0000, // grass
-  's': 0b0001, // slate  
+  's': 0b0001, // slate
   'd': 0b0010, // dirt
   'w': 0b0011, // water
   'p': 0b0100, // pavement
   'l': 0b0101, // lava
   'n': 0b0110, // sand
   'o': 0b0111, // snow
-  'x': 0b1000, // cobblestone 
-  'y': 0b1001, // dungeon 
-  'z': 0b1010  // moss 
+  'x': 0b1000, // cobblestone
+  'y': 0b1001, // dungeon
+  'z': 0b1010, // moss
+  'c': 0b1011, // clay
+  'v': 0b1100, // tbdTile1
+  'u': 0b1101  // tbdTile2
 };
 
 const BITS_TO_TILE_TYPE = {
@@ -27,7 +30,10 @@ const BITS_TO_TILE_TYPE = {
   0b0111: 'o', // snow
   0b1000: 'x', // cobblestone
   0b1001: 'y', // dungeon
-  0b1010: 'z'  // moss
+  0b1010: 'z', // moss
+  0b1011: 'c', // clay
+  0b1100: 'v', // tbdTile1
+  0b1101: 'u'  // tbdTile2
 };
 
 const BITS_PER_TILE = 4;
