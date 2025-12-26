@@ -112,7 +112,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Gold Account",
@@ -148,7 +152,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Money",
@@ -171,10 +179,13 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 1,
     "maxprice": 1,
-    "ingredient4qty": 1,
-    "gemcost": 0.125
+    "ingredient4qty": 1
   },
   {
     "type": "Trash",
@@ -201,7 +212,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Signpost E",
@@ -219,7 +234,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Signpost S",
@@ -237,7 +256,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Signpost W",
@@ -255,7 +278,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Signpost NW",
@@ -273,7 +300,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Signpost NE",
@@ -291,7 +322,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Signpost SE",
@@ -309,7 +344,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Signpost SW",
@@ -327,7 +366,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Signpost Town",
@@ -346,7 +389,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Signpost Home",
@@ -365,7 +412,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Dungeon Entrance",
@@ -385,7 +436,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Dungeon Exit",
@@ -404,7 +459,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Mountain",
@@ -422,7 +481,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Mountain Large",
@@ -440,7 +503,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Enormous Mountain",
@@ -458,7 +525,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Big Dead Tree",
@@ -476,7 +547,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Huge Dead Tree",
@@ -494,7 +569,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Big Statue",
@@ -512,7 +591,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Volcano",
@@ -530,7 +613,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Oak Tree",
@@ -550,7 +637,11 @@
     "validonn": false,
     "validono": true,
     "validonx": false,
-    "validony": false
+    "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Pine Tree",
@@ -570,7 +661,11 @@
     "validonn": false,
     "validono": true,
     "validonx": false,
-    "validony": false
+    "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Palm Tree",
@@ -590,7 +685,11 @@
     "validonn": true,
     "validono": true,
     "validonx": false,
-    "validony": false
+    "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Holiday Tree",
@@ -610,7 +709,11 @@
     "validonn": false,
     "validono": true,
     "validonx": false,
-    "validony": false
+    "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Dead Tree",
@@ -630,7 +733,11 @@
     "validonn": false,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Snowman",
@@ -649,7 +756,11 @@
     "validonn": false,
     "validono": true,
     "validonx": false,
-    "validony": false
+    "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Rocks",
@@ -669,7 +780,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Clay Pit",
@@ -689,7 +804,11 @@
     "validonn": false,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": true,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Wood",
@@ -711,10 +830,12 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 5,
-    "maxprice": 8,
-    "gemcost": 1,
-    "crafttime": 5
+    "maxprice": 8
   },
   {
     "type": "Stone",
@@ -736,11 +857,12 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 5,
-    "maxprice": 8,
-    "gemcost": 1,
-    "filename": "stone.svg",
-    "crafttime": 5
+    "maxprice": 8
   },
   {
     "type": "Clay",
@@ -754,7 +876,7 @@
     "level": 1,
     "scrollqty": 40,
     "scrollchance": "rare",
-    "validong": true,
+    "validong": false,
     "validond": true,
     "validons": true,
     "validonp": false,
@@ -763,12 +885,13 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true,
+    "validony": false,
+    "validonz": false,
+    "validonc": true,
+    "validonv": false,
+    "validonu": false,
     "minprice": 84,
-    "maxprice": 120,
-    "gemcost": 15,
-    "filename": "clay.svg",
-    "crafttime": 21600
+    "maxprice": 120
   },
   {
     "type": "Wheat Plot",
@@ -789,8 +912,10 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
-    "growtime": 60,
-    "crafttime": 60
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "growtime": 60
   },
   {
     "type": "Carrot Plot",
@@ -812,10 +937,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 300,
     "ingredient1": "Carrot",
-    "ingredient1qty": 1,
-    "crafttime": 300
+    "ingredient1qty": 1
   },
   {
     "type": "Corn Plot",
@@ -837,10 +964,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 480,
     "ingredient1": "Corn",
-    "ingredient1qty": 1,
-    "crafttime": 480
+    "ingredient1qty": 1
   },
   {
     "type": "Sugarcane Plot",
@@ -862,10 +991,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 900,
     "ingredient1": "Sugarcane",
-    "ingredient1qty": 1,
-    "crafttime": 900
+    "ingredient1qty": 1
   },
   {
     "type": "Strawberry Plot",
@@ -888,10 +1019,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 21600,
     "ingredient1": "Strawberry",
-    "ingredient1qty": 1,
-    "crafttime": 21600
+    "ingredient1qty": 1
   },
   {
     "type": "Apple Tree",
@@ -914,10 +1047,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 64800,
     "ingredient1": "Money",
-    "ingredient1qty": 500,
-    "crafttime": 64800
+    "ingredient1qty": 500
   },
   {
     "type": "Lemon Tree",
@@ -939,10 +1074,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 86400,
     "ingredient1": "Money",
-    "ingredient1qty": 500,
-    "crafttime": 86400
+    "ingredient1qty": 500
   },
   {
     "type": "Grape Vine",
@@ -964,10 +1101,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 43200,
     "ingredient1": "Grapes",
-    "ingredient1qty": 1,
-    "crafttime": 43200
+    "ingredient1qty": 1
   },
   {
     "type": "Garlic Plot",
@@ -989,10 +1128,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 172800,
     "ingredient1": "Garlic",
-    "ingredient1qty": 1,
-    "crafttime": 172800
+    "ingredient1qty": 1
   },
   {
     "type": "Olive Tree",
@@ -1014,10 +1155,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 259200,
     "ingredient1": "Money",
-    "ingredient1qty": 500,
-    "crafttime": 259200
+    "ingredient1qty": 500
   },
   {
     "type": "Tomato Vine",
@@ -1040,10 +1183,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 57600,
     "ingredient1": "Tomato",
-    "ingredient1qty": 1,
-    "crafttime": 57600
+    "ingredient1qty": 1
   },
   {
     "type": "Pumpkin Plot",
@@ -1066,10 +1211,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 28800,
     "ingredient1": "Pumpkin",
-    "ingredient1qty": 1,
-    "crafttime": 28800
+    "ingredient1qty": 1
   },
   {
     "type": "Orange Tree",
@@ -1092,10 +1239,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 86400,
     "ingredient1": "Money",
-    "ingredient1qty": 500,
-    "crafttime": 86400
+    "ingredient1qty": 500
   },
   {
     "type": "Lettuce Plot",
@@ -1118,10 +1267,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 14400,
     "ingredient1": "Lettuce",
-    "ingredient1qty": 1,
-    "crafttime": 14400
+    "ingredient1qty": 1
   },
   {
     "type": "Pepper Plot",
@@ -1144,10 +1295,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 7200,
     "ingredient1": "Pepper",
-    "ingredient1qty": 1,
-    "crafttime": 7200
+    "ingredient1qty": 1
   },
   {
     "type": "Potato Plot",
@@ -1170,10 +1323,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 1800,
     "ingredient1": "Potato",
-    "ingredient1qty": 1,
-    "crafttime": 1800
+    "ingredient1qty": 1
   },
   {
     "type": "Peach Plot",
@@ -1195,10 +1350,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 28800,
     "ingredient1": "Peach",
-    "ingredient1qty": 1,
-    "crafttime": 28800
+    "ingredient1qty": 1
   },
   {
     "type": "Cherry Plot",
@@ -1220,10 +1377,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 28800,
     "ingredient1": "Cherry",
-    "ingredient1qty": 1,
-    "crafttime": 28800
+    "ingredient1qty": 1
   },
   {
     "type": "Pear Plot",
@@ -1245,10 +1404,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 28800,
     "ingredient1": "Pear",
-    "ingredient1qty": 1,
-    "crafttime": 28800
+    "ingredient1qty": 1
   },
   {
     "type": "Ginger Plot",
@@ -1270,10 +1431,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 28800,
     "ingredient1": "Ginger",
-    "ingredient1qty": 1,
-    "crafttime": 28800
+    "ingredient1qty": 1
   },
   {
     "type": "Green Bean Plot",
@@ -1295,10 +1458,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 28800,
     "ingredient1": "Green Bean",
-    "ingredient1qty": 1,
-    "crafttime": 28800
+    "ingredient1qty": 1
   },
   {
     "type": "Coconut Tree",
@@ -1320,10 +1485,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 28800,
     "ingredient1": "Money",
-    "ingredient1qty": 1000,
-    "crafttime": 28800
+    "ingredient1qty": 1000
   },
   {
     "type": "Onion Plot",
@@ -1345,10 +1512,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 28800,
     "ingredient1": "Onion",
-    "ingredient1qty": 1,
-    "crafttime": 28800
+    "ingredient1qty": 1
   },
   {
     "type": "Blueberry Plot",
@@ -1370,10 +1539,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 86400,
     "ingredient1": "Blueberry",
-    "ingredient1qty": 1,
-    "crafttime": 86400
+    "ingredient1qty": 1
   },
   {
     "type": "Mushroom Plot",
@@ -1395,10 +1566,12 @@
     "validonx": false,
     "validony": false,
     "validonz": true,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 28800,
     "ingredient1": "Mushroom",
-    "ingredient1qty": 1,
-    "crafttime": 28800
+    "ingredient1qty": 1
   },
   {
     "type": "Daisy Plot",
@@ -1420,10 +1593,12 @@
     "validonx": false,
     "validony": false,
     "validonz": true,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 57600,
     "ingredient1": "Daisy",
-    "ingredient1qty": 1,
-    "crafttime": 57600
+    "ingredient1qty": 1
   },
   {
     "type": "Tulip Plot",
@@ -1445,10 +1620,12 @@
     "validonx": false,
     "validony": false,
     "validonz": true,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 259200,
     "ingredient1": "Tulip",
-    "ingredient1qty": 1,
-    "crafttime": 259200
+    "ingredient1qty": 1
   },
   {
     "type": "Sunflower Plot",
@@ -1470,10 +1647,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 86400,
     "ingredient1": "Sunflower",
-    "ingredient1qty": 1,
-    "crafttime": 86400
+    "ingredient1qty": 1
   },
   {
     "type": "Oak Tree Plot",
@@ -1495,10 +1674,12 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 28800,
     "ingredient1": "Money",
-    "ingredient1qty": 5,
-    "crafttime": 28800
+    "ingredient1qty": 5
   },
   {
     "type": "Wheat",
@@ -1522,10 +1703,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 5,
-    "maxprice": 8,
-    "gemcost": 1,
-    "crafttime": 60
+    "maxprice": 8
   },
   {
     "type": "Carrot",
@@ -1550,10 +1732,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 16,
-    "maxprice": 24,
-    "gemcost": 3,
-    "crafttime": 300
+    "maxprice": 24
   },
   {
     "type": "Corn",
@@ -1578,10 +1761,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 16,
-    "maxprice": 24,
-    "gemcost": 3,
-    "crafttime": 480
+    "maxprice": 24
   },
   {
     "type": "Sugarcane",
@@ -1606,10 +1790,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 22,
-    "maxprice": 32,
-    "gemcost": 4,
-    "crafttime": 900
+    "maxprice": 32
   },
   {
     "type": "Strawberry",
@@ -1637,10 +1822,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 58,
-    "maxprice": 84,
-    "gemcost": 15,
-    "crafttime": 21600
+    "maxprice": 84
   },
   {
     "type": "Apple",
@@ -1668,10 +1854,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 93,
-    "maxprice": 134,
-    "gemcost": 24,
-    "crafttime": 64800
+    "maxprice": 134
   },
   {
     "type": "Lemon",
@@ -1699,10 +1886,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 105,
-    "maxprice": 151,
-    "gemcost": 27,
-    "crafttime": 86400
+    "maxprice": 151
   },
   {
     "type": "Grapes",
@@ -1729,10 +1917,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 112,
-    "maxprice": 160,
-    "gemcost": 20,
-    "crafttime": 43200
+    "maxprice": 160
   },
   {
     "type": "Garlic",
@@ -1759,10 +1948,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 144,
-    "maxprice": 207,
-    "gemcost": 37,
-    "crafttime": 172800
+    "maxprice": 207
   },
   {
     "type": "Olive",
@@ -1788,10 +1978,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 172,
-    "maxprice": 246,
-    "gemcost": 44,
-    "crafttime": 259200
+    "maxprice": 246
   },
   {
     "type": "Tomato",
@@ -1817,10 +2008,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 123,
-    "maxprice": 176,
-    "gemcost": 22,
-    "crafttime": 57600
+    "maxprice": 176
   },
   {
     "type": "Pumpkin",
@@ -1846,10 +2038,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Orange",
@@ -1876,10 +2069,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 105,
-    "maxprice": 151,
-    "gemcost": 27,
-    "crafttime": 86400
+    "maxprice": 151
   },
   {
     "type": "Lettuce",
@@ -1905,10 +2099,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 67,
-    "maxprice": 96,
-    "gemcost": 12,
-    "crafttime": 14400
+    "maxprice": 96
   },
   {
     "type": "Pepper",
@@ -1934,10 +2129,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 50,
-    "maxprice": 72,
-    "gemcost": 9,
-    "crafttime": 7200
+    "maxprice": 72
   },
   {
     "type": "Potato",
@@ -1963,10 +2159,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 28,
-    "maxprice": 40,
-    "gemcost": 5,
-    "crafttime": 1800
+    "maxprice": 40
   },
   {
     "type": "Peach",
@@ -1991,10 +2188,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Cherry",
@@ -2019,10 +2217,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Pear",
@@ -2047,10 +2246,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Ginger",
@@ -2075,10 +2275,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Green Bean",
@@ -2103,10 +2304,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Coconut",
@@ -2132,10 +2334,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Onion",
@@ -2160,10 +2363,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Blueberry",
@@ -2191,10 +2395,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 151,
-    "maxprice": 216,
-    "gemcost": 27,
-    "crafttime": 86400
+    "maxprice": 216
   },
   {
     "type": "Mushroom",
@@ -2222,10 +2427,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Daisy",
@@ -2254,10 +2460,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 123,
-    "maxprice": 176,
-    "gemcost": 22,
-    "crafttime": 57600
+    "maxprice": 176
   },
   {
     "type": "Tulip",
@@ -2286,10 +2493,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 246,
-    "maxprice": 352,
-    "gemcost": 44,
-    "crafttime": 259200
+    "maxprice": 352
   },
   {
     "type": "Sunflower",
@@ -2318,10 +2526,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 151,
-    "maxprice": 216,
-    "gemcost": 27,
-    "crafttime": 86400
+    "maxprice": 216
   },
   {
     "type": "Magic Mushroom",
@@ -2348,10 +2557,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 207,
-    "maxprice": 296,
-    "gemcost": 37,
-    "crafttime": 172800
+    "maxprice": 296
   },
   {
     "type": "Milk",
@@ -2377,10 +2587,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 28,
-    "maxprice": 40,
-    "gemcost": 5,
-    "crafttime": 1800
+    "maxprice": 40
   },
   {
     "type": "Wool",
@@ -2405,10 +2616,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 67,
-    "maxprice": 96,
-    "gemcost": 12,
-    "crafttime": 14400
+    "maxprice": 96
   },
   {
     "type": "Bacon",
@@ -2433,10 +2645,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 66,
-    "maxprice": 95,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 95
   },
   {
     "type": "Butter",
@@ -2461,12 +2674,13 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
-    "minprice": 79,
-    "maxprice": 114,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 18,
+    "maxprice": 26,
     "ingredient1": "Milk",
-    "ingredient1qty": 2,
-    "gemcost": 13,
-    "crafttime": 600
+    "ingredient1qty": 2
   },
   {
     "type": "Cream",
@@ -2491,14 +2705,15 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
-    "minprice": 319,
-    "maxprice": 457,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 24,
+    "maxprice": 35,
     "ingredient1": "Milk",
     "ingredient1qty": 2,
     "ingredient2": "Sugar",
-    "ingredient2qty": 2,
-    "gemcost": 52,
-    "crafttime": 900
+    "ingredient2qty": 2
   },
   {
     "type": "Cheese",
@@ -2526,12 +2741,13 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
-    "minprice": 141,
-    "maxprice": 202,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 18,
+    "maxprice": 26,
     "ingredient1": "Milk",
-    "ingredient1qty": 4,
-    "gemcost": 23,
-    "crafttime": 600
+    "ingredient1qty": 4
   },
   {
     "type": "Pepper Cheese",
@@ -2559,16 +2775,17 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
-    "minprice": 1188,
-    "maxprice": 1698,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 104,
+    "maxprice": 149,
     "ingredient1": "Milk",
     "ingredient1qty": 6,
     "ingredient2": "Pepper",
     "ingredient2qty": 8,
     "ingredient3": "Garlic",
-    "ingredient3qty": 2,
-    "gemcost": 193,
-    "crafttime": 28800
+    "ingredient3qty": 2
   },
   {
     "type": "Thread",
@@ -2592,12 +2809,13 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 84,
-    "maxprice": 120,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 16,
+    "maxprice": 24,
     "ingredient1": "Wool",
-    "ingredient1qty": 1,
-    "gemcost": 15,
-    "crafttime": 300
+    "ingredient1qty": 1
   },
   {
     "type": "Cloth",
@@ -2621,12 +2839,13 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 285,
-    "maxprice": 408,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 16,
+    "maxprice": 24,
     "ingredient1": "Wool",
-    "ingredient1qty": 4,
-    "gemcost": 51,
-    "crafttime": 600
+    "ingredient1qty": 4
   },
   {
     "type": "Sweater",
@@ -2651,16 +2870,17 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 1078,
-    "maxprice": 1540,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 42,
+    "maxprice": 61,
     "ingredient1": "Cloth",
     "ingredient1qty": 2,
     "ingredient2": "Wool",
     "ingredient2qty": 3,
     "ingredient3": "Thread",
-    "ingredient3qty": 2,
-    "gemcost": 175,
-    "crafttime": 3600
+    "ingredient3qty": 2
   },
   {
     "type": "Jacket",
@@ -2685,8 +2905,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 1615,
-    "maxprice": 2308,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 123,
+    "maxprice": 176,
     "ingredient1": "Cloth",
     "ingredient1qty": 2,
     "ingredient2": "Wool",
@@ -2694,9 +2917,7 @@
     "ingredient3": "Thread",
     "ingredient3qty": 3,
     "ingredient4": "Pelt",
-    "ingredient4qty": 2,
-    "gemcost": 222,
-    "crafttime": 28800
+    "ingredient4qty": 2
   },
   {
     "type": "Heavy Jacket",
@@ -2721,16 +2942,17 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 2629,
-    "maxprice": 3756,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 100,
+    "maxprice": 144,
     "ingredient1": "Jacket",
     "ingredient1qty": 1,
     "ingredient2": "Thread",
     "ingredient2qty": 3,
     "ingredient3": "Bear Skin",
-    "ingredient3qty": 1,
-    "gemcost": 313,
-    "crafttime": 7200
+    "ingredient3qty": 1
   },
   {
     "type": "Runic Tunic",
@@ -2757,16 +2979,17 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 8173,
-    "maxprice": 11676,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 184,
+    "maxprice": 264,
     "ingredient1": "Cloth",
     "ingredient1qty": 3,
     "ingredient2": "Thread",
     "ingredient2qty": 6,
     "ingredient3": "Ink",
-    "ingredient3qty": 2,
-    "gemcost": 973,
-    "crafttime": 43200
+    "ingredient3qty": 2
   },
   {
     "type": "Egg",
@@ -2791,12 +3014,13 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
-    "minprice": 263,
-    "maxprice": 376,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 72,
+    "maxprice": 104,
     "ingredient1": "Chicken Feed",
-    "ingredient1qty": 2,
-    "gemcost": 47,
-    "crafttime": 7200
+    "ingredient1qty": 2
   },
   {
     "type": "Flour",
@@ -2820,12 +3044,13 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 50,
-    "maxprice": 72,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 16,
+    "maxprice": 24,
     "ingredient1": "Wheat",
-    "ingredient1qty": 6,
-    "gemcost": 9,
-    "crafttime": 300
+    "ingredient1qty": 6
   },
   {
     "type": "Chicken Feed",
@@ -2849,16 +3074,17 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 106,
-    "maxprice": 152,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 11,
+    "maxprice": 16,
     "ingredient1": "Wheat",
     "ingredient1qty": 2,
     "ingredient2": "Corn",
     "ingredient2qty": 3,
     "ingredient3": "Carrot",
-    "ingredient3qty": 2,
-    "gemcost": 19,
-    "crafttime": 120
+    "ingredient3qty": 2
   },
   {
     "type": "Sugar",
@@ -2882,12 +3108,13 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 106,
-    "maxprice": 152,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 16,
+    "maxprice": 24,
     "ingredient1": "Sugarcane",
-    "ingredient1qty": 4,
-    "gemcost": 19,
-    "crafttime": 600
+    "ingredient1qty": 4
   },
   {
     "type": "Cornmeal",
@@ -2911,12 +3138,13 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 196,
-    "maxprice": 280,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 95,
+    "maxprice": 136,
     "ingredient1": "Corn",
-    "ingredient1qty": 6,
-    "gemcost": 35,
-    "crafttime": 28800
+    "ingredient1qty": 6
   },
   {
     "type": "Bread",
@@ -2941,14 +3169,15 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 291,
-    "maxprice": 416,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 65,
+    "maxprice": 93,
     "ingredient1": "Flour",
     "ingredient1qty": 2,
     "ingredient2": "Butter",
-    "ingredient2qty": 1,
-    "gemcost": 40,
-    "crafttime": 7200
+    "ingredient2qty": 1
   },
   {
     "type": "Cornbread",
@@ -2973,8 +3202,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 1441,
-    "maxprice": 2059,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 86,
+    "maxprice": 124,
     "ingredient1": "Flour",
     "ingredient1qty": 1,
     "ingredient2": "Cornmeal",
@@ -2982,9 +3214,7 @@
     "ingredient3": "Egg",
     "ingredient3qty": 2,
     "ingredient4": "Butter",
-    "ingredient4qty": 1,
-    "gemcost": 198,
-    "crafttime": 14400
+    "ingredient4qty": 1
   },
   {
     "type": "Apple Pie",
@@ -3009,8 +3239,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 771,
-    "maxprice": 1102,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 28,
+    "maxprice": 41,
     "ingredient1": "Apple",
     "ingredient1qty": 2,
     "ingredient2": "Flour",
@@ -3018,9 +3251,7 @@
     "ingredient3": "Sugar",
     "ingredient3qty": 1,
     "ingredient4": "Butter",
-    "ingredient4qty": 2,
-    "gemcost": 106,
-    "crafttime": 1200
+    "ingredient4qty": 2
   },
   {
     "type": "Strawberry Pie",
@@ -3045,8 +3276,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 1456,
-    "maxprice": 2080,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 28,
+    "maxprice": 41,
     "ingredient1": "Strawberry",
     "ingredient1qty": 3,
     "ingredient2": "Flour",
@@ -3054,9 +3288,7 @@
     "ingredient3": "Sugar",
     "ingredient3qty": 2,
     "ingredient4": "Cream",
-    "ingredient4qty": 2,
-    "gemcost": 200,
-    "crafttime": 1200
+    "ingredient4qty": 2
   },
   {
     "type": "Pumpkin Pie",
@@ -3081,8 +3313,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 546,
-    "maxprice": 780,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 28,
+    "maxprice": 41,
     "ingredient1": "Pumpkin",
     "ingredient1qty": 1,
     "ingredient2": "Flour",
@@ -3090,9 +3325,7 @@
     "ingredient3": "Sugar",
     "ingredient3qty": 1,
     "ingredient4": "Butter",
-    "ingredient4qty": 2,
-    "gemcost": 75,
-    "crafttime": 1200
+    "ingredient4qty": 2
   },
   {
     "type": "Lemon Cookie",
@@ -3120,8 +3353,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 1717,
-    "maxprice": 2454,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 21,
+    "maxprice": 31,
     "ingredient1": "Lemon",
     "ingredient1qty": 2,
     "ingredient2": "Flour",
@@ -3129,9 +3365,7 @@
     "ingredient3": "Egg",
     "ingredient3qty": 2,
     "ingredient4": "Sugar",
-    "ingredient4qty": 4,
-    "gemcost": 236,
-    "crafttime": 600
+    "ingredient4qty": 4
   },
   {
     "type": "Olive Bread",
@@ -3157,8 +3391,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 3523,
-    "maxprice": 5033,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 86,
+    "maxprice": 124,
     "ingredient1": "Flour",
     "ingredient1qty": 1,
     "ingredient2": "Egg",
@@ -3166,9 +3403,7 @@
     "ingredient3": "Olive",
     "ingredient3qty": 8,
     "ingredient4": "Rosemary",
-    "ingredient4qty": 1,
-    "gemcost": 484,
-    "crafttime": 14400
+    "ingredient4qty": 1
   },
   {
     "type": "Garlic Bread",
@@ -3194,14 +3429,15 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 1327,
-    "maxprice": 1896,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 58,
+    "maxprice": 84,
     "ingredient1": "Bread",
     "ingredient1qty": 1,
     "ingredient2": "Garlic",
-    "ingredient2qty": 3,
-    "gemcost": 158,
-    "crafttime": 3600
+    "ingredient2qty": 3
   },
   {
     "type": "Queen's Cake",
@@ -3229,8 +3465,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 6613,
-    "maxprice": 9448,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 140,
+    "maxprice": 200,
     "ingredient1": "Flour",
     "ingredient1qty": 2,
     "ingredient2": "Egg",
@@ -3238,9 +3477,7 @@
     "ingredient3": "Blueberry",
     "ingredient3qty": 4,
     "ingredient4": "Lemon Cookie",
-    "ingredient4qty": 4,
-    "gemcost": 1181,
-    "crafttime": 28800
+    "ingredient4qty": 4
   },
   {
     "type": "Honey",
@@ -3265,12 +3502,13 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 268,
-    "maxprice": 384,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 196,
+    "maxprice": 280,
     "ingredient1": "Money",
-    "ingredient1qty": 75,
-    "gemcost": 37,
-    "crafttime": 86400
+    "ingredient1qty": 75
   },
   {
     "type": "Corn Chowder",
@@ -3295,16 +3533,17 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 313,
-    "maxprice": 448,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 24,
+    "maxprice": 35,
     "ingredient1": "Corn",
     "ingredient1qty": 8,
     "ingredient2": "Milk",
     "ingredient2qty": 2,
     "ingredient3": "Butter",
-    "ingredient3qty": 1,
-    "gemcost": 51,
-    "crafttime": 1200
+    "ingredient3qty": 1
   },
   {
     "type": "Carrot Soup",
@@ -3329,8 +3568,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 3183,
-    "maxprice": 4548,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 50,
+    "maxprice": 72,
     "ingredient1": "Carrot",
     "ingredient1qty": 6,
     "ingredient2": "Cream",
@@ -3338,9 +3580,7 @@
     "ingredient3": "Garlic",
     "ingredient3qty": 2,
     "ingredient4": "Olive Oil",
-    "ingredient4qty": 1,
-    "gemcost": 379,
-    "crafttime": 2700
+    "ingredient4qty": 1
   },
   {
     "type": "Tomato Soup",
@@ -3365,8 +3605,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 5056,
-    "maxprice": 7224,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 42,
+    "maxprice": 60,
     "ingredient1": "Tomato",
     "ingredient1qty": 6,
     "ingredient2": "Bread",
@@ -3374,9 +3617,7 @@
     "ingredient3": "Olive Oil",
     "ingredient3qty": 1,
     "ingredient4": "Cream",
-    "ingredient4qty": 3,
-    "gemcost": 602,
-    "crafttime": 1800
+    "ingredient4qty": 3
   },
   {
     "type": "Pumpkin Soup",
@@ -3401,8 +3642,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 3188,
-    "maxprice": 4555,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 50,
+    "maxprice": 72,
     "ingredient1": "Pumpkin",
     "ingredient1qty": 2,
     "ingredient2": "Carrot",
@@ -3410,9 +3654,7 @@
     "ingredient3": "Olive Oil",
     "ingredient3qty": 1,
     "ingredient4": "Cream",
-    "ingredient4qty": 3,
-    "gemcost": 438,
-    "crafttime": 3600
+    "ingredient4qty": 3
   },
   {
     "type": "Mixed Salad",
@@ -3437,8 +3679,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 2482,
-    "maxprice": 3546,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 28,
+    "maxprice": 41,
     "ingredient1": "Lettuce",
     "ingredient1qty": 4,
     "ingredient2": "Tomato",
@@ -3446,9 +3691,7 @@
     "ingredient3": "Egg",
     "ingredient3qty": 1,
     "ingredient4": "Olive",
-    "ingredient4qty": 4,
-    "gemcost": 341,
-    "crafttime": 900
+    "ingredient4qty": 4
   },
   {
     "type": "Sandwich",
@@ -3474,8 +3717,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 1864,
-    "maxprice": 2664,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 50,
+    "maxprice": 72,
     "ingredient1": "Bacon",
     "ingredient1qty": 4,
     "ingredient2": "Lettuce",
@@ -3483,9 +3729,7 @@
     "ingredient3": "Tomato",
     "ingredient3qty": 2,
     "ingredient4": "Bread",
-    "ingredient4qty": 2,
-    "gemcost": 222,
-    "crafttime": 2700
+    "ingredient4qty": 2
   },
   {
     "type": "Omelette",
@@ -3511,8 +3755,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 4292,
-    "maxprice": 6132,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 25,
+    "maxprice": 36,
     "ingredient1": "Egg",
     "ingredient1qty": 4,
     "ingredient2": "Cheese",
@@ -3520,9 +3767,7 @@
     "ingredient3": "Olive",
     "ingredient3qty": 4,
     "ingredient4": "Cream",
-    "ingredient4qty": 1,
-    "gemcost": 511,
-    "crafttime": 600
+    "ingredient4qty": 1
   },
   {
     "type": "Pizza",
@@ -3548,8 +3793,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 3035,
-    "maxprice": 4336,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 28,
+    "maxprice": 41,
     "ingredient1": "Wheat",
     "ingredient1qty": 4,
     "ingredient2": "Tomato",
@@ -3557,9 +3805,7 @@
     "ingredient3": "Olive Oil",
     "ingredient3qty": 1,
     "ingredient4": "Cheese",
-    "ingredient4qty": 4,
-    "gemcost": 417,
-    "crafttime": 900
+    "ingredient4qty": 4
   },
   {
     "type": "Potato Bake",
@@ -3585,8 +3831,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 2169,
-    "maxprice": 3099,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 86,
+    "maxprice": 124,
     "ingredient1": "Potato",
     "ingredient1qty": 6,
     "ingredient2": "Butter",
@@ -3594,9 +3843,7 @@
     "ingredient3": "Cream",
     "ingredient3qty": 2,
     "ingredient4": "Garlic",
-    "ingredient4qty": 2,
-    "gemcost": 298,
-    "crafttime": 14400
+    "ingredient4qty": 2
   },
   {
     "type": "Lumber",
@@ -3621,12 +3868,13 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
-    "minprice": 140,
-    "maxprice": 200,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 28,
+    "maxprice": 40,
     "ingredient1": "Wood",
-    "ingredient1qty": 20,
-    "gemcost": 25,
-    "crafttime": 1800
+    "ingredient1qty": 20
   },
   {
     "type": "Pottery",
@@ -3650,12 +3898,13 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 313,
-    "maxprice": 448,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 36,
+    "maxprice": 52,
     "ingredient1": "Clay",
-    "ingredient1qty": 3,
-    "gemcost": 51,
-    "crafttime": 2700
+    "ingredient1qty": 3
   },
   {
     "type": "Furniture",
@@ -3680,16 +3929,17 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 929,
-    "maxprice": 1328,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 123,
+    "maxprice": 176,
     "ingredient1": "Lumber",
     "ingredient1qty": 2,
     "ingredient2": "Cloth",
     "ingredient2qty": 1,
     "ingredient3": "Thread",
-    "ingredient3qty": 2,
-    "gemcost": 151,
-    "crafttime": 43200
+    "ingredient3qty": 2
   },
   {
     "type": "Ink",
@@ -3715,16 +3965,17 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 1988,
-    "maxprice": 2840,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 67,
+    "maxprice": 96,
     "ingredient1": "Egg",
     "ingredient1qty": 4,
     "ingredient2": "Honey",
     "ingredient2qty": 3,
     "ingredient3": "Tulip",
-    "ingredient3qty": 1,
-    "gemcost": 355,
-    "crafttime": 14400
+    "ingredient3qty": 1
   },
   {
     "type": "Urns",
@@ -3749,16 +4000,17 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 5275,
-    "maxprice": 7536,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 84,
+    "maxprice": 120,
     "ingredient1": "Pottery",
     "ingredient1qty": 4,
     "ingredient2": "Clay",
     "ingredient2qty": 4,
     "ingredient3": "Ink",
-    "ingredient3qty": 1,
-    "gemcost": 628,
-    "crafttime": 7200
+    "ingredient3qty": 1
   },
   {
     "type": "Wine",
@@ -3783,14 +4035,15 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 1586,
-    "maxprice": 2267,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 123,
+    "maxprice": 176,
     "ingredient1": "Grapes",
     "ingredient1qty": 10,
     "ingredient2": "Wood",
-    "ingredient2qty": 1,
-    "gemcost": 218,
-    "crafttime": 28800
+    "ingredient2qty": 1
   },
   {
     "type": "Port",
@@ -3815,16 +4068,17 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 2058,
-    "maxprice": 2940,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 58,
+    "maxprice": 84,
     "ingredient1": "Grapes",
     "ingredient1qty": 10,
     "ingredient2": "Honey",
     "ingredient2qty": 1,
     "ingredient3": "Wood",
-    "ingredient3qty": 1,
-    "gemcost": 245,
-    "crafttime": 3600
+    "ingredient3qty": 1
   },
   {
     "type": "Olive Oil",
@@ -3848,12 +4102,13 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 1410,
-    "maxprice": 2015,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 55,
+    "maxprice": 79,
     "ingredient1": "Olive",
-    "ingredient1qty": 5,
-    "gemcost": 229,
-    "crafttime": 7200
+    "ingredient1qty": 5
   },
   {
     "type": "Apple Cider",
@@ -3877,12 +4132,13 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 2002,
-    "maxprice": 2860,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 227,
+    "maxprice": 325,
     "ingredient1": "Apple",
-    "ingredient1qty": 12,
-    "gemcost": 325,
-    "crafttime": 172800
+    "ingredient1qty": 12
   },
   {
     "type": "Brandy",
@@ -3909,16 +4165,17 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 3028,
-    "maxprice": 4326,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 123,
+    "maxprice": 176,
     "ingredient1": "Orange",
     "ingredient1qty": 12,
     "ingredient2": "Honey",
     "ingredient2qty": 2,
     "ingredient3": "Wood",
-    "ingredient3qty": 1,
-    "gemcost": 416,
-    "crafttime": 28800
+    "ingredient3qty": 1
   },
   {
     "type": "Aged Wine",
@@ -3945,14 +4202,15 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 6426,
-    "maxprice": 9180,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 190,
+    "maxprice": 272,
     "ingredient1": "Wine",
     "ingredient1qty": 3,
     "ingredient2": "Wood",
-    "ingredient2qty": 1,
-    "gemcost": 675,
-    "crafttime": 43200
+    "ingredient2qty": 1
   },
   {
     "type": "Rosemary",
@@ -3978,10 +4236,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Amulet",
@@ -4005,10 +4264,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Trumpet",
@@ -4032,10 +4292,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Beans",
@@ -4059,10 +4320,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Oyster",
@@ -4086,10 +4348,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Meat",
@@ -4113,10 +4376,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Ancient Coin",
@@ -4140,10 +4404,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Fan",
@@ -4167,10 +4432,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Saw",
@@ -4199,10 +4465,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 151,
-    "maxprice": 216,
-    "gemcost": 27,
-    "crafttime": 86400
+    "maxprice": 216
   },
   {
     "type": "Shovel",
@@ -4231,10 +4498,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 207,
-    "maxprice": 296,
-    "gemcost": 37,
-    "crafttime": 172800
+    "maxprice": 296
   },
   {
     "type": "Screwdriver",
@@ -4263,10 +4531,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 246,
-    "maxprice": 352,
-    "gemcost": 44,
-    "crafttime": 259200
+    "maxprice": 352
   },
   {
     "type": "Feverfew",
@@ -4292,10 +4561,11 @@
     "validonx": false,
     "validony": false,
     "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "minprice": 151,
-    "maxprice": 216,
-    "gemcost": 27,
-    "crafttime": 86400
+    "maxprice": 216
   },
   {
     "type": "Potion A",
@@ -4321,16 +4591,17 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 1299,
-    "maxprice": 1856,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 95,
+    "maxprice": 136,
     "ingredient1": "Rosemary",
     "ingredient1qty": 3,
     "ingredient2": "Daisy",
     "ingredient2qty": 2,
     "ingredient3": "Milk",
-    "ingredient3qty": 24,
-    "gemcost": 232,
-    "crafttime": 28800
+    "ingredient3qty": 24
   },
   {
     "type": "Potion B",
@@ -4356,8 +4627,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 3203,
-    "maxprice": 4576,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 257,
+    "maxprice": 368,
     "ingredient1": "Potion A",
     "ingredient1qty": 1,
     "ingredient2": "Mushroom",
@@ -4365,9 +4639,7 @@
     "ingredient3": "Tulip",
     "ingredient3qty": 4,
     "ingredient4": "Garlic",
-    "ingredient4qty": 2,
-    "gemcost": 572,
-    "crafttime": 57600
+    "ingredient4qty": 2
   },
   {
     "type": "Potion C",
@@ -4393,8 +4665,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 9324,
-    "maxprice": 13320,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 212,
+    "maxprice": 304,
     "ingredient1": "Potion B",
     "ingredient1qty": 1,
     "ingredient2": "Sunflower",
@@ -4402,9 +4677,7 @@
     "ingredient3": "Ink",
     "ingredient3qty": 2,
     "ingredient4": "Feverfew",
-    "ingredient4qty": 1,
-    "gemcost": 1665,
-    "crafttime": 129600
+    "ingredient4qty": 1
   },
   {
     "type": "Book",
@@ -4431,12 +4704,13 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 812,
-    "maxprice": 1160,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 112,
+    "maxprice": 160,
     "ingredient1": "Money",
-    "ingredient1qty": 1000,
-    "gemcost": 145,
-    "crafttime": 43200
+    "ingredient1qty": 1000
   },
   {
     "type": "Pelt",
@@ -4461,10 +4735,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true,
     "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800
+    "maxprice": 136
   },
   {
     "type": "Bear Skin",
@@ -4487,10 +4762,11 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true,
     "minprice": 207,
-    "maxprice": 296,
-    "gemcost": 37,
-    "crafttime": 172800
+    "maxprice": 296
   },
   {
     "type": "Bones",
@@ -4515,12 +4791,13 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 3360,
-    "maxprice": 4800,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true,
+    "minprice": 1260,
+    "maxprice": 1800,
     "ingredient1": "Money",
-    "ingredient1qty": 1000,
-    "gemcost": 200,
-    "crafttime": 864000
+    "ingredient1qty": 1000
   },
   {
     "type": "Silver",
@@ -4546,12 +4823,13 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 3360,
-    "maxprice": 4800,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 1260,
+    "maxprice": 1800,
     "ingredient1": "Money",
-    "ingredient1qty": 1000,
-    "gemcost": 200,
-    "crafttime": 864000
+    "ingredient1qty": 1000
   },
   {
     "type": "Gold",
@@ -4577,12 +4855,13 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 4816,
-    "maxprice": 6880,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 2016,
+    "maxprice": 2880,
     "ingredient1": "Money",
-    "ingredient1qty": 1000,
-    "gemcost": 215,
-    "crafttime": 1296000
+    "ingredient1qty": 1000
   },
   {
     "type": "Diamond Ring",
@@ -4607,12 +4886,13 @@
     "validonx": true,
     "validony": true,
     "validonz": false,
-    "minprice": 6356,
-    "maxprice": 9080,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 2856,
+    "maxprice": 4080,
     "ingredient1": "Money",
-    "ingredient1qty": 1000,
-    "gemcost": 227,
-    "crafttime": 1728000
+    "ingredient1qty": 1000
   },
   {
     "type": "King's Crown",
@@ -4630,9 +4910,7 @@
     "minprice": 16800,
     "maxprice": 24000,
     "ingredient1": "Golden Key",
-    "ingredient1qty": 1,
-    "gemcost": 1000,
-    "crafttime": 86400
+    "ingredient1qty": 1
   },
   {
     "type": "Portrait",
@@ -4658,10 +4936,11 @@
     "validonx": true,
     "validony": true,
     "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true,
     "minprice": 112,
-    "maxprice": 160,
-    "gemcost": 20,
-    "crafttime": 43200
+    "maxprice": 160
   },
   {
     "type": "Trident",
@@ -4679,9 +4958,7 @@
     "minprice": 16800,
     "maxprice": 24000,
     "ingredient1": "Skeleton Key",
-    "ingredient1qty": 1,
-    "gemcost": 1000,
-    "crafttime": 86400
+    "ingredient1qty": 1
   },
   {
     "type": "Phoenix Feather",
@@ -4706,10 +4983,11 @@
     "validonx": true,
     "validony": true,
     "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true,
     "minprice": 420,
-    "maxprice": 600,
-    "gemcost": 75,
-    "crafttime": 864000
+    "maxprice": 600
   },
   {
     "type": "Brass Bell",
@@ -4725,9 +5003,7 @@
     "xp": 6,
     "level": 1,
     "minprice": 420,
-    "maxprice": 600,
-    "gemcost": 75,
-    "crafttime": 864000
+    "maxprice": 600
   },
   {
     "type": "Prospero's Orb",
@@ -4743,9 +5019,7 @@
     "xp": 6,
     "level": 1,
     "minprice": 683,
-    "maxprice": 976,
-    "gemcost": 122,
-    "crafttime": 2592000
+    "maxprice": 976
   },
   {
     "type": "Vampire's Blood",
@@ -4761,9 +5035,7 @@
     "xp": 6,
     "level": 1,
     "minprice": 571,
-    "maxprice": 816,
-    "gemcost": 102,
-    "crafttime": 1728000
+    "maxprice": 816
   },
   {
     "type": "Home Deed",
@@ -4779,9 +5051,7 @@
     "xp": 1,
     "level": 1,
     "minprice": 5,
-    "maxprice": 8,
-    "gemcost": 1,
-    "crafttime": 10
+    "maxprice": 8
   },
   {
     "type": "Skeleton Key",
@@ -4797,9 +5067,7 @@
     "xp": 1,
     "level": 1,
     "minprice": 5,
-    "maxprice": 8,
-    "gemcost": 1,
-    "crafttime": 10
+    "maxprice": 8
   },
   {
     "type": "Golden Key",
@@ -4815,9 +5083,7 @@
     "xp": 1,
     "level": 1,
     "minprice": 5,
-    "maxprice": 8,
-    "gemcost": 1,
-    "crafttime": 10
+    "maxprice": 8
   },
   {
     "type": "Town Key",
@@ -4897,9 +5163,7 @@
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
-    "xp": 1,
-    "gemcost": 27,
-    "crafttime": 86400
+    "xp": 1
   },
   {
     "type": "Green Heart",
@@ -4911,9 +5175,7 @@
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
-    "xp": 1,
-    "gemcost": 44,
-    "crafttime": 259200
+    "xp": 1
   },
   {
     "type": "Purple Heart",
@@ -4925,9 +5187,7 @@
     "passable": true,
     "repeatable": false,
     "qtycollected": 1,
-    "xp": 1,
-    "gemcost": 55,
-    "crafttime": 432000
+    "xp": 1
   },
   {
     "type": "Scroll",
@@ -4953,10 +5213,12 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true,
     "minprice": 5,
-    "maxprice": 8,
-    "gemcost": 1,
-    "crafttime": 10
+    "maxprice": 8
   },
   {
     "type": "Reveal Scroll",
@@ -4967,8 +5229,7 @@
     "ingredient1": "Scroll",
     "ingredient1qty": 1,
     "ingredient2": "Potion A",
-    "ingredient2qty": 1,
-    "crafttime": 4
+    "ingredient2qty": 1
   },
   {
     "type": "Only Found in Scrolls",
@@ -4993,7 +5254,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Dungeon Door",
@@ -5012,7 +5277,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Mirror",
@@ -5031,7 +5300,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Locked Door",
@@ -5050,7 +5323,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Outpost",
@@ -5073,9 +5350,12 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 10000,
-    "gemcost": 1250
+    "ingredient1qty": 10000
   },
   {
     "type": "Animal Stall",
@@ -5098,12 +5378,14 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 25,
     "ingredient2": "Wood",
-    "ingredient2qty": 20,
-    "gemcost": 24,
-    "crafttime": 0
+    "ingredient2qty": 20
   },
   {
     "type": "School",
@@ -5127,14 +5409,16 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "ingredient2": "Furniture",
     "ingredient2qty": 10,
     "ingredient3": "Gem",
-    "ingredient3qty": 3,
-    "gemcost": 2135,
-    "crafttime": 0
+    "ingredient3qty": 3
   },
   {
     "type": "Hospital",
@@ -5159,6 +5443,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
     "ingredient2": "Lumber",
@@ -5166,9 +5454,7 @@
     "ingredient3": "Stone",
     "ingredient3qty": 50,
     "ingredient4": "Gem",
-    "ingredient4qty": 3,
-    "gemcost": 2300,
-    "crafttime": 0
+    "ingredient4qty": 3
   },
   {
     "type": "Library",
@@ -5192,6 +5478,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 8000,
     "ingredient2": "Furniture",
@@ -5199,9 +5489,7 @@
     "ingredient3": "Stone",
     "ingredient3qty": 50,
     "ingredient4": "Gem",
-    "ingredient4qty": 3,
-    "gemcost": 2560,
-    "crafttime": 0
+    "ingredient4qty": 3
   },
   {
     "type": "Dairy",
@@ -5224,12 +5512,14 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 300,
     "ingredient2": "Wood",
-    "ingredient2qty": 75,
-    "gemcost": 113,
-    "crafttime": 0
+    "ingredient2qty": 75
   },
   {
     "type": "Loom",
@@ -5252,12 +5542,14 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 200,
     "ingredient2": "Wood",
-    "ingredient2qty": 50,
-    "gemcost": 75,
-    "crafttime": 0
+    "ingredient2qty": 50
   },
   {
     "type": "Mill",
@@ -5280,14 +5572,16 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 400,
     "ingredient2": "Wood",
     "ingredient2qty": 75,
     "ingredient3": "Stone",
-    "ingredient3qty": 5,
-    "gemcost": 130,
-    "crafttime": 0
+    "ingredient3qty": 5
   },
   {
     "type": "Chicken Coop",
@@ -5310,12 +5604,14 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "ingredient2": "Wood",
-    "ingredient2qty": 20,
-    "gemcost": 145,
-    "crafttime": 0
+    "ingredient2qty": 20
   },
   {
     "type": "Oven",
@@ -5338,6 +5634,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 3000,
     "ingredient2": "Wood",
@@ -5345,9 +5645,7 @@
     "ingredient3": "Stone",
     "ingredient3qty": 20,
     "ingredient4": "Clay",
-    "ingredient4qty": 15,
-    "gemcost": 820,
-    "crafttime": 0
+    "ingredient4qty": 15
   },
   {
     "type": "Kitchen",
@@ -5370,14 +5668,16 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 3000,
     "ingredient2": "Wood",
     "ingredient2qty": 200,
     "ingredient3": "Clay",
-    "ingredient3qty": 20,
-    "gemcost": 875,
-    "crafttime": 0
+    "ingredient3qty": 20
   },
   {
     "type": "Beehive",
@@ -5400,12 +5700,14 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "ingredient2": "Wood",
-    "ingredient2qty": 20,
-    "gemcost": 645,
-    "crafttime": 0
+    "ingredient2qty": 20
   },
   {
     "type": "Lumber Yard",
@@ -5428,14 +5730,16 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1200,
     "ingredient2": "Wood",
     "ingredient2qty": 250,
     "ingredient3": "Stone",
-    "ingredient3qty": 20,
-    "gemcost": 420,
-    "crafttime": 0
+    "ingredient3qty": 20
   },
   {
     "type": "Studio",
@@ -5458,14 +5762,16 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 6000,
     "ingredient2": "Lumber",
     "ingredient2qty": 40,
     "ingredient3": "Clay",
-    "ingredient3qty": 80,
-    "gemcost": 2950,
-    "crafttime": 0
+    "ingredient3qty": 80
   },
   {
     "type": "Winery",
@@ -5488,6 +5794,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 8000,
     "ingredient2": "Lumber",
@@ -5495,9 +5805,7 @@
     "ingredient3": "Stone",
     "ingredient3qty": 60,
     "ingredient4": "Clay",
-    "ingredient4qty": 120,
-    "gemcost": 4360,
-    "crafttime": 0
+    "ingredient4qty": 120
   },
   {
     "type": "Ancient Temple",
@@ -5519,7 +5827,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Adventure Camp",
@@ -5541,6 +5853,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5564,6 +5880,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5587,6 +5907,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5610,6 +5934,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5633,6 +5961,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5656,6 +5988,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5678,6 +6014,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5702,6 +6042,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5725,6 +6069,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5748,6 +6096,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5771,6 +6123,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5794,6 +6150,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5816,6 +6176,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5838,6 +6202,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5862,6 +6230,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5885,6 +6257,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5908,6 +6284,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5932,6 +6312,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -5956,7 +6340,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Castle",
@@ -5979,7 +6367,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Shiro",
@@ -6002,7 +6394,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Restaurant",
@@ -6024,6 +6420,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -6047,6 +6447,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -6070,6 +6474,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -6093,6 +6501,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -6116,6 +6528,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 1
   },
@@ -6143,11 +6559,13 @@
     "validono": true,
     "validonx": false,
     "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 1800,
     "ingredient1": "Money",
-    "ingredient1qty": 500,
-    "gemcost": 68,
-    "crafttime": 1800
+    "ingredient1qty": 500
   },
   {
     "type": "Sheep",
@@ -6173,11 +6591,13 @@
     "validono": true,
     "validonx": false,
     "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 14400,
     "ingredient1": "Money",
-    "ingredient1qty": 1500,
-    "gemcost": 200,
-    "crafttime": 14400
+    "ingredient1qty": 1500
   },
   {
     "type": "Pig",
@@ -6203,11 +6623,13 @@
     "validono": true,
     "validonx": false,
     "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 28800,
     "ingredient1": "Money",
-    "ingredient1qty": 3000,
-    "gemcost": 392,
-    "crafttime": 28800
+    "ingredient1qty": 3000
   },
   {
     "type": "Brown Cow",
@@ -6233,11 +6655,13 @@
     "validono": true,
     "validonx": false,
     "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 28800,
     "ingredient1": "Potion B",
-    "ingredient1qty": 6,
-    "gemcost": 3459,
-    "crafttime": 86400
+    "ingredient1qty": 6
   },
   {
     "type": "Ram",
@@ -6263,11 +6687,13 @@
     "validono": true,
     "validonx": false,
     "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "growtime": 28800,
     "ingredient1": "Potion C",
-    "ingredient1qty": 3,
-    "gemcost": 5022,
-    "crafttime": 86400
+    "ingredient1qty": 3
   },
   {
     "type": "Doctor",
@@ -6294,10 +6720,12 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 50,
-    "gemcost": 24,
-    "crafttime": 28800
+    "ingredient1qty": 50
   },
   {
     "type": "Surgeon",
@@ -6324,10 +6752,12 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 150,
-    "gemcost": 39,
-    "crafttime": 43200
+    "ingredient1qty": 150
   },
   {
     "type": "Field Nurse",
@@ -6351,6 +6781,10 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
     "ingredient1qty": 300
   },
@@ -6376,10 +6810,12 @@
     "validono": true,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Feverfew",
-    "ingredient1qty": 1,
-    "gemcost": 54,
-    "crafttime": 86400
+    "ingredient1qty": 1
   },
   {
     "type": "Kent",
@@ -6403,10 +6839,12 @@
     "validono": false,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 10,
-    "gemcost": 3,
-    "crafttime": 3
+    "ingredient1qty": 10
   },
   {
     "type": "Portia",
@@ -6427,7 +6865,11 @@
     "validonn": false,
     "validono": false,
     "validonx": false,
-    "validony": false
+    "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "The Shepherd",
@@ -6451,10 +6893,12 @@
     "validono": false,
     "validonx": true,
     "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 300,
-    "gemcost": 39,
-    "crafttime": 3
+    "ingredient1qty": 300
   },
   {
     "type": "Hotspur",
@@ -6475,7 +6919,11 @@
     "validonn": false,
     "validono": false,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Cassio",
@@ -6496,7 +6944,11 @@
     "validonn": false,
     "validono": false,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Mistress Quickly",
@@ -6517,7 +6969,11 @@
     "validonn": false,
     "validono": false,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Feste",
@@ -6538,7 +6994,11 @@
     "validonn": false,
     "validono": false,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Helena",
@@ -6559,7 +7019,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Titania",
@@ -6580,7 +7044,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Vampire",
@@ -6601,7 +7069,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Santa Claus",
@@ -6621,7 +7093,11 @@
     "validonn": false,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Prospero",
@@ -6641,7 +7117,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Constable Elbow",
@@ -6663,7 +7143,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Snug",
@@ -6685,7 +7169,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Falstaff",
@@ -6707,7 +7195,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Apothecary",
@@ -6729,7 +7221,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Iago",
@@ -6751,7 +7247,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Gertrude",
@@ -6773,7 +7273,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Leontes",
@@ -6795,7 +7299,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Caliban",
@@ -6817,7 +7325,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Juliet",
@@ -6839,7 +7351,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Mermaid",
@@ -6861,7 +7377,11 @@
     "validonn": false,
     "validono": false,
     "validonx": false,
-    "validony": false
+    "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Oracle",
@@ -6883,7 +7403,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Farmer",
@@ -6904,8 +7428,7 @@
     "validonx": false,
     "validony": false,
     "ingredient1": "Money",
-    "ingredient1qty": 2000,
-    "crafttime": 5
+    "ingredient1qty": 2000
   },
   {
     "type": "Farm Hand",
@@ -6930,10 +7453,12 @@
     "validono": false,
     "validonx": false,
     "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 10000,
-    "gemcost": 1255,
-    "crafttime": 1800
+    "ingredient1qty": 10000
   },
   {
     "type": "Rancher",
@@ -6958,10 +7483,12 @@
     "validono": false,
     "validonx": false,
     "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 10000,
-    "gemcost": 1262,
-    "crafttime": 14400
+    "ingredient1qty": 10000
   },
   {
     "type": "Lumberjack",
@@ -6986,10 +7513,12 @@
     "validono": false,
     "validonx": false,
     "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 10000,
-    "gemcost": 1267,
-    "crafttime": 28800
+    "ingredient1qty": 10000
   },
   {
     "type": "Crafter",
@@ -7014,10 +7543,12 @@
     "validono": false,
     "validonx": false,
     "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 10000,
-    "gemcost": 1272,
-    "crafttime": 57600
+    "ingredient1qty": 10000
   },
   {
     "type": "Coyote",
@@ -7045,7 +7576,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false
   },
   {
     "type": "Bear",
@@ -7073,7 +7608,11 @@
     "validonn": true,
     "validono": true,
     "validonx": false,
-    "validony": false
+    "validony": false,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Polar Bear",
@@ -7101,7 +7640,11 @@
     "validonn": true,
     "validono": true,
     "validonx": false,
-    "validony": false
+    "validony": false,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Spider",
@@ -7129,7 +7672,11 @@
     "validonn": true,
     "validono": false,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Zombie",
@@ -7157,7 +7704,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Ghost",
@@ -7185,7 +7736,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Ogre",
@@ -7213,7 +7768,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Demon",
@@ -7241,7 +7800,11 @@
     "validonn": false,
     "validono": false,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Duke Angelo",
@@ -7269,7 +7832,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Dragon",
@@ -7297,7 +7864,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Phoenix",
@@ -7325,7 +7896,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Coyote Spawner",
@@ -7352,7 +7927,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Bear Spawner",
@@ -7379,7 +7958,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Spider Spawner",
@@ -7406,7 +7989,11 @@
     "validonn": true,
     "validono": false,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Zombie Spawner",
@@ -7433,7 +8020,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Ghost Spawner",
@@ -7460,7 +8051,11 @@
     "validonn": true,
     "validono": true,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Demon Spawner",
@@ -7487,7 +8082,11 @@
     "validonn": false,
     "validono": false,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Dragon Spawner",
@@ -7514,7 +8113,11 @@
     "validonn": false,
     "validono": false,
     "validonx": true,
-    "validony": true
+    "validony": true,
+    "validonz": true,
+    "validonc": true,
+    "validonv": true,
+    "validonu": true
   },
   {
     "type": "Tent",
@@ -7529,22 +8132,10 @@
     "level": 1,
     "scrollqty": 1,
     "scrollchance": "rare",
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
-    "validonx": true,
-    "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 200,
     "ingredient2": "Cloth",
-    "ingredient2qty": 2,
-    "gemcost": 128,
-    "crafttime": 3
+    "ingredient2qty": 2
   },
   {
     "type": "Boat",
@@ -7557,20 +8148,8 @@
     "passable": false,
     "qtycollected": 1,
     "level": 20,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": true,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
-    "validonx": true,
-    "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 1000000,
-    "gemcost": 125001,
-    "crafttime": 3
+    "ingredient1qty": 1000000
   },
   {
     "type": "Horse",
@@ -7581,8 +8160,7 @@
     "qtycollected": 1,
     "level": 1,
     "ingredient1": "Money",
-    "ingredient1qty": 3000,
-    "gemcost": 375
+    "ingredient1qty": 3000
   },
   {
     "type": "Axe",
@@ -7593,8 +8171,7 @@
     "qtycollected": 1,
     "level": 2,
     "ingredient1": "Money",
-    "ingredient1qty": 50,
-    "gemcost": 7
+    "ingredient1qty": 50
   },
   {
     "type": "Pickaxe",
@@ -7605,8 +8182,7 @@
     "qtycollected": 1,
     "level": 4,
     "ingredient1": "Money",
-    "ingredient1qty": 75,
-    "gemcost": 10
+    "ingredient1qty": 75
   },
   {
     "type": "Better Axe",
@@ -7619,8 +8195,7 @@
     "qtycollected": 1,
     "level": 4,
     "ingredient1": "Money",
-    "ingredient1qty": 5000,
-    "gemcost": 625
+    "ingredient1qty": 5000
   },
   {
     "type": "Better Pickaxe",
@@ -7633,8 +8208,7 @@
     "qtycollected": 1,
     "level": 6,
     "ingredient1": "Money",
-    "ingredient1qty": 6000,
-    "gemcost": 750
+    "ingredient1qty": 6000
   },
   {
     "type": "Grower",
@@ -7645,8 +8219,7 @@
     "qtycollected": 1,
     "level": 2,
     "ingredient1": "Money",
-    "ingredient1qty": 500,
-    "gemcost": 63
+    "ingredient1qty": 500
   },
   {
     "type": "Husbandry",
@@ -7657,8 +8230,7 @@
     "qtycollected": 1,
     "level": 3,
     "ingredient1": "Money",
-    "ingredient1qty": 500,
-    "gemcost": 63
+    "ingredient1qty": 500
   },
   {
     "type": "Bulk Animal Collect",
@@ -7669,8 +8241,7 @@
     "qtycollected": 1,
     "level": 3,
     "ingredient1": "Money",
-    "ingredient1qty": 50,
-    "gemcost": 7
+    "ingredient1qty": 50
   },
   {
     "type": "Bulk Harvest",
@@ -7681,8 +8252,7 @@
     "qtycollected": 1,
     "level": 2,
     "ingredient1": "Money",
-    "ingredient1qty": 50,
-    "gemcost": 7
+    "ingredient1qty": 50
   },
   {
     "type": "Bulk Replant",
@@ -7694,8 +8264,7 @@
     "qtycollected": 1,
     "level": 2,
     "ingredient1": "Money",
-    "ingredient1qty": 5000,
-    "gemcost": 625
+    "ingredient1qty": 5000
   },
   {
     "type": "Logging",
@@ -7707,8 +8276,7 @@
     "qtycollected": 5,
     "level": 4,
     "ingredient1": "Wood",
-    "ingredient1qty": 50,
-    "gemcost": 50
+    "ingredient1qty": 50
   },
   {
     "type": "Better Logging",
@@ -7720,8 +8288,7 @@
     "qtycollected": 5,
     "level": 4,
     "ingredient1": "Money",
-    "ingredient1qty": 10000,
-    "gemcost": 1250
+    "ingredient1qty": 10000
   },
   {
     "type": "Bulk Crafting",
@@ -7732,8 +8299,7 @@
     "qtycollected": 1,
     "level": 5,
     "ingredient1": "Money",
-    "ingredient1qty": 50,
-    "gemcost": 7
+    "ingredient1qty": 50
   },
   {
     "type": "Bulk Restart Craft",
@@ -7744,8 +8310,7 @@
     "qtycollected": 1,
     "level": 5,
     "ingredient1": "Money",
-    "ingredient1qty": 5000,
-    "gemcost": 625
+    "ingredient1qty": 5000
   },
   {
     "type": "Backpack",
@@ -7759,8 +8324,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 50,
     "ingredient2": "Cloth",
-    "ingredient2qty": 1,
-    "gemcost": 58
+    "ingredient2qty": 1
   },
   {
     "type": "Tracking",
@@ -7773,8 +8337,7 @@
     "qtycollected": 1,
     "level": 3,
     "ingredient1": "Money",
-    "ingredient1qty": 12000,
-    "gemcost": 1500
+    "ingredient1qty": 12000
   },
   {
     "type": "Scout",
@@ -7787,8 +8350,7 @@
     "qtycollected": 1,
     "level": 5,
     "ingredient1": "Money",
-    "ingredient1qty": 15000,
-    "gemcost": 1875
+    "ingredient1qty": 15000
   },
   {
     "type": "Rucksack",
@@ -7805,8 +8367,7 @@
     "ingredient2": "Cloth",
     "ingredient2qty": 10,
     "ingredient3": "Thread",
-    "ingredient3qty": 1,
-    "gemcost": 3025
+    "ingredient3qty": 1
   },
   {
     "type": "Side Pack",
@@ -7821,8 +8382,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 15000,
     "ingredient2": "Pelt",
-    "ingredient2qty": 8,
-    "gemcost": 2011
+    "ingredient2qty": 8
   },
   {
     "type": "Enchanted Pack",
@@ -7839,8 +8399,7 @@
     "ingredient3": "Cloth",
     "ingredient3qty": 10,
     "ingredient4": "Book",
-    "ingredient4qty": 5,
-    "gemcost": 6235
+    "ingredient4qty": 5
   },
   {
     "type": "Builder",
@@ -7851,8 +8410,7 @@
     "qtycollected": 1,
     "level": 3,
     "ingredient1": "Money",
-    "ingredient1qty": 1000,
-    "gemcost": 125
+    "ingredient1qty": 1000
   },
   {
     "type": "Mechanics",
@@ -7863,8 +8421,7 @@
     "qtycollected": 1,
     "level": 3,
     "ingredient1": "Money",
-    "ingredient1qty": 6000,
-    "gemcost": 750
+    "ingredient1qty": 6000
   },
   {
     "type": "Masonry",
@@ -7876,8 +8433,7 @@
     "qtycollected": 1,
     "level": 4,
     "ingredient1": "Money",
-    "ingredient1qty": 4000,
-    "gemcost": 500
+    "ingredient1qty": 4000
   },
   {
     "type": "Green Thumb",
@@ -7889,8 +8445,7 @@
     "qtycollected": 1,
     "level": 5,
     "ingredient1": "Money",
-    "ingredient1qty": 5000,
-    "gemcost": 625
+    "ingredient1qty": 5000
   },
   {
     "type": "Florist",
@@ -7908,8 +8463,7 @@
     "ingredient3": "Potion B",
     "ingredient3qty": 1,
     "ingredient4": "Potion C",
-    "ingredient4qty": 1,
-    "gemcost": 3719
+    "ingredient4qty": 1
   },
   {
     "type": "Politics",
@@ -7920,8 +8474,7 @@
     "qtycollected": 1,
     "level": 6,
     "ingredient1": "Money",
-    "ingredient1qty": 9000,
-    "gemcost": 1125
+    "ingredient1qty": 9000
   },
   {
     "type": "Chemistry",
@@ -7935,8 +8488,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 12000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 1,
-    "gemcost": 1732
+    "ingredient2qty": 1
   },
   {
     "type": "Baker",
@@ -7950,8 +8502,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 15000,
     "ingredient3": "Potion B",
-    "ingredient3qty": 8,
-    "gemcost": 6451
+    "ingredient3qty": 8
   },
   {
     "type": "Cooking",
@@ -7965,8 +8516,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 12000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 5,
-    "gemcost": 2660
+    "ingredient2qty": 5
   },
   {
     "type": "Beekeeper",
@@ -7980,8 +8530,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
-    "ingredient4qty": 20,
-    "gemcost": 33363
+    "ingredient4qty": 20
   },
   {
     "type": "Winemaker",
@@ -7995,8 +8544,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
-    "ingredient4qty": 8,
-    "gemcost": 13383
+    "ingredient4qty": 8
   },
   {
     "type": "Creamery",
@@ -8012,8 +8560,7 @@
     "ingredient2": "Potion A",
     "ingredient2qty": 5,
     "ingredient3": "Potion B",
-    "ingredient3qty": 2,
-    "gemcost": 3804
+    "ingredient3qty": 2
   },
   {
     "type": "Textiles",
@@ -8027,8 +8574,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 25000,
     "ingredient2": "Potion A",
-    "ingredient2qty": 10,
-    "gemcost": 5445
+    "ingredient2qty": 10
   },
   {
     "type": "Artistry",
@@ -8042,8 +8588,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 40000,
     "ingredient3": "Potion B",
-    "ingredient3qty": 5,
-    "gemcost": 7860
+    "ingredient3qty": 5
   },
   {
     "type": "Tailor",
@@ -8057,8 +8602,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
-    "ingredient4qty": 100,
-    "gemcost": 166563
+    "ingredient4qty": 100
   },
   {
     "type": "Zookeeper",
@@ -8070,8 +8614,7 @@
     "qtycollected": 1,
     "level": 15,
     "ingredient1": "Money",
-    "ingredient1qty": 5000,
-    "gemcost": 625
+    "ingredient1qty": 5000
   },
   {
     "type": "Miller",
@@ -8089,8 +8632,7 @@
     "ingredient3": "Potion B",
     "ingredient3qty": 8,
     "ingredient4": "Potion C",
-    "ingredient4qty": 10,
-    "gemcost": 24171
+    "ingredient4qty": 10
   },
   {
     "type": "Artisan",
@@ -8108,8 +8650,7 @@
     "ingredient3": "Potion B",
     "ingredient3qty": 8,
     "ingredient4": "Potion C",
-    "ingredient4qty": 10,
-    "gemcost": 24171
+    "ingredient4qty": 10
   },
   {
     "type": "Cuisinier",
@@ -8127,8 +8668,7 @@
     "ingredient3": "Potion B",
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
-    "ingredient4qty": 12,
-    "gemcost": 29805
+    "ingredient4qty": 12
   },
   {
     "type": "Weaver",
@@ -8146,8 +8686,7 @@
     "ingredient3": "Potion B",
     "ingredient3qty": 8,
     "ingredient4": "Potion C",
-    "ingredient4qty": 12,
-    "gemcost": 27501
+    "ingredient4qty": 12
   },
   {
     "type": "Fowler",
@@ -8165,8 +8704,7 @@
     "ingredient3": "Potion B",
     "ingredient3qty": 8,
     "ingredient4": "Potion C",
-    "ingredient4qty": 16,
-    "gemcost": 34161
+    "ingredient4qty": 16
   },
   {
     "type": "Fromager",
@@ -8184,8 +8722,7 @@
     "ingredient3": "Potion B",
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
-    "ingredient4qty": 25,
-    "gemcost": 52146
+    "ingredient4qty": 25
   },
   {
     "type": "Virtuose Culinaire",
@@ -8203,8 +8740,7 @@
     "ingredient3": "Potion B",
     "ingredient3qty": 12,
     "ingredient4": "Potion C",
-    "ingredient4qty": 20,
-    "gemcost": 43734
+    "ingredient4qty": 20
   },
   {
     "type": "Apiarch",
@@ -8222,8 +8758,7 @@
     "ingredient3": "Potion B",
     "ingredient3qty": 12,
     "ingredient4": "Potion C",
-    "ingredient4qty": 25,
-    "gemcost": 52059
+    "ingredient4qty": 25
   },
   {
     "type": "Vintner",
@@ -8241,8 +8776,7 @@
     "ingredient3": "Potion B",
     "ingredient3qty": 20,
     "ingredient4": "Potion C",
-    "ingredient4qty": 40,
-    "gemcost": 83324
+    "ingredient4qty": 40
   },
   {
     "type": "Medicine",
@@ -8256,8 +8790,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 12000,
     "ingredient2": "Gem",
-    "ingredient2qty": 20,
-    "gemcost": 1500
+    "ingredient2qty": 20
   },
   {
     "type": "Law",
@@ -8271,8 +8804,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 25000,
     "ingredient2": "Gem",
-    "ingredient2qty": 10,
-    "gemcost": 3125
+    "ingredient2qty": 10
   },
   {
     "type": "Surgery",
@@ -8286,8 +8818,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 18000,
     "ingredient2": "Gem",
-    "ingredient2qty": 40,
-    "gemcost": 2250
+    "ingredient2qty": 40
   },
   {
     "type": "Padding",
@@ -8302,8 +8833,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 7000,
     "ingredient2": "Cloth",
-    "ingredient2qty": 10,
-    "gemcost": 1385
+    "ingredient2qty": 10
   },
   {
     "type": "Light Armor",
@@ -8319,8 +8849,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "ingredient2": "Pelt",
-    "ingredient2qty": 8,
-    "gemcost": 199
+    "ingredient2qty": 8
   },
   {
     "type": "Chainmail",
@@ -8336,8 +8865,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 5000,
     "ingredient4": "Book",
-    "ingredient4qty": 3,
-    "gemcost": 1060
+    "ingredient4qty": 3
   },
   {
     "type": "Plate Armor",
@@ -8355,8 +8883,7 @@
     "ingredient3": "Silver",
     "ingredient3qty": 12,
     "ingredient4": "Book",
-    "ingredient4qty": 20,
-    "gemcost": 5363
+    "ingredient4qty": 20
   },
   {
     "type": "Heavy Armor",
@@ -8375,8 +8902,7 @@
     "ingredient3": "Silver",
     "ingredient3qty": 12,
     "ingredient4": "Book",
-    "ingredient4qty": 50,
-    "gemcost": 9775
+    "ingredient4qty": 50
   },
   {
     "type": "Mystic Armor",
@@ -8427,8 +8953,7 @@
     "ingredient3": "Potion C",
     "ingredient3qty": 5,
     "ingredient4": "Book",
-    "ingredient4qty": 65,
-    "gemcost": 18385
+    "ingredient4qty": 65
   },
   {
     "type": "Magic Helmet",
@@ -8485,8 +9010,7 @@
     "level": 1,
     "damage": 1,
     "ingredient1": "Money",
-    "ingredient1qty": 1000,
-    "gemcost": 125
+    "ingredient1qty": 1000
   },
   {
     "type": "Short Sword",
@@ -8501,8 +9025,7 @@
     "damage": 7,
     "attackrange": 1,
     "ingredient1": "Money",
-    "ingredient1qty": 8000,
-    "gemcost": 1000
+    "ingredient1qty": 8000
   },
   {
     "type": "Long Sword",
@@ -8519,8 +9042,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 500,
     "ingredient4": "Book",
-    "ingredient4qty": 3,
-    "gemcost": 498
+    "ingredient4qty": 3
   },
   {
     "type": "Great Sword",
@@ -8537,8 +9059,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "ingredient4": "Book",
-    "ingredient4qty": 12,
-    "gemcost": 1865
+    "ingredient4qty": 12
   },
   {
     "type": "Halberd",
@@ -8555,8 +9076,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 2000,
     "ingredient4": "Book",
-    "ingredient4qty": 70,
-    "gemcost": 10400
+    "ingredient4qty": 70
   },
   {
     "type": "Sword of Song",
@@ -8682,8 +9202,7 @@
     "damage": 4,
     "attackrange": 4,
     "ingredient1": "Money",
-    "ingredient1qty": 250,
-    "gemcost": 32
+    "ingredient1qty": 250
   },
   {
     "type": "Short Bow",
@@ -8699,8 +9218,7 @@
     "attackbonus": 2,
     "attackrange": 6,
     "ingredient1": "Money",
-    "ingredient1qty": 5000,
-    "gemcost": 625
+    "ingredient1qty": 5000
   },
   {
     "type": "Long Bow",
@@ -8718,8 +9236,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 9000,
     "ingredient4": "Book",
-    "ingredient4qty": 6,
-    "gemcost": 1995
+    "ingredient4qty": 6
   },
   {
     "type": "Spear",
@@ -8737,8 +9254,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "ingredient4": "Book",
-    "ingredient4qty": 24,
-    "gemcost": 3605
+    "ingredient4qty": 24
   },
   {
     "type": "Crossbow",
@@ -8756,8 +9272,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 2000,
     "ingredient4": "Book",
-    "ingredient4qty": 70,
-    "gemcost": 10400
+    "ingredient4qty": 70
   },
   {
     "type": "Magic Spear",
@@ -8846,8 +9361,7 @@
     "ingredient1": "Money",
     "ingredient1qty": 1000,
     "ingredient4": "Book",
-    "ingredient4qty": 24,
-    "gemcost": 3605
+    "ingredient4qty": 24
   },
   {
     "type": "Maelstrom",
@@ -8866,8 +9380,7 @@
     "ingredient2": "Gem",
     "ingredient2qty": 1,
     "ingredient4": "Book",
-    "ingredient4qty": 40,
-    "gemcost": 7050
+    "ingredient4qty": 40
   },
   {
     "type": "Oblivion",
@@ -8886,8 +9399,7 @@
     "ingredient2": "Gem",
     "ingredient2qty": 3,
     "ingredient4": "Book",
-    "ingredient4qty": 75,
-    "gemcost": 12125
+    "ingredient4qty": 75
   },
   {
     "type": "Titan",
@@ -8906,8 +9418,7 @@
     "ingredient2": "Gem",
     "ingredient2qty": 10,
     "ingredient4": "Book",
-    "ingredient4qty": 300,
-    "gemcost": 46625
+    "ingredient4qty": 300
   },
   {
     "type": "Jab",
@@ -8919,8 +9430,7 @@
     "level": 4,
     "speed": -2,
     "ingredient1": "Money",
-    "ingredient1qty": 9000,
-    "gemcost": 1125
+    "ingredient1qty": 9000
   },
   {
     "type": "Flurry",
@@ -8937,8 +9447,7 @@
     "ingredient2": "Gem",
     "ingredient2qty": 1,
     "ingredient4": "Book",
-    "ingredient4qty": 8,
-    "gemcost": 1223
+    "ingredient4qty": 8
   },
   {
     "type": "Barrage",
@@ -8957,8 +9466,7 @@
     "ingredient2": "Gem",
     "ingredient2qty": 10,
     "ingredient4": "Book",
-    "ingredient4qty": 30,
-    "gemcost": 5600
+    "ingredient4qty": 30
   },
   {
     "type": "Steady Hand",
@@ -8970,8 +9478,7 @@
     "level": 12,
     "attackbonus": 4,
     "ingredient1": "Money",
-    "ingredient1qty": 7000,
-    "gemcost": 875
+    "ingredient1qty": 7000
   },
   {
     "type": "Pinpoint",
@@ -8988,8 +9495,7 @@
     "ingredient2": "Gem",
     "ingredient2qty": 3,
     "ingredient4": "Book",
-    "ingredient4qty": 16,
-    "gemcost": 2445
+    "ingredient4qty": 16
   },
   {
     "type": "Unerring",
@@ -9008,8 +9514,7 @@
     "ingredient2": "Gem",
     "ingredient2qty": 15,
     "ingredient4": "Book",
-    "ingredient4qty": 30,
-    "gemcost": 5600
+    "ingredient4qty": 30
   },
   {
     "type": "Focus",
@@ -9021,8 +9526,7 @@
     "level": 5,
     "attackrange": 1,
     "ingredient1": "Money",
-    "ingredient1qty": 8000,
-    "gemcost": 1000
+    "ingredient1qty": 8000
   },
   {
     "type": "Precision",
@@ -9039,8 +9543,7 @@
     "ingredient2": "Gem",
     "ingredient2qty": 3,
     "ingredient4": "Book",
-    "ingredient4qty": 40,
-    "gemcost": 5863
+    "ingredient4qty": 40
   },
   {
     "type": "Horizon Eye",
@@ -9059,8 +9562,7 @@
     "ingredient2": "Gem",
     "ingredient2qty": 15,
     "ingredient4": "Book",
-    "ingredient4qty": 150,
-    "gemcost": 21875
+    "ingredient4qty": 150
   },
   {
     "type": "Fortitude",
@@ -9072,8 +9574,7 @@
     "level": 7,
     "maxhp": 100,
     "ingredient1": "Money",
-    "ingredient1qty": 9000,
-    "gemcost": 1125
+    "ingredient1qty": 9000
   },
   {
     "type": "Stoneheart",
@@ -9093,8 +9594,7 @@
     "ingredient2": "Gem",
     "ingredient2qty": 3,
     "ingredient4": "Book",
-    "ingredient4qty": 25,
-    "gemcost": 3875
+    "ingredient4qty": 25
   },
   {
     "type": "Unbreakable",
@@ -9111,8 +9611,7 @@
     "ingredient2": "Gem",
     "ingredient2qty": 15,
     "ingredient4": "Book",
-    "ingredient4qty": 50,
-    "gemcost": 8500
+    "ingredient4qty": 50
   },
   {
     "type": "Cat",
@@ -9129,9 +9628,7 @@
     "level": 15,
     "range": 1,
     "ingredient1": "Yellow Heart",
-    "ingredient1qty": 8,
-    "gemcost": 233,
-    "crafttime": 28800
+    "ingredient1qty": 8
   },
   {
     "type": "Poodle",
@@ -9148,9 +9645,7 @@
     "level": 16,
     "range": 1,
     "ingredient1": "Yellow Heart",
-    "ingredient1qty": 12,
-    "gemcost": 344,
-    "crafttime": 43200
+    "ingredient1qty": 12
   },
   {
     "type": "Monkey",
@@ -9167,9 +9662,7 @@
     "level": 17,
     "range": 1,
     "ingredient1": "Yellow Heart",
-    "ingredient1qty": 15,
-    "gemcost": 425,
-    "crafttime": 43200
+    "ingredient1qty": 15
   },
   {
     "type": "Duck",
@@ -9186,9 +9679,7 @@
     "level": 18,
     "range": 1,
     "ingredient1": "Yellow Heart",
-    "ingredient1qty": 18,
-    "gemcost": 507,
-    "crafttime": 50400
+    "ingredient1qty": 18
   },
   {
     "type": "Donkey",
@@ -9207,9 +9698,7 @@
     "ingredient1": "Yellow Heart",
     "ingredient1qty": 6,
     "ingredient2": "Green Heart",
-    "ingredient2qty": 8,
-    "gemcost": 536,
-    "crafttime": 57600
+    "ingredient2qty": 8
   },
   {
     "type": "Owl",
@@ -9228,9 +9717,7 @@
     "ingredient1": "Yellow Heart",
     "ingredient1qty": 8,
     "ingredient2": "Green Heart",
-    "ingredient2qty": 12,
-    "gemcost": 766,
-    "crafttime": 57600
+    "ingredient2qty": 12
   },
   {
     "type": "Parrot",
@@ -9249,9 +9736,7 @@
     "ingredient1": "Yellow Heart",
     "ingredient1qty": 10,
     "ingredient2": "Green Heart",
-    "ingredient2qty": 16,
-    "gemcost": 998,
-    "crafttime": 64800
+    "ingredient2qty": 16
   },
   {
     "type": "Eagle",
@@ -9270,9 +9755,7 @@
     "ingredient1": "Yellow Heart",
     "ingredient1qty": 12,
     "ingredient2": "Green Heart",
-    "ingredient2qty": 20,
-    "gemcost": 1228,
-    "crafttime": 64800
+    "ingredient2qty": 20
   },
   {
     "type": "Zebra",
@@ -9293,9 +9776,7 @@
     "ingredient2": "Green Heart",
     "ingredient2qty": 12,
     "ingredient3": "Purple Heart",
-    "ingredient3qty": 11,
-    "gemcost": 1484,
-    "crafttime": 86400
+    "ingredient3qty": 11
   },
   {
     "type": "Giraffe",
@@ -9316,9 +9797,7 @@
     "ingredient2": "Green Heart",
     "ingredient2qty": 16,
     "ingredient3": "Purple Heart",
-    "ingredient3qty": 21,
-    "gemcost": 2318,
-    "crafttime": 86400
+    "ingredient3qty": 21
   },
   {
     "type": "Orangutan",
@@ -9339,9 +9818,7 @@
     "ingredient2": "Green Heart",
     "ingredient2qty": 22,
     "ingredient3": "Purple Heart",
-    "ingredient3qty": 28,
-    "gemcost": 3075,
-    "crafttime": 86400
+    "ingredient3qty": 28
   },
   {
     "type": "Dodo Bird",
@@ -9362,9 +9839,7 @@
     "ingredient2": "Green Heart",
     "ingredient2qty": 28,
     "ingredient3": "Purple Heart",
-    "ingredient3qty": 40,
-    "gemcost": 4144,
-    "crafttime": 172800
+    "ingredient3qty": 40
   },
   {
     "type": "Crate",
@@ -9385,8 +9860,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 10,
-    "gemcost": 2
+    "ingredient1qty": 10
   },
   {
     "type": "Holiday Tree",
@@ -9413,8 +9887,7 @@
     "ingredient2": "Thread",
     "ingredient2qty": 20,
     "ingredient3": "Ink",
-    "ingredient3qty": 2,
-    "gemcost": 1635
+    "ingredient3qty": 2
   },
   {
     "type": "Stone Wall",
@@ -9436,8 +9909,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 20,
-    "gemcost": 3
+    "ingredient1qty": 20
   },
   {
     "type": "Stone Wall Large",
@@ -9460,8 +9932,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 500,
-    "gemcost": 63
+    "ingredient1qty": 500
   },
   {
     "type": "Green Wall",
@@ -9483,8 +9954,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 20,
-    "gemcost": 3
+    "ingredient1qty": 20
   },
   {
     "type": "Black Wall",
@@ -9506,8 +9976,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 20,
-    "gemcost": 3
+    "ingredient1qty": 20
   },
   {
     "type": "Sand Wall",
@@ -9529,8 +9998,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 20,
-    "gemcost": 3
+    "ingredient1qty": 20
   },
   {
     "type": "Blue Wall",
@@ -9552,8 +10020,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 20,
-    "gemcost": 3
+    "ingredient1qty": 20
   },
   {
     "type": "Orange Wall",
@@ -9575,8 +10042,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 20,
-    "gemcost": 3
+    "ingredient1qty": 20
   },
   {
     "type": "Plant",
@@ -9597,8 +10063,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 25,
-    "gemcost": 4
+    "ingredient1qty": 25
   },
   {
     "type": "Cactus",
@@ -9619,8 +10084,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 50,
-    "gemcost": 7
+    "ingredient1qty": 50
   },
   {
     "type": "Harp",
@@ -9641,8 +10105,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 100,
-    "gemcost": 13
+    "ingredient1qty": 100
   },
   {
     "type": "Flag",
@@ -9663,8 +10126,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 100,
-    "gemcost": 13
+    "ingredient1qty": 100
   },
   {
     "type": "Stack of Books",
@@ -9685,8 +10147,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 1000,
-    "gemcost": 125
+    "ingredient1qty": 1000
   },
   {
     "type": "Chair",
@@ -9707,8 +10168,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 1000,
-    "gemcost": 125
+    "ingredient1qty": 1000
   },
   {
     "type": "Toilet",
@@ -9729,8 +10189,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 1000,
-    "gemcost": 125
+    "ingredient1qty": 1000
   },
   {
     "type": "Bed",
@@ -9751,8 +10210,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 5000,
-    "gemcost": 625
+    "ingredient1qty": 5000
   },
   {
     "type": "Teddy Bear",
@@ -9773,8 +10231,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 7500,
-    "gemcost": 938
+    "ingredient1qty": 7500
   },
   {
     "type": "Slide",
@@ -9796,8 +10253,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 15000,
-    "gemcost": 1875
+    "ingredient1qty": 15000
   },
   {
     "type": "Fountain",
@@ -9818,8 +10274,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 10000,
-    "gemcost": 1250
+    "ingredient1qty": 10000
   },
   {
     "type": "Fountain Large",
@@ -9841,8 +10296,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 20000,
-    "gemcost": 2500
+    "ingredient1qty": 20000
   },
   {
     "type": "Large Decorative Palm Tree",
@@ -9864,8 +10318,7 @@
     "validonx": true,
     "validony": true,
     "ingredient1": "Money",
-    "ingredient1qty": 40000,
-    "gemcost": 5000
+    "ingredient1qty": 40000
   },
   {
     "type": "Dunsinane",

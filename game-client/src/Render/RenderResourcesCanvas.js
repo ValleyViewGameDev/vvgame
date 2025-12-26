@@ -125,44 +125,47 @@ export const RenderResourcesCanvas = ({
     const y = resource.y * TILE_SIZE;
     const range = resource.range || 1;
     const size = TILE_SIZE * range;
-    
+
+    // Multi-tile resources grow UPWARD from anchor (anchor is bottom-left of visual area)
+    // For range > 1, we need to shift the visual up so it occupies the correct tiles
+    // Visual should span from (resource.y - range + 1) to resource.y in tile coordinates
+    const visualY = (range > 1) ? y - (range - 1) * TILE_SIZE : y;
+
     // Check if resource has custom SVG art from masterResources
     const filename = getResourceFilename(resource.type, masterResources);
-    
+
     if (filename) {
       // Render custom SVG art
       console.log(`🖼️ [SVG DEBUG] Loading SVG texture for ${resource.type}: ${filename} at size ${size}`);
       const texture = await SVGAssetManager.getSVGTexture(filename, size);
       if (texture) {
         console.log(`✅ [SVG DEBUG] Successfully loaded SVG texture for ${resource.type}: ${filename}`);
-        // For multi-tile resources, keep visual aligned with logical blocking tiles
-        // The visual should occupy the same tiles as the logical blocking area
-        let adjustedY = y; // No adjustment needed - render from anchor position
-        
+
         if (range > 1) {
-          console.log(`🗻 [MULTI-TILE DEBUG] Rendering ${resource.type} (range ${range}) at anchor (${resource.x}, ${resource.y}) -> visual position (${x}, ${adjustedY}) size ${size}x${size}`);
-          console.log(`    Logical blocking tiles: (${resource.x}, ${resource.y}) to (${resource.x + range - 1}, ${resource.y + range - 1})`);
-          console.log(`    Visual rendering tiles: (${Math.floor(x/TILE_SIZE)}, ${Math.floor(adjustedY/TILE_SIZE)}) to (${Math.floor((x+size)/TILE_SIZE)-1}, ${Math.floor((adjustedY+size)/TILE_SIZE)-1})`);
+          console.log(`🗻 [MULTI-TILE DEBUG] Rendering ${resource.type} (range ${range}) at anchor (${resource.x}, ${resource.y}) -> visual position (${x}, ${visualY}) size ${size}x${size}`);
+          console.log(`    Logical blocking tiles: (${resource.x}, ${resource.y - range + 1}) to (${resource.x + range - 1}, ${resource.y})`);
+          console.log(`    Visual rendering tiles: (${Math.floor(x/TILE_SIZE)}, ${Math.floor(visualY/TILE_SIZE)}) to (${Math.floor((x+size)/TILE_SIZE)-1}, ${Math.floor((visualY+size)/TILE_SIZE)-1})`);
         }
-        
-        ctx.drawImage(texture, x, adjustedY, size, size);
+
+        ctx.drawImage(texture, x, visualY, size, size);
       } else {
         console.warn(`❌ [SVG DEBUG] Failed to load SVG for ${resource.type}: ${filename}`);
         // Fall back to emoji if SVG fails to load
-        renderResourceEmoji(ctx, resource, x, y, TILE_SIZE, range);
+        renderResourceEmoji(ctx, resource, x, visualY, TILE_SIZE, range);
       }
     } else if (resource.symbol) {
       // Render emoji symbol
-      renderResourceEmoji(ctx, resource, x, y, TILE_SIZE, range);
+      renderResourceEmoji(ctx, resource, x, visualY, TILE_SIZE, range);
     }
   };
   
   // Helper function to render emoji resources
+  // Note: y parameter is already the corrected visualY (top of visual area for multi-tile resources)
   const renderResourceEmoji = (ctx, resource, x, y, TILE_SIZE, range) => {
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    
+
     // Calculate font size based on resource type and range
     let fontSize;
     if (range > 1) {
@@ -179,38 +182,15 @@ export const RenderResourcesCanvas = ({
         ? TILE_SIZE * 1.1  // Single-tile walls
         : TILE_SIZE * 0.7; // Other single-tile resources
     }
-    
+
     ctx.font = `${fontSize}px sans-serif`;
-    
-    // Position text at center of resource
+
+    // Position text at center of resource visual area
     const size = TILE_SIZE * range;
     const centerX = x + size / 2;
     const centerY = y + size / 2;
-    
-    // For multi-tile resources that grow upward, adjust the visual position
-    let adjustedY = centerY;
-    if (range > 1) {
-      if (resource.action === 'wall') {
-        // Multi-tile walls positioned in lower portion
-        adjustedY = y + TILE_SIZE * 0.1 + 3;
-      } else {
-        // Adjust positioning based on size - handle fractional ranges properly
-        if (range >= 4) {
-          adjustedY = y - TILE_SIZE; // 4x4+: move up more
-        } else if (range >= 3) {
-          adjustedY = y - TILE_SIZE * 0.3; // 3x3: move up a bit
-        } else if (range >= 2) {
-          adjustedY = y + TILE_SIZE * 0.1; // 2x2: stays low (works well)
-        } else if (range > 1) {
-          // Handle fractional ranges between 1 and 2 (e.g., 1.5, 1.8)
-          // Interpolate adjustment between no adjustment and 2x2 adjustment
-          const fraction = range - 1; // 0.5 for 1.5, 0.8 for 1.8
-          adjustedY = y + TILE_SIZE * 0.1 * fraction; // Gradually apply 2x2 adjustment
-        }
-      }
-    }
-    
-    ctx.fillText(resource.symbol, centerX, adjustedY);
+
+    ctx.fillText(resource.symbol, centerX, centerY);
     ctx.restore();
   };
 

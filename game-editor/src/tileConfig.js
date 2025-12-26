@@ -34,9 +34,9 @@ export const layoutKeyColors = {
   "CB": "#959ba3ff",  // cobblestone
   "DU": "#000000ff",  // dungeon
   "ZZ": "#1b712cff",  // moss
-  "CL": "#6c3b3bff",  // clay
-  "V1": "#44551dff",  // tbdTile1
-  "U2": "#1b712cff",  // tbdTile2
+  "CY": "#6c3b3bff",  // clay
+  "VV": "#44551dff",  // tbdTile1
+  "UU": "#1b712cff",  // tbdTile2
 };
 
 // Default color for unknown tile types
