@@ -600,6 +600,14 @@ class GridStatePCManager {
 
   // Remove a PC from the playersInGrid for a given gridId and playerId.
   async removePC(gridId, playerId) {
+    // Clear any pending updates for this player FIRST to prevent race conditions
+    // where batch update could re-add the player after removal
+    const pendingKey = `${gridId}-${playerId}`;
+    if (this.pendingUpdates[pendingKey]) {
+      console.log(`🧹 Clearing pending update for ${playerId} in grid ${gridId} before removal`);
+      delete this.pendingUpdates[pendingKey];
+    }
+
     if (!this.playersInGrid[gridId]?.pcs?.[playerId]) {
       console.warn(`⚠️ Cannot remove PC ${playerId}; not found in grid ${gridId}.`);
       return;

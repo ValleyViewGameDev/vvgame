@@ -366,49 +366,54 @@ router.post('/batch-update-pc-positions', async (req, res) => {
       return res.status(400).json({ error: 'No updates provided.' });
     }
 
-    // Load the grid
-    const grid = await Grid.findById(gridId);
-    if (!grid) {
+    // ✅ OPTIMIZED: Build update operations for multiple PC positions without loading grid
+    // This prevents race conditions where grid.save() could overwrite concurrent remove-single-pc calls
+    const updateOps = {};
+    const lastUpdated = new Date(timestamp || Date.now());
+
+    for (const [playerId, pcData] of updateEntries) {
+      // Validate pcData has required fields
+      if (!pcData || typeof pcData !== 'object') {
+        continue; // Skip invalid data
+      }
+
+      // Build dot-notation path for each PC's fields
+      // Only update fields that are present in pcData to avoid overwriting
+      if (pcData.position && typeof pcData.position.x === 'number' && typeof pcData.position.y === 'number') {
+        updateOps[`playersInGrid.${playerId}.position`] = { x: pcData.position.x, y: pcData.position.y };
+      }
+
+      // Update other PC properties if present
+      const allowedFields = ['hp', 'maxhp', 'armorclass', 'attackbonus', 'damage', 'attackrange', 'speed', 'iscamping', 'isinboat'];
+      for (const field of allowedFields) {
+        if (pcData[field] !== undefined) {
+          updateOps[`playersInGrid.${playerId}.${field}`] = pcData[field];
+        }
+      }
+
+      updateOps[`playersInGrid.${playerId}.lastUpdated`] = lastUpdated;
+    }
+
+    // Update grid's global timestamp
+    updateOps.playersInGridLastUpdated = lastUpdated;
+
+    // Execute single atomic update for all PCs
+    const result = await Grid.updateOne(
+      { _id: gridId },
+      { $set: updateOps }
+    );
+
+    if (result.matchedCount === 0) {
       return res.status(404).json({ error: 'Grid not found.' });
     }
 
-    // Get current PCs
-    const pcs = new Map(grid.playersInGrid || []);
-    let updatedCount = 0;
-    const errors = [];
+    const updatedCount = updateEntries.length;
+    console.log(`💾 Batch updated ${updatedCount} PC positions atomically for grid ${gridId}`);
 
-    // Process each position update
-    for (const [playerId, pcData] of updateEntries) {
-      // Check if PC exists
-      const pc = pcs.get(playerId);
-      if (!pc) {
-        errors.push(`PC ${playerId} not found in grid`);
-        continue;
-      }
-
-      // Update PC data (position and any other changed properties)
-      Object.assign(pc, pcData, {
-        lastUpdated: new Date(timestamp || Date.now())
-      });
-      
-      pcs.set(playerId, pc);
-      updatedCount++;
-    }
-
-    // Only save if we had successful updates
-    if (updatedCount > 0) {
-      grid.playersInGrid = pcs;
-      grid.playersInGridLastUpdated = new Date(timestamp || Date.now());
-      await grid.save();
-      console.log(`💾 Batch updated ${updatedCount} PC positions for grid ${gridId}`);
-    }
-
-    // Return result with any errors
-    res.status(200).json({ 
-      success: true, 
+    res.status(200).json({
+      success: true,
       updated: updatedCount,
-      total: updateEntries.length,
-      errors: errors.length > 0 ? errors : undefined
+      total: updateEntries.length
     });
 
   } catch (error) {
