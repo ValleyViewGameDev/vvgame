@@ -35,7 +35,6 @@
         "seasonTownCrops": {
             "Money": 20,
             "Oak Tree": 300,
-            "Clay": 20,
             "Rosemary": 50,
             "Mushroom": 10,
             "Daisy": 2,
@@ -60,8 +59,7 @@
         },
         "seasonHomesteadCrops": {
             "Oak Tree": 1700,
-            "Rocks": 100,
-            "Stone": 10,
+            "Rocks": 20,
             "Money": 10,
             "Tulip": 1,      
 
@@ -125,7 +123,6 @@
         "seasonTownCrops": {
             "Money": 20,
             "Oak Tree": 300,
-            "Clay": 20,
             "Rosemary": 50,
             "Mushroom": 10,
             "Daisy": 2,
@@ -150,8 +147,7 @@
         },
         "seasonHomesteadCrops": {
             "Oak Tree": 1700,
-            "Rocks": 100,
-            "Stone": 10,
+            "Rocks": 20,
             "Money": 10,
             "Tulip": 1,      
 
@@ -212,7 +208,6 @@
         "seasonTownCrops": {
             "Money": 20,
             "Oak Tree": 300,
-            "Clay": 30,
             "Rosemary": 50,
             "Mushroom": 10,
             "Daisy": 2,
@@ -237,8 +232,7 @@
         },
         "seasonHomesteadCrops": {
             "Oak Tree": 1700,
-            "Rocks": 100,
-            "Stone": 10,
+            "Rocks": 20,
             "Money": 10,
             "Tulip": 1,      
 
@@ -299,7 +293,6 @@
         "seasonTownCrops": {
             "Money": 20,
             "Oak Tree": 300,
-            "Clay": 20,
             "Rosemary": 50,
             "Mushroom": 10,
             "Daisy": 2,
@@ -325,8 +318,7 @@
         },
         "seasonHomesteadCrops": {
             "Oak Tree": 1700,
-            "Rocks": 100,
-            "Stone": 10,
+            "Rocks": 20,
             "Money": 10,
             "Tulip": 1,            
 
