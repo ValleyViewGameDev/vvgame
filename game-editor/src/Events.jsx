@@ -4,6 +4,8 @@ import './Events.css';
 import API_BASE from './config';
 import Modal from './components/Modal.jsx';
 import ShowLogs from './components/ShowLogs.jsx';
+import '../../game-client/src/UI/Styles/theme.css';
+import '../../game-client/src/UI/Buttons/SharedButtons.css';
 
 
 const fs = window.require('fs');
@@ -347,13 +349,15 @@ useEffect(() => {
       </div>
     </div>
     {showConfirmation && (
-      <Modal 
-        isOpen={showConfirmation} 
-        onClose={() => setShowConfirmation(false)} 
+      <Modal
+        isOpen={showConfirmation}
+        onClose={() => setShowConfirmation(false)}
         title="Changes Saved"
       >
         <p>{confirmationMessage}</p>
-        <button onClick={() => setShowConfirmation(false)} className="small-button">OK</button>
+        <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center' }}>
+          <button onClick={() => setShowConfirmation(false)} className="btn-basic btn-modal">OK</button>
+        </div>
       </Modal>
     )}
     <ShowLogs selectedSettlement={selectedSettlement} selectedFrontier={selectedFrontier} />

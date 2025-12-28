@@ -3,6 +3,8 @@ import axios from 'axios';
 import API_BASE from './config';
 import { useFileContext } from './FileContext';
 import './Dungeons.css';
+import '../../game-client/src/UI/Styles/theme.css';
+import '../../game-client/src/UI/Buttons/SharedButtons.css';
 
 const fs = window.require('fs');
 const path = window.require('path');
@@ -316,13 +318,15 @@ const Dungeons = ({ selectedFrontier, activePanel }) => {
           </label>
         </div>
 
-        <button
-          onClick={createDungeonGrid}
-          disabled={loading || !selectedTemplate}
-          className="create-button"
-        >
-          {loading ? 'Creating...' : 'Create Dungeon Grid'}
-        </button>
+        <div className="shared-buttons">
+          <button
+            onClick={createDungeonGrid}
+            disabled={loading || !selectedTemplate}
+            className="btn-basic btn-mini"
+          >
+            {loading ? 'Creating...' : 'Create Dungeon Grid'}
+          </button>
+        </div>
       </div>
 
       {/* Existing Dungeons List */}

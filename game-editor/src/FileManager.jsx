@@ -1,6 +1,8 @@
 import React from 'react';
 import './App.css'; // ✅ Ensure styles are managed in a separate file
 import { useFileContext } from './FileContext';
+import '../../game-client/src/UI/Styles/theme.css';
+import '../../game-client/src/UI/Buttons/SharedButtons.css';
 
 const FileManager = ({ loadLayout, saveLayout }) => {
   const { fileName, setFileName, directory, setDirectory } = useFileContext();
@@ -73,9 +75,9 @@ const FileManager = ({ loadLayout, saveLayout }) => {
         <option value="miniTemplates/">miniTemplates/</option>
       </select>
 
-      <div className="button-group">
-        <button className="small-button" onClick={handleLoad}>Load</button>
-        <button className="small-button save-button" onClick={handleSave}>Save</button>
+      <div className="shared-buttons" style={{ display: 'flex', gap: '8px' }}>
+        <button className="btn-basic btn-mini" onClick={handleLoad}>Load</button>
+        <button className="btn-basic btn-mini" onClick={handleSave}>Save</button>
       </div>
     </div>
   );

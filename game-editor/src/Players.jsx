@@ -2,6 +2,8 @@ import React, { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import './Players.css';
 import API_BASE from './config';
+import '../../game-client/src/UI/Styles/theme.css';
+import '../../game-client/src/UI/Buttons/SharedButtons.css';
 
 const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements, activePanel }) => {
   const [players, setPlayers] = useState([]);
@@ -771,25 +773,25 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
           )}
         </div>
 
-        <button onClick={fetchPlayers} className="refresh-btn">
-          🔄 Refresh Data
-        </button>
+        <div className="shared-buttons">
+          <button onClick={fetchPlayers} className="btn-basic btn-mini">
+            🔄 Refresh Data
+          </button>
+        </div>
 
         {/* Bulk Deletion Buttons */}
-        <div className="bulk-actions">
-          <button 
-            onClick={handleDeleteUnstartedProfiles} 
-            className="action-btn"
-            style={{ backgroundColor: '#ff6b6b', color: 'white', marginTop: '10px' }}
+        <div className="shared-buttons" style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+          <button
+            onClick={handleDeleteUnstartedProfiles}
+            className="btn-basic btn-mini btn-danger"
             title="Will delete first-time users where Last Active is 10 days or more, and FTUE Step is 3 or less"
           >
             🗑️ Delete Unstarted Profiles
           </button>
-          
-          <button 
-            onClick={handleDeleteInactiveProfiles} 
-            className="action-btn"
-            style={{ backgroundColor: '#dc3545', color: 'white', marginTop: '10px' }}
+
+          <button
+            onClick={handleDeleteInactiveProfiles}
+            className="btn-basic btn-mini btn-danger"
             title="Will delete: (1) First-time users where Last Active is 21+ days and FTUE step is 6 or less, OR (2) ANY profile where Last Active is 30+ days, regardless of FTUE status"
           >
             🗑️ Delete Inactive Profiles
@@ -1406,17 +1408,16 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
               )}
             </div>
 
-            <div className="modal-actions">
-              <button 
-                className="cancel-btn"
+            <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+              <button
+                className="btn-basic btn-modal btn-neutral"
                 onClick={() => setDeletionModal({ isOpen: false, type: null, profiles: [] })}
               >
                 Cancel
               </button>
-              <button 
-                className="delete-btn"
+              <button
+                className="btn-basic btn-modal btn-danger"
                 onClick={() => confirmBulkDeletion()}
-                style={{ backgroundColor: '#dc3545', color: 'white' }}
               >
                 🗑️ Delete {deletionModal.profiles.length} Profiles
               </button>

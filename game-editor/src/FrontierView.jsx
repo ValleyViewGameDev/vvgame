@@ -3,6 +3,8 @@ import './FrontierView.css';
 import Modal from './components/Modal.jsx';
 import { useFileContext } from './FileContext';
 import axios from 'axios';
+import '../../game-client/src/UI/Styles/theme.css';
+import '../../game-client/src/UI/Buttons/SharedButtons.css';
 
 const GRID_DIMENSION = 64;
 const API_BASE = 'http://localhost:3001'; // You can make this configurable later
@@ -499,9 +501,11 @@ const handleResetGridLive = async () => {
       <div className="frontier-base-panel">
         <h2>🗺️ Frontier View</h2>
 
-        <button className="refresh-data-button" onClick={handleRefreshData}>
-          🔄 Refresh Data
-        </button>
+        <div className="shared-buttons">
+          <button className="btn-basic btn-mini" onClick={handleRefreshData}>
+            🔄 Refresh Data
+          </button>
+        </div>
 
         <div className="selected-cell-info">
           {/* Multi-select UI */}

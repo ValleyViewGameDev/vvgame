@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE from './config';
 import developerUsernames from '../../game-server/tuning/developerUsernames.json';
+import '../../game-client/src/UI/Styles/theme.css';
+import '../../game-client/src/UI/Buttons/SharedButtons.css';
 
 const Feedback = ({ activePanel }) => {
   const [players, setPlayers] = useState([]);
@@ -251,9 +253,11 @@ const Feedback = ({ activePanel }) => {
     <div className="feedback-container">
       <div className="feedback-header">
         <h2>✅ FTUE Feedback</h2>
-        <button onClick={fetchFeedbackData} className="refresh-button">
-          🔄 Refresh Players
-        </button>
+        <div className="shared-buttons">
+          <button onClick={fetchFeedbackData} className="btn-basic btn-mini">
+            🔄 Refresh Players
+          </button>
+        </div>
       </div>
       
       <div className="date-range-picker">

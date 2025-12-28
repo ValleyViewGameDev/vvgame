@@ -13,6 +13,8 @@ import axios from 'axios';
 import Tile from './Tile';
 import FileManager from './FileManager';
 import './App.css';
+import '../../game-client/src/UI/Styles/theme.css';
+import '../../game-client/src/UI/Buttons/SharedButtons.css';
 import { useFileContext } from './FileContext';
 import { tileColors } from './tileConfig';
 
@@ -43,7 +45,13 @@ const GridEditor = ({ activePanel }) => {
   const [copiedResource, setCopiedResource] = useState(null); // Holds copied resource
   const [currentGridType, setCurrentGridType] = useState(''); // Track current grid's type
   const [selectedTileTypes, setSelectedTileTypes] = useState({ g: true, s: true, d: true, w: true, p: true, l: true, n: true, o: true, x: true, y: true, z: true, c: true, v: true, u: true }); // For selective tile deletion
-  
+
+  // Clump generation settings (editable in UI)
+  const [clumpSize, setClumpSize] = useState(20);        // Base number of tiles per clump for deposit tiles
+  const [clumpVariation, setClumpVariation] = useState(5);    // Random variation (+/-) for clump sizes
+  const [minClumpSize, setMinClumpSize] = useState(5);     // Minimum size for any clump
+  const [clumpTightness, setClumpTightness] = useState(2.5);  // How much to prefer tiles with more adjacent clump neighbors
+
   // Undo functionality - NEW APPROACH
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
@@ -54,7 +62,9 @@ const GridEditor = ({ activePanel }) => {
 
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [showLoadConfirm, setShowLoadConfirm] = useState(false);
-  
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [availableTemplates, setAvailableTemplates] = useState([]);
+
   // Computed list of enemy NPCs
   const enemyNpcs = availableNpcs.filter(npc => npc.action === 'attack' || npc.action === 'spawn');
 
@@ -360,6 +370,12 @@ const GridEditor = ({ activePanel }) => {
       }
 
       const key = event.key.toLowerCase();
+
+      // ✅ Ignore if Ctrl/Meta key is held for non-arrow keys (let handleKeyDown handle shortcuts like Ctrl+C, Ctrl+V)
+      const isArrowKey = ["arrowup", "arrowdown", "arrowleft", "arrowright"].includes(key);
+      if ((event.ctrlKey || event.metaKey) && !isArrowKey) {
+        return;
+      }
       console.log(`🎹 Key Pressed: ${key}`);
 
       // Prevent default arrow key scrolling
@@ -836,86 +852,283 @@ const handleEnemyDistributionChange = (enemyType, value) => {
   };
 
  // 🔹 Generate Tiles Functions
+ // ============================================
+ // TILE GENERATION - Uses clump settings from state (clumpSize, clumpVariation, minClumpSize, clumpTightness)
+ // ============================================
+
+ /**
+  * Generate clumps for a specific deposit tile type
+  * @param {Array} newGrid - The grid to modify
+  * @param {string} layoutkey - The layoutkey for the tile type (e.g., 'SL', 'ZZ', 'CY')
+  * @param {number} totalTiles - Total number of tiles to place for this type
+  * @param {Array} eligiblePositions - Array of {x, y} positions that are available
+  * @returns {Array} Updated eligiblePositions with used positions removed
+  */
+ const generateClumpsForTileType = (newGrid, layoutkey, totalTiles, eligiblePositions) => {
+   if (totalTiles <= 0 || eligiblePositions.length === 0) return eligiblePositions;
+
+   console.log(`🪨 Generating clumps for ${layoutkey}: ${totalTiles} tiles requested, ${eligiblePositions.length} positions available`);
+
+   // Calculate clump sizes
+   const clumpSizes = [];
+   let remaining = totalTiles;
+   while (remaining > 0) {
+     const variation = Math.floor(Math.random() * (clumpVariation * 2 + 1)) - clumpVariation;
+     const baseSize = Math.max(minClumpSize, clumpSize + variation);
+     const size = Math.min(remaining, baseSize);
+     clumpSizes.push(size);
+     remaining -= size;
+   }
+
+   console.log(`   📊 Clump plan: ${clumpSizes.length} clumps with sizes [${clumpSizes.join(', ')}]`);
+
+   let totalPlaced = 0;
+
+   // Helper to count how many clump tiles are adjacent to a position
+   const countAdjacentClumpTiles = (x, y, clumpSet) => {
+     const neighbors = [
+       { x: x - 1, y: y },     // up
+       { x: x + 1, y: y },     // down
+       { x: x, y: y - 1 },     // left
+       { x: x, y: y + 1 },     // right
+       { x: x - 1, y: y - 1 }, // diagonals
+       { x: x - 1, y: y + 1 },
+       { x: x + 1, y: y - 1 },
+       { x: x + 1, y: y + 1 }
+     ];
+     return neighbors.filter(n => clumpSet.has(`${n.x},${n.y}`)).length;
+   };
+
+   // Generate each clump
+   for (const targetClumpSize of clumpSizes) {
+     if (eligiblePositions.length === 0) {
+       console.warn(`   ⚠️ Ran out of eligible positions while generating clumps for ${layoutkey}`);
+       break;
+     }
+
+     // Pick a random starting position
+     const startIdx = Math.floor(Math.random() * eligiblePositions.length);
+     const startPos = eligiblePositions[startIdx];
+
+     // Build clump by growing outward from start position
+     const clumpTiles = [startPos];
+     eligiblePositions.splice(startIdx, 1);
+
+     // Track positions we've already added to clump (for faster lookup)
+     const clumpSet = new Set([`${startPos.x},${startPos.y}`]);
+
+     while (clumpTiles.length < targetClumpSize && eligiblePositions.length > 0) {
+       // Find all eligible neighbors of existing clump tiles
+       const validNeighbors = [];
+
+       for (const tile of clumpTiles) {
+         const adjacents = [
+           { x: tile.x - 1, y: tile.y },     // up
+           { x: tile.x + 1, y: tile.y },     // down
+           { x: tile.x, y: tile.y - 1 },     // left
+           { x: tile.x, y: tile.y + 1 },     // right
+           { x: tile.x - 1, y: tile.y - 1 }, // diagonals for more organic shapes
+           { x: tile.x - 1, y: tile.y + 1 },
+           { x: tile.x + 1, y: tile.y - 1 },
+           { x: tile.x + 1, y: tile.y + 1 }
+         ];
+
+         for (const adj of adjacents) {
+           const key = `${adj.x},${adj.y}`;
+           if (clumpSet.has(key)) continue; // Already in clump
+
+           const eligibleIdx = eligiblePositions.findIndex(p => p.x === adj.x && p.y === adj.y);
+           if (eligibleIdx !== -1) {
+             // Check if we already added this neighbor to validNeighbors
+             if (!validNeighbors.some(n => n.x === adj.x && n.y === adj.y)) {
+               // Calculate weight based on how many clump tiles are adjacent
+               const adjacentCount = countAdjacentClumpTiles(adj.x, adj.y, clumpSet);
+               const weight = Math.pow(adjacentCount, clumpTightness);
+               validNeighbors.push({ x: adj.x, y: adj.y, eligibleIdx, weight });
+             }
+           }
+         }
+       }
+
+       if (validNeighbors.length === 0) {
+         // No more neighbors available - clump is isolated
+         break;
+       }
+
+       // Weighted random selection - prefer neighbors with more adjacent clump tiles
+       const totalWeight = validNeighbors.reduce((sum, n) => sum + n.weight, 0);
+       let randomValue = Math.random() * totalWeight;
+       let chosen = validNeighbors[0];
+       for (const neighbor of validNeighbors) {
+         randomValue -= neighbor.weight;
+         if (randomValue <= 0) {
+           chosen = neighbor;
+           break;
+         }
+       }
+
+       clumpTiles.push({ x: chosen.x, y: chosen.y });
+       clumpSet.add(`${chosen.x},${chosen.y}`);
+
+       // Remove from eligible positions (need to find current index since it may have shifted)
+       const currentIdx = eligiblePositions.findIndex(p => p.x === chosen.x && p.y === chosen.y);
+       if (currentIdx !== -1) {
+         eligiblePositions.splice(currentIdx, 1);
+       }
+     }
+
+     // Apply clump tiles to grid
+     for (const tile of clumpTiles) {
+       newGrid[tile.x][tile.y].type = layoutkey;
+       totalPlaced++;
+     }
+
+     console.log(`   ✅ Created clump of ${clumpTiles.length} tiles at (${startPos.x}, ${startPos.y})`);
+   }
+
+   console.log(`   📍 Total ${layoutkey} tiles placed: ${totalPlaced}/${totalTiles}`);
+   return eligiblePositions;
+ };
+
+ /**
+  * Shared tile generation logic for both BlanksOnly and OverwriteAll modes
+  * @param {Array} newGrid - The grid to modify
+  * @param {Array} eligiblePositions - Array of {x, y} positions to fill
+  */
+ const generateTilesOnPositions = (newGrid, eligiblePositions) => {
+   if (eligiblePositions.length === 0) {
+     console.warn("⚠️ No eligible positions to fill.");
+     return;
+   }
+
+   const totalEligible = eligiblePositions.length;
+   console.log(`🎲 Generating tiles for ${totalEligible} positions...`);
+
+   // Build tile counts based on distribution percentages
+   const tileCounts = {};
+   let totalPercentage = 0;
+
+   for (const [tileType, percentage] of Object.entries(tileDistribution)) {
+     if (percentage > 0) {
+       const tileResource = masterResources.find(res => res.type === tileType && res.category === "tile");
+       if (tileResource) {
+         const count = Math.round((percentage / 100) * totalEligible);
+         if (count > 0) {
+           tileCounts[tileType] = {
+             layoutkey: tileResource.layoutkey,
+             count: count,
+             isDeposit: tileResource.source === 'deposit'
+           };
+           totalPercentage += percentage;
+         }
+       }
+     }
+   }
+
+   console.log("📊 Tile distribution plan:", tileCounts);
+
+   // PASS 1: Generate clumps for deposit tiles (source='deposit')
+   const depositTiles = Object.entries(tileCounts).filter(([_, data]) => data.isDeposit);
+
+   if (depositTiles.length > 0) {
+     console.log(`🪨 Pass 1: Generating clumps for ${depositTiles.length} deposit tile types...`);
+
+     for (const [tileType, data] of depositTiles) {
+       eligiblePositions = generateClumpsForTileType(newGrid, data.layoutkey, data.count, eligiblePositions);
+     }
+   }
+
+   // PASS 2: Generate remaining tiles randomly
+   const regularTiles = Object.entries(tileCounts).filter(([_, data]) => !data.isDeposit);
+
+   if (regularTiles.length > 0 && eligiblePositions.length > 0) {
+     console.log(`🎲 Pass 2: Randomly distributing ${regularTiles.length} regular tile types across ${eligiblePositions.length} remaining positions...`);
+
+     // Build a pool of tiles for random distribution
+     let regularPool = [];
+     for (const [tileType, data] of regularTiles) {
+       for (let i = 0; i < data.count; i++) {
+         regularPool.push(data.layoutkey);
+       }
+     }
+
+     // Shuffle the pool
+     regularPool = regularPool.sort(() => Math.random() - 0.5);
+
+     // Assign tiles to remaining positions
+     eligiblePositions.forEach(({ x, y }, idx) => {
+       // Cycle through pool if we have more positions than tiles
+       const tileIdx = idx % regularPool.length;
+       newGrid[x][y].type = regularPool[tileIdx] || 'GR'; // Fallback to grass
+     });
+
+     console.log(`   ✅ Distributed tiles to ${eligiblePositions.length} positions`);
+   }
+ };
+
  const handleGenerateTilesBlanksOnly = () => {
    if (!window.confirm("Generate tiles only on blank spaces?")) return;
-   
+
    // Push current state to undo stack before generating
    pushToUndoStack();
-   
+
    console.log("🔄 Generating tiles on blank spaces...");
    if (!grid || !tileDistribution || !masterResources) {
      console.warn("⚠️ Missing grid or tile distribution data. Cannot generate tiles.");
      return;
    }
-   
-   let tilePool = Object.entries(tileDistribution).flatMap(([tileType, count]) => {
-     const tileResource = masterResources.find(res => res.type === tileType && res.category === "tile");
-     return tileResource ? Array(count).fill(tileResource.layoutkey) : [];
-   });
-   
-   if (tilePool.length === 0) {
-     console.warn("⚠️ No valid tile distribution found.");
-     return;
-   }
-   
-   tilePool = tilePool.sort(() => Math.random() - 0.5); // Shuffle tile options
+
    let newGrid = grid.map(row => row.map(cell => ({ ...cell })));
-   
-   let targets = [];
+
+   // Find blank positions only
+   let eligiblePositions = [];
    newGrid.forEach((row, x) => {
      row.forEach((cell, y) => {
        if (!cell.type || cell.type === "**") {
-         targets.push({ x, y });
+         eligiblePositions.push({ x, y });
        }
      });
    });
-   
-   targets.forEach(({ x, y }) => {
-     const randomTile = tilePool[Math.floor(Math.random() * tilePool.length)];
-     newGrid[x][y].type = randomTile;
-   });
-   
+
+   if (eligiblePositions.length === 0) {
+     console.warn("⚠️ No blank tiles found to fill.");
+     return;
+   }
+
+   console.log(`📍 Found ${eligiblePositions.length} blank positions to fill`);
+
+   generateTilesOnPositions(newGrid, eligiblePositions);
+
    setGrid(newGrid);
    console.log("✅ Tiles successfully generated on blank spaces!");
  };
 
  const handleGenerateTilesOverwriteAll = () => {
    if (!window.confirm("Overwrite ALL tiles based on distribution?")) return;
-   
+
    // Push current state to undo stack before overwriting
    pushToUndoStack();
-   
+
    console.log("🔄 Overwriting all tiles...");
    if (!grid || !tileDistribution || !masterResources) {
      console.warn("⚠️ Missing grid or tile distribution data. Cannot generate tiles.");
      return;
    }
-   
-   let tilePool = Object.entries(tileDistribution).flatMap(([tileType, count]) => {
-     const tileResource = masterResources.find(res => res.type === tileType && res.category === "tile");
-     return tileResource ? Array(count).fill(tileResource.layoutkey) : [];
-   });
-   
-   if (tilePool.length === 0) {
-     console.warn("⚠️ No valid tile distribution found.");
-     return;
-   }
-   
-   tilePool = tilePool.sort(() => Math.random() - 0.5); // Shuffle tile options
+
    let newGrid = grid.map(row => row.map(cell => ({ ...cell, type: "" }))); // Clear all tiles first
-   
-   let targets = [];
+
+   // All positions are eligible
+   let eligiblePositions = [];
    newGrid.forEach((row, x) => {
      row.forEach((cell, y) => {
-       targets.push({ x, y });
+       eligiblePositions.push({ x, y });
      });
    });
-   
-   targets.forEach(({ x, y }) => {
-     const randomTile = tilePool[Math.floor(Math.random() * tilePool.length)];
-     newGrid[x][y].type = randomTile;
-   });
-   
+
+   console.log(`📍 Overwriting ${eligiblePositions.length} positions`);
+
+   generateTilesOnPositions(newGrid, eligiblePositions);
+
    setGrid(newGrid);
    console.log("✅ All tiles successfully overwritten!");
  };
@@ -1196,9 +1409,9 @@ const handleDeleteSelectedTiles = () => {
     'x': 'CB',  // cobblestone
     'y': 'DU',  // dungeon
     'z': 'ZZ',  // moss
-    'c': 'CL',  // clay
-    'v': 'V1',  // tbdTile1
-    'u': 'U2',  // tbdTile2
+    'c': 'CY',  // clay
+    'v': 'VV',  // tbdTile1
+    'u': 'UU',  // tbdTile2
   };
   
   const layoutKeysToDelete = selectedTypes.map(type => typeMapping[type] || type);
@@ -1215,13 +1428,13 @@ const handleDeleteSelectedTiles = () => {
   console.log(`🗑️ Deleted tiles of types: ${selectedTypes.join(', ')} (layoutkeys: ${layoutKeysToDelete.join(', ')})`);
 };
 
-// Populate resource quantities based on random template from gridType folder
-const handlePopulateResourceQuantities = () => {
+// Open the template selection modal
+const handleOpenTemplateModal = () => {
   if (!currentGridType) {
     alert("Please load a grid first to determine its type.");
     return;
   }
-  
+
   try {
     const layoutDir = path.join(
       projectRoot,
@@ -1230,94 +1443,94 @@ const handlePopulateResourceQuantities = () => {
       'gridLayouts',
       currentGridType
     );
-    
+
     // Get all JSON files in the directory
     const files = fs.readdirSync(layoutDir).filter(file => file.endsWith('.json'));
-    
+
     if (files.length === 0) {
       alert(`No template files found in ${currentGridType} folder.`);
       return;
     }
-    
-    // Pick a random file
-    const randomFile = files[Math.floor(Math.random() * files.length)];
-    const templatePath = path.join(layoutDir, randomFile);
-    
-    // Read and parse the template
+
+    setAvailableTemplates(files);
+    setShowTemplateModal(true);
+  } catch (error) {
+    console.error('Failed to load template list:', error);
+    alert('Error loading template list. Check console for details.');
+  }
+};
+
+// Load distributions from a specific template file
+const loadFromTemplate = (fileName) => {
+  try {
+    const templatePath = path.join(
+      projectRoot,
+      'game-server',
+      'layouts',
+      'gridLayouts',
+      currentGridType,
+      fileName
+    );
+
     const templateData = JSON.parse(fs.readFileSync(templatePath, 'utf-8'));
-    
+    let loaded = [];
+
+    // Load tile distribution
+    if (templateData.tileDistribution) {
+      const defaultDistribution = { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, o: 0, x: 0, y: 0, z: 0, c: 0, v: 0, u: 0 };
+      setTileDistribution({ ...defaultDistribution, ...templateData.tileDistribution });
+      loaded.push('tiles');
+    }
+
+    // Load resource distribution
     if (templateData.resourceDistribution) {
-      // Reset all resource quantities to 0
       const newDistribution = {};
       availableResources.forEach(res => {
         newDistribution[res.type] = 0;
       });
-      
-      // Apply quantities from template
       Object.entries(templateData.resourceDistribution).forEach(([type, quantity]) => {
         if (newDistribution.hasOwnProperty(type)) {
           newDistribution[type] = quantity;
         }
       });
-      
       setResourceDistribution(newDistribution);
-      console.log(`✅ Populated resource quantities from template: ${randomFile}`);
-      alert(`Resource quantities populated from template: ${randomFile}`);
+      loaded.push('resources');
+    }
+
+    // Load enemy distribution
+    if (templateData.enemiesDistribution) {
+      const newEnemyDistribution = {};
+      enemyNpcs.forEach(npc => {
+        newEnemyDistribution[npc.type] = 0;
+      });
+      Object.entries(templateData.enemiesDistribution).forEach(([type, quantity]) => {
+        if (newEnemyDistribution.hasOwnProperty(type)) {
+          newEnemyDistribution[type] = quantity;
+        }
+      });
+      setEnemyDistribution(newEnemyDistribution);
+      loaded.push('enemies');
+    }
+
+    setShowTemplateModal(false);
+
+    if (loaded.length > 0) {
+      console.log(`✅ Populated ${loaded.join(', ')} from template: ${fileName}`);
     } else {
-      alert("Selected template has no resource distribution data.");
+      alert("Selected template has no distribution data (tiles, resources, or enemies).");
     }
   } catch (error) {
-    console.error('Failed to populate resource quantities:', error);
+    console.error('Failed to load template:', error);
     alert('Error loading template. Check console for details.');
   }
 };
 
-// Populate tile distribution based on random template from gridType folder
-const handlePopulateTileDistribution = () => {
-  if (!currentGridType) {
-    alert("Please load a grid first to determine its type.");
-    return;
-  }
-  
-  try {
-    const layoutDir = path.join(
-      projectRoot,
-      'game-server',
-      'layouts',
-      'gridLayouts',
-      currentGridType
-    );
-    
-    // Get all JSON files in the directory
-    const files = fs.readdirSync(layoutDir).filter(file => file.endsWith('.json'));
-    
-    if (files.length === 0) {
-      alert(`No template files found in ${currentGridType} folder.`);
-      return;
-    }
-    
-    // Pick a random file
-    const randomFile = files[Math.floor(Math.random() * files.length)];
-    const templatePath = path.join(layoutDir, randomFile);
-    
-    // Read and parse the template
-    const templateData = JSON.parse(fs.readFileSync(templatePath, 'utf-8'));
-    
-    if (templateData.tileDistribution) {
-      // Ensure all tile types are included, even if not in the template
-      const defaultDistribution = { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, o: 0, x: 0, y: 0, z: 0, c: 0, v: 0, u: 0 };
-      setTileDistribution({ ...defaultDistribution, ...templateData.tileDistribution });
-      console.log(`✅ Populated tile distribution from template: ${randomFile}`);
-      alert(`Tile distribution populated from template: ${randomFile}`);
-    } else {
-      alert("Selected template has no tile distribution data.");
-    }
-  } catch (error) {
-    console.error('Failed to populate tile distribution:', error);
-    alert('Error loading template. Check console for details.');
-  }
+// Load from a random template
+const loadFromRandomTemplate = () => {
+  if (availableTemplates.length === 0) return;
+  const randomFile = availableTemplates[Math.floor(Math.random() * availableTemplates.length)];
+  loadFromTemplate(randomFile);
 };
-
 
 // --- Expose loadLayout globally for external triggering ---
 if (typeof window !== "undefined") {
@@ -1336,10 +1549,10 @@ if (typeof window !== "undefined") {
       <div className="editor-panel"> 
         <h2>Grid Editor</h2>
         
-        <div style={{ display: 'flex', gap: '8px', marginTop: '4px', marginBottom: '4px' }}>
-          <button className="small-button" onClick={handleClearGrid}>Clear Grid</button>
-          <button 
-            className="small-button" 
+        <div className="shared-buttons" style={{ display: 'flex', gap: '8px', marginTop: '4px', marginBottom: '4px' }}>
+          <button className="btn-basic btn-mini btn-danger" onClick={handleClearGrid}>Clear Grid</button>
+          <button
+            className="btn-basic btn-mini"
             onClick={handleUndo}
             disabled={undoStack.length === 0}
             title={`Undo (Ctrl+Z) - ${undoStack.length > 0 ? `${undoStack.length} actions available` : 'No actions to undo'}`}
@@ -1491,11 +1704,17 @@ if (typeof window !== "undefined") {
         )}
         </div>
 
+        {/* Button to open template selection modal */}
+        <div className="shared-buttons" style={{ marginTop: '10px', marginBottom: '10px' }}>
+          <button className="btn-basic btn-mini" onClick={handleOpenTemplateModal}>
+            Populate sliders from {currentGridType || 'gridType'} template...
+          </button>
+        </div>
 
         <h3>TILES:</h3>
 
-        <div className="button-group" style={{ marginBottom: '10px' }}>
-          <button className="small-button" onClick={handleDeleteSelectedTiles}>Delete Selected Tiles</button>
+        <div className="shared-buttons" style={{ marginBottom: '10px' }}>
+          <button className="btn-basic btn-mini btn-danger" onClick={handleDeleteSelectedTiles}>Delete Selected Tiles</button>
         </div>
         
         {/* Tile type checkboxes for selective deletion */}
@@ -1524,9 +1743,57 @@ if (typeof window !== "undefined") {
             </div>
           ))}
         </div>
-        
-        <div className="button-group" >
-          <button className="small-button" onClick={handlePopulateTileDistribution}>Populate tile sliders based on gridType (Loads tile %'s from random template in the {currentGridType || 'gridType'} folder) </button>
+
+        {/* Clump Generation Settings */}
+        <div style={{ marginTop: '2px', marginBottom: '8px' }}>
+          <p style={{ fontSize: '11px', marginBottom: '4px' }}>Clump Settings:</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '70px 1fr', gap: '4px 8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <label style={{ fontSize: '10px', marginRight: '4px' }}>Size:</label>
+              <input
+                type="number"
+                value={clumpSize}
+                onChange={(e) => setClumpSize(Math.max(1, parseInt(e.target.value) || 1))}
+                style={{ width: '32px', fontSize: '10px', padding: '1px 2px' }}
+                min="1"
+                title="Base number of tiles per clump"
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <label style={{ fontSize: '10px', marginRight: '4px' }}>Variation:</label>
+              <input
+                type="number"
+                value={clumpVariation}
+                onChange={(e) => setClumpVariation(Math.max(0, parseInt(e.target.value) || 0))}
+                style={{ width: '32px', fontSize: '10px', padding: '1px 2px' }}
+                min="0"
+                title="Random +/- variation for clump sizes"
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <label style={{ fontSize: '10px', marginRight: '4px' }}>Min:</label>
+              <input
+                type="number"
+                value={minClumpSize}
+                onChange={(e) => setMinClumpSize(Math.max(1, parseInt(e.target.value) || 1))}
+                style={{ width: '32px', fontSize: '10px', padding: '1px 2px' }}
+                min="1"
+                title="Minimum size for any clump"
+              />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <label style={{ fontSize: '10px', marginRight: '4px' }}>Tightness:</label>
+              <input
+                type="number"
+                value={clumpTightness}
+                onChange={(e) => setClumpTightness(Math.max(0.1, parseFloat(e.target.value) || 1))}
+                style={{ width: '32px', fontSize: '10px', padding: '1px 2px' }}
+                min="0.1"
+                step="0.1"
+                title="Higher = tighter clumps (1.0 = no preference)"
+              />
+            </div>
+          </div>
         </div>
 
         {Object.keys(tileDistribution).map(type => (
@@ -1553,22 +1820,18 @@ if (typeof window !== "undefined") {
           </div>
         ))}
 
-        <div className="button-group" style={{ marginBottom: '6px' }}>
-          <button className="small-button" onClick={handleGenerateTilesBlanksOnly}>Generate tiles based on sliders (fill blank tiles only)</button>
-        </div>
-        <div className="button-group">
-          <button className="small-button" onClick={handleGenerateTilesOverwriteAll}>Generate tiles based on sliders (overwrite all tiles)</button>
+        <div className="shared-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '6px' }}>
+          <button className="btn-basic btn-mini" onClick={handleGenerateTilesBlanksOnly}>Generate tiles based on sliders (fill blank tiles only)</button>
+          <button className="btn-basic btn-mini" onClick={handleGenerateTilesOverwriteAll}>Generate tiles based on sliders (overwrite all tiles)</button>
         </div>
 
 
         {/* 🎯 Enemy Distribution Section */}
         <h3>ENEMIES:</h3>
 
-        <div className="button-group" style={{ marginBottom: '10px' }}>
-          <button className="small-button" onClick={handlePopulateRandomEnemies}>Populate random enemies</button>
-        </div>
-        <div className="button-group" style={{ marginBottom: '10px' }}>
-          <button className="small-button" onClick={handleClearAllEnemies}>Clear all enemies</button>
+        <div className="shared-buttons" style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+          <button className="btn-basic btn-mini" onClick={handlePopulateRandomEnemies}>Populate random enemies</button>
+          <button className="btn-basic btn-mini btn-danger" onClick={handleClearAllEnemies}>Clear all enemies</button>
         </div>
         {enemyNpcs.map(enemy => (
           <div key={enemy.type} style={{ display: 'flex', alignItems: 'center', marginBottom: '5px' }}>
@@ -1587,14 +1850,9 @@ if (typeof window !== "undefined") {
         {/* 🔹 Resource Distribution Section */}
         <h3>RESOURCES:</h3>
 
-        <div className="button-group" style={{ marginBottom: '6px' }}>
-          <button className="small-button" onClick={handleDeleteAllResources}>Delete All Resources (removes all resources but keeps tile types)</button>
-        </div>
-        <div className="button-group" style={{ marginBottom: '6px' }}>
-          <button className="small-button" onClick={handlePopulateResourceQuantities}>Populate quantities based on gridType (Loads resource counts from a random template in the {currentGridType || 'gridType'} folder)</button>
-        </div>
-        <div className="button-group">
-          <button className="small-button" onClick={handleGenerateResources}>Generate Resources (places resources randomly on valid tiles based on set quantities)</button>
+        <div className="shared-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '6px' }}>
+          <button className="btn-basic btn-mini btn-danger" onClick={handleDeleteAllResources}>Delete All Resources (removes all resources but keeps tile types)</button>
+          <button className="btn-basic btn-mini" onClick={handleGenerateResources}>Generate Resources (places resources randomly on valid tiles based on set quantities)</button>
         </div>
 
         {availableResources.map(resource => (
@@ -1771,9 +2029,9 @@ if (typeof window !== "undefined") {
           title="Confirm Save"
         >
           <p>Are you sure you want to save this layout? This cannot be undone</p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-            <button onClick={() => setShowSaveConfirm(false)} className="small-button cancel-button">Cancel</button>
-            <button onClick={saveLayout} className="small-button confirm-button">Yes</button>
+          <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+            <button onClick={() => setShowSaveConfirm(false)} className="btn-basic btn-modal btn-neutral">Cancel</button>
+            <button onClick={saveLayout} className="btn-basic btn-modal">Yes</button>
           </div>
         </Modal>
       )}
@@ -1782,12 +2040,38 @@ if (typeof window !== "undefined") {
         <Modal
           isOpen={showLoadConfirm}
           onClose={() => setShowLoadConfirm(false)}
-          title="Confirm Save"
+          title="Confirm Load"
         >
           <p>Are you sure you want to load this layout? It will overwrite the current layout.</p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
-            <button onClick={() => setShowLoadConfirm(false)} className="small-button cancel-button">Cancel</button>
-            <button onClick={loadLayout} className="small-button confirm-button">Yes</button>
+          <div className="shared-buttons" style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+            <button onClick={() => setShowLoadConfirm(false)} className="btn-basic btn-modal btn-neutral">Cancel</button>
+            <button onClick={loadLayout} className="btn-basic btn-modal">Yes</button>
+          </div>
+        </Modal>
+      )}
+
+      {showTemplateModal && (
+        <Modal
+          isOpen={showTemplateModal}
+          onClose={() => setShowTemplateModal(false)}
+          title={`Select Template (${currentGridType})`}
+        >
+          <div className="shared-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto', alignItems: 'center' }}>
+            <button
+              className="btn-basic btn-modal btn-gold"
+              onClick={loadFromRandomTemplate}
+            >
+              🎲 Random
+            </button>
+            {availableTemplates.map((file) => (
+              <button
+                key={file}
+                className="btn-basic btn-modal"
+                onClick={() => loadFromTemplate(file)}
+              >
+                {file.replace('.json', '')}
+              </button>
+            ))}
           </div>
         </Modal>
       )}

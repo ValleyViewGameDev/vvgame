@@ -9,7 +9,7 @@ import { fetchGridData, changePlayerLocation } from './GridManagement';
 import NPCsInGridManager from '../GridState/GridStateNPCs'; // Use default export for NPCsInGridManager
 import playersInGridManager from '../GridState/PlayersInGrid';
 import GridStateDebugPanel from './GridStateDebug';
-import { generateTownGrids, generateValleyGrids, createSingleValleyGrid } from './WorldGeneration';
+import { generateTownGrids, createSingleValleyGrid } from './WorldGeneration';
 import { updatePlayerSettings } from '../settings';
 
 const DebugPanel = ({ 
@@ -745,13 +745,6 @@ const handleGetRich = async () => {
     }
   };
 
-  const handleGenerateValley = async (valleyType) => {
-    try { await generateValleyGrids({ valleyType, currentPlayer }); } catch (error) {
-      console.error(`Error generating valley${valleyType} grids:`, error);
-      alert(`Failed to generate valley${valleyType} grids. Check the console for details.`);
-    }
-  };
-
   const handleDeleteAccount = async (username) => {
     // Accept either {username} or username string for backward compatibility
     if (typeof username === "object" && username?.username) {
@@ -1154,18 +1147,6 @@ const handleGetRich = async () => {
       </div>
       <div className="shared-buttons">
         <button className="btn-basic btn-danger" onClick={handleGenerateTown}> Generate Town </button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-danger" onClick={() => handleGenerateValley(0)}> Generate Valley 0 </button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-danger" onClick={() => handleGenerateValley(1)}> Generate Valley 1 </button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-danger" onClick={() => handleGenerateValley(2)}> Generate Valley 2 </button>
-      </div>
-      <div className="shared-buttons">
-        <button className="btn-basic btn-danger" onClick={() => handleGenerateValley(3)}> Generate Valley 3 </button>
       </div>
       <div className="shared-buttons">
         <button className="btn-basic btn-neutral" onClick={handleClearInventory}> Clear Inventory </button>
