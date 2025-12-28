@@ -1,6 +1,5 @@
 import API_BASE from '../../config';
 import axios from 'axios';
-import { gainIngredients } from '../../Utils/InventoryManagement';
 import React, { useState, useEffect } from 'react';
 import Panel from '../../UI/Panels/Panel';
 import { updateGridResource } from '../../Utils/GridManagement';
@@ -90,43 +89,15 @@ const CropPanel = ({
     syncInventory();
   }, [currentPlayer]);
 
-  const handleSellStation = async () => {
+  const removeCrop = async () => {
     if (isActionCoolingDown) return;
     setIsActionCoolingDown(true);
     setTimeout(() => {
       setIsActionCoolingDown(false);
     }, COOLDOWN_DURATION);
 
-    const ingredients = [];
-    for (let i = 1; i <= 3; i++) {
-      const ingredientType = cropDetails[`ingredient${i}`];
-      const ingredientQty = cropDetails[`ingredient${i}qty`];
-      if (ingredientType && ingredientQty) {
-        ingredients.push({ type: ingredientType, quantity: ingredientQty });
-      }
-    }
-    if (!ingredients.length) { console.error('No ingredients found for refund.'); return; }
-
     try {
-      for (const { type, quantity } of ingredients) {
-        const success = await gainIngredients({
-          playerId: currentPlayer.playerId,
-          currentPlayer,
-          resource: type,
-          quantity,
-          inventory,
-          backpack,
-          setInventory,
-          setBackpack,
-          setCurrentPlayer,
-          updateStatus,
-          masterResources,
-          globalTuning,
-        });
-        if (!success) return;
-      }
-
-      // Remove the crop resource from the grid
+      // Remove the crop resource from the grid (no refund)
       await updateGridResource(
         gridId,
         { type: null, x: currentStationPosition.x, y: currentStationPosition.y },
@@ -138,15 +109,11 @@ const CropPanel = ({
         prevResources.filter(res => !(res.x === currentStationPosition.x && res.y === currentStationPosition.y))
       );
 
-      const totalRefund = ingredients
-        .filter((item) => item.type === "Money")
-        .reduce((sum, item) => sum + item.quantity, 0);
-
-      console.log(`Sold ${stationType} successfully for ${totalRefund} Money.`);
+      console.log(`Removed ${stationType} successfully (no refund).`);
       updateStatus(439);
       onClose();
     } catch (error) {
-      console.error('Error selling the stall:', error);
+      console.error('Error removing the crop:', error);
     }
   };
   
@@ -165,7 +132,7 @@ const CropPanel = ({
 
         <hr />
         <div className="shared-buttons">
-          <button className="btn-basic btn-success" onClick={handleSellStation} disabled={isActionCoolingDown}>
+          <button className="btn-basic btn-danger" onClick={removeCrop} disabled={isActionCoolingDown}>
             {strings[438]}
           </button>
         </div>
