@@ -12,6 +12,42 @@ const seasonsConfig = require('../tuning/seasons.json');
 const UltraCompactResourceEncoder = require('./ResourceEncoder');
 const TileEncoder = require('./TileEncoder');
 
+/**
+ * Resets a grid to its initial state, regenerating tiles, resources, and NPCs.
+ *
+ * === LAYOUT TYPES ===
+ *
+ * There are two fundamentally different ways a grid can be reset:
+ *
+ * 1. FIXED LAYOUT (isFixedLayout = true)
+ *    - Used when a valleyFixedCoord/{gridCoord}.json file exists, or for dungeons
+ *    - The layout file contains explicit tile and resource placements
+ *    - Every tile position is pre-defined (no '**' wildcards)
+ *    - Resources are placed at exact positions specified in the layout
+ *    - Uses: generateFixedGrid() and generateFixedResources()
+ *    - Result: Grid looks identical every time it's reset
+ *
+ * 2. RANDOM LAYOUT (isFixedLayout = false)
+ *    - Used when no valleyFixedCoord file exists for this grid coordinate
+ *    - Falls back to a template file (e.g., valley0/default.json)
+ *    - Template contains '**' wildcards that get filled randomly
+ *    - Tiles are generated based on tileDistribution percentages
+ *    - Resources are generated based on resourceDistribution quantities
+ *    - Uses: generateGrid() and generateResources()
+ *    - For valley grids: deposit tiles (slate, clay, etc.) are clumped together
+ *    - Result: Grid looks different each time it's reset
+ *
+ * === GRID TYPE SPECIFICS ===
+ *
+ * - homestead: Always uses seasonal layout from homestead/ folder (random generation)
+ * - town: Uses seasonal layout with position variant (random generation)
+ * - dungeon: Always uses fixed layout from dungeons registry
+ * - valley*: Checks for valleyFixedCoord first, falls back to random with clumping
+ *
+ * @param {string} gridId - The MongoDB ObjectId of the grid to reset
+ * @param {string} gridType - The type of grid (homestead, town, dungeon, valley0, etc.)
+ * @param {string} gridCoord - The coordinate string (e.g., "0,0", "1,-2")
+ */
 async function performGridReset(gridId, gridType, gridCoord) {
   console.log(`🔄 performGridReset called with: gridId=${gridId}, gridType=${gridType}, gridCoord=${gridCoord}`);
 
@@ -21,7 +57,11 @@ async function performGridReset(gridId, gridType, gridCoord) {
   const frontier = await Frontier.findById(grid.frontierId);
   const seasonType = frontier?.seasons?.seasonType || 'default';
 
-  // Load layout
+  // ============================================================
+  // LAYOUT SELECTION
+  // Determines whether to use a fixed layout (exact positions) or
+  // a random layout (generated from distribution percentages)
+  // ============================================================
   let layout, layoutFileName, isFixedLayout = false;
   if (gridType === 'homestead') {
     const layoutFile = getHomesteadLayoutFile(seasonType);
@@ -76,19 +116,34 @@ async function performGridReset(gridId, gridType, gridCoord) {
     console.log(`⚔️ Using dungeon template for reset: ${templateFilename}`);
 
   } else {
+    // ============================================================
+    // VALLEY GRIDS: Check for fixed layout first, fall back to random
+    // ============================================================
     console.log(`🔍 Fetching layout for gridType: ${gridType}, gridCoord: ${gridCoord}`);
+
+    // First, check if a hand-crafted fixed layout exists for this exact coordinate
+    // These are stored in valleyFixedCoord/ and contain exact tile/resource positions
     const fixedCoordPath = path.join(__dirname, `../layouts/gridLayouts/valleyFixedCoord/${gridCoord}.json`);
     console.log(`🔍 Checking for fixed-coordinate layout at: ${fixedCoordPath}`);
+
     if (fs.existsSync(fixedCoordPath)) {
+      // FIXED LAYOUT: Use exact positions from the valleyFixedCoord file
+      // The grid will look identical every time it's reset
       layout = readJSON(fixedCoordPath);
       layoutFileName = `${gridCoord}.json`;
       isFixedLayout = true;
       console.log(`📌 Using fixed-coordinate layout: ${layoutFileName}`);
     } else {
+      // RANDOM LAYOUT: No fixed layout exists, use a template with distributions
+      // The template (e.g., valley0/default.json) contains:
+      // - tiles array with '**' wildcards for random placement
+      // - tileDistribution: percentages for each tile type
+      // - resourceDistribution: quantities for each resource type
+      // For valley grids, deposit tiles will be clumped together (see generateGrid)
       const layoutInfo = getTemplate('gridLayouts', gridType, gridCoord);
       layout = layoutInfo.template;
       layoutFileName = layoutInfo.fileName;
-      console.log(`📦 Using standard grid layout: ${layoutFileName}`);
+      console.log(`📦 Using random layout template: ${layoutFileName}`);
     }
   }
 
@@ -115,11 +170,18 @@ async function performGridReset(gridId, gridType, gridCoord) {
     }
   }
 
-  // Pass gridType to generateGrid so valley grids use clumping for deposit tiles
+  // ============================================================
+  // TILE GENERATION
+  // ============================================================
+  // FIXED: generateFixedGrid() reads exact tile positions from layout
+  // RANDOM: generateGrid() fills '**' wildcards using tileDistribution percentages
+  //         For valley grids, deposit tiles (slate, clay, etc.) are placed in
+  //         natural-looking clumps rather than scattered randomly
   const newTiles = isFixedLayout
     ? generateFixedGrid(layout)
     : generateGrid(layout, gridType).map(row =>
         row.map(layoutKey => {
+          // Convert layoutKey (e.g., 'GR', 'SL') to tile type (e.g., 'g', 's')
           const tileRes = masterResources.find(r => r.layoutkey === layoutKey && r.category === 'tile');
           return tileRes ? tileRes.type : 'g';
         })
@@ -139,6 +201,13 @@ async function performGridReset(gridId, gridType, gridCoord) {
     console.log(`❄️ Applied snow to ${snowTileCount} tiles for Winter ${gridType} reset at ${gridCoord}`);
   }
 
+  // ============================================================
+  // RESOURCE GENERATION
+  // ============================================================
+  // FIXED: generateFixedResources() reads exact resource positions from layout
+  // RANDOM: generateResources() places resources at available '**' positions
+  //         based on resourceDistribution quantities, validating each placement
+  //         against tile compatibility (e.g., trees only on grass/dirt)
   const newResources = isFixedLayout
     ? generateFixedResources(layout)
     : generateResources(layout, newTiles, resourceDistribution);
@@ -198,7 +267,11 @@ async function performGridReset(gridId, gridType, gridCoord) {
     });
   });
 
-  // Generate random enemies for non-fixed layouts
+  // ============================================================
+  // ENEMY GENERATION (random layouts only)
+  // ============================================================
+  // Fixed layouts place NPCs at exact positions from the layout file
+  // Random layouts generate enemies based on enemiesDistribution quantities
   if (!isFixedLayout && layout.enemiesDistribution) {
     const newEnemies = generateEnemies(layout, newTiles, newNPCs);
     // Merge the generated enemies into the existing NPCs
