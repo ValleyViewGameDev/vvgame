@@ -12,6 +12,12 @@ if (!resourcesData) {
   console.error('Error loading critical JSON files.');
   throw new Error('Failed to load required JSON files.');
 }
+
+// Clumping settings for deposit tiles (used on valley grids)
+const CLUMP_SIZE = 20;
+const CLUMP_VARIATION = 5;
+const MIN_CLUMP_SIZE = 5;
+const CLUMP_TIGHTNESS = 2.5;
  
 // Helper function to create a distribution array
 function createDistributionArray(tileDistribution) {
@@ -31,20 +37,163 @@ function createDistributionArray(tileDistribution) {
 }
 
 
-function generateGrid(layout) {
+/**
+ * Generate clumps for a specific deposit tile type
+ * @param {Array} tiles - 2D array of tiles to modify (rows x cols)
+ * @param {string} layoutkey - The layoutkey for the tile type (e.g., 'SL', 'ZZ', 'CY')
+ * @param {number} totalTiles - Total number of tiles to place for this type
+ * @param {Array} eligiblePositions - Array of {row, col} positions that are available
+ * @returns {Array} Updated eligiblePositions with used positions removed
+ */
+function generateClumpsForTileType(tiles, layoutkey, totalTiles, eligiblePositions) {
+  if (totalTiles <= 0 || eligiblePositions.length === 0) return eligiblePositions;
+
+  console.log(`🪨 Generating clumps for ${layoutkey}: ${totalTiles} tiles requested, ${eligiblePositions.length} positions available`);
+
+  // Calculate clump sizes
+  const clumpSizes = [];
+  let remaining = totalTiles;
+  while (remaining > 0) {
+    const variation = Math.floor(Math.random() * (CLUMP_VARIATION * 2 + 1)) - CLUMP_VARIATION;
+    const baseSize = Math.max(MIN_CLUMP_SIZE, CLUMP_SIZE + variation);
+    const size = Math.min(remaining, baseSize);
+    clumpSizes.push(size);
+    remaining -= size;
+  }
+
+  console.log(`   📊 Clump plan: ${clumpSizes.length} clumps with sizes [${clumpSizes.join(', ')}]`);
+
+  let totalPlaced = 0;
+
+  // Generate each clump
+  for (const targetClumpSize of clumpSizes) {
+    if (eligiblePositions.length === 0) {
+      console.warn(`   ⚠️ Ran out of eligible positions while generating clumps for ${layoutkey}`);
+      break;
+    }
+
+    // Pick a random starting position
+    const startIdx = Math.floor(Math.random() * eligiblePositions.length);
+    const startPos = eligiblePositions[startIdx];
+
+    // Build clump by growing outward from start position
+    const clumpTiles = [startPos];
+    eligiblePositions.splice(startIdx, 1);
+
+    // Track positions we've already added to clump (for faster lookup)
+    const clumpSet = new Set([`${startPos.row},${startPos.col}`]);
+
+    while (clumpTiles.length < targetClumpSize && eligiblePositions.length > 0) {
+      // Find all eligible neighbors of existing clump tiles
+      const validNeighbors = [];
+
+      for (const tile of clumpTiles) {
+        const adjacents = [
+          { row: tile.row - 1, col: tile.col },     // up
+          { row: tile.row + 1, col: tile.col },     // down
+          { row: tile.row, col: tile.col - 1 },     // left
+          { row: tile.row, col: tile.col + 1 },     // right
+          { row: tile.row - 1, col: tile.col - 1 }, // diagonals for more organic shapes
+          { row: tile.row - 1, col: tile.col + 1 },
+          { row: tile.row + 1, col: tile.col - 1 },
+          { row: tile.row + 1, col: tile.col + 1 }
+        ];
+
+        for (const adj of adjacents) {
+          const key = `${adj.row},${adj.col}`;
+          if (!clumpSet.has(key)) {
+            // Check if this position is in eligible positions
+            const eligibleIdx = eligiblePositions.findIndex(p => p.row === adj.row && p.col === adj.col);
+            if (eligibleIdx !== -1) {
+              // Count how many clump tiles are adjacent to this position
+              const neighbors = [
+                { row: adj.row - 1, col: adj.col },
+                { row: adj.row + 1, col: adj.col },
+                { row: adj.row, col: adj.col - 1 },
+                { row: adj.row, col: adj.col + 1 },
+                { row: adj.row - 1, col: adj.col - 1 },
+                { row: adj.row - 1, col: adj.col + 1 },
+                { row: adj.row + 1, col: adj.col - 1 },
+                { row: adj.row + 1, col: adj.col + 1 }
+              ];
+              const adjacentCount = neighbors.filter(n => clumpSet.has(`${n.row},${n.col}`)).length;
+              const weight = Math.pow(adjacentCount, CLUMP_TIGHTNESS);
+              validNeighbors.push({ row: adj.row, col: adj.col, eligibleIdx, weight });
+            }
+          }
+        }
+      }
+
+      if (validNeighbors.length === 0) {
+        // No more neighbors available - clump is isolated
+        break;
+      }
+
+      // Weighted random selection - prefer neighbors with more adjacent clump tiles
+      const totalWeight = validNeighbors.reduce((sum, n) => sum + n.weight, 0);
+      let randomValue = Math.random() * totalWeight;
+      let chosen = validNeighbors[0];
+      for (const neighbor of validNeighbors) {
+        randomValue -= neighbor.weight;
+        if (randomValue <= 0) {
+          chosen = neighbor;
+          break;
+        }
+      }
+
+      clumpTiles.push({ row: chosen.row, col: chosen.col });
+      clumpSet.add(`${chosen.row},${chosen.col}`);
+
+      // Remove from eligible positions (need to find current index since it may have shifted)
+      const currentIdx = eligiblePositions.findIndex(p => p.row === chosen.row && p.col === chosen.col);
+      if (currentIdx !== -1) {
+        eligiblePositions.splice(currentIdx, 1);
+      }
+    }
+
+    // Apply clump tiles to the tiles array
+    for (const tile of clumpTiles) {
+      tiles[tile.row][tile.col] = layoutkey;
+      totalPlaced++;
+    }
+
+    console.log(`   ✅ Created clump of ${clumpTiles.length} tiles at (${startPos.row}, ${startPos.col})`);
+  }
+
+  console.log(`   📍 Total ${layoutkey} tiles placed: ${totalPlaced}/${totalTiles}`);
+  return eligiblePositions;
+}
+
+function generateGrid(layout, gridType = null) {
   if (!layout.tiles) {
     throw new Error('Invalid layout: Missing "tiles".');
   }
   const tileDistribution = layout.tileDistribution || {};
   const distributionArray = createDistributionArray(tileDistribution);
 
+  // ============================================================
+  // CLUMPING LOGIC: Only applies to valley grids (valley0, valley1, etc.)
+  // For all other grid types (homestead, town, dungeon), we use the
+  // original random distribution logic below - completely unchanged.
+  // ============================================================
+  const useClumping = gridType && gridType.startsWith('valley');
+
+  if (useClumping) {
+    console.log(`🪨 Using clumping algorithm for valley grid: ${gridType}`);
+    return generateGridWithClumping(layout, tileDistribution);
+  }
+
+  // ============================================================
+  // ORIGINAL LOGIC (unchanged): Used for homestead, town, dungeon, etc.
+  // This is the exact same logic that existed before clumping was added.
+  // ============================================================
   return layout.tiles.map((row, rowIndex) =>
     row.map((cell, colIndex) => {
       if (cell === '**') {
         const randomTile = distributionArray.length > 0
           ? distributionArray[Math.floor(Math.random() * distributionArray.length)]
           : 'g'; // ✅ Use weighted randomness instead of defaulting to grass
-        
+
         // ✅ Find the correct layoutkey for the randomTile
         const tileResource = masterResources.find(res => res.type === randomTile && res.category === 'tile');
         return tileResource ? tileResource.layoutkey : 'g'; // ✅ Default to 'GR' if missing
@@ -54,6 +203,101 @@ function generateGrid(layout) {
       return tileResource ? tileResource.layoutkey : 'g'; // ✅ Default to 'GR' if missing
     })
   );
+}
+
+/**
+ * Generate grid with clumping for deposit tiles.
+ * ONLY used for valley grids (valley0, valley1, valley2, valley3).
+ * Deposit tiles (source='deposit') are placed in clumps for a more natural look.
+ * Regular tiles are distributed randomly to fill remaining positions.
+ */
+function generateGridWithClumping(layout, tileDistribution) {
+  // First pass: Create the base grid and identify eligible positions for random tiles
+  const tiles = layout.tiles.map((row) =>
+    row.map((cell) => {
+      if (cell === '**') {
+        return '**'; // Mark for later processing
+      }
+      // Directly return the correct tile layoutkey for fixed tiles
+      const tileResource = masterResources.find(res => res.layoutkey === cell && res.category === 'tile');
+      return tileResource ? tileResource.layoutkey : 'g';
+    })
+  );
+
+  // Find all positions marked for random generation
+  let eligiblePositions = [];
+  tiles.forEach((row, rowIndex) => {
+    row.forEach((cell, colIndex) => {
+      if (cell === '**') {
+        eligiblePositions.push({ row: rowIndex, col: colIndex });
+      }
+    });
+  });
+
+  if (eligiblePositions.length === 0) {
+    return tiles; // No random tiles to generate
+  }
+
+  const totalEligible = eligiblePositions.length;
+  console.log(`📍 Found ${totalEligible} positions for random tile generation`);
+
+  // Build tile counts based on distribution percentages
+  const tileCounts = {};
+  for (const [tileType, percentage] of Object.entries(tileDistribution)) {
+    if (percentage > 0) {
+      const tileResource = masterResources.find(res => res.type === tileType && res.category === 'tile');
+      if (tileResource) {
+        const count = Math.round(percentage * totalEligible);
+        if (count > 0) {
+          tileCounts[tileType] = {
+            layoutkey: tileResource.layoutkey,
+            count: count,
+            isDeposit: tileResource.source === 'deposit'
+          };
+        }
+      }
+    }
+  }
+
+  // PASS 1: Generate clumps for deposit tiles (source='deposit')
+  const depositTiles = Object.entries(tileCounts).filter(([_, data]) => data.isDeposit);
+
+  if (depositTiles.length > 0) {
+    console.log(`🪨 Pass 1: Generating clumps for ${depositTiles.length} deposit tile types...`);
+
+    for (const [tileType, data] of depositTiles) {
+      eligiblePositions = generateClumpsForTileType(tiles, data.layoutkey, data.count, eligiblePositions);
+    }
+  }
+
+  // PASS 2: Generate remaining tiles randomly (grass, dirt, sand, etc.)
+  const regularTiles = Object.entries(tileCounts).filter(([_, data]) => !data.isDeposit);
+
+  if (regularTiles.length > 0 && eligiblePositions.length > 0) {
+    console.log(`🎲 Pass 2: Randomly distributing ${regularTiles.length} regular tile types across ${eligiblePositions.length} remaining positions...`);
+
+    // Build a pool of tiles for random distribution
+    let regularPool = [];
+    for (const [tileType, data] of regularTiles) {
+      for (let i = 0; i < data.count; i++) {
+        regularPool.push(data.layoutkey);
+      }
+    }
+
+    // Shuffle the pool
+    shuffleArray(regularPool);
+
+    // Assign tiles to remaining positions
+    eligiblePositions.forEach(({ row, col }, idx) => {
+      // Cycle through pool if we have more positions than tiles
+      const tileIdx = idx % regularPool.length;
+      tiles[row][col] = regularPool[tileIdx] || 'g'; // Fallback to grass
+    });
+
+    console.log(`   ✅ Distributed tiles to ${eligiblePositions.length} positions`);
+  }
+
+  return tiles;
 }
 
 function generateResources(layout, tiles, resourceDistribution = null) {

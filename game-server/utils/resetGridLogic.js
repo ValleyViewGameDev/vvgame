@@ -115,9 +115,10 @@ async function performGridReset(gridId, gridType, gridCoord) {
     }
   }
 
+  // Pass gridType to generateGrid so valley grids use clumping for deposit tiles
   const newTiles = isFixedLayout
     ? generateFixedGrid(layout)
-    : generateGrid(layout, layout.tileDistribution).map(row =>
+    : generateGrid(layout, gridType).map(row =>
         row.map(layoutKey => {
           const tileRes = masterResources.find(r => r.layoutkey === layoutKey && r.category === 'tile');
           return tileRes ? tileRes.type : 'g';

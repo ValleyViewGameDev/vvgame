@@ -98,9 +98,10 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
     }
   }
 
+  // Pass gridType to generateGrid so valley grids use clumping for deposit tiles
   const newTiles = isFixedLayout
     ? generateFixedGrid(layout)
-    : generateGrid(layout, layout.tileDistribution).map(row =>
+    : generateGrid(layout, gridType).map(row =>
         row.map(k => {
           const tile = masterResources.find(r => r.layoutkey === k && r.category === 'tile');
           return tile?.type || 'g';

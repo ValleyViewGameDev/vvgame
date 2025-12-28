@@ -864,7 +864,8 @@ router.post('/api/generate-tiles', async (req, res) => {
     }
 
     // Generate new tiles based on tileDistribution
-    const newTiles = generateGrid(layout, layout.tileDistribution);
+    // Note: gridType is null here since this is an editor endpoint - uses original random distribution
+    const newTiles = generateGrid(layout, null);
 
     res.json({ success: true, tiles: newTiles });
   } catch (error) {
