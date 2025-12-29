@@ -1666,6 +1666,60 @@
     "totalnestedtime": 86427
   },
   {
+    "type": "Rosemary Plot",
+    "symbol": "🌱",
+    "layoutkey": "rmplt",
+    "category": "farmplot",
+    "action": "convertTo",
+    "output": "Rosemary",
+    "passable": true,
+    "requires": "devonly",
+    "validong": false,
+    "validond": true,
+    "validons": false,
+    "validonp": false,
+    "validonw": false,
+    "validonl": false,
+    "validonn": false,
+    "validono": false,
+    "validonx": false,
+    "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "growtime": 172800,
+    "crafttime": 172800,
+    "totalnestedtime": 172800
+  },
+  {
+    "type": "Feverfew Plot",
+    "symbol": "🌱",
+    "layoutkey": "ffplt",
+    "category": "farmplot",
+    "action": "convertTo",
+    "output": "Feverfew",
+    "passable": true,
+    "requires": "devonly",
+    "validong": false,
+    "validond": true,
+    "validons": false,
+    "validonp": false,
+    "validonw": false,
+    "validonl": false,
+    "validonn": false,
+    "validono": false,
+    "validonx": false,
+    "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "growtime": 259200,
+    "crafttime": 259200,
+    "totalnestedtime": 259200
+  },
+  {
     "type": "Mushroom Plot",
     "symbol": "🌱",
     "layoutkey": "mhplt",
@@ -1688,11 +1742,9 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "growtime": 28800,
-    "ingredient1": "Mushroom",
-    "ingredient1qty": 1,
-    "crafttime": 28800,
-    "totalnestedtime": 28817
+    "growtime": 64800,
+    "crafttime": 64800,
+    "totalnestedtime": 64800
   },
   {
     "type": "Daisy Plot",
@@ -1717,11 +1769,9 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "growtime": 57600,
-    "ingredient1": "Daisy",
-    "ingredient1qty": 1,
-    "crafttime": 57600,
-    "totalnestedtime": 57622
+    "growtime": 172800,
+    "crafttime": 172800,
+    "totalnestedtime": 172800
   },
   {
     "type": "Tulip Plot",
@@ -1747,10 +1797,8 @@
     "validonv": false,
     "validonu": false,
     "growtime": 259200,
-    "ingredient1": "Tulip",
-    "ingredient1qty": 1,
     "crafttime": 259200,
-    "totalnestedtime": 259244
+    "totalnestedtime": 259200
   },
   {
     "type": "Sunflower Plot",
@@ -1776,10 +1824,8 @@
     "validonv": false,
     "validonu": false,
     "growtime": 86400,
-    "ingredient1": "Sunflower",
-    "ingredient1qty": 1,
     "crafttime": 86400,
-    "totalnestedtime": 86427
+    "totalnestedtime": 86400
   },
   {
     "type": "Oak Tree Plot",
@@ -2603,6 +2649,77 @@
     "totalnestedtime": 86400
   },
   {
+    "type": "Rosemary",
+    "symbol": "🌿",
+    "layoutkey": "h2",
+    "category": "doober",
+    "action": "collect",
+    "source": "Rosemary Plot",
+    "passable": true,
+    "repeatable": true,
+    "requires": "devonly",
+    "qtycollected": 1,
+    "xp": 4,
+    "level": 1,
+    "scrollqty": 10,
+    "scrollchance": "uncommon",
+    "validong": true,
+    "validond": true,
+    "validons": false,
+    "validonp": false,
+    "validonw": false,
+    "validonl": false,
+    "validonn": false,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 207,
+    "maxprice": 296,
+    "gemcost": 37,
+    "crafttime": 172800,
+    "totalnestedtime": 172800
+  },
+  {
+    "type": "Feverfew",
+    "symbol": "🌿",
+    "layoutkey": "h3",
+    "category": "doober",
+    "action": "collect",
+    "output": "noBank",
+    "source": "Feverfew Plot",
+    "passable": true,
+    "repeatable": true,
+    "requires": "devonly",
+    "qtycollected": 1,
+    "xp": 8,
+    "level": 1,
+    "scrollqty": 30,
+    "scrollchance": "rare",
+    "validong": true,
+    "validond": true,
+    "validons": false,
+    "validonp": false,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": false,
+    "validony": false,
+    "validonz": false,
+    "validonc": false,
+    "validonv": false,
+    "validonu": false,
+    "minprice": 246,
+    "maxprice": 352,
+    "gemcost": 44,
+    "crafttime": 259200,
+    "totalnestedtime": 259200
+  },
+  {
     "type": "Mushroom",
     "symbol": "🍄‍🟫",
     "layoutkey": "Mu",
@@ -2631,11 +2748,11 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800,
-    "totalnestedtime": 28800
+    "minprice": 134,
+    "maxprice": 192,
+    "gemcost": 24,
+    "crafttime": 64800,
+    "totalnestedtime": 64800
   },
   {
     "type": "Daisy",
@@ -2667,11 +2784,11 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "minprice": 123,
-    "maxprice": 176,
-    "gemcost": 22,
-    "crafttime": 57600,
-    "totalnestedtime": 57600
+    "minprice": 207,
+    "maxprice": 296,
+    "gemcost": 37,
+    "crafttime": 172800,
+    "totalnestedtime": 172800
   },
   {
     "type": "Tulip",
@@ -3682,8 +3799,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "minprice": 3523,
-    "maxprice": 5033,
+    "minprice": 3668,
+    "maxprice": 5241,
     "ingredient1": "Flour",
     "ingredient1qty": 1,
     "ingredient2": "Egg",
@@ -3692,9 +3809,9 @@
     "ingredient3qty": 8,
     "ingredient4": "Rosemary",
     "ingredient4qty": 1,
-    "gemcost": 484,
+    "gemcost": 504,
     "crafttime": 14400,
-    "totalnestedtime": 14872
+    "totalnestedtime": 14892
   },
   {
     "type": "Garlic Bread",
@@ -4573,39 +4690,6 @@
     "totalnestedtime": 43855
   },
   {
-    "type": "Rosemary",
-    "symbol": "🌿",
-    "layoutkey": "h2",
-    "category": "doober",
-    "action": "collect",
-    "source": "valley",
-    "passable": true,
-    "qtycollected": 1,
-    "xp": 4,
-    "level": 1,
-    "scrollqty": 10,
-    "scrollchance": "uncommon",
-    "validong": true,
-    "validond": true,
-    "validons": false,
-    "validonp": false,
-    "validonw": false,
-    "validonl": false,
-    "validonn": false,
-    "validono": true,
-    "validonx": true,
-    "validony": true,
-    "validonz": false,
-    "validonc": false,
-    "validonv": false,
-    "validonu": false,
-    "minprice": 95,
-    "maxprice": 136,
-    "gemcost": 17,
-    "crafttime": 28800,
-    "totalnestedtime": 28800
-  },
-  {
     "type": "Amulet",
     "symbol": "🧿",
     "layoutkey": "Am",
@@ -4931,39 +5015,6 @@
     "totalnestedtime": 259200
   },
   {
-    "type": "Feverfew",
-    "symbol": "🌿",
-    "layoutkey": "h3",
-    "category": "doober",
-    "action": "collect",
-    "output": "noBank",
-    "passable": true,
-    "qtycollected": 1,
-    "xp": 8,
-    "level": 1,
-    "scrollqty": 30,
-    "scrollchance": "rare",
-    "validong": true,
-    "validond": true,
-    "validons": false,
-    "validonp": false,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
-    "validonx": false,
-    "validony": false,
-    "validonz": false,
-    "validonc": false,
-    "validonv": false,
-    "validonu": false,
-    "minprice": 151,
-    "maxprice": 216,
-    "gemcost": 27,
-    "crafttime": 86400,
-    "totalnestedtime": 86400
-  },
-  {
     "type": "Potion A",
     "symbol": "🧪",
     "layoutkey": "p1",
@@ -4990,17 +5041,17 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "minprice": 1299,
-    "maxprice": 1856,
+    "minprice": 1803,
+    "maxprice": 2576,
     "ingredient1": "Rosemary",
     "ingredient1qty": 3,
     "ingredient2": "Daisy",
     "ingredient2qty": 2,
     "ingredient3": "Milk",
     "ingredient3qty": 24,
-    "gemcost": 232,
+    "gemcost": 322,
     "crafttime": 28800,
-    "totalnestedtime": 29015
+    "totalnestedtime": 29105
   },
   {
     "type": "Potion B",
@@ -5029,8 +5080,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "minprice": 3203,
-    "maxprice": 4576,
+    "minprice": 3864,
+    "maxprice": 5520,
     "ingredient1": "Potion A",
     "ingredient1qty": 1,
     "ingredient2": "Mushroom",
@@ -5039,9 +5090,9 @@
     "ingredient3qty": 4,
     "ingredient4": "Garlic",
     "ingredient4qty": 2,
-    "gemcost": 572,
+    "gemcost": 690,
     "crafttime": 57600,
-    "totalnestedtime": 58150
+    "totalnestedtime": 58268
   },
   {
     "type": "Potion C",
@@ -5070,8 +5121,8 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "minprice": 9324,
-    "maxprice": 13320,
+    "minprice": 10080,
+    "maxprice": 14400,
     "ingredient1": "Potion B",
     "ingredient1qty": 1,
     "ingredient2": "Sunflower",
@@ -5080,9 +5131,9 @@
     "ingredient3qty": 2,
     "ingredient4": "Feverfew",
     "ingredient4qty": 1,
-    "gemcost": 1665,
+    "gemcost": 1800,
     "crafttime": 129600,
-    "totalnestedtime": 131233
+    "totalnestedtime": 131368
   },
   {
     "type": "Book",
@@ -5700,7 +5751,7 @@
     "ingredient2": "Potion A",
     "ingredient2qty": 1,
     "crafttime": 4,
-    "totalnestedtime": 29029
+    "totalnestedtime": 29119
   },
   {
     "type": "Only Found in Scrolls",
@@ -7185,9 +7236,9 @@
     "growtime": 28800,
     "ingredient1": "Potion B",
     "ingredient1qty": 6,
-    "gemcost": 3459,
+    "gemcost": 4167,
     "crafttime": 86400,
-    "totalnestedtime": 435300
+    "totalnestedtime": 436008
   },
   {
     "type": "Ram",
@@ -7220,9 +7271,9 @@
     "growtime": 28800,
     "ingredient1": "Potion C",
     "ingredient1qty": 3,
-    "gemcost": 5022,
+    "gemcost": 5427,
     "crafttime": 86400,
-    "totalnestedtime": 480099
+    "totalnestedtime": 480504
   },
   {
     "type": "Doctor",
@@ -7351,9 +7402,9 @@
     "validonu": false,
     "ingredient1": "Feverfew",
     "ingredient1qty": 1,
-    "gemcost": 54,
+    "gemcost": 71,
     "crafttime": 86400,
-    "totalnestedtime": 172800
+    "totalnestedtime": 345600
   },
   {
     "type": "Kent",
@@ -9046,13 +9097,13 @@
     "level": 14,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
-    "ingredient2": "Potion A",
-    "ingredient2qty": 1,
+    "ingredient2": "Tulip",
+    "ingredient2qty": 5,
     "ingredient3": "Potion B",
-    "ingredient3qty": 1,
+    "ingredient3qty": 20,
     "ingredient4": "Potion C",
-    "ingredient4qty": 1,
-    "gemcost": 3719
+    "ingredient4qty": 100,
+    "gemcost": 195270
   },
   {
     "type": "Politics",
@@ -9079,7 +9130,7 @@
     "ingredient1qty": 12000,
     "ingredient2": "Potion A",
     "ingredient2qty": 1,
-    "gemcost": 1732
+    "gemcost": 1822
   },
   {
     "type": "Baker",
@@ -9094,7 +9145,7 @@
     "ingredient1qty": 15000,
     "ingredient3": "Potion B",
     "ingredient3qty": 8,
-    "gemcost": 6451
+    "gemcost": 7395
   },
   {
     "type": "Cooking",
@@ -9109,7 +9160,7 @@
     "ingredient1qty": 12000,
     "ingredient2": "Potion A",
     "ingredient2qty": 5,
-    "gemcost": 2660
+    "gemcost": 3110
   },
   {
     "type": "Beekeeper",
@@ -9124,7 +9175,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
     "ingredient4qty": 20,
-    "gemcost": 33363
+    "gemcost": 36063
   },
   {
     "type": "Winemaker",
@@ -9139,7 +9190,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
     "ingredient4qty": 8,
-    "gemcost": 13383
+    "gemcost": 14463
   },
   {
     "type": "Creamery",
@@ -9156,7 +9207,7 @@
     "ingredient2qty": 5,
     "ingredient3": "Potion B",
     "ingredient3qty": 2,
-    "gemcost": 3804
+    "gemcost": 4490
   },
   {
     "type": "Textiles",
@@ -9171,7 +9222,7 @@
     "ingredient1qty": 25000,
     "ingredient2": "Potion A",
     "ingredient2qty": 10,
-    "gemcost": 5445
+    "gemcost": 6345
   },
   {
     "type": "Artistry",
@@ -9186,7 +9237,7 @@
     "ingredient1qty": 40000,
     "ingredient3": "Potion B",
     "ingredient3qty": 5,
-    "gemcost": 7860
+    "gemcost": 8450
   },
   {
     "type": "Tailor",
@@ -9201,7 +9252,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Potion C",
     "ingredient4qty": 100,
-    "gemcost": 166563
+    "gemcost": 180063
   },
   {
     "type": "Zookeeper",
@@ -9233,7 +9284,7 @@
     "ingredient3qty": 8,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 24171
+    "gemcost": 27365
   },
   {
     "type": "Artisan",
@@ -9252,7 +9303,7 @@
     "ingredient3qty": 8,
     "ingredient4": "Potion C",
     "ingredient4qty": 10,
-    "gemcost": 24171
+    "gemcost": 27365
   },
   {
     "type": "Cuisinier",
@@ -9271,7 +9322,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
     "ingredient4qty": 12,
-    "gemcost": 29805
+    "gemcost": 33955
   },
   {
     "type": "Weaver",
@@ -9290,7 +9341,7 @@
     "ingredient3qty": 8,
     "ingredient4": "Potion C",
     "ingredient4qty": 12,
-    "gemcost": 27501
+    "gemcost": 30965
   },
   {
     "type": "Fowler",
@@ -9309,7 +9360,7 @@
     "ingredient3qty": 8,
     "ingredient4": "Potion C",
     "ingredient4qty": 16,
-    "gemcost": 34161
+    "gemcost": 38165
   },
   {
     "type": "Fromager",
@@ -9328,7 +9379,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Potion C",
     "ingredient4qty": 25,
-    "gemcost": 52146
+    "gemcost": 58321
   },
   {
     "type": "Virtuose Culinaire",
@@ -9347,7 +9398,7 @@
     "ingredient3qty": 12,
     "ingredient4": "Potion C",
     "ingredient4qty": 20,
-    "gemcost": 43734
+    "gemcost": 48750
   },
   {
     "type": "Apiarch",
@@ -9366,7 +9417,7 @@
     "ingredient3qty": 12,
     "ingredient4": "Potion C",
     "ingredient4qty": 25,
-    "gemcost": 52059
+    "gemcost": 57750
   },
   {
     "type": "Vintner",
@@ -9385,7 +9436,7 @@
     "ingredient3qty": 20,
     "ingredient4": "Potion C",
     "ingredient4qty": 40,
-    "gemcost": 83324
+    "gemcost": 92164
   },
   {
     "type": "Medicine",
@@ -9571,7 +9622,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Book",
     "ingredient4qty": 65,
-    "gemcost": 18385
+    "gemcost": 19060
   },
   {
     "type": "Magic Helmet",
