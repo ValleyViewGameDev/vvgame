@@ -8463,12 +8463,12 @@
   "resourceDistribution": {
     "Oak Tree": 1400,
     "Pine Tree": 300,
-    "Rocks": 200,
+    "Rocks": 75,
     "Mushroom": 2,
     "Tulip": 2,
     "Daisy": 10,
     "Rosemary": 5
-    },
+  },
   "enemiesDistribution": {
     "Coyote": 6
   }

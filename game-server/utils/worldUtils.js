@@ -242,12 +242,14 @@ function generateGridWithClumping(layout, tileDistribution) {
   console.log(`📍 Found ${totalEligible} positions for random tile generation`);
 
   // Build tile counts based on distribution percentages
+  // Note: tileDistribution values are whole numbers (e.g., 8 = 8%), not decimals (0.08)
   const tileCounts = {};
   for (const [tileType, percentage] of Object.entries(tileDistribution)) {
     if (percentage > 0) {
       const tileResource = masterResources.find(res => res.type === tileType && res.category === 'tile');
       if (tileResource) {
-        const count = Math.round(percentage * totalEligible);
+        // Convert percentage (e.g., 8 for 8%) to actual count
+        const count = Math.round((percentage / 100) * totalEligible);
         if (count > 0) {
           tileCounts[tileType] = {
             layoutkey: tileResource.layoutkey,
