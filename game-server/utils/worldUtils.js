@@ -14,7 +14,7 @@ if (!resourcesData) {
 }
 
 // Clumping settings for deposit tiles (used on valley grids)
-const CLUMP_SIZE = 20;
+const CLUMP_SIZE = 30;
 const CLUMP_VARIATION = 5;
 const MIN_CLUMP_SIZE = 5;
 const CLUMP_TIGHTNESS = 2.5;
@@ -299,6 +299,13 @@ function generateGridWithClumping(layout, tileDistribution) {
     console.log(`   ✅ Distributed tiles to ${eligiblePositions.length} positions`);
   }
 
+  // DEBUG: Count layoutkeys before returning
+  const layoutkeyCounts = {};
+  tiles.forEach(row => row.forEach(t => {
+    layoutkeyCounts[t] = (layoutkeyCounts[t] || 0) + 1;
+  }));
+  console.log(`🔍 DEBUG: Layoutkey counts after clumping:`, layoutkeyCounts);
+
   return tiles;
 }
 
@@ -308,6 +315,13 @@ function generateResources(layout, tiles, resourceDistribution = null) {
   }
 
   console.log("📌 Generating resources with new validation...");
+
+  // DEBUG: Count tile types received
+  const receivedTileCounts = {};
+  tiles.forEach(row => row.forEach(t => {
+    receivedTileCounts[t] = (receivedTileCounts[t] || 0) + 1;
+  }));
+  console.log(`🔍 DEBUG: generateResources received tiles:`, receivedTileCounts);
   // ✅ Use the provided resourceDistribution or fall back to the template's
   resourceDistribution = resourceDistribution || layout.resourceDistribution || {};
   console.log(`📊 Resource distribution has ${Object.keys(resourceDistribution).length} types:`, Object.keys(resourceDistribution).slice(0, 5));
@@ -351,36 +365,73 @@ function generateResources(layout, tiles, resourceDistribution = null) {
   });
 
   // ✅ Step 2: Randomly Place Distributed Resources
-  shuffleArray(availableCells); // Randomize available placement locations
-  console.log(`📍 Found ${availableCells.length} available cells for random resource placement`);
+  // Pre-group available cells by tile type for efficient lookup
+  // This is critical for resources that require specific tiles (e.g., Rocks on slate, Clay Pit on clay)
+  const cellsByTileType = {};
+  availableCells.forEach(cell => {
+    const tileType = tiles[cell.y]?.[cell.x] || 'g';
+    if (!cellsByTileType[tileType]) {
+      cellsByTileType[tileType] = [];
+    }
+    cellsByTileType[tileType].push(cell);
+  });
+
+  // Shuffle each tile type's cells
+  Object.values(cellsByTileType).forEach(cells => shuffleArray(cells));
+
+  // Log available cells by tile type for debugging
+  const cellCountsByType = {};
+  Object.entries(cellsByTileType).forEach(([type, cells]) => {
+    cellCountsByType[type] = cells.length;
+  });
+  console.log(`📍 Found ${availableCells.length} available cells for random resource placement:`, cellCountsByType);
 
   Object.entries(resourceDistribution).forEach(([resourceType, quantity]) => {
     const alreadyPlaced = alreadyPlacedCounts[resourceType] || 0;
     let remaining = Math.max(quantity - alreadyPlaced, 0);
-    let retries = 0;
-    const maxRetries = 10;
+    const resourceDefinition = masterResources.find(res => res.type === resourceType);
 
-    while (remaining > 0 && availableCells.length > 0) {
-      if (retries >= maxRetries) {
-        console.warn(`⚠️ Max retries reached for "${resourceType}". Unable to place remaining ${remaining} instances.`);
+    if (!resourceDefinition) {
+      console.warn(`⚠️ Resource definition not found for "${resourceType}"`);
+      return;
+    }
+
+    // Find which tile types this resource is valid on
+    const validTileTypes = [];
+    ['g', 's', 'd', 'w', 'p', 'l', 'n', 'o', 'x', 'y', 'z', 'c', 'v', 'u'].forEach(tileType => {
+      const validKey = `validon${tileType}`;
+      if (resourceDefinition[validKey] === true) {
+        validTileTypes.push(tileType);
+      }
+    });
+
+    // Place resources on valid tiles
+    let placed = 0;
+    while (remaining > 0) {
+      // Find a valid tile type that has available cells
+      let foundCell = null;
+      for (const tileType of validTileTypes) {
+        if (cellsByTileType[tileType] && cellsByTileType[tileType].length > 0) {
+          foundCell = cellsByTileType[tileType].pop();
+          break;
+        }
+      }
+
+      if (!foundCell) {
+        if (remaining > 0) {
+          console.warn(`⚠️ No valid tiles available for "${resourceType}". Unable to place remaining ${remaining} instances. Valid on: [${validTileTypes.join(', ')}]`);
+        }
         break;
       }
 
-      const { x, y } = availableCells.pop();
-      const tileType = tiles[y]?.[x] || 'g'; // ✅ Ensure tile type exists
-      const resourceDefinition = masterResources.find(res => res.type === resourceType);
-      const validKey = `validon${tileType.toLowerCase()}`;
-      const isValid = resourceDefinition && resourceDefinition[validKey] === true;
+      resources.push({ type: resourceType, x: foundCell.x, y: foundCell.y });
+      remaining--;
+      placed++;
+    }
 
-      if (isValid) {
-        resources.push({ type: resourceType, x, y });
-        remaining--;
-        retries = 0;
-      } else {
-        availableCells.unshift({ x, y }); // Put it back for another try
-        retries++;
-        //console.warn(`❌ Skipping "${resourceType}" at (${x},${y}) - Not valid on "${tileType}". Retrying...`);
-      }
+    if (placed > 0 && validTileTypes.length <= 2) {
+      // Log placement for resources with specific tile requirements
+      console.log(`📍 Placed ${placed} "${resourceType}" on tiles: [${validTileTypes.join(', ')}]`);
     }
 
     if (remaining > 0) {

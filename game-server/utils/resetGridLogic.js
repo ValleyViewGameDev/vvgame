@@ -177,15 +177,31 @@ async function performGridReset(gridId, gridType, gridCoord) {
   // RANDOM: generateGrid() fills '**' wildcards using tileDistribution percentages
   //         For valley grids, deposit tiles (slate, clay, etc.) are placed in
   //         natural-looking clumps rather than scattered randomly
+  const unknownLayoutkeys = new Set();
   const newTiles = isFixedLayout
     ? generateFixedGrid(layout)
     : generateGrid(layout, gridType).map(row =>
         row.map(layoutKey => {
           // Convert layoutKey (e.g., 'GR', 'SL') to tile type (e.g., 'g', 's')
           const tileRes = masterResources.find(r => r.layoutkey === layoutKey && r.category === 'tile');
+          if (!tileRes && layoutKey !== '**') {
+            unknownLayoutkeys.add(layoutKey);
+          }
           return tileRes ? tileRes.type : 'g';
         })
       );
+  if (unknownLayoutkeys.size > 0) {
+    console.warn(`⚠️ Unknown layoutkeys during conversion:`, Array.from(unknownLayoutkeys));
+  }
+
+  // DEBUG: Count tile types after conversion (before snow)
+  if (!isFixedLayout && gridType?.startsWith('valley')) {
+    const tileCounts = {};
+    newTiles.forEach(row => row.forEach(t => {
+      tileCounts[t] = (tileCounts[t] || 0) + 1;
+    }));
+    console.log(`🔍 DEBUG: Tile counts after conversion:`, tileCounts);
+  }
 
   // Apply snow tiles for Winter (convert grass 'g' to snow 'o')
   if (seasonType === 'Winter' || seasonType === 'winter') {
