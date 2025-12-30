@@ -14,10 +14,10 @@ const SettlementSchema = new mongoose.Schema({
         // The new coordinate code that encodes frontier, settlement row/col, grid row/col
         gridCoord: { type: Number, required: true }, // or String, if you prefer
 
-        gridType: { 
-          type: String, 
-          enum: ['homestead', 'town', 'valley', 'valley0', 'valley1', 'valley2', 'valley3', 'reserved'], 
-          required: true 
+        gridType: {
+          type: String,
+          enum: ['homestead', 'town', 'valley', 'valley1', 'valley2', 'valley3', 'reserved'],
+          required: true
         },
 
         available: { type: Boolean, required: true },

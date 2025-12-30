@@ -286,7 +286,6 @@ router.post('/create-frontier', async (req, res) => {
               case 'R':
                 gridType = 'reserved';
                 break;
-              case 'valley0':
               case 'valley1':
               case 'valley2':
               case 'valley3':

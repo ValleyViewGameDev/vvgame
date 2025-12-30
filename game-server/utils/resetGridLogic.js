@@ -29,7 +29,7 @@ const TileEncoder = require('./TileEncoder');
  *
  * 2. RANDOM LAYOUT (isFixedLayout = false)
  *    - Used when no valleyFixedCoord file exists for this grid coordinate
- *    - Falls back to a template file (e.g., valley0/default.json)
+ *    - Falls back to a template file (e.g., valley1/default.json)
  *    - Template contains '**' wildcards that get filled randomly
  *    - Tiles are generated based on tileDistribution percentages
  *    - Resources are generated based on resourceDistribution quantities
@@ -45,7 +45,7 @@ const TileEncoder = require('./TileEncoder');
  * - valley*: Checks for valleyFixedCoord first, falls back to random with clumping
  *
  * @param {string} gridId - The MongoDB ObjectId of the grid to reset
- * @param {string} gridType - The type of grid (homestead, town, dungeon, valley0, etc.)
+ * @param {string} gridType - The type of grid (homestead, town, dungeon, valley1, etc.)
  * @param {string} gridCoord - The coordinate string (e.g., "0,0", "1,-2")
  */
 async function performGridReset(gridId, gridType, gridCoord) {
@@ -135,7 +135,7 @@ async function performGridReset(gridId, gridType, gridCoord) {
       console.log(`📌 Using fixed-coordinate layout: ${layoutFileName}`);
     } else {
       // RANDOM LAYOUT: No fixed layout exists, use a template with distributions
-      // The template (e.g., valley0/default.json) contains:
+      // The template (e.g., valley1/default.json) contains:
       // - tiles array with '**' wildcards for random placement
       // - tileDistribution: percentages for each tile type
       // - resourceDistribution: quantities for each resource type

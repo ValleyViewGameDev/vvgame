@@ -172,7 +172,7 @@ function generateGrid(layout, gridType = null) {
   const distributionArray = createDistributionArray(tileDistribution);
 
   // ============================================================
-  // CLUMPING LOGIC: Only applies to valley grids (valley0, valley1, etc.)
+  // CLUMPING LOGIC: Only applies to valley grids (valley1, valley2, etc.)
   // For all other grid types (homestead, town, dungeon), we use the
   // original random distribution logic below - completely unchanged.
   // ============================================================
@@ -207,7 +207,7 @@ function generateGrid(layout, gridType = null) {
 
 /**
  * Generate grid with clumping for deposit tiles.
- * ONLY used for valley grids (valley0, valley1, valley2, valley3).
+ * ONLY used for valley grids (valley1, valley2, valley3).
  * Deposit tiles (source='deposit') are placed in clumps for a more natural look.
  * Regular tiles are distributed randomly to fill remaining positions.
  */
