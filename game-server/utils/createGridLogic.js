@@ -6,7 +6,7 @@ const Settlement = require('../models/settlement');
 const Frontier = require('../models/frontier');
 const Grid = require('../models/grid');
 const { readJSON } = require('./fileUtils');
-const { getTemplate, getHomesteadLayoutFile, getTownLayoutFile, getPositionFromSettlementType } = require('./templateUtils');
+const { getTemplate, getRandomValleyLayout, getHomesteadLayoutFile, getTownLayoutFile, getPositionFromSettlementType } = require('./templateUtils');
 const masterResources = require('../tuning/resources.json');
 const { generateGrid, generateResources, generateFixedGrid, generateFixedResources, generateEnemies } = require('./worldUtils');
 const seasonsConfig = require('../tuning/seasons.json');
@@ -63,19 +63,39 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
     layout = readJSON(path.join(__dirname, '../layouts/gridLayouts/town', layoutFileName));
     console.log(`🏘️ Creating town with position: ${position || 'default'}, season: ${seasonType}, layout: ${layoutFileName}`);
   } else {
+    // ============================================================
+    // VALLEY GRIDS: Check for fixed layout first, fall back to random
+    // ============================================================
     const fixedPath = path.join(__dirname, `../layouts/gridLayouts/valleyFixedCoord/${gridCoord}.json`);
     if (fs.existsSync(fixedPath)) {
+      // FIXED LAYOUT: Use exact positions from the valleyFixedCoord file
       layoutFileName = `${gridCoord}.json`;
       layout = readJSON(fixedPath);
       isFixedLayout = true;
+      console.log(`📌 Using fixed-coordinate layout for grid creation: ${layoutFileName}`);
     } else {
-      const templateData = getTemplate('gridLayouts', gridType, gridCoord);
-      layoutFileName = templateData.fileName;
-      layout = templateData.template;
+      // ============================================================
+      // RANDOM LAYOUT: Use unified randomValleyGridLayouts.json
+      // ============================================================
+      // The getRandomValleyLayout function:
+      // - Selects a random layout from layouts matching this gridType (valley1/2/3)
+      // - Parses tile distribution from single-letter keys (g, s, d, c, z, etc.)
+      // - Parses resource distribution from r1/r1qty, r2/r2qty, etc.
+      // - Parses enemy distribution from e1/e1qty, e2/e2qty, etc.
+      // For valley grids, deposit tiles will be clumped together (see generateGrid)
+      layout = getRandomValleyLayout(gridType);
+      if (!layout) {
+        throw new Error(`No valley layout found for gridType: ${gridType}`);
+      }
+      layoutFileName = layout.layoutName || gridType;
+      console.log(`📦 Using random valley layout for grid creation: ${layoutFileName}`);
     }
   }
 
-  if (!layout || !layout.tiles || !layout.resources) {
+  // Valley random templates may omit tiles[] and resources[] arrays (all wildcards)
+  // Fixed layouts and non-valley grids still require them
+  const isValleyRandom = gridType?.startsWith('valley') && !isFixedLayout;
+  if (!layout || (!isValleyRandom && (!layout.tiles || !layout.resources))) {
     throw new Error(`Invalid layout: ${layoutFileName}`);
   }
 
@@ -142,28 +162,31 @@ async function performGridCreation({ gridCoord, gridType, settlementId, frontier
   });
 
   const newGridState = { npcs: {} };
-  layout.resources.forEach((row, y) => {
-    row.forEach((cell, x) => {
-      const entry = masterResources.find(res => res.layoutkey === cell && res.category === 'npc');
-      if (entry) {
-        const npcId = new mongoose.Types.ObjectId().toString();
-        newGridState.npcs[npcId] = {
-          id: npcId,
-          type: entry.type,
-          position: { x, y },
-          state: entry.defaultState || 'idle',
-          hp: entry.maxhp || 10,
-          maxhp: entry.maxhp || 10,
-          armorclass: entry.armorclass || 10,
-          attackbonus: entry.attackbonus || 0,
-          damage: entry.damage || 1,
-          attackrange: entry.attackrange || 1,
-          speed: entry.speed || 1,
-          lastUpdated: 0,
-        };
-      }
+  // Static NPCs from layout (if resources array exists - may be missing in simplified valley templates)
+  if (layout.resources) {
+    layout.resources.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        const entry = masterResources.find(res => res.layoutkey === cell && res.category === 'npc');
+        if (entry) {
+          const npcId = new mongoose.Types.ObjectId().toString();
+          newGridState.npcs[npcId] = {
+            id: npcId,
+            type: entry.type,
+            position: { x, y },
+            state: entry.defaultState || 'idle',
+            hp: entry.maxhp || 10,
+            maxhp: entry.maxhp || 10,
+            armorclass: entry.armorclass || 10,
+            attackbonus: entry.attackbonus || 0,
+            damage: entry.damage || 1,
+            attackrange: entry.attackrange || 1,
+            speed: entry.speed || 1,
+            lastUpdated: 0,
+          };
+        }
+      });
     });
-  });
+  }
 
   // Generate random enemies for non-fixed layouts
   if (!isFixedLayout && layout.enemiesDistribution) {

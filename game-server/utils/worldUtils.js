@@ -8,6 +8,9 @@ const resourcesFilePath = path.join(__dirname, '../tuning/resources.json');
 console.log('Loading resources ...');
 const resourcesData = readJSON(resourcesFilePath);
 
+// Default grid size from config (used when tiles/resources arrays are missing from layout)
+const DEFAULT_GRID_SIZE = config.GRID_SIZE || 64;
+
 if (!resourcesData) {
   console.error('Error loading critical JSON files.');
   throw new Error('Failed to load required JSON files.');
@@ -18,6 +21,18 @@ const CLUMP_SIZE = 30;
 const CLUMP_VARIATION = 5;
 const MIN_CLUMP_SIZE = 5;
 const CLUMP_TIGHTNESS = 2.5;
+
+/**
+ * Generate a grid of wildcard markers for random tile/resource generation.
+ * Used when tiles[] or resources[] arrays are missing from valley templates.
+ * @param {number} size - Grid dimension (default from config)
+ * @returns {Array} 2D array filled with '**' wildcards
+ */
+function generateWildcardGrid(size = DEFAULT_GRID_SIZE) {
+  return Array.from({ length: size }, () =>
+    Array.from({ length: size }, () => '**')
+  );
+}
  
 // Helper function to create a distribution array
 function createDistributionArray(tileDistribution) {
@@ -165,9 +180,9 @@ function generateClumpsForTileType(tiles, layoutkey, totalTiles, eligiblePositio
 }
 
 function generateGrid(layout, gridType = null) {
-  if (!layout.tiles) {
-    throw new Error('Invalid layout: Missing "tiles".');
-  }
+  // For valley templates, generate wildcard grid if tiles[] is missing
+  const tiles = layout.tiles || generateWildcardGrid(layout.gridSize || DEFAULT_GRID_SIZE);
+
   const tileDistribution = layout.tileDistribution || {};
   const distributionArray = createDistributionArray(tileDistribution);
 
@@ -187,7 +202,7 @@ function generateGrid(layout, gridType = null) {
   // ORIGINAL LOGIC (unchanged): Used for homestead, town, dungeon, etc.
   // This is the exact same logic that existed before clumping was added.
   // ============================================================
-  return layout.tiles.map((row, rowIndex) =>
+  return tiles.map((row, rowIndex) =>
     row.map((cell, colIndex) => {
       if (cell === '**') {
         const randomTile = distributionArray.length > 0
@@ -212,8 +227,11 @@ function generateGrid(layout, gridType = null) {
  * Regular tiles are distributed randomly to fill remaining positions.
  */
 function generateGridWithClumping(layout, tileDistribution) {
+  // Get tiles array, or generate wildcard grid if missing (for simplified valley templates)
+  const layoutTiles = layout.tiles || generateWildcardGrid(layout.gridSize || DEFAULT_GRID_SIZE);
+
   // First pass: Create the base grid and identify eligible positions for random tiles
-  const tiles = layout.tiles.map((row) =>
+  const tiles = layoutTiles.map((row) =>
     row.map((cell) => {
       if (cell === '**') {
         return '**'; // Mark for later processing
@@ -310,9 +328,8 @@ function generateGridWithClumping(layout, tileDistribution) {
 }
 
 function generateResources(layout, tiles, resourceDistribution = null) {
-  if (!layout.resources) {
-    throw new Error('Invalid layout: Missing "resources".');
-  }
+  // Get resources array, or generate wildcard grid if missing (for simplified valley templates)
+  const layoutResources = layout.resources || generateWildcardGrid(layout.gridSize || DEFAULT_GRID_SIZE);
 
   console.log("📌 Generating resources with new validation...");
 
@@ -329,7 +346,7 @@ function generateResources(layout, tiles, resourceDistribution = null) {
   const availableCells = [];
 
   // ✅ Step 1: Place Static Resources First
-  layout.resources.forEach((row, y) => {
+  layoutResources.forEach((row, y) => {
     row.forEach((cell, x) => {
       if (cell === '**') {
         availableCells.push({ x, y }); // ✅ Keep track of empty spots
@@ -447,17 +464,20 @@ function generateEnemies(layout, tiles, existingNPCs = {}) {
   const enemies = {};
   const availableCells = [];
 
+  // Get resources array for checking occupied positions (may be missing in simplified templates)
+  const layoutResources = layout.resources || null;
+
   // Find all walkable tiles that don't already have NPCs or resources
   const occupiedPositions = new Set();
-  
+
   // Mark existing NPC positions as occupied
   Object.values(existingNPCs).forEach(npc => {
     occupiedPositions.add(`${npc.position.x},${npc.position.y}`);
   });
 
-  // Mark resource positions as occupied (from layout.resources)
-  if (layout.resources) {
-    layout.resources.forEach((row, y) => {
+  // Mark resource positions as occupied (from layout.resources if present)
+  if (layoutResources) {
+    layoutResources.forEach((row, y) => {
       row.forEach((cell, x) => {
         if (cell !== '**') {
           occupiedPositions.add(`${x},${y}`);

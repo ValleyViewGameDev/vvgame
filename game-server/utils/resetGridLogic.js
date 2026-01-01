@@ -6,7 +6,7 @@ const fs = require('fs');
 const { generateGrid, generateResources, generateFixedGrid, generateFixedResources, generateEnemies } = require('./worldUtils');
 const { readJSON } = require('./fileUtils');const { ObjectId } = require('mongodb');
 const masterResources = require('../tuning/resources.json');
-const { getTemplate, getHomesteadLayoutFile, getTownLayoutFile, getPositionFromSettlementType } = require('./templateUtils');
+const { getTemplate, getRandomValleyLayout, getHomesteadLayoutFile, getTownLayoutFile, getPositionFromSettlementType } = require('./templateUtils');
 const Settlement = require('../models/settlement');
 const seasonsConfig = require('../tuning/seasons.json');
 const UltraCompactResourceEncoder = require('./ResourceEncoder');
@@ -134,20 +134,28 @@ async function performGridReset(gridId, gridType, gridCoord) {
       isFixedLayout = true;
       console.log(`📌 Using fixed-coordinate layout: ${layoutFileName}`);
     } else {
-      // RANDOM LAYOUT: No fixed layout exists, use a template with distributions
-      // The template (e.g., valley1/default.json) contains:
-      // - tiles array with '**' wildcards for random placement
-      // - tileDistribution: percentages for each tile type
-      // - resourceDistribution: quantities for each resource type
+      // ============================================================
+      // RANDOM LAYOUT: Use unified randomValleyGridLayouts.json
+      // ============================================================
+      // The getRandomValleyLayout function:
+      // - Selects a random layout from layouts matching this gridType (valley1/2/3)
+      // - Parses tile distribution from single-letter keys (g, s, d, c, z, etc.)
+      // - Parses resource distribution from r1/r1qty, r2/r2qty, etc.
+      // - Parses enemy distribution from e1/e1qty, e2/e2qty, etc.
       // For valley grids, deposit tiles will be clumped together (see generateGrid)
-      const layoutInfo = getTemplate('gridLayouts', gridType, gridCoord);
-      layout = layoutInfo.template;
-      layoutFileName = layoutInfo.fileName;
-      console.log(`📦 Using random layout template: ${layoutFileName}`);
+      layout = getRandomValleyLayout(gridType);
+      if (!layout) {
+        throw new Error(`No valley layout found for gridType: ${gridType}`);
+      }
+      layoutFileName = layout.layoutName || gridType;
+      console.log(`📦 Using random valley layout: ${layoutFileName}`);
     }
   }
 
-  if (!layout?.tiles || !layout?.resources) {
+  // Valley random templates may omit tiles[] and resources[] arrays (all wildcards)
+  // Fixed layouts and non-valley grids still require them
+  const isValleyRandom = gridType?.startsWith('valley') && !isFixedLayout;
+  if (!isValleyRandom && (!layout?.tiles || !layout?.resources)) {
     throw new Error(`Invalid layout for gridType: ${gridType}`);
   }
 
@@ -251,10 +259,12 @@ async function performGridReset(gridId, gridType, gridCoord) {
   }
 
   const newNPCs = {};
-  layout.resources.forEach((row, y) => {
-    row.forEach((cell, x) => {
-      const res = masterResources.find(r => r.layoutkey === cell && r.category === 'npc');
-      if (!res) return;
+  // Static NPCs from layout (if resources array exists - may be missing in simplified valley templates)
+  if (layout.resources) {
+    layout.resources.forEach((row, y) => {
+      row.forEach((cell, x) => {
+        const res = masterResources.find(r => r.layoutkey === cell && r.category === 'npc');
+        if (!res) return;
       const npcId = new ObjectId();
       const npcData = {
         id: npcId.toString(),
@@ -280,8 +290,9 @@ async function performGridReset(gridId, gridType, gridCoord) {
       }
 
       newNPCs[npcId.toString()] = npcData;
+      });
     });
-  });
+  }
 
   // ============================================================
   // ENEMY GENERATION (random layouts only)

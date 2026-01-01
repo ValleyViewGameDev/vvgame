@@ -3522,14 +3522,16 @@ return (
           setCurrentPlayer={setCurrentPlayer}
           resources={resources}
           setResources={setResources}
-          stationType={activeStation?.type} 
-          currentStationPosition={activeStation?.position} 
+          stationType={activeStation?.type}
+          currentStationPosition={activeStation?.position}
           gridId={activeStation?.gridId}
           TILE_SIZE={activeTileSize}
           updateStatus={updateStatus}
           masterResources={masterResources}
           masterSkills={masterSkills}
           currentSeason={seasonData?.type}
+          isDeveloper={isDeveloper}
+          globalTuning={globalTuning}
         />
       )}
       {activePanel === 'SocialPanel' && (

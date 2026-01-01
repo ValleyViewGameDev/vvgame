@@ -21,6 +21,7 @@ import { BulkHarvestModal, executeBulkHarvest, prepareBulkHarvestData } from './
 import BulkHarvestResultsModal from './BulkHarvestResultsModal';
 import { BulkAnimalModal, executeBulkAnimalCollect } from './BulkAnimalCollect';
 import { BulkCraftingModal, executeBulkCrafting, prepareBulkCraftingData } from './BulkCrafting';
+import { isACrop } from '../../Utils/ResourceHelpers';
 
 const FarmHandPanel = ({
   onClose,
@@ -39,9 +40,10 @@ const FarmHandPanel = ({
   TILE_SIZE,
   updateStatus,
   masterResources,
-  masterSkills, // Added as prop
+  masterSkills,
   currentSeason,
   globalTuning,
+  isDeveloper = false,
 }) => {
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
@@ -133,20 +135,18 @@ const FarmHandPanel = ({
 
   useEffect(() => {
     try {
-      const farmOutputs = masterResources
-        .filter((res) => res.category === 'farmplot')
-        .map((res) => res.output)
-        .filter(Boolean);
-
       const filteredRecipes = masterResources.filter((res) => {
-        // Filter out devonly resources
-        if (res.requires === 'devonly') return false;
+        // Must be a crop (output of a farmplot)
+        if (!isACrop(res.type, masterResources)) return false;
 
-        // Check if resource is in farmOutputs and not Oak Tree
-        if (!farmOutputs.includes(res.type) || res.type === 'Oak Tree') return false;
+        // Exclude resources with level >= 2
+        if (res.level >= 2) return false;
 
-        // Check seasonal restriction
-        if (res.season && currentSeason && res.season !== currentSeason) {
+        // Check devonly restriction (allow if isDeveloper)
+        if (res.requires === 'devonly' && !isDeveloper) return false;
+
+        // Check seasonal restriction (allow if isDeveloper)
+        if (!isDeveloper && res.season && currentSeason && res.season !== currentSeason) {
           return false;
         }
 
@@ -160,7 +160,7 @@ const FarmHandPanel = ({
     } catch (error) {
       console.error('Error loading worker offers:', error);
     }
-  }, [stationType, masterResources, currentSeason]);
+  }, [stationType, masterResources, currentSeason, isDeveloper]);
 
   useEffect(() => {
     const ownedTypes = currentPlayer.skills?.map(skill => skill.type) || [];
