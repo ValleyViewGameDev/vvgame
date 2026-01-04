@@ -1498,7 +1498,7 @@ const loadFromTemplate = (layoutData) => {
     });
 
     let hasResources = false;
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 15; i++) {
       const resourceKey = `r${i}`;
       const qtyKey = `r${i}qty`;
       if (layoutData[resourceKey] && layoutData[qtyKey] !== undefined) {
@@ -1523,7 +1523,7 @@ const loadFromTemplate = (layoutData) => {
     });
 
     let hasEnemies = false;
-    for (let i = 1; i <= 5; i++) {
+    for (let i = 1; i <= 10; i++) {
       const enemyKey = `e${i}`;
       const qtyKey = `e${i}qty`;
       if (layoutData[enemyKey] && layoutData[qtyKey] !== undefined) {

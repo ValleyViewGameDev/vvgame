@@ -93,31 +93,29 @@ function getRandomValleyLayout(gridType) {
   // ============================================================
   // PARSE RESOURCE DISTRIBUTION
   // Look for r1/r1qty, r2/r2qty, etc. pairs
+  // Note: JSON may have gaps (e.g., r1, r2, r4 - skipping r3), so we check up to r15
   // ============================================================
   const resourceDistribution = {};
-  let resourceIndex = 1;
-  while (selectedLayout[`r${resourceIndex}`] !== undefined) {
+  for (let resourceIndex = 1; resourceIndex <= 15; resourceIndex++) {
     const resourceName = selectedLayout[`r${resourceIndex}`];
     const resourceQty = selectedLayout[`r${resourceIndex}qty`];
     if (resourceName && resourceQty > 0) {
       resourceDistribution[resourceName] = resourceQty;
     }
-    resourceIndex++;
   }
 
   // ============================================================
   // PARSE ENEMY DISTRIBUTION
   // Look for e1/e1qty, e2/e2qty, etc. pairs
+  // Note: JSON may have gaps, so we check up to e10
   // ============================================================
   const enemiesDistribution = {};
-  let enemyIndex = 1;
-  while (selectedLayout[`e${enemyIndex}`] !== undefined) {
+  for (let enemyIndex = 1; enemyIndex <= 10; enemyIndex++) {
     const enemyName = selectedLayout[`e${enemyIndex}`];
     const enemyQty = selectedLayout[`e${enemyIndex}qty`];
     if (enemyName && enemyQty > 0) {
       enemiesDistribution[enemyName] = enemyQty;
     }
-    enemyIndex++;
   }
 
   // Log what we parsed for debugging
