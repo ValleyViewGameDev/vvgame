@@ -64,6 +64,7 @@ const GridEditor = ({ activePanel }) => {
   const [showLoadConfirm, setShowLoadConfirm] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [availableTemplates, setAvailableTemplates] = useState([]);
+  const [valleyGridLayouts, setValleyGridLayouts] = useState([]); // Store all valley grid layouts from JSON
 
   // Computed list of enemy NPCs
   const enemyNpcs = availableNpcs.filter(npc => npc.action === 'attack' || npc.action === 'spawn');
@@ -177,6 +178,17 @@ const GridEditor = ({ activePanel }) => {
       } catch (error) {
         console.warn('⚠️ Could not load mini templates:', error.message);
         setAvailableMiniTemplates([]);
+      }
+
+      // Load valley grid layouts from randomValleyGridLayouts.json
+      try {
+        const valleyLayoutsPath = path.join(projectRoot, 'game-server', 'layouts', 'gridLayouts', 'randomValleyGridLayouts.json');
+        const valleyLayoutsData = JSON.parse(fs.readFileSync(valleyLayoutsPath, 'utf-8'));
+        setValleyGridLayouts(valleyLayoutsData);
+        console.log('✅ Loaded valley grid layouts:', valleyLayoutsData.length, 'layouts');
+      } catch (error) {
+        console.warn('⚠️ Could not load valley grid layouts:', error.message);
+        setValleyGridLayouts([]);
       }
       
       // Initialize enemy distribution for NPCs with attack or spawn actions
@@ -1435,79 +1447,96 @@ const handleOpenTemplateModal = () => {
     return;
   }
 
-  try {
-    const layoutDir = path.join(
-      projectRoot,
-      'game-server',
-      'layouts',
-      'gridLayouts',
-      currentGridType
-    );
+  // Filter layouts from randomValleyGridLayouts.json by valleyType matching currentGridType
+  const matchingLayouts = valleyGridLayouts.filter(layout => layout.valleyType === currentGridType);
 
-    // Get all JSON files in the directory
-    const files = fs.readdirSync(layoutDir).filter(file => file.endsWith('.json'));
-
-    if (files.length === 0) {
-      alert(`No template files found in ${currentGridType} folder.`);
-      return;
-    }
-
-    setAvailableTemplates(files);
-    setShowTemplateModal(true);
-  } catch (error) {
-    console.error('Failed to load template list:', error);
-    alert('Error loading template list. Check console for details.');
+  if (matchingLayouts.length === 0) {
+    alert(`No layouts found for ${currentGridType} in randomValleyGridLayouts.json.`);
+    return;
   }
+
+  setAvailableTemplates(matchingLayouts);
+  setShowTemplateModal(true);
+  console.log(`📋 Found ${matchingLayouts.length} layouts for ${currentGridType}`);
 };
 
-// Load distributions from a specific template file
-const loadFromTemplate = (fileName) => {
+// Load distributions from a valley layout object (from randomValleyGridLayouts.json)
+const loadFromTemplate = (layoutData) => {
   try {
-    const templatePath = path.join(
-      projectRoot,
-      'game-server',
-      'layouts',
-      'gridLayouts',
-      currentGridType,
-      fileName
-    );
-
-    const templateData = JSON.parse(fs.readFileSync(templatePath, 'utf-8'));
     let loaded = [];
 
-    // Load tile distribution
-    if (templateData.tileDistribution) {
+    // Load tile distribution from layout properties (g, s, d, z, c, etc.)
+    const tileKeys = ['g', 's', 'd', 'w', 'p', 'l', 'n', 'o', 'x', 'y', 'z', 'c', 'v', 'u'];
+    const hasTileData = tileKeys.some(key => layoutData[key] !== undefined);
+
+    if (hasTileData) {
       const defaultDistribution = { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, o: 0, x: 0, y: 0, z: 0, c: 0, v: 0, u: 0 };
-      setTileDistribution({ ...defaultDistribution, ...templateData.tileDistribution });
+      const newTileDistribution = { ...defaultDistribution };
+
+      // Sum all defined tile percentages
+      let totalDefined = 0;
+      tileKeys.forEach(key => {
+        if (layoutData[key] !== undefined) {
+          newTileDistribution[key] = layoutData[key];
+          totalDefined += layoutData[key];
+        }
+      });
+
+      // Adjust 'g' (grass) to make total 100% if needed
+      if (totalDefined < 100) {
+        newTileDistribution.g = 100 - (totalDefined - (layoutData.g || 0));
+      }
+
+      setTileDistribution(newTileDistribution);
       loaded.push('tiles');
     }
 
-    // Load resource distribution
-    if (templateData.resourceDistribution) {
-      const newDistribution = {};
-      availableResources.forEach(res => {
-        newDistribution[res.type] = 0;
-      });
-      Object.entries(templateData.resourceDistribution).forEach(([type, quantity]) => {
-        if (newDistribution.hasOwnProperty(type)) {
-          newDistribution[type] = quantity;
+    // Load resource distribution from r1/r1qty, r2/r2qty, etc.
+    const newResourceDistribution = {};
+    availableResources.forEach(res => {
+      newResourceDistribution[res.type] = 0;
+    });
+
+    let hasResources = false;
+    for (let i = 1; i <= 10; i++) {
+      const resourceKey = `r${i}`;
+      const qtyKey = `r${i}qty`;
+      if (layoutData[resourceKey] && layoutData[qtyKey] !== undefined) {
+        const resourceType = layoutData[resourceKey];
+        const quantity = layoutData[qtyKey];
+        if (newResourceDistribution.hasOwnProperty(resourceType)) {
+          newResourceDistribution[resourceType] = quantity;
+          hasResources = true;
         }
-      });
-      setResourceDistribution(newDistribution);
+      }
+    }
+
+    if (hasResources) {
+      setResourceDistribution(newResourceDistribution);
       loaded.push('resources');
     }
 
-    // Load enemy distribution
-    if (templateData.enemiesDistribution) {
-      const newEnemyDistribution = {};
-      enemyNpcs.forEach(npc => {
-        newEnemyDistribution[npc.type] = 0;
-      });
-      Object.entries(templateData.enemiesDistribution).forEach(([type, quantity]) => {
-        if (newEnemyDistribution.hasOwnProperty(type)) {
-          newEnemyDistribution[type] = quantity;
+    // Load enemy distribution from e1/e1qty, e2/e2qty, etc.
+    const newEnemyDistribution = {};
+    enemyNpcs.forEach(npc => {
+      newEnemyDistribution[npc.type] = 0;
+    });
+
+    let hasEnemies = false;
+    for (let i = 1; i <= 5; i++) {
+      const enemyKey = `e${i}`;
+      const qtyKey = `e${i}qty`;
+      if (layoutData[enemyKey] && layoutData[qtyKey] !== undefined) {
+        const enemyType = layoutData[enemyKey];
+        const quantity = layoutData[qtyKey];
+        if (newEnemyDistribution.hasOwnProperty(enemyType)) {
+          newEnemyDistribution[enemyType] = quantity;
+          hasEnemies = true;
         }
-      });
+      }
+    }
+
+    if (hasEnemies) {
       setEnemyDistribution(newEnemyDistribution);
       loaded.push('enemies');
     }
@@ -1515,21 +1544,21 @@ const loadFromTemplate = (fileName) => {
     setShowTemplateModal(false);
 
     if (loaded.length > 0) {
-      console.log(`✅ Populated ${loaded.join(', ')} from template: ${fileName}`);
+      console.log(`✅ Populated ${loaded.join(', ')} from layout: ${layoutData.layout} (${layoutData.description || 'no description'})`);
     } else {
-      alert("Selected template has no distribution data (tiles, resources, or enemies).");
+      alert("Selected layout has no distribution data (tiles, resources, or enemies).");
     }
   } catch (error) {
-    console.error('Failed to load template:', error);
-    alert('Error loading template. Check console for details.');
+    console.error('Failed to load layout:', error);
+    alert('Error loading layout. Check console for details.');
   }
 };
 
-// Load from a random template
+// Load from a random layout
 const loadFromRandomTemplate = () => {
   if (availableTemplates.length === 0) return;
-  const randomFile = availableTemplates[Math.floor(Math.random() * availableTemplates.length)];
-  loadFromTemplate(randomFile);
+  const randomLayout = availableTemplates[Math.floor(Math.random() * availableTemplates.length)];
+  loadFromTemplate(randomLayout);
 };
 
 // --- Expose loadLayout globally for external triggering ---
@@ -2054,7 +2083,7 @@ if (typeof window !== "undefined") {
         <Modal
           isOpen={showTemplateModal}
           onClose={() => setShowTemplateModal(false)}
-          title={`Select Template (${currentGridType})`}
+          title={`Select Layout (${currentGridType})`}
         >
           <div className="shared-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto', alignItems: 'center' }}>
             <button
@@ -2063,13 +2092,14 @@ if (typeof window !== "undefined") {
             >
               🎲 Random
             </button>
-            {availableTemplates.map((file) => (
+            {availableTemplates.map((layout) => (
               <button
-                key={file}
+                key={layout.layout}
                 className="btn-basic btn-modal"
-                onClick={() => loadFromTemplate(file)}
+                onClick={() => loadFromTemplate(layout)}
+                title={layout.description || layout.layout}
               >
-                {file.replace('.json', '')}
+                {layout.layout}
               </button>
             ))}
           </div>
