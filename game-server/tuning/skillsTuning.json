@@ -11,22 +11,40 @@
       "Grapes": 2,
       "Potato": 2,
       "Lettuce": 2,
-      "Pepper": 2
+      "Pepper": 2,
+      "Peach": 2,
+      "Cherry": 2,
+      "Pear": 2,
+      "Ginger": 2,
+      "Grean Bean": 2,
+      "Coconut": 2,
+      "Onion": 2,
+      "Coffee Bean": 2
     },
     "Green Thumb": {
       "Wheat": 2,
       "Corn": 2,
       "Carrot": 2,
       "Sugarcane": 2,
-      "Strawberry": 2,
-      "Tomato": 2,
       "Garlic": 2,
       "Pumpkin": 2,
-      "Grapes": 2,
       "Potato": 2,
       "Lettuce": 2,
+      "Pepper": 2,
+      "Ginger": 2,
+      "Grean Bean": 2,
+      "Coconut": 2,
+      "Onion": 2,
+      "Coffee Bean": 2
+    },
+    "Fruit Fingers": {
+      "Strawberry": 2,
+      "Tomato": 2,
+      "Grapes": 2,
       "Orange": 2,
-      "Pepper": 2
+      "Peach": 2,
+      "Cherry": 2,
+      "Pear": 2
     },
     "Cooking": {
       "Kitchen": 2

@@ -65,6 +65,15 @@
     "requires1qty": 24
   },
   {
+    "trader": "Falstaff",
+    "index": 2,
+    "gives": "Feverfew",
+    "givesqty": 6,
+    "repeat": true,
+    "requires1": "Brandy",
+    "requires1qty": 24
+  },
+  {
     "trader": "Apothecary",
     "index": 1,
     "gives": "Potion A",
@@ -120,7 +129,7 @@
     "trader": "Caliban",
     "index": 1,
     "gives": "Silver",
-    "givesqty": 3,
+    "givesqty": 12,
     "repeat": true,
     "requires1": "Bones",
     "requires1qty": 10
@@ -129,10 +138,10 @@
     "trader": "Caliban",
     "index": 2,
     "gives": "Silver",
-    "givesqty": 10,
+    "givesqty": 30,
     "repeat": true,
     "requires1": "Magic Mushroom",
-    "requires1qty": 25
+    "requires1qty": 12
   },
   {
     "trader": "Leontes",
@@ -178,24 +187,6 @@
     "repeat": true,
     "requires1": "Gem",
     "requires1qty": 10
-  },
-  {
-    "trader": "Castle",
-    "index": 1,
-    "gives": "King's Crown",
-    "givesqty": 1,
-    "repeat": true,
-    "requires1": "Golden Key",
-    "requires1qty": 1
-  },
-  {
-    "trader": "Shrine",
-    "index": 1,
-    "gives": "Trident",
-    "givesqty": 1,
-    "repeat": true,
-    "requires1": "Skeleton Key",
-    "requires1qty": 1
   },
   {
     "trader": "Oracle",

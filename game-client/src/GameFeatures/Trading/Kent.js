@@ -13,18 +13,19 @@ import { formatCountdown } from '../../UI/Timers.js';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 
-function KentPanel({ 
-    onClose, 
+function KentPanel({
+    onClose,
     inventory,
     setInventory,
     backpack,
     setBackpack,
-    currentPlayer, 
-    setCurrentPlayer, 
+    currentPlayer,
+    setCurrentPlayer,
     updateStatus,
     masterResources,
     globalTuning,
-    currentSeason, }) 
+    currentSeason,
+    masterXPLevels }) 
 {
     const strings = useStrings();
     const [isContentLoading, setIsContentLoading] = useState(false);
@@ -298,7 +299,8 @@ function KentPanel({
                 playerWithEmptyOffers,
                 masterResources,
                 globalTuning,
-                currentSeason
+                currentSeason,
+                masterXPLevels
             );
 
             const updatedKentOffers = {
@@ -341,7 +343,8 @@ function KentPanel({
             offer,
             masterResources,
             globalTuning,
-            currentSeason
+            currentSeason,
+            masterXPLevels
         );
         
         // Set the new timer

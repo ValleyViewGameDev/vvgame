@@ -9,20 +9,21 @@ import './Train.css';
 import { formatCountdown } from '../../UI/Timers';
 import { useStrings } from '../../UI/StringsContext';
 
-function NewTrainPanel({ 
-  onClose, 
+function NewTrainPanel({
+  onClose,
   inventory,
   setInventory,
   backpack,
   setBackpack,
-  currentPlayer, 
-  setCurrentPlayer, 
+  currentPlayer,
+  setCurrentPlayer,
   updateStatus,
   masterResources,
   setModalContent,
   setIsModalOpen,
   globalTuning,
-  currentSeason
+  currentSeason,
+  masterXPLevels
   }) 
 {
   const strings = useStrings();
@@ -373,11 +374,12 @@ function NewTrainPanel({
       // Generate new current train data
       console.log('🚂 Generating new current train data');
       const trainData = generateCompleteTrainData(
-        currentPlayer, 
-        masterResources, 
-        globalTuning, 
-        currentSeason, 
-        newTrainNumber
+        currentPlayer,
+        masterResources,
+        globalTuning,
+        currentSeason,
+        newTrainNumber,
+        masterXPLevels
       );
       newCurrentOffers = trainData.offers;
       newCurrentRewards = trainData.rewards;
@@ -385,11 +387,12 @@ function NewTrainPanel({
 
     // Generate new next train data
     const nextTrainData = generateCompleteTrainData(
-      currentPlayer, 
-      masterResources, 
-      globalTuning, 
-      currentSeason, 
-      newTrainNumber + 1
+      currentPlayer,
+      masterResources,
+      globalTuning,
+      currentSeason,
+      newTrainNumber + 1,
+      masterXPLevels
     );
 
     // Update player in database
@@ -430,19 +433,21 @@ function NewTrainPanel({
   const generateAndSaveTrainData = async (trainNumber) => {
     // Generate current and next train data
     const currentTrainData = generateCompleteTrainData(
-      currentPlayer, 
-      masterResources, 
-      globalTuning, 
-      currentSeason, 
-      trainNumber
+      currentPlayer,
+      masterResources,
+      globalTuning,
+      currentSeason,
+      trainNumber,
+      masterXPLevels
     );
-    
+
     const nextTrainData = generateCompleteTrainData(
-      currentPlayer, 
-      masterResources, 
-      globalTuning, 
-      currentSeason, 
-      trainNumber + 1
+      currentPlayer,
+      masterResources,
+      globalTuning,
+      currentSeason,
+      trainNumber + 1,
+      masterXPLevels
     );
 
     const updatedTrainData = {
@@ -602,20 +607,22 @@ function NewTrainPanel({
     try {
       // Generate new current train data
       const currentTrainData = generateCompleteTrainData(
-        currentPlayer, 
-        masterResources, 
-        globalTuning, 
-        currentSeason, 
-        playerTrainNumber
+        currentPlayer,
+        masterResources,
+        globalTuning,
+        currentSeason,
+        playerTrainNumber,
+        masterXPLevels
       );
-      
+
       // Generate new next train data
       const nextTrainData = generateCompleteTrainData(
-        currentPlayer, 
-        masterResources, 
-        globalTuning, 
-        currentSeason, 
-        playerTrainNumber + 1
+        currentPlayer,
+        masterResources,
+        globalTuning,
+        currentSeason,
+        playerTrainNumber + 1,
+        masterXPLevels
       );
 
       const updatedTrainData = {

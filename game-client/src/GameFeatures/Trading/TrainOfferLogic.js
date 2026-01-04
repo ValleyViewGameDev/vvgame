@@ -1,4 +1,5 @@
 import { isACrop } from '../../Utils/ResourceHelpers';
+import { getDerivedLevel } from '../../Utils/playerManagement';
 
 /**
  * Generates new Train offers based on player skills and available resources
@@ -6,15 +7,18 @@ import { isACrop } from '../../Utils/ResourceHelpers';
  * @param {Array} masterResources - Array of all available resources
  * @param {Object} globalTuning - Global tuning configuration
  * @param {string} currentSeason - Current season (Spring, Summer, Fall, Winter)
+ * @param {Array} masterXPLevels - Array of XP thresholds for level calculation
  * @returns {Array} Array of new Train offers
  */
-export function generateNewTrainOffers(currentPlayer, masterResources, globalTuning, currentSeason) {
+export function generateNewTrainOffers(currentPlayer, masterResources, globalTuning, currentSeason, masterXPLevels) {
     const playerSkills = currentPlayer?.skills || [];
     const playerSkillTypes = playerSkills.map(skill => skill.type);
-    
+    const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
+
     console.log('🚂 Train offer generation:', {
         isFirstTimeUser: currentPlayer?.firsttimeuser,
-        playerSkills: playerSkillTypes
+        playerSkills: playerSkillTypes,
+        playerLevel: playerLevel
     });
     
     // Filter eligible resources for Train offers
@@ -83,15 +87,20 @@ export function generateNewTrainOffers(currentPlayer, masterResources, globalTun
         // Filter out resources that are outputs of attack resources if player doesn't have "Explore the Valley" trophy
         const hasExploreValleyTrophy = currentPlayer?.trophies?.some(trophy => trophy.title === "Explore the Valley");
         if (!hasExploreValleyTrophy) {
-            const attackResource = masterResources.find(r => 
+            const attackResource = masterResources.find(r =>
                 r.action === 'attack' && r.output === resource.type
             );
-            
+
             if (attackResource) {
                 return false;
             }
         }
-        
+
+        // Filter out resources where resource.level is above the player's level
+        if (resource.level && resource.level > playerLevel) {
+            return false;
+        }
+
         return true;
     });
     
@@ -226,14 +235,15 @@ export function generateTrainRewards(trainOffers, currentPlayer, masterResources
  * @param {Object} globalTuning - Global tuning configuration
  * @param {string} currentSeason - Current season
  * @param {number} trainNumber - The train number to generate for
+ * @param {Array} masterXPLevels - Array of XP thresholds for level calculation
  * @returns {Object} { offers: [], rewards: [] }
  */
-export function generateCompleteTrainData(currentPlayer, masterResources, globalTuning, currentSeason, trainNumber) {
+export function generateCompleteTrainData(currentPlayer, masterResources, globalTuning, currentSeason, trainNumber, masterXPLevels) {
     console.log(`🚂 Generating complete train data for train #${trainNumber} in ${currentSeason}`);
-    
-    const offers = generateNewTrainOffers(currentPlayer, masterResources, globalTuning, currentSeason);
+
+    const offers = generateNewTrainOffers(currentPlayer, masterResources, globalTuning, currentSeason, masterXPLevels);
     const rewards = generateTrainRewards(offers, currentPlayer, masterResources, globalTuning, currentSeason);
-    
+
     return {
         offers,
         rewards

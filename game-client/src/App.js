@@ -3111,7 +3111,7 @@ return (
       )}
       {activePanel === 'KentPanel' && (
         <KentPanel
-          onClose={closePanel} 
+          onClose={closePanel}
           inventory={inventory}
           setInventory={setInventory}
           backpack={backpack}
@@ -3122,11 +3122,12 @@ return (
           masterResources={masterResources}
           globalTuning={globalTuning}
           currentSeason={timers.seasons?.type || "Unknown"}
+          masterXPLevels={masterXPLevels}
         />
       )}
      {activePanel === 'NewTrainPanel' && (
         <NewTrainPanel
-          onClose={closePanel} 
+          onClose={closePanel}
           inventory={inventory}
           setInventory={setInventory}
           backpack={backpack}
@@ -3139,6 +3140,7 @@ return (
           setIsModalOpen={setIsModalOpen}
           globalTuning={globalTuning}
           currentSeason={timers.seasons?.type || "Unknown"}
+          masterXPLevels={masterXPLevels}
         />
       )}
       {activePanel === 'CarnivalPanel' && (

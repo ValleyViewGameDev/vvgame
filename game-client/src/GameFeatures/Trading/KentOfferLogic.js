@@ -1,5 +1,6 @@
 import { isACrop } from '../../Utils/ResourceHelpers';
 import { selectWeightedRandomItem } from '../../Economy/DropRates';
+import { getDerivedLevel } from '../../Utils/playerManagement';
 
 /**
  * Generates new Kent offers based on player skills and available resources
@@ -7,15 +8,18 @@ import { selectWeightedRandomItem } from '../../Economy/DropRates';
  * @param {Array} masterResources - Array of all available resources
  * @param {Object} globalTuning - Global tuning configuration
  * @param {string} currentSeason - Current season (Spring, Summer, Fall, Winter)
+ * @param {Array} masterXPLevels - Array of XP thresholds for level calculation
  * @returns {Array} Array of new Kent offers
  */
-export function generateNewKentOffers(currentPlayer, masterResources, globalTuning, currentSeason) {
+export function generateNewKentOffers(currentPlayer, masterResources, globalTuning, currentSeason, masterXPLevels) {
     const playerSkills = currentPlayer?.skills || [];
     const playerSkillTypes = playerSkills.map(skill => skill.type);
-    
+    const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
+
     console.log('🤠 Kent offer generation:', {
         isFirstTimeUser: currentPlayer?.firsttimeuser,
-        playerSkills: playerSkillTypes
+        playerSkills: playerSkillTypes,
+        playerLevel: playerLevel
     });
     
     // Filter eligible resources for Kent offers
@@ -91,16 +95,21 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
         // Filter out resources that are outputs of attack resources if player doesn't have "Explore the Valley" trophy
         const hasExploreValleyTrophy = currentPlayer?.trophies?.some(trophy => trophy.title === "Explore the Valley");
         if (!hasExploreValleyTrophy) {
-            const attackResource = masterResources.find(r => 
+            const attackResource = masterResources.find(r =>
                 r.action === 'attack' && r.output === resource.type
             );
-            
+
             if (attackResource) {
                 console.log(`❌ Filtering out ${resource.type} - output of attack resource ${attackResource.type}, player lacks "Explore the Valley" trophy`);
                 return false;
             }
         }
-        
+
+        // Filter out resources where resource.level is above the player's level
+        if (resource.level && resource.level > playerLevel) {
+            return false;
+        }
+
         return true;
     });
     
@@ -120,7 +129,6 @@ export function generateNewKentOffers(currentPlayer, masterResources, globalTuni
     }
     
     // For players under level 10, ensure half the offers are crops
-    const playerLevel = currentPlayer?.level || 1;
     const requireCropBalance = playerLevel < 10;
     const cropOffersNeeded = requireCropBalance ? Math.ceil(offersToGenerate / 2) : 0;
     let cropOffersGenerated = 0;
@@ -299,18 +307,20 @@ export function removeCompletedOffer(kentOffers, completedOffer) {
  * @param {Array} masterResources - Array of all available resources
  * @param {Object} globalTuning - Global tuning configuration
  * @param {string} currentSeason - Current season (Spring, Summer, Fall, Winter)
+ * @param {Array} masterXPLevels - Array of XP thresholds for level calculation
  * @returns {Object} Updated kentOffers object
  */
-export function updateKentOffersAfterTrade(currentPlayer, completedOffer, masterResources, globalTuning, currentSeason) {
+export function updateKentOffersAfterTrade(currentPlayer, completedOffer, masterResources, globalTuning, currentSeason, masterXPLevels) {
     // Remove the completed offer and get its position
     const { kentOffers: kentOffersWithoutCompleted, removedIndex } = removeCompletedOffer(currentPlayer.kentOffers, completedOffer);
-    
+
     // Generate new offers (limit to 1 to replace the removed offer)
     const newOffers = generateNewKentOffers(
-        { ...currentPlayer, kentOffers: kentOffersWithoutCompleted }, 
-        masterResources, 
+        { ...currentPlayer, kentOffers: kentOffersWithoutCompleted },
+        masterResources,
         globalTuning,
-        currentSeason
+        currentSeason,
+        masterXPLevels
     );
     
     // Insert the new offer at the same position as the removed one
