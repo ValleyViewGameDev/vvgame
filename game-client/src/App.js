@@ -117,7 +117,7 @@ import FloatingTextManager from './UI/FloatingText';
 import StatusBar from './UI/StatusBar/StatusBar';
 import { StatusBarContext } from './UI/StatusBar/StatusBar';
 import { formatCountdown } from './UI/Timers';
-import CowboyAnimation from './UI/CowboyAnimation';
+import StartScreenAnimation from './UI/StartScreenAnimation';
 import TransitionOverlay from './UI/TransitionOverlay';
 import { useTransitionFade } from './UI/useTransitionFade';
 
@@ -2724,7 +2724,7 @@ return (
             alt="Valley View Key Art"
             className="keyart-image"
           />
-          <CowboyAnimation />
+          <StartScreenAnimation />
         </div>
       )}
 

@@ -131,6 +131,13 @@
   --font-ui: var(--font-text-1-family);
   --font-dialog: var(--font-text-1-family);
 
+  /* ========== FORM INPUT COLORS ========== */
+  --color-input-bg: #ffffff;
+  --color-input-border: #ccc;
+  --color-input-shadow: rgba(0, 0, 0, 0.15);
+  --color-input-placeholder: #999999;
+  --color-input-text: #333333;
+
   /* ========== SPACING ========== */
   --spacing-xs: 4px;
   --spacing-sm: 8px;

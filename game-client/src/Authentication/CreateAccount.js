@@ -6,6 +6,7 @@ import { useStrings } from '../UI/StringsContext';
 import LANGUAGE_OPTIONS from '../UI/Languages.json';
 import { enabledLanguages } from '../UI/Modals/LanguagePickerModal';
 import '../UI/Buttons/SharedButtons.css';
+import './Authentication.css';
 import { trackAccountCreation } from '../Utils/conversionTracking';
 
 // Detect browser type from userAgent
@@ -283,13 +284,13 @@ return (
     <form onSubmit={handleCreateAccount}>
       <input
         type="text"
-        placeholder="Username"
+        placeholder={strings[4069] || "Choose Username"}
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
       <input
         type="password"
-        placeholder="Password"
+        placeholder={strings[4070] || "Select a Password"}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
@@ -308,7 +309,7 @@ return (
       </select>
       <div className="shared-buttons">
         <button className="btn-basic btn-success" type="submit" disabled={isSubmitting}>
-          {strings[4002]}
+          {strings[4068] || "Begin!"}
         </button>
       </div>
     </form>

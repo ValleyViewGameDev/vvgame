@@ -62,6 +62,7 @@ const NPCPanel = ({
   const [questThreshold, setQuestThreshold] = useState(0);
   const [canTrade, setCanTrade] = useState(false);
   const [tradeThreshold, setTradeThreshold] = useState(0);
+  const [hasHiddenTrades, setHasHiddenTrades] = useState(false);
   const [isHealing, setIsHealing] = useState(false); // Prevent spam-clicking heal button
   const [coolingDownItems, setCoolingDownItems] = useState(new Set());
   const COOLDOWN_DURATION = 1500; // 1500ms cooldown (3x longer than terraform)
@@ -152,10 +153,36 @@ const NPCPanel = ({
     } else if (npcData.action === 'trade') {
       // Find all trades for this trader in masterTraders (new flat format)
       const traderOffers = masterTraders?.filter(t => t.trader === npcData.type);
-      
+
       if (traderOffers && traderOffers.length > 0) {
+        // Get player's relationship with this NPC
+        const relationship = currentPlayer.relationships?.find(rel => rel.name === npcData.type);
+
+        // Check if any trades are hidden due to relationship requirements
+        const tradesHiddenByRelationship = traderOffers.some((offer) => {
+          if (offer.rel) {
+            // If no relationship exists with this NPC, trade is hidden
+            if (!relationship) return true;
+            // Check relationship status requirement (e.g., "friend", "met", "love")
+            if (relationship[offer.rel] !== true) return true;
+          }
+          return false;
+        });
+        setHasHiddenTrades(tradesHiddenByRelationship);
+
+        // Filter offers by relationship requirements, then transform
+        const filteredOffers = traderOffers.filter((offer) => {
+          if (offer.rel) {
+            // If no relationship exists with this NPC, exclude the trade
+            if (!relationship) return false;
+            // Check relationship status requirement
+            if (relationship[offer.rel] !== true) return false;
+          }
+          return true;
+        });
+
         // Transform each offer into the format expected by the rest of the component
-        const filteredRecipes = traderOffers.map(offer => {
+        const filteredRecipes = filteredOffers.map(offer => {
           // Get the symbol from masterResources
           const resourceDef = masterResources.find(r => r.type === offer.gives);
 
@@ -170,31 +197,32 @@ const NPCPanel = ({
             level: resourceDef?.level, // Level requirement from resource definition
             requires: resourceDef?.requires // Skill requirement from resource definition
           };
-          
+
           // Collect all requires fields into ingredient format
           let ingredientCount = 1;
           for (let i = 1; i <= 7; i++) { // Support up to 7 ingredients like Oracle
             const requiresField = `requires${i}`;
             const requiresQtyField = `requires${i}qty`;
-            
+
             if (offer[requiresField]) {
               recipe[`ingredient${ingredientCount}`] = offer[requiresField];
               recipe[`ingredient${ingredientCount}qty`] = offer[requiresQtyField] || 1;
               ingredientCount++;
             }
           }
-          
+
           return recipe;
         });
-        
+
         setTradeRecipes(filteredRecipes);
       } else {
         // Fallback to old method if masterTraders is not available
         const filteredRecipes = masterResources.filter((resource) => resource.source === npcData.type);
         setTradeRecipes(filteredRecipes);
+        setHasHiddenTrades(false);
       }
     }
-  }, [npcData, currentPlayer?.activeQuests, currentPlayer?.completedQuests, masterResources, masterTraders]);
+  }, [npcData, currentPlayer?.activeQuests, currentPlayer?.completedQuests, currentPlayer?.relationships, masterResources, masterTraders]);
 
   
   ////////////////////////////////////////////////////////////
@@ -1220,6 +1248,21 @@ const handleHeal = async (recipe) => {
               color: 'var(--color-text-muted)'
             }}>
               {strings[626]}{npcData.type}.
+            </div>
+          )}
+
+          {/* Show message if some trades are hidden due to relationship requirements */}
+          {canTrade && hasHiddenTrades && (
+            <div style={{
+              padding: '10px',
+              backgroundColor: 'var(--color-bg-light)',
+              borderRadius: '5px',
+              marginTop: '10px',
+              textAlign: 'center',
+              fontStyle: 'italic',
+              color: 'var(--color-text-muted)'
+            }}>
+              {strings[628]?.replace('{npc}', npcData?.type || '')}
             </div>
           )}
 

@@ -65,7 +65,7 @@
       "notificationKey": 7055,
       "notificationIcon": "🌾",
       "addQuests": [7],
-      "openPanel": "SkillsPanel"    
+      "openPanel": "QuestPanel"    
     },
     {
       "step": 9,

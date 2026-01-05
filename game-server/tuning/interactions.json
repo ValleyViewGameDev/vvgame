@@ -236,7 +236,7 @@
     "interaction": "Trade",
     "isaninteraction": true,
     "isvisible": false,
-    "relscoremin": 14,
+    "relscoremin": 10,
     "relscoremax": 100,
     "relbitrequired": "met",
     "chance": 1,

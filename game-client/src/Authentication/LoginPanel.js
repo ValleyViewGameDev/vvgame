@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import Panel from '../UI/Panels/Panel';
 import CreateAccount from './CreateAccount';
-import '../UI/Panels/Panel.css'; 
-import '../UI/Buttons/SharedButtons.css'; 
+import '../UI/Panels/Panel.css';
+import '../UI/Buttons/SharedButtons.css';
+import './Authentication.css';
 
 import { useStrings } from '../UI/StringsContext';
 
@@ -55,8 +56,6 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
         />
       ) : (
         <div className="standard-panel">
-          <form onSubmit={handleLogin} className="panel-form">
-            <div className="form-group">
 
             <div className="shared-buttons">
             <h3>{strings[4001]}</h3>
@@ -70,25 +69,30 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
             </div>  
             <h4>{strings[4004]}</h4>
             <h4>{strings[4005]}</h4>
-
             <h3>{strings[5033]}</h3>
 
+          <div className="panel-buffer-space" />
             <h3>{strings[4010]}</h3>
 
-              <label htmlFor="username">Username</label>
+            <form onSubmit={handleLogin} className="panel-form login-panel-form">
+            <div className="form-group">
+
               <input
                 id="username"
                 type="text"
+                className="login-form-input"
+                placeholder={strings[4003] || "Username"}
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
             <div className="form-group">
-              <label htmlFor="password">{strings[4006]}</label>
               <input
                 id="password"
                 type="password"
+                className="login-form-input"
+                placeholder={strings[4006] || "Password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -102,7 +106,6 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
               </button>
             </div>
           </form>
-          <div className="panel-buffer-space" />
           <div className="panel-buffer-space" />
 
           <div className="shared-buttons">

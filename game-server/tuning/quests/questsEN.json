@@ -179,7 +179,7 @@
     "index": 19,
     "title": "Bovine Bliss",
     "symbol": "👵🏻",
-    "level": 2,
+    "level": 3,
     "repeatable": false,
     "giver": "The Shepherd",
     "reward": "Milk",
@@ -192,7 +192,7 @@
     "index": 21,
     "title": "Cream of the Crop",
     "symbol": "👵🏻",
-    "level": 2,
+    "level": 3,
     "repeatable": true,
     "giver": "The Shepherd",
     "reward": "Money",
@@ -214,19 +214,6 @@
     "xp": 5,
     "goal1action": "Acquire",
     "goal1item": "Husbandry",
-    "goal1qty": 1
-  },
-  {
-    "index": 20,
-    "title": "Fleecy Fellowship",
-    "symbol": "👵🏻",
-    "level": 3,
-    "repeatable": false,
-    "giver": "The Shepherd",
-    "reward": "Wool",
-    "rewardqty": 20,
-    "goal1action": "Buy",
-    "goal1item": "Sheep",
     "goal1qty": 1
   },
   {
@@ -255,6 +242,19 @@
     "xp": 15,
     "goal1action": "Acquire",
     "goal1item": "Builder",
+    "goal1qty": 1
+  },
+  {
+    "index": 20,
+    "title": "Fleecy Fellowship",
+    "symbol": "👵🏻",
+    "level": 4,
+    "repeatable": false,
+    "giver": "The Shepherd",
+    "reward": "Wool",
+    "rewardqty": 20,
+    "goal1action": "Buy",
+    "goal1item": "Sheep",
     "goal1qty": 1
   },
   {

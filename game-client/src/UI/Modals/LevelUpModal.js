@@ -73,7 +73,7 @@ const LevelUpModal = ({
 
   const handleClose = () => {
     if (updateStatus) {
-      updateStatus(`Level up! You are now level ${currentLevel}!`);
+      updateStatus((strings[813] || 'Level up! You are now level {level}!').replace('{level}', currentLevel));
     }
     onClose();
   };
@@ -83,11 +83,11 @@ const LevelUpModal = ({
       <div className="modal-container modal-medium level-up-modal">
         <button className="modal-close-btn" onClick={handleClose}>×</button>
 
-        <div className="modal-title">⬆️ Level Up!</div>
+        <div className="modal-title">⬆️ {strings[811] || 'Level Up!'}</div>
 
         <div className="modal-content">
           <div className="level-up-message">
-            🎉 Congratulations! You've reached level {currentLevel}! 🎉
+            🎉 {(strings[812] || "Congratulations! You've reached level {level}!").replace('{level}', currentLevel)} 🎉
           </div>
 
           {unlockedResources.length > 0 && (
