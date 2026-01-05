@@ -140,6 +140,10 @@ const FarmHandPanel = ({
 
   useEffect(() => {
     try {
+      // Combine inventory and backpack for quantity checks
+      const safeInventory = Array.isArray(inventory) ? inventory : [];
+      const safeBackpack = Array.isArray(backpack) ? backpack : [];
+
       const filteredRecipes = masterResources.filter((res) => {
         // Must be a crop (output of a farmplot)
         if (!isACrop(res.type, masterResources)) return false;
@@ -157,6 +161,13 @@ const FarmHandPanel = ({
           return false;
         }
 
+        // Hide crops the player already has 10+ of (this is a safety net, not a primary source)
+        const inventoryQty = safeInventory.find(item => item.type === res.type)?.quantity || 0;
+        const backpackQty = safeBackpack.find(item => item.type === res.type)?.quantity || 0;
+        if (inventoryQty + backpackQty > 9) {
+          return false;
+        }
+
         return true;
       });
       setRecipes(filteredRecipes);
@@ -167,7 +178,7 @@ const FarmHandPanel = ({
     } catch (error) {
       console.error('Error loading worker offers:', error);
     }
-  }, [stationType, masterResources, currentSeason, isDeveloper, playerLevel]);
+  }, [stationType, masterResources, currentSeason, isDeveloper, playerLevel, inventory, backpack]);
 
   useEffect(() => {
     const ownedTypes = currentPlayer.skills?.map(skill => skill.type) || [];
