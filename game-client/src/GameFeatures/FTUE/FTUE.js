@@ -48,6 +48,58 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
     }
   }, [currentPlayer?.ftuestep, currentPlayer?.firsttimeuser, onClose]);
 
+  // Show notification and add quests for current step on load/refresh
+  // This ensures players see the notification again if they refresh the app
+  // and that quests are added for trigger-based steps that don't have modals
+  useEffect(() => {
+    if (!currentStepData || !strings) return;
+
+    // Show notification if defined
+    if (currentStepData.notificationKey) {
+      console.log(`🎓 Re-triggering notification for step ${currentStepData.step} on load`);
+      showNotification('FTUE', {
+        title: strings[7049],
+        message: strings[currentStepData.notificationKey],
+        ...(currentStepData.notificationIcon && { icon: currentStepData.notificationIcon })
+      });
+    }
+
+    // Add quests if defined (check for duplicates to avoid re-adding on refresh)
+    const addQuestsForStep = async () => {
+      if (currentStepData.addQuests && currentStepData.addQuests.length > 0) {
+        console.log(`🎓 Step ${currentStepData.step}: Checking quests to add: ${currentStepData.addQuests.join(', ')}`);
+
+        // Fetch quest templates to get quest titles for duplicate checking
+        try {
+          const response = await axios.get(`${API_BASE}/api/quests`);
+          const questTemplates = response.data || [];
+          const currentActiveQuests = currentPlayer?.activeQuests || [];
+
+          let playerState = currentPlayer;
+          for (const questIndex of currentStepData.addQuests) {
+            // Find the quest template to check if it's already added
+            const questTemplate = questTemplates.find(q => q.index === questIndex);
+            if (!questTemplate) continue;
+
+            // Check if quest is already in activeQuests
+            const alreadyHasQuest = currentActiveQuests.some(q => q.questId === questTemplate.title);
+            if (alreadyHasQuest) {
+              console.log(`🎓 Quest "${questTemplate.title}" already exists, skipping`);
+              continue;
+            }
+
+            console.log(`🎓 Adding quest "${questTemplate.title}" (index ${questIndex})`);
+            playerState = await addAcceptedQuest(currentPlayer.playerId, playerState, setCurrentPlayer, questIndex);
+          }
+        } catch (error) {
+          console.error('Error adding FTUE quests:', error);
+        }
+      }
+    };
+
+    addQuestsForStep();
+  }, [currentStepData?.step]); // Only trigger when step changes, not on every re-render
+
   // Auto-advance if step has showModal: false (but not while feedback modal is showing)
   useEffect(() => {
     if (currentStepData?.showModal === false && !showFeedbackModal) {
@@ -316,53 +368,6 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
     );
   }
 
-  // Custom render for step 2 - Aspiration choice
-  if (currentPlayer?.ftuestep === 2) {
-    return (
-      <div className="ftue-overlay">
-        <div className="ftue-modal">
-          <div className="ftue-header">
-            <h2>{strings[currentStepData.titleKey]}</h2>
-          </div>
-          
-          <div className="ftue-text">
-            <p>{strings[currentStepData.bodyKey]}</p>
-          </div>
-          
-          <div className="ftue-aspiration-content">
-            <div className="ftue-aspiration-panels">
-              {/* Panel 1 */}
-              <div 
-                className="ftue-aspiration-panel" 
-                onClick={() => handleAspirationChoice(1)}
-              >
-                <h3>{strings[750]}</h3>
-                <p>{strings[751]}</p>
-              </div>
-              
-              {/* Panel 2 */}
-              <div 
-                className="ftue-aspiration-panel" 
-                onClick={() => handleAspirationChoice(2)}
-              >
-                <h3>{strings[752]}</h3>
-                <p>{strings[753]}</p>
-              </div>
-              
-              {/* Panel 3 */}
-              <div 
-                className="ftue-aspiration-panel" 
-                onClick={() => handleAspirationChoice(3)}
-              >
-                <h3>{strings[754]}</h3>
-                <p>{strings[755]}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   // Don't render modal if showModal is false (will auto-advance via useEffect)
   if (currentStepData?.showModal === false) {

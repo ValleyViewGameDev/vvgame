@@ -3,24 +3,27 @@
       "step": 1,
       "showModal": true,
       "bodyKey": 740,
-      "notificationKey": 741,
-      "notificationIcon": "🏠",
+      "continue": true,
       "addQuests": []
     },
     {
       "step": 2,
+      "notificationKey": 741,
+      "notificationIcon": "😀",
+      "addQuests": []
+    },
+    {
+      "step": 3,
       "trigger": "ExitedCave",
       "notificationKey": 742,
       "notificationIcon": "🧔🏼‍♂️",
       "addQuests": []
     },
     {
-      "step": 3,
+      "step": 4,
       "trigger": "MetConstableElbow",
-      "showModal": false,
-      "continue": false,
       "notificationKey": 7051,
-      "notificationIcon": "🏠",
+      "notificationIcon": "🧔🏼‍♂️",
       "addQuests": [2, 14]
     },
 
@@ -30,7 +33,7 @@
       "showModal": false,
       "continue": false,
       "notificationKey": 7052,
-      "notificationIcon": "↪️",
+      "notificationIcon": "🏠",
       "openPanel": "QuestPanel"
     },
     {

@@ -97,6 +97,13 @@ const FrontierMiniMap = ({
   // Check if player is in a dungeon
   const isInDungeon = currentPlayer?.location?.gtype === 'dungeon';
 
+  // Check if player is already in their home town (town grid in their home settlement)
+  const isInHomeTown = useMemo(() => {
+    if (currentPlayer?.location?.gtype !== 'town') return false;
+    if (!currentPlayer?.location?.s || !currentPlayer?.settlementId) return false;
+    return currentPlayer.location.s.toString() === currentPlayer.settlementId.toString();
+  }, [currentPlayer?.location?.gtype, currentPlayer?.location?.s, currentPlayer?.settlementId]);
+
   // Generate the 64x64 grid (each cell represents one grid in the frontier)
   const frontierGrid = useMemo(() => {
     const grid = [];
@@ -247,8 +254,8 @@ const FrontierMiniMap = ({
         <div className="minimap-button-column town-column">
           {!isInDungeon && (
             <span
-              className="minimap-signpost-button"
-              onClick={() => handleTransitSignpost(
+              className={`minimap-signpost-button${isInHomeTown ? ' disabled' : ''}`}
+              onClick={isInHomeTown ? undefined : () => handleTransitSignpost(
                 currentPlayer,
                 "Signpost Town Home",
                 setCurrentPlayer,
@@ -267,6 +274,7 @@ const FrontierMiniMap = ({
                 transitionFadeControl
               )}
               title={strings && strings[108] ? strings[108] : "Go to Town"}
+              style={isInHomeTown ? { opacity: 0.4, cursor: 'default' } : undefined}
             >
               🏛️
             </span>

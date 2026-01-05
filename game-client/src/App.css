@@ -483,13 +483,13 @@ body {
 .keyart-wrapper {
   position: fixed;
   top: 85px; /* Account for header height + small buffer */
-  left: 298px; /* Account for nav column (60px) + base panel (220px) + small buffer (18px) */
+  left: 230px; /* Account for nav column (60px) + base panel (220px) + small buffer (18px) */
   overflow: hidden;
 }
 
 .keyart-image {
-  width: 1000px;
-  height: 600px;
+  width: 1100px;
+  height: 900px;
   object-fit: contain;
 }
 
