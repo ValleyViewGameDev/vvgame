@@ -589,7 +589,7 @@
     "repeatable": true,
     "giver": "Helena",
     "reward": "Money",
-    "rewardqty": 1000,
+    "rewardqty": 5000,
     "xp": 3,
     "goal1action": "Collect",
     "goal1item": "Rosemary",

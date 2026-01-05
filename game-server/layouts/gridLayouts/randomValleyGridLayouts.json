@@ -4,8 +4,8 @@
     "valleyType": "valley1",
     "variant": 1,
     "description": "basic valley 1 trees & resources; variant 1 w/ clay",
-    "g": 70,
-    "s": 8,
+    "g": 73,
+    "s": 5,
     "d": 21,
     "c": 1,
     "r1": "Oak Tree",
@@ -30,8 +30,8 @@
     "valleyType": "valley1",
     "variant": 2,
     "description": "basic valley 1 trees & resources; variant 2",
-    "g": 70,
-    "s": 8,
+    "g": 73,
+    "s": 5,
     "d": 21,
     "c": 1,
     "r1": "Oak Tree",
@@ -52,8 +52,8 @@
     "valleyType": "valley1",
     "variant": 3,
     "description": "basic valley 1 trees & resources; variant 3",
-    "g": 70,
-    "s": 8,
+    "g": 73,
+    "s": 5,
     "d": 22,
     "r1": "Oak Tree",
     "r1qty": 1500,
@@ -203,9 +203,7 @@
     "r10": "Feverfew",
     "r10qty": 3,
     "r11": "Silver",
-    "r11qty": 2,
-    "e1": "Bear",
-    "e1qty": 2
+    "r11qty": 2
   },
   {
     "layout": "valley2Layout2",
@@ -236,9 +234,7 @@
     "r10": "Feverfew",
     "r10qty": 5,
     "r11": "Honey",
-    "r11qty": 6,
-    "e1": "Bear",
-    "e1qty": 6
+    "r11qty": 6
   },
   {
     "layout": "valley2Layout3",
@@ -285,9 +281,7 @@
     "r4": "Rocks",
     "r4qty": 9,
     "r6": "Daisy",
-    "r6qty": 50,
-    "e1": "Bear",
-    "e1qty": 7
+    "r6qty": 50
   },
   {
     "layout": "valley2LayoutClay",
@@ -307,9 +301,7 @@
     "r4": "Rocks",
     "r4qty": 9,
     "r5": "Clay Pit",
-    "r5qty": 40,
-    "e1": "Bear",
-    "e1qty": 8
+    "r5qty": 40
   },
   {
     "layout": "valley2LayoutStone",
@@ -326,9 +318,7 @@
     "r4": "Rocks",
     "r4qty": 15,
     "r6": "Stone",
-    "r6qty": 50,
-    "e1": "Coyote",
-    "e1qty": 6
+    "r6qty": 50
   },
   {
     "layout": "valley2LayoutOgre",
