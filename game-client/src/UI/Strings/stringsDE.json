@@ -394,6 +394,8 @@
     "811": "Aufgestiegen!",
     "812": "Herzlichen Glückwunsch! Du hast Stufe {level} erreicht!",
     "813": "Aufgestiegen! Du bist jetzt Stufe {level}!",
+    "814": "{feature} wird auf Stufe {level} freigeschaltet.",
+    "815": "Deine aktuelle Stufe: {level}",
     "820": "Stellt her: ",
     "821": "Basismenge: ",
     "825": "Sie haben ",

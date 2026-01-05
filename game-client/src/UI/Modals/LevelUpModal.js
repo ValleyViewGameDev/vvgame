@@ -7,7 +7,7 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import questCache from '../../Utils/QuestCache';
 
 // Categories to show in unlock list
-const ALLOWED_CATEGORIES = ['farmplot', 'crafting', 'skill', 'power', 'pet', 'deco'];
+const ALLOWED_CATEGORIES = ['farmplot', 'crafting', 'skill', 'power', 'pet', 'deco', 'station'];
 
 // Check if resource should be shown in unlock list
 const shouldShowResource = (resource) => {

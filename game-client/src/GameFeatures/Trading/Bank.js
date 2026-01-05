@@ -2,6 +2,7 @@ import API_BASE from '../../config.js';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
+import LevelLock from '../../UI/Panels/LevelLock';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { spendIngredients, gainIngredients, canAfford } from '../../Utils/InventoryManagement';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
@@ -12,24 +13,30 @@ import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import '../../UI/Buttons/SharedButtons.css';
 
-function BankPanel({ 
-    onClose, 
+function BankPanel({
+    onClose,
     inventory,
     setInventory,
     backpack,
     setBackpack,
-    currentPlayer, 
-    setCurrentPlayer, 
+    currentPlayer,
+    setCurrentPlayer,
     updateStatus,
     masterResources,
+    masterXPLevels,
     globalTuning,
     setResources,
     currentStationPosition,
     gridId,
     TILE_SIZE,
-    isDeveloper }) 
+    isDeveloper })
 {
     const strings = useStrings();
+
+    // Get Bank level requirement from masterResources
+    const bankResource = masterResources?.find(r => r.type === 'Bank');
+    const bankRequiredLevel = bankResource?.level || 1;
+
     const [isContentLoading, setIsContentLoading] = useState(false);
     const [bankOffers, setBankOffers] = useState([]);
     const [bankTimer, setBankTimer] = useState("");
@@ -170,83 +177,90 @@ function BankPanel({
 
     return (
       <Panel onClose={onClose} descriptionKey="1017" titleKey="1117" panelName="BankPanel">
-        {/* Check if player is in their home settlement */}
-        {(() => {
-          const isInHomeSettlement = String(currentPlayer.location.s) === String(currentPlayer.settlementId);
-          console.log('🏦 Bank access check:', {
-            currentSettlement: currentPlayer.location.s,
-            homeSettlement: currentPlayer.settlementId,
-            isInHomeSettlement
-          });
-          return !isInHomeSettlement;
-        })() ? (
-          <div style={{ textAlign: 'center', padding: '20px' }}>
-            <h2>{strings[2050] || "This is not your home settlement. You cannot access banking services in any settlement but your own."}</h2>
-          </div>
-        ) : isContentLoading ? (
-          <p>{strings[98]}</p>
-        ) : (
-          <>
-            {/* Active phase showing current offers */}
-            {bankPhase === "active" ? (
-              <>
-                <h3>{strings["1402"]}</h3> {/* "These offers good for" */}
-                <h2 className="countdown-timer">{bankTimer}</h2>
-                {bankOffers.length > 0 ? (
-                  bankOffers.map((offer, index) => {
-                    // Calculate player's total quantity from inventory and backpack
-                    const inventoryQty = inventory?.find(item => item.type === offer.itemBought)?.quantity || 0;
-                    const backpackQty = backpack?.find(item => item.type === offer.itemBought)?.quantity || 0;
-                    const playerQty = inventoryQty + backpackQty;
-                    
-                    return (
-                      <ResourceButton
-                        key={index}
-                        className={coolingDownButtons.has(index) ? 'cooldown' : ''}
-                        style={coolingDownButtons.has(index) ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
-                        onClick={() => handleTradeWithCooldown(offer, index)}
-                        disabled={coolingDownButtons.has(index) || !canAfford({
-                          ingredient1: offer.itemBought,
-                          ingredient1qty: offer.qtyBought
-                        }, inventory, backpack, 1)}
-                        hideInfo={true}
-                      >
-                        <div className="resource-details">
-                          <span><strong>{strings["1403"]}</strong></span> {/* "Will buy" */}
-                          {getSymbol(offer.itemBought)} {offer.itemBought} x{offer.qtyBought} / {playerQty}
-                          <br />
-                          {strings["1404"]} {getSymbol(offer.itemGiven)} {offer.qtyGiven} {/* "for" */}
-                        </div>
-                      </ResourceButton>
-                    );
-                  })
-                ) : (
-                  <p>{strings["1405"]}</p>  
-                )}
-              </>
-            ) : (
-              <>
-                <h3>{strings["1406"]}</h3> {/* "New offers" */}
-                <h3>{bankTimer}</h3>
-                <p>{strings["1407"]}</p> {/* "Generating new orders. Thank you for your patience." */}
-              </>
-            )}
-          </>
-        )}
-
-        {isDeveloper && (
-          <div className="station-panel-footer">
-            <div className="shared-buttons">
-              <TransactionButton 
-                className="btn-basic btn-danger" 
-                onAction={handleSellStation}
-                transactionKey={`sell-refund-Bank-${currentStationPosition?.x}-${currentStationPosition?.y}-${gridId}`}
-              >
-                {strings[425] || "Sell for Refund"}
-              </TransactionButton>
+        <LevelLock
+          currentPlayer={currentPlayer}
+          masterXPLevels={masterXPLevels}
+          requiredLevel={bankRequiredLevel}
+          featureName="Bank"
+        >
+          {/* Check if player is in their home settlement */}
+          {(() => {
+            const isInHomeSettlement = String(currentPlayer.location.s) === String(currentPlayer.settlementId);
+            console.log('🏦 Bank access check:', {
+              currentSettlement: currentPlayer.location.s,
+              homeSettlement: currentPlayer.settlementId,
+              isInHomeSettlement
+            });
+            return !isInHomeSettlement;
+          })() ? (
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+              <h2>{strings[2050] || "This is not your home settlement. You cannot access banking services in any settlement but your own."}</h2>
             </div>
-          </div>
-        )}
+          ) : isContentLoading ? (
+            <p>{strings[98]}</p>
+          ) : (
+            <>
+              {/* Active phase showing current offers */}
+              {bankPhase === "active" ? (
+                <>
+                  <h3>{strings["1402"]}</h3> {/* "These offers good for" */}
+                  <h2 className="countdown-timer">{bankTimer}</h2>
+                  {bankOffers.length > 0 ? (
+                    bankOffers.map((offer, index) => {
+                      // Calculate player's total quantity from inventory and backpack
+                      const inventoryQty = inventory?.find(item => item.type === offer.itemBought)?.quantity || 0;
+                      const backpackQty = backpack?.find(item => item.type === offer.itemBought)?.quantity || 0;
+                      const playerQty = inventoryQty + backpackQty;
+
+                      return (
+                        <ResourceButton
+                          key={index}
+                          className={coolingDownButtons.has(index) ? 'cooldown' : ''}
+                          style={coolingDownButtons.has(index) ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
+                          onClick={() => handleTradeWithCooldown(offer, index)}
+                          disabled={coolingDownButtons.has(index) || !canAfford({
+                            ingredient1: offer.itemBought,
+                            ingredient1qty: offer.qtyBought
+                          }, inventory, backpack, 1)}
+                          hideInfo={true}
+                        >
+                          <div className="resource-details">
+                            <span><strong>{strings["1403"]}</strong></span> {/* "Will buy" */}
+                            {getSymbol(offer.itemBought)} {offer.itemBought} x{offer.qtyBought} / {playerQty}
+                            <br />
+                            {strings["1404"]} {getSymbol(offer.itemGiven)} {offer.qtyGiven} {/* "for" */}
+                          </div>
+                        </ResourceButton>
+                      );
+                    })
+                  ) : (
+                    <p>{strings["1405"]}</p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <h3>{strings["1406"]}</h3> {/* "New offers" */}
+                  <h3>{bankTimer}</h3>
+                  <p>{strings["1407"]}</p> {/* "Generating new orders. Thank you for your patience." */}
+                </>
+              )}
+            </>
+          )}
+
+          {isDeveloper && (
+            <div className="station-panel-footer">
+              <div className="shared-buttons">
+                <TransactionButton
+                  className="btn-basic btn-danger"
+                  onAction={handleSellStation}
+                  transactionKey={`sell-refund-Bank-${currentStationPosition?.x}-${currentStationPosition?.y}-${gridId}`}
+                >
+                  {strings[425] || "Sell for Refund"}
+                </TransactionButton>
+              </div>
+            </div>
+          )}
+        </LevelLock>
       </Panel>
     );
 }

@@ -2,6 +2,7 @@ import API_BASE from '../../config';
 import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import React, { useState, useEffect, useContext } from 'react';
 import Panel from '../../UI/Panels/Panel';
+import LevelLock from '../../UI/Panels/LevelLock';
 import Modal from '../../UI/Modals/Modal';
 import axios from 'axios';
 import { StatusBarContext } from '../../UI/StatusBar/StatusBar';
@@ -21,9 +22,9 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import '../../UI/Buttons/ResourceButton.css';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 
-const CourthousePanel = ({ 
-  onClose, 
-  currentPlayer, 
+const CourthousePanel = ({
+  onClose,
+  currentPlayer,
   setCurrentPlayer,
   inventory,
   setInventory,
@@ -36,10 +37,15 @@ const CourthousePanel = ({
   isDeveloper,
   masterResources,
   masterSkills,
+  masterXPLevels,
   updateStatus: updateStatusProp
 }) => {
 
     const strings = useStrings();
+
+    // Get Courthouse level requirement from masterResources
+    const courthouseResource = masterResources?.find(r => r.type === 'Courthouse');
+    const courthouseRequiredLevel = courthouseResource?.level || 1;
     const [settlement, setSettlement] = useState(null);
     const [taxRate, setTaxRate] = useState(0);
     const [isMayor, setIsMayor] = useState(false);
@@ -456,6 +462,12 @@ const CourthousePanel = ({
 
     return (
         <Panel onClose={onClose} descriptionKey="1012" titleKey="1112" panelName="Courthouse">
+            <LevelLock
+                currentPlayer={currentPlayer}
+                masterXPLevels={masterXPLevels}
+                requiredLevel={courthouseRequiredLevel}
+                featureName="Courthouse"
+            >
             <div className="panel-content courthouse-panel">
             {/* Check if player is in their home settlement */}
             {(() => {
@@ -786,6 +798,7 @@ const CourthousePanel = ({
                     custom={modalContent?.custom}
                 />
             )}
+            </LevelLock>
         </Panel>
     );
 };

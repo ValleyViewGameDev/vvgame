@@ -3092,7 +3092,7 @@ return (
       )}
       {activePanel === 'BankPanel' && (
         <BankPanel
-          onClose={closePanel} 
+          onClose={closePanel}
           inventory={inventory}
           setInventory={setInventory}
           backpack={backpack}
@@ -3101,6 +3101,7 @@ return (
           setCurrentPlayer={setCurrentPlayer}
           updateStatus={updateStatus}
           masterResources={masterResources}
+          masterXPLevels={masterXPLevels}
           globalTuning={globalTuning}
           setResources={setResources}
           currentStationPosition={activeStation?.position}
@@ -3145,7 +3146,7 @@ return (
       )}
       {activePanel === 'CarnivalPanel' && (
         <CarnivalPanel
-          onClose={closePanel} 
+          onClose={closePanel}
           inventory={inventory}
           setInventory={setInventory}
           backpack={backpack}
@@ -3154,6 +3155,7 @@ return (
           setCurrentPlayer={setCurrentPlayer}
           updateStatus={updateStatus}
           masterResources={masterResources}
+          masterXPLevels={masterXPLevels}
           setModalContent={setModalContent}
           setIsModalOpen={setIsModalOpen}
         />
@@ -3221,6 +3223,7 @@ return (
           TILE_SIZE={activeTileSize}
           isDeveloper={isDeveloper}
           masterResources={masterResources}
+          masterXPLevels={masterXPLevels}
           masterSkills={masterSkills}
         />
       )}

@@ -2,6 +2,7 @@ import API_BASE from '../../config';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
+import LevelLock from '../../UI/Panels/LevelLock';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import { generateCompleteTrainData } from './TrainOfferLogic';
@@ -24,9 +25,14 @@ function NewTrainPanel({
   globalTuning,
   currentSeason,
   masterXPLevels
-  }) 
+  })
 {
   const strings = useStrings();
+
+  // Get Train level requirement from masterResources
+  const trainResource = masterResources?.find(r => r.type === 'Train');
+  const trainRequiredLevel = trainResource?.level || 1;
+
   const [trainPhase, setTrainPhase] = useState("loading");
   const [trainTimer, setTrainTimer] = useState("⏳");
   const [isContentLoading, setIsContentLoading] = useState(false);
@@ -770,45 +776,51 @@ function NewTrainPanel({
 
   return (
     <Panel onClose={onClose} descriptionKey="1022" titleKey="1122" panelName="NewTrainPanel">
-      {(() => {
-        const isInHomeSettlement = String(currentPlayer.location.s) === String(currentPlayer.settlementId);
-        return !isInHomeSettlement;
-      })() ? (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <h2>{strings[2050] || "This is not your home settlement."}</h2>
-        </div>
-      ) : isContentLoading ? (
-        <p>{strings[98]}</p>
-      ) : (
-        <>
-          <h3>(New) Train is {trainPhase} (#{playerTrainNumber})</h3>
-          <h2 className="countdown-timer">⏳ {trainTimer}</h2>
+      <LevelLock
+        currentPlayer={currentPlayer}
+        masterXPLevels={masterXPLevels}
+        requiredLevel={trainRequiredLevel}
+        featureName="Train"
+      >
+        {(() => {
+          const isInHomeSettlement = String(currentPlayer.location.s) === String(currentPlayer.settlementId);
+          return !isInHomeSettlement;
+        })() ? (
+          <div style={{ textAlign: 'center', padding: '20px' }}>
+            <h2>{strings[2050] || "This is not your home settlement."}</h2>
+          </div>
+        ) : isContentLoading ? (
+          <p>{strings[98]}</p>
+        ) : (
+          <>
+            <h3>(New) Train is {trainPhase} (#{playerTrainNumber})</h3>
+            <h2 className="countdown-timer">⏳ {trainTimer}</h2>
 
-          {rewardsDeliveredMessage && (trainPhase === "departing" || trainPhase === "arriving") && (
-            <div style={{
-              backgroundColor: 'var(--color-success)',
-              color: 'var(--color-text-white)',
-              padding: '10px',
-              margin: '10px 0',
-              borderRadius: '5px',
-              textAlign: 'center',
-              fontWeight: 'bold'
-            }}>
-              ✅ {rewardsDeliveredMessage}
-            </div>
-          )}
+            {rewardsDeliveredMessage && (trainPhase === "departing" || trainPhase === "arriving") && (
+              <div style={{
+                backgroundColor: 'var(--color-success)',
+                color: 'var(--color-text-white)',
+                padding: '10px',
+                margin: '10px 0',
+                borderRadius: '5px',
+                textAlign: 'center',
+                fontWeight: 'bold'
+              }}>
+                ✅ {rewardsDeliveredMessage}
+              </div>
+            )}
 
-          {trainPhase === "loading" && (
-            <>
-              {renderCurrentRewards()}
-              {renderCurrentOffers()}
-            </>
-          )}
+            {trainPhase === "loading" && (
+              <>
+                {renderCurrentRewards()}
+                {renderCurrentOffers()}
+              </>
+            )}
 
-          {(trainPhase === "loading" || trainPhase === "departing") && renderNextTrain()}
-        </>
-      )}
-
+            {(trainPhase === "loading" || trainPhase === "departing") && renderNextTrain()}
+          </>
+        )}
+      </LevelLock>
     </Panel>
   );
 }

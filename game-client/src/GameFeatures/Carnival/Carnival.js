@@ -2,6 +2,7 @@ import API_BASE from '../../config';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
+import LevelLock from '../../UI/Panels/LevelLock';
 import ResourceButton from '../../UI/Buttons/ResourceButton';
 import { spendIngredients, gainIngredients } from '../../Utils/InventoryManagement';
 import './Carnival.css';
@@ -9,22 +10,28 @@ import FloatingTextManager from '../../UI/FloatingText';
 import { formatCountdown } from '../../UI/Timers';
 import { useStrings } from '../../UI/StringsContext';
 
-function CarnivalPanel({ 
-  onClose, 
+function CarnivalPanel({
+  onClose,
   inventory,
   setInventory,
   backpack,
   setBackpack,
-  currentPlayer, 
-  setCurrentPlayer, 
+  currentPlayer,
+  setCurrentPlayer,
   updateStatus,
   masterResources,
+  masterXPLevels,
   setModalContent,
   setIsModalOpen,
   globalTuning
-  }) 
+  })
 {
   const strings = useStrings();
+
+  // Get Carnival level requirement from masterResources
+  const carnivalResource = masterResources?.find(r => r.type === 'Carnival');
+  const carnivalRequiredLevel = carnivalResource?.level || 1;
+
   const [carnivalOffers, setCarnivalOffers] = useState([]);
   const [carnivalPhase, setCarnivalPhase] = useState("here");
   const [carnivalTimer, setCarnivalTimer] = useState("⏳");
@@ -506,51 +513,58 @@ function CarnivalPanel({
   return (
     <>
     <Panel onClose={onClose} descriptionKey="1037" titleKey="1137" panelName="CarnivalPanel">
-      {/* Check if player is in their home settlement */}
-      {(() => {
-        const isInHomeSettlement = String(currentPlayer.location.s) === String(currentPlayer.settlementId);
-        console.log('🎡 Carnival access check:', {
-          currentSettlement: currentPlayer.location.s,
-          homeSettlement: currentPlayer.settlementId,
-          isInHomeSettlement
-        });
-        return !isInHomeSettlement;
-      })() ? (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <h2>{strings[1352] || "This is not your home settlement."}</h2>
-        </div>
-      ) : isContentLoading ? (
-        <p>{strings[98]}</p>
-      ) : (
-        <>
-          <h3>{strings[1352]} {carnivalPhase} {currentCarnivalNumber ? `(#${currentCarnivalNumber})` : ''}</h3>
-          <h2 className="countdown-timer">⏳ {carnivalTimer}</h2>
+      <LevelLock
+        currentPlayer={currentPlayer}
+        masterXPLevels={masterXPLevels}
+        requiredLevel={carnivalRequiredLevel}
+        featureName="Carnival"
+      >
+        {/* Check if player is in their home settlement */}
+        {(() => {
+          const isInHomeSettlement = String(currentPlayer.location.s) === String(currentPlayer.settlementId);
+          console.log('🎡 Carnival access check:', {
+            currentSettlement: currentPlayer.location.s,
+            homeSettlement: currentPlayer.settlementId,
+            isInHomeSettlement
+          });
+          return !isInHomeSettlement;
+        })() ? (
+          <div style={{ textAlign: 'center', padding: '20px' }}>
+            <h2>{strings[1352] || "This is not your home settlement."}</h2>
+          </div>
+        ) : isContentLoading ? (
+          <p>{strings[98]}</p>
+        ) : (
+          <>
+            <h3>{strings[1352]} {carnivalPhase} {currentCarnivalNumber ? `(#${currentCarnivalNumber})` : ''}</h3>
+            <h2 className="countdown-timer">⏳ {carnivalTimer}</h2>
 
-          {carnivalPhase === "here" && (
-            <>
-              {renderRewardSection()}
-              {renderOfferSection(strings[2009], claimedByYou)}
-              {renderOfferSection(strings[2010], available)}
-              {renderOfferSection(strings[2011], claimedByOthers)}
-              {renderOfferSection(strings[2012], completed)}
-            </>
-          )}
+            {carnivalPhase === "here" && (
+              <>
+                {renderRewardSection()}
+                {renderOfferSection(strings[2009], claimedByYou)}
+                {renderOfferSection(strings[2010], available)}
+                {renderOfferSection(strings[2011], claimedByOthers)}
+                {renderOfferSection(strings[2012], completed)}
+              </>
+            )}
 
-          {allOrdersFilled && (
-            <div className="carnival-rewards-banner">
-              {strings[2016]}
-            </div>
-          )}
+            {allOrdersFilled && (
+              <div className="carnival-rewards-banner">
+                {strings[2016]}
+              </div>
+            )}
 
-          {(carnivalPhase === "here" || carnivalPhase === "departing") && renderNextShipment()}
+            {(carnivalPhase === "here" || carnivalPhase === "departing") && renderNextShipment()}
 
-        <div className="shared-buttons" style={{ margin: '2px 0' }}>
-            <button className="btn-basic btn-neutral" onClick={() => handleShowCarnivalLog()}>
+            <div className="shared-buttons" style={{ margin: '2px 0' }}>
+              <button className="btn-basic btn-neutral" onClick={() => handleShowCarnivalLog()}>
                 {strings[1351]}
-            </button>
-        </div>
-        </>
-      )}
+              </button>
+            </div>
+          </>
+        )}
+      </LevelLock>
     </Panel>
     
     {showLogicModal && (

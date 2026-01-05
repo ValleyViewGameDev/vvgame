@@ -395,6 +395,8 @@
     "811": "Level Up!",
     "812": "Congratulations! You've reached level {level}!",
     "813": "Level up! You are now level {level}!",
+    "814": "The {feature} unlocks at level {level}.",
+    "815": "Your current level: {level}",
     "820": "Makes: ",
     "821": "Base Amount: ",
     "825": "You have ",

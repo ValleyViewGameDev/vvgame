@@ -394,6 +394,8 @@
     "811": "¡Subida de nivel!",
     "812": "¡Felicidades! ¡Has alcanzado el nivel {level}!",
     "813": "¡Subida de nivel! ¡Ahora eres nivel {level}!",
+    "814": "{feature} se desbloquea en el nivel {level}.",
+    "815": "Tu nivel actual: {level}",
     "820": "Produce: ",
     "821": "Cantidad base: ",
     "825": "Tienes ",
