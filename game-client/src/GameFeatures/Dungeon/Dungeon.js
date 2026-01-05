@@ -6,7 +6,7 @@ import { getLocalizedString } from "../../Utils/stringLookup";
 import { tryAdvanceFTUEByTrigger } from "../FTUE/FTUEutils";
 
 // FTUE Cave dungeon grid ID (must match auth.js)
-const FTUE_CAVE_GRID_ID = '695ab8bb186f31865b3b83de';
+const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
 
 export async function handleDungeonEntrance(
   currentPlayer,

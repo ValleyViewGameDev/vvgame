@@ -2713,7 +2713,7 @@ router.post('/exit-dungeon', async (req, res) => {
     const { playerId } = req.body;
 
     // FTUE Cave dungeon - new players start here and exit to their settlement's town
-    const FTUE_CAVE_GRID_ID = '695ab8bb186f31865b3b83de';
+    const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
     const FTUE_TOWN_EXIT_X = 40;
     const FTUE_TOWN_EXIT_Y = 49;
 
