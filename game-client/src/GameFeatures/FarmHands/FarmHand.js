@@ -22,6 +22,7 @@ import BulkHarvestResultsModal from './BulkHarvestResultsModal';
 import { BulkAnimalModal, executeBulkAnimalCollect } from './BulkAnimalCollect';
 import { BulkCraftingModal, executeBulkCrafting, prepareBulkCraftingData } from './BulkCrafting';
 import { isACrop } from '../../Utils/ResourceHelpers';
+import { getDerivedLevel } from '../../Utils/playerManagement';
 
 const FarmHandPanel = ({
   onClose,
@@ -44,6 +45,7 @@ const FarmHandPanel = ({
   currentSeason,
   globalTuning,
   isDeveloper = false,
+  masterXPLevels = [],
 }) => {
   const strings = useStrings();
   const [recipes, setRecipes] = useState([]);
@@ -133,20 +135,25 @@ const FarmHandPanel = ({
     syncInventory();
   }, [currentPlayer]);
 
+  // Calculate player level for filtering crops
+  const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
+
   useEffect(() => {
     try {
       const filteredRecipes = masterResources.filter((res) => {
         // Must be a crop (output of a farmplot)
         if (!isACrop(res.type, masterResources)) return false;
 
-        // Exclude resources with level >= 2
-        if (res.level >= 2) return false;
-
         // Check devonly restriction (allow if isDeveloper)
         if (res.requires === 'devonly' && !isDeveloper) return false;
 
         // Check seasonal restriction (allow if isDeveloper)
         if (!isDeveloper && res.season && currentSeason && res.season !== currentSeason) {
+          return false;
+        }
+
+        // Check level restriction (allow if isDeveloper)
+        if (!isDeveloper && res.level && res.level > playerLevel) {
           return false;
         }
 
@@ -160,7 +167,7 @@ const FarmHandPanel = ({
     } catch (error) {
       console.error('Error loading worker offers:', error);
     }
-  }, [stationType, masterResources, currentSeason, isDeveloper]);
+  }, [stationType, masterResources, currentSeason, isDeveloper, playerLevel]);
 
   useEffect(() => {
     const ownedTypes = currentPlayer.skills?.map(skill => skill.type) || [];

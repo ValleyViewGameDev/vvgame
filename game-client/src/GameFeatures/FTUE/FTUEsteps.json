@@ -12,27 +12,18 @@
       "trigger": "ExitedCave",
       "notificationKey": 742,
       "notificationIcon": "🧔🏼‍♂️",
-      "continue": true,
       "addQuests": []
     },
     {
       "step": 3,
       "trigger": "MetConstableElbow",
       "showModal": false,
-      "continue": true,
+      "continue": false,
       "notificationKey": 7051,
       "notificationIcon": "🏠",
       "addQuests": [2, 14]
     },
-    {
-      "step": 4,
-      "trigger": "Continued from prior modal",
-      "showModal": true,
-      "bodyKey": 706,
-      "image": "ftue-aspiration.png",
-      "continue": false,
-      "addQuests": []
-    },
+
     {
       "step": 5,
       "trigger": "BoughtHomeDeed",

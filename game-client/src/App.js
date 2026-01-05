@@ -3534,6 +3534,7 @@ return (
           currentSeason={seasonData?.type}
           isDeveloper={isDeveloper}
           globalTuning={globalTuning}
+          masterXPLevels={masterXPLevels}
         />
       )}
       {activePanel === 'SocialPanel' && (
