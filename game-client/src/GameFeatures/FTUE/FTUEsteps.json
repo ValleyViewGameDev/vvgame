@@ -4,20 +4,17 @@
       "showModal": true,
       "titleKey": 701,
       "bodyKey": 702,
-      "image": "ftue-welcome.png",
+      "notificationKey": 741,
+      "notificationIcon": "🏠",
       "continue": true,
       "addQuests": []
     },
     {
       "step": 2,
-      "trigger": "Continued from prior modal",
-      "showModal": true,
-      "titleKey": 705,
-      "bodyKey": 706,
-      "image": "ftue-aspiration.png",
-      "continue": false,
-      "notificationKey": 7050,
+      "trigger": "ExitedCave",
+      "notificationKey": 742,
       "notificationIcon": "🧔🏼‍♂️",
+      "continue": true,
       "addQuests": []
     },
     {
@@ -31,6 +28,18 @@
     },
     {
       "step": 4,
+      "trigger": "Continued from prior modal",
+      "showModal": true,
+      "titleKey": 705,
+      "bodyKey": 706,
+      "image": "ftue-aspiration.png",
+      "continue": false,
+      "notificationKey": 7050,
+      "notificationIcon": "🧔🏼‍♂️",
+      "addQuests": []
+    },
+    {
+      "step": 5,
       "trigger": "BoughtHomeDeed",
       "showModal": false,
       "continue": false,
@@ -39,7 +48,7 @@
       "openPanel": "QuestPanel"
     },
     {
-      "step": 5,
+      "step": 6,
       "trigger": "FirstHomesteadVisit",
       "showModal": false,
       "continue": false,
@@ -49,7 +58,7 @@
       "openPanel": "QuestPanel"
     },
     {
-      "step": 6,
+      "step": 7,
       "trigger": "SoldToKent",
       "showFeedbackModalAfter": true,
       "showModal": false,
@@ -60,7 +69,7 @@
       "openPanel": "FarmingPanel"
     },
     {
-      "step": 7,
+      "step": 8,
       "trigger": "PlantedFirstCrop",
       "showModal": false,
       "continue": false,
@@ -70,7 +79,7 @@
       "openPanel": "SkillsPanel"    
     },
     {
-      "step": 8,
+      "step": 9,
       "trigger": "AcquiredTownKey",
       "showModal": false,
       "continue": false,

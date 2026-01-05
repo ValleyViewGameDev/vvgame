@@ -2711,20 +2711,76 @@ router.delete('/delete-dungeon/:gridId', async (req, res) => {
 router.post('/exit-dungeon', async (req, res) => {
   try {
     const { playerId } = req.body;
-    
+
+    // FTUE Cave dungeon - new players start here and exit to their settlement's town
+    const FTUE_CAVE_GRID_ID = '695ab8bb186f31865b3b83de';
+    const FTUE_TOWN_EXIT_X = 40;
+    const FTUE_TOWN_EXIT_Y = 49;
+
     if (!playerId) {
-      return res.status(400).json({ 
-        error: 'playerId is required.' 
+      return res.status(400).json({
+        error: 'playerId is required.'
       });
     }
-    
+
     // Get player document
     const Player = require('../models/player');
     const player = await Player.findById(playerId);
-    
-    if (!player || !player.sourceGridBeforeDungeon) {
-      return res.status(404).json({ 
-        error: 'No source grid found - cannot exit dungeon' 
+
+    if (!player) {
+      return res.status(404).json({
+        error: 'Player not found'
+      });
+    }
+
+    // ============================================================
+    // SPECIAL CASE: FTUE Cave dungeon
+    // If player is in the FTUE Cave, teleport them to their settlement's town
+    // ============================================================
+    if (player.location?.g?.toString() === FTUE_CAVE_GRID_ID) {
+      console.log(`🚪 [FTUE] Player ${playerId} exiting FTUE Cave dungeon`);
+
+      // Find the player's settlement and its town grid
+      const Settlement = require('../models/settlement');
+      const settlement = await Settlement.findById(player.settlementId);
+
+      if (!settlement) {
+        return res.status(404).json({
+          error: 'Player settlement not found'
+        });
+      }
+
+      // Find the town grid in the settlement
+      const flatGrids = settlement.grids.flat();
+      const townSubGrid = flatGrids.find(g => g.gridType === 'town');
+
+      if (!townSubGrid || !townSubGrid.gridId) {
+        return res.status(404).json({
+          error: 'Town grid not found in settlement'
+        });
+      }
+
+      console.log(`🏠 [FTUE] Teleporting to town grid: ${townSubGrid.gridId} at position (${FTUE_TOWN_EXIT_X}, ${FTUE_TOWN_EXIT_Y})`);
+
+      return res.json({
+        success: true,
+        sourceGridId: townSubGrid.gridId,
+        exitPosition: {
+          x: FTUE_TOWN_EXIT_X,
+          y: FTUE_TOWN_EXIT_Y
+        },
+        gridType: 'town',
+        gridCoord: townSubGrid.gridCoord,
+        settlementId: player.settlementId
+      });
+    }
+
+    // ============================================================
+    // STANDARD CASE: Exit to source grid before dungeon
+    // ============================================================
+    if (!player.sourceGridBeforeDungeon) {
+      return res.status(404).json({
+        error: 'No source grid found - cannot exit dungeon'
       });
     }
     
