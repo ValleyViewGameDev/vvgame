@@ -8,17 +8,20 @@ import RelationshipMatrix from '../../GameFeatures/Relationships/RelationshipMat
 /**
  * StoryModal Component
  *
- * Displays dialog when a relationship milestone is reached with an NPC.
+ * Displays dialog when a relationship milestone is reached with an NPC,
+ * or for FTUE moments featuring the player character.
  * Supports pagination for long dialog text, breaking at sentence boundaries.
- * Text appears word by word to simulate the NPC talking.
+ * Text appears word by word to simulate talking.
  *
  * @param {boolean} isOpen - Whether the modal is visible
  * @param {function} onClose - Callback when modal is closed
- * @param {string} npcName - The name/type of the NPC (e.g., "Portia", "Hotspur")
- * @param {string} relationshipType - The relationship milestone (e.g., "met", "friend", "married")
+ * @param {string} npcName - The name/type of the NPC (e.g., "Portia", "Hotspur") - used for NPC dialog lookup
+ * @param {string} relationshipType - The relationship milestone (e.g., "met", "friend", "married", "FTUE")
  * @param {string} username - The player's username to replace {username} placeholders
+ * @param {string} symbol - Direct symbol to display (overrides NPC lookup, useful for PC icon in FTUE)
+ * @param {number|string} dialogKey - Direct string ID for dialog text (overrides NPC dialog lookup)
  */
-function StoryModal({ isOpen = false, onClose, npcName, relationshipType, username }) {
+function StoryModal({ isOpen = false, onClose, npcName, relationshipType, username, symbol, dialogKey: directDialogKey }) {
   const strings = useStrings();
   const [currentPage, setCurrentPage] = useState(0);
   const [pages, setPages] = useState([]);
@@ -39,14 +42,28 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
     rival: 'dialogOnRival',
   };
 
-  // Get NPC data from RelationshipMatrix
-  const npcData = RelationshipMatrix.find(r => r.type === npcName);
-  const npcSymbol = npcData?.symbol || '?';
+  // Get NPC data from RelationshipMatrix (only needed for NPC-based dialogs)
+  const npcData = npcName ? RelationshipMatrix.find(r => r.type === npcName) : null;
 
-  // Get the dialog string ID based on relationship type
-  const dialogKey = relationshipDialogKeys[relationshipType];
-  const dialogStringId = npcData?.[dialogKey];
-  const rawDialogText = dialogStringId ? strings[dialogStringId] : null;
+  // Determine the symbol to display:
+  // 1. Use direct symbol prop if provided (for FTUE with player icon)
+  // 2. Otherwise use NPC symbol from RelationshipMatrix
+  // 3. Fall back to '?' if neither available
+  const displaySymbol = symbol || npcData?.symbol || '?';
+
+  // Determine the dialog text:
+  // 1. If directDialogKey is provided, use it directly (for FTUE)
+  // 2. Otherwise look up from NPC's relationship dialog
+  let rawDialogText = null;
+  if (directDialogKey) {
+    // Direct dialog key provided (e.g., from FTUE step's bodyKey)
+    rawDialogText = strings[directDialogKey];
+  } else if (npcData && relationshipType) {
+    // NPC-based dialog lookup
+    const dialogKeyName = relationshipDialogKeys[relationshipType];
+    const npcDialogStringId = npcData?.[dialogKeyName];
+    rawDialogText = npcDialogStringId ? strings[npcDialogStringId] : null;
+  }
 
   // Replace {username} placeholder with actual player username
   const dialogText = rawDialogText ? rawDialogText.replace(/\{username\}/gi, username || 'Adventurer') : null;
@@ -103,7 +120,7 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
         clearTimeout(animationRef.current);
       }
     }
-  }, [isOpen, npcName, relationshipType]);
+  }, [isOpen, npcName, relationshipType, directDialogKey, symbol]);
 
   // Word-by-word animation effect
   useEffect(() => {
@@ -175,9 +192,9 @@ function StoryModal({ isOpen = false, onClose, npcName, relationshipType, userna
           &times;
         </button>
 
-        {/* NPC Symbol */}
+        {/* Character Symbol (NPC or PC) */}
         <div className="story-modal-symbol">
-          {npcSymbol}
+          {displaySymbol}
         </div>
 
         {/* Dialog Content */}

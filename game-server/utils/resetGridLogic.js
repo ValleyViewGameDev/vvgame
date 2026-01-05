@@ -94,23 +94,45 @@ async function performGridReset(gridId, gridType, gridCoord) {
 
   } else if (gridType === 'dungeon') {
     // Get the template from frontier's dungeons registry
+    console.log(`🔍 [DUNGEON RESET DEBUG] gridId: ${gridId}, type: ${typeof gridId}`);
+    console.log(`🔍 [DUNGEON RESET DEBUG] frontier exists: ${!!frontier}, dungeons exists: ${!!frontier?.dungeons}`);
+
     if (!frontier || !frontier.dungeons) {
       throw new Error('Frontier or dungeon registry not found');
     }
-    
-    const dungeonEntry = frontier.dungeons.get(gridId);
+
+    // Debug: List all dungeon keys in the registry
+    console.log(`🔍 [DUNGEON RESET DEBUG] Dungeon registry keys:`, Array.from(frontier.dungeons.keys()));
+
+    // Try both string and direct lookup
+    let dungeonEntry = frontier.dungeons.get(gridId);
     if (!dungeonEntry) {
-      throw new Error('Dungeon not found in frontier registry');
+      // Try with toString() in case of ObjectId mismatch
+      dungeonEntry = frontier.dungeons.get(gridId.toString());
+      if (dungeonEntry) {
+        console.log(`🔍 [DUNGEON RESET DEBUG] Found with toString() conversion`);
+      }
     }
-    
+
+    if (!dungeonEntry) {
+      console.error(`❌ [DUNGEON RESET DEBUG] Dungeon not found. gridId: ${gridId}`);
+      throw new Error(`Dungeon not found in frontier registry. gridId: ${gridId}`);
+    }
+
     const templateFilename = dungeonEntry.templateUsed;
+    console.log(`🔍 [DUNGEON RESET DEBUG] templateUsed from registry: "${templateFilename}"`);
+
     const templatePath = path.join(__dirname, '../layouts/gridLayouts/dungeon', `${templateFilename}.json`);
-    
+    console.log(`🔍 [DUNGEON RESET DEBUG] Full template path: ${templatePath}`);
+    console.log(`🔍 [DUNGEON RESET DEBUG] File exists: ${fs.existsSync(templatePath)}`);
+
     if (!fs.existsSync(templatePath)) {
-      throw new Error(`Template not found: ${templateFilename}`);
+      throw new Error(`Template not found: ${templateFilename} at path: ${templatePath}`);
     }
-    
+
     layout = readJSON(templatePath);
+    console.log(`🔍 [DUNGEON RESET DEBUG] Layout loaded, tiles rows: ${layout?.tiles?.length}, resources rows: ${layout?.resources?.length}`);
+
     layoutFileName = templateFilename;
     isFixedLayout = true; // Dungeons always use fixed layouts
     console.log(`⚔️ Using dungeon template for reset: ${templateFilename}`);
@@ -212,7 +234,8 @@ async function performGridReset(gridId, gridType, gridCoord) {
   }
 
   // Apply snow tiles for Winter (convert grass 'g' to snow 'o')
-  if (seasonType === 'Winter' || seasonType === 'winter') {
+  // Note: Dungeons should never have snow applied - they are underground/indoor environments
+  if ((seasonType === 'Winter' || seasonType === 'winter') && gridType !== 'dungeon') {
     let snowTileCount = 0;
     for (let y = 0; y < newTiles.length; y++) {
       for (let x = 0; x < newTiles[y].length; x++) {
@@ -339,8 +362,9 @@ async function performGridReset(gridId, gridType, gridCoord) {
   grid.lastOptimized = new Date(); // Update optimization timestamp
 
   // Skip validation to handle any pre-existing corrupted NPCs
+  console.log(`🔍 [DUNGEON RESET DEBUG] About to save grid._id: ${grid._id}, resources count: ${grid.resources.length}`);
   await grid.save({ validateBeforeSave: false });
-  console.log(`✅ Grid ${gridId} reset successfully (${gridType})`);
+  console.log(`✅ Grid ${gridId} reset successfully (${gridType}) - saved to DB`);
 }
 
 module.exports = { performGridReset };

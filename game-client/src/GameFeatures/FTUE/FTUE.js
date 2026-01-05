@@ -6,12 +6,12 @@ import './FTUE.css';
 import FTUEstepsData from './FTUEsteps.json';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { addAcceptedQuest, completeTutorial, handleFeedbackSubmit } from './FTUEutils';
+import StoryModal from '../../UI/Modals/StoryModal';
 
 
 const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQuestGiver, gridId }) => {
   const strings = useStrings();
   const [currentStepData, setCurrentStepData] = useState(null);
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [positiveReasons, setPositiveReasons] = useState([]);
   const [negativeReasons, setNegativeReasons] = useState([]);
@@ -47,22 +47,6 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       }
     }
   }, [currentPlayer?.ftuestep, currentPlayer?.firsttimeuser, onClose]);
-
-  // Preload image when step data changes
-  useEffect(() => {
-    if (currentStepData?.image) {
-      setImageLoaded(false);
-      const img = new Image();
-      img.src = `/assets/${currentStepData.image}`;
-      img.onload = () => {
-        setImageLoaded(true);
-      };
-      img.onerror = () => {
-        console.error('Failed to load FTUE image:', currentStepData.image);
-        setImageLoaded(true); // Still show modal even if image fails
-      };
-    }
-  }, [currentStepData]);
 
   // Auto-advance if step has showModal: false (but not while feedback modal is showing)
   useEffect(() => {
@@ -220,12 +204,9 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
     }
   };
 
-  // Don't render if no step data or (image not loaded for steps that have images and aren't step 2)
-  if (!currentStepData || (currentPlayer?.ftuestep !== 2 && currentStepData?.image && !imageLoaded)) {
-    // But DO render if we're showing the feedback modal
-    if (!showFeedbackModal) {
-      return null;
-    }
+  // Don't render if no step data (unless showing feedback modal)
+  if (!currentStepData && !showFeedbackModal) {
+    return null;
   }
 
   // Render feedback modal if showing
@@ -388,35 +369,16 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
     return null;
   }
 
-  // Standard render for other steps
+  // Standard render for steps with showModal: true - use StoryModal with player icon
   return (
-    <div className="ftue-overlay">
-      <div className="ftue-modal">
-        <div className="ftue-header">
-          <h2>{strings[currentStepData.titleKey]}</h2>
-        </div>
-        
-        <div className="ftue-text">
-          <p>{strings[currentStepData.bodyKey]}</p>
-        </div>
-
-        <div className="ftue-content">
-          {currentStepData.image && (
-            <div className="ftue-image-container">
-              <img
-                src={`/assets/${currentStepData.image}`}
-                alt={strings[currentStepData.titleKey]}
-                className="ftue-image"
-              />
-            </div>
-          )}
-
-          <div className="ftue-buttons">
-            <button className="ftue-button ftue-button-primary" onClick={handleOK}>{strings[796]}</button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <StoryModal
+      isOpen={true}
+      onClose={handleOK}
+      symbol={currentPlayer?.icon || '😀'}
+      dialogKey={currentStepData.bodyKey}
+      relationshipType="FTUE"
+      username={currentPlayer?.username}
+    />
   );
 };
 

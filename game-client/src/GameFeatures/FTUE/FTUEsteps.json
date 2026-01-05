@@ -2,9 +2,7 @@
    {
       "step": 1,
       "showModal": true,
-      "titleKey": 701,
-      "bodyKey": 702,
-      "image": "ftue-welcome.png",
+      "bodyKey": 740,
       "notificationKey": 741,
       "notificationIcon": "🏠",
       "addQuests": []
@@ -30,12 +28,9 @@
       "step": 4,
       "trigger": "Continued from prior modal",
       "showModal": true,
-      "titleKey": 705,
       "bodyKey": 706,
       "image": "ftue-aspiration.png",
       "continue": false,
-      "notificationKey": 7050,
-      "notificationIcon": "🧔🏼‍♂️",
       "addQuests": []
     },
     {
