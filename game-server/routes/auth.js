@@ -83,7 +83,7 @@ router.post('/register-new-player', async (req, res) => {
     // FTUE: New players start in the Cave dungeon instead of their homestead
     const FTUE_CAVE_GRID_ID = '695ab8bb186f31865b3b83de';
     const FTUE_CAVE_START_X = 1;
-    const FTUE_CAVE_START_Y = 7;
+    const FTUE_CAVE_START_Y = 10;
 
     const newPlayer = new Player({
       username,

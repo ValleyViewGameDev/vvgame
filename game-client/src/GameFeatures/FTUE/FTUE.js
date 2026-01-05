@@ -220,8 +220,8 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
     }
   };
 
-  // Don't render if no step data or (image not loaded for non-step-2)
-  if (!currentStepData || (currentPlayer?.ftuestep !== 2 && !imageLoaded)) {
+  // Don't render if no step data or (image not loaded for steps that have images and aren't step 2)
+  if (!currentStepData || (currentPlayer?.ftuestep !== 2 && currentStepData?.image && !imageLoaded)) {
     // But DO render if we're showing the feedback modal
     if (!showFeedbackModal) {
       return null;
@@ -401,14 +401,16 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
         </div>
 
         <div className="ftue-content">
-          <div className="ftue-image-container">
-            <img 
-              src={`/assets/${currentStepData.image}`} 
-              alt={strings[currentStepData.titleKey]}
-              className="ftue-image"
-            />
-          </div>
-          
+          {currentStepData.image && (
+            <div className="ftue-image-container">
+              <img
+                src={`/assets/${currentStepData.image}`}
+                alt={strings[currentStepData.titleKey]}
+                className="ftue-image"
+              />
+            </div>
+          )}
+
           <div className="ftue-buttons">
             <button className="ftue-button ftue-button-primary" onClick={handleOK}>{strings[796]}</button>
           </div>

@@ -3,6 +3,10 @@ import axios from "axios";
 import { changePlayerLocation } from "../../Utils/GridManagement";
 import FloatingTextManager from "../../UI/FloatingText";
 import { getLocalizedString } from "../../Utils/stringLookup";
+import { tryAdvanceFTUEByTrigger } from "../FTUE/FTUEutils";
+
+// FTUE Cave dungeon grid ID (must match auth.js)
+const FTUE_CAVE_GRID_ID = '695ab8bb186f31865b3b83de';
 
 export async function handleDungeonEntrance(
   currentPlayer,
@@ -217,7 +221,15 @@ export async function handleDungeonExit(
         sourceGridBeforeDungeon: null
       }));
     }
-    
+
+    // FTUE: Check if first-time user just exited the FTUE Cave and entered town
+    const wasInFTUECave = fromLocation.g === FTUE_CAVE_GRID_ID;
+    const enteredTown = toLocation.gtype === 'town';
+    if (currentPlayer?.firsttimeuser && wasInFTUECave && enteredTown) {
+      console.log('🎓 First-time user exited FTUE Cave into town - triggering ExitedCave');
+      await tryAdvanceFTUEByTrigger('ExitedCave', currentPlayer._id, currentPlayer, setCurrentPlayer);
+    }
+
     // Show success message
     const successMessage = strings?.["10203"] || "You have exited the dungeon";
     updateStatus(successMessage);

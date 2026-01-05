@@ -4,9 +4,9 @@
       "showModal": true,
       "titleKey": 701,
       "bodyKey": 702,
+      "image": "ftue-welcome.png",
       "notificationKey": 741,
       "notificationIcon": "🏠",
-      "continue": true,
       "addQuests": []
     },
     {
@@ -21,7 +21,7 @@
       "step": 3,
       "trigger": "MetConstableElbow",
       "showModal": false,
-      "continue": false,
+      "continue": true,
       "notificationKey": 7051,
       "notificationIcon": "🏠",
       "addQuests": [2, 14]

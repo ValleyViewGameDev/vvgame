@@ -211,16 +211,9 @@ const handleCreateAccount = async (e) => {
 
     const player = response.data.player;
 
-    // Update player location to be in town (server may have already done this)
-    player.location = {
-      ...player.location,
-      g: townGridId,
-      x: startX,
-      y: startY,
-      gtype: 'town',
-    };
-
-    console.log('✅ Player registered:', player);
+    // FTUE: Use the server-assigned location (Cave dungeon for first-time users)
+    // The server sets the correct starting location in auth.js
+    console.log('✅ Player registered with location:', player.location);
 
     // Track the successful account creation for ad platforms
     trackAccountCreation(player.username, player._id || player.playerId);
@@ -230,13 +223,14 @@ const handleCreateAccount = async (e) => {
     localStorage.removeItem('player');
     localStorage.setItem('player', JSON.stringify(player));
 
-    // 5. Save PC to town grid (where player starts)
+    // 5. Save PC to the starting grid (server-assigned location)
+    const startingGridId = player.location.g;
     const now = Date.now();
     const newPC = {
       playerId: player._id,
       type: 'pc',
       username: player.username,
-      position: { x: startX, y: startY },
+      position: { x: player.location.x, y: player.location.y },
       icon: player.icon || '😀',
       hp: player.baseHp || 25,
       maxhp: player.baseMaxhp || 25,
@@ -251,7 +245,7 @@ const handleCreateAccount = async (e) => {
     };
 
     const payload = {
-      gridId: townGridId,
+      gridId: startingGridId,
       playerId: player._id,
       pc: newPC,
       lastUpdated: now,
@@ -259,11 +253,7 @@ const handleCreateAccount = async (e) => {
 
     await axios.post(`${API_BASE}/api/save-single-pc`, payload);
 
-    // 6. Update player location on server to be in town
-    await axios.post(`${API_BASE}/api/update-player-location`, {
-      playerId: player._id,
-      location: player.location,
-    });
+    // Note: Server already set the correct location, no need to update it
 
     // 7. Send welcome message
     try {
