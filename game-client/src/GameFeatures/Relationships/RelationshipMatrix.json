@@ -17,7 +17,7 @@
     "buff4marriage": 3,
     "interest1": "Cow",
     "interest2": "Sheep",
-    "interest3": "Mill"
+    "interest3": "Kent"
   },
   {
     "type": "Portia",
@@ -81,7 +81,7 @@
     "interest1": "Apple Pie",
     "interest2": "Strawberry Pie",
     "interest3": "Hotspur",
-    "Hotspur": "love"
+    "Falstaff": "love"
   },
   {
     "type": "Feste",
