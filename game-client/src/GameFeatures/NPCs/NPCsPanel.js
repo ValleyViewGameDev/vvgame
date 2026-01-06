@@ -806,8 +806,12 @@ const handleHeal = async (recipe) => {
       {npcData.action === 'quest' && (
         <div className="quest-options">
 
-          {/* NPC Interests Section */}
+          {/* NPC Interests Section - only show if player has met this NPC */}
           {(() => {
+            // Check if player has met this NPC
+            const playerRelationship = currentPlayer?.relationships?.find(r => r.name === npcData.type);
+            if (!playerRelationship?.met) return null;
+
             const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
             if (!npcMatrix) return null;
 
@@ -836,7 +840,12 @@ const handleHeal = async (recipe) => {
           })()}
 
           {/* NPC Relationship Status Section - shows who this NPC loves/is friends with/rivals with/married to */}
+          {/* Only show if player has met this NPC */}
           {(() => {
+            // Check if player has met this NPC
+            const playerRelationship = currentPlayer?.relationships?.find(r => r.name === npcData.type);
+            if (!playerRelationship?.met) return null;
+
             const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
             if (!npcMatrix) return null;
 
@@ -1165,8 +1174,12 @@ const handleHeal = async (recipe) => {
       {npcData.action === 'trade' && (
         <div className="trade-options">
 
-          {/* NPC Interests Section */}
+          {/* NPC Interests Section - only show if player has met this NPC */}
           {(() => {
+            // Check if player has met this NPC
+            const playerRelationship = currentPlayer?.relationships?.find(r => r.name === npcData.type);
+            if (!playerRelationship?.met) return null;
+
             const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
             if (!npcMatrix) return null;
 
@@ -1195,7 +1208,12 @@ const handleHeal = async (recipe) => {
           })()}
 
           {/* NPC Relationship Status Section - shows who this NPC loves/is friends with/rivals with/married to */}
+          {/* Only show if player has met this NPC */}
           {(() => {
+            // Check if player has met this NPC
+            const playerRelationship = currentPlayer?.relationships?.find(r => r.name === npcData.type);
+            if (!playerRelationship?.met) return null;
+
             const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
             if (!npcMatrix) return null;
 
@@ -1404,7 +1422,8 @@ const handleHeal = async (recipe) => {
                   
                   return filteredRecipes.map((recipe) => {
                   const affordable = canAfford(recipe, inventory, backpack, 1);
-                  const meetsSkillRequirement = hasRequiredSkill(recipe.requires);
+                  // For traders, treat 'devonly' as no skill requirement (devonly is used to hide from FarmHand, not traders)
+                  const meetsSkillRequirement = recipe.requires === 'devonly' ? true : hasRequiredSkill(recipe.requires);
                   const meetsLevel = meetsLevelRequirement(recipe.level);
                   const requirementsMet = meetsSkillRequirement && meetsLevel;
                   const quantityToGive = recipe.tradeqty || 1;
@@ -1450,11 +1469,9 @@ const handleHeal = async (recipe) => {
                   const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
                   const xpToAward = npcResourceForXP?.xp || 1;
 
-                  const skillColor = meetsSkillRequirement ? 'green' : 'red';
                   const levelColor = meetsLevel ? 'green' : 'red';
                   const details =
                     (recipe.level ? `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${recipe.level}</span>` : '') +
-                    (recipe.requires ? `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(recipe.requires, strings)}</span>` : '') +
                     `${strings[461]}<div>${formattedCosts}</div><div style="margin-top: 8px; color: #4CAF50;">🔷 +${xpToAward} XP</div>`;
 
                   const isDisabled = !affordable || !requirementsMet;
@@ -1486,6 +1503,9 @@ const handleHeal = async (recipe) => {
               
             </>
           )}
+
+          {/* Separator bar before story quote */}
+          <hr style={{ margin: '16px 0', border: 'none', borderTop: '1px solid var(--color-border, #444)' }} />
 
           {/* Trader story text - only shown if player has met this NPC */}
           {(() => {
