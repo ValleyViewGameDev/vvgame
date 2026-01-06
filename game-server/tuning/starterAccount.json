@@ -33,7 +33,8 @@
         "isStateMachineEnabled": false,
         "isTeleportEnabled": false,
         "toggleVFX": true,
-        "hasDied": false
+        "hasDied": false,
+        "plantWithCursor": false
       },
       "relationships": [
         {
