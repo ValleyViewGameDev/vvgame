@@ -9,6 +9,7 @@ import NPCsInGridManager from '../GridState/GridStateNPCs';
 import playersInGridManager from '../GridState/PlayersInGrid';
 import { getCurrentTileCoordinates, enrichResourceFromMaster } from '../Utils/ResourceHelpers';
 import GlobalGridStateTilesAndResources from '../GridState/GlobalGridStateTilesAndResources';
+import { createCollectEffect } from '../VFX/VFX';
 
 export const handleConstructionWithGems = async (params) => {
   // Wrapper function that uses a modified recipe if provided
@@ -43,11 +44,11 @@ export const handleConstruction = async ({
 }) => {
   if (!currentPlayer) {
     console.warn('Current Player not provided; inventory changes will not be saved.');
-    return;
+    return false;
   }
   if (!selectedItem) {
     console.warn('Invalid building selection.');
-    return;
+    return false;
   }
   // **Get player position dynamically **
   const playerId = currentPlayer._id.toString();  // Convert ObjectId to string
@@ -62,7 +63,7 @@ export const handleConstruction = async ({
     y = overridePosition.y;
   } else {
     const coords = getCurrentTileCoordinates(gridId, currentPlayer);
-    if (!coords) return;
+    if (!coords) return false;
     x = coords.tileX;
     y = coords.tileY;
   }
@@ -73,7 +74,7 @@ export const handleConstruction = async ({
   // Ensure valid player position
   if (!playerPosition || x == null || y == null) {
     console.warn('Player position is invalid.');
-    return;
+    return false;
   }
 
   const selectedResource = buildOptions.find((item) => item.type === selectedItem);
@@ -103,7 +104,7 @@ export const handleConstruction = async ({
     if (occupiedTile) {
       console.warn(`Cannot build ${selectedItem} - tile at (${occupiedTile.x}, ${occupiedTile.y}) is occupied.`);
       FloatingTextManager.addFloatingText(306, x, y, TILE_SIZE);
-      return; // Exit before deducting inventory
+      return false; // Exit before deducting inventory
     }
   }
 
@@ -119,7 +120,7 @@ export const handleConstruction = async ({
   });
   if (!success) {
     FloatingTextManager.addFloatingText(305, playerPosition.x, playerPosition.y, TILE_SIZE);
-    return;
+    return false;
   }
   // refreshPlayerAfterInventoryUpdate is already called inside spendIngredients
 
@@ -140,8 +141,9 @@ export const handleConstruction = async ({
     // Spawning NPC directly at player's tile coordinates
     NPCsInGridManager.spawnNPC(gridId, selectedResource, playerPosition);
     console.log('Spawned NPC:', gridId, selectedResource, playerPosition);
-    
-    // Show floating text for NPC purchase
+
+    // Show VFX and floating text for NPC purchase
+    createCollectEffect(x, y, TILE_SIZE);
     FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
     
     // Show status message with purchase details
@@ -202,7 +204,9 @@ export const handleConstruction = async ({
       
       // Update ONLY the main resource in DB (NOT shadows)
       await updateGridResource(gridId, rawResource, true);
-      
+
+      // Show VFX and floating text for resource placement
+      createCollectEffect(x, y, TILE_SIZE);
       FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
       
       // Show status message with purchase details
@@ -211,9 +215,11 @@ export const handleConstruction = async ({
       // Track quest progress sequentially to avoid conflicts
       await trackQuestProgress(currentPlayer, 'Build', selectedItem, 1, setCurrentPlayer);
       await trackQuestProgress(currentPlayer, 'Buy', selectedItem, 1, setCurrentPlayer);
+      return true; // Success
     } catch (error) {
       console.error('Error placing resource on grid:', error);
-      return;
+      return false;
     }
   }
+  return true; // Success (for NPC category)
 };

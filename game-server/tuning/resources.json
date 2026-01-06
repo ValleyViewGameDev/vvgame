@@ -1,5 +1,13 @@
 [
   {
+    "type": "d",
+    "layoutkey": "DI",
+    "category": "tile",
+    "action": "dirt",
+    "passable": true,
+    "level": 1
+  },
+  {
     "type": "g",
     "layoutkey": "GR",
     "category": "tile",
@@ -13,14 +21,6 @@
     "category": "tile",
     "action": "slate",
     "source": "deposit",
-    "passable": true,
-    "level": 1
-  },
-  {
-    "type": "d",
-    "layoutkey": "DI",
-    "category": "tile",
-    "action": "dirt",
     "passable": true,
     "level": 1
   },
@@ -83,7 +83,7 @@
     "action": "dungeon",
     "passable": true,
     "requires": "devonly",
-    "level": 1
+    "level": 7
   },
   {
     "type": "z",

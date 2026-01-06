@@ -216,11 +216,6 @@ const ToolsPanel = ({
                   return null;
                 }
 
-                // Skip tiles that are sources (deposits like slate, moss, clay) - they shouldn't be terraformable
-                if (tileResource.source === 'deposit') {
-                  return null;
-                }
-
                 const meetsSkill = hasRequiredSkill(requiredSkill);
                 const meetsLevel = meetsLevelRequirement(requiredLevel);
                 const isCoolingDown = coolingDownItems.has(`terraform-${tileType}`);

@@ -10,6 +10,7 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { getCurrentTileCoordinates } from '../../Utils/ResourceHelpers';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
+import { createCollectEffect } from '../../VFX/VFX';
 
 /**
  * Determines the appropriate error string for an invalid planting attempt.
@@ -162,6 +163,8 @@ export const handleFarmPlotPlacement = async ({
         output: selectedItem.output, // ✅ required for crop conversion
       });
 
+      // Show VFX and floating text for planting
+      createCollectEffect(tileX, tileY, TILE_SIZE);
       FloatingTextManager.addFloatingText(302, tileX, tileY, TILE_SIZE); // "Planted!"
 
       // Track quest progress for "Plant" actions
@@ -190,7 +193,7 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId,
 
   if (!currentPlayer?.location) {
     console.error("❌ handleTerraform: Missing currentPlayer location.");
-    return;
+    return false;
   }
 
   // Use override position if provided (cursor mode), otherwise use player position
@@ -200,7 +203,7 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId,
     tileY = overridePosition.y;
   } else {
     const coords = getCurrentTileCoordinates(gridId, currentPlayer);
-    if (!coords) return;
+    if (!coords) return false;
     tileX = coords.tileX;
     tileY = coords.tileY;
   }
@@ -210,15 +213,15 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId,
 
   if (!tile) {
     console.error("❌ handleTerraform: Could not find tile at given coordinates.");
-    return;
+    return false;
   }
   if (tile === 'l') {
       FloatingTextManager.addFloatingText(320, tileX, tileY, TILE_SIZE);
-    return;
+    return false;
   }
   if (tile === 'w') {
       FloatingTextManager.addFloatingText(320, tileX, tileY, TILE_SIZE); // Same message as lava for now
-    return;
+    return false;
   }
 
   let newType;
@@ -249,7 +252,7 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId,
         break;
       default:
         console.error(`❌ handleTerraform: Unknown actionType "${actionType}"`);
-        return;
+        return false;
     }
   }
 
@@ -257,4 +260,8 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId,
 
   // Call convertTileType to update the tile in the database and emit the change
   await convertTileType(gridId, tileX, tileY, newType, setTileTypes);
+
+  // Show VFX for terraforming
+  createCollectEffect(tileX, tileY, TILE_SIZE);
+  return true; // Success
 };
