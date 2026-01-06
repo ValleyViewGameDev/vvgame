@@ -12,6 +12,7 @@ import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { getMayorUsername } from '../Government/GovUtils';
 import { getDerivedLevel } from '../../Utils/playerManagement';
+import { updatePlayerSettings } from '../../settings';
 
 const BuildPanel = ({
   TILE_SIZE,
@@ -31,6 +32,8 @@ const BuildPanel = ({
   currentSeason,
   globalTuning,
   masterXPLevels,
+  cursorMode,
+  setCursorMode,
 }) => {
   const { closePanel } = usePanelContext(); // Use closePanel from context
   const [buildOptions, setBuildOptions] = useState([]);
@@ -38,6 +41,29 @@ const BuildPanel = ({
   const [isContentLoading, setIsContentLoading] = useState(false);
   const [isMayor, setIsMayor] = useState(false);
   const strings = useStrings();
+  const [placeWithCursor, setPlaceWithCursor] = useState(
+    currentPlayer?.settings?.plantWithCursor ?? false
+  );
+
+  // Toggle handler - persists to player settings
+  const handleToggleChange = (checked) => {
+    setPlaceWithCursor(checked);
+    if (!checked) {
+      setCursorMode(null);
+    }
+    // Persist to player settings (uses same setting as farming panel)
+    updatePlayerSettings({ plantWithCursor: checked }, currentPlayer, setCurrentPlayer);
+  };
+
+  // Handle selecting an item for cursor mode
+  const handleCursorModeSelect = (item) => {
+    setCursorMode({
+      type: 'build',
+      item: item.type,
+      emoji: item.symbol || '🏗️',
+      buildOptions: buildOptions,
+    });
+  };
 
   // Fetch inventory and build options when the panel initializes
   useEffect(() => {
@@ -207,6 +233,26 @@ const BuildPanel = ({
   return (
     <Panel onClose={closePanel} descriptionKey="1002" titleKey="1102" panelName="BuildPanel">
       <div className="standard-panel">
+        {/* Place with cursor toggle */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          gap: '8px',
+          marginBottom: '10px',
+          padding: '5px 0'
+        }}>
+          <label style={{ fontFamily: 'var(--font-title-4-family)', fontSize: 'var(--font-title-4-size)', cursor: 'pointer' }}>
+            {strings[10187] || 'Place with cursor'}
+          </label>
+          <input
+            type="checkbox"
+            checked={placeWithCursor}
+            onChange={(e) => handleToggleChange(e.target.checked)}
+            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+          />
+        </div>
+
         {isContentLoading ? (
           <p>{strings[98]}</p>
         ) : (
@@ -222,6 +268,11 @@ const BuildPanel = ({
               const isTownBuilding = item.source === 'BuildTown' && currentPlayer.location.gtype !== 'homestead';
               const townBuildingLimitReached = isTownBuilding && currentTownBuildings >= maxTownBuildings;
               const isDisabled = !affordable || !requirementsMet || townBuildingLimitReached;
+              const isSelectedForCursor = cursorMode?.type === 'build' && cursorMode?.item === item.type;
+
+              // Build className based on state
+              let buttonClassName = '';
+              if (isSelectedForCursor) buttonClassName += 'cursor-selected ';
 
               const formattedCosts = [1, 2, 3, 4].map((i) => {
                 const type = item[`ingredient${i}`];
@@ -261,25 +312,32 @@ const BuildPanel = ({
                   details={details}
                   info={info}
                   disabled={isDisabled}
-                  onClick={() =>
-                    !isDisabled &&
-                    handleConstruction({
-                      TILE_SIZE,
-                      selectedItem: item.type,
-                      buildOptions,
-                      inventory,
-                      setInventory,
-                      backpack,
-                      setBackpack,
-                      resources,
-                      setResources,
-                      setErrorMessage: console.error, // Replace with real error handling if needed
-                      currentPlayer,
-                      setCurrentPlayer,
-                      gridId,
-                      updateStatus,
-                    })
-                  }
+                  className={buttonClassName}
+                  onClick={() => {
+                    if (isDisabled) return;
+                    if (placeWithCursor) {
+                      // In cursor mode: select this item for placing via clicks
+                      handleCursorModeSelect(item);
+                    } else {
+                      // Normal mode: build at player position immediately
+                      handleConstruction({
+                        TILE_SIZE,
+                        selectedItem: item.type,
+                        buildOptions,
+                        inventory,
+                        setInventory,
+                        backpack,
+                        setBackpack,
+                        resources,
+                        setResources,
+                        setErrorMessage: console.error,
+                        currentPlayer,
+                        setCurrentPlayer,
+                        gridId,
+                        updateStatus,
+                      });
+                    }
+                  }}
                   onGemPurchase={(item.gemcost && (!affordable || !requirementsMet) && !townBuildingLimitReached) ? handleGemPurchase : null}
                   meetsLevelRequirement={meetsLevel}
                   resource={item}

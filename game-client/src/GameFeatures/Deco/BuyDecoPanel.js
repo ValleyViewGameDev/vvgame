@@ -10,6 +10,7 @@ import { usePanelContext } from '../../UI/Panels/PanelContext';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
+import { updatePlayerSettings } from '../../settings';
 
 const BuyDecoPanel = ({
   TILE_SIZE,
@@ -27,12 +28,37 @@ const BuyDecoPanel = ({
   updateStatus,
   isDeveloper,
   currentSeason,
+  cursorMode,
+  setCursorMode,
 }) => {
   const { closePanel } = usePanelContext();
   const [buyOptions, setBuyOptions] = useState([]);
   const [allResources, setAllResources] = useState([]);
   const [isContentLoading, setIsContentLoading] = useState(false);
   const strings = useStrings();
+  const [placeWithCursor, setPlaceWithCursor] = useState(
+    currentPlayer?.settings?.plantWithCursor ?? false
+  );
+
+  // Toggle handler - persists to player settings
+  const handleToggleChange = (checked) => {
+    setPlaceWithCursor(checked);
+    if (!checked) {
+      setCursorMode(null);
+    }
+    // Persist to player settings (uses same setting as farming panel)
+    updatePlayerSettings({ plantWithCursor: checked }, currentPlayer, setCurrentPlayer);
+  };
+
+  // Handle selecting an item for cursor mode
+  const handleCursorModeSelect = (item) => {
+    setCursorMode({
+      type: 'build',
+      item: item.type,
+      emoji: item.symbol || '🪴',
+      buildOptions: buyOptions,
+    });
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -97,9 +123,29 @@ const BuyDecoPanel = ({
     });
   };
 
-  return ( 
+  return (
     <Panel onClose={closePanel} descriptionKey="1031" titleKey="1131" panelName="BuyDecoPanel">
       <div className="standard-panel">
+        {/* Place with cursor toggle */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          gap: '8px',
+          marginBottom: '10px',
+          padding: '5px 0'
+        }}>
+          <label style={{ fontFamily: 'var(--font-title-4-family)', fontSize: 'var(--font-title-4-size)', cursor: 'pointer' }}>
+            {strings[10187] || 'Place with cursor'}
+          </label>
+          <input
+            type="checkbox"
+            checked={placeWithCursor}
+            onChange={(e) => handleToggleChange(e.target.checked)}
+            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+          />
+        </div>
+
         {isContentLoading ? (
           <p>{strings[98]}</p>
         ) : (
@@ -108,6 +154,12 @@ const BuyDecoPanel = ({
               const ingredients = getIngredientDetails(item, allResources);
               const affordable = canAfford(item, inventory);
               const requirementsMet = hasRequiredSkill(item.requires);
+              const isDisabled = !affordable || !requirementsMet;
+              const isSelectedForCursor = cursorMode?.type === 'build' && cursorMode?.item === item.type;
+
+              // Build className based on state
+              let buttonClassName = '';
+              if (isSelectedForCursor) buttonClassName += 'cursor-selected ';
 
               const formattedCosts = [1, 2, 3, 4].map((i) => {
                 const type = item[`ingredient${i}`];
@@ -133,29 +185,35 @@ const BuyDecoPanel = ({
                   symbol={item.symbol}
                   name={getLocalizedString(item.type, strings)}
                   details={details}
-                  disabled={!affordable || !requirementsMet}
-                  onClick={() =>
-                    affordable &&
-                    requirementsMet &&
-                    handleConstruction({
-                      TILE_SIZE,
-                      selectedItem: item.type,
-                      buildOptions: buyOptions,
-                      inventory,
-                      setInventory,
-                      backpack,
-                      setBackpack,
-                      resources,
-                      setResources,
-                      setErrorMessage: console.error,
-                      currentPlayer,
-                      setCurrentPlayer,
-                      gridId,
-                      updateStatus,
-                    })
-                  }
+                  disabled={isDisabled}
+                  className={buttonClassName}
+                  onClick={() => {
+                    if (isDisabled) return;
+                    if (placeWithCursor) {
+                      // In cursor mode: select this item for placing via clicks
+                      handleCursorModeSelect(item);
+                    } else {
+                      // Normal mode: place at player position immediately
+                      handleConstruction({
+                        TILE_SIZE,
+                        selectedItem: item.type,
+                        buildOptions: buyOptions,
+                        inventory,
+                        setInventory,
+                        backpack,
+                        setBackpack,
+                        resources,
+                        setResources,
+                        setErrorMessage: console.error,
+                        currentPlayer,
+                        setCurrentPlayer,
+                        gridId,
+                        updateStatus,
+                      });
+                    }
+                  }}
                   gemCost={item.gemcost || null}
-                  onGemPurchase={(item.gemcost && (!affordable || !requirementsMet)) ? handleGemPurchase : null}
+                  onGemPurchase={(item.gemcost && isDisabled) ? handleGemPurchase : null}
                   resource={item}
                   inventory={inventory}
                   backpack={backpack}

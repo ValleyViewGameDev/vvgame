@@ -39,6 +39,7 @@ export const handleConstruction = async ({
   setCurrentPlayer,
   gridId,
   updateStatus,
+  overridePosition, // Optional: { x, y } for cursor mode placement
 }) => {
   if (!currentPlayer) {
     console.warn('Current Player not provided; inventory changes will not be saved.');
@@ -54,17 +55,23 @@ export const handleConstruction = async ({
   const player = playersInGrid?.[playerId];
   const playerPosition = player?.position;  // Use grid-relative coordinates directly (no scaling)
 
-  const coords = getCurrentTileCoordinates(gridId, currentPlayer);
-  if (!coords) return;
-  const { tileX, tileY } = coords;
-  const x = tileX;
-  const y = tileY;
+  // Use override position if provided (cursor mode), otherwise use player position
+  let x, y;
+  if (overridePosition) {
+    x = overridePosition.x;
+    y = overridePosition.y;
+  } else {
+    const coords = getCurrentTileCoordinates(gridId, currentPlayer);
+    if (!coords) return;
+    x = coords.tileX;
+    y = coords.tileY;
+  }
 
   console.log('playerPosition = ', playerPosition);
-  console.log('x = ',tileX," y = ",tileY);
+  console.log('x = ', x, " y = ", y);
 
   // Ensure valid player position
-  if (!playerPosition || tileX == null || tileY == null) {
+  if (!playerPosition || x == null || y == null) {
     console.warn('Player position is invalid.');
     return;
   }

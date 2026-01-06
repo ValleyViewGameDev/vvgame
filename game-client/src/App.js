@@ -467,9 +467,10 @@ const [showFTUE, setShowFTUE] = useState(false);
 const [cursorMode, setCursorMode] = useState(null); // { type: 'plant', item: {...}, emoji: '🌾' }
 const [hoveredTile, setHoveredTile] = useState(null); // { row, col } - tile under cursor for placement highlight
 
-// Clear cursor mode when panel changes (except when staying on FarmingPanel or ToolsPanel)
+// Clear cursor mode when panel changes (except when staying on panels that support cursor placement)
 useEffect(() => {
-  if (activePanel !== 'FarmingPanel' && activePanel !== 'ToolsPanel') {
+  const cursorModePanels = ['FarmingPanel', 'ToolsPanel', 'BuildPanel', 'BuyPanel', 'BuyDecoPanel', 'PetsPanel'];
+  if (!cursorModePanels.includes(activePanel)) {
     setCursorMode(null);
   }
 }, [activePanel]);
@@ -1920,6 +1921,44 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       tileTypes,
       setTileTypes,
       overridePosition: { x: colIndex, y: rowIndex }, // Terraform at clicked tile
+    });
+    isProcessing = false;
+    return;
+  }
+
+  // Handle build cursor mode (Build, Buy, and BuyDeco panels)
+  if (cursorMode?.type === 'build' && cursorMode.item && cursorMode.buildOptions) {
+    // Range check for cursor mode building
+    if (currentPlayer?._id && gridId) {
+      const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id));
+      const targetPos = { x: colIndex, y: rowIndex };
+      if (playerPos && typeof playerPos.x !== 'undefined') {
+        const distance = calculateDistance(playerPos, targetPos);
+        const playerRange = getDerivedRange(currentPlayer, masterResources);
+        if (distance > playerRange) {
+          FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
+          isProcessing = false;
+          return;
+        }
+      }
+    }
+
+    const { handleConstruction } = await import('./GameFeatures/BuildAndBuy');
+    await handleConstruction({
+      TILE_SIZE: activeTileSize,
+      selectedItem: cursorMode.item,
+      buildOptions: cursorMode.buildOptions,
+      inventory,
+      setInventory,
+      backpack,
+      setBackpack,
+      resources,
+      setResources,
+      currentPlayer,
+      setCurrentPlayer,
+      gridId,
+      updateStatus,
+      overridePosition: { x: colIndex, y: rowIndex }, // Build at clicked tile
     });
     isProcessing = false;
     return;
@@ -3444,6 +3483,8 @@ return (
           currentSeason={seasonData?.type}
           globalTuning={globalTuning}
           masterXPLevels={masterXPLevels}
+          cursorMode={cursorMode}
+          setCursorMode={setCursorMode}
         />
       )}
       {activePanel === 'BuyPanel' && (
@@ -3467,6 +3508,8 @@ return (
           NPCsInGrid={NPCsInGrid}
           globalTuning={globalTuning}
           masterXPLevels={masterXPLevels}
+          cursorMode={cursorMode}
+          setCursorMode={setCursorMode}
         />
       )}
       {activePanel === 'PetsPanel' && (
@@ -3482,11 +3525,13 @@ return (
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           gridId={gridId}
-          masterResources={masterResources} 
-          masterSkills={masterSkills} 
+          masterResources={masterResources}
+          masterSkills={masterSkills}
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
           currentSeason={seasonData?.type}
+          cursorMode={cursorMode}
+          setCursorMode={setCursorMode}
         />
       )}
       {activePanel === 'BuyDecoPanel' && (
@@ -3502,11 +3547,13 @@ return (
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           gridId={gridId}
-          masterResources={masterResources} 
-          masterSkills={masterSkills} 
+          masterResources={masterResources}
+          masterSkills={masterSkills}
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
           currentSeason={seasonData?.type}
+          cursorMode={cursorMode}
+          setCursorMode={setCursorMode}
         />
       )}
       {activePanel === 'NPCPanel' && (
