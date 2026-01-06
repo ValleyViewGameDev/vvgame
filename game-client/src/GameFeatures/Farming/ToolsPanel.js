@@ -263,6 +263,7 @@ const ToolsPanel = ({
                     disabled={isDisabled}
                     info={infoText}
                     onClick={() => handleButtonClick(tileType, symbol, requiredSkill, requiredLevel)}
+                    devOnly={requiredSkill === 'devonly'}
                   />
                 );
               })}

@@ -82,7 +82,8 @@
     "category": "tile",
     "action": "dungeon",
     "passable": true,
-    "level": 7
+    "requires": "devonly",
+    "level": 1
   },
   {
     "type": "z",

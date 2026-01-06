@@ -287,6 +287,15 @@
   color: var(--color-success);
 }
 
+/* ✅ Developer-only styling (red/danger tint for devonly resources) */
+.resource-button.dev-only {
+  background-color: var(--color-btn-danger);
+}
+
+.resource-button.dev-only:hover {
+  background-color: #ffe0e0;
+}
+
 /* ✅ Mini variant - compact display for owned items */
 .resource-button.mini {
   padding: 4px 8px;

@@ -270,7 +270,7 @@ const BuildPanel = ({
                       inventory,
                       setInventory,
                       backpack,
-                      setBackpack, 
+                      setBackpack,
                       resources,
                       setResources,
                       setErrorMessage: console.error, // Replace with real error handling if needed
@@ -287,6 +287,7 @@ const BuildPanel = ({
                   backpack={backpack}
                   masterResources={masterResources || allResources}
                   currentPlayer={currentPlayer}
+                  devOnly={item.requires === 'devonly'}
                 />
               );
             })}

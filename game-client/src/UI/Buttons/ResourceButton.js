@@ -55,7 +55,9 @@ const ResourceButton = ({
   inventory = null,
   backpack = null,
   masterResources = null,
-  currentPlayer = null
+  currentPlayer = null,
+  // Developer-only styling - applies danger/red tint to buttons for devonly resources
+  devOnly = false
 }) => { 
   const strings = useStrings();
   const { openPanel } = usePanelContext();
@@ -159,7 +161,7 @@ const ResourceButton = ({
       >
         <button
           ref={buttonRef}
-          className={`resource-button ${disabled || isProcessing ? 'disabled' : ''} ${className || ''} ${isProcessing ? 'processing' : ''}`}
+          className={`resource-button ${disabled || isProcessing ? 'disabled' : ''} ${className || ''} ${isProcessing ? 'processing' : ''} ${devOnly ? 'dev-only' : ''}`}
           onClick={handleClick}
           disabled={disabled || isProcessing}
           style={{

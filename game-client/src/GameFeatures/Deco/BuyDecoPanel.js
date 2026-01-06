@@ -161,6 +161,7 @@ const BuyDecoPanel = ({
                   backpack={backpack}
                   masterResources={masterResources || allResources}
                   currentPlayer={currentPlayer}
+                  devOnly={item.requires === 'devonly'}
                 />
               );
             })}

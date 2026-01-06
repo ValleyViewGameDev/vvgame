@@ -268,6 +268,7 @@ const FarmingPanel = ({
                       handleFarmPlacementWithCooldown(item);
                     }
                   }}
+                  devOnly={item.requires === 'devonly'}
                 />
               );
             })}

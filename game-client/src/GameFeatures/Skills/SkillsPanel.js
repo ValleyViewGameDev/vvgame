@@ -361,6 +361,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
                       backpack={backpack}
                       masterResources={masterResources || allResources}
                       currentPlayer={currentPlayer}
+                      devOnly={resource.requires === 'devonly'}
                     />
                   );
                 })}
