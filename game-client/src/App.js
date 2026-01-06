@@ -1891,8 +1891,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
     return;
   }
 
-  // Handle terraform cursor mode
-  if (cursorMode?.type === 'terraform' && cursorMode.actionType) {
+  // Handle terraform cursor mode (supports both tileType and legacy actionType)
+  if (cursorMode?.type === 'terraform' && (cursorMode.tileType || cursorMode.actionType)) {
     // Range check for cursor mode terraforming
     if (currentPlayer?._id && gridId) {
       const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id));
@@ -1911,7 +1911,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
     const { handleTerraform } = await import('./GameFeatures/Farming/Farming');
     await handleTerraform({
       TILE_SIZE: activeTileSize,
-      actionType: cursorMode.actionType,
+      tileType: cursorMode.tileType, // New: direct tile type
+      actionType: cursorMode.actionType, // Legacy: action type mapping
       gridId,
       currentPlayer,
       tileTypes,
@@ -3404,6 +3405,7 @@ return (
           gridId={gridId}
           masterResources={masterResources}
           masterSkills={masterSkills}
+          masterXPLevels={masterXPLevels}
           updateStatus={updateStatus}
           isDeveloper={isDeveloper}
           cursorMode={cursorMode}

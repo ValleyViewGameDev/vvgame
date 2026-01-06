@@ -7,7 +7,33 @@ import { handleTerraform } from './Farming';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { updatePlayerSettings } from '../../settings';
+import { getDerivedLevel } from '../../Utils/playerManagement';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
+
+// Default symbols for tiles that don't have one defined
+const DEFAULT_TILE_SYMBOLS = {
+  'd': '🟫',  // dirt
+  'g': '🟩',  // grass
+  'p': '🟨',  // pavement
+  's': '⬜️',  // slate/stone
+  'x': '🪨',  // cobblestone
+  'w': '💧',  // water
+  'l': '🔥',  // lava
+  'n': '🏖️',  // sand
+  'o': '❄️',  // snow
+  'z': '🟢',  // moss
+  'c': '🧱',  // clay
+  'y': '⬛️',  // dungeon
+};
+
+// Info string keys for tiles (from strings file)
+const TILE_INFO_KEYS = {
+  'd': 310,  // Till Land
+  'g': 311,  // Plant Grass
+  'p': 312,  // Lay Pavement
+  's': 312,  // Lay Stone
+  'x': 313,  // Lay Cobblestone
+};
 
 const ToolsPanel = ({
   onClose,
@@ -26,6 +52,7 @@ const ToolsPanel = ({
   gridId,
   masterResources,
   masterSkills,
+  masterXPLevels,
   updateStatus,
   isDeveloper,
   cursorMode,
@@ -53,10 +80,10 @@ const ToolsPanel = ({
   };
 
   // Handle selecting a terraform action for cursor mode
-  const handleCursorModeSelect = (actionType, emoji) => {
+  const handleCursorModeSelect = (tileType, emoji) => {
     setCursorMode({
       type: 'terraform',
-      actionType: actionType,
+      tileType: tileType,
       emoji: emoji
     });
   };
@@ -86,18 +113,27 @@ const ToolsPanel = ({
   };
 
   const hasRequiredSkill = (requiredSkill) => {
+    // devonly is handled separately, not as a skill check
+    if (requiredSkill === 'devonly') return true;
     return !requiredSkill || currentPlayer.skills?.some((owned) => owned.type === requiredSkill);
   };
 
+  // Check if player meets the level requirement
+  const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
+  const meetsLevelRequirement = (resourceLevel) => {
+    if (!resourceLevel) return true; // No level requirement
+    return playerLevel >= resourceLevel;
+  };
 
-  // Wrap for Terraform Actions
-  const handleTerraformWithCooldown = async (actionType) => {
-    const itemKey = `terraform-${actionType}`;
+
+  // Wrap for Terraform Actions - now uses tileType directly
+  const handleTerraformWithCooldown = async (tileType) => {
+    const itemKey = `terraform-${tileType}`;
     if (coolingDownItems.has(itemKey)) return;
-    
+
     // Apply cooldown immediately for instant response
     setCoolingDownItems(prev => new Set(prev).add(itemKey));
-    
+
     // Set timeout immediately for proper sync with CSS animation
     setTimeout(() => {
       setCoolingDownItems(prev => {
@@ -109,7 +145,7 @@ const ToolsPanel = ({
 
     await handleTerraform({
       TILE_SIZE,
-      actionType,
+      tileType,
       gridId,
       currentPlayer,
       tileTypes,
@@ -119,9 +155,9 @@ const ToolsPanel = ({
 
 
   // Helper to build className for buttons
-  const getButtonClassName = (actionType) => {
-    const isCoolingDown = coolingDownItems.has(`terraform-${actionType}`);
-    const isSelectedForCursor = cursorMode?.type === 'terraform' && cursorMode?.actionType === actionType;
+  const getButtonClassName = (tileType) => {
+    const isCoolingDown = coolingDownItems.has(`terraform-${tileType}`);
+    const isSelectedForCursor = cursorMode?.type === 'terraform' && cursorMode?.tileType === tileType;
     let className = '';
     if (isCoolingDown) className += 'cooldown ';
     if (isSelectedForCursor) className += 'cursor-selected ';
@@ -129,12 +165,13 @@ const ToolsPanel = ({
   };
 
   // Helper to handle button clicks (cursor mode or direct action)
-  const handleButtonClick = (actionType, emoji, requiredSkill) => {
-    if (requiredSkill && !hasRequiredSkill(requiredSkill)) return;
+  const handleButtonClick = (tileType, emoji, requiredSkill, level) => {
+    if (requiredSkill && requiredSkill !== 'devonly' && !hasRequiredSkill(requiredSkill)) return;
+    if (level && !meetsLevelRequirement(level)) return;
     if (useWithCursor) {
-      handleCursorModeSelect(actionType, emoji);
+      handleCursorModeSelect(tileType, emoji);
     } else {
-      handleTerraformWithCooldown(actionType);
+      handleTerraformWithCooldown(tileType);
     }
   };
 
@@ -166,81 +203,69 @@ const ToolsPanel = ({
           <p>{strings[98]}</p>
         ) : (
           <>
-            {/* Till Land Button */}
-            <ResourceButton
-              symbol="⛏️"
-              name={getLocalizedString("Till Land", strings)}
-              className={getButtonClassName('till')}
-              style={coolingDownItems.has('terraform-till') ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
-              details={`${strings[461]} None`}
-              disabled={coolingDownItems.has('terraform-till')}
-              info={strings[310]}
-              onClick={() => handleButtonClick("till", "⛏️", null)}
-            />
+            {/* Dynamically render all tile tools from masterResources */}
+            {masterResources
+              ?.filter(r => r.category === 'tile')
+              .map((tileResource) => {
+                const tileType = tileResource.type;
+                const requiredSkill = tileResource.requires || null;
+                const requiredLevel = tileResource.level || null;
 
-            {/* Plant Grass Button */}
-            <ResourceButton
-              symbol="🟩"
-              name={getLocalizedString("Plant Grass", strings)}
-              className={getButtonClassName('plantGrass')}
-              style={coolingDownItems.has('terraform-plantGrass') ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
-              details={`${strings[461]} None<br>${strings[460]}${getLocalizedString('Grower', strings)}`}
-              disabled={coolingDownItems.has('terraform-plantGrass') || !hasRequiredSkill('Grower')}
-              info={strings[311]}
-              onClick={() => handleButtonClick("plantGrass", "🟩", 'Grower')}
-            />
+                // Skip devonly tiles if not developer
+                if (requiredSkill === 'devonly' && !isDeveloper) {
+                  return null;
+                }
 
-            {/* Lay Pavement Button */}
-            <ResourceButton
-              symbol="🟨"
-              name={getLocalizedString("Lay Pavement", strings)}
-              className={getButtonClassName('pave')}
-              style={coolingDownItems.has('terraform-pave') ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
-              details={`${strings[461]} None<br>${strings[460]}${getLocalizedString('Pickaxe', strings)}`}
-              disabled={coolingDownItems.has('terraform-pave') || !hasRequiredSkill('Pickaxe')}
-              info={strings[312]}
-              onClick={() => handleButtonClick("pave", "🟨", 'Pickaxe')}
-            />
+                // Skip tiles that are sources (deposits like slate, moss, clay) - they shouldn't be terraformable
+                if (tileResource.source === 'deposit') {
+                  return null;
+                }
 
-            {/* Lay Stone Button */}
-            <ResourceButton
-              symbol="⬜️"
-              name={getLocalizedString("Lay Stone", strings)}
-              className={getButtonClassName('stone')}
-              style={coolingDownItems.has('terraform-stone') ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
-              details={`${strings[461]} None<br>${strings[460]}${getLocalizedString('Pickaxe', strings)}`}
-              disabled={coolingDownItems.has('terraform-stone') || !hasRequiredSkill('Pickaxe')}
-              info={strings[312]}
-              onClick={() => handleButtonClick("stone", "⬜️", 'Pickaxe')}
-            />
+                const meetsSkill = hasRequiredSkill(requiredSkill);
+                const meetsLevel = meetsLevelRequirement(requiredLevel);
+                const isCoolingDown = coolingDownItems.has(`terraform-${tileType}`);
+                const isDisabled = isCoolingDown || !meetsSkill || !meetsLevel;
 
-            {/* Lay Cobble Button */}
-            <ResourceButton
-              symbol="⬜️"
-              name={getLocalizedString("Lay Cobblestone", strings)}
-              className={getButtonClassName('cobblestone')}
-              style={coolingDownItems.has('terraform-cobblestone') ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
-              details={`${strings[461]} None<br>${strings[460]}${getLocalizedString('Pickaxe', strings)}`}
-              disabled={coolingDownItems.has('terraform-cobblestone') || !hasRequiredSkill('Pickaxe')}
-              info={strings[313]}
-              onClick={() => handleButtonClick("cobblestone", "⬜️", 'Pickaxe')}
-            />
+                // Get symbol - use from resource or fall back to defaults
+                const symbol = tileResource.symbol || DEFAULT_TILE_SYMBOLS[tileType] || '🔲';
 
-            {/* Create Water Button - Developer Only */}
-            {isDeveloper && (
-              <ResourceButton
-                symbol="💧"
-                name={getLocalizedString("Create Water", strings)}
-                className={getButtonClassName('water')}
-                style={coolingDownItems.has('terraform-water') ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
-                details={`${strings[461]} None<br>Developer Only`}
-                disabled={coolingDownItems.has('terraform-water')}
-                info="Creates a water tile (Developer only)"
-                onClick={() => handleButtonClick("water", "💧", null)}
-              />
-            )}
+                // Get display name from action field, capitalize first letter
+                const actionName = tileResource.action || tileType;
+                const displayName = actionName.charAt(0).toUpperCase() + actionName.slice(1);
 
+                // Build details string with level and skill requirements
+                const skillColor = meetsSkill ? 'green' : 'red';
+                const levelColor = meetsLevel ? 'green' : 'red';
+                let details = '';
+                if (requiredLevel) {
+                  details += `<span style="color: ${levelColor};">${strings[10149] || 'Level'} ${requiredLevel}</span>`;
+                }
+                if (requiredSkill && requiredSkill !== 'devonly') {
+                  details += `<span style="color: ${skillColor};">${strings[460]}${getLocalizedString(requiredSkill, strings)}</span>`;
+                }
+                if (requiredSkill === 'devonly') {
+                  details += `<span style="color: orange;">Developer Only</span>`;
+                }
+                details += `${strings[461]} None`;
 
+                // Get info text from predefined keys or generate default
+                const infoKey = TILE_INFO_KEYS[tileType];
+                const infoText = infoKey ? strings[infoKey] : `Creates a ${displayName.toLowerCase()} tile`;
+
+                return (
+                  <ResourceButton
+                    key={tileType}
+                    symbol={symbol}
+                    name={getLocalizedString(displayName, strings)}
+                    className={getButtonClassName(tileType)}
+                    style={isCoolingDown ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
+                    details={details}
+                    disabled={isDisabled}
+                    info={infoText}
+                    onClick={() => handleButtonClick(tileType, symbol, requiredSkill, requiredLevel)}
+                  />
+                );
+              })}
           </>
         )}
       </div>

@@ -4,7 +4,8 @@
     "layoutkey": "GR",
     "category": "tile",
     "action": "grass",
-    "passable": true
+    "passable": true,
+    "level": 1
   },
   {
     "type": "s",
@@ -12,63 +13,76 @@
     "category": "tile",
     "action": "slate",
     "source": "deposit",
-    "passable": true
+    "passable": true,
+    "level": 1
   },
   {
     "type": "d",
     "layoutkey": "DI",
     "category": "tile",
     "action": "dirt",
-    "passable": true
+    "passable": true,
+    "level": 1
   },
   {
     "type": "w",
     "layoutkey": "WA",
     "category": "tile",
     "action": "water",
-    "passable": false
+    "passable": false,
+    "requires": "devonly",
+    "level": 1
   },
   {
     "type": "p",
     "layoutkey": "PA",
     "category": "tile",
     "action": "pavement",
-    "passable": true
+    "passable": true,
+    "level": 4
   },
   {
     "type": "l",
     "layoutkey": "LV",
     "category": "tile",
     "action": "lava",
-    "passable": true
+    "passable": true,
+    "requires": "devonly",
+    "level": 1
   },
   {
     "type": "n",
     "layoutkey": "SA",
     "category": "tile",
     "action": "sand",
-    "passable": true
+    "passable": true,
+    "requires": "devonly",
+    "level": 1
   },
   {
     "type": "o",
     "layoutkey": "OW",
     "category": "tile",
     "action": "snow",
-    "passable": true
+    "passable": true,
+    "requires": "devonly",
+    "level": 1
   },
   {
     "type": "x",
     "layoutkey": "CB",
     "category": "tile",
     "action": "cobblestone",
-    "passable": true
+    "passable": true,
+    "level": 7
   },
   {
     "type": "y",
     "layoutkey": "DU",
     "category": "tile",
     "action": "dungeon",
-    "passable": true
+    "passable": true,
+    "level": 7
   },
   {
     "type": "z",
@@ -76,7 +90,9 @@
     "category": "tile",
     "action": "moss",
     "source": "deposit",
-    "passable": true
+    "passable": true,
+    "requires": "devonly",
+    "level": 1
   },
   {
     "type": "c",
@@ -84,21 +100,27 @@
     "category": "tile",
     "action": "clay",
     "source": "deposit",
-    "passable": true
+    "passable": true,
+    "requires": "devonly",
+    "level": 1
   },
   {
     "type": "v",
     "layoutkey": "VV",
     "category": "tile",
     "action": "tbdTile1",
-    "passable": true
+    "passable": true,
+    "requires": "devonly",
+    "level": 1
   },
   {
     "type": "u",
     "layoutkey": "UU",
     "category": "tile",
     "action": "tbdTile2",
-    "passable": true
+    "passable": true,
+    "requires": "devonly",
+    "level": 1
   },
   {
     "type": "Stub",

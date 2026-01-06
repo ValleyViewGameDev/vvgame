@@ -184,7 +184,7 @@ export const handleFarmPlotPlacement = async ({
 
 
 
-export const handleTerraform = async ({ TILE_SIZE, actionType, gridId, currentPlayer, tileTypes, setTileTypes, overridePosition }) => {
+export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId, currentPlayer, tileTypes, setTileTypes, overridePosition }) => {
 
   console.log("handleTerraform;  currentPlayer = ",currentPlayer);
 
@@ -222,29 +222,35 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, gridId, currentPl
   }
 
   let newType;
-  // Determine the new tile type based on the action
-  switch (actionType) {
-    case "till":
-      newType = "d";
-      break;
-    case "plantGrass":
-      newType = "g";
-      break;
-    case "pave":
-      newType = "p";
-      break;
-    case "stone":
-      newType = "s";
-      break;
-    case "cobblestone":
-      newType = "x";
-      break;
-    case "water":
-      newType = "w";
-      break;
-    default:
-      console.error(`❌ handleTerraform: Unknown actionType "${actionType}"`);
-      return;
+
+  // If tileType is directly provided, use it (new dynamic approach)
+  if (tileType) {
+    newType = tileType;
+  } else {
+    // Legacy: Determine the new tile type based on the action (for backwards compatibility)
+    switch (actionType) {
+      case "till":
+        newType = "d";
+        break;
+      case "plantGrass":
+        newType = "g";
+        break;
+      case "pave":
+        newType = "p";
+        break;
+      case "stone":
+        newType = "s";
+        break;
+      case "cobblestone":
+        newType = "x";
+        break;
+      case "water":
+        newType = "w";
+        break;
+      default:
+        console.error(`❌ handleTerraform: Unknown actionType "${actionType}"`);
+        return;
+    }
   }
 
   console.log(`🌱 handleTerraform: Changing tile at (${tileX}, ${tileY}) to "${newType}"`);
