@@ -1,34 +1,28 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import SVGAssetManager from './SVGAssetManager';
 import { getResourceOverlayStatus, OVERLAY_SVG_MAPPING } from '../Utils/ResourceOverlayUtils';
-import { getResourceCursorClass, setCanvasCursor } from '../Utils/CursorUtils';
-import { generateResourceTooltip } from './RenderDynamicElements';
-import { calculateTooltipPosition } from '../Utils/TooltipUtils';
 
 // Helper function to get the filename for a resource type
 const getResourceFilename = (resourceType, masterResources) => {
   if (!masterResources) return null;
-  
+
   const masterResource = masterResources.find(r => r.type === resourceType);
   return masterResource?.filename || null;
 };
 
 
 // Canvas-based resource renderer component
-export const RenderResourcesCanvas = ({ 
+export const RenderResourcesCanvas = ({
   resources,
-  masterResources, 
+  masterResources,
   globalTuning,
   TILE_SIZE,
   craftingStatus,
-  tradingStatus, 
+  tradingStatus,
   badgeState,
   electionPhase,
   currentPlayer,
-  handleTileClick,
-  setHoverTooltip,
-  strings,
-  timers
+  handleTileClick
 }) => {
   const canvasRef = useRef(null);
   const lastRenderData = useRef(null);
@@ -294,56 +288,6 @@ export const RenderResourcesCanvas = ({
     handleTileClick(rowIndex, colIndex);
   }, [handleTileClick, TILE_SIZE]);
 
-  // Handle mouse move for tooltips and cursor
-  const handleCanvasMouseMove = useCallback((event) => {
-    const canvas = canvasRef.current;
-    if (!canvas || !setHoverTooltip) return;
-    
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    
-    const colIndex = Math.floor(x / TILE_SIZE);
-    const rowIndex = Math.floor(y / TILE_SIZE);
-    
-    // Find resource at this position
-    const resource = resources?.find(r => {
-      if (r.type === 'shadow') return false;
-      const range = r.range || 1;
-      return colIndex >= r.x && colIndex < r.x + range &&
-             rowIndex <= r.y && rowIndex > r.y - range;
-    });
-    
-    if (resource && resource.category !== 'doober' && resource.category !== 'source') {
-      const tooltipPosition = calculateTooltipPosition(event.clientX, event.clientY);
-      setHoverTooltip({
-        x: tooltipPosition.x,
-        y: tooltipPosition.y,
-        content: generateResourceTooltip(resource, strings, timers),
-      });
-      const cursorClass = getResourceCursorClass(resource);
-      setCanvasCursor(canvas, cursorClass);
-    } else if (resource) {
-      // Doober or source - show cursor but no tooltip
-      setHoverTooltip(null);
-      const cursorClass = resource.category === 'doober' ? 'cursor-pointer' : getResourceCursorClass(resource);
-      setCanvasCursor(canvas, cursorClass);
-    } else {
-      setHoverTooltip(null);
-      setCanvasCursor(canvas, null);
-    }
-  }, [resources, TILE_SIZE, setHoverTooltip, strings]);
-
-  const handleCanvasMouseLeave = useCallback(() => {
-    if (setHoverTooltip) {
-      setHoverTooltip(null);
-    }
-    const canvas = canvasRef.current;
-    if (canvas) {
-      setCanvasCursor(canvas, null);
-    }
-  }, [setHoverTooltip]);
-
   return (
     <canvas
       ref={canvasRef}
@@ -355,7 +299,7 @@ export const RenderResourcesCanvas = ({
         width: `${64 * TILE_SIZE}px`,
         height: `${64 * TILE_SIZE}px`,
         zIndex: 10, // Same as DOM resources
-        pointerEvents: 'auto'
+        pointerEvents: 'none' // Let mouse events pass through to RenderDynamicElements
       }}
     />
   );

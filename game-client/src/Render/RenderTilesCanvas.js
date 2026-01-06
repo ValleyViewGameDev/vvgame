@@ -737,41 +737,26 @@ export const RenderTilesCanvas = ({ grid, tileTypes, TILE_SIZE, zoomLevel, handl
   const renderTiles = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas || !grid || !tileTypes) {
-      console.log('🔍 [CANVAS DEBUG] renderTiles early return:', {
-        hasCanvas: !!canvas,
-        hasGrid: !!grid,
-        hasTileTypes: !!tileTypes,
-        gridLength: grid?.length || 0,
-        tileTypesLength: tileTypes?.length || 0
-      });
       return;
     }
-    
+
     const ctx = canvas.getContext('2d');
     const rows = grid.length;
     const cols = grid[0]?.length || 0;
-    
-    console.log('🎨 [CANVAS DEBUG] Starting tile render:', {
-      rows,
-      cols,
-      TILE_SIZE,
-      canvasWidth: cols * TILE_SIZE,
-      canvasHeight: rows * TILE_SIZE
-    });
-    
+
     // Set canvas size
     canvas.width = cols * TILE_SIZE;
     canvas.height = rows * TILE_SIZE;
-    
+
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
     // Render each tile
     for (let rowIndex = 0; rowIndex < rows; rowIndex++) {
       for (let colIndex = 0; colIndex < cols; colIndex++) {
         const tileType = tileTypes[rowIndex]?.[colIndex] || 'unknown';
         const texture = getTileTexture(tileType, rowIndex, colIndex);
-        
+
         ctx.drawImage(
           texture,
           colIndex * TILE_SIZE,
@@ -781,13 +766,8 @@ export const RenderTilesCanvas = ({ grid, tileTypes, TILE_SIZE, zoomLevel, handl
         );
       }
     }
-    
-    console.log('✅ [CANVAS DEBUG] Tile rendering completed:', {
-      totalTilesRendered: rows * cols,
-      canvasSize: `${canvas.width}x${canvas.height}`
-    });
   }, [grid, tileTypes, TILE_SIZE, getTileTexture]);
-  
+
   // Re-render when dependencies change
   useEffect(() => {
     const currentData = JSON.stringify({ grid, tileTypes, TILE_SIZE, zoomLevel });
@@ -796,25 +776,25 @@ export const RenderTilesCanvas = ({ grid, tileTypes, TILE_SIZE, zoomLevel, handl
       lastRenderData.current = currentData;
     }
   }, [renderTiles, grid, tileTypes, TILE_SIZE, zoomLevel]);
-  
+
   // Handle tile clicks by converting canvas coordinates
   const handleCanvasClick = useCallback((event) => {
     const canvas = canvasRef.current;
     if (!canvas || !handleTileClick) return;
-    
+
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    
+
     const colIndex = Math.floor(x / TILE_SIZE);
     const rowIndex = Math.floor(y / TILE_SIZE);
-    
-    if (rowIndex >= 0 && rowIndex < grid.length && 
+
+    if (rowIndex >= 0 && rowIndex < grid.length &&
         colIndex >= 0 && colIndex < (grid[0]?.length || 0)) {
       handleTileClick(rowIndex, colIndex);
     }
   }, [handleTileClick, TILE_SIZE, grid]);
-  
+
   return (
     <canvas
       ref={canvasRef}

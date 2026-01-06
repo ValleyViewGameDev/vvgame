@@ -16,6 +16,7 @@ import { RenderResources } from './Render/RenderResources';
 import { RenderNPCs } from './Render/RenderNPCs';
 import { RenderPCs } from './Render/RenderPCs';
 import { RenderDynamicElements, checkQuestNPCStatus, checkTradeNPCStatus, checkKentNPCStatus, generateResourceTooltip, generateNPCTooltip, generatePCTooltip } from './Render/RenderDynamicElements';
+import CursorTileHighlight from './Render/CursorTileHighlight';
 import { handleResourceClick } from './ResourceClicking';
 import { isMobile } from './Utils/appUtils';
 import { useUILock } from './UI/UILockContext';
@@ -464,6 +465,7 @@ const [activeStation, setActiveStation] = useState(null);
 const [showShareModal, setShowShareModal] = useState(false);
 const [showFTUE, setShowFTUE] = useState(false);
 const [cursorMode, setCursorMode] = useState(null); // { type: 'plant', item: {...}, emoji: '🌾' }
+const [hoveredTile, setHoveredTile] = useState(null); // { row, col } - tile under cursor for placement highlight
 
 // Clear cursor mode when panel changes (except when staying on FarmingPanel or ToolsPanel)
 useEffect(() => {
@@ -2744,7 +2746,18 @@ return (
           zoomLevel={zoomLevel}
           handleTileClick={handleTileClick}
         />
-        
+
+        {/* Layer 1.5: Cursor Tile Highlight (only when in cursor placement mode) */}
+        {cursorMode && (
+          <CursorTileHighlight
+            hoveredTile={hoveredTile}
+            cursorMode={cursorMode}
+            TILE_SIZE={activeTileSize}
+            gridWidth={memoizedGrid?.[0]?.length || 0}
+            gridHeight={memoizedGrid?.length || 0}
+          />
+        )}
+
         {/* Layer 2: Resources */}
         <RenderResources
           resources={memoizedResources}
@@ -2753,11 +2766,8 @@ return (
           TILE_SIZE={activeTileSize}
           handleTileClick={handleTileClick}
           currentPlayer={currentPlayer}
-          strings={strings}
           badgeState={badgeState}
           electionPhase={timers.elections.phase}
-          setHoverTooltip={setHoverTooltip}
-          timers={timers}
         />
         
         {/* Layer 3: NPCs */}
@@ -2821,7 +2831,7 @@ return (
           hoverTooltip={hoverTooltip}
           setHoverTooltip={setHoverTooltip}
           setModalContent={setModalContent}
-          setIsModalOpen={setIsModalOpen} 
+          setIsModalOpen={setIsModalOpen}
           updateStatus={updateStatus}
           strings={strings}
           gridId={gridId}
@@ -2832,6 +2842,8 @@ return (
           pcs={pcs}
           grid={memoizedGrid}
           tileTypes={memoizedTileTypes}
+          onTileHover={setHoveredTile}
+          cursorModeActive={!!cursorMode}
         />
         
         {/* Hover Tooltip - render at top level */}

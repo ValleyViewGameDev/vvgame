@@ -47,7 +47,9 @@ export const RenderDynamicElementsCanvas = ({
   masterTrophies,
   globalTuning,
   gridId,
-  playersInGrid
+  playersInGrid,
+  onTileHover,
+  cursorModeActive
 }) => {
   const canvasRef = useRef(null);
   const lastRenderData = useRef(null);
@@ -275,14 +277,23 @@ export const RenderDynamicElementsCanvas = ({
     const canvas = canvasRef.current;
     const overlayDiv = event.currentTarget; // The div that received the event
     if (!canvas) return;
-    
+
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    
+
     const colIndex = Math.floor(x / TILE_SIZE);
     const rowIndex = Math.floor(y / TILE_SIZE);
-    
+
+    // Track hovered tile for cursor highlight when in cursor mode
+    if (onTileHover && cursorModeActive) {
+      if (rowIndex >= 0 && rowIndex < 64 && colIndex >= 0 && colIndex < 64) {
+        onTileHover({ row: rowIndex, col: colIndex });
+      } else {
+        onTileHover(null);
+      }
+    }
+
     // Debug logging
     if (!window._tooltipDebugLogged) {
       console.log('RenderDynamicElementsCanvas - Available entities:', {
@@ -392,16 +403,22 @@ export const RenderDynamicElementsCanvas = ({
 
   const handleCanvasMouseLeave = (event) => {
     setHoverTooltip(null);
+
+    // Clear hovered tile for cursor highlight
+    if (onTileHover) {
+      onTileHover(null);
+    }
+
     // Reset cursor when leaving
     const overlayDiv = event.currentTarget;
     if (overlayDiv) {
       setCanvasCursor(overlayDiv, null);
     }
-    
+
     // Clear tracked NPC and stop cursor update interval
     currentHoveredNPC.current = null;
     stopCursorUpdateInterval();
-    
+
     // Stop tooltip update interval
     stopTooltipUpdateInterval();
   };
