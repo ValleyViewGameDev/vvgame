@@ -2,6 +2,9 @@ import React, { useMemo } from 'react';
 import './FrontierMiniMap.css';
 import { handleTransitSignpost } from '../GameFeatures/Transit/Transit';
 
+// FTUE Cave dungeon grid ID - this dungeon doesn't use the normal timer system
+const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
+
 /**
  * Frontier Mini Map - 128x128 pixel representation (2x2 pixels per grid)
  * 64x64 grid representing all grids in the frontier (8x8 settlements, each with 8x8 grids)
@@ -282,8 +285,8 @@ const FrontierMiniMap = ({
         </div>
       </div>
 
-      {/* Only show dungeon timer when in dungeon */}
-      {isInDungeon && (
+      {/* Only show dungeon timer when in dungeon (but not FTUE Cave which has no timer) */}
+      {isInDungeon && currentPlayer?.location?.g?.toString() !== FTUE_CAVE_GRID_ID && (
         <div className="mini-map-dungeon-info">
           {(() => {
             const countdown = countdowns?.dungeon || '--:--:--';

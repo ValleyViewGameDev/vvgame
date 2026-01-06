@@ -835,6 +835,61 @@ const handleHeal = async (recipe) => {
             );
           })()}
 
+          {/* NPC Relationship Status Section - shows who this NPC loves/is friends with/rivals with/married to */}
+          {(() => {
+            const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
+            if (!npcMatrix) return null;
+
+            // Find all NPC-to-NPC relationships by checking for relationship values
+            const relationshipTypes = ['love', 'friend', 'rival', 'married'];
+            const relationships = [];
+
+            Object.entries(npcMatrix).forEach(([key, value]) => {
+              if (relationshipTypes.includes(value)) {
+                // Find the target NPC's symbol from RelationshipMatrix
+                const targetNPC = RelationshipMatrix.find(r => r.type === key);
+                if (targetNPC) {
+                  relationships.push({
+                    targetName: key,
+                    targetSymbol: targetNPC.symbol,
+                    relationshipType: value
+                  });
+                }
+              }
+            });
+
+            if (relationships.length === 0) return null;
+
+            // Group relationships by type
+            const grouped = {
+              love: relationships.filter(r => r.relationshipType === 'love'),
+              friend: relationships.filter(r => r.relationshipType === 'friend'),
+              rival: relationships.filter(r => r.relationshipType === 'rival'),
+              married: relationships.filter(r => r.relationshipType === 'married')
+            };
+
+            // String mappings: 660 = love, 661 = friend, 662 = rival, 663 = married
+            const stringMap = { love: 660, friend: 661, rival: 662, married: 663 };
+
+            return (
+              <div style={{ marginBottom: '10px' }}>
+                {Object.entries(grouped).map(([type, rels]) => {
+                  if (rels.length === 0) return null;
+                  return (
+                    <div key={type} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                      <h3 style={{ margin: 0 }}>{strings[stringMap[type]]}</h3>
+                      {rels.map((rel, index) => (
+                        <span key={index} title={rel.targetName} style={{ fontSize: '1.5em', cursor: 'help' }}>
+                          {rel.targetSymbol}
+                        </span>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+
           {/* Relationship Card - only show if NPC doesn't have output='noRel' */}
           {(() => {
             const npcResource = masterResources.find(r => r.type === npcData.type && r.category === 'npc');
@@ -1135,6 +1190,61 @@ const handleHeal = async (recipe) => {
                     {item.symbol}
                   </span>
                 ))}
+              </div>
+            );
+          })()}
+
+          {/* NPC Relationship Status Section - shows who this NPC loves/is friends with/rivals with/married to */}
+          {(() => {
+            const npcMatrix = RelationshipMatrix.find(r => r.type === npcData.type);
+            if (!npcMatrix) return null;
+
+            // Find all NPC-to-NPC relationships by checking for relationship values
+            const relationshipTypes = ['love', 'friend', 'rival', 'married'];
+            const relationships = [];
+
+            Object.entries(npcMatrix).forEach(([key, value]) => {
+              if (relationshipTypes.includes(value)) {
+                // Find the target NPC's symbol from RelationshipMatrix
+                const targetNPC = RelationshipMatrix.find(r => r.type === key);
+                if (targetNPC) {
+                  relationships.push({
+                    targetName: key,
+                    targetSymbol: targetNPC.symbol,
+                    relationshipType: value
+                  });
+                }
+              }
+            });
+
+            if (relationships.length === 0) return null;
+
+            // Group relationships by type
+            const grouped = {
+              love: relationships.filter(r => r.relationshipType === 'love'),
+              friend: relationships.filter(r => r.relationshipType === 'friend'),
+              rival: relationships.filter(r => r.relationshipType === 'rival'),
+              married: relationships.filter(r => r.relationshipType === 'married')
+            };
+
+            // String mappings: 660 = love, 661 = friend, 662 = rival, 663 = married
+            const stringMap = { love: 660, friend: 661, rival: 662, married: 663 };
+
+            return (
+              <div style={{ marginBottom: '10px' }}>
+                {Object.entries(grouped).map(([type, rels]) => {
+                  if (rels.length === 0) return null;
+                  return (
+                    <div key={type} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                      <h3 style={{ margin: 0 }}>{strings[stringMap[type]]}</h3>
+                      {rels.map((rel, index) => (
+                        <span key={index} title={rel.targetName} style={{ fontSize: '1.5em', cursor: 'help' }}>
+                          {rel.targetSymbol}
+                        </span>
+                      ))}
+                    </div>
+                  );
+                })}
               </div>
             );
           })()}

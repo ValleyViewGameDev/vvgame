@@ -129,6 +129,9 @@ import { getDerivedRange } from './Utils/worldHelpers';
 import { handlePlayerDeath } from './Utils/playerManagement';
 import Redirect, { shouldRedirect } from './Redirect';
 
+// FTUE Cave dungeon grid ID - this dungeon doesn't use the normal timer system
+const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
+
 function App() {
   // Check if we should redirect (must be before hooks for consistent evaluation)
   const showRedirect = shouldRedirect();
@@ -1570,7 +1573,9 @@ useEffect(() => {
       }));
       
       // Check if player is in a dungeon and needs to be teleported out
-      if (newDungeonPhase === "resetting" && currentPlayerRef.current?.location?.gtype === "dungeon") {
+      // Skip FTUE Cave dungeon - it doesn't use the normal timer system
+      const isInFTUECave = currentPlayerRef.current?.location?.g?.toString() === FTUE_CAVE_GRID_ID;
+      if (newDungeonPhase === "resetting" && currentPlayerRef.current?.location?.gtype === "dungeon" && !isInFTUECave) {
         console.log("🚨 Player is in dungeon during reset phase - teleporting out!", {
           timestamp: Date.now(),
           playerId: currentPlayerRef.current._id,
