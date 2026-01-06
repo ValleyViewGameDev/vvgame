@@ -933,20 +933,24 @@ const handleHeal = async (recipe) => {
             })()}
             TILE_SIZE={TILE_SIZE}
             checkDistance={() => {
+              // No range restriction on own homestead
+              const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
+              if (isOnOwnHomestead) return true;
+
               // Get player position
               const gridId = currentPlayer?.location?.g;
               const playerId = currentPlayer._id?.toString();
               const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
               if (!playerInGridState?.position) return false;
-              
+
               // Get NPC position
               const npcInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
               if (!npcInGrid?.position) return false;
-              
+
               // Calculate distance
               const distance = calculateDistance(playerInGridState.position, npcInGrid.position);
               const playerRange = getDerivedRange(currentPlayer, masterResources);
-              
+
               return distance <= playerRange;
             }}
             onInteractionClick={() => {
@@ -1301,20 +1305,24 @@ const handleHeal = async (recipe) => {
             })()}
             TILE_SIZE={TILE_SIZE}
             checkDistance={() => {
+              // No range restriction on own homestead
+              const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
+              if (isOnOwnHomestead) return true;
+
               // Get player position
               const gridId = currentPlayer?.location?.g;
               const playerId = currentPlayer._id?.toString();
               const playerInGridState = playersInGridManager.getPlayersInGrid(gridId)?.[playerId];
               if (!playerInGridState?.position) return false;
-              
+
               // Get NPC position
               const npcInGrid = NPCsInGridManager.getNPCsInGrid(gridId)?.[npcData.id];
               if (!npcInGrid?.position) return false;
-              
+
               // Calculate distance
               const distance = calculateDistance(playerInGridState.position, npcInGrid.position);
               const playerRange = getDerivedRange(currentPlayer, masterResources);
-              
+
               return distance <= playerRange;
             }}
             onInteractionClick={() => {

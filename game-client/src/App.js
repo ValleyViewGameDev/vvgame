@@ -1855,23 +1855,30 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   if (isProcessing) return; // Skip if still processing
   isProcessing = true;
 
+  // Check if player is on their own homestead (no range restrictions there)
+  const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
+
+  // Get player position for range checks
+  const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer?._id));
+  const targetPos = { x: colIndex, y: rowIndex };
+
+  // Helper to check if target is in range (used by cursor mode handlers)
+  const isInRange = () => {
+    if (isOnOwnHomestead) return true; // No range restriction on own homestead
+    if (!playerPos) return false;
+    const distance = calculateDistance(playerPos, targetPos);
+    const playerRange = getDerivedRange(currentPlayer, masterResources);
+    return distance <= playerRange;
+  };
+
   // Handle cursor mode (e.g., planting with cursor)
   if (cursorMode?.type === 'plant' && cursorMode.item) {
-    // Range check for cursor mode planting
-    if (currentPlayer?._id && gridId) {
-      const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id));
-      const targetPos = { x: colIndex, y: rowIndex };
-      if (playerPos && typeof playerPos.x !== 'undefined') {
-        const distance = calculateDistance(playerPos, targetPos);
-        const playerRange = getDerivedRange(currentPlayer, masterResources);
-        if (distance > playerRange) {
-          FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
-          isProcessing = false;
-          return;
-        }
-      }
+    // Range check for cursor placement (skipped on own homestead)
+    if (!isInRange()) {
+      FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
+      isProcessing = false;
+      return;
     }
-
     const { handleFarmPlotPlacement } = await import('./GameFeatures/Farming/Farming');
     await handleFarmPlotPlacement({
       selectedItem: cursorMode.item,
@@ -1896,21 +1903,12 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
 
   // Handle terraform cursor mode (supports both tileType and legacy actionType)
   if (cursorMode?.type === 'terraform' && (cursorMode.tileType || cursorMode.actionType)) {
-    // Range check for cursor mode terraforming
-    if (currentPlayer?._id && gridId) {
-      const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id));
-      const targetPos = { x: colIndex, y: rowIndex };
-      if (playerPos && typeof playerPos.x !== 'undefined') {
-        const distance = calculateDistance(playerPos, targetPos);
-        const playerRange = getDerivedRange(currentPlayer, masterResources);
-        if (distance > playerRange) {
-          FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
-          isProcessing = false;
-          return;
-        }
-      }
+    // Range check for cursor placement (skipped on own homestead)
+    if (!isInRange()) {
+      FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
+      isProcessing = false;
+      return;
     }
-
     const { handleTerraform } = await import('./GameFeatures/Farming/Farming');
     await handleTerraform({
       TILE_SIZE: activeTileSize,
@@ -1926,23 +1924,14 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
     return;
   }
 
-  // Handle build cursor mode (Build, Buy, and BuyDeco panels)
+  // Handle build cursor mode (Build, Buy, BuyDeco, and Pets panels)
   if (cursorMode?.type === 'build' && cursorMode.item && cursorMode.buildOptions) {
-    // Range check for cursor mode building
-    if (currentPlayer?._id && gridId) {
-      const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id));
-      const targetPos = { x: colIndex, y: rowIndex };
-      if (playerPos && typeof playerPos.x !== 'undefined') {
-        const distance = calculateDistance(playerPos, targetPos);
-        const playerRange = getDerivedRange(currentPlayer, masterResources);
-        if (distance > playerRange) {
-          FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
-          isProcessing = false;
-          return;
-        }
-      }
+    // Range check for cursor placement (skipped on own homestead)
+    if (!isInRange()) {
+      FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
+      isProcessing = false;
+      return;
     }
-
     const { handleConstruction } = await import('./GameFeatures/BuildAndBuy');
     await handleConstruction({
       TILE_SIZE: activeTileSize,
@@ -1975,7 +1964,6 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   console.log('⬆️ handleTileClick invoked with:', { rowIndex, colIndex, resource });
 
   // 🛡️ Prevent interaction on another player's homestead
-  const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
   if (resource && currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {
     const isFriend = false; // 🧪 Future: replace with actual friend-checking logic
     const alwaysBlocked = ['Mailbox', 'Trade Stall', 'Warehouse'];
@@ -1992,20 +1980,16 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
   // Validate `gridId` and `username`
   if (!gridId || typeof gridId !== 'string') { console.error('Invalid gridId:', gridId); return; }
   if (!currentPlayer?.username || typeof currentPlayer.username !== 'string') { console.error('Invalid username:', currentPlayer?.username); return; }
-  // ✅ Get player position from playersInGrid
   if (!currentPlayer?._id) { console.error('No player ID found'); return; }
-  const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id));
-  const targetPos = { x: colIndex, y: rowIndex };
   if (!playerPos || typeof playerPos.x === 'undefined' || typeof playerPos.y === 'undefined') {
       console.error("⚠️ Player position is invalid in NPCsInGrid; playerPos: ", playerPos);
       isProcessing = false;
       return;
   }
-  // If clicking a resource, check range before interacting (except NPCs)
-//  if (resource && resource.category !== 'npc' && !isOnOwnHomestead) {
-  if (resource && resource.category !== 'npc') {
+  // If clicking a resource, check range before interacting (except NPCs, and skip on own homestead)
+  if (resource && resource.category !== 'npc' && !isOnOwnHomestead) {
     const distance = calculateDistance(playerPos, targetPos);
-    const playerRange = getDerivedRange(currentPlayer, masterResources);    
+    const playerRange = getDerivedRange(currentPlayer, masterResources);
     if (distance > playerRange) {
       FloatingTextManager.addFloatingText(24, targetPos.x, targetPos.y, activeTileSize);
       isProcessing = false;

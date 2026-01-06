@@ -139,19 +139,21 @@ const NPCRenderer = ({
     }
 
     if (npc.action === 'quest' || npc.action === 'heal' || npc.action === 'worker' || npc.action === 'trade') {
+      // Check range (skip on own homestead)
+      const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
       const playerPos = playersInGridManager.getPlayerPosition(currentPlayer?.location?.g, String(currentPlayer._id));
       const npcPos = { x: Math.round(npc.position?.x || 0), y: Math.round(npc.position?.y || 0) };
-      
-      if (playerPos && typeof playerPos.x === 'number' && typeof playerPos.y === 'number') {
+
+      if (!isOnOwnHomestead && playerPos && typeof playerPos.x === 'number' && typeof playerPos.y === 'number') {
         const distance = Math.sqrt(Math.pow(playerPos.x - npcPos.x, 2) + Math.pow(playerPos.y - npcPos.y, 2));
         const playerRange = getDerivedRange(currentPlayer, masterResources);
-        
+
         if (distance > playerRange) {
           FloatingTextManager.addFloatingText(24, npcPos.x, npcPos.y, TILE_SIZE);
           return;
         }
       }
-      
+
       onNPCClick(npc);
     } else {
       handleNPCClick(

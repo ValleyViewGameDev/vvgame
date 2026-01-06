@@ -129,15 +129,15 @@ const PCComponent = ({
   const showRangeIndicators = isCurrentPlayer && currentPlayer?.settings?.rangeOn !== false;
   const derivedRange = showRangeIndicators ? getDerivedRange(currentPlayer, masterResources) : 0;
   const attackRange = showRangeIndicators ? pc.attackrange : 0;
-  const isInHomestead = currentPlayer?.location?.gtype === "homestead";
+  const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
 
   // Check if this player is currently connected (online)
   const isConnected = isCurrentPlayer || connectedPlayers?.has(pc.playerId);
 
   return (
     <>
-      {/* Regular range indicator (gray circle) */}
-      {showRangeIndicators && derivedRange > 1 && (
+      {/* Regular range indicator (gray circle) - hidden on own homestead since no range restrictions there */}
+      {showRangeIndicators && derivedRange > 1 && !isOnOwnHomestead && (
         <div
           className="attack-range player-range"
           style={{
@@ -154,8 +154,8 @@ const PCComponent = ({
         />
       )}
 
-      {/* Combat/Attack range indicator (red dotted circle) */}
-      {showRangeIndicators && attackRange > 0 && !isInHomestead && (
+      {/* Combat/Attack range indicator (red dotted circle) - hidden on own homestead */}
+      {showRangeIndicators && attackRange > 0 && !isOnOwnHomestead && (
         <div
           className="attack-range player-attack-range"
           style={{

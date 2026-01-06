@@ -58,24 +58,22 @@ import { enrichResourceFromMaster } from './Utils/ResourceHelpers';
   console.log(`Resource Clicked:  (${row}, ${col}):`, { resource, tileType: tileTypes[row]?.[col] });
   if (!resource || !resource.category) { console.error(`Invalid resource at (${col}, ${row}):`, resource); return; }
   
-  // Check range before doing anything else
+  // Check range before doing anything else (skip on own homestead)
+  const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
   const playerPos = playersInGridManager.getPlayerPosition(gridId, String(currentPlayer._id));
   const resourcePos = { x: col, y: row };
-  
-  if (playerPos && typeof playerPos.x === 'number' && typeof playerPos.y === 'number') {
 
-    console.log("Did we get here?");
-    
+  if (!isOnOwnHomestead && playerPos && typeof playerPos.x === 'number' && typeof playerPos.y === 'number') {
     const distance = Math.sqrt(Math.pow(playerPos.x - resourcePos.x, 2) + Math.pow(playerPos.y - resourcePos.y, 2));
     const playerRange = getDerivedRange(currentPlayer, masterResources);
-    
+
     if (distance > playerRange) {
       // Show "Out of range" message
       FloatingTextManager.addFloatingText(24, col, row, TILE_SIZE);
       console.log('Resource out of range');
       return;
     }
-    
+
     // Wall blocking check removed - App.js handles this before calling handleResourceClick
   }
   
