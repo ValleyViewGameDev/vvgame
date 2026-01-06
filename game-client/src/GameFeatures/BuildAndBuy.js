@@ -138,13 +138,14 @@ export const handleConstruction = async ({
   const costString = costDetails.length > 0 ? costDetails.join(', ') : 'free';
 
   if (selectedResource.category === 'npc') {
-    // Spawning NPC directly at player's tile coordinates
-    NPCsInGridManager.spawnNPC(gridId, selectedResource, playerPosition);
-    console.log('Spawned NPC:', gridId, selectedResource, playerPosition);
+    // Spawning NPC at the target position (cursor position if in cursor mode, otherwise player position)
+    const spawnPosition = overridePosition ? { x, y } : playerPosition;
+    NPCsInGridManager.spawnNPC(gridId, selectedResource, spawnPosition);
+    console.log('Spawned NPC:', gridId, selectedResource, spawnPosition);
 
     // Show VFX and floating text for NPC purchase
     createCollectEffect(x, y, TILE_SIZE);
-    FloatingTextManager.addFloatingText(300, playerPosition.x, playerPosition.y, TILE_SIZE);
+    FloatingTextManager.addFloatingText(300, x, y, TILE_SIZE);
     
     // Show status message with purchase details
     updateStatus(`${selectedResource.type} purchased for ${costString}.`);

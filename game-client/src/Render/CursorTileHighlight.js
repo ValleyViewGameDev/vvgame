@@ -45,22 +45,37 @@ const CursorTileHighlight = ({
     // Validate tile position
     if (row < 0 || row >= gridHeight || col < 0 || col >= gridWidth) return;
 
-    const x = col * TILE_SIZE;
-    const y = row * TILE_SIZE;
+    // Get range from cursorMode (multi-tile resources have range > 1)
+    const range = cursorMode.range || 1;
 
-    // Draw highlight fill - white semi-transparent
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
-    ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+    // Draw highlight for all tiles that will be occupied
+    // Multi-tile resources expand right (+col) and up (-row) from the anchor
+    for (let dx = 0; dx < range; dx++) {
+      for (let dy = 0; dy < range; dy++) {
+        const tileCol = col + dx;
+        const tileRow = row - dy;
 
-    // Draw highlight border - bright white
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(x + 1, y + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+        // Skip tiles that are out of bounds
+        if (tileCol < 0 || tileCol >= gridWidth || tileRow < 0 || tileRow >= gridHeight) continue;
 
-    // Draw inner glow effect
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x + 3, y + 3, TILE_SIZE - 6, TILE_SIZE - 6);
+        const x = tileCol * TILE_SIZE;
+        const y = tileRow * TILE_SIZE;
+
+        // Draw highlight fill - white semi-transparent
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+        ctx.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+
+        // Draw highlight border - bright white
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x + 1, y + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+
+        // Draw inner glow effect
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x + 3, y + 3, TILE_SIZE - 6, TILE_SIZE - 6);
+      }
+    }
 
   }, [hoveredTile, cursorMode, TILE_SIZE, gridWidth, gridHeight]);
 

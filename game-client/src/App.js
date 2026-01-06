@@ -478,15 +478,22 @@ useEffect(() => {
 // Apply emoji cursor when in cursor mode
 useEffect(() => {
   if (cursorMode?.emoji) {
+    // Scale cursor based on resource range (multi-tile resources get larger cursors)
+    const range = cursorMode.range || 1;
+    const baseSize = 32;
+    const canvasSize = baseSize * range;
+    const fontSize = 24 * range;
+    const center = canvasSize / 2;
+
     // Create a canvas to render the emoji as a cursor image
     const canvas = document.createElement('canvas');
-    canvas.width = 32;
-    canvas.height = 32;
+    canvas.width = canvasSize;
+    canvas.height = canvasSize;
     const ctx = canvas.getContext('2d');
-    ctx.font = '24px serif';
+    ctx.font = `${fontSize}px serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(cursorMode.emoji, 16, 16);
+    ctx.fillText(cursorMode.emoji, center, center);
     const cursorUrl = canvas.toDataURL();
 
     // Create a style element to force cursor on all elements (including canvas)
@@ -495,7 +502,7 @@ useEffect(() => {
     styleEl.textContent = `
       body.cursor-mode-active,
       body.cursor-mode-active * {
-        cursor: url(${cursorUrl}) 16 16, crosshair !important;
+        cursor: url(${cursorUrl}) ${center} ${center}, crosshair !important;
       }
     `;
     document.head.appendChild(styleEl);
