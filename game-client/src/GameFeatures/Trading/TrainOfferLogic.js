@@ -154,18 +154,56 @@ export function generateNewTrainOffers(currentPlayer, masterResources, globalTun
 }
 
 /**
+ * Calculates scaled XP reward based on player level
+ * - Base: 10 XP
+ * - Every 5 levels: +50% (compounding)
+ * - Cap: 200 XP base (before random variance)
+ * - Random variance: ±15%
+ * @param {number} playerLevel - The player's current level
+ * @returns {number} The XP reward amount
+ */
+function calculateScaledXPReward(playerLevel) {
+    const BASE_XP = 10;
+    const LEVEL_INTERVAL = 5;
+    const MULTIPLIER_PER_INTERVAL = 1.5;
+    const MAX_BASE_XP = 200;
+
+    // Calculate how many 5-level intervals the player has completed
+    const intervals = Math.floor(playerLevel / LEVEL_INTERVAL);
+
+    // Apply compounding 50% increase for each interval
+    let scaledBase = BASE_XP * Math.pow(MULTIPLIER_PER_INTERVAL, intervals);
+
+    // Cap at 200 XP base
+    scaledBase = Math.min(scaledBase, MAX_BASE_XP);
+
+    // Apply random variance of ±15%
+    const variance = 0.15;
+    const randomFactor = 1 + (Math.random() * 2 - 1) * variance; // Range: 0.85 to 1.15
+    const finalXP = Math.round(scaledBase * randomFactor);
+
+    console.log(`🚂 XP calculation: level=${playerLevel}, intervals=${intervals}, scaledBase=${scaledBase.toFixed(1)}, finalXP=${finalXP}`);
+
+    return finalXP;
+}
+
+/**
  * Generates new Train rewards based on train offers and current season
  * @param {Array} trainOffers - Array of train offers
  * @param {Object} currentPlayer - The current player object
  * @param {Array} masterResources - Array of all available resources
  * @param {Object} globalTuning - Global tuning configuration
  * @param {string} currentSeason - Current season (Spring, Summer, Fall, Winter)
+ * @param {Array} masterXPLevels - Array of XP thresholds for level calculation
  * @returns {Array} Array of train rewards
  */
-export function generateTrainRewards(trainOffers, currentPlayer, masterResources, globalTuning, currentSeason) {
+export function generateTrainRewards(trainOffers, currentPlayer, masterResources, globalTuning, currentSeason, masterXPLevels) {
     const rewards = [];
 
     console.log('🚂 Train reward generation for season:', currentSeason);
+
+    // Get player level for scaled XP rewards
+    const playerLevel = getDerivedLevel(currentPlayer, masterXPLevels);
 
     // Convert season to lowercase to match globalTuning format
     const seasonKey = currentSeason ? currentSeason.toLowerCase() : 'spring';
@@ -183,15 +221,15 @@ export function generateTrainRewards(trainOffers, currentPlayer, masterResources
 
     console.log('🚂 Available seasonal rewards:', seasonalRewards);
 
-    // Special case: If XP is in the seasonal rewards, ALWAYS include it
+    // Special case: If XP is in the seasonal rewards, ALWAYS include it with scaled amount
     const hasXP = seasonalRewards.includes('XP');
     if (hasXP) {
-        const xpQuantity = Math.floor(Math.random() * 3) + 1; // 1 to 3 XP
+        const xpQuantity = calculateScaledXPReward(playerLevel);
         rewards.push({
             item: 'XP',
             quantity: xpQuantity
         });
-        console.log('🚂 XP reward always included:', xpQuantity);
+        console.log('🚂 XP reward (scaled by level):', xpQuantity);
     }
 
     // Filter out XP from the random selection pool since we've already handled it
@@ -242,7 +280,7 @@ export function generateCompleteTrainData(currentPlayer, masterResources, global
     console.log(`🚂 Generating complete train data for train #${trainNumber} in ${currentSeason}`);
 
     const offers = generateNewTrainOffers(currentPlayer, masterResources, globalTuning, currentSeason, masterXPLevels);
-    const rewards = generateTrainRewards(offers, currentPlayer, masterResources, globalTuning, currentSeason);
+    const rewards = generateTrainRewards(offers, currentPlayer, masterResources, globalTuning, currentSeason, masterXPLevels);
 
     return {
         offers,

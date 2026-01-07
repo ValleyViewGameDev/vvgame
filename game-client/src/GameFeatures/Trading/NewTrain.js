@@ -793,7 +793,7 @@ function NewTrainPanel({
           <p>{strings[98]}</p>
         ) : (
           <>
-            <h3>(New) Train is {trainPhase} (#{playerTrainNumber})</h3>
+            <h3>Train is {trainPhase} (#{playerTrainNumber})</h3>
             <h2 className="countdown-timer">⏳ {trainTimer}</h2>
 
             {rewardsDeliveredMessage && (trainPhase === "departing" || trainPhase === "arriving") && (
