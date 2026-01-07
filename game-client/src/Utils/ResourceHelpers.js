@@ -162,19 +162,18 @@ export function isACrop(itemType, masterResources) {
     return false;
   }
 
-  // Exclude items that are outputs of "source" category resources (mined materials like Stone, Clay)
-  // These are not true crops even if they're also outputs of devonly farmplots
-  const isSourceOutput = masterResources.some(resource =>
-    resource.category === 'source' && resource.output === itemType
-  );
-  if (isSourceOutput) {
-    return false;
-  }
-
   // Check if this item is the output of any farmplot resource
-  return masterResources.some(resource =>
+  const isFarmplotOutput = masterResources.some(resource =>
     resource.category === 'farmplot' && resource.output === itemType
   );
+
+  // If it's a farmplot output, it's a crop (even if also output of a source like Snowman -> Carrot)
+  if (isFarmplotOutput) {
+    return true;
+  }
+
+  // Not a crop if it's not the output of a farmplot
+  return false;
 }
 
 /**
