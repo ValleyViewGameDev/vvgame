@@ -78,39 +78,35 @@ const StatusBar = () => {
     if (prevFirstId.current === null) {
       // Initial load - also animate the first message
       setScrollPosition(0); // Reset scroll position
-      if (newMessageRef.current) {
-        const width = newMessageRef.current.offsetWidth || 200; // fallback width
-        setSlideOffset(-width);
-        setDisplayMessages(messages);
-        
+      const width = newMessageRef.current?.offsetWidth || 200;
+      setSlideOffset(-width);
+      setDisplayMessages(messages);
+
+      // Use double requestAnimationFrame to ensure browser paints the offset position
+      // before we trigger the animation back to 0. Single rAF can be batched.
+      requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setSlideOffset(0);
         });
-      } else {
-        // Fallback if ref not ready
-        setSlideOffset(-200);
-        setDisplayMessages(messages);
-        
-        requestAnimationFrame(() => {
-          setSlideOffset(0);
-        });
-      }
+      });
     } else if (currentFirstId !== prevFirstId.current) {
       // New message added - reset scroll position first
       setScrollPosition(0); // Reset to left before showing new message
-      
+
       // Then measure and animate the new message
-      if (newMessageRef.current) {
-        const width = newMessageRef.current.offsetWidth;
-        // Start with new message off-screen
-        setSlideOffset(-width);
-        setDisplayMessages(messages);
-        
-        // Trigger slide animation
+      const width = newMessageRef.current?.offsetWidth || 200;
+
+      // Start with new message off-screen
+      setSlideOffset(-width);
+      setDisplayMessages(messages);
+
+      // Use double requestAnimationFrame to ensure browser paints the offset position
+      // before we trigger the animation back to 0. Single rAF can be batched.
+      requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setSlideOffset(0);
         });
-      }
+      });
     } else {
       // No change
       setDisplayMessages(messages);

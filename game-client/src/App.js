@@ -2673,6 +2673,7 @@ return (
       <h3 style={{ textAlign: 'center' }}>{strings[10135]}</h3>
       <h3 style={{ textAlign: 'center' }}>{strings[10136]}</h3>
       <h3 style={{ textAlign: 'center' }}>{strings[10137]}</h3>
+      <h3 style={{ textAlign: 'center' }}>{isOnOwnHomestead ? strings[10140] : strings[10141]}</h3>
 
       <br />
 
@@ -2681,15 +2682,14 @@ return (
         {strings[10113]} {seasonData?.type || "[Season unknown]"}
       </h2>
       <h2 style={{ margin: '0 0 8px 0', textAlign: 'center' }}>
-        {timers.seasons.phase === "onSeason" ? strings[10114] : strings[10115]} 
+        <span
+          onClick={() => openPanel('SeasonPanel')}
+          style={{ textDecoration: 'underline', cursor: 'pointer' }}
+        >
+          {timers.seasons.phase === "onSeason" ? strings[10114] : strings[10115]}
+        </span>
       </h2>
       <h2 className="countdown-timer" style={{ textAlign: 'center' }}>{countdowns.seasons}</h2>
-
-      <div className="shared-buttons">
-        <button className="btn-basic btn-success" onClick={() => openPanel('SeasonPanel')}>
-          {strings[15030]}
-        </button>
-      </div>
 
       <br />
 

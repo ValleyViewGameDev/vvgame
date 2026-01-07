@@ -7417,7 +7417,7 @@
     "ingredient1qty": 1
   },
   {
-    "type": "Agricultural Center",
+    "type": "Agriculture Center",
     "symbol": "🚜",
     "layoutkey": "aG",
     "category": "training",
