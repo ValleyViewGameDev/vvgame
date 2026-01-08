@@ -26,6 +26,8 @@
     {
       "step": 4,
       "trigger": "MetConstableElbow",
+      "doinker": true,
+      "doinkerTarget": "Constable Elbow",         
       "notificationKey": 7051,
       "notificationIcon": "🧔🏼‍♂️",
       "addQuests": [2, 14]
