@@ -514,7 +514,7 @@ export const RenderDynamicElementsCanvas = ({
               width: TILE_SIZE,
               height: TILE_SIZE,
               pointerEvents: 'none',
-              zIndex: 1000,
+              zIndex: 1100, // Above FTUE doinker (z-index: 1000)
             }}
           >
             <div
@@ -596,7 +596,7 @@ export const RenderDynamicElementsCanvas = ({
               width: TILE_SIZE,
               height: TILE_SIZE,
               pointerEvents: 'none',
-              zIndex: 1000,
+              zIndex: 1100, // Above FTUE doinker (z-index: 1000)
             }}
           >
             <div

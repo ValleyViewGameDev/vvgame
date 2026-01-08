@@ -130,7 +130,7 @@ export const RenderDynamicElementsDOM = ({
             height: `${TILE_SIZE * 1.5}px`,
             padding: `${TILE_SIZE * 0.3}px`,
             borderWidth: `${TILE_SIZE * 0.06}px`,
-            zIndex: 1000,
+            zIndex: 1100, // Above FTUE doinker (z-index: 1000)
           }}
         >
           <div className="speech-emoji" style={{ fontSize: `${TILE_SIZE * 0.9}px` }}>
@@ -138,7 +138,7 @@ export const RenderDynamicElementsDOM = ({
           </div>
         </div>
       );
-      
+
       // Also render relationship outcome if present
       const outcome = ConversationManager.getOutcome(npc.type);
       if (outcome) {
@@ -184,7 +184,7 @@ export const RenderDynamicElementsDOM = ({
             height: `${TILE_SIZE * 1.5}px`,
             padding: `${TILE_SIZE * 0.3}px`,
             borderWidth: `${TILE_SIZE * 0.06}px`,
-            zIndex: 1000,
+            zIndex: 1100, // Above FTUE doinker (z-index: 1000)
           }}
         >
           <div className="speech-emoji" style={{ fontSize: `${TILE_SIZE * 0.9}px` }}>
@@ -192,7 +192,7 @@ export const RenderDynamicElementsDOM = ({
           </div>
         </div>
       );
-      
+
       // Also render relationship outcome if present
       const outcome = ConversationManager.getOutcome(pc.playerId);
       if (outcome) {
