@@ -1633,9 +1633,9 @@ router.post('/sell-for-refund', async (req, res) => {
       return res.status(400).json({ error: 'Station definition not found' });
     }
 
-    // Calculate refund ingredients
+    // Calculate refund ingredients (supports up to 4 ingredients)
     const refundIngredients = [];
-    for (let i = 1; i <= 3; i++) {
+    for (let i = 1; i <= 4; i++) {
       const ingredientType = stationDefinition[`ingredient${i}`];
       const ingredientQty = stationDefinition[`ingredient${i}qty`];
       if (ingredientType && ingredientQty) {

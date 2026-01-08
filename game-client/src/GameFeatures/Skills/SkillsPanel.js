@@ -11,6 +11,9 @@ import { getLocalizedString } from '../../Utils/stringLookup';
 import '../../UI/Buttons/ResourceButton.css'; // ✅ Ensure the correct path
 import { spendIngredients, gainIngredients, hasRoomFor } from '../../Utils/InventoryManagement';
 import { handleProtectedSelling } from '../../Utils/ProtectedSelling';
+import { updateGridResource } from '../../Utils/GridManagement';
+import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
+import { createCollectEffect } from '../../VFX/VFX';
 import TransactionButton from '../../UI/Buttons/TransactionButton';
 import { earnTrophy } from '../Trophies/TrophyUtils';
 import { getDerivedLevel } from '../../Utils/playerManagement';
@@ -244,7 +247,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
         onClose,
         devOnly: true,
       });
-      
+
       if (success) {
         onClose();
       }
@@ -254,8 +257,57 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
     }
   };
 
+  // Handler for removing training buildings (no refund)
+  const handleRemoveTrainingBuilding = async () => {
+    try {
+      // Find the resource to check if it has shadows (for multi-tile resources)
+      const soldResource = GlobalGridStateTilesAndResources.getResources().find(
+        (res) => res.x === currentStationPosition.x && res.y === currentStationPosition.y
+      );
+
+      // Remove the resource from database
+      await updateGridResource(gridId, {
+        x: currentStationPosition.x,
+        y: currentStationPosition.y,
+        type: null
+      }, true);
+
+      // Update local state to reflect removal of station and shadows
+      const filteredResources = GlobalGridStateTilesAndResources.getResources().filter(
+        (res) => {
+          // Remove the station
+          if (res.x === currentStationPosition.x && res.y === currentStationPosition.y) return false;
+
+          // Remove any shadows belonging to this station
+          if (soldResource && soldResource.range && soldResource.range > 1 && res.type === 'shadow') {
+            const anchorKey = soldResource.anchorKey || `${soldResource.type}-${soldResource.x}-${soldResource.y}`;
+            if (res.parentAnchorKey === anchorKey) {
+              return false;
+            }
+          }
+          return true;
+        }
+      );
+      GlobalGridStateTilesAndResources.setResources(filteredResources);
+      setResources(filteredResources);
+
+      // Visual feedback
+      createCollectEffect(currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
+
+      updateStatus(`${getLocalizedString(stationType, strings)} ${strings[438]?.toLowerCase() || 'removed'}.`);
+      onClose();
+    } catch (error) {
+      console.error('Error removing training building:', error);
+      updateStatus('Failed to remove training building');
+    }
+  };
+
   // Check if we should show the sell button
   const showSellButton = isDeveloper && entryPoint !== "Basic Skills" && currentStationPosition && gridId;
+
+  // Check if this is a training building (no refund, just remove)
+  const stationResource = allResources.find(r => r.type === stationType);
+  const isTrainingBuilding = stationResource?.category === 'training';
 
   return (
     <Panel onClose={onClose} descriptionKey="1005" title={`${stationEmoji} ${entryPoint}`} panelName="SkillsPanel">
@@ -432,12 +484,12 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
 
       {showSellButton && (
         <div className="shared-buttons">
-          <TransactionButton 
-            className="btn-basic btn-danger" 
-            onAction={handleSellStation}
-            transactionKey={`sell-refund-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
+          <TransactionButton
+            className="btn-basic btn-danger"
+            onAction={isTrainingBuilding ? handleRemoveTrainingBuilding : handleSellStation}
+            transactionKey={`${isTrainingBuilding ? 'remove' : 'sell-refund'}-${stationType}-${currentStationPosition.x}-${currentStationPosition.y}-${gridId}`}
           >
-            {strings[490]}
+            {isTrainingBuilding ? strings[438] : strings[490]}
           </TransactionButton>
         </div>
       )}

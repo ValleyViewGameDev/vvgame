@@ -8,9 +8,16 @@ export function isMobile() {
 
 // Utility function: return boolean indicating developer status
 export const checkDeveloperStatus = async (username) => {
+  console.log(`🔍 [DEV CHECK] Checking developer status for username: "${username}"`);
+  console.log(`🔍 [DEV CHECK] API_BASE: ${API_BASE}`);
   try {
-    const response = await axios.get(`${API_BASE}/api/check-developer-status/${username}`);
-    return !!response.data?.isDeveloper;
+    const url = `${API_BASE}/api/check-developer-status/${username}`;
+    console.log(`🔍 [DEV CHECK] Full URL: ${url}`);
+    const response = await axios.get(url);
+    console.log(`🔍 [DEV CHECK] Response:`, response.data);
+    const result = !!response.data?.isDeveloper;
+    console.log(`🔍 [DEV CHECK] Result: ${result}`);
+    return result;
   } catch (err) {
     console.warn('⚠️ Failed to check developer status:', err);
     return false;

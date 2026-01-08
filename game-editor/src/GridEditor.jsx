@@ -1381,15 +1381,34 @@ const handleClearGrid = () => {
 // Delete all resources from the grid
 const handleDeleteAllResources = () => {
   if (!window.confirm("Are you sure you want to delete all resources from the grid?")) return;
-  
+
   // Push current state to undo stack before deleting all resources
   pushToUndoStack();
-  
+
   const newGrid = grid.map(row =>
     row.map(cell => ({ ...cell, resource: "" }))
   );
   setGrid(newGrid);
   console.log("🗑️ Deleted all resources from grid.");
+};
+
+// Delete only Tulips and Mushrooms from the grid
+const handleDeleteTulipsAndMushrooms = () => {
+  // Push current state to undo stack before deleting
+  pushToUndoStack();
+
+  let deletedCount = 0;
+  const newGrid = grid.map(row =>
+    row.map(cell => {
+      if (cell.resource === "Tulip" || cell.resource === "Mushroom") {
+        deletedCount++;
+        return { ...cell, resource: "" };
+      }
+      return cell;
+    })
+  );
+  setGrid(newGrid);
+  console.log(`🌷🍄 Deleted ${deletedCount} Tulips and Mushrooms from grid.`);
 };
 
 // Delete tiles based on selected types
@@ -1881,6 +1900,7 @@ if (typeof window !== "undefined") {
 
         <div className="shared-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '6px' }}>
           <button className="btn-basic btn-mini btn-danger" onClick={handleDeleteAllResources}>Delete All Resources (removes all resources but keeps tile types)</button>
+          <button className="btn-basic btn-mini btn-danger" onClick={handleDeleteTulipsAndMushrooms}>Delete Tulips and Mushrooms</button>
           <button className="btn-basic btn-mini" onClick={handleGenerateResources}>Generate Resources (places resources randomly on valid tiles based on set quantities)</button>
         </div>
 

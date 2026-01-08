@@ -10,11 +10,11 @@
 
 // Single-letter tile type keys (used by game rendering and editor)
 export const tileColors = {
-  g: '#67c257',    // grass
+  g: '#81ba44',    // grass
   s: '#8fa6bdff',  // stone/slate
   d: '#c0834a',    // dirt
   w: '#58cad8',    // water
-  p: '#c5a85d',    // pavement
+  p: '#d3ce7b',    // pavement
   l: '#c4583d',    // lava
   n: '#fbde00',    // sand
   o: '#ffffff',    // snow

@@ -12,18 +12,18 @@ import GridStateDebugPanel from './GridStateDebug';
 import { generateTownGrids, createSingleValleyGrid } from './WorldGeneration';
 import { updatePlayerSettings } from '../settings';
 
-const DebugPanel = ({ 
-  onClose, 
-  currentPlayer, 
-  setCurrentPlayer, 
-  setInventory, 
-  setResources, 
-  currentGridId, 
-  updateStatus, 
-  TILE_SIZE, 
-  setGrid, 
-  setGridId, 
-  setTileTypes, 
+const DebugPanel = ({
+  onClose,
+  currentPlayer,
+  setCurrentPlayer,
+  setInventory,
+  setResources,
+  currentGridId,
+  updateStatus,
+  TILE_SIZE,
+  setGrid,
+  setGridId,
+  setTileTypes,
   closeAllPanels
 }) => {
   const [timers, setTimers] = useState([]);
@@ -36,6 +36,15 @@ const DebugPanel = ({
   const [usernameToDelete, setUsernameToDelete] = useState('');
   const [messageIdentifier, setMessageIdentifier] = useState('');
   const [orphanedGridId, setOrphanedGridId] = useState('');
+
+  // V2 Tile Renderer toggle - always defaults to V2 (true)
+  const [useV2Tiles, setUseV2Tiles] = useState(() => {
+    const hasExplicitChoice = localStorage.getItem('useV2TilesExplicit') === 'true';
+    if (hasExplicitChoice) {
+      return localStorage.getItem('useV2Tiles') === 'true';
+    }
+    return true; // Default to V2 for all users
+  });
   
   // Performance monitoring state
   const [performanceMetrics, setPerformanceMetrics] = useState({
@@ -1043,6 +1052,29 @@ const handleGetRich = async () => {
         <div style={{ marginBottom: '8px', color: '#666' }}>
           <div>🎨 Rendering Mode:</div>
           <div><strong style={{ color: 'green' }}>Canvas (Forced)</strong></div>
+        </div>
+
+        {/* V2 Tile Renderer Toggle */}
+        <div style={{ marginTop: '10px', marginBottom: '8px', padding: '8px', backgroundColor: '#e8e8e8', borderRadius: '4px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '8px' }}>
+            <input
+              type="checkbox"
+              checked={useV2Tiles}
+              onChange={(e) => {
+                const newValue = e.target.checked;
+                setUseV2Tiles(newValue);
+                localStorage.setItem('useV2Tiles', newValue);
+                localStorage.setItem('useV2TilesExplicit', 'true'); // Mark as explicit user choice
+                // Dispatch event to notify App.js
+                window.dispatchEvent(new CustomEvent('tileRendererChange', { detail: newValue }));
+              }}
+              style={{ width: '16px', height: '16px' }}
+            />
+            <span style={{ fontWeight: 'bold' }}>Use V2 Tile Renderer (Autotiling)</span>
+          </label>
+          <div style={{ fontSize: '10px', marginTop: '4px', color: '#888' }}>
+            Enables quarter-tile blending with grass blades at edges
+          </div>
         </div>
 
         {/* Two-column grid with labels and values on separate rows */}

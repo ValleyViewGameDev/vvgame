@@ -19,7 +19,7 @@ const DEFAULT_TILE_SYMBOLS = {
   'x': '🪨',  // cobblestone
   'w': '💧',  // water
   'l': '🔥',  // lava
-  'n': '🏖️',  // sand
+  'n': '🟨',  // sand
   'o': '❄️',  // snow
   'z': '🟢',  // moss
   'c': '🧱',  // clay
@@ -150,6 +150,7 @@ const ToolsPanel = ({
       currentPlayer,
       tileTypes,
       setTileTypes,
+      isDeveloper,
     });
   };
 

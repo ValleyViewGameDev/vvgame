@@ -10,8 +10,8 @@
 
 :root {
   /* ========== PRIMARY COLORS ========== */
-  --color-primary-green: #67c257;        /* Main UI green (header, base panel, nav) */
-  --color-primary-green-dark: #2f8133;   /* Darker green for gridlines, hover states */
+  --color-primary-green: #80c257;        /* Main UI green (header, base panel, nav) */
+  --color-primary-green-dark: #0e6a0c;   /* Darker green for gridlines, hover states */
   --color-primary-green-light: #74ee66;  /* Lighter green for buttons and nav column background */
 
   /* ========== BACKGROUND COLORS ========== */
@@ -37,7 +37,7 @@
   --color-shadow-button: rgba(92, 91, 91, 0.5);
 
   /* ========== BUTTON COLORS ========== */
-  --color-btn-primary: #74ee66;           /* Light green button background */
+  --color-btn-primary: #a3ee66;           /* Light green button background */
   --color-btn-primary-text: #358337;      /* Dark green button text */
   --color-btn-primary-hover: #ebffe7;     /* Light green hover */
   --color-btn-hover-light: #f1f1f1;       /* Generic light hover */
@@ -51,6 +51,13 @@
   --color-btn-bulk-skill: #e6ccff;        /* Bulk skill (light purple) */
   --color-btn-gem: #e0f7ff;               /* Gem button background */
   --color-btn-gem-hover: #1565c0;         /* Gem button hover */
+
+  /* ========== INPUT COLORS ========== */
+  --color-input-bg: #ffffff;               /* White input background */
+  --color-input-border: #ccc;              /* Input border */
+  --color-input-text: #333333;             /* Input text color */
+  --color-input-shadow: rgba(0, 0, 0, 0.1); /* Input inner shadow */
+  --color-input-placeholder: #999999;      /* Placeholder text */
 
   /* ========== STATUS/FEEDBACK COLORS ========== */
   --color-error: #f44336;
@@ -130,13 +137,6 @@
   --font-body: var(--font-title-2-family);
   --font-ui: var(--font-text-1-family);
   --font-dialog: var(--font-text-1-family);
-
-  /* ========== FORM INPUT COLORS ========== */
-  --color-input-bg: #ffffff;
-  --color-input-border: #ccc;
-  --color-input-shadow: rgba(0, 0, 0, 0.15);
-  --color-input-placeholder: #999999;
-  --color-input-text: #333333;
 
   /* ========== SPACING ========== */
   --spacing-xs: 4px;

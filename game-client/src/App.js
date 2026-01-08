@@ -12,6 +12,7 @@ import { registerNotificationClickHandler } from './UI/Notifications/Notificatio
 import { initializeGrid } from './AppInit';
 import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies, loadMasterWarehouse, loadMasterXPLevels } from './Utils/TuningManager';
 import { RenderTilesCanvas } from './Render/RenderTilesCanvas';
+import { RenderTilesCanvasV2 } from './Render/RenderTilesCanvasV2';
 import { RenderResources } from './Render/RenderResources';
 import { RenderNPCs } from './Render/RenderNPCs';
 import { RenderPCs } from './Render/RenderPCs';
@@ -403,6 +404,23 @@ useEffect(() => {
 }, [resources, masterResources]);
 
 const [zoomLevel, setZoomLevel] = useState('close'); // Default zoom level
+
+// V2 Tile Renderer toggle - always defaults to V2 (true)
+// Only respect stored 'false' if user explicitly toggled it off after this update
+const [useV2Tiles, setUseV2Tiles] = useState(() => {
+  const hasExplicitChoice = localStorage.getItem('useV2TilesExplicit') === 'true';
+  if (hasExplicitChoice) {
+    return localStorage.getItem('useV2Tiles') === 'true';
+  }
+  return true; // Default to V2 for all users
+});
+
+// Listen for V2 tile renderer toggle changes from DebugPanel
+useEffect(() => {
+  const handleTileRendererChange = (e) => setUseV2Tiles(e.detail);
+  window.addEventListener('tileRendererChange', handleTileRendererChange);
+  return () => window.removeEventListener('tileRendererChange', handleTileRendererChange);
+}, []);
 const TILE_SIZES = globalTuning?.closerZoom ? {
   closer: globalTuning.closerZoom,
   close: globalTuning.closeZoom,
@@ -698,8 +716,12 @@ useEffect(() => {
       let updatedPlayerData = { ...parsedPlayer, ...DBPlayerData };
       setCurrentPlayer(updatedPlayerData);
       if (updatedPlayerData?.username) {
+        console.log(`🔍 [APP] About to check developer status for: "${updatedPlayerData.username}"`);
         const isDev = await checkDeveloperStatus(updatedPlayerData.username);
+        console.log(`🔍 [APP] isDev result: ${isDev}, calling setIsDeveloper(${isDev})`);
         setIsDeveloper(isDev);
+      } else {
+        console.log(`🔍 [APP] No username found in updatedPlayerData:`, updatedPlayerData);
       }
       setInventory(DBPlayerData.inventory || []);  // Initialize inventory properly
       setBackpack(DBPlayerData.backpack || []);
@@ -1926,6 +1948,7 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       tileTypes,
       setTileTypes,
       overridePosition: { x: colIndex, y: rowIndex }, // Terraform at clicked tile
+      isDeveloper,
     });
     isProcessing = false;
     return;
@@ -2768,14 +2791,24 @@ return (
 
       {zoomLevel === 'far' || zoomLevel === 'closer' || zoomLevel === 'close' ? (
       <>
-        {/* Layer 1: Tiles */}
-        <RenderTilesCanvas
-          grid={memoizedGrid}
-          tileTypes={memoizedTileTypes}
-          TILE_SIZE={activeTileSize}
-          zoomLevel={zoomLevel}
-          handleTileClick={handleTileClick}
-        />
+        {/* Layer 1: Tiles - conditionally use V1 or V2 renderer */}
+        {useV2Tiles ? (
+          <RenderTilesCanvasV2
+            grid={memoizedGrid}
+            tileTypes={memoizedTileTypes}
+            TILE_SIZE={activeTileSize}
+            zoomLevel={zoomLevel}
+            handleTileClick={handleTileClick}
+          />
+        ) : (
+          <RenderTilesCanvas
+            grid={memoizedGrid}
+            tileTypes={memoizedTileTypes}
+            TILE_SIZE={activeTileSize}
+            zoomLevel={zoomLevel}
+            handleTileClick={handleTileClick}
+          />
+        )}
 
         {/* Layer 1.5: Cursor Tile Highlight (only when in cursor placement mode) */}
         {cursorMode && (

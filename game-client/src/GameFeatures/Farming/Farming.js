@@ -187,7 +187,7 @@ export const handleFarmPlotPlacement = async ({
 
 
 
-export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId, currentPlayer, tileTypes, setTileTypes, overridePosition }) => {
+export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId, currentPlayer, tileTypes, setTileTypes, overridePosition, isDeveloper }) => {
 
   console.log("handleTerraform;  currentPlayer = ",currentPlayer);
 
@@ -215,11 +215,11 @@ export const handleTerraform = async ({ TILE_SIZE, actionType, tileType, gridId,
     console.error("❌ handleTerraform: Could not find tile at given coordinates.");
     return false;
   }
-  if (tile === 'l') {
+  if (tile === 'l' && !isDeveloper) {
       FloatingTextManager.addFloatingText(320, tileX, tileY, TILE_SIZE);
     return false;
   }
-  if (tile === 'w') {
+  if (tile === 'w' && !isDeveloper) {
       FloatingTextManager.addFloatingText(320, tileX, tileY, TILE_SIZE); // Same message as lava for now
     return false;
   }
