@@ -34,7 +34,7 @@
         "isTeleportEnabled": false,
         "toggleVFX": true,
         "hasDied": false,
-        "plantWithCursor": false
+        "plantWithCursor": true
       },
       "relationships": [
         {
