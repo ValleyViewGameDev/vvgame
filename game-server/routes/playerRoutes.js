@@ -1136,22 +1136,26 @@ router.post('/delete-player', async (req, res) => {
     const { gridId, settlementId } = player;
     const currentLocationGridId = player.location?.g;
 
-    // 1. Remove player from their current location's grid state (if different from homestead)
-    if (currentLocationGridId && currentLocationGridId !== gridId) {
-      console.log(`🧹 Removing player from current location grid: ${currentLocationGridId}`);
-      try {
-        // Use the existing remove-single-pc endpoint logic
-        const currentGrid = await Grid.findById(currentLocationGridId);
-        if (currentGrid) {
-          const pcs = new Map(currentGrid.playersInGrid || []);
-          pcs.delete(playerId.toString());
-          currentGrid.playersInGrid = pcs;
-          currentGrid.playersInGridLastUpdated = new Date();
-          await currentGrid.save();
+    // 1. Remove player from their current location's grid state
+    // Always remove from current location (including shared grids like "opening" dungeon)
+    // Skip only if current location IS the homestead (since homestead gets deleted anyway)
+    if (currentLocationGridId) {
+      const isInHomestead = gridId && currentLocationGridId === gridId.toString();
+      if (!isInHomestead) {
+        console.log(`🧹 Removing player from current location grid: ${currentLocationGridId}`);
+        try {
+          // Use atomic $unset to avoid race conditions (same as remove-single-pc endpoint)
+          await Grid.findByIdAndUpdate(
+            currentLocationGridId,
+            {
+              $unset: { [`playersInGrid.${playerId}`]: 1 },
+              $set: { playersInGridLastUpdated: new Date() }
+            }
+          );
           console.log(`✅ Removed player ${playerId} from grid ${currentLocationGridId} playersInGrid data`);
+        } catch (error) {
+          console.error(`❌ Error removing player from current location grid: ${error}`);
         }
-      } catch (error) {
-        console.error(`❌ Error removing player from current location grid: ${error}`);
       }
     }
 

@@ -296,6 +296,31 @@
   cursor: pointer;
 }
 
+/* ========== DOINKER STYLES ========== */
+/* Bouncing red arrow that points to target resources */
+
+.ftue-doinker {
+  position: absolute;
+  z-index: 1000;
+  pointer-events: none;
+  transform: translateX(-50%); /* Center horizontally on target */
+  animation: doinker-bounce 0.6s ease-in-out infinite;
+}
+
+.ftue-doinker-arrow {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+}
+
+/* Bouncing animation */
+@keyframes doinker-bounce {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-12px);
+  }
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
   .ftue-modal {

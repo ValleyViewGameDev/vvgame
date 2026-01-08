@@ -48,7 +48,8 @@ const SocialPanel = ({
     if (!pcData) return;
 
     // ✅ Update displayed data when viewing other players
-    if (pcData.username !== currentPlayer.username) {
+    // Use playerId for comparison (more reliable than username which can be reused)
+    if (pcData.playerId !== currentPlayer.playerId) {
       const gridId = currentPlayer?.location?.g;
       if (!gridId) return;
 
@@ -106,8 +107,8 @@ const SocialPanel = ({
       return;
     }
 
-    // ✅ Check if the selected PC is the current player
-    if (pcData.username === currentPlayer.username) {
+    // ✅ Check if the selected PC is the current player (use playerId, not username)
+    if (pcData.playerId === currentPlayer.playerId) {
       // Update displayed data with current player's latest state
       setDisplayedPCData({
         ...pcData,
@@ -213,7 +214,7 @@ const SocialPanel = ({
       updateStatus(`Removed ${pcData.username} from grid${controllerUsername === pcData.username ? ' and cleared NPC control' : ''}`);
       
       // Close the panel since the player is no longer in the grid
-      if (pcData.username !== currentPlayer.username) {
+      if (pcData.playerId !== currentPlayer.playerId) {
         onClose();
       }
     } catch (error) {
@@ -279,7 +280,7 @@ const SocialPanel = ({
       updateStatus(`Sent ${pcData.username} home`);
 
       // Close the panel since the player is no longer in this grid
-      if (pcData.username !== currentPlayer.username) {
+      if (pcData.playerId !== currentPlayer.playerId) {
         onClose();
       }
     } catch (error) {
@@ -293,12 +294,12 @@ return (
     <Panel onClose={onClose} descriptionKey="1014" titleKey="1114" panelName="SocialPanel">
 
         {/* Show loading state for other players */}
-        {displayedPCData.username !== currentPlayer.username && isLoadingPlayerData && (
+        {displayedPCData.playerId !== currentPlayer.playerId && isLoadingPlayerData && (
           <p>Loading player data...</p>
         )}
 
         {/* Show stats for other players */}
-        {displayedPCData.username !== currentPlayer.username && fullPlayerData && !isLoadingPlayerData && (
+        {displayedPCData.playerId !== currentPlayer.playerId && fullPlayerData && !isLoadingPlayerData && (
           <div className="player-card" style={{ marginBottom: '20px' }}>
             {/* Player Name Header */}
             <div className="player-header">
@@ -355,7 +356,7 @@ return (
         )}
 
         {/* Debug buttons for developers */}
-        {isDeveloper && displayedPCData.username !== currentPlayer.username && (
+        {isDeveloper && displayedPCData.playerId !== currentPlayer.playerId && (
           <div className="shared-buttons">
             <button
               className="btn-basic btn-danger"
@@ -375,7 +376,7 @@ return (
         )}
 
         {/* Show PlayerPanel for current player */}
-        {displayedPCData.username === currentPlayer.username && (
+        {displayedPCData.playerId === currentPlayer.playerId && (
           <PlayerPanel
             currentPlayer={currentPlayer}
             setCurrentPlayer={setCurrentPlayer}

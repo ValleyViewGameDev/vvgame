@@ -4,6 +4,8 @@
       "showModal": true,
       "bodyKey": 740,
       "continue": true,
+      "doinker": true,
+      "doinkerTarget": "Dungeon Exit",
       "addQuests": []
     },
     {
@@ -15,7 +17,8 @@
     {
       "step": 3,
       "trigger": "ExitedCave",
-      "notificationKey": 742,
+      "doinker": true,
+      "doinkerTarget": "Constable Elbow",         "notificationKey": 742,
       "notificationIcon": "🧔🏼‍♂️",
       "addQuests": []
     },
@@ -41,6 +44,8 @@
       "trigger": "FirstHomesteadVisit",
       "showModal": false,
       "continue": false,
+      "doinker": true,
+      "doinkerTarget": "Kent",         
       "notificationKey": 7053,
       "notificationIcon": "🤠",
       "addQuests": [5, 6],

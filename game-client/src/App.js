@@ -42,6 +42,7 @@ import {
 import farmState from './FarmState';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FTUE from './GameFeatures/FTUE/FTUE';
+import FTUEDoinker from './GameFeatures/FTUE/FTUEDoinker';
 import FTUEstepsData from './GameFeatures/FTUE/FTUEsteps.json';
 
 import playersInGridManager from './GridState/PlayersInGrid';
@@ -482,6 +483,7 @@ const [activeSocialPC, setActiveSocialPC] = useState(null);
 const [activeStation, setActiveStation] = useState(null);
 const [showShareModal, setShowShareModal] = useState(false);
 const [showFTUE, setShowFTUE] = useState(false);
+const [doinkerTarget, setDoinkerTarget] = useState(null); // Resource type string to point doinker at
 const [cursorMode, setCursorMode] = useState(null); // { type: 'plant', item: {...}, emoji: '🌾' }
 const [hoveredTile, setHoveredTile] = useState(null); // { row, col } - tile under cursor for placement highlight
 
@@ -1262,6 +1264,23 @@ useEffect(() => {
     }
   }
 }, [isAppInitialized, tileTypes.length, resources.length, currentPlayer, lastShownFTUEStep, showFTUE, closePanel]);
+
+// FTUE Doinker - Update doinker target based on current FTUE step
+useEffect(() => {
+  if (!currentPlayer?.firsttimeuser || currentPlayer?.ftuestep === undefined) {
+    setDoinkerTarget(null);
+    return;
+  }
+
+  const stepData = FTUEstepsData.find(step => step.step === currentPlayer.ftuestep);
+
+  if (stepData?.doinker && stepData?.doinkerTarget) {
+    console.log(`👆 Doinker: Showing arrow pointing to "${stepData.doinkerTarget}" for FTUE step ${currentPlayer.ftuestep}`);
+    setDoinkerTarget(stepData.doinkerTarget);
+  } else {
+    setDoinkerTarget(null);
+  }
+}, [currentPlayer?.ftuestep, currentPlayer?.firsttimeuser]);
 
 // Level-up detection: Watch for XP changes and show level-up modal
 useEffect(() => {
@@ -2922,11 +2941,18 @@ return (
           />
         )}
         
-        {/* <RenderVFX 
+        {/* <RenderVFX
           toggleVFX={currentPlayer?.settings?.toggleVFX}
           // Placeholder for VFX
           TILE_SIZE={activeTileSize}
         /> */}
+
+        {/* FTUE Doinker - Bouncing arrow pointing at target resource */}
+        <FTUEDoinker
+          doinkerTarget={doinkerTarget}
+          TILE_SIZE={activeTileSize}
+          visible={!!doinkerTarget}
+        />
 
         </>
       ) : null}
