@@ -1,6 +1,7 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import SVGAssetManager from './SVGAssetManager';
 import { getResourceOverlayStatus, OVERLAY_SVG_MAPPING } from '../Utils/ResourceOverlayUtils';
+import { isResourceAnimating, getAnimationVersion, registerForceRender } from '../VFX/VFX';
 
 // Helper function to get the filename for a resource type
 const getResourceFilename = (resourceType, masterResources) => {
@@ -27,15 +28,25 @@ export const RenderResourcesCanvas = ({
   const canvasRef = useRef(null);
   const lastRenderData = useRef(null);
   const renderingRef = useRef(false); // Track if rendering is in progress
-  
-  
+  const [renderTrigger, setRenderTrigger] = useState(0); // Used to force re-render when animations complete
+
+  // Register force render callback with VFX system
+  useEffect(() => {
+    registerForceRender(() => {
+      setRenderTrigger(prev => prev + 1);
+    });
+    return () => {
+      registerForceRender(null); // Cleanup on unmount
+    };
+  }, []);
+
   // Update SVGAssetManager zoom tiers when globalTuning changes
   useEffect(() => {
     if (globalTuning) {
       SVGAssetManager.updateZoomTiers(globalTuning);
     }
   }, [globalTuning]);
-  
+
   // Cleanup rendering flag on unmount
   useEffect(() => {
     return () => {
@@ -91,17 +102,24 @@ export const RenderResourcesCanvas = ({
     
     // Render all resources (matching DOM behavior)
     for (const resource of resources) {
+      // Skip resources that are currently animating (grow effect handles their visual)
+      if (isResourceAnimating(resource.x, resource.y)) {
+        continue;
+      }
       // Only render once per resource at its anchor position (x,y)
       // Multi-tile resources span from (x,y) but are visually rendered from anchor
       await renderSingleResource(ctx, resource, TILE_SIZE, masterResources);
     }
     
     // Render overlays for resources that need them
-    // Filter out shadow, doober, and source for overlays (they don't get status overlays)
-    const overlayResources = resources.filter(resource => 
-      resource.type !== 'shadow' && resource.category !== 'doober' && resource.category !== 'source'
+    // Filter out shadow, doober, source, and animating resources for overlays
+    const overlayResources = resources.filter(resource =>
+      resource.type !== 'shadow' &&
+      resource.category !== 'doober' &&
+      resource.category !== 'source' &&
+      !isResourceAnimating(resource.x, resource.y)
     );
-    
+
     for (const resource of overlayResources) {
       await renderResourceOverlay(ctx, resource, TILE_SIZE);
     }
@@ -244,21 +262,22 @@ export const RenderResourcesCanvas = ({
   useEffect(() => {
     console.log(`🔄 [RESOURCE USEEFFECT] useEffect triggered with TILE_SIZE: ${TILE_SIZE}, resources count: ${resources?.length || 0}`);
     
-    const currentData = JSON.stringify({ 
-      resources: resources?.map(r => ({ 
-        x: r.x, 
-        y: r.y, 
-        type: r.type, 
-        symbol: r.symbol, 
-        range: r.range 
-      })), 
+    const currentData = JSON.stringify({
+      resources: resources?.map(r => ({
+        x: r.x,
+        y: r.y,
+        type: r.type,
+        symbol: r.symbol,
+        range: r.range
+      })),
       TILE_SIZE,
       craftingReady: craftingStatus?.ready,
       craftingInProgress: craftingStatus?.inProgress,
       tradingReady: tradingStatus?.ready,
       mailboxBadge: badgeState?.mailbox,
       electionPhase,
-      playerId: currentPlayer?.id // Include player ID for trade status changes
+      playerId: currentPlayer?.id, // Include player ID for trade status changes
+      animationVersion: getAnimationVersion() // Re-render when grow animations complete
     });
     
     if (currentData !== lastRenderData.current) {
@@ -271,7 +290,7 @@ export const RenderResourcesCanvas = ({
     } else {
       console.log(`🔄 [RESOURCE USEEFFECT] Data unchanged, skipping render with TILE_SIZE: ${TILE_SIZE}`);
     }
-  }, [resources, TILE_SIZE, craftingStatus, tradingStatus, badgeState, electionPhase, currentPlayer]);
+  }, [resources, TILE_SIZE, craftingStatus, tradingStatus, badgeState, electionPhase, currentPlayer, renderTrigger]);
 
   // Handle canvas clicks and convert to grid coordinates
   const handleCanvasClick = useCallback((event) => {

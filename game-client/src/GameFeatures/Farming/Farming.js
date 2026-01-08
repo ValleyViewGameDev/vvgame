@@ -10,7 +10,7 @@ import { trackQuestProgress } from '../Quests/QuestGoalTracker';
 import { getCurrentTileCoordinates } from '../../Utils/ResourceHelpers';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import { tryAdvanceFTUEByTrigger } from '../FTUE/FTUEutils';
-import { createCollectEffect } from '../../VFX/VFX';
+import { createCollectEffect, createPlantGrowEffect } from '../../VFX/VFX';
 
 /**
  * Determines the appropriate error string for an invalid planting attempt.
@@ -165,6 +165,9 @@ export const handleFarmPlotPlacement = async ({
 
       // Show VFX and floating text for planting
       createCollectEffect(tileX, tileY, TILE_SIZE);
+      if (enrichedNewResource.symbol) {
+        createPlantGrowEffect(tileX, tileY, TILE_SIZE, enrichedNewResource.symbol);
+      }
       FloatingTextManager.addFloatingText(302, tileX, tileY, TILE_SIZE); // "Planted!"
 
       // Track quest progress for "Plant" actions

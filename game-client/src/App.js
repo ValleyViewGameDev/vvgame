@@ -2613,42 +2613,47 @@ return (
       >{currentPlayer?.icon || '😊'}</button>
       <button className={`nav-button ${activePanel === 'QuestPanel' ? 'selected' : ''}`} title={strings[12004]} disabled={!currentPlayer} onClick={() => openPanel('QuestPanel')}>✅</button>
 
-      <button 
-        className={`nav-button ${activePanel === 'FarmingPanel' ? 'selected' : ''}`} title={strings[12001]} disabled={!currentPlayer} 
-        onClick={() => {
-          if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
-          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
-          openPanel('FarmingPanel');
-        }}
-      >🌽</button>
-      <button 
-        className={`nav-button ${activePanel === 'ToolsPanel' ? 'selected' : ''}`} title={strings[12012]} disabled={!currentPlayer} 
-        onClick={() => {
-          if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
-          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
-          openPanel('ToolsPanel');
-        }}
-      >⛏️</button>
-      <button 
-        className={`nav-button ${activePanel === 'BuyPanel' ? 'selected' : ''}`} title={strings[12003]} disabled={!currentPlayer} 
-        onClick={() => {
-          if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
-          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
-          openPanel('BuyPanel');
-        }}
-      >🐮</button>
-      <button 
-        className={`nav-button ${activePanel === 'BuildPanel' ? 'selected' : ''}`} title={strings[12002]} disabled={!currentPlayer} 
-        onClick={() => {
-          if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
-          if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
-          openPanel('BuildPanel');
-        }}
-      >🛖</button>
-      <button className={`nav-button ${activePanel === 'SkillsPanel' ? 'selected' : ''}`} title={strings[12005]} disabled={!currentPlayer} onClick={() => {
-          setActiveStation(null); // ✅ Reset activeStation
-          openPanel("SkillsPanel"); // ✅ Open the panel normally
-        }}>💪</button>
+      {/* Hide these panels during early FTUE steps (1-2) */}
+      {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
+        <>
+          <button
+            className={`nav-button ${activePanel === 'FarmingPanel' ? 'selected' : ''}`} title={strings[12001]} disabled={!currentPlayer}
+            onClick={() => {
+              if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
+              if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
+              openPanel('FarmingPanel');
+            }}
+          >🌽</button>
+          <button
+            className={`nav-button ${activePanel === 'ToolsPanel' ? 'selected' : ''}`} title={strings[12012]} disabled={!currentPlayer}
+            onClick={() => {
+              if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
+              if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {updateStatus(90);return;}
+              openPanel('ToolsPanel');
+            }}
+          >⛏️</button>
+          <button
+            className={`nav-button ${activePanel === 'BuyPanel' ? 'selected' : ''}`} title={strings[12003]} disabled={!currentPlayer}
+            onClick={() => {
+              if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
+              if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
+              openPanel('BuyPanel');
+            }}
+          >🐮</button>
+          <button
+            className={`nav-button ${activePanel === 'BuildPanel' ? 'selected' : ''}`} title={strings[12002]} disabled={!currentPlayer}
+            onClick={() => {
+              if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
+              if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
+              openPanel('BuildPanel');
+            }}
+          >🛖</button>
+          <button className={`nav-button ${activePanel === 'SkillsPanel' ? 'selected' : ''}`} title={strings[12005]} disabled={!currentPlayer} onClick={() => {
+              setActiveStation(null); // ✅ Reset activeStation
+              openPanel("SkillsPanel"); // ✅ Open the panel normally
+            }}>💪</button>
+        </>
+      )}
 
       {!currentPlayer?.firsttimeuser && isOnOwnHomestead && (
         <button 
@@ -2673,13 +2678,17 @@ return (
         >🪴</button>
       )}
 
-      <button className={`nav-button ${activePanel === 'CombatPanel' ? 'selected' : ''}`} title={strings[12006]} disabled={!currentPlayer} onClick={() => openPanel('CombatPanel')}>⚔️</button>
+      {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
+        <button className={`nav-button ${activePanel === 'CombatPanel' ? 'selected' : ''}`} title={strings[12006]} disabled={!currentPlayer} onClick={() => openPanel('CombatPanel')}>⚔️</button>
+      )}
 
       {!currentPlayer?.firsttimeuser && (
         <button className={`nav-button ${activePanel === 'GovPanel' ? 'selected' : ''}`} title={strings[12007]} onClick={() => openPanel('GovPanel')}>🏛️</button>
       )}
 
-      <button className={`nav-button ${activePanel === 'TrophyPanel' ? 'selected' : ''}`} title={strings[12013]} onClick={() => openPanel('TrophyPanel')}>🏆</button>
+      {!(currentPlayer?.firsttimeuser && currentPlayer?.ftuestep <= 2) && (
+        <button className={`nav-button ${activePanel === 'TrophyPanel' ? 'selected' : ''}`} title={strings[12013]} onClick={() => openPanel('TrophyPanel')}>🏆</button>
+      )}
 
       {isDeveloper && (
         <button className={`nav-button ${activePanel === 'DebugPanel' ? 'selected' : ''}`} title="Debug" onClick={() => openPanel('DebugPanel')}>

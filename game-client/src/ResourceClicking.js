@@ -8,7 +8,7 @@ import FloatingTextManager from './UI/FloatingText';
 import { lockResource, unlockResource } from './Utils/ResourceLockManager';
 import { trackQuestProgress } from './GameFeatures/Quests/QuestGoalTracker';
 import { showNotification } from './UI/Notifications/Notifications';
-import { createCollectEffect, createSourceConversionEffect, calculateTileCenter } from './VFX/VFX';
+import { createCollectEffect, createSourceConversionEffect, createPlantGrowEffect, calculateTileCenter } from './VFX/VFX';
 import { earnTrophy } from './GameFeatures/Trophies/TrophyUtils';
 import { useStrings } from './UI/StringsContext';
 import { getLocalizedString } from './Utils/stringLookup';
@@ -450,7 +450,8 @@ export async function handleDooberClick(
         col,
         setResources,
         gridId,
-        masterResources
+        masterResources,
+        TILE_SIZE
       );
     }
   } catch (error) {
@@ -475,7 +476,8 @@ async function handleReplant(
   col,
   setResources,
   gridId,
-  masterResources
+  masterResources,
+  TILE_SIZE
 ) {
   console.log(`🌱 handleReplant: Looking for farmplot that outputs ${collectedResource.type}`);
 
@@ -531,6 +533,10 @@ async function handleReplant(
 
     if (gridUpdateResponse?.success) {
       console.log(`✅ handleReplant: Successfully planted ${farmplotResource.type} at (${col}, ${row})`);
+      // Show grow VFX for the replanted farmplot
+      if (enrichedNewResource.symbol && TILE_SIZE) {
+        createPlantGrowEffect(col, row, TILE_SIZE, enrichedNewResource.symbol);
+      }
     } else {
       throw new Error('Server failed to confirm the replant.');
     }

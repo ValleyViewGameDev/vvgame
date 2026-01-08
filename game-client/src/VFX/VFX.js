@@ -3,10 +3,44 @@ const VFX_TIMING = {
     COLLECT_DURATION: 500,      // Doober collection poof animation
     SWIPE_DURATION: 1000,        // Source conversion swipe animation (was 400)
     FADE_DURATION: 400,         // How long fade-out takes
+    PLANT_GROW_DURATION: 1500,  // Plant grow animation
 };
 
 // Track recent effects to prevent duplicates
 const recentEffects = new Map();
+
+// Track resources that are currently animating (grow effect) - canvas should skip rendering these
+const animatingResources = new Set();
+
+// Counter that changes when animations complete, used to trigger re-renders
+let animationVersion = 0;
+
+// Callback to force resource canvas re-render (set by RenderResourcesCanvas)
+let forceResourceRender = null;
+
+/**
+ * Register a callback to force resource canvas re-render
+ * Called by RenderResourcesCanvas on mount
+ */
+export const registerForceRender = (callback) => {
+    forceResourceRender = callback;
+};
+
+/**
+ * Check if a resource at given position is currently animating
+ * @param {number} x - Grid x coordinate
+ * @param {number} y - Grid y coordinate
+ * @returns {boolean} - True if resource should be hidden (animating)
+ */
+export const isResourceAnimating = (x, y) => {
+    return animatingResources.has(`${x},${y}`);
+};
+
+/**
+ * Get the current animation version - changes when animations complete
+ * Used by canvas renderer to detect when it needs to re-render
+ */
+export const getAnimationVersion = () => animationVersion;
 
 const createParticleElement = (char, x, y) => {
     const particle = document.createElement('div');
@@ -138,4 +172,68 @@ export const createSourceConversionEffect = (x, y, TILE_SIZE, requiredSkill) => 
     setTimeout(() => {
         gameContainer.removeChild(particle);
     }, VFX_TIMING.SWIPE_DURATION); // Match the new animation duration
+};
+
+/**
+ * Creates a "grow" effect for planting - emoji starts tiny and grows to full size
+ * Uses CSS scale transform for smoother animation than font-size
+ * @param {number} x - Grid x coordinate
+ * @param {number} y - Grid y coordinate
+ * @param {number} TILE_SIZE - Current tile size
+ * @param {string} emoji - The emoji to display (seed/crop symbol)
+ * @param {function} onComplete - Optional callback when animation completes (to trigger re-render)
+ */
+export const createPlantGrowEffect = (x, y, TILE_SIZE, emoji, onComplete) => {
+    const gameContainer = document.querySelector('.homestead');
+    if (!gameContainer) return;
+
+    const posKey = `${x},${y}`;
+
+    // Mark this resource as animating so canvas skips rendering it
+    animatingResources.add(posKey);
+
+    // Calculate tile center to match canvas rendering
+    // Canvas uses textBaseline='middle' which has slightly different centering than CSS translate(-50%, -50%)
+    // Apply a small upward offset (~2% of tile size) to compensate for emoji baseline differences
+    const centerX = (x * TILE_SIZE) + (TILE_SIZE / 2);
+    const centerY = (y * TILE_SIZE) + (TILE_SIZE / 2) - (TILE_SIZE * 0.02);
+
+    // Calculate final font size (matching resource rendering)
+    const finalFontSize = TILE_SIZE * 0.7;
+
+    // Create the growing emoji
+    const particle = document.createElement('div');
+    particle.innerText = emoji;
+    particle.style.position = 'absolute';
+    particle.style.left = `${centerX}px`;
+    particle.style.top = `${centerY}px`;
+    particle.style.pointerEvents = 'none';
+    particle.style.zIndex = '1001'; // Well above resources
+    particle.style.fontSize = `${finalFontSize}px`;
+    particle.style.transform = 'translate(-50%, -50%) scale(0.02)'; // Start at 2% scale
+    particle.style.transition = `transform ${VFX_TIMING.PLANT_GROW_DURATION}ms ease-out`;
+
+    gameContainer.appendChild(particle);
+
+    // Trigger the grow animation
+    requestAnimationFrame(() => {
+        particle.style.transform = 'translate(-50%, -50%) scale(1)';
+    });
+
+    // Remove after animation completes and allow canvas to render the resource again
+    setTimeout(() => {
+        if (particle.parentNode) {
+            gameContainer.removeChild(particle);
+        }
+        animatingResources.delete(posKey);
+        animationVersion++; // Increment to signal canvas needs to re-render
+        // Force canvas to re-render
+        if (forceResourceRender) {
+            forceResourceRender();
+        }
+        // Call the completion callback if provided
+        if (onComplete) {
+            onComplete();
+        }
+    }, VFX_TIMING.PLANT_GROW_DURATION);
 };
