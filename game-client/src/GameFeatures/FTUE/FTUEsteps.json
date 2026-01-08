@@ -4,12 +4,12 @@
       "showModal": true,
       "bodyKey": 740,
       "continue": true,
-      "doinker": true,
-      "doinkerTarget": "Dungeon Exit",
       "addQuests": []
     },
     {
       "step": 2,
+      "doinker": true,
+      "doinkerTarget": "Dungeon Exit",
       "notificationKey": 741,
       "notificationIcon": "😀",
       "addQuests": []
@@ -18,7 +18,8 @@
       "step": 3,
       "trigger": "ExitedCave",
       "doinker": true,
-      "doinkerTarget": "Constable Elbow",         "notificationKey": 742,
+      "doinkerTarget": "Constable Elbow",         
+      "notificationKey": 742,
       "notificationIcon": "🧔🏼‍♂️",
       "addQuests": []
     },
@@ -35,6 +36,8 @@
       "trigger": "BoughtHomeDeed",
       "showModal": false,
       "continue": false,
+      "doinker": true,
+      "doinkerTarget": "Signpost Home",         
       "notificationKey": 7052,
       "notificationIcon": "🏠",
       "openPanel": "QuestPanel"

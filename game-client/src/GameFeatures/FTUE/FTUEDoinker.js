@@ -1,75 +1,93 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
+import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import './FTUE.css';
 
 /**
- * FTUEDoinker - A bouncing red arrow that points to a target resource on the grid
+ * FTUEDoinker - A bouncing red arrow that points to a target resource or NPC on the grid
  *
  * Props:
- * - doinkerTarget: string - The resource type to point at (e.g., "Dungeon Exit")
+ * - doinkerTarget: string - The resource/NPC type to point at (e.g., "Dungeon Exit", "Constable Elbow")
  * - TILE_SIZE: number - The current tile size for positioning
  * - visible: boolean - Whether the doinker should be visible
+ * - gridId: string - The current grid ID (needed to look up NPCs)
  */
-const FTUEDoinker = ({ doinkerTarget, TILE_SIZE, visible }) => {
+const FTUEDoinker = ({ doinkerTarget, TILE_SIZE, visible, gridId }) => {
   const [targetPosition, setTargetPosition] = useState(null);
-  const foundTargetRef = useRef(false);
 
-  // Find the target resource position when doinkerTarget changes
+  // Find the target resource/NPC position - continuously poll to handle async loading
   useEffect(() => {
-    // Reset when target changes
-    foundTargetRef.current = false;
-
     if (!doinkerTarget || !visible) {
+      console.log('👆 Doinker: Clearing - doinkerTarget:', doinkerTarget, 'visible:', visible);
       setTargetPosition(null);
       return;
     }
 
-    const findTargetResource = () => {
+    const findTarget = () => {
+      // First, check resources
       const resources = GlobalGridStateTilesAndResources.getResources();
-
-      if (!resources || resources.length === 0) {
-        console.log('👆 Doinker: No resources loaded yet, waiting...');
-        return null;
+      if (resources && resources.length > 0) {
+        const targetResource = resources.find(res => res.type === doinkerTarget);
+        if (targetResource) {
+          return {
+            x: targetResource.x,
+            y: targetResource.y,
+            range: targetResource.range || 1,
+            source: 'resource'
+          };
+        }
       }
 
-      // Find the resource with matching type
-      const targetResource = resources.find(res => res.type === doinkerTarget);
-
-      if (targetResource) {
-        console.log(`👆 Doinker: Found target "${doinkerTarget}" at (${targetResource.x}, ${targetResource.y})`);
-        return {
-          x: targetResource.x,
-          y: targetResource.y,
-          // Account for multi-tile resources (use center if range > 1)
-          range: targetResource.range || 1
-        };
-      } else {
-        console.log(`👆 Doinker: Target "${doinkerTarget}" not found in resources`);
-        return null;
+      // If not found in resources, check NPCs
+      if (gridId) {
+        const npcs = NPCsInGridManager.getNPCsInGrid(gridId);
+        if (npcs && Object.keys(npcs).length > 0) {
+          const npcArray = Object.values(npcs);
+          console.log('👆 Doinker: NPC types in grid:', npcArray.map(npc => npc.type));
+          const targetNPC = npcArray.find(npc => npc.type === doinkerTarget);
+          if (targetNPC && targetNPC.position) {
+            return {
+              x: targetNPC.position.x,
+              y: targetNPC.position.y,
+              range: 1,
+              source: 'npc'
+            };
+          }
+        }
       }
+
+      return null;
     };
 
     // Initial search
-    const position = findTargetResource();
+    const position = findTarget();
     if (position) {
+      console.log(`👆 Doinker: Found target "${doinkerTarget}" (${position.source}) at (${position.x}, ${position.y})`);
       setTargetPosition(position);
-      foundTargetRef.current = true;
+    } else {
+      console.log(`👆 Doinker: Target "${doinkerTarget}" not found yet, will keep checking...`);
     }
 
-    // Set up an interval to re-check in case resources load after component mounts
-    // or if the target resource moves/changes
+    // Keep polling - resources/NPCs may load asynchronously or grid may change
     const interval = setInterval(() => {
-      if (!foundTargetRef.current) {
-        const pos = findTargetResource();
+      const pos = findTarget();
+      setTargetPosition(prevPos => {
         if (pos) {
-          setTargetPosition(pos);
-          foundTargetRef.current = true;
+          // Only log if position actually changed
+          if (!prevPos || prevPos.x !== pos.x || prevPos.y !== pos.y) {
+            console.log(`👆 Doinker: Updated target "${doinkerTarget}" (${pos.source}) position to (${pos.x}, ${pos.y})`);
+          }
+          return pos;
+        } else if (prevPos) {
+          console.log(`👆 Doinker: Target "${doinkerTarget}" lost - no longer exists`);
+          return null;
         }
-      }
+        return prevPos;
+      });
     }, 500);
 
     return () => clearInterval(interval);
-  }, [doinkerTarget, visible]);
+  }, [doinkerTarget, visible, gridId]);
 
   // Don't render if not visible or no target found
   if (!visible || !targetPosition) {
