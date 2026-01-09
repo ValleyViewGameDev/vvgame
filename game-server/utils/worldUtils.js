@@ -307,6 +307,10 @@ function generateGridWithClumping(layout, tileDistribution) {
     // Shuffle the pool
     shuffleArray(regularPool);
 
+    // Shuffle eligible positions so tiles are distributed randomly across the grid
+    // (not biased toward first rows getting the same tiles)
+    shuffleArray(eligiblePositions);
+
     // Assign tiles to remaining positions
     eligiblePositions.forEach(({ row, col }, idx) => {
       // Cycle through pool if we have more positions than tiles

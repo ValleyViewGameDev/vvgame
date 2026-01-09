@@ -1067,6 +1067,10 @@ const handleEnemyDistributionChange = (enemyType, value) => {
      // Shuffle the pool
      regularPool = regularPool.sort(() => Math.random() - 0.5);
 
+     // Shuffle eligible positions so tiles are distributed randomly across the grid
+     // (not biased toward first rows getting the same tiles)
+     eligiblePositions = eligiblePositions.sort(() => Math.random() - 0.5);
+
      // Assign tiles to remaining positions
      eligiblePositions.forEach(({ x, y }, idx) => {
        // Cycle through pool if we have more positions than tiles
@@ -1079,8 +1083,6 @@ const handleEnemyDistributionChange = (enemyType, value) => {
  };
 
  const handleGenerateTilesBlanksOnly = () => {
-   if (!window.confirm("Generate tiles only on blank spaces?")) return;
-
    // Push current state to undo stack before generating
    pushToUndoStack();
 
@@ -1116,8 +1118,6 @@ const handleEnemyDistributionChange = (enemyType, value) => {
  };
 
  const handleGenerateTilesOverwriteAll = () => {
-   if (!window.confirm("Overwrite ALL tiles based on distribution?")) return;
-
    // Push current state to undo stack before overwriting
    pushToUndoStack();
 
@@ -1146,29 +1146,24 @@ const handleEnemyDistributionChange = (enemyType, value) => {
  };
 
 
- // 🔹 Generate Resources Function (Client)
- const handleGenerateResources = () => {
-   let choice = null;
-   if (window.confirm("Regenerate all resources (clear and repopulate)?")) {
-     choice = 'regenerate';
-   } else if (window.confirm("Add additional resources (keep existing)?")) {
-     choice = 'additional';
-   }
-   if (!choice) return;
-   
-   // Push current state to undo stack before generating resources
-   pushToUndoStack();
-   
-   console.log("🔄 Generating new resources...");
+ // 🔹 Generate Resources Functions (Client)
+ // Shared logic for resource generation
+ const generateResourcesOnGrid = (clearExisting) => {
   if (!grid || !availableResources || !masterResources) {
     console.warn("⚠️ Missing grid or resource data. Cannot generate resources.");
     return;
   }
-  let newGrid = grid.map(row => row.map(cell => ({ ...cell })));
-  if (choice.toLowerCase() === "regenerate") {
-    newGrid = newGrid.map(row => row.map(cell => ({ ...cell, resource: "" })));
-  }
-  
+
+  // Push current state to undo stack before generating resources
+  pushToUndoStack();
+
+  console.log(clearExisting ? "🔄 Regenerating all resources..." : "➕ Adding additional resources...");
+
+  // Either clear existing resources or keep them
+  let newGrid = clearExisting
+    ? grid.map(row => row.map(cell => ({ ...cell, resource: "" })))
+    : grid.map(row => row.map(cell => ({ ...cell })));
+
   // Build resource pool - but don't shuffle yet
   let resourcesByType = {};
   Object.entries(resourceDistribution).forEach(([type, count]) => {
@@ -1180,14 +1175,14 @@ const handleEnemyDistributionChange = (enemyType, value) => {
       };
     }
   });
-  
+
   const totalResources = Object.values(resourcesByType).reduce((sum, r) => sum + r.remaining, 0);
   if (totalResources === 0) {
     console.warn("⚠️ No valid resource distribution found.");
     return;
   }
-  
-  // Find all valid cells
+
+  // Find all valid cells (empty cells only)
   let validCells = [];
   newGrid.forEach((row, x) =>
     row.forEach((cell, y) => {
@@ -1197,48 +1192,58 @@ const handleEnemyDistributionChange = (enemyType, value) => {
       }
     })
   );
-  
+
   // Place resources using true random selection
   let resourcesPlaced = 0;
   const maxAttempts = totalResources * 3; // Prevent infinite loops
   let attempts = 0;
-  
+
   while (resourcesPlaced < totalResources && attempts < maxAttempts && validCells.length > 0) {
     attempts++;
-    
+
     // Pick a random valid cell
     const cellIndex = Math.floor(Math.random() * validCells.length);
     const cell = validCells[cellIndex];
-    
+
     // Pick a random resource type that still has remaining count
     const availableTypes = Object.entries(resourcesByType)
       .filter(([type, data]) => data.remaining > 0)
       .map(([type, data]) => ({ type, resource: data.resource }));
-    
+
     if (availableTypes.length === 0) break;
-    
+
     const randomTypeIndex = Math.floor(Math.random() * availableTypes.length);
     const selectedType = availableTypes[randomTypeIndex];
-    
+
     // Check if this resource can be placed on this tile type
     if (selectedType.resource[`validon${cell.tileType}`]) {
       newGrid[cell.x][cell.y].resource = selectedType.type;
       resourcesByType[selectedType.type].remaining--;
       resourcesPlaced++;
-      
+
       // Remove this cell from valid cells
       validCells.splice(cellIndex, 1);
     }
   }
-  
+
   setGrid(newGrid);
   console.log(`✅ Resources successfully generated! Placed ${resourcesPlaced} resources.`);
-  
+
   // Warn if we couldn't place all resources
   const unplacedCount = totalResources - resourcesPlaced;
   if (unplacedCount > 0) {
     console.warn(`⚠️ Could not place ${unplacedCount} resources due to tile type restrictions.`);
   }
+};
+
+// Clears existing resources and regenerates based on distribution
+const handleRegenerateResources = () => {
+  generateResourcesOnGrid(true);
+};
+
+// Adds additional resources while keeping existing ones
+const handleAddAdditionalResources = () => {
+  generateResourcesOnGrid(false);
 };
 
 // 🔹 Populate Random Enemies Function
@@ -1380,8 +1385,6 @@ const handleClearGrid = () => {
 
 // Delete all resources from the grid
 const handleDeleteAllResources = () => {
-  if (!window.confirm("Are you sure you want to delete all resources from the grid?")) return;
-
   // Push current state to undo stack before deleting all resources
   pushToUndoStack();
 
@@ -1416,14 +1419,12 @@ const handleDeleteSelectedTiles = () => {
   const selectedTypes = Object.entries(selectedTileTypes)
     .filter(([_, selected]) => selected)
     .map(([type, _]) => type);
-    
+
   if (selectedTypes.length === 0) {
     alert("Please select at least one tile type to delete.");
     return;
   }
-  
-  if (!window.confirm(`Are you sure you want to delete all tiles of types: ${selectedTypes.join(', ')}?`)) return;
-  
+
   // Push current state to undo stack before deleting selected tiles
   pushToUndoStack();
   
@@ -1580,6 +1581,311 @@ const loadFromRandomTemplate = () => {
   loadFromTemplate(randomLayout);
 };
 
+// Quick Generate - runs a full generation sequence in one click
+const handleQuickGenerate = () => {
+  if (!currentGridType) {
+    alert("Please load a grid first to determine its type.");
+    return;
+  }
+
+  // Get matching layouts for current grid type
+  const matchingLayouts = valleyGridLayouts.filter(layout => layout.valleyType === currentGridType);
+  if (matchingLayouts.length === 0) {
+    alert(`No layouts found for ${currentGridType} in randomValleyGridLayouts.json.`);
+    return;
+  }
+
+  console.log("🚀 Quick Generate: Starting sequence...");
+
+  // Push current state to undo stack once at the start (covers the whole operation)
+  pushToUndoStack();
+
+  // Step 1: Load random template distributions directly (not via state)
+  const randomLayout = matchingLayouts[Math.floor(Math.random() * matchingLayouts.length)];
+  console.log(`📋 Quick Generate Step 1: Loading random template "${randomLayout.layout}"`);
+
+  // Parse tile distribution from template
+  const tileKeys = ['g', 's', 'd', 'w', 'p', 'l', 'n', 'o', 'x', 'y', 'z', 'c', 'v', 'u'];
+  const defaultDistribution = { g: 100, s: 0, d: 0, w: 0, p: 0, l: 0, n: 0, o: 0, x: 0, y: 0, z: 0, c: 0, v: 0, u: 0 };
+  const newTileDistribution = { ...defaultDistribution };
+  let totalDefined = 0;
+  tileKeys.forEach(key => {
+    if (randomLayout[key] !== undefined) {
+      newTileDistribution[key] = randomLayout[key];
+      totalDefined += randomLayout[key];
+    }
+  });
+  if (totalDefined < 100) {
+    newTileDistribution.g = 100 - (totalDefined - (randomLayout.g || 0));
+  }
+
+  // Parse resource distribution from template
+  const newResourceDistribution = {};
+  availableResources.forEach(res => {
+    newResourceDistribution[res.type] = 0;
+  });
+  for (let i = 1; i <= 15; i++) {
+    const resourceKey = `r${i}`;
+    const qtyKey = `r${i}qty`;
+    if (randomLayout[resourceKey] && randomLayout[qtyKey] !== undefined) {
+      const resourceType = randomLayout[resourceKey];
+      const quantity = randomLayout[qtyKey];
+      if (newResourceDistribution.hasOwnProperty(resourceType)) {
+        newResourceDistribution[resourceType] = quantity;
+      }
+    }
+  }
+
+  // Parse enemy distribution from template
+  const newEnemyDistribution = {};
+  enemyNpcs.forEach(npc => {
+    newEnemyDistribution[npc.type] = 0;
+  });
+  for (let i = 1; i <= 10; i++) {
+    const enemyKey = `e${i}`;
+    const qtyKey = `e${i}qty`;
+    if (randomLayout[enemyKey] && randomLayout[qtyKey] !== undefined) {
+      const enemyType = randomLayout[enemyKey];
+      const quantity = randomLayout[qtyKey];
+      if (newEnemyDistribution.hasOwnProperty(enemyType)) {
+        newEnemyDistribution[enemyType] = quantity;
+      }
+    }
+  }
+
+  // Step 2: Delete selected tiles (all except water 'w' and pavement 'p')
+  console.log("🗑️ Quick Generate Step 2: Deleting tiles (keeping water and pavement)");
+  const typeMapping = {
+    'g': 'GR', 's': 'SL', 'd': 'DI', 'w': 'WA', 'p': 'PA', 'l': 'LV',
+    'n': 'SA', 'o': 'SN', 'x': 'CB', 'y': 'DU', 'z': 'ZZ', 'c': 'CY', 'v': 'VV', 'u': 'UU'
+  };
+  // Delete all tile types except water and pavement
+  const tilesToDelete = ['g', 's', 'd', 'l', 'n', 'o', 'x', 'y', 'z', 'c', 'v', 'u'];
+  const layoutKeysToDelete = tilesToDelete.map(type => typeMapping[type]);
+
+  let newGrid = grid.map(row =>
+    row.map(cell => {
+      // Delete tile if it's in our delete list
+      if (layoutKeysToDelete.includes(cell.type)) {
+        return { ...cell, type: "" };
+      }
+      return { ...cell };
+    })
+  );
+
+  // Step 3: Delete all resources
+  console.log("🗑️ Quick Generate Step 3: Deleting all resources");
+  newGrid = newGrid.map(row =>
+    row.map(cell => ({ ...cell, resource: "" }))
+  );
+
+  // Step 4: Generate tiles based on distribution (fill blank tiles only)
+  console.log("🎲 Quick Generate Step 4: Generating tiles");
+  let eligiblePositions = [];
+  newGrid.forEach((row, x) => {
+    row.forEach((cell, y) => {
+      if (!cell.type || cell.type === "**" || cell.type === "") {
+        eligiblePositions.push({ x, y });
+      }
+    });
+  });
+
+  if (eligiblePositions.length > 0) {
+    const totalEligible = eligiblePositions.length;
+
+    // Build tile counts based on distribution
+    const tileCounts = {};
+    for (const [tileType, percentage] of Object.entries(newTileDistribution)) {
+      if (percentage > 0) {
+        const tileResource = masterResources.find(res => res.type === tileType && res.category === "tile");
+        if (tileResource) {
+          const count = Math.round((percentage / 100) * totalEligible);
+          if (count > 0) {
+            tileCounts[tileType] = {
+              layoutkey: tileResource.layoutkey,
+              count: count,
+              isDeposit: tileResource.source === 'deposit'
+            };
+          }
+        }
+      }
+    }
+
+    // Generate clumps for deposit tiles first
+    const depositTiles = Object.entries(tileCounts).filter(([_, data]) => data.isDeposit);
+    for (const [tileType, data] of depositTiles) {
+      if (data.count <= 0 || eligiblePositions.length === 0) continue;
+
+      // Simple clump generation for quick generate
+      const clumpSizes = [];
+      let remaining = data.count;
+      while (remaining > 0) {
+        const variation = Math.floor(Math.random() * (clumpVariation * 2 + 1)) - clumpVariation;
+        const baseSize = Math.max(minClumpSize, clumpSize + variation);
+        const size = Math.min(remaining, baseSize);
+        clumpSizes.push(size);
+        remaining -= size;
+      }
+
+      for (const targetClumpSize of clumpSizes) {
+        if (eligiblePositions.length === 0) break;
+        const startIdx = Math.floor(Math.random() * eligiblePositions.length);
+        const startPos = eligiblePositions[startIdx];
+        const clumpTiles = [startPos];
+        eligiblePositions.splice(startIdx, 1);
+        const clumpSet = new Set([`${startPos.x},${startPos.y}`]);
+
+        while (clumpTiles.length < targetClumpSize && eligiblePositions.length > 0) {
+          const validNeighbors = [];
+          for (const tile of clumpTiles) {
+            const adjacents = [
+              { x: tile.x - 1, y: tile.y }, { x: tile.x + 1, y: tile.y },
+              { x: tile.x, y: tile.y - 1 }, { x: tile.x, y: tile.y + 1 },
+              { x: tile.x - 1, y: tile.y - 1 }, { x: tile.x - 1, y: tile.y + 1 },
+              { x: tile.x + 1, y: tile.y - 1 }, { x: tile.x + 1, y: tile.y + 1 }
+            ];
+            for (const adj of adjacents) {
+              const key = `${adj.x},${adj.y}`;
+              if (clumpSet.has(key)) continue;
+              const eligibleIdx = eligiblePositions.findIndex(p => p.x === adj.x && p.y === adj.y);
+              if (eligibleIdx !== -1 && !validNeighbors.some(n => n.x === adj.x && n.y === adj.y)) {
+                validNeighbors.push({ x: adj.x, y: adj.y, eligibleIdx });
+              }
+            }
+          }
+          if (validNeighbors.length === 0) break;
+          const chosen = validNeighbors[Math.floor(Math.random() * validNeighbors.length)];
+          clumpTiles.push({ x: chosen.x, y: chosen.y });
+          clumpSet.add(`${chosen.x},${chosen.y}`);
+          const currentIdx = eligiblePositions.findIndex(p => p.x === chosen.x && p.y === chosen.y);
+          if (currentIdx !== -1) eligiblePositions.splice(currentIdx, 1);
+        }
+
+        for (const tile of clumpTiles) {
+          newGrid[tile.x][tile.y].type = data.layoutkey;
+        }
+      }
+    }
+
+    // Generate regular tiles randomly
+    const regularTiles = Object.entries(tileCounts).filter(([_, data]) => !data.isDeposit);
+    if (regularTiles.length > 0 && eligiblePositions.length > 0) {
+      let regularPool = [];
+      for (const [tileType, data] of regularTiles) {
+        for (let i = 0; i < data.count; i++) {
+          regularPool.push(data.layoutkey);
+        }
+      }
+      regularPool = regularPool.sort(() => Math.random() - 0.5);
+      eligiblePositions = eligiblePositions.sort(() => Math.random() - 0.5);
+      eligiblePositions.forEach(({ x, y }, idx) => {
+        const tileIdx = idx % regularPool.length;
+        newGrid[x][y].type = regularPool[tileIdx] || 'GR';
+      });
+    }
+  }
+
+  // Step 5: Generate resources
+  console.log("🌲 Quick Generate Step 5: Generating resources");
+  const totalResources = Object.values(newResourceDistribution).reduce((sum, count) => sum + count, 0);
+  if (totalResources > 0) {
+    let resourcesByType = {};
+    Object.entries(newResourceDistribution).forEach(([type, count]) => {
+      const res = masterResources.find(r => r.type === type);
+      if (res && count > 0) {
+        resourcesByType[type] = { resource: res, remaining: parseInt(count) };
+      }
+    });
+
+    let validCells = [];
+    newGrid.forEach((row, x) =>
+      row.forEach((cell, y) => {
+        if (!cell.resource) {
+          const tileRes = masterResources.find(r => r.layoutkey === cell.type && r.category === "tile");
+          if (tileRes) validCells.push({ x, y, tileType: tileRes.type });
+        }
+      })
+    );
+
+    let resourcesPlaced = 0;
+    const maxAttempts = totalResources * 3;
+    let attempts = 0;
+
+    while (resourcesPlaced < totalResources && attempts < maxAttempts && validCells.length > 0) {
+      attempts++;
+      const cellIndex = Math.floor(Math.random() * validCells.length);
+      const cell = validCells[cellIndex];
+      const availableTypes = Object.entries(resourcesByType)
+        .filter(([type, data]) => data.remaining > 0)
+        .map(([type, data]) => ({ type, resource: data.resource }));
+      if (availableTypes.length === 0) break;
+      const randomTypeIndex = Math.floor(Math.random() * availableTypes.length);
+      const selectedType = availableTypes[randomTypeIndex];
+      if (selectedType.resource[`validon${cell.tileType}`]) {
+        newGrid[cell.x][cell.y].resource = selectedType.type;
+        resourcesByType[selectedType.type].remaining--;
+        resourcesPlaced++;
+        validCells.splice(cellIndex, 1);
+      }
+    }
+    console.log(`   ✅ Placed ${resourcesPlaced} resources`);
+  }
+
+  // Step 6: Populate enemies
+  console.log("👹 Quick Generate Step 6: Populating enemies");
+  const totalEnemies = Object.values(newEnemyDistribution).reduce((sum, count) => sum + count, 0);
+  if (totalEnemies > 0) {
+    let enemyPool = [];
+    Object.entries(newEnemyDistribution).forEach(([type, count]) => {
+      const enemy = masterResources.find(r => r.type === type && r.category === 'npc' && (r.action === 'attack' || r.action === 'spawn'));
+      if (enemy && count > 0) {
+        for (let i = 0; i < count; i++) {
+          enemyPool.push(enemy);
+        }
+      }
+    });
+
+    if (enemyPool.length > 0) {
+      let validCells = [];
+      newGrid.forEach((row, x) => {
+        row.forEach((cell, y) => {
+          if (!cell.resource) {
+            const tileResource = masterResources.find(r => r.layoutkey === cell.type && r.category === 'tile');
+            if (tileResource) {
+              validCells.push({ x, y, tileType: tileResource.type });
+            }
+          }
+        });
+      });
+
+      enemyPool = enemyPool.sort(() => Math.random() - 0.5);
+      let placedCount = 0;
+      for (const enemy of enemyPool) {
+        const shuffledCells = [...validCells].sort(() => Math.random() - 0.5);
+        for (const cell of shuffledCells) {
+          const validOnProperty = `validon${cell.tileType}`;
+          if (enemy[validOnProperty]) {
+            newGrid[cell.x][cell.y].resource = enemy.type;
+            validCells = validCells.filter(c => !(c.x === cell.x && c.y === cell.y));
+            placedCount++;
+            break;
+          }
+        }
+        if (validCells.length === 0) break;
+      }
+      console.log(`   ✅ Placed ${placedCount} enemies`);
+    }
+  }
+
+  // Apply all changes at once
+  setGrid(newGrid);
+  setTileDistribution(newTileDistribution);
+  setResourceDistribution(newResourceDistribution);
+  setEnemyDistribution(newEnemyDistribution);
+
+  console.log("✅ Quick Generate: Complete!");
+};
+
 // --- Expose loadLayout globally for external triggering ---
 if (typeof window !== "undefined") {
   window.gridEditorAPI = {
@@ -1597,16 +1903,26 @@ if (typeof window !== "undefined") {
       <div className="editor-panel"> 
         <h2>Grid Editor</h2>
         
-        <div className="shared-buttons" style={{ display: 'flex', gap: '8px', marginTop: '4px', marginBottom: '4px' }}>
-          <button className="btn-basic btn-mini btn-danger" onClick={handleClearGrid}>Clear Grid</button>
+        <div className="shared-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '4px', marginBottom: '4px' }}>
           <button
-            className="btn-basic btn-mini"
-            onClick={handleUndo}
-            disabled={undoStack.length === 0}
-            title={`Undo (Ctrl+Z) - ${undoStack.length > 0 ? `${undoStack.length} actions available` : 'No actions to undo'}`}
+            className="btn-basic btn-mini btn-gold"
+            onClick={handleQuickGenerate}
+            disabled={!currentGridType}
+            title="Load random template, delete tiles (keep water/pavement), generate tiles, resources, and enemies"
           >
-            Undo
+            Quick Generate (Random Template)
           </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button className="btn-basic btn-mini btn-danger" onClick={handleClearGrid}>Clear Grid</button>
+            <button
+              className="btn-basic btn-mini"
+              onClick={handleUndo}
+              disabled={undoStack.length === 0}
+              title={`Undo (Ctrl+Z) - ${undoStack.length > 0 ? `${undoStack.length} actions available` : 'No actions to undo'}`}
+            >
+              Undo
+            </button>
+          </div>
         </div>
 
         {/* File Management Container */}
@@ -1899,9 +2215,10 @@ if (typeof window !== "undefined") {
         <h3>RESOURCES:</h3>
 
         <div className="shared-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '6px' }}>
-          <button className="btn-basic btn-mini btn-danger" onClick={handleDeleteAllResources}>Delete All Resources (removes all resources but keeps tile types)</button>
+          <button className="btn-basic btn-mini btn-danger" onClick={handleDeleteAllResources}>Delete All Resources</button>
           <button className="btn-basic btn-mini btn-danger" onClick={handleDeleteTulipsAndMushrooms}>Delete Tulips and Mushrooms</button>
-          <button className="btn-basic btn-mini" onClick={handleGenerateResources}>Generate Resources (places resources randomly on valid tiles based on set quantities)</button>
+          <button className="btn-basic btn-mini" onClick={handleRegenerateResources}>Regenerate Resources (clear and repopulate)</button>
+          <button className="btn-basic btn-mini" onClick={handleAddAdditionalResources}>Add Additional Resources (keep existing)</button>
         </div>
 
         {availableResources.map(resource => (
