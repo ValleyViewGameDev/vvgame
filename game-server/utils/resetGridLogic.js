@@ -183,12 +183,17 @@ async function performGridReset(gridId, gridType, gridCoord) {
 
   // For town and homestead grids, apply seasonal crops from seasons.json
   let resourceDistribution = layout.resourceDistribution || {};
+  console.log(`🔍 [RESOURCE DEBUG] gridType=${gridType}, seasonType=${seasonType}`);
+  console.log(`🔍 [RESOURCE DEBUG] layout.resourceDistribution keys: ${Object.keys(layout.resourceDistribution || {}).length}`);
+
   if (gridType === 'town' || gridType === 'homestead') {
     const seasonData = seasonsConfig.find(s => s.seasonType === seasonType);
+    console.log(`🔍 [RESOURCE DEBUG] seasonData found: ${!!seasonData}`);
     if (seasonData) {
       if (gridType === 'town' && seasonData.seasonTownCrops) {
         resourceDistribution = seasonData.seasonTownCrops;
         console.log(`🌻 Applying seasonTownCrops for ${seasonType} town: ${Object.keys(resourceDistribution).length} resource types`);
+        console.log(`🔍 [RESOURCE DEBUG] seasonTownCrops resources: ${Object.keys(resourceDistribution).join(', ')}`);
       } else if (gridType === 'homestead' && seasonData.seasonHomesteadCrops) {
         resourceDistribution = seasonData.seasonHomesteadCrops;
         console.log(`🏡 Applying seasonHomesteadCrops for ${seasonType} homestead: ${Object.keys(resourceDistribution).length} resource types`);
