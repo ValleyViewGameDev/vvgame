@@ -195,7 +195,8 @@ const NPCPanel = ({
             index: offer.index, // Keep track of which offer this is
             repeat: offer.repeat, // Store the repeat flag from trader offer
             level: resourceDef?.level, // Level requirement from resource definition
-            requires: resourceDef?.requires // Skill requirement from resource definition
+            requires: resourceDef?.requires, // Skill requirement from resource definition
+            xp: offer.xp // XP reward for this specific trade (from traders.json)
           };
 
           // Collect all requires fields into ingredient format
@@ -724,9 +725,9 @@ const handleHeal = async (recipe) => {
       // Don't fail the trade if trophy awarding fails
     }
 
-    // Award XP for trading with NPC
+    // Award XP for trading with NPC (use trade-specific XP if available, else fall back to NPC's XP)
     const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
-    const xpToAward = npcResourceForXP?.xp || 1;
+    const xpToAward = recipe.xp ?? npcResourceForXP?.xp ?? 1;
     try {
       const xpResponse = await axios.post(`${API_BASE}/api/addXP`, {
         playerId: currentPlayer.playerId,
@@ -1473,9 +1474,9 @@ const handleHeal = async (recipe) => {
                     formattedCosts = ingredientsList.join('');
                   }
 
-                  // Get XP for this NPC
+                  // Get XP for this trade (use trade-specific XP if available, else fall back to NPC's XP)
                   const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
-                  const xpToAward = npcResourceForXP?.xp || 1;
+                  const xpToAward = recipe.xp ?? npcResourceForXP?.xp ?? 1;
 
                   const levelColor = meetsLevel ? 'green' : 'red';
                   const details =
