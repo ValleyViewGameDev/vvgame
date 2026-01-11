@@ -55,14 +55,14 @@ function getLineOfSightTiles(start, end) {
 
 /** Helper to check if a position falls within a wall's footprint **/
 function isWithinWallFootprint(x, y, wall) {
-    const range = wall.range || 1;
-    // For walls with range > 1, check if (x, y) falls within the footprint
+    const tileSpan = wall.size || 1;
+    // For walls with size > 1, check if (x, y) falls within the footprint
     // Wall footprint extends from anchor (wall.x, wall.y) down and right
     return (
         x >= wall.x &&
-        x < wall.x + range &&
+        x < wall.x + tileSpan &&
         y >= wall.y &&
-        y < wall.y + range
+        y < wall.y + tileSpan
     );
 }
 

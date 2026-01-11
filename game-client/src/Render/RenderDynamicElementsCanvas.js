@@ -118,7 +118,7 @@ export const RenderDynamicElementsCanvas = ({
       
       const x = resource.x * TILE_SIZE;
       const y = resource.y * TILE_SIZE;
-      const size = TILE_SIZE * (resource.range || 1);
+      const size = TILE_SIZE * (resource.size || 1);
       
       // Position overlay in lower-left corner of the resource
       // Scale overlay more appropriately for different zoom levels
@@ -339,10 +339,10 @@ export const RenderDynamicElementsCanvas = ({
     // Check for any resource at this position (including doobers for cursor)
     const anyResource = resources?.find(r => {
       if (r.type === 'shadow') return false;
-      const range = r.range || 1;
+      const tileSpan = r.size || 1;
       // Multi-tile resources grow upward from anchor
-      return colIndex >= r.x && colIndex < r.x + range &&
-             rowIndex <= r.y && rowIndex > r.y - range;
+      return colIndex >= r.x && colIndex < r.x + tileSpan &&
+             rowIndex <= r.y && rowIndex > r.y - tileSpan;
     });
     
     // Check for tooltip-eligible resource (excluding doobers and sources)

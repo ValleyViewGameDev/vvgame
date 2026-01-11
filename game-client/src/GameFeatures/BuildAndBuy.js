@@ -79,17 +79,17 @@ export const handleConstruction = async ({
 
   const selectedResource = buildOptions.find((item) => item.type === selectedItem);
 
-  // Check if this is a multi-tile resource
-  const resourceRange = selectedResource.range || 1;
-  console.log(`🏗️ Building ${selectedItem} with range ${resourceRange}`);
+  // Check if this is a multi-tile resource (size is tile footprint)
+  const resourceSize = selectedResource.size || 1;
+  console.log(`🏗️ Building ${selectedItem} with size ${resourceSize}`);
 
   // Skip tile occupation check for NPCs since they don't occupy grid tiles
   if (selectedResource.category !== 'npc') {
     // For multi-tile resources, check all required tiles
     // Using player position as lower-left anchor
     const tilesToCheck = [];
-    for (let dx = 0; dx < resourceRange; dx++) {
-      for (let dy = 0; dy < resourceRange; dy++) {
+    for (let dx = 0; dx < resourceSize; dx++) {
+      for (let dy = 0; dy < resourceSize; dy++) {
         tilesToCheck.push({ x: x + dx, y: y - dy });
       }
     }
@@ -160,26 +160,26 @@ export const handleConstruction = async ({
 
     const rawResource = { type: selectedItem, x, y };
     const enriched = enrichResourceFromMaster(rawResource, buildOptions); // buildOptions contains masterResources
-    
-    // Ensure range is included for multi-tile resources
-    if (resourceRange > 1) {
-      enriched.range = resourceRange;
+
+    // Ensure size is included for multi-tile resources
+    if (resourceSize > 1) {
+      enriched.size = resourceSize;
       enriched.anchorKey = `${selectedItem}_${x}_${y}`;
     }
-    
+
     let finalResources = [...resources, enriched];
 
     console.log('📦 Preparing resource update with:', enriched);
-    
+
     try {
       // Create shadow placeholders for multi-tile objects in LOCAL STATE ONLY
-      if (resourceRange > 1) {
-        
-        for (let dx = 0; dx < resourceRange; dx++) {
-          for (let dy = 0; dy < resourceRange; dy++) {
+      if (resourceSize > 1) {
+
+        for (let dx = 0; dx < resourceSize; dx++) {
+          for (let dy = 0; dy < resourceSize; dy++) {
             // Skip the anchor tile (0,0)
             if (dx === 0 && dy === 0) continue;
-            
+
             const shadowX = x + dx;
             const shadowY = y - dy;
             const shadowResource = {
@@ -190,8 +190,8 @@ export const handleConstruction = async ({
               passable: enriched.passable // Inherit passable property from parent
               // No symbol - renders as empty/invisible
             };
-            
-            
+
+
             // Add shadow to final resources array (LOCAL STATE ONLY - NOT SAVED TO DB)
             finalResources.push(shadowResource);
           }

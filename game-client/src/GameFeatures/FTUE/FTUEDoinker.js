@@ -41,7 +41,7 @@ const FTUEDoinker = ({ doinkerTargets, TILE_SIZE, visible, gridId }) => {
             foundPositions.push({
               x: targetResource.x,
               y: targetResource.y,
-              range: targetResource.range || 1,
+              size: targetResource.size || 1,
               source: 'resource',
               targetName
             });
@@ -59,7 +59,7 @@ const FTUEDoinker = ({ doinkerTargets, TILE_SIZE, visible, gridId }) => {
               foundPositions.push({
                 x: targetNPC.position.x,
                 y: targetNPC.position.y,
-                range: 1,
+                size: 1,
                 source: 'npc',
                 targetName
               });
@@ -124,7 +124,7 @@ const FTUEDoinker = ({ doinkerTargets, TILE_SIZE, visible, gridId }) => {
       {targetPositions.map((targetPosition, index) => {
         // Calculate pixel position
         // Center the doinker on the target tile (or center of multi-tile resource)
-        const centerOffset = (targetPosition.range - 1) / 2;
+        const centerOffset = (targetPosition.size - 1) / 2;
         const pixelX = (targetPosition.x + centerOffset + 0.5) * TILE_SIZE;
         const pixelY = (targetPosition.y - centerOffset + 0.5) * TILE_SIZE;
 

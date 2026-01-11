@@ -59,16 +59,16 @@ export const initializeGrid = async (
       processedResources.push(resource);
       
       
-      // If this is a multi-tile resource (has range > 1), create shadow tiles
+      // If this is a multi-tile resource (has size > 1), create shadow tiles
       // Note: Resources from server might not have anchorKey, so we generate one if needed
-      if (resource.range && resource.range > 1) {
+      if (resource.size && resource.size > 1) {
         const anchorKey = resource.anchorKey || `${resource.type}-${resource.x}-${resource.y}`;
-        
-        for (let dx = 0; dx < resource.range; dx++) {
-          for (let dy = 0; dy < resource.range; dy++) {
+
+        for (let dx = 0; dx < resource.size; dx++) {
+          for (let dy = 0; dy < resource.size; dy++) {
             // Skip the anchor tile (0,0)
             if (dx === 0 && dy === 0) continue;
-            
+
             const shadowX = resource.x + dx;
             const shadowY = resource.y - dy;
             const shadowResource = {
@@ -78,7 +78,7 @@ export const initializeGrid = async (
               parentAnchorKey: anchorKey,
               passable: resource.passable
             };
-            
+
             processedResources.push(shadowResource);
           }
         }

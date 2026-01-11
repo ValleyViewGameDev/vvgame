@@ -61,7 +61,7 @@ const BuildPanel = ({
       type: 'build',
       item: item.type,
       emoji: item.symbol || '🏗️',
-      range: item.range || 1,
+      size: item.size || 1,
       buildOptions: buildOptions,
     });
   };

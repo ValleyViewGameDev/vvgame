@@ -279,7 +279,7 @@ const handlePurchase = async (resourceType, customRecipe = null) => {
           if (res.x === currentStationPosition.x && res.y === currentStationPosition.y) return false;
 
           // Remove any shadows belonging to this station
-          if (soldResource && soldResource.range && soldResource.range > 1 && res.type === 'shadow') {
+          if (soldResource && soldResource.size && soldResource.size > 1 && res.type === 'shadow') {
             const anchorKey = soldResource.anchorKey || `${soldResource.type}-${soldResource.x}-${soldResource.y}`;
             if (res.parentAnchorKey === anchorKey) {
               return false;

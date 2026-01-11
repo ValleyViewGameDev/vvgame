@@ -44,10 +44,10 @@ export async function handleProtectedSelling({
       return true;
     }
     // Check if this position is covered by a multi-tile resource
-    const range = res.range || 1;
-    if (range > 1) {
-      return currentStationPosition.x >= res.x && currentStationPosition.x < res.x + range &&
-             currentStationPosition.y <= res.y && currentStationPosition.y > res.y - range;
+    const tileSpan = res.size || 1;
+    if (tileSpan > 1) {
+      return currentStationPosition.x >= res.x && currentStationPosition.x < res.x + tileSpan &&
+             currentStationPosition.y <= res.y && currentStationPosition.y > res.y - tileSpan;
     }
     return false;
   });
@@ -99,7 +99,7 @@ export async function handleProtectedSelling({
           if (res.x === currentStationPosition.x && res.y === currentStationPosition.y) return false;
           
           // Remove any shadows belonging to this station
-          if (soldResource && soldResource.range && soldResource.range > 1 && res.type === 'shadow') {
+          if (soldResource && soldResource.size && soldResource.size > 1 && res.type === 'shadow') {
             // Generate the anchorKey the same way we do when creating shadows
             const anchorKey = soldResource.anchorKey || `${soldResource.type}-${soldResource.x}-${soldResource.y}`;
             if (res.parentAnchorKey === anchorKey) {

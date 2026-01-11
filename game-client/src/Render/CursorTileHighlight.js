@@ -45,13 +45,13 @@ const CursorTileHighlight = ({
     // Validate tile position
     if (row < 0 || row >= gridHeight || col < 0 || col >= gridWidth) return;
 
-    // Get range from cursorMode (multi-tile resources have range > 1)
-    const range = cursorMode.range || 1;
+    // Get size from cursorMode (multi-tile resources have size > 1)
+    const tileSpan = cursorMode.size || 1;
 
     // Draw highlight for all tiles that will be occupied
     // Multi-tile resources expand right (+col) and up (-row) from the anchor
-    for (let dx = 0; dx < range; dx++) {
-      for (let dy = 0; dy < range; dy++) {
+    for (let dx = 0; dx < tileSpan; dx++) {
+      for (let dy = 0; dy < tileSpan; dy++) {
         const tileCol = col + dx;
         const tileRow = row - dy;
 

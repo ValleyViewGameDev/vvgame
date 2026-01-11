@@ -623,7 +623,7 @@ export async function handleSourceConversion(
         if (res.x === col && res.y === row) return false;
         
         // Remove any shadows belonging to this resource if it was multi-tile
-        if (originalResource && originalResource.range && originalResource.range > 1 && res.type === 'shadow') {
+        if (originalResource && originalResource.size && originalResource.size > 1 && res.type === 'shadow') {
           const anchorKey = originalResource.anchorKey || `${originalResource.type}-${originalResource.x}-${originalResource.y}`;
           if (res.parentAnchorKey === anchorKey) {
             return false;
@@ -632,7 +632,7 @@ export async function handleSourceConversion(
         return true;
       }
     );
-    
+
     // Update both global and local state with the same filtered array - exactly like ProtectedSelling does
     GlobalGridStateTilesAndResources.setResources(filteredResources);
     setResources(filteredResources);
@@ -640,8 +640,8 @@ export async function handleSourceConversion(
     // Perform server update to remove the main resource
     try {
       const gridUpdateResponse = await updateGridResource(
-        gridId, 
-        { type: null, x: col, y: row }, 
+        gridId,
+        { type: null, x: col, y: row },
         true
       );
       if (gridUpdateResponse?.success) {
@@ -674,15 +674,15 @@ export async function handleSourceConversion(
     const originalResource = GlobalGridStateTilesAndResources.getResources().find(
       r => r.x === col && r.y === row
     );
-    
+
     // Filter out the main resource AND any shadows, then add the new resource
     const filteredResources = GlobalGridStateTilesAndResources.getResources().filter(
       (res) => {
         // Remove the main resource
         if (res.x === col && res.y === row) return false;
-        
+
         // Remove any shadows belonging to this resource if it was multi-tile
-        if (originalResource && originalResource.range && originalResource.range > 1 && res.type === 'shadow') {
+        if (originalResource && originalResource.size && originalResource.size > 1 && res.type === 'shadow') {
           const anchorKey = originalResource.anchorKey || `${originalResource.type}-${originalResource.x}-${originalResource.y}`;
           if (res.parentAnchorKey === anchorKey) {
             return false;

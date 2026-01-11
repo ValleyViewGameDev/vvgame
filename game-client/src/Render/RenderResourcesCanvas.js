@@ -135,13 +135,14 @@ export const RenderResourcesCanvas = ({
   const renderSingleResource = async (ctx, resource, TILE_SIZE, masterResources) => {
     const x = resource.x * TILE_SIZE;
     const y = resource.y * TILE_SIZE;
-    const range = resource.range || 1;
-    const size = TILE_SIZE * range;
+    // Use size for visual rendering (size is tile footprint, range is for NPC behavior)
+    const tileSpan = resource.size || 1;
+    const size = TILE_SIZE * tileSpan;
 
     // Multi-tile resources grow UPWARD from anchor (anchor is bottom-left of visual area)
-    // For range > 1, we need to shift the visual up so it occupies the correct tiles
-    // Visual should span from (resource.y - range + 1) to resource.y in tile coordinates
-    const visualY = (range > 1) ? y - (range - 1) * TILE_SIZE : y;
+    // For tileSpan > 1, we need to shift the visual up so it occupies the correct tiles
+    // Visual should span from (resource.y - tileSpan + 1) to resource.y in tile coordinates
+    const visualY = (tileSpan > 1) ? y - (tileSpan - 1) * TILE_SIZE : y;
 
     // Check if resource has custom SVG art from masterResources
     const filename = getResourceFilename(resource.type, masterResources);
@@ -153,9 +154,9 @@ export const RenderResourcesCanvas = ({
       if (texture) {
         console.log(`✅ [SVG DEBUG] Successfully loaded SVG texture for ${resource.type}: ${filename}`);
 
-        if (range > 1) {
-          console.log(`🗻 [MULTI-TILE DEBUG] Rendering ${resource.type} (range ${range}) at anchor (${resource.x}, ${resource.y}) -> visual position (${x}, ${visualY}) size ${size}x${size}`);
-          console.log(`    Logical blocking tiles: (${resource.x}, ${resource.y - range + 1}) to (${resource.x + range - 1}, ${resource.y})`);
+        if (tileSpan > 1) {
+          console.log(`🗻 [MULTI-TILE DEBUG] Rendering ${resource.type} (size ${tileSpan}) at anchor (${resource.x}, ${resource.y}) -> visual position (${x}, ${visualY}) size ${size}x${size}`);
+          console.log(`    Logical blocking tiles: (${resource.x}, ${resource.y - tileSpan + 1}) to (${resource.x + tileSpan - 1}, ${resource.y})`);
           console.log(`    Visual rendering tiles: (${Math.floor(x/TILE_SIZE)}, ${Math.floor(visualY/TILE_SIZE)}) to (${Math.floor((x+size)/TILE_SIZE)-1}, ${Math.floor((visualY+size)/TILE_SIZE)-1})`);
         }
 
@@ -163,31 +164,31 @@ export const RenderResourcesCanvas = ({
       } else {
         console.warn(`❌ [SVG DEBUG] Failed to load SVG for ${resource.type}: ${filename}`);
         // Fall back to emoji if SVG fails to load
-        renderResourceEmoji(ctx, resource, x, visualY, TILE_SIZE, range);
+        renderResourceEmoji(ctx, resource, x, visualY, TILE_SIZE, tileSpan);
       }
     } else if (resource.symbol) {
       // Render emoji symbol
-      renderResourceEmoji(ctx, resource, x, visualY, TILE_SIZE, range);
+      renderResourceEmoji(ctx, resource, x, visualY, TILE_SIZE, tileSpan);
     }
   };
-  
+
   // Helper function to render emoji resources
   // Note: y parameter is already the corrected visualY (top of visual area for multi-tile resources)
-  const renderResourceEmoji = (ctx, resource, x, y, TILE_SIZE, range) => {
+  const renderResourceEmoji = (ctx, resource, x, y, TILE_SIZE, tileSpan) => {
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
-    // Calculate font size based on resource type and range
+    // Calculate font size based on resource type and size
     let fontSize;
-    if (range > 1) {
+    if (tileSpan > 1) {
       if (resource.action === 'wall') {
-        fontSize = TILE_SIZE * 1.2 * range;  // Multi-tile walls
+        fontSize = TILE_SIZE * 1.2 * tileSpan;  // Multi-tile walls
       } else {
         // Scale emoji font size more aggressively for larger multi-tile resources
         // to better fill the visual space
-        const baseScale = range <= 2 ? 0.8 : (range === 3 ? 1.0 : 1.2);
-        fontSize = TILE_SIZE * baseScale * range;
+        const baseScale = tileSpan <= 2 ? 0.8 : (tileSpan === 3 ? 1.0 : 1.2);
+        fontSize = TILE_SIZE * baseScale * tileSpan;
       }
     } else {
       fontSize = resource.action === 'wall'
@@ -198,7 +199,7 @@ export const RenderResourcesCanvas = ({
     ctx.font = `${fontSize}px sans-serif`;
 
     // Position text at center of resource visual area
-    const size = TILE_SIZE * range;
+    const size = TILE_SIZE * tileSpan;
     const centerX = x + size / 2;
     const centerY = y + size / 2;
 
@@ -226,7 +227,7 @@ export const RenderResourcesCanvas = ({
     if (overlayType && OVERLAY_SVG_MAPPING[overlayType]) {
       const x = resource.x * TILE_SIZE;
       const y = resource.y * TILE_SIZE;
-      const size = TILE_SIZE * (resource.range || 1);
+      const size = TILE_SIZE * (resource.size || 1);
       
       // Position overlay in lower-left corner of the resource's primary tile
       // Scale overlay more appropriately for different zoom levels
@@ -268,7 +269,7 @@ export const RenderResourcesCanvas = ({
         y: r.y,
         type: r.type,
         symbol: r.symbol,
-        range: r.range
+        size: r.size
       })),
       TILE_SIZE,
       craftingReady: craftingStatus?.ready,

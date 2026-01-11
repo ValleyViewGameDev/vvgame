@@ -17,12 +17,12 @@ export const RenderResourcesDOM = ({
     <>
       {/* Only create DOM elements for actual resources */}
       {resources.map((resource) => {
-        const range = resource.range || 1;
-        
+        const tileSpan = resource.size || 1;
+
         // For multi-tile resources, create clickable tiles for the entire area
         const tiles = [];
-        for (let dy = 0; dy < range; dy++) {
-          for (let dx = 0; dx < range; dx++) {
+        for (let dy = 0; dy < tileSpan; dy++) {
+          for (let dx = 0; dx < tileSpan; dx++) {
             const tileX = resource.x + dx;
             const tileY = resource.y - dy; // Subtract because resources grow upward
             

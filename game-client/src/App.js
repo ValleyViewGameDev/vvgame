@@ -498,11 +498,11 @@ useEffect(() => {
 // Apply emoji cursor when in cursor mode
 useEffect(() => {
   if (cursorMode?.emoji) {
-    // Scale cursor based on resource range (multi-tile resources get larger cursors)
-    const range = cursorMode.range || 1;
+    // Scale cursor based on resource size (multi-tile resources get larger cursors)
+    const tileSpan = cursorMode.size || 1;
     const baseSize = 32;
-    const canvasSize = baseSize * range;
-    const fontSize = 24 * range;
+    const canvasSize = baseSize * tileSpan;
+    const fontSize = 24 * tileSpan;
     const center = canvasSize / 2;
 
     // Create a canvas to render the emoji as a cursor image
@@ -2012,11 +2012,11 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
 
   // Find resource including multi-tile resources
   const resource = resources.find((res) => {
-    const range = res.range || 1;
-    // Check if the clicked tile falls within the resource's range
+    const tileSpan = res.size || 1;
+    // Check if the clicked tile falls within the resource's size
     // Resource is anchored at lower-left (res.x, res.y)
-    return colIndex >= res.x && colIndex < res.x + range &&
-           rowIndex <= res.y && rowIndex > res.y - range;
+    return colIndex >= res.x && colIndex < res.x + tileSpan &&
+           rowIndex <= res.y && rowIndex > res.y - tileSpan;
   });
   console.log('⬆️ handleTileClick invoked with:', { rowIndex, colIndex, resource });
 
