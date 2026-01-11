@@ -1593,6 +1593,17 @@ router.get('/feedback-data', async (req, res) => {
   }
 });
 
+// GET /api/ftue-steps - Get FTUE steps configuration (single source of truth)
+router.get('/ftue-steps', (req, res) => {
+  try {
+    const FTUEsteps = require('../tuning/FTUEsteps.json');
+    res.json(FTUEsteps);
+  } catch (error) {
+    console.error('Error loading FTUEsteps.json:', error);
+    res.status(500).json({ error: 'Failed to load FTUE steps' });
+  }
+});
+
 // GET /api/players-by-frontier-with-dev-status/:frontierId - Get all players in a frontier with developer status
 router.get('/players-by-frontier-with-dev-status/:frontierId', async (req, res) => {
   try {
