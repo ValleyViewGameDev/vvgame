@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import API_BASE from './config';
 import './Analytics.css';
-import FTUEsteps from './FTUEsteps.json';
 
 const Analytics = ({ activePanel }) => {
   const [dailyActiveUsers, setDailyActiveUsers] = useState([]);
@@ -165,11 +164,11 @@ const Analytics = ({ activePanel }) => {
             <div className="ftue-progression">
               <h4>Step Progression:</h4>
               <div className="progression-chart">
-                {ftueAnalytics.stepProgression.map((step, index) => {
-                  // Use trigger from server response, fallback to FTUEsteps.json lookup
-                  const triggerName = step.trigger
-                    || FTUEsteps.find(s => s.step === step.step)?.trigger
-                    || (step.step === 0 ? 'Started FTUE' : step.label);
+                {ftueAnalytics.stepProgression
+                  .filter(step => step.step !== 0) // Filter out step 0 (no longer used)
+                  .map((step, index) => {
+                  // Use trigger from server response
+                  const triggerName = step.trigger || step.label;
                   const displayLabel = step.step === 'completed'
                     ? 'Completed FTUE'
                     : `Step ${step.step}: ${triggerName}`;
@@ -178,12 +177,11 @@ const Analytics = ({ activePanel }) => {
                   <div key={index} className="progression-step">
                     <div className="step-label">{displayLabel}</div>
                     <div className="step-bar-container">
-                      <div 
-                        className="step-bar" 
-                        style={{ 
+                      <div
+                        className="step-bar"
+                        style={{
                           width: `${step.percentage}%`,
-                          backgroundColor: step.step === 'completed' ? '#28a745' : 
-                                         step.step === 0 ? '#dc3545' : '#007bff'
+                          backgroundColor: step.step === 'completed' ? '#28a745' : '#007bff'
                         }}
                       ></div>
                       <span className="step-stats">

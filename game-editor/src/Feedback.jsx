@@ -27,13 +27,6 @@ const Feedback = ({ activePanel }) => {
     793: "It's just not for me"
   };
 
-  // Aspiration mappings with emojis
-  const aspirationStrings = {
-    1: "🌱 Farming",
-    2: "⚔️ Adventurer", 
-    3: "🏛️ Politician"
-  };
-
   useEffect(() => {
     if (activePanel === 'feedback') {
       fetchFeedbackData();
@@ -80,12 +73,7 @@ const Feedback = ({ activePanel }) => {
       negative: {},
       totalResponses: 0,
       positiveResponses: 0,
-      negativeResponses: 0,
-      aspirations: {
-        1: 0, // Farming
-        2: 0, // Adventurer
-        3: 0  // Politician
-      }
+      negativeResponses: 0
     };
 
     // Initialize counts for all possible feedback options
@@ -100,15 +88,6 @@ const Feedback = ({ activePanel }) => {
 
     // Count feedback from all players (excluding developers)
     playersData.filter(player => !developerUsernames.includes(player.username)).forEach(player => {
-      // Count aspirations for players who gave feedback
-      if (player.ftueFeedback && 
-          ((player.ftueFeedback.positive && player.ftueFeedback.positive.length > 0) ||
-           (player.ftueFeedback.negative && player.ftueFeedback.negative.length > 0))) {
-        if (player.aspiration && aggregatedFeedback.aspirations[player.aspiration] !== undefined) {
-          aggregatedFeedback.aspirations[player.aspiration]++;
-        }
-      }
-      
       if (player.ftueFeedback) {
         let hasPositive = false;
         let hasNegative = false;
@@ -189,10 +168,6 @@ const Feedback = ({ activePanel }) => {
           case 'lastActive':
             aVal = new Date(a.lastActive || 0);
             bVal = new Date(b.lastActive || 0);
-            break;
-          case 'aspiration':
-            aVal = aspirationStrings[a.aspiration] || 'Not set';
-            bVal = aspirationStrings[b.aspiration] || 'Not set';
             break;
           case 'language':
             aVal = a.language || 'en';
@@ -287,7 +262,7 @@ const Feedback = ({ activePanel }) => {
         </div>
       )}
 
-      <div className="feedback-sections" style={{ gridTemplateColumns: '1fr 1fr 1fr' }}>
+      <div className="feedback-sections" style={{ gridTemplateColumns: '1fr 1fr' }}>
         <div className="feedback-section positive">
           <h3>Positive Feedback Counts</h3>
           {aggregatedData && Object.entries(aggregatedData.positive).map(([index, count]) => (
@@ -307,16 +282,6 @@ const Feedback = ({ activePanel }) => {
             </div>
           ))}
         </div>
-
-        <div className="feedback-section" style={{ borderLeft: '4px solid #2196F3' }}>
-          <h3>Aspiration</h3>
-          {aggregatedData && Object.entries(aggregatedData.aspirations).map(([aspiration, count]) => (
-            <div key={aspiration} className="feedback-item">
-              <span className="feedback-text">{aspirationStrings[aspiration]}</span>
-              <span className="feedback-count">{count}</span>
-            </div>
-          ))}
-        </div>
       </div>
 
       <div className="players-table-container">
@@ -329,9 +294,6 @@ const Feedback = ({ activePanel }) => {
               </th>
               <th onClick={() => handleSort('lastActive')} style={{ cursor: 'pointer' }}>
                 Last Played{getSortIcon('lastActive')}
-              </th>
-              <th onClick={() => handleSort('aspiration')} style={{ cursor: 'pointer' }}>
-                Aspiration{getSortIcon('aspiration')}
               </th>
               <th onClick={() => handleSort('language')} style={{ cursor: 'pointer' }}>
                 Language{getSortIcon('language')}
@@ -357,7 +319,6 @@ const Feedback = ({ activePanel }) => {
               <tr key={player._id}>
                 <td>{player.username}</td>
                 <td>{formatLastActive(player.lastActive)}</td>
-                <td>{aspirationStrings[player.aspiration] || 'Not set'}</td>
                 <td>{player.language || 'en'}</td>
                 <td>{player.ftuestep || 'Completed'}</td>
                 <td>{player.ftueFeedback?.browser || 'Unknown'}</td>
