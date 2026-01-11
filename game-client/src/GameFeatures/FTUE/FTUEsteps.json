@@ -1,6 +1,7 @@
 [
    {
       "step": 1,
+      "trigger": "StartedFTUE",
       "showModal": true,
       "bodyKey": 740,
       "continue": true,
@@ -8,6 +9,7 @@
     },
     {
       "step": 2,
+      "trigger": "ContinuedFromStep1",
       "doinker": true,
       "doinkerTarget": "Dungeon Exit",
       "notificationKey": 741,

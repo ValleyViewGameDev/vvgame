@@ -1,55 +1,65 @@
 [
    {
       "step": 1,
+      "trigger": "StartedFTUE",
       "showModal": true,
-      "titleKey": 701,
-      "bodyKey": 702,
-      "image": "ftue-welcome.png",
+      "bodyKey": 740,
       "continue": true,
       "addQuests": []
     },
     {
       "step": 2,
-      "trigger": "Continued from prior modal",
-      "showModal": true,
-      "titleKey": 705,
-      "bodyKey": 706,
-      "image": "ftue-aspiration.png",
-      "continue": false,
-      "notificationKey": 7050,
-      "notificationIcon": "🧔🏼‍♂️",
+      "trigger": "ContinuedFromStep1",
+      "doinker": true,
+      "doinkerTarget": "Dungeon Exit",
+      "notificationKey": 741,
+      "notificationIcon": "😀",
       "addQuests": []
     },
     {
       "step": 3,
-      "trigger": "MetConstableElbow",
-      "showModal": false,
-      "continue": false,
-      "notificationKey": 7051,
-      "notificationIcon": "🏠",
-      "addQuests": [2, 14]
+      "trigger": "ExitedCave",
+      "doinker": true,
+      "doinkerTarget": "Constable Elbow",
+      "notificationKey": 742,
+      "notificationIcon": "🧔🏼‍♂️",
+      "addQuests": []
     },
     {
       "step": 4,
+      "trigger": "MetConstableElbow",
+      "doinker": true,
+      "doinkerTarget": "Constable Elbow",
+      "notificationKey": 7051,
+      "notificationIcon": "🧔🏼‍♂️",
+      "addQuests": [2, 14]
+    },
+
+    {
+      "step": 5,
       "trigger": "BoughtHomeDeed",
       "showModal": false,
       "continue": false,
+      "doinker": true,
+      "doinkerTarget": "Signpost Home",
       "notificationKey": 7052,
-      "notificationIcon": "↪️",
+      "notificationIcon": "🏠",
       "openPanel": "QuestPanel"
     },
     {
-      "step": 5,
+      "step": 6,
       "trigger": "FirstHomesteadVisit",
       "showModal": false,
       "continue": false,
+      "doinker": true,
+      "doinkerTarget": ["Wheat", "Kent"],
       "notificationKey": 7053,
       "notificationIcon": "🤠",
       "addQuests": [5, 6],
       "openPanel": "QuestPanel"
     },
     {
-      "step": 6,
+      "step": 7,
       "trigger": "SoldToKent",
       "showFeedbackModalAfter": true,
       "showModal": false,
@@ -60,17 +70,18 @@
       "openPanel": "FarmingPanel"
     },
     {
-      "step": 7,
+      "step": 8,
       "trigger": "PlantedFirstCrop",
       "showModal": false,
       "continue": false,
+      "doinker": true,
+      "doinkerTarget": "Constable Elbow",
       "notificationKey": 7055,
       "notificationIcon": "🌾",
-      "addQuests": [7],
-      "openPanel": "SkillsPanel"    
+      "addQuests": [7]
     },
     {
-      "step": 8,
+      "step": 9,
       "trigger": "AcquiredTownKey",
       "showModal": false,
       "continue": false,

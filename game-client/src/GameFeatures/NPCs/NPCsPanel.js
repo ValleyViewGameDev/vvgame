@@ -160,11 +160,13 @@ const NPCPanel = ({
 
         // Check if any trades are hidden due to relationship requirements
         const tradesHiddenByRelationship = traderOffers.some((offer) => {
-          if (offer.rel) {
+          if (offer.rel || offer.relscore) {
             // If no relationship exists with this NPC, trade is hidden
             if (!relationship) return true;
             // Check relationship status requirement (e.g., "friend", "met", "love")
-            if (relationship[offer.rel] !== true) return true;
+            if (offer.rel && relationship[offer.rel] !== true) return true;
+            // Check relationship score requirement
+            if (offer.relscore && (relationship.relscore || 0) < offer.relscore) return true;
           }
           return false;
         });
@@ -172,11 +174,13 @@ const NPCPanel = ({
 
         // Filter offers by relationship requirements, then transform
         const filteredOffers = traderOffers.filter((offer) => {
-          if (offer.rel) {
+          if (offer.rel || offer.relscore) {
             // If no relationship exists with this NPC, exclude the trade
             if (!relationship) return false;
             // Check relationship status requirement
-            if (relationship[offer.rel] !== true) return false;
+            if (offer.rel && relationship[offer.rel] !== true) return false;
+            // Check relationship score requirement
+            if (offer.relscore && (relationship.relscore || 0) < offer.relscore) return false;
           }
           return true;
         });
