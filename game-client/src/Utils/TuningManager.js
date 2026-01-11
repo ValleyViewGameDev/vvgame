@@ -9,6 +9,7 @@ let masterTraders = null;
 let masterTrophies = null;
 let masterWarehouse = null;
 let masterXPLevels = null;
+let masterFTUEsteps = null;
 /**
  * Fetch and cache skillsTuning.json
  */
@@ -147,6 +148,30 @@ export async function loadMasterXPLevels() {
 }
 
 /**
+ * Fetch and cache FTUEsteps.json
+ */
+export async function loadFTUEsteps() {
+  if (!masterFTUEsteps) {
+    try {
+      const response = await axios.get(`${API_BASE}/api/ftue-steps`);
+      masterFTUEsteps = response.data;
+      console.log('FTUE steps loaded:', masterFTUEsteps);
+    } catch (error) {
+      console.error('Error fetching FTUE steps:', error);
+      masterFTUEsteps = [];
+    }
+  }
+  return masterFTUEsteps;
+}
+
+/**
+ * Get cached FTUE steps synchronously (must be loaded first via loadFTUEsteps)
+ */
+export function getFTUEsteps() {
+  return masterFTUEsteps || [];
+}
+
+/**
  * Clear cached data (optional, for debugging or forced reloads).
  */
 export function clearTuningCache() {
@@ -156,4 +181,5 @@ export function clearTuningCache() {
   masterTrophies = null;
   masterWarehouse = null;
   masterXPLevels = null;
+  masterFTUEsteps = null;
 }

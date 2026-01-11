@@ -1,6 +1,6 @@
 import axios from 'axios';
 import API_BASE from '../../config';
-import FTUEstepsData from './FTUEsteps.json';
+import { getFTUEsteps } from '../../Utils/TuningManager';
 
 // Export function to get current FTUE step from DB and sync with local state
 export const getFTUEStep = async (playerId, currentPlayer, setCurrentPlayer) => {
@@ -34,7 +34,7 @@ export const tryAdvanceFTUEByTrigger = async (triggerKey, playerId, currentPlaye
   }
 
   // Find the step that has this trigger
-  const triggerStep = FTUEstepsData.find(step => step.trigger === triggerKey);
+  const triggerStep = getFTUEsteps().find(step => step.trigger === triggerKey);
   if (!triggerStep) {
     console.log(`🎓 No FTUE step found with trigger: ${triggerKey}`);
     return currentPlayer?.ftuestep || 0;
@@ -60,7 +60,7 @@ export const incrementFTUEStep = async (playerId, currentPlayer, setCurrentPlaye
     const nextStep = currentStep + 1;
 
     // Check if the next step exists in the data
-    const nextStepExists = FTUEstepsData.some(step => step.step === nextStep);
+    const nextStepExists = getFTUEsteps().some(step => step.step === nextStep);
 
     if (!nextStepExists) {
       console.log('📚 No more FTUE steps available after step', currentStep);

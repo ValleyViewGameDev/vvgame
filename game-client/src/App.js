@@ -10,7 +10,7 @@ import Chat from './GameFeatures/Chat/Chat';
 import React, { useContext, useState, useEffect, useLayoutEffect, memo, useMemo, useCallback, useRef, act } from 'react';
 import { registerNotificationClickHandler } from './UI/Notifications/Notifications';
 import { initializeGrid } from './AppInit';
-import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies, loadMasterWarehouse, loadMasterXPLevels } from './Utils/TuningManager';
+import { loadMasterSkills, loadMasterResources, loadMasterInteractions, loadGlobalTuning, loadMasterTraders, loadMasterTrophies, loadMasterWarehouse, loadMasterXPLevels, loadFTUEsteps } from './Utils/TuningManager';
 import { RenderTilesCanvas } from './Render/RenderTilesCanvas';
 import { RenderTilesCanvasV2 } from './Render/RenderTilesCanvasV2';
 import { RenderResources } from './Render/RenderResources';
@@ -43,7 +43,6 @@ import farmState from './FarmState';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FTUE from './GameFeatures/FTUE/FTUE';
 import FTUEDoinker from './GameFeatures/FTUE/FTUEDoinker';
-import FTUEstepsData from './GameFeatures/FTUE/FTUEsteps.json';
 
 import playersInGridManager from './GridState/PlayersInGrid';
 import { usePlayersInGrid, useGridStatePCUpdate } from './GridState/GridStatePCContext';
@@ -335,6 +334,7 @@ useEffect(() => {
   const [masterTraders, setMasterTraders] = useState([]);
   const [masterTrophies, setMasterTrophies] = useState([]);
   const [masterXPLevels, setMasterXPLevels] = useState([]);
+  const [masterFTUEsteps, setMasterFTUEsteps] = useState([]);
 
   // Check if player is mayor for authoritative mayor display
   useEffect(() => {
@@ -659,7 +659,7 @@ useEffect(() => {
     try {
       // Step 1. Load tuning data
       console.log('🏁✅ 1 InitAppWrapper; Merging player data and initializing inventory...');
-      const [skills, resources, globalTuningData, interactions, traders, trophies, warehouse, xpLevels] = await Promise.all([loadMasterSkills(), loadMasterResources(), loadGlobalTuning(), loadMasterInteractions(), loadMasterTraders(), loadMasterTrophies(), loadMasterWarehouse(), loadMasterXPLevels()]);
+      const [skills, resources, globalTuningData, interactions, traders, trophies, warehouse, xpLevels, ftueSteps] = await Promise.all([loadMasterSkills(), loadMasterResources(), loadGlobalTuning(), loadMasterInteractions(), loadMasterTraders(), loadMasterTrophies(), loadMasterWarehouse(), loadMasterXPLevels(), loadFTUEsteps()]);
       setMasterResources(resources);
       setMasterSkills(skills);
       setGlobalTuning(globalTuningData);
@@ -668,6 +668,7 @@ useEffect(() => {
       setMasterTrophies(trophies);
       setMasterWarehouse(warehouse);
       setMasterXPLevels(xpLevels);
+      setMasterFTUEsteps(ftueSteps);
       setIsMasterResourcesReady(true); // ✅ Mark ready
       // Step 2. Fetch stored player from localStorage
       console.log('🏁✅ 2 InitAppWrapper; getting local player...');
@@ -1224,7 +1225,7 @@ useEffect(() => {
       if (gridLoaded) {
         console.log('🎓 FTUE step changed to:', currentPlayer.ftuestep, ', showing FTUE (grid loaded)');
         // Only close panels if the FTUE step will actually show a modal
-        const stepData = FTUEstepsData.find(step => step.step === currentPlayer.ftuestep);
+        const stepData = masterFTUEsteps.find(step => step.step === currentPlayer.ftuestep);
         if (stepData?.showModal !== false) {
           // Close any open panels before showing FTUE modal to ensure clean state
           closePanel();
@@ -1253,7 +1254,7 @@ useEffect(() => {
     if (currentPlayer.ftuestep !== lastShownFTUEStep) {
       console.log('🎓 Grid loaded, showing pending FTUE step:', currentPlayer.ftuestep);
       // Only close panels if the FTUE step will actually show a modal
-      const stepData = FTUEstepsData.find(step => step.step === currentPlayer.ftuestep);
+      const stepData = masterFTUEsteps.find(step => step.step === currentPlayer.ftuestep);
       if (stepData?.showModal !== false) {
         // Close any open panels before showing FTUE modal to ensure clean state
         closePanel();
@@ -1275,7 +1276,7 @@ useEffect(() => {
     return;
   }
 
-  const stepData = FTUEstepsData.find(step => step.step === currentPlayer.ftuestep);
+  const stepData = masterFTUEsteps.find(step => step.step === currentPlayer.ftuestep);
   console.log(`👆 Doinker: Step ${currentPlayer.ftuestep} data:`, stepData ? { doinker: stepData.doinker, doinkerTarget: stepData.doinkerTarget } : 'not found');
 
   if (stepData?.doinker && stepData?.doinkerTarget) {
@@ -3027,7 +3028,7 @@ return (
       )}
       
       {showFTUE && (
-        <FTUE 
+        <FTUE
           currentPlayer={currentPlayer}
           setCurrentPlayer={setCurrentPlayer}
           onClose={() => setShowFTUE(false)}
@@ -3036,6 +3037,7 @@ return (
           gridId={gridId}
           setActiveStation={setActiveStation}
           masterResources={masterResources}
+          masterFTUEsteps={masterFTUEsteps}
           setResources={setResources}
           TILE_SIZE={activeTileSize}
         />

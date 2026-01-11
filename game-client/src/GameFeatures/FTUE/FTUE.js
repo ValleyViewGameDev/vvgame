@@ -3,13 +3,12 @@ import axios from 'axios';
 import API_BASE from '../../config';
 import { useStrings } from '../../UI/StringsContext';
 import './FTUE.css';
-import FTUEstepsData from './FTUEsteps.json';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { addAcceptedQuest, completeTutorial, handleFeedbackSubmit } from './FTUEutils';
 import StoryModal from '../../UI/Modals/StoryModal';
 
 
-const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQuestGiver, gridId }) => {
+const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQuestGiver, gridId, masterFTUEsteps }) => {
   const strings = useStrings();
   const [currentStepData, setCurrentStepData] = useState(null);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
@@ -28,7 +27,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
     // Handle step 0 by showing step 1 content without advancing yet
     if (currentPlayer?.ftuestep === 0) {
       console.log('🎓 Player at FTUE step 0, showing step 1 content');
-      const step1Data = FTUEstepsData.find(step => step.step === 1);
+      const step1Data = masterFTUEsteps.find(step => step.step === 1);
       if (step1Data) {
         setCurrentStepData(step1Data);
       }
@@ -37,7 +36,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
     
     if (currentPlayer?.ftuestep) {
       // Normal step loading
-      const stepData = FTUEstepsData.find(step => step.step === currentPlayer.ftuestep);
+      const stepData = masterFTUEsteps.find(step => step.step === currentPlayer.ftuestep);
       if (stepData) {
         setCurrentStepData(stepData);
       } else {
@@ -137,8 +136,8 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
       const currentStep = currentPlayer.ftuestep === 0 ? 1 : currentPlayer.ftuestep;
       const actualCurrentStep = currentPlayer.ftuestep;
       const nextStep = currentStep + 1;
-      const hasNextStep = FTUEstepsData.some(step => step.step === nextStep);
-      const stepData = FTUEstepsData.find(step => step.step === currentStep);
+      const hasNextStep = masterFTUEsteps.some(step => step.step === nextStep);
+      const stepData = masterFTUEsteps.find(step => step.step === currentStep);
 
       // Check for notification defined in FTUEsteps.json
       if (stepData?.notificationKey) {
@@ -191,7 +190,7 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
     try {
       // If we're showing step 1 content but player is still at step 0, advance to step 1
       const currentStep = currentPlayer.ftuestep === 0 ? 1 : currentPlayer.ftuestep;
-      const stepData = FTUEstepsData.find(step => step.step === currentStep);
+      const stepData = masterFTUEsteps.find(step => step.step === currentStep);
 
       // Check if this step has showFeedbackModalAfter and feedback hasn't been collected yet
       const hasFeedback = currentPlayer?.ftueFeedback &&
