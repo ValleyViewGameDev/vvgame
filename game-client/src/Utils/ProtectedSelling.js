@@ -114,9 +114,14 @@ export async function handleProtectedSelling({
 
       // Visual feedback
       createCollectEffect(currentStationPosition.x, currentStationPosition.y, TILE_SIZE);
-      
-      console.log(`✅ Station ${stationType} sold successfully for ${totalMoneyRefund} Money.`);
-      updateStatus(`Sold ${stationType} for ${totalMoneyRefund} Money.`);
+
+      // Build refund summary showing all ingredients
+      const refundSummary = refundIngredients && refundIngredients.length > 0
+        ? refundIngredients.map(item => `${item.quantity} ${item.type}`).join(', ')
+        : `${totalMoneyRefund} Money`;
+
+      console.log(`✅ Station ${stationType} sold successfully. Refund: ${refundSummary}`);
+      updateStatus(`Sold ${stationType} for ${refundSummary}.`);
       
       // Close the panel
       onClose();
