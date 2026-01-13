@@ -288,11 +288,37 @@ export async function handleDooberClick(
     return;
   }
   
-  // Optimistically remove the resource from display AND show effects
-  setResources((prevResources) =>
-    prevResources.filter((res) => !(res.x === col && res.y === row))
-  );
-  
+  // Check if this is a repeatable tree resource that should be instantly replaced
+  let optimisticTreeFarmplot = null;
+  if (resource.repeatable === true) {
+    const farmplotResource = masterResources.find(
+      (res) => res.category === 'farmplot' && res.output === resource.type
+    );
+    if (farmplotResource && farmplotResource.source === 'tree') {
+      // Pre-calculate the farmplot for optimistic placement
+      const growEndTime = Date.now() + (farmplotResource.growtime || 0) * 1000;
+      optimisticTreeFarmplot = enrichResourceFromMaster(
+        {
+          type: farmplotResource.type,
+          x: col,
+          y: row,
+          growEnd: growEndTime,
+        },
+        masterResources
+      );
+      console.log(`🌳 Optimistic tree replacement: ${resource.type} -> ${farmplotResource.type}`);
+    }
+  }
+
+  // Optimistically update resources - remove doober and add tree farmplot if applicable
+  setResources((prevResources) => {
+    const filtered = prevResources.filter((res) => !(res.x === col && res.y === row));
+    if (optimisticTreeFarmplot) {
+      return [...filtered, optimisticTreeFarmplot];
+    }
+    return filtered;
+  });
+
   // Show VFX and floating text immediately for responsiveness
   createCollectEffect(col, row, TILE_SIZE);
   FloatingTextManager.addFloatingText(`+${qtyCollected} ${getLocalizedString(resource.type, strings)}`, col, row, TILE_SIZE);
@@ -323,9 +349,15 @@ export async function handleDooberClick(
     } else if (gainResult && gainResult.success === false) {
       // Check if we should rollback based on error type
       if (gainResult.isCapacityError) {
-        // Real conflict - rollback the doober
+        // Real conflict - rollback the doober (and remove optimistic tree farmplot if any)
         console.warn("❌ Capacity limit reached. Rolling back doober.");
-        setResources((prevResources) => [...prevResources, resource]);
+        setResources((prevResources) => {
+          // Remove any optimistically placed tree farmplot at this position
+          const filtered = optimisticTreeFarmplot
+            ? prevResources.filter((res) => !(res.x === col && res.y === row && res.type === optimisticTreeFarmplot.type))
+            : prevResources;
+          return [...filtered, resource];
+        });
         
         // Check if the error is specifically about missing backpack
         if (gainResult.isMissingBackpack) {
@@ -352,9 +384,14 @@ export async function handleDooberClick(
         console.warn("⚠️ Network error during collection, but server may have queued the operation. Not rolling back.");
         // Still show success effects since server likely processed it
       } else {
-        // Other client-side errors - rollback
+        // Other client-side errors - rollback (and remove optimistic tree farmplot if any)
         console.warn("❌ Client error during collection. Rolling back.");
-        setResources((prevResources) => [...prevResources, resource]);
+        setResources((prevResources) => {
+          const filtered = optimisticTreeFarmplot
+            ? prevResources.filter((res) => !(res.x === col && res.y === row && res.type === optimisticTreeFarmplot.type))
+            : prevResources;
+          return [...filtered, resource];
+        });
         // Clear processing flag
         if (window._processingDoobers) {
           window._processingDoobers.delete(dooberId);
@@ -456,8 +493,13 @@ export async function handleDooberClick(
     }
   } catch (error) {
     console.error('Error during doober collection:', error);
-    // Rollback local resource state on server failure
-    setResources((prevResources) => [...prevResources, resource]);
+    // Rollback local resource state on server failure (and remove optimistic tree farmplot if any)
+    setResources((prevResources) => {
+      const filtered = optimisticTreeFarmplot
+        ? prevResources.filter((res) => !(res.x === col && res.y === row && res.type === optimisticTreeFarmplot.type))
+        : prevResources;
+      return [...filtered, resource];
+    });
   } finally {
     unlockResource(col, row); // Always unlock the resource
     // Clear the processing flag for this doober
@@ -511,12 +553,23 @@ async function handleReplant(
 
   console.log('🌱 handleReplant: Enriched farmplot resource:', enrichedNewResource);
 
-  // Update local state - add the new farmplot resource
-  const currentResources = GlobalGridStateTilesAndResources.getResources();
-  const finalResources = [...currentResources, enrichedNewResource];
-
-  GlobalGridStateTilesAndResources.setResources(finalResources);
-  setResources(finalResources);
+  // For trees, local state was already updated optimistically in handleDooberClick
+  // For non-trees, update local state now
+  const isTree = farmplotResource.source === 'tree';
+  if (!isTree) {
+    const currentResources = GlobalGridStateTilesAndResources.getResources();
+    const finalResources = [...currentResources, enrichedNewResource];
+    GlobalGridStateTilesAndResources.setResources(finalResources);
+    setResources(finalResources);
+  } else {
+    // For trees, just sync with GlobalGridState (React state already updated)
+    const currentResources = GlobalGridStateTilesAndResources.getResources();
+    // Check if it's not already there before adding
+    const alreadyExists = currentResources.some(res => res.x === col && res.y === row && res.type === farmplotResource.type);
+    if (!alreadyExists) {
+      GlobalGridStateTilesAndResources.setResources([...currentResources, enrichedNewResource]);
+    }
+  }
 
   // Perform server update to add the farmplot
   try {
@@ -533,8 +586,9 @@ async function handleReplant(
 
     if (gridUpdateResponse?.success) {
       console.log(`✅ handleReplant: Successfully planted ${farmplotResource.type} at (${col}, ${row})`);
-      // Show grow VFX for the replanted farmplot
-      if (enrichedNewResource.symbol && TILE_SIZE) {
+      // Show grow VFX for the replanted farmplot, but skip animation for trees
+      // Trees instantly replace without the seed grow animation
+      if (enrichedNewResource.symbol && TILE_SIZE && farmplotResource.source !== 'tree') {
         createPlantGrowEffect(col, row, TILE_SIZE, enrichedNewResource.symbol);
       }
     } else {
