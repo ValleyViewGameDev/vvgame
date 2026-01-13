@@ -6655,12 +6655,10 @@
     "type": "Town Door",
     "symbol": "🚪",
     "layoutkey": "Dor",
-    "source": "BuildTown",
     "category": "deco",
     "action": "door",
     "passable": false,
-    "ingredient1": "Money",
-    "ingredient1qty": 1,
+    "requires": "Town Key",
     "validong": true,
     "validond": true,
     "validons": true,
@@ -6674,7 +6672,8 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true
+    "validonu": true,
+    "filename": "door-town.svg"
   },
   {
     "type": "Dungeon Door",
@@ -6697,7 +6696,8 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true
+    "validonu": true,
+    "filename": "door-dungeon.svg"
   },
   {
     "type": "Mirror",
@@ -6720,7 +6720,8 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true
+    "validonu": true,
+    "filename": "door-mirror.svg"
   },
   {
     "type": "Locked Door",
@@ -6743,7 +6744,8 @@
     "validonz": true,
     "validonc": true,
     "validonv": true,
-    "validonu": true
+    "validonu": true,
+    "filename": "door-gold.svg"
   },
   {
     "type": "Outpost",
