@@ -658,7 +658,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "oak-tree.svg"
   },
   {
     "type": "Pine Tree",
@@ -682,7 +683,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "pine-tree.svg"
   },
   {
     "type": "Palm Tree",
@@ -706,7 +708,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "palm-tree.svg"
   },
   {
     "type": "Gold Account",
@@ -1140,7 +1143,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "dead-tree-large.svg"
   },
   {
     "type": "Huge Dead Tree",
@@ -1162,7 +1166,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "dead-tree-large.svg"
   },
   {
     "type": "Big Statue",
@@ -1254,7 +1259,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "dead-tree.svg"
   },
   {
     "type": "Snowman",
@@ -6649,10 +6655,12 @@
     "type": "Town Door",
     "symbol": "🚪",
     "layoutkey": "Dor",
+    "source": "BuildTown",
     "category": "deco",
     "action": "door",
     "passable": false,
-    "requires": "Town Key",
+    "ingredient1": "Money",
+    "ingredient1qty": 1,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -6741,7 +6749,6 @@
     "type": "Outpost",
     "symbol": "📥",
     "layoutkey": "T2",
-    "size": 1,
     "category": "station",
     "action": "openUI",
     "source": "BuildValley",
@@ -6804,7 +6811,7 @@
     "type": "School",
     "symbol": "🏫",
     "layoutkey": "sC",
-    "size": 2,
+    "size": 3,
     "category": "training",
     "action": "openUI",
     "source": "BuildTown",
@@ -6839,7 +6846,7 @@
     "type": "Hospital",
     "symbol": "🏥",
     "layoutkey": "h+",
-    "size": 2,
+    "size": 3,
     "category": "crafting",
     "action": "openUI",
     "output": "Doctor",
@@ -6870,6 +6877,7 @@
     "ingredient3": "Stone",
     "ingredient3qty": 50,
     "gemcost": 2300,
+    "filename": "hospital.svg",
     "crafttime": 0,
     "totalnestedtime": 72250
   },
@@ -6877,7 +6885,7 @@
     "type": "Library",
     "symbol": "🏤",
     "layoutkey": "Li",
-    "size": 2,
+    "size": 3,
     "category": "crafting",
     "action": "openUI",
     "source": "BuildTown",
@@ -6907,6 +6915,7 @@
     "ingredient3": "Stone",
     "ingredient3qty": 50,
     "gemcost": 2560,
+    "filename": "library.svg",
     "crafttime": 0,
     "totalnestedtime": 432250
   },
@@ -6944,6 +6953,7 @@
     "ingredient3": "Stone",
     "ingredient3qty": 20,
     "gemcost": 158,
+    "filename": "dairy.svg",
     "crafttime": 0,
     "totalnestedtime": 600
   },
@@ -6979,6 +6989,7 @@
     "ingredient2": "Wood",
     "ingredient2qty": 70,
     "gemcost": 95,
+    "filename": "loom.svg",
     "crafttime": 0,
     "totalnestedtime": 350
   },
@@ -7016,6 +7027,7 @@
     "ingredient3": "Stone",
     "ingredient3qty": 75,
     "gemcost": 200,
+    "filename": "mill.svg",
     "crafttime": 0,
     "totalnestedtime": 750
   },
@@ -7088,6 +7100,7 @@
     "ingredient4": "Clay",
     "ingredient4qty": 150,
     "gemcost": 2885,
+    "filename": "oven.svg",
     "crafttime": 0,
     "totalnestedtime": 3241300
   },
@@ -7125,6 +7138,7 @@
     "ingredient3": "Clay",
     "ingredient3qty": 300,
     "gemcost": 5075,
+    "filename": "kitchen.svg",
     "crafttime": 0,
     "totalnestedtime": 6481000
   },
@@ -7195,6 +7209,7 @@
     "ingredient3": "Stone",
     "ingredient3qty": 200,
     "gemcost": 600,
+    "filename": "lumber-yard.svg",
     "crafttime": 0,
     "totalnestedtime": 2250
   },
@@ -7232,6 +7247,7 @@
     "ingredient3": "Clay",
     "ingredient3qty": 400,
     "gemcost": 7750,
+    "filename": "studio.svg",
     "crafttime": 0,
     "totalnestedtime": 8712000
   },
@@ -7310,6 +7326,7 @@
     "ingredient4": "Clay",
     "ingredient4qty": 800,
     "gemcost": 16060,
+    "filename": "winery.svg",
     "crafttime": 0,
     "totalnestedtime": 17388300
   },
@@ -7377,13 +7394,14 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "ancient-temple.svg"
   },
   {
     "type": "Adventure Camp",
     "symbol": "🏕️",
     "layoutkey": "sH",
-    "size": 2,
+    "size": 3,
     "category": "trainingAndShop",
     "action": "openUI",
     "source": "Build",
@@ -7405,13 +7423,14 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "adventure-camp.svg"
   },
   {
     "type": "General Store",
     "symbol": "🏪",
     "layoutkey": "sT",
-    "size": 2,
+    "size": 3,
     "category": "training",
     "action": "openUI",
     "source": "Build",
@@ -7433,13 +7452,14 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "general-store.svg"
   },
   {
     "type": "Laboratory",
     "symbol": "🔬",
     "layoutkey": "sL",
-    "size": 2,
+    "size": 3,
     "category": "training",
     "action": "openUI",
     "source": "Build",
@@ -7461,13 +7481,14 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "laboratory.svg"
   },
   {
     "type": "Academy",
     "symbol": "🎨",
     "layoutkey": "Ac",
-    "size": 2,
+    "size": 3,
     "category": "training",
     "action": "openUI",
     "source": "Build",
@@ -7489,13 +7510,14 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "academy.svg"
   },
   {
     "type": "Guild",
     "symbol": "🛖",
     "layoutkey": "gu",
-    "size": 2,
+    "size": 3,
     "category": "training",
     "action": "openUI",
     "source": "Build",
@@ -7517,13 +7539,14 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "guild.svg"
   },
   {
     "type": "Agriculture Center",
     "symbol": "🚜",
     "layoutkey": "aG",
-    "size": 2,
+    "size": 3,
     "category": "training",
     "action": "openUI",
     "source": "Build",
@@ -7545,13 +7568,14 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "agriculture.svg"
   },
   {
     "type": "Factory",
     "symbol": "🏭",
     "layoutkey": "Fy",
-    "size": 2,
+    "size": 3,
     "category": "training",
     "action": "openUI",
     "source": "Build",
@@ -7573,7 +7597,8 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "factory.svg"
   },
   {
     "type": "Trade Stall",
@@ -7634,7 +7659,7 @@
     "type": "Bank",
     "symbol": "🏦",
     "layoutkey": "BK",
-    "size": 2,
+    "size": 3,
     "category": "station",
     "action": "openUI",
     "source": "Build",
@@ -7657,13 +7682,14 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "bank.svg"
   },
   {
     "type": "Courthouse",
     "symbol": "🏛️",
     "layoutkey": "CO",
-    "size": 3,
+    "size": 5,
     "category": "station",
     "action": "openUI",
     "source": "Build",
@@ -7686,7 +7712,8 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "town-hall.svg"
   },
   {
     "type": "Train",
@@ -7831,7 +7858,7 @@
     "type": "Inn",
     "symbol": "🏨",
     "layoutkey": "Inn",
-    "size": 2,
+    "size": 3,
     "category": "station",
     "action": "openUI",
     "source": "Build",
@@ -7839,34 +7866,6 @@
     "requires": "devonly",
     "level": 16,
     "range": 2,
-    "validong": true,
-    "validond": true,
-    "validons": true,
-    "validonp": true,
-    "validonw": false,
-    "validonl": false,
-    "validonn": true,
-    "validono": true,
-    "validonx": true,
-    "validony": true,
-    "validonz": false,
-    "validonc": false,
-    "validonv": false,
-    "validonu": false,
-    "ingredient1": "Money",
-    "ingredient1qty": 1
-  },
-  {
-    "type": "Dungeon",
-    "symbol": "🕳️",
-    "layoutkey": "dg",
-    "size": 3,
-    "category": "station",
-    "action": "openUI",
-    "source": "Build",
-    "passable": false,
-    "requires": "devonly",
-    "range": 3,
     "validong": true,
     "validond": true,
     "validons": true,
@@ -7911,13 +7910,14 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "farm-house.svg"
   },
   {
     "type": "Shrine",
     "symbol": "⛩️",
     "layoutkey": "sR",
-    "size": 2,
+    "size": 3,
     "category": "shop",
     "action": "openUI",
     "source": "Build",
@@ -7939,7 +7939,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "shrine.svg"
   },
   {
     "type": "Castle",
@@ -8001,7 +8002,7 @@
     "type": "Restaurant",
     "symbol": "🍽️",
     "layoutkey": "Re",
-    "size": 2,
+    "size": 3,
     "category": "shop",
     "action": "openUI",
     "source": "Build",
@@ -8057,7 +8058,7 @@
     "type": "Warrior's Den",
     "symbol": "⚔️",
     "layoutkey": "wD",
-    "size": 2,
+    "size": 3,
     "category": "shop",
     "action": "openUI",
     "source": "Build",
@@ -8079,13 +8080,14 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "warriors-den.svg"
   },
   {
     "type": "Armory",
     "symbol": "🛡️",
     "layoutkey": "aR",
-    "size": 2,
+    "size": 3,
     "category": "shop",
     "action": "openUI",
     "source": "Build",
@@ -8107,13 +8109,14 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "armory.svg"
   },
   {
     "type": "Magic Shop",
     "symbol": "🎪",
     "layoutkey": "mS",
-    "size": 2,
+    "size": 3,
     "category": "shop",
     "action": "openUI",
     "source": "Build",
@@ -8135,7 +8138,8 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "magic-shop.svg"
   },
   {
     "type": "Cow",
@@ -12094,7 +12098,8 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 10000,
-    "gemcost": 1250
+    "gemcost": 1250,
+    "filename": "fountain.svg"
   },
   {
     "type": "Fountain Large",
@@ -12118,7 +12123,8 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 20000,
-    "gemcost": 2500
+    "gemcost": 2500,
+    "filename": "fountain-large.svg"
   },
   {
     "type": "Large Decorative Palm Tree",

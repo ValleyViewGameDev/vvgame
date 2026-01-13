@@ -2318,8 +2318,8 @@ if (typeof window !== "undefined") {
                     if (!tile.resource || res.type !== tile.resource) return false;
                     // Only check the anchor tile (where the resource is stored)
                     if (grid[x][y].resource === res.type) {
-                      // Exclude NPCs from multi-tile rendering
-                      return res.range > 1 && res.category !== 'npc';
+                      // Exclude NPCs from multi-tile rendering (size is tile footprint)
+                      return res.size > 1 && res.category !== 'npc';
                     }
                     return false;
                   });

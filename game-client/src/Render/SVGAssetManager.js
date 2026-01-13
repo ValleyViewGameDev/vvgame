@@ -91,20 +91,19 @@ class SVGAssetManager {
 
   // Get or create cached texture for SVG asset
   async getSVGTexture(svgFileName, targetSize, isOverlay = false) {
-    // Use exact targetSize for cache key to match existing zoom system (16, 34, 50)
-    // Don't try to be smart with zoom tiers - trust the existing App.js zoom system
-    const cacheKey = `${isOverlay ? 'overlay-' : ''}${svgFileName}-${targetSize}`;
+    // Account for device pixel ratio for crisp rendering on high-DPI displays
+    const devicePixelRatio = window.devicePixelRatio || 1;
+    const renderSize = Math.ceil(targetSize * devicePixelRatio);
 
-    //console.log(`🔍 [SVG MANAGER] Requesting texture for ${svgFileName} at targetSize ${targetSize}, cacheKey: ${cacheKey}`);
+    // Cache key includes both target and render size for proper cache hits
+    const cacheKey = `${isOverlay ? 'overlay-' : ''}${svgFileName}-${targetSize}-${renderSize}`;
 
     // Return cached texture if available
     if (this.textureCache.has(cacheKey)) {
-      //console.log(`✅ [SVG MANAGER] Found cached texture for ${cacheKey}`);
       return this.textureCache.get(cacheKey);
     }
 
     try {
-      //console.log(`🔄 [SVG MANAGER] Creating new texture for ${svgFileName}`);
       // Load SVG and create texture
       const svgText = await this.loadSVG(svgFileName, isOverlay);
       if (!svgText) {
@@ -112,10 +111,10 @@ class SVGAssetManager {
         return null;
       }
 
-      const texture = await this.createSVGTexture(svgText, targetSize);
+      // Rasterize at higher resolution for crisp display on high-DPI screens
+      const texture = await this.createSVGTexture(svgText, renderSize);
       if (texture) {
         this.textureCache.set(cacheKey, texture);
-        //console.log(`✅ [SVG MANAGER] Successfully created and cached texture for ${cacheKey}`);
       } else {
         console.warn(`❌ [SVG MANAGER] Failed to create texture for ${svgFileName}`);
       }

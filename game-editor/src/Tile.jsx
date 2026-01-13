@@ -25,13 +25,13 @@ const Tile = ({ x, y, tile, updateTile, isSelected, setSelectedTile, tileSize, m
         overflow: "visible",
       }}
     >
-      {/* Multi-tile resource rendering */}
+      {/* Multi-tile resource rendering (size is tile footprint) */}
       {multiTileResource ? (
         <div
           style={{
-            fontSize: `${tileSize * 0.85 * multiTileResource.range}px`,
-            width: `${tileSize * multiTileResource.range}px`,
-            height: `${tileSize * multiTileResource.range}px`,
+            fontSize: `${tileSize * 0.85 * multiTileResource.size}px`,
+            width: `${tileSize * multiTileResource.size}px`,
+            height: `${tileSize * multiTileResource.size}px`,
             position: 'absolute',
             left: '0',
             bottom: '0',  // Changed from top: '0' to bottom: '0' for bottom-left anchoring
