@@ -422,11 +422,11 @@ useEffect(() => {
   window.addEventListener('tileRendererChange', handleTileRendererChange);
   return () => window.removeEventListener('tileRendererChange', handleTileRendererChange);
 }, []);
-const TILE_SIZES = globalTuning?.closerZoom ? {
+const TILE_SIZES = useMemo(() => globalTuning?.closerZoom ? {
   closer: globalTuning.closerZoom,
   close: globalTuning.closeZoom,
   far: globalTuning.farZoom
-} : { closer: 50, close: 30, far: 16 }; // Use globalTuning or fallback to defaults
+} : { closer: 50, close: 30, far: 16 }, [globalTuning]); // Update when globalTuning loads
 const activeTileSize = TILE_SIZES[zoomLevel]; // Get the active TILE_SIZE
 const [isRelocating, setIsRelocating] = useState(null);
 
@@ -438,19 +438,16 @@ useEffect(() => {
   }
 }, [currentPlayer]);
 
-// Maintain camera position during zoom transitions
-useLayoutEffect(() => {
-  if (zoomLevel && zoomLevel !== 'settlement' && zoomLevel !== 'frontier' && currentPlayer?.location?.g && currentPlayer?._id) {
-    const gridId = currentPlayer.location.g;
-    const playerIdStr = String(currentPlayer._id);
-    const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
-    
-    if (playerPos && activeTileSize) {
-      // Use fast centering without animation to prevent jump
-      centerCameraOnPlayerFast(playerPos, activeTileSize);
+// Persist zoom level on page unload so camera centers correctly after refresh
+useEffect(() => {
+  const saveZoomLevel = () => {
+    if (zoomLevel && zoomLevel !== 'settlement' && zoomLevel !== 'frontier') {
+      localStorage.setItem("initialZoomLevel", zoomLevel);
     }
-  }
-}, [zoomLevel, activeTileSize]);
+  };
+  window.addEventListener('beforeunload', saveZoomLevel);
+  return () => window.removeEventListener('beforeunload', saveZoomLevel);
+}, [zoomLevel]);
 
 // Track the last shown FTUE step to detect changes
 const [lastShownFTUEStep, setLastShownFTUEStep] = useState(null);
@@ -473,6 +470,33 @@ useEffect(() => {
 useEffect(() => {
   playersInGridManager.registerTileSize(activeTileSize);
 }, [activeTileSize]);
+
+// Track previous zoom level to detect actual zoom changes
+const prevZoomRef = useRef(zoomLevel);
+
+// Maintain camera position during zoom transitions (only when zoom actually changes)
+useLayoutEffect(() => {
+  // Only center camera if zoomLevel actually changed (not on playersInGrid updates during movement)
+  if (prevZoomRef.current === zoomLevel) {
+    return;
+  }
+  prevZoomRef.current = zoomLevel;
+
+  if (zoomLevel && zoomLevel !== 'settlement' && zoomLevel !== 'frontier' && currentPlayer?.location?.g && currentPlayer?._id) {
+    const gridId = currentPlayer.location.g;
+    const playerIdStr = String(currentPlayer._id);
+    const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
+
+    console.log(`📷 [ZOOM TRANSITION] zoomLevel changed to: ${zoomLevel}, activeTileSize: ${activeTileSize}`);
+    console.log(`📷 [ZOOM TRANSITION] playerPos from playersInGrid:`, playerPos);
+
+    if (playerPos && activeTileSize) {
+      centerCameraOnPlayerFast(playerPos, activeTileSize);
+    } else {
+      console.warn(`📷 [ZOOM TRANSITION] Cannot center - missing playerPos or activeTileSize`);
+    }
+  }
+}, [zoomLevel, activeTileSize, playersInGrid, currentPlayer]);
 
 const [isLoginPanelOpen, setisLoginPanelOpen] = useState(false);
 const [isOffSeason, setIsOffSeason] = useState(false); // Track if it's off-season
@@ -821,10 +845,29 @@ useEffect(() => {
       await playersInGridManager.initializePlayersInGrid(initialGridId);
       const freshPCState = playersInGridManager.getPlayersInGrid(initialGridId);
       const playerId = String(parsedPlayer.playerId);
-      const playerPosition = freshPCState?.[playerId]?.position;
-      console.log('Player position from playersInGrid:', playerPosition);
+      console.log('🔍 [DEBUG] playerId:', playerId);
+      console.log('🔍 [DEBUG] freshPCState keys:', Object.keys(freshPCState || {}));
+      console.log('🔍 [DEBUG] freshPCState full:', JSON.stringify(freshPCState, null, 2));
+      const playerPositionFromGrid = freshPCState?.[playerId]?.position;
+      // Use playersInGrid as primary source (real-time position), fallback to DBPlayerData.location
+      const playerPosition = (playerPositionFromGrid?.x != null && playerPositionFromGrid?.y != null)
+        ? playerPositionFromGrid
+        : (DBPlayerData.location?.x != null && DBPlayerData.location?.y != null)
+          ? { x: DBPlayerData.location.x, y: DBPlayerData.location.y }
+          : null;
+      console.log('📍 Player position for centering:', playerPosition, '(from grid:', playerPositionFromGrid, ', from DB:', DBPlayerData.location, ')');
       if (playerPosition) {
-        centerCameraOnPlayer(playerPosition, activeTileSize);
+        // Check for stored zoom level to use correct TILE_SIZE for initial centering
+        // Use globalTuningData directly since React state hasn't updated yet
+        const storedZoom = localStorage.getItem("initialZoomLevel") || 'close';
+        const tileSizesFromTuning = {
+          closer: globalTuningData?.closerZoom || 50,
+          close: globalTuningData?.closeZoom || 30,
+          far: globalTuningData?.farZoom || 16
+        };
+        const initialTileSize = tileSizesFromTuning[storedZoom] || tileSizesFromTuning.close;
+        console.log(`📷 Centering camera on (${playerPosition.x}, ${playerPosition.y}) with TILE_SIZE: ${initialTileSize} (zoom: ${storedZoom}, from globalTuning: ${JSON.stringify(tileSizesFromTuning)})`);
+        centerCameraOnPlayer(playerPosition, initialTileSize);
       }
 
       // Step 8. Resolve player location 
@@ -1754,16 +1797,13 @@ useEffect(() => {
 const zoomIn = async () => {
   const gridId = currentPlayer?.location?.g;
   if (!gridId || !currentPlayer?._id) { console.warn("No valid gridId or playerId found for currentPlayer."); return; }
-  const playerIdStr = String(currentPlayer._id);
-  const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
   if (currentPlayer.iscamping) { updateStatus(32); return; }
   
   if (zoomLevel === 'frontier') {
     setZoomLevel('settlement'); // Zoom into the settlement view
     updateStatus(12); // "Settlement view."
   } else if (zoomLevel === 'settlement') {
-    centerCameraOnPlayerFast(playerPos, TILE_SIZES.far); 
-    setZoomLevel('far'); // Zoom into the grid view
+    setZoomLevel('far'); // Zoom into the grid view - useLayoutEffect will center camera
     const { username, gridType } = await fetchHomesteadOwner(gridId);
 
     if (gridType === 'town') {
@@ -1782,35 +1822,20 @@ const zoomIn = async () => {
     }
 
   } else if (zoomLevel === 'far') {
-    setTimeout(() => {
-      centerCameraOnPlayerFast(playerPos, TILE_SIZES.close);
-    }, 50); // Allow brief render before scrolling
-    setZoomLevel('close'); // Zoom into a detailed view
+    setZoomLevel('close'); // Zoom into a detailed view - useLayoutEffect will center camera
   } else if (zoomLevel === 'close') {
-    setTimeout(() => {
-      centerCameraOnPlayerFast(playerPos, TILE_SIZES.closer);
-    }, 50); // Allow brief render before scrolling
-    setZoomLevel('closer');
+    setZoomLevel('closer'); // useLayoutEffect will center camera
   }
 };
 
 const zoomOut = () => {
-  const gridId = currentPlayer?.location?.g;
-  if (!gridId || !currentPlayer?._id) { console.warn("No valid gridId or playerId found for currentPlayer."); return; }
-  const playerIdStr = String(currentPlayer._id);
-  const playerPos = playersInGrid?.[gridId]?.pcs?.[playerIdStr]?.position;
-
+  if (!currentPlayer?.location?.g || !currentPlayer?._id) { console.warn("No valid gridId or playerId found for currentPlayer."); return; }
   if (currentPlayer.iscamping) { updateStatus(32); return; }
+
   if (zoomLevel === 'closer') {
-    setZoomLevel('close');
-    setTimeout(() => {
-      centerCameraOnPlayerFast(playerPos, TILE_SIZES.close);
-    }, 50); // Allow brief render before scrolling
+    setZoomLevel('close'); // useLayoutEffect will center camera
   } else if (zoomLevel === 'close') {
-    setZoomLevel('far'); // Zoom out to grid view
-    setTimeout(() => {
-      centerCameraOnPlayerFast(playerPos, TILE_SIZES.far);
-    }, 50); // Allow brief render before scrolling
+    setZoomLevel('far'); // useLayoutEffect will center camera
   } else if (zoomLevel === 'far') {
     setZoomLevel('settlement'); // Zoom out to settlement view
     updateStatus(12); // "Settlement view."

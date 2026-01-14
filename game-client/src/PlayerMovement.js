@@ -280,6 +280,7 @@ export function centerCameraOnPlayer(position, TILE_SIZE, retryCount = 0) {
   const gameContainer = document.querySelector(".homestead");
   if (!gameContainer) {
     // Container not ready yet, retry after a short delay (Safari fix)
+    console.log(`📷 [CAMERA] No container found, retrying... (attempt ${retryCount + 1})`);
     if (retryCount < 5) {
       requestAnimationFrame(() => centerCameraOnPlayer(position, TILE_SIZE, retryCount + 1));
     }
@@ -302,6 +303,12 @@ export function centerCameraOnPlayer(position, TILE_SIZE, retryCount = 0) {
   const maxScrollLeft = gameContainer.scrollWidth - gameContainer.clientWidth;
   const maxScrollTop = gameContainer.scrollHeight - gameContainer.clientHeight;
 
+  console.log(`📷 [CAMERA DEBUG] position: (${position.x}, ${position.y}), TILE_SIZE: ${TILE_SIZE}`);
+  console.log(`📷 [CAMERA DEBUG] centerX: ${centerX}, centerY: ${centerY}`);
+  console.log(`📷 [CAMERA DEBUG] container scrollWidth: ${gameContainer.scrollWidth}, clientWidth: ${gameContainer.clientWidth}`);
+  console.log(`📷 [CAMERA DEBUG] container scrollHeight: ${gameContainer.scrollHeight}, clientHeight: ${gameContainer.clientHeight}`);
+  console.log(`📷 [CAMERA DEBUG] maxScrollLeft: ${maxScrollLeft}, maxScrollTop: ${maxScrollTop}`);
+
   // Safari fix: If container hasn't laid out yet (scroll dimensions are 0), retry
   if (maxScrollLeft <= 0 && maxScrollTop <= 0 && centerX > 0 && retryCount < 10) {
     console.log(`📷 [CAMERA] Container not ready, retrying... (attempt ${retryCount + 1})`);
@@ -312,13 +319,13 @@ export function centerCameraOnPlayer(position, TILE_SIZE, retryCount = 0) {
   const clampedX = Math.max(0, Math.min(centerX, maxScrollLeft));
   const clampedY = Math.max(0, Math.min(centerY, maxScrollTop));
 
+  console.log(`📷 [CAMERA DEBUG] Final scroll: clampedX: ${clampedX}, clampedY: ${clampedY}`);
+
   gameContainer.scrollTo({
     left: clampedX,
     top: clampedY,
     behavior: "smooth",
   });
-
-  //console.log(`📷 Camera centered on player at (${position.x}, ${position.y})`);
 }
 
 

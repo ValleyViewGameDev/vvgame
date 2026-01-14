@@ -149,16 +149,16 @@ export const RenderResourcesCanvas = ({
 
     if (filename) {
       // Render custom SVG art
-      console.log(`🖼️ [SVG DEBUG] Loading SVG texture for ${resource.type}: ${filename} at size ${size}`);
+      //console.log(`🖼️ [SVG DEBUG] Loading SVG texture for ${resource.type}: ${filename} at size ${size}`);
       const texture = await SVGAssetManager.getSVGTexture(filename, size);
       if (texture) {
-        console.log(`✅ [SVG DEBUG] Successfully loaded SVG texture for ${resource.type}: ${filename}`);
+        //console.log(`✅ [SVG DEBUG] Successfully loaded SVG texture for ${resource.type}: ${filename}`);
 
-        if (tileSpan > 1) {
-          console.log(`🗻 [MULTI-TILE DEBUG] Rendering ${resource.type} (size ${tileSpan}) at anchor (${resource.x}, ${resource.y}) -> visual position (${x}, ${visualY}) size ${size}x${size}`);
-          console.log(`    Logical blocking tiles: (${resource.x}, ${resource.y - tileSpan + 1}) to (${resource.x + tileSpan - 1}, ${resource.y})`);
-          console.log(`    Visual rendering tiles: (${Math.floor(x/TILE_SIZE)}, ${Math.floor(visualY/TILE_SIZE)}) to (${Math.floor((x+size)/TILE_SIZE)-1}, ${Math.floor((visualY+size)/TILE_SIZE)-1})`);
-        }
+        // if (tileSpan > 1) {
+        //   console.log(`🗻 [MULTI-TILE DEBUG] Rendering ${resource.type} (size ${tileSpan}) at anchor (${resource.x}, ${resource.y}) -> visual position (${x}, ${visualY}) size ${size}x${size}`);
+        //   console.log(`    Logical blocking tiles: (${resource.x}, ${resource.y - tileSpan + 1}) to (${resource.x + tileSpan - 1}, ${resource.y})`);
+        //   console.log(`    Visual rendering tiles: (${Math.floor(x/TILE_SIZE)}, ${Math.floor(visualY/TILE_SIZE)}) to (${Math.floor((x+size)/TILE_SIZE)-1}, ${Math.floor((visualY+size)/TILE_SIZE)-1})`);
+        // }
 
         ctx.drawImage(texture, x, visualY, size, size);
       } else {
