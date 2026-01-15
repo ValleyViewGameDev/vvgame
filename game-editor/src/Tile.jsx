@@ -1,5 +1,5 @@
 import React from 'react';
-import { layoutKeyColors, defaultTileColor } from './tileConfig';
+import { getLayoutKeyColor } from './tileConfig';
 
 const Tile = ({ x, y, tile, updateTile, isSelected, setSelectedTile, tileSize, masterResources, multiTileResource }) => {
   const resourceSymbol = (() => {
@@ -14,7 +14,7 @@ const Tile = ({ x, y, tile, updateTile, isSelected, setSelectedTile, tileSize, m
       style={{
         width: `${tileSize}px`,
         height: `${tileSize}px`,
-        background: layoutKeyColors[tile.type] || defaultTileColor,
+        background: getLayoutKeyColor(tile.type),
         border: isSelected ? "3px solid red" : "1px solid black",
         display: "flex",
         alignItems: "center",

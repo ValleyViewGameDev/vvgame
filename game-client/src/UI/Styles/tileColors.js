@@ -5,45 +5,53 @@
  * the game client and editor. Import from here to ensure consistency.
  *
  * Usage:
- *   import { tileColors, layoutKeyColors, defaultTileColor } from '../UI/Styles/tileColors';
+ *   import { tileColors, getLayoutKeyColor, defaultTileColor } from '../UI/Styles/tileColors';
  */
 
 // Single-letter tile type keys (used by game rendering and editor)
 export const tileColors = {
-  g: '#81ba44',    // grass
-  s: '#8fa6bdff',  // stone/slate
-  d: '#c0834a',    // dirt
+  g: '#9cbb4dff',    // grass
+  s: '#97968bff',  // stone/slate
+  d: '#c98f59ff',    // dirt
   w: '#58cad8',    // water
-  p: '#d3ce7b',    // pavement
+  p: '#f5bf89ff',    // pavement
   l: '#c4583d',    // lava
-  n: '#fbde00',    // sand
+  n: '#e0ca24ff',    // sand
   o: '#ffffff',    // snow
-  x: '#959ba3ff',  // cobblestone
+  x: '#acaa89ff',  // cobblestone
   y: '#000000ff',  // dungeon
-  z: '#1b712cff',  // moss
+  z: '#3f7449ff',  // moss
   c: '#6c3b3bff',  // clay
   v: '#44551dff',  // tbdTile1
   u: '#1b712cff',  // tbdTile2
 };
 
-// Two-letter layout keys (used by Tile.jsx rendering in editor)
-export const layoutKeyColors = {
-  '**': '#fff',       // none
-  'GR': '#67c257',    // grass
-  'SL': '#8fa6bdff',  // stone/slate
-  'DI': '#c0834a',    // dirt
-  'WA': '#58cad8',    // water
-  'PA': '#c5a85d',    // pavement
-  'LV': '#c4583d',    // lava
-  'SA': '#fbde00',    // sand
-  'SN': '#ffffff',    // snow
-  'CB': '#959ba3ff',  // cobblestone
-  'DU': '#000000ff',  // dungeon
-  'ZZ': '#1b712cff',  // moss
-  'CL': '#6c3b3bff',  // clay
-  'V1': '#44551dff',  // tbdTile1
-  'U2': '#1b712cff',  // tbdTile2
+// Mapping from two-letter layout keys to single-letter tile types
+// Used by game-editor's Tile.jsx to look up colors from tileColors
+export const LAYOUT_KEY_TO_TILE_TYPE = {
+  '**': null,  // none
+  'GR': 'g',   // grass
+  'SL': 's',   // stone/slate
+  'DI': 'd',   // dirt
+  'WA': 'w',   // water
+  'PA': 'p',   // pavement
+  'LV': 'l',   // lava
+  'SA': 'n',   // sand
+  'SN': 'o',   // snow
+  'CB': 'x',   // cobblestone
+  'DU': 'y',   // dungeon
+  'ZZ': 'z',   // moss
+  'CL': 'c',   // clay
+  'V1': 'v',   // tbdTile1
+  'U2': 'u',   // tbdTile2
 };
+
+// Helper to get color from two-letter layout key
+export function getLayoutKeyColor(layoutKey) {
+  if (layoutKey === '**') return '#fff';
+  const tileType = LAYOUT_KEY_TO_TILE_TYPE[layoutKey];
+  return tileType ? tileColors[tileType] : defaultTileColor;
+}
 
 // Tile rounding configuration - which tile types should have rounded corners
 export const tileRoundingConfig = {

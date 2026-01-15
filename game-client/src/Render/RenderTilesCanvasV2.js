@@ -8,6 +8,40 @@
 import React, { useRef, useEffect, useCallback } from 'react';
 import { getTileColor } from '../UI/Styles/tileColors';
 
+/**
+ * Parse a hex color string to RGB values
+ * Supports formats: #RGB, #RGBA, #RRGGBB, #RRGGBBAA
+ */
+function parseColorToRgb(color) {
+  // Default fallback
+  const fallback = { r: 128, g: 128, b: 128 };
+
+  if (!color || typeof color !== 'string') return fallback;
+
+  // Remove # if present
+  const hex = color.replace('#', '');
+
+  let r, g, b;
+  if (hex.length === 3 || hex.length === 4) {
+    // #RGB or #RGBA format
+    r = parseInt(hex[0] + hex[0], 16);
+    g = parseInt(hex[1] + hex[1], 16);
+    b = parseInt(hex[2] + hex[2], 16);
+  } else if (hex.length === 6 || hex.length === 8) {
+    // #RRGGBB or #RRGGBBAA format
+    r = parseInt(hex.substring(0, 2), 16);
+    g = parseInt(hex.substring(2, 4), 16);
+    b = parseInt(hex.substring(4, 6), 16);
+  } else {
+    return fallback;
+  }
+
+  // Handle NaN from invalid hex
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return fallback;
+
+  return { r, g, b };
+}
+
 // Corner rounding priority - higher priority tiles round INTO lower priority tiles
 // Inorganic tiles (p, x, y) never get rounded - they have sharp edges
 // Priority order: grass > snow > dirt/sand > water (lowest)
@@ -225,15 +259,19 @@ function drawBeveledStoneTile(ctx, tileX, tileY, TILE_SIZE, baseColor, tileType,
       [halfSize, halfSize] // bottom-right
     ];
 
+    // Parse base color to RGB for variation
+    const baseRgb = parseColorToRgb(baseColor);
+
     positions.forEach(([ox, oy], i) => {
       const stoneSeed = (seed + i * 37) % 1000;
-      // Slight color variation per stone
+      // Slight color variation per stone based on the configured base color
       const colorVariation = (stoneSeed % 20) - 10;
-      const r = Math.min(255, Math.max(0, 149 + colorVariation));
-      const g = Math.min(255, Math.max(0, 155 + colorVariation));
-      const b = Math.min(255, Math.max(0, 163 + colorVariation));
+      const r = Math.min(255, Math.max(0, baseRgb.r + colorVariation));
+      const g = Math.min(255, Math.max(0, baseRgb.g + colorVariation));
+      const b = Math.min(255, Math.max(0, baseRgb.b + colorVariation));
       const stoneColor = `rgb(${r}, ${g}, ${b})`;
 
+      // Draw beveled stone
       drawSingleBeveledStone(
         ctx,
         tileX + ox,

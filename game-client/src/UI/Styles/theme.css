@@ -10,7 +10,7 @@
 
 :root {
   /* ========== PRIMARY COLORS ========== */
-  --color-primary-green: #80c257;        /* Main UI green (header, base panel, nav) */
+  --color-primary-green: #9cbb4dff;        /* Main UI green (header, base panel, nav) */
   --color-primary-green-dark: #0e6a0c;   /* Darker green for gridlines, hover states */
   --color-primary-green-light: #74ee66;  /* Lighter green for buttons and nav column background */
 
@@ -37,7 +37,7 @@
   --color-shadow-button: rgba(92, 91, 91, 0.5);
 
   /* ========== BUTTON COLORS ========== */
-  --color-btn-primary: #a3ee66;           /* Light green button background */
+  --color-btn-primary: #baee66;           /* Light green button background */
   --color-btn-primary-text: #358337;      /* Dark green button text */
   --color-btn-primary-hover: #ebffe7;     /* Light green hover */
   --color-btn-hover-light: #f1f1f1;       /* Generic light hover */
