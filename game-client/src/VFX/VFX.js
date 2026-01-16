@@ -183,7 +183,7 @@ export const createSourceConversionEffect = (x, y, TILE_SIZE, requiredSkill) => 
  * @param {string} emoji - The emoji to display (seed/crop symbol)
  * @param {function} onComplete - Optional callback when animation completes (to trigger re-render)
  */
-export const createPlantGrowEffect = (x, y, TILE_SIZE, emoji, onComplete) => {
+export const createPlantGrowEffect = (x, y, TILE_SIZE, emoji, onComplete, filename = null) => {
     const gameContainer = document.querySelector('.homestead');
     if (!gameContainer) return;
 
@@ -192,32 +192,53 @@ export const createPlantGrowEffect = (x, y, TILE_SIZE, emoji, onComplete) => {
     // Mark this resource as animating so canvas skips rendering it
     animatingResources.add(posKey);
 
-    // Calculate tile center to match canvas rendering
-    // Canvas uses textBaseline='middle' which has slightly different centering than CSS translate(-50%, -50%)
-    // Apply a small upward offset (~2% of tile size) to compensate for emoji baseline differences
-    const centerX = (x * TILE_SIZE) + (TILE_SIZE / 2);
-    const centerY = (y * TILE_SIZE) + (TILE_SIZE / 2) - (TILE_SIZE * 0.02);
-
     // Calculate final font size (matching resource rendering)
     const finalFontSize = TILE_SIZE * 0.7;
 
-    // Create the growing emoji
+    // Create the growing element (SVG image or emoji)
     const particle = document.createElement('div');
-    particle.innerText = emoji;
     particle.style.position = 'absolute';
-    particle.style.left = `${centerX}px`;
-    particle.style.top = `${centerY}px`;
     particle.style.pointerEvents = 'none';
     particle.style.zIndex = '1001'; // Well above resources
-    particle.style.fontSize = `${finalFontSize}px`;
-    particle.style.transform = 'translate(-50%, -50%) scale(0.02)'; // Start at 2% scale
     particle.style.transition = `transform ${VFX_TIMING.PLANT_GROW_DURATION}ms ease-out`;
+
+    if (filename) {
+        // SVG images: position at top-left corner to match canvas drawImage behavior
+        const tileX = x * TILE_SIZE;
+        const tileY = y * TILE_SIZE;
+        particle.style.left = `${tileX}px`;
+        particle.style.top = `${tileY}px`;
+        particle.style.width = `${TILE_SIZE}px`;
+        particle.style.height = `${TILE_SIZE}px`;
+        particle.style.transformOrigin = 'center center';
+        particle.style.transform = 'scale(0.02)'; // Start at 2% scale
+
+        const img = document.createElement('img');
+        img.src = `/assets/resources/${filename}`;
+        img.alt = '';
+        img.style.width = '100%';
+        img.style.height = '100%';
+        particle.appendChild(img);
+    } else {
+        // Emojis: position at center to match canvas textAlign/textBaseline behavior
+        const centerX = (x * TILE_SIZE) + (TILE_SIZE / 2);
+        const centerY = (y * TILE_SIZE) + (TILE_SIZE / 2) - (TILE_SIZE * 0.02);
+        particle.style.left = `${centerX}px`;
+        particle.style.top = `${centerY}px`;
+        particle.style.transform = 'translate(-50%, -50%) scale(0.02)'; // Start at 2% scale
+        particle.innerText = emoji;
+        particle.style.fontSize = `${finalFontSize}px`;
+    }
 
     gameContainer.appendChild(particle);
 
     // Trigger the grow animation
     requestAnimationFrame(() => {
-        particle.style.transform = 'translate(-50%, -50%) scale(1)';
+        if (filename) {
+            particle.style.transform = 'scale(1)';
+        } else {
+            particle.style.transform = 'translate(-50%, -50%) scale(1)';
+        }
     });
 
     // Remove after animation completes and allow canvas to render the resource again

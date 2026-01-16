@@ -221,6 +221,7 @@ const BuyDecoPanel = ({
                   masterResources={masterResources || allResources}
                   currentPlayer={currentPlayer}
                   devOnly={item.requires === 'devonly'}
+                  filename={item.filename}
                 />
               );
             })}

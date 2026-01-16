@@ -166,7 +166,7 @@ export const handleFarmPlotPlacement = async ({
       // Show VFX and floating text for planting
       createCollectEffect(tileX, tileY, TILE_SIZE);
       if (enrichedNewResource.symbol) {
-        createPlantGrowEffect(tileX, tileY, TILE_SIZE, enrichedNewResource.symbol);
+        createPlantGrowEffect(tileX, tileY, TILE_SIZE, enrichedNewResource.symbol, null, enrichedNewResource.filename);
       }
       FloatingTextManager.addFloatingText(302, tileX, tileY, TILE_SIZE); // "Planted!"
 

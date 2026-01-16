@@ -589,7 +589,7 @@ async function handleReplant(
       // Show grow VFX for the replanted farmplot, but skip animation for trees
       // Trees instantly replace without the seed grow animation
       if (enrichedNewResource.symbol && TILE_SIZE && farmplotResource.source !== 'tree') {
-        createPlantGrowEffect(col, row, TILE_SIZE, enrichedNewResource.symbol);
+        createPlantGrowEffect(col, row, TILE_SIZE, enrichedNewResource.symbol, null, enrichedNewResource.filename);
       }
     } else {
       throw new Error('Server failed to confirm the replant.');

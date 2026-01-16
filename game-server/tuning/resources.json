@@ -488,7 +488,8 @@
     "validonz": false,
     "validonc": false,
     "validonv": false,
-    "validonu": false
+    "validonu": false,
+    "filename": "rock.svg"
   },
   {
     "type": "Rock Pit",
@@ -514,6 +515,7 @@
     "validonv": false,
     "validonu": false,
     "growtime": 172800,
+    "filename": "rock.svg",
     "crafttime": 172800,
     "totalnestedtime": 172800
   },
@@ -598,6 +600,7 @@
     "validonv": false,
     "validonu": false,
     "growtime": 86400,
+    "filename": "clay-source.svg",
     "crafttime": 86400,
     "totalnestedtime": 86400
   },
@@ -1461,7 +1464,7 @@
     "growtime": 259200,
     "ingredient1": "Money",
     "ingredient1qty": 500,
-    "filename": "oak-tree.svg",
+    "filename": "fruit-tree.svg",
     "crafttime": 259200,
     "totalnestedtime": 259200
   },
@@ -1771,7 +1774,7 @@
     "growtime": 64800,
     "ingredient1": "Money",
     "ingredient1qty": 500,
-    "filename": "oak-tree.svg",
+    "filename": "fruit-tree.svg",
     "crafttime": 64800,
     "totalnestedtime": 64800
   },
@@ -1803,7 +1806,7 @@
     "growtime": 86400,
     "ingredient1": "Money",
     "ingredient1qty": 500,
-    "filename": "oak-tree.svg",
+    "filename": "fruit-tree.svg",
     "crafttime": 86400,
     "totalnestedtime": 86400
   },
@@ -1867,7 +1870,7 @@
     "growtime": 86400,
     "ingredient1": "Money",
     "ingredient1qty": 500,
-    "filename": "oak-tree.svg",
+    "filename": "fruit-tree.svg",
     "crafttime": 86400,
     "totalnestedtime": 86400
   },
@@ -1900,7 +1903,7 @@
     "growtime": 28800,
     "ingredient1": "Peach",
     "ingredient1qty": 1,
-    "filename": "oak-tree.svg",
+    "filename": "fruit-tree.svg",
     "crafttime": 28800,
     "totalnestedtime": 57600
   },
@@ -1933,7 +1936,7 @@
     "growtime": 28800,
     "ingredient1": "Cherry",
     "ingredient1qty": 1,
-    "filename": "oak-tree.svg",
+    "filename": "fruit-tree.svg",
     "crafttime": 28800,
     "totalnestedtime": 57600
   },
@@ -1966,7 +1969,7 @@
     "growtime": 28800,
     "ingredient1": "Pear",
     "ingredient1qty": 1,
-    "filename": "oak-tree.svg",
+    "filename": "fruit-tree.svg",
     "crafttime": 28800,
     "totalnestedtime": 57600
   },
@@ -7276,7 +7279,6 @@
     "ingredient3": "Clay",
     "ingredient3qty": 400,
     "gemcost": 7750,
-    "filename": "studio.svg",
     "crafttime": 0,
     "totalnestedtime": 8712000
   },
@@ -11672,6 +11674,29 @@
     "totalnestedtime": 26870400
   },
   {
+    "type": "Haybale",
+    "symbol": "📦",
+    "layoutkey": "hay",
+    "category": "deco",
+    "source": "Deco",
+    "passable": true,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 10,
+    "gemcost": 2,
+    "filename": "haybale.svg"
+  },
+  {
     "type": "Crate",
     "symbol": "📦",
     "layoutkey": "HB",
@@ -11691,7 +11716,8 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 10,
-    "gemcost": 2
+    "gemcost": 2,
+    "filename": "crate.svg"
   },
   {
     "type": "Holiday Tree",
@@ -11887,7 +11913,6 @@
   },
   {
     "type": "Plant",
-    "filename": "plant.svg",
     "symbol": "🪴",
     "layoutkey": "pt",
     "category": "deco",
@@ -11906,7 +11931,77 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 25,
-    "gemcost": 4
+    "gemcost": 4,
+    "filename": "plant.svg"
+  },
+  {
+    "type": "Red Plant",
+    "symbol": "🪴",
+    "layoutkey": "rpt",
+    "category": "deco",
+    "source": "Deco",
+    "passable": true,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 25,
+    "gemcost": 4,
+    "filename": "plant-red.svg"
+  },
+  {
+    "type": "Flower Pot",
+    "symbol": "🪴",
+    "layoutkey": "fpt",
+    "category": "deco",
+    "source": "Deco",
+    "passable": true,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 25,
+    "gemcost": 4,
+    "filename": "flower-pot.svg"
+  },
+  {
+    "type": "Potted Plant",
+    "symbol": "🪴",
+    "layoutkey": "pplt",
+    "category": "deco",
+    "source": "Deco",
+    "passable": true,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 50,
+    "gemcost": 7,
+    "filename": "potted-plant.svg"
   },
   {
     "type": "Cactus",
@@ -11928,7 +12023,8 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 50,
-    "gemcost": 7
+    "gemcost": 7,
+    "filename": "cactus.svg"
   },
   {
     "type": "Harp",
@@ -11972,7 +12068,8 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 100,
-    "gemcost": 13
+    "gemcost": 13,
+    "filename": "flag.svg"
   },
   {
     "type": "Stack of Books",
@@ -12178,7 +12275,8 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 40000,
-    "gemcost": 5000
+    "gemcost": 5000,
+    "filename": "palm-tree.svg"
   },
   {
     "type": "Dunsinane",

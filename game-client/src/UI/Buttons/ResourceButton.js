@@ -57,7 +57,9 @@ const ResourceButton = ({
   masterResources = null,
   currentPlayer = null,
   // Developer-only styling - applies danger/red tint to buttons for devonly resources
-  devOnly = false
+  devOnly = false,
+  // SVG filename - when provided, shows SVG image instead of emoji symbol
+  filename = null
 }) => { 
   const strings = useStrings();
   const { openPanel } = usePanelContext();
@@ -173,7 +175,20 @@ const ResourceButton = ({
 
           {/* ✅ Ensure default content is displayed */}
           <span className="resource-title">
-            {isProcessing ? '⏳' : symbol} {isProcessing ? 'Processing...' : name}
+            {isProcessing ? '⏳' : (
+              filename ? (
+                <img
+                  src={`/assets/resources/${filename}`}
+                  alt={name}
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    verticalAlign: 'middle',
+                    marginRight: '4px'
+                  }}
+                />
+              ) : symbol
+            )} {isProcessing ? 'Processing...' : name}
           </span>
           {!isProcessing && (
             <span className="resource-details" dangerouslySetInnerHTML={{
