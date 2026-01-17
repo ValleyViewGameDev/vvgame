@@ -58,14 +58,16 @@ const FarmingPanel = ({
 
   // Handle selecting a crop for cursor mode
   const handleCursorModeSelect = (item) => {
-    // Find the output crop symbol (what grows from this plot)
+    // Find the output crop (what grows from this plot)
     const outputCrop = allResources.find((res) => res.source === item.type);
     const outputSymbol = outputCrop?.symbol || item.symbol || '🌱';
+    const outputFilename = outputCrop?.filename || item.filename || null;
 
     setCursorMode({
       type: 'plant',
       item: item,
-      emoji: outputSymbol
+      emoji: outputSymbol,
+      filename: outputFilename
     });
   };
 

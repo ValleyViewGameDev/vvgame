@@ -519,38 +519,73 @@ useEffect(() => {
   }
 }, [activePanel]);
 
-// Apply emoji cursor when in cursor mode
+// Apply emoji or SVG cursor when in cursor mode
 useEffect(() => {
-  if (cursorMode?.emoji) {
+  if (cursorMode?.emoji || cursorMode?.filename) {
     // Scale cursor based on resource size (multi-tile resources get larger cursors)
     const tileSpan = cursorMode.size || 1;
     const baseSize = 32;
     const canvasSize = baseSize * tileSpan;
-    const fontSize = 24 * tileSpan;
     const center = canvasSize / 2;
 
-    // Create a canvas to render the emoji as a cursor image
-    const canvas = document.createElement('canvas');
-    canvas.width = canvasSize;
-    canvas.height = canvasSize;
-    const ctx = canvas.getContext('2d');
-    ctx.font = `${fontSize}px serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(cursorMode.emoji, center, center);
-    const cursorUrl = canvas.toDataURL();
+    // Helper to apply cursor style
+    const applyCursor = (cursorUrl) => {
+      const styleEl = document.createElement('style');
+      styleEl.id = 'cursor-mode-style';
+      styleEl.textContent = `
+        body.cursor-mode-active,
+        body.cursor-mode-active * {
+          cursor: url(${cursorUrl}) ${center} ${center}, crosshair !important;
+        }
+      `;
+      document.head.appendChild(styleEl);
+      document.body.classList.add('cursor-mode-active');
+    };
 
-    // Create a style element to force cursor on all elements (including canvas)
-    const styleEl = document.createElement('style');
-    styleEl.id = 'cursor-mode-style';
-    styleEl.textContent = `
-      body.cursor-mode-active,
-      body.cursor-mode-active * {
-        cursor: url(${cursorUrl}) ${center} ${center}, crosshair !important;
-      }
-    `;
-    document.head.appendChild(styleEl);
-    document.body.classList.add('cursor-mode-active');
+    if (cursorMode.filename) {
+      // Load SVG and render to canvas for cursor
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvasSize, canvasSize);
+        const cursorUrl = canvas.toDataURL();
+        applyCursor(cursorUrl);
+      };
+      img.onerror = () => {
+        // Fall back to emoji if SVG fails to load
+        if (cursorMode.emoji) {
+          const canvas = document.createElement('canvas');
+          canvas.width = canvasSize;
+          canvas.height = canvasSize;
+          const ctx = canvas.getContext('2d');
+          const fontSize = 24 * tileSpan;
+          ctx.font = `${fontSize}px serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(cursorMode.emoji, center, center);
+          const cursorUrl = canvas.toDataURL();
+          applyCursor(cursorUrl);
+        }
+      };
+      img.src = `/assets/resources/${cursorMode.filename}`;
+    } else {
+      // Use emoji cursor
+      const canvas = document.createElement('canvas');
+      canvas.width = canvasSize;
+      canvas.height = canvasSize;
+      const ctx = canvas.getContext('2d');
+      const fontSize = 24 * tileSpan;
+      ctx.font = `${fontSize}px serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(cursorMode.emoji, center, center);
+      const cursorUrl = canvas.toDataURL();
+      applyCursor(cursorUrl);
+    }
 
     return () => {
       document.body.classList.remove('cursor-mode-active');

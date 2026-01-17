@@ -7279,6 +7279,7 @@
     "ingredient3": "Clay",
     "ingredient3qty": 400,
     "gemcost": 7750,
+    "filename": "studio.svg",
     "crafttime": 0,
     "totalnestedtime": 8712000
   },
@@ -11720,6 +11721,29 @@
     "filename": "crate.svg"
   },
   {
+    "type": "Barrel",
+    "symbol": "📦",
+    "layoutkey": "bar",
+    "category": "deco",
+    "source": "Deco",
+    "passable": true,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 20,
+    "gemcost": 3,
+    "filename": "barrel.svg"
+  },
+  {
     "type": "Holiday Tree",
     "symbol": "🎄",
     "layoutkey": "Xm",
@@ -11750,6 +11774,7 @@
   },
   {
     "type": "Stone Wall",
+    "filename": "wall-stone.svg",
     "symbol": "⬜",
     "layoutkey": "wa",
     "category": "deco",
@@ -11773,6 +11798,7 @@
   },
   {
     "type": "Stone Wall Large",
+    "filename": "wall-stone.svg",
     "symbol": "⬜",
     "layoutkey": "w2",
     "size": 2,
@@ -12070,6 +12096,29 @@
     "ingredient1qty": 100,
     "gemcost": 13,
     "filename": "flag.svg"
+  },
+  {
+    "type": "Sack",
+    "symbol": "📦",
+    "layoutkey": "deco01",
+    "category": "deco",
+    "source": "Deco",
+    "passable": true,
+    "qtycollected": 1,
+    "validong": true,
+    "validond": true,
+    "validons": true,
+    "validonp": true,
+    "validonw": false,
+    "validonl": false,
+    "validonn": true,
+    "validono": true,
+    "validonx": true,
+    "validony": true,
+    "ingredient1": "Money",
+    "ingredient1qty": 30,
+    "gemcost": 4,
+    "filename": "sack.svg"
   },
   {
     "type": "Stack of Books",

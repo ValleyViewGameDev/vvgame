@@ -56,6 +56,7 @@ const BuyDecoPanel = ({
       type: 'build',
       item: item.type,
       emoji: item.symbol || '🪴',
+      filename: item.filename || null,
       size: item.size || 1,
       buildOptions: buyOptions,
     });
