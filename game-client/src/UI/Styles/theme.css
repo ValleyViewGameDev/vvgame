@@ -10,7 +10,7 @@
 
 :root {
   /* ========== PRIMARY COLORS ========== */
-  --color-primary-green: #9cbb4dff;        /* Main UI green (header, base panel, nav) */
+  --color-primary-green: #82bb4dff;        /* Main UI green (header, base panel, nav) */
   --color-primary-green-dark: #0e6a0c;   /* Darker green for gridlines, hover states */
   --color-primary-green-light: #74ee66;  /* Lighter green for buttons and nav column background */
 

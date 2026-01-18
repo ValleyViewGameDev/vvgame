@@ -10,7 +10,7 @@
 
 // Single-letter tile type keys (used by game rendering and editor)
 export const tileColors = {
-  g: '#9cbb4dff',    // grass
+  g: '#82bb4dff',    // grass
   s: '#97968bff',  // stone/slate
   d: '#c98f59ff',    // dirt
   w: '#58cad8',    // water

@@ -370,7 +370,7 @@ return (
               className="btn-basic btn-danger"
               onClick={handleSendHome}
             >
-              🏠 Send Home (dev only)
+              🏠 Send Home (dev only){fullPlayerData?.inventory?.some(item => item.type === 'Home Deed') ? ' (has Home Deed)' : ''}
             </button>
           </div>
         )}
