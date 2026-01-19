@@ -7855,7 +7855,8 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 1
+    "ingredient1qty": 1,
+    "filename": "haybale.svg"
   },
   {
     "type": "Warehouse",
@@ -11774,7 +11775,6 @@
   },
   {
     "type": "Stone Wall",
-    "filename": "wall-stone.svg",
     "symbol": "⬜",
     "layoutkey": "wa",
     "category": "deco",
@@ -11798,7 +11798,6 @@
   },
   {
     "type": "Stone Wall Large",
-    "filename": "wall-stone.svg",
     "symbol": "⬜",
     "layoutkey": "w2",
     "size": 2,
