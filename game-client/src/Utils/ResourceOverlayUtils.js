@@ -75,3 +75,22 @@ export const OVERLAY_EMOJI_MAPPING = {
   'exclamation': { emoji: '❗', color: '#FF6B35' },
   'attack': { emoji: '⚔️', color: '#DC143C' },
 };
+
+/**
+ * Determine overlay status for NPCs (e.g., farm animals ready for collection)
+ * @param {Object} npc - The NPC object
+ * @returns {Object|null} - Overlay info with type and priority, or null if no overlay needed
+ */
+export const getNPCOverlayStatus = (npc) => {
+  if (!npc) return null;
+
+  // Check for graze NPCs (farm animals) that are ready for collection
+  if (npc.action === 'graze' && npc.state === 'processing') {
+    const currentTime = Date.now();
+    if (npc.grazeEnd && currentTime >= npc.grazeEnd) {
+      return { type: 'ready', priority: 1 };
+    }
+  }
+
+  return null;
+};

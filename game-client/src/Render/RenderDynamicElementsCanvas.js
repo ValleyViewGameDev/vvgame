@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState, memo, useCallback } from 'react';
-import { getResourceOverlayStatus, OVERLAY_SVG_MAPPING } from '../Utils/ResourceOverlayUtils';
+import { getResourceOverlayStatus, getNPCOverlayStatus, OVERLAY_SVG_MAPPING } from '../Utils/ResourceOverlayUtils';
 import SVGAssetManager from './SVGAssetManager';
 import { getResourceCursorClass, getNPCCursorClass, setCanvasCursor } from '../Utils/CursorUtils';
 import { handleNPCClickShared, getAttackCooldownStatus } from '../GameFeatures/NPCs/NPCInteractionUtils';
@@ -98,64 +98,102 @@ export const RenderDynamicElementsCanvas = ({
     // Clear canvas
     ctx.clearRect(0, 0, displayWidth, displayHeight);
     
+    // Helper function to calculate overlay size based on zoom level
+    const getOverlaySize = () => {
+      if (TILE_SIZE <= 16) {
+        // Far zoom: use smaller minimum and ratio
+        return Math.max(6, TILE_SIZE * 0.35);
+      } else if (TILE_SIZE <= 30) {
+        // Close zoom: standard sizing
+        return Math.max(10, TILE_SIZE * 0.35);
+      } else {
+        // Closer zoom: allow larger overlays
+        return Math.max(14, TILE_SIZE * 0.35);
+      }
+    };
+
     // Render resource overlays
     for (const resource of resources) {
       if (resource.type === 'shadow' || resource.category === 'doober' || resource.category === 'source') continue;
-      
+
       const overlayInfo = getResourceOverlayStatus(
-        resource, 
-        craftingStatus, 
-        tradingStatus, 
-        badgeState, 
+        resource,
+        craftingStatus,
+        tradingStatus,
+        badgeState,
         electionPhase,
         currentPlayer
       );
-      
+
       if (!overlayInfo) continue;
-      
+
       const overlayType = overlayInfo.type;
       if (!overlayType || !OVERLAY_SVG_MAPPING[overlayType]) continue;
-      
+
       const x = resource.x * TILE_SIZE;
       const y = resource.y * TILE_SIZE;
-      const size = TILE_SIZE * (resource.size || 1);
-      
+
       // Position overlay in lower-left corner of the resource
-      // Scale overlay more appropriately for different zoom levels
-      let overlaySize;
-      if (TILE_SIZE <= 16) {
-        // Far zoom: use smaller minimum and ratio
-        overlaySize = Math.max(6, TILE_SIZE * 0.35);
-      } else if (TILE_SIZE <= 30) {
-        // Close zoom: standard sizing
-        overlaySize = Math.max(10, TILE_SIZE * 0.35);
-      } else {
-        // Closer zoom: allow larger overlays
-        overlaySize = Math.max(14, TILE_SIZE * 0.35);
-      }
-      
+      const overlaySize = getOverlaySize();
       const overlayX = x + 2;
       const overlayY = y + TILE_SIZE - overlaySize - 2;
-      
+
       const overlayTexture = await SVGAssetManager.getOverlayTexture(
-        OVERLAY_SVG_MAPPING[overlayType], 
+        OVERLAY_SVG_MAPPING[overlayType],
         overlaySize
       );
-      
+
       if (overlayTexture) {
         ctx.drawImage(overlayTexture, overlayX, overlayY, overlaySize, overlaySize);
+      }
+    }
+
+    // Render NPC overlays (e.g., farm animals ready for collection)
+    if (npcs) {
+      for (const npc of npcs) {
+        const overlayInfo = getNPCOverlayStatus(npc);
+
+        if (!overlayInfo) continue;
+
+        const overlayType = overlayInfo.type;
+        if (!overlayType || !OVERLAY_SVG_MAPPING[overlayType]) continue;
+
+        const x = Math.floor(npc.position?.x || 0) * TILE_SIZE;
+        const y = Math.floor(npc.position?.y || 0) * TILE_SIZE;
+
+        // Position overlay in lower-left corner of the NPC tile
+        const overlaySize = getOverlaySize();
+        const overlayX = x + 2;
+        const overlayY = y + TILE_SIZE - overlaySize - 2;
+
+        const overlayTexture = await SVGAssetManager.getOverlayTexture(
+          OVERLAY_SVG_MAPPING[overlayType],
+          overlaySize
+        );
+
+        if (overlayTexture) {
+          ctx.drawImage(overlayTexture, overlayX, overlayY, overlaySize, overlaySize);
+        }
       }
     }
   };
 
   // Re-render when dependencies change
   useEffect(() => {
-    const currentData = JSON.stringify({ 
-      resources: resources?.map(r => ({ 
-        x: r.x, 
-        y: r.y, 
+    const currentData = JSON.stringify({
+      resources: resources?.map(r => ({
+        x: r.x,
+        y: r.y,
         type: r.type
-      })), 
+      })),
+      // Track NPC overlay-relevant state (graze animals in processing state)
+      npcs: npcs?.filter(n => n.action === 'graze').map(n => ({
+        id: n.id,
+        state: n.state,
+        grazeEnd: n.grazeEnd,
+        x: Math.floor(n.position?.x || 0),
+        y: Math.floor(n.position?.y || 0)
+      })),
       TILE_SIZE,
       craftingReady: craftingStatus?.ready,
       craftingInProgress: craftingStatus?.inProgress,
@@ -164,12 +202,12 @@ export const RenderDynamicElementsCanvas = ({
       electionPhase,
       playerId: currentPlayer?.id
     });
-    
+
     if (currentData !== lastRenderData.current) {
       renderOverlays();
       lastRenderData.current = currentData;
     }
-  }, [resources, TILE_SIZE, craftingStatus, tradingStatus, badgeState, electionPhase, currentPlayer]);
+  }, [resources, npcs, TILE_SIZE, craftingStatus, tradingStatus, badgeState, electionPhase, currentPlayer]);
 
   // Stop cursor update interval
   const stopCursorUpdateInterval = useCallback(() => {

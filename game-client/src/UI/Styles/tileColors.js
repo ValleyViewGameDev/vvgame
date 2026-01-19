@@ -13,7 +13,7 @@ export const tileColors = {
   g: '#82bb4dff',    // grass
   s: '#97968bff',  // stone/slate
   d: '#c98f59ff',    // dirt
-  w: '#58cad8',    // water
+  w: '#58a0d8ff',    // water
   p: '#f5bf89ff',    // pavement
   l: '#c4583d',    // lava
   n: '#e0ca24ff',    // sand

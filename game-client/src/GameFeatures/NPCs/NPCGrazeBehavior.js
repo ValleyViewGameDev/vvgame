@@ -3,6 +3,14 @@ import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTil
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import { calculateDistance } from '../../Utils/worldHelpers';
 
+// ============================================================================
+// TESTING FLAG: Skip Animal Stall
+// When true: Animals enter 'processing' state immediately after grazing ends,
+//            without walking to the Animal Stall. Collection happens in-place.
+// When false: Original behavior - animals walk to Animal Stall before processing.
+// ============================================================================
+const SKIP_STALL_AFTER_GRAZING = true;
+
 // Behavior handler for farm animals (e.g., cows)
 async function handleFarmAnimalBehavior(gridId) {
     // Helper for updating just this NPC
@@ -44,19 +52,24 @@ async function handleFarmAnimalBehavior(gridId) {
 //              console.log(`🔁 Retrying after idle for NPC ${this.id}`);
               // Check if we have grazeEnd to determine next state
               if (this.grazeEnd && Date.now() >= this.grazeEnd) {
-                this.state = 'stall';
+                if (SKIP_STALL_AFTER_GRAZING) {
+                  // TESTING: Skip stall, go directly to processing
+                  this.state = 'processing';
+                } else {
+                  this.state = 'stall';
+                }
               } else {
                 this.state = 'hungry';
               }
               await updateThisNPC();
             });
-          
+
             if (!idleCompleted) {
               // Don't continue state processing if we're still idling
               return;
             }
-          
-            // If idle completed and `onTransition` fired, the state is now "stall"
+
+            // If idle completed and `onTransition` fired, the state is now "stall" or "processing"
             break;
           }
 
@@ -66,8 +79,14 @@ async function handleFarmAnimalBehavior(gridId) {
 
             const currentTime = Date.now();
             if (this.grazeEnd && currentTime >= this.grazeEnd) {
-                console.log(`⏳ Grazing already done — NPC ${this.id} skipping hungry.`);
-                this.state = 'stall';
+                if (SKIP_STALL_AFTER_GRAZING) {
+                    // TESTING: Skip stall, go directly to processing
+                    console.log(`⏳ Grazing already done — NPC ${this.id} skipping hungry. SKIP_STALL mode: entering processing.`);
+                    this.state = 'processing';
+                } else {
+                    console.log(`⏳ Grazing already done — NPC ${this.id} skipping hungry.`);
+                    this.state = 'stall';
+                }
                 await updateThisNPC();
                 break;
             }
@@ -234,7 +253,7 @@ async function handleFarmAnimalBehavior(gridId) {
         case 'grazing': {
             //console.log(`🐮 [STATE] NPC ${this.id} entering state: ${this.state} grazeEnd: ${this.grazeEnd}`);
             const currentTime = Date.now();
-        
+
             //console.log(`grazeEnd: ${this.grazeEnd}, growTime: ${this.growTime}, type: ${this.type}`);
 
             if (!this.grazeEnd) {
@@ -242,12 +261,18 @@ async function handleFarmAnimalBehavior(gridId) {
                 //console.log('in state = grazing; setting grazeEnd: ',this.grazeEnd);
                 await updateThisNPC();
             }
-            
+
             // ✅ Check if grazing is complete
             if (currentTime >= this.grazeEnd) {
-                //console.log(`🐄 NPC ${this.id} finished grazing. Moving to stall.`);
-                // ✅ Transition to stall
-                this.state = 'stall';
+                if (SKIP_STALL_AFTER_GRAZING) {
+                    // TESTING: Skip stall, go directly to processing in-place
+                    console.log(`🐄 NPC ${this.id} finished grazing. SKIP_STALL mode: entering processing state in-place.`);
+                    this.state = 'processing';
+                } else {
+                    // Original behavior: walk to stall first
+                    //console.log(`🐄 NPC ${this.id} finished grazing. Moving to stall.`);
+                    this.state = 'stall';
+                }
                 await updateThisNPC();
             }
             break;
