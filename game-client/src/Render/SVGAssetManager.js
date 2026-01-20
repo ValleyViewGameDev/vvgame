@@ -61,30 +61,53 @@ class SVGAssetManager {
       const canvas = document.createElement('canvas');
       canvas.width = canvas.height = size;
       const ctx = canvas.getContext('2d');
-      
+
+      if (!ctx) {
+        console.error('❌ [SVG TEXTURE] Failed to get 2d context for offscreen canvas');
+        resolve(null);
+        return;
+      }
+
       // Enable better rendering quality
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = 'high';
 
+      // Convert SVG to data URL BEFORE creating Image to ensure blob is ready
+      const svgBlob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+
       // Create image from SVG
       const img = new Image();
+
+      // Set up timeout to catch hanging loads
+      const loadTimeout = setTimeout(() => {
+        console.warn(`⏰ [SVG TEXTURE] Image load timed out for size ${size}`);
+        URL.revokeObjectURL(url);
+        resolve(null);
+      }, 5000);
+
       img.onload = () => {
-        // Render SVG at high quality
-        ctx.drawImage(img, 0, 0, size, size);
-        resolve(canvas);
-        
-        // Clean up object URL
-        URL.revokeObjectURL(img.src);
+        clearTimeout(loadTimeout);
+        try {
+          // Render SVG at high quality
+          ctx.drawImage(img, 0, 0, size, size);
+          resolve(canvas);
+        } catch (error) {
+          console.error('❌ [SVG TEXTURE] Error drawing image to canvas:', error);
+          resolve(null);
+        } finally {
+          // Clean up object URL after drawing is complete
+          URL.revokeObjectURL(url);
+        }
       };
-      img.onerror = () => {
-        console.warn('Failed to render SVG to canvas');
-        URL.revokeObjectURL(img.src);
+
+      img.onerror = (error) => {
+        clearTimeout(loadTimeout);
+        console.warn('❌ [SVG TEXTURE] Failed to load SVG image:', error);
+        URL.revokeObjectURL(url);
         resolve(null);
       };
 
-      // Convert SVG to data URL
-      const svgBlob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(svgBlob);
       img.src = url;
     });
   }

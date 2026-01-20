@@ -306,7 +306,8 @@ export const RenderDynamicElements = ({
   globalTuning,
   gridId,
   onTileHover,
-  cursorModeActive
+  cursorModeActive,
+  isDeveloper = false
 }) => {
   // Calculate crafting and trading status for dynamic overlays
   const currentTime = Date.now();
@@ -407,6 +408,7 @@ export const RenderDynamicElements = ({
         gridId={gridId}
         onTileHover={onTileHover}
         cursorModeActive={cursorModeActive}
+        isDeveloper={isDeveloper}
     />
   );
 };

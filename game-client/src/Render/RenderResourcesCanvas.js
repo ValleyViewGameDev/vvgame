@@ -28,6 +28,7 @@ export const RenderResourcesCanvas = ({
   const canvasRef = useRef(null);
   const lastRenderData = useRef(null);
   const renderingRef = useRef(false); // Track if rendering is in progress
+  const renderVersionRef = useRef(0); // Track render version to detect stale renders
   const [renderTrigger, setRenderTrigger] = useState(0); // Used to force re-render when animations complete
 
   // Register force render callback with VFX system
@@ -58,76 +59,109 @@ export const RenderResourcesCanvas = ({
   const renderResources = useCallback(async () => {
     const canvas = canvasRef.current;
     if (!canvas || !resources) return;
-    
-    // Prevent concurrent renders
+
+    // Increment render version and capture it for this render
+    renderVersionRef.current += 1;
+    const thisRenderVersion = renderVersionRef.current;
+
+    // Prevent concurrent renders - but allow new renders to cancel old ones
     if (renderingRef.current) {
-      console.log('🚫 [RESOURCE RENDER] Skipping render - already in progress');
-      return;
+      console.log('🚫 [RESOURCE RENDER] Another render in progress - this render will proceed and old one will be stale');
     }
     renderingRef.current = true;
-    
-    console.log(`🎨 [RESOURCE RENDER] Starting resource render for ${resources.length} resources at TILE_SIZE: ${TILE_SIZE}`);
-    
+
+    console.log(`🎨 [RESOURCE RENDER] Starting render v${thisRenderVersion} for ${resources.length} resources at TILE_SIZE: ${TILE_SIZE}`);
+
     // Add timeout to prevent stuck renders
     const renderTimeout = setTimeout(() => {
       console.warn('⏰ [RESOURCE RENDER] Render timed out after 10 seconds, resetting lock');
       renderingRef.current = false;
     }, 10000);
-    
+
     try {
       const ctx = canvas.getContext('2d');
-    
-    // Get device pixel ratio for high-DPI support
-    const devicePixelRatio = window.devicePixelRatio || 1;
-    
-    // Calculate display size and actual canvas size
-    const displayWidth = 64 * TILE_SIZE;
-    const displayHeight = 64 * TILE_SIZE;
-    const actualWidth = displayWidth * devicePixelRatio;
-    const actualHeight = displayHeight * devicePixelRatio;
-    
-    // Set actual canvas size (for high-DPI)
-    canvas.width = actualWidth;
-    canvas.height = actualHeight;
-    
-    // Set display size (CSS size)
-    canvas.style.width = displayWidth + 'px';
-    canvas.style.height = displayHeight + 'px';
-    
-    // Scale canvas context for high-DPI
-    ctx.scale(devicePixelRatio, devicePixelRatio);
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, displayWidth, displayHeight);
-    
-    // Render all resources (matching DOM behavior)
-    for (const resource of resources) {
-      // Skip resources that are currently animating (grow effect handles their visual)
-      if (isResourceAnimating(resource.x, resource.y)) {
-        continue;
-      }
-      // Only render once per resource at its anchor position (x,y)
-      // Multi-tile resources span from (x,y) but are visually rendered from anchor
-      await renderSingleResource(ctx, resource, TILE_SIZE, masterResources);
-    }
-    
-    // Render overlays for resources that need them
-    // Filter out shadow, doober, source, and animating resources for overlays
-    const overlayResources = resources.filter(resource =>
-      resource.type !== 'shadow' &&
-      resource.category !== 'doober' &&
-      resource.category !== 'source' &&
-      !isResourceAnimating(resource.x, resource.y)
-    );
 
-    for (const resource of overlayResources) {
-      await renderResourceOverlay(ctx, resource, TILE_SIZE);
-    }
-    
-    console.log(`✅ [RESOURCE RENDER] Resource rendering completed - ${resources.length} resources at TILE_SIZE: ${TILE_SIZE}`);
+      if (!ctx) {
+        console.error('❌ [RESOURCE RENDER] Failed to get 2d context');
+        return;
+      }
+
+      // Get device pixel ratio for high-DPI support
+      const devicePixelRatio = window.devicePixelRatio || 1;
+
+      // Calculate display size and actual canvas size
+      const displayWidth = 64 * TILE_SIZE;
+      const displayHeight = 64 * TILE_SIZE;
+      const actualWidth = displayWidth * devicePixelRatio;
+      const actualHeight = displayHeight * devicePixelRatio;
+
+      // Set actual canvas size (for high-DPI)
+      canvas.width = actualWidth;
+      canvas.height = actualHeight;
+
+      // Set display size (CSS size)
+      canvas.style.width = displayWidth + 'px';
+      canvas.style.height = displayHeight + 'px';
+
+      // Scale canvas context for high-DPI
+      ctx.scale(devicePixelRatio, devicePixelRatio);
+
+      // Clear canvas
+      ctx.clearRect(0, 0, displayWidth, displayHeight);
+
+      // Check if this render is still current before expensive operations
+      if (thisRenderVersion !== renderVersionRef.current) {
+        console.log(`🚫 [RESOURCE RENDER] Render v${thisRenderVersion} is stale (current: v${renderVersionRef.current}), aborting`);
+        return;
+      }
+
+      // Render all resources (matching DOM behavior)
+      for (const resource of resources) {
+        // Check for stale render periodically during the loop
+        if (thisRenderVersion !== renderVersionRef.current) {
+          console.log(`🚫 [RESOURCE RENDER] Render v${thisRenderVersion} became stale during resource loop, aborting`);
+          return;
+        }
+
+        // Skip resources that are currently animating (grow effect handles their visual)
+        if (isResourceAnimating(resource.x, resource.y)) {
+          continue;
+        }
+        // Only render once per resource at its anchor position (x,y)
+        // Multi-tile resources span from (x,y) but are visually rendered from anchor
+        await renderSingleResource(ctx, resource, TILE_SIZE, masterResources);
+      }
+
+      // Final stale check before overlays
+      if (thisRenderVersion !== renderVersionRef.current) {
+        console.log(`🚫 [RESOURCE RENDER] Render v${thisRenderVersion} became stale before overlays, aborting`);
+        return;
+      }
+
+      // Render overlays for resources that need them
+      // Filter out shadow, doober, source, and animating resources for overlays
+      const overlayResources = resources.filter(resource =>
+        resource.type !== 'shadow' &&
+        resource.category !== 'doober' &&
+        resource.category !== 'source' &&
+        !isResourceAnimating(resource.x, resource.y)
+      );
+
+      for (const resource of overlayResources) {
+        if (thisRenderVersion !== renderVersionRef.current) {
+          console.log(`🚫 [RESOURCE RENDER] Render v${thisRenderVersion} became stale during overlay loop, aborting`);
+          return;
+        }
+        await renderResourceOverlay(ctx, resource, TILE_SIZE);
+      }
+
+      console.log(`✅ [RESOURCE RENDER] Render v${thisRenderVersion} completed - ${resources.length} resources at TILE_SIZE: ${TILE_SIZE}`);
     } finally {
       clearTimeout(renderTimeout);
-      renderingRef.current = false;
+      // Only clear the lock if this is still the current render
+      if (thisRenderVersion === renderVersionRef.current) {
+        renderingRef.current = false;
+      }
     }
   }, [resources, TILE_SIZE, craftingStatus, tradingStatus, badgeState, electionPhase, masterResources]);
 

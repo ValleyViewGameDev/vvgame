@@ -34,7 +34,8 @@ export const RenderNPCs = ({
   setActiveStation,
   masterTrophies,
   setHoverTooltip,
-  
+  isDeveloper = false,
+
   // useCanvasNPCs removed - always Canvas mode now
 }) => {
   // FORCED TO CANVAS MODE - no decision tree
@@ -64,6 +65,7 @@ export const RenderNPCs = ({
         setActiveStation={setActiveStation}
         masterTrophies={masterTrophies}
         setHoverTooltip={setHoverTooltip}
+        isDeveloper={isDeveloper}
       />
   );
 };

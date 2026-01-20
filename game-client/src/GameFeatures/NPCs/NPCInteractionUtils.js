@@ -110,7 +110,9 @@ export function handleNPCClickShared(npc, {
   setIsModalOpen,
   updateStatus,
   openPanel,
-  setActiveStation
+  setActiveStation,
+  // Developer bypass for homestead restrictions
+  isDeveloper = false
 }) {
   // Check if NPC has an overlay that prevents clicking (DOM mode feature)
   if (getNPCOverlay) {
@@ -119,10 +121,10 @@ export function handleNPCClickShared(npc, {
       return false; // Prevent clicking on non-clickable overlay NPCs
     }
   }
-  
-  // 🛡️ Prevent interaction with NPCs on another player's homestead
+
+  // 🛡️ Prevent interaction with NPCs on another player's homestead (unless developer)
   const isOnOwnHomestead = currentPlayer?.gridId === currentPlayer?.location?.g;
-  if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead) {
+  if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {
     return false; // Cannot interact with NPCs on another player's homestead
   }
   

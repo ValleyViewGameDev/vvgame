@@ -46,7 +46,8 @@ const RenderNPCsCanvasComponent = ({
   openPanel,
   setActiveStation,
   masterTrophies,
-  setHoverTooltip
+  setHoverTooltip,
+  isDeveloper = false
 }) => {
   const canvasRef = useRef(null);
   const lastRenderData = useRef(null);
@@ -543,7 +544,8 @@ const RenderNPCsCanvasComponent = ({
         setIsModalOpen,
         updateStatus,
         openPanel,
-        setActiveStation
+        setActiveStation,
+        isDeveloper
       });
     } else {
       // No NPC found - forward this click to the grid by finding the underlying element

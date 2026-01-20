@@ -49,7 +49,8 @@ export const RenderDynamicElementsCanvas = ({
   gridId,
   playersInGrid,
   onTileHover,
-  cursorModeActive
+  cursorModeActive,
+  isDeveloper = false
 }) => {
   const canvasRef = useRef(null);
   const lastRenderData = useRef(null);
@@ -503,7 +504,8 @@ export const RenderDynamicElementsCanvas = ({
         setIsModalOpen,
         updateStatus,
         openPanel,
-        setActiveStation
+        setActiveStation,
+        isDeveloper
       });
       return;
     }

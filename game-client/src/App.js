@@ -2955,8 +2955,9 @@ return (
           setActiveStation={setActiveStation}
           masterTrophies={masterTrophies}
           setHoverTooltip={setHoverTooltip}
+          isDeveloper={isDeveloper}
         />
-        
+
         {/* Layer 4: PCs */}
         <RenderPCs
           pcs={pcs}
@@ -3003,6 +3004,7 @@ return (
           tileTypes={memoizedTileTypes}
           onTileHover={setHoveredTile}
           cursorModeActive={!!cursorMode}
+          isDeveloper={isDeveloper}
         />
         
         {/* Hover Tooltip - render at top level */}
