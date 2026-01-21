@@ -6818,7 +6818,6 @@
     "layoutkey": "AS",
     "category": "stall",
     "action": "openUI",
-    "source": "Build",
     "passable": true,
     "requires": "Husbandry",
     "qtycollected": 1,
