@@ -690,9 +690,9 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                                 message: "This will permanently discard ALL items in your warehouse!",
                                 message2: "This action cannot be undone.",
                                 custom: (
-                                    <div className="shared-buttons" style={{ marginTop: '20px' }}>
-                                        <button 
-                                            className="btn-basic btn-danger" 
+                                    <div className="shared-buttons" style={{ marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                                        <button
+                                            className="btn-basic btn-modal btn-danger"
                                             onClick={() => {
                                                 handleDiscardAllWarehouse();
                                                 setIsModalOpen(false);
@@ -700,10 +700,9 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                                         >
                                             Yes, Discard All
                                         </button>
-                                        <button 
-                                            className="btn-basic btn-success" 
+                                        <button
+                                            className="btn-basic btn-modal btn-success"
                                             onClick={() => setIsModalOpen(false)}
-                                            style={{ marginLeft: '10px' }}
                                         >
                                             Cancel
                                         </button>
