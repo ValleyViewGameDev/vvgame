@@ -15,6 +15,17 @@ const pressedKeys = new Set();
 // Define modifier keys that should be ignored for movement
 const MODIFIER_KEYS = ['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'NumLock', 'ScrollLock'];
 
+// Track last movement time for rate limiting
+let lastMovementTime = 0;
+
+// Movement speed configuration
+// Lower values = faster movement, higher values = slower movement
+// 100ms = ~10 tiles/sec (very fast, arcade-like)
+// 150ms = ~6-7 tiles/sec (recommended default)
+// 200ms = ~5 tiles/sec (slower, more deliberate)
+// 250ms = ~4 tiles/sec (slow, strategic)
+const MOVEMENT_COOLDOWN_MS = 75; // Default: ~6-7 tiles per second
+
 // Clear all pressed keys when window loses focus or visibility
 if (typeof window !== 'undefined') {
   window.addEventListener('blur', () => {
@@ -37,6 +48,19 @@ if (typeof window !== 'undefined') {
   window.resetMovementKeys = () => {
     pressedKeys.clear();
     console.log('Movement keys reset');
+  };
+
+  // Check current movement cooldown (accessible from console)
+  window.debugMovementCooldown = () => {
+    const now = Date.now();
+    const timeSinceLastMove = now - lastMovementTime;
+    const canMove = timeSinceLastMove >= MOVEMENT_COOLDOWN_MS;
+    console.log('Movement cooldown status:', {
+      timeSinceLastMove,
+      cooldown: MOVEMENT_COOLDOWN_MS,
+      canMove
+    });
+    return { timeSinceLastMove, cooldown: MOVEMENT_COOLDOWN_MS, canMove };
   };
 }
 
@@ -102,19 +126,25 @@ export async function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterR
 }
 
 // Process movement based on all currently pressed keys
-async function processMovement(currentPlayer, TILE_SIZE, masterResources, 
-  setCurrentPlayer, 
-  setGridId, 
-  setGrid, 
-  setTileTypes, 
-  setResources, 
-  updateStatus, 
+async function processMovement(currentPlayer, TILE_SIZE, masterResources,
+  setCurrentPlayer,
+  setGridId,
+  setGrid,
+  setTileTypes,
+  setResources,
+  updateStatus,
   closeAllPanels,
   localPlayerMoveTimestampRef,
   bulkOperationContext,
   strings = null,
   transitionFadeControl = null)
 {
+  // Check if we're still in cooldown period
+  const now = Date.now();
+  if (now - lastMovementTime < MOVEMENT_COOLDOWN_MS) {
+    return; // Ignore this movement attempt
+  }
+
   const directions = {
     ArrowUp: { dx: 0, dy: -1 },
     w: { dx: 0, dy: -1 },
@@ -133,7 +163,7 @@ async function processMovement(currentPlayer, TILE_SIZE, masterResources,
   // Calculate combined movement vector from all pressed keys
   let totalDx = 0;
   let totalDy = 0;
-  
+
   for (const key of pressedKeys) {
     const movement = directions[key];
     if (movement) {
@@ -141,9 +171,12 @@ async function processMovement(currentPlayer, TILE_SIZE, masterResources,
       totalDy += movement.dy;
     }
   }
-  
+
   // If no movement, return
   if (totalDx === 0 && totalDy === 0) return;
+
+  // Update cooldown timer BEFORE processing movement
+  lastMovementTime = now;
   
   // Clamp diagonal movement to -1, 0, or 1
   totalDx = Math.max(-1, Math.min(1, totalDx));
@@ -187,16 +220,16 @@ async function processMovement(currentPlayer, TILE_SIZE, masterResources,
   }
 
   const finalPosition = { x: targetX, y: targetY };
-  const now = Date.now();
-  
+  const timestamp = Date.now();
+
   // Update the local player movement timestamp to prevent our own broadcasts from overriding
   if (localPlayerMoveTimestampRef) {
-    localPlayerMoveTimestampRef.current = now;
+    localPlayerMoveTimestampRef.current = timestamp;
   }
 
   playersInGridManager.updatePC(gridId, playerId, {
     position: finalPosition,
-    lastUpdated: now,
+    lastUpdated: timestamp,
   });
 
   centerCameraOnPlayer(finalPosition, TILE_SIZE);
