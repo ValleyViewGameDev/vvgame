@@ -6803,8 +6803,14 @@
     "validonv": false,
     "validonu": false,
     "ingredient1": "Money",
-    "ingredient1qty": 10000,
-    "gemcost": 1250
+    "ingredient1qty": 20000,
+    "ingredient2": "Wood",
+    "ingredient2qty": 300,
+    "ingredient3": "Stone",
+    "ingredient3qty": 300,
+    "ingredient4": "Clay",
+    "ingredient4qty": 600,
+    "gemcost": 12100
   },
   {
     "type": "Animal Stall",
