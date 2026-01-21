@@ -523,9 +523,12 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
         </div>
       )}
 
+      <br />
+
       <hr className="inventory-divider" />
 
-      {/* Outpost header */}
+      {/* Trading header */}
+      <h2>{strings?.[1108]}</h2>
       <div className="outpost-header"> {strings?.[179]} </div>
 
       {/* Trade slots */}
