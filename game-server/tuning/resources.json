@@ -11794,7 +11794,8 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 20,
-    "gemcost": 3
+    "gemcost": 3,
+    "filename": "wall-stone.svg"
   },
   {
     "type": "Stone Wall Large",
@@ -11819,7 +11820,8 @@
     "validony": true,
     "ingredient1": "Money",
     "ingredient1qty": 500,
-    "gemcost": 63
+    "gemcost": 63,
+    "filename": "wall-stone.svg"
   },
   {
     "type": "Green Wall",
