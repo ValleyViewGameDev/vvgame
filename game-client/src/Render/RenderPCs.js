@@ -9,6 +9,7 @@ export const RenderPCs = ({
   pcs,
   TILE_SIZE,
   currentPlayer,
+  gridId,
   onPCClick,
   setCurrentPlayer,
   setInventory,
@@ -23,6 +24,7 @@ export const RenderPCs = ({
       pcs={pcs}
       TILE_SIZE={TILE_SIZE}
       currentPlayer={currentPlayer}
+      gridId={gridId}
       onPCClick={onPCClick}
       setCurrentPlayer={setCurrentPlayer}
       setInventory={setInventory}

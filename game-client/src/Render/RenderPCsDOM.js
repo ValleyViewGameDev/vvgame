@@ -1,6 +1,9 @@
 import React from 'react';
 import PCComponent from './PCComponent';
 
+// FTUE Cave dungeon grid ID - players in this grid should only see themselves
+const FTUE_CAVE_GRID_ID = '695bd5b76545a9be8a36ee22';
+
 /**
  * DOM-based PC (Player Character) renderer - uses the original PCComponent
  */
@@ -8,6 +11,7 @@ export const RenderPCsDOM = ({
   pcs,
   TILE_SIZE,
   currentPlayer,
+  gridId,
   onPCClick,
   setCurrentPlayer,
   setInventory,
@@ -35,9 +39,14 @@ export const RenderPCsDOM = ({
           console.warn('PC missing position data:', pc);
           return null;
         }
-        
+
         const isCurrentPlayer = String(pc.playerId) === String(currentPlayer?._id);
-        
+
+        // In the FTUE Opening dungeon, only render the current player (hide all other PCs)
+        if (gridId === FTUE_CAVE_GRID_ID && !isCurrentPlayer) {
+          return null;
+        }
+
         return (
           <div
             key={`pc-container-${pc.playerId}`}

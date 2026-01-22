@@ -2963,6 +2963,7 @@ return (
           pcs={pcs}
           TILE_SIZE={activeTileSize}
           currentPlayer={currentPlayer}
+          gridId={gridId}
           onPCClick={handlePCClick}
           setCurrentPlayer={setCurrentPlayer}
           setInventory={setInventory}
