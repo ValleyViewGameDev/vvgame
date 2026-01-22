@@ -640,8 +640,9 @@ const CraftingStation = ({
   return (
     <Panel onClose={onClose} title={`${stationEmoji} ${getLocalizedString(stationType, strings)}`} panelName="CraftingStation">
       <div className="station-panel-container">
-        {/* Check if Library or Hospital requires home settlement */}
-        {(stationType === 'Library' || stationType === 'Hospital') && 
+        {/* Check if Library or Hospital requires home settlement (valley grids are open to all) */}
+        {(stationType === 'Library' || stationType === 'Hospital') &&
+         !currentPlayer?.location?.gtype?.startsWith('valley') &&
          String(currentPlayer.location.s) !== String(currentPlayer.settlementId) ? (
           <div style={{ textAlign: 'center', padding: '20px' }}>
             <h2>{strings[2050] || "This is not your home settlement. You cannot access community services in any settlement but your own."}</h2>
