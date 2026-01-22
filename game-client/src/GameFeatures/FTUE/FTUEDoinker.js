@@ -1,24 +1,28 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import GlobalGridStateTilesAndResources from '../../GridState/GlobalGridStateTilesAndResources';
 import NPCsInGridManager from '../../GridState/GridStateNPCs';
 import './FTUE.css';
 
 /**
- * FTUEDoinker - Bouncing red arrows that point to target resources or NPCs on the grid
+ * FTUEDoinker - Bouncing red arrows that point to target resources, NPCs, or UI buttons
  *
  * Props:
- * - doinkerTargets: string | string[] - The resource/NPC type(s) to point at (e.g., "Dungeon Exit", ["Mailbox", "Constable Elbow"])
+ * - doinkerTargets: string | string[] | number - The resource/NPC type(s) to point at, or button index (e.g., "Dungeon Exit", 3)
+ * - doinkerType: string - Type of doinker: "resource" (default) or "button"
  * - TILE_SIZE: number - The current tile size for positioning
  * - visible: boolean - Whether the doinker should be visible
  * - gridId: string - The current grid ID (needed to look up NPCs)
+ * - activePanel: string - The currently open panel (needed for button targeting)
  */
-const FTUEDoinker = ({ doinkerTargets, TILE_SIZE, visible, gridId }) => {
+const FTUEDoinker = ({ doinkerTargets, doinkerType = 'resource', TILE_SIZE, visible, gridId, activePanel }) => {
   const [targetPositions, setTargetPositions] = useState([]);
+  const [buttonPosition, setButtonPosition] = useState(null);
 
   // Find the target resource/NPC positions - continuously poll to handle async loading
+  // Skip this logic for button-type doinkers (handled by separate useEffect below)
   useEffect(() => {
-    if (!doinkerTargets || !visible) {
-      console.log('👆 Doinker: Clearing - doinkerTargets:', doinkerTargets, 'visible:', visible);
+    if (!doinkerTargets || !visible || doinkerType === 'button') {
       setTargetPositions([]);
       return;
     }
@@ -68,10 +72,6 @@ const FTUEDoinker = ({ doinkerTargets, TILE_SIZE, visible, gridId }) => {
           }
         }
 
-        // If target not found, gracefully skip it (no error, just don't show doinker for it)
-        if (!found) {
-          console.log(`👆 Doinker: Target "${targetName}" not found in current grid`);
-        }
       }
 
       return foundPositions;
@@ -80,10 +80,7 @@ const FTUEDoinker = ({ doinkerTargets, TILE_SIZE, visible, gridId }) => {
     // Initial search
     const positions = findTargets();
     if (positions.length > 0) {
-      console.log(`👆 Doinker: Found ${positions.length} target(s):`, positions.map(p => `${p.targetName} (${p.source}) at (${p.x}, ${p.y})`));
       setTargetPositions(positions);
-    } else {
-      console.log(`👆 Doinker: No targets found yet for:`, targetsArray);
     }
 
     // Keep polling - resources/NPCs may load asynchronously or grid may change
@@ -99,11 +96,6 @@ const FTUEDoinker = ({ doinkerTargets, TILE_SIZE, visible, gridId }) => {
           });
 
         if (positionsChanged) {
-          if (newPositions.length > 0) {
-            console.log(`👆 Doinker: Updated to ${newPositions.length} target(s):`, newPositions.map(p => `${p.targetName} at (${p.x}, ${p.y})`));
-          } else if (prevPositions.length > 0) {
-            console.log(`👆 Doinker: All targets lost`);
-          }
           return newPositions;
         }
         return prevPositions;
@@ -111,14 +103,118 @@ const FTUEDoinker = ({ doinkerTargets, TILE_SIZE, visible, gridId }) => {
     }, 500);
 
     return () => clearInterval(interval);
-  }, [doinkerTargets, visible, gridId]);
+  }, [doinkerTargets, visible, gridId, doinkerType]);
 
-  // Don't render if not visible or no targets found
-  if (!visible || targetPositions.length === 0) {
+  // Handle button-type doinkers - use CSS selector to find target element
+  useEffect(() => {
+    // doinkerTargets should be a CSS selector string when doinkerType is 'button'
+    if (doinkerType !== 'button' || !visible || !activePanel || typeof doinkerTargets !== 'string') {
+      setButtonPosition(null);
+      return;
+    }
+
+    const findButton = () => {
+      const panelElement = document.querySelector(`[data-panel-name="${activePanel}"]`);
+      if (!panelElement) {
+        return null;
+      }
+
+      // doinkerTargets is a CSS selector string
+      const targetButton = panelElement.querySelector(doinkerTargets);
+      if (!targetButton) {
+        return null;
+      }
+
+      const rect = targetButton.getBoundingClientRect();
+
+      // Use viewport coordinates directly since we use position: fixed
+      return {
+        x: rect.left + rect.width / 2, // Center of button in viewport
+        y: rect.top, // Top of button (arrow will be positioned above)
+        width: rect.width,
+        height: rect.height
+      };
+    };
+
+    // Initial search
+    const position = findButton();
+    if (position) {
+      setButtonPosition(position);
+    }
+
+    // Keep polling - panel might not be rendered yet or button might change position
+    const interval = setInterval(() => {
+      const newPosition = findButton();
+      setButtonPosition(newPosition);
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [doinkerType, doinkerTargets, visible, activePanel]);
+
+  // Don't render if not visible
+  if (!visible) {
     return null;
   }
 
-  // Render a doinker arrow for each found target
+  // For button type, use buttonPosition; for resource type, use targetPositions
+  if (doinkerType === 'button') {
+    if (!buttonPosition) {
+      return null;
+    }
+  } else {
+    if (targetPositions.length === 0) {
+      return null;
+    }
+  }
+
+  // Render doinker arrow(s)
+  // For button type: render one arrow over the button (using portal to escape .homestead overflow)
+  // For resource type: render arrows over each resource/NPC
+  if (doinkerType === 'button' && buttonPosition) {
+    const arrowHeight = 40;
+    const arrowWidth = 30;
+
+    // Use portal to render at document.body level, escaping any parent overflow:hidden/auto
+    return createPortal(
+      <div
+        key="doinker-button"
+        className="ftue-doinker-button"
+        style={{
+          left: `${buttonPosition.x - arrowWidth / 2}px`, // Center arrow horizontally over button
+          top: `${buttonPosition.y - arrowHeight - 10}px`, // Position above button
+          width: `${arrowWidth}px`,
+          height: `${arrowHeight}px`,
+        }}
+      >
+        {/* SVG Arrow pointing down */}
+        <svg
+          width={arrowWidth}
+          height={arrowHeight}
+          viewBox="0 0 40 60"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="ftue-doinker-arrow"
+        >
+          {/* Arrow body */}
+          <path
+            d="M15 0 L15 35 L5 35 L20 60 L35 35 L25 35 L25 0 Z"
+            fill="#e53935"
+            stroke="#b71c1c"
+            strokeWidth="2"
+          />
+          {/* Highlight */}
+          <path
+            d="M17 2 L17 33 L20 33 L20 2 Z"
+            fill="#ff6f60"
+            opacity="0.6"
+          />
+        </svg>
+      </div>,
+      document.body
+    );
+  }
+
+  // Resource/NPC type doinkers
   return (
     <>
       {targetPositions.map((targetPosition, index) => {

@@ -18,7 +18,7 @@ const Panel = ({ onClose, children, descriptionKey, panelName, titleKey, title }
   }
 
   return (
-    <div className="panel-container">
+    <div className="panel-container" data-panel-name={panelName}>
       {/* Fixed Header with Title and Close Button */}
       <div className="panel-header">
         <h2 className="panel-title">{title || strings[titleKey] || "Panel"}</h2>

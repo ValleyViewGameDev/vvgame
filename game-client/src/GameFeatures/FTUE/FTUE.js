@@ -6,6 +6,7 @@ import './FTUE.css';
 import { showNotification } from '../../UI/Notifications/Notifications';
 import { addAcceptedQuest, completeTutorial, handleFeedbackSubmit } from './FTUEutils';
 import StoryModal from '../../UI/Modals/StoryModal';
+import NPCsInGridManager from '../../GridState/GridStateNPCs';
 
 
 const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQuestGiver, gridId, masterFTUEsteps }) => {
@@ -102,7 +103,6 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
   // Auto-advance if step has showModal: false (but not while feedback modal is showing)
   useEffect(() => {
     if (currentStepData?.showModal === false && !showFeedbackModal) {
-      console.log(`🎓 Step ${currentStepData.step} has showModal: false, auto-advancing...`);
       // Use setTimeout to ensure handleOK is defined and avoid render cycle issues
       const timer = setTimeout(() => {
         handleOK();
@@ -177,7 +177,22 @@ const FTUE = ({ currentPlayer, setCurrentPlayer, onClose, openPanel, setActiveQu
 
         // Auto-open panel defined in FTUEsteps.json (after closing FTUE modal)
         if (stepData?.openPanel && openPanel) {
-          console.log(`🎓 Step ${currentStep}: Auto-opening ${stepData.openPanel}`);
+          // If opening NPCPanel, we need to set activeQuestGiver first
+          // This mirrors how handleNPCPanel works in App.js when clicking an NPC
+          if (stepData.openPanel === 'NPCPanel' && stepData.panelTargetNPC) {
+            const npcs = NPCsInGridManager.getNPCsInGrid(gridId);
+            if (npcs) {
+              const npcArray = Object.values(npcs);
+              const targetNPC = npcArray.find(npc => npc.type === stepData.panelTargetNPC);
+              if (targetNPC) {
+                setActiveQuestGiver(targetNPC);
+                openPanel(stepData.openPanel);
+                return;
+              }
+            }
+          }
+
+          // For non-NPC panels or if NPC not found, open immediately
           openPanel(stepData.openPanel);
         }
       }

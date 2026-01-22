@@ -307,6 +307,14 @@
   animation: doinker-bounce 0.6s ease-in-out infinite;
 }
 
+/* Button doinkers use fixed positioning to overlay UI panels */
+.ftue-doinker-button {
+  position: fixed !important;
+  z-index: 10001 !important;
+  pointer-events: none;
+  animation: doinker-bounce 0.6s ease-in-out infinite;
+}
+
 .ftue-doinker-arrow {
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
 }

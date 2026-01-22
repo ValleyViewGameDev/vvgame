@@ -508,6 +508,7 @@ const [activeStation, setActiveStation] = useState(null);
 const [showShareModal, setShowShareModal] = useState(false);
 const [showFTUE, setShowFTUE] = useState(false);
 const [doinkerTargets, setDoinkerTargets] = useState(null); // Resource type string or array of strings to point doinkers at
+const [doinkerType, setDoinkerType] = useState('resource'); // Type of doinker: 'resource' or 'button'
 const [cursorMode, setCursorMode] = useState(null); // { type: 'plant', item: {...}, emoji: '🌾' }
 const [hoveredTile, setHoveredTile] = useState(null); // { row, col } - tile under cursor for placement highlight
 
@@ -1346,25 +1347,22 @@ useEffect(() => {
 
 // FTUE Doinker - Update doinker targets based on current FTUE step
 useEffect(() => {
-  console.log(`👆 Doinker useEffect: ftuestep=${currentPlayer?.ftuestep}, firsttimeuser=${currentPlayer?.firsttimeuser}`);
-
   if (!currentPlayer?.firsttimeuser || currentPlayer?.ftuestep === undefined) {
-    console.log('👆 Doinker: Clearing - player not firsttimeuser or ftuestep undefined');
     setDoinkerTargets(null);
     return;
   }
 
   const stepData = masterFTUEsteps.find(step => step.step === currentPlayer.ftuestep);
-  console.log(`👆 Doinker: Step ${currentPlayer.ftuestep} data:`, stepData ? { doinker: stepData.doinker, doinkerTarget: stepData.doinkerTarget } : 'not found');
 
   if (stepData?.doinker && stepData?.doinkerTarget) {
-    // doinkerTarget can be a string or an array of strings
+    // doinkerTarget can be a string, array of strings, or CSS selector (for button type)
     const targets = stepData.doinkerTarget;
-    console.log(`👆 Doinker: Showing arrow(s) pointing to ${Array.isArray(targets) ? targets.join(', ') : targets} for FTUE step ${currentPlayer.ftuestep}`);
+    const type = stepData.doinkerType || 'resource'; // Default to 'resource' if not specified
     setDoinkerTargets(targets);
+    setDoinkerType(type);
   } else {
-    console.log(`👆 Doinker: Clearing - step ${currentPlayer.ftuestep} has no doinker config`);
     setDoinkerTargets(null);
+    setDoinkerType('resource');
   }
 }, [currentPlayer?.ftuestep, currentPlayer?.firsttimeuser]);
 
@@ -3027,12 +3025,14 @@ return (
           TILE_SIZE={activeTileSize}
         /> */}
 
-        {/* FTUE Doinker - Bouncing arrow(s) pointing at target resource(s) or NPC(s) */}
+        {/* FTUE Doinker - Bouncing arrow(s) pointing at target resource(s), NPC(s), or UI buttons */}
         <FTUEDoinker
           doinkerTargets={doinkerTargets}
+          doinkerType={doinkerType}
           TILE_SIZE={activeTileSize}
           visible={!!doinkerTargets}
           gridId={gridId}
+          activePanel={activePanel}
         />
 
         </>
