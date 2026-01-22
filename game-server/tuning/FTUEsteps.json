@@ -11,6 +11,7 @@
       "step": 2,
       "trigger": "ContinuedFromStep1",
       "doinker": true,
+      "donkerType": "resource",
       "doinkerTarget": "Dungeon Exit",
       "notificationKey": 741,
       "notificationIcon": "😀",
@@ -20,6 +21,7 @@
       "step": 3,
       "trigger": "ExitedCave",
       "doinker": true,
+      "donkerType": "resource",
       "doinkerTarget": "Constable Elbow",         
       "notificationKey": 742,
       "notificationIcon": "🧔🏼‍♂️",
@@ -28,7 +30,10 @@
     {
       "step": 4,
       "trigger": "MetConstableElbow",
+      "openPanel": "NPCPanel",
+      "panelTargetNPC": "Constable Elbow",
       "doinker": true,
+      "donkerType": "button",
       "doinkerTarget": "Constable Elbow",         
       "notificationKey": 7051,
       "notificationIcon": "🧔🏼‍♂️",
@@ -38,36 +43,38 @@
     {
       "step": 5,
       "trigger": "BoughtHomeDeed",
+      "openPanel": "QuestPanel",
       "showModal": false,
       "continue": false,
       "doinker": true,
+      "donkerType": "resource",
       "doinkerTarget": "Signpost Home",         
       "notificationKey": 7052,
-      "notificationIcon": "🏠",
-      "openPanel": "QuestPanel"
+      "notificationIcon": "🏠"
     },
     {
       "step": 6,
       "trigger": "FirstHomesteadVisit",
+      "openPanel": "QuestPanel",
       "showModal": false,
       "continue": false,
       "doinker": true,
+      "donkerType": "resource",
       "doinkerTarget": ["Wheat", "Kent"],
       "notificationKey": 7053,
       "notificationIcon": "🤠",
-      "addQuests": [5, 6],
-      "openPanel": "QuestPanel"
+      "addQuests": [5, 6]
     },
     {
       "step": 7,
       "trigger": "SoldToKent",
+      "openPanel": "FarmingPanel",
       "showFeedbackModalAfter": true,
       "showModal": false,
       "continue": false,
       "notificationKey": 7054,
       "notificationIcon": "🌽",
-      "addQuests": [4],
-      "openPanel": "FarmingPanel"
+      "addQuests": [4]
     },
     {
       "step": 8,
@@ -75,6 +82,7 @@
       "showModal": false,
       "continue": false,
       "doinker": true,
+      "donkerType": "resource",
       "doinkerTarget": "Constable Elbow",         
       "notificationKey": 7055,
       "notificationIcon": "🌾",
