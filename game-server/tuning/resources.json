@@ -6016,13 +6016,17 @@
     "validonc": false,
     "validonv": false,
     "validonu": false,
-    "minprice": 812,
-    "maxprice": 1160,
+    "minprice": 17108,
+    "maxprice": 24440,
     "ingredient1": "Money",
-    "ingredient1qty": 1000,
-    "gemcost": 145,
-    "crafttime": 43200,
-    "totalnestedtime": 43200
+    "ingredient1qty": 15000,
+    "ingredient2": "Thread",
+    "ingredient2qty": 6,
+    "ingredient3": "Ink",
+    "ingredient3qty": 3,
+    "gemcost": 3055,
+    "crafttime": 3,
+    "totalnestedtime": 45003
   },
   {
     "type": "Pelt",
@@ -10072,7 +10076,7 @@
     "ingredient3qty": 10,
     "ingredient4": "Book",
     "ingredient4qty": 5,
-    "gemcost": 6235
+    "gemcost": 20785
   },
   {
     "type": "Builder",
@@ -10731,7 +10735,7 @@
     "ingredient1qty": 500,
     "ingredient4": "Book",
     "ingredient4qty": 3,
-    "gemcost": 498
+    "gemcost": 9228
   },
   {
     "type": "Precision",
@@ -10749,7 +10753,7 @@
     "ingredient2qty": 3,
     "ingredient4": "Book",
     "ingredient4qty": 40,
-    "gemcost": 5863
+    "gemcost": 122263
   },
   {
     "type": "Chainmail",
@@ -10766,7 +10770,7 @@
     "ingredient1qty": 5000,
     "ingredient4": "Book",
     "ingredient4qty": 3,
-    "gemcost": 1060
+    "gemcost": 9790
   },
   {
     "type": "Steady Hand",
@@ -10797,7 +10801,7 @@
     "ingredient2qty": 1,
     "ingredient4": "Book",
     "ingredient4qty": 8,
-    "gemcost": 1223
+    "gemcost": 24503
   },
   {
     "type": "Long Bow",
@@ -10816,7 +10820,7 @@
     "ingredient1qty": 9000,
     "ingredient4": "Book",
     "ingredient4qty": 6,
-    "gemcost": 1995
+    "gemcost": 19455
   },
   {
     "type": "Tempest",
@@ -10833,7 +10837,7 @@
     "ingredient1qty": 1000,
     "ingredient4": "Book",
     "ingredient4qty": 24,
-    "gemcost": 3605
+    "gemcost": 73445
   },
   {
     "type": "Great Sword",
@@ -10851,7 +10855,7 @@
     "ingredient1qty": 1000,
     "ingredient4": "Book",
     "ingredient4qty": 12,
-    "gemcost": 1865
+    "gemcost": 36785
   },
   {
     "type": "Horizon Eye",
@@ -10871,7 +10875,7 @@
     "ingredient2qty": 15,
     "ingredient4": "Book",
     "ingredient4qty": 150,
-    "gemcost": 21875
+    "gemcost": 458375
   },
   {
     "type": "Plate Armor",
@@ -10890,7 +10894,7 @@
     "ingredient3qty": 12,
     "ingredient4": "Book",
     "ingredient4qty": 20,
-    "gemcost": 5363
+    "gemcost": 63563
   },
   {
     "type": "Pinpoint",
@@ -10908,7 +10912,7 @@
     "ingredient2qty": 3,
     "ingredient4": "Book",
     "ingredient4qty": 16,
-    "gemcost": 2445
+    "gemcost": 49005
   },
   {
     "type": "Stoneheart",
@@ -10929,7 +10933,7 @@
     "ingredient2qty": 3,
     "ingredient4": "Book",
     "ingredient4qty": 25,
-    "gemcost": 3875
+    "gemcost": 76625
   },
   {
     "type": "Blessed Veil",
@@ -10950,7 +10954,7 @@
     "ingredient3qty": 5,
     "ingredient4": "Book",
     "ingredient4qty": 65,
-    "gemcost": 19140
+    "gemcost": 208290
   },
   {
     "type": "Unerring",
@@ -10970,7 +10974,7 @@
     "ingredient2qty": 15,
     "ingredient4": "Book",
     "ingredient4qty": 30,
-    "gemcost": 5600
+    "gemcost": 92900
   },
   {
     "type": "Spear",
@@ -10989,7 +10993,7 @@
     "ingredient1qty": 1000,
     "ingredient4": "Book",
     "ingredient4qty": 24,
-    "gemcost": 3605
+    "gemcost": 73445
   },
   {
     "type": "Maelstrom",
@@ -11009,7 +11013,7 @@
     "ingredient2qty": 1,
     "ingredient4": "Book",
     "ingredient4qty": 40,
-    "gemcost": 7050
+    "gemcost": 123450
   },
   {
     "type": "Barrage",
@@ -11029,7 +11033,7 @@
     "ingredient2qty": 10,
     "ingredient4": "Book",
     "ingredient4qty": 30,
-    "gemcost": 5600
+    "gemcost": 92900
   },
   {
     "type": "Heavy Armor",
@@ -11049,7 +11053,7 @@
     "ingredient3qty": 12,
     "ingredient4": "Book",
     "ingredient4qty": 50,
-    "gemcost": 9775
+    "gemcost": 155275
   },
   {
     "type": "Halberd",
@@ -11067,7 +11071,7 @@
     "ingredient1qty": 2000,
     "ingredient4": "Book",
     "ingredient4qty": 70,
-    "gemcost": 10400
+    "gemcost": 214100
   },
   {
     "type": "Mystic Armor",
@@ -11101,7 +11105,7 @@
     "ingredient1qty": 2000,
     "ingredient4": "Book",
     "ingredient4qty": 70,
-    "gemcost": 10400
+    "gemcost": 214100
   },
   {
     "type": "Magic Helmet",
@@ -11135,7 +11139,7 @@
     "ingredient2qty": 3,
     "ingredient4": "Book",
     "ingredient4qty": 75,
-    "gemcost": 12125
+    "gemcost": 230375
   },
   {
     "type": "Unbreakable",
@@ -11153,7 +11157,7 @@
     "ingredient2qty": 15,
     "ingredient4": "Book",
     "ingredient4qty": 50,
-    "gemcost": 8500
+    "gemcost": 154000
   },
   {
     "type": "Magic Gloves",
@@ -11220,7 +11224,7 @@
     "ingredient2qty": 10,
     "ingredient4": "Book",
     "ingredient4qty": 300,
-    "gemcost": 46625
+    "gemcost": 919625
   },
   {
     "type": "Sword of Song",
