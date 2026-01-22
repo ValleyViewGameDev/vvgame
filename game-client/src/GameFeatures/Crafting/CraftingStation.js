@@ -66,14 +66,22 @@ const CraftingStation = ({
    useEffect(() => {
     if (!stationType || !currentStationPosition) return;
 
-    console.log('🔄 Checking GlobalGridStateTilesAndResources for active crafting timers...');
-    
-    const station = GlobalGridStateTilesAndResources.getResources()?.find(
+    console.log('🔄 [CRAFTING USEEFFECT] Checking for active crafting timers...', {
+      stationRefreshKey,
+      resourcesLength: resources?.length,
+      currentStationPosition
+    });
+
+    const station = resources?.find(
       (res) => res.x === currentStationPosition.x && res.y === currentStationPosition.y
     );
 
+    console.log('🔄 [CRAFTING USEEFFECT] Found station:', {
+      station: station ? { x: station.x, y: station.y, craftEnd: station.craftEnd, craftedItem: station.craftedItem } : null
+    });
+
     if (station && station.craftEnd) {
-        
+        console.log('🔄 [CRAFTING USEEFFECT] Station has craftEnd, setting up timer');
         setCraftedItem(station.craftedItem);
         setIsCrafting(true);
         setActiveTimer(true);  // ✅ Ensure UI treats this as an active timer
@@ -93,14 +101,14 @@ const CraftingStation = ({
         const timer = setInterval(updateCountdown, 1000);
         return () => clearInterval(timer);
     } else {
-        console.log('❌ No active crafting timer found.');
+        console.log('🔄 [CRAFTING USEEFFECT] No craftEnd found, resetting state');
         setCraftedItem(null);
         setIsCrafting(false);
         setIsReadyToCollect(false);
         setCraftingCountdown(null);
         setActiveTimer(false);
     }
-  }, [stationType, currentStationPosition, GlobalGridStateTilesAndResources.getResources(), craftingCountdown]); // ✅ Ensure state triggers re-render
+  }, [stationType, currentStationPosition, resources, stationRefreshKey]); // ✅ Use resources prop and stationRefreshKey for proper reactivity
 
 
   // Sync inventory with local storage and server
@@ -238,15 +246,24 @@ const CraftingStation = ({
         }
 
         // Update only the specific station resource in global state
+        console.log('🔄 [CRAFT START] Updating resources with new craftEnd:', craftEnd, 'craftedItem:', craftedItem);
         const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
           res.x === currentStationPosition.x && res.y === currentStationPosition.y
             ? { ...res, craftEnd, craftedItem }
             : res
         );
+        const updatedStation = updatedGlobalResources.find(
+          res => res.x === currentStationPosition.x && res.y === currentStationPosition.y
+        );
+        console.log('🔄 [CRAFT START] Updated station:', {
+          craftEnd: updatedStation?.craftEnd,
+          craftedItem: updatedStation?.craftedItem
+        });
         GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
         setResources(updatedGlobalResources);
 
         // Update UI state immediately
+        console.log('🔄 [CRAFT START] Setting UI state - isCrafting: true, activeTimer: true');
         setCraftedItem(craftedItem);
         setCraftingCountdown(Math.max(0, Math.floor((craftEnd - Date.now()) / 1000)));
         setActiveTimer(true);
@@ -355,22 +372,36 @@ const CraftingStation = ({
         await trackQuestProgress(currentPlayer, 'Craft', collectedItem, finalQtyCollected, setCurrentPlayer);
 
         // Update grid resources to remove crafting state
+        console.log('🔄 [COLLECT] Clearing crafting state from resources...');
         const updatedGlobalResources = GlobalGridStateTilesAndResources.getResources().map(res =>
           res.x === currentStationPosition.x && res.y === currentStationPosition.y
             ? { ...res, craftEnd: undefined, craftedItem: undefined }
             : res
         );
+        const clearedStation = updatedGlobalResources.find(
+          res => res.x === currentStationPosition.x && res.y === currentStationPosition.y
+        );
+        console.log('🔄 [COLLECT] Updated station after clearing:', {
+          craftEnd: clearedStation?.craftEnd,
+          craftedItem: clearedStation?.craftedItem
+        });
         GlobalGridStateTilesAndResources.setResources(updatedGlobalResources);
         setResources(updatedGlobalResources);
 
         // Reset UI state
+        console.log('🔄 [COLLECT] Resetting UI state...');
         setActiveTimer(false);
         setCraftedItem(null);
         setCraftingCountdown(null);
         setIsReadyToCollect(false);
+        setIsCrafting(false);
 
         // Force a refresh of the station state
-        setStationRefreshKey(prev => prev + 1);
+        console.log('🔄 [COLLECT] Incrementing stationRefreshKey');
+        setStationRefreshKey(prev => {
+          console.log('🔄 [COLLECT] stationRefreshKey changing from', prev, 'to', prev + 1);
+          return prev + 1;
+        });
 
         // Refresh player data to ensure consistency
         await refreshPlayerAfterInventoryUpdate(currentPlayer.playerId, setCurrentPlayer);

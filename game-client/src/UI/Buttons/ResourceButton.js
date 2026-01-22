@@ -68,7 +68,7 @@ const ResourceButton = ({
   const [showInfo, setShowInfo] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const [isProcessing, setIsProcessing] = useState(false);
-  const [transactionId] = useState(() => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+  const [transactionId, setTransactionId] = useState(() => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
   const [showGemTooltip, setShowGemTooltip] = useState(false);
   const [gemTooltipPosition, setGemTooltipPosition] = useState({ top: 0, left: 0 });
   const buttonRef = useRef(null);
@@ -131,6 +131,8 @@ const ResourceButton = ({
       try {
         await onTransactionAction(transactionId, transactionKey);
         console.log(`✅ [RESOURCE_BUTTON] Transaction completed for ${transactionKey}`);
+        // Generate a new transactionId for the next transaction
+        setTransactionId(`${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
       } catch (error) {
         console.error('Transaction failed:', error);
       } finally {
