@@ -1,13 +1,11 @@
-import axios from 'axios';
-import { animateRemotePC } from './Render/RenderAnimatePosition';
 import playersInGridManager from './GridState/PlayersInGrid';
 import NPCsInGridManager from './GridState/GridStateNPCs';
 import GlobalGridStateTilesAndResources from './GridState/GlobalGridStateTilesAndResources';
 import FloatingTextManager from "./UI/FloatingText";
 import { handleTransitSignpost } from './GameFeatures/Transit/Transit';
-// Temporary render-only animation state for interpolated player positions
+
+// Render-only animation state for interpolated player positions (used by rendering components)
 const renderPositions = {};
-let currentAnimationFrame = null;
 
 // Track currently pressed keys for diagonal movement
 const pressedKeys = new Set();
@@ -18,49 +16,53 @@ const MODIFIER_KEYS = ['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'NumLock',
 // Track last movement time for rate limiting
 let lastMovementTime = 0;
 
+// Pending movement timer - allows collecting simultaneous key presses before processing
+let pendingMovementTimer = null;
+let pendingMovementArgs = null; // Stores movement function arguments for the pending timer
+const SIMULTANEOUS_COLLECT_MS = 20; // Wait this many ms to collect simultaneous key presses
+
 // Movement speed configuration
 // Lower values = faster movement, higher values = slower movement
 // 100ms = ~10 tiles/sec (very fast, arcade-like)
 // 150ms = ~6-7 tiles/sec (recommended default)
 // 200ms = ~5 tiles/sec (slower, more deliberate)
 // 250ms = ~4 tiles/sec (slow, strategic)
-const MOVEMENT_COOLDOWN_MS = 75; // Default: ~6-7 tiles per second
+const MOVEMENT_COOLDOWN_MS = 60;
 
 // Clear all pressed keys when window loses focus or visibility
 if (typeof window !== 'undefined') {
   window.addEventListener('blur', () => {
     pressedKeys.clear();
+    if (pendingMovementTimer) {
+      clearTimeout(pendingMovementTimer);
+      pendingMovementTimer = null;
+    }
   });
-  
+
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       pressedKeys.clear();
+      if (pendingMovementTimer) {
+        clearTimeout(pendingMovementTimer);
+        pendingMovementTimer = null;
+      }
     }
   });
-  
+
   // Debug function to check stuck keys (accessible from console)
   window.debugMovementKeys = () => {
     console.log('Currently pressed keys:', Array.from(pressedKeys));
     return Array.from(pressedKeys);
   };
-  
+
   // Emergency reset function (accessible from console)
   window.resetMovementKeys = () => {
     pressedKeys.clear();
+    if (pendingMovementTimer) {
+      clearTimeout(pendingMovementTimer);
+      pendingMovementTimer = null;
+    }
     console.log('Movement keys reset');
-  };
-
-  // Check current movement cooldown (accessible from console)
-  window.debugMovementCooldown = () => {
-    const now = Date.now();
-    const timeSinceLastMove = now - lastMovementTime;
-    const canMove = timeSinceLastMove >= MOVEMENT_COOLDOWN_MS;
-    console.log('Movement cooldown status:', {
-      timeSinceLastMove,
-      cooldown: MOVEMENT_COOLDOWN_MS,
-      canMove
-    });
-    return { timeSinceLastMove, cooldown: MOVEMENT_COOLDOWN_MS, canMove };
   };
 }
 
@@ -86,48 +88,63 @@ export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources,
   // Add the key to our set of pressed keys
   // Use event.code for numpad keys (consistent regardless of NumLock state)
   // Use event.key for all other keys (handles WASD, arrows, etc.)
-  const keyToTrack = event.code?.startsWith('Numpad') ? event.code : event.key;
+  const isNumpadKey = event.code && event.code.startsWith('Numpad');
+  const keyToTrack = isNumpadKey ? event.code : event.key;
   pressedKeys.add(keyToTrack);
 
-  // Process movement immediately (fire and forget - we don't await to keep input responsive)
-  processMovement(currentPlayer, TILE_SIZE, masterResources,
+  // Check cooldown - if in cooldown, just track the key but don't schedule movement
+  const now = Date.now();
+  if (now - lastMovementTime < MOVEMENT_COOLDOWN_MS) {
+    return;
+  }
+
+  // Store the movement arguments for when the timer fires
+  pendingMovementArgs = {
+    currentPlayer, TILE_SIZE, masterResources,
     setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources,
-    updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext, strings, transitionFadeControl).catch(err => {
-      console.error('Error processing movement:', err);
-    });
+    updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext,
+    strings, transitionFadeControl
+  };
+
+  // If there's already a pending timer, let it collect this key too
+  if (pendingMovementTimer) {
+    return;
+  }
+
+  // Start a short timer to collect simultaneous key presses
+  pendingMovementTimer = setTimeout(() => {
+    pendingMovementTimer = null;
+
+    // Update lastMovementTime before processing
+    lastMovementTime = Date.now();
+
+    const args = pendingMovementArgs;
+    if (args) {
+      // Process movement with all currently pressed keys
+      processMovement(
+        args.currentPlayer, args.TILE_SIZE, args.masterResources,
+        args.setCurrentPlayer, args.setGridId, args.setGrid, args.setTileTypes, args.setResources,
+        args.updateStatus, args.closeAllPanels, args.localPlayerMoveTimestampRef,
+        args.bulkOperationContext, args.strings, args.transitionFadeControl
+      ).catch(err => {
+        console.error('Error processing movement:', err);
+      });
+    }
+  }, SIMULTANEOUS_COLLECT_MS);
 }
 
 // Helper function to handle key release events
 export function handleKeyUp(event) {
   // Remove the key from our set of pressed keys
   // Use event.code for numpad keys (consistent regardless of NumLock state)
-  const keyToRemove = event.code?.startsWith('Numpad') ? event.code : event.key;
+  const isNumpadKey = event.code && event.code.startsWith('Numpad');
+  const keyToRemove = isNumpadKey ? event.code : event.key;
   pressedKeys.delete(keyToRemove);
 
   // Also clear all keys if a modifier is released (failsafe)
   if (MODIFIER_KEYS.includes(event.key)) {
     pressedKeys.clear();
   }
-}
-
-// Main movement handler that processes diagonal movement
-export async function handleKeyMovement(event, currentPlayer, TILE_SIZE, masterResources, 
-  setCurrentPlayer, 
-  setGridId, 
-  setGrid, 
-  setTileTypes, 
-  setResources, 
-  updateStatus, 
-  closeAllPanels,
-  localPlayerMoveTimestampRef,
-  bulkOperationContext,
-  strings = null,
-  transitionFadeControl = null) 
-{
-  // For backward compatibility, treat this as a key press
-  handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources, 
-    setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources, 
-    updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext, strings, transitionFadeControl);
 }
 
 // Process movement based on all currently pressed keys
@@ -144,12 +161,6 @@ async function processMovement(currentPlayer, TILE_SIZE, masterResources,
   strings = null,
   transitionFadeControl = null)
 {
-  // Check if we're still in cooldown period
-  const now = Date.now();
-  if (now - lastMovementTime < MOVEMENT_COOLDOWN_MS) {
-    return; // Ignore this movement attempt
-  }
-
   const directions = {
     // Arrow keys
     ArrowUp: { dx: 0, dy: -1 },
@@ -192,9 +203,6 @@ async function processMovement(currentPlayer, TILE_SIZE, masterResources,
   // If no movement, return
   if (totalDx === 0 && totalDy === 0) return;
 
-  // Update cooldown timer BEFORE processing movement
-  lastMovementTime = now;
-  
   // Clamp diagonal movement to -1, 0, or 1
   totalDx = Math.max(-1, Math.min(1, totalDx));
   totalDy = Math.max(-1, Math.min(1, totalDy));

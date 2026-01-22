@@ -124,7 +124,7 @@ import TransitionOverlay from './UI/TransitionOverlay';
 import { useTransitionFade } from './UI/useTransitionFade';
 
 import { fetchGridData, updateGridStatus, isWallBlocking, getLineOfSightTiles } from './Utils/GridManagement';
-import { handleKeyMovement, handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, centerCameraOnPlayerFast } from './PlayerMovement';
+import { handleKeyDown as handleMovementKeyDown, handleKeyUp as handleMovementKeyUp, centerCameraOnPlayer, centerCameraOnPlayerFast } from './PlayerMovement';
 import { mergeResources, mergeTiles, enrichResourceFromMaster } from './Utils/ResourceHelpers.js';
 import { fetchHomesteadOwner, calculateDistance } from './Utils/worldHelpers.js';
 import { getDerivedRange } from './Utils/worldHelpers';
