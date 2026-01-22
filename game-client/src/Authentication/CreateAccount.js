@@ -159,6 +159,18 @@ const CreateAccount = ({ setCurrentPlayer, zoomLevel, setZoomLevel, setIsLoggedI
 const handleCreateAccount = async (e) => {
   e.preventDefault();
   if (isSubmitting) return;
+
+  // Validate required fields
+  if (!username.trim()) {
+    setError('Enter a username');
+    return;
+  }
+  if (!password.trim()) {
+    setError('Enter a password');
+    return;
+  }
+
+  setError(''); // Clear any previous errors
   setIsSubmitting(true);
 
   try {
@@ -388,6 +400,8 @@ return (
           ▶
         </button>
       </div>
+
+      {error && <p className="error-message">{error}</p>}
 
       <div className="shared-buttons">
         <button className="btn-basic btn-success" type="submit" disabled={isSubmitting}>

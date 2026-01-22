@@ -87,10 +87,12 @@
 }
 
 /* Error message styling */
-.error-message {
+.error-message,
+#create-account-form .error-message {
   color: var(--color-error);
   font-size: 12px;
   margin: 4px 0;
+  text-align: center;
 }
 
 /* Form button spacing */
