@@ -34,7 +34,7 @@
       "panelTargetNPC": "Constable Elbow",
       "doinker": true,
       "doinkerType": "button",
-      "doinkerTarget": "Constable Elbow",         
+      "doinkerTarget": 3,         
       "notificationKey": 7051,
       "notificationIcon": "🧔🏼‍♂️",
       "addQuests": [2, 14]
