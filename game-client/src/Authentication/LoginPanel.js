@@ -14,24 +14,20 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [showCreateAccount, setShowCreateAccount] = useState(false);
+  const [showLoginExistingAccount, setShowLoginExistingAccount] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      console.log('Login attempt:', { username, password });
-
       const response = await axios.post(`${API_BASE}/api/login`, { username, password });
       if (response.data.success) {
         const player = response.data.player;
-        console.log('Login successful:', player);
-
-        setCurrentPlayer(player); // Set player data
-        localStorage.setItem('player', JSON.stringify(player)); // Store in local storage
-        onClose(); // Close panel
+        setCurrentPlayer(player);
+        localStorage.setItem('player', JSON.stringify(player));
+        onClose();
 
         if (onLoginSuccess) {
-          onLoginSuccess(player); // Notify parent component
+          onLoginSuccess(player);
         }
       } else {
         setError(response.data.error || 'Invalid username or password');
@@ -44,39 +40,14 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
 
   return (
     <Panel onClose={onClose} descriptionKey="1021" titleKey="1121" panelName="LoginPanel">
-      {showCreateAccount ? (
-        <CreateAccount
-          setCurrentPlayer={setCurrentPlayer}
-          zoomLevel={zoomLevel}
-          setZoomLevel={setZoomLevel}
-          setIsLoggedIn={() => {
-            setShowCreateAccount(false);
-            onClose();
-          }}
-        />
-      ) : (
+      {showLoginExistingAccount ? (
+
+// Existing account login form
         <div className="standard-panel">
+          <h3>{strings[4010]}</h3>
 
-            <div className="shared-buttons">
-            <h3>{strings[4001]}</h3>
-              <button
-                type="button"
-                className="btn-basic btn-success"
-                onClick={() => setShowCreateAccount(true)}
-              >
-                {strings[4002]}
-              </button>
-            </div>  
-            <h4>{strings[4004]}</h4>
-            <h4>{strings[4005]}</h4>
-            <h3>{strings[5033]}</h3>
-
-          <div className="panel-buffer-space" />
-            <h3>{strings[4010]}</h3>
-
-            <form onSubmit={handleLogin} className="panel-form login-panel-form">
+          <form onSubmit={handleLogin} className="panel-form login-panel-form">
             <div className="form-group">
-
               <input
                 id="username"
                 type="text"
@@ -106,19 +77,42 @@ const LoginPanel = ({ onClose, setCurrentPlayer, zoomLevel, setZoomLevel, onLogi
               </button>
             </div>
           </form>
+
           <div className="panel-buffer-space" />
 
-          <div className="shared-buttons">
-            <button
-              className="btn-basic btn-success"
-              onClick={() => window.location.href = 'mailto:valleyviewgamedev@gmail.com'}
-            >
-              {strings[97]}
-            </button>
-          </div>
-
+          <p className="login-link-text">
+            <a href="#" onClick={(e) => { e.preventDefault(); setShowLoginExistingAccount(false); }}>
+              {strings[4001]}
+            </a>
+          </p>
         </div>
-        
+      ) : (
+        // New account creation (default view)
+        <div className="standard-panel">
+
+          <CreateAccount
+            setCurrentPlayer={setCurrentPlayer}
+            zoomLevel={zoomLevel}
+            setZoomLevel={setZoomLevel}
+            setIsLoggedIn={() => {
+              onClose();
+            }}
+          />
+
+          <p className="login-link-text">
+            <a href="#" onClick={(e) => { e.preventDefault(); setShowLoginExistingAccount(true); }}>
+              {strings[4010]}
+            </a>
+          </p>
+
+          <div className="panel-buffer-space" />
+
+          <p className="login-link-text">
+            <a href="mailto:valleyviewgamedev@gmail.com">
+              {strings[97]}
+            </a>
+          </p>
+        </div>
       )}
     </Panel>
   );

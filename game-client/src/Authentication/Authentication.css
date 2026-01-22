@@ -105,3 +105,92 @@
   text-align: center;
   margin: 4px 0;
 }
+
+/* Login/Create account toggle link */
+.login-link-text {
+  text-align: center;
+  margin: 16px 0;
+  font-size: 14px;
+}
+
+.login-link-text a {
+  color: var(--color-primary-green);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.login-link-text a:hover {
+  color: var(--color-primary-green-dark);
+}
+
+/* Avatar Header */
+.avatar-header {
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+/* Avatar Carousel */
+.avatar-carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 12px 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.avatar-scroll-btn {
+  background: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.avatar-scroll-btn:hover:not(:disabled) {
+  background: var(--color-primary-green-light);
+}
+
+.avatar-scroll-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.avatar-icons-container {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.avatar-icon-btn {
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-input-border);
+  border-radius: 8px;
+  background: var(--color-input-bg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.avatar-icon-btn:hover {
+  border-color: var(--color-primary-green);
+  transform: scale(1.1);
+}
+
+.avatar-icon-btn.selected {
+  border-color: var(--color-primary-green);
+  background: var(--color-primary-green-light);
+  box-shadow: 0 0 8px var(--color-primary-green);
+  transform: scale(1.15);
+}

@@ -1,12 +1,15 @@
 import API_BASE from '../config';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import axios from 'axios';
 import NPCsInGridManager from '../GridState/GridStateNPCs';
 import { useStrings } from '../UI/StringsContext';
 import LANGUAGE_OPTIONS from '../UI/Languages.json';
 import { enabledLanguages } from '../UI/Modals/LanguagePickerModal';
+import PlayerIcons from './PlayerIcons.json';
 import '../UI/Buttons/SharedButtons.css';
 import './Authentication.css';
+import '../GameFeatures/FTUE/FTUE.css';
 import { trackAccountCreation } from '../Utils/conversionTracking';
 
 // Detect browser type from userAgent
@@ -111,8 +114,47 @@ const CreateAccount = ({ setCurrentPlayer, zoomLevel, setZoomLevel, setIsLoggedI
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [language, setLanguage] = useState('en');
+  const [selectedIcon, setSelectedIcon] = useState(PlayerIcons.free[0].value);
+  const [iconScrollIndex, setIconScrollIndex] = useState(0);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [headerPosition, setHeaderPosition] = useState(null);
+
+  // Track the position of the "Create a New Profile" header for the doinker
+  useEffect(() => {
+    const findHeader = () => {
+      const header = document.querySelector('#create-account-form h2');
+      if (!header) return null;
+      const rect = header.getBoundingClientRect();
+      return {
+        x: rect.left + rect.width / 2,
+        y: rect.top,
+      };
+    };
+
+    const position = findHeader();
+    if (position) setHeaderPosition(position);
+
+    const interval = setInterval(() => {
+      const newPosition = findHeader();
+      setHeaderPosition(newPosition);
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Number of icons visible in the carousel at once
+  const visibleIconCount = 3;
+  const freeIcons = PlayerIcons.free;
+  const maxScrollIndex = Math.max(0, freeIcons.length - visibleIconCount);
+
+  const scrollIconsLeft = () => {
+    setIconScrollIndex(prev => Math.max(0, prev - 1));
+  };
+
+  const scrollIconsRight = () => {
+    setIconScrollIndex(prev => Math.min(maxScrollIndex, prev + 1));
+  };
 
 const handleCreateAccount = async (e) => {
   e.preventDefault();
@@ -186,6 +228,7 @@ const handleCreateAccount = async (e) => {
       username,
       password,
       language,
+      icon: selectedIcon,
       location: {
         x: startX,
         y: startY,
@@ -279,7 +322,11 @@ const handleCreateAccount = async (e) => {
 };
 
 return (
+  <>
   <div id="create-account-form">
+
+    <div className="panel-buffer-space" />
+
     <h2>{strings[4002]}</h2>
     <form onSubmit={handleCreateAccount}>
       <input
@@ -307,26 +354,87 @@ return (
             </option>
           ))}
       </select>
+
+      {/* Avatar Selection */}
+      <h3 className="avatar-header">{strings[4071]}</h3>
+      <div className="avatar-carousel">
+        <button
+          type="button"
+          className="avatar-scroll-btn"
+          onClick={scrollIconsLeft}
+          disabled={iconScrollIndex === 0}
+        >
+          ◀
+        </button>
+        <div className="avatar-icons-container">
+          {freeIcons.slice(iconScrollIndex, iconScrollIndex + visibleIconCount).map((icon) => (
+            <button
+              key={icon.value}
+              type="button"
+              className={`avatar-icon-btn ${selectedIcon === icon.value ? 'selected' : ''}`}
+              onClick={() => setSelectedIcon(icon.value)}
+              title={icon.label}
+            >
+              {icon.value}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          className="avatar-scroll-btn"
+          onClick={scrollIconsRight}
+          disabled={iconScrollIndex >= maxScrollIndex}
+        >
+          ▶
+        </button>
+      </div>
+
       <div className="shared-buttons">
         <button className="btn-basic btn-success" type="submit" disabled={isSubmitting}>
           {strings[4068] || "Begin!"}
         </button>
       </div>
+
+
     </form>
 
-    <div className="shared-buttons">
-      <button className="btn-basic btn-neutral"
-        type="button"
-        onClick={() => setIsLoggedIn(false)}
-      >
-        {strings[4066]}
-      </button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      </div>
-
-      <p> <strong>{strings[4004]}</strong></p>
     </div>
-    
+
+    {/* Doinker arrow pointing to "Create a New Profile" header */}
+    {headerPosition && createPortal(
+      <div
+        className="ftue-doinker-button"
+        style={{
+          left: `${headerPosition.x - 15}px`,
+          top: `${headerPosition.y - 50}px`,
+          width: '30px',
+          height: '40px',
+        }}
+      >
+        <svg
+          width={30}
+          height={40}
+          viewBox="0 0 40 60"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="ftue-doinker-arrow"
+        >
+          <path
+            d="M15 0 L15 35 L5 35 L20 60 L35 35 L25 35 L25 0 Z"
+            fill="#e53935"
+            stroke="#b71c1c"
+            strokeWidth="2"
+          />
+          <path
+            d="M17 2 L17 33 L20 33 L20 2 Z"
+            fill="#ff6f60"
+            opacity="0.6"
+          />
+        </svg>
+      </div>,
+      document.body
+    )}
+    </>
   );
 };
 
