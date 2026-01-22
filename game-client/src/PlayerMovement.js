@@ -65,30 +65,33 @@ if (typeof window !== 'undefined') {
 }
 
 // Helper function to handle key press events
-export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources, 
-  setCurrentPlayer, 
-  setGridId, 
-  setGrid, 
-  setTileTypes, 
-  setResources, 
-  updateStatus, 
+export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources,
+  setCurrentPlayer,
+  setGridId,
+  setGrid,
+  setTileTypes,
+  setResources,
+  updateStatus,
   closeAllPanels,
   localPlayerMoveTimestampRef,
   bulkOperationContext,
   strings = null,
-  transitionFadeControl = null) 
+  transitionFadeControl = null)
 {
   // Ignore modifier keys
   if (MODIFIER_KEYS.includes(event.key)) {
     return;
   }
-  
+
   // Add the key to our set of pressed keys
-  pressedKeys.add(event.key);
-  
+  // Use event.code for numpad keys (consistent regardless of NumLock state)
+  // Use event.key for all other keys (handles WASD, arrows, etc.)
+  const keyToTrack = event.code?.startsWith('Numpad') ? event.code : event.key;
+  pressedKeys.add(keyToTrack);
+
   // Process movement immediately (fire and forget - we don't await to keep input responsive)
-  processMovement(currentPlayer, TILE_SIZE, masterResources, 
-    setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources, 
+  processMovement(currentPlayer, TILE_SIZE, masterResources,
+    setCurrentPlayer, setGridId, setGrid, setTileTypes, setResources,
     updateStatus, closeAllPanels, localPlayerMoveTimestampRef, bulkOperationContext, strings, transitionFadeControl).catch(err => {
       console.error('Error processing movement:', err);
     });
@@ -97,8 +100,10 @@ export function handleKeyDown(event, currentPlayer, TILE_SIZE, masterResources,
 // Helper function to handle key release events
 export function handleKeyUp(event) {
   // Remove the key from our set of pressed keys
-  pressedKeys.delete(event.key);
-  
+  // Use event.code for numpad keys (consistent regardless of NumLock state)
+  const keyToRemove = event.code?.startsWith('Numpad') ? event.code : event.key;
+  pressedKeys.delete(keyToRemove);
+
   // Also clear all keys if a modifier is released (failsafe)
   if (MODIFIER_KEYS.includes(event.key)) {
     pressedKeys.clear();
@@ -146,18 +151,30 @@ async function processMovement(currentPlayer, TILE_SIZE, masterResources,
   }
 
   const directions = {
+    // Arrow keys
     ArrowUp: { dx: 0, dy: -1 },
+    ArrowDown: { dx: 0, dy: 1 },
+    ArrowLeft: { dx: -1, dy: 0 },
+    ArrowRight: { dx: 1, dy: 0 },
+    // WASD keys
     w: { dx: 0, dy: -1 },
     W: { dx: 0, dy: -1 },
-    ArrowDown: { dx: 0, dy: 1 },
     s: { dx: 0, dy: 1 },
     S: { dx: 0, dy: 1 },
-    ArrowLeft: { dx: -1, dy: 0 },
     a: { dx: -1, dy: 0 },
     A: { dx: -1, dy: 0 },
-    ArrowRight: { dx: 1, dy: 0 },
     d: { dx: 1, dy: 0 },
     D: { dx: 1, dy: 0 },
+    // Numpad cardinal directions (uses event.code)
+    Numpad8: { dx: 0, dy: -1 },   // Up (N)
+    Numpad2: { dx: 0, dy: 1 },    // Down (S)
+    Numpad4: { dx: -1, dy: 0 },   // Left (W)
+    Numpad6: { dx: 1, dy: 0 },    // Right (E)
+    // Numpad diagonals (uses event.code)
+    Numpad7: { dx: -1, dy: -1 },  // NW
+    Numpad9: { dx: 1, dy: -1 },   // NE
+    Numpad1: { dx: -1, dy: 1 },   // SW
+    Numpad3: { dx: 1, dy: 1 },    // SE
   };
 
   // Calculate combined movement vector from all pressed keys
