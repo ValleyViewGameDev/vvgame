@@ -35,7 +35,7 @@
       "panelTargetNPC": "Constable Elbow",
       "doinker": true,
       "doinkerType": "button",
-      "doinkerTarget": 3,
+      "doinkerTarget": ".trade-options .resource-button",
       "notificationKey": 7051,
       "notificationIcon": "🧔🏼‍♂️",
       "addQuests": [2, 14]
