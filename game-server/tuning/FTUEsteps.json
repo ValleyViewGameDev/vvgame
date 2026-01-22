@@ -30,11 +30,12 @@
     {
       "step": 4,
       "trigger": "MetConstableElbow",
+      "showModal": false,
       "openPanel": "NPCPanel",
       "panelTargetNPC": "Constable Elbow",
       "doinker": true,
       "doinkerType": "button",
-      "doinkerTarget": 3,         
+      "doinkerTarget": 3,
       "notificationKey": 7051,
       "notificationIcon": "🧔🏼‍♂️",
       "addQuests": [2, 14]
