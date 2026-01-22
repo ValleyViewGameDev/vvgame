@@ -176,6 +176,13 @@
         "reward": 1
     },
     {
+        "name": "TraveledToTown",
+        "tooltip": "[player has traveled to town once]",
+        "type": "Event",
+        "visible": false,
+        "reward": 1
+    },
+    {
         "name": "SawFrontierTip",
         "tooltip": "[player has seen the frontier view tooltip]",
         "type": "Event",

@@ -427,8 +427,6 @@ export function centerCameraOnPlayerFast(position, TILE_SIZE, retryCount = 0) {
     left: clampedX,
     top: clampedY,
   });
-
-  console.log(`📷 Camera centered on player at (${position.x}, ${position.y})`);
 }
 
 export async function isTileValidForPlayer(x, y, tiles, resources, masterResources, currentPlayer = null, updateStatus = null, strings = null, TILE_SIZE = null) {

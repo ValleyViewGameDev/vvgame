@@ -423,9 +423,9 @@ const handleGetReward = async (quest) => {
       // Track quest progress for "Collect" type quests (use multiplied quantity)
       await trackQuestProgress(currentPlayer, 'Collect', quest.reward, rewardQuantity, setCurrentPlayer);
 
-      // Award XP for completing quest with NPC
+      // Award XP for completing quest (use quest-specific XP if available, else fall back to NPC's XP)
       const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
-      const xpToAward = npcResourceForXP?.xp || 1;
+      const xpToAward = quest.xp ?? npcResourceForXP?.xp ?? 1;
       try {
         const xpResponse = await axios.post(`${API_BASE}/api/addXP`, {
           playerId: currentPlayer.playerId,
@@ -481,7 +481,10 @@ const handleGetReward = async (quest) => {
         activeQuests: updatedActiveQuests,
       }));
       setQuestList((prevList) => prevList.filter((q) => q.title !== quest.title));
-      
+
+      // FTUE: Trigger CollectedQuest when player collects their first quest reward
+      await tryAdvanceFTUEByTrigger('CollectedQuest', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+
       // Show quest complete message with bonus if applicable
       if (bonusMessage) {
         updateStatus(`Action item complete! Received ${rewardQuantity} ${getLocalizedString(quest.reward, strings)}. ${bonusMessage}`);
@@ -1064,9 +1067,9 @@ const handleHeal = async (recipe) => {
               ? () => handleGetReward(quest)
               : () => handleAcceptQuest(quest.title);
 
-            // Get XP for this NPC
+            // Get XP for this quest (use quest-specific XP if available, else fall back to NPC's XP)
             const npcResourceForXP = masterResources.find(res => res.type === npcData.type && res.category === 'npc');
-            const xpToAward = npcResourceForXP?.xp || 1;
+            const xpToAward = quest.xp ?? npcResourceForXP?.xp ?? 1;
 
             return (
               <QuestGiverButton

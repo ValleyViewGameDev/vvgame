@@ -255,6 +255,7 @@ const FarmingPanel = ({
                   key={item.type}
                   symbol={symbol}
                   name={getLocalizedString(item.type, strings)}
+                  resourceType={item.type}
                   className={buttonClassName.trim()}
                   style={isCoolingDown ? { '--cooldown-duration': `${COOLDOWN_DURATION / 1000}s` } : {}}
                   details={details}

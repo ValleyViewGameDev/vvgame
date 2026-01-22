@@ -222,11 +222,11 @@ export async function handleDungeonExit(
       }));
     }
 
-    // FTUE: Check if first-time user just exited the FTUE Cave and entered town
+    // FTUE: Check if first-time user just exited the FTUE Cave and entered homestead
     const wasInFTUECave = fromLocation.g === FTUE_CAVE_GRID_ID;
-    const enteredTown = toLocation.gtype === 'town';
-    if (currentPlayer?.firsttimeuser && wasInFTUECave && enteredTown) {
-      console.log('🎓 First-time user exited FTUE Cave into town - triggering ExitedCave');
+    const enteredHomestead = toLocation.gtype === 'homestead';
+    if (currentPlayer?.firsttimeuser && wasInFTUECave && enteredHomestead) {
+      console.log('🎓 First-time user exited FTUE Cave into homestead - triggering ExitedCave');
       await tryAdvanceFTUEByTrigger('ExitedCave', currentPlayer._id, currentPlayer, setCurrentPlayer);
     }
 

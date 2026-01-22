@@ -2735,42 +2735,68 @@ router.post('/exit-dungeon', async (req, res) => {
 
     // ============================================================
     // SPECIAL CASE: FTUE Cave dungeon
-    // If player is in the FTUE Cave, teleport them to their settlement's town
+    // If player is in the FTUE Cave, teleport them to their homestead
     // ============================================================
     if (player.location?.g?.toString() === FTUE_CAVE_GRID_ID) {
       console.log(`🚪 [FTUE] Player ${playerId} exiting FTUE Cave dungeon`);
 
-      // Find the player's settlement and its town grid
-      const Settlement = require('../models/settlement');
-      const settlement = await Settlement.findById(player.settlementId);
+      // Get the player's homestead grid (player.gridId is their homestead)
+      const homesteadGridId = player.gridId;
 
-      if (!settlement) {
+      if (!homesteadGridId) {
         return res.status(404).json({
-          error: 'Player settlement not found'
+          error: 'Player homestead not found'
         });
       }
 
-      // Find the town grid in the settlement
-      const flatGrids = settlement.grids.flat();
-      const townSubGrid = flatGrids.find(g => g.gridType === 'town');
-
-      if (!townSubGrid || !townSubGrid.gridId) {
+      // Load the homestead grid to find Signpost Town position
+      const homesteadGrid = await Grid.findById(homesteadGridId);
+      if (!homesteadGrid) {
         return res.status(404).json({
-          error: 'Town grid not found in settlement'
+          error: 'Homestead grid not found'
         });
       }
 
-      console.log(`🏠 [FTUE] Teleporting to town grid: ${townSubGrid.gridId} at position (${FTUE_TOWN_EXIT_X}, ${FTUE_TOWN_EXIT_Y})`);
+      // Find the Signpost Town resource to position player next to it
+      const resources = gridResourceManager.getResources(homesteadGrid);
+      const signpostTown = resources.find(r => r.type === 'Signpost Town');
+
+      // Position player one tile to the right of Signpost Town (same as clicking it)
+      let exitX = 30; // default fallback
+      let exitY = 33;
+      if (signpostTown) {
+        exitX = signpostTown.x + 1; // One tile to the right
+        exitY = signpostTown.y;
+        console.log(`📍 [FTUE] Found Signpost Town at (${signpostTown.x}, ${signpostTown.y}), placing player at (${exitX}, ${exitY})`);
+      } else {
+        console.warn(`⚠️ [FTUE] Signpost Town not found in homestead, using default position`);
+      }
+
+      // Look up gridCoord from settlement
+      let gridCoord = null;
+      if (player.settlementId) {
+        const Settlement = require('../models/settlement');
+        const settlement = await Settlement.findById(player.settlementId);
+        if (settlement && settlement.grids) {
+          const flatGrids = settlement.grids.flat();
+          const subGrid = flatGrids.find(g => g.gridId?.toString() === homesteadGridId.toString());
+          if (subGrid && subGrid.gridCoord !== undefined) {
+            gridCoord = subGrid.gridCoord;
+          }
+        }
+      }
+
+      console.log(`🏠 [FTUE] Teleporting to homestead grid: ${homesteadGridId} at position (${exitX}, ${exitY})`);
 
       return res.json({
         success: true,
-        sourceGridId: townSubGrid.gridId,
+        sourceGridId: homesteadGridId,
         exitPosition: {
-          x: FTUE_TOWN_EXIT_X,
-          y: FTUE_TOWN_EXIT_Y
+          x: exitX,
+          y: exitY
         },
-        gridType: 'town',
-        gridCoord: townSubGrid.gridCoord,
+        gridType: 'homestead',
+        gridCoord: gridCoord,
         settlementId: player.settlementId
       });
     }

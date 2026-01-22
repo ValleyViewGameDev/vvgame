@@ -22,13 +22,59 @@
       "trigger": "ExitedCave",
       "doinker": true,
       "doinkerType": "resource",
-      "doinkerTarget": "Constable Elbow",         
+      "doinkerTarget": ["Wheat", "Kent"],
+      "notificationKey": 7053,
+      "notificationIcon": "🤠",
+      "addQuests": []
+    },
+    {
+      "step": 4,
+      "trigger": "SoldToKent",
+      "openPanel": "FarmingPanel",
+      "showFeedbackModalAfter": true,
+      "showModal": false,
+      "continue": false,
+      "doinker": true,
+      "doinkerType": "button",
+      "doinkerTarget": "[data-resource-type=\"Wheat Plot\"] .resource-button",
+      "notificationKey": 7054,
+      "notificationIcon": "🌽",
+      "addQuests": [6]
+    },
+    {
+      "step": 5,
+      "trigger": "PlantedFirstCrop",
+      "showModal": false,
+      "continue": false,
+      "doinker": true,
+      "doinkerType": "resource",
+      "doinkerTarget": "The Shepherd",
+      "notificationKey": 7062,
+      "notificationIcon": "👵🏻",
+      "addQuests": []
+    },
+    {
+      "step": 6,
+      "trigger": "CollectedQuest",
+      "doinker": true,
+      "doinkerType": "resource",
+      "doinkerTarget": ["Signpost Town"],
+      "notificationKey": 7061,
+      "notificationIcon": "🏛️",
+      "addQuests": [5]
+    },
+    {
+      "step": 7,
+      "trigger": "FirstTownVisit",
+      "doinker": true,
+      "doinkerType": "resource",
+      "doinkerTarget": "Constable Elbow",
       "notificationKey": 742,
       "notificationIcon": "🧔🏼‍♂️",
       "addQuests": []
     },
     {
-      "step": 4,
+      "step": 8,
       "trigger": "MetConstableElbow",
       "showModal": false,
       "openPanel": "NPCPanel",
@@ -40,55 +86,6 @@
       "notificationIcon": "🧔🏼‍♂️",
       "addQuests": [2, 14]
     },
-
-    {
-      "step": 5,
-      "trigger": "BoughtHomeDeed",
-      "openPanel": "QuestPanel",
-      "showModal": false,
-      "continue": false,
-      "doinker": true,
-      "doinkerType": "resource",
-      "doinkerTarget": "Signpost Home",         
-      "notificationKey": 7052,
-      "notificationIcon": "🏠"
-    },
-    {
-      "step": 6,
-      "trigger": "FirstHomesteadVisit",
-      "openPanel": "QuestPanel",
-      "showModal": false,
-      "continue": false,
-      "doinker": true,
-      "doinkerType": "resource",
-      "doinkerTarget": ["Wheat", "Kent"],
-      "notificationKey": 7053,
-      "notificationIcon": "🤠",
-      "addQuests": [5, 6]
-    },
-    {
-      "step": 7,
-      "trigger": "SoldToKent",
-      "openPanel": "FarmingPanel",
-      "showFeedbackModalAfter": true,
-      "showModal": false,
-      "continue": false,
-      "notificationKey": 7054,
-      "notificationIcon": "🌽",
-      "addQuests": [4]
-    },
-    {
-      "step": 8,
-      "trigger": "PlantedFirstCrop",
-      "showModal": false,
-      "continue": false,
-      "doinker": true,
-      "doinkerType": "resource",
-      "doinkerTarget": "Constable Elbow",         
-      "notificationKey": 7055,
-      "notificationIcon": "🌾",
-      "addQuests": [7]
-    },
     {
       "step": 9,
       "trigger": "AcquiredTownKey",
@@ -96,6 +93,6 @@
       "continue": false,
       "notificationKey": 7056,
       "notificationIcon": "🗝️",
-      "addQuests": []
+      "addQuests": [7]
     }
 ]

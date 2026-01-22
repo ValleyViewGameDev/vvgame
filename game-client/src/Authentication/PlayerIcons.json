@@ -1,10 +1,10 @@
 {
   "free": [
     { "label": "Grinning Face", "value": "😀" },
-    { "label": "Crying Face", "value": "😭" },
     { "label": "Heart Eyes", "value": "😍" },
-    { "label": "Face with Hand Over Mouth", "value": "🤭" },
     { "label": "Nerd Face", "value": "🤓" },
+    { "label": "Face with Hand Over Mouth", "value": "🤭" },
+    { "label": "Crying Face", "value": "😭" },
     { "label": "Sunglasses Face", "value": "😎" },
     { "label": "Unamused Face", "value": "😒" },
     { "label": "Party Face", "value": "🥳" }

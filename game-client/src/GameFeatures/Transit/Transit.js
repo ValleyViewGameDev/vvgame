@@ -243,7 +243,18 @@ export async function handleTransitSignpost(
           masterTrophies,
           transitionFadeControl
         );
-        
+
+        // Check if this is the player's first time traveling to town (for FTUE)
+        const hasTraveledToTownTrophy = currentPlayer.trophies?.some(
+          t => t.type === "TraveledToTown" && t.progress > 0
+        );
+        if (!hasTraveledToTownTrophy && currentPlayer?.playerId) {
+          console.log("🏘️ First time traveling to town - awarding trophy and advancing FTUE");
+          await earnTrophy(currentPlayer.playerId, "TraveledToTown", 1, currentPlayer, masterTrophies, setCurrentPlayer);
+          // Try to advance FTUE if player is at the correct step for FirstTownVisit
+          await tryAdvanceFTUEByTrigger('FirstTownVisit', currentPlayer.playerId, currentPlayer, setCurrentPlayer);
+        }
+
       } catch (error) {
         console.error(`❌ Error traveling to ${isPlayerOwnedTown ? "player's town" : "town"}:`, error);
         if (error.message && error.message.includes('Failed to remove player from previous grid')) {

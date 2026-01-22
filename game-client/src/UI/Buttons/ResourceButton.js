@@ -59,7 +59,9 @@ const ResourceButton = ({
   // Developer-only styling - applies danger/red tint to buttons for devonly resources
   devOnly = false,
   // SVG filename - when provided, shows SVG image instead of emoji symbol
-  filename = null
+  filename = null,
+  // Resource type - used for data attribute to enable CSS selector targeting
+  resourceType = null
 }) => { 
   const strings = useStrings();
   const { openPanel } = usePanelContext();
@@ -160,6 +162,7 @@ const ResourceButton = ({
     <>
       <div
         className="resource-button-wrapper"
+        data-resource-type={resourceType || name}
       >
         <button
           ref={buttonRef}
