@@ -18,8 +18,15 @@ const Analytics = ({ activePanel }) => {
   const [selectedTimezone, setSelectedTimezone] = useState(new Set());
   const [selectedLanguage, setSelectedLanguage] = useState(new Set());
   const [filterOptions, setFilterOptions] = useState({ os: [], browser: [], timezone: [], language: [] });
+  const [filtersReady, setFiltersReady] = useState(false);
 
-  // Static language options
+  // Static language options - map codes to display names
+  const languageCodeToName = {
+    'en': 'English',
+    'es': 'Spanish',
+    'fr': 'French',
+    'de': 'German'
+  };
   const languageOptions = ['English', 'Spanish', 'French', 'German'];
 
   useEffect(() => {
@@ -48,6 +55,10 @@ const Analytics = ({ activePanel }) => {
     // Initialize language filter with all options
     if (selectedLanguage.size === 0) {
       setSelectedLanguage(new Set(languageOptions));
+    }
+    // Mark filters as ready once all have options available
+    if (filterOptions.os.length > 0 && filterOptions.browser.length > 0 && filterOptions.timezone.length > 0) {
+      setFiltersReady(true);
     }
   }, [filterOptions]);
 
@@ -110,13 +121,44 @@ const Analytics = ({ activePanel }) => {
   // Filter the raw data based on selected filters
   // All filters are cumulative AND - user must match at least one selected option in EACH category
   const filteredData = useMemo(() => {
+    console.log('🔍 filteredData running:', {
+      hasRawData: !!ftueAnalytics?.rawData,
+      rawDataLength: ftueAnalytics?.rawData?.length,
+      filtersReady,
+      selectedOS: Array.from(selectedOS),
+      selectedBrowser: Array.from(selectedBrowser),
+      selectedTimezone: Array.from(selectedTimezone),
+      selectedLanguage: Array.from(selectedLanguage),
+      filterOptions
+    });
+
     if (!ftueAnalytics?.rawData) return [];
 
-    return ftueAnalytics.rawData.filter(user => {
+    // If filters aren't ready yet, return all data (don't filter)
+    if (!filtersReady) {
+      console.log('🔍 Filters not ready, returning all data');
+      return ftueAnalytics.rawData;
+    }
+
+    // Log first user's data for debugging
+    if (ftueAnalytics.rawData.length > 0) {
+      const firstUser = ftueAnalytics.rawData[0];
+      console.log('🔍 Sample user data:', {
+        username: firstUser.username,
+        os: firstUser.ftueFeedback?.os,
+        browser: firstUser.ftueFeedback?.browser,
+        timezone: firstUser.ftueFeedback?.timezone,
+        language: firstUser.language
+      });
+    }
+
+    const results = ftueAnalytics.rawData.filter(user => {
       const userOS = user.ftueFeedback?.os;
       const userBrowser = user.ftueFeedback?.browser;
       const userTimezone = user.ftueFeedback?.timezone;
-      const userLanguage = user.language || 'English';
+      // Convert language code to display name (e.g., 'en' -> 'English')
+      const userLangCode = user.language || 'en';
+      const userLanguage = languageCodeToName[userLangCode] || 'English';
 
       // Each category: user must match at least one selected option
       // If category has no selections, no users can match (returns false)
@@ -129,7 +171,10 @@ const Analytics = ({ activePanel }) => {
       // Cumulative AND across all categories
       return osMatch && browserMatch && timezoneMatch && languageMatch;
     });
-  }, [ftueAnalytics?.rawData, selectedOS, selectedBrowser, selectedTimezone, selectedLanguage]);
+
+    console.log('🔍 Filter results:', results.length, 'out of', ftueAnalytics.rawData.length);
+    return results;
+  }, [ftueAnalytics?.rawData, filtersReady, selectedOS, selectedBrowser, selectedTimezone, selectedLanguage]);
 
   // Recalculate analytics based on filtered data
   const filteredAnalytics = useMemo(() => {
@@ -256,9 +301,21 @@ const Analytics = ({ activePanel }) => {
     );
   };
 
+  const handleRefresh = () => {
+    fetchAnalytics();
+    fetchFtueAnalytics();
+  };
+
   return (
     <div className="analytics-container">
-      <h2>📊 Analytics</h2>
+      <div className="analytics-header">
+        <h2>📊 Analytics</h2>
+        <div className="shared-buttons">
+          <button onClick={handleRefresh} className="btn-basic btn-mini">
+            🔄 Refresh Data
+          </button>
+        </div>
+      </div>
 
       <div className="date-range-selector">
         <label>Show last: </label>
@@ -441,7 +498,7 @@ const Analytics = ({ activePanel }) => {
                             `Step ${user.ftuestep || 0}`
                           }
                         </td>
-                        <td>{user.language || 'English'}</td>
+                        <td>{languageCodeToName[user.language] || 'English'}</td>
                         <td>{user.ftueFeedback?.os || 'Unknown'}</td>
                         <td>{user.ftueFeedback?.browser || 'Unknown'}</td>
                         <td>{user.ftueFeedback?.timezone || 'Unknown'}</td>
