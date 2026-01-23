@@ -1509,7 +1509,7 @@ const handleHeal = async (recipe) => {
                       backpack={backpack}
                       masterResources={masterResources}
                       currentPlayer={currentPlayer}
-                      devOnly={recipe.requires === 'devonly'}
+                      devOnly={false}
                     />
                   );
                   });
