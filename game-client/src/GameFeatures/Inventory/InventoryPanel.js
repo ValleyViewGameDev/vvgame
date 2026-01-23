@@ -4,11 +4,12 @@ import axios from 'axios';
 import Panel from '../../UI/Panels/Panel';
 import '../../UI/Panels/Panel.css';
 import '../../UI/Buttons/SharedButtons.css';
-import './InventoryPanel.css'; 
+import './InventoryPanel.css';
 import { useStrings } from '../../UI/StringsContext';
 import { getLocalizedString } from '../../Utils/stringLookup';
 import { deriveWarehouseAndBackpackCapacity, isCurrency, hasRoomFor } from '../../Utils/InventoryManagement';
 import ManageContentsModal from './ManageContentsModal';
+import TransactionButton from '../../UI/Buttons/TransactionButton';
 
 function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer, setCurrentPlayer, setInventory, setBackpack, updateStatus, openPanel, setActiveStation, setModalContent, setIsModalOpen }) {
 
@@ -648,13 +649,14 @@ function InventoryPanel({ onClose, masterResources, globalTuning, currentPlayer,
                         />
 
                         <div className="modal-buttons shared-buttons">
-                            <button 
-                                className="btn-basic btn-modal btn-success" 
-                                onClick={handleMoveAll} 
+                            <TransactionButton
+                                className="btn-basic btn-modal btn-success"
+                                onAction={handleMoveAll}
                                 disabled={isAddAllDisabled}
+                                transactionKey={`move-all-${currentPlayer?.gridId}`}
                             >
                                 {isAtHome ? strings[189] : strings[190]}
-                            </button>
+                            </TransactionButton>
                         </div>
                     </div>
                 </div>
