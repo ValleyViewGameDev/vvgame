@@ -10,7 +10,7 @@ const Feedback = ({ activePanel }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [aggregatedData, setAggregatedData] = useState(null);
-  const [startDate, setStartDate] = useState(new Date('2025-10-01').toISOString().split('T')[0]);
+  const [startDate, setStartDate] = useState('2026-01-09');
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [sortField, setSortField] = useState('username');
   const [sortDirection, setSortDirection] = useState('asc');

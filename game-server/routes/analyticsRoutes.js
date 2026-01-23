@@ -137,6 +137,7 @@ router.get('/ftue-analytics', async (req, res) => {
           createdAt: 1,
           lastActive: 1,
           username: 1,
+          language: 1,
           'ftueFeedback.os': 1,
           'ftueFeedback.browser': 1,
           'ftueFeedback.timezone': 1
@@ -243,6 +244,7 @@ router.get('/ftue-analytics', async (req, res) => {
           createdAt: 1,
           lastActive: 1,
           username: 1,
+          language: 1,
           'ftueFeedback.os': 1,
           'ftueFeedback.browser': 1,
           'ftueFeedback.timezone': 1
