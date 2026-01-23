@@ -72,6 +72,10 @@ export const RenderResourcesCanvas = ({
 
     console.log(`🎨 [RESOURCE RENDER] Starting render v${thisRenderVersion} for ${resources.length} resources at TILE_SIZE: ${TILE_SIZE}`);
 
+    // Log SVG cache state before rendering
+    const cacheStats = SVGAssetManager.getCacheStats();
+    console.log(`🎨 [RESOURCE RENDER] SVG Cache before render: SVGs=${cacheStats.svgFiles}, Textures=${cacheStats.textures}, Loading=${cacheStats.loading}`);
+
     // Add timeout to prevent stuck renders
     const renderTimeout = setTimeout(() => {
       console.warn('⏰ [RESOURCE RENDER] Render timed out after 10 seconds, resetting lock');
@@ -155,7 +159,10 @@ export const RenderResourcesCanvas = ({
         await renderResourceOverlay(ctx, resource, TILE_SIZE);
       }
 
+      // Log final render stats
+      const finalCacheStats = SVGAssetManager.getCacheStats();
       console.log(`✅ [RESOURCE RENDER] Render v${thisRenderVersion} completed - ${resources.length} resources at TILE_SIZE: ${TILE_SIZE}`);
+      console.log(`✅ [RESOURCE RENDER] SVG Cache after render: SVGs=${finalCacheStats.svgFiles}, Textures=${finalCacheStats.textures}, Loading=${finalCacheStats.loading}`);
     } finally {
       clearTimeout(renderTimeout);
       // Only clear the lock if this is still the current render

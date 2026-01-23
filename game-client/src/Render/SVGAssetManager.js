@@ -195,6 +195,99 @@ class SVGAssetManager {
       loading: this.loadingPromises.size
     };
   }
+
+  // Preload all SVGs for resources in a grid (returns promise that resolves when all are loaded)
+  async preloadResourceSVGs(resources, masterResources, targetSize = 64) {
+    if (!resources || !masterResources) {
+      console.warn('🖼️ [SVG PRELOAD] Missing resources or masterResources');
+      return { success: false, loaded: 0, failed: 0, skipped: 0 };
+    }
+
+    console.log(`🖼️ [SVG PRELOAD] Starting preload for ${resources.length} resources at size ${targetSize}`);
+    const startTime = Date.now();
+
+    // Get unique resource types that have SVG filenames
+    const resourceTypesWithSVG = new Map();
+    for (const resource of resources) {
+      if (resource.type === 'shadow') continue; // Skip shadow tiles
+
+      const masterResource = masterResources.find(r => r.type === resource.type);
+      if (masterResource?.filename) {
+        resourceTypesWithSVG.set(resource.type, masterResource.filename);
+      }
+    }
+
+    console.log(`🖼️ [SVG PRELOAD] Found ${resourceTypesWithSVG.size} unique resource types with SVG files`);
+
+    let loaded = 0;
+    let failed = 0;
+    let skipped = 0;
+
+    // Preload each unique SVG
+    const preloadPromises = Array.from(resourceTypesWithSVG.entries()).map(async ([type, filename]) => {
+      // Check if already in cache
+      if (this.textureCache.has(`${filename}-${targetSize}-${Math.ceil(targetSize * (window.devicePixelRatio || 1))}`)) {
+        skipped++;
+        return { type, filename, status: 'cached' };
+      }
+
+      try {
+        const texture = await this.getSVGTexture(filename, targetSize);
+        if (texture) {
+          loaded++;
+          return { type, filename, status: 'loaded' };
+        } else {
+          failed++;
+          console.warn(`🖼️ [SVG PRELOAD] Failed to load: ${filename} for ${type}`);
+          return { type, filename, status: 'failed' };
+        }
+      } catch (error) {
+        failed++;
+        console.error(`🖼️ [SVG PRELOAD] Error loading ${filename}:`, error);
+        return { type, filename, status: 'error', error: error.message };
+      }
+    });
+
+    const results = await Promise.all(preloadPromises);
+    const duration = Date.now() - startTime;
+
+    console.log(`🖼️ [SVG PRELOAD] Complete in ${duration}ms - Loaded: ${loaded}, Cached: ${skipped}, Failed: ${failed}`);
+    console.log(`🖼️ [SVG PRELOAD] Cache stats after preload:`, this.getCacheStats());
+
+    return {
+      success: failed === 0,
+      loaded,
+      failed,
+      skipped,
+      duration,
+      results: results.filter(r => r.status === 'failed' || r.status === 'error')
+    };
+  }
+
+  // Diagnostic function to check SVG loading health
+  diagnoseLoadingState() {
+    const stats = this.getCacheStats();
+    const pendingLoads = Array.from(this.loadingPromises.keys());
+
+    console.log('🔍 [SVG DIAGNOSIS] ================================');
+    console.log('🔍 [SVG DIAGNOSIS] SVG Cache Status:');
+    console.log(`   - SVG files loaded: ${stats.svgFiles}`);
+    console.log(`   - Textures cached: ${stats.textures}`);
+    console.log(`   - Currently loading: ${stats.loading}`);
+
+    if (pendingLoads.length > 0) {
+      console.log(`   - Pending loads: ${pendingLoads.join(', ')}`);
+    }
+
+    // Check for stuck loading promises (shouldn't happen with timeouts, but useful diagnostic)
+    console.log('🔍 [SVG DIAGNOSIS] ================================');
+
+    return {
+      ...stats,
+      pendingLoads,
+      isHealthy: stats.loading === 0 // No pending loads = healthy state
+    };
+  }
 }
 
 // Export singleton instance

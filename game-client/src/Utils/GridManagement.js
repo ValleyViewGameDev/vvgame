@@ -381,8 +381,65 @@ export const changePlayerLocation = async (
     // Now properly initialize the grid with tiles and resources using the correct function
     console.log('🔄 [COMMIT] Initializing grid with proper tile loading...');
     await initializeGrid(TILE_SIZE, toLocation.g, setGrid, setResources, setTileTypes, updateStatus, updatedPlayer);
-    
+
     console.log('✅ [COMMIT] State successfully committed with proper grid initialization');
+
+    // ================================
+    // POST-INIT DIAGNOSTICS
+    // ================================
+    console.log('🔍 [POST-INIT] Running grid transition diagnostics...');
+
+    // Check tile state
+    const postInitTiles = GlobalGridStateTilesAndResources.getTiles();
+    const postInitResources = GlobalGridStateTilesAndResources.getResources();
+
+    console.log('🔍 [POST-INIT] Tile/Resource State:', {
+      tilesCount: postInitTiles?.length || 0,
+      tilesIsArray: Array.isArray(postInitTiles),
+      tilesFirstItem: postInitTiles?.[0],
+      resourcesCount: postInitResources?.length || 0,
+      resourcesIsArray: Array.isArray(postInitResources),
+      resourcesFirstItem: postInitResources?.[0],
+      resourcesWithFilename: postInitResources?.filter(r => {
+        const master = masterResources?.find(m => m.type === r.type);
+        return master?.filename;
+      })?.length || 0
+    });
+
+    // Check SVG cache state
+    const svgDiagnosis = SVGAssetManager.diagnoseLoadingState();
+    console.log('🔍 [POST-INIT] SVG Cache Health:', svgDiagnosis);
+
+    // Log if there are resources that need SVGs but SVG cache is empty
+    if (postInitResources?.length > 0 && svgDiagnosis.textures === 0) {
+      console.warn('⚠️ [POST-INIT] WARNING: Resources exist but SVG texture cache is empty!');
+      console.warn('⚠️ [POST-INIT] This may cause blank resource rendering.');
+    }
+
+    // ================================
+    // SVG PRELOADING
+    // ================================
+    // Preload SVGs to ensure they're ready before we fade in
+    if (masterResources && postInitResources?.length > 0) {
+      console.log('🖼️ [SVG PRELOAD] Preloading SVGs for grid resources...');
+      if (updateStatus) {
+        updateStatus('Loading assets...');
+      }
+
+      const preloadResult = await SVGAssetManager.preloadResourceSVGs(
+        postInitResources,
+        masterResources,
+        TILE_SIZE
+      );
+
+      if (!preloadResult.success) {
+        console.warn('⚠️ [SVG PRELOAD] Some SVGs failed to load:', preloadResult.results);
+      } else {
+        console.log('✅ [SVG PRELOAD] All SVGs preloaded successfully');
+      }
+    } else {
+      console.log('🖼️ [SVG PRELOAD] Skipping preload - no masterResources or no resources');
+    }
 
     // ✅ CHECK: First time visiting valley - award trophy and show notification
     if (toLocation.gtype && toLocation.gtype.startsWith('valley') && strings) {
