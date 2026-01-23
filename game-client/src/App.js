@@ -2644,6 +2644,8 @@ return (
 
     <div className="nav-column">
 
+      {currentPlayer && (
+        <>
         <div className="zoom-controls">
           <div className="zoom-button-container">
             <button className="zoom-button zoom-in" disabled={!currentPlayer} onClick={zoomIn}><span>+</span></button>
@@ -2652,10 +2654,10 @@ return (
         </div>
 
       <button className={`nav-button ${!activePanel ? 'selected' : ''}`} title={strings[12009]} onClick={() => closePanel()}>👸</button>
-      <button 
-        className={`nav-button ${activePanel === 'SocialPanel' ? 'selected' : ''}`} 
-        title="My Profile" 
-        disabled={!currentPlayer} 
+      <button
+        className={`nav-button ${activePanel === 'SocialPanel' ? 'selected' : ''}`}
+        title="My Profile"
+        disabled={!currentPlayer}
         onClick={() => {
           if (currentPlayer) {
             // Create PC data structure for current player to pass to SocialPanel
@@ -2717,8 +2719,8 @@ return (
       )}
 
       {!currentPlayer?.firsttimeuser && isOnOwnHomestead && (
-        <button 
-          className={`nav-button ${activePanel === 'PetsPanel' ? 'selected' : ''}`} title={strings[12014]} disabled={!currentPlayer} 
+        <button
+          className={`nav-button ${activePanel === 'PetsPanel' ? 'selected' : ''}`} title={strings[12014]} disabled={!currentPlayer}
           onClick={() => {
             if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
             if (currentPlayer?.location?.gtype === 'homestead' && !isOnOwnHomestead && !isDeveloper) {updateStatus(90);return;}
@@ -2728,8 +2730,8 @@ return (
       )}
 
       {!currentPlayer?.firsttimeuser && (
-        <button 
-          className={`nav-button ${activePanel === 'BuyDecoPanel' ? 'selected' : ''}`} title={strings[12011]} disabled={!currentPlayer} 
+        <button
+          className={`nav-button ${activePanel === 'BuyDecoPanel' ? 'selected' : ''}`} title={strings[12011]} disabled={!currentPlayer}
           onClick={() => {
             if (currentPlayer.iscamping || currentPlayer.isinboat) {updateStatus(340);return;}
             // Check if on another player's homestead
@@ -2755,6 +2757,8 @@ return (
         <button className={`nav-button ${activePanel === 'DebugPanel' ? 'selected' : ''}`} title="Debug" onClick={() => openPanel('DebugPanel')}>
           🐞
         </button>
+      )}
+        </>
       )}
     </div>
 

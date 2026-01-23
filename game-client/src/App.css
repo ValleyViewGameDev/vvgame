@@ -375,7 +375,7 @@ body {
   position: absolute;
   top: 84px; /* Align directly below status bar (60px header + 24px status bar) */
   z-index: 100;
-  background-color: var(--settlement-gridline-color, #45a049); /* Match settlement grid background */
+  background-color: var(--settlement-gridline-color, #82bb4dff); /* Match settlement grid background */
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on mobile */
   overscroll-behavior: contain; /* Prevent scroll chaining and reduce bounce effect */
 }
@@ -483,7 +483,7 @@ body {
 .keyart-wrapper {
   position: fixed;
   top: 85px; /* Account for header height + small buffer */
-  left: 205px; /* Account for nav column (60px) + base panel (220px) + small buffer (18px) */
+  left: 240px; /* Account for nav column (60px) + base panel (220px) + small buffer (18px) */
   overflow: hidden;
 }
 
