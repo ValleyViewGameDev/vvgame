@@ -675,13 +675,14 @@ function Outpost({ onClose, backpack, setBackpack, currentPlayer, setCurrentPlay
               />
 
               <div className="modal-buttons shared-buttons">
-                <button
+                <TransactionButton
                   className="btn-basic btn-modal btn-success"
-                  onClick={handleSendAllHome}
+                  onAction={handleSendAllHome}
                   disabled={isAddAllDisabled}
+                  transactionKey={`send-all-home-${gridId}`}
                 >
                   {strings[189] || 'Add All to Warehouse'}
-                </button>
+                </TransactionButton>
               </div>
             </div>
           </div>
