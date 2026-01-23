@@ -136,10 +136,24 @@ router.get('/ftue-analytics', async (req, res) => {
           ftuestep: 1,
           createdAt: 1,
           lastActive: 1,
-          username: 1
+          username: 1,
+          'ftueFeedback.os': 1,
+          'ftueFeedback.browser': 1,
+          'ftueFeedback.timezone': 1
         }
       }
     ]);
+
+    // Extract unique filter values from the data
+    const osValues = new Set();
+    const browserValues = new Set();
+    const timezoneValues = new Set();
+
+    ftueData.forEach(player => {
+      if (player.ftueFeedback?.os) osValues.add(player.ftueFeedback.os);
+      if (player.ftueFeedback?.browser) browserValues.add(player.ftueFeedback.browser);
+      if (player.ftueFeedback?.timezone) timezoneValues.add(player.ftueFeedback.timezone);
+    });
 
     // Process the data
     const stepCounts = {};
@@ -228,7 +242,10 @@ router.get('/ftue-analytics', async (req, res) => {
           ftuestep: 1,
           createdAt: 1,
           lastActive: 1,
-          username: 1
+          username: 1,
+          'ftueFeedback.os': 1,
+          'ftueFeedback.browser': 1,
+          'ftueFeedback.timezone': 1
         }
       },
       {
@@ -243,7 +260,13 @@ router.get('/ftue-analytics', async (req, res) => {
       dateRangeUsersCount: recentUsers.length,
       startDate: startDate.toISOString(),
       endDate: endDate.toISOString(),
-      rawData: recentUsers // Return all users within date range
+      rawData: recentUsers, // Return all users within date range
+      // Filter options for client-side filtering
+      filterOptions: {
+        os: Array.from(osValues).sort(),
+        browser: Array.from(browserValues).sort(),
+        timezone: Array.from(timezoneValues).sort()
+      }
     });
 
   } catch (error) {
