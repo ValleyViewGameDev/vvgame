@@ -2,7 +2,7 @@
   "costToRevive": 50,
   "percentageToRevive": 0.25,
   "maxCrops": 1000,
-  "maxFarmAnimals": 100,
+  "maxFarmAnimals": 50,
   "maxTownBuildings": 800,
   "doctorsPerHospital": 10,
   "warehouseCapacityGold": 100000,

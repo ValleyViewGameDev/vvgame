@@ -41,6 +41,8 @@ export const handleConstruction = async ({
   gridId,
   updateStatus,
   overridePosition, // Optional: { x, y } for cursor mode placement
+  globalTuning, // Optional: for limit checking
+  masterResources, // Optional: for limit checking
 }) => {
   if (!currentPlayer) {
     console.warn('Current Player not provided; inventory changes will not be saved.');
@@ -105,6 +107,41 @@ export const handleConstruction = async ({
       console.warn(`Cannot build ${selectedItem} - tile at (${occupiedTile.x}, ${occupiedTile.y}) is occupied.`);
       FloatingTextManager.addFloatingText(306, x, y, TILE_SIZE);
       return false; // Exit before deducting inventory
+    }
+  }
+
+  // Check limits for farm animals and town buildings
+  if (globalTuning) {
+    // Farm animal limit check (action: 'graze')
+    const isFarmAnimal = selectedResource.passable && selectedResource.action === 'graze';
+    if (isFarmAnimal) {
+      const maxFarmAnimals = globalTuning.maxFarmAnimals || 10;
+      const npcsInGrid = NPCsInGridManager.getNPCsInGrid(gridId);
+      const currentFarmAnimals = npcsInGrid
+        ? Object.values(npcsInGrid).filter(npc => npc.action === 'graze').length
+        : 0;
+
+      if (currentFarmAnimals >= maxFarmAnimals) {
+        console.warn(`Cannot buy ${selectedItem} - farm animal limit (${maxFarmAnimals}) reached.`);
+        FloatingTextManager.addFloatingText(407, x, y, TILE_SIZE); // 407: "Maximum reached for this location."
+        return false;
+      }
+    }
+
+    // Town building limit check (source: 'BuildTown' on non-homestead grids)
+    const isTownBuilding = selectedResource.source === 'BuildTown' && currentPlayer?.location?.gtype !== 'homestead';
+    if (isTownBuilding && masterResources) {
+      const maxTownBuildings = globalTuning.maxTownBuildings || 500;
+      const currentTownBuildings = resources.filter(resource => {
+        const masterResource = masterResources.find(mr => mr.type === resource.type);
+        return masterResource?.source === 'BuildTown';
+      }).length;
+
+      if (currentTownBuildings >= maxTownBuildings) {
+        console.warn(`Cannot build ${selectedItem} - town building limit (${maxTownBuildings}) reached.`);
+        FloatingTextManager.addFloatingText(407, x, y, TILE_SIZE); // 407: "Maximum reached for this location."
+        return false;
+      }
     }
   }
 

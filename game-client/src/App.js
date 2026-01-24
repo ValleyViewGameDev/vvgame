@@ -2063,6 +2063,8 @@ const handleTileClick = useCallback(async (rowIndex, colIndex) => {
       gridId,
       updateStatus,
       overridePosition: { x: colIndex, y: rowIndex }, // Build at clicked tile
+      globalTuning,
+      masterResources,
     });
     isProcessing = false;
     return;
