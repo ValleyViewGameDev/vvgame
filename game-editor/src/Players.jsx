@@ -552,7 +552,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
   // Handle bulk deletion of unstarted profiles
   const handleDeleteUnstartedProfiles = async () => {
     const now = new Date();
-    const tenDaysAgo = new Date(now.getTime() - (10 * 24 * 60 * 60 * 1000));
+    const daysAgo = new Date(now.getTime() - (7 * 24 * 60 * 60 * 1000));
     
     // Filter profiles that meet deletion criteria
     const profilesToDelete = players.filter(player => {
@@ -561,7 +561,7 @@ const Players = ({ selectedFrontier, selectedSettlement, frontiers, settlements,
       const isFirstTimeUser = player.firsttimeuser === true;
       
       // Check if last active is 10+ days ago (or never active) AND ftue step is 3 or less AND still a first-time user
-      return (!lastActive || lastActive <= tenDaysAgo) && ftueStep <= 3 && isFirstTimeUser;
+      return (!lastActive || lastActive <= daysAgo) && ftueStep <= 3 && isFirstTimeUser;
     });
     
     if (profilesToDelete.length === 0) {
