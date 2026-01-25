@@ -618,6 +618,71 @@ router.get('/load-grid/:gridId', async (req, res) => {
   }
 });
 
+// Batch load multiple grids (tiles and resources only, no NPCs/PCs)
+// Used by MultiGridManager for 9-grid seamless rendering
+router.post('/load-neighbor-grids', async (req, res) => {
+  const { gridIds } = req.body;
+
+  if (!Array.isArray(gridIds) || gridIds.length === 0 || gridIds.length > 9) {
+    return res.status(400).json({ error: 'Invalid gridIds array (must be 1-9 IDs)' });
+  }
+
+  console.log(`🗺️ Batch loading ${gridIds.length} grids for multi-grid rendering`);
+
+  try {
+    const grids = await Grid.find({ _id: { $in: gridIds } });
+    const result = {};
+
+    for (const gridDocument of grids) {
+      try {
+        // Load resources using GridResourceManager
+        let loadedResources;
+        try {
+          loadedResources = gridResourceManager.getResources(gridDocument);
+        } catch (resourceError) {
+          console.warn(`⚠️ Failed to load resources for grid ${gridDocument._id}:`, resourceError);
+          loadedResources = [];
+        }
+
+        // Enrich resources with masterResources data
+        const enrichedResources = loadedResources.map((resource) => {
+          const resourceTemplate = masterResources.find((res) => res.type === resource.type);
+          if (!resourceTemplate) {
+            return { ...resource };
+          }
+          return {
+            ...resourceTemplate,
+            ...resource,
+          };
+        });
+
+        // Load tiles using GridTileManager
+        let loadedTiles;
+        try {
+          loadedTiles = gridTileManager.getTiles(gridDocument);
+        } catch (tileError) {
+          console.warn(`⚠️ Failed to load tiles for grid ${gridDocument._id}:`, tileError);
+          loadedTiles = gridTileManager.createEmptyTileGrid();
+        }
+
+        result[gridDocument._id] = {
+          tiles: loadedTiles,
+          resources: enrichedResources,
+        };
+      } catch (gridError) {
+        console.warn(`⚠️ Failed to process grid ${gridDocument._id}:`, gridError);
+        // Skip this grid
+      }
+    }
+
+    console.log(`✅ Batch loaded ${Object.keys(result).length} grids`);
+    res.status(200).json({ grids: result });
+  } catch (error) {
+    console.error('❌ Error batch loading grids:', error);
+    res.status(500).json({ error: 'Failed to load neighbor grids.' });
+  }
+});
+
 // update-homestead-descriptor
 router.patch('/update-grid-availability/:gridId', async (req, res) => {
   const { gridId } = req.params;
