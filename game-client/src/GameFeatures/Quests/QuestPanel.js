@@ -102,13 +102,18 @@ function QuestPanel({ onClose, currentPlayer }) {
     fetchQuestTemplates();
   }, []);
 
+  // Filter out quests that don't exist in masterQuests (stale/deleted/renamed quests)
+  const validQuests = playerQuests.filter(quest =>
+    questTemplates.some(t => t.title === quest.questId)
+  );
+
   return (
     <Panel onClose={onClose} descriptionKey="1006" titleKey="1106" panelName="QuestPanel">
-      {(!playerQuests || playerQuests.length === 0) ? (
+      {(!validQuests || validQuests.length === 0) ? (
         <p>{strings[203]}</p>
       ) : (
         <div className="standard-panel">
-          {playerQuests.map((quest, index) => {
+          {validQuests.map((quest, index) => {
             const template = questTemplates.find(t => t.title === quest.questId);
             const goals = [
               {

@@ -15,7 +15,7 @@
   },
   {
     "index": 101,
-    "title": "My Secret",
+    "title": "Prospero's Secret",
     "symbol": "🧙🏻",
     "level": 15,
     "repeatable": false,
@@ -77,7 +77,7 @@
     "repeatable": true,
     "giver": "The Shepherd",
     "reward": "Money",
-    "rewardqty": 75,
+    "rewardqty": 90,
     "xp": 2,
     "goal1action": "Collect",
     "goal1item": "Wheat",
@@ -119,22 +119,22 @@
   },
   {
     "index": 17,
-    "title": "Fruitful Harvest",
+    "title": "Cook's Harvest",
     "symbol": "👵🏻",
     "level": 2,
     "repeatable": true,
     "giver": "The Shepherd",
     "reward": "Money",
-    "rewardqty": 500,
+    "rewardqty": 800,
     "xp": 3,
     "goal1action": "Collect",
-    "goal1item": "Strawberry",
-    "goal1qty": 20,
+    "goal1item": "Sugarcane",
+    "goal1qty": 18,
     "goal2action": "Collect",
-    "goal2item": "Apple",
+    "goal2item": "Onion",
     "goal2qty": 12,
     "goal3action": "Collect",
-    "goal3item": "Tomato",
+    "goal3item": "Garlic",
     "goal3qty": 8
   },
   {
@@ -160,6 +160,7 @@
     "giver": "The Shepherd",
     "reward": "Milk",
     "rewardqty": 4,
+    "xp": 5,
     "goal1action": "Buy",
     "goal1item": "Cow",
     "goal1qty": 1
@@ -229,6 +230,7 @@
     "giver": "The Shepherd",
     "reward": "Wool",
     "rewardqty": 20,
+    "xp": 5,
     "goal1action": "Buy",
     "goal1item": "Sheep",
     "goal1qty": 1
@@ -284,6 +286,7 @@
     "giver": "The Shepherd",
     "reward": "Money",
     "rewardqty": 100,
+    "xp": 5,
     "goal1action": "Craft",
     "goal1item": "Chicken Feed",
     "goal1qty": 5
@@ -403,6 +406,7 @@
     "giver": "Mistress Quickly",
     "reward": "Bread",
     "rewardqty": 15,
+    "xp": 5,
     "goal1action": "Build",
     "goal1item": "Oven",
     "goal1qty": 1
@@ -768,16 +772,16 @@
   },
   {
     "index": 52,
-    "title": "Idols of the Self",
+    "title": "Make Thy Table",
     "symbol": "👨🏽‍🎨",
     "level": 11,
     "repeatable": true,
     "giver": "Feste",
-    "reward": "Wood",
+    "reward": "Daisy",
     "rewardqty": 20,
     "xp": 3,
     "goal1action": "Craft",
-    "goal1item": "Carved Statue",
+    "goal1item": "Furniture",
     "goal1qty": 10
   },
   {
@@ -795,8 +799,8 @@
     "goal1qty": 20
   },
   {
-    "index": 58,
-    "title": "Steel Thy Spirit",
+    "index": 102,
+    "title": "The Long Blade",
     "symbol": "💂",
     "level": 2,
     "repeatable": false,
@@ -805,7 +809,7 @@
     "rewardqty": 15,
     "xp": 10,
     "goal1action": "Acquire",
-    "goal1item": "Combat",
+    "goal1item": "Long Sword",
     "goal1qty": 1
   },
   {
@@ -1044,7 +1048,7 @@
   },
   {
     "index": 100,
-    "title": "My Secret",
+    "title": "Titania's Secret",
     "symbol": "🧝‍♀️",
     "level": 15,
     "repeatable": false,
@@ -1084,20 +1088,6 @@
     "xp": 40,
     "goal1action": "Vote",
     "goal1item": "Election",
-    "goal1qty": 1
-  },
-  {
-    "index": 78,
-    "title": "Enlighten the Path",
-    "symbol": "👩🏻‍⚖️",
-    "level": 2,
-    "repeatable": false,
-    "giver": "Portia",
-    "reward": "Gem",
-    "rewardqty": 2,
-    "xp": 20,
-    "goal1action": "Acquire",
-    "goal1item": "Education",
     "goal1qty": 1
   },
   {
@@ -1200,7 +1190,7 @@
   },
   {
     "index": 86,
-    "title": "My Secret",
+    "title": "Portia's Secret",
     "symbol": "👩🏻‍⚖️",
     "level": 15,
     "repeatable": false,
