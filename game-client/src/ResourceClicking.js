@@ -556,6 +556,13 @@ async function handleReplant(
   // For trees, local state was already updated optimistically in handleDooberClick
   // For non-trees, update local state now
   const isTree = farmplotResource.source === 'tree';
+
+  // Start grow animation BEFORE updating state so canvas skips rendering this resource
+  // This prevents the resource from appearing before the animation plays
+  if (!isTree && enrichedNewResource.symbol && TILE_SIZE) {
+    createPlantGrowEffect(col, row, TILE_SIZE, enrichedNewResource.symbol, null, enrichedNewResource.filename);
+  }
+
   if (!isTree) {
     const currentResources = GlobalGridStateTilesAndResources.getResources();
     const finalResources = [...currentResources, enrichedNewResource];
@@ -586,11 +593,7 @@ async function handleReplant(
 
     if (gridUpdateResponse?.success) {
       console.log(`✅ handleReplant: Successfully planted ${farmplotResource.type} at (${col}, ${row})`);
-      // Show grow VFX for the replanted farmplot, but skip animation for trees
-      // Trees instantly replace without the seed grow animation
-      if (enrichedNewResource.symbol && TILE_SIZE && farmplotResource.source !== 'tree') {
-        createPlantGrowEffect(col, row, TILE_SIZE, enrichedNewResource.symbol, null, enrichedNewResource.filename);
-      }
+      // Grow animation already started before state update (see above)
     } else {
       throw new Error('Server failed to confirm the replant.');
     }

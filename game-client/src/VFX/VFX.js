@@ -247,12 +247,10 @@ export const createPlantGrowEffect = (x, y, TILE_SIZE, emoji, onComplete, filena
             gameContainer.removeChild(particle);
         }
         animatingResources.delete(posKey);
-        animationVersion++; // Increment to signal canvas needs to re-render
-        // Force canvas to re-render
+        animationVersion++;
         if (forceResourceRender) {
             forceResourceRender();
         }
-        // Call the completion callback if provided
         if (onComplete) {
             onComplete();
         }

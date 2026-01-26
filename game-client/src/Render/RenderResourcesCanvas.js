@@ -70,11 +70,6 @@ export const RenderResourcesCanvas = ({
     }
     renderingRef.current = true;
 
-    console.log(`🎨 [RESOURCE RENDER] Starting render v${thisRenderVersion} for ${resources.length} resources at TILE_SIZE: ${TILE_SIZE}`);
-
-    // Log SVG cache state before rendering
-    const cacheStats = SVGAssetManager.getCacheStats();
-    console.log(`🎨 [RESOURCE RENDER] SVG Cache before render: SVGs=${cacheStats.svgFiles}, Textures=${cacheStats.textures}, Loading=${cacheStats.loading}`);
 
     // Add timeout to prevent stuck renders
     const renderTimeout = setTimeout(() => {
@@ -115,7 +110,6 @@ export const RenderResourcesCanvas = ({
 
       // Check if this render is still current before expensive operations
       if (thisRenderVersion !== renderVersionRef.current) {
-        console.log(`🚫 [RESOURCE RENDER] Render v${thisRenderVersion} is stale (current: v${renderVersionRef.current}), aborting`);
         return;
       }
 
@@ -123,7 +117,6 @@ export const RenderResourcesCanvas = ({
       for (const resource of resources) {
         // Check for stale render periodically during the loop
         if (thisRenderVersion !== renderVersionRef.current) {
-          console.log(`🚫 [RESOURCE RENDER] Render v${thisRenderVersion} became stale during resource loop, aborting`);
           return;
         }
 
@@ -153,16 +146,10 @@ export const RenderResourcesCanvas = ({
 
       for (const resource of overlayResources) {
         if (thisRenderVersion !== renderVersionRef.current) {
-          console.log(`🚫 [RESOURCE RENDER] Render v${thisRenderVersion} became stale during overlay loop, aborting`);
           return;
         }
         await renderResourceOverlay(ctx, resource, TILE_SIZE);
       }
-
-      // Log final render stats
-      const finalCacheStats = SVGAssetManager.getCacheStats();
-      console.log(`✅ [RESOURCE RENDER] Render v${thisRenderVersion} completed - ${resources.length} resources at TILE_SIZE: ${TILE_SIZE}`);
-      console.log(`✅ [RESOURCE RENDER] SVG Cache after render: SVGs=${finalCacheStats.svgFiles}, Textures=${finalCacheStats.textures}, Loading=${finalCacheStats.loading}`);
     } finally {
       clearTimeout(renderTimeout);
       // Only clear the lock if this is still the current render
@@ -302,8 +289,6 @@ export const RenderResourcesCanvas = ({
 
   // Re-render when dependencies change
   useEffect(() => {
-    console.log(`🔄 [RESOURCE USEEFFECT] useEffect triggered with TILE_SIZE: ${TILE_SIZE}, resources count: ${resources?.length || 0}`);
-    
     const currentData = JSON.stringify({
       resources: resources?.map(r => ({
         x: r.x,
@@ -318,19 +303,16 @@ export const RenderResourcesCanvas = ({
       tradingReady: tradingStatus?.ready,
       mailboxBadge: badgeState?.mailbox,
       electionPhase,
-      playerId: currentPlayer?.id, // Include player ID for trade status changes
-      animationVersion: getAnimationVersion() // Re-render when grow animations complete
+      playerId: currentPlayer?.id,
+      animationVersion: getAnimationVersion()
     });
-    
+
     if (currentData !== lastRenderData.current) {
-      console.log(`✅ [RESOURCE USEEFFECT] Data changed, triggering render with TILE_SIZE: ${TILE_SIZE}`);
       renderResources().catch(error => {
         console.error('Error rendering resources:', error);
-        renderingRef.current = false; // Reset flag on error
+        renderingRef.current = false;
       });
       lastRenderData.current = currentData;
-    } else {
-      console.log(`🔄 [RESOURCE USEEFFECT] Data unchanged, skipping render with TILE_SIZE: ${TILE_SIZE}`);
     }
   }, [resources, TILE_SIZE, craftingStatus, tradingStatus, badgeState, electionPhase, currentPlayer, renderTrigger]);
 
